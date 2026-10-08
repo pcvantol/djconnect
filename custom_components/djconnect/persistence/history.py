@@ -39,13 +39,33 @@ class HistoricalDJMomentProjection:
 
 
 class HistoricalProjectionRepository(PersistenceRepository):
-    async def async_session_records(self, owner_profile_id: str, *, limit: int = 501) -> list[dict]:
-        """Bounded Profile-owned aggregate read; never restore a Runtime."""
+    async def async_owner_revision(self, owner_profile_id: str, *, include_active: bool = False) -> str:
+        def read(tx):
+            status = "" if include_active else " AND lifecycle_status IN ('ENDED','INTERRUPTED')"
+            row = tx.fetchone(
+                "SELECT COUNT(*),COALESCE(SUM(history_revision),0),COALESCE(MAX(updated_at),'') FROM djconnect_persistent_sessions WHERE owner_profile_id=?"
+                + status,
+                (owner_profile_id,),
+            )
+            return ":".join(str(v) for v in row)
+
+        return await self._async_in_transaction(read)
+
+    async def async_session_records(
+        self, owner_profile_id: str, *, limit: int = 51, before=None, include_active: bool = False
+    ) -> list[dict]:
+        """Bounded keyset read: old pages are never silently lost behind a fixed window."""
 
         def read(tx):
+            status = "" if include_active else " AND lifecycle_status IN ('ENDED','INTERRUPTED')"
+            boundary = " AND (created_at,session_id)<(?,?)" if before else ""
+            parameters = (owner_profile_id, *(tuple(before) if before else ()), min(251, limit))
             rows = tx.fetchall(
-                "SELECT session_id,owner_profile_id,lifecycle_status,created_at,started_at,ended_at,interrupted_at,history_revision,history_enabled FROM djconnect_persistent_sessions WHERE owner_profile_id=? ORDER BY created_at DESC,session_id DESC LIMIT ?",
-                (owner_profile_id, min(501, limit)),
+                "SELECT session_id,owner_profile_id,lifecycle_status,created_at,started_at,ended_at,interrupted_at,history_revision,history_enabled FROM djconnect_persistent_sessions WHERE owner_profile_id=?"
+                + status
+                + boundary
+                + " ORDER BY created_at DESC,session_id DESC LIMIT ?",
+                parameters,
             )
             keys = (
                 "session_id",
@@ -61,7 +81,6 @@ class HistoricalProjectionRepository(PersistenceRepository):
             return [dict(zip(keys, row)) for row in rows]
 
         return await self._async_in_transaction(read)
-
 
     async def async_session_record(self, session_id: str) -> dict | None:
         def read(tx):
@@ -86,12 +105,29 @@ class HistoricalProjectionRepository(PersistenceRepository):
 
 
     async def async_entry_records(
-        self, owner_profile_id: str, session_id: str, *, after: int = 0, limit: int = 251
+        self,
+        owner_profile_id: str,
+        session_id: str,
+        *,
+        after: int = 0,
+        limit: int = 251,
+        before: int | None = None,
+        descending: bool = False,
     ) -> list[dict]:
         def read(tx):
+            clause = " AND entry_order<?" if before is not None else ""
+            params = [owner_profile_id, session_id, after]
+            if before is not None:
+                params.append(before)
+            params.append(min(251, limit))
+            direction = "DESC" if descending else "ASC"
             rows = tx.fetchall(
-                "SELECT entry_id,session_id,entry_order,kind,reference_id,body,occurred_at,retained_until,visibility,revoked_at FROM djconnect_session_entries WHERE owner_profile_id=? AND session_id=? AND entry_order>? ORDER BY entry_order LIMIT ?",
-                (owner_profile_id, session_id, after, min(251, limit)),
+                "SELECT entry_id,session_id,entry_order,kind,reference_id,body,occurred_at,retained_until,visibility,revoked_at FROM djconnect_session_entries WHERE owner_profile_id=? AND session_id=? AND entry_order>?"
+                + clause
+                + " ORDER BY entry_order "
+                + direction
+                + " LIMIT ?",
+                tuple(params),
             )
             keys = (
                 "entry_id",
@@ -265,7 +301,16 @@ class HistoricalProjectionRepository(PersistenceRepository):
             return len(session_rows), deleted_moments, len(orphan_rows), len(session_rows)
 
         return await self._async_in_transaction(cleanup)
-    async def async_project_session(self, session: PersistentSession) -> HistoricalSessionProjection:
+    def _project_terminal_tx(
+        self, tx: PersistenceTransaction, session: PersistentSession
+    ) -> HistoricalSessionProjection:
+        """Existing aggregate/header and accepted qualified projections, one transaction."""
+        existing = tx.fetchone(
+            "SELECT historical_session_id,originating_session_id,owner_profile_id,lifecycle_outcome,created_at,projection_version FROM djconnect_historical_sessions WHERE originating_session_id=?",
+            (session.session_id,),
+        )
+        if existing is not None:
+            return self._session_from_row(existing)
         projection = HistoricalSessionProjection(
             f"history-{uuid4().hex}",
             session.session_id,
@@ -273,32 +318,58 @@ class HistoricalProjectionRepository(PersistenceRepository):
             session.lifecycle_status,
             session.ended_at or session.interrupted_at or session.created_at,
         )
-
-        def write(tx: PersistenceTransaction) -> HistoricalSessionProjection:
-            existing = tx.fetchone(
-                "SELECT historical_session_id, originating_session_id, owner_profile_id, "
-                "lifecycle_outcome, created_at, projection_version "
-                "FROM djconnect_historical_sessions WHERE originating_session_id=?",
-                (session.session_id,),
-            )
-            if existing is not None:
-                return self._session_from_row(existing)
+        tx.execute(
+            "INSERT INTO djconnect_historical_sessions (historical_session_id,originating_session_id,owner_profile_id,lifecycle_outcome,started_at,ended_at,interrupted_at,interruption_reason,start_strategy,session_mood,session_direction,created_at,projection_version) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,1)",
+            (
+                projection.historical_session_id,
+                session.session_id,
+                session.owner_profile_id,
+                session.lifecycle_status,
+                session.started_at,
+                session.ended_at,
+                session.interrupted_at,
+                session.interruption_reason,
+                session.start_strategy,
+                session.initial_mood,
+                session.initial_direction,
+                projection.created_at,
+            ),
+        )
+        rows = tx.fetchall(
+            "SELECT entry_id,reference_id,body,entry_order,occurred_at FROM djconnect_session_entries WHERE session_id=? AND kind='dj_moment' AND visibility='owner' AND revoked_at='' ORDER BY entry_order",
+            (session.session_id,),
+        )
+        for entry_id, reference, raw, order, stamp in rows:
+            body = json.loads(raw)
+            if body.get("archive_basis") not in {
+                "cc0_normalized_fields_v1",
+                "runtime_authored_direction_v1",
+            }:
+                continue
             tx.execute(
-                "INSERT OR IGNORE INTO djconnect_historical_sessions "
-                "(historical_session_id, originating_session_id, owner_profile_id, "
-                "lifecycle_outcome, started_at, ended_at, interrupted_at, interruption_reason, "
-                "start_strategy, session_mood, session_direction, created_at, projection_version) "
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                "INSERT OR IGNORE INTO djconnect_historical_moments (historical_moment_id,originating_session_id,originating_moment_id,owner_profile_id,moment_type,rendered_text,presentation_metadata,visibility,ordering,created_at,projection_version) VALUES (?,?,?,?,?,?,?,'owner',?,?,1)",
                 (
-                    projection.historical_session_id, session.session_id, session.owner_profile_id,
-                    session.lifecycle_status, session.started_at, session.ended_at, session.interrupted_at,
-                    session.interruption_reason, session.start_strategy, session.initial_mood,
-                    session.initial_direction, projection.created_at, 1,
+                    entry_id,
+                    session.session_id,
+                    reference,
+                    session.owner_profile_id,
+                    body["moment_type"],
+                    body["text"],
+                    json.dumps(
+                        {
+                            "archive_basis": body["archive_basis"],
+                            "source_attribution": body.get("source_attribution", {}),
+                        },
+                        sort_keys=True,
+                    ),
+                    order,
+                    stamp,
                 ),
             )
-            return projection
+        return projection
 
-        return await self._async_in_transaction(write)
+    async def async_project_session(self, session: PersistentSession) -> HistoricalSessionProjection:
+        return await self._async_in_transaction(lambda tx: self._project_terminal_tx(tx, session))
 
     async def async_project_moment(
         self,

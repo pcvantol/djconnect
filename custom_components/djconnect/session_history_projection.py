@@ -36,7 +36,11 @@ def text_highlights(text: str, query: str) -> list[dict]:
 
     for char in text:
         length = len(char.encode("utf-16-le")) // 2
-        if cluster and not unicodedata.combining(char):
+        if (
+            cluster
+            and not unicodedata.combining(char)
+            and normalize_text(cluster + char) == normalize_text(cluster) + normalize_text(char)
+        ):
             emit(cluster, start, offset)
             cluster = ""
             start = offset
@@ -67,11 +71,11 @@ class HistoryCursorCodec:
     def __init__(self):
         self._key = secrets.token_bytes(32)
 
-    def encode(self, scope: dict, after: int) -> str:
+    def encode(self, scope: dict, after) -> str:
         body = json.dumps({**scope, "after": after}, sort_keys=True).encode()
         return base64.urlsafe_b64encode(body + hmac.digest(self._key, body, "sha256")).decode()
 
-    def decode(self, token: str, scope: dict) -> int:
+    def decode(self, token: str, scope: dict):
         try:
             if not isinstance(token, str) or len(token) > 4096:
                 raise ValueError()
@@ -81,7 +85,13 @@ class HistoryCursorCodec:
                 raise ValueError()
             value = json.loads(body)
             after = value.pop("after")
-            if value != scope or not isinstance(after, int) or isinstance(after, bool) or after < 0:
+            offset_ok = isinstance(after, int) and not isinstance(after, bool) and after >= 0
+            keyset_ok = (
+                isinstance(after, list)
+                and len(after) == 2
+                and all(isinstance(x, str) and 0 < len(x) <= 128 for x in after)
+            )
+            if value != scope or not (offset_ok or keyset_ok):
                 raise ValueError()
             return after
         except (ValueError, TypeError, KeyError, UnicodeError) as exc:

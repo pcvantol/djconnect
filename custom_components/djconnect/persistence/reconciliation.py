@@ -24,7 +24,5 @@ class PersistentSessionStartupReconciler:
     async def async_reconcile(self) -> StartupReconciliationResult:
         candidates = await self._repository.async_reconciliation_candidates()
         for session in candidates:
-            interrupted = await self._repository.async_transition(session.owner_profile_id, session.session_id, INTERRUPTED, reason=self._policy.interruption_reason(session))
-            if self._history is not None:
-                await self._history.async_project_session(interrupted)
+            await self._repository.async_transition(session.owner_profile_id, session.session_id, INTERRUPTED, reason=self._policy.interruption_reason(session), historical_projections=self._history)
         return StartupReconciliationResult(inspected=len(candidates), reconciled=len(candidates), interrupted=len(candidates))

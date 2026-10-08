@@ -102,7 +102,12 @@ async def async_session_exchange(
 ):
     """One scoped invocation of existing Ask DJ, with retained-reference projection."""
     client_id = payload.get("client_message_id")
-    if not isinstance(client_id, str) or not client_id.strip() or len(client_id) > 128:
+    if (
+        not isinstance(client_id, str)
+        or not client_id.strip()
+        or len(client_id) > 128
+        or client_id != client_id.strip()
+    ):
         raise SessionConversationError("client_message_id_required", 400)
     context = payload.get("conversation_context") or {}
     if not isinstance(context, dict) or set(context) - {"session_id", "selected_entry"}:
@@ -122,6 +127,7 @@ async def async_session_exchange(
         json.dumps({"context": context, "text": text}, sort_keys=True).encode()
     ).hexdigest()
     async with lock:
+        scope_revision = await history_manager.async_scope_revision(history_scope)
         selected = None
         target = context.get("selected_entry")
         if target is not None:
@@ -140,6 +146,11 @@ async def async_session_exchange(
             else None
         )
         if saved:
+            await validate_owner()
+            for dependency in saved["assistant_message"].get("historical_entry_references", []):
+                await query.async_open_entry(
+                    profile_id, dependency["session_id"], dependency["entry_id"]
+                )
             turn = saved["user_message"].get("session_turn", {})
             if turn.get("request_digest") != digest:
                 raise SessionConversationError("client_message_conflict")
@@ -194,8 +205,28 @@ async def async_session_exchange(
                         "input_type": turn["input_type"],
                     },
                 }
+
+            async def commit_guard():
+                await validate_owner()
+                if await history_manager.async_scope_revision(history_scope) != scope_revision:
+                    raise SessionConversationError("conversation_history_changed")
+                current = await manager.async_get_active(profile_id)
+                if session_id and (
+                    current is None
+                    or current.session_id != session_id
+                    or (
+                        target is None
+                        and current.broadcast.state.playback.item_id != captured_playback
+                    )
+                ):
+                    raise SessionConversationError("session_context_changed")
+                if target is not None:
+                    await query.async_open_entry(
+                        profile_id, target["session_id"], target["entry_id"]
+                    )
+
             saved = await history_manager.async_append_exchange(
-                history_scope, payload, result, session_turn=turn
+                history_scope, payload, result, session_turn=turn, commit_guard=commit_guard
             )
         ids = []
         if session_id:

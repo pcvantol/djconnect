@@ -57,6 +57,84 @@ class SessionConversationHistoryTest(unittest.IsolatedAsyncioTestCase):
         await self.service.async_close()
         self.tmp.cleanup()
 
+    async def test_tail_window_discovers_new_entries_beyond_first_page(self):
+        session = await self.observed_session()
+        for i in range(25):
+            await self.manager.async_update_playback_projection(
+                owner_profile_id="profile-a",
+                session_id=session.session_id,
+                state="playing",
+                media_identity=f"spotify:track:{i:022d}",
+                title=f"Track {i}",
+                artist="Metallica",
+                duration_ms=120000,
+                position_ms=1000,
+            )
+        first = await self.queries.async_timeline_page("profile-a", session.session_id)
+        tail = await self.queries.async_timeline_window(
+            "profile-a", session.session_id, window="tail", limit=3
+        )
+        self.assertEqual(
+            [e["playback"]["title"] for e in tail["entries"]], ["Track 22", "Track 23", "Track 24"]
+        )
+        anchor_id = first["entries"][10]["entry_id"]
+        window = await self.queries.async_timeline_window(
+            "profile-a", session.session_id, window="anchor", anchor_entry_id=anchor_id, limit=3
+        )
+        self.assertEqual(window["entries"][0]["entry_id"], anchor_id)
+        self.assertEqual([e["order"] for e in window["entries"]], [11, 12, 13])
+        import os
+        import json
+
+        capture = os.environ.get("DJC_HISTORY_CAPTURE_DIR")
+        if capture:
+            Path(capture).mkdir(parents=True, exist_ok=True)
+            (Path(capture) / "window-producer-receipt.json").write_text(
+                json.dumps(
+                    {
+                        "qualification": "actual Runtime accepted playback and repository/query window; synthetic inputs, not installed/native proof",
+                        "first_page": first,
+                        "tail_window": tail,
+                        "anchor_window": window,
+                    },
+                    indent=2,
+                    ensure_ascii=False,
+                )
+            )
+        with self.assertRaises(PermissionError):
+            await self.queries.async_timeline_window("profile-b", session.session_id, window="tail")
+        with self.assertRaises(PermissionError):
+            await self.queries.async_timeline_window(
+                "profile-a", session.session_id, window="anchor", anchor_entry_id="missing"
+            )
+
+    async def test_full_normalization_cross_character_utf16_highlights(self):
+        from custom_components.djconnect.session_history_projection import text_highlights
+
+        for text, query, length in [("가", "가", 2), ("ｶﾞ", "ガ", 2), ("Straße", "STRASSE", 6)]:
+            self.assertEqual(
+                text_highlights(text, query), [{"start_utf16": 0, "length_utf16": length}]
+            )
+
+    async def test_profile_history_effective_shared_privacy_denies(self):
+        hass, runtime, history, identity, headers = await self.transport_fixture()
+        payload = {**identity, "privacy_mode": "shared", "conversation_scope": "profile"}
+        for handler in (
+            self.handlers.async_handle_ask_dj_history_payload,
+            self.handlers.async_handle_ask_dj_history_clear_payload,
+        ):
+            result, status = await handler(hass, payload, headers=headers)
+            self.assertEqual(status, 403, result)
+            self.assertEqual(result["error"], "history_not_allowed")
+
+    async def test_http_capabilities_advertises_same_history_versions(self):
+        response = await self.http.DJConnectTransportCapabilitiesView().get(None)
+        body = response["payload"]
+        self.assertTrue(body["capabilities"]["session_conversation_history"])
+        self.assertTrue(body["capabilities"]["session_flow_text_search"])
+        self.assertEqual(body["contract_versions"]["session_conversation_history"], 1)
+        self.assertEqual(body["contract_versions"]["session_flow_text_search"], 1)
+
     async def observed_session(self):
         session = await self.manager.async_start(
             owner_profile_id="profile-a", music_backend="spotify_direct"

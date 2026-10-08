@@ -2,12 +2,16 @@
 
 from __future__ import annotations
 
+from contextvars import ContextVar
+
 from .persistence.history import (
     HistoricalDJMomentProjection,
     HistoricalProjectionRepository,
     HistoricalSessionProjection,
 )
 
+
+_projection_ancestry = ContextVar("session_history_projection_ancestry", default=frozenset())
 
 SUPPORTED_PROJECTION_VERSIONS = frozenset({1})
 
@@ -27,8 +31,8 @@ class HistoricalProjectionQueryService:
         self._repository = repository
         self._conversation_history = history_manager
         from .session_history_projection import HistoryCursorCodec
-        self._history_cursor = HistoryCursorCodec()
 
+        self._history_cursor = HistoryCursorCodec()
 
     async def async_get_session(
         self, requester_profile_id: str, historical_session_id: str
@@ -95,15 +99,28 @@ class HistoricalProjectionQueryService:
         message = messages.get(ref.get("message_id"))
         if not message or message.get("session_turn", {}).get("turn_id") != ref.get("turn_id"):
             return None
-        for target in message.get("historical_entry_references", []):
-            source = await self._repository.async_entry_record(
-                owner, target["session_id"], target["entry_id"]
-            )
-            if source is None or project_entry(source) is None:
-                return None
-        entry.pop("conversation_reference",None)
-        entry["origin_message_id"]=message["id"]
-        entry["client_message_id"]=message.get("client_message_id")
+        ancestry = _projection_ancestry.get()
+        key = (owner, row["session_id"], row["entry_id"])
+        if key in ancestry or len(ancestry) >= 20:
+            return None
+        # Explicit recursion state is passed through a task-local ContextVar below.
+        token = _projection_ancestry.set(ancestry | {key})
+        try:
+            for target in message.get("historical_entry_references", []):
+                try:
+                    await self._session(owner, target["session_id"])
+                except HistoricalProjectionAccessDenied:
+                    return None
+                source = await self._repository.async_entry_record(
+                    owner, target["session_id"], target["entry_id"]
+                )
+                if source is None or await self._project_entry(owner, source) is None:
+                    return None
+        finally:
+            _projection_ancestry.reset(token)
+        entry.pop("conversation_reference", None)
+        entry["origin_message_id"] = message["id"]
+        entry["client_message_id"] = message.get("client_message_id")
         entry["text"] = str(message.get("text") or "")
         entry["turn_id"] = ref["turn_id"]
         entry["role"] = "user" if row["kind"] == "conversation_user" else "assistant"
@@ -111,17 +128,16 @@ class HistoricalProjectionQueryService:
         entry["context"] = message.get("session_turn", {}).get("context", {})
         return entry
 
-
     async def _revision_session(self, owner: str, session: dict) -> dict:
-        if self._conversation_history:
-            session = {
-                **session,
-                "revision": str(session["revision"])
-                + ":"
-                + await self._conversation_history.async_scope_revision("profile:" + owner),
-            }
-        return session
-
+        suffix = (
+            await self._conversation_history.async_scope_revision("profile:" + owner)
+            if self._conversation_history
+            else "0:0"
+        )
+        return {
+            **session,
+            "revision": str(session["revision"]) + ":" + session["lifecycle_status"] + ":" + suffix,
+        }
 
     async def _session(self, owner: str, session_id: str) -> dict:
         from .session_history_projection import session_retained
@@ -131,43 +147,54 @@ class HistoricalProjectionQueryService:
             raise HistoricalProjectionAccessDenied("session_unavailable")
         return await self._revision_session(owner, session)
 
-
     async def async_session_page(
         self, owner: str, *, limit: int = 20, cursor: str = "", include_active: bool = False
     ) -> dict:
-        from .session_history_projection import checked_limit, public_session, session_retained
+        from .session_history_projection import (
+            checked_limit,
+            public_session,
+            session_retained,
+            HistoryQueryError,
+        )
 
         checked_limit(limit)
-        sessions = [
-            s
-            for s in await self._repository.async_session_records(owner)
-            if session_retained(s)
-            and (include_active or s["lifecycle_status"] in {"ENDED", "INTERRUPTED"})
-        ]
-        import hashlib
-
-        digest = hashlib.sha256(
-            str([(s["session_id"], s["revision"], s["lifecycle_status"]) for s in sessions]).encode()
-        ).hexdigest()[:24]
+        revision = await self._repository.async_owner_revision(owner, include_active=include_active)
         scope = {
             "profile_id": owner,
             "mode": "sessions",
-            "revision": digest,
+            "revision": revision,
             "include_active": include_active,
+            "paging_version": 2,
         }
-        after = self._history_cursor.decode(cursor, scope) if cursor else 0
-        page = sessions[after : after + limit]
-        more = after + limit < len(sessions)
+        after = self._history_cursor.decode(cursor, scope) if cursor else None
+        if after is not None and not isinstance(after, list):
+            raise HistoryQueryError("invalid_history_cursor")
+        rows = await self._repository.async_session_records(
+            owner, limit=251, before=after, include_active=include_active
+        )
+        page = []
+        last = None
+        for row in rows[:250]:
+            last = [row["created_at"], row["session_id"]]
+            if session_retained(row):
+                page.append(public_session(row))
+            if len(page) >= limit:
+                break
+        more = bool(last and any([r["created_at"], r["session_id"]] < last for r in rows))
+        if (
+            await self._repository.async_owner_revision(owner, include_active=include_active)
+            != revision
+        ):
+            raise HistoryQueryError("invalid_history_cursor")
         return {
             "success": True,
             "schema_version": 1,
-            "sessions": [public_session(s) for s in page],
-            "revision": digest,
-            "next_cursor": self._history_cursor.encode(scope, after + len(page)) if more else None,
-            "coverage": "bounded_saved_sessions",
+            "sessions": page,
+            "revision": revision,
+            "next_cursor": self._history_cursor.encode(scope, last) if more else None,
+            "coverage": "saved_sessions_keyset",
             "retention_days": 90,
         }
-
 
     async def async_timeline_page(
         self, owner: str, session_id: str, *, limit: int = 20, cursor: str = ""
@@ -193,6 +220,10 @@ class HistoricalProjectionQueryService:
             if len(visible) >= limit:
                 break
         more = any(r["order"] > last for r in rows)
+        from .session_history_projection import HistoryQueryError
+
+        if (await self._session(owner, session_id))["revision"] != session["revision"]:
+            raise HistoryQueryError("invalid_history_cursor")
         return {
             "success": True,
             "schema_version": 1,
@@ -203,6 +234,57 @@ class HistoricalProjectionQueryService:
             "coverage": "saved_entries_only",
         }
 
+    async def async_timeline_window(
+        self,
+        owner: str,
+        session_id: str,
+        *,
+        window: str,
+        limit: int = 20,
+        anchor_entry_id: str = "",
+    ) -> dict:
+        """Bounded revalidation window; fresh appends never require a first-page walk."""
+        from .session_history_projection import checked_limit, public_session, HistoryQueryError
+
+        checked_limit(limit)
+        session = await self._session(owner, session_id)
+        if window not in {"tail", "anchor"}:
+            raise HistoryQueryError("invalid_history_window")
+        if window == "anchor":
+            anchor = (await self.async_open_entry(owner, session_id, anchor_entry_id))["entry"]
+            # Include the retained anchor, then later accepted rows in canonical order.
+            rows = await self._repository.async_entry_records(
+                owner, session_id, after=anchor["order"] - 1
+            )
+        else:
+            rows = await self._repository.async_entry_records(owner, session_id, descending=True)
+        visible = []
+        scanned = []
+        for row in rows[:250]:
+            scanned.append(row["order"])
+            entry = await self._project_entry(owner, row)
+            if entry is not None:
+                visible.append(entry)
+            if len(visible) >= limit:
+                break
+        visible.sort(key=lambda entry: entry["order"])
+        if (await self._session(owner, session_id))["revision"] != session["revision"]:
+            raise HistoryQueryError("invalid_history_cursor")
+        return {
+            "success": True,
+            "schema_version": 1,
+            "session": public_session(session),
+            "entries": visible,
+            "revision": session["revision"],
+            "next_cursor": None,
+            "coverage": "bounded_saved_entry_window",
+            "window": window,
+            "anchor_entry_id": anchor_entry_id if window == "anchor" else None,
+            "scanned_order_min": min(scanned) if scanned else None,
+            "scanned_order_max": max(scanned) if scanned else None,
+            "scan_complete": len(scanned) == len(rows),
+            "window_limit": limit,
+        }
 
     async def async_search_entries(
         self, owner: str, session_id: str, query: str, *, limit: int = 20, cursor: str = ""
@@ -232,6 +314,10 @@ class HistoricalProjectionQueryService:
             if len(matches) >= limit:
                 break
         more = any(r["order"] > last for r in rows)
+        from .session_history_projection import HistoryQueryError
+
+        if (await self._session(owner, session_id))["revision"] != session["revision"]:
+            raise HistoryQueryError("invalid_history_cursor")
         return {
             "success": True,
             "schema_version": 1,
@@ -246,7 +332,6 @@ class HistoricalProjectionQueryService:
             "normalization": "NFKC-casefold",
             "highlight_units": "utf16",
         }
-
 
     async def async_open_entry(self, owner: str, session_id: str, entry_id: str) -> dict:
         from .session_history_projection import public_session
@@ -265,7 +350,6 @@ class HistoricalProjectionQueryService:
             "read_only": session["lifecycle_status"] in {"ENDED", "INTERRUPTED"},
             "navigation_only": True,
         }
-
 
     async def async_find_playback(
         self, owner: str, *, artist: str = "", title: str = "", album: str = "", limit: int = 20
@@ -311,6 +395,7 @@ class HistoricalProjectionQueryService:
             "repeat_counts_supported": False,
             "complete": len(rows) <= 250 and len(matches) < limit,
         }
+
     @staticmethod
     def _authorize_session(
         requester_profile_id: str, projection: HistoricalSessionProjection | None

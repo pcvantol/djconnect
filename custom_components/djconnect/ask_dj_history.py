@@ -1,7 +1,9 @@
 """Persistent cross-device Ask DJ history."""
 from __future__ import annotations
 
-from copy import deepcopy
+import asyncio
+from copy import copy, deepcopy
+from functools import wraps
 from datetime import datetime, timedelta, timezone
 import uuid
 from typing import Any
@@ -19,10 +21,47 @@ RETENTION_MESSAGE_TEXT = (
 )
 
 
+def _committed_mutation(method):
+    """Expose mutations only after Store acknowledgement; serialize all writers."""
+
+    @wraps(method)
+    async def commit(self, *args, **kwargs):
+        await self.async_load()
+        async with self._write_lock:
+            staged = copy(self)
+            staged._data = deepcopy(self._data)
+            staged._committed_store_write = False
+            task = asyncio.create_task(method(staged, *args, **kwargs))
+            try:
+                result = await asyncio.shield(task)
+            except asyncio.CancelledError:
+                # Resolve the in-flight save before allowing a subsequent writer.
+                # Successful persisted data remains authoritative even if the caller left.
+                try:
+                    await task
+                except Exception:
+                    if staged._committed_store_write and self._store is not None:
+                        await asyncio.shield(
+                            self._store.async_save(_compact_store_data(self._data))
+                        )
+                else:
+                    self._data = staged._data
+                raise
+            except Exception:
+                if staged._committed_store_write and self._store is not None:
+                    await asyncio.shield(self._store.async_save(_compact_store_data(self._data)))
+                raise
+            self._data = staged._data
+            return result
+
+    return commit
+
+
 class AskDJHistoryManager:
     """Store user-scoped Ask DJ chat history for cross-device sync."""
 
     def __init__(self, hass: Any | None = None, store: Any | None = None) -> None:
+        self._write_lock = asyncio.Lock()
         self.hass = hass
         self._store = store if store is not None else self._create_store(hass)
         self._loaded = False
@@ -47,6 +86,7 @@ class AskDJHistoryManager:
         await self.async_load()
         if self._store is not None:
             await self._store.async_save(_compact_store_data(self._data))
+            self._committed_store_write = True
 
     async def async_history(
         self,
@@ -77,6 +117,7 @@ class AskDJHistoryManager:
             "server_time": _now(),
         }
 
+    @_committed_mutation
     async def async_clear(self, user_id: str | None) -> dict[str, Any]:
         """Clear history for one HA user and advance sync revisions."""
         await self.async_load()
@@ -100,6 +141,7 @@ class AskDJHistoryManager:
             "server_time": _now(),
         }
 
+    @_committed_mutation
     async def async_clear_all(self) -> dict[str, Any]:
         """Clear history for all app clients and advance a global clear revision."""
         await self.async_load()
@@ -133,12 +175,15 @@ class AskDJHistoryManager:
             "server_time": _now(),
         }
 
+    @_committed_mutation
     async def async_append_exchange(
         self,
         user_id: str | None,
         request_payload: dict[str, Any],
         assistant_response: dict[str, Any],
-        *, session_turn: dict[str, Any] | None = None,
+        *,
+        session_turn: dict[str, Any] | None = None,
+        commit_guard=None,
     ) -> dict[str, Any]:
         """Append user and assistant messages, deduping client retries."""
         await self.async_load()
@@ -164,11 +209,15 @@ class AskDJHistoryManager:
         if session_turn is not None:
             user_message["session_turn"] = deepcopy(session_turn)
             assistant_message["session_turn"] = deepcopy(session_turn)
-            refs = assistant_response.get("historical_matches")
+            refs = list(assistant_response.get("historical_matches") or [])
+            selected = session_turn.get("context", {}).get("selected_entry")
+            if isinstance(selected, dict):
+                refs.append(selected)
             if isinstance(refs, list):
                 assistant_message["historical_entry_references"] = [
-                    {"session_id":r["session_id"], "entry_id":r["entry_id"]}
-                    for r in refs if isinstance(r,dict) and r.get("session_id") and r.get("entry_id")
+                    {"session_id": r["session_id"], "entry_id": r["entry_id"]}
+                    for r in refs
+                    if isinstance(r, dict) and r.get("session_id") and r.get("entry_id")
                 ][:20]
         user_message["exchange_id"] = exchange_id
         user_message["exchange_order"] = 0
@@ -180,7 +229,11 @@ class AskDJHistoryManager:
         if trimmed:
             state["history_revision"] = int(state.get("history_revision") or 0) + 1
         state["updated_at"] = _now()
+        if commit_guard is not None:
+            await commit_guard()
         await self.async_save()
+        if commit_guard is not None:
+            await commit_guard()
         return {
             "success": True,
             "user_id": user_key,
@@ -210,6 +263,7 @@ class AskDJHistoryManager:
         state=self._data.get("users",{}).get(_user_key(scope_key),{})
         return str(state.get("history_trimmed_count",0))+":"+str(self._effective_clear_revision(state))
 
+    @_committed_mutation
     async def async_append_assistant_message(
         self,
         user_id: str | None,

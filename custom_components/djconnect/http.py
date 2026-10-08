@@ -2845,11 +2845,14 @@ class DJConnectTransportCapabilitiesView(HomeAssistantView):
     requires_auth = False
 
     async def get(self, request):
+        from .capability_contract import _platform_capabilities, _contract_versions
         return self.json(
             {
                 "success": True,
                 "domain": DOMAIN,
                 "ha_version": VERSION,
+                "capabilities": _platform_capabilities(),
+                "contract_versions": _contract_versions(),
                 "transports": {"http": True, "websocket": True},
                 "session_broadcast": session_broadcast_transport_capabilities(),
             }

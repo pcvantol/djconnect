@@ -158,6 +158,36 @@ clients must not call an incomplete count total. Client request generation and
 returned query/revision prevent an old response overwriting a newer search.
 Archive navigation/search must preserve the active Session and reading position.
 
+## Additive consumer alignment after the first immutable draft
+
+The canonical HTTP capability response now advertises the same version1 flags
+and `contract_versions` as WebSocket. Advertisement alone conveys no data grant.
+The same timeline GET accepts `window=tail` or `window=anchor`, `limit`1–50 and,
+for an anchor, `anchor_entry_id`. Do not combine a window with a page cursor.
+`tail` scans at most250 latest accepted rows and returns up to the requested
+number of qualified entries in increasing canonical `order`. `anchor` first
+revalidates that owner entry, then returns it and later qualified entries in
+increasing order, also with a250-row scan budget. Wrong/withdrawn anchors fail404.
+
+Window responses retain `session`, `entries`, `revision`, and add `window`,
+`anchor_entry_id`, `window_limit`, `scanned_order_min`, `scanned_order_max`,
+`scan_complete`. `next_cursor:null` means a window, not full-timeline coverage.
+`scan_complete` describes the bounded candidate read, not all Session history.
+Reissue tail to discover fresh entries and anchor to revalidate a visible window;
+merge only returned canonical entry IDs/orders and do not clear unrelated loaded
+pages or move scroll based on this response. Concurrent mutation returns409 and
+requires repeating that same bounded request. No private entry IDs are added to
+Broadcast. A fresh tail uses no old revision cursor.
+
+The independent early review's privacy/highlight gaps are repaired: effective
+request privacy also gates Profile history/clear; completion rechecks current
+Profile privacy before and after Store save; selected-entry answers retain
+revalidated transitive dependencies; NFKC highlighting handles cross-character
+composition. Store writers stage a copy under one writer lock and expose it
+only after acknowledgement. Failed saves do not create cached deduplication
+success; a rejected post-save grant rolls back to the previous committed Store.
+This additive draft still requires the final acceptance work listed below.
+
 ## Real producer receipts and qualification state
 
 [`schema.json`](../../examples/client_contracts/session_conversation_history/schema.json)

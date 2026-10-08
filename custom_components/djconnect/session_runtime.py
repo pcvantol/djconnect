@@ -5233,27 +5233,10 @@ class SessionRuntimeManager:
             if session_id and active.session_id != session_id:
                 return None
             if self._persistent_sessions is not None:
-                persistent = await self._persistent_sessions.async_transition(
-                    owner_profile_id, active.session_id, PERSISTENT_SESSION_ENDED
+                await self._persistent_sessions.async_transition(
+                    owner_profile_id,active.session_id,PERSISTENT_SESSION_ENDED,
+                    historical_projections=self._historical_projections,
                 )
-                if self._historical_projections is not None:
-                    await self._historical_projections.async_project_session(persistent)
-                    for ordering, moment in enumerate(active.moment_engine.moments):
-                        if moment.source_attribution:
-                            # New source cards are qualified for ephemeral display,
-                            # not durable historical reuse without attribution.
-                            continue
-                        await self._historical_projections.async_project_moment(
-                            session_id=active.session_id,
-                            moment_id=moment.moment_id,
-                            owner_profile_id=owner_profile_id,
-                            moment_type=moment.moment_type.value,
-                            rendered_text=moment.content,
-                            presentation_metadata=json.dumps(moment.presentation_intent.as_dict(), sort_keys=True),
-                            visibility=moment.presentation_intent.visibility.value,
-                            ordering=ordering,
-                            created_at=moment.created_at,
-                        )
             self._playback_progress_clocks.pop(owner_profile_id, None)
             self._intra_track_opportunities.pop(owner_profile_id, None)
             active.published_recording_context.clear()

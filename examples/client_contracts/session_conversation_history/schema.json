@@ -142,6 +142,44 @@
           }
         }
       }
+    },
+    "timeline_window_query": {
+      "type": "object",
+      "required": [
+        "window"
+      ],
+      "properties": {
+        "window": {
+          "enum": [
+            "tail",
+            "anchor"
+          ]
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 50
+        },
+        "anchor_entry_id": {
+          "type": "string"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "window": {
+                "const": "anchor"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "anchor_entry_id"
+            ]
+          }
+        }
+      ]
     }
   },
   "oneOf": [
