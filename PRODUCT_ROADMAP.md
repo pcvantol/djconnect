@@ -591,6 +591,20 @@ implementation or is no longer relevant.
 
 ### HA Integration Onboarding & Configuration Experience Assessment (`HA-ONBOARDING-001`)
 
+Completed bounded onboarding source: `DJC-CORE-PROFILE-REUSE-ONBOARDING-V1-20261008`,
+PR [#1130](https://github.com/pcvantol/djconnect/pull/1130) protected merged as
+`3bb6bb8a9cb3e87ebb1bb51c0cf99dfbe572c283` from exact reviewed head
+`162104d625f26a281cb20897ea5365c10bbdabff`. [Profile reuse contract](docs/product/PROFILE_REUSE_ONBOARDING_CONTRACT.md)
+qualifies explicit existing/new Profile selection before backend setup,
+credential-free entry references, preserved Household/account/fallback state,
+localized duplicate recovery and final-confirmation cancellation/concurrency.
+Source/main1628 tests (7existing skips), independent technical/UX review, actual
+HA browser creation/reuse/error recovery, five UI languages and exact internal
+publication/readback PASS. No live provider, installed HA-dev/native/Pi claim.
+[Completion and Finalization](docs/history/prompts/2026-10-08-profile-reuse-onboarding-finalization.md)
+reconciles only this selected slice. Broader `HA-ONBOARDING-001` remains Planned
+with its existing gates; no phase or execution priority changes.
+
 **Status:** Planned assessment-first Product Development capability. It is not
 in the current Execution Horizon and authorizes neither an assessment nor an
 implementation before its recorded dependencies are available.
