@@ -1,5 +1,54 @@
 # DJConnect Verification Prompt Index
 
+## PR #1126 expressive DJ persona — dedicated Finalization
+
+PR [#1126](https://github.com/pcvantol/djconnect/pull/1126) protected merged as
+`cadbf7560baf43bd393c7f0aa525ecc5a137fa93` from independently reviewed head
+`3aa6e600ea96ea317470b922000cba90939c4a2f`; both trees `5b1939f8dec192f5fd4a37ea0df5a9f78ffeae48`.
+Assignment `DJC-CORE-EXPRESSIVE-DJ-PERSONA-V1-20261007` used one Core writer,
+base `b32deedd0cc2bbaca862c8cd63dd25b017203c3f`. Qualified immutable facts now
+sound like four recognizable DJ personas through the existing Moment Engine.
+Ordinary credits and proven producer callbacks vary only after actual Flow
+publication. Five languages preserve names, roles, recording identity, date
+precision, source links and current playback. Planner selection/dose and
+Transitions remain intact; final-text read-fit uses exact faithful fallback.
+The existing HA Assist route was examined and preserved; these source fields
+stay local, visual-only and outside new model/TTS requests or durable memory.
+
+Full source and confirmed exact-main suites: 1,582 tests, seven existing skips,
+PASS. Independent technical exact review GO (187 tests) and editorial exact
+review GO (20 complete sequences, 80 single-name forms, 16 NL browser frames).
+All 320 five-language/four-persona before/after browser frames and existing
+owner/contextual regressions PASS. Ruff, projection, Golden and required
+source/main checks PASS. Both automatic source artifact/evidence workflows
+passed first attempt;128 safe archive files byte-equal to exact merge,
+qualification integrity/redaction and all required checks PASS.
+[Completion and Finalization](docs/history/prompts/2026-10-08-expressive-dj-persona-finalization.md) binds exact receipts and honest local
+recovery history. No installation or live-provider/Pi run; capture/frame-rate
+remains PARTIAL/parked. This governance increment changes nine documents only.
+
+### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+1. **Public distribution: Apple — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; gate: qualified Internal Release consumers and explicit authorization.
+2. **Public distribution: Windows — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; gate: qualified Internal Release consumers and explicit authorization.
+3. **Public HACS distribution — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; gate: fresh candidate and release authorization.
+4. **HACS 3.3.0 release visibility (`HACS-3.3.0-001`) — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; gate: release metadata and discovery evidence.
+5. **Firmware OTA publication and staged rollback — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; gate: manifest-bound consumer qualification.
+
+### Blocked Items
+
+Full Artist/Album credits Phase B and Continue Stage 2 retain separate gates.
+Pi capture/frame-rate remains PARTIAL/parked; no hardware proof is upgraded.
+
+### Deferred Items
+
+No new provider/model route, source family, TTS, learning, hardware, queue repair,
+clientlane or following slice is selected. Stop after this personality slice.
+
+Repository State: `MERGED_RECONCILED` after this separate Finalization merges.
+Workspace State: `WORKSPACE_READY` only after mandatory safe cleanup.
+Finalization Pending: `NO` after merge.
+
 ## PR #1124 shared-producer continuity — completed source and Finalization
 
 PR [#1124](https://github.com/pcvantol/djconnect/pull/1124) protected merged as
