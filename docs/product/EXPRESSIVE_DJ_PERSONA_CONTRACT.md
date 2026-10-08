@@ -1,6 +1,15 @@
 # Expressive DJ persona v1
 
 Assignment `DJC-CORE-EXPRESSIVE-DJ-PERSONA-V1-20261007`.
+
+Source PR [#1126](https://github.com/pcvantol/djconnect/pull/1126) protected
+merged as `cadbf7560baf43bd393c7f0aa525ecc5a137fa93` from reviewed head
+`3aa6e600ea96ea317470b922000cba90939c4a2f`; both trees `5b1939f8dec192f5fd4a37ea0df5a9f78ffeae48`.
+Software Runtime/browser and exact-main/internal artifact qualification PASS.
+The [dedicated Finalization](../history/prompts/2026-10-08-expressive-dj-persona-finalization.md)
+reconciles this bounded local realization. No installation/live-provider/Pi
+claim; parked capture/frame-rate stays PARTIAL.
+
 Base `b32deedd0cc2bbaca862c8cd63dd25b017203c3f`; predecessor #1124/#1125
 terminal, including specifically authorized local squash-branch cleanup.
 

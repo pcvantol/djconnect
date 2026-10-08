@@ -1,5 +1,23 @@
 # DJ Intelligence Maturity Model
 
+## Completed source — expressive DJ persona
+
+Completed source: `DJC-CORE-EXPRESSIVE-DJ-PERSONA-V1-20261007`,
+PR [#1126](https://github.com/pcvantol/djconnect/pull/1126) protected merged as
+`cadbf7560baf43bd393c7f0aa525ecc5a137fa93`. The [expressive persona contract](EXPRESSIVE_DJ_PERSONA_CONTRACT.md)
+qualifies local five-language realization of immutable facts within the existing
+Moment Engine: distinct Home/Radio/Club/Festival voices, published-only credit
+variation, proven producer callbacks, final-text read-fit and faithful fallback.
+Both independent reviews, software Runtime/browser, required checks and exact
+internal source artifact/readback PASS. No new facts/ranking/provider/TTS,
+installation or live/hardware qualification. [Completion and Finalization](../history/prompts/2026-10-08-expressive-dj-persona-finalization.md)
+reconciles this one selected slice; no following assignment is activated.
+
+This is a bounded local-realization increment, not promotion of full Knowledge
+Stage 3/4 or unrestricted generative expression. Other fact families retain
+one authored persona realization; four-form published variation applies to
+ordinary credits and qualified producer callbacks.
+
 ## Completed source — shared-producer continuity
 
 `DJC-CORE-SHARED-PRODUCER-CONTINUITY-V1-20261007` implements the bounded

@@ -1,5 +1,16 @@
 # DJConnect Product Backlog
 
+Completed source: `DJC-CORE-EXPRESSIVE-DJ-PERSONA-V1-20261007`,
+PR [#1126](https://github.com/pcvantol/djconnect/pull/1126) protected merged as
+`cadbf7560baf43bd393c7f0aa525ecc5a137fa93`. The [expressive persona contract](docs/product/EXPRESSIVE_DJ_PERSONA_CONTRACT.md)
+qualifies local five-language realization of immutable facts within the existing
+Moment Engine: distinct Home/Radio/Club/Festival voices, published-only credit
+variation, proven producer callbacks, final-text read-fit and faithful fallback.
+Both independent reviews, software Runtime/browser, required checks and exact
+internal source artifact/readback PASS. No new facts/ranking/provider/TTS,
+installation or live/hardware qualification. [Completion and Finalization](docs/history/prompts/2026-10-08-expressive-dj-persona-finalization.md)
+reconciles this one selected slice; no following assignment is activated.
+
 Completed source: `DJC-CORE-SHARED-PRODUCER-CONTINUITY-V1-20261007`,
 PR [#1124](https://github.com/pcvantol/djconnect/pull/1124) protected merged as
 `c542d8ea9889db3509cab2dd5f19b26dd1a21342` from independently reviewed head
