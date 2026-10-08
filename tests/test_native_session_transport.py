@@ -40,3 +40,14 @@ class NativeSessionTransportTest(unittest.TestCase):
             result = asyncio.run(view(object()).post(request))
             self.assertEqual(result.status, 400)
             self.assertEqual(result.headers['Cache-Control'], 'no-store')
+
+    def test_non_object_json_is_a_no_store_parse_error(self):
+        for value in ([], "text", 42, True):
+            async def payload():
+                return value
+            request=types.SimpleNamespace(json=payload,query={},app={'hass':object()},headers={},context=None)
+            for view in (http.DJConnectSessionStartView,http.DJConnectSessionEndView,http.DJConnectSessionBroadcastTokenView):
+                result=asyncio.run(view(object()).post(request))
+                self.assertEqual(result.status,400)
+                self.assertEqual(result.headers['Cache-Control'],'no-store')
+                self.assertEqual(json.loads(result.text)['error'],'invalid_json')

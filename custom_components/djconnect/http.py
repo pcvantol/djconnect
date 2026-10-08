@@ -2780,7 +2780,8 @@ class _DJConnectSessionView(HomeAssistantView):
 
     async def _payload(self, request) -> dict[str, Any] | None:
         try:
-            return await request.json()
+            payload = await request.json()
+            return payload if isinstance(payload, dict) else None
         except Exception:  # noqa: BLE001
             return None
 
