@@ -148,6 +148,7 @@ PROFILE_PLATFORM_ACTION_LINK_DEVICE = "link_device"
 PROFILE_PLATFORM_ACTION_UNLINK_DEVICE = "unlink_device"
 PROFILE_PLATFORM_ACTION_SET_FALLBACK = "set_fallback_profile"
 CONF_PROFILE_ID = "profile_id"
+PROFILE_NEW = "new"
 CONF_PROFILE_NAME = "profile_name"
 CONF_PROFILE_TYPE = "profile_type"
 CONF_PROFILE_PRIVACY_MODE = "profile_privacy_mode"
@@ -323,6 +324,9 @@ def _ha_language(hass: Any) -> str:
 def _options_actions_for_status(hass: Any, defaults: dict[str, Any]) -> dict[str, str]:
     """Return visible options actions for the current pairing state."""
     actions = dict(_options_action_names(hass))
+    if defaults.get("profile_backend_entry_id"):
+        # A shared client must reauthorize the original connection, never copy its tokens.
+        actions.pop(OPTIONS_ACTION_SPOTIFY_REAUTH, None)
     if defaults.get(CONF_MUSIC_BACKEND) == MUSIC_BACKEND_MUSIC_ASSISTANT:
         actions.pop(OPTIONS_ACTION_SPOTIFY_REAUTH, None)
     pairing_status = str(defaults.get("ha_pairing_status") or "").strip().lower()
@@ -648,11 +652,11 @@ def _profile_setup_schema(defaults: dict[str, Any] | None = None) -> dict[Any, A
         vol.Required(
             CONF_PROFILE_TYPE,
             default=defaults.get(CONF_PROFILE_TYPE, ProfileType.PERSONAL.value),
-        ): vol.In(PROFILE_TYPE_NAMES),
+        ): selector.SelectSelector(selector.SelectSelectorConfig(options=list(PROFILE_TYPE_NAMES), mode="dropdown", translation_key="onboarding_profile_type")),
         vol.Optional(
             CONF_PROFILE_RESPONSE_STYLE,
             default=defaults.get(CONF_PROFILE_RESPONSE_STYLE, ResponseStyle.BALANCED.value),
-        ): vol.In(PROFILE_RESPONSE_STYLE_NAMES),
+        ): selector.SelectSelector(selector.SelectSelectorConfig(options=list(PROFILE_RESPONSE_STYLE_NAMES), mode="dropdown", translation_key="onboarding_response_style")),
         vol.Required(
             CONF_REQUIRE_PROFILE,
             default=defaults.get(CONF_REQUIRE_PROFILE, False),
@@ -747,27 +751,46 @@ async def _ensure_profile_platform_setup(
     pairing: dict[str, Any],
     backend: dict[str, Any],
     spotify: dict[str, Any],
+    manager: ProfilePlatformStorage | None = None,
 ) -> dict[str, str]:
     """Persist minimum first-run Profile Platform state."""
-    manager = _profile_storage(hass)
+    manager = manager or _profile_storage(hass)
+    before = await manager.async_load()
+    selected_id = str(profile_input.get(CONF_PROFILE_ID) or "").strip()
+    if selected_id:
+        profile = before.profiles.get(selected_id)
+        if profile is None:
+            raise ProfileStorageValidationError("profile_unavailable")
+        device_id = str(pairing.get(CONF_DEVICE_ID) or "").strip()
+        if device_id:
+            await manager.async_upsert_device(device_id, str(pairing.get(CONF_CLIENT_TYPE) or DEFAULT_CLIENT_TYPE),
+                display_name=str(pairing.get(CONF_DEVICE_NAME) or device_id), linked_profile_id=selected_id)
+        return {CONF_PROFILE_ID: selected_id, "music_account_id": profile.preferences.default_music_account_id,
+            "music_backend_id": profile.preferences.default_backend_id}
+    name = str(profile_input.get(CONF_PROFILE_NAME) or "").strip()
+    if not name:
+        raise ProfileStorageValidationError("profile_name_required")
+    if any(p.display_name.casefold() == name.casefold() for p in before.profiles.values()):
+        raise ProfileStorageValidationError("profile_name_exists")
     backend_choice = str(backend.get(CONF_MUSIC_BACKEND) or BACKEND_LATER_MANUAL).strip()
     backend_id = _backend_id_for_config(backend_choice)
-    await manager.async_upsert_music_backend(
-        backend_id,
-        _backend_provider_for_config(backend_choice),
-        display_name=MUSIC_BACKEND_NAMES.get(backend_choice, "Manual music backend"),
-        capabilities=MusicBackendCapabilities(
-            search=backend_choice != BACKEND_LATER_MANUAL,
-            playlists=backend_choice != BACKEND_LATER_MANUAL,
-            outputs=backend_choice != BACKEND_LATER_MANUAL,
-            volume=backend_choice != BACKEND_LATER_MANUAL,
-        ),
-        configuration={
-            key: value
-            for key, value in backend.items()
-            if key not in {CONF_SPOTIFY_REFRESH_TOKEN}
-        },
-    )
+    if backend_id not in before.music_backends:
+        await manager.async_upsert_music_backend(
+            backend_id,
+            _backend_provider_for_config(backend_choice),
+            display_name=MUSIC_BACKEND_NAMES.get(backend_choice, "Manual music backend"),
+            capabilities=MusicBackendCapabilities(
+                search=backend_choice != BACKEND_LATER_MANUAL,
+                playlists=backend_choice != BACKEND_LATER_MANUAL,
+                outputs=backend_choice != BACKEND_LATER_MANUAL,
+                volume=backend_choice != BACKEND_LATER_MANUAL,
+            ),
+            configuration={
+                key: value
+                for key, value in backend.items()
+                if key not in {CONF_SPOTIFY_REFRESH_TOKEN}
+            },
+        )
     profile_type = ProfileType(str(profile_input.get(CONF_PROFILE_TYPE) or ProfileType.PERSONAL.value))
     privacy_mode = (
         ProfilePrivacyMode.SHARED
@@ -818,10 +841,11 @@ async def _ensure_profile_platform_setup(
             display_name=str(pairing.get(CONF_DEVICE_NAME) or device_id),
             linked_profile_id=profile.profile_id,
         )
-    await manager.async_set_fallback_profile(
-        profile.profile_id,
-        require_profile=bool(profile_input.get(CONF_REQUIRE_PROFILE)),
-    )
+    if not before.profiles:
+        await manager.async_set_fallback_profile(
+            profile.profile_id,
+            require_profile=bool(profile_input.get(CONF_REQUIRE_PROFILE)),
+        )
     return {
         CONF_PROFILE_ID: profile.profile_id,
         "music_account_id": account_id,
@@ -1473,6 +1497,8 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self._selected_discovered_key = ""
         self._pairing_setup_method = SETUP_METHOD_PAIR_APP
         self._profile_platform: dict[str, Any] = {}
+        self._profile_input: dict[str, Any] = {}
+        self._profile_snapshot: Any = None
 
     async def async_step_user(
         self,
@@ -1515,7 +1541,7 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     CONF_CLIENT_TYPE: CLIENT_TYPE_CONVERSATION_AGENT,
                 }
                 self._conversation_agent_only = True
-                return await self.async_step_backend()
+                return await self.async_step_profile_choice()
             if method in {SETUP_METHOD_PAIR_LOCAL_DEVICE, SETUP_METHOD_PAIR_APP}:
                 self._pairing_setup_method = method
             else:
@@ -1694,7 +1720,7 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     )
                 if is_app_pairing:
                     self._clear_pending_app_pairing(pair_code)
-                return await self.async_step_backend()
+                return await self.async_step_profile_choice()
 
         return self.async_show_form(
             step_id=step_id,
@@ -2204,7 +2230,7 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             if backend == BACKEND_LATER_MANUAL:
                 self._backend = {CONF_MUSIC_BACKEND: BACKEND_LATER_MANUAL}
                 self._spotify = {}
-                return await self.async_step_profile_setup()
+                return await self._async_after_backend_setup()
             self._backend = {CONF_MUSIC_BACKEND: MUSIC_BACKEND_SPOTIFY_DIRECT}
             return await self.async_step_spotify()
 
@@ -2239,7 +2265,7 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     CONF_MUSIC_ASSISTANT_PLAYER: player,
                 }
                 self._spotify = {}
-                return await self.async_step_profile_setup()
+                return await self._async_after_backend_setup()
 
         return self.async_show_form(
             step_id="music_assistant",
@@ -2351,7 +2377,7 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             errors = self._handle_spotify_oauth_result(user_input)
             if not errors:
-                return self.async_external_step_done(next_step_id="profile_setup")
+                return self.async_external_step_done(next_step_id="voice" if self._profile_input else "profile_setup")
 
         if errors:
             return self.async_show_form(
@@ -2380,31 +2406,177 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         result["description"] = _spotify_oauth_description(self.hass)
         return result
 
-    async def async_step_profile_setup(
-        self,
-        user_input: dict[str, Any] | None = None,
+    async def async_step_profile_choice(
+        self, user_input: dict[str, Any] | None = None, *, error: str | None = None
     ) -> FlowResult:
-        """Create the first DJConnect Profile Platform state."""
-        errors: dict[str, str] = {}
-        if user_input is not None:
-            try:
-                self._profile_platform = await _ensure_profile_platform_setup(
-                    self.hass,
-                    profile_input=user_input,
-                    pairing=self._pairing,
-                    backend=self._backend,
-                    spotify=self._spotify,
-                )
-                return await self.async_step_voice()
-            except (ProfileStorageValidationError, ValueError) as exc:
-                _LOGGER.debug("DJConnect profile setup validation failed: %s", exc)
-                errors["base"] = "profile_setup_failed"
+        """Select an explicit household Profile before backend/account setup."""
+        household = await _profile_storage(self.hass).async_load()
+        errors: dict[str, str] = {CONF_PROFILE_ID: error} if error else {}
+        if user_input is not None and not error:
+            selected = str(user_input.get(CONF_PROFILE_ID) or "").strip()
+            self._profile_input = {}
+            self._profile_platform = {}
+            self._profile_snapshot = None
+            self._spotify = {}
+            if selected == PROFILE_NEW:
+                self._backend = {CONF_MUSIC_BACKEND: DEFAULT_MUSIC_BACKEND}
+                return await self.async_step_profile_setup()
+            profile = household.profiles.get(selected)
+            if profile is None or str(profile.state) != "active":
+                errors[CONF_PROFILE_ID] = "profile_unavailable"
+            else:
+                from .profile_backend import profile_backend_entry_id
 
+                try:
+                    owner_entry = profile_backend_entry_id(self.hass, profile.profile_id)
+                except ProfileStorageValidationError:
+                    errors[CONF_PROFILE_ID] = "profile_connection_unavailable"
+                else:
+                    self._profile_input = {CONF_PROFILE_ID: selected}
+                    self._profile_snapshot = profile
+                    self._backend = {
+                        CONF_MUSIC_BACKEND: profile.preferences.default_backend_id
+                        or BACKEND_LATER_MANUAL
+                    }
+                    if owner_entry:
+                        self._backend["profile_backend_entry_id"] = owner_entry
+                    return await self.async_step_voice()
+        elif not household.profiles and not error:
+            return await self.async_step_profile_setup()
+        # SelectSelector gives HA translated static choices and dynamic profile names.
+        from homeassistant.helpers.selector import SelectSelector, SelectSelectorConfig
+
+        options = [{"value": PROFILE_NEW, "label": "new"}] + [
+            {"value": p.profile_id, "label": p.display_name}
+            for p in sorted(
+                household.profiles.values(), key=lambda p: (p.display_name.casefold(), p.profile_id)
+            )
+            if str(p.state) == "active"
+        ]
         return self.async_show_form(
-            step_id="profile_setup",
-            data_schema=vol.Schema(_profile_setup_schema(user_input)),
+            step_id="profile_choice",
+            data_schema=vol.Schema(
+                {
+                    vol.Required(CONF_PROFILE_ID): SelectSelector(
+                        SelectSelectorConfig(
+                            options=options, mode="dropdown", translation_key="onboarding_profile"
+                        )
+                    )
+                }
+            ),
             errors=errors,
             last_step=False,
+        )
+
+    async def async_step_profile_setup(
+        self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
+        """Keep a new Profile as a draft until the final entry confirmation."""
+        household = await _profile_storage(self.hass).async_load()
+        errors: dict[str, str] = {}
+        if user_input is not None:
+            selected = str(user_input.get(CONF_PROFILE_ID) or PROFILE_NEW)
+            if selected != PROFILE_NEW:
+                return await self.async_step_profile_choice({CONF_PROFILE_ID: selected})
+            name = str(user_input.get(CONF_PROFILE_NAME) or "").strip()
+            if not name:
+                errors[CONF_PROFILE_NAME] = "profile_name_required"
+            elif any(
+                p.display_name.casefold() == name.casefold() for p in household.profiles.values()
+            ):
+                errors[CONF_PROFILE_NAME] = "profile_name_exists"
+            else:
+                try:
+                    ProfileType(
+                        str(user_input.get(CONF_PROFILE_TYPE) or ProfileType.PERSONAL.value)
+                    )
+                    ResponseStyle(
+                        str(
+                            user_input.get(CONF_PROFILE_RESPONSE_STYLE)
+                            or ResponseStyle.BALANCED.value
+                        )
+                    )
+                except ValueError:
+                    errors["base"] = "profile_setup_failed"
+                else:
+                    self._profile_input = {**user_input, CONF_PROFILE_NAME: name}
+                    self._profile_input.pop(CONF_PROFILE_ID, None)
+                    self._profile_snapshot = None
+                    return await self.async_step_backend()
+        schema = _profile_setup_schema(user_input)
+        if household.profiles:
+            from homeassistant.helpers.selector import SelectSelector, SelectSelectorConfig
+
+            options = [{"value": PROFILE_NEW, "label": "new"}] + [
+                {"value": p.profile_id, "label": p.display_name}
+                for p in sorted(
+                    household.profiles.values(),
+                    key=lambda p: (p.display_name.casefold(), p.profile_id),
+                )
+                if str(p.state) == "active"
+            ]
+            schema = {
+                vol.Optional(CONF_PROFILE_ID, default=PROFILE_NEW): SelectSelector(
+                    SelectSelectorConfig(
+                        options=options, mode="dropdown", translation_key="onboarding_profile"
+                    )
+                ),
+                **schema,
+            }
+            schema = {k: v for k, v in schema.items() if k.schema != CONF_REQUIRE_PROFILE}
+        return self.async_show_form(
+            step_id="profile_setup", data_schema=vol.Schema(schema), errors=errors, last_step=False
+        )
+
+    async def _async_validate_profile_draft(self) -> None:
+        household = await _profile_storage(self.hass).async_load()
+        selected = self._profile_input.get(CONF_PROFILE_ID)
+        if selected:
+            profile = household.profiles.get(selected)
+            if profile is None or profile != self._profile_snapshot:
+                raise ProfileStorageValidationError("profile_unavailable")
+            from .profile_backend import profile_backend_entry_id
+
+            if profile_backend_entry_id(self.hass, selected) != self._backend.get(
+                "profile_backend_entry_id", ""
+            ):
+                raise ProfileStorageValidationError("profile_connection_unavailable")
+        elif self._profile_input:
+            name = str(self._profile_input[CONF_PROFILE_NAME]).strip()
+            if any(
+                p.display_name.casefold() == name.casefold() for p in household.profiles.values()
+            ):
+                raise ProfileStorageValidationError("profile_name_exists")
+
+    async def _async_commit_profile_draft(self) -> None:
+        """Serialize onboarding commits and persist one validated household update."""
+        if not self._profile_input:
+            return
+        manager = _profile_storage(self.hass)
+        if not hasattr(manager, "_onboarding_lock"):
+            manager._onboarding_lock = asyncio.Lock()
+        async with manager._onboarding_lock:
+            await self._async_validate_profile_draft()
+            before = await manager.async_load()
+            staged = ProfilePlatformStorage()
+            staged._household = before
+            staged._loaded = True
+            binding = await _ensure_profile_platform_setup(
+                self.hass,
+                profile_input=self._profile_input,
+                pairing=self._pairing,
+                backend=self._backend,
+                spotify=self._spotify,
+                manager=staged,
+            )
+            await manager.async_commit_onboarding(before, staged.household)
+            self._profile_platform = binding
+
+    async def _async_after_backend_setup(self) -> FlowResult:
+        return (
+            await self.async_step_voice()
+            if self._profile_input
+            else await self.async_step_profile_setup()
         )
 
     def _handle_spotify_oauth_result(self, user_input: dict[str, Any]) -> dict[str, str]:
@@ -2452,6 +2624,7 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         data.update(self._pairing)
         data.update(self._backend)
         data.update(self._spotify)
+        data.update(self._profile_platform)
         data.update(
             _voice_defaults_for_client(
                 voice_values or {},
@@ -2461,6 +2634,36 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         return self.async_create_entry(
             title=data.get(CONF_DEVICE_NAME, "DJConnect DJ"),
             data=data,
+        )
+
+    async def _async_finish_profile_entry(
+        self, data: dict[str, Any], user_input: dict[str, Any]
+    ) -> FlowResult:
+        try:
+            await self._async_commit_profile_draft()
+        except ProfileStorageValidationError as exc:
+            if str(exc) == "profile_state_changed":
+                return self.async_show_form(step_id="voice", data_schema=await _voice_schema(self.hass,
+                    {**self._pairing, **_voice_form_values(user_input)}), errors={"base": "profile_setup_failed"})
+            if str(exc) == "profile_name_exists":
+                return await self.async_step_profile_setup(self._profile_input)
+            return await self.async_step_profile_choice(
+                error=str(exc)
+                if str(exc) in {"profile_unavailable", "profile_connection_unavailable"}
+                else "profile_unavailable"
+            )
+        except Exception as exc:  # noqa: BLE001
+            _LOGGER.warning("DJConnect profile setup save failed: %s", exc.__class__.__name__)
+            return self.async_show_form(
+                step_id="voice",
+                data_schema=await _voice_schema(self.hass, {**self._pairing, **_voice_form_values(user_input)}),
+                errors={"base": "profile_setup_failed"},
+            )
+        data.update(self._profile_platform)
+        if getattr(self, "_conversation_agent_only", False):
+            return self._create_conversation_agent_entry(_voice_form_values(user_input))
+        return self.async_create_entry(
+            title=data.get(CONF_DEVICE_NAME, DEFAULT_DEVICE_NAME), data=data
         )
 
     async def async_step_voice(
@@ -2473,6 +2676,12 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             errors = _voice_errors(user_input)
             errors.update(_announcement_errors(self.hass, user_input))
             if not errors:
+                try:
+                    await self._async_validate_profile_draft()
+                except ProfileStorageValidationError as exc:
+                    if str(exc) == "profile_name_exists":
+                        return await self.async_step_profile_setup(self._profile_input)
+                    return await self.async_step_profile_choice(error=str(exc) if str(exc) in {"profile_unavailable", "profile_connection_unavailable"} else "profile_unavailable")
                 data: dict[str, Any] = {}
                 data.update(self._pairing)
                 data.update(self._backend)
@@ -2486,14 +2695,9 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     )
                 )
                 if getattr(self, "_conversation_agent_only", False):
-                    return self._create_conversation_agent_entry(
-                        _voice_form_values(user_input)
-                    )
+                    return await self._async_finish_profile_entry(data, user_input)
                 if not self._client_type_uses_local_device_api(client_type):
-                    return self.async_create_entry(
-                        title=data.get(CONF_DEVICE_NAME, DEFAULT_DEVICE_NAME),
-                        data=data,
-                    )
+                    return await self._async_finish_profile_entry(data, user_input)
                 try:
                     await _async_pair_before_create(self.hass, data)
                 except Exception as exc:  # noqa: BLE001
@@ -2516,10 +2720,7 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         ),
                         errors=errors,
                     )
-                return self.async_create_entry(
-                    title=data.get(CONF_DEVICE_NAME, DEFAULT_DEVICE_NAME),
-                    data=data,
-                )
+                return await self._async_finish_profile_entry(data, user_input)
 
         return self.async_show_form(
             step_id="voice",

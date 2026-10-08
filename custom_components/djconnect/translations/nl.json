@@ -287,6 +287,34 @@
           "music_backend": "Gekozen playback-backend.",
           "music_assistant_player": "Geconfigureerde Music Assistant doelplayer."
         }
+      },
+      "profile_choice": {
+        "title": "Kies een profiel",
+        "description": "Profielen worden gedeeld binnen deze Home Assistant-installatie. Kies een bestaand profiel of maak een nieuw profiel.",
+        "data": {
+          "profile_id": "Profiel"
+        },
+        "data_description": {
+          "profile_id": "Profielen worden gedeeld binnen deze Home Assistant-installatie. Kies een bestaand profiel of maak een nieuw profiel."
+        }
+      },
+      "profile_setup": {
+        "title": "Nieuw profiel",
+        "description": "Geef het nieuwe profiel een unieke naam. Wil je het profiel van een ander apparaat gebruiken? Kies dat profiel in de lijst.",
+        "data": {
+          "profile_id": "Profiel",
+          "profile_name": "Profielnaam",
+          "profile_type": "Profieltype",
+          "profile_response_style": "Antwoordstijl",
+          "require_profile": "Een expliciet profiel vereisen"
+        },
+        "data_description": {
+          "profile_id": "Profielen worden gedeeld binnen deze Home Assistant-installatie. Kies een bestaand profiel of maak een nieuw profiel.",
+          "profile_name": "Geef het nieuwe profiel een unieke naam. Wil je het profiel van een ander apparaat gebruiken? Kies dat profiel in de lijst.",
+          "profile_type": "Profieltype",
+          "profile_response_style": "Antwoordstijl",
+          "require_profile": "Een expliciet profiel vereisen"
+        }
       }
     },
     "error": {
@@ -312,7 +340,12 @@
       "music_assistant_unavailable": "Music Assistant is niet geïnstalleerd of geconfigureerd in Home Assistant.",
       "music_assistant_no_players": "Er zijn geen bruikbare Music Assistant players gevonden.",
       "music_assistant_player_missing": "De gekozen Music Assistant player bestaat niet meer.",
-      "invalid_voice_profile": "Kies een ondersteund DJ stemprofiel."
+      "invalid_voice_profile": "Kies een ondersteund DJ stemprofiel.",
+      "profile_name_exists": "Deze naam bestaat al. Kies het bestaande profiel in de lijst of vul een andere naam in.",
+      "profile_name_required": "Vul een profielnaam in.",
+      "profile_unavailable": "Dit profiel is gewijzigd of niet meer beschikbaar. Kies het opnieuw in de vernieuwde lijst.",
+      "profile_connection_unavailable": "De bestaande muziekverbinding is niet beschikbaar of niet eenduidig. Herstel die verbinding of kies een ander profiel.",
+      "profile_setup_failed": "Het profiel kon niet worden opgeslagen. Probeer opnieuw."
     },
     "abort": {
       "already_configured": "Dit DJConnect apparaat is al geconfigureerd."
@@ -646,6 +679,28 @@
         "abort": {
           "entry_not_found": "DJConnect configuratie kon niet worden gevonden."
         }
+      }
+    }
+  },
+  "selector": {
+    "onboarding_profile": {
+      "options": {
+        "new": "Nieuw profiel maken"
+      }
+    },
+    "onboarding_profile_type": {
+      "options": {
+        "personal": "Persoonlijk",
+        "household": "Huishouden",
+        "guest": "Gast",
+        "kids": "Kinderen"
+      }
+    },
+    "onboarding_response_style": {
+      "options": {
+        "concise": "Bondig",
+        "balanced": "Gebalanceerd",
+        "expressive": "Expressief"
       }
     }
   }

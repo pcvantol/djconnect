@@ -360,11 +360,30 @@ class DJConnectRuntime:
     listeners: list = field(default_factory=list)
     _last_update_signature: str | None = None
     _receiver_end_generation: int = 0
+    _profile_backend_hass: Any = field(default=None, repr=False, compare=False)
 
     @property
     def config(self) -> dict[str, Any]:
         data = dict(self.entry.data)
         data.update(dict(self.entry.options))
+        if data.get("profile_backend_entry_id") and self._profile_backend_hass is not None:
+            from .domain.storage import ProfileStorageValidationError
+            from .profile_backend import profile_backend_runtime
+            try:
+                source = profile_backend_runtime(self._profile_backend_hass, self, provider_only=True)
+            except ProfileStorageValidationError:
+                source = None
+            if source is not None:
+                # Only provider configuration is inherited; device identity/auth remains local.
+                provider_keys = (CONF_SPOTIFY_CLIENT_ID, CONF_SPOTIFY_REFRESH_TOKEN,
+                    CONF_SPOTIFY_MARKET, CONF_SPOTIFY_SCOPES, CONF_HA_EXTERNAL_URL,
+                    CONF_MUSIC_ASSISTANT_PLAYER, "music_backend_revision")
+                connection = source.config
+                for key in provider_keys:
+                    if key in connection:
+                        data[key] = connection[key]
+                if getattr(source, "latest_spotify_refresh_token", None):
+                    data[CONF_SPOTIFY_REFRESH_TOKEN] = source.latest_spotify_refresh_token
         return data
 
     def update(self, **kwargs: Any) -> None:
@@ -1858,7 +1877,7 @@ def _platforms_for_runtime(runtime: DJConnectRuntime) -> list[str]:
 
 
 def _restore_runtime(hass: HomeAssistant, entry: ConfigEntry) -> DJConnectRuntime:
-    runtime = DJConnectRuntime(entry=entry)
+    runtime = DJConnectRuntime(entry=entry, _profile_backend_hass=hass)
     memory_manager = hass.data[DOMAIN].get("memory_manager")
     if memory_manager is None:
         memory_manager = MusicDNAManager(hass)

@@ -287,6 +287,34 @@
           "music_backend": "Ausgewähltes Wiedergabe-Backend.",
           "music_assistant_player": "Konfigurierter Ziel-Player von Music Assistant."
         }
+      },
+      "profile_choice": {
+        "title": "Profil auswählen",
+        "description": "Profile werden innerhalb dieser Home-Assistant-Installation geteilt. Wähle ein bestehendes Profil oder erstelle ein neues.",
+        "data": {
+          "profile_id": "Profil"
+        },
+        "data_description": {
+          "profile_id": "Profile werden innerhalb dieser Home-Assistant-Installation geteilt. Wähle ein bestehendes Profil oder erstelle ein neues."
+        }
+      },
+      "profile_setup": {
+        "title": "Neues Profil",
+        "description": "Gib dem neuen Profil einen eindeutigen Namen. Um das Profil eines anderen Geräts zu verwenden, wähle es aus der Profilliste.",
+        "data": {
+          "profile_id": "Profil",
+          "profile_name": "Profilname",
+          "profile_type": "Profiltyp",
+          "profile_response_style": "Antwortstil",
+          "require_profile": "Ein ausdrücklich gewähltes Profil verlangen"
+        },
+        "data_description": {
+          "profile_id": "Profile werden innerhalb dieser Home-Assistant-Installation geteilt. Wähle ein bestehendes Profil oder erstelle ein neues.",
+          "profile_name": "Gib dem neuen Profil einen eindeutigen Namen. Um das Profil eines anderen Geräts zu verwenden, wähle es aus der Profilliste.",
+          "profile_type": "Profiltyp",
+          "profile_response_style": "Antwortstil",
+          "require_profile": "Ein ausdrücklich gewähltes Profil verlangen"
+        }
       }
     },
     "error": {
@@ -312,7 +340,12 @@
       "music_assistant_unavailable": "Music Assistant ist in Home Assistant nicht installiert oder nicht konfiguriert.",
       "music_assistant_no_players": "Es wurden keine nutzbaren Music Assistant-Player gefunden.",
       "music_assistant_player_missing": "Der ausgewählte Music Assistant-Player existiert nicht mehr.",
-      "invalid_voice_profile": "Wähle ein unterstütztes DJ-Sprachprofil."
+      "invalid_voice_profile": "Wähle ein unterstütztes DJ-Sprachprofil.",
+      "profile_name_exists": "Dieser Name wird bereits verwendet. Wähle das bestehende Profil aus der Liste oder gib einen anderen Namen ein.",
+      "profile_name_required": "Gib einen Profilnamen ein.",
+      "profile_unavailable": "Dieses Profil wurde geändert oder ist nicht mehr verfügbar. Wähle es erneut aus der aktualisierten Liste.",
+      "profile_connection_unavailable": "Die bestehende Musikverbindung ist nicht verfügbar oder nicht eindeutig. Stelle sie wieder her oder wähle ein anderes Profil.",
+      "profile_setup_failed": "Das Profil konnte nicht gespeichert werden. Versuche es erneut."
     },
     "abort": {
       "already_configured": "Dieses DJConnect-Gerät ist bereits konfiguriert."
@@ -646,6 +679,28 @@
         "abort": {
           "entry_not_found": "Die DJConnect-Konfiguration wurde nicht gefunden."
         }
+      }
+    }
+  },
+  "selector": {
+    "onboarding_profile": {
+      "options": {
+        "new": "Neues Profil erstellen"
+      }
+    },
+    "onboarding_profile_type": {
+      "options": {
+        "personal": "Persönlich",
+        "household": "Haushalt",
+        "guest": "Gast",
+        "kids": "Kinder"
+      }
+    },
+    "onboarding_response_style": {
+      "options": {
+        "concise": "Kurz",
+        "balanced": "Ausgewogen",
+        "expressive": "Ausdrucksstark"
       }
     }
   }

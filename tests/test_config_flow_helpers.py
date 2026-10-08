@@ -74,6 +74,7 @@ def install_homeassistant_stubs() -> None:
     class Marker:
         def __init__(self, key, default=None):
             self.key = key
+            self.schema = key
             self.default = default
 
     class ClientTimeout:
@@ -983,7 +984,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
         async def fake_backend(user_input=None):
             return {"type": "next_step", "pairing": flow._pairing}
 
-        flow.async_step_backend = fake_backend
+        flow.async_step_profile_choice = fake_backend
 
         result = asyncio.run(
             flow.async_step_pair(
@@ -1038,7 +1039,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
         async def fake_backend(user_input=None):
             return {"type": "next_step", "pairing": flow._pairing}
 
-        flow.async_step_backend = fake_backend
+        flow.async_step_profile_choice = fake_backend
 
         result = asyncio.run(
             flow.async_step_pair(
@@ -1168,7 +1169,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
         async def fake_backend(user_input=None):
             return {"type": "next_step", "pairing": flow._pairing}
 
-        flow.async_step_backend = fake_backend
+        flow.async_step_profile_choice = fake_backend
 
         result = asyncio.run(
             flow.async_step_pair(
@@ -1620,7 +1621,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
             )
         )
 
-        self.assertEqual(result["step_id"], "backend")
+        self.assertEqual(result["step_id"], "profile_setup")
         self.assertEqual(unique_ids, ["djconnect-conversation-agent"])
         self.assertTrue(flow._conversation_agent_only)
         self.assertEqual(
@@ -1768,11 +1769,15 @@ class ConfigFlowHelperTest(unittest.TestCase):
             )
         )
 
+        self.assertEqual(profile_result["step_id"], "backend")
         manager = flow.hass.data[self.const.DOMAIN][self.config_flow.PROFILE_PLATFORM_STORE_KEY]
+        self.assertFalse(manager.household.profiles)
+        asyncio.run(flow.async_step_backend({self.const.CONF_MUSIC_BACKEND: self.config_flow.BACKEND_LATER_MANUAL}))
+        entry_result = asyncio.run(flow.async_step_voice({}))
+        self.assertEqual(entry_result["type"], "create_entry")
         household = manager.household
         profile = next(iter(household.profiles.values()))
         self.assertEqual(backend_result["step_id"], "profile_setup")
-        self.assertEqual(profile_result["step_id"], "voice")
         self.assertEqual(profile.display_name, "Peter")
         self.assertEqual(
             household.devices["djconnect-ios-ABCDEFGHIJKL"].linked_profile_id,
