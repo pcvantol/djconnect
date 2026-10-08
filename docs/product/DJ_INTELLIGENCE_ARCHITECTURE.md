@@ -162,6 +162,15 @@ and DJ Moment Renderers as defined in
 For a Transition, the Engine never infers timing or necessity; it only realizes
 Planner approval.
 
+Qualified visual facts now have bounded local persona realization in the same
+Engine. Immutable normalized display anchors qualify against the source fact
+before authored en/nl/de/fr/es wording; Planner still owns selection and dose,
+using final-text read-fit. Ordinary credits and proven producer callbacks vary
+from actually published contributions, with bounded Runtime-only form memory.
+Source attribution and visual-only Composer projection remain intact. The
+existing HA Assist route is unchanged; these credit fields do not enter a new
+model prompt. See [Expressive DJ persona v1](EXPRESSIVE_DJ_PERSONA_CONTRACT.md).
+
 ## Music DNA and privacy
 
 Music DNA belongs exclusively to the Profile. It is optional intelligence
