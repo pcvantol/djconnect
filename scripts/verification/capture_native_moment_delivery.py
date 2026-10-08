@@ -48,7 +48,7 @@ def capture():
         assert status == 200
         await activate()
         clock[0]=400.0
-        stamp[0]=(datetime.fromisoformat(stamp[0])+timedelta(seconds=299)).isoformat()
+        stamp[0]=(datetime.fromisoformat(stamp[0])+timedelta(seconds=300)).isoformat()
         catalog, recording=fixture.source_pair(1)
         await manager.async_update_playback_projection(owner_profile_id='owner',session_id=session.session_id,
             state='playing', media_identity=catalog['uri'], title=catalog['title'],artist=catalog['artist'],
