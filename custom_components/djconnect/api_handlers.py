@@ -2441,10 +2441,15 @@ async def async_handle_ask_dj_history_payload(
             return _error_payload("history_not_allowed"),403
         manager = _history_manager(hass, runtime)
         scope_revision = await manager.async_scope_revision("profile:" + context.profile_id)
-        result=await manager.async_history("profile:"+context.profile_id,since_revision=_int_or_none(payload.get("since_revision")),limit=50)
-        from .session_conversation import query_service
+        from .session_conversation import async_history_grant_revision, query_service
         from .session_history_projection import HistoryQueryError
-        query=query_service(hass,_history_manager(hass,runtime))
+
+        query = query_service(hass, manager)
+        grant_revision = await async_history_grant_revision(hass, context.profile_id)
+        archive_revision = await query._repository.async_owner_revision(
+            context.profile_id, include_active=True
+        )
+        result=await manager.async_history("profile:"+context.profile_id,since_revision=_int_or_none(payload.get("since_revision")),limit=50)
         safe=[]
         for message in result["messages"]:
             visible=True
@@ -2469,6 +2474,10 @@ async def async_handle_ask_dj_history_payload(
             or not resolve_profile_privacy_policy(current.profile, {}).allow_personal_read):
             return _error_payload("history_not_allowed"), 403
         if await manager.async_scope_revision("profile:" + context.profile_id) != scope_revision:
+            return _error_payload("conversation_history_changed"), 409
+        if (await query._repository.async_owner_revision(context.profile_id, include_active=True)
+            != archive_revision
+            or await async_history_grant_revision(hass, context.profile_id) != grant_revision):
             return _error_payload("conversation_history_changed"), 409
         result["messages"]=safe
         result["user_id"]=None

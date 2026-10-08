@@ -620,6 +620,45 @@ class SessionConversationHistoryTest(unittest.IsolatedAsyncioTestCase):
                 self.assertEqual(status, 409 if mutation == "clear" else 403, result)
                 self.assertNotIn("messages", result)
 
+    async def test_profile_history_read_rechecks_grant_after_each_reference_returned(self):
+        from unittest.mock import patch
+        from dataclasses import replace
+        from custom_components.djconnect.session_conversation import query_service
+
+        hass, runtime, history, identity, headers = await self.transport_fixture()
+        session = await self.observed_session()
+
+        async def answer(*args, **kwargs):
+            return {"success": True, "text": "Source-dependent synthetic answer"}
+
+        with patch.object(self.handlers.http_helpers, "async_handle_ask_dj", answer):
+            response, status = await self.handlers.async_handle_ask_dj_message_payload(
+                hass, {**identity, "client_message_id": "source-read-boundary",
+                       "text": "Tell me about this",
+                       "conversation_context": {"session_id": session.session_id}}, headers=headers
+            )
+        self.assertEqual(status, 200, response)
+        query = query_service(hass, history)
+        original = query.async_open_entry
+        storage = hass.data["djconnect"]["djconnect_profile_platform"]
+        household = await storage.async_load()
+        account = household.music_accounts["source-account"]
+
+        async def source_changes_after_open(*args, **kwargs):
+            result = await original(*args, **kwargs)
+            storage._household = replace(household, music_accounts={
+                **household.music_accounts,
+                account.account_id: replace(account, provider_account_id="withdrawn-original-owner"),
+            })
+            return result
+
+        with patch.object(query, "async_open_entry", source_changes_after_open):
+            result, status = await self.handlers.async_handle_ask_dj_history_payload(
+                hass, {**identity, "conversation_scope": "profile"}, headers=headers
+            )
+        self.assertEqual(status, 409, result)
+        self.assertNotIn("messages", result)
+
     async def test_real_handler_rejects_late_track_end_and_privacy_changes(self):
         import asyncio
         from unittest.mock import patch
