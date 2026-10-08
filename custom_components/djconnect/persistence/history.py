@@ -41,11 +41,11 @@ class HistoricalDJMomentProjection:
 class HistoricalProjectionRepository(PersistenceRepository):
     async def async_owner_revision(self, owner_profile_id: str, *, include_active: bool = False) -> str:
         def read(tx):
-            status = "" if include_active else " AND lifecycle_status IN ('ENDED','INTERRUPTED')"
             row = tx.fetchone(
-                "SELECT COUNT(*),COALESCE(SUM(history_revision),0),COALESCE(MAX(updated_at),'') FROM djconnect_persistent_sessions WHERE owner_profile_id=?"
-                + status,
-                (owner_profile_id,),
+                "SELECT COUNT(*),COALESCE(SUM(history_revision),0),COALESCE(MAX(updated_at),'') "
+                "FROM djconnect_persistent_sessions WHERE owner_profile_id=? "
+                "AND (? OR lifecycle_status IN ('ENDED','INTERRUPTED'))",
+                (owner_profile_id, int(include_active)),
             )
             return ":".join(str(v) for v in row)
 
@@ -57,16 +57,26 @@ class HistoricalProjectionRepository(PersistenceRepository):
         """Bounded keyset read: old pages are never silently lost behind a fixed window."""
 
         def read(tx):
-            status = "" if include_active else " AND lifecycle_status IN ('ENDED','INTERRUPTED')"
-            boundary = " AND (created_at,session_id)<(?,?)" if before else ""
-            parameters = (owner_profile_id, *(tuple(before) if before else ()), min(251, limit))
-            rows = tx.fetchall(
-                "SELECT session_id,owner_profile_id,lifecycle_status,created_at,started_at,ended_at,interrupted_at,history_revision,history_enabled FROM djconnect_persistent_sessions WHERE owner_profile_id=?"
-                + status
-                + boundary
-                + " ORDER BY created_at DESC,session_id DESC LIMIT ?",
-                parameters,
-            )
+            if before:
+                query = (
+                    "SELECT session_id,owner_profile_id,lifecycle_status,created_at,started_at,"
+                    "ended_at,interrupted_at,history_revision,history_enabled "
+                    "FROM djconnect_persistent_sessions WHERE owner_profile_id=? "
+                    "AND (? OR lifecycle_status IN ('ENDED','INTERRUPTED')) "
+                    "AND (created_at,session_id)<(?,?) "
+                    "ORDER BY created_at DESC,session_id DESC LIMIT ?"
+                )
+                parameters = (owner_profile_id, int(include_active), *tuple(before), min(251, limit))
+            else:
+                query = (
+                    "SELECT session_id,owner_profile_id,lifecycle_status,created_at,started_at,"
+                    "ended_at,interrupted_at,history_revision,history_enabled "
+                    "FROM djconnect_persistent_sessions WHERE owner_profile_id=? "
+                    "AND (? OR lifecycle_status IN ('ENDED','INTERRUPTED')) "
+                    "ORDER BY created_at DESC,session_id DESC LIMIT ?"
+                )
+                parameters = (owner_profile_id, int(include_active), min(251, limit))
+            rows = tx.fetchall(query, parameters)
             keys = (
                 "session_id",
                 "owner_profile_id",
@@ -115,20 +125,22 @@ class HistoricalProjectionRepository(PersistenceRepository):
         descending: bool = False,
     ) -> list[dict]:
         def read(tx):
-            clause = " AND entry_order<?" if before is not None else ""
-            params = [owner_profile_id, session_id, after]
-            if before is not None:
-                params.append(before)
-            params.append(min(251, limit))
-            direction = "DESC" if descending else "ASC"
-            rows = tx.fetchall(
-                "SELECT entry_id,session_id,entry_order,kind,reference_id,body,occurred_at,retained_until,visibility,revoked_at FROM djconnect_session_entries WHERE owner_profile_id=? AND session_id=? AND entry_order>?"
-                + clause
-                + " ORDER BY entry_order "
-                + direction
-                + " LIMIT ?",
-                tuple(params),
+            # Both query shapes are fixed SQL; all cursor/owner/bound values bind as data.
+            query = (
+                "SELECT entry_id,session_id,entry_order,kind,reference_id,body,occurred_at,"
+                "retained_until,visibility,revoked_at FROM djconnect_session_entries "
+                "WHERE owner_profile_id=? AND session_id=? AND entry_order>? AND entry_order<? "
+                "ORDER BY entry_order DESC LIMIT ?"
+                if descending else
+                "SELECT entry_id,session_id,entry_order,kind,reference_id,body,occurred_at,"
+                "retained_until,visibility,revoked_at FROM djconnect_session_entries "
+                "WHERE owner_profile_id=? AND session_id=? AND entry_order>? AND entry_order<? "
+                "ORDER BY entry_order ASC LIMIT ?"
             )
+            rows = tx.fetchall(query, (
+                owner_profile_id, session_id, after,
+                before if before is not None else 9223372036854775807, min(251, limit),
+            ))
             keys = (
                 "entry_id",
                 "session_id",
