@@ -12,7 +12,7 @@ from uuid import NAMESPACE_URL, uuid5
 from .historical_projection_query import HistoricalProjectionQueryService
 from .persistence import persistence_service
 from .persistence.history import HistoricalProjectionRepository
-from .session_runtime import session_runtime_manager
+from .session_runtime import async_complete_conversation_commit, session_runtime_manager
 
 
 class SessionConversationError(ValueError):
@@ -161,7 +161,8 @@ async def async_history_grant_revision(hass, owner: str) -> str:
     household = await profile_storage(hass).async_load()
     profile = household.profiles.get(owner)
     accounts = [
-        (a.account_id, a.backend_id, str(a.state), owner in a.linked_profile_ids)
+        (a.account_id, a.backend_id, str(a.state), owner in a.linked_profile_ids,
+         str(a.provider_account_id))
         for a in household.music_accounts.values()
     ]
     backends = [
@@ -182,6 +183,15 @@ async def async_history_grant_revision(hass, owner: str) -> str:
             )
         )
     revoked = sorted(hass.data.get("djconnect", {}).get("spotify_reauth_issue_throttle", {}))
+    try:
+        from homeassistant.helpers import issue_registry
+
+        issue = issue_registry.async_get(hass).async_get_issue(
+            "djconnect", "spotify_refresh_token_revoked"
+        )
+    except (ImportError, AttributeError):
+        issue = None
+    repair_source = str((issue.data or {}).get("entry_id") or "") if issue else ""
     payload = (
         str(profile.state) if profile else "missing",
         str(profile.privacy_mode) if profile else "",
@@ -189,6 +199,7 @@ async def async_history_grant_revision(hass, owner: str) -> str:
         sorted(backends),
         sorted(sources),
         revoked,
+        repair_source,
     )
     return hashlib.sha256(json.dumps(payload, sort_keys=True).encode()).hexdigest()[:16]
 
@@ -423,28 +434,28 @@ async def async_session_exchange(
                     history_scope, payload, result, session_turn=turn, commit_guard=commit_guard
                 )
             ids = []
-            if session_id:
-                ids = await query._repository.async_append_entries(
-                    profile_id,
-                    session_id,
-                    [
-                        {
-                            "kind": kind,
-                            "reference_id": turn["turn_id"] + ":" + role,
-                            "body": {
-                                "turn_id": turn["turn_id"],
-                                "message_id": saved[role]["id"],
-                                "history_scope": history_scope,
-                            },
-                            "occurred_at": saved[role]["created_at"],
-                        }
-                        for kind, role in [
-                            ("conversation_user", "user_message"),
-                            ("conversation_dj", "assistant_message"),
-                        ]
-                    ],
-                )
             try:
+                if session_id:
+                    ids = await query._repository.async_append_entries(
+                        profile_id,
+                        session_id,
+                        [
+                            {
+                                "kind": kind,
+                                "reference_id": turn["turn_id"] + ":" + role,
+                                "body": {
+                                    "turn_id": turn["turn_id"],
+                                    "message_id": saved[role]["id"],
+                                    "history_scope": history_scope,
+                                },
+                                "occurred_at": saved[role]["created_at"],
+                            }
+                            for kind, role in [
+                                ("conversation_user", "user_message"),
+                                ("conversation_dj", "assistant_message"),
+                            ]
+                        ],
+                    )
                 await validate_owner()
                 expected_revision = (
                     str(saved.get("history_trimmed_count", 0))
@@ -459,7 +470,7 @@ async def async_session_exchange(
                     await query.async_open_entry(
                         profile_id, dependency["session_id"], dependency["entry_id"]
                     )
-            except (SessionConversationError, PermissionError):
+            except Exception:
                 await query._repository.async_remove_entry_records(profile_id, ids)
                 if new_exchange:
                     await history_manager.async_discard_session_exchange(
@@ -478,7 +489,7 @@ async def async_session_exchange(
             )
         else:
             # Standalone turns have no Runtime to lock, but retain the same Store guard.
-            ids = await finish()
+            ids = await async_complete_conversation_commit(finish)
         return {
             **result,
             **saved,

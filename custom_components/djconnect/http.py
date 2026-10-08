@@ -3307,7 +3307,7 @@ class DJConnectAskDjClearView(HomeAssistantView):
             client_type,
         ):
             return _json_error(self, "unauthorized", 401)
-        result = await _history_manager(hass, runtime).async_clear_all()
+        result = await _history_manager(hass, runtime).async_clear_all(include_profile_history=False)
         return self.json(result)
 
 

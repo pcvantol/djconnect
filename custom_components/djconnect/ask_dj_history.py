@@ -145,12 +145,7 @@ class AskDJHistoryManager:
         state = self._user_state(user_key)
         state["history_revision"] = int(state.get("history_revision") or 0) + 1
         state["clear_revision"] = int(state.get("clear_revision") or 0) + 1
-        if user_key.startswith("profile:"):
-            known = [m.get("client_message_id") for m in state.get("messages", [])]
-            known.extend(self._pending_session_requests.get(user_key, {}))
-            hashes = list(state.get("cleared_request_hashes", []))
-            hashes.extend(_request_hash(user_key, identifier) for identifier in known if isinstance(identifier, str) and identifier)
-            state["cleared_request_hashes"] = list(dict.fromkeys(hashes))[-1000:]
+        self._remember_cleared_session_requests(user_key, state)
         state["messages"] = []
         _clear_trim_metadata(state)
         state["updated_at"] = _now()
@@ -167,8 +162,21 @@ class AskDJHistoryManager:
             "server_time": _now(),
         }
 
+    def _remember_cleared_session_requests(self, user_key, state):
+        """Keep bounded opaque retry tombstones; no cleared question text survives."""
+        if not user_key.startswith("profile:"):
+            return
+        known = [m.get("client_message_id") for m in state.get("messages", [])]
+        known.extend(self._pending_session_requests.get(user_key, {}))
+        hashes = list(state.get("cleared_request_hashes", []))
+        hashes.extend(
+            _request_hash(user_key, identifier)
+            for identifier in known if isinstance(identifier, str) and identifier
+        )
+        state["cleared_request_hashes"] = list(dict.fromkeys(hashes))[-1000:]
+
     @_committed_mutation
-    async def async_clear_all(self) -> dict[str, Any]:
+    async def async_clear_all(self, *, include_profile_history: bool = True) -> dict[str, Any]:
         """Clear history for all app clients and advance a global clear revision."""
         await self.async_load()
         global_clear_revision = int(self._data.get("global_clear_revision") or 0) + 1
@@ -177,11 +185,17 @@ class AskDJHistoryManager:
         if not users:
             users[_user_key(None)] = {"history_revision": 0, "clear_revision": 0, "messages": []}
         max_history_revision = global_clear_revision
-        for state in users.values():
+        for user_key in self._pending_session_requests:
+            if include_profile_history and user_key.startswith("profile:"):
+                self._user_state(user_key)
+        for user_key, state in users.items():
+            if user_key.startswith("profile:") and not include_profile_history:
+                continue
             if not isinstance(state, dict):
                 continue
             state["history_revision"] = int(state.get("history_revision") or 0) + 1
             state["clear_revision"] = max(int(state.get("clear_revision") or 0), global_clear_revision)
+            self._remember_cleared_session_requests(user_key, state)
             state["messages"] = []
             _clear_trim_metadata(state)
             state["updated_at"] = _now()

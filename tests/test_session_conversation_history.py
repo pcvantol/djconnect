@@ -337,6 +337,171 @@ class SessionConversationHistoryTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(len(identifiers), 502)
         self.assertEqual(len(set(identifiers)), 502)
 
+    async def test_cancelled_acceptance_finishes_store_and_references_before_end(self):
+        import asyncio
+        from unittest.mock import patch
+
+        for boundary in ("store", "sqlite"):
+            with self.subTest(boundary=boundary):
+                hass, runtime, history, identity, headers = await self.transport_fixture()
+                session = await self.observed_session()
+                entered, release = asyncio.Event(), asyncio.Event()
+                calls = []
+
+                async def answer(*args, **kwargs):
+                    calls.append(True)
+                    return {"success": True, "text": "Accepted synthetic response"}
+
+                owner = history._store if boundary == "store" else self.repo
+                method = "async_save" if boundary == "store" else "async_append_entries"
+                original = getattr(owner, method)
+
+                async def blocked(*args, **kwargs):
+                    entered.set()
+                    await release.wait()
+                    return await original(*args, **kwargs)
+
+                # The query owns an equivalent repository instance over the same service.
+                if boundary == "sqlite":
+                    owner = HistoricalProjectionRepository
+                    original = owner.async_append_entries
+
+                    async def blocked(repo, *args, **kwargs):
+                        entered.set()
+                        await release.wait()
+                        return await original(repo, *args, **kwargs)
+
+                payload = {
+                    **identity, "client_message_id": "cancel-" + boundary,
+                    "text": "Tell me about this",
+                    "conversation_context": {"session_id": session.session_id},
+                }
+                with patch.object(owner, method, blocked), patch.object(
+                    self.handlers.http_helpers, "async_handle_ask_dj", answer
+                ):
+                    pending = asyncio.create_task(self.handlers.async_handle_ask_dj_message_payload(
+                        hass, dict(payload), headers=headers
+                    ))
+                    await entered.wait()
+                    pending.cancel()
+                    await asyncio.sleep(0)
+                    pending.cancel()  # Repeated disconnect cancellation cannot release the lock.
+                    ending = asyncio.create_task(self.manager.async_end(
+                        owner_profile_id="profile-a", session_id=session.session_id
+                    ))
+                    await asyncio.sleep(0)
+                    self.assertFalse(ending.done())
+                    release.set()
+                    with self.assertRaises(asyncio.CancelledError):
+                        await pending
+                    await ending
+                messages = (await history.async_history("profile:profile-a"))["messages"]
+                rows = await self.repo.async_entry_records("profile-a", session.session_id)
+                self.assertEqual(len(messages), 2)
+                self.assertEqual(len([r for r in rows if r["kind"].startswith("conversation_")]), 2)
+                query = HistoricalProjectionQueryService(self.repo, history)
+                for row in rows:
+                    await query.async_open_entry("profile-a", session.session_id, row["entry_id"])
+                self.assertEqual(len(calls), 1)
+
+    async def test_open_rechecks_removed_entry_after_projection(self):
+        from unittest.mock import patch
+        from custom_components.djconnect.session_history_projection import HistoryQueryError
+
+        session = await self.observed_session()
+        row = (await self.repo.async_entry_records("profile-a", session.session_id))[0]
+        original = self.queries._project_entry
+
+        async def withdrawn(owner, entry):
+            projected = await original(owner, entry)
+            await self.repo.async_remove_entry_records(owner, [entry["entry_id"]])
+            return projected
+
+        with patch.object(self.queries, "_project_entry", withdrawn):
+            with self.assertRaises(HistoryQueryError):
+                await self.queries.async_open_entry("profile-a", session.session_id, row["entry_id"])
+
+    async def test_source_identity_and_persisted_repair_change_grant_revision(self):
+        from unittest.mock import patch
+        from dataclasses import replace
+        from custom_components.djconnect.session_conversation import async_history_grant_revision
+
+        hass, runtime, history, identity, headers = await self.transport_fixture()
+        storage = hass.data["djconnect"]["djconnect_profile_platform"]
+        before = await async_history_grant_revision(hass, "profile-a")
+        household = await storage.async_load()
+        account = household.music_accounts["source-account"]
+        storage._household = replace(household, music_accounts={
+            **household.music_accounts,
+            account.account_id: replace(account, provider_account_id="different-source-identity"),
+        })
+        changed = await async_history_grant_revision(hass, "profile-a")
+        self.assertNotEqual(before, changed)
+        registry = types.SimpleNamespace(async_get=lambda hass: types.SimpleNamespace(
+            async_get_issue=lambda *args: types.SimpleNamespace(data={"entry_id": "source-entry"})
+        ))
+        with patch.dict(sys.modules, {"homeassistant.helpers.issue_registry": registry}), patch.object(
+            sys.modules["homeassistant.helpers"], "issue_registry", registry, create=True
+        ):
+            self.assertNotEqual(changed, await async_history_grant_revision(hass, "profile-a"))
+        self.assertEqual(changed, await async_history_grant_revision(hass, "profile-a"))
+
+    async def test_account_change_invalidates_cursor_and_inflight_projection(self):
+        from unittest.mock import patch
+        from dataclasses import replace
+        from custom_components.djconnect.session_conversation import query_service
+        from custom_components.djconnect.session_history_projection import HistoryQueryError
+
+        hass, runtime, history, identity, headers = await self.transport_fixture()
+        session = await self.observed_session()
+        await self.manager.async_update_playback_projection(
+            owner_profile_id="profile-a", session_id=session.session_id, state="playing",
+            media_identity="spotify:track:0000000000000000000001", title="Next",
+            duration_ms=120000, position_ms=1000,
+        )
+        query = query_service(hass, history)
+        first = await query.async_timeline_page("profile-a", session.session_id, limit=1)
+        self.assertTrue(first["next_cursor"])
+        storage = hass.data["djconnect"]["djconnect_profile_platform"]
+        household = await storage.async_load()
+        account = household.music_accounts["source-account"]
+
+        def change_account():
+            storage._household = replace(household, music_accounts={
+                **household.music_accounts,
+                account.account_id: replace(account, provider_account_id="new-source-owner"),
+            })
+
+        original = query._project_entry
+
+        async def changed(owner, row):
+            result = await original(owner, row)
+            change_account()
+            return result
+
+        with patch.object(query, "_project_entry", changed):
+            with self.assertRaises(HistoryQueryError):
+                await query.async_timeline_page("profile-a", session.session_id)
+        with self.assertRaises(HistoryQueryError):
+            await query.async_timeline_page(
+                "profile-a", session.session_id, limit=1, cursor=first["next_cursor"]
+            )
+
+    async def test_legacy_device_clear_preserves_private_profile_conversation(self):
+        hass, runtime, history, identity, headers = await self.transport_fixture()
+        payload = {
+            **identity, "client_message_id": "private-preserved",
+            "text": "When have I listened to Metallica?", "conversation_context": {},
+        }
+        self.assertEqual((await self.handlers.async_handle_ask_dj_message_payload(
+            hass, payload, headers=headers
+        ))[1], 200)
+        await history.async_clear_all(include_profile_history=False)
+        self.assertEqual(len((await history.async_history("profile:profile-a"))["messages"]), 2)
+        self.assertFalse(await history.async_session_request_cleared(
+            "profile:profile-a", "private-preserved"
+        ))
+
     async def test_real_handler_rejects_late_track_end_and_privacy_changes(self):
         import asyncio
         from unittest.mock import patch
@@ -508,7 +673,13 @@ class SessionConversationHistoryTest(unittest.IsolatedAsyncioTestCase):
         await self.manager.async_end(owner_profile_id="profile-a", session_id=session.session_id)
         self.assertIsNone(await self.repo.async_get_session_for_originating_id(session.session_id))
 
+    async def test_global_clear_pending_and_completed_ids_survive_store_reload(self):
+        await self._assert_cleared_ids(global_clear=True)
+
     async def test_cleared_pending_and_completed_request_ids_do_not_reappear(self):
+        await self._assert_cleared_ids(global_clear=False)
+
+    async def _assert_cleared_ids(self, *, global_clear):
         import asyncio
         from unittest.mock import patch
 

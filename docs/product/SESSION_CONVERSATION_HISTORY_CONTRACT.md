@@ -87,8 +87,8 @@ One Profile lock serializes contextual exchanges. Completed retries use the
 existing history's client-message identity and confirmed request digest; changed
 text/context under that identity returns `client_message_conflict`409. Confirmed
 question/answer references are added in one existing SQLite transaction, after
-the existing Store accepts the exchange. A storage failure is not success;
-retries reuse retained canonical exchange data without repeating Ask DJ. No
+the existing Store accepts the exchange. A storage failure is not success; a failed reference transaction removes its
+new Store exchange. Completed retained exchanges are reused without repeating Ask DJ. No
 pending client bubble or generated text is used to reconstruct Session identity.
 The bounded existing1000-message retention remains; trimmed/cleared message
 references have no searchable/renderable text. Clear also retains at most1000
@@ -97,7 +97,12 @@ in-flight requests. Replaying a cleared ID cannot resurrect its content; use a
 new ID for a new question. No question text, raw identifier or model knowledge is
 retained in those hashes. The short Store/reference acceptance commit uses the
 existing Runtime lock so end cannot split an acknowledged Session turn; model
-work remains outside that lock. Archives are not mutated by
+work remains outside that lock. Caller cancellation completes this whole short
+acceptance unit, including reference storage and postguards, before releasing
+the Runtime lock; repeated cancellation cannot orphan a Store-only turn.
+Administrative global cleanup retains the same bounded request tombstones;
+the legacy device-wide clear route leaves private Profile namespaces intact.
+Archives are not mutated by
 later standalone questions. Private-session policy can answer without persisting.
 
 For voice, `X-DJConnect-Conversation-Scope: profile` selects this existing
@@ -206,7 +211,9 @@ account is active, still linked to this Profile, matches its original backend,
 and retains the original configured source entry. A different current default
 account never substitutes for that binding. Typed Spotify Repair state withdraws
 its source authority without parsing error text. Internal bindings are omitted
-from returned playback bodies. Grant changes participate in query revisions.
+from returned playback bodies. Grant changes participate in query revisions, including provider account
+identity and persisted typed Repair state. Direct opens repeat the Session,
+Store and grant revision check after projection, just like timeline and search.
 
 The existing historical retention service now removes expired accepted entries
 and corresponding projections, disables expired Session archive eligibility,

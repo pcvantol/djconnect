@@ -40,6 +40,23 @@ from .presentation_composer import (
 _LOGGER = logging.getLogger(__name__)
 
 
+async def async_complete_conversation_commit(commit):
+    """Finish acceptance even if its caller leaves; never release a partial commit."""
+    task = asyncio.create_task(commit())
+    cancelled = False
+    while True:
+        try:
+            result = await asyncio.shield(task)
+            break
+        except asyncio.CancelledError:
+            if task.cancelled():
+                raise
+            cancelled = True
+    if cancelled:
+        raise asyncio.CancelledError
+    return result
+
+
 class SessionRuntimeState(StrEnum):
     """Canonical lifecycle states for the first v4 runtime slice."""
 
@@ -4993,7 +5010,7 @@ class SessionRuntimeManager:
                 or (track_bound and active.broadcast.state.playback.item_id != playback_item_id)
             ):
                 raise ValueError("session_context_changed")
-            return await commit()
+            return await async_complete_conversation_commit(commit)
 
     async def async_get_active(self, owner_profile_id: str) -> DJSessionRuntime | None:
         """Return the active Runtime for a Profile, if one exists."""

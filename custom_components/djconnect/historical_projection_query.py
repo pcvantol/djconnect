@@ -357,7 +357,7 @@ class HistoricalProjectionQueryService:
         }
 
     async def async_open_entry(self, owner: str, session_id: str, entry_id: str) -> dict:
-        from .session_history_projection import public_session
+        from .session_history_projection import HistoryQueryError, public_session
 
         session = await self._session(owner, session_id)
         # Anchor reads are scoped directly; they do not traverse unbounded timelines.
@@ -365,6 +365,8 @@ class HistoricalProjectionQueryService:
         entry = await self._project_entry(owner, row) if row else None
         if entry is None:
             raise HistoricalProjectionAccessDenied("entry_unavailable")
+        if (await self._session(owner, session_id))["revision"] != session["revision"]:
+            raise HistoryQueryError("history_cursor_stale")
         return {
             "success": True,
             "schema_version": 1,
