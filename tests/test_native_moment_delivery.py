@@ -176,8 +176,13 @@ class NativeMomentDeliveryTest(unittest.TestCase):
     def test_internal_session_context_recovery_reprojects_card_expiry(self):
         moments = self.run_sequence(self.runtime.DJPersona.HOME_DJ, count=1)
         broadcast=self.session.broadcast
-        internal=replace(moments[0], moment_id='internal-update', source_fact=None, source_attribution=(),
-                         source_references=('session_direction',))
+        context=self.session.knowledge_engine.assemble_session_direction_context(
+            self.session.session_direction,self.session.session_start_strategy,
+            self.session.selected_mood,self.session.performance_memory)
+        internal=self.session.moment_engine.create_session_update(
+            session_id=self.session.session_id,selected_mood=self.session.selected_mood,
+            persona=self.session.dj_persona,locale=self.session.locale,
+            session_direction=self.session.session_direction,knowledge_context=context)
         broadcast.state=replace(broadcast.state, dj_moments=(), presentations=())
         with patch('time.monotonic', lambda: 101.0):
             cursor=broadcast.owner_recovery_cursor()
@@ -231,3 +236,97 @@ class NativeMomentDeliveryTest(unittest.TestCase):
         self.session.publish_moment(replace(moments[0], session_id='other-session', moment_id='foreign'))
         self.assertEqual(self.session.planner.output.session_flow, before)
         self.assertEqual(self.session.broadcast.delivery_sequence, sequence)
+
+    def test_entry_unload_revokes_live_pending_and_recovery_streams_without_ending_session(self):
+        import importlib
+        import types
+        from tests.test_http_voice_helpers import install_http_stubs
+        install_http_stubs()
+        handlers=importlib.import_module('custom_components.djconnect.api_handlers')
+        self.run_sequence(self.runtime.DJPersona.HOME_DJ, count=1)
+        manager, session=self.manager,self.session
+        integration=[types.SimpleNamespace(entry=types.SimpleNamespace(entry_id='entry-a'),_receiver_end_generation=0)]
+        async def bound(*args,**kwargs):return types.SimpleNamespace(profile_id='owner')
+        data={'device_id':'djconnect-ios-ABCDEFGHIJKL','client_type':'ios','session_id':session.session_id}
+        async def scenario():
+            live,pending,recovered,other=[],[],[],[]
+            result,status,activate,cleanup=await handlers.async_handle_session_broadcast_subscribe_payload(object(),dict(data),callback=live.append)
+            self.assertEqual(status,200)
+            self.assertNotIn('_owner_entry',json.dumps(result))
+            await activate()
+            second,status,pending_activate,pending_cleanup=await handlers.async_handle_session_broadcast_subscribe_payload(object(),dict(data),callback=pending.append)
+            recovery,status,recovery_activate,recovery_cleanup=await handlers.async_handle_session_broadcast_recovery_payload(object(),{**data,'recovery_cursor':result['recovery_cursor']},callback=recovered.append)
+            await recovery_activate()
+            other_id=await manager.async_register_pending_subscription(owner_profile_id='owner',session_id=session.session_id,callback=other.append,authorization_entry_id='entry-b')
+            await manager.async_activate_subscription(owner_profile_id='owner',session_id=session.session_id,subscription_id=other_id)
+            before=second['snapshot']['native_delivery']['admissions'][0]['source_expires_at']
+            await manager.async_revoke_receiver_end_grants_for_entry('entry-a')
+            await pending_activate()
+            for frames in (live,pending,recovered):
+                self.assertEqual(len(frames),1)
+                self.assertEqual(frames[0]['event_type'],'broadcast_stopped')
+                self.assertEqual(frames[0]['payload']['native_delivery']['admissions'],[])
+                self.assertEqual(frames[0]['payload']['native_delivery']['revocation_scope'],'subscription')
+                self.assertNotIn('Nora Vale',json.dumps(frames))
+            session.broadcast.update_playback(replace(session.broadcast.state.playback,position_ms=1000))
+            for frames in (live,pending,recovered):self.assertEqual(len(frames),1)
+            self.assertTrue(other[-1]['payload']['native_delivery']['active_flow_moment_ids'])
+            self.assertIsNotNone(await manager.async_get_active('owner'))
+            # A stale in-flight authorization and old request Runtime cannot register.
+            denied=await manager.async_register_pending_subscription(owner_profile_id='owner',session_id=session.session_id,callback=live.append,authorization_entry_id='entry-a',authorization_entry_generation=0)
+            self.assertIsNone(denied)
+            denied,status=await handlers.async_handle_session_broadcast_snapshot_payload(object(),dict(data))
+            self.assertEqual(status,401)
+            integration[0]=None
+            denied,status=await handlers.async_handle_session_broadcast_snapshot_payload(object(),dict(data))
+            self.assertEqual(status,503)
+            integration[0]=types.SimpleNamespace(entry=types.SimpleNamespace(entry_id='entry-a'),_receiver_end_generation=1)
+            renewed,status,new_activate,new_cleanup=await handlers.async_handle_session_broadcast_subscribe_payload(object(),dict(data),callback=lambda e:None)
+            self.assertEqual(status,200)
+            self.assertEqual(renewed['snapshot']['native_delivery']['admissions'][0]['source_expires_at'],before)
+            await new_activate()
+            await new_cleanup();await cleanup();await pending_cleanup();await recovery_cleanup()
+        with (patch('time.monotonic',lambda:101.0),patch.object(handlers,'resolve_runtime',lambda *a,**k:integration[0]),
+              patch.object(handlers,'authorize_runtime_device_request',lambda *a,**k:True),
+              patch.object(handlers,'async_resolve_device_bound_request_context',bound),
+              patch.object(handlers,'session_runtime_manager',lambda hass:manager)):
+            asyncio.run(scenario())
+
+    def test_session_end_during_initial_transport_setup_withdraws_snapshot_authority(self):
+        import importlib
+        import types
+        from tests.test_http_voice_helpers import install_http_stubs
+        install_http_stubs()
+        handlers=importlib.import_module('custom_components.djconnect.api_handlers')
+        self.run_sequence(self.runtime.DJPersona.HOME_DJ, count=1)
+        async def bound(*a,**k):return types.SimpleNamespace(profile_id='owner')
+        async def scenario():
+            frames=[]
+            result,status,activate,cleanup=await handlers.async_handle_session_broadcast_subscribe_payload(object(),
+                {'device_id':'djconnect-ios-ABCDEFGHIJKL','client_type':'ios','session_id':self.session.session_id},callback=frames.append)
+            self.assertEqual(status,200)
+            self.assertTrue(result['snapshot']['native_delivery']['current_moment_id'])
+            await self.manager.async_end(owner_profile_id='owner')
+            await activate()
+            self.assertEqual(frames[-1]['event_type'],'broadcast_stopped')
+            self.assertEqual(frames[-1]['payload']['native_delivery']['admissions'],[])
+            self.assertIn('revision',frames[-1]['payload']['native_delivery'])
+            self.assertNotIn('delivery_sequence',frames[-1])  # terminal denial, no invented replay boundary
+            await cleanup()
+        with (patch('time.monotonic',lambda:101.0),patch.object(handlers,'resolve_runtime',lambda *a,**k:object()),
+              patch.object(handlers,'authorize_runtime_device_request',lambda *a,**k:True),
+              patch.object(handlers,'async_resolve_device_bound_request_context',bound),
+              patch.object(handlers,'session_runtime_manager',lambda hass:self.manager)):
+            asyncio.run(scenario())
+
+    def test_derived_flow_reference_does_not_launder_unqualified_external_content(self):
+        moments=self.run_sequence(self.runtime.DJPersona.HOME_DJ,count=1)
+        unknown=replace(moments[0],moment_id='derived-unqualified',source_fact=None,source_attribution=(),
+            source_references=('session_flow',),moment_type=self.runtime.DJMomentType.TRANSITION)
+        with patch('time.monotonic',lambda:101.0):
+            self.session.publish_moment(unknown)
+            native=self.session.broadcast.as_dict()['native_delivery']
+        entry=next(a for a in native['admissions'] if a['moment_id']==unknown.moment_id)
+        self.assertEqual(entry['qualification'],'unqualified')
+        self.assertFalse(entry['current_display_allowed'])
+        self.assertFalse(entry['active_flow_display_allowed'])

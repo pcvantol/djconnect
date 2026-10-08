@@ -19,7 +19,9 @@ from uuid import uuid4
 from .const import API_IMAGE_PROXY_BASE, DOMAIN
 from .session_facts import QualifiedSessionFact, SharedProducerFact, PublishedRecordingContext
 from .moment_expression import realize as realize_fact_expression
-from .native_moment_delivery import MomentDeliveryBoundary, admission as native_admission
+from .native_moment_delivery import (
+    MomentDeliveryBoundary, admission as native_admission, withdrawn_native_delivery,
+)
 from .persistence import persistence_service
 from .persistence.sessions import (
     ACTIVE as PERSISTENT_SESSION_ACTIVE,
@@ -3306,6 +3308,9 @@ class DJSessionBroadcastEngine:
     _native_revision: str = field(default="", init=False, repr=False)
     _owner_only_moment_ids: set[str] = field(default_factory=set, init=False, repr=False)
     _invalidated_current_moment_ids: set[str] = field(default_factory=set, init=False, repr=False)
+    _owner_subscription_entries: dict[str, str] = field(default_factory=dict, init=False, repr=False)
+    _revoked_subscriptions: set[str] = field(default_factory=set, init=False, repr=False)
+    _withdrawal_sent: set[str] = field(default_factory=set, init=False, repr=False)
 
     def __post_init__(self) -> None:
         """Keep replay retention bounded even for internal construction callers."""
@@ -3337,6 +3342,11 @@ class DJSessionBroadcastEngine:
         if pending_events is None or subscriber is None:
             return
         callback, include_owner_only = subscriber
+        if subscription_id in self._revoked_subscriptions:
+            for event in pending_events:
+                callback(event)
+            self.unsubscribe(subscription_id)
+            return
         for event in pending_events:
             callback({**event, "payload": self._safe_delivery_payload(
                 event["payload"], include_owner_only=include_owner_only)})
@@ -3369,6 +3379,9 @@ class DJSessionBroadcastEngine:
         """Remove a renderer subscription without changing Broadcast State."""
         self._subscribers.pop(subscription_id, None)
         self._pending_subscriptions.pop(subscription_id, None)
+        self._owner_subscription_entries.pop(subscription_id, None)
+        self._revoked_subscriptions.discard(subscription_id)
+        self._withdrawal_sent.discard(subscription_id)
 
     @property
     def subscriber_count(self) -> int:
@@ -3463,6 +3476,9 @@ class DJSessionBroadcastEngine:
         self._owner_only_moment_ids.clear()
         self._invalidated_current_moment_ids.clear()
         self._native_revision = ""
+        self._owner_subscription_entries.clear()
+        self._revoked_subscriptions.clear()
+        self._withdrawal_sent.clear()
 
     def _publish(self, event_type: BroadcastEventType, payload: dict[str, Any]) -> None:
         """Deliver one incremental, renderer-safe event to active subscribers."""
@@ -3481,11 +3497,21 @@ class DJSessionBroadcastEngine:
         for subscription_id, (callback, include_owner_only) in tuple(self._subscribers.items()):
             if not include_owner_only and _payload_contains_owner_only_moment(payload):
                 continue
-            scoped_event = {**event, "payload": self._safe_delivery_payload(
-                payload, include_owner_only=include_owner_only)}
+            if subscription_id in self._revoked_subscriptions:
+                if subscription_id in self._withdrawal_sent:
+                    continue
+                self._withdrawal_sent.add(subscription_id)
+                scoped_event = {**event, "event_type": BroadcastEventType.BROADCAST_STOPPED.value,
+                                "payload": self.subscription_withdrawal_payload()}
+            else:
+                scoped_event = {**event, "payload": self._safe_delivery_payload(
+                    payload, include_owner_only=include_owner_only)}
             pending_events = self._pending_subscriptions.get(subscription_id)
             if pending_events is not None:
-                pending_events.append(scoped_event)
+                if subscription_id in self._revoked_subscriptions:
+                    pending_events[:] = [scoped_event]
+                else:
+                    pending_events.append(scoped_event)
                 continue
             callback(scoped_event)
 
@@ -3588,6 +3614,26 @@ class DJSessionBroadcastEngine:
             include_owner_only=include_owner_only
         )
         return projection
+
+    def subscription_withdrawal_payload(self) -> dict[str, Any]:
+        """Withdraw one channel's authority without ending the Profile Session."""
+        return {"broadcast": {"subscription_state": "revoked"},
+                "native_delivery": withdrawn_native_delivery(self.state.session_id)}
+
+    def revoke_owner_entry_subscriptions(self, entry_id: str) -> None:
+        """Reuse the existing entry-unload boundary; pending source frames die."""
+        revoked = {key for key, value in self._owner_subscription_entries.items()
+                   if value == entry_id and key not in self._revoked_subscriptions}
+        if not revoked:
+            return
+        self._revoked_subscriptions.update(revoked)
+        # One real delivery boundary: unaffected subscribers get ordinary Flow
+        # state; revoked channels get only the terminal empty projection.
+        self._publish(BroadcastEventType.SESSION_FLOW_UPDATED,
+                      {"session_flow": self.state.session_flow.as_dict()})
+        for subscription_id in revoked:
+            if subscription_id not in self._pending_subscriptions:
+                self.unsubscribe(subscription_id)
 
     def prepare_moment_delivery(self, moment: DJMoment) -> None:
         """Bind original clocks and visibility before its Flow label is sent."""
@@ -4940,13 +4986,19 @@ class SessionRuntimeManager:
         owner_profile_id: str,
         session_id: str,
         callback: Callable[[dict[str, Any]], None],
+        authorization_entry_id: str = "",
+        authorization_entry_generation: int = 0,
     ) -> str | None:
         """Register an owner renderer without delivering events before its snapshot."""
         async with self._lock:
             active = self._active_by_profile.get(owner_profile_id)
-            if active is None or active.session_id != session_id:
+            if (active is None or active.session_id != session_id
+                    or (authorization_entry_id and authorization_entry_generation != self.receiver_entry_generation(authorization_entry_id))):
                 return None
-            return active.broadcast.register_pending_subscription(callback)
+            subscription_id = active.broadcast.register_pending_subscription(callback)
+            if authorization_entry_id:
+                active.broadcast._owner_subscription_entries[subscription_id] = authorization_entry_id
+            return subscription_id
 
     async def async_recover_owner_subscription(
         self,
@@ -4955,16 +5007,21 @@ class SessionRuntimeManager:
         session_id: str,
         recovery_cursor: str,
         callback: Callable[[dict[str, Any]], None],
+        authorization_entry_id: str = "",
+        authorization_entry_generation: int = 0,
     ) -> tuple[str, dict[str, Any]] | None:
         """Atomically recover one owner stream and prepare its live delivery."""
         async with self._lock:
             active = self._active_by_profile.get(owner_profile_id)
-            if active is None or active.session_id != session_id:
+            if (active is None or active.session_id != session_id
+                    or (authorization_entry_id and authorization_entry_generation != self.receiver_entry_generation(authorization_entry_id))):
                 return None
             recovery = active.broadcast.recover_owner(recovery_cursor)
             if recovery is None:
                 return None
             subscription_id = active.broadcast.register_pending_subscription(callback)
+            if authorization_entry_id:
+                active.broadcast._owner_subscription_entries[subscription_id] = authorization_entry_id
             return subscription_id, recovery
 
     async def async_activate_subscription(
@@ -4973,12 +5030,15 @@ class SessionRuntimeManager:
         owner_profile_id: str,
         session_id: str,
         subscription_id: str,
-    ) -> None:
+    ) -> bool:
         """Enable live delivery after the owner renderer received its snapshot."""
         async with self._lock:
             active = self._active_by_profile.get(owner_profile_id)
-            if active is not None and active.session_id == session_id:
+            if (active is not None and active.session_id == session_id
+                    and subscription_id in active.broadcast._subscribers):
                 active.broadcast.activate_subscription(subscription_id)
+                return True
+            return False
 
     async def async_subscribe_with_broadcast_token(
         self,
@@ -5067,6 +5127,8 @@ class SessionRuntimeManager:
         async with self._lock:
             self._receiver_entry_generations[entry_id] = self.receiver_entry_generation(entry_id) + 1
             self._end_grants = {key: value for key, value in self._end_grants.items() if value[3] != entry_id}
+            for active in self._active_by_profile.values():
+                active.broadcast.revoke_owner_entry_subscriptions(entry_id)
 
     async def async_end_with_receiver_grant(self, *, session_id: str, grant: str, authorized_entry_ids: frozenset[str] | None = None) -> DJSessionRuntime | None:
         """Consume one exact-session end grant; Broadcast credentials cannot end."""

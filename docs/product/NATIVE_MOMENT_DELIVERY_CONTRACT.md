@@ -15,8 +15,8 @@ Primary terms checked 2026-10-08; local owner consent does not replace them.
 | MusicBrainz recording artist relationships/credits, work composer relationships, artist begin/type dates | CC0 core entities and relationships | Yes, qualified identity/role/date precision and original links | Same active Session, published Flow membership and original 30-minute source deadline |
 | Wikidata artist entity description | CC0 structured entity namespace | Yes, qualified entity and source link | Same bounded active Session and original 30-minute deadline |
 | Spotify album release metadata | Spotify display terms | Current associated playback only; Spotify attribution/mark and album link retained | No additional historical-display qualification |
-| Runtime-authored Session Flow/Direction updates | Existing internal Session context | Same active Session, original card duration | Same active Flow only |
-| Unknown source or unqualified Track Insight/provider result | No native field-specific qualification supplied | Denied | Denied |
+| Runtime-authored Session Direction updates | Existing internal Session context | Same active Session, original card duration | Same active Flow only |
+| Unknown source, unqualified Track Insight/provider result or derived Transition | No native field-specific qualification supplied | Denied | Denied |
 
 MusicBrainz [database field breakdown](https://musicbrainz.org/doc/MusicBrainz_Database)
 and [data license](https://musicbrainz.org/doc/About/Data_License) distinguish CC0
@@ -84,7 +84,8 @@ The existing `dj_moments`, `presentations`, `playback`, `session_flow` and
 `broadcast.snapshot_watermark` retain their shapes. `native_delivery` appears
 in the snapshot and incremental event payload. It contains:
 
-- `schema_version: 1`, exact `session_id`, `revocation_scope: "session"`;
+- `schema_version: 1`, exact `session_id`, `revocation_scope: "session"`
+  (or `"subscription"` for channel withdrawal);
 - `revision`: deterministic opaque hash of admission state, not a delivery
   sequence, authorization credential or a Planner Flow revision;
 - `current_moment_id`: newest admissible contribution for current playback,
@@ -116,8 +117,12 @@ Source-bound recovery deliberately returns existing `snapshot_required` so
 retained source event text cannot revive old content. Internal-only replay
 reprojects admission at delivery and includes original delivery sequences.
 
-Entry unload stops its existing observer and invalidates late opportunities;
-unloaded-entry authentication is unavailable. Options reload intentionally
+Entry unload uses its existing entry-generation revocation boundary to stop
+live/pending/recovery owner subscriptions bound to that authorized entry, as
+well as its observer and late opportunities. Each revoked channel receives
+`broadcast_stopped` with empty native authority; another entry's authorized
+stream and the Profile Session remain intact. Unloaded-entry authentication is
+unavailable and stale in-flight generation cannot register. Options reload intentionally
 preserves the Profile's active Session and original source deadlines; it is not
 an individual source revocation. No individual source-revoke API/status is
 claimed. Session end is the implemented content revocation boundary; terminal
@@ -127,3 +132,21 @@ The Golden Scenario connection is safe server-authoritative Session delivery:
 existing playback/Ask DJ/Track Insight controls remain independently qualified;
 this increment proves Runtime/owner-contract behavior and makes no installed,
 live-provider, native-render or physical-Pi Golden Scenario claim.
+
+A revoked pending subscription discards its queued source frames and delivers
+only the terminal withdrawal after its initial result, then unregisters. Entry
+withdrawal uses one real Broadcast delivery boundary; unaffected subscribers
+receive ordinary Flow state with that sequence. If Session end wins during
+initial transport result delivery, failed activation emits a terminal
+`broadcast_stopped` denial with complete empty native authority and no invented
+sequence/replay boundary. Consumers must process terminal denial before
+ordinary card ordering: it grants no text or action and can only clear
+visibility. This is an existing subscription lifecycle repair, not an
+individual source-revocation API, generic authorization engine or new event type.
+
+Session Flow as a reference is not by itself a native external-source rights
+basis: derived Transitions whose underlying knowledge lacks native field
+qualification are not admitted merely by declaring them internal. Their
+existing semantic publication, Genre→Track/Recommendation selection and
+VibeCast behavior remain unchanged. Only the actual validated Session Direction
+Moment family qualifies as source-free Runtime context here.

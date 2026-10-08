@@ -74,7 +74,7 @@ def capture():
             'reconnect':recovery,'terminal':terminal,
             'http_headers':dict(response.headers)}
 
-    with (patch.object(handlers,'resolve_runtime',lambda *a,**k:object()),
+    with (patch.object(handlers,'resolve_runtime',lambda *a,**k:types.SimpleNamespace(entry=types.SimpleNamespace(entry_id='software-owner-entry'),_receiver_end_generation=0)),
           patch.object(handlers,'authorize_runtime_device_request',lambda *a,**k:True),
           patch.object(handlers,'async_resolve_device_bound_request_context',bound),
           patch.object(handlers,'session_runtime_manager',lambda hass:manager),
@@ -97,6 +97,7 @@ def capture():
                 'custom_components/djconnect/session_runtime.py',
                 'custom_components/djconnect/native_moment_delivery.py',
                 'custom_components/djconnect/http.py',
+                'custom_components/djconnect/api_handlers.py',
                 'custom_components/djconnect/transport_capabilities.py')}}
 
 

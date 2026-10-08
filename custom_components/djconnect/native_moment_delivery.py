@@ -8,6 +8,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 import hashlib
+import json
 import math
 from typing import Any
 
@@ -84,7 +85,10 @@ def admission(moment: Any, boundary: MomentDeliveryBoundary | None, *,
         except (AttributeError, TypeError, ValueError, OverflowError):
             return result
     elif (not moment.source_attribution
-          and moment.source_references in {('session_flow',), ('session_direction',)}
+          and moment.source_references == ('session_direction',)
+          and moment.moment_type.value == 'session'
+          and moment.knowledge_intent.intent_type.value == 'session_direction'
+          and dict(moment.generation_metadata).get('context_source') == 'session_direction'
           and dict(moment.generation_metadata).get('validated') == 'true'):
         history_allowed = True
     else:
@@ -95,4 +99,13 @@ def admission(moment: Any, boundary: MomentDeliveryBoundary | None, *,
         playing and boundary.playback_item_id and boundary.playback_item_id == playback_item_id
         and boundary.published_monotonic <= now < deadline)
     result['active_flow_display_allowed'] = history_allowed and moment.moment_id in flow_ids
+    return result
+
+
+def withdrawn_native_delivery(session_id: str) -> dict[str, Any]:
+    """Complete terminal denial for one transport authority, never a grant."""
+    result = {"schema_version": 1, "session_id": session_id,
+              "current_moment_id": None, "active_flow_moment_ids": [],
+              "admissions": [], "revocation_scope": "subscription"}
+    result['revision'] = hashlib.sha256(json.dumps(result, sort_keys=True).encode()).hexdigest()[:24]
     return result
