@@ -42,7 +42,10 @@ this card counts in the existing six-card limit. Other facts retain #1122
 ranking. No valid/usable relation gives ordinary facts or silence.
 
 The existing track Moment names current and earlier recording plus producer in
-exact en/nl/de/fr/es copy; it asserts no exclusivity, collaboration or influence.
+deterministic en/nl/de/fr/es copy; it asserts no exclusivity, collaboration or influence.
+The later [expressive-persona realization](EXPRESSIVE_DJ_PERSONA_CONTRACT.md)
+may vary this wording from immutable qualified anchors in the same Engine;
+this relation admission, source evidence and publication rules are unchanged.
 Current playback supplies Now Playing/artwork. Both public recording URLs are
 attributed; a second optional URL is a compatible VibeCast projection extension.
 Genre→Track and Recommendation transitions remain unchanged.

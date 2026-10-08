@@ -87,7 +87,8 @@ class ContextualFactPlanningTest(unittest.TestCase):
                     )
                 if moment:
                     receipts.append({"position_ms": position, "type": moment.moment_type.value,
-                                     "content": moment.content, "reason": session.planner.last_decision.reason})
+                                     "content": moment.content, "reason": session.planner.last_decision.reason,
+                                     "source_url":dict(moment.source_attribution).get("url")})
                     snapshots.append(session.broadcast.as_dict())
             flow = [i.moment_id for i in session.planner.output.session_flow.items if i.moment_id]
             broadcast = [m.moment_id for m in session.broadcast.state.dj_moments]
@@ -109,7 +110,9 @@ class ContextualFactPlanningTest(unittest.TestCase):
         self.assertEqual([m["type"] for m in manual], ["track", "album", "artist"])
         discover, _ = self.run_session(pool, discover=True, positions=(0, 15000, 30000, 45000, 60000, 75000, 90000))
         self.assertEqual([m["type"] for m in discover], ["artist", "album", "track"])
-        self.assertEqual({m["content"] for m in manual}, {m["content"] for m in discover})
+        # The new selected persona slice may realize the same immutable fact
+        # differently by actual published position; selection/source stays equal.
+        self.assertEqual({m["source_url"] for m in manual}, {m["source_url"] for m in discover})
         self.assertTrue(all(m["reason"].startswith("contextual_fact:") for m in discover))
 
     def test_long_candidate_does_not_block_short_fact_or_consume_rejected_angle(self):
@@ -121,7 +124,7 @@ class ContextualFactPlanningTest(unittest.TestCase):
         receipts, _ = self.run_session((recording, album, artist), duration=44000)
         self.assertEqual(receipts, [])
 
-    def test_calm_and_club_context_bound_spacing_without_rewriting_copy(self):
+    def test_calm_and_club_context_bound_spacing_preserves_qualified_anchors(self):
         pool = self.pool()
         neutral, _ = self.run_session(pool, positions=(0, 15000, 30000, 45000, 50000))
         calm, _ = self.run_session(pool, mood="chill", positions=(0, 15000, 30000, 45000, 50000))
@@ -130,8 +133,10 @@ class ContextualFactPlanningTest(unittest.TestCase):
         self.assertEqual(neutral[1]["position_ms"], 45000)
         self.assertEqual(calm[1]["position_ms"], 50000)
         self.assertEqual(club[1]["position_ms"], 50000)
-        bodies = {dict(f.contents)["nl"] for f in pool}
-        self.assertTrue(all(m["content"] in bodies for m in neutral + calm + club))
+        anchors={"track":("Test producer",), "album":("Test edition","2001-03-04"),
+                 "artist":("Test artist","1960-01-02")}
+        for moment in neutral+calm+club:
+            self.assertTrue(all(anchor in moment["content"] for anchor in anchors[moment["type"]]))
 
     def test_eligibility_precedes_discover_relevance(self):
         album, _, artist = self.pool()
@@ -170,7 +175,7 @@ class ContextualFactPlanningTest(unittest.TestCase):
         self.assertEqual(rejected.performance_memory.recent_moment_ids, ())
         self.assertEqual(rejected.moment_engine._track_keys, set())
 
-    def test_direction_only_changes_choice_and_all_five_locale_copies_stay_exact(self):
+    def test_direction_only_changes_choice_and_all_five_locale_anchors_stay_exact(self):
         pool = self.pool()
         manual, _ = self.run_session(pool)
         exploring, _ = self.run_session(pool, direction=self.runtime.SessionDirectionType.EXPLORING)
@@ -178,4 +183,6 @@ class ContextualFactPlanningTest(unittest.TestCase):
         self.assertEqual(exploring[0]["type"], "artist")
         for locale in self.facts.LANGUAGES:
             receipts, _ = self.run_session(pool, discover=True, locale=locale)
-            self.assertEqual(receipts[0]["content"], dict(pool[2].contents)[locale])
+            self.assertIn("Test artist",receipts[0]["content"])
+            self.assertIn("1960-01-02",receipts[0]["content"])
+            self.assertEqual(receipts[0]["source_url"],pool[2].source_url)

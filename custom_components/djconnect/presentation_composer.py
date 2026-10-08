@@ -174,7 +174,7 @@ class PresentationComposer:
             raise ValueError("Presentation requires an identified source DJMoment")
 
         moment_type = _enum_value(getattr(moment, "moment_type", ""))
-        primary_text = _safe_text(getattr(moment, "content", ""), 1200)
+        primary_text = "" if getattr(moment,"visual_only",False) else _safe_text(getattr(moment, "content", ""), 1200)
         summary = _safe_text(getattr(moment, "summary", ""), 320)
         speech, outcomes = self._compose_speech(
             moment=moment,

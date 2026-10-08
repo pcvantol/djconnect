@@ -19,6 +19,69 @@ LANGUAGES = ("en", "nl", "de", "fr", "es")
 USER_AGENT = "DJConnect/4.0 (https://github.com/pcvantol/djconnect; session-knowledge)"
 MBID = re.compile(r"[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}")
 
+CREDIT_ROLES = {
+    "producer": ("Producer", "Producent", "Produzent", "Production", "Producción"),
+    "instrument": ("Instruments", "Instrumenten", "Instrumente", "Instruments", "Instrumentos"),
+    "vocal": ("Vocals", "Zang", "Gesang", "Voix", "Voces"),
+}
+
+
+@dataclass(frozen=True)
+class DisplayFactCore:
+    """Normalized immutable display anchors; no raw payload or generated fact."""
+    kind: str
+    subject: str = ""
+    roles: tuple[tuple[str, tuple[str, ...]], ...] = ()
+    date: str = ""
+    precision: str = ""
+    entity_type: str = ""
+
+    def validates(self, fact: QualifiedSessionFact) -> bool:
+        if self.kind != fact.key:
+            return False
+        if self.kind == "recording_credits":
+            if (not self.roles or len({r for r, _ in self.roles}) != len(self.roles)
+                    or any(r not in CREDIT_ROLES or not names or any(not label(n,160) for n in names)
+                           for r,names in self.roles)):
+                return False
+            contents = tuple((lang," · ".join(
+                f"{CREDIT_ROLES[r][index]}: {', '.join(names)}" for r,names in self.roles))
+                for index,lang in enumerate(LANGUAGES))
+            return contents == fact.contents
+        if self.kind == "album_release":
+            bodies = (f"Spotify dates this edition of {self.subject} to {self.date}.",
+                f"Spotify dateert deze uitgave van {self.subject} op {self.date}.",
+                f"Spotify datiert diese Ausgabe von {self.subject} auf {self.date}.",
+                f"Spotify date cette édition de {self.subject} de {self.date}.",
+                f"Spotify fecha esta edición de {self.subject} en {self.date}.")
+            return bool(label(self.subject) and qualified_date(self.date,self.precision)
+                        and tuple(zip(LANGUAGES,bodies)) == fact.contents)
+        if self.kind == "artist_begin":
+            if not label(self.subject) or not qualified_date(self.date,self.precision):
+                return False
+            if self.entity_type == "Person":
+                bodies = (f"Birth date of {self.subject}: {self.date}.", f"Geboortedatum van {self.subject}: {self.date}.",
+                    f"Geburtsdatum von {self.subject}: {self.date}.", f"Date de naissance de {self.subject} : {self.date}.",
+                    f"Fecha de nacimiento de {self.subject}: {self.date}.")
+            elif self.entity_type == "Group":
+                bodies = (f"{self.subject} formed in {self.date}.", f"{self.subject} is opgericht in {self.date}.",
+                    f"{self.subject} wurde {self.date} gegründet.", f"{self.subject} a été formé en {self.date}.",
+                    f"{self.subject} se formó en {self.date}.")
+            else:
+                return False
+            return tuple(zip(LANGUAGES,bodies)) == fact.contents
+        if self.kind == "work_composers":
+            if len(self.roles) != 1 or self.roles[0][0] != "composer" or not self.roles[0][1]:
+                return False
+            names = ", ".join(self.roles[0][1])
+            bodies = (f"Composers of the work behind this recording: {names}.",
+                f"Componisten van het werk achter deze opname: {names}.",
+                f"Komponisten des Werks hinter dieser Aufnahme: {names}.",
+                f"Compositeurs de l’œuvre de cet enregistrement : {names}.",
+                f"Compositores de la obra de esta grabación: {names}.")
+            return all(label(n,160) for n in self.roles[0][1]) and tuple(zip(LANGUAGES,bodies)) == fact.contents
+        return False
+
 
 @dataclass(frozen=True)
 class ProducerCredit:
@@ -87,6 +150,7 @@ class QualifiedSessionFact:
     license: str
     observed_at: float
     recording_evidence: RecordingCreditEvidence | None = None
+    display_core: DisplayFactCore | None = None
 
     def copy_for(self, locale: str) -> tuple[str, str] | None:
         lang = locale[:2].lower()
@@ -170,7 +234,7 @@ def shared_producer_fact(current: RecordingCreditEvidence, previous: RecordingCr
         titles, bodies = _shared_copy(current, previous, producer)
         fact = SharedProducerFact("shared_producer", current.media_identity, "track_context",
             titles, bodies, "MusicBrainz", current.source_url, "CC0-1.0", current.observed_at,
-            current, previous, producer.contributor_id)
+            recording_evidence=current, previous_evidence=previous, producer_id=producer.contributor_id)
         if fact.eligible(current.media_identity, now):
             return fact
     return None
@@ -238,6 +302,7 @@ def _fact(
     bodies: list[str],
     provider: str,
     url: str,
+    core: DisplayFactCore | None = None,
 ) -> QualifiedSessionFact:
     return QualifiedSessionFact(
         key,
@@ -249,6 +314,7 @@ def _fact(
         url,
         "Spotify metadata display" if provider == "Spotify" else "CC0-1.0",
         time.monotonic(),
+        display_core=core,
     )
 
 
@@ -275,6 +341,7 @@ def catalog_facts(catalog: dict[str, Any]) -> list[QualifiedSessionFact]:
             ],
             "Spotify",
             "https://open.spotify.com/album/" + album_uri.split(":")[-1],
+            DisplayFactCore("album_release", album, date=released, precision=str(catalog.get("release_date_precision"))),
         )
     ]
 
@@ -438,11 +505,7 @@ class SessionFactsResolver:
 def recording_facts(
     catalog: dict[str, Any], recording: dict[str, Any]
 ) -> list[QualifiedSessionFact]:
-    roles = {
-        "producer": ["Producer", "Producent", "Produzent", "Production", "Producción"],
-        "instrument": ["Instruments", "Instrumenten", "Instrumente", "Instruments", "Instrumentos"],
-        "vocal": ["Vocals", "Zang", "Gesang", "Voix", "Voces"],
-    }
+    roles = CREDIT_ROLES
     collected: dict[str, list[str]] = {}
     for relation in recording.get("relations", []):
         if (
@@ -486,6 +549,7 @@ def recording_facts(
             lines,
             "MusicBrainz",
             "https://musicbrainz.org/recording/" + recording["id"],
+            DisplayFactCore("recording_credits", roles=tuple((role,tuple(dict.fromkeys(names))) for role,names in collected.items())),
         )
     # Preserve only source fields, never recover identity from rendered text.
     # Attributes can narrow the producer role; this first slice excludes all.
@@ -550,6 +614,7 @@ def artist_facts(catalog: dict[str, Any], person: dict[str, Any]) -> list[Qualif
             person_copy if person["type"] == "Person" else group_copy,
             "MusicBrainz",
             "https://musicbrainz.org/artist/" + person["id"],
+            DisplayFactCore("artist_begin", artist, date=begin, precision=precision, entity_type=person["type"]),
         )
     ]
 
@@ -623,6 +688,7 @@ def work_facts(catalog: dict[str, Any], recording: dict[str, Any]) -> list[Quali
             ],
             "MusicBrainz",
             "https://musicbrainz.org/work/" + work_id,
+            DisplayFactCore("work_composers", roles=(("composer",tuple(composers)),)),
         )
     ]
 
