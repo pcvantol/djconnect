@@ -1,5 +1,29 @@
 # DJConnect Product Backlog
 
+Completed Core producer source: `DJC-CORE-NATIVE-MOMENT-DELIVERY-V1-20261008`,
+PR [#1128](https://github.com/pcvantol/djconnect/pull/1128) protected merged as
+`3ea178fa3098b2c432008827ce009f867f66f63e`. The
+[native delivery contract](docs/product/NATIVE_MOMENT_DELIVERY_CONTRACT.md)
+adds authoritative current/active-Flow admission, original source deadlines,
+expiry/recovery/entry-channel withdrawal, full attribution and no-store to the
+existing owner route. Immutable Persona/text, Planner/dose and Transitions stay
+intact; unsupported sources/actions fail closed. Source/main software1602 tests
+(seven skips), independent exact review and existing browser regression PASS.
+Exact source prerelease archive:129 safe files byte-equal to merge;
+SHA256 `46e1c9de04093b51ce645adf2e591e82a63398f44cafd0f447a178df2aa87f85`.
+Canonical qualification JSON SHA256
+`fbb7cee8e28a8614f3a84a44e46c605852626480a1a112a70c6f20c95e8665e9`:
+integrity and every required check PASS. Coverage digest
+`533bf0b0046ac5c63fd0f5a275e695a766b91f974cbb5b20eeae8c2e4ddbfe58`.
+[Unchanged evidence attempt2](https://github.com/pcvantol/djconnect/actions/runs/37781489376)
+PASS after specifically approved deletion of the preserved extra manual run;
+original failed evidence remains recorded in the completion history.
+Actual Apple decode/state and iPhone/iPad card/link/lifecycle readback PASS,
+while its overall readback stays PARTIAL and #95 retains its remaining native
+UI/Mac/review gates. No installation, signing, live provider, Store or Pi claim.
+[Completion and Finalization](docs/history/prompts/2026-10-08-native-moment-delivery-finalization.md)
+reconciles only this Core delivery; no new intelligence family is activated.
+
 Completed source: `DJC-CORE-EXPRESSIVE-DJ-PERSONA-V1-20261007`,
 PR [#1126](https://github.com/pcvantol/djconnect/pull/1126) protected merged as
 `cadbf7560baf43bd393c7f0aa525ecc5a137fa93`. The [expressive persona contract](docs/product/EXPRESSIVE_DJ_PERSONA_CONTRACT.md)
