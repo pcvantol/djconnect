@@ -126,3 +126,30 @@ whole-suite/coverage/lint, independent review, before/after screenshots,
 `browser-exact-flow-sequence.json`, `browser-exact-preservation.json` and
 `five-language-browser-readback.json`. Synthetic HA authorization stays outside
 that evidence; complete HA auth/config-entry stores must never be uploaded.
+
+## Protected completion receipt
+
+PR [#1130](https://github.com/pcvantol/djconnect/pull/1130) protected merged as
+`3bb6bb8a9cb3e87ebb1bb51c0cf99dfbe572c283` from exact reviewed candidate
+`162104d625f26a281cb20897ea5365c10bbdabff`, tree
+`8a9dd2353eaf30edbba1b24a32d191691dc689d0`. The owner explicitly approved
+this source merge and distinct automatic internal SHA-prerelease.
+
+Exact source/main suites: 1,628 tests, seven existing skips, PASS; Ruff,
+coverage, Golden Smoke and required source/main checks PASS. Independent exact
+technical and UX review GO,249 independently executed tests,20 inspected real
+HA screenshots. The exact internal archive contains130 safe byte-equal files;
+SHA256 `d2ab2cd702d71e2f92b7ab4c03831aca2098e5034a6e7dc7853b56a7f18dff66`.
+Canonical qualification JSON SHA256
+`242d0d483d67fe1d81a5a221609a3f3f79420fba45743107528b1e7b64731c9c`:
+integrity and every required check PASS. Coverage artifact digest
+`4a002cdd29b9c48c0a8accb6de3883667f02162bb8ad9008e4feaa1bc47dd658`.
+Automatic package and evidence workflows passed first attempt; no extra manual
+Validate run, retry or evidence replacement was needed.
+
+The [immutable completion history](../history/prompts/2026-10-08-profile-reuse-onboarding-finalization.md)
+records before/after, three corrected independent-review findings, five-language
+frontend results and boundaries. Separate eight-document Finalization requires
+its own exact review/checks/publication authorization; its final receipt and
+cleanup remain external. No installation, native or live-provider acceptance is
+implied by this software/browser delivery.

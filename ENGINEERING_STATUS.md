@@ -1,5 +1,91 @@
 # DJConnect Engineering Status
 
+## PR #1130 Profile reuse onboarding — dedicated Finalization
+
+### Repository Status
+
+PR [#1130](https://github.com/pcvantol/djconnect/pull/1130) protected merged as
+`3bb6bb8a9cb3e87ebb1bb51c0cf99dfbe572c283` from independently reviewed head
+`162104d625f26a281cb20897ea5365c10bbdabff`; both trees
+`8a9dd2353eaf30edbba1b24a32d191691dc689d0`.
+Assignment `DJC-CORE-PROFILE-REUSE-ONBOARDING-V1-20261008`, original base
+`3488fd82ed04804973039b909f61a34e76379659`, one Core writer. Source main
+readback is exact; final main synchronization and stale-branch disposition
+remain mandatory after this distinct Finalization merges. HACS validation PASS
+is a software check, not a public HACS release or installation claim.
+
+Exact source/main suites: 1,628 tests, seven existing skips, PASS; Ruff,
+coverage, Golden Smoke and required source/main checks PASS. Independent exact
+technical and UX review GO,249 independently executed tests,20 inspected real
+HA screenshots. The exact internal archive contains130 safe byte-equal files;
+SHA256 `d2ab2cd702d71e2f92b7ab4c03831aca2098e5034a6e7dc7853b56a7f18dff66`.
+Canonical qualification JSON SHA256
+`242d0d483d67fe1d81a5a221609a3f3f79420fba45743107528b1e7b64731c9c`:
+integrity and every required check PASS. Coverage artifact digest
+`4a002cdd29b9c48c0a8accb6de3883667f02162bb8ad9008e4feaa1bc47dd658`.
+Automatic package and evidence workflows passed first attempt; no extra manual
+Validate run, retry or evidence replacement was needed.
+
+### Management Summary
+
+Device setup now explicitly selects an existing central Household Profile or
+creates a new one before backend/account setup. Reuse only adds the new device
+binding, preserving Profile settings, original provider/account, other devices
+and Household fallback. Credentials are referenced internally rather than copied;
+no new OAuth for qualified reuse. Duplicate names have a localized field error
+and direct same-form recovery. Final-confirmation staging, fresh selection
+validation, cancellation and concurrent-edit guards prevent orphan state.
+Actual HA browser first creation, second reuse and duplicate recovery PASS:
+one Profile, three devices; existing account/backend/settings/fallback unchanged.
+Actual en/nl/de/fr/es forms/selectors/duplicate errors PASS. Two reproduced
+manual/shared ESP OAuth Repair errors are fixed; no broad retry/auth change.
+[Completion and Finalization](docs/history/prompts/2026-10-08-profile-reuse-onboarding-finalization.md)
+records this one slice. HA-dev remains at the previously installed3488fd82;
+this candidate has no installation/deployment authority or installed qualification.
+
+### Roadmap Position
+
+Generation2 Product Development retains its canonical Phase1 Current execution.
+This owner-selected bounded Core onboarding increment supports the existing
+HA onboarding/readiness journey; it does not complete or activate the broader
+`HA-ONBOARDING-001` Planned assessment, move a phase or select another slice.
+
+### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+1. **Public distribution: Apple — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: qualified Internal Release consumers and explicit authorization. Execution Rationale: next canonical public-distribution item once its recorded gates qualify.
+2. **Public distribution: Windows — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: qualified Internal Release consumers and explicit authorization. Execution Rationale: next recorded host distribution, retaining its own release gates.
+3. **Public HACS distribution — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: fresh candidate and release authorization. Execution Rationale: subsequent canonical integration distribution item.
+4. **HACS 3.3.0 release visibility (`HACS-3.3.0-001`) — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: release metadata and discovery evidence. Execution Rationale: bounded visibility investigation following public HACS qualification.
+5. **Firmware OTA publication and staged rollback — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: manifest-bound consumer qualification. Execution Rationale: next recorded firmware distribution item after its consumer gate.
+
+### Blocked Items
+
+Apple #95 retains its separately owned native UI/Mac/review gates. Full
+Artist/Album credits Phase B and Continue Stage2 retain separate gates.
+Pi capture/frame-rate remains PARTIAL/parked; only its owning future evidence
+can upgrade qualification. This slice has no remaining implementation finding.
+
+### Deferred Items
+
+No broader onboarding rewrite, Profile architecture, client writer, durable
+knowledge migration, playback/Session change, intelligence family, monitor,
+queue repair, Pi run or new deployment is selected. The existing Apple lane is
+not taken over; this source evidence does not qualify native consumers.
+
+### Repository State
+
+Repository State: `MERGED_RECONCILED` after this separate Finalization merges.
+Finalization Pending: `NO` only after that delivery. Exact Finalization review,
+SHA/PR, internal publication and final-main readback are bound externally.
+
+### Workspace State
+
+Workspace State: `WORKSPACE_READY` only after mandatory safe cleanup. Currently
+source branch `codex/profile-reuse-onboarding-v1` awaits verified cleanup and
+this Finalization branch is active; neither is presumed topologically merged.
+Final receipt must record canonical `main == origin/main`, clean tracked state,
+remote pruning and exact stale-local-branch dispositions. Stop after this slice.
+
 ## PR #1128 native Moment delivery — dedicated Finalization
 
 PR [#1128](https://github.com/pcvantol/djconnect/pull/1128) protected merged as
