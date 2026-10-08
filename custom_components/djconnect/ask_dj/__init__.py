@@ -99,6 +99,8 @@ async def async_handle_ask_dj(
     user_id: str | None = None,
     confirmed_entry: dict[str, Any] | None = None,
     saved_playback_result: dict[str, Any] | None = None,
+    conversation_history_scope: str | None = None,
+    ephemeral_conversation: bool = False,
 ) -> dict[str, Any]:
     """Handle a text Ask DJ request and return the client response shape."""
     payload = enrich_payload_with_mood_zone(payload)
@@ -144,7 +146,7 @@ async def async_handle_ask_dj(
         )
 
     identity_payload = _identity_payload(runtime, payload)
-    memory = getattr(runtime, "memory", None)
+    memory = None if ephemeral_conversation else getattr(runtime, "memory", None)
     memory_context: dict[str, Any] = {}
     music_dna_key = str(payload.get("music_dna_key") or "").strip() or None
     if memory is not None:
@@ -159,7 +161,7 @@ async def async_handle_ask_dj(
         loader = getattr(history, "async_load", None)
         if callable(loader):
             await loader()
-        recent = history.recent_messages_for_prompt(user_id)
+        recent = history.recent_messages_for_prompt(conversation_history_scope if conversation_history_scope is not None else user_id)
         if recent:
             memory_context["server_history"] = recent
 

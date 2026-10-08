@@ -91,7 +91,13 @@ the existing Store accepts the exchange. A storage failure is not success;
 retries reuse retained canonical exchange data without repeating Ask DJ. No
 pending client bubble or generated text is used to reconstruct Session identity.
 The bounded existing1000-message retention remains; trimmed/cleared message
-references have no searchable/renderable text. Archives are not mutated by
+references have no searchable/renderable text. Clear also retains at most1000
+opaque request hashes in that existing Profile Store state, including registered
+in-flight requests. Replaying a cleared ID cannot resurrect its content; use a
+new ID for a new question. No question text, raw identifier or model knowledge is
+retained in those hashes. The short Store/reference acceptance commit uses the
+existing Runtime lock so end cannot split an acknowledged Session turn; model
+work remains outside that lock. Archives are not mutated by
 later standalone questions. Private-session policy can answer without persisting.
 
 For voice, `X-DJConnect-Conversation-Scope: profile` selects this existing
@@ -112,7 +118,11 @@ and internally validated Runtime Session Direction text. Unknown/provider/raw
 or unqualified source cards, Spotify album-release Moments and derived
 Transitions do not become archived text. Both original links on a shared-producer
 Moment survive independently qualified storage. Immutable Moment meaning and
-Persona text stay unchanged; no generated text becomes identity evidence.
+Persona text stay unchanged; no generated text becomes identity evidence. All
+history entries explicitly set `historical_view_only:true` and
+`current_display_allowed:false`, including entries read during an ACTIVE Session.
+Current native display always uses the existing live `native_delivery` grant;
+an archive permission never restores an expired Now Playing/current contribution.
 
 MusicBrainz [core data license](https://musicbrainz.org/doc/About/Data_License)
 and Wikidata [structured-data copyright](https://www.wikidata.org/wiki/Wikidata:Copyright)
@@ -188,6 +198,42 @@ only after acknowledgement. Failed saves do not create cached deduplication
 success; a rejected post-save grant rolls back to the previous committed Store.
 This additive draft still requires the final acceptance work listed below.
 
+## Connected withdrawal and lifecycle maintenance
+
+Playback observations retain only a captured internal backend/account/provider
+entry binding, never credentials. HTTP/query projection rechecks that original
+account is active, still linked to this Profile, matches its original backend,
+and retains the original configured source entry. A different current default
+account never substitutes for that binding. Typed Spotify Repair state withdraws
+its source authority without parsing error text. Internal bindings are omitted
+from returned playback bodies. Grant changes participate in query revisions.
+
+The existing historical retention service now removes expired accepted entries
+and corresponding projections, disables expired Session archive eligibility,
+and advances revisions. Persistence bootstrap owns one hourly housekeeping
+registration, preserves it on reload and disposes it at final shutdown; setup
+also schedules a coalesced initial maintenance run. This is storage maintenance,
+not a new DJ/assistant monitor. HA Store pruning removes expired Profile turns
+and exchanges derived from withdrawn targets. Other HA-user scopes retain their
+existing retention semantics. Source scans use bounded stable-ID batches;
+permanent source-entry removal and confirmed final credential revocation erase
+that source's playback rows in bounded batches within the canonical transaction.
+Profile deletion erases only its own projections and Profile conversation scope;
+device reassignment never transfers that history. Existing Profile personal-state
+Ask DJ clear also clears the exact Profile conversation namespace.
+
+Historical/Session turns are excluded from model prompt history. The actual HA
+actor remains distinct from the server-derived Profile Store namespace. Private
+Session minima cannot be upgraded by a later normal request. Confirmed implicit
+playback dependencies are revalidated just like selected references; transient
+audio, proxy media and executable controls remain in the live response, not the
+new Profile archive. Historical
+matching and selected-entry quotation use the qualified local realization through
+the existing Ask DJ authority; archive records are not model input. Ordinary
+HA-user chat prompt behavior remains unchanged. `input_type:voice` is confirmed
+only by the existing server STT completion route; a JSON text client cannot claim
+voice provenance. Synthetic STT fixtures prove that completion path only.
+
 ## Real producer receipts and qualification state
 
 [`schema.json`](../../examples/client_contracts/session_conversation_history/schema.json)
@@ -206,11 +252,18 @@ open/search behavior; initial harness import/observation-name diagnostics are
 retained separately and not called product failures. Old generic histories remain
 in their existing authority; missing historical playback is never backfilled.
 
-This early candidate is **not final acceptance**. Bounded whole-archive paging,
-physical retention/deletion/account revocation closure, stronger race/save-failure
-and privacy negatives, HA SDK/HTTP integration and independent exact review are
-still required before final freeze. Later additive or rights changes receive
-an explicit pinned delta; consumers never import mutable WIP. Source/Apple
-contract/native product evidence remain separate. Source and Finalization
-publication and installation each need their specific authority. Stop after
+The connected producer is qualified through the real HA SDK HTTP router,
+DJConnectRuntime bearer/identity checks, SQLite and HA Store reload in an isolated
+networkless harness. [`http-producer-receipt.json`](../../examples/client_contracts/session_conversation_history/http-producer-receipt.json)
+records eleven actual loopback requests and hashes of all executed integration
+source, schema and harness files. Source/account registration and STT completion
+are explicit synthetic fixture adapters; these receipts prove no provider,
+microphone, installed HA-dev or native UI outcome. Unit regressions cover late
+track/end/privacy/clear, rollback, idempotency, qualified dependencies, expiry,
+Unicode and five locales. Native acceptance remains Apple-owned.
+
+Final acceptance still requires independent exact-candidate review, all required
+checks, protected source delivery/readback and mandatory Finalization. Every
+later wire/rights delta is separately pinned; consumers never import mutable WIP.
+Publication and installation each retain their specific authority. Stop after
 this one selected Core assignment.

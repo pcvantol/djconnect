@@ -27,9 +27,17 @@ class HistoricalProjectionVersionUnsupported(ValueError):
 class HistoricalProjectionQueryService:
     """Apply canonical owner-only history visibility above storage repositories."""
 
-    def __init__(self, repository: HistoricalProjectionRepository, history_manager=None) -> None:
+    def __init__(
+        self,
+        repository: HistoricalProjectionRepository,
+        history_manager=None,
+        source_validator=None,
+        grant_revision=None,
+    ) -> None:
         self._repository = repository
         self._conversation_history = history_manager
+        self._source_validator = source_validator
+        self._grant_revision = grant_revision
         from .session_history_projection import HistoryCursorCodec
 
         self._history_cursor = HistoryCursorCodec()
@@ -87,6 +95,8 @@ class HistoricalProjectionQueryService:
     async def _project_entry(self, owner: str, row: dict) -> dict | None:
         from .session_history_projection import project_entry
 
+        if self._source_validator is not None and not await self._source_validator(owner, row):
+            return None
         entry = project_entry(row)
         if entry is None or "conversation_reference" not in entry:
             return entry
@@ -98,6 +108,9 @@ class HistoricalProjectionQueryService:
         )
         message = messages.get(ref.get("message_id"))
         if not message or message.get("session_turn", {}).get("turn_id") != ref.get("turn_id"):
+            return None
+        expected_role = "user" if row["kind"] == "conversation_user" else "assistant"
+        if message.get("role") != expected_role:
             return None
         ancestry = _projection_ancestry.get()
         key = (owner, row["session_id"], row["entry_id"])
@@ -126,6 +139,9 @@ class HistoricalProjectionQueryService:
         entry["role"] = "user" if row["kind"] == "conversation_user" else "assistant"
         entry["input_type"] = message.get("session_turn", {}).get("input_type", "text")
         entry["context"] = message.get("session_turn", {}).get("context", {})
+        for field in ("sources", "links", "historical_matches", "navigation_actions"):
+            if isinstance(message.get(field), list):
+                entry[field] = message[field][:20]
         return entry
 
     async def _revision_session(self, owner: str, session: dict) -> dict:
@@ -134,9 +150,16 @@ class HistoricalProjectionQueryService:
             if self._conversation_history
             else "0:0"
         )
+        grant = await self._grant_revision(owner) if self._grant_revision else ""
         return {
             **session,
-            "revision": str(session["revision"]) + ":" + session["lifecycle_status"] + ":" + suffix,
+            "revision": str(session["revision"])
+            + ":"
+            + session["lifecycle_status"]
+            + ":"
+            + suffix
+            + ":"
+            + grant,
         }
 
     async def _session(self, owner: str, session_id: str) -> dict:
@@ -357,6 +380,8 @@ class HistoricalProjectionQueryService:
         from .session_history_projection import checked_limit, normalize_text
 
         checked_limit(limit)
+        grant = await self._grant_revision(owner) if self._grant_revision else ""
+        initial_revision = await self._repository.async_owner_revision(owner, include_active=True)
         matches = []
         rows = await self._repository.async_playback_records(owner)
         for row in rows[:250]:
@@ -386,6 +411,14 @@ class HistoricalProjectionQueryService:
             )
             if len(matches) >= limit:
                 break
+        if (
+            await self._grant_revision(owner) if self._grant_revision else ""
+        ) != grant or await self._repository.async_owner_revision(
+            owner, include_active=True
+        ) != initial_revision:
+            from .session_history_projection import HistoryQueryError
+
+            raise HistoryQueryError("invalid_history_cursor")
         return {
             "success": True,
             "schema_version": 1,

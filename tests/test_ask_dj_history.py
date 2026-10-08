@@ -65,6 +65,16 @@ class AskDJHistoryManagerTest(unittest.TestCase):
             self.assertEqual(result["assistant_message"]["historical_entry_references"], [{"session_id": "s", "entry_id": "e"}])
         asyncio.run(run())
 
+    def test_session_archive_turns_never_enter_model_prompt_history(self):
+        manager = AskDJHistoryManager(store=FakeStore())
+        async def run():
+            await manager.async_append_exchange("profile:a", {"client_message_id": "one", "text": "History question"}, {"success": True, "text": "Private saved playback"}, session_turn={"context": {}})
+            self.assertEqual(manager.recent_messages_for_prompt("profile:a"), [])
+            self.assertEqual(len((await manager.async_history("profile:a"))["messages"]), 2)
+            await manager.async_append_exchange("ha-user", {"client_message_id": "two", "text": "Regular chat"}, {"success": True, "text": "Regular answer"})
+            self.assertEqual(len(manager.recent_messages_for_prompt("ha-user")), 2)
+        asyncio.run(run())
+
     def test_history_is_user_scoped_and_shared_by_clients(self) -> None:
         manager = AskDJHistoryManager(store=FakeStore())
 

@@ -3994,7 +3994,7 @@ async def _ask_dj_voice_response(
 
     if "conversation_context" in ask_payload:
         from .api_handlers import async_handle_ask_dj_message_payload
-        result,status=await async_handle_ask_dj_message_payload(hass,ask_payload,headers=request.headers,user_id=_request_user_id(request))
+        result,status=await async_handle_ask_dj_message_payload(hass,ask_payload,headers=request.headers,user_id=_request_user_id(request),voice_input=True)
         return _DJConnectSessionView.json(view,{**result,"transcript":user_text,"recognized_text":user_text},status_code=status)
     _set_device_state(runtime, "processing")
     runtime.update(last_text=user_text, last_error=None)
@@ -4204,18 +4204,19 @@ class DJConnectVoiceView(HomeAssistantView):
 
     async def post(self, request):
         hass = request.app["hass"]
+        reply_view = _DJConnectSessionView(hass) if request.headers.get("X-DJConnect-Conversation-Scope") == "profile" else self
         device_id = request.headers.get("X-DJConnect-Device-ID")
         if not device_id:
-            return _json_error(self, "unauthorized", 401)
+            return _json_error(reply_view, "unauthorized", 401)
         runtime = _runtime(hass, device_id, request.headers)
         if runtime is None:
-            return _json_error(self, "not_configured", 503)
+            return _json_error(reply_view, "not_configured", 503)
         if not _authorize_runtime_device_request(
             runtime, request.headers, device_id, request.headers.get(CONF_CLIENT_TYPE)
         ):
-            return _json_error(self, "unauthorized", 401)
+            return _json_error(reply_view, "unauthorized", 401)
         if not _runtime_versions_compatible(runtime):
-            return _runtime_version_mismatch_response(self, runtime)
+            return _runtime_version_mismatch_response(reply_view, runtime)
         if getattr(runtime, "device_token", None):
             _persist_paired_device(
                 hass, runtime, device_id,
@@ -4223,7 +4224,7 @@ class DJConnectVoiceView(HomeAssistantView):
                 runtime.device_token,
                 getattr(runtime, "device_status", {}).get(CONF_CLIENT_TYPE),
             )
-        return await _handle_voice_request(self, request, hass, runtime, device_id)
+        return await _handle_voice_request(reply_view, request, hass, runtime, device_id)
 
 
 class DJConnectTtsView(HomeAssistantView):

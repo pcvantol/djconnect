@@ -135,9 +135,481 @@ class SessionConversationHistoryTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(body["contract_versions"]["session_conversation_history"], 1)
         self.assertEqual(body["contract_versions"]["session_flow_text_search"], 1)
 
+    async def test_revoked_source_withdraws_match_and_copied_answer(self):
+        from custom_components.djconnect.domain.music_account import MusicAccountKind
+        from custom_components.djconnect.session_history_maintenance import (
+            async_maintain_session_history,
+        )
+
+        hass, runtime, history, identity, headers = await self.transport_fixture()
+        session = await self.observed_session()
+        response, status = await self.handlers.async_handle_session_history_payload(
+            hass,
+            {**identity, "session_id": session.session_id},
+            operation="timeline",
+            headers=headers,
+        )
+        self.assertEqual(status, 200)
+        target = {"session_id": session.session_id, "entry_id": response["entries"][0]["entry_id"]}
+        response, status = await self.handlers.async_handle_ask_dj_message_payload(
+            hass,
+            {
+                **identity,
+                "client_message_id": "copied",
+                "text": "Vertel over deze bijdrage",
+                "conversation_context": {
+                    "session_id": session.session_id,
+                    "selected_entry": target,
+                },
+            },
+            headers=headers,
+        )
+        self.assertEqual(status, 200, response)
+        self.assertIn("Metallica", response["text"])
+        await self.manager.async_end(owner_profile_id="profile-a", session_id=session.session_id)
+        storage = hass.data["djconnect"]["djconnect_profile_platform"]
+        await storage.async_upsert_music_account(
+            "source-account",
+            "source-spotify",
+            kind=MusicAccountKind.PERSONAL,
+            display_name="Synthetic source account",
+            linked_profile_ids=frozenset(),
+        )
+        response, status = await self.handlers.async_handle_session_history_payload(
+            hass,
+            {**identity, "action": {"kind": "open_session", **target}},
+            operation="open",
+            headers=headers,
+        )
+        self.assertEqual(status, 404, response)
+        response, status = await self.handlers.async_handle_session_history_payload(
+            hass,
+            {**identity, "session_id": session.session_id, "q": "Metallica"},
+            operation="search",
+            headers=headers,
+        )
+        self.assertEqual(response["matches"], [])
+        await async_maintain_session_history(hass)
+        self.assertIsNone(await self.repo.async_entry_record("profile-a", **target))
+        self.assertEqual((await history.async_history("profile:profile-a"))["messages"], [])
+
+    async def test_expiry_between_find_and_open_rejects_original_anchor(self):
+        from datetime import UTC, datetime, timedelta
+        from custom_components.djconnect.historical_projection_retention import (
+            HistoricalProjectionRetentionService,
+        )
+
+        session = await self.observed_session()
+        await self.manager.async_end(owner_profile_id="profile-a", session_id=session.session_id)
+        result = await self.queries.async_find_playback("profile-a", artist="Metallica")
+        target = result["matches"][0]["open_action"]
+        future = datetime.now(UTC) + timedelta(days=91)
+        await HistoricalProjectionRetentionService(self.repo).async_cleanup(now=future)
+        with self.assertRaises(PermissionError):
+            await self.queries.async_open_entry(
+                "profile-a", target["session_id"], target["entry_id"]
+            )
+        self.assertEqual((await self.queries.async_session_page("profile-a"))["sessions"], [])
+        self.assertIsNone(
+            await self.repo.async_entry_record(
+                "profile-a", target["session_id"], target["entry_id"]
+            )
+        )
+
+    async def test_mention_without_playback_has_no_historical_match(self):
+        session = await self.manager.async_start(owner_profile_id="profile-a")
+        await self.manager.async_end(owner_profile_id="profile-a", session_id=session.session_id)
+        result = await self.queries.async_find_playback("profile-a", artist="Metallica")
+        self.assertEqual(result["matches"], [])
+        self.assertFalse(result["full_listens_proven"])
+
+    async def test_duplicate_context_submit_has_one_turn_and_conflict_fails(self):
+        hass, runtime, history, identity, headers = await self.transport_fixture()
+        session = await self.observed_session()
+        payload = {
+            **identity,
+            "client_message_id": "same",
+            "text": "Wanneer heb ik naar Metallica geluisterd?",
+            "conversation_context": {"session_id": session.session_id},
+        }
+        first, status = await self.handlers.async_handle_ask_dj_message_payload(
+            hass, dict(payload), headers=headers
+        )
+        self.assertEqual(status, 200, first)
+        second, status = await self.handlers.async_handle_ask_dj_message_payload(
+            hass, dict(payload), headers=headers
+        )
+        self.assertEqual(status, 200, second)
+        self.assertEqual(first["conversation"]["entry_ids"], second["conversation"]["entry_ids"])
+        self.assertEqual(len((await history.async_history("profile:profile-a"))["messages"]), 2)
+        conflict, status = await self.handlers.async_handle_ask_dj_message_payload(
+            hass, {**payload, "text": "When have I listened to another artist?"}, headers=headers
+        )
+        self.assertEqual(status, 409, conflict)
+
+    async def test_late_privacy_change_during_delegate_persists_nothing(self):
+        import asyncio
+        from custom_components.djconnect.session_conversation import (
+            async_session_exchange,
+            SessionConversationError,
+        )
+
+        hass, runtime, history, identity, headers = await self.transport_fixture()
+        session = await self.observed_session()
+        entered = asyncio.Event()
+        release = asyncio.Event()
+        allowed = True
+
+        async def delegate(*args):
+            entered.set()
+            await release.wait()
+            return {"success": True, "text": "Synthetic reply"}
+
+        async def guard():
+            if not allowed:
+                raise SessionConversationError("history_not_allowed", 403)
+
+        pending = asyncio.create_task(
+            async_session_exchange(
+                hass,
+                runtime,
+                {
+                    "client_message_id": "late",
+                    "text": "Question",
+                    "conversation_context": {"session_id": session.session_id},
+                },
+                profile_id="profile-a",
+                history_manager=history,
+                delegate=delegate,
+                validate_owner=guard,
+            )
+        )
+        await entered.wait()
+        allowed = False
+        release.set()
+        with self.assertRaises(SessionConversationError):
+            await pending
+        self.assertEqual((await history.async_history("profile:profile-a"))["messages"], [])
+        self.assertEqual(
+            len(await self.repo.async_entry_records("profile-a", session.session_id)), 1
+        )
+
+    async def test_terminal_write_failure_rolls_back_archive_and_keeps_runtime(self):
+        session = await self.observed_session()
+        original = self.repo._project_terminal_tx
+
+        def fail(tx, stored):
+            original(tx, stored)
+            raise RuntimeError("synthetic archive transaction failure")
+
+        self.repo._project_terminal_tx = fail
+        try:
+            with self.assertRaises(RuntimeError):
+                await self.manager.async_end(
+                    owner_profile_id="profile-a", session_id=session.session_id
+                )
+        finally:
+            self.repo._project_terminal_tx = original
+        self.assertIsNotNone(await self.manager.async_get_active("profile-a"))
+        self.assertEqual(
+            (await self.repo.async_session_record(session.session_id))["lifecycle_status"], "ACTIVE"
+        )
+        self.assertIsNone(await self.repo.async_get_session_for_originating_id(session.session_id))
+        await self.manager.async_end(owner_profile_id="profile-a", session_id=session.session_id)
+        self.assertIsNotNone(
+            await self.repo.async_get_session_for_originating_id(session.session_id)
+        )
+
+    async def test_session_keyset_reaches_beyond_old_fixed_window(self):
+        for i in range(502):
+            session = await self.manager.async_start(owner_profile_id="profile-a")
+            await self.manager.async_end(
+                owner_profile_id="profile-a", session_id=session.session_id
+            )
+        cursor = ""
+        identifiers = []
+        while True:
+            page = await self.queries.async_session_page("profile-a", limit=50, cursor=cursor)
+            identifiers.extend(row["session_id"] for row in page["sessions"])
+            cursor = page["next_cursor"]
+            if not cursor:
+                break
+        self.assertEqual(len(identifiers), 502)
+        self.assertEqual(len(set(identifiers)), 502)
+
+    async def test_real_handler_rejects_late_track_end_and_privacy_changes(self):
+        import asyncio
+        from unittest.mock import patch
+        from custom_components.djconnect.domain.profile import ProfilePrivacyMode
+
+        for mutation in ("track", "end", "privacy", "clear"):
+            with self.subTest(mutation=mutation):
+                hass, runtime, history, identity, headers = await self.transport_fixture()
+                session = await self.observed_session()
+                entered = asyncio.Event()
+                release = asyncio.Event()
+
+                async def delayed(*args, **kwargs):
+                    entered.set()
+                    await release.wait()
+                    return {"success": True, "text": "Synthetic delayed response"}
+
+                payload = {
+                    **identity,
+                    "client_message_id": "late-" + mutation,
+                    "text": "Tell me about this",
+                    "conversation_context": {"session_id": session.session_id},
+                }
+                with patch.object(self.handlers.http_helpers, "async_handle_ask_dj", delayed):
+                    pending = asyncio.create_task(
+                        self.handlers.async_handle_ask_dj_message_payload(
+                            hass, payload, headers=headers
+                        )
+                    )
+                    await entered.wait()
+                    if mutation == "track":
+                        await self.manager.async_update_playback_projection(
+                            owner_profile_id="profile-a",
+                            session_id=session.session_id,
+                            state="playing",
+                            media_identity="spotify:track:0000000000000000000001",
+                            title="Changed",
+                            duration_ms=120000,
+                            position_ms=1000,
+                        )
+                    elif mutation == "end":
+                        await self.manager.async_end(
+                            owner_profile_id="profile-a", session_id=session.session_id
+                        )
+                    elif mutation == "privacy":
+                        await hass.data["djconnect"][
+                            "djconnect_profile_platform"
+                        ].async_update_profile("profile-a", privacy_mode=ProfilePrivacyMode.SHARED)
+                    else:
+                        await history.async_clear("profile:profile-a")
+                    release.set()
+                    result, status = await pending
+                self.assertEqual(status, 403 if mutation == "privacy" else 409, result)
+                self.assertEqual((await history.async_history("profile:profile-a"))["messages"], [])
+                if mutation != "end":
+                    await self.manager.async_end(
+                        owner_profile_id="profile-a", session_id=session.session_id
+                    )
+
+    async def test_old_cursor_cannot_restore_fresh_or_removed_content(self):
+        from custom_components.djconnect.session_history_projection import HistoryQueryError
+
+        session = await self.observed_session()
+        await self.manager.async_update_playback_projection(
+            owner_profile_id="profile-a",
+            session_id=session.session_id,
+            state="playing",
+            media_identity="spotify:track:0000000000000000000001",
+            title="Next",
+            duration_ms=120000,
+            position_ms=1000,
+        )
+        page = await self.queries.async_timeline_page("profile-a", session.session_id, limit=1)
+        await self.repo.async_remove_entry_records("profile-a", [page["entries"][0]["entry_id"]])
+        with self.assertRaises(HistoryQueryError):
+            await self.queries.async_timeline_page(
+                "profile-a", session.session_id, limit=1, cursor=page["next_cursor"]
+            )
+
+    async def test_text_client_cannot_claim_confirmed_voice_origin(self):
+        hass, runtime, history, identity, headers = await self.transport_fixture()
+        response, status = await self.handlers.async_handle_ask_dj_message_payload(
+            hass,
+            {
+                **identity,
+                "client_message_id": "spoof-voice",
+                "text": "When have I listened to Metallica?",
+                "input_type": "voice",
+                "conversation_context": {"session_id": None},
+            },
+            headers=headers,
+        )
+        self.assertEqual(status, 200, response)
+        self.assertEqual(response["conversation"]["input_type"], "text")
+
+    async def test_scoped_explicit_next_uses_existing_authority_and_actor(self):
+        from unittest.mock import patch
+        from custom_components.djconnect import ask_dj
+
+        hass, runtime, history, identity, headers = await self.transport_fixture()
+        session = await self.observed_session()
+        commands = []
+        runtime.update = lambda **updates: runtime.__dict__.update(updates)
+
+        async def status_read(*args, **kwargs):
+            return {
+                "success": True,
+                "playback": {"state": "playing", "track_name": "One", "artist": "Metallica"},
+            }
+
+        async def command(hass, bound_runtime, command_name, *args, **kwargs):
+            commands.append(command_name)
+            await self.manager.async_update_playback_projection(
+                owner_profile_id="profile-a",
+                session_id=session.session_id,
+                state="playing",
+                media_identity="spotify:track:0000000000000000000001",
+                title="Next",
+                duration_ms=120000,
+                position_ms=1000,
+            )
+            return {"success": True, "playback": {"state": "playing", "track_name": "Next"}}
+
+        payload = {
+            **identity,
+            "client_message_id": "explicit-next",
+            "text": "next",
+            "conversation_context": {"session_id": session.session_id},
+        }
+        with (
+            patch.object(ask_dj, "run_music_command", status_read),
+            patch.object(ask_dj, "run_text_command", command),
+        ):
+            result, status = await self.handlers.async_handle_ask_dj_message_payload(
+                hass, dict(payload), headers=headers
+            )
+            self.assertEqual(status, 200, result)
+            duplicate, status = await self.handlers.async_handle_ask_dj_message_payload(
+                hass, dict(payload), headers=headers
+            )
+            self.assertEqual(status, 200, duplicate)
+        self.assertEqual(commands, ["next"])
+        self.assertEqual(
+            result["conversation"]["entry_ids"], duplicate["conversation"]["entry_ids"]
+        )
+        self.assertIsNone(result["user_id"])
+        self.assertEqual(result["owner_profile_id"], "profile-a")
+
+    async def test_private_session_minimum_cannot_be_upgraded_by_normal_request(self):
+        hass, runtime, history, identity, headers = await self.transport_fixture()
+        session = await self.manager.async_start(
+            owner_profile_id="profile-a", history_enabled=False
+        )
+        result, status = await self.handlers.async_handle_ask_dj_message_payload(
+            hass,
+            {
+                **identity,
+                "client_message_id": "private",
+                "text": "When have I listened to Metallica?",
+                "conversation_context": {"session_id": session.session_id},
+            },
+            headers=headers,
+        )
+        self.assertEqual(status, 200, result)
+        self.assertFalse(result["history_persisted"])
+        self.assertEqual(result["conversation"]["entry_ids"], [])
+        self.assertEqual((await history.async_history("profile:profile-a"))["messages"], [])
+        self.assertEqual(await self.repo.async_entry_records("profile-a", session.session_id), [])
+        await self.manager.async_end(owner_profile_id="profile-a", session_id=session.session_id)
+        self.assertIsNone(await self.repo.async_get_session_for_originating_id(session.session_id))
+
+    async def test_cleared_pending_and_completed_request_ids_do_not_reappear(self):
+        import asyncio
+        from unittest.mock import patch
+
+        hass, runtime, history, identity, headers = await self.transport_fixture()
+        session = await self.observed_session()
+        payload = {
+            **identity,
+            "client_message_id": "cleared-pending",
+            "text": "Tell me about this",
+            "conversation_context": {"session_id": session.session_id},
+        }
+        entered, release = asyncio.Event(), asyncio.Event()
+
+        async def delayed(*args, **kwargs):
+            entered.set()
+            await release.wait()
+            return {"success": True, "text": "Synthetic answer"}
+
+        with patch.object(self.handlers.http_helpers, "async_handle_ask_dj", delayed):
+            pending = asyncio.create_task(
+                self.handlers.async_handle_ask_dj_message_payload(
+                    hass, dict(payload), headers=headers
+                )
+            )
+            await entered.wait()
+            await history.async_clear("profile:profile-a")
+            release.set()
+            self.assertEqual((await pending)[1], 409)
+        retry, status = await self.handlers.async_handle_ask_dj_message_payload(
+            hass, dict(payload), headers=headers
+        )
+        self.assertEqual(status, 409, retry)
+        fresh = {
+            **identity,
+            "client_message_id": "completed",
+            "text": "When have I listened to Metallica?",
+            "conversation_context": {"session_id": session.session_id},
+        }
+        self.assertEqual(
+            (
+                await self.handlers.async_handle_ask_dj_message_payload(
+                    hass, dict(fresh), headers=headers
+                )
+            )[1],
+            200,
+        )
+        await history.async_clear("profile:profile-a")
+        self.assertEqual(
+            (
+                await self.handlers.async_handle_ask_dj_message_payload(
+                    hass, dict(fresh), headers=headers
+                )
+            )[1],
+            409,
+        )
+        self.assertEqual((await history.async_history("profile:profile-a"))["messages"], [])
+
+    async def test_same_recorded_match_and_navigation_are_localized_in_five_languages(self):
+        hass, runtime, history, identity, headers = await self.transport_fixture()
+        session = await self.observed_session()
+        await self.manager.async_end(owner_profile_id="profile-a", session_id=session.session_id)
+        examples = {
+            "en": ("When did I listen to Metallica?", "Found in your saved sessions"),
+            "nl": (
+                "Wanneer heb ik eerder naar Metallica geluisterd?",
+                "Gevonden in je bewaarde sessies",
+            ),
+            "de": ("Wann habe ich Metallica gehört?", "In deinen gespeicherten Sessions gefunden"),
+            "fr": ("Quand ai-je écouté Metallica ?", "Trouvé dans vos sessions conservées"),
+            "es": ("¿Cuándo escuché a Metallica?", "Encontrado en tus sesiones guardadas"),
+        }
+        entries = set()
+        for locale, (question, prefix) in examples.items():
+            result, status = await self.handlers.async_handle_ask_dj_message_payload(
+                hass,
+                {
+                    **identity,
+                    "client_message_id": "locale-" + locale,
+                    "language": locale,
+                    "text": question,
+                    "conversation_context": {"session_id": None},
+                },
+                headers=headers,
+            )
+            self.assertEqual(status, 200, result)
+            self.assertTrue(result["text"].startswith(prefix), result)
+            self.assertEqual(len(result["historical_matches"]), 1)
+            entries.add(result["navigation_actions"][0]["entry_id"])
+            self.assertEqual(result["playback_actions"], [])
+            self.assertFalse(result["full_listens_proven"])
+        self.assertEqual(len(entries), 1)
+
     async def observed_session(self):
         session = await self.manager.async_start(
-            owner_profile_id="profile-a", music_backend="spotify_direct"
+            owner_profile_id="profile-a",
+            music_backend="spotify_direct",
+            history_source_context={
+                "backend_id": "source-spotify",
+                "music_account_id": "source-account",
+                "provider_entry_id": "source-entry",
+            },
         )
         await self.manager.async_update_playback_projection(
             owner_profile_id="profile-a",
@@ -232,6 +704,27 @@ class SessionConversationHistoryTest(unittest.IsolatedAsyncioTestCase):
         await storage.async_upsert_device(
             "djconnect-ios-ABCDEF123456", "ios", linked_profile_id="profile-a"
         )
+        from custom_components.djconnect.domain.music_account import MusicAccountKind
+
+        await storage.async_upsert_music_backend(
+            "source-spotify", BackendProvider.SPOTIFY_DIRECT, display_name="Synthetic source"
+        )
+        await storage.async_upsert_music_account(
+            "source-account",
+            "source-spotify",
+            kind=MusicAccountKind.PERSONAL,
+            display_name="Synthetic source account",
+            linked_profile_ids=frozenset({"profile-a"}),
+        )
+        source_entry = types.SimpleNamespace(
+            entry_id="source-entry",
+            data={
+                "music_account_id": "source-account",
+                "spotify_refresh_token": "synthetic-never-sent-source-grant",
+            },
+            options={},
+        )
+        hass.config_entries = types.SimpleNamespace(async_entries=lambda domain: [source_entry])
         history = AskDJHistoryManager(store=FakeStore())
         runtime = types.SimpleNamespace(
             config={
@@ -254,6 +747,7 @@ class SessionConversationHistoryTest(unittest.IsolatedAsyncioTestCase):
             "djconnect_profile_platform": storage,
             "persistence_service": self.service,
             "session_runtime_manager": self.manager,
+            "ask_dj_history_manager": history,
         }
         identity = {"device_id": "djconnect-ios-ABCDEF123456", "client_type": "ios"}
         headers = {"Authorization": "Bearer synthetic-fixture-token"}
@@ -262,7 +756,14 @@ class SessionConversationHistoryTest(unittest.IsolatedAsyncioTestCase):
     async def test_real_handlers_bind_text_and_voice_derived_turns_and_archive_restart(self):
         hass, runtime, history, identity, headers = await self.transport_fixture()
         session = await self.manager.async_start(
-            owner_profile_id="profile-a", selected_mood="energy", locale="nl"
+            owner_profile_id="profile-a",
+            selected_mood="energy",
+            locale="nl",
+            history_source_context={
+                "backend_id": "source-spotify",
+                "music_account_id": "source-account",
+                "provider_entry_id": "source-entry",
+            },
         )
         await self.manager.async_update_playback_projection(
             owner_profile_id="profile-a",
@@ -309,6 +810,7 @@ class SessionConversationHistoryTest(unittest.IsolatedAsyncioTestCase):
                     },
                 },
                 headers=headers,
+                voice_input=input_type == "voice",
             )
             responses.append(response)
             self.assertEqual(status, 200, response)

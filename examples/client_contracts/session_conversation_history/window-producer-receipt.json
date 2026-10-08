@@ -4,24 +4,26 @@
     "success": true,
     "schema_version": 1,
     "session": {
-      "session_id": "session-d85dfd2d45ba470789cc13e0c0610eb7",
+      "session_id": "session-a8af86e130f0498d956816eb6d0adcad",
       "lifecycle_status": "ACTIVE",
-      "created_at": "2026-10-08T19:52:45.705192+00:00",
-      "started_at": "2026-10-08T19:52:45.705646+00:00",
+      "created_at": "2026-10-08T21:29:03.441816+00:00",
+      "started_at": "2026-10-08T21:29:03.442319+00:00",
       "ended_at": "",
       "interrupted_at": "",
-      "revision": "26:ACTIVE:0:0",
+      "revision": "26:ACTIVE:0:0:",
       "read_only": false,
       "history_coverage": "saved_entries_only_no_retrospective_observations"
     },
     "entries": [
       {
-        "entry_id": "entry-774578ec351c5b42b357058a592b5453",
-        "session_id": "session-d85dfd2d45ba470789cc13e0c0610eb7",
+        "entry_id": "entry-afcb9ae70992537ab1777c723bb6da6c",
+        "session_id": "session-a8af86e130f0498d956816eb6d0adcad",
         "order": 1,
         "kind": "playback_observed",
-        "occurred_at": "2026-10-08T19:52:45.705921+00:00",
-        "retained_until": "2027-01-06T19:52:45.705921+00:00",
+        "occurred_at": "2026-10-08T21:29:03.442645+00:00",
+        "retained_until": "2027-01-06T21:29:03.442645+00:00",
+        "historical_view_only": true,
+        "current_display_allowed": false,
         "playback": {
           "album": "…And Justice for All",
           "artist": "Metallica",
@@ -35,12 +37,14 @@
         "requires_spotify_attribution": true
       },
       {
-        "entry_id": "entry-0fda639ffc3e502c8290018c827b3cd1",
-        "session_id": "session-d85dfd2d45ba470789cc13e0c0610eb7",
+        "entry_id": "entry-31453d19a54254968fa4a95a86d78f9c",
+        "session_id": "session-a8af86e130f0498d956816eb6d0adcad",
         "order": 2,
         "kind": "playback_observed",
-        "occurred_at": "2026-10-08T19:52:45.706310+00:00",
-        "retained_until": "2027-01-06T19:52:45.706310+00:00",
+        "occurred_at": "2026-10-08T21:29:03.443015+00:00",
+        "retained_until": "2027-01-06T21:29:03.443015+00:00",
+        "historical_view_only": true,
+        "current_display_allowed": false,
         "playback": {
           "album": "",
           "artist": "Metallica",
@@ -54,12 +58,14 @@
         "requires_spotify_attribution": true
       },
       {
-        "entry_id": "entry-a482e5eea3c65f55a5d5dbf3f5dfecc6",
-        "session_id": "session-d85dfd2d45ba470789cc13e0c0610eb7",
+        "entry_id": "entry-4111bdcd666b55949abe89520cd76947",
+        "session_id": "session-a8af86e130f0498d956816eb6d0adcad",
         "order": 3,
         "kind": "playback_observed",
-        "occurred_at": "2026-10-08T19:52:45.706698+00:00",
-        "retained_until": "2027-01-06T19:52:45.706698+00:00",
+        "occurred_at": "2026-10-08T21:29:03.443428+00:00",
+        "retained_until": "2027-01-06T21:29:03.443428+00:00",
+        "historical_view_only": true,
+        "current_display_allowed": false,
         "playback": {
           "album": "",
           "artist": "Metallica",
@@ -73,12 +79,14 @@
         "requires_spotify_attribution": true
       },
       {
-        "entry_id": "entry-40085c57fbbe53e7838df3afb6905957",
-        "session_id": "session-d85dfd2d45ba470789cc13e0c0610eb7",
+        "entry_id": "entry-d6b873e7df9550d7ba5c812096e9d3c5",
+        "session_id": "session-a8af86e130f0498d956816eb6d0adcad",
         "order": 4,
         "kind": "playback_observed",
-        "occurred_at": "2026-10-08T19:52:45.707023+00:00",
-        "retained_until": "2027-01-06T19:52:45.707023+00:00",
+        "occurred_at": "2026-10-08T21:29:03.443828+00:00",
+        "retained_until": "2027-01-06T21:29:03.443828+00:00",
+        "historical_view_only": true,
+        "current_display_allowed": false,
         "playback": {
           "album": "",
           "artist": "Metallica",
@@ -92,12 +100,14 @@
         "requires_spotify_attribution": true
       },
       {
-        "entry_id": "entry-2e3f3e1e2e925ee3a234ebf7a5ec1ba0",
-        "session_id": "session-d85dfd2d45ba470789cc13e0c0610eb7",
+        "entry_id": "entry-58e5d95a31ab5bd9868f4c091dbac084",
+        "session_id": "session-a8af86e130f0498d956816eb6d0adcad",
         "order": 5,
         "kind": "playback_observed",
-        "occurred_at": "2026-10-08T19:52:45.707324+00:00",
-        "retained_until": "2027-01-06T19:52:45.707324+00:00",
+        "occurred_at": "2026-10-08T21:29:03.444182+00:00",
+        "retained_until": "2027-01-06T21:29:03.444182+00:00",
+        "historical_view_only": true,
+        "current_display_allowed": false,
         "playback": {
           "album": "",
           "artist": "Metallica",
@@ -111,12 +121,14 @@
         "requires_spotify_attribution": true
       },
       {
-        "entry_id": "entry-41f39847b5cf57f9825978c06f0d843c",
-        "session_id": "session-d85dfd2d45ba470789cc13e0c0610eb7",
+        "entry_id": "entry-ff94681f1e2c5dcbbcd8d5b82712927e",
+        "session_id": "session-a8af86e130f0498d956816eb6d0adcad",
         "order": 6,
         "kind": "playback_observed",
-        "occurred_at": "2026-10-08T19:52:45.707638+00:00",
-        "retained_until": "2027-01-06T19:52:45.707638+00:00",
+        "occurred_at": "2026-10-08T21:29:03.444510+00:00",
+        "retained_until": "2027-01-06T21:29:03.444510+00:00",
+        "historical_view_only": true,
+        "current_display_allowed": false,
         "playback": {
           "album": "",
           "artist": "Metallica",
@@ -130,12 +142,14 @@
         "requires_spotify_attribution": true
       },
       {
-        "entry_id": "entry-9e569b1b1758536dae01d244e9a9d7d3",
-        "session_id": "session-d85dfd2d45ba470789cc13e0c0610eb7",
+        "entry_id": "entry-fadaf89fae3351b5b9baf40f0cff2a2c",
+        "session_id": "session-a8af86e130f0498d956816eb6d0adcad",
         "order": 7,
         "kind": "playback_observed",
-        "occurred_at": "2026-10-08T19:52:45.707919+00:00",
-        "retained_until": "2027-01-06T19:52:45.707919+00:00",
+        "occurred_at": "2026-10-08T21:29:03.444816+00:00",
+        "retained_until": "2027-01-06T21:29:03.444816+00:00",
+        "historical_view_only": true,
+        "current_display_allowed": false,
         "playback": {
           "album": "",
           "artist": "Metallica",
@@ -149,12 +163,14 @@
         "requires_spotify_attribution": true
       },
       {
-        "entry_id": "entry-f91a682065cd50018f0f792e8f9e3767",
-        "session_id": "session-d85dfd2d45ba470789cc13e0c0610eb7",
+        "entry_id": "entry-b3d34a87e40352b39be07e4d74acd83d",
+        "session_id": "session-a8af86e130f0498d956816eb6d0adcad",
         "order": 8,
         "kind": "playback_observed",
-        "occurred_at": "2026-10-08T19:52:45.708228+00:00",
-        "retained_until": "2027-01-06T19:52:45.708228+00:00",
+        "occurred_at": "2026-10-08T21:29:03.445185+00:00",
+        "retained_until": "2027-01-06T21:29:03.445185+00:00",
+        "historical_view_only": true,
+        "current_display_allowed": false,
         "playback": {
           "album": "",
           "artist": "Metallica",
@@ -168,12 +184,14 @@
         "requires_spotify_attribution": true
       },
       {
-        "entry_id": "entry-8418bb2b69cb51699e76e8f4f3691ee4",
-        "session_id": "session-d85dfd2d45ba470789cc13e0c0610eb7",
+        "entry_id": "entry-c0e5bfb822fd58bfbe65e14b4a255878",
+        "session_id": "session-a8af86e130f0498d956816eb6d0adcad",
         "order": 9,
         "kind": "playback_observed",
-        "occurred_at": "2026-10-08T19:52:45.708540+00:00",
-        "retained_until": "2027-01-06T19:52:45.708540+00:00",
+        "occurred_at": "2026-10-08T21:29:03.445517+00:00",
+        "retained_until": "2027-01-06T21:29:03.445517+00:00",
+        "historical_view_only": true,
+        "current_display_allowed": false,
         "playback": {
           "album": "",
           "artist": "Metallica",
@@ -187,12 +205,14 @@
         "requires_spotify_attribution": true
       },
       {
-        "entry_id": "entry-cf9a2a96f2595f699150bc572d979483",
-        "session_id": "session-d85dfd2d45ba470789cc13e0c0610eb7",
+        "entry_id": "entry-5967072565ca5ab9b64cab34387bde07",
+        "session_id": "session-a8af86e130f0498d956816eb6d0adcad",
         "order": 10,
         "kind": "playback_observed",
-        "occurred_at": "2026-10-08T19:52:45.708890+00:00",
-        "retained_until": "2027-01-06T19:52:45.708890+00:00",
+        "occurred_at": "2026-10-08T21:29:03.445806+00:00",
+        "retained_until": "2027-01-06T21:29:03.445806+00:00",
+        "historical_view_only": true,
+        "current_display_allowed": false,
         "playback": {
           "album": "",
           "artist": "Metallica",
@@ -206,12 +226,14 @@
         "requires_spotify_attribution": true
       },
       {
-        "entry_id": "entry-1c5a6a55314e5809a7653269b0a218c5",
-        "session_id": "session-d85dfd2d45ba470789cc13e0c0610eb7",
+        "entry_id": "entry-3dcddc55769a5da58fa26cc9a5e5c89d",
+        "session_id": "session-a8af86e130f0498d956816eb6d0adcad",
         "order": 11,
         "kind": "playback_observed",
-        "occurred_at": "2026-10-08T19:52:45.709366+00:00",
-        "retained_until": "2027-01-06T19:52:45.709366+00:00",
+        "occurred_at": "2026-10-08T21:29:03.446198+00:00",
+        "retained_until": "2027-01-06T21:29:03.446198+00:00",
+        "historical_view_only": true,
+        "current_display_allowed": false,
         "playback": {
           "album": "",
           "artist": "Metallica",
@@ -225,12 +247,14 @@
         "requires_spotify_attribution": true
       },
       {
-        "entry_id": "entry-6957a9d4aab35fb8a7bd7998a731ff61",
-        "session_id": "session-d85dfd2d45ba470789cc13e0c0610eb7",
+        "entry_id": "entry-4d5d194a8b5657e9bd4cd0a76fbb02f6",
+        "session_id": "session-a8af86e130f0498d956816eb6d0adcad",
         "order": 12,
         "kind": "playback_observed",
-        "occurred_at": "2026-10-08T19:52:45.709768+00:00",
-        "retained_until": "2027-01-06T19:52:45.709768+00:00",
+        "occurred_at": "2026-10-08T21:29:03.446577+00:00",
+        "retained_until": "2027-01-06T21:29:03.446577+00:00",
+        "historical_view_only": true,
+        "current_display_allowed": false,
         "playback": {
           "album": "",
           "artist": "Metallica",
@@ -244,12 +268,14 @@
         "requires_spotify_attribution": true
       },
       {
-        "entry_id": "entry-79f7d85bfb415336a4a1fc173c7fba56",
-        "session_id": "session-d85dfd2d45ba470789cc13e0c0610eb7",
+        "entry_id": "entry-f4e8b0b5673d50bf8a9978f1f08bdde3",
+        "session_id": "session-a8af86e130f0498d956816eb6d0adcad",
         "order": 13,
         "kind": "playback_observed",
-        "occurred_at": "2026-10-08T19:52:45.710179+00:00",
-        "retained_until": "2027-01-06T19:52:45.710179+00:00",
+        "occurred_at": "2026-10-08T21:29:03.446914+00:00",
+        "retained_until": "2027-01-06T21:29:03.446914+00:00",
+        "historical_view_only": true,
+        "current_display_allowed": false,
         "playback": {
           "album": "",
           "artist": "Metallica",
@@ -263,12 +289,14 @@
         "requires_spotify_attribution": true
       },
       {
-        "entry_id": "entry-7280cc221f1f54369a92f3355ed7dd2b",
-        "session_id": "session-d85dfd2d45ba470789cc13e0c0610eb7",
+        "entry_id": "entry-8878048ff2dd5303a48d689a504be70f",
+        "session_id": "session-a8af86e130f0498d956816eb6d0adcad",
         "order": 14,
         "kind": "playback_observed",
-        "occurred_at": "2026-10-08T19:52:45.710605+00:00",
-        "retained_until": "2027-01-06T19:52:45.710605+00:00",
+        "occurred_at": "2026-10-08T21:29:03.447236+00:00",
+        "retained_until": "2027-01-06T21:29:03.447236+00:00",
+        "historical_view_only": true,
+        "current_display_allowed": false,
         "playback": {
           "album": "",
           "artist": "Metallica",
@@ -282,12 +310,14 @@
         "requires_spotify_attribution": true
       },
       {
-        "entry_id": "entry-10eb7b88660e5243b6e68bca789273b8",
-        "session_id": "session-d85dfd2d45ba470789cc13e0c0610eb7",
+        "entry_id": "entry-8c368bf42da0555a910b0fddd87798d1",
+        "session_id": "session-a8af86e130f0498d956816eb6d0adcad",
         "order": 15,
         "kind": "playback_observed",
-        "occurred_at": "2026-10-08T19:52:45.711011+00:00",
-        "retained_until": "2027-01-06T19:52:45.711011+00:00",
+        "occurred_at": "2026-10-08T21:29:03.447523+00:00",
+        "retained_until": "2027-01-06T21:29:03.447523+00:00",
+        "historical_view_only": true,
+        "current_display_allowed": false,
         "playback": {
           "album": "",
           "artist": "Metallica",
@@ -301,12 +331,14 @@
         "requires_spotify_attribution": true
       },
       {
-        "entry_id": "entry-999ccf8d46c9537db6faecaae23a4ac3",
-        "session_id": "session-d85dfd2d45ba470789cc13e0c0610eb7",
+        "entry_id": "entry-ec9304a6ddf75b18b93069137be90a28",
+        "session_id": "session-a8af86e130f0498d956816eb6d0adcad",
         "order": 16,
         "kind": "playback_observed",
-        "occurred_at": "2026-10-08T19:52:45.711400+00:00",
-        "retained_until": "2027-01-06T19:52:45.711400+00:00",
+        "occurred_at": "2026-10-08T21:29:03.447849+00:00",
+        "retained_until": "2027-01-06T21:29:03.447849+00:00",
+        "historical_view_only": true,
+        "current_display_allowed": false,
         "playback": {
           "album": "",
           "artist": "Metallica",
@@ -320,12 +352,14 @@
         "requires_spotify_attribution": true
       },
       {
-        "entry_id": "entry-201151b5f424550ebbd1bfc9c063b8f6",
-        "session_id": "session-d85dfd2d45ba470789cc13e0c0610eb7",
+        "entry_id": "entry-62642d5ed80b588f96f1419be51fa0e1",
+        "session_id": "session-a8af86e130f0498d956816eb6d0adcad",
         "order": 17,
         "kind": "playback_observed",
-        "occurred_at": "2026-10-08T19:52:45.711760+00:00",
-        "retained_until": "2027-01-06T19:52:45.711760+00:00",
+        "occurred_at": "2026-10-08T21:29:03.448235+00:00",
+        "retained_until": "2027-01-06T21:29:03.448235+00:00",
+        "historical_view_only": true,
+        "current_display_allowed": false,
         "playback": {
           "album": "",
           "artist": "Metallica",
@@ -339,12 +373,14 @@
         "requires_spotify_attribution": true
       },
       {
-        "entry_id": "entry-789d373a061456e7a6cc60c50f3cf2d1",
-        "session_id": "session-d85dfd2d45ba470789cc13e0c0610eb7",
+        "entry_id": "entry-9c183e525126559684488653c2310027",
+        "session_id": "session-a8af86e130f0498d956816eb6d0adcad",
         "order": 18,
         "kind": "playback_observed",
-        "occurred_at": "2026-10-08T19:52:45.712157+00:00",
-        "retained_until": "2027-01-06T19:52:45.712157+00:00",
+        "occurred_at": "2026-10-08T21:29:03.448537+00:00",
+        "retained_until": "2027-01-06T21:29:03.448537+00:00",
+        "historical_view_only": true,
+        "current_display_allowed": false,
         "playback": {
           "album": "",
           "artist": "Metallica",
@@ -358,12 +394,14 @@
         "requires_spotify_attribution": true
       },
       {
-        "entry_id": "entry-ee51bd275d895eff94cadc6841e34d00",
-        "session_id": "session-d85dfd2d45ba470789cc13e0c0610eb7",
+        "entry_id": "entry-ebd605f80b435ccfb3e640e5f9a21ba5",
+        "session_id": "session-a8af86e130f0498d956816eb6d0adcad",
         "order": 19,
         "kind": "playback_observed",
-        "occurred_at": "2026-10-08T19:52:45.712551+00:00",
-        "retained_until": "2027-01-06T19:52:45.712551+00:00",
+        "occurred_at": "2026-10-08T21:29:03.448830+00:00",
+        "retained_until": "2027-01-06T21:29:03.448830+00:00",
+        "historical_view_only": true,
+        "current_display_allowed": false,
         "playback": {
           "album": "",
           "artist": "Metallica",
@@ -377,12 +415,14 @@
         "requires_spotify_attribution": true
       },
       {
-        "entry_id": "entry-8704a60e9a68599088ad577cb4c4cdaa",
-        "session_id": "session-d85dfd2d45ba470789cc13e0c0610eb7",
+        "entry_id": "entry-a9342fcaaa8b5571ae7423b75261be66",
+        "session_id": "session-a8af86e130f0498d956816eb6d0adcad",
         "order": 20,
         "kind": "playback_observed",
-        "occurred_at": "2026-10-08T19:52:45.712918+00:00",
-        "retained_until": "2027-01-06T19:52:45.712918+00:00",
+        "occurred_at": "2026-10-08T21:29:03.449134+00:00",
+        "retained_until": "2027-01-06T21:29:03.449134+00:00",
+        "historical_view_only": true,
+        "current_display_allowed": false,
         "playback": {
           "album": "",
           "artist": "Metallica",
@@ -396,32 +436,34 @@
         "requires_spotify_attribution": true
       }
     ],
-    "revision": "26:ACTIVE:0:0",
-    "next_cursor": "eyJhZnRlciI6IDIwLCAibW9kZSI6ICJ0aW1lbGluZSIsICJwcm9maWxlX2lkIjogInByb2ZpbGUtYSIsICJxdWVyeSI6ICIiLCAicmV2aXNpb24iOiAiMjY6QUNUSVZFOjA6MCIsICJzZXNzaW9uX2lkIjogInNlc3Npb24tZDg1ZGZkMmQ0NWJhNDcwNzg5Y2MxM2UwYzA2MTBlYjcifYNzkTjkoLUSeeJ8w5iV8rD9QhOUx9D6cLXZ8Z0CvaXT",
+    "revision": "26:ACTIVE:0:0:",
+    "next_cursor": "eyJhZnRlciI6IDIwLCAibW9kZSI6ICJ0aW1lbGluZSIsICJwcm9maWxlX2lkIjogInByb2ZpbGUtYSIsICJxdWVyeSI6ICIiLCAicmV2aXNpb24iOiAiMjY6QUNUSVZFOjA6MDoiLCAic2Vzc2lvbl9pZCI6ICJzZXNzaW9uLWE4YWY4NmUxMzBmMDQ5OGQ5NTY4MTZlYjZkMGFkY2FkIn3NY1Fg_cNM5K_LfTmoi83zdmmG7MTGwFHzpC5hlvLwlg==",
     "coverage": "saved_entries_only"
   },
   "tail_window": {
     "success": true,
     "schema_version": 1,
     "session": {
-      "session_id": "session-d85dfd2d45ba470789cc13e0c0610eb7",
+      "session_id": "session-a8af86e130f0498d956816eb6d0adcad",
       "lifecycle_status": "ACTIVE",
-      "created_at": "2026-10-08T19:52:45.705192+00:00",
-      "started_at": "2026-10-08T19:52:45.705646+00:00",
+      "created_at": "2026-10-08T21:29:03.441816+00:00",
+      "started_at": "2026-10-08T21:29:03.442319+00:00",
       "ended_at": "",
       "interrupted_at": "",
-      "revision": "26:ACTIVE:0:0",
+      "revision": "26:ACTIVE:0:0:",
       "read_only": false,
       "history_coverage": "saved_entries_only_no_retrospective_observations"
     },
     "entries": [
       {
-        "entry_id": "entry-d11c8247b2645939b6292cdf596acf8f",
-        "session_id": "session-d85dfd2d45ba470789cc13e0c0610eb7",
+        "entry_id": "entry-04a3971c475e5fb1b44fd47a0b5cbb7f",
+        "session_id": "session-a8af86e130f0498d956816eb6d0adcad",
         "order": 24,
         "kind": "playback_observed",
-        "occurred_at": "2026-10-08T19:52:45.714410+00:00",
-        "retained_until": "2027-01-06T19:52:45.714410+00:00",
+        "occurred_at": "2026-10-08T21:29:03.450249+00:00",
+        "retained_until": "2027-01-06T21:29:03.450249+00:00",
+        "historical_view_only": true,
+        "current_display_allowed": false,
         "playback": {
           "album": "",
           "artist": "Metallica",
@@ -435,12 +477,14 @@
         "requires_spotify_attribution": true
       },
       {
-        "entry_id": "entry-c6aa9cd6a5ba532ab44e444da31aef01",
-        "session_id": "session-d85dfd2d45ba470789cc13e0c0610eb7",
+        "entry_id": "entry-f71e1a42b1425c7eac70374ae771d7ee",
+        "session_id": "session-a8af86e130f0498d956816eb6d0adcad",
         "order": 25,
         "kind": "playback_observed",
-        "occurred_at": "2026-10-08T19:52:45.714784+00:00",
-        "retained_until": "2027-01-06T19:52:45.714784+00:00",
+        "occurred_at": "2026-10-08T21:29:03.450515+00:00",
+        "retained_until": "2027-01-06T21:29:03.450515+00:00",
+        "historical_view_only": true,
+        "current_display_allowed": false,
         "playback": {
           "album": "",
           "artist": "Metallica",
@@ -454,12 +498,14 @@
         "requires_spotify_attribution": true
       },
       {
-        "entry_id": "entry-228f1b222a6f5bbe8c0f5603212e80d0",
-        "session_id": "session-d85dfd2d45ba470789cc13e0c0610eb7",
+        "entry_id": "entry-3a3cc30a7c3a5c8b9af6c811d47728bd",
+        "session_id": "session-a8af86e130f0498d956816eb6d0adcad",
         "order": 26,
         "kind": "playback_observed",
-        "occurred_at": "2026-10-08T19:52:45.715188+00:00",
-        "retained_until": "2027-01-06T19:52:45.715188+00:00",
+        "occurred_at": "2026-10-08T21:29:03.450831+00:00",
+        "retained_until": "2027-01-06T21:29:03.450831+00:00",
+        "historical_view_only": true,
+        "current_display_allowed": false,
         "playback": {
           "album": "",
           "artist": "Metallica",
@@ -473,7 +519,7 @@
         "requires_spotify_attribution": true
       }
     ],
-    "revision": "26:ACTIVE:0:0",
+    "revision": "26:ACTIVE:0:0:",
     "next_cursor": null,
     "coverage": "bounded_saved_entry_window",
     "window": "tail",
@@ -487,24 +533,26 @@
     "success": true,
     "schema_version": 1,
     "session": {
-      "session_id": "session-d85dfd2d45ba470789cc13e0c0610eb7",
+      "session_id": "session-a8af86e130f0498d956816eb6d0adcad",
       "lifecycle_status": "ACTIVE",
-      "created_at": "2026-10-08T19:52:45.705192+00:00",
-      "started_at": "2026-10-08T19:52:45.705646+00:00",
+      "created_at": "2026-10-08T21:29:03.441816+00:00",
+      "started_at": "2026-10-08T21:29:03.442319+00:00",
       "ended_at": "",
       "interrupted_at": "",
-      "revision": "26:ACTIVE:0:0",
+      "revision": "26:ACTIVE:0:0:",
       "read_only": false,
       "history_coverage": "saved_entries_only_no_retrospective_observations"
     },
     "entries": [
       {
-        "entry_id": "entry-1c5a6a55314e5809a7653269b0a218c5",
-        "session_id": "session-d85dfd2d45ba470789cc13e0c0610eb7",
+        "entry_id": "entry-3dcddc55769a5da58fa26cc9a5e5c89d",
+        "session_id": "session-a8af86e130f0498d956816eb6d0adcad",
         "order": 11,
         "kind": "playback_observed",
-        "occurred_at": "2026-10-08T19:52:45.709366+00:00",
-        "retained_until": "2027-01-06T19:52:45.709366+00:00",
+        "occurred_at": "2026-10-08T21:29:03.446198+00:00",
+        "retained_until": "2027-01-06T21:29:03.446198+00:00",
+        "historical_view_only": true,
+        "current_display_allowed": false,
         "playback": {
           "album": "",
           "artist": "Metallica",
@@ -518,12 +566,14 @@
         "requires_spotify_attribution": true
       },
       {
-        "entry_id": "entry-6957a9d4aab35fb8a7bd7998a731ff61",
-        "session_id": "session-d85dfd2d45ba470789cc13e0c0610eb7",
+        "entry_id": "entry-4d5d194a8b5657e9bd4cd0a76fbb02f6",
+        "session_id": "session-a8af86e130f0498d956816eb6d0adcad",
         "order": 12,
         "kind": "playback_observed",
-        "occurred_at": "2026-10-08T19:52:45.709768+00:00",
-        "retained_until": "2027-01-06T19:52:45.709768+00:00",
+        "occurred_at": "2026-10-08T21:29:03.446577+00:00",
+        "retained_until": "2027-01-06T21:29:03.446577+00:00",
+        "historical_view_only": true,
+        "current_display_allowed": false,
         "playback": {
           "album": "",
           "artist": "Metallica",
@@ -537,12 +587,14 @@
         "requires_spotify_attribution": true
       },
       {
-        "entry_id": "entry-79f7d85bfb415336a4a1fc173c7fba56",
-        "session_id": "session-d85dfd2d45ba470789cc13e0c0610eb7",
+        "entry_id": "entry-f4e8b0b5673d50bf8a9978f1f08bdde3",
+        "session_id": "session-a8af86e130f0498d956816eb6d0adcad",
         "order": 13,
         "kind": "playback_observed",
-        "occurred_at": "2026-10-08T19:52:45.710179+00:00",
-        "retained_until": "2027-01-06T19:52:45.710179+00:00",
+        "occurred_at": "2026-10-08T21:29:03.446914+00:00",
+        "retained_until": "2027-01-06T21:29:03.446914+00:00",
+        "historical_view_only": true,
+        "current_display_allowed": false,
         "playback": {
           "album": "",
           "artist": "Metallica",
@@ -556,11 +608,11 @@
         "requires_spotify_attribution": true
       }
     ],
-    "revision": "26:ACTIVE:0:0",
+    "revision": "26:ACTIVE:0:0:",
     "next_cursor": null,
     "coverage": "bounded_saved_entry_window",
     "window": "anchor",
-    "anchor_entry_id": "entry-1c5a6a55314e5809a7653269b0a218c5",
+    "anchor_entry_id": "entry-3dcddc55769a5da58fa26cc9a5e5c89d",
     "scanned_order_min": 11,
     "scanned_order_max": 13,
     "scan_complete": false,

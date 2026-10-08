@@ -3166,6 +3166,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if option_updates != dict(entry.options):
         hass.config_entries.async_update_entry(entry, options=option_updates)
     runtime = _restore_runtime(hass, entry)
+    from .session_history_maintenance import schedule_history_maintenance
+    schedule_history_maintenance(hass)
     session_manager = hass.data[DOMAIN].get("session_runtime_manager")
     if session_manager is not None:
         runtime._receiver_end_generation = session_manager.receiver_entry_generation(entry.entry_id)
@@ -3198,6 +3200,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     await hass.config_entries.async_forward_entry_setups(entry, _platforms_for_runtime(runtime))
     _LOGGER.info("DJConnect v%s loaded", VERSION)
     return True
+
+
+async def async_remove_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """Permanent provider removal withdraws its captured historical source binding."""
+    from .session_history_maintenance import async_maintain_session_history
+    await async_maintain_session_history(hass, revoked_entry_id=entry.entry_id)
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:

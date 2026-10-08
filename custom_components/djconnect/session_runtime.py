@@ -3896,6 +3896,7 @@ class SessionRuntimeManager:
 
     def __init__(self, persistent_sessions: PersistentSessionRepository | None = None, historical_projections: HistoricalProjectionRepository | None = None, monotonic_source: Callable[[], float] = time.monotonic) -> None:
         self._active_by_profile: dict[str, DJSessionRuntime] = {}
+        self._history_source_contexts: dict[str, dict[str, str]] = {}
         self._playback_progress_clocks: dict[str, PlaybackProgressClock] = {}
         self._intra_track_opportunities: dict[str, IntraTrackOpportunity] = {}
         self._end_grants: dict[str, tuple[str, str, float, str]] = {}
@@ -3919,6 +3920,7 @@ class SessionRuntimeManager:
         elapsed_time_source: Callable[[], float] | None = None,
         allowed_capability_intents: frozenset[str] | None = None,
         history_enabled: bool = True,
+        history_source_context: dict[str, str] | None = None,
     ) -> DJSessionRuntime:
         """Create the one active Runtime allowed for a Profile."""
         async with self._lock:
@@ -4005,6 +4007,10 @@ class SessionRuntimeManager:
                     )
                     raise
             self._active_by_profile[owner_profile_id] = active
+            self._history_source_contexts[session_id] = {
+                key: str((history_source_context or {}).get(key) or "")
+                for key in ("backend_id", "music_account_id", "provider_entry_id", "provider_account_id")
+            }
             return active
 
     async def async_update_playback_projection(
@@ -4083,6 +4089,7 @@ class SessionRuntimeManager:
                     "kind":"playback_observed", "reference_id":new_observation_reference(),
                     "body":{"item_id":projection.item_id,"title":projection.title,"artist":projection.artist,
                             "album":projection.album,"source_url":projection.source_url,
+                            "source_context":self._history_source_contexts.get(session_id, {}),
                             "provider":"Spotify" if projection.source_url.startswith("https://open.spotify.com/") else "Music Assistant" if active.music_backend == "music_assistant" else "DJConnect",
                             "coverage":"observed_playing_not_full_listen"},
                 }])
@@ -4968,6 +4975,26 @@ class SessionRuntimeManager:
             self._active_by_profile[owner_profile_id] = updated
             return updated
 
+    async def async_accept_conversation(
+        self,
+        *,
+        owner_profile_id: str,
+        session_id: str,
+        playback_item_id: str,
+        track_bound: bool,
+        commit,
+    ):
+        """Serialize the brief accepted Store/reference commit against Runtime end."""
+        async with self._lock:
+            active = self._active_by_profile.get(owner_profile_id)
+            if (
+                active is None
+                or active.session_id != session_id
+                or (track_bound and active.broadcast.state.playback.item_id != playback_item_id)
+            ):
+                raise ValueError("session_context_changed")
+            return await commit()
+
     async def async_get_active(self, owner_profile_id: str) -> DJSessionRuntime | None:
         """Return the active Runtime for a Profile, if one exists."""
         async with self._lock:
@@ -5261,6 +5288,7 @@ class SessionRuntimeManager:
             )
             active.broadcast.close()
             self._active_by_profile.pop(owner_profile_id, None)
+            self._history_source_contexts.pop(session_id, None)
             self._end_grants = {key: value for key, value in self._end_grants.items() if value[1] != active.session_id}
             return ended
 

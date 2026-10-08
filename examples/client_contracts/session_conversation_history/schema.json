@@ -88,6 +88,12 @@
         },
         "requires_spotify_attribution": {
           "type": "boolean"
+        },
+        "historical_view_only": {
+          "const": true
+        },
+        "current_display_allowed": {
+          "const": false
         }
       }
     },

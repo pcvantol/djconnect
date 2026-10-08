@@ -196,6 +196,15 @@ async def async_handle_session_history_payload(
             )
         else:
             return _error_payload("unsupported_history_operation"), 400
+        _current_runtime, current, current_error, current_status = await _session_profile_context(
+            hass, dict(data), headers=headers, user_id=user_id, source="session_history_complete"
+        )
+        if current_error is not None:
+            return current_error, int(current_status or 409)
+        if current.profile_id != context.profile_id:
+            return _error_payload("history_unavailable"), 403
+        if not current.privacy_policy.allow_personal_read or not resolve_profile_privacy_policy(current.profile, {}).allow_personal_read:
+            return _error_payload("history_not_allowed"), 403
         return result, 200
     except HistoricalProjectionAccessDenied:
         return _error_payload("history_unavailable"), 404
@@ -227,6 +236,12 @@ async def async_handle_session_start_payload(
             session_start_strategy=strategy,
             discover_context=discover_context,
             history_enabled=context.privacy_policy.allow_history_persistence and resolve_profile_privacy_policy(context.profile,{}).allow_history_persistence,
+            history_source_context={
+                "backend_id": context.backend_id,
+                "music_account_id": context.music_account_id,
+                "provider_account_id": str(getattr(profile_storage(hass).household.music_accounts.get(context.music_account_id), "provider_account_id", "")),
+                "provider_entry_id": str(getattr(runtime, "config", {}).get("profile_backend_entry_id") or getattr(getattr(runtime, "entry", None), "entry_id", "")),
+            },
         )
     except ActiveSessionExistsError:
         active = await session_runtime_manager(hass).async_get_active(context.profile_id)
@@ -1171,6 +1186,7 @@ async def async_handle_ask_dj_message_payload(
     *,
     headers: Any | None = None,
     user_id: str | None = None,
+    voice_input: bool = False,
 ) -> tuple[dict[str, Any], int]:
     """Handle Ask DJ chat messages for HTTP and HA websocket transports."""
     headers = headers or {}
@@ -1222,6 +1238,7 @@ async def async_handle_ask_dj_message_payload(
         "conversation_context" in payload
         or history_question(str(payload.get("text") or payload.get("message") or "")) is not None
     ):
+        payload["input_type"] = "voice" if voice_input else "text"
         bound_runtime, context, error, status = await _session_profile_context(
             hass, payload, headers=headers, user_id=user_id, source="session_conversation"
         )
@@ -1238,7 +1255,9 @@ async def async_handle_ask_dj_message_payload(
                 hass,
                 bound_runtime,
                 confirmed_payload,
-                user_id=scope_key,
+                user_id=user_id,
+                conversation_history_scope=scope_key,
+                ephemeral_conversation=bool(confirmed_payload.get("private_session")),
                 confirmed_entry=selected_entry,
                 saved_playback_result=playback_result,
             )
@@ -2872,6 +2891,7 @@ async def async_handle_profile_clear_payload(
         )
         if payload.get("ask_dj") or payload.get("all"):
             await _history_manager(hass, runtime).async_clear(user_id)
+            await _history_manager(hass, runtime).async_clear("profile:" + profile_id)
         if payload.get("music_dna") or payload.get("all"):
             memory = getattr(runtime, "memory", None)
             if memory is not None and callable(getattr(memory, "async_clear", None)):

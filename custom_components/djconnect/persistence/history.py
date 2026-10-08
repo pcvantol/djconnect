@@ -171,6 +171,24 @@ class HistoricalProjectionRepository(PersistenceRepository):
         return await self._async_in_transaction(read)
 
 
+    async def async_current_playback_entry(
+        self, owner: str, session_id: str, item_id: str
+    ) -> str | None:
+        def read(tx):
+            row = tx.fetchone(
+                "SELECT entry_id,body FROM djconnect_session_entries WHERE owner_profile_id=? AND session_id=? AND kind='playback_observed' ORDER BY entry_order DESC LIMIT 1",
+                (owner, session_id),
+            )
+            if row is None:
+                return None
+            try:
+                body = json.loads(row[1])
+            except (TypeError, ValueError):
+                return None
+            return row[0] if isinstance(body, dict) and body.get("item_id") == item_id else None
+
+        return await self._async_in_transaction(read)
+
     async def async_playback_records(self, owner_profile_id: str) -> list[dict]:
         def read(tx):
             rows = tx.fetchall(
@@ -268,11 +286,114 @@ class HistoricalProjectionRepository(PersistenceRepository):
             return ids
 
         return await self._async_in_transaction(write)
+    async def async_purge_profile_history(self, owner: str) -> None:
+        """Erase the deleted owner's projections, never reassign them with devices."""
+
+        def erase(tx):
+            tx.execute("DELETE FROM djconnect_session_entries WHERE owner_profile_id=?", (owner,))
+            tx.execute("DELETE FROM djconnect_historical_moments WHERE owner_profile_id=?", (owner,))
+            tx.execute("DELETE FROM djconnect_historical_sessions WHERE owner_profile_id=?", (owner,))
+            tx.execute(
+                "UPDATE djconnect_persistent_sessions SET history_enabled=0,history_revision=history_revision+1 WHERE owner_profile_id=? AND history_enabled=1",
+                (owner,),
+            )
+
+        await self._async_in_transaction(erase)
+
+    async def async_remove_entry_records(self, owner: str, identifiers: list[str]) -> None:
+        """Withdraw source rows and invalidate affected query cursors atomically."""
+
+        def erase(tx):
+            affected = set()
+            for identifier in identifiers[:250]:
+                row = tx.fetchone(
+                    "SELECT session_id FROM djconnect_session_entries WHERE owner_profile_id=? AND entry_id=?",
+                    (owner, identifier),
+                )
+                if row is not None:
+                    affected.add(row[0])
+                    tx.execute(
+                        "DELETE FROM djconnect_session_entries WHERE owner_profile_id=? AND entry_id=?",
+                        (owner, identifier),
+                    )
+                    tx.execute(
+                        "DELETE FROM djconnect_historical_moments WHERE owner_profile_id=? AND historical_moment_id=?",
+                        (owner, identifier),
+                    )
+            for session_id in affected:
+                tx.execute(
+                    "UPDATE djconnect_persistent_sessions SET history_revision=history_revision+1 WHERE session_id=? AND owner_profile_id=?",
+                    (session_id, owner),
+                )
+
+        await self._async_in_transaction(erase)
+
+    async def async_withdraw_source_entry(self, provider_entry_id: str) -> None:
+        """Permanent revocation: scan bounded batches in one canonical transaction."""
+
+        def erase(tx):
+            after = ""
+            affected = set()
+            while True:
+                rows = tx.fetchall(
+                    "SELECT entry_id,session_id,body FROM djconnect_session_entries WHERE kind='playback_observed' AND entry_id>? ORDER BY entry_id LIMIT 250",
+                    (after,),
+                )
+                if not rows:
+                    break
+                after = rows[-1][0]
+                for identifier, session_id, raw in rows:
+                    try:
+                        context = json.loads(raw).get("source_context", {})
+                    except (TypeError, ValueError, AttributeError):
+                        continue
+                    if context.get("provider_entry_id") == provider_entry_id:
+                        tx.execute(
+                            "DELETE FROM djconnect_session_entries WHERE entry_id=?", (identifier,)
+                        )
+                        affected.add(session_id)
+                if len(rows) < 250:
+                    break
+            for session_id in affected:
+                tx.execute(
+                    "UPDATE djconnect_persistent_sessions SET history_revision=history_revision+1 WHERE session_id=?",
+                    (session_id,),
+                )
+
+        await self._async_in_transaction(erase)
+
+    async def async_playback_maintenance_records(
+        self, *, after: str = "", limit: int = 250
+    ) -> list[dict]:
+        """Bounded stable-ID scan includes active observations for source withdrawal."""
+
+        def read(tx):
+            rows = tx.fetchall(
+                "SELECT entry_id,session_id,owner_profile_id,kind,body FROM djconnect_session_entries WHERE kind='playback_observed' AND entry_id>? ORDER BY entry_id LIMIT ?",
+                (after, min(limit, 250)),
+            )
+            return [
+                dict(zip(("entry_id", "session_id", "owner_profile_id", "kind", "body"), row))
+                for row in rows
+            ]
+
+        return await self._async_in_transaction(read)
+
     async def async_cleanup_expired(
-        self, *, cutoff: str, batch_size: int
+        self, *, cutoff: str, batch_size: int, entry_deadline: str | None = None
     ) -> tuple[int, int, int, int]:
         """Delete expired Moments before Sessions, plus expired orphan Moments."""
         def cleanup(tx: PersistenceTransaction) -> tuple[int, int, int, int]:
+            # Entry deadlines are independent of the final Session header date.
+            now = datetime.fromisoformat(entry_deadline) if entry_deadline else datetime.now(UTC)
+            expired = tx.fetchall("SELECT entry_id,owner_profile_id,session_id FROM djconnect_session_entries WHERE retained_until<=? ORDER BY retained_until,entry_id LIMIT ?", (now.isoformat(), batch_size))
+            affected = set()
+            for identifier, owner, session_id in expired:
+                tx.execute("DELETE FROM djconnect_session_entries WHERE entry_id=? AND owner_profile_id=?", (identifier, owner))
+                tx.execute("DELETE FROM djconnect_historical_moments WHERE historical_moment_id=? AND owner_profile_id=?", (identifier, owner))
+                affected.add(session_id)
+            for session_id in affected:
+                tx.execute("UPDATE djconnect_persistent_sessions SET history_revision=history_revision+1 WHERE session_id=?", (session_id,))
             orphan_rows = tx.fetchall(
                 "SELECT historical_moment_id FROM djconnect_historical_moments "
                 "WHERE created_at < ? AND NOT EXISTS (SELECT 1 FROM djconnect_historical_sessions "
@@ -298,13 +419,21 @@ class HistoricalProjectionRepository(PersistenceRepository):
                     tx.execute("DELETE FROM djconnect_historical_moments WHERE historical_moment_id=?", (moment[0],))
                 deleted_moments += len(moments)
                 tx.execute("DELETE FROM djconnect_historical_sessions WHERE originating_session_id=?", (session_id,))
+                tx.execute("DELETE FROM djconnect_session_entries WHERE session_id=?", (session_id,))
+                tx.execute("UPDATE djconnect_persistent_sessions SET history_enabled=0,history_revision=history_revision+1 WHERE session_id=?", (session_id,))
             return len(session_rows), deleted_moments, len(orphan_rows), len(session_rows)
 
         return await self._async_in_transaction(cleanup)
     def _project_terminal_tx(
         self, tx: PersistenceTransaction, session: PersistentSession
-    ) -> HistoricalSessionProjection:
+    ) -> HistoricalSessionProjection | None:
         """Existing aggregate/header and accepted qualified projections, one transaction."""
+        policy = tx.fetchone(
+            "SELECT history_enabled FROM djconnect_persistent_sessions WHERE session_id=?",
+            (session.session_id,),
+        )
+        if policy is not None and not policy[0]:
+            return None
         existing = tx.fetchone(
             "SELECT historical_session_id,originating_session_id,owner_profile_id,lifecycle_outcome,created_at,projection_version FROM djconnect_historical_sessions WHERE originating_session_id=?",
             (session.session_id,),

@@ -107,16 +107,20 @@ def project_entry(row: dict) -> dict | None:
         if datetime.fromisoformat(row["retained_until"]) <= now:
             return None
         body = json.loads(row["body"])
+        if not isinstance(body, dict):
+            return None
     except (ValueError, TypeError):
         return None
     result = {
         k: row[k]
         for k in ("entry_id", "session_id", "order", "kind", "occurred_at", "retained_until")
     }
+    result["historical_view_only"] = True
+    result["current_display_allowed"] = False
     if row["kind"] == "playback_observed":
         if body.get("coverage") != "observed_playing_not_full_listen":
             return None
-        result["playback"] = body
+        result["playback"] = {key: value for key, value in body.items() if key != "source_context"}
         result["text"] = " · ".join(
             str(body.get(k) or "") for k in ("title", "artist", "album") if body.get(k)
         )
