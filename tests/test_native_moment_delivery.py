@@ -174,7 +174,7 @@ class NativeMomentDeliveryTest(unittest.TestCase):
         self.assertIsNone(asyncio.run(self.manager.async_get_active('owner')))
 
     def test_internal_session_context_recovery_reprojects_card_expiry(self):
-        moments = self.run_sequence(self.runtime.DJPersona.HOME_DJ, count=1)
+        self.run_sequence(self.runtime.DJPersona.HOME_DJ, count=1)
         broadcast=self.session.broadcast
         context=self.session.knowledge_engine.assemble_session_direction_context(
             self.session.session_direction,self.session.session_start_strategy,
@@ -269,7 +269,8 @@ class NativeMomentDeliveryTest(unittest.TestCase):
                 self.assertEqual(frames[0]['payload']['native_delivery']['revocation_scope'],'subscription')
                 self.assertNotIn('Nora Vale',json.dumps(frames))
             session.broadcast.update_playback(replace(session.broadcast.state.playback,position_ms=1000))
-            for frames in (live,pending,recovered):self.assertEqual(len(frames),1)
+            for frames in (live,pending,recovered):
+                self.assertEqual(len(frames),1)
             self.assertTrue(other[-1]['payload']['native_delivery']['active_flow_moment_ids'])
             self.assertIsNotNone(await manager.async_get_active('owner'))
             # A stale in-flight authorization and old request Runtime cannot register.
@@ -285,7 +286,10 @@ class NativeMomentDeliveryTest(unittest.TestCase):
             self.assertEqual(status,200)
             self.assertEqual(renewed['snapshot']['native_delivery']['admissions'][0]['source_expires_at'],before)
             await new_activate()
-            await new_cleanup();await cleanup();await pending_cleanup();await recovery_cleanup()
+            await new_cleanup()
+            await cleanup()
+            await pending_cleanup()
+            await recovery_cleanup()
         with (patch('time.monotonic',lambda:101.0),patch.object(handlers,'resolve_runtime',lambda *a,**k:integration[0]),
               patch.object(handlers,'authorize_runtime_device_request',lambda *a,**k:True),
               patch.object(handlers,'async_resolve_device_bound_request_context',bound),

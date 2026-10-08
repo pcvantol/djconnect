@@ -35,7 +35,8 @@ class NativeSessionTransportTest(unittest.TestCase):
         async def invalid(): raise ValueError('invalid json')
         request.json = invalid
         for view, method, _ in routes:
-            if method != 'post': continue
+            if method != 'post':
+                continue
             result = asyncio.run(view(object()).post(request))
             self.assertEqual(result.status, 400)
             self.assertEqual(result.headers['Cache-Control'], 'no-store')
