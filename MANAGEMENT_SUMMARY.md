@@ -1,5 +1,70 @@
 # DJConnect Generation 2 Management Summary
 
+## PR #1128 native Moment delivery — dedicated Finalization
+
+PR [#1128](https://github.com/pcvantol/djconnect/pull/1128) protected merged as
+`3ea178fa3098b2c432008827ce009f867f66f63e` from independently reviewed head
+`3d17994d28c71402a9076c0082c490820204ccda`; both trees
+`18620004f02663cc0d263073142527b95581cffa`.
+Assignment `DJC-CORE-NATIVE-MOMENT-DELIVERY-V1-20261008`, base
+`ee05c9422cd7a7a08bbe769925248632fa651961`, one Core writer. The existing
+owner Broadcast chain now supplies native visual admission independently of
+immutable semantic Moments. Original source/card/Session lifetimes, qualified
+CC0 active-Flow recall, current-only Spotify attribution, both source links and
+current/historical media identity remain authoritative. Unknown source and
+unsupported semantic actions fail closed; no new intelligence or command route.
+Expiry/pending/recovery/Receiver scoping and entry-bound unload withdrawal
+prevent stale delivery. Session JSON, including malformed/auth errors, is
+no-store. Existing Persona, ranking/dose, Flow/Transitions and player/Ask DJ
+ownership remain unchanged.
+
+Exact source/main suites: 1,602 tests, seven existing skips, PASS; coverage,
+whole Ruff, source checks and independent exact technical review GO. The
+existing portrait/landscape four-fact VibeCast browser regression PASS.
+Exact source prerelease archive:129 safe files byte-equal to merge;
+SHA256 `46e1c9de04093b51ce645adf2e591e82a63398f44cafd0f447a178df2aa87f85`.
+Canonical qualification JSON SHA256
+`fbb7cee8e28a8614f3a84a44e46c605852626480a1a112a70c6f20c95e8665e9`:
+integrity and every required check PASS. Coverage digest
+`533bf0b0046ac5c63fd0f5a275e695a766b91f974cbb5b20eeae8c2e4ddbfe58`.
+[Unchanged evidence attempt2](https://github.com/pcvantol/djconnect/actions/runs/37781489376)
+PASS after specifically approved deletion of the preserved extra manual run;
+original failed evidence remains recorded in the completion history.
+[Actual Apple readback6059902452](https://github.com/pcvantol/djconnect-app/issues/87#issuecomment-6059902452)
+binds producer3d17994 and consumer11869c5: contract decode/state and native
+iPhone/iPad current-card/link/lifecycle PASS using synthetic nonpersonal data.
+Overall Apple readback remains PARTIAL; opened-Flow-detail expiry UI,
+Spotify mark/attribution, Mac, English/accessibility/long-copy and independent
+Apple review remain its existing #95 assignment, with no missing Core field
+request. Producer qualification does not complete Apple or installed HA.
+[Completion and Finalization](docs/history/prompts/2026-10-08-native-moment-delivery-finalization.md)
+records this one Core slice. No signing, installation/deployment, live provider
+or Pi run; Pi capture/frame-rate remains PARTIAL/parked.
+
+### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+1. **Public distribution: Apple — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; gate: qualified Internal Release consumers and explicit authorization.
+2. **Public distribution: Windows — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; gate: qualified Internal Release consumers and explicit authorization.
+3. **Public HACS distribution — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; gate: fresh candidate and release authorization.
+4. **HACS 3.3.0 release visibility (`HACS-3.3.0-001`) — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; gate: release metadata and discovery evidence.
+5. **Firmware OTA publication and staged rollback — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; gate: manifest-bound consumer qualification.
+
+### Blocked Items
+
+Apple #95 retains its owning native-detail/Spotify/Mac/review gates. Full
+Artist/Album credits Phase B and Continue Stage 2 retain separate gates.
+Pi capture/frame-rate stays PARTIAL/parked; no hardware qualification upgrade.
+
+### Deferred Items
+
+No next intelligence family, monitor, provider/model/TTS route, queue repair,
+client writer, durable knowledge or deployment is selected. Stop after this
+Core consumer-contract slice; the existing Apple lane continues independently.
+
+Repository State: `MERGED_RECONCILED` after this separate Finalization merges.
+Workspace State: `WORKSPACE_READY` only after mandatory safe cleanup.
+Finalization Pending: `NO` after merge.
+
 ## PR #1126 expressive DJ persona — dedicated Finalization
 
 PR [#1126](https://github.com/pcvantol/djconnect/pull/1126) protected merged as

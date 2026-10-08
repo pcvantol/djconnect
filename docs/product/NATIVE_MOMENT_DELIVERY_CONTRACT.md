@@ -150,3 +150,24 @@ qualification are not admitted merely by declaring them internal. Their
 existing semantic publication, Genre→Track/Recommendation selection and
 VibeCast behavior remain unchanged. Only the actual validated Session Direction
 Moment family qualifies as source-free Runtime context here.
+
+## Protected source and reconciliation
+
+PR [#1128](https://github.com/pcvantol/djconnect/pull/1128) protected merged as
+`3ea178fa3098b2c432008827ce009f867f66f63e` from reviewed3d17994; exact tree
+identity/source-main tests PASS. Exact source prerelease archive:129 safe files byte-equal to merge;
+SHA256 `46e1c9de04093b51ce645adf2e591e82a63398f44cafd0f447a178df2aa87f85`.
+Canonical qualification JSON SHA256
+`fbb7cee8e28a8614f3a84a44e46c605852626480a1a112a70c6f20c95e8665e9`:
+integrity and every required check PASS. Coverage digest
+`533bf0b0046ac5c63fd0f5a275e695a766b91f974cbb5b20eeae8c2e4ddbfe58`.
+[Unchanged evidence attempt2](https://github.com/pcvantol/djconnect/actions/runs/37781489376)
+PASS after specifically approved deletion of the preserved extra manual run;
+original failed evidence remains recorded in the completion history.
+Actual [Apple readback](https://github.com/pcvantol/djconnect-app/issues/87#issuecomment-6059902452)
+confirms contract decode/state and synthetic native iPhone/iPad card/link/
+lifecycle, with overall PARTIAL and remaining #95 consumer gates preserved.
+No installed HA/Apple, live provider, new signing or Pi qualification follows.
+The [dedicated Finalization](../history/prompts/2026-10-08-native-moment-delivery-finalization.md)
+reconciles this Core producer increment only; its distinct automatic internal
+SHA publication requires a separate exact-candidate owner decision.
