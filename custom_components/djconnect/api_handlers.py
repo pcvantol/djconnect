@@ -34,6 +34,7 @@ from .http import (
 )
 from .mood import enrich_payload_with_mood_zone
 from .push import EVENT_ASK_DJ_CONFIRM, EVENT_ASK_DJ_RESPONSE
+from .profile_privacy import resolve_profile_privacy_policy
 from .profile_context import (
     ProfilePlatformNotConfigured,
     async_apply_profile_context,
@@ -125,6 +126,92 @@ async def _session_profile_context(
     return runtime, context, None, None
 
 
+async def async_handle_session_history_payload(
+    hass, data, *, operation="list", headers=None, user_id=None
+):
+    """Existing Profile-bound application/transport boundary for private projections."""
+    if not isinstance(data, dict):
+        return _error_payload("invalid_json"), 400
+    runtime, context, error, status = await _session_profile_context(
+        hass, data, headers=headers, user_id=user_id, source="session_history:" + operation
+    )
+    if error is not None:
+        return error, status
+    if (
+        not context.privacy_policy.allow_personal_read
+        or not resolve_profile_privacy_policy(context.profile, {}).allow_personal_read
+    ):
+        return _error_payload("history_not_allowed"), 403
+    from .session_conversation import query_service
+    from .session_history_projection import HistoryQueryError
+    from .historical_projection_query import HistoricalProjectionAccessDenied
+    from .persistence.service import PersistenceError
+
+    try:
+        query = query_service(hass, _history_manager(hass, runtime))
+        limit = data.get("limit", 20)
+        if isinstance(limit, str) and limit.isascii() and limit.isdigit():
+            limit = int(limit)
+        cursor = data.get("cursor", "")
+        if operation == "list":
+            result = await query.async_session_page(
+                context.profile_id,
+                limit=limit,
+                cursor=cursor,
+                include_active=data.get("include_active") in {True, "true", "1"},
+            )
+        elif operation == "timeline":
+            if data.get("window"):
+                if cursor:
+                    raise HistoryQueryError("invalid_history_cursor")
+                result = await query.async_timeline_window(
+                    context.profile_id, str(data.get("session_id") or ""),
+                    window=data["window"], limit=limit,
+                    anchor_entry_id=str(data.get("anchor_entry_id") or ""),
+                )
+            else:
+                result = await query.async_timeline_page(
+                    context.profile_id, str(data.get("session_id") or ""), limit=limit, cursor=cursor
+                )
+        elif operation == "search":
+            result = await query.async_search_entries(
+                context.profile_id,
+                str(data.get("session_id") or ""),
+                data.get("q"),
+                limit=limit,
+                cursor=cursor,
+            )
+        elif operation == "open":
+            action = data.get("action")
+            if (
+                not isinstance(action, dict)
+                or action.get("kind") != "open_session"
+                or set(action) - {"kind", "session_id", "entry_id", "navigation_only"}
+            ):
+                raise HistoryQueryError("invalid_history_action")
+            result = await query.async_open_entry(
+                context.profile_id,
+                str(action.get("session_id") or ""),
+                str(action.get("entry_id") or ""),
+            )
+        else:
+            return _error_payload("unsupported_history_operation"), 400
+        _current_runtime, current, current_error, current_status = await _session_profile_context(
+            hass, dict(data), headers=headers, user_id=user_id, source="session_history_complete"
+        )
+        if current_error is not None:
+            return current_error, int(current_status or 409)
+        if current.profile_id != context.profile_id:
+            return _error_payload("history_unavailable"), 403
+        if not current.privacy_policy.allow_personal_read or not resolve_profile_privacy_policy(current.profile, {}).allow_personal_read:
+            return _error_payload("history_not_allowed"), 403
+        return result, 200
+    except HistoricalProjectionAccessDenied:
+        return _error_payload("history_unavailable"), 404
+    except HistoryQueryError as exc:
+        return _error_payload(str(exc)), 409 if "cursor" in str(exc) else 400
+    except (PersistenceError, RuntimeError):
+        return _error_payload("history_unavailable"), 503
 async def async_handle_session_start_payload(
     hass: Any, data: dict[str, Any], *, headers: Any | None = None, user_id: str | None = None
 ) -> tuple[dict[str, Any], int]:
@@ -148,6 +235,13 @@ async def async_handle_session_start_payload(
             locale=_session_locale(hass, runtime, data),
             session_start_strategy=strategy,
             discover_context=discover_context,
+            history_enabled=context.privacy_policy.allow_history_persistence and resolve_profile_privacy_policy(context.profile,{}).allow_history_persistence,
+            history_source_context={
+                "backend_id": context.backend_id,
+                "music_account_id": context.music_account_id,
+                "provider_account_id": str(getattr(profile_storage(hass).household.music_accounts.get(context.music_account_id), "provider_account_id", "")),
+                "provider_entry_id": str(getattr(runtime, "config", {}).get("profile_backend_entry_id") or getattr(getattr(runtime, "entry", None), "entry_id", "")),
+            },
         )
     except ActiveSessionExistsError:
         active = await session_runtime_manager(hass).async_get_active(context.profile_id)
@@ -1092,6 +1186,7 @@ async def async_handle_ask_dj_message_payload(
     *,
     headers: Any | None = None,
     user_id: str | None = None,
+    voice_input: bool = False,
 ) -> tuple[dict[str, Any], int]:
     """Handle Ask DJ chat messages for HTTP and HA websocket transports."""
     headers = headers or {}
@@ -1133,6 +1228,84 @@ async def async_handle_ask_dj_message_payload(
     if profile_error is not None:
         return profile_error, int(profile_status or 400)
     _debug_ask_dj_request("message", runtime, payload, user_id=user_id)
+    from .session_conversation import (
+        history_question,
+        async_session_exchange,
+        SessionConversationError,
+    )
+
+    if (
+        "conversation_context" in payload
+        or history_question(str(payload.get("text") or payload.get("message") or "")) is not None
+    ):
+        payload["input_type"] = "voice" if voice_input else "text"
+        bound_runtime, context, error, status = await _session_profile_context(
+            hass, payload, headers=headers, user_id=user_id, source="session_conversation"
+        )
+        if error is not None:
+            return error, status
+        if (
+            not context.privacy_policy.allow_personal_read
+            or not resolve_profile_privacy_policy(context.profile, {}).allow_personal_read
+        ):
+            return _error_payload("history_not_allowed"), 403
+
+        async def delegate(confirmed_payload, scope_key, selected_entry, playback_result):
+            return await http_helpers.async_handle_ask_dj(
+                hass,
+                bound_runtime,
+                confirmed_payload,
+                user_id=user_id,
+                conversation_history_scope=scope_key,
+                ephemeral_conversation=bool(confirmed_payload.get("private_session")),
+                confirmed_entry=selected_entry,
+                saved_playback_result=playback_result,
+            )
+
+        async def validate_owner():
+            _runtime, current, current_error, current_status = await _session_profile_context(
+                hass,
+                dict(payload),
+                headers=headers,
+                user_id=user_id,
+                source="session_conversation_complete",
+            )
+            if current_error is not None or current.profile_id != context.profile_id:
+                raise SessionConversationError("session_context_changed", int(current_status or 409))
+            minimum = resolve_profile_privacy_policy(current.profile, {})
+            if not current.privacy_policy.allow_personal_read or not minimum.allow_personal_read:
+                raise SessionConversationError("history_not_allowed", 403)
+            if (
+                context.privacy_policy.allow_history_persistence
+                and resolve_profile_privacy_policy(context.profile, {}).allow_history_persistence
+                and (
+                    not current.privacy_policy.allow_history_persistence
+                    or not minimum.allow_history_persistence
+                )
+            ):
+                raise SessionConversationError("history_not_allowed", 403)
+
+        try:
+            result = await async_session_exchange(
+                hass,
+                bound_runtime,
+                payload,
+                profile_id=context.profile_id,
+                history_manager=_history_manager(hass, bound_runtime),
+                delegate=delegate,
+                validate_owner=validate_owner,
+                persist_history=context.privacy_policy.allow_history_persistence
+                and resolve_profile_privacy_policy(context.profile, {}).allow_history_persistence,
+            )
+            return result, 200
+        except SessionConversationError as exc:
+            return _error_payload(exc.code), exc.status
+        except PermissionError:
+            return _error_payload("history_unavailable"), 404
+        except (OSError, RuntimeError):
+            return _error_payload("history_storage_unavailable"), 503
+        except ValueError:
+            return _error_payload("session_context_changed"), 409
     result = await http_helpers.async_handle_ask_dj(hass, runtime, payload, user_id=user_id)
     if not result.get("success"):
         _debug_ask_dj_result("message", result, 500, runtime=runtime)
@@ -2259,6 +2432,58 @@ async def async_handle_ask_dj_history_payload(
     if profile_error is not None:
         return profile_error, int(profile_status or 400)
     _debug_ask_dj_request("history", runtime, payload, user_id=user_id)
+    if payload.get("conversation_scope")=="profile":
+        _bound,context,error,status=await _session_profile_context(hass,payload,headers=headers,user_id=user_id,source="profile_conversation_history")
+        if error is not None:
+            return error,status
+        if (not context.privacy_policy.allow_personal_read
+            or not resolve_profile_privacy_policy(context.profile,{}).allow_personal_read):
+            return _error_payload("history_not_allowed"),403
+        manager = _history_manager(hass, runtime)
+        scope_revision = await manager.async_scope_revision("profile:" + context.profile_id)
+        from .session_conversation import async_history_grant_revision, query_service
+        from .session_history_projection import HistoryQueryError
+
+        query = query_service(hass, manager)
+        grant_revision = await async_history_grant_revision(hass, context.profile_id)
+        archive_revision = await query._repository.async_owner_revision(
+            context.profile_id, include_active=True
+        )
+        result=await manager.async_history("profile:"+context.profile_id,since_revision=_int_or_none(payload.get("since_revision")),limit=50)
+        safe=[]
+        for message in result["messages"]:
+            visible=True
+            for target in message.get("historical_entry_references",[]):
+                try:
+                    await query.async_open_entry(context.profile_id,target["session_id"],target["entry_id"])
+                except PermissionError:
+                    visible=False
+                except HistoryQueryError as exc:
+                    return _error_payload(str(exc)), 409
+            if visible:
+                safe.append(message)
+        _bound, current, error, status = await _session_profile_context(
+            hass, dict(payload), headers=headers, user_id=user_id,
+            source="profile_conversation_history_complete",
+        )
+        if error is not None:
+            return error, status
+        if current.profile_id != context.profile_id:
+            return _error_payload("history_unavailable"), 403
+        if (not current.privacy_policy.allow_personal_read
+            or not resolve_profile_privacy_policy(current.profile, {}).allow_personal_read):
+            return _error_payload("history_not_allowed"), 403
+        if await manager.async_scope_revision("profile:" + context.profile_id) != scope_revision:
+            return _error_payload("conversation_history_changed"), 409
+        if (await query._repository.async_owner_revision(context.profile_id, include_active=True)
+            != archive_revision
+            or await async_history_grant_revision(hass, context.profile_id) != grant_revision):
+            return _error_payload("conversation_history_changed"), 409
+        result["messages"]=safe
+        result["user_id"]=None
+        result["owner_profile_id"]=context.profile_id
+        result["history_scope"]="profile"
+        return result,200
     result = await _history_manager(hass, runtime).async_history(
         user_id,
         since_revision=_int_or_none(payload.get("since_revision")),
@@ -2444,6 +2669,16 @@ async def async_handle_ask_dj_history_clear_payload(
     if profile_error is not None:
         return profile_error, int(profile_status or 400)
     _debug_ask_dj_request("history_clear", runtime, payload, user_id=user_id)
+    if payload.get("conversation_scope")=="profile":
+        _bound,context,error,status=await _session_profile_context(hass,payload,headers=headers,user_id=user_id,source="profile_conversation_clear")
+        if error is not None:
+            return error,status
+        if (not context.privacy_policy.allow_personal_read
+            or not resolve_profile_privacy_policy(context.profile,{}).allow_personal_read):
+            return _error_payload("history_not_allowed"),403
+        result=await _history_manager(hass,runtime).async_clear("profile:"+context.profile_id)
+        result.update(user_id=None,owner_profile_id=context.profile_id,history_scope="profile")
+        return result,200
     result = await _history_manager(hass, runtime).async_clear(user_id)
     _decorate_profile_response(result, payload)
     _debug_ask_dj_result("history_clear", result, 200, runtime=runtime)
@@ -2683,6 +2918,7 @@ async def async_handle_profile_clear_payload(
         )
         if payload.get("ask_dj") or payload.get("all"):
             await _history_manager(hass, runtime).async_clear(user_id)
+            await _history_manager(hass, runtime).async_clear("profile:" + profile_id)
         if payload.get("music_dna") or payload.get("all"):
             memory = getattr(runtime, "memory", None)
             if memory is not None and callable(getattr(memory, "async_clear", None)):

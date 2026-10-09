@@ -50,6 +50,15 @@ async def async_initialize_persistence(hass: Any) -> PersistenceService:
                 history=HistoricalProjectionRepository(service),
             ).async_reconcile()
             domain_data[_RECONCILED_KEY] = True
+        from ..historical_projection_retention import HistoricalProjectionRetentionService
+        await HistoricalProjectionRetentionService(HistoricalProjectionRepository(service)).async_cleanup()
+        if callable(getattr(hass, "async_create_task", None)) and "session_history_retention_unsubscribe" not in domain_data:
+            from datetime import timedelta
+            from homeassistant.helpers.event import async_track_time_interval
+            from ..session_history_maintenance import async_maintain_session_history
+            async def maintain(now):
+                await async_maintain_session_history(hass, now=now)
+            domain_data["session_history_retention_unsubscribe"] = async_track_time_interval(hass, maintain, timedelta(hours=1))
         return service
 
 
@@ -67,6 +76,16 @@ async def async_shutdown_persistence(hass: Any, *, preserve_for_reload: bool = F
     if preserve_for_reload:
         # Active Runtime repositories keep this exact singleton service.
         return
+    unsubscribe = domain_data.pop("session_history_retention_unsubscribe", None)
+    if callable(unsubscribe):
+        unsubscribe()
+    pending = domain_data.pop("session_history_maintenance_task", None)
+    if pending is not None and not pending.done():
+        pending.cancel()
+        try:
+            await pending
+        except asyncio.CancelledError:
+            pass
     service = domain_data.pop(PERSISTENCE_SERVICE_KEY, None)
     domain_data.pop(_PERSISTENCE_LOCK_KEY, None)
     # Keep the boot receipt for this HA process: a final-entry options reload

@@ -51,13 +51,14 @@ class PersistentSessionRepository(PersistenceRepository):
         start_strategy: str = "",
         initial_mood: str = "",
         initial_direction: str = "",
+        history_enabled: bool = True,
     ) -> PersistentSession:
         identifier = session_id or f"session-{uuid4().hex}"
         now = _now()
 
         def operation(tx: PersistenceTransaction) -> PersistentSession:
             tx.execute(
-                "INSERT INTO djconnect_persistent_sessions (session_id,owner_profile_id,lifecycle_status,created_at,updated_at,start_strategy,initial_mood,initial_direction) VALUES (?,?,?,?,?,?,?,?)",
+                "INSERT INTO djconnect_persistent_sessions (session_id,owner_profile_id,lifecycle_status,created_at,updated_at,start_strategy,initial_mood,initial_direction,history_enabled) VALUES (?,?,?,?,?,?,?,?,?)",
                 (
                     identifier,
                     owner_profile_id,
@@ -67,6 +68,7 @@ class PersistentSessionRepository(PersistenceRepository):
                     start_strategy,
                     initial_mood,
                     initial_direction,
+                    int(history_enabled),
                 ),
             )
             return PersistentSession(
@@ -82,7 +84,7 @@ class PersistentSessionRepository(PersistenceRepository):
         return await self._async_in_transaction(operation)
 
     async def async_transition(
-        self, owner_profile_id: str, session_id: str, target: str, *, reason: str = ""
+        self, owner_profile_id: str, session_id: str, target: str, *, reason: str = "", historical_projections=None
     ) -> PersistentSession:
         def operation(tx: PersistenceTransaction) -> PersistentSession:
             row = tx.fetchone(
@@ -133,7 +135,15 @@ class PersistentSessionRepository(PersistenceRepository):
                 str(row[9]),
             )
 
-        return await self._async_in_transaction(operation)
+        def transition(tx: PersistenceTransaction) -> PersistentSession:
+            result=operation(tx)
+            if historical_projections is not None and target in {ENDED,INTERRUPTED}:
+                if historical_projections._persistence is not self._persistence:
+                    raise SessionLifecycleError("session_projection_transaction_mismatch")
+                historical_projections._project_terminal_tx(tx,result)
+            return result
+
+        return await self._async_in_transaction(transition)
 
     async def async_non_terminal(self) -> list[str]:
         # Future reconciliation owns detailed processing; this bounded query exposes identifiers only.

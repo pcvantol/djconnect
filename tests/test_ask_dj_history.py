@@ -29,6 +29,52 @@ class FakeStore:
 
 
 class AskDJHistoryManagerTest(unittest.TestCase):
+    def test_failed_store_exchange_is_not_cached_or_deduplicated(self):
+        class FailingStore(FakeStore):
+            async def async_save(self, data):
+                raise OSError("synthetic write failure")
+        manager = AskDJHistoryManager(store=FailingStore())
+        async def run():
+            with self.assertRaises(OSError):
+                await manager.async_append_exchange("profile:a", {"client_message_id": "one", "text": "Question"}, {"success": True, "text": "Answer"})
+            self.assertIsNone(await manager.async_saved_exchange("profile:a", "one"))
+            self.assertEqual((await manager.async_history("profile:a"))["messages"], [])
+        asyncio.run(run())
+
+    def test_post_save_grant_rejection_restores_committed_store(self):
+        store = FakeStore()
+        manager = AskDJHistoryManager(store=store)
+        async def run():
+            calls = 0
+            async def guard():
+                nonlocal calls
+                calls += 1
+                if calls == 2:
+                    raise PermissionError("privacy changed during save")
+            with self.assertRaises(PermissionError):
+                await manager.async_append_exchange("profile:a", {"client_message_id": "one", "text": "Question"}, {"success": True, "text": "Answer"}, commit_guard=guard)
+            self.assertIsNone(await manager.async_saved_exchange("profile:a", "one"))
+            reread = AskDJHistoryManager(store=store)
+            self.assertEqual((await reread.async_history("profile:a"))["messages"], [])
+        asyncio.run(run())
+
+    def test_selected_entry_is_retained_as_answer_dependency(self):
+        manager = AskDJHistoryManager(store=FakeStore())
+        async def run():
+            result = await manager.async_append_exchange("profile:a", {"client_message_id": "one", "text": "Explain"}, {"success": True, "text": "Original fact"}, session_turn={"context": {"selected_entry": {"session_id": "s", "entry_id": "e"}}})
+            self.assertEqual(result["assistant_message"]["historical_entry_references"], [{"session_id": "s", "entry_id": "e"}])
+        asyncio.run(run())
+
+    def test_session_archive_turns_never_enter_model_prompt_history(self):
+        manager = AskDJHistoryManager(store=FakeStore())
+        async def run():
+            await manager.async_append_exchange("profile:a", {"client_message_id": "one", "text": "History question"}, {"success": True, "text": "Private saved playback"}, session_turn={"context": {}})
+            self.assertEqual(manager.recent_messages_for_prompt("profile:a"), [])
+            self.assertEqual(len((await manager.async_history("profile:a"))["messages"]), 2)
+            await manager.async_append_exchange("ha-user", {"client_message_id": "two", "text": "Regular chat"}, {"success": True, "text": "Regular answer"})
+            self.assertEqual(len(manager.recent_messages_for_prompt("ha-user")), 2)
+        asyncio.run(run())
+
     def test_history_is_user_scoped_and_shared_by_clients(self) -> None:
         manager = AskDJHistoryManager(store=FakeStore())
 

@@ -351,6 +351,11 @@ class SpotifyBackend:
                     self.hass,
                     getattr(self.runtime, "entry", None),
                 )
+                from .session_history_maintenance import async_maintain_session_history
+                source_entry = getattr(self.runtime, "entry", None)
+                if source_entry is not None:
+                    await async_maintain_session_history(self.hass, revoked_entry_id=source_entry.entry_id)
+
                 message = (
                     "Spotify authorization has expired or was revoked. "
                     "Reauthorize DJConnect from the integration options or run "

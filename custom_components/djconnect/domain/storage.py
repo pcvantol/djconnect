@@ -82,6 +82,9 @@ class ProfilePlatformStorage:
         async with self._write_lock:
             if self._store is not None:
                 await self._store.async_save(household_to_storage(self._household))
+        if self.hass is not None:
+            from ..session_history_maintenance import schedule_history_maintenance
+            schedule_history_maintenance(self.hass)
         return self._household
 
     async def async_commit_onboarding(self, before: Household, updated: Household) -> None:
@@ -225,6 +228,9 @@ class ProfilePlatformStorage:
             fallback=fallback,
         )
         await self.async_save()
+        if self.hass is not None:
+            from ..session_history_maintenance import async_purge_profile_history
+            await async_purge_profile_history(self.hass, profile.profile_id)
         return self._household
 
     async def async_upsert_device(

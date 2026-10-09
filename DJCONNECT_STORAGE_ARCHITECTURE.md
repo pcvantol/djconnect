@@ -53,6 +53,22 @@ Existing HA Store records remain canonical until a separately approved,
 lossless server migration moves a specific aggregate; no parallel authority is
 created by this architecture.
 
+## Selected Session conversation/history adapter
+
+The selected `DJC-CORE-SESSION-CONVERSATION-HISTORY-V1-20261008` candidate adds
+accepted, source-qualified owner timeline entries behind the existing Session
+persistence repository and forward-only schema. Its conversation entries are
+references to server-confirmed Profile-scoped exchanges in the existing Ask DJ
+HA Store, not a copied chat database. No migration of generic HA-user history,
+Music DNA, credentials, Runtime or Broadcast recovery is authorized. Literal
+search and historical playback query results are temporary authorized
+projections; opening them is read-only navigation.
+
+See [the selected contract](docs/product/SESSION_CONVERSATION_HISTORY_CONTRACT.md)
+for field qualification, retention/deletion, projection versions and fail-closed
+client behavior. Generic existing history and the new Profile-scoped reference
+namespace remain explicitly distinct; pairing device→Profile is the authority.
+
 ## Storage profiles
 
 | Profile | May retain | Must not own | Recovery |

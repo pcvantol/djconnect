@@ -97,6 +97,10 @@ async def async_handle_ask_dj(
     payload: dict[str, Any],
     *,
     user_id: str | None = None,
+    confirmed_entry: dict[str, Any] | None = None,
+    saved_playback_result: dict[str, Any] | None = None,
+    conversation_history_scope: str | None = None,
+    ephemeral_conversation: bool = False,
 ) -> dict[str, Any]:
     """Handle a text Ask DJ request and return the client response shape."""
     payload = enrich_payload_with_mood_zone(payload)
@@ -104,6 +108,36 @@ async def async_handle_ask_dj(
     text = str(payload.get("text") or payload.get("message") or "").strip()
     if not text:
         return _error_response("missing_text", "Ask DJ needs text to answer.")
+    if saved_playback_result is not None:
+        from ..session_conversation import historical_answer
+
+        return historical_answer(payload, saved_playback_result)
+    if (
+        confirmed_entry is not None
+        and classify_ask_dj(text).category == "informational"
+        and classify_ask_dj(text).action in {None, "none"}
+    ):
+        # Existing Ask DJ owns this faithful, local contextual realization.
+        # No client may provide this internal keyword or send the archive to a model.
+        from ..session_conversation import _locale
+
+        prefixes = {
+            "en": "This contribution:",
+            "nl": "Deze bijdrage:",
+            "de": "Dieser Beitrag:",
+            "fr": "Cette contribution :",
+            "es": "Esta contribución:",
+        }
+        answer = prefixes[_locale(payload)] + " " + str(confirmed_entry.get("text") or "")
+        attribution = confirmed_entry.get("source_attribution") or []
+        return {
+            "success": True,
+            "text": answer,
+            "dj_text": answer,
+            "sources": [attribution] if isinstance(attribution, dict) else attribution,
+            "playback_actions": [],
+            "intent": {"intent": "session_entry_context"},
+        }
     if payload.get("mood_zone"):
         _LOGGER.debug(
             "DJConnect Ask DJ mood context: mood=%s zone=%s",
@@ -112,7 +146,7 @@ async def async_handle_ask_dj(
         )
 
     identity_payload = _identity_payload(runtime, payload)
-    memory = getattr(runtime, "memory", None)
+    memory = None if ephemeral_conversation else getattr(runtime, "memory", None)
     memory_context: dict[str, Any] = {}
     music_dna_key = str(payload.get("music_dna_key") or "").strip() or None
     if memory is not None:
@@ -127,7 +161,7 @@ async def async_handle_ask_dj(
         loader = getattr(history, "async_load", None)
         if callable(loader):
             await loader()
-        recent = history.recent_messages_for_prompt(user_id)
+        recent = history.recent_messages_for_prompt(conversation_history_scope if conversation_history_scope is not None else user_id)
         if recent:
             memory_context["server_history"] = recent
 

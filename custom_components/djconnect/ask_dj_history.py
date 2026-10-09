@@ -1,7 +1,11 @@
 """Persistent cross-device Ask DJ history."""
 from __future__ import annotations
 
-from copy import deepcopy
+import asyncio
+import hashlib
+from collections import Counter
+from copy import copy, deepcopy
+from functools import wraps
 from datetime import datetime, timedelta, timezone
 import uuid
 from typing import Any
@@ -19,14 +23,69 @@ RETENTION_MESSAGE_TEXT = (
 )
 
 
+def _committed_mutation(method):
+    """Expose mutations only after Store acknowledgement; serialize all writers."""
+
+    @wraps(method)
+    async def commit(self, *args, **kwargs):
+        await self.async_load()
+        async with self._write_lock:
+            staged = copy(self)
+            staged._data = deepcopy(self._data)
+            staged._committed_store_write = False
+            task = asyncio.create_task(method(staged, *args, **kwargs))
+            try:
+                result = await asyncio.shield(task)
+            except asyncio.CancelledError:
+                # Resolve the in-flight save before allowing a subsequent writer.
+                # Successful persisted data remains authoritative even if the caller left.
+                try:
+                    await task
+                except Exception:
+                    if staged._committed_store_write and self._store is not None:
+                        await asyncio.shield(
+                            self._store.async_save(_compact_store_data(self._data))
+                        )
+                else:
+                    self._data = staged._data
+                raise
+            except Exception:
+                if staged._committed_store_write and self._store is not None:
+                    await asyncio.shield(self._store.async_save(_compact_store_data(self._data)))
+                raise
+            self._data = staged._data
+            return result
+
+    return commit
+
+
 class AskDJHistoryManager:
     """Store user-scoped Ask DJ chat history for cross-device sync."""
 
     def __init__(self, hass: Any | None = None, store: Any | None = None) -> None:
+        self._write_lock = asyncio.Lock()
+        self._pending_session_requests: dict[str, Counter] = {}
         self.hass = hass
         self._store = store if store is not None else self._create_store(hass)
         self._loaded = False
         self._data: dict[str, Any] = {"version": STORE_VERSION, "global_clear_revision": 0, "users": {}}
+
+    def register_session_request(self, scope: str, client_id: str) -> None:
+        self._pending_session_requests.setdefault(scope, Counter())[client_id] += 1
+
+    def unregister_session_request(self, scope: str, client_id: str) -> None:
+        pending = self._pending_session_requests.get(scope)
+        if pending is not None:
+            pending[client_id] -= 1
+            if pending[client_id] <= 0:
+                pending.pop(client_id, None)
+            if not pending:
+                self._pending_session_requests.pop(scope, None)
+
+    async def async_session_request_cleared(self, scope: str, client_id: str) -> bool:
+        await self.async_load()
+        state = self._data.get("users", {}).get(scope, {})
+        return _request_hash(scope, client_id) in state.get("cleared_request_hashes", [])
 
     @property
     def data(self) -> dict[str, Any]:
@@ -47,6 +106,7 @@ class AskDJHistoryManager:
         await self.async_load()
         if self._store is not None:
             await self._store.async_save(_compact_store_data(self._data))
+            self._committed_store_write = True
 
     async def async_history(
         self,
@@ -71,12 +131,13 @@ class AskDJHistoryManager:
             "success": True,
             "user_id": user_key,
             "history_revision": int(state.get("history_revision") or 0),
-            "clear_revision": self._effective_clear_revision(state),
+            "clear_revision": self._effective_clear_revision(state, user_key),
             **_history_limit_metadata(state),
             "messages": deepcopy(messages),
             "server_time": _now(),
         }
 
+    @_committed_mutation
     async def async_clear(self, user_id: str | None) -> dict[str, Any]:
         """Clear history for one HA user and advance sync revisions."""
         await self.async_load()
@@ -84,6 +145,7 @@ class AskDJHistoryManager:
         state = self._user_state(user_key)
         state["history_revision"] = int(state.get("history_revision") or 0) + 1
         state["clear_revision"] = int(state.get("clear_revision") or 0) + 1
+        self._remember_cleared_session_requests(user_key, state)
         state["messages"] = []
         _clear_trim_metadata(state)
         state["updated_at"] = _now()
@@ -93,14 +155,28 @@ class AskDJHistoryManager:
             "cleared": True,
             "user_id": user_key,
             "history_revision": state["history_revision"],
-            "clear_revision": self._effective_clear_revision(state),
+            "clear_revision": self._effective_clear_revision(state, user_key),
             "ask_dj_clear_required": True,
             **_history_limit_metadata(state),
             "messages": [],
             "server_time": _now(),
         }
 
-    async def async_clear_all(self) -> dict[str, Any]:
+    def _remember_cleared_session_requests(self, user_key, state):
+        """Keep bounded opaque retry tombstones; no cleared question text survives."""
+        if not user_key.startswith("profile:"):
+            return
+        known = [m.get("client_message_id") for m in state.get("messages", [])]
+        known.extend(self._pending_session_requests.get(user_key, {}))
+        hashes = list(state.get("cleared_request_hashes", []))
+        hashes.extend(
+            _request_hash(user_key, identifier)
+            for identifier in known if isinstance(identifier, str) and identifier
+        )
+        state["cleared_request_hashes"] = list(dict.fromkeys(hashes))[-1000:]
+
+    @_committed_mutation
+    async def async_clear_all(self, *, include_profile_history: bool = True) -> dict[str, Any]:
         """Clear history for all app clients and advance a global clear revision."""
         await self.async_load()
         global_clear_revision = int(self._data.get("global_clear_revision") or 0) + 1
@@ -109,11 +185,20 @@ class AskDJHistoryManager:
         if not users:
             users[_user_key(None)] = {"history_revision": 0, "clear_revision": 0, "messages": []}
         max_history_revision = global_clear_revision
-        for state in users.values():
+        for user_key in self._pending_session_requests:
+            if include_profile_history and user_key.startswith("profile:"):
+                self._user_state(user_key)
+        for user_key, state in users.items():
+            if user_key.startswith("profile:") and not include_profile_history:
+                continue
             if not isinstance(state, dict):
                 continue
             state["history_revision"] = int(state.get("history_revision") or 0) + 1
-            state["clear_revision"] = max(int(state.get("clear_revision") or 0), global_clear_revision)
+            state["clear_revision"] = max(
+                int(state.get("clear_revision") or 0) + int(user_key.startswith("profile:")),
+                global_clear_revision,
+            )
+            self._remember_cleared_session_requests(user_key, state)
             state["messages"] = []
             _clear_trim_metadata(state)
             state["updated_at"] = _now()
@@ -133,17 +218,25 @@ class AskDJHistoryManager:
             "server_time": _now(),
         }
 
+    @_committed_mutation
     async def async_append_exchange(
         self,
         user_id: str | None,
         request_payload: dict[str, Any],
         assistant_response: dict[str, Any],
+        *,
+        session_turn: dict[str, Any] | None = None,
+        commit_guard=None,
     ) -> dict[str, Any]:
         """Append user and assistant messages, deduping client retries."""
         await self.async_load()
         user_key = _user_key(user_id)
         state = self._user_state(user_key)
         client_message_id = _clean_text(request_payload.get("client_message_id"))
+        if session_turn is not None and _request_hash(user_key, client_message_id) in state.get(
+            "cleared_request_hashes", []
+        ):
+            raise ValueError("conversation_history_changed")
         existing = self._find_exchange(state, client_message_id)
         if existing is not None:
             return {
@@ -151,15 +244,42 @@ class AskDJHistoryManager:
                 "user_id": user_key,
                 **existing,
                 "history_revision": int(state.get("history_revision") or 0),
-                "clear_revision": self._effective_clear_revision(state),
+                "clear_revision": self._effective_clear_revision(state, user_key),
                 **_history_limit_metadata(state),
                 "server_time": _now(),
                 "deduplicated": True,
             }
 
         user_message = _message_from_request(request_payload)
-        assistant_message = _message_from_response(request_payload, assistant_response)
+        stored_response = assistant_response
+        if session_turn is not None:
+            # Existing live response may carry transient media/actions; the archive does not.
+            stored_response = {
+                **assistant_response,
+                "audio_url": None,
+                "images": [],
+                "playback_actions": [],
+            }
+        assistant_message = _message_from_response(request_payload, stored_response)
         exchange_id = _exchange_id(request_payload, user_message)
+        if session_turn is not None:
+            user_message["session_turn"] = deepcopy(session_turn)
+            assistant_message["session_turn"] = deepcopy(session_turn)
+            refs = list(assistant_response.get("historical_matches") or [])
+            selected = session_turn.get("context", {}).get("selected_entry")
+            if isinstance(selected, dict):
+                refs.append(selected)
+            implicit = session_turn.get("implicit_playback_entry")
+            if isinstance(implicit, dict):
+                refs.append(implicit)
+            if isinstance(refs, list):
+                user_message["historical_entry_references"] = assistant_message[
+                    "historical_entry_references"
+                ] = [
+                    {"session_id": r["session_id"], "entry_id": r["entry_id"]}
+                    for r in refs
+                    if isinstance(r, dict) and r.get("session_id") and r.get("entry_id")
+                ][:20]
         user_message["exchange_id"] = exchange_id
         user_message["exchange_order"] = 0
         assistant_message["exchange_id"] = exchange_id
@@ -170,7 +290,11 @@ class AskDJHistoryManager:
         if trimmed:
             state["history_revision"] = int(state.get("history_revision") or 0) + 1
         state["updated_at"] = _now()
+        if commit_guard is not None:
+            await commit_guard()
         await self.async_save()
+        if commit_guard is not None:
+            await commit_guard()
         return {
             "success": True,
             "user_id": user_key,
@@ -178,11 +302,90 @@ class AskDJHistoryManager:
             "assistant_message": deepcopy(assistant_message),
             "messages": [deepcopy(user_message), deepcopy(assistant_message)],
             "history_revision": state["history_revision"],
-            "clear_revision": self._effective_clear_revision(state),
+            "clear_revision": self._effective_clear_revision(state, user_key),
             **_history_limit_metadata(state),
             "server_time": _now(),
         }
 
+    @_committed_mutation
+    async def async_discard_session_exchange(self, scope: str, client_id: str, turn_id: str) -> None:
+        """Remove only this rejected exchange, preserving concurrent clears/writes."""
+        await self.async_load()
+        state = self._data.get("users", {}).get(_user_key(scope))
+        if state is None:
+            return
+        messages = state.get("messages", [])
+        safe = [
+            message
+            for message in messages
+            if not (
+                message.get("client_message_id") == client_id
+                and message.get("session_turn", {}).get("turn_id") == turn_id
+            )
+        ]
+        if len(safe) != len(messages):
+            state["messages"] = safe
+            state["history_revision"] = int(state.get("history_revision") or 0) + 1
+            state["clear_revision"] = int(state.get("clear_revision") or 0) + 1
+            await self.async_save()
+
+    @_committed_mutation
+    async def async_prune_session_history(
+        self, valid_profiles: set[str], *, cutoff: str, dependency_validator=None
+    ) -> int:
+        """Prune only new Profile Session turns; legacy HA-user history stays intact."""
+        await self.async_load()
+        removed = 0
+        for scope, state in self._data.get("users", {}).items():
+            if not scope.startswith("profile:"):
+                continue
+            messages = state.get("messages", [])
+            expired_exchanges = set()
+            for message in messages:
+                invalid = (
+                    scope[8:] not in valid_profiles or str(message.get("created_at") or "") < cutoff
+                )
+                if not invalid and dependency_validator is not None:
+                    for dependency in message.get("historical_entry_references", []):
+                        if not await dependency_validator(scope[8:], dependency):
+                            invalid = True
+                            break
+                if invalid:
+                    expired_exchanges.add(message.get("exchange_id") or message.get("id"))
+            safe = [
+                message
+                for message in messages
+                if (message.get("exchange_id") or message.get("id")) not in expired_exchanges
+            ]
+            if len(safe) != len(messages):
+                removed += len(messages) - len(safe)
+                state["messages"] = safe
+                state["history_revision"] = int(state.get("history_revision") or 0) + 1
+                state["clear_revision"] = int(state.get("clear_revision") or 0) + 1
+                state["updated_at"] = _now()
+        if removed:
+            await self.async_save()
+        return removed
+
+    async def async_saved_exchange(self, scope_key: str, client_message_id: str) -> dict[str, Any] | None:
+        """Existing history authority read, scoped by a server-resolved Profile key."""
+        await self.async_load()
+        state=self._data.get("users",{}).get(_user_key(scope_key),{})
+        result=self._find_exchange(state,client_message_id)
+        return deepcopy(result) if result else None
+
+    async def async_messages_by_id(self, scope_key: str, identifiers: set[str]) -> dict[str, dict]:
+        await self.async_load()
+        state=self._data.get("users",{}).get(_user_key(scope_key),{})
+        return {str(m["id"]):deepcopy(m) for m in state.get("messages",[]) if str(m.get("id") or "") in identifiers}
+
+    async def async_scope_revision(self, scope_key: str) -> str:
+        await self.async_load()
+        user_key = _user_key(scope_key)
+        state=self._data.get("users",{}).get(user_key,{})
+        return str(state.get("history_trimmed_count",0))+":"+str(self._effective_clear_revision(state, user_key))
+
+    @_committed_mutation
     async def async_append_assistant_message(
         self,
         user_id: str | None,
@@ -203,7 +406,7 @@ class AskDJHistoryManager:
                     "user_id": user_keys[0],
                     "assistant_message": deepcopy(existing),
                     "history_revision": int(first_state.get("history_revision") or 0),
-                    "clear_revision": self._effective_clear_revision(first_state),
+                    "clear_revision": self._effective_clear_revision(first_state, user_keys[0]),
                     **_history_limit_metadata(first_state),
                     "server_time": _now(),
                     "deduplicated": True,
@@ -223,7 +426,7 @@ class AskDJHistoryManager:
             "user_id": user_keys[0],
             "assistant_message": deepcopy(assistant_message),
             "history_revision": int(first_state.get("history_revision") or 0),
-            "clear_revision": self._effective_clear_revision(first_state),
+            "clear_revision": self._effective_clear_revision(first_state, user_keys[0]),
             **_history_limit_metadata(first_state),
             "server_time": _now(),
         }
@@ -250,7 +453,7 @@ class AskDJHistoryManager:
         user_key = _user_key(user_id)
         state = (self._data.get("users") or {}).get(user_key) or {}
         messages = sorted(
-            list(state.get("messages") or []),
+            [message for message in state.get("messages", []) if not message.get("session_turn")],
             key=lambda item: str(item.get("created_at") or ""),
         )
         return deepcopy(messages[-_limit(limit):])
@@ -273,7 +476,9 @@ class AskDJHistoryManager:
         state.setdefault("history_trimmed_count", 0)
         return state
 
-    def _effective_clear_revision(self, state: dict[str, Any]) -> int:
+    def _effective_clear_revision(self, state: dict[str, Any], scope_key: str = "") -> int:
+        if scope_key.startswith("profile:"):
+            return int(state.get("clear_revision") or 0)
         return max(
             int(state.get("clear_revision") or 0),
             int(self._data.get("global_clear_revision") or 0),
@@ -283,7 +488,7 @@ class AskDJHistoryManager:
         if _clean_text(user_id):
             return [_user_key(user_id)]
         users = self._data.get("users") or {}
-        keys = [str(key) for key in users.keys() if _clean_text(key)]
+        keys = [str(key) for key in users.keys() if _clean_text(key) and not str(key).startswith("profile:")]
         return keys or [_user_key(None)]
 
     def _find_exchange(
@@ -304,6 +509,9 @@ class AskDJHistoryManager:
                     if candidate.get("role") == "assistant":
                         assistant = candidate
                         break
+                turn = message.get("session_turn")
+                if turn and (not assistant or assistant.get("session_turn", {}).get("turn_id") != turn.get("turn_id") or assistant.get("exchange_id") != message.get("exchange_id")):
+                    return None
                 return {
                     "user_message": deepcopy(message),
                     "assistant_message": deepcopy(assistant or {}),
@@ -377,6 +585,8 @@ def _message_from_response(
             "message_kind": _message_kind(response),
             "origin": _clean_text(response.get("origin")),
             "text": text,
+            "historical_matches": _compact_items(response.get("historical_matches")),
+            "navigation_actions": _compact_items(response.get("navigation_actions")),
             "created_at": _now(),
             "client_id": _client_id(request_payload),
             "client_type": _clean_text(request_payload.get(CONF_CLIENT_TYPE)),
@@ -450,6 +660,11 @@ def _compact_store_data(data: dict[str, Any]) -> dict[str, Any]:
             "clear_revision": int(state.get("clear_revision") or 0),
             "messages": messages,
             "updated_at": _clean_text(state.get("updated_at")),
+            "cleared_request_hashes": [
+                value
+                for value in state.get("cleared_request_hashes", [])[-1000:]
+                if isinstance(value, str) and len(value) == 64
+            ],
             "history_trimmed_before": _clean_text(state.get("history_trimmed_before")) or None,
             "history_trimmed_count": int(state.get("history_trimmed_count") or 0),
         }
@@ -480,6 +695,11 @@ def _normalize_store_data(data: Any) -> dict[str, Any]:
                 if isinstance(message, dict)
             ],
             "updated_at": _clean_text(state.get("updated_at")),
+            "cleared_request_hashes": [
+                value
+                for value in state.get("cleared_request_hashes", [])[-1000:]
+                if isinstance(value, str) and len(value) == 64
+            ],
             "history_trimmed_before": _clean_text(state.get("history_trimmed_before")) or None,
             "history_trimmed_count": int(state.get("history_trimmed_count") or 0),
         }
@@ -648,3 +868,7 @@ def _server_message_id() -> str:
 def _user_key(user_id: Any) -> str:
     cleaned = _clean_text(user_id)
     return cleaned or "anonymous"
+
+
+def _request_hash(scope: str, client_id: str) -> str:
+    return hashlib.sha256((scope + "\0" + client_id).encode()).hexdigest()

@@ -129,6 +129,16 @@ def make_runtime():
     return Runtime()
 
 
+
+def _response_envelope(response):
+    """Inspect either the SDK JSON adapter or the actual no-store HTTP response."""
+    if isinstance(response, dict):
+        return response
+    import json
+    assert response.headers["Cache-Control"] == "no-store"
+    return {"status_code": response.status, "payload": json.loads(response.text)}
+
+
 class FakeAskDJHistory:
     def __init__(self, messages):
         self.messages = messages
@@ -8474,7 +8484,7 @@ class AskDjTest(unittest.TestCase):
                     "client_type": "watchos",
                 }
 
-        clear = asyncio.run(self.http.DJConnectAskDjHistoryClearView(None).post(ClearRequest()))
+        clear = _response_envelope(asyncio.run(self.http.DJConnectAskDjHistoryClearView(None).post(ClearRequest())))
 
         self.assertEqual(clear["payload"]["user_id"], "user-1")
         self.assertEqual(clear["payload"]["history_revision"], 1)
@@ -8515,7 +8525,7 @@ class AskDjTest(unittest.TestCase):
                     "client_type": "watchos",
                 }
 
-        clear = asyncio.run(self.http.DJConnectAskDjHistoryClearView(None).post(MacClearRequest()))
+        clear = _response_envelope(asyncio.run(self.http.DJConnectAskDjHistoryClearView(None).post(MacClearRequest())))
         self.assertEqual(clear["payload"]["clear_revision"], 1)
 
         class IPhoneStateRequest:
@@ -8589,11 +8599,11 @@ class AskDjTest(unittest.TestCase):
         original = self.http.async_handle_ask_dj
         self.http.async_handle_ask_dj = ask_dj
         try:
-            first = asyncio.run(self.http.DJConnectAskDjMessageView(None).post(MessageRequest("oud", "old-1")))
-            clear = asyncio.run(self.http.DJConnectAskDjHistoryClearView(None).post(ClearRequest()))
-            after_clear = asyncio.run(self.http.DJConnectAskDjHistoryView(None).get(HistoryRequest()))
-            second = asyncio.run(self.http.DJConnectAskDjMessageView(None).post(MessageRequest("nieuw", "new-1")))
-            history = asyncio.run(self.http.DJConnectAskDjHistoryView(None).get(HistoryRequest()))
+            first = _response_envelope(asyncio.run(self.http.DJConnectAskDjMessageView(None).post(MessageRequest("oud", "old-1"))))
+            clear = _response_envelope(asyncio.run(self.http.DJConnectAskDjHistoryClearView(None).post(ClearRequest())))
+            after_clear = _response_envelope(asyncio.run(self.http.DJConnectAskDjHistoryView(None).get(HistoryRequest())))
+            second = _response_envelope(asyncio.run(self.http.DJConnectAskDjMessageView(None).post(MessageRequest("nieuw", "new-1"))))
+            history = _response_envelope(asyncio.run(self.http.DJConnectAskDjHistoryView(None).get(HistoryRequest())))
         finally:
             self.http.async_handle_ask_dj = original
 
@@ -8619,7 +8629,7 @@ class AskDjTest(unittest.TestCase):
                     "client_type": "watchos",
                 }
 
-        response = asyncio.run(self.http.DJConnectAskDjHistoryClearView(None).post(ClearRequest()))
+        response = _response_envelope(asyncio.run(self.http.DJConnectAskDjHistoryClearView(None).post(ClearRequest())))
 
         self.assertEqual(response["status_code"], 401)
         self.assertEqual(response["payload"]["error"], "unauthorized")
@@ -8667,8 +8677,8 @@ class AskDjTest(unittest.TestCase):
         self.http.async_handle_ask_dj = ask_dj
         self.http.async_send_push_event = send_push
         try:
-            response = asyncio.run(self.http.DJConnectAskDjMessageView(None).post(MessageRequest()))
-            duplicate = asyncio.run(self.http.DJConnectAskDjMessageView(None).post(MessageRequest()))
+            response = _response_envelope(asyncio.run(self.http.DJConnectAskDjMessageView(None).post(MessageRequest())))
+            duplicate = _response_envelope(asyncio.run(self.http.DJConnectAskDjMessageView(None).post(MessageRequest())))
         finally:
             self.http.async_handle_ask_dj = original
             self.http.async_send_push_event = original_push
@@ -8709,7 +8719,7 @@ class AskDjTest(unittest.TestCase):
             context = types.SimpleNamespace(user_id="user-1")
             query = {}
 
-        history = asyncio.run(self.http.DJConnectAskDjHistoryView(None).get(HistoryRequest()))
+        history = _response_envelope(asyncio.run(self.http.DJConnectAskDjHistoryView(None).get(HistoryRequest())))
 
         self.assertEqual(history["payload"]["history_revision"], 1)
         self.assertEqual(history["payload"]["history_limit"], 1000)
@@ -8760,7 +8770,7 @@ class AskDjTest(unittest.TestCase):
         self.http.async_handle_ask_dj = ask_dj
         self.http.async_send_push_event = send_push
         try:
-            response = asyncio.run(self.http.DJConnectAskDjMessageView(None).post(MessageRequest()))
+            response = _response_envelope(asyncio.run(self.http.DJConnectAskDjMessageView(None).post(MessageRequest())))
         finally:
             self.http.async_handle_ask_dj = original
             self.http.async_send_push_event = original_push
@@ -8859,7 +8869,7 @@ class AskDjTest(unittest.TestCase):
         original = self.http.async_handle_ask_dj
         self.http.async_handle_ask_dj = ask_dj
         try:
-            response = asyncio.run(self.http.DJConnectAskDjMessageView(None).post(MessageRequest()))
+            response = _response_envelope(asyncio.run(self.http.DJConnectAskDjMessageView(None).post(MessageRequest())))
         finally:
             self.http.async_handle_ask_dj = original
 
