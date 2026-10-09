@@ -73,7 +73,7 @@ VibeCast#10/6080217273 supersedes the historical24e4 pin; Apple was informed via
 its existing register. Receiver import/Pages/AppID/TV qualification stay owned
 by the receiving lane. Public/physical promotion is not implied.
 
-[Completion and Finalization](docs/history/prompts/2026-10-09-vibecast-shared-renderer-finalization.md)
+This Completion and Finalization report
 closes only this slice after exact Finalization delivery and safe own cleanup.
 
 ### Roadmap Position
@@ -120,4 +120,3 @@ cleanup. Source/internal bundle publication and later local sourcebranch cleanup
 were specifically approved by direct owner “ga verder”; local Finalizationbranch
 cleanup and its distinct publication still require specific approval. Retain
 recovery/evidence and other writer WIP. Stop after this one Core delivery.
-
