@@ -1,5 +1,14 @@
 # DJConnect Product Roadmap
 
+Completed Core renderer source: DJC-CORE-VIBECAST-SHARED-RENDERER-V1-20261009,
+PR [#1136](https://github.com/pcvantol/djconnect/pull/1136) protected merged as
+`b211e5e99235e5862b3befb100dd9e64438f6e80`. One rich source builds local HA/Pi
+and generic static Cast presentation; eleven actual isolated HA/TLS/Broadcast
+browser sequences and independent exact review qualify software. Pinned build
+handoff does not promote Pages/receiver/AppID/TV or LG .ipk/hardware. Core
+preserves private Apple contracts and installed HAdev69315f43. [Completion](docs/history/prompts/2026-10-09-vibecast-shared-renderer-finalization.md)
+records source/internal-bundle delivery and separate Finalization gates.
+
 Completed corrective Core source: `DJC-CORE-PROFILE-HISTORY-HTTP-SCOPE-FIX-V1-20261009`,
 PR [#1134](https://github.com/pcvantol/djconnect/pull/1134) protected merged as
 `2337e06f514dfa2d847d9de26189a10bc618b555` from reviewed4ada2b61.

@@ -1,3 +1,18 @@
+## Delivered shared renderer pin — 2026-10-09
+
+PR#1136 source-main b211e5e99235e5862b3befb100dd9e64438f6e80 equals exact reviewed
+7460ef5e1d4c15888569b857d7c636620ace7e37/tree7774f7d002d0946eeaefe6bc769f3ee853ee0de5.
+Build1.0.0 manifest72239b47 / bundledfb80063 / shared renderer2f08d8f0 are pinned
+in VibeCast#10/6080217273; historical24e4 pin is superseded. Local HA/Pi stays
+self-contained; receiver consumes the generated static build under its own
+import/promotion authority. Existing v1 handoff and exact configured HTTPS
+origin gate/current snapshot capabilities are explicit; no arbitrary old-HA
+support, wildcard credentials or private Apple history/search sharing.
+Eleven actual TLS/Broadcast browser sequences qualify software only; CAF
+transport is modeled and physical Cast/LG, Pages, PiPARTIAL remain separate.
+HA-dev is unchanged on69315f43. Separate Finalization closes this Core slice,
+not a receiving deployment or next product assignment.
+
 ## Core shared VibeCast build handoff — 2026-10-09
 
 Assignment DJC-CORE-VIBECAST-SHARED-RENDERER-V1-20261009 consumes the existing

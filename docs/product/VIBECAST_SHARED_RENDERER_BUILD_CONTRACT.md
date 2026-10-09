@@ -1,5 +1,18 @@
 # Shared VibeCast renderer and versioned host builds
 
+## Source delivery receipt
+
+Protected PR#1136 source-main b211e5e99235e5862b3befb100dd9e64438f6e80 equals reviewed
+7460ef5e1d4c15888569b857d7c636620ace7e37. Static build1.0.0's supplying revision
+is that exact reviewed commit; runtime/software source bytes also equal main.
+ManifestSHA25672239b476e793fe5bb5493d2be5720fcd1f6e64ea83e012c77573732a58c7898;
+bundleSHA256dfb800634652de610e6d3861bc0aedfa1e1cdb1a65dc80b3bdd4a2a3326c56d1.
+Pinned import must validate the external manifest digest and exact revision
+with --verify-existing; unpinned verify() is structural/asset validation, not
+manifest authenticity. The protected source/internal bundle approval grants
+no Pages/receiverpush/install/hardware authority. Source completion and
+Finalization are recorded in [the delivery report](../history/prompts/2026-10-09-vibecast-shared-renderer-finalization.md).
+
 Assignment: `DJC-CORE-VIBECAST-SHARED-RENDERER-V1-20261009`.
 Owner decisions: Core #1101/6078489341 and VibeCast #10/6063499443.
 
