@@ -18,15 +18,20 @@ Build1.1.0 keeps one local/static source and unchanged legacy handoff/Pi claims.
 
 Thirteen new modeled lifecycle regressions PASS; existing1681 unittests PASS
 (7existing skips),172verification PASS, Ruff/projection/diff PASS. Independent technical/privacy/software-UX review GO, no blocking findings.
-Real isolated TLS/Broadcast browser acceptance is finishing; no actual CAF/hardware qualification is implied.
+Eleven actual isolated HA2026.10/TLS/Core-Broadcast browser sequences PASS;
+79directed status envelopes validate against the schema with increasing
+per-handoff sequence. Before/after PNGs and motion retained;139integration
+hashes match actual testsource. CAF delivery and source/art providers modeled;
+no actual CAF/hardware qualification is implied.
 Owned lab uses18196/18197 and1CPU/1GiB; Apple18191/18194 and HAdev retained.
 
 ### Delivery and remaining gates
 
 Repository State: `SOURCE_IN_PROGRESS`; Finalization Pending: `YES`.
-Workspace State: `OWNED_BRANCH_ACTIVE`, no duplicate writer or next slice.
-Exact candidate/buildpin, reviewed PR, required remote checks and source
-publication approval remain pending. Merge triggers existing SHA-bound internal
+Workspace State: `REVIEWABLE_FROZEN`, no duplicate writer or next slice.
+The exact reviewed candidate and buildpin are externally recorded on source
+PR#1138/Core#1101; generated local/static output matches tested139source hashes.
+Required remote checks are running; exact source/publication approval is pending. Merge triggers existing SHA-bound internal
 HA artifact/evidence publication; no workflow change or implicit new grant.
 Distinct Finalization publication is a later concrete gate. No receiver push,
 Pages/Console/HA-install/config/Swift/device action is performed. Receiver and

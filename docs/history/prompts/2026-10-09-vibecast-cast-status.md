@@ -29,3 +29,18 @@ See the canonical contract in docs/product/VIBECAST_CAST_STATUS_CONTRACT.md
 and JSON schema under examples/client_contracts/vibecast_cast_status.
 Receipts belong under artifacts/verification/vibecast-cast-status; no modeled
 CAF behavior, DOM test or source build is a physical/device-PASS.
+
+## Source qualification snapshot
+
+Source PR#1138 holds the independently reviewed exact pin. Thirteen tracked
+lifecycle regressions PASS;1681unittests7existing skipsPASS;172verificationPASS;
+Ruff/projection/diff/Bandit medium gatePASS(Medium0/High0). Eleven actual isolated
+HA2026.10/TLS/Core-Broadcast browser sequences PASS in five languages/local
+portrait and static landscape. Seventy-nine directed status envelopes validate
+against the schema and per-handoff sequence;139integration hashes match. PNGs
+and movement retained; source/art adapters and CAF message delivery modeled.
+Original missingffmpeg and missingNode CAtrust test-tool failures are preserved;
+final test uses only its disposable CA, no TLS/auth bypass. Requiredchecks and
+exact source/publication approval still gate merge; no Finalization completion
+or hardware/native/install/deployment is inferred. The independent GO's two
+additional timing cases are retained. Host/resources/single-writer stay bounded.
