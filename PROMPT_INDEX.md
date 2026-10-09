@@ -1,5 +1,13 @@
 # DJConnect Verification Prompt Index
 
+Current dedicated Finalization: PR [#1136](https://github.com/pcvantol/djconnect/pull/1136)
+protected merged as `b211e5e99235e5862b3befb100dd9e64438f6e80` for
+DJC-CORE-VIBECAST-SHARED-RENDERER-V1-20261009. [Completion and Finalization](docs/history/prompts/2026-10-09-vibecast-shared-renderer-finalization.md)
+records reviewed source/build and browser evidence. MERGED_RECONCILED is
+conditional on this separate exact approved Finalization delivery/readback;
+actual pre-delivery MERGED_UNRECONCILED permits only this reconciliation.
+No next phase or receiver/Pages/TV/HA-dev execution is activated here.
+
 ## PR #1134 Profile-history HTTP correction — dedicated Finalization
 
 ### Repository Status
