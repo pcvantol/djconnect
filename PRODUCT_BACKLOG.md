@@ -1,5 +1,17 @@
 # DJConnect Product Backlog
 
+Completed corrective Core source: `DJC-CORE-PROFILE-HISTORY-HTTP-SCOPE-FIX-V1-20261009`,
+PR [#1134](https://github.com/pcvantol/djconnect/pull/1134) protected merged as
+`2337e06f514dfa2d847d9de26189a10bc618b555` from reviewed4ada2b61.
+Actual Apple HTTP finding exposed scope/identity loss omitted by the original
+11-request proof. The existing GET now reaches its Profile handler with bounded
+allowlisted input; actor/owner stay server-owned, legacy behavior intact.
+Actual HA24-request proof,1672 software scenarios(7skips),172 verification,
+independent exact GO and schema/privacy/revision/clear checks PASS. The
+[corrective completion](docs/history/prompts/2026-10-09-profile-history-http-scope-fix-finalization.md)
+records source/main artifact readback. No native/provider/installed claim,
+predecessor PR reopening or next feature selection. Apple remains separately owned.
+
 Completed Core producer source: `DJC-CORE-SESSION-CONVERSATION-HISTORY-V1-20261008`,
 PR [#1132](https://github.com/pcvantol/djconnect/pull/1132) protected merged as
 `30eba3749a5d16322b5bd45695e6adc25750805d` from reviewed `19b815612319291cc7e4ab1fca4718667f173970`.

@@ -5,6 +5,19 @@ Home Assistant integration repo `pcvantol/djconnect` is the leading source for
 this file. Do not copy this file into sibling repos and do not reintroduce
 repo-local sync prompt files.
 
+## Corrective Profile-history HTTP producer — 2026-10-09
+
+Core `DJC-CORE-PROFILE-HISTORY-HTTP-SCOPE-FIX-V1-20261009`, source PR#1134
+protected merge2337e06f514dfa2d847d9de26189a10bc618b555 from reviewed4ada2b61.
+The actual Apple consumer exposed scope/identity loss in documented GET history;
+24 real isolated HA requests now qualify corrected owner/message identity,
+privacy/auth/revision/clear and legacy isolation. Immutable corrected receipt:
+`examples/client_contracts/profile_history_http_scope_fix/http-producer-receipt.json`.
+Existing Apple assignment consumes exact pinned source and independently
+qualifies native UI; no anonymous-as-Profile import or local namespace workaround.
+Core publication/Finalization and Apple signing/install effects retain distinct
+authority. Original eleven-request evidence remains historical, not expanded.
+
 ## Session conversation/history Core→Apple protected delivery — 2026-10-09
 
 Core assignment `DJC-CORE-SESSION-CONVERSATION-HISTORY-V1-20261008`; dependent

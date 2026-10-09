@@ -311,3 +311,10 @@ fixture adapters remain explicit; no native/microphone/provider/installation
 claim. Exact corrective producer receipt, review, protected delivery and its
 separate Finalization are bound through the owning issues; predecessor
 qualification/cleanup receipts remain historical and are not reopened.
+
+Corrective source [PR#1134](https://github.com/pcvantol/djconnect/pull/1134)
+protected merged2337e06f514dfa2d847d9de26189a10bc618b555 from reviewed
+4ada2b611f5195090bdb1fe52b28749ad539a100, equal treec61a74fa93fec1dc7e06316c4467f14f5e342818.
+[Corrective completion](../history/prompts/2026-10-09-profile-history-http-scope-fix-finalization.md)
+records exact software/producer and source/main qualification. This separate
+Finalization needs its own publication approval; source approval is not inherited.
