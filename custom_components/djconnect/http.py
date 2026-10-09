@@ -3051,6 +3051,28 @@ class DJConnectSessionBroadcastEndControlView(_DJConnectSessionView):
         return web.json_response({"success": True, "state": "ended"}, headers=headers)
 
 
+def _vibecast_origin_allowed(request) -> bool:
+    """Use HA's existing exact CORS allowlist for remote renderer origins.
+
+    Browser WebSockets do not enforce HTTP CORS. Local pages and non-browser
+    consumers retain their existing route; wildcard/null origins grant nothing.
+    """
+    origin = request.headers.get("Origin")
+    if not origin:
+        return True
+    if origin == f"{request.scheme}://{request.host}":
+        return True
+    if not origin.startswith("https://") or origin == "null":
+        return False
+    import aiohttp_cors
+
+    try:
+        defaults = request.app[aiohttp_cors.APP_CONFIG_KEY].defaults
+    except KeyError:
+        return False
+    return origin in defaults and origin != "*"
+
+
 class DJConnectSessionBroadcastWebSocketView(HomeAssistantView):
     """Read-only Broadcast Token WebSocket for stateless Universal Receivers."""
 
@@ -3062,11 +3084,15 @@ class DJConnectSessionBroadcastWebSocketView(HomeAssistantView):
         self.hass = hass
 
     async def get(self, request, session_id: str):
+        if not _vibecast_origin_allowed(request):
+            return web.json_response({"success": False, "error": "receiver_origin_not_allowed"}, status=403,
+                                     headers={"Cache-Control": "no-store", "Referrer-Policy": "no-referrer"})
         token = str(request.query.get("broadcast_token") or "").strip()
         if not token:
             return web.json_response({"success": False, "error": "broadcast_token_required"}, status=401,
                                      headers={"Cache-Control": "no-store", "Referrer-Policy": "no-referrer"})
         websocket = web.WebSocketResponse(heartbeat=30)
+        websocket.headers.update({"Cache-Control": "no-store", "Referrer-Policy": "no-referrer"})
         await websocket.prepare(request)
         from .session_runtime import session_runtime_manager
 
