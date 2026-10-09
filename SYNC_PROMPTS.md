@@ -1,3 +1,14 @@
+## Core shared VibeCast build handoff — 2026-10-09
+
+Assignment DJC-CORE-VIBECAST-SHARED-RENDERER-V1-20261009 consumes the existing
+snapshot/event-v1 Broadcast and v1 Cast handoff. Core owns one rich renderer
+source and reproducible local/static builds; VibeCast receiver owns pinned
+import/Pages promotion. See docs/product/VIBECAST_SHARED_RENDERER_BUILD_CONTRACT.md.
+Apple conversation/history/search/HTTP-scope contracts are retained; private
+questions and archived sessions do not become guest/room content. Software
+browser receipts and exact build pins must precede deployment/hardware claims.
+No Pages, receiverrepo, Apple, LG or Pi deployment is implied by this increment.
+
 # DJConnect Sync Prompts
 
 This is the only canonical cross-repo sync prompt bundle for DJConnect. The

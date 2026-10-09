@@ -1,0 +1,101 @@
+
+/* Chromium68: readable fixed defaults; modern rules below refine them. */
+main { padding:48px; gap:24px }
+header { font-size:16px }
+.artwork { width:42vw; height:42vw; max-width:600px; max-height:45vh }
+.track { font-size:48px }
+.artist { font-size:28px }
+.moment-card { width:100%; padding:24px 36px }
+.moment-summary { font-size:28px }
+.moment-detail { font-size:24px }
+.moment-kind { font-size:18px }
+#clock { font-size:48px }
+.handoff { width:60%; bottom:48px; font-size:24px }
+.handoff strong { font-size:72px }
+
+:root { color-scheme:dark; --accent:#9f7cff; --art:none; --tone1:#282442; --tone2:#153840; --tone3:#282031 }
+* { box-sizing:border-box }
+html,body { width:100%; min-height:100%; margin:0; overflow:hidden }
+body { min-height:100vh; min-height:100dvh; background:#12111c; color:#f8f6ff; font-family:system-ui,sans-serif }
+.atmosphere,.atmosphere::after { position:fixed; inset:-12vmax; pointer-events:none }
+.atmosphere { background:radial-gradient(circle at 15% 12%,#66558c,transparent 32%),#12111c; background:radial-gradient(circle at 15% 12%,color-mix(in srgb,var(--accent) 65%,transparent),transparent 32%),radial-gradient(circle at 85% 88%,#355e87,transparent 38%),#12111c; animation:drift 24s ease-in-out infinite alternate }
+.atmosphere::after { content:""; background:radial-gradient(ellipse at 10% 5%,var(--tone1),transparent 65%),radial-gradient(ellipse at 90% 80%,var(--tone2),transparent 70%),var(--tone3); opacity:.9 }
+main { position:relative; z-index:1; min-height:100vh; min-height:100dvh; display:grid; grid-template-rows:auto minmax(0,1fr) auto; gap:clamp(1rem,2vh,2.5rem); padding:clamp(2rem,5vw,5rem) }
+header { display:flex; justify-content:space-between; gap:1rem; font-size:clamp(.75rem,1.1vw,1rem); letter-spacing:.16em; text-transform:uppercase; color:#d9d4e9 }
+#state { color:#fff; letter-spacing:.08em }
+.stage { align-self:center; width:min(100%,62rem); min-height:0; display:grid; gap:clamp(1.4rem,3vh,3rem) }
+.now-playing { min-height:0 }
+.eyebrow { margin:0 0 1rem; color:#dfd5ff; font-size:clamp(.8rem,1.4vw,1.15rem); font-weight:700; letter-spacing:.13em; text-transform:uppercase }
+.artwork { width:min(54vw,23rem); aspect-ratio:1; border-radius:2rem; object-fit:cover; box-shadow:0 2rem 6rem #0008; background:#262137 }
+.track { margin:clamp(1.3rem,3vh,2.5rem) 0 0; font-size:clamp(2rem,5.2vw,5.4rem); line-height:1.04; letter-spacing:-.045em; max-width:15ch; overflow-wrap:anywhere }
+.artist { margin:.8rem 0 0; color:#ebe7f5; font-size:clamp(1.1rem,2.2vw,2rem) }
+.cards { display:grid; align-content:end; gap:clamp(.6rem,1.5vh,1.2rem); min-height:0; max-height:42vh }
+.moment-card { width:min(100%,48rem); min-height:0; padding:clamp(1.25rem,2.2vw,2.2rem); border:1px solid #ffffff3c; border-radius:1.5rem; background:rgba(35,44,63,.65); box-shadow:inset 0 1px 0 #ffffff40,inset 0 -1px 0 #ffffff0d,0 1rem 2.5rem #0003; -webkit-backdrop-filter:blur(24px) saturate(135%); backdrop-filter:blur(24px) saturate(135%); overflow:hidden }
+.moment-card[hidden] { display:none }
+.moment-card.fresh { animation:card-in .65s cubic-bezier(.2,.7,.2,1) both }
+.moment-card.previous { opacity:.5; transform:translateY(-.75rem) scale(.98); max-height:9rem; padding-top:.9rem; padding-bottom:.9rem }
+.moment-card.previous.leaving { animation:card-old .75s cubic-bezier(.2,.7,.2,1) both }
+.moment-kind { display:block; margin-bottom:.6rem; color:#d5c1ff; font-size:clamp(.75rem,1.15vw,1rem); font-weight:750; letter-spacing:.14em; text-transform:uppercase }
+.moment-summary { margin:0; font-size:clamp(1.2rem,2.2vw,2rem); line-height:1.25; overflow-wrap:anywhere }
+.moment-detail { margin:.8rem 0 0; color:#eae6f3; font-size:clamp(1rem,1.55vw,1.45rem); line-height:1.42; max-height:16rem; overflow-y:auto; overscroll-behavior:contain; scrollbar-width:thin; overflow-wrap:anywhere; mask-image:linear-gradient(to bottom,#000 0%,#000 92%,transparent 100%) }
+.moment-detail.scrolled { mask-image:linear-gradient(to bottom,transparent 0%,#000 8%,#000 92%,transparent 100%) }
+.moment-detail:empty { display:none }
+footer { display:grid; gap:.75rem; color:#e1ddeb }
+progress { width:100%; height:.35rem; accent-color:var(--accent) }
+.meta { display:flex; justify-content:space-between; gap:1rem; font-size:clamp(.8rem,1.2vw,1rem) }
+.idle .stage { opacity:.76 }
+@keyframes drift { from { transform:translate3d(-1%,-1%,0) scale(1) } to { transform:translate3d(2%,1%,0) scale(1.06) } }
+@keyframes card-in { from { opacity:0; transform:translateY(1.35rem) } to { opacity:1; transform:translateY(0) } }
+@keyframes card-old { from { opacity:1; transform:translateY(2rem) scale(1) } to { opacity:.5; transform:translateY(-.75rem) scale(.98) } }
+@media (orientation:portrait) and (min-width:800px) { main { padding:clamp(3rem,5vw,5rem) } .stage { gap:clamp(2rem,3vh,3.5rem) } .artwork { width:min(42vw,25rem) } .cards { max-height:39vh } }
+@media (orientation:landscape) { main { padding:clamp(2.5rem,5vw,6rem) } .stage { grid-template-columns:minmax(12rem,30vw) minmax(0,1fr); align-items:center; column-gap:clamp(2rem,5vw,6rem); width:min(100%,96rem) } .artwork { width:100% } .track { margin-top:0; max-width:12ch } .cards { grid-column:2; max-height:40vh } }
+@media (prefers-reduced-motion:reduce) { .atmosphere,.moment-card.fresh,.moment-card.previous.leaving { animation:none } }
+.handoff { position:fixed; left:50%; bottom:clamp(2rem,5vh,6rem); transform:translateX(-50%); z-index:3; width:min(calc(100% - 4rem),38rem); padding:1.5rem 2rem; border-radius:1.25rem; background:#141322ee; color:#fff; font-size:clamp(1.1rem,2vw,1.6rem); text-align:center }
+.handoff strong { display:block; font-size:clamp(3.5rem,7vw,6rem); letter-spacing:.2em; font-variant-numeric:tabular-nums }
+
+.spotify-source { display:inline-block; margin-top:1rem; padding:.6rem 0 }
+.spotify-source[hidden],.moment-source[hidden] { display:none }
+.spotify-source img { width:120px; height:auto }
+.moment-source { display:block; margin-top:.8rem; color:#ddd9ec; font-size:clamp(.9rem,1.5vw,1.15rem); text-decoration:underline }
+#end-session { font:700 3.5rem/1 system-ui; color:#fff; background:#17162288; border:1px solid #ffffff66; border-radius:50%; width:5rem; height:5rem; cursor:pointer }
+#end-session[hidden] { display:none }
+/* Owner refinements: fixed safe regions, artwork-led atmosphere and readable controls. */
+main { height:100vh; height:100dvh; min-height:0; padding:clamp(1.5rem,4vw,4rem); gap:1.5rem }
+header { align-items:center; min-height:4rem }
+#clock { font-size:clamp(2rem,4.5vw,4rem); font-weight:850; letter-spacing:-.02em; font-variant-numeric:tabular-nums }
+.stage { position:relative; align-self:stretch; width:100%; display:flex; align-items:center; min-height:0; gap:0 }
+.now-playing { width:100% }
+.artwork { width:min(56vw,37.5rem,45vh); border-radius:8px; object-fit:contain }
+.track { font-size:clamp(2rem,5vw,4.5rem); max-width:22ch; margin-top:1.5rem }
+.artist { font-size:clamp(1.25rem,2.7vw,2.5rem) }
+.album-name { margin:.5rem 0 0; color:#e1dfeb; font-size:clamp(1rem,2.2vw,2rem) }
+#mood { display:none }
+.cards { position:absolute; top:0; right:0; width:min(100%,54rem); max-height:23vh; z-index:2 }
+.stage.bubble-below .cards { top:auto; bottom:0; left:clamp(0rem,6vw,6rem); right:auto }
+.moment-card { width:100%; border-radius:3rem 4.5rem 3.5rem 1rem; padding:1.5rem 2.25rem; border:1px solid #ffffff60 }
+@supports ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))) {
+  .moment-card { background:linear-gradient(135deg,#ffffff26 0%,#ffffff0a 48%,#d2e6ff12 100%),rgba(54,69,91,.24) }
+}
+@media (prefers-reduced-transparency:reduce) { .moment-card { background:#232c3fed; -webkit-backdrop-filter:none; backdrop-filter:none } }
+.stage.bubble-below .moment-card { border-radius:4rem 1rem 3rem 4.5rem }
+.moment-summary { font-size:clamp(1.3rem,2.7vw,2rem); line-height:1.28 }
+.moment-detail { max-height:12vh; font-size:clamp(1.1rem,2.1vw,1.55rem); line-height:1.4 }
+.moment-kind { font-size:clamp(.9rem,1.5vw,1.2rem) }
+.moment-card.previous { display:none }
+.moment-card.exiting { animation:card-out .8s ease both; pointer-events:none }
+progress::-webkit-progress-bar { background:#ffffff40; border-radius:1rem }
+progress::-webkit-progress-value { background:var(--accent); border-radius:1rem }
+progress::-moz-progress-bar { background:var(--accent); border-radius:1rem }
+progress { height:.7rem; border-radius:1rem; overflow:hidden }
+.meta { justify-content:flex-end; font-size:clamp(1.3rem,2.2vw,2rem); font-weight:650; font-variant-numeric:tabular-nums }
+.up-next { display:flex; align-items:center; gap:1.2rem; margin-bottom:1rem; min-width:0 }
+.up-next[hidden] { display:none }
+.up-next img { width:clamp(3.5rem,7vw,6rem); aspect-ratio:1; border-radius:1rem; object-fit:cover }
+.up-next strong { display:block; font-size:clamp(1.2rem,2.3vw,1.9rem); overflow-wrap:anywhere }
+.up-next span { display:block; font-size:clamp(1rem,1.9vw,1.5rem) }
+.up-next-label { color:#e1ddeb; margin-bottom:.3rem; font-weight:700 }
+@keyframes card-out { from { opacity:1; transform:translateY(0) } to { opacity:0; transform:translateY(-.7rem) } }
+@media (orientation:portrait) and (min-width:800px) { .stage { gap:0 } .artwork { width:min(56vw,37.5rem,45vh) } .cards { max-height:23vh } }
+@media (orientation:landscape) { .stage { display:flex; width:100%; align-items:center } .now-playing { width:48% } .artwork { width:min(36vw,37.5rem,42vh) } .cards,.stage.bubble-below .cards { width:46%; left:auto; right:0; top:12%; bottom:auto; max-height:55vh } .stage.bubble-below .cards { top:auto; bottom:10% } .moment-detail { max-height:30vh } .track { margin-top:1rem } }
+@media (max-height:800px) and (orientation:portrait) { .artwork { width:min(48vw,28vh) } .cards { max-height:20vh } .moment-detail { max-height:8vh } .track { font-size:1.8rem } }
+@media (prefers-reduced-motion:reduce) { .moment-card.exiting { animation:none } }

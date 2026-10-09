@@ -1,5 +1,15 @@
 # VibeCast Architecture and V1 Product Definition
 
+## Selected shared-source/static distribution implementation
+
+The owner-selected [shared renderer build contract](VIBECAST_SHARED_RENDERER_BUILD_CONTRACT.md)
+keeps the rich renderer source in Core, packages the local HA/Pi entry, and
+produces the static Cast entry for the receiver distribution owner. Thin host
+adapters preserve direct HA data and prepare later webOS reuse. Earlier physical
+and simulator evidence below remains historical; the new build has its own
+software receipts and separate Cast/LG/Pages gates.
+
+
 
 ## Owner-authorized current-slice extension
 
