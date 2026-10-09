@@ -136,6 +136,9 @@ async def main():
     await storage.async_create_profile(
         "Owner", profile_id="profile-a", default_backend_id="later_manual"
     )
+    await storage.async_create_profile(
+        "Other", profile_id="profile-other", default_backend_id="later_manual"
+    )
     await storage.async_upsert_device(
         device_id, "ios", display_name="Synthetic iPhone", linked_profile_id="profile-a"
     )
@@ -174,6 +177,7 @@ async def main():
                 {
                     "method": method,
                     "path": path,
+                    "query": dict(kwargs.get("params", {})) if method == "GET" else None,
                     "status": response.status,
                     "cache_control": response.headers.get("Cache-Control"),
                     "body": body,
@@ -239,6 +243,33 @@ async def main():
             },
         )
         assert status == 200 and result["conversation"]["input_type"] == "text"
+        history_path = "/api/djconnect/v1/ask_dj/history"
+        scoped, status = await request("GET", history_path, {"conversation_scope": "profile"})
+        assert status == 200 and scoped.get("owner_profile_id") == "profile-a", scoped
+        assert scoped["user_id"] is None and scoped["history_scope"] == "profile"
+        assert [m["id"] for m in scoped["messages"]] == [m["id"] for m in result["messages"]]
+        unchanged, status = await request("GET", history_path, {
+            "conversation_scope": "profile", "since_revision": scoped["history_revision"],
+        })
+        assert status == 200 and unchanged["messages"] == []
+        for negative in ({"profile_id": "profile-other"}, {"privacy_mode": "shared"}):
+            denied, status = await request("GET", history_path, {
+                "conversation_scope": "profile", **negative,
+            })
+            assert status == 403 and "messages" not in denied, denied
+        denied, status = await request("GET", history_path, {
+            "conversation_scope": "profile", "client_type": "macos",
+        })
+        assert status == 401 and "messages" not in denied, denied
+        denied, status = await request("GET", history_path, {"conversation_scope": "profile"}, authorized=False)
+        assert status == 401 and "messages" not in denied
+        safe, status = await request("GET", history_path, {
+            "conversation_scope": "profile", "owner_profile_id": "forged", "user_id": "forged",
+        })
+        assert status == 200 and safe["owner_profile_id"] == "profile-a" and safe["user_id"] is None
+        legacy, status = await request("GET", history_path)
+        assert status == 200 and legacy["user_id"] == "anonymous" and not legacy.get("owner_profile_id")
+        assert legacy["messages"] == []
         from unittest.mock import patch
         from custom_components.djconnect import http as producer_http
 
@@ -308,6 +339,32 @@ async def main():
         assert status == 403
         _, status = await request("GET", timeline_path, {"privacy_mode": "shared"})
         assert status == 403
+        restored, status = await request("GET", history_path, {"conversation_scope": "profile"})
+        assert status == 200 and restored["owner_profile_id"] == "profile-a" and len(restored["messages"]) == 6
+        entered, release = asyncio.Event(), asyncio.Event()
+        original_history = history.async_history
+
+        async def delayed_history(*args, **kwargs):
+            result = await original_history(*args, **kwargs)
+            entered.set()
+            await release.wait()
+            return result
+
+        with patch.object(history, "async_history", delayed_history):
+            pending_read = asyncio.create_task(request("GET", history_path, {"conversation_scope": "profile"}))
+            await asyncio.wait_for(entered.wait(), timeout=10)
+            try:
+                cleared, status = await request("POST", history_path + "/clear", {"conversation_scope": "profile"})
+                assert status == 200 and cleared["owner_profile_id"] == "profile-a"
+            finally:
+                release.set()
+            raced, status = await pending_read
+            assert status == 409 and "messages" not in raced, raced
+        after_clear, status = await request("GET", history_path, {"conversation_scope": "profile"})
+        assert status == 200 and after_clear["messages"] == []
+        assert after_clear["clear_revision"] > restored["clear_revision"]
+        withdrawn, status = await request("GET", timeline_path)
+        assert status == 200 and all(not e["kind"].startswith("conversation_") for e in withdrawn["entries"])
     await async_shutdown_persistence(hass)
     assert source_hashes() == qualified_sources, "source changed during qualification"
     from homeassistant.const import __version__ as sdk_version
@@ -315,7 +372,7 @@ async def main():
     result = {
         "source_files_sha256": qualified_sources,
         "ha_sdk_version": sdk_version,
-        "assignment_id": "DJC-CORE-SESSION-CONVERSATION-HISTORY-V1-20261008",
+        "assignment_id": "DJC-CORE-PROFILE-HISTORY-HTTP-SCOPE-FIX-V1-20261009",
         "qualification": "real HA SDK, DJConnectRuntime paired authorization, HA HTTP view registration, loopback HTTP, SQLite and HA Store reload; synthetic source account/metadata and voice-derived text, no microphone/native/provider/installed proof",
         "server_time": datetime.now(UTC).isoformat(),
         "requests": receipts,

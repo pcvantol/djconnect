@@ -334,6 +334,65 @@
           "const": true
         }
       }
+    },
+    {
+      "type": "object",
+      "required": [
+        "success",
+        "owner_profile_id",
+        "history_scope",
+        "user_id",
+        "history_revision",
+        "clear_revision",
+        "messages"
+      ],
+      "properties": {
+        "success": {
+          "const": true
+        },
+        "owner_profile_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "history_scope": {
+          "const": "profile"
+        },
+        "user_id": {
+          "type": "null"
+        },
+        "history_revision": {
+          "type": "integer"
+        },
+        "clear_revision": {
+          "type": "integer"
+        },
+        "messages": {
+          "type": "array",
+          "maxItems": 50,
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "role",
+              "text"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "role": {
+                "enum": [
+                  "user",
+                  "assistant"
+                ]
+              },
+              "text": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
     }
   ]
 }
