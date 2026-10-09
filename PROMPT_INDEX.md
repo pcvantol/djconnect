@@ -1,5 +1,108 @@
 # DJConnect Verification Prompt Index
 
+## PR #1132 Session conversation/history — dedicated Finalization
+
+### Repository Status
+
+PR [#1132](https://github.com/pcvantol/djconnect/pull/1132) protected merged as
+`30eba3749a5d16322b5bd45695e6adc25750805d` from independently reviewed head
+`19b815612319291cc7e4ab1fca4718667f173970`. Both exact trees are
+`d08283c47ea75cf5e049cd22a9d2244f05110e52`; original base
+`cb7bf8440c43d2c2f733bba3713b88c6b332c4da`. Assignment
+`DJC-CORE-SESSION-CONVERSATION-HISTORY-V1-20261008`, one reused Core writer.
+Canonical host verify exit0/MATCH after two separately approved cache cleanups;
+source/Apple WIP and verification evidence preserved. Source merge and its
+internal SHA prerelease were explicitly approved; no installation/deployment.
+
+Exact source software:1,669 unittest scenarios PASS,7 existing skips;172
+verification tests,6 Golden regressions,Ruff,diff and Bandit medium gate PASS.
+Independent technical/privacy review GO (180 substantive tests and62 final
+SQL/persistence regressions); no remaining P1/P2/P3. Actual isolated HA2026.10.0
+HTTP/router/Store/SQLite restart proof:11 requests;124 exact receipt source
+hashes independently matched. Fifteen response envelopes validate against the
+version1 JSON Schema. Source/account registration and STT are synthetic
+adapters, not microphone/provider/nativeUI/installed proof.
+
+Automatic exact-main Validate, CodeQL, Golden, EP boundary and TDE runs PASS.
+Package run37887132962 and qualification run37887133260 PASS on first attempt;
+no manually dispatched validation/evidence retry or replacement. Canonical
+main equals origin/main at `30eba3749a5d16322b5bd45695e6adc25750805d`; its tree equals the reviewed source.
+Internal SHA-prerelease archive:134 safe regular files, every byte matches the
+exact merged integration. Archive SHA256 `32f92b1be75816fe19d55bed5236852780b7496cd6a61b96d798bf5e44832f2b`.
+Qualification JSON SHA256 `14e8fe79c7de7aaff46f22d23574c9c51e7126bc7b5609933319e6343c40c23f`;
+canonical integrity validation and all required checks PASS. Exact-main
+coverage artifact11596444651 digest `37202e66fda43860607109998674ec9e9dc4b57d7c8a133cc5dd180300707c6c`
+matches qualification evidence; not expired. Public HACS checks are software
+validation, not public distribution or installation.
+
+
+### Management Summary
+
+Paired Profile owners can read ordered active/closed Session timelines, ask
+contextual text or transcribed voice through existing Ask DJ, search literal
+Unicode text outside loaded pages, and find actually observed stored playback
+with exact readonly open-entry targets. References stay stable; chronological
+pages and bounded tail/anchor windows support native consumers. Historical
+entries never become current Now Playing. Qualified original attribution,
+retention, account/source withdrawal and Profile privacy are revalidated.
+Conversation text remains in the existing bounded HA Store; Session rows hold
+confirmed references. Whole acceptance finishes before Runtime end even when
+cancelled; clear/source/SQL/privacy races reject stale or partial responses.
+Owner conversations stay outside shared VibeCast/Broadcast and model-history
+prompts. Generic Ask DJ, explicit playback commands and existing live Moments
+retain their owners. No new provider, Planner, command engine, TTS or learning.
+
+Reviewed producer pins were delivered through #1101/#87 and the existing Apple
+chat. Apple read back immutable contract/receipt hashes; its source/native
+acceptance remains separately owned and is not inferred from Core receipts.
+[Completion and Finalization](docs/history/prompts/2026-10-09-session-conversation-history-finalization.md)
+records this one slice. HA-dev stays on previously installed3488fd82; no new
+installed qualification or deployment authorization is claimed.
+
+### Roadmap Position
+
+Generation2 Product Development keeps Phase1 Current execution. This selected
+Core producer supports its existing Session experience; the broader native
+conversation outcome remains dependent on the existing Apple assignment.
+Windows public distribution is Retired by owner decision6066406727; controlled
+Windows teardown is separately Planned, not executed here. No phase/next-slice
+activation or new writer results from that planning reconciliation.
+
+### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+1. **Public distribution: Apple — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: qualified Internal Release consumers and explicit authorization. Execution Rationale: next canonical retained public-distribution item after its release gates.
+2. **Public HACS distribution — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: fresh candidate and release authorization. Execution Rationale: next retained integration distribution item.
+3. **HACS 3.3.0 release visibility (`HACS-3.3.0-001`) — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: release metadata and discovery evidence. Execution Rationale: bounded recorded visibility investigation after HACS qualification.
+4. **Firmware OTA publication and staged rollback — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: manifest-bound consumer qualification. Execution Rationale: next recorded firmware distribution item after its consumer gate.
+5. **ESPHome firmware platform adoption — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: ADR-0017, pinned community baseline and board qualification. Execution Rationale: next recorded eligible adoption assessment; no implementation selected.
+
+### Blocked Items
+
+Apple Session conversation/history retains its own host/native UI/review and
+publication gates. Full Artist/Album credits PhaseB and ContinueStage2 remain
+separate. Pi capture/frame-rate remains PARTIAL/parked. No Core source finding
+remains; source publication readback PASS. This separate Finalization must close.
+
+### Deferred Items
+
+No native-source takeover, Windows teardown, provider family, monitor, Pi,
+autoplay, TTS/replay, cross-Session learning or installation is selected.
+Historical implementation dossiers and old platform references remain history.
+
+### Repository State
+
+Repository State: `MERGED_RECONCILED` after this separate Finalization merges.
+Finalization Pending: `NO` only after its protected delivery and exact readback.
+Its distinct SHA/internal publication requires fresh concrete owner approval;
+review, merge, artifact and final-main identities are bound externally.
+
+### Workspace State
+
+Workspace State: `CLEANUP_PENDING` until exact final-main synchronization and
+safe disposition of this slice's source/Finalization branches. Retain any
+unproven patch-equivalence, unpublished work or other writer WIP. No following
+assignment may start here. Cleanup/terminal receipt records actual final state.
+
 ## PR #1130 Profile reuse onboarding — dedicated Finalization
 
 ### Repository Status
