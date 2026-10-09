@@ -3795,9 +3795,20 @@ class DJConnectAskDjHistoryView(_DJConnectSessionView):
         hass = request.app["hass"]
         from .api_handlers import async_handle_ask_dj_history_payload
 
+        # Preserve the documented scope and paired identity through this transport.
+        # Namespace/owner authority still comes exclusively from the existing handler.
+        data = {
+            key: request.query[key]
+            for key in (
+                "device_id", "client_type", "client_id", "conversation_scope",
+                "profile_id", "privacy_mode",
+            )
+            if key in request.query
+        }
+        data["since_revision"] = _query_int(request, "since_revision")
         result, status_code = await async_handle_ask_dj_history_payload(
             hass,
-            {"since_revision": _query_int(request, "since_revision")},
+            data,
             headers=request.headers,
             user_id=_request_user_id(request),
         )

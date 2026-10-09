@@ -288,3 +288,26 @@ records source/main artifact qualification and the independent review correction
 This separate documentation Finalization still requires its own concrete
 publication approval. No HA-dev installation, real microphone/provider or
 Apple native acceptance follows from a Core producer receipt.
+
+## Corrective HTTP Profile-history delivery — 2026-10-09
+
+Actual Apple consumer finding6076360592 / #87 6076359873 exposed a gap omitted
+from the original eleven-request HTTP proof: GET query scope/identity was
+lost before the existing handler, returning anonymous legacy history instead
+of Profile history. The bounded corrective assignment
+`DJC-CORE-PROFILE-HISTORY-HTTP-SCOPE-FIX-V1-20261009` forwards only device_id,
+client_type, client_id, conversation_scope, profile_id and privacy_mode, plus
+existing integer since_revision. Owner/user namespace comes exclusively from
+the authenticated existing handler, never query user_id/owner_profile_id.
+Legacy unscoped behavior and the existing Profile-history50-message bound
+remain unchanged; no new endpoint/history authority/client workaround.
+
+Corrected actual-HA HTTP proof checks owner/message IDs, revision sync,
+wrong existing Profile/clienttype/bearer, shared privacy, forged namespaces,
+legacy isolation, reload, clear and an in-flight GET concurrent with actual
+HTTP clear (409, no messages), then timeline withdrawal. Version1 schema
+additively covers the existing Profile-history response. Source/account/STT
+fixture adapters remain explicit; no native/microphone/provider/installation
+claim. Exact corrective producer receipt, review, protected delivery and its
+separate Finalization are bound through the owning issues; predecessor
+qualification/cleanup receipts remain historical and are not reopened.
