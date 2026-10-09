@@ -1,5 +1,101 @@
 # DJConnect Verification Prompt Index
 
+## PR #1134 Profile-history HTTP correction — dedicated Finalization
+
+### Repository Status
+
+PR [#1134](https://github.com/pcvantol/djconnect/pull/1134) protected merged as
+`2337e06f514dfa2d847d9de26189a10bc618b555` from exact reviewed head
+`4ada2b611f5195090bdb1fe52b28749ad539a100`; both trees
+`c61a74fa93fec1dc7e06316c4467f14f5e342818`. Original base
+`d34534afe5408d2780db489fe11835f19bc1d3e9`, assignment
+`DJC-CORE-PROFILE-HISTORY-HTTP-SCOPE-FIX-V1-20261009`, sole Core writer.
+Fresh canonical host verify exit0/MATCH9GB before approved protected merge.
+Direct owner akkoord covers this exact source/internal SHA publication and
+its later local sourcebranch cleanup; no explicit remote-delete, installation,
+deployment or signing action was authorized/executed.
+
+Source1672 unittest scenarios PASS(7 existing skips),172 verification tests,
+Ruff/diff/Bandit medium gate PASS. Independent exact technical/privacy GO:
+62 tests PASS,124 producer hashes verified, no remaining P1/P2/P3.
+Actual HA2026.10 isolated HTTP/router/Store/SQLite proof24 requests PASS;
+14 actual response envelopes validate against additive version1 schema.
+Source/account registry and STT are explicit synthetic adapters; no native,
+microphone/provider/installed qualification follows.
+
+Source/main Validate,coverage,CodeQL,Golden,EPboundary and TDE PASS; automatic
+package37904630098/qualification37904630424 first attempt PASS. No manual
+workflow dispatch/retry or evidence replacement. Canonical main equals remote
+source merge2337e06f; reviewed tree equal. Internal SHA-prerelease contains
+134 safe regularfiles, every byte equals exact mainintegration. Archive
+SHA256 `e65c5bce83194df91d37dbaa3341a4966dcf280e89a800f9d16426395fcd46f4`; qualificationJSONSHA256
+`92e7cb6cfd6df3335522bc376bf7d6fa576614a133b81a56d548dd4685243194`, canonicalintegrity/allchecksPASS.
+Coverageartifact11603882824 digest `fe507e2d71def63bb44945a43217ab52b318c900890b41e2c5693094ac486967`
+matches durablequalification, expiredfalse. No installed qualification.
+
+
+### Management Summary
+
+The actual Apple consumer exposed a missing transport case after #1132/#1133:
+Profile-history GET lost scope/identity and returned anonymous legacy history.
+The original eleven-request proof did not cover this route; its broad product
+claim was too strong. This corrective increment preserves only allowlisted
+scope/paired identity/privacy fields and existing integer revision through the
+existing handler. Namespace/actor remain server-owned; client owner/user spoof
+fields cannot invent authority. Legacy unscoped behavior and Profile50-message
+bound remain intact. Real HTTP before/after proves own message IDs, revision,
+wrong Profile/clienttype/token and shared privacy denial, reload and actual
+concurrent GET/clear409 without stale messages, followed by timeline withdrawal.
+No new endpoint/history store/command engine/provider/Swift or client workaround.
+
+Reviewed corrective pin6076948725/#87 6076948989 was handed to the existing
+Apple writer for exact readback/native acceptance. That lane retains its own
+build/signing/publication/install/consumer gates. The
+[Completion and Finalization](docs/history/prompts/2026-10-09-profile-history-http-scope-fix-finalization.md)
+keeps predecessor receipts historical and closes only this corrective slice.
+HA-dev remains on previously installed3488fd82; no installation claimed.
+
+### Roadmap Position
+
+Generation2 Product Development/Phase1 Current execution is unchanged.
+The corrective delivery completes the previously documented HTTP transport
+behavior, not a new intelligence family or new consumer assignment. Existing
+Windows-retirement planning and PiPARTIAL boundaries remain; neither is executed.
+
+### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+1. **Public distribution: Apple — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: qualified Internal Release consumers and explicit authorization. Execution Rationale: next canonical retained public-distribution item after its release gates.
+2. **Public HACS distribution — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: fresh candidate and release authorization. Execution Rationale: next retained integration distribution item.
+3. **HACS 3.3.0 release visibility (`HACS-3.3.0-001`) — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: release metadata and discovery evidence. Execution Rationale: bounded recorded visibility investigation after HACS qualification.
+4. **Firmware OTA publication and staged rollback — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: manifest-bound consumer qualification. Execution Rationale: next recorded firmware distribution item after its consumer gate.
+5. **ESPHome firmware platform adoption — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: ADR-0017, pinned community baseline and board qualification. Execution Rationale: next recorded eligible adoption assessment; no implementation selected.
+
+### Blocked Items
+
+Apple native Session conversation/history retains independent acceptance and
+specific effect gates. Pi capture/frame-rate remains PARTIAL/parked; broader
+credit/Continue stages remain separately gated. This corrective source has no
+remaining review finding; source readback PASS; separate Finalization must close.
+
+### Deferred Items
+
+No architecture migration, source provider, client writer, monitor, new feature,
+TTS/replay, hardware proof, Windows teardown or installation is selected.
+
+### Repository State
+
+Repository State: `MERGED_RECONCILED` after this separate Finalization merges.
+Finalization Pending: `NO` only after its approved protected delivery/readback.
+This distinct SHA/internal publication requires fresh concrete owner approval;
+final identities are bound externally rather than fabricated in its own history.
+
+### Workspace State
+
+Workspace State: `CLEANUP_PENDING` until exact finalmain/readback and verified
+local source/Finalization branch disposition. Source cleanup is specifically
+approved; local Finalization cleanup requires its exact branch approval.
+Retain all recovery/evidence and other writer WIP; no next slice starts here.
+
 ## PR #1132 Session conversation/history — dedicated Finalization
 
 ### Repository Status
