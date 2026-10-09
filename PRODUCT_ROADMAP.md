@@ -1,5 +1,20 @@
 # DJConnect Product Roadmap
 
+Completed Core producer source: `DJC-CORE-SESSION-CONVERSATION-HISTORY-V1-20261008`,
+PR [#1132](https://github.com/pcvantol/djconnect/pull/1132) protected merged as
+`30eba3749a5d16322b5bd45695e6adc25750805d` from reviewed `19b815612319291cc7e4ab1fca4718667f173970`.
+The [conversation/history contract](docs/product/SESSION_CONVERSATION_HISTORY_CONTRACT.md)
+connects owner Session list/timeline, scoped Ask DJ text/voice, observed-playback
+history queries, literal Unicode search and readonly entry navigation. Existing
+Runtime/Ask DJ/Store/SQLite remain authorities; original source/retention/privacy
+and current-display boundaries fail closed.1,669 software tests(7skips),172
+verification tests, independent exact review and real HA isolated HTTP proof PASS.
+Source publication readback is recorded in the
+[Completion and Finalization](docs/history/prompts/2026-10-09-session-conversation-history-finalization.md).
+Apple native acceptance remains its separate selected assignment; no installation,
+provider/microphone/Pi or next-intelligence claim. Windows public distribution is
+Retired by owner6066406727; controlled teardown is separately Planned, not executed.
+
 **Status:** Canonical Generation 2 product roadmap
 
 ## Product-maturity roadmap

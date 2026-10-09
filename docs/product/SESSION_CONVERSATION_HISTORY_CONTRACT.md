@@ -275,3 +275,16 @@ checks, protected source delivery/readback and mandatory Finalization. Every
 later wire/rights delta is separately pinned; consumers never import mutable WIP.
 Publication and installation each retain their specific authority. Stop after
 this one selected Core assignment.
+
+## Protected source delivery and Finalization
+
+PR [#1132](https://github.com/pcvantol/djconnect/pull/1132) merged as
+`30eba3749a5d16322b5bd45695e6adc25750805d` from exact reviewed
+`19b815612319291cc7e4ab1fca4718667f173970` (equal tree
+d08283c47ea75cf5e049cd22a9d2244f05110e52). The owner separately approved this
+source merge/internal SHA publication and exactly two unused Xcode caches.
+[Completion history](../history/prompts/2026-10-09-session-conversation-history-finalization.md)
+records source/main artifact qualification and the independent review corrections.
+This separate documentation Finalization still requires its own concrete
+publication approval. No HA-dev installation, real microphone/provider or
+Apple native acceptance follows from a Core producer receipt.

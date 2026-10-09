@@ -5,7 +5,7 @@ Home Assistant integration repo `pcvantol/djconnect` is the leading source for
 this file. Do not copy this file into sibling repos and do not reintroduce
 repo-local sync prompt files.
 
-## Selected Session conversation/history Core→Apple candidate — 2026-10-08
+## Session conversation/history Core→Apple protected delivery — 2026-10-09
 
 Core assignment `DJC-CORE-SESSION-CONVERSATION-HISTORY-V1-20261008`; dependent
 Apple assignment `DJC-APPLE-SESSION-CONVERSATION-HISTORY-V1-20261008`; literal
@@ -14,11 +14,11 @@ contract is [SESSION_CONVERSATION_HISTORY_CONTRACT.md](docs/product/SESSION_CONV
 JSON schema and real synthetic producer receipts are under
 `examples/client_contracts/session_conversation_history/`. Exact candidate SHA,
 review state and capability availability are pinned externally in #1101/#87;
-mutable Core WIP is not a consumer contract. Draft source fixtures qualify
+source PR#1132 merged as `30eba3749a5d16322b5bd45695e6adc25750805d` from exact reviewed `19b815612319291cc7e4ab1fca4718667f173970`; both trees `d08283c47ea75cf5e049cd22a9d2244f05110e52`. No mutable Core WIP is a consumer contract. Source fixtures qualify
 software semantics, not HA-dev installation, real microphone or native UI.
 
-Apple may implement against the pinned candidate while Core tests/review/delivery
-continue; no wait for every Finalization document. Wire/rights deltas require a
+Apple may consume this exact merged producer within its existing assignment;
+no wait for every Finalization document and no new writer. Wire/rights deltas require a
 new exact receipt and targeted reconciliation. Core owns auth/query/storage and
 Ask DJ; Apple owns native conversation/archive/search UI and decode/state proof.
 Private conversations, archive queries/snippets/links stay outside shared

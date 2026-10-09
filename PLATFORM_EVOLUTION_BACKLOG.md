@@ -27,7 +27,7 @@ user-facing roadmap progress; the current Product Initiative is recorded in
 | GitHub Actions retention and evidence preservation (`TD-GITHUB-001`) | P1 | Completed | PRs #547–#554; `docs/software_assurance/EVIDENCE_PRESERVATION_IMPLEMENTATION_REPORT.md`; durable record for `f6e346018dadaccc8457dac7b5cadd19a03b80e7` | `GO_TD_GITHUB_001_QUALIFIED`; redacted, immutable release-asset evidence is published and read back fail-closed |
 | Platform Dependency Governance conformance | P1 | Completed | `docs/software_assurance/PLATFORM_DEPENDENCY_GOVERNANCE_POLICY.md`; merged Dependabot rollout and successor finalization evidence | GitHub-native version-update conformance is complete; TDE 1.1.1 supplies separate canonical non-blocking observe evidence and does not replace native security controls |
 | Public distribution: Apple | P1 | Planned | qualified Internal Release consumers and explicit authorization | release-operational work |
-| Public distribution: Windows | P1 | Planned | qualified Internal Release consumers and explicit authorization | release-operational work |
+| Public distribution: Windows | P1 | Retired | [owner product decision6066406727](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6066406727) | Product discontinued; not delivered and not an open publication/parity gate. Technical retirement remains separately Planned. |
 | Public HACS distribution | P1 | Planned | fresh candidate and release authorization | release-operational work |
 | Client Connectivity & Resilience qualification | P1 | Assessed | `docs/technical/CLIENT_CONNECTIVITY_RESILIENCE_ARCHITECTURE.md`, Public Release Readiness Assessment | `GO_CLIENT_CONNECTIVITY_PARTIALLY_QUALIFIED`; bounded external HTTP and resilience evidence remains required before Public Release Readiness, with no Runtime, transport or client implementation authorization |
 | HACS 3.3.0 release visibility (`HACS-3.3.0-001`) | P1 | Planned | verify release/tag metadata, HACS cache/index discovery and update presentation | bounded distribution investigation |
@@ -43,6 +43,7 @@ user-facing roadmap progress; the current Product Initiative is recorded in
 | Release Health and observability | P2 | Planned | operational release evidence and [`PLATFORM_RELEASE_OBSERVATORY_DESIGN.md`](docs/platform_evolution/PLATFORM_RELEASE_OBSERVATORY_DESIGN.md) | three bounded delivery increments; no implementation authorization |
 | Platform diagnostics | P3 | Planned | privacy and redaction review | scoped Platform Evolution proposal |
 | Future governance improvements | P3 | Planned | governance evidence | governance review |
+| Windows product removal and dedicated infrastructure retirement (`DJC-WINDOWS-RETIREMENT-V1-20261008`) | P1 | Planned | [owner decision6066406727](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6066406727); fresh owning-lane admission and exact resource/effect scope | Separate future retirement assignment; no code, runner, workflow, secret, VM or repository teardown executed by this history Finalization. Preserve native Apple/shared distribution and historical evidence. |
 
 ## Engineering Platform operational updates
 
