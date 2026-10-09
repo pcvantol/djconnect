@@ -121,3 +121,13 @@ class SharedVibeCastBuildTest(unittest.TestCase):
             asset.unlink()
             asset.symlink_to(saved)
             self.assertIn("missing_or_changed_asset:cast/index.html", build["verify"](output))
+
+    def test_generated_script_parser_accepts_html_tag_case_and_external_sdk(self):
+        import runpy
+
+        build = runpy.run_path(str(ROOT / "scripts/build_vibecast.py"))
+        parser = build["InlineScripts"]()
+        parser.feed(
+            '<SCRIPT SRC="https://sdk.test/x.js"></SCRIPT><SCRIPT>const text="<not-a-tag>";</SCRIPT>'
+        )
+        self.assertEqual(parser.scripts, ['const text="<not-a-tag>";'])

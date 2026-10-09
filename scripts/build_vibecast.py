@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+from html.parser import HTMLParser
 import json
 import re
 from pathlib import Path
@@ -11,6 +12,28 @@ import subprocess
 
 SOURCES = ("template.html", "style.css", "renderer.js", "local-host.js", "cast-host.js")
 VERSION = "1.0.0"
+
+
+class InlineScripts(HTMLParser):
+    """Extract generated inline scripts; authenticity comes from the pinned digest."""
+
+    def __init__(self):
+        super().__init__(convert_charrefs=False)
+        self.scripts = []
+        self.current = None
+
+    def handle_starttag(self, tag, attrs):
+        if tag == "script" and not any(name == "src" for name, _ in attrs):
+            self.current = []
+
+    def handle_data(self, data):
+        if self.current is not None:
+            self.current.append(data)
+
+    def handle_endtag(self, tag):
+        if tag == "script" and self.current is not None:
+            self.scripts.append("".join(self.current))
+            self.current = None
 
 
 def digest(data: bytes) -> str:
@@ -127,7 +150,9 @@ def verify(
             if path.is_symlink() or not path.is_file() or digest(path.read_bytes()) != expected:
                 errors.append("missing_or_changed_asset:" + name)
             else:
-                script = re.findall(r"<script>([\s\S]*?)</script>", path.read_text())[0]
+                parser = InlineScripts()
+                parser.feed(path.read_text())
+                script = parser.scripts[0]
                 if name.startswith("cast/"):
                     script = script.removeprefix('window.DJC_VIBECAST_MODE = "cast";\n')
                 if digest(script.encode()) != manifest["renderer_source_sha256"]:
