@@ -36,6 +36,8 @@ from custom_components.djconnect.session_facts import recording_facts, catalog_f
 
 async def main():
     lab = Path(os.environ["DJC_LAB_ROOT"])
+    ha_port = int(os.environ.get("DJC_HA_PORT", "18193"))
+    cast_port = int(os.environ.get("DJC_CAST_PORT", "18194"))
     config = lab / "config"
     config.mkdir(exist_ok=True)
     hass = HomeAssistant(str(config))
@@ -46,9 +48,9 @@ async def main():
     await entity_registry.async_load(hass, load_empty=True)
     await area_registry.async_load(hass, load_empty=True)
     hass.auth = await auth.auth_manager_from_config(hass, [{"type": "homeassistant"}], [])
-    hass.http = HomeAssistantHTTP(hass, None, None, None, ["127.0.0.1"], 18193, [], "modern")
+    hass.http = HomeAssistantHTTP(hass, None, None, None, ["127.0.0.1"], ha_port, [], "modern")
     await hass.http.async_initialize(
-        cors_origins=["https://localhost:18194"],
+        cors_origins=[f"https://localhost:{cast_port}"],
         use_x_forwarded_for=False,
         login_threshold=-1,
         is_ban_enabled=False,
@@ -101,7 +103,7 @@ async def main():
                 "broadcast_token": session.broadcast.broadcast_token,
                 "kind": "vibecast_handoff",
                 "version": 1,
-                "ha_url": "https://localhost:18193",
+                "ha_url": f"https://localhost:{ha_port}",
                 "locale": lang,
             },
             headers={"Cache-Control": "no-store"},
@@ -264,7 +266,7 @@ async def main():
     hass.http.app.router.add_get("/__lab/before", before)
     runner = web.AppRunner(hass.http.app)
     await runner.setup()
-    await web.TCPSite(runner, "127.0.0.1", 18193, ssl_context=tls).start()
+    await web.TCPSite(runner, "127.0.0.1", ha_port, ssl_context=tls).start()
     static = web.Application()
 
     async def index(request):
@@ -277,14 +279,14 @@ async def main():
     static.router.add_get("/", index)
     sr = web.AppRunner(static)
     await sr.setup()
-    await web.TCPSite(sr, "127.0.0.1", 18194, ssl_context=tls).start()
+    await web.TCPSite(sr, "127.0.0.1", cast_port, ssl_context=tls).start()
     (lab / "ready").write_text(
         json.dumps(
             {
                 "ha_version": "2026.10.0",
                 "source_hashes": source_hashes,
-                "local": "https://localhost:18193/djconnect/vibecast",
-                "static": "https://localhost:18194/",
+                "local": f"https://localhost:{ha_port}/djconnect/vibecast",
+                "static": f"https://localhost:{cast_port}/",
                 "source": "synthetic MusicBrainz CC0 fixture, no provider call",
             }
         )

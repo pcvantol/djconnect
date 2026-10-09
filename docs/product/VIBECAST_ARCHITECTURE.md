@@ -1,5 +1,13 @@
 # VibeCast Architecture and V1 Product Definition
 
+## Cast status adapter follow-up
+
+The opt-in [Cast status contract](VIBECAST_CAST_STATUS_CONTRACT.md) distinguishes
+CAF readiness, accepted HA snapshot, shared DOM presentation, recovery and end.
+This is directed host feedback with no content/credentials or new authority.
+The local Pi/browser route retains its claim and server-issued end-grant flow.
+Physical visibility remains independently qualified by receiver/Apple owners.
+
 ## Selected shared-source/static distribution implementation
 
 The owner-selected [shared renderer build contract](VIBECAST_SHARED_RENDERER_BUILD_CONTRACT.md)

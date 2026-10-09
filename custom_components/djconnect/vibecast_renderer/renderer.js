@@ -17,6 +17,13 @@
   };
   let language = (navigator.language || "en").slice(0,2), text = copy[language] || copy.en;
   let projection = {}, socket, reconnectTimer, expiryTimer, scrollTimer, exitTimer, attempts = 0, ended = false;
+  let statusGeneration=null, snapshotAccepted=false;
+  function reportStatus(state,reason,presentation) {
+    if (staticHost && statusGeneration!==null) window.dispatchEvent(new CustomEvent("djconnect-renderer-status",{detail:{generation:statusGeneration,session_id:sessionId,state,reason,presentation}}));
+  }
+  function reportPresentation() {
+    if (snapshotAccepted && !ended) reportStatus("presenting",null,current ? "moment" : "silence");
+  }
   let placementCount=0, lastPlacedKey="";
   let playbackItem = "", current = null, previous = null, lastShownAt = -Infinity, lastArtwork = "", lastSequence = 0, snapshotSequence = 0, fieldSequences = {};
   const firstSeen = new Map();
@@ -91,7 +98,7 @@
     const now = Date.now();
     const deadlines = [current,previous].filter(card => card && card.expiry > now).map(card => card.expiry);
     if (deadlines.length) expiryTimer = window.setTimeout(
-      () => renderCards(false), Math.max(0,Math.min(...deadlines)-Date.now()+25)
+      () => { renderCards(false); reportPresentation(); }, Math.max(0,Math.min(...deadlines)-Date.now()+25)
     );
   }
   function showPrevious(card, animate=false) {
@@ -229,6 +236,7 @@
     if (active) { e("progress").max=p.duration_ms; e("progress").value=p.position_ms; e("time").textContent=`${format(p.position_ms)} / ${format(p.duration_ms)}`; }
     else e("time").textContent="";
     renderCards(animate);
+    reportPresentation();
   }
   function apply(snapshot) {
     const watermark = Number(read(snapshot,["broadcast","snapshot_watermark"]));
@@ -246,7 +254,7 @@
     if (ordered && sequence <= snapshotSequence) return;
     if (ordered) lastSequence = Math.max(lastSequence,sequence);
     if (frame.event_type === "runtime_ended" || frame.event_type === "broadcast_stopped") {
-      ended=true; broadcastToken=null; endGrant=null; apply({}); e("state").textContent=text.idle; if (socket) socket.close(); return;
+      snapshotAccepted=false; reportStatus("ended","runtime_end"); ended=true; broadcastToken=null; endGrant=null; apply({}); e("state").textContent=text.idle; if (socket) socket.close(); return;
     }
     for (const key of ["session","playback","planner","session_flow","audience","broadcast"])
       if (p[key] && (!ordered || sequence > (fieldSequences[key] || snapshotSequence))) {
@@ -285,23 +293,28 @@
   const url = () => `${haOrigin ? haOrigin.replace(/^https:/,"wss:").replace(/^http:/,"ws:") : (window.location.protocol === "https:" ? "wss:" : "ws:")+"//"+window.location.host}/api/djconnect/v1/session/broadcast/ws/${encodeURIComponent(sessionId)}?broadcast_token=${encodeURIComponent(broadcastToken)}`;
   function connect() {
     if (ended) return;
+    snapshotAccepted=false; reportStatus("connecting");
     e("state").textContent=text.connecting;
     const active = new WebSocket(url()); socket=active;
-    active.onopen=() => { if (active !== socket) return; attempts=0; e("state").textContent=text.live; };
+    active.onopen=() => { if (active !== socket || ended) return; attempts=0; e("state").textContent=text.live; };
     active.onmessage=({data}) => {
-      if (active !== socket) return;
+      if (active !== socket || ended) return;
       try {
         const f=JSON.parse(data);
         if (f.type === "snapshot" && (!f.session_id || f.session_id === sessionId)) {
-          if (staticHost && (!f.capabilities || f.capabilities.view_broadcast !== true || f.capabilities.owner_controls !== false || !f.snapshot || !f.snapshot.session || f.snapshot.session.session_id !== sessionId || (f.snapshot.schema_version !== undefined && f.snapshot.schema_version !== 1))) { stopHost(); e("state").textContent=compatibility[root.lang] || compatibility.en; return; }
+          if (staticHost && (!f.capabilities || f.capabilities.view_broadcast !== true || f.capabilities.owner_controls !== false || !f.snapshot || !f.snapshot.session || f.snapshot.session.session_id !== sessionId || (f.snapshot.schema_version !== undefined && f.snapshot.schema_version !== 1))) { reportStatus("error","incompatible_snapshot"); stopHost(); e("state").textContent=compatibility[root.lang] || compatibility.en; return; }
+          const watermark=Number(read(f.snapshot,["broadcast","snapshot_watermark"]));
+          if (Number.isFinite(watermark) && watermark<lastSequence) return;
+          snapshotAccepted=true; reportStatus("snapshot_accepted");
           apply(f.snapshot);
         }
         else if (f.type === "event") event(f.data);
-        else if (f.type === "error") { ended=true; broadcastToken=null; endGrant=null; apply({}); e("state").textContent=text.unavailable; if (socket) socket.close(); }
+        else if (f.type === "error") { snapshotAccepted=false; reportStatus("error","access_rejected"); ended=true; broadcastToken=null; endGrant=null; apply({}); e("state").textContent=text.unavailable; if (socket) socket.close(); }
       } catch (_) { /* Ignore malformed receiver frames. */ }
     };
     active.onclose=() => {
       if (active !== socket || ended || reconnectTimer) return;
+      snapshotAccepted=false; reportStatus("recovering");
       reconnectTimer=window.setTimeout(() => { reconnectTimer=undefined; attempts++; connect(); },Math.min(1000*2**attempts,5000));
     };
     active.onerror=() => active.close();
@@ -329,11 +342,13 @@
     if (!(detail && detail.session_id) || !(detail && detail.broadcast_token)) return;
     stopHost();
     haOrigin=detail.ha_url || ""; sessionId=detail.session_id; broadcastToken=detail.broadcast_token; endGrant=detail.end_grant || null;
-    ended=false; projection={}; playbackItem=""; lastShownAt=-Infinity;
+    statusGeneration=detail.status_generation === undefined ? null : detail.status_generation;
+    snapshotAccepted=false; ended=false; projection={}; playbackItem=""; lastShownAt=-Infinity;
     lastSequence=0; snapshotSequence=0; fieldSequences={}; clearCards(); render(false);
     e("handoff").hidden=true; connect();
   });
   function stopHost() {
+    reportStatus("stopped","host_stop"); snapshotAccepted=false; statusGeneration=null;
     ended=true; broadcastToken=null; endGrant=null;
     if (reconnectTimer) window.clearTimeout(reconnectTimer); reconnectTimer=undefined;
     const old=socket; socket=null; if (old) old.close();
