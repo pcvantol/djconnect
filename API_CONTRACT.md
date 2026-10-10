@@ -1926,3 +1926,14 @@ Central API event payload shape for `ask_dj_confirm`:
 If Ask DJ proposes music from a contextual follow-up, playback must still start only
 after confirmation via `playback_actions[]` / `confirmation_actions[]` and
 `command:"ask_dj_followup_response"`.
+
+## Ordinary paired Apple Session live transport v1
+
+`GET /api/djconnect/v1/capabilities` advertises
+`session_broadcast.paired_owner_websocket` v1 at
+`/api/djconnect/v1/session/broadcast/paired`. Existing paired Apple identity
+and device token authenticate the first JSON frame; only the existing owner
+Broadcast subscribe/recover commands are accepted. Authority is server-owned,
+with a 300-second connection lease and Profile/pairing revocation. No HA user
+credential is issued. See [the exact contract](docs/product/PAIRED_OWNER_LIVE_CONTRACT_V1.md)
+and [qualification evidence](docs/verification/paired-owner-live-auth-v1.md).

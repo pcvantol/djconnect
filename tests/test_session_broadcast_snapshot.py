@@ -129,6 +129,62 @@ class OwnerBroadcastSnapshotTest(unittest.TestCase):
             "client_type": "ios",
         }
 
+    def test_cancelled_snapshot_releases_pending_subscription(self) -> None:
+        original = api_handlers._async_owner_broadcast_snapshot_query
+
+        async def scenario():
+            entered = asyncio.Event()
+
+            async def stalled(*args, **kwargs):
+                entered.set()
+                await asyncio.Future()
+
+            api_handlers._async_owner_broadcast_snapshot_query = stalled
+            task = asyncio.create_task(api_handlers.async_handle_session_broadcast_subscribe_payload(
+                object(), self._payload(), callback=lambda event: None
+            ))
+            await entered.wait()
+            self.assertEqual(self.pending_register_calls, 1)
+            task.cancel()
+            with self.assertRaises(asyncio.CancelledError):
+                await task
+            self.assertEqual(self.unsubscribe_calls, 1)
+            self.assertIsNone(self.registered_callback)
+
+        try:
+            asyncio.run(scenario())
+        finally:
+            api_handlers._async_owner_broadcast_snapshot_query = original
+
+    def test_cancelled_cursor_setup_releases_pending_subscription(self) -> None:
+        original = self.manager.async_get_active
+
+        async def scenario():
+            entered = asyncio.Event()
+
+            async def stalled(profile_id):
+                if self.snapshot_calls:
+                    entered.set()
+                    await asyncio.Future()
+                return await original(profile_id)
+
+            self.manager.async_get_active = stalled
+            task = asyncio.create_task(api_handlers.async_handle_session_broadcast_subscribe_payload(
+                object(), self._payload(), callback=lambda event: None
+            ))
+            await entered.wait()
+            self.assertEqual(self.pending_register_calls, 1)
+            task.cancel()
+            with self.assertRaises(asyncio.CancelledError):
+                await task
+            self.assertEqual(self.unsubscribe_calls, 1)
+            self.assertIsNone(self.registered_callback)
+
+        try:
+            asyncio.run(scenario())
+        finally:
+            self.manager.async_get_active = original
+
     def test_owner_http_snapshot_reuses_broadcast_projection_without_subscription(self) -> None:
         result, status = asyncio.run(
             api_handlers.async_handle_session_broadcast_snapshot_payload(
