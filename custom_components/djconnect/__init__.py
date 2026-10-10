@@ -1792,7 +1792,10 @@ def _push_debug_payload(
 def register_http_views(hass: HomeAssistant) -> None:
     hass.data.setdefault(DOMAIN, {})
     if not hass.data[DOMAIN].get("http_registered"):
+        from .paired_live import DJConnectPairedLiveView
+
         for view in [
+            DJConnectPairedLiveView(hass),
             DJConnectVoiceView(hass),
             DJConnectAskDjView(hass),
             DJConnectAskDjMessageView(hass),

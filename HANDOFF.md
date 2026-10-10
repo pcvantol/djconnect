@@ -559,3 +559,15 @@ python3 -m json.tool custom_components/djconnect/translations/nl.json >/tmp/djco
 python3 -m py_compile custom_components/djconnect/*.py tests/*.py
 python3 -m unittest discover -s tests
 ```
+
+## Core paired owner live auth candidate — 2026-10-10
+
+`DJC-CORE-PAIRED-LIVE-AUTH-V1-20261010` supplies the minimal ordinary paired
+Apple live adapter and versioned contract. Real isolated pairing/auth/Store/
+Session/Broadcast proof, 300-second expiry, negative cases and independent
+review are qualified in `docs/verification/paired-owner-live-auth-v1.md`.
+Apple #87 has the early immutable contract and exact sanitized receipts.
+Source delivery/Finalization and installed/native acceptance remain distinct.
+No HA-dev install/restart, Swift change or receiver deployment is included.
+No dependency upgrade is required; frozen runtime dependencies and existing
+five-language UI resources are retained for this bounded auth correction.

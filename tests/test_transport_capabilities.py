@@ -41,3 +41,14 @@ class TransportCapabilitiesTest(unittest.TestCase):
         self.assertTrue(capability["cursor"])
         self.assertFalse(capability["flow_delta"])
         self.assertFalse(capability["sequence"])
+
+    def test_paired_owner_route_is_narrow_and_versioned(self) -> None:
+        contract = transport_capabilities.session_broadcast_transport_capabilities()["paired_owner_websocket"]
+        self.assertEqual(contract["path"], "/api/djconnect/v1/session/broadcast/paired")
+        self.assertEqual(contract["version"], 1)
+        self.assertEqual(contract["lease_seconds"], 300)
+        self.assertEqual(contract["audience"], "active_owner_broadcast")
+        self.assertFalse(contract["ha_credentials_issued"])
+        self.assertEqual(contract["commands"], [
+            "djconnect/session/broadcast/subscribe", "djconnect/session/broadcast/recover"
+        ])

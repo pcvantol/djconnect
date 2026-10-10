@@ -214,12 +214,18 @@ and `<3.3.0`.
 ```text
 Sync an authenticated owner renderer with the DJ Session Broadcast Transport.
 
-Use Home Assistant's authenticated /api/websocket as the one canonical live
-transport. After normal Home Assistant websocket authentication, send
-djconnect/session/broadcast/subscribe with the existing DJConnect identity and
-device token fields plus the active session_id. The command result contains the
-complete Broadcast State snapshot. Apply that snapshot before applying later
-djconnect/session/broadcast events.
+Use the advertised paired_owner_websocket v1 route for ordinary Apple pairing
+(see docs/product/PAIRED_OWNER_LIVE_CONTRACT_V1.md). Clients with an existing
+HA credential may still use the native /api/websocket adapter.
+
+For the paired adapter, send identity and device_token only in its first auth
+frame. After auth_ok, subscribe with only id, type and active session_id;
+recovery adds only recovery_cursor. Do not repeat identity/token/Profile fields
+in these commands. For the native HA adapter, retain the existing authenticated
+subscribe/recover commands with DJConnect identity and device token fields.
+
+Both adapters return the complete Broadcast State snapshot in the command
+result. Apply that snapshot before later djconnect/session/broadcast events.
 
 The client never sends, chooses or claims a Profile for this subscription. The
 server authorizes through the existing authenticated device binding and permits
@@ -3087,3 +3093,12 @@ separate. No disk cache, lifetime renewal on reconnect or inference from
 source names/action payloads. The field/source and lifecycle contract is in
 `docs/product/NATIVE_MOMENT_DELIVERY_CONTRACT.md`; exact producer receipt and
 Apple consumer readback belong in #1101/#87. Apple #95 remains its sole writer.
+
+### Ordinary paired Apple live transport
+
+The native HA `/api/websocket` requires an HA credential. Ordinary DJConnect
+Apple pairing instead uses the advertised `paired_owner_websocket` v1 adapter
+with its existing device token and the same owner Broadcast subscribe/recover
+handlers. See `docs/product/PAIRED_OWNER_LIVE_CONTRACT_V1.md` for the exact
+route, first-frame auth, lease, errors and Apple-owned consumer delta. No
+`/websocket/session` HA token issuer or shared VibeCast token is a substitute.

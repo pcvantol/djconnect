@@ -511,52 +511,59 @@ async def async_handle_session_broadcast_subscribe_payload(
     if subscription_id is None:
         return _error_payload("active_session_not_found"), 404, None, None
 
-    result, status, snapshot_manager, snapshot_profile_id = await _async_owner_broadcast_snapshot_query(
-        hass, data, headers=headers, user_id=user_id, source="session_broadcast_subscribe"
-    )
-    if snapshot_manager is None or snapshot_profile_id is None:
+    try:
+        result, status, snapshot_manager, snapshot_profile_id = await _async_owner_broadcast_snapshot_query(
+            hass, data, headers=headers, user_id=user_id, source="session_broadcast_subscribe"
+        )
+        if snapshot_manager is None or snapshot_profile_id is None:
+            await manager.async_unsubscribe(
+                owner_profile_id=profile_id,
+                session_id=session_id,
+                subscription_id=subscription_id,
+            )
+            return result, status, None, None
+
+        async def cleanup() -> None:
+            await manager.async_unsubscribe(
+                owner_profile_id=profile_id,
+                session_id=session_id,
+                subscription_id=subscription_id,
+            )
+
+        async def activate() -> None:
+            activated = await manager.async_activate_subscription(
+                owner_profile_id=profile_id,
+                session_id=session_id,
+                subscription_id=subscription_id,
+            )
+            if activated is False:
+                # End/unload during transport setup cannot leave its earlier
+                # snapshot authoritative. Terminal denial never grants content.
+                from .native_moment_delivery import withdrawn_native_delivery
+
+                callback({"event_type": "broadcast_stopped", "session_id": session_id,
+                          "payload": {"broadcast": {"subscription_state": "revoked"},
+                                      "native_delivery": withdrawn_native_delivery(session_id)}})
+
+        active = await manager.async_get_active(profile_id)
+        cursor_provider = (
+            getattr(active.broadcast, "owner_recovery_cursor", None)
+            if active is not None and active.session_id == session_id
+            else None
+        )
+        recovery_cursor = cursor_provider() if callable(cursor_provider) else None
+
+        return {
+            "subscription_id": subscription_id,
+            "recovery_cursor": recovery_cursor,
+            **result,
+        }, 200, activate, cleanup
+    except BaseException:
+        # Retain cleanup ownership until all pending setup returns to transport.
         await manager.async_unsubscribe(
-            owner_profile_id=profile_id,
-            session_id=session_id,
-            subscription_id=subscription_id,
+            owner_profile_id=profile_id, session_id=session_id, subscription_id=subscription_id
         )
-        return result, status, None, None
-
-    async def cleanup() -> None:
-        await manager.async_unsubscribe(
-            owner_profile_id=profile_id,
-            session_id=session_id,
-            subscription_id=subscription_id,
-        )
-
-    async def activate() -> None:
-        activated = await manager.async_activate_subscription(
-            owner_profile_id=profile_id,
-            session_id=session_id,
-            subscription_id=subscription_id,
-        )
-        if activated is False:
-            # End/unload during transport setup cannot leave its earlier
-            # snapshot authoritative. Terminal denial never grants content.
-            from .native_moment_delivery import withdrawn_native_delivery
-
-            callback({"event_type": "broadcast_stopped", "session_id": session_id,
-                      "payload": {"broadcast": {"subscription_state": "revoked"},
-                                  "native_delivery": withdrawn_native_delivery(session_id)}})
-
-    active = await manager.async_get_active(profile_id)
-    cursor_provider = (
-        getattr(active.broadcast, "owner_recovery_cursor", None)
-        if active is not None and active.session_id == session_id
-        else None
-    )
-    recovery_cursor = cursor_provider() if callable(cursor_provider) else None
-
-    return {
-        "subscription_id": subscription_id,
-        "recovery_cursor": recovery_cursor,
-        **result,
-    }, 200, activate, cleanup
+        raise
 
 
 async def async_handle_session_broadcast_recovery_payload(

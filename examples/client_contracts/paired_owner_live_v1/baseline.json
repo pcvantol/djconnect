@@ -1,0 +1,19 @@
+{
+  "result": "BEFORE_CONFIRMED",
+  "receipts": [
+    {
+      "stage": "ordinary_pairing",
+      "status": 200,
+      "device_token_persisted": true,
+      "ha_credentials_issued": 0
+    },
+    {
+      "stage": "apple_expected_issuer",
+      "status": 404
+    },
+    {
+      "stage": "device_token_native_ha_auth",
+      "type": "auth_invalid"
+    }
+  ]
+}
