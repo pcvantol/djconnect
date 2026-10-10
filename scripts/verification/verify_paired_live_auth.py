@@ -29,10 +29,10 @@ from verify_session_conversation_history_http import entry  # noqa: E402
 from custom_components.djconnect import DJConnectRuntime, register_http_views  # noqa: E402
 from custom_components.djconnect.domain.backend import BackendProvider  # noqa: E402
 from custom_components.djconnect.domain.storage import ProfilePlatformStorage  # noqa: E402
-from custom_components.djconnect.persistence import (
+from custom_components.djconnect.persistence import (  # noqa: E402
     async_initialize_persistence,
     async_shutdown_persistence,
-)  # noqa: E402
+)
 from custom_components.djconnect.persistence.sessions import PersistentSessionRepository  # noqa: E402
 from custom_components.djconnect.persistence.history import HistoricalProjectionRepository  # noqa: E402
 from custom_components.djconnect.session_runtime import SessionRuntimeManager  # noqa: E402
