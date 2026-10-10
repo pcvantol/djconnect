@@ -1,5 +1,17 @@
 # DJConnect Product Roadmap
 
+Current execution: `DJC-CORE-EXPRESSIVE-CONTEXT-VARIATION-V1-20261010`, selected
+by the [owner register](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6096302759)
+after the previous Core workspace was released. The
+[pinned source/type and form policy](docs/product/EXPRESSIVE_CONTEXT_VARIATION_V1.md)
+extends local realization of existing qualified Artist, Album and Genre context
+with two structural forms per persona in five languages. Selection, dosing,
+Silence, source qualification and existing consumer contracts remain unchanged.
+Source delivery and its dedicated Finalization remain open until exact review,
+checks, publication authority and main/package readback are qualified. This is
+one selected slice; no new knowledge family, provider, model/TTS call, transport,
+renderer build, installation or next assignment is selected.
+
 Completed Core Cast status producer: `DJC-CORE-VIBECAST-CAST-STATUS-V1-20261009`,
 PR [#1138](https://github.com/pcvantol/djconnect/pull/1138) protected merged as
 `c41b6079ed54eb40b0027a6666b0f784bb48f703` from exact reviewed d7396554.
