@@ -1,5 +1,13 @@
 # DJConnect Home Assistant Integration Handoff
 
+## Paired owner live source delivered; Finalization pending
+
+PR [#1140](https://github.com/pcvantol/djconnect/pull/1140) merged
+`889fc93b78f723a12a75fa1b331a748a109acd5e`; exact source/package qualification
+PASS. See `docs/history/prompts/2026-10-10-paired-owner-live-auth-finalization.md`
+for hashes, genuine pairing proof, owner grants and separate installed/native
+acceptance. Finalization publication/cleanup are still concrete gates.
+
 ## Current State
 
 - Repository: `pcvantol/djconnect`.
