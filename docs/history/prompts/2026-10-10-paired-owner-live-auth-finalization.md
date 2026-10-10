@@ -54,7 +54,7 @@ exact protocol version, strict known-device binding and sync instructions.
 Receipt SHA256 `ef5ca18183e3742b4e15b4375b2525ce3028a447c6c75238fc36204b8c342137`.
 
 [Immutable HA package](https://github.com/pcvantol/djconnect/releases/download/internal-ha-889fc93b78f723a12a75fa1b331a748a109acd5e/djconnect-home-assistant-integration-889fc93b78f723a12a75fa1b331a748a109acd5e.tar.gz) and
-[producer contract](docs/product/PAIRED_OWNER_LIVE_CONTRACT_V1.md) supply Apple
+[producer contract](../../product/PAIRED_OWNER_LIVE_CONTRACT_V1.md) supply Apple
 #87. Early archive648496f3 and comments6095514984/6095547325 supplied genuine
 proof before source delivery; Git pin6095907962 and merge6096032598 followed.
 Apple owns its explicit paired route/auth consumer delta and native acceptance.
@@ -123,4 +123,3 @@ state and retained recovery. Own lab is disposable only after duplicate receipt/
 recovery verification; Apple18191/18194/18195 and HA-dev stay intact. Final
 WORKSPACE_READY requires external readback, not an optimistic source assertion.
 No next increment starts; stop after this one Core delivery.
-
