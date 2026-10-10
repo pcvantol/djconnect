@@ -1,7 +1,8 @@
 """Isolated real HA/Runtime/Broadcast lab, with synthetic qualified source input.
 
-No HA-dev config, provider calls or production credentials. Start only in the
-bounded disposable renderer container; TLS/browser trust is local to its profile.
+No HA-dev config, provider calls or production credentials. Start only in a
+bounded disposable container or isolated local lab on reserved loopback ports;
+TLS/browser trust is local to its test profile.
 """
 
 from __future__ import annotations
@@ -76,6 +77,7 @@ async def main():
         if p.is_file() and "__pycache__" not in p.parts
     }
     state = {"session": None, "receipts": []}
+    context_variation = os.environ.get("DJC_CONTEXT_VARIATION") == "1"
 
     async def setup(request):
         old = state["session"]
@@ -86,17 +88,18 @@ async def main():
             owner_profile_id="synthetic-owner",
             locale=lang,
             music_backend="spotify_direct",
-            dj_persona=DJPersona.RADIO_DJ,
-            session_start_strategy=SessionStartStrategy.DISCOVER,
+            dj_persona=DJPersona(request.query.get("persona", "radio_dj")),
+            elapsed_time_source=(lambda: now[0]) if context_variation else None,
+            session_start_strategy=SessionStartStrategy.MANUAL if context_variation else SessionStartStrategy.DISCOVER,
         )
-        session = replace(
+        session = session if context_variation else replace(
             session,
             session_direction=replace(
                 session.session_direction, direction=SessionDirectionType.EXPLORING
             ),
         )
         manager._active_by_profile[session.owner_profile_id] = session
-        state.update(session=session, receipts=[])
+        state.update(session=session, receipts=[], family=request.query.get("family", "edition"))
         return web.json_response(
             {
                 "session_id": session.session_id,
@@ -114,7 +117,7 @@ async def main():
         session = await manager.async_get_active("synthetic-owner")
         if not session:
             return web.json_response({"error": "no_session"}, status=409)
-        now[0] += 40
+        now[0] += 300 if context_variation else 40
         catalog = {
             "uri": "spotify:track:" + chr(65 + number) * 22,
             "title": f"Recording {number}",
@@ -125,6 +128,9 @@ async def main():
             "release_date": "2001-03-04",
             "release_date_precision": "day",
         }
+        if context_variation:
+            from tests.context_variation_fixtures import source
+            catalog, context_source = source(state["family"], number)
         await manager.async_update_playback_projection(
             owner_profile_id=session.owner_profile_id,
             session_id=session.session_id,
@@ -152,6 +158,8 @@ async def main():
         }
 
         async def insight():
+            if context_variation:
+                return context_source if isinstance(context_source, dict) else {"_qualified_facts": (context_source,)}
             return {
                 "_qualified_facts": tuple(recording_facts(catalog, recording))
                 + (tuple(catalog_facts(catalog)) if number else ())
@@ -163,13 +171,14 @@ async def main():
             media_identity=catalog["uri"],
             insight_provider=insight,
             require_current_playback=True,
-            allow_initial_facts=True,
+            allow_initial_facts=not context_variation or state["family"] != "genre",
         )
         state["receipts"].append(moment.as_dict() if moment else None)
         return web.json_response(
             {
                 "moment": moment.as_dict() if moment else None,
                 "snapshot": session.broadcast.as_dict(include_owner_only=False),
+                "owner_snapshot": session.broadcast.as_dict(include_owner_only=True),
             },
             headers={"Cache-Control": "no-store"},
         )

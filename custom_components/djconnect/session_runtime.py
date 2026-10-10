@@ -19,6 +19,7 @@ from uuid import uuid4
 from .const import API_IMAGE_PROXY_BASE, DOMAIN
 from .session_facts import QualifiedSessionFact, SharedProducerFact, PublishedRecordingContext
 from .moment_expression import realize as realize_fact_expression
+from .context_expression import FACT_FAMILIES, form_count, genre_copy
 from .native_moment_delivery import (
     MomentDeliveryBoundary, admission as native_admission, withdrawn_native_delivery,
 )
@@ -1987,13 +1988,12 @@ class DJMomentEngine:
         original = fact.copy_for(locale)
         if original is None or not fact.eligible(fact.media_identity,time.monotonic()):
             return None
-        last = next((key for key in reversed(self._expression_forms) if key.startswith(persona.value+":"+fact.key+":")), "")
-        form = (int(last.rsplit(":",1)[-1])+1)%4 if last else 0
+        form = self.next_expression_form(persona, fact.key)
         try:
             expressed = realize_fact_expression(fact,locale=locale,persona=persona.value,form=form,mood=selected_mood)
         except (TypeError,ValueError,KeyError,IndexError,AttributeError):
             expressed = None
-        variants = ((expressed, f"{persona.value}:{fact.key}:{form}" if fact.key in {"recording_credits", "shared_producer"} else ""), (original, ""))
+        variants = ((expressed, f"{persona.value}:{fact.key}:{form}" if expressed and fact.key in FACT_FAMILIES | {"recording_credits", "shared_producer"} else ""), (original, ""))
         for localized, expression_form in variants:
             if localized is None:
                 continue
@@ -2008,6 +2008,12 @@ class DJMomentEngine:
             if read_seconds+5 <= remaining_seconds:
                 return QualifiedFactRealization(summary,content,self.fact_key(fact),expression_form)
         return None
+
+    def next_expression_form(self, persona: DJPersona, family: str) -> int:
+        """Preview next syntax using only six actually published style keys."""
+        last = next((key for key in reversed(self._expression_forms)
+                     if key.startswith(f"{persona.value}:{family}:")), "")
+        return (int(last.rsplit(":", 1)[-1]) + 1) % form_count(family) if last else 0
 
     def commit_expression(self, moment: DJMoment, flow: DJSessionFlow) -> None:
         """Only actual published Flow may advance the bounded style sequence."""
@@ -2061,6 +2067,26 @@ class DJMomentEngine:
                 reason="invalid_knowledge_context",
             )
         moment_type, title, summary, content = specialized
+        expression_form = ""
+        if moment_type is DJMomentType.GENRE:
+            form = self.next_expression_form(persona, "genre_context")
+            expressed = genre_copy(locale=locale, persona=persona.value, form=form,
+                                   genre=title, title=_bounded_text(track.get("title"), 160),
+                                   artist=artist)
+            # Genre already has an approved read window. Never lengthen that
+            # window merely for style: the exact existing copy is the short
+            # fallback, including at a later track's remaining-time boundary.
+            original_seconds = _presentation_intent(
+                selected_mood, persona, reading_characters=len(summary) + len(content),
+                minimum_duration_seconds=45).maximum_duration_seconds
+            expressed_seconds = _presentation_intent(
+                selected_mood, persona, reading_characters=len(summary) + len(expressed or ""),
+                minimum_duration_seconds=45).maximum_duration_seconds
+            if (expressed and len(expressed) <= 1200
+                    and len(summary) + len(expressed) <= 90 * 14
+                    and expressed_seconds <= original_seconds):
+                content = expressed
+                expression_form = f"{persona.value}:genre_context:{form}"
         source_hints = _planner_knowledge_hints(source_insight or insight)
         angle_key = f"{track_key}|{moment_type.value}"
         if angle_key in self._track_keys:
@@ -2087,6 +2113,7 @@ class DJMomentEngine:
             title=title,
             summary=summary,
             content=content,
+            expression_form=expression_form,
             artwork_url=_bounded_text(track.get("artwork_url"), 2048) or None,
             actions=_moment_actions(moment_type, track, locale),
             source_references=("track_insight",),
@@ -3881,7 +3908,8 @@ class DJSessionRuntime:
         self.broadcast.publish_audience_state(self.planner.audience_totals, self.planner.recent_audience_activity)
 
     def publish_moment(
-        self, moment: DJMoment, placement: SessionFlowPosition = SessionFlowPosition.NEXT
+        self, moment: DJMoment, placement: SessionFlowPosition = SessionFlowPosition.NEXT,
+        *, commit_expression: bool = True,
     ) -> None:
         """Publish a Moment only after Planner placement has been established."""
         if moment.session_id != self.session_id or any(
@@ -3906,6 +3934,8 @@ class DJSessionRuntime:
         self.broadcast.publish_session_flow(self.planner.append_moment(moment, placement))
         self.broadcast.publish_moment(moment)
         self.broadcast.publish_presentation(composition.presentation.to_projection())
+        if commit_expression:
+            self.moment_engine.commit_expression(moment, self.planner.output.session_flow)
 
 
 class SessionRuntimeManager:
@@ -4365,10 +4395,12 @@ class SessionRuntimeManager:
                 or playback.duration_ms - opportunity.last_observed_position_ms < (moment.presentation_intent.maximum_duration_seconds + 5) * 1000):
             return None
         await self._async_persist_moment(active, moment)
-        active.publish_moment(moment)
+        # Preserve the existing candidate transaction: a failed publication
+        # must not consume the working engine's fact/deduplication keys.
+        active.publish_moment(moment, commit_expression=False)
         active.published_recording_context.commit(fact, time.monotonic())
         active.moment_engine.__dict__.update(working_moments.__dict__)
-        active.moment_engine.commit_expression(moment,active.planner.output.session_flow)
+        active.moment_engine.commit_expression(moment, active.planner.output.session_flow)
         opportunity.used_fact_keys.add(fact.key)
         opportunity.fact_count += 1
         opportunity.last_fact_position_ms = opportunity.last_observed_position_ms

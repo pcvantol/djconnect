@@ -7,6 +7,9 @@ private context, fact extraction from prose or generic opener/footer chassis.
 from __future__ import annotations
 
 from .session_facts import QualifiedSessionFact, SharedProducerFact, DisplayFactCore
+from .context_expression import (
+    BIRTH_ALTERNATE, DESCRIPTION_ALTERNATE, EDITION_ALTERNATE, FORMATION_ALTERNATE,
+)
 
 PERSONAS = ("home_dj", "radio_dj", "club_dj", "festival_dj")
 CONJUNCTIONS = {"en": "and", "nl": "en", "de": "und", "fr": "et", "es": "y"}
@@ -571,13 +574,15 @@ def realize(
                 body = COMPOSERS[lang][profile].format(n=joined(core.roles[0][1], lang))
             else:
                 templates = (
-                    EDITION[lang]
+                    (EDITION_ALTERNATE if form % 2 else EDITION)[lang]
                     if core.kind == "album_release"
-                    else (BIRTH[lang] if core.entity_type == "Person" else FORMATION[lang])
+                    else ((BIRTH_ALTERNATE if form % 2 else BIRTH)[lang]
+                          if core.entity_type == "Person"
+                          else (FORMATION_ALTERNATE if form % 2 else FORMATION)[lang])
                 )
                 body = templates[profile].format(s=core.subject, d=core.date)
         elif fact.key == "artist_description":
-            body = DESCRIPTION[lang][profile].format(
+            body = (DESCRIPTION_ALTERNATE if form % 2 else DESCRIPTION)[lang][profile].format(
                 s=fact.copy_for(locale)[0], d=fact.copy_for(locale)[1]
             )
         else:

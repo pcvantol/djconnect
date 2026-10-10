@@ -1,0 +1,13 @@
+{
+  "assignment_id": "DJC-CORE-EXPRESSIVE-CONTEXT-VARIATION-V1-20261010",
+  "base": "e0ee7e3ee7265599345ed6c37647623b2a03b27d",
+  "source_set_sha256": "eccef27bddaead828c340cd623668b2e55a2de73836a3ae71678e4c65823c962",
+  "whole_runtime_evidence_sha256": "c832b75ed120338c509cc2958242709316df9d46d9dcc35635ba3841bc9f8469",
+  "synthetic_source_shaped_fixtures": true,
+  "snapshot_schema_version": 1,
+  "new_wire_fields": false,
+  "renderer_build": "1.1.0",
+  "renderer_source_revision": "d7396554cb6179c7cdce67c473bd9b069c4c9a92",
+  "renderer_manifest_sha256": "b401cb5e02e7a34b2674c4432c3f79675df6819bb667685124b928915839350a",
+  "snapshots_sha256": "d6dae495c0ba1540ff4803ff33d84f789062bb2fcdc433147f245af89622dc64"
+}

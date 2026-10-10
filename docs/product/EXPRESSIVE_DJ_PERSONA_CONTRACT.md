@@ -38,8 +38,14 @@ influence, collaboration, exclusivity or unheard musical characteristics.
 Local rhetorical appreciation describes the contribution, not a new fact or
 listener preference. Source links remain conspicuous in the existing consumer.
 
-Other fact families retain a single authored persona realization without a
-cyclic-form claim; their qualified anchors and scoring remain intact.
+The original v1 qualification above gave other fact families a single authored
+persona realization. The separately selected
+[context variation v1](EXPRESSIVE_CONTEXT_VARIATION_V1.md) extends only existing
+Artist birth/formation/description, Album edition/date and selected Genre
+context to two structural forms per persona/language. Work composers and
+arbitrary Track Insight narrative remain outside that extension. Qualified
+anchors, channels and Planner scoring remain intact; this does not reopen the
+completed v1 assignment or its Finalization.
 
 Style memory contains at most six persona/factual-family/form keys, derived only from actual
 Flow publication. Proposal, preview and rejected long form do not commit it.
