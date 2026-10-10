@@ -94,7 +94,14 @@ Independent technical/privacy and editorial reviews cover the full source
 sequences. Final editorial/UX review visually checked 16 images spanning all
 families/personas and both host/orientation paths: GO, no open findings. Initial
 generic footers, Genre read-duration expansion and screenshot transition timing
-were corrected before the final pins; failed publication retains the original
-transaction ordering and consumes no expression choice or source opportunity.
+were corrected before the final pins; failed qualified-fact candidate publication
+retains the original transaction ordering and consumes no expression choice or
+fact source opportunity. Existing Genre opportunity-consumption ordering stays
+unchanged.
 Earlier disk-full and handoff rate-limit failures are retained without upgrading
-their outcomes. Source publication and separate Finalization remain gated.
+their outcomes. Source PR [#1142](https://github.com/pcvantol/djconnect/pull/1142) is protected
+merged and exact-main/package qualified as
+`c3d061121b449654e340d3e1415fb554bef26c22`. The
+[Completion and Finalization](../history/prompts/2026-10-10-expressive-context-variation-finalization.md)
+records immutable source-package/qualification evidence; separate Finalization
+publication and own cleanup remain gated.
