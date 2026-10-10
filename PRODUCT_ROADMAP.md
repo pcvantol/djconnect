@@ -1,16 +1,20 @@
 # DJConnect Product Roadmap
 
-Current execution: `DJC-CORE-EXPRESSIVE-CONTEXT-VARIATION-V1-20261010`, selected
-by the [owner register](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6096302759)
-after the previous Core workspace was released. The
-[pinned source/type and form policy](docs/product/EXPRESSIVE_CONTEXT_VARIATION_V1.md)
-extends local realization of existing qualified Artist, Album and Genre context
-with two structural forms per persona in five languages. Selection, dosing,
-Silence, source qualification and existing consumer contracts remain unchanged.
-Source delivery and its dedicated Finalization remain open until exact review,
-checks, publication authority and main/package readback are qualified. This is
-one selected slice; no new knowledge family, provider, model/TTS call, transport,
-renderer build, installation or next assignment is selected.
+Completed Core source: `DJC-CORE-EXPRESSIVE-CONTEXT-VARIATION-V1-20261010`,
+PR [#1142](https://github.com/pcvantol/djconnect/pull/1142) protected merged as
+`c3d061121b449654e340d3e1415fb554bef26c22` from exact reviewed/authorized
+`0fe5a4b2d51a0bf76e72ced8dd2d5f2d12a908e1`. Existing qualified Artist/Album/Genre
+context has two structural forms per four personas/five languages; facts,
+attribution, selection/dosing/Silence and consumer contracts remain unchanged.
+100 whole Runtime before/after sequences,1690 unit tests(7 skips),172 verification,
+57 real paired receipts and400 actual local/static portrait/landscape browser
+cases(800 cards), plus4 expiry probes and independent technical/editorial/UX GO
+qualify software. Exact-main142-file package and formal qualification PASS.
+[Completion and Finalization](docs/history/prompts/2026-10-10-expressive-context-variation-finalization.md)
+records source evidence and the separate Finalization publication/cleanup gate.
+No new knowledge source/model/TTS/type/transport/renderer build, installation,
+physical/native qualification or next slice is selected. Generation2/Phase1
+and canonical future backlog order remain unchanged.
 
 Completed Core Cast status producer: `DJC-CORE-VIBECAST-CAST-STATUS-V1-20261009`,
 PR [#1138](https://github.com/pcvantol/djconnect/pull/1138) protected merged as
