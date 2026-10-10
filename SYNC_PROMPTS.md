@@ -216,12 +216,16 @@ Sync an authenticated owner renderer with the DJ Session Broadcast Transport.
 
 Use the advertised paired_owner_websocket v1 route for ordinary Apple pairing
 (see docs/product/PAIRED_OWNER_LIVE_CONTRACT_V1.md). Clients with an existing
-HA credential may still use the native /api/websocket adapter. After the
-selected adapter's authentication, send
-djconnect/session/broadcast/subscribe with the existing DJConnect identity and
-device token fields plus the active session_id. The command result contains the
-complete Broadcast State snapshot. Apply that snapshot before applying later
-djconnect/session/broadcast events.
+HA credential may still use the native /api/websocket adapter.
+
+For the paired adapter, send identity and device_token only in its first auth
+frame. After auth_ok, subscribe with only id, type and active session_id;
+recovery adds only recovery_cursor. Do not repeat identity/token/Profile fields
+in these commands. For the native HA adapter, retain the existing authenticated
+subscribe/recover commands with DJConnect identity and device token fields.
+
+Both adapters return the complete Broadcast State snapshot in the command
+result. Apply that snapshot before later djconnect/session/broadcast events.
 
 The client never sends, chooses or claims a Profile for this subscription. The
 server authorizes through the existing authenticated device binding and permits
