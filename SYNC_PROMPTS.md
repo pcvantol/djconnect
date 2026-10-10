@@ -1,3 +1,16 @@
+## Core Cast status follow-up — 2026-10-09
+
+DJC-CORE-VIBECAST-CAST-STATUS-V1-20261009 implements the bounded dependency
+from Core #1101/6088108512 and VibeCast #10/6088099265 after Peter's direct go.
+See docs/product/VIBECAST_CAST_STATUS_CONTRACT.md for exact additive v1 wire
+fields, current sender/handoff/Session correlation, directed status, lease,
+Silence, reconnect and view-only stop. Build1.1.0 advertises status v1; a new
+exact reviewed supplying pin supersedes 1.0.0 only after approved delivery.
+Apple may prepare its own opt-in consumer without modifying Core/generated
+receiver HTML. Closed #1136/#1137 remain closed. Native sender, installed HA,
+Pages and real CAF/The Frame acceptance remain independent; no old GO covers
+changed import bytes and no SDK-connect means Session visible on TV.
+
 ## Delivered shared renderer pin — 2026-10-09
 
 PR#1136 source-main b211e5e99235e5862b3befb100dd9e64438f6e80 equals exact reviewed

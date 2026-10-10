@@ -11,7 +11,7 @@ from pathlib import Path
 import subprocess
 
 SOURCES = ("template.html", "style.css", "renderer.js", "local-host.js", "cast-host.js")
-VERSION = "1.0.0"
+VERSION = "1.1.0"
 
 
 class InlineScripts(HTMLParser):
@@ -78,6 +78,7 @@ def build(root: Path, output: Path, *, source_revision: str) -> dict:
         "sources": hashes,
         "contracts": {
             "cast_handoff_versions": [1],
+            "cast_status_versions": [1],
             "broadcast_transport": "snapshot-event-v1",
             "required_capabilities": {"view_broadcast": True, "owner_controls": False},
         },
@@ -134,6 +135,7 @@ def verify(
             manifest["contracts"]
             != {
                 "cast_handoff_versions": [1],
+                "cast_status_versions": [1],
                 "broadcast_transport": "snapshot-event-v1",
                 "required_capabilities": {"view_broadcast": True, "owner_controls": False},
             }

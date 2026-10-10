@@ -1,5 +1,44 @@
 # DJConnect Generation 2 Management Summary
 
+## Core Cast status follow-up — active source candidate
+
+Assignment `DJC-CORE-VIBECAST-CAST-STATUS-V1-20261009`, directly authorized by
+Peter after Core #1101/6088108512 / receiver #10/6088099265. Fresh hostverify
+exit0/MATCH, onboarding4.5.3 and15GB free. Sole reused Core writer, real base
+49137c7af3e3bd9dc53bdd5d8db14f3e99afdaf3, branch `codex/vibecast-cast-status-v1`;
+ACK6088343586 / first material6088360161. Closed #1136/#1137 remain closed.
+
+The additive [Cast status v1 contract](docs/product/VIBECAST_CAST_STATUS_CONTRACT.md)
+separates CAF-ready, connecting, accepted HA snapshot and shared presentation
+(including Silence), reconnect/error/end and view-only stop. Directed messages
+bind current sender/handoff/Session and increasing sequence;15-second leases,
+5-second presentation heartbeat, bounded handshake and stale callbacks fail
+closed. No private content/token, owner capability or new backend is introduced.
+Build1.1.0 keeps one local/static source and unchanged legacy handoff/Pi claims.
+
+Thirteen new modeled lifecycle regressions PASS; existing1681 unittests PASS
+(7existing skips),172verification PASS, Ruff/projection/diff PASS. Independent technical/privacy/software-UX review GO, no blocking findings.
+Eleven actual isolated HA2026.10/TLS/Core-Broadcast browser sequences PASS;
+79directed status envelopes validate against the schema with increasing
+per-handoff sequence. Before/after PNGs and motion retained;139integration
+hashes match actual testsource. CAF delivery and source/art providers modeled;
+no actual CAF/hardware qualification is implied.
+Owned lab uses18196/18197 and1CPU/1GiB; Apple18191/18194 and HAdev retained.
+
+### Delivery and remaining gates
+
+Repository State: `SOURCE_IN_PROGRESS`; Finalization Pending: `YES`.
+Workspace State: `REVIEWABLE_FROZEN`, no duplicate writer or next slice.
+The exact reviewed candidate and buildpin are externally recorded on source
+PR#1138/Core#1101; generated local/static output matches tested139source hashes.
+Required remote checks are running; exact source/publication approval is pending. Merge triggers existing SHA-bound internal
+HA artifact/evidence publication; no workflow change or implicit new grant.
+Distinct Finalization publication is a later concrete gate. No receiver push,
+Pages/Console/HA-install/config/Swift/device action is performed. Receiver and
+Apple consume the new exact pin only after their own delta review; integrated
+native sender/actual CAF/installed HA/The Frame acceptance stays OPEN.
+
+
 ## PR #1136 Shared VibeCast renderer — dedicated Finalization
 
 ### Repository Status

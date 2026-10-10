@@ -1,5 +1,14 @@
 # Shared VibeCast renderer and versioned host builds
 
+## Additive Cast status candidate
+
+Build 1.1.0 adds the opt-in [Cast status v1 contract](VIBECAST_CAST_STATUS_CONTRACT.md).
+Core alone maintains namespace/readiness handling and lifecycle feedback. Both
+hosts retain the existing renderer behavior; legacy v1 handoffs receive no new
+status messages. New senders correlate directed statuses and expire missing
+presentation leases. The published 1.0.0 pin below remains historical; no
+receiver promotion or installed/hardware claim follows from the new candidate.
+
 ## Source delivery receipt
 
 Protected PR#1136 source-main b211e5e99235e5862b3befb100dd9e64438f6e80 equals reviewed
