@@ -1,15 +1,21 @@
-## Core Cast status follow-up — 2026-10-09
+## Delivered Core Cast status pin — 2026-10-10
 
-DJC-CORE-VIBECAST-CAST-STATUS-V1-20261009 implements the bounded dependency
-from Core #1101/6088108512 and VibeCast #10/6088099265 after Peter's direct go.
-See docs/product/VIBECAST_CAST_STATUS_CONTRACT.md for exact additive v1 wire
-fields, current sender/handoff/Session correlation, directed status, lease,
-Silence, reconnect and view-only stop. Build1.1.0 advertises status v1; a new
-exact reviewed supplying pin supersedes 1.0.0 only after approved delivery.
-Apple may prepare its own opt-in consumer without modifying Core/generated
-receiver HTML. Closed #1136/#1137 remain closed. Native sender, installed HA,
-Pages and real CAF/The Frame acceptance remain independent; no old GO covers
-changed import bytes and no SDK-connect means Session visible on TV.
+Source PR#1138 protected merge c41b6079ed54eb40b0027a6666b0f784bb48f703 equals
+independently reviewed d7396554cb6179c7cdce67c473bd9b069c4c9a92 / tree29010a9f6a3267045e314cb54f2b578bc2134c80.
+The additive contract docs/product/VIBECAST_CAST_STATUS_CONTRACT.md and status
+schema remain authoritative. Build1.1.0 supplies opt-in status v1 with directed
+current sender/handoff/Session correlation, bounded lease/timeout, Silence and
+view-only stop. SDK/heartbeat are not HA-health or physical-visibility proof.
+Legacy Pi/v1/private Apple contracts stay intact; closed#1136/#1137 remain closed.
+Immutable bundle: https://github.com/pcvantol/djconnect/releases/download/internal-ha-c41b6079ed54eb40b0027a6666b0f784bb48f703/vibecast-status-d7396554.tar.gz
+Manifest b401cb5e02e7a34b2674c4432c3f79675df6819bb667685124b928915839350a;
+bundle939ab00f70d1122410559b6f0eaedf5dd831240e65d04d15a24a58497d5cd74a.
+Use the matching pinned verifier/exact supplying revision; receiver imports with
+new delta review under its own authority. Source/main/package139files and
+canonical qualification/coverage PASS;79real-browser statuses/11HA sequences
+PASS with modeled CAF. Distinct Finalization and canonical invalid-ref
+archive/disposition remain pending; no Pages/Console/install/native/hardware
+claim, generated-HTML patch or next lane dispatch.
 
 ## Delivered shared renderer pin — 2026-10-09
 

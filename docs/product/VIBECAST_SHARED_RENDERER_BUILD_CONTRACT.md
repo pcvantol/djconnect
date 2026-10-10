@@ -1,13 +1,20 @@
 # Shared VibeCast renderer and versioned host builds
 
-## Additive Cast status candidate
+## Delivered additive Cast status build
 
-Build 1.1.0 adds the opt-in [Cast status v1 contract](VIBECAST_CAST_STATUS_CONTRACT.md).
-Core alone maintains namespace/readiness handling and lifecycle feedback. Both
-hosts retain the existing renderer behavior; legacy v1 handoffs receive no new
-status messages. New senders correlate directed statuses and expire missing
-presentation leases. The published 1.0.0 pin below remains historical; no
-receiver promotion or installed/hardware claim follows from the new candidate.
+Source PR#1138 merged c41b6079ed54eb40b0027a6666b0f784bb48f703 from exact reviewed
+d7396554cb6179c7cdce67c473bd9b069c4c9a92; trees equal. Build1.1.0 declares the
+opt-in [Cast status v1 contract](VIBECAST_CAST_STATUS_CONTRACT.md); legacy v1
+retains its status-free behavior and the local claim/end-grant path is preserved.
+[Immutable build](https://github.com/pcvantol/djconnect/releases/download/internal-ha-c41b6079ed54eb40b0027a6666b0f784bb48f703/vibecast-status-d7396554.tar.gz)
+manifest b401cb5e02e7a34b2674c4432c3f79675df6819bb667685124b928915839350a;
+bundle939ab00f70d1122410559b6f0eaedf5dd831240e65d04d15a24a58497d5cd74a;
+rendererf0455cbe8b294e55d9add12c9c1fff86578a0f7b8c403314fb7ce2a041c4d60c.
+Supplying revision remains d7396554; verify with that exact pin and its matching
+verifier. The prior1.0.0 receipt below remains immutable historical evidence.
+Eleven actual HA/TLS/Broadcast browser sequences/79directedstatus envelopes PASS;
+CAF delivery modeled, real CAF/native/hardware/installed acceptance independent.
+Receiver needs new import/delta review; Core publication does not promote Pages.
 
 ## Source delivery receipt
 

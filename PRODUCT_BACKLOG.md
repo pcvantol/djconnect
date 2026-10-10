@@ -1,5 +1,18 @@
 # DJConnect Product Backlog
 
+Completed Core Cast status producer: `DJC-CORE-VIBECAST-CAST-STATUS-V1-20261009`,
+PR [#1138](https://github.com/pcvantol/djconnect/pull/1138) protected merged as
+`c41b6079ed54eb40b0027a6666b0f784bb48f703` from exact reviewed d7396554.
+One shared source adds opt-in directed status/lease/correlation/Silence/view-stop
+without owner/playback/history changes; legacy Pi/v1 remains. Eleven actual
+isolated HA/TLS/Broadcast browser sequences,79schema status envelopes,13lifecycle
+regressions,1681unit scenarios(7skips),172verification and independent exact GO
+PASS. Build1.1.0 published as immutable pin; receiver/native/installed HA/real CAF
+and physical acceptance remain separate. [Completion and Finalization](docs/history/prompts/2026-10-10-vibecast-cast-status-finalization.md)
+records source/package evidence and preserved canonical Git-ref blocker.
+No renderer predecessor reopening or next capability is selected.
+
+
 Completed corrective Core source: `DJC-CORE-PROFILE-HISTORY-HTTP-SCOPE-FIX-V1-20261009`,
 PR [#1134](https://github.com/pcvantol/djconnect/pull/1134) protected merged as
 `2337e06f514dfa2d847d9de26189a10bc618b555` from reviewed4ada2b61.
