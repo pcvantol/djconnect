@@ -1,5 +1,12 @@
 # DJConnect Product Roadmap
 
+Current bounded Core maintenance: `DJC-CORE-WINDOWS-CLIENT-RETIREMENT-V1-20261011`.
+The [selected Core subset](docs/product/WINDOWS_CLIENT_RETIREMENT_V1.md) is in
+source qualification; protected delivery and its own Finalization remain pending.
+Windows publication was already Retired. Dedicated infrastructure retirement
+remains separately Planned under [Windows #76](https://github.com/pcvantol/djconnect-windows/issues/76).
+No installation or new intelligence capability is implied.
+
 Completed Core source: `DJC-CORE-EXPRESSIVE-CONTEXT-VARIATION-V1-20261010`,
 PR [#1142](https://github.com/pcvantol/djconnect/pull/1142) protected merged as
 `c3d061121b449654e340d3e1415fb554bef26c22` from exact reviewed/authorized
@@ -711,7 +718,7 @@ It must assess, without changing the present contracts:
    clear boundaries among STT, TTS, Conversation Agent, Assist satellite and
    announcement speaker. DJConnect never silently configures Home Assistant
    Assist outside existing Home Assistant contracts.
-5. **Concrete-host onboarding:** Apple, Windows, Pi 4-inch, Pi 10-inch, ESP32
+5. **Concrete-host onboarding:** Apple, Pi 4-inch, Pi 10-inch, ESP32
    and Voice Interaction Host instructions, only where their future profile
    evidence permits. It may assess version/compatibility, local-network,
    pairing start, pair-code or supported QR guidance, successful pairing,

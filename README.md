@@ -14,8 +14,8 @@ Website: [https://djconnect.dev](https://djconnect.dev)
 
 ## What You Get
 
-- Pair DJConnect ESP32, Raspberry Pi, iPhone/iPad, Apple Watch, macOS and
-  Windows clients with Home Assistant.
+- Pair DJConnect ESP32, Raspberry Pi, iPhone/iPad, Apple Watch and macOS
+  clients with Home Assistant.
 - Choose **Spotify Direct** or **Music Assistant** as the music backend.
 - Control playback from DJConnect commands, app screens, Assist satellites or
   Home Assistant entities.
@@ -42,8 +42,8 @@ Website: [https://djconnect.dev](https://djconnect.dev)
 
 - Home Assistant with HACS installed.
 - A configured Home Assistant Assist pipeline with STT and TTS.
-- A DJConnect ESP32 device, Raspberry Pi client, iOS/macOS/watchOS app or
-  Windows client on the same local network during pairing.
+- A DJConnect ESP32 device, Raspberry Pi client or iOS/macOS/watchOS app
+  on the same local network during pairing.
 - For ESP32 devices: 2.4 GHz WiFi.
 - For Spotify Direct: Spotify Premium, a Spotify Developer app Client ID and a
   Home Assistant external HTTPS URL, preferably Nabu Casa.
@@ -73,7 +73,7 @@ The setup flow starts with a route choice:
 - **Assist Conversation Agent**: use DJConnect DJ from Home Assistant Assist
   satellites without pairing a separate client.
 - **DJConnect local device**: pair an ESP32 or Raspberry Pi client on your LAN.
-- **DJConnect app**: pair iPhone/iPad, Apple Watch, macOS or Windows.
+- **DJConnect app**: pair iPhone/iPad, Apple Watch or macOS.
 - **ESP32 WiFi over Bluetooth**: optionally write WiFi credentials before
   pairing an ESP32 device.
 

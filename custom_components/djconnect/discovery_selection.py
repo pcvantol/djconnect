@@ -9,9 +9,7 @@ from .const import (
     CONF_DEVICE_NAME,
     CONF_LOCAL_URL,
     CONF_PAIR_CODE,
-    DEFAULT_CLIENT_TYPE,
     DEFAULT_DEVICE_NAME,
-    CLIENT_TYPES,
 )
 from .discovery import DiscoveredClient
 
@@ -41,11 +39,9 @@ def selected_discovered_client(
 
 def discovered_client_defaults(client: DiscoveredClient) -> dict[str, Any]:
     """Return authoritative pairing defaults from a discovered client."""
-    client_type = (
-        client.client_type
-        if client.client_type in CLIENT_TYPES
-        else DEFAULT_CLIENT_TYPE
-    )
+    # Preserve observed identity for explicit config-flow validation. Unknown or
+    # retired metadata must never be silently reclassified as an ESP32 device.
+    client_type = client.client_type
     return {
         CONF_DEVICE_ID: client.device_id,
         CONF_DEVICE_NAME: str(client.device_name or DEFAULT_DEVICE_NAME).strip()

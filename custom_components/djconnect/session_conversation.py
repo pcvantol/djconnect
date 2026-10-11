@@ -131,7 +131,13 @@ async def async_qualify_history_source(hass, owner: str, row: dict) -> bool:
         "djconnect"
     )
     source = next((entry for entry in entries if entry.entry_id == entry_id), None)
-    if entry_id in hass.data.get("djconnect", {}).get("spotify_reauth_issue_throttle", {}):
+    from .client_retirement import is_retired_entry
+    from .retired_provider import historical_successor
+
+    if source is None or (is_retired_entry(source) and {**source.data, **source.options}.get("profile_backend_entry_id")):
+        source = historical_successor(hass, str(entry_id or ""), owner, captured)
+    source_ids = {entry_id, getattr(source, "entry_id", None)}
+    if source_ids.intersection(hass.data.get("djconnect", {}).get("spotify_reauth_issue_throttle", {})):
         return False
     # HA's persisted typed Repair survives process restart; no error-text parsing.
     if body.get("provider") == "Spotify":
@@ -142,7 +148,7 @@ async def async_qualify_history_source(hass, owner: str, row: dict) -> bool:
             issue = registry.async_get_issue("djconnect", "spotify_refresh_token_revoked")
         except (ImportError, AttributeError):
             issue = None  # SDK-only fixtures may omit HA Repairs; account checks still apply.
-        if issue is not None and (issue.data or {}).get("entry_id") == entry_id:
+        if issue is not None and (issue.data or {}).get("entry_id") in source_ids:
             return False
     if source is None or getattr(source, "disabled_by", None) is not None:
         return False
@@ -180,6 +186,7 @@ async def async_history_grant_revision(hass, owner: str) -> str:
                 bool(getattr(entry, "disabled_by", None)),
                 str(config.get("music_account_id") or ""),
                 bool(config.get("spotify_refresh_token")),
+                config.get("retired_provider_history_bindings", {}),
             )
         )
     revoked = sorted(hass.data.get("djconnect", {}).get("spotify_reauth_issue_throttle", {}))

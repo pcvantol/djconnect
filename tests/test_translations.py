@@ -60,7 +60,6 @@ APP_DETAIL_STEPS = {
     "pair_app_ios_details",
     "pair_app_watch_details",
     "pair_app_macos_details",
-    "pair_app_windows_details",
 }
 
 VOICE_OPTION_DATA_KEYS = {

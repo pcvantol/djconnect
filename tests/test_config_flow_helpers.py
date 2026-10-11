@@ -574,7 +574,6 @@ class ConfigFlowHelperTest(unittest.TestCase):
                 self.const.CLIENT_TYPE_MACOS,
                 self.const.CLIENT_TYPE_WATCHOS,
                 self.const.CLIENT_TYPE_RASPBERRY_PI,
-                self.const.CLIENT_TYPE_WINDOWS,
                 self.const.CLIENT_TYPE_ESP32,
             ],
         )
@@ -586,10 +585,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
             self.const.CLIENT_TYPE_NAMES[self.const.CLIENT_TYPE_RASPBERRY_PI],
             "Linux/Raspberry Pi client",
         )
-        self.assertEqual(
-            self.const.CLIENT_TYPE_NAMES[self.const.CLIENT_TYPE_WINDOWS],
-            "Windows app",
-        )
+        self.assertNotIn(self.const.CLIENT_TYPE_WINDOWS, self.const.CLIENT_TYPE_NAMES)
 
     def test_local_device_schema_does_not_prefill_manual_device_url_from_pair_code(self) -> None:
         flow = self.config_flow.DJConnectConfigFlow()
@@ -1281,7 +1277,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
         self.assertEqual(identity.default_pair_client_type("pair_app"), "ios")
         self.assertEqual(
             identity.pair_client_type_options("pair_app"),
-            ["ios", "macos", "watchos", "windows"],
+            ["ios", "macos", "watchos"],
         )
         self.assertTrue(identity.client_type_uses_local_device_api("raspberry_pi"))
         self.assertFalse(identity.client_type_uses_local_device_api("ios"))
@@ -1341,7 +1337,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
                 self.const.SETUP_METHOD_PAIR_APP
             ],
             "Pair DJConnect app\n"
-            "iPhone/iPad, Apple Watch, macOS or Windows",
+            "iPhone/iPad, Apple Watch or macOS",
         )
         self.assertEqual(
             self.config_flow._setup_method_names(nl_hass)[
@@ -1563,11 +1559,6 @@ class ConfigFlowHelperTest(unittest.TestCase):
                 self.const.CLIENT_TYPE_MACOS,
                 "pair_app_macos_details",
                 "async_step_pair_app_macos_details",
-            ),
-            (
-                self.const.CLIENT_TYPE_WINDOWS,
-                "pair_app_windows_details",
-                "async_step_pair_app_windows_details",
             ),
         ):
             with self.subTest(client_type=client_type):

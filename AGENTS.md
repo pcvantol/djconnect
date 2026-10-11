@@ -2,6 +2,14 @@
 
 Project: DJConnect
 
+Windows-clientretirement: het Windows-app-product is beëindigd volgens
+`DJC-WINDOWS-RETIREMENT-V1-20261008`; de Core-disposition staat in
+`docs/product/WINDOWS_CLIENT_RETIREMENT_V1.md`. Windows-clientwaarden en prefixes
+hieronder dienen uitsluitend legacyherkenning en veilige afmelding. Bied geen
+nieuwe Windows-appkoppeling, ondersteuning of device-auth aan. Behoud gedeelde
+Profiles, accounts en geschiedenis en alle ondersteunde Apple/Pi/ESP/Assist-paden.
+Generieke Windows-ontwikkeltooling en historische dossiers vallen hier niet onder.
+
 Doel:
 - DJConnect device als Spotify/HA voice remote.
 - HA custom integration heet `djconnect`.

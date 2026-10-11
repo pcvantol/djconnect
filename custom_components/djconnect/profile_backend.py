@@ -187,8 +187,47 @@ def profile_backend_runtime(hass: Any, runtime: Any, *, provider_only: bool = Fa
         runtime = runtime.caller
     entry = getattr(runtime, "entry", None)
     conf = {**getattr(entry, "data", {}), **getattr(entry, "options", {})}
+    fence = getattr(hass, "data", {}).get(DOMAIN, {}).get("retired_provider_transfer_entries", set())
+    if getattr(entry, "entry_id", None) in fence or conf.get(PROFILE_BACKEND_ENTRY_ID) in fence:
+        raise ProfileStorageValidationError("profile_connection_unavailable")
     owner_id = str(conf.get(PROFILE_BACKEND_ENTRY_ID) or "")
     if not owner_id:
+        if conf.get("retired_provider_history_bindings"):
+            entries = getattr(hass, "config_entries", None)
+            from .client_retirement import is_retired_entry
+            from .client_identity import device_id_matches_client_type
+
+            if (
+                entries is None or entries.async_get_entry(entry.entry_id) is not entry
+                or entry.disabled_by is not None
+                or getattr(entry.state, "value", entry.state) != "loaded"
+                or hass.data.get(DOMAIN, {}).get(entry.entry_id) is not runtime
+                or is_retired_entry(entry)
+                or not device_id_matches_client_type(conf.get("device_id"), conf.get("client_type"))
+            ):
+                raise ProfileStorageValidationError("profile_connection_unavailable")
+            # An interrupted handoff must not expose copied credentials after a
+            # concurrent Profile reassignment. Live access follows the current
+            # default; historical source qualification is separately captured.
+            manager = getattr(hass, "data", {}).get(DOMAIN, {}).get(STORE_KEY)
+            if not isinstance(manager, ProfilePlatformStorage):
+                raise ProfileStorageValidationError("profile_connection_unavailable")
+            household = manager.household
+            current_profile = household.profiles.get(_profile_for_entry(household, entry))
+            account = household.music_accounts.get(conf.get("music_account_id"))
+            backend = household.music_backends.get(conf.get(CONF_MUSIC_BACKEND))
+            if (
+                current_profile is None or str(current_profile.state) != "active"
+                or account is None or str(account.state) != "active"
+                or backend is None or str(backend.state) != "active"
+                or account.backend_id != backend.backend_id
+                or current_profile.profile_id not in account.linked_profile_ids
+                or current_profile.preferences.default_backend_id != backend.backend_id
+                or current_profile.preferences.default_music_account_id != account.account_id
+                or str(getattr(runtime, "profile_context_profile_id", "") or conf.get("profile_id") or "") != current_profile.profile_id
+            ):
+                raise ProfileStorageValidationError("profile_connection_unavailable")
+            return runtime if provider_only else ProfileBackendView(hass, runtime, runtime)
         return runtime
     data = getattr(hass, "data", {}).get(DOMAIN, {})
     manager = data.get(STORE_KEY)

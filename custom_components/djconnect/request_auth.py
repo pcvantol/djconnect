@@ -14,6 +14,7 @@ from .const import (
     DOMAIN,
     CLIENT_TYPES,
 )
+from .client_retirement import is_retired_runtime
 
 _LOGGER = logging.getLogger("custom_components.djconnect.http")
 _STALE_AUTH_LOG_THROTTLE_SECONDS = 300
@@ -37,10 +38,13 @@ def resolve_runtime(
         runtime
         for key, runtime in data.items()
         if key != "runtime" and hasattr(runtime, "authorize_device_request")
+        and not is_retired_runtime(runtime)
     ]
     device_id = str(device_id or "").strip()
     token = request_token(headers or {})
     active_runtime = data.get("runtime")
+    if is_retired_runtime(active_runtime):
+        active_runtime = None
     if not runtimes and active_runtime is not None:
         return active_runtime
     if device_id:
@@ -76,11 +80,13 @@ def resolve_runtime(
             device_id,
         )
         return None
-    return data.get("runtime")
+    return active_runtime
 
 
 def runtime_matches_device(runtime: Any, device_id: str) -> bool:
     """Return whether a runtime matches a request device id."""
+    if is_retired_runtime(runtime):
+        return False
     known = str(
         getattr(runtime, "device_status", {}).get("device_id")
         or getattr(runtime, "pairing_device_id", "")
@@ -102,7 +108,7 @@ def is_real_device_id(device_id: str) -> bool:
     return bool(
         re.fullmatch(
             r"djconnect-(?:lilygo-t-embed-s3|esp32-s3-box-3|lilygo)-[0-9A-Fa-f]{12}"
-            r"|djconnect-(?:ios|macos|watchos|raspberry-pi|windows)-[A-Za-z0-9]{12}",
+            r"|djconnect-(?:ios|macos|watchos|raspberry-pi)-[A-Za-z0-9]{12}",
             str(device_id or ""),
         )
     )
@@ -150,6 +156,8 @@ def authorize_runtime_device_request(
     client_type: str | None,
 ) -> bool:
     """Authorize a request while keeping lightweight test doubles compatible."""
+    if is_retired_runtime(runtime):
+        return False
     authorize = getattr(runtime, "authorize_device_request")
     try:
         return bool(authorize(headers, device_id, client_type))

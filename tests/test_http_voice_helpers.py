@@ -1554,7 +1554,7 @@ class VoiceHttpHelperTest(unittest.TestCase):
 
             async def json(self):
                 return {
-                    "device_id": "djconnect-device",
+                    "device_id": "djconnect-lilygo-t-embed-s3-ABCDEF123456",
                     "client_type": "esp32",
                     "pair_code": "654321",
                 }
@@ -1802,7 +1802,7 @@ class VoiceHttpHelperTest(unittest.TestCase):
 
             async def json(self):
                 return {
-                    "device_id": "djconnect-device",
+                    "device_id": "djconnect-lilygo-t-embed-s3-ABCDEF123456",
                     "client_type": "esp32",
                     "pair_code": "123456",
                     "local_url": "http://djconnect.local",
@@ -1877,7 +1877,6 @@ class VoiceHttpHelperTest(unittest.TestCase):
             ("ios", "djconnect-ios-68B74487726D"),
             ("watchos", "djconnect-watchos-68B74487726D"),
             ("raspberry_pi", "djconnect-raspberry-pi-68B74487726D"),
-            ("windows", "djconnect-windows-68B74487726D"),
         ):
             with self.subTest(client_type=client_type):
                 class Runtime:
@@ -1924,7 +1923,7 @@ class VoiceHttpHelperTest(unittest.TestCase):
                 self.assertNotIn("device_language", response["payload"])
                 self.assertNotIn("language", response["payload"])
                 self.assertEqual(response["payload"]["device_token"], "device-token")
-                if client_type in {"ios", "macos", "windows"}:
+                if client_type in {"ios", "macos"}:
                     self.assertEqual(
                         response["payload"]["ha_remote_url"],
                         "https://example.ui.nabu.casa",
@@ -1938,7 +1937,6 @@ class VoiceHttpHelperTest(unittest.TestCase):
         for client_type, device_id in (
             ("ios", "djconnect-ios-68B74487726D"),
             ("macos", "djconnect-macos-68B74487726D"),
-            ("windows", "djconnect-windows-68B74487726D"),
         ):
             with self.subTest(client_type=client_type):
                 class Runtime:
@@ -2009,7 +2007,6 @@ class VoiceHttpHelperTest(unittest.TestCase):
         for client_type, device_id in (
             ("ios", "djconnect-ios-68B74487726D"),
             ("macos", "djconnect-macos-68B74487726D"),
-            ("windows", "djconnect-windows-68B74487726D"),
         ):
             with self.subTest(client_type=client_type):
                 calls = []

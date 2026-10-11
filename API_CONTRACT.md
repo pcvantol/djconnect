@@ -7,7 +7,7 @@ It is intentionally compact; `README.md` remains the full user/developer guide.
 
 Pairing, status, command, Ask DJ and voice requests use canonical
 `client_type` values to distinguish runtimes. Current values are `esp32`, `ios`,
-`macos`, `watchos`, `raspberry_pi` and `windows`.
+`macos`, `watchos` and `raspberry_pi`.
 
 Client ids must match their client type prefix and use the first 12
 alphanumeric characters of the stable client install id where applicable:
@@ -16,7 +16,12 @@ alphanumeric characters of the stable client install id where applicable:
 - `macos`: `djconnect-macos-XXXXXXXXXXXX`
 - `watchos`: `djconnect-watchos-XXXXXXXXXXXX`
 - `raspberry_pi`: `djconnect-raspberry-pi-XXXXXXXXXXXX`
-- `windows`: `djconnect-windows-XXXXXXXXXXXX`
+
+`windows` and its old device prefix are recognized only for safe retirement of
+existing configurations. New pairing and retired-device authentication are
+rejected; changing the supplied type does not change stored device ownership.
+Shared-provider compatibility is defined in
+[`WINDOWS_CLIENT_RETIREMENT_V1.md`](docs/product/WINDOWS_CLIENT_RETIREMENT_V1.md).
 
 ESP32 and Raspberry Pi are local devices. They may advertise `_djconnect._tcp`
 with TXT records including `device_id`, `client_type`, `device_name`,
@@ -24,7 +29,7 @@ with TXT records including `device_id`, `client_type`, `device_name`,
 treats `GET /api/device/pairing-info` as authoritative when reachable.
 No app-client mDNS/local-API discovery is supported.
 
-iOS, macOS, watchOS and Windows are inbound-only app clients. They do not expose a
+iOS, macOS and watchOS are inbound-only app clients. They do not expose a
 Home Assistant-callable `/api/device/*` API, do not need a Client address in the
 Home Assistant setup flow, and post local pairing requests to
 `POST /api/djconnect/v1/pair`. Home Assistant generates the app pairing code. The
@@ -115,10 +120,10 @@ not require manual HA URL entry:
 djconnect://pair?ha_url=<local-ha-url>&pair_code=<code>&client_type=watchos&pair_path=/api/djconnect/v1/pair
 ```
 
-macOS and Windows clients pair by manually entering the local Home Assistant URL
+macOS clients pair by manually entering the local Home Assistant URL
 and the HA-generated pairing code. After app pairing, Home Assistant returns
 `device_token`, `ha_local_url`, optional `ha_remote_url`, capability flags and
-API paths. `ha_remote_url` is only returned to `ios`, `macos` and `windows`
+API paths. `ha_remote_url` is only returned to `ios` and `macos`
 when Home Assistant has an HTTPS external/Nabu Casa URL. ESP32 and Raspberry Pi
 must never receive `ha_remote_url`.
 
@@ -214,7 +219,7 @@ or another HA-supported websocket auth mechanism before this fast path is
 product-ready. After HA websocket login, feature-detect DJConnect support with:
 
 Client contract fixtures are exported from `examples/client_contracts/` for
-Apple, Raspberry Pi and Windows client tests. Use
+Apple and Raspberry Pi client tests. Use
 `python3 tools/export_client_contracts.py --output <client-fixture-dir>` to copy
 the current golden payloads. The source manifest is named
 `contract_manifest.json` so Home Assistant hassfest does not confuse it with an
@@ -1808,7 +1813,7 @@ Users do not need to see, copy or enter the token. Push relay calls use
 `.p8` key, APNs private key or Cloudflare secret. When no bootstrap proof is
 available yet or the central API is temporarily unavailable, push stays disabled
 and normal Ask DJ flows continue; the next central API use can retry token
-bootstrap after an Apple client supplies a fresh proof. ESP32, Raspberry Pi, Windows and
+bootstrap after an Apple client supplies a fresh proof. ESP32, Raspberry Pi and
 Assist-agent-only entries do not require this proof because they do not use APNs
 push. The central
 `djconnect-api` service owns proof validation, APNs provider-token auth, topics,

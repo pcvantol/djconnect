@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "Set up DJConnect",
-        "description": "Start with the route that matches your setup. Use the Assist agent without a physical device, choose local device for ESP32/Raspberry Pi on your network, or choose app for iPhone/iPad, Apple Watch, macOS and Windows.",
+        "description": "Start with the route that matches your setup. Use the Assist agent without a physical device, choose local device for ESP32/Raspberry Pi on your network, or choose app for iPhone/iPad, Apple Watch or macOS.",
         "data": {
           "setup_method": "Setup method"
         }
@@ -28,7 +28,7 @@
           "client_type": "Choose ESP32 or Raspberry Pi.",
           "local_url": "Local device API fallback; leave empty when mDNS works.",
           "discovered_client": "Choose an automatically discovered DJConnect client to prefill pairing details, or use manual entry.",
-          "app_pair_code": "Use this code in macOS/Windows, or let iPhone/iPad/Apple Watch receive it from the QR/deep-link payload.",
+          "app_pair_code": "Use this code in macOS, or let iPhone/iPad/Apple Watch receive it from the QR/deep-link payload.",
           "app_ha_local_url": "Local Home Assistant URL the app uses during pairing.",
           "app_iphone_pairing_uri": "QR/deep-link payload for the iPhone/iPad app.",
           "app_watch_pairing_uri": "QR/deep-link payload scanned on iPhone/iPad to pair the linked Apple Watch."
@@ -87,7 +87,7 @@
       },
       "pair_app": {
         "title": "Pair App",
-        "description": "Use this route for iPhone/iPad, Apple Watch, macOS and Windows.\n\n**iPhone/iPad**\n\n![iPhone/iPad QR code]({iphone_qr_image})\n\n**Apple Watch**\n\n![Apple Watch QR code]({watch_qr_image})\n\nmacOS and Windows use the Home Assistant URL and pairing code below.",
+        "description": "Use this route for iPhone/iPad, Apple Watch or macOS.\n\n**iPhone/iPad**\n\n![iPhone/iPad QR code]({iphone_qr_image})\n\n**Apple Watch**\n\n![Apple Watch QR code]({watch_qr_image})\n\nmacOS uses the Home Assistant URL and pairing code below.",
         "data": {
           "pair_code": "Pairing code",
           "device_name": "Device name",
@@ -99,8 +99,8 @@
         },
         "data_description": {
           "device_name": "Friendly name for this app installation.",
-          "client_type": "Choose iPhone/iPad, Apple Watch, macOS or Windows.",
-          "app_pair_code": "Use this code in macOS/Windows, or let iPhone/iPad/Apple Watch receive it from the QR/deep-link payload.",
+          "client_type": "Choose iPhone/iPad, Apple Watch or macOS.",
+          "app_pair_code": "Use this code in macOS, or let iPhone/iPad/Apple Watch receive it from the QR/deep-link payload.",
           "app_ha_local_url": "Local Home Assistant URL the app uses during pairing.",
           "app_iphone_pairing_uri": "QR/deep-link payload for the iPhone/iPad app.",
           "app_watch_pairing_uri": "QR/deep-link payload scanned on iPhone/iPad to pair the linked Apple Watch."
@@ -153,20 +153,6 @@
           "app_pair_code": "Enter this pairing code in the macOS app.",
           "app_ha_local_url": "Local Home Assistant URL the app uses during pairing.",
           "device_name": "Friendly name for this macOS app installation."
-        }
-      },
-      "pair_app_windows_details": {
-        "title": "Pair DJConnect Windows App",
-        "description": "Use these values in the Windows app:\n\n- Home Assistant URL: `{ha_local_url}`\n- Pairing code: `{pair_code}`",
-        "data": {
-          "app_pair_code": "Pairing code",
-          "app_ha_local_url": "Home Assistant URL",
-          "device_name": "Device name"
-        },
-        "data_description": {
-          "app_pair_code": "Enter this pairing code in the Windows app.",
-          "app_ha_local_url": "Local Home Assistant URL the app uses during pairing.",
-          "device_name": "Friendly name for this Windows app installation."
         }
       },
       "ble_wifi": {
@@ -348,7 +334,9 @@
       "profile_setup_failed": "The profile could not be saved. Try again."
     },
     "abort": {
-      "already_configured": "This DJConnect device is already configured."
+      "already_configured": "This DJConnect device is already configured.",
+      "client_retired": "This client is no longer supported. Choose a supported client.",
+      "invalid_client_type": "Unknown client type. Choose a supported client."
     }
   },
   "options": {
@@ -474,6 +462,9 @@
       "profile_platform_failed": "The linked profile could not be updated. Check device pairing and try again.",
       "profile_shared_backend_change": "This profile is linked to multiple devices. Link this device to its own profile before changing the music backend.",
       "invalid_voice_profile": "Choose a supported DJ voice profile."
+    },
+    "abort": {
+      "client_retired": "This client is no longer supported. Choose a supported client."
     }
   },
   "entity": {
@@ -680,6 +671,14 @@
           "entry_not_found": "DJConnect configuration could not be found."
         }
       }
+    },
+    "windows_client_retired": {
+      "title": "Windows app retired: connection retained — {configuration}",
+      "description": "The DJConnect Windows app is no longer supported and cannot connect. This configuration retains its existing music connection for linked clients. Keep it until the shared connection has been safely transferred; removing it before transfer can disconnect that account. Profiles and history are not automatically deleted."
+    },
+    "windows_client_retired_safe": {
+      "title": "Windows app retired: ready to remove — {configuration}",
+      "description": "The DJConnect Windows app is no longer supported and cannot connect. This configuration no longer owns a music connection and can be removed. Existing linked clients, Profiles, music accounts and history are retained."
     }
   },
   "selector": {

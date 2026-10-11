@@ -15,11 +15,11 @@ Every Renderer Host consumes only authorized renderer-safe projections.
 
 | Atomic renderer capability | Owner | Maturity | Consumers and boundary |
 | --- | --- | --- | --- |
-| Renderer-safe playback / Now Playing | HA Broadcast and Music Backend boundary | Implemented | Apple, Windows, Pi and Universal Receiver; local display only. |
+| Renderer-safe playback / Now Playing | HA Broadcast and Music Backend boundary | Implemented | Apple, Pi and Universal Receiver; local display only. |
 | Current immutable DJMoment and Presentation | HA DJMoment Engine / Presentation | Implemented | eligible Renderer Hosts; no local Moment generation. |
-| Session Flow projection | HA Session Runtime / Broadcast | Implemented | Apple/Windows rich clients, Pi 10-inch and Universal Receiver; intentionally absent on constrained voice/Pi 4-inch surfaces. |
-| Track Insight | HA Insight service | Implemented | Apple, Windows and Pi; server-authoritative insight. |
-| Ask DJ and Discover | HA Conversation / Discovery | Implemented personal projections | Apple and Windows rich; Pi read-heavy where authorized; not guest/ambient defaults. |
+| Session Flow projection | HA Session Runtime / Broadcast | Implemented | Apple rich clients, Pi 10-inch and Universal Receiver; intentionally absent on constrained voice/Pi 4-inch surfaces. |
+| Track Insight | HA Insight service | Implemented | Apple and Pi; server-authoritative insight. |
+| Ask DJ and Discover | HA Conversation / Discovery | Implemented personal projections | Apple rich; Pi read-heavy where authorized; not guest/ambient defaults. |
 | Native Track Insight sharing | Apple Renderer Host | Implemented reference realization | explicit user action through Apple Share Sheet; no Broadcast, Runtime or API scope. |
 | Universal Receiver interactive web presentation | Web Renderer Host | Implemented | browser Session Flow and Now Playing through existing Broadcast only. |
 | VibeCast ambient experience | VibeCast Renderer Host | Planned / selected reference increment | separate Guest + Ambient experience; portrait Pi reference validation precedes landscape Custom Web Receiver feasibility. |
