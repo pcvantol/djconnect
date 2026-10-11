@@ -103,7 +103,7 @@ require separate fresh exact-SHA owner grants; no old Mood/documentary grant.
 
 The maintained DAG uses explicit delta/2, retains the original design delta and
 all original3October JSON/audit/projections. Only Core contract/policy nodes are
-In progress. Joint product and Apple native acceptance remain Planned/open.
+Completed/CORE_DELIVERED. Joint product and Apple native acceptance remain Planned/open.
 Core software evidence does not close native, installed, hardware, Cast/LG or
 public distribution acceptance. No next slice is started.
 
