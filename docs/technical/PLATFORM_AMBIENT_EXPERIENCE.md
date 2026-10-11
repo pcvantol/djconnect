@@ -1,5 +1,16 @@
 # Platform Ambient Experience
 
+## Planned DJ presence boundary
+
+[DJ presence v1](../product/DJ_PRESENCE_V1.md) is a planned independent Runtime/Planner input for
+proactive contribution budgets and spacing. Mood, Persona and presence remain
+orthogonal; actual Core policy, native Apple control and existing shared-renderer
+compatibility require joint qualification. This documentary design declares no
+implemented state/API. Off suppresses future unsolicited publication including
+in-flight results; immutable prior Moments, explicit Ask DJ and privacy remain.
+Richer narrative presenter mode is separately planned; existing eligibility,
+contextual dosing and expressive contracts retain their qualified boundaries.
+
 ## Status
 
 **Deferred architecture.** This document preserves a future direction only. It

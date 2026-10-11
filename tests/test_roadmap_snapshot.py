@@ -13,7 +13,7 @@ PLANNING = ROOT / "docs" / "roadmap" / "v1"
 class FederatedPlanningCITest(unittest.TestCase):
     def test_snapshot_validator_and_negative_cases(self):
         result = subprocess.run(
-            [sys.executable, "-m", "unittest", "-q", "test_snapshot"],
+            [sys.executable, "-m", "unittest", "-q", "test_snapshot", "test_maintenance_delta"],
             cwd=PLANNING,
             capture_output=True,
             text=True,

@@ -20,6 +20,9 @@ def render(p: dict[str, Any]) -> dict[str, str]:
     errors = validate(p)
     if errors:
         raise ValueError("Cannot render invalid snapshot: " + "; ".join(errors))
+    if "planning_maintenance" in p:
+        from maintenance_delta import render_delta
+        return render_delta(p)
     out: dict[str, str] = {}
     nodes = {n["id"]: n for n in p["nodes"]}
     intro = (

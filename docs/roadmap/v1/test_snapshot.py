@@ -20,7 +20,7 @@ ROOT = Path(__file__).resolve().parent
 
 class SnapshotTests(unittest.TestCase):
     def setUp(self):
-        self.p = load(ROOT / "djconnect-platform-v1.json")
+        self.p = load(ROOT / "history/20261003/djconnect-platform-v1.json")
 
     def errors(self):
         return "\n".join(validate(self.p))
@@ -560,7 +560,7 @@ class SnapshotTests(unittest.TestCase):
 
     def test_all_views_derived_from_json(self):
         for name, body in render(self.p).items():
-            self.assertEqual((ROOT / name).read_text(encoding="utf-8"), body, name)
+            self.assertEqual((ROOT / "history/20261003" / name).read_text(encoding="utf-8"), body, name)
 
     def test_or_diagram_shows_choice_not_two_and_arrows(self):
         diagram = render(self.p)["diagrams/hard-dependencies.mmd"]

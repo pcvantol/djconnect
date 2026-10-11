@@ -1,18 +1,18 @@
-# Repository lanes and entrypoints
+# Owning lanes — planning only
 
-This is a pinned planning projection for assignment `DJC-PLATFORM-ROADMAP-DAG-LANES-V1-20261003`. Owning roadmap, backlog, code and qualification records remain authoritative. It grants no product pickup, deployment or resource lease; the narrowly authorized planning publication side effect is recorded in the audit.
+Generated from djconnect-platform-v1.json, maintenance DJC-DJ-PRESENCE-ROADMAP-DESIGN-V1-20261011.
 
-| Lane | Repository | Role | Owning register | Entrypoint |
-|---|---|---|---|---|
-| `DJC-CORE` | `pcvantol/djconnect` | source | https://github.com/pcvantol/djconnect/issues/1101 | [DJC-CORE](lanes/DJC-CORE.md) |
-| `DJC-APPLE` | `pcvantol/djconnect-app` | source | https://github.com/pcvantol/djconnect-app/issues/87 | [DJC-APPLE](lanes/DJC-APPLE.md) |
-| `DJC-ESP32` | `pcvantol/djconnect-esp32` | source | https://github.com/pcvantol/djconnect-esp32/issues/58 | [DJC-ESP32](lanes/DJC-ESP32.md) |
-| `DJC-PI` | `pcvantol/djconnect-pi` | source | https://github.com/pcvantol/djconnect-pi/issues/104 | [DJC-PI](lanes/DJC-PI.md) |
-| `DJC-WINDOWS` | `pcvantol/djconnect-windows` | source | https://github.com/pcvantol/djconnect-windows/issues/76 | [DJC-WINDOWS](lanes/DJC-WINDOWS.md) |
-| `DJC-API` | `pcvantol/djconnect-api` | source | https://github.com/pcvantol/djconnect-api/issues/90 | [DJC-API](lanes/DJC-API.md) |
-| `DJC-WEBSITE` | `pcvantol/djconnect-website` | source | https://github.com/pcvantol/djconnect-website/issues/59 | [DJC-WEBSITE](lanes/DJC-WEBSITE.md) |
-| `DJC-VIBECAST` | `pcvantol/djconnect-vibecast-receiver` | source | https://github.com/pcvantol/djconnect-vibecast-receiver/issues/10 | [DJC-VIBECAST](lanes/DJC-VIBECAST.md) |
-| `DJC-PICO` | `pcvantol/djconnect-pico` | experiment | https://github.com/pcvantol/djconnect-pico/issues/6 | [DJC-PICO](lanes/DJC-PICO.md) |
-| `DJC-DIST-FIRMWARE` | `pcvantol/djconnect-firmware` | distribution | https://github.com/pcvantol/djconnect-firmware/issues/24 | [DJC-DIST-FIRMWARE](lanes/DJC-DIST-FIRMWARE.md) |
-| `DJC-DIST-APPLE` | `pcvantol/djconnect-app-releases` | distribution | https://github.com/pcvantol/djconnect-app-releases/issues/25 | [DJC-DIST-APPLE](lanes/DJC-DIST-APPLE.md) |
-| `DJC-DIST-PI` | `pcvantol/djconnect-pi-releases` | distribution | https://github.com/pcvantol/djconnect-pi-releases/issues/24 | [DJC-DIST-PI](lanes/DJC-DIST-PI.md) |
+The original3October snapshot/audit/source pins and projections are immutable history in [history/20261003](history/20261003/README.md). Only this bounded delta is current here; inherited premerge statuses are not current blockers. No portfolio-wide refresh, writer reservation, product dispatch or runtime acceptance is claimed.
+
+- [DJC-CORE](lanes/DJC-CORE.md) — 5 bounded records; no new writer.
+- [DJC-APPLE](lanes/DJC-APPLE.md) — 1 bounded records; no new writer.
+- [DJC-ESP32](lanes/DJC-ESP32.md) — 0 bounded records; no new writer.
+- [DJC-PI](lanes/DJC-PI.md) — 0 bounded records; no new writer.
+- [DJC-WINDOWS](lanes/DJC-WINDOWS.md) — 0 bounded records; no new writer.
+- [DJC-API](lanes/DJC-API.md) — 0 bounded records; no new writer.
+- [DJC-WEBSITE](lanes/DJC-WEBSITE.md) — 0 bounded records; no new writer.
+- [DJC-VIBECAST](lanes/DJC-VIBECAST.md) — 1 bounded records; no new writer.
+- [DJC-PICO](lanes/DJC-PICO.md) — 0 bounded records; no new writer.
+- [DJC-DIST-FIRMWARE](lanes/DJC-DIST-FIRMWARE.md) — 0 bounded records; no new writer.
+- [DJC-DIST-APPLE](lanes/DJC-DIST-APPLE.md) — 0 bounded records; no new writer.
+- [DJC-DIST-PI](lanes/DJC-DIST-PI.md) — 0 bounded records; no new writer.
