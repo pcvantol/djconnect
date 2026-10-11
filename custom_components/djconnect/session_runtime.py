@@ -3253,6 +3253,7 @@ class DJBroadcastState:
     dj_moments: tuple[DJMoment, ...] = ()
     presentations: tuple[PresentationProjection, ...] = ()
     playback: "RendererSafePlaybackProjection" = field(default_factory=lambda: RendererSafePlaybackProjection())
+    mood_revision: int = 0
 
     def as_dict(self, *, include_owner_only: bool = True) -> dict[str, Any]:
         """Return canonical state with its Planner-produced Session Flow."""
@@ -3261,6 +3262,7 @@ class DJBroadcastState:
                 "session_id": self.session_id,
                 "runtime_state": str(self.runtime_state),
                 "selected_mood": self.selected_mood,
+                "mood_revision": self.mood_revision,
                 "locale": self.locale,
             },
             "playback": self.playback.as_dict(),
@@ -3767,6 +3769,14 @@ class DJSessionBroadcastEngine:
         return 0
 
 
+class MoodRevisionConflictError(RuntimeError):
+    """The authorized current Session has advanced beyond a client's revision."""
+
+    def __init__(self, active: "DJSessionRuntime") -> None:
+        self.active = active
+        super().__init__("mood_revision_conflict")
+
+
 class ActiveSessionExistsError(RuntimeError):
     """Raised when a Profile already owns an active DJ Session."""
 
@@ -3862,6 +3872,7 @@ class DJSessionRuntime:
     moment_engine: DJMomentEngine
     presentation_composer: PresentationComposer
     broadcast: DJSessionBroadcastEngine
+    mood_revision: int = 0
     allowed_capability_intents: frozenset[str] | None = None
     presentation_diagnostics: "PresentationCompositionDiagnostics" = field(
         default_factory=lambda: PresentationCompositionDiagnostics()
@@ -3884,6 +3895,7 @@ class DJSessionRuntime:
             "started_at": self.started_at,
             "session_start_strategy": self.session_start_strategy.value,
             "initial_session_mood": self.initial_session_mood,
+            "mood_revision": self.mood_revision,
             "interaction_profile": self.interaction_profile,
             "session_direction": self.session_direction.as_dict(),
             "discover_personalization_available": self.discover_context.personal_context_authorized,
@@ -4293,6 +4305,7 @@ class SessionRuntimeManager:
             working_moments = copy.deepcopy(active.moment_engine)
             direction = active.session_direction
             mood = active.selected_mood
+            candidate_mood_revision = active.mood_revision
             strategy = active.session_start_strategy
             discover = active.discover_context
             memory = active.performance_memory
@@ -4317,6 +4330,7 @@ class SessionRuntimeManager:
             current = self._intra_track_opportunities.get(owner_profile_id)
             if (
                 active is None or active.session_id != session_id
+                or active.mood_revision != candidate_mood_revision
                 or current is not opportunity or current.generation != generation
                 or not current.pending or current.blocked
                 or active.broadcast.state.playback.state != "playing"
@@ -4536,6 +4550,7 @@ class SessionRuntimeManager:
         """Orchestrate Planner → Knowledge → Moment → Flow → Broadcast."""
         async with self._lock:
             prior = self._active_by_profile.get(owner_profile_id)
+            previous_media_identity = prior.last_accepted_media_identity if prior is not None else ""
             initial = prior is not None and not prior.last_accepted_media_identity
             active = self._accept_track_started_media(owner_profile_id, session_id, media_identity, allow_initial=allow_initial_facts)
             if active is None:
@@ -4580,6 +4595,7 @@ class SessionRuntimeManager:
             working_coordinator = copy.deepcopy(active.planning_coordinator)
             if active.session_start_strategy is SessionStartStrategy.DISCOVER:
                 working_planner.note_discover_track_started()
+            planning_mood_revision = active.mood_revision
             planning_input = working_planner.project_track_started_planning_input(
                 session_id=active.session_id,
                 upcoming_playback=upcoming_playback,
@@ -4621,6 +4637,10 @@ class SessionRuntimeManager:
                 media_identity=media_identity,
                 require_current_playback=require_current_playback,
             ):
+                return None
+            if active.mood_revision != planning_mood_revision:
+                self._restore_track_started_media_locked(
+                    owner_profile_id, session_id, media_identity, previous_media_identity)
                 return None
             retained_horizon = active.planner.horizon
             active.planner.__dict__.clear()
@@ -4710,14 +4730,16 @@ class SessionRuntimeManager:
                 require_current_playback=require_current_playback,
             ):
                 return None
+            working_planner = copy.deepcopy(active.planner)
             active, legacy_moment = await self._apply_legacy_initial_track_started_decision(
-                owner_profile_id, active
+                owner_profile_id, active, planner=working_planner
             )
             if legacy_moment is not None:
                 if active.planner.discover_narrative_line is not None:
                     active.planner.clear_discover_narrative()
                 return legacy_moment
-            decision = active.planner.evaluate_track_started(
+            fallback_mood_revision = active.mood_revision
+            decision = working_planner.evaluate_track_started(
                 session_start_strategy=active.session_start_strategy,
                 session_direction=active.session_direction,
                 selected_mood=active.selected_mood,
@@ -4728,6 +4750,7 @@ class SessionRuntimeManager:
                 record_track_available=False,
             )
             if decision.decision_type is PlannerDecisionType.SILENCE:
+                self._commit_planner_candidate(active, working_planner)
                 moment = active.moment_engine.create_silence(
                     session_id=active.session_id,
                     selected_mood=active.selected_mood,
@@ -4744,28 +4767,31 @@ class SessionRuntimeManager:
                 return moment
             intent = decision.knowledge_intent
             if intent is None:
+                self._commit_planner_candidate(active, working_planner)
                 if active.planner.discover_narrative_line is not None:
                     active.planner.clear_discover_narrative()
                 return None
+            candidate = active
+            working_knowledge_engine = copy.deepcopy(active.knowledge_engine)
         try:
-            knowledge = await active.knowledge_engine.async_assemble_track_context(
+            knowledge = await working_knowledge_engine.async_assemble_track_context(
                 intent=intent,
                 raw_insight=raw_insight,
-                session_direction=active.session_direction,
-                session_start_strategy=active.session_start_strategy,
-                session_mood=active.selected_mood,
-                discover_context=active.discover_context,
-                performance_memory=active.performance_memory,
+                session_direction=candidate.session_direction,
+                session_start_strategy=candidate.session_start_strategy,
+                session_mood=candidate.selected_mood,
+                discover_context=candidate.discover_context,
+                performance_memory=candidate.performance_memory,
                 personal_context_authorized=False,
             )
         except Exception as exc:  # noqa: BLE001
             _LOGGER.debug("DJConnect Knowledge Engine unavailable: %s", exc.__class__.__name__)
             knowledge = KnowledgeContext(
-                (), (), (), session_direction=active.session_direction,
-                session_start_strategy=active.session_start_strategy,
-                session_mood=active.selected_mood,
-                discover_context=active.discover_context,
-                performance_memory=active.performance_memory,
+                (), (), (), session_direction=candidate.session_direction,
+                session_start_strategy=candidate.session_start_strategy,
+                session_mood=candidate.selected_mood,
+                discover_context=candidate.discover_context,
+                performance_memory=candidate.performance_memory,
             )
         async with self._lock:
             active = self._active_by_profile.get(owner_profile_id)
@@ -4776,6 +4802,12 @@ class SessionRuntimeManager:
                 require_current_playback=require_current_playback,
             ):
                 return None
+            if active.mood_revision != fallback_mood_revision:
+                self._restore_track_started_media_locked(
+                    owner_profile_id, session_id, media_identity, previous_media_identity)
+                return None
+            self._commit_planner_candidate(active, working_planner)
+            active.knowledge_engine.__dict__.update(working_knowledge_engine.__dict__)
             moment = active.moment_engine.create_track_context(
                 session_id=active.session_id,
                 knowledge_intent=intent,
@@ -4829,20 +4861,21 @@ class SessionRuntimeManager:
     ) -> bool:
         """Restore retryability only when cancelled work is still the newest work."""
         async with self._lock:
-            active = self._active_by_profile.get(owner_profile_id)
-            if (
-                active is None
-                or active.session_id != session_id
-                or active.last_accepted_media_identity != media_identity
-            ):
-                return False
-            self._active_by_profile[owner_profile_id] = DJSessionRuntime(
-                **{
-                    **active.__dict__,
-                    "last_accepted_media_identity": previous_media_identity,
-                }
-            )
-            return True
+            return self._restore_track_started_media_locked(
+                owner_profile_id, session_id, media_identity, previous_media_identity)
+
+    def _restore_track_started_media_locked(
+        self, owner_profile_id: str, session_id: str, media_identity: str,
+        previous_media_identity: str,
+    ) -> bool:
+        """Keep a dropped current candidate eligible for the next normal observation."""
+        active = self._active_by_profile.get(owner_profile_id)
+        if (active is None or active.session_id != session_id
+                or active.last_accepted_media_identity != media_identity):
+            return False
+        self._active_by_profile[owner_profile_id] = DJSessionRuntime(
+            **{**active.__dict__, "last_accepted_media_identity": previous_media_identity})
+        return True
 
     @staticmethod
     def _track_started_result_is_current(
@@ -4906,10 +4939,12 @@ class SessionRuntimeManager:
         return active
 
     async def _apply_legacy_initial_track_started_decision(
-        self, owner_profile_id: str, active: DJSessionRuntime
+        self, owner_profile_id: str, active: DJSessionRuntime,
+        *, planner: DJSessionPlanner | None = None,
     ) -> tuple[DJSessionRuntime, DJMoment | None]:
         """Run the established first Track Started decision only for bounded fallback."""
-        decision = active.planner.evaluate_track_started(
+        planner = planner or active.planner
+        decision = planner.evaluate_track_started(
             session_start_strategy=active.session_start_strategy,
             session_direction=active.session_direction,
             selected_mood=active.selected_mood,
@@ -4917,6 +4952,8 @@ class SessionRuntimeManager:
             performance_memory=active.performance_memory,
             discover_context=active.discover_context,
         )
+        if decision.decision_type in {PlannerDecisionType.CREATE_SESSION_UPDATE, PlannerDecisionType.SILENCE}:
+            self._commit_planner_candidate(active, planner)
         if decision.proposed_session_direction is not None:
             updated_direction = SessionDirection(
                 direction=decision.proposed_session_direction,
@@ -4967,6 +5004,19 @@ class SessionRuntimeManager:
             return active, moment
         return active, None
 
+    @staticmethod
+    def _commit_planner_candidate(active: DJSessionRuntime, candidate: DJSessionPlanner) -> None:
+        """Merge only an accepted locked decision, retaining the existing horizon."""
+        if candidate is active.planner:
+            return
+        horizon = active.planner.horizon
+        active.planner.__dict__.clear()
+        active.planner.__dict__.update(candidate.__dict__)
+        if horizon is not None and candidate.horizon is not None:
+            horizon.__dict__.clear()
+            horizon.__dict__.update(candidate.horizon.__dict__)
+            active.planner.horizon = horizon
+
     def _record_performance_memory(
         self, owner_profile_id: str, active: DJSessionRuntime
     ) -> DJSessionRuntime:
@@ -4993,20 +5043,28 @@ class SessionRuntimeManager:
         )
 
     async def async_update_mood(
-        self, *, owner_profile_id: str, session_id: str, selected_mood: str
+        self, *, owner_profile_id: str, session_id: str, selected_mood: str,
+        expected_revision: int | None = None, authorize: Callable[[], bool] | None = None,
     ) -> DJSessionRuntime | None:
         """Update dynamic Runtime Mood; prior Moment snapshots remain frozen."""
         async with self._lock:
+            if authorize is not None and not authorize():
+                raise PermissionError("unauthorized")
             active = self._active_by_profile.get(owner_profile_id)
             if active is None or active.session_id != session_id:
                 return None
+            if expected_revision is not None and expected_revision != active.mood_revision:
+                raise MoodRevisionConflictError(active)
+            if selected_mood == active.selected_mood:
+                return active
             if (active.planner.discover_narrative_line is not None
                     and selected_mood != active.selected_mood):
                 active.planner.clear_discover_narrative()
-            active.broadcast.state = DJBroadcastState(**{**active.broadcast.state.__dict__, "selected_mood": selected_mood})
-            active.broadcast._publish(BroadcastEventType.MOOD_CHANGED, {"session": active.broadcast.as_dict()["session"]})
-            updated = DJSessionRuntime(**{**active.__dict__, "selected_mood": selected_mood})
+            revision = active.mood_revision + 1
+            active.broadcast.state = DJBroadcastState(**{**active.broadcast.state.__dict__, "selected_mood": selected_mood, "mood_revision": revision})
+            updated = DJSessionRuntime(**{**active.__dict__, "selected_mood": selected_mood, "mood_revision": revision})
             self._active_by_profile[owner_profile_id] = updated
+            active.broadcast._publish(BroadcastEventType.MOOD_CHANGED, {"session": active.broadcast.as_dict()["session"]})
             return updated
 
     async def async_update_persona(

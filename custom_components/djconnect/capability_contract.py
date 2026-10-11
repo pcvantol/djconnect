@@ -13,6 +13,7 @@ def _platform_capabilities() -> dict[str, bool]:
         "voice_endpoint_mappings": True,
         "session_conversation_history": True,
         "session_flow_text_search": True,
+        "active_session_mood": True,
     }
 
 
@@ -23,4 +24,5 @@ def _contract_versions() -> dict[str, int]:
         "client_contract_fixtures": 1,
         "session_conversation_history": 1,
         "session_flow_text_search": 1,
+        "active_session_mood": 1,
     }

@@ -150,6 +150,12 @@ foundation exposes `session_flow: null` and generates no flow.
 
 Mood belongs exclusively to the active Session Runtime. The Planner consumes
 runtime mood as an input and never owns it; a Profile never owns mood.
+The ordinary paired owner can update the exact active Session through
+[`Active Session Mood v1`](docs/product/ACTIVE_SESSION_MOOD_V1.md). Its
+`mood_revision` is Session-scoped, value/revision publication is atomic, and a
+current same-value request produces no event or Moment. Async candidates whose
+captured revision changed are discarded before merge/publication, preserving
+the next eligible opportunity. Immutable Moments retain their decision context.
 
 Future Planner implementations will add replanning, announcements, Track
 Insight scheduling, Discover scheduling, mood progression and transition

@@ -1,0 +1,92 @@
+{
+  "receipts": [
+    {
+      "host": "local",
+      "orientation": "portrait",
+      "viewport": {
+        "width": 1200,
+        "height": 1920
+      },
+      "owner_post": true,
+      "immutable_cards_preserved": true,
+      "future_mood": "party",
+      "source_links": true,
+      "reconnect": true,
+      "expiry": true,
+      "end": true,
+      "cast_status": "NOT_APPLICABLE",
+      "tls": "Node trusts owned CA; browser permits only owned server SPKI",
+      "hardware": "NOT_RUN"
+    },
+    {
+      "host": "local",
+      "orientation": "landscape",
+      "viewport": {
+        "width": 1920,
+        "height": 1200
+      },
+      "owner_post": true,
+      "immutable_cards_preserved": true,
+      "future_mood": "party",
+      "source_links": true,
+      "reconnect": true,
+      "expiry": true,
+      "end": true,
+      "cast_status": "NOT_APPLICABLE",
+      "tls": "Node trusts owned CA; browser permits only owned server SPKI",
+      "hardware": "NOT_RUN"
+    },
+    {
+      "host": "cast",
+      "orientation": "portrait",
+      "viewport": {
+        "width": 1200,
+        "height": 1920
+      },
+      "owner_post": true,
+      "immutable_cards_preserved": true,
+      "future_mood": "party",
+      "source_links": true,
+      "reconnect": true,
+      "expiry": true,
+      "end": true,
+      "cast_status": "MODELED_CAF_ONLY",
+      "tls": "Node trusts owned CA; browser permits only owned server SPKI",
+      "hardware": "NOT_RUN"
+    },
+    {
+      "host": "cast",
+      "orientation": "landscape",
+      "viewport": {
+        "width": 1920,
+        "height": 1200
+      },
+      "owner_post": true,
+      "immutable_cards_preserved": true,
+      "future_mood": "party",
+      "source_links": true,
+      "reconnect": true,
+      "expiry": true,
+      "end": true,
+      "cast_status": "MODELED_CAF_ONLY",
+      "tls": "Node trusts owned CA; browser permits only owned server SPKI",
+      "hardware": "NOT_RUN"
+    }
+  ],
+  "renderer_version": "1.1.0",
+  "native": "NOT_RUN",
+  "installed": "NOT_RUN",
+  "hardware": "NOT_RUN",
+  "build_manifest_sha256": "3234e66b6b329a6efe12665d3cd6193efd379292c08722182bee5810fe87602a",
+  "screenshots_sha256": {
+    "cast-portrait-ended.png": "4abf98445b40f1658fd333e3820b338aa594f160cd879d82bd891fa9e9750ef1",
+    "cast-portrait-party.png": "7219e666f06b1c8695de106c333e2294ed7e2059730bb59608e37ad2eb000c61",
+    "local-landscape-ended.png": "1f8f42cabe76c3e75dfa3ce9802b5c4b69271855ed595e51b1a3fb5416cb4e64",
+    "local-portrait-party.png": "e9a30304e93360d1d7d2be5ab466edd8223320d6b2ac2b6db23422db5bc13cfa",
+    "cast-landscape-party.png": "3e459ed55d373a6bfb46c274af37e8f8aa38ca971ded59b242b61d11cef2300f",
+    "local-landscape-party.png": "3e459ed55d373a6bfb46c274af37e8f8aa38ca971ded59b242b61d11cef2300f",
+    "local-portrait-ended.png": "38daae407698491fb4cc116fbfa629978a464647ae7f29ed8a0ff1415468555a",
+    "cast-landscape-ended.png": "1f036a7abbccb0400baf5e53c93b11d2469f7222ba30b5c612e9b875874c5c48"
+  },
+  "renderer_source_revision": "ad178c7b88d8f2e502c2930afe95352554838572"
+}
