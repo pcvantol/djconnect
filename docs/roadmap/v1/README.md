@@ -2,7 +2,7 @@
 
 Generated from djconnect-platform-v1.json, maintenance DJC-DJ-PRESENCE-ROADMAP-DESIGN-V1-20261011.
 
-The original3October snapshot/audit/source pins and projections are immutable history in [history/20261003](history/20261003/README.md). Only this bounded delta is current here; inherited premerge statuses are not current blockers. No portfolio-wide refresh, writer reservation, product dispatch or runtime acceptance is claimed.
+The original3October snapshot/audit/source pins and projections are immutable history in [history/20261003](history/20261003/README.md). Only this bounded delta is current here; inherited premerge statuses are not current blockers. Only the selected existing Core writer is admitted by implementation receipt; no automatic dispatch, second writer or native/installed/hardware acceptance.
 
 [Owner decision](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6110375785); documentary design date 2026-10-11.
 

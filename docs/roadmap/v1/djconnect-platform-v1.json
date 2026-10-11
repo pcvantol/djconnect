@@ -37594,11 +37594,11 @@
     }
   ],
   "planning_maintenance": {
-    "schema_version": "djconnect-federated-planning-delta/1",
+    "schema_version": "djconnect-federated-planning-delta/2",
     "decision_id": "DJC-DJ-PRESENCE-ROADMAP-DESIGN-V1-20261011",
     "decision_url": "https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6110375785",
     "design_date": "2026-10-11",
-    "scope": "DOCUMENTARY_DELTA_ONLY",
+    "scope": "SELECTED_CORE_IMPLEMENTATION_DELTA",
     "execution_authority": false,
     "automatic_dispatch": false,
     "frozen_snapshot": "history/20261003/djconnect-platform-v1.json",
@@ -37633,8 +37633,8 @@
         "title": "Presence policy and owner contract",
         "lane": "DJC-CORE",
         "repository": "pcvantol/djconnect",
-        "status": "Planned",
-        "assignment_status": "NOT_ISSUED",
+        "status": "In progress",
+        "assignment_status": "IN_PROGRESS",
         "scope": "Pin numeric policy/default, capability/schema and producer fixtures",
         "acceptance_boundary": "Pin numeric policy/default, capability/schema and producer fixtures",
         "contract_binding": "docs/product/DJ_PRESENCE_V1.md; exact implementation values/route still to qualify",
@@ -37655,8 +37655,8 @@
         "title": "Actual proactive presence regulation",
         "lane": "DJC-CORE",
         "repository": "pcvantol/djconnect",
-        "status": "Planned",
-        "assignment_status": "NOT_ISSUED",
+        "status": "In progress",
+        "assignment_status": "IN_PROGRESS",
         "scope": "All proactive paths; off/in-flight/no-catch-up/published-only accounting",
         "acceptance_boundary": "All proactive paths; off/in-flight/no-catch-up/published-only accounting",
         "contract_binding": "docs/product/DJ_PRESENCE_V1.md; exact implementation values/route still to qualify",
@@ -37921,32 +37921,56 @@
     "document_references": [
       {
         "path": "PRODUCT_ROADMAP.md",
-        "sha256": "58bc4cd4f3f15dd615776547f2088d131698a7db1bb028197c983895f0c3686d"
+        "sha256": "d0ab8d943cf9cb26b9ec7c2e0bb4fb33fbddfd647c0a6a89afbb4a7b812ab68c"
       },
       {
         "path": "PRODUCT_BACKLOG.md",
-        "sha256": "2192b5b59efd6c7b1142cc2decab2b4b2247865fd81371d2355c6705c296499d"
+        "sha256": "c53bb408e36f1501c16bcc6d02f93df56ab2e181774dc1a05ccc19a0e2d1494c"
       },
       {
         "path": "docs/product/DJ_PRESENCE_V1.md",
-        "sha256": "2bc9d06743760d15f4cfae051020b96baf5d649c3e432bb9bd9580b03fbf6049"
+        "sha256": "01e99b6d036ce1d0d15d6b14882fb4ec57f01534b2de07a0e21b540bceaad226"
       },
       {
         "path": "DJ_SESSION_RUNTIME_CONTRACTS.md",
-        "sha256": "0a0a506bc9e4455d9ee77a6ae2b7437e652faa89588b560e95dfb55299f0d089"
+        "sha256": "182d8260d12b1c52e87313444e92658e83c4d7362975765eece94303ed261659"
       },
       {
         "path": "docs/product/DJ_INTELLIGENCE_ARCHITECTURE.md",
-        "sha256": "b4145ba3ba742d0f8bdc37510d6639d1ea6ae4efff4a081b92077bf6cbe3013b"
+        "sha256": "23d95940811ae2872e637cd7f39d2cb498a1267ad40b437402f0394747c4d68c"
       },
       {
         "path": "docs/product/DJ_PRESENTATION_ARCHITECTURE.md",
-        "sha256": "f8481ea41c2e12beb2a8907d4fa18ffea64ab0b0b7f2f6d5155f0a16cbb7b62a"
+        "sha256": "2db87c2324418bd0bd9de2502de5a445c9c7d6e65807052292730e9af5d31ab2"
       },
       {
         "path": "docs/technical/PLATFORM_AMBIENT_EXPERIENCE.md",
-        "sha256": "b6a3af9b8f4ae14dcb70abee55974266a7c51e4671749a05dda5f7820d85981a"
+        "sha256": "5a69fbfefbae6bb6e90b0372fd9c456c51acc3eb1cc3c1f3e5e3384f7d8cccd5"
+      },
+      {
+        "path": "docs/product/DJ_PRESENCE_CORE_POLICY_V1.md",
+        "sha256": "32ed8a6a47cc6f64fb07b9ef4df1cf8fb7e92c2368cd0c35c66ad31b76b64909"
+      },
+      {
+        "path": "docs/product/DJ_PRESENCE_OWNER_CONTRACT_V1.md",
+        "sha256": "16f9a4c16e394d67f1ff7f08e922cf2b7f7533b89ae177960fbc7fbd31f08068"
       }
-    ]
+    ],
+    "implementation_receipt": {
+      "assignment_id": "DJC-CORE-DJ-PRESENCE-V1-20261011",
+      "selection_url": "https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6111222122",
+      "source_base": "9cdee0602b2ff0db99c433f2a3f2eb6d5ba8fe4e",
+      "branch": "codex/dj-presence-v1",
+      "phase": "LOCAL_IMPLEMENTATION_AND_QUALIFICATION",
+      "early_contract_pin": "1d5e8c2518db5902031898991b7f4857d5263a5c",
+      "early_apple_receipt": "https://github.com/pcvantol/djconnect-app/issues/87#issuecomment-6111453713",
+      "source_delivery": "UNPUBLISHED",
+      "joint_product_acceptance": "OPEN",
+      "native": "NOT_RUN",
+      "installed": "NOT_RUN",
+      "hardware": "NOT_RUN",
+      "previous_delta": "history/20261011/presence-design-maintenance-v1.json",
+      "previous_delta_sha256": "b6d03e64da8389d345454602c32cefa4ca5f2da0069be26e441555a77f09eb01"
+    }
   }
 }

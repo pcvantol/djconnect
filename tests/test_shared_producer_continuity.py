@@ -60,8 +60,8 @@ class SharedProducerContinuityTest(unittest.TestCase):
                 if number and restart:
                     await manager.async_end(owner_profile_id="owner", session_id=session.session_id)
                     session = await start()
-                now[0] += 15
-                stamp[0] = (base + timedelta(seconds=15*number)).isoformat()
+                now[0] += 60
+                stamp[0] = (base + timedelta(seconds=60*number)).isoformat()
                 catalog = self.catalog(number)
                 await manager.async_update_playback_projection(owner_profile_id="owner", session_id=session.session_id,
                     state="playing", media_identity=catalog["uri"], title=catalog["title"], artist=catalog["artist"],
@@ -76,6 +76,7 @@ class SharedProducerContinuityTest(unittest.TestCase):
                 snapshots.append(session.broadcast.as_dict())
             self.last_capture = {"snapshots": snapshots, "receipts": [m.as_dict() if m else None for m in moments]}
             self.manager, self.session = manager, await manager.async_get_active("owner")
+            self.runtime_clock = now
             return moments
         base = datetime.now(UTC)
         stamp = [base.isoformat()]
@@ -183,6 +184,7 @@ class SharedProducerContinuityTest(unittest.TestCase):
         async def scenario():
             session, manager = self.session, self.manager
             for number in (2, 3):
+                self.runtime_clock[0] += 60
                 catalog = self.catalog(number)
                 await manager.async_update_playback_projection(owner_profile_id="owner", session_id=session.session_id,
                     state="playing", media_identity=catalog["uri"], title=catalog["title"], artist=catalog["artist"],
@@ -219,6 +221,7 @@ class SharedProducerContinuityTest(unittest.TestCase):
                     session_id=session.session_id, media_identity=self.catalog(1)["uri"]))
             self.assertEqual(len(session.broadcast.state.dj_moments), count)
             self.assertEqual(len(session.published_recording_context.used_relations), 1)
+            self.runtime_clock[0] += 60
             entered, release = asyncio.Event(), asyncio.Event()
             catalog = self.catalog(2)
             await manager.async_update_playback_projection(owner_profile_id="owner", session_id=session.session_id,
@@ -230,7 +233,7 @@ class SharedProducerContinuityTest(unittest.TestCase):
                 return {"_qualified_facts":self.pool(2)}
             task = asyncio.create_task(manager.async_process_track_started(owner_profile_id="owner",
                 session_id=session.session_id, media_identity=catalog["uri"], insight_provider=late, require_current_playback=True))
-            await entered.wait()
+            await asyncio.wait_for(entered.wait(), 2)
             await manager.async_update_playback_projection(owner_profile_id="owner", session_id=session.session_id,
                 state="paused", media_identity=catalog["uri"], title=catalog["title"], artist=catalog["artist"],
                 duration_ms=300000, position_ms=0)

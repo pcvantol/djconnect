@@ -1,10 +1,14 @@
 # DJConnect Product Backlog
 
-## Planned: DJ presence v1 — Generation2 / Phase1
+## Current Core candidate: DJ presence v1 — joint product Planned
 
 [Owner decision6110375785](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6110375785)
 authorizes documentary integration `DJC-DJ-PRESENCE-ROADMAP-DESIGN-V1-20261011`.
-Product `DJC-DJ-PRESENCE-V1` stays **Planned**, not Current execution or dispatched.
+Product `DJC-DJ-PRESENCE-V1` stays **Planned** until joint native acceptance.
+The separately selected `DJC-CORE-DJ-PRESENCE-V1-20261011` is admitted on the
+existing Core writer: local implementation/qualification, no automatic dispatch.
+[Policy](docs/product/DJ_PRESENCE_CORE_POLICY_V1.md) and
+[ownercontract](docs/product/DJ_PRESENCE_OWNER_CONTRACT_V1.md) pin the candidate.
 [Canonical design](docs/product/DJ_PRESENCE_V1.md) separates Mood (atmosphere),
 Persona (delivery) and DJ presence (proactive space/dosing). Five anchor levels:
 Alleen muziek, Af en toe, Gebalanceerd, Praatgraag, Presentator. Core owns actual
@@ -16,16 +20,19 @@ complete proactive-path inventory, pinned versioned ownercontract/fixtures and
 actual writer/resource/effect admission. DoD: qualified Core policy AND native
 Apple control AND both renderer receipts, same-session independence, off/in-flight/
 no-catch-up semantics, preserved Ask DJ/privacy/history and exact candidate joins.
-The documented A–E acceptance matrix is a specification, not execution evidence.
+The A–E matrix remains the joint specification. Core software qualifications
+are candidate evidence; native Apple and installed/hardware receipts remain open.
 Pinned early contract integration need not wait for every Core Finalization doc.
 
 Mood delivery1146/1147 is a soft selection predecessor and supplies only its
 needed qualified auth/order subset; Mood does not control presence frequency.
 Richer narrative presenter mode remains a later Planned maturity extension within
 the broader Deferred narrative family, not a v1 prerequisite or duplicate MVP.
-No runtime/UI/provider/model/TTS/renderer implementation or install starts here.
+Core runtime implementation is now selected independently. Native UI, new
+provider/model/TTS and installation are not admitted by this Core assignment.
 The versioned [roadmap maintenance delta](docs/roadmap/v1/README.md) preserves
-original3October freeze/audit/pins and keeps all presence product nodes Planned.
+original3October freeze/audit/pins plus the original documentary delta. Only
+Core contract/policy nodes are In progress; joint/native nodes remain Planned.
 
 Completed Core Cast status producer: `DJC-CORE-VIBECAST-CAST-STATUS-V1-20261009`,
 PR [#1138](https://github.com/pcvantol/djconnect/pull/1138) protected merged as

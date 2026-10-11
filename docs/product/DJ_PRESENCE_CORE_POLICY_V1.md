@@ -28,7 +28,10 @@ The original trace is retained in the owning private lab before code changes.
 ## Calibrated numeric policy
 
 Values are stable protocol codes. Default `balanced` is deliberately bounded,
-including for older clients. Caps are maxima, never targets. All substantive
+including for older clients. This deliberately reduces high-density legacy
+six-card traces to three/track and combines independent routes; it is a safer
+default, not a claim of universally unchanged legacy timing. Caps are maxima,
+never targets. All substantive
 proactive families share the rolling budget and current-track cap.
 
 | Value | Dutch anchor | Min interval (s) | Maximum / track | Maximum / rolling 600 s |
@@ -48,7 +51,15 @@ not more words. All five modes may legitimately publish nothing with poor input.
 One Runtime-owned bounded ledger follows monotonic time and stable playback
 identity. Settings changes, no-ops, reconnect and seek never clear it. A skipped
 observation creates no queue. Published identities and counters survive raising
-and lowering within the same Session. End discards the ephemeral ledger.
+and lowering within the same Session. The ledger uses 65,536 saturating hash buckets (64 KiB); old track debits never
+evict. A collision can only suppress a contribution, never grant extra budget.
+Unanchored Session content uses the rolling cap, not a fictitious track cap.
+End discards the ephemeral ledger.
+
+The existing Planner may keep one private Transition approval in the current
+track opportunity for at most 90 s. It creates no Moment until a fresh readable
+observation; changed settings, intervening Flow, seek/track/end or expiry discard
+it. No source retry or old approval catches up after raising.
 
 Every changed presence increments its own revision. Work captures that revision
 before any asynchronous boundary; its final commit rejects even off/on ABA.

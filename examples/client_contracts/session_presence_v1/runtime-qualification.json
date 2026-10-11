@@ -1,0 +1,1359 @@
+{
+  "qualification_elapsed_seconds": 3.019,
+  "qualification": "ISOLATED_HA_RUNTIME_POLICY_PASS",
+  "matrix": {
+    "music_only": {
+      "count": 0,
+      "publications": [],
+      "suppression_reasons": {
+        "presence_music_only": 44
+      },
+      "rolling_debits": 0,
+      "same_session": true
+    },
+    "occasional": {
+      "count": 2,
+      "publications": [
+        {
+          "elapsed_seconds": 0.0,
+          "type": "track",
+          "source_url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000001",
+          "read_seconds": 40
+        },
+        {
+          "elapsed_seconds": 180.0,
+          "type": "album",
+          "source_url": "https://open.spotify.com/album/0000000000000000000002",
+          "read_seconds": 40
+        }
+      ],
+      "suppression_reasons": {
+        "presence_readable_interval": 20,
+        "presence_rolling_budget": 15
+      },
+      "rolling_debits": 1,
+      "same_session": true
+    },
+    "balanced": {
+      "count": 6,
+      "publications": [
+        {
+          "elapsed_seconds": 0.0,
+          "type": "track",
+          "source_url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000001",
+          "read_seconds": 40
+        },
+        {
+          "elapsed_seconds": 45.0,
+          "type": "album",
+          "source_url": "https://open.spotify.com/album/0000000000000000000001",
+          "read_seconds": 40
+        },
+        {
+          "elapsed_seconds": 90.0,
+          "type": "track",
+          "source_url": "https://musicbrainz.org/work/00000000-0000-0000-0000-000000000001",
+          "read_seconds": 40
+        },
+        {
+          "elapsed_seconds": 180.0,
+          "type": "album",
+          "source_url": "https://open.spotify.com/album/0000000000000000000002",
+          "read_seconds": 40
+        },
+        {
+          "elapsed_seconds": 225.0,
+          "type": "track",
+          "source_url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000002",
+          "read_seconds": 40
+        },
+        {
+          "elapsed_seconds": 270.0,
+          "type": "artist",
+          "source_url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000002",
+          "read_seconds": 40
+        }
+      ],
+      "suppression_reasons": {
+        "presence_readable_interval": 12,
+        "presence_track_budget": 4,
+        "presence_rolling_budget": 15
+      },
+      "rolling_debits": 3,
+      "same_session": true
+    },
+    "talkative": {
+      "count": 10,
+      "publications": [
+        {
+          "elapsed_seconds": 0.0,
+          "type": "track",
+          "source_url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000001",
+          "read_seconds": 40
+        },
+        {
+          "elapsed_seconds": 45.0,
+          "type": "album",
+          "source_url": "https://open.spotify.com/album/0000000000000000000001",
+          "read_seconds": 40
+        },
+        {
+          "elapsed_seconds": 90.0,
+          "type": "track",
+          "source_url": "https://musicbrainz.org/work/00000000-0000-0000-0000-000000000001",
+          "read_seconds": 40
+        },
+        {
+          "elapsed_seconds": 135.0,
+          "type": "artist",
+          "source_url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000001",
+          "read_seconds": 40
+        },
+        {
+          "elapsed_seconds": 180.0,
+          "type": "track",
+          "source_url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000002",
+          "read_seconds": 40
+        },
+        {
+          "elapsed_seconds": 225.0,
+          "type": "album",
+          "source_url": "https://open.spotify.com/album/0000000000000000000002",
+          "read_seconds": 40
+        },
+        {
+          "elapsed_seconds": 270.0,
+          "type": "track",
+          "source_url": "https://musicbrainz.org/work/00000000-0000-0000-0000-000000000002",
+          "read_seconds": 40
+        },
+        {
+          "elapsed_seconds": 315.0,
+          "type": "artist",
+          "source_url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000002",
+          "read_seconds": 40
+        },
+        {
+          "elapsed_seconds": 360.0,
+          "type": "track",
+          "source_url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000003",
+          "read_seconds": 40
+        },
+        {
+          "elapsed_seconds": 405.0,
+          "type": "album",
+          "source_url": "https://open.spotify.com/album/0000000000000000000003",
+          "read_seconds": 40
+        }
+      ],
+      "suppression_reasons": {
+        "presence_readable_interval": 18,
+        "presence_rolling_budget": 9
+      },
+      "rolling_debits": 7,
+      "same_session": true
+    },
+    "presenter": {
+      "count": 16,
+      "publications": [
+        {
+          "elapsed_seconds": 0.0,
+          "type": "track",
+          "source_url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000001",
+          "read_seconds": 40
+        },
+        {
+          "elapsed_seconds": 45.0,
+          "type": "album",
+          "source_url": "https://open.spotify.com/album/0000000000000000000001",
+          "read_seconds": 40
+        },
+        {
+          "elapsed_seconds": 90.0,
+          "type": "track",
+          "source_url": "https://musicbrainz.org/work/00000000-0000-0000-0000-000000000001",
+          "read_seconds": 40
+        },
+        {
+          "elapsed_seconds": 135.0,
+          "type": "artist",
+          "source_url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000001",
+          "read_seconds": 40
+        },
+        {
+          "elapsed_seconds": 180.0,
+          "type": "track",
+          "source_url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000002",
+          "read_seconds": 40
+        },
+        {
+          "elapsed_seconds": 225.0,
+          "type": "album",
+          "source_url": "https://open.spotify.com/album/0000000000000000000002",
+          "read_seconds": 40
+        },
+        {
+          "elapsed_seconds": 270.0,
+          "type": "track",
+          "source_url": "https://musicbrainz.org/work/00000000-0000-0000-0000-000000000002",
+          "read_seconds": 40
+        },
+        {
+          "elapsed_seconds": 315.0,
+          "type": "artist",
+          "source_url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000002",
+          "read_seconds": 40
+        },
+        {
+          "elapsed_seconds": 360.0,
+          "type": "track",
+          "source_url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000003",
+          "read_seconds": 40
+        },
+        {
+          "elapsed_seconds": 405.0,
+          "type": "album",
+          "source_url": "https://open.spotify.com/album/0000000000000000000003",
+          "read_seconds": 40
+        },
+        {
+          "elapsed_seconds": 450.0,
+          "type": "track",
+          "source_url": "https://musicbrainz.org/work/00000000-0000-0000-0000-000000000003",
+          "read_seconds": 40
+        },
+        {
+          "elapsed_seconds": 495.0,
+          "type": "artist",
+          "source_url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000003",
+          "read_seconds": 40
+        },
+        {
+          "elapsed_seconds": 540.0,
+          "type": "track",
+          "source_url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000004",
+          "read_seconds": 40
+        },
+        {
+          "elapsed_seconds": 585.0,
+          "type": "album",
+          "source_url": "https://open.spotify.com/album/0000000000000000000004",
+          "read_seconds": 40
+        },
+        {
+          "elapsed_seconds": 630.0,
+          "type": "track",
+          "source_url": "https://musicbrainz.org/work/00000000-0000-0000-0000-000000000004",
+          "read_seconds": 40
+        },
+        {
+          "elapsed_seconds": 675.0,
+          "type": "artist",
+          "source_url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000004",
+          "read_seconds": 40
+        }
+      ],
+      "suppression_reasons": {
+        "presence_readable_interval": 28
+      },
+      "rolling_debits": 13,
+      "same_session": true
+    }
+  },
+  "orthogonality": {
+    "calm_high": {
+      "count": 12,
+      "publications": [
+        {
+          "elapsed_seconds": 0.0,
+          "type": "track",
+          "source_url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000001",
+          "read_seconds": 40
+        },
+        {
+          "elapsed_seconds": 60.0,
+          "type": "album",
+          "source_url": "https://open.spotify.com/album/0000000000000000000001",
+          "read_seconds": 40
+        },
+        {
+          "elapsed_seconds": 120.0,
+          "type": "track",
+          "source_url": "https://musicbrainz.org/work/00000000-0000-0000-0000-000000000001",
+          "read_seconds": 40
+        },
+        {
+          "elapsed_seconds": 180.0,
+          "type": "album",
+          "source_url": "https://open.spotify.com/album/0000000000000000000002",
+          "read_seconds": 40
+        },
+        {
+          "elapsed_seconds": 240.0,
+          "type": "track",
+          "source_url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000002",
+          "read_seconds": 40
+        },
+        {
+          "elapsed_seconds": 300.0,
+          "type": "artist",
+          "source_url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000002",
+          "read_seconds": 40
+        },
+        {
+          "elapsed_seconds": 360.0,
+          "type": "track",
+          "source_url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000003",
+          "read_seconds": 40
+        },
+        {
+          "elapsed_seconds": 420.0,
+          "type": "album",
+          "source_url": "https://open.spotify.com/album/0000000000000000000003",
+          "read_seconds": 40
+        },
+        {
+          "elapsed_seconds": 480.0,
+          "type": "track",
+          "source_url": "https://musicbrainz.org/work/00000000-0000-0000-0000-000000000003",
+          "read_seconds": 40
+        },
+        {
+          "elapsed_seconds": 540.0,
+          "type": "album",
+          "source_url": "https://open.spotify.com/album/0000000000000000000004",
+          "read_seconds": 40
+        },
+        {
+          "elapsed_seconds": 600.0,
+          "type": "track",
+          "source_url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000004",
+          "read_seconds": 40
+        },
+        {
+          "elapsed_seconds": 660.0,
+          "type": "artist",
+          "source_url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000004",
+          "read_seconds": 40
+        }
+      ],
+      "suppression_reasons": {
+        "presence_readable_interval": 24
+      },
+      "rolling_debits": 10,
+      "same_session": true
+    },
+    "energetic_low": {
+      "count": 2,
+      "publications": [
+        {
+          "elapsed_seconds": 0.0,
+          "type": "track",
+          "source_url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000001",
+          "read_seconds": 40
+        },
+        {
+          "elapsed_seconds": 180.0,
+          "type": "album",
+          "source_url": "https://open.spotify.com/album/0000000000000000000002",
+          "read_seconds": 40
+        }
+      ],
+      "suppression_reasons": {
+        "presence_readable_interval": 20,
+        "presence_rolling_budget": 15
+      },
+      "rolling_debits": 1,
+      "same_session": true
+    }
+  },
+  "source_poor": {
+    "count": 0,
+    "publications": [],
+    "suppression_reasons": {},
+    "rolling_debits": 0,
+    "same_session": true
+  },
+  "duration": {
+    "count": 160,
+    "publications": [
+      {
+        "elapsed_seconds": 0.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000001",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 45.0,
+        "type": "album",
+        "source_url": "https://open.spotify.com/album/0000000000000000000001",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 90.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/work/00000000-0000-0000-0000-000000000001",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 135.0,
+        "type": "artist",
+        "source_url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000001",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 180.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000002",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 225.0,
+        "type": "album",
+        "source_url": "https://open.spotify.com/album/0000000000000000000002",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 270.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/work/00000000-0000-0000-0000-000000000002",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 315.0,
+        "type": "artist",
+        "source_url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000002",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 360.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000003",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 405.0,
+        "type": "album",
+        "source_url": "https://open.spotify.com/album/0000000000000000000003",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 450.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/work/00000000-0000-0000-0000-000000000003",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 495.0,
+        "type": "artist",
+        "source_url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000003",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 540.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000004",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 585.0,
+        "type": "album",
+        "source_url": "https://open.spotify.com/album/0000000000000000000004",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 630.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/work/00000000-0000-0000-0000-000000000004",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 675.0,
+        "type": "artist",
+        "source_url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000004",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 720.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000005",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 765.0,
+        "type": "album",
+        "source_url": "https://open.spotify.com/album/0000000000000000000005",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 810.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/work/00000000-0000-0000-0000-000000000005",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 855.0,
+        "type": "artist",
+        "source_url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000005",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 900.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000006",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 945.0,
+        "type": "album",
+        "source_url": "https://open.spotify.com/album/0000000000000000000006",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 990.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/work/00000000-0000-0000-0000-000000000006",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 1035.0,
+        "type": "artist",
+        "source_url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000006",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 1080.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000007",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 1125.0,
+        "type": "album",
+        "source_url": "https://open.spotify.com/album/0000000000000000000007",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 1170.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/work/00000000-0000-0000-0000-000000000007",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 1215.0,
+        "type": "artist",
+        "source_url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000007",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 1260.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000008",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 1305.0,
+        "type": "album",
+        "source_url": "https://open.spotify.com/album/0000000000000000000008",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 1350.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/work/00000000-0000-0000-0000-000000000008",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 1395.0,
+        "type": "artist",
+        "source_url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000008",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 1440.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000009",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 1485.0,
+        "type": "album",
+        "source_url": "https://open.spotify.com/album/0000000000000000000009",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 1530.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/work/00000000-0000-0000-0000-000000000009",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 1575.0,
+        "type": "artist",
+        "source_url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000009",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 1620.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000010",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 1665.0,
+        "type": "album",
+        "source_url": "https://open.spotify.com/album/0000000000000000000010",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 1710.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/work/00000000-0000-0000-0000-000000000010",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 1755.0,
+        "type": "artist",
+        "source_url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000010",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 1800.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000011",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 1845.0,
+        "type": "album",
+        "source_url": "https://open.spotify.com/album/0000000000000000000011",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 1890.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/work/00000000-0000-0000-0000-000000000011",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 1935.0,
+        "type": "artist",
+        "source_url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000011",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 1980.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000012",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 2025.0,
+        "type": "album",
+        "source_url": "https://open.spotify.com/album/0000000000000000000012",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 2070.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/work/00000000-0000-0000-0000-000000000012",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 2115.0,
+        "type": "artist",
+        "source_url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000012",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 2160.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000013",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 2205.0,
+        "type": "album",
+        "source_url": "https://open.spotify.com/album/0000000000000000000013",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 2250.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/work/00000000-0000-0000-0000-000000000013",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 2295.0,
+        "type": "artist",
+        "source_url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000013",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 2340.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000014",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 2385.0,
+        "type": "album",
+        "source_url": "https://open.spotify.com/album/0000000000000000000014",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 2430.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/work/00000000-0000-0000-0000-000000000014",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 2475.0,
+        "type": "artist",
+        "source_url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000014",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 2520.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000015",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 2565.0,
+        "type": "album",
+        "source_url": "https://open.spotify.com/album/0000000000000000000015",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 2610.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/work/00000000-0000-0000-0000-000000000015",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 2655.0,
+        "type": "artist",
+        "source_url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000015",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 2700.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000016",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 2745.0,
+        "type": "album",
+        "source_url": "https://open.spotify.com/album/0000000000000000000016",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 2790.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/work/00000000-0000-0000-0000-000000000016",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 2835.0,
+        "type": "artist",
+        "source_url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000016",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 2880.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000017",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 2925.0,
+        "type": "album",
+        "source_url": "https://open.spotify.com/album/0000000000000000000017",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 2970.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/work/00000000-0000-0000-0000-000000000017",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 3015.0,
+        "type": "artist",
+        "source_url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000017",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 3060.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000018",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 3105.0,
+        "type": "album",
+        "source_url": "https://open.spotify.com/album/0000000000000000000018",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 3150.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/work/00000000-0000-0000-0000-000000000018",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 3195.0,
+        "type": "artist",
+        "source_url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000018",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 3240.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000019",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 3285.0,
+        "type": "album",
+        "source_url": "https://open.spotify.com/album/0000000000000000000019",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 3330.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/work/00000000-0000-0000-0000-000000000019",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 3375.0,
+        "type": "artist",
+        "source_url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000019",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 3420.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000020",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 3465.0,
+        "type": "album",
+        "source_url": "https://open.spotify.com/album/0000000000000000000020",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 3510.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/work/00000000-0000-0000-0000-000000000020",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 3555.0,
+        "type": "artist",
+        "source_url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000020",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 3600.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000021",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 3645.0,
+        "type": "album",
+        "source_url": "https://open.spotify.com/album/0000000000000000000021",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 3690.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/work/00000000-0000-0000-0000-000000000021",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 3735.0,
+        "type": "artist",
+        "source_url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000021",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 3780.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000022",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 3825.0,
+        "type": "album",
+        "source_url": "https://open.spotify.com/album/0000000000000000000022",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 3870.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/work/00000000-0000-0000-0000-000000000022",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 3915.0,
+        "type": "artist",
+        "source_url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000022",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 3960.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000023",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 4005.0,
+        "type": "album",
+        "source_url": "https://open.spotify.com/album/0000000000000000000023",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 4050.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/work/00000000-0000-0000-0000-000000000023",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 4095.0,
+        "type": "artist",
+        "source_url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000023",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 4140.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000024",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 4185.0,
+        "type": "album",
+        "source_url": "https://open.spotify.com/album/0000000000000000000024",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 4230.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/work/00000000-0000-0000-0000-000000000024",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 4275.0,
+        "type": "artist",
+        "source_url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000024",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 4320.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000025",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 4365.0,
+        "type": "album",
+        "source_url": "https://open.spotify.com/album/0000000000000000000025",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 4410.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/work/00000000-0000-0000-0000-000000000025",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 4455.0,
+        "type": "artist",
+        "source_url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000025",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 4500.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000026",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 4545.0,
+        "type": "album",
+        "source_url": "https://open.spotify.com/album/0000000000000000000026",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 4590.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/work/00000000-0000-0000-0000-000000000026",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 4635.0,
+        "type": "artist",
+        "source_url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000026",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 4680.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000027",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 4725.0,
+        "type": "album",
+        "source_url": "https://open.spotify.com/album/0000000000000000000027",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 4770.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/work/00000000-0000-0000-0000-000000000027",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 4815.0,
+        "type": "artist",
+        "source_url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000027",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 4860.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000028",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 4905.0,
+        "type": "album",
+        "source_url": "https://open.spotify.com/album/0000000000000000000028",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 4950.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/work/00000000-0000-0000-0000-000000000028",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 4995.0,
+        "type": "artist",
+        "source_url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000028",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 5040.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000029",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 5085.0,
+        "type": "album",
+        "source_url": "https://open.spotify.com/album/0000000000000000000029",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 5130.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/work/00000000-0000-0000-0000-000000000029",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 5175.0,
+        "type": "artist",
+        "source_url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000029",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 5220.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000030",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 5265.0,
+        "type": "album",
+        "source_url": "https://open.spotify.com/album/0000000000000000000030",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 5310.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/work/00000000-0000-0000-0000-000000000030",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 5355.0,
+        "type": "artist",
+        "source_url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000030",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 5400.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000031",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 5445.0,
+        "type": "album",
+        "source_url": "https://open.spotify.com/album/0000000000000000000031",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 5490.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/work/00000000-0000-0000-0000-000000000031",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 5535.0,
+        "type": "artist",
+        "source_url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000031",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 5580.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000032",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 5625.0,
+        "type": "album",
+        "source_url": "https://open.spotify.com/album/0000000000000000000032",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 5670.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/work/00000000-0000-0000-0000-000000000032",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 5715.0,
+        "type": "artist",
+        "source_url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000032",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 5760.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000033",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 5805.0,
+        "type": "album",
+        "source_url": "https://open.spotify.com/album/0000000000000000000033",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 5850.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/work/00000000-0000-0000-0000-000000000033",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 5895.0,
+        "type": "artist",
+        "source_url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000033",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 5940.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000034",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 5985.0,
+        "type": "album",
+        "source_url": "https://open.spotify.com/album/0000000000000000000034",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 6030.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/work/00000000-0000-0000-0000-000000000034",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 6075.0,
+        "type": "artist",
+        "source_url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000034",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 6120.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000035",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 6165.0,
+        "type": "album",
+        "source_url": "https://open.spotify.com/album/0000000000000000000035",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 6210.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/work/00000000-0000-0000-0000-000000000035",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 6255.0,
+        "type": "artist",
+        "source_url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000035",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 6300.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000036",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 6345.0,
+        "type": "album",
+        "source_url": "https://open.spotify.com/album/0000000000000000000036",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 6390.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/work/00000000-0000-0000-0000-000000000036",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 6435.0,
+        "type": "artist",
+        "source_url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000036",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 6480.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000037",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 6525.0,
+        "type": "album",
+        "source_url": "https://open.spotify.com/album/0000000000000000000037",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 6570.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/work/00000000-0000-0000-0000-000000000037",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 6615.0,
+        "type": "artist",
+        "source_url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000037",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 6660.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000038",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 6705.0,
+        "type": "album",
+        "source_url": "https://open.spotify.com/album/0000000000000000000038",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 6750.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/work/00000000-0000-0000-0000-000000000038",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 6795.0,
+        "type": "artist",
+        "source_url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000038",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 6840.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000039",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 6885.0,
+        "type": "album",
+        "source_url": "https://open.spotify.com/album/0000000000000000000039",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 6930.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/work/00000000-0000-0000-0000-000000000039",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 6975.0,
+        "type": "artist",
+        "source_url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000039",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 7020.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000040",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 7065.0,
+        "type": "album",
+        "source_url": "https://open.spotify.com/album/0000000000000000000040",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 7110.0,
+        "type": "track",
+        "source_url": "https://musicbrainz.org/work/00000000-0000-0000-0000-000000000040",
+        "read_seconds": 40
+      },
+      {
+        "elapsed_seconds": 7155.0,
+        "type": "artist",
+        "source_url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000040",
+        "read_seconds": 40
+      }
+    ],
+    "suppression_reasons": {
+      "presence_readable_interval": 280
+    },
+    "rolling_debits": 13,
+    "same_session": true,
+    "modeled_minutes": 120,
+    "track_observations": 40,
+    "intra_observations": 400,
+    "real_elapsed_seconds": 2.866,
+    "peak_tasks": 4,
+    "process_peak_rss_bytes": 260947968,
+    "fixed_ledger_bytes": 65536,
+    "retries": 0,
+    "external_provider_calls": 0
+  },
+  "native": "NOT_RUN",
+  "installed": "NOT_RUN",
+  "hardware": "NOT_RUN"
+}

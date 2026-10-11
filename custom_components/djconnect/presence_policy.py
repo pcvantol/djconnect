@@ -4,6 +4,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Callable
 import time
+import hashlib
 
 DEFAULT = "balanced"
 # minimum interval, contributions per track, contributions per rolling ten minutes
@@ -21,11 +22,17 @@ class PresenceLedger:
     """Only successful publications debit; live settings never reset history."""
     clock: Callable[[], float] = field(default=time.monotonic, repr=False)
     publications: tuple[float, ...] = ()
-    track_counts: dict[str, int] = field(default_factory=dict)
+    # Saturating fixed buckets preserve old debits for the entire Session.
+    # A hash collision can only suppress, never grant additional contributions.
+    track_counts: bytearray = field(default_factory=lambda: bytearray(65536))
     last_at: float | None = None
     last_read_seconds: int = 0
     suppression_reason: str = ""
     total_published: int = 0
+
+    @staticmethod
+    def bucket(track_id: str) -> int:
+        return int.from_bytes(hashlib.sha256(track_id.encode()).digest()[:2], "big")
 
     def reason(self, mode: str, track_id: str) -> str:
         now = self.clock()
@@ -35,7 +42,7 @@ class PresenceLedger:
             return "presence_music_only"
         if self.last_at is not None and now - self.last_at < max(gap, self.last_read_seconds - 5):
             return "presence_readable_interval"
-        if self.track_counts.get(track_id, 0) >= track_cap:
+        if track_id and self.track_counts[self.bucket(track_id)] >= track_cap:
             return "presence_track_budget"
         if len(self.publications) >= window_cap:
             return "presence_rolling_budget"
@@ -50,7 +57,6 @@ class PresenceLedger:
         self.publications = (*self.publications, now)
         self.last_at = now
         self.last_read_seconds = read_seconds
-        self.track_counts[track_id] = self.track_counts.get(track_id, 0) + 1
-        if len(self.track_counts) > 128:
-            self.track_counts.pop(next(iter(self.track_counts)))
+        bucket = self.bucket(track_id)
+        self.track_counts[bucket] = min(6, self.track_counts[bucket] + 1)
         self.total_published += 1

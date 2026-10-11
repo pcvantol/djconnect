@@ -103,7 +103,7 @@ class VibeCastMultiMomentTest(unittest.TestCase):
             manager, session, first, media_id, now = await self._ready()
             await self._observe(manager, session, media_id, now, seconds=15, position_ms=15_000)
             self.assertIsNone(await self._later(manager, session, media_id))
-            await self._observe(manager, session, media_id, now, seconds=15, position_ms=30_000)
+            await self._observe(manager, session, media_id, now, seconds=30, position_ms=45_000)
             second = await self._later(manager, session, media_id)
             duplicate = await self._later(manager, session, media_id)
             return session, first, second, duplicate
@@ -192,7 +192,7 @@ class VibeCastMultiMomentTest(unittest.TestCase):
 
             with patch.object(self.runtime.DJKnowledgeEngine, "async_assemble_track_context", slow):
                 pending = asyncio.create_task(self._later(manager, session, media_id))
-                await started.wait()
+                await asyncio.wait_for(started.wait(), 2)
                 now[0] += 1
                 await manager.async_update_playback_projection(
                     owner_profile_id=session.owner_profile_id, session_id=session.session_id,

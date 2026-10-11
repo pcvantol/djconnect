@@ -1,11 +1,14 @@
-# DJ presence v1 — Planned design
+# DJ presence v1 — Core implementation candidate; joint product Planned
 
 Decision `DJC-DJ-PRESENCE-ROADMAP-DESIGN-V1-20261011`, product slice
 `DJC-DJ-PRESENCE-V1`, [owner decision6110375785](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6110375785).
-**Product status: Planned.** Documentary integration is authorized; product
-implementation, native UI, browser/installed/hardware qualification are not
-started or claimed. Core and Apple retain their existing writers. Generation2,
-Phase1; no new lane, monitor, model/provider/TTS or automatic dispatch.
+**Joint product status: Planned.** The separately selected
+`DJC-CORE-DJ-PRESENCE-V1-20261011` is in local implementation and qualification
+on the existing Core writer. [Calibrated policy](DJ_PRESENCE_CORE_POLICY_V1.md)
+and [owner transport v1](DJ_PRESENCE_OWNER_CONTRACT_V1.md) describe the candidate.
+Core software/browser receipts are distinct from native Apple, installed and
+hardware acceptance, which remain open. Generation2, Phase1; no new lane,
+monitor, model/provider/TTS or automatic dispatch.
 
 ## Three independent dimensions
 
@@ -20,7 +23,8 @@ Watch mood, voice volume or TTS enablement. It changes none of those dimensions.
 
 Native iPhone/iPad/macOS stepped slider: **DJ-aanwezigheid**, explanation
 **Hoeveel vertelt de DJ tijdens je sessie?** The five positions are fixed design
-intent; machine values and numeric budgets are not yet a published API.
+intent. The separately selected Core candidate pins machine values and numeric
+budgets in the linked policy/ownercontract; protected publication is pending.
 
 | Position | Meaning |
 |---|---|

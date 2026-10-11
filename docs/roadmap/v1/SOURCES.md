@@ -2,7 +2,9 @@
 
 Generated from djconnect-platform-v1.json, maintenance DJC-DJ-PRESENCE-ROADMAP-DESIGN-V1-20261011.
 
-The original3October snapshot/audit/source pins and projections are immutable history in [history/20261003](history/20261003/README.md). Only this bounded delta is current here; inherited premerge statuses are not current blockers. No portfolio-wide refresh, writer reservation, product dispatch or runtime acceptance is claimed.
+The original3October snapshot/audit/source pins and projections are immutable history in [history/20261003](history/20261003/README.md). Only this bounded delta is current here; inherited premerge statuses are not current blockers. Only the selected existing Core writer is admitted by implementation receipt; no automatic dispatch, second writer or native/installed/hardware acceptance.
+
+Selected implementation [DJC-CORE-DJ-PRESENCE-V1-20261011](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6111222122); early local contract `1d5e8c2518db5902031898991b7f4857d5263a5c`; source delivery UNPUBLISHED.
 
 Authority: [DJC-DJ-PRESENCE-ROADMAP-DESIGN-V1-20261011](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6110375785).
 
@@ -10,10 +12,12 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 
 | Local design source | SHA256 |
 |---|---|
-| [PRODUCT_ROADMAP.md](../../../PRODUCT_ROADMAP.md) | `58bc4cd4f3f15dd615776547f2088d131698a7db1bb028197c983895f0c3686d` |
-| [PRODUCT_BACKLOG.md](../../../PRODUCT_BACKLOG.md) | `2192b5b59efd6c7b1142cc2decab2b4b2247865fd81371d2355c6705c296499d` |
-| [docs/product/DJ_PRESENCE_V1.md](../../../docs/product/DJ_PRESENCE_V1.md) | `2bc9d06743760d15f4cfae051020b96baf5d649c3e432bb9bd9580b03fbf6049` |
-| [DJ_SESSION_RUNTIME_CONTRACTS.md](../../../DJ_SESSION_RUNTIME_CONTRACTS.md) | `0a0a506bc9e4455d9ee77a6ae2b7437e652faa89588b560e95dfb55299f0d089` |
-| [docs/product/DJ_INTELLIGENCE_ARCHITECTURE.md](../../../docs/product/DJ_INTELLIGENCE_ARCHITECTURE.md) | `b4145ba3ba742d0f8bdc37510d6639d1ea6ae4efff4a081b92077bf6cbe3013b` |
-| [docs/product/DJ_PRESENTATION_ARCHITECTURE.md](../../../docs/product/DJ_PRESENTATION_ARCHITECTURE.md) | `f8481ea41c2e12beb2a8907d4fa18ffea64ab0b0b7f2f6d5155f0a16cbb7b62a` |
-| [docs/technical/PLATFORM_AMBIENT_EXPERIENCE.md](../../../docs/technical/PLATFORM_AMBIENT_EXPERIENCE.md) | `b6a3af9b8f4ae14dcb70abee55974266a7c51e4671749a05dda5f7820d85981a` |
+| [PRODUCT_ROADMAP.md](../../../PRODUCT_ROADMAP.md) | `d0ab8d943cf9cb26b9ec7c2e0bb4fb33fbddfd647c0a6a89afbb4a7b812ab68c` |
+| [PRODUCT_BACKLOG.md](../../../PRODUCT_BACKLOG.md) | `c53bb408e36f1501c16bcc6d02f93df56ab2e181774dc1a05ccc19a0e2d1494c` |
+| [docs/product/DJ_PRESENCE_V1.md](../../../docs/product/DJ_PRESENCE_V1.md) | `01e99b6d036ce1d0d15d6b14882fb4ec57f01534b2de07a0e21b540bceaad226` |
+| [DJ_SESSION_RUNTIME_CONTRACTS.md](../../../DJ_SESSION_RUNTIME_CONTRACTS.md) | `182d8260d12b1c52e87313444e92658e83c4d7362975765eece94303ed261659` |
+| [docs/product/DJ_INTELLIGENCE_ARCHITECTURE.md](../../../docs/product/DJ_INTELLIGENCE_ARCHITECTURE.md) | `23d95940811ae2872e637cd7f39d2cb498a1267ad40b437402f0394747c4d68c` |
+| [docs/product/DJ_PRESENTATION_ARCHITECTURE.md](../../../docs/product/DJ_PRESENTATION_ARCHITECTURE.md) | `2db87c2324418bd0bd9de2502de5a445c9c7d6e65807052292730e9af5d31ab2` |
+| [docs/technical/PLATFORM_AMBIENT_EXPERIENCE.md](../../../docs/technical/PLATFORM_AMBIENT_EXPERIENCE.md) | `5a69fbfefbae6bb6e90b0372fd9c456c51acc3eb1cc3c1f3e5e3384f7d8cccd5` |
+| [docs/product/DJ_PRESENCE_CORE_POLICY_V1.md](../../../docs/product/DJ_PRESENCE_CORE_POLICY_V1.md) | `32ed8a6a47cc6f64fb07b9ef4df1cf8fb7e92c2368cd0c35c66ad31b76b64909` |
+| [docs/product/DJ_PRESENCE_OWNER_CONTRACT_V1.md](../../../docs/product/DJ_PRESENCE_OWNER_CONTRACT_V1.md) | `16f9a4c16e394d67f1ff7f08e922cf2b7f7533b89ae177960fbc7fbd31f08068` |

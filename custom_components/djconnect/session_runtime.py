@@ -3836,6 +3836,7 @@ class IntraTrackOpportunity:
     fact_count: int = 0
     last_fact_position_ms: int | None = None
     last_fact_read_seconds: int = 0
+    pending_transition: tuple[PlannerDecision, int, int, DJPersona, SessionDirection, int, float] | None = None
 
 
 def _safe_intra_track_insight(raw_insight: dict[str, Any]) -> dict[str, Any]:
@@ -3897,6 +3898,7 @@ class DJSessionRuntime:
     last_accepted_media_identity: str = ""
     published_recording_context: PublishedRecordingContext = field(default_factory=PublishedRecordingContext)
     presence_ledger: PresenceLedger = field(default_factory=PresenceLedger)
+    persona_revision: int = 0
 
     def as_dict(self) -> dict[str, Any]:
         """Return the public, transport-neutral runtime representation."""
@@ -3941,13 +3943,16 @@ class DJSessionRuntime:
 
     def allows_proactive(self) -> bool:
         """One shared admission across all proactive Moment families."""
-        return self.presence_ledger.admits(self.selected_presence, self.broadcast.state.playback.item_id)
+        return (self.broadcast.state.runtime_state is SessionRuntimeState.ACTIVE
+                and self.presence_ledger.admits(self.selected_presence, self.broadcast.state.playback.item_id))
 
     def publish_moment(
         self, moment: DJMoment, placement: SessionFlowPosition = SessionFlowPosition.NEXT,
         *, commit_expression: bool = True,
     ) -> None:
         """Publish a Moment only after Planner placement has been established."""
+        if self.broadcast.state.runtime_state is not SessionRuntimeState.ACTIVE:
+            return
         if moment.session_id != self.session_id or any(
                 previous.moment_id == moment.moment_id for previous in self.broadcast.state.dj_moments):
             return
@@ -3981,14 +3986,14 @@ class DJSessionRuntime:
 class SessionRuntimeManager:
     """Own active DJ Session Runtimes for this Home Assistant instance."""
 
-    def __init__(self, persistent_sessions: PersistentSessionRepository | None = None, historical_projections: HistoricalProjectionRepository | None = None, monotonic_source: Callable[[], float] = time.monotonic) -> None:
+    def __init__(self, persistent_sessions: PersistentSessionRepository | None = None, historical_projections: HistoricalProjectionRepository | None = None, monotonic_source: Callable[[], float] | None = None) -> None:
         self._active_by_profile: dict[str, DJSessionRuntime] = {}
         self._history_source_contexts: dict[str, dict[str, str]] = {}
         self._playback_progress_clocks: dict[str, PlaybackProgressClock] = {}
         self._intra_track_opportunities: dict[str, IntraTrackOpportunity] = {}
         self._end_grants: dict[str, tuple[str, str, float, str]] = {}
         self._receiver_entry_generations: dict[str, int] = {}
-        self._monotonic_source = monotonic_source
+        self._monotonic_source = monotonic_source or (lambda: time.monotonic())
         self._lock = asyncio.Lock()
         self._persistent_sessions = persistent_sessions
         self._historical_projections = historical_projections
@@ -4093,7 +4098,7 @@ class SessionRuntimeManager:
                         reason="runtime_activation_failed",
                     )
                     raise
-            active.presence_ledger.clock = self._monotonic_source
+            active.presence_ledger.clock = elapsed_time_source or self._monotonic_source
             self._active_by_profile[owner_profile_id] = active
             self._history_source_contexts[session_id] = {
                 key: str((history_source_context or {}).get(key) or "")
@@ -4150,9 +4155,11 @@ class SessionRuntimeManager:
                     opportunity.blocked = True
                     opportunity.generation += 1
                     opportunity.pending = False
+                    opportunity.pending_transition = None
                 if projection.state != "playing":
                     opportunity.generation += 1
                     opportunity.pending = False
+                    opportunity.pending_transition = None
                 if projection.position_ms is not None:
                     old_position = opportunity.last_observed_position_ms
                     elapsed_ms = max(0, (now - opportunity.last_observed_monotonic) * 1000)
@@ -4282,8 +4289,13 @@ class SessionRuntimeManager:
             opportunity = self._intra_track_opportunities.get(owner_profile_id)
             if active is None or active.session_id != session_id or opportunity is None:
                 return None
+            if opportunity.pending_transition is not None and self._monotonic_source() > opportunity.pending_transition[-1]:
+                opportunity.pending_transition = None
             if not active.allows_proactive():
                 return None
+            transition = self._publish_pending_transition(owner_profile_id, active, opportunity)
+            if transition is not None:
+                return transition
             playback = active.broadcast.state.playback
             position = opportunity.last_observed_position_ms
             duration = playback.duration_ms
@@ -4338,6 +4350,7 @@ class SessionRuntimeManager:
             mood = active.selected_mood
             candidate_mood_revision = active.mood_revision
             candidate_presence_revision = active.presence_revision
+            candidate_persona_revision = active.persona_revision
             strategy = active.session_start_strategy
             discover = active.discover_context
             memory = active.performance_memory
@@ -4354,6 +4367,12 @@ class SessionRuntimeManager:
                 selected_mood=mood, persona=persona, locale=locale,
                 insight=knowledge.as_insight(),
             )
+        except asyncio.CancelledError:
+            async with self._lock:
+                current = self._intra_track_opportunities.get(owner_profile_id)
+                if current is opportunity and current.generation == generation:
+                    current.pending = False
+            raise
         except Exception as exc:  # noqa: BLE001
             _LOGGER.debug("DJConnect later current-track context unavailable: %s", exc.__class__.__name__)
             moment = None
@@ -4364,6 +4383,7 @@ class SessionRuntimeManager:
                 active is None or active.session_id != session_id
                 or active.mood_revision != candidate_mood_revision
                 or active.presence_revision != candidate_presence_revision
+                or active.persona_revision != candidate_persona_revision
                 or not active.allows_proactive()
                 or current is not opportunity or current.generation != generation
                 or not current.pending or current.blocked
@@ -4589,6 +4609,8 @@ class SessionRuntimeManager:
             if prior is not None and prior.session_id == session_id and not prior.allows_proactive():
                 return None
             started_presence_revision = prior.presence_revision if prior is not None else -1
+            started_mood_revision = prior.mood_revision if prior is not None else -1
+            started_persona_revision = prior.persona_revision if prior is not None else -1
             previous_media_identity = prior.last_accepted_media_identity if prior is not None else ""
             initial = prior is not None and not prior.last_accepted_media_identity
             active = self._accept_track_started_media(owner_profile_id, session_id, media_identity, allow_initial=allow_initial_facts)
@@ -4598,6 +4620,10 @@ class SessionRuntimeManager:
             started_generation = started_opportunity.generation if started_opportunity else None
         try:
             raw_insight = await insight_provider()
+        except asyncio.CancelledError:
+            await self.async_restore_track_started_media(owner_profile_id=owner_profile_id,
+                session_id=session_id, media_identity=media_identity, previous_media_identity=previous_media_identity)
+            raise
         except Exception as exc:  # noqa: BLE001
             _LOGGER.debug("DJConnect Track Insight unavailable: %s", exc.__class__.__name__)
             raw_insight = {}
@@ -4617,7 +4643,10 @@ class SessionRuntimeManager:
                 or self._monotonic_source() - started_opportunity.last_observed_monotonic > 30
             ):
                 return None
-            if active.presence_revision != started_presence_revision or not active.allows_proactive():
+            if (active.presence_revision != started_presence_revision
+                    or active.mood_revision != started_mood_revision
+                    or active.persona_revision != started_persona_revision
+                    or not active.allows_proactive()):
                 self._restore_track_started_media_locked(owner_profile_id, session_id, media_identity, previous_media_identity)
                 return None
             facts = raw_insight.get("_qualified_facts")
@@ -4639,6 +4668,7 @@ class SessionRuntimeManager:
                 working_planner.note_discover_track_started()
             planning_mood_revision = active.mood_revision
             planning_presence_revision = active.presence_revision
+            planning_persona_revision = active.persona_revision
             planning_input = working_planner.project_track_started_planning_input(
                 session_id=active.session_id,
                 upcoming_playback=upcoming_playback,
@@ -4668,6 +4698,10 @@ class SessionRuntimeManager:
                 planning_input=planning_input,
                 allowed_intents=active.allowed_capability_intents,
             )
+        except asyncio.CancelledError:
+            await self.async_restore_track_started_media(owner_profile_id=owner_profile_id,
+                session_id=session_id, media_identity=media_identity, previous_media_identity=previous_media_identity)
+            raise
         except Exception as exc:  # noqa: BLE001
             _LOGGER.debug("DJConnect Planning Runtime Coordinator failed: %s", exc.__class__.__name__)
             working_coordinator._fallback("planning_lifecycle_failed")
@@ -4683,6 +4717,7 @@ class SessionRuntimeManager:
                 return None
             if (active.mood_revision != planning_mood_revision
                     or active.presence_revision != planning_presence_revision
+                    or active.persona_revision != planning_persona_revision
                     or not active.allows_proactive()):
                 self._restore_track_started_media_locked(
                     owner_profile_id, session_id, media_identity, previous_media_identity)
@@ -4734,21 +4769,8 @@ class SessionRuntimeManager:
                         session_direction=active.session_direction,
                         performance_memory=active.performance_memory,
                     )
-                    if transition_decision.decision_type is PlannerDecisionType.CREATE_TRANSITION and active.allows_proactive():
-                        transition = active.moment_engine.create_transition(
-                            session_id=active.session_id,
-                            approval=transition_decision,
-                            selected_mood=active.selected_mood,
-                            persona=active.dj_persona,
-                            locale=active.locale,
-                        )
-                        if transition.moment_type is DJMomentType.TRANSITION:
-                            await self._async_persist_moment(active, transition)
-                            active.publish_moment(
-                                transition,
-                                SessionFlowPosition(transition_decision.transition_placement),
-                            )
-                            active = self._record_performance_memory(owner_profile_id, active)
+                    if transition_decision.decision_type is PlannerDecisionType.CREATE_TRANSITION:
+                        self._submit_transition_approval(owner_profile_id, active, transition_decision)
                 else:
                     active = self._record_performance_memory(owner_profile_id, active)
                     self._publish_discover_transition(
@@ -4775,6 +4797,9 @@ class SessionRuntimeManager:
                 require_current_playback=require_current_playback,
             ):
                 return None
+            if active.presence_revision != planning_presence_revision or not active.allows_proactive():
+                self._restore_track_started_media_locked(owner_profile_id, session_id, media_identity, previous_media_identity)
+                return None
             working_planner = copy.deepcopy(active.planner)
             active, legacy_moment = await self._apply_legacy_initial_track_started_decision(
                 owner_profile_id, active, planner=working_planner
@@ -4787,6 +4812,7 @@ class SessionRuntimeManager:
                 return None
             fallback_mood_revision = active.mood_revision
             fallback_presence_revision = active.presence_revision
+            fallback_persona_revision = active.persona_revision
             decision = working_planner.evaluate_track_started(
                 session_start_strategy=active.session_start_strategy,
                 session_direction=active.session_direction,
@@ -4832,6 +4858,10 @@ class SessionRuntimeManager:
                 performance_memory=candidate.performance_memory,
                 personal_context_authorized=False,
             )
+        except asyncio.CancelledError:
+            await self.async_restore_track_started_media(owner_profile_id=owner_profile_id,
+                session_id=session_id, media_identity=media_identity, previous_media_identity=previous_media_identity)
+            raise
         except Exception as exc:  # noqa: BLE001
             _LOGGER.debug("DJConnect Knowledge Engine unavailable: %s", exc.__class__.__name__)
             knowledge = KnowledgeContext(
@@ -4852,6 +4882,7 @@ class SessionRuntimeManager:
                 return None
             if (active.mood_revision != fallback_mood_revision
                     or active.presence_revision != fallback_presence_revision
+                    or active.persona_revision != fallback_persona_revision
                     or not active.allows_proactive()):
                 self._restore_track_started_media_locked(
                     owner_profile_id, session_id, media_identity, previous_media_identity)
@@ -4884,20 +4915,8 @@ class SessionRuntimeManager:
                 session_direction=active.session_direction,
                 performance_memory=active.performance_memory,
             )
-            if transition_decision.decision_type is PlannerDecisionType.CREATE_TRANSITION and active.allows_proactive():
-                transition = active.moment_engine.create_transition(
-                    session_id=active.session_id,
-                    approval=transition_decision,
-                    selected_mood=active.selected_mood,
-                    persona=active.dj_persona,
-                    locale=active.locale,
-                )
-                if transition.moment_type is DJMomentType.TRANSITION:
-                    await self._async_persist_moment(active, transition)
-                    active.publish_moment(
-                        transition,
-                        SessionFlowPosition(transition_decision.transition_placement),
-                    )
+            if transition_decision.decision_type is PlannerDecisionType.CREATE_TRANSITION:
+                self._submit_transition_approval(owner_profile_id, active, transition_decision)
             self._record_performance_memory(owner_profile_id, active)
             return moment
 
@@ -4958,8 +4977,7 @@ class SessionRuntimeManager:
     ) -> DJSessionRuntime:
         """Commit one approved Discover relation through the existing Flow path."""
         if (
-            not active.allows_proactive()
-            or active.session_start_strategy is not SessionStartStrategy.DISCOVER
+            active.session_start_strategy is not SessionStartStrategy.DISCOVER
             or active.last_accepted_media_identity != media_identity
         ):
             return active
@@ -4977,17 +4995,56 @@ class SessionRuntimeManager:
         )
         if decision is None:
             return active
-        transition = active.moment_engine.create_transition(
-            session_id=active.session_id,
-            approval=decision,
-            selected_mood=active.selected_mood,
-            persona=active.dj_persona,
-            locale=active.locale,
-        )
-        if transition.moment_type is DJMomentType.TRANSITION:
-            active.publish_moment(transition, SessionFlowPosition(decision.transition_placement))
-            active = self._record_performance_memory(owner_profile_id, active)
-        return active
+        self._submit_transition_approval(owner_profile_id, active, decision)
+        return self._active_by_profile.get(owner_profile_id, active)
+
+    def _submit_transition_approval(self, owner_profile_id: str, active: DJSessionRuntime,
+                                    decision: PlannerDecision) -> DJMoment | None:
+        """Keep at most one current approval; never queue an already created Moment."""
+        opportunity = self._intra_track_opportunities.get(owner_profile_id)
+        if opportunity is None or opportunity.blocked or opportunity.session_id != active.session_id:
+            return None
+        if opportunity.pending_transition is not None:
+            return None
+        opportunity.pending_transition = (decision, active.presence_revision, active.mood_revision,
+            active.dj_persona, active.session_direction, active.planner.output.session_flow.flow_revision,
+            self._monotonic_source() + 90)
+        return self._publish_pending_transition(owner_profile_id, active, opportunity)
+
+    def _publish_pending_transition(self, owner_profile_id: str, active: DJSessionRuntime,
+                                    opportunity: IntraTrackOpportunity) -> DJMoment | None:
+        pending = opportunity.pending_transition
+        if pending is None:
+            return None
+        decision, presence_revision, mood_revision, persona, direction, flow_revision, deadline = pending
+        playback = active.broadcast.state.playback
+        now = self._monotonic_source()
+        if (presence_revision != active.presence_revision or mood_revision != active.mood_revision
+                or persona is not active.dj_persona or direction != active.session_direction
+                or flow_revision != active.planner.output.session_flow.flow_revision
+                or opportunity.blocked or playback.state != "playing" or playback.item_id != opportunity.item_id
+                or now > deadline or now - opportunity.last_observed_monotonic > 30
+                or opportunity.last_observed_position_ms is None or playback.duration_ms is None):
+            opportunity.pending_transition = None
+            return None
+        if not active.allows_proactive() or now < opportunity.resume_ready_at:
+            return None
+        if not all(any(m.moment_id == anchor for m in active.broadcast.state.dj_moments)
+                   for anchor in decision.transition_moment_ids):
+            opportunity.pending_transition = None
+            return None
+        working_engine = copy.deepcopy(active.moment_engine)
+        transition = working_engine.create_transition(session_id=active.session_id, approval=decision,
+            selected_mood=active.selected_mood, persona=active.dj_persona, locale=active.locale)
+        opportunity.pending_transition = None
+        if (transition.moment_type is not DJMomentType.TRANSITION
+                or playback.duration_ms - opportunity.last_observed_position_ms <
+                    (transition.presentation_intent.maximum_duration_seconds + 5) * 1000):
+            return None
+        active.publish_moment(transition)
+        active.moment_engine.__dict__.update(working_engine.__dict__)
+        self._record_performance_memory(owner_profile_id, active)
+        return transition
 
     async def _apply_legacy_initial_track_started_decision(
         self, owner_profile_id: str, active: DJSessionRuntime,
@@ -5110,6 +5167,11 @@ class SessionRuntimeManager:
                 raise PresenceRevisionConflictError(active)
             if selected_presence == active.selected_presence:
                 return active
+            if active.planner.discover_narrative_line is not None:
+                active.planner.clear_discover_narrative()
+            opportunity = self._intra_track_opportunities.get(owner_profile_id)
+            if opportunity is not None:
+                opportunity.pending_transition = None
             revision = active.presence_revision + 1
             updated = DJSessionRuntime(**{**active.__dict__, "selected_presence": selected_presence, "presence_revision": revision})
             self._active_by_profile[owner_profile_id] = updated
@@ -5135,6 +5197,9 @@ class SessionRuntimeManager:
             if (active.planner.discover_narrative_line is not None
                     and selected_mood != active.selected_mood):
                 active.planner.clear_discover_narrative()
+            opportunity = self._intra_track_opportunities.get(owner_profile_id)
+            if opportunity is not None:
+                opportunity.pending_transition = None
             revision = active.mood_revision + 1
             active.broadcast.state = DJBroadcastState(**{**active.broadcast.state.__dict__, "selected_mood": selected_mood, "mood_revision": revision})
             updated = DJSessionRuntime(**{**active.__dict__, "selected_mood": selected_mood, "mood_revision": revision})
@@ -5153,7 +5218,12 @@ class SessionRuntimeManager:
             if (active.planner.discover_narrative_line is not None
                     and dj_persona is not active.dj_persona):
                 active.planner.clear_discover_narrative()
-            updated = DJSessionRuntime(**{**active.__dict__, "dj_persona": dj_persona})
+            if dj_persona is not active.dj_persona:
+                opportunity = self._intra_track_opportunities.get(owner_profile_id)
+                if opportunity is not None:
+                    opportunity.pending_transition = None
+            updated = DJSessionRuntime(**{**active.__dict__, "dj_persona": dj_persona,
+                "persona_revision": active.persona_revision + (dj_persona is not active.dj_persona)})
             self._active_by_profile[owner_profile_id] = updated
             return updated
 

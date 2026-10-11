@@ -49,6 +49,11 @@ class SessionContinuityBehaviorTest(unittest.TestCase):
         async def provide_insight() -> dict:
             return insight
 
+        track=insight.get("track", {})
+        identity="spotify:track:" + f"{int(clock[0]):022d}"
+        asyncio.run(manager.async_update_playback_projection(owner_profile_id=session.owner_profile_id,
+            session_id=session.session_id,state="playing",media_identity=identity,
+            title=track.get("title", "Fixture"),artist=track.get("artist", "Fixture artist"),duration_ms=300000,position_ms=0))
         moment = asyncio.run(
             manager.async_process_track_started(
                 owner_profile_id=session.owner_profile_id,
@@ -56,13 +61,22 @@ class SessionContinuityBehaviorTest(unittest.TestCase):
                 insight_provider=provide_insight,
             )
         )
-        clock[0] += 75.0
-        assert moment is not None
+        opportunity=manager._intra_track_opportunities.get(session.owner_profile_id)
+        if opportunity is not None and opportunity.pending_transition is not None:
+            clock[0] += 45
+            asyncio.run(manager.async_update_playback_projection(owner_profile_id=session.owner_profile_id,
+                session_id=session.session_id,state="playing",media_identity=identity,
+                title=track.get("title", "Fixture"),artist=track.get("artist", "Fixture artist"),duration_ms=300000,position_ms=45000))
+            asyncio.run(manager.async_maybe_publish_intra_track_moment(owner_profile_id=session.owner_profile_id,
+                session_id=session.session_id,media_identity=identity))
+            clock[0] += 45
+        else:
+            clock[0] += 90
         return moment
 
     def test_successive_tracks_change_angle_and_choose_silence_when_context_is_spent(self) -> None:
         clock = [100.0]
-        manager = self.runtime.SessionRuntimeManager()
+        manager = self.runtime.SessionRuntimeManager(monotonic_source=lambda: clock[0])
         session = asyncio.run(
             manager.async_start(
                 owner_profile_id="continuity",
@@ -132,7 +146,7 @@ class SessionContinuityBehaviorTest(unittest.TestCase):
 
     def test_same_spoken_fact_is_not_repeated_as_a_different_moment_type(self) -> None:
         clock = [100.0]
-        manager = self.runtime.SessionRuntimeManager()
+        manager = self.runtime.SessionRuntimeManager(monotonic_source=lambda: clock[0])
         session = asyncio.run(
             manager.async_start(
                 owner_profile_id="same-fact",
@@ -176,7 +190,7 @@ class SessionContinuityBehaviorTest(unittest.TestCase):
 
     def test_session_update_waits_through_one_silence_after_a_recent_update(self) -> None:
         clock = [100.0]
-        manager = self.runtime.SessionRuntimeManager()
+        manager = self.runtime.SessionRuntimeManager(monotonic_source=lambda: clock[0])
         session = asyncio.run(
             manager.async_start(
                 owner_profile_id="direction-pacing",
@@ -220,7 +234,7 @@ class SessionContinuityBehaviorTest(unittest.TestCase):
 
     def test_distinct_safe_angle_spaces_the_previous_moment_type(self) -> None:
         clock = [100.0]
-        manager = self.runtime.SessionRuntimeManager()
+        manager = self.runtime.SessionRuntimeManager(monotonic_source=lambda: clock[0])
         session = asyncio.run(
             manager.async_start(
                 owner_profile_id="type-spacing",
@@ -257,7 +271,7 @@ class SessionContinuityBehaviorTest(unittest.TestCase):
 
     def test_type_spacing_keeps_valid_angle_when_alternative_lacks_context(self) -> None:
         clock = [100.0]
-        manager = self.runtime.SessionRuntimeManager()
+        manager = self.runtime.SessionRuntimeManager(monotonic_source=lambda: clock[0])
         session = asyncio.run(
             manager.async_start(
                 owner_profile_id="incomplete-alternative",
@@ -312,7 +326,7 @@ class SessionContinuityBehaviorTest(unittest.TestCase):
 
     def test_transition_is_bounded_across_a_multi_track_exploration(self) -> None:
         clock = [100.0]
-        manager = self.runtime.SessionRuntimeManager()
+        manager = self.runtime.SessionRuntimeManager(monotonic_source=lambda: clock[0])
         session = asyncio.run(
             manager.async_start(
                 owner_profile_id="transition-pacing",
@@ -353,7 +367,7 @@ class SessionContinuityBehaviorTest(unittest.TestCase):
 
     def test_resetting_returns_after_interval_silence_without_getting_stuck(self) -> None:
         clock = [100.0]
-        manager = self.runtime.SessionRuntimeManager()
+        manager = self.runtime.SessionRuntimeManager(monotonic_source=lambda: clock[0])
         session = asyncio.run(
             manager.async_start(
                 owner_profile_id="reset-return",
@@ -366,19 +380,17 @@ class SessionContinuityBehaviorTest(unittest.TestCase):
         self.assertEqual(resetting.moment_type, self.runtime.DJMomentType.SESSION)
         self.assertEqual(dict(resetting.generation_metadata)["direction"], "resetting")
 
-        clock[0] -= 74.0
+        clock[0] -= 89.0
         pause = self._track(manager, session, clock, {})
-        self.assertEqual(pause.moment_type, self.runtime.DJMomentType.SILENCE)
+        self.assertIsNone(pause)
         returning = self._track(manager, session, clock, {})
         self.assertEqual(returning.moment_type, self.runtime.DJMomentType.SESSION)
         self.assertEqual(dict(returning.generation_metadata)["direction"], "returning")
 
-        clock[0] -= 74.0
+        clock[0] -= 89.0
+        self.assertIsNone(self._track(manager, session, clock, {}))
         for _ in range(3):
-            self.assertEqual(
-                self._track(manager, session, clock, {}).moment_type,
-                self.runtime.DJMomentType.SILENCE,
-            )
+            self.assertEqual(self._track(manager, session, clock, {}).moment_type, self.runtime.DJMomentType.SILENCE)
         resetting_again = self._track(manager, session, clock, {})
         self.assertEqual(resetting_again.moment_type, self.runtime.DJMomentType.SESSION)
         self.assertEqual(dict(resetting_again.generation_metadata)["direction"], "resetting")
@@ -400,7 +412,7 @@ class SessionContinuityBehaviorTest(unittest.TestCase):
         selected = []
         for persona in (self.runtime.DJPersona.HOME_DJ, self.runtime.DJPersona.RADIO_DJ):
             clock = [100.0]
-            manager = self.runtime.SessionRuntimeManager()
+            manager = self.runtime.SessionRuntimeManager(monotonic_source=lambda: clock[0])
             session = asyncio.run(
                 manager.async_start(
                     owner_profile_id=f"persona-{persona.value}",

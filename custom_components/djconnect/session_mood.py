@@ -71,6 +71,7 @@ async def async_handle_owner_setting(hass, data, *, headers=None, setting):
     if (
         type(data["client_type"]) is not str
         or data["client_type"] not in CLIENT_TYPES
+        or (setting == "presence" and data["client_type"] == "windows")
         or any(type(data[key]) is not str or not data[key] for key in ("device_id", "session_id"))
     ):
         return error("invalid_request", 400)

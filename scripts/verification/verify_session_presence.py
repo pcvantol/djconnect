@@ -56,7 +56,7 @@ async def main():
     hass.config.language = "nl"
     hass.http = HomeAssistantHTTP(hass, None, None, None, ["127.0.0.1"], 0, [], "modern")
     await hass.http.async_initialize(
-        cors_origins=["https://localhost:18204"]
+        cors_origins=["https://localhost:18214"]
         if os.environ.get("DJC_PRESENCE_BROWSER") == "1"
         else [],
         use_x_forwarded_for=False,
@@ -127,7 +127,7 @@ async def main():
     if os.environ.get("DJC_PRESENCE_BROWSER") == "1":
         from active_session_mood_browser_lab import register
 
-        browser_serve = register(hass, manager, clock)
+        browser_serve = register(hass, manager, clock, setting="presence", ports=(18213,18214))
     initial_users = await hass.auth.async_get_users()
     initial_credentials = sum(len(user.refresh_tokens) for user in initial_users)
     receipts = []
@@ -709,6 +709,10 @@ async def main():
         assert sum(len(user.refresh_tokens) for user in users) == initial_credentials
         if browser_serve is not None:
             await browser_serve(client, identity, headers)
+        if os.environ.get("DJC_PRESENCE_FULL") == "1":
+            from presence_runtime_acceptance import qualify
+            qualification = await qualify(client, manager, clock, identity, headers)
+            (directory / "runtime-qualification.json").write_text(json.dumps(qualification, indent=2) + "\n")
     await async_shutdown_persistence(hass)
     await hass.async_stop()
     result = {

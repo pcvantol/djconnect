@@ -21,6 +21,8 @@ class SessionPresenceTest(unittest.TestCase):
         sys.modules.pop('custom_components.djconnect.session_runtime', None)
         if cls.previous_const is not None:
             sys.modules['custom_components.djconnect.const'] = cls.previous_const
+        else:
+            sys.modules.pop('custom_components.djconnect.const',None)
 
     async def rich_trace(self, mode):
         now = [100.0]
@@ -120,3 +122,128 @@ class SessionPresenceTest(unittest.TestCase):
                 self.fail('music-only invoked proactive provider')
             self.assertIsNone(await manager.async_process_track_started(owner_profile_id='owner',session_id=session.session_id,insight_provider=forbidden))
         asyncio.run(scenario())
+
+
+from tests import test_active_session_mood as mood_tests  # noqa: E402
+
+
+class PresenceCandidateRaceTest(mood_tests.ActiveSessionMoodRuntimeTest):
+    """Keep the original Mood suite, repeat its production paths for presence."""
+    revision_field = "presence_revision"
+
+    async def _aba(self, manager, session):
+        for mode in ('music_only', 'balanced'):
+            await manager.async_update_presence(owner_profile_id=session.owner_profile_id,
+                session_id=session.session_id, selected_presence=mode)
+
+    def test_fallback_reacquisition_rejects_before_legacy_direction_mutation(self):
+        async def scenario():
+            manager, session, previous, current, insight = await self._unpublished_current_track()
+            entered, release = asyncio.Event(), asyncio.Event()
+            underlying = manager._lock
+            class Gate:
+                count = 0
+                async def __aenter__(gate):
+                    gate.count += 1
+                    if gate.count == 4:
+                        entered.set()
+                        await release.wait()
+                    await underlying.acquire()
+                async def __aexit__(gate, *args):
+                    underlying.release()
+            manager._lock = Gate()
+            from unittest.mock import patch
+            async def fallback(coordinator, **kwargs):
+                return None
+            with patch.object(self.runtime.PlanningRuntimeCoordinator, 'async_coordinate_track_started', fallback):
+                pending = asyncio.create_task(manager.async_process_track_started(owner_profile_id='owner',
+                    session_id=session.session_id,media_identity=current,require_current_playback=True,insight_provider=insight))
+                await asyncio.wait_for(entered.wait(),2)
+                active = manager._active_by_profile['owner']
+                before = (copy.deepcopy(active.planner.as_dict()),active.session_direction,active.presence_ledger.total_published)
+                await self._aba(manager, session)
+                release.set()
+                self.assertIsNone(await pending)
+                active = manager._active_by_profile['owner']
+                self.assertEqual((active.planner.as_dict(),active.session_direction,active.presence_ledger.total_published),before)
+                self.assertEqual(active.last_accepted_media_identity,previous)
+        asyncio.run(scenario())
+
+    def test_cancelled_coordinator_and_fallback_restore_unspent_current_candidate(self):
+        async def scenario(path):
+            manager,session,previous,current,insight=await self._unpublished_current_track()
+            entered=asyncio.Event()
+            from unittest.mock import patch
+            async def delayed(*args,**kwargs):
+                entered.set()
+                await asyncio.Event().wait()
+            async def fallback(*args,**kwargs):
+                return None
+            target=self.runtime.PlanningRuntimeCoordinator if path=="coordinator" else self.runtime.DJKnowledgeEngine
+            method="async_coordinate_track_started" if path=="coordinator" else "async_assemble_track_context"
+            from contextlib import ExitStack
+            with ExitStack() as stack:
+                if path=="fallback":
+                    stack.enter_context(patch.object(self.runtime.PlanningRuntimeCoordinator,"async_coordinate_track_started",fallback))
+                stack.enter_context(patch.object(target,method,delayed))
+                task=asyncio.create_task(manager.async_process_track_started(owner_profile_id="owner",session_id=session.session_id,
+                    media_identity=current,require_current_playback=True,insight_provider=insight))
+                await asyncio.wait_for(entered.wait(),2)
+                before=(session.presence_ledger.total_published,session.broadcast.state.dj_moments)
+                task.cancel()
+                with self.assertRaises(asyncio.CancelledError):
+                    await task
+            active=await manager.async_get_active("owner")
+            self.assertEqual(active.last_accepted_media_identity,previous)
+            self.assertEqual((active.presence_ledger.total_published,active.broadcast.state.dj_moments),before)
+            retry=await manager.async_process_track_started(owner_profile_id="owner",session_id=session.session_id,
+                media_identity=current,require_current_playback=True,insight_provider=insight)
+            self.assertIsNotNone(retry)
+        for path in ("coordinator","fallback"):
+            with self.subTest(path=path):
+                asyncio.run(scenario(path))
+
+    def test_cancelled_intratrack_releases_pending_without_spending(self):
+        async def scenario():
+            from tests import test_vibecast_multimoment as multi
+            from unittest.mock import patch
+            helper=multi.VibeCastMultiMomentTest()
+            helper.runtime=self.runtime
+            manager,session,first,media,now=await helper._ready()
+            await helper._observe(manager,session,media,now,seconds=45,position_ms=45000)
+            entered=asyncio.Event()
+            async def delayed(*args,**kwargs):
+                entered.set()
+                await asyncio.Event().wait()
+            with patch.object(self.runtime.DJKnowledgeEngine,"async_assemble_track_context",delayed):
+                task=asyncio.create_task(helper._later(manager,session,media))
+                await asyncio.wait_for(entered.wait(),2)
+                task.cancel()
+                with self.assertRaises(asyncio.CancelledError):
+                    await task
+            opportunity=manager._intra_track_opportunities[session.owner_profile_id]
+            self.assertFalse(opportunity.pending)
+            self.assertFalse(opportunity.spent)
+            self.assertEqual(session.broadcast.state.dj_moments,(first,))
+            self.assertEqual(session.presence_ledger.total_published,1)
+            self.assertIsNotNone(await helper._later(manager,session,media))
+        asyncio.run(scenario())
+
+
+class PresenceLedgerRetentionTest(unittest.TestCase):
+    def test_old_track_budget_survives_240_distinct_tracks_and_quiet_time(self):
+        from custom_components.djconnect.presence_policy import PresenceLedger
+        now = [0.0]
+        ledger = PresenceLedger(clock=lambda:now[0])
+        for _ in range(6):
+            self.assertTrue(ledger.admits('presenter','old-track'))
+            ledger.commit('old-track',40)
+            now[0] += 60
+        for index in range(240):
+            now[0] += 600
+            if ledger.admits('presenter',f'track-{index}'):
+                ledger.commit(f'track-{index}',40)
+        now[0] += 600
+        self.assertFalse(ledger.admits('presenter','old-track'))
+        self.assertEqual(ledger.suppression_reason,'presence_track_budget')
+        self.assertEqual(len(ledger.track_counts),65536)

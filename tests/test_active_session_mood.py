@@ -144,6 +144,8 @@ class ActiveSessionMoodRuntimeTest(unittest.TestCase):
         )
         return manager, session, previous, current, insight
 
+    revision_field = "mood_revision"
+
     async def _aba(self, manager, session):
         for mood in ("energy", "groove"):
             await manager.async_update_mood(
@@ -195,7 +197,7 @@ class ActiveSessionMoodRuntimeTest(unittest.TestCase):
             )
             self.assertIsNotNone(retry)
             self.assertEqual(retry.presentation_intent.source_session_mood, "groove")
-            self.assertEqual((await manager.async_get_active("owner")).mood_revision, 2)
+            self.assertEqual(getattr(await manager.async_get_active("owner"), self.revision_field), 2)
 
         asyncio.run(scenario())
 
