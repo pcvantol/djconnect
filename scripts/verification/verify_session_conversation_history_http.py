@@ -406,7 +406,9 @@ async def main():
     result = {
         "source_files_sha256": qualified_sources,
         "ha_sdk_version": sdk_version,
-        "assignment_id": "DJC-CORE-PROFILE-HISTORY-HTTP-SCOPE-FIX-V1-20261009",
+        "assignment_id": "DJC-CORE-DJ-PRESENCE-V1-20261011" if presence_off else "DJC-CORE-PROFILE-HISTORY-HTTP-SCOPE-FIX-V1-20261009",
+        "reused_verifier": "DJC-CORE-PROFILE-HISTORY-HTTP-SCOPE-FIX-V1-20261009",
+        "scenario": "ordinary_pairing_presence_off_compatibility" if presence_off else "profile_history_http_scope",
         "qualification": "real HA SDK, DJConnectRuntime paired authorization, HA HTTP view registration, loopback HTTP, SQLite and HA Store reload; synthetic source account/metadata and voice-derived text, no microphone/native/provider/installed proof",
         "server_time": datetime.now(UTC).isoformat(),
         "requests": receipts,

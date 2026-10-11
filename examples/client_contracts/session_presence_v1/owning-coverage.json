@@ -96,21 +96,21 @@
       }
     },
     "custom_components/djconnect/session_runtime.py": {
-      "sha256": "d8a63d6dd8fb42fcb045c5da54443d7a5b669516f0ddf2c51e4ed95fa9320490",
+      "sha256": "95eff6ef977e2af25feb3544c9f685720cab59a63b9fd40ed661ad6290a64fbb",
       "coverage": {
-        "covered_lines": 2662,
-        "num_statements": 2812,
-        "percent_covered": 92.31813246471226,
+        "covered_lines": 2644,
+        "num_statements": 2816,
+        "percent_covered": 91.67570498915401,
         "percent_covered_display": "92",
-        "missing_lines": 150,
+        "missing_lines": 172,
         "excluded_lines": 0,
-        "percent_statements_covered": 94.66571834992888,
-        "percent_statements_covered_display": "95",
+        "percent_statements_covered": 93.89204545454545,
+        "percent_statements_covered_display": "94",
         "num_branches": 872,
-        "num_partial_branches": 115,
-        "covered_branches": 739,
-        "missing_branches": 133,
-        "percent_branches_covered": 84.74770642201835,
+        "num_partial_branches": 117,
+        "covered_branches": 737,
+        "missing_branches": 135,
+        "percent_branches_covered": 84.51834862385321,
         "percent_branches_covered_display": "85"
       }
     },
@@ -134,10 +134,10 @@
       }
     },
     "custom_components/djconnect/presence_policy.py": {
-      "sha256": "7ee62a48c1810759480f29a5f1e6d7b3645cb93810d9db66486c0fd394979279",
+      "sha256": "dc31404f519979e14c1735cd23c3b82fd3b2ce1b9f14d6cf0d3ff25506d86672",
       "coverage": {
-        "covered_lines": 43,
-        "num_statements": 43,
+        "covered_lines": 44,
+        "num_statements": 44,
         "percent_covered": 100.0,
         "percent_covered_display": "100",
         "missing_lines": 0,

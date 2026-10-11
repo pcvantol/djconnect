@@ -3941,17 +3941,28 @@ class DJSessionRuntime:
         self.planner.submit_audience_signal(signal, value)
         self.broadcast.publish_audience_state(self.planner.audience_totals, self.planner.recent_audience_activity)
 
+    def publication_context_is_current(self) -> bool:
+        """A retained frozen Runtime cannot publish after a live setting change."""
+        state = self.broadcast.state
+        return (state.runtime_state is SessionRuntimeState.ACTIVE
+                and self.presence_revision == state.presence_revision
+                and self.selected_presence == state.selected_presence
+                and self.mood_revision == state.mood_revision
+                and self.selected_mood == state.selected_mood
+                and self.persona_revision == self.presence_ledger.persona_revision)
+
     def allows_proactive(self) -> bool:
-        """One shared admission across all proactive Moment families."""
-        return (self.broadcast.state.runtime_state is SessionRuntimeState.ACTIVE
-                and self.presence_ledger.admits(self.selected_presence, self.broadcast.state.playback.item_id))
+        """One authoritative shared admission across all proactive Moment families."""
+        return (self.publication_context_is_current()
+                and self.presence_ledger.admits(self.broadcast.state.selected_presence,
+                                               self.broadcast.state.playback.item_id))
 
     def publish_moment(
         self, moment: DJMoment, placement: SessionFlowPosition = SessionFlowPosition.NEXT,
         *, commit_expression: bool = True,
     ) -> None:
         """Publish a Moment only after Planner placement has been established."""
-        if self.broadcast.state.runtime_state is not SessionRuntimeState.ACTIVE:
+        if not self.publication_context_is_current():
             return
         if moment.session_id != self.session_id or any(
                 previous.moment_id == moment.moment_id for previous in self.broadcast.state.dj_moments):
@@ -5224,6 +5235,7 @@ class SessionRuntimeManager:
                     opportunity.pending_transition = None
             updated = DJSessionRuntime(**{**active.__dict__, "dj_persona": dj_persona,
                 "persona_revision": active.persona_revision + (dj_persona is not active.dj_persona)})
+            active.presence_ledger.persona_revision = updated.persona_revision
             self._active_by_profile[owner_profile_id] = updated
             return updated
 

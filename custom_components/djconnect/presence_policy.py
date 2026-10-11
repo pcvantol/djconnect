@@ -29,6 +29,7 @@ class PresenceLedger:
     last_read_seconds: int = 0
     suppression_reason: str = ""
     total_published: int = 0
+    persona_revision: int = 0
 
     @staticmethod
     def bucket(track_id: str) -> int:

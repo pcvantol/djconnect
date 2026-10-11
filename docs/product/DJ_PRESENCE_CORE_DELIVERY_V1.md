@@ -29,7 +29,8 @@ An ordinary/Discover Transition approval may occupy one current-track opportunit
 for at most90s; the Moment is created at a fresh readable observation. No created
 Moment backlog, new scheduler, planner or knowledge family. Changes, intervening
 Flow, track/output/seek/pause, expiry and end invalidate the approval. Root
-publication also rejects a returned ended Runtime. Old semantic Moments remain
+publication also checks the authoritative current Broadcast and private Persona
+epoch: retained Runtime objects reject Off, Off/on, Mood/Persona changes and end. Old semantic Moments remain
 immutable; operational currentness/expiry follows existing native_delivery.
 
 ## Measured policy, real isolated HA
@@ -57,8 +58,8 @@ safe3/track and6/600s combined maximum; it is not universal legacy timing parity
 
 Long trial:120 modeled minutes,40 observed tracks,400 intra observations,
 160 publications, maximum4 tasks, fixed64KiB ledger and at most16 rolling debits.
-The recorded real duration is about3s and process peak about225MB; exact measured
-values are in the receipt. No external provider calls or retries. This exercises
+The recorded real duration is3.328s and process peak248283136 bytes
+(236.8MiB); exact measured values are in the receipt. No external provider calls or retries. This exercises
 bounded bookkeeping, not two hours of physical playback or native expiry.
 A separate240-identity revisit test retains the old exhausted track debit.
 Hash collisions conservatively suppress; they never grant extra contributions.
@@ -89,7 +90,7 @@ Screenshots and build/checksum output are retained in the own private lab.
 Full owning regression and historical/current DAG tests pass. Line/branch
 coverage is reported per changed production file in the evidence, not replaced
 by an aggregate claim: ledger and presence adapter100%/100%; shared owner
-validator about93%/88%; Runtime about95%/85%. Broad existing HTTP/init coverage
+validator about93%/88%; Runtime93.9%/84.5%. Broad existing HTTP/init coverage
 is reported separately. No production exclusions or lowered gates were added.
 Ruff passes; security scan has zero medium/high findings and eight unchanged
 low baseline findings outside changed production files.

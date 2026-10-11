@@ -123,6 +123,34 @@ class SessionPresenceTest(unittest.TestCase):
             self.assertIsNone(await manager.async_process_track_started(owner_profile_id='owner',session_id=session.session_id,insight_provider=forbidden))
         asyncio.run(scenario())
 
+    def test_retained_runtime_cannot_publish_after_off_aba_mood_persona_or_end(self):
+        async def scenario(change):
+            manager=self.runtime.SessionRuntimeManager()
+            retained=await manager.async_start(owner_profile_id="owner",selected_mood="groove")
+            moment=retained.moment_engine.create_silence(session_id=retained.session_id,
+                selected_mood="groove",persona=retained.dj_persona,locale="nl",reason="fixture")
+            moment=replace(moment,moment_type=self.runtime.DJMomentType.SESSION,content="Fixture direction")
+            if change in ("off","presence_aba"):
+                await manager.async_update_presence(owner_profile_id="owner",session_id=retained.session_id,selected_presence="music_only")
+                if change=="presence_aba":
+                    await manager.async_update_presence(owner_profile_id="owner",session_id=retained.session_id,selected_presence="balanced")
+            elif change=="mood":
+                await manager.async_update_mood(owner_profile_id="owner",session_id=retained.session_id,selected_mood="energy")
+            elif change=="persona_aba":
+                for persona in (self.runtime.DJPersona.RADIO_DJ,self.runtime.DJPersona.HOME_DJ):
+                    await manager.async_update_persona(owner_profile_id="owner",session_id=retained.session_id,dj_persona=persona)
+            else:
+                await manager.async_end(owner_profile_id="owner",session_id=retained.session_id)
+            sequence=retained.broadcast.delivery_sequence
+            retained.publish_moment(moment)
+            self.assertFalse(retained.publication_context_is_current())
+            self.assertEqual(retained.broadcast.state.dj_moments,())
+            self.assertEqual(retained.broadcast.delivery_sequence,sequence)
+            self.assertEqual(retained.presence_ledger.total_published,0)
+        for change in ("off","presence_aba","mood","persona_aba","end"):
+            with self.subTest(change=change):
+                asyncio.run(scenario(change))
+
 
 from tests import test_active_session_mood as mood_tests  # noqa: E402
 
