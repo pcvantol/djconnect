@@ -49,6 +49,7 @@ from .const import (
     API_SESSION_START,
     API_SESSION_END,
     API_SESSION_ACTIVE,
+    API_SESSION_MOOD,
     API_SESSION_HISTORY,
     API_SESSION_HISTORY_DETAIL,
     API_SESSION_HISTORY_SEARCH,
@@ -2850,6 +2851,20 @@ class DJConnectActiveSessionView(_DJConnectSessionView):
         return self.json(result, status_code=status)
 
 
+class DJConnectSessionMoodView(_DJConnectSessionView):
+    url = API_SESSION_MOOD
+    name = "api:djconnect:session:mood"
+
+    async def post(self, request):
+        from .session_mood import async_handle_mood
+
+        data = await self._payload(request)
+        if data is None or request.query_string:
+            return self.json({"success": False, "error": "invalid_request"}, status_code=400)
+        result, status = await async_handle_mood(request.app["hass"], data, headers=request.headers)
+        return self.json(result, status_code=status)
+
+
 class DJConnectTransportCapabilitiesView(HomeAssistantView):
     """Expose the implemented Broadcast transport contract over HTTP."""
 
@@ -2859,6 +2874,7 @@ class DJConnectTransportCapabilitiesView(HomeAssistantView):
 
     async def get(self, request):
         from .capability_contract import _platform_capabilities, _contract_versions
+        from .session_mood import capability as mood_capability
         return self.json(
             {
                 "success": True,
@@ -2868,6 +2884,7 @@ class DJConnectTransportCapabilitiesView(HomeAssistantView):
                 "contract_versions": _contract_versions(),
                 "transports": {"http": True, "websocket": True},
                 "session_broadcast": session_broadcast_transport_capabilities(),
+                "active_session_mood": mood_capability(),
             }
         )
 
