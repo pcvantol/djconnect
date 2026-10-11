@@ -4,7 +4,7 @@ Assignment: `DJC-CORE-WINDOWS-CLIENT-RETIREMENT-V1-20261011`.
 Source base: `0b4c941bfb0a129facafc86ea4e94bca96bb96db`.
 Sole branch: `codex/windows-client-retirement-v1`.
 ACK: Core #1101 comment6106248916; first material policy record6106305126.
-Decision: software candidate qualified; protected delivery and Finalization pending.
+Decision: protected source delivered and qualified; separate Finalization pending.
 
 The [disposition contract](../product/WINDOWS_CLIENT_RETIREMENT_V1.md) was
 recorded before producer changes. Windows app identity is recognized only for
@@ -115,3 +115,10 @@ workspace cleanup. Windows #76 receives the exact Core handoff and owns the
 remaining repo/runner/CI/website/distribution/VM/.NET inventory and approvals.
 No real HA config/token, Apple/native source, receiver, Pages, hardware or
 infrastructure effect occurred. No follow-on capability is started.
+
+Protected source PR [#1144](https://github.com/pcvantol/djconnect/pull/1144)
+merged as `5fa3b10e334ec76034f75df831d40bc8cb9ad546`. All144 package files
+are byte-equal source-main; automatic package38134483325 and formal evidence
+38134483440 PASS. The [immutable completion record](../history/prompts/2026-10-11-windows-client-retirement-finalization.md)
+binds the exact package digests, source grant and separate Finalization/cleanup
+boundary.
