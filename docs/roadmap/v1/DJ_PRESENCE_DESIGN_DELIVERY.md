@@ -22,8 +22,10 @@ editorial/UX review GO after fixing lane-history links and clarifying actual
 published-only presence contribution accounting. System/source attempt budgets
 remain independently bounded. Review does not authorize product execution.
 
-Registration is recorded; canonical documentary merge remains pending until
-protected delivery. Core presence implementation, Apple UI and VibeCast presence
+Registration and canonical documentary source merge are complete via PR1148,
+main4c88f46efcd73ad5b706a7d94efe0dceefcb2f4a. Separate
+[Finalization](../../history/prompts/2026-10-11-dj-presence-roadmap-design-finalization.md)
+and safe own cleanup remain specifically gated until verified. Core presence implementation, Apple UI and VibeCast presence
 compatibility are Planned, not started or qualified. Native/installed/hardware
 qualification is NOT_RUN. Existing Mood/renderer acceptance does not qualify
 presence product implementation. This design records future acceptance A-E.
@@ -32,6 +34,6 @@ Automatic publication review: current Home Assistant validation completion on
 main triggers home-assistant-release-artifact.yml and formal post-merge evidence.
 Even a documentary merge publishes a new internal-ha-SHA package with unchanged
 integration bytes. It does not install/restart HA or deploy Pages/receiver/clients.
-Its new exact merge effect authority must be retained; previous Mood grants do
-not apply. Finalization is separate and must reconcile delivered documentary
+Peter granted its exact d225f9f3 candidate/main-publication effect explicitly;
+previous Mood grants were not reused. Finalization is separate and must reconcile delivered documentary
 state while leaving product nodes Planned. No next product pickup is dispatched.
