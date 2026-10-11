@@ -4408,16 +4408,19 @@ class SessionRuntimeManager:
                     current.pending = False
                 return None
             current.pending = False
-            current.spent = True
             if moment is None or moment.moment_type is DJMomentType.SILENCE:
+                current.spent = True
                 return None
             remaining_ms = active.broadcast.state.playback.duration_ms - current.last_observed_position_ms
             if remaining_ms < (moment.presentation_intent.maximum_duration_seconds + 5) * 1000:
                 return None
+            # Persistence may yield or be cancelled. Keep unpublished working
+            # engines and the current opportunity unspent until it succeeds.
+            await self._async_persist_moment(active, moment)
             active.knowledge_engine.__dict__.update(working_knowledge.__dict__)
             active.moment_engine.__dict__.update(working_moments.__dict__)
-            await self._async_persist_moment(active, moment)
             active.publish_moment(moment)
+            current.spent = True
             self._record_performance_memory(owner_profile_id, active)
             return moment
 

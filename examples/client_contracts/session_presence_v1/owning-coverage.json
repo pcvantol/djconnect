@@ -96,15 +96,15 @@
       }
     },
     "custom_components/djconnect/session_runtime.py": {
-      "sha256": "95eff6ef977e2af25feb3544c9f685720cab59a63b9fd40ed661ad6290a64fbb",
+      "sha256": "3978f756cd878256917e74cac1b23c01d4444d3aa4abb089e57ad934ec8cb9cb",
       "coverage": {
         "covered_lines": 2644,
-        "num_statements": 2816,
-        "percent_covered": 91.67570498915401,
+        "num_statements": 2817,
+        "percent_covered": 91.65085388994308,
         "percent_covered_display": "92",
-        "missing_lines": 172,
+        "missing_lines": 173,
         "excluded_lines": 0,
-        "percent_statements_covered": 93.89204545454545,
+        "percent_statements_covered": 93.85871494497692,
         "percent_statements_covered_display": "94",
         "num_branches": 872,
         "num_partial_branches": 117,

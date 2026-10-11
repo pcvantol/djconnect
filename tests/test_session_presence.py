@@ -232,7 +232,7 @@ class PresenceCandidateRaceTest(mood_tests.ActiveSessionMoodRuntimeTest):
                 asyncio.run(scenario(path))
 
     def test_cancelled_intratrack_releases_pending_without_spending(self):
-        async def scenario():
+        async def scenario(boundary):
             from tests import test_vibecast_multimoment as multi
             from unittest.mock import patch
             helper=multi.VibeCastMultiMomentTest()
@@ -243,19 +243,25 @@ class PresenceCandidateRaceTest(mood_tests.ActiveSessionMoodRuntimeTest):
             async def delayed(*args,**kwargs):
                 entered.set()
                 await asyncio.Event().wait()
-            with patch.object(self.runtime.DJKnowledgeEngine,"async_assemble_track_context",delayed):
+            target, method = ((self.runtime.DJKnowledgeEngine,"async_assemble_track_context")
+                              if boundary == "knowledge" else (manager,"_async_persist_moment"))
+            engine_before = len(session.moment_engine.moments)
+            with patch.object(target,method,delayed):
                 task=asyncio.create_task(helper._later(manager,session,media))
                 await asyncio.wait_for(entered.wait(),2)
                 task.cancel()
                 with self.assertRaises(asyncio.CancelledError):
                     await task
             opportunity=manager._intra_track_opportunities[session.owner_profile_id]
+            self.assertEqual(len(session.moment_engine.moments),engine_before)
             self.assertFalse(opportunity.pending)
             self.assertFalse(opportunity.spent)
             self.assertEqual(session.broadcast.state.dj_moments,(first,))
             self.assertEqual(session.presence_ledger.total_published,1)
             self.assertIsNotNone(await helper._later(manager,session,media))
-        asyncio.run(scenario())
+        for boundary in ("knowledge", "persistence"):
+            with self.subTest(boundary=boundary):
+                asyncio.run(scenario(boundary))
 
 
 class PresenceLedgerRetentionTest(unittest.TestCase):

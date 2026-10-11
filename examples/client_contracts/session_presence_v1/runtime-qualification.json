@@ -1,5 +1,5 @@
 {
-  "qualification_elapsed_seconds": 3.486,
+  "qualification_elapsed_seconds": 3.349,
   "qualification": "ISOLATED_HA_RUNTIME_POLICY_PASS",
   "matrix": {
     "music_only": {
@@ -1346,9 +1346,9 @@
     "modeled_minutes": 120,
     "track_observations": 40,
     "intra_observations": 400,
-    "real_elapsed_seconds": 3.328,
+    "real_elapsed_seconds": 3.199,
     "peak_tasks": 4,
-    "process_peak_rss_bytes": 248283136,
+    "process_peak_rss_bytes": 264044544,
     "fixed_ledger_bytes": 65536,
     "retries": 0,
     "external_provider_calls": 0

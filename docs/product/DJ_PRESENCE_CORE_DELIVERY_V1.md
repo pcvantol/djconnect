@@ -58,8 +58,8 @@ safe3/track and6/600s combined maximum; it is not universal legacy timing parity
 
 Long trial:120 modeled minutes,40 observed tracks,400 intra observations,
 160 publications, maximum4 tasks, fixed64KiB ledger and at most16 rolling debits.
-The recorded real duration is3.328s and process peak248283136 bytes
-(236.8MiB); exact measured values are in the receipt. No external provider calls or retries. This exercises
+The recorded real duration is3.199s and process peak264044544 bytes
+(251.8MiB); exact measured values are in the receipt. No external provider calls or retries. This exercises
 bounded bookkeeping, not two hours of physical playback or native expiry.
 A separate240-identity revisit test retains the old exhausted track debit.
 Hash collisions conservatively suppress; they never grant extra contributions.

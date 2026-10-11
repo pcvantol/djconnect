@@ -214,7 +214,7 @@
     "custom_components/djconnect/session_history_projection.py": "892d21237690847ce2a2aa13d3c3921334b7e9b1f6c5e469956d96a06d2407a7",
     "custom_components/djconnect/session_mood.py": "331d4fc4b3c011e10f5e05b8cda9cf1b0065e746fc892bfdea4e2cb23a27fefb",
     "custom_components/djconnect/session_presence.py": "8c7687c42ce931ad8abbda0a4f2323a074e472f8913cb93aab1c1f45d39e313f",
-    "custom_components/djconnect/session_runtime.py": "95eff6ef977e2af25feb3544c9f685720cab59a63b9fd40ed661ad6290a64fbb",
+    "custom_components/djconnect/session_runtime.py": "3978f756cd878256917e74cac1b23c01d4444d3aa4abb089e57ad934ec8cb9cb",
     "custom_components/djconnect/spotify.py": "0e84480b356a9ae6649657c3fbe9f557663c04c8d0aba82fcca7ab150a1201b7",
     "custom_components/djconnect/spotify_backend.py": "677ee62e5bf1a8e10bae06e9356e8258a674657225b506ddd8a5a516650e2fbe",
     "custom_components/djconnect/spotify_oauth.py": "e072ea0673dfd589abd09622813db5c2a29321f9906a49285695a1d792dc7d70",
