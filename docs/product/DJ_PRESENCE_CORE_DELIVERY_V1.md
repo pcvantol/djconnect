@@ -1,12 +1,12 @@
-# DJ presence v1 — Core candidate qualification
+# DJ presence v1 — Core source qualification
 
 Assignment `DJC-CORE-DJ-PRESENCE-V1-20261011`; same sole Core writer;
 base `9cdee0602b2ff0db99c433f2a3f2eb6d5ba8fe4e`, branch
 `codex/dj-presence-v1`. Early local contract pin
 `1d5e8c2518db5902031898991b7f4857d5263a5c`, handed to
 [Apple87/6111453713](https://github.com/pcvantol/djconnect-app/issues/87#issuecomment-6111453713).
-**Phase: local implementation/qualification; source publication gate pending.**
-No source PR/main delivery or Finalization is claimed by this document.
+**Phase: source protected merged and exact-main publication qualified.**
+Separate documentary Finalization publication/cleanup remains pending.
 
 ## Actual implementation
 
@@ -95,8 +95,8 @@ is reported separately. No production exclusions or lowered gates were added.
 Ruff passes; security scan has zero medium/high findings and eight unchanged
 low baseline findings outside changed production files.
 
-Independent technical/privacy and consumer/experience final review must bind
-the frozen source candidate before publication. Protected PR/required checks,
+Independent technical/privacy and consumer/experience final reviews bound
+the exact source candidate with GO before publication. Protected PR/required checks,
 automatic internal-ha147-file archive/formal evidence, exact-main readback and
 separate Finalization each follow their normal gates. Source and Finalization
 require separate fresh exact-SHA owner grants; no old Mood/documentary grant.
@@ -109,3 +109,26 @@ public distribution acceptance. No next slice is started.
 
 Evidence: [session_presence_v1](../../examples/client_contracts/session_presence_v1),
 [ownercontract](DJ_PRESENCE_OWNER_CONTRACT_V1.md), [policy](DJ_PRESENCE_CORE_POLICY_V1.md).
+
+## Exact protected source delivery
+
+Source [#1150](https://github.com/pcvantol/djconnect/pull/1150) protected merged as `b5c25f7c8098ce805bf4cab94a887c8590f9717f`
+from exact reviewed/authorized `0a9ea74b83c94035086b50db6a4a1a6338866eca`;
+both trees `1e056b8431c21ed34241b1db4cfda6cc46577422`. All32 checks PASS/5 conditional skips;
+Trusted Delivery38163477423 PASS, Owner Authorization NOT_REQUIRED/statusSUCCESS.
+Main Validate38163614758, CodeQL38163614716, Golden38163614695,
+EP38163614700 and TDE38163614683 PASS. Automatic artifact38163783121
+and formal evidence38163783284 PASS first attempt; no manual replacement/retry.
+
+[Immutable147-file package](https://github.com/pcvantol/djconnect/releases/download/internal-ha-b5c25f7c8098ce805bf4cab94a887c8590f9717f/djconnect-home-assistant-integration-b5c25f7c8098ce805bf4cab94a887c8590f9717f.tar.gz)
+SHA256 `2896a8172946c52760d3d00df29949dd0fcbb55cc0721451255a4fed1b0477db`; all safe regular integration files byte-equal
+exact main, zero differences. [Formal evidence](https://github.com/pcvantol/djconnect/releases/download/internal-ha-b5c25f7c8098ce805bf4cab94a887c8590f9717f/qualification-evidence-b5c25f7c8098ce805bf4cab94a887c8590f9717f.json)
+SHA256 `6840048df8d1f77ce2cc66d465ab0f5aefec0063b452e5785dbc06b8aa30dd63`, canonical integrity
+`4e935d24231fcaf5f09c302f1def92a4524e83764140e0dbb79f9866b6d0092b`; canonical verifier PASS,
+POST_MERGE_RELEASE_EVIDENCE_QUALIFIED, every required formal field PASS.
+
+Released producer handed to [Apple87/6112248501](https://github.com/pcvantol/djconnect-app/issues/87#issuecomment-6112248501)
+and [VibeCast10/6112249253](https://github.com/pcvantol/djconnect-vibecast-receiver/issues/10#issuecomment-6112249253).
+Renderer1.1.0 and local/static bytes unchanged; no new receiver import required.
+Native Apple, installed and hardware NOT_RUN; joint product acceptance OPEN.
+Separate documentary Finalization publication remains exact-SHA gated.

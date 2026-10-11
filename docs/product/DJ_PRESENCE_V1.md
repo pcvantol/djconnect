@@ -1,12 +1,13 @@
-# DJ presence v1 — Core implementation candidate; joint product Planned
+# DJ presence v1 — Core source delivered; joint product Planned
 
 Decision `DJC-DJ-PRESENCE-ROADMAP-DESIGN-V1-20261011`, product slice
 `DJC-DJ-PRESENCE-V1`, [owner decision6110375785](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6110375785).
 **Joint product status: Planned.** The separately selected
-`DJC-CORE-DJ-PRESENCE-V1-20261011` is in local implementation and qualification
-on the existing Core writer. [Calibrated policy](DJ_PRESENCE_CORE_POLICY_V1.md)
-and [owner transport v1](DJ_PRESENCE_OWNER_CONTRACT_V1.md) describe the candidate.
-Core software/browser receipts are distinct from native Apple, installed and
+`DJC-CORE-DJ-PRESENCE-V1-20261011` source is protected merged as #1150 on the existing Core writer;
+separate Finalization remains pending. [Calibrated policy](DJ_PRESENCE_CORE_POLICY_V1.md)
+and [owner transport v1](DJ_PRESENCE_OWNER_CONTRACT_V1.md) describe the delivered producer.
+[Core acceptance](../verification/DJ_PRESENCE_V1_ACCEPTANCE.md) records qualified
+source/software/browser receipts, distinct from native Apple, installed and
 hardware acceptance, which remain open. Generation2, Phase1; no new lane,
 monitor, model/provider/TTS or automatic dispatch.
 
@@ -23,18 +24,18 @@ Watch mood, voice volume or TTS enablement. It changes none of those dimensions.
 
 Native iPhone/iPad/macOS stepped slider: **DJ-aanwezigheid**, explanation
 **Hoeveel vertelt de DJ tijdens je sessie?** The five positions are fixed design
-intent. The separately selected Core candidate pins machine values and numeric
-budgets in the linked policy/ownercontract; protected publication is pending.
+intent. The separately selected Core producer pins machine values and numeric
+budgets in the linked policy/ownercontract; protected source publication is qualified.
 
 | Position | Meaning |
 |---|---|
 | Alleen muziek | No new unsolicited content Moments. Music context, necessary controls/errors and explicit Ask DJ answers remain. |
 | Af en toe | Occasional strong relevant contribution, leaving much space for music. |
-| Gebalanceerd | Regular relevant contributions with rest and variation; proposed compatible default, subject to baseline calibration. |
+| Gebalanceerd | Regular relevant contributions with rest and variation; calibrated default with explicit safe density reduction. |
 | Praatgraag | More suitable contributions, available substantive variety and already supported callbacks/transitions. |
 | Presentator | Widest substantive budget within safe timing and available qualified knowledge; no compulsory quota or complete radio-show claim. |
 
-Before implementation, pin an exact policy table: internal values, numeric
+The pre-implementation policy table is now pinned in Core policy v1: internal values, numeric
 spacing/quantity/readability budgets for every eligible path, verified default,
 valid Mood/Persona combinations and an observable decision boundary. Do not
 invent percentages or untested contributions per minute here. Pending/error

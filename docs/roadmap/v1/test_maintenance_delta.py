@@ -76,6 +76,10 @@ class MaintenanceTests(unittest.TestCase):
         p=copy.deepcopy(self.p)
         d=p["planning_maintenance"]
         r=d["implementation_receipt"]
+        # The negative fixture must stay missing evidence after real delivery.
+        for key in ("source_main_sha", "source_pr", "source_review", "required_checks",
+                    "protected_merge", "archive_sha256", "formal_evidence_sha256"):
+            r.pop(key, None)
         r.update(phase="SOURCE_PROTECTED_MERGED",source_delivery="PROTECTED_MERGED")
         for n in d["nodes"]:
             if n["id"] in {"SLICE::CORE::DJ-PRESENCE-CONTRACT","SLICE::CORE::DJ-PRESENCE-POLICY"}:

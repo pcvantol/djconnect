@@ -7,8 +7,8 @@ The original3October snapshot/audit/source pins and projections are immutable hi
 | Node | Owner | Status | Outcome |
 |---|---|---|---|
 | `PROJ::INTELLIGENCE::DJ-PRESENCE` | DJC-CORE | Planned | Adjustable DJ presence |
-| `SLICE::CORE::DJ-PRESENCE-CONTRACT` | DJC-CORE | In progress | Presence policy and owner contract |
-| `SLICE::CORE::DJ-PRESENCE-POLICY` | DJC-CORE | In progress | Actual proactive presence regulation |
+| `SLICE::CORE::DJ-PRESENCE-CONTRACT` | DJC-CORE | Completed | Presence policy and owner contract |
+| `SLICE::CORE::DJ-PRESENCE-POLICY` | DJC-CORE | Completed | Actual proactive presence regulation |
 | `SLICE::APPLE::DJ-PRESENCE-CONTROL` | DJC-APPLE | Planned | Native iPhone/iPad/Mac presence slider |
 | `QUAL::VIBECAST::DJ-PRESENCE-COMPAT` | DJC-VIBECAST | Planned | Local/static presence compatibility |
 | `QUAL::PRODUCT::DJ-PRESENCE-V1` | DJC-CORE | Planned | Joint presence v1 acceptance |

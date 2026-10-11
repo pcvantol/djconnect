@@ -1,7 +1,7 @@
 # Active Session presence owner transport v1
 
-Assignment `DJC-CORE-DJ-PRESENCE-V1-20261011`; implementation candidate, not
-published/installed or native accepted. Policy: [Core policy](DJ_PRESENCE_CORE_POLICY_V1.md).
+Assignment `DJC-CORE-DJ-PRESENCE-V1-20261011`; protected source #1150 delivered;
+installed/native acceptance remains open. Policy: [Core policy](DJ_PRESENCE_CORE_POLICY_V1.md).
 
 Discovery: GET `/api/djconnect/v1/capabilities`, `active_session_presence`
 and matching boolean/version fields. Available/version 1; POST
