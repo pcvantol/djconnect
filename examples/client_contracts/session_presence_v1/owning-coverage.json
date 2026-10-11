@@ -1,0 +1,158 @@
+{
+  "source_files": {
+    "custom_components/djconnect/__init__.py": {
+      "sha256": "fea8f27bc8718c203cccb5090175fdff2c4043f3060ab2fefd2cb21dfd112f9a",
+      "coverage": {
+        "covered_lines": 798,
+        "num_statements": 1439,
+        "percent_covered": 55.561357702349866,
+        "percent_covered_display": "56",
+        "missing_lines": 641,
+        "excluded_lines": 3,
+        "percent_statements_covered": 55.45517720639333,
+        "percent_statements_covered_display": "55",
+        "num_branches": 476,
+        "num_partial_branches": 84,
+        "covered_branches": 266,
+        "missing_branches": 210,
+        "percent_branches_covered": 55.88235294117647,
+        "percent_branches_covered_display": "56"
+      }
+    },
+    "custom_components/djconnect/http.py": {
+      "sha256": "2cdc9d8a440adaefd8c6c09b986c848bc5bfa9cde35248e163e5d69ac3541d05",
+      "coverage": {
+        "covered_lines": 1589,
+        "num_statements": 2098,
+        "percent_covered": 73.17880794701986,
+        "percent_covered_display": "73",
+        "missing_lines": 509,
+        "excluded_lines": 0,
+        "percent_statements_covered": 75.73879885605338,
+        "percent_statements_covered_display": "76",
+        "num_branches": 620,
+        "num_partial_branches": 120,
+        "covered_branches": 400,
+        "missing_branches": 220,
+        "percent_branches_covered": 64.51612903225806,
+        "percent_branches_covered_display": "65"
+      }
+    },
+    "custom_components/djconnect/const.py": {
+      "sha256": "fba8c928396766adccc33e567f7dc5538c3d66571d5931499cc30031ba808884",
+      "coverage": {
+        "covered_lines": 169,
+        "num_statements": 169,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100",
+        "num_branches": 0,
+        "num_partial_branches": 0,
+        "covered_branches": 0,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100"
+      }
+    },
+    "custom_components/djconnect/capability_contract.py": {
+      "sha256": "43220bca83f8989f5094ca3f0de25509da1c375155121e66e9fe5b54d9369206",
+      "coverage": {
+        "covered_lines": 4,
+        "num_statements": 4,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100",
+        "num_branches": 0,
+        "num_partial_branches": 0,
+        "covered_branches": 0,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100"
+      }
+    },
+    "custom_components/djconnect/session_mood.py": {
+      "sha256": "331d4fc4b3c011e10f5e05b8cda9cf1b0065e746fc892bfdea4e2cb23a27fefb",
+      "coverage": {
+        "covered_lines": 71,
+        "num_statements": 76,
+        "percent_covered": 92.15686274509804,
+        "percent_covered_display": "92",
+        "missing_lines": 5,
+        "excluded_lines": 0,
+        "percent_statements_covered": 93.42105263157895,
+        "percent_statements_covered_display": "93",
+        "num_branches": 26,
+        "num_partial_branches": 3,
+        "covered_branches": 23,
+        "missing_branches": 3,
+        "percent_branches_covered": 88.46153846153847,
+        "percent_branches_covered_display": "88"
+      }
+    },
+    "custom_components/djconnect/session_runtime.py": {
+      "sha256": "3978f756cd878256917e74cac1b23c01d4444d3aa4abb089e57ad934ec8cb9cb",
+      "coverage": {
+        "covered_lines": 2644,
+        "num_statements": 2817,
+        "percent_covered": 91.65085388994308,
+        "percent_covered_display": "92",
+        "missing_lines": 173,
+        "excluded_lines": 0,
+        "percent_statements_covered": 93.85871494497692,
+        "percent_statements_covered_display": "94",
+        "num_branches": 872,
+        "num_partial_branches": 117,
+        "covered_branches": 737,
+        "missing_branches": 135,
+        "percent_branches_covered": 84.51834862385321,
+        "percent_branches_covered_display": "85"
+      }
+    },
+    "custom_components/djconnect/session_presence.py": {
+      "sha256": "8c7687c42ce931ad8abbda0a4f2323a074e472f8913cb93aab1c1f45d39e313f",
+      "coverage": {
+        "covered_lines": 7,
+        "num_statements": 7,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100",
+        "num_branches": 0,
+        "num_partial_branches": 0,
+        "covered_branches": 0,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100"
+      }
+    },
+    "custom_components/djconnect/presence_policy.py": {
+      "sha256": "dc31404f519979e14c1735cd23c3b82fd3b2ce1b9f14d6cf0d3ff25506d86672",
+      "coverage": {
+        "covered_lines": 44,
+        "num_statements": 44,
+        "percent_covered": 100.0,
+        "percent_covered_display": "100",
+        "missing_lines": 0,
+        "excluded_lines": 0,
+        "percent_statements_covered": 100.0,
+        "percent_statements_covered_display": "100",
+        "num_branches": 8,
+        "num_partial_branches": 0,
+        "covered_branches": 8,
+        "missing_branches": 0,
+        "percent_branches_covered": 100.0,
+        "percent_branches_covered_display": "100"
+      }
+    }
+  },
+  "production_exclusions_added": false,
+  "measurement": "Complete owning unit regression plus actual isolated HA presence and Mood transport. Percent statements and branches reported separately; coverage is not installed/native proof."
+}

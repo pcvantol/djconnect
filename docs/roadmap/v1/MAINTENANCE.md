@@ -36,3 +36,15 @@ Do not edit only generated Markdown or change the archived historical bytes.
 Future maintenance needs its own owner decision, bounded provenance and review.
 The presence design's policy budgets/default, actual write/readback contract and
 product/native/browser/installed/hardware qualification remain future work.
+
+## Selected Core implementation delta/2
+
+The human-selected `DJC-CORE-DJ-PRESENCE-V1-20261011` adds an explicitly
+versioned implementation receipt and admits only the existing Core contract and
+policy nodes. The original design delta is retained at
+`history/20261011/presence-design-maintenance-v1.json`, with a SHA256 binding.
+It does not rewrite the original3October JSON/audit/projections. Joint product
+and native consumer nodes remain Planned; no automatic dispatch or new writer.
+Update the primary JSON and reference hashes, then use the same renderer and
+validator. Never update generated Markdown alone. Publication status cannot be
+advanced without a separately implemented exact-receipt validation boundary.

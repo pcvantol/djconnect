@@ -112,6 +112,7 @@ class ExpressiveDJPersonaTest(unittest.TestCase):
                 receipts.append(moment)
                 snapshots.append(session.broadcast.as_dict())
             self.manager, self.session = manager, await manager.async_get_active("owner")
+            self.runtime_clock = now
             self.originals = originals
             self.last_capture = {
                 "receipts": [m.as_dict() if m else None for m in receipts],
@@ -351,6 +352,7 @@ class ExpressiveDJPersonaTest(unittest.TestCase):
 
             async def scenario():
                 manager, session = self.manager, self.session
+                self.runtime_clock[0] += 300
                 engine = session.moment_engine
                 before = engine._expression_forms
                 count = len(session.broadcast.state.dj_moments)
@@ -388,7 +390,7 @@ class ExpressiveDJPersonaTest(unittest.TestCase):
                         require_current_playback=True,
                     )
                 )
-                await entered.wait()
+                await asyncio.wait_for(entered.wait(), 2)
                 if interrupt == "end":
                     await manager.async_end(owner_profile_id="owner", session_id=session.session_id)
                 else:

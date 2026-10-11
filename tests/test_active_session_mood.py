@@ -144,6 +144,8 @@ class ActiveSessionMoodRuntimeTest(unittest.TestCase):
         )
         return manager, session, previous, current, insight
 
+    revision_field = "mood_revision"
+
     async def _aba(self, manager, session):
         for mood in ("energy", "groove"):
             await manager.async_update_mood(
@@ -177,7 +179,7 @@ class ActiveSessionMoodRuntimeTest(unittest.TestCase):
                         insight_provider=insight,
                     )
                 )
-                await entered.wait()
+                await asyncio.wait_for(entered.wait(), 2)
                 await self._aba(manager, session)
                 release.set()
                 self.assertIsNone(await pending)
@@ -195,7 +197,7 @@ class ActiveSessionMoodRuntimeTest(unittest.TestCase):
             )
             self.assertIsNotNone(retry)
             self.assertEqual(retry.presentation_intent.source_session_mood, "groove")
-            self.assertEqual((await manager.async_get_active("owner")).mood_revision, 2)
+            self.assertEqual(getattr(await manager.async_get_active("owner"), self.revision_field), 2)
 
         asyncio.run(scenario())
 
@@ -228,7 +230,7 @@ class ActiveSessionMoodRuntimeTest(unittest.TestCase):
                             insight_provider=insight,
                         )
                     )
-                    await entered.wait()
+                    await asyncio.wait_for(entered.wait(), 2)
                     active = await manager.async_get_active("owner")
                     baseline = copy.deepcopy(active.planner.as_dict())
                     knowledge = copy.deepcopy(active.knowledge_engine.__dict__)
@@ -257,7 +259,7 @@ class ActiveSessionMoodRuntimeTest(unittest.TestCase):
             helper = multimoment.VibeCastMultiMomentTest()
             helper.runtime = self.runtime
             manager, session, first, media_id, now = await helper._ready()
-            await helper._observe(manager, session, media_id, now, seconds=30, position_ms=30000)
+            await helper._observe(manager, session, media_id, now, seconds=45, position_ms=45000)
             entered = asyncio.Event()
             release = asyncio.Event()
             original = self.runtime.DJKnowledgeEngine.async_assemble_track_context
@@ -271,7 +273,7 @@ class ActiveSessionMoodRuntimeTest(unittest.TestCase):
                 self.runtime.DJKnowledgeEngine, "async_assemble_track_context", delayed
             ):
                 pending = asyncio.create_task(helper._later(manager, session, media_id))
-                await entered.wait()
+                await asyncio.wait_for(entered.wait(), 2)
                 await self._aba(manager, session)
                 release.set()
                 self.assertIsNone(await pending)

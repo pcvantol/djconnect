@@ -11,12 +11,13 @@ from pathlib import Path
 from aiohttp import web
 
 
-def register(hass, manager, clock):
+def register(hass, manager, clock, *, setting="mood", ports=(18203, 18204)):
     """Register bounded fixture inputs before freezing the actual HA router."""
     from custom_components.djconnect.session_facts import catalog_facts
 
     lab = Path(os.environ["DJC_LAB_ROOT"])
-    ha_port, cast_port = 18203, 18204
+    ha_port, cast_port = ports
+    assert setting in {"mood", "presence"}
     state = {}
 
     async def setup(request):
@@ -42,14 +43,14 @@ def register(hass, manager, clock):
     async def mood(request):
         active = await manager.async_get_active("profile-a")
         response = await state["client"].post(
-            "/api/djconnect/v1/session/mood",
+            f"/api/djconnect/v1/session/{setting}",
             headers=state["headers"],
             json={
                 **state["identity"],
                 "contract_version": 1,
                 "session_id": active.session_id,
-                "selected_mood": request.query["value"],
-                "expected_mood_revision": active.mood_revision,
+                f"selected_{setting}": request.query["value"],
+                f"expected_{setting}_revision": getattr(active, f"{setting}_revision"),
             },
         )
         data = await response.json()
@@ -69,6 +70,10 @@ def register(hass, manager, clock):
             "release_date": "2001-03-04",
             "release_date_precision": "day",
         }
+        if setting == "presence":
+            from presence_runtime_acceptance import source_pool
+            catalog, facts = source_pool(number + 1)
+        state["catalog"] = catalog
         await manager.async_update_playback_projection(
             owner_profile_id="profile-a",
             session_id=active.session_id,
@@ -82,7 +87,7 @@ def register(hass, manager, clock):
         )
 
         async def insight():
-            return {"_qualified_facts": tuple(catalog_facts(catalog))}
+            return {"_qualified_facts": facts if setting == "presence" else tuple(catalog_facts(catalog))}
 
         moment = await manager.async_process_track_started(
             owner_profile_id="profile-a",
@@ -92,10 +97,24 @@ def register(hass, manager, clock):
             require_current_playback=True,
             allow_initial_facts=True,
         )
-        assert moment is not None
+        if setting == "mood":
+            assert moment is not None
         return web.json_response(
-            {"moment": moment.as_dict(), "snapshot": active.broadcast.as_dict(include_owner_only=False)}
+            {"moment": moment.as_dict() if moment is not None else None, "snapshot": active.broadcast.as_dict(include_owner_only=False)}
         )
+
+    async def within(request):
+        active=await manager.async_get_active("profile-a")
+        catalog=state["catalog"]
+        position=int(request.query["position"])
+        clock.advance(45)
+        await manager.async_update_playback_projection(owner_profile_id="profile-a",session_id=active.session_id,
+            state="playing",media_identity=catalog["uri"],title=catalog["title"],artist=catalog["artist"],
+            album=catalog["album_name"],duration_ms=300000,position_ms=position)
+        moment=await manager.async_maybe_publish_intra_track_moment(owner_profile_id="profile-a",
+            session_id=active.session_id,media_identity=catalog["uri"])
+        return web.json_response({"moment":moment.as_dict() if moment else None,
+                                  "snapshot":active.broadcast.as_dict(include_owner_only=False)})
 
     async def snapshot(request):
         active = await manager.async_get_active("profile-a")
@@ -109,12 +128,13 @@ def register(hass, manager, clock):
 
     for name, handler in [
         ("setup", setup),
-        ("mood", mood),
+        (setting, mood),
         ("publish", publish),
         ("snapshot", snapshot),
+        ("within", within),
         ("end", end),
     ]:
-        hass.http.app.router.add_get("/__mood_lab/" + name, handler)
+        hass.http.app.router.add_get(f"/__{setting}_lab/" + name, handler)
 
     async def serve(client, identity, headers):
         state.update(client=client, identity=identity, headers=headers)

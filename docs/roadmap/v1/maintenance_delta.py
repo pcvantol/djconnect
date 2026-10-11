@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 from typing import Any
 
 KEY = "planning_maintenance"
@@ -25,7 +26,25 @@ def validate_delta(plan: dict[str, Any]) -> list[str]:
         if not condition:
             errors.append("maintenance: " + reason)
 
-    check(d.get("schema_version") == "djconnect-federated-planning-delta/1", "unsupported schema")
+    version = d.get("schema_version")
+    implementation = version == "djconnect-federated-planning-delta/2"
+    check(version in {"djconnect-federated-planning-delta/1", "djconnect-federated-planning-delta/2"}, "unsupported schema")
+    delivered = False
+    if implementation:
+        receipt = d.get("implementation_receipt", {})
+        delivered = receipt.get("phase") == "SOURCE_PROTECTED_MERGED"
+        check(receipt.get("assignment_id") == "DJC-CORE-DJ-PRESENCE-V1-20261011", "implementation assignment binding missing")
+        check(receipt.get("selection_url") == "https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6111222122", "implementation owner binding missing")
+        check(receipt.get("joint_product_acceptance") == "OPEN", "joint acceptance remains Planned without native receipts")
+        check(receipt.get("native") == "NOT_RUN" and receipt.get("installed") == "NOT_RUN" and receipt.get("hardware") == "NOT_RUN", "unqualified consumer effect")
+        check(receipt.get("phase") in {"LOCAL_IMPLEMENTATION_AND_QUALIFICATION", "SOURCE_PROTECTED_MERGED"}, "unqualified delivery phase")
+        check(receipt.get("source_delivery") == ("PROTECTED_MERGED" if delivered else "UNPUBLISHED"), "unqualified delivery phase")
+        if delivered:
+            check(bool(re.fullmatch(r"[a-f0-9]{40}", str(receipt.get("source_main_sha", "")))), "exact source main receipt missing")
+            check(bool(re.fullmatch(r"https://github.com/pcvantol/djconnect/pull/[0-9]+", str(receipt.get("source_pr", "")))), "source PR receipt missing")
+            check(receipt.get("source_review") == "PASS" and receipt.get("required_checks") == "PASS" and receipt.get("protected_merge") is True, "protected delivery evidence missing")
+            check(all(bool(re.fullmatch(r"[a-f0-9]{64}", str(receipt.get(k, "")))) for k in ("archive_sha256", "formal_evidence_sha256")), "exact artifact readback missing")
+        check(receipt.get("previous_delta") == "history/20261011/presence-design-maintenance-v1.json" and len(str(receipt.get("previous_delta_sha256", ""))) == 64, "previous version binding missing")
     check(
         d.get("execution_authority") is False and d.get("automatic_dispatch") is False,
         "no product dispatch authorized",
@@ -43,7 +62,7 @@ def validate_delta(plan: dict[str, Any]) -> list[str]:
         == "https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6110375785",
         "owner reference mismatch",
     )
-    check(d.get("scope") == "DOCUMENTARY_DELTA_ONLY", "invalid scope")
+    check(d.get("scope") == ("SELECTED_CORE_IMPLEMENTATION_DELTA" if implementation else "DOCUMENTARY_DELTA_ONLY"), "invalid scope")
     for field in ["nodes", "edges", "document_references"]:
         check(
             isinstance(d.get(field), list) and all(isinstance(x, dict) for x in d.get(field, [])),
@@ -60,12 +79,13 @@ def validate_delta(plan: dict[str, Any]) -> list[str]:
     lanes = {lane["id"]: lane["repository"] for lane in plan["lanes"]}
     for nid, n in nodes.items():
         check(lanes.get(n.get("lane")) == n.get("repository"), "unknown owning lane/repository")
-        check(n.get("status") in {"Planned", "Completed"}, "invalid node status")
+        admitted = implementation and nid in {"SLICE::CORE::DJ-PRESENCE-CONTRACT", "SLICE::CORE::DJ-PRESENCE-POLICY"}
+        check(n.get("status") in ({"Completed" if delivered else "In progress"} if admitted else {"Planned", "Completed"}), "invalid node status")
         check(
-            n.get("status") == "Planned" or nid == "SLICE::CORE::ACTIVE-SESSION-MOOD",
+            n.get("status") == "Planned" or admitted or nid == "SLICE::CORE::ACTIVE-SESSION-MOOD",
             "presence implementation must remain Planned",
         )
-        check(n.get("assignment_status") == "NOT_ISSUED", "no assignment may start")
+        check(n.get("assignment_status") == (("CORE_DELIVERED" if delivered else "IN_PROGRESS") if admitted else "NOT_ISSUED"), "unadmitted assignment may not start")
         check(
             all(
                 n.get(k)
@@ -162,11 +182,13 @@ def render_delta(p):
     d = p[KEY]
     nodes = {n["id"]: n for n in d["nodes"]}
     inherited = {n["id"]: n for n in p["nodes"]}
+    current = d.get("schema_version") == "djconnect-federated-planning-delta/2"
+    delivery = d.get("implementation_receipt", {}).get("source_delivery", "UNPUBLISHED")
     intro = (
         "Generated from djconnect-platform-v1.json, maintenance " + d["decision_id"] + ".\n\n"
         "The original3October snapshot/audit/source pins and projections are immutable history in [history/20261003](history/20261003/README.md). "
         "Only this bounded delta is current here; inherited premerge statuses are not current blockers. "
-        "No portfolio-wide refresh, writer reservation, product dispatch or runtime acceptance is claimed.\n\n"
+        + ("Only the selected existing Core writer is admitted by implementation receipt; no automatic dispatch, second writer or native/installed/hardware acceptance.\n\n" if current else "No portfolio-wide refresh, writer reservation, product dispatch or runtime acceptance is claimed.\n\n")
     )
     out = {}
     out["README.md"] = (
@@ -199,12 +221,14 @@ def render_delta(p):
         "# Planned product work — no dispatch\n\n"
         + intro
         + "".join(
-            f"- `{n['id']}` — Planned: {n['acceptance_boundary']}.\n"
+            f"- `{n['id']}` — {n['status']}: {n['acceptance_boundary']}.\n"
             for n in nodes.values()
-            if n["status"] == "Planned"
+            if n["status"] != "Completed"
         )
-        + "\nPolicy values/budgets/default and exact presence route/schema remain unqualified design details. No runtime/native/browser/installed/hardware PASS.\n"
+        + ("\nCore policy/ownercontract status follows the exact implementation receipt. Native/installed/hardware acceptance remains open.\n" if current else "\nPolicy values/budgets/default and exact presence route/schema remain unqualified design details. No runtime/native/browser/installed/hardware PASS.\n")
     )
+    if current:
+        intro += f"Selected implementation [{d['implementation_receipt']['assignment_id']}]({d['implementation_receipt']['selection_url']}); early local contract `{d['implementation_receipt']['early_contract_pin']}`; source delivery {delivery}.\n\n"
     out["SOURCES.md"] = (
         "# Maintenance source bindings\n\n"
         + intro

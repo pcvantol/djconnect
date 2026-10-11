@@ -48,6 +48,42 @@ class SessionRuntimeManagerTest(unittest.TestCase):
         else:
             sys.modules[f"{PACKAGE}.const"] = cls.previous_const
 
+    async def _process_presence_fixture(self, manager, *, owner_profile_id, session_id, insight_provider):
+        """Observe real tracks and advance a fixture clock instead of resetting budgets."""
+        if not hasattr(manager, "_test_presence_clock"):
+            clock = [100.0]
+            manager._test_presence_clock = clock
+            manager._monotonic_source = lambda: clock[0]
+            current = await manager.async_get_active(owner_profile_id)
+            current.presence_ledger.clock = manager._monotonic_source
+            current.planner.elapsed_time_source = manager._monotonic_source
+            async def empty():
+                return {}
+            await manager.async_process_track_started(owner_profile_id=owner_profile_id,
+                session_id=session_id, insight_provider=empty, media_identity="fixture-baseline")
+        clock = manager._test_presence_clock
+        clock[0] += 90
+        raw = await insight_provider()
+        track = raw.get("track", {})
+        identity = "spotify:track:" + f"{int(clock[0]):022d}"
+        async def observed(position=0):
+            await manager.async_update_playback_projection(owner_profile_id=owner_profile_id,
+                session_id=session_id,state="playing",media_identity=identity,
+                title=track.get("title", "Fixture track"),artist=track.get("artist", "Fixture artist"),
+                album=track.get("album", ""),duration_ms=300000,position_ms=position)
+        await observed()
+        async def provider():
+            return raw
+        result = await manager.async_process_track_started(owner_profile_id=owner_profile_id,
+            session_id=session_id, insight_provider=provider,media_identity=identity)
+        opportunity = manager._intra_track_opportunities.get(owner_profile_id)
+        if opportunity is not None and opportunity.pending_transition is not None:
+            clock[0] += 45
+            await observed(45000)
+            await manager.async_maybe_publish_intra_track_moment(owner_profile_id=owner_profile_id,
+                session_id=session_id,media_identity=identity)
+        return result
+
     def test_creates_and_looks_up_active_runtime_for_profile(self) -> None:
         manager = self.runtime.SessionRuntimeManager()
         created = asyncio.run(
@@ -1483,6 +1519,8 @@ class SessionRuntimeManagerTest(unittest.TestCase):
                 "runtime_state": "active",
                 "selected_mood": "groove",
                 "mood_revision": 0,
+                "selected_presence": "balanced",
+                "presence_revision": 0,
                 "locale": "en",
             },
         )
@@ -2138,6 +2176,7 @@ class SessionRuntimeManagerTest(unittest.TestCase):
                 "playback_progress",
                 "planner_updated",
                 "mood_changed",
+                "presence_changed",
                 "track_changed",
                 "session_flow_updated",
                 "audience_updated",
@@ -2609,7 +2648,7 @@ class SessionRuntimeManagerTest(unittest.TestCase):
             }
 
         first = asyncio.run(
-            manager.async_process_track_started(
+            self._process_presence_fixture(manager,
                 owner_profile_id=created.owner_profile_id,
                 session_id=created.session_id,
                 insight_provider=insight,
@@ -2617,7 +2656,7 @@ class SessionRuntimeManagerTest(unittest.TestCase):
         )
         created.planner.last_spoken_moment_at = 0.0
         second = asyncio.run(
-            manager.async_process_track_started(
+            self._process_presence_fixture(manager,
                 owner_profile_id=created.owner_profile_id,
                 session_id=created.session_id,
                 insight_provider=insight,
@@ -2661,7 +2700,7 @@ class SessionRuntimeManagerTest(unittest.TestCase):
             }
 
         first = asyncio.run(
-            manager.async_process_track_started(
+            self._process_presence_fixture(manager,
                 owner_profile_id=created.owner_profile_id,
                 session_id=created.session_id,
                 insight_provider=insight,
@@ -2671,7 +2710,7 @@ class SessionRuntimeManagerTest(unittest.TestCase):
         assert active is not None
         active.planner.last_spoken_moment_at = 0.0
         second = asyncio.run(
-            manager.async_process_track_started(
+            self._process_presence_fixture(manager,
                 owner_profile_id=created.owner_profile_id,
                 session_id=created.session_id,
                 insight_provider=insight,
@@ -2726,7 +2765,7 @@ class SessionRuntimeManagerTest(unittest.TestCase):
             }
 
         first = asyncio.run(
-            manager.async_process_track_started(
+            self._process_presence_fixture(manager,
                 owner_profile_id=created.owner_profile_id,
                 session_id=created.session_id,
                 insight_provider=insight,
@@ -2734,7 +2773,7 @@ class SessionRuntimeManagerTest(unittest.TestCase):
         )
         created.planner.last_spoken_moment_at = 0.0
         second = asyncio.run(
-            manager.async_process_track_started(
+            self._process_presence_fixture(manager,
                 owner_profile_id=created.owner_profile_id,
                 session_id=created.session_id,
                 insight_provider=insight,
@@ -2833,7 +2872,7 @@ class SessionRuntimeManagerTest(unittest.TestCase):
 
         for _ in range(2):
             asyncio.run(
-                manager.async_process_track_started(
+                self._process_presence_fixture(manager,
                     owner_profile_id=created.owner_profile_id,
                     session_id=created.session_id,
                     insight_provider=insight,
@@ -2842,7 +2881,7 @@ class SessionRuntimeManagerTest(unittest.TestCase):
             created.planner.last_spoken_moment_at = 0.0
         moments_before = len(created.moment_engine.moments)
         third = asyncio.run(
-            manager.async_process_track_started(
+            self._process_presence_fixture(manager,
                 owner_profile_id=created.owner_profile_id,
                 session_id=created.session_id,
                 insight_provider=insight,
@@ -2879,7 +2918,7 @@ class SessionRuntimeManagerTest(unittest.TestCase):
             }
 
         first = asyncio.run(
-            manager.async_process_track_started(
+            self._process_presence_fixture(manager,
                 owner_profile_id=created.owner_profile_id,
                 session_id=created.session_id,
                 insight_provider=insight,
@@ -2887,7 +2926,7 @@ class SessionRuntimeManagerTest(unittest.TestCase):
         )
         created.planner.last_spoken_moment_at = 0.0
         second = asyncio.run(
-            manager.async_process_track_started(
+            self._process_presence_fixture(manager,
                 owner_profile_id=created.owner_profile_id,
                 session_id=created.session_id,
                 insight_provider=insight,
@@ -3648,7 +3687,7 @@ class SessionRuntimeManagerTest(unittest.TestCase):
 
         for _ in range(2):
             silence = asyncio.run(
-                manager.async_process_track_started(
+                self._process_presence_fixture(manager,
                     owner_profile_id=created.owner_profile_id,
                     session_id=created.session_id,
                     insight_provider=invalid_insight,
@@ -3658,7 +3697,7 @@ class SessionRuntimeManagerTest(unittest.TestCase):
             self.assertEqual(silence.moment_type, self.runtime.DJMomentType.SILENCE)
 
         resetting = asyncio.run(
-            manager.async_process_track_started(
+            self._process_presence_fixture(manager,
                 owner_profile_id=created.owner_profile_id,
                 session_id=created.session_id,
                 insight_provider=invalid_insight,
@@ -3686,7 +3725,7 @@ class SessionRuntimeManagerTest(unittest.TestCase):
             return {}
 
         returning = asyncio.run(
-            manager.async_process_track_started(
+            self._process_presence_fixture(manager,
                 owner_profile_id=created.owner_profile_id,
                 session_id=created.session_id,
                 insight_provider=provider,
@@ -3718,7 +3757,7 @@ class SessionRuntimeManagerTest(unittest.TestCase):
 
         created.planner.last_spoken_moment_at = 0
         next_moment = asyncio.run(
-            manager.async_process_track_started(
+            self._process_presence_fixture(manager,
                 owner_profile_id=created.owner_profile_id,
                 session_id=created.session_id,
                 insight_provider=provider,
@@ -3740,14 +3779,14 @@ class SessionRuntimeManagerTest(unittest.TestCase):
         async def first() -> dict:
             return {"track": {"title": "A", "artist": "B"}, "analysis": {"summary": "One.", "full_text": "One full context."}}
 
-        first_moment = asyncio.run(manager.async_generate_track_context(owner_profile_id="profile-a", session_id=created.session_id, insight_provider=first))
+        first_moment = asyncio.run(self._process_presence_fixture(manager,owner_profile_id="profile-a", session_id=created.session_id, insight_provider=first))
         asyncio.run(manager.async_update_mood(owner_profile_id="profile-a", session_id=created.session_id, selected_mood="energy"))
         asyncio.run(manager.async_update_persona(owner_profile_id="profile-a", session_id=created.session_id, dj_persona=self.runtime.DJPersona.CLUB_DJ))
 
         async def second() -> dict:
             return {"track": {"title": "C", "artist": "D"}, "analysis": {"summary": "Two.", "full_text": "Two full context."}}
 
-        second_moment = asyncio.run(manager.async_generate_track_context(owner_profile_id="profile-a", session_id=created.session_id, insight_provider=second))
+        second_moment = asyncio.run(self._process_presence_fixture(manager,owner_profile_id="profile-a", session_id=created.session_id, insight_provider=second))
         assert first_moment is not None and second_moment is not None
         self.assertEqual(first_moment.presentation_intent.source_session_mood, "deep")
         self.assertEqual(second_moment.presentation_intent.source_session_mood, "energy")

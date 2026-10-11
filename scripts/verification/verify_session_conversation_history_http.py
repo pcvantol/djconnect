@@ -119,6 +119,19 @@ async def main():
         async_entries=lambda domain: [client_entry, source_entry],
         async_update_entry=lambda *args, **kwargs: None,
     )
+    presence_off = os.environ.get("DJC_PRESENCE_OFF") == "1"
+    if presence_off:
+        from homeassistant.config_entries import ConfigEntries, ConfigEntryStore, ConfigEntryState
+        # Own fixture configured slots; ordinary production pairing mints authority.
+        paired_data = {**client_entry.data, "pair_code": "123456"}
+        client_entry = entry("owner-entry", paired_data)
+        await ConfigEntryStore(hass).async_save({"entries": [client_entry.as_storage_fragment, source_entry.as_storage_fragment]})
+        hass.config_entries = ConfigEntries(hass, {})
+        await hass.config_entries.async_initialize()
+        client_entry = hass.config_entries.async_get_entry("owner-entry")
+        source_entry = hass.config_entries.async_get_entry("source-entry")
+        client_entry._async_set_state(hass, ConfigEntryState.LOADED, None)
+        source_entry._async_set_state(hass, ConfigEntryState.LOADED, None)
     runtime = DJConnectRuntime(client_entry, device_token=token)
     runtime.device_status.update(device_id=device_id, client_type="ios")
     history = AskDJHistoryManager(hass)
@@ -185,6 +198,14 @@ async def main():
             )
             return body, response.status
 
+        if presence_off:
+            response=await client.post("/api/djconnect/v1/pair",json={**identity,"pair_code":"123456"})
+            paired=await response.json()
+            assert response.status==200 and paired["success"]
+            assert client_entry.data["device_token"]==paired["device_token"]
+            headers["Authorization"]="Bearer "+paired["device_token"]
+            receipts.append({"stage":"ordinary_pairing_before_presence_off","token_minted_and_persisted":True,
+                             "ha_user_credentials_issued":0})
         caps, status = await request("GET", "/api/djconnect/v1/capabilities")
         assert status == 200 and caps["capabilities"]["session_flow_text_search"]
         _, status = await request("GET", "/api/djconnect/v1/session/history", authorized=False)
@@ -218,6 +239,16 @@ async def main():
             owner_profile_id="profile-a", session_id=session.session_id, insight_provider=insight
         )
         assert moment is not None
+        if presence_off:
+            off,status=await request("POST","/api/djconnect/v1/session/presence",{
+                "contract_version":1,"session_id":session.session_id,"selected_presence":"music_only","expected_presence_revision":0})
+            assert status==200 and off["selected_presence"]=="music_only"
+            active=await manager.async_get_active("profile-a")
+            assert active.presence_revision==1
+            async def forbidden():
+                raise AssertionError("music-only invoked proactive producer")
+            assert await manager.async_process_track_started(owner_profile_id="profile-a",session_id=session.session_id,
+                                                            insight_provider=forbidden) is None
         timeline_path = "/api/djconnect/v1/session/history/" + session.session_id
         timeline, status = await request("GET", timeline_path, {"window": "tail"})
         assert status == 200
@@ -307,6 +338,9 @@ async def main():
             }
         )
         assert "Vertel over deze bijdrage" not in json.dumps(session.broadcast.as_dict())
+        if presence_off:
+            receipts.append({"stage":"music_only_explicit_text_voice_history_preserved","ordinary_owner_auth":True,
+                             "voice_input":"SYNTHETIC_STT_ADAPTER_NOT_MICROPHONE","private_shared_broadcast_leak":False})
         await manager.async_end(owner_profile_id="profile-a", session_id=session.session_id)
         await service.async_close()
         await service.async_initialize()
@@ -372,7 +406,9 @@ async def main():
     result = {
         "source_files_sha256": qualified_sources,
         "ha_sdk_version": sdk_version,
-        "assignment_id": "DJC-CORE-PROFILE-HISTORY-HTTP-SCOPE-FIX-V1-20261009",
+        "assignment_id": "DJC-CORE-DJ-PRESENCE-V1-20261011" if presence_off else "DJC-CORE-PROFILE-HISTORY-HTTP-SCOPE-FIX-V1-20261009",
+        "reused_verifier": "DJC-CORE-PROFILE-HISTORY-HTTP-SCOPE-FIX-V1-20261009",
+        "scenario": "ordinary_pairing_presence_off_compatibility" if presence_off else "profile_history_http_scope",
         "qualification": "real HA SDK, DJConnectRuntime paired authorization, HA HTTP view registration, loopback HTTP, SQLite and HA Store reload; synthetic source account/metadata and voice-derived text, no microphone/native/provider/installed proof",
         "server_time": datetime.now(UTC).isoformat(),
         "requests": receipts,

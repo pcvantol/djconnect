@@ -188,7 +188,7 @@ class PlaybackObservationTest(unittest.TestCase):
                 observed("spotify:track:a", 0),
                 observed("spotify:track:b", 0),
                 observed("spotify:track:b", 15_000),
-                observed("spotify:track:b", 30_000),
+                observed("spotify:track:b", 45_000),
                 observed("spotify:track:b", 60_000),
             ]
             insight_calls = 0
@@ -206,7 +206,7 @@ class PlaybackObservationTest(unittest.TestCase):
                 integration_runtime=object(), session=session, insight_provider=insight
             )
             await self.scheduled[0]["callback"](None)
-            for seconds, expected_count in ((15, 1), (15, 2), (30, 2)):
+            for seconds, expected_count in ((15, 1), (30, 2), (15, 2)):
                 now[0] += seconds
                 await self.scheduled[0]["callback"](None)
                 assert len(session.broadcast.state.dj_moments) == expected_count
@@ -239,7 +239,7 @@ class PlaybackObservationTest(unittest.TestCase):
             self.spotify.SpotifyBackend.responses = [
                 observed("spotify:track:a", 0),
                 observed("spotify:track:b", 0),
-                observed("spotify:track:b", 30_000),
+                observed("spotify:track:b", 45_000),
             ]
 
             async def insight():
@@ -263,9 +263,9 @@ class PlaybackObservationTest(unittest.TestCase):
                 return await original(engine, *args, **kwargs)
 
             with patch.object(self.runtime.DJKnowledgeEngine, "async_assemble_track_context", slow):
-                now[0] += 30
+                now[0] += 45
                 pending = asyncio.create_task(self.scheduled[0]["callback"](None))
-                await started.wait()
+                await asyncio.wait_for(started.wait(), 2)
                 await self.observer.async_stop_runtime(runtime)
                 release.set()
                 await pending

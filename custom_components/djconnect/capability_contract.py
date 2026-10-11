@@ -14,6 +14,7 @@ def _platform_capabilities() -> dict[str, bool]:
         "session_conversation_history": True,
         "session_flow_text_search": True,
         "active_session_mood": True,
+        "active_session_presence": True,
     }
 
 
@@ -25,4 +26,5 @@ def _contract_versions() -> dict[str, int]:
         "session_conversation_history": 1,
         "session_flow_text_search": 1,
         "active_session_mood": 1,
+        "active_session_presence": 1,
     }

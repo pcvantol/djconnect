@@ -2,11 +2,13 @@
 
 Generated from djconnect-platform-v1.json, maintenance DJC-DJ-PRESENCE-ROADMAP-DESIGN-V1-20261011.
 
-The original3October snapshot/audit/source pins and projections are immutable history in [history/20261003](../history/20261003/README.md). Only this bounded delta is current here; inherited premerge statuses are not current blockers. No portfolio-wide refresh, writer reservation, product dispatch or runtime acceptance is claimed.
+The original3October snapshot/audit/source pins and projections are immutable history in [history/20261003](../history/20261003/README.md). Only this bounded delta is current here; inherited premerge statuses are not current blockers. Only the selected existing Core writer is admitted by implementation receipt; no automatic dispatch, second writer or native/installed/hardware acceptance.
+
+Selected implementation [DJC-CORE-DJ-PRESENCE-V1-20261011](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6111222122); early local contract `1d5e8c2518db5902031898991b7f4857d5263a5c`; source delivery UNPUBLISHED.
 
 - `PROJ::INTELLIGENCE::DJ-PRESENCE` — Planned; Independent presence, Mood and Persona; no new dispatch
-- `SLICE::CORE::DJ-PRESENCE-CONTRACT` — Planned; Pin numeric policy/default, capability/schema and producer fixtures
-- `SLICE::CORE::DJ-PRESENCE-POLICY` — Planned; All proactive paths; off/in-flight/no-catch-up/published-only accounting
+- `SLICE::CORE::DJ-PRESENCE-CONTRACT` — In progress; Pin numeric policy/default, capability/schema and producer fixtures
+- `SLICE::CORE::DJ-PRESENCE-POLICY` — In progress; All proactive paths; off/in-flight/no-catch-up/published-only accounting
 - `QUAL::PRODUCT::DJ-PRESENCE-V1` — Planned; AND qualified Core policy, native control and both renderer receipts
 - `SLICE::CORE::ACTIVE-SESSION-MOOD` — Completed; Only verified ordinary pairing/owner/final authority/revision semantics from source1146/Finalization1147
 

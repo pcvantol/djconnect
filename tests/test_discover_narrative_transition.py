@@ -92,7 +92,7 @@ class DiscoverNarrativeTests(unittest.TestCase):
 
     def start(self, *, strategy=None, locale="en", profile="discover-narrative"):
         clock = [100.0]
-        manager = self.core.SessionRuntimeManager()
+        manager = self.core.SessionRuntimeManager(monotonic_source=lambda: clock[0])
         session = asyncio.run(manager.async_start(
             owner_profile_id=profile, selected_mood="groove",
             dj_persona=self.core.DJPersona.HOME_DJ, locale=locale,
@@ -107,11 +107,27 @@ class DiscoverNarrativeTests(unittest.TestCase):
         async def provide():
             return insight
 
+        async def observed(position=0):
+            await manager.async_update_playback_projection(owner_profile_id=session.owner_profile_id,
+                session_id=session.session_id,state="playing",media_identity=playback["uri"],
+                title=playback["title"],artist=playback["artist"],album=playback.get("album", ""),
+                duration_ms=300000,position_ms=position)
+        asyncio.run(observed())
         result = asyncio.run(manager.async_process_track_started(
             owner_profile_id=session.owner_profile_id, session_id=session.session_id,
             media_identity=playback["uri"], insight_provider=provide,
         ))
-        clock[0] += 75.0
+        opportunity = manager._intra_track_opportunities.get(session.owner_profile_id)
+        if opportunity is not None and opportunity.pending_transition is not None:
+            # The relation is still approved by the existing Planner; its Moment
+            # is now realized only on a fresh readable observation, not instantly.
+            clock[0] += 45
+            asyncio.run(observed(45000))
+            asyncio.run(manager.async_maybe_publish_intra_track_moment(owner_profile_id=session.owner_profile_id,
+                session_id=session.session_id,media_identity=playback["uri"]))
+            clock[0] += 45
+        else:
+            clock[0] += 90
         return result
 
     def sequence(self, *, source_evidence=None, target_evidence=None,
@@ -390,11 +406,24 @@ class DiscoverNarrativeTests(unittest.TestCase):
                     "full_text": f"A bounded explanation for track {number}.",
                     "genre": "ambient",
                 })
+                asyncio.run(manager.async_update_playback_projection(owner_profile_id=session.owner_profile_id,
+                    session_id=session.session_id,state="playing",media_identity=playback["uri"],
+                    title=playback["title"],artist=playback["artist"],duration_ms=300000,position_ms=0))
                 results.append(asyncio.run(manager.async_process_track_started(
                     owner_profile_id=session.owner_profile_id,
                     session_id=session.session_id, media_identity=playback["uri"],
                     insight_provider=provider)))
-                clock[0] += 75.0
+                opportunity=manager._intra_track_opportunities.get(session.owner_profile_id)
+                if opportunity is not None and opportunity.pending_transition is not None:
+                    clock[0] += 45
+                    asyncio.run(manager.async_update_playback_projection(owner_profile_id=session.owner_profile_id,
+                        session_id=session.session_id,state="playing",media_identity=playback["uri"],
+                        title=playback["title"],artist=playback["artist"],duration_ms=300000,position_ms=45000))
+                    asyncio.run(manager.async_maybe_publish_intra_track_moment(owner_profile_id=session.owner_profile_id,
+                        session_id=session.session_id,media_identity=playback["uri"]))
+                    clock[0] += 45
+                else:
+                    clock[0] += 90
         finally:
             service_globals["run_music_command"] = original
         self.assertIsNone(results[0])

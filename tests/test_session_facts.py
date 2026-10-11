@@ -230,6 +230,7 @@ class SessionFactsTest(unittest.TestCase):
                     position_ms=position,
                 )
 
+            await manager.async_update_presence(owner_profile_id=session.owner_profile_id, session_id=session.session_id, selected_presence="presenter")
             await observe(0)
 
             async def insight():
