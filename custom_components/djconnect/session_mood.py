@@ -25,6 +25,10 @@ def capability() -> dict[str, Any]:
 
 
 async def async_handle_mood(hass, data, *, headers=None):
+    return await async_handle_owner_setting(hass, data, headers=headers, setting="mood")
+
+
+async def async_handle_owner_setting(hass, data, *, headers=None, setting):
     """Validate and commit through the existing owner resolver and Runtime lock."""
     from .api_handlers import _async_owner_broadcast_session_context
     from .profile_context import profile_storage
@@ -34,7 +38,15 @@ async def async_handle_mood(hass, data, *, headers=None):
         resolve_runtime,
         runtime_matches_device,
     )
-    from .session_runtime import MoodRevisionConflictError
+    from .session_runtime import MoodRevisionConflictError, PresenceRevisionConflictError
+    from .presence_policy import POLICIES
+
+    assert setting in {"mood", "presence"}
+    selected_key = f"selected_{setting}"
+    revision_key = f"{setting}_revision"
+    expected_key = f"expected_{setting}_revision"
+    values = MOODS if setting == "mood" else POLICIES
+    conflict_type = MoodRevisionConflictError if setting == "mood" else PresenceRevisionConflictError
 
     def error(code, status, **extra):
         return {"success": False, "error": code, **extra}, status
@@ -44,18 +56,18 @@ async def async_handle_mood(hass, data, *, headers=None):
         "client_type",
         "device_id",
         "session_id",
-        "selected_mood",
-        "expected_mood_revision",
+        selected_key,
+        expected_key,
     }
     if not isinstance(data, dict) or set(data) != fields:
         return error("invalid_request", 400)
     if type(data["contract_version"]) is not int or data["contract_version"] != VERSION:
         return error("unsupported_contract_version", 400)
-    if type(data["selected_mood"]) is not str or data["selected_mood"] not in MOODS:
-        return error("invalid_selected_mood", 400)
-    revision = data["expected_mood_revision"]
+    if type(data[selected_key]) is not str or data[selected_key] not in values:
+        return error(f"invalid_selected_{setting}", 400)
+    revision = data[expected_key]
     if type(revision) is not int or revision < 0:
-        return error("invalid_mood_revision", 400)
+        return error(f"invalid_{setting}_revision", 400)
     if (
         type(data["client_type"]) is not str
         or data["client_type"] not in CLIENT_TYPES
@@ -107,7 +119,7 @@ async def async_handle_mood(hass, data, *, headers=None):
     if not pairing_is_current():
         return error("unauthorized", 401)
     result, status, manager, profile_id = await _async_owner_broadcast_session_context(
-        hass, data, headers=headers, source="active_session_mood"
+        hass, data, headers=headers, source=f"active_session_{setting}"
     )
     if manager is None:
         return result, status
@@ -127,23 +139,24 @@ async def async_handle_mood(hass, data, *, headers=None):
             return False
 
     try:
-        active = await manager.async_update_mood(
+        update = manager.async_update_mood if setting == "mood" else manager.async_update_presence
+        active = await update(
             owner_profile_id=profile_id,
             session_id=data["session_id"],
-            selected_mood=data["selected_mood"],
+            **{selected_key: data[selected_key]},
             expected_revision=revision,
             authorize=owner_is_current,
         )
     except PermissionError:
         return error("unauthorized", 401)
-    except MoodRevisionConflictError as exc:
+    except conflict_type as exc:
         return error(
-            "mood_revision_conflict",
+            f"{setting}_revision_conflict",
             409,
             current={
                 "session_id": exc.active.session_id,
-                "selected_mood": exc.active.selected_mood,
-                "mood_revision": exc.active.mood_revision,
+                selected_key: getattr(exc.active, selected_key),
+                revision_key: getattr(exc.active, revision_key),
             },
         )
     if active is None:
@@ -152,7 +165,7 @@ async def async_handle_mood(hass, data, *, headers=None):
         "success": True,
         "contract_version": VERSION,
         "session_id": active.session_id,
-        "selected_mood": active.selected_mood,
-        "mood_revision": active.mood_revision,
-        "changed": active.mood_revision != revision,
+        selected_key: getattr(active, selected_key),
+        revision_key: getattr(active, revision_key),
+        "changed": getattr(active, revision_key) != revision,
     }, 200

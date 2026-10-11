@@ -177,7 +177,7 @@ class ActiveSessionMoodRuntimeTest(unittest.TestCase):
                         insight_provider=insight,
                     )
                 )
-                await entered.wait()
+                await asyncio.wait_for(entered.wait(), 2)
                 await self._aba(manager, session)
                 release.set()
                 self.assertIsNone(await pending)
@@ -228,7 +228,7 @@ class ActiveSessionMoodRuntimeTest(unittest.TestCase):
                             insight_provider=insight,
                         )
                     )
-                    await entered.wait()
+                    await asyncio.wait_for(entered.wait(), 2)
                     active = await manager.async_get_active("owner")
                     baseline = copy.deepcopy(active.planner.as_dict())
                     knowledge = copy.deepcopy(active.knowledge_engine.__dict__)
@@ -257,7 +257,7 @@ class ActiveSessionMoodRuntimeTest(unittest.TestCase):
             helper = multimoment.VibeCastMultiMomentTest()
             helper.runtime = self.runtime
             manager, session, first, media_id, now = await helper._ready()
-            await helper._observe(manager, session, media_id, now, seconds=30, position_ms=30000)
+            await helper._observe(manager, session, media_id, now, seconds=45, position_ms=45000)
             entered = asyncio.Event()
             release = asyncio.Event()
             original = self.runtime.DJKnowledgeEngine.async_assemble_track_context
@@ -271,7 +271,7 @@ class ActiveSessionMoodRuntimeTest(unittest.TestCase):
                 self.runtime.DJKnowledgeEngine, "async_assemble_track_context", delayed
             ):
                 pending = asyncio.create_task(helper._later(manager, session, media_id))
-                await entered.wait()
+                await asyncio.wait_for(entered.wait(), 2)
                 await self._aba(manager, session)
                 release.set()
                 self.assertIsNone(await pending)

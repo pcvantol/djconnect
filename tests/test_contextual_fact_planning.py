@@ -49,7 +49,7 @@ class ContextualFactPlanningTest(unittest.TestCase):
         return album, recording, artist
 
     def run_session(self, facts, *, discover=False, mood="neutral", positions=(0,), duration=300000,
-                    persona=None, allowed=None, direction=None, durations=None, locale="nl"):
+                    persona=None, allowed=None, direction=None, durations=None, locale="nl", presence="balanced"):
         async def scenario():
             now = [100.0]
             manager = self.runtime.SessionRuntimeManager(monotonic_source=lambda: now[0])
@@ -60,6 +60,7 @@ class ContextualFactPlanningTest(unittest.TestCase):
                 args["dj_persona"] = persona
             args["allowed_capability_intents"] = allowed
             session = await manager.async_start(**args)
+            session = await manager.async_update_presence(owner_profile_id="owner", session_id=session.session_id, selected_presence=presence)
             if direction is not None:
                 session = replace(session, session_direction=replace(session.session_direction, direction=direction))
                 manager._active_by_profile["owner"] = session
@@ -161,7 +162,7 @@ class ContextualFactPlanningTest(unittest.TestCase):
             "relations": [{"type": "composer", "target-type": "artist", "artist": {"name": "Test composer"}}],
         }}]})[0]
         receipts, session = self.run_session((work, recording, artist, album),
-                                             positions=(0, 15000, 30000, 45000, 60000, 75000, 90000, 105000, 120000, 135000))
+                                             positions=(0, 15000, 30000, 45000, 60000, 75000, 90000, 105000, 120000, 135000), presence="presenter")
         self.assertEqual([r["type"] for r in receipts], ["track", "album", "track", "artist"])
         self.assertEqual(len(session.performance_memory.recent_moment_ids), 4)
         # Without recent committed type demotion, both track angles outrank album.
