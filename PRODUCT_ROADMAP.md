@@ -1,5 +1,20 @@
 # DJConnect Product Roadmap
 
+Completed bounded Core producer: `DJC-CORE-ACTIVE-SESSION-MOOD-V1-20261011`,
+[protected source #1146](https://github.com/pcvantol/djconnect/pull/1146) merged as
+`491e2258920e730901875e3c8b258565a06e8463`; exact145-file source package and
+formal qualification PASS. Ordinary paired owners change selected mood on the
+same active Session; future eligible Moments consume it without rewriting past
+Moments, restarting playback or changing Persona/queue/Profile. Versioned CAS,
+no-op, authority/in-flight fences and real HA propagation are qualified.
+[Acceptance](docs/verification/ACTIVE_SESSION_MOOD_V1_ACCEPTANCE.md) and
+[own Finalization](docs/history/prompts/2026-10-11-active-session-mood-finalization.md)
+record separate final delivery/cleanup gates. Existing Apple87 pickup owns its
+native consumerdelta; local/static1.1 portrait/landscape browser compatibility
+PASS, CAFmodeled, native/installed/hardware NOT_RUN. Generation2/Phase1 and
+existing canonical horizon remain. No next capability, artwork dependency,
+installation, Pages or receiver effect is selected.
+
 Completed bounded Core maintenance: `DJC-CORE-WINDOWS-CLIENT-RETIREMENT-V1-20261011`.
 PR [#1144](https://github.com/pcvantol/djconnect/pull/1144) protected merged as
 `5fa3b10e334ec76034f75df831d40bc8cb9ad546`; exact144-file source package and
