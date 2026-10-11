@@ -1,11 +1,14 @@
 # DJConnect Product Roadmap
 
-Current bounded Core maintenance: `DJC-CORE-WINDOWS-CLIENT-RETIREMENT-V1-20261011`.
-The [selected Core subset](docs/product/WINDOWS_CLIENT_RETIREMENT_V1.md) is in
-source qualification; protected delivery and its own Finalization remain pending.
-Windows publication was already Retired. Dedicated infrastructure retirement
-remains separately Planned under [Windows #76](https://github.com/pcvantol/djconnect-windows/issues/76).
-No installation or new intelligence capability is implied.
+Completed bounded Core maintenance: `DJC-CORE-WINDOWS-CLIENT-RETIREMENT-V1-20261011`.
+PR [#1144](https://github.com/pcvantol/djconnect/pull/1144) protected merged as
+`5fa3b10e334ec76034f75df831d40bc8cb9ad546`; exact144-file source package and
+formal qualification PASS. The [Core disposition](docs/product/WINDOWS_CLIENT_RETIREMENT_V1.md)
+and [own Finalization](docs/history/prompts/2026-10-11-windows-client-retirement-finalization.md)
+record software scope and separate final delivery/cleanup gates. Windows
+publication was already Retired; dedicated infrastructure retirement remains
+Planned under [Windows #76](https://github.com/pcvantol/djconnect-windows/issues/76).
+No installed acceptance or next intelligence capability is implied.
 
 Completed Core source: `DJC-CORE-EXPRESSIVE-CONTEXT-VARIATION-V1-20261010`,
 PR [#1142](https://github.com/pcvantol/djconnect/pull/1142) protected merged as
