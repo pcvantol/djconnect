@@ -149,7 +149,7 @@ Session.
 
 ## One Session across devices
 
-Phone, Watch, Mac, Windows, television, Raspberry Pi, Voice and guest devices
+Phone, Watch, Mac, television, Raspberry Pi, Voice and guest devices
 all participate in the same DJ Session. Each device presents that Session in a
 way appropriate to its capabilities and setting.
 

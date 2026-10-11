@@ -4,19 +4,21 @@
 
 `INFERRED` Pairing differs because the platform has both local devices that
 host their own device API (ESP32, Pi) and rich clients that only call Home
-Assistant outbound (Apple, Windows). The current implementation supports both
+Assistant outbound (Apple). The current implementation supports both
 families and preserves legacy/compatibility field aliases.
 
 ## Flow A: App Client Pairs To Home Assistant
 
-Applies to Apple and Windows.
+Applies to Apple. The Windows product has been retired; its configurations have
+no device authority. Shared-provider compatibility is scoped in
+[`WINDOWS_CLIENT_RETIREMENT_V1.md`](../product/WINDOWS_CLIENT_RETIREMENT_V1.md).
 
 `CONFIRMED_CODE` HA exposes `POST /api/djconnect/v1/pair` with
 `requires_auth = False`. The handler validates JSON, `device_id`, `pair_code`,
 required `client_type`, expected runtime client type and expected pair code.
 On success it issues/persists a per-device token and returns API metadata.
 
-`CONFIRMED_TEST` Windows tests assert pairing posts only to
+`HISTORICAL_TEST` Former Windows tests asserted pairing posts only to
 `/api/djconnect/v1/pair`, sends `client_type:"windows"`, sends `pair_code`,
 `pairing_token` and `pairing_code`, uses no bearer token before pairing, and
 does not call `/api/device/*`.
@@ -27,7 +29,7 @@ fields are not fully reconstructed in this pass.
 
 ```mermaid
 sequenceDiagram
-  participant Client as Apple/Windows client
+  participant Client as Apple client
   participant HA as Home Assistant DJConnect
   participant Store as HA config/runtime store
   Client->>HA: POST /api/djconnect/v1/pair {device_id, client_type, pair_code}
@@ -96,8 +98,9 @@ and route.
 ## Recovery
 
 `CONFIRMED_CODE` HA options include repair/re-pair paths. ESP32 and Pi expose
-local forget/reboot/restart APIs. Windows has policy that treats selected 401,
-403 and stale-pairing errors as requiring local cleanup.
+local forget/reboot/restart APIs. Retired Windows configurations receive HA
+Repair feedback about any remaining shared provider dependency; retained-client
+credentials and shared Profile/history are not removed as client cleanup.
 
 ## Verification Mapping
 

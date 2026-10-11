@@ -79,7 +79,6 @@ from .const import (
     CLIENT_TYPE_IOS,
     CLIENT_TYPE_MACOS,
     CLIENT_TYPE_WATCHOS,
-    CLIENT_TYPE_WINDOWS,
     DEFAULT_MAX_AUDIO_BYTES,
     CONF_SPOTIFY_CLIENT_ID,
     CONF_SPOTIFY_MARKET,
@@ -122,6 +121,7 @@ from .request_auth import (
     runtime_client_type as _runtime_client_type,
     validate_required_client_type as _validate_required_client_type,
 )
+from .client_identity import device_id_matches_client_type
 from .spotify_backend import SpotifyBackendError
 from .use_cases import (
     MusicBackendCapabilityError,
@@ -792,7 +792,6 @@ def _is_ask_dj_voice_client(client_type: str | None) -> bool:
         CLIENT_TYPE_IOS,
         CLIENT_TYPE_MACOS,
         CLIENT_TYPE_WATCHOS,
-        CLIENT_TYPE_WINDOWS,
     }
 
 
@@ -2439,6 +2438,20 @@ class DJConnectPairView(HomeAssistantView):
                 _redact_debug_payload(payload),
             )
             return self.json(payload, status_code=400)
+
+        data = _identity_payload(data)
+        # Validate supplied identity before resolving a slot or pending flow.
+        # Retired or unknown types must never inherit an active default runtime.
+        if "client_type" in data and _validate_required_client_type(data) is None:
+            return self.json(
+                {"success": False, "error": "invalid_client_type", "message": ERROR_MESSAGES["invalid_client_type"]},
+                status_code=400,
+            )
+        if data.get("device_id") and _payload_client_type(data) and not device_id_matches_client_type(data["device_id"], _payload_client_type(data)):
+            return self.json(
+                {"success": False, "error": "device_id_client_type_mismatch", "message": ERROR_MESSAGES["invalid_client_type"]},
+                status_code=400,
+            )
 
         pending_response = await _handle_pending_config_flow_app_pairing(
             self,

@@ -8,7 +8,7 @@ No client owns product features. Clients render or expose platform capabilities 
 
 | Class | Examples | Role |
 | --- | --- | --- |
-| Personal Experience | iOS, iPadOS, macOS, Windows, Apple Watch | Native, Profile-bound DJ Session experience |
+| Personal Experience | iOS, iPadOS, macOS, Apple Watch | Native, Profile-bound DJ Session experience |
 | Shared Experience | Browser, TV, Chromecast, Raspberry Pi, desktop, guest phones | Renderer Host for an active shared DJ Session; lifecycle and experience mode are classified separately |
 | Room Experience | ESP32, Home Assistant Voice Satellite | Voice/control rendering for the active room DJ Session |
 
@@ -28,7 +28,7 @@ No client owns product features. Clients render or expose platform capabilities 
 
 ### Personal Experience
 
-Apple and Windows render the richest personal DJConnect experience while
+Apple clients render the richest personal DJConnect experience while
 remaining backend-owned for intelligence, recommendations and Profile state.
 The Apple application is one shell with Owner, Guest and Demo runtimes, but its
 UI is capability-driven rather than mode-driven.

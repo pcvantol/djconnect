@@ -26,6 +26,8 @@ async def async_maintain_session_history(hass, *, now=None, revoked_entry_id: st
     domain = getattr(hass, "data", {}).get("djconnect", {})
     if "persistence_service" not in domain:
         return
+    if domain.get("retired_provider_transfer_entries"):
+        return
     lock = domain.setdefault("session_history_maintenance_lock", asyncio.Lock())
     async with lock:
         current = now or datetime.now(UTC)

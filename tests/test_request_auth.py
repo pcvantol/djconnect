@@ -65,6 +65,31 @@ class RequestAuthTest(unittest.TestCase):
         )
         self.assertEqual(calls, [(headers, "device")])
 
+    def test_retired_persisted_identity_cannot_gain_authority_from_status_or_options(self) -> None:
+        for stored, options in (
+            ({"client_type": "windows", "device_id": "djconnect-windows-AAAAAAAAAAAA"}, {"client_type": "ios"}),
+            ({"client_type": "ios", "device_id": "djconnect-windows-AAAAAAAAAAAA"}, {}),
+            ({"client_type": "ios", "device_id": "djconnect-ios-AAAAAAAAAAAA"}, {"client_type": "windows"}),
+        ):
+            with self.subTest(stored=stored, options=options):
+                calls = []
+                runtime = types.SimpleNamespace(
+                    entry=types.SimpleNamespace(data=stored, options=options),
+                    device_status={"client_type": "ios", "device_id": "djconnect-ios-AAAAAAAAAAAA"},
+                    device_token="retired-test-token",
+                    authorize_device_request=lambda *args: calls.append(args) or True,
+                )
+                hass = types.SimpleNamespace(data={"djconnect": {"old": runtime, "runtime": runtime}})
+                headers = {"Authorization": "Bearer retired-test-token"}
+                self.assertIsNone(self.auth.resolve_runtime(hass, "djconnect-ios-AAAAAAAAAAAA", headers))
+                self.assertFalse(self.auth.authorize_runtime_device_request(runtime, headers, "djconnect-ios-AAAAAAAAAAAA", "ios"))
+                self.assertFalse(calls)
+
+    def test_retired_ingress_is_not_a_canonical_supported_device(self) -> None:
+        self.assertIsNone(self.auth.validate_required_client_type({"client_type": "windows"}))
+        self.assertFalse(self.auth.is_real_device_id("djconnect-windows-AAAAAAAAAAAA"))
+        self.assertTrue(self.auth.is_real_device_id("djconnect-ios-AAAAAAAAAAAA"))
+
 
 if __name__ == "__main__":
     unittest.main()

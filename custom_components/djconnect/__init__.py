@@ -195,7 +195,7 @@ DEBUG_REDACT_KEY_PARTS = (
 )
 REAL_DJCONNECT_DEVICE_ID_PATTERN = re.compile(
     r"djconnect-(?:lilygo-t-embed-s3|esp32-s3-box-3|lilygo)-[0-9A-Fa-f]{12}"
-    r"|djconnect-(?:ios|macos|watchos|raspberry-pi|windows)-[A-Za-z0-9]{12}"
+    r"|djconnect-(?:ios|macos|watchos|raspberry-pi)-[A-Za-z0-9]{12}"
 )
 CONF_LAST_DEVICE_STATUS = "last_device_status"
 APP_PAIRING_PENDING_KEY = "config_flow_app_pairing_pending"
@@ -454,10 +454,18 @@ class DJConnectRuntime:
         body_device_id: str | None = None,
         client_type: str | None = None,
     ) -> bool:
+        from .client_retirement import is_retired_entry
+
+        if is_retired_entry(self.entry):
+            return False
         auth = str(headers.get("Authorization", "") or "").strip()
         token = auth.removeprefix("Bearer ").strip()
         header_device = str(headers.get("X-DJConnect-Device-ID") or "").strip()
         body_device = str(body_device_id or "").strip()
+        if str(client_type or "").strip().lower() == CLIENT_TYPE_WINDOWS or any(
+            value.lower().startswith("djconnect-windows-") for value in (header_device, body_device)
+        ):
+            return False
         token_match = bool(self.device_token and token == self.device_token)
         expected_present = bool(self.device_token)
         device_id = header_device or body_device or None
@@ -1128,8 +1136,6 @@ def _device_id_matches_client_type(device_id: str, client_type: str) -> bool:
         return bool(re.fullmatch(r"djconnect-watchos-[A-Za-z0-9]{12}", normalized))
     if normalized_client == CLIENT_TYPE_RASPBERRY_PI:
         return bool(re.fullmatch(r"djconnect-raspberry-pi-[A-Za-z0-9]{12}", normalized))
-    if normalized_client == CLIENT_TYPE_WINDOWS:
-        return bool(re.fullmatch(r"djconnect-windows-[A-Za-z0-9]{12}", normalized))
     if normalized_client == CLIENT_TYPE_ESP32:
         return bool(
             re.fullmatch(
@@ -3157,6 +3163,21 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # retaining the integration-level setup state. Registering here as well
     # keeps the public HA routes available for every configured runtime.
     register_http_views(hass)
+    from .client_retirement import is_retired_entry, is_retired_runtime
+
+    if is_retired_entry(entry):
+        # Existing peers may still depend on this server-private provider. The
+        # retired device itself gets no coordinator, entities or client jobs.
+        previous = hass.data[DOMAIN].get("runtime")
+        _restore_runtime(hass, entry)
+        if previous is not None and not is_retired_runtime(previous):
+            hass.data[DOMAIN]["runtime"] = previous
+        else:
+            hass.data[DOMAIN].pop("runtime", None)
+        _update_retirement_issue(hass, entry)
+        entry.async_on_unload(entry.add_update_listener(_async_update_listener))
+        _schedule_retired_provider_reconciliation(hass)
+        return True
     option_updates = dict(entry.options)
     runtime_for_defaults = DJConnectRuntime(entry=entry)
     if not option_updates.get(CONF_API_BASE_URL):
@@ -3201,19 +3222,84 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     _register_developer_services(hass, entry, runtime)
 
     await hass.config_entries.async_forward_entry_setups(entry, _platforms_for_runtime(runtime))
+    _schedule_retired_provider_reconciliation(hass)
     _LOGGER.info("DJConnect v%s loaded", VERSION)
     return True
+
+
+def _update_retirement_issue(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    from homeassistant.helpers import issue_registry as ir
+
+    conf = {**entry.data, **entry.options}
+    owns_provider = bool(conf.get(CONF_SPOTIFY_REFRESH_TOKEN) or conf.get(CONF_MUSIC_ASSISTANT_PLAYER))
+    ir.async_create_issue(
+        hass, DOMAIN, f"{entry.entry_id}_windows_client_retired",
+        is_fixable=False, severity=ir.IssueSeverity.WARNING,
+        translation_key="windows_client_retired" if owns_provider else "windows_client_retired_safe",
+        translation_placeholders={"configuration": entry.title},
+    )
+
+
+def _schedule_retired_provider_reconciliation(hass: HomeAssistant) -> None:
+    """Retry closed shared-provider handoff after either donor or peer loads."""
+    data = hass.data.setdefault(DOMAIN, {})
+    from .client_retirement import is_retired_entry
+
+    if not any(is_retired_entry(entry) for entry in hass.config_entries.async_entries(DOMAIN)):
+        return
+    previous = data.get("retired_provider_reconciliation_task")
+    if previous is not None and not previous.done():
+        return
+
+    async def reconcile():
+        import asyncio
+        from .retired_provider import async_transfer_retired_provider
+
+        # Setup returns before the entry manager marks the new runtime loaded.
+        await asyncio.sleep(0)
+        for donor in hass.config_entries.async_entries(DOMAIN):
+            if not is_retired_entry(donor) or donor.disabled_by is not None:
+                continue
+            try:
+                transferred = await async_transfer_retired_provider(hass, donor)
+            except Exception as exc:  # noqa: BLE001
+                _LOGGER.warning("DJConnect retired provider remains quarantined: %s", exc.__class__.__name__)
+                continue
+            if transferred:
+                # Config is live-read by existing runtimes; invalidate old views
+                # through the changed exact owner reference without client reload.
+                _update_retirement_issue(hass, donor)
+
+    data["retired_provider_reconciliation_task"] = hass.async_create_task(reconcile())
 
 
 async def async_remove_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
     """Permanent provider removal withdraws its captured historical source binding."""
     from .session_history_maintenance import async_maintain_session_history
+    from .client_retirement import is_retired_entry
+    from .retired_provider import HISTORY_BINDINGS, historical_successor
+
+    if is_retired_entry(entry):
+        from homeassistant.helpers import issue_registry
+
+        issue_registry.async_delete_issue(hass, DOMAIN, f"{entry.entry_id}_windows_client_retired")
+        # Preserve source rows only for a completed current handoff. Maintenance
+        # still requalifies every row against its captured account/provider.
+        for candidate in hass.config_entries.async_entries(DOMAIN):
+            bindings = {**candidate.data, **candidate.options}.get(HISTORY_BINDINGS, {})
+            binding = bindings.get(entry.entry_id, {}) if isinstance(bindings, dict) else {}
+            if isinstance(binding, dict) and binding.get("version") == 1 and binding.get("state") == "active" and historical_successor(hass, entry.entry_id, binding.get("profile_id", ""), binding) is candidate:
+                await async_maintain_session_history(hass)
+                return
     await async_maintain_session_history(hass, revoked_entry_id=entry.entry_id)
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    from .client_retirement import is_retired_entry
+
+    retired = is_retired_entry(entry)
     runtime = hass.data.get(DOMAIN, {}).get(entry.entry_id)
-    platforms = _platforms_for_runtime(runtime) if runtime is not None else list(PLATFORMS)
+    platforms = [] if retired else _platforms_for_runtime(runtime) if runtime is not None else list(PLATFORMS)
     unloaded = await hass.config_entries.async_unload_platforms(entry, platforms)
     if unloaded:
         session_manager = hass.data.get(DOMAIN, {}).get("session_runtime_manager")
@@ -3229,13 +3315,13 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         if runtime and runtime.entry.entry_id == entry.entry_id:
             hass.data[DOMAIN].pop("runtime", None)
         if not _has_runtime_entries(hass):
-            if entry.entry_id in hass.data[DOMAIN].get(_ENTRY_RELOAD_PRESERVE_KEY, set()):
+            if retired or entry.entry_id in hass.data[DOMAIN].get(_ENTRY_RELOAD_PRESERVE_KEY, set()):
                 handoff_manager = hass.data[DOMAIN].pop("broadcast_handoff_manager", None)
                 if handoff_manager is not None:
                     await handoff_manager.clear()
             else:
                 await _async_clear_all_server_state(hass)
-            await async_shutdown_persistence(hass, preserve_for_reload=entry.entry_id in hass.data[DOMAIN].get(_ENTRY_RELOAD_PRESERVE_KEY, set()))
+            await async_shutdown_persistence(hass, preserve_for_reload=retired or entry.entry_id in hass.data[DOMAIN].get(_ENTRY_RELOAD_PRESERVE_KEY, set()))
     return unloaded
 
 
@@ -3313,6 +3399,10 @@ async def _async_clear_all_server_state(hass: HomeAssistant) -> None:
 
 async def _async_update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None:
     domain_data = hass.data.setdefault(DOMAIN, {})
+    from .retired_provider import TRANSFER_FENCE
+
+    if entry.entry_id in domain_data.get(TRANSFER_FENCE, set()):
+        return
     signatures = domain_data.setdefault("entry_reload_signatures", {})
     current_signature = _entry_reload_signature(entry)
     previous_signature = signatures.get(entry.entry_id)

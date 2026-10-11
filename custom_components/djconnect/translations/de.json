@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "DJConnect einrichten",
-        "description": "Beginne mit dem Weg, der zu deiner Einrichtung passt. Verwende den Assist-Agent ohne physisches Gerät, wähle lokales Gerät für ESP32/Raspberry Pi in deinem Netzwerk oder App für iPhone/iPad, Apple Watch, macOS und Windows.",
+        "description": "Beginne mit dem Weg, der zu deiner Einrichtung passt. Verwende den Assist-Agent ohne physisches Gerät, wähle lokales Gerät für ESP32/Raspberry Pi in deinem Netzwerk oder App für iPhone/iPad, Apple Watch oder macOS.",
         "data": {
           "setup_method": "Einrichtungsmethode"
         }
@@ -28,7 +28,7 @@
           "client_type": "Wähle ESP32 oder Raspberry Pi.",
           "local_url": "Fallback für die lokale Geräte-API; leer lassen, wenn mDNS funktioniert.",
           "discovered_client": "Wähle einen automatisch gefundenen DJConnect-Client, um Kopplungsdetails vorauszufüllen, oder verwende die manuelle Eingabe.",
-          "app_pair_code": "Verwende diesen Code in macOS/Windows oder lasse iPhone/iPad/Apple Watch ihn aus dem QR-/Deep-Link-Payload übernehmen.",
+          "app_pair_code": "Verwende diesen Code in macOS oder lasse iPhone/iPad/Apple Watch ihn aus dem QR-/Deep-Link-Payload übernehmen.",
           "app_ha_local_url": "Lokale Home Assistant-URL, die die App beim Koppeln verwendet.",
           "app_iphone_pairing_uri": "QR-/Deep-Link-Payload für die iPhone/iPad-App.",
           "app_watch_pairing_uri": "QR-/Deep-Link-Payload, der auf iPhone/iPad gescannt wird, um die verknüpfte Apple Watch zu koppeln."
@@ -87,7 +87,7 @@
       },
       "pair_app": {
         "title": "App koppeln",
-        "description": "Verwende diesen Weg für iPhone/iPad, Apple Watch, macOS und Windows.\n\n**iPhone/iPad**\n\n![iPhone/iPad QR code]({iphone_qr_image})\n\n**Apple Watch**\n\n![Apple Watch QR code]({watch_qr_image})\n\nmacOS und Windows verwenden die Home Assistant-URL und den Kopplungscode unten.",
+        "description": "Verwende diesen Weg für iPhone/iPad, Apple Watch oder macOS.\n\n**iPhone/iPad**\n\n![iPhone/iPad QR code]({iphone_qr_image})\n\n**Apple Watch**\n\n![Apple Watch QR code]({watch_qr_image})\n\nmacOS verwendet die Home Assistant-URL und den Kopplungscode unten.",
         "data": {
           "pair_code": "Kopplungscode",
           "device_name": "Gerätename",
@@ -99,8 +99,8 @@
         },
         "data_description": {
           "device_name": "Anzeigename für diese App-Installation.",
-          "client_type": "Wähle iPhone/iPad, Apple Watch, macOS oder Windows.",
-          "app_pair_code": "Verwende diesen Code in macOS/Windows oder lasse iPhone/iPad/Apple Watch ihn aus dem QR-/Deep-Link-Payload übernehmen.",
+          "client_type": "Wähle iPhone/iPad, Apple Watch oder macOS.",
+          "app_pair_code": "Verwende diesen Code in macOS oder lasse iPhone/iPad/Apple Watch ihn aus dem QR-/Deep-Link-Payload übernehmen.",
           "app_ha_local_url": "Lokale Home Assistant-URL, die die App beim Koppeln verwendet.",
           "app_iphone_pairing_uri": "QR-/Deep-Link-Payload für die iPhone/iPad-App.",
           "app_watch_pairing_uri": "QR-/Deep-Link-Payload, der auf iPhone/iPad gescannt wird, um die verknüpfte Apple Watch zu koppeln."
@@ -153,20 +153,6 @@
           "app_pair_code": "Gib diesen Kopplungscode in der macOS-App ein.",
           "app_ha_local_url": "Lokale Home Assistant-URL, die die App beim Koppeln verwendet.",
           "device_name": "Anzeigename für diese macOS-App-Installation."
-        }
-      },
-      "pair_app_windows_details": {
-        "title": "DJConnect Windows App koppeln",
-        "description": "Verwende diese Werte in der Windows-App:\n\n- Home Assistant-URL: `{ha_local_url}`\n- Kopplungscode: `{pair_code}`",
-        "data": {
-          "app_pair_code": "Kopplungscode",
-          "app_ha_local_url": "Home Assistant-URL",
-          "device_name": "Gerätename"
-        },
-        "data_description": {
-          "app_pair_code": "Gib diesen Kopplungscode in der Windows-App ein.",
-          "app_ha_local_url": "Lokale Home Assistant-URL, die die App beim Koppeln verwendet.",
-          "device_name": "Anzeigename für diese Windows-App-Installation."
         }
       },
       "ble_wifi": {
@@ -348,7 +334,9 @@
       "profile_setup_failed": "Das Profil konnte nicht gespeichert werden. Versuche es erneut."
     },
     "abort": {
-      "already_configured": "Dieses DJConnect-Gerät ist bereits konfiguriert."
+      "already_configured": "Dieses DJConnect-Gerät ist bereits konfiguriert.",
+      "client_retired": "Dieser Client wird nicht mehr unterstützt. Wähle einen unterstützten Client.",
+      "invalid_client_type": "Unbekannter Clienttyp. Wähle einen unterstützten Client."
     }
   },
   "options": {
@@ -474,6 +462,9 @@
       "profile_platform_failed": "Das verknüpfte Profil konnte nicht aktualisiert werden. Prüfe die Gerätekopplung und versuche es erneut.",
       "profile_shared_backend_change": "Dieses Profil ist mit mehreren Geräten verknüpft. Verknüpfe dieses Gerät mit einem eigenen Profil, bevor du das Musik-Backend änderst.",
       "invalid_voice_profile": "Wähle ein unterstütztes DJ-Sprachprofil."
+    },
+    "abort": {
+      "client_retired": "Dieser Client wird nicht mehr unterstützt. Wähle einen unterstützten Client."
     }
   },
   "entity": {
@@ -680,6 +671,14 @@
           "entry_not_found": "Die DJConnect-Konfiguration wurde nicht gefunden."
         }
       }
+    },
+    "windows_client_retired": {
+      "title": "Windows-App eingestellt: Musikverbindung erhalten — {configuration}",
+      "description": "Die DJConnect Windows-App wird nicht mehr unterstützt und kann sich nicht verbinden. Dieser Eintrag behält seine bestehende Musikverbindung für verknüpfte Clients. Behalte ihn, bis die gemeinsame Verbindung sicher übertragen wurde; das Entfernen kann das Konto trennen. Profiles und Verlauf werden nicht automatisch gelöscht."
+    },
+    "windows_client_retired_safe": {
+      "title": "Windows-App eingestellt: kann entfernt werden — {configuration}",
+      "description": "Die DJConnect Windows-App wird nicht mehr unterstützt und kann sich nicht verbinden. Diese Konfiguration besitzt keine Musikverbindung mehr und kann entfernt werden. Bestehende verknüpfte Clients, Profiles, Musikkonten und Verlauf bleiben erhalten."
     }
   },
   "selector": {

@@ -85,6 +85,7 @@ from .const import (
     CLIENT_TYPE_MACOS,
     CLIENT_TYPE_WATCHOS,
     CLIENT_TYPE_WINDOWS,
+    CLIENT_TYPES,
     DOMAIN,
     SETUP_METHOD_BLE_WIFI,
     SETUP_METHOD_CONVERSATION_AGENT,
@@ -179,7 +180,7 @@ SETUP_METHOD_NAMES_EN = {
     ),
     SETUP_METHOD_PAIR_APP: (
         "Pair DJConnect app\n"
-        "iPhone/iPad, Apple Watch, macOS or Windows"
+        "iPhone/iPad, Apple Watch or macOS"
     ),
     SETUP_METHOD_BLE_WIFI: "Configure ESP32 device WiFi (over Bluetooth)",
 }
@@ -193,7 +194,7 @@ SETUP_METHOD_NAMES_NL = {
     ),
     SETUP_METHOD_PAIR_APP: (
         "DJConnect app koppelen\n"
-        "iPhone/iPad, Apple Watch, macOS of Windows"
+        "iPhone/iPad, Apple Watch of macOS"
     ),
     SETUP_METHOD_BLE_WIFI: "ESP32 apparaat WiFi configureren (via Bluetooth)",
 }
@@ -254,7 +255,6 @@ CLIENT_TYPE_NAME_SUFFIXES = {
     "macos": "macOS",
     "watchos": "Watch",
     "raspberry_pi": "Pi",
-    "windows": "Windows",
     CLIENT_TYPE_CONVERSATION_AGENT: "Assist",
 }
 
@@ -1615,6 +1615,13 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         user_input: dict[str, Any] | None = None,
     ) -> FlowResult:
         """Pair the DJConnect device using the displayed pair code."""
+        explicit_type = (user_input or {}).get(CONF_CLIENT_TYPE)
+        if user_input is not None and CONF_CLIENT_TYPE in user_input and str(explicit_type or "").strip() not in CLIENT_TYPES:
+            return self.async_abort(reason="client_retired" if explicit_type == CLIENT_TYPE_WINDOWS else "invalid_client_type")
+        selected_type = getattr(self, "_selected_pair_client_type", "")
+        for value in (explicit_type, selected_type, getattr(self, "_discovered_defaults", {}).get(CONF_CLIENT_TYPE)):
+            if value is not None and str(value).strip() and str(value).strip() not in CLIENT_TYPES:
+                return self.async_abort(reason="client_retired" if str(value).strip() == CLIENT_TYPE_WINDOWS else "invalid_client_type")
         errors: dict[str, str] = {}
         step_id = self._pair_details_step_id()
         is_app_pairing = (
@@ -1687,6 +1694,10 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     )
                 if not device_id or client_type == CLIENT_TYPE_ESP32:
                     device_id = f"djconnect-{pair_code}"
+                from .client_identity import device_id_matches_client_type
+
+                if not device_id_matches_client_type(device_id, client_type):
+                    return self.async_abort(reason="client_retired" if client_type == CLIENT_TYPE_WINDOWS or device_id.startswith("djconnect-windows-") else "invalid_client_type")
                 await self.async_set_unique_id(device_id)
                 self._abort_if_unique_id_configured()
                 self._pairing = {
@@ -1788,8 +1799,6 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 return "pair_app_watch_details"
             if client_type == CLIENT_TYPE_MACOS:
                 return "pair_app_macos_details"
-            if client_type == CLIENT_TYPE_WINDOWS:
-                return "pair_app_windows_details"
             return "pair_app_details"
         return "pair"
 
@@ -1870,10 +1879,8 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self,
         user_input: dict[str, Any] | None = None,
     ) -> FlowResult:
-        """Handle Windows app pairing details after client type selection."""
-        self._pairing_setup_method = SETUP_METHOD_PAIR_APP
-        self._selected_pair_client_type = CLIENT_TYPE_WINDOWS
-        return await self.async_step_pair(user_input)
+        """Refuse stale direct links to the retired details step."""
+        return self.async_abort(reason="client_retired")
 
     async def _async_step_pair_type(
         self,
@@ -1881,12 +1888,14 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     ) -> FlowResult:
         """Handle the client type choice before showing pairing details."""
         if user_input is not None:
+            if CONF_CLIENT_TYPE in user_input and str(user_input.get(CONF_CLIENT_TYPE) or "").strip() not in self._pair_client_type_options():
+                return self.async_abort(reason="client_retired" if str(user_input.get(CONF_CLIENT_TYPE) or "").strip() == CLIENT_TYPE_WINDOWS else "invalid_client_type")
             client_type = _clean(
                 user_input.get(CONF_CLIENT_TYPE),
                 self._default_pair_client_type(),
             )
             if client_type not in self._pair_client_type_options():
-                client_type = self._default_pair_client_type()
+                return self.async_abort(reason="client_retired" if client_type == CLIENT_TYPE_WINDOWS else "invalid_client_type")
             self._selected_pair_client_type = client_type
             defaults = dict(getattr(self, "_discovered_defaults", {}) or {})
             defaults[CONF_CLIENT_TYPE] = client_type
@@ -2772,6 +2781,10 @@ class DJConnectOptionsFlow(config_entries.OptionsFlow):
         user_input: dict[str, Any] | None = None,
     ) -> FlowResult:
         """Manage DJConnect options."""
+        from .client_retirement import is_retired_entry
+
+        if is_retired_entry(self._config_entry):
+            return self.async_abort(reason="client_retired")
         current = {**self._config_entry.data, **self._config_entry.options}
         errors: dict[str, str] = {}
         if user_input is not None:
@@ -3288,6 +3301,10 @@ class DJConnectOptionsFlow(config_entries.OptionsFlow):
         user_input: dict[str, Any] | None = None,
     ) -> FlowResult:
         """Collect a fresh pairing code before fully re-pairing the ESP."""
+        from .client_retirement import is_retired_entry
+
+        if is_retired_entry(self._config_entry):
+            return self.async_abort(reason="client_retired")
         errors: dict[str, str] = {}
         if user_input is not None:
             pair_code = str(user_input.get(CONF_PAIR_CODE, "")).strip()
@@ -3319,6 +3336,10 @@ class DJConnectOptionsFlow(config_entries.OptionsFlow):
         local_url: str | None = None,
     ) -> FlowResult:
         """Generate a fresh device token and retry pairing with the ESP."""
+        from .client_retirement import is_retired_entry
+
+        if is_retired_entry(self._config_entry):
+            return self.async_abort(reason="client_retired")
         errors: dict[str, str] = {}
         try:
             runtime = self.hass.data.get(DOMAIN, {}).get(self._config_entry.entry_id)

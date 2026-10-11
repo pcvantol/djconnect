@@ -137,7 +137,7 @@ def _clean_remote_url(value: Any) -> str:
 
 
 def _is_remote_capable_client(client_type: str | None) -> bool:
-    return str(client_type or "").strip().lower() in {"ios", "macos", "windows"}
+    return str(client_type or "").strip().lower() in {"ios", "macos"}
 
 
 def _is_nabu_casa_url(value: str) -> bool:
