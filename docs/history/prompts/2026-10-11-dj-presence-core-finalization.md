@@ -147,4 +147,3 @@ hostverify0MATCH/onboarding4.5.3,22GiB free; own labs stopped and shared Apple/
 HA-dev preserved. One primary checkout, no competing Core writer. Preserve
 recovery bundle/evidence; only the two own presence branches may be removed
 after verified recovery and candidate/merge equivalence. Stop after this task.
-
