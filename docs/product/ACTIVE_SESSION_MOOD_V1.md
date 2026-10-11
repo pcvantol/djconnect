@@ -64,6 +64,10 @@ must not replace a newer revision. On lost response, read the authorized active
 Session/snapshot or reconnect through existing paired-live recovery; do not
 restart, replay an old setting blindly or infer acceptance from a local picker.
 Revision comparison is scoped to Session ID; a new Session starts a new scope.
+An acknowledgement or conflict for a previous Session must not change the
+currently displayed replacement Session, even with a higher revision. On `409`,
+refresh/show the authoritative current choice before a new deliberate action;
+do not automatically resubmit the stale intent.
 
 Errors include `invalid_request`, `unsupported_contract_version`,
 `invalid_selected_mood`, `invalid_mood_revision`, existing device/Profile auth

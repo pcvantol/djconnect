@@ -41,6 +41,14 @@ djconnect://pair?ha_url=<local-ha-url>&pair_code=<code>&client_type=ios&pair_pat
 
 ## Profile Resolution
 
+The active Session mood write is a stricter device-bound exception:
+`POST /api/djconnect/v1/session/mood` accepts the ordinary paired device bearer,
+an exact active Session ID and versioned `expected_mood_revision` compare-and-set.
+It does not accept a client-selected Profile or general HA/service authority.
+See [`Active Session Mood v1`](docs/product/ACTIVE_SESSION_MOOD_V1.md) for the
+six-field schema, capability detection, four existing symbolic choices,
+acknowledgements, conflicts, lifecycle fences and consumer recovery rules.
+
 Service and API entrypoints that touch personal state, backend routing, Ask DJ,
 Music DNA, Discovery, Track Insight or playback preferences may include optional
 `profile_id` and `device_id`.

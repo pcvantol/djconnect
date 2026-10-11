@@ -56,7 +56,9 @@ async def main():
     hass.config.language = "nl"
     hass.http = HomeAssistantHTTP(hass, None, None, None, ["127.0.0.1"], 0, [], "modern")
     await hass.http.async_initialize(
-        cors_origins=[],
+        cors_origins=["https://localhost:18204"]
+        if os.environ.get("DJC_MOOD_BROWSER") == "1"
+        else [],
         use_x_forwarded_for=False,
         login_threshold=-1,
         is_ban_enabled=False,
@@ -121,6 +123,11 @@ async def main():
     hass.data["djconnect"]["session_runtime_manager"] = manager
     register_http_views(hass)
     await websocket_api.async_setup(hass, {})
+    browser_serve = None
+    if os.environ.get("DJC_MOOD_BROWSER") == "1":
+        from active_session_mood_browser_lab import register
+
+        browser_serve = register(hass, manager, clock)
     initial_users = await hass.auth.async_get_users()
     initial_credentials = sum(len(user.refresh_tokens) for user in initial_users)
     receipts = []
@@ -698,6 +705,8 @@ async def main():
         )
         users = await hass.auth.async_get_users()
         assert sum(len(user.refresh_tokens) for user in users) == initial_credentials
+        if browser_serve is not None:
+            await browser_serve(client, identity, headers)
     await async_shutdown_persistence(hass)
     await hass.async_stop()
     result = {
