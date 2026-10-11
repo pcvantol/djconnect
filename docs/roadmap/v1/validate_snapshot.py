@@ -859,6 +859,9 @@ def validate(plan: Any, require_complete: bool = False) -> list[str]:
             not unresolved_without_policy,
             "unresolved OR decisions prevent complete graph qualification",
         )
+    if "planning_maintenance" in plan:
+        from maintenance_delta import validate_delta
+        errors.extend(validate_delta(plan))
     return errors
 
 
