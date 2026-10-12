@@ -1,5 +1,19 @@
 # DJConnect Product Backlog
 
+Selected Core implementation: DJC-CORE-NARRATIVE-ALBUM-CONTINUITY-V1-20261012.
+[Contract](docs/product/NARRATIVE_ALBUM_CONTINUITY_V1.md), ACK6121336412 and
+material6121367116; base0f37b53cc56f89109a1adcbcf39dd454ba52c72d,
+same writer/branch codex/narrative-album-continuity-v1. One published Album →
+current distinct Track exact-edition relationship within Discover/Exploring.
+Local implementation/qualification in progress; source PR/main delivery and
+separate Finalization still pending, with fresh exact publication gates.
+No full Stage4 promotion, new knowledge/provider/model/cost/transport/queue or
+consumer admission. Native/installed/hardware NOT_RUN; joint acceptance OPEN.
+Artwork1152/1153 is terminal and WORKSPACE_READY at admitted main0f37;
+[terminal receipt6121095689](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6121095689).
+Its older prepared-document snapshot below is retained as delivery history.
+
+
 
 Delivered bounded Core correction: `DJC-CORE-DISCOVERY-ARTWORK-CONTINUITY-V1-20261012`
 ([owner6117357579](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6117357579),

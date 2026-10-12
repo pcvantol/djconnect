@@ -27,9 +27,10 @@ def validate_delta(plan: dict[str, Any]) -> list[str]:
             errors.append("maintenance: " + reason)
 
     version = d.get("schema_version")
-    implementation = version in {"djconnect-federated-planning-delta/2", "djconnect-federated-planning-delta/3"}
-    artwork = version == "djconnect-federated-planning-delta/3"
-    check(version in {"djconnect-federated-planning-delta/1", "djconnect-federated-planning-delta/2", "djconnect-federated-planning-delta/3"}, "unsupported schema")
+    implementation = version in {"djconnect-federated-planning-delta/2", "djconnect-federated-planning-delta/3", "djconnect-federated-planning-delta/4"}
+    artwork = version in {"djconnect-federated-planning-delta/3", "djconnect-federated-planning-delta/4"}
+    narrative = version == "djconnect-federated-planning-delta/4"
+    check(version in {"djconnect-federated-planning-delta/1", "djconnect-federated-planning-delta/2", "djconnect-federated-planning-delta/3", "djconnect-federated-planning-delta/4"}, "unsupported schema")
     delivered = False
     if implementation:
         receipt = d.get("implementation_receipt", {})
@@ -62,6 +63,28 @@ def validate_delta(plan: dict[str, Any]) -> list[str]:
             check(bool(re.fullmatch(r"[a-f0-9]{40}", str(c.get("source_main_sha", "")))) and bool(re.fullmatch(r"https://github.com/pcvantol/djconnect/pull/[0-9]+", str(c.get("source_pr", "")))), "correction source receipt missing")
             check(c.get("source_review") == "PASS" and c.get("required_checks") == "PASS" and c.get("protected_merge") is True, "correction protected checks missing")
             check(all(bool(re.fullmatch(r"[a-f0-9]{64}", str(c.get(k, "")))) for k in ("archive_sha256", "formal_evidence_sha256")), "correction artifact receipt missing")
+    narrative_delivered = False
+    if narrative:
+        r = d.get("narrative_receipt", {})
+        narrative_delivered = r.get("phase") == "SOURCE_PROTECTED_MERGED"
+        check(r.get("assignment_id") == "DJC-CORE-NARRATIVE-ALBUM-CONTINUITY-V1-20261012", "narrative assignment binding missing")
+        check(r.get("selection_url") == "https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6121336412"
+              and r.get("selection_authority") == "DIRECT_HUMAN_INSTRUCTION", "narrative admission binding missing")
+        check(r.get("base_sha") == "0f37b53cc56f89109a1adcbcf39dd454ba52c72d"
+              and r.get("branch") == "codex/narrative-album-continuity-v1", "narrative base/branch missing")
+        check(r.get("phase") in {"LOCAL_IMPLEMENTATION_AND_QUALIFICATION", "SOURCE_PROTECTED_MERGED"}
+              and r.get("source_delivery") == ("PROTECTED_MERGED" if narrative_delivered else "UNPUBLISHED"), "unqualified narrative phase")
+        check(all(r.get(k) == "NOT_RUN" for k in ("native", "installed", "hardware"))
+              and r.get("joint_product_acceptance") == "OPEN" and r.get("stage4_status") == "PARTIAL", "narrative consumer/stage overclaim")
+        check(r.get("previous_delta") == "history/20261012/artwork-continuity-maintenance-v3.json"
+              and bool(re.fullmatch(r"[a-f0-9]{64}", str(r.get("previous_delta_sha256", "")))), "narrative history binding missing")
+        if narrative_delivered:
+            check(bool(re.fullmatch(r"[a-f0-9]{40}", str(r.get("source_main_sha", ""))))
+                  and bool(re.fullmatch(r"https://github.com/pcvantol/djconnect/pull/[0-9]+", str(r.get("source_pr", "")))), "narrative source receipt missing")
+            check(r.get("source_review") == "PASS" and r.get("required_checks") == "PASS"
+                  and r.get("protected_merge") is True, "narrative protected checks missing")
+            check(all(bool(re.fullmatch(r"[a-f0-9]{64}", str(r.get(k, ""))))
+                      for k in ("archive_sha256", "formal_evidence_sha256")), "narrative artifact receipt missing")
     check(
         d.get("execution_authority") is False and d.get("automatic_dispatch") is False,
         "no product dispatch authorized",
@@ -100,8 +123,9 @@ def validate_delta(plan: dict[str, Any]) -> list[str]:
         check(lanes.get(n.get("lane")) == n.get("repository"), "unknown owning lane/repository")
         presence_admitted = implementation and nid in {"SLICE::CORE::DJ-PRESENCE-CONTRACT", "SLICE::CORE::DJ-PRESENCE-POLICY"}
         correction_admitted = artwork and nid == "CORRECTION::CORE::DISCOVERY-ARTWORK"
-        admitted = presence_admitted or correction_admitted
-        node_delivered = correction_delivered if correction_admitted else delivered
+        narrative_admitted = narrative and nid == "RELATION::CORE::ALBUM-CONTINUITY"
+        admitted = presence_admitted or correction_admitted or narrative_admitted
+        node_delivered = narrative_delivered if narrative_admitted else correction_delivered if correction_admitted else delivered
         check(n.get("status") in ({"Completed" if node_delivered else "In progress"} if admitted else {"Planned", "Completed"}), "invalid node status")
         check(n.get("status") == "Planned" or admitted or nid == "SLICE::CORE::ACTIVE-SESSION-MOOD", "unadmitted implementation must remain Planned")
         check(n.get("assignment_status") == (("CORE_DELIVERED" if node_delivered else "IN_PROGRESS") if admitted else "NOT_ISSUED"), "unadmitted assignment may not start")
@@ -112,7 +136,7 @@ def validate_delta(plan: dict[str, Any]) -> list[str]:
             ),
             "node criteria/provenance missing",
         )
-        check(n.get("source_ids") == (["OWNER-DISCOVERY-ARTWORK-20261012"] if artwork and nid.startswith("CORRECTION::") else ["OWNER-DJ-PRESENCE-20261011"]), "unqualified provenance")
+        check(n.get("source_ids") == (["OWNER-NARRATIVE-ALBUM-20261012"] if narrative and nid.startswith("RELATION::") else ["OWNER-DISCOVERY-ARTWORK-20261012"] if artwork and nid.startswith("CORRECTION::") else ["OWNER-DJ-PRESENCE-20261011"]), "unqualified provenance")
     refs = d["document_references"]
     paths = [r.get("path") for r in refs]
     check(len(paths) == len(set(paths)), "duplicate document reference")
@@ -170,7 +194,7 @@ def validate_delta(plan: dict[str, Any]) -> list[str]:
             ),
             "edge subset/evidence missing",
         )
-        check(e.get("source_ids") == (["OWNER-DISCOVERY-ARTWORK-20261012"] if artwork and str(e.get("id", "")).startswith("ARTWORK-") else ["OWNER-DJ-PRESENCE-20261011"]), "edge provenance mismatch")
+        check(e.get("source_ids") == (["OWNER-NARRATIVE-ALBUM-20261012"] if narrative and str(e.get("id", "")).startswith("ALBUM-") else ["OWNER-DISCOVERY-ARTWORK-20261012"] if artwork and str(e.get("id", "")).startswith("ARTWORK-") else ["OWNER-DJ-PRESENCE-20261011"]), "edge provenance mismatch")
         if e.get("kind") == "strategy_order":
             check(e.get("hard_precedence") is False, "strategy is not hard dependency")
     # Validate all new edges, including soft order, against inherited hard graph.
@@ -201,8 +225,8 @@ def render_delta(p):
     d = p[KEY]
     nodes = {n["id"]: n for n in d["nodes"]}
     inherited = {n["id"]: n for n in p["nodes"]}
-    current = d.get("schema_version") in {"djconnect-federated-planning-delta/2", "djconnect-federated-planning-delta/3"}
-    artwork = d.get("schema_version") == "djconnect-federated-planning-delta/3"
+    current = d.get("schema_version") in {"djconnect-federated-planning-delta/2", "djconnect-federated-planning-delta/3", "djconnect-federated-planning-delta/4"}
+    artwork = d.get("schema_version") in {"djconnect-federated-planning-delta/3", "djconnect-federated-planning-delta/4"}
     delivery = d.get("implementation_receipt", {}).get("source_delivery", "UNPUBLISHED")
     intro = (
         "Generated from djconnect-platform-v1.json, maintenance " + d["decision_id"] + ".\n\n"
@@ -212,6 +236,9 @@ def render_delta(p):
     )
     if artwork:
         intro += "Current bounded artwork correction: [owner6117357579](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6117357579). Existing Discovery capability only; source/Finalization gates remain separate, native/installed/live acceptance remains open. Presence source1150/Finalization1151 stays closed. Prior version2 is preserved in history/20261012.\n\n"
+    if d.get("schema_version") == "djconnect-federated-planning-delta/4":
+        r = d["narrative_receipt"]
+        intro += f"Selected bounded Album→Track continuity: [{r['assignment_id']}]({r['selection_url']}); source {r['source_delivery']}, Stage4 PARTIAL, joint/native/installed/hardware acceptance open. Artwork1152/1153 is terminal at admitted0f37; prior version3 is preserved in history/20261012. No automatic consumer dispatch or new Core writer.\n\n"
     out = {}
     out["README.md"] = (
         "# Federated roadmap — versioned maintenance\n\n"

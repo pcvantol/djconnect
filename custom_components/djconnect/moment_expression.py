@@ -6,7 +6,10 @@ private context, fact extraction from prose or generic opener/footer chassis.
 
 from __future__ import annotations
 
-from .session_facts import QualifiedSessionFact, SharedProducerFact, DisplayFactCore
+from .session_facts import (
+    QualifiedSessionFact, SharedProducerFact, DisplayFactCore,
+    AlbumContinuityFact, album_continuity_copy,
+)
 from .context_expression import (
     BIRTH_ALTERNATE, DESCRIPTION_ALTERNATE, EDITION_ALTERNATE, FORMATION_ALTERNATE,
 )
@@ -529,6 +532,11 @@ def realize(
     if lang not in CREDITS or persona not in PERSONAS or fact.copy_for(locale) is None:
         return None
     profile = PERSONAS.index(persona)
+    if isinstance(fact, AlbumContinuityFact):
+        if not fact.current_album or (fact.summaries, fact.contents) != album_continuity_copy(fact.current_album):
+            return None
+        summaries, contents = album_continuity_copy(fact.current_album, profile)
+        return dict(summaries)[lang], dict(contents)[lang]
     syntax = form % 4
     callback = isinstance(fact, SharedProducerFact)
     if callback:

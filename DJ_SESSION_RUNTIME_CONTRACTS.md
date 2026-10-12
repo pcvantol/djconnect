@@ -1,5 +1,11 @@
 # DJ Session Runtime Contracts
 
+The selected bounded [published Album→current Track relation](docs/product/NARRATIVE_ALBUM_CONTINUITY_V1.md)
+uses the existing Planner/Knowledge/Moment/Flow/Broadcast, current-edition
+Spotify display qualification, published-only Runtime evidence and shared
+presence policy. Its source delivery is pending; no new planner, type, history
+rights, consumer dispatch or full narrative maturity completion is implied.
+
 ## DJ presence Core delivered boundary
 
 [DJ presence v1](docs/product/DJ_PRESENCE_V1.md) is a separately selected independent Runtime/Planner input for

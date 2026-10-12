@@ -1,5 +1,11 @@
 # DJ Session Broadcast Transport
 
+The selected [Album→Track relation](../product/NARRATIVE_ALBUM_CONTINUITY_V1.md)
+uses existing immutable Track / track_context, source_attribution, visual_only
+and native_delivery v1 fields. Existing snapshot/event/recovery and Cast1.1
+remain unchanged. Only current B is eligible, with original earliest source
+deadline and Spotify attribution; no private questions or archives are shared.
+
 ## Status
 
 `CONFIRMED_CODE` — V4-06

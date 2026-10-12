@@ -6,10 +6,12 @@ The original3October snapshot/audit/source pins and projections are immutable hi
 
 Current bounded artwork correction: [owner6117357579](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6117357579). Existing Discovery capability only; source/Finalization gates remain separate, native/installed/live acceptance remains open. Presence source1150/Finalization1151 stays closed. Prior version2 is preserved in history/20261012.
 
+Selected bounded Album→Track continuity: [DJC-CORE-NARRATIVE-ALBUM-CONTINUITY-V1-20261012](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6121336412); source UNPUBLISHED, Stage4 PARTIAL, joint/native/installed/hardware acceptance open. Artwork1152/1153 is terminal at admitted0f37; prior version3 is preserved in history/20261012. No automatic consumer dispatch or new Core writer.
+
 Selected implementation [DJC-CORE-DJ-PRESENCE-V1-20261011](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6111222122); early local contract `1d5e8c2518db5902031898991b7f4857d5263a5c`; source delivery PROTECTED_MERGED.
 
-- [DJC-CORE](lanes/DJC-CORE.md) — 6 bounded records; no new writer.
-- [DJC-APPLE](lanes/DJC-APPLE.md) — 2 bounded records; no new writer.
+- [DJC-CORE](lanes/DJC-CORE.md) — 7 bounded records; no new writer.
+- [DJC-APPLE](lanes/DJC-APPLE.md) — 3 bounded records; no new writer.
 - [DJC-ESP32](lanes/DJC-ESP32.md) — 0 bounded records; no new writer.
 - [DJC-PI](lanes/DJC-PI.md) — 0 bounded records; no new writer.
 - [DJC-WINDOWS](lanes/DJC-WINDOWS.md) — 0 bounded records; no new writer.

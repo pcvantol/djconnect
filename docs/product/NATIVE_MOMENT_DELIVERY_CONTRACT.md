@@ -1,5 +1,15 @@
 # Native Moment delivery
 
+Selected [published Album→current Track continuity](NARRATIVE_ALBUM_CONTINUITY_V1.md)
+is a closed derived Spotify current-edition display fact. Fresh current B and
+the earlier published Album A must have exactly the same edition URI and
+immutable name/date/precision core. Both original observations remain required;
+the earliest source expiry wins. It binds only current B, carries the existing
+Spotify URL/mark and remains denied for ActiveFlow/history/search recall.
+No new native schema, action, source rights or historical Spotify admission.
+Ordinary Festival start keeps its existing Building Energy direction and is
+ineligible; all four authored Personas work within Discover/Exploring.
+
 Selected increment: DJC-CORE-NATIVE-MOMENT-DELIVERY-V1-20261008.
 Existing owner authorization, Runtime → Planner → Knowledge → Moment → Flow →
 Presentation/Broadcast remain authoritative. No additional endpoint or local

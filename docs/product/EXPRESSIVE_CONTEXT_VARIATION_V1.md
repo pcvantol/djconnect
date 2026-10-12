@@ -1,5 +1,11 @@
 # Expressive context variation v1 — pinned implementation scope
 
+Selected bounded [Album→Track continuity](NARRATIVE_ALBUM_CONTINUITY_V1.md) extends the existing
+Discover/Exploring Runtime with published-only exact-edition evidence.
+Implementation/qualification is In progress; Stage4 remains partially developed,
+not Completed. This contract’s existing delivered behavior and source rights
+remain unchanged. No consumer, installed or hardware acceptance is implied.
+
 Assignment: `DJC-CORE-EXPRESSIVE-CONTEXT-VARIATION-V1-20261010`.
 Admission base: `e0ee7e3ee7265599345ed6c37647623b2a03b27d`.
 Branch: `codex/expressive-context-variation-v1`.

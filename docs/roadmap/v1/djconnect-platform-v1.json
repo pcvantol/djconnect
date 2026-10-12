@@ -37594,7 +37594,7 @@
     }
   ],
   "planning_maintenance": {
-    "schema_version": "djconnect-federated-planning-delta/3",
+    "schema_version": "djconnect-federated-planning-delta/4",
     "decision_id": "DJC-DJ-PRESENCE-ROADMAP-DESIGN-V1-20261011",
     "decision_url": "https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6110375785",
     "design_date": "2026-10-11",
@@ -37791,6 +37791,51 @@
             ]
           }
         ]
+      },
+      {
+        "id": "RELATION::CORE::ALBUM-CONTINUITY",
+        "title": "Published Album to current exact-edition Track continuity",
+        "lane": "DJC-CORE",
+        "repository": "pcvantol/djconnect",
+        "status": "In progress",
+        "assignment_status": "IN_PROGRESS",
+        "scope": "One bounded Discover/Exploring relation; no full narrative stage promotion or new consumer admission",
+        "acceptance_boundary": "Core pipeline/browser proof separate from native, installed and hardware acceptance",
+        "contract_binding": "docs/product/NARRATIVE_ALBUM_CONTINUITY_V1.md",
+        "source_ids": [
+          "OWNER-NARRATIVE-ALBUM-20261012"
+        ],
+        "prerequisite_groups": [
+          {
+            "mode": "AND",
+            "edge_ids": [
+              "ALBUM-1",
+              "ALBUM-2"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "RELATION::CONSUMERS::ALBUM-CONTINUITY-ACCEPTANCE",
+        "title": "Separate native and joint album continuity acceptance",
+        "lane": "DJC-APPLE",
+        "repository": "pcvantol/djconnect-app",
+        "status": "Planned",
+        "assignment_status": "NOT_ISSUED",
+        "scope": "One bounded Discover/Exploring relation; no full narrative stage promotion or new consumer admission",
+        "acceptance_boundary": "Core pipeline/browser proof separate from native, installed and hardware acceptance",
+        "contract_binding": "docs/product/NARRATIVE_ALBUM_CONTINUITY_V1.md",
+        "source_ids": [
+          "OWNER-NARRATIVE-ALBUM-20261012"
+        ],
+        "prerequisite_groups": [
+          {
+            "mode": "AND",
+            "edge_ids": [
+              "ALBUM-3"
+            ]
+          }
+        ]
       }
     ],
     "edges": [
@@ -37969,16 +38014,64 @@
         "source_ids": [
           "OWNER-DISCOVERY-ARTWORK-20261012"
         ]
+      },
+      {
+        "id": "ALBUM-1",
+        "producer": "CORRECTION::CORE::DISCOVERY-ARTWORK",
+        "consumer": "RELATION::CORE::ALBUM-CONTINUITY",
+        "kind": "implementation_contract",
+        "phase": "selection",
+        "prerequisite_stage": "completion",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "required_subset": "Previous source1152 and Finalization1153 reconciled, workspace cleanup and sole writer admission",
+        "contract_or_evidence": "docs/product/NARRATIVE_ALBUM_CONTINUITY_V1.md; ACK6121336412",
+        "reason": "Bounded owning prerequisite; no new writer or full Stage4 completion",
+        "source_ids": [
+          "OWNER-NARRATIVE-ALBUM-20261012"
+        ]
+      },
+      {
+        "id": "ALBUM-2",
+        "producer": "SLICE::CORE::DJ-PRESENCE-POLICY",
+        "consumer": "RELATION::CORE::ALBUM-CONTINUITY",
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "completion",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "required_subset": "Existing presence-policy shared ledger, Off/revision/cadence/no catch-up contract",
+        "contract_or_evidence": "docs/product/NARRATIVE_ALBUM_CONTINUITY_V1.md; ACK6121336412",
+        "reason": "Bounded owning prerequisite; no new writer or full Stage4 completion",
+        "source_ids": [
+          "OWNER-NARRATIVE-ALBUM-20261012"
+        ]
+      },
+      {
+        "id": "ALBUM-3",
+        "producer": "RELATION::CORE::ALBUM-CONTINUITY",
+        "consumer": "RELATION::CONSUMERS::ALBUM-CONTINUITY-ACCEPTANCE",
+        "kind": "implementation_contract",
+        "phase": "integration_acceptance",
+        "prerequisite_stage": "completion",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "required_subset": "Exact reviewed producer pin and actual transport fixtures; no automatic consumer assignment",
+        "contract_or_evidence": "docs/product/NARRATIVE_ALBUM_CONTINUITY_V1.md; ACK6121336412",
+        "reason": "Bounded owning prerequisite; no new writer or full Stage4 completion",
+        "source_ids": [
+          "OWNER-NARRATIVE-ALBUM-20261012"
+        ]
       }
     ],
     "document_references": [
       {
         "path": "PRODUCT_ROADMAP.md",
-        "sha256": "5c7994ed73c30871d24ed8522f14367551fb90b187afff2fb0a87061a5c8e828"
+        "sha256": "ecd3f8dd460eea9fd6a0b3636b7597597a373f23bd22fdb5c55ba9aaa11428ba"
       },
       {
         "path": "PRODUCT_BACKLOG.md",
-        "sha256": "2a251fb2fa4bc0ca23eb2286afb08e752d0e17d0ebdd894e2da6bdbda01a6a7d"
+        "sha256": "129d2d5a5753d6a76c79e881309bb830c9c7af18b8a3c666820cdeb85c82a755"
       },
       {
         "path": "docs/product/DJ_PRESENCE_V1.md",
@@ -37986,11 +38079,11 @@
       },
       {
         "path": "DJ_SESSION_RUNTIME_CONTRACTS.md",
-        "sha256": "887177ea4109579b3cefd143aaf67641946a7060128c146a8f9c4bd2d01d9743"
+        "sha256": "b8e8dc486bae8a8063aaf168b976ece69166d7efaf1ac84b15def395b9047362"
       },
       {
         "path": "docs/product/DJ_INTELLIGENCE_ARCHITECTURE.md",
-        "sha256": "7117ac67637ca1399120f50518840051435b7ea3bf78ac504c186f38e671cff9"
+        "sha256": "24e86cf62c46eb6b15a0a011351d2657f5b6bfaf014ffbf53c47ab4a27cf8ceb"
       },
       {
         "path": "docs/product/DJ_PRESENTATION_ARCHITECTURE.md",
@@ -38015,6 +38108,38 @@
       {
         "path": "API_CONTRACT.md",
         "sha256": "6ffb8da8830fcb291626a34b75cdbeafa07db805ba44955beb05c19dfb4bebf5"
+      },
+      {
+        "path": "docs/product/NARRATIVE_ALBUM_CONTINUITY_V1.md",
+        "sha256": "d240f25cc924729f79d97c1ab9e6c0b05494d5d0b1a4b983e0bdcb9a499e87db"
+      },
+      {
+        "path": "docs/product/DJ_INTELLIGENCE_MATURITY.md",
+        "sha256": "f1948da5a89456f476b3e889bab178b6432c41cac8e2b38ab037f543d8e5071c"
+      },
+      {
+        "path": "docs/product/SHARED_PRODUCER_CONTINUITY_CONTRACT.md",
+        "sha256": "d06d2563b1de4fcfdff15bd76e0952e19f0970666b8ce5677db10cf6ee11a2ed"
+      },
+      {
+        "path": "docs/product/DISCOVER_NARRATIVE_TRANSITION_CONTRACT.md",
+        "sha256": "a27c694d57bca4908d4a258c9a6e0aec1de95d3ee6ddd89a377e32bf6b9f8e32"
+      },
+      {
+        "path": "docs/product/EXPRESSIVE_CONTEXT_VARIATION_V1.md",
+        "sha256": "01e6cbe92d1fc240b3b444e646cb5bdd809a242cf61b2044edc5fb26775f26c7"
+      },
+      {
+        "path": "docs/product/NATIVE_MOMENT_DELIVERY_CONTRACT.md",
+        "sha256": "3b957568ad7076d55c8e250aec6dd742df90bd02c6421dc8db84a9ac8b42c5d4"
+      },
+      {
+        "path": "docs/technical/BROADCAST_TRANSPORT.md",
+        "sha256": "9571ebd859d90f2190e8c8d6102d08477bf65d62ec3d145c328c13bef58b2e9f"
+      },
+      {
+        "path": "docs/verification/NARRATIVE_ALBUM_CONTINUITY_V1_ACCEPTANCE.md",
+        "sha256": "cd9db3734f6be609a490c46cb8b37cdc2bf47fb9eeb4d38869fadb1d2b9169ab"
       }
     ],
     "implementation_receipt": {
@@ -38072,6 +38197,22 @@
         "finalization": "PREPARED_SEPARATE_EXACT_GATE",
         "hardware": "NOT_RUN"
       }
-    ]
+    ],
+    "narrative_receipt": {
+      "assignment_id": "DJC-CORE-NARRATIVE-ALBUM-CONTINUITY-V1-20261012",
+      "selection_url": "https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6121336412",
+      "selection_authority": "DIRECT_HUMAN_INSTRUCTION",
+      "base_sha": "0f37b53cc56f89109a1adcbcf39dd454ba52c72d",
+      "branch": "codex/narrative-album-continuity-v1",
+      "phase": "LOCAL_IMPLEMENTATION_AND_QUALIFICATION",
+      "source_delivery": "UNPUBLISHED",
+      "native": "NOT_RUN",
+      "installed": "NOT_RUN",
+      "hardware": "NOT_RUN",
+      "joint_product_acceptance": "OPEN",
+      "stage4_status": "PARTIAL",
+      "previous_delta": "history/20261012/artwork-continuity-maintenance-v3.json",
+      "previous_delta_sha256": "f72ca261465288af2fb190b13166ced25b8abe2dbcfe991c96c4f11b53d7c0a7"
+    }
   }
 }

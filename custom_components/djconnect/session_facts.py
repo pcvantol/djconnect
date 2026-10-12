@@ -294,6 +294,142 @@ class PublishedRecordingContext:
         self.connected_tracks.clear()
 
 
+ALBUM_CONTINUITY_FORMS = {
+    "en": (
+        "Another track from the edition mentioned earlier.",
+        "Our earlier album note connects to this track: the edition is the same.",
+        "Same edition, another track. Back to our album note:",
+        "That edition returns here, with a different track.",
+    ),
+    "nl": (
+        "Nog een nummer uit de eerder genoemde uitgave.",
+        "Onze eerdere albumnotitie sluit aan bij dit nummer: het is dezelfde uitgave.",
+        "Dezelfde uitgave, een ander nummer. Terug naar onze albumnotitie:",
+        "Diezelfde uitgave komt weer langs, nu met een ander nummer.",
+    ),
+    "de": (
+        "Ein weiterer Titel aus der zuvor erwähnten Ausgabe.",
+        "Unsere frühere Albumnotiz passt zu diesem Titel: Es ist dieselbe Ausgabe.",
+        "Dieselbe Ausgabe, ein anderer Titel. Zurück zu unserer Albumnotiz:",
+        "Dieselbe Ausgabe ist wieder da, jetzt mit einem anderen Titel.",
+    ),
+    "fr": (
+        "Un autre titre de l’édition présentée plus tôt.",
+        "Ce titre vient de l’édition présentée plus tôt.",
+        "Même édition, autre titre. Retour à notre note sur l’album :",
+        "Cette même édition revient, avec un autre titre.",
+    ),
+    "es": (
+        "Otro tema de la edición mencionada antes.",
+        "Nuestra nota anterior sobre el álbum conecta con este tema: es la misma edición.",
+        "La misma edición, otro tema. Volvemos a nuestra nota sobre el álbum:",
+        "Vuelve esa misma edición, ahora con otro tema.",
+    ),
+}
+
+
+def album_continuity_copy(current: QualifiedSessionFact, profile: int = 0
+                          ) -> tuple[tuple[tuple[str, str], ...], tuple[tuple[str, str], ...]]:
+    """Authored framing; preserve the exact qualified catalog sentence."""
+    return current.summaries, tuple(
+        (lang, f"{ALBUM_CONTINUITY_FORMS[lang][profile]} {dict(current.contents)[lang]}")
+        for lang in LANGUAGES
+    )
+
+
+def _qualified_album(fact: QualifiedSessionFact, now: float) -> bool:
+    return bool(type(fact) is QualifiedSessionFact and fact.key == "album_release"
+                and fact.eligible(fact.media_identity, now) and type(fact.display_core) is DisplayFactCore
+                and fact.display_core.validates(fact)
+                and fact.summaries == tuple((lang, fact.display_core.subject) for lang in LANGUAGES)
+                and len(fact.summaries) == len(fact.contents) == len(LANGUAGES)
+                and set(dict(fact.summaries)) == set(dict(fact.contents)) == set(LANGUAGES))
+
+
+@dataclass(frozen=True)
+class AlbumContinuityFact(QualifiedSessionFact):
+    """Closed current-edition relationship, never historical Spotify recall."""
+    current_album: QualifiedSessionFact | None = None
+    previous_album: QualifiedSessionFact | None = None
+
+    @property
+    def relation_key(self) -> tuple[str, str, str]:
+        if self.current_album is None or self.previous_album is None:
+            return "", "", ""
+        a, b = sorted((self.current_album.media_identity, self.previous_album.media_identity))
+        return a, b, self.source_url
+
+    def eligible(self, media_identity: str, now: float) -> bool:
+        current, previous = self.current_album, self.previous_album
+        return bool(current and previous and _qualified_album(current, now)
+                    and _qualified_album(previous, now)
+                    and current.media_identity == self.media_identity == media_identity
+                    and current.media_identity != previous.media_identity
+                    and current.source_url == previous.source_url == self.source_url
+                    and current.display_core == previous.display_core
+                    and (self.key, self.intent, self.provider, self.license)
+                        == ("album_continuity", "track_context", "Spotify", "Spotify metadata display")
+                    and self.observed_at == current.observed_at
+                    and self.display_core == current.display_core
+                    and (self.summaries, self.contents) == album_continuity_copy(current))
+
+
+@dataclass
+class PublishedAlbumContext:
+    """Bounded published-only edition proofs and non-evicting relation guards."""
+    observed_tracks: list[str] = field(default_factory=list)
+    albums: dict[str, QualifiedSessionFact] = field(default_factory=dict)
+    used_relations: set[tuple[str, str, str]] = field(default_factory=set)
+    connected_tracks: set[str] = field(default_factory=set)
+
+    def observe(self, media_identity: str, now: float) -> None:
+        if media_identity in self.observed_tracks:
+            self.observed_tracks.remove(media_identity)
+        self.observed_tracks.append(media_identity)
+        self.observed_tracks[:] = self.observed_tracks[-3:]
+        self.albums = {key: value for key, value in self.albums.items()
+                       if key in self.observed_tracks and _qualified_album(value, now)}
+
+    def commit(self, fact: QualifiedSessionFact, now: float) -> None:
+        if (_qualified_album(fact, now) and fact.media_identity in self.observed_tracks
+                and len(self.used_relations) < 6):
+            self.albums[fact.media_identity] = fact
+        elif (isinstance(fact, AlbumContinuityFact) and fact.eligible(fact.media_identity, now)
+              and fact.media_identity in self.observed_tracks and len(self.used_relations) < 6):
+            self.used_relations.add(fact.relation_key)
+            self.connected_tracks.add(fact.media_identity)
+
+    def candidate(self, facts: tuple[QualifiedSessionFact, ...], media_identity: str,
+                  now: float) -> AlbumContinuityFact | None:
+        if (len(self.used_relations) >= 6 or media_identity in self.connected_tracks
+                or media_identity not in self.observed_tracks):
+            return None
+        current = [f for f in facts if _qualified_album(f, now) and f.media_identity == media_identity]
+        if not current or any(f != current[0] for f in current):
+            return None
+        for identity in reversed(self.observed_tracks):
+            previous = self.albums.get(identity)
+            if previous is None:
+                continue
+            summaries, contents = album_continuity_copy(current[0])
+            fact = AlbumContinuityFact(
+                "album_continuity", media_identity, "track_context", summaries, contents,
+                "Spotify", current[0].source_url, "Spotify metadata display", current[0].observed_at,
+                display_core=current[0].display_core, current_album=current[0], previous_album=previous)
+            if fact.eligible(media_identity, now) and fact.relation_key not in self.used_relations:
+                return fact
+        return None
+
+    def close_lines(self) -> None:
+        self.albums.clear()
+
+    def clear(self) -> None:
+        self.observed_tracks.clear()
+        self.albums.clear()
+        self.used_relations.clear()
+        self.connected_tracks.clear()
+
+
 def _fact(
     key: str,
     catalog: dict[str, Any],
