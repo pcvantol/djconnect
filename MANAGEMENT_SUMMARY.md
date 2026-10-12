@@ -1,5 +1,40 @@
 # DJConnect Generation 2 Management Summary
 
+## Current: album continuity Core source delivered — separate Finalization
+
+`DJC-CORE-NARRATIVE-ALBUM-CONTINUITY-V1-20261012`: [source #1154](https://github.com/pcvantol/djconnect/pull/1154)
+protected merged as `c317707024847dd32968483cd23141de40a3c706` from exact owner-authorized and independently
+reviewed `1482eafe3713bd1bd7b21927c4fb481ed1a15c9c`; identical tree
+`95258741a03ffe4d897e4e7a4f7f3adcf5cec0f5`. All32 applicable checks PASS,
+five conditional skips; normal HIGH_RISK Owner Authorization38248553185 PASS.
+[Contract](docs/product/NARRATIVE_ALBUM_CONTINUITY_V1.md), [acceptance](docs/verification/NARRATIVE_ALBUM_CONTINUITY_V1_ACCEPTANCE.md)
+and [completion record](docs/history/prompts/2026-10-12-narrative-album-core-finalization.md) preserve admission, source proof and limits.
+148 safe regular package files match exact main and candidate; archive SHA256
+`ab9476de000a723e4b749f84f0d5ecc628183d4c49ecf8300b5cf066934b1638`; formal asset SHA256 `545c5b0d6162a895ae33b524ef57f61016bd9007b1825f11834d8296d13c18fd`. Pinned policy and raw PR→main derivation PASS,
+all12 formal fields PASS / POST_MERGE_RELEASE_EVIDENCE_QUALIFIED.
+
+One published qualified Album A can connect once to observed distinct Track B
+on the exact same edition within Discover AND Exploring. Publication alone
+consumes the bounded relation; Off/in-flight, scope exit, retry, reconnect and
+Session-end preserve shared presence policy and immutable prior Moments.
+1749 tests/7 existing skips,128 DAG checks,171 frameworktests/234 scenarios,
+20 real paired HA Persona-language chains,4 races,4 real local/static browser
+paths, same-data baseline and real60.388s/40-observation bounded duration PASS.
+Modelled200s input spacing is not real two-hour listening. Direct Festival
+startup remains Building Energy; Festival/Exploring uses existing Core Persona
+update after Home HTTP startup. CAF modeled only; renderer1.1 bytes unchanged.
+
+Only this bounded Core relation is Completed/CORE_DELIVERED. Full Stage4 PARTIAL;
+native, installed, live Spotify and hardware NOT_RUN; joint acceptance OPEN.
+No consumer writer/admission, installation/restart, deployment/Pages/signing,
+hardware, workflow/runner/service or new provider/model/cost/queue route.
+Separate documentary Finalization is prepared on `codex/narrative-album-finalization-v1`
+from this source-main; its independent exact review/publication gate and protected
+readback still precede MERGED_RECONCILED and WORKSPACE_READY. Existing source
+approval excludes Finalization. Selected Forecast6123328620 is queued only;
+no admission or runtime start until valid album closure and fresh bootstrap.
+Historical prepared records below keep their original temporal state.
+
 ## Current: selected album continuity — local qualification
 
 Selected Core implementation: DJC-CORE-NARRATIVE-ALBUM-CONTINUITY-V1-20261012.

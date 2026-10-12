@@ -4,8 +4,8 @@ Assignment DJC-CORE-NARRATIVE-ALBUM-CONTINUITY-V1-20261012,
 admitted base0f37b53cc56f89109a1adcbcf39dd454ba52c72d, sole existing Core writer,
 branch codex/narrative-album-continuity-v1. ACK6121336412/material6121367116.
 [Canonical contract](../product/NARRATIVE_ALBUM_CONTINUITY_V1.md).
-Source remains LOCAL_UNPUBLISHED; exact gate, protected delivery/readback and
-separate Finalization remain pending. Full Stage4 remains PARTIAL.
+Source #1154 protected delivered as `c317707024847dd32968483cd23141de40a3c706`; exact-main/package/formal
+readback PASS. Separate Finalization remains gated. Full Stage4 PARTIAL.
 
 Before admitted main publishes Album A and no relationship on B. Candidate,
 with identical declared external Spotify inputs, publishes Album A then one
@@ -57,7 +57,13 @@ and technical scope-correction GO; exact final-source review is separately pinne
 Early local contract/fixture handoffs:
 [Apple87/6121860069](https://github.com/pcvantol/djconnect-app/issues/87#issuecomment-6121860069),
 [VibeCast10/6121860315](https://github.com/pcvantol/djconnect-vibecast-receiver/issues/10#issuecomment-6121860315).
-Released main producerpin will supersede that unpublished checkpoint.
+The released main producerpin has superseded those unpublished checkpoints:
+[definitive Apple87/6124319278](https://github.com/pcvantol/djconnect-app/issues/87#issuecomment-6124319278),
+[definitive VibeCast10/6124319665](https://github.com/pcvantol/djconnect-vibecast-receiver/issues/10#issuecomment-6124319665).
 Native/installed/live Spotify/hardware NOT_RUN; joint product acceptance OPEN.
 No Swift/receiver writes, installation/restart, Pages/signing/hardware,
 workflow/runner/service/provider/model/cost route or next slice.
+
+[Exact publication readback](../../examples/client_contracts/narrative_album_v1/source-publication-readback.json)
+and [formal evidence](../../examples/client_contracts/narrative_album_v1/source-formal-evidence.json)
+supplement the retained pre-publication proof; no native/hardware qualification.

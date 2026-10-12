@@ -3,8 +3,8 @@
 Assignment: DJC-CORE-NARRATIVE-ALBUM-CONTINUITY-V1-20261012.
 Admission: same Core writer, base 0f37b53cc56f89109a1adcbcf39dd454ba52c72d,
 branch codex/narrative-album-continuity-v1, [ACK6121336412](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6121336412).
-Status: local implementation and Core software qualification complete; exact
-source publication/protected delivery and separate Finalization pending.
+Status: Core source protected delivered in #1154, exact main `c317707024847dd32968483cd23141de40a3c706`;
+separate documentary Finalization prepared and independently gated.
 Artwork1152/1153 is closed, MERGED_RECONCILED and WORKSPACE_READY.
 
 ## Existing evidence and publication boundary
@@ -102,3 +102,14 @@ Source-poor sessions retain existing Track Insight/Silence behavior.
 
 [Core software acceptance](../verification/NARRATIVE_ALBUM_CONTINUITY_V1_ACCEPTANCE.md)
 records measured results and distinct native/installed/hardware boundaries.
+
+## Exact protected delivery and remaining acceptance
+
+[Completion record](../history/prompts/2026-10-12-narrative-album-core-finalization.md)
+and [readback](../../examples/client_contracts/narrative_album_v1/source-publication-readback.json)
+pin source #1154/main `c317707024847dd32968483cd23141de40a3c706` and148 safe package files with zero differences.
+[Formal evidence](../../examples/client_contracts/narrative_album_v1/source-formal-evidence.json)
+is qualified against immutable policyebbb35f038a7a3c7d46c12660968bcd50eb67580.
+Local qualification snapshots above remain historical source proof. Core is
+delivered; native/installed/live/hardware NOT_RUN, joint OPEN, Stage4 PARTIAL.
+Finalization and own cleanup retain separate exact-publication/readback gates.
