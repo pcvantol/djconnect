@@ -291,7 +291,13 @@ class AmbientMaintenanceTests(unittest.TestCase):
 
     def test_unqualified_ambient_delivery_and_scope_rejected(self):
         for key, value in (
-            ("source_delivery", "PROTECTED_MERGED"),
+            (
+                "source_delivery",
+                "UNPUBLISHED"
+                if self.plan["planning_maintenance"]["ambient_receipt"]["source_delivery"]
+                == "PROTECTED_MERGED"
+                else "PROTECTED_MERGED",
+            ),
             ("parent_node", "PROJ::ROADMAP::DIRECTION"),
             ("disposition", "NEW_PROVIDER"),
             ("native", "PASS"),

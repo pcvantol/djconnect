@@ -10,7 +10,7 @@ Selected bounded Album→Track continuity: [DJC-CORE-NARRATIVE-ALBUM-CONTINUITY-
 
 Selected Session Forecast: [DJC-CORE-SESSION-FORECAST-V1-20261012](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6123328620); existing Direction parent, source PROTECTED_MERGED, current-only qualified artist imagery, native/visible/upcoming/joint acceptance open. Album1154/1155 terminal before this writer admission; previous version4 preserved in history/20261012. Early contract fixtures allow independently admitted consumer source integration; no automatic dispatch.
 
-Selected ambient convergence: [DJC-CORE-AMBIENT-FACT-MOMENT-CONVERGENCE-V1-20261012](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6125691006); source UNPUBLISHED, qualified Session reuse and passive producer retirement; native/joint acceptance open. Forecast1156/1157 stays closed; version5 preserved in history/20261012. No new source/model/consumer dispatch.
+Selected ambient convergence: [DJC-CORE-AMBIENT-FACT-MOMENT-CONVERGENCE-V1-20261012](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6125691006); source PROTECTED_MERGED, qualified Session reuse and passive producer retirement; native/joint acceptance open. Forecast1156/1157 stays closed; version5 preserved in history/20261012. No new source/model/consumer dispatch.
 
 | Producer → consumer | Kind / phase / gate | Hard | AND/OR | Required subset | Evidence |
 |---|---|---|---|---|---|
