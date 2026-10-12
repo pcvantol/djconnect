@@ -2,7 +2,7 @@
 
 Generated from djconnect-platform-v1.json, maintenance DJC-DJ-PRESENCE-ROADMAP-DESIGN-V1-20261011.
 
-The original3October snapshot/audit/source pins and projections are immutable history in [history/20261003](history/20261003/README.md). Only this bounded delta is current here; inherited premerge statuses are not current blockers. Only the selected existing Core writer is admitted by implementation receipt; no automatic dispatch, second writer or native/installed/hardware acceptance.
+The original3October snapshot/audit/source pins and projections are immutable history in [history/20261003](history/20261003/README.md). Only this bounded delta is current here; inherited premerge statuses are not current blockers. Current admission is documentary only, using the existing Core writer; all new product subsets remain Planned/NOT_ISSUED. Closed implementation receipts are retained as evidence, not new admission.
 
 Current bounded artwork correction: [owner6117357579](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6117357579). Existing Discovery capability only; source/Finalization gates remain separate, native/installed/live acceptance remains open. Presence source1150/Finalization1151 stays closed. Prior version2 is preserved in history/20261012.
 
@@ -11,6 +11,8 @@ Selected bounded Album→Track continuity: [DJC-CORE-NARRATIVE-ALBUM-CONTINUITY-
 Selected Session Forecast: [DJC-CORE-SESSION-FORECAST-V1-20261012](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6123328620); existing Direction parent, source PROTECTED_MERGED, current-only qualified artist imagery, native/visible/upcoming/joint acceptance open. Album1154/1155 terminal before this writer admission; previous version4 preserved in history/20261012. Early contract fixtures allow independently admitted consumer source integration; no automatic dispatch.
 
 Selected ambient convergence: [DJC-CORE-AMBIENT-FACT-MOMENT-CONVERGENCE-V1-20261012](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6125691006); source PROTECTED_MERGED, qualified Session reuse and passive producer retirement; native/joint acceptance open. Forecast1156/1157 stays closed; version5 preserved in history/20261012. No new source/model/consumer dispatch.
+
+Combined Session entry/history/native-surface documentary design: [DJC-SESSION-ENTRY-LIFECYCLE-HISTORY-DESIGN-V1-20261012](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6131363097); documentation UNPUBLISHED. All new product subsets remain Planned/NOT_ISSUED; Continuation is independent and rich passive rights are not inherited. Ambient1158/1159 remains terminal; version6 is preserved in history/20261012. No new product writer or native/APNs/installed/hardware PASS.
 
 | Producer → consumer | Kind / phase / gate | Hard | AND/OR | Required subset | Evidence |
 |---|---|---|---|---|---|
@@ -40,3 +42,15 @@ Selected ambient convergence: [DJC-CORE-AMBIENT-FACT-MOMENT-CONVERGENCE-V1-20261
 | `AMBIENT::CORE::CONVERGENCE` → `AMBIENT::APPLE::JOIN` | implementation_contract / implementation / start | True | AND | Exact reviewed producer contract/fixtures | docs/product/AMBIENT_FACT_MOMENT_CONVERGENCE_V1.md |
 | `AMBIENT::CORE::CONVERGENCE` → `AMBIENT::PRODUCT::JOINT` | implementation_contract / integration_acceptance / completion | True | AND | Exact owning acceptance receipt | docs/product/AMBIENT_FACT_MOMENT_CONVERGENCE_V1.md |
 | `AMBIENT::APPLE::JOIN` → `AMBIENT::PRODUCT::JOINT` | implementation_contract / integration_acceptance / completion | True | AND | Exact owning acceptance receipt | docs/product/AMBIENT_FACT_MOMENT_CONVERGENCE_V1.md |
+| `ENTRY::CORE::LIFECYCLE` → `ENTRY::CORE::ASK-LIFECYCLE` | implementation_contract / implementation / start | True | AND | Exact target operation contract, not DNA consent | docs/product/SESSION_ENTRY_LIFECYCLE_EXPERIENCE_V1.md |
+| `ENTRY::CORE::LIFECYCLE` → `ENTRY::APPLE::LIFECYCLE` | implementation_contract / implementation / start | True | AND | Qualified lifecycle producer for direct native invocation | docs/product/SESSION_ENTRY_LIFECYCLE_EXPERIENCE_V1.md |
+| `PROJ::QUAL::CMB12-LIFECYCLE` → `ENTRY::APPLE::LIFECYCLE` | implementation_contract / implementation / start | True | AND | Existing authorized lifecycle acceptance receipt | docs/product/SESSION_ENTRY_LIFECYCLE_EXPERIENCE_V1.md |
+| `HISTORY::CORE::SUMMARY` → `HISTORY::APPLE::SUMMARY` | implementation_contract / implementation / start | True | AND | Versioned private owner summary and coverage fixtures | docs/product/SESSION_HISTORY_SUMMARY_V1.md |
+| `SURFACE::CORE::PROJECTION` → `SURFACE::APPLE::ADOPTION` | implementation_contract / implementation / start | True | AND | Qualified purpose rights/state contract | docs/product/APPLE_SESSION_NATIVE_SURFACES_V1.md |
+| `SURFACE::APPLE::NAVIGATION` → `SURFACE::APPLE::ADOPTION` | implementation_contract / implementation / start | True | AND | Typed authorized navigation | docs/product/APPLE_SESSION_NATIVE_SURFACES_V1.md |
+| `SURFACE::CORE::PROJECTION` → `SURFACE::APPLE::QUIET-TRANSPORT` | implementation_contract / implementation / start | True | AND | Minimal approved quiet payload and token-purpose binding | docs/product/APPLE_SESSION_NATIVE_SURFACES_V1.md |
+| `SURFACE::APPLE::ADOPTION` → `SURFACE::PRODUCT::JOINT` | implementation_contract / integration_acceptance / completion | True | AND | Actual native state/migration/accessibility evidence | docs/product/APPLE_SESSION_NATIVE_SURFACES_V1.md |
+| `SURFACE::APPLE::QUIET-TRANSPORT` → `SURFACE::PRODUCT::JOINT` | implementation_contract / integration_acceptance / completion | True | AND | Only selected update modes need transport qualification | docs/product/APPLE_SESSION_NATIVE_SURFACES_V1.md |
+| `CONTINUATION::CORE::POLICY` → `CONTINUATION::APPLE::ALERT-TRANSPORT` | implementation_contract / implementation / start | True | AND | Category-only consent/opportunity contract | docs/product/APPLE_SESSION_NATIVE_SURFACES_V1.md |
+| `CONTINUATION::CORE::POLICY` → `CONTINUATION::PRODUCT::JOINT` | implementation_contract / integration_acceptance / completion | True | AND | Policy/privacy/expiry receipt | docs/product/APPLE_SESSION_NATIVE_SURFACES_V1.md |
+| `CONTINUATION::APPLE::ALERT-TRANSPORT` → `CONTINUATION::PRODUCT::JOINT` | implementation_contract / integration_acceptance / completion | True | AND | Real native invitation transport/dedup receipt | docs/product/APPLE_SESSION_NATIVE_SURFACES_V1.md |

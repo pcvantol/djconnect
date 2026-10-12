@@ -1521,3 +1521,18 @@ keeping the core local/Home Assistant experience useful without payment.
 - [ ] Hardware bundle SKU planning.
 - [ ] White-label hardware provisioning process.
 - [ ] App Store/TestFlight production-readiness scope.
+
+## Session entry, lifecycle, history and native surfaces — documentary refinement
+
+Assignment `DJC-SESSION-ENTRY-LIFECYCLE-HISTORY-DESIGN-V1-20261012`, including `DJC-APPLE-SESSION-NATIVE-SURFACES-DESIGN-V1-20261012`. [Owning A/B/C pickup](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6131363097). Design source is locally recorded; protected documentary delivery and its separate Finalization remain pending. Product implementation is **Planned**, not dispatched.
+
+| Existing family / bounded subset | Canonical design and acceptance | Status |
+| --- | --- | --- |
+| Existing Session entry/lifecycle: readiness and typed start/end/replace, Ask DJ text/voice, pause recovery | [Entry/lifecycle](docs/product/SESSION_ENTRY_LIFECYCLE_EXPERIENCE_V1.md); exact-target confirmation, no hidden playback, common Core authority; separate Apple lifecycle qualification | Planned |
+| Existing historical Session Timeline: owner list/header summary | [History summary](docs/product/SESSION_HISTORY_SUMMARY_V1.md); accepted observation/publication totals, time-weighted symbolic Mood including pauses, coverage/null/revision and deletion rights | Planned |
+| Existing Native Surface Integration: projection rights/state, typed navigation, widget/Activity/Island adoption, quiet transport, joint acceptance | [Apple surfaces](docs/product/APPLE_SESSION_NATIVE_SURFACES_V1.md); neutral fallback, purpose-specific cache/OS rights and exact subject lifecycle | Planned |
+| Independent Session Continuation: consent/policy, category-only invitation transport and joint acceptance | [Apple surfaces](docs/product/APPLE_SESSION_NATIVE_SURFACES_V1.md#separate-session-continuation); temporary opportunities, no fact/track spam, opt-in/dedup/revalidation | Planned |
+
+The live [JSON-DAG](docs/roadmap/v1/djconnect-platform-v1.json) records unique bounded subsets under existing parents, with generated dependencies/lanes/open-work/diagrams. Native lifecycle invocation reuses `PROJ::QUAL::CMB12-LIFECYCLE`; richer controls reference `SLICE::APPLE::DJ-PRESENCE-CONTROL`, `FORECAST::APPLE::VIEW` and `AMBIENT::APPLE::JOIN` without duplicate assignments. Useful neutral navigation does not wait for the full private history summary, future intelligence, Interactive DJMoments, Watch redesign or physical Cast/LG delivery. Continuation is separate from native surface synchronization.
+
+Keep historical snapshots and CMB-12 evidence unchanged. Delivered Presence, artwork, Album, Forecast and Ambient Core slices remain closed; narrative Stage 4 remains partial. Documentary completion does not complete those broader families or establish native, installed, APNs or hardware acceptance. No runtime/Swift/APNs/install/signing/workflow/runner/deployment work is selected.

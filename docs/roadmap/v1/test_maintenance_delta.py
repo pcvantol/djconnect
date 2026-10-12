@@ -33,6 +33,66 @@ class MaintenanceTests(unittest.TestCase):
         for name, body in render(self.p).items():
             self.assertEqual((ROOT / name).read_text(), body)
 
+    def test_documentary_v7_preserves_v6_and_no_product_dispatch(self):
+        import json
+
+        d = self.p["planning_maintenance"]
+        receipt = d["documentary_receipt"]
+        prior = (ROOT / receipt["previous_delta"]).read_bytes()
+        self.assertEqual(hashlib.sha256(prior).hexdigest(), receipt["previous_delta_sha256"])
+        previous = json.loads(prior)
+        old = copy.deepcopy(self.p)
+        old["planning_maintenance"] = previous
+        self.assertEqual(validate(old), [])
+        for key in (
+            "implementation_receipt",
+            "correction_receipts",
+            "narrative_receipt",
+            "forecast_receipt",
+            "ambient_receipt",
+        ):
+            self.assertEqual(d[key], previous[key])
+        new = [n for n in d["nodes"] if n["id"] not in {x["id"] for x in previous["nodes"]}]
+        self.assertEqual(len(new), 15)
+        self.assertTrue(
+            all((n["status"], n["assignment_status"]) == ("Planned", "NOT_ISSUED") for n in new)
+        )
+
+    def test_documentary_scope_and_unproved_publication_rejected(self):
+        mutations = [
+            lambda d: d["documentary_receipt"].update(product_implementation="Completed"),
+            lambda d: d["documentary_receipt"].update(native="PASS"),
+            lambda d: d["documentary_receipt"].update(c_url="wrong"),
+            lambda d: d["documentary_receipt"].update(
+                phase="SOURCE_PROTECTED_MERGED", source_delivery="PROTECTED_MERGED"
+            ),
+            lambda d: next(n for n in d["nodes"] if n["id"] == "SURFACE::APPLE::ADOPTION").update(
+                status="Completed", assignment_status="CORE_DELIVERED"
+            ),
+        ]
+        for mutate in mutations:
+            p = copy.deepcopy(self.p)
+            mutate(p["planning_maintenance"])
+            self.assertTrue(validate(p))
+
+    def test_neutral_navigation_has_no_unrelated_prerequisite(self):
+        d = self.p["planning_maintenance"]
+        forbidden = {
+            "HISTORY::CORE::SUMMARY",
+            "HISTORY::APPLE::SUMMARY",
+            "CONTINUATION::CORE::POLICY",
+            "CONTINUATION::APPLE::ALERT-TRANSPORT",
+        }
+        incoming = [
+            e
+            for e in d["edges"]
+            if e["consumer"] in {"SURFACE::APPLE::NAVIGATION", "ENTRY::APPLE::NAVIGATION"}
+        ]
+        self.assertFalse(any(e["producer"] in forbidden for e in incoming))
+        for n in d["nodes"]:
+            if n["id"].startswith("CONTINUATION::"):
+                self.assertEqual(n["parent_reference"], "PROJ::ROADMAP::CONTINUATION")
+
     def test_generated_local_links_resolve(self):
         for name, body in render(self.p).items():
             for link in re.findall(r"\]\(([^)]+)\)", body):

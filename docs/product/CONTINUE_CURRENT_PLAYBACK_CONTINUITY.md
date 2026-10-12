@@ -359,3 +359,8 @@ autonomous replanning; persistent Playback Instance Identity or Performance
 Memory; multi-device and cross-device continuity; audience adaptation; external
 knowledge; Concert, History and Discovery Moments; and renderer-specific
 continuity behaviour remain deferred.
+
+## Planned Session entry, history and native-surface refinement
+
+The combined documentary decision `DJC-SESSION-ENTRY-LIFECYCLE-HISTORY-DESIGN-V1-20261012` (including Apple addendum C) is defined in [Session Entry Lifecycle Experience V1](SESSION_ENTRY_LIFECYCLE_EXPERIENCE_V1.md), [Session History Summary V1](SESSION_HISTORY_SUMMARY_V1.md), [Apple Session Native Surfaces V1](APPLE_SESSION_NATIVE_SURFACES_V1.md).
+It preserves this contract and its delivered capabilities. New lifecycle replacement/intent operations, qualified history aggregates and passive native-surface rights remain **Planned**, with separate producer/consumer acceptance. Navigation is read-only; foreground owner display rights do not grant widget storage or category-invitation content. No Runtime, provider or consumer implementation is introduced by the design.

@@ -33,23 +33,30 @@ def validate_delta(plan: dict[str, Any]) -> list[str]:
         "djconnect-federated-planning-delta/4",
         "djconnect-federated-planning-delta/5",
         "djconnect-federated-planning-delta/6",
+        "djconnect-federated-planning-delta/7",
     }
     artwork = version in {
         "djconnect-federated-planning-delta/3",
         "djconnect-federated-planning-delta/4",
         "djconnect-federated-planning-delta/5",
         "djconnect-federated-planning-delta/6",
+        "djconnect-federated-planning-delta/7",
     }
     narrative = version in {
         "djconnect-federated-planning-delta/4",
         "djconnect-federated-planning-delta/5",
         "djconnect-federated-planning-delta/6",
+        "djconnect-federated-planning-delta/7",
     }
     forecast = version in {
         "djconnect-federated-planning-delta/5",
         "djconnect-federated-planning-delta/6",
+        "djconnect-federated-planning-delta/7",
     }
-    ambient = version == "djconnect-federated-planning-delta/6"
+    ambient = version in {
+        "djconnect-federated-planning-delta/6",
+        "djconnect-federated-planning-delta/7",
+    }
     ambient_delivered = False
     forecast_delivered = False
     check(
@@ -61,6 +68,7 @@ def validate_delta(plan: dict[str, Any]) -> list[str]:
             "djconnect-federated-planning-delta/4",
             "djconnect-federated-planning-delta/5",
             "djconnect-federated-planning-delta/6",
+            "djconnect-federated-planning-delta/7",
         },
         "unsupported schema",
     )
@@ -387,7 +395,13 @@ def validate_delta(plan: dict[str, Any]) -> list[str]:
     )
     check(
         d.get("scope")
-        == ("SELECTED_CORE_IMPLEMENTATION_DELTA" if implementation else "DOCUMENTARY_DELTA_ONLY"),
+        == (
+            "DOCUMENTARY_DELTA_ONLY"
+            if version == "djconnect-federated-planning-delta/7"
+            else "SELECTED_CORE_IMPLEMENTATION_DELTA"
+            if implementation
+            else "DOCUMENTARY_DELTA_ONLY"
+        ),
         "invalid scope",
     )
     for field in ["nodes", "edges", "document_references"]:
@@ -395,6 +409,78 @@ def validate_delta(plan: dict[str, Any]) -> list[str]:
             isinstance(d.get(field), list) and all(isinstance(x, dict) for x in d.get(field, [])),
             "invalid " + field,
         )
+    if version == "djconnect-federated-planning-delta/7":
+        r = d.get("documentary_receipt", {})
+        check(
+            r.get("assignment_id") == "DJC-SESSION-ENTRY-LIFECYCLE-HISTORY-DESIGN-V1-20261012"
+            and r.get("addendum_id") == "DJC-APPLE-SESSION-NATIVE-SURFACES-DESIGN-V1-20261012"
+            and r.get("selection_url")
+            == "https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6131363097"
+            and r.get("ab_url")
+            == "https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6131072407"
+            and r.get("c_url")
+            == "https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6131317807",
+            "combined documentary owner binding missing",
+        )
+        check(
+            r.get("base_sha") == "e8bb982f148ac7a22b6991ee6f54d10188849ee0"
+            and r.get("branch") == "codex/session-entry-lifecycle-history-design-v1"
+            and r.get("previous_delta")
+            == "history/20261012/ambient-convergence-maintenance-v6.json"
+            and bool(re.fullmatch(r"[a-f0-9]{64}", str(r.get("previous_delta_sha256", "")))),
+            "documentary predecessor/admission binding missing",
+        )
+        check(
+            r.get("product_implementation") == "Planned"
+            and all(r.get(k) == "NOT_RUN" for k in ("native", "installed", "hardware")),
+            "documentary product overclaim",
+        )
+        check(
+            r.get("phase") in {"LOCAL_DOCUMENTARY_QUALIFICATION", "SOURCE_PROTECTED_MERGED"},
+            "invalid documentary delivery phase",
+        )
+        complete = r.get("phase") == "SOURCE_PROTECTED_MERGED"
+        check(
+            r.get("source_delivery") == ("PROTECTED_MERGED" if complete else "UNPUBLISHED"),
+            "unqualified documentary delivery",
+        )
+        if complete:
+            check(
+                bool(re.fullmatch(r"[a-f0-9]{40}", str(r.get("source_main_sha", ""))))
+                and bool(
+                    re.fullmatch(
+                        r"https://github.com/pcvantol/djconnect/pull/[0-9]+",
+                        str(r.get("source_pr", "")),
+                    )
+                )
+                and r.get("source_review") == "PASS"
+                and r.get("required_checks") == "PASS"
+                and r.get("protected_merge") is True
+                and all(
+                    bool(re.fullmatch(r"[a-f0-9]{64}", str(r.get(k, ""))))
+                    for k in ("archive_sha256", "formal_evidence_sha256")
+                ),
+                "documentary protected delivery evidence missing",
+            )
+        for n in d.get("nodes", []):
+            if str(n.get("id", "")).startswith(
+                ("ENTRY::", "HISTORY::", "SURFACE::", "CONTINUATION::")
+            ):
+                check(
+                    n.get("status") == "Planned" and n.get("assignment_status") == "NOT_ISSUED",
+                    "documentary subset must remain Planned",
+                )
+                check(
+                    n.get("parent_reference")
+                    in {
+                        "PROJ::ROADMAP::LIFECYCLE",
+                        "PROJ::ROADMAP::P2-SESSION",
+                        "PROJ::QUAL::CMB12-LIFECYCLE",
+                        "CMB-12",
+                        "PROJ::ROADMAP::CONTINUATION",
+                    },
+                    "documentary existing parent missing",
+                )
     if errors:
         return errors
     inherited = {n["id"]: n for n in plan["nodes"]}
@@ -507,7 +593,10 @@ def validate_delta(plan: dict[str, Any]) -> list[str]:
         check(
             n.get("source_ids")
             == (
-                ["OWNER-AMBIENT-CONVERGENCE-20261012"]
+                ["OWNER-SESSION-ENTRY-ABC-20261012"]
+                if version == "djconnect-federated-planning-delta/7"
+                and nid.startswith(("ENTRY::", "HISTORY::", "SURFACE::", "CONTINUATION::"))
+                else ["OWNER-AMBIENT-CONVERGENCE-20261012"]
                 if ambient and nid.startswith("AMBIENT::")
                 else ["OWNER-SESSION-FORECAST-20261012"]
                 if forecast and nid.startswith("FORECAST::")
@@ -579,7 +668,10 @@ def validate_delta(plan: dict[str, Any]) -> list[str]:
         check(
             e.get("source_ids")
             == (
-                ["OWNER-AMBIENT-CONVERGENCE-20261012"]
+                ["OWNER-SESSION-ENTRY-ABC-20261012"]
+                if version == "djconnect-federated-planning-delta/7"
+                and str(e.get("id", "")).startswith("ENTRY-ABC-")
+                else ["OWNER-AMBIENT-CONVERGENCE-20261012"]
                 if ambient and str(e.get("id", "")).startswith("AMBIENT-")
                 else ["OWNER-SESSION-FORECAST-20261012"]
                 if forecast and str(e.get("id", "")).startswith("FORECAST-")
@@ -627,12 +719,14 @@ def render_delta(p):
         "djconnect-federated-planning-delta/4",
         "djconnect-federated-planning-delta/5",
         "djconnect-federated-planning-delta/6",
+        "djconnect-federated-planning-delta/7",
     }
     artwork = d.get("schema_version") in {
         "djconnect-federated-planning-delta/3",
         "djconnect-federated-planning-delta/4",
         "djconnect-federated-planning-delta/5",
         "djconnect-federated-planning-delta/6",
+        "djconnect-federated-planning-delta/7",
     }
     delivery = d.get("implementation_receipt", {}).get("source_delivery", "UNPUBLISHED")
     intro = (
@@ -640,7 +734,9 @@ def render_delta(p):
         "The original3October snapshot/audit/source pins and projections are immutable history in [history/20261003](history/20261003/README.md). "
         "Only this bounded delta is current here; inherited premerge statuses are not current blockers. "
         + (
-            "Only the selected existing Core writer is admitted by implementation receipt; no automatic dispatch, second writer or native/installed/hardware acceptance.\n\n"
+            "Current admission is documentary only, using the existing Core writer; all new product subsets remain Planned/NOT_ISSUED. Closed implementation receipts are retained as evidence, not new admission.\n\n"
+            if d.get("schema_version") == "djconnect-federated-planning-delta/7"
+            else "Only the selected existing Core writer is admitted by implementation receipt; no automatic dispatch, second writer or native/installed/hardware acceptance.\n\n"
             if current
             else "No portfolio-wide refresh, writer reservation, product dispatch or runtime acceptance is claimed.\n\n"
         )
@@ -651,24 +747,32 @@ def render_delta(p):
         "djconnect-federated-planning-delta/4",
         "djconnect-federated-planning-delta/5",
         "djconnect-federated-planning-delta/6",
+        "djconnect-federated-planning-delta/7",
     }:
         r = d["narrative_receipt"]
         intro += f"Selected bounded Album→Track continuity: [{r['assignment_id']}]({r['selection_url']}); source {r['source_delivery']}, Stage4 PARTIAL, joint/native/installed/hardware acceptance open. Artwork1152/1153 is terminal at admitted0f37; prior version3 is preserved in history/20261012. No automatic consumer dispatch or new Core writer.\n\n"
     if d.get("schema_version") in {
         "djconnect-federated-planning-delta/5",
         "djconnect-federated-planning-delta/6",
+        "djconnect-federated-planning-delta/7",
     }:
         f = d["forecast_receipt"]
         intro += f"Selected Session Forecast: [{f['assignment_id']}]({f['selection_url']}); existing Direction parent, source {f['source_delivery']}, current-only qualified artist imagery, native/visible/upcoming/joint acceptance open. Album1154/1155 terminal before this writer admission; previous version4 preserved in history/20261012. Early contract fixtures allow independently admitted consumer source integration; no automatic dispatch.\n\n"
-    if d.get("schema_version") == "djconnect-federated-planning-delta/6":
+    if d.get("schema_version") in {
+        "djconnect-federated-planning-delta/6",
+        "djconnect-federated-planning-delta/7",
+    }:
         a = d["ambient_receipt"]
         intro += f"Selected ambient convergence: [{a['assignment_id']}]({a['selection_url']}); source {a['source_delivery']}, qualified Session reuse and passive producer retirement; native/joint acceptance open. Forecast1156/1157 stays closed; version5 preserved in history/20261012. No new source/model/consumer dispatch.\n\n"
+    if d.get("schema_version") == "djconnect-federated-planning-delta/7":
+        r = d["documentary_receipt"]
+        intro += f"Combined Session entry/history/native-surface documentary design: [{r['assignment_id']}]({r['selection_url']}); documentation {r['source_delivery']}. All new product subsets remain Planned/NOT_ISSUED; Continuation is independent and rich passive rights are not inherited. Ambient1158/1159 remains terminal; version6 is preserved in history/20261012. No new product writer or native/APNs/installed/hardware PASS.\n\n"
     out = {}
     out["README.md"] = (
         "# Federated roadmap — versioned maintenance\n\n"
         + intro
         + f"[Owner decision]({d['decision_url']}); documentary design date {d['design_date']}.\n\n"
-        + "Presence remains Planned. Mood, Persona and presence are independent. Corepolicy + Applecontrol + local/static VibeCast receipts form joint acceptance. Richer narrative is later, not a v1 gate.\n\n"
+        + "Joint presence acceptance remains Planned; delivered Core policy remains closed. Mood, Persona and presence are independent. Corepolicy + Applecontrol + local/static VibeCast receipts form joint acceptance. Richer narrative is later, not a v1 gate.\n\n"
         + "[Dependencies](DEPENDENCIES.md), [lanes](LANES.md), [open work](OPEN_WORK.md), [handoffs](HANDOFFS.md), [catalogue](CATALOGUE.md), [source bindings](SOURCES.md) and diagrams are generated by the same maintenance route.\n\n"
         + "Run `python3 validate_snapshot.py djconnect-platform-v1.json --check-rendered` and `python3 -m unittest test_snapshot test_maintenance_delta`. Historical complete-delivery flags concern only the frozen snapshot, never presence product completion.\n"
     )

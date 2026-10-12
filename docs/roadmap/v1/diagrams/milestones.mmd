@@ -3,8 +3,14 @@ flowchart LR
   n226["Verify Session-only proactive content and retained Ask DJ history"]
   n225["Retire passive Ask DJ producer; reuse qualified Session Moments"]
   n227["Joint ambient convergence acceptance"]
+  n241["Continuation invitation native transport"]
+  n240["Independent opportunity/consent policy"]
+  n242["Joint Continuation invitation acceptance"]
   n215["Native Discovery artwork and lifecycle readback"]
   n214["Bounded existing Discovery artwork continuity"]
+  n232["Native exact lifecycle invocation integration"]
+  n229["Common text/voice lifecycle semantics"]
+  n228["Core entry/readiness and exact lifecycle operations"]
   n220["Native Flow | Forecast with qualified imagery"]
   n218["Session Forecast and artist imagery owner contract"]
   n219["Mutable paired Forecast Core projection/lifecycle"]
@@ -12,7 +18,10 @@ flowchart LR
   n222["Joint Forecast product acceptance"]
   n221["Shared local/static additive compatibility and safe fallback"]
   n223["Visible ambient Forecast composition/adoption"]
+  n234["Native history list/header summary adoption"]
+  n233["Owner history summary aggregation contract"]
   n207["Adjustable DJ presence"]
+  n70["Apple authorized Session lifecycle invocation"]
   n23["Session Direction Projection"]
   n44["Narrative, Lyrics and Discover evolution"]
   n212["Joint presence v1 acceptance"]
@@ -23,6 +32,11 @@ flowchart LR
   n213["Qualified active Session Mood owner/order subset"]
   n208["Presence policy and owner contract"]
   n209["Actual proactive presence regulation"]
+  n237["Session widget/Activity/Island adoption"]
+  n236["Typed native Session navigation"]
+  n238["Quiet surface update transport qualification"]
+  n235["Native surface rights/state projection"]
+  n239["Joint selected native surface acceptance"]
   n208 -->|implementation_contract / implementation / start| n209
   n208 -->|implementation_contract / implementation / start| n210
   n209 -->|integration_acceptance / integration_acceptance / completion| n211
@@ -49,3 +63,15 @@ flowchart LR
   n225 -->|implementation_contract / implementation / start| n226
   n225 -->|implementation_contract / integration_acceptance / completion| n227
   n226 -->|implementation_contract / integration_acceptance / completion| n227
+  n228 -->|implementation_contract / implementation / start| n229
+  n228 -->|implementation_contract / implementation / start| n232
+  n70 -->|implementation_contract / implementation / start| n232
+  n233 -->|implementation_contract / implementation / start| n234
+  n235 -->|implementation_contract / implementation / start| n237
+  n236 -->|implementation_contract / implementation / start| n237
+  n235 -->|implementation_contract / implementation / start| n238
+  n237 -->|implementation_contract / integration_acceptance / completion| n239
+  n238 -->|implementation_contract / integration_acceptance / completion| n239
+  n240 -->|implementation_contract / implementation / start| n241
+  n240 -->|implementation_contract / integration_acceptance / completion| n242
+  n241 -->|implementation_contract / integration_acceptance / completion| n242
