@@ -475,6 +475,60 @@ async def main():
             "uri": album_item["uri"],
             "provider_boundary": "EXPLICIT_FIXTURE_PLAY_ONLY",
         }
+        exported_response = await client.post(
+            "/api/djconnect/v1/music_dna/export", json=ident, headers=headers
+        )
+        exported = await exported_response.json()
+        assert exported_response.status == 200
+        assert "asset_id" not in json.dumps(exported) and "image_proxy" not in json.dumps(exported)
+        legacy = deepcopy(exported["profile"])
+        legacy["profile"]["listening_profile"] = {
+            "top_tracks_by_range": {"short_term": [deepcopy(_normalize_profile_track(TRACK))]},
+            "last_profile_refresh": __import__("datetime")
+            .datetime.now(__import__("datetime").timezone.utc)
+            .isoformat(),
+            "artwork_reference_version": 1,
+        }
+        legacy["profile"]["listening_profile"]["top_tracks_by_range"]["short_term"][0][
+            "image_url"
+        ] = "http://127.0.0.1/forbidden-import"
+        imported = await client.post(
+            "/api/djconnect/v1/music_dna/import", json={**ident, "profile": legacy}, headers=headers
+        )
+        import_body = await imported.json()
+        assert imported.status == 200, import_body
+        assert "asset_id" not in json.dumps(import_body) and "forbidden-import" not in json.dumps(
+            import_body
+        )
+        await rt.memory.async_save()
+        rt.memory = MusicDNAManager(hass)
+        await rt.memory.async_load()
+        rt2.memory = rt.memory
+        prior_calls = len(network.calls)
+        restored = await client.get(
+            "/api/djconnect/v1/music_discovery",
+            params={
+                **ident,
+                "music_dna_key": "profile:artwork-second-profile",
+                "user_id": "untrusted",
+            },
+            headers=headers,
+        )
+        restored_feed = await restored.json()
+        assert restored.status == 200, restored_feed
+        assert restored_feed["music_dna_key"] == "profile:artwork-profile"
+        restored_track = next(
+            i for sec in restored_feed["sections"] for i in sec["items"] if i["kind"] == "track"
+        )
+        assert restored_track.get("image_url") and any(
+            c["path"].endswith("/top/tracks") for c in network.calls[prior_calls:]
+        )
+        restored_image = await client.get(restored_track["image_url"])
+        assert restored_image.status == 200 and await restored_image.read() == assets["a" * 40]
+        image_url = restored_track["image_url"]
+        cases["ordinary_old_store_refresh_no_clear_or_pair"] = "RESTORED_EXACT_ASSET"
+        cases["malicious_import_and_export_no_artwork_grants"] = "STRIPPED"
+        cases["client_dna_key_and_user_id_cannot_cross_profile"] = "CANONICAL_PROFILE"
         # Browser reads the actual headerless HA image route; only HTML is an owned test surface.
         base = str(client.make_url("/")).rstrip("/")
         browser_script = LAB / "decode.mjs"
@@ -485,7 +539,12 @@ async def main():
             "/opt/homebrew/bin/node",
             str(browser_script),
             base,
-            *(base + i["image_url"] for i in items),
+            *(
+                base + i["image_url"]
+                for sec in restored_feed["sections"]
+                for i in sec["items"]
+                if i.get("image_url")
+            ),
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
         )
@@ -511,6 +570,7 @@ async def main():
         assert expired.status == 404
         cases["cleared_grant"] = expired.status
         # Rate-limited cached refresh must not return a cleared feed/image.
+        before_refresh_calls = len(network.calls)
         after = await client.post(
             "/api/djconnect/v1/music_discovery/refresh", json=ident, headers=headers
         )
@@ -521,6 +581,26 @@ async def main():
             for sec in after_json.get("sections", [])
             for i in sec.get("items", [])
         )
+        assert any(c["path"].endswith("/top/tracks") for c in network.calls[before_refresh_calls:])
+        current_key = "profile:artwork-profile"
+        current_memory = rt.memory.data["memories"][current_key]
+        clear_time = (
+            __import__("datetime")
+            .datetime.fromisoformat(current_memory["clear_requested_at"])
+            .timestamp()
+        )
+        refs = [
+            i["artwork"]
+            for rows in current_memory["listening_profile"]["top_tracks_by_range"].values()
+            for i in rows
+            if i.get("artwork")
+        ]
+        assert refs and all(ref["captured_at"] >= clear_time for ref in refs)
+        cases["clear_explicit_refresh_relearns_only_fresh_provider"] = {
+            "new_provider_fetch": True,
+            "new_capture_after_clear": True,
+            "old_grant_status": 404,
+        }
         # Delayed provider publication cannot survive consent ABA or all-clear ABA.
         key = next(k for k in rt.memory.data["memories"] if k.startswith("profile:"))
         original = deepcopy(body["profile"])

@@ -26,6 +26,8 @@ _IMAGE_KEYS = frozenset(
         "artist_image_url",
         "thumbnail_url",
         "artwork_url",
+        "artwork_reference_version",
+        "artwork_recent_reference_version",
     }
 )
 
@@ -280,7 +282,11 @@ class RefreshGuard:
         ):
             return False
         return (
-            getattr(self.runtime, "memory", None) is self.manager
+            (
+                not self.key.startswith("profile:")
+                or self.key == "profile:" + getattr(self.runtime, "profile_context_profile_id", "")
+            )
+            and getattr(self.runtime, "memory", None) is self.manager
             and current is self.record
             and bool(current.get("enabled")) == self.enabled
             and current.get("generation", 0) == self.generation

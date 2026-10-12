@@ -46,6 +46,16 @@ explicitly; historical snapshots, imports and exports do not acquire portable
 artwork grants. Imports strip artwork regardless of supplied provider/expiry;
 normal authorized provider refresh restores old stores with missing references.
 No clear, re-pair, bulk-backfill or new provider/account/scope is required.
+A bounded `artwork_reference_version:1` full-profile marker distinguishes an
+already processed snapshot from an old/imported Store lacking references.
+The normal authorized Discovery read/refresh upgrades an unmarked opt-in snapshot
+through the existing full listening-profile route once. A recent-only refresh
+has its own clock/marker and cannot indefinitely freshen old top-item data.
+Missing source images still mark processing complete and remain placeholders;
+there is no missing-image refresh loop. Import/export strips these markers too.
+Clear preserves opt-in: a later explicit authorized refresh can build fresh
+provider knowledge, with new generation/capture, while every old grant and
+pre-clear in-flight result stays rejected. Opt-out permits no new learning.
 
 Temporary metadata/cover-art caching and deletion of old data follow
 [Spotify terms, sectionIV.3](https://developer.spotify.com/terms) and

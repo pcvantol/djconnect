@@ -481,7 +481,7 @@ class SpotifyBackend:
         if key == "listening_profile:v1":
             key = key + ":" + hashlib.sha256(repr(scope).encode()).hexdigest()
             for old_key in list(cache):
-                if old_key.startswith("listening_profile:v1:") and old_key != key:
+                if old_key == "listening_profile:v1" or (old_key.startswith("listening_profile:v1:") and old_key != key):
                     cache.pop(old_key)
         now = time.monotonic()
         cached = cache.get(key)

@@ -602,7 +602,19 @@ class MusicDNAManager:
             return key
         # Recent-only refresh must not erase authoritative top-item references.
         prior = memory.get("listening_profile") or {}
-        merged = {**prior, **profile} if "top_tracks_by_range" not in profile and "top_artists_by_range" not in profile else profile
+        full_profile = "top_tracks_by_range" in profile or "top_artists_by_range" in profile
+        merged = dict(profile) if full_profile else {**prior, **profile}
+        if full_profile:
+            merged["artwork_reference_version"] = 1
+            fetched = profile.get("fetched_at")
+            if isinstance(fetched, (int, float)) and not isinstance(fetched, bool):
+                merged["last_profile_refresh"] = datetime.fromtimestamp(fetched, timezone.utc).isoformat()
+        else:
+            # A recent-only update cannot indefinitely make top-item snapshots fresh.
+            merged["last_profile_refresh"] = prior.get("last_profile_refresh") or ""
+        if "recent_tracks" in profile:
+            merged["artwork_recent_reference_version"] = 1
+            merged["recent_profile_refresh"] = profile.get("last_profile_refresh") or _now()
         compact = _compact_listening_profile(merged)
         owner = artwork_owner(runtime)
         for value in [*compact.get("recent_tracks", []), *[i for rows in compact.get("top_tracks_by_range", {}).values() for i in rows], *[i for rows in compact.get("top_artists_by_range", {}).values() for i in rows]]:
@@ -669,11 +681,19 @@ class MusicDNAManager:
     ) -> bool:
         """Return whether the stored listening profile is still fresh."""
         profile = await self.async_listening_profile(runtime, payload, user_id=user_id)
+        if profile.get("artwork_reference_version") != 1:
+            return False
         refreshed_at = _parse_timestamp(profile.get("last_profile_refresh"))
         if refreshed_at is None:
             return False
         age = (datetime.now(timezone.utc) - refreshed_at).total_seconds()
         return age < max(60, int(ttl_seconds))
+
+    async def async_recent_profile_is_fresh(self, runtime: Any, payload: dict[str, Any] | None = None, *, user_id: str | None = None, ttl_seconds: int = 3600) -> bool:
+        """Separate recent history freshness from full top-item/source qualification."""
+        profile = await self.async_listening_profile(runtime, payload, user_id=user_id)
+        refreshed = _parse_timestamp(profile.get("recent_profile_refresh"))
+        return bool(profile.get("artwork_recent_reference_version") == 1 and refreshed is not None and (datetime.now(timezone.utc) - refreshed).total_seconds() < max(60, int(ttl_seconds)))
 
     async def async_record_recommendation_play(
         self,
@@ -2149,6 +2169,9 @@ def _compact_listening_profile(profile: dict[str, Any]) -> dict[str, Any]:
     )
     result = {
         "source": "spotify",
+        **({"artwork_reference_version": 1} if type(profile.get("artwork_reference_version")) is int and profile.get("artwork_reference_version") == 1 else {}),
+        **({"artwork_recent_reference_version": 1} if type(profile.get("artwork_recent_reference_version")) is int and profile.get("artwork_recent_reference_version") == 1 else {}),
+        "recent_profile_refresh": _clean_text(profile.get("recent_profile_refresh")),
         "recent_track_ids": _unique_texts(profile.get("recent_track_ids") or [])[:50],
         "recent_artists": _unique_texts(profile.get("recent_artists") or [])[:25],
         "recent_tracks": recent_tracks,

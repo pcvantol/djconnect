@@ -13,7 +13,7 @@
     "success": true,
     "enabled": true,
     "revision": 1,
-    "generated_at": "2026-10-12T06:19:05.188241+00:00",
+    "generated_at": "2026-10-12T06:31:29.222457+00:00",
     "ttl_seconds": 86400,
     "source": "music_dna",
     "music_dna_key": "profile:artwork-profile",
@@ -42,7 +42,7 @@
               "has_artwork"
             ],
             "image_url": "/api/djconnect/v1/image_proxy/disc-<opaque-redacted>",
-            "image_expires_at": 1791786845.188436,
+            "image_expires_at": 1791787589.222636,
             "image_attribution": {
               "provider": "spotify",
               "media_uri": "spotify:album:BBBBBBBBBBBBBBBBBBBBBB",
@@ -74,7 +74,7 @@
               "spotify_top_artists"
             ],
             "image_url": "/api/djconnect/v1/image_proxy/disc-<opaque-redacted>",
-            "image_expires_at": 1791786845.188467,
+            "image_expires_at": 1791787589.22266,
             "image_attribution": {
               "provider": "spotify",
               "media_uri": "spotify:artist:CCCCCCCCCCCCCCCCCCCCCC",
@@ -236,6 +236,56 @@
     },
     {
       "method": "GET",
+      "path": "/v1/me/player/recently-played",
+      "provider_fixture": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/me/top/artists",
+      "provider_fixture": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/me/top/artists",
+      "provider_fixture": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/me/top/artists",
+      "provider_fixture": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/me/top/tracks",
+      "provider_fixture": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/me/top/tracks",
+      "provider_fixture": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/me/top/tracks",
+      "provider_fixture": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/search",
+      "provider_fixture": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/recommendations",
+      "provider_fixture": true
+    },
+    {
+      "method": "GET",
+      "path": "/image/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provider_fixture": true
+    },
+    {
+      "method": "GET",
       "path": "/image/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
       "provider_fixture": true
     },
@@ -267,6 +317,36 @@
     {
       "method": "GET",
       "path": "/v1/me/player/recently-played",
+      "provider_fixture": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/me/top/artists",
+      "provider_fixture": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/me/top/artists",
+      "provider_fixture": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/me/top/artists",
+      "provider_fixture": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/me/top/tracks",
+      "provider_fixture": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/me/top/tracks",
+      "provider_fixture": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/me/top/tracks",
       "provider_fixture": true
     },
     {
@@ -345,6 +425,9 @@
       "uri": "spotify:album:BBBBBBBBBBBBBBBBBBBBBB",
       "provider_boundary": "EXPLICIT_FIXTURE_PLAY_ONLY"
     },
+    "ordinary_old_store_refresh_no_clear_or_pair": "RESTORED_EXACT_ASSET",
+    "malicious_import_and_export_no_artwork_grants": "STRIPPED",
+    "client_dna_key_and_user_id_cannot_cross_profile": "CANONICAL_PROFILE",
     "actual_browser_decode": [
       [
         64,
@@ -360,7 +443,12 @@
     "large": 502,
     "inflight_clear": 404,
     "cleared_grant": 404,
-    "clear_refresh_image_count": 0,
+    "clear_refresh_image_count": 2,
+    "clear_explicit_refresh_relearns_only_fresh_provider": {
+      "new_provider_fetch": true,
+      "new_capture_after_clear": true,
+      "old_grant_status": 404
+    },
     "off_on": "REJECTED_LATE_REFRESH",
     "clear_all": "REJECTED_LATE_REFRESH",
     "actual_provider_consent_aba": 409

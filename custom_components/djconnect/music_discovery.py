@@ -507,7 +507,7 @@ async def _refresh_recently_played_if_stale(
 ) -> bool:
     """Refresh Music DNA from backend recent history without mutating playback."""
     memory = getattr(runtime, "memory", None)
-    freshness = getattr(memory, "async_listening_profile_is_fresh", None)
+    freshness = getattr(memory, "async_recent_profile_is_fresh", None) or getattr(memory, "async_listening_profile_is_fresh", None)
     updater = getattr(memory, "async_update_listening_profile", None)
     if not callable(freshness) or not callable(updater):
         return False
@@ -522,12 +522,20 @@ async def _refresh_recently_played_if_stale(
         guard = await capture_refresh_guard(runtime, payload, user_id=user_id)
         if guard is not None and (not guard.valid() or not guard.persistence_allowed):
             return False
-        result = await run_music_command(
-            hass,
-            runtime,
-            "recently_played",
-            {"limit": 50},
-        )
+        getter = getattr(memory, "async_listening_profile", None)
+        stored = await getter(runtime, payload, user_id=user_id) if callable(getter) else {}
+        if guard is not None and not guard.valid():
+            return False
+        full_refresh = callable(getter) and stored.get("artwork_reference_version") != 1
+        result = await run_music_command(hass, runtime, "listening_profile" if full_refresh else "recently_played", None if full_refresh else {"limit": 50})
+        if full_refresh:
+            if guard is not None and not guard.valid():
+                return False
+            profile = result.get("profile") if isinstance(result, dict) else {}
+            if not isinstance(profile, dict) or not profile:
+                return False
+            await updater(runtime, profile, payload, user_id=user_id, **({"refresh_guard": guard} if guard is not None else {}))
+            return guard is None or guard.valid()
     except Exception as exc:  # noqa: BLE001
         _LOGGER.debug(
             "DJConnect Music Discovery recently played refresh skipped: %s",
