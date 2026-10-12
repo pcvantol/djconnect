@@ -1,17 +1,20 @@
 # DJConnect Product Backlog
 
 
-Current bounded Core correction: `DJC-CORE-DISCOVERY-ARTWORK-CONTINUITY-V1-20261012`
-([owning6117357579](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6117357579)).
-Local implementation/qualification in the existing Core writer; source delivery
-and separate Finalization remain unpublished. Exact provider identities survive
-bounded opt-in Store compaction into authorized Discovery/image delivery. Existing
-`has_artwork` +2 input is restored; no new recommendation family, provider or cost
-route. [Contract](docs/product/DISCOVERY_ARTWORK_CONTINUITY_V1.md) and versioned
-live DAG record the correction. Native/installed/live/hardware acceptance stays
-separate. Presence1150/1151 remains closed. The selected narrative-album follow-up
-is queued only after this correction's protected delivery, Finalization and cleanup;
-no narrative runtime implementation or Stage4 promotion is started here.
+Delivered bounded Core correction: `DJC-CORE-DISCOVERY-ARTWORK-CONTINUITY-V1-20261012`
+([owner6117357579](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6117357579),
+[source #1152](https://github.com/pcvantol/djconnect/pull/1152),
+exact main `c3c1214268ba6fb4eec57888ab6d656042052d1e`). Qualified Core producer/software
+continuity is delivered: exact identities, bounded opt-in Store references,
+normal old-Store refresh and authorized scoped image delivery. Existing
+has_artwork+2 is restored; no new family, provider, ranking or cost route.
+[Contract](docs/product/DISCOVERY_ARTWORK_CONTINUITY_V1.md), actual source
+readback and maintained DAG record Core Completed/CORE_DELIVERED only.
+Native/installed/live/hardware acceptance remains separate and joint OPEN.
+Presence1150/1151 stays closed. Mandatory documentary Finalization is prepared,
+not yet published; its own exact gate, final readback and cleanup still block
+WORKSPACE_READY. The selected narrative-album follow-up waits for that closure
+and its own admission: no narrative runtime or full Stage4 promotion here.
 
 ## Delivered Core source: DJ presence v1 — joint product Planned
 

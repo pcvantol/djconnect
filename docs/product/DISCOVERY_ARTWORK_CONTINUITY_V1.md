@@ -4,8 +4,9 @@ Assignment `DJC-CORE-DISCOVERY-ARTWORK-CONTINUITY-V1-20261012`,
 [selection6117357579](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6117357579).
 Actual base `90fa0463bb40c705c41d4025dc53aee4de514c79`, same Core writer,
 branch `codex/discovery-artwork-continuity-v1`. Presence1150/1151 remains closed.
-Phase: local implementation and qualification; unpublished, not protected delivery.
-Source and separate Finalization publication need their own exact-SHA grants.
+Phase: Core source protected delivered in #1152, exact main `c3c1214268ba6fb4eec57888ab6d656042052d1e`,
+from independently reviewed/owner-authorized `4f36a8111c0dbdc3561cc67d2db0671719eb3179`.
+Separate documentary Finalization is prepared and retains its own exact-SHA gate.
 
 ## Reproduced boundary
 
@@ -208,5 +209,23 @@ Coverage is retained per owning file from a successful full unit run and
 successful real HA run only: new artwork module 93%; existing owning files
 56–83%. This is measured coverage, not full path/native acceptance. Ruff,
 Bandit medium/high and offline schema/reference/uniqueness/acyclicity/render
-checks pass. Protected delivery and separate Finalization remain pending;
-these local receipts grant neither publication nor installation.
+checks pass. These are retained local pre-publication receipts. Source #1152 is now protected
+delivered; separate Finalization remains pending and no installation is authorized.
+
+## Exact protected source and separate Finalization
+
+[Source readback](../../examples/client_contracts/discovery_artwork_v1/source-publication-readback.json)
+records source1152/mainc3c1214268ba6fb4eec57888ab6d656042052d1e,148 safe integration
+files with zero byte differences, exact archive/formal hashes, qualified formal
+evidence and successful main workflows.
+[Formal record](../../examples/client_contracts/discovery_artwork_v1/source-formal-evidence.json)
+is validated against the pinned policy. Definitive Apple87 handoff6120424874
+supersedes the early unpublished pin; no consumer admission/Swift change follows.
+Only Core software correction is delivered. Native attribution/expiry/cache,
+installed, hardware, live Spotify and joint acceptance remain open.
+
+The separate Finalization updates current status, history, roadmap/backlog and
+versioned machine receipt/projected views. Product/package files are unchanged.
+Source delivery is MERGED_UNRECONCILED until that candidate's own exact grant,
+protected merge, exact-main/artifact/formal readback and safe own cleanup.
+The user's selected album-continuity successor remains unstarted pending closure.

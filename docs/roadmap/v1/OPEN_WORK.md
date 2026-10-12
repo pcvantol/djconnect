@@ -10,7 +10,6 @@ Current bounded artwork correction: [owner6117357579](https://github.com/pcvanto
 - `SLICE::APPLE::DJ-PRESENCE-CONTROL` — Planned: Accessible five-language native confirmation; reuse existing Apple writer.
 - `QUAL::VIBECAST::DJ-PRESENCE-COMPAT` — Planned: Core shared-renderer + receiver owner, both existing software builds.
 - `QUAL::PRODUCT::DJ-PRESENCE-V1` — Planned: AND qualified Core policy, native control and both renderer receipts.
-- `CORRECTION::CORE::DISCOVERY-ARTWORK` — In progress: Exact provider identity, opt-in six-hour Store reference, scoped image delivery; no new intelligence family.
 - `CORRECTION::APPLE::DISCOVERY-ARTWORK-ACCEPTANCE` — Planned: Consume pinned producer; native visible attribution, expiry and clear acceptance remain Apple-owned, no new writer/admission.
 
 Core policy/ownercontract status follows the exact implementation receipt. Native/installed/hardware acceptance remains open.

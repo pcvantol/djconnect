@@ -37760,11 +37760,11 @@
         "title": "Bounded existing Discovery artwork continuity",
         "lane": "DJC-CORE",
         "repository": "pcvantol/djconnect",
-        "status": "In progress",
-        "assignment_status": "IN_PROGRESS",
+        "status": "Completed",
+        "assignment_status": "CORE_DELIVERED",
         "scope": "Exact provider identity, opt-in six-hour Store reference, scoped image delivery; no new intelligence family",
         "acceptance_boundary": "Exact provider identity, opt-in six-hour Store reference, scoped image delivery; no new intelligence family",
-        "contract_binding": "docs/product/DISCOVERY_ARTWORK_CONTINUITY_V1.md",
+        "contract_binding": "docs/product/DISCOVERY_ARTWORK_CONTINUITY_V1.md; source1152/mainc3c1214268ba6fb4eec57888ab6d656042052d1e; exact148-file archive/formal receipt",
         "source_ids": [
           "OWNER-DISCOVERY-ARTWORK-20261012"
         ],
@@ -37974,11 +37974,11 @@
     "document_references": [
       {
         "path": "PRODUCT_ROADMAP.md",
-        "sha256": "8bfeab13d750d7400a7f38bb1306c0e2862866152dea7a2d162b61c107145a1c"
+        "sha256": "5c7994ed73c30871d24ed8522f14367551fb90b187afff2fb0a87061a5c8e828"
       },
       {
         "path": "PRODUCT_BACKLOG.md",
-        "sha256": "f15462a47335cda772ed63e1de02fc69cddd9ebc3df043a21f76d5c95f897866"
+        "sha256": "2a251fb2fa4bc0ca23eb2286afb08e752d0e17d0ebdd894e2da6bdbda01a6a7d"
       },
       {
         "path": "docs/product/DJ_PRESENCE_V1.md",
@@ -38010,7 +38010,7 @@
       },
       {
         "path": "docs/product/DISCOVERY_ARTWORK_CONTINUITY_V1.md",
-        "sha256": "19564fd69b45cffe167579d048ad5c9106b818943e7966f4e91dcd484017d6ce"
+        "sha256": "66afc37ff6b71b0dacffe6e340ccde274bd3f0f7354155920ebd327fd822ed98"
       },
       {
         "path": "API_CONTRACT.md",
@@ -38048,14 +38048,29 @@
       {
         "assignment_id": "DJC-CORE-DISCOVERY-ARTWORK-CONTINUITY-V1-20261012",
         "selection_url": "https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6117357579",
-        "phase": "LOCAL_IMPLEMENTATION_AND_QUALIFICATION",
-        "source_delivery": "UNPUBLISHED",
+        "phase": "SOURCE_PROTECTED_MERGED",
+        "source_delivery": "PROTECTED_MERGED",
         "native": "NOT_RUN",
         "installed": "NOT_RUN",
         "live_provider": "NOT_RUN",
         "joint_product_acceptance": "OPEN",
         "previous_delta": "history/20261012/presence-implementation-maintenance-v2.json",
-        "previous_delta_sha256": "c1178831f694ca9c0c2407a07150d0976d51d1d88a177534e86b29ed562057a6"
+        "previous_delta_sha256": "c1178831f694ca9c0c2407a07150d0976d51d1d88a177534e86b29ed562057a6",
+        "source_main_sha": "c3c1214268ba6fb4eec57888ab6d656042052d1e",
+        "source_candidate": "4f36a8111c0dbdc3561cc67d2db0671719eb3179",
+        "source_pr": "https://github.com/pcvantol/djconnect/pull/1152",
+        "source_review": "PASS",
+        "required_checks": "PASS",
+        "protected_merge": true,
+        "archive_sha256": "be8ac59a1f47084bfd8d9420f0e778b91141ab5c8fe7b3606298dfac4d1f2fc9",
+        "formal_evidence_sha256": "5388346e4b91f53a438d3d4cc4a40e7823446d9ffbab22a53dd2af7a27eff53b",
+        "formal_integrity": "e7a7e56704c0c10b229ef12b3cc35faa04447d2a0455021224bd7f21536a1315",
+        "main_validate_run": 38222034662,
+        "artifact_run": 38222257509,
+        "formal_run": 38222257733,
+        "apple_handoff": "https://github.com/pcvantol/djconnect-app/issues/87#issuecomment-6120424874",
+        "finalization": "PREPARED_SEPARATE_EXACT_GATE",
+        "hardware": "NOT_RUN"
       }
     ]
   }

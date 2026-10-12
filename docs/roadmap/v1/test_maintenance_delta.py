@@ -139,7 +139,7 @@ class MaintenanceTests(unittest.TestCase):
         for mutate in (
             lambda x: x["correction_receipts"][0].update(selection_url="wrong"),
             lambda x: x["correction_receipts"][0].update(native="PASS"),
-            lambda x: x["correction_receipts"][0].update(phase="SOURCE_PROTECTED_MERGED", source_delivery="PROTECTED_MERGED"),
+            lambda x: x["correction_receipts"][0].update(phase="SOURCE_PROTECTED_MERGED", source_delivery="PROTECTED_MERGED", source_main_sha=""),
             lambda x: x["nodes"][-1].update(status="In progress", assignment_status="IN_PROGRESS"),
         ):
             changed = copy.deepcopy(self.p)
