@@ -34,8 +34,8 @@ python3 docs/roadmap/v1/validate_snapshot.py docs/roadmap/v1/djconnect-platform-
 
 Do not edit only generated Markdown or change the archived historical bytes.
 Future maintenance needs its own owner decision, bounded provenance and review.
-The presence design's policy budgets/default, actual write/readback contract and
-product/native/browser/installed/hardware qualification remain future work.
+Core policy/default and ownercontract plus isolated HA/browser source qualification
+are delivered through #1150; joint/native/installed/hardware qualification remains open.
 
 ## Selected Core implementation delta/2
 
@@ -46,5 +46,5 @@ policy nodes. The original design delta is retained at
 It does not rewrite the original3October JSON/audit/projections. Joint product
 and native consumer nodes remain Planned; no automatic dispatch or new writer.
 Update the primary JSON and reference hashes, then use the same renderer and
-validator. Never update generated Markdown alone. Publication status cannot be
-advanced without a separately implemented exact-receipt validation boundary.
+validator. Never update generated Markdown alone. Protected source status advances only with exact main/PR/review/check/artifact
+receipts validated by the existing delta/2 boundary; it does not close Finalization.

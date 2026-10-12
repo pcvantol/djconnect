@@ -1,0 +1,21 @@
+{
+  "source_main_sha": "b5c25f7c8098ce805bf4cab94a887c8590f9717f",
+  "source_candidate": "0a9ea74b83c94035086b50db6a4a1a6338866eca",
+  "source_pr": "https://github.com/pcvantol/djconnect/pull/1150",
+  "source_review": "PASS",
+  "required_checks": "PASS",
+  "protected_merge": true,
+  "archive_sha256": "2896a8172946c52760d3d00df29949dd0fcbb55cc0721451255a4fed1b0477db",
+  "formal_evidence_sha256": "6840048df8d1f77ce2cc66d465ab0f5aefec0063b452e5785dbc06b8aa30dd63",
+  "formal_integrity": "4e935d24231fcaf5f09c302f1def92a4524e83764140e0dbb79f9866b6d0092b",
+  "safe_regular_integration_files": 147,
+  "integration_mismatches": [],
+  "formal_validation": "PASS",
+  "source_tree": "1e056b8431c21ed34241b1db4cfda6cc46577422",
+  "main_validate_run": 38163614758,
+  "artifact_run": 38163783121,
+  "formal_run": 38163783284,
+  "source_tracked_files": 1952,
+  "source_candidate_tree": "1e056b8431c21ed34241b1db4cfda6cc46577422",
+  "source_candidate_main_tree_equal": true
+}

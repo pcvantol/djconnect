@@ -1,14 +1,15 @@
 # DJConnect Product Roadmap
 
-## Current Core candidate: DJ presence v1 — joint product Planned
+## Delivered Core source: DJ presence v1 — joint product Planned
 
 [Owner decision6110375785](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6110375785)
 authorizes documentary integration `DJC-DJ-PRESENCE-ROADMAP-DESIGN-V1-20261011`.
 Product `DJC-DJ-PRESENCE-V1` stays **Planned** until joint native acceptance.
 The separately selected `DJC-CORE-DJ-PRESENCE-V1-20261011` is admitted on the
-existing Core writer: local implementation/qualification, no automatic dispatch.
+existing Core writer: source #1150 protected merged and publication qualified;
+separate Finalization pending, no automatic dispatch.
 [Policy](docs/product/DJ_PRESENCE_CORE_POLICY_V1.md) and
-[ownercontract](docs/product/DJ_PRESENCE_OWNER_CONTRACT_V1.md) pin the candidate.
+[ownercontract](docs/product/DJ_PRESENCE_OWNER_CONTRACT_V1.md) pin the delivered producer contract.
 [Canonical design](docs/product/DJ_PRESENCE_V1.md) separates Mood (atmosphere),
 Persona (delivery) and DJ presence (proactive space/dosing). Five anchor levels:
 Alleen muziek, Af en toe, Gebalanceerd, Praatgraag, Presentator. Core owns actual
@@ -21,7 +22,7 @@ actual writer/resource/effect admission. DoD: qualified Core policy AND native
 Apple control AND both renderer receipts, same-session independence, off/in-flight/
 no-catch-up semantics, preserved Ask DJ/privacy/history and exact candidate joins.
 The A–E matrix remains the joint specification. Core software qualifications
-are candidate evidence; native Apple and installed/hardware receipts remain open.
+are source-qualified evidence; native Apple and installed/hardware receipts remain open.
 Pinned early contract integration need not wait for every Core Finalization doc.
 
 Mood delivery1146/1147 is a soft selection predecessor and supplies only its
@@ -32,7 +33,13 @@ Core runtime implementation is now selected independently. Native UI, new
 provider/model/TTS and installation are not admitted by this Core assignment.
 The versioned [roadmap maintenance delta](docs/roadmap/v1/README.md) preserves
 original3October freeze/audit/pins plus the original documentary delta. Only
-Core contract/policy nodes are In progress; joint/native nodes remain Planned.
+Core contract/policy nodes are Completed; joint/native nodes remain Planned.
+
+[Presence Core acceptance](docs/verification/DJ_PRESENCE_V1_ACCEPTANCE.md),
+[source #1150](https://github.com/pcvantol/djconnect/pull/1150), exact main `b5c25f7c8098ce805bf4cab94a887c8590f9717f` and
+[separate Finalization](docs/history/prompts/2026-10-11-dj-presence-core-finalization.md)
+record measured0/2/6/10/16 levels, paired auth, off/in-flight, privacy, renderer
+and archive/formal qualification. Core source is delivered; joint product is open.
 
 Completed bounded Core producer: `DJC-CORE-ACTIVE-SESSION-MOOD-V1-20261011`,
 [protected source #1146](https://github.com/pcvantol/djconnect/pull/1146) merged as
