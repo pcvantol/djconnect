@@ -2882,6 +2882,35 @@ class DJConnectSessionPresenceView(_DJConnectSessionView):
         return self.json(result, status_code=status)
 
 
+class DJConnectForecastImageView(_DJConnectSessionView):
+    url = "/api/djconnect/v1/session/forecast/art/{session_id}/{asset_id}"
+    name = "api:djconnect:session:forecast:art"
+
+    async def get(self, request, session_id: str, asset_id: str):
+        from .session_runtime import session_runtime_manager
+        image = await session_runtime_manager(request.app["hass"]).async_forecast_image(
+            session_id=session_id, asset_id=asset_id)
+        if image is None:
+            return self.json({"success": False, "error": "forecast_art_not_available"}, status_code=404)
+        return web.Response(body=image[0], content_type=image[1], headers={
+            "Cache-Control": "no-store", "Referrer-Policy": "no-referrer", "X-Content-Type-Options": "nosniff"})
+
+
+class DJConnectSessionForecastView(_DJConnectSessionView):
+    url = "/api/djconnect/v1/session/forecast/{session_id}"
+    name = "api:djconnect:session:forecast"
+
+    async def get(self, request, session_id: str):
+        from .session_forecast_transport import async_handle_forecast
+        payload = dict(request.query)
+        if len(request.query) != len(payload) or payload.get("contract_version") != "1":
+            return self.json({"success": False, "error": "invalid_request"}, status_code=400)
+        payload["contract_version"] = 1
+        payload["session_id"] = session_id
+        result, status = await async_handle_forecast(request.app["hass"], payload, headers=request.headers)
+        return self.json(result, status_code=status)
+
+
 class DJConnectTransportCapabilitiesView(HomeAssistantView):
     """Expose the implemented Broadcast transport contract over HTTP."""
 
@@ -2893,6 +2922,7 @@ class DJConnectTransportCapabilitiesView(HomeAssistantView):
         from .capability_contract import _platform_capabilities, _contract_versions
         from .session_mood import capability as mood_capability
         from .session_presence import capability as presence_capability
+        from .session_forecast import capability as forecast_capability
         return self.json(
             {
                 "success": True,
@@ -2904,6 +2934,7 @@ class DJConnectTransportCapabilitiesView(HomeAssistantView):
                 "session_broadcast": session_broadcast_transport_capabilities(),
                 "active_session_mood": mood_capability(),
                 "active_session_presence": presence_capability(),
+                "session_forecast": forecast_capability(),
             }
         )
 

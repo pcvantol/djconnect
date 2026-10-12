@@ -1,5 +1,17 @@
 # DJ Intelligence Maturity Model
 
+## Selected bounded Session Forecast v1
+
+[Session Forecast](SESSION_FORECAST_V1.md) refines the existing Direction Projection
+under DJC-CORE-SESSION-FORECAST-V1-20261012. Local paired Core implementation and
+current-artist imagery qualification are in progress, not yet protected delivered.
+One existing Planner provides closed semantic intentions, existing authored expression
+provides five-language Persona text, Runtime/Broadcast owns mutable lifecycle. Reads
+make no plans/lookups/Moments/playback changes. Current/contextual/qualified-upcoming
+claims and independent image rights remain distinct; no Horizon/private Discovery
+export. Off remains proactively quiet. Native/visible/joint acceptance remains open,
+Stage4 PARTIAL; album1154/1155 source/Finalization remain closed.
+
 Selected bounded [Album→Track continuity](NARRATIVE_ALBUM_CONTINUITY_V1.md) extends the existing
 Discover/Exploring Runtime with published-only exact-edition evidence.
 Core source #1154 protected delivered as `c317707024847dd32968483cd23141de40a3c706`; this one bounded

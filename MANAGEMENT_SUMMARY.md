@@ -1,5 +1,42 @@
 # DJConnect Generation 2 Management Summary
 
+## Current: Session Forecast v1 — local Core implementation
+
+DJC-CORE-SESSION-FORECAST-V1-20261012, [selection6123328620](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6123328620).
+[Canonical contract](docs/product/SESSION_FORECAST_V1.md); same sole Core writer,
+actual base e26888fc164fac1e5cb41908fd922d5f9a05e0bd, branch codex/session-forecast-v1,
+ACK6125042095/material6125092087, authoritative hostverify MATCH.
+Album1154/1155 is terminal at this base, MERGED_RECONCILED/WORKSPACE_READY before admission.
+Existing Direction parent is refined into a mutable active-session projection;
+Runtime15-minute foundation, internal20-minute future target and public nominal900s
+are distinct. No Horizon/queue export, second Planner, rewritten Moment or read effect.
+
+Early local producer8d4a58858e6476a0964a59176eb5010ea3ad75d0 has20 real ordinary
+paired HA Persona/language read/live chains and managed current-artist image reads,
+152 source hashes with zero differences;164 runtime/observer/Broadcast owning tests PASS.
+[Actual fixtures](examples/client_contracts/session_forecast_v1/transport-fixtures.json),
+[qualification](examples/client_contracts/session_forecast_v1/qualification-summary.json),
+[Apple87 early6125787020](https://github.com/pcvantol/djconnect-app/issues/87#issuecomment-6125787020),
+[VibeCast10 early6125787377](https://github.com/pcvantol/djconnect-vibecast-receiver/issues/10#issuecomment-6125787377).
+Direct human artist-imagery amendment is incorporated with typed current/contextual/
+qualified-upcoming roles; v1 only admits separately qualified current display art.
+Future media remains absent without its own qualified claim/license; art never proves playback.
+No private Discovery grants, undocumented hotlinks, consumer writer or cost/model route.
+
+Source is LOCAL_UNPUBLISHED. Current full regression:1766 tests PASS,7 existing
+skips; framework171 tests/234 scenarios PASS. Actual paired HA:20 language/Persona
+chains,12 invalid requests,14 authority/in-flight cases and122.439s duration PASS;
+152 integration files match evidence with zero differences. Replay recovery uses
+a coherent current snapshot and omits mutable Forecast from historical frames.
+Final exact-candidate independent reviews/publication gate remain pending. No source PR/main
+Forecast delivery, native/installed/live Spotify/hardware PASS or visible ambient adoption.
+Joint product acceptance OPEN; optional upcoming/visible subsets Planned, Stage4 PARTIAL.
+Canonical JSON maintenance version5 preserves frozen3October and version4 album delta;
+only selected Core contract/projection/shared-compat subsets are admitted. Early contract
+allows separately admitted consumer integration, never automatic dispatch or an extension
+of current Apple WIP. Candidate-specific source and separate Finalization gates remain.
+No install/restart/deployment/Pages/Console/signing/hardware/workflow/runner/service changes.
+
 ## Current: album continuity Core source delivered — separate Finalization
 
 `DJC-CORE-NARRATIVE-ALBUM-CONTINUITY-V1-20261012`: [source #1154](https://github.com/pcvantol/djconnect/pull/1154)

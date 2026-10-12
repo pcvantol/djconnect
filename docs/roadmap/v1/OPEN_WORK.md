@@ -8,11 +8,20 @@ Current bounded artwork correction: [owner6117357579](https://github.com/pcvanto
 
 Selected bounded Album→Track continuity: [DJC-CORE-NARRATIVE-ALBUM-CONTINUITY-V1-20261012](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6121336412); source PROTECTED_MERGED, Stage4 PARTIAL, joint/native/installed/hardware acceptance open. Artwork1152/1153 is terminal at admitted0f37; prior version3 is preserved in history/20261012. No automatic consumer dispatch or new Core writer.
 
+Selected Session Forecast: [DJC-CORE-SESSION-FORECAST-V1-20261012](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6123328620); existing Direction parent, source UNPUBLISHED, current-only qualified artist imagery, native/visible/upcoming/joint acceptance open. Album1154/1155 terminal before this writer admission; previous version4 preserved in history/20261012. Early contract fixtures allow independently admitted consumer source integration; no automatic dispatch.
+
 - `PROJ::INTELLIGENCE::DJ-PRESENCE` — Planned: Independent presence, Mood and Persona; no new dispatch.
 - `SLICE::APPLE::DJ-PRESENCE-CONTROL` — Planned: Accessible five-language native confirmation; reuse existing Apple writer.
 - `QUAL::VIBECAST::DJ-PRESENCE-COMPAT` — Planned: Core shared-renderer + receiver owner, both existing software builds.
 - `QUAL::PRODUCT::DJ-PRESENCE-V1` — Planned: AND qualified Core policy, native control and both renderer receipts.
 - `CORRECTION::APPLE::DISCOVERY-ARTWORK-ACCEPTANCE` — Planned: Consume pinned producer; native visible attribution, expiry and clear acceptance remain Apple-owned, no new writer/admission.
 - `RELATION::CONSUMERS::ALBUM-CONTINUITY-ACCEPTANCE` — Planned: Core pipeline/browser proof separate from native, installed and hardware acceptance.
+- `FORECAST::CORE::CONTRACT` — In progress: Core projection/shared compatibility separate from native, visible ambient, installed/hardware and joint qualification.
+- `FORECAST::CORE::PROJECTION` — In progress: Core projection/shared compatibility separate from native, visible ambient, installed/hardware and joint qualification.
+- `FORECAST::APPLE::VIEW` — Planned: Core projection/shared compatibility separate from native, visible ambient, installed/hardware and joint qualification.
+- `FORECAST::VIBECAST::COMPAT` — In progress: Core projection/shared compatibility separate from native, visible ambient, installed/hardware and joint qualification.
+- `FORECAST::PRODUCT::JOINT` — Planned: Core projection/shared compatibility separate from native, visible ambient, installed/hardware and joint qualification.
+- `FORECAST::VIBECAST::VISIBLE` — Planned: Core projection/shared compatibility separate from native, visible ambient, installed/hardware and joint qualification.
+- `FORECAST::CORE::UPCOMING` — Planned: Core projection/shared compatibility separate from native, visible ambient, installed/hardware and joint qualification.
 
 Core policy/ownercontract status follows the exact implementation receipt. Native/installed/hardware acceptance remains open.

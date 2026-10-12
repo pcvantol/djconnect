@@ -55,6 +55,9 @@ class MaintenanceTests(unittest.TestCase):
             elif n["id"] == "RELATION::CORE::ALBUM-CONTINUITY":
                 delivered=d["narrative_receipt"]["source_delivery"]=="PROTECTED_MERGED"
                 self.assertEqual((n["status"],n["assignment_status"]), ("Completed","CORE_DELIVERED") if delivered else ("In progress","IN_PROGRESS"))
+            elif n["id"] in {"FORECAST::CORE::CONTRACT", "FORECAST::CORE::PROJECTION", "FORECAST::VIBECAST::COMPAT"}:
+                delivered=d["forecast_receipt"]["source_delivery"]=="PROTECTED_MERGED"
+                self.assertEqual((n["status"],n["assignment_status"]), ("Completed","CORE_DELIVERED") if delivered else ("In progress","IN_PROGRESS"))
             elif "ACTIVE-SESSION-MOOD" not in n["id"]:
                 self.assertEqual((n["status"],n["assignment_status"]),("Planned","NOT_ISSUED"))
         receipt=d["implementation_receipt"]
@@ -162,6 +165,22 @@ class MaintenanceTests(unittest.TestCase):
         p=copy.deepcopy(self.p)
         p["planning_maintenance"]["nodes"].append(copy.deepcopy(p["planning_maintenance"]["nodes"][-1]))
         self.assertTrue(validate(p))
+
+    def test_forecast_parent_history_and_claim_gates(self):
+        d=self.p["planning_maintenance"]
+        if "forecast_receipt" not in d:
+            self.skipTest("Historical snapshot has no selected Forecast")
+        f=d["forecast_receipt"]
+        self.assertEqual(hashlib.sha256((ROOT/f["previous_delta"]).read_bytes()).hexdigest(), f["previous_delta_sha256"])
+        self.assertEqual(f["parent_node"], "PROJ::ROADMAP::DIRECTION")
+        for key,value in (("native","PASS"),("joint_product_acceptance","COMPLETE"),
+                          ("upcoming_media","QUALIFIED"),("parent_node","NEW-PLANNER")):
+            p=copy.deepcopy(self.p)
+            p["planning_maintenance"]["forecast_receipt"][key]=value
+            self.assertTrue(validate(p), key)
+        joined=next(n for n in d["nodes"] if n["id"]=="FORECAST::PRODUCT::JOINT")
+        self.assertEqual(len(joined["prerequisite_groups"][0]["edge_ids"]),3)
+        self.assertEqual(joined["prerequisite_groups"][0]["mode"],"AND")
 
 
 if __name__ == "__main__":

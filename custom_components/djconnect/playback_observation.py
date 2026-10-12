@@ -46,6 +46,7 @@ class _SpotifyObservationSession:
     remove_progress_listener: Callable[[], None] | None = None
     poll_lock: asyncio.Lock = field(default_factory=asyncio.Lock)
     enrichment_task: asyncio.Task[Any] | None = None
+    forecast_art_task: asyncio.Task[Any] | None = None
     enrichment_media_identity: str = ""
     unavailable: bool = False
 
@@ -146,6 +147,12 @@ class PlaybackObservationManager:
             with suppress(asyncio.CancelledError):
                 await observed.enrichment_task
         observed.enrichment_task = None
+        if observed.forecast_art_task is not None and observed.forecast_art_task is not current_task:
+            if not observed.forecast_art_task.done():
+                observed.forecast_art_task.cancel()
+            with suppress(asyncio.CancelledError):
+                await observed.forecast_art_task
+        observed.forecast_art_task = None
         observed.enrichment_media_identity = ""
 
     async def async_stop_runtime(self, integration_runtime: Any) -> None:
@@ -287,6 +294,9 @@ class PlaybackObservationManager:
             observed.unavailable = False
             if self._spotify_sessions.get(observed.owner_profile_id) is not observed:
                 return
+            from .forecast_imagery import artist_authority
+            forecast_authority = artist_authority(self._hass, observed.integration_runtime, owner_profile_id=observed.owner_profile_id,
+                expected_source=session_runtime_manager(self._hass)._history_source_contexts.get(observed.session_id, {}))
             await session_runtime_manager(self._hass).async_update_playback_projection(
                 owner_profile_id=observed.owner_profile_id,
                 session_id=observed.session_id,
@@ -301,7 +311,17 @@ class PlaybackObservationManager:
                 target_name=getattr(result, "target_name", ""),
                 duration_ms=getattr(result, "duration_ms", None),
                 position_ms=getattr(result, "position_ms", None),
+                forecast_authority=forecast_authority,
             )
+            catalog = getattr(result, "catalog", {})
+            if (result.is_playing and result.media_identity and forecast_authority()
+                    and isinstance(catalog, dict) and catalog.get("artist_ids")
+                    and (observed.forecast_art_task is None or observed.forecast_art_task.done())):
+                observed.forecast_art_task = self._hass.async_create_task(
+                    session_runtime_manager(self._hass).async_prepare_forecast_art(
+                        hass=self._hass, integration_runtime=observed.integration_runtime,
+                        owner_profile_id=observed.owner_profile_id, session_id=observed.session_id,
+                        media_identity=result.media_identity, catalog=getattr(result, "catalog", {})))
             # Optional queue lookup must not delay or invalidate current playback.
             next_item = {}
             if result.is_playing and result.media_identity:
