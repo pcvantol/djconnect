@@ -1,5 +1,11 @@
 # Bounded Discover narrative: Genre → Track
 
+Selected bounded [Album→Track continuity](NARRATIVE_ALBUM_CONTINUITY_V1.md) extends the existing
+Discover/Exploring Runtime with published-only exact-edition evidence.
+Implementation/qualification is In progress; Stage4 remains partially developed,
+not Completed. This contract’s existing delivered behavior and source rights
+remain unchanged. No consumer, installed or hardware acceptance is implied.
+
 `DJC-CORE-DISCOVER-NARRATIVE-TRANSITION-V1-20261004` selects exactly one
 additional typed relation: `discover_same_artist_genre`, from an existing
 **Genre** Moment to an existing **Track** Moment. It does not complete all of

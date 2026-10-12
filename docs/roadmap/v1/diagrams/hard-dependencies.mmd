@@ -5,6 +5,8 @@ flowchart LR
   n207["Adjustable DJ presence"]
   n212["Joint presence v1 acceptance"]
   n211["Local/static presence compatibility"]
+  n217["Separate native and joint album continuity acceptance"]
+  n216["Published Album to current exact-edition Track continuity"]
   n210["Native iPhone/iPad/Mac presence slider"]
   n213["Qualified active Session Mood owner/order subset"]
   n208["Presence policy and owner contract"]
@@ -18,3 +20,6 @@ flowchart LR
   n212 -->|integration_acceptance / integration_acceptance / completion| n207
   n213 -->|implementation_contract / implementation / start| n208
   n214 -->|implementation_contract / integration_acceptance / completion| n215
+  n214 -->|implementation_contract / selection / completion| n216
+  n209 -->|implementation_contract / implementation / completion| n216
+  n216 -->|implementation_contract / integration_acceptance / completion| n217

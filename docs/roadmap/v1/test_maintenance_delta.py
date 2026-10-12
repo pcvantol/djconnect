@@ -52,6 +52,9 @@ class MaintenanceTests(unittest.TestCase):
                 receipt = d["correction_receipts"][0]
                 expected = ("Completed", "CORE_DELIVERED") if receipt["source_delivery"] == "PROTECTED_MERGED" else ("In progress", "IN_PROGRESS")
                 self.assertEqual((n["status"], n["assignment_status"]), expected)
+            elif n["id"] == "RELATION::CORE::ALBUM-CONTINUITY":
+                delivered=d["narrative_receipt"]["source_delivery"]=="PROTECTED_MERGED"
+                self.assertEqual((n["status"],n["assignment_status"]), ("Completed","CORE_DELIVERED") if delivered else ("In progress","IN_PROGRESS"))
             elif "ACTIVE-SESSION-MOOD" not in n["id"]:
                 self.assertEqual((n["status"],n["assignment_status"]),("Planned","NOT_ISSUED"))
         receipt=d["implementation_receipt"]
@@ -145,6 +148,20 @@ class MaintenanceTests(unittest.TestCase):
             changed = copy.deepcopy(self.p)
             mutate(changed["planning_maintenance"])
             self.assertTrue(validate(changed))
+
+
+    def test_narrative_closed_admission_and_no_full_stage_promotion(self):
+        if "narrative_receipt" not in self.p["planning_maintenance"]:
+            self.skipTest("Historical delta has no album relation")
+        for key, value in (("stage4_status", "Completed"), ("native", "PASS"),
+                           ("base_sha", "0"*40), ("selection_authority", "AUTOMATIC"),
+                           ("source_delivery", "PROTECTED_MERGED")):
+            p=copy.deepcopy(self.p)
+            p["planning_maintenance"]["narrative_receipt"][key]=value
+            self.assertTrue(validate(p), key)
+        p=copy.deepcopy(self.p)
+        p["planning_maintenance"]["nodes"].append(copy.deepcopy(p["planning_maintenance"]["nodes"][-1]))
+        self.assertTrue(validate(p))
 
 
 if __name__ == "__main__":

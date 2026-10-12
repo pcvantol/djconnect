@@ -18,7 +18,10 @@ from uuid import uuid4
 
 from .const import API_IMAGE_PROXY_BASE, DOMAIN
 from .presence_policy import DEFAULT as DEFAULT_PRESENCE, POLICIES, PresenceLedger
-from .session_facts import QualifiedSessionFact, SharedProducerFact, PublishedRecordingContext
+from .session_facts import (
+    QualifiedSessionFact, SharedProducerFact, PublishedRecordingContext,
+    AlbumContinuityFact, PublishedAlbumContext,
+)
 from .moment_expression import realize as realize_fact_expression
 from .context_expression import FACT_FAMILIES, form_count, genre_copy
 from .native_moment_delivery import (
@@ -1661,7 +1664,7 @@ class DJSessionPlanner:
         for fact in facts:
             if fact.key in used_keys or not fact.eligible(media_identity, now):
                 continue
-            if isinstance(fact, SharedProducerFact) and not (
+            if isinstance(fact, (SharedProducerFact, AlbumContinuityFact)) and not (
                 session_start_strategy is SessionStartStrategy.DISCOVER
                 and session_direction is SessionDirectionType.EXPLORING
             ):
@@ -1688,6 +1691,9 @@ class DJSessionPlanner:
             if isinstance(fact, SharedProducerFact):
                 score += 100
                 reasons.append("shared_producer")
+            if isinstance(fact, AlbumContinuityFact):
+                score += 100
+                reasons.append("published_album_continuity")
             if session_start_strategy is SessionStartStrategy.DISCOVER or session_direction is SessionDirectionType.EXPLORING:
                 score += {DJMomentType.TRACK: 0, DJMomentType.ALBUM: 20, DJMomentType.ARTIST: 40}[moment_type]
                 reasons.append("exploration")
@@ -1983,7 +1989,8 @@ class DJMomentEngine:
     @staticmethod
     def fact_key(fact: QualifiedSessionFact) -> str:
         key = f"{fact.source_url}|fact:{fact.key}"
-        return key + ("|" + "|".join(fact.relation_key) if isinstance(fact,SharedProducerFact) else "")
+        return key + ("|" + "|".join(fact.relation_key)
+                      if isinstance(fact, (SharedProducerFact, AlbumContinuityFact)) else "")
 
     def preview_qualified_fact(self, *, fact: QualifiedSessionFact, selected_mood: str,
                                persona: DJPersona, locale: str, remaining_seconds: float) -> QualifiedFactRealization | None:
@@ -1996,7 +2003,9 @@ class DJMomentEngine:
             expressed = realize_fact_expression(fact,locale=locale,persona=persona.value,form=form,mood=selected_mood)
         except (TypeError,ValueError,KeyError,IndexError,AttributeError):
             expressed = None
-        variants = ((expressed, f"{persona.value}:{fact.key}:{form}" if expressed and fact.key in FACT_FAMILIES | {"recording_credits", "shared_producer"} else ""), (original, ""))
+        expression_form = (f"{persona.value}:album_continuity:0" if expressed and isinstance(fact, AlbumContinuityFact)
+                           else f"{persona.value}:{fact.key}:{form}" if expressed and fact.key in FACT_FAMILIES | {"recording_credits", "shared_producer"} else "")
+        variants = ((expressed, expression_form), (original, ""))
         for localized, expression_form in variants:
             if localized is None:
                 continue
@@ -3897,6 +3906,7 @@ class DJSessionRuntime:
     )
     last_accepted_media_identity: str = ""
     published_recording_context: PublishedRecordingContext = field(default_factory=PublishedRecordingContext)
+    published_album_context: PublishedAlbumContext = field(default_factory=PublishedAlbumContext)
     presence_ledger: PresenceLedger = field(default_factory=PresenceLedger)
     persona_revision: int = 0
 
@@ -4147,6 +4157,7 @@ class SessionRuntimeManager:
             now = self._monotonic_source()
             if projection.item_id and media_identity:
                 active.published_recording_context.observe(media_identity, time.monotonic())
+                active.published_album_context.observe(media_identity, time.monotonic())
             opportunity = self._intra_track_opportunities.get(owner_profile_id)
             if projection.state in {"idle", "stopped"} or not projection.item_id:
                 self._intra_track_opportunities.pop(owner_profile_id, None)
@@ -4441,6 +4452,11 @@ class SessionRuntimeManager:
             relation = active.published_recording_context.candidate(facts, opportunity.media_identity, time.monotonic())
             if relation is not None:
                 facts = (relation, *facts)
+            album_relation = active.published_album_context.candidate(facts, opportunity.media_identity, time.monotonic())
+            if album_relation is not None:
+                facts = (album_relation, *facts)
+        else:
+            active.published_album_context.close_lines()
         remaining_seconds=(playback.duration_ms-opportunity.last_observed_position_ms)/1000
         realizations={id(fact):active.moment_engine.preview_qualified_fact(fact=fact,selected_mood=active.selected_mood,
             persona=active.dj_persona,locale=active.locale,remaining_seconds=remaining_seconds) for fact in facts}
@@ -4482,7 +4498,12 @@ class SessionRuntimeManager:
         # Preserve the existing candidate transaction: a failed publication
         # must not consume the working engine's fact/deduplication keys.
         active.publish_moment(moment, commit_expression=False)
+        if not any(published.moment_id == moment.moment_id for published in active.broadcast.state.dj_moments):
+            return None
         active.published_recording_context.commit(fact, time.monotonic())
+        if (active.session_start_strategy is SessionStartStrategy.DISCOVER
+                and active.session_direction.direction is SessionDirectionType.EXPLORING):
+            active.published_album_context.commit(fact, time.monotonic())
         active.moment_engine.__dict__.update(working_moments.__dict__)
         active.moment_engine.commit_expression(moment, active.planner.output.session_flow)
         opportunity.used_fact_keys.add(fact.key)
@@ -4754,6 +4775,8 @@ class SessionRuntimeManager:
                 if is_session_update:
                     updated_direction = active.planning_coordinator.last_session_direction
                     assert updated_direction is not None
+                    if updated_direction.direction is not SessionDirectionType.EXPLORING:
+                        active.published_album_context.close_lines()
                     if (active.planner.discover_narrative_line is not None
                             and updated_direction.direction is not active.session_direction.direction):
                         active.planner.clear_discover_narrative()
@@ -5083,6 +5106,8 @@ class SessionRuntimeManager:
                 updated_at=_timestamp(),
                 start_strategy=active.session_direction.start_strategy,
             )
+            if updated_direction.direction is not SessionDirectionType.EXPLORING:
+                active.published_album_context.close_lines()
             if (active.planner.discover_narrative_line is not None
                     and updated_direction.direction is not active.session_direction.direction):
                 active.planner.clear_discover_narrative()
@@ -5181,6 +5206,8 @@ class SessionRuntimeManager:
                 raise PresenceRevisionConflictError(active)
             if selected_presence == active.selected_presence:
                 return active
+            if selected_presence == "music_only":
+                active.published_album_context.close_lines()
             if active.planner.discover_narrative_line is not None:
                 active.planner.clear_discover_narrative()
             opportunity = self._intra_track_opportunities.get(owner_profile_id)
@@ -5536,6 +5563,7 @@ class SessionRuntimeManager:
             self._playback_progress_clocks.pop(owner_profile_id, None)
             self._intra_track_opportunities.pop(owner_profile_id, None)
             active.published_recording_context.clear()
+            active.published_album_context.clear()
             active.moment_engine._expression_forms=()
             active.moment_engine._expression_moment_ids=()
             active.broadcast.update_runtime_state(SessionRuntimeState.ENDING)

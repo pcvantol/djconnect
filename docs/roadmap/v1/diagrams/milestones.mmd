@@ -6,6 +6,8 @@ flowchart LR
   n44["Narrative, Lyrics and Discover evolution"]
   n212["Joint presence v1 acceptance"]
   n211["Local/static presence compatibility"]
+  n217["Separate native and joint album continuity acceptance"]
+  n216["Published Album to current exact-edition Track continuity"]
   n210["Native iPhone/iPad/Mac presence slider"]
   n213["Qualified active Session Mood owner/order subset"]
   n208["Presence policy and owner contract"]
@@ -21,3 +23,6 @@ flowchart LR
   n213 -->|implementation_contract / implementation / start| n208
   n207 -.->|strategy_order / selection / start| n44
   n214 -->|implementation_contract / integration_acceptance / completion| n215
+  n214 -->|implementation_contract / selection / completion| n216
+  n209 -->|implementation_contract / implementation / completion| n216
+  n216 -->|implementation_contract / integration_acceptance / completion| n217

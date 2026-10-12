@@ -12,7 +12,7 @@ import json
 import math
 from typing import Any
 
-from .session_facts import QualifiedSessionFact, SharedProducerFact
+from .session_facts import QualifiedSessionFact, SharedProducerFact, AlbumContinuityFact
 
 
 @dataclass(frozen=True)
@@ -32,6 +32,8 @@ def source_deadline(fact: QualifiedSessionFact) -> float:
     observations = [fact.observed_at]
     if isinstance(fact, SharedProducerFact) and fact.previous_evidence is not None:
         observations.append(fact.previous_evidence.observed_at)
+    if isinstance(fact, AlbumContinuityFact) and fact.previous_album is not None:
+        observations.append(fact.previous_album.observed_at)
     return min(observations) + 1800
 
 

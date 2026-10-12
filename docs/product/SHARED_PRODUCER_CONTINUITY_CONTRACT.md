@@ -1,5 +1,11 @@
 # Shared producer continuity v1
 
+Selected bounded [Album→Track continuity](NARRATIVE_ALBUM_CONTINUITY_V1.md) extends the existing
+Discover/Exploring Runtime with published-only exact-edition evidence.
+Implementation/qualification is In progress; Stage4 remains partially developed,
+not Completed. This contract’s existing delivered behavior and source rights
+remain unchanged. No consumer, installed or hardware acceptance is implied.
+
 Assignment `DJC-CORE-SHARED-PRODUCER-CONTINUITY-V1-20261007`; base
 `7c67352ec94adef25d7825a10eefeab132affdca`.
 

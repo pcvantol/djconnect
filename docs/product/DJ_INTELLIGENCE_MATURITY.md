@@ -1,5 +1,11 @@
 # DJ Intelligence Maturity Model
 
+Selected bounded [Album→Track continuity](NARRATIVE_ALBUM_CONTINUITY_V1.md) extends the existing
+Discover/Exploring Runtime with published-only exact-edition evidence.
+Implementation/qualification is In progress; Stage4 remains partially developed,
+not Completed. This contract’s existing delivered behavior and source rights
+remain unchanged. No consumer, installed or hardware acceptance is implied.
+
 ## Completed Core producer source — native Moment delivery
 
 Completed Core producer source: `DJC-CORE-NATIVE-MOMENT-DELIVERY-V1-20261008`,
