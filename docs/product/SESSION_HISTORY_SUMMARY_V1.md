@@ -100,21 +100,32 @@ coverage stays partial/unknown; never derive totals from history pagination.
 
 ## Moment count and semantic publication boundary
 
-Count one non-Silence immutable proactive DJMoment at its accepted **semantic
-publication commit** into the existing durable Session decision/Flow authority.
-The future metric update must share that idempotent commit, keyed by canonical
-Session/Moment identity. A proposal, provider response, failed persistence,
-reactive Ask DJ user/assistant turn, historical system entry or pending task
-cannot increment. A presentation variant, language render, Broadcast fan-out,
-resend, snapshot, reconnect and renderer receipt cannot increment again.
+The current Flow is live Runtime state. Existing historical persistence saves
+only a rights-qualified subset (including eligible CC0/session-direction
+contributions); Spotify or missing-basis Moments may have no durable record.
+The persistent architecture describes semantic decision → durable commit →
+live publication as a **future target**, not a delivered transaction covering
+all Moments. Full `moments_published` therefore remains unknown today.
 
-The existing order is semantic decision → durable idempotent commit → live
-publication. If persistence fails there is no count or published history. If
-durable commit succeeds but Broadcast later fails, retain the accepted
-semantic publication count; delivery reachability is separate and replay cannot
-increment it. The label does not assert a human read, native render or hardware
-receipt. An implementation must verify and bind the actual publication owner,
-not add a helper counter before that commit.
+The proposed implementation must establish an accepted **semantic publication
+commit** for one non-Silence immutable proactive DJMoment, with its permitted
+compact aggregate in existing Session Storage. This is a missing producer
+contract and transaction qualification, not a counter on today's archived
+subset or a new full-content archive. Qualify publication acceptance, rights
+and canonical Session/Moment identity with Runtime/Flow ownership before
+advertising complete totals. The metric update shares that idempotent future
+commit. A proposal, provider response, failed acceptance/persistence, reactive
+Ask DJ user/assistant turn, historical system entry or pending task cannot
+increment. A presentation variant, language render, Broadcast fan-out, resend,
+snapshot, reconnect and renderer receipt cannot increment again.
+
+For the qualified future durable-acceptance path: persistence failure creates
+neither accepted count nor committed publication fact; if its semantic commit
+succeeds but Broadcast later fails, retain the accepted semantic count and
+qualify delivery separately. Replay cannot increment it. This rule does not
+assert that all current Moment publications use that path. An implementation
+must prove actual integration and failure ordering before using this label.
+Neither total asserts a human read, native render or hardware receipt.
 
 Retained readable text may be only a rights-qualified subset. Compact totals
 can survive text expiry only with an independently permitted aggregation basis;

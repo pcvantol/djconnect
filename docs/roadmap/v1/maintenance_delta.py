@@ -395,7 +395,13 @@ def validate_delta(plan: dict[str, Any]) -> list[str]:
     )
     check(
         d.get("scope")
-        == ("SELECTED_CORE_IMPLEMENTATION_DELTA" if implementation else "DOCUMENTARY_DELTA_ONLY"),
+        == (
+            "DOCUMENTARY_DELTA_ONLY"
+            if version == "djconnect-federated-planning-delta/7"
+            else "SELECTED_CORE_IMPLEMENTATION_DELTA"
+            if implementation
+            else "DOCUMENTARY_DELTA_ONLY"
+        ),
         "invalid scope",
     )
     for field in ["nodes", "edges", "document_references"]:
@@ -728,7 +734,9 @@ def render_delta(p):
         "The original3October snapshot/audit/source pins and projections are immutable history in [history/20261003](history/20261003/README.md). "
         "Only this bounded delta is current here; inherited premerge statuses are not current blockers. "
         + (
-            "Only the selected existing Core writer is admitted by implementation receipt; no automatic dispatch, second writer or native/installed/hardware acceptance.\n\n"
+            "Current admission is documentary only, using the existing Core writer; all new product subsets remain Planned/NOT_ISSUED. Closed implementation receipts are retained as evidence, not new admission.\n\n"
+            if d.get("schema_version") == "djconnect-federated-planning-delta/7"
+            else "Only the selected existing Core writer is admitted by implementation receipt; no automatic dispatch, second writer or native/installed/hardware acceptance.\n\n"
             if current
             else "No portfolio-wide refresh, writer reservation, product dispatch or runtime acceptance is claimed.\n\n"
         )

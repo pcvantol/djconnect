@@ -2,7 +2,7 @@
 
 Generated from djconnect-platform-v1.json, maintenance DJC-DJ-PRESENCE-ROADMAP-DESIGN-V1-20261011.
 
-The original3October snapshot/audit/source pins and projections are immutable history in [history/20261003](history/20261003/README.md). Only this bounded delta is current here; inherited premerge statuses are not current blockers. Only the selected existing Core writer is admitted by implementation receipt; no automatic dispatch, second writer or native/installed/hardware acceptance.
+The original3October snapshot/audit/source pins and projections are immutable history in [history/20261003](history/20261003/README.md). Only this bounded delta is current here; inherited premerge statuses are not current blockers. Current admission is documentary only, using the existing Core writer; all new product subsets remain Planned/NOT_ISSUED. Closed implementation receipts are retained as evidence, not new admission.
 
 Current bounded artwork correction: [owner6117357579](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6117357579). Existing Discovery capability only; source/Finalization gates remain separate, native/installed/live acceptance remains open. Presence source1150/Finalization1151 stays closed. Prior version2 is preserved in history/20261012.
 
@@ -50,5 +50,5 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 | [docs/verification/AMBIENT_FACT_MOMENT_CONVERGENCE_V1_SOURCE_READBACK.md](../../../docs/verification/AMBIENT_FACT_MOMENT_CONVERGENCE_V1_SOURCE_READBACK.md) | `500c0f99872817e857e5106e7c2a8ed39ac6877c153f616bd6795389171fc629` |
 | [docs/history/prompts/2026-10-12-ambient-fact-core-finalization.md](../../../docs/history/prompts/2026-10-12-ambient-fact-core-finalization.md) | `7391647babdf4eca2a287c7c8e654d3f98c0d04121367e030173c474bfde59a6` |
 | [docs/product/SESSION_ENTRY_LIFECYCLE_EXPERIENCE_V1.md](../../../docs/product/SESSION_ENTRY_LIFECYCLE_EXPERIENCE_V1.md) | `d2930b3efbfca33718383b4ad7308a509af565ad21fdc9d68f1a0cb9e5555695` |
-| [docs/product/SESSION_HISTORY_SUMMARY_V1.md](../../../docs/product/SESSION_HISTORY_SUMMARY_V1.md) | `03b010bd6e20cfbe752cb3fc1a7e0f1a94d9a42fd364a43ad3410e58d0589149` |
+| [docs/product/SESSION_HISTORY_SUMMARY_V1.md](../../../docs/product/SESSION_HISTORY_SUMMARY_V1.md) | `cfc79199783b6eed86b6f4b4d63df5778160966252e26ae2da331cc098a14de9` |
 | [docs/product/APPLE_SESSION_NATIVE_SURFACES_V1.md](../../../docs/product/APPLE_SESSION_NATIVE_SURFACES_V1.md) | `dad02a2c9c674e716a282ea3616fe988220126288f183d59bbca8aeb04bd1543` |

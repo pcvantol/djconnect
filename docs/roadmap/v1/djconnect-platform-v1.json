@@ -37598,7 +37598,7 @@
     "decision_id": "DJC-DJ-PRESENCE-ROADMAP-DESIGN-V1-20261011",
     "decision_url": "https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6110375785",
     "design_date": "2026-10-11",
-    "scope": "SELECTED_CORE_IMPLEMENTATION_DELTA",
+    "scope": "DOCUMENTARY_DELTA_ONLY",
     "execution_authority": false,
     "automatic_dispatch": false,
     "frozen_snapshot": "history/20261003/djconnect-platform-v1.json",
@@ -39117,7 +39117,7 @@
       },
       {
         "path": "docs/product/SESSION_HISTORY_SUMMARY_V1.md",
-        "sha256": "03b010bd6e20cfbe752cb3fc1a7e0f1a94d9a42fd364a43ad3410e58d0589149"
+        "sha256": "cfc79199783b6eed86b6f4b4d63df5778160966252e26ae2da331cc098a14de9"
       },
       {
         "path": "docs/product/APPLE_SESSION_NATIVE_SURFACES_V1.md",
@@ -39299,7 +39299,8 @@
       "installed": "NOT_RUN",
       "hardware": "NOT_RUN",
       "previous_delta": "history/20261012/ambient-convergence-maintenance-v6.json",
-      "previous_delta_sha256": "37e8b8abc7b3c63d0e8710b0985fdfdd8311d4e072e68cbe83c8edd062ebfe54"
+      "previous_delta_sha256": "37e8b8abc7b3c63d0e8710b0985fdfdd8311d4e072e68cbe83c8edd062ebfe54",
+      "design_date": "2026-10-12"
     }
   }
 }
