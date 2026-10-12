@@ -200,3 +200,8 @@ play after start, late STT response, external music, missing Spotify and no
 external return. Five-language copy (`en/nl/de/fr/es`), VoiceOver, Dynamic Type,
 keyboard/contrast/Reduce Motion remain consumer requirements. Native, installed,
 APNs and hardware acceptance are not established by this documentary delivery.
+
+## Documentary delivery receipt
+
+[Source PR #1160](https://github.com/pcvantol/djconnect/pull/1160) protected merged as `fdc79c9d7174b9d67dcf743400fbb76a0c163387`.
+[Exact source/artifact qualification](../verification/SESSION_ENTRY_LIFECYCLE_HISTORY_DESIGN_V1_SOURCE_READBACK.md) records documentary checks and independent review; all proposed product implementation remains **Planned**. Separate Finalization reconciliation is still gated.

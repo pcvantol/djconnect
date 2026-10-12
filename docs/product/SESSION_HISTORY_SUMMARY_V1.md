@@ -206,3 +206,8 @@ privacy withdrawal and expiry. Native surface navigation need not wait for
 this richer summary; surface display of private aggregates remains separately
 unqualified. No broader Lifecycle, narrative maturity or native/hardware
 completion is inferred from these designs.
+
+## Documentary delivery receipt
+
+[Source PR #1160](https://github.com/pcvantol/djconnect/pull/1160) protected merged as `fdc79c9d7174b9d67dcf743400fbb76a0c163387`.
+[Exact source/artifact qualification](../verification/SESSION_ENTRY_LIFECYCLE_HISTORY_DESIGN_V1_SOURCE_READBACK.md) records documentary checks and independent review; all proposed product implementation remains **Planned**. Separate Finalization reconciliation is still gated.

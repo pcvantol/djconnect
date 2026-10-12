@@ -39005,11 +39005,11 @@
     "document_references": [
       {
         "path": "PRODUCT_ROADMAP.md",
-        "sha256": "07b90d368c49807696ca4cafb0de30a9afcf4f49c988d3f8ef508deb581a9228"
+        "sha256": "1ae5b7ca67df85c22247b8c1fb0cc1b9f6f7d51ad276ee2e4490e18db7149f24"
       },
       {
         "path": "PRODUCT_BACKLOG.md",
-        "sha256": "2e05bf615bc2e438825fef8942ea2a779119fa5fc8fa445bcc1221368ed3d3c5"
+        "sha256": "76af0bcc9352c9d0de59822bbe296ad736b19ac63e9be2d566a6e2609302a249"
       },
       {
         "path": "docs/product/DJ_PRESENCE_V1.md",
@@ -39113,15 +39113,23 @@
       },
       {
         "path": "docs/product/SESSION_ENTRY_LIFECYCLE_EXPERIENCE_V1.md",
-        "sha256": "d2930b3efbfca33718383b4ad7308a509af565ad21fdc9d68f1a0cb9e5555695"
+        "sha256": "63ada3ffa76f1118d060342819aba930d73fd92e40b836d3dddaa225ddf350d5"
       },
       {
         "path": "docs/product/SESSION_HISTORY_SUMMARY_V1.md",
-        "sha256": "cfc79199783b6eed86b6f4b4d63df5778160966252e26ae2da331cc098a14de9"
+        "sha256": "9f6afcc80530c00131a1e1c0601a638e88c14c766cfbaac22868dab71b3673b9"
       },
       {
         "path": "docs/product/APPLE_SESSION_NATIVE_SURFACES_V1.md",
-        "sha256": "dad02a2c9c674e716a282ea3616fe988220126288f183d59bbca8aeb04bd1543"
+        "sha256": "99c390e7e452c9ab50020cd0b2948a3f57d249c259fa0b84abf6542dfe743118"
+      },
+      {
+        "path": "docs/verification/SESSION_ENTRY_LIFECYCLE_HISTORY_DESIGN_V1_SOURCE_READBACK.md",
+        "sha256": "5f514a8d824402dea2c180a59fca30579d2dd95f410827323d01c4b6b940a241"
+      },
+      {
+        "path": "docs/history/prompts/2026-10-12-session-entry-lifecycle-history-design-finalization.md",
+        "sha256": "82cf55a3383f88a451b3e5f3893c42cfb547c660c3e6cf6dd88f4414269c95fa"
       }
     ],
     "implementation_receipt": {
@@ -39292,15 +39300,25 @@
       "ack": 6131593609,
       "material_start": 6131811609,
       "material_commit": "90bec8b4a895808877dbdecd0e48b5666658bbdd",
-      "phase": "LOCAL_DOCUMENTARY_QUALIFICATION",
-      "source_delivery": "UNPUBLISHED",
+      "phase": "SOURCE_PROTECTED_MERGED",
+      "source_delivery": "PROTECTED_MERGED",
       "product_implementation": "Planned",
       "native": "NOT_RUN",
       "installed": "NOT_RUN",
       "hardware": "NOT_RUN",
       "previous_delta": "history/20261012/ambient-convergence-maintenance-v6.json",
       "previous_delta_sha256": "37e8b8abc7b3c63d0e8710b0985fdfdd8311d4e072e68cbe83c8edd062ebfe54",
-      "design_date": "2026-10-12"
+      "design_date": "2026-10-12",
+      "source_main_sha": "fdc79c9d7174b9d67dcf743400fbb76a0c163387",
+      "source_pr": "https://github.com/pcvantol/djconnect/pull/1160",
+      "source_review": "PASS",
+      "required_checks": "PASS",
+      "protected_merge": true,
+      "archive_sha256": "b23214bca982ddf8d11d78cdd10493679055d76b846fb12945c71d08d8d19535",
+      "formal_evidence_sha256": "88f9cb0d19005e48ae195410666fa751c38206ff672f74adf6b23ec60d9e4bcf",
+      "source_candidate": "37b86be8da012827f670fce4659e66912fcdaa56",
+      "finalization": "RECONCILIATION_CANDIDATE_SEPARATE_GATE",
+      "apple_handoff": "https://github.com/pcvantol/djconnect-app/issues/87#issuecomment-6132158601"
     }
   }
 }

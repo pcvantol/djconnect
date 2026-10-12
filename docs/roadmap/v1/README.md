@@ -12,7 +12,7 @@ Selected Session Forecast: [DJC-CORE-SESSION-FORECAST-V1-20261012](https://githu
 
 Selected ambient convergence: [DJC-CORE-AMBIENT-FACT-MOMENT-CONVERGENCE-V1-20261012](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6125691006); source PROTECTED_MERGED, qualified Session reuse and passive producer retirement; native/joint acceptance open. Forecast1156/1157 stays closed; version5 preserved in history/20261012. No new source/model/consumer dispatch.
 
-Combined Session entry/history/native-surface documentary design: [DJC-SESSION-ENTRY-LIFECYCLE-HISTORY-DESIGN-V1-20261012](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6131363097); documentation UNPUBLISHED. All new product subsets remain Planned/NOT_ISSUED; Continuation is independent and rich passive rights are not inherited. Ambient1158/1159 remains terminal; version6 is preserved in history/20261012. No new product writer or native/APNs/installed/hardware PASS.
+Combined Session entry/history/native-surface documentary design: [DJC-SESSION-ENTRY-LIFECYCLE-HISTORY-DESIGN-V1-20261012](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6131363097); documentation PROTECTED_MERGED. All new product subsets remain Planned/NOT_ISSUED; Continuation is independent and rich passive rights are not inherited. Ambient1158/1159 remains terminal; version6 is preserved in history/20261012. No new product writer or native/APNs/installed/hardware PASS.
 
 [Owner decision](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6110375785); documentary design date 2026-10-11.
 

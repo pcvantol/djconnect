@@ -12,7 +12,7 @@ Selected Session Forecast: [DJC-CORE-SESSION-FORECAST-V1-20261012](https://githu
 
 Selected ambient convergence: [DJC-CORE-AMBIENT-FACT-MOMENT-CONVERGENCE-V1-20261012](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6125691006); source PROTECTED_MERGED, qualified Session reuse and passive producer retirement; native/joint acceptance open. Forecast1156/1157 stays closed; version5 preserved in history/20261012. No new source/model/consumer dispatch.
 
-Combined Session entry/history/native-surface documentary design: [DJC-SESSION-ENTRY-LIFECYCLE-HISTORY-DESIGN-V1-20261012](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6131363097); documentation UNPUBLISHED. All new product subsets remain Planned/NOT_ISSUED; Continuation is independent and rich passive rights are not inherited. Ambient1158/1159 remains terminal; version6 is preserved in history/20261012. No new product writer or native/APNs/installed/hardware PASS.
+Combined Session entry/history/native-surface documentary design: [DJC-SESSION-ENTRY-LIFECYCLE-HISTORY-DESIGN-V1-20261012](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6131363097); documentation PROTECTED_MERGED. All new product subsets remain Planned/NOT_ISSUED; Continuation is independent and rich passive rights are not inherited. Ambient1158/1159 remains terminal; version6 is preserved in history/20261012. No new product writer or native/APNs/installed/hardware PASS.
 
 Selected implementation [DJC-CORE-DJ-PRESENCE-V1-20261011](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6111222122); early local contract `1d5e8c2518db5902031898991b7f4857d5263a5c`; source delivery PROTECTED_MERGED.
 
@@ -22,8 +22,8 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 
 | Local design source | SHA256 |
 |---|---|
-| [PRODUCT_ROADMAP.md](../../../PRODUCT_ROADMAP.md) | `07b90d368c49807696ca4cafb0de30a9afcf4f49c988d3f8ef508deb581a9228` |
-| [PRODUCT_BACKLOG.md](../../../PRODUCT_BACKLOG.md) | `2e05bf615bc2e438825fef8942ea2a779119fa5fc8fa445bcc1221368ed3d3c5` |
+| [PRODUCT_ROADMAP.md](../../../PRODUCT_ROADMAP.md) | `1ae5b7ca67df85c22247b8c1fb0cc1b9f6f7d51ad276ee2e4490e18db7149f24` |
+| [PRODUCT_BACKLOG.md](../../../PRODUCT_BACKLOG.md) | `76af0bcc9352c9d0de59822bbe296ad736b19ac63e9be2d566a6e2609302a249` |
 | [docs/product/DJ_PRESENCE_V1.md](../../../docs/product/DJ_PRESENCE_V1.md) | `c97be3bcebbd4ca70d640cdf4fc0a9a4808451e986bc977e3173e19842a928c4` |
 | [DJ_SESSION_RUNTIME_CONTRACTS.md](../../../DJ_SESSION_RUNTIME_CONTRACTS.md) | `ca5417eccd2df68990ae04dfcb8d4b15af1287bb2c72e25e5b5dafce3b53392a` |
 | [docs/product/DJ_INTELLIGENCE_ARCHITECTURE.md](../../../docs/product/DJ_INTELLIGENCE_ARCHITECTURE.md) | `cb86b46ac414f0ca7c411978eded39ae8843cba94ea0a25ccbb0d84160bf6935` |
@@ -49,6 +49,8 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 | [docs/product/AMBIENT_FACT_MOMENT_CONVERGENCE_V1.md](../../../docs/product/AMBIENT_FACT_MOMENT_CONVERGENCE_V1.md) | `602ab34d4ee960349db8843189860a25894ce3ca57870d474c7bc6ce5fb7918e` |
 | [docs/verification/AMBIENT_FACT_MOMENT_CONVERGENCE_V1_SOURCE_READBACK.md](../../../docs/verification/AMBIENT_FACT_MOMENT_CONVERGENCE_V1_SOURCE_READBACK.md) | `500c0f99872817e857e5106e7c2a8ed39ac6877c153f616bd6795389171fc629` |
 | [docs/history/prompts/2026-10-12-ambient-fact-core-finalization.md](../../../docs/history/prompts/2026-10-12-ambient-fact-core-finalization.md) | `7391647babdf4eca2a287c7c8e654d3f98c0d04121367e030173c474bfde59a6` |
-| [docs/product/SESSION_ENTRY_LIFECYCLE_EXPERIENCE_V1.md](../../../docs/product/SESSION_ENTRY_LIFECYCLE_EXPERIENCE_V1.md) | `d2930b3efbfca33718383b4ad7308a509af565ad21fdc9d68f1a0cb9e5555695` |
-| [docs/product/SESSION_HISTORY_SUMMARY_V1.md](../../../docs/product/SESSION_HISTORY_SUMMARY_V1.md) | `cfc79199783b6eed86b6f4b4d63df5778160966252e26ae2da331cc098a14de9` |
-| [docs/product/APPLE_SESSION_NATIVE_SURFACES_V1.md](../../../docs/product/APPLE_SESSION_NATIVE_SURFACES_V1.md) | `dad02a2c9c674e716a282ea3616fe988220126288f183d59bbca8aeb04bd1543` |
+| [docs/product/SESSION_ENTRY_LIFECYCLE_EXPERIENCE_V1.md](../../../docs/product/SESSION_ENTRY_LIFECYCLE_EXPERIENCE_V1.md) | `63ada3ffa76f1118d060342819aba930d73fd92e40b836d3dddaa225ddf350d5` |
+| [docs/product/SESSION_HISTORY_SUMMARY_V1.md](../../../docs/product/SESSION_HISTORY_SUMMARY_V1.md) | `9f6afcc80530c00131a1e1c0601a638e88c14c766cfbaac22868dab71b3673b9` |
+| [docs/product/APPLE_SESSION_NATIVE_SURFACES_V1.md](../../../docs/product/APPLE_SESSION_NATIVE_SURFACES_V1.md) | `99c390e7e452c9ab50020cd0b2948a3f57d249c259fa0b84abf6542dfe743118` |
+| [docs/verification/SESSION_ENTRY_LIFECYCLE_HISTORY_DESIGN_V1_SOURCE_READBACK.md](../../../docs/verification/SESSION_ENTRY_LIFECYCLE_HISTORY_DESIGN_V1_SOURCE_READBACK.md) | `5f514a8d824402dea2c180a59fca30579d2dd95f410827323d01c4b6b940a241` |
+| [docs/history/prompts/2026-10-12-session-entry-lifecycle-history-design-finalization.md](../../../docs/history/prompts/2026-10-12-session-entry-lifecycle-history-design-finalization.md) | `82cf55a3383f88a451b3e5f3893c42cfb547c660c3e6cf6dd88f4414269c95fa` |
