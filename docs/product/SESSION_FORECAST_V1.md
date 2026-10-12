@@ -2,11 +2,19 @@
 
 Assignment DJC-CORE-SESSION-FORECAST-V1-20261012;
 [selection/design decision6123328620](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6123328620).
-Status: pre-runtime contract preserved below; local Core implementation and early
-ordinary paired HA qualification complete locally. Exact freeze reviews/protected delivery pending.
-Same sole Core writer, actual base e26888fc164fac1e5cb41908fd922d5f9a05e0bd,
-branch codex/session-forecast-v1, after closed album1154/1155.
-No source/Finalization publication, consumer admission or installed acceptance.
+Status: bounded Core producer and shared renderer compatibility protected delivered
+in [source PR1156](https://github.com/pcvantol/djconnect/pull/1156), exact main
+`3cfa55121e6c29cf6308fa570cbb5af0d2261057`;152-file archive/formal readback PASS.
+[Qualification](../verification/SESSION_FORECAST_V1_LOCAL_QUALIFICATION.md),
+[source evidence](../verification/SESSION_FORECAST_V1_SOURCE_READBACK.md) and
+[completion](../history/prompts/2026-10-12-session-forecast-core-finalization.md).
+Pre-runtime contract and historical early receipts below are preserved.
+Same sole Core writer, admitted base e26888fc164fac1e5cb41908fd922d5f9a05e0bd,
+source branch codex/session-forecast-v1, after closed album1154/1155.
+Separate documentary Finalization reconciles this source; its protected readback
+and own cleanup determine terminal lifecycle in register1101. Native/installed/
+hardware/live Spotify NOT_RUN; visible Forecast NOT_ADOPTED; joint acceptance OPEN.
+No consumer admission, install or next productslice.
 
 ## Foundation and ownership
 
@@ -200,7 +208,11 @@ Discovery grants are never imported. Expiry/revocation emits safe empty image
 state and consumers release already decoded pixels/cache. Pure read rejection
 creates no update, plan, Moment, budget or lookup.
 
-## Early actual producer qualification (local, unpublished)
+## Historical early actual producer qualification (then local, unpublished)
+
+Superseded by protected source1156 and definitive Apple87/6128709378 and
+VibeCast10/6128709669 producerpins. The following receipt retains its original
+pre-freeze temporal state; it is not the current delivery status.
 
 Twenty ordinary paired HA Persona/language chains deliver owner-read/live and
 current-artist image bytes through the actual managed route. Repeated forecast

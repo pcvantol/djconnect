@@ -1,10 +1,12 @@
 # DJ Intelligence Maturity Model
 
-## Selected bounded Session Forecast v1
+## Delivered bounded Session Forecast Core foundation
 
 [Session Forecast](SESSION_FORECAST_V1.md) refines the existing Direction Projection
-under DJC-CORE-SESSION-FORECAST-V1-20261012. Local paired Core implementation and
-current-artist imagery qualification are in progress, not yet protected delivered.
+under DJC-CORE-SESSION-FORECAST-V1-20261012. Bounded Core source1156 is protected
+delivered as `3cfa55121e6c29cf6308fa570cbb5af0d2261057`; exact archive/formal readback PASS.
+Only Core contract/projection/shared compatibility are Completed; upcoming, native,
+visible VibeCast and joint product acceptance remain separately open.
 One existing Planner provides closed semantic intentions, existing authored expression
 provides five-language Persona text, Runtime/Broadcast owns mutable lifecycle. Reads
 make no plans/lookups/Moments/playback changes. Current/contextual/qualified-upcoming

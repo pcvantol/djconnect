@@ -37842,8 +37842,8 @@
         "title": "Session Forecast and artist imagery owner contract",
         "lane": "DJC-CORE",
         "repository": "pcvantol/djconnect",
-        "status": "In progress",
-        "assignment_status": "IN_PROGRESS",
+        "status": "Completed",
+        "assignment_status": "CORE_DELIVERED",
         "scope": "Bounded Session Direction Forecast projection; no internal Horizon/queue/second Planner or consumer admission",
         "acceptance_boundary": "Core projection/shared compatibility separate from native, visible ambient, installed/hardware and joint qualification",
         "contract_binding": "docs/product/SESSION_FORECAST_V1.md",
@@ -37858,8 +37858,8 @@
         "title": "Mutable paired Forecast Core projection/lifecycle",
         "lane": "DJC-CORE",
         "repository": "pcvantol/djconnect",
-        "status": "In progress",
-        "assignment_status": "IN_PROGRESS",
+        "status": "Completed",
+        "assignment_status": "CORE_DELIVERED",
         "scope": "Bounded Session Direction Forecast projection; no internal Horizon/queue/second Planner or consumer admission",
         "acceptance_boundary": "Core projection/shared compatibility separate from native, visible ambient, installed/hardware and joint qualification",
         "contract_binding": "docs/product/SESSION_FORECAST_V1.md",
@@ -37904,8 +37904,8 @@
         "title": "Shared local/static additive compatibility and safe fallback",
         "lane": "DJC-CORE",
         "repository": "pcvantol/djconnect",
-        "status": "In progress",
-        "assignment_status": "IN_PROGRESS",
+        "status": "Completed",
+        "assignment_status": "CORE_DELIVERED",
         "scope": "Bounded Session Direction Forecast projection; no internal Horizon/queue/second Planner or consumer admission",
         "acceptance_boundary": "Core projection/shared compatibility separate from native, visible ambient, installed/hardware and joint qualification",
         "contract_binding": "docs/product/SESSION_FORECAST_V1.md",
@@ -38367,11 +38367,11 @@
     "document_references": [
       {
         "path": "PRODUCT_ROADMAP.md",
-        "sha256": "97924e374efb33be2068e467752a7afbe870662ba5c80fa83b8795a56e832dd9"
+        "sha256": "48d4fcfdddf16b0c68d89569f1b73ee6f8ed0e646746104aedb06bff6bd7b5df"
       },
       {
         "path": "PRODUCT_BACKLOG.md",
-        "sha256": "bda84e3d5908bf8d5189e70e95d1a3d3db528caaa1ea9818bfe152a6f9b52c04"
+        "sha256": "2c82d9fe170766a469a4c79840c99716a85df86281d5e3c6c0372001c72f4940"
       },
       {
         "path": "docs/product/DJ_PRESENCE_V1.md",
@@ -38415,7 +38415,7 @@
       },
       {
         "path": "docs/product/DJ_INTELLIGENCE_MATURITY.md",
-        "sha256": "9c4e9e4ff83b95f65efc37d1c7f06da4f12dc44432620c9903bc260286c861d9"
+        "sha256": "258e37a6dc5b173ddd8bf65e4550e6282cefedc8f9373f1d64bc3e064bf484ee"
       },
       {
         "path": "docs/product/SHARED_PRODUCER_CONTINUITY_CONTRACT.md",
@@ -38443,7 +38443,7 @@
       },
       {
         "path": "docs/product/SESSION_FORECAST_V1.md",
-        "sha256": "0b651f72aae3806195b0d0006ffc3431e9a10e506c23f3ca8573b379f7366489"
+        "sha256": "ee562aa2869315baff16bcec7ae4edf3634880a58fc6c1e5b4057ab86f34a102"
       },
       {
         "path": "docs/technical/SESSION_DIRECTION_PROJECTION_ARCHITECTURE.md",
@@ -38549,8 +38549,8 @@
       "ack": 6125042095,
       "material_start": 6125092087,
       "parent_node": "PROJ::ROADMAP::DIRECTION",
-      "phase": "LOCAL_IMPLEMENTATION_AND_QUALIFICATION",
-      "source_delivery": "UNPUBLISHED",
+      "phase": "SOURCE_PROTECTED_MERGED",
+      "source_delivery": "PROTECTED_MERGED",
       "native": "NOT_RUN",
       "installed": "NOT_RUN",
       "hardware": "NOT_RUN",
@@ -38565,7 +38565,17 @@
       "artist_imagery_admission": "CURRENT_ONLY_DISPLAY_BASIS",
       "previous_delta": "history/20261012/album-continuity-maintenance-v4.json",
       "previous_delta_sha256": "e1864b80096e422439d46e3395dece8d1c3636606a320aafd390a11507ce9441",
-      "qualification": "LOCAL_CORE_QUALIFIED_FINAL_EXACT_REVIEWS_PENDING"
+      "qualification": "CORE_SOFTWARE_PASS_EXACT_ARCHIVE_FORMAL_PASS",
+      "source_main_sha": "3cfa55121e6c29cf6308fa570cbb5af0d2261057",
+      "source_pr": "https://github.com/pcvantol/djconnect/pull/1156",
+      "source_candidate": "00dc4b742984bbf87dab121fa6a61123a7ff602c",
+      "source_review": "PASS",
+      "required_checks": "PASS",
+      "protected_merge": true,
+      "archive_sha256": "428b4384383091d88bc449bbe666ba6c946cb57ed2852a4fc19ff8d38897f796",
+      "formal_evidence_sha256": "5271704d54b373d383e265affc6dca87387fdfbdb78cfb03dc914c5d345b7d32",
+      "apple_handoff": "https://github.com/pcvantol/djconnect-app/issues/87#issuecomment-6128709378",
+      "vibecast_handoff": "https://github.com/pcvantol/djconnect-vibecast-receiver/issues/10#issuecomment-6128709669"
     }
   }
 }
