@@ -6,7 +6,7 @@ The original3October snapshot/audit/source pins and projections are immutable hi
 
 Current bounded artwork correction: [owner6117357579](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6117357579). Existing Discovery capability only; source/Finalization gates remain separate, native/installed/live acceptance remains open. Presence source1150/Finalization1151 stays closed. Prior version2 is preserved in history/20261012.
 
-Selected bounded Album→Track continuity: [DJC-CORE-NARRATIVE-ALBUM-CONTINUITY-V1-20261012](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6121336412); source UNPUBLISHED, Stage4 PARTIAL, joint/native/installed/hardware acceptance open. Artwork1152/1153 is terminal at admitted0f37; prior version3 is preserved in history/20261012. No automatic consumer dispatch or new Core writer.
+Selected bounded Album→Track continuity: [DJC-CORE-NARRATIVE-ALBUM-CONTINUITY-V1-20261012](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6121336412); source PROTECTED_MERGED, Stage4 PARTIAL, joint/native/installed/hardware acceptance open. Artwork1152/1153 is terminal at admitted0f37; prior version3 is preserved in history/20261012. No automatic consumer dispatch or new Core writer.
 
 | Node | Owner | Status | Outcome |
 |---|---|---|---|
@@ -19,5 +19,5 @@ Selected bounded Album→Track continuity: [DJC-CORE-NARRATIVE-ALBUM-CONTINUITY-
 | `SLICE::CORE::ACTIVE-SESSION-MOOD` | DJC-CORE | Completed | Qualified active Session Mood owner/order subset |
 | `CORRECTION::CORE::DISCOVERY-ARTWORK` | DJC-CORE | Completed | Bounded existing Discovery artwork continuity |
 | `CORRECTION::APPLE::DISCOVERY-ARTWORK-ACCEPTANCE` | DJC-APPLE | Planned | Native Discovery artwork and lifecycle readback |
-| `RELATION::CORE::ALBUM-CONTINUITY` | DJC-CORE | In progress | Published Album to current exact-edition Track continuity |
+| `RELATION::CORE::ALBUM-CONTINUITY` | DJC-CORE | Completed | Published Album to current exact-edition Track continuity |
 | `RELATION::CONSUMERS::ALBUM-CONTINUITY-ACCEPTANCE` | DJC-APPLE | Planned | Separate native and joint album continuity acceptance |

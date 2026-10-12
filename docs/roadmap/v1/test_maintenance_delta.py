@@ -155,7 +155,7 @@ class MaintenanceTests(unittest.TestCase):
             self.skipTest("Historical delta has no album relation")
         for key, value in (("stage4_status", "Completed"), ("native", "PASS"),
                            ("base_sha", "0"*40), ("selection_authority", "AUTOMATIC"),
-                           ("source_delivery", "PROTECTED_MERGED")):
+                           ("source_delivery", "UNPUBLISHED" if self.p["planning_maintenance"]["narrative_receipt"]["source_delivery"] == "PROTECTED_MERGED" else "PROTECTED_MERGED")):
             p=copy.deepcopy(self.p)
             p["planning_maintenance"]["narrative_receipt"][key]=value
             self.assertTrue(validate(p), key)
