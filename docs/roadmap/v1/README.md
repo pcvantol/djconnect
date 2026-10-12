@@ -4,6 +4,8 @@ Generated from djconnect-platform-v1.json, maintenance DJC-DJ-PRESENCE-ROADMAP-D
 
 The original3October snapshot/audit/source pins and projections are immutable history in [history/20261003](history/20261003/README.md). Only this bounded delta is current here; inherited premerge statuses are not current blockers. Only the selected existing Core writer is admitted by implementation receipt; no automatic dispatch, second writer or native/installed/hardware acceptance.
 
+Current bounded artwork correction: [owner6117357579](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6117357579). Existing Discovery capability only; source/Finalization gates remain separate, native/installed/live acceptance remains open. Presence source1150/Finalization1151 stays closed. Prior version2 is preserved in history/20261012.
+
 [Owner decision](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6110375785); documentary design date 2026-10-11.
 
 Presence remains Planned. Mood, Persona and presence are independent. Corepolicy + Applecontrol + local/static VibeCast receipts form joint acceptance. Richer narrative is later, not a v1 gate.

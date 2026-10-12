@@ -48,6 +48,10 @@ class MaintenanceTests(unittest.TestCase):
             if n["id"] in selected:
                 delivered=d["implementation_receipt"]["source_delivery"]=="PROTECTED_MERGED"
                 self.assertEqual((n["status"],n["assignment_status"]), ("Completed","CORE_DELIVERED") if delivered else ("In progress","IN_PROGRESS"))
+            elif n["id"] == "CORRECTION::CORE::DISCOVERY-ARTWORK":
+                receipt = d["correction_receipts"][0]
+                expected = ("Completed", "CORE_DELIVERED") if receipt["source_delivery"] == "PROTECTED_MERGED" else ("In progress", "IN_PROGRESS")
+                self.assertEqual((n["status"], n["assignment_status"]), expected)
             elif "ACTIVE-SESSION-MOOD" not in n["id"]:
                 self.assertEqual((n["status"],n["assignment_status"]),("Planned","NOT_ISSUED"))
         receipt=d["implementation_receipt"]
@@ -102,8 +106,8 @@ class MaintenanceTests(unittest.TestCase):
                     {
                         **d["edges"][0],
                         "id": "CYCLE",
-                        "producer": d["nodes"][0]["id"],
-                        "consumer": d["nodes"][-1]["id"],
+                        "producer": "SLICE::CORE::DJ-PRESENCE-POLICY",
+                        "consumer": "SLICE::CORE::DJ-PRESENCE-CONTRACT",
                         "hard_precedence": False,
                     }
                 ),
@@ -120,6 +124,27 @@ class MaintenanceTests(unittest.TestCase):
     def test_frozen_mutation_rejected(self):
         self.p["created_at"] = "2026-10-11"
         self.assertTrue(any("frozen content changed" in e for e in validate(self.p)))
+
+
+    def test_artwork_correction_history_and_authority_are_bounded(self):
+        d = self.p["planning_maintenance"]
+        c = d["correction_receipts"][0]
+        prior = (ROOT / c["previous_delta"]).read_bytes()
+        self.assertEqual(hashlib.sha256(prior).hexdigest(), c["previous_delta_sha256"])
+        import json
+        old = copy.deepcopy(self.p)
+        old["planning_maintenance"] = json.loads(prior)
+        self.assertEqual(validate(old), [])
+        self.assertEqual(old["planning_maintenance"]["implementation_receipt"], d["implementation_receipt"])
+        for mutate in (
+            lambda x: x["correction_receipts"][0].update(selection_url="wrong"),
+            lambda x: x["correction_receipts"][0].update(native="PASS"),
+            lambda x: x["correction_receipts"][0].update(phase="SOURCE_PROTECTED_MERGED", source_delivery="PROTECTED_MERGED"),
+            lambda x: x["nodes"][-1].update(status="In progress", assignment_status="IN_PROGRESS"),
+        ):
+            changed = copy.deepcopy(self.p)
+            mutate(changed["planning_maintenance"])
+            self.assertTrue(validate(changed))
 
 
 if __name__ == "__main__":

@@ -1,5 +1,7 @@
 flowchart LR
-  note["Versioned presence delta; soft Mood order is not presence policy"]
+  note["Versioned bounded maintenance; no implicit consumer dispatch"]
+  n215["Native Discovery artwork and lifecycle readback"]
+  n214["Bounded existing Discovery artwork continuity"]
   n207["Adjustable DJ presence"]
   n44["Narrative, Lyrics and Discover evolution"]
   n212["Joint presence v1 acceptance"]
@@ -18,3 +20,4 @@ flowchart LR
   n213 -.->|strategy_order / selection / start| n207
   n213 -->|implementation_contract / implementation / start| n208
   n207 -.->|strategy_order / selection / start| n44
+  n214 -->|implementation_contract / integration_acceptance / completion| n215

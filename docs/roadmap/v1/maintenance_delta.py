@@ -27,8 +27,9 @@ def validate_delta(plan: dict[str, Any]) -> list[str]:
             errors.append("maintenance: " + reason)
 
     version = d.get("schema_version")
-    implementation = version == "djconnect-federated-planning-delta/2"
-    check(version in {"djconnect-federated-planning-delta/1", "djconnect-federated-planning-delta/2"}, "unsupported schema")
+    implementation = version in {"djconnect-federated-planning-delta/2", "djconnect-federated-planning-delta/3"}
+    artwork = version == "djconnect-federated-planning-delta/3"
+    check(version in {"djconnect-federated-planning-delta/1", "djconnect-federated-planning-delta/2", "djconnect-federated-planning-delta/3"}, "unsupported schema")
     delivered = False
     if implementation:
         receipt = d.get("implementation_receipt", {})
@@ -45,6 +46,22 @@ def validate_delta(plan: dict[str, Any]) -> list[str]:
             check(receipt.get("source_review") == "PASS" and receipt.get("required_checks") == "PASS" and receipt.get("protected_merge") is True, "protected delivery evidence missing")
             check(all(bool(re.fullmatch(r"[a-f0-9]{64}", str(receipt.get(k, "")))) for k in ("archive_sha256", "formal_evidence_sha256")), "exact artifact readback missing")
         check(receipt.get("previous_delta") == "history/20261011/presence-design-maintenance-v1.json" and len(str(receipt.get("previous_delta_sha256", ""))) == 64, "previous version binding missing")
+    correction_delivered = False
+    if artwork:
+        corrections = d.get("correction_receipts", [])
+        check(isinstance(corrections, list) and len(corrections) == 1, "one bounded correction required")
+        c = corrections[0] if isinstance(corrections, list) and len(corrections) == 1 else {}
+        correction_delivered = c.get("phase") == "SOURCE_PROTECTED_MERGED"
+        check(c.get("assignment_id") == "DJC-CORE-DISCOVERY-ARTWORK-CONTINUITY-V1-20261012", "correction assignment binding missing")
+        check(c.get("selection_url") == "https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6117357579", "correction owner binding missing")
+        check(c.get("phase") in {"LOCAL_IMPLEMENTATION_AND_QUALIFICATION", "SOURCE_PROTECTED_MERGED"}, "unqualified correction phase")
+        check(c.get("source_delivery") == ("PROTECTED_MERGED" if correction_delivered else "UNPUBLISHED"), "unqualified correction delivery")
+        check(all(c.get(k) == "NOT_RUN" for k in ("native", "installed", "live_provider")) and c.get("joint_product_acceptance") == "OPEN", "unqualified correction consumer acceptance")
+        check(c.get("previous_delta") == "history/20261012/presence-implementation-maintenance-v2.json" and bool(re.fullmatch(r"[a-f0-9]{64}", str(c.get("previous_delta_sha256", "")))), "correction history binding missing")
+        if correction_delivered:
+            check(bool(re.fullmatch(r"[a-f0-9]{40}", str(c.get("source_main_sha", "")))) and bool(re.fullmatch(r"https://github.com/pcvantol/djconnect/pull/[0-9]+", str(c.get("source_pr", "")))), "correction source receipt missing")
+            check(c.get("source_review") == "PASS" and c.get("required_checks") == "PASS" and c.get("protected_merge") is True, "correction protected checks missing")
+            check(all(bool(re.fullmatch(r"[a-f0-9]{64}", str(c.get(k, "")))) for k in ("archive_sha256", "formal_evidence_sha256")), "correction artifact receipt missing")
     check(
         d.get("execution_authority") is False and d.get("automatic_dispatch") is False,
         "no product dispatch authorized",
@@ -76,16 +93,18 @@ def validate_delta(plan: dict[str, Any]) -> list[str]:
         len(nodes) == len(d["nodes"]) and None not in nodes and not (set(nodes) & set(inherited)),
         "duplicate or inherited node",
     )
+    if artwork:
+        check({nid for nid in nodes if isinstance(nid, str) and nid.startswith("CORRECTION::")} == {"CORRECTION::CORE::DISCOVERY-ARTWORK", "CORRECTION::APPLE::DISCOVERY-ARTWORK-ACCEPTANCE"}, "one existing-capability correction boundary required")
     lanes = {lane["id"]: lane["repository"] for lane in plan["lanes"]}
     for nid, n in nodes.items():
         check(lanes.get(n.get("lane")) == n.get("repository"), "unknown owning lane/repository")
-        admitted = implementation and nid in {"SLICE::CORE::DJ-PRESENCE-CONTRACT", "SLICE::CORE::DJ-PRESENCE-POLICY"}
-        check(n.get("status") in ({"Completed" if delivered else "In progress"} if admitted else {"Planned", "Completed"}), "invalid node status")
-        check(
-            n.get("status") == "Planned" or admitted or nid == "SLICE::CORE::ACTIVE-SESSION-MOOD",
-            "presence implementation must remain Planned",
-        )
-        check(n.get("assignment_status") == (("CORE_DELIVERED" if delivered else "IN_PROGRESS") if admitted else "NOT_ISSUED"), "unadmitted assignment may not start")
+        presence_admitted = implementation and nid in {"SLICE::CORE::DJ-PRESENCE-CONTRACT", "SLICE::CORE::DJ-PRESENCE-POLICY"}
+        correction_admitted = artwork and nid == "CORRECTION::CORE::DISCOVERY-ARTWORK"
+        admitted = presence_admitted or correction_admitted
+        node_delivered = correction_delivered if correction_admitted else delivered
+        check(n.get("status") in ({"Completed" if node_delivered else "In progress"} if admitted else {"Planned", "Completed"}), "invalid node status")
+        check(n.get("status") == "Planned" or admitted or nid == "SLICE::CORE::ACTIVE-SESSION-MOOD", "unadmitted implementation must remain Planned")
+        check(n.get("assignment_status") == (("CORE_DELIVERED" if node_delivered else "IN_PROGRESS") if admitted else "NOT_ISSUED"), "unadmitted assignment may not start")
         check(
             all(
                 n.get(k)
@@ -93,7 +112,7 @@ def validate_delta(plan: dict[str, Any]) -> list[str]:
             ),
             "node criteria/provenance missing",
         )
-        check(n.get("source_ids") == ["OWNER-DJ-PRESENCE-20261011"], "unqualified provenance")
+        check(n.get("source_ids") == (["OWNER-DISCOVERY-ARTWORK-20261012"] if artwork and nid.startswith("CORRECTION::") else ["OWNER-DJ-PRESENCE-20261011"]), "unqualified provenance")
     refs = d["document_references"]
     paths = [r.get("path") for r in refs]
     check(len(paths) == len(set(paths)), "duplicate document reference")
@@ -151,7 +170,7 @@ def validate_delta(plan: dict[str, Any]) -> list[str]:
             ),
             "edge subset/evidence missing",
         )
-        check(e.get("source_ids") == ["OWNER-DJ-PRESENCE-20261011"], "edge provenance mismatch")
+        check(e.get("source_ids") == (["OWNER-DISCOVERY-ARTWORK-20261012"] if artwork and str(e.get("id", "")).startswith("ARTWORK-") else ["OWNER-DJ-PRESENCE-20261011"]), "edge provenance mismatch")
         if e.get("kind") == "strategy_order":
             check(e.get("hard_precedence") is False, "strategy is not hard dependency")
     # Validate all new edges, including soft order, against inherited hard graph.
@@ -182,7 +201,8 @@ def render_delta(p):
     d = p[KEY]
     nodes = {n["id"]: n for n in d["nodes"]}
     inherited = {n["id"]: n for n in p["nodes"]}
-    current = d.get("schema_version") == "djconnect-federated-planning-delta/2"
+    current = d.get("schema_version") in {"djconnect-federated-planning-delta/2", "djconnect-federated-planning-delta/3"}
+    artwork = d.get("schema_version") == "djconnect-federated-planning-delta/3"
     delivery = d.get("implementation_receipt", {}).get("source_delivery", "UNPUBLISHED")
     intro = (
         "Generated from djconnect-platform-v1.json, maintenance " + d["decision_id"] + ".\n\n"
@@ -190,6 +210,8 @@ def render_delta(p):
         "Only this bounded delta is current here; inherited premerge statuses are not current blockers. "
         + ("Only the selected existing Core writer is admitted by implementation receipt; no automatic dispatch, second writer or native/installed/hardware acceptance.\n\n" if current else "No portfolio-wide refresh, writer reservation, product dispatch or runtime acceptance is claimed.\n\n")
     )
+    if artwork:
+        intro += "Current bounded artwork correction: [owner6117357579](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6117357579). Existing Discovery capability only; source/Finalization gates remain separate, native/installed/live acceptance remains open. Presence source1150/Finalization1151 stays closed. Prior version2 is preserved in history/20261012.\n\n"
     out = {}
     out["README.md"] = (
         "# Federated roadmap — versioned maintenance\n\n"
@@ -264,6 +286,7 @@ def render_delta(p):
     out["HANDOFFS.md"] = (
         "# Planned handoffs\n\n"
         + intro
+        + ("Core → existing Apple87: exact Discovery feed/scoped image/TTL/error/source fixtures; visible attribution, cached pixels and lifecycle require separate native evidence. No Swift/receiver writer or new provider.\n\n" if artwork else "")
         + "Core → Apple: pinned early presence contract/policy fixtures permit contract integration before all Finalization docs. Independent UX preparation is not integrated acceptance.\n\nCore shared renderer → VibeCast: actual authorized varied Broadcast traces on both existing builds; no second renderer.\n\nCore + Apple owning receipts → joint product acceptance, no extra writerlane. Physical/native/installed effects stay separately qualified.\n"
     )
     ids = {nid: "n" + str(i) for i, nid in enumerate([*inherited, *nodes])}
@@ -284,7 +307,7 @@ def render_delta(p):
         "AND prerequisites; exact subset receipts required",
     )
     out["diagrams/milestones.mmd"] = diagram(
-        d["edges"], "Versioned presence delta; soft Mood order is not presence policy"
+        d["edges"], "Versioned bounded maintenance; no implicit consumer dispatch"
     )
     out["diagrams/cross-repository.mmd"] = (
         "flowchart LR\n  Core -->|early pinned contract| Apple\n  Core -->|both build traces| VibeCast\n  Core --> Product\n  Apple --> Product\n  VibeCast --> Product\n"

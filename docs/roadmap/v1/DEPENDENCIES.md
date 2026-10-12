@@ -4,6 +4,8 @@ Generated from djconnect-platform-v1.json, maintenance DJC-DJ-PRESENCE-ROADMAP-D
 
 The original3October snapshot/audit/source pins and projections are immutable history in [history/20261003](history/20261003/README.md). Only this bounded delta is current here; inherited premerge statuses are not current blockers. Only the selected existing Core writer is admitted by implementation receipt; no automatic dispatch, second writer or native/installed/hardware acceptance.
 
+Current bounded artwork correction: [owner6117357579](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6117357579). Existing Discovery capability only; source/Finalization gates remain separate, native/installed/live acceptance remains open. Presence source1150/Finalization1151 stays closed. Prior version2 is preserved in history/20261012.
+
 | Producer → consumer | Kind / phase / gate | Hard | AND/OR | Required subset | Evidence |
 |---|---|---|---|---|---|
 | `SLICE::CORE::DJ-PRESENCE-CONTRACT` → `SLICE::CORE::DJ-PRESENCE-POLICY` | implementation_contract / implementation / start | True | AND | Exact policy table/default/ownercontract | Pinned contract and producer fixtures |
@@ -16,3 +18,4 @@ The original3October snapshot/audit/source pins and projections are immutable hi
 | `SLICE::CORE::ACTIVE-SESSION-MOOD` → `PROJ::INTELLIGENCE::DJ-PRESENCE` | strategy_order / selection / start | False | AND | Mood completion orders selection, never determines presence frequency | Source1146/Finalization1147; resource/writerslot admission remains outside functional DAG |
 | `SLICE::CORE::ACTIVE-SESSION-MOOD` → `SLICE::CORE::DJ-PRESENCE-CONTRACT` | implementation_contract / implementation / start | True | AND | Only ordinary pairing, server-owner, active Session, final authority and CAS/readback subset | Qualified ACTIVE_SESSION_MOOD_V1.md, no Mood endpoint extension |
 | `PROJ::INTELLIGENCE::DJ-PRESENCE` → `PROJ::ROADMAP::NARRATIVE-LYRICS` | strategy_order / selection / start | False | AND | Later richer presenter maturity reuses v1; broader Deferred family remains Deferred | No retrospective v1 completion gate or new semantic relationship dispatch |
+| `CORRECTION::CORE::DISCOVERY-ARTWORK` → `CORRECTION::APPLE::DISCOVERY-ARTWORK-ACCEPTANCE` | implementation_contract / integration_acceptance / completion | True | AND | Exact producer/feed/image/TTL/error fixtures, ordinary paired auth and scoped source ownership; independent preparation need not wait for Finalization docs | docs/product/DISCOVERY_ARTWORK_CONTINUITY_V1.md; real isolated HA/Store/image fixtures; separate native owning receipt |

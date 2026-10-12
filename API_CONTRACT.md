@@ -1032,6 +1032,17 @@ the same structured profile without mutating playback or consent.
 
 ## Music Discovery Contract
 
+Artwork continuity is specified in
+[`DISCOVERY_ARTWORK_CONTINUITY_V1.md`](docs/product/DISCOVERY_ARTWORK_CONTINUITY_V1.md).
+Optional image output is a scoped relative HA proxy URL with UNIX-second
+`image_expires_at` and exact Spotify `image_attribution`. Reference TTL ≤6h;
+image lease ≤900s; feed TTL never extends either. Headerless image loads remain
+supported, explicitly wrong credentials fail401, expired/revoked grants fail404,
+unsafe/failed upstream content fails502. Existing legacy Ask DJ/shared-renderer
+image tokens retain their contract. Refresh context withdrawal returns409
+`music_dna_context_changed`; retry uses the same ordinary authorized routes.
+
+
 Music Discovery is a first-class client surface for iOS, macOS and watchOS. It
 uses Music DNA as its primary recommendation input and is disabled until Music
 DNA is enabled for the resolved user/client context. Clients must not generate

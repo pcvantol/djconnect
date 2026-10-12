@@ -1,6 +1,8 @@
 """Server-side Music DNA for Ask DJ context."""
 from __future__ import annotations
 
+import asyncio
+
 from collections import defaultdict, deque
 from copy import deepcopy
 from datetime import datetime, timedelta, timezone
@@ -16,6 +18,7 @@ from .const import (
     CONF_MUSIC_BACKEND_REVISION,
 )
 from .mood import mood_zone_for_value
+from .discovery_artwork import compact_artwork, strip_artwork, artwork_owner
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -38,6 +41,7 @@ class MusicDNAManager:
         self.hass = hass
         self._store = store if store is not None else self._create_store(hass)
         self._loaded = False
+        self._save_lock = asyncio.Lock()
         self._data: dict[str, Any] = {"version": STORE_VERSION, "memories": {}}
         self._session: dict[str, deque[dict[str, Any]]] = defaultdict(
             lambda: deque(maxlen=MAX_SESSION_TURNS)
@@ -63,7 +67,17 @@ class MusicDNAManager:
         """Persist compact Music DNA."""
         await self.async_load()
         if self._store is not None:
-            await self._store.async_save(_compact_store_data(self._data))
+            async with self._save_lock:
+                save = asyncio.create_task(self._store.async_save(_compact_store_data(self._data)))
+                cancelled = False
+                while not save.done():
+                    try:
+                        await asyncio.shield(save)
+                    except asyncio.CancelledError:
+                        cancelled = True
+                await save
+                if cancelled:
+                    raise asyncio.CancelledError
 
     async def async_clear(self, music_dna_key: str | None = None) -> None:
         """Clear all memory or one resolved memory key."""
@@ -287,7 +301,7 @@ class MusicDNAManager:
                 "error": "music_dna_not_enabled",
                 "message": "Music DNA must be enabled before import.",
             }, 409
-        imported = _import_profile_payload(payload)
+        imported = _import_profile_payload(strip_artwork(payload))
         if imported is None:
             return {
                 "success": False,
@@ -334,7 +348,7 @@ class MusicDNAManager:
                 or _call_or_none(getattr(runtime, "client_type", None))
             ),
             "app_version": _clean_text(payload.get("app_version") or payload.get("version")),
-            "profile": profile,
+            "profile": strip_artwork(profile),
         }
 
     async def async_append_runtime_message(
@@ -576,13 +590,30 @@ class MusicDNAManager:
         payload: dict[str, Any] | None = None,
         *,
         user_id: str | None = None,
+        refresh_guard: Any | None = None,
     ) -> str:
         """Persist a compact backend listening profile snapshot."""
-        key = await self.async_update_client_metadata(runtime, payload, user_id=user_id)
+        await self.async_load()
+        if refresh_guard is not None and (not refresh_guard.valid() or not refresh_guard.persistence_allowed):
+            return refresh_guard.key
+        key = resolve_music_dna_key(runtime, payload, user_id=user_id)
         memory = self._memory_for_key(key)
         if not self._memory_enabled(memory):
             return key
-        compact = _compact_listening_profile(profile)
+        # Recent-only refresh must not erase authoritative top-item references.
+        prior = memory.get("listening_profile") or {}
+        merged = {**prior, **profile} if "top_tracks_by_range" not in profile and "top_artists_by_range" not in profile else profile
+        compact = _compact_listening_profile(merged)
+        owner = artwork_owner(runtime)
+        for value in [*compact.get("recent_tracks", []), *[i for rows in compact.get("top_tracks_by_range", {}).values() for i in rows], *[i for rows in compact.get("top_artists_by_range", {}).values() for i in rows]]:
+            if value.get("artwork"):
+                # Do not rebind earlier partial-refresh references to a new account.
+                previous_owner = value["artwork"].get("owner")
+                if previous_owner and previous_owner != owner:
+                    value.pop("artwork")
+                else:
+                    value["artwork"]["owner"] = owner
+        before = deepcopy(memory)
         if compact:
             memory["listening_profile"] = compact
             memory["listening_profile_snapshots"] = _updated_listening_profile_snapshots(
@@ -599,7 +630,20 @@ class MusicDNAManager:
                 memory["favorite_genres"] = _unique_texts(
                     [*genres, *(memory.get("favorite_genres") or [])]
                 )[:20]
-        await self.async_save()
+        written = deepcopy(memory)
+        changed = {field for field in before.keys() | written.keys() if before.get(field) != written.get(field)}
+        try:
+            await self.async_save()
+        except Exception:
+            # Field CAS preserves concurrent feedback, mood and newer clear state.
+            if self._data["memories"].get(key) is memory and (refresh_guard is None or refresh_guard.valid()):
+                for field in changed:
+                    if memory.get(field) == written.get(field):
+                        if field in before:
+                            memory[field] = before[field]
+                        else:
+                            memory.pop(field, None)
+            raise
         return key
 
     async def async_listening_profile(
@@ -642,6 +686,8 @@ class MusicDNAManager:
         """Record that the user explicitly played an Ask DJ recommendation."""
         key = await self.async_update_client_metadata(runtime, payload, user_id=user_id)
         memory = self._memory_for_key(key)
+        if not self._memory_enabled(memory):
+            return key
         plays = memory.get("recommendation_plays")
         if not isinstance(plays, list):
             plays = []
@@ -658,6 +704,11 @@ class MusicDNAManager:
             }
         )
         if record:
+            ref = _accepted_artwork_reference(memory, str(record.get("uri") or ""), artwork_owner(runtime))
+            if ref:
+                record["artwork"] = ref
+                if record["uri"].startswith("spotify:track:"):
+                    record["album_uri"] = ref["media_uri"]
             memory["recommendation_plays"] = [record, *plays][:MAX_CHAT_FACTS]
             memory["last_played_recommendation"] = record
             memory["updated_at"] = _now()
@@ -1212,6 +1263,13 @@ def _prompt_safe_memory(memory: dict[str, Any]) -> dict[str, Any]:
         for key, value in memory.items()
         if key in allowed and value not in (None, "", [], {})
     }
+    if isinstance(result.get("recommendation_plays"), list):
+        for item in result["recommendation_plays"]:
+            if isinstance(item, dict):
+                ref = compact_artwork(item)
+                item.pop("artwork", None)
+                if ref:
+                    item["artwork"] = ref
     if isinstance(result.get("recent_tracks"), list):
         result["recent_tracks"] = result["recent_tracks"][:MAX_RECENT_TRACKS]
     if isinstance(result.get("track_insight_energy_signals"), list):
@@ -1904,7 +1962,26 @@ def _track_from_context(*sources: Any) -> dict[str, Any]:
     return {}
 
 
-def _compact_track(track: dict[str, Any]) -> dict[str, Any]:
+def _accepted_artwork_reference(memory: dict[str, Any], uri: str, owner: dict[str, str]) -> dict[str, Any]:
+    """Reuse only the server's current exact media proof, never client-supplied artwork."""
+    listening = memory.get("listening_profile") or {}
+    candidates = [*listening.get("recent_tracks", [])]
+    for family in ("top_tracks_by_range", "top_artists_by_range"):
+        for items in (listening.get(family) or {}).values():
+            candidates.extend(items)
+    for item in candidates:
+        ref = compact_artwork(item)
+        if not ref or ref.get("owner") != owner:
+            continue
+        if uri == ref["subject_uri"]:
+            return ref
+        if uri.startswith("spotify:album:") and uri == ref["media_uri"]:
+            # The known track's artwork already belongs to this exact album edition.
+            return {**ref, "subject_uri": uri}
+    return {}
+
+
+def _compact_track(track: dict[str, Any], *, retain_artwork: bool = False) -> dict[str, Any]:
     keys = (
         "id",
         "uri",
@@ -1932,6 +2009,12 @@ def _compact_track(track: dict[str, Any]) -> dict[str, Any]:
     duration_ms = _duration_ms(track)
     if duration_ms > 0:
         result["duration_ms"] = duration_ms
+    if retain_artwork:
+        ref = compact_artwork(track)
+        if ref:
+            result["artwork"] = ref
+            if track.get("album_uri"):
+                result["album_uri"] = track["album_uri"]
     return result
 
 
@@ -2040,6 +2123,9 @@ def _compact_profile_artist(artist: dict[str, Any]) -> dict[str, Any]:
         cleaned = _clean_text(value)
         if cleaned:
             result[key] = cleaned
+    ref = compact_artwork(artist)
+    if ref:
+        result["artwork"] = ref
     return result
 
 
@@ -2049,14 +2135,14 @@ def _compact_listening_profile(profile: dict[str, Any]) -> dict[str, Any]:
     recent_tracks = [
         compact
         for compact in (
-            _compact_track(track)
+            _compact_track(track, retain_artwork=True)
             for track in (profile.get("recent_tracks") or [])[:50]
             if isinstance(track, dict)
         )
         if compact
     ]
     top_tracks_by_range = _compact_profile_ranges(
-        profile.get("top_tracks_by_range"), _compact_track
+        profile.get("top_tracks_by_range"), lambda track: _compact_track(track, retain_artwork=True)
     )
     top_artists_by_range = _compact_profile_ranges(
         profile.get("top_artists_by_range"), _compact_profile_artist

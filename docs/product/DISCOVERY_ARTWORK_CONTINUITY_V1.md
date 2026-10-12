@@ -4,7 +4,7 @@ Assignment `DJC-CORE-DISCOVERY-ARTWORK-CONTINUITY-V1-20261012`,
 [selection6117357579](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6117357579).
 Actual base `90fa0463bb40c705c41d4025dc53aee4de514c79`, same Core writer,
 branch `codex/discovery-artwork-continuity-v1`. Presence1150/1151 remains closed.
-Phase: pre-runtime contract and reproduced baseline, not delivered software.
+Phase: local implementation and qualification; unpublished, not protected delivery.
 Source and separate Finalization publication need their own exact-SHA grants.
 
 ## Reproduced boundary
@@ -41,7 +41,7 @@ Reference TTL is at most the existing six-hour provider/profile cache lifetime;
 second compaction/load never extends capture or expiry. Expired artwork is omitted.
 
 Generic `_compact_track` callers do not automatically acquire image retention.
-Listening-profile/current qualified copies opt into the bounded reference
+Listening-profile and exact server-proven accepted recommendation copies opt into the bounded reference
 explicitly; historical snapshots, imports and exports do not acquire portable
 artwork grants. Imports strip artwork regardless of supplied provider/expiry;
 normal authorized provider refresh restores old stores with missing references.
@@ -54,6 +54,36 @@ Six hours is this existing Core cache bound, not a provider-guaranteed URL lifet
 Spotify attribution and an exact source/media link accompany valid image output;
 DJConnect retains MIT licensing and Spotify non-affiliation notices.
 
+## Exact optional schema
+
+The current private Store reference is `artwork` with `version:1`,
+`provider:"spotify"`, `subject_uri`, `media_uri`, lowercase hex `asset_id`
+(40–64 characters), numeric `captured_at`/`expires_at`, and `owner` containing
+non-secret canonical `profile_id`, `backend_id`, `account_id`, `revision`.
+No device/HA/provider credential or opaque delivery grant is serialized.
+Expiry is at most capture + **21,600 seconds** and never extended by compaction.
+Track IDs and album IDs must agree with the provider's exact URIs.
+
+Public feed items retain existing `id`, `kind`, `uri`, reason and quality fields.
+Valid artwork adds `image_url`, `image_expires_at` (UNIX UTC seconds, optionally
+fractional) and `image_attribution` (`provider`, exact `media_uri`, `source_url`).
+Absent/unsafe/expired data omits all three; no borrowed asset or source lookup.
+`_artwork` is private transient feed-cache metadata and is removed before output.
+Delivery expiry is `min(reference.expires_at, issue_time + 900 seconds)`.
+At most **512** transient grants exist; expired/revoked grants are reclaimed,
+and oldest grants may be evicted at capacity. No grant survives Store reload.
+
+Image GET is headerless by capability possession, compatible with existing
+Apple `AsyncImage`. Supplied identity/bearer headers must authorize the issuing
+paired device. Response: `200` image; `404` missing/expired/revoked authority;
+`401` explicitly wrong credentials; `502` upstream, redirect or content failure.
+Timeout is **12 seconds**, streamed body at most **2 MiB**, MIME/magic limited to
+PNG/JPEG/WebP. Successful responses use `Cache-Control: private, no-store` and
+`X-Content-Type-Options: nosniff`. Feed TTL **86,400 seconds** is not image TTL.
+No incoming bearer/cookie/provider authorization is forwarded to the CDN.
+Music DNA profile withdrawal during refresh returns `409` with
+`success:false,error:"music_dna_context_changed"`; no stale pre-fetch profile.
+
 ## Existing delivery and cache
 
 Existing Discovery `image_url` remains optional and points to the existing HA
@@ -62,7 +92,7 @@ feed access, is bounded by reference expiry and a short delivery lease. Its
 owner entry/pairing, exact resolved Profile/account/backend and Music DNA clear/
 opt-in generation are checked before and after network fetch. A supplied wrong
 device/bearer is rejected. Lifecycle withdrawal yields unavailable artwork without
-serving old pixels or carrying state to another Profile. No new endpoint or broad
+serving old image bytes in a new server response or carrying state to another Profile. No new endpoint or broad
 HA credential replaces ordinary device authentication. Legacy shared-renderer and
 Ask DJ image transport remains compatible; Discovery data never enters VibeCast.
 
@@ -98,3 +128,33 @@ Native, installed, live-provider and hardware acceptance remain separate. Existi
 main workflows publish SHA-bound internal HA artifacts/formal evidence; no install,
 restart, Pages/signing/hardware/service/workflow/runner/new cost route is selected.
 Stop after this one Core correction and its separately gated Finalization.
+
+
+## Existing Apple consumer boundary
+
+Read-only exact Apple main `c045473a8a0eda05b0ad4824284ca50a46baf9d2`,
+register87 receipt6117731869 closes99/100. Relative HA `image_url` and headerless
+loads are compatible. Native currently does not decode separate attribution or
+expiry fields: bronchips are not an exact clickable Spotify source link, and
+server revocation cannot erase previously decoded pixels. Card/open-detail
+expiry, cache clearing, opt-out/Profile/account transitions and visible attribution
+need Apple-owned acceptance. This Core correction does not reopen99 or write Swift.
+Native, installed, live Spotify and hardware remain **NOT_RUN**.
+
+
+## Bounded explicit positives and qualification relationship
+
+An existing accepted album item may reuse a current listening-profile track's
+reference only when its album URI equals that reference's exact media URI.
+Original capture/expiry and owner remain unchanged. Incoming client artwork is
+ignored; missing/wrong/expired proof stays a placeholder. Current favorite
+projections and name-only artist counts are not enriched by name. Historical
+snapshots and exported/imported profiles do not retain artwork references.
+Private-session read and persistence permissions are independently fenced;
+private provider cache entries cannot become normal persistent enrichment.
+
+This is an indirect Golden Scenario relationship: it restores a private
+Discovery image projection, without changing eligibility, Runtime/Planner/
+Moment/Flow/Broadcast or shared VibeCast. Existing presence/Mood/conversation/
+history/search/retirement/renderer and verification-framework regressions remain
+required; transport/browser proof is isolated from native/installed/hardware.
