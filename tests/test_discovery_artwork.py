@@ -123,6 +123,8 @@ class ArtworkReferenceTest(unittest.TestCase):
         }
         self.assertEqual(art.strip_artwork(source), {"nested": [{"title": "Safe"}]})
         self.assertIn("image_url", source)
+        aliases = {"imageURL": URL, "albumArtURL": URL, "imageAttribution": {}, "Images": []}
+        self.assertEqual(art.strip_artwork(aliases), {})
 
 
 class ArtworkLifecycleTest(unittest.IsolatedAsyncioTestCase):
@@ -355,3 +357,24 @@ class ArtworkLifecycleTest(unittest.IsolatedAsyncioTestCase):
             self.runtime, profile(), self.payload, refresh_guard=guard
         )
         self.assertNotIn("listening_profile", self.manager.data["memories"]["profile:one"])
+
+    async def test_normal_token_rotation_keeps_guard_but_discards_source_cache(self):
+        from custom_components.djconnect.spotify_backend import SpotifyBackend
+
+        self.runtime.config["spotify_client_id"] = "fixture-client"
+        self.runtime.config["spotify_refresh_token"] = "fixture-first"
+        guard = await art.capture_refresh_guard(self.runtime, self.payload)
+        backend = SpotifyBackend(self.hass, self.runtime)
+        calls = []
+
+        async def fixture():
+            calls.append(1)
+            return len(calls)
+
+        self.assertEqual(await backend._cached("listening_profile:v1", fixture), 1)
+        self.runtime.config["spotify_refresh_token"] = "fixture-rotated"
+        self.assertTrue(guard.valid())
+        self.assertEqual(await backend._cached("listening_profile:v1", fixture), 2)
+        self.assertEqual(len(self.runtime.backend_cache), 1)
+        self.runtime.config["spotify_client_id"] = "different-provider-client"
+        self.assertFalse(guard.valid())

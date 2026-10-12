@@ -142,8 +142,10 @@ Stop after this one Core correction and its separately gated Finalization.
 
 ## Existing Apple consumer boundary
 
-Read-only exact Apple main `c045473a8a0eda05b0ad4824284ca50a46baf9d2`,
-register87 receipt6117731869 closes99/100. Relative HA `image_url` and headerless
+Fresh Apple main `7900ec77455234879a35844b477c6d1e46412cef`,
+register87 receipt6118998553 closes header101/102 as well as prior99/100.
+The four read-only Discovery consumer files are byte-equal to the previously
+reviewed c045473a8a0eda05b0ad4824284ca50a46baf9d2; transport semantics are unchanged. Relative HA `image_url` and headerless
 loads are compatible. Native currently does not decode separate attribution or
 expiry fields: bronchips are not an exact clickable Spotify source link, and
 server revocation cannot erase previously decoded pixels. Card/open-detail
@@ -168,3 +170,43 @@ Discovery image projection, without changing eligibility, Runtime/Planner/
 Moment/Flow/Broadcast or shared VibeCast. Existing presence/Mood/conversation/
 history/search/retirement/renderer and verification-framework regressions remain
 required; transport/browser proof is isolated from native/installed/hardware.
+
+## Current local lifecycle evidence
+
+The current ordinary-pairing HA receipt proves normal OAuth refresh-token
+rotation retains provider authority (`200`, rotated credential persisted),
+while replacement of the registered provider during the same external fetch
+returns `409` and stores no profile. Provider/entry identity fences authority;
+rotating HA-only credential material fences source-cache reuse. It is neither
+serialized nor included in a guard repr. Profile readback validates the
+captured authority before and after both initial and final Store reads,
+including disabled-profile reads.
+
+The [actual HA fixture](../../examples/client_contracts/discovery_artwork_v1/local-ha-feed-and-image.json)
+binds every integration file hash before and after execution. An authorized
+Store input with an original reference near its six-hour expiry exercises
+real wall-clock `200 → 404`, followed by omission of `image_url`,
+`image_expires_at` and `image_attribution`. This short remaining-reference
+case does not claim a six-hour duration run. Missing and conflicting provider
+art retain existing fallback cards; a repeated read causes zero provider calls.
+Actual CDN redirect, wrong MIME/magic, upstream error, declared/chunked oversize
+and timeout return `502`. The separately recorded full 900-second lease trial
+must match the current source hashes before it qualifies this candidate.
+
+The readback-race test resets each case's data without re-patching shared
+module functions. Full regression includes subsequent Session conversation
+acceptance/cancellation, preventing the original test-fixture leakage.
+
+The final local [qualification summary](../../examples/client_contracts/discovery_artwork_v1/qualification-summary.json)
+records 1,740 owning tests (seven existing skips), 127 roadmap tests and the
+171-test/234-scenario verification-framework run. The current
+[900-second HA lease receipt](../../examples/client_contracts/discovery_artwork_v1/real-lease-expiry-and-renewal.json)
+now binds the same 148 integration hashes as the expanded short qualification.
+It proves old URL `404`, cached feed renewal/new URL `200` and byte-equal
+original listening-profile capture/expiry after real elapsed time above 900s.
+Coverage is retained per owning file from a successful full unit run and
+successful real HA run only: new artwork module 93%; existing owning files
+56–83%. This is measured coverage, not full path/native acceptance. Ruff,
+Bandit medium/high and offline schema/reference/uniqueness/acyclicity/render
+checks pass. Protected delivery and separate Finalization remain pending;
+these local receipts grant neither publication nor installation.

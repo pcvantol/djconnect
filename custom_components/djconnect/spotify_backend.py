@@ -24,7 +24,7 @@ from .const import (
     DEFAULT_SPOTIFY_MARKET,
 )
 from .music_dna import resolve_music_dna_key
-from .discovery_artwork import capture_artwork, runtime_scope
+from .discovery_artwork import capture_artwork, runtime_scope, credential_cache_scope
 from .spotify_oauth import SpotifyTokenRefreshError, refresh_access_token
 
 SPOTIFY_API_BASE = "https://api.spotify.com/v1"
@@ -477,7 +477,7 @@ class SpotifyBackend:
         if cache is None:
             self.runtime.backend_cache = {}
             cache = self.runtime.backend_cache
-        scope = runtime_scope(self.runtime)
+        scope = (runtime_scope(self.runtime), credential_cache_scope(self.runtime))
         if key == "listening_profile:v1":
             key = key + ":" + hashlib.sha256(repr(scope).encode()).hexdigest()
             for old_key in list(cache):
@@ -488,7 +488,7 @@ class SpotifyBackend:
         if cached and now - cached[0] < ttl:
             return cached[1]
         value = await loader()
-        if runtime_scope(self.runtime) == scope:
+        if (runtime_scope(self.runtime), credential_cache_scope(self.runtime)) == scope:
             cache[key] = (now, value)
         return value
 

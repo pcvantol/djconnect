@@ -68,12 +68,15 @@ class Network:
 
     def request(self, method, url, **kwargs):
         u = urlsplit(url)
-        assert u.hostname in {"api.spotify.com", "i.scdn.co"} and u.scheme == "https"
+        assert u.hostname in {"api.spotify.com", "accounts.spotify.com", "i.scdn.co"} and u.scheme == "https"
         self.calls.append({"method": method, "path": u.path, "provider_fixture": True})
         return self.client.request(method, u.path + ("?" + u.query if u.query else ""), **kwargs)
 
     def get(self, url, **kwargs):
         return self.request("GET", url, **kwargs)
+
+    def post(self, url, **kwargs):
+        return self.request("POST", url, **kwargs)
 
 
 def png(color):
@@ -92,6 +95,11 @@ def png(color):
 
 
 async def main():
+    source_hashes = {
+        str(path.relative_to(ROOT)): hashlib.sha256(path.read_bytes()).hexdigest()
+        for path in sorted((ROOT / "custom_components/djconnect").rglob("*"))
+        if path.is_file() and "__pycache__" not in path.parts
+    }
     config = LAB / ("baseline-ha-" + secrets.token_hex(4))
     config.mkdir(exist_ok=True)
     hass = HomeAssistant(str(config))
@@ -197,7 +205,7 @@ async def main():
     )
     await storage.async_upsert_device(ident2["device_id"], "ios", linked_profile_id=p2.profile_id)
     register_http_views(hass)
-    mode = {"value": "ok", "provider_delay": False}
+    mode = {"value": "ok", "provider_delay": False, "provider_art": "valid"}
     entered = asyncio.Event()
     release = asyncio.Event()
     assets = {
@@ -207,6 +215,14 @@ async def main():
     }
 
     async def provider(req):
+        if req.path == "/api/token":
+            data = await req.post()
+            assert req.method == "POST" and data["grant_type"] == "refresh_token"
+            assert data["client_id"] == "fixture-client"
+            return web.json_response({
+                "access_token": "fixture-provider-access", "expires_in": 3600,
+                "refresh_token": "fixture-rotated-provider-only",
+            })
         if req.path.startswith("/image/"):
             assert "Authorization" not in req.headers and "Cookie" not in req.headers
             if mode["value"] == "redirect":
@@ -215,6 +231,18 @@ async def main():
                 return web.Response(body=b"<html>wrong</html>", content_type="image/png")
             if mode["value"] == "large":
                 return web.Response(body=b"x" * (2 * 1024 * 1024 + 1), content_type="image/png")
+            if mode["value"] == "mime":
+                return web.Response(body=assets["a" * 40], content_type="text/html")
+            if mode["value"] == "upstream_error":
+                return web.Response(status=503)
+            if mode["value"] == "chunked_large":
+                response = web.StreamResponse(headers={"Content-Type": "image/png"})
+                await response.prepare(req)
+                await response.write(b"x" * (2 * 1024 * 1024 + 1))
+                await response.write_eof()
+                return response
+            if mode["value"] == "timeout":
+                await asyncio.sleep(14.2)
             if mode["value"] == "delay":
                 entered.set()
                 await release.wait()
@@ -231,6 +259,12 @@ async def main():
         second = req.headers.get("Authorization") == "Bearer fixture-second-access"
         raw_track = deepcopy(TRACK)
         raw_artist = deepcopy(ARTIST)
+        if mode["provider_art"] == "missing":
+            raw_track["album"]["images"] = []
+            raw_artist["images"] = []
+        elif mode["provider_art"] == "conflicting":
+            raw_track["album"]["id"] = "Z" * 22
+            raw_artist["id"] = "Z" * 22
         if second:
             raw_track["id"] = "D" * 22
             raw_track["uri"] = "spotify:track:" + "D" * 22
@@ -320,6 +354,7 @@ async def main():
         record = {
             "assignment": "DJC-CORE-DISCOVERY-ARTWORK-CONTINUITY-V1-20261012",
             "base": "90fa0463bb40c705c41d4025dc53aee4de514c79",
+            "integration_source_hashes": source_hashes,
             "ordinary_pair_auth": True,
             "core_mocked": False,
             "external_provider_network": "BOUNDED_LOOPBACK_FIXTURE_ONLY",
@@ -551,10 +586,10 @@ async def main():
         out, err = await proc.communicate()
         assert proc.returncode == 0, err.decode()
         cases["actual_browser_decode"] = json.loads(out)
-        for name in ("redirect", "html", "large"):
+        for name in ("redirect", "html", "large", "mime", "upstream_error", "chunked_large", "timeout"):
             mode["value"] = name
             failed = await client.get(image_url)
-            assert failed.status == 502
+            assert failed.status == 502, (name, failed.status)
             cases[name] = failed.status
         mode["value"] = "delay"
         late = asyncio.create_task(client.get(image_url))
@@ -645,7 +680,114 @@ async def main():
         }, late_body
         assert not rt.memory.data["memories"][key].get("listening_profile")
         cases["actual_provider_consent_aba"] = late_profile.status
+        # Ordinary authorized read must accept supported OAuth rotation while
+        # the same canonical account/provider still owns the result.
+        rt.spotify_access_token = None
+        rt.spotify_access_token_expires_at = 0
+        rt.backend_cache.clear()
+        rotation = await client.post(
+            "/api/djconnect/v1/music_dna/profile", json=ident, headers=headers
+        )
+        rotation_body = await rotation.json()
+        assert rotation.status == 200, rotation_body
+        assert slot.data["spotify_refresh_token"] == "fixture-rotated-provider-only"
+        assert any(c["path"] == "/api/token" for c in network.calls)
+        cases["actual_oauth_rotation_same_provider"] = {"status": 200, "persisted": True}
+        # Replacement of the actual registered provider during external I/O
+        # must reject old data, even though its ConfigEntry/account names match.
+        await rt.memory.async_clear(key)
+        rt.backend_cache.clear()
+        entered.clear()
+        release.clear()
+        mode["provider_delay"] = True
+        pending = asyncio.create_task(client.post(
+            "/api/djconnect/v1/music_dna/profile", json=ident, headers=headers
+        ))
+        await asyncio.wait_for(entered.wait(), 5)
+        replacement = DJConnectRuntime(slot)
+        replacement.memory = rt.memory
+        replacement.device_token = rt.device_token
+        hass.data["djconnect"][slot.entry_id] = replacement
+        release.set()
+        mode["provider_delay"] = False
+        replaced = await pending
+        replaced_body = await replaced.json()
+        assert replaced.status == 409 and replaced_body == {
+            "success": False, "error": "music_dna_context_changed"
+        }, replaced_body
+        assert not rt.memory.data["memories"][key].get("listening_profile")
+        cases["actual_provider_replaced_inflight"] = replaced.status
+        hass.data["djconnect"][slot.entry_id] = rt
+        # A bounded, authorized Store input with a soon-expiring original
+        # reference exercises actual wall-clock expiry, never a mocked clock.
+        restored_profile = await client.post(
+            "/api/djconnect/v1/music_dna/profile", json=ident, headers=headers
+        )
+        assert restored_profile.status == 200, await restored_profile.text()
+        memory = rt.memory.data["memories"][key]
+        now = time.time()
+        def shorten_refs(value):
+            if isinstance(value, dict):
+                ref = value.get("artwork")
+                if isinstance(ref, dict):
+                    ref["captured_at"] = now - 21600 + 3
+                    ref["expires_at"] = now + 3
+                for child in value.values():
+                    shorten_refs(child)
+            elif isinstance(value, list):
+                for child in value:
+                    shorten_refs(child)
+        shorten_refs(memory)
+        await rt.memory.async_save()
+        rt.memory = MusicDNAManager(hass)
+        await rt.memory.async_load()
+        rt2.memory = rt.memory
+        expiry_feed = await client.get(
+            "/api/djconnect/v1/music_discovery", params=ident, headers=headers
+        )
+        expiry_json = await expiry_feed.json()
+        expiry_item = next(i for sec in expiry_json["sections"] for i in sec["items"] if i.get("image_url"))
+        before_expiry = await client.get(expiry_item["image_url"])
+        assert before_expiry.status == 200
+        await asyncio.sleep(max(0, now + 3 - time.time() + .1))
+        after_expiry = await client.get(expiry_item["image_url"])
+        assert after_expiry.status == 404
+        expired_feed = await client.get(
+            "/api/djconnect/v1/music_discovery", params=ident, headers=headers
+        )
+        expired_json = await expired_feed.json()
+        assert expired_feed.status == 200, expired_json
+        assert all(not {"image_url", "image_expires_at", "image_attribution"}.intersection(i)
+                   for sec in expired_json["sections"] for i in sec["items"])
+        cases["actual_original_reference_expiry"] = {
+            "before_status": 200, "expired_status": 404,
+            "all_three_optional_fields_absent": True,
+            "clock": "REAL_WALL_CLOCK", "input": "BOUNDED_ORIGINAL_STORE_REFERENCE",
+        }
+        for provider_art in ("missing", "conflicting"):
+            mode["provider_art"] = provider_art
+            await rt.memory.async_clear(key)
+            rt.backend_cache.clear()
+            ordinary = await client.get(
+                "/api/djconnect/v1/music_discovery", params=ident, headers=headers
+            )
+            ordinary_body = await ordinary.json()
+            assert ordinary.status == 200, ordinary_body
+            assert ordinary_body["sections"], "Existing safe fallback must remain available"
+            assert all(not i.get("image_url") for sec in ordinary_body["sections"] for i in sec["items"])
+            calls_after = len(network.calls)
+            repeat = await client.get(
+                "/api/djconnect/v1/music_discovery", params=ident, headers=headers
+            )
+            assert repeat.status == 200
+            assert len(network.calls) == calls_after, "Missing artwork must not cause a refresh loop"
+            cases["actual_" + provider_art + "_provider_art"] = {
+                "placeholder": True, "existing_fallback": True, "repeat_provider_calls": 0,
+            }
+        mode["provider_art"] = "valid"
         if os.environ.get("DJC_ARTWORK_LEASE_PROOF") == "1":
+            await rt.memory.async_clear(key)
+            rt.backend_cache.clear()
             restore = await client.post(
                 "/api/djconnect/v1/music_dna/profile", json=ident, headers=headers
             )
@@ -659,6 +801,8 @@ async def main():
             )
             lease_url = lease_item["image_url"]
             deadline = lease_item["image_expires_at"]
+            original_profile = deepcopy(rt.memory.data["memories"][key]["listening_profile"])
+            lease_entered = time.time()
             (LAB / "lease-start.json").write_text(
                 json.dumps(
                     {
@@ -684,12 +828,19 @@ async def main():
             assert refresh_json["cache"]["hit"] and fresh_item["image_url"] != lease_url
             fresh_image = await client.get(fresh_item["image_url"])
             assert fresh_image.status == 200
+            assert original_profile == rt.memory.data["memories"][key]["listening_profile"]
             cases["real_900s_lease_expiry_and_cached_renewal"] = {
                 "expired_status": gone.status,
                 "new_status": fresh_image.status,
                 "reference_not_renewed": True,
                 "cache_hit": True,
+                "real_elapsed_seconds": time.time() - lease_entered,
             }
+        assert source_hashes == {
+            str(path.relative_to(ROOT)): hashlib.sha256(path.read_bytes()).hexdigest()
+            for path in sorted((ROOT / "custom_components/djconnect").rglob("*"))
+            if path.is_file() and "__pycache__" not in path.parts
+        }, "Integration changed during qualification"
         record["images"] = images
         record["cases"] = cases
         # Tokens are capabilities. Persist only redacted contract fixtures and private proof hashes.
@@ -704,7 +855,8 @@ async def main():
                 else "qualification.json"
             )
         ).write_text(json.dumps(record, indent=2) + "\n")
-        print(json.dumps({k: v for k, v in record.items() if k not in ("feed", "provider_calls")}))
+        print(json.dumps({k: v for k, v in record.items()
+                          if k not in ("feed", "provider_calls", "integration_source_hashes")}))
         cache.pop(
             key
             if False

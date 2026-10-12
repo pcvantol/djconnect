@@ -48,6 +48,9 @@ async def async_handle_music_discovery_feed_payload(
     if error:
         _log_error_response("feed", error)
         return error
+    feed_guard = await capture_refresh_guard(runtime, payload, user_id=user_id)
+    if feed_guard is not None and not feed_guard.valid():
+        return _disabled("music_dna_context_changed", {}), 200
     context = await _music_dna_context(runtime, payload, user_id=user_id)
     if not _music_dna_enabled(context):
         response = _disabled("music_dna_disabled", context)
@@ -58,7 +61,6 @@ async def async_handle_music_discovery_feed_payload(
             bool(context.get("music_dna_key")),
         )
         return await project_discovery_images(hass, runtime, response, payload, user_id=user_id), 200
-    feed_guard = await capture_refresh_guard(runtime, payload, user_id=user_id)
     refreshed_recently_played = await _refresh_recently_played_if_stale(
         hass,
         runtime,

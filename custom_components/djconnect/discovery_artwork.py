@@ -28,6 +28,12 @@ _IMAGE_KEYS = frozenset(
         "artwork_url",
         "artwork_reference_version",
         "artwork_recent_reference_version",
+        "images",
+        "album_art_url",
+        "media_image_url",
+        "entity_picture",
+        "image_expires_at",
+        "image_attribution",
     }
 )
 
@@ -134,7 +140,11 @@ def artwork_url(item: dict[str, Any]) -> str:
 def strip_artwork(value: Any) -> Any:
     """Temporary provider references cannot become import/export/archive grants."""
     if isinstance(value, dict):
-        return {k: strip_artwork(v) for k, v in value.items() if k not in _IMAGE_KEYS}
+        return {
+            k: strip_artwork(v)
+            for k, v in value.items()
+            if k.lower().replace("_", "") not in {key.replace("_", "") for key in _IMAGE_KEYS}
+        }
     if isinstance(value, list):
         return [strip_artwork(v) for v in value]
     return deepcopy(value)
@@ -216,6 +226,41 @@ def privacy_scope(runtime: Any) -> tuple[Any, ...]:
     )
 
 
+def provider_identity(runtime: Any) -> tuple[Any, ...]:
+    """Capture the current canonical provider instance, never rotating token material."""
+    hass = getattr(getattr(runtime, "memory", None), "hass", None)
+    provider = runtime
+    if hass is not None:
+        from .profile_backend import profile_backend_runtime
+
+        try:
+            provider = profile_backend_runtime(hass, runtime, provider_only=True)
+        except Exception:
+            return (None, None, None, "")
+    entry = getattr(provider, "entry", None)
+    registered = (
+        getattr(hass, "data", {}).get("djconnect", {}).get(getattr(entry, "entry_id", None))
+        if hass is not None
+        else provider
+    )
+    return (
+        id(provider),
+        id(entry),
+        id(registered),
+        str((getattr(provider, "config", {}) or {}).get("spotify_client_id") or ""),
+    )
+
+
+def credential_cache_scope(runtime: Any) -> str:
+    """Effective HA-only credentials fence cache reuse; rotation is not revocation."""
+    getter = getattr(runtime, "get_current_spotify_credentials", None)
+    credentials = getter() if callable(getter) else (getattr(runtime, "config", {}) or {})
+    material = "|".join(
+        str(credentials.get(k) or "") for k in ("spotify_client_id", "spotify_refresh_token")
+    )
+    return hashlib.sha256(material.encode()).hexdigest()
+
+
 def runtime_scope(runtime: Any) -> tuple[Any, ...]:
     """Transient owner fence; never serialize credentials or this scope."""
     config = getattr(runtime, "config", {}) or {}
@@ -226,9 +271,6 @@ def runtime_scope(runtime: Any) -> tuple[Any, ...]:
     record = data.get("memories", {}).get(key)
     hass = getattr(memory, "hass", None)
     platform = getattr(hass, "data", {}).get("djconnect", {}).get("djconnect_profile_platform")
-    secret = "|".join(
-        str(config.get(k) or "") for k in ("spotify_client_id", "spotify_refresh_token")
-    )
     return (
         profile,
         privacy_scope(runtime),
@@ -243,11 +285,11 @@ def runtime_scope(runtime: Any) -> tuple[Any, ...]:
         id(record),
         (record or {}).get("generation", 0),
         id(getattr(platform, "household", None)),
-        hashlib.sha256(secret.encode()).hexdigest(),
+        provider_identity(runtime),
     )
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, repr=False)
 class RefreshGuard:
     """Fence provider awaits against clear, consent ABA and owner changes."""
 
@@ -311,7 +353,9 @@ async def capture_refresh_guard(
         return None
     await manager.async_load()
     key = resolve_music_dna_key(runtime, payload, user_id=user_id)
-    record = manager._memory_for_key(key)
+    record = manager.data.get("memories", {}).get(key)
+    if record is None:
+        record = manager._memory_for_key(key) if authority_valid(runtime) else {}
     if not isinstance(record, dict):
         return None
     return RefreshGuard(

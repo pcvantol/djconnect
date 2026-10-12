@@ -1540,13 +1540,19 @@ async def async_handle_music_dna_profile_payload(
     if not callable(profile_getter):
         _debug_music_dna_error("profile", payload, (_error_payload("music_dna_unavailable"), 503), runtime=runtime)
         return _error_payload("music_dna_unavailable"), 503
-    result = await profile_getter(runtime, payload, user_id=user_id)
     response_guard = await capture_refresh_guard(runtime, payload, user_id=user_id)
+    if response_guard is not None and not response_guard.valid():
+        return {"success": False, "error": "music_dna_context_changed"}, 409
+    result = await profile_getter(runtime, payload, user_id=user_id)
+    if response_guard is not None and not response_guard.valid():
+        return {"success": False, "error": "music_dna_context_changed"}, 409
     if result.get("enabled"):
         await _refresh_music_dna_profile_if_stale(hass, runtime, payload, user_id=user_id)
         if response_guard is not None and not response_guard.valid():
             return {"success": False, "error": "music_dna_context_changed"}, 409
         result = await profile_getter(runtime, payload, user_id=user_id)
+        if response_guard is not None and not response_guard.valid():
+            return {"success": False, "error": "music_dna_context_changed"}, 409
     _debug_music_dna_result("profile", result, 200, runtime=runtime)
     return result, 200
 
