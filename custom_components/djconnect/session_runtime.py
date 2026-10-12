@@ -3660,7 +3660,10 @@ class DJSessionBroadcastEngine:
         expected_sequences = tuple(
             range(cursor_entry.delivery_sequence + 1, self.delivery_sequence + 1)
         )
-        if tuple(entry.delivery_sequence for entry in replay_entries) != expected_sequences:
+        if (tuple(entry.delivery_sequence for entry in replay_entries) != expected_sequences
+                or any(entry.event_type == BroadcastEventType.FORECAST_CHANGED for entry in replay_entries)):
+            # Mutable intent is not history. Recover a single current projection
+            # instead of relabeling old playback frames with its newest revision.
             return self._snapshot_required_recovery()
         return {
             "recovery": "replayed",
@@ -3669,7 +3672,7 @@ class DJSessionBroadcastEngine:
                     "event_type": str(entry.event_type),
                     "session_id": entry.session_id,
                     "delivery_sequence": entry.delivery_sequence,
-                    "payload": self._safe_delivery_payload(_thaw_broadcast_payload(entry.payload)),
+                    "payload": self._safe_delivery_payload(_thaw_broadcast_payload(entry.payload), historical=True),
                 }
                 for entry in replay_entries
             ],
@@ -3693,7 +3696,7 @@ class DJSessionBroadcastEngine:
             direction=active.session_direction, mood=active.selected_mood,
             presence=active.selected_presence, allowed_intents=active.allowed_capability_intents)
         imagery = self.forecast_artwork.public(self.state.playback.item_id) if semantic["has_current"] else ()
-        if self.forecast.update(semantic, locale=active.locale, persona=active.dj_persona.value, imagery=imagery):
+        if self.forecast.update(semantic, locale=active.locale, persona=active.dj_persona.value, imagery=imagery, current_item_id=self.state.playback.item_id):
             self._publish(BroadcastEventType.FORECAST_CHANGED, {"session_forecast": self.forecast.as_dict()})
 
     def as_dict(self, *, include_owner_only: bool = True) -> dict[str, Any]:
@@ -3714,7 +3717,7 @@ class DJSessionBroadcastEngine:
     def subscription_withdrawal_payload(self) -> dict[str, Any]:
         """Withdraw one channel's authority without ending the Profile Session."""
         withdrawn_forecast = {**self.forecast.as_dict(), "state": "withdrawn",
-                              "summary": "", "sections": [], "imagery": [], "supported_window_seconds": 0}
+                              "summary": "", "sections": [], "imagery": [], "current_anchor": None, "supported_window_seconds": 0}
         return {"broadcast": {"subscription_state": "revoked"},
                 "native_delivery": withdrawn_native_delivery(self.state.session_id),
                 "session_forecast": withdrawn_forecast}
@@ -3776,7 +3779,7 @@ class DJSessionBroadcastEngine:
         result["revision"] = hashlib.sha256(json.dumps(result, sort_keys=True).encode()).hexdigest()[:24]
         return result
 
-    def _safe_delivery_payload(self, payload: dict[str, Any], *, include_owner_only: bool = True) -> dict[str, Any]:
+    def _safe_delivery_payload(self, payload: dict[str, Any], *, include_owner_only: bool = True, historical: bool = False) -> dict[str, Any]:
         """Remove expired source copies at every transport delivery boundary."""
         native = self.native_delivery(include_owner_only=include_owner_only)
         # Use all scopes for redaction even when the receiver lacks an owner card.
@@ -3802,7 +3805,17 @@ class DJSessionBroadcastEngine:
             result["session_flow"]["items"] = [item for item in result["session_flow"]["items"]
                                                if item.get("moment_id") not in excluded]
         result["native_delivery"] = native
+        if historical:
+            result.pop("session_forecast", None)
+            return result
         forecast = self.forecast.as_dict()
+        frame_playback = result.get("playback", self.state.playback.as_dict())
+        if forecast["state"] == "ready" and (frame_playback.get("state") != "playing"
+                or self.forecast.context_item_id != frame_playback.get("item_id")):
+            # The playback commit precedes realization. Omit the old projection
+            # instead of inventing a different value under its existing revision.
+            result.pop("session_forecast", None)
+            return result
         allowed_images = {a["url"] for a in self.forecast_artwork.public(self.state.playback.item_id)} if self.state.playback.state == "playing" else set()
         forecast["imagery"] = [a for a in forecast["imagery"] if a["url"] in allowed_images]
         result["session_forecast"] = forecast
@@ -4260,6 +4273,7 @@ class SessionRuntimeManager:
             if forecast_authority is not None:
                 active.broadcast.forecast.authority = forecast_authority
             changed = active.broadcast.update_playback(projection)
+            active.broadcast.forecast.accept_observation()
             active.broadcast.update_forecast(active)
             self._replace_playback_progress_clock(owner_profile_id, projection, session_id)
             if changed:

@@ -37594,7 +37594,7 @@
     }
   ],
   "planning_maintenance": {
-    "schema_version": "djconnect-federated-planning-delta/4",
+    "schema_version": "djconnect-federated-planning-delta/5",
     "decision_id": "DJC-DJ-PRESENCE-ROADMAP-DESIGN-V1-20261011",
     "decision_url": "https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6110375785",
     "design_date": "2026-10-11",
@@ -37836,6 +37836,162 @@
             ]
           }
         ]
+      },
+      {
+        "id": "FORECAST::CORE::CONTRACT",
+        "title": "Session Forecast and artist imagery owner contract",
+        "lane": "DJC-CORE",
+        "repository": "pcvantol/djconnect",
+        "status": "In progress",
+        "assignment_status": "IN_PROGRESS",
+        "scope": "Bounded Session Direction Forecast projection; no internal Horizon/queue/second Planner or consumer admission",
+        "acceptance_boundary": "Core projection/shared compatibility separate from native, visible ambient, installed/hardware and joint qualification",
+        "contract_binding": "docs/product/SESSION_FORECAST_V1.md",
+        "source_ids": [
+          "OWNER-SESSION-FORECAST-20261012"
+        ],
+        "parent_reference": "PROJ::ROADMAP::DIRECTION",
+        "prerequisite_groups": []
+      },
+      {
+        "id": "FORECAST::CORE::PROJECTION",
+        "title": "Mutable paired Forecast Core projection/lifecycle",
+        "lane": "DJC-CORE",
+        "repository": "pcvantol/djconnect",
+        "status": "In progress",
+        "assignment_status": "IN_PROGRESS",
+        "scope": "Bounded Session Direction Forecast projection; no internal Horizon/queue/second Planner or consumer admission",
+        "acceptance_boundary": "Core projection/shared compatibility separate from native, visible ambient, installed/hardware and joint qualification",
+        "contract_binding": "docs/product/SESSION_FORECAST_V1.md",
+        "source_ids": [
+          "OWNER-SESSION-FORECAST-20261012"
+        ],
+        "parent_reference": "PROJ::ROADMAP::DIRECTION",
+        "prerequisite_groups": [
+          {
+            "mode": "AND",
+            "edge_ids": [
+              "FORECAST-CORE"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "FORECAST::APPLE::VIEW",
+        "title": "Native Flow | Forecast with qualified imagery",
+        "lane": "DJC-APPLE",
+        "repository": "pcvantol/djconnect-app",
+        "status": "Planned",
+        "assignment_status": "NOT_ISSUED",
+        "scope": "Bounded Session Direction Forecast projection; no internal Horizon/queue/second Planner or consumer admission",
+        "acceptance_boundary": "Core projection/shared compatibility separate from native, visible ambient, installed/hardware and joint qualification",
+        "contract_binding": "docs/product/SESSION_FORECAST_V1.md",
+        "source_ids": [
+          "OWNER-SESSION-FORECAST-20261012"
+        ],
+        "parent_reference": "PROJ::ROADMAP::DIRECTION",
+        "prerequisite_groups": [
+          {
+            "mode": "AND",
+            "edge_ids": [
+              "FORECAST-APPLE"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "FORECAST::VIBECAST::COMPAT",
+        "title": "Shared local/static additive compatibility and safe fallback",
+        "lane": "DJC-CORE",
+        "repository": "pcvantol/djconnect",
+        "status": "In progress",
+        "assignment_status": "IN_PROGRESS",
+        "scope": "Bounded Session Direction Forecast projection; no internal Horizon/queue/second Planner or consumer admission",
+        "acceptance_boundary": "Core projection/shared compatibility separate from native, visible ambient, installed/hardware and joint qualification",
+        "contract_binding": "docs/product/SESSION_FORECAST_V1.md",
+        "source_ids": [
+          "OWNER-SESSION-FORECAST-20261012"
+        ],
+        "parent_reference": "PROJ::ROADMAP::DIRECTION",
+        "prerequisite_groups": [
+          {
+            "mode": "AND",
+            "edge_ids": [
+              "FORECAST-COMPAT"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "FORECAST::PRODUCT::JOINT",
+        "title": "Joint Forecast product acceptance",
+        "lane": "DJC-CORE",
+        "repository": "pcvantol/djconnect",
+        "status": "Planned",
+        "assignment_status": "NOT_ISSUED",
+        "scope": "Bounded Session Direction Forecast projection; no internal Horizon/queue/second Planner or consumer admission",
+        "acceptance_boundary": "Core projection/shared compatibility separate from native, visible ambient, installed/hardware and joint qualification",
+        "contract_binding": "docs/product/SESSION_FORECAST_V1.md",
+        "source_ids": [
+          "OWNER-SESSION-FORECAST-20261012"
+        ],
+        "parent_reference": "PROJ::ROADMAP::DIRECTION",
+        "prerequisite_groups": [
+          {
+            "mode": "AND",
+            "edge_ids": [
+              "FORECAST-JOIN-CORE",
+              "FORECAST-JOIN-APPLE",
+              "FORECAST-JOIN-SHARED"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "FORECAST::VIBECAST::VISIBLE",
+        "title": "Visible ambient Forecast composition/adoption",
+        "lane": "DJC-VIBECAST",
+        "repository": "pcvantol/djconnect-vibecast-receiver",
+        "status": "Planned",
+        "assignment_status": "NOT_ISSUED",
+        "scope": "Bounded Session Direction Forecast projection; no internal Horizon/queue/second Planner or consumer admission",
+        "acceptance_boundary": "Core projection/shared compatibility separate from native, visible ambient, installed/hardware and joint qualification",
+        "contract_binding": "docs/product/SESSION_FORECAST_V1.md",
+        "source_ids": [
+          "OWNER-SESSION-FORECAST-20261012"
+        ],
+        "parent_reference": "PROJ::ROADMAP::DIRECTION",
+        "prerequisite_groups": [
+          {
+            "mode": "AND",
+            "edge_ids": [
+              "FORECAST-VISIBLE"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "FORECAST::CORE::UPCOMING",
+        "title": "Optional qualified upcoming media and artist anchors",
+        "lane": "DJC-CORE",
+        "repository": "pcvantol/djconnect",
+        "status": "Planned",
+        "assignment_status": "NOT_ISSUED",
+        "scope": "Bounded Session Direction Forecast projection; no internal Horizon/queue/second Planner or consumer admission",
+        "acceptance_boundary": "Core projection/shared compatibility separate from native, visible ambient, installed/hardware and joint qualification",
+        "contract_binding": "docs/product/SESSION_FORECAST_V1.md",
+        "source_ids": [
+          "OWNER-SESSION-FORECAST-20261012"
+        ],
+        "parent_reference": "PROJ::ROADMAP::DIRECTION",
+        "prerequisite_groups": [
+          {
+            "mode": "AND",
+            "edge_ids": [
+              "FORECAST-UPCOMING"
+            ]
+          }
+        ]
       }
     ],
     "edges": [
@@ -38062,16 +38218,160 @@
         "source_ids": [
           "OWNER-NARRATIVE-ALBUM-20261012"
         ]
+      },
+      {
+        "id": "FORECAST-PARENT",
+        "producer": "PROJ::ROADMAP::DIRECTION",
+        "consumer": "FORECAST::CORE::CONTRACT",
+        "kind": "strategy_order",
+        "phase": "selection",
+        "prerequisite_stage": "start",
+        "hard_precedence": false,
+        "logical_mode": "AND",
+        "required_subset": "Version1 exact producer contract/ordinary paired fixtures",
+        "contract_or_evidence": "docs/product/SESSION_FORECAST_V1.md; Apple87 early6125787020; VibeCast10 early6125787377",
+        "reason": "Direction parent reused; no new Planner, automatic consumer dispatch or full narrative stage promotion",
+        "source_ids": [
+          "OWNER-SESSION-FORECAST-20261012"
+        ]
+      },
+      {
+        "id": "FORECAST-CORE",
+        "producer": "FORECAST::CORE::CONTRACT",
+        "consumer": "FORECAST::CORE::PROJECTION",
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "start",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "required_subset": "Version1 exact producer contract/ordinary paired fixtures",
+        "contract_or_evidence": "docs/product/SESSION_FORECAST_V1.md; Apple87 early6125787020; VibeCast10 early6125787377",
+        "reason": "Direction parent reused; no new Planner, automatic consumer dispatch or full narrative stage promotion",
+        "source_ids": [
+          "OWNER-SESSION-FORECAST-20261012"
+        ]
+      },
+      {
+        "id": "FORECAST-APPLE",
+        "producer": "FORECAST::CORE::CONTRACT",
+        "consumer": "FORECAST::APPLE::VIEW",
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "start",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "required_subset": "Version1 exact producer contract/ordinary paired fixtures",
+        "contract_or_evidence": "docs/product/SESSION_FORECAST_V1.md; Apple87 early6125787020; VibeCast10 early6125787377",
+        "reason": "Direction parent reused; no new Planner, automatic consumer dispatch or full narrative stage promotion",
+        "source_ids": [
+          "OWNER-SESSION-FORECAST-20261012"
+        ]
+      },
+      {
+        "id": "FORECAST-COMPAT",
+        "producer": "FORECAST::CORE::CONTRACT",
+        "consumer": "FORECAST::VIBECAST::COMPAT",
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "start",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "required_subset": "Version1 exact producer contract/ordinary paired fixtures",
+        "contract_or_evidence": "docs/product/SESSION_FORECAST_V1.md; Apple87 early6125787020; VibeCast10 early6125787377",
+        "reason": "Direction parent reused; no new Planner, automatic consumer dispatch or full narrative stage promotion",
+        "source_ids": [
+          "OWNER-SESSION-FORECAST-20261012"
+        ]
+      },
+      {
+        "id": "FORECAST-JOIN-CORE",
+        "producer": "FORECAST::CORE::PROJECTION",
+        "consumer": "FORECAST::PRODUCT::JOINT",
+        "kind": "implementation_contract",
+        "phase": "integration_acceptance",
+        "prerequisite_stage": "completion",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "required_subset": "Exact independent owning acceptance receipt for this subset only",
+        "contract_or_evidence": "docs/product/SESSION_FORECAST_V1.md; Apple87 early6125787020; VibeCast10 early6125787377",
+        "reason": "Direction parent reused; no new Planner, automatic consumer dispatch or full narrative stage promotion",
+        "source_ids": [
+          "OWNER-SESSION-FORECAST-20261012"
+        ]
+      },
+      {
+        "id": "FORECAST-JOIN-APPLE",
+        "producer": "FORECAST::APPLE::VIEW",
+        "consumer": "FORECAST::PRODUCT::JOINT",
+        "kind": "implementation_contract",
+        "phase": "integration_acceptance",
+        "prerequisite_stage": "completion",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "required_subset": "Exact independent owning acceptance receipt for this subset only",
+        "contract_or_evidence": "docs/product/SESSION_FORECAST_V1.md; Apple87 early6125787020; VibeCast10 early6125787377",
+        "reason": "Direction parent reused; no new Planner, automatic consumer dispatch or full narrative stage promotion",
+        "source_ids": [
+          "OWNER-SESSION-FORECAST-20261012"
+        ]
+      },
+      {
+        "id": "FORECAST-JOIN-SHARED",
+        "producer": "FORECAST::VIBECAST::COMPAT",
+        "consumer": "FORECAST::PRODUCT::JOINT",
+        "kind": "implementation_contract",
+        "phase": "integration_acceptance",
+        "prerequisite_stage": "completion",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "required_subset": "Exact independent owning acceptance receipt for this subset only",
+        "contract_or_evidence": "docs/product/SESSION_FORECAST_V1.md; Apple87 early6125787020; VibeCast10 early6125787377",
+        "reason": "Direction parent reused; no new Planner, automatic consumer dispatch or full narrative stage promotion",
+        "source_ids": [
+          "OWNER-SESSION-FORECAST-20261012"
+        ]
+      },
+      {
+        "id": "FORECAST-VISIBLE",
+        "producer": "FORECAST::CORE::CONTRACT",
+        "consumer": "FORECAST::VIBECAST::VISIBLE",
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "start",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "required_subset": "Version1 exact producer contract/ordinary paired fixtures",
+        "contract_or_evidence": "docs/product/SESSION_FORECAST_V1.md; Apple87 early6125787020; VibeCast10 early6125787377",
+        "reason": "Direction parent reused; no new Planner, automatic consumer dispatch or full narrative stage promotion",
+        "source_ids": [
+          "OWNER-SESSION-FORECAST-20261012"
+        ]
+      },
+      {
+        "id": "FORECAST-UPCOMING",
+        "producer": "FORECAST::CORE::CONTRACT",
+        "consumer": "FORECAST::CORE::UPCOMING",
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "start",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "required_subset": "Version1 exact producer contract/ordinary paired fixtures",
+        "contract_or_evidence": "docs/product/SESSION_FORECAST_V1.md; Apple87 early6125787020; VibeCast10 early6125787377",
+        "reason": "Direction parent reused; no new Planner, automatic consumer dispatch or full narrative stage promotion",
+        "source_ids": [
+          "OWNER-SESSION-FORECAST-20261012"
+        ]
       }
     ],
     "document_references": [
       {
         "path": "PRODUCT_ROADMAP.md",
-        "sha256": "4014c1bac82df63d96a032da63ad501de697826e9b4922c5acbea811359a728c"
+        "sha256": "97924e374efb33be2068e467752a7afbe870662ba5c80fa83b8795a56e832dd9"
       },
       {
         "path": "PRODUCT_BACKLOG.md",
-        "sha256": "9f4c1669f9ae5e242b601cb97865da037a84ad87170e0ea0d9d0e190e08682c0"
+        "sha256": "bda84e3d5908bf8d5189e70e95d1a3d3db528caaa1ea9818bfe152a6f9b52c04"
       },
       {
         "path": "docs/product/DJ_PRESENCE_V1.md",
@@ -38079,15 +38379,15 @@
       },
       {
         "path": "DJ_SESSION_RUNTIME_CONTRACTS.md",
-        "sha256": "b8e8dc486bae8a8063aaf168b976ece69166d7efaf1ac84b15def395b9047362"
+        "sha256": "ad6c79b96951a9f03bd40a975434e0e17751e032ec16fc9576efd2fb08baa540"
       },
       {
         "path": "docs/product/DJ_INTELLIGENCE_ARCHITECTURE.md",
-        "sha256": "24e86cf62c46eb6b15a0a011351d2657f5b6bfaf014ffbf53c47ab4a27cf8ceb"
+        "sha256": "15d836cb77c44e9c594cb9b80a73218c01a17d1fed99eec3397e0e7e3d179728"
       },
       {
         "path": "docs/product/DJ_PRESENTATION_ARCHITECTURE.md",
-        "sha256": "ac31f53f4dce423337e0aab778e859fc3e51d4a7d20bb87fb4b1b97257ec44b5"
+        "sha256": "7dd7c816a46c9d49cf7a9ced45bfeccacd628b3e279c4e5fd5ca4656f4e57ad6"
       },
       {
         "path": "docs/technical/PLATFORM_AMBIENT_EXPERIENCE.md",
@@ -38115,7 +38415,7 @@
       },
       {
         "path": "docs/product/DJ_INTELLIGENCE_MATURITY.md",
-        "sha256": "cdac15c1c8cb850a5e7952f8a8aaa05b90cb8c0beda451e90678abc5a38001dc"
+        "sha256": "9c4e9e4ff83b95f65efc37d1c7f06da4f12dc44432620c9903bc260286c861d9"
       },
       {
         "path": "docs/product/SHARED_PRODUCER_CONTINUITY_CONTRACT.md",
@@ -38140,6 +38440,26 @@
       {
         "path": "docs/verification/NARRATIVE_ALBUM_CONTINUITY_V1_ACCEPTANCE.md",
         "sha256": "c71d70e105a56b63a34d814f74ed51b2d59c084738a0350a3e1abb98c3358f3e"
+      },
+      {
+        "path": "docs/product/SESSION_FORECAST_V1.md",
+        "sha256": "0b651f72aae3806195b0d0006ffc3431e9a10e506c23f3ca8573b379f7366489"
+      },
+      {
+        "path": "docs/technical/SESSION_DIRECTION_PROJECTION_ARCHITECTURE.md",
+        "sha256": "2cd12d11dc721aa95ac145fa5e4e418ea054017016c3fa1379ec31cdac027f10"
+      },
+      {
+        "path": "ROLLING_SESSION_HORIZON_ARCHITECTURE.md",
+        "sha256": "f3ad240a96f606cbd35b748af6112b769b8b8035233b306c254b79fc1a84dd62"
+      },
+      {
+        "path": "docs/product/PRESENTATION_COMPOSER_ARCHITECTURE.md",
+        "sha256": "bd77cd1153bc310971493528bf8df33d868ab7420d7b25c5ce6e415e3e4e0cf2"
+      },
+      {
+        "path": "docs/product/VIBECAST_SHARED_RENDERER_BUILD_CONTRACT.md",
+        "sha256": "58770fba4d57670dcf2299826a5dcf7908b2c226b8d55d7da6398e36c46d28e1"
       }
     ],
     "implementation_receipt": {
@@ -38220,6 +38540,32 @@
       "protected_merge": true,
       "archive_sha256": "ab9476de000a723e4b749f84f0d5ecc628183d4c49ecf8300b5cf066934b1638",
       "formal_evidence_sha256": "545c5b0d6162a895ae33b524ef57f61016bd9007b1825f11834d8296d13c18fd"
+    },
+    "forecast_receipt": {
+      "assignment_id": "DJC-CORE-SESSION-FORECAST-V1-20261012",
+      "selection_url": "https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6123328620",
+      "base_sha": "e26888fc164fac1e5cb41908fd922d5f9a05e0bd",
+      "branch": "codex/session-forecast-v1",
+      "ack": 6125042095,
+      "material_start": 6125092087,
+      "parent_node": "PROJ::ROADMAP::DIRECTION",
+      "phase": "LOCAL_IMPLEMENTATION_AND_QUALIFICATION",
+      "source_delivery": "UNPUBLISHED",
+      "native": "NOT_RUN",
+      "installed": "NOT_RUN",
+      "hardware": "NOT_RUN",
+      "joint_product_acceptance": "OPEN",
+      "visible_vibecast": "PLANNED",
+      "upcoming_media": "UNQUALIFIED_ABSENT",
+      "artist_imagery_roles": [
+        "current",
+        "contextual",
+        "qualified_upcoming"
+      ],
+      "artist_imagery_admission": "CURRENT_ONLY_DISPLAY_BASIS",
+      "previous_delta": "history/20261012/album-continuity-maintenance-v4.json",
+      "previous_delta_sha256": "e1864b80096e422439d46e3395dece8d1c3636606a320aafd390a11507ce9441",
+      "qualification": "LOCAL_CORE_QUALIFIED_FINAL_EXACT_REVIEWS_PENDING"
     }
   }
 }

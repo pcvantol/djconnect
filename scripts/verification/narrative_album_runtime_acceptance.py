@@ -305,6 +305,9 @@ class AlbumLab:
                 "broadcast_token":session.broadcast.broadcast_token,"ha_url":"https://localhost:18233","locale":"nl"})
         async def publish(request):
             moment = await self.step(int(request.query["number"]))
+            settle = getattr(self, "settle_art", None)
+            if settle is not None:
+                await settle()
             return web.json_response({"moment":moment.as_dict() if moment else None,
                                       "snapshot":await self.owner_snapshot()})
         async def end(request):

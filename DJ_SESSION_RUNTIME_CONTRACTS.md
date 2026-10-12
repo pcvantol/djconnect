@@ -1,5 +1,16 @@
 # DJ Session Runtime Contracts
 
+## Selected Forecast projection boundary
+
+[Session Forecast v1](docs/product/SESSION_FORECAST_V1.md) is a mutable allowlisted
+active-session read/live projection, not an export of internal Horizon/slots or
+a rewritten DJMoment. Runtime15-minute foundation, future internal20-minute policy
+target and nominal external900s intent window are distinct. Planner supplies
+meaning; authored expression realizes text. Reads/toggles do no lookup/planning/
+playback/Moment/budget work. Qualified current artist art has separate source,
+audience and original expiry; upcoming anchors remain absent without qualification.
+Local Core work in progress, publication/native/visible/joint gates remain.
+
 The selected bounded [published Album→current Track relation](docs/product/NARRATIVE_ALBUM_CONTINUITY_V1.md)
 uses the existing Planner/Knowledge/Moment/Flow/Broadcast, current-edition
 Spotify display qualification, published-only Runtime evidence and shared

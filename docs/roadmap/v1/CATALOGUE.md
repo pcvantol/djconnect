@@ -8,6 +8,8 @@ Current bounded artwork correction: [owner6117357579](https://github.com/pcvanto
 
 Selected bounded Album→Track continuity: [DJC-CORE-NARRATIVE-ALBUM-CONTINUITY-V1-20261012](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6121336412); source PROTECTED_MERGED, Stage4 PARTIAL, joint/native/installed/hardware acceptance open. Artwork1152/1153 is terminal at admitted0f37; prior version3 is preserved in history/20261012. No automatic consumer dispatch or new Core writer.
 
+Selected Session Forecast: [DJC-CORE-SESSION-FORECAST-V1-20261012](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6123328620); existing Direction parent, source UNPUBLISHED, current-only qualified artist imagery, native/visible/upcoming/joint acceptance open. Album1154/1155 terminal before this writer admission; previous version4 preserved in history/20261012. Early contract fixtures allow independently admitted consumer source integration; no automatic dispatch.
+
 | Node | Owner | Status | Outcome |
 |---|---|---|---|
 | `PROJ::INTELLIGENCE::DJ-PRESENCE` | DJC-CORE | Planned | Adjustable DJ presence |
@@ -21,3 +23,10 @@ Selected bounded Album→Track continuity: [DJC-CORE-NARRATIVE-ALBUM-CONTINUITY-
 | `CORRECTION::APPLE::DISCOVERY-ARTWORK-ACCEPTANCE` | DJC-APPLE | Planned | Native Discovery artwork and lifecycle readback |
 | `RELATION::CORE::ALBUM-CONTINUITY` | DJC-CORE | Completed | Published Album to current exact-edition Track continuity |
 | `RELATION::CONSUMERS::ALBUM-CONTINUITY-ACCEPTANCE` | DJC-APPLE | Planned | Separate native and joint album continuity acceptance |
+| `FORECAST::CORE::CONTRACT` | DJC-CORE | In progress | Session Forecast and artist imagery owner contract |
+| `FORECAST::CORE::PROJECTION` | DJC-CORE | In progress | Mutable paired Forecast Core projection/lifecycle |
+| `FORECAST::APPLE::VIEW` | DJC-APPLE | Planned | Native Flow | Forecast with qualified imagery |
+| `FORECAST::VIBECAST::COMPAT` | DJC-CORE | In progress | Shared local/static additive compatibility and safe fallback |
+| `FORECAST::PRODUCT::JOINT` | DJC-CORE | Planned | Joint Forecast product acceptance |
+| `FORECAST::VIBECAST::VISIBLE` | DJC-VIBECAST | Planned | Visible ambient Forecast composition/adoption |
+| `FORECAST::CORE::UPCOMING` | DJC-CORE | Planned | Optional qualified upcoming media and artist anchors |

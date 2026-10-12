@@ -1,5 +1,13 @@
 # Presentation Composer Architecture
 
+Session Forecast v1 is the separately mutable, session-bound projection defined
+in [SESSION_FORECAST_V1.md](SESSION_FORECAST_V1.md). Its current artist imagery
+has explicit subject/role, provenance, display basis and independent asset
+expiry. Visible pixels must expire at the earlier narrative/image deadline.
+Existing Moments remain immutable. Core additive shared-renderer compatibility
+is separate from visible Forecast composition, native adoption and hardware
+acceptance; those consumer states remain open.
+
 **Status:** Canonical architecture and first bounded server implementation
 **Owner:** Presentation Platform
 **Scope:** Immutable renderer-safe Presentation composition after an approved

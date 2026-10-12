@@ -8,6 +8,7 @@ from .session_forecast import VERSION
 async def async_handle_forecast(hass, data, *, headers=None):
     from .api_handlers import _async_owner_broadcast_session_context
     from .profile_context import profile_storage
+    from .forecast_imagery import artist_authority
     from .request_auth import authorize_runtime_device_request, request_token, resolve_runtime, runtime_matches_device
 
     def error(code, status):
@@ -67,8 +68,10 @@ async def async_handle_forecast(hass, data, *, headers=None):
     except Exception:
         return error('unauthorized', 401)
 
+    source_authority = artist_authority(hass, runtime, owner_profile_id=profile_id, expected_source=source)
+
     def owner_current():
-        if (not paired() or hass.data.get(DOMAIN, {}).get('session_runtime_manager') is not manager
+        if (not paired() or not source_authority() or hass.data.get(DOMAIN, {}).get('session_runtime_manager') is not manager
                 or manager.receiver_entry_generation(entry_id) != generation):
             return False
         try:

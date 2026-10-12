@@ -6,7 +6,7 @@ import hashlib
 import re
 import secrets
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Any, Callable
 from urllib.parse import urlparse
 
@@ -73,15 +73,26 @@ class ForecastArtwork:
         # Counters survive settings/reconnect; only Runtime disposal ends them.
 
     async def prepare(self, *, hass, backend, session_id: str, item_id: str,
-                      artist_id: str, authority, candidate_current) -> bool:
+                      artist_id: str, authority, candidate_current) -> ForecastAsset | bool:
         if not re.fullmatch(r'[A-Za-z0-9]{22}', artist_id) or self.lock.locked():
             return False
         now = time.monotonic()
         observed_wall = time.time()
-        if (self.attempts >= MAX_ATTEMPTS or not authority() or not candidate_current()
-                or now - self.last_attempt.get(artist_id, -1e9) < NEGATIVE_BACKOFF):
+        if not authority() or not candidate_current():
             return False
-        if any(a.subject_id == artist_id and a.allowed(now, item_id) for a in self.assets):
+        # Rebind already-qualified pixels only to an observed track with this
+        # exact artist identity. Preserve original provenance/deadlines/budget.
+        for cached in self.assets:
+            if cached.subject_id == artist_id and now < cached.deadline and cached.authority():
+                if cached.item_id == item_id:
+                    return False
+                asset_id = secrets.token_urlsafe(24)
+                metadata = {**cached.metadata,
+                            'url': IMAGE_PATH.format(session_id=session_id, asset_id=asset_id)}
+                return replace(cached, asset_id=asset_id, item_id=item_id, metadata=metadata,
+                               authority=authority)
+        if (self.attempts >= MAX_ATTEMPTS
+                or now - self.last_attempt.get(artist_id, -1e9) < NEGATIVE_BACKOFF):
             return False
         async with self.lock:
             self.attempts += 1
@@ -142,6 +153,7 @@ def artist_authority(hass, runtime, *, owner_profile_id: str, expected_source=No
     """Capture source/account/pairing authority without storing credentials."""
     from .const import DOMAIN
     from .profile_context import profile_storage
+    from .profile_backend import profile_backend_runtime
     entry = getattr(runtime, 'entry', None)
     entry_id = str(getattr(entry, 'entry_id', ''))
     generation = getattr(runtime, '_receiver_end_generation', 0)
@@ -150,7 +162,11 @@ def artist_authority(hass, runtime, *, owner_profile_id: str, expected_source=No
     token_present = bool(conf.get('device_token'))
     token_digest = hashlib.sha256(str(conf.get('device_token') or '').encode()).digest()
     expected_source = expected_source or {}
+    manager = hass.data.get(DOMAIN, {}).get('session_runtime_manager')
     try:
+        provider = profile_backend_runtime(hass, runtime, provider_only=True)
+        provider_entry = provider.entry
+        provider_generation = getattr(provider, "_receiver_end_generation", 0)
         storage = profile_storage(hass)
         profile = storage.resolver().resolve_bound_device(device_id)
         prefs = profile.preferences
@@ -161,6 +177,9 @@ def artist_authority(hass, runtime, *, owner_profile_id: str, expected_source=No
 
     def allowed():
         if (entry is None or account is None or backend is None or not token_present
+                or manager is None
+                or hass.data.get(DOMAIN, {}).get('session_runtime_manager') is not manager
+                or manager.receiver_entry_generation(entry_id) != generation
                 or hass.data.get(DOMAIN, {}).get(entry_id) is not runtime
                 or hass.config_entries.async_get_entry(entry_id) is not entry
                 or entry.disabled_by is not None
@@ -172,9 +191,23 @@ def artist_authority(hass, runtime, *, owner_profile_id: str, expected_source=No
                 or hashlib.sha256(str(current_conf.get('device_token') or '').encode()).digest() != token_digest):
             return False
         try:
+            if profile_storage(hass) is not storage:
+                return False
+            current_provider = profile_backend_runtime(hass, runtime, provider_only=True)
+            if (current_provider is not provider
+                    or manager.receiver_entry_generation(provider_entry.entry_id) != provider_generation
+                    or getattr(provider, "_receiver_end_generation", 0) != provider_generation
+                    or expected_source.get("provider_entry_id", provider_entry.entry_id) != provider_entry.entry_id
+                    or hass.data.get(DOMAIN, {}).get(provider_entry.entry_id) is not provider
+                    or hass.config_entries.async_get_entry(provider_entry.entry_id) is not provider_entry
+                    or provider_entry.disabled_by is not None
+                    or getattr(provider_entry.state, 'value', provider_entry.state) != 'loaded'):
+                return False
             current = storage.resolver().resolve_bound_device(device_id)
             return (current.profile_id == owner_profile_id and current.state.value == 'active'
-                    and account.state.value == 'active'
+                    and account.state.value == 'active' and backend.state.value == 'active'
+                    and account.backend_id == backend.backend_id
+                    and owner_profile_id in account.linked_profile_ids
                     and expected_source.get('music_account_id', prefs.default_music_account_id) == prefs.default_music_account_id
                     and expected_source.get('backend_id', prefs.default_backend_id) == prefs.default_backend_id
                     and expected_source.get('provider_account_id', account.provider_account_id) == account.provider_account_id

@@ -22,7 +22,8 @@ def capability() -> dict[str, Any]:
             'authentication': 'paired_device_bearer', 'scope': 'active_device_bound_owner_session',
             'live_field': 'session_forecast', 'live_event': 'forecast_changed',
             'nominal_window_seconds': 900, 'history': False,
-            'imagery_roles': ['current', 'contextual', 'qualified_upcoming']}
+            'imagery_roles': ['current', 'contextual', 'qualified_upcoming'],
+            'emitted_imagery_roles': ['current'], 'qualified_upcoming_media': False}
 
 
 def timestamp(value: float) -> str:
@@ -37,36 +38,49 @@ class ForecastProjection:
     revision: int = 0
     value: dict[str, Any] = field(default_factory=dict)
     signature: str = ''
+    context_item_id: str = ''
     deadline: float = 0
     refreshed_at: float = 0
+    observation_deadline: float = 0
+    observation_wall_deadline: float = 0
     expired: bool = False
     withdrawn: bool = False
     authority: Any = field(default=lambda: True, repr=False)
     clock: Any = field(default=time.monotonic, repr=False)
     wall_clock: Any = field(default=time.time, repr=False)
 
+    def accept_observation(self) -> None:
+        """Only an accepted provider observation renews current-context authority."""
+        self.observation_deadline = self.clock() + FRESHNESS_SECONDS
+        self.observation_wall_deadline = self.wall_clock() + FRESHNESS_SECONDS
+
     def update(self, semantic: dict, *, locale: str, persona: str,
-               imagery: tuple[dict, ...] = (), force: bool = False) -> bool:
+               imagery: tuple[dict, ...] = (), current_item_id: str = "", force: bool = False) -> bool:
         if not self.authority():
             return False
-        self.withdrawn = False
         now = self.clock()
-        signature = hashlib.sha256(json.dumps([semantic, locale, persona, imagery],
+        if now >= self.observation_deadline:
+            return self.tick()
+        was_withdrawn = self.withdrawn or self.value.get('state') == 'withdrawn'
+        self.withdrawn = False
+        signature = hashlib.sha256(json.dumps([semantic, locale, persona, imagery, current_item_id],
                                                sort_keys=True).encode()).hexdigest()
-        if not force and signature == self.signature and not self.expired and now - self.refreshed_at < REFRESH_INTERVAL_SECONDS:
+        if not force and signature == self.signature and not self.expired and not was_withdrawn and (self.observation_deadline <= self.deadline or now - self.refreshed_at < REFRESH_INTERVAL_SECONDS):
             return False
         summary, sections = realize(semantic, locale, persona)
         self.revision += 1
         self.signature = signature
+        self.context_item_id = current_item_id if semantic.get("has_current") else ""
         self.refreshed_at = now
-        self.deadline = now + FRESHNESS_SECONDS
+        self.deadline = min(now + FRESHNESS_SECONDS, self.observation_deadline)
         self.expired = False
         wall = self.wall_clock()
         self.value = {'contract_version': VERSION, 'session_id': self.session_id,
                       'revision': self.revision, 'state': 'ready' if sections else 'limited',
-                      'issued_at': timestamp(wall), 'valid_until': timestamp(wall + FRESHNESS_SECONDS),
+                      'issued_at': timestamp(wall), 'valid_until': timestamp(min(wall + FRESHNESS_SECONDS, self.observation_wall_deadline)),
                       'nominal_window_seconds': 900,
                       'supported_window_seconds': 900 if semantic.get('supported') else 0,
+                      'current_anchor': {'item_id': self.context_item_id, 'source_url': semantic.get('source_url', '')} if self.context_item_id else None,
                       'summary': summary, 'sections': sections[:3], 'imagery': copy.deepcopy(list(imagery[:2]))}
         return True
 
@@ -76,11 +90,11 @@ class ForecastProjection:
                                              'session_id': self.session_id, 'revision': self.revision,
                                              'state': 'empty', 'nominal_window_seconds': 900,
                                              'supported_window_seconds': 0, 'summary': '',
-                                             'sections': [], 'imagery': []})
+                                             'sections': [], 'imagery': [], 'current_anchor': None})
         denied = not self.authority()
         if self.withdrawn or denied or (self.value and (self.expired or self.clock() >= self.deadline)):
             result.update(state='withdrawn' if self.withdrawn or denied else 'expired', summary='',
-                          supported_window_seconds=0, sections=[], imagery=[])
+                          supported_window_seconds=0, sections=[], imagery=[], current_anchor=None)
         else:
             # Never send a reference after its earlier asset deadline.
             result['imagery'] = [a for a in result['imagery']

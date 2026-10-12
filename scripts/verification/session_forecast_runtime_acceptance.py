@@ -1,16 +1,27 @@
 """Real paired HA Forecast chain; external Spotify/CDN are explicit fixtures."""
 from __future__ import annotations
 import asyncio
-import base64
+import struct
+import zlib
 import copy
 import json
+import os
+import time
+from dataclasses import replace
 from unittest.mock import patch
 
 from narrative_album_runtime_acceptance import AlbumLab
 from custom_components.djconnect.session_runtime import DJPersona
 from homeassistant.helpers import aiohttp_client
 
-PNG = base64.b64decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9Wl6rVQAAAAASUVORK5CYII=')
+def png_chunk(kind, data):
+    return struct.pack('>I', len(data))+kind+data+struct.pack('>I', zlib.crc32(kind+data))
+
+
+# Valid explicit one-pixel external-image fixture; not real provider/hardware evidence.
+PNG = (b'\x89PNG\r\n\x1a\n' + png_chunk(b'IHDR', struct.pack('>IIBBBBB',1,1,8,2,0,0,0))
+       + png_chunk(b'IDAT', zlib.compress(b'\x00\x60\x70\x80')) + png_chunk(b'IEND', b''))
+
 ARTIST = 'X'*22
 
 
@@ -88,6 +99,187 @@ class ForecastLab(AlbumLab):
             observed.remove_progress_listener()
             observed.remove_progress_listener = None
 
+    async def invalid_forecast_requests(self):
+        """Actual loaded HA handler validates closed identity before any product work."""
+        from custom_components.djconnect.session_forecast_transport import async_handle_forecast
+        active = await self.manager.async_get_active('profile-a')
+        valid = {**self.owner['identity'], 'contract_version':1, 'session_id':active.session_id}
+        cases = [('not_object',None,400), ('extra_owner',{**valid,'owner_profile_id':'profile-a'},400),
+                 ('missing_identity',{k:v for k,v in valid.items() if k != 'device_id'},400),
+                 ('boolean_version',{**valid,'contract_version':True},400),
+                 ('string_version',{**valid,'contract_version':'1'},400),
+                 ('unknown_version',{**valid,'contract_version':2},400),
+                 ('empty_session',{**valid,'session_id':''},400),
+                 ('retired_windows',{**valid,'client_type':'windows'},400),
+                 ('unknown_client',{**valid,'client_type':'untrusted'},400),
+                 ('unknown_device',{**valid,'device_id':'djconnect-ios-UNKNOWN00000'},401)]
+        before = (self.calls,self.cdn_calls,active.broadcast.delivery_sequence,
+                  active.planner.as_dict(),copy.deepcopy({k:v for k,v in active.presence_ledger.__dict__.items() if k != 'clock'}))
+        results = []
+        for name,data,expected in cases:
+            result,status = await async_handle_forecast(self.hass,data,headers=self.owner['headers'])
+            assert status == expected and result['success'] is False,(name,status)
+            results.append({'case':name,'status':status})
+        for name,headers in [('missing_bearer',{}),
+                             ('mismatched_header',{**self.owner['headers'],'X-DJConnect-Device-ID':'other'})]:
+            result,status = await async_handle_forecast(self.hass,valid,headers=headers)
+            assert status == 401 and not result['success'],(name,status)
+            results.append({'case':name,'status':status})
+        assert before == (self.calls,self.cdn_calls,active.broadcast.delivery_sequence,
+                          active.planner.as_dict(),{k:v for k,v in active.presence_ledger.__dict__.items() if k != 'clock'})
+        return results
+
+    async def authority_cases(self, client):
+        """Real ordinary paired peer retains no lease across provider withdrawal."""
+        from homeassistant.config_entries import ConfigEntryState
+        from custom_components.djconnect.domain.backend.models import MusicBackendState
+        from custom_components.djconnect.profile_context import profile_storage
+        storage = profile_storage(self.hass)
+        peer_identity = {'device_id':'djconnect-macos-ABCDEF123457', 'client_type':'macos'}
+        # The legacy pair endpoint uses the currently selected config-flow slot.
+        # Select only this owned test slot; the ordinary handler still mints/persists auth.
+        self.hass.data['djconnect']['runtime'] = self.hass.data['djconnect']['second-owner']
+        try:
+            response = await client.post('/api/djconnect/v1/pair', json={**peer_identity, 'pair_code':'234567'})
+            paired = await response.json()
+        finally:
+            self.hass.data['djconnect']['runtime'] = self.integration
+        assert response.status == 200 and paired['success']
+        peer_headers = {'Authorization':'Bearer '+paired['device_token'],
+                        'X-DJConnect-Device-ID':peer_identity['device_id']}
+        results = []
+        for case in ('backend_disabled', 'account_backend_changed', 'membership_removed',
+                     'provider_unloaded', 'provider_replaced', 'provider_generation', 'device_token_rotated', 'manager_generation', 'storage_replaced'):
+            await self.start()
+            await self.step(1)
+            await self.settle_art()
+            status, snapshot = await self.forecast(headers=peer_headers, identity=peer_identity)
+            assert status == 200, (case, status)
+            url = snapshot['forecast']['imagery'][0]['url']
+            backend = storage.household.music_backends['spotify_direct']
+            account = storage.household.music_accounts['fixture-account']
+            entry = self.integration.entry
+            generation = getattr(self.integration, '_receiver_end_generation', 0)
+            original_entry_data = dict(entry.data)
+            manager_generation = self.manager.receiver_entry_generation(entry.entry_id)
+            if case == 'backend_disabled':
+                storage.household.music_backends['spotify_direct'] = replace(backend, state=MusicBackendState.DISABLED)
+            elif case == 'account_backend_changed':
+                storage.household.music_accounts['fixture-account'] = replace(account, backend_id='other-backend')
+            elif case == 'membership_removed':
+                storage.household.music_accounts['fixture-account'] = replace(account, linked_profile_ids=frozenset())
+            elif case == 'provider_unloaded':
+                entry._async_set_state(self.hass, ConfigEntryState.NOT_LOADED, None)
+            elif case == 'provider_replaced':
+                self.hass.data['djconnect']['owner-entry'] = object()
+            elif case == 'provider_generation':
+                self.integration._receiver_end_generation = generation + 1
+            elif case == 'storage_replaced':
+                from custom_components.djconnect.domain.storage import ProfilePlatformStorage
+                self.hass.data['djconnect']['djconnect_profile_platform'] = ProfilePlatformStorage(self.hass)
+            elif case == 'manager_generation':
+                await self.manager.async_revoke_receiver_end_grants_for_entry(entry.entry_id)
+            else:
+                self.hass.config_entries.async_update_entry(entry, data={**original_entry_data, 'device_token':'fixture-device-rotated'})
+            try:
+                denied_status, denied_payload = await self.forecast(headers=peer_headers, identity=peer_identity)
+                withdrawn = denied_status == 200 and denied_payload.get('forecast', {}).get('state') == 'withdrawn'
+                assert denied_status in (401, 403, 409, 503) or withdrawn or (denied_status == 400 and denied_payload.get('error') == 'profile_backend_account_mismatch'), (case, denied_status, denied_payload.get('error'))
+                if withdrawn:
+                    assert denied_payload['forecast']['sections'] == [] and denied_payload['forecast']['imagery'] == []
+                assert (await client.get(url)).status == 404, case
+            finally:
+                self.hass.data['djconnect']['djconnect_profile_platform'] = storage
+                storage.household.music_backends['spotify_direct'] = backend
+                storage.household.music_accounts['fixture-account'] = account
+                self.hass.data['djconnect']['owner-entry'] = self.integration
+                entry._async_set_state(self.hass, ConfigEntryState.LOADED, None)
+                self.integration._receiver_end_generation = generation
+                self.manager._receiver_entry_generations[entry.entry_id] = manager_generation
+                self.hass.config_entries.async_update_entry(entry, data=original_entry_data)
+            results.append({'case':case, 'peer_content_withdrawn':True, 'status':denied_status, 'old_image_denied':True})
+        # A normal OAuth refresh-token rotation keeps the exact provider owner.
+        await self.start()
+        await self.step(1)
+        await self.settle_art()
+        url = (await self.forecast())[1]['forecast']['imagery'][0]['url']
+        entry = self.integration.entry
+        previous = dict(entry.data)
+        self.hass.config_entries.async_update_entry(entry, data={**previous, 'spotify_refresh_token':'fixture-rotated'})
+        try:
+            assert (await self.forecast())[0] == 200
+            assert (await client.get(url)).status == 200
+        finally:
+            self.hass.config_entries.async_update_entry(entry, data=previous)
+        results.append({'case':'oauth_rotation', 'authority_preserved':True})
+        # Canonical source withdrawal during the external metadata await.
+        for case in ('backend_disabled', 'device_token_rotated', 'provider_unloaded', 'provider_replaced'):
+            await self.start()
+            self.delayed_artist = asyncio.Event()
+            await self.step(1)
+            await asyncio.sleep(0)
+            backend = storage.household.music_backends['spotify_direct']
+            entry = self.integration.entry
+            previous = dict(entry.data)
+            if case == 'backend_disabled':
+                storage.household.music_backends['spotify_direct'] = replace(backend, state=MusicBackendState.DISABLED)
+            elif case == 'device_token_rotated':
+                self.hass.config_entries.async_update_entry(entry, data={**previous, 'device_token':'fixture-device-rotated'})
+            elif case == 'provider_unloaded':
+                entry._async_set_state(self.hass, ConfigEntryState.NOT_LOADED, None)
+            else:
+                self.hass.data['djconnect']['owner-entry'] = object()
+            self.delayed_artist.set()
+            try:
+                await self.settle_art()
+                active = await self.manager.async_get_active('profile-a')
+                assert active.broadcast.forecast_artwork.assets == (), case
+            finally:
+                self.delayed_artist = None
+                storage.household.music_backends['spotify_direct'] = backend
+                self.hass.data['djconnect']['owner-entry'] = self.integration
+                entry._async_set_state(self.hass, ConfigEntryState.LOADED, None)
+                self.hass.config_entries.async_update_entry(entry, data=previous)
+            results.append({'case':'inflight_'+case, 'no_asset_committed':True})
+        return results
+
+    async def duration_case(self):
+        """Real wall-clock source expiry, independent of modeled input spacing."""
+        seconds = int(os.environ.get('DJC_FORECAST_DURATION', '0'))
+        if not seconds:
+            return {'state':'NOT_RUN'}
+        assert 121 <= seconds <= 180
+        await self.start()
+        await self.presence('music_only')
+        await self.step(1)
+        await self.settle_art()
+        before = (await self.forecast())[1]['forecast']
+        active = await self.manager.async_get_active('profile-a')
+        ledger = {k:v for k,v in active.presence_ledger.__dict__.items() if k != 'clock'}
+        moments = active.broadcast.state.dj_moments
+        calls = (self.calls, self.cdn_calls)
+        start, reads = time.monotonic(), 0
+        while time.monotonic() - start < seconds:
+            await asyncio.sleep(1)
+            status, value = await self.forecast()
+            assert status == 200
+            assert value['forecast']['valid_until'] == before['valid_until']
+            reads += 1
+        expired = (await self.forecast())[1]['forecast']
+        assert expired['state'] == 'expired' and expired['imagery'] == [] and expired['sections'] == []
+        for mood in ('energy', 'party', 'chill', 'groove'):
+            active = await self.manager.async_update_mood(owner_profile_id='profile-a',session_id=active.session_id, selected_mood=mood)
+            assert (await self.forecast())[1]['forecast']['state'] == 'expired'
+        assert active.broadcast.state.dj_moments == moments
+        assert {k:v for k,v in active.presence_ledger.__dict__.items() if k != 'clock'} == ledger
+        assert (self.calls, self.cdn_calls) == calls
+        await self.step(1)
+        await self.settle_art()
+        assert (await self.forecast())[1]['forecast']['state'] == 'ready'
+        return {'state':'PASS', 'real_elapsed_seconds':round(time.monotonic()-start,3),
+                'reads':reads,'zero_read_or_settings_source_renewal':True,
+                'off_zero_new_moments':True,'fresh_observation_recovers':True}
+
     async def qualify(self, client, identity, headers):
         self.owner = {'client': client, 'identity': identity, 'headers': headers}
         rows, fixtures = [], []
@@ -159,7 +351,10 @@ class ForecastLab(AlbumLab):
         assert (await self.forecast(session_id=ended_id))[0] == 404
         art = original['session_forecast']['imagery'][0]['url']
         assert (await client.get(art)).status == 404
-        result = {'qualification':'ISOLATED_REAL_HA_FORECAST_PASS','twenty_chains':rows,
+        invalid_requests = await self.invalid_forecast_requests()
+        authority_cases = await self.authority_cases(client)
+        duration = await self.duration_case()
+        result = {'invalid_requests':invalid_requests,'authority_cases':authority_cases,'duration':duration,'qualification':'ISOLATED_REAL_HA_FORECAST_PASS','twenty_chains':rows,
                   'transport_fixtures':fixtures,'four_mood_texts_distinct':True,
                   'all_presence_readable':True,'wrong_authority_and_session_denied':True,
                   'ended_art_denied':True,'provider_calls':self.calls,'cdn_calls':self.cdn_calls,

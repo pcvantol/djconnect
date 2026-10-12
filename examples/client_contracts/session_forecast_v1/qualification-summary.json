@@ -1,4 +1,138 @@
 {
+  "invalid_requests": [
+    {
+      "case": "not_object",
+      "status": 400
+    },
+    {
+      "case": "extra_owner",
+      "status": 400
+    },
+    {
+      "case": "missing_identity",
+      "status": 400
+    },
+    {
+      "case": "boolean_version",
+      "status": 400
+    },
+    {
+      "case": "string_version",
+      "status": 400
+    },
+    {
+      "case": "unknown_version",
+      "status": 400
+    },
+    {
+      "case": "empty_session",
+      "status": 400
+    },
+    {
+      "case": "retired_windows",
+      "status": 400
+    },
+    {
+      "case": "unknown_client",
+      "status": 400
+    },
+    {
+      "case": "unknown_device",
+      "status": 401
+    },
+    {
+      "case": "missing_bearer",
+      "status": 401
+    },
+    {
+      "case": "mismatched_header",
+      "status": 401
+    }
+  ],
+  "authority_cases": [
+    {
+      "case": "backend_disabled",
+      "peer_content_withdrawn": true,
+      "status": 401,
+      "old_image_denied": true
+    },
+    {
+      "case": "account_backend_changed",
+      "peer_content_withdrawn": true,
+      "status": 400,
+      "old_image_denied": true
+    },
+    {
+      "case": "membership_removed",
+      "peer_content_withdrawn": true,
+      "status": 401,
+      "old_image_denied": true
+    },
+    {
+      "case": "provider_unloaded",
+      "peer_content_withdrawn": true,
+      "status": 401,
+      "old_image_denied": true
+    },
+    {
+      "case": "provider_replaced",
+      "peer_content_withdrawn": true,
+      "status": 401,
+      "old_image_denied": true
+    },
+    {
+      "case": "provider_generation",
+      "peer_content_withdrawn": true,
+      "status": 401,
+      "old_image_denied": true
+    },
+    {
+      "case": "device_token_rotated",
+      "peer_content_withdrawn": true,
+      "status": 200,
+      "old_image_denied": true
+    },
+    {
+      "case": "manager_generation",
+      "peer_content_withdrawn": true,
+      "status": 401,
+      "old_image_denied": true
+    },
+    {
+      "case": "storage_replaced",
+      "peer_content_withdrawn": true,
+      "status": 200,
+      "old_image_denied": true
+    },
+    {
+      "case": "oauth_rotation",
+      "authority_preserved": true
+    },
+    {
+      "case": "inflight_backend_disabled",
+      "no_asset_committed": true
+    },
+    {
+      "case": "inflight_device_token_rotated",
+      "no_asset_committed": true
+    },
+    {
+      "case": "inflight_provider_unloaded",
+      "no_asset_committed": true
+    },
+    {
+      "case": "inflight_provider_replaced",
+      "no_asset_committed": true
+    }
+  ],
+  "duration": {
+    "state": "PASS",
+    "real_elapsed_seconds": 122.439,
+    "reads": 122,
+    "zero_read_or_settings_source_renewal": true,
+    "off_zero_new_moments": true,
+    "fresh_observation_recovers": true
+  },
   "qualification": "ISOLATED_REAL_HA_FORECAST_PASS",
   "twenty_chains": [
     {
@@ -166,8 +300,8 @@
   "all_presence_readable": true,
   "wrong_authority_and_session_denied": true,
   "ended_art_denied": true,
-  "provider_calls": 87,
-  "cdn_calls": 21,
+  "provider_calls": 149,
+  "cdn_calls": 32,
   "fixture_boundaries": [
     "SpotifyBackend._request",
     "external CDN aiohttp response"
@@ -238,8 +372,8 @@
     "custom_components/djconnect/domain/resolver/profile_resolver.py": "a13f58d7d965157ac0db2c31767a7460d60d6d8df9b34fb3b2f29357b8aa8167",
     "custom_components/djconnect/domain/storage.py": "dcfe573cca050beea5b55bb483be04fd90b8e3e674a4795d93750ecec5dc0144",
     "custom_components/djconnect/entity_ids.py": "2de2482c841bb4a1cd86af04730963ef7d9915a3ff26df86d8101731df6ff0f2",
-    "custom_components/djconnect/forecast_expression.py": "ce3be1544ecf8f2b104eef120089b99284a5831a23b61b5d6077d4e52e47fa6e",
-    "custom_components/djconnect/forecast_imagery.py": "7fde8eea987ce930a29c89c46759a0e219599db05ae100a52136e3b2f331cf2c",
+    "custom_components/djconnect/forecast_expression.py": "62484c29a2f9d8dd992b8021e9aec87aa881e1f859f6def736faedd37f6cb4fe",
+    "custom_components/djconnect/forecast_imagery.py": "28c15f023ddc1df1c43a3997d8a551fc74ae08a473b494398165d226c9e2fd9c",
     "custom_components/djconnect/github.py": "90c01724de4de8f2e1bb9603a922ef0a1cb95376465dc0310e8d752c3c65d459",
     "custom_components/djconnect/golden_qualification.py": "e7e7eca3ab4c5ea6c52bc0ae2e6c82c664d81940041ebc6bb327fcde74119561",
     "custom_components/djconnect/ha_urls.py": "cfb435ee2f7f25450fc3f443703a3a466bffd0da103365b3163384797587d558",
@@ -291,13 +425,13 @@
     "custom_components/djconnect/services.yaml": "7d21d2d35a29eb5b97fb9473c44ecaba8cf69b972c6b09dd6e25abeb1094bf92",
     "custom_components/djconnect/session_conversation.py": "94de89d6513cb232f6cd8a167053a2dd90ab29c45d305b69237bdaf0f8f380e9",
     "custom_components/djconnect/session_facts.py": "1e2d86cbed27cd8a9960649119ee5e9d1ff55b03f7aa707a864c7485d1826287",
-    "custom_components/djconnect/session_forecast.py": "354c8a38a199306ab4a20e6a9108fc776ae955c93fd97d25086836196db76f86",
-    "custom_components/djconnect/session_forecast_transport.py": "02d3dbf421fb65ef3a4c20b4606d4f556f07866fc91ee3c31e3b0b39c0c8d949",
+    "custom_components/djconnect/session_forecast.py": "d57c7d6bb0abcfb7d881c395c3f2ee1615051908bbdfcc3b4ae80799d5f919f3",
+    "custom_components/djconnect/session_forecast_transport.py": "0b0a6ac26356a56319354dacb77b9a0e8ea1a5736745614223b6100afcc3b15d",
     "custom_components/djconnect/session_history_maintenance.py": "29450d7b149f5911492524d6d4f90c050f2dc730ad32523c9bbe97b7c9e8ed4c",
     "custom_components/djconnect/session_history_projection.py": "892d21237690847ce2a2aa13d3c3921334b7e9b1f6c5e469956d96a06d2407a7",
     "custom_components/djconnect/session_mood.py": "331d4fc4b3c011e10f5e05b8cda9cf1b0065e746fc892bfdea4e2cb23a27fefb",
     "custom_components/djconnect/session_presence.py": "8c7687c42ce931ad8abbda0a4f2323a074e472f8913cb93aab1c1f45d39e313f",
-    "custom_components/djconnect/session_runtime.py": "ff1463232ab83f9f8470f58e09ee74ec4b7e82d02ddc95a2d7157f021a1da3ba",
+    "custom_components/djconnect/session_runtime.py": "7303482d1c8583fba6f3dda4e35354559cb6229e79914337a99de6b9e97fd1ea",
     "custom_components/djconnect/spotify.py": "0e84480b356a9ae6649657c3fbe9f557663c04c8d0aba82fcca7ab150a1201b7",
     "custom_components/djconnect/spotify_backend.py": "24045be8384fa40668c7644a7d9bad37a0b6e96a0f0a7fbe307fb3c13ee63c75",
     "custom_components/djconnect/spotify_oauth.py": "e072ea0673dfd589abd09622813db5c2a29321f9906a49285695a1d792dc7d70",
@@ -334,5 +468,16 @@
   "ha_credentials_issued": 0,
   "source_hash_differences": 0,
   "source_files": 152,
-  "cadence": "Owned observer inputs; pending tasks settled and only own timer listeners removed for read-effect isolation; external spacing modeled, no installed claim."
+  "full_regression": {
+    "tests": 1766,
+    "skipped": 7,
+    "result": "PASS"
+  },
+  "framework": {
+    "tests": 171,
+    "scenarios": 234,
+    "result": "PASS"
+  },
+  "replay_revision_guard": "PASS",
+  "shared_renderer_visible_forecast": "NOT_ADOPTED"
 }

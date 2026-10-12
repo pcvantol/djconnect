@@ -3,7 +3,7 @@
 Assignment DJC-CORE-SESSION-FORECAST-V1-20261012;
 [selection/design decision6123328620](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6123328620).
 Status: pre-runtime contract preserved below; local Core implementation and early
-ordinary paired HA qualification in progress. Full qualification/review/delivery pending.
+ordinary paired HA qualification complete locally. Exact freeze reviews/protected delivery pending.
 Same sole Core writer, actual base e26888fc164fac1e5cb41908fd922d5f9a05e0bd,
 branch codex/session-forecast-v1, after closed album1154/1155.
 No source/Finalization publication, consumer admission or installed acceptance.
@@ -57,6 +57,7 @@ same projection and ordinary sequence/watermark/recovery semantics.
 Projection fields: `contract_version`, `session_id`, monotone `revision`,
 `state` (`ready`, `limited`, `empty`, `expired`, `withdrawn`), `issued_at`,
 `valid_until`, `nominal_window_seconds:900`, `supported_window_seconds`,
+`current_anchor` (existing public playback `item_id` plus source URL, or null),
 `summary`, bounded `sections[]` and `imagery[]`. Stable section IDs are
 `current`, `guidance`, `aim`; each has authored title/text and explicit
 `claim_type` (`current`, `intention`, `conditional_target`). A media anchor
@@ -87,7 +88,7 @@ track art is not a required substitute. Every admitted image has:
 | source_url | Canonical original source/resource with clickable provenance |
 | attribution | Visible provider/creator/mark/link obligations, not a hidden tooltip |
 | usage_basis | Explicit documented display/license basis and permitted audience |
-| expires_at | Original minimum asset/context/claim deadline; never renewed by reads/cache |
+| expires_at | Original asset deadline; visible validity also requires the earlier `forecast.valid_until`; neither renews on reads/cache |
 | url | Managed HA renderer-safe resource; no undocumented hotlinking |
 | cache_policy | Session-bound/no-store consumer policy and bounded producer cache |
 
@@ -212,3 +213,44 @@ claim. Only external Spotify metadata and CDN response boundaries are fixtures.
 Owned timer listeners are removed after genuine pending work settles solely
 to isolate pure-read effects; provider timing is modeled, no long-duration PASS
 is inferred. Full race/browser/expiry/coverage/regression/editorial checks remain.
+
+### Artist-image claim lifetime and review corrections
+
+The managed byte lease and narrative claim have separate clocks. Consumers must
+remove images, including already decoded pixels and local cache references, at
+`min(forecast.valid_until, image.expires_at)`. A withdrawn, empty or expired
+Forecast removes all visible images immediately; receiving image bytes alone
+never establishes playback or a forthcoming artist. Missing/failed art leaves
+the narrative and attributed text readable, with a neutral placeholder.
+
+Only a newly accepted provider playback observation renews the 120-second
+current-context freshness lease. Mood, Persona, presence, direction, reads,
+reconnect and late artwork completion can re-realize still-valid content but
+cannot extend its original source deadline or revive an expired current claim.
+The artwork's independent 300-second memory lease cannot extend that claim.
+Provider runtime/entry identity and unload generation, active backend,
+account/backend relationship and Profile membership fence both owner reads and
+managed bytes. Normal OAuth credential rotation preserves canonical authority.
+
+Current-role artist imagery is implemented first. Contextual and qualified
+upcoming roles are schema-reserved and remain absent until their own safe
+claim and display-rights admission succeeds. No subsequent artist is invented.
+Apple's prominent artist composition and VibeCast's visible Forecast adoption
+require separate consumer qualification; Core transport alone is not that PASS.
+
+An exact same-artist image may support a different newly observed current track
+without another remote lookup. Admission rechecks exact artist identity and
+canonical current source authority, uses a new opaque grant scoped to that
+current track, and retains the original bytes, provenance and asset deadline.
+The old grant does not authorize the new track. This reuse does not reset the
+12-attempt budget, backoff or freshness lease, and retains no chain of old assets.
+
+A playback-change/pause frame omits Forecast until a matching current realization
+commits; it never invents a different projection under an existing revision.
+Consumers remove a displayed current anchor when its item ID differs from current
+playback, independently of Forecast revision ordering. Readable current art follows
+the matching qualified current anchor. Historical replay frames omit Forecast.
+If recovery spans a forecast_changed event, the existing snapshot_required route
+returns one coherent current snapshot rather than replaying mutable intent as
+history. A consumer rejecting revision <= last_revision therefore cannot accept
+a fabricated limited projection and suppress the ready projection at that revision.
