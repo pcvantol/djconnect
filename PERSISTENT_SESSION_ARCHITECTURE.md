@@ -308,3 +308,8 @@ ownership and import/export boundary is canonical in
 - [`SESSION_FLOW_RECOVERY_ARCHITECTURE.md`](SESSION_FLOW_RECOVERY_ARCHITECTURE.md)
 - [`docs/product/CONTINUE_CURRENT_PLAYBACK_CONTINUITY.md`](docs/product/CONTINUE_CURRENT_PLAYBACK_CONTINUITY.md)
 - [`DJCONNECT_STORAGE_ARCHITECTURE.md`](DJCONNECT_STORAGE_ARCHITECTURE.md)
+
+## Planned Session entry, history and native-surface refinement
+
+The combined documentary decision `DJC-SESSION-ENTRY-LIFECYCLE-HISTORY-DESIGN-V1-20261012` (including Apple addendum C) is defined in [Session Entry Lifecycle Experience V1](docs/product/SESSION_ENTRY_LIFECYCLE_EXPERIENCE_V1.md), [Session History Summary V1](docs/product/SESSION_HISTORY_SUMMARY_V1.md), [Apple Session Native Surfaces V1](docs/product/APPLE_SESSION_NATIVE_SURFACES_V1.md).
+It preserves this contract and its delivered capabilities. New lifecycle replacement/intent operations, qualified history aggregates and passive native-surface rights remain **Planned**, with separate producer/consumer acceptance. Navigation is read-only; foreground owner display rights do not grant widget storage or category-invitation content. No Runtime, provider or consumer implementation is introduced by the design.

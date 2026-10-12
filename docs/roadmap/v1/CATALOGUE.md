@@ -12,6 +12,8 @@ Selected Session Forecast: [DJC-CORE-SESSION-FORECAST-V1-20261012](https://githu
 
 Selected ambient convergence: [DJC-CORE-AMBIENT-FACT-MOMENT-CONVERGENCE-V1-20261012](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6125691006); source PROTECTED_MERGED, qualified Session reuse and passive producer retirement; native/joint acceptance open. Forecast1156/1157 stays closed; version5 preserved in history/20261012. No new source/model/consumer dispatch.
 
+Combined Session entry/history/native-surface documentary design: [DJC-SESSION-ENTRY-LIFECYCLE-HISTORY-DESIGN-V1-20261012](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6131363097); documentation UNPUBLISHED. All new product subsets remain Planned/NOT_ISSUED; Continuation is independent and rich passive rights are not inherited. Ambient1158/1159 remains terminal; version6 is preserved in history/20261012. No new product writer or native/APNs/installed/hardware PASS.
+
 | Node | Owner | Status | Outcome |
 |---|---|---|---|
 | `PROJ::INTELLIGENCE::DJ-PRESENCE` | DJC-CORE | Planned | Adjustable DJ presence |
@@ -35,3 +37,18 @@ Selected ambient convergence: [DJC-CORE-AMBIENT-FACT-MOMENT-CONVERGENCE-V1-20261
 | `AMBIENT::CORE::CONVERGENCE` | DJC-CORE | Completed | Retire passive Ask DJ producer; reuse qualified Session Moments |
 | `AMBIENT::APPLE::JOIN` | DJC-APPLE | Planned | Verify Session-only proactive content and retained Ask DJ history |
 | `AMBIENT::PRODUCT::JOINT` | DJC-CORE | Planned | Joint ambient convergence acceptance |
+| `ENTRY::CORE::LIFECYCLE` | DJC-CORE | Planned | Core entry/readiness and exact lifecycle operations |
+| `ENTRY::CORE::ASK-LIFECYCLE` | DJC-CORE | Planned | Common text/voice lifecycle semantics |
+| `ENTRY::CORE::PAUSE-RECOVERY` | DJC-CORE | Planned | Pause and observation recovery policy |
+| `ENTRY::APPLE::NAVIGATION` | DJC-APPLE | Planned | Native preparation/music selection and return |
+| `ENTRY::APPLE::LIFECYCLE` | DJC-APPLE | Planned | Native exact lifecycle invocation integration |
+| `HISTORY::CORE::SUMMARY` | DJC-CORE | Planned | Owner history summary aggregation contract |
+| `HISTORY::APPLE::SUMMARY` | DJC-APPLE | Planned | Native history list/header summary adoption |
+| `SURFACE::CORE::PROJECTION` | DJC-CORE | Planned | Native surface rights/state projection |
+| `SURFACE::APPLE::NAVIGATION` | DJC-APPLE | Planned | Typed native Session navigation |
+| `SURFACE::APPLE::ADOPTION` | DJC-APPLE | Planned | Session widget/Activity/Island adoption |
+| `SURFACE::APPLE::QUIET-TRANSPORT` | DJC-APPLE | Planned | Quiet surface update transport qualification |
+| `SURFACE::PRODUCT::JOINT` | DJC-CORE | Planned | Joint selected native surface acceptance |
+| `CONTINUATION::CORE::POLICY` | DJC-CORE | Planned | Independent opportunity/consent policy |
+| `CONTINUATION::APPLE::ALERT-TRANSPORT` | DJC-APPLE | Planned | Continuation invitation native transport |
+| `CONTINUATION::PRODUCT::JOINT` | DJC-CORE | Planned | Joint Continuation invitation acceptance |

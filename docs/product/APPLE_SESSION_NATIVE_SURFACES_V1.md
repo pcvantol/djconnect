@@ -220,14 +220,16 @@ Disposition is a planned migration decision, not a modification in this slice.
 | --- | --- | --- |
 | `DJConnectNowPlayingWidget` | KEEP | Independent music context without Session; test paused/no-session and old configured widget |
 | `DJConnectQueueWidget` | KEEP | Independent explicit queue view; no new Session/count/next-track inference |
-| `DJConnectPlaylistsWidget` | KEEP | Selection/navigation; no automatic strategy or start; retain configured kind |
+| `DJConnectPlaylistsWidget` snapshot/model identifier | KEEP model; no current standalone widget delivery claimed | `DJConnectPlaylistsWidgetSnapshot.widgetKind` exists, but the current WidgetBundle registers only NowPlaying, Queue, TrackInsight and AskDJ; do not invent a deployed playlists widget |
 | `DJConnectTrackInsightWidget` | KEEP | Existing independent feature; qualify its own rights, never relabel as Session Moment |
 | `DJConnectAskDJWidget` navigation | REUSE | Explicit general chat remains general; no microphone/send on open |
 | `DJConnectAskDJWidgetSnapshot` prompt/response/context/track/artist cache | REPLACE rich passive snapshot with qualified neutral navigation by default; RETIRE unqualified last-response exposure | String sanitization is not privacy grant; clear only owned transient snapshot, preserve chat/history; test stale old cache/migration |
 | `TrackInsightLiveActivityController` + `DJConnectLiveActivities` | REPLACE playback-derived identity/lifecycle for the selected Session experience; REUSE permitted native layout mechanics | Current fixed `djconnect-now-playing`, `isPlaying` guard, `pushType:nil`; no simultaneous duplicate NowPlaying+Session Activity for the same selected experience; preserve independent player |
-| `djconnect://now-playing`, `queue`, `track-insight`, `ask-dj` | KEEP | Explicit legacy navigation; aliasing never mutates or reroutes Ask DJ into Session |
+| `djconnect://now-playing`, `queue`, `track-insight`, `ask-dj`, `discover`/`discovery`, `playlists` and current aliases | KEEP | Exact HomeScreenAction parser includes those targets and Dutch/legacy aliases; no alias mutates or reroutes general Ask DJ |
 | HomeScreenAction `now-playing`, `ask-dj`, `track-insight`, `discovery`, `queue`, `playlists` | REUSE | Enum supports six actions; iOS plist declares the first five, not playlists; add Session targets separately with auth/cold-start tests |
-| iOS and macOS notification handlers → app model | REUSE qualified legacy families; REPLACE unconditional unhandled-tap fallback for new Session invitations | Current unhandled tap opens general Ask DJ; invalid Session invitation must become neutral, not general chat. Preserve explicit legacy Ask DJ notification behavior |
+| iOS notification tap handler | REUSE legacy handling; REPLACE unhandled Session-target fallback | Sets pending `.askDJ` after unhandled tap; invalid Session invitation must become neutral |
+| macOS notification tap handler | REUSE legacy handling; REPLACE unhandled Session-target fallback | Activates app and opens `.askDJ` after unhandled tap; invalid Session target must remain neutral |
+| App-model notification dispatcher | REUSE explicit `music_discovery_ready` / legacy Ask DJ behavior | Discovery event refreshes Discovery; other events refresh general Ask DJ history and return false. New Session invitations must not fall through this refresh/open behavior |
 | Existing App Group snapshot stores / reload calls | REUSE mechanics only after purpose qualification | No blanket widget reset, private archive wipe or old response resurrection after ambient retirement |
 
 No existing configured kind is silently removed/reset. Migration must preserve

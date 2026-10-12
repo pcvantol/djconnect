@@ -12,6 +12,8 @@ Selected Session Forecast: [DJC-CORE-SESSION-FORECAST-V1-20261012](https://githu
 
 Selected ambient convergence: [DJC-CORE-AMBIENT-FACT-MOMENT-CONVERGENCE-V1-20261012](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6125691006); source PROTECTED_MERGED, qualified Session reuse and passive producer retirement; native/joint acceptance open. Forecast1156/1157 stays closed; version5 preserved in history/20261012. No new source/model/consumer dispatch.
 
+Combined Session entry/history/native-surface documentary design: [DJC-SESSION-ENTRY-LIFECYCLE-HISTORY-DESIGN-V1-20261012](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6131363097); documentation UNPUBLISHED. All new product subsets remain Planned/NOT_ISSUED; Continuation is independent and rich passive rights are not inherited. Ambient1158/1159 remains terminal; version6 is preserved in history/20261012. No new product writer or native/APNs/installed/hardware PASS.
+
 - `PROJ::INTELLIGENCE::DJ-PRESENCE` — Planned: Independent presence, Mood and Persona; no new dispatch.
 - `SLICE::APPLE::DJ-PRESENCE-CONTROL` — Planned: Accessible five-language native confirmation; reuse existing Apple writer.
 - `QUAL::VIBECAST::DJ-PRESENCE-COMPAT` — Planned: Core shared-renderer + receiver owner, both existing software builds.
@@ -24,5 +26,20 @@ Selected ambient convergence: [DJC-CORE-AMBIENT-FACT-MOMENT-CONVERGENCE-V1-20261
 - `FORECAST::CORE::UPCOMING` — Planned: Core projection/shared compatibility separate from native, visible ambient, installed/hardware and joint qualification.
 - `AMBIENT::APPLE::JOIN` — Planned: Core software, Apple native consumer and joint acceptance qualified separately; no new source/model/type or full Stage4 completion.
 - `AMBIENT::PRODUCT::JOINT` — Planned: Core software, Apple native consumer and joint acceptance qualified separately; no new source/model/type or full Stage4 completion.
+- `ENTRY::CORE::LIFECYCLE` — Planned: Qualified readiness; server-bound replace/start/end idempotency and partial-effect readback.
+- `ENTRY::CORE::ASK-LIFECYCLE` — Planned: Same Core intent route, clarification/cancel and closed-Session turn boundary.
+- `ENTRY::CORE::PAUSE-RECOVERY` — Planned: Confirmed quiet playback/in-flight suppression, no resume backlog or invented auto-end.
+- `ENTRY::APPLE::NAVIGATION` — Planned: Read-only navigation, qualified selection outcomes, preserved scroll/search/draft.
+- `ENTRY::APPLE::LIFECYCLE` — Planned: Existing lifecycle qualification plus exact new producer contract; no local executor.
+- `HISTORY::CORE::SUMMARY` — Planned: Bounded atomic counts, Mood intervals/coverage, privacy/delete/migration, no N+1.
+- `HISTORY::APPLE::SUMMARY` — Planned: Owner summary same revision, honest missing values and five-language accessible labels.
+- `SURFACE::CORE::PROJECTION` — Planned: Purpose-specific neutral/rich grant, subject/expiry/revision, no private cache inheritance.
+- `SURFACE::APPLE::NAVIGATION` — Planned: Cold/warm auth, explicit Session/general composer, no mutation on open.
+- `SURFACE::APPLE::ADOPTION` — Planned: Qualified surface contract, legacy migration, Session identity, host/SDK/OS evidence.
+- `SURFACE::APPLE::QUIET-TRANSPORT` — Planned: Foreground/background/offline/real Activity or Widget push qualified separately; no alert bypass.
+- `SURFACE::PRODUCT::JOINT` — Planned: Exact producer/native/purpose/transport acceptance; installed/hardware separate.
+- `CONTINUATION::CORE::POLICY` — Planned: Off until opt-in; category-only projection, quiet hours, bounded retries/dedup and revalidation.
+- `CONTINUATION::APPLE::ALERT-TRANSPORT` — Planned: Category-only real transport, consent, cross-client/Watch dedup; separate answer-ready family.
+- `CONTINUATION::PRODUCT::JOINT` — Planned: Exact Core policy and independently qualified native/transport receipts.
 
 Core policy/ownercontract status follows the exact implementation receipt. Native/installed/hardware acceptance remains open.

@@ -42,6 +42,7 @@ clients accept its absence without inventing zeroes or backfilling old stores.
       "value": 3,
       "basis": "accepted_playback_observed_entries",
       "coverage": "partial",
+      "state": "provisional",
       "revision": 12,
       "as_of": "2026-10-12T18:00:00Z"
     },
@@ -49,6 +50,7 @@ clients accept its absence without inventing zeroes or backfilling old stores.
       "value": null,
       "basis": "semantic_publication_commit",
       "coverage": "unknown",
+      "state": "provisional",
       "revision": 12,
       "as_of": "2026-10-12T18:00:00Z"
     },
@@ -56,6 +58,7 @@ clients accept its absence without inventing zeroes or backfilling old stores.
       "value": null,
       "basis": "confirmed_symbolic_mood_elapsed_intervals",
       "coverage": "unknown",
+      "state": "provisional",
       "revision": 12,
       "as_of": "2026-10-12T18:00:00Z"
     }
@@ -63,7 +66,7 @@ clients accept its absence without inventing zeroes or backfilling old stores.
 }
 ```
 
-Required per metric: `value`, `basis`, `coverage`, `revision`, `as_of`.
+Required per metric: `value`, `basis`, `coverage`, `state`, `revision`, `as_of`.
 `state` is `provisional` for a live interval or `final` once its permitted
 aggregation has closed. Final does **not** mean complete coverage. Each metric
 uses `coverage: complete | partial | unknown | withdrawn`; unavailable or

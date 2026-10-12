@@ -37594,7 +37594,7 @@
     }
   ],
   "planning_maintenance": {
-    "schema_version": "djconnect-federated-planning-delta/6",
+    "schema_version": "djconnect-federated-planning-delta/7",
     "decision_id": "DJC-DJ-PRESENCE-ROADMAP-DESIGN-V1-20261011",
     "decision_url": "https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6110375785",
     "design_date": "2026-10-11",
@@ -38055,6 +38055,341 @@
             ]
           }
         ]
+      },
+      {
+        "id": "ENTRY::CORE::LIFECYCLE",
+        "title": "Core entry/readiness and exact lifecycle operations",
+        "lane": "DJC-CORE",
+        "repository": "pcvantol/djconnect",
+        "status": "Planned",
+        "assignment_status": "NOT_ISSUED",
+        "scope": "Qualified readiness; server-bound replace/start/end idempotency and partial-effect readback",
+        "acceptance_boundary": "Qualified readiness; server-bound replace/start/end idempotency and partial-effect readback",
+        "contract_binding": "docs/product/SESSION_ENTRY_LIFECYCLE_EXPERIENCE_V1.md",
+        "source_ids": [
+          "OWNER-SESSION-ENTRY-ABC-20261012"
+        ],
+        "parent_reference": "PROJ::ROADMAP::LIFECYCLE",
+        "family_reference": "Existing Session entry/lifecycle/history",
+        "prerequisite_groups": []
+      },
+      {
+        "id": "ENTRY::CORE::ASK-LIFECYCLE",
+        "title": "Common text/voice lifecycle semantics",
+        "lane": "DJC-CORE",
+        "repository": "pcvantol/djconnect",
+        "status": "Planned",
+        "assignment_status": "NOT_ISSUED",
+        "scope": "Same Core intent route, clarification/cancel and closed-Session turn boundary",
+        "acceptance_boundary": "Same Core intent route, clarification/cancel and closed-Session turn boundary",
+        "contract_binding": "docs/product/SESSION_ENTRY_LIFECYCLE_EXPERIENCE_V1.md",
+        "source_ids": [
+          "OWNER-SESSION-ENTRY-ABC-20261012"
+        ],
+        "parent_reference": "PROJ::ROADMAP::LIFECYCLE",
+        "family_reference": "Existing Session entry/lifecycle/history",
+        "prerequisite_groups": [
+          {
+            "mode": "AND",
+            "edge_ids": [
+              "ENTRY-ABC-1"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "ENTRY::CORE::PAUSE-RECOVERY",
+        "title": "Pause and observation recovery policy",
+        "lane": "DJC-CORE",
+        "repository": "pcvantol/djconnect",
+        "status": "Planned",
+        "assignment_status": "NOT_ISSUED",
+        "scope": "Confirmed quiet playback/in-flight suppression, no resume backlog or invented auto-end",
+        "acceptance_boundary": "Confirmed quiet playback/in-flight suppression, no resume backlog or invented auto-end",
+        "contract_binding": "docs/product/SESSION_ENTRY_LIFECYCLE_EXPERIENCE_V1.md",
+        "source_ids": [
+          "OWNER-SESSION-ENTRY-ABC-20261012"
+        ],
+        "parent_reference": "PROJ::ROADMAP::LIFECYCLE",
+        "family_reference": "Existing Session entry/lifecycle/history",
+        "prerequisite_groups": []
+      },
+      {
+        "id": "ENTRY::APPLE::NAVIGATION",
+        "title": "Native preparation/music selection and return",
+        "lane": "DJC-APPLE",
+        "repository": "pcvantol/djconnect-app",
+        "status": "Planned",
+        "assignment_status": "NOT_ISSUED",
+        "scope": "Read-only navigation, qualified selection outcomes, preserved scroll/search/draft",
+        "acceptance_boundary": "Read-only navigation, qualified selection outcomes, preserved scroll/search/draft",
+        "contract_binding": "docs/product/SESSION_ENTRY_LIFECYCLE_EXPERIENCE_V1.md",
+        "source_ids": [
+          "OWNER-SESSION-ENTRY-ABC-20261012"
+        ],
+        "parent_reference": "PROJ::ROADMAP::P2-SESSION",
+        "family_reference": "Existing Session entry/lifecycle/history",
+        "prerequisite_groups": []
+      },
+      {
+        "id": "ENTRY::APPLE::LIFECYCLE",
+        "title": "Native exact lifecycle invocation integration",
+        "lane": "DJC-APPLE",
+        "repository": "pcvantol/djconnect-app",
+        "status": "Planned",
+        "assignment_status": "NOT_ISSUED",
+        "scope": "Existing lifecycle qualification plus exact new producer contract; no local executor",
+        "acceptance_boundary": "Existing lifecycle qualification plus exact new producer contract; no local executor",
+        "contract_binding": "docs/product/SESSION_ENTRY_LIFECYCLE_EXPERIENCE_V1.md",
+        "source_ids": [
+          "OWNER-SESSION-ENTRY-ABC-20261012"
+        ],
+        "parent_reference": "PROJ::QUAL::CMB12-LIFECYCLE",
+        "family_reference": "Existing Session entry/lifecycle/history",
+        "prerequisite_groups": [
+          {
+            "mode": "AND",
+            "edge_ids": [
+              "ENTRY-ABC-2"
+            ]
+          },
+          {
+            "mode": "AND",
+            "edge_ids": [
+              "ENTRY-ABC-3"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "HISTORY::CORE::SUMMARY",
+        "title": "Owner history summary aggregation contract",
+        "lane": "DJC-CORE",
+        "repository": "pcvantol/djconnect",
+        "status": "Planned",
+        "assignment_status": "NOT_ISSUED",
+        "scope": "Bounded atomic counts, Mood intervals/coverage, privacy/delete/migration, no N+1",
+        "acceptance_boundary": "Bounded atomic counts, Mood intervals/coverage, privacy/delete/migration, no N+1",
+        "contract_binding": "docs/product/SESSION_HISTORY_SUMMARY_V1.md",
+        "source_ids": [
+          "OWNER-SESSION-ENTRY-ABC-20261012"
+        ],
+        "parent_reference": "PROJ::ROADMAP::LIFECYCLE",
+        "family_reference": "Existing Session entry/lifecycle/history",
+        "prerequisite_groups": []
+      },
+      {
+        "id": "HISTORY::APPLE::SUMMARY",
+        "title": "Native history list/header summary adoption",
+        "lane": "DJC-APPLE",
+        "repository": "pcvantol/djconnect-app",
+        "status": "Planned",
+        "assignment_status": "NOT_ISSUED",
+        "scope": "Owner summary same revision, honest missing values and five-language accessible labels",
+        "acceptance_boundary": "Owner summary same revision, honest missing values and five-language accessible labels",
+        "contract_binding": "docs/product/SESSION_HISTORY_SUMMARY_V1.md",
+        "source_ids": [
+          "OWNER-SESSION-ENTRY-ABC-20261012"
+        ],
+        "parent_reference": "PROJ::ROADMAP::LIFECYCLE",
+        "family_reference": "Existing Session entry/lifecycle/history",
+        "prerequisite_groups": [
+          {
+            "mode": "AND",
+            "edge_ids": [
+              "ENTRY-ABC-4"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "SURFACE::CORE::PROJECTION",
+        "title": "Native surface rights/state projection",
+        "lane": "DJC-CORE",
+        "repository": "pcvantol/djconnect",
+        "status": "Planned",
+        "assignment_status": "NOT_ISSUED",
+        "scope": "Purpose-specific neutral/rich grant, subject/expiry/revision, no private cache inheritance",
+        "acceptance_boundary": "Purpose-specific neutral/rich grant, subject/expiry/revision, no private cache inheritance",
+        "contract_binding": "docs/product/APPLE_SESSION_NATIVE_SURFACES_V1.md",
+        "source_ids": [
+          "OWNER-SESSION-ENTRY-ABC-20261012"
+        ],
+        "parent_reference": "CMB-12",
+        "family_reference": "Native Surface Integration",
+        "prerequisite_groups": []
+      },
+      {
+        "id": "SURFACE::APPLE::NAVIGATION",
+        "title": "Typed native Session navigation",
+        "lane": "DJC-APPLE",
+        "repository": "pcvantol/djconnect-app",
+        "status": "Planned",
+        "assignment_status": "NOT_ISSUED",
+        "scope": "Cold/warm auth, explicit Session/general composer, no mutation on open",
+        "acceptance_boundary": "Cold/warm auth, explicit Session/general composer, no mutation on open",
+        "contract_binding": "docs/product/APPLE_SESSION_NATIVE_SURFACES_V1.md",
+        "source_ids": [
+          "OWNER-SESSION-ENTRY-ABC-20261012"
+        ],
+        "parent_reference": "CMB-12",
+        "family_reference": "Native Surface Integration",
+        "prerequisite_groups": []
+      },
+      {
+        "id": "SURFACE::APPLE::ADOPTION",
+        "title": "Session widget/Activity/Island adoption",
+        "lane": "DJC-APPLE",
+        "repository": "pcvantol/djconnect-app",
+        "status": "Planned",
+        "assignment_status": "NOT_ISSUED",
+        "scope": "Qualified surface contract, legacy migration, Session identity, host/SDK/OS evidence",
+        "acceptance_boundary": "Qualified surface contract, legacy migration, Session identity, host/SDK/OS evidence",
+        "contract_binding": "docs/product/APPLE_SESSION_NATIVE_SURFACES_V1.md",
+        "source_ids": [
+          "OWNER-SESSION-ENTRY-ABC-20261012"
+        ],
+        "parent_reference": "CMB-12",
+        "family_reference": "Native Surface Integration",
+        "prerequisite_groups": [
+          {
+            "mode": "AND",
+            "edge_ids": [
+              "ENTRY-ABC-5"
+            ]
+          },
+          {
+            "mode": "AND",
+            "edge_ids": [
+              "ENTRY-ABC-6"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "SURFACE::APPLE::QUIET-TRANSPORT",
+        "title": "Quiet surface update transport qualification",
+        "lane": "DJC-APPLE",
+        "repository": "pcvantol/djconnect-app",
+        "status": "Planned",
+        "assignment_status": "NOT_ISSUED",
+        "scope": "Foreground/background/offline/real Activity or Widget push qualified separately; no alert bypass",
+        "acceptance_boundary": "Foreground/background/offline/real Activity or Widget push qualified separately; no alert bypass",
+        "contract_binding": "docs/product/APPLE_SESSION_NATIVE_SURFACES_V1.md",
+        "source_ids": [
+          "OWNER-SESSION-ENTRY-ABC-20261012"
+        ],
+        "parent_reference": "CMB-12",
+        "family_reference": "Native Surface Integration",
+        "prerequisite_groups": [
+          {
+            "mode": "AND",
+            "edge_ids": [
+              "ENTRY-ABC-7"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "SURFACE::PRODUCT::JOINT",
+        "title": "Joint selected native surface acceptance",
+        "lane": "DJC-CORE",
+        "repository": "pcvantol/djconnect",
+        "status": "Planned",
+        "assignment_status": "NOT_ISSUED",
+        "scope": "Exact producer/native/purpose/transport acceptance; installed/hardware separate",
+        "acceptance_boundary": "Exact producer/native/purpose/transport acceptance; installed/hardware separate",
+        "contract_binding": "docs/product/APPLE_SESSION_NATIVE_SURFACES_V1.md",
+        "source_ids": [
+          "OWNER-SESSION-ENTRY-ABC-20261012"
+        ],
+        "parent_reference": "CMB-12",
+        "family_reference": "Native Surface Integration",
+        "prerequisite_groups": [
+          {
+            "mode": "AND",
+            "edge_ids": [
+              "ENTRY-ABC-8"
+            ]
+          },
+          {
+            "mode": "AND",
+            "edge_ids": [
+              "ENTRY-ABC-9"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "CONTINUATION::CORE::POLICY",
+        "title": "Independent opportunity/consent policy",
+        "lane": "DJC-CORE",
+        "repository": "pcvantol/djconnect",
+        "status": "Planned",
+        "assignment_status": "NOT_ISSUED",
+        "scope": "Off until opt-in; category-only projection, quiet hours, bounded retries/dedup and revalidation",
+        "acceptance_boundary": "Off until opt-in; category-only projection, quiet hours, bounded retries/dedup and revalidation",
+        "contract_binding": "docs/product/APPLE_SESSION_NATIVE_SURFACES_V1.md",
+        "source_ids": [
+          "OWNER-SESSION-ENTRY-ABC-20261012"
+        ],
+        "parent_reference": "PROJ::ROADMAP::CONTINUATION",
+        "family_reference": "Session Continuation",
+        "prerequisite_groups": []
+      },
+      {
+        "id": "CONTINUATION::APPLE::ALERT-TRANSPORT",
+        "title": "Continuation invitation native transport",
+        "lane": "DJC-APPLE",
+        "repository": "pcvantol/djconnect-app",
+        "status": "Planned",
+        "assignment_status": "NOT_ISSUED",
+        "scope": "Category-only real transport, consent, cross-client/Watch dedup; separate answer-ready family",
+        "acceptance_boundary": "Category-only real transport, consent, cross-client/Watch dedup; separate answer-ready family",
+        "contract_binding": "docs/product/APPLE_SESSION_NATIVE_SURFACES_V1.md",
+        "source_ids": [
+          "OWNER-SESSION-ENTRY-ABC-20261012"
+        ],
+        "parent_reference": "PROJ::ROADMAP::CONTINUATION",
+        "family_reference": "Session Continuation",
+        "prerequisite_groups": [
+          {
+            "mode": "AND",
+            "edge_ids": [
+              "ENTRY-ABC-10"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "CONTINUATION::PRODUCT::JOINT",
+        "title": "Joint Continuation invitation acceptance",
+        "lane": "DJC-CORE",
+        "repository": "pcvantol/djconnect",
+        "status": "Planned",
+        "assignment_status": "NOT_ISSUED",
+        "scope": "Exact Core policy and independently qualified native/transport receipts",
+        "acceptance_boundary": "Exact Core policy and independently qualified native/transport receipts",
+        "contract_binding": "docs/product/APPLE_SESSION_NATIVE_SURFACES_V1.md",
+        "source_ids": [
+          "OWNER-SESSION-ENTRY-ABC-20261012"
+        ],
+        "parent_reference": "PROJ::ROADMAP::CONTINUATION",
+        "family_reference": "Session Continuation",
+        "prerequisite_groups": [
+          {
+            "mode": "AND",
+            "edge_ids": [
+              "ENTRY-ABC-11"
+            ]
+          },
+          {
+            "mode": "AND",
+            "edge_ids": [
+              "ENTRY-ABC-12"
+            ]
+          }
+        ]
       }
     ],
     "edges": [
@@ -38473,16 +38808,208 @@
         "source_ids": [
           "OWNER-AMBIENT-CONVERGENCE-20261012"
         ]
+      },
+      {
+        "id": "ENTRY-ABC-1",
+        "producer": "ENTRY::CORE::LIFECYCLE",
+        "consumer": "ENTRY::CORE::ASK-LIFECYCLE",
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "start",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "required_subset": "Exact target operation contract, not DNA consent",
+        "contract_or_evidence": "docs/product/SESSION_ENTRY_LIFECYCLE_EXPERIENCE_V1.md",
+        "reason": "Exact target operation contract, not DNA consent",
+        "source_ids": [
+          "OWNER-SESSION-ENTRY-ABC-20261012"
+        ]
+      },
+      {
+        "id": "ENTRY-ABC-2",
+        "producer": "ENTRY::CORE::LIFECYCLE",
+        "consumer": "ENTRY::APPLE::LIFECYCLE",
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "start",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "required_subset": "Qualified lifecycle producer for direct native invocation",
+        "contract_or_evidence": "docs/product/SESSION_ENTRY_LIFECYCLE_EXPERIENCE_V1.md",
+        "reason": "Qualified lifecycle producer for direct native invocation",
+        "source_ids": [
+          "OWNER-SESSION-ENTRY-ABC-20261012"
+        ]
+      },
+      {
+        "id": "ENTRY-ABC-3",
+        "producer": "PROJ::QUAL::CMB12-LIFECYCLE",
+        "consumer": "ENTRY::APPLE::LIFECYCLE",
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "start",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "required_subset": "Existing authorized lifecycle acceptance receipt",
+        "contract_or_evidence": "docs/product/SESSION_ENTRY_LIFECYCLE_EXPERIENCE_V1.md",
+        "reason": "Existing authorized lifecycle acceptance receipt",
+        "source_ids": [
+          "OWNER-SESSION-ENTRY-ABC-20261012"
+        ]
+      },
+      {
+        "id": "ENTRY-ABC-4",
+        "producer": "HISTORY::CORE::SUMMARY",
+        "consumer": "HISTORY::APPLE::SUMMARY",
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "start",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "required_subset": "Versioned private owner summary and coverage fixtures",
+        "contract_or_evidence": "docs/product/SESSION_HISTORY_SUMMARY_V1.md",
+        "reason": "Versioned private owner summary and coverage fixtures",
+        "source_ids": [
+          "OWNER-SESSION-ENTRY-ABC-20261012"
+        ]
+      },
+      {
+        "id": "ENTRY-ABC-5",
+        "producer": "SURFACE::CORE::PROJECTION",
+        "consumer": "SURFACE::APPLE::ADOPTION",
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "start",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "required_subset": "Qualified purpose rights/state contract",
+        "contract_or_evidence": "docs/product/APPLE_SESSION_NATIVE_SURFACES_V1.md",
+        "reason": "Qualified purpose rights/state contract",
+        "source_ids": [
+          "OWNER-SESSION-ENTRY-ABC-20261012"
+        ]
+      },
+      {
+        "id": "ENTRY-ABC-6",
+        "producer": "SURFACE::APPLE::NAVIGATION",
+        "consumer": "SURFACE::APPLE::ADOPTION",
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "start",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "required_subset": "Typed authorized navigation",
+        "contract_or_evidence": "docs/product/APPLE_SESSION_NATIVE_SURFACES_V1.md",
+        "reason": "Typed authorized navigation",
+        "source_ids": [
+          "OWNER-SESSION-ENTRY-ABC-20261012"
+        ]
+      },
+      {
+        "id": "ENTRY-ABC-7",
+        "producer": "SURFACE::CORE::PROJECTION",
+        "consumer": "SURFACE::APPLE::QUIET-TRANSPORT",
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "start",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "required_subset": "Minimal approved quiet payload and token-purpose binding",
+        "contract_or_evidence": "docs/product/APPLE_SESSION_NATIVE_SURFACES_V1.md",
+        "reason": "Minimal approved quiet payload and token-purpose binding",
+        "source_ids": [
+          "OWNER-SESSION-ENTRY-ABC-20261012"
+        ]
+      },
+      {
+        "id": "ENTRY-ABC-8",
+        "producer": "SURFACE::APPLE::ADOPTION",
+        "consumer": "SURFACE::PRODUCT::JOINT",
+        "kind": "implementation_contract",
+        "phase": "integration_acceptance",
+        "prerequisite_stage": "completion",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "required_subset": "Actual native state/migration/accessibility evidence",
+        "contract_or_evidence": "docs/product/APPLE_SESSION_NATIVE_SURFACES_V1.md",
+        "reason": "Actual native state/migration/accessibility evidence",
+        "source_ids": [
+          "OWNER-SESSION-ENTRY-ABC-20261012"
+        ]
+      },
+      {
+        "id": "ENTRY-ABC-9",
+        "producer": "SURFACE::APPLE::QUIET-TRANSPORT",
+        "consumer": "SURFACE::PRODUCT::JOINT",
+        "kind": "implementation_contract",
+        "phase": "integration_acceptance",
+        "prerequisite_stage": "completion",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "required_subset": "Only selected update modes need transport qualification",
+        "contract_or_evidence": "docs/product/APPLE_SESSION_NATIVE_SURFACES_V1.md",
+        "reason": "Only selected update modes need transport qualification",
+        "source_ids": [
+          "OWNER-SESSION-ENTRY-ABC-20261012"
+        ]
+      },
+      {
+        "id": "ENTRY-ABC-10",
+        "producer": "CONTINUATION::CORE::POLICY",
+        "consumer": "CONTINUATION::APPLE::ALERT-TRANSPORT",
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "start",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "required_subset": "Category-only consent/opportunity contract",
+        "contract_or_evidence": "docs/product/APPLE_SESSION_NATIVE_SURFACES_V1.md",
+        "reason": "Category-only consent/opportunity contract",
+        "source_ids": [
+          "OWNER-SESSION-ENTRY-ABC-20261012"
+        ]
+      },
+      {
+        "id": "ENTRY-ABC-11",
+        "producer": "CONTINUATION::CORE::POLICY",
+        "consumer": "CONTINUATION::PRODUCT::JOINT",
+        "kind": "implementation_contract",
+        "phase": "integration_acceptance",
+        "prerequisite_stage": "completion",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "required_subset": "Policy/privacy/expiry receipt",
+        "contract_or_evidence": "docs/product/APPLE_SESSION_NATIVE_SURFACES_V1.md",
+        "reason": "Policy/privacy/expiry receipt",
+        "source_ids": [
+          "OWNER-SESSION-ENTRY-ABC-20261012"
+        ]
+      },
+      {
+        "id": "ENTRY-ABC-12",
+        "producer": "CONTINUATION::APPLE::ALERT-TRANSPORT",
+        "consumer": "CONTINUATION::PRODUCT::JOINT",
+        "kind": "implementation_contract",
+        "phase": "integration_acceptance",
+        "prerequisite_stage": "completion",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "required_subset": "Real native invitation transport/dedup receipt",
+        "contract_or_evidence": "docs/product/APPLE_SESSION_NATIVE_SURFACES_V1.md",
+        "reason": "Real native invitation transport/dedup receipt",
+        "source_ids": [
+          "OWNER-SESSION-ENTRY-ABC-20261012"
+        ]
       }
     ],
     "document_references": [
       {
         "path": "PRODUCT_ROADMAP.md",
-        "sha256": "5234a7821b59dda77af59c4a6b51bbe060cf6a6c464fe7c3aba7cff5bbdc5a2f"
+        "sha256": "07b90d368c49807696ca4cafb0de30a9afcf4f49c988d3f8ef508deb581a9228"
       },
       {
         "path": "PRODUCT_BACKLOG.md",
-        "sha256": "7cc2d158e5ca33b4b440cb5665cadf81dd5377168e9a35ed56431ac70bfe367d"
+        "sha256": "2e05bf615bc2e438825fef8942ea2a779119fa5fc8fa445bcc1221368ed3d3c5"
       },
       {
         "path": "docs/product/DJ_PRESENCE_V1.md",
@@ -38490,7 +39017,7 @@
       },
       {
         "path": "DJ_SESSION_RUNTIME_CONTRACTS.md",
-        "sha256": "3fc1cc782ccfb223781ae8c949067c45b9f0fa3682598e99864ba7fdfd70fb9c"
+        "sha256": "ca5417eccd2df68990ae04dfcb8d4b15af1287bb2c72e25e5b5dafce3b53392a"
       },
       {
         "path": "docs/product/DJ_INTELLIGENCE_ARCHITECTURE.md",
@@ -38554,7 +39081,7 @@
       },
       {
         "path": "docs/product/SESSION_FORECAST_V1.md",
-        "sha256": "ee562aa2869315baff16bcec7ae4edf3634880a58fc6c1e5b4057ab86f34a102"
+        "sha256": "fa9ebfc5e90a893a1c1f8e0cf89660e8c506e4d79f12594b5ff092fb05b24a90"
       },
       {
         "path": "docs/technical/SESSION_DIRECTION_PROJECTION_ARCHITECTURE.md",
@@ -38583,6 +39110,18 @@
       {
         "path": "docs/history/prompts/2026-10-12-ambient-fact-core-finalization.md",
         "sha256": "7391647babdf4eca2a287c7c8e654d3f98c0d04121367e030173c474bfde59a6"
+      },
+      {
+        "path": "docs/product/SESSION_ENTRY_LIFECYCLE_EXPERIENCE_V1.md",
+        "sha256": "d2930b3efbfca33718383b4ad7308a509af565ad21fdc9d68f1a0cb9e5555695"
+      },
+      {
+        "path": "docs/product/SESSION_HISTORY_SUMMARY_V1.md",
+        "sha256": "03b010bd6e20cfbe752cb3fc1a7e0f1a94d9a42fd364a43ad3410e58d0589149"
+      },
+      {
+        "path": "docs/product/APPLE_SESSION_NATIVE_SURFACES_V1.md",
+        "sha256": "dad02a2c9c674e716a282ea3616fe988220126288f183d59bbca8aeb04bd1543"
       }
     ],
     "implementation_receipt": {
@@ -38741,6 +39280,26 @@
       "formal_run": "38296328532",
       "joint_acceptance": "OPEN",
       "apple_handoff": "https://github.com/pcvantol/djconnect-app/issues/87#issuecomment-6130974834"
+    },
+    "documentary_receipt": {
+      "assignment_id": "DJC-SESSION-ENTRY-LIFECYCLE-HISTORY-DESIGN-V1-20261012",
+      "addendum_id": "DJC-APPLE-SESSION-NATIVE-SURFACES-DESIGN-V1-20261012",
+      "selection_url": "https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6131363097",
+      "ab_url": "https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6131072407",
+      "c_url": "https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6131317807",
+      "base_sha": "e8bb982f148ac7a22b6991ee6f54d10188849ee0",
+      "branch": "codex/session-entry-lifecycle-history-design-v1",
+      "ack": 6131593609,
+      "material_start": 6131811609,
+      "material_commit": "90bec8b4a895808877dbdecd0e48b5666658bbdd",
+      "phase": "LOCAL_DOCUMENTARY_QUALIFICATION",
+      "source_delivery": "UNPUBLISHED",
+      "product_implementation": "Planned",
+      "native": "NOT_RUN",
+      "installed": "NOT_RUN",
+      "hardware": "NOT_RUN",
+      "previous_delta": "history/20261012/ambient-convergence-maintenance-v6.json",
+      "previous_delta_sha256": "37e8b8abc7b3c63d0e8710b0985fdfdd8311d4e072e68cbe83c8edd062ebfe54"
     }
   }
 }

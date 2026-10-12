@@ -12,6 +12,8 @@ Selected Session Forecast: [DJC-CORE-SESSION-FORECAST-V1-20261012](https://githu
 
 Selected ambient convergence: [DJC-CORE-AMBIENT-FACT-MOMENT-CONVERGENCE-V1-20261012](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6125691006); source PROTECTED_MERGED, qualified Session reuse and passive producer retirement; native/joint acceptance open. Forecast1156/1157 stays closed; version5 preserved in history/20261012. No new source/model/consumer dispatch.
 
+Combined Session entry/history/native-surface documentary design: [DJC-SESSION-ENTRY-LIFECYCLE-HISTORY-DESIGN-V1-20261012](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6131363097); documentation UNPUBLISHED. All new product subsets remain Planned/NOT_ISSUED; Continuation is independent and rich passive rights are not inherited. Ambient1158/1159 remains terminal; version6 is preserved in history/20261012. No new product writer or native/APNs/installed/hardware PASS.
+
 Selected implementation [DJC-CORE-DJ-PRESENCE-V1-20261011](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6111222122); early local contract `1d5e8c2518db5902031898991b7f4857d5263a5c`; source delivery PROTECTED_MERGED.
 
 Authority: [DJC-DJ-PRESENCE-ROADMAP-DESIGN-V1-20261011](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6110375785).
@@ -20,10 +22,10 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 
 | Local design source | SHA256 |
 |---|---|
-| [PRODUCT_ROADMAP.md](../../../PRODUCT_ROADMAP.md) | `5234a7821b59dda77af59c4a6b51bbe060cf6a6c464fe7c3aba7cff5bbdc5a2f` |
-| [PRODUCT_BACKLOG.md](../../../PRODUCT_BACKLOG.md) | `7cc2d158e5ca33b4b440cb5665cadf81dd5377168e9a35ed56431ac70bfe367d` |
+| [PRODUCT_ROADMAP.md](../../../PRODUCT_ROADMAP.md) | `07b90d368c49807696ca4cafb0de30a9afcf4f49c988d3f8ef508deb581a9228` |
+| [PRODUCT_BACKLOG.md](../../../PRODUCT_BACKLOG.md) | `2e05bf615bc2e438825fef8942ea2a779119fa5fc8fa445bcc1221368ed3d3c5` |
 | [docs/product/DJ_PRESENCE_V1.md](../../../docs/product/DJ_PRESENCE_V1.md) | `c97be3bcebbd4ca70d640cdf4fc0a9a4808451e986bc977e3173e19842a928c4` |
-| [DJ_SESSION_RUNTIME_CONTRACTS.md](../../../DJ_SESSION_RUNTIME_CONTRACTS.md) | `3fc1cc782ccfb223781ae8c949067c45b9f0fa3682598e99864ba7fdfd70fb9c` |
+| [DJ_SESSION_RUNTIME_CONTRACTS.md](../../../DJ_SESSION_RUNTIME_CONTRACTS.md) | `ca5417eccd2df68990ae04dfcb8d4b15af1287bb2c72e25e5b5dafce3b53392a` |
 | [docs/product/DJ_INTELLIGENCE_ARCHITECTURE.md](../../../docs/product/DJ_INTELLIGENCE_ARCHITECTURE.md) | `cb86b46ac414f0ca7c411978eded39ae8843cba94ea0a25ccbb0d84160bf6935` |
 | [docs/product/DJ_PRESENTATION_ARCHITECTURE.md](../../../docs/product/DJ_PRESENTATION_ARCHITECTURE.md) | `7dd7c816a46c9d49cf7a9ced45bfeccacd628b3e279c4e5fd5ca4656f4e57ad6` |
 | [docs/technical/PLATFORM_AMBIENT_EXPERIENCE.md](../../../docs/technical/PLATFORM_AMBIENT_EXPERIENCE.md) | `5dc485caa24c1e7a690f0a0aefef1c0b844bcaf1aea7ea52e3895aabcf7fbd8e` |
@@ -39,7 +41,7 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 | [docs/product/NATIVE_MOMENT_DELIVERY_CONTRACT.md](../../../docs/product/NATIVE_MOMENT_DELIVERY_CONTRACT.md) | `3b957568ad7076d55c8e250aec6dd742df90bd02c6421dc8db84a9ac8b42c5d4` |
 | [docs/technical/BROADCAST_TRANSPORT.md](../../../docs/technical/BROADCAST_TRANSPORT.md) | `9571ebd859d90f2190e8c8d6102d08477bf65d62ec3d145c328c13bef58b2e9f` |
 | [docs/verification/NARRATIVE_ALBUM_CONTINUITY_V1_ACCEPTANCE.md](../../../docs/verification/NARRATIVE_ALBUM_CONTINUITY_V1_ACCEPTANCE.md) | `c71d70e105a56b63a34d814f74ed51b2d59c084738a0350a3e1abb98c3358f3e` |
-| [docs/product/SESSION_FORECAST_V1.md](../../../docs/product/SESSION_FORECAST_V1.md) | `ee562aa2869315baff16bcec7ae4edf3634880a58fc6c1e5b4057ab86f34a102` |
+| [docs/product/SESSION_FORECAST_V1.md](../../../docs/product/SESSION_FORECAST_V1.md) | `fa9ebfc5e90a893a1c1f8e0cf89660e8c506e4d79f12594b5ff092fb05b24a90` |
 | [docs/technical/SESSION_DIRECTION_PROJECTION_ARCHITECTURE.md](../../../docs/technical/SESSION_DIRECTION_PROJECTION_ARCHITECTURE.md) | `2cd12d11dc721aa95ac145fa5e4e418ea054017016c3fa1379ec31cdac027f10` |
 | [ROLLING_SESSION_HORIZON_ARCHITECTURE.md](../../../ROLLING_SESSION_HORIZON_ARCHITECTURE.md) | `f3ad240a96f606cbd35b748af6112b769b8b8035233b306c254b79fc1a84dd62` |
 | [docs/product/PRESENTATION_COMPOSER_ARCHITECTURE.md](../../../docs/product/PRESENTATION_COMPOSER_ARCHITECTURE.md) | `bd77cd1153bc310971493528bf8df33d868ab7420d7b25c5ce6e415e3e4e0cf2` |
@@ -47,3 +49,6 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 | [docs/product/AMBIENT_FACT_MOMENT_CONVERGENCE_V1.md](../../../docs/product/AMBIENT_FACT_MOMENT_CONVERGENCE_V1.md) | `602ab34d4ee960349db8843189860a25894ce3ca57870d474c7bc6ce5fb7918e` |
 | [docs/verification/AMBIENT_FACT_MOMENT_CONVERGENCE_V1_SOURCE_READBACK.md](../../../docs/verification/AMBIENT_FACT_MOMENT_CONVERGENCE_V1_SOURCE_READBACK.md) | `500c0f99872817e857e5106e7c2a8ed39ac6877c153f616bd6795389171fc629` |
 | [docs/history/prompts/2026-10-12-ambient-fact-core-finalization.md](../../../docs/history/prompts/2026-10-12-ambient-fact-core-finalization.md) | `7391647babdf4eca2a287c7c8e654d3f98c0d04121367e030173c474bfde59a6` |
+| [docs/product/SESSION_ENTRY_LIFECYCLE_EXPERIENCE_V1.md](../../../docs/product/SESSION_ENTRY_LIFECYCLE_EXPERIENCE_V1.md) | `d2930b3efbfca33718383b4ad7308a509af565ad21fdc9d68f1a0cb9e5555695` |
+| [docs/product/SESSION_HISTORY_SUMMARY_V1.md](../../../docs/product/SESSION_HISTORY_SUMMARY_V1.md) | `03b010bd6e20cfbe752cb3fc1a7e0f1a94d9a42fd364a43ad3410e58d0589149` |
+| [docs/product/APPLE_SESSION_NATIVE_SURFACES_V1.md](../../../docs/product/APPLE_SESSION_NATIVE_SURFACES_V1.md) | `dad02a2c9c674e716a282ea3616fe988220126288f183d59bbca8aeb04bd1543` |
