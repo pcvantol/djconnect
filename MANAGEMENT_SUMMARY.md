@@ -1,41 +1,51 @@
 # DJConnect Generation 2 Management Summary
 
-## Current: Session Forecast v1 — local Core implementation
+## Current: Session Forecast v1 — bounded Core source delivered
 
-DJC-CORE-SESSION-FORECAST-V1-20261012, [selection6123328620](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6123328620).
-[Canonical contract](docs/product/SESSION_FORECAST_V1.md); same sole Core writer,
-actual base e26888fc164fac1e5cb41908fd922d5f9a05e0bd, branch codex/session-forecast-v1,
-ACK6125042095/material6125092087, authoritative hostverify MATCH.
-Album1154/1155 is terminal at this base, MERGED_RECONCILED/WORKSPACE_READY before admission.
-Existing Direction parent is refined into a mutable active-session projection;
-Runtime15-minute foundation, internal20-minute future target and public nominal900s
-are distinct. No Horizon/queue export, second Planner, rewritten Moment or read effect.
+DJC-CORE-SESSION-FORECAST-V1-20261012: [source #1156](https://github.com/pcvantol/djconnect/pull/1156)
+protected merged as `3cfa55121e6c29cf6308fa570cbb5af0d2261057` from exact independently reviewed and owner-authorized
+`00dc4b742984bbf87dab121fa6a61123a7ff602c`; identical tree `a126401055d87da7b8cd14e6b3c755bc46b45c46`.
+All32 checks PASS/five skips; normal HIGH_RISK Owner Authorization38279488710 PASS.
+[Contract](docs/product/SESSION_FORECAST_V1.md), [local qualification](docs/verification/SESSION_FORECAST_V1_LOCAL_QUALIFICATION.md),
+[source readback](docs/verification/SESSION_FORECAST_V1_SOURCE_READBACK.md) and
+[completion record](docs/history/prompts/2026-10-12-session-forecast-core-finalization.md).
 
-Early local producer8d4a58858e6476a0964a59176eb5010ea3ad75d0 has20 real ordinary
-paired HA Persona/language read/live chains and managed current-artist image reads,
-152 source hashes with zero differences;164 runtime/observer/Broadcast owning tests PASS.
-[Actual fixtures](examples/client_contracts/session_forecast_v1/transport-fixtures.json),
-[qualification](examples/client_contracts/session_forecast_v1/qualification-summary.json),
-[Apple87 early6125787020](https://github.com/pcvantol/djconnect-app/issues/87#issuecomment-6125787020),
-[VibeCast10 early6125787377](https://github.com/pcvantol/djconnect-vibecast-receiver/issues/10#issuecomment-6125787377).
-Direct human artist-imagery amendment is incorporated with typed current/contextual/
-qualified-upcoming roles; v1 only admits separately qualified current display art.
-Future media remains absent without its own qualified claim/license; art never proves playback.
-No private Discovery grants, undocumented hotlinks, consumer writer or cost/model route.
+152 regular integration files match main, reviewed candidate and exact archive;
+archive SHA256 `428b4384383091d88bc449bbe666ba6c946cb57ed2852a4fc19ff8d38897f796`, formal asset SHA256
+`5271704d54b373d383e265affc6dca87387fdfbdb78cfb03dc914c5d345b7d32`. Pinned policy/raw PR→main derivation,
+asset digests and formal integrity PASS / POST_MERGE_RELEASE_EVIDENCE_QUALIFIED.
+Only this bounded Core Forecast foundation and shared renderer compatibility are
+Completed/CORE_DELIVERED. Existing Direction parent and wider narrative Stage4
+remain partial; no promotion of upcoming media or all consumers to Completed.
 
-Source is LOCAL_UNPUBLISHED. Current full regression:1766 tests PASS,7 existing
-skips; framework171 tests/234 scenarios PASS. Actual paired HA:20 language/Persona
-chains,12 invalid requests,14 authority/in-flight cases and122.439s duration PASS;
-152 integration files match evidence with zero differences. Replay recovery uses
-a coherent current snapshot and omits mutable Forecast from historical frames.
-Final exact-candidate independent reviews/publication gate remain pending. No source PR/main
-Forecast delivery, native/installed/live Spotify/hardware PASS or visible ambient adoption.
-Joint product acceptance OPEN; optional upcoming/visible subsets Planned, Stage4 PARTIAL.
-Canonical JSON maintenance version5 preserves frozen3October and version4 album delta;
-only selected Core contract/projection/shared-compat subsets are admitted. Early contract
-allows separately admitted consumer integration, never automatic dispatch or an extension
-of current Apple WIP. Candidate-specific source and separate Finalization gates remain.
-No install/restart/deployment/Pages/Console/signing/hardware/workflow/runner/service changes.
+Existing Planner intention becomes a bounded mutable active-session projection,
+with authored four-Persona/five-language text and independent Mood/Presence.
+Runtime15-minute foundation, future internal20-minute target and public nominal900s
+are distinct. Reads/toggles cause no lookup, plan, Moment, queue/playback or budget
+change. Off remains proactively quiet. Current artist imagery retains exact identity,
+managed URLs, provenance/attribution/display basis and original validity. Contextual
+and qualified-upcoming roles are reserved and absent; no unsupported future artist.
+
+1766 product tests PASS/7 existing skips;129 DAG checks;171 framework tests/234
+scenarios. Actual ordinary-paired HA:20 Persona/language chains,12 invalid requests,
+14 authority/in-flight cases,real122.439s/122read duration. Four real HA→local/static
+portrait/landscape compatibility sequences PASS with source links/readability,
+reconnect,real expiry and Session-end;152 source hashes match with zero differences.
+Artist decoder is a one-pixel fixture and CAF modeled. Visible VibeCast Forecast is
+NOT_ADOPTED/Planned; native,installed,live Spotify and hardware NOT_RUN; joint OPEN.
+
+[Apple87 definitive6128709378](https://github.com/pcvantol/djconnect-app/issues/87#issuecomment-6128709378),
+[VibeCast10 definitive6128709669](https://github.com/pcvantol/djconnect-vibecast-receiver/issues/10#issuecomment-6128709669).
+Handoffs supersede early unpublished receipts and admit no extension of consumer WIP.
+Machine-readable maintenance version5 and23 generated views retain frozen3October
+and previous presence/artwork/album history; only the three qualified Core subsets
+are reconciled by the separate documentary Finalization from this source-main on
+codex/session-forecast-finalization-v1. Its independent exact review/publication,
+protected readback and safe own cleanup establish MERGED_RECONCILED and
+WORKSPACE_READY; the terminal execution receipt belongs to owning register1101.
+Source authorization excludes Finalization publication. No next slice,
+installation/restart/deployment/Pages/Console/signing/hardware/workflow/runner/service
+or new provider/model/cost action. Historical records below retain their original state.
 
 ## Current: album continuity Core source delivered — separate Finalization
 

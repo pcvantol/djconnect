@@ -2,7 +2,9 @@
 
 Assignment DJC-CORE-SESSION-FORECAST-V1-20261012. Base
 `e26888fc164fac1e5cb41908fd922d5f9a05e0bd`, sole branch
-`codex/session-forecast-v1`. Source publication remains UNGRANTED.
+`codex/session-forecast-v1`. Source PR1156 is protected delivered as `3cfa55121e6c29cf6308fa570cbb5af0d2261057` with exact
+archive/formal readback PASS; see [source readback](SESSION_FORECAST_V1_SOURCE_READBACK.md).
+Own documentary Finalization remains separately gated.
 
 ## Exercised product chain
 
@@ -56,5 +58,5 @@ is source-inspected only. Swift and receiver repositories are untouched.
 
 Native Apple, installed/runtime deployment, live Spotify and physical hardware are
 NOT_RUN. Joint product acceptance OPEN; narrative Stage4 remains PARTIAL. No install,
-HA-dev restart, Pages, signing, workflow/runner/service change or new costs. Exact
-source/publication review and separate documentary Finalization remain required.
+HA-dev restart, Pages, signing, workflow/runner/service change or new costs. Both exact source reviews and protected publication are complete. Separate
+documentary Finalization retains its exact review/publication and cleanup gates.
