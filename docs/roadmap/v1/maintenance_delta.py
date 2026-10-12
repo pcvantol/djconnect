@@ -399,6 +399,36 @@ def validate_delta(plan: dict[str, Any]) -> list[str]:
         return errors
     inherited = {n["id"]: n for n in plan["nodes"]}
     nodes = {n.get("id"): n for n in d["nodes"]}
+    if ambient:
+        ambient_nodes = {
+            nid for nid in nodes if isinstance(nid, str) and nid.startswith("AMBIENT::")
+        }
+        check(
+            ambient_nodes
+            == {"AMBIENT::CORE::CONVERGENCE", "AMBIENT::APPLE::JOIN", "AMBIENT::PRODUCT::JOINT"},
+            "one Core convergence, Apple join and joint acceptance required",
+        )
+        check(
+            all(
+                nodes[nid].get("parent_reference") == "PROJ::ROADMAP::P2-SESSION"
+                for nid in ambient_nodes
+            ),
+            "ambient existing Session content parent required",
+        )
+        ambient_edges = [
+            e
+            for e in d["edges"]
+            if e.get("consumer") in ambient_nodes or e.get("producer") in ambient_nodes
+        ]
+        check(
+            {(e.get("producer"), e.get("consumer")) for e in ambient_edges}
+            == {
+                ("AMBIENT::CORE::CONVERGENCE", "AMBIENT::APPLE::JOIN"),
+                ("AMBIENT::CORE::CONVERGENCE", "AMBIENT::PRODUCT::JOINT"),
+                ("AMBIENT::APPLE::JOIN", "AMBIENT::PRODUCT::JOINT"),
+            },
+            "ambient may not invent unrelated prerequisite gates",
+        )
     check(
         len(nodes) == len(d["nodes"]) and None not in nodes and not (set(nodes) & set(inherited)),
         "duplicate or inherited node",

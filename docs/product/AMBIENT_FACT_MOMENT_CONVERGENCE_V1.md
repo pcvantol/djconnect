@@ -3,7 +3,7 @@
 Assignment: `DJC-CORE-AMBIENT-FACT-MOMENT-CONVERGENCE-V1-20261012`.
 Owner selection: [Core register](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6125691006).
 Admission base: `de0e1fccbfdb0f8ffc5a58c77c209919f4cf00de`.
-Status: pre-runtime disposition; implementation and qualification pending.
+Status: local implementation and software qualification; unpublished, reviews and protected delivery pending.
 
 ## Reproduced baseline
 
@@ -109,3 +109,45 @@ Source and separate Finalization require their own exact reviewed-candidate
 publication authorization, normal checks/protected merge and exact-main/artifact
 readback. Native, installed and hardware acceptance cannot follow from browser
 or isolated software proof. Full narrative Stage 4 remains partial.
+
+## Local implementation and measured qualification
+
+The sole status import/call is removed and the exclusively legacy generation,
+name-based Wikipedia lookup and proxy registration module is deleted. Its shared
+pipeline, media, history and Music DNA helpers remain. Historical classifications
+and system-card retention are unchanged. No Session content producer, renderer,
+capability or protocol is modified.
+
+The [paired before/after fixtures](../../examples/client_contracts/ambient_fact_convergence_v1/paired-status-before-after.json)
+prove zero new ambient generation, Wiki lookup, history or last-Ask-DJ writes,
+including delayed/cancelled/timeout reads and a real history-Store failure. Two
+ordinary paired peers and missing/wrong bearer cases exercise actual handlers.
+The separate [Session reuse fixtures](../../examples/client_contracts/ambient_fact_convergence_v1/canonical-session-reuse.json)
+cover twenty four-Persona/five-language HA chains, native current-only projection,
+Off/in-flight/ABA/track/end races and forty observations over 60.185 real seconds.
+Its 200s spacing is deliberately modeled; wall spacing is 1.5s and expiry uses real
+monotonic deadlines. Memory remains bounded and no catch-up is created.
+
+[Browser evidence](../../examples/client_contracts/ambient_fact_convergence_v1/browser-compatibility.json)
+contains four actual HA→local/static renderer sequences in portrait/landscape:
+identical immutable text, current track, source/Spotify links, readable card,
+transition, reconnect, real 36.6–36.7s expiry wait and end. CAF is modeled only.
+The existing twenty chains exercise Album/current Track reuse; they do not
+turn a release date into rich anecdote parity. Broader already qualified
+Artist/Genre/expression contracts remain covered by full source regressions.
+
+Full regression: 1761 tests, 7 existing skips. Owning branch-instrumented suite:
+83 tests, 75% aggregate module coverage (history 70%, DNA/backend 75%); residual
+existing broad helper/error branches are not presented as complete coverage.
+The changed runtime adds no branch. Explicit text/voice/history/search with
+presence Off passes 27 real HA requests. DAG/schema/generation passes 131 tests
+and 23 views with preserved history. Current hostverify exits 0 MATCH.
+
+Early [Apple #87 handoff](https://github.com/pcvantol/djconnect-app/issues/87#issuecomment-6130451688)
+pins local runtime code 1527b2ae1a6ae3a2cb07f30f157b26f0df1cda62. Read-only
+Apple source audit confirms the historical origin-specific fact label and
+existing Moment ID/content/source-attribution decoding fields. The existing
+writer message tool was unavailable; no native acknowledgment/acceptance is
+inferred from that source audit or register handoff. Native, installed, live
+provider and hardware are NOT_RUN; joint acceptance OPEN. Exact source review,
+publication, artifact readback and separate Finalization remain their own gates.

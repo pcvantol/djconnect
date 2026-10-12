@@ -1,0 +1,2993 @@
+{
+  "qualification": "CORE_BROADCAST_BROWSER_SOFTWARE_PASS",
+  "build": {
+    "build_version": "1.1.0",
+    "contracts": {
+      "broadcast_transport": "snapshot-event-v1",
+      "cast_handoff_versions": [
+        1
+      ],
+      "cast_status_versions": [
+        1
+      ],
+      "required_capabilities": {
+        "owner_controls": false,
+        "view_broadcast": true
+      }
+    },
+    "files": {
+      "cast/index.html": "cdd24ff51d0719d07d0929d7ab6c988df1b77e10b753f06028ad13b3caad9a14",
+      "local/vibecast.html": "d72acde5b311e69eebd30ae3a4c47a658f263555da3feed9c709ba426564f4c8"
+    },
+    "private_runtime_data_in_build": false,
+    "promotion": "explicit receiver-owner import; no automatic deployment",
+    "renderer_source_sha256": "f0455cbe8b294e55d9add12c9c1fff86578a0f7b8c403314fb7ce2a041c4d60c",
+    "schema_version": 1,
+    "source_revision": "1527b2ae1a6ae3a2cb07f30f157b26f0df1cda62",
+    "sources": {
+      "cast-host.js": "b3b15f607735918f83d130b6afffb460f6d7a808e3c69228ece9b947816be52b",
+      "local-host.js": "d13b693b8c983db1e171f9a5373301bd7359f7f3de555819dc2931c08d317a0e",
+      "renderer.js": "f0455cbe8b294e55d9add12c9c1fff86578a0f7b8c403314fb7ce2a041c4d60c",
+      "style.css": "6f32448f84e06e5d2bb4241503af9247843b834f506f9f564402f8072d5b925e",
+      "template.html": "698eb9bc06fa5e14618f178996a612d10c514f1559026da12a32919e34c87ed6"
+    }
+  },
+  "manifestSHA256": "de34cdedbc6ab21960778518e3f567dccb6f67c17161ee038123d2f99a3826d2",
+  "receipts": [
+    {
+      "host": "local",
+      "orientation": "portrait",
+      "series": [
+        {
+          "moment": {
+            "moment_id": "moment-891c59ad26544c03951881da2b32ccf2",
+            "session_id": "session-49026668725d41d98c659d97ee030108",
+            "created_at": "2026-10-12T18:43:32.534031+00:00",
+            "type": "album",
+            "knowledge_intent": {
+              "type": "album_story",
+              "goal": "Share one qualified current-track fact."
+            },
+            "presentation_intent": {
+              "source_session_mood": "groove",
+              "dj_persona": "home_dj",
+              "tone_of_voice": "warm and conversational",
+              "energy_level": "groove",
+              "delivery_style": "short contextual music story",
+              "voice_style": "persona-guided",
+              "visual_theme": "music-context",
+              "importance": "normal",
+              "maximum_duration_seconds": 40,
+              "delivery_channels": [
+                "broadcast",
+                "owner",
+                "shared"
+              ],
+              "visibility": "session_shared"
+            },
+            "title": "Exact edition",
+            "summary": "Exact edition",
+            "content": "Een datum bij deze uitgave van Exact edition: Spotify vermeldt 2001-03-04.",
+            "artwork": null,
+            "actions": [],
+            "visibility": "session_shared",
+            "delivery_channels": [
+              "broadcast",
+              "owner",
+              "shared"
+            ],
+            "importance": "normal",
+            "source_references": [
+              "Spotify"
+            ],
+            "generation_metadata": {
+              "provider": "Spotify",
+              "validated": "true"
+            },
+            "source_attribution": {
+              "provider": "Spotify",
+              "url": "https://open.spotify.com/album/ZZZZZZZZZZZZZZZZZZZZZZ",
+              "license": "Spotify metadata display"
+            }
+          },
+          "snapshot": {
+            "session": {
+              "session_id": "session-49026668725d41d98c659d97ee030108",
+              "runtime_state": "active",
+              "selected_mood": "groove",
+              "mood_revision": 0,
+              "selected_presence": "balanced",
+              "presence_revision": 0,
+              "locale": "nl"
+            },
+            "playback": {
+              "state": "playing",
+              "item_id": "63bf0397fbdc1fd1f3fbec76",
+              "title": "Observed track 1",
+              "artist": "Catalog artist",
+              "album": "Exact edition",
+              "target_name": "Own lab",
+              "updated_at": "2026-10-12T18:43:32.532367+00:00",
+              "duration_ms": 300000,
+              "position_ms": 0,
+              "source_url": "https://open.spotify.com/track/0000000000000000000001"
+            },
+            "planner": {
+              "planning_state": "ready",
+              "planning_horizon_minutes": 15,
+              "current_direction": "exploring",
+              "session_direction": {
+                "direction": "exploring",
+                "initialized_at": "2026-10-12T18:43:32.486891+00:00",
+                "updated_at": "2026-10-12T18:43:32.486891+00:00",
+                "start_strategy": "discover"
+              }
+            },
+            "session_flow": {
+              "flow_id": "flow-session-49026668725d41d98c659d97ee030108",
+              "flow_revision": 2,
+              "planning_horizon_minutes": 15,
+              "created_at": "2026-10-12T18:43:32.534072+00:00",
+              "items": [
+                {
+                  "item_id": "now-current-track",
+                  "item_type": "current_track",
+                  "position": "now",
+                  "label": "Current Track"
+                },
+                {
+                  "item_id": "next-planning-horizon",
+                  "item_type": "planning_horizon",
+                  "position": "next",
+                  "label": "Planning Horizon"
+                },
+                {
+                  "item_id": "next-maintain-direction",
+                  "item_type": "maintain_direction",
+                  "position": "next",
+                  "label": "Maintain Direction"
+                },
+                {
+                  "item_id": "later-future-direction",
+                  "item_type": "future_direction",
+                  "position": "later",
+                  "label": "Future Direction"
+                },
+                {
+                  "item_id": "later-future-placeholder",
+                  "item_type": "future_placeholder",
+                  "position": "later",
+                  "label": "Future Placeholder"
+                },
+                {
+                  "item_id": "moment-moment-d7ff100c4de54a90a2158c77b79a640f",
+                  "item_type": "dj_moment",
+                  "position": "next",
+                  "label": "Stilte",
+                  "moment_id": "moment-d7ff100c4de54a90a2158c77b79a640f",
+                  "moment_type": "silence"
+                },
+                {
+                  "item_id": "moment-moment-891c59ad26544c03951881da2b32ccf2",
+                  "item_type": "dj_moment",
+                  "position": "next",
+                  "label": "Exact edition",
+                  "moment_id": "moment-891c59ad26544c03951881da2b32ccf2",
+                  "moment_type": "album"
+                }
+              ]
+            },
+            "audience": {
+              "signal_totals": {},
+              "recent_activity": []
+            },
+            "dj_moments": [
+              {
+                "moment_id": "moment-d7ff100c4de54a90a2158c77b79a640f",
+                "session_id": "session-49026668725d41d98c659d97ee030108",
+                "created_at": "2026-10-12T18:43:32.489740+00:00",
+                "type": "silence",
+                "knowledge_intent": {
+                  "type": "silence",
+                  "goal": "Do not interrupt the music."
+                },
+                "presentation_intent": {
+                  "source_session_mood": "groove",
+                  "dj_persona": "home_dj",
+                  "tone_of_voice": "warm and conversational",
+                  "energy_level": "groove",
+                  "delivery_style": "short contextual music story",
+                  "voice_style": "persona-guided",
+                  "visual_theme": "music-context",
+                  "importance": "normal",
+                  "maximum_duration_seconds": 25,
+                  "delivery_channels": [
+                    "broadcast",
+                    "owner",
+                    "shared"
+                  ],
+                  "visibility": "session_shared"
+                },
+                "title": "Stilte",
+                "summary": "De dj kiest er bewust voor de muziek niet te onderbreken.",
+                "content": "",
+                "artwork": null,
+                "actions": [],
+                "visibility": "session_shared",
+                "delivery_channels": [
+                  "broadcast",
+                  "owner",
+                  "shared"
+                ],
+                "importance": "normal",
+                "source_references": [],
+                "generation_metadata": {
+                  "reason": "invalid_ai_output",
+                  "validated": "true"
+                }
+              },
+              {
+                "moment_id": "moment-891c59ad26544c03951881da2b32ccf2",
+                "session_id": "session-49026668725d41d98c659d97ee030108",
+                "created_at": "2026-10-12T18:43:32.534031+00:00",
+                "type": "album",
+                "knowledge_intent": {
+                  "type": "album_story",
+                  "goal": "Share one qualified current-track fact."
+                },
+                "presentation_intent": {
+                  "source_session_mood": "groove",
+                  "dj_persona": "home_dj",
+                  "tone_of_voice": "warm and conversational",
+                  "energy_level": "groove",
+                  "delivery_style": "short contextual music story",
+                  "voice_style": "persona-guided",
+                  "visual_theme": "music-context",
+                  "importance": "normal",
+                  "maximum_duration_seconds": 40,
+                  "delivery_channels": [
+                    "broadcast",
+                    "owner",
+                    "shared"
+                  ],
+                  "visibility": "session_shared"
+                },
+                "title": "Exact edition",
+                "summary": "Exact edition",
+                "content": "Een datum bij deze uitgave van Exact edition: Spotify vermeldt 2001-03-04.",
+                "artwork": null,
+                "actions": [],
+                "visibility": "session_shared",
+                "delivery_channels": [
+                  "broadcast",
+                  "owner",
+                  "shared"
+                ],
+                "importance": "normal",
+                "source_references": [
+                  "Spotify"
+                ],
+                "generation_metadata": {
+                  "provider": "Spotify",
+                  "validated": "true"
+                },
+                "source_attribution": {
+                  "provider": "Spotify",
+                  "url": "https://open.spotify.com/album/ZZZZZZZZZZZZZZZZZZZZZZ",
+                  "license": "Spotify metadata display"
+                },
+                "playback_item_id": "63bf0397fbdc1fd1f3fbec76"
+              }
+            ],
+            "presentations": [
+              {
+                "presentation_id": "presentation-moment-d7ff100c4de54a90a2158c77b79a640f",
+                "source_moment_id": "moment-d7ff100c4de54a90a2158c77b79a640f",
+                "source_moment_type": "silence",
+                "visibility": "session_shared"
+              },
+              {
+                "presentation_id": "presentation-moment-891c59ad26544c03951881da2b32ccf2",
+                "source_moment_id": "moment-891c59ad26544c03951881da2b32ccf2",
+                "source_moment_type": "album",
+                "visibility": "session_shared"
+              }
+            ],
+            "broadcast": {
+              "started_at": "2026-10-12T18:43:32.486891+00:00",
+              "snapshot_watermark": 12
+            },
+            "native_delivery": {
+              "schema_version": 1,
+              "session_id": "session-49026668725d41d98c659d97ee030108",
+              "current_moment_id": "moment-891c59ad26544c03951881da2b32ccf2",
+              "active_flow_moment_ids": [],
+              "admissions": [
+                {
+                  "moment_id": "moment-891c59ad26544c03951881da2b32ccf2",
+                  "qualification": "qualified",
+                  "current_display_allowed": true,
+                  "active_flow_display_allowed": false,
+                  "source_expires_at": "2026-10-12T19:13:32.533823+00:00",
+                  "display_expires_at": "2026-10-12T18:44:12.534031+00:00",
+                  "executable_actions": [],
+                  "requires_spotify_attribution": true
+                }
+              ],
+              "revocation_scope": "session",
+              "revision": "a2b013a50109d6bb3b1bd2c8"
+            },
+            "session_forecast": {
+              "contract_version": 1,
+              "session_id": "session-49026668725d41d98c659d97ee030108",
+              "revision": 2,
+              "state": "ready",
+              "issued_at": "2026-10-12T18:43:32.533327+00:00",
+              "valid_until": "2026-10-12T18:45:32.533284+00:00",
+              "nominal_window_seconds": 900,
+              "supported_window_seconds": 900,
+              "current_anchor": {
+                "item_id": "63bf0397fbdc1fd1f3fbec76",
+                "source_url": "https://open.spotify.com/track/0000000000000000000001"
+              },
+              "summary": "Rond Catalog artist kan ik een mooi verband uitlichten, als betrouwbare context daar aanleiding toe geeft.",
+              "sections": [
+                {
+                  "id": "current",
+                  "title": "Nu",
+                  "claim_type": "current",
+                  "text": "Nu speelt: Observed track 1 \u2014 Catalog artist.",
+                  "source_url": "https://open.spotify.com/track/0000000000000000000001"
+                },
+                {
+                  "id": "guidance",
+                  "title": "De komende minuten",
+                  "claim_type": "intention",
+                  "text": "Rond Catalog artist kan ik een mooi verband uitlichten, als betrouwbare context daar aanleiding toe geeft."
+                },
+                {
+                  "id": "aim",
+                  "title": "Waar ik op mik",
+                  "claim_type": "conditional_target",
+                  "text": "Het doel is een gelijkmatige flow die de huidige muzikale draad zonder haast kan dragen."
+                }
+              ],
+              "imagery": []
+            }
+          }
+        },
+        {
+          "moment": {
+            "moment_id": "moment-f8915fc497ce425b973df8e5542c98ba",
+            "session_id": "session-49026668725d41d98c659d97ee030108",
+            "created_at": "2026-10-12T18:43:33.308603+00:00",
+            "type": "track",
+            "knowledge_intent": {
+              "type": "track_context",
+              "goal": "Share one qualified current-track fact."
+            },
+            "presentation_intent": {
+              "source_session_mood": "groove",
+              "dj_persona": "home_dj",
+              "tone_of_voice": "warm and conversational",
+              "energy_level": "groove",
+              "delivery_style": "short contextual music story",
+              "voice_style": "persona-guided",
+              "visual_theme": "music-context",
+              "importance": "normal",
+              "maximum_duration_seconds": 40,
+              "delivery_channels": [
+                "broadcast",
+                "owner",
+                "shared"
+              ],
+              "visibility": "session_shared"
+            },
+            "title": "Exact edition",
+            "summary": "Exact edition",
+            "content": "Nog een nummer uit de eerder genoemde uitgave. Spotify dateert deze uitgave van Exact edition op 2001-03-04.",
+            "artwork": null,
+            "actions": [],
+            "visibility": "session_shared",
+            "delivery_channels": [
+              "broadcast",
+              "owner",
+              "shared"
+            ],
+            "importance": "normal",
+            "source_references": [
+              "Spotify"
+            ],
+            "generation_metadata": {
+              "provider": "Spotify",
+              "validated": "true"
+            },
+            "source_attribution": {
+              "provider": "Spotify",
+              "url": "https://open.spotify.com/album/ZZZZZZZZZZZZZZZZZZZZZZ",
+              "license": "Spotify metadata display"
+            }
+          },
+          "snapshot": {
+            "session": {
+              "session_id": "session-49026668725d41d98c659d97ee030108",
+              "runtime_state": "active",
+              "selected_mood": "groove",
+              "mood_revision": 0,
+              "selected_presence": "balanced",
+              "presence_revision": 0,
+              "locale": "nl"
+            },
+            "playback": {
+              "state": "playing",
+              "item_id": "e876818bdbce007cbc615bff",
+              "title": "Observed track 2",
+              "artist": "Catalog artist",
+              "album": "Exact edition",
+              "target_name": "Own lab",
+              "updated_at": "2026-10-12T18:43:33.307159+00:00",
+              "duration_ms": 300000,
+              "position_ms": 0,
+              "source_url": "https://open.spotify.com/track/0000000000000000000002"
+            },
+            "planner": {
+              "planning_state": "ready",
+              "planning_horizon_minutes": 15,
+              "current_direction": "exploring",
+              "session_direction": {
+                "direction": "exploring",
+                "initialized_at": "2026-10-12T18:43:32.486891+00:00",
+                "updated_at": "2026-10-12T18:43:32.486891+00:00",
+                "start_strategy": "discover"
+              }
+            },
+            "session_flow": {
+              "flow_id": "flow-session-49026668725d41d98c659d97ee030108",
+              "flow_revision": 3,
+              "planning_horizon_minutes": 15,
+              "created_at": "2026-10-12T18:43:33.308647+00:00",
+              "items": [
+                {
+                  "item_id": "now-current-track",
+                  "item_type": "current_track",
+                  "position": "now",
+                  "label": "Current Track"
+                },
+                {
+                  "item_id": "next-planning-horizon",
+                  "item_type": "planning_horizon",
+                  "position": "next",
+                  "label": "Planning Horizon"
+                },
+                {
+                  "item_id": "next-maintain-direction",
+                  "item_type": "maintain_direction",
+                  "position": "next",
+                  "label": "Maintain Direction"
+                },
+                {
+                  "item_id": "later-future-direction",
+                  "item_type": "future_direction",
+                  "position": "later",
+                  "label": "Future Direction"
+                },
+                {
+                  "item_id": "later-future-placeholder",
+                  "item_type": "future_placeholder",
+                  "position": "later",
+                  "label": "Future Placeholder"
+                },
+                {
+                  "item_id": "moment-moment-d7ff100c4de54a90a2158c77b79a640f",
+                  "item_type": "dj_moment",
+                  "position": "next",
+                  "label": "Stilte",
+                  "moment_id": "moment-d7ff100c4de54a90a2158c77b79a640f",
+                  "moment_type": "silence"
+                },
+                {
+                  "item_id": "moment-moment-891c59ad26544c03951881da2b32ccf2",
+                  "item_type": "dj_moment",
+                  "position": "next",
+                  "label": "Exact edition",
+                  "moment_id": "moment-891c59ad26544c03951881da2b32ccf2",
+                  "moment_type": "album"
+                },
+                {
+                  "item_id": "moment-moment-f8915fc497ce425b973df8e5542c98ba",
+                  "item_type": "dj_moment",
+                  "position": "next",
+                  "label": "Exact edition",
+                  "moment_id": "moment-f8915fc497ce425b973df8e5542c98ba",
+                  "moment_type": "track"
+                }
+              ]
+            },
+            "audience": {
+              "signal_totals": {},
+              "recent_activity": []
+            },
+            "dj_moments": [
+              {
+                "moment_id": "moment-d7ff100c4de54a90a2158c77b79a640f",
+                "session_id": "session-49026668725d41d98c659d97ee030108",
+                "created_at": "2026-10-12T18:43:32.489740+00:00",
+                "type": "silence",
+                "knowledge_intent": {
+                  "type": "silence",
+                  "goal": "Do not interrupt the music."
+                },
+                "presentation_intent": {
+                  "source_session_mood": "groove",
+                  "dj_persona": "home_dj",
+                  "tone_of_voice": "warm and conversational",
+                  "energy_level": "groove",
+                  "delivery_style": "short contextual music story",
+                  "voice_style": "persona-guided",
+                  "visual_theme": "music-context",
+                  "importance": "normal",
+                  "maximum_duration_seconds": 25,
+                  "delivery_channels": [
+                    "broadcast",
+                    "owner",
+                    "shared"
+                  ],
+                  "visibility": "session_shared"
+                },
+                "title": "Stilte",
+                "summary": "De dj kiest er bewust voor de muziek niet te onderbreken.",
+                "content": "",
+                "artwork": null,
+                "actions": [],
+                "visibility": "session_shared",
+                "delivery_channels": [
+                  "broadcast",
+                  "owner",
+                  "shared"
+                ],
+                "importance": "normal",
+                "source_references": [],
+                "generation_metadata": {
+                  "reason": "invalid_ai_output",
+                  "validated": "true"
+                }
+              },
+              {
+                "moment_id": "moment-891c59ad26544c03951881da2b32ccf2",
+                "session_id": "session-49026668725d41d98c659d97ee030108",
+                "created_at": "2026-10-12T18:43:32.534031+00:00",
+                "type": "album",
+                "knowledge_intent": {
+                  "type": "album_story",
+                  "goal": "Share one qualified current-track fact."
+                },
+                "presentation_intent": {
+                  "source_session_mood": "groove",
+                  "dj_persona": "home_dj",
+                  "tone_of_voice": "warm and conversational",
+                  "energy_level": "groove",
+                  "delivery_style": "short contextual music story",
+                  "voice_style": "persona-guided",
+                  "visual_theme": "music-context",
+                  "importance": "normal",
+                  "maximum_duration_seconds": 40,
+                  "delivery_channels": [
+                    "broadcast",
+                    "owner",
+                    "shared"
+                  ],
+                  "visibility": "session_shared"
+                },
+                "title": "Exact edition",
+                "summary": "Exact edition",
+                "content": "Een datum bij deze uitgave van Exact edition: Spotify vermeldt 2001-03-04.",
+                "artwork": null,
+                "actions": [],
+                "visibility": "session_shared",
+                "delivery_channels": [
+                  "broadcast",
+                  "owner",
+                  "shared"
+                ],
+                "importance": "normal",
+                "source_references": [
+                  "Spotify"
+                ],
+                "generation_metadata": {
+                  "provider": "Spotify",
+                  "validated": "true"
+                },
+                "source_attribution": {
+                  "provider": "Spotify",
+                  "url": "https://open.spotify.com/album/ZZZZZZZZZZZZZZZZZZZZZZ",
+                  "license": "Spotify metadata display"
+                },
+                "playback_item_id": "63bf0397fbdc1fd1f3fbec76"
+              },
+              {
+                "moment_id": "moment-f8915fc497ce425b973df8e5542c98ba",
+                "session_id": "session-49026668725d41d98c659d97ee030108",
+                "created_at": "2026-10-12T18:43:33.308603+00:00",
+                "type": "track",
+                "knowledge_intent": {
+                  "type": "track_context",
+                  "goal": "Share one qualified current-track fact."
+                },
+                "presentation_intent": {
+                  "source_session_mood": "groove",
+                  "dj_persona": "home_dj",
+                  "tone_of_voice": "warm and conversational",
+                  "energy_level": "groove",
+                  "delivery_style": "short contextual music story",
+                  "voice_style": "persona-guided",
+                  "visual_theme": "music-context",
+                  "importance": "normal",
+                  "maximum_duration_seconds": 40,
+                  "delivery_channels": [
+                    "broadcast",
+                    "owner",
+                    "shared"
+                  ],
+                  "visibility": "session_shared"
+                },
+                "title": "Exact edition",
+                "summary": "Exact edition",
+                "content": "Nog een nummer uit de eerder genoemde uitgave. Spotify dateert deze uitgave van Exact edition op 2001-03-04.",
+                "artwork": null,
+                "actions": [],
+                "visibility": "session_shared",
+                "delivery_channels": [
+                  "broadcast",
+                  "owner",
+                  "shared"
+                ],
+                "importance": "normal",
+                "source_references": [
+                  "Spotify"
+                ],
+                "generation_metadata": {
+                  "provider": "Spotify",
+                  "validated": "true"
+                },
+                "source_attribution": {
+                  "provider": "Spotify",
+                  "url": "https://open.spotify.com/album/ZZZZZZZZZZZZZZZZZZZZZZ",
+                  "license": "Spotify metadata display"
+                },
+                "playback_item_id": "e876818bdbce007cbc615bff"
+              }
+            ],
+            "presentations": [
+              {
+                "presentation_id": "presentation-moment-d7ff100c4de54a90a2158c77b79a640f",
+                "source_moment_id": "moment-d7ff100c4de54a90a2158c77b79a640f",
+                "source_moment_type": "silence",
+                "visibility": "session_shared"
+              },
+              {
+                "presentation_id": "presentation-moment-891c59ad26544c03951881da2b32ccf2",
+                "source_moment_id": "moment-891c59ad26544c03951881da2b32ccf2",
+                "source_moment_type": "album",
+                "visibility": "session_shared"
+              },
+              {
+                "presentation_id": "presentation-moment-f8915fc497ce425b973df8e5542c98ba",
+                "source_moment_id": "moment-f8915fc497ce425b973df8e5542c98ba",
+                "source_moment_type": "track",
+                "visibility": "session_shared"
+              }
+            ],
+            "broadcast": {
+              "started_at": "2026-10-12T18:43:32.486891+00:00",
+              "snapshot_watermark": 18
+            },
+            "native_delivery": {
+              "schema_version": 1,
+              "session_id": "session-49026668725d41d98c659d97ee030108",
+              "current_moment_id": "moment-f8915fc497ce425b973df8e5542c98ba",
+              "active_flow_moment_ids": [],
+              "admissions": [
+                {
+                  "moment_id": "moment-891c59ad26544c03951881da2b32ccf2",
+                  "qualification": "qualified",
+                  "current_display_allowed": false,
+                  "active_flow_display_allowed": false,
+                  "source_expires_at": "2026-10-12T19:13:32.533823+00:00",
+                  "display_expires_at": "2026-10-12T18:44:12.534031+00:00",
+                  "executable_actions": [],
+                  "requires_spotify_attribution": true
+                },
+                {
+                  "moment_id": "moment-f8915fc497ce425b973df8e5542c98ba",
+                  "qualification": "qualified",
+                  "current_display_allowed": true,
+                  "active_flow_display_allowed": false,
+                  "source_expires_at": "2026-10-12T19:13:32.533819+00:00",
+                  "display_expires_at": "2026-10-12T18:44:13.308603+00:00",
+                  "executable_actions": [],
+                  "requires_spotify_attribution": true
+                }
+              ],
+              "revocation_scope": "session",
+              "revision": "e630365547b2a2e3c42eee50"
+            },
+            "session_forecast": {
+              "contract_version": 1,
+              "session_id": "session-49026668725d41d98c659d97ee030108",
+              "revision": 3,
+              "state": "ready",
+              "issued_at": "2026-10-12T18:43:33.307944+00:00",
+              "valid_until": "2026-10-12T18:45:33.307916+00:00",
+              "nominal_window_seconds": 900,
+              "supported_window_seconds": 900,
+              "current_anchor": {
+                "item_id": "e876818bdbce007cbc615bff",
+                "source_url": "https://open.spotify.com/track/0000000000000000000002"
+              },
+              "summary": "Rond Catalog artist kan ik een mooi verband uitlichten, als betrouwbare context daar aanleiding toe geeft.",
+              "sections": [
+                {
+                  "id": "current",
+                  "title": "Nu",
+                  "claim_type": "current",
+                  "text": "Nu speelt: Observed track 2 \u2014 Catalog artist.",
+                  "source_url": "https://open.spotify.com/track/0000000000000000000002"
+                },
+                {
+                  "id": "guidance",
+                  "title": "De komende minuten",
+                  "claim_type": "intention",
+                  "text": "Rond Catalog artist kan ik een mooi verband uitlichten, als betrouwbare context daar aanleiding toe geeft."
+                },
+                {
+                  "id": "aim",
+                  "title": "Waar ik op mik",
+                  "claim_type": "conditional_target",
+                  "text": "Het doel is een gelijkmatige flow die de huidige muzikale draad zonder haast kan dragen."
+                }
+              ],
+              "imagery": []
+            }
+          }
+        }
+      ],
+      "native": {
+        "moment_id": "moment-f8915fc497ce425b973df8e5542c98ba",
+        "qualification": "qualified",
+        "current_display_allowed": true,
+        "active_flow_display_allowed": false,
+        "source_expires_at": "2026-10-12T19:13:32.533819+00:00",
+        "display_expires_at": "2026-10-12T18:44:13.308603+00:00",
+        "executable_actions": [],
+        "requires_spotify_attribution": true
+      },
+      "readability": true,
+      "sourceLinks": true,
+      "spotifyMark": true,
+      "currentTrack": true,
+      "transition": true,
+      "reconnect": true,
+      "realExpiryWaitSeconds": 36.649,
+      "end": true,
+      "CAF": "NOT_APPLICABLE",
+      "tls": "HTTPS CA verified by driver; Chrome restricted to exact owned fixture leaf SPKI"
+    },
+    {
+      "host": "local",
+      "orientation": "landscape",
+      "series": [
+        {
+          "moment": {
+            "moment_id": "moment-00a66c780f7d47d7987eb977c56166a2",
+            "session_id": "session-f74b501b839f480092a89296f00af42f",
+            "created_at": "2026-10-12T18:44:16.403559+00:00",
+            "type": "album",
+            "knowledge_intent": {
+              "type": "album_story",
+              "goal": "Share one qualified current-track fact."
+            },
+            "presentation_intent": {
+              "source_session_mood": "groove",
+              "dj_persona": "home_dj",
+              "tone_of_voice": "warm and conversational",
+              "energy_level": "groove",
+              "delivery_style": "short contextual music story",
+              "voice_style": "persona-guided",
+              "visual_theme": "music-context",
+              "importance": "normal",
+              "maximum_duration_seconds": 40,
+              "delivery_channels": [
+                "broadcast",
+                "owner",
+                "shared"
+              ],
+              "visibility": "session_shared"
+            },
+            "title": "Exact edition",
+            "summary": "Exact edition",
+            "content": "Een datum bij deze uitgave van Exact edition: Spotify vermeldt 2001-03-04.",
+            "artwork": null,
+            "actions": [],
+            "visibility": "session_shared",
+            "delivery_channels": [
+              "broadcast",
+              "owner",
+              "shared"
+            ],
+            "importance": "normal",
+            "source_references": [
+              "Spotify"
+            ],
+            "generation_metadata": {
+              "provider": "Spotify",
+              "validated": "true"
+            },
+            "source_attribution": {
+              "provider": "Spotify",
+              "url": "https://open.spotify.com/album/ZZZZZZZZZZZZZZZZZZZZZZ",
+              "license": "Spotify metadata display"
+            }
+          },
+          "snapshot": {
+            "session": {
+              "session_id": "session-f74b501b839f480092a89296f00af42f",
+              "runtime_state": "active",
+              "selected_mood": "groove",
+              "mood_revision": 0,
+              "selected_presence": "balanced",
+              "presence_revision": 0,
+              "locale": "nl"
+            },
+            "playback": {
+              "state": "playing",
+              "item_id": "63bf0397fbdc1fd1f3fbec76",
+              "title": "Observed track 1",
+              "artist": "Catalog artist",
+              "album": "Exact edition",
+              "target_name": "Own lab",
+              "updated_at": "2026-10-12T18:44:16.401593+00:00",
+              "duration_ms": 300000,
+              "position_ms": 0,
+              "source_url": "https://open.spotify.com/track/0000000000000000000001"
+            },
+            "planner": {
+              "planning_state": "ready",
+              "planning_horizon_minutes": 15,
+              "current_direction": "exploring",
+              "session_direction": {
+                "direction": "exploring",
+                "initialized_at": "2026-10-12T18:44:16.380005+00:00",
+                "updated_at": "2026-10-12T18:44:16.380005+00:00",
+                "start_strategy": "discover"
+              }
+            },
+            "session_flow": {
+              "flow_id": "flow-session-f74b501b839f480092a89296f00af42f",
+              "flow_revision": 2,
+              "planning_horizon_minutes": 15,
+              "created_at": "2026-10-12T18:44:16.403600+00:00",
+              "items": [
+                {
+                  "item_id": "now-current-track",
+                  "item_type": "current_track",
+                  "position": "now",
+                  "label": "Current Track"
+                },
+                {
+                  "item_id": "next-planning-horizon",
+                  "item_type": "planning_horizon",
+                  "position": "next",
+                  "label": "Planning Horizon"
+                },
+                {
+                  "item_id": "next-maintain-direction",
+                  "item_type": "maintain_direction",
+                  "position": "next",
+                  "label": "Maintain Direction"
+                },
+                {
+                  "item_id": "later-future-direction",
+                  "item_type": "future_direction",
+                  "position": "later",
+                  "label": "Future Direction"
+                },
+                {
+                  "item_id": "later-future-placeholder",
+                  "item_type": "future_placeholder",
+                  "position": "later",
+                  "label": "Future Placeholder"
+                },
+                {
+                  "item_id": "moment-moment-f369e88ebf51440089a9ca2711defa7a",
+                  "item_type": "dj_moment",
+                  "position": "next",
+                  "label": "Stilte",
+                  "moment_id": "moment-f369e88ebf51440089a9ca2711defa7a",
+                  "moment_type": "silence"
+                },
+                {
+                  "item_id": "moment-moment-00a66c780f7d47d7987eb977c56166a2",
+                  "item_type": "dj_moment",
+                  "position": "next",
+                  "label": "Exact edition",
+                  "moment_id": "moment-00a66c780f7d47d7987eb977c56166a2",
+                  "moment_type": "album"
+                }
+              ]
+            },
+            "audience": {
+              "signal_totals": {},
+              "recent_activity": []
+            },
+            "dj_moments": [
+              {
+                "moment_id": "moment-f369e88ebf51440089a9ca2711defa7a",
+                "session_id": "session-f74b501b839f480092a89296f00af42f",
+                "created_at": "2026-10-12T18:44:16.380808+00:00",
+                "type": "silence",
+                "knowledge_intent": {
+                  "type": "silence",
+                  "goal": "Do not interrupt the music."
+                },
+                "presentation_intent": {
+                  "source_session_mood": "groove",
+                  "dj_persona": "home_dj",
+                  "tone_of_voice": "warm and conversational",
+                  "energy_level": "groove",
+                  "delivery_style": "short contextual music story",
+                  "voice_style": "persona-guided",
+                  "visual_theme": "music-context",
+                  "importance": "normal",
+                  "maximum_duration_seconds": 25,
+                  "delivery_channels": [
+                    "broadcast",
+                    "owner",
+                    "shared"
+                  ],
+                  "visibility": "session_shared"
+                },
+                "title": "Stilte",
+                "summary": "De dj kiest er bewust voor de muziek niet te onderbreken.",
+                "content": "",
+                "artwork": null,
+                "actions": [],
+                "visibility": "session_shared",
+                "delivery_channels": [
+                  "broadcast",
+                  "owner",
+                  "shared"
+                ],
+                "importance": "normal",
+                "source_references": [],
+                "generation_metadata": {
+                  "reason": "invalid_ai_output",
+                  "validated": "true"
+                }
+              },
+              {
+                "moment_id": "moment-00a66c780f7d47d7987eb977c56166a2",
+                "session_id": "session-f74b501b839f480092a89296f00af42f",
+                "created_at": "2026-10-12T18:44:16.403559+00:00",
+                "type": "album",
+                "knowledge_intent": {
+                  "type": "album_story",
+                  "goal": "Share one qualified current-track fact."
+                },
+                "presentation_intent": {
+                  "source_session_mood": "groove",
+                  "dj_persona": "home_dj",
+                  "tone_of_voice": "warm and conversational",
+                  "energy_level": "groove",
+                  "delivery_style": "short contextual music story",
+                  "voice_style": "persona-guided",
+                  "visual_theme": "music-context",
+                  "importance": "normal",
+                  "maximum_duration_seconds": 40,
+                  "delivery_channels": [
+                    "broadcast",
+                    "owner",
+                    "shared"
+                  ],
+                  "visibility": "session_shared"
+                },
+                "title": "Exact edition",
+                "summary": "Exact edition",
+                "content": "Een datum bij deze uitgave van Exact edition: Spotify vermeldt 2001-03-04.",
+                "artwork": null,
+                "actions": [],
+                "visibility": "session_shared",
+                "delivery_channels": [
+                  "broadcast",
+                  "owner",
+                  "shared"
+                ],
+                "importance": "normal",
+                "source_references": [
+                  "Spotify"
+                ],
+                "generation_metadata": {
+                  "provider": "Spotify",
+                  "validated": "true"
+                },
+                "source_attribution": {
+                  "provider": "Spotify",
+                  "url": "https://open.spotify.com/album/ZZZZZZZZZZZZZZZZZZZZZZ",
+                  "license": "Spotify metadata display"
+                },
+                "playback_item_id": "63bf0397fbdc1fd1f3fbec76"
+              }
+            ],
+            "presentations": [
+              {
+                "presentation_id": "presentation-moment-f369e88ebf51440089a9ca2711defa7a",
+                "source_moment_id": "moment-f369e88ebf51440089a9ca2711defa7a",
+                "source_moment_type": "silence",
+                "visibility": "session_shared"
+              },
+              {
+                "presentation_id": "presentation-moment-00a66c780f7d47d7987eb977c56166a2",
+                "source_moment_id": "moment-00a66c780f7d47d7987eb977c56166a2",
+                "source_moment_type": "album",
+                "visibility": "session_shared"
+              }
+            ],
+            "broadcast": {
+              "started_at": "2026-10-12T18:44:16.380005+00:00",
+              "snapshot_watermark": 12
+            },
+            "native_delivery": {
+              "schema_version": 1,
+              "session_id": "session-f74b501b839f480092a89296f00af42f",
+              "current_moment_id": "moment-00a66c780f7d47d7987eb977c56166a2",
+              "active_flow_moment_ids": [],
+              "admissions": [
+                {
+                  "moment_id": "moment-00a66c780f7d47d7987eb977c56166a2",
+                  "qualification": "qualified",
+                  "current_display_allowed": true,
+                  "active_flow_display_allowed": false,
+                  "source_expires_at": "2026-10-12T19:14:16.403323+00:00",
+                  "display_expires_at": "2026-10-12T18:44:56.403559+00:00",
+                  "executable_actions": [],
+                  "requires_spotify_attribution": true
+                }
+              ],
+              "revocation_scope": "session",
+              "revision": "62832973ce326416b12737e2"
+            },
+            "session_forecast": {
+              "contract_version": 1,
+              "session_id": "session-f74b501b839f480092a89296f00af42f",
+              "revision": 2,
+              "state": "ready",
+              "issued_at": "2026-10-12T18:44:16.402761+00:00",
+              "valid_until": "2026-10-12T18:46:16.402701+00:00",
+              "nominal_window_seconds": 900,
+              "supported_window_seconds": 900,
+              "current_anchor": {
+                "item_id": "63bf0397fbdc1fd1f3fbec76",
+                "source_url": "https://open.spotify.com/track/0000000000000000000001"
+              },
+              "summary": "Rond Catalog artist kan ik een mooi verband uitlichten, als betrouwbare context daar aanleiding toe geeft.",
+              "sections": [
+                {
+                  "id": "current",
+                  "title": "Nu",
+                  "claim_type": "current",
+                  "text": "Nu speelt: Observed track 1 \u2014 Catalog artist.",
+                  "source_url": "https://open.spotify.com/track/0000000000000000000001"
+                },
+                {
+                  "id": "guidance",
+                  "title": "De komende minuten",
+                  "claim_type": "intention",
+                  "text": "Rond Catalog artist kan ik een mooi verband uitlichten, als betrouwbare context daar aanleiding toe geeft."
+                },
+                {
+                  "id": "aim",
+                  "title": "Waar ik op mik",
+                  "claim_type": "conditional_target",
+                  "text": "Het doel is een gelijkmatige flow die de huidige muzikale draad zonder haast kan dragen."
+                }
+              ],
+              "imagery": []
+            }
+          }
+        },
+        {
+          "moment": {
+            "moment_id": "moment-b93bd60b35f94af3914d2c00b17e6355",
+            "session_id": "session-f74b501b839f480092a89296f00af42f",
+            "created_at": "2026-10-12T18:44:17.154051+00:00",
+            "type": "track",
+            "knowledge_intent": {
+              "type": "track_context",
+              "goal": "Share one qualified current-track fact."
+            },
+            "presentation_intent": {
+              "source_session_mood": "groove",
+              "dj_persona": "home_dj",
+              "tone_of_voice": "warm and conversational",
+              "energy_level": "groove",
+              "delivery_style": "short contextual music story",
+              "voice_style": "persona-guided",
+              "visual_theme": "music-context",
+              "importance": "normal",
+              "maximum_duration_seconds": 40,
+              "delivery_channels": [
+                "broadcast",
+                "owner",
+                "shared"
+              ],
+              "visibility": "session_shared"
+            },
+            "title": "Exact edition",
+            "summary": "Exact edition",
+            "content": "Nog een nummer uit de eerder genoemde uitgave. Spotify dateert deze uitgave van Exact edition op 2001-03-04.",
+            "artwork": null,
+            "actions": [],
+            "visibility": "session_shared",
+            "delivery_channels": [
+              "broadcast",
+              "owner",
+              "shared"
+            ],
+            "importance": "normal",
+            "source_references": [
+              "Spotify"
+            ],
+            "generation_metadata": {
+              "provider": "Spotify",
+              "validated": "true"
+            },
+            "source_attribution": {
+              "provider": "Spotify",
+              "url": "https://open.spotify.com/album/ZZZZZZZZZZZZZZZZZZZZZZ",
+              "license": "Spotify metadata display"
+            }
+          },
+          "snapshot": {
+            "session": {
+              "session_id": "session-f74b501b839f480092a89296f00af42f",
+              "runtime_state": "active",
+              "selected_mood": "groove",
+              "mood_revision": 0,
+              "selected_presence": "balanced",
+              "presence_revision": 0,
+              "locale": "nl"
+            },
+            "playback": {
+              "state": "playing",
+              "item_id": "e876818bdbce007cbc615bff",
+              "title": "Observed track 2",
+              "artist": "Catalog artist",
+              "album": "Exact edition",
+              "target_name": "Own lab",
+              "updated_at": "2026-10-12T18:44:17.152768+00:00",
+              "duration_ms": 300000,
+              "position_ms": 0,
+              "source_url": "https://open.spotify.com/track/0000000000000000000002"
+            },
+            "planner": {
+              "planning_state": "ready",
+              "planning_horizon_minutes": 15,
+              "current_direction": "exploring",
+              "session_direction": {
+                "direction": "exploring",
+                "initialized_at": "2026-10-12T18:44:16.380005+00:00",
+                "updated_at": "2026-10-12T18:44:16.380005+00:00",
+                "start_strategy": "discover"
+              }
+            },
+            "session_flow": {
+              "flow_id": "flow-session-f74b501b839f480092a89296f00af42f",
+              "flow_revision": 3,
+              "planning_horizon_minutes": 15,
+              "created_at": "2026-10-12T18:44:17.154084+00:00",
+              "items": [
+                {
+                  "item_id": "now-current-track",
+                  "item_type": "current_track",
+                  "position": "now",
+                  "label": "Current Track"
+                },
+                {
+                  "item_id": "next-planning-horizon",
+                  "item_type": "planning_horizon",
+                  "position": "next",
+                  "label": "Planning Horizon"
+                },
+                {
+                  "item_id": "next-maintain-direction",
+                  "item_type": "maintain_direction",
+                  "position": "next",
+                  "label": "Maintain Direction"
+                },
+                {
+                  "item_id": "later-future-direction",
+                  "item_type": "future_direction",
+                  "position": "later",
+                  "label": "Future Direction"
+                },
+                {
+                  "item_id": "later-future-placeholder",
+                  "item_type": "future_placeholder",
+                  "position": "later",
+                  "label": "Future Placeholder"
+                },
+                {
+                  "item_id": "moment-moment-f369e88ebf51440089a9ca2711defa7a",
+                  "item_type": "dj_moment",
+                  "position": "next",
+                  "label": "Stilte",
+                  "moment_id": "moment-f369e88ebf51440089a9ca2711defa7a",
+                  "moment_type": "silence"
+                },
+                {
+                  "item_id": "moment-moment-00a66c780f7d47d7987eb977c56166a2",
+                  "item_type": "dj_moment",
+                  "position": "next",
+                  "label": "Exact edition",
+                  "moment_id": "moment-00a66c780f7d47d7987eb977c56166a2",
+                  "moment_type": "album"
+                },
+                {
+                  "item_id": "moment-moment-b93bd60b35f94af3914d2c00b17e6355",
+                  "item_type": "dj_moment",
+                  "position": "next",
+                  "label": "Exact edition",
+                  "moment_id": "moment-b93bd60b35f94af3914d2c00b17e6355",
+                  "moment_type": "track"
+                }
+              ]
+            },
+            "audience": {
+              "signal_totals": {},
+              "recent_activity": []
+            },
+            "dj_moments": [
+              {
+                "moment_id": "moment-f369e88ebf51440089a9ca2711defa7a",
+                "session_id": "session-f74b501b839f480092a89296f00af42f",
+                "created_at": "2026-10-12T18:44:16.380808+00:00",
+                "type": "silence",
+                "knowledge_intent": {
+                  "type": "silence",
+                  "goal": "Do not interrupt the music."
+                },
+                "presentation_intent": {
+                  "source_session_mood": "groove",
+                  "dj_persona": "home_dj",
+                  "tone_of_voice": "warm and conversational",
+                  "energy_level": "groove",
+                  "delivery_style": "short contextual music story",
+                  "voice_style": "persona-guided",
+                  "visual_theme": "music-context",
+                  "importance": "normal",
+                  "maximum_duration_seconds": 25,
+                  "delivery_channels": [
+                    "broadcast",
+                    "owner",
+                    "shared"
+                  ],
+                  "visibility": "session_shared"
+                },
+                "title": "Stilte",
+                "summary": "De dj kiest er bewust voor de muziek niet te onderbreken.",
+                "content": "",
+                "artwork": null,
+                "actions": [],
+                "visibility": "session_shared",
+                "delivery_channels": [
+                  "broadcast",
+                  "owner",
+                  "shared"
+                ],
+                "importance": "normal",
+                "source_references": [],
+                "generation_metadata": {
+                  "reason": "invalid_ai_output",
+                  "validated": "true"
+                }
+              },
+              {
+                "moment_id": "moment-00a66c780f7d47d7987eb977c56166a2",
+                "session_id": "session-f74b501b839f480092a89296f00af42f",
+                "created_at": "2026-10-12T18:44:16.403559+00:00",
+                "type": "album",
+                "knowledge_intent": {
+                  "type": "album_story",
+                  "goal": "Share one qualified current-track fact."
+                },
+                "presentation_intent": {
+                  "source_session_mood": "groove",
+                  "dj_persona": "home_dj",
+                  "tone_of_voice": "warm and conversational",
+                  "energy_level": "groove",
+                  "delivery_style": "short contextual music story",
+                  "voice_style": "persona-guided",
+                  "visual_theme": "music-context",
+                  "importance": "normal",
+                  "maximum_duration_seconds": 40,
+                  "delivery_channels": [
+                    "broadcast",
+                    "owner",
+                    "shared"
+                  ],
+                  "visibility": "session_shared"
+                },
+                "title": "Exact edition",
+                "summary": "Exact edition",
+                "content": "Een datum bij deze uitgave van Exact edition: Spotify vermeldt 2001-03-04.",
+                "artwork": null,
+                "actions": [],
+                "visibility": "session_shared",
+                "delivery_channels": [
+                  "broadcast",
+                  "owner",
+                  "shared"
+                ],
+                "importance": "normal",
+                "source_references": [
+                  "Spotify"
+                ],
+                "generation_metadata": {
+                  "provider": "Spotify",
+                  "validated": "true"
+                },
+                "source_attribution": {
+                  "provider": "Spotify",
+                  "url": "https://open.spotify.com/album/ZZZZZZZZZZZZZZZZZZZZZZ",
+                  "license": "Spotify metadata display"
+                },
+                "playback_item_id": "63bf0397fbdc1fd1f3fbec76"
+              },
+              {
+                "moment_id": "moment-b93bd60b35f94af3914d2c00b17e6355",
+                "session_id": "session-f74b501b839f480092a89296f00af42f",
+                "created_at": "2026-10-12T18:44:17.154051+00:00",
+                "type": "track",
+                "knowledge_intent": {
+                  "type": "track_context",
+                  "goal": "Share one qualified current-track fact."
+                },
+                "presentation_intent": {
+                  "source_session_mood": "groove",
+                  "dj_persona": "home_dj",
+                  "tone_of_voice": "warm and conversational",
+                  "energy_level": "groove",
+                  "delivery_style": "short contextual music story",
+                  "voice_style": "persona-guided",
+                  "visual_theme": "music-context",
+                  "importance": "normal",
+                  "maximum_duration_seconds": 40,
+                  "delivery_channels": [
+                    "broadcast",
+                    "owner",
+                    "shared"
+                  ],
+                  "visibility": "session_shared"
+                },
+                "title": "Exact edition",
+                "summary": "Exact edition",
+                "content": "Nog een nummer uit de eerder genoemde uitgave. Spotify dateert deze uitgave van Exact edition op 2001-03-04.",
+                "artwork": null,
+                "actions": [],
+                "visibility": "session_shared",
+                "delivery_channels": [
+                  "broadcast",
+                  "owner",
+                  "shared"
+                ],
+                "importance": "normal",
+                "source_references": [
+                  "Spotify"
+                ],
+                "generation_metadata": {
+                  "provider": "Spotify",
+                  "validated": "true"
+                },
+                "source_attribution": {
+                  "provider": "Spotify",
+                  "url": "https://open.spotify.com/album/ZZZZZZZZZZZZZZZZZZZZZZ",
+                  "license": "Spotify metadata display"
+                },
+                "playback_item_id": "e876818bdbce007cbc615bff"
+              }
+            ],
+            "presentations": [
+              {
+                "presentation_id": "presentation-moment-f369e88ebf51440089a9ca2711defa7a",
+                "source_moment_id": "moment-f369e88ebf51440089a9ca2711defa7a",
+                "source_moment_type": "silence",
+                "visibility": "session_shared"
+              },
+              {
+                "presentation_id": "presentation-moment-00a66c780f7d47d7987eb977c56166a2",
+                "source_moment_id": "moment-00a66c780f7d47d7987eb977c56166a2",
+                "source_moment_type": "album",
+                "visibility": "session_shared"
+              },
+              {
+                "presentation_id": "presentation-moment-b93bd60b35f94af3914d2c00b17e6355",
+                "source_moment_id": "moment-b93bd60b35f94af3914d2c00b17e6355",
+                "source_moment_type": "track",
+                "visibility": "session_shared"
+              }
+            ],
+            "broadcast": {
+              "started_at": "2026-10-12T18:44:16.380005+00:00",
+              "snapshot_watermark": 18
+            },
+            "native_delivery": {
+              "schema_version": 1,
+              "session_id": "session-f74b501b839f480092a89296f00af42f",
+              "current_moment_id": "moment-b93bd60b35f94af3914d2c00b17e6355",
+              "active_flow_moment_ids": [],
+              "admissions": [
+                {
+                  "moment_id": "moment-00a66c780f7d47d7987eb977c56166a2",
+                  "qualification": "qualified",
+                  "current_display_allowed": false,
+                  "active_flow_display_allowed": false,
+                  "source_expires_at": "2026-10-12T19:14:16.403323+00:00",
+                  "display_expires_at": "2026-10-12T18:44:56.403559+00:00",
+                  "executable_actions": [],
+                  "requires_spotify_attribution": true
+                },
+                {
+                  "moment_id": "moment-b93bd60b35f94af3914d2c00b17e6355",
+                  "qualification": "qualified",
+                  "current_display_allowed": true,
+                  "active_flow_display_allowed": false,
+                  "source_expires_at": "2026-10-12T19:14:16.403328+00:00",
+                  "display_expires_at": "2026-10-12T18:44:57.154051+00:00",
+                  "executable_actions": [],
+                  "requires_spotify_attribution": true
+                }
+              ],
+              "revocation_scope": "session",
+              "revision": "5ebd3020dff94ee149ac5f5e"
+            },
+            "session_forecast": {
+              "contract_version": 1,
+              "session_id": "session-f74b501b839f480092a89296f00af42f",
+              "revision": 3,
+              "state": "ready",
+              "issued_at": "2026-10-12T18:44:17.153447+00:00",
+              "valid_until": "2026-10-12T18:46:17.153420+00:00",
+              "nominal_window_seconds": 900,
+              "supported_window_seconds": 900,
+              "current_anchor": {
+                "item_id": "e876818bdbce007cbc615bff",
+                "source_url": "https://open.spotify.com/track/0000000000000000000002"
+              },
+              "summary": "Rond Catalog artist kan ik een mooi verband uitlichten, als betrouwbare context daar aanleiding toe geeft.",
+              "sections": [
+                {
+                  "id": "current",
+                  "title": "Nu",
+                  "claim_type": "current",
+                  "text": "Nu speelt: Observed track 2 \u2014 Catalog artist.",
+                  "source_url": "https://open.spotify.com/track/0000000000000000000002"
+                },
+                {
+                  "id": "guidance",
+                  "title": "De komende minuten",
+                  "claim_type": "intention",
+                  "text": "Rond Catalog artist kan ik een mooi verband uitlichten, als betrouwbare context daar aanleiding toe geeft."
+                },
+                {
+                  "id": "aim",
+                  "title": "Waar ik op mik",
+                  "claim_type": "conditional_target",
+                  "text": "Het doel is een gelijkmatige flow die de huidige muzikale draad zonder haast kan dragen."
+                }
+              ],
+              "imagery": []
+            }
+          }
+        }
+      ],
+      "native": {
+        "moment_id": "moment-b93bd60b35f94af3914d2c00b17e6355",
+        "qualification": "qualified",
+        "current_display_allowed": true,
+        "active_flow_display_allowed": false,
+        "source_expires_at": "2026-10-12T19:14:16.403328+00:00",
+        "display_expires_at": "2026-10-12T18:44:57.154051+00:00",
+        "executable_actions": [],
+        "requires_spotify_attribution": true
+      },
+      "readability": true,
+      "sourceLinks": true,
+      "spotifyMark": true,
+      "currentTrack": true,
+      "transition": true,
+      "reconnect": true,
+      "realExpiryWaitSeconds": 36.681,
+      "end": true,
+      "CAF": "NOT_APPLICABLE",
+      "tls": "HTTPS CA verified by driver; Chrome restricted to exact owned fixture leaf SPKI"
+    },
+    {
+      "host": "cast",
+      "orientation": "portrait",
+      "series": [
+        {
+          "moment": {
+            "moment_id": "moment-0e07f8c836d74f16be206bcebd3c0c68",
+            "session_id": "session-8cc80180c4754abb9967def9e1a240a4",
+            "created_at": "2026-10-12T18:45:00.244713+00:00",
+            "type": "album",
+            "knowledge_intent": {
+              "type": "album_story",
+              "goal": "Share one qualified current-track fact."
+            },
+            "presentation_intent": {
+              "source_session_mood": "groove",
+              "dj_persona": "home_dj",
+              "tone_of_voice": "warm and conversational",
+              "energy_level": "groove",
+              "delivery_style": "short contextual music story",
+              "voice_style": "persona-guided",
+              "visual_theme": "music-context",
+              "importance": "normal",
+              "maximum_duration_seconds": 40,
+              "delivery_channels": [
+                "broadcast",
+                "owner",
+                "shared"
+              ],
+              "visibility": "session_shared"
+            },
+            "title": "Exact edition",
+            "summary": "Exact edition",
+            "content": "Een datum bij deze uitgave van Exact edition: Spotify vermeldt 2001-03-04.",
+            "artwork": null,
+            "actions": [],
+            "visibility": "session_shared",
+            "delivery_channels": [
+              "broadcast",
+              "owner",
+              "shared"
+            ],
+            "importance": "normal",
+            "source_references": [
+              "Spotify"
+            ],
+            "generation_metadata": {
+              "provider": "Spotify",
+              "validated": "true"
+            },
+            "source_attribution": {
+              "provider": "Spotify",
+              "url": "https://open.spotify.com/album/ZZZZZZZZZZZZZZZZZZZZZZ",
+              "license": "Spotify metadata display"
+            }
+          },
+          "snapshot": {
+            "session": {
+              "session_id": "session-8cc80180c4754abb9967def9e1a240a4",
+              "runtime_state": "active",
+              "selected_mood": "groove",
+              "mood_revision": 0,
+              "selected_presence": "balanced",
+              "presence_revision": 0,
+              "locale": "nl"
+            },
+            "playback": {
+              "state": "playing",
+              "item_id": "63bf0397fbdc1fd1f3fbec76",
+              "title": "Observed track 1",
+              "artist": "Catalog artist",
+              "album": "Exact edition",
+              "target_name": "Own lab",
+              "updated_at": "2026-10-12T18:45:00.243374+00:00",
+              "duration_ms": 300000,
+              "position_ms": 0,
+              "source_url": "https://open.spotify.com/track/0000000000000000000001"
+            },
+            "planner": {
+              "planning_state": "ready",
+              "planning_horizon_minutes": 15,
+              "current_direction": "exploring",
+              "session_direction": {
+                "direction": "exploring",
+                "initialized_at": "2026-10-12T18:45:00.217026+00:00",
+                "updated_at": "2026-10-12T18:45:00.217026+00:00",
+                "start_strategy": "discover"
+              }
+            },
+            "session_flow": {
+              "flow_id": "flow-session-8cc80180c4754abb9967def9e1a240a4",
+              "flow_revision": 2,
+              "planning_horizon_minutes": 15,
+              "created_at": "2026-10-12T18:45:00.244753+00:00",
+              "items": [
+                {
+                  "item_id": "now-current-track",
+                  "item_type": "current_track",
+                  "position": "now",
+                  "label": "Current Track"
+                },
+                {
+                  "item_id": "next-planning-horizon",
+                  "item_type": "planning_horizon",
+                  "position": "next",
+                  "label": "Planning Horizon"
+                },
+                {
+                  "item_id": "next-maintain-direction",
+                  "item_type": "maintain_direction",
+                  "position": "next",
+                  "label": "Maintain Direction"
+                },
+                {
+                  "item_id": "later-future-direction",
+                  "item_type": "future_direction",
+                  "position": "later",
+                  "label": "Future Direction"
+                },
+                {
+                  "item_id": "later-future-placeholder",
+                  "item_type": "future_placeholder",
+                  "position": "later",
+                  "label": "Future Placeholder"
+                },
+                {
+                  "item_id": "moment-moment-cea8c655025042f59ecef060f67449a6",
+                  "item_type": "dj_moment",
+                  "position": "next",
+                  "label": "Stilte",
+                  "moment_id": "moment-cea8c655025042f59ecef060f67449a6",
+                  "moment_type": "silence"
+                },
+                {
+                  "item_id": "moment-moment-0e07f8c836d74f16be206bcebd3c0c68",
+                  "item_type": "dj_moment",
+                  "position": "next",
+                  "label": "Exact edition",
+                  "moment_id": "moment-0e07f8c836d74f16be206bcebd3c0c68",
+                  "moment_type": "album"
+                }
+              ]
+            },
+            "audience": {
+              "signal_totals": {},
+              "recent_activity": []
+            },
+            "dj_moments": [
+              {
+                "moment_id": "moment-cea8c655025042f59ecef060f67449a6",
+                "session_id": "session-8cc80180c4754abb9967def9e1a240a4",
+                "created_at": "2026-10-12T18:45:00.217864+00:00",
+                "type": "silence",
+                "knowledge_intent": {
+                  "type": "silence",
+                  "goal": "Do not interrupt the music."
+                },
+                "presentation_intent": {
+                  "source_session_mood": "groove",
+                  "dj_persona": "home_dj",
+                  "tone_of_voice": "warm and conversational",
+                  "energy_level": "groove",
+                  "delivery_style": "short contextual music story",
+                  "voice_style": "persona-guided",
+                  "visual_theme": "music-context",
+                  "importance": "normal",
+                  "maximum_duration_seconds": 25,
+                  "delivery_channels": [
+                    "broadcast",
+                    "owner",
+                    "shared"
+                  ],
+                  "visibility": "session_shared"
+                },
+                "title": "Stilte",
+                "summary": "De dj kiest er bewust voor de muziek niet te onderbreken.",
+                "content": "",
+                "artwork": null,
+                "actions": [],
+                "visibility": "session_shared",
+                "delivery_channels": [
+                  "broadcast",
+                  "owner",
+                  "shared"
+                ],
+                "importance": "normal",
+                "source_references": [],
+                "generation_metadata": {
+                  "reason": "invalid_ai_output",
+                  "validated": "true"
+                }
+              },
+              {
+                "moment_id": "moment-0e07f8c836d74f16be206bcebd3c0c68",
+                "session_id": "session-8cc80180c4754abb9967def9e1a240a4",
+                "created_at": "2026-10-12T18:45:00.244713+00:00",
+                "type": "album",
+                "knowledge_intent": {
+                  "type": "album_story",
+                  "goal": "Share one qualified current-track fact."
+                },
+                "presentation_intent": {
+                  "source_session_mood": "groove",
+                  "dj_persona": "home_dj",
+                  "tone_of_voice": "warm and conversational",
+                  "energy_level": "groove",
+                  "delivery_style": "short contextual music story",
+                  "voice_style": "persona-guided",
+                  "visual_theme": "music-context",
+                  "importance": "normal",
+                  "maximum_duration_seconds": 40,
+                  "delivery_channels": [
+                    "broadcast",
+                    "owner",
+                    "shared"
+                  ],
+                  "visibility": "session_shared"
+                },
+                "title": "Exact edition",
+                "summary": "Exact edition",
+                "content": "Een datum bij deze uitgave van Exact edition: Spotify vermeldt 2001-03-04.",
+                "artwork": null,
+                "actions": [],
+                "visibility": "session_shared",
+                "delivery_channels": [
+                  "broadcast",
+                  "owner",
+                  "shared"
+                ],
+                "importance": "normal",
+                "source_references": [
+                  "Spotify"
+                ],
+                "generation_metadata": {
+                  "provider": "Spotify",
+                  "validated": "true"
+                },
+                "source_attribution": {
+                  "provider": "Spotify",
+                  "url": "https://open.spotify.com/album/ZZZZZZZZZZZZZZZZZZZZZZ",
+                  "license": "Spotify metadata display"
+                },
+                "playback_item_id": "63bf0397fbdc1fd1f3fbec76"
+              }
+            ],
+            "presentations": [
+              {
+                "presentation_id": "presentation-moment-cea8c655025042f59ecef060f67449a6",
+                "source_moment_id": "moment-cea8c655025042f59ecef060f67449a6",
+                "source_moment_type": "silence",
+                "visibility": "session_shared"
+              },
+              {
+                "presentation_id": "presentation-moment-0e07f8c836d74f16be206bcebd3c0c68",
+                "source_moment_id": "moment-0e07f8c836d74f16be206bcebd3c0c68",
+                "source_moment_type": "album",
+                "visibility": "session_shared"
+              }
+            ],
+            "broadcast": {
+              "started_at": "2026-10-12T18:45:00.217026+00:00",
+              "snapshot_watermark": 12
+            },
+            "native_delivery": {
+              "schema_version": 1,
+              "session_id": "session-8cc80180c4754abb9967def9e1a240a4",
+              "current_moment_id": "moment-0e07f8c836d74f16be206bcebd3c0c68",
+              "active_flow_moment_ids": [],
+              "admissions": [
+                {
+                  "moment_id": "moment-0e07f8c836d74f16be206bcebd3c0c68",
+                  "qualification": "qualified",
+                  "current_display_allowed": true,
+                  "active_flow_display_allowed": false,
+                  "source_expires_at": "2026-10-12T19:15:00.244515+00:00",
+                  "display_expires_at": "2026-10-12T18:45:40.244713+00:00",
+                  "executable_actions": [],
+                  "requires_spotify_attribution": true
+                }
+              ],
+              "revocation_scope": "session",
+              "revision": "d542133feb6b14733d301290"
+            },
+            "session_forecast": {
+              "contract_version": 1,
+              "session_id": "session-8cc80180c4754abb9967def9e1a240a4",
+              "revision": 2,
+              "state": "ready",
+              "issued_at": "2026-10-12T18:45:00.244214+00:00",
+              "valid_until": "2026-10-12T18:47:00.244172+00:00",
+              "nominal_window_seconds": 900,
+              "supported_window_seconds": 900,
+              "current_anchor": {
+                "item_id": "63bf0397fbdc1fd1f3fbec76",
+                "source_url": "https://open.spotify.com/track/0000000000000000000001"
+              },
+              "summary": "Rond Catalog artist kan ik een mooi verband uitlichten, als betrouwbare context daar aanleiding toe geeft.",
+              "sections": [
+                {
+                  "id": "current",
+                  "title": "Nu",
+                  "claim_type": "current",
+                  "text": "Nu speelt: Observed track 1 \u2014 Catalog artist.",
+                  "source_url": "https://open.spotify.com/track/0000000000000000000001"
+                },
+                {
+                  "id": "guidance",
+                  "title": "De komende minuten",
+                  "claim_type": "intention",
+                  "text": "Rond Catalog artist kan ik een mooi verband uitlichten, als betrouwbare context daar aanleiding toe geeft."
+                },
+                {
+                  "id": "aim",
+                  "title": "Waar ik op mik",
+                  "claim_type": "conditional_target",
+                  "text": "Het doel is een gelijkmatige flow die de huidige muzikale draad zonder haast kan dragen."
+                }
+              ],
+              "imagery": []
+            }
+          }
+        },
+        {
+          "moment": {
+            "moment_id": "moment-2a0ab29170614410a9953b62078b0772",
+            "session_id": "session-8cc80180c4754abb9967def9e1a240a4",
+            "created_at": "2026-10-12T18:45:00.501882+00:00",
+            "type": "track",
+            "knowledge_intent": {
+              "type": "track_context",
+              "goal": "Share one qualified current-track fact."
+            },
+            "presentation_intent": {
+              "source_session_mood": "groove",
+              "dj_persona": "home_dj",
+              "tone_of_voice": "warm and conversational",
+              "energy_level": "groove",
+              "delivery_style": "short contextual music story",
+              "voice_style": "persona-guided",
+              "visual_theme": "music-context",
+              "importance": "normal",
+              "maximum_duration_seconds": 40,
+              "delivery_channels": [
+                "broadcast",
+                "owner",
+                "shared"
+              ],
+              "visibility": "session_shared"
+            },
+            "title": "Exact edition",
+            "summary": "Exact edition",
+            "content": "Nog een nummer uit de eerder genoemde uitgave. Spotify dateert deze uitgave van Exact edition op 2001-03-04.",
+            "artwork": null,
+            "actions": [],
+            "visibility": "session_shared",
+            "delivery_channels": [
+              "broadcast",
+              "owner",
+              "shared"
+            ],
+            "importance": "normal",
+            "source_references": [
+              "Spotify"
+            ],
+            "generation_metadata": {
+              "provider": "Spotify",
+              "validated": "true"
+            },
+            "source_attribution": {
+              "provider": "Spotify",
+              "url": "https://open.spotify.com/album/ZZZZZZZZZZZZZZZZZZZZZZ",
+              "license": "Spotify metadata display"
+            }
+          },
+          "snapshot": {
+            "session": {
+              "session_id": "session-8cc80180c4754abb9967def9e1a240a4",
+              "runtime_state": "active",
+              "selected_mood": "groove",
+              "mood_revision": 0,
+              "selected_presence": "balanced",
+              "presence_revision": 0,
+              "locale": "nl"
+            },
+            "playback": {
+              "state": "playing",
+              "item_id": "e876818bdbce007cbc615bff",
+              "title": "Observed track 2",
+              "artist": "Catalog artist",
+              "album": "Exact edition",
+              "target_name": "Own lab",
+              "updated_at": "2026-10-12T18:45:00.500467+00:00",
+              "duration_ms": 300000,
+              "position_ms": 0,
+              "source_url": "https://open.spotify.com/track/0000000000000000000002"
+            },
+            "planner": {
+              "planning_state": "ready",
+              "planning_horizon_minutes": 15,
+              "current_direction": "exploring",
+              "session_direction": {
+                "direction": "exploring",
+                "initialized_at": "2026-10-12T18:45:00.217026+00:00",
+                "updated_at": "2026-10-12T18:45:00.217026+00:00",
+                "start_strategy": "discover"
+              }
+            },
+            "session_flow": {
+              "flow_id": "flow-session-8cc80180c4754abb9967def9e1a240a4",
+              "flow_revision": 3,
+              "planning_horizon_minutes": 15,
+              "created_at": "2026-10-12T18:45:00.501911+00:00",
+              "items": [
+                {
+                  "item_id": "now-current-track",
+                  "item_type": "current_track",
+                  "position": "now",
+                  "label": "Current Track"
+                },
+                {
+                  "item_id": "next-planning-horizon",
+                  "item_type": "planning_horizon",
+                  "position": "next",
+                  "label": "Planning Horizon"
+                },
+                {
+                  "item_id": "next-maintain-direction",
+                  "item_type": "maintain_direction",
+                  "position": "next",
+                  "label": "Maintain Direction"
+                },
+                {
+                  "item_id": "later-future-direction",
+                  "item_type": "future_direction",
+                  "position": "later",
+                  "label": "Future Direction"
+                },
+                {
+                  "item_id": "later-future-placeholder",
+                  "item_type": "future_placeholder",
+                  "position": "later",
+                  "label": "Future Placeholder"
+                },
+                {
+                  "item_id": "moment-moment-cea8c655025042f59ecef060f67449a6",
+                  "item_type": "dj_moment",
+                  "position": "next",
+                  "label": "Stilte",
+                  "moment_id": "moment-cea8c655025042f59ecef060f67449a6",
+                  "moment_type": "silence"
+                },
+                {
+                  "item_id": "moment-moment-0e07f8c836d74f16be206bcebd3c0c68",
+                  "item_type": "dj_moment",
+                  "position": "next",
+                  "label": "Exact edition",
+                  "moment_id": "moment-0e07f8c836d74f16be206bcebd3c0c68",
+                  "moment_type": "album"
+                },
+                {
+                  "item_id": "moment-moment-2a0ab29170614410a9953b62078b0772",
+                  "item_type": "dj_moment",
+                  "position": "next",
+                  "label": "Exact edition",
+                  "moment_id": "moment-2a0ab29170614410a9953b62078b0772",
+                  "moment_type": "track"
+                }
+              ]
+            },
+            "audience": {
+              "signal_totals": {},
+              "recent_activity": []
+            },
+            "dj_moments": [
+              {
+                "moment_id": "moment-cea8c655025042f59ecef060f67449a6",
+                "session_id": "session-8cc80180c4754abb9967def9e1a240a4",
+                "created_at": "2026-10-12T18:45:00.217864+00:00",
+                "type": "silence",
+                "knowledge_intent": {
+                  "type": "silence",
+                  "goal": "Do not interrupt the music."
+                },
+                "presentation_intent": {
+                  "source_session_mood": "groove",
+                  "dj_persona": "home_dj",
+                  "tone_of_voice": "warm and conversational",
+                  "energy_level": "groove",
+                  "delivery_style": "short contextual music story",
+                  "voice_style": "persona-guided",
+                  "visual_theme": "music-context",
+                  "importance": "normal",
+                  "maximum_duration_seconds": 25,
+                  "delivery_channels": [
+                    "broadcast",
+                    "owner",
+                    "shared"
+                  ],
+                  "visibility": "session_shared"
+                },
+                "title": "Stilte",
+                "summary": "De dj kiest er bewust voor de muziek niet te onderbreken.",
+                "content": "",
+                "artwork": null,
+                "actions": [],
+                "visibility": "session_shared",
+                "delivery_channels": [
+                  "broadcast",
+                  "owner",
+                  "shared"
+                ],
+                "importance": "normal",
+                "source_references": [],
+                "generation_metadata": {
+                  "reason": "invalid_ai_output",
+                  "validated": "true"
+                }
+              },
+              {
+                "moment_id": "moment-0e07f8c836d74f16be206bcebd3c0c68",
+                "session_id": "session-8cc80180c4754abb9967def9e1a240a4",
+                "created_at": "2026-10-12T18:45:00.244713+00:00",
+                "type": "album",
+                "knowledge_intent": {
+                  "type": "album_story",
+                  "goal": "Share one qualified current-track fact."
+                },
+                "presentation_intent": {
+                  "source_session_mood": "groove",
+                  "dj_persona": "home_dj",
+                  "tone_of_voice": "warm and conversational",
+                  "energy_level": "groove",
+                  "delivery_style": "short contextual music story",
+                  "voice_style": "persona-guided",
+                  "visual_theme": "music-context",
+                  "importance": "normal",
+                  "maximum_duration_seconds": 40,
+                  "delivery_channels": [
+                    "broadcast",
+                    "owner",
+                    "shared"
+                  ],
+                  "visibility": "session_shared"
+                },
+                "title": "Exact edition",
+                "summary": "Exact edition",
+                "content": "Een datum bij deze uitgave van Exact edition: Spotify vermeldt 2001-03-04.",
+                "artwork": null,
+                "actions": [],
+                "visibility": "session_shared",
+                "delivery_channels": [
+                  "broadcast",
+                  "owner",
+                  "shared"
+                ],
+                "importance": "normal",
+                "source_references": [
+                  "Spotify"
+                ],
+                "generation_metadata": {
+                  "provider": "Spotify",
+                  "validated": "true"
+                },
+                "source_attribution": {
+                  "provider": "Spotify",
+                  "url": "https://open.spotify.com/album/ZZZZZZZZZZZZZZZZZZZZZZ",
+                  "license": "Spotify metadata display"
+                },
+                "playback_item_id": "63bf0397fbdc1fd1f3fbec76"
+              },
+              {
+                "moment_id": "moment-2a0ab29170614410a9953b62078b0772",
+                "session_id": "session-8cc80180c4754abb9967def9e1a240a4",
+                "created_at": "2026-10-12T18:45:00.501882+00:00",
+                "type": "track",
+                "knowledge_intent": {
+                  "type": "track_context",
+                  "goal": "Share one qualified current-track fact."
+                },
+                "presentation_intent": {
+                  "source_session_mood": "groove",
+                  "dj_persona": "home_dj",
+                  "tone_of_voice": "warm and conversational",
+                  "energy_level": "groove",
+                  "delivery_style": "short contextual music story",
+                  "voice_style": "persona-guided",
+                  "visual_theme": "music-context",
+                  "importance": "normal",
+                  "maximum_duration_seconds": 40,
+                  "delivery_channels": [
+                    "broadcast",
+                    "owner",
+                    "shared"
+                  ],
+                  "visibility": "session_shared"
+                },
+                "title": "Exact edition",
+                "summary": "Exact edition",
+                "content": "Nog een nummer uit de eerder genoemde uitgave. Spotify dateert deze uitgave van Exact edition op 2001-03-04.",
+                "artwork": null,
+                "actions": [],
+                "visibility": "session_shared",
+                "delivery_channels": [
+                  "broadcast",
+                  "owner",
+                  "shared"
+                ],
+                "importance": "normal",
+                "source_references": [
+                  "Spotify"
+                ],
+                "generation_metadata": {
+                  "provider": "Spotify",
+                  "validated": "true"
+                },
+                "source_attribution": {
+                  "provider": "Spotify",
+                  "url": "https://open.spotify.com/album/ZZZZZZZZZZZZZZZZZZZZZZ",
+                  "license": "Spotify metadata display"
+                },
+                "playback_item_id": "e876818bdbce007cbc615bff"
+              }
+            ],
+            "presentations": [
+              {
+                "presentation_id": "presentation-moment-cea8c655025042f59ecef060f67449a6",
+                "source_moment_id": "moment-cea8c655025042f59ecef060f67449a6",
+                "source_moment_type": "silence",
+                "visibility": "session_shared"
+              },
+              {
+                "presentation_id": "presentation-moment-0e07f8c836d74f16be206bcebd3c0c68",
+                "source_moment_id": "moment-0e07f8c836d74f16be206bcebd3c0c68",
+                "source_moment_type": "album",
+                "visibility": "session_shared"
+              },
+              {
+                "presentation_id": "presentation-moment-2a0ab29170614410a9953b62078b0772",
+                "source_moment_id": "moment-2a0ab29170614410a9953b62078b0772",
+                "source_moment_type": "track",
+                "visibility": "session_shared"
+              }
+            ],
+            "broadcast": {
+              "started_at": "2026-10-12T18:45:00.217026+00:00",
+              "snapshot_watermark": 18
+            },
+            "native_delivery": {
+              "schema_version": 1,
+              "session_id": "session-8cc80180c4754abb9967def9e1a240a4",
+              "current_moment_id": "moment-2a0ab29170614410a9953b62078b0772",
+              "active_flow_moment_ids": [],
+              "admissions": [
+                {
+                  "moment_id": "moment-0e07f8c836d74f16be206bcebd3c0c68",
+                  "qualification": "qualified",
+                  "current_display_allowed": false,
+                  "active_flow_display_allowed": false,
+                  "source_expires_at": "2026-10-12T19:15:00.244515+00:00",
+                  "display_expires_at": "2026-10-12T18:45:40.244713+00:00",
+                  "executable_actions": [],
+                  "requires_spotify_attribution": true
+                },
+                {
+                  "moment_id": "moment-2a0ab29170614410a9953b62078b0772",
+                  "qualification": "qualified",
+                  "current_display_allowed": true,
+                  "active_flow_display_allowed": false,
+                  "source_expires_at": "2026-10-12T19:15:00.244524+00:00",
+                  "display_expires_at": "2026-10-12T18:45:40.501882+00:00",
+                  "executable_actions": [],
+                  "requires_spotify_attribution": true
+                }
+              ],
+              "revocation_scope": "session",
+              "revision": "c778969491eaa572e70c9163"
+            },
+            "session_forecast": {
+              "contract_version": 1,
+              "session_id": "session-8cc80180c4754abb9967def9e1a240a4",
+              "revision": 3,
+              "state": "ready",
+              "issued_at": "2026-10-12T18:45:00.501222+00:00",
+              "valid_until": "2026-10-12T18:47:00.501184+00:00",
+              "nominal_window_seconds": 900,
+              "supported_window_seconds": 900,
+              "current_anchor": {
+                "item_id": "e876818bdbce007cbc615bff",
+                "source_url": "https://open.spotify.com/track/0000000000000000000002"
+              },
+              "summary": "Rond Catalog artist kan ik een mooi verband uitlichten, als betrouwbare context daar aanleiding toe geeft.",
+              "sections": [
+                {
+                  "id": "current",
+                  "title": "Nu",
+                  "claim_type": "current",
+                  "text": "Nu speelt: Observed track 2 \u2014 Catalog artist.",
+                  "source_url": "https://open.spotify.com/track/0000000000000000000002"
+                },
+                {
+                  "id": "guidance",
+                  "title": "De komende minuten",
+                  "claim_type": "intention",
+                  "text": "Rond Catalog artist kan ik een mooi verband uitlichten, als betrouwbare context daar aanleiding toe geeft."
+                },
+                {
+                  "id": "aim",
+                  "title": "Waar ik op mik",
+                  "claim_type": "conditional_target",
+                  "text": "Het doel is een gelijkmatige flow die de huidige muzikale draad zonder haast kan dragen."
+                }
+              ],
+              "imagery": []
+            }
+          }
+        }
+      ],
+      "native": {
+        "moment_id": "moment-2a0ab29170614410a9953b62078b0772",
+        "qualification": "qualified",
+        "current_display_allowed": true,
+        "active_flow_display_allowed": false,
+        "source_expires_at": "2026-10-12T19:15:00.244524+00:00",
+        "display_expires_at": "2026-10-12T18:45:40.501882+00:00",
+        "executable_actions": [],
+        "requires_spotify_attribution": true
+      },
+      "readability": true,
+      "sourceLinks": true,
+      "spotifyMark": true,
+      "currentTrack": true,
+      "transition": true,
+      "reconnect": true,
+      "realExpiryWaitSeconds": 36.7,
+      "end": true,
+      "CAF": "MODELED_ONLY",
+      "tls": "HTTPS CA verified by driver; Chrome restricted to exact owned fixture leaf SPKI"
+    },
+    {
+      "host": "cast",
+      "orientation": "landscape",
+      "series": [
+        {
+          "moment": {
+            "moment_id": "moment-837b1f31fb0a4af9b2a20da39c94d3ac",
+            "session_id": "session-5ff370e177564de1b12da08c4bc919ef",
+            "created_at": "2026-10-12T18:45:43.603247+00:00",
+            "type": "album",
+            "knowledge_intent": {
+              "type": "album_story",
+              "goal": "Share one qualified current-track fact."
+            },
+            "presentation_intent": {
+              "source_session_mood": "groove",
+              "dj_persona": "home_dj",
+              "tone_of_voice": "warm and conversational",
+              "energy_level": "groove",
+              "delivery_style": "short contextual music story",
+              "voice_style": "persona-guided",
+              "visual_theme": "music-context",
+              "importance": "normal",
+              "maximum_duration_seconds": 40,
+              "delivery_channels": [
+                "broadcast",
+                "owner",
+                "shared"
+              ],
+              "visibility": "session_shared"
+            },
+            "title": "Exact edition",
+            "summary": "Exact edition",
+            "content": "Een datum bij deze uitgave van Exact edition: Spotify vermeldt 2001-03-04.",
+            "artwork": null,
+            "actions": [],
+            "visibility": "session_shared",
+            "delivery_channels": [
+              "broadcast",
+              "owner",
+              "shared"
+            ],
+            "importance": "normal",
+            "source_references": [
+              "Spotify"
+            ],
+            "generation_metadata": {
+              "provider": "Spotify",
+              "validated": "true"
+            },
+            "source_attribution": {
+              "provider": "Spotify",
+              "url": "https://open.spotify.com/album/ZZZZZZZZZZZZZZZZZZZZZZ",
+              "license": "Spotify metadata display"
+            }
+          },
+          "snapshot": {
+            "session": {
+              "session_id": "session-5ff370e177564de1b12da08c4bc919ef",
+              "runtime_state": "active",
+              "selected_mood": "groove",
+              "mood_revision": 0,
+              "selected_presence": "balanced",
+              "presence_revision": 0,
+              "locale": "nl"
+            },
+            "playback": {
+              "state": "playing",
+              "item_id": "63bf0397fbdc1fd1f3fbec76",
+              "title": "Observed track 1",
+              "artist": "Catalog artist",
+              "album": "Exact edition",
+              "target_name": "Own lab",
+              "updated_at": "2026-10-12T18:45:43.601798+00:00",
+              "duration_ms": 300000,
+              "position_ms": 0,
+              "source_url": "https://open.spotify.com/track/0000000000000000000001"
+            },
+            "planner": {
+              "planning_state": "ready",
+              "planning_horizon_minutes": 15,
+              "current_direction": "exploring",
+              "session_direction": {
+                "direction": "exploring",
+                "initialized_at": "2026-10-12T18:45:43.575374+00:00",
+                "updated_at": "2026-10-12T18:45:43.575374+00:00",
+                "start_strategy": "discover"
+              }
+            },
+            "session_flow": {
+              "flow_id": "flow-session-5ff370e177564de1b12da08c4bc919ef",
+              "flow_revision": 2,
+              "planning_horizon_minutes": 15,
+              "created_at": "2026-10-12T18:45:43.603281+00:00",
+              "items": [
+                {
+                  "item_id": "now-current-track",
+                  "item_type": "current_track",
+                  "position": "now",
+                  "label": "Current Track"
+                },
+                {
+                  "item_id": "next-planning-horizon",
+                  "item_type": "planning_horizon",
+                  "position": "next",
+                  "label": "Planning Horizon"
+                },
+                {
+                  "item_id": "next-maintain-direction",
+                  "item_type": "maintain_direction",
+                  "position": "next",
+                  "label": "Maintain Direction"
+                },
+                {
+                  "item_id": "later-future-direction",
+                  "item_type": "future_direction",
+                  "position": "later",
+                  "label": "Future Direction"
+                },
+                {
+                  "item_id": "later-future-placeholder",
+                  "item_type": "future_placeholder",
+                  "position": "later",
+                  "label": "Future Placeholder"
+                },
+                {
+                  "item_id": "moment-moment-c864ebb26acb4ac39162cd5f5b25b671",
+                  "item_type": "dj_moment",
+                  "position": "next",
+                  "label": "Stilte",
+                  "moment_id": "moment-c864ebb26acb4ac39162cd5f5b25b671",
+                  "moment_type": "silence"
+                },
+                {
+                  "item_id": "moment-moment-837b1f31fb0a4af9b2a20da39c94d3ac",
+                  "item_type": "dj_moment",
+                  "position": "next",
+                  "label": "Exact edition",
+                  "moment_id": "moment-837b1f31fb0a4af9b2a20da39c94d3ac",
+                  "moment_type": "album"
+                }
+              ]
+            },
+            "audience": {
+              "signal_totals": {},
+              "recent_activity": []
+            },
+            "dj_moments": [
+              {
+                "moment_id": "moment-c864ebb26acb4ac39162cd5f5b25b671",
+                "session_id": "session-5ff370e177564de1b12da08c4bc919ef",
+                "created_at": "2026-10-12T18:45:43.576378+00:00",
+                "type": "silence",
+                "knowledge_intent": {
+                  "type": "silence",
+                  "goal": "Do not interrupt the music."
+                },
+                "presentation_intent": {
+                  "source_session_mood": "groove",
+                  "dj_persona": "home_dj",
+                  "tone_of_voice": "warm and conversational",
+                  "energy_level": "groove",
+                  "delivery_style": "short contextual music story",
+                  "voice_style": "persona-guided",
+                  "visual_theme": "music-context",
+                  "importance": "normal",
+                  "maximum_duration_seconds": 25,
+                  "delivery_channels": [
+                    "broadcast",
+                    "owner",
+                    "shared"
+                  ],
+                  "visibility": "session_shared"
+                },
+                "title": "Stilte",
+                "summary": "De dj kiest er bewust voor de muziek niet te onderbreken.",
+                "content": "",
+                "artwork": null,
+                "actions": [],
+                "visibility": "session_shared",
+                "delivery_channels": [
+                  "broadcast",
+                  "owner",
+                  "shared"
+                ],
+                "importance": "normal",
+                "source_references": [],
+                "generation_metadata": {
+                  "reason": "invalid_ai_output",
+                  "validated": "true"
+                }
+              },
+              {
+                "moment_id": "moment-837b1f31fb0a4af9b2a20da39c94d3ac",
+                "session_id": "session-5ff370e177564de1b12da08c4bc919ef",
+                "created_at": "2026-10-12T18:45:43.603247+00:00",
+                "type": "album",
+                "knowledge_intent": {
+                  "type": "album_story",
+                  "goal": "Share one qualified current-track fact."
+                },
+                "presentation_intent": {
+                  "source_session_mood": "groove",
+                  "dj_persona": "home_dj",
+                  "tone_of_voice": "warm and conversational",
+                  "energy_level": "groove",
+                  "delivery_style": "short contextual music story",
+                  "voice_style": "persona-guided",
+                  "visual_theme": "music-context",
+                  "importance": "normal",
+                  "maximum_duration_seconds": 40,
+                  "delivery_channels": [
+                    "broadcast",
+                    "owner",
+                    "shared"
+                  ],
+                  "visibility": "session_shared"
+                },
+                "title": "Exact edition",
+                "summary": "Exact edition",
+                "content": "Een datum bij deze uitgave van Exact edition: Spotify vermeldt 2001-03-04.",
+                "artwork": null,
+                "actions": [],
+                "visibility": "session_shared",
+                "delivery_channels": [
+                  "broadcast",
+                  "owner",
+                  "shared"
+                ],
+                "importance": "normal",
+                "source_references": [
+                  "Spotify"
+                ],
+                "generation_metadata": {
+                  "provider": "Spotify",
+                  "validated": "true"
+                },
+                "source_attribution": {
+                  "provider": "Spotify",
+                  "url": "https://open.spotify.com/album/ZZZZZZZZZZZZZZZZZZZZZZ",
+                  "license": "Spotify metadata display"
+                },
+                "playback_item_id": "63bf0397fbdc1fd1f3fbec76"
+              }
+            ],
+            "presentations": [
+              {
+                "presentation_id": "presentation-moment-c864ebb26acb4ac39162cd5f5b25b671",
+                "source_moment_id": "moment-c864ebb26acb4ac39162cd5f5b25b671",
+                "source_moment_type": "silence",
+                "visibility": "session_shared"
+              },
+              {
+                "presentation_id": "presentation-moment-837b1f31fb0a4af9b2a20da39c94d3ac",
+                "source_moment_id": "moment-837b1f31fb0a4af9b2a20da39c94d3ac",
+                "source_moment_type": "album",
+                "visibility": "session_shared"
+              }
+            ],
+            "broadcast": {
+              "started_at": "2026-10-12T18:45:43.575374+00:00",
+              "snapshot_watermark": 12
+            },
+            "native_delivery": {
+              "schema_version": 1,
+              "session_id": "session-5ff370e177564de1b12da08c4bc919ef",
+              "current_moment_id": "moment-837b1f31fb0a4af9b2a20da39c94d3ac",
+              "active_flow_moment_ids": [],
+              "admissions": [
+                {
+                  "moment_id": "moment-837b1f31fb0a4af9b2a20da39c94d3ac",
+                  "qualification": "qualified",
+                  "current_display_allowed": true,
+                  "active_flow_display_allowed": false,
+                  "source_expires_at": "2026-10-12T19:15:43.603069+00:00",
+                  "display_expires_at": "2026-10-12T18:46:23.603247+00:00",
+                  "executable_actions": [],
+                  "requires_spotify_attribution": true
+                }
+              ],
+              "revocation_scope": "session",
+              "revision": "12b9b26290edea983a352f47"
+            },
+            "session_forecast": {
+              "contract_version": 1,
+              "session_id": "session-5ff370e177564de1b12da08c4bc919ef",
+              "revision": 2,
+              "state": "ready",
+              "issued_at": "2026-10-12T18:45:43.602855+00:00",
+              "valid_until": "2026-10-12T18:47:43.602826+00:00",
+              "nominal_window_seconds": 900,
+              "supported_window_seconds": 900,
+              "current_anchor": {
+                "item_id": "63bf0397fbdc1fd1f3fbec76",
+                "source_url": "https://open.spotify.com/track/0000000000000000000001"
+              },
+              "summary": "Rond Catalog artist kan ik een mooi verband uitlichten, als betrouwbare context daar aanleiding toe geeft.",
+              "sections": [
+                {
+                  "id": "current",
+                  "title": "Nu",
+                  "claim_type": "current",
+                  "text": "Nu speelt: Observed track 1 \u2014 Catalog artist.",
+                  "source_url": "https://open.spotify.com/track/0000000000000000000001"
+                },
+                {
+                  "id": "guidance",
+                  "title": "De komende minuten",
+                  "claim_type": "intention",
+                  "text": "Rond Catalog artist kan ik een mooi verband uitlichten, als betrouwbare context daar aanleiding toe geeft."
+                },
+                {
+                  "id": "aim",
+                  "title": "Waar ik op mik",
+                  "claim_type": "conditional_target",
+                  "text": "Het doel is een gelijkmatige flow die de huidige muzikale draad zonder haast kan dragen."
+                }
+              ],
+              "imagery": []
+            }
+          }
+        },
+        {
+          "moment": {
+            "moment_id": "moment-403530d4c778409797821a83bee2cc0b",
+            "session_id": "session-5ff370e177564de1b12da08c4bc919ef",
+            "created_at": "2026-10-12T18:45:43.873696+00:00",
+            "type": "track",
+            "knowledge_intent": {
+              "type": "track_context",
+              "goal": "Share one qualified current-track fact."
+            },
+            "presentation_intent": {
+              "source_session_mood": "groove",
+              "dj_persona": "home_dj",
+              "tone_of_voice": "warm and conversational",
+              "energy_level": "groove",
+              "delivery_style": "short contextual music story",
+              "voice_style": "persona-guided",
+              "visual_theme": "music-context",
+              "importance": "normal",
+              "maximum_duration_seconds": 40,
+              "delivery_channels": [
+                "broadcast",
+                "owner",
+                "shared"
+              ],
+              "visibility": "session_shared"
+            },
+            "title": "Exact edition",
+            "summary": "Exact edition",
+            "content": "Nog een nummer uit de eerder genoemde uitgave. Spotify dateert deze uitgave van Exact edition op 2001-03-04.",
+            "artwork": null,
+            "actions": [],
+            "visibility": "session_shared",
+            "delivery_channels": [
+              "broadcast",
+              "owner",
+              "shared"
+            ],
+            "importance": "normal",
+            "source_references": [
+              "Spotify"
+            ],
+            "generation_metadata": {
+              "provider": "Spotify",
+              "validated": "true"
+            },
+            "source_attribution": {
+              "provider": "Spotify",
+              "url": "https://open.spotify.com/album/ZZZZZZZZZZZZZZZZZZZZZZ",
+              "license": "Spotify metadata display"
+            }
+          },
+          "snapshot": {
+            "session": {
+              "session_id": "session-5ff370e177564de1b12da08c4bc919ef",
+              "runtime_state": "active",
+              "selected_mood": "groove",
+              "mood_revision": 0,
+              "selected_presence": "balanced",
+              "presence_revision": 0,
+              "locale": "nl"
+            },
+            "playback": {
+              "state": "playing",
+              "item_id": "e876818bdbce007cbc615bff",
+              "title": "Observed track 2",
+              "artist": "Catalog artist",
+              "album": "Exact edition",
+              "target_name": "Own lab",
+              "updated_at": "2026-10-12T18:45:43.871921+00:00",
+              "duration_ms": 300000,
+              "position_ms": 0,
+              "source_url": "https://open.spotify.com/track/0000000000000000000002"
+            },
+            "planner": {
+              "planning_state": "ready",
+              "planning_horizon_minutes": 15,
+              "current_direction": "exploring",
+              "session_direction": {
+                "direction": "exploring",
+                "initialized_at": "2026-10-12T18:45:43.575374+00:00",
+                "updated_at": "2026-10-12T18:45:43.575374+00:00",
+                "start_strategy": "discover"
+              }
+            },
+            "session_flow": {
+              "flow_id": "flow-session-5ff370e177564de1b12da08c4bc919ef",
+              "flow_revision": 3,
+              "planning_horizon_minutes": 15,
+              "created_at": "2026-10-12T18:45:43.873736+00:00",
+              "items": [
+                {
+                  "item_id": "now-current-track",
+                  "item_type": "current_track",
+                  "position": "now",
+                  "label": "Current Track"
+                },
+                {
+                  "item_id": "next-planning-horizon",
+                  "item_type": "planning_horizon",
+                  "position": "next",
+                  "label": "Planning Horizon"
+                },
+                {
+                  "item_id": "next-maintain-direction",
+                  "item_type": "maintain_direction",
+                  "position": "next",
+                  "label": "Maintain Direction"
+                },
+                {
+                  "item_id": "later-future-direction",
+                  "item_type": "future_direction",
+                  "position": "later",
+                  "label": "Future Direction"
+                },
+                {
+                  "item_id": "later-future-placeholder",
+                  "item_type": "future_placeholder",
+                  "position": "later",
+                  "label": "Future Placeholder"
+                },
+                {
+                  "item_id": "moment-moment-c864ebb26acb4ac39162cd5f5b25b671",
+                  "item_type": "dj_moment",
+                  "position": "next",
+                  "label": "Stilte",
+                  "moment_id": "moment-c864ebb26acb4ac39162cd5f5b25b671",
+                  "moment_type": "silence"
+                },
+                {
+                  "item_id": "moment-moment-837b1f31fb0a4af9b2a20da39c94d3ac",
+                  "item_type": "dj_moment",
+                  "position": "next",
+                  "label": "Exact edition",
+                  "moment_id": "moment-837b1f31fb0a4af9b2a20da39c94d3ac",
+                  "moment_type": "album"
+                },
+                {
+                  "item_id": "moment-moment-403530d4c778409797821a83bee2cc0b",
+                  "item_type": "dj_moment",
+                  "position": "next",
+                  "label": "Exact edition",
+                  "moment_id": "moment-403530d4c778409797821a83bee2cc0b",
+                  "moment_type": "track"
+                }
+              ]
+            },
+            "audience": {
+              "signal_totals": {},
+              "recent_activity": []
+            },
+            "dj_moments": [
+              {
+                "moment_id": "moment-c864ebb26acb4ac39162cd5f5b25b671",
+                "session_id": "session-5ff370e177564de1b12da08c4bc919ef",
+                "created_at": "2026-10-12T18:45:43.576378+00:00",
+                "type": "silence",
+                "knowledge_intent": {
+                  "type": "silence",
+                  "goal": "Do not interrupt the music."
+                },
+                "presentation_intent": {
+                  "source_session_mood": "groove",
+                  "dj_persona": "home_dj",
+                  "tone_of_voice": "warm and conversational",
+                  "energy_level": "groove",
+                  "delivery_style": "short contextual music story",
+                  "voice_style": "persona-guided",
+                  "visual_theme": "music-context",
+                  "importance": "normal",
+                  "maximum_duration_seconds": 25,
+                  "delivery_channels": [
+                    "broadcast",
+                    "owner",
+                    "shared"
+                  ],
+                  "visibility": "session_shared"
+                },
+                "title": "Stilte",
+                "summary": "De dj kiest er bewust voor de muziek niet te onderbreken.",
+                "content": "",
+                "artwork": null,
+                "actions": [],
+                "visibility": "session_shared",
+                "delivery_channels": [
+                  "broadcast",
+                  "owner",
+                  "shared"
+                ],
+                "importance": "normal",
+                "source_references": [],
+                "generation_metadata": {
+                  "reason": "invalid_ai_output",
+                  "validated": "true"
+                }
+              },
+              {
+                "moment_id": "moment-837b1f31fb0a4af9b2a20da39c94d3ac",
+                "session_id": "session-5ff370e177564de1b12da08c4bc919ef",
+                "created_at": "2026-10-12T18:45:43.603247+00:00",
+                "type": "album",
+                "knowledge_intent": {
+                  "type": "album_story",
+                  "goal": "Share one qualified current-track fact."
+                },
+                "presentation_intent": {
+                  "source_session_mood": "groove",
+                  "dj_persona": "home_dj",
+                  "tone_of_voice": "warm and conversational",
+                  "energy_level": "groove",
+                  "delivery_style": "short contextual music story",
+                  "voice_style": "persona-guided",
+                  "visual_theme": "music-context",
+                  "importance": "normal",
+                  "maximum_duration_seconds": 40,
+                  "delivery_channels": [
+                    "broadcast",
+                    "owner",
+                    "shared"
+                  ],
+                  "visibility": "session_shared"
+                },
+                "title": "Exact edition",
+                "summary": "Exact edition",
+                "content": "Een datum bij deze uitgave van Exact edition: Spotify vermeldt 2001-03-04.",
+                "artwork": null,
+                "actions": [],
+                "visibility": "session_shared",
+                "delivery_channels": [
+                  "broadcast",
+                  "owner",
+                  "shared"
+                ],
+                "importance": "normal",
+                "source_references": [
+                  "Spotify"
+                ],
+                "generation_metadata": {
+                  "provider": "Spotify",
+                  "validated": "true"
+                },
+                "source_attribution": {
+                  "provider": "Spotify",
+                  "url": "https://open.spotify.com/album/ZZZZZZZZZZZZZZZZZZZZZZ",
+                  "license": "Spotify metadata display"
+                },
+                "playback_item_id": "63bf0397fbdc1fd1f3fbec76"
+              },
+              {
+                "moment_id": "moment-403530d4c778409797821a83bee2cc0b",
+                "session_id": "session-5ff370e177564de1b12da08c4bc919ef",
+                "created_at": "2026-10-12T18:45:43.873696+00:00",
+                "type": "track",
+                "knowledge_intent": {
+                  "type": "track_context",
+                  "goal": "Share one qualified current-track fact."
+                },
+                "presentation_intent": {
+                  "source_session_mood": "groove",
+                  "dj_persona": "home_dj",
+                  "tone_of_voice": "warm and conversational",
+                  "energy_level": "groove",
+                  "delivery_style": "short contextual music story",
+                  "voice_style": "persona-guided",
+                  "visual_theme": "music-context",
+                  "importance": "normal",
+                  "maximum_duration_seconds": 40,
+                  "delivery_channels": [
+                    "broadcast",
+                    "owner",
+                    "shared"
+                  ],
+                  "visibility": "session_shared"
+                },
+                "title": "Exact edition",
+                "summary": "Exact edition",
+                "content": "Nog een nummer uit de eerder genoemde uitgave. Spotify dateert deze uitgave van Exact edition op 2001-03-04.",
+                "artwork": null,
+                "actions": [],
+                "visibility": "session_shared",
+                "delivery_channels": [
+                  "broadcast",
+                  "owner",
+                  "shared"
+                ],
+                "importance": "normal",
+                "source_references": [
+                  "Spotify"
+                ],
+                "generation_metadata": {
+                  "provider": "Spotify",
+                  "validated": "true"
+                },
+                "source_attribution": {
+                  "provider": "Spotify",
+                  "url": "https://open.spotify.com/album/ZZZZZZZZZZZZZZZZZZZZZZ",
+                  "license": "Spotify metadata display"
+                },
+                "playback_item_id": "e876818bdbce007cbc615bff"
+              }
+            ],
+            "presentations": [
+              {
+                "presentation_id": "presentation-moment-c864ebb26acb4ac39162cd5f5b25b671",
+                "source_moment_id": "moment-c864ebb26acb4ac39162cd5f5b25b671",
+                "source_moment_type": "silence",
+                "visibility": "session_shared"
+              },
+              {
+                "presentation_id": "presentation-moment-837b1f31fb0a4af9b2a20da39c94d3ac",
+                "source_moment_id": "moment-837b1f31fb0a4af9b2a20da39c94d3ac",
+                "source_moment_type": "album",
+                "visibility": "session_shared"
+              },
+              {
+                "presentation_id": "presentation-moment-403530d4c778409797821a83bee2cc0b",
+                "source_moment_id": "moment-403530d4c778409797821a83bee2cc0b",
+                "source_moment_type": "track",
+                "visibility": "session_shared"
+              }
+            ],
+            "broadcast": {
+              "started_at": "2026-10-12T18:45:43.575374+00:00",
+              "snapshot_watermark": 18
+            },
+            "native_delivery": {
+              "schema_version": 1,
+              "session_id": "session-5ff370e177564de1b12da08c4bc919ef",
+              "current_moment_id": "moment-403530d4c778409797821a83bee2cc0b",
+              "active_flow_moment_ids": [],
+              "admissions": [
+                {
+                  "moment_id": "moment-837b1f31fb0a4af9b2a20da39c94d3ac",
+                  "qualification": "qualified",
+                  "current_display_allowed": false,
+                  "active_flow_display_allowed": false,
+                  "source_expires_at": "2026-10-12T19:15:43.603069+00:00",
+                  "display_expires_at": "2026-10-12T18:46:23.603247+00:00",
+                  "executable_actions": [],
+                  "requires_spotify_attribution": true
+                },
+                {
+                  "moment_id": "moment-403530d4c778409797821a83bee2cc0b",
+                  "qualification": "qualified",
+                  "current_display_allowed": true,
+                  "active_flow_display_allowed": false,
+                  "source_expires_at": "2026-10-12T19:15:43.603063+00:00",
+                  "display_expires_at": "2026-10-12T18:46:23.873696+00:00",
+                  "executable_actions": [],
+                  "requires_spotify_attribution": true
+                }
+              ],
+              "revocation_scope": "session",
+              "revision": "0b84bec11e2f4bba6869c4c9"
+            },
+            "session_forecast": {
+              "contract_version": 1,
+              "session_id": "session-5ff370e177564de1b12da08c4bc919ef",
+              "revision": 3,
+              "state": "ready",
+              "issued_at": "2026-10-12T18:45:43.873007+00:00",
+              "valid_until": "2026-10-12T18:47:43.872976+00:00",
+              "nominal_window_seconds": 900,
+              "supported_window_seconds": 900,
+              "current_anchor": {
+                "item_id": "e876818bdbce007cbc615bff",
+                "source_url": "https://open.spotify.com/track/0000000000000000000002"
+              },
+              "summary": "Rond Catalog artist kan ik een mooi verband uitlichten, als betrouwbare context daar aanleiding toe geeft.",
+              "sections": [
+                {
+                  "id": "current",
+                  "title": "Nu",
+                  "claim_type": "current",
+                  "text": "Nu speelt: Observed track 2 \u2014 Catalog artist.",
+                  "source_url": "https://open.spotify.com/track/0000000000000000000002"
+                },
+                {
+                  "id": "guidance",
+                  "title": "De komende minuten",
+                  "claim_type": "intention",
+                  "text": "Rond Catalog artist kan ik een mooi verband uitlichten, als betrouwbare context daar aanleiding toe geeft."
+                },
+                {
+                  "id": "aim",
+                  "title": "Waar ik op mik",
+                  "claim_type": "conditional_target",
+                  "text": "Het doel is een gelijkmatige flow die de huidige muzikale draad zonder haast kan dragen."
+                }
+              ],
+              "imagery": []
+            }
+          }
+        }
+      ],
+      "native": {
+        "moment_id": "moment-403530d4c778409797821a83bee2cc0b",
+        "qualification": "qualified",
+        "current_display_allowed": true,
+        "active_flow_display_allowed": false,
+        "source_expires_at": "2026-10-12T19:15:43.603063+00:00",
+        "display_expires_at": "2026-10-12T18:46:23.873696+00:00",
+        "executable_actions": [],
+        "requires_spotify_attribution": true
+      },
+      "readability": true,
+      "sourceLinks": true,
+      "spotifyMark": true,
+      "currentTrack": true,
+      "transition": true,
+      "reconnect": true,
+      "realExpiryWaitSeconds": 36.684,
+      "end": true,
+      "CAF": "MODELED_ONLY",
+      "tls": "HTTPS CA verified by driver; Chrome restricted to exact owned fixture leaf SPKI"
+    }
+  ],
+  "native": "NOT_RUN",
+  "installed": "NOT_RUN",
+  "hardware": "NOT_RUN"
+}
