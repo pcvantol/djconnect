@@ -10,6 +10,8 @@ Selected bounded Album→Track continuity: [DJC-CORE-NARRATIVE-ALBUM-CONTINUITY-
 
 Selected Session Forecast: [DJC-CORE-SESSION-FORECAST-V1-20261012](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6123328620); existing Direction parent, source PROTECTED_MERGED, current-only qualified artist imagery, native/visible/upcoming/joint acceptance open. Album1154/1155 terminal before this writer admission; previous version4 preserved in history/20261012. Early contract fixtures allow independently admitted consumer source integration; no automatic dispatch.
 
+Selected ambient convergence: [DJC-CORE-AMBIENT-FACT-MOMENT-CONVERGENCE-V1-20261012](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6125691006); source UNPUBLISHED, qualified Session reuse and passive producer retirement; native/joint acceptance open. Forecast1156/1157 stays closed; version5 preserved in history/20261012. No new source/model/consumer dispatch.
+
 | Producer → consumer | Kind / phase / gate | Hard | AND/OR | Required subset | Evidence |
 |---|---|---|---|---|---|
 | `SLICE::CORE::DJ-PRESENCE-CONTRACT` → `SLICE::CORE::DJ-PRESENCE-POLICY` | implementation_contract / implementation / start | True | AND | Exact policy table/default/ownercontract | Pinned contract and producer fixtures |
@@ -35,3 +37,6 @@ Selected Session Forecast: [DJC-CORE-SESSION-FORECAST-V1-20261012](https://githu
 | `FORECAST::VIBECAST::COMPAT` → `FORECAST::PRODUCT::JOINT` | implementation_contract / integration_acceptance / completion | True | AND | Exact independent owning acceptance receipt for this subset only | docs/product/SESSION_FORECAST_V1.md; Apple87 early6125787020; VibeCast10 early6125787377 |
 | `FORECAST::CORE::CONTRACT` → `FORECAST::VIBECAST::VISIBLE` | implementation_contract / implementation / start | True | AND | Version1 exact producer contract/ordinary paired fixtures | docs/product/SESSION_FORECAST_V1.md; Apple87 early6125787020; VibeCast10 early6125787377 |
 | `FORECAST::CORE::CONTRACT` → `FORECAST::CORE::UPCOMING` | implementation_contract / implementation / start | True | AND | Version1 exact producer contract/ordinary paired fixtures | docs/product/SESSION_FORECAST_V1.md; Apple87 early6125787020; VibeCast10 early6125787377 |
+| `AMBIENT::CORE::CONVERGENCE` → `AMBIENT::APPLE::JOIN` | implementation_contract / implementation / start | True | AND | Exact reviewed producer contract/fixtures | docs/product/AMBIENT_FACT_MOMENT_CONVERGENCE_V1.md |
+| `AMBIENT::CORE::CONVERGENCE` → `AMBIENT::PRODUCT::JOINT` | implementation_contract / integration_acceptance / completion | True | AND | Exact owning acceptance receipt | docs/product/AMBIENT_FACT_MOMENT_CONVERGENCE_V1.md |
+| `AMBIENT::APPLE::JOIN` → `AMBIENT::PRODUCT::JOINT` | implementation_contract / integration_acceptance / completion | True | AND | Exact owning acceptance receipt | docs/product/AMBIENT_FACT_MOMENT_CONVERGENCE_V1.md |

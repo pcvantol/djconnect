@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "assignment": "DJC-CORE-AMBIENT-FACT-MOMENT-CONVERGENCE-V1-20261012",
+  "base": "de0e1fccbfdb0f8ffc5a58c77c209919f4cf00de",
+  "runtime_code_pin": "1527b2ae1a6ae3a2cb07f30f157b26f0df1cda62",
+  "source_delivery": "UNPUBLISHED",
+  "source_audit": "PASS",
+  "content_coverage": "EXISTING_QUALIFIED_FAMILIES_REUSED_UNSUPPORTED_ANECDOTES_GAP",
+  "legacy_producer_retired": "ISOLATED_REAL_HA_PASS",
+  "canonical_moment_reuse": "ISOLATED_REAL_HA_PASS_20_PERSONA_LANGUAGE_CHAINS",
+  "regression": {
+    "tests": 1761,
+    "skips": 7,
+    "result": "PASS"
+  },
+  "owning_coverage": {
+    "tests": 83,
+    "result": "PASS",
+    "aggregate_percent": 75,
+    "boundary": "Existing broad-module residual branches disclosed; no new runtime branch"
+  },
+  "dag": {
+    "tests": 131,
+    "generated_views": 23,
+    "schema_references_unique_acyclic": "PASS"
+  },
+  "explicit_conversation_history": {
+    "actual_ha_requests": 27,
+    "presence": "music_only",
+    "result": "PASS"
+  },
+  "browser": {
+    "sequences": 4,
+    "local_static_portrait_landscape": "PASS",
+    "caf": "MODELED_ONLY",
+    "actual_expiry_wait_seconds": [
+      36.649,
+      36.681,
+      36.7,
+      36.684
+    ]
+  },
+  "duration": {
+    "seconds": 60.185,
+    "observations": 40,
+    "bounded_memory": true,
+    "catchup": false,
+    "observed_spacing_seconds": 200,
+    "wall_spacing_seconds": 1.5
+  },
+  "apple_source_audit": "ORIGIN_SYSTEM_CARD_AND_EXISTING_NATIVE_FIELDS_PRESERVED_READ_ONLY",
+  "apple_qual": "NOT_RUN",
+  "apple_handoff": "https://github.com/pcvantol/djconnect-app/issues/87#issuecomment-6130451688",
+  "vibecast_compat": "CORE_BROADCAST_BROWSER_SOFTWARE_PASS",
+  "canonical_files_merged": "NO",
+  "joint_acceptance": "OPEN",
+  "native": "NOT_RUN",
+  "installed": "NOT_RUN",
+  "hardware": "NOT_RUN",
+  "live_provider": "NOT_RUN",
+  "evidence_sha256": {
+    "browser-compatibility.json": "598b0f617c4fbb03a45baa47a4200dd46dbd8435d7c5f08df75e1ad13d0578e3",
+    "canonical-session-reuse.json": "7619d2130b812440110fa2ba2c13de7f7216ea8860477e2dc0736f0f6e8767a0",
+    "paired-status-before-after.json": "da005f57543a58cf064ffdb85bedc85d2b72e8d03fba44ed243b8e270fffa7ef"
+  },
+  "security": {
+    "public_fixture_credentials": "NONE_EXPORTED",
+    "bandit": "ONE_UNCHANGED_BASELINE_LOW_B110_DRAIN_RESPONSE",
+    "new_medium_high_findings": 0
+  }
+}

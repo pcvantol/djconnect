@@ -37594,7 +37594,7 @@
     }
   ],
   "planning_maintenance": {
-    "schema_version": "djconnect-federated-planning-delta/5",
+    "schema_version": "djconnect-federated-planning-delta/6",
     "decision_id": "DJC-DJ-PRESENCE-ROADMAP-DESIGN-V1-20261011",
     "decision_url": "https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6110375785",
     "design_date": "2026-10-11",
@@ -37992,6 +37992,69 @@
             ]
           }
         ]
+      },
+      {
+        "id": "AMBIENT::CORE::CONVERGENCE",
+        "title": "Retire passive Ask DJ producer; reuse qualified Session Moments",
+        "lane": "DJC-CORE",
+        "repository": "pcvantol/djconnect",
+        "status": "In progress",
+        "assignment_status": "IN_PROGRESS",
+        "scope": "Retire independent playback-status fact generation/history/last-Ask-DJ; preserve explicit questions, historical records and existing qualified Session chain",
+        "acceptance_boundary": "Core software, Apple native consumer and joint acceptance qualified separately; no new source/model/type or full Stage4 completion",
+        "contract_binding": "docs/product/AMBIENT_FACT_MOMENT_CONVERGENCE_V1.md",
+        "source_ids": [
+          "OWNER-AMBIENT-CONVERGENCE-20261012"
+        ],
+        "parent_reference": "PROJ::ROADMAP::P2-SESSION",
+        "prerequisite_groups": []
+      },
+      {
+        "id": "AMBIENT::APPLE::JOIN",
+        "title": "Verify Session-only proactive content and retained Ask DJ history",
+        "lane": "DJC-APPLE",
+        "repository": "pcvantol/djconnect-app",
+        "status": "Planned",
+        "assignment_status": "NOT_ISSUED",
+        "scope": "Retire independent playback-status fact generation/history/last-Ask-DJ; preserve explicit questions, historical records and existing qualified Session chain",
+        "acceptance_boundary": "Core software, Apple native consumer and joint acceptance qualified separately; no new source/model/type or full Stage4 completion",
+        "contract_binding": "docs/product/AMBIENT_FACT_MOMENT_CONVERGENCE_V1.md",
+        "source_ids": [
+          "OWNER-AMBIENT-CONVERGENCE-20261012"
+        ],
+        "parent_reference": "PROJ::ROADMAP::P2-SESSION",
+        "prerequisite_groups": [
+          {
+            "mode": "AND",
+            "edge_ids": [
+              "AMBIENT-CONTRACT"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "AMBIENT::PRODUCT::JOINT",
+        "title": "Joint ambient convergence acceptance",
+        "lane": "DJC-CORE",
+        "repository": "pcvantol/djconnect",
+        "status": "Planned",
+        "assignment_status": "NOT_ISSUED",
+        "scope": "Retire independent playback-status fact generation/history/last-Ask-DJ; preserve explicit questions, historical records and existing qualified Session chain",
+        "acceptance_boundary": "Core software, Apple native consumer and joint acceptance qualified separately; no new source/model/type or full Stage4 completion",
+        "contract_binding": "docs/product/AMBIENT_FACT_MOMENT_CONVERGENCE_V1.md",
+        "source_ids": [
+          "OWNER-AMBIENT-CONVERGENCE-20261012"
+        ],
+        "parent_reference": "PROJ::ROADMAP::P2-SESSION",
+        "prerequisite_groups": [
+          {
+            "mode": "AND",
+            "edge_ids": [
+              "AMBIENT-JOIN-CORE",
+              "AMBIENT-JOIN-APPLE"
+            ]
+          }
+        ]
       }
     ],
     "edges": [
@@ -38362,16 +38425,64 @@
         "source_ids": [
           "OWNER-SESSION-FORECAST-20261012"
         ]
+      },
+      {
+        "id": "AMBIENT-CONTRACT",
+        "producer": "AMBIENT::CORE::CONVERGENCE",
+        "consumer": "AMBIENT::APPLE::JOIN",
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "start",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "required_subset": "Exact reviewed producer contract/fixtures",
+        "contract_or_evidence": "docs/product/AMBIENT_FACT_MOMENT_CONVERGENCE_V1.md",
+        "reason": "Existing Session content parent; no Forecast/hardware gate or consumer dispatch",
+        "source_ids": [
+          "OWNER-AMBIENT-CONVERGENCE-20261012"
+        ]
+      },
+      {
+        "id": "AMBIENT-JOIN-CORE",
+        "producer": "AMBIENT::CORE::CONVERGENCE",
+        "consumer": "AMBIENT::PRODUCT::JOINT",
+        "kind": "implementation_contract",
+        "phase": "integration_acceptance",
+        "prerequisite_stage": "completion",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "required_subset": "Exact owning acceptance receipt",
+        "contract_or_evidence": "docs/product/AMBIENT_FACT_MOMENT_CONVERGENCE_V1.md",
+        "reason": "Existing Session content parent; no Forecast/hardware gate or consumer dispatch",
+        "source_ids": [
+          "OWNER-AMBIENT-CONVERGENCE-20261012"
+        ]
+      },
+      {
+        "id": "AMBIENT-JOIN-APPLE",
+        "producer": "AMBIENT::APPLE::JOIN",
+        "consumer": "AMBIENT::PRODUCT::JOINT",
+        "kind": "implementation_contract",
+        "phase": "integration_acceptance",
+        "prerequisite_stage": "completion",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "required_subset": "Exact owning acceptance receipt",
+        "contract_or_evidence": "docs/product/AMBIENT_FACT_MOMENT_CONVERGENCE_V1.md",
+        "reason": "Existing Session content parent; no Forecast/hardware gate or consumer dispatch",
+        "source_ids": [
+          "OWNER-AMBIENT-CONVERGENCE-20261012"
+        ]
       }
     ],
     "document_references": [
       {
         "path": "PRODUCT_ROADMAP.md",
-        "sha256": "48d4fcfdddf16b0c68d89569f1b73ee6f8ed0e646746104aedb06bff6bd7b5df"
+        "sha256": "fca235b00b87dcbeaf759fa09574af679ee79d7e0b656f2618e7996e709cddc8"
       },
       {
         "path": "PRODUCT_BACKLOG.md",
-        "sha256": "2c82d9fe170766a469a4c79840c99716a85df86281d5e3c6c0372001c72f4940"
+        "sha256": "5b9bce07aa474b150d3fd9ace2b495398160653d6b17b2634b0bb6988723ea6f"
       },
       {
         "path": "docs/product/DJ_PRESENCE_V1.md",
@@ -38379,11 +38490,11 @@
       },
       {
         "path": "DJ_SESSION_RUNTIME_CONTRACTS.md",
-        "sha256": "ad6c79b96951a9f03bd40a975434e0e17751e032ec16fc9576efd2fb08baa540"
+        "sha256": "6297276bd17f83cd223302c9fbef4b52ac51f2afffeb1f21d73f8e8c570e5430"
       },
       {
         "path": "docs/product/DJ_INTELLIGENCE_ARCHITECTURE.md",
-        "sha256": "15d836cb77c44e9c594cb9b80a73218c01a17d1fed99eec3397e0e7e3d179728"
+        "sha256": "9dabcf986a154461c6e44ecbab78e5df6451d2ea8a571a82f6af03ee04eccb7b"
       },
       {
         "path": "docs/product/DJ_PRESENTATION_ARCHITECTURE.md",
@@ -38415,7 +38526,7 @@
       },
       {
         "path": "docs/product/DJ_INTELLIGENCE_MATURITY.md",
-        "sha256": "258e37a6dc5b173ddd8bf65e4550e6282cefedc8f9373f1d64bc3e064bf484ee"
+        "sha256": "d2a15f03caf8befd843f7c1c19795565b3d634314a192f501041513f30215705"
       },
       {
         "path": "docs/product/SHARED_PRODUCER_CONTINUITY_CONTRACT.md",
@@ -38460,6 +38571,10 @@
       {
         "path": "docs/product/VIBECAST_SHARED_RENDERER_BUILD_CONTRACT.md",
         "sha256": "58770fba4d57670dcf2299826a5dcf7908b2c226b8d55d7da6398e36c46d28e1"
+      },
+      {
+        "path": "docs/product/AMBIENT_FACT_MOMENT_CONVERGENCE_V1.md",
+        "sha256": "43b7927f329ee332cfed50d514bca83852b65b10b741bb0751817793fa0b6454"
       }
     ],
     "implementation_receipt": {
@@ -38576,6 +38691,24 @@
       "formal_evidence_sha256": "5271704d54b373d383e265affc6dca87387fdfbdb78cfb03dc914c5d345b7d32",
       "apple_handoff": "https://github.com/pcvantol/djconnect-app/issues/87#issuecomment-6128709378",
       "vibecast_handoff": "https://github.com/pcvantol/djconnect-vibecast-receiver/issues/10#issuecomment-6128709669"
+    },
+    "ambient_receipt": {
+      "assignment_id": "DJC-CORE-AMBIENT-FACT-MOMENT-CONVERGENCE-V1-20261012",
+      "selection_url": "https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6125691006",
+      "base_sha": "de0e1fccbfdb0f8ffc5a58c77c209919f4cf00de",
+      "branch": "codex/ambient-fact-moment-convergence-v1",
+      "ack": 6130114697,
+      "material_start": 6130237795,
+      "parent_node": "PROJ::ROADMAP::P2-SESSION",
+      "phase": "LOCAL_IMPLEMENTATION_AND_QUALIFICATION",
+      "source_delivery": "UNPUBLISHED",
+      "native": "NOT_RUN",
+      "installed": "NOT_RUN",
+      "hardware": "NOT_RUN",
+      "joint_product_acceptance": "OPEN",
+      "disposition": "RETIREMENT_ONLY_QUALIFIED_SESSION_REUSE",
+      "previous_delta": "history/20261012/forecast-maintenance-v5.json",
+      "previous_delta_sha256": "49ee6097081cb04de81a2b495fb471c5df1ed7a3d9a7b5d3bf45eef60bd19f53"
     }
   }
 }

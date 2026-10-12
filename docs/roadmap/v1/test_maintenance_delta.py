@@ -40,67 +40,119 @@ class MaintenanceTests(unittest.TestCase):
                     self.assertTrue((ROOT / name).parent.joinpath(link).exists(), (name, link))
 
     def test_only_selected_core_nodes_in_progress_and_joint_stays_planned(self):
-        d=self.p["planning_maintenance"]
+        d = self.p["planning_maintenance"]
         self.assertFalse(d["execution_authority"])
         self.assertFalse(d["automatic_dispatch"])
-        selected={"SLICE::CORE::DJ-PRESENCE-CONTRACT","SLICE::CORE::DJ-PRESENCE-POLICY"}
+        selected = {"SLICE::CORE::DJ-PRESENCE-CONTRACT", "SLICE::CORE::DJ-PRESENCE-POLICY"}
         for n in d["nodes"]:
             if n["id"] in selected:
-                delivered=d["implementation_receipt"]["source_delivery"]=="PROTECTED_MERGED"
-                self.assertEqual((n["status"],n["assignment_status"]), ("Completed","CORE_DELIVERED") if delivered else ("In progress","IN_PROGRESS"))
+                delivered = d["implementation_receipt"]["source_delivery"] == "PROTECTED_MERGED"
+                self.assertEqual(
+                    (n["status"], n["assignment_status"]),
+                    ("Completed", "CORE_DELIVERED")
+                    if delivered
+                    else ("In progress", "IN_PROGRESS"),
+                )
             elif n["id"] == "CORRECTION::CORE::DISCOVERY-ARTWORK":
                 receipt = d["correction_receipts"][0]
-                expected = ("Completed", "CORE_DELIVERED") if receipt["source_delivery"] == "PROTECTED_MERGED" else ("In progress", "IN_PROGRESS")
+                expected = (
+                    ("Completed", "CORE_DELIVERED")
+                    if receipt["source_delivery"] == "PROTECTED_MERGED"
+                    else ("In progress", "IN_PROGRESS")
+                )
                 self.assertEqual((n["status"], n["assignment_status"]), expected)
             elif n["id"] == "RELATION::CORE::ALBUM-CONTINUITY":
-                delivered=d["narrative_receipt"]["source_delivery"]=="PROTECTED_MERGED"
-                self.assertEqual((n["status"],n["assignment_status"]), ("Completed","CORE_DELIVERED") if delivered else ("In progress","IN_PROGRESS"))
-            elif n["id"] in {"FORECAST::CORE::CONTRACT", "FORECAST::CORE::PROJECTION", "FORECAST::VIBECAST::COMPAT"}:
-                delivered=d["forecast_receipt"]["source_delivery"]=="PROTECTED_MERGED"
-                self.assertEqual((n["status"],n["assignment_status"]), ("Completed","CORE_DELIVERED") if delivered else ("In progress","IN_PROGRESS"))
+                delivered = d["narrative_receipt"]["source_delivery"] == "PROTECTED_MERGED"
+                self.assertEqual(
+                    (n["status"], n["assignment_status"]),
+                    ("Completed", "CORE_DELIVERED")
+                    if delivered
+                    else ("In progress", "IN_PROGRESS"),
+                )
+            elif n["id"] in {
+                "FORECAST::CORE::CONTRACT",
+                "FORECAST::CORE::PROJECTION",
+                "FORECAST::VIBECAST::COMPAT",
+            }:
+                delivered = d["forecast_receipt"]["source_delivery"] == "PROTECTED_MERGED"
+                self.assertEqual(
+                    (n["status"], n["assignment_status"]),
+                    ("Completed", "CORE_DELIVERED")
+                    if delivered
+                    else ("In progress", "IN_PROGRESS"),
+                )
+            elif n["id"] == "AMBIENT::CORE::CONVERGENCE":
+                delivered = d["ambient_receipt"]["source_delivery"] == "PROTECTED_MERGED"
+                self.assertEqual(
+                    (n["status"], n["assignment_status"]),
+                    ("Completed", "CORE_DELIVERED")
+                    if delivered
+                    else ("In progress", "IN_PROGRESS"),
+                )
             elif "ACTIVE-SESSION-MOOD" not in n["id"]:
-                self.assertEqual((n["status"],n["assignment_status"]),("Planned","NOT_ISSUED"))
-        receipt=d["implementation_receipt"]
-        prior=(ROOT/receipt["previous_delta"]).read_bytes()
-        self.assertEqual(hashlib.sha256(prior).hexdigest(),receipt["previous_delta_sha256"])
+                self.assertEqual((n["status"], n["assignment_status"]), ("Planned", "NOT_ISSUED"))
+        receipt = d["implementation_receipt"]
+        prior = (ROOT / receipt["previous_delta"]).read_bytes()
+        self.assertEqual(hashlib.sha256(prior).hexdigest(), receipt["previous_delta_sha256"])
         import json
-        old=copy.deepcopy(self.p)
-        old["planning_maintenance"]=json.loads(prior)
-        self.assertEqual(validate(old),[])
-        self.assertTrue(all(n["status"]=="Planned" for n in old["planning_maintenance"]["nodes"]
-                            if "ACTIVE-SESSION-MOOD" not in n["id"]))
+
+        old = copy.deepcopy(self.p)
+        old["planning_maintenance"] = json.loads(prior)
+        self.assertEqual(validate(old), [])
+        self.assertTrue(
+            all(
+                n["status"] == "Planned"
+                for n in old["planning_maintenance"]["nodes"]
+                if "ACTIVE-SESSION-MOOD" not in n["id"]
+            )
+        )
 
     def test_consumer_dispatch_and_unproven_delivery_rejected(self):
         for mutate in [
-            lambda d:d["implementation_receipt"].update(selection_url="wrong"),
-            lambda d:d["implementation_receipt"].update(native="PASS"),
-            lambda d:d["implementation_receipt"].update(source_delivery="MERGED"),
-            lambda d:d["implementation_receipt"].update(joint_product_acceptance="COMPLETE"),
-            lambda d:next(n for n in d["nodes"] if n["lane"]=="DJC-APPLE").update(assignment_status="IN_PROGRESS"),
+            lambda d: d["implementation_receipt"].update(selection_url="wrong"),
+            lambda d: d["implementation_receipt"].update(native="PASS"),
+            lambda d: d["implementation_receipt"].update(source_delivery="MERGED"),
+            lambda d: d["implementation_receipt"].update(joint_product_acceptance="COMPLETE"),
+            lambda d: next(n for n in d["nodes"] if n["lane"] == "DJC-APPLE").update(
+                assignment_status="IN_PROGRESS"
+            ),
         ]:
-            p=copy.deepcopy(self.p)
+            p = copy.deepcopy(self.p)
             mutate(p["planning_maintenance"])
             self.assertTrue(validate(p))
 
     def test_delivery_requires_exact_receipts_and_preserves_joint_gate(self):
-        p=copy.deepcopy(self.p)
-        d=p["planning_maintenance"]
-        r=d["implementation_receipt"]
+        p = copy.deepcopy(self.p)
+        d = p["planning_maintenance"]
+        r = d["implementation_receipt"]
         # The negative fixture must stay missing evidence after real delivery.
-        for key in ("source_main_sha", "source_pr", "source_review", "required_checks",
-                    "protected_merge", "archive_sha256", "formal_evidence_sha256"):
+        for key in (
+            "source_main_sha",
+            "source_pr",
+            "source_review",
+            "required_checks",
+            "protected_merge",
+            "archive_sha256",
+            "formal_evidence_sha256",
+        ):
             r.pop(key, None)
-        r.update(phase="SOURCE_PROTECTED_MERGED",source_delivery="PROTECTED_MERGED")
+        r.update(phase="SOURCE_PROTECTED_MERGED", source_delivery="PROTECTED_MERGED")
         for n in d["nodes"]:
-            if n["id"] in {"SLICE::CORE::DJ-PRESENCE-CONTRACT","SLICE::CORE::DJ-PRESENCE-POLICY"}:
-                n.update(status="Completed",assignment_status="CORE_DELIVERED")
+            if n["id"] in {"SLICE::CORE::DJ-PRESENCE-CONTRACT", "SLICE::CORE::DJ-PRESENCE-POLICY"}:
+                n.update(status="Completed", assignment_status="CORE_DELIVERED")
         self.assertTrue(validate(p))
-        r.update(source_main_sha="a"*40,source_pr="https://github.com/pcvantol/djconnect/pull/9999",
-                 source_review="PASS",required_checks="PASS",protected_merge=True,
-                 archive_sha256="b"*64,formal_evidence_sha256="c"*64)
-        self.assertEqual(validate(p),[])  # Structural fixture, never remote acceptance.
-        joint=next(n for n in d["nodes"] if n["id"]=="QUAL::PRODUCT::DJ-PRESENCE-V1")
-        joint["status"]="Completed"
+        r.update(
+            source_main_sha="a" * 40,
+            source_pr="https://github.com/pcvantol/djconnect/pull/9999",
+            source_review="PASS",
+            required_checks="PASS",
+            protected_merge=True,
+            archive_sha256="b" * 64,
+            formal_evidence_sha256="c" * 64,
+        )
+        self.assertEqual(validate(p), [])  # Structural fixture, never remote acceptance.
+        joint = next(n for n in d["nodes"] if n["id"] == "QUAL::PRODUCT::DJ-PRESENCE-V1")
+        joint["status"] = "Completed"
         self.assertTrue(validate(p))
 
     def test_duplicate_orphan_cycle_and_false_authority_rejected(self):
@@ -131,57 +183,121 @@ class MaintenanceTests(unittest.TestCase):
         self.p["created_at"] = "2026-10-11"
         self.assertTrue(any("frozen content changed" in e for e in validate(self.p)))
 
-
     def test_artwork_correction_history_and_authority_are_bounded(self):
         d = self.p["planning_maintenance"]
         c = d["correction_receipts"][0]
         prior = (ROOT / c["previous_delta"]).read_bytes()
         self.assertEqual(hashlib.sha256(prior).hexdigest(), c["previous_delta_sha256"])
         import json
+
         old = copy.deepcopy(self.p)
         old["planning_maintenance"] = json.loads(prior)
         self.assertEqual(validate(old), [])
-        self.assertEqual(old["planning_maintenance"]["implementation_receipt"], d["implementation_receipt"])
+        self.assertEqual(
+            old["planning_maintenance"]["implementation_receipt"], d["implementation_receipt"]
+        )
         for mutate in (
             lambda x: x["correction_receipts"][0].update(selection_url="wrong"),
             lambda x: x["correction_receipts"][0].update(native="PASS"),
-            lambda x: x["correction_receipts"][0].update(phase="SOURCE_PROTECTED_MERGED", source_delivery="PROTECTED_MERGED", source_main_sha=""),
+            lambda x: x["correction_receipts"][0].update(
+                phase="SOURCE_PROTECTED_MERGED",
+                source_delivery="PROTECTED_MERGED",
+                source_main_sha="",
+            ),
             lambda x: x["nodes"][-1].update(status="In progress", assignment_status="IN_PROGRESS"),
         ):
             changed = copy.deepcopy(self.p)
             mutate(changed["planning_maintenance"])
             self.assertTrue(validate(changed))
 
-
     def test_narrative_closed_admission_and_no_full_stage_promotion(self):
         if "narrative_receipt" not in self.p["planning_maintenance"]:
             self.skipTest("Historical delta has no album relation")
-        for key, value in (("stage4_status", "Completed"), ("native", "PASS"),
-                           ("base_sha", "0"*40), ("selection_authority", "AUTOMATIC"),
-                           ("source_delivery", "UNPUBLISHED" if self.p["planning_maintenance"]["narrative_receipt"]["source_delivery"] == "PROTECTED_MERGED" else "PROTECTED_MERGED")):
-            p=copy.deepcopy(self.p)
-            p["planning_maintenance"]["narrative_receipt"][key]=value
+        for key, value in (
+            ("stage4_status", "Completed"),
+            ("native", "PASS"),
+            ("base_sha", "0" * 40),
+            ("selection_authority", "AUTOMATIC"),
+            (
+                "source_delivery",
+                "UNPUBLISHED"
+                if self.p["planning_maintenance"]["narrative_receipt"]["source_delivery"]
+                == "PROTECTED_MERGED"
+                else "PROTECTED_MERGED",
+            ),
+        ):
+            p = copy.deepcopy(self.p)
+            p["planning_maintenance"]["narrative_receipt"][key] = value
             self.assertTrue(validate(p), key)
-        p=copy.deepcopy(self.p)
-        p["planning_maintenance"]["nodes"].append(copy.deepcopy(p["planning_maintenance"]["nodes"][-1]))
+        p = copy.deepcopy(self.p)
+        p["planning_maintenance"]["nodes"].append(
+            copy.deepcopy(p["planning_maintenance"]["nodes"][-1])
+        )
         self.assertTrue(validate(p))
 
     def test_forecast_parent_history_and_claim_gates(self):
-        d=self.p["planning_maintenance"]
+        d = self.p["planning_maintenance"]
         if "forecast_receipt" not in d:
             self.skipTest("Historical snapshot has no selected Forecast")
-        f=d["forecast_receipt"]
-        self.assertEqual(hashlib.sha256((ROOT/f["previous_delta"]).read_bytes()).hexdigest(), f["previous_delta_sha256"])
+        f = d["forecast_receipt"]
+        self.assertEqual(
+            hashlib.sha256((ROOT / f["previous_delta"]).read_bytes()).hexdigest(),
+            f["previous_delta_sha256"],
+        )
         self.assertEqual(f["parent_node"], "PROJ::ROADMAP::DIRECTION")
-        for key,value in (("native","PASS"),("joint_product_acceptance","COMPLETE"),
-                          ("upcoming_media","QUALIFIED"),("parent_node","NEW-PLANNER")):
-            p=copy.deepcopy(self.p)
-            p["planning_maintenance"]["forecast_receipt"][key]=value
+        for key, value in (
+            ("native", "PASS"),
+            ("joint_product_acceptance", "COMPLETE"),
+            ("upcoming_media", "QUALIFIED"),
+            ("parent_node", "NEW-PLANNER"),
+        ):
+            p = copy.deepcopy(self.p)
+            p["planning_maintenance"]["forecast_receipt"][key] = value
             self.assertTrue(validate(p), key)
-        joined=next(n for n in d["nodes"] if n["id"]=="FORECAST::PRODUCT::JOINT")
-        self.assertEqual(len(joined["prerequisite_groups"][0]["edge_ids"]),3)
-        self.assertEqual(joined["prerequisite_groups"][0]["mode"],"AND")
+        joined = next(n for n in d["nodes"] if n["id"] == "FORECAST::PRODUCT::JOINT")
+        self.assertEqual(len(joined["prerequisite_groups"][0]["edge_ids"]), 3)
+        self.assertEqual(joined["prerequisite_groups"][0]["mode"], "AND")
 
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class AmbientMaintenanceTests(unittest.TestCase):
+    def setUp(self):
+        self.plan = load(ROOT / "djconnect-platform-v1.json")
+
+    def test_ambient_previous_delta_and_scope(self):
+        d = self.plan["planning_maintenance"]
+        a = d["ambient_receipt"]
+        prior = (ROOT / a["previous_delta"]).read_bytes()
+        self.assertEqual(hashlib.sha256(prior).hexdigest(), a["previous_delta_sha256"])
+        import json
+
+        old = copy.deepcopy(self.plan)
+        old["planning_maintenance"] = json.loads(prior)
+        self.assertEqual(validate(old), [])
+        self.assertEqual(old["planning_maintenance"]["forecast_receipt"], d["forecast_receipt"])
+        nodes = {n["id"] for n in d["nodes"] if n["id"].startswith("AMBIENT::")}
+        self.assertEqual(
+            nodes, {"AMBIENT::CORE::CONVERGENCE", "AMBIENT::APPLE::JOIN", "AMBIENT::PRODUCT::JOINT"}
+        )
+        self.assertFalse(
+            any(
+                e["producer"].startswith("FORECAST::") and e["consumer"] in nodes
+                for e in d["edges"]
+            )
+        )
+
+    def test_unqualified_ambient_delivery_and_scope_rejected(self):
+        for key, value in (
+            ("source_delivery", "PROTECTED_MERGED"),
+            ("parent_node", "PROJ::ROADMAP::DIRECTION"),
+            ("disposition", "NEW_PROVIDER"),
+            ("native", "PASS"),
+            ("joint_product_acceptance", "PASS"),
+            ("selection_url", "wrong"),
+        ):
+            p = copy.deepcopy(self.plan)
+            p["planning_maintenance"]["ambient_receipt"][key] = value
+            self.assertTrue(validate(p), (key, value))

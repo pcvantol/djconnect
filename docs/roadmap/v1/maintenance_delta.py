@@ -27,89 +27,347 @@ def validate_delta(plan: dict[str, Any]) -> list[str]:
             errors.append("maintenance: " + reason)
 
     version = d.get("schema_version")
-    implementation = version in {"djconnect-federated-planning-delta/2", "djconnect-federated-planning-delta/3", "djconnect-federated-planning-delta/4", "djconnect-federated-planning-delta/5"}
-    artwork = version in {"djconnect-federated-planning-delta/3", "djconnect-federated-planning-delta/4", "djconnect-federated-planning-delta/5"}
-    narrative = version in {"djconnect-federated-planning-delta/4", "djconnect-federated-planning-delta/5"}
-    forecast = version == "djconnect-federated-planning-delta/5"
+    implementation = version in {
+        "djconnect-federated-planning-delta/2",
+        "djconnect-federated-planning-delta/3",
+        "djconnect-federated-planning-delta/4",
+        "djconnect-federated-planning-delta/5",
+        "djconnect-federated-planning-delta/6",
+    }
+    artwork = version in {
+        "djconnect-federated-planning-delta/3",
+        "djconnect-federated-planning-delta/4",
+        "djconnect-federated-planning-delta/5",
+        "djconnect-federated-planning-delta/6",
+    }
+    narrative = version in {
+        "djconnect-federated-planning-delta/4",
+        "djconnect-federated-planning-delta/5",
+        "djconnect-federated-planning-delta/6",
+    }
+    forecast = version in {
+        "djconnect-federated-planning-delta/5",
+        "djconnect-federated-planning-delta/6",
+    }
+    ambient = version == "djconnect-federated-planning-delta/6"
+    ambient_delivered = False
     forecast_delivered = False
-    check(version in {"djconnect-federated-planning-delta/1", "djconnect-federated-planning-delta/2", "djconnect-federated-planning-delta/3", "djconnect-federated-planning-delta/4", "djconnect-federated-planning-delta/5"}, "unsupported schema")
+    check(
+        version
+        in {
+            "djconnect-federated-planning-delta/1",
+            "djconnect-federated-planning-delta/2",
+            "djconnect-federated-planning-delta/3",
+            "djconnect-federated-planning-delta/4",
+            "djconnect-federated-planning-delta/5",
+            "djconnect-federated-planning-delta/6",
+        },
+        "unsupported schema",
+    )
     delivered = False
     if implementation:
         receipt = d.get("implementation_receipt", {})
         delivered = receipt.get("phase") == "SOURCE_PROTECTED_MERGED"
-        check(receipt.get("assignment_id") == "DJC-CORE-DJ-PRESENCE-V1-20261011", "implementation assignment binding missing")
-        check(receipt.get("selection_url") == "https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6111222122", "implementation owner binding missing")
-        check(receipt.get("joint_product_acceptance") == "OPEN", "joint acceptance remains Planned without native receipts")
-        check(receipt.get("native") == "NOT_RUN" and receipt.get("installed") == "NOT_RUN" and receipt.get("hardware") == "NOT_RUN", "unqualified consumer effect")
-        check(receipt.get("phase") in {"LOCAL_IMPLEMENTATION_AND_QUALIFICATION", "SOURCE_PROTECTED_MERGED"}, "unqualified delivery phase")
-        check(receipt.get("source_delivery") == ("PROTECTED_MERGED" if delivered else "UNPUBLISHED"), "unqualified delivery phase")
+        check(
+            receipt.get("assignment_id") == "DJC-CORE-DJ-PRESENCE-V1-20261011",
+            "implementation assignment binding missing",
+        )
+        check(
+            receipt.get("selection_url")
+            == "https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6111222122",
+            "implementation owner binding missing",
+        )
+        check(
+            receipt.get("joint_product_acceptance") == "OPEN",
+            "joint acceptance remains Planned without native receipts",
+        )
+        check(
+            receipt.get("native") == "NOT_RUN"
+            and receipt.get("installed") == "NOT_RUN"
+            and receipt.get("hardware") == "NOT_RUN",
+            "unqualified consumer effect",
+        )
+        check(
+            receipt.get("phase")
+            in {"LOCAL_IMPLEMENTATION_AND_QUALIFICATION", "SOURCE_PROTECTED_MERGED"},
+            "unqualified delivery phase",
+        )
+        check(
+            receipt.get("source_delivery") == ("PROTECTED_MERGED" if delivered else "UNPUBLISHED"),
+            "unqualified delivery phase",
+        )
         if delivered:
-            check(bool(re.fullmatch(r"[a-f0-9]{40}", str(receipt.get("source_main_sha", "")))), "exact source main receipt missing")
-            check(bool(re.fullmatch(r"https://github.com/pcvantol/djconnect/pull/[0-9]+", str(receipt.get("source_pr", "")))), "source PR receipt missing")
-            check(receipt.get("source_review") == "PASS" and receipt.get("required_checks") == "PASS" and receipt.get("protected_merge") is True, "protected delivery evidence missing")
-            check(all(bool(re.fullmatch(r"[a-f0-9]{64}", str(receipt.get(k, "")))) for k in ("archive_sha256", "formal_evidence_sha256")), "exact artifact readback missing")
-        check(receipt.get("previous_delta") == "history/20261011/presence-design-maintenance-v1.json" and len(str(receipt.get("previous_delta_sha256", ""))) == 64, "previous version binding missing")
+            check(
+                bool(re.fullmatch(r"[a-f0-9]{40}", str(receipt.get("source_main_sha", "")))),
+                "exact source main receipt missing",
+            )
+            check(
+                bool(
+                    re.fullmatch(
+                        r"https://github.com/pcvantol/djconnect/pull/[0-9]+",
+                        str(receipt.get("source_pr", "")),
+                    )
+                ),
+                "source PR receipt missing",
+            )
+            check(
+                receipt.get("source_review") == "PASS"
+                and receipt.get("required_checks") == "PASS"
+                and receipt.get("protected_merge") is True,
+                "protected delivery evidence missing",
+            )
+            check(
+                all(
+                    bool(re.fullmatch(r"[a-f0-9]{64}", str(receipt.get(k, ""))))
+                    for k in ("archive_sha256", "formal_evidence_sha256")
+                ),
+                "exact artifact readback missing",
+            )
+        check(
+            receipt.get("previous_delta") == "history/20261011/presence-design-maintenance-v1.json"
+            and len(str(receipt.get("previous_delta_sha256", ""))) == 64,
+            "previous version binding missing",
+        )
     correction_delivered = False
     if artwork:
         corrections = d.get("correction_receipts", [])
-        check(isinstance(corrections, list) and len(corrections) == 1, "one bounded correction required")
+        check(
+            isinstance(corrections, list) and len(corrections) == 1,
+            "one bounded correction required",
+        )
         c = corrections[0] if isinstance(corrections, list) and len(corrections) == 1 else {}
         correction_delivered = c.get("phase") == "SOURCE_PROTECTED_MERGED"
-        check(c.get("assignment_id") == "DJC-CORE-DISCOVERY-ARTWORK-CONTINUITY-V1-20261012", "correction assignment binding missing")
-        check(c.get("selection_url") == "https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6117357579", "correction owner binding missing")
-        check(c.get("phase") in {"LOCAL_IMPLEMENTATION_AND_QUALIFICATION", "SOURCE_PROTECTED_MERGED"}, "unqualified correction phase")
-        check(c.get("source_delivery") == ("PROTECTED_MERGED" if correction_delivered else "UNPUBLISHED"), "unqualified correction delivery")
-        check(all(c.get(k) == "NOT_RUN" for k in ("native", "installed", "live_provider")) and c.get("joint_product_acceptance") == "OPEN", "unqualified correction consumer acceptance")
-        check(c.get("previous_delta") == "history/20261012/presence-implementation-maintenance-v2.json" and bool(re.fullmatch(r"[a-f0-9]{64}", str(c.get("previous_delta_sha256", "")))), "correction history binding missing")
+        check(
+            c.get("assignment_id") == "DJC-CORE-DISCOVERY-ARTWORK-CONTINUITY-V1-20261012",
+            "correction assignment binding missing",
+        )
+        check(
+            c.get("selection_url")
+            == "https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6117357579",
+            "correction owner binding missing",
+        )
+        check(
+            c.get("phase") in {"LOCAL_IMPLEMENTATION_AND_QUALIFICATION", "SOURCE_PROTECTED_MERGED"},
+            "unqualified correction phase",
+        )
+        check(
+            c.get("source_delivery")
+            == ("PROTECTED_MERGED" if correction_delivered else "UNPUBLISHED"),
+            "unqualified correction delivery",
+        )
+        check(
+            all(c.get(k) == "NOT_RUN" for k in ("native", "installed", "live_provider"))
+            and c.get("joint_product_acceptance") == "OPEN",
+            "unqualified correction consumer acceptance",
+        )
+        check(
+            c.get("previous_delta")
+            == "history/20261012/presence-implementation-maintenance-v2.json"
+            and bool(re.fullmatch(r"[a-f0-9]{64}", str(c.get("previous_delta_sha256", "")))),
+            "correction history binding missing",
+        )
         if correction_delivered:
-            check(bool(re.fullmatch(r"[a-f0-9]{40}", str(c.get("source_main_sha", "")))) and bool(re.fullmatch(r"https://github.com/pcvantol/djconnect/pull/[0-9]+", str(c.get("source_pr", "")))), "correction source receipt missing")
-            check(c.get("source_review") == "PASS" and c.get("required_checks") == "PASS" and c.get("protected_merge") is True, "correction protected checks missing")
-            check(all(bool(re.fullmatch(r"[a-f0-9]{64}", str(c.get(k, "")))) for k in ("archive_sha256", "formal_evidence_sha256")), "correction artifact receipt missing")
+            check(
+                bool(re.fullmatch(r"[a-f0-9]{40}", str(c.get("source_main_sha", ""))))
+                and bool(
+                    re.fullmatch(
+                        r"https://github.com/pcvantol/djconnect/pull/[0-9]+",
+                        str(c.get("source_pr", "")),
+                    )
+                ),
+                "correction source receipt missing",
+            )
+            check(
+                c.get("source_review") == "PASS"
+                and c.get("required_checks") == "PASS"
+                and c.get("protected_merge") is True,
+                "correction protected checks missing",
+            )
+            check(
+                all(
+                    bool(re.fullmatch(r"[a-f0-9]{64}", str(c.get(k, ""))))
+                    for k in ("archive_sha256", "formal_evidence_sha256")
+                ),
+                "correction artifact receipt missing",
+            )
     narrative_delivered = False
     if narrative:
         r = d.get("narrative_receipt", {})
         narrative_delivered = r.get("phase") == "SOURCE_PROTECTED_MERGED"
-        check(r.get("assignment_id") == "DJC-CORE-NARRATIVE-ALBUM-CONTINUITY-V1-20261012", "narrative assignment binding missing")
-        check(r.get("selection_url") == "https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6121336412"
-              and r.get("selection_authority") == "DIRECT_HUMAN_INSTRUCTION", "narrative admission binding missing")
-        check(r.get("base_sha") == "0f37b53cc56f89109a1adcbcf39dd454ba52c72d"
-              and r.get("branch") == "codex/narrative-album-continuity-v1", "narrative base/branch missing")
-        check(r.get("phase") in {"LOCAL_IMPLEMENTATION_AND_QUALIFICATION", "SOURCE_PROTECTED_MERGED"}
-              and r.get("source_delivery") == ("PROTECTED_MERGED" if narrative_delivered else "UNPUBLISHED"), "unqualified narrative phase")
-        check(all(r.get(k) == "NOT_RUN" for k in ("native", "installed", "hardware"))
-              and r.get("joint_product_acceptance") == "OPEN" and r.get("stage4_status") == "PARTIAL", "narrative consumer/stage overclaim")
-        check(r.get("previous_delta") == "history/20261012/artwork-continuity-maintenance-v3.json"
-              and bool(re.fullmatch(r"[a-f0-9]{64}", str(r.get("previous_delta_sha256", "")))), "narrative history binding missing")
+        check(
+            r.get("assignment_id") == "DJC-CORE-NARRATIVE-ALBUM-CONTINUITY-V1-20261012",
+            "narrative assignment binding missing",
+        )
+        check(
+            r.get("selection_url")
+            == "https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6121336412"
+            and r.get("selection_authority") == "DIRECT_HUMAN_INSTRUCTION",
+            "narrative admission binding missing",
+        )
+        check(
+            r.get("base_sha") == "0f37b53cc56f89109a1adcbcf39dd454ba52c72d"
+            and r.get("branch") == "codex/narrative-album-continuity-v1",
+            "narrative base/branch missing",
+        )
+        check(
+            r.get("phase") in {"LOCAL_IMPLEMENTATION_AND_QUALIFICATION", "SOURCE_PROTECTED_MERGED"}
+            and r.get("source_delivery")
+            == ("PROTECTED_MERGED" if narrative_delivered else "UNPUBLISHED"),
+            "unqualified narrative phase",
+        )
+        check(
+            all(r.get(k) == "NOT_RUN" for k in ("native", "installed", "hardware"))
+            and r.get("joint_product_acceptance") == "OPEN"
+            and r.get("stage4_status") == "PARTIAL",
+            "narrative consumer/stage overclaim",
+        )
+        check(
+            r.get("previous_delta") == "history/20261012/artwork-continuity-maintenance-v3.json"
+            and bool(re.fullmatch(r"[a-f0-9]{64}", str(r.get("previous_delta_sha256", "")))),
+            "narrative history binding missing",
+        )
         if narrative_delivered:
-            check(bool(re.fullmatch(r"[a-f0-9]{40}", str(r.get("source_main_sha", ""))))
-                  and bool(re.fullmatch(r"https://github.com/pcvantol/djconnect/pull/[0-9]+", str(r.get("source_pr", "")))), "narrative source receipt missing")
-            check(r.get("source_review") == "PASS" and r.get("required_checks") == "PASS"
-                  and r.get("protected_merge") is True, "narrative protected checks missing")
-            check(all(bool(re.fullmatch(r"[a-f0-9]{64}", str(r.get(k, ""))))
-                      for k in ("archive_sha256", "formal_evidence_sha256")), "narrative artifact receipt missing")
+            check(
+                bool(re.fullmatch(r"[a-f0-9]{40}", str(r.get("source_main_sha", ""))))
+                and bool(
+                    re.fullmatch(
+                        r"https://github.com/pcvantol/djconnect/pull/[0-9]+",
+                        str(r.get("source_pr", "")),
+                    )
+                ),
+                "narrative source receipt missing",
+            )
+            check(
+                r.get("source_review") == "PASS"
+                and r.get("required_checks") == "PASS"
+                and r.get("protected_merge") is True,
+                "narrative protected checks missing",
+            )
+            check(
+                all(
+                    bool(re.fullmatch(r"[a-f0-9]{64}", str(r.get(k, ""))))
+                    for k in ("archive_sha256", "formal_evidence_sha256")
+                ),
+                "narrative artifact receipt missing",
+            )
     if forecast:
         f = d.get("forecast_receipt", {})
         forecast_delivered = f.get("phase") == "SOURCE_PROTECTED_MERGED"
-        check(f.get("assignment_id") == "DJC-CORE-SESSION-FORECAST-V1-20261012"
-              and f.get("selection_url") == "https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6123328620", "forecast owner binding missing")
-        check(f.get("base_sha") == "e26888fc164fac1e5cb41908fd922d5f9a05e0bd"
-              and f.get("branch") == "codex/session-forecast-v1", "forecast base/branch mismatch")
-        check(f.get("parent_node") == "PROJ::ROADMAP::DIRECTION", "existing direction parent required")
-        check(f.get("phase") in {"LOCAL_IMPLEMENTATION_AND_QUALIFICATION", "SOURCE_PROTECTED_MERGED"}
-              and f.get("source_delivery") == ("PROTECTED_MERGED" if forecast_delivered else "UNPUBLISHED"), "unqualified forecast delivery")
-        check(all(f.get(k) == "NOT_RUN" for k in ("native", "installed", "hardware"))
-              and f.get("joint_product_acceptance") == "OPEN" and f.get("visible_vibecast") == "PLANNED"
-              and f.get("upcoming_media") == "UNQUALIFIED_ABSENT", "forecast consumer/upcoming overclaim")
-        check(f.get("artist_imagery_roles") == ["current", "contextual", "qualified_upcoming"]
-              and f.get("artist_imagery_admission") == "CURRENT_ONLY_DISPLAY_BASIS", "imagery admission missing")
-        check(f.get("previous_delta") == "history/20261012/album-continuity-maintenance-v4.json"
-              and bool(re.fullmatch(r"[a-f0-9]{64}", str(f.get("previous_delta_sha256", "")))), "forecast predecessor binding missing")
+        check(
+            f.get("assignment_id") == "DJC-CORE-SESSION-FORECAST-V1-20261012"
+            and f.get("selection_url")
+            == "https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6123328620",
+            "forecast owner binding missing",
+        )
+        check(
+            f.get("base_sha") == "e26888fc164fac1e5cb41908fd922d5f9a05e0bd"
+            and f.get("branch") == "codex/session-forecast-v1",
+            "forecast base/branch mismatch",
+        )
+        check(
+            f.get("parent_node") == "PROJ::ROADMAP::DIRECTION", "existing direction parent required"
+        )
+        check(
+            f.get("phase") in {"LOCAL_IMPLEMENTATION_AND_QUALIFICATION", "SOURCE_PROTECTED_MERGED"}
+            and f.get("source_delivery")
+            == ("PROTECTED_MERGED" if forecast_delivered else "UNPUBLISHED"),
+            "unqualified forecast delivery",
+        )
+        check(
+            all(f.get(k) == "NOT_RUN" for k in ("native", "installed", "hardware"))
+            and f.get("joint_product_acceptance") == "OPEN"
+            and f.get("visible_vibecast") == "PLANNED"
+            and f.get("upcoming_media") == "UNQUALIFIED_ABSENT",
+            "forecast consumer/upcoming overclaim",
+        )
+        check(
+            f.get("artist_imagery_roles") == ["current", "contextual", "qualified_upcoming"]
+            and f.get("artist_imagery_admission") == "CURRENT_ONLY_DISPLAY_BASIS",
+            "imagery admission missing",
+        )
+        check(
+            f.get("previous_delta") == "history/20261012/album-continuity-maintenance-v4.json"
+            and bool(re.fullmatch(r"[a-f0-9]{64}", str(f.get("previous_delta_sha256", "")))),
+            "forecast predecessor binding missing",
+        )
         if forecast_delivered:
-            check(bool(re.fullmatch(r"[a-f0-9]{40}", str(f.get("source_main_sha", ""))))
-                  and bool(re.fullmatch(r"https://github.com/pcvantol/djconnect/pull/[0-9]+", str(f.get("source_pr", "")))), "forecast source receipt missing")
-            check(f.get("source_review") == "PASS" and f.get("required_checks") == "PASS"
-                  and f.get("protected_merge") is True, "forecast protected delivery missing")
-            check(all(bool(re.fullmatch(r"[a-f0-9]{64}", str(f.get(k, "")))) for k in ("archive_sha256", "formal_evidence_sha256")), "forecast artifact receipt missing")
+            check(
+                bool(re.fullmatch(r"[a-f0-9]{40}", str(f.get("source_main_sha", ""))))
+                and bool(
+                    re.fullmatch(
+                        r"https://github.com/pcvantol/djconnect/pull/[0-9]+",
+                        str(f.get("source_pr", "")),
+                    )
+                ),
+                "forecast source receipt missing",
+            )
+            check(
+                f.get("source_review") == "PASS"
+                and f.get("required_checks") == "PASS"
+                and f.get("protected_merge") is True,
+                "forecast protected delivery missing",
+            )
+            check(
+                all(
+                    bool(re.fullmatch(r"[a-f0-9]{64}", str(f.get(k, ""))))
+                    for k in ("archive_sha256", "formal_evidence_sha256")
+                ),
+                "forecast artifact receipt missing",
+            )
+    if ambient:
+        a = d.get("ambient_receipt", {})
+        ambient_delivered = a.get("phase") == "SOURCE_PROTECTED_MERGED"
+        check(
+            a.get("assignment_id") == "DJC-CORE-AMBIENT-FACT-MOMENT-CONVERGENCE-V1-20261012"
+            and a.get("selection_url")
+            == "https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6125691006",
+            "ambient owner binding missing",
+        )
+        check(
+            a.get("parent_node") == "PROJ::ROADMAP::P2-SESSION"
+            and a.get("disposition") == "RETIREMENT_ONLY_QUALIFIED_SESSION_REUSE",
+            "ambient scope mismatch",
+        )
+        check(
+            a.get("phase") in {"LOCAL_IMPLEMENTATION_AND_QUALIFICATION", "SOURCE_PROTECTED_MERGED"}
+            and a.get("source_delivery")
+            == ("PROTECTED_MERGED" if ambient_delivered else "UNPUBLISHED"),
+            "unqualified ambient delivery",
+        )
+        check(
+            all(a.get(k) == "NOT_RUN" for k in ("native", "installed", "hardware"))
+            and a.get("joint_product_acceptance") == "OPEN",
+            "ambient consumer overclaim",
+        )
+        check(
+            a.get("previous_delta") == "history/20261012/forecast-maintenance-v5.json"
+            and bool(re.fullmatch(r"[a-f0-9]{64}", str(a.get("previous_delta_sha256", "")))),
+            "ambient predecessor missing",
+        )
+        if ambient_delivered:
+            check(
+                bool(re.fullmatch(r"[a-f0-9]{40}", str(a.get("source_main_sha", ""))))
+                and bool(
+                    re.fullmatch(
+                        r"https://github.com/pcvantol/djconnect/pull/[0-9]+",
+                        str(a.get("source_pr", "")),
+                    )
+                ),
+                "ambient source receipt missing",
+            )
+            check(
+                a.get("source_review") == "PASS"
+                and a.get("required_checks") == "PASS"
+                and a.get("protected_merge") is True,
+                "ambient protected checks missing",
+            )
+            check(
+                all(
+                    bool(re.fullmatch(r"[a-f0-9]{64}", str(a.get(k, ""))))
+                    for k in ("archive_sha256", "formal_evidence_sha256")
+                ),
+                "ambient artifact receipt missing",
+            )
     check(
         d.get("execution_authority") is False and d.get("automatic_dispatch") is False,
         "no product dispatch authorized",
@@ -127,7 +385,11 @@ def validate_delta(plan: dict[str, Any]) -> list[str]:
         == "https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6110375785",
         "owner reference mismatch",
     )
-    check(d.get("scope") == ("SELECTED_CORE_IMPLEMENTATION_DELTA" if implementation else "DOCUMENTARY_DELTA_ONLY"), "invalid scope")
+    check(
+        d.get("scope")
+        == ("SELECTED_CORE_IMPLEMENTATION_DELTA" if implementation else "DOCUMENTARY_DELTA_ONLY"),
+        "invalid scope",
+    )
     for field in ["nodes", "edges", "document_references"]:
         check(
             isinstance(d.get(field), list) and all(isinstance(x, dict) for x in d.get(field, [])),
@@ -137,24 +399,104 @@ def validate_delta(plan: dict[str, Any]) -> list[str]:
         return errors
     inherited = {n["id"]: n for n in plan["nodes"]}
     nodes = {n.get("id"): n for n in d["nodes"]}
+    if ambient:
+        ambient_nodes = {
+            nid for nid in nodes if isinstance(nid, str) and nid.startswith("AMBIENT::")
+        }
+        check(
+            ambient_nodes
+            == {"AMBIENT::CORE::CONVERGENCE", "AMBIENT::APPLE::JOIN", "AMBIENT::PRODUCT::JOINT"},
+            "one Core convergence, Apple join and joint acceptance required",
+        )
+        check(
+            all(
+                nodes[nid].get("parent_reference") == "PROJ::ROADMAP::P2-SESSION"
+                for nid in ambient_nodes
+            ),
+            "ambient existing Session content parent required",
+        )
+        ambient_edges = [
+            e
+            for e in d["edges"]
+            if e.get("consumer") in ambient_nodes or e.get("producer") in ambient_nodes
+        ]
+        check(
+            {(e.get("producer"), e.get("consumer")) for e in ambient_edges}
+            == {
+                ("AMBIENT::CORE::CONVERGENCE", "AMBIENT::APPLE::JOIN"),
+                ("AMBIENT::CORE::CONVERGENCE", "AMBIENT::PRODUCT::JOINT"),
+                ("AMBIENT::APPLE::JOIN", "AMBIENT::PRODUCT::JOINT"),
+            },
+            "ambient may not invent unrelated prerequisite gates",
+        )
     check(
         len(nodes) == len(d["nodes"]) and None not in nodes and not (set(nodes) & set(inherited)),
         "duplicate or inherited node",
     )
     if artwork:
-        check({nid for nid in nodes if isinstance(nid, str) and nid.startswith("CORRECTION::")} == {"CORRECTION::CORE::DISCOVERY-ARTWORK", "CORRECTION::APPLE::DISCOVERY-ARTWORK-ACCEPTANCE"}, "one existing-capability correction boundary required")
+        check(
+            {nid for nid in nodes if isinstance(nid, str) and nid.startswith("CORRECTION::")}
+            == {
+                "CORRECTION::CORE::DISCOVERY-ARTWORK",
+                "CORRECTION::APPLE::DISCOVERY-ARTWORK-ACCEPTANCE",
+            },
+            "one existing-capability correction boundary required",
+        )
     lanes = {lane["id"]: lane["repository"] for lane in plan["lanes"]}
     for nid, n in nodes.items():
         check(lanes.get(n.get("lane")) == n.get("repository"), "unknown owning lane/repository")
-        presence_admitted = implementation and nid in {"SLICE::CORE::DJ-PRESENCE-CONTRACT", "SLICE::CORE::DJ-PRESENCE-POLICY"}
+        presence_admitted = implementation and nid in {
+            "SLICE::CORE::DJ-PRESENCE-CONTRACT",
+            "SLICE::CORE::DJ-PRESENCE-POLICY",
+        }
         correction_admitted = artwork and nid == "CORRECTION::CORE::DISCOVERY-ARTWORK"
         narrative_admitted = narrative and nid == "RELATION::CORE::ALBUM-CONTINUITY"
-        forecast_admitted = forecast and nid in {"FORECAST::CORE::CONTRACT", "FORECAST::CORE::PROJECTION", "FORECAST::VIBECAST::COMPAT"}
-        admitted = presence_admitted or correction_admitted or narrative_admitted or forecast_admitted
-        node_delivered = forecast_delivered if forecast_admitted else narrative_delivered if narrative_admitted else correction_delivered if correction_admitted else delivered
-        check(n.get("status") in ({"Completed" if node_delivered else "In progress"} if admitted else {"Planned", "Completed"}), "invalid node status")
-        check(n.get("status") == "Planned" or admitted or nid == "SLICE::CORE::ACTIVE-SESSION-MOOD", "unadmitted implementation must remain Planned")
-        check(n.get("assignment_status") == (("CORE_DELIVERED" if node_delivered else "IN_PROGRESS") if admitted else "NOT_ISSUED"), "unadmitted assignment may not start")
+        forecast_admitted = forecast and nid in {
+            "FORECAST::CORE::CONTRACT",
+            "FORECAST::CORE::PROJECTION",
+            "FORECAST::VIBECAST::COMPAT",
+        }
+        ambient_admitted = ambient and nid == "AMBIENT::CORE::CONVERGENCE"
+        admitted = (
+            ambient_admitted
+            or presence_admitted
+            or correction_admitted
+            or narrative_admitted
+            or forecast_admitted
+        )
+        node_delivered = (
+            ambient_delivered
+            if ambient_admitted
+            else forecast_delivered
+            if forecast_admitted
+            else narrative_delivered
+            if narrative_admitted
+            else correction_delivered
+            if correction_admitted
+            else delivered
+        )
+        check(
+            n.get("status")
+            in (
+                {"Completed" if node_delivered else "In progress"}
+                if admitted
+                else {"Planned", "Completed"}
+            ),
+            "invalid node status",
+        )
+        check(
+            n.get("status") == "Planned" or admitted or nid == "SLICE::CORE::ACTIVE-SESSION-MOOD",
+            "unadmitted implementation must remain Planned",
+        )
+        check(
+            n.get("assignment_status")
+            == (
+                ("CORE_DELIVERED" if node_delivered else "IN_PROGRESS")
+                if admitted
+                else "NOT_ISSUED"
+            ),
+            "unadmitted assignment may not start",
+        )
         check(
             all(
                 n.get(k)
@@ -162,7 +504,21 @@ def validate_delta(plan: dict[str, Any]) -> list[str]:
             ),
             "node criteria/provenance missing",
         )
-        check(n.get("source_ids") == (["OWNER-SESSION-FORECAST-20261012"] if forecast and nid.startswith("FORECAST::") else ["OWNER-NARRATIVE-ALBUM-20261012"] if narrative and nid.startswith("RELATION::") else ["OWNER-DISCOVERY-ARTWORK-20261012"] if artwork and nid.startswith("CORRECTION::") else ["OWNER-DJ-PRESENCE-20261011"]), "unqualified provenance")
+        check(
+            n.get("source_ids")
+            == (
+                ["OWNER-AMBIENT-CONVERGENCE-20261012"]
+                if ambient and nid.startswith("AMBIENT::")
+                else ["OWNER-SESSION-FORECAST-20261012"]
+                if forecast and nid.startswith("FORECAST::")
+                else ["OWNER-NARRATIVE-ALBUM-20261012"]
+                if narrative and nid.startswith("RELATION::")
+                else ["OWNER-DISCOVERY-ARTWORK-20261012"]
+                if artwork and nid.startswith("CORRECTION::")
+                else ["OWNER-DJ-PRESENCE-20261011"]
+            ),
+            "unqualified provenance",
+        )
     refs = d["document_references"]
     paths = [r.get("path") for r in refs]
     check(len(paths) == len(set(paths)), "duplicate document reference")
@@ -220,7 +576,21 @@ def validate_delta(plan: dict[str, Any]) -> list[str]:
             ),
             "edge subset/evidence missing",
         )
-        check(e.get("source_ids") == (["OWNER-SESSION-FORECAST-20261012"] if forecast and str(e.get("id", "")).startswith("FORECAST-") else ["OWNER-NARRATIVE-ALBUM-20261012"] if narrative and str(e.get("id", "")).startswith("ALBUM-") else ["OWNER-DISCOVERY-ARTWORK-20261012"] if artwork and str(e.get("id", "")).startswith("ARTWORK-") else ["OWNER-DJ-PRESENCE-20261011"]), "edge provenance mismatch")
+        check(
+            e.get("source_ids")
+            == (
+                ["OWNER-AMBIENT-CONVERGENCE-20261012"]
+                if ambient and str(e.get("id", "")).startswith("AMBIENT-")
+                else ["OWNER-SESSION-FORECAST-20261012"]
+                if forecast and str(e.get("id", "")).startswith("FORECAST-")
+                else ["OWNER-NARRATIVE-ALBUM-20261012"]
+                if narrative and str(e.get("id", "")).startswith("ALBUM-")
+                else ["OWNER-DISCOVERY-ARTWORK-20261012"]
+                if artwork and str(e.get("id", "")).startswith("ARTWORK-")
+                else ["OWNER-DJ-PRESENCE-20261011"]
+            ),
+            "edge provenance mismatch",
+        )
         if e.get("kind") == "strategy_order":
             check(e.get("hard_precedence") is False, "strategy is not hard dependency")
     # Validate all new edges, including soft order, against inherited hard graph.
@@ -251,23 +621,48 @@ def render_delta(p):
     d = p[KEY]
     nodes = {n["id"]: n for n in d["nodes"]}
     inherited = {n["id"]: n for n in p["nodes"]}
-    current = d.get("schema_version") in {"djconnect-federated-planning-delta/2", "djconnect-federated-planning-delta/3", "djconnect-federated-planning-delta/4", "djconnect-federated-planning-delta/5"}
-    artwork = d.get("schema_version") in {"djconnect-federated-planning-delta/3", "djconnect-federated-planning-delta/4", "djconnect-federated-planning-delta/5"}
+    current = d.get("schema_version") in {
+        "djconnect-federated-planning-delta/2",
+        "djconnect-federated-planning-delta/3",
+        "djconnect-federated-planning-delta/4",
+        "djconnect-federated-planning-delta/5",
+        "djconnect-federated-planning-delta/6",
+    }
+    artwork = d.get("schema_version") in {
+        "djconnect-federated-planning-delta/3",
+        "djconnect-federated-planning-delta/4",
+        "djconnect-federated-planning-delta/5",
+        "djconnect-federated-planning-delta/6",
+    }
     delivery = d.get("implementation_receipt", {}).get("source_delivery", "UNPUBLISHED")
     intro = (
         "Generated from djconnect-platform-v1.json, maintenance " + d["decision_id"] + ".\n\n"
         "The original3October snapshot/audit/source pins and projections are immutable history in [history/20261003](history/20261003/README.md). "
         "Only this bounded delta is current here; inherited premerge statuses are not current blockers. "
-        + ("Only the selected existing Core writer is admitted by implementation receipt; no automatic dispatch, second writer or native/installed/hardware acceptance.\n\n" if current else "No portfolio-wide refresh, writer reservation, product dispatch or runtime acceptance is claimed.\n\n")
+        + (
+            "Only the selected existing Core writer is admitted by implementation receipt; no automatic dispatch, second writer or native/installed/hardware acceptance.\n\n"
+            if current
+            else "No portfolio-wide refresh, writer reservation, product dispatch or runtime acceptance is claimed.\n\n"
+        )
     )
     if artwork:
         intro += "Current bounded artwork correction: [owner6117357579](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6117357579). Existing Discovery capability only; source/Finalization gates remain separate, native/installed/live acceptance remains open. Presence source1150/Finalization1151 stays closed. Prior version2 is preserved in history/20261012.\n\n"
-    if d.get("schema_version") in {"djconnect-federated-planning-delta/4", "djconnect-federated-planning-delta/5"}:
+    if d.get("schema_version") in {
+        "djconnect-federated-planning-delta/4",
+        "djconnect-federated-planning-delta/5",
+        "djconnect-federated-planning-delta/6",
+    }:
         r = d["narrative_receipt"]
         intro += f"Selected bounded Album→Track continuity: [{r['assignment_id']}]({r['selection_url']}); source {r['source_delivery']}, Stage4 PARTIAL, joint/native/installed/hardware acceptance open. Artwork1152/1153 is terminal at admitted0f37; prior version3 is preserved in history/20261012. No automatic consumer dispatch or new Core writer.\n\n"
-    if d.get("schema_version") == "djconnect-federated-planning-delta/5":
+    if d.get("schema_version") in {
+        "djconnect-federated-planning-delta/5",
+        "djconnect-federated-planning-delta/6",
+    }:
         f = d["forecast_receipt"]
         intro += f"Selected Session Forecast: [{f['assignment_id']}]({f['selection_url']}); existing Direction parent, source {f['source_delivery']}, current-only qualified artist imagery, native/visible/upcoming/joint acceptance open. Album1154/1155 terminal before this writer admission; previous version4 preserved in history/20261012. Early contract fixtures allow independently admitted consumer source integration; no automatic dispatch.\n\n"
+    if d.get("schema_version") == "djconnect-federated-planning-delta/6":
+        a = d["ambient_receipt"]
+        intro += f"Selected ambient convergence: [{a['assignment_id']}]({a['selection_url']}); source {a['source_delivery']}, qualified Session reuse and passive producer retirement; native/joint acceptance open. Forecast1156/1157 stays closed; version5 preserved in history/20261012. No new source/model/consumer dispatch.\n\n"
     out = {}
     out["README.md"] = (
         "# Federated roadmap — versioned maintenance\n\n"
@@ -303,7 +698,11 @@ def render_delta(p):
             for n in nodes.values()
             if n["status"] != "Completed"
         )
-        + ("\nCore policy/ownercontract status follows the exact implementation receipt. Native/installed/hardware acceptance remains open.\n" if current else "\nPolicy values/budgets/default and exact presence route/schema remain unqualified design details. No runtime/native/browser/installed/hardware PASS.\n")
+        + (
+            "\nCore policy/ownercontract status follows the exact implementation receipt. Native/installed/hardware acceptance remains open.\n"
+            if current
+            else "\nPolicy values/budgets/default and exact presence route/schema remain unqualified design details. No runtime/native/browser/installed/hardware PASS.\n"
+        )
     )
     if current:
         intro += f"Selected implementation [{d['implementation_receipt']['assignment_id']}]({d['implementation_receipt']['selection_url']}); early local contract `{d['implementation_receipt']['early_contract_pin']}`; source delivery {delivery}.\n\n"
@@ -342,7 +741,11 @@ def render_delta(p):
     out["HANDOFFS.md"] = (
         "# Planned handoffs\n\n"
         + intro
-        + ("Core → existing Apple87: exact Discovery feed/scoped image/TTL/error/source fixtures; visible attribution, cached pixels and lifecycle require separate native evidence. No Swift/receiver writer or new provider.\n\n" if artwork else "")
+        + (
+            "Core → existing Apple87: exact Discovery feed/scoped image/TTL/error/source fixtures; visible attribution, cached pixels and lifecycle require separate native evidence. No Swift/receiver writer or new provider.\n\n"
+            if artwork
+            else ""
+        )
         + "Core → Apple: pinned early presence contract/policy fixtures permit contract integration before all Finalization docs. Independent UX preparation is not integrated acceptance.\n\nCore shared renderer → VibeCast: actual authorized varied Broadcast traces on both existing builds; no second renderer.\n\nCore + Apple owning receipts → joint product acceptance, no extra writerlane. Physical/native/installed effects stay separately qualified.\n"
     )
     ids = {nid: "n" + str(i) for i, nid in enumerate([*inherited, *nodes])}
