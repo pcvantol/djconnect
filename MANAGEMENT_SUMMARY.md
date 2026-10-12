@@ -78,8 +78,13 @@ record does not claim completion from local preparation or source merge alone.
 Admission uses the own Finalization branch from exact source-main. Workspace NOT_READY
 until final delivery, main synchronization and safe cleanup of only the two own
 branches. Keep source bundle/review/artifact/formal recovery evidence and all
-unrelated WIP. Cleanup requires exact remote-removal and aggregate content proof
-for squash commits; uncertainty retains refs. No next slice.
+unrelated WIP. Normal cleanup requires merged PR, remote removal, clean main, owned refs and
+no unpublished work. The implementation squash exception requires per-commit
+`git cherry` results all `-`; any `+` retains the ref and Workspace NOT_READY.
+The Finalization delta exception requires every exact commit to reverse-apply
+cleanly on canonical main. Aggregate equality is supplementary recovery evidence,
+never assumed authority: an alternative needs a new explicit bounded owner grant.
+Uncertainty preserves refs and recovery; no next slice.
 
 ## Historical operational context
 
