@@ -1,4 +1,8 @@
 # DJConnect Product Roadmap
+## Ambient fact convergence — selected Core implementation
+
+[DJC-CORE-AMBIENT-FACT-MOMENT-CONVERGENCE-V1-20261012](docs/product/AMBIENT_FACT_MOMENT_CONVERGENCE_V1.md) retires spontaneous playback-status Ask DJ generation/history/last-Ask-DJ effects and reuses the qualified Session content chain. Actual ordinary paired HA baseline is reproduced; source implementation and qualification are local and unpublished. Explicit Ask DJ and historical cards remain supported. Artist/Album/Track/Genre content retains its existing evidence/rights/presence budgets; unsupported historical, cultural and success anecdotes remain a documented gap. Apple consumer join and joint acceptance remain Planned; no installation, new source/model/cost or full Stage4 promotion. Forecast #1156/#1157 stays closed.
+
 
 ## Current: Session Forecast v1 — bounded Core source delivered
 
