@@ -15,5 +15,5 @@ Current bounded artwork correction: [owner6117357579](https://github.com/pcvanto
 | `QUAL::VIBECAST::DJ-PRESENCE-COMPAT` | DJC-VIBECAST | Planned | Local/static presence compatibility |
 | `QUAL::PRODUCT::DJ-PRESENCE-V1` | DJC-CORE | Planned | Joint presence v1 acceptance |
 | `SLICE::CORE::ACTIVE-SESSION-MOOD` | DJC-CORE | Completed | Qualified active Session Mood owner/order subset |
-| `CORRECTION::CORE::DISCOVERY-ARTWORK` | DJC-CORE | In progress | Bounded existing Discovery artwork continuity |
+| `CORRECTION::CORE::DISCOVERY-ARTWORK` | DJC-CORE | Completed | Bounded existing Discovery artwork continuity |
 | `CORRECTION::APPLE::DISCOVERY-ARTWORK-ACCEPTANCE` | DJC-APPLE | Planned | Native Discovery artwork and lifecycle readback |

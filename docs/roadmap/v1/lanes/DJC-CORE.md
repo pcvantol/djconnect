@@ -13,6 +13,6 @@ Selected implementation [DJC-CORE-DJ-PRESENCE-V1-20261011](https://github.com/pc
 - `SLICE::CORE::DJ-PRESENCE-POLICY` — Completed; All proactive paths; off/in-flight/no-catch-up/published-only accounting
 - `QUAL::PRODUCT::DJ-PRESENCE-V1` — Planned; AND qualified Core policy, native control and both renderer receipts
 - `SLICE::CORE::ACTIVE-SESSION-MOOD` — Completed; Only verified ordinary pairing/owner/final authority/revision semantics from source1146/Finalization1147
-- `CORRECTION::CORE::DISCOVERY-ARTWORK` — In progress; Exact provider identity, opt-in six-hour Store reference, scoped image delivery; no new intelligence family
+- `CORRECTION::CORE::DISCOVERY-ARTWORK` — Completed; Exact provider identity, opt-in six-hour Store reference, scoped image delivery; no new intelligence family
 
 Fresh owner/writer/resource admission is separate from functional prerequisites. Historical writer observations are not current leases.
