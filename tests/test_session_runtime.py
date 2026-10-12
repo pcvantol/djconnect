@@ -1572,7 +1572,7 @@ class SessionRuntimeManagerTest(unittest.TestCase):
         self.assertEqual(playback["position_ms"], 12000)
         self.assertNotIn("provider-internal-track-1", str(playback))
         self.assertNotIn("https://", str(playback))
-        self.assertEqual([event["event_type"] for event in events], ["playback_changed"])
+        self.assertEqual([event["event_type"] for event in events], ["playback_changed", "forecast_changed"])
 
         self.assertTrue(asyncio.run(manager.async_update_playback_projection(
             owner_profile_id="profile-playback", session_id=created.session_id, state="idle"
@@ -1600,7 +1600,7 @@ class SessionRuntimeManagerTest(unittest.TestCase):
         self.assertEqual(playback["position_ms"], 13000)
         self.assertEqual(
             [event["event_type"] for event in events],
-            ["playback_changed", "playback_progress"],
+            ["playback_changed", "forecast_changed", "playback_progress"],
         )
 
         with patch.object(self.runtime.time, "monotonic", return_value=115.0):
@@ -2177,6 +2177,7 @@ class SessionRuntimeManagerTest(unittest.TestCase):
                 "planner_updated",
                 "mood_changed",
                 "presence_changed",
+                "forecast_changed",
                 "track_changed",
                 "session_flow_updated",
                 "audience_updated",

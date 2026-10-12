@@ -2,7 +2,8 @@
 
 Assignment DJC-CORE-SESSION-FORECAST-V1-20261012;
 [selection/design decision6123328620](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6123328620).
-Status: admitted pre-runtime contract; implementation and qualification pending.
+Status: pre-runtime contract preserved below; local Core implementation and early
+ordinary paired HA qualification in progress. Full qualification/review/delivery pending.
 Same sole Core writer, actual base e26888fc164fac1e5cb41908fd922d5f9a05e0bd,
 branch codex/session-forecast-v1, after closed album1154/1155.
 No source/Finalization publication, consumer admission or installed acceptance.
@@ -144,3 +145,70 @@ separate Finalization/cleanup with their own exact publication approvals.
 Report documents/DAG, Core projection, Apple handoff, shared compatibility,
 native view, visible ambient adoption, installed/hardware and joint separately.
 Stop after this Forecast slice; no automatic consumer or next-slice dispatch.
+
+## Concrete v1 bounds after pre-runtime technical review
+
+Owner GET schema is exactly path session_id plus client_type/device_id/
+contract_version query fields. Final readback under Runtime lock rechecks loaded
+entry, ordinary device token/identity/type, enabled bound Profile and unchanged
+account/provider/session authority; capability alone grants nothing. Shared
+Broadcast only serializes the public allowlist. Owner withdrawal empties the
+forecast alongside native-delivery withdrawal.
+
+Projection freshness ceiling120s, never beyond accepted source validity. Pure
+expired read preserves the stored revision/issued_at/valid_until but projects
+`expired` with empty sections/imagery. An existing observation tick may commit
+one invalidation revision; repeated expired ticks are no-ops. Consumer ordering
+uses revision plus validity, never accepts an expired same-revision frame as
+live. Material setting/track/authority invalidation is immediate. Routine
+same-track qualified freshness updates publish at most once per30s, including
+expiry recovery; reads/toggles never advance clocks or revision. At most three
+sections and two images. supported_window_seconds is900 only for an actual
+supported conditional semantic objective; zero otherwise. It promises no media.
+
+V1 uses Spotify's existing provider/account boundary for exact current artist
+IDs only, not a name search. Its artist endpoint documents artist images plus
+resource-link and Spotify-mark obligations:
+[official artist API](https://developer.spotify.com/documentation/web-api/reference/get-an-artist).
+No cropping/overlays/AI alteration, offline download feature or persistent art.
+A qualified text anchor does not independently license an image. Images require
+separate exact response-subject verification, display usage basis and audience.
+No qualified future playback projection exists in this slice, so future artist
+images remain absent. Contextual role remains explicit and unpopulated for
+Spotify imagery whose supplied basis is current display only; text fallback is
+valid. Other public-source adapters require their own proven identity/license
+basis, not an arbitrary URL passed by a client.
+
+Preparation: one primary current artist, one in-flight task per Session, at most
+12 preparation attempts per Session; no reset on Off, setting changes/reconnect.
+Metadata request deadline4s through existing Spotify backend; CDN request4s,
+HTTPS exact i.scdn.co/image path, no redirects/custom ports/query, at most2MiB,
+PNG/JPEG/WebP only with validated format/size. At most two active in-memory
+assets; original asset deadline at most300s, negative result cached60s, no disk
+cache. Input preparation may fetch; HTTP/projection/image reads fetch nothing.
+No source retries on repeated read/toggle. Failed/unavailable/429 or withdrawn
+metadata/art gives honest text/color fallback without another source lookup.
+
+Managed Forecast image grants are unpredictable, headerless display references
+bound to Session, exact typed subject, role, accepted current track, Profile,
+source entry/account/authoritygeneration and original minimum deadline. Each
+read rechecks those bindings; paused/stopped/replaced/ended/withdrawn context
+fails closed. After every await, preparation rechecks authority and snapshot
+before admission. Tokens/bytes never enter history/diagnostics/Flow. Private
+Discovery grants are never imported. Expiry/revocation emits safe empty image
+state and consumers release already decoded pixels/cache. Pure read rejection
+creates no update, plan, Moment, budget or lookup.
+
+## Early actual producer qualification (local, unpublished)
+
+Twenty ordinary paired HA Persona/language chains deliver owner-read/live and
+current-artist image bytes through the actual managed route. Repeated forecast
+and image reads cause zero additional provider calls, plans, Moments or budgets;
+reconnect preserves deadlines, wrong authority/session/end fail closed.
+[Actual transport fixtures](../../examples/client_contracts/session_forecast_v1/transport-fixtures.json)
+and [source hashes/qualification](../../examples/client_contracts/session_forecast_v1/qualification-summary.json)
+are early local evidence, not an installed/native/hardware or finished-source
+claim. Only external Spotify metadata and CDN response boundaries are fixtures.
+Owned timer listeners are removed after genuine pending work settles solely
+to isolate pure-read effects; provider timing is modeled, no long-duration PASS
+is inferred. Full race/browser/expiry/coverage/regression/editorial checks remain.

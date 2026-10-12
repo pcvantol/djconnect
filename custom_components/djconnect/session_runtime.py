@@ -17,6 +17,8 @@ from typing import Any, Awaitable, Callable
 from uuid import uuid4
 
 from .const import API_IMAGE_PROXY_BASE, DOMAIN
+from .session_forecast import ForecastProjection
+from .forecast_imagery import ForecastArtwork
 from .presence_policy import DEFAULT as DEFAULT_PRESENCE, POLICIES, PresenceLedger
 from .session_facts import (
     QualifiedSessionFact, SharedProducerFact, PublishedRecordingContext,
@@ -154,6 +156,7 @@ class BroadcastEventType(StrEnum):
     PLANNER_UPDATED = "planner_updated"
     MOOD_CHANGED = "mood_changed"
     PRESENCE_CHANGED = "presence_changed"
+    FORECAST_CHANGED = "forecast_changed"
     TRACK_CHANGED = "track_changed"
     SESSION_FLOW_UPDATED = "session_flow_updated"
     AUDIENCE_UPDATED = "audience_updated"
@@ -1955,6 +1958,20 @@ class DJSessionPlanner:
         self.last_decision = PlannerDecision(PlannerDecisionType.NO_TRANSITION, reason)
         return self.last_decision
 
+    def forecast_semantics(self, *, playback, direction, mood, presence, allowed_intents=None) -> dict[str, Any]:
+        """Allowlist current product intentions; never expose/advance Horizon slots."""
+        current = bool(playback.item_id and playback.title and playback.artist
+                       and playback.state == "playing")
+        supported = current and self.planner_state is PlannerState.READY
+        guidance = "quiet" if presence == "music_only" else direction.direction.value
+        if allowed_intents is not None and not (allowed_intents & {"artist_story", "album_story", "genre_story", "recommendation", "session_update"}):
+            guidance = "quiet"
+        return {"has_current": current, "supported": supported,
+                "title": playback.title, "artist": playback.artist,
+                "album": playback.album or playback.title,
+                "source_url": playback.source_url,
+                "guidance": guidance, "aim": mood if supported else ""}
+
     def as_dict(self) -> dict[str, Any]:
         """Return the public Planner state and its owned Session Flow."""
         return {
@@ -3350,6 +3367,8 @@ class DJSessionBroadcastEngine:
     """
 
     state: DJBroadcastState
+    forecast: ForecastProjection = field(init=False, repr=False)
+    forecast_artwork: ForecastArtwork = field(default_factory=ForecastArtwork, repr=False)
     pending_events: tuple[BroadcastEventType, ...] = ()
     replay_log_limit: int = 128
     broadcast_token: str = field(default_factory=lambda: secrets.token_urlsafe(32), repr=False)
@@ -3377,6 +3396,7 @@ class DJSessionBroadcastEngine:
     def __post_init__(self) -> None:
         """Keep replay retention bounded even for internal construction callers."""
         self.replay_log_limit = max(1, self.replay_log_limit)
+        self.forecast = ForecastProjection(self.state.session_id)
 
     def subscribe(
         self, callback: Callable[[dict[str, Any]], None]
@@ -3453,6 +3473,9 @@ class DJSessionBroadcastEngine:
     def update_runtime_state(self, runtime_state: SessionRuntimeState) -> None:
         """Reflect the Runtime lifecycle in its canonical Broadcast State."""
         self.state = DJBroadcastState(**{**self.state.__dict__, "runtime_state": runtime_state})
+        if runtime_state in {SessionRuntimeState.ENDING, SessionRuntimeState.ENDED}:
+            self.forecast.withdraw()
+            self.forecast_artwork.clear()
         if runtime_state is SessionRuntimeState.ACTIVE:
             self._publish(BroadcastEventType.RUNTIME_CREATED, {"session": self.as_dict()["session"]})
             self._publish(
@@ -3662,6 +3685,17 @@ class DJSessionBroadcastEngine:
             "recovery_cursor": self.owner_recovery_cursor(),
         }
 
+    def update_forecast(self, active) -> None:
+        """Called only on qualified input commits, never on snapshot/read."""
+        if self.state.runtime_state is not SessionRuntimeState.ACTIVE:
+            return
+        semantic = active.planner.forecast_semantics(playback=self.state.playback,
+            direction=active.session_direction, mood=active.selected_mood,
+            presence=active.selected_presence, allowed_intents=active.allowed_capability_intents)
+        imagery = self.forecast_artwork.public(self.state.playback.item_id) if semantic["has_current"] else ()
+        if self.forecast.update(semantic, locale=active.locale, persona=active.dj_persona.value, imagery=imagery):
+            self._publish(BroadcastEventType.FORECAST_CHANGED, {"session_forecast": self.forecast.as_dict()})
+
     def as_dict(self, *, include_owner_only: bool = True) -> dict[str, Any]:
         """Expose only canonical Broadcast State to future renderers."""
         projection = self.state.as_dict(include_owner_only=include_owner_only)
@@ -3679,8 +3713,11 @@ class DJSessionBroadcastEngine:
 
     def subscription_withdrawal_payload(self) -> dict[str, Any]:
         """Withdraw one channel's authority without ending the Profile Session."""
+        withdrawn_forecast = {**self.forecast.as_dict(), "state": "withdrawn",
+                              "summary": "", "sections": [], "imagery": [], "supported_window_seconds": 0}
         return {"broadcast": {"subscription_state": "revoked"},
-                "native_delivery": withdrawn_native_delivery(self.state.session_id)}
+                "native_delivery": withdrawn_native_delivery(self.state.session_id),
+                "session_forecast": withdrawn_forecast}
 
     def revoke_owner_entry_subscriptions(self, entry_id: str) -> None:
         """Reuse the existing entry-unload boundary; pending source frames die."""
@@ -3765,10 +3802,19 @@ class DJSessionBroadcastEngine:
             result["session_flow"]["items"] = [item for item in result["session_flow"]["items"]
                                                if item.get("moment_id") not in excluded]
         result["native_delivery"] = native
+        forecast = self.forecast.as_dict()
+        allowed_images = {a["url"] for a in self.forecast_artwork.public(self.state.playback.item_id)} if self.state.playback.state == "playing" else set()
+        forecast["imagery"] = [a for a in forecast["imagery"] if a["url"] in allowed_images]
+        result["session_forecast"] = forecast
         return result
 
     def refresh_native_delivery(self) -> None:
         """Use the existing observation tick for expiry/invalidation events."""
+        changed = self.forecast.tick()
+        allowed_urls = {a["url"] for a in self.forecast_artwork.public(self.state.playback.item_id)} if self.state.playback.state == "playing" else set()
+        changed = self.forecast.invalidate_imagery(allowed_urls) or changed
+        if changed:
+            self._publish(BroadcastEventType.FORECAST_CHANGED, {"session_forecast": self.forecast.as_dict()})
         revision = self.native_delivery()["revision"]
         if revision != self._native_revision:
             self._native_revision = revision
@@ -4142,6 +4188,7 @@ class SessionRuntimeManager:
         duration_ms: int | None = None,
         position_ms: int | None = None,
         up_next: dict[str, Any] | None = None,
+        forecast_authority: Callable[[], bool] | None = None,
     ) -> bool:
         """Apply one normalized observation to its active Runtime only."""
         projection = RendererSafePlaybackProjection.from_observation(
@@ -4210,7 +4257,10 @@ class SessionRuntimeManager:
                             "provider":"Spotify" if projection.source_url.startswith("https://open.spotify.com/") else "Music Assistant" if active.music_backend == "music_assistant" else "DJConnect",
                             "coverage":"observed_playing_not_full_listen"},
                 }])
+            if forecast_authority is not None:
+                active.broadcast.forecast.authority = forecast_authority
             changed = active.broadcast.update_playback(projection)
+            active.broadcast.update_forecast(active)
             self._replace_playback_progress_clock(owner_profile_id, projection, session_id)
             if changed:
                 _LOGGER.debug("DJConnect renderer-safe playback projection changed")
@@ -4255,6 +4305,7 @@ class SessionRuntimeManager:
                 opportunity.generation += 1
                 opportunity.pending = False
             self._active_by_profile[owner_profile_id] = updated
+            updated.broadcast.update_forecast(updated)
             return True
 
     async def async_invalidate_intra_track_opportunity(
@@ -4785,6 +4836,7 @@ class SessionRuntimeManager:
                     )
                     self._active_by_profile[owner_profile_id] = active
                     active.broadcast.update_session_direction(updated_direction)
+                    active.broadcast.update_forecast(active)
                     active.planner.last_decision = planning_input.planner_decision
                 await self._async_persist_moment(active, coordinated)
                 active.publish_moment(coordinated)
@@ -5116,6 +5168,7 @@ class SessionRuntimeManager:
             )
             self._active_by_profile[owner_profile_id] = active
             active.broadcast.update_session_direction(updated_direction)
+            active.broadcast.update_forecast(active)
         if decision.decision_type is PlannerDecisionType.CREATE_SESSION_UPDATE:
             knowledge = active.knowledge_engine.assemble_session_direction_context(
                 active.session_direction,
@@ -5217,6 +5270,7 @@ class SessionRuntimeManager:
             updated = DJSessionRuntime(**{**active.__dict__, "selected_presence": selected_presence, "presence_revision": revision})
             self._active_by_profile[owner_profile_id] = updated
             active.broadcast.state = DJBroadcastState(**{**active.broadcast.state.__dict__, "selected_presence": selected_presence, "presence_revision": revision})
+            active.broadcast.update_forecast(updated)
             active.broadcast._publish(BroadcastEventType.PRESENCE_CHANGED, {"session": active.broadcast.as_dict()["session"]})
             return updated
 
@@ -5245,6 +5299,7 @@ class SessionRuntimeManager:
             active.broadcast.state = DJBroadcastState(**{**active.broadcast.state.__dict__, "selected_mood": selected_mood, "mood_revision": revision})
             updated = DJSessionRuntime(**{**active.__dict__, "selected_mood": selected_mood, "mood_revision": revision})
             self._active_by_profile[owner_profile_id] = updated
+            active.broadcast.update_forecast(updated)
             active.broadcast._publish(BroadcastEventType.MOOD_CHANGED, {"session": active.broadcast.as_dict()["session"]})
             return updated
 
@@ -5267,6 +5322,7 @@ class SessionRuntimeManager:
                 "persona_revision": active.persona_revision + (dj_persona is not active.dj_persona)})
             active.presence_ledger.persona_revision = updated.persona_revision
             self._active_by_profile[owner_profile_id] = updated
+            active.broadcast.update_forecast(updated)
             return updated
 
     async def async_accept_conversation(
@@ -5288,6 +5344,62 @@ class SessionRuntimeManager:
             ):
                 raise ValueError("session_context_changed")
             return await async_complete_conversation_commit(commit)
+
+    async def async_prepare_forecast_art(self, *, hass, integration_runtime, owner_profile_id,
+                                         session_id, media_identity, catalog):
+        from .forecast_imagery import artist_authority
+        from .spotify_backend import SpotifyBackend
+        active = await self.async_get_active(owner_profile_id)
+        ids = catalog.get("artist_ids") if isinstance(catalog, dict) else None
+        if active is None or active.session_id != session_id or not isinstance(ids, (list, tuple)) or not ids:
+            return
+        item_id = hashlib.sha256(media_identity.encode()).hexdigest()[:24]
+        captured = (active.mood_revision, active.presence_revision, active.persona_revision)
+        authority = artist_authority(hass, integration_runtime, owner_profile_id=owner_profile_id,
+            expected_source=self._history_source_contexts.get(session_id, {}))
+
+        def candidate_current():
+            current = self._active_by_profile.get(owner_profile_id)
+            return (current is not None and current.session_id == session_id
+                    and current.broadcast.state.playback.item_id == item_id
+                    and current.broadcast.state.playback.state == "playing"
+                    and (current.mood_revision, current.presence_revision, current.persona_revision) == captured)
+
+        asset = await active.broadcast.forecast_artwork.prepare(hass=hass,
+            backend=SpotifyBackend(hass, integration_runtime), session_id=session_id,
+            item_id=item_id, artist_id=str(ids[0]), authority=authority, candidate_current=candidate_current)
+        async with self._lock:
+            if asset and authority() and candidate_current():
+                active = self._active_by_profile[owner_profile_id]
+                active.broadcast.forecast_artwork.commit(asset)
+                active.broadcast.update_forecast(active)
+
+    async def async_forecast_image(self, *, session_id, asset_id):
+        """Pure headerless capability read; no remote fetch or expiry renewal."""
+        async with self._lock:
+            active = next((a for a in self._active_by_profile.values() if a.session_id == session_id), None)
+            if active is None or active.broadcast.state.playback.state != "playing":
+                return None
+            projection = active.broadcast.forecast.as_dict()
+            if projection["state"] not in {"ready", "limited"}:
+                return None
+            admitted = {i["url"] for i in projection["imagery"]}
+            for asset in active.broadcast.forecast_artwork.assets:
+                if (asset.asset_id == asset_id and asset.metadata["url"] in admitted
+                        and asset.allowed(time.monotonic(), active.broadcast.state.playback.item_id)):
+                    return asset.body, asset.mime
+            return None
+
+    async def async_forecast_snapshot(self, *, owner_profile_id: str, session_id: str,
+                                      authorize=None) -> dict[str, Any] | None:
+        """Pure exact-session read after the final ordinary-owner authority fence."""
+        async with self._lock:
+            if authorize is not None and not authorize():
+                raise PermissionError("unauthorized")
+            active = self._active_by_profile.get(owner_profile_id)
+            if active is None or active.session_id != session_id:
+                return None
+            return active.broadcast.as_dict()["session_forecast"]
 
     async def async_get_active(self, owner_profile_id: str) -> DJSessionRuntime | None:
         """Return the active Runtime for a Profile, if one exists."""
