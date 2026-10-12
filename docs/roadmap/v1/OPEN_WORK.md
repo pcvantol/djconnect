@@ -4,9 +4,13 @@ Generated from djconnect-platform-v1.json, maintenance DJC-DJ-PRESENCE-ROADMAP-D
 
 The original3October snapshot/audit/source pins and projections are immutable history in [history/20261003](history/20261003/README.md). Only this bounded delta is current here; inherited premerge statuses are not current blockers. Only the selected existing Core writer is admitted by implementation receipt; no automatic dispatch, second writer or native/installed/hardware acceptance.
 
+Current bounded artwork correction: [owner6117357579](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6117357579). Existing Discovery capability only; source/Finalization gates remain separate, native/installed/live acceptance remains open. Presence source1150/Finalization1151 stays closed. Prior version2 is preserved in history/20261012.
+
 - `PROJ::INTELLIGENCE::DJ-PRESENCE` — Planned: Independent presence, Mood and Persona; no new dispatch.
 - `SLICE::APPLE::DJ-PRESENCE-CONTROL` — Planned: Accessible five-language native confirmation; reuse existing Apple writer.
 - `QUAL::VIBECAST::DJ-PRESENCE-COMPAT` — Planned: Core shared-renderer + receiver owner, both existing software builds.
 - `QUAL::PRODUCT::DJ-PRESENCE-V1` — Planned: AND qualified Core policy, native control and both renderer receipts.
+- `CORRECTION::CORE::DISCOVERY-ARTWORK` — In progress: Exact provider identity, opt-in six-hour Store reference, scoped image delivery; no new intelligence family.
+- `CORRECTION::APPLE::DISCOVERY-ARTWORK-ACCEPTANCE` — Planned: Consume pinned producer; native visible attribution, expiry and clear acceptance remain Apple-owned, no new writer/admission.
 
 Core policy/ownercontract status follows the exact implementation receipt. Native/installed/hardware acceptance remains open.

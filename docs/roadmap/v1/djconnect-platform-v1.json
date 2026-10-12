@@ -37594,7 +37594,7 @@
     }
   ],
   "planning_maintenance": {
-    "schema_version": "djconnect-federated-planning-delta/2",
+    "schema_version": "djconnect-federated-planning-delta/3",
     "decision_id": "DJC-DJ-PRESENCE-ROADMAP-DESIGN-V1-20261011",
     "decision_url": "https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6110375785",
     "design_date": "2026-10-11",
@@ -37754,6 +37754,43 @@
           "OWNER-DJ-PRESENCE-20261011"
         ],
         "prerequisite_groups": []
+      },
+      {
+        "id": "CORRECTION::CORE::DISCOVERY-ARTWORK",
+        "title": "Bounded existing Discovery artwork continuity",
+        "lane": "DJC-CORE",
+        "repository": "pcvantol/djconnect",
+        "status": "In progress",
+        "assignment_status": "IN_PROGRESS",
+        "scope": "Exact provider identity, opt-in six-hour Store reference, scoped image delivery; no new intelligence family",
+        "acceptance_boundary": "Exact provider identity, opt-in six-hour Store reference, scoped image delivery; no new intelligence family",
+        "contract_binding": "docs/product/DISCOVERY_ARTWORK_CONTINUITY_V1.md",
+        "source_ids": [
+          "OWNER-DISCOVERY-ARTWORK-20261012"
+        ],
+        "prerequisite_groups": []
+      },
+      {
+        "id": "CORRECTION::APPLE::DISCOVERY-ARTWORK-ACCEPTANCE",
+        "title": "Native Discovery artwork and lifecycle readback",
+        "lane": "DJC-APPLE",
+        "repository": "pcvantol/djconnect-app",
+        "status": "Planned",
+        "assignment_status": "NOT_ISSUED",
+        "scope": "Consume pinned producer; native visible attribution, expiry and clear acceptance remain Apple-owned, no new writer/admission",
+        "acceptance_boundary": "Consume pinned producer; native visible attribution, expiry and clear acceptance remain Apple-owned, no new writer/admission",
+        "contract_binding": "docs/product/DISCOVERY_ARTWORK_CONTINUITY_V1.md",
+        "source_ids": [
+          "OWNER-DISCOVERY-ARTWORK-20261012"
+        ],
+        "prerequisite_groups": [
+          {
+            "mode": "AND",
+            "edge_ids": [
+              "ARTWORK-1"
+            ]
+          }
+        ]
       }
     ],
     "edges": [
@@ -37916,16 +37953,32 @@
         "source_ids": [
           "OWNER-DJ-PRESENCE-20261011"
         ]
+      },
+      {
+        "id": "ARTWORK-1",
+        "producer": "CORRECTION::CORE::DISCOVERY-ARTWORK",
+        "consumer": "CORRECTION::APPLE::DISCOVERY-ARTWORK-ACCEPTANCE",
+        "kind": "implementation_contract",
+        "phase": "integration_acceptance",
+        "prerequisite_stage": "completion",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "required_subset": "Exact producer/feed/image/TTL/error fixtures, ordinary paired auth and scoped source ownership; independent preparation need not wait for Finalization docs",
+        "contract_or_evidence": "docs/product/DISCOVERY_ARTWORK_CONTINUITY_V1.md; real isolated HA/Store/image fixtures; separate native owning receipt",
+        "reason": "Producer availability is required only for integrated native acceptance, not independent consumer work",
+        "source_ids": [
+          "OWNER-DISCOVERY-ARTWORK-20261012"
+        ]
       }
     ],
     "document_references": [
       {
         "path": "PRODUCT_ROADMAP.md",
-        "sha256": "6cf4a119cac678fa0c2358812e35282c4983d1a539315455257fe0ef7d0fdbac"
+        "sha256": "8bfeab13d750d7400a7f38bb1306c0e2862866152dea7a2d162b61c107145a1c"
       },
       {
         "path": "PRODUCT_BACKLOG.md",
-        "sha256": "78817a9a4bdec4a4eecfe7c5a69b6c829cbf422671111049d941a0b68e33d521"
+        "sha256": "f15462a47335cda772ed63e1de02fc69cddd9ebc3df043a21f76d5c95f897866"
       },
       {
         "path": "docs/product/DJ_PRESENCE_V1.md",
@@ -37954,6 +38007,14 @@
       {
         "path": "docs/product/DJ_PRESENCE_OWNER_CONTRACT_V1.md",
         "sha256": "2580acda7c9e19020c030cb1b8cecd47ef87af0f43a643b90f37d7bd89ee65a3"
+      },
+      {
+        "path": "docs/product/DISCOVERY_ARTWORK_CONTINUITY_V1.md",
+        "sha256": "19564fd69b45cffe167579d048ad5c9106b818943e7966f4e91dcd484017d6ce"
+      },
+      {
+        "path": "API_CONTRACT.md",
+        "sha256": "6ffb8da8830fcb291626a34b75cdbeafa07db805ba44955beb05c19dfb4bebf5"
       }
     ],
     "implementation_receipt": {
@@ -37982,6 +38043,20 @@
       "apple_handoff": "https://github.com/pcvantol/djconnect-app/issues/87#issuecomment-6112248501",
       "vibecast_handoff": "https://github.com/pcvantol/djconnect-vibecast-receiver/issues/10#issuecomment-6112249253",
       "finalization": "PENDING_EXACT_PUBLICATION_GATE"
-    }
+    },
+    "correction_receipts": [
+      {
+        "assignment_id": "DJC-CORE-DISCOVERY-ARTWORK-CONTINUITY-V1-20261012",
+        "selection_url": "https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6117357579",
+        "phase": "LOCAL_IMPLEMENTATION_AND_QUALIFICATION",
+        "source_delivery": "UNPUBLISHED",
+        "native": "NOT_RUN",
+        "installed": "NOT_RUN",
+        "live_provider": "NOT_RUN",
+        "joint_product_acceptance": "OPEN",
+        "previous_delta": "history/20261012/presence-implementation-maintenance-v2.json",
+        "previous_delta_sha256": "c1178831f694ca9c0c2407a07150d0976d51d1d88a177534e86b29ed562057a6"
+      }
+    ]
   }
 }

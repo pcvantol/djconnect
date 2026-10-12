@@ -13,6 +13,8 @@ from aiohttp import ClientTimeout
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
+from ..discovery_artwork import capture_refresh_guard
+
 from ..ai_tools import async_call_ai_tool
 from ..const import (
     CONF_CLIENT_TYPE,
@@ -7851,6 +7853,7 @@ async def _listening_profile_context(
     payload: dict[str, Any],
     memory_context: dict[str, Any],
 ) -> dict[str, Any]:
+    guard = await capture_refresh_guard(runtime, payload)
     memory = getattr(runtime, "memory", None)
     stored = {}
     if isinstance(memory_context, dict):
@@ -7864,21 +7867,25 @@ async def _listening_profile_context(
         except Exception as exc:  # noqa: BLE001
             _LOGGER.debug("DJConnect listening profile freshness check failed: %s", exc)
     if fresh and stored:
-        return stored
+        return stored if guard is None or guard.valid() else {}
     try:
+        if guard is not None and not guard.valid():
+            return {}
         result = await run_music_command(hass, runtime, "listening_profile")
     except Exception as exc:  # noqa: BLE001
         _LOGGER.debug("DJConnect listening profile unavailable: %s", exc)
-        return stored if isinstance(stored, dict) else {}
+        return stored if isinstance(stored, dict) and (guard is None or guard.valid()) else {}
+    if guard is not None and not guard.valid():
+        return {}
     profile = result.get("profile") if isinstance(result, dict) else {}
     if isinstance(profile, dict) and profile:
         profile["last_profile_refresh"] = profile.get("last_profile_refresh") or _now_iso()
         if memory is not None:
             try:
-                await memory.async_update_listening_profile(runtime, profile, payload)
+                await memory.async_update_listening_profile(runtime, profile, payload, **({"refresh_guard": guard} if guard is not None else {}))
             except Exception as exc:  # noqa: BLE001
                 _LOGGER.debug("DJConnect listening profile memory update failed: %s", exc)
-        return profile
+        return profile if guard is None or guard.valid() else {}
     return stored if isinstance(stored, dict) else {}
 
 

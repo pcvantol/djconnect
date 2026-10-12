@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import hashlib
 import time
 import logging
 import re
@@ -23,6 +24,7 @@ from .const import (
     DEFAULT_SPOTIFY_MARKET,
 )
 from .music_dna import resolve_music_dna_key
+from .discovery_artwork import capture_artwork, runtime_scope, credential_cache_scope
 from .spotify_oauth import SpotifyTokenRefreshError, refresh_access_token
 
 SPOTIFY_API_BASE = "https://api.spotify.com/v1"
@@ -475,12 +477,19 @@ class SpotifyBackend:
         if cache is None:
             self.runtime.backend_cache = {}
             cache = self.runtime.backend_cache
+        scope = (runtime_scope(self.runtime), credential_cache_scope(self.runtime))
+        if key == "listening_profile:v1":
+            key = key + ":" + hashlib.sha256(repr(scope).encode()).hexdigest()
+            for old_key in list(cache):
+                if old_key == "listening_profile:v1" or (old_key.startswith("listening_profile:v1:") and old_key != key):
+                    cache.pop(old_key)
         now = time.monotonic()
         cached = cache.get(key)
         if cached and now - cached[0] < ttl:
             return cached[1]
         value = await loader()
-        cache[key] = (now, value)
+        if (runtime_scope(self.runtime), credential_cache_scope(self.runtime)) == scope:
+            cache[key] = (now, value)
         return value
 
     async def playback_state(self) -> dict[str, Any]:
@@ -1710,6 +1719,7 @@ def _normalize_album_item(item: dict[str, Any]) -> dict[str, Any]:
             for artist in artists
             if isinstance(artist, dict) and artist.get("name")
         ),
+        "artwork": capture_artwork(_best_image_url(images), uri, uri) if str(item.get("id") or "") == uri.rsplit(":", 1)[-1] else {},
         "image_url": _best_image_url(images),
         "album_image_url": _best_image_url(images),
     }
@@ -2141,6 +2151,7 @@ def _normalize_profile_track(item: dict[str, Any]) -> dict[str, Any]:
             "album_name": album.get("name") or "",
             "album_uri": album_uri,
             "context_uri": album_uri,
+            "artwork": capture_artwork(_best_image_url(album.get("images") or []), uri, album_uri) if str(album.get("id") or "") == album_uri.rsplit(":", 1)[-1] and track_id == uri.rsplit(":", 1)[-1] else {},
             "album_image_url": image_url,
             "image_url": image_url,
             "duration_ms": item.get("duration_ms"),
@@ -2189,6 +2200,7 @@ def _normalize_profile_artist(item: dict[str, Any]) -> dict[str, Any]:
             "artist": name,
             "artist_name": name,
             "genres": genres[:10],
+            "artwork": capture_artwork(image_url, uri, uri) if artist_id == uri.rsplit(":", 1)[-1] else {},
             "image_url": image_url,
             "popularity": item.get("popularity"),
         }.items()

@@ -24,6 +24,8 @@ except ImportError:  # pragma: no cover - test stubs without HA event helpers
     async_track_time_change = None
     async_track_time_interval = None
 
+from .discovery_artwork import capture_refresh_guard
+
 from .const import (
     API_COMMAND,
     API_ASK_DJ,
@@ -3079,11 +3081,18 @@ async def _async_refresh_music_dna_listening_profile_server_side(
     try:
         if await freshness(runtime, payload, user_id=None, ttl_seconds=60 * 60):
             return False
+        guard = await capture_refresh_guard(runtime, payload, user_id=None)
+        if guard is not None and (not guard.valid() or not guard.persistence_allowed):
+            return False
         result = await run_music_command(hass, runtime, "listening_profile")
+        if guard is not None and not guard.valid():
+            return False
         profile = result.get("profile") if isinstance(result, dict) else {}
         if not isinstance(profile, dict) or not profile:
             return False
-        await updater(runtime, profile, payload, user_id=None)
+        await updater(runtime, profile, payload, user_id=None, **({"refresh_guard": guard} if guard is not None else {}))
+        if guard is not None and not guard.valid():
+            return False
     except Exception as exc:  # noqa: BLE001
         _LOGGER.debug("DJConnect hourly Music DNA listening profile refresh failed: %s", exc.__class__.__name__)
         return False

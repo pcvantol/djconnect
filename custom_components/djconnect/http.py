@@ -10,6 +10,8 @@ import secrets
 from typing import Any
 from urllib.parse import urlsplit
 
+from .discovery_artwork import discovery_image_response
+
 from aiohttp import web
 from homeassistant.components.http import HomeAssistantView
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
@@ -4344,6 +4346,8 @@ class DJConnectImageProxyView(HomeAssistantView):
 
     async def get(self, request, token: str):
         hass = request.app["hass"]
+        if token.startswith("disc-") and len(token) == 37:
+            return await discovery_image_response(hass, request, token)
         target = image_proxy_target(hass, token)
         if not target:
             return web.Response(status=404, text="DJConnect image not found")

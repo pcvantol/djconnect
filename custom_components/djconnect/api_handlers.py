@@ -4,6 +4,8 @@ from __future__ import annotations
 import logging
 from typing import Any, Awaitable, Callable
 
+from .discovery_artwork import capture_refresh_guard
+
 from . import http as http_helpers
 from .const import CLIENT_TYPE_ESP32, CONF_CLIENT_TYPE, CONF_LOCAL_URL, VERSION
 from .http import (
@@ -701,13 +703,16 @@ async def _apply_profile_or_error(
     """Apply canonical Profile context or return structured error."""
     _clear_profile_runtime_context(runtime)
     try:
-        await async_apply_profile_context(
+        context = await async_apply_profile_context(
             hass,
             runtime,
             payload,
             user_id=user_id,
             request_source=source,
         )
+        if source.startswith(("music_dna_", "music_discovery_")):
+            payload.pop("user_id", None)
+            payload["music_dna_key"] = context.music_dna_key
         return None, None
     except Exception as exc:  # noqa: BLE001
         if isinstance(exc, ProfilePlatformNotConfigured):
@@ -1535,14 +1540,19 @@ async def async_handle_music_dna_profile_payload(
     if not callable(profile_getter):
         _debug_music_dna_error("profile", payload, (_error_payload("music_dna_unavailable"), 503), runtime=runtime)
         return _error_payload("music_dna_unavailable"), 503
+    response_guard = await capture_refresh_guard(runtime, payload, user_id=user_id)
+    if response_guard is not None and not response_guard.valid():
+        return {"success": False, "error": "music_dna_context_changed"}, 409
     result = await profile_getter(runtime, payload, user_id=user_id)
-    if result.get("enabled") and await _refresh_music_dna_profile_if_stale(
-        hass,
-        runtime,
-        payload,
-        user_id=user_id,
-    ):
+    if response_guard is not None and not response_guard.valid():
+        return {"success": False, "error": "music_dna_context_changed"}, 409
+    if result.get("enabled"):
+        await _refresh_music_dna_profile_if_stale(hass, runtime, payload, user_id=user_id)
+        if response_guard is not None and not response_guard.valid():
+            return {"success": False, "error": "music_dna_context_changed"}, 409
         result = await profile_getter(runtime, payload, user_id=user_id)
+        if response_guard is not None and not response_guard.valid():
+            return {"success": False, "error": "music_dna_context_changed"}, 409
     _debug_music_dna_result("profile", result, 200, runtime=runtime)
     return result, 200
 
@@ -1741,15 +1751,22 @@ async def _refresh_music_dna_profile_if_stale(
             ttl_seconds=MUSIC_DNA_PROFILE_REFRESH_SECONDS,
         ):
             return False
+        guard = await capture_refresh_guard(runtime, payload, user_id=user_id)
+        if guard is not None and (not guard.valid() or not guard.persistence_allowed):
+            return False
         result = await run_music_command(
             hass,
             runtime,
             "listening_profile",
         )
+        if guard is not None and not guard.valid():
+            return False
         profile = result.get("profile") if isinstance(result, dict) else {}
         if not isinstance(profile, dict) or not profile:
             return False
-        await updater(runtime, profile, payload, user_id=user_id)
+        await updater(runtime, profile, payload, user_id=user_id, **({"refresh_guard": guard} if guard is not None else {}))
+        if guard is not None and not guard.valid():
+            return False
     except Exception as exc:  # noqa: BLE001
         _LOGGER.debug(
             "DJConnect Music DNA profile refresh skipped: %s",

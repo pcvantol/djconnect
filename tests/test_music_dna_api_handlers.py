@@ -711,6 +711,68 @@ class MusicDnaApiHandlersTest(unittest.TestCase):
         self.assertEqual(profile["profile"]["favorite_artists"][0]["name"], "Bicep")
         self.assertEqual(profile["profile"]["recent_tracks"][0]["title"], "Glue")
 
+    def test_profile_fences_final_store_readback_withdrawal_and_disabled_initial_read(self) -> None:
+        async def exercise(enabled, stage, change):
+            self.runtime.profile_context_profile_id = ""
+            self.runtime.device_token = "original-device-token"
+            await self.memory.async_set_enabled(self.runtime, enabled, {}, user_id="ha-user-1")
+            if enabled:
+                await self.memory.async_update_listening_profile(
+                    self.runtime, {"top_tracks_by_range": {}}, {}, user_id="ha-user-1"
+                )
+            self.memory.data["memories"]["user:ha-user-1"]["favorite_artists"] = [
+                "Private trusted choice"
+            ]
+            saves = 0
+            original_save = self.store.async_save
+
+            async def withdraw_at_readback(data):
+                nonlocal saves
+                saves += 1
+                if saves == stage:
+                    if change == "token":
+                        self.runtime.device_token = "rotated-device-token"
+                    elif change == "profile":
+                        self.runtime.profile_context_profile_id = "other-profile"
+                    elif change == "privacy":
+                        self.runtime.profile_context_privacy_policy = types.SimpleNamespace(
+                            mode="guest-safe",
+                            allow_personal_read=False,
+                            allow_music_dna_persistence=False,
+                        )
+                    else:
+                        current = self.memory.data["memories"]["user:ha-user-1"]
+                        current["generation"] = int(current.get("generation", 0)) + 1
+                        current.pop("favorite_artists", None)
+                await original_save(data)
+
+            self.store.async_save = withdraw_at_readback
+            result, status = await self.api_handlers.async_handle_music_dna_profile_payload(
+                self.hass,
+                {"device_id": "djconnect-ios-ABCDEFGHIJKL", "client_type": "ios"},
+                headers={"Authorization": "Bearer original-device-token"},
+                user_id="ha-user-1",
+            )
+            self.assertEqual(status, 409, (enabled, stage, change, result))
+            self.assertEqual(result, {"success": False, "error": "music_dna_context_changed"})
+            self.assertNotIn("Private trusted choice", repr(result))
+
+        for enabled, stage, change in [
+            (True, 3, "token"),
+            (True, 3, "profile"),
+            (True, 3, "privacy"),
+            (True, 3, "clear"),
+            (False, 1, "token"),
+        ]:
+            with self.subTest(enabled=enabled, stage=stage, change=change):
+                # Reset case data without re-patching module globals or
+                # overwriting the originals restored by tearDown.
+                self.store = FakeStore()
+                self.memory = self.music_dna.MusicDNAManager(store=self.store)
+                self.runtime = runtime_for(self.memory)
+                asyncio.run(exercise(enabled, stage, change))
+
+
 
 if __name__ == "__main__":
     unittest.main()

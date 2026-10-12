@@ -7,6 +7,8 @@ import logging
 import re
 from typing import Any
 
+from .discovery_artwork import capture_refresh_guard, compact_artwork, artwork_url, artwork_owner, privacy_scope, project_discovery_images
+
 from .const import CONF_CLIENT_TYPE, CONF_DEVICE_ID
 from .request_auth import (
     authorize_runtime_device_request,
@@ -46,6 +48,9 @@ async def async_handle_music_discovery_feed_payload(
     if error:
         _log_error_response("feed", error)
         return error
+    feed_guard = await capture_refresh_guard(runtime, payload, user_id=user_id)
+    if feed_guard is not None and not feed_guard.valid():
+        return _disabled("music_dna_context_changed", {}), 200
     context = await _music_dna_context(runtime, payload, user_id=user_id)
     if not _music_dna_enabled(context):
         response = _disabled("music_dna_disabled", context)
@@ -55,7 +60,7 @@ async def async_handle_music_discovery_feed_payload(
             payload.get(CONF_DEVICE_ID),
             bool(context.get("music_dna_key")),
         )
-        return response, 200
+        return await project_discovery_images(hass, runtime, response, payload, user_id=user_id), 200
     refreshed_recently_played = await _refresh_recently_played_if_stale(
         hass,
         runtime,
@@ -64,6 +69,8 @@ async def async_handle_music_discovery_feed_payload(
     )
     if refreshed_recently_played:
         context = await _music_dna_context(runtime, payload, user_id=user_id)
+    if feed_guard is not None and not feed_guard.valid():
+        return _disabled("music_dna_context_changed", {}), 200
     cache_key = _cache_key(context)
     cached = _cache(runtime).get(cache_key)
     now = _now()
@@ -79,8 +86,14 @@ async def async_handle_music_discovery_feed_payload(
             _section_item_count(response.get("sections")),
             response.get("revision"),
         )
-        return response, 200
+        return await project_discovery_images(hass, runtime, response, payload, user_id=user_id), 200
     response = await _build_feed(hass, runtime, context, payload)
+    if feed_guard is not None and not feed_guard.valid():
+        return _disabled("music_dna_context_changed", {}), 200
+    for section in response.get("sections", []):
+        for item in section.get("items", []):
+            if item.get("_artwork") and "owner" not in item["_artwork"]:
+                item["_artwork"]["owner"] = artwork_owner(runtime)
     _cache(runtime)[cache_key] = {
         "generated_at": now,
         "context_signature": _context_signature(context),
@@ -94,7 +107,7 @@ async def async_handle_music_discovery_feed_payload(
         _section_item_count(response.get("sections")),
         response.get("revision"),
     )
-    return response, 200
+    return await project_discovery_images(hass, runtime, response, payload, user_id=user_id), 200
 
 
 async def async_music_discovery_feed_tool(
@@ -123,7 +136,7 @@ async def async_music_discovery_feed_tool(
     limit = _tool_limit(payload)
     if limit:
         response = _limit_feed_items(response, limit)
-    return response
+    return await project_discovery_images(None, runtime, response, payload, user_id=user_id)
 
 
 async def async_handle_music_discovery_refresh_payload(
@@ -146,21 +159,9 @@ async def async_handle_music_discovery_refresh_payload(
     last_refresh = float(getattr(runtime, "music_discovery_last_refresh", 0) or 0)
     now_monotonic = __import__("time").monotonic()
     if now_monotonic - last_refresh < DISCOVERY_REFRESH_MIN_SECONDS:
-        context = await _music_dna_context(runtime, payload, user_id=user_id)
-        cached = _cache(runtime).get(_cache_key(context))
-        if isinstance(cached, dict) and isinstance(cached.get("response"), dict):
-            response = dict(cached["response"])
-            response["rate_limited"] = True
-            response["cache"] = {"hit": True}
-            _LOGGER.debug(
-                "DJConnect Music Discovery refresh rate-limited client_type=%s device_id=%s sections=%s items=%s revision=%s",
-                payload.get(CONF_CLIENT_TYPE),
-                payload.get(CONF_DEVICE_ID),
-                len(response.get("sections") or []),
-                _section_item_count(response.get("sections")),
-                response.get("revision"),
-            )
-            return response, 200
+        response, status = await async_handle_music_discovery_feed_payload(hass, payload, headers=headers, user_id=user_id)
+        response["rate_limited"] = True
+        return response, status
     setattr(runtime, "music_discovery_last_refresh", now_monotonic)
     _LOGGER.debug(
         "DJConnect Music Discovery refresh accepted client_type=%s device_id=%s",
@@ -441,7 +442,10 @@ async def _music_dna_context(runtime: Any, payload: dict[str, Any], *, user_id: 
     memory = getattr(runtime, "memory", None)
     if memory is None:
         return {"music_dna_key": payload.get("music_dna_key"), "memory": {"enabled": False}}
-    return await memory.async_context_for_runtime(runtime, payload, user_id=user_id)
+    context = await memory.async_context_for_runtime(runtime, payload, user_id=user_id)
+    context["artwork_owner"] = artwork_owner(runtime)
+    context["artwork_privacy"] = privacy_scope(runtime)
+    return context
 
 
 def _music_dna_enabled(context: dict[str, Any]) -> bool:
@@ -460,7 +464,11 @@ def _context_signature(context: dict[str, Any]) -> str:
     if not isinstance(memory, dict):
         return ""
     profile = _profile_from_memory(memory)
+    import json
     parts = [
+        json.dumps(context.get("artwork_owner", {}), sort_keys=True),
+        repr(context.get("artwork_privacy")),
+        json.dumps({"generation": memory.get("generation"), "art": [{"uri": i.get("uri"), "ref": compact_artwork(i)} for i in [*_range_items(profile.get("top_tracks_by_range")), *_range_items(profile.get("top_artists_by_range"))]]}, sort_keys=True),
         "recent:" + ",".join(_track_identity(item) for item in profile.get("recent_tracks", [])[:5]),
         "favorites:" + ",".join(_track_identity(item) for item in profile.get("recent_favorite_tracks", [])[:5]),
         "genres:" + ",".join(_unique_text_values(profile.get("favorite_genres") or [])[:5]),
@@ -470,6 +478,8 @@ def _context_signature(context: dict[str, Any]) -> str:
         f"recommendation_plays:{len(profile.get('recommendation_plays') or [])}",
         f"discovery_plays:{len(memory.get('discovery_plays') or []) if isinstance(memory.get('discovery_plays'), list) else 0}",
         "mood:" + str(memory.get("mood") if memory.get("mood") is not None else ""),
+        "stored_recent_art:" + json.dumps([{ "uri": i.get("uri"), "ref": compact_artwork(i)} for i in (memory.get("listening_profile") or {}).get("recent_tracks", []) if isinstance(i, dict)], sort_keys=True),
+        "recent_art:" + json.dumps([compact_artwork(i) for i in (profile.get("recent_tracks", []) + profile.get("recent_favorite_tracks", []) + profile.get("recommendation_plays", []))], sort_keys=True),
         "top_tracks:" + ",".join(_track_identity(item) for item in _range_items(profile.get("top_tracks_by_range"))[:5]),
         "top_artists:" + ",".join(
             _first_text(item, "uri", "artist_uri", "context_uri") or _first_text(item, "name", "artist", "artist_name")
@@ -499,7 +509,7 @@ async def _refresh_recently_played_if_stale(
 ) -> bool:
     """Refresh Music DNA from backend recent history without mutating playback."""
     memory = getattr(runtime, "memory", None)
-    freshness = getattr(memory, "async_listening_profile_is_fresh", None)
+    freshness = getattr(memory, "async_recent_profile_is_fresh", None) or getattr(memory, "async_listening_profile_is_fresh", None)
     updater = getattr(memory, "async_update_listening_profile", None)
     if not callable(freshness) or not callable(updater):
         return False
@@ -511,17 +521,30 @@ async def _refresh_recently_played_if_stale(
             ttl_seconds=DISCOVERY_RECENTLY_PLAYED_REFRESH_SECONDS,
         ):
             return False
-        result = await run_music_command(
-            hass,
-            runtime,
-            "recently_played",
-            {"limit": 50},
-        )
+        guard = await capture_refresh_guard(runtime, payload, user_id=user_id)
+        if guard is not None and (not guard.valid() or not guard.persistence_allowed):
+            return False
+        getter = getattr(memory, "async_listening_profile", None)
+        stored = await getter(runtime, payload, user_id=user_id) if callable(getter) else {}
+        if guard is not None and not guard.valid():
+            return False
+        full_refresh = callable(getter) and stored.get("artwork_reference_version") != 1
+        result = await run_music_command(hass, runtime, "listening_profile" if full_refresh else "recently_played", None if full_refresh else {"limit": 50})
+        if full_refresh:
+            if guard is not None and not guard.valid():
+                return False
+            profile = result.get("profile") if isinstance(result, dict) else {}
+            if not isinstance(profile, dict) or not profile:
+                return False
+            await updater(runtime, profile, payload, user_id=user_id, **({"refresh_guard": guard} if guard is not None else {}))
+            return guard is None or guard.valid()
     except Exception as exc:  # noqa: BLE001
         _LOGGER.debug(
             "DJConnect Music Discovery recently played refresh skipped: %s",
             exc.__class__.__name__,
         )
+        return False
+    if guard is not None and not guard.valid():
         return False
     tracks = result.get("tracks") if isinstance(result, dict) else []
     if not isinstance(tracks, list) or not tracks:
@@ -546,7 +569,10 @@ async def _refresh_recently_played_if_stale(
         },
         payload,
         user_id=user_id,
+        **({"refresh_guard": guard} if guard is not None else {}),
     )
+    if guard is not None and not guard.valid():
+        return False
     _LOGGER.debug(
         "DJConnect Music Discovery refreshed recently played profile tracks=%s client_type=%s device_id=%s",
         len(tracks[:50]),
@@ -568,7 +594,7 @@ def _disabled(reason: str, context: dict[str, Any]) -> dict[str, Any]:
 
 async def _build_feed(hass: Any, runtime: Any, context: dict[str, Any], payload: dict[str, Any]) -> dict[str, Any]:
     memory = context.get("memory") if isinstance(context.get("memory"), dict) else {}
-    profile = _profile_from_memory(memory)
+    profile = _profile_from_memory(memory, owner=context.get("artwork_owner"))
     sections = [
         section
         for section in [
@@ -595,8 +621,25 @@ async def _build_feed(hass: Any, runtime: Any, context: dict[str, Any], payload:
     }
 
 
-def _profile_from_memory(memory: dict[str, Any]) -> dict[str, Any]:
+def _profile_from_memory(memory: dict[str, Any], *, owner: dict[str, str] | None = None) -> dict[str, Any]:
     listening = memory.get("listening_profile") if isinstance(memory.get("listening_profile"), dict) else {}
+    def hydrate(value: Any) -> Any:
+        if isinstance(value, list):
+            return [hydrate(item) for item in value]
+        if isinstance(value, dict):
+            out = {k: hydrate(v) for k, v in value.items()}
+            ref = compact_artwork(value)
+            image = artwork_url(value)
+            if owner is not None and ref.get("owner") != owner:
+                image = ""
+                out.pop("artwork", None)
+                for field in ("image_url", "album_image_url", "artist_image_url", "thumbnail_url"):
+                    out.pop(field, None)
+            if image:
+                out["image_url"] = image
+            return out
+        return value
+    listening = hydrate(listening)
     return {
         "favorite_genres": _texts(memory.get("favorite_genres")),
         "favorite_artists": _artist_names(memory.get("favorite_artists")),
@@ -824,6 +867,7 @@ def _items_from_recommended_tracks(
                 uri,
                 reason_text,
                 reason_sources,
+                artwork=compact_artwork(track),
                 image_url=_first_text(track, "image_url", "album_image_url", "thumbnail_url"),
                 quality=_quality_for_track(
                     track,
@@ -882,6 +926,7 @@ def _items_from_profile_tracks(
                 uri,
                 reason,
                 reason_sources,
+                artwork=compact_artwork(track),
                 image_url=_first_text(track, "image_url", "album_image_url", "thumbnail_url"),
                 quality=_quality_for_track(
                     track,
@@ -924,6 +969,7 @@ def _items_from_profile_artists(
                 uri,
                 "Artiest die sterk terugkomt in je Music DNA.",
                 ["djconnect_music_dna", "spotify_top_artists"],
+                artwork=compact_artwork(artist),
                 image_url=_first_text(artist, "image_url", "artist_image_url", "thumbnail_url"),
                 quality=_quality_payload(74, ["artist_anchor", "spotify_top_artists"]),
             )
@@ -1011,7 +1057,7 @@ def _quality_for_track(
     elif artist and artist.casefold() in top_artists:
         score += 6
         quality_factors.append("top_artist_match")
-    if _first_text(track, "image_url", "album_image_url", "thumbnail_url"):
+    if compact_artwork(track):
         score += 2
         quality_factors.append("has_artwork")
     if _normalized_title(title) != _normalized_text(title):
@@ -1060,6 +1106,7 @@ def _items_from_recommendations(recommendations: list[dict[str, Any]], *, limit:
                 uri,
                 reason,
                 ["explicit_positives", "accepted_recommendations"],
+                artwork=compact_artwork(value),
                 image_url=_first_text(value, "image_url", "album_image_url", "thumbnail_url"),
                 quality=_quality_payload(86, ["accepted_recommendation", "explicit_positive"]),
             )
@@ -1078,6 +1125,7 @@ def _item(
     reason_sources: list[str],
     *,
     image_url: str = "",
+    artwork: dict[str, Any] | None = None,
     quality: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     item_id = (
@@ -1094,6 +1142,7 @@ def _item(
         "subtitle": subtitle,
         "uri": uri,
         **({"image_url": image_url} if image_url else {}),
+        **({"_artwork": artwork} if artwork else {}),
         "reason": reason,
         "reason_sources": reason_sources,
         "confidence": "medium",
@@ -1195,7 +1244,9 @@ def _cache(runtime: Any) -> dict[str, Any]:
 
 
 def _cache_key(context: dict[str, Any]) -> str:
-    return str(context.get("music_dna_key") or "default")
+    key = str(context.get("music_dna_key") or "default")
+    owner = context.get("artwork_owner")
+    return key + ":" + hashlib.sha256(repr((sorted(owner.items()), context.get("artwork_privacy"))).encode()).hexdigest() if owner and any(owner.get(k) for k in ("profile_id", "backend_id", "account_id")) else key
 
 
 def _cache_valid(cached: Any, now: datetime) -> bool:

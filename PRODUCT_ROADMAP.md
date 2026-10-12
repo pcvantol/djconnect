@@ -1,5 +1,18 @@
 # DJConnect Product Roadmap
 
+
+Current bounded Core correction: `DJC-CORE-DISCOVERY-ARTWORK-CONTINUITY-V1-20261012`
+([owning6117357579](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6117357579)).
+Local implementation/qualification in the existing Core writer; source delivery
+and separate Finalization remain unpublished. Exact provider identities survive
+bounded opt-in Store compaction into authorized Discovery/image delivery. Existing
+`has_artwork` +2 input is restored; no new recommendation family, provider or cost
+route. [Contract](docs/product/DISCOVERY_ARTWORK_CONTINUITY_V1.md) and versioned
+live DAG record the correction. Native/installed/live/hardware acceptance stays
+separate. Presence1150/1151 remains closed. The selected narrative-album follow-up
+is queued only after this correction's protected delivery, Finalization and cleanup;
+no narrative runtime implementation or Stage4 promotion is started here.
+
 ## Delivered Core source: DJ presence v1 — joint product Planned
 
 [Owner decision6110375785](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6110375785)
