@@ -1,6 +1,8 @@
 # Session history summary v1
 
-Status: selected Core implementation **In progress**; native Apple adoption **Planned**.
+Status: Core producer **delivered** via [#1162](https://github.com/pcvantol/djconnect/pull/1162); native Apple adoption **Planned**.
+Producer pin `ccbb839f4e544b3739c31202685d147207e4c289`; [exact readback](../verification/SESSION_HISTORY_SUMMARY_V1_SOURCE_READBACK.md).
+Separate documentary Finalization retains its own exact gate.
 Implementation: `DJC-CORE-SESSION-HISTORY-SUMMARY-V1-20261013`, existing
 `HISTORY::CORE::SUMMARY` → `HISTORY::APPLE::SUMMARY`.
 [Connected acceptance refinement](SESSION_HISTORY_SUMMARY_ACCEPTANCE_V1.md).
@@ -29,7 +31,7 @@ must not fetch N timelines, provider data, expired content or DNA/model output.
 See [entry/lifecycle](SESSION_ENTRY_LIFECYCLE_EXPERIENCE_V1.md) and
 [native privacy boundaries](APPLE_SESSION_NATIVE_SURFACES_V1.md).
 
-## Proposed wire contract
+## Delivered wire contract
 
 The connected producer advertises `session_history_summary: true` and
 `contract_versions.session_history_summary: 1`. The optional summary version is
@@ -111,8 +113,9 @@ full publication counts were therefore unknown. The connected implementation
 now provides the missing compact semantic acceptance transaction for the existing
 Manager publication entrances (opening/direction, coordinator, fallback track,
 qualified fact, shared-producer relation and immediate/pending narrative paths).
-This local implementation is not yet protected-delivered or independently fully
-qualified; no producer release or native acceptance is implied.
+This Core implementation is independently qualified and protected-delivered via
+[#1162](https://github.com/pcvantol/djconnect/pull/1162) at the pinned producer SHA
+above. Native Apple rendering and joint acceptance remain independently open.
 
 One non-Silence immutable proactive DJMoment has a canonical Session/Moment key
 and aggregate in existing Session Storage, independent of a permitted optional
@@ -188,15 +191,15 @@ retained statistic needs its own rights qualification; otherwise withdraw or
 recompute it. Profile reassignment cannot grant a new actor old history.
 No query enables Music DNA, revives ended Runtime or refetches expired bodies.
 
-## Planned subsets and acceptance
+## Subset delivery and remaining acceptance
 
-1. Qualify producer semantic event identities, rights, duration coverage and
-   existing Store transaction/migration/dedup boundaries.
-2. Implement optional same-revision list/detail aggregation and capability;
-   preserve old consumers and missing/unknown values.
-3. Independently admit native history row/header rendering, accessible labels
+1. **Core delivered:** qualified semantic event identities, rights, duration
+   coverage and existing Store transaction/migration/dedup boundaries.
+2. **Core delivered:** optional coherent list/detail aggregation and capability;
+   existing consumers and missing/unknown values are preserved.
+3. **Apple Planned:** independently admit native history row/header rendering, accessible labels
    and five-language terminology; no local counting or N+1 timeline loads.
-4. Joint qualification with real routes, concurrent writes/reads, end/restart,
+4. **Core routes qualified; joint product acceptance open:** concurrent writes/reads, end/restart,
    trim/delete/revocation, duplication/replay and interrupted partial coverage.
 
 Owning tests must distinguish empty from unknown; unique identity from accepted
@@ -208,12 +211,12 @@ this richer summary; surface display of private aggregates remains separately
 unqualified. No broader Lifecycle, narrative maturity or native/hardware
 completion is inferred from these designs.
 
-## Documentary delivery receipt
+## Historical documentary delivery receipt — #1160
 
 [Source PR #1160](https://github.com/pcvantol/djconnect/pull/1160) protected merged as `fdc79c9d7174b9d67dcf743400fbb76a0c163387`.
-[Exact source/artifact qualification](../verification/SESSION_ENTRY_LIFECYCLE_HISTORY_DESIGN_V1_SOURCE_READBACK.md) records documentary checks and independent review; all proposed product implementation remains **Planned**. Separate Finalization reconciliation is still gated.
+[Historical source/artifact qualification](../verification/SESSION_ENTRY_LIFECYCLE_HISTORY_DESIGN_V1_SOURCE_READBACK.md) records the earlier documentary checks and review. At that #1160 design-only boundary all implementation was Planned; its #1161 Finalization is closed. The current #1162 Core producer delivery above supersedes only the Core summary gap. Apple and joint acceptance remain open.
 
-## Connected implementation qualification (in progress)
+## Connected Core implementation qualification — delivered
 
 The aggregation boundary is a short existing SQLite transaction. It accepts
 canonical playback entry + key/count together, or a semantic non-Silence Moment
@@ -278,11 +281,13 @@ new native implementation):
 | provisional | Provisional | Voorlopig | Vorläufig | Provisoire | Provisional |
 | final | Final | Definitief | Abschließend | Définitif | Definitivo |
 
-[Machine-readable local qualification](../../examples/client_contracts/session_history_summary_v1/qualification.json)
+[Machine-readable source qualification](../../examples/client_contracts/session_history_summary_v1/qualification.json)
 and [source-file integrity](../../examples/client_contracts/session_history_summary_v1/source-integrity.json)
-freeze the measured software boundary; neither is a published integration-artifact
-receipt or native acceptance. The source SHA is bound in the owning register
-after the local commit, so the manifest does not contain a circular self-digest.
+freeze the measured software boundary. The source integrity manifest is not itself
+a published integration-artifact receipt or native acceptance; the separate
+[exact source readback](../verification/SESSION_HISTORY_SUMMARY_V1_SOURCE_READBACK.md)
+provides published artifact/provenance evidence. The source manifest has no circular
+self-digest; native consumer acceptance remains independently open.
 
 [Actual owner state fixtures](../../examples/client_contracts/session_history_summary_v1/summary-states.json)
 show known0 before externally gated provider generation, partial8191 observations

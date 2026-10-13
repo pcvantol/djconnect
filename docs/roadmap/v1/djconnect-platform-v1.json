@@ -38166,8 +38166,8 @@
         "title": "Owner history summary aggregation contract",
         "lane": "DJC-CORE",
         "repository": "pcvantol/djconnect",
-        "status": "In progress",
-        "assignment_status": "IN_PROGRESS",
+        "status": "Completed",
+        "assignment_status": "CORE_DELIVERED",
         "scope": "Bounded atomic counts, Mood intervals/coverage, privacy/delete/migration, no N+1",
         "acceptance_boundary": "Bounded atomic counts, Mood intervals/coverage, privacy/delete/migration, no N+1",
         "contract_binding": "docs/product/SESSION_HISTORY_SUMMARY_V1.md",
@@ -39005,11 +39005,11 @@
     "document_references": [
       {
         "path": "PRODUCT_ROADMAP.md",
-        "sha256": "ad8e56221dbfd313506ebb20e3152dbb1c511f171299348f9f84a8bc75348af4"
+        "sha256": "072914802f4a5e21347d3fa18ab8268a9bd186a94e3b7d3b1df74f1448b5c994"
       },
       {
         "path": "PRODUCT_BACKLOG.md",
-        "sha256": "b93bef65ed052aebd2c0ce28fed50338cb1fc5539068360d95f5ef327d804646"
+        "sha256": "43f01beb0e1e41095860a56d8b1689d1b304591d87626e1307583d3f2e3d4079"
       },
       {
         "path": "docs/product/DJ_PRESENCE_V1.md",
@@ -39117,7 +39117,7 @@
       },
       {
         "path": "docs/product/SESSION_HISTORY_SUMMARY_V1.md",
-        "sha256": "29e887d4c2531c84e3c3de0d62e9394b3f868aeeb98625d635a52a9255c974a5"
+        "sha256": "fed7b849ce5c5918507b22055575cd847728ae40c28e038a364c647e6fb193d9"
       },
       {
         "path": "docs/product/APPLE_SESSION_NATIVE_SURFACES_V1.md",
@@ -39134,6 +39134,14 @@
       {
         "path": "docs/product/SESSION_HISTORY_SUMMARY_ACCEPTANCE_V1.md",
         "sha256": "2ca903977e3cd59888295a7081be577b93175b682a4d162b12159acaa78092a9"
+      },
+      {
+        "path": "docs/verification/SESSION_HISTORY_SUMMARY_V1_SOURCE_READBACK.md",
+        "sha256": "5a65bd4853a878c2d6e8a50603fd6b5fb4d1e41225853d94097d010e38faadf4"
+      },
+      {
+        "path": "docs/history/prompts/2026-10-13-session-history-summary-finalization.md",
+        "sha256": "b3d248b51a46e9e4b74439f2331b888ec5e70a80d348ec598601ca8447bada0c"
       }
     ],
     "implementation_receipt": {
@@ -39332,15 +39340,38 @@
       "ack": 6140221712,
       "material_start": 6140499701,
       "material_commit": "828cee40f63fd08bd09b56efcec82fcf7d322133",
-      "phase": "LOCAL_IMPLEMENTATION_AND_QUALIFICATION",
-      "source_delivery": "UNPUBLISHED",
+      "phase": "SOURCE_PROTECTED_MERGED",
+      "source_delivery": "PROTECTED_MERGED",
       "native": "NOT_RUN",
       "installed": "NOT_RUN",
       "hardware": "NOT_RUN",
       "joint_acceptance": "OPEN",
-      "apple_handoff": "https://github.com/pcvantol/djconnect-app/issues/87#issuecomment-6140844276",
+      "apple_handoff": "https://github.com/pcvantol/djconnect-app/issues/87#issuecomment-6143854009",
       "previous_delta": "history/20261012/session-entry-history-design-maintenance-v7.json",
-      "previous_delta_sha256": "1b6ab44cbbf7b16ef3207e90424f4b278c24037a0f8ddb485f68b071a27c866f"
+      "previous_delta_sha256": "1b6ab44cbbf7b16ef3207e90424f4b278c24037a0f8ddb485f68b071a27c866f",
+      "source_main_sha": "ccbb839f4e544b3739c31202685d147207e4c289",
+      "source_candidate": "ceb91c46dfc4e971037ffaff0c75ffa6f218ea22",
+      "source_pr": "https://github.com/pcvantol/djconnect/pull/1162",
+      "source_review": "PASS",
+      "required_checks": "PASS",
+      "protected_merge": true,
+      "source_tree": "9f75d04338a51204f239a79dc66e7fb267ba45eb",
+      "archive_sha256": "9e4894d480e1cb7026a25d05e4991ea6949f6287a7de31da412338ea74b8c9e9",
+      "formal_evidence_sha256": "4c5e1de54a6a0981455c86fbbf833b57c116457df2538ca88061fd542b73e041",
+      "formal_integrity": "19eebae4da01a4f546ed02c17d51844ed06355de08292b359ee10e49064421ab",
+      "safe_regular_integration_files": 152,
+      "integration_mismatches": [],
+      "formal_validation": "PASS",
+      "pinned_formal_validator": "PASS",
+      "raw_provenance_validator": "PASS",
+      "raw_source_digest": "e53bb4e945a663c10a31c28cd6dd7f486d10e696c48d766f74cf1ddf706157e1",
+      "published_asset_digests": "PASS",
+      "owner_authorization": "NORMAL_RISK_NOT_REQUIRED_POLICY_SUCCESS",
+      "owner_authorization_run": 38384707510,
+      "main_validate_run": "38385064484",
+      "artifact_run": "38385357994",
+      "formal_run": "38385358288",
+      "finalization": "RECONCILIATION_CANDIDATE_SEPARATE_GATE"
     }
   }
 }
