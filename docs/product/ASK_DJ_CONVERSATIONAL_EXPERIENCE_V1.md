@@ -109,3 +109,11 @@ Bounded longer dialogue and race/failure/private/retry tests qualify resource
 limits. Native/installed/hardware and joint acceptance remain separately open.
 Only this one Core slice is selected; no lifecycle, proactive editorial, Watch,
 new provider/model/account/cost route, deployment or following slice.
+
+## Directed Track Insight addition
+
+An eligible useful Track contribution can offer explicit
+[Track Insight drilldown](MOMENT_TRACK_INSIGHT_DRILLDOWN_V1.md). Receiving it never
+navigates. The same detail and target resolution serve a requested drilldown in
+either composer. Earlier subject mode stays fixed during playback changes;
+Apple navigation/back/draft/scroll acceptance remains separately owned.

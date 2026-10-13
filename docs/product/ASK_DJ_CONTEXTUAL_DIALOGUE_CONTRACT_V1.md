@@ -180,3 +180,13 @@ Ask DJ/text/voice/history/search/presence/Mood/Forecast/ambient/summary regressi
 Early exact producer fixtures go only to existing Apple #87; native adoption
 and installed/hardware/joint acceptance remain open. Exact source publication,
 protected merge/artifact readback and separate Finalization retain their gates.
+
+## Owner addition: proactive Track Insight navigation
+
+The owner-approved [Moment → Track Insight drilldown](MOMENT_TRACK_INSIGHT_DRILLDOWN_V1.md)
+is part of this same assignment. Its directed contract precedes its runtime
+changes. One target resolver and existing TrackInsightService serve explicit
+Ask DJ in both composers and qualified inert Moment actions. Exact recording,
+navigation-only admission, original rights/deadlines and consumer opt-in are
+mandatory; a selected earlier subject cannot become current playback silently.
+Core delivery and native adoption retain distinct acceptance statuses.
