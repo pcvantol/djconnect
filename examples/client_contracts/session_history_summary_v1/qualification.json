@@ -15,12 +15,18 @@
     },
     "observed_matches_expected": true,
     "duration_seconds": 74,
-    "providers": "external Spotify and existing HA conversation response fixtures only"
+    "providers": "external Spotify and existing HA conversation response fixtures only",
+    "actual_owner_transport_states": [
+      "zero_complete",
+      "partial_at_8192_key_bound",
+      "withdrawn",
+      "legacy_final_unknown_no_backfill"
+    ]
   },
   "regression": {
-    "tests": 1786,
+    "tests": 1788,
     "existing_skips": 7,
-    "owning_tests": 25,
+    "owning_tests": 27,
     "result": "PASS"
   },
   "security": {
@@ -46,5 +52,12 @@
     "required_checks": "NOT_RUN",
     "artifact_main_readback": "NOT_RUN",
     "finalization": "NOT_STARTED_SEPARATE_GATE"
-  }
+  },
+  "review_fixes": [
+    "Mood authority after storage wait",
+    "semantic retry opportunity consumption",
+    "rollback on actual COMMIT failure",
+    "exact integer Mood intervals",
+    "source/freshness/read-fit after storage wait"
+  ]
 }

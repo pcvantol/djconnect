@@ -24,3 +24,7 @@ native Apple acceptance. Exact candidate review and protected delivery are open.
 Revision tokens only compare exactly against their own containing header; never
 parse detail tokens as integers or order/merge them across routes. Partial totals
 are registered subsets, unknown/withdrawn are unavailable, and known0 is zero.
+
+summary-states.json contains actual paired owner responses for zero, partial,
+withdrawn and legacy-final-unknown. Its real observer sequence reaches the
+8192-key bound; legacy compact rows absent are an explicit Store-data fixture.

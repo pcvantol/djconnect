@@ -331,7 +331,9 @@ class HistoricalProjectionRepository(PersistenceRepository):
             )
         return ids
 
-    async def async_accept_moment(self, owner, session_id, moment_id, entry=None):
+    async def async_accept_moment(
+        self, owner, session_id, moment_id, entry=None, *, authorize=None
+    ):
         """Semantic commit independently qualified from optional archival text."""
 
         def accept(tx):
@@ -363,7 +365,7 @@ class HistoricalProjectionRepository(PersistenceRepository):
                 )
             return True
 
-        return await self._async_in_transaction(accept)
+        return await self._async_in_transaction(accept, authorize=authorize)
 
     async def async_accept_mood(self, owner, session_id, mood, *, authorize=None):
         def accept(tx):

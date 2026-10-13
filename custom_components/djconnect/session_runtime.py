@@ -5635,6 +5635,31 @@ class SessionRuntimeManager:
             return False
         if moment.moment_type is DJMomentType.SILENCE:
             return True
+        opportunity = self._intra_track_opportunities.get(active.owner_profile_id)
+        generation = opportunity.generation if opportunity is not None else None
+
+        def admission_is_current():
+            # Runs on the event loop after provider-lock waiting, never in SQLite's worker.
+            if self._active_by_profile.get(active.owner_profile_id) is not active or not active.allows_proactive():
+                return False
+            source = getattr(moment, "source_fact", None)
+            if source is not None and not source.eligible(source.media_identity, time.monotonic()):
+                return False
+            if opportunity is not None and moment.moment_type is not DJMomentType.SESSION:
+                playback = active.broadcast.state.playback
+                age = self._monotonic_source() - opportunity.last_observed_monotonic
+                if (self._intra_track_opportunities.get(active.owner_profile_id) is not opportunity
+                        or opportunity.generation != generation or opportunity.blocked
+                        or playback.state != "playing" or playback.item_id != opportunity.item_id
+                        or not 0 <= age <= 30 or opportunity.last_observed_position_ms is None
+                        or playback.duration_ms is None):
+                    return False
+                position = max(playback.position_ms or 0,
+                    opportunity.last_observed_position_ms + int(age * 1000))
+                if playback.duration_ms - position < (moment.presentation_intent.maximum_duration_seconds + 5) * 1000:
+                    return False
+            return True
+
         prepared = active.compose_moment(moment)
         from .session_facts import QualifiedSessionFact, SharedProducerFact
 
@@ -5672,8 +5697,14 @@ class SessionRuntimeManager:
                              "text":moment.content,"summary":moment.summary,
                              "source_attribution":dict(moment.source_attribution),"archive_basis":basis,
                              "persona":active.dj_persona.value,"locale":active.locale}}
-        accepted = await self._historical_projections.async_accept_moment(
-            active.owner_profile_id, active.session_id, moment.moment_id, entry)
+        try:
+            accepted = await self._historical_projections.async_accept_moment(
+                active.owner_profile_id, active.session_id, moment.moment_id, entry,
+                authorize=admission_is_current)
+        except PermissionError:
+            if not admission_is_current():
+                return False
+            raise
         if accepted:
             active.prepared_presentations.clear()
             active.prepared_presentations[moment.moment_id] = prepared

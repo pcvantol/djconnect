@@ -240,11 +240,15 @@ Moments (opening Session + qualified Spotify Album), one permitted readable
 body, and time-weighted energy after end and storage reopening. Fixtures:
 [producer examples](../../examples/client_contracts/session_history_summary_v1/README.md).
 Only external provider responses are fixtures; the acceptance/storage/query
-chain is real. The local matrix,25 owningtests,1786 regressions (7 existing skips), security
+chain is real. The local matrix,27 owningtests,1788 regressions (7 existing skips), security
 and134 DAG checks pass. Exact independent candidate reviews and protected
 source/Finalization delivery remain required before a delivered Core claim. No native/installed/hardware PASS.
 
 ## Direct list consumption and value/coverage matrix
+
+A provisional read can advance `as_of` and its open Mood duration with an
+unchanged revision. Consumers render that coherent response, without dropping
+a newer as-of solely because its revision repeats.
 
 List metric/header revisions are integers; detail metric/header revisions are
 the existing opaque strings. Consumers compare exact equality with their own
@@ -279,3 +283,9 @@ and [source-file integrity](../../examples/client_contracts/session_history_summ
 freeze the measured software boundary; neither is a published integration-artifact
 receipt or native acceptance. The source SHA is bound in the owning register
 after the local commit, so the manifest does not contain a circular self-digest.
+
+[Actual owner state fixtures](../../examples/client_contracts/session_history_summary_v1/summary-states.json)
+show known0 before externally gated provider generation, partial8191 observations
+plus one Moment at the real8192-key bound, source-withdrawn null values and
+legacy final unknown. Only provider responses and explicit legacy Store data
+are fixtures; registration, transactions, query and owner authorization are real.

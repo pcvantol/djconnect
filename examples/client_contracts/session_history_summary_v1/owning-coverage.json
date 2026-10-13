@@ -1,8 +1,8 @@
 {
   "mode": "full_regression_plus_actual_paired_HA",
-  "regression_tests": 1786,
+  "regression_tests": 1788,
   "existing_skips": 7,
-  "owning_tests": 25,
+  "owning_tests": 27,
   "files": {
     "custom_components/djconnect/historical_projection_query.py": {
       "covered_lines": 231,
@@ -181,13 +181,13 @@
       "percent_branches_covered_display": "68"
     },
     "custom_components/djconnect/persistence/summary.py": {
-      "covered_lines": 81,
-      "num_statements": 85,
-      "percent_covered": 93.27731092436974,
+      "covered_lines": 84,
+      "num_statements": 88,
+      "percent_covered": 93.44262295081967,
       "percent_covered_display": "93",
       "missing_lines": 4,
       "excluded_lines": 0,
-      "percent_statements_covered": 95.29411764705883,
+      "percent_statements_covered": 95.45454545454545,
       "percent_statements_covered_display": "95",
       "num_branches": 34,
       "num_partial_branches": 4,
@@ -229,19 +229,19 @@
       "percent_branches_covered_display": "68"
     },
     "custom_components/djconnect/session_runtime.py": {
-      "covered_lines": 2803,
-      "num_statements": 2972,
-      "percent_covered": 91.86224489795919,
+      "covered_lines": 2824,
+      "num_statements": 2994,
+      "percent_covered": 91.88163884673749,
       "percent_covered_display": "92",
-      "missing_lines": 169,
+      "missing_lines": 170,
       "excluded_lines": 0,
-      "percent_statements_covered": 94.3135935397039,
+      "percent_statements_covered": 94.32197728790915,
       "percent_statements_covered_display": "94",
-      "num_branches": 948,
-      "num_partial_branches": 132,
-      "covered_branches": 798,
-      "missing_branches": 150,
-      "percent_branches_covered": 84.17721518987342,
+      "num_branches": 960,
+      "num_partial_branches": 133,
+      "covered_branches": 809,
+      "missing_branches": 151,
+      "percent_branches_covered": 84.27083333333333,
       "percent_branches_covered_display": "84"
     }
   }

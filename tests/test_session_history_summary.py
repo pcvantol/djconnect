@@ -801,3 +801,124 @@ class SummaryTest(unittest.IsolatedAsyncioTestCase):
                 sys.modules.pop("custom_components.djconnect.const", None)
             else:
                 sys.modules["custom_components.djconnect.const"] = previous_const
+
+    async def test_exact_microsecond_tie_never_becomes_false_majority_from_float_truncation(self):
+        stamp = datetime.now(UTC)
+
+        def confirmed(tx):
+            tx.execute(
+                "UPDATE djconnect_session_summaries SET mood_durations=?,mood_current='groove',mood_since=?,mood_coverage='complete' WHERE session_id=?",
+                (
+                    json.dumps(dict.fromkeys(("chill", "groove", "energy", "party"), 0)),
+                    stamp.isoformat(),
+                    self.id,
+                ),
+            )
+            mood_tx(tx, self.id, "chill", (stamp + timedelta(microseconds=249)).isoformat())
+            mood_tx(tx, self.id, "groove", (stamp + timedelta(microseconds=749)).isoformat())
+            mood_tx(
+                tx,
+                self.id,
+                "groove",
+                (stamp + timedelta(microseconds=1000)).isoformat(),
+                terminal=True,
+            )
+
+        await self.service.async_in_transaction(confirmed)
+        self.assertEqual((await self.record())["summary"]["mood"]["value"], "mixed")
+        connection = sqlite3.connect(self.path)
+        durations = json.loads(
+            connection.execute(
+                "SELECT mood_durations FROM djconnect_session_summaries WHERE session_id=?",
+                (self.id,),
+            ).fetchone()[0]
+        )
+        connection.close()
+        self.assertEqual(durations["groove"], 500)
+        self.assertEqual(durations["chill"], 500)
+
+    async def test_current_fact_admission_rechecks_age_expiry_and_read_fit_after_storage_wait(self):
+        import sys
+        import time
+        from dataclasses import replace
+        from tests.test_session_runtime import _load_runtime_module
+        from tests.test_narrative_album_continuity import NarrativeAlbumContinuityTest
+
+        runtime, previous_const = _load_runtime_module()
+        try:
+            from custom_components.djconnect import session_facts
+
+            await self.sessions.async_transition(
+                "owner", self.id, ENDED, historical_projections=self.history
+            )
+            for case in ("observation_age", "source_expiry", "remaining_read_fit"):
+                fixture = NarrativeAlbumContinuityTest()
+                fixture.runtime, fixture.facts, fixture.clock = runtime, session_facts, [100.0]
+                fixture.manager = runtime.SessionRuntimeManager(
+                    self.sessions, self.history, monotonic_source=lambda: fixture.clock[0]
+                )
+                active = await fixture.manager.async_start(
+                    owner_profile_id="owner",
+                    selected_mood="groove",
+                    music_backend="spotify_direct",
+                    session_start_strategy=runtime.SessionStartStrategy.DISCOVER,
+                )
+                fixture.session = active
+                await fixture.track(0)
+                fixture.clock[0] += 200
+                catalog = fixture.catalog(1)
+                await fixture.manager.async_update_playback_projection(
+                    owner_profile_id="owner",
+                    session_id=active.session_id,
+                    state="playing",
+                    media_identity=catalog["uri"],
+                    title=catalog["title"],
+                    artist=catalog["artist"],
+                    album=catalog["album_name"],
+                    duration_ms=70000 if case == "remaining_read_fit" else 300000,
+                    position_ms=0,
+                )
+                facts = fixture.pool(1)
+                if case == "source_expiry":
+                    facts = tuple(replace(f, observed_at=time.monotonic() - 1799) for f in facts)
+
+                async def provider():
+                    return {"_qualified_facts": facts}
+
+                lock = self.service._provider._write_lock
+                await lock.acquire()
+                pending = asyncio.create_task(
+                    fixture.manager.async_process_track_started(
+                        owner_profile_id="owner",
+                        session_id=active.session_id,
+                        media_identity=catalog["uri"],
+                        insight_provider=provider,
+                        require_current_playback=True,
+                        allow_initial_facts=True,
+                    )
+                )
+                for _ in range(100):
+                    if fixture.manager._lock.locked():
+                        break
+                    await asyncio.sleep(0.001)
+                self.assertTrue(fixture.manager._lock.locked())
+                self.assertFalse(pending.done())
+                if case == "source_expiry":
+                    await asyncio.sleep(1.1)
+                else:
+                    fixture.clock[0] += 31 if case == "observation_age" else 29
+                lock.release()
+                self.assertIsNone(await pending, case)
+                row = await self.history.async_session_record(active.session_id)
+                self.assertEqual(row["summary"]["moments_published"]["value"], 1, case)
+                self.assertEqual(active.presence_ledger.total_published, 1, case)
+                self.assertFalse(active.published_album_context.used_relations, case)
+                await fixture.manager.async_end(
+                    owner_profile_id="owner", session_id=active.session_id
+                )
+        finally:
+            sys.modules.pop("custom_components.djconnect.session_runtime", None)
+            if previous_const is None:
+                sys.modules.pop("custom_components.djconnect.const", None)
+            else:
+                sys.modules["custom_components.djconnect.const"] = previous_const

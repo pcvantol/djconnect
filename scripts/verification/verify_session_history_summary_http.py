@@ -152,19 +152,23 @@ async def main():
     from custom_components.djconnect.spotify_backend import SpotifyBackend
 
     selected = ["1"]
+    player_gate = asyncio.Event()
+    if os.environ.get("DJC_SUMMARY_CASE") != "summary-states":
+        player_gate.set()
     calls = []
 
     async def provider(self, method, path, **kwargs):
         calls.append(path)
         if path == "/me/player":
+            await player_gate.wait()
             n = selected[0]
             return {
                 "is_playing": True,
                 "progress_ms": 20000,
                 "item": {
                     "name": "Anchor " + n,
-                    "uri": "spotify:track:" + n * 22,
-                    "id": n * 22,
+                    "uri": "spotify:track:" + (n * 22 if len(n) == 1 else n),
+                    "id": n * 22 if len(n) == 1 else n,
                     "duration_ms": 240000,
                     "artists": [{"name": "Northline", "id": "2" * 22}],
                     "album": {
@@ -220,6 +224,113 @@ async def main():
             assert response.status in (200, 201), body
             return body
 
+        if os.environ.get("DJC_SUMMARY_CASE") == "summary-states":
+            start_task = asyncio.create_task(
+                post("/session/start", {**identity, "mood": "chill", "locale": "nl"})
+            )
+            for _ in range(100):
+                current = await manager.async_get_active("profile-a")
+                if current is not None:
+                    break
+                await asyncio.sleep(0.01)
+            assert current is not None and not start_task.done()
+            sid = current.session_id
+            examples = []
+
+            async def snapshot(label):
+                response = await client.get(
+                    "/api/djconnect/v1/session/history",
+                    params={**identity, "include_active": "true"},
+                    headers=headers,
+                )
+                body = await response.json()
+                assert response.status == 200 and response.headers["Cache-Control"] == "no-store"
+                row = next(r for r in body["sessions"] if r["session_id"] == sid)
+                examples.append(
+                    {
+                        "label": label,
+                        "path": "/session/history",
+                        "status": response.status,
+                        "cache_control": "no-store",
+                        "body": body,
+                    }
+                )
+                return row["summary"]
+
+            zero = await snapshot("known-zero-before-provider-generation")
+            assert zero["tracks_observed"]["value"] == 0 and zero["moments_published"]["value"] == 0
+            player_gate.set()
+            await start_task
+            await post(
+                "/session/presence",
+                {
+                    **identity,
+                    "contract_version": 1,
+                    "session_id": sid,
+                    "selected_presence": "music_only",
+                    "expected_presence_revision": 0,
+                },
+            )
+            from custom_components.djconnect.playback_observation import (
+                playback_observation_manager,
+            )
+
+            observer = playback_observation_manager(hass)
+            observed = observer._spotify_sessions["profile-a"]
+            # External response sequence drives the real observer/normalizer,
+            # Runtime acceptance and SQL. No registration, counter or query mock.
+            async with asyncio.timeout(90):
+                for number in range(8192):
+                    selected[0] = f"{number + 10:022d}"
+                    # Provider fixture below normalizes all generated IDs.
+                    await observer._async_poll_spotify(observed)
+            partial = await snapshot("partial-at-real-8192-key-capacity")
+            assert partial["tracks_observed"]["coverage"] == "partial", partial
+            assert partial["tracks_observed"]["value"] == 8191, partial
+            assert partial["moments_published"]["value"] == 1, partial
+            await HistoricalProjectionRepository(service).async_withdraw_source_entry("owner-entry")
+            withdrawn = await snapshot("withdrawn-source")
+            assert (
+                withdrawn["tracks_observed"]["value"] is None
+                and withdrawn["moments_published"]["coverage"] == "withdrawn"
+            )
+            await post("/session/end", {**identity, "session_id": sid})
+            # Explicit legacy Store-data fixture: version5 has no compact tables.
+            # Current migrated tables may exist for new Sessions, with no old row.
+            await service.async_in_transaction(
+                lambda tx: (
+                    tx.execute(
+                        "DELETE FROM djconnect_session_summaries WHERE session_id=?", (sid,)
+                    ),
+                    tx.execute(
+                        "DELETE FROM djconnect_session_acceptances WHERE session_id=?", (sid,)
+                    ),
+                )
+            )
+            unknown = await snapshot("legacy-final-unknown-no-backfill")
+            assert unknown["state"] == "final" and all(
+                unknown[k]["value"] is None and unknown[k]["coverage"] == "unknown"
+                for k in ("tracks_observed", "moments_published", "mood")
+            )
+            (directory / "paired-summary-states.json").write_text(
+                json.dumps(
+                    {
+                        "ordinary_pairing": True,
+                        "broad_ha_credentials": False,
+                        "fixtures": [
+                            "external provider responses",
+                            "explicit legacy Store-data fixture",
+                        ],
+                        "examples": examples,
+                    },
+                    indent=2,
+                )
+                + "\n"
+            )
+            await provider_session.close()
+            await async_shutdown_persistence(hass)
+            await hass.async_stop()
+            return
         started = await post("/session/start", {**identity, "mood": "chill", "locale": "nl"})
         sid = started["session"]["session_id"]
         print("STARTED", sid, flush=True)

@@ -97,6 +97,12 @@ def record_event_tx(tx, session_id, kind, reference_id, entry_id=""):
     return "new", entry_id
 
 
+def elapsed_microseconds(since, stamp):
+    """Exact signed datetime interval; float truncation can invent a majority."""
+    delta = datetime.fromisoformat(stamp) - datetime.fromisoformat(since)
+    return (delta.days * 86400 + delta.seconds) * 1_000_000 + delta.microseconds
+
+
 def mood_tx(tx, session_id, mood, stamp, *, terminal=False, interrupted=False):
     row = tx.fetchone(
         "SELECT mood_durations,mood_current,mood_since,mood_coverage FROM djconnect_session_summaries WHERE session_id=?",
@@ -109,10 +115,7 @@ def mood_tx(tx, session_id, mood, stamp, *, terminal=False, interrupted=False):
     if interrupted:
         coverage = "unknown"
     elif current in MOODS and since:
-        delta = int(
-            (datetime.fromisoformat(stamp) - datetime.fromisoformat(since)).total_seconds()
-            * 1_000_000
-        )
+        delta = elapsed_microseconds(since, stamp)
         if delta < 0:
             coverage = "unknown"
         else:
@@ -159,12 +162,7 @@ def project(row, session, as_of):
     durations = json.loads(data["mood_durations"])
     coverage = data["mood_coverage"]
     if state == "provisional" and data["mood_current"] in MOODS and data["mood_since"]:
-        delta = int(
-            (
-                datetime.fromisoformat(as_of) - datetime.fromisoformat(data["mood_since"])
-            ).total_seconds()
-            * 1_000_000
-        )
+        delta = elapsed_microseconds(data["mood_since"], as_of)
         if delta < 0:
             coverage = "unknown"
         else:

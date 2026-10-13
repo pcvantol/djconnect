@@ -39117,7 +39117,7 @@
       },
       {
         "path": "docs/product/SESSION_HISTORY_SUMMARY_V1.md",
-        "sha256": "3f1249ed6ea101bd777b57cd9b72503c07949ddcb8d0ebc8357629355401d2a0"
+        "sha256": "29e887d4c2531c84e3c3de0d62e9394b3f868aeeb98625d635a52a9255c974a5"
       },
       {
         "path": "docs/product/APPLE_SESSION_NATIVE_SURFACES_V1.md",
@@ -39133,7 +39133,7 @@
       },
       {
         "path": "docs/product/SESSION_HISTORY_SUMMARY_ACCEPTANCE_V1.md",
-        "sha256": "8de3a14efeba9c79cf3164ac901f6e7fb0c6fb9ebbfeff0e335ca85dbdf26f23"
+        "sha256": "2ca903977e3cd59888295a7081be577b93175b682a4d162b12159acaa78092a9"
       }
     ],
     "implementation_receipt": {

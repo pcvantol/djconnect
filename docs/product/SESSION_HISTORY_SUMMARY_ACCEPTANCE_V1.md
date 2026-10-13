@@ -30,7 +30,11 @@ payload or Performance Memory.
 Before the short acceptance boundary, generation/composition/cancellation/stale
 context may reject with no write. The final Mood authorization fence runs on
 the event loop after storage-lock acquisition, immediately before transaction
-admission; revoked token/Profile authority while waiting produces no write. Once its transaction starts, cancellation is drained through
+admission; revoked token/Profile authority while waiting produces no write.
+Proactive acceptance uses the same event-loop admission fence to recheck current
+Session/item/opportunity generation, observation freshness, source expiry and
+remaining readable playback. A stale candidate before admission consumes no
+count, key, opportunity or presence budget. Once its transaction starts, cancellation is drained through
 commit/rollback and the locked Runtime acceptance tail completes consistently;
 commit wins if accepted. Failure before commit consumes no presence/opportunity
 or working-engine state. A committed event remains counted after Flow/Broadcast
@@ -67,7 +71,8 @@ Complete observation count means complete accepted-entry capture, **not** comple
 listening, exact plays or same-track occurrence coverage. Advertise the fixed
 Stage1 observation scope; missing observation/capacity/gaps remain partial.
 
-Integer microsecond durations cover known elapsed Session time including pauses.
+Exact integer microsecond durations (timedelta days/seconds/microseconds,
+without floating truncation that can invent a majority) cover known elapsed Session time including pauses.
 Strict majority >50% requires complete positive coverage; otherwise mixed (no
 majority) or null (gaps/zero). Restart never closes an unobserved open interval as
 measured time. Old summary absent/unknown is not zero. Final is independent of
