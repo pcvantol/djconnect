@@ -1,6 +1,8 @@
 # Session history summary v1
 
-Status: selected Core implementation **In progress**; native Apple adoption **Planned**.
+Status: Core producer **delivered** via [#1162](https://github.com/pcvantol/djconnect/pull/1162); native Apple adoption **Planned**.
+Producer pin `ccbb839f4e544b3739c31202685d147207e4c289`; [exact readback](../verification/SESSION_HISTORY_SUMMARY_V1_SOURCE_READBACK.md).
+Separate documentary Finalization retains its own exact gate.
 Implementation: `DJC-CORE-SESSION-HISTORY-SUMMARY-V1-20261013`, existing
 `HISTORY::CORE::SUMMARY` → `HISTORY::APPLE::SUMMARY`.
 [Connected acceptance refinement](SESSION_HISTORY_SUMMARY_ACCEPTANCE_V1.md).
@@ -29,7 +31,7 @@ must not fetch N timelines, provider data, expired content or DNA/model output.
 See [entry/lifecycle](SESSION_ENTRY_LIFECYCLE_EXPERIENCE_V1.md) and
 [native privacy boundaries](APPLE_SESSION_NATIVE_SURFACES_V1.md).
 
-## Proposed wire contract
+## Delivered wire contract
 
 The connected producer advertises `session_history_summary: true` and
 `contract_versions.session_history_summary: 1`. The optional summary version is
@@ -278,11 +280,13 @@ new native implementation):
 | provisional | Provisional | Voorlopig | Vorläufig | Provisoire | Provisional |
 | final | Final | Definitief | Abschließend | Définitif | Definitivo |
 
-[Machine-readable local qualification](../../examples/client_contracts/session_history_summary_v1/qualification.json)
+[Machine-readable source qualification](../../examples/client_contracts/session_history_summary_v1/qualification.json)
 and [source-file integrity](../../examples/client_contracts/session_history_summary_v1/source-integrity.json)
-freeze the measured software boundary; neither is a published integration-artifact
-receipt or native acceptance. The source SHA is bound in the owning register
-after the local commit, so the manifest does not contain a circular self-digest.
+freeze the measured software boundary. The source integrity manifest is not itself
+a published integration-artifact receipt or native acceptance; the separate
+[exact source readback](../verification/SESSION_HISTORY_SUMMARY_V1_SOURCE_READBACK.md)
+provides published artifact/provenance evidence. The source manifest has no circular
+self-digest; native consumer acceptance remains independently open.
 
 [Actual owner state fixtures](../../examples/client_contracts/session_history_summary_v1/summary-states.json)
 show known0 before externally gated provider generation, partial8191 observations

@@ -1,5 +1,91 @@
 # DJConnect Verification Prompt Index
 
+## Current: connected Session history summary — separate Finalization
+
+### Repository Status
+
+PR [#1162](https://github.com/pcvantol/djconnect/pull/1162) merged as `ccbb839f4e544b3739c31202685d147207e4c289`
+from reviewed/owner-authorized `ceb91c46dfc4e971037ffaff0c75ffa6f218ea22`. Identical tree9f75d04338a51204f239a79dc66e7fb267ba45eb.
+Both exact independent reviews GO;32 applicable source checks PASS,5 conditional skips.
+Main38385064484/artifact38385357994/formal38385358288 successful.152 integration files
+candidate/main/archive equal, no mismatches. Pinned formal/raw provenance, checksums
+and required qualification PASS. Normal Owner Authorization SUCCESS/not required;
+no protection bypass. [Source readback](docs/verification/SESSION_HISTORY_SUMMARY_V1_SOURCE_READBACK.md)
+and [completion record](docs/history/prompts/2026-10-13-session-history-summary-finalization.md).
+
+### Management Summary
+
+Core-owned optional private owner-history v1 summary is connected to existing
+Session Storage and ordinary authorized list/header routes: accepted Stage1
+observations, semantic non-Silence proactive Moment commits and exact elapsed
+Mood majority/mixed/unknown. Old/partial/withdrawn Sessions remain honest.
+Real paired HA/storage reopen gives2 observations,2 Moments,1 permitted body and
+energy.1788 regressions/27 owning/134 DAG tests PASS;7 existing skips. Four fixed
+SELECTs per20-row page/100 Sessions,0 timeline requests;8192 combined dedup keys
+are bounded without eviction. No full-text/right bypass, Music DNA opt-in or
+shared projection. Stage1 limitations remain; no exact playback-instance claim.
+
+### Roadmap Position
+
+Generation2/Phase1 unchanged. This active increment is the separate documentary
+Finalization of the one Core summary slice. Existing HISTORY::CORE::SUMMARY is
+Completed producer; HISTORY::APPLE::SUMMARY stays Planned/native NOT_RUN.
+[Definitive Apple handoff](https://github.com/pcvantol/djconnect-app/issues/87#issuecomment-6143854009)
+pins capability/real fixtures/unknown-zero-partial-final/revision semantics without
+consumerstart or WIP expansion. Entry/history/native design1160/1161 and earlier
+Presence/artwork/Album/Forecast/Ambient stay closed; remaining product subsets,
+Continue Stage2 and joint acceptance stay open. Live JSON delta8/generated views
+and all historical snapshots are preserved; no duplicate nodes/dispatch.
+
+### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+Execution Horizon has **zero authorized following items**. Current canonical
+PRODUCT_BACKLOG.md/PRODUCT_ROADMAP.md/live JSON still contain Planned consumers
+and product gaps; those grant no execution authority. Owner requires stop after
+this one Core slice. Completed predecessor1162 is excluded; no priority override.
+
+1. **Unfilled slot 1 — no authorized item** | Source: canonical backlog/current owner scope. Dependency: new owning admission. Execution Rationale: no dispatch permitted.
+2. **Unfilled slot 2 — no authorized item** | Source: canonical backlog/current owner scope. Dependency: new owning admission. Execution Rationale: no dispatch permitted.
+3. **Unfilled slot 3 — no authorized item** | Source: canonical backlog/current owner scope. Dependency: new owning admission. Execution Rationale: no dispatch permitted.
+4. **Unfilled slot 4 — no authorized item** | Source: canonical backlog/current owner scope. Dependency: new owning admission. Execution Rationale: no dispatch permitted.
+5. **Unfilled slot 5 — no authorized item** | Source: canonical backlog/current owner scope. Dependency: new owning admission. Execution Rationale: no dispatch permitted.
+
+### Blocked Items
+
+Only the separate Finalization needs exact owner publication/automatic internal
+artifact authorization, valid reviews/required checks/protected merge and exact
+main/artifact readback. Own cleanup may require a bounded squash-equivalence
+exception; no previous candidate grant applies. Native/joint acceptance is a
+consumer-owned remaining qualification, not permission to start a second slice.
+
+### Deferred Items
+
+No new lifecycle/start/replace/Ask-DJ controls, continuation, Swift/consumerstart,
+widget/APNs, install/restart/deployment/Pages/signing/hardware, provider/model/cost,
+workflow/runner/service change or next productslice. Existing Apple WIP and HA-dev
+remain preserved. No native/installed/hardware PASS is claimed.
+
+### Repository State
+
+Repository State: `MERGED_RECONCILED` only after this exact separate Finalization
+is authorized, protected merged and its main/artifact evidence verified. Before
+that condition actual source is MERGED_UNRECONCILED/Finalization Pending YES;
+after successful readback Finalization Pending NO. This reviewable prospective
+record is not an assertion that local preparation already completed reconciliation.
+
+### Workspace State
+
+Workspace NOT_READY until Finalization merge/readback, main synchronization and
+safe own cleanup. Preserve source/final bundles, reviews, artifact/formal evidence,
+invalid duplicate-ref and partial-fast-forward recovery plus all unrelated WIP.
+Only own source/final refs may be considered. Normal cleanup requires merged PRs,
+remote removal, clean synchronized main, no unpublished work and valid ownership;
+source squash git-cherry '+' retains its ref unless an exact bounded owner
+exception accepts proven candidate/mergetree and aggregate-delta equality.
+Uncertainty preserves refs. No next slice.
+
+## Historical operational context
+
 ## Current: Session entry/history/native surfaces — documentary Finalization
 
 ### Repository Status

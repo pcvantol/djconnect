@@ -334,7 +334,7 @@ Assignment `DJC-SESSION-ENTRY-LIFECYCLE-HISTORY-DESIGN-V1-20261012`, including `
 | Existing family / bounded subset | Canonical design and acceptance | Status |
 | --- | --- | --- |
 | Existing Session entry/lifecycle: readiness and typed start/end/replace, Ask DJ text/voice, pause recovery | [Entry/lifecycle](docs/product/SESSION_ENTRY_LIFECYCLE_EXPERIENCE_V1.md); exact-target confirmation, no hidden playback, common Core authority; separate Apple lifecycle qualification | Planned |
-| Existing historical Session Timeline: owner list/header summary | [History summary](docs/product/SESSION_HISTORY_SUMMARY_V1.md); accepted observation/publication totals, time-weighted symbolic Mood including pauses, coverage/null/revision and deletion rights | Planned |
+| Existing historical Session Timeline: owner list/header summary | [History summary](docs/product/SESSION_HISTORY_SUMMARY_V1.md); accepted observation/publication totals, time-weighted symbolic Mood including pauses, coverage/null/revision and deletion rights | Core producer Completed; Apple Planned |
 | Existing Native Surface Integration: projection rights/state, typed navigation, widget/Activity/Island adoption, quiet transport, joint acceptance | [Apple surfaces](docs/product/APPLE_SESSION_NATIVE_SURFACES_V1.md); neutral fallback, purpose-specific cache/OS rights and exact subject lifecycle | Planned |
 | Independent Session Continuation: consent/policy, category-only invitation transport and joint acceptance | [Apple surfaces](docs/product/APPLE_SESSION_NATIVE_SURFACES_V1.md#separate-session-continuation); temporary opportunities, no fact/track spam, opt-in/dedup/revalidation | Planned |
 
@@ -342,10 +342,10 @@ The live [JSON-DAG](docs/roadmap/v1/djconnect-platform-v1.json) records unique b
 
 Keep historical snapshots and CMB-12 evidence unchanged. Delivered Presence, artwork, Album, Forecast and Ambient Core slices remain closed; narrative Stage 4 remains partial. Documentary completion does not complete those broader families or establish native, installed, APNs or hardware acceptance. No runtime/Swift/APNs/install/signing/workflow/runner/deployment work is selected.
 
-## Selected Core Session history summary — 2026-10-13
+## Delivered Core Session history summary — 2026-10-13
 
 `DJC-CORE-SESSION-HISTORY-SUMMARY-V1-20261013` admits only the existing
-`HISTORY::CORE::SUMMARY` (In progress). The connected design is
+`HISTORY::CORE::SUMMARY` (Completed Core producer). The connected design is
 [Session history summary v1](docs/product/SESSION_HISTORY_SUMMARY_V1.md).
 Canonical observation counts, semantic non-Silence publication counts and
 confirmed time-weighted Mood use existing storage and owner list/header routes.
@@ -353,4 +353,6 @@ Old/incomplete/withdrawn sessions retain honest unknown coverage.
 `HISTORY::APPLE::SUMMARY` remains Planned, dependent on the qualified producer
 contract; native rendering/installed and joint acceptance are open.
 No lifecycle/start/replace/control, continuation, notification or second slice
-is admitted. Protected source delivery and separate Finalization remain gates.
+is admitted. Source [#1162](https://github.com/pcvantol/djconnect/pull/1162) is protected merged as
+`ccbb839f4e544b3739c31202685d147207e4c289`; [exact source readback](docs/verification/SESSION_HISTORY_SUMMARY_V1_SOURCE_READBACK.md)
+qualifies the connected producer. Separate Finalization retains its own gate.

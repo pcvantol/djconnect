@@ -14,7 +14,7 @@ Selected ambient convergence: [DJC-CORE-AMBIENT-FACT-MOMENT-CONVERGENCE-V1-20261
 
 Combined Session entry/history/native-surface documentary design: [DJC-SESSION-ENTRY-LIFECYCLE-HISTORY-DESIGN-V1-20261012](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6131363097); documentation PROTECTED_MERGED. Documentary delivery does not itself admit product execution; Continuation is independent and rich passive rights are not inherited. Ambient1158/1159 remains terminal; version6 is preserved in history/20261012. No new product writer or native/APNs/installed/hardware PASS.
 
-Selected connected Core history summary: DJC-CORE-SESSION-HISTORY-SUMMARY-V1-20261013; source UNPUBLISHED. Reuses HISTORY::CORE::SUMMARY, with Apple adoption Planned and native/installed/joint acceptance open. Predecessor version7 is preserved byte-for-byte.
+Selected connected Core history summary: DJC-CORE-SESSION-HISTORY-SUMMARY-V1-20261013; source PROTECTED_MERGED. Reuses HISTORY::CORE::SUMMARY, with Apple adoption Planned and native/installed/joint acceptance open. Predecessor version7 is preserved byte-for-byte.
 
 | Node | Owner | Status | Outcome |
 |---|---|---|---|
@@ -44,7 +44,7 @@ Selected connected Core history summary: DJC-CORE-SESSION-HISTORY-SUMMARY-V1-202
 | `ENTRY::CORE::PAUSE-RECOVERY` | DJC-CORE | Planned | Pause and observation recovery policy |
 | `ENTRY::APPLE::NAVIGATION` | DJC-APPLE | Planned | Native preparation/music selection and return |
 | `ENTRY::APPLE::LIFECYCLE` | DJC-APPLE | Planned | Native exact lifecycle invocation integration |
-| `HISTORY::CORE::SUMMARY` | DJC-CORE | In progress | Owner history summary aggregation contract |
+| `HISTORY::CORE::SUMMARY` | DJC-CORE | Completed | Owner history summary aggregation contract |
 | `HISTORY::APPLE::SUMMARY` | DJC-APPLE | Planned | Native history list/header summary adoption |
 | `SURFACE::CORE::PROJECTION` | DJC-CORE | Planned | Native surface rights/state projection |
 | `SURFACE::APPLE::NAVIGATION` | DJC-APPLE | Planned | Typed native Session navigation |

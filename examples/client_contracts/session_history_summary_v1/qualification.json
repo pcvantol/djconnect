@@ -1,6 +1,6 @@
 {
   "assignment": "DJC-CORE-SESSION-HISTORY-SUMMARY-V1-20261013",
-  "phase": "LOCAL_SOFTWARE_QUALIFICATION_PENDING_EXACT_REVIEW_AND_PUBLICATION",
+  "phase": "SOURCE_PROTECTED_MERGED_FINALIZATION_PENDING",
   "schema_version": "djconnect-session-history-summary/1",
   "migration": 6,
   "core_software": {
@@ -48,10 +48,12 @@
     "joint_acceptance": "OPEN"
   },
   "delivery": {
-    "source": "UNPUBLISHED",
-    "required_checks": "NOT_RUN",
-    "artifact_main_readback": "NOT_RUN",
-    "finalization": "NOT_STARTED_SEPARATE_GATE"
+    "source": "PROTECTED_MERGED",
+    "required_checks": "PASS",
+    "artifact_main_readback": "PASS",
+    "finalization": "LOCAL_RECONCILIATION_SEPARATE_EXACT_GATE",
+    "source_main_sha": "ccbb839f4e544b3739c31202685d147207e4c289",
+    "source_pr": "https://github.com/pcvantol/djconnect/pull/1162"
   },
   "review_fixes": [
     "Mood authority after storage wait",
