@@ -37,6 +37,8 @@ class MaintenanceTests(unittest.TestCase):
         import json
 
         d = self.p["planning_maintenance"]
+        if d["schema_version"] == "djconnect-federated-planning-delta/8":
+            d = json.loads((ROOT / d["summary_receipt"]["previous_delta"]).read_text())
         receipt = d["documentary_receipt"]
         prior = (ROOT / receipt["previous_delta"]).read_bytes()
         self.assertEqual(hashlib.sha256(prior).hexdigest(), receipt["previous_delta_sha256"])
@@ -123,6 +125,14 @@ class MaintenanceTests(unittest.TestCase):
                     else ("In progress", "IN_PROGRESS")
                 )
                 self.assertEqual((n["status"], n["assignment_status"]), expected)
+            elif n["id"] == "HISTORY::CORE::SUMMARY":
+                delivered = d["summary_receipt"]["source_delivery"] == "PROTECTED_MERGED"
+                self.assertEqual(
+                    (n["status"], n["assignment_status"]),
+                    ("Completed", "CORE_DELIVERED")
+                    if delivered
+                    else ("In progress", "IN_PROGRESS"),
+                )
             elif n["id"] == "RELATION::CORE::ALBUM-CONTINUITY":
                 delivered = d["narrative_receipt"]["source_delivery"] == "PROTECTED_MERGED"
                 self.assertEqual(

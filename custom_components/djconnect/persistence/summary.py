@@ -88,12 +88,12 @@ def record_event_tx(tx, session_id, kind, reference_id, entry_id=""):
         "INSERT INTO djconnect_session_acceptances (session_id,kind,reference_id,entry_id) VALUES (?,?,?,?)",
         (session_id, kind, reference_id, entry_id),
     )
-    column = "tracks" if kind == "playback_observed" else "moments"
-    coverage = column + "_coverage"
-    tx.execute(
-        f"UPDATE djconnect_session_summaries SET {column}={column}+1 WHERE session_id=? AND {coverage}!='withdrawn'",
-        (session_id,),
+    statement = (
+        "UPDATE djconnect_session_summaries SET tracks=tracks+1 WHERE session_id=? AND tracks_coverage!='withdrawn'"
+        if kind == "playback_observed"
+        else "UPDATE djconnect_session_summaries SET moments=moments+1 WHERE session_id=? AND moments_coverage!='withdrawn'"
     )
+    tx.execute(statement, (session_id,))
     return "new", entry_id
 
 
@@ -209,12 +209,8 @@ def attach_tx(tx, records):
         return records
     ids = [r["session_id"] for r in records]
     rows = tx.fetchall(
-        "SELECT session_id,"
-        + ",".join(COLUMNS)
-        + " FROM djconnect_session_summaries WHERE session_id IN ("
-        + ",".join("?" for _ in ids)
-        + ")",
-        tuple(ids),
+        "SELECT session_id,tracks,moments,tracks_coverage,moments_coverage,mood_coverage,mood_durations,mood_current,mood_since,source_binding FROM djconnect_session_summaries WHERE session_id IN (SELECT value FROM json_each(?))",
+        (json.dumps(ids),),
     )
     values = {r[0]: r[1:] for r in rows}
     as_of = datetime.now(UTC).isoformat()

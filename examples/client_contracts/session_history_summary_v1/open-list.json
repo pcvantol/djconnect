@@ -6,10 +6,10 @@
     "schema_version": 1,
     "sessions": [
       {
-        "session_id": "session-0e04b28ef24340adb1e4ece181915aa3",
+        "session_id": "session-6e42c0738a9e486b8ed0ac50fe64bacb",
         "lifecycle_status": "ACTIVE",
-        "created_at": "2026-10-13T07:42:55.610775+00:00",
-        "started_at": "2026-10-13T07:42:55.612085+00:00",
+        "created_at": "2026-10-13T09:09:52.303517+00:00",
+        "started_at": "2026-10-13T09:09:52.304468+00:00",
         "ended_at": "",
         "interrupted_at": "",
         "revision": 2,
@@ -17,14 +17,14 @@
           "schema_version": "djconnect-session-history-summary/1",
           "session_revision": 2,
           "state": "provisional",
-          "as_of": "2026-10-13T07:42:57.626943+00:00",
+          "as_of": "2026-10-13T09:09:54.341362+00:00",
           "tracks_observed": {
             "value": 1,
             "basis": "accepted_playback_observed_entries",
             "coverage": "complete",
             "state": "provisional",
             "revision": 2,
-            "as_of": "2026-10-13T07:42:57.626943+00:00",
+            "as_of": "2026-10-13T09:09:54.341362+00:00",
             "observation_scope": "stage_1_media_identity_changes_not_occurrences"
           },
           "moments_published": {
@@ -33,7 +33,7 @@
             "coverage": "complete",
             "state": "provisional",
             "revision": 2,
-            "as_of": "2026-10-13T07:42:57.626943+00:00"
+            "as_of": "2026-10-13T09:09:54.341362+00:00"
           },
           "mood": {
             "value": "chill",
@@ -41,14 +41,14 @@
             "coverage": "complete",
             "state": "provisional",
             "revision": 2,
-            "as_of": "2026-10-13T07:42:57.626943+00:00"
+            "as_of": "2026-10-13T09:09:54.341362+00:00"
           }
         },
         "read_only": false,
         "history_coverage": "saved_entries_only_no_retrospective_observations"
       }
     ],
-    "revision": "1:2:2026-10-13T07:42:55.612085+00:00",
+    "revision": "1:2:2026-10-13T09:09:52.304468+00:00",
     "next_cursor": null,
     "coverage": "saved_sessions_keyset",
     "retention_days": 90

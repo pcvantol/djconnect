@@ -339,8 +339,13 @@ class HistoricalProjectionRepository(PersistenceRepository):
                 "SELECT owner_profile_id,lifecycle_status,history_enabled FROM djconnect_persistent_sessions WHERE session_id=?",
                 (session_id,),
             )
-            if not row or row[0] != owner or row[1] != "ACTIVE" or not row[2]:
+            if not row or row[0] != owner or row[1] != "ACTIVE":
                 raise PermissionError("session_context_changed")
+            if not row[2]:
+                # Private-history opt-out does not disable existing live Moments.
+                # Validate active ownership in this transaction without retaining
+                # derived totals, replay keys or body under a revoked grant.
+                return True
             old = tx.fetchone(
                 "SELECT 1 FROM djconnect_session_acceptances WHERE session_id=? AND kind='dj_moment' AND reference_id=?",
                 (session_id, moment_id),
@@ -360,7 +365,7 @@ class HistoricalProjectionRepository(PersistenceRepository):
 
         return await self._async_in_transaction(accept)
 
-    async def async_accept_mood(self, owner, session_id, mood):
+    async def async_accept_mood(self, owner, session_id, mood, *, authorize=None):
         def accept(tx):
             row = tx.fetchone(
                 "SELECT owner_profile_id,lifecycle_status FROM djconnect_persistent_sessions WHERE session_id=?",
@@ -376,7 +381,7 @@ class HistoricalProjectionRepository(PersistenceRepository):
                 (session_id,),
             )
 
-        await self._async_in_transaction(accept)
+        await self._async_in_transaction(accept, authorize=authorize)
 
     async def async_purge_profile_history(self, owner: str) -> None:
         """Erase the deleted owner's projections, never reassign them with devices."""

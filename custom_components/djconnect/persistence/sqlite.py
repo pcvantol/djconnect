@@ -171,9 +171,13 @@ class SQLitePersistenceProvider:
     async def async_run_transaction(
         self,
         operation: Callable[[_SQLiteTransaction], ResultT],
+        *,
+        authorize: Callable[[], bool] | None = None,
     ) -> ResultT:
         """Run one short, serialized provider transaction."""
         async with self._write_lock:
+            if authorize is not None and not authorize():
+                raise PermissionError("unauthorized")
             try:
                 task = asyncio.create_task(asyncio.to_thread(self._run_transaction, operation))
                 while True:
@@ -193,11 +197,12 @@ class SQLitePersistenceProvider:
         connection.execute("BEGIN IMMEDIATE")
         try:
             result = operation(_SQLiteTransaction(connection))
+            connection.execute("COMMIT")
+            return result
         except BaseException:
-            connection.execute("ROLLBACK")
+            if connection.in_transaction:
+                connection.execute("ROLLBACK")
             raise
-        connection.execute("COMMIT")
-        return result
 
     def _require_connection(self) -> sqlite3.Connection:
         if self._connection is None:

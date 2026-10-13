@@ -327,3 +327,15 @@ Finalization needs its own publication approval; source approval is not inherite
 
 The combined documentary decision `DJC-SESSION-ENTRY-LIFECYCLE-HISTORY-DESIGN-V1-20261012` (including Apple addendum C) is defined in [Session Entry Lifecycle Experience V1](SESSION_ENTRY_LIFECYCLE_EXPERIENCE_V1.md), [Session History Summary V1](SESSION_HISTORY_SUMMARY_V1.md), [Apple Session Native Surfaces V1](APPLE_SESSION_NATIVE_SURFACES_V1.md).
 It preserves this contract and its delivered capabilities. New lifecycle replacement/intent operations, qualified history aggregates and passive native-surface rights remain **Planned**, with separate producer/consumer acceptance. Navigation is read-only; foreground owner display rights do not grant widget storage or category-invitation content. No Runtime, provider or consumer implementation is introduced by the design.
+
+## Private Session summary acceptance v1
+
+See [connected summary contract](SESSION_HISTORY_SUMMARY_ACCEPTANCE_V1.md)
+and [summary projection](SESSION_HISTORY_SUMMARY_V1.md). Existing owners
+provide a version6 compact Session aggregate and non-evicted bounded acceptance
+keys; no full Moment-body archival right follows from a semantic count.
+Registration and count commit together before Runtime publication/budget debit;
+reads only project a provisional open Mood interval, without writes or providers.
+Old stores remain unknown, restart leaves unobserved Mood time unknown, and
+owner/source/privacy/retention withdrawal applies to derived totals.
+No summary enters shared Broadcast, notifications or diagnostics.

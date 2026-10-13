@@ -2,7 +2,7 @@
 
 Generated from djconnect-platform-v1.json, maintenance DJC-DJ-PRESENCE-ROADMAP-DESIGN-V1-20261011.
 
-The original3October snapshot/audit/source pins and projections are immutable history in [history/20261003](history/20261003/README.md). Only this bounded delta is current here; inherited premerge statuses are not current blockers. Current admission is documentary only, using the existing Core writer; all new product subsets remain Planned/NOT_ISSUED. Closed implementation receipts are retained as evidence, not new admission.
+The original3October snapshot/audit/source pins and projections are immutable history in [history/20261003](history/20261003/README.md). Only this bounded delta is current here; inherited premerge statuses are not current blockers. Only the selected existing Core writer is admitted by implementation receipt; no automatic dispatch, second writer or native/installed/hardware acceptance.
 
 Current bounded artwork correction: [owner6117357579](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6117357579). Existing Discovery capability only; source/Finalization gates remain separate, native/installed/live acceptance remains open. Presence source1150/Finalization1151 stays closed. Prior version2 is preserved in history/20261012.
 
@@ -12,7 +12,9 @@ Selected Session Forecast: [DJC-CORE-SESSION-FORECAST-V1-20261012](https://githu
 
 Selected ambient convergence: [DJC-CORE-AMBIENT-FACT-MOMENT-CONVERGENCE-V1-20261012](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6125691006); source PROTECTED_MERGED, qualified Session reuse and passive producer retirement; native/joint acceptance open. Forecast1156/1157 stays closed; version5 preserved in history/20261012. No new source/model/consumer dispatch.
 
-Combined Session entry/history/native-surface documentary design: [DJC-SESSION-ENTRY-LIFECYCLE-HISTORY-DESIGN-V1-20261012](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6131363097); documentation PROTECTED_MERGED. All new product subsets remain Planned/NOT_ISSUED; Continuation is independent and rich passive rights are not inherited. Ambient1158/1159 remains terminal; version6 is preserved in history/20261012. No new product writer or native/APNs/installed/hardware PASS.
+Combined Session entry/history/native-surface documentary design: [DJC-SESSION-ENTRY-LIFECYCLE-HISTORY-DESIGN-V1-20261012](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6131363097); documentation PROTECTED_MERGED. Documentary delivery does not itself admit product execution; Continuation is independent and rich passive rights are not inherited. Ambient1158/1159 remains terminal; version6 is preserved in history/20261012. No new product writer or native/APNs/installed/hardware PASS.
+
+Selected connected Core history summary: DJC-CORE-SESSION-HISTORY-SUMMARY-V1-20261013; source UNPUBLISHED. Reuses HISTORY::CORE::SUMMARY, with Apple adoption Planned and native/installed/joint acceptance open. Predecessor version7 is preserved byte-for-byte.
 
 | Node | Owner | Status | Outcome |
 |---|---|---|---|
@@ -42,7 +44,7 @@ Combined Session entry/history/native-surface documentary design: [DJC-SESSION-E
 | `ENTRY::CORE::PAUSE-RECOVERY` | DJC-CORE | Planned | Pause and observation recovery policy |
 | `ENTRY::APPLE::NAVIGATION` | DJC-APPLE | Planned | Native preparation/music selection and return |
 | `ENTRY::APPLE::LIFECYCLE` | DJC-APPLE | Planned | Native exact lifecycle invocation integration |
-| `HISTORY::CORE::SUMMARY` | DJC-CORE | Planned | Owner history summary aggregation contract |
+| `HISTORY::CORE::SUMMARY` | DJC-CORE | In progress | Owner history summary aggregation contract |
 | `HISTORY::APPLE::SUMMARY` | DJC-APPLE | Planned | Native history list/header summary adoption |
 | `SURFACE::CORE::PROJECTION` | DJC-CORE | Planned | Native surface rights/state projection |
 | `SURFACE::APPLE::NAVIGATION` | DJC-APPLE | Planned | Typed native Session navigation |

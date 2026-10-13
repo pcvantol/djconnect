@@ -18,5 +18,9 @@ not exact playback instances or full listens. Source withdrawal yields null /
 withdrawn; incomplete observation capture is partial. No summary belongs to
 shared Broadcast, VibeCast, notifications or widgets.
 
-These are early producer fixtures, not a merged producer pin or native Apple
-acceptance. Independent review and the remaining qualification matrix are open.
+These are locally qualified producer fixtures, not a merged producer pin or
+native Apple acceptance. Exact candidate review and protected delivery are open.
+
+Revision tokens only compare exactly against their own containing header; never
+parse detail tokens as integers or order/merge them across routes. Partial totals
+are registered subsets, unknown/withdrawn are unavailable, and known0 is zero.

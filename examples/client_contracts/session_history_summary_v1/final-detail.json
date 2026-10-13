@@ -1,29 +1,29 @@
 {
-  "path": "/session/history/session-0e04b28ef24340adb1e4ece181915aa3",
+  "path": "/session/history/session-6e42c0738a9e486b8ed0ac50fe64bacb",
   "status": 200,
   "body": {
     "success": true,
     "schema_version": 1,
     "session": {
-      "session_id": "session-0e04b28ef24340adb1e4ece181915aa3",
+      "session_id": "session-6e42c0738a9e486b8ed0ac50fe64bacb",
       "lifecycle_status": "ENDED",
-      "created_at": "2026-10-13T07:42:55.610775+00:00",
-      "started_at": "2026-10-13T07:42:55.612085+00:00",
-      "ended_at": "2026-10-13T07:44:09.636940+00:00",
+      "created_at": "2026-10-13T09:09:52.303517+00:00",
+      "started_at": "2026-10-13T09:09:52.304468+00:00",
+      "ended_at": "2026-10-13T09:11:06.362569+00:00",
       "interrupted_at": "",
       "revision": "6:ENDED:0:0:8cd62b0bb1b22dcb",
       "summary": {
         "schema_version": "djconnect-session-history-summary/1",
         "session_revision": "6:ENDED:0:0:8cd62b0bb1b22dcb",
         "state": "final",
-        "as_of": "2026-10-13T07:44:09.653311+00:00",
+        "as_of": "2026-10-13T09:11:06.370018+00:00",
         "tracks_observed": {
           "value": 2,
           "basis": "accepted_playback_observed_entries",
           "coverage": "complete",
           "state": "final",
           "revision": "6:ENDED:0:0:8cd62b0bb1b22dcb",
-          "as_of": "2026-10-13T07:44:09.653311+00:00",
+          "as_of": "2026-10-13T09:11:06.370018+00:00",
           "observation_scope": "stage_1_media_identity_changes_not_occurrences"
         },
         "moments_published": {
@@ -32,7 +32,7 @@
           "coverage": "complete",
           "state": "final",
           "revision": "6:ENDED:0:0:8cd62b0bb1b22dcb",
-          "as_of": "2026-10-13T07:44:09.653311+00:00"
+          "as_of": "2026-10-13T09:11:06.370018+00:00"
         },
         "mood": {
           "value": "energy",
@@ -40,7 +40,7 @@
           "coverage": "complete",
           "state": "final",
           "revision": "6:ENDED:0:0:8cd62b0bb1b22dcb",
-          "as_of": "2026-10-13T07:44:09.653311+00:00"
+          "as_of": "2026-10-13T09:11:06.370018+00:00"
         }
       },
       "read_only": true,
@@ -48,17 +48,17 @@
     },
     "entries": [
       {
-        "entry_id": "entry-9bee912965ea5df689a7bed7f600b1e6",
-        "session_id": "session-0e04b28ef24340adb1e4ece181915aa3",
+        "entry_id": "entry-5910fa1d96535de79dab7e10bc675723",
+        "session_id": "session-6e42c0738a9e486b8ed0ac50fe64bacb",
         "order": 1,
         "kind": "dj_moment",
-        "occurred_at": "2026-10-13T07:42:55.617050+00:00",
-        "retained_until": "2027-01-11T07:42:55.617050+00:00",
+        "occurred_at": "2026-10-13T09:09:52.327883+00:00",
+        "retained_until": "2027-01-11T09:09:52.327883+00:00",
         "historical_view_only": true,
         "current_display_allowed": false,
         "archive_basis": "runtime_authored_direction_v1",
         "locale": "nl",
-        "moment_id": "moment-143640796ccc4a109c51ef232bd31ab3",
+        "moment_id": "moment-5892cee4df794587906da2d0d80588d6",
         "moment_type": "session",
         "persona": "home_dj",
         "source_attribution": {},
@@ -66,12 +66,12 @@
         "text": "We doen het wat rustiger aan."
       },
       {
-        "entry_id": "entry-3f3d693ec52d5a1bb3abd0a7d4f90c34",
-        "session_id": "session-0e04b28ef24340adb1e4ece181915aa3",
+        "entry_id": "entry-873b3869485e59838bbfc68457922df7",
+        "session_id": "session-6e42c0738a9e486b8ed0ac50fe64bacb",
         "order": 2,
         "kind": "playback_observed",
-        "occurred_at": "2026-10-13T07:42:55.618054+00:00",
-        "retained_until": "2027-01-11T07:42:55.618054+00:00",
+        "occurred_at": "2026-10-13T09:09:52.330785+00:00",
+        "retained_until": "2027-01-11T09:09:52.330785+00:00",
         "historical_view_only": true,
         "current_display_allowed": false,
         "playback": {
@@ -87,12 +87,12 @@
         "requires_spotify_attribution": true
       },
       {
-        "entry_id": "entry-40bace1e70315a9f99b6dec941e3fbce",
-        "session_id": "session-0e04b28ef24340adb1e4ece181915aa3",
+        "entry_id": "entry-e5e6256f9caf5cf098b6da66cc6e320a",
+        "session_id": "session-6e42c0738a9e486b8ed0ac50fe64bacb",
         "order": 3,
         "kind": "playback_observed",
-        "occurred_at": "2026-10-13T07:43:55.625994+00:00",
-        "retained_until": "2027-01-11T07:43:55.625994+00:00",
+        "occurred_at": "2026-10-13T09:10:52.335038+00:00",
+        "retained_until": "2027-01-11T09:10:52.335038+00:00",
         "historical_view_only": true,
         "current_display_allowed": false,
         "playback": {

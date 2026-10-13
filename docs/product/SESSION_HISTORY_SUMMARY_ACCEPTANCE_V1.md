@@ -27,12 +27,16 @@ require their original CC0/direction archive grant; a neutral Core publication
 fact has a separate private-owner aggregation basis and carries no text/art/provider
 payload or Performance Memory.
 
-Before the short acceptance boundary, generation/cancellation/stale context may
-reject with no write. Once its transaction starts, cancellation is drained through
+Before the short acceptance boundary, generation/composition/cancellation/stale
+context may reject with no write. The final Mood authorization fence runs on
+the event loop after storage-lock acquisition, immediately before transaction
+admission; revoked token/Profile authority while waiting produces no write. Once its transaction starts, cancellation is drained through
 commit/rollback and the locked Runtime acceptance tail completes consistently;
 commit wins if accepted. Failure before commit consumes no presence/opportunity
-or working-engine state. A committed event remains counted after Broadcast
-failure; transport delivery is separate. Retrying an accepted identity does not
+or working-engine state. A committed event remains counted after Flow/Broadcast
+failure; its accepted opportunity/dedup and presence debit remain consumed,
+while new published-only continuity seeds require successful Flow. One prepared
+presentation is ephemeral, consumed immediately and cleared on end; transport delivery is separate. Retrying an accepted identity does not
 consume another budget or change counts. End/restart refuse new late acceptance.
 
 ## Bounds, rights and withdrawal
@@ -67,7 +71,7 @@ Integer microsecond durations cover known elapsed Session time including pauses.
 Strict majority >50% requires complete positive coverage; otherwise mixed (no
 majority) or null (gaps/zero). Restart never closes an unobserved open interval as
 measured time. Old summary absent/unknown is not zero. Final is independent of
-coverage. Queries join the compact row to the existing list/header query and
+coverage. Queries attach one bulk compact-row read to the existing list/header query and
 never write, fetch providers or read timelines per row. Rights checks use bounded
 per-response binding reuse; summary stays no-store owner content and never enters
 Broadcast/VibeCast/widget/push/diagnostics.

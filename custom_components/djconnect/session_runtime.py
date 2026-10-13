@@ -3971,6 +3971,7 @@ class DJSessionRuntime:
     published_album_context: PublishedAlbumContext = field(default_factory=PublishedAlbumContext)
     presence_ledger: PresenceLedger = field(default_factory=PresenceLedger)
     persona_revision: int = 0
+    prepared_presentations: dict[str, Any] = field(default_factory=dict, repr=False, compare=False)
 
     def as_dict(self) -> dict[str, Any]:
         """Return the public, transport-neutral runtime representation."""
@@ -4029,6 +4030,27 @@ class DJSessionRuntime:
                 and self.presence_ledger.admits(self.broadcast.state.selected_presence,
                                                self.broadcast.state.playback.item_id))
 
+    def compose_moment(self, moment: DJMoment):
+        """Prepare deterministic presentation before a durable semantic acceptance."""
+        direction = self.session_direction.direction.value
+        proposed = dict(moment.generation_metadata).get("direction")
+        if moment.moment_type is DJMomentType.SESSION and proposed in {item.value for item in SessionDirectionType}:
+            direction = proposed
+        return self.presentation_composer.compose_with_diagnostics(
+            moment=moment,
+            context=PresentationContext(
+                session_mood=self.selected_mood,
+                dj_persona=self.dj_persona.value,
+                session_direction=direction,
+                session_energy=moment.presentation_intent.energy_level,
+                presentation_style=moment.presentation_intent.delivery_style,
+                constraints=(
+                    ("maximum_duration_seconds", str(moment.presentation_intent.maximum_duration_seconds)),
+                    ("visibility", moment.presentation_intent.visibility.value),
+                ),
+            ),
+        )
+
     def publish_moment(
         self, moment: DJMoment, placement: SessionFlowPosition = SessionFlowPosition.NEXT,
         *, commit_expression: bool = True,
@@ -4041,26 +4063,18 @@ class DJSessionRuntime:
             return
         if moment.moment_type is not DJMomentType.SILENCE and not self.allows_proactive():
             return
-        composition = self.presentation_composer.compose_with_diagnostics(
-            moment=moment,
-            context=PresentationContext(
-                session_mood=self.selected_mood,
-                dj_persona=self.dj_persona.value,
-                session_direction=self.session_direction.direction.value,
-                session_energy=moment.presentation_intent.energy_level,
-                presentation_style=moment.presentation_intent.delivery_style,
-                constraints=(
-                    ("maximum_duration_seconds", str(moment.presentation_intent.maximum_duration_seconds)),
-                    ("visibility", moment.presentation_intent.visibility.value),
-                ),
-            ),
-        )
+        composition = self.prepared_presentations.pop(moment.moment_id, None)
+        accepted_semantic_commit = composition is not None
+        if composition is None:
+            composition = self.compose_moment(moment)
+        if accepted_semantic_commit and moment.moment_type is not DJMomentType.SILENCE:
+            self.presence_ledger.commit(self.broadcast.state.playback.item_id, moment.presentation_intent.maximum_duration_seconds)
         self.presentation_diagnostics.record(composition.outcomes)
         self.broadcast.prepare_moment_delivery(moment)
         self.broadcast.publish_session_flow(self.planner.append_moment(moment, placement))
         self.broadcast.publish_moment(moment)
         self.broadcast.publish_presentation(composition.presentation.to_projection())
-        if moment.moment_type is not DJMomentType.SILENCE:
+        if not accepted_semantic_commit and moment.moment_type is not DJMomentType.SILENCE:
             self.presence_ledger.commit(self.broadcast.state.playback.item_id, moment.presentation_intent.maximum_duration_seconds)
         if commit_expression:
             self.moment_engine.commit_expression(moment, self.planner.output.session_flow)
@@ -4567,8 +4581,14 @@ class SessionRuntimeManager:
             return None
         if not await self._async_persist_moment(active, moment):
             return None
-        # Preserve the existing candidate transaction: a failed publication
-        # must not consume the working engine's fact/deduplication keys.
+        # A durable semantic commit consumes this opportunity once, even if
+        # transport subsequently fails. Continuity seeds still require actual Flow.
+        if self._historical_projections is not None:
+            active.moment_engine.__dict__.update(working_moments.__dict__)
+            opportunity.used_fact_keys.add(fact.key)
+            opportunity.fact_count += 1
+            opportunity.last_fact_position_ms = opportunity.last_observed_position_ms
+            opportunity.last_fact_read_seconds = moment.presentation_intent.maximum_duration_seconds
         active.publish_moment(moment, commit_expression=False)
         if not any(published.moment_id == moment.moment_id for published in active.broadcast.state.dj_moments):
             return None
@@ -4576,12 +4596,13 @@ class SessionRuntimeManager:
         if (active.session_start_strategy is SessionStartStrategy.DISCOVER
                 and active.session_direction.direction is SessionDirectionType.EXPLORING):
             active.published_album_context.commit(fact, time.monotonic())
-        active.moment_engine.__dict__.update(working_moments.__dict__)
+        if self._historical_projections is None:
+            active.moment_engine.__dict__.update(working_moments.__dict__)
+            opportunity.used_fact_keys.add(fact.key)
+            opportunity.fact_count += 1
+            opportunity.last_fact_position_ms = opportunity.last_observed_position_ms
+            opportunity.last_fact_read_seconds = moment.presentation_intent.maximum_duration_seconds
         active.moment_engine.commit_expression(moment, active.planner.output.session_flow)
-        opportunity.used_fact_keys.add(fact.key)
-        opportunity.fact_count += 1
-        opportunity.last_fact_position_ms = opportunity.last_observed_position_ms
-        opportunity.last_fact_read_seconds = moment.presentation_intent.maximum_duration_seconds
         self._record_performance_memory(owner_profile_id, active)
         return moment
 
@@ -5295,7 +5316,7 @@ class SessionRuntimeManager:
             if selected_mood == active.selected_mood:
                 return active
             if self._historical_projections is not None:
-                await self._historical_projections.async_accept_mood(owner_profile_id, session_id, selected_mood)
+                await self._historical_projections.async_accept_mood(owner_profile_id, session_id, selected_mood, authorize=authorize)
             if (active.planner.discover_narrative_line is not None
                     and selected_mood != active.selected_mood):
                 active.planner.clear_discover_narrative()
@@ -5614,6 +5635,7 @@ class SessionRuntimeManager:
             return False
         if moment.moment_type is DJMomentType.SILENCE:
             return True
+        prepared = active.compose_moment(moment)
         from .session_facts import QualifiedSessionFact, SharedProducerFact
 
         source = getattr(moment, "source_fact", None)
@@ -5650,8 +5672,12 @@ class SessionRuntimeManager:
                              "text":moment.content,"summary":moment.summary,
                              "source_attribution":dict(moment.source_attribution),"archive_basis":basis,
                              "persona":active.dj_persona.value,"locale":active.locale}}
-        return await self._historical_projections.async_accept_moment(
+        accepted = await self._historical_projections.async_accept_moment(
             active.owner_profile_id, active.session_id, moment.moment_id, entry)
+        if accepted:
+            active.prepared_presentations.clear()
+            active.prepared_presentations[moment.moment_id] = prepared
+        return accepted
 
     async def async_end(
         self,
@@ -5675,6 +5701,7 @@ class SessionRuntimeManager:
             self._intra_track_opportunities.pop(owner_profile_id, None)
             active.published_recording_context.clear()
             active.published_album_context.clear()
+            active.prepared_presentations.clear()
             active.moment_engine._expression_forms=()
             active.moment_engine._expression_moment_ids=()
             active.broadcast.update_runtime_state(SessionRuntimeState.ENDING)

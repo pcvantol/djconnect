@@ -37594,11 +37594,11 @@
     }
   ],
   "planning_maintenance": {
-    "schema_version": "djconnect-federated-planning-delta/7",
+    "schema_version": "djconnect-federated-planning-delta/8",
     "decision_id": "DJC-DJ-PRESENCE-ROADMAP-DESIGN-V1-20261011",
     "decision_url": "https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6110375785",
     "design_date": "2026-10-11",
-    "scope": "DOCUMENTARY_DELTA_ONLY",
+    "scope": "SELECTED_CORE_IMPLEMENTATION_DELTA",
     "execution_authority": false,
     "automatic_dispatch": false,
     "frozen_snapshot": "history/20261003/djconnect-platform-v1.json",
@@ -38166,8 +38166,8 @@
         "title": "Owner history summary aggregation contract",
         "lane": "DJC-CORE",
         "repository": "pcvantol/djconnect",
-        "status": "Planned",
-        "assignment_status": "NOT_ISSUED",
+        "status": "In progress",
+        "assignment_status": "IN_PROGRESS",
         "scope": "Bounded atomic counts, Mood intervals/coverage, privacy/delete/migration, no N+1",
         "acceptance_boundary": "Bounded atomic counts, Mood intervals/coverage, privacy/delete/migration, no N+1",
         "contract_binding": "docs/product/SESSION_HISTORY_SUMMARY_V1.md",
@@ -39005,11 +39005,11 @@
     "document_references": [
       {
         "path": "PRODUCT_ROADMAP.md",
-        "sha256": "1ae5b7ca67df85c22247b8c1fb0cc1b9f6f7d51ad276ee2e4490e18db7149f24"
+        "sha256": "ad8e56221dbfd313506ebb20e3152dbb1c511f171299348f9f84a8bc75348af4"
       },
       {
         "path": "PRODUCT_BACKLOG.md",
-        "sha256": "76af0bcc9352c9d0de59822bbe296ad736b19ac63e9be2d566a6e2609302a249"
+        "sha256": "b93bef65ed052aebd2c0ce28fed50338cb1fc5539068360d95f5ef327d804646"
       },
       {
         "path": "docs/product/DJ_PRESENCE_V1.md",
@@ -39017,7 +39017,7 @@
       },
       {
         "path": "DJ_SESSION_RUNTIME_CONTRACTS.md",
-        "sha256": "ca5417eccd2df68990ae04dfcb8d4b15af1287bb2c72e25e5b5dafce3b53392a"
+        "sha256": "6ae7a05260bc2a997252dbb70c28917ac6b7fd25930263d7c0940df929b1ec92"
       },
       {
         "path": "docs/product/DJ_INTELLIGENCE_ARCHITECTURE.md",
@@ -39117,7 +39117,7 @@
       },
       {
         "path": "docs/product/SESSION_HISTORY_SUMMARY_V1.md",
-        "sha256": "9f6afcc80530c00131a1e1c0601a638e88c14c766cfbaac22868dab71b3673b9"
+        "sha256": "3f1249ed6ea101bd777b57cd9b72503c07949ddcb8d0ebc8357629355401d2a0"
       },
       {
         "path": "docs/product/APPLE_SESSION_NATIVE_SURFACES_V1.md",
@@ -39130,6 +39130,10 @@
       {
         "path": "docs/history/prompts/2026-10-12-session-entry-lifecycle-history-design-finalization.md",
         "sha256": "89d915a21392089344fde1212c19bd0c5cc937242c7223cb786160b783b36328"
+      },
+      {
+        "path": "docs/product/SESSION_HISTORY_SUMMARY_ACCEPTANCE_V1.md",
+        "sha256": "8de3a14efeba9c79cf3164ac901f6e7fb0c6fb9ebbfeff0e335ca85dbdf26f23"
       }
     ],
     "implementation_receipt": {
@@ -39319,6 +39323,24 @@
       "source_candidate": "37b86be8da012827f670fce4659e66912fcdaa56",
       "finalization": "RECONCILIATION_CANDIDATE_SEPARATE_GATE",
       "apple_handoff": "https://github.com/pcvantol/djconnect-app/issues/87#issuecomment-6132158601"
+    },
+    "summary_receipt": {
+      "schema_version": "djconnect-summary-maintenance/1",
+      "assignment_id": "DJC-CORE-SESSION-HISTORY-SUMMARY-V1-20261013",
+      "base_sha": "06e04d9996a8909337b6eb78b8568e1e2ddead5f",
+      "branch": "codex/session-history-summary-v1",
+      "ack": 6140221712,
+      "material_start": 6140499701,
+      "material_commit": "828cee40f63fd08bd09b56efcec82fcf7d322133",
+      "phase": "LOCAL_IMPLEMENTATION_AND_QUALIFICATION",
+      "source_delivery": "UNPUBLISHED",
+      "native": "NOT_RUN",
+      "installed": "NOT_RUN",
+      "hardware": "NOT_RUN",
+      "joint_acceptance": "OPEN",
+      "apple_handoff": "https://github.com/pcvantol/djconnect-app/issues/87#issuecomment-6140844276",
+      "previous_delta": "history/20261012/session-entry-history-design-maintenance-v7.json",
+      "previous_delta_sha256": "1b6ab44cbbf7b16ef3207e90424f4b278c24037a0f8ddb485f68b071a27c866f"
     }
   }
 }

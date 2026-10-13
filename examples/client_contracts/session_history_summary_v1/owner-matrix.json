@@ -1,0 +1,298 @@
+{
+  "ordinary_pairing": true,
+  "broad_ha_credentials": false,
+  "mood_updates": [
+    {
+      "selected_mood": "chill",
+      "mood_revision": 0,
+      "history": {
+        "success": true,
+        "schema_version": 1,
+        "sessions": [
+          {
+            "session_id": "session-4e208260cda84a4486387f29ad1419cf",
+            "lifecycle_status": "ACTIVE",
+            "created_at": "2026-10-13T09:12:10.952224+00:00",
+            "started_at": "2026-10-13T09:12:10.958509+00:00",
+            "ended_at": "",
+            "interrupted_at": "",
+            "revision": 2,
+            "summary": {
+              "schema_version": "djconnect-session-history-summary/1",
+              "session_revision": 2,
+              "state": "provisional",
+              "as_of": "2026-10-13T09:12:13.013126+00:00",
+              "tracks_observed": {
+                "value": 1,
+                "basis": "accepted_playback_observed_entries",
+                "coverage": "complete",
+                "state": "provisional",
+                "revision": 2,
+                "as_of": "2026-10-13T09:12:13.013126+00:00",
+                "observation_scope": "stage_1_media_identity_changes_not_occurrences"
+              },
+              "moments_published": {
+                "value": 1,
+                "basis": "semantic_publication_commit",
+                "coverage": "complete",
+                "state": "provisional",
+                "revision": 2,
+                "as_of": "2026-10-13T09:12:13.013126+00:00"
+              },
+              "mood": {
+                "value": "chill",
+                "basis": "confirmed_symbolic_mood_elapsed_intervals",
+                "coverage": "complete",
+                "state": "provisional",
+                "revision": 2,
+                "as_of": "2026-10-13T09:12:13.013126+00:00"
+              }
+            },
+            "read_only": false,
+            "history_coverage": "saved_entries_only_no_retrospective_observations"
+          }
+        ],
+        "revision": "1:2:2026-10-13T09:12:10.958509+00:00",
+        "next_cursor": null,
+        "coverage": "saved_sessions_keyset",
+        "retention_days": 90
+      }
+    },
+    {
+      "selected_mood": "groove",
+      "mood_revision": 1,
+      "history": {
+        "success": true,
+        "schema_version": 1,
+        "sessions": [
+          {
+            "session_id": "session-4e208260cda84a4486387f29ad1419cf",
+            "lifecycle_status": "ACTIVE",
+            "created_at": "2026-10-13T09:12:10.952224+00:00",
+            "started_at": "2026-10-13T09:12:10.958509+00:00",
+            "ended_at": "",
+            "interrupted_at": "",
+            "revision": 3,
+            "summary": {
+              "schema_version": "djconnect-session-history-summary/1",
+              "session_revision": 3,
+              "state": "provisional",
+              "as_of": "2026-10-13T09:12:13.029778+00:00",
+              "tracks_observed": {
+                "value": 1,
+                "basis": "accepted_playback_observed_entries",
+                "coverage": "complete",
+                "state": "provisional",
+                "revision": 3,
+                "as_of": "2026-10-13T09:12:13.029778+00:00",
+                "observation_scope": "stage_1_media_identity_changes_not_occurrences"
+              },
+              "moments_published": {
+                "value": 1,
+                "basis": "semantic_publication_commit",
+                "coverage": "complete",
+                "state": "provisional",
+                "revision": 3,
+                "as_of": "2026-10-13T09:12:13.029778+00:00"
+              },
+              "mood": {
+                "value": "chill",
+                "basis": "confirmed_symbolic_mood_elapsed_intervals",
+                "coverage": "complete",
+                "state": "provisional",
+                "revision": 3,
+                "as_of": "2026-10-13T09:12:13.029778+00:00"
+              }
+            },
+            "read_only": false,
+            "history_coverage": "saved_entries_only_no_retrospective_observations"
+          }
+        ],
+        "revision": "1:3:2026-10-13T09:12:10.958509+00:00",
+        "next_cursor": null,
+        "coverage": "saved_sessions_keyset",
+        "retention_days": 90
+      }
+    },
+    {
+      "selected_mood": "energy",
+      "mood_revision": 2,
+      "history": {
+        "success": true,
+        "schema_version": 1,
+        "sessions": [
+          {
+            "session_id": "session-4e208260cda84a4486387f29ad1419cf",
+            "lifecycle_status": "ACTIVE",
+            "created_at": "2026-10-13T09:12:10.952224+00:00",
+            "started_at": "2026-10-13T09:12:10.958509+00:00",
+            "ended_at": "",
+            "interrupted_at": "",
+            "revision": 4,
+            "summary": {
+              "schema_version": "djconnect-session-history-summary/1",
+              "session_revision": 4,
+              "state": "provisional",
+              "as_of": "2026-10-13T09:12:13.037128+00:00",
+              "tracks_observed": {
+                "value": 1,
+                "basis": "accepted_playback_observed_entries",
+                "coverage": "complete",
+                "state": "provisional",
+                "revision": 4,
+                "as_of": "2026-10-13T09:12:13.037128+00:00",
+                "observation_scope": "stage_1_media_identity_changes_not_occurrences"
+              },
+              "moments_published": {
+                "value": 1,
+                "basis": "semantic_publication_commit",
+                "coverage": "complete",
+                "state": "provisional",
+                "revision": 4,
+                "as_of": "2026-10-13T09:12:13.037128+00:00"
+              },
+              "mood": {
+                "value": "chill",
+                "basis": "confirmed_symbolic_mood_elapsed_intervals",
+                "coverage": "complete",
+                "state": "provisional",
+                "revision": 4,
+                "as_of": "2026-10-13T09:12:13.037128+00:00"
+              }
+            },
+            "read_only": false,
+            "history_coverage": "saved_entries_only_no_retrospective_observations"
+          }
+        ],
+        "revision": "1:4:2026-10-13T09:12:10.958509+00:00",
+        "next_cursor": null,
+        "coverage": "saved_sessions_keyset",
+        "retention_days": 90
+      }
+    },
+    {
+      "selected_mood": "party",
+      "mood_revision": 3,
+      "history": {
+        "success": true,
+        "schema_version": 1,
+        "sessions": [
+          {
+            "session_id": "session-4e208260cda84a4486387f29ad1419cf",
+            "lifecycle_status": "ACTIVE",
+            "created_at": "2026-10-13T09:12:10.952224+00:00",
+            "started_at": "2026-10-13T09:12:10.958509+00:00",
+            "ended_at": "",
+            "interrupted_at": "",
+            "revision": 5,
+            "summary": {
+              "schema_version": "djconnect-session-history-summary/1",
+              "session_revision": 5,
+              "state": "provisional",
+              "as_of": "2026-10-13T09:12:13.042195+00:00",
+              "tracks_observed": {
+                "value": 1,
+                "basis": "accepted_playback_observed_entries",
+                "coverage": "complete",
+                "state": "provisional",
+                "revision": 5,
+                "as_of": "2026-10-13T09:12:13.042195+00:00",
+                "observation_scope": "stage_1_media_identity_changes_not_occurrences"
+              },
+              "moments_published": {
+                "value": 1,
+                "basis": "semantic_publication_commit",
+                "coverage": "complete",
+                "state": "provisional",
+                "revision": 5,
+                "as_of": "2026-10-13T09:12:13.042195+00:00"
+              },
+              "mood": {
+                "value": "chill",
+                "basis": "confirmed_symbolic_mood_elapsed_intervals",
+                "coverage": "complete",
+                "state": "provisional",
+                "revision": 5,
+                "as_of": "2026-10-13T09:12:13.042195+00:00"
+              }
+            },
+            "read_only": false,
+            "history_coverage": "saved_entries_only_no_retrospective_observations"
+          }
+        ],
+        "revision": "1:5:2026-10-13T09:12:10.958509+00:00",
+        "next_cursor": null,
+        "coverage": "saved_sessions_keyset",
+        "retention_days": 90
+      }
+    },
+    {
+      "selected_mood": "chill",
+      "mood_revision": 4,
+      "history": {
+        "success": true,
+        "schema_version": 1,
+        "sessions": [
+          {
+            "session_id": "session-4e208260cda84a4486387f29ad1419cf",
+            "lifecycle_status": "ACTIVE",
+            "created_at": "2026-10-13T09:12:10.952224+00:00",
+            "started_at": "2026-10-13T09:12:10.958509+00:00",
+            "ended_at": "",
+            "interrupted_at": "",
+            "revision": 6,
+            "summary": {
+              "schema_version": "djconnect-session-history-summary/1",
+              "session_revision": 6,
+              "state": "provisional",
+              "as_of": "2026-10-13T09:12:13.054416+00:00",
+              "tracks_observed": {
+                "value": 1,
+                "basis": "accepted_playback_observed_entries",
+                "coverage": "complete",
+                "state": "provisional",
+                "revision": 6,
+                "as_of": "2026-10-13T09:12:13.054416+00:00",
+                "observation_scope": "stage_1_media_identity_changes_not_occurrences"
+              },
+              "moments_published": {
+                "value": 1,
+                "basis": "semantic_publication_commit",
+                "coverage": "complete",
+                "state": "provisional",
+                "revision": 6,
+                "as_of": "2026-10-13T09:12:13.054416+00:00"
+              },
+              "mood": {
+                "value": "chill",
+                "basis": "confirmed_symbolic_mood_elapsed_intervals",
+                "coverage": "complete",
+                "state": "provisional",
+                "revision": 6,
+                "as_of": "2026-10-13T09:12:13.054416+00:00"
+              }
+            },
+            "read_only": false,
+            "history_coverage": "saved_entries_only_no_retrospective_observations"
+          }
+        ],
+        "revision": "1:6:2026-10-13T09:12:10.958509+00:00",
+        "next_cursor": null,
+        "coverage": "saved_sessions_keyset",
+        "retention_days": 90
+      }
+    }
+  ],
+  "music_only_counts": {
+    "tracks_observed": 2,
+    "moments_published": 1
+  },
+  "ask_dj_no_moment_increment": true,
+  "broadcast_summary_absent": true,
+  "denied_status": 401,
+  "denied_body": {
+    "success": false,
+    "error": "unauthorized",
+    "message": "The DJConnect device token is missing or invalid."
+  }
+}

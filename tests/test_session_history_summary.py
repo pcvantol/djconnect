@@ -372,3 +372,432 @@ class SummaryTest(unittest.IsolatedAsyncioTestCase):
             5,
         )
         connection.close()
+
+    async def test_history_optout_preserves_live_acceptance_without_persistent_summary(self):
+        await self.sessions.async_transition(
+            "owner", self.id, ENDED, historical_projections=self.history
+        )
+        session = await self.sessions.async_create(
+            "owner", initial_mood="groove", history_enabled=False
+        )
+        await self.sessions.async_transition("owner", session.session_id, ACTIVE)
+        self.assertTrue(
+            await self.history.async_accept_moment("owner", session.session_id, "live-only")
+        )
+        record = await self.history.async_session_record(session.session_id)
+        self.assertIsNone(record["summary"]["moments_published"]["value"])
+        self.assertEqual(record["summary"]["moments_published"]["coverage"], "unknown")
+        self.assertEqual(await self.history.async_entry_records("owner", session.session_id), [])
+        connection = sqlite3.connect(self.path)
+        self.assertEqual(
+            connection.execute(
+                "SELECT COUNT(*) FROM djconnect_session_acceptances WHERE session_id=?",
+                (session.session_id,),
+            ).fetchone()[0],
+            0,
+        )
+        connection.close()
+
+    async def test_runtime_publication_sql_failure_retry_and_broadcast_failure(self):
+        import sys
+        from tests.test_session_runtime import _load_runtime_module
+
+        runtime, previous_const = _load_runtime_module()
+        try:
+            manager = runtime.SessionRuntimeManager(self.sessions, self.history)
+            active = await manager.async_start(
+                owner_profile_id="runtime-owner", selected_mood="chill"
+            )
+
+            async def insight():
+                return {
+                    "track": {"title": "Anchor", "artist": "Northline"},
+                    "analysis": {"summary": "A measured texture."},
+                }
+
+            connection = sqlite3.connect(self.path)
+            connection.execute(
+                "CREATE TRIGGER reject_live_summary BEFORE UPDATE OF moments ON djconnect_session_summaries BEGIN SELECT RAISE(ABORT,'failure before commit'); END"
+            )
+            connection.close()
+            with self.assertRaises(RuntimeError):
+                await manager.async_process_track_started(
+                    owner_profile_id="runtime-owner",
+                    session_id=active.session_id,
+                    insight_provider=insight,
+                )
+            record = await self.history.async_session_record(active.session_id)
+            self.assertEqual(record["summary"]["moments_published"]["value"], 0)
+            self.assertEqual(active.presence_ledger.total_published, 0)
+            connection = sqlite3.connect(self.path)
+            connection.execute("DROP TRIGGER reject_live_summary")
+            connection.close()
+            received = []
+
+            def broken_transport(event):
+                raise RuntimeError("failure after semantic commit")
+
+            active.broadcast.subscribe(broken_transport)
+            active.broadcast.subscribe(received.append)
+            moment = await manager.async_process_track_started(
+                owner_profile_id="runtime-owner",
+                session_id=active.session_id,
+                insight_provider=insight,
+            )
+            self.assertIsNotNone(moment)
+            record = await self.history.async_session_record(active.session_id)
+            self.assertEqual(record["summary"]["moments_published"]["value"], 1)
+            self.assertEqual(active.presence_ledger.total_published, 1)
+            self.assertTrue(received)
+            self.assertFalse(await manager._async_persist_moment(active, moment))
+            self.assertEqual(
+                (await self.history.async_session_record(active.session_id))["summary"][
+                    "moments_published"
+                ]["value"],
+                1,
+            )
+        finally:
+            sys.modules.pop("custom_components.djconnect.session_runtime", None)
+            if previous_const is None:
+                sys.modules.pop("custom_components.djconnect.const", None)
+            else:
+                sys.modules["custom_components.djconnect.const"] = previous_const
+
+    async def test_mood_authority_revoked_while_storage_lock_waits_has_no_commit(self):
+        import sys
+        from tests.test_session_runtime import _load_runtime_module
+
+        runtime, previous_const = _load_runtime_module()
+        try:
+            manager = runtime.SessionRuntimeManager(self.sessions, self.history)
+            active = await manager.async_start(
+                owner_profile_id="runtime-owner", selected_mood="chill"
+            )
+            authority = [True]
+            lock = self.service._provider._write_lock
+            await lock.acquire()
+            task = asyncio.create_task(
+                manager.async_update_mood(
+                    owner_profile_id="runtime-owner",
+                    session_id=active.session_id,
+                    selected_mood="party",
+                    expected_revision=0,
+                    authorize=lambda: authority[0],
+                )
+            )
+            await asyncio.sleep(0.01)
+            self.assertFalse(task.done())
+            authority[0] = False
+            lock.release()
+            with self.assertRaises(PermissionError):
+                await task
+            self.assertEqual(
+                (await manager.async_get_active("runtime-owner")).selected_mood, "chill"
+            )
+            row = await self.history.async_session_record(active.session_id)
+            self.assertEqual(row["revision"], 0)
+            self.assertEqual(row["summary"]["mood"]["value"], "chill")
+        finally:
+            sys.modules.pop("custom_components.djconnect.session_runtime", None)
+            if previous_const is None:
+                sys.modules.pop("custom_components.djconnect.const", None)
+            else:
+                sys.modules["custom_components.djconnect.const"] = previous_const
+
+    async def test_relation_composer_before_commit_and_flow_failure_after_commit_retry_once(self):
+        import sys
+        from tests.test_session_runtime import _load_runtime_module
+        from tests.test_narrative_album_continuity import NarrativeAlbumContinuityTest
+
+        runtime, previous_const = _load_runtime_module()
+        try:
+            from custom_components.djconnect import session_facts
+
+            await self.sessions.async_transition(
+                "owner", self.id, ENDED, historical_projections=self.history
+            )
+            fixture = NarrativeAlbumContinuityTest()
+            fixture.runtime, fixture.facts, fixture.clock = runtime, session_facts, [100.0]
+            fixture.manager = runtime.SessionRuntimeManager(
+                self.sessions, self.history, monotonic_source=lambda: fixture.clock[0]
+            )
+            active = await fixture.manager.async_start(
+                owner_profile_id="owner",
+                selected_mood="groove",
+                music_backend="spotify_direct",
+                session_start_strategy=runtime.SessionStartStrategy.DISCOVER,
+            )
+            fixture.session = active
+            a = await fixture.track(0)
+            self.assertEqual(a.moment_type.value, "album")
+            with patch.object(
+                type(active.presentation_composer),
+                "compose_with_diagnostics",
+                side_effect=RuntimeError("composer before commit"),
+            ):
+                with self.assertRaises(RuntimeError):
+                    await fixture.track(1)
+            row = await self.history.async_session_record(active.session_id)
+            self.assertEqual(row["summary"]["moments_published"]["value"], 1)
+            with patch.object(
+                runtime.DJSessionBroadcastEngine,
+                "publish_session_flow",
+                side_effect=RuntimeError("Flow after commit"),
+            ):
+                with self.assertRaises(RuntimeError):
+                    await fixture.manager.async_maybe_publish_intra_track_moment(
+                        owner_profile_id="owner",
+                        session_id=active.session_id,
+                        media_identity=fixture.catalog(1)["uri"],
+                    )
+            row = await self.history.async_session_record(active.session_id)
+            self.assertEqual(row["summary"]["moments_published"]["value"], 2)
+            self.assertEqual(active.presence_ledger.total_published, 2)
+            await fixture.manager.async_maybe_publish_intra_track_moment(
+                owner_profile_id="owner",
+                session_id=active.session_id,
+                media_identity=fixture.catalog(1)["uri"],
+            )
+            row = await self.history.async_session_record(active.session_id)
+            self.assertEqual(row["summary"]["moments_published"]["value"], 2)
+            self.assertFalse(active.prepared_presentations)
+        finally:
+            sys.modules.pop("custom_components.djconnect.session_runtime", None)
+            if previous_const is None:
+                sys.modules.pop("custom_components.djconnect.const", None)
+            else:
+                sys.modules["custom_components.djconnect.const"] = previous_const
+
+    async def test_source_withdrawal_without_archived_body_keeps_opaque_replay_key(self):
+        await self.service.async_in_transaction(
+            lambda tx: tx.execute(
+                "UPDATE djconnect_session_summaries SET source_binding=? WHERE session_id=?",
+                (json.dumps({"provider_entry_id": "source-entry"}), self.id),
+            )
+        )
+        await self.history.async_accept_moment("owner", self.id, "no-text-archive")
+        await self.history.async_withdraw_source_entry("source-entry")
+        row = await self.record()
+        self.assertIsNone(row["summary"]["moments_published"]["value"])
+        self.assertEqual(row["summary"]["moments_published"]["coverage"], "withdrawn")
+        self.assertFalse(
+            await self.history.async_accept_moment("owner", self.id, "no-text-archive")
+        )
+        self.assertEqual(await self.history.async_entry_records("owner", self.id), [])
+
+    async def test_restart_interruption_retains_counts_but_never_fills_unobserved_mood_gap(self):
+        from custom_components.djconnect.persistence.reconciliation import (
+            PersistentSessionStartupReconciler,
+        )
+
+        await self.observation("a", "A")
+        await self.history.async_accept_moment("owner", self.id, "accepted-before-crash")
+        await self.service.async_close()
+        await self.service.async_initialize()
+        result = await PersistentSessionStartupReconciler(
+            self.sessions, history=self.history
+        ).async_reconcile()
+        self.assertEqual(result.interrupted, 1)
+        row = await self.record()
+        self.assertEqual(row["lifecycle_status"], "INTERRUPTED")
+        self.assertEqual(row["summary"]["tracks_observed"]["value"], 1)
+        self.assertEqual(row["summary"]["moments_published"]["value"], 1)
+        self.assertEqual(row["summary"]["mood"]["coverage"], "unknown")
+        self.assertIsNone(row["summary"]["mood"]["value"])
+        self.assertEqual(row["summary"]["mood"]["state"], "final")
+        self.assertEqual(
+            (
+                await PersistentSessionStartupReconciler(
+                    self.sessions, history=self.history
+                ).async_reconcile()
+            ).interrupted,
+            0,
+        )
+
+    async def test_profile_purge_erases_derived_totals_and_forbids_reassignment(self):
+        await self.history.async_accept_moment("owner", self.id, "accepted")
+        await self.history.async_purge_profile_history("owner")
+        self.assertIsNone((await self.record())["summary"]["moments_published"]["value"])
+        self.assertEqual(
+            (await self.query.async_session_page("owner", include_active=True))["sessions"], []
+        )
+        self.assertEqual(
+            (await self.query.async_session_page("replacement", include_active=True))["sessions"],
+            [],
+        )
+        connection = sqlite3.connect(self.path)
+        self.assertEqual(
+            connection.execute("SELECT COUNT(*) FROM djconnect_session_acceptances").fetchone()[0],
+            0,
+        )
+        connection.close()
+
+    async def test_concurrent_list_detail_and_updates_never_mix_metric_revisions(self):
+        from custom_components.djconnect.session_history_projection import HistoryQueryError
+
+        async def read():
+            for _ in range(20):
+                for action in (
+                    lambda: self.query.async_session_page("owner", include_active=True),
+                    lambda: self.query.async_timeline_page("owner", self.id),
+                ):
+                    try:
+                        result = await action()
+                    except HistoryQueryError as exc:
+                        self.assertEqual(str(exc), "invalid_history_cursor")
+                        continue
+                    records = result.get("sessions", [result.get("session")])
+                    for row in records:
+                        self.assertEqual(row["summary"]["session_revision"], row["revision"])
+                        for key in ("tracks_observed", "moments_published", "mood"):
+                            self.assertEqual(row["summary"][key]["revision"], row["revision"])
+                            self.assertEqual(row["summary"][key]["as_of"], row["summary"]["as_of"])
+
+        async def write():
+            for number in range(20):
+                await self.history.async_accept_moment(
+                    "owner", self.id, "concurrent-" + str(number)
+                )
+
+        await asyncio.gather(read(), write())
+        self.assertEqual((await self.record())["summary"]["moments_published"]["value"], 20)
+
+    async def test_retention_erases_summary_and_keys_only_after_closed_session_expiry(self):
+        await self.history.async_accept_moment("owner", self.id, "retained-neutral-count")
+        await self.sessions.async_transition(
+            "owner", self.id, ENDED, historical_projections=self.history
+        )
+        future = (datetime.now(UTC) + timedelta(days=91)).isoformat()
+        await self.history.async_cleanup_expired(
+            cutoff=future, batch_size=250, entry_deadline=future
+        )
+        record = await self.record()
+        self.assertFalse(record["history_enabled"])
+        self.assertIsNone(record["summary"]["moments_published"]["value"])
+        connection = sqlite3.connect(self.path)
+        self.assertEqual(
+            connection.execute("SELECT COUNT(*) FROM djconnect_session_acceptances").fetchone()[0],
+            0,
+        )
+        self.assertEqual(
+            connection.execute("SELECT COUNT(*) FROM djconnect_session_summaries").fetchone()[0], 0
+        )
+        connection.close()
+        with self.assertRaises(PermissionError):
+            await self.history.async_accept_moment("owner", self.id, "retained-neutral-count")
+
+    async def test_cancel_before_storage_admission_does_not_start_transaction(self):
+        lock = self.service._provider._write_lock
+        await lock.acquire()
+        task = asyncio.create_task(
+            self.history.async_accept_moment("owner", self.id, "cancel-before-admission")
+        )
+        await asyncio.sleep(0)
+        task.cancel()
+        with self.assertRaises(asyncio.CancelledError):
+            await task
+        lock.release()
+        self.assertEqual((await self.record())["summary"]["moments_published"]["value"], 0)
+
+    async def test_real_commit_failure_rolls_back_aggregate_and_allows_retry(self):
+        from custom_components.djconnect.persistence.summary import record_event_tx
+
+        await self.service.async_in_transaction(
+            lambda tx: (
+                tx.execute("CREATE TABLE test_acceptance_parent (id INTEGER PRIMARY KEY)"),
+                tx.execute(
+                    "CREATE TABLE test_acceptance_child (id INTEGER REFERENCES test_acceptance_parent(id) DEFERRABLE INITIALLY DEFERRED)"
+                ),
+            )
+        )
+
+        def invalid_commit(tx):
+            tx.execute("INSERT INTO test_acceptance_child VALUES (999)")
+            record_event_tx(tx, self.id, "dj_moment", "commit-failed")
+
+        with self.assertRaises(RuntimeError):
+            await self.service.async_in_transaction(invalid_commit)
+        self.assertEqual((await self.record())["summary"]["moments_published"]["value"], 0)
+        self.assertTrue(await self.history.async_accept_moment("owner", self.id, "commit-failed"))
+        self.assertEqual((await self.record())["summary"]["moments_published"]["value"], 1)
+
+    async def test_all_rich_proactive_families_share_real_persistent_commit_and_off_is_zero(self):
+        import sys
+        from tests.test_session_runtime import _load_runtime_module
+        from tests.test_session_presence import SessionPresenceTest
+
+        runtime, previous_const = _load_runtime_module()
+        try:
+            await self.sessions.async_transition(
+                "owner", self.id, ENDED, historical_projections=self.history
+            )
+            actual_manager_class = runtime.SessionRuntimeManager
+            fixture = SessionPresenceTest()
+            fixture.runtime = runtime
+
+            def connected_manager(**kwargs):
+                return actual_manager_class(self.sessions, self.history, **kwargs)
+
+            with patch.object(runtime, "SessionRuntimeManager", connected_manager):
+                receipts, active, manager = await fixture.rich_trace("presenter")
+            proactive = [kind for _, kind in receipts if kind != "silence"]
+            self.assertIn("artist", proactive)
+            self.assertIn("album", proactive)
+            row = await self.history.async_session_record(active.session_id)
+            self.assertEqual(row["summary"]["moments_published"]["value"], len(proactive))
+            self.assertEqual(row["summary"]["tracks_observed"]["value"], 4)
+            self.assertEqual(active.presence_ledger.total_published, len(proactive))
+            await manager.async_end(owner_profile_id="owner", session_id=active.session_id)
+            with patch.object(runtime, "SessionRuntimeManager", connected_manager):
+                silent, off, _manager = await fixture.rich_trace("music_only")
+            self.assertFalse([kind for _, kind in silent if kind != "silence"])
+            row = await self.history.async_session_record(off.session_id)
+            self.assertEqual(row["summary"]["moments_published"]["value"], 0)
+            self.assertEqual(row["summary"]["tracks_observed"]["value"], 4)
+        finally:
+            sys.modules.pop("custom_components.djconnect.session_runtime", None)
+            if previous_const is None:
+                sys.modules.pop("custom_components.djconnect.const", None)
+            else:
+                sys.modules["custom_components.djconnect.const"] = previous_const
+
+    async def test_existing_genre_coordinator_commit_is_counted_once(self):
+        import sys
+        from tests.test_session_runtime import _load_runtime_module
+
+        runtime, previous_const = _load_runtime_module()
+        try:
+            manager = runtime.SessionRuntimeManager(self.sessions, self.history)
+            active = await manager.async_start(
+                owner_profile_id="genre-owner",
+                selected_mood="groove",
+                allowed_capability_intents=frozenset({"genre_story"}),
+            )
+
+            async def qualified_insight():
+                return {
+                    "track": {"title": "Anchor", "artist": "Northline", "genres": ["jazz"]},
+                    "analysis": {
+                        "summary": "A measured texture.",
+                        "full_text": "The current musical context has a measured texture.",
+                        "genre": "jazz",
+                    },
+                }
+
+            moment = await manager.async_process_track_started(
+                owner_profile_id="genre-owner",
+                session_id=active.session_id,
+                insight_provider=qualified_insight,
+            )
+            self.assertIsNotNone(moment)
+            self.assertEqual(moment.moment_type.value, "genre")
+            row = await self.history.async_session_record(active.session_id)
+            self.assertEqual(row["summary"]["moments_published"]["value"], 1)
+            self.assertEqual(active.presence_ledger.total_published, 1)
+            self.assertFalse(await manager._async_persist_moment(active, moment))
+        finally:
+            sys.modules.pop("custom_components.djconnect.session_runtime", None)
+            if previous_const is None:
+                sys.modules.pop("custom_components.djconnect.const", None)
+            else:
+                sys.modules["custom_components.djconnect.const"] = previous_const
