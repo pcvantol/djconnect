@@ -64,7 +64,9 @@ class MaintenanceTests(unittest.TestCase):
             lambda d: d["documentary_receipt"].update(native="PASS"),
             lambda d: d["documentary_receipt"].update(c_url="wrong"),
             lambda d: d["documentary_receipt"].update(
-                phase="SOURCE_PROTECTED_MERGED", source_delivery="PROTECTED_MERGED"
+                phase="SOURCE_PROTECTED_MERGED",
+                source_delivery="PROTECTED_MERGED",
+                protected_merge=False,
             ),
             lambda d: next(n for n in d["nodes"] if n["id"] == "SURFACE::APPLE::ADOPTION").update(
                 status="Completed", assignment_status="CORE_DELIVERED"
@@ -196,7 +198,11 @@ class MaintenanceTests(unittest.TestCase):
             "formal_evidence_sha256",
         ):
             r.pop(key, None)
-        r.update(phase="SOURCE_PROTECTED_MERGED", source_delivery="PROTECTED_MERGED")
+        r.update(
+            phase="SOURCE_PROTECTED_MERGED",
+            source_delivery="PROTECTED_MERGED",
+            protected_merge=False,
+        )
         for n in d["nodes"]:
             if n["id"] in {"SLICE::CORE::DJ-PRESENCE-CONTRACT", "SLICE::CORE::DJ-PRESENCE-POLICY"}:
                 n.update(status="Completed", assignment_status="CORE_DELIVERED")

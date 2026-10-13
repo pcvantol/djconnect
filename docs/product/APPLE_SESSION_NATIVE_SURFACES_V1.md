@@ -267,3 +267,8 @@ privacy, suspended/terminated/locked/offline modes; APNs token separation and
 cross-client/Watch dedup. Five-language accessibility/layout tests and actual
 host SDK/OS readbacks are required for later native delivery. This documentary
 slice establishes none of those product, installed, APNs or hardware passes.
+
+## Documentary delivery receipt
+
+[Source PR #1160](https://github.com/pcvantol/djconnect/pull/1160) protected merged as `fdc79c9d7174b9d67dcf743400fbb76a0c163387`.
+[Exact source/artifact qualification](../verification/SESSION_ENTRY_LIFECYCLE_HISTORY_DESIGN_V1_SOURCE_READBACK.md) records documentary checks and independent review; all proposed product implementation remains **Planned**. Separate Finalization reconciliation is still gated.

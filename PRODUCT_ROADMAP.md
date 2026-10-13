@@ -1524,7 +1524,7 @@ keeping the core local/Home Assistant experience useful without payment.
 
 ## Session entry, lifecycle, history and native surfaces — documentary refinement
 
-Assignment `DJC-SESSION-ENTRY-LIFECYCLE-HISTORY-DESIGN-V1-20261012`, including `DJC-APPLE-SESSION-NATIVE-SURFACES-DESIGN-V1-20261012`. [Owning A/B/C pickup](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6131363097). Design source is locally recorded; protected documentary delivery and its separate Finalization remain pending. Product implementation is **Planned**, not dispatched.
+Assignment `DJC-SESSION-ENTRY-LIFECYCLE-HISTORY-DESIGN-V1-20261012`, including `DJC-APPLE-SESSION-NATIVE-SURFACES-DESIGN-V1-20261012`. [Owning A/B/C pickup](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6131363097). Documentary source [PR #1160](https://github.com/pcvantol/djconnect/pull/1160) is protected merged as `fdc79c9d7174b9d67dcf743400fbb76a0c163387` with exact artifact qualification; separate Finalization reconciliation remains pending. Product implementation is **Planned**, not dispatched.
 
 | Existing family / bounded subset | Canonical design and acceptance | Status |
 | --- | --- | --- |
