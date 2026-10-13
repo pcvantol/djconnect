@@ -503,11 +503,14 @@ class HistoricalProjectionRepository(PersistenceRepository):
             # Entry deadlines are independent of the final Session header date.
             now = datetime.fromisoformat(entry_deadline) if entry_deadline else datetime.now(UTC)
             expired = tx.fetchall(
-                "SELECT entry_id,owner_profile_id,session_id FROM djconnect_session_entries WHERE retained_until<=? ORDER BY retained_until,entry_id LIMIT ?",
+                "SELECT entry_id,owner_profile_id,session_id,kind FROM djconnect_session_entries WHERE retained_until<=? ORDER BY retained_until,entry_id LIMIT ?",
                 (now.isoformat(), batch_size),
             )
             affected = set()
-            for identifier, owner, session_id in expired:
+            expired_sources = set()
+            for identifier, owner, session_id, kind in expired:
+                if kind == "playback_observed":
+                    expired_sources.add(session_id)
                 tx.execute(
                     "DELETE FROM djconnect_session_entries WHERE entry_id=? AND owner_profile_id=?",
                     (identifier, owner),
@@ -520,7 +523,8 @@ class HistoricalProjectionRepository(PersistenceRepository):
             for session_id in affected:
                 from .summary import withdraw_tx
 
-                withdraw_tx(tx, session_id)
+                if session_id in expired_sources:
+                    withdraw_tx(tx, session_id)
                 tx.execute(
                     "UPDATE djconnect_persistent_sessions SET history_revision=history_revision+1 WHERE session_id=?",
                     (session_id,),
@@ -562,6 +566,12 @@ class HistoricalProjectionRepository(PersistenceRepository):
                 )
                 tx.execute(
                     "DELETE FROM djconnect_session_entries WHERE session_id=?", (session_id,)
+                )
+                tx.execute(
+                    "DELETE FROM djconnect_session_summaries WHERE session_id=?", (session_id,)
+                )
+                tx.execute(
+                    "DELETE FROM djconnect_session_acceptances WHERE session_id=?", (session_id,)
                 )
                 tx.execute(
                     "UPDATE djconnect_persistent_sessions SET history_enabled=0,history_revision=history_revision+1 WHERE session_id=?",

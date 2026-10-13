@@ -51,6 +51,13 @@ def initialize_tx(tx, session_id, mood, stamp, context=None):
 
 def record_event_tx(tx, session_id, kind, reference_id, entry_id=""):
     """Return new/duplicate/full; retain every accepted identity until Session erasure."""
+    if (
+        kind not in {"playback_observed", "dj_moment"}
+        or not isinstance(reference_id, str)
+        or not reference_id
+        or len(reference_id) > 256
+    ):
+        raise ValueError("invalid_summary_event_identity")
     old = tx.fetchone(
         "SELECT entry_id FROM djconnect_session_acceptances WHERE session_id=? AND kind=? AND reference_id=?",
         (session_id, kind, reference_id),
@@ -62,14 +69,19 @@ def record_event_tx(tx, session_id, kind, reference_id, entry_id=""):
     )[0]
     if count >= MAX_ACCEPTED_EVENTS:
         if kind == "playback_observed":
-            tx.execute(
-                "UPDATE djconnect_session_summaries SET tracks_coverage='partial' WHERE session_id=? AND tracks_coverage!='withdrawn'",
+            coverage = tx.fetchone(
+                "SELECT tracks_coverage FROM djconnect_session_summaries WHERE session_id=?",
                 (session_id,),
             )
-            tx.execute(
-                "UPDATE djconnect_persistent_sessions SET history_revision=history_revision+1 WHERE session_id=?",
-                (session_id,),
-            )
+            if coverage and coverage[0] == "complete":
+                tx.execute(
+                    "UPDATE djconnect_session_summaries SET tracks_coverage='partial' WHERE session_id=?",
+                    (session_id,),
+                )
+                tx.execute(
+                    "UPDATE djconnect_persistent_sessions SET history_revision=history_revision+1 WHERE session_id=?",
+                    (session_id,),
+                )
             return "full", ""
         raise ValueError("session_summary_capacity")
     tx.execute(

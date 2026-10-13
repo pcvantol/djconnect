@@ -5606,7 +5606,9 @@ class SessionRuntimeManager:
 
     async def _async_persist_moment(self, active: DJSessionRuntime, moment: DJMoment) -> bool:
         """Explicit historical field qualification before actual live publication."""
-        if self._historical_projections is None or moment.session_id != active.session_id:
+        if moment.session_id != active.session_id:
+            return False
+        if self._historical_projections is None:
             return True
         if moment.moment_type is not DJMomentType.SILENCE and not active.allows_proactive():
             return False
