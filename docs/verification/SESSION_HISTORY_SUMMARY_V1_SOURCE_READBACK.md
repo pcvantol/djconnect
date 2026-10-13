@@ -33,7 +33,10 @@ commit-wins cancellation, COMMIT rollback, retries, end, restart, rights, deleti
 legacy migration and revision/query behavior.1788 regressions PASS,7 existing
 skips;134 DAG tests/schema/generation and Ruff PASS; Bandit zero medium/high.
 Both exact independent technical/privacy and product/UX reviews GO after fixes;
-previous d8b50a0 NO-GO is superseded, never reused.
+The d8b50a0 technical review was NO-GO for missing freshness/read-fit/expiry
+checks after storage waiting; its separate product/UX review was GO. Both prior
+outcomes are historical and are not reused for final ceb91c46, which received
+new exact GO reviews after fixes.
 
 Bounded accepted-key ledger:8192 combined keys per Session, no replay-key eviction.
 Representative real SQLite benchmark:100 Sessions,20-row page,4 SELECTs and0

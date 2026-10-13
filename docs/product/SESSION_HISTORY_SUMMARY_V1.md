@@ -113,8 +113,9 @@ full publication counts were therefore unknown. The connected implementation
 now provides the missing compact semantic acceptance transaction for the existing
 Manager publication entrances (opening/direction, coordinator, fallback track,
 qualified fact, shared-producer relation and immediate/pending narrative paths).
-This local implementation is not yet protected-delivered or independently fully
-qualified; no producer release or native acceptance is implied.
+This Core implementation is independently qualified and protected-delivered via
+[#1162](https://github.com/pcvantol/djconnect/pull/1162) at the pinned producer SHA
+above. Native Apple rendering and joint acceptance remain independently open.
 
 One non-Silence immutable proactive DJMoment has a canonical Session/Moment key
 and aggregate in existing Session Storage, independent of a permitted optional
@@ -190,15 +191,15 @@ retained statistic needs its own rights qualification; otherwise withdraw or
 recompute it. Profile reassignment cannot grant a new actor old history.
 No query enables Music DNA, revives ended Runtime or refetches expired bodies.
 
-## Planned subsets and acceptance
+## Subset delivery and remaining acceptance
 
-1. Qualify producer semantic event identities, rights, duration coverage and
-   existing Store transaction/migration/dedup boundaries.
-2. Implement optional same-revision list/detail aggregation and capability;
-   preserve old consumers and missing/unknown values.
-3. Independently admit native history row/header rendering, accessible labels
+1. **Core delivered:** qualified semantic event identities, rights, duration
+   coverage and existing Store transaction/migration/dedup boundaries.
+2. **Core delivered:** optional coherent list/detail aggregation and capability;
+   existing consumers and missing/unknown values are preserved.
+3. **Apple Planned:** independently admit native history row/header rendering, accessible labels
    and five-language terminology; no local counting or N+1 timeline loads.
-4. Joint qualification with real routes, concurrent writes/reads, end/restart,
+4. **Core routes qualified; joint product acceptance open:** concurrent writes/reads, end/restart,
    trim/delete/revocation, duplication/replay and interrupted partial coverage.
 
 Owning tests must distinguish empty from unknown; unique identity from accepted
@@ -210,12 +211,12 @@ this richer summary; surface display of private aggregates remains separately
 unqualified. No broader Lifecycle, narrative maturity or native/hardware
 completion is inferred from these designs.
 
-## Documentary delivery receipt
+## Historical documentary delivery receipt — #1160
 
 [Source PR #1160](https://github.com/pcvantol/djconnect/pull/1160) protected merged as `fdc79c9d7174b9d67dcf743400fbb76a0c163387`.
-[Exact source/artifact qualification](../verification/SESSION_ENTRY_LIFECYCLE_HISTORY_DESIGN_V1_SOURCE_READBACK.md) records documentary checks and independent review; all proposed product implementation remains **Planned**. Separate Finalization reconciliation is still gated.
+[Historical source/artifact qualification](../verification/SESSION_ENTRY_LIFECYCLE_HISTORY_DESIGN_V1_SOURCE_READBACK.md) records the earlier documentary checks and review. At that #1160 design-only boundary all implementation was Planned; its #1161 Finalization is closed. The current #1162 Core producer delivery above supersedes only the Core summary gap. Apple and joint acceptance remain open.
 
-## Connected implementation qualification (in progress)
+## Connected Core implementation qualification — delivered
 
 The aggregation boundary is a short existing SQLite transaction. It accepts
 canonical playback entry + key/count together, or a semantic non-Silence Moment
