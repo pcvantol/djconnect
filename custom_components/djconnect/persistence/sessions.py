@@ -52,6 +52,7 @@ class PersistentSessionRepository(PersistenceRepository):
         initial_mood: str = "",
         initial_direction: str = "",
         history_enabled: bool = True,
+        history_source_context: dict | None = None,
     ) -> PersistentSession:
         identifier = session_id or f"session-{uuid4().hex}"
         now = _now()
@@ -71,6 +72,10 @@ class PersistentSessionRepository(PersistenceRepository):
                     int(history_enabled),
                 ),
             )
+            if history_enabled:
+                from .summary import initialize_tx
+
+                initialize_tx(tx, identifier, initial_mood, now, history_source_context)
             return PersistentSession(
                 identifier,
                 owner_profile_id,
@@ -84,7 +89,13 @@ class PersistentSessionRepository(PersistenceRepository):
         return await self._async_in_transaction(operation)
 
     async def async_transition(
-        self, owner_profile_id: str, session_id: str, target: str, *, reason: str = "", historical_projections=None
+        self,
+        owner_profile_id: str,
+        session_id: str,
+        target: str,
+        *,
+        reason: str = "",
+        historical_projections=None,
     ) -> PersistentSession:
         def operation(tx: PersistenceTransaction) -> PersistentSession:
             row = tx.fetchone(
@@ -121,6 +132,14 @@ class PersistentSessionRepository(PersistenceRepository):
                 "UPDATE djconnect_persistent_sessions SET lifecycle_status=?,started_at=?,ended_at=?,interrupted_at=?,interruption_reason=?,updated_at=? WHERE session_id=?",
                 (target, started, ended, interrupted, interruption_reason, now, session_id),
             )
+            if target in {ENDED, INTERRUPTED}:
+                from .summary import mood_tx
+
+                mood_tx(tx, session_id, "", now, terminal=True, interrupted=target == INTERRUPTED)
+                tx.execute(
+                    "UPDATE djconnect_persistent_sessions SET history_revision=history_revision+1 WHERE session_id=?",
+                    (session_id,),
+                )
             return PersistentSession(
                 session_id,
                 owner_profile_id,
@@ -136,11 +155,11 @@ class PersistentSessionRepository(PersistenceRepository):
             )
 
         def transition(tx: PersistenceTransaction) -> PersistentSession:
-            result=operation(tx)
-            if historical_projections is not None and target in {ENDED,INTERRUPTED}:
+            result = operation(tx)
+            if historical_projections is not None and target in {ENDED, INTERRUPTED}:
                 if historical_projections._persistence is not self._persistence:
                     raise SessionLifecycleError("session_projection_transaction_mismatch")
-                historical_projections._project_terminal_tx(tx,result)
+                historical_projections._project_terminal_tx(tx, result)
             return result
 
         return await self._async_in_transaction(transition)
@@ -158,7 +177,11 @@ class PersistentSessionRepository(PersistenceRepository):
         )
 
     async def async_reconciliation_candidates(self) -> list[PersistentSession]:
-        return await self._async_in_transaction(lambda tx: [
-            PersistentSession(*[str(value) for value in row])
-            for row in tx.fetchall("SELECT session_id,owner_profile_id,lifecycle_status,created_at,started_at,ended_at,interrupted_at,interruption_reason,start_strategy,initial_mood,initial_direction FROM djconnect_persistent_sessions WHERE lifecycle_status IN ('OPENING','ACTIVE') ORDER BY created_at")
-        ])
+        return await self._async_in_transaction(
+            lambda tx: [
+                PersistentSession(*[str(value) for value in row])
+                for row in tx.fetchall(
+                    "SELECT session_id,owner_profile_id,lifecycle_status,created_at,started_at,ended_at,interrupted_at,interruption_reason,start_strategy,initial_mood,initial_direction FROM djconnect_persistent_sessions WHERE lifecycle_status IN ('OPENING','ACTIVE') ORDER BY created_at"
+                )
+            ]
+        )
