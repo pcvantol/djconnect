@@ -3357,13 +3357,13 @@ class DJConnectAskDjView(HomeAssistantView):
             str(payload.get("audio_response") or "").strip()[:24],
             str(payload.get("mood_zone") or "").strip()[:24],
         )
-        result = await async_handle_ask_dj(
-            hass,
-            runtime,
-            payload,
-            user_id=_request_user_id(request),
+        from .api_handlers import async_handle_ask_dj_message_payload
+
+        payload["text"] = text
+        result, status_code = await async_handle_ask_dj_message_payload(
+            hass, payload, headers=request.headers,
+            user_id=_request_user_id(request), persist_history=False,
         )
-        status_code = 200 if result.get("success") else 500
         _LOGGER.debug(
             "DJConnect Ask DJ raw result status=%s success=%s intent=%s action=%s audio=%s images=%s links=%s sources=%s playback_actions=%s confirmation_actions=%s error=%s",
             status_code,
@@ -4109,31 +4109,15 @@ async def _ask_dj_voice_response(
             context["selected_entry"]={"session_id":str(request.headers.get("X-DJConnect-Reference-Session-ID") or context["session_id"] or ""),"entry_id":str(request.headers.get("X-DJConnect-Entry-ID"))}
         ask_payload["conversation_context"]=context
 
-    if "conversation_context" in ask_payload:
-        from .api_handlers import async_handle_ask_dj_message_payload
-        result,status=await async_handle_ask_dj_message_payload(hass,ask_payload,headers=request.headers,user_id=_request_user_id(request),voice_input=True)
-        return _DJConnectSessionView.json(view,{**result,"transcript":user_text,"recognized_text":user_text},status_code=status)
-    _set_device_state(runtime, "processing")
-    runtime.update(last_text=user_text, last_error=None)
-    try:
-        result = await async_handle_ask_dj(hass, runtime, ask_payload, user_id=_request_user_id(request))
-    except Exception as exc:  # noqa: BLE001
-        _LOGGER.warning("DJConnect Ask DJ voice failed: %s", _safe_backend_error_message(exc))
-        _set_device_state(runtime, "error")
-        runtime.update(last_error=_safe_backend_error_message(exc))
-        return view.json(_ask_dj_voice_failure_payload(user_text), status_code=503)
-    _persist_runtime_device_status(hass, runtime)
-    _set_device_state(runtime, "idle")
-    return view.json(
-        {
-            "success": bool(result.get("success", True)),
-            **result,
-            "transcript": user_text,
-            "recognized_text": user_text,
-            "audio_type": result.get("audio_type") or _audio_type_from_url(result.get("audio_url")),
-            "actions": result.get("actions") or [],
-            "sources": result.get("sources") or [],
-        }
+    from .api_handlers import async_handle_ask_dj_message_payload
+
+    result, status = await async_handle_ask_dj_message_payload(
+        hass, ask_payload, headers=request.headers,
+        user_id=_request_user_id(request), voice_input=True,
+    )
+    return _DJConnectSessionView.json(
+        view, {**result, "transcript": user_text, "recognized_text": user_text},
+        status_code=status,
     )
 
 

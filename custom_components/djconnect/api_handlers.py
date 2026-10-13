@@ -1199,6 +1199,7 @@ async def async_handle_ask_dj_message_payload(
     headers: Any | None = None,
     user_id: str | None = None,
     voice_input: bool = False,
+    persist_history: bool = True,
 ) -> tuple[dict[str, Any], int]:
     """Handle Ask DJ chat messages for HTTP and HA websocket transports."""
     headers = headers or {}
@@ -1240,125 +1241,81 @@ async def async_handle_ask_dj_message_payload(
     if profile_error is not None:
         return profile_error, int(profile_status or 400)
     _debug_ask_dj_request("message", runtime, payload, user_id=user_id)
-    from .session_conversation import (
-        history_question,
-        async_session_exchange,
-        SessionConversationError,
-    )
+    from .ask_dj.service import async_exchange
+    from .session_conversation import SessionConversationError
+    from uuid import uuid4
 
+    # Older id-less transports get an explicit new identity; retaining it enables retries.
+    if "conversation_context" not in payload and not payload.get("client_message_id"):
+        payload["client_message_id"] = "server-turn-" + uuid4().hex
+    payload["input_type"] = "voice" if voice_input else "text"
+    bound_runtime, context, error, status = await _session_profile_context(
+        hass, payload, headers=headers, user_id=user_id, source="session_conversation"
+    )
+    if error is not None:
+        return error, status
     if (
-        "conversation_context" in payload
-        or history_question(str(payload.get("text") or payload.get("message") or "")) is not None
+        not context.privacy_policy.allow_personal_read
+        or not resolve_profile_privacy_policy(context.profile, {}).allow_personal_read
     ):
-        payload["input_type"] = "voice" if voice_input else "text"
-        bound_runtime, context, error, status = await _session_profile_context(
-            hass, payload, headers=headers, user_id=user_id, source="session_conversation"
-        )
-        if error is not None:
-            return error, status
-        if (
-            not context.privacy_policy.allow_personal_read
-            or not resolve_profile_privacy_policy(context.profile, {}).allow_personal_read
-        ):
-            return _error_payload("history_not_allowed"), 403
+        return _error_payload("history_not_allowed"), 403
 
-        async def delegate(confirmed_payload, scope_key, selected_entry, playback_result):
-            return await http_helpers.async_handle_ask_dj(
-                hass,
-                bound_runtime,
-                confirmed_payload,
-                user_id=user_id,
-                conversation_history_scope=scope_key,
-                ephemeral_conversation=bool(confirmed_payload.get("private_session")),
-                confirmed_entry=selected_entry,
-                saved_playback_result=playback_result,
-            )
-
-        async def validate_owner():
-            _runtime, current, current_error, current_status = await _session_profile_context(
-                hass,
-                dict(payload),
-                headers=headers,
-                user_id=user_id,
-                source="session_conversation_complete",
-            )
-            if current_error is not None or current.profile_id != context.profile_id:
-                raise SessionConversationError("session_context_changed", int(current_status or 409))
-            minimum = resolve_profile_privacy_policy(current.profile, {})
-            if not current.privacy_policy.allow_personal_read or not minimum.allow_personal_read:
-                raise SessionConversationError("history_not_allowed", 403)
-            if (
-                context.privacy_policy.allow_history_persistence
-                and resolve_profile_privacy_policy(context.profile, {}).allow_history_persistence
-                and (
-                    not current.privacy_policy.allow_history_persistence
-                    or not minimum.allow_history_persistence
-                )
-            ):
-                raise SessionConversationError("history_not_allowed", 403)
-
-        try:
-            result = await async_session_exchange(
-                hass,
-                bound_runtime,
-                payload,
-                profile_id=context.profile_id,
-                history_manager=_history_manager(hass, bound_runtime),
-                delegate=delegate,
-                validate_owner=validate_owner,
-                persist_history=context.privacy_policy.allow_history_persistence
-                and resolve_profile_privacy_policy(context.profile, {}).allow_history_persistence,
-            )
-            return result, 200
-        except SessionConversationError as exc:
-            return _error_payload(exc.code), exc.status
-        except PermissionError:
-            return _error_payload("history_unavailable"), 404
-        except (OSError, RuntimeError):
-            return _error_payload("history_storage_unavailable"), 503
-        except ValueError:
-            return _error_payload("session_context_changed"), 409
-    result = await http_helpers.async_handle_ask_dj(hass, runtime, payload, user_id=user_id)
-    if not result.get("success"):
-        _debug_ask_dj_result("message", result, 500, runtime=runtime)
-        return result, 500
-    privacy_policy = getattr(runtime, "profile_context_privacy_policy", None)
-    if getattr(privacy_policy, "allow_history_persistence", True):
-        sync = await _history_manager(hass, runtime).async_append_exchange(
-            user_id,
-            payload,
-            result,
-        )
-    else:
-        sync = {
-            "success": True,
-            "history_revision": None,
-            "clear_revision": None,
-            "messages": [],
-            "history_persisted": False,
-            "privacy_mode": str(payload.get("profile_privacy_mode") or ""),
-        }
-    event_type = (
-        EVENT_ASK_DJ_CONFIRM
-        if result.get("confirmation_actions")
-        else EVENT_ASK_DJ_RESPONSE
-    )
-    if sync.get("history_persisted", True):
-        await http_helpers.async_send_push_event(
+    async def delegate(confirmed_payload, scope_key, selected_entry, playback_result):
+        return await http_helpers.async_handle_ask_dj(
             hass,
-            runtime,
+            bound_runtime,
+            confirmed_payload,
             user_id=user_id,
-            event_type=event_type,
-            history_revision=sync.get("history_revision"),
-            client_message_id=payload.get("client_message_id"),
-            source_device_id=identity.get("device_id"),
-            client_type=identity.get("client_type"),
-            explicit_user_request=True,
-            announcement=result.get("announcement") if isinstance(result, dict) else None,
+            conversation_history_scope=scope_key,
+            ephemeral_conversation=bool(confirmed_payload.get("private_session")),
+            confirmed_entry=selected_entry,
+            saved_playback_result=playback_result,
         )
-    response = {**result, **sync}
-    _debug_ask_dj_result("message", response, 200, runtime=runtime)
-    return response, 200
+
+    async def validate_owner():
+        _runtime, current, current_error, current_status = await _session_profile_context(
+            hass,
+            dict(payload),
+            headers=headers,
+            user_id=user_id,
+            source="session_conversation_complete",
+        )
+        if current_error is not None or current.profile_id != context.profile_id:
+            raise SessionConversationError("session_context_changed", int(current_status or 409))
+        minimum = resolve_profile_privacy_policy(current.profile, {})
+        if not current.privacy_policy.allow_personal_read or not minimum.allow_personal_read:
+            raise SessionConversationError("history_not_allowed", 403)
+        if (
+            context.privacy_policy.allow_history_persistence
+            and resolve_profile_privacy_policy(context.profile, {}).allow_history_persistence
+            and (
+                not current.privacy_policy.allow_history_persistence
+                or not minimum.allow_history_persistence
+            )
+        ):
+            raise SessionConversationError("history_not_allowed", 403)
+
+    try:
+        result = await async_exchange(
+            hass,
+            bound_runtime,
+            payload,
+            profile_id=context.profile_id,
+            history_manager=_history_manager(hass, bound_runtime),
+            delegate=delegate,
+            validate_owner=validate_owner,
+            persist_history=persist_history and context.privacy_policy.allow_history_persistence
+            and resolve_profile_privacy_policy(context.profile, {}).allow_history_persistence,
+        )
+        return result, 200
+    except SessionConversationError as exc:
+        return _error_payload(exc.code), exc.status
+    except PermissionError:
+        return _error_payload("history_unavailable"), 404
+    except (OSError, RuntimeError):
+        return _error_payload("history_storage_unavailable"), 503
+    except ValueError:
+        return _error_payload("session_context_changed"), 409
 
 
 async def async_handle_track_insight_payload(
