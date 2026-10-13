@@ -40,18 +40,18 @@ def _committed_mutation(method):
                 # Resolve the in-flight save before allowing a subsequent writer.
                 # Successful persisted data remains authoritative even if the caller left.
                 try:
-                    await task
+                    await _settle_store_writer(task)
                 except Exception:
                     if staged._committed_store_write and self._store is not None:
-                        await asyncio.shield(
-                            self._store.async_save(_compact_store_data(self._data))
-                        )
+                        await _settle_store_writer(asyncio.create_task(
+                            self._store.async_save(_compact_store_data(self._data))))
                 else:
                     self._data = staged._data
                 raise
             except Exception:
                 if staged._committed_store_write and self._store is not None:
-                    await asyncio.shield(self._store.async_save(_compact_store_data(self._data)))
+                    await _settle_store_writer(asyncio.create_task(
+                        self._store.async_save(_compact_store_data(self._data))))
                 raise
             self._data = staged._data
             return result
@@ -59,10 +59,23 @@ def _committed_mutation(method):
     return commit
 
 
+async def _settle_store_writer(task):
+    """Repeated caller cancellation cannot release the serialized write boundary."""
+    while True:
+        try:
+            return await asyncio.shield(task)
+        except asyncio.CancelledError:
+            if task.cancelled():
+                raise
+
+
 class AskDJHistoryManager:
     """Store user-scoped Ask DJ chat history for cross-device sync."""
 
     def __init__(self, hass: Any | None = None, store: Any | None = None) -> None:
+        from .ask_dj.dialogue import DialogueState
+
+        self.dialogue = DialogueState()
         self._write_lock = asyncio.Lock()
         self._pending_session_requests: dict[str, Counter] = {}
         self.hass = hass
@@ -138,9 +151,11 @@ class AskDJHistoryManager:
         }
 
     @_committed_mutation
-    async def async_clear(self, user_id: str | None) -> dict[str, Any]:
+    async def async_clear(self, user_id: str | None, *, commit_guard=None) -> dict[str, Any]:
         """Clear history for one HA user and advance sync revisions."""
         await self.async_load()
+        if commit_guard is not None:
+            await commit_guard()
         user_key = _user_key(user_id)
         state = self._user_state(user_key)
         state["history_revision"] = int(state.get("history_revision") or 0) + 1
@@ -150,6 +165,9 @@ class AskDJHistoryManager:
         _clear_trim_metadata(state)
         state["updated_at"] = _now()
         await self.async_save()
+        if commit_guard is not None:
+            await commit_guard()
+        self.dialogue.invalidate(user_key)
         return {
             "success": True,
             "cleared": True,
@@ -181,6 +199,8 @@ class AskDJHistoryManager:
         await self.async_load()
         global_clear_revision = int(self._data.get("global_clear_revision") or 0) + 1
         self._data["global_clear_revision"] = global_clear_revision
+        if include_profile_history:
+            self.dialogue.invalidate()
         users = self._data.setdefault("users", {})
         if not users:
             users[_user_key(None)] = {"history_revision": 0, "clear_revision": 0, "messages": []}
@@ -266,6 +286,7 @@ class AskDJHistoryManager:
             user_message["session_turn"] = deepcopy(session_turn)
             assistant_message["session_turn"] = deepcopy(session_turn)
             refs = list(assistant_response.get("historical_matches") or [])
+            refs.extend(session_turn.get("dependency_entries", []))
             selected = session_turn.get("context", {}).get("selected_entry")
             if isinstance(selected, dict):
                 refs.append(selected)
@@ -381,6 +402,10 @@ class AskDJHistoryManager:
 
     async def async_scope_revision(self, scope_key: str) -> str:
         await self.async_load()
+        return self.scope_revision(scope_key)
+
+    def scope_revision(self, scope_key: str) -> str:
+        """Read the committed cache for a final fence without yielding authority."""
         user_key = _user_key(scope_key)
         state=self._data.get("users",{}).get(user_key,{})
         return str(state.get("history_trimmed_count",0))+":"+str(self._effective_clear_revision(state, user_key))
@@ -442,6 +467,22 @@ class AskDJHistoryManager:
         if not message_id:
             return False
         return self._find_assistant_message(self._target_user_keys(user_id), message_id) is not None
+
+    @_committed_mutation
+    async def async_reserve_dialogue_effect(self, scope: str, client_id: str, digest: str) -> None:
+        """Opaque dispatch receipt survives failure/clear/reload; never persist content."""
+        from .ask_dj.dialogue import DialogueError
+
+        state = self._user_state(scope)
+        receipts = state.setdefault("dialogue_effect_receipts", {})
+        key = _request_hash(scope, client_id)
+        if key in receipts:
+            code = "action_outcome_uncertain" if receipts[key] == digest else "client_message_conflict"
+            raise DialogueError(code)
+        if len(receipts) >= 1000:
+            raise DialogueError("action_receipt_capacity", 503)
+        receipts[key] = digest
+        await self.async_save()
 
     def recent_messages_for_prompt(
         self,
@@ -660,6 +701,8 @@ def _compact_store_data(data: dict[str, Any]) -> dict[str, Any]:
             "clear_revision": int(state.get("clear_revision") or 0),
             "messages": messages,
             "updated_at": _clean_text(state.get("updated_at")),
+            "dialogue_effect_receipts": {k: v for k, v in list(state.get("dialogue_effect_receipts", {}).items())[:1000]
+                                        if isinstance(k, str) and len(k) == 64 and isinstance(v, str) and len(v) == 64},
             "cleared_request_hashes": [
                 value
                 for value in state.get("cleared_request_hashes", [])[-1000:]
@@ -695,6 +738,8 @@ def _normalize_store_data(data: Any) -> dict[str, Any]:
                 if isinstance(message, dict)
             ],
             "updated_at": _clean_text(state.get("updated_at")),
+            "dialogue_effect_receipts": {k: v for k, v in list(state.get("dialogue_effect_receipts", {}).items())[:1000]
+                                        if isinstance(k, str) and len(k) == 64 and isinstance(v, str) and len(v) == 64},
             "cleared_request_hashes": [
                 value
                 for value in state.get("cleared_request_hashes", [])[-1000:]

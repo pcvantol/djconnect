@@ -156,7 +156,7 @@ class SessionConversationHistoryTest(unittest.IsolatedAsyncioTestCase):
             {
                 **identity,
                 "client_message_id": "copied",
-                "text": "Vertel over deze bijdrage",
+                "text": "Citeer deze bijdrage letterlijk",
                 "conversation_context": {
                     "session_id": session.session_id,
                     "selected_entry": target,
@@ -1129,7 +1129,7 @@ class SessionConversationHistoryTest(unittest.IsolatedAsyncioTestCase):
                 {
                     **identity,
                     "client_message_id": f"question-{index}",
-                    "text": "Vertel over deze bijdrage",
+                    "text": "Citeer deze bijdrage letterlijk",
                     "language": "nl",
                     "input_type": input_type,
                     "conversation_context": {

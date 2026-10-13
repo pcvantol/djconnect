@@ -2,17 +2,13 @@
 
 from __future__ import annotations
 
-import asyncio
 import hashlib
 import json
 import re
-from functools import wraps
-from uuid import NAMESPACE_URL, uuid5
 
 from .historical_projection_query import HistoricalProjectionQueryService
 from .persistence import persistence_service
 from .persistence.history import HistoricalProjectionRepository
-from .session_runtime import async_complete_conversation_commit, session_runtime_manager
 
 
 class SessionConversationError(ValueError):
@@ -202,6 +198,14 @@ async def async_history_grant_revision(hass, owner: str) -> str:
     from .profile_context import profile_storage
 
     household = await profile_storage(hass).async_load()
+    return history_grant_revision(hass, owner, household)
+
+
+def history_grant_revision(hass, owner: str, household=None) -> str:
+    """Same qualified rights revision from committed cache, without an await."""
+    from .profile_context import profile_storage
+
+    household = household or profile_storage(hass).household
     profile = household.profiles.get(owner)
     accounts = [
         (

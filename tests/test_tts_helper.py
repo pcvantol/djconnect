@@ -1970,6 +1970,8 @@ class TtsHelperTest(unittest.TestCase):
             self.http.async_send_dj_response_best_effort = original_dj_response
 
         self.assertEqual(status_response["status_code"], 200)
+        from tests.test_http_voice_helpers import VoiceHttpHelperTest
+        command_response = VoiceHttpHelperTest.response_envelope(command_response)
         self.assertEqual(command_response["status_code"], 200)
         self.assertEqual(voice_response["status_code"], 200)
 

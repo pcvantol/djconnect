@@ -22,6 +22,7 @@ class MomentDeliveryBoundary:
     published_monotonic: float
     published_at: str
     playback_item_id: str
+    track_snapshot: tuple[tuple[str, Any], ...] = ()
 
     def utc_at(self, deadline: float) -> str:
         return (datetime.fromisoformat(self.published_at) + timedelta(
@@ -101,6 +102,9 @@ def admission(moment: Any, boundary: MomentDeliveryBoundary | None, *,
         playing and boundary.playback_item_id and boundary.playback_item_id == playback_item_id
         and boundary.published_monotonic <= now < deadline)
     result['active_flow_display_allowed'] = history_allowed and moment.moment_id in flow_ids
+    from .moment_navigation import navigation, TTL_SECONDS
+    if result['qualification'] == 'qualified' and (result['current_display_allowed'] or result['active_flow_display_allowed']) and now < min(boundary.published_monotonic+TTL_SECONDS, source_deadline(source) if isinstance(source,QualifiedSessionFact) else deadline):
+        result['navigation_actions'] = [{**nav,'expires_at':boundary.utc_at(min(boundary.published_monotonic+TTL_SECONDS,source_deadline(source)))} for action in moment.actions if (nav:=navigation(action)) and nav['reference']['session_id']==session_id and nav['reference']['moment_id']==moment.moment_id][:1]
     return result
 
 

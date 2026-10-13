@@ -117,3 +117,27 @@ An eligible useful Track contribution can offer explicit
 navigates. The same detail and target resolution serve a requested drilldown in
 either composer. Earlier subject mode stays fixed during playback changes;
 Apple navigation/back/draft/scroll acceptance remains separately owned.
+
+
+## Connected delivery and consumer boundary
+
+General Ask DJ and Session composer use the same Profile thread and the same
+text/voice/command service. A selected composer remains the composer through an
+ordinary volume action; an explicit new artist takes precedence. Qualified real
+results support refinement, selecting a shown version and explicit playback without
+extracting permission from model prose. Known pre-send failures and uncertain
+outcomes have different retry behavior. A temporary acoustic preference changes
+neither the stored Mood nor the queue by itself.
+
+The [Track Insight drilldown](MOMENT_TRACK_INSIGHT_DRILLDOWN_V1.md) belongs to this
+same selected Core increment. A useful existing published Track-Moment can offer
+one explicit navigation button. It keeps the exact recording after A→B and uses
+the existing full detail/cache, with honest unavailable/retry states. The same
+subject route is available to either Ask DJ screen; VibeCast without detail support
+shows the contribution and no unusable button. No Swift or receiver implementation
+is started by this Core handoff. Native and joint acceptance remain separate.
+
+Local implementation/qualification is not protected source delivery. Exact source
+and Finalization permissions remain distinct. The owner additionally requested HA-dev
+and HA-prod integration updates after readiness; installation/readback follows the
+qualified exact artifact and does not establish native or hardware acceptance.

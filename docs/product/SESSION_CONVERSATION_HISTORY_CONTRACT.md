@@ -344,3 +344,14 @@ reads only project a provisional open Mood interval, without writes or providers
 Old stores remain unknown, restart leaves unobserved Mood time unknown, and
 owner/source/privacy/retention withdrawal applies to derived totals.
 No summary enters shared Broadcast, notifications or diagnostics.
+
+
+## Shared reactive dialogue and bounded Moment drilldown
+
+The selected [common Ask DJ contract](ASK_DJ_CONTEXTUAL_DIALOGUE_CONTRACT_V1.md)
+uses the existing conversation owner for both screens; optional Session/Moment
+context does not create a second pipeline. The [Moment Track Insight subset](MOMENT_TRACK_INSIGHT_DRILLDOWN_V1.md)
+adds an exact, temporary owner read through the existing full detail service.
+This is one bounded connected correction; full interactive/narrative maturity,
+native adoption, entry/lifecycle and joint acceptance remain independently Planned/open.
+No model/provider lookup occurs merely by rendering a navigation offer.

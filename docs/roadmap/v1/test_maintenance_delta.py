@@ -37,6 +37,8 @@ class MaintenanceTests(unittest.TestCase):
         import json
 
         d = self.p["planning_maintenance"]
+        if d["schema_version"] == "djconnect-federated-planning-delta/9":
+            d = json.loads((ROOT / d["dialogue_receipt"]["previous_delta"]).read_text())
         if d["schema_version"] == "djconnect-federated-planning-delta/8":
             d = json.loads((ROOT / d["summary_receipt"]["previous_delta"]).read_text())
         receipt = d["documentary_receipt"]
@@ -125,6 +127,9 @@ class MaintenanceTests(unittest.TestCase):
                     else ("In progress", "IN_PROGRESS")
                 )
                 self.assertEqual((n["status"], n["assignment_status"]), expected)
+            elif n["id"] in {"CONVERSATION::CORE::SHARED-DIALOGUE", "INSIGHT::CORE::MOMENT-DRILLDOWN"}:
+                delivered = d["dialogue_receipt"]["source_delivery"] == "PROTECTED_MERGED"
+                self.assertEqual((n["status"], n["assignment_status"]), ("Completed", "CORE_DELIVERED") if delivered else ("In progress", "IN_PROGRESS"))
             elif n["id"] == "HISTORY::CORE::SUMMARY":
                 delivered = d["summary_receipt"]["source_delivery"] == "PROTECTED_MERGED"
                 self.assertEqual(
@@ -383,3 +388,41 @@ class AmbientMaintenanceTests(unittest.TestCase):
             p = copy.deepcopy(self.plan)
             p["planning_maintenance"]["ambient_receipt"][key] = value
             self.assertTrue(validate(p), (key, value))
+
+class DialogueMaintenanceTests(unittest.TestCase):
+    def setUp(self):
+        self.p = load(ROOT / "djconnect-platform-v1.json")
+
+    def test_dialogue_v9_preserves_v8_and_has_only_one_core_admission(self):
+        import json
+        d = self.p["planning_maintenance"]
+        r = d["dialogue_receipt"]
+        prior = (ROOT / r["previous_delta"]).read_bytes()
+        self.assertEqual(hashlib.sha256(prior).hexdigest(), r["previous_delta_sha256"])
+        previous = json.loads(prior)
+        for key in ("implementation_receipt", "correction_receipts", "narrative_receipt", "forecast_receipt", "ambient_receipt", "documentary_receipt", "summary_receipt"):
+            self.assertEqual(d[key], previous[key])
+        for node in previous["nodes"]:
+            self.assertEqual(next(n for n in d["nodes"] if n["id"] == node["id"]), node)
+        self.assertEqual(d["edges"][:len(previous["edges"])], previous["edges"])
+        self.assertEqual(len(d["nodes"]) - len(previous["nodes"]), 5)
+        self.assertEqual(len(d["edges"]) - len(previous["edges"]), 7)
+        self.assertFalse(r["consumer_writes"])
+        self.assertFalse(r["automatic_dispatch"])
+
+    def test_dialogue_unproved_delivery_and_consumer_admission_fail_closed(self):
+        mutations = [
+            lambda d: d["dialogue_receipt"].update(native="PASS"),
+            lambda d: d["dialogue_receipt"].update(consumer_writes=True),
+            lambda d: d["dialogue_receipt"].update(added_requirement="unapproved"),
+            lambda d: d["dialogue_receipt"].update(base_sha="0" * 40),
+            lambda d: d["dialogue_receipt"].update(phase="SOURCE_PROTECTED_MERGED", source_delivery="PROTECTED_MERGED"),
+            lambda d: next(n for n in d["nodes"] if n["id"] == "CONVERSATION::APPLE::SHARED-ADOPTION").update(status="Completed", assignment_status="CORE_DELIVERED"),
+            lambda d: d["nodes"].append(copy.deepcopy(d["nodes"][-1])),
+            lambda d: d["edges"][-1].update(consumer=d["edges"][-1]["producer"]),
+            lambda d: d["edges"][-1].update(consumer="unknown-node"),
+        ]
+        for mutate in mutations:
+            p = copy.deepcopy(self.p)
+            mutate(p["planning_maintenance"])
+            self.assertTrue(validate(p))

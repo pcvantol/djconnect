@@ -16,6 +16,8 @@ Combined Session entry/history/native-surface documentary design: [DJC-SESSION-E
 
 Selected connected Core history summary: DJC-CORE-SESSION-HISTORY-SUMMARY-V1-20261013; source PROTECTED_MERGED. Reuses HISTORY::CORE::SUMMARY, with Apple adoption Planned and native/installed/joint acceptance open. Predecessor version7 is preserved byte-for-byte.
 
+Selected one-pipeline Ask DJ + exact Moment Track Insight: [DJC-CORE-ASKDJ-CONTEXTUAL-DIALOGUE-V1-20261013](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6145537044); source UNPUBLISHED. Both screens use the same service with optional qualified context. Native Apple and joint acceptance remain Planned/open; no consumer writes or automatic dispatch. History summary1162/1163 stays closed; version8 is preserved in history/20261013. Owner-requested HA-dev/prod updates follow qualified delivery and installed readback.
+
 - `PROJ::INTELLIGENCE::DJ-PRESENCE` — Planned: Independent presence, Mood and Persona; no new dispatch.
 - `SLICE::APPLE::DJ-PRESENCE-CONTROL` — Planned: Accessible five-language native confirmation; reuse existing Apple writer.
 - `QUAL::VIBECAST::DJ-PRESENCE-COMPAT` — Planned: Core shared-renderer + receiver owner, both existing software builds.
@@ -42,5 +44,10 @@ Selected connected Core history summary: DJC-CORE-SESSION-HISTORY-SUMMARY-V1-202
 - `CONTINUATION::CORE::POLICY` — Planned: Off until opt-in; category-only projection, quiet hours, bounded retries/dedup and revalidation.
 - `CONTINUATION::APPLE::ALERT-TRANSPORT` — Planned: Category-only real transport, consent, cross-client/Watch dedup; separate answer-ready family.
 - `CONTINUATION::PRODUCT::JOINT` — Planned: Exact Core policy and independently qualified native/transport receipts.
+- `CONVERSATION::CORE::SHARED-DIALOGUE` — In progress: Shared contextual Ask DJ service and acceptance.
+- `CONVERSATION::APPLE::SHARED-ADOPTION` — Planned: One native Ask DJ controller with optional Session context.
+- `INSIGHT::CORE::MOMENT-DRILLDOWN` — In progress: Qualified exact-track Moment navigation and shared detail.
+- `INSIGHT::APPLE::MOMENT-DRILLDOWN` — Planned: Native pinned Track Insight and return to the same Flow/draft.
+- `CONVERSATION::PRODUCT::JOINT` — Planned: Shared dialogue and exact Moment detail joint acceptance.
 
 Core policy/ownercontract status follows the exact implementation receipt. Native/installed/hardware acceptance remains open.

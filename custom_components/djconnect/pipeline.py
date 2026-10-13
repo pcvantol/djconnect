@@ -278,13 +278,7 @@ async def _conversation_process(
         assist_context.get("agent_id"),
         assist_context.get("pipeline_id"),
     )
-    result = await hass.services.async_call(
-        "conversation",
-        "process",
-        data,
-        blocking=True,
-        return_response=True,
-    )
+    result = await call_conversation_process_with_agent_retry(hass, data)
     if not isinstance(result, dict):
         raise RuntimeError("HA Assist did not return response data")
     result["pipeline_id"] = assist_context.get("pipeline_id")
@@ -292,13 +286,55 @@ async def _conversation_process(
     return result
 
 
-async def call_conversation_process_with_agent_retry(
+async def call_conversation_process_with_agent_retry(hass, data, *, debug=None, model_guard=None):
+    """Existing transport with bounded, rights-qualified Ask DJ execution context."""
+    from .ask_dj.dialogue import current_turn, DialogueError, MAX_PROMPT_BYTES
+    turn = current_turn.get()
+    if turn is None and model_guard is None:
+        return await _call_conversation_process_transport(hass, data, debug=debug)
+    if turn is not None:
+        await turn.guard()
+    if model_guard is not None:
+        model_guard()
+    if len(str(data.get("text") or "").encode()) > MAX_PROMPT_BYTES:
+        raise DialogueError("conversation_context_too_large", 413)
+    if turn is not None and turn.agent_calls >= 2:
+        raise DialogueError("conversation_call_budget", 503)
+    if turn is not None:
+        turn.prompt_bytes = max(turn.prompt_bytes, len(str(data.get("text") or "").encode()))
+    # No instruction-only tool sandbox: enforce HA's advertised control boundary.
+    from .ask_dj.dialogue import qualify_agent
+    agent = qualify_agent(hass, data.get("agent_id"))
+    if turn is not None:
+        turn.agent_calls += 1
+    import asyncio
+    if not hasattr(hass, "bus"):
+        result = await asyncio.wait_for(_call_conversation_process_transport(hass, data, debug=debug, allow_agent_fallback=False), 30)
+    else:
+        from homeassistant.helpers import chat_session
+        with chat_session.async_get_chat_session(hass) as session:
+            try:
+                result = await asyncio.wait_for(_call_conversation_process_transport(
+                    hass, {**data, "conversation_id": session.conversation_id}, debug=debug, allow_agent_fallback=False), 30)
+            finally:
+                session.async_cleanup()
+    if qualify_agent(hass, data.get("agent_id")) is not agent:
+        raise DialogueError("conversation_agent_changed")
+    if turn is not None:
+        await turn.guard()
+    if model_guard is not None:
+        model_guard()
+    return result
+
+
+async def _call_conversation_process_transport(
     hass: HomeAssistant,
     data: dict[str, Any],
     *,
     debug: dict[str, Any] | None = None,
+    allow_agent_fallback: bool = True,
 ) -> dict[str, Any]:
-    """Call HA conversation.process and retry without a stale/invalid agent id."""
+    """Legacy non-model transport may retry; qualified dialogue never changes agents."""
     try:
         return await hass.services.async_call(
             "conversation",
@@ -308,7 +344,7 @@ async def call_conversation_process_with_agent_retry(
             return_response=True,
         )
     except Exception as exc:  # noqa: BLE001
-        if not data.get("agent_id") or not _looks_like_invalid_agent_id_error(exc):
+        if not allow_agent_fallback or not data.get("agent_id") or not _looks_like_invalid_agent_id_error(exc):
             raise
         retry_data = dict(data)
         retry_data.pop("agent_id", None)
@@ -392,6 +428,11 @@ async def generate_dj_response_with_assist(
     debug: dict[str, Any] | None = None,
 ) -> str:
     """Ask HA Assist for a short DJ response using resolved playback metadata."""
+    from .ask_dj.dialogue import current_turn
+    if current_turn.get() is not None:
+        if debug is not None:
+            debug.update({"fallback_used": True, "block_reason": "catalog_model_processing_not_qualified"})
+        return fallback_text
     prompt = DEFAULT_DJ_RESPONSE_PROMPT
     assist_context = _assist_context(hass, conf)
     language = _response_language(media, assist_context, conf)

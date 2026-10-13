@@ -108,7 +108,7 @@ from .central_api import ensure_ha_install_id
 from .dj_response import async_create_dj_audio_url, async_send_dj_response_best_effort, get_tts_audio
 from .ha_urls import async_ha_url_payload
 from .mood import enrich_payload_with_mood_zone, mood_play_now_suffix
-from .pipeline import generate_dj_response_with_assist
+from .pipeline import generate_dj_response_with_assist as generate_dj_response_with_assist
 from .push import (
     async_bootstrap as async_bootstrap_push,
     async_register as async_register_push,
@@ -1658,6 +1658,8 @@ async def _recommendation_play_success_response(
     *,
     user_id: str | None = None,
 ) -> dict[str, Any]:
+    if isinstance(result, dict) and result.get("success") is False:
+        return result
     kind = str(recommendation.get("kind") or "").strip()
     memory = getattr(runtime, "memory", None)
     if memory is not None:
@@ -1679,16 +1681,33 @@ async def _recommendation_play_success_response(
         save_mix_prompt=kind == "track_mix",
     )
     dj_response_debug: dict[str, Any] = {}
-    dj_text = await generate_dj_response_with_assist(
-        hass,
-        media=media,
-        fallback_text=fallback_dj_text,
-        conf=getattr(runtime, "config", {}) or {},
-        debug=dj_response_debug,
-    )
+    from .ask_dj.dialogue import current_turn
+    turn = current_turn.get()
+    confirmed = False
+    try:
+        if turn:
+            await turn.guard()
+        readback = await run_music_command(hass, runtime, "status")
+        state = readback.get("playback") or {}
+        actual_uri = str(state.get("uri") or state.get("current_uri") or "")
+        target_uri = str(recommendation.get("uri") or recommendation.get("offset_uri") or "")
+        actual_context=str(state.get("context_uri") or (state.get("context") or {}).get("uri") or "")
+        observed_identity=actual_uri if target_uri.startswith("spotify:track:") else actual_context
+        confirmed = bool(observed_identity and observed_identity == target_uri and (state.get("is_playing") is True or state.get("state") == "playing"))
+    except Exception:
+        pass
+    if not confirmed:
+        fallback_dj_text = {
+            "en": "Playback requested; it is not yet confirmed.", "nl": "Afspelen aangevraagd; het is nog niet bevestigd.",
+            "de": "Wiedergabe angefordert; noch nicht bestätigt.", "fr": "Lecture demandée ; pas encore confirmée.",
+            "es": "Reproducción solicitada; aún no confirmada."
+        }[(turn.style.get("language") if turn else None) or "en"]
+    dj_text = fallback_dj_text
+    dj_response_debug["fallback_used"] = True
+    dj_response_debug["reason"] = "catalog_model_processing_not_qualified"
     generated_text = dj_response_debug.get("fallback_used") is False
     text_source = "generated" if generated_text else "fallback"
-    audio_url = await async_create_dj_audio_url(hass, runtime, dj_text)
+    audio_url = None if request_payload.get("audio_response") == "never" else await async_create_dj_audio_url(hass, runtime, dj_text)
     dj_response = {
         "success": True,
         "delivered": False,
@@ -1712,6 +1731,7 @@ async def _recommendation_play_success_response(
         "text_source": text_source,
         "is_generated_text": generated_text,
         "action": "spotify_start_recommendation",
+        "action_outcome": {"state": "confirmed" if confirmed else "dispatched", "readback_confirmed": confirmed},
         "playback": playback or {},
         "dj_response": dj_response,
         "audio_url": audio_url,
@@ -1815,36 +1835,37 @@ def _play_now_response_conf(
 
 
 def _play_now_fallback_dj_text(
-    media: dict[str, Any],
-    recommendation: dict[str, Any],
-    conf: dict[str, Any],
-    *,
-    save_mix_prompt: bool = False,
+    media: dict[str, Any], recommendation: dict[str, Any], conf: dict[str, Any], *, save_mix_prompt: bool = False,
 ) -> str:
+    """Qualified local catalog captions; generation requires a separate source grant."""
+    from .ask_dj.dialogue import current_turn
+    turn = current_turn.get()
+    language = (turn.style.get("language") if turn else None) or media.get("language") or media.get("locale") or conf.get(CONF_TTS_LANGUAGE) or "nl"
+    from .pipeline import normalize_supported_language
+    language = normalize_supported_language(language) or "en"
     title = str(media.get("track_name") or media.get("title") or recommendation.get("title") or "").strip()
     artist = str(media.get("artist") or media.get("artist_name") or recommendation.get("subtitle") or "").strip()
     album = str(media.get("album_name") or media.get("album") or "").strip()
     playlist = str(media.get("playlist") or "").strip()
-    subject = title or playlist or str(recommendation.get("uri") or recommendation.get("context_uri") or "je keuze").strip()
-    if artist and subject:
-        now_playing = f"{subject} van {artist}"
-    else:
-        now_playing = subject
+    choices = {"en": "your selection", "nl": "je keuze", "de": "deine Auswahl", "fr": "ta sélection", "es": "tu selección"}
+    subject = title or playlist or str(recommendation.get("title") or choices[language])
+    join = {"en": "by", "nl": "van", "de": "von", "fr": "de", "es": "de"}[language]
+    now_playing = f"{subject} {join} {artist}" if artist else subject
     if album and title and album != title:
-        now_playing = f"{now_playing}, van {album}"
+        now_playing = f"{now_playing} · {album}"
     profile = voice_profile_for_mood_or_config(conf, media)
-    if profile == VOICE_PROFILE_LATE_NIGHT:
-        text = f"Mooi, ik zet {now_playing} zacht in de spotlights. Leun maar even achterover."
-    elif profile == VOICE_PROFILE_ENERGY:
-        text = f"Daar gaan we: {now_playing}. Volume in je hoofd omhoog, dit is de volgende!"
-    elif profile == VOICE_PROFILE_CLEAN_HOST:
-        text = f"Gestart: {now_playing}. Ik houd de muziek voor je in beweging."
-    else:
-        text = f"Daar is {now_playing}. Een fijne keuze voor de volgende ronde."
-    language = media.get("language") or media.get("locale") or conf.get(CONF_TTS_LANGUAGE) or "nl"
-    text = f"{text}{mood_play_now_suffix(media, language)}"
+    captions = {
+        "en": ("Here comes {subject}, softly in the spotlight.", "Here we go: {subject}.", "Playing: {subject}.", "Here is {subject}."),
+        "nl": ("Mooi, ik zet {subject} zacht in de spotlights. Leun maar even achterover.", "Daar gaan we: {subject}. Volume in je hoofd omhoog, dit is de volgende!", "Gestart: {subject}. Ik houd de muziek voor je in beweging.", "Daar is {subject}. Een fijne keuze voor de volgende ronde."),
+        "de": ("Jetzt kommt {subject}, sanft im Rampenlicht.", "Los geht’s: {subject}.", "Es läuft: {subject}.", "Hier ist {subject}."),
+        "fr": ("Voici {subject}, tout en douceur.", "C’est parti : {subject}.", "En lecture : {subject}.", "Voici {subject}."),
+        "es": ("Llega {subject}, suavemente al primer plano.", "Vamos allá: {subject}.", "Sonando: {subject}.", "Aquí está {subject}."),
+    }
+    index = {VOICE_PROFILE_LATE_NIGHT: 0, VOICE_PROFILE_ENERGY: 1, VOICE_PROFILE_CLEAN_HOST: 2}.get(profile, 3)
+    text = captions[language][index].format(subject=now_playing) + mood_play_now_suffix(media, language)
     if save_mix_prompt:
-        return f"{text} Wil je dat ik deze mix opsla als Spotify playlist?"
+        save = {"en": "Would you like me to save this mix as a Spotify playlist?", "nl": "Wil je dat ik deze mix opsla als Spotify playlist?", "de": "Soll ich diesen Mix als Spotify-Playlist speichern?", "fr": "Veux-tu que j’enregistre ce mix comme playlist Spotify ?", "es": "¿Quieres que guarde esta mezcla como playlist de Spotify?"}
+        text += " " + save[language]
     return text
 
 
@@ -2054,10 +2075,24 @@ async def _handle_ask_dj_followup_response(
             "error": "invalid_followup_response",
             "message": "Antwoord met ja of nee.",
         }
-    memory = getattr(runtime, "memory", None)
-    pending_getter = getattr(memory, "async_pending_followup", None)
-    pending_consumer = getattr(memory, "async_consume_pending_followup", None)
-    pending = await pending_getter(runtime, request_payload, user_id=user_id) if callable(pending_getter) else {}
+    from .ask_dj.dialogue import current_turn
+    turn = current_turn.get()
+    pending = turn.frame.pending if turn else None
+    if pending and turn is not None:
+        from .ask_dj.dialogue import DialogueError
+        offered = pending
+        def validate_pending():
+            if turn.frame.pending is not offered or turn.history.dialogue.clock() >= offered["deadline"]:
+                raise DialogueError("followup_expired")
+            if offered.get("session_id"):
+                from .session_runtime import session_runtime_manager
+                active = session_runtime_manager(hass).current_active(turn.scope.removeprefix("profile:"))
+                if active is None or active.session_id != offered["session_id"]:
+                    raise DialogueError("followup_expired")
+        turn.effect_validators.append(validate_pending)
+    pending = dict(pending or {})
+    if pending and turn.history.dialogue.clock() >= pending["deadline"]:
+        pending = {"expired": True}
     if pending.get("expired"):
         result = {
             "success": True,
@@ -2078,8 +2113,6 @@ async def _handle_ask_dj_followup_response(
         }
         await _append_followup_history(hass, runtime, request_payload, result, user_id=user_id)
         return result
-    if callable(pending_consumer):
-        pending = await pending_consumer(runtime, request_payload, user_id=user_id) or pending
     if response_value in {"no", "nee"}:
         result = {
             "success": True,
@@ -2137,6 +2170,10 @@ async def _append_followup_history(
     *,
     user_id: str | None = None,
 ) -> None:
+    from .ask_dj.dialogue import current_turn
+    if current_turn.get() is not None:
+        result["_consume_pending"] = True
+        return  # Shared exchange owns the sole history commit.
     try:
         await _history_manager(hass, runtime).async_append_assistant_message(
             user_id,
@@ -2769,6 +2806,10 @@ class DJConnectCommandView(HomeAssistantView):
     def __init__(self, hass):
         self.hass = hass
 
+    def json(self, result, status_code=200):
+        """Private Ask DJ effects and errors share the owner response cache policy."""
+        return _DJConnectSessionView.json(self, result, status_code)
+
     async def post(self, request):
         hass = request.app["hass"]
         try:
@@ -3298,7 +3339,7 @@ class DJConnectEventView(HomeAssistantView):
         return self.json({"success": True})
 
 
-class DJConnectAskDjView(HomeAssistantView):
+class DJConnectAskDjView(_DJConnectSessionView):
     url = API_ASK_DJ
     name = "api:djconnect:ask_dj"
     requires_auth = False
@@ -3442,7 +3483,7 @@ class DJConnectAskDjMessageView(_DJConnectSessionView):
         return self.json(result, status_code=status_code)
 
 
-class DJConnectTrackInsightView(HomeAssistantView):
+class DJConnectTrackInsightView(_DJConnectSessionView):
     url = API_TRACK_INSIGHT
     name = "api:djconnect:track_insight"
     requires_auth = False
@@ -3921,7 +3962,7 @@ class DJConnectAskDjHistoryView(_DJConnectSessionView):
         return self.json(result, status_code=status_code)
 
 
-class DJConnectAskDjHistoryExportView(HomeAssistantView):
+class DJConnectAskDjHistoryExportView(_DJConnectSessionView):
     url = API_ASK_DJ_HISTORY_EXPORT
     name = "api:djconnect:ask_dj_history_export"
     requires_auth = False
@@ -3971,7 +4012,7 @@ class DJConnectAskDjHistoryClearView(_DJConnectSessionView):
         return self.json(result, status_code=status_code)
 
 
-class DJConnectAskDjHistoryStateView(HomeAssistantView):
+class DJConnectAskDjHistoryStateView(_DJConnectSessionView):
     url = API_ASK_DJ_HISTORY_STATE
     name = "api:djconnect:ask_dj_history_state"
     requires_auth = False
@@ -4002,6 +4043,7 @@ async def _read_voice_input(
     hass: Any,
     runtime: Any,
     device_id: str,
+    voice_owner: Any | None = None,
 ) -> tuple[dict[str, Any] | None, Any]:
     content_type = request.headers.get("Content-Type", "").split(";", 1)[0].strip().lower()
     is_audio_request = _is_audio_upload(content_type)
@@ -4014,7 +4056,7 @@ async def _read_voice_input(
     user_text = ""
     if is_audio_request:
         user_text, error_response = await _transcribe_voice_request(
-            view, request, hass, runtime, device_id, content_type, header_client_type
+            view, request, hass, runtime, device_id, content_type, header_client_type, voice_owner
         )
         if error_response is not None:
             return None, error_response
@@ -4048,6 +4090,7 @@ async def _transcribe_voice_request(
     device_id: str,
     content_type: str,
     header_client_type: str | None,
+    voice_owner: Any | None = None,
 ) -> tuple[str | None, Any]:
     limit = int(runtime.config.get(CONF_MAX_AUDIO_BYTES, DEFAULT_MAX_AUDIO_BYTES))
     wav = await request.read()
@@ -4055,6 +4098,17 @@ async def _transcribe_voice_request(
         return None, _json_error(view, "missing_audio", 400)
     if len(wav) > limit:
         return None, _json_error(view, "audio_too_large", 413)
+    if voice_owner is not None:
+        from .api_handlers import _conversation_profile_fence
+        from .session_conversation import SessionConversationError
+
+        try:
+            _conversation_profile_fence(
+                hass, runtime, _voice_header_payload(request.headers, device_id, header_client_type),
+                request.headers, voice_owner,
+            )
+        except SessionConversationError as exc:
+            return None, _json_error(view, exc.code, exc.status)
     _store_debug_voice_wav(hass, device_id, content_type, wav)
     entry = getattr(runtime, "entry", None)
     pipeline_id = str(runtime.config.get(CONF_ASSIST_PIPELINE_ID) or "").strip()
@@ -4072,10 +4126,18 @@ async def _transcribe_voice_request(
     runtime.update(last_error=None)
     try:
         return await transcribe_wav_with_assist(hass, wav, runtime.config), None
-    except DJConnectNoSttProviderError as exc:
-        return None, _voice_stt_failure_response(view, runtime, exc, header_client_type, 503)
     except Exception as exc:  # noqa: BLE001
-        return None, _voice_stt_failure_response(view, runtime, exc, header_client_type, 500)
+        if voice_owner is not None:
+            try:
+                _conversation_profile_fence(
+                    hass, runtime,
+                    _voice_header_payload(request.headers, device_id, header_client_type),
+                    request.headers, voice_owner,
+                )
+            except SessionConversationError as withdrawn:
+                return None, _json_error(view, withdrawn.code, withdrawn.status)
+        default_status = 503 if isinstance(exc, DJConnectNoSttProviderError) else 500
+        return None, _voice_stt_failure_response(view, runtime, exc, header_client_type, default_status)
 
 
 def _voice_stt_failure_response(
@@ -4087,7 +4149,7 @@ def _voice_stt_failure_response(
 ) -> Any:
     _set_device_state(runtime, "error")
     message = _safe_backend_error_message(exc)
-    runtime.update(last_error=message)
+    runtime.update(last_error="stt_failed" if _is_ask_dj_voice_client(client_type) else message)
     return _stt_error_response(view, message, 422 if _is_ask_dj_voice_client(client_type) else default_status)
 
 
@@ -4099,8 +4161,20 @@ async def _ask_dj_voice_response(
     device_id: str,
     client_type: str | None,
     user_text: str,
+    voice_owner: Any | None = None,
 ) -> Any:
     ask_payload = _voice_header_payload(request.headers, device_id, str(client_type or ""))
+    if request.headers.get("X-DJConnect-Client-Message-ID"):
+        ask_payload["client_message_id"] = str(request.headers["X-DJConnect-Client-Message-ID"])
+    if voice_owner is not None:
+        from .api_handlers import _conversation_profile_fence
+        from .session_conversation import SessionConversationError
+
+        try:
+            _conversation_profile_fence(hass, runtime, ask_payload, request.headers, voice_owner)
+        except SessionConversationError as exc:
+            return _json_error(view, exc.code, exc.status)
+        ask_payload["profile_id"] = voice_owner.profile_id
     ask_payload.update(text=user_text, input_type="voice")
     if request.headers.get("X-DJConnect-Conversation-Scope") == "profile":
         ask_payload["client_message_id"]=str(request.headers.get("X-DJConnect-Client-Message-ID") or "")
@@ -4115,6 +4189,16 @@ async def _ask_dj_voice_response(
         hass, ask_payload, headers=request.headers,
         user_id=_request_user_id(request), voice_input=True,
     )
+    if voice_owner is not None:
+        try:
+            _conversation_profile_fence(hass, runtime, ask_payload, request.headers, voice_owner)
+        except SessionConversationError as exc:
+            return _json_error(view, exc.code, exc.status)
+    if status != 200 or not result.get("success"):
+        return _DJConnectSessionView.json(view, result, status_code=status)
+    audio_type = _audio_type_from_url(result.get("audio_url"))
+    if audio_type:
+        result["audio_type"] = audio_type
     return _DJConnectSessionView.json(
         view, {**result, "transcript": user_text, "recognized_text": user_text},
         status_code=status,
@@ -4256,9 +4340,22 @@ async def _handle_voice_request(
     hass: Any,
     runtime: Any,
     device_id: str,
+    voice_owner: Any | None = None,
 ) -> Any:
     try:
-        voice_input, error_response = await _read_voice_input(view, request, hass, runtime, device_id)
+        voice_input, error_response = await _read_voice_input(view, request, hass, runtime, device_id, voice_owner)
+        if voice_owner is not None:
+            from .api_handlers import _conversation_profile_fence
+            from .session_conversation import SessionConversationError
+
+            try:
+                _conversation_profile_fence(
+                    hass, runtime,
+                    _voice_header_payload(request.headers, device_id, request.headers.get("X-DJConnect-Client-Type") or request.headers.get(CONF_CLIENT_TYPE) or getattr(runtime, "device_status", {}).get(CONF_CLIENT_TYPE)),
+                    request.headers, voice_owner,
+                )
+            except SessionConversationError as exc:
+                return _json_error(view, exc.code, exc.status)
         if error_response is not None:
             return error_response
         assert voice_input is not None
@@ -4267,7 +4364,8 @@ async def _handle_voice_request(
             return _missing_text_response(view)
         if voice_input["is_audio_request"] and _is_ask_dj_voice_client(voice_input["header_client_type"]):
             return await _ask_dj_voice_response(
-                view, request, hass, runtime, device_id, voice_input["header_client_type"], user_text
+                view, request, hass, runtime, device_id, voice_input["header_client_type"], user_text,
+                voice_owner,
             )
         memory_payload = _voice_memory_payload(voice_input["data"], device_id, runtime)
         music_dna_key = await _update_memory_metadata(runtime, memory_payload, user_id=_request_user_id(request))
@@ -4277,6 +4375,9 @@ async def _handle_voice_request(
             view, request, hass, runtime, user_text, memory_payload, music_dna_key
         )
     except Exception as exc:  # noqa: BLE001
+        if voice_owner is not None:
+            _LOGGER.warning("Ask DJ voice request failed: %s", type(exc).__name__)
+            return _json_error(view, "ask_dj_unavailable", 503)
         _LOGGER.exception("DJConnect request failed: %s", _safe_backend_error_message(exc))
         _set_device_state(runtime, "error")
         runtime.update(last_error=_safe_backend_error_message(exc))
@@ -4305,19 +4406,48 @@ class DJConnectVoiceView(HomeAssistantView):
 
     async def post(self, request):
         hass = request.app["hass"]
-        reply_view = _DJConnectSessionView(hass) if request.headers.get("X-DJConnect-Conversation-Scope") == "profile" else self
         device_id = request.headers.get("X-DJConnect-Device-ID")
+        client_type = request.headers.get("X-DJConnect-Client-Type") or request.headers.get(CONF_CLIENT_TYPE)
+        reply_view = _DJConnectSessionView(hass) if _is_ask_dj_voice_client(client_type) or request.headers.get("X-DJConnect-Conversation-Scope") == "profile" else self
         if not device_id:
             return _json_error(reply_view, "unauthorized", 401)
         runtime = _runtime(hass, device_id, request.headers)
         if runtime is None:
             return _json_error(reply_view, "not_configured", 503)
+        client_type = client_type or getattr(runtime, "device_status", {}).get(CONF_CLIENT_TYPE)
+        if _is_ask_dj_voice_client(client_type):
+            reply_view = _DJConnectSessionView(hass)
         if not _authorize_runtime_device_request(
-            runtime, request.headers, device_id, request.headers.get(CONF_CLIENT_TYPE)
+            runtime, request.headers, device_id, client_type
         ):
             return _json_error(reply_view, "unauthorized", 401)
         if not _runtime_versions_compatible(runtime):
             return _runtime_version_mismatch_response(reply_view, runtime)
+        voice_owner = None
+        if _is_ask_dj_voice_client(client_type) and _is_audio_upload(
+            request.headers.get("Content-Type", "").split(";", 1)[0].strip().lower()
+        ):
+            from .api_handlers import _session_profile_context
+
+            bound, voice_owner, error, status = await _session_profile_context(
+                hass, _voice_header_payload(request.headers, device_id, client_type),
+                headers=request.headers, user_id=_request_user_id(request),
+                source="ask_dj_voice_input",
+            )
+            if error is not None:
+                return reply_view.json(error, status_code=status)
+            if bound is not runtime:
+                return _json_error(reply_view, "session_context_changed", 409)
+            from .api_handlers import _conversation_profile_fence
+            from .session_conversation import SessionConversationError
+
+            try:
+                _conversation_profile_fence(
+                    hass, runtime, _voice_header_payload(request.headers, device_id, client_type),
+                    request.headers, voice_owner,
+                )
+            except SessionConversationError as exc:
+                return _json_error(reply_view, exc.code, exc.status)
         if getattr(runtime, "device_token", None):
             _persist_paired_device(
                 hass, runtime, device_id,
@@ -4325,7 +4455,7 @@ class DJConnectVoiceView(HomeAssistantView):
                 runtime.device_token,
                 getattr(runtime, "device_status", {}).get(CONF_CLIENT_TYPE),
             )
-        return await _handle_voice_request(reply_view, request, hass, runtime, device_id)
+        return await _handle_voice_request(reply_view, request, hass, runtime, device_id, voice_owner)
 
 
 class DJConnectTtsView(HomeAssistantView):

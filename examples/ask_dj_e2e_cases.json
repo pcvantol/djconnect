@@ -354,58 +354,20 @@
       "success": true,
       "intent": "track_insight",
       "intent_category": "informational",
-      "action": "track_insight",
+      "action": "none",
       "top_level_fields": {
-        "type": "track_insight",
-        "open_screen": "track_insight"
+        "type": "message"
       },
       "playback_actions_count": 0,
       "json_model": {
-        "track_insight": {
-          "id": "non_empty_str",
-          "created_at": "non_empty_str",
-          "source": "non_empty_str",
-          "track": {
-            "title": "non_empty_str",
-            "artist": "non_empty_str",
-            "backend": "non_empty_str"
-          },
-          "analysis": {
-            "summary": "non_empty_str",
-            "full_text": "non_empty_str",
-            "energy": "number",
-            "danceability": "number",
-            "intensity": "number",
-            "confidence": "number",
-            "production_notes": "list",
-            "instrumentation": "list",
-            "arrangement_notes": "list",
-            "listening_cues": "list",
-            "similar_tracks": "list"
-          },
-          "visual_profile": {
-            "motion_style": "non_empty_str",
-            "spectrum_bias": "non_empty_str",
-            "palette": "non_empty_list",
-            "pulse_speed": "number",
-            "wave_amplitude": "number",
-            "particle_density": "number",
-            "glow_strength": "number",
-            "seed": "non_empty_str"
-          },
-          "cache": "dict"
+        "analysis_basis": {
+          "basis": null,
+          "measured_audio": null
         }
       },
       "json_forbidden_paths": [
-        "track_insight.music_dna",
-        "track_insight.music_dna.match_percent",
-        "track_insight.music_dna.label",
-        "track_insight.music_dna.match_reason"
-      ],
-      "contains_any": [
-        "Track Insight",
-        "Here is the Track Insight",
-        "focused, expressive"
+        "open_screen",
+        "track_insight"
       ],
       "source_values_include": [
         "track_insight"
@@ -748,8 +710,7 @@
       "intent_category": "action",
       "action": "play",
       "contains_any": [
-        "gestart",
-        "muziek"
+        "afspelen aangevraagd"
       ],
       "required_music_commands": [
         "status",
@@ -758,7 +719,13 @@
       "allowed_music_commands": [
         "status",
         "play"
-      ]
+      ],
+      "top_level_fields": {
+        "action_outcome": {
+          "state": "dispatched",
+          "readback_confirmed": false
+        }
+      }
     }
   },
   {
@@ -817,7 +784,7 @@
       "intent_category": "action",
       "action": "volume_delta",
       "contains_all": [
-        "volume aangepast"
+        "volumeaanpassing aangevraagd"
       ],
       "required_music_commands": [
         "status",
@@ -826,7 +793,13 @@
       "allowed_music_commands": [
         "status",
         "set_volume"
-      ]
+      ],
+      "top_level_fields": {
+        "action_outcome": {
+          "state": "dispatched",
+          "readback_confirmed": false
+        }
+      }
     }
   },
   {
@@ -1623,8 +1596,23 @@
   },
   {
     "id": "help_prompt_analyse_current_track",
-    "request": {"text": "Analyseer dit nummer", "client_type": "ios"},
-    "expect": {"success": true, "intent": "track_insight", "intent_category": "informational", "action": "track_insight", "allowed_music_commands": ["status"], "forbid_spotify_mutations": true}
+    "request": {
+      "text": "Analyseer dit nummer",
+      "client_type": "ios"
+    },
+    "expect": {
+      "success": true,
+      "intent": "track_insight",
+      "intent_category": "informational",
+      "action": "none",
+      "allowed_music_commands": [
+        "status"
+      ],
+      "forbid_spotify_mutations": true,
+      "json_forbidden_paths": [
+        "open_screen"
+      ]
+    }
   },
   {
     "id": "help_prompt_track_insight_current_track",

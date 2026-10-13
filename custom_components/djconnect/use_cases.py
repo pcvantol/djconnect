@@ -402,6 +402,9 @@ class MusicAssistantBackend:
         caller = getattr(services, "async_call", None)
         if not callable(caller):
             raise SpotifyBackendError("Home Assistant media_player services are unavailable")
+        from .ask_dj.dialogue import guard_effect_dispatch
+
+        await guard_effect_dispatch()
         await caller(
             "media_player",
             service,
@@ -906,6 +909,17 @@ async def run_music_command(
     play: bool | None = None,
 ) -> dict[str, Any]:
     """Run a DJConnect music command through the use-case layer."""
+    from .ask_dj.dialogue import current_turn
+    turn = current_turn.get()
+    if turn is not None and str(command) in {
+        "play", "play_uris", "play_context_at", "play_artist_top_tracks", "start_playlist",
+        "pause", "stop", "next", "previous", "set_volume", "set_output", "set_shuffle",
+        "set_repeat", "save_current_track", "set_current_track_favorite", "create_playlist",
+        "queue", "clear_queue",
+    } and not (str(command) == "queue" and value is None):
+        await turn.guard()
+        # The adapter reserves the effect receipt after search/token waits,
+        # immediately before the actual mutating transport dispatch.
     return await DJConnectUseCases(hass, runtime).command(command, value, play=play)
 
 

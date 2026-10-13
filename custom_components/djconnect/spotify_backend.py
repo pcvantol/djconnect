@@ -434,6 +434,10 @@ class SpotifyBackend:
         retry_on_unauthorized: bool,
     ) -> Any:
         token = await self._access_token(force_refresh=force_refresh)
+        if method.upper() in {"POST", "PUT", "DELETE", "PATCH"}:
+            from .ask_dj.dialogue import guard_effect_dispatch
+
+            await guard_effect_dispatch()
         async with self.session.request(
             method,
             SPOTIFY_API_BASE + path,

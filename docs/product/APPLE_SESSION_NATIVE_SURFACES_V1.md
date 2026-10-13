@@ -272,3 +272,14 @@ slice establishes none of those product, installed, APNs or hardware passes.
 
 [Source PR #1160](https://github.com/pcvantol/djconnect/pull/1160) protected merged as `fdc79c9d7174b9d67dcf743400fbb76a0c163387`.
 [Exact source/artifact qualification](../verification/SESSION_ENTRY_LIFECYCLE_HISTORY_DESIGN_V1_SOURCE_READBACK.md) records documentary checks and independent review; all proposed product implementation remains **Planned**. Separate Finalization reconciliation is still gated.
+
+
+## Shared reactive dialogue and bounded Moment drilldown
+
+The selected [common Ask DJ contract](ASK_DJ_CONTEXTUAL_DIALOGUE_CONTRACT_V1.md)
+uses the existing conversation owner for both screens; optional Session/Moment
+context does not create a second pipeline. The [Moment Track Insight subset](MOMENT_TRACK_INSIGHT_DRILLDOWN_V1.md)
+adds an exact, temporary owner read through the existing full detail service.
+This is one bounded connected correction; full interactive/narrative maturity,
+native adoption, entry/lifecycle and joint acceptance remain independently Planned/open.
+No model/provider lookup occurs merely by rendering a navigation offer.

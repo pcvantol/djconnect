@@ -5,7 +5,8 @@ Directed addition to `DJC-CORE-ASKDJ-CONTEXTUAL-DIALOGUE-V1-20261013`, owner
 and [full requirement6145985084](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6145985084).
 Direct owner approval in the existing Core session confirms design, implementation,
 tests and ACK; exact candidate publication and Finalization remain separate gates.
-This is the addition's pre-implementation design, not a delivery claim.
+Connected Core implementation is under qualification. Native adoption and
+protected delivery remain separate; this document does not claim either.
 
 ## Owners and publication
 
@@ -29,7 +30,8 @@ no invented instrumentation or “analysis ready” claim.
 An additive `navigation_actions` list contains only versioned
 `kind: navigation`, `target: track_insight`, `schema_version: 1` actions with
 `action_id`, a five-language label and a server-resolved reference
-`{session_id, moment_id}`. The producer retains exact media identity, publication
+`{schema_version: 1, session_id, moment_id, action_id}`. The immutable
+action ID is `insight-{moment_id}`. The producer retains exact media identity, publication
 and original deadlines. No arbitrary URL, playback command, mutable client track
 metadata or generic executable-action admission. Consumer support is required
 before rendering a button. Existing clients can ignore the list; shared VibeCast
@@ -74,3 +76,41 @@ A → B before/during fetch, same-name versions, cache hit/miss, styles/locales/
 visual-profile, failure/retry, expiry/revocation/foreign ownership/end, presence
 Off/in-flight and inert reads with unchanged Moment counts. Exact producer/action/
 detail/error fixtures go to existing Apple #87, without consumer WIP expansion.
+
+
+## Exact owner transport and presentation lifecycle
+
+The additive capability is `moment_track_insight_navigation_v1`, contract version1.
+`native_delivery.admissions[].navigation_actions` is a dynamic admission projection;
+`executable_actions` stays empty. The legacy semantic `actions` list omits this
+navigation type, so old Apple/Pi/Cast clients never receive an automatic-open or
+unusable action. `moment_navigation.py` owns the closed lightweight DTO and labels;
+target resolution imports existing owners and never adds another publication bus.
+
+`POST /api/djconnect/v1/track_insight` accepts the reference under
+`track_insight_target`. Normal paired device/Profile authority is mandatory; the
+Broadcast renderer token does not authorize this private detail. The response has
+`subject.mode: explicit`, the original reference/media identity and remaining
+lifetime. The deadline is the earlier of original publication+600seconds and source
+expiry, never renewed by cache hit, poll or reconnect. Source/owner/end refusal is
+403/410; malformed reference400; confirmed style change during fetch409. None of
+these states silently substitutes current playback. An explicit other title/artist
+keeps its existing subject precedence when no target was requested.
+
+Only normalized MusicBrainz/Wikidata CC0 credit data enters the target model prompt.
+Verified credit, labelled interpretation/listening suggestions and unknown measured
+audio fields remain separate. Playback metadata, artwork, artist IDs and provider
+payloads are local display context. Demo and deterministic fake measurements cannot
+override qualified detail. Full detail and reduced Session narrative are separate
+cache variants; exact case-sensitive media identity, owner/source epoch, language,
+confirmed Persona/Mood, response style and visual option bind the existing64-entry
+TTL cache and existing6calls/minute+8second same-variant debounce. No new cache owner.
+The last owner/style/source fence follows every await before cache or private response.
+
+Only genuinely useful qualified existing Track-Moments receive an offer; no new
+card, required quota or hidden analysis on publication. Source-poor cases retain
+existing alternatives or Silence. Presence-Off blocks new offers and leaves explicit
+questions/detail reads available. Opening, repeating or returning leaves publication
+counts, music, Session and other native navigation state untouched by Core. Apple
+owns the actual pinned detail component and preserved Flow/scroll/search/draft state;
+its source/installed/joint proof remains open.

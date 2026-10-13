@@ -35,6 +35,7 @@ def validate_delta(plan: dict[str, Any]) -> list[str]:
         "djconnect-federated-planning-delta/6",
         "djconnect-federated-planning-delta/7",
         "djconnect-federated-planning-delta/8",
+        "djconnect-federated-planning-delta/9",
     }
     artwork = version in {
         "djconnect-federated-planning-delta/3",
@@ -43,6 +44,7 @@ def validate_delta(plan: dict[str, Any]) -> list[str]:
         "djconnect-federated-planning-delta/6",
         "djconnect-federated-planning-delta/7",
         "djconnect-federated-planning-delta/8",
+        "djconnect-federated-planning-delta/9",
     }
     narrative = version in {
         "djconnect-federated-planning-delta/4",
@@ -50,18 +52,71 @@ def validate_delta(plan: dict[str, Any]) -> list[str]:
         "djconnect-federated-planning-delta/6",
         "djconnect-federated-planning-delta/7",
         "djconnect-federated-planning-delta/8",
+        "djconnect-federated-planning-delta/9",
     }
     forecast = version in {
         "djconnect-federated-planning-delta/5",
         "djconnect-federated-planning-delta/6",
         "djconnect-federated-planning-delta/7",
         "djconnect-federated-planning-delta/8",
+        "djconnect-federated-planning-delta/9",
     }
     ambient = version in {
         "djconnect-federated-planning-delta/6",
         "djconnect-federated-planning-delta/7",
         "djconnect-federated-planning-delta/8",
+        "djconnect-federated-planning-delta/9",
     }
+    dialogue = version == "djconnect-federated-planning-delta/9"
+    dialogue_delivered = False
+    if dialogue:
+        r = d.get("dialogue_receipt", {})
+        check(
+            r.get("schema_version") == "djconnect-shared-dialogue-maintenance/1"
+            and r.get("assignment_id") == "DJC-CORE-ASKDJ-CONTEXTUAL-DIALOGUE-V1-20261013"
+            and r.get("selection_url") == "https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6145537044"
+            and r.get("added_requirement") == "DJC-MOMENT-TRACK-INSIGHT-DRILLDOWN-V1-20261013"
+            and r.get("extension_url") == "https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6146489526",
+            "shared dialogue owner binding missing",
+        )
+        check(
+            r.get("base_sha") == "c955ec80407f4ab0237bc4e9381761d3c9274617"
+            and r.get("branch") == "codex/askdj-contextual-dialogue-v1"
+            and r.get("contract_commit") == "592953ce4eb48aafcd1d0c17761a5ac4fda1bfd1"
+            and r.get("material_commit") == "d672ddf5e4fce9013498a37d37c3599f39868b18"
+            and r.get("extension_contract") == "4eb814a43f532d305e42fdbcc2af658259b94e64"
+            and (r.get("ack"), r.get("material_start"), r.get("extension_ack")) == (6145812752, 6146387187, 6149786410),
+            "shared dialogue admission missing",
+        )
+        check(
+            r.get("previous_delta") == "history/20261013/history-summary-maintenance-v8.json"
+            and bool(re.fullmatch(r"[a-f0-9]{64}", str(r.get("previous_delta_sha256", "")))),
+            "shared dialogue predecessor binding missing",
+        )
+        check(r.get("phase") in {"LOCAL_IMPLEMENTATION_AND_QUALIFICATION", "SOURCE_PROTECTED_MERGED"}, "shared dialogue phase invalid")
+        dialogue_delivered = r.get("phase") == "SOURCE_PROTECTED_MERGED"
+        check(r.get("source_delivery") == ("PROTECTED_MERGED" if dialogue_delivered else "UNPUBLISHED"), "shared dialogue delivery invalid")
+        check(
+            r.get("native") == "NOT_RUN" and r.get("hardware") == "NOT_RUN"
+            and r.get("installed") == "NOT_RUN" and r.get("joint_acceptance") == "OPEN"
+            and r.get("consumer_writes") is False and r.get("automatic_dispatch") is False,
+            "shared dialogue consumer or effect overclaim",
+        )
+        if dialogue_delivered:
+            check(
+                bool(re.fullmatch(r"[a-f0-9]{40}", str(r.get("source_main_sha", ""))))
+                and bool(re.fullmatch(r"https://github.com/pcvantol/djconnect/pull/[0-9]+", str(r.get("source_pr", ""))))
+                and r.get("source_review") == "PASS" and r.get("required_checks") == "PASS"
+                and r.get("protected_merge") is True
+                and all(bool(re.fullmatch(r"[a-f0-9]{64}", str(r.get(k, "")))) for k in ("archive_sha256", "formal_evidence_sha256")),
+                "shared dialogue protected delivery evidence missing",
+            )
+        families = {n.get("id") for n in d.get("nodes", []) if str(n.get("id", "")).startswith(("CONVERSATION::", "INSIGHT::"))}
+        check(families == {"CONVERSATION::CORE::SHARED-DIALOGUE", "CONVERSATION::APPLE::SHARED-ADOPTION", "INSIGHT::CORE::MOMENT-DRILLDOWN", "INSIGHT::APPLE::MOMENT-DRILLDOWN", "CONVERSATION::PRODUCT::JOINT"}, "one bounded shared dialogue family required")
+        for n in d.get("nodes", []):
+            if n.get("id") in families:
+                check(n.get("parent_reference") in {"PROJ::ROADMAP::LIFECYCLE", "PROJ::ROADMAP::INTERACTIVE"}, "shared dialogue parent missing")
+
     ambient_delivered = False
     forecast_delivered = False
     check(
@@ -75,10 +130,11 @@ def validate_delta(plan: dict[str, Any]) -> list[str]:
             "djconnect-federated-planning-delta/6",
             "djconnect-federated-planning-delta/7",
             "djconnect-federated-planning-delta/8",
+        "djconnect-federated-planning-delta/9",
         },
         "unsupported schema",
     )
-    if version == "djconnect-federated-planning-delta/8":
+    if version in {"djconnect-federated-planning-delta/8", "djconnect-federated-planning-delta/9"}:
         r = d.get("summary_receipt", {})
         check(
             r.get("schema_version") == "djconnect-summary-maintenance/1"
@@ -446,7 +502,7 @@ def validate_delta(plan: dict[str, Any]) -> list[str]:
             isinstance(d.get(field), list) and all(isinstance(x, dict) for x in d.get(field, [])),
             "invalid " + field,
         )
-    if version in {"djconnect-federated-planning-delta/7", "djconnect-federated-planning-delta/8"}:
+    if version in {"djconnect-federated-planning-delta/7", "djconnect-federated-planning-delta/8", "djconnect-federated-planning-delta/9"}:
         r = d.get("documentary_receipt", {})
         check(
             r.get("assignment_id") == "DJC-SESSION-ENTRY-LIFECYCLE-HISTORY-DESIGN-V1-20261012"
@@ -506,7 +562,7 @@ def validate_delta(plan: dict[str, Any]) -> list[str]:
                 check(
                     (n.get("status") == "Planned" and n.get("assignment_status") == "NOT_ISSUED")
                     or (
-                        version == "djconnect-federated-planning-delta/8"
+                        version in {"djconnect-federated-planning-delta/8", "djconnect-federated-planning-delta/9"}
                         and n.get("id") == "HISTORY::CORE::SUMMARY"
                     ),
                     "documentary subset must remain Planned",
@@ -585,11 +641,13 @@ def validate_delta(plan: dict[str, Any]) -> list[str]:
         }
         ambient_admitted = ambient and nid == "AMBIENT::CORE::CONVERGENCE"
         summary_admitted = (
-            version == "djconnect-federated-planning-delta/8" and nid == "HISTORY::CORE::SUMMARY"
+            version in {"djconnect-federated-planning-delta/8", "djconnect-federated-planning-delta/9"} and nid == "HISTORY::CORE::SUMMARY"
         )
         summary_delivered = d.get("summary_receipt", {}).get("phase") == "SOURCE_PROTECTED_MERGED"
+        dialogue_admitted = dialogue and nid in {"CONVERSATION::CORE::SHARED-DIALOGUE", "INSIGHT::CORE::MOMENT-DRILLDOWN"}
         admitted = (
-            summary_admitted
+            dialogue_admitted
+            or summary_admitted
             or ambient_admitted
             or presence_admitted
             or correction_admitted
@@ -597,7 +655,9 @@ def validate_delta(plan: dict[str, Any]) -> list[str]:
             or forecast_admitted
         )
         node_delivered = (
-            summary_delivered
+            dialogue_delivered
+            if dialogue_admitted
+            else summary_delivered
             if summary_admitted
             else ambient_delivered
             if ambient_admitted
@@ -641,9 +701,11 @@ def validate_delta(plan: dict[str, Any]) -> list[str]:
         check(
             n.get("source_ids")
             == (
-                ["OWNER-SESSION-ENTRY-ABC-20261012"]
+                ["OWNER-SHARED-DIALOGUE-20261013"]
+                if dialogue and nid.startswith(("CONVERSATION::", "INSIGHT::"))
+                else ["OWNER-SESSION-ENTRY-ABC-20261012"]
                 if version
-                in {"djconnect-federated-planning-delta/7", "djconnect-federated-planning-delta/8"}
+                in {"djconnect-federated-planning-delta/7", "djconnect-federated-planning-delta/8", "djconnect-federated-planning-delta/9"}
                 and nid.startswith(("ENTRY::", "HISTORY::", "SURFACE::", "CONTINUATION::"))
                 else ["OWNER-AMBIENT-CONVERGENCE-20261012"]
                 if ambient and nid.startswith("AMBIENT::")
@@ -717,9 +779,11 @@ def validate_delta(plan: dict[str, Any]) -> list[str]:
         check(
             e.get("source_ids")
             == (
-                ["OWNER-SESSION-ENTRY-ABC-20261012"]
+                ["OWNER-SHARED-DIALOGUE-20261013"]
+                if dialogue and str(e.get("id", "")).startswith("SHARED-DIALOGUE-")
+                else ["OWNER-SESSION-ENTRY-ABC-20261012"]
                 if version
-                in {"djconnect-federated-planning-delta/7", "djconnect-federated-planning-delta/8"}
+                in {"djconnect-federated-planning-delta/7", "djconnect-federated-planning-delta/8", "djconnect-federated-planning-delta/9"}
                 and str(e.get("id", "")).startswith("ENTRY-ABC-")
                 else ["OWNER-AMBIENT-CONVERGENCE-20261012"]
                 if ambient and str(e.get("id", "")).startswith("AMBIENT-")
@@ -771,6 +835,7 @@ def render_delta(p):
         "djconnect-federated-planning-delta/6",
         "djconnect-federated-planning-delta/7",
         "djconnect-federated-planning-delta/8",
+        "djconnect-federated-planning-delta/9",
     }
     artwork = d.get("schema_version") in {
         "djconnect-federated-planning-delta/3",
@@ -779,6 +844,7 @@ def render_delta(p):
         "djconnect-federated-planning-delta/6",
         "djconnect-federated-planning-delta/7",
         "djconnect-federated-planning-delta/8",
+        "djconnect-federated-planning-delta/9",
     }
     delivery = d.get("implementation_receipt", {}).get("source_delivery", "UNPUBLISHED")
     intro = (
@@ -801,6 +867,7 @@ def render_delta(p):
         "djconnect-federated-planning-delta/6",
         "djconnect-federated-planning-delta/7",
         "djconnect-federated-planning-delta/8",
+        "djconnect-federated-planning-delta/9",
     }:
         r = d["narrative_receipt"]
         intro += f"Selected bounded Album→Track continuity: [{r['assignment_id']}]({r['selection_url']}); source {r['source_delivery']}, Stage4 PARTIAL, joint/native/installed/hardware acceptance open. Artwork1152/1153 is terminal at admitted0f37; prior version3 is preserved in history/20261012. No automatic consumer dispatch or new Core writer.\n\n"
@@ -809,6 +876,7 @@ def render_delta(p):
         "djconnect-federated-planning-delta/6",
         "djconnect-federated-planning-delta/7",
         "djconnect-federated-planning-delta/8",
+        "djconnect-federated-planning-delta/9",
     }:
         f = d["forecast_receipt"]
         intro += f"Selected Session Forecast: [{f['assignment_id']}]({f['selection_url']}); existing Direction parent, source {f['source_delivery']}, current-only qualified artist imagery, native/visible/upcoming/joint acceptance open. Album1154/1155 terminal before this writer admission; previous version4 preserved in history/20261012. Early contract fixtures allow independently admitted consumer source integration; no automatic dispatch.\n\n"
@@ -816,18 +884,23 @@ def render_delta(p):
         "djconnect-federated-planning-delta/6",
         "djconnect-federated-planning-delta/7",
         "djconnect-federated-planning-delta/8",
+        "djconnect-federated-planning-delta/9",
     }:
         a = d["ambient_receipt"]
         intro += f"Selected ambient convergence: [{a['assignment_id']}]({a['selection_url']}); source {a['source_delivery']}, qualified Session reuse and passive producer retirement; native/joint acceptance open. Forecast1156/1157 stays closed; version5 preserved in history/20261012. No new source/model/consumer dispatch.\n\n"
     if d.get("schema_version") in {
         "djconnect-federated-planning-delta/7",
         "djconnect-federated-planning-delta/8",
+        "djconnect-federated-planning-delta/9",
     }:
         r = d["documentary_receipt"]
         intro += f"Combined Session entry/history/native-surface documentary design: [{r['assignment_id']}]({r['selection_url']}); documentation {r['source_delivery']}. Documentary delivery does not itself admit product execution; Continuation is independent and rich passive rights are not inherited. Ambient1158/1159 remains terminal; version6 is preserved in history/20261012. No new product writer or native/APNs/installed/hardware PASS.\n\n"
-    if d.get("schema_version") == "djconnect-federated-planning-delta/8":
+    if d.get("schema_version") in {"djconnect-federated-planning-delta/8", "djconnect-federated-planning-delta/9"}:
         r = d["summary_receipt"]
         intro += f"Selected connected Core history summary: {r['assignment_id']}; source {r['source_delivery']}. Reuses HISTORY::CORE::SUMMARY, with Apple adoption Planned and native/installed/joint acceptance open. Predecessor version7 is preserved byte-for-byte.\n\n"
+    if d.get("schema_version") == "djconnect-federated-planning-delta/9":
+        r = d["dialogue_receipt"]
+        intro += f"Selected one-pipeline Ask DJ + exact Moment Track Insight: [{r['assignment_id']}]({r['selection_url']}); source {r['source_delivery']}. Both screens use the same service with optional qualified context. Native Apple and joint acceptance remain Planned/open; no consumer writes or automatic dispatch. History summary1162/1163 stays closed; version8 is preserved in history/20261013. Owner-requested HA-dev/prod updates follow qualified delivery and installed readback.\n\n"
     out = {}
     out["README.md"] = (
         "# Federated roadmap — versioned maintenance\n\n"

@@ -58,8 +58,10 @@ alternate writer, promptstack or dialogue-memory policy.
 
 Extend the existing Ask DJ history owner with bounded operational conversation
 state. No second eventbus, durable chat store or persistent profiling. Per-owner
-thread: at most 12 recent messages/12 KiB, 4 typed subjects, one current result
-set of at most 8 items, one pending confirmation, 20-minute idle expiry. At most
+thread: one model-safe window of12messages/12KiB and one local operational
+window of12messages/12KiB. Local catalog captions never enter model input.
+There are4typed subjects, at most20compact source dependencies, one result set
+of12items/16KiB, one pending confirmation/8KiB and a20-minute idle expiry. At most
 4 threads per owner and 32 retained owner states; admission at capacity fails
 closed rather than stealing live in-flight state. External agent memory is not
 trusted: each call starts fresh with the explicit qualified window; returned
@@ -190,3 +192,98 @@ Ask DJ in both composers and qualified inert Moment actions. Exact recording,
 navigation-only admission, original rights/deadlines and consumer opt-in are
 mandatory; a selected earlier subject cannot become current playback silently.
 Core delivery and native adoption retain distinct acceptance statuses.
+
+
+## Connected implementation refinement
+
+All application text, post-STT voice, raw HTTP compatibility and Ask DJ command
+adapters enter `ask_dj.service.async_exchange`; optional Session context only
+enriches this service. Read-only legacy administrative history remains an explicit
+`conversation_scope: legacy` projection. New writes use the paired Profile scope;
+there is no legacy archive import into functional or model memory.
+
+The configured HA agent must advertise no control capability and no broad Assist,
+response retention, web/code tool or HA-state-template context. Qualification is
+checked before and after each fresh HA chat session. A scoped call never retries
+through a different default agent. Existing broad HA agents are a configuration
+qualification gap, not implicit permission to expose home tools. Production keeps
+HA Conversation; existing OpenAI API access is used only inside the owned lab.
+
+Opaque effect receipts are reserved immediately before the existing Spotify or
+Music Assistant mutating dispatch, after token/owner/source awaits. A token failure
+before dispatch is retryable through the same functional conversation; a possible
+send followed by timeout, cancellation or failed acceptance is uncertain and is
+never automatically repeated. There is a final synchronous owner/source/revision
+fence after the last acceptance await, inside the rollback boundary. Result-set
+identity, order, action, Session and original deadline are also checked there and
+at the actual adapter, including retries. A biography is not playback authority.
+
+Live accepted response bubbles preserve eligible images/audio/cards/actions in
+`assistant_message` and `messages`; `media_delivery_basis: current_response_only`
+marks this delivery. The Store keeps its separately qualified archival subset.
+Replayed archived exchanges do not fetch or resurrect expired transient assets.
+No private turn or confirmation produces an automatic push notification.
+
+[Moment Track Insight](MOMENT_TRACK_INSIGHT_DRILLDOWN_V1.md) adds only a closed
+navigation offer to an eligible published Track contribution, then uses the same
+owner-resolved TrackInsightService from either Ask DJ screen or explicit detail.
+It is a user-selected read, distinct from an ordinary current-playback request.
+Source #1162/Finalization #1163 and earlier product deliveries remain closed.
+
+## Acceptance refinements: archive rights, owner clear and bounded choices
+
+The existing ten-track recommendations remain selectable within a maximum of12
+qualified actions/16KiB; model-led lookup still retrieves at most8 rows per call.
+The limit bounds one immutable set rather than silently forgetting visible later
+track cards. A batch queue action retains its existing explicit action route;
+model text and ordinary selection never grant queue replacement.
+
+Clear revalidates current pairing, loaded integration and device-bound Profile
+inside the existing serialized Store mutation, before and after persistence. A
+failed save or withdrawn owner rolls back the prior Store/RAM state and does not
+invalidate the conversation. Storage refusal is typed503
+`history_storage_unavailable`; cancellation settles the existing writer first.
+History read, state, export and clear share the default Profile namespace. Only
+explicit `conversation_scope: legacy` with authenticated HA-user authority can
+read/clear the preserved former archive; malformed scope cannot select it.
+
+A successful RAM-only/raw turn marks that subject's short window non-archiveable.
+Switching to the ordinary message route does not grant retention for its dependent
+follow-up. An explicit independent new subject resets that bounded operational
+context and can qualify new persistence. Private-mode and live-only source grants
+retain their stricter scope/expiry fences. No second memory owner is introduced.
+
+Discussing analysis returns text plus bounded `analysis_basis` and qualified
+credit attribution, without screen-navigation fields. Explicit five-language
+detail requests can open the existing detail; negation keeps the discussion in
+chat. Unknown measured audio remains unknown. Catalog captions use local templates
+and five languages; they are not model-processing permission. Controls report
+successful dispatch, and 'playing' is reserved for qualified playback readback.
+Malformed structured model output fails502 without a card, action or archival
+commit. A safe typed lookup with a missing caption receives a local search caption;
+the existing catalog tool still owns the actual results.
+
+Voice binds the paired Profile before audio input/STT. Synchronous fences after
+body-read, STT and service acceptance prevent an owner change from disclosing
+the old transcript, generated text, assets or error details. Failed STT creates
+no accepted turn. App errors and success responses remain no-store.
+
+A lookup/refinement model response supplies only a typed read-only query; Core
+owns the resulting localized caption and actual cards. Invalid structured lookup
+output or a wrong operation may receive one format-only retry through the same qualified HA agent,
+within the existing two-call bound and repeated owner/source checks. Invalid
+output is not returned to the model as context. A second invalid response fails
+502 without lookup, effect or archival acceptance. A factual question cannot be replaced
+by a model-proposed search/choice object; its retry requires ordinary answer prose.
+There is no automatic replay
+of music commands and no different default agent.
+
+The same reactive prompt realizes four recognizable forms: Home uses calm
+plainspoken context; Radio uses two short fact/meaning sentences; Club uses one
+compact precise sentence; Festival uses two or three warm sentences with varied
+rhythm and concrete musical detail. There is no obligatory metaphor or closing
+scene/invitation. Persona names do not authorize
+festival/event claims or fictive performance context. User language remains
+exactly en/nl/de/fr/es; identity/credit/role facts remain unchanged and uncertain
+gender uses neutral naming. Actual generated examples receive independent
+editorial review; these forms never consume proactive style memory or budgets.

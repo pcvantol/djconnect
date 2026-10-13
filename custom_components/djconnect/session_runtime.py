@@ -426,7 +426,7 @@ class DJMoment:
             "summary": self.summary,
             "content": self.content,
             "artwork": {"url": self.artwork_url} if self.artwork_url else None,
-            "actions": [action.as_dict() for action in self.actions],
+            "actions": [action.as_dict() for action in self.actions if action.action_type != "open_track_insight"],
             "visibility": self.presentation_intent.visibility.value,
             "delivery_channels": [channel.value for channel in self.presentation_intent.delivery_channels],
             "importance": self.presentation_intent.importance,
@@ -2188,9 +2188,17 @@ class DJMomentEngine:
         summary, content = realization.summary, realization.content
         self._track_keys.add(key)
         moment_type = {"artist_story": DJMomentType.ARTIST, "album_story": DJMomentType.ALBUM, "genre_story": DJMomentType.GENRE}.get(fact.intent, DJMomentType.TRACK)
-        moment = DJMoment(moment_id=f"moment-{uuid4().hex}", session_id=session_id, created_at=_timestamp(), moment_type=moment_type,
+        identifier = f"moment-{uuid4().hex}"
+        from .moment_navigation import CAPABILITY, LABELS
+        insight_actions = ()
+        if (moment_type is DJMomentType.TRACK and fact.provider in {"MusicBrainz", "Wikidata"}
+            and fact.license == "CC0-1.0" and re.fullmatch(r"spotify:track:[A-Za-z0-9]{22}",fact.media_identity)):
+            insight_actions = (DJMomentAction("open_track_insight", LABELS.get(locale, LABELS["en"]),
+                "waveform", 1, CAPABILITY, (("schema_version", "1"),("session_id",session_id),
+                    ("moment_id",identifier),("action_id","insight-"+identifier))),)
+        moment = DJMoment(moment_id=identifier, session_id=session_id, created_at=_timestamp(), moment_type=moment_type,
                           knowledge_intent=intent, presentation_intent=_presentation_intent(selected_mood, persona, reading_characters=len(summary)+len(content), minimum_duration_seconds=40),
-                          title=summary, summary=summary, content=content, artwork_url=None, actions=(), source_references=(fact.provider,),
+                          title=summary, summary=summary, content=content, artwork_url=None, actions=insight_actions, source_references=(fact.provider,),
                           generation_metadata=(("provider", fact.provider), ("validated", "true")), source_context_fingerprint=hashlib.sha256(key.encode()).hexdigest(),
                           source_attribution=(("provider", fact.provider), ("url", fact.source_url), ("license", fact.license))
                           + ((("url_previous", fact.previous_evidence.source_url),)
@@ -3745,7 +3753,8 @@ class DJSessionBroadcastEngine:
         if moment.session_id != self.state.session_id:
             return
         self._moment_delivery_boundaries.setdefault(moment.moment_id, MomentDeliveryBoundary(
-            time.monotonic(), moment.created_at, self.state.playback.item_id))
+            time.monotonic(), moment.created_at, self.state.playback.item_id,
+            tuple((key, getattr(self.state.playback,key)) for key in ("title","artist","album","duration_ms"))))
         if moment.presentation_intent.visibility is DJMomentVisibility.OWNER_ONLY:
             self._owner_only_moment_ids.add(moment.moment_id)
 
@@ -5429,6 +5438,10 @@ class SessionRuntimeManager:
                 return None
             return active.broadcast.as_dict()["session_forecast"]
 
+    def current_active(self, owner_profile_id: str) -> DJSessionRuntime | None:
+        """Committed in-loop state for a final non-yielding owner-effect fence."""
+        return self._active_by_profile.get(owner_profile_id)
+
     async def async_get_active(self, owner_profile_id: str) -> DJSessionRuntime | None:
         """Return the active Runtime for a Profile, if one exists."""
         async with self._lock:
@@ -5697,6 +5710,9 @@ class SessionRuntimeManager:
                              "text":moment.content,"summary":moment.summary,
                              "source_attribution":dict(moment.source_attribution),"archive_basis":basis,
                              "persona":active.dj_persona.value,"locale":active.locale}}
+            if basis == "cc0_normalized_fields_v1":
+                from .ask_dj.dialogue import normalized_subjects
+                entry["body"]["dialogue_subjects"] = normalized_subjects(source)
         try:
             accepted = await self._historical_projections.async_accept_moment(
                 active.owner_profile_id, active.session_id, moment.moment_id, entry,

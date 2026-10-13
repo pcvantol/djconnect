@@ -37594,7 +37594,7 @@
     }
   ],
   "planning_maintenance": {
-    "schema_version": "djconnect-federated-planning-delta/8",
+    "schema_version": "djconnect-federated-planning-delta/9",
     "decision_id": "DJC-DJ-PRESENCE-ROADMAP-DESIGN-V1-20261011",
     "decision_url": "https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6110375785",
     "design_date": "2026-10-11",
@@ -38390,6 +38390,136 @@
             ]
           }
         ]
+      },
+      {
+        "id": "CONVERSATION::CORE::SHARED-DIALOGUE",
+        "title": "Shared contextual Ask DJ service and acceptance",
+        "lane": "DJC-CORE",
+        "repository": "pcvantol/djconnect",
+        "status": "In progress",
+        "assignment_status": "IN_PROGRESS",
+        "scope": "Shared contextual Ask DJ service and acceptance",
+        "acceptance_boundary": "Shared contextual Ask DJ service and acceptance",
+        "contract_binding": "docs/product/ASK_DJ_CONTEXTUAL_DIALOGUE_CONTRACT_V1.md",
+        "source_ids": [
+          "OWNER-SHARED-DIALOGUE-20261013"
+        ],
+        "parent_reference": "PROJ::ROADMAP::LIFECYCLE",
+        "family_reference": "Existing shared Ask DJ / Session conversation and qualified Moment navigation",
+        "prerequisite_groups": []
+      },
+      {
+        "id": "CONVERSATION::APPLE::SHARED-ADOPTION",
+        "title": "One native Ask DJ controller with optional Session context",
+        "lane": "DJC-APPLE",
+        "repository": "pcvantol/djconnect-app",
+        "status": "Planned",
+        "assignment_status": "NOT_ISSUED",
+        "scope": "One native Ask DJ controller with optional Session context",
+        "acceptance_boundary": "One native Ask DJ controller with optional Session context",
+        "contract_binding": "docs/product/ASK_DJ_CONVERSATIONAL_EXPERIENCE_V1.md",
+        "source_ids": [
+          "OWNER-SHARED-DIALOGUE-20261013"
+        ],
+        "parent_reference": "PROJ::ROADMAP::LIFECYCLE",
+        "family_reference": "Existing shared Ask DJ / Session conversation and qualified Moment navigation",
+        "prerequisite_groups": [
+          {
+            "mode": "AND",
+            "edge_ids": [
+              "SHARED-DIALOGUE-1"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "INSIGHT::CORE::MOMENT-DRILLDOWN",
+        "title": "Qualified exact-track Moment navigation and shared detail",
+        "lane": "DJC-CORE",
+        "repository": "pcvantol/djconnect",
+        "status": "In progress",
+        "assignment_status": "IN_PROGRESS",
+        "scope": "Qualified exact-track Moment navigation and shared detail",
+        "acceptance_boundary": "Qualified exact-track Moment navigation and shared detail",
+        "contract_binding": "docs/product/MOMENT_TRACK_INSIGHT_DRILLDOWN_V1.md",
+        "source_ids": [
+          "OWNER-SHARED-DIALOGUE-20261013"
+        ],
+        "parent_reference": "PROJ::ROADMAP::INTERACTIVE",
+        "family_reference": "Existing shared Ask DJ / Session conversation and qualified Moment navigation",
+        "prerequisite_groups": []
+      },
+      {
+        "id": "INSIGHT::APPLE::MOMENT-DRILLDOWN",
+        "title": "Native pinned Track Insight and return to the same Flow/draft",
+        "lane": "DJC-APPLE",
+        "repository": "pcvantol/djconnect-app",
+        "status": "Planned",
+        "assignment_status": "NOT_ISSUED",
+        "scope": "Native pinned Track Insight and return to the same Flow/draft",
+        "acceptance_boundary": "Native pinned Track Insight and return to the same Flow/draft",
+        "contract_binding": "docs/product/MOMENT_TRACK_INSIGHT_DRILLDOWN_V1.md",
+        "source_ids": [
+          "OWNER-SHARED-DIALOGUE-20261013"
+        ],
+        "parent_reference": "PROJ::ROADMAP::INTERACTIVE",
+        "family_reference": "Existing shared Ask DJ / Session conversation and qualified Moment navigation",
+        "prerequisite_groups": [
+          {
+            "mode": "AND",
+            "edge_ids": [
+              "SHARED-DIALOGUE-2"
+            ]
+          },
+          {
+            "mode": "AND",
+            "edge_ids": [
+              "SHARED-DIALOGUE-3"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "CONVERSATION::PRODUCT::JOINT",
+        "title": "Shared dialogue and exact Moment detail joint acceptance",
+        "lane": "DJC-CORE",
+        "repository": "pcvantol/djconnect",
+        "status": "Planned",
+        "assignment_status": "NOT_ISSUED",
+        "scope": "Shared dialogue and exact Moment detail joint acceptance",
+        "acceptance_boundary": "Shared dialogue and exact Moment detail joint acceptance",
+        "contract_binding": "docs/product/ASK_DJ_CONVERSATIONAL_EXPERIENCE_V1.md",
+        "source_ids": [
+          "OWNER-SHARED-DIALOGUE-20261013"
+        ],
+        "parent_reference": "PROJ::ROADMAP::INTERACTIVE",
+        "family_reference": "Existing shared Ask DJ / Session conversation and qualified Moment navigation",
+        "prerequisite_groups": [
+          {
+            "mode": "AND",
+            "edge_ids": [
+              "SHARED-DIALOGUE-4"
+            ]
+          },
+          {
+            "mode": "AND",
+            "edge_ids": [
+              "SHARED-DIALOGUE-5"
+            ]
+          },
+          {
+            "mode": "AND",
+            "edge_ids": [
+              "SHARED-DIALOGUE-6"
+            ]
+          },
+          {
+            "mode": "AND",
+            "edge_ids": [
+              "SHARED-DIALOGUE-7"
+            ]
+          }
+        ]
       }
     ],
     "edges": [
@@ -39000,16 +39130,128 @@
         "source_ids": [
           "OWNER-SESSION-ENTRY-ABC-20261012"
         ]
+      },
+      {
+        "id": "SHARED-DIALOGUE-1",
+        "producer": "CONVERSATION::CORE::SHARED-DIALOGUE",
+        "consumer": "CONVERSATION::APPLE::SHARED-ADOPTION",
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "start",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "required_subset": "Exact shared request/response/rights/retry contract and actual paired fixtures",
+        "contract_or_evidence": "docs/product/ASK_DJ_CONTEXTUAL_DIALOGUE_CONTRACT_V1.md",
+        "reason": "Exact shared request/response/rights/retry contract and actual paired fixtures",
+        "source_ids": [
+          "OWNER-SHARED-DIALOGUE-20261013"
+        ]
+      },
+      {
+        "id": "SHARED-DIALOGUE-2",
+        "producer": "INSIGHT::CORE::MOMENT-DRILLDOWN",
+        "consumer": "INSIGHT::APPLE::MOMENT-DRILLDOWN",
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "start",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "required_subset": "Exact navigation/subject/deadline/detail/cache producer fixtures",
+        "contract_or_evidence": "docs/product/MOMENT_TRACK_INSIGHT_DRILLDOWN_V1.md",
+        "reason": "Exact navigation/subject/deadline/detail/cache producer fixtures",
+        "source_ids": [
+          "OWNER-SHARED-DIALOGUE-20261013"
+        ]
+      },
+      {
+        "id": "SHARED-DIALOGUE-3",
+        "producer": "CONVERSATION::APPLE::SHARED-ADOPTION",
+        "consumer": "INSIGHT::APPLE::MOMENT-DRILLDOWN",
+        "kind": "implementation_contract",
+        "phase": "integration_acceptance",
+        "prerequisite_stage": "completion",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "required_subset": "Same controller/detail reuse and preserved native Flow/draft navigation",
+        "contract_or_evidence": "docs/product/ASK_DJ_CONTEXTUAL_DIALOGUE_CONTRACT_V1.md",
+        "reason": "Same controller/detail reuse and preserved native Flow/draft navigation",
+        "source_ids": [
+          "OWNER-SHARED-DIALOGUE-20261013"
+        ]
+      },
+      {
+        "id": "SHARED-DIALOGUE-4",
+        "producer": "CONVERSATION::CORE::SHARED-DIALOGUE",
+        "consumer": "CONVERSATION::PRODUCT::JOINT",
+        "kind": "implementation_contract",
+        "phase": "integration_acceptance",
+        "prerequisite_stage": "completion",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "required_subset": "Exact qualified Core shared dialogue",
+        "contract_or_evidence": "docs/product/ASK_DJ_CONTEXTUAL_DIALOGUE_CONTRACT_V1.md",
+        "reason": "Exact qualified Core shared dialogue",
+        "source_ids": [
+          "OWNER-SHARED-DIALOGUE-20261013"
+        ]
+      },
+      {
+        "id": "SHARED-DIALOGUE-5",
+        "producer": "INSIGHT::CORE::MOMENT-DRILLDOWN",
+        "consumer": "CONVERSATION::PRODUCT::JOINT",
+        "kind": "implementation_contract",
+        "phase": "integration_acceptance",
+        "prerequisite_stage": "completion",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "required_subset": "Exact qualified Core Moment target/detail",
+        "contract_or_evidence": "docs/product/MOMENT_TRACK_INSIGHT_DRILLDOWN_V1.md",
+        "reason": "Exact qualified Core Moment target/detail",
+        "source_ids": [
+          "OWNER-SHARED-DIALOGUE-20261013"
+        ]
+      },
+      {
+        "id": "SHARED-DIALOGUE-6",
+        "producer": "CONVERSATION::APPLE::SHARED-ADOPTION",
+        "consumer": "CONVERSATION::PRODUCT::JOINT",
+        "kind": "implementation_contract",
+        "phase": "integration_acceptance",
+        "prerequisite_stage": "completion",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "required_subset": "Real native general/Session conversation parity",
+        "contract_or_evidence": "docs/product/ASK_DJ_CONTEXTUAL_DIALOGUE_CONTRACT_V1.md",
+        "reason": "Real native general/Session conversation parity",
+        "source_ids": [
+          "OWNER-SHARED-DIALOGUE-20261013"
+        ]
+      },
+      {
+        "id": "SHARED-DIALOGUE-7",
+        "producer": "INSIGHT::APPLE::MOMENT-DRILLDOWN",
+        "consumer": "CONVERSATION::PRODUCT::JOINT",
+        "kind": "implementation_contract",
+        "phase": "integration_acceptance",
+        "prerequisite_stage": "completion",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "required_subset": "Real native pinned navigation/cache/return acceptance",
+        "contract_or_evidence": "docs/product/MOMENT_TRACK_INSIGHT_DRILLDOWN_V1.md",
+        "reason": "Real native pinned navigation/cache/return acceptance",
+        "source_ids": [
+          "OWNER-SHARED-DIALOGUE-20261013"
+        ]
       }
     ],
     "document_references": [
       {
         "path": "PRODUCT_ROADMAP.md",
-        "sha256": "072914802f4a5e21347d3fa18ab8268a9bd186a94e3b7d3b1df74f1448b5c994"
+        "sha256": "9c98ebd29055a4f053303d40e4c3306beb303b4929872381c7b44fd882276dec"
       },
       {
         "path": "PRODUCT_BACKLOG.md",
-        "sha256": "43f01beb0e1e41095860a56d8b1689d1b304591d87626e1307583d3f2e3d4079"
+        "sha256": "5f00bc865ce5ee99f9ebb14d764bdc8e26a44c1ade452eb11e3c9e7137a987fe"
       },
       {
         "path": "docs/product/DJ_PRESENCE_V1.md",
@@ -39021,7 +39263,7 @@
       },
       {
         "path": "docs/product/DJ_INTELLIGENCE_ARCHITECTURE.md",
-        "sha256": "cb86b46ac414f0ca7c411978eded39ae8843cba94ea0a25ccbb0d84160bf6935"
+        "sha256": "5345f4a3db6b2bfb97931d6acdde09439dc3dbae7a7d311107269922e08aef12"
       },
       {
         "path": "docs/product/DJ_PRESENTATION_ARCHITECTURE.md",
@@ -39045,7 +39287,7 @@
       },
       {
         "path": "API_CONTRACT.md",
-        "sha256": "6ffb8da8830fcb291626a34b75cdbeafa07db805ba44955beb05c19dfb4bebf5"
+        "sha256": "e6dcc3e5f1a5fab7f392106810f94194ac7df5e34688d35b8ad894446bc976e8"
       },
       {
         "path": "docs/product/NARRATIVE_ALBUM_CONTINUITY_V1.md",
@@ -39053,7 +39295,7 @@
       },
       {
         "path": "docs/product/DJ_INTELLIGENCE_MATURITY.md",
-        "sha256": "ef4f192fdb7674b8b00dca71b16359f6e6f3da51efef6b5fa451ef0ea5791dd9"
+        "sha256": "e546b04681d4278cadf790400c761f39f845cb95092d6cf09da6b31d04aa9c86"
       },
       {
         "path": "docs/product/SHARED_PRODUCER_CONTINUITY_CONTRACT.md",
@@ -39113,7 +39355,7 @@
       },
       {
         "path": "docs/product/SESSION_ENTRY_LIFECYCLE_EXPERIENCE_V1.md",
-        "sha256": "63ada3ffa76f1118d060342819aba930d73fd92e40b836d3dddaa225ddf350d5"
+        "sha256": "56e88a4630fcd807b0dc3135c3f01c1022e8659fcbd08e6101db0bcb8babf8a9"
       },
       {
         "path": "docs/product/SESSION_HISTORY_SUMMARY_V1.md",
@@ -39121,7 +39363,7 @@
       },
       {
         "path": "docs/product/APPLE_SESSION_NATIVE_SURFACES_V1.md",
-        "sha256": "99c390e7e452c9ab50020cd0b2948a3f57d249c259fa0b84abf6542dfe743118"
+        "sha256": "6677b8f6ae1935fedb13f277711b08522b47a87ebf0b65b19ca958cdfb74615a"
       },
       {
         "path": "docs/verification/SESSION_ENTRY_LIFECYCLE_HISTORY_DESIGN_V1_SOURCE_READBACK.md",
@@ -39142,6 +39384,38 @@
       {
         "path": "docs/history/prompts/2026-10-13-session-history-summary-finalization.md",
         "sha256": "b3d248b51a46e9e4b74439f2331b888ec5e70a80d348ec598601ca8447bada0c"
+      },
+      {
+        "path": "docs/product/ASK_DJ_CONVERSATIONAL_EXPERIENCE_V1.md",
+        "sha256": "2140410abef53f01f786add6432b02303e2c89cb37e2aed24874ec100ac73b58"
+      },
+      {
+        "path": "docs/product/ASK_DJ_CONTEXTUAL_DIALOGUE_CONTRACT_V1.md",
+        "sha256": "a27782392a87b2ec44bbc6c2e29c8c82db2437fdabd62d7fffd45a6ac0896ef8"
+      },
+      {
+        "path": "docs/product/MOMENT_TRACK_INSIGHT_DRILLDOWN_V1.md",
+        "sha256": "14b18b65dab41715453210578838568db94374f2051f5dfea9d4b9517bab61f8"
+      },
+      {
+        "path": "DJCONNECT_STORAGE_ARCHITECTURE.md",
+        "sha256": "40fd31bd4ff256821ec30e2d0430fe7af5ef615fa6e125969cfebbc66d035da5"
+      },
+      {
+        "path": "docs/technical/HTTP_API.md",
+        "sha256": "3cfa19c673c42065c5a3a0ff78e9657271c66563ef9097f555962106acfa3489"
+      },
+      {
+        "path": "docs/technical/VOICE_TRANSPORT.md",
+        "sha256": "65065f48e8e8a069a43ac3efde885e5ef2636622269725a008a478cf71197cd5"
+      },
+      {
+        "path": "docs/product/EXPRESSIVE_DJ_PERSONA_CONTRACT.md",
+        "sha256": "a5c9bde64dc087acf3a9b4ab88480e5daebaa8f5b6cc5ef07c0b4ed66c1f202e"
+      },
+      {
+        "path": "docs/product/KNOWLEDGE_SOURCE_ARCHITECTURE.md",
+        "sha256": "8846dff1f9c18bfb6aa9817b9a1d46f4bcbad0ceb79fd5b695d6bbb71cbfa55d"
       }
     ],
     "implementation_receipt": {
@@ -39372,6 +39646,32 @@
       "artifact_run": "38385357994",
       "formal_run": "38385358288",
       "finalization": "RECONCILIATION_CANDIDATE_SEPARATE_GATE"
+    },
+    "dialogue_receipt": {
+      "schema_version": "djconnect-shared-dialogue-maintenance/1",
+      "assignment_id": "DJC-CORE-ASKDJ-CONTEXTUAL-DIALOGUE-V1-20261013",
+      "selection_url": "https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6145537044",
+      "added_requirement": "DJC-MOMENT-TRACK-INSIGHT-DRILLDOWN-V1-20261013",
+      "extension_url": "https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6146489526",
+      "base_sha": "c955ec80407f4ab0237bc4e9381761d3c9274617",
+      "branch": "codex/askdj-contextual-dialogue-v1",
+      "ack": 6145812752,
+      "material_start": 6146387187,
+      "contract_commit": "592953ce4eb48aafcd1d0c17761a5ac4fda1bfd1",
+      "material_commit": "d672ddf5e4fce9013498a37d37c3599f39868b18",
+      "extension_ack": 6149786410,
+      "extension_contract": "4eb814a43f532d305e42fdbcc2af658259b94e64",
+      "phase": "LOCAL_IMPLEMENTATION_AND_QUALIFICATION",
+      "source_delivery": "UNPUBLISHED",
+      "native": "NOT_RUN",
+      "installed": "NOT_RUN",
+      "hardware": "NOT_RUN",
+      "joint_acceptance": "OPEN",
+      "previous_delta": "history/20261013/history-summary-maintenance-v8.json",
+      "previous_delta_sha256": "ef35472e2f14ef5f44900c4a2cf6d142a4533f294efd1ecfa6e8bcaa0d1d8d41",
+      "consumer_writes": false,
+      "automatic_dispatch": false,
+      "ha_update_request": "OWNER_REQUESTED_AFTER_QUALIFIED_DELIVERY"
     }
   }
 }
