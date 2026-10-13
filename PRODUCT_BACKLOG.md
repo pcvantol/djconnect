@@ -341,3 +341,16 @@ Assignment `DJC-SESSION-ENTRY-LIFECYCLE-HISTORY-DESIGN-V1-20261012`, including `
 The live [JSON-DAG](docs/roadmap/v1/djconnect-platform-v1.json) records unique bounded subsets under existing parents, with generated dependencies/lanes/open-work/diagrams. Native lifecycle invocation reuses `PROJ::QUAL::CMB12-LIFECYCLE`; richer controls reference `SLICE::APPLE::DJ-PRESENCE-CONTROL`, `FORECAST::APPLE::VIEW` and `AMBIENT::APPLE::JOIN` without duplicate assignments. Useful neutral navigation does not wait for the full private history summary, future intelligence, Interactive DJMoments, Watch redesign or physical Cast/LG delivery. Continuation is separate from native surface synchronization.
 
 Keep historical snapshots and CMB-12 evidence unchanged. Delivered Presence, artwork, Album, Forecast and Ambient Core slices remain closed; narrative Stage 4 remains partial. Documentary completion does not complete those broader families or establish native, installed, APNs or hardware acceptance. No runtime/Swift/APNs/install/signing/workflow/runner/deployment work is selected.
+
+## Selected Core Session history summary — 2026-10-13
+
+`DJC-CORE-SESSION-HISTORY-SUMMARY-V1-20261013` admits only the existing
+`HISTORY::CORE::SUMMARY` (In progress). The connected design is
+[Session history summary v1](docs/product/SESSION_HISTORY_SUMMARY_V1.md).
+Canonical observation counts, semantic non-Silence publication counts and
+confirmed time-weighted Mood use existing storage and owner list/header routes.
+Old/incomplete/withdrawn sessions retain honest unknown coverage.
+`HISTORY::APPLE::SUMMARY` remains Planned, dependent on the qualified producer
+contract; native rendering/installed and joint acceptance are open.
+No lifecycle/start/replace/control, continuation, notification or second slice
+is admitted. Protected source delivery and separate Finalization remain gates.

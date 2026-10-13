@@ -134,10 +134,15 @@ async def async_qualify_history_source(hass, owner: str, row: dict) -> bool:
     from .client_retirement import is_retired_entry
     from .retired_provider import historical_successor
 
-    if source is None or (is_retired_entry(source) and {**source.data, **source.options}.get("profile_backend_entry_id")):
+    if source is None or (
+        is_retired_entry(source)
+        and {**source.data, **source.options}.get("profile_backend_entry_id")
+    ):
         source = historical_successor(hass, str(entry_id or ""), owner, captured)
     source_ids = {entry_id, getattr(source, "entry_id", None)}
-    if source_ids.intersection(hass.data.get("djconnect", {}).get("spotify_reauth_issue_throttle", {})):
+    if source_ids.intersection(
+        hass.data.get("djconnect", {}).get("spotify_reauth_issue_throttle", {})
+    ):
         return False
     # HA's persisted typed Repair survives process restart; no error-text parsing.
     if body.get("provider") == "Spotify":
@@ -160,6 +165,38 @@ async def async_qualify_history_source(hass, owner: str, row: dict) -> bool:
     return True
 
 
+async def async_qualify_summary_source(hass, owner: str, captured: dict) -> bool:
+    """Current rights for compact counts; never fetch providers or save their IDs."""
+    import hashlib
+    from .profile_context import profile_storage
+
+    household = await profile_storage(hass).async_load()
+    backend = household.music_backends.get(captured.get("backend_id"))
+    if backend is None:
+        return False
+    provider = {
+        "spotify_direct": "Spotify",
+        "music_assistant": "Music Assistant",
+        "future_provider": "DJConnect",
+    }.get(str(backend.provider))
+    context = dict(captured)
+    if provider != "DJConnect":
+        account = household.music_accounts.get(captured.get("music_account_id"))
+        if account is None or hashlib.sha256(
+            str(account.provider_account_id).encode()
+        ).hexdigest() != captured.get("account_fingerprint"):
+            return False
+        context["provider_account_id"] = str(account.provider_account_id)
+    return await async_qualify_history_source(
+        hass,
+        owner,
+        {
+            "kind": "playback_observed",
+            "body": json.dumps({"provider": provider, "source_context": context}),
+        },
+    )
+
+
 async def async_history_grant_revision(hass, owner: str) -> str:
     """Revision covers source/owner withdrawal without hashing credentials."""
     from .profile_context import profile_storage
@@ -167,8 +204,13 @@ async def async_history_grant_revision(hass, owner: str) -> str:
     household = await profile_storage(hass).async_load()
     profile = household.profiles.get(owner)
     accounts = [
-        (a.account_id, a.backend_id, str(a.state), owner in a.linked_profile_ids,
-         str(a.provider_account_id))
+        (
+            a.account_id,
+            a.backend_id,
+            str(a.state),
+            owner in a.linked_profile_ids,
+            str(a.provider_account_id),
+        )
         for a in household.music_accounts.values()
     ]
     backends = [
@@ -220,6 +262,9 @@ def query_service(hass, history_manager=None) -> HistoricalProjectionQueryServic
             history_manager,
             source_validator=lambda owner, row: async_qualify_history_source(hass, owner, row),
             grant_revision=lambda owner: async_history_grant_revision(hass, owner),
+            summary_validator=lambda owner, binding: async_qualify_summary_source(
+                hass, owner, binding
+            ),
         )
         domain["session_history_query"] = query
     elif history_manager is not None:

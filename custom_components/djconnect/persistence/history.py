@@ -39,7 +39,9 @@ class HistoricalDJMomentProjection:
 
 
 class HistoricalProjectionRepository(PersistenceRepository):
-    async def async_owner_revision(self, owner_profile_id: str, *, include_active: bool = False) -> str:
+    async def async_owner_revision(
+        self, owner_profile_id: str, *, include_active: bool = False
+    ) -> str:
         def read(tx):
             row = tx.fetchone(
                 "SELECT COUNT(*),COALESCE(SUM(history_revision),0),COALESCE(MAX(updated_at),'') "
@@ -66,7 +68,12 @@ class HistoricalProjectionRepository(PersistenceRepository):
                     "AND (created_at,session_id)<(?,?) "
                     "ORDER BY created_at DESC,session_id DESC LIMIT ?"
                 )
-                parameters = (owner_profile_id, int(include_active), *tuple(before), min(251, limit))
+                parameters = (
+                    owner_profile_id,
+                    int(include_active),
+                    *tuple(before),
+                    min(251, limit),
+                )
             else:
                 query = (
                     "SELECT session_id,owner_profile_id,lifecycle_status,created_at,started_at,"
@@ -88,7 +95,9 @@ class HistoricalProjectionRepository(PersistenceRepository):
                 "revision",
                 "history_enabled",
             )
-            return [dict(zip(keys, row)) for row in rows]
+            from .summary import attach_tx
+
+            return attach_tx(tx, [dict(zip(keys, row)) for row in rows])
 
         return await self._async_in_transaction(read)
 
@@ -109,10 +118,11 @@ class HistoricalProjectionRepository(PersistenceRepository):
                 "revision",
                 "history_enabled",
             )
-            return dict(zip(keys, row)) if row else None
+            from .summary import attach_tx
+
+            return attach_tx(tx, [dict(zip(keys, row))])[0] if row else None
 
         return await self._async_in_transaction(read)
-
 
     async def async_entry_records(
         self,
@@ -131,16 +141,22 @@ class HistoricalProjectionRepository(PersistenceRepository):
                 "retained_until,visibility,revoked_at FROM djconnect_session_entries "
                 "WHERE owner_profile_id=? AND session_id=? AND entry_order>? AND entry_order<? "
                 "ORDER BY entry_order DESC LIMIT ?"
-                if descending else
-                "SELECT entry_id,session_id,entry_order,kind,reference_id,body,occurred_at,"
+                if descending
+                else "SELECT entry_id,session_id,entry_order,kind,reference_id,body,occurred_at,"
                 "retained_until,visibility,revoked_at FROM djconnect_session_entries "
                 "WHERE owner_profile_id=? AND session_id=? AND entry_order>? AND entry_order<? "
                 "ORDER BY entry_order ASC LIMIT ?"
             )
-            rows = tx.fetchall(query, (
-                owner_profile_id, session_id, after,
-                before if before is not None else 9223372036854775807, min(251, limit),
-            ))
+            rows = tx.fetchall(
+                query,
+                (
+                    owner_profile_id,
+                    session_id,
+                    after,
+                    before if before is not None else 9223372036854775807,
+                    min(251, limit),
+                ),
+            )
             keys = (
                 "entry_id",
                 "session_id",
@@ -156,7 +172,6 @@ class HistoricalProjectionRepository(PersistenceRepository):
             return [dict(zip(keys, row)) for row in rows]
 
         return await self._async_in_transaction(read)
-
 
     async def async_entry_record(
         self, owner_profile_id: str, session_id: str, entry_id: str
@@ -181,7 +196,6 @@ class HistoricalProjectionRepository(PersistenceRepository):
             return dict(zip(keys, row)) if row else None
 
         return await self._async_in_transaction(read)
-
 
     async def async_current_playback_entry(
         self, owner: str, session_id: str, item_id: str
@@ -223,88 +237,173 @@ class HistoricalProjectionRepository(PersistenceRepository):
 
         return await self._async_in_transaction(read)
 
-
     async def async_append_entries(
         self, owner_profile_id: str, session_id: str, entries: list[dict]
     ) -> list[str]:
         """One existing transaction for accepted projections; terminal archives reject writes."""
 
-        def write(tx):
-            session = tx.fetchone(
-                "SELECT owner_profile_id,lifecycle_status,history_enabled,history_revision FROM djconnect_persistent_sessions WHERE session_id=?",
-                (session_id,),
-            )
-            if not session or session[0] != owner_profile_id:
-                raise PermissionError("session_unavailable")
-            if session[1] != "ACTIVE":
-                raise ValueError("session_context_changed")
-            if not session[2]:
-                return []
-            last = tx.fetchone(
-                "SELECT MAX(entry_order) FROM djconnect_session_entries WHERE session_id=?",
-                (session_id,),
-            )
-            order = int(last[0] or 0)
-            ids = []
-            added = 0
-            for item in entries:
-                existing = tx.fetchone(
-                    "SELECT entry_id FROM djconnect_session_entries WHERE session_id=? AND kind=? AND reference_id=?",
+        return await self._async_in_transaction(
+            lambda tx: self._append_entries_tx(tx, owner_profile_id, session_id, entries)
+        )
+
+    def _append_entries_tx(self, tx, owner_profile_id, session_id, entries):
+        session = tx.fetchone(
+            "SELECT owner_profile_id,lifecycle_status,history_enabled,history_revision FROM djconnect_persistent_sessions WHERE session_id=?",
+            (session_id,),
+        )
+        if not session or session[0] != owner_profile_id:
+            raise PermissionError("session_unavailable")
+        if session[1] != "ACTIVE":
+            raise ValueError("session_context_changed")
+        if not session[2]:
+            return []
+        last = tx.fetchone(
+            "SELECT MAX(entry_order) FROM djconnect_session_entries WHERE session_id=?",
+            (session_id,),
+        )
+        order = int(last[0] or 0)
+        ids = []
+        added = 0
+        for item in entries:
+            if item["kind"] == "playback_observed":
+                accepted = tx.fetchone(
+                    "SELECT entry_id FROM djconnect_session_acceptances WHERE session_id=? AND kind=? AND reference_id=?",
                     (session_id, item["kind"], item["reference_id"]),
                 )
-                if existing:
-                    ids.append(str(existing[0]))
+                if accepted:
+                    ids.append(str(accepted[0]))
                     continue
-                if item["kind"] == "playback_observed":
-                    previous = tx.fetchone(
-                        "SELECT entry_id,body FROM djconnect_session_entries WHERE session_id=? AND kind='playback_observed' ORDER BY entry_order DESC LIMIT 1",
-                        (session_id,),
-                    )
-                    if previous and json.loads(previous[1]).get("item_id") == item["body"].get(
-                        "item_id"
-                    ):
-                        ids.append(str(previous[0]))
-                        continue
-                order += 1
-                identifier = (
-                    "entry-"
-                    + uuid5(
-                        NAMESPACE_URL, session_id + ":" + item["kind"] + ":" + item["reference_id"]
-                    ).hex
+            existing = tx.fetchone(
+                "SELECT entry_id FROM djconnect_session_entries WHERE session_id=? AND kind=? AND reference_id=?",
+                (session_id, item["kind"], item["reference_id"]),
+            )
+            if existing:
+                ids.append(str(existing[0]))
+                continue
+            if item["kind"] == "playback_observed":
+                previous = tx.fetchone(
+                    "SELECT entry_id,body FROM djconnect_session_entries WHERE session_id=? AND kind='playback_observed' ORDER BY entry_order DESC LIMIT 1",
+                    (session_id,),
                 )
-                stamp = item.get("occurred_at") or datetime.now(UTC).isoformat()
-                expires = (datetime.fromisoformat(stamp) + timedelta(days=90)).isoformat()
-                tx.execute(
-                    "INSERT INTO djconnect_session_entries (entry_id,session_id,owner_profile_id,entry_order,kind,reference_id,body,occurred_at,retained_until,visibility) VALUES (?,?,?,?,?,?,?,?,?,'owner')",
-                    (
-                        identifier,
-                        session_id,
-                        owner_profile_id,
-                        order,
-                        item["kind"],
-                        item["reference_id"],
-                        json.dumps(item["body"], ensure_ascii=False, sort_keys=True),
-                        stamp,
-                        expires,
-                    ),
-                )
-                ids.append(identifier)
-                added += 1
-            if added:
-                tx.execute(
-                    "UPDATE djconnect_persistent_sessions SET history_revision=history_revision+? WHERE session_id=?",
-                    (added, session_id),
-                )
-            return ids
+                if previous and json.loads(previous[1]).get("item_id") == item["body"].get(
+                    "item_id"
+                ):
+                    ids.append(str(previous[0]))
+                    continue
+            order += 1
+            identifier = (
+                "entry-"
+                + uuid5(
+                    NAMESPACE_URL, session_id + ":" + item["kind"] + ":" + item["reference_id"]
+                ).hex
+            )
+            if item["kind"] == "playback_observed":
+                from .summary import record_event_tx
 
-        return await self._async_in_transaction(write)
+                result, _ = record_event_tx(
+                    tx, session_id, item["kind"], item["reference_id"], identifier
+                )
+                if result == "full":
+                    order -= 1
+                    continue
+            stamp = item.get("occurred_at") or datetime.now(UTC).isoformat()
+            expires = (datetime.fromisoformat(stamp) + timedelta(days=90)).isoformat()
+            tx.execute(
+                "INSERT INTO djconnect_session_entries (entry_id,session_id,owner_profile_id,entry_order,kind,reference_id,body,occurred_at,retained_until,visibility) VALUES (?,?,?,?,?,?,?,?,?,'owner')",
+                (
+                    identifier,
+                    session_id,
+                    owner_profile_id,
+                    order,
+                    item["kind"],
+                    item["reference_id"],
+                    json.dumps(item["body"], ensure_ascii=False, sort_keys=True),
+                    stamp,
+                    expires,
+                ),
+            )
+            ids.append(identifier)
+            added += 1
+        if added:
+            tx.execute(
+                "UPDATE djconnect_persistent_sessions SET history_revision=history_revision+? WHERE session_id=?",
+                (added, session_id),
+            )
+        return ids
+
+    async def async_accept_moment(
+        self, owner, session_id, moment_id, entry=None, *, authorize=None
+    ):
+        """Semantic commit independently qualified from optional archival text."""
+
+        def accept(tx):
+            row = tx.fetchone(
+                "SELECT owner_profile_id,lifecycle_status,history_enabled FROM djconnect_persistent_sessions WHERE session_id=?",
+                (session_id,),
+            )
+            if not row or row[0] != owner or row[1] != "ACTIVE":
+                raise PermissionError("session_context_changed")
+            if not row[2]:
+                # Private-history opt-out does not disable existing live Moments.
+                # Validate active ownership in this transaction without retaining
+                # derived totals, replay keys or body under a revoked grant.
+                return True
+            old = tx.fetchone(
+                "SELECT 1 FROM djconnect_session_acceptances WHERE session_id=? AND kind='dj_moment' AND reference_id=?",
+                (session_id, moment_id),
+            )
+            if old:
+                return False
+            ids = self._append_entries_tx(tx, owner, session_id, [entry]) if entry else []
+            from .summary import record_event_tx
+
+            record_event_tx(tx, session_id, "dj_moment", moment_id, ids[0] if ids else "")
+            if not ids:
+                tx.execute(
+                    "UPDATE djconnect_persistent_sessions SET history_revision=history_revision+1 WHERE session_id=?",
+                    (session_id,),
+                )
+            return True
+
+        return await self._async_in_transaction(accept, authorize=authorize)
+
+    async def async_accept_mood(self, owner, session_id, mood, *, authorize=None):
+        def accept(tx):
+            row = tx.fetchone(
+                "SELECT owner_profile_id,lifecycle_status FROM djconnect_persistent_sessions WHERE session_id=?",
+                (session_id,),
+            )
+            if not row or row[0] != owner or row[1] != "ACTIVE":
+                raise PermissionError("session_context_changed")
+            from .summary import mood_tx
+
+            mood_tx(tx, session_id, mood, datetime.now(UTC).isoformat())
+            tx.execute(
+                "UPDATE djconnect_persistent_sessions SET history_revision=history_revision+1 WHERE session_id=?",
+                (session_id,),
+            )
+
+        await self._async_in_transaction(accept, authorize=authorize)
+
     async def async_purge_profile_history(self, owner: str) -> None:
         """Erase the deleted owner's projections, never reassign them with devices."""
 
         def erase(tx):
+            tx.execute(
+                "DELETE FROM djconnect_session_summaries WHERE session_id IN (SELECT session_id FROM djconnect_persistent_sessions WHERE owner_profile_id=?)",
+                (owner,),
+            )
+            tx.execute(
+                "DELETE FROM djconnect_session_acceptances WHERE session_id IN (SELECT session_id FROM djconnect_persistent_sessions WHERE owner_profile_id=?)",
+                (owner,),
+            )
             tx.execute("DELETE FROM djconnect_session_entries WHERE owner_profile_id=?", (owner,))
-            tx.execute("DELETE FROM djconnect_historical_moments WHERE owner_profile_id=?", (owner,))
-            tx.execute("DELETE FROM djconnect_historical_sessions WHERE owner_profile_id=?", (owner,))
+            tx.execute(
+                "DELETE FROM djconnect_historical_moments WHERE owner_profile_id=?", (owner,)
+            )
+            tx.execute(
+                "DELETE FROM djconnect_historical_sessions WHERE owner_profile_id=?", (owner,)
+            )
             tx.execute(
                 "UPDATE djconnect_persistent_sessions SET history_enabled=0,history_revision=history_revision+1 WHERE owner_profile_id=? AND history_enabled=1",
                 (owner,),
@@ -333,6 +432,9 @@ class HistoricalProjectionRepository(PersistenceRepository):
                         (owner, identifier),
                     )
             for session_id in affected:
+                from .summary import withdraw_tx
+
+                withdraw_tx(tx, session_id)
                 tx.execute(
                     "UPDATE djconnect_persistent_sessions SET history_revision=history_revision+1 WHERE session_id=? AND owner_profile_id=?",
                     (session_id, owner),
@@ -346,6 +448,11 @@ class HistoricalProjectionRepository(PersistenceRepository):
         def erase(tx):
             after = ""
             affected = set()
+            rows = tx.fetchall("SELECT session_id,source_binding FROM djconnect_session_summaries")
+            for session_id, raw in rows:
+                if json.loads(raw).get("provider_entry_id") == provider_entry_id:
+                    affected.add(session_id)
+
             while True:
                 rows = tx.fetchall(
                     "SELECT entry_id,session_id,body FROM djconnect_session_entries WHERE kind='playback_observed' AND entry_id>? ORDER BY entry_id LIMIT 250",
@@ -367,6 +474,9 @@ class HistoricalProjectionRepository(PersistenceRepository):
                 if len(rows) < 250:
                     break
             for session_id in affected:
+                from .summary import withdraw_tx
+
+                withdraw_tx(tx, session_id)
                 tx.execute(
                     "UPDATE djconnect_persistent_sessions SET history_revision=history_revision+1 WHERE session_id=?",
                     (session_id,),
@@ -395,17 +505,37 @@ class HistoricalProjectionRepository(PersistenceRepository):
         self, *, cutoff: str, batch_size: int, entry_deadline: str | None = None
     ) -> tuple[int, int, int, int]:
         """Delete expired Moments before Sessions, plus expired orphan Moments."""
+
         def cleanup(tx: PersistenceTransaction) -> tuple[int, int, int, int]:
             # Entry deadlines are independent of the final Session header date.
             now = datetime.fromisoformat(entry_deadline) if entry_deadline else datetime.now(UTC)
-            expired = tx.fetchall("SELECT entry_id,owner_profile_id,session_id FROM djconnect_session_entries WHERE retained_until<=? ORDER BY retained_until,entry_id LIMIT ?", (now.isoformat(), batch_size))
+            expired = tx.fetchall(
+                "SELECT entry_id,owner_profile_id,session_id,kind FROM djconnect_session_entries WHERE retained_until<=? ORDER BY retained_until,entry_id LIMIT ?",
+                (now.isoformat(), batch_size),
+            )
             affected = set()
-            for identifier, owner, session_id in expired:
-                tx.execute("DELETE FROM djconnect_session_entries WHERE entry_id=? AND owner_profile_id=?", (identifier, owner))
-                tx.execute("DELETE FROM djconnect_historical_moments WHERE historical_moment_id=? AND owner_profile_id=?", (identifier, owner))
+            expired_sources = set()
+            for identifier, owner, session_id, kind in expired:
+                if kind == "playback_observed":
+                    expired_sources.add(session_id)
+                tx.execute(
+                    "DELETE FROM djconnect_session_entries WHERE entry_id=? AND owner_profile_id=?",
+                    (identifier, owner),
+                )
+                tx.execute(
+                    "DELETE FROM djconnect_historical_moments WHERE historical_moment_id=? AND owner_profile_id=?",
+                    (identifier, owner),
+                )
                 affected.add(session_id)
             for session_id in affected:
-                tx.execute("UPDATE djconnect_persistent_sessions SET history_revision=history_revision+1 WHERE session_id=?", (session_id,))
+                from .summary import withdraw_tx
+
+                if session_id in expired_sources:
+                    withdraw_tx(tx, session_id)
+                tx.execute(
+                    "UPDATE djconnect_persistent_sessions SET history_revision=history_revision+1 WHERE session_id=?",
+                    (session_id,),
+                )
             orphan_rows = tx.fetchall(
                 "SELECT historical_moment_id FROM djconnect_historical_moments "
                 "WHERE created_at < ? AND NOT EXISTS (SELECT 1 FROM djconnect_historical_sessions "
@@ -414,7 +544,10 @@ class HistoricalProjectionRepository(PersistenceRepository):
                 (cutoff, batch_size),
             )
             for row in orphan_rows:
-                tx.execute("DELETE FROM djconnect_historical_moments WHERE historical_moment_id=?", (row[0],))
+                tx.execute(
+                    "DELETE FROM djconnect_historical_moments WHERE historical_moment_id=?",
+                    (row[0],),
+                )
             session_rows = tx.fetchall(
                 "SELECT originating_session_id FROM djconnect_historical_sessions WHERE created_at < ? "
                 "ORDER BY created_at, historical_session_id LIMIT ?",
@@ -425,17 +558,36 @@ class HistoricalProjectionRepository(PersistenceRepository):
                 session_id = str(row[0])
                 moments = tx.fetchall(
                     "SELECT historical_moment_id FROM djconnect_historical_moments "
-                    "WHERE originating_session_id=?", (session_id,)
+                    "WHERE originating_session_id=?",
+                    (session_id,),
                 )
                 for moment in moments:
-                    tx.execute("DELETE FROM djconnect_historical_moments WHERE historical_moment_id=?", (moment[0],))
+                    tx.execute(
+                        "DELETE FROM djconnect_historical_moments WHERE historical_moment_id=?",
+                        (moment[0],),
+                    )
                 deleted_moments += len(moments)
-                tx.execute("DELETE FROM djconnect_historical_sessions WHERE originating_session_id=?", (session_id,))
-                tx.execute("DELETE FROM djconnect_session_entries WHERE session_id=?", (session_id,))
-                tx.execute("UPDATE djconnect_persistent_sessions SET history_enabled=0,history_revision=history_revision+1 WHERE session_id=?", (session_id,))
+                tx.execute(
+                    "DELETE FROM djconnect_historical_sessions WHERE originating_session_id=?",
+                    (session_id,),
+                )
+                tx.execute(
+                    "DELETE FROM djconnect_session_entries WHERE session_id=?", (session_id,)
+                )
+                tx.execute(
+                    "DELETE FROM djconnect_session_summaries WHERE session_id=?", (session_id,)
+                )
+                tx.execute(
+                    "DELETE FROM djconnect_session_acceptances WHERE session_id=?", (session_id,)
+                )
+                tx.execute(
+                    "UPDATE djconnect_persistent_sessions SET history_enabled=0,history_revision=history_revision+1 WHERE session_id=?",
+                    (session_id,),
+                )
             return len(session_rows), deleted_moments, len(orphan_rows), len(session_rows)
 
         return await self._async_in_transaction(cleanup)
+
     def _project_terminal_tx(
         self, tx: PersistenceTransaction, session: PersistentSession
     ) -> HistoricalSessionProjection | None:
@@ -509,7 +661,9 @@ class HistoricalProjectionRepository(PersistenceRepository):
             )
         return projection
 
-    async def async_project_session(self, session: PersistentSession) -> HistoricalSessionProjection:
+    async def async_project_session(
+        self, session: PersistentSession
+    ) -> HistoricalSessionProjection:
         return await self._async_in_transaction(lambda tx: self._project_terminal_tx(tx, session))
 
     async def async_project_moment(
@@ -527,6 +681,7 @@ class HistoricalProjectionRepository(PersistenceRepository):
     ) -> str:
         """Persist one already-canonical renderer-safe Moment projection once."""
         identifier = f"historical-moment-{uuid4().hex}"
+
         def write(tx: PersistenceTransaction) -> str:
             existing = tx.fetchone(
                 "SELECT historical_moment_id FROM djconnect_historical_moments "
@@ -540,8 +695,18 @@ class HistoricalProjectionRepository(PersistenceRepository):
                 "(historical_moment_id, originating_session_id, originating_moment_id, owner_profile_id, "
                 "moment_type, rendered_text, presentation_metadata, visibility, ordering, created_at, "
                 "projection_version) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)",
-                (identifier, session_id, moment_id, owner_profile_id, moment_type, rendered_text,
-                 presentation_metadata, visibility, ordering, created_at),
+                (
+                    identifier,
+                    session_id,
+                    moment_id,
+                    owner_profile_id,
+                    moment_type,
+                    rendered_text,
+                    presentation_metadata,
+                    visibility,
+                    ordering,
+                    created_at,
+                ),
             )
             return identifier
 
@@ -615,8 +780,7 @@ class HistoricalProjectionRepository(PersistenceRepository):
             lambda tx: tuple(
                 self._moment_from_row(row)
                 for row in tx.fetchall(
-                    self._MOMENT_SELECT
-                    + " WHERE originating_session_id=? "
+                    self._MOMENT_SELECT + " WHERE originating_session_id=? "
                     "ORDER BY ordering ASC, created_at ASC, historical_moment_id ASC",
                     (originating_session_id,),
                 )

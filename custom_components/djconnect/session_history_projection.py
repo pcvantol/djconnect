@@ -169,6 +169,14 @@ def public_session(session: dict) -> dict:
             "revision",
         )
     }
+    if "summary" in session:
+        import copy
+
+        summary = copy.deepcopy(session["summary"])
+        summary["session_revision"] = session["revision"]
+        for metric in ("tracks_observed", "moments_published", "mood"):
+            summary[metric]["revision"] = session["revision"]
+        result["summary"] = summary
     result["read_only"] = session["lifecycle_status"] in {"ENDED", "INTERRUPTED"}
     result["history_coverage"] = "saved_entries_only_no_retrospective_observations"
     return result

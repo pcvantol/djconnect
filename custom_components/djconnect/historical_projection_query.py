@@ -33,11 +33,13 @@ class HistoricalProjectionQueryService:
         history_manager=None,
         source_validator=None,
         grant_revision=None,
+        summary_validator=None,
     ) -> None:
         self._repository = repository
         self._conversation_history = history_manager
         self._source_validator = source_validator
         self._grant_revision = grant_revision
+        self._summary_validator = summary_validator
         from .session_history_projection import HistoryCursorCodec
 
         self._history_cursor = HistoryCursorCodec()
@@ -162,12 +164,27 @@ class HistoricalProjectionQueryService:
             + grant,
         }
 
+    async def _qualify_summary(self, owner, session, cache=None):
+        if self._summary_validator is None or not session.get("summary_binding"):
+            return session
+        import json
+
+        cache = {} if cache is None else cache
+        key = json.dumps(session["summary_binding"], sort_keys=True)
+        if key not in cache:
+            cache[key] = await self._summary_validator(owner, session["summary_binding"])
+        if not cache[key]:
+            for name in ("tracks_observed", "moments_published"):
+                session["summary"][name].update(value=None, coverage="withdrawn")
+        return session
+
     async def _session(self, owner: str, session_id: str) -> dict:
         from .session_history_projection import session_retained
 
         session = await self._repository.async_session_record(session_id)
         if not session or session["owner_profile_id"] != owner or not session_retained(session):
             raise HistoricalProjectionAccessDenied("session_unavailable")
+        await self._qualify_summary(owner, session)
         return await self._revision_session(owner, session)
 
     async def async_session_page(
@@ -182,7 +199,9 @@ class HistoricalProjectionQueryService:
 
         checked_limit(limit)
         revision = await self._repository.async_owner_revision(owner, include_active=include_active)
+        grant = await self._grant_revision(owner) if self._grant_revision else ""
         scope = {
+            "grant_revision": grant,
             "profile_id": owner,
             "mode": "sessions",
             "revision": revision,
@@ -197,9 +216,11 @@ class HistoricalProjectionQueryService:
         )
         page = []
         last = None
+        summary_cache = {}
         for row in rows[:250]:
             last = [row["created_at"], row["session_id"]]
             if session_retained(row):
+                await self._qualify_summary(owner, row, summary_cache)
                 page.append(public_session(row))
             if len(page) >= limit:
                 break
@@ -207,6 +228,7 @@ class HistoricalProjectionQueryService:
         if (
             await self._repository.async_owner_revision(owner, include_active=include_active)
             != revision
+            or (await self._grant_revision(owner) if self._grant_revision else "") != grant
         ):
             raise HistoryQueryError("invalid_history_cursor")
         return {

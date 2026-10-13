@@ -1,6 +1,9 @@
 # Session history summary v1
 
-Status: documentary design; product implementation **Planned**.
+Status: selected Core implementation **In progress**; native Apple adoption **Planned**.
+Implementation: `DJC-CORE-SESSION-HISTORY-SUMMARY-V1-20261013`, existing
+`HISTORY::CORE::SUMMARY` → `HISTORY::APPLE::SUMMARY`.
+[Connected acceptance refinement](SESSION_HISTORY_SUMMARY_ACCEPTANCE_V1.md).
 Assignment: `DJC-SESSION-ENTRY-LIFECYCLE-HISTORY-DESIGN-V1-20261012`.
 [Full A/B decision](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6131072407)
 and [combined pickup](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6131363097).
@@ -11,24 +14,27 @@ Baseline: Core `e8bb982f148ac7a22b6991ee6f54d10188849ee0`.
 [Persistent Session Storage](../../PERSISTENT_SESSION_ARCHITECTURE.md) and
 [Session conversation/history](SESSION_CONVERSATION_HISTORY_CONTRACT.md) already
 own authorized list/detail/timeline/search/open and restart interruption.
-`session_history_projection.public_session` currently projects identity,
-lifecycle timestamps/revision and read-only/coverage information. It does **not**
-provide complete track totals, published-Moment totals or time-weighted Mood.
+`session_history_projection.public_session` now adds the optional private summary
+to identity, lifecycle timestamps/revision and read-only/coverage information.
+The implementation records newly accepted entries and semantic publications,
+and confirmed symbolic Mood intervals; legacy sessions remain unknown.
 Apple source `11ecab47bff28eaf6d7231f63477d893c0e91cb7` has Session history models;
 that is not proof of this summary contract or native adoption.
 
 Add an optional, versioned Core list/header projection, not a second archive or
 client summary algorithm. Reuse the existing history routes and storage owner;
-no new route, storage migration or data collector is implemented here. Read/list
+no new route or general event bus. Version6 adds compact tables through the
+existing Session Storage migration chain, with no legacy backfill. Read/list
 must not fetch N timelines, provider data, expired content or DNA/model output.
 See [entry/lifecycle](SESSION_ENTRY_LIFECYCLE_EXPERIENCE_V1.md) and
 [native privacy boundaries](APPLE_SESSION_NATIVE_SURFACES_V1.md).
 
 ## Proposed wire contract
 
-These exact field names and enum values are the design candidate, **not an
-advertised runtime capability**. Capability/version negotiation is a separate
-producer implementation gate. Old clients ignore optional `summary`; new
+The connected producer advertises `session_history_summary: true` and
+`contract_versions.session_history_summary: 1`. The optional summary version is
+`djconnect-session-history-summary/1`. Source protected delivery and native
+consumer acceptance remain separate gates. Old clients ignore optional `summary`; new
 clients accept its absence without inventing zeroes or backfilling old stores.
 
 ```json
@@ -100,32 +106,27 @@ coverage stays partial/unknown; never derive totals from history pagination.
 
 ## Moment count and semantic publication boundary
 
-The current Flow is live Runtime state. Existing historical persistence saves
-only a rights-qualified subset (including eligible CC0/session-direction
-contributions); Spotify or missing-basis Moments may have no durable record.
-The persistent architecture describes semantic decision → durable commit →
-live publication as a **future target**, not a delivered transaction covering
-all Moments. Full `moments_published` therefore remains unknown today.
+The pre-slice baseline had only live Flow and a rights-qualified archive subset;
+full publication counts were therefore unknown. The connected implementation
+now provides the missing compact semantic acceptance transaction for the existing
+Manager publication entrances (opening/direction, coordinator, fallback track,
+qualified fact, shared-producer relation and immediate/pending narrative paths).
+This local implementation is not yet protected-delivered or independently fully
+qualified; no producer release or native acceptance is implied.
 
-The proposed implementation must establish an accepted **semantic publication
-commit** for one non-Silence immutable proactive DJMoment, with its permitted
-compact aggregate in existing Session Storage. This is a missing producer
-contract and transaction qualification, not a counter on today's archived
-subset or a new full-content archive. Qualify publication acceptance, rights
-and canonical Session/Moment identity with Runtime/Flow ownership before
-advertising complete totals. The metric update shares that idempotent future
-commit. A proposal, provider response, failed acceptance/persistence, reactive
-Ask DJ user/assistant turn, historical system entry or pending task cannot
-increment. A presentation variant, language render, Broadcast fan-out, resend,
-snapshot, reconnect and renderer receipt cannot increment again.
+One non-Silence immutable proactive DJMoment has a canonical Session/Moment key
+and aggregate in existing Session Storage, independent of a permitted optional
+body in the same transaction. Proposals, failed acceptance/generation, reactive
+Ask DJ turns, system entries, Silence, presentation variants, language renders,
+Broadcast fan-out/replays, snapshots, reconnect and renderer receipts do not
+increment. The actual Flow remains ephemeral; the compact commit is not a new
+full-content archive or permission to retain source-restricted text/artwork.
 
-For the qualified future durable-acceptance path: persistence failure creates
-neither accepted count nor committed publication fact; if its semantic commit
-succeeds but Broadcast later fails, retain the accepted semantic count and
-qualify delivery separately. Replay cannot increment it. This rule does not
-assert that all current Moment publications use that path. An implementation
-must prove actual integration and failure ordering before using this label.
-Neither total asserts a human read, native render or hardware receipt.
+Persistence failure creates neither an accepted count nor a committed fact;
+a semantic commit followed by Broadcast failure retains the accepted count.
+Transport delivery and human reading are separate qualifications. Runtime and
+SQLite fault/retry tests plus actual HA end/reopen transport exercise that
+ordering. Retention and source/privacy qualification still control visibility.
 
 Retained readable text may be only a rights-qualified subset. Compact totals
 can survive text expiry only with an independently permitted aggregation basis;
@@ -211,3 +212,80 @@ completion is inferred from these designs.
 
 [Source PR #1160](https://github.com/pcvantol/djconnect/pull/1160) protected merged as `fdc79c9d7174b9d67dcf743400fbb76a0c163387`.
 [Exact source/artifact qualification](../verification/SESSION_ENTRY_LIFECYCLE_HISTORY_DESIGN_V1_SOURCE_READBACK.md) records documentary checks and independent review; all proposed product implementation remains **Planned**. Separate Finalization reconciliation is still gated.
+
+## Connected implementation qualification (in progress)
+
+The aggregation boundary is a short existing SQLite transaction. It accepts
+canonical playback entry + key/count together, or a semantic non-Silence Moment
+key/count with an independently permitted optional body. Confirmed Mood is
+persisted before live mutation. Runtime working Planner/Knowledge/Moment state
+and presence debit are adopted after acceptance; subscriber failures cannot
+undo the semantic commit. Explicit history opt-out validates live ownership but
+retains no summary, key or body; opt-out does not disable existing live Moments.
+
+Dedup keys are bounded at8192 per Session and256 characters per reference; no
+accepted key is evicted to admit another publication. Capacity suppresses new
+Moment acceptance and marks omitted observation capture partial once. Four
+integer duration counters and one current interval bound Mood storage. Closed
+retention/Profile purge erase summaries and keys; source withdrawal removes
+derived counts conservatively while retaining keys until late replay is inert.
+
+A fixed bulk summary query augments the existing list read; the measured100-
+Session/20-row list uses four SELECTs and zero timeline SELECTs. A real SQLite
+8192-key boundary benchmark uses572330 identity bytes in a1622016-byte database
+with100 Sessions; this storage benchmark is distinct from elapsed Runtime proof.
+
+Ordinary paired isolated HA proof gives two observed entries, two semantic
+Moments (opening Session + qualified Spotify Album), one permitted readable
+body, and time-weighted energy after end and storage reopening. Fixtures:
+[producer examples](../../examples/client_contracts/session_history_summary_v1/README.md).
+Only external provider responses are fixtures; the acceptance/storage/query
+chain is real. The local matrix,27 owningtests,1788 regressions (7 existing skips), security
+and134 DAG checks pass. Exact independent candidate reviews and protected
+source/Finalization delivery remain required before a delivered Core claim. No native/installed/hardware PASS.
+
+## Direct list consumption and value/coverage matrix
+
+A provisional read can advance `as_of` and its open Mood duration with an
+unchanged revision. Consumers render that coherent response, without dropping
+a newer as-of solely because its revision repeats.
+
+List metric/header revisions are integers; detail metric/header revisions are
+the existing opaque strings. Consumers compare exact equality with their own
+containing header, never parse an integer from an opaque token, order tokens
+lexicographically or merge revisions across routes. Every metric uses the same
+header snapshot as_of. A cursor conflict uses existing409 semantics and a fresh
+page; it is not a reason to keep old totals under a new header revision.
+
+| Value / coverage | Interpretation / safe presentation |
+| --- | --- |
+| 0 / complete | Known zero accepted entries or contributions |
+| positive / complete | Known accepted total within explicitly stated Stage1 scope |
+| nonnegative / partial | Registered subset; label incomplete, never an exact full total |
+| null / unknown | Unknown, not zero and not a pending count reconstructed by client |
+| null / withdrawn | No longer available under current source/privacy rights |
+| Mood / complete | Confirmed elapsed majority or mixed; no listening claim |
+| null Mood / unknown | No qualified complete positive elapsed interval |
+
+Suggested five-language accessibility vocabulary for consumer adoption (not a
+new native implementation):
+
+| Meaning | en | nl | de | fr | es |
+| --- | --- | --- | --- | --- | --- |
+| unknown | Unknown | Onbekend | Unbekannt | Inconnu | Desconocido |
+| partial | Partially registered | Gedeeltelijk geregistreerd | Teilweise erfasst | Enregistré en partie | Registrado parcialmente |
+| withdrawn | No longer available | Niet meer beschikbaar | Nicht mehr verfügbar | Indisponible | Ya no disponible |
+| provisional | Provisional | Voorlopig | Vorläufig | Provisoire | Provisional |
+| final | Final | Definitief | Abschließend | Définitif | Definitivo |
+
+[Machine-readable local qualification](../../examples/client_contracts/session_history_summary_v1/qualification.json)
+and [source-file integrity](../../examples/client_contracts/session_history_summary_v1/source-integrity.json)
+freeze the measured software boundary; neither is a published integration-artifact
+receipt or native acceptance. The source SHA is bound in the owning register
+after the local commit, so the manifest does not contain a circular self-digest.
+
+[Actual owner state fixtures](../../examples/client_contracts/session_history_summary_v1/summary-states.json)
+show known0 before externally gated provider generation, partial8191 observations
+plus one Moment at the real8192-key bound, source-withdrawn null values and
+legacy final unknown. Only provider responses and explicit legacy Store data
+are fixtures; registration, transactions, query and owner authorization are real.

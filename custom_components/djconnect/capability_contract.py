@@ -16,6 +16,7 @@ def _platform_capabilities() -> dict[str, bool]:
         "active_session_mood": True,
         "active_session_presence": True,
         "session_forecast": True,
+        "session_history_summary": True,
     }
 
 
@@ -29,4 +30,5 @@ def _contract_versions() -> dict[str, int]:
         "active_session_mood": 1,
         "active_session_presence": 1,
         "session_forecast": 1,
+        "session_history_summary": 1,
     }

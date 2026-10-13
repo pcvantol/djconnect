@@ -3598,7 +3598,10 @@ class DJSessionBroadcastEngine:
                 else:
                     pending_events.append(scoped_event)
                 continue
-            callback(scoped_event)
+            try:
+                callback(scoped_event)
+            except Exception as exc:  # noqa: BLE001
+                _LOGGER.debug("DJConnect subscriber delivery failed: %s", exc.__class__.__name__)
 
     def _append_replay_entry(
         self, event_type: BroadcastEventType, payload: dict[str, Any], recovery_cursor: str
@@ -3968,6 +3971,7 @@ class DJSessionRuntime:
     published_album_context: PublishedAlbumContext = field(default_factory=PublishedAlbumContext)
     presence_ledger: PresenceLedger = field(default_factory=PresenceLedger)
     persona_revision: int = 0
+    prepared_presentations: dict[str, Any] = field(default_factory=dict, repr=False, compare=False)
 
     def as_dict(self) -> dict[str, Any]:
         """Return the public, transport-neutral runtime representation."""
@@ -4026,6 +4030,27 @@ class DJSessionRuntime:
                 and self.presence_ledger.admits(self.broadcast.state.selected_presence,
                                                self.broadcast.state.playback.item_id))
 
+    def compose_moment(self, moment: DJMoment):
+        """Prepare deterministic presentation before a durable semantic acceptance."""
+        direction = self.session_direction.direction.value
+        proposed = dict(moment.generation_metadata).get("direction")
+        if moment.moment_type is DJMomentType.SESSION and proposed in {item.value for item in SessionDirectionType}:
+            direction = proposed
+        return self.presentation_composer.compose_with_diagnostics(
+            moment=moment,
+            context=PresentationContext(
+                session_mood=self.selected_mood,
+                dj_persona=self.dj_persona.value,
+                session_direction=direction,
+                session_energy=moment.presentation_intent.energy_level,
+                presentation_style=moment.presentation_intent.delivery_style,
+                constraints=(
+                    ("maximum_duration_seconds", str(moment.presentation_intent.maximum_duration_seconds)),
+                    ("visibility", moment.presentation_intent.visibility.value),
+                ),
+            ),
+        )
+
     def publish_moment(
         self, moment: DJMoment, placement: SessionFlowPosition = SessionFlowPosition.NEXT,
         *, commit_expression: bool = True,
@@ -4038,26 +4063,18 @@ class DJSessionRuntime:
             return
         if moment.moment_type is not DJMomentType.SILENCE and not self.allows_proactive():
             return
-        composition = self.presentation_composer.compose_with_diagnostics(
-            moment=moment,
-            context=PresentationContext(
-                session_mood=self.selected_mood,
-                dj_persona=self.dj_persona.value,
-                session_direction=self.session_direction.direction.value,
-                session_energy=moment.presentation_intent.energy_level,
-                presentation_style=moment.presentation_intent.delivery_style,
-                constraints=(
-                    ("maximum_duration_seconds", str(moment.presentation_intent.maximum_duration_seconds)),
-                    ("visibility", moment.presentation_intent.visibility.value),
-                ),
-            ),
-        )
+        composition = self.prepared_presentations.pop(moment.moment_id, None)
+        accepted_semantic_commit = composition is not None
+        if composition is None:
+            composition = self.compose_moment(moment)
+        if accepted_semantic_commit and moment.moment_type is not DJMomentType.SILENCE:
+            self.presence_ledger.commit(self.broadcast.state.playback.item_id, moment.presentation_intent.maximum_duration_seconds)
         self.presentation_diagnostics.record(composition.outcomes)
         self.broadcast.prepare_moment_delivery(moment)
         self.broadcast.publish_session_flow(self.planner.append_moment(moment, placement))
         self.broadcast.publish_moment(moment)
         self.broadcast.publish_presentation(composition.presentation.to_projection())
-        if moment.moment_type is not DJMomentType.SILENCE:
+        if not accepted_semantic_commit and moment.moment_type is not DJMomentType.SILENCE:
             self.presence_ledger.commit(self.broadcast.state.playback.item_id, moment.presentation_intent.maximum_duration_seconds)
         if commit_expression:
             self.moment_engine.commit_expression(moment, self.planner.output.session_flow)
@@ -4116,6 +4133,7 @@ class SessionRuntimeManager:
                     initial_mood=initial_session_mood,
                     initial_direction=session_direction.direction.value,
                     history_enabled=history_enabled,
+                    history_source_context=history_source_context,
                 )
             planner = _create_session_planner(
                 session_id=session_id,
@@ -4214,6 +4232,18 @@ class SessionRuntimeManager:
             active = self._active_by_profile.get(owner_profile_id)
             if active is None or active.session_id != session_id:
                 return False
+            old_playback = active.broadcast.state.playback
+            if (self._historical_projections is not None and projection.state == "playing"
+                and projection.item_id and projection.item_id != old_playback.item_id):
+                from .session_history_projection import new_observation_reference
+                await self._historical_projections.async_append_entries(owner_profile_id,session_id,[{
+                    "kind":"playback_observed", "reference_id":new_observation_reference(),
+                    "body":{"item_id":projection.item_id,"title":projection.title,"artist":projection.artist,
+                            "album":projection.album,"source_url":projection.source_url,
+                            "source_context":self._history_source_contexts.get(session_id, {}),
+                            "provider":"Spotify" if projection.source_url.startswith("https://open.spotify.com/") else "Music Assistant" if active.music_backend == "music_assistant" else "DJConnect",
+                            "coverage":"observed_playing_not_full_listen"},
+                }])
             now = self._monotonic_source()
             if projection.item_id and media_identity:
                 active.published_recording_context.observe(media_identity, time.monotonic())
@@ -4259,17 +4289,6 @@ class SessionRuntimeManager:
                 projection = RendererSafePlaybackProjection(**{**projection.__dict__, "up_next": old_playback.up_next})
             if opportunity is not None and opportunity.blocked:
                 active.broadcast.invalidate_current_delivery()
-            if (self._historical_projections is not None and projection.state == "playing"
-                and projection.item_id and projection.item_id != old_playback.item_id):
-                from .session_history_projection import new_observation_reference
-                await self._historical_projections.async_append_entries(owner_profile_id,session_id,[{
-                    "kind":"playback_observed", "reference_id":new_observation_reference(),
-                    "body":{"item_id":projection.item_id,"title":projection.title,"artist":projection.artist,
-                            "album":projection.album,"source_url":projection.source_url,
-                            "source_context":self._history_source_contexts.get(session_id, {}),
-                            "provider":"Spotify" if projection.source_url.startswith("https://open.spotify.com/") else "Music Assistant" if active.music_backend == "music_assistant" else "DJConnect",
-                            "coverage":"observed_playing_not_full_listen"},
-                }])
             if forecast_authority is not None:
                 active.broadcast.forecast.authority = forecast_authority
             changed = active.broadcast.update_playback(projection)
@@ -4380,7 +4399,7 @@ class SessionRuntimeManager:
                 opportunity.pending_transition = None
             if not active.allows_proactive():
                 return None
-            transition = self._publish_pending_transition(owner_profile_id, active, opportunity)
+            transition = await self._publish_pending_transition(owner_profile_id, active, opportunity)
             if transition is not None:
                 return transition
             playback = active.broadcast.state.playback
@@ -4492,7 +4511,8 @@ class SessionRuntimeManager:
                 return None
             # Persistence may yield or be cancelled. Keep unpublished working
             # engines and the current opportunity unspent until it succeeds.
-            await self._async_persist_moment(active, moment)
+            if not await self._async_persist_moment(active, moment):
+                return None
             active.knowledge_engine.__dict__.update(working_knowledge.__dict__)
             active.moment_engine.__dict__.update(working_moments.__dict__)
             active.publish_moment(moment)
@@ -4559,9 +4579,16 @@ class SessionRuntimeManager:
                 or self._monotonic_source() - opportunity.last_observed_monotonic > 30
                 or playback.duration_ms - opportunity.last_observed_position_ms < (moment.presentation_intent.maximum_duration_seconds + 5) * 1000):
             return None
-        await self._async_persist_moment(active, moment)
-        # Preserve the existing candidate transaction: a failed publication
-        # must not consume the working engine's fact/deduplication keys.
+        if not await self._async_persist_moment(active, moment):
+            return None
+        # A durable semantic commit consumes this opportunity once, even if
+        # transport subsequently fails. Continuity seeds still require actual Flow.
+        if self._historical_projections is not None:
+            active.moment_engine.__dict__.update(working_moments.__dict__)
+            opportunity.used_fact_keys.add(fact.key)
+            opportunity.fact_count += 1
+            opportunity.last_fact_position_ms = opportunity.last_observed_position_ms
+            opportunity.last_fact_read_seconds = moment.presentation_intent.maximum_duration_seconds
         active.publish_moment(moment, commit_expression=False)
         if not any(published.moment_id == moment.moment_id for published in active.broadcast.state.dj_moments):
             return None
@@ -4569,12 +4596,13 @@ class SessionRuntimeManager:
         if (active.session_start_strategy is SessionStartStrategy.DISCOVER
                 and active.session_direction.direction is SessionDirectionType.EXPLORING):
             active.published_album_context.commit(fact, time.monotonic())
-        active.moment_engine.__dict__.update(working_moments.__dict__)
+        if self._historical_projections is None:
+            active.moment_engine.__dict__.update(working_moments.__dict__)
+            opportunity.used_fact_keys.add(fact.key)
+            opportunity.fact_count += 1
+            opportunity.last_fact_position_ms = opportunity.last_observed_position_ms
+            opportunity.last_fact_read_seconds = moment.presentation_intent.maximum_duration_seconds
         active.moment_engine.commit_expression(moment, active.planner.output.session_flow)
-        opportunity.used_fact_keys.add(fact.key)
-        opportunity.fact_count += 1
-        opportunity.last_fact_position_ms = opportunity.last_observed_position_ms
-        opportunity.last_fact_read_seconds = moment.presentation_intent.maximum_duration_seconds
         self._record_performance_memory(owner_profile_id, active)
         return moment
 
@@ -4822,6 +4850,8 @@ class SessionRuntimeManager:
                 self._restore_track_started_media_locked(
                     owner_profile_id, session_id, media_identity, previous_media_identity)
                 return None
+            if coordinated is not None and not await self._async_persist_moment(active, coordinated):
+                return None
             retained_horizon = active.planner.horizon
             active.planner.__dict__.clear()
             active.planner.__dict__.update(working_planner.__dict__)
@@ -4852,7 +4882,6 @@ class SessionRuntimeManager:
                     active.broadcast.update_session_direction(updated_direction)
                     active.broadcast.update_forecast(active)
                     active.planner.last_decision = planning_input.planner_decision
-                await self._async_persist_moment(active, coordinated)
                 active.publish_moment(coordinated)
                 active.planning_coordinator.confirm_published(active.planner)
                 self._note_initial_track_moment(
@@ -4864,7 +4893,7 @@ class SessionRuntimeManager:
                     active.planner.record_spoken_moment()
                 if coordinated.moment_type is not DJMomentType.SILENCE and not is_session_update:
                     active = self._record_performance_memory(owner_profile_id, active)
-                    active = self._publish_discover_transition(
+                    active = await self._publish_discover_transition(
                         owner_profile_id, active, coordinated, raw_insight, media_identity
                     )
                     transition_decision = active.planner.evaluate_transition_after_moment(
@@ -4873,10 +4902,10 @@ class SessionRuntimeManager:
                         performance_memory=active.performance_memory,
                     )
                     if transition_decision.decision_type is PlannerDecisionType.CREATE_TRANSITION:
-                        self._submit_transition_approval(owner_profile_id, active, transition_decision)
+                        await self._submit_transition_approval(owner_profile_id, active, transition_decision)
                 else:
                     active = self._record_performance_memory(owner_profile_id, active)
-                    self._publish_discover_transition(
+                    await self._publish_discover_transition(
                         owner_profile_id, active, coordinated, raw_insight, media_identity
                     )
                 _LOGGER.debug(
@@ -4935,10 +4964,11 @@ class SessionRuntimeManager:
                     locale=active.locale,
                     reason=decision.reason,
                 )
-                await self._async_persist_moment(active, moment)
+                if not await self._async_persist_moment(active, moment):
+                    return None
                 active.publish_moment(moment)
                 active = self._record_performance_memory(owner_profile_id, active)
-                self._publish_discover_transition(
+                await self._publish_discover_transition(
                     owner_profile_id, active, moment, raw_insight, media_identity
                 )
                 return moment
@@ -4990,9 +5020,8 @@ class SessionRuntimeManager:
                 self._restore_track_started_media_locked(
                     owner_profile_id, session_id, media_identity, previous_media_identity)
                 return None
-            self._commit_planner_candidate(active, working_planner)
-            active.knowledge_engine.__dict__.update(working_knowledge_engine.__dict__)
-            moment = active.moment_engine.create_track_context(
+            working_moments = copy.deepcopy(active.moment_engine)
+            moment = working_moments.create_track_context(
                 session_id=active.session_id,
                 knowledge_intent=intent,
                 selected_mood=active.selected_mood,
@@ -5000,9 +5029,13 @@ class SessionRuntimeManager:
                 locale=active.locale,
                 insight=knowledge.as_insight(),
             )
+            if not await self._async_persist_moment(active, moment):
+                return None
+            self._commit_planner_candidate(active, working_planner)
+            active.knowledge_engine.__dict__.update(working_knowledge_engine.__dict__)
+            active.moment_engine.__dict__.update(working_moments.__dict__)
             if moment.moment_type is not DJMomentType.SILENCE:
                 active.planner.record_spoken_moment()
-            await self._async_persist_moment(active, moment)
             active.publish_moment(moment)
             self._note_initial_track_moment(
                 owner_profile_id=owner_profile_id, active=active,
@@ -5010,7 +5043,7 @@ class SessionRuntimeManager:
                 moment=moment,
             )
             active = self._record_performance_memory(owner_profile_id, active)
-            active = self._publish_discover_transition(
+            active = await self._publish_discover_transition(
                 owner_profile_id, active, moment, raw_insight, media_identity
             )
             transition_decision = active.planner.evaluate_transition_after_moment(
@@ -5019,7 +5052,7 @@ class SessionRuntimeManager:
                 performance_memory=active.performance_memory,
             )
             if transition_decision.decision_type is PlannerDecisionType.CREATE_TRANSITION:
-                self._submit_transition_approval(owner_profile_id, active, transition_decision)
+                await self._submit_transition_approval(owner_profile_id, active, transition_decision)
             self._record_performance_memory(owner_profile_id, active)
             return moment
 
@@ -5070,7 +5103,7 @@ class SessionRuntimeManager:
             and active.broadcast.state.playback.state == "playing"
         )
 
-    def _publish_discover_transition(
+    async def _publish_discover_transition(
         self,
         owner_profile_id: str,
         active: DJSessionRuntime,
@@ -5098,10 +5131,10 @@ class SessionRuntimeManager:
         )
         if decision is None:
             return active
-        self._submit_transition_approval(owner_profile_id, active, decision)
+        await self._submit_transition_approval(owner_profile_id, active, decision)
         return self._active_by_profile.get(owner_profile_id, active)
 
-    def _submit_transition_approval(self, owner_profile_id: str, active: DJSessionRuntime,
+    async def _submit_transition_approval(self, owner_profile_id: str, active: DJSessionRuntime,
                                     decision: PlannerDecision) -> DJMoment | None:
         """Keep at most one current approval; never queue an already created Moment."""
         opportunity = self._intra_track_opportunities.get(owner_profile_id)
@@ -5112,9 +5145,9 @@ class SessionRuntimeManager:
         opportunity.pending_transition = (decision, active.presence_revision, active.mood_revision,
             active.dj_persona, active.session_direction, active.planner.output.session_flow.flow_revision,
             self._monotonic_source() + 90)
-        return self._publish_pending_transition(owner_profile_id, active, opportunity)
+        return await self._publish_pending_transition(owner_profile_id, active, opportunity)
 
-    def _publish_pending_transition(self, owner_profile_id: str, active: DJSessionRuntime,
+    async def _publish_pending_transition(self, owner_profile_id: str, active: DJSessionRuntime,
                                     opportunity: IntraTrackOpportunity) -> DJMoment | None:
         pending = opportunity.pending_transition
         if pending is None:
@@ -5139,11 +5172,13 @@ class SessionRuntimeManager:
         working_engine = copy.deepcopy(active.moment_engine)
         transition = working_engine.create_transition(session_id=active.session_id, approval=decision,
             selected_mood=active.selected_mood, persona=active.dj_persona, locale=active.locale)
-        opportunity.pending_transition = None
         if (transition.moment_type is not DJMomentType.TRANSITION
                 or playback.duration_ms - opportunity.last_observed_position_ms <
                     (transition.presentation_intent.maximum_duration_seconds + 5) * 1000):
             return None
+        if not await self._async_persist_moment(active, transition):
+            return None
+        opportunity.pending_transition = None
         active.publish_moment(transition)
         active.moment_engine.__dict__.update(working_engine.__dict__)
         self._record_performance_memory(owner_profile_id, active)
@@ -5153,70 +5188,47 @@ class SessionRuntimeManager:
         self, owner_profile_id: str, active: DJSessionRuntime,
         *, planner: DJSessionPlanner | None = None,
     ) -> tuple[DJSessionRuntime, DJMoment | None]:
-        """Run the established first Track Started decision only for bounded fallback."""
-        planner = planner or active.planner
+        planner = planner or copy.deepcopy(active.planner)
         decision = planner.evaluate_track_started(
             session_start_strategy=active.session_start_strategy,
-            session_direction=active.session_direction,
-            selected_mood=active.selected_mood,
-            persona=active.dj_persona,
-            performance_memory=active.performance_memory,
+            session_direction=active.session_direction, selected_mood=active.selected_mood,
+            persona=active.dj_persona, knowledge_hints=(), performance_memory=active.performance_memory,
             discover_context=active.discover_context,
         )
-        if decision.decision_type in {PlannerDecisionType.CREATE_SESSION_UPDATE, PlannerDecisionType.SILENCE}:
-            self._commit_planner_candidate(active, planner)
+        direction = active.session_direction
         if decision.proposed_session_direction is not None:
-            updated_direction = SessionDirection(
-                direction=decision.proposed_session_direction,
-                initialized_at=active.session_direction.initialized_at,
-                updated_at=_timestamp(),
-                start_strategy=active.session_direction.start_strategy,
-            )
-            if updated_direction.direction is not SessionDirectionType.EXPLORING:
-                active.published_album_context.close_lines()
-            if (active.planner.discover_narrative_line is not None
-                    and updated_direction.direction is not active.session_direction.direction):
-                active.planner.clear_discover_narrative()
-            active = DJSessionRuntime(
-                **{**active.__dict__, "session_direction": updated_direction}
-            )
-            self._active_by_profile[owner_profile_id] = active
-            active.broadcast.update_session_direction(updated_direction)
-            active.broadcast.update_forecast(active)
+            direction = SessionDirection(direction=decision.proposed_session_direction,
+                initialized_at=direction.initialized_at, updated_at=_timestamp(),
+                start_strategy=direction.start_strategy)
+        engine = copy.deepcopy(active.moment_engine)
         if decision.decision_type is PlannerDecisionType.CREATE_SESSION_UPDATE:
             knowledge = active.knowledge_engine.assemble_session_direction_context(
-                active.session_direction,
-                active.session_start_strategy,
-                active.selected_mood,
-                active.performance_memory,
-            )
-            moment = active.moment_engine.create_session_update(
-                session_id=active.session_id,
-                selected_mood=active.selected_mood,
-                persona=active.dj_persona,
-                locale=active.locale,
-                session_direction=active.session_direction,
-                knowledge_context=knowledge,
-            )
-            if moment.moment_type is not DJMomentType.SILENCE:
-                active.planner.record_spoken_moment()
-                await self._async_persist_moment(active, moment)
-                active.publish_moment(moment)
-            self._record_performance_memory(owner_profile_id, active)
-            return active, moment
-        if decision.decision_type is PlannerDecisionType.SILENCE:
-            moment = active.moment_engine.create_silence(
-                session_id=active.session_id,
-                selected_mood=active.selected_mood,
-                persona=active.dj_persona,
-                locale=active.locale,
-                reason=decision.reason,
-            )
-            await self._async_persist_moment(active, moment)
-            active.publish_moment(moment)
-            self._record_performance_memory(owner_profile_id, active)
-            return active, moment
-        return active, None
+                direction, active.session_start_strategy, active.selected_mood, active.performance_memory)
+            moment = engine.create_session_update(session_id=active.session_id,
+                selected_mood=active.selected_mood, persona=active.dj_persona, locale=active.locale,
+                session_direction=direction, knowledge_context=knowledge)
+        elif decision.decision_type is PlannerDecisionType.SILENCE:
+            moment = engine.create_silence(session_id=active.session_id, selected_mood=active.selected_mood,
+                persona=active.dj_persona, locale=active.locale, reason=decision.reason)
+        else:
+            return active, None
+        if not await self._async_persist_moment(active, moment):
+            return active, None
+        self._commit_planner_candidate(active, planner)
+        active.moment_engine.__dict__.update(engine.__dict__)
+        if direction != active.session_direction:
+            if direction.direction is not SessionDirectionType.EXPLORING:
+                active.published_album_context.close_lines()
+            active.planner.clear_discover_narrative()
+            active = DJSessionRuntime(**{**active.__dict__, "session_direction":direction})
+            self._active_by_profile[owner_profile_id] = active
+            active.broadcast.update_session_direction(direction)
+            active.broadcast.update_forecast(active)
+        if moment.moment_type is not DJMomentType.SILENCE:
+            active.planner.record_spoken_moment()
+        active.publish_moment(moment)
+        self._record_performance_memory(owner_profile_id, active)
+        return active, moment
 
     @staticmethod
     def _commit_planner_candidate(active: DJSessionRuntime, candidate: DJSessionPlanner) -> None:
@@ -5303,6 +5315,8 @@ class SessionRuntimeManager:
                 raise MoodRevisionConflictError(active)
             if selected_mood == active.selected_mood:
                 return active
+            if self._historical_projections is not None:
+                await self._historical_projections.async_accept_mood(owner_profile_id, session_id, selected_mood, authorize=authorize)
             if (active.planner.discover_narrative_line is not None
                     and selected_mood != active.selected_mood):
                 active.planner.clear_discover_narrative()
@@ -5611,12 +5625,42 @@ class SessionRuntimeManager:
             profile_id = authorization[0]
         return await self.async_end(owner_profile_id=profile_id, session_id=session_id)
 
-    async def _async_persist_moment(self, active: DJSessionRuntime, moment: DJMoment) -> None:
+    async def _async_persist_moment(self, active: DJSessionRuntime, moment: DJMoment) -> bool:
         """Explicit historical field qualification before actual live publication."""
-        if self._historical_projections is None or moment.session_id != active.session_id:
-            return
+        if moment.session_id != active.session_id:
+            return False
+        if self._historical_projections is None:
+            return True
         if moment.moment_type is not DJMomentType.SILENCE and not active.allows_proactive():
-            return
+            return False
+        if moment.moment_type is DJMomentType.SILENCE:
+            return True
+        opportunity = self._intra_track_opportunities.get(active.owner_profile_id)
+        generation = opportunity.generation if opportunity is not None else None
+
+        def admission_is_current():
+            # Runs on the event loop after provider-lock waiting, never in SQLite's worker.
+            if self._active_by_profile.get(active.owner_profile_id) is not active or not active.allows_proactive():
+                return False
+            source = getattr(moment, "source_fact", None)
+            if source is not None and not source.eligible(source.media_identity, time.monotonic()):
+                return False
+            if opportunity is not None and moment.moment_type is not DJMomentType.SESSION:
+                playback = active.broadcast.state.playback
+                age = self._monotonic_source() - opportunity.last_observed_monotonic
+                if (self._intra_track_opportunities.get(active.owner_profile_id) is not opportunity
+                        or opportunity.generation != generation or opportunity.blocked
+                        or playback.state != "playing" or playback.item_id != opportunity.item_id
+                        or not 0 <= age <= 30 or opportunity.last_observed_position_ms is None
+                        or playback.duration_ms is None):
+                    return False
+                position = max(playback.position_ms or 0,
+                    opportunity.last_observed_position_ms + int(age * 1000))
+                if playback.duration_ms - position < (moment.presentation_intent.maximum_duration_seconds + 5) * 1000:
+                    return False
+            return True
+
+        prepared = active.compose_moment(moment)
         from .session_facts import QualifiedSessionFact, SharedProducerFact
 
         source = getattr(moment, "source_fact", None)
@@ -5645,29 +5689,27 @@ class SessionRuntimeManager:
             and metadata.get("validated") == "true"
         ):
             basis = "runtime_authored_direction_v1"
-        if not basis:
-            return
-        await self._historical_projections.async_append_entries(
-            active.owner_profile_id,
-            active.session_id,
-            [
-                {
-                    "kind": "dj_moment",
-                    "reference_id": moment.moment_id,
-                    "occurred_at": moment.created_at,
-                    "body": {
-                        "moment_id": moment.moment_id,
-                        "moment_type": moment.moment_type.value,
-                        "text": moment.content,
-                        "summary": moment.summary,
-                        "source_attribution": dict(moment.source_attribution),
-                        "archive_basis": basis,
-                        "persona": active.dj_persona.value,
-                        "locale": active.locale,
-                    },
-                }
-            ],
-        )
+        entry = None
+        if basis:
+            entry = {"kind":"dj_moment", "reference_id":moment.moment_id,
+                     "occurred_at":moment.created_at,
+                     "body":{"moment_id":moment.moment_id,"moment_type":moment.moment_type.value,
+                             "text":moment.content,"summary":moment.summary,
+                             "source_attribution":dict(moment.source_attribution),"archive_basis":basis,
+                             "persona":active.dj_persona.value,"locale":active.locale}}
+        try:
+            accepted = await self._historical_projections.async_accept_moment(
+                active.owner_profile_id, active.session_id, moment.moment_id, entry,
+                authorize=admission_is_current)
+        except PermissionError:
+            if not admission_is_current():
+                return False
+            raise
+        if accepted:
+            active.prepared_presentations.clear()
+            active.prepared_presentations[moment.moment_id] = prepared
+        return accepted
+
     async def async_end(
         self,
         *,
@@ -5690,6 +5732,7 @@ class SessionRuntimeManager:
             self._intra_track_opportunities.pop(owner_profile_id, None)
             active.published_recording_context.clear()
             active.published_album_context.clear()
+            active.prepared_presentations.clear()
             active.moment_engine._expression_forms=()
             active.moment_engine._expression_moment_ids=()
             active.broadcast.update_runtime_state(SessionRuntimeState.ENDING)

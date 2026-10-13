@@ -23,10 +23,14 @@ class _SQLiteTransaction:
     def execute(self, statement: str, parameters: tuple[object, ...] = ()) -> None:
         self._connection.execute(statement, parameters)
 
-    def fetchone(self, statement: str, parameters: tuple[object, ...] = ()) -> tuple[object, ...] | None:
+    def fetchone(
+        self, statement: str, parameters: tuple[object, ...] = ()
+    ) -> tuple[object, ...] | None:
         return self._connection.execute(statement, parameters).fetchone()
 
-    def fetchall(self, statement: str, parameters: tuple[object, ...] = ()) -> list[tuple[object, ...]]:
+    def fetchall(
+        self, statement: str, parameters: tuple[object, ...] = ()
+    ) -> list[tuple[object, ...]]:
         return self._connection.execute(statement, parameters).fetchall()
 
 
@@ -82,7 +86,9 @@ class SQLitePersistenceProvider:
         try:
             result = await asyncio.to_thread(self._with_read_connection, self._integrity_result)
         except sqlite3.Error as exc:
-            raise PersistenceIntegrityError("DJConnect persistence integrity validation failed") from exc
+            raise PersistenceIntegrityError(
+                "DJConnect persistence integrity validation failed"
+            ) from exc
         if result.lower() != "ok":
             raise PersistenceIntegrityError("DJConnect persistence integrity validation failed")
 
@@ -135,12 +141,16 @@ class SQLitePersistenceProvider:
     async def async_validate_schema(self, required_tables: dict[str, set[str]]) -> None:
         """Perform bounded startup checks for schema shape and SQLite invariants."""
         try:
-            await asyncio.to_thread(self._with_read_connection, self._validate_schema, required_tables)
+            await asyncio.to_thread(
+                self._with_read_connection, self._validate_schema, required_tables
+            )
         except sqlite3.Error as exc:
             raise PersistenceError("DJConnect persistence schema validation failed") from exc
 
     @staticmethod
-    def _validate_schema(connection: sqlite3.Connection, required_tables: dict[str, set[str]]) -> None:
+    def _validate_schema(
+        connection: sqlite3.Connection, required_tables: dict[str, set[str]]
+    ) -> None:
         foreign_keys = connection.execute("PRAGMA foreign_keys").fetchone()
         if not foreign_keys or int(foreign_keys[0]) != 1:
             raise PersistenceError("DJConnect persistence foreign-key enforcement is unavailable")
@@ -161,11 +171,24 @@ class SQLitePersistenceProvider:
     async def async_run_transaction(
         self,
         operation: Callable[[_SQLiteTransaction], ResultT],
+        *,
+        authorize: Callable[[], bool] | None = None,
     ) -> ResultT:
         """Run one short, serialized provider transaction."""
         async with self._write_lock:
+            if authorize is not None and not authorize():
+                raise PermissionError("unauthorized")
             try:
-                return await asyncio.to_thread(self._run_transaction, operation)
+                task = asyncio.create_task(asyncio.to_thread(self._run_transaction, operation))
+                while True:
+                    try:
+                        return await asyncio.shield(task)
+                    except asyncio.CancelledError:
+                        if task.cancelled():
+                            raise
+                        # SQLite cannot cancel a running thread. Hold the provider lock
+                        # through its definitive commit/rollback; short acceptance wins.
+                        continue
             except sqlite3.Error as exc:
                 raise PersistenceError("DJConnect persistence transaction failed") from exc
 
@@ -174,11 +197,12 @@ class SQLitePersistenceProvider:
         connection.execute("BEGIN IMMEDIATE")
         try:
             result = operation(_SQLiteTransaction(connection))
-        except Exception:
-            connection.execute("ROLLBACK")
+            connection.execute("COMMIT")
+            return result
+        except BaseException:
+            if connection.in_transaction:
+                connection.execute("ROLLBACK")
             raise
-        connection.execute("COMMIT")
-        return result
 
     def _require_connection(self) -> sqlite3.Connection:
         if self._connection is None:

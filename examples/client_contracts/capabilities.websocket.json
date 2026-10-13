@@ -75,7 +75,8 @@
     "session_flow_text_search": true,
     "active_session_mood": true,
     "active_session_presence": true,
-    "session_forecast": true
+    "session_forecast": true,
+    "session_history_summary": true
   },
   "contract_versions": {
     "profile_context": 1,
@@ -84,7 +85,8 @@
     "session_flow_text_search": 1,
     "active_session_mood": 1,
     "active_session_presence": 1,
-    "session_forecast": 1
+    "session_forecast": 1,
+    "session_history_summary": 1
   },
   "transports": {
     "http": true,
