@@ -244,3 +244,8 @@ provider-specific Runtime, Broadcast route or renderer model.
 This document does not select a provider, introduce a provider integration,
 change Track Insight, alter Planner behaviour, create a cache, or advance
 Lyrics Knowledge.
+
+
+## Reactive Ask DJ context refinement
+
+The selected [shared dialogue contract](ASK_DJ_CONTEXTUAL_DIALOGUE_CONTRACT_V1.md) adds a separately qualified owner-request projection for existing MusicBrainz core/Wikidata CC0 normalized facts and minimum validated internal direction/style. This is one existing Ask DJ/HA-agent route, never a second Knowledge Engine, Planner or provider. Model-safe recent turns, factual context and source links are individually bounded/revalidated; Spotify catalog/playback/results, raw bodies, artwork, saved listening archives and unqualified source expression remain excluded from model input. Proactive Moment, voice, caching and archive grants do not widen. General agent knowledge is not evidence for the selected credit or a fictive lookup. Design pinned before implementation; exact candidate qualification remains pending.
