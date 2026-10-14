@@ -673,6 +673,28 @@ def model_prompt(text: str, payload: dict, source: dict | None = None) -> str:
     return prompt
 
 
+def answer_form_issue(answer: str, style: dict) -> str | None:
+    """Closed prose-format check, not language detection or factual rewriting."""
+    # Original quoted work titles may stay original. Apostrophes in words are
+    # not quotation marks; l'ambient music must still be localized.
+    prose = re.sub(r'"[^"\n]*"|«[^»\n]*»|“[^”\n]*”|‘[^’\n]*’', "title", answer)
+    if style.get("language") != "en" and re.search(
+        r"\b(?:ambient|electronic|classical|rock|jazz|house) music\b", prose, re.I
+    ):
+        return "Translate ordinary genre phrases into the selected language; keep only genuine quoted titles original."
+    # Avoid counting initials, common name honorifics and decimal points as
+    # sentence boundaries. This only checks the already declared Persona form.
+    prose = re.sub(r"\b(?:[A-Z]\.){2,}|\b(?:Dr|Mr|Mrs|Ms|Prof|Sr|Sra|Mme|M)\.", "name", prose)
+    sentences = len(re.findall(r'[.!?]+(?:["”»)])*(?:\s+|$)', prose))
+    if prose.strip() and not re.search(r'[.!?]+(?:["”»)])*$', prose.strip()):
+        sentences += 1
+    minimum, maximum = {"home_dj": (1, 2), "radio_dj": (2, 2),
+                        "club_dj": (1, 1), "festival_dj": (2, 3)}.get(style.get("persona"), (1, 2))
+    if not minimum <= sentences <= maximum:
+        return f"Use {minimum} to {maximum} connected sentences for the selected answer_form; omit extra closing invitations."
+    return None
+
+
 def parse_model_reply(message: str) -> tuple[str, dict]:
     cleaned = message.strip()
     if cleaned.startswith("```"):

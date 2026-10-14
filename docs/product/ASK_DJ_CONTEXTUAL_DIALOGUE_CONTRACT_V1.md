@@ -499,3 +499,12 @@ or biography. Accepted topic change replaces it; controls preserve it; existing
 clear/expiry/privacy/source fences still apply. Possessive follow-ups refer to the
 discussed subject in third person. The narrator's Persona cannot become that
 person or supply their musical facts.
+
+The common answer parser checks the declared Persona sentence form and a closed
+set of ordinary English genre phrases in non-English prose. Original quoted
+work titles are exempt; this is not a general language detector or fact checker.
+An invalid format can use the existing single read-only format repair, within
+the same two-agent-call maximum and all source/owner fences. The invalid output
+is not replayed as model context, rewritten, archived or accepted. Repeated
+invalidity returns the existing typed model-response error. Lookup JSON and
+local catalog captions retain their existing separate format contracts.

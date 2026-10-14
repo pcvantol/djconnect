@@ -188,6 +188,38 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(self.prompts, [])
             self.assertEqual(self.effects, [])
 
+    async def test_invalid_prose_gets_one_bounded_repair_before_acceptance(self):
+        answers = ["Il travaille dans l'ambient music. Il crée des paysages sonores.",
+                   "Il travaille dans la musique ambient. Il crée des paysages sonores."]
+        async def agent(hass, data, **kwargs):
+            self.prompts.append(json.loads(data["text"].split("\nData:\n", 1)[1]))
+            return {"response": {"speech": {"plain": {"speech": answers.pop(0)}}}}
+        with patch.object(self.pipeline, "_call_conversation_process_transport", agent):
+            result, status = await self.request("Qui est Brian Eno ?", language="fr", dj_persona="radio_dj")
+        self.assertEqual(status, 200, result)
+        self.assertEqual(result["conversation"]["metrics"]["agent_calls"], 2)
+        self.assertNotIn("ambient music", result["text"])
+        stored = await self.history.async_history("profile:profile-a")
+        self.assertNotIn("ambient music", json.dumps(stored))
+        self.assertEqual(len(stored["messages"]), 2)
+        self.assertEqual(self.effects, [])
+
+    async def test_repeated_invalid_format_fails_without_acceptance_or_third_call(self):
+        self.reply = "One sentence cannot satisfy the Radio form."
+        result, status = await self.request("Who is Brian Eno?", dj_persona="radio_dj")
+        self.assertEqual(status, 502, result)
+        self.assertEqual(result["error"], "conversation_model_response_invalid")
+        self.assertEqual(len(self.prompts), 2)
+        self.assertEqual((await self.history.async_history("profile:profile-a"))["messages"], [])
+        self.assertEqual(self.effects, [])
+
+    def test_prose_format_handles_titles_initials_and_persona_counts(self):
+        self.assertIsNone(self.dialogue.answer_form_issue('Il cite «Ambient Music». Il compose.', {"language": "fr", "persona": "radio_dj"}))
+        self.assertIsNone(self.dialogue.answer_form_issue('R.E.M. worked with Dr. Example. Their music changed.', {"language": "en", "persona": "radio_dj"}))
+        self.assertIsNotNone(self.dialogue.answer_form_issue('First. Second. Third. Fourth.', {"language": "nl", "persona": "festival_dj"}))
+        for language in ("nl", "de", "fr", "es"):
+            self.assertIsNotNone(self.dialogue.answer_form_issue('He makes ambient music.', {"language": language, "persona": "home_dj"}))
+
     async def test_user_named_subject_survives_possessive_followup_and_control(self):
         await self.request("¿Quién es Brian Eno?", identifier="named-subject", language="es", dj_persona="club_dj")
         frame = self.history.dialogue.owners["profile:profile-a"]["default"]
@@ -812,6 +844,7 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
             },
         }
         self.assertEqual(self.dialogue.model_source(source), {})
+        self.reply = "A synthetic fixture answer. Its second sentence follows the selected Radio format."
         result, status = await self.request(
             "Who is Brian Eno?", mood=75, dj_style="late_night", dj_persona="radio_dj"
         )

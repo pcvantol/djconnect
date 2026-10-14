@@ -2807,9 +2807,11 @@ async def _informational_assist_response(
     if not message:
         message = _fallback_info_text(text, memory_context, playback_context)
         return {"success": True, "text": message, "dj_text": message, "images": []}
-    from .dialogue import parse_model_reply, requests_lookup
+    from .dialogue import parse_model_reply, requests_lookup, answer_form_issue
+    format_issue = None
 
     def parse_reply(reply):
+        nonlocal format_issue
         answer, operation = parse_model_reply(reply)
         if turn and requests_lookup(text) and (
             operation.get("intent") not in {"lookup", "refine"} or not operation.get("query")
@@ -2817,6 +2819,10 @@ async def _informational_assist_response(
             raise DialogueError("conversation_model_response_invalid", 502)
         if turn and not requests_lookup(text) and operation:
             raise DialogueError("conversation_model_response_invalid", 502)
+        if turn and not operation:
+            format_issue = answer_form_issue(answer, turn.style)
+            if format_issue:
+                raise DialogueError("conversation_model_response_invalid", 502)
         return answer, operation
 
     try:
@@ -2831,6 +2837,8 @@ async def _informational_assist_response(
             if requests_lookup(text) else
             "Answer the user's factual question directly in natural prose. Do not return a search/choice/query object.\n"
         )
+        if format_issue:
+            repair_instruction += format_issue + " Do not change the subject or factual claims.\n"
         repaired = await _call_dialogue_agent(hass, {**data, "text": repair_instruction + prompt})
         response = (repaired or {}).get("response") or {}
         if response.get("error"):
