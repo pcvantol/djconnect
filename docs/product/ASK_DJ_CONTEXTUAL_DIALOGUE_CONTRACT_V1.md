@@ -3,7 +3,9 @@
 Assignment `DJC-CORE-ASKDJ-CONTEXTUAL-DIALOGUE-V1-20261013`; companion
 [experience](ASK_DJ_CONVERSATIONAL_EXPERIENCE_V1.md). This directed refinement
 is committed before production changes. Existing source-main
-`c955ec80407f4ab0237bc4e9381761d3c9274617`; no implementation/PASS claim yet.
+`c955ec80407f4ab0237bc4e9381761d3c9274617` was the admission base.
+[Protected source readback](../verification/ASK_DJ_CONTEXTUAL_DIALOGUE_V1_SOURCE_READBACK.md)
+separately records source #1166, exact archive/formal proof and open consumer/install boundaries.
 
 ## Single application boundary and compatibility
 

@@ -5,8 +5,10 @@ Directed addition to `DJC-CORE-ASKDJ-CONTEXTUAL-DIALOGUE-V1-20261013`, owner
 and [full requirement6145985084](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6145985084).
 Direct owner approval in the existing Core session confirms design, implementation,
 tests and ACK; exact candidate publication and Finalization remain separate gates.
-Connected Core implementation is under qualification. Native adoption and
-protected delivery remain separate; this document does not claim either.
+Connected Core implementation is protected delivered in source #1166;
+[exact source readback](../verification/ASK_DJ_CONTEXTUAL_DIALOGUE_V1_SOURCE_READBACK.md).
+Native consumer adoption and protected consumer delivery remain separate;
+this document does not claim either consumer result.
 
 ## Owners and publication
 

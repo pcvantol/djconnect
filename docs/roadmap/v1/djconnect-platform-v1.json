@@ -38396,8 +38396,8 @@
         "title": "Shared contextual Ask DJ service and acceptance",
         "lane": "DJC-CORE",
         "repository": "pcvantol/djconnect",
-        "status": "In progress",
-        "assignment_status": "IN_PROGRESS",
+        "status": "Completed",
+        "assignment_status": "CORE_DELIVERED",
         "scope": "Shared contextual Ask DJ service and acceptance",
         "acceptance_boundary": "Shared contextual Ask DJ service and acceptance",
         "contract_binding": "docs/product/ASK_DJ_CONTEXTUAL_DIALOGUE_CONTRACT_V1.md",
@@ -38437,8 +38437,8 @@
         "title": "Qualified exact-track Moment navigation and shared detail",
         "lane": "DJC-CORE",
         "repository": "pcvantol/djconnect",
-        "status": "In progress",
-        "assignment_status": "IN_PROGRESS",
+        "status": "Completed",
+        "assignment_status": "CORE_DELIVERED",
         "scope": "Qualified exact-track Moment navigation and shared detail",
         "acceptance_boundary": "Qualified exact-track Moment navigation and shared detail",
         "contract_binding": "docs/product/MOMENT_TRACK_INSIGHT_DRILLDOWN_V1.md",
@@ -39247,11 +39247,11 @@
     "document_references": [
       {
         "path": "PRODUCT_ROADMAP.md",
-        "sha256": "87a243c39e4ddbd4cdc1a2183efd192dd088b0b2e7167014fc8ef805328f3713"
+        "sha256": "955585460c2caa61b3bbc4973be6c647bfbe0ef333e03657821dbf2d9442256e"
       },
       {
         "path": "PRODUCT_BACKLOG.md",
-        "sha256": "2a847371745a769adf820be9cb5c0d5d3359b14be372fc3e1c4ce8c19ca24b91"
+        "sha256": "902166f6abdb774a5639c2cc3484469c1d25f190a62f26c63c96ec76b2cfa13c"
       },
       {
         "path": "docs/product/DJ_PRESENCE_V1.md",
@@ -39391,11 +39391,11 @@
       },
       {
         "path": "docs/product/ASK_DJ_CONTEXTUAL_DIALOGUE_CONTRACT_V1.md",
-        "sha256": "84619673e23086ea80243d19448cca640934b922ba5823cc0355e7420d36c9cf"
+        "sha256": "e41929bdf8ea66782d980ae6bafca9926fa6d9e7e76cc85f6ab60ad2a04c9321"
       },
       {
         "path": "docs/product/MOMENT_TRACK_INSIGHT_DRILLDOWN_V1.md",
-        "sha256": "14b18b65dab41715453210578838568db94374f2051f5dfea9d4b9517bab61f8"
+        "sha256": "6057cd78740abff3a9a6a8c0d6f34f4218a89e10f11ad18a516933e38476cb77"
       },
       {
         "path": "DJCONNECT_STORAGE_ARCHITECTURE.md",
@@ -39416,6 +39416,14 @@
       {
         "path": "docs/product/KNOWLEDGE_SOURCE_ARCHITECTURE.md",
         "sha256": "8846dff1f9c18bfb6aa9817b9a1d46f4bcbad0ceb79fd5b695d6bbb71cbfa55d"
+      },
+      {
+        "path": "docs/verification/ASK_DJ_CONTEXTUAL_DIALOGUE_V1_SOURCE_READBACK.md",
+        "sha256": "377bda221f6c6fe0bc542ba53844f67e0a7582f8995175d7b42739f21c6e5157"
+      },
+      {
+        "path": "docs/history/prompts/2026-10-14-ask-dj-contextual-dialogue-finalization.md",
+        "sha256": "1d4ce399484389030df619f35e84a5b40fef5e94c98143008325470ab2c8b35a"
       }
     ],
     "implementation_receipt": {
@@ -39661,8 +39669,8 @@
       "material_commit": "d672ddf5e4fce9013498a37d37c3599f39868b18",
       "extension_ack": 6149786410,
       "extension_contract": "4eb814a43f532d305e42fdbcc2af658259b94e64",
-      "phase": "LOCAL_IMPLEMENTATION_AND_QUALIFICATION",
-      "source_delivery": "UNPUBLISHED",
+      "phase": "SOURCE_PROTECTED_MERGED",
+      "source_delivery": "PROTECTED_MERGED",
       "native": "NOT_RUN",
       "installed": "NOT_RUN",
       "hardware": "NOT_RUN",
@@ -39683,7 +39691,24 @@
         "consumer_writes": false,
         "observed_status": "In progress",
         "scope": "EXISTING_APPLE_WRITER_REGISTER_READBACK_NOT_CORE_ADMISSION"
-      }
+      },
+      "source_main_sha": "7698961ec4fc7f93d1afa155aa73416a35604ac3",
+      "source_pr": "https://github.com/pcvantol/djconnect/pull/1166",
+      "source_candidate_sha": "7aa3c9561a547a494c745e02bd147458e08fcfe9",
+      "source_review": "PASS",
+      "required_checks": "PASS",
+      "protected_merge": true,
+      "archive_sha256": "8b3e5ec037b427414bc984c5ac8b573766ac5a78ad02d6fbc8ce094976f12cf1",
+      "formal_evidence_sha256": "a208cf630929ade12c61cbe6c1823558233c6684fa7fe73e484a6d9e774947f4",
+      "main_validate_run": "38586256357",
+      "artifact_run": "38586737353",
+      "formal_run": "38586737492",
+      "owner_authorization_run": "38585343658",
+      "apple_handoff": "https://github.com/pcvantol/djconnect-app/issues/87#issuecomment-6171961379",
+      "finalization": "RECONCILIATION_CANDIDATE_SEPARATE_GATE",
+      "ha_model_configuration": "OWNER_AUTHORIZED_TEXT_LUNA_STT_GPT_TRANSCRIBE_APPLIED",
+      "ha_integration_installation": "PENDING_AFTER_ALL_MERGES",
+      "tts_migration": "CURRENT_HA_REALTIME_ADAPTER_GAP"
     }
   }
 }

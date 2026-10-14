@@ -1,5 +1,78 @@
 # DJConnect Verification Prompt Index
 
+## Current: shared contextual Ask DJ — separate Finalization
+
+### Repository Status
+
+PR [#1166](https://github.com/pcvantol/djconnect/pull/1166) protected merged as
+`7698961ec4fc7f93d1afa155aa73416a35604ac3` from independently reviewed/owner-authorized `7aa3c9561a547a494c745e02bd147458e08fcfe9`.
+33 checks pass/five conditional skips, exact HIGH_RISK Owner Authorization38585343658.
+Candidate/main complete treea6d12215a8bae0a1cc59dde69fae9e5396f85615 is identical;
+157 integration files match the official archive. Main38586256357, artifact38586737353
+and formal38586737492 succeed; exact source/main/coverage/integrity qualification PASS.
+[Source readback](docs/verification/ASK_DJ_CONTEXTUAL_DIALOGUE_V1_SOURCE_READBACK.md)
+and [completion record](docs/history/prompts/2026-10-14-ask-dj-contextual-dialogue-finalization.md).
+
+### Management Summary
+
+One Core-owned Ask DJ implementation handles standalone/Session/text/STT/raw and
+registered HA services; Session/Moment is optional enrichment. Context, selection,
+explicit effects/readback, owner fences and bounded history acceptance share one
+application boundary. Joined callers revalidate their own original admission.
+Inert exact Track Insight navigation uses a published Moment, without proactive
+budget/count changes. Private dialogue never goes to VibeCast/push/widgets.
+1866 regressions,115 owning87% and137 DAG tests pass. Actual paired HA/agent proof
+106 HTTP/69 Luna calls/20 Persona-language pairs/3 chains,247.974s,134 runtime hashes.
+Both exact independent reviews GO; rejected earlier configurations remain recorded.
+
+### Roadmap Position
+
+Separate documentary Finalization of this one Core slice. Existing
+CONVERSATION::CORE::SHARED-DIALOGUE and INSIGHT::CORE::MOMENT-DRILLDOWN become
+Completed producer; Apple adoption/detail and joint nodes remain Planned.
+[Definitive existing Apple handoff](https://github.com/pcvantol/djconnect-app/issues/87#issuecomment-6171961379).
+Existing Apple Presence writer stays In progress with native/installed visibility
+open; no Swift/receiverwrites or consumerstart. Prior deliveries stay closed.
+Historical snapshots and canonical JSON delta9 are preserved; no whole Stage4 promotion.
+
+### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+No following increment is admitted by this Finalization candidate. Earlier owner
+queue selection is not executed before valid reconciliation, own cleanup and fresh
+admission. No automatic dispatch or second writer.
+
+1. **Unfilled product slot 1** — pending owning queue readback/admission after closure.
+2. **Unfilled product slot 2** — no additional admission here.
+3. **Unfilled product slot 3** — no additional admission here.
+4. **Unfilled product slot 4** — no additional admission here.
+5. **Unfilled product slot 5** — no additional admission here.
+
+Finalization, own cleanup and the separately authorized latest-main HA-dev/prod
+installation are completion obligations; they are not new product-capability slots.
+
+### Blocked Items
+
+Exact Finalization publication/automatic artifact effects require their own grant;
+valid reviews/checks, protected merge and exact-main readback precede completion.
+Thirty source git-cherry '+' after squash require a bounded new cleanup exception
+with aggregate/tree equality and verified bundles. TTS replacement remains unsupported
+by the current HA Speech adapter; native Apple and joint acceptance remain open.
+
+### Deferred Items
+
+No runtime/workflow/runner/service implementation, Pages/signing/hardware or next
+productslice. Separate owner-authorized HA model settings are applied: Conversation/
+AI TaskLuna and STTgpt-transcribe, preserved Assist tools and actual HA-STT readbacks.
+No HA restart or Core integration install has occurred; installation waits all merges.
+
+### Repository State
+
+Repository State: `MERGED_UNRECONCILED`; Finalization Pending: YES.
+This reviewable candidate is prospective.
+Repository State becomes MERGED_RECONCILED only after valid Finalization merge and
+exact-main/artifact verification. Workspace remains NOT_READY until safe own cleanup.
+Native Apple, installed Core integration, hardware NOT_RUN; joint OPEN.
+
 ## Current: connected Session history summary — separate Finalization
 
 ### Repository Status

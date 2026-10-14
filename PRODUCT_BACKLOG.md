@@ -1,6 +1,6 @@
 # DJConnect Product Backlog
 
-## Selected connected Ask DJ correction — implementation under qualification
+## Shared contextual Ask DJ — bounded Core source delivered
 
 `DJC-CORE-ASKDJ-CONTEXTUAL-DIALOGUE-V1-20261013`, including owner-approved
 `DJC-MOMENT-TRACK-INSIGHT-DRILLDOWN-V1-20261013`, reuses one Core Ask DJ service,
@@ -10,12 +10,15 @@ The [experience](docs/product/ASK_DJ_CONVERSATIONAL_EXPERIENCE_V1.md),
 [exact Moment/detail design](docs/product/MOMENT_TRACK_INSIGHT_DRILLDOWN_V1.md)
 are canonical. No separate legacy/Session pipeline, planner, analyzer or cache.
 
-Core shared dialogue and bounded Track Insight navigation are In progress;
+Core shared dialogue and bounded Track Insight navigation are Completed producer;
 Apple common-controller/explicit-target adoption and joint acceptance remain Planned.
 One useful qualified existing Track-Moment can carry one inert offer, with unchanged
 presence budgets and published-only accounting. Browser/software acceptance does
-not qualify native use. Exact source/Finalization publication remain gated; the
-owner additionally requested HA-dev and HA-prod updates after readiness.
+not qualify native use. Source #1166 is protected merged and exact archive/formal evidence qualified.
+The [source readback](docs/verification/ASK_DJ_CONTEXTUAL_DIALOGUE_V1_SOURCE_READBACK.md)
+pins main7698961e and the consumer handoff. Separate Finalization publication remains
+gated; owner requests latest-main HA-dev/prod installation after all merges.
+HA text-model/STT configuration is separately applied; Core installation is pending.
 History #1162/#1163 and all earlier delivered slices remain closed.
 
 Consumer reconciliation (2026-10-14): the existing Apple Presence writer is

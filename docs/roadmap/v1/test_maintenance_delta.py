@@ -416,7 +416,7 @@ class DialogueMaintenanceTests(unittest.TestCase):
             lambda d: d["dialogue_receipt"].update(consumer_writes=True),
             lambda d: d["dialogue_receipt"].update(added_requirement="unapproved"),
             lambda d: d["dialogue_receipt"].update(base_sha="0" * 40),
-            lambda d: d["dialogue_receipt"].update(phase="SOURCE_PROTECTED_MERGED", source_delivery="PROTECTED_MERGED"),
+            lambda d: d["dialogue_receipt"].update(phase="SOURCE_PROTECTED_MERGED", source_delivery="PROTECTED_MERGED", source_review="UNPROVED"),
             lambda d: next(n for n in d["nodes"] if n["id"] == "CONVERSATION::APPLE::SHARED-ADOPTION").update(status="Completed", assignment_status="CORE_DELIVERED"),
             lambda d: d["nodes"].append(copy.deepcopy(d["nodes"][-1])),
             lambda d: d["edges"][-1].update(consumer=d["edges"][-1]["producer"]),
