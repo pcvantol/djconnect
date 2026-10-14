@@ -7,7 +7,7 @@ import logging
 import re
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
-from urllib.parse import urlencode
+from urllib.parse import urlencode, parse_qs, urlsplit
 from typing import Any
 
 from aiohttp import ClientTimeout
@@ -434,6 +434,18 @@ class SpotifyBackend:
         retry_on_unauthorized: bool,
     ) -> Any:
         token = await self._access_token(force_refresh=force_refresh)
+        from .ask_dj.dialogue import current_turn, DialogueError
+        turn = current_turn.get()
+        if turn is not None and turn.play_output_id and urlsplit(path).path == "/me/player/play":
+            supplied = parse_qs(urlsplit(path).query).get("device_id", [])
+            if supplied and supplied != [turn.play_output_id]:
+                raise DialogueError("playback_effect_not_authorized", 403)
+            if not supplied:
+                path += ("&" if "?" in path else "?") + urlencode({"device_id": turn.play_output_id})
+        if method.upper() in {"POST", "PUT", "DELETE", "PATCH"}:
+            from .ask_dj.dialogue import guard_effect_dispatch
+
+            await guard_effect_dispatch(method=method, path=path, body=json)
         async with self.session.request(
             method,
             SPOTIFY_API_BASE + path,
@@ -471,17 +483,26 @@ class SpotifyBackend:
                 )
             return body or {}
 
+    def _scoped_cache_key(self, key: str) -> str:
+        scope = (runtime_scope(self.runtime), credential_cache_scope(self.runtime))
+        return key + ":" + hashlib.sha256(repr(scope).encode()).hexdigest()
+
     async def _cached(self, key: str, loader, *, ttl: int = CACHE_TTL_SECONDS) -> Any:
         cache = getattr(self.runtime, "backend_cache", None)
         if cache is None:
             self.runtime.backend_cache = {}
             cache = self.runtime.backend_cache
         scope = (runtime_scope(self.runtime), credential_cache_scope(self.runtime))
+        scoped_key = self._scoped_cache_key(key)
         if key == "listening_profile:v1":
-            key = key + ":" + hashlib.sha256(repr(scope).encode()).hexdigest()
+            key = scoped_key
             for old_key in list(cache):
                 if old_key == "listening_profile:v1" or (old_key.startswith("listening_profile:v1:") and old_key != key):
                     cache.pop(old_key)
+        else:
+            # Catalog/output cache reuse has the same owner/account/credential
+            # boundary as the existing listening-profile cache.
+            key = scoped_key
         now = time.monotonic()
         cached = cache.get(key)
         if cached and now - cached[0] < ttl:
@@ -489,6 +510,9 @@ class SpotifyBackend:
         value = await loader()
         if (runtime_scope(self.runtime), credential_cache_scope(self.runtime)) == scope:
             cache[key] = (now, value)
+            if len(cache) > 256:
+                for old_key in sorted(cache, key=lambda k: cache[k][0])[:len(cache)-256]:
+                    cache.pop(old_key, None)
         return value
 
     async def playback_state(self) -> dict[str, Any]:
@@ -557,7 +581,7 @@ class SpotifyBackend:
         item = data.get("next_item")
         if item is None or not item.get("title") or not item.get("artist"):
             return {}
-        cached = getattr(self.runtime, "backend_cache", {}).get("session_up_next")
+        cached = getattr(self.runtime, "backend_cache", {}).get(self._scoped_cache_key("session_up_next"))
         remaining = max(0, 30 - (time.monotonic() - cached[0])) if cached else 0
         if remaining <= 0:
             return {}
@@ -573,7 +597,7 @@ class SpotifyBackend:
         if not artist_ids:
             return
         cache_key = "artists:" + ",".join(sorted(set(artist_ids)))
-        backoff_key = f"{cache_key}:error_backoff"
+        backoff_key = self._scoped_cache_key(f"{cache_key}:error_backoff")
         cache = getattr(self.runtime, "backend_cache", None)
         if cache is None:
             self.runtime.backend_cache = {}
@@ -645,7 +669,12 @@ class SpotifyBackend:
             data = await self._request("GET", "/me/player/devices")
             return [_normalize_device(device) for device in data.get("devices", [])]
 
-        devices = _merge_known_spotify_devices(self.runtime, await self._cached("devices", load))
+        from .ask_dj.dialogue import current_turn
+        turn = current_turn.get()
+        current = await load() if turn is not None else await self._cached("devices", load)
+        if turn is not None:
+            await turn.guard()
+        devices = _merge_known_spotify_devices(self.runtime, current)
         self.runtime.device_status["available_outputs"] = devices
         _persist_runtime_device_status(self.hass, self.runtime)
         self.runtime.update()
@@ -653,24 +682,31 @@ class SpotifyBackend:
 
     async def queue(self) -> dict[str, Any]:
         data = await self._request("GET", "/me/player/queue")
-        queue = data.get("queue") or []
+        if not isinstance(data, dict) or not isinstance(data.get("queue"), list):
+            raise SpotifyBackendError("queue_read_unavailable")
+        queue = data["queue"]
         normalized = _normalize_queue_items(queue, limit=MAX_QUEUE_ITEMS)
         playback = self.runtime.last_playback or {}
         context_uri = str(playback.get("context_uri") or playback.get("queue_context") or "").strip()
-        if context_uri:
-            for item in normalized:
-                item["context_uri"] = context_uri
-                item["contextUri"] = context_uri
+        from .ask_dj.dialogue import current_turn
+        turn = current_turn.get()
+        if turn is not None:
+            await turn.guard()
+        # The current album/playlist is not proof of each upcoming item's context.
+        state = "partial" if len(normalized) < len(queue) else "present" if normalized else "known_empty"
         self.runtime.device_status["queue"] = {
             "items": normalized,
             "context_uri": context_uri,
             "contextUri": context_uri,
+            "state": state,
         }
         self.runtime.update()
         return {
             "queue": normalized,
             "context_uri": context_uri,
             "contextUri": context_uri,
+            "queue_state": state,
+            "queue_observed_at": datetime.now(UTC).isoformat(),
         }
 
     async def playlists(self, *, limit: int | None = DEFAULT_PLAYLIST_LIMIT) -> list[dict[str, str]]:
@@ -1341,6 +1377,12 @@ class SpotifyBackend:
         return uri
 
     async def _ensure_playback_device(self, *, play: bool) -> str:
+        from .ask_dj.dialogue import current_turn
+        turn = current_turn.get()
+        if turn is not None:
+            # Ask DJ Play does not authorize a silent transfer to another
+            # output. The existing handler will offer an explicit choice.
+            raise SpotifyBackendError("No active device; choose an output explicitly")
         devices = await self.devices()
         configured = str(self.conf.get(CONF_SPOTIFY_SOURCE) or "").strip()
         selected = _select_spotify_device(devices, configured)
@@ -1377,6 +1419,11 @@ class SpotifyBackend:
         if not device_id:
             raise ValueError("Provide an output device id")
         devices = await self.devices()
+        from .ask_dj.dialogue import current_turn
+        if current_turn.get() is not None:
+            devices = [d for d in devices if d.get("id") == device_id and not d.get("cached") and not d.get("is_restricted")]
+            if not devices:
+                raise SpotifyBackendError("Selected output is unavailable")
         selected = _select_spotify_device(devices, device_id)
         device_id = str(selected.get("id") or device_id).strip()
         if not device_id:

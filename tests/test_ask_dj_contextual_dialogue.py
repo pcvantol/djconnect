@@ -1,0 +1,2172 @@
+"""Owning causal regressions: common routes, actual Store/SQLite owner boundaries.
+
+Agent/provider responses in this suite are explicit routing/failure fixtures.
+Real OpenAI-generated conversation quality is independently qualified in the HA lab.
+"""
+
+from __future__ import annotations
+
+import asyncio
+from copy import deepcopy
+from contextlib import nullcontext
+import json
+import unittest
+from unittest.mock import patch
+
+from tests import test_session_conversation_history as fixture_defs
+
+
+class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
+    @classmethod
+    def setUpClass(cls):
+        fixture_defs.SessionConversationHistoryTest.setUpClass()
+        from custom_components.djconnect import ask_dj, pipeline
+        from custom_components.djconnect.ask_dj import dialogue
+
+        cls.core, cls.pipeline, cls.dialogue = ask_dj, pipeline, dialogue
+
+    @classmethod
+    def tearDownClass(cls):
+        fixture_defs.SessionConversationHistoryTest.tearDownClass()
+
+    async def asyncSetUp(self):
+        self.fixture = fixture_defs.SessionConversationHistoryTest()
+        await self.fixture.asyncSetUp()
+        (
+            self.hass,
+            self.runtime,
+            self.history,
+            self.identity,
+            self.headers,
+        ) = await self.fixture.transport_fixture()
+        self.handlers = self.fixture.handlers
+        self.prompts, self.effects = [], []
+        self.reply = "A synthetic agent answer about the requested subject."
+        from types import SimpleNamespace
+
+        async def unavailable(*args, **kwargs):
+            raise AssertionError("Routing fixture must supply the explicit agent transport")
+
+        self.hass.services = SimpleNamespace(async_call=unavailable)
+
+        async def agent(hass, data, **kwargs):
+            projection = json.loads(data["text"].split("\nData:\n", 1)[1])
+            self.prompts.append(projection)
+            return {"response": {"speech": {"plain": {"speech": self.reply}}}}
+
+        self.agent_patch = patch.object(
+            self.pipeline, "_call_conversation_process_transport", agent
+        )
+        self.original_transport = self.pipeline._call_conversation_process_transport
+        self.agent_patch.start()
+
+    async def asyncTearDown(self):
+        self.agent_patch.stop()
+        await self.fixture.asyncTearDown()
+
+    async def request(self, text, *, identifier="unit-1", context=None, **fields):
+        payload = {
+            **self.identity,
+            "client_message_id": identifier,
+            "text": text,
+            "language": "en",
+            "audio_response": "never",
+            **fields,
+        }
+        if context is not None:
+            payload["conversation_context"] = context
+        return await asyncio.wait_for(
+            self.handlers.async_handle_ask_dj_message_payload(
+                self.hass, payload, headers=self.headers
+            ),
+            5,
+        )
+
+    async def selected_credit(self):
+        session = await self.fixture.manager.async_start(
+            owner_profile_id="profile-a",
+            locale="en",
+            selected_mood="groove",
+            music_backend="spotify_direct",
+            history_source_context={
+                "backend_id": "source-spotify",
+                "music_account_id": "source-account",
+                "provider_entry_id": "source-entry",
+            },
+        )
+        from custom_components.djconnect import session_facts
+
+        fact = session_facts._fact(
+            "work_composers",
+            {"uri": "spotify:track:0123456789abcdefghijkL"},
+            "track_context",
+            ["Brian Eno"] * 5,
+            [
+                "Composers of the work behind this recording: Brian Eno.",
+                "Componisten van het werk achter deze opname: Brian Eno.",
+                "Komponisten des Werks hinter dieser Aufnahme: Brian Eno.",
+                "Compositeurs de l’œuvre de cet enregistrement : Brian Eno.",
+                "Compositores de la obra de esta grabación: Brian Eno.",
+            ],
+            "MusicBrainz",
+            "https://musicbrainz.org/work/11111111-1111-1111-1111-111111111111",
+            session_facts.DisplayFactCore("work_composers", roles=(("composer", ("Brian Eno",)),)),
+        )
+        # Real Moment engine and publication/storage chain, only external source evidence is synthetic.
+        await self.fixture.manager.async_update_playback_projection(
+            owner_profile_id="profile-a",
+            session_id=session.session_id,
+            state="playing",
+            media_identity=fact.media_identity,
+            title="Synthetic work",
+            artist="Synthetic performer",
+            duration_ms=300000,
+            position_ms=1000,
+        )
+
+        async def provider():
+            return {"_qualified_facts": (fact,)}
+
+        moment = await self.fixture.manager.async_process_track_started(
+            owner_profile_id="profile-a",
+            session_id=session.session_id,
+            media_identity=fact.media_identity,
+            insight_provider=provider,
+            require_current_playback=True,
+            allow_initial_facts=True,
+        )
+        self.assertIsNotNone(moment)
+        entries = await self.fixture.queries.async_timeline_page("profile-a", session.session_id)
+        entry = next(e for e in entries["entries"] if e.get("moment_id") == moment.moment_id)
+        return session, moment, {"session_id": session.session_id, "entry_id": entry["entry_id"]}
+
+    async def external_effect_probe(self, command, value, dispatch):
+        """Use the actual command/grant owner; only the adapter transport is a probe."""
+        from custom_components.djconnect.use_cases import DJConnectUseCases, SpotifyDirectBackend
+
+        class ProviderBoundary:
+            provider = "spotify_direct"
+            capabilities = SpotifyDirectBackend.capabilities
+
+            async def handle_command(self, command, value=None, *, play=None):
+                await dispatch()
+                return {"success": True}
+
+        return await DJConnectUseCases(self.hass, self.runtime, backend=ProviderBoundary()).command(command, value)
+
+    async def native_service_fixture(self):
+        from types import SimpleNamespace
+        storage = self.handlers.profile_storage(self.hass)
+        await storage.async_upsert_device("djconnect-conversation-agent", "conversation_agent", linked_profile_id="profile-a")
+        entry = SimpleNamespace(entry_id="native-service", disabled_by=None, state="loaded",
+            data={"device_id": "djconnect-conversation-agent", "client_type": "conversation_agent"}, options={})
+        self.runtime.entry = entry
+        self.runtime.config.update(entry.data)
+        self.runtime.device_status.update(entry.data)
+        self.runtime.device_token = None
+        self.runtime.client_type = lambda: "conversation_agent"
+        self.hass.config_entries.async_get_entry = lambda identifier: entry if identifier == entry.entry_id else None
+        self.hass.data["djconnect"].pop("owner-entry", None)
+        self.hass.data["djconnect"][entry.entry_id] = self.runtime
+        return entry, storage
+
+    async def native_request(self, text, identifier, **fields):
+        return await self.handlers.async_handle_ask_dj_message_payload(self.hass,
+            {"text": text, "client_message_id": identifier, "language": "en", "audio_response": "never", **fields},
+            _ha_service_runtime=self.runtime, persist_history=False)
+
+    async def test_native_service_uses_canonical_binding_without_app_token(self):
+        await self.native_service_fixture()
+        entered, release = asyncio.Event(), asyncio.Event()
+        async def delayed(hass, data, **kwargs):
+            self.prompts.append(json.loads(data["text"].split("\nData:\n", 1)[1]))
+            entered.set()
+            await release.wait()
+            return {"response": {"speech": {"plain": {"speech": self.reply}}}}
+        with patch.object(self.pipeline, "_call_conversation_process_transport", delayed):
+            first = asyncio.create_task(self.native_request("Who is Brian Eno?", "native-first"))
+            await entered.wait()
+            joined = asyncio.create_task(self.native_request("Who is Brian Eno?", "native-first"))
+            await asyncio.sleep(0)
+            release.set()
+            (result, status), (duplicate, duplicate_status) = await asyncio.gather(first, joined)
+        self.assertEqual(status, 200, result)
+        self.assertEqual(duplicate_status, 200, duplicate)
+        self.assertEqual(result["conversation"]["turn_id"], duplicate["conversation"]["turn_id"])
+        self.assertFalse(result["history_persisted"])
+        self.assertEqual(result["owner_profile_id"], "profile-a")
+        self.assertEqual(len(self.prompts), 1)
+        self.assertEqual((await self.history.async_history("profile:profile-a"))["messages"], [])
+        for hints in ({"profile_id": "profile-b"}, {"device_id": self.identity["device_id"]}):
+            result, status = await self.native_request("Who is Miles Davis?", "foreign-native-"+next(iter(hints)), **hints)
+            self.assertEqual(status, 403, result)
+        self.assertEqual(len(self.prompts), 1)
+
+    async def test_native_service_entry_and_owner_withdrawal_during_agent_await(self):
+        for mode in ("entry", "binding"):
+            entry, storage = await self.native_service_fixture()
+            entered, release = asyncio.Event(), asyncio.Event()
+            async def delayed(hass, data, **kwargs):
+                entered.set()
+                await release.wait()
+                return {"response": {"speech": {"plain": {"speech": "A forbidden late fixture answer."}}}}
+            with patch.object(self.pipeline, "_call_conversation_process_transport", delayed):
+                task = asyncio.create_task(self.native_request("Who is Brian Eno?", "native-race-"+mode))
+                await entered.wait()
+                if mode == "entry":
+                    entry.state = "unloaded"
+                else:
+                    await storage.async_create_profile("Other native owner", profile_id="profile-b", default_backend_id="later_manual")
+                    await storage.async_upsert_device("djconnect-conversation-agent", "conversation_agent", linked_profile_id="profile-b")
+                release.set()
+                result, status = await task
+            self.assertIn(status, (401, 403, 409), result)
+            self.assertNotIn("forbidden late", json.dumps(result))
+            self.assertEqual((await self.history.async_history("profile:profile-a"))["messages"], [])
+
+    async def test_joined_caller_revalidates_its_own_pairing_after_model_wait(self):
+        from types import SimpleNamespace
+        beta_id = "djconnect-ios-000000000002"
+        beta = SimpleNamespace(**self.runtime.__dict__)
+        beta.config = {**self.runtime.config, "device_id": beta_id}
+        beta.device_status = {**self.runtime.device_status, "device_id": beta_id}
+        beta.device_token = "synthetic-beta-token"
+        beta.authorize_device_request = lambda headers, device_id=None, client_type=None: (
+            beta.device_token == "synthetic-beta-token" and headers.get("Authorization") == "Bearer synthetic-beta-token"
+            and device_id == beta_id and client_type == "ios")
+        self.hass.data["djconnect"]["beta-owner"] = beta
+        await self.handlers.profile_storage(self.hass).async_upsert_device(beta_id, "ios", linked_profile_id="profile-a")
+        entered, release = asyncio.Event(), asyncio.Event()
+        async def delayed(hass, data, **kwargs):
+            self.prompts.append(data["text"])
+            entered.set()
+            await release.wait()
+            return {"response": {"speech": {"plain": {"speech": "A private fixture answer for the still-authorized caller."}}}}
+        with patch.object(self.pipeline, "_call_conversation_process_transport", delayed):
+            first = asyncio.create_task(self.request("Who is Brian Eno?", identifier="joined-auth"))
+            await entered.wait()
+            joined = asyncio.create_task(self.handlers.async_handle_ask_dj_message_payload(self.hass,
+                {"device_id": beta_id, "client_type": "ios", "text": "Who is Brian Eno?",
+                 "client_message_id": "joined-auth", "language": "en", "audio_response": "never"},
+                headers={"Authorization": "Bearer synthetic-beta-token"}))
+            await asyncio.sleep(0)
+            beta.device_token = None
+            release.set()
+            (accepted, status), (denied, denied_status) = await asyncio.gather(first, joined)
+        self.assertEqual(status, 200, accepted)
+        self.assertEqual(denied_status, 401, denied)
+        self.assertNotIn("private fixture answer", json.dumps(denied))
+        self.assertEqual(len(self.prompts), 1)
+        self.assertEqual(len((await self.history.async_history("profile:profile-a"))["messages"]), 2)
+
+    async def test_joined_return_rechecks_original_session_reference_and_generation(self):
+        from custom_components.djconnect.ask_dj import service
+        from custom_components.djconnect.session_conversation import SessionConversationError
+        for change in ("end", "expiry", "remove", "generation", "forecast"):
+            with self.subTest(change=change):
+                self.history.dialogue.invalidate("profile:profile-a")
+                session, moment, entry = await self.selected_credit()
+                entered, release, accepted, resume = (asyncio.Event() for _ in range(4))
+                original_shield = asyncio.shield
+                async def delayed_join(future):
+                    value = await original_shield(future)
+                    if isinstance(future, asyncio.Future) and isinstance(value, tuple):
+                        accepted.set()
+                        await resume.wait()
+                    return value
+                async def owner():
+                    return None
+                async def delegate(*args):
+                    entered.set()
+                    await release.wait()
+                    if change == "forecast":
+                        from custom_components.djconnect.ask_dj.observations import forecast_read
+                        return await forecast_read(self.hass, self.runtime)
+                    return {"success": True, "text": "A private qualified answer."}
+                context = {"session_id": session.session_id,
+                    "selected_entry": entry} if change == "remove" else {
+                    "session_id": session.session_id, "selected_moment": {
+                        "session_id": session.session_id, "moment_id": moment.moment_id}}
+                if change == "forecast":
+                    context = {}
+                context["thread_id"] = "race"
+                payload = {"text": "Tell me more about it", "client_message_id": "join-" + change,
+                    "conversation_context": context}
+                async def exchange():
+                    return await service.async_exchange(self.hass, self.runtime, payload,
+                        profile_id="profile-a", history_manager=self.history, delegate=delegate,
+                        validate_owner=owner, persist_history=False)
+                with patch.object(service.asyncio, "shield", delayed_join):
+                    first = asyncio.create_task(exchange())
+                    await asyncio.wait_for(entered.wait(), 3)
+                    joined = asyncio.create_task(exchange())
+                    await asyncio.sleep(0.01)
+                    release.set()
+                    await asyncio.wait_for(accepted.wait(), 3)
+                    self.assertTrue((await first)["success"])
+                    if change in {"end", "forecast"}:
+                        await self.fixture.manager.async_end(owner_profile_id="profile-a", session_id=session.session_id)
+                    elif change == "remove":
+                        await self.fixture.queries._repository.async_remove_entry_records("profile-a", [entry["entry_id"]])
+                    elif change == "generation":
+                        self.history.dialogue.invalidate("profile:profile-a")
+                    from types import SimpleNamespace
+                    expiry = patch.object(service, "time", SimpleNamespace(monotonic=lambda: moment.source_fact.observed_at + 1801))
+                    with expiry if change == "expiry" else nullcontext():
+                        resume.set()
+                        with self.assertRaises((SessionConversationError, PermissionError)):
+                            await joined
+                    if change not in {"end", "forecast"}:
+                        await self.fixture.manager.async_end(owner_profile_id="profile-a", session_id=session.session_id)
+
+    async def test_joined_play_returns_same_replacement_output_offer(self):
+        from custom_components.djconnect import http
+        async def catalog(*args, **kwargs):
+            return {"success": True, "text": "One fixture recording.", "playback_actions": [
+                {"kind": "track", "uri": "spotify:track:" + "1" * 22, "title": "Fixture recording"}]}
+        with patch.object(self.handlers.http_helpers, "async_handle_ask_dj", catalog):
+            offered, status = await self.request("Find a recording", identifier="replacement-offer")
+        self.assertEqual(status, 200, offered)
+        entered, release = asyncio.Event(), asyncio.Event()
+        calls = []
+        async def missing_output(*args):
+            # External backend outcome fixture; real selection admission and
+            # DialogueState.complete own the replacement offer and joining.
+            calls.append("backend_attempt")
+            entered.set()
+            await release.wait()
+            return {"success": True, "text": "Choose an output.", "action": "select_output",
+                "playback_actions": [{"kind": "output", "device_id": "output-B", "label": "Room B",
+                    "command": "ask_dj_play_recommendation_on_output", "uri": "spotify:track:" + "1" * 22}]}
+        with patch.object(http, "_handle_ask_dj_play_recommendation", missing_output):
+            first = asyncio.create_task(self.request("Play the first", identifier="replacement-play"))
+            await asyncio.wait_for(entered.wait(), 3)
+            joined = asyncio.create_task(self.request("Play the first", identifier="replacement-play"))
+            await asyncio.sleep(0.01)
+            release.set()
+            (a, sa), (b, sb) = await asyncio.gather(first, joined)
+        self.assertEqual(sa, 200, a)
+        self.assertEqual(sb, 200, b)
+        self.assertEqual(a["result_set"], b["result_set"])
+        self.assertNotEqual(a["result_set"]["result_set_id"], offered["result_set"]["result_set_id"])
+        self.assertEqual(a["result_set"]["items"][0]["device_id"], "output-B")
+        self.assertEqual(calls, ["backend_attempt"])
+
+    async def test_native_service_payload_flag_never_opens_http_device_ingress(self):
+        await self.native_service_fixture()
+        result, status = await self.handlers.async_handle_ask_dj_message_payload(self.hass,
+            {"device_id": "djconnect-conversation-agent", "client_type": "conversation_agent",
+             "text": "Who is Brian Eno?", "_ha_service_runtime": {"entry_id": "native-service"}})
+        self.assertEqual(status, 400, result)
+        self.assertEqual(result["error"], "invalid_client_type")
+        self.assertEqual(self.prompts, [])
+
+    async def test_credit_attribution_survives_http_and_archive_rights(self):
+        session, moment, entry = await self.selected_credit()
+        context = {"session_id": session.session_id, "selected_entry": entry}
+        result, status = await self.request("Who is the composer?", context=context)
+        self.assertEqual(status, 200, result)
+        source = result["sources"][0]
+        self.assertEqual(source["provider"], "MusicBrainz")
+        self.assertEqual(source["license"], "CC0-1.0")
+        self.assertEqual(source["claim_scope"], "qualified_credit_only")
+        self.assertTrue(source["url"].startswith("https://musicbrainz.org/"))
+        self.assertEqual(result["links"][0]["url"], source["url"])
+        archived = await self.history.async_history("profile:profile-a")
+        self.assertTrue(archived["messages"])
+        self.assertNotIn("image_url", json.dumps(archived))
+        links = []
+        unsafe = self.core._sources_from_context({"sources": [{"provider": "fixture", "url": "https://user:secret@example.invalid/x"}]}, links)
+        self.assertNotIn("url", unsafe[0])
+        self.assertEqual(links, [])
+
+    async def test_selected_catalog_artist_is_identified_locally_without_model_grant(self):
+        for i, artist in enumerate(("Synthetic Artist", "Artist A & Artist B")):
+            async def offer(*args, **kwargs):
+                return {"success": True, "text": "Catalog result", "playback_actions": [{"kind": "track",
+                    "uri": "spotify:track:" + str(i + 1) * 22, "title": "Synthetic track", "subtitle": artist}]}
+            with patch.object(self.handlers.http_helpers, "async_handle_ask_dj", offer):
+                await self.request("Find tracks", identifier=f"referent-offer-{i}")
+            await self.request("the first", identifier=f"referent-select-{i}")
+            result, status = await self.request("Who is that artist?", identifier=f"referent-question-{i}")
+            self.assertEqual(status, 200, result)
+            self.assertEqual(result["intent"]["intent"], "selected_result_identification" if i == 0 else "selected_result_clarification")
+            if i == 0:
+                self.assertIn(artist, result["text"])
+            self.assertEqual(self.prompts, [])
+            self.assertEqual(self.effects, [])
+
+    async def test_invalid_prose_gets_one_bounded_repair_before_acceptance(self):
+        answers = ["Il travaille dans l'ambient music. Il crée des paysages sonores.",
+                   "Il travaille dans la musique ambient. Il crée des paysages sonores."]
+        async def agent(hass, data, **kwargs):
+            self.prompts.append(json.loads(data["text"].split("\nData:\n", 1)[1]))
+            return {"response": {"speech": {"plain": {"speech": answers.pop(0)}}}}
+        with patch.object(self.pipeline, "_call_conversation_process_transport", agent):
+            result, status = await self.request("Qui est Brian Eno ?", language="fr", dj_persona="radio_dj")
+        self.assertEqual(status, 200, result)
+        self.assertEqual(result["conversation"]["metrics"]["agent_calls"], 2)
+        self.assertNotIn("ambient music", result["text"])
+        stored = await self.history.async_history("profile:profile-a")
+        self.assertNotIn("ambient music", json.dumps(stored))
+        self.assertEqual(len(stored["messages"]), 2)
+        self.assertEqual(self.effects, [])
+
+    async def test_known_prose_issues_repair_without_archiving_invalid_answer(self):
+        for language, question, bad, good in (
+            ("de", "Wer ist Brian Eno?", "Brians Enos Ansatz nutzt Kontraste.", "Der Ansatz von Brian Eno nutzt Kontraste."),
+            ("nl", "Wie is Brian Eno?", "Hij maakt vaak geurige, lagen van geluid.", "Brian Eno gebruikt gelaagde klanken."),
+        ):
+            answers = [bad, good]
+            async def agent(hass, data, **kwargs):
+                return {"response": {"speech": {"plain": {"speech": answers.pop(0)}}}}
+            with patch.object(self.pipeline, "_call_conversation_process_transport", agent):
+                result, status = await self.request(question, identifier="repair-" + language, language=language, dj_persona="club_dj")
+            self.assertEqual(status, 200, result)
+            self.assertEqual(result["text"], good)
+            self.assertEqual(result["conversation"]["metrics"]["agent_calls"], 2)
+            self.assertNotIn(bad, json.dumps(await self.history.async_history("profile:profile-a"), ensure_ascii=False))
+        self.assertEqual(self.effects, [])
+
+    async def test_repeated_invalid_format_fails_without_acceptance_or_third_call(self):
+        self.reply = "Il compose de l'ambient music."
+        result, status = await self.request("Qui est Brian Eno ?", language="fr", dj_persona="radio_dj")
+        self.assertEqual(status, 502, result)
+        self.assertEqual(result["error"], "conversation_model_response_invalid")
+        self.assertEqual(len(self.prompts), 2)
+        self.assertEqual((await self.history.async_history("profile:profile-a"))["messages"], [])
+        self.assertEqual(self.effects, [])
+
+    def test_language_format_preserves_titles_names_abbreviations_and_pitch(self):
+        examples = [
+            ('fr', 'Il cite «Ambient Music». Il compose.'),
+            ('en', 'J. Cole is an American rapper.'),
+            ('en', 'The recording was produced by J. Cole.'),
+            ('en', 'R.E.M. worked with Dr. Example.'),
+            ('en', 'He played in C. The music stopped.'),
+            ('en', 'He plays R&B, e.g. a slow ballad.'),
+            ('de', 'Er nutzt Kontraste, z.B. zwischen leisen und lauten Passagen.'),
+            ('nl', 'Hij gebruikt contrasten, bijv. tussen zachte en luide passages.'),
+            ('fr', 'Il utilise des contrastes, p.ex. entre les passages doux et forts.'),
+            ('es', 'Usa contrastes, p.ej. entre pasajes suaves y fuertes.'),
+        ]
+        for language, answer in examples:
+            self.assertIsNone(self.dialogue.answer_language_format_issue(answer, {"language": language, "persona": "club_dj"}))
+        for language in ("nl", "de", "fr", "es"):
+            self.assertIsNotNone(self.dialogue.answer_language_format_issue('He makes ambient music.', {"language": language}))
+            for description in ("visual artist", "layering", "tape loops"):
+                self.assertIsNotNone(self.dialogue.answer_language_format_issue(description, {"language": language}))
+            self.assertIsNone(self.dialogue.answer_language_format_issue('«Layering»', {"language": language}))
+            self.assertIsNone(self.dialogue.answer_language_format_issue('Layering', {"language": language}, ["Layering"]))
+        self.assertIsNotNone(self.dialogue.answer_language_format_issue('Art is een visual artist.', {"language": "nl"}, ["Art"]))
+        self.assertIsNotNone(self.dialogue.answer_language_format_issue('Zijn layering verbindt de klanken.', {"language": "nl"}, ["Layer"]))
+        self.assertIsNone(self.dialogue.answer_language_format_issue('Tape Loops speelt muziek.', {"language": "nl"}, ["Tape Loops"]))
+        self.assertIsNone(self.dialogue.answer_language_format_issue('Ambient Music speelt muziek.', {"language": "nl"}, ["Ambient Music"]))
+        self.assertIsNotNone(self.dialogue.answer_language_format_issue('Hij maakt ambient music.', {"language": "nl"}, ["Ambient"]))
+        self.assertIsNotNone(self.dialogue.answer_language_format_issue('Brians Enos Ansatz nutzt Kontraste.', {"language": "de"}, ["Brian Eno"]))
+        self.assertIsNotNone(self.dialogue.answer_language_format_issue('Johns Coltranes Ansatz nutzt Kontraste.', {"language": "de"}, ["John Coltrane"]))
+        self.assertIsNone(self.dialogue.answer_language_format_issue('Der Ansatz von Brian Eno nutzt Kontraste.', {"language": "de"}, ["Brian Eno"]))
+        self.assertIsNotNone(self.dialogue.answer_language_format_issue('Hij maakt vaak geurige, lagen van geluid.', {"language": "nl"}))
+        self.assertIsNone(self.dialogue.answer_language_format_issue('Hij bespreekt het werk «Geurige lagen».', {"language": "nl"}))
+        self.assertIsNotNone(self.dialogue.answer_language_format_issue('Zijn geluidsonstructie gebruikt contrasten.', {"language": "nl"}))
+
+    async def test_valid_music_name_prose_is_not_rejected_as_sentence_format(self):
+        self.reply = "J. Cole is a rapper."
+        result, status = await self.request("Who is J. Cole?", dj_persona="club_dj")
+        self.assertEqual(status, 200, result)
+        self.assertEqual(result["conversation"]["metrics"]["agent_calls"], 1)
+        self.assertEqual(result["text"], self.reply)
+        self.assertEqual(len((await self.history.async_history("profile:profile-a"))["messages"]), 2)
+
+    async def test_user_named_subject_survives_possessive_followup_and_control(self):
+        await self.request("¿Quién es Brian Eno?", identifier="named-subject", language="es", dj_persona="club_dj")
+        frame = self.history.dialogue.owners["profile:profile-a"]["default"]
+        self.assertEqual(frame.subjects, [{"name": "Brian Eno", "role": "user_named_subject", "basis": "user_explicit_name"}])
+        await self.request("¿Qué distingue su enfoque?", identifier="named-follow", language="es", dj_persona="club_dj")
+        self.assertEqual(self.prompts[-1]["relevant_subjects"][0]["name"], "Brian Eno")
+        await self.request("Who is Miles Davis?", identifier="new-named-subject")
+        self.assertEqual(frame.subjects[0]["name"], "Miles Davis")
+        await self.request("What influenced his approach?", identifier="new-named-follow")
+        self.assertEqual(self.prompts[-1]["relevant_subjects"][0]["name"], "Miles Davis")
+        self.assertEqual(self.effects, [])
+
+    async def test_play_readback_requires_exact_requested_output(self):
+        from custom_components.djconnect import http
+        from types import SimpleNamespace
+        uri = "spotify:track:" + "1" * 22
+        async def guard():
+            pass
+        self.runtime.update = lambda **values: self.runtime.__dict__.update(values)
+        turn = SimpleNamespace(play_output_id="output-B", style={"language": "en"}, guard=guard)
+        token = self.dialogue.current_turn.set(turn)
+        try:
+            for output in ("output-A", None, "output-B"):
+                async def status(*args, **kwargs):
+                    return {"playback": {"uri": uri, "is_playing": True,
+                                         "device": {"id": output} if output else {}}}
+                with patch.object(http, "run_music_command", status):
+                    result = await http._recommendation_play_success_response(self.hass, self.runtime,
+                        {"kind": "track", "uri": uri, "title": "Synthetic track"},
+                        {"audio_response": "never"}, {"success": True})
+                self.assertEqual(result["action_outcome"]["readback_confirmed"], output == "output-B")
+                self.assertEqual(result["action_outcome"]["state"], "confirmed" if output == "output-B" else "dispatched")
+        finally:
+            self.dialogue.current_turn.reset(token)
+
+    async def test_one_service_screen_and_voice_parity_with_rich_results(self):
+        calls = []
+
+        async def core(h, r, p, **kwargs):
+            calls.append(kwargs)
+            return {
+                "success": True,
+                "text": "Same capabilities",
+                "items": [{"kind": "album", "title": "Real provider-shaped result"}],
+            }
+
+        with patch.object(self.handlers.http_helpers, "async_handle_ask_dj", core):
+            for i, context in enumerate((None, {})):
+                result, status = await self.request(
+                    "An open music question",
+                    identifier=f"parity-{i}",
+                    context=context,
+                    input_type="voice",
+                )
+                self.assertEqual(status, 200, result)
+                self.assertEqual(result["conversation"]["history_scope"], "profile")
+                self.assertEqual(result["items"][0]["kind"], "album")
+        self.assertEqual(len(calls), 2)
+        self.assertEqual({c["conversation_history_scope"] for c in calls}, {"profile:profile-a"})
+        state = await self.history.async_history("profile:profile-a")
+        self.assertEqual(len(state["messages"]), 4)
+        self.assertEqual((await self.history.async_history(None))["messages"], [])
+
+    async def test_search_refinement_uses_new_user_subject_and_real_cards_without_playing(self):
+        from custom_components.djconnect.domain.profile import ProfilePreferences
+        await self.handlers.profile_storage(self.hass).async_update_profile("profile-a", preferences=ProfilePreferences(default_backend_id="source-spotify"))
+        self.runtime.config["music_backend"] = "spotify_direct"
+        self.reply = json.dumps({"text": "I will search for acoustic jazz.", "intent": "lookup", "query": "acoustic jazz"})
+        queries = []
+        async def search(hass, runtime, query, **kwargs):
+            queries.append(query)
+            return {"tracks": [{"uri": "spotify:track:0123456789abcdefghijkL", "title": "Synthetic Live", "artist": "Synthetic performer"}]}
+        async def command(*args, **kwargs):
+            raise AssertionError("Searching and refining cannot change playback")
+        with patch.object(self.core, "_spotify_track_search", search), patch.object(self.core, "run_music_command", command):
+            result, status = await self.request("Suggest acoustic jazz songs to search for, keeping playback unchanged.")
+            self.assertEqual(status, 200, result)
+            self.assertIn("result_set", result, result)
+            self.assertEqual(self.prompts[-1]["requested_operation"], "lookup")
+            self.reply = json.dumps({"text": "I will refine that search.", "intent": "refine", "query": "acoustic live jazz"})
+            refined, status = await self.request("Rather a live version; search for one, do not play yet.", identifier="refine")
+            self.assertEqual(status, 200, refined)
+            self.assertTrue(refined["result_set"])
+            self.assertEqual(self.prompts[-1]["requested_operation"], "refine")
+            self.assertNotIn("Synthetic performer", json.dumps(self.prompts))
+            self.assertEqual(queries, ["acoustic jazz", "acoustic live jazz"])
+            self.reply = json.dumps({"intent": "refine", "query": "quiet live jazz"})
+            recovered, status = await self.request("Rather quieter live jazz", identifier="missing-model-caption")
+            self.assertEqual(status, 200, recovered)
+            self.assertIn("result_set", recovered)
+            self.assertEqual(recovered["text"], "Found 1 track for quiet live jazz.")
+            self.assertNotIn('"intent":', recovered["text"])
+
+    async def test_analysis_discussion_does_not_open_a_screen_and_explicit_navigation_does(self):
+        async def insight(*args, **kwargs):
+            return {"language": "en", "track": {"title": "Synthetic", "artist": "Synthetic performer"}, "analysis": {"summary": "No audio measurement is available for this recording."}}
+        async def status(*args, **kwargs):
+            return {"success": True, "playback": {}}
+        with patch.object(self.core, "async_call_ai_tool", insight), patch.object(self.core, "run_music_command", status):
+            discussed, status_code = await self.request("Why does this track sound emotional?")
+            self.assertEqual(status_code, 200, discussed)
+            self.assertEqual(discussed["action"], "none")
+            self.assertEqual(discussed["type"], "message")
+            self.assertNotIn("open_screen", discussed)
+            self.assertNotIn("track_insight", discussed)
+            opened, status_code = await self.request("Open Track Insight for this track", identifier="open")
+            self.assertEqual(status_code, 200, opened)
+            self.assertEqual(opened["open_screen"], "track_insight")
+            negated, status_code = await self.request("Do not open Track Insight; explain it here", identifier="negated-open")
+            self.assertEqual(status_code, 200, negated)
+            self.assertNotIn("open_screen", negated)
+            for i, (language, text) in enumerate((("en", "Open the analysis of this track"), ("nl", "Open de analyse van dit nummer"), ("de", "Öffne die Analyse dieses Titels"), ("fr", "Ouvre l’analyse de cette chanson"), ("es", "Abre el análisis de esta canción"))):
+                opened, status_code = await self.request(text, identifier=f"analysis-open-{i}", language=language)
+                self.assertEqual(status_code, 200, opened)
+                self.assertEqual(opened.get("open_screen"), "track_insight")
+        self.assertEqual(self.prompts, [])
+
+    async def test_selected_cc0_credit_calls_agent_instead_of_quote_echo(self):
+        session, moment, target = await self.selected_credit()
+        result, status = await self.request(
+            "Who is that?", context={"session_id": session.session_id, "selected_entry": target}
+        )
+        self.assertEqual(status, 200, result)
+        self.assertNotEqual(result["text"], moment.content)
+        self.assertEqual(result["conversation"]["metrics"]["agent_calls"], 1)
+        data = self.prompts[0]["context"]
+        self.assertEqual(data["subjects"], [{"name": "Brian Eno", "role": "composer"}])
+        self.assertNotIn("Synthetic performer", json.dumps(self.prompts))
+        self.assertEqual(data["attribution"]["license"], "CC0-1.0")
+
+    async def test_five_language_deictic_credit_roles_keep_the_selected_source(self):
+        examples = [
+            ("en", "Who is that composer?"),
+            ("nl", "Wie is die componist?"),
+            ("de", "Wer ist der Komponist?"),
+            ("fr", "Qui est le compositeur ?"),
+            ("es", "¿Quién es el compositor?"),
+        ]
+        session, moment, reference = await self.selected_credit()
+        for i, (language, text) in enumerate(examples):
+            result, status = await self.request(
+                text,
+                identifier="role-" + str(i),
+                language=language,
+                context={"selected_entry": reference, "thread_id": "credit-role"},
+            )
+            self.assertEqual(status, 200, result)
+            self.assertEqual(
+                self.prompts[-1]["context"].get("subjects"),
+                [{"name": "Brian Eno", "role": "composer"}],
+            )
+            self.assertFalse(self.dialogue.explicit_subject(text))
+        for text in ["his approach", "zijn aanpak", "seinen Ansatz", "son approche", "su enfoque"]:
+            self.assertTrue(self.dialogue.references_topic(text))
+
+    async def test_qualified_agent_failure_never_falls_back_to_an_unqualified_default(self):
+        calls = []
+
+        async def unavailable(domain, service, data, **kwargs):
+            calls.append(dict(data))
+            raise ValueError("Invalid agent ID fixture")
+
+        self.hass.services.async_call = unavailable
+        with patch.object(
+            self.pipeline, "_call_conversation_process_transport", self.original_transport
+        ):
+            with self.assertRaises(ValueError):
+                await self.pipeline.call_conversation_process_with_agent_retry(
+                    self.hass,
+                    {
+                        "agent_id": "qualified-fixture-agent",
+                        "text": "Approved current question only",
+                    },
+                    model_guard=lambda: None,
+                )
+        self.assertEqual(len(calls), 1)
+        self.assertEqual(calls[0]["agent_id"], "qualified-fixture-agent")
+
+    async def test_clear_five_language_volume_controls_keep_topic_without_agent(self):
+        await self.request("Who is Brian Eno?", identifier="volume-topic")
+        frame = self.history.dialogue.owners["profile:profile-a"]["default"]
+        topic = deepcopy(frame.messages)
+        calls = []
+
+        async def control(hass, runtime, text, intent, *args, **kwargs):
+            calls.append((intent.action, intent.value))
+            return {"success": True, "text": "Explicit control routing fixture"}
+
+        examples = [
+            ("en", "Turn the volume down"),
+            ("en", "Turn volume down"),
+            ("nl", "Zet zachter"),
+            ("de", "Mach leiser"),
+            ("fr", "Baisse le volume"),
+            ("es", "Baja el volumen"),
+        ]
+        with patch.object(self.core, "_handle_action", control):
+            for i, (language, text) in enumerate(examples):
+                result, status = await self.request(
+                    text, identifier="volume-language-" + str(i), language=language
+                )
+                self.assertEqual(status, 200, result)
+                self.assertEqual(result["conversation"]["metrics"]["agent_calls"], 0)
+                self.assertEqual(frame.messages, topic)
+        self.assertEqual(calls, [("volume_delta", -10)] * 6)
+        self.assertEqual(len(self.prompts), 1)
+
+    async def test_explicit_quote_has_zero_model_calls(self):
+        session, moment, target = await self.selected_credit()
+        result, status = await self.request(
+            "Quote this verbatim",
+            context={"session_id": session.session_id, "selected_entry": target},
+        )
+        self.assertEqual(status, 200, result)
+        self.assertEqual(result["text"], moment.content)
+        self.assertEqual(result["conversation"]["metrics"]["agent_calls"], 0)
+        self.assertEqual(self.prompts, [])
+
+    async def test_new_explicit_subject_ignores_missing_old_chip(self):
+        result, status = await self.request(
+            "Who is Miles Davis?",
+            context={"selected_entry": {"session_id": "expired", "entry_id": "missing"}},
+        )
+        self.assertEqual(status, 200, result)
+        self.assertEqual(len(self.prompts), 1)
+        self.assertEqual(self.prompts[0]["context"], {})
+        self.assertNotIn("selected_entry", result["conversation"]["context"])
+
+    async def test_general_trivia_survives_track_change_and_no_backend(self):
+        session = await self.fixture.observed_session()
+        entered, release = asyncio.Event(), asyncio.Event()
+
+        async def delayed(*args, **kwargs):
+            entered.set()
+            await release.wait()
+            return {
+                "success": True,
+                "text": "A public biography",
+                "model_processing_basis": "qualified_dialogue_v1",
+            }
+
+        with patch.object(self.core, "_handle_informational", delayed):
+            task = asyncio.create_task(
+                self.request("Who is Miles Davis?", context={"session_id": session.session_id})
+            )
+            await asyncio.wait_for(entered.wait(), 2)
+            await self.fixture.manager.async_update_playback_projection(
+                owner_profile_id="profile-a",
+                session_id=session.session_id,
+                state="playing",
+                media_identity="spotify:track:1123456789abcdefghijkL",
+                title="Other",
+                artist="Other",
+                duration_ms=300000,
+                position_ms=0,
+            )
+            release.set()
+            result, status = await task
+        self.assertEqual(status, 200, result)
+        self.assertEqual(result["text"], "A public biography")
+
+    async def test_short_window_is_not_legacy_archive_or_dna(self):
+        await self.history.async_append_exchange(
+            "ha-user",
+            {"client_message_id": "legacy", "text": "LEGACY PRIVATE"},
+            {"text": "LEGACY BODY"},
+        )
+        for i in range(20):
+            result, status = await self.request(
+                "A general music discussion " + str(i), identifier=f"long-{i}"
+            )
+            self.assertEqual(status, 200, result)
+        frame = self.history.dialogue.owners["profile:profile-a"]["default"]
+        self.assertLessEqual(len(frame.messages), 12)
+        self.assertLessEqual(self.dialogue.encoded_size(frame.messages), 12 * 1024)
+        self.assertNotIn("LEGACY", json.dumps(self.prompts))
+        self.assertEqual(
+            len((await self.history.async_history("profile:profile-a"))["messages"]), 40
+        )
+
+    async def test_controls_do_not_reset_subject_and_make_zero_agent_calls(self):
+        await self.request("Who is Brian Eno?")
+        before = deepcopy(self.history.dialogue.owners["profile:profile-a"]["default"].messages)
+
+        async def control(*args, **kwargs):
+            return {"success": True, "text": "Volume request dispatched"}
+
+        with patch.object(self.core, "_handle_action", control):
+            result, status = await self.request("Zet zachter", identifier="control")
+        self.assertEqual(status, 200, result)
+        self.assertEqual(result["conversation"]["metrics"]["agent_calls"], 0)
+        self.assertEqual(
+            self.history.dialogue.owners["profile:profile-a"]["default"].messages, before
+        )
+        _, status = await self.request("What influence did he have?", identifier="followup")
+        self.assertEqual(status, 200)
+        self.assertIn("Who is Brian Eno?", json.dumps(self.prompts[-1]))
+
+    async def test_new_topic_detaches_prior_source_dependencies(self):
+        session, _moment, target = await self.selected_credit()
+        await self.request("Who is that?", context={"selected_entry": target})
+        _, status = await self.request("Who is Miles Davis?", identifier="new-topic")
+        self.assertEqual(status, 200)
+        self.assertEqual(self.prompts[-1]["recent_turns"], [])
+        frame = self.history.dialogue.owners["profile:profile-a"]["default"]
+        self.assertEqual(frame.dependencies, [])
+        self.assertEqual([subject["name"] for subject in frame.subjects], ["Miles Davis"])
+        self.assertTrue(all(subject["role"] == "user_named_subject" for subject in frame.subjects))
+        await self.fixture.repo.async_remove_entry_records("profile-a", [target["entry_id"]])
+        _, status = await self.request("What influence did he have?", identifier="new-followup")
+        self.assertEqual(status, 200)
+        self.assertIn("Miles Davis", json.dumps(self.prompts[-1]))
+        self.assertNotIn("Brian Eno", json.dumps(self.prompts[-1]))
+
+    async def test_profile_clear_revalidates_owner_after_waiting_for_history_writer(self):
+        await self.request("Who is Brian Eno?")
+        storage = self.handlers.profile_storage(self.hass)
+        await storage.async_create_profile("Other", profile_id="profile-new", default_backend_id="later_manual")
+        entered = asyncio.Event()
+        clear = self.history.async_clear
+        async def observed_clear(*args, **kwargs):
+            entered.set()
+            return await clear(*args, **kwargs)
+        await self.history._write_lock.acquire()
+        try:
+            with patch.object(self.history, "async_clear", observed_clear):
+                task = asyncio.create_task(self.handlers.async_handle_ask_dj_history_clear_payload(self.hass, self.identity, headers=self.headers))
+                await asyncio.wait_for(entered.wait(), 2)
+                await storage.async_upsert_device(self.identity["device_id"], "ios", linked_profile_id="profile-new")
+                self.history._write_lock.release()
+                result, status = await task
+        finally:
+            if self.history._write_lock.locked():
+                self.history._write_lock.release()
+        self.assertEqual(status, 403, result)
+        self.assertEqual(len((await self.history.async_history("profile:profile-a"))["messages"]), 2)
+        self.assertTrue(self.history.dialogue.owners["profile:profile-a"]["default"].messages)
+
+    async def test_voice_owner_withdrawal_at_body_stt_and_model_boundaries_leaks_nothing(self):
+        from types import SimpleNamespace
+        from custom_components.djconnect import http
+
+        storage = self.handlers.profile_storage(self.hass)
+        await storage.async_create_profile("Other", profile_id="voice-other", default_backend_id="later_manual")
+        self.runtime.update = lambda **values: self.runtime.__dict__.update(values)
+        before = await self.history.async_history("profile:profile-a")
+        before.pop("server_time", None)
+        for boundary in ("body", "stt", "model"):
+            with self.subTest(boundary=boundary):
+                await storage.async_upsert_device(self.identity["device_id"], "ios", linked_profile_id="profile-a")
+                speech_calls = []
+
+                async def withdraw():
+                    await storage.async_upsert_device(self.identity["device_id"], "ios", linked_profile_id="voice-other")
+
+                async def read():
+                    if boundary == "body":
+                        await withdraw()
+                    return b"RIFFxxxxWAVEdata"
+
+                async def speech(*args):
+                    speech_calls.append(True)
+                    if boundary == "stt":
+                        await withdraw()
+                        raise RuntimeError("Private old-owner STT error")
+                    return "Who is Brian Eno?"
+
+                async def model(*args, **kwargs):
+                    await withdraw()
+                    return {"response": {"speech": {"plain": {"speech": "Private old-owner model answer"}}}}
+
+                request = SimpleNamespace(
+                    app={"hass": self.hass}, read=read,
+                    headers={**self.headers, "X-DJConnect-Device-ID": self.identity["device_id"],
+                        "X-DJConnect-Client-Type": "ios", "Content-Type": "audio/wav", "X-DJConnect-Language": "en"},
+                )
+                with patch.object(http, "transcribe_wav_with_assist", speech), patch.object(self.pipeline, "_call_conversation_process_transport", model):
+                    response = await http.DJConnectVoiceView(self.hass).post(request)
+                payload = json.loads(response.text)
+                self.assertEqual(response.status, 403, payload)
+                self.assertEqual(response.headers["Cache-Control"], "no-store")
+                for key in ("transcript", "recognized_text", "audio_url", "assistant_message", "conversation"):
+                    self.assertNotIn(key, payload)
+                self.assertNotIn("Private old-owner", response.text)
+                self.assertEqual(len(speech_calls), 0 if boundary == "body" else 1)
+                after = await self.history.async_history("profile:profile-a")
+                after.pop("server_time", None)
+                self.assertEqual(after, before)
+
+    async def test_exact_target_rejects_malformed_unpublished_and_style_changed_proof(self):
+        from custom_components.djconnect.track_insight_target import resolve_target
+        from custom_components.djconnect.track_insight import TrackInsightError
+        from custom_components.djconnect.session_runtime import DJPersona
+
+        session, moment, entry = await self.selected_credit()
+        ref = {"schema_version": 1, "session_id": session.session_id, "moment_id": moment.moment_id, "action_id": "insight-" + moment.moment_id}
+        for malformed in (True, {}, {**ref, "schema_version": True}, {**ref, "extra": "grant"}, {**ref, "moment_id": ""}):
+            response, status = await self.detail(malformed)
+            self.assertEqual(status, 400, response)
+        with self.assertRaises(TrackInsightError) as denied:
+            await resolve_target(self.hass, self.runtime, {}, owner_profile_id="", reference=ref)
+        self.assertEqual(denied.exception.status, 403)
+        response, status = await self.detail({**ref, "moment_id": "unpublished", "action_id": "insight-unpublished"})
+        self.assertEqual(status, 403, response)
+        qualified = await resolve_target(self.hass, self.runtime, {"conversation_context": {"selected_entry": entry}}, owner_profile_id="profile-a")
+        self.assertEqual(qualified.reference, ref)
+        await self.fixture.manager.async_update_persona(owner_profile_id="profile-a", session_id=session.session_id, dj_persona=DJPersona.CLUB_DJ)
+        with self.assertRaises(TrackInsightError) as changed:
+            qualified.guard()
+        self.assertEqual(changed.exception.status, 409)
+        self.assertEqual(self.prompts, [])
+
+    async def test_profile_history_state_export_and_clear_share_the_same_namespace(self):
+        accepted, status = await self.request("Who is Brian Eno?")
+        self.assertEqual(status, 200, accepted)
+        state, status = await self.handlers.async_handle_ask_dj_history_state_payload(self.hass, self.identity, headers=self.headers)
+        self.assertEqual(status, 200, state)
+        export, status = await self.handlers.async_handle_ask_dj_history_export_payload(self.hass, self.identity, headers=self.headers)
+        self.assertEqual(status, 200, export)
+        self.assertEqual(state["history_revision"], accepted["history_revision"])
+        self.assertEqual(export["history_revision"], accepted["history_revision"])
+        self.assertEqual(len(export["messages"]), 2)
+        self.assertEqual(export["owner_profile_id"], "profile-a")
+        for scope, expected in (("legacy", 401), ("typo", 400), ({}, 400)):
+            result, status = await self.handlers.async_handle_ask_dj_history_clear_payload(self.hass, {**self.identity, "conversation_scope": scope}, headers=self.headers)
+            self.assertEqual(status, expected, result)
+        cleared, status = await self.handlers.async_handle_ask_dj_history_clear_payload(self.hass, self.identity, headers=self.headers)
+        self.assertEqual(status, 200, cleared)
+        state, status = await self.handlers.async_handle_ask_dj_history_state_payload(self.hass, self.identity, headers=self.headers)
+        self.assertEqual(status, 200, state)
+        self.assertTrue(state["ask_dj_clear_required"])
+        self.assertEqual(state["clear_revision"], cleared["clear_revision"])
+
+    async def test_raw_ram_context_does_not_gain_archive_rights_on_message_followup(self):
+        self.reply = "A RAM-only discussion of Brian Eno."
+        raw, status = await self.handlers.async_handle_ask_dj_message_payload(self.hass, {**self.identity, "client_message_id": "raw", "text": "Who is Brian Eno?", "language": "en", "audio_response": "never"}, headers=self.headers, persist_history=False)
+        self.assertEqual(status, 200, raw)
+        self.assertFalse(raw["history_persisted"])
+        follow, status = await self.request("What influence did he have?", identifier="raw-follow")
+        self.assertEqual(status, 200, follow)
+        self.assertFalse(follow["history_persisted"])
+        self.assertIn("RAM-only", json.dumps(self.prompts[-1]))
+        self.assertEqual((await self.history.async_history("profile:profile-a"))["messages"], [])
+        topic, status = await self.request("Who is Miles Davis?", identifier="fresh-independent-topic")
+        self.assertEqual(status, 200, topic)
+        self.assertEqual(self.prompts[-1]["recent_turns"], [])
+        self.assertEqual(len((await self.history.async_history("profile:profile-a"))["messages"]), 2)
+
+    async def test_five_language_open_wishes_are_readonly_search_not_play_authority(self):
+        from custom_components.djconnect.domain.profile import ProfilePreferences
+        await self.handlers.profile_storage(self.hass).async_update_profile("profile-a", preferences=ProfilePreferences(default_backend_id="source-spotify"))
+        self.runtime.config["music_backend"] = "spotify_direct"
+        examples = (("en", "I'm in the mood for some jazz"), ("nl", "Ik heb zin in jazz"), ("de", "Ich hätte gern etwas Jazz"), ("fr", "J’ai envie de jazz"), ("es", "Me apetece escuchar jazz"))
+        async def search(*args, **kwargs):
+            return {"tracks": [{"uri": "spotify:track:0123456789abcdefghijkL", "title": "Synthetic", "artist": "Synthetic performer"}]}
+        async def command(*args, **kwargs):
+            raise AssertionError("An open preference is not playback permission")
+        self.reply = json.dumps({"text": "Fixture search request", "intent": "lookup", "query": "jazz"})
+        with patch.object(self.core, "_spotify_track_search", search), patch.object(self.core, "run_music_command", command):
+            for i, (language, text) in enumerate(examples):
+                result, status = await self.request(text, identifier=f"wish-{i}", language=language)
+                self.assertEqual(status, 200, result)
+                self.assertIn("result_set", result, result)
+                self.assertEqual(self.prompts[-1]["requested_operation"], "lookup")
+        self.assertEqual(len(self.prompts), 5)
+
+    async def test_clear_storage_failure_is_typed_and_preserves_messages_and_window(self):
+        await self.request("Who is Brian Eno?")
+        snapshot = deepcopy(self.history.data)
+        frame = self.history.dialogue.owners["profile:profile-a"]["default"]
+        generation, messages = frame.generation, deepcopy(frame.messages)
+        async def fail(*args, **kwargs):
+            raise OSError("Synthetic storage refusal")
+        with patch.object(self.history._store, "async_save", fail):
+            result, status = await self.handlers.async_handle_ask_dj_history_clear_payload(self.hass, self.identity, headers=self.headers)
+        self.assertEqual(status, 503, result)
+        self.assertEqual(result["error"], "history_storage_unavailable")
+        self.assertEqual(self.history.data, snapshot)
+        self.assertEqual(frame.generation, generation)
+        self.assertEqual(frame.messages, messages)
+
+    async def test_invalid_structured_model_output_has_no_tool_or_archive_commit(self):
+        async def search(*args, **kwargs):
+            raise AssertionError("Malformed output cannot grant lookup or playback")
+        for i, reply in enumerate(('["jazz"]', '```json\n{"intent":', '{"intent":"lookup","query":"spotify:track:unsafe"}')):
+            self.reply = reply
+            with patch.object(self.core, "_spotify_track_search", search):
+                result, status = await self.request("Explain jazz", identifier=f"invalid-model-{i}")
+            self.assertEqual(status, 502, result)
+            self.assertEqual(result["error"], "conversation_model_response_invalid")
+        self.assertEqual((await self.history.async_history("profile:profile-a"))["messages"], [])
+
+    async def test_malformed_lookup_retry_is_bounded_readonly_and_keeps_invalid_output_out(self):
+        calls, lookups = [], []
+        async def agent(_hass, data, **kwargs):
+            calls.append(data["text"])
+            reply = '{"text":"BROKEN_PRIVATE_RESULT"},"intent":"lookup"}' if len(calls) == 1 else '{"intent":"lookup","query":"acoustic jazz"}'
+            return {"response": {"speech": {"plain": {"speech": reply}}}}
+        async def search(*args, **kwargs):
+            lookups.append(True)
+            return {"success": True, "tracks": [{"uri": "spotify:track:" + "a" * 22, "title": "Synthetic track", "artist": "Synthetic artist"}]}
+        with patch.object(self.pipeline, "_call_conversation_process_transport", agent), patch.object(self.core, "_spotify_track_search", search):
+            result, status = await self.request("Suggest acoustic jazz songs to search for, keeping playback unchanged.", identifier="format-retry")
+        self.assertEqual(status, 200, result)
+        self.assertEqual(len(calls), 2)
+        self.assertEqual(len(lookups), 1)
+        self.assertNotIn("BROKEN_PRIVATE_RESULT", calls[1])
+        self.assertEqual(result["conversation"]["metrics"]["agent_calls"], 2)
+        self.assertEqual(len((await self.history.async_history("profile:profile-a"))["messages"]), 2)
+
+        self.reply = '{"intent":'
+        self.prompts.clear()
+        result, status = await self.request("Suggest live jazz songs to search for, keeping playback unchanged.", identifier="format-retry-fails")
+        self.assertEqual(status, 502, result)
+        self.assertEqual(len(self.prompts), 2)
+        self.assertEqual(len((await self.history.async_history("profile:profile-a"))["messages"]), 2)
+
+    async def test_model_query_cannot_replace_a_biography_answer_or_grant_a_lookup(self):
+        calls = []
+        async def agent(_hass, data, **kwargs):
+            calls.append(data["text"])
+            reply = '{"intent":"lookup","query":"Miles Davis"}' if len(calls) == 1 else "Miles Davis was an American jazz trumpeter and bandleader."
+            return {"response": {"speech": {"plain": {"speech": reply}}}}
+        async def search(*args, **kwargs):
+            raise AssertionError("A biography request grants no catalog lookup")
+        with patch.object(self.pipeline, "_call_conversation_process_transport", agent), patch.object(self.core, "_spotify_track_search", search):
+            result, status = await self.request("Who is Miles Davis?", identifier="answer-not-query")
+        self.assertEqual(status, 200, result)
+        self.assertIn("trumpeter", result["text"])
+        self.assertNotIn("result_set", result)
+        self.assertEqual(len(calls), 2)
+
+    async def test_clear_while_agent_pending_rejects_response_and_future_context(self):
+        entered, release = asyncio.Event(), asyncio.Event()
+
+        async def delayed(*args, **kwargs):
+            entered.set()
+            await release.wait()
+            return {"response": {"speech": {"plain": {"speech": "cleared answer"}}}}
+
+        with patch.object(self.pipeline, "_call_conversation_process_transport", delayed):
+            task = asyncio.create_task(self.request("A private music question"))
+            await asyncio.wait_for(entered.wait(), 2)
+            await self.history.async_clear("profile:profile-a")
+            release.set()
+            result, status = await task
+        self.assertEqual(status, 409, result)
+        self.assertEqual((await self.history.async_history("profile:profile-a"))["messages"], [])
+        _, status = await self.request("Another question", identifier="after-clear")
+        self.assertEqual(status, 200)
+        self.assertEqual(self.prompts[-1]["recent_turns"], [])
+
+    async def test_duplicate_inflight_joins_and_different_question_is_busy(self):
+        entered, release = asyncio.Event(), asyncio.Event()
+
+        async def delayed(*args, **kwargs):
+            entered.set()
+            await release.wait()
+            return {"response": {"speech": {"plain": {"speech": "one accepted answer"}}}}
+
+        with patch.object(self.pipeline, "_call_conversation_process_transport", delayed):
+            first = asyncio.create_task(self.request("An open music question"))
+            await asyncio.wait_for(entered.wait(), 2)
+            duplicate = asyncio.create_task(self.request("An open music question"))
+            busy, status = await self.request("Another open question", identifier="other")
+            self.assertEqual(status, 409, busy)
+            self.assertEqual(busy["error"], "conversation_busy")
+            release.set()
+            a, b = await asyncio.gather(first, duplicate)
+        self.assertEqual(a, b)
+        self.assertEqual(
+            len((await self.history.async_history("profile:profile-a"))["messages"]), 2
+        )
+
+    async def test_private_mode_has_usable_short_window_without_store_body(self):
+        result, status = await self.request("Who is Brian Eno?", privacy_mode="private")
+        self.assertEqual(status, 200, result)
+        self.assertFalse(result["history_persisted"])
+        self.assertEqual((await self.history.async_history("profile:profile-a"))["messages"], [])
+        result, status = await self.request(
+            "What influence did he have?", identifier="private-followup", privacy_mode="private"
+        )
+        self.assertEqual(status, 200, result)
+        self.assertIn("Brian Eno", json.dumps(self.prompts[-1]))
+
+    async def test_expired_or_other_thread_choices_fail_and_never_research(self):
+        frame = self.history.dialogue.frame("profile:profile-a", "default", "seed")
+        # No actual shown/current set exists; an ordinal cannot mint or re-search one.
+        result, status = await self.request("the second")
+        self.assertEqual(status, 409, result)
+        self.assertEqual(result["error"], "choice_expired")
+        self.assertEqual(self.prompts, [])
+        self.assertIsNone(frame.result_set)
+
+    async def test_opaque_effect_receipt_survives_clear_and_reload_and_fails_closed(self):
+        from custom_components.djconnect.ask_dj_history import AskDJHistoryManager
+
+        digest = "d" * 64
+        await self.history.async_reserve_dialogue_effect("profile:profile-a", "effect-id", digest)
+        await self.history.async_clear("profile:profile-a")
+        reloaded = AskDJHistoryManager(store=self.history._store)
+        await reloaded.async_load()
+        with self.assertRaises(self.dialogue.DialogueError) as caught:
+            await reloaded.async_reserve_dialogue_effect("profile:profile-a", "effect-id", digest)
+        self.assertEqual(caught.exception.code, "action_outcome_uncertain")
+        encoded = json.dumps(reloaded.data)
+        self.assertNotIn("effect-id", encoded)
+        self.assertNotIn("spotify:", encoded)
+        state = reloaded._user_state("profile:profile-a")
+        state["dialogue_effect_receipts"] = {f"{i:064x}": "d" * 64 for i in range(1000)}
+        with self.assertRaises(self.dialogue.DialogueError) as full:
+            await reloaded.async_reserve_dialogue_effect("profile:profile-a", "new-effect", digest)
+        self.assertEqual(full.exception.code, "action_receipt_capacity")
+
+    async def test_prompt_caps_and_source_rights(self):
+        source = {
+            "archive_basis": "cc0_normalized_fields_v1",
+            "text": "Spotify private catalog",
+            "source_attribution": {
+                "provider": "Spotify",
+                "license": "CC0-1.0",
+                "url": "https://open.spotify.com/track/x",
+            },
+        }
+        self.assertEqual(self.dialogue.model_source(source), {})
+        self.reply = "A synthetic fixture answer. Its second sentence follows the selected Radio format."
+        result, status = await self.request(
+            "Who is Brian Eno?", mood=75, dj_style="late_night", dj_persona="radio_dj"
+        )
+        self.assertEqual(status, 200, result)
+        style = result["conversation"]["style"]
+        self.assertEqual(style["persona"], "radio_dj")
+        self.assertEqual(style["mood"], "energy")
+        self.assertLessEqual(result["conversation"]["metrics"]["prompt_bytes"], 24 * 1024)
+        self.assertNotIn("synthetic-fixture-token", json.dumps(self.prompts))
+
+    async def test_ram_capacity_ttl_and_pending_staging(self):
+        clock = [0.0]
+        owner = self.dialogue.DialogueState(clock=lambda: clock[0])
+        for i in range(32):
+            for t in range(4):
+                owner.frame(f"owner-{i}", str(t), "generation")
+        with self.assertRaises(self.dialogue.DialogueError):
+            owner.frame("owner-overflow", "default", "g")
+        clock[0] = 1201
+        self.assertIsNotNone(owner.frame("new-owner", "default", "g"))
+        self.assertEqual(len(owner.owners), 1)
+        self.assertEqual(len(owner.owners["new-owner"]), 1)
+
+    async def test_failed_response_does_not_activate_pending_confirmation(self):
+        async def failed(h, r, p, **kwargs):
+            await self.core._store_pending_followup(
+                r,
+                p,
+                question="proposed only",
+                proposed_intent="play",
+                proposed_action="ask_dj_play_recommendation",
+                proposed_payload={"uri": "spotify:track:" + "a" * 22},
+            )
+            return {"success": False, "error": "fixture_generation_failed"}
+
+        with patch.object(self.handlers.http_helpers, "async_handle_ask_dj", failed):
+            result, _ = await self.request("An open music question")
+        self.assertFalse(result["success"])
+        self.assertIsNone(self.history.dialogue.owners["profile:profile-a"]["default"].pending)
+
+    async def test_runtime_replacement_fences_original_inflight_delegate(self):
+        entered, release = asyncio.Event(), asyncio.Event()
+
+        async def delayed(*args, **kwargs):
+            entered.set()
+            await release.wait()
+            return {"response": {"speech": {"plain": {"speech": "old runtime answer"}}}}
+
+        with patch.object(self.pipeline, "_call_conversation_process_transport", delayed):
+            task = asyncio.create_task(self.request("An open music question"))
+            await asyncio.wait_for(entered.wait(), 2)
+            from copy import copy
+
+            replacement = copy(self.runtime)
+            self.hass.data["djconnect"].update({"runtime": replacement, "owner-entry": replacement})
+            release.set()
+            result, status = await task
+        self.assertEqual(status, 409, result)
+        self.assertEqual((await self.history.async_history("profile:profile-a"))["messages"], [])
+
+    async def test_live_only_followup_keeps_subject_without_archiving(self):
+        session, moment, _target = await self.selected_credit()
+        context = {
+            "session_id": session.session_id,
+            "selected_moment": {"session_id": session.session_id, "moment_id": moment.moment_id},
+        }
+        first, status = await self.request("Who is that?", context=context)
+        self.assertEqual(status, 200, first)
+        self.assertFalse(first["history_persisted"])
+        second, status = await self.request(
+            "What influence did he have?",
+            identifier="live-followup",
+            context={"session_id": session.session_id},
+        )
+        self.assertEqual(status, 200, second)
+        self.assertFalse(second["history_persisted"])
+        self.assertIn("Brian Eno", json.dumps(self.prompts[-1]["relevant_subjects"]))
+        self.assertTrue(self.prompts[-1]["recent_turns"])
+        self.assertEqual((await self.history.async_history("profile:profile-a"))["messages"], [])
+
+    async def test_explicit_band_articles_override_stale_chip_in_five_languages(self):
+        for i, (language, question) in enumerate(
+            (
+                ("en", "Tell me about the Beatles"),
+                ("nl", "Vertel me over de Beatles"),
+                ("de", "Erzähl mir über die Beatles"),
+                ("fr", "Parle-moi de la carrière des Beatles"),
+                ("es", "¿Quién es David Bowie?"),
+            )
+        ):
+            result, status = await self.request(
+                question,
+                identifier=f"new-band-{i}",
+                language=language,
+                context={"selected_entry": {"session_id": "gone", "entry_id": "gone"}},
+            )
+            self.assertEqual(status, 200, result)
+            self.assertEqual(self.prompts[-1]["context"], {})
+            self.assertEqual(self.prompts[-1]["recent_turns"], [])
+            self.assertNotIn("selected_entry", result["conversation"]["context"])
+
+    async def test_selected_choice_survives_control_then_play_in_five_languages(self):
+        for i, (language, selection, play_text) in enumerate(
+            (
+                ("en", "the second", "play it"),
+                ("nl", "de tweede", "speel af"),
+                ("de", "die zweite", "spiel ab"),
+                ("fr", "le deuxième", "mets-le"),
+                ("es", "el segundo", "reprodúcelo"),
+            )
+        ):
+
+            async def found(*args, **kwargs):
+                actions = [
+                    {
+                        "kind": "track",
+                        "title": f"Fixture {j}",
+                        "uri": "spotify:track:" + str(j) * 22,
+                    }
+                    for j in range(3)
+                ]
+                return {
+                    "success": True,
+                    "text": "Actual provider-shaped order",
+                    "playback_actions": actions,
+                }
+
+            with patch.object(self.handlers.http_helpers, "async_handle_ask_dj", found):
+                result, status = await self.request(
+                    "Find versions", identifier=f"found-{i}", language=language
+                )
+            self.assertEqual(status, 200, result)
+            chosen, status = await self.request(
+                selection, identifier=f"selected-{i}", language=language
+            )
+            self.assertEqual(status, 200, chosen)
+            self.assertEqual(
+                chosen["selected_action_id"], result["result_set"]["items"][1]["action_id"]
+            )
+
+            async def control(*args, **kwargs):
+                return {"success": True, "text": "Quieter"}
+
+            with patch.object(self.core, "_handle_action", control):
+                await self.request("Zet zachter", identifier=f"volume-{i}", language=language)
+            dispatched = []
+
+            async def provider_effect(h, r, action, payload):
+                async def send():
+                    await self.dialogue.guard_effect_dispatch(method="PUT", path="/me/player/play", body={"uris": [action["uri"]]})
+                    dispatched.append(action["uri"])
+                await self.external_effect_probe("play", action["uri"], send)
+                return {
+                    "success": True,
+                    "text": "Provider dispatch fixture",
+                    "action_outcome": "dispatched",
+                }
+
+            from custom_components.djconnect import http
+
+            with patch.object(http, "_handle_ask_dj_play_recommendation", provider_effect):
+                played, status = await self.request(
+                    play_text, identifier=f"play-{i}", language=language
+                )
+            self.assertEqual(status, 200, played)
+            self.assertEqual(dispatched, ["spotify:track:" + "1" * 22])
+            self.assertEqual(played["selected_action_id"], chosen["selected_action_id"])
+        self.assertEqual(self.prompts, [])
+
+    async def test_clear_during_actual_adapter_token_wait_prevents_effect_and_receipt(self):
+        from custom_components.djconnect.spotify_backend import SpotifyBackend
+
+        entered, release = asyncio.Event(), asyncio.Event()
+        dispatched = []
+        backend = object.__new__(SpotifyBackend)
+        backend.hass, backend.runtime = self.hass, self.runtime
+
+        class Transport:
+            def request(self, *args, **kwargs):
+                dispatched.append(args)
+                raise AssertionError("A revoked action must never reach the network")
+
+        backend.session = Transport()
+
+        async def token(**kwargs):
+            entered.set()
+            await release.wait()
+            return "SYNTHETIC_TOKEN_NOT_SENT"
+
+        backend._access_token = token
+
+        async def control(*args, **kwargs):
+            await backend.pause()
+            return {"success": True, "text": "Paused"}
+
+        with patch.object(self.core, "_handle_action", control):
+            task = asyncio.create_task(self.request("Pause", identifier="delayed-token"))
+            await asyncio.wait_for(entered.wait(), 2)
+            await self.history.async_clear("profile:profile-a")
+            release.set()
+            result, status = await task
+        self.assertEqual(status, 409, result)
+        self.assertEqual(dispatched, [])
+        self.assertEqual(
+            self.history._user_state("profile:profile-a").get("dialogue_effect_receipts", {}), {}
+        )
+
+    async def test_double_cancellation_settles_receipt_write_before_next_writer(self):
+        entered, release = asyncio.Event(), asyncio.Event()
+        store = self.history._store
+        save = store.async_save
+        calls = []
+
+        async def delayed(data):
+            calls.append(deepcopy(data))
+            if len(calls) == 1:
+                entered.set()
+                await release.wait()
+            await save(data)
+
+        with patch.object(store, "async_save", delayed):
+            task = asyncio.create_task(
+                self.history.async_reserve_dialogue_effect(
+                    "profile:profile-a", "cancelled-effect", "d" * 64
+                )
+            )
+            await asyncio.wait_for(entered.wait(), 2)
+            task.cancel()
+            await asyncio.sleep(0)
+            task.cancel()
+            retry = asyncio.create_task(
+                self.history.async_reserve_dialogue_effect(
+                    "profile:profile-a", "cancelled-effect", "d" * 64
+                )
+            )
+            await asyncio.sleep(0)
+            self.assertFalse(task.done())
+            self.assertFalse(retry.done())
+            release.set()
+            with self.assertRaises(asyncio.CancelledError):
+                await task
+            with self.assertRaises(self.dialogue.DialogueError):
+                await retry
+        self.assertEqual(len(calls), 1)
+        from custom_components.djconnect.ask_dj_history import AskDJHistoryManager
+
+        reloaded = AskDJHistoryManager(store=store)
+        with self.assertRaises(self.dialogue.DialogueError):
+            await reloaded.async_reserve_dialogue_effect(
+                "profile:profile-a", "cancelled-effect", "d" * 64
+            )
+
+    async def detail(self, reference, *, language="en", **options):
+        return await self.handlers.async_handle_track_insight_payload(
+            self.hass,
+            {**self.identity, "track_insight_target": reference, "language": language, **options},
+            headers=self.headers,
+        )
+
+    async def test_published_navigation_exact_target_and_shared_full_cache_after_a_to_b(self):
+        session, moment, _entry = await self.selected_credit()
+        before = len(session.broadcast.state.dj_moments)
+        publication = session.broadcast.native_delivery()
+        admitted = next(a for a in publication["admissions"] if a["moment_id"] == moment.moment_id)
+        action = admitted["navigation_actions"][0]
+        self.assertEqual(action["target"], "track_insight")
+        self.assertEqual(admitted["executable_actions"], [])
+        self.assertEqual(moment.as_dict()["actions"], [])
+        self.assertNotIn("open_screen", json.dumps(moment.as_dict()))
+        await self.fixture.manager.async_update_playback_projection(
+            owner_profile_id="profile-a",
+            session_id=session.session_id,
+            state="playing",
+            media_identity="spotify:track:" + "1" * 22,
+            title="B different version",
+            artist="B performer",
+            duration_ms=300000,
+            position_ms=1000,
+        )
+        self.runtime.device_status["demo_mode"] = True
+        prompts = []
+
+        async def agent(hass, data, **kwargs):
+            prompts.append(data["text"])
+            self.assertNotIn("Synthetic performer", data["text"])
+            self.assertNotIn("spotify:", data["text"])
+            return {
+                "response": {
+                    "speech": {
+                        "plain": {
+                            "speech": json.dumps(
+                                {
+                                    "summary": "Qualified composer context",
+                                    "full_text": "Composer credit with labelled interpretation.",
+                                    "listening_cues": ["Optional texture listening."],
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+
+        with patch.object(self.pipeline, "_call_conversation_process_transport", agent):
+            first, status = await self.detail(action["reference"])
+            self.assertEqual(status, 200, first)
+            second, status = await self.detail(action["reference"])
+            self.assertEqual(status, 200, second)
+        self.assertEqual(len(prompts), 1)
+        self.assertFalse(first["cache"]["hit"])
+        self.assertTrue(second["cache"]["hit"])
+        for result in (first, second):
+            self.assertEqual(result["track"]["title"], "Synthetic work")
+            self.assertEqual(result["subject"]["media_identity"], moment.source_fact.media_identity)
+            self.assertFalse(result["track"]["is_playing"])
+            self.assertIsNone(result["track"]["progress_ms"])
+            self.assertIsNone(result["analysis"]["energy"])
+            self.assertEqual(result["analysis"]["verified_context"], moment.content)
+            self.assertNotIn("_owner_scope", result["track"])
+        self.assertEqual(len(session.broadcast.state.dj_moments), before)
+
+    async def test_target_foreign_expired_and_session_end_fail_without_fallback(self):
+        session, moment, _ = await self.selected_credit()
+        from custom_components.djconnect.track_insight_target import resolve_target
+
+        ref = {
+            "schema_version": 1,
+            "session_id": session.session_id,
+            "moment_id": moment.moment_id,
+            "action_id": "insight-" + moment.moment_id,
+        }
+        from custom_components.djconnect.track_insight import TrackInsightError
+
+        with self.assertRaises(TrackInsightError):
+            await resolve_target(
+                self.hass,
+                self.runtime,
+                {"track_insight_target": ref},
+                owner_profile_id="profile-other",
+            )
+        from custom_components.djconnect import track_insight_target
+
+        now = track_insight_target.time.monotonic()
+        with patch.object(track_insight_target.time, "monotonic", return_value=now + 601):
+            result, status = await self.detail(ref)
+            self.assertEqual(status, 410, result)
+        await self.fixture.manager.async_end(
+            owner_profile_id="profile-a", session_id=session.session_id
+        )
+        result, status = await self.detail(ref)
+        self.assertEqual(status, 410, result)
+        self.assertEqual(self.prompts, [])
+
+    async def test_target_fetch_stays_a_during_track_change_but_end_discards_cache(self):
+        session, moment, _ = await self.selected_credit()
+        ref = {
+            "schema_version": 1,
+            "session_id": session.session_id,
+            "moment_id": moment.moment_id,
+            "action_id": "insight-" + moment.moment_id,
+        }
+        entered, release = asyncio.Event(), asyncio.Event()
+
+        async def delayed(*args, **kwargs):
+            entered.set()
+            await release.wait()
+            return {
+                "response": {
+                    "speech": {
+                        "plain": {
+                            "speech": '{"summary":"Credit context","full_text":"Interpreted context."}'
+                        }
+                    }
+                }
+            }
+
+        with patch.object(self.pipeline, "_call_conversation_process_transport", delayed):
+            task = asyncio.create_task(self.detail(ref))
+            await asyncio.wait_for(entered.wait(), 3)
+            await self.fixture.manager.async_update_playback_projection(
+                owner_profile_id="profile-a",
+                session_id=session.session_id,
+                state="playing",
+                media_identity="spotify:track:" + "2" * 22,
+                title="B",
+                artist="Other",
+                duration_ms=300000,
+                position_ms=0,
+            )
+            release.set()
+            result, status = await task
+        self.assertEqual(status, 200, result)
+        self.assertEqual(result["track"]["title"], "Synthetic work")
+        # A cache variant for a new language really fetches; a closed Session cannot commit it.
+        entered.clear()
+        release.clear()
+        with patch.object(self.pipeline, "_call_conversation_process_transport", delayed):
+            task = asyncio.create_task(self.detail(ref, language="nl"))
+            await asyncio.wait_for(entered.wait(), 3)
+            await self.fixture.manager.async_end(
+                owner_profile_id="profile-a", session_id=session.session_id
+            )
+            release.set()
+            result, status = await task
+        self.assertEqual(status, 410, result)
+        self.assertEqual(len(getattr(self.runtime, "track_insight_cache", {})), 1)
+
+    async def test_exact_cache_identity_retains_case_sensitive_recording_ids(self):
+        from custom_components.djconnect.track_insight import _cache_key, TrackInsightCache
+
+        common = {
+            "title": "Same title",
+            "artist": "Same artist",
+            "album": "Same release",
+            "_owner_scope": "owner",
+        }
+        a = {
+            **common,
+            "uri": "spotify:track:" + "A" * 22,
+            "media_identity": "spotify:track:" + "A" * 22,
+        }
+        b = {
+            **common,
+            "uri": "spotify:track:" + "a" * 22,
+            "media_identity": "spotify:track:" + "a" * 22,
+        }
+        self.assertNotEqual(_cache_key(a), _cache_key(b))
+        cache = TrackInsightCache(self.runtime)
+        cache.set(_cache_key(a), {"track": a, "analysis": {"summary": "A edition"}, "cache": {}})
+        self.assertIsNone(cache.get(_cache_key(b)))
+        self.assertEqual(cache.get(_cache_key(a))["analysis"]["summary"], "A edition")
+
+    async def test_explicit_other_track_keeps_existing_route_with_current_qualified_moment(self):
+        await self.selected_credit()
+        result, status = await self.handlers.async_handle_track_insight_payload(
+            self.hass,
+            {
+                **self.identity,
+                "title": "B explicit version",
+                "artist": "B explicit performer",
+                "language": "en",
+            },
+            headers=self.headers,
+        )
+        self.assertEqual(status, 200, result)
+        self.assertEqual(result["track"]["title"], "B explicit version")
+        self.assertEqual(result["track"]["artist"], "B explicit performer")
+        self.assertNotIn("subject", result)
+        self.assertIsNone(result["analysis"]["energy"])
+        self.assertEqual(self.prompts, [])
+
+    async def test_target_pairing_withdrawal_during_fetch_discards_detail_and_cache(self):
+        session, moment, _ = await self.selected_credit()
+        ref = {
+            "schema_version": 1,
+            "session_id": session.session_id,
+            "moment_id": moment.moment_id,
+            "action_id": "insight-" + moment.moment_id,
+        }
+        entered, release = asyncio.Event(), asyncio.Event()
+
+        async def delayed(*args, **kwargs):
+            entered.set()
+            await release.wait()
+            return {
+                "response": {
+                    "speech": {
+                        "plain": {"speech": '{"summary":"Context","full_text":"Interpreted."}'}
+                    }
+                }
+            }
+
+        with patch.object(self.pipeline, "_call_conversation_process_transport", delayed):
+            task = asyncio.create_task(self.detail(ref))
+            await asyncio.wait_for(entered.wait(), 3)
+            self.runtime.authorize_device_request = lambda *args, **kwargs: False
+            release.set()
+            result, status = await task
+        self.assertEqual(status, 401, result)
+        self.assertEqual(getattr(self.runtime, "track_insight_cache", {}), {})
+
+    async def test_choice_expiring_during_receipt_never_reaches_actual_adapter(self):
+        from custom_components.djconnect.spotify_backend import SpotifyBackend
+
+        tick = [self.history.dialogue.clock()]
+        self.history.dialogue.clock = lambda: tick[0]
+
+        async def found(*args, **kwargs):
+            return {
+                "success": True,
+                "text": "Shown result",
+                "playback_actions": [
+                    {"kind": "track", "uri": "spotify:track:" + "1" * 22, "title": "Frozen version"}
+                ],
+            }
+
+        with patch.object(self.core, "_handle_informational", found):
+            shown, status = await self.request(
+                "Explain a shown music selection", identifier="ttl-shown"
+            )
+        self.assertEqual(status, 200, shown)
+        frame = self.history.dialogue.owners["profile:profile-a"]["default"]
+        self.assertIsNotNone(frame.result_set)
+        original = self.history.async_reserve_dialogue_effect
+
+        async def delayed_reservation(*args, **kwargs):
+            await original(*args, **kwargs)
+            tick[0] = frame.result_set["deadline"] + 1
+
+        backend = object.__new__(SpotifyBackend)
+        backend.hass = self.hass
+        backend.runtime = self.runtime
+        sent = []
+
+        class Transport:
+            def request(self, *args, **kwargs):
+                sent.append(args)
+                raise AssertionError("Expired result must never reach provider dispatch")
+
+        backend.session = Transport()
+
+        async def token(**kwargs):
+            return "SYNTHETIC_NEVER_SENT"
+
+        backend._access_token = token
+
+        async def perform(hass, runtime, action, payload):
+            async def send():
+                await backend._request_with_token(
+                    "PUT", "/me/player/play", json={"uris": [action["uri"]]},
+                    expected_empty=True, force_refresh=False, retry_on_unauthorized=False)
+            await self.external_effect_probe("play", action["uri"], send)
+            return {"success": True, "text": "Unreachable dispatch"}
+
+        from custom_components.djconnect import http
+
+        with (
+            patch.object(self.history, "async_reserve_dialogue_effect", delayed_reservation),
+            patch.object(http, "_handle_ask_dj_play_recommendation", perform),
+        ):
+            result, status = await self.request("Play the first", identifier="ttl-effect")
+        self.assertEqual(status, 409, result)
+        self.assertEqual(result["error"], "choice_expired")
+        self.assertEqual(sent, [])
+
+    async def test_late_source_read_owner_revocation_rolls_back_accepted_exchange(self):
+        session, moment, reference = await self.selected_credit()
+        from custom_components.djconnect.session_conversation import query_service
+
+        query = query_service(self.hass, self.history)
+        original = query.async_open_entry
+        calls = [0]
+
+        async def late_read(*args, **kwargs):
+            result = await original(*args, **kwargs)
+            calls[0] += 1
+            # Trigger only after the actual Store exchange has been staged/saved.
+            saved = await self.history.async_saved_exchange("profile:profile-a", "late-owner")
+            if saved is not None:
+                self.runtime.authorize_device_request = lambda *args, **kwargs: False
+            return result
+
+        with patch.object(query, "async_open_entry", late_read):
+            result, status = await self.request(
+                "Who is that?",
+                identifier="late-owner",
+                context={"session_id": session.session_id, "selected_entry": reference},
+            )
+        self.assertEqual(status, 401, result)
+        self.assertIsNone(
+            await self.history.async_saved_exchange("profile:profile-a", "late-owner")
+        )
+        entries = await self.fixture.queries.async_timeline_page("profile-a", session.session_id)
+        self.assertFalse(
+            any(e["kind"] in {"conversation_user", "conversation_dj"} for e in entries["entries"])
+        )
+
+    async def test_real_pre_dispatch_failure_is_retryable_without_dna(self):
+        from custom_components.djconnect.spotify_backend import SpotifyBackend
+
+        backend = object.__new__(SpotifyBackend)
+        backend.hass = self.hass
+        backend.runtime = self.runtime
+        attempts = [0]
+
+        async def token(**kwargs):
+            attempts[0] += 1
+            if attempts[0] == 1:
+                raise RuntimeError("Explicit token-provider fixture fails before any request")
+            return "SYNTHETIC_FIXTURE_TOKEN"
+
+        backend._access_token = token
+        sent = []
+
+        class Response:
+            status = 204
+
+            async def __aenter__(self):
+                return self
+
+            async def __aexit__(self, *args):
+                pass
+
+            async def text(self):
+                return ""
+
+        class Transport:
+            def request(self, method, *args, **kwargs):
+                sent.append(method)
+                return Response()
+
+        backend.session = Transport()
+
+        async def control(*args, **kwargs):
+            try:
+                await self.external_effect_probe("pause", None, backend.pause)
+            except RuntimeError:
+                return {
+                    "success": True,
+                    "text": "Playback could not be requested.",
+                    "error": "playback_failed",
+                }
+            return {
+                "success": True,
+                "text": "Playback request sent.",
+                "action_outcome": {"state": "dispatched"},
+            }
+
+        with patch.object(self.core, "_handle_action", control):
+            failed, status = await self.request("Pause", identifier="pre-failed")
+            self.assertEqual(status, 200, failed)
+            self.assertEqual(sent, [])
+            frame = self.history.dialogue.owners["profile:profile-a"]["default"]
+            self.assertFalse(frame.retry["uncertain"])
+            self.assertEqual(
+                self.history._user_state("profile:profile-a").get("dialogue_effect_receipts", {}),
+                {},
+            )
+            retried, status = await self.request("Retry", identifier="pre-retry")
+        self.assertEqual(status, 200, retried)
+        self.assertEqual(sent, ["PUT"])
+        self.assertEqual(attempts[0], 2)
+        self.assertIsNone(frame.retry)
+
+    async def test_information_negation_quote_and_hypothesis_have_no_effect_authority(self):
+        cases = ("wat was vorige nummer", "wat betekent speel verder", "speel niet de vorige track",
+                 "als ik vorige zeg, wat gebeurt er", "citeer de opdracht speel iets van Nirvana",
+                 "I said previous yesterday", "what does next mean?", "was passiert wenn ich vorheriges sage?",
+                 "explique pourquoi tu joues cette chanson", "no reproduzcas la canción anterior")
+        sent = []
+
+        async def hostile_agent(hass, data, **kwargs):
+            async def dispatch():
+                sent.append("unauthorized")
+            # The untrusted provider attempts a Core music tool despite an info question.
+            await self.external_effect_probe("play", "spotify:track:" + "1" * 22, dispatch)
+            return {"response": {"speech": {"plain": {"speech": "Unreachable."}}}}
+
+        with patch.object(self.pipeline, "_call_conversation_process_transport", hostile_agent):
+            for i, question in enumerate(cases):
+                with self.subTest(question=question):
+                    intent = self.core.classify_ask_dj(question)
+                    self.assertEqual(intent.category, "informational")
+                    self.assertEqual(self.dialogue.request_effect_grants(question, intent), ())
+                    result, status = await self.request(question, identifier=f"hostile-info-{i}")
+                    if i == 0:
+                        self.assertEqual(status, 200, result)
+                        self.assertEqual(result["previous_observation"]["state"], "unknown")
+                        self.assertFalse(result["history_persisted"])
+                    else:
+                        self.assertEqual(status, 403, result)
+                        self.assertEqual(result["error"], "playback_effect_not_authorized")
+        self.assertEqual(sent, [])
+        self.assertEqual((await self.history.async_history("profile:profile-a"))["messages"], [])
+        self.assertEqual(self.history._user_state("profile:profile-a").get("dialogue_effect_receipts", {}), {})
+
+    async def test_agent_scope_requires_explicit_static_known_provider_metadata(self):
+        from types import SimpleNamespace
+        from enum import IntFlag
+        import sys
+
+        class Features(IntFlag):
+            CONTROL = 1
+
+        class Agent:
+            __module__ = "homeassistant.components.openai_conversation.conversation"
+            supported_features = 0
+
+        safe = {"llm_hass_api": [], "store_responses": False, "web_search": False,
+                "code_interpreter": False, "prompt": "Answer only the explicit user data."}
+        agent = Agent()
+        module = SimpleNamespace(async_get_agent=lambda *a: agent, ConversationEntityFeature=Features)
+        with patch.dict(sys.modules, {"homeassistant.components.conversation": module}):
+            h = SimpleNamespace(bus=object())
+            agent.subentry = SimpleNamespace(data=safe)
+            self.assertIs(self.dialogue.qualify_agent(h, "owned-agent"), agent)
+            for data in ({}, {**safe, "prompt": "{{ states.sensor.private.state }}"},
+                         {**safe, "prompt": "{% for s in states %}{{ s }}{% endfor %}"},
+                         {**safe, "llm_hass_api": ["assist"]}, {**safe, "store_responses": True},
+                         {**safe, "web_search": True}, {**safe, "prompt": ""}):
+                with self.subTest(keys=list(data)):
+                    agent.subentry = SimpleNamespace(data=data)
+                    with self.assertRaises(self.dialogue.DialogueError) as error:
+                        self.dialogue.qualify_agent(h, "owned-agent")
+                    self.assertEqual(error.exception.code, "conversation_agent_scope_unqualified")
+
+    async def test_changed_wire_media_cannot_use_a_valid_offered_choice_grant(self):
+        first_uri, other_uri = "spotify:track:" + "1" * 22, "spotify:track:" + "2" * 22
+
+        async def catalog(*args, **kwargs):
+            return {"success": True, "text": "Found one result.", "playback_actions": [
+                {"kind": "track", "uri": first_uri, "title": "Owned fixture result"}]}
+
+        with patch.object(self.handlers.http_helpers, "async_handle_ask_dj", catalog):
+            response, status = await self.request("Find a result", identifier="wire-offer")
+        self.assertEqual(status, 200, response)
+
+        async def hostile_dispatch(h, r, action, payload):
+            async def send():
+                await self.dialogue.guard_effect_dispatch(method="PUT", path="/me/player/play", body={"uris": [other_uri]})
+                raise AssertionError("Different media must not reach the network")
+            return await self.external_effect_probe("play", action["uri"], send)
+
+        from custom_components.djconnect import http
+        with patch.object(http, "_handle_ask_dj_play_recommendation", hostile_dispatch):
+            response, status = await self.request("Play the first", identifier="wire-other-target")
+        self.assertEqual(status, 403, response)
+        self.assertEqual(response["error"], "playback_effect_not_authorized")
+        self.assertEqual(self.history._user_state("profile:profile-a").get("dialogue_effect_receipts", {}), {})
+
+    async def test_typed_previous_next_and_pause_are_not_reparsed_or_cross_granted(self):
+        sent = []
+        reads = []
+
+        async def command(hass, runtime, command, value=None, **kwargs):
+            if command in {"status", "queue"}:
+                reads.append(command)
+                return {"success": True, "queue": [], "playback": {}}
+            async def dispatch():
+                path = "/me/player/" + command
+                method = "POST" if command in {"previous", "next"} else "PUT"
+                await self.dialogue.guard_effect_dispatch(method=method, path=path, body=None)
+                sent.append((method, path))
+            return await self.external_effect_probe(command, value, dispatch)
+
+        with patch.object(self.core, "run_music_command", command):
+            for i, text in enumerate(("vorige", "vorige nummer afspelen", "volgende", "pauze")):
+                result, status = await self.request(text, identifier=f"typed-control-{i}", language="nl")
+                self.assertEqual(status, 200, result)
+                self.assertTrue(result["success"], result)
+        self.assertEqual(sent, [("POST", "/me/player/previous"), ("POST", "/me/player/previous"),
+                                ("POST", "/me/player/next"), ("PUT", "/me/player/pause")])
+        self.assertEqual(self.prompts, [])
+        self.assertNotIn("status", reads)
+
+    async def test_queue_append_request_cannot_replace_playback_in_any_language(self):
+        from custom_components.djconnect.domain.profile import ProfilePreferences
+        await self.handlers.profile_storage(self.hass).async_update_profile("profile-a", preferences=ProfilePreferences(
+            default_backend_id="source-spotify", default_music_account_id="source-account"))
+        uri = "spotify:track:" + "2" * 22
+        calls = []
+        async def command(hass, runtime, name, value=None, **kwargs):
+            calls.append(name)
+            if name == "status":
+                return {"success": True, "playback": {"track_name": "Current", "artist": "Artist", "uri": "spotify:track:" + "1" * 22}}
+            if name == "artist_recommendations":
+                return {"success": True, "tracks": [{"uri": uri, "track_name": "Suggestion", "artist": "Artist"}]}
+            raise AssertionError("Unsupported append must not invoke playback: " + name)
+        for language in ("en", "nl", "de", "fr", "es"):
+            with patch.object(self.core, "run_music_command", command):
+                response, status = await self.request("queue similar tracks", identifier="append-" + language, language=language)
+            self.assertEqual(status, 200, response)
+            self.assertEqual(response["queue_append"], {"state": "unsupported"})
+            self.assertEqual(response["action"], "none")
+            self.assertEqual(response["playback_actions"][0]["uri"], uri)
+        self.assertEqual(set(calls), {"status", "artist_recommendations"})
+        self.assertEqual(self.effects, [])
+        self.assertEqual(self.prompts, [])
+
+    async def test_bounded_mix_uses_exact_original_uri_array_and_expiry(self):
+        from custom_components.djconnect import http
+        uris = ["spotify:track:" + "1" * 22, "spotify:track:" + "2" * 22]
+        async def offer(*args, **kwargs):
+            return {"success": True, "text": "Two fixture recordings.", "playback_actions": [
+                {"kind": "track_mix", "uri": uris[0], "uris": list(uris), "title": "Shown mix"}]}
+        with patch.object(self.handlers.http_helpers, "async_handle_ask_dj", offer):
+            offered, status = await self.request("Find a mix", identifier="mix-offer")
+        self.assertEqual(status, 200, offered)
+        selected = []
+        async def play(hass, runtime, action, payload):
+            async def dispatch():
+                await self.dialogue.guard_effect_dispatch(method="PUT", path="/me/player/play", body={"uris": action["uris"]})
+                selected.append(list(action["uris"]))
+            return await self.external_effect_probe("play_uris", action["uris"], dispatch)
+        with patch.object(http, "_handle_ask_dj_play_recommendation", play):
+            response, status = await self.request("Play the first", identifier="mix-play")
+        self.assertEqual(status, 200, response)
+        self.assertEqual(selected, [uris])
+        self.assertEqual(self.prompts, [])
+        frame = self.history.dialogue.owners["profile:profile-a"]["default"]
+        frame.result_set["deadline"] = 0
+        response, status = await self.request("Play the first", identifier="mix-expired")
+        self.assertEqual(status, 409, response)
+        self.assertEqual(response["error"], "choice_expired")
+        self.assertEqual(selected, [uris])
+
+    async def test_invalid_or_over_limit_mix_cannot_become_a_choice(self):
+        for i, uris in enumerate((["spotify:track:" + "1" * 22] * 51, ["https://example.invalid/not-a-recording"])):
+            async def offer(*args, **kwargs):
+                return {"success": True, "text": "Unqualified mix fixture.", "playback_actions": [
+                    {"kind": "track_mix", "uri": "spotify:track:" + "1" * 22, "uris": uris}]}
+            with patch.object(self.handlers.http_helpers, "async_handle_ask_dj", offer):
+                response, status = await self.request("Find a mix", identifier=f"bad-mix-{i}")
+            self.assertEqual(status, 200, response)
+            self.assertNotIn("result_set", response)
+        self.assertEqual(self.effects, [])
+
+    async def test_effect_family_and_actual_media_target_are_checked_before_receipt(self):
+        async def attack(h, r, p, **kwargs):
+            async def dispatch():
+                # A qualified previous command cannot become artist/media playback.
+                await self.dialogue.guard_effect_dispatch(method="PUT", path="/me/player/play", body={"uris": ["spotify:track:" + "1" * 22]})
+            await self.external_effect_probe("previous", None, dispatch)
+            return {"success": True, "text": "Unreachable"}
+
+        with patch.object(self.handlers.http_helpers, "async_handle_ask_dj", attack):
+            result, status = await self.request("Previous", identifier="wrong-family")
+        self.assertEqual(status, 403, result)
+        self.assertEqual(result["error"], "playback_effect_not_authorized")
+        self.assertEqual(self.history._user_state("profile:profile-a").get("dialogue_effect_receipts", {}), {})
+
+    async def test_queue_states_and_repeated_case_sensitive_items_survive_shared_response(self):
+        from datetime import UTC, datetime, timedelta
+        uri = "spotify:track:" + "a" * 22
+        upper = "spotify:track:" + "A" * 22
+        cases = [({}, "unavailable"), ({"queue": []}, "known_empty"),
+                 ({"queue": [], "queue_state": "unsupported"}, "unsupported"),
+                 ({"queue": [{"uri": uri, "title": "Stored"}], "queue_observed_at": (datetime.now(UTC)-timedelta(minutes=2)).isoformat()}, "stale"),
+                 ({"queue": [None]}, "partial")]
+        calls = []
+        current = {}
+
+        async def read(h, r, command, *args, **kwargs):
+            self.assertEqual(command, "queue", "A queue question must not fetch unrelated tools/status")
+            calls.append(command)
+            return current
+
+        with patch.object(self.core, "run_music_command", read):
+            for i, (value, state) in enumerate(cases):
+                current = value
+                response, status = await self.request("wat staat er in de wachtrij", identifier=f"queue-state-{i}", language="nl")
+                self.assertEqual(status, 200, response)
+                self.assertEqual(response["queue_observation"]["state"], state)
+                self.assertEqual(response["playback_actions"], [])
+                self.assertTrue(response["text"])
+            current = {"queue": [{"uri": uri, "title": "Same title", "artist": "Artist X"},
+                                 {"uri": uri, "title": "Same title", "artist": "Artist X"},
+                                 {"uri": upper, "title": "Same title", "artist": "Artist Y"}]}
+            response, status = await self.request("wat staat er in de wachtrij", identifier="queue-occurrences", language="nl")
+        self.assertEqual(status, 200, response)
+        self.assertEqual(response["queue_observation"]["state"], "present")
+        self.assertEqual([a["uri"] for a in response["items"]], [uri, uri, upper])
+        self.assertEqual(len({a["action_id"] for a in response["result_set"]["items"]}), 3)
+        self.assertEqual(response["assistant_message"]["items"], response["items"])
+        self.assertEqual(len(calls), len(cases)+1)
+        self.assertEqual(self.prompts, [])
+
+    async def test_previous_question_uses_actual_accepted_owner_observations_without_effects(self):
+        session, moment, _ = await self.selected_credit()
+        await self.fixture.manager.async_update_playback_projection(owner_profile_id="profile-a", session_id=session.session_id,
+            state="playing", media_identity="spotify:track:" + "B" * 22, title="Current B", artist="Other performer",
+            duration_ms=300000, position_ms=1000)
+        moments = tuple(session.broadcast.state.dj_moments)
+        for i, context in enumerate((None, {"session_id": session.session_id})):
+            response, status = await self.request("wat was vorige nummer", identifier=f"previous-info-{i}", context=context, language="nl")
+            self.assertEqual(status, 200, response)
+            self.assertEqual(response["previous_observation"]["state"], "observed", response)
+            self.assertIn("Synthetic work", response["text"])
+            self.assertNotIn("Current B", response["text"])
+            self.assertFalse(response["history_persisted"])
+            self.assertEqual(response["playback_actions"], [])
+        self.assertEqual(tuple(session.broadcast.state.dj_moments), moments)
+        self.assertEqual(self.prompts, [])
+        self.assertEqual(self.history._user_state("profile:profile-a").get("dialogue_effect_receipts", {}), {})
+
+    async def test_quarter_hour_uses_existing_projection_and_queue_without_model_or_mutation(self):
+        session, _moment, _ = await self.selected_credit()
+        projection = await self.fixture.manager.async_forecast_snapshot(owner_profile_id="profile-a", session_id=session.session_id)
+        calls = []
+        async def queue(h, r, command, *args, **kwargs):
+            self.assertEqual(command, "queue")
+            calls.append(command)
+            return {"queue": [{"uri": "spotify:track:" + "C" * 22, "title": "Queued C", "artist": "Distinct artist"}]}
+        with patch.object(self.core, "run_music_command", queue):
+            response, status = await self.request("wat komt er komend kwartier aan?", identifier="quarter-hour", language="nl")
+        self.assertEqual(status, 200, response)
+        self.assertEqual(response["session_forecast"], projection)
+        self.assertEqual(response["queue_observation"]["state"], "present")
+        self.assertEqual(response["items"][0]["title"], "Queued C")
+        self.assertFalse(response["history_persisted"])
+        self.assertEqual(calls, ["queue"])
+        self.assertEqual(self.prompts, [])
+        self.assertEqual(self.history._user_state("profile:profile-a").get("dialogue_effect_receipts", {}), {})
+
+    async def test_unknown_actual_dispatch_outcome_cannot_be_replayed_by_retry(self):
+        from custom_components.djconnect.spotify_backend import SpotifyBackend
+
+        backend = object.__new__(SpotifyBackend)
+        backend.hass = self.hass
+        backend.runtime = self.runtime
+
+        async def token(**kwargs):
+            return "SYNTHETIC_FIXTURE_TOKEN"
+
+        backend._access_token = token
+        sent = []
+
+        class Transport:
+            def request(self, method, *args, **kwargs):
+                sent.append(method)
+                raise TimeoutError("Explicit external transport fixture loses the response")
+
+        backend.session = Transport()
+
+        async def control(*args, **kwargs):
+            try:
+                await self.external_effect_probe("pause", None, backend.pause)
+            except TimeoutError:
+                return {"success": True, "text": "Outcome unknown.", "error": "playback_failed"}
+            raise AssertionError("Lost dispatch cannot be acknowledged")
+
+        with patch.object(self.core, "_handle_action", control):
+            failed, status = await self.request("Pause", identifier="unknown-effect")
+            self.assertEqual(status, 200, failed)
+            retried, status = await self.request("Retry", identifier="unknown-retry")
+        self.assertEqual(status, 409, retried)
+        self.assertEqual(retried["error"], "action_outcome_uncertain")
+        self.assertEqual(sent, ["PUT"])
+
+
+    async def test_output_selection_activation(self):
+        devices=[{"id":"output-A","name":"Same room","active":True},{"id":"output-B","name":"Same room","active":False}]
+        calls=[]
+        async def command(h,r,cmd,value=None,**kwargs):
+            if cmd == "devices":
+                return {"devices": devices}
+            self.assertEqual(cmd,"set_output")
+            self.assertFalse(kwargs["play"])
+            async def dispatch():
+                await self.dialogue.guard_effect_dispatch(method="PUT",path="/me/player",body={"device_ids":[value],"play":False})
+                calls.append(value)
+            return await self.external_effect_probe(cmd,value,dispatch)
+        with patch.object(self.core,"run_music_command",command):
+            response,status=await self.request("Which speakers are available?",identifier="outputs")
+            self.assertEqual(status,200,response)
+            self.assertEqual(len(response["result_set"]["items"]),2,response)
+            self.assertEqual(response["items"],response["result_set"]["items"])
+            selected,status=await self.request("the second",identifier="output-select")
+            self.assertEqual(status,200,selected)
+            self.assertEqual(calls,[])
+            response,status=await self.request("activate it",identifier="output-activate")
+            self.assertEqual(status,200,response)
+            self.assertEqual(calls,["output-B"])
+        self.assertEqual(self.prompts,[])
+
+
+    async def test_output_labels_all_languages(self):
+        devices=[{"id":"output-A","name":"Room","active":True},{"id":"output-B","name":"Other"},{"id":"restricted","name":"Restricted","is_restricted":True}]
+        cases=(("en","Which speakers are available?","Active","Activate"),("nl","welke speakers zijn beschikbaar?","Actief","Activeer"),("de","welche lautsprecher sind verfügbar?","Aktiv","Aktivieren"),("fr","quelles enceintes sont disponibles ?","Active","Activer"),("es","qué altavoces están disponibles?","Activo","Activar"))
+        async def command(h,r,cmd,*args,**kwargs):
+            self.assertEqual(cmd,"devices")
+            return {"devices":devices}
+        with patch.object(self.core,"run_music_command",command):
+            for i,(language,question,active,activate) in enumerate(cases):
+                response,status=await self.request(question,identifier=f"outputs-{i}",language=language)
+                self.assertEqual(status,200,response)
+                self.assertEqual([x["label"] for x in response["items"]],[active,activate],response)
+                self.assertEqual(response["items"],response["result_set"]["items"])
+        self.assertEqual(self.prompts,[])
+
+
+    async def test_negated_selected_play_grants_no_effect(self):
+        async def found(*args,**kwargs):
+            return {"success":True,"text":"Provider result","playback_actions":[{"id":"one","kind":"track","title":"One","uri":"spotify:track:"+"A"*22}]}
+        with patch.object(self.handlers.http_helpers,"async_handle_ask_dj",found):
+            response,status=await self.request("Find track",identifier="negation-results")
+        selected,status=await self.request("the first",identifier="negation-select")
+        self.assertEqual(status,200,selected)
+        async def forbidden(*args,**kwargs):
+            raise AssertionError("Negated request must not dispatch")
+        with patch.object(self.core,"run_music_command",forbidden):
+            response,status=await self.request("speel dit niet",identifier="negated-play",language="nl")
+        self.assertEqual(status,200,response)
+        self.assertEqual(self.history._user_state("profile:profile-a").get("dialogue_effect_receipts",{}),{})
+
+
+    async def test_activate_only_does_not_reuse_old_play_intent(self):
+        recommendation={"kind":"track","uri":"spotify:track:"+"A"*22,"title":"A"}
+        async def found(*args,**kwargs):
+            return {"success":True,"text":"Choose output","playback_actions":[{"id":"output-B","kind":"output","command":"ask_dj_play_recommendation_on_output","device_id":"output-B","value":{"output_id":"output-B","recommendation":recommendation}}]}
+        with patch.object(self.handlers.http_helpers,"async_handle_ask_dj",found):
+            offered,status=await self.request("Play A",identifier="compound-offer")
+        calls=[]
+        async def command(h,r,cmd,value=None,**kwargs):
+            if cmd == "devices":
+                return {"devices": [{"id": "output-B", "name": "B"}]}
+            async def dispatch():
+                await self.dialogue.guard_effect_dispatch(method="PUT",path="/me/player",body={"device_ids":[value],"play":False})
+                calls.append("output")
+            return await self.external_effect_probe(cmd,value,dispatch)
+        async def play(h,r,value,payload,**kwargs):
+            calls.append("play")
+            return {"success":True,"text":"Play invoked"}
+        from custom_components.djconnect import http
+        with patch.object(self.core,"run_music_command",command), patch.object(http,"_handle_ask_dj_play_recommendation_on_output",play):
+            result,status=await self.request("Activate it without starting playback",identifier="compound-activate",choice_action={"result_set_id":offered["result_set"]["result_set_id"],"action_id":offered["result_set"]["items"][0]["action_id"],"operation":"activate"})
+        self.assertEqual(status,200,result)
+        self.assertEqual(calls,["output"],result)
+
+
+    async def test_compound_play_binds_actual_transport_to_exact_output(self):
+        from custom_components.djconnect import http
+        from custom_components.djconnect.spotify_backend import SpotifyBackend
+        recommendation = {"kind": "track", "uri": "spotify:track:" + "A" * 22}
+        async def found(*args, **kwargs):
+            return {"success": True, "text": "Choose output", "playback_actions": [{
+                "id": "output-B", "kind": "output", "command": "ask_dj_play_recommendation_on_output",
+                "device_id": "output-B", "value": {"output_id": "output-B", "recommendation": recommendation}}]}
+        with patch.object(self.handlers.http_helpers, "async_handle_ask_dj", found):
+            offered, status = await self.request("Play A", identifier="bound-output-offer")
+        self.assertEqual(status, 200, offered)
+        backend = object.__new__(SpotifyBackend)
+        backend.hass, backend.runtime = self.hass, self.runtime
+        async def token(**kwargs):
+            return "SYNTHETIC_FIXTURE_TOKEN"
+        backend._access_token = token
+        sent = []
+        class Response:
+            status = 204
+            async def __aenter__(self):
+                return self
+            async def __aexit__(self, *args):
+                return False
+        class Transport:
+            def request(self, method, url, **kwargs):
+                sent.append((method, url, kwargs.get("json")))
+                return Response()
+        backend.session = Transport()
+        async def devices(h, r, cmd, *args, **kwargs):
+            self.assertEqual(cmd, "devices")
+            return {"devices": [{"id": "output-B", "name": "B"}]}
+        async def compound(h, r, value, payload, **kwargs):
+            async def send():
+                await backend.play(recommendation["uri"])
+            return await self.external_effect_probe("play", recommendation["uri"], send)
+        with patch.object(self.core, "run_music_command", devices), patch.object(http, "_handle_ask_dj_play_recommendation_on_output", compound):
+            response, status = await self.request("play", identifier="bound-output-play", choice_action={
+                "result_set_id": offered["result_set"]["result_set_id"],
+                "action_id": offered["result_set"]["items"][0]["action_id"], "operation": "play"})
+        self.assertEqual(status, 200, response)
+        self.assertEqual(len(sent), 1)
+        self.assertTrue(sent[0][1].endswith("/me/player/play?device_id=output-B"), sent)
+        self.assertEqual(sent[0][2], {"uris": [recommendation["uri"]]})
+
+
+if __name__ == "__main__":
+    unittest.main()

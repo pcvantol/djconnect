@@ -87,6 +87,13 @@ async def process_text_command(
         conf,
         memory_context=memory_context,
     )
+    from .ask_dj.dialogue import current_turn, DialogueError
+    if current_turn.get() is not None:
+        # The model may propose search words. Provider identity comes from real resolution.
+        permitted = {"intent", "type", "artist", "title", "album", "playlist", "query", "spotify_search_query"}
+        intent = {key: value for key, value in intent.items() if key in permitted and (value is None or isinstance(value, str))}
+        if any("spotify:" in str(value) or "http" in str(value) for value in intent.values()):
+            raise DialogueError("unqualified_model_action", 403)
     runtime.update(last_intent=intent)
     playback = None
     if play:
@@ -134,6 +141,9 @@ async def _memory_context_for_assist(
     memory_payload: dict[str, Any] | None = None,
     user_id: str | None = None,
 ) -> str | None:
+    from .ask_dj.dialogue import current_turn
+    if current_turn.get() is not None:
+        return None  # Functional dialogue is not a blanket DNA/model grant.
     memory = getattr(runtime, "memory", None)
     if memory is None:
         return None
@@ -232,6 +242,9 @@ async def _record_ask_dj_memory(
     memory_payload: dict[str, Any] | None = None,
     user_id: str | None = None,
 ) -> None:
+    from .ask_dj.dialogue import current_turn
+    if current_turn.get() is not None:
+        return
     memory = getattr(runtime, "memory", None)
     recorder = getattr(memory, "async_update_last_ask_dj", None)
     if not callable(recorder):

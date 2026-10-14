@@ -132,6 +132,8 @@ def validate_case_result(
             fail(f"music playback mutations were forbidden but called {mutations!r}")
     if expect.get("required_process_text") and not trace.process_text_requests:
         fail("run_text_command was expected but not called")
+    if expect.get("forbid_process_text") and trace.process_text_requests:
+        fail("typed command must not be reparsed by run_text_command")
     for subset in expect.get("playback_actions_include") or []:
         if not _contains_mapping_subset(response.get("playback_actions") or [], subset):
             fail(f"playback_actions should include {subset!r}; got {response.get('playback_actions')!r}")

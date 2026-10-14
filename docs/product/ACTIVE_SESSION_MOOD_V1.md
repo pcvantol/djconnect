@@ -111,3 +111,8 @@ acceptance. Artwork comment6108892390 is a separate dependency. Preserve Windows
 retirement/provider ownership, Apple text/voice/history/search/live auth, Pi/ESP
 and Cast1.1. Native/installed/hardware acceptance and each source/Finalization
 publication grant remain separate. Stop after this one Core delivery.
+
+
+## Ask DJ uses confirmed Mood without setting it
+
+[Shared Ask DJ dialogue](ASK_DJ_CONTEXTUAL_DIALOGUE_CONTRACT_V1.md) consumes the confirmed symbolic value for relevant Session-context answers in one common style projection. It does not convert that value into legacy numeric mood or change settings, playback, Session or immutable Moments. Standalone numeric/Profile Mood retains its own documented source. Temporary conversational refinement is not a Mood update; an explicit setting remains on this existing authorized route. Presence-Off continues to allow explicit answers without proactive publication or history-summary Moment increments.

@@ -58,6 +58,17 @@ class TrackInsightTests(unittest.TestCase):
         install_homeassistant_stubs()
         cls.track_insight = importlib.import_module("custom_components.djconnect.track_insight")
 
+    def bind_owner(self, hass, runtime):
+        from custom_components.djconnect.domain.storage import ProfilePlatformStorage
+        from custom_components.djconnect.domain.backend import BackendProvider
+        storage=ProfilePlatformStorage()
+        async def bind():
+            await storage.async_upsert_music_backend('spotify_direct',BackendProvider.SPOTIFY_DIRECT,display_name='Routing fixture')
+            await storage.async_create_profile('Synthetic owner',profile_id='insight-owner',default_backend_id='spotify_direct')
+            await storage.async_upsert_device(runtime.device_status['device_id'],'ios',linked_profile_id='insight-owner')
+        asyncio.run(bind())
+        hass.data['djconnect']['djconnect_profile_platform']=storage
+
     def test_prompt_builder_requests_json_only(self) -> None:
         prompt = self.track_insight.TrackInsightPromptBuilder().build(
             {"title": "Innerbloom", "artist": "RUFUS DU SOL", "album": "Bloom"},
@@ -343,6 +354,7 @@ class TrackInsightTests(unittest.TestCase):
         runtime = RuntimeWithAuth()
         hass = FakeHass()
         hass.data = {const.DOMAIN: {"runtime": runtime}}
+        self.bind_owner(hass,runtime)
 
         previous = api_handlers._LOGGER.level
         api_handlers._LOGGER.setLevel(logging.DEBUG)
@@ -372,8 +384,9 @@ class TrackInsightTests(unittest.TestCase):
 
         self.assertEqual(status, 200)
         self.assertEqual(result["language"], "nl")
-        self.assertIn("Run van Floor Jansen", result["analysis"]["summary"])
-        self.assertEqual(hass.services.calls[0]["data"]["language"], "nl")
+        self.assertEqual(result["track"]["title"], "Run")
+        self.assertIn("geen gekwalificeerde", result["analysis"]["summary"])
+        self.assertEqual(hass.services.calls, [])
         logs = "\n".join(captured.output)
         self.assertIn("Track Insight http request", logs)
         self.assertIn("Track Insight http result", logs)
@@ -399,6 +412,7 @@ class TrackInsightTests(unittest.TestCase):
         runtime = RuntimeWithAuth()
         hass = FakeHass()
         hass.data = {const.DOMAIN: {"runtime": runtime}}
+        self.bind_owner(hass,runtime)
 
         result, status = asyncio.run(
             api_handlers.async_handle_track_insight_payload(
@@ -422,7 +436,7 @@ class TrackInsightTests(unittest.TestCase):
         self.assertEqual(status, 200)
         self.assertEqual(result["mood_context"]["value"], 85)
         self.assertEqual(result["mood_context"]["zone"], "party")
-        self.assertIn("85/100", hass.services.calls[0]["data"]["text"])
+        self.assertEqual(hass.services.calls, [])
 
     def test_cache_strips_legacy_music_dna_match_fields(self) -> None:
         runtime = Runtime()

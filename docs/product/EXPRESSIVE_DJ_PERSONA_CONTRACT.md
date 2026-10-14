@@ -120,3 +120,8 @@ One Core assignment through exact independent review/fixes/checks, protected
 source delivery, exact-main readback, separate mandatory Finalization and safe
 cleanup. Each automatic internal publication requires its own exact-candidate
 decision. No installation or subsequent slice is selected.
+
+
+## Reactive conversation style boundary
+
+The [shared Ask DJ design](ASK_DJ_CONVERSATIONAL_EXPERIENCE_V1.md) reuses the four established Persona meanings for reactive text through one style resolver. Confirmed active/paused Session Persona/Mood wins when that context is used; standalone explicit supported Persona/default, existing Profile response style/Mood and legacy numeric inputs have separately documented precedence. Voice style/dj_style is not Persona identity. Reactive answers do not use or advance this proactive published-only style memory, source realization permission or Moment budget. All five supported languages apply; fact/role/identity/authority are unchanged.

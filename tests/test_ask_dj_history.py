@@ -135,6 +135,7 @@ class AskDJHistoryManagerTest(unittest.TestCase):
                         "device_name": "iPhone",
                     },
                     "app_version": "3.2.21",
+                    "conversation_scope": "legacy",
                 },
                 headers={"Authorization": "Bearer token"},
                 user_id="ha-user-1",
@@ -176,7 +177,7 @@ class AskDJHistoryManagerTest(unittest.TestCase):
             lambda runtime_arg, headers, device_id=None, client_type=None: True
         )
 
-        async def ask_handler(hass, runtime_arg, payload, *, user_id=None):
+        async def ask_handler(hass, runtime_arg, payload, *, user_id=None, **kwargs):
             return {
                 "success": True,
                 "text": "Assistant private answer",
@@ -190,23 +191,27 @@ class AskDJHistoryManagerTest(unittest.TestCase):
 
         api_handlers.http_helpers.async_handle_ask_dj = ask_handler
         api_handlers.http_helpers.async_send_push_event = push_handler
+        async def accepted_request():
+            from custom_components.djconnect.domain.storage import ProfilePlatformStorage
+            from custom_components.djconnect.domain.backend import BackendProvider
+            storage = ProfilePlatformStorage()
+            await storage.async_upsert_music_backend("later_manual", BackendProvider.FUTURE_PROVIDER, display_name="Debug fixture")
+            await storage.async_create_profile("Owner", profile_id="debug-owner", default_backend_id="later_manual")
+            await storage.async_upsert_device("djconnect-ios-ABCDEFGHIJKL", "ios", linked_profile_id="debug-owner")
+            hass = types.SimpleNamespace(data={"djconnect": {
+                "djconnect_profile_platform": storage, "ask_dj_history_manager": manager,
+                "runtime": runtime}}, config=types.SimpleNamespace(language="en"))
+            runtime.config = {"device_id": "djconnect-ios-ABCDEFGHIJKL", "client_type": "ios", "music_backend": "later_manual"}
+            return await api_handlers.async_handle_ask_dj_message_payload(hass,
+                {"device_id": "djconnect-ios-ABCDEFGHIJKL", "client_type": "ios",
+                 "client_message_id": "ios-message-1", "text": "User private question"},
+                headers={"Authorization": "Bearer token"}, user_id="ha-user-1")
+
         previous = api_handlers._LOGGER.level
         api_handlers._LOGGER.setLevel(logging.DEBUG)
         try:
             with self.assertLogs(api_handlers._LOGGER, level="DEBUG") as captured:
-                result, status = asyncio.run(
-                    api_handlers.async_handle_ask_dj_message_payload(
-                        types.SimpleNamespace(data={}),
-                        {
-                            "device_id": "djconnect-ios-ABCDEFGHIJKL",
-                            "client_type": "ios",
-                            "client_message_id": "ios-message-1",
-                            "text": "User private question",
-                        },
-                        headers={"Authorization": "Bearer token"},
-                        user_id="ha-user-1",
-                    )
-                )
+                result, status = asyncio.run(accepted_request())
         finally:
             api_handlers._LOGGER.setLevel(previous)
             api_handlers.resolve_runtime = original_resolve_runtime

@@ -16,6 +16,10 @@ Combined Session entry/history/native-surface documentary design: [DJC-SESSION-E
 
 Selected connected Core history summary: DJC-CORE-SESSION-HISTORY-SUMMARY-V1-20261013; source PROTECTED_MERGED. Reuses HISTORY::CORE::SUMMARY, with Apple adoption Planned and native/installed/joint acceptance open. Predecessor version7 is preserved byte-for-byte.
 
+Selected one-pipeline Ask DJ + exact Moment Track Insight: [DJC-CORE-ASKDJ-CONTEXTUAL-DIALOGUE-V1-20261013](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6145537044); source UNPUBLISHED. Both screens use the same service with optional qualified context. Native Apple and joint acceptance remain Planned/open; no consumer writes or automatic dispatch. History summary1162/1163 stays closed; version8 is preserved in history/20261013. Owner-requested HA-dev/prod updates follow qualified delivery and installed readback.
+
+Existing Apple Presence execution: In progress ([owning readback](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6168870771)); native Mac/installed acceptance and protected Apple delivery remain open. This observation updates no historical planning node and grants no Core/consumer admission. Installed Presence advertisement is absent in the owner readback; completed Core policy remains closed. Dialogue adoption and intra-track visibility remain distinct open joint findings.
+
 [Owner decision](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6110375785); documentary design date 2026-10-11.
 
 Joint presence acceptance remains Planned; delivered Core policy remains closed. Mood, Persona and presence are independent. Corepolicy + Applecontrol + local/static VibeCast receipts form joint acceptance. Richer narrative is later, not a v1 gate.

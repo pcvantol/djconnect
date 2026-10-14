@@ -612,6 +612,40 @@ Example disabled response:
 }
 ```
 
+## Shared contextual Ask DJ v1
+
+All application Ask DJ text, post-STT voice and compatibility transports use
+`ask_dj.service.async_exchange`. General and Session composers differ only by
+optional confirmed `conversation_context`; no screen-origin pipeline exists.
+The additive `ask_dj_contextual_dialogue` capability advertises contract version 1.
+Current application history/state/export/clear defaults to the paired Profile;
+explicit `conversation_scope: legacy` administrative access requires the HA user
+and never imports the old archive into model or functional memory.
+
+Responses may add `conversation`, a bounded immutable `result_set`, exact
+`selected_action_id`, `action_outcome`, `knowledge_basis` and `analysis_basis`.
+Existing media/links/cards remain available in the qualified current response;
+`media_delivery_basis: current_response_only` does not grant archival retention.
+Reads, result selection and inert navigation never dispatch playback. The same
+existing command adapters validate an explicit effect and distinguish successful
+dispatch from qualified readback. Duplicate accepted turns share their revision;
+a possible external effect is not automatically repeated after an uncertain
+outcome. Pairing/Profile/source authority is checked at the actual boundary.
+
+Optional `track_insight_target` is the closed version 1 Session/Moment/action DTO
+from a qualified `moment_track_insight_navigation_v1` offer. Dedicated detail and
+both composers reuse the existing TrackInsightService/cache, keep the selected
+recording across A→B, and fail on expiry/withdrawal without silently substituting
+B. Analysis discussion stays in chat; explicit navigation may open detail.
+Unknown measured audio stays unknown. Neither path produces a proactive Moment,
+rewrites its source, resets presence budget or exposes private conversation to
+VibeCast.
+
+The field, rights, lifecycle, error and resource contracts are canonical in
+[shared dialogue](docs/product/ASK_DJ_CONTEXTUAL_DIALOGUE_CONTRACT_V1.md) and
+[Moment drilldown](docs/product/MOMENT_TRACK_INSIGHT_DRILLDOWN_V1.md). Active HA
+routes retain HA Conversation/STT/TTS; direct API access is qualification-only.
+
 ## Ask DJ Mood Zones
 
 iOS, macOS and watchOS clients send `mood` as an optional integer-like value from

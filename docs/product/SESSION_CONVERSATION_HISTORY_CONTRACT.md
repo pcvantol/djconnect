@@ -1,4 +1,9 @@
-# Session conversation and history — connected Core candidate
+# Session conversation and history — retained foundation and shared dialogue correction
+## Selected single-pipeline dialogue correction
+
+Assignment `DJC-CORE-ASKDJ-CONTEXTUAL-DIALOGUE-V1-20261013` fixes the generic-versus-Session dialogue/acceptance split while retaining this delivered history/search foundation.
+[Experience](ASK_DJ_CONVERSATIONAL_EXPERIENCE_V1.md) and [common producer contract](ASK_DJ_CONTEXTUAL_DIALOGUE_CONTRACT_V1.md) pin the design before runtime edits. They qualify one Ask DJ implementation and bounded common context; Session adds optional authority/context/Flow references only. The former quote-only reply, separate historywriter scope and broad Session lock are baseline findings to repair, not completed conversational intelligence. New narrow reactive CC0 processing supersedes only this document's earlier blanket no-model rule for those explicitly qualified facts; Spotify/archive scanning and unknown-source processing stay excluded. Literal search/navigation and old archive rights remain unchanged. Current qualification/publication is pending.
+
 ## Selected ambient producer convergence
 
 [Ambient convergence v1](AMBIENT_FACT_MOMENT_CONVERGENCE_V1.md) removes independent proactivity from playback-status reads. Existing qualified Runtime/Planner/Knowledge/Moment/Flow/Broadcast publication remains the only unsolicited content path; generated Track Insight interpretation is not source-fact proof. Explicit Ask DJ and previously stored ambient/system records retain their contracts; no history import, filtering or new source/model is added. Core source #1158 is protected delivered as `6114c5a05600f6b066d4e1f057f236841fe4f574` with exact archive/formal readback PASS. Apple/joint qualification remains separately open; full narrative Stage4 is not promoted.
@@ -339,3 +344,14 @@ reads only project a provisional open Mood interval, without writes or providers
 Old stores remain unknown, restart leaves unobserved Mood time unknown, and
 owner/source/privacy/retention withdrawal applies to derived totals.
 No summary enters shared Broadcast, notifications or diagnostics.
+
+
+## Shared reactive dialogue and bounded Moment drilldown
+
+The selected [common Ask DJ contract](ASK_DJ_CONTEXTUAL_DIALOGUE_CONTRACT_V1.md)
+uses the existing conversation owner for both screens; optional Session/Moment
+context does not create a second pipeline. The [Moment Track Insight subset](MOMENT_TRACK_INSIGHT_DRILLDOWN_V1.md)
+adds an exact, temporary owner read through the existing full detail service.
+This is one bounded connected correction; full interactive/narrative maturity,
+native adoption, entry/lifecycle and joint acceptance remain independently Planned/open.
+No model/provider lookup occurs merely by rendering a navigation offer.

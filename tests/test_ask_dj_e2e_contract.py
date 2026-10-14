@@ -8,6 +8,7 @@ import types
 import unittest
 
 from tests.ask_dj_e2e_contract import AskDjE2ETrace, load_cases, validate_case_result
+from tests.ask_dj_operational_fixture import ask_operational
 from tests.test_ask_dj import FakeMemory, make_runtime
 from tests.test_http_voice_helpers import install_http_stubs
 
@@ -138,6 +139,7 @@ class AskDjE2EContractTest(unittest.TestCase):
             "device_id": runtime.device_status["device_id"],
             "client_message_id": f"e2e-{case['id']}",
             "audio_response": "never",
+            "language": "nl",
             **case["request"],
         }
         runtime.device_status["client_type"] = payload.get("client_type") or "watchos"
@@ -164,7 +166,7 @@ class AskDjE2EContractTest(unittest.TestCase):
                         {
                             "track_name": "Queue Track",
                             "artist": "Queue Artist",
-                            "uri": "spotify:track:queue-track",
+                            "uri": "spotify:track:" + "2" * 22,
                             "album_image_url": "https://img.example/queue.jpg",
                         }
                     ],
@@ -233,7 +235,7 @@ class AskDjE2EContractTest(unittest.TestCase):
                         "is_liked": value is not False,
                     },
                 }
-            if command_name in {"pause", "play"}:
+            if command_name in {"pause", "play", "next", "previous"}:
                 return {"success": True, "playback": runtime.last_playback}
             if command_name == "set_volume":
                 return {"success": True, "playback": {**runtime.last_playback, "volume_percent": value}}
@@ -422,7 +424,8 @@ class AskDjE2EContractTest(unittest.TestCase):
         self.ask_dj.run_text_command = process_text
         try:
             response = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                ask_operational(
+                    self.ask_dj,
                     types.SimpleNamespace(
                         services=types.SimpleNamespace(),
                         data={self.const.DOMAIN: {}},

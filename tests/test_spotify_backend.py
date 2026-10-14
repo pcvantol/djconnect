@@ -2043,8 +2043,9 @@ class SpotifyBackendTest(unittest.TestCase):
         self.assertEqual(result["contextUri"], "spotify:playlist:abc")
         self.assertEqual(result["queue"][0]["album_image_url"], "https://example.test/queue.jpg")
         self.assertEqual(result["queue"][0]["imageUrl"], "https://example.test/queue.jpg")
-        self.assertEqual(result["queue"][0]["context_uri"], "spotify:playlist:abc")
-        self.assertEqual(result["queue"][0]["contextUri"], "spotify:playlist:abc")
+        # The current playlist does not establish an upcoming item's context.
+        self.assertNotIn("context_uri", result["queue"][0])
+        self.assertNotIn("contextUri", result["queue"][0])
         self.assertEqual(result["queue"][0]["id"], "spotify:track:next")
         self.assertEqual(result["queue"][0]["artist"], "Artist, Guest")
         self.assertEqual(result["queue"][0]["artist_name"], "Artist, Guest")

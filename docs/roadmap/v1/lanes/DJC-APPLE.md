@@ -16,6 +16,10 @@ Combined Session entry/history/native-surface documentary design: [DJC-SESSION-E
 
 Selected connected Core history summary: DJC-CORE-SESSION-HISTORY-SUMMARY-V1-20261013; source PROTECTED_MERGED. Reuses HISTORY::CORE::SUMMARY, with Apple adoption Planned and native/installed/joint acceptance open. Predecessor version7 is preserved byte-for-byte.
 
+Selected one-pipeline Ask DJ + exact Moment Track Insight: [DJC-CORE-ASKDJ-CONTEXTUAL-DIALOGUE-V1-20261013](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6145537044); source UNPUBLISHED. Both screens use the same service with optional qualified context. Native Apple and joint acceptance remain Planned/open; no consumer writes or automatic dispatch. History summary1162/1163 stays closed; version8 is preserved in history/20261013. Owner-requested HA-dev/prod updates follow qualified delivery and installed readback.
+
+Existing Apple Presence execution: In progress ([owning readback](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6168870771)); native Mac/installed acceptance and protected Apple delivery remain open. This observation updates no historical planning node and grants no Core/consumer admission. Installed Presence advertisement is absent in the owner readback; completed Core policy remains closed. Dialogue adoption and intra-track visibility remain distinct open joint findings.
+
 Selected implementation [DJC-CORE-DJ-PRESENCE-V1-20261011](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6111222122); early local contract `1d5e8c2518db5902031898991b7f4857d5263a5c`; source delivery PROTECTED_MERGED.
 
 - `SLICE::APPLE::DJ-PRESENCE-CONTROL` — Planned; Accessible five-language native confirmation; reuse existing Apple writer
@@ -30,5 +34,7 @@ Selected implementation [DJC-CORE-DJ-PRESENCE-V1-20261011](https://github.com/pc
 - `SURFACE::APPLE::ADOPTION` — Planned; Qualified surface contract, legacy migration, Session identity, host/SDK/OS evidence
 - `SURFACE::APPLE::QUIET-TRANSPORT` — Planned; Foreground/background/offline/real Activity or Widget push qualified separately; no alert bypass
 - `CONTINUATION::APPLE::ALERT-TRANSPORT` — Planned; Category-only real transport, consent, cross-client/Watch dedup; separate answer-ready family
+- `CONVERSATION::APPLE::SHARED-ADOPTION` — Planned; One native Ask DJ controller with optional Session context
+- `INSIGHT::APPLE::MOMENT-DRILLDOWN` — Planned; Native pinned Track Insight and return to the same Flow/draft
 
 Fresh owner/writer/resource admission is separate from functional prerequisites. Historical writer observations are not current leases.

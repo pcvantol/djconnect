@@ -16,6 +16,10 @@ Combined Session entry/history/native-surface documentary design: [DJC-SESSION-E
 
 Selected connected Core history summary: DJC-CORE-SESSION-HISTORY-SUMMARY-V1-20261013; source PROTECTED_MERGED. Reuses HISTORY::CORE::SUMMARY, with Apple adoption Planned and native/installed/joint acceptance open. Predecessor version7 is preserved byte-for-byte.
 
+Selected one-pipeline Ask DJ + exact Moment Track Insight: [DJC-CORE-ASKDJ-CONTEXTUAL-DIALOGUE-V1-20261013](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6145537044); source UNPUBLISHED. Both screens use the same service with optional qualified context. Native Apple and joint acceptance remain Planned/open; no consumer writes or automatic dispatch. History summary1162/1163 stays closed; version8 is preserved in history/20261013. Owner-requested HA-dev/prod updates follow qualified delivery and installed readback.
+
+Existing Apple Presence execution: In progress ([owning readback](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6168870771)); native Mac/installed acceptance and protected Apple delivery remain open. This observation updates no historical planning node and grants no Core/consumer admission. Installed Presence advertisement is absent in the owner readback; completed Core policy remains closed. Dialogue adoption and intra-track visibility remain distinct open joint findings.
+
 Selected implementation [DJC-CORE-DJ-PRESENCE-V1-20261011](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6111222122); early local contract `1d5e8c2518db5902031898991b7f4857d5263a5c`; source delivery PROTECTED_MERGED.
 
 Authority: [DJC-DJ-PRESENCE-ROADMAP-DESIGN-V1-20261011](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6110375785).
@@ -24,19 +28,19 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 
 | Local design source | SHA256 |
 |---|---|
-| [PRODUCT_ROADMAP.md](../../../PRODUCT_ROADMAP.md) | `072914802f4a5e21347d3fa18ab8268a9bd186a94e3b7d3b1df74f1448b5c994` |
-| [PRODUCT_BACKLOG.md](../../../PRODUCT_BACKLOG.md) | `43f01beb0e1e41095860a56d8b1689d1b304591d87626e1307583d3f2e3d4079` |
+| [PRODUCT_ROADMAP.md](../../../PRODUCT_ROADMAP.md) | `87a243c39e4ddbd4cdc1a2183efd192dd088b0b2e7167014fc8ef805328f3713` |
+| [PRODUCT_BACKLOG.md](../../../PRODUCT_BACKLOG.md) | `2a847371745a769adf820be9cb5c0d5d3359b14be372fc3e1c4ce8c19ca24b91` |
 | [docs/product/DJ_PRESENCE_V1.md](../../../docs/product/DJ_PRESENCE_V1.md) | `c97be3bcebbd4ca70d640cdf4fc0a9a4808451e986bc977e3173e19842a928c4` |
 | [DJ_SESSION_RUNTIME_CONTRACTS.md](../../../DJ_SESSION_RUNTIME_CONTRACTS.md) | `6ae7a05260bc2a997252dbb70c28917ac6b7fd25930263d7c0940df929b1ec92` |
-| [docs/product/DJ_INTELLIGENCE_ARCHITECTURE.md](../../../docs/product/DJ_INTELLIGENCE_ARCHITECTURE.md) | `cb86b46ac414f0ca7c411978eded39ae8843cba94ea0a25ccbb0d84160bf6935` |
+| [docs/product/DJ_INTELLIGENCE_ARCHITECTURE.md](../../../docs/product/DJ_INTELLIGENCE_ARCHITECTURE.md) | `5345f4a3db6b2bfb97931d6acdde09439dc3dbae7a7d311107269922e08aef12` |
 | [docs/product/DJ_PRESENTATION_ARCHITECTURE.md](../../../docs/product/DJ_PRESENTATION_ARCHITECTURE.md) | `7dd7c816a46c9d49cf7a9ced45bfeccacd628b3e279c4e5fd5ca4656f4e57ad6` |
 | [docs/technical/PLATFORM_AMBIENT_EXPERIENCE.md](../../../docs/technical/PLATFORM_AMBIENT_EXPERIENCE.md) | `5dc485caa24c1e7a690f0a0aefef1c0b844bcaf1aea7ea52e3895aabcf7fbd8e` |
 | [docs/product/DJ_PRESENCE_CORE_POLICY_V1.md](../../../docs/product/DJ_PRESENCE_CORE_POLICY_V1.md) | `32ed8a6a47cc6f64fb07b9ef4df1cf8fb7e92c2368cd0c35c66ad31b76b64909` |
 | [docs/product/DJ_PRESENCE_OWNER_CONTRACT_V1.md](../../../docs/product/DJ_PRESENCE_OWNER_CONTRACT_V1.md) | `2580acda7c9e19020c030cb1b8cecd47ef87af0f43a643b90f37d7bd89ee65a3` |
 | [docs/product/DISCOVERY_ARTWORK_CONTINUITY_V1.md](../../../docs/product/DISCOVERY_ARTWORK_CONTINUITY_V1.md) | `66afc37ff6b71b0dacffe6e340ccde274bd3f0f7354155920ebd327fd822ed98` |
-| [API_CONTRACT.md](../../../API_CONTRACT.md) | `6ffb8da8830fcb291626a34b75cdbeafa07db805ba44955beb05c19dfb4bebf5` |
+| [API_CONTRACT.md](../../../API_CONTRACT.md) | `e6dcc3e5f1a5fab7f392106810f94194ac7df5e34688d35b8ad894446bc976e8` |
 | [docs/product/NARRATIVE_ALBUM_CONTINUITY_V1.md](../../../docs/product/NARRATIVE_ALBUM_CONTINUITY_V1.md) | `179d45df97a9f4e260c90fdfa211563f6ed2789ec78a0e691f4d89784c4f5552` |
-| [docs/product/DJ_INTELLIGENCE_MATURITY.md](../../../docs/product/DJ_INTELLIGENCE_MATURITY.md) | `ef4f192fdb7674b8b00dca71b16359f6e6f3da51efef6b5fa451ef0ea5791dd9` |
+| [docs/product/DJ_INTELLIGENCE_MATURITY.md](../../../docs/product/DJ_INTELLIGENCE_MATURITY.md) | `e546b04681d4278cadf790400c761f39f845cb95092d6cf09da6b31d04aa9c86` |
 | [docs/product/SHARED_PRODUCER_CONTINUITY_CONTRACT.md](../../../docs/product/SHARED_PRODUCER_CONTINUITY_CONTRACT.md) | `d06d2563b1de4fcfdff15bd76e0952e19f0970666b8ce5677db10cf6ee11a2ed` |
 | [docs/product/DISCOVER_NARRATIVE_TRANSITION_CONTRACT.md](../../../docs/product/DISCOVER_NARRATIVE_TRANSITION_CONTRACT.md) | `a27c694d57bca4908d4a258c9a6e0aec1de95d3ee6ddd89a377e32bf6b9f8e32` |
 | [docs/product/EXPRESSIVE_CONTEXT_VARIATION_V1.md](../../../docs/product/EXPRESSIVE_CONTEXT_VARIATION_V1.md) | `01e6cbe92d1fc240b3b444e646cb5bdd809a242cf61b2044edc5fb26775f26c7` |
@@ -51,11 +55,19 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 | [docs/product/AMBIENT_FACT_MOMENT_CONVERGENCE_V1.md](../../../docs/product/AMBIENT_FACT_MOMENT_CONVERGENCE_V1.md) | `602ab34d4ee960349db8843189860a25894ce3ca57870d474c7bc6ce5fb7918e` |
 | [docs/verification/AMBIENT_FACT_MOMENT_CONVERGENCE_V1_SOURCE_READBACK.md](../../../docs/verification/AMBIENT_FACT_MOMENT_CONVERGENCE_V1_SOURCE_READBACK.md) | `500c0f99872817e857e5106e7c2a8ed39ac6877c153f616bd6795389171fc629` |
 | [docs/history/prompts/2026-10-12-ambient-fact-core-finalization.md](../../../docs/history/prompts/2026-10-12-ambient-fact-core-finalization.md) | `7391647babdf4eca2a287c7c8e654d3f98c0d04121367e030173c474bfde59a6` |
-| [docs/product/SESSION_ENTRY_LIFECYCLE_EXPERIENCE_V1.md](../../../docs/product/SESSION_ENTRY_LIFECYCLE_EXPERIENCE_V1.md) | `63ada3ffa76f1118d060342819aba930d73fd92e40b836d3dddaa225ddf350d5` |
+| [docs/product/SESSION_ENTRY_LIFECYCLE_EXPERIENCE_V1.md](../../../docs/product/SESSION_ENTRY_LIFECYCLE_EXPERIENCE_V1.md) | `56e88a4630fcd807b0dc3135c3f01c1022e8659fcbd08e6101db0bcb8babf8a9` |
 | [docs/product/SESSION_HISTORY_SUMMARY_V1.md](../../../docs/product/SESSION_HISTORY_SUMMARY_V1.md) | `fed7b849ce5c5918507b22055575cd847728ae40c28e038a364c647e6fb193d9` |
-| [docs/product/APPLE_SESSION_NATIVE_SURFACES_V1.md](../../../docs/product/APPLE_SESSION_NATIVE_SURFACES_V1.md) | `99c390e7e452c9ab50020cd0b2948a3f57d249c259fa0b84abf6542dfe743118` |
+| [docs/product/APPLE_SESSION_NATIVE_SURFACES_V1.md](../../../docs/product/APPLE_SESSION_NATIVE_SURFACES_V1.md) | `6677b8f6ae1935fedb13f277711b08522b47a87ebf0b65b19ca958cdfb74615a` |
 | [docs/verification/SESSION_ENTRY_LIFECYCLE_HISTORY_DESIGN_V1_SOURCE_READBACK.md](../../../docs/verification/SESSION_ENTRY_LIFECYCLE_HISTORY_DESIGN_V1_SOURCE_READBACK.md) | `5f514a8d824402dea2c180a59fca30579d2dd95f410827323d01c4b6b940a241` |
 | [docs/history/prompts/2026-10-12-session-entry-lifecycle-history-design-finalization.md](../../../docs/history/prompts/2026-10-12-session-entry-lifecycle-history-design-finalization.md) | `89d915a21392089344fde1212c19bd0c5cc937242c7223cb786160b783b36328` |
 | [docs/product/SESSION_HISTORY_SUMMARY_ACCEPTANCE_V1.md](../../../docs/product/SESSION_HISTORY_SUMMARY_ACCEPTANCE_V1.md) | `2ca903977e3cd59888295a7081be577b93175b682a4d162b12159acaa78092a9` |
 | [docs/verification/SESSION_HISTORY_SUMMARY_V1_SOURCE_READBACK.md](../../../docs/verification/SESSION_HISTORY_SUMMARY_V1_SOURCE_READBACK.md) | `5a65bd4853a878c2d6e8a50603fd6b5fb4d1e41225853d94097d010e38faadf4` |
 | [docs/history/prompts/2026-10-13-session-history-summary-finalization.md](../../../docs/history/prompts/2026-10-13-session-history-summary-finalization.md) | `b3d248b51a46e9e4b74439f2331b888ec5e70a80d348ec598601ca8447bada0c` |
+| [docs/product/ASK_DJ_CONVERSATIONAL_EXPERIENCE_V1.md](../../../docs/product/ASK_DJ_CONVERSATIONAL_EXPERIENCE_V1.md) | `fff4b43c1acf28a84ff0464e244a6536984bed00782e7abc4aa3e5016e535e91` |
+| [docs/product/ASK_DJ_CONTEXTUAL_DIALOGUE_CONTRACT_V1.md](../../../docs/product/ASK_DJ_CONTEXTUAL_DIALOGUE_CONTRACT_V1.md) | `84619673e23086ea80243d19448cca640934b922ba5823cc0355e7420d36c9cf` |
+| [docs/product/MOMENT_TRACK_INSIGHT_DRILLDOWN_V1.md](../../../docs/product/MOMENT_TRACK_INSIGHT_DRILLDOWN_V1.md) | `14b18b65dab41715453210578838568db94374f2051f5dfea9d4b9517bab61f8` |
+| [DJCONNECT_STORAGE_ARCHITECTURE.md](../../../DJCONNECT_STORAGE_ARCHITECTURE.md) | `40fd31bd4ff256821ec30e2d0430fe7af5ef615fa6e125969cfebbc66d035da5` |
+| [docs/technical/HTTP_API.md](../../../docs/technical/HTTP_API.md) | `3cfa19c673c42065c5a3a0ff78e9657271c66563ef9097f555962106acfa3489` |
+| [docs/technical/VOICE_TRANSPORT.md](../../../docs/technical/VOICE_TRANSPORT.md) | `65065f48e8e8a069a43ac3efde885e5ef2636622269725a008a478cf71197cd5` |
+| [docs/product/EXPRESSIVE_DJ_PERSONA_CONTRACT.md](../../../docs/product/EXPRESSIVE_DJ_PERSONA_CONTRACT.md) | `a5c9bde64dc087acf3a9b4ab88480e5daebaa8f5b6cc5ef07c0b4ed66c1f202e` |
+| [docs/product/KNOWLEDGE_SOURCE_ARCHITECTURE.md](../../../docs/product/KNOWLEDGE_SOURCE_ARCHITECTURE.md) | `8846dff1f9c18bfb6aa9817b9a1d46f4bcbad0ceb79fd5b695d6bbb71cbfa55d` |

@@ -1,4 +1,32 @@
 # DJConnect Product Roadmap
+
+## Selected connected Ask DJ correction — implementation under qualification
+
+`DJC-CORE-ASKDJ-CONTEXTUAL-DIALOGUE-V1-20261013`, including owner-approved
+`DJC-MOMENT-TRACK-INSIGHT-DRILLDOWN-V1-20261013`, reuses one Core Ask DJ service,
+functional context/history/tool acceptance and optional Session/Moment enrichment.
+The [experience](docs/product/ASK_DJ_CONVERSATIONAL_EXPERIENCE_V1.md),
+[contract](docs/product/ASK_DJ_CONTEXTUAL_DIALOGUE_CONTRACT_V1.md) and
+[exact Moment/detail design](docs/product/MOMENT_TRACK_INSIGHT_DRILLDOWN_V1.md)
+are canonical. No separate legacy/Session pipeline, planner, analyzer or cache.
+
+Core shared dialogue and bounded Track Insight navigation are In progress;
+Apple common-controller/explicit-target adoption and joint acceptance remain Planned.
+One useful qualified existing Track-Moment can carry one inert offer, with unchanged
+presence budgets and published-only accounting. Browser/software acceptance does
+not qualify native use. Exact source/Finalization publication remain gated; the
+owner additionally requested HA-dev and HA-prod updates after readiness.
+History #1162/#1163 and all earlier delivered slices remain closed.
+
+Consumer reconciliation (2026-10-14): the existing Apple Presence writer is
+In progress ([readback](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6168870771));
+its native Mac/installed acceptance and protected delivery remain open. Current
+installed capabilities and active Session responses omit Presence fields; this
+is an installation/producer reconciliation boundary, not a revision-zero decoder
+failure or permission to invent balanced/0. The completed Core Presence policy
+remains closed. Speaker/queue/Ask DJ adoption and intra-track live visibility
+remain distinct joint findings, without another writer or archival bypass.
+
 ## Ambient fact convergence — bounded Core source delivered
 
 [DJC-CORE-AMBIENT-FACT-MOMENT-CONVERGENCE-V1-20261012](docs/product/AMBIENT_FACT_MOMENT_CONVERGENCE_V1.md) retires spontaneous playback-status Ask DJ generation/history/last-Ask-DJ effects and reuses the qualified Session content chain. Actual ordinary paired HA baseline and retirement are qualified; source #1158 is protected merged as `6114c5a05600f6b066d4e1f057f236841fe4f574` with exact archive/formal readback PASS. Explicit Ask DJ and historical cards remain supported. Artist/Album/Track/Genre content retains its existing evidence/rights/presence budgets; unsupported historical, cultural and success anecdotes remain a documented gap. Apple consumer join and joint acceptance remain Planned; no installation, new source/model/cost or full Stage4 promotion. Forecast #1156/#1157 stays closed.

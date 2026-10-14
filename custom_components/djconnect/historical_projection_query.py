@@ -241,6 +241,24 @@ class HistoricalProjectionQueryService:
             "retention_days": 90,
         }
 
+    async def async_latest_playback_observations(self, owner: str, session_id: str) -> dict:
+        """At most three accepted rows, without skipping a withdrawn predecessor."""
+        from .session_history_projection import HistoryQueryError
+        session = await self._session(owner, session_id)
+        rows = await self._repository.async_entry_records(owner, session_id, descending=True,
+            kind="playback_observed", limit=3)
+        observations = []
+        for row in rows:
+            entry = await self._project_entry(owner, row)
+            if entry is None:
+                # Hidden source evidence is a gap, never permission to guess past it.
+                break
+            observations.append(entry)
+        if (await self._session(owner, session_id))["revision"] != session["revision"]:
+            raise HistoryQueryError("invalid_history_cursor")
+        return {"entries": observations, "revision": session["revision"],
+                "coverage": "stage1_distinct_accepted_observations", "complete": False}
+
     async def async_timeline_page(
         self, owner: str, session_id: str, *, limit: int = 20, cursor: str = ""
     ) -> dict:

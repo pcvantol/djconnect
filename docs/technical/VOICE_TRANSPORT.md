@@ -20,6 +20,16 @@ Native app input is currently a bounded complete WAV upload. Home Assistant's
 selected Assist Pipeline remains canonical STT authority; no DJConnect native
 WebSocket streaming, partial-transcript or on-device-STT contract is current.
 
+Application WAV requests bind the actual paired Profile before reading or
+transcribing the body. The same synchronous owner fence runs after input-read,
+after STT, and after the common Ask DJ service before projecting a private
+response. A Profile/token/configuration withdrawal returns a typed error without
+the prior transcript, generated answer or audio. App voice responses are
+`no-store`; STT-provider failure remains422 and creates no conversation turn.
+General and Session voice share the same service and optional context contract
+as [text dialogue](../product/ASK_DJ_CONTEXTUAL_DIALOGUE_CONTRACT_V1.md). No new
+STT provider, agent setting, streaming transport or recording archive is added.
+
 ## Text/JSON Voice Route
 
 `CONFIRMED_CODE` Non-audio JSON/text requests to `/voice` are treated as DJ

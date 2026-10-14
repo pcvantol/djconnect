@@ -90,6 +90,7 @@ from .http import (
     DJConnectTransportCapabilitiesView,
     DJConnectAskDjHistoryClearView,
     DJConnectAskDjHistoryExportView,
+    DJConnectAskDjHistoryStateView,
     DJConnectAskDjHistoryView,
     DJConnectAskDjIdleSuggestionView,
     DJConnectAskDjMessageView,
@@ -140,7 +141,6 @@ from .http import (
 from .assist_stt import detect_stt_support
 from .dj_response import async_send_dj_response, async_send_dj_response_best_effort
 from .ha_urls import async_ha_url_payload
-from .ask_dj import async_handle_ask_dj
 from .ask_dj_history import AskDJHistoryManager
 from .music_dna import MusicDNAManager
 from .push import (
@@ -1814,6 +1814,7 @@ def register_http_views(hass: HomeAssistant) -> None:
             DJConnectAskDjIdleSuggestionView(hass),
             DJConnectAskDjHistoryView(hass),
             DJConnectAskDjHistoryExportView(hass),
+            DJConnectAskDjHistoryStateView(hass),
             DJConnectAskDjHistoryClearView(hass),
             DJConnectCommandView(hass),
             DJConnectPushBootstrapView(hass),
@@ -2344,12 +2345,17 @@ def _register_developer_services(
     async def handle_ask_dj(call: ServiceCall) -> dict[str, Any]:
         payload = ask_dj_service_payload(call)
         _LOGGER.debug("DJConnect Ask DJ service request received")
-        return await async_handle_ask_dj(
+        from .api_handlers import async_handle_ask_dj_message_payload
+
+        result, _status = await async_handle_ask_dj_message_payload(
             hass,
-            runtime,
             payload,
+            headers=ask_dj_service_headers(payload),
             user_id=ask_dj_service_user_id(call),
+            _ha_service_runtime=runtime if runtime.client_type() == CLIENT_TYPE_CONVERSATION_AGENT else None,
+            persist_history=False,
         )
+        return result
 
     async def handle_ask_dj_message(call: ServiceCall) -> dict[str, Any]:
         from .api_handlers import async_handle_ask_dj_message_payload
@@ -2366,6 +2372,7 @@ def _register_developer_services(
             payload,
             headers=ask_dj_service_headers(payload),
             user_id=ask_dj_service_user_id(call),
+            _ha_service_runtime=runtime if runtime.client_type() == CLIENT_TYPE_CONVERSATION_AGENT else None,
         )
         return result
 

@@ -6,6 +6,9 @@ flowchart LR
   n241["Continuation invitation native transport"]
   n240["Independent opportunity/consent policy"]
   n242["Joint Continuation invitation acceptance"]
+  n244["One native Ask DJ controller with optional Session context"]
+  n243["Shared contextual Ask DJ service and acceptance"]
+  n247["Shared dialogue and exact Moment detail joint acceptance"]
   n215["Native Discovery artwork and lifecycle readback"]
   n214["Bounded existing Discovery artwork continuity"]
   n232["Native exact lifecycle invocation integration"]
@@ -20,6 +23,8 @@ flowchart LR
   n223["Visible ambient Forecast composition/adoption"]
   n234["Native history list/header summary adoption"]
   n233["Owner history summary aggregation contract"]
+  n246["Native pinned Track Insight and return to the same Flow/draft"]
+  n245["Qualified exact-track Moment navigation and shared detail"]
   n207["Adjustable DJ presence"]
   n70["Apple authorized Session lifecycle invocation"]
   n23["Session Direction Projection"]
@@ -75,3 +80,10 @@ flowchart LR
   n240 -->|implementation_contract / implementation / start| n241
   n240 -->|implementation_contract / integration_acceptance / completion| n242
   n241 -->|implementation_contract / integration_acceptance / completion| n242
+  n243 -->|implementation_contract / implementation / start| n244
+  n245 -->|implementation_contract / implementation / start| n246
+  n244 -->|implementation_contract / integration_acceptance / completion| n246
+  n243 -->|implementation_contract / integration_acceptance / completion| n247
+  n245 -->|implementation_contract / integration_acceptance / completion| n247
+  n244 -->|implementation_contract / integration_acceptance / completion| n247
+  n246 -->|implementation_contract / integration_acceptance / completion| n247
