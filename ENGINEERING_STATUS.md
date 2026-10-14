@@ -1,5 +1,79 @@
 # DJConnect Engineering Status
 
+## Current: Ask DJ current-artist and Profile-label corrective Finalization
+
+#### Repository Status
+
+PR [#1168](https://github.com/pcvantol/djconnect/pull/1168) protected merged as
+`eeb1c7e763f72ee346ec8eabb52e1c7d87d39433` from independently reviewed and
+owner-authorized `56e08ff3dc87d196759b97c8442bcf680c99b051` on base
+`2348c6935032425564c6385c0a182343f93db50d`. Candidate/main complete tree
+`fcd423394982bf0fe579645aa2e77adc11c714ec` is identical. All32 applicable
+source checks PASS;5 conditional skips. Exact HIGH_RISK Owner Authorization
+[38633599996](https://github.com/pcvantol/djconnect/actions/runs/38633599996) PASS.
+The first513fe66e candidate's CodeQL host-regexp finding was fixed and independently
+rereviewed; no alert dismissal or bypass. Exact-main validation[38633917166](https://github.com/pcvantol/djconnect/actions/runs/38633917166),
+artifact[38634389730](https://github.com/pcvantol/djconnect/actions/runs/38634389730)
+and formal evidence[38634389986](https://github.com/pcvantol/djconnect/actions/runs/38634389986)
+SUCCESS;157 integration files byte-equal,zero mismatches. Raw/durable/SHA/coverage
+bindings pass: POST_MERGE_RELEASE_EVIDENCE_QUALIFIED.
+[Source readback](docs/verification/ASK_DJ_CURRENT_ARTIST_SOURCE_READBACK_20261014.md)
+and [completion record](docs/history/prompts/2026-10-14-current-artist-profile-label-finalization.md).
+[Definitive Apple producer pin](https://github.com/pcvantol/djconnect-app/issues/87#issuecomment-6178030609).
+
+
+#### Management Summary
+
+One shared Ask DJ route answers text/STT current-artist identification from fresh
+owner-bound metadata without model/search/playback effects. Explicit qualified
+entry/Moment and chosen catalog referents retain priority; late subject changes
+reject, obsolete music retries are cleared, catalog credits remain outside Store,
+and bounded chosen-result deadlines survive for later explicit action. Five-language
+Profile fields/choices retain existing values and authorization. No new generator,
+provider, client intelligence or archive grant.1882 regressions (7 existing skips),
+94 owningtests,137 DAG tests, package/schema/generation/security checks PASS.
+Actual isolated HA26cases/134hashes/zero paidmodel or mutatingprovider calls;
+external provider/STT and prior-clarification agent fixtures are explicitly named.
+
+#### Roadmap Position
+
+Bounded correction within existing CONVERSATION::CORE::SHARED-DIALOGUE; no new
+family or promotion of native/joint acceptance. Source1166/Finalization1167 and all
+other delivered slices stay closed. The general sharing blocker is owner-confirmed
+closed; automatic foreground discovery stays Apple-owned. Installed screenshot
+causality, native/microphone and intra-track visible Moment acceptance remain OPEN.
+
+#### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+1. **DJC-CORE-HYBRID-TRANSPORT-CONVERGENCE-V1-20261013** — selected next; fresh admission only after valid corrective Finalization and own cleanup.
+2. **DJC-CORE-SESSION-MOMENT-ARTWORK-V1-20261014** — selected after Hybrid; latest refinement6176704119 retained, Apple adoption separately owned.
+3. **Unfilled product slot 3** — no further owner selection.
+4. **Unfilled product slot 4** — no further owner selection.
+5. **Unfilled product slot 5** — no further owner selection.
+
+#### Blocked Items
+
+Finalization publication/automatic internal artifacts require a new exact candidate
+grant after its own reviews; source authorization does not cover it. No installation
+under either source grant. Native Apple and joint acceptance remain open.
+
+#### Deferred Items
+
+No runtime/workflow/runner/service change, HA update/restart, Pages, signing,
+hardware or consumer-source mutation in this Finalization. Hybrid/artwork do not
+start within this candidate. Existing source/runtime and historical snapshots stay
+unchanged.
+
+#### Repository State
+
+Repository State: `MERGED_UNRECONCILED`; Finalization Pending: YES.
+This candidate is prospective. It becomes MERGED_RECONCILED only after protected
+Finalization merge and exact-main/artifact verification. Workspace NOT_READY until
+safe authorized own cleanup with retained recovery evidence. Native OPEN;
+installed correction NOT_RUN; hardware NOT_RUN; joint OPEN.
+
+## Historical operational context
+
 ## Current: shared contextual Ask DJ — separate Finalization
 
 #### Repository Status
