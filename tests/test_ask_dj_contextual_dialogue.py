@@ -412,6 +412,22 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(len(stored["messages"]), 2)
         self.assertEqual(self.effects, [])
 
+    async def test_known_prose_issues_repair_without_archiving_invalid_answer(self):
+        for language, question, bad, good in (
+            ("de", "Wer ist Brian Eno?", "Brians Enos Ansatz nutzt Kontraste.", "Der Ansatz von Brian Eno nutzt Kontraste."),
+            ("nl", "Wie is Brian Eno?", "Hij maakt vaak geurige, lagen van geluid.", "Brian Eno gebruikt gelaagde klanken."),
+        ):
+            answers = [bad, good]
+            async def agent(hass, data, **kwargs):
+                return {"response": {"speech": {"plain": {"speech": answers.pop(0)}}}}
+            with patch.object(self.pipeline, "_call_conversation_process_transport", agent):
+                result, status = await self.request(question, identifier="repair-" + language, language=language, dj_persona="club_dj")
+            self.assertEqual(status, 200, result)
+            self.assertEqual(result["text"], good)
+            self.assertEqual(result["conversation"]["metrics"]["agent_calls"], 2)
+            self.assertNotIn(bad, json.dumps(await self.history.async_history("profile:profile-a"), ensure_ascii=False))
+        self.assertEqual(self.effects, [])
+
     async def test_repeated_invalid_format_fails_without_acceptance_or_third_call(self):
         self.reply = "Il compose de l'ambient music."
         result, status = await self.request("Qui est Brian Eno ?", language="fr", dj_persona="radio_dj")
@@ -438,6 +454,11 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
             self.assertIsNone(self.dialogue.answer_language_format_issue(answer, {"language": language, "persona": "club_dj"}))
         for language in ("nl", "de", "fr", "es"):
             self.assertIsNotNone(self.dialogue.answer_language_format_issue('He makes ambient music.', {"language": language}))
+        self.assertIsNotNone(self.dialogue.answer_language_format_issue('Brians Enos Ansatz nutzt Kontraste.', {"language": "de"}, ["Brian Eno"]))
+        self.assertIsNotNone(self.dialogue.answer_language_format_issue('Johns Coltranes Ansatz nutzt Kontraste.', {"language": "de"}, ["John Coltrane"]))
+        self.assertIsNone(self.dialogue.answer_language_format_issue('Der Ansatz von Brian Eno nutzt Kontraste.', {"language": "de"}, ["Brian Eno"]))
+        self.assertIsNotNone(self.dialogue.answer_language_format_issue('Hij maakt vaak geurige, lagen van geluid.', {"language": "nl"}))
+        self.assertIsNone(self.dialogue.answer_language_format_issue('Hij bespreekt het werk «Geurige lagen».', {"language": "nl"}))
 
     async def test_valid_music_name_prose_is_not_rejected_as_sentence_format(self):
         self.reply = "J. Cole is a rapper."

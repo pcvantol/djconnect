@@ -2820,7 +2820,10 @@ async def _informational_assist_response(
         if turn and not requests_lookup(text) and operation:
             raise DialogueError("conversation_model_response_invalid", 502)
         if turn and not operation:
-            format_issue = answer_language_format_issue(answer, turn.style)
+            from .dialogue import explicit_subject
+            subjects = [s.get("name", "") for s in turn.frame.subjects + turn.source_context.get("subjects", [])]
+            subjects.append(explicit_subject(text) or "")
+            format_issue = answer_language_format_issue(answer, turn.style, subjects)
             if format_issue:
                 raise DialogueError("conversation_model_response_invalid", 502)
         return answer, operation
@@ -2838,7 +2841,7 @@ async def _informational_assist_response(
             "Answer the user's factual question directly in natural prose. Do not return a search/choice/query object.\n"
         )
         if format_issue:
-            repair_instruction += format_issue + " Do not change the subject or factual claims.\n"
+            repair_instruction += format_issue + " Do not change the subject or qualified source facts.\n"
         repaired = await _call_dialogue_agent(hass, {**data, "text": repair_instruction + prompt})
         response = (repaired or {}).get("response") or {}
         if response.get("error"):

@@ -622,7 +622,7 @@ def model_prompt(text: str, payload: dict, source: dict | None = None) -> str:
     language_name = {"en": "English", "nl": "Dutch", "de": "German", "fr": "French", "es": "Spanish"}[style["language"]]
     language_rule = f"Answer this turn only in {language_name} ({style['language']}). Earlier turns in another language do not change the current answer language. "
     grammar_rule = (
-        "For German possession, prefer a prepositional construction or the surname; never inflect both given name and surname. "
+        "In German keep personal names unchanged and use von for possession, for example der Ansatz von Brian Eno. "
         if style["language"] == "de" else ""
     )
     instructions = language_rule + grammar_rule + (
@@ -632,6 +632,8 @@ def model_prompt(text: str, payload: dict, source: dict | None = None) -> str:
         "Keep names, credit roles and factual person descriptions correct; use gender-neutral wording when uncertain, "
         "never infer personal facts or gender from a name or Persona. "
         "Check grammar, possessives and agreement in the requested language; translate ordinary genre descriptors. "
+        "Use plain factual musical language, not ornate sensory metaphors or unusual invented occupations. "
+        "Describe sound with musical terms; do not assign smell, taste or fragrance to sound. "
         "Translate descriptive genre phrases too; only genuine proper names and work titles remain untranslated. "
         "Do not invent or name a technique, method or system. Describe only well-established musical practices in plain terms; "
         "omit a named technique when evidence does not qualify that name. "
@@ -674,8 +676,8 @@ def model_prompt(text: str, payload: dict, source: dict | None = None) -> str:
     return prompt
 
 
-def answer_language_format_issue(answer: str, style: dict) -> str | None:
-    """Closed genre-language check; never infer grammar or count name periods."""
+def answer_language_format_issue(answer: str, style: dict, subjects=()) -> str | None:
+    """Closed phrase checks, not a general grammar or factuality classifier."""
     # Original quoted work titles may stay original. Apostrophes in words are
     # not quotation marks; l'ambient music must still be localized.
     prose = re.sub(r'"[^"\n]*"|«[^»\n]*»|“[^”\n]*”|‘[^’\n]*’', "title", answer)
@@ -683,6 +685,13 @@ def answer_language_format_issue(answer: str, style: dict) -> str | None:
         r"\b(?:ambient|electronic|classical|rock|jazz|house) music\b", prose, re.I
     ):
         return "Translate ordinary genre phrases into the selected language; keep only genuine quoted titles original."
+    if style.get("language") == "de":
+        for subject in subjects:
+            parts = str(subject).split()
+            if len(parts) == 2 and re.search(r"\b" + re.escape(parts[0] + "s") + r"\s+" + re.escape(parts[1] + "s") + r"\b", prose, re.I):
+                return "Keep the subject's full name unchanged; use von for German possession."
+    if style.get("language") == "nl" and re.search(r"\bgeurige\b[^.!?\n]{0,24}\b(?:lagen|klanken|geluid)\b", prose, re.I):
+        return "Use plain musical language; omit the unsupported smell descriptor attached to sound."
     return None
 
 
