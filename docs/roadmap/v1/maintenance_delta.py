@@ -71,6 +71,20 @@ def validate_delta(plan: dict[str, Any]) -> list[str]:
     dialogue_delivered = False
     if dialogue:
         r = d.get("dialogue_receipt", {})
+        observed = r.get("consumer_reconciliation")
+        if observed is not None:
+            check(isinstance(observed, dict) and observed == {
+                "presence_node": "SLICE::APPLE::DJ-PRESENCE-CONTROL",
+                "apple_checkpoint": "https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6168870771",
+                "core_presence": "DELIVERED_CLOSED",
+                "installed_advertisement": "ABSENT_IN_OWNER_READBACK",
+                "native_mac": "BLOCKED_HOST_AUTOMATION",
+                "dialogue_adoption": "OPEN",
+                "intra_track_visibility": "OPEN",
+                "consumer_writes": False,
+                "observed_status": "In progress",
+                "scope": "EXISTING_APPLE_WRITER_REGISTER_READBACK_NOT_CORE_ADMISSION",
+            }, "consumer readback must not grant admission or acceptance")
         check(
             r.get("schema_version") == "djconnect-shared-dialogue-maintenance/1"
             and r.get("assignment_id") == "DJC-CORE-ASKDJ-CONTEXTUAL-DIALOGUE-V1-20261013"
@@ -901,6 +915,9 @@ def render_delta(p):
     if d.get("schema_version") == "djconnect-federated-planning-delta/9":
         r = d["dialogue_receipt"]
         intro += f"Selected one-pipeline Ask DJ + exact Moment Track Insight: [{r['assignment_id']}]({r['selection_url']}); source {r['source_delivery']}. Both screens use the same service with optional qualified context. Native Apple and joint acceptance remain Planned/open; no consumer writes or automatic dispatch. History summary1162/1163 stays closed; version8 is preserved in history/20261013. Owner-requested HA-dev/prod updates follow qualified delivery and installed readback.\n\n"
+        observed = r.get("consumer_reconciliation")
+        if observed:
+            intro += f"Existing Apple Presence execution: {observed['observed_status']} ([owning readback]({observed['apple_checkpoint']})); native Mac/installed acceptance and protected Apple delivery remain open. This observation updates no historical planning node and grants no Core/consumer admission. Installed Presence advertisement is absent in the owner readback; completed Core policy remains closed. Dialogue adoption and intra-track visibility remain distinct open joint findings.\n\n"
     out = {}
     out["README.md"] = (
         "# Federated roadmap — versioned maintenance\n\n"

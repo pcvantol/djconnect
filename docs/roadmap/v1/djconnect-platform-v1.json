@@ -39247,11 +39247,11 @@
     "document_references": [
       {
         "path": "PRODUCT_ROADMAP.md",
-        "sha256": "9c98ebd29055a4f053303d40e4c3306beb303b4929872381c7b44fd882276dec"
+        "sha256": "87a243c39e4ddbd4cdc1a2183efd192dd088b0b2e7167014fc8ef805328f3713"
       },
       {
         "path": "PRODUCT_BACKLOG.md",
-        "sha256": "5f00bc865ce5ee99f9ebb14d764bdc8e26a44c1ade452eb11e3c9e7137a987fe"
+        "sha256": "2a847371745a769adf820be9cb5c0d5d3359b14be372fc3e1c4ce8c19ca24b91"
       },
       {
         "path": "docs/product/DJ_PRESENCE_V1.md",
@@ -39391,7 +39391,7 @@
       },
       {
         "path": "docs/product/ASK_DJ_CONTEXTUAL_DIALOGUE_CONTRACT_V1.md",
-        "sha256": "28cb8d55259e19ffd54abeb79f346f12fcd1e46029303c112f827bfb843ffd3d"
+        "sha256": "6a120f7d4a98a3924d557a76685841c94c99e4572fd95a6288329b82a2b1ddb3"
       },
       {
         "path": "docs/product/MOMENT_TRACK_INSIGHT_DRILLDOWN_V1.md",
@@ -39671,7 +39671,19 @@
       "previous_delta_sha256": "ef35472e2f14ef5f44900c4a2cf6d142a4533f294efd1ecfa6e8bcaa0d1d8d41",
       "consumer_writes": false,
       "automatic_dispatch": false,
-      "ha_update_request": "OWNER_REQUESTED_AFTER_QUALIFIED_DELIVERY"
+      "ha_update_request": "OWNER_REQUESTED_AFTER_QUALIFIED_DELIVERY",
+      "consumer_reconciliation": {
+        "presence_node": "SLICE::APPLE::DJ-PRESENCE-CONTROL",
+        "apple_checkpoint": "https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6168870771",
+        "core_presence": "DELIVERED_CLOSED",
+        "installed_advertisement": "ABSENT_IN_OWNER_READBACK",
+        "native_mac": "BLOCKED_HOST_AUTOMATION",
+        "dialogue_adoption": "OPEN",
+        "intra_track_visibility": "OPEN",
+        "consumer_writes": false,
+        "observed_status": "In progress",
+        "scope": "EXISTING_APPLE_WRITER_REGISTER_READBACK_NOT_CORE_ADMISSION"
+      }
     }
   }
 }

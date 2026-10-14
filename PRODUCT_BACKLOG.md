@@ -18,6 +18,15 @@ not qualify native use. Exact source/Finalization publication remain gated; the
 owner additionally requested HA-dev and HA-prod updates after readiness.
 History #1162/#1163 and all earlier delivered slices remain closed.
 
+Consumer reconciliation (2026-10-14): the existing Apple Presence writer is
+In progress ([readback](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6168870771));
+its native Mac/installed acceptance and protected delivery remain open. Current
+installed capabilities and active Session responses omit Presence fields; this
+is an installation/producer reconciliation boundary, not a revision-zero decoder
+failure or permission to invent balanced/0. The completed Core Presence policy
+remains closed. Speaker/queue/Ask DJ adoption and intra-track live visibility
+remain distinct joint findings, without another writer or archival bypass.
+
 ## Ambient fact convergence — bounded Core source delivered
 
 [DJC-CORE-AMBIENT-FACT-MOMENT-CONVERGENCE-V1-20261012](docs/product/AMBIENT_FACT_MOMENT_CONVERGENCE_V1.md) retires spontaneous playback-status Ask DJ generation/history/last-Ask-DJ effects and reuses the qualified Session content chain. Actual ordinary paired HA baseline and retirement are qualified; source #1158 is protected merged as `6114c5a05600f6b066d4e1f057f236841fe4f574` with exact archive/formal readback PASS. Explicit Ask DJ and historical cards remain supported. Artist/Album/Track/Genre content retains its existing evidence/rights/presence budgets; unsupported historical, cultural and success anecdotes remain a documented gap. Apple consumer join and joint acceptance remain Planned; no installation, new source/model/cost or full Stage4 promotion. Forecast #1156/#1157 stays closed.

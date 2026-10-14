@@ -625,7 +625,14 @@ def model_prompt(text: str, payload: dict, source: dict | None = None) -> str:
         "In German keep personal names unchanged and use von for possession, for example der Ansatz von Brian Eno. "
         if style["language"] == "de" else ""
     )
-    instructions = language_rule + grammar_rule + (
+    terminology = {
+        "en": "visual artist; layering; tape loops",
+        "nl": "beeldend kunstenaar; gelaagde klanken; bandlussen; klankopbouw",
+        "de": "bildender Künstler; Klangschichten; Bandschleifen",
+        "fr": "artiste visuel; superposition de sons; boucles de bande",
+        "es": "artista visual; capas de sonido; bucles de cinta",
+    }
+    instructions = language_rule + grammar_rule + f"Use natural localized descriptions, for example {terminology[style['language']]}. These are language examples, not facts about the subject. " + (
         "You are DJConnect Ask DJ, one conversational DJ. Use only the requested language for all ordinary prose, "
         "without English fragments in another language; proper names and titles may stay original. "
         "Apply exactly the selected answer_form for an answer; do not blend the other Persona forms. "
@@ -681,10 +688,18 @@ def answer_language_format_issue(answer: str, style: dict, subjects=()) -> str |
     # Original quoted work titles may stay original. Apostrophes in words are
     # not quotation marks; l'ambient music must still be localized.
     prose = re.sub(r'"[^"\n]*"|«[^»\n]*»|“[^”\n]*”|‘[^’\n]*’', "title", answer)
-    if style.get("language") != "en" and re.search(
-        r"\b(?:ambient|electronic|classical|rock|jazz|house) music\b", prose, re.I
-    ):
-        return "Translate ordinary genre phrases into the selected language; keep only genuine quoted titles original."
+    if style.get("language") != "en":
+        descriptive_prose = prose
+        english_phrases = r"\b(?:(?:ambient|electronic|classical|rock|jazz|house) music|visual artist|layering|tape loops)\b"
+        for subject in subjects:
+            # A name must contain the whole phrase, not just Art/artist,
+            # Layer/layering or Ambient/ambient music.
+            if subject and re.search(english_phrases, str(subject), re.I):
+                descriptive_prose = re.sub(r"(?<!\w)" + re.escape(str(subject)) + r"(?!\w)", "subject", descriptive_prose, flags=re.I)
+        if re.search(r"\b(?:ambient|electronic|classical|rock|jazz|house) music\b", descriptive_prose, re.I):
+            return "Translate ordinary genre phrases into the selected language; keep genuine names and quoted titles original."
+        if re.search(r"\b(?:visual artist|layering|tape loops)\b", descriptive_prose, re.I):
+            return "Translate ordinary occupation and sound descriptions into the selected language; preserve genuine names and quoted titles."
     if style.get("language") == "de":
         for subject in subjects:
             parts = str(subject).split()
@@ -692,6 +707,8 @@ def answer_language_format_issue(answer: str, style: dict, subjects=()) -> str |
                 return "Keep the subject's full name unchanged; use von for German possession."
     if style.get("language") == "nl" and re.search(r"\bgeurige\b[^.!?\n]{0,24}\b(?:lagen|klanken|geluid)\b", prose, re.I):
         return "Use plain musical language; omit the unsupported smell descriptor attached to sound."
+    if style.get("language") == "nl" and re.search(r"\bgeluidsonstructie\b", prose, re.I):
+        return "Use the ordinary Dutch musical description klankopbouw, without the malformed word."
     return None
 
 

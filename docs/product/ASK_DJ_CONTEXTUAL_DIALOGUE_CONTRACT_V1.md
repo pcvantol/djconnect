@@ -68,7 +68,12 @@ trusted: each call starts fresh with the explicit qualified window; returned
 `conversation_id` is not reused after clear/expiry/owner or Session changes.
 
 One active semantic/model turn per thread. Identical in-flight IDs join the same
-bounded result; different open questions receive busy/retry semantics. Explicit
+bounded result; every joining transport revalidates its own owner and the
+original Session, playback, source expiry, history and generation before delivery.
+Dispatch membership fences may be consumed by a successful turn; response
+admission instead binds to the accepted replacement offer and retained evidence.
+This remains RAM-only within the existing reservation, without a completed raw
+response cache. Different open questions receive busy/retry semantics. Explicit
 fast controls may execute without a broad model lock and do not erase topic or
 choices. Only short reserve/state/history/reference commits use owner/Runtime
 locks. Model/provider waits hold neither storage nor broad Runtime lock.
@@ -514,7 +519,12 @@ content-review contract. A heuristic sentence counter must not reject valid
 music answers containing initials or ordinary abbreviations; no such counter
 is part of runtime acceptance. Festival requests three connected sentences
 within the established two-to-three sentence range. The existing bounded
-repair is retained for demonstrable genre-language format violations. This
+repair is retained for demonstrable genre-language format violations. Closed
+phrase checks also cover untranslated ordinary occupation/sound descriptions,
+double German genitives against actually supplied two-part subject names and
+the observed malformed Dutch sound descriptions. Names and quoted work titles
+remain exempt; this is not a general grammar, biography or factuality validator.
+Localized wording examples introduce no new subject facts or source rights. This
 neither adds a general language engine nor guarantees every future model's
 style; exact generated samples require independent review.
 

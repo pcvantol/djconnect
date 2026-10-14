@@ -454,11 +454,21 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
             self.assertIsNone(self.dialogue.answer_language_format_issue(answer, {"language": language, "persona": "club_dj"}))
         for language in ("nl", "de", "fr", "es"):
             self.assertIsNotNone(self.dialogue.answer_language_format_issue('He makes ambient music.', {"language": language}))
+            for description in ("visual artist", "layering", "tape loops"):
+                self.assertIsNotNone(self.dialogue.answer_language_format_issue(description, {"language": language}))
+            self.assertIsNone(self.dialogue.answer_language_format_issue('«Layering»', {"language": language}))
+            self.assertIsNone(self.dialogue.answer_language_format_issue('Layering', {"language": language}, ["Layering"]))
+        self.assertIsNotNone(self.dialogue.answer_language_format_issue('Art is een visual artist.', {"language": "nl"}, ["Art"]))
+        self.assertIsNotNone(self.dialogue.answer_language_format_issue('Zijn layering verbindt de klanken.', {"language": "nl"}, ["Layer"]))
+        self.assertIsNone(self.dialogue.answer_language_format_issue('Tape Loops speelt muziek.', {"language": "nl"}, ["Tape Loops"]))
+        self.assertIsNone(self.dialogue.answer_language_format_issue('Ambient Music speelt muziek.', {"language": "nl"}, ["Ambient Music"]))
+        self.assertIsNotNone(self.dialogue.answer_language_format_issue('Hij maakt ambient music.', {"language": "nl"}, ["Ambient"]))
         self.assertIsNotNone(self.dialogue.answer_language_format_issue('Brians Enos Ansatz nutzt Kontraste.', {"language": "de"}, ["Brian Eno"]))
         self.assertIsNotNone(self.dialogue.answer_language_format_issue('Johns Coltranes Ansatz nutzt Kontraste.', {"language": "de"}, ["John Coltrane"]))
         self.assertIsNone(self.dialogue.answer_language_format_issue('Der Ansatz von Brian Eno nutzt Kontraste.', {"language": "de"}, ["Brian Eno"]))
         self.assertIsNotNone(self.dialogue.answer_language_format_issue('Hij maakt vaak geurige, lagen van geluid.', {"language": "nl"}))
         self.assertIsNone(self.dialogue.answer_language_format_issue('Hij bespreekt het werk «Geurige lagen».', {"language": "nl"}))
+        self.assertIsNotNone(self.dialogue.answer_language_format_issue('Zijn geluidsonstructie gebruikt contrasten.', {"language": "nl"}))
 
     async def test_valid_music_name_prose_is_not_rejected_as_sentence_format(self):
         self.reply = "J. Cole is a rapper."

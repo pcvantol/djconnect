@@ -426,3 +426,14 @@ class DialogueMaintenanceTests(unittest.TestCase):
             p = copy.deepcopy(self.p)
             mutate(p["planning_maintenance"])
             self.assertTrue(validate(p))
+
+    def test_consumer_readback_projects_actual_work_without_admitting_a_writer(self):
+        r = self.p["planning_maintenance"]["dialogue_receipt"]["consumer_reconciliation"]
+        self.assertEqual(r["observed_status"], "In progress")
+        self.assertFalse(r["consumer_writes"])
+        self.assertEqual(validate(self.p), [])
+        self.assertIn("Existing Apple Presence execution: In progress", render(self.p)["README.md"])
+        for key, value in (("native_mac", "PASS"), ("consumer_writes", True), ("scope", "ADMIT_NEW_WRITER")):
+            p = copy.deepcopy(self.p)
+            p["planning_maintenance"]["dialogue_receipt"]["consumer_reconciliation"][key] = value
+            self.assertTrue(validate(p))
