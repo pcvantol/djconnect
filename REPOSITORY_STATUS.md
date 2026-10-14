@@ -1,6 +1,31 @@
 # DJConnect Repository Status
 
-## Current: shared contextual Ask DJ — separate Finalization
+## Current local corrective checkpoint — 2026-10-14
+
+The existing sole Core writer has resumed finding
+`DJC-ASKDJ-CURRENT-ARTIST-TEXT-VOICE-REGRESSION-20261014`, ACK6176184085,
+branch `codex/askdj-current-artist-regression-v1`, admission base
+`2348c6935032425564c6385c0a182343f93db50d`. Predecessor source
+[#1166](https://github.com/pcvantol/djconnect/pull/1166) and separate
+Finalization [#1167](https://github.com/pcvantol/djconnect/pull/1167) are actually
+merged/reconciled; exact source/tree/artifact proof and own cleanup were verified.
+The previous section below is retained as that candidate's historical checkpoint,
+not an unresolved authorization gate for an already merged Finalization.
+
+Current work is local and unpublished; exact whole-candidate reviews remain
+mandatory before protected delivery:
+fresh owner-bound current-artist identification in the same text/STT service,
+source/track/race fences, and the directly requested five-language Profile labels.
+[Corrective qualification](docs/verification/ASK_DJ_CURRENT_ARTIST_REGRESSION_20261014.md)
+keeps causal fixture, genuine isolated HA, installed and native evidence separate.
+Owner pause on CI/publication/installation remains; no transport/artwork execution,
+new consumer writer or claim that the installed screenshot failure is closed.
+General sharing is owner-confirmed working with identical Profile binding;
+automatic foreground discovery remains Apple-owned. Joint intra-track visibility
+remains open. Next queue is Hybrid transport, then Moment artwork, each only after
+valid predecessor closure and fresh admission.
+
+## Previous delivered candidate: shared contextual Ask DJ — separate Finalization
 
 #### Repository Status
 

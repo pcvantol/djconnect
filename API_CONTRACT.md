@@ -646,6 +646,19 @@ The field, rights, lifecycle, error and resource contracts are canonical in
 [Moment drilldown](docs/product/MOMENT_TRACK_INSIGHT_DRILLDOWN_V1.md). Active HA
 routes retain HA Conversation/STT/TTS; direct API access is qualification-only.
 
+### Current-artist identification (2026-10-14 corrective qualification)
+
+Shared text/STT identification uses informational intent
+`current_artist_information`, optional existing selected-entry/Moment context,
+and normal paired Profile authority. It returns localized text, attribution,
+empty `playback_actions` and current/private response semantics; catalog display
+metadata is not external model input or durable archive permission. Missing or
+expired evidence gives an honest unavailable answer; it is not a failed playback.
+An admission-to-acceptance target change returns HTTP409
+`playback_context_changed` or existing `session_context_changed`. No alternate
+transport, automatic playback retry or different Profile bypass follows a
+rejection. See the [joint contextual contract](docs/product/ASK_DJ_CONTEXTUAL_DIALOGUE_CONTRACT_V1.md#current-artist-identification-corrective-contract-2026-10-14).
+
 ## Ask DJ Mood Zones
 
 iOS, macOS and watchOS clients send `mood` as an optional integer-like value from

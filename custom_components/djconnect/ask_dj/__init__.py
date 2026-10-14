@@ -121,6 +121,9 @@ async def async_handle_ask_dj(
     if turn is not None:
         await turn.guard()
         turn.source_context = source
+    from .observations import current_artist_question, current_artist_read
+    if action_request is None and current_artist_question(text):
+        return await current_artist_read(hass, runtime, confirmed_entry)
     if action_request is not None:
         return await _execute_dialogue_command(hass, runtime, payload, action_request, user_id=user_id)
     if turn is not None and turn.frame.pending and text.casefold().strip(" .!?") in {"yes", "ja", "oui", "sí", "si", "no", "nee", "nein", "non"}:
@@ -1316,6 +1319,9 @@ def _looks_like_short_track_answer(normalized: str) -> bool:
         return False
     if _is_personal_recommendation_request(normalized) or _has_clear_playback_action(normalized):
         return False
+    if _nonexecuting_speech_act(normalized):
+        # A new question is not a track selection requested by older dialogue.
+        return False
     if classify_ask_dj(normalized).category != "informational":
         return False
     return True
@@ -1492,7 +1498,9 @@ def classify_ask_dj(text: str) -> AskDjIntent:
     """Classify Ask DJ text into informational, action or hybrid buckets."""
     normalized = _normalize(text)
     nonexecuting = _nonexecuting_speech_act(normalized)
-    from .observations import forecast_question, previous_question
+    from .observations import forecast_question, previous_question, current_artist_question
+    if current_artist_question(normalized):
+        return AskDjIntent("informational", "current_artist_information")
     if forecast_question(normalized) and not _execution_request(normalized):
         return AskDjIntent("informational", "session_forecast_information")
     if previous_question(normalized):

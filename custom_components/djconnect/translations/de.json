@@ -741,7 +741,7 @@
         "ios": "iPhone/iPad",
         "macos": "Mac",
         "watchos": "Apple Watch",
-        "raspberry_pi": "Raspberry Pi",
+        "raspberry_pi": "Linux/Raspberry Pi",
         "conversation_agent": "Assist-Konversationsagent"
       }
     }

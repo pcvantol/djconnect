@@ -569,3 +569,38 @@ the current `gpt-4o-mini`
 conversation-quality NO GO remains recorded. No Core model default or mandatory
 provider is added. Source publication, native/installed/joint qualification and
 environment updates remain distinct milestones.
+
+## Current-artist identification corrective contract (2026-10-14)
+
+Simple deictic identification (`welke artiest is dit`, `Welke artiest is dit?`,
+`wie hoor ik nu`, `wie is dit`, and qualified five-language equivalents) is one
+informational `current_artist_information` intent in the existing text/STT
+interpretation. It cannot authorize a pending proposal, catalog result or previous
+music retry. A newly admitted identification clears an older music retry even if
+its subsequent read is rejected. Richer independent artist questions retain the
+same existing separately qualified knowledge/generation path.
+
+A valid explicit selected contribution wins over unrelated current playback.
+Stored playback identity/metadata comes from the authorized historical projection;
+a selected live CC0 contribution can identify a uniquely qualified artist subject,
+never infer that a composer/producer is its performer. Missing selected evidence
+does not borrow the current artist. Source attribution and applicable original
+source links remain present. No external model receives Spotify metadata.
+
+Otherwise the existing bound backend status use-case supplies fresh metadata;
+there is no `last_playback` fallback. Missing identity, cached/stale/withdrawn or
+expired evidence gives an honest localized unavailable answer. Two bounded reads
+(maximum five seconds each) must agree on identity/title/artist. When an active
+Runtime supplied a playback item at admission, the provider identity must match
+that captured item and the same Runtime/item must remain valid at acceptance,
+even when the caller omitted optional Session context. Track/Runtime changes
+reject with `playback_context_changed` or `session_context_changed` (HTTP409),
+without silently answering for another item or granting an effect retry.
+
+The metadata response is text-only, with empty `playback_actions`, no lookup,
+model call or automatic playback/queue/output/Mood/Session change. Its mutable
+current or restricted metadata is marked private/current-only through the
+existing shared acceptance owner, not granted durable archival/model retention.
+Ordinary device auth, Profile/source withdrawal, in-flight joins, selected-source
+rights and turn/client-message correlation remain mandatory. Production/native
+acceptance is separate from isolated HA/provider-fixture qualification.

@@ -146,6 +146,7 @@ class DialogueTurn:
     history: Any
     style: dict = field(default_factory=dict)
     session_id: str = ""
+    captured_playback_item_id: str = ""
     source_context: dict = field(default_factory=dict)
     dependencies: list[dict] = field(default_factory=list)
     agent_calls: int = 0
