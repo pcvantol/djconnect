@@ -140,3 +140,11 @@ admission and precedes selected-source awaits. The missing-Moment rejection plus
 subsequent retry regression fails before and passes after, with zero effects.
 Both changes reuse existing owners. Full-candidate reviews must be repeated;
 earlier GO for editorial scope does not qualify this changed candidate.
+
+The editorial/privacy rereview of7796a7bf found that catalog identification
+retained the selected credit in durable assistant text despite its display-only
+basis. A causal default-persistent offer→select→question test confirmed the
+stored body. The existing catalog identification/clarification response now uses
+the shared private-current marker; the test verifies both history_persisted=false
+and absence of its assistant body from Store. This is not a new archive grant.
+The7796 candidate is also NO-GO until this changed exact candidate is rereviewed.

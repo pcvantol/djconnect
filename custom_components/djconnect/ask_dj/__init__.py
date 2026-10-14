@@ -9942,6 +9942,7 @@ async def _dialogue_choice_response(hass, runtime, payload, text, *, index=None)
             reply = labels[turn.style.get("language", "en")].format(artist=artist)
             return {"success": True, "text": reply, "dj_text": reply, "items": [action],
                 "text_source": "qualified_catalog_result", "is_generated_text": False,
+                "_private_current_context": True,
                 "playback_actions": [], "intent": {"intent": "selected_result_identification" if single_artist else "selected_result_clarification"}}
         return None
     shown = turn.frame.result_set

@@ -57,6 +57,9 @@ class CurrentArtistIdentificationTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(result["intent"]["intent"], "selected_result_identification")
         self.assertIn("Selected Artist", result["text"])
         self.assertNotIn("Other Artist", result["text"])
+        archived = await self.history.async_history("profile:profile-a")
+        self.assertNotIn(result["text"], [m.get("text") for m in archived["messages"]])
+        self.assertFalse(result["history_persisted"])
         self.assertEqual(self.prompts, [])
         self.assertEqual(self.effects, [])
 
