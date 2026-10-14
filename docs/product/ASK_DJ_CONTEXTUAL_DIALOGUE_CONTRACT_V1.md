@@ -220,6 +220,13 @@ announcement/model call for a skip.
 Fast controls do not prefetch an unrelated queue. They preserve the current
 conversation choice set; an explicit queue question provides its own qualified,
 expiring result set through the shared queue-read projection.
+Existing `track_mix` cards remain one bounded choice with at most50 canonical
+track URIs. Explicit Play binds the entire original ordered URI array; neither
+client metadata nor a later search may substitute the mix. The same choice owner,
+expiry, effect receipt and existing playback processor apply. A typed legacy tap
+still needs a live producer offer; arbitrary or archived client URIs are not a
+replacement for that offer. Malformed payloads and stale backend revisions retain
+their existing400 errors before choice lookup; expiry remains409.
 
 Output selection is inert. Activate transfers to the selected, currently
 available unrestricted output with `play: false`; it cannot reuse a previous
