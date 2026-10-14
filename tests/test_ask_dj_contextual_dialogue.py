@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import asyncio
 from copy import deepcopy
+from contextlib import nullcontext
 import json
 import unittest
 from unittest.mock import patch
@@ -257,6 +258,66 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
         self.assertNotIn("private fixture answer", json.dumps(denied))
         self.assertEqual(len(self.prompts), 1)
         self.assertEqual(len((await self.history.async_history("profile:profile-a"))["messages"]), 2)
+
+    async def test_joined_return_rechecks_original_session_reference_and_generation(self):
+        from custom_components.djconnect.ask_dj import service
+        from custom_components.djconnect.session_conversation import SessionConversationError
+        for change in ("end", "expiry", "remove", "generation", "forecast"):
+            with self.subTest(change=change):
+                self.history.dialogue.invalidate("profile:profile-a")
+                session, moment, entry = await self.selected_credit()
+                entered, release, accepted, resume = (asyncio.Event() for _ in range(4))
+                original_shield = asyncio.shield
+                async def delayed_join(future):
+                    value = await original_shield(future)
+                    if isinstance(future, asyncio.Future) and isinstance(value, tuple):
+                        accepted.set()
+                        await resume.wait()
+                    return value
+                async def owner():
+                    return None
+                async def delegate(*args):
+                    entered.set()
+                    await release.wait()
+                    if change == "forecast":
+                        from custom_components.djconnect.ask_dj.observations import forecast_read
+                        return await forecast_read(self.hass, self.runtime)
+                    return {"success": True, "text": "A private qualified answer."}
+                context = {"session_id": session.session_id,
+                    "selected_entry": entry} if change == "remove" else {
+                    "session_id": session.session_id, "selected_moment": {
+                        "session_id": session.session_id, "moment_id": moment.moment_id}}
+                if change == "forecast":
+                    context = {}
+                context["thread_id"] = "race"
+                payload = {"text": "Tell me more about it", "client_message_id": "join-" + change,
+                    "conversation_context": context}
+                async def exchange():
+                    return await service.async_exchange(self.hass, self.runtime, payload,
+                        profile_id="profile-a", history_manager=self.history, delegate=delegate,
+                        validate_owner=owner, persist_history=False)
+                with patch.object(service.asyncio, "shield", delayed_join):
+                    first = asyncio.create_task(exchange())
+                    await asyncio.wait_for(entered.wait(), 3)
+                    joined = asyncio.create_task(exchange())
+                    await asyncio.sleep(0.01)
+                    release.set()
+                    await asyncio.wait_for(accepted.wait(), 3)
+                    self.assertTrue((await first)["success"])
+                    if change in {"end", "forecast"}:
+                        await self.fixture.manager.async_end(owner_profile_id="profile-a", session_id=session.session_id)
+                    elif change == "remove":
+                        await self.fixture.queries._repository.async_remove_entry_records("profile-a", [entry["entry_id"]])
+                    elif change == "generation":
+                        self.history.dialogue.invalidate("profile:profile-a")
+                    from types import SimpleNamespace
+                    expiry = patch.object(service, "time", SimpleNamespace(monotonic=lambda: moment.source_fact.observed_at + 1801))
+                    with expiry if change == "expiry" else nullcontext():
+                        resume.set()
+                        with self.assertRaises((SessionConversationError, PermissionError)):
+                            await joined
+                    if change not in {"end", "forecast"}:
+                        await self.fixture.manager.async_end(owner_profile_id="profile-a", session_id=session.session_id)
 
     async def test_native_service_payload_flag_never_opens_http_device_ingress(self):
         await self.native_service_fixture()
@@ -543,6 +604,7 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
 
         examples = [
             ("en", "Turn the volume down"),
+            ("en", "Turn volume down"),
             ("nl", "Zet zachter"),
             ("de", "Mach leiser"),
             ("fr", "Baisse le volume"),
@@ -556,7 +618,7 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
                 self.assertEqual(status, 200, result)
                 self.assertEqual(result["conversation"]["metrics"]["agent_calls"], 0)
                 self.assertEqual(frame.messages, topic)
-        self.assertEqual(calls, [("volume_delta", -10)] * 5)
+        self.assertEqual(calls, [("volume_delta", -10)] * 6)
         self.assertEqual(len(self.prompts), 1)
 
     async def test_explicit_quote_has_zero_model_calls(self):

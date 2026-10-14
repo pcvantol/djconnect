@@ -1194,8 +1194,8 @@ def _simple_control_intent(normalized: str) -> AskDjIntent | None:
     }
     if value in controls:
         return AskDjIntent("action","playback_control",controls[value])
-    down={"turn the volume down","lower the volume","volume down","volume omlaag","zet zachter","zachter", "mach leiser", "lautstärke verringern", "baisse le volume", "baja el volumen"}
-    up={"turn the volume up","raise the volume","volume up","volume omhoog","zet harder","harder", "mach lauter", "lautstärke erhöhen", "augmente le volume", "sube el volumen"}
+    down={"turn volume down","turn the volume down","lower the volume","volume down","volume omlaag","zet zachter","zachter", "mach leiser", "lautstärke verringern", "baisse le volume", "baja el volumen"}
+    up={"turn volume up","turn the volume up","raise the volume","volume up","volume omhoog","zet harder","harder", "mach lauter", "lautstärke erhöhen", "augmente le volume", "sube el volumen"}
     if value in down or value in up:
         return AskDjIntent("action","playback_control","volume_delta",-10 if value in down else 10)
     return None

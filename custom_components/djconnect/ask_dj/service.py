@@ -128,14 +128,11 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
             + ":" + str(payload.get("privacy_mode") or "default"))
         future, reserved = history_manager.dialogue.reserve(frame, client_id, digest, fast)
         if not reserved:
-            result = deepcopy(await asyncio.shield(future))
+            accepted, admission = await asyncio.shield(future)
+            result = deepcopy(accepted)
             # The original caller's fence does not authorize another joined
             # transport whose pairing/entry may have been withdrawn meanwhile.
-            await validate_owner()
-            if validate_immediate is not None:
-                validate_immediate()
-            if history_manager.scope_revision(scope) != scope_revision or history_grant_revision(hass, profile_id) != grant:
-                raise SessionConversationError("conversation_context_changed")
+            await admission(owner=validate_owner, immediate=validate_immediate)
             return result
         selected = (await query().async_open_entry(profile_id, target["session_id"], target["entry_id"]))["entry"] if target else None
         if live:
@@ -183,8 +180,8 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
         payload = {**payload, "private_session": not persist_history}
         generation = frame.generation
 
-        async def guard(*, check_runtime=True):
-            await validate_owner()
+        async def guard(*, check_runtime=True, owner=validate_owner, immediate=validate_immediate):
+            await owner()
             if await history_manager.async_scope_revision(scope) != scope_revision:
                 raise SessionConversationError("conversation_history_changed")
             if await async_history_grant_revision(hass, profile_id) != grant:
@@ -210,13 +207,22 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
                 if current is None or current.session_id != session_id or (
                     track_bound and not explicit_action and current.broadcast.state.playback.item_id != captured):
                     raise SessionConversationError("session_context_changed")
-            if validate_immediate is not None:
-                validate_immediate()
+            if frame.generation != generation:
+                raise SessionConversationError("conversation_context_changed")
+            if immediate is not None:
+                immediate()
 
         turn = DialogueTurn(frame, scope, thread, client_id, digest, generation, guard, history_manager,
                             style=style_projection(payload, active, profile), session_id=session_id,
                             source_context=model_source(selected), dependencies=dependencies, fast_control=fast, reset_topic=reset_topic,
                             archiveable=persist_history)
+        async def joined_admission(*, owner, immediate):
+            await guard(owner=owner, immediate=immediate)
+            # Local read/effect adapters can add narrower Session, item or
+            # output fences even without an explicit conversation_context.
+            for validate in turn.effect_validators:
+                validate()
+
         turn.effect_grants = request_effect_grants(text, intent)
         token = current_turn.set(turn)
         saved = await history_manager.async_saved_exchange(scope, client_id) if persist_history else None
@@ -241,7 +247,7 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
                 turn.reset_topic = True
             if not result.get("success"):
                 frame.retry = {"text": text, "uncertain": turn.effect_started}
-                future.set_result(deepcopy(result))
+                future.set_result((deepcopy(result), joined_admission))
                 return result
         turn_record = {"turn_id": "turn-" + uuid5(NAMESPACE_URL, scope + ":" + client_id).hex,
                        "request_digest": digest, "profile_id": profile_id, "context": context,
@@ -324,7 +330,9 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
                 "input_type": turn_record["input_type"], "style": turn.style,
                 "model_source_basis": turn.source_context.get("basis"),
                 "metrics": {"agent_calls": turn.agent_calls, "lookup_calls": turn.lookup_calls, "prompt_bytes": turn.prompt_bytes}}}
-        future.set_result(deepcopy(response))
+        # RAM-only admission travels with this bounded in-flight future. Each
+        # waiter rechecks the original evidence with its own caller authority.
+        future.set_result((deepcopy(response), joined_admission))
         return response
     except (SessionConversationError, DialogueError) as exc:
         if turn is not None and turn.effect_started and frame.generation == turn.generation:
