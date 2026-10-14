@@ -491,3 +491,11 @@ transmitting its fields to the model. Multiple credits require clarification;
 unqualified additional explanation cannot be invented or fetched under a new
 source permission. Ordinary genre phrases are localized; generated answers must
 respect the selected Persona sentence form and omit unsupported named techniques.
+
+A successful generated answer may retain the user's explicitly named subject in
+one existing bounded subject slot (`user_named_subject`, `user_explicit_name`).
+This is reference resolution from user input, not catalog import, verified credit
+or biography. Accepted topic change replaces it; controls preserve it; existing
+clear/expiry/privacy/source fences still apply. Possessive follow-ups refer to the
+discussed subject in third person. The narrator's Persona cannot become that
+person or supply their musical facts.

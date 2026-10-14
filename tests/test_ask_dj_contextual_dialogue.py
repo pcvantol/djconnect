@@ -188,6 +188,18 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(self.prompts, [])
             self.assertEqual(self.effects, [])
 
+    async def test_user_named_subject_survives_possessive_followup_and_control(self):
+        await self.request("¿Quién es Brian Eno?", identifier="named-subject", language="es", dj_persona="club_dj")
+        frame = self.history.dialogue.owners["profile:profile-a"]["default"]
+        self.assertEqual(frame.subjects, [{"name": "Brian Eno", "role": "user_named_subject", "basis": "user_explicit_name"}])
+        await self.request("¿Qué distingue su enfoque?", identifier="named-follow", language="es", dj_persona="club_dj")
+        self.assertEqual(self.prompts[-1]["relevant_subjects"][0]["name"], "Brian Eno")
+        await self.request("Who is Miles Davis?", identifier="new-named-subject")
+        self.assertEqual(frame.subjects[0]["name"], "Miles Davis")
+        await self.request("What influenced his approach?", identifier="new-named-follow")
+        self.assertEqual(self.prompts[-1]["relevant_subjects"][0]["name"], "Miles Davis")
+        self.assertEqual(self.effects, [])
+
     async def test_play_readback_requires_exact_requested_output(self):
         from custom_components.djconnect import http
         from types import SimpleNamespace
@@ -481,7 +493,8 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(self.prompts[-1]["recent_turns"], [])
         frame = self.history.dialogue.owners["profile:profile-a"]["default"]
         self.assertEqual(frame.dependencies, [])
-        self.assertEqual(frame.subjects, [])
+        self.assertEqual([subject["name"] for subject in frame.subjects], ["Miles Davis"])
+        self.assertTrue(all(subject["role"] == "user_named_subject" for subject in frame.subjects))
         await self.fixture.repo.async_remove_entry_records("profile-a", [target["entry_id"]])
         _, status = await self.request("What influence did he have?", identifier="new-followup")
         self.assertEqual(status, 200)
