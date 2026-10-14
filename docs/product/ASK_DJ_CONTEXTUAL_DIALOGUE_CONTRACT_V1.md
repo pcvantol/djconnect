@@ -549,3 +549,13 @@ agent-only service's existing configured binding is its authority; ordinary
 paired app acceptance is separately proven and never replaced with HA-user
 credentials. Qualify actual registered service, duplicate/control, unsuitable
 agent and entry/owner withdrawal on the no-device-token configuration.
+
+## Pinned local qualification and consumer fixtures
+
+[Core qualification](../verification/ASK_DJ_CONTEXTUAL_DIALOGUE_V1_ACCEPTANCE.md)
+and [observed transport projections](../verification/fixtures/ASK_DJ_CONTEXTUAL_DIALOGUE_V1.json)
+bind to runtime87e881a4. Product/conversation review is GO only for the actual
+HA/OpenAI `gpt-4.1-2025-04-14` lab configuration; the current `gpt-4o-mini`
+conversation-quality NO GO remains recorded. No Core model default or mandatory
+provider is added. Source publication, native/installed/joint qualification and
+environment updates remain distinct milestones.
