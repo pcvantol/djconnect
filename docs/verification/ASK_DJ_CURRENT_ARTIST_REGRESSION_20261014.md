@@ -54,3 +54,16 @@ Existing pauses on CI/publication/installation remain. No new HA-dev/prod restar
 production experiment, source publication or consumer writes. Hybrid transport
 remains queued next; artwork follows. The owner-corrected general sharing blocker
 is closed: one Runtime per Profile remains; Apple owns automatic session discovery.
+
+## Local Profile-label qualification
+
+The options step now has nine translated labels in all five languages. Static
+choices use supported HA selector translation keys; dynamic Profile/device names
+and their identifiers remain unchanged. Empty Profile/device labels follow HA's
+language. Retired Windows is not offered as a new device association. The actual
+HA selector implementation in one networkless bounded container validated the
+same stored values and all field/choice translations in five languages. It caught
+an initial `guest_safe` translation key; corrected to the existing `guest-safe`
+enum before acceptance. Existing translation/onboarding/config-flow suites:
+165 passing tests. Ruff and whitespace checks pass. This is local schema/product
+source qualification, not an installed or visibly rendered HA frontend claim.

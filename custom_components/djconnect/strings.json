@@ -439,6 +439,21 @@
       "spotify_reauth_done": {
         "title": "Spotify OAuth gelukt",
         "description": "DJConnect Spotify OAuth is gelukt. Je kunt dit venster sluiten; Home Assistant beheert Spotify playback nu zelf."
+      },
+      "profile_platform": {
+        "title": "Manage profiles",
+        "description": "Choose an action, profile and device. Existing profile and device names are preserved.",
+        "data": {
+          "profile_platform_action": "Action",
+          "profile_id": "Profile",
+          "profile_name": "Profile name",
+          "profile_type": "Profile type",
+          "profile_privacy_mode": "Privacy mode",
+          "device_id": "Device",
+          "device_name": "Device name",
+          "client_type": "Device type",
+          "require_profile": "Require a profile"
+        }
       }
     },
     "error": {
@@ -700,6 +715,34 @@
         "concise": "Concise",
         "balanced": "Balanced",
         "expressive": "Expressive"
+      }
+    },
+    "profile_platform_action": {
+      "options": {
+        "add_profile": "Add profile",
+        "edit_profile": "Edit profile",
+        "delete_profile": "Delete profile",
+        "link_device": "Link device to profile",
+        "unlink_device": "Unlink device",
+        "set_fallback_profile": "Set fallback profile"
+      }
+    },
+    "profile_privacy_mode": {
+      "options": {
+        "normal": "Normal",
+        "private": "Private",
+        "shared": "Shared",
+        "guest-safe": "Guest safe"
+      }
+    },
+    "profile_platform_client_type": {
+      "options": {
+        "esp32": "ESP32",
+        "ios": "iPhone/iPad",
+        "macos": "Mac",
+        "watchos": "Apple Watch",
+        "raspberry_pi": "Raspberry Pi",
+        "conversation_agent": "Assist conversation agent"
       }
     }
   }
