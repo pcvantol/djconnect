@@ -87,7 +87,7 @@ only external music/speech providers are fixtures. Text/case/punctuation variant
 inside/outside Session, request retry, qualified selected earlier playback,
 Profile rejection, source outage, actual accepted pending morning proposal, state
 invariants and a held read crossing an explicit separate Session end are exercised.
-The pending proposal remains unexecuted; the ended read returns409. Thirteen owning
+The pending proposal remains unexecuted; the ended read returns409. Fifteen owning
 unit tests include source expiry/cache rejection, track/Runtime races, selected
 published Artist attribution, composer distinction, five languages and stale retry.
 
@@ -122,6 +122,21 @@ HA agent and shared acceptance/history boundary. The subsequent artist questions
 make zero agent calls and zero mutating provider calls. The fixture is not a live
 model-quality measurement: no paid API/network call occurs. Music/speech I/O and
 that one prior agent response are the explicit external fixtures; Core admission,
-normalization, storage, effects and acceptance are real. Thirteen owning tests
+normalization, storage, effects and acceptance are real. Fifteen owning tests
 now cover the direct subject, stale context, old clarification/retry, selected
 Artist/credit boundaries, languages and races.
+
+## Independent review findings and local fixes
+
+Technical review of d035dd95 found two P2 cases; that candidate is NO-GO.
+A frozen explicitly chosen catalog result must precede implicit now-playing
+identification. The common handler now retains explicit entry/Moment priority,
+then the existing catalog-choice referent, then current playback. A selected A
+versus playing B regression fails before and passes after this correction.
+
+A missing selected source could reject a new information question before the old
+music retry was cleared. Clearing now follows authorized scope/reservation
+admission and precedes selected-source awaits. The missing-Moment rejection plus
+subsequent retry regression fails before and passes after, with zero effects.
+Both changes reuse existing owners. Full-candidate reviews must be repeated;
+earlier GO for editorial scope does not qualify this changed candidate.

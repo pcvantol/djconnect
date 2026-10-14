@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
   "finding_id": "DJC-ASKDJ-CURRENT-ARTIST-TEXT-VOICE-REGRESSION-20261014",
-  "worktree_fingerprint": "a7d77c926867deac1c556867427cb6f92b3e2eb1decf0ccedb2e749856387ee3",
+  "worktree_fingerprint": "baee40586a36418d7368d4d8acb45fc078ae95e5b837934f0412d148ffc232bd",
   "integration_source_hashes": {
     "custom_components/djconnect/__init__.py": "0fd8a6e0a7602cf4199f5c106965539112cefe8ec36e6f5dd10ddec28861c295",
     "custom_components/djconnect/ai_tools.py": "175ac20dc1ebdb535aaec839b6fc8e8fe012ac3c81e0f0f07e1856b692c9f0c8",
     "custom_components/djconnect/announcements.py": "7c7b451bc89f44c5ed150a5239a1341131e08c5b2010a6d9d89daf0928e10b7e",
     "custom_components/djconnect/api_handlers.py": "f08c0cf37d4f89ca5cedd75256e0087a59c8c07934fa0477d599b924538e7e80",
-    "custom_components/djconnect/ask_dj/__init__.py": "4e56eddb5cba0dcf6c7c6c5d1a689269d8f78825581f69eafa7a99543a1fa54a",
+    "custom_components/djconnect/ask_dj/__init__.py": "35eb580b0dd026ad2de77b1b4dba710a536eeafcb38dffc965dd6aa47381fbb3",
     "custom_components/djconnect/ask_dj/actions.py": "8e42edc5bf0a3a3ef73c99273c5860d1f3ebad42dd8897cf8d2877239a25b053",
     "custom_components/djconnect/ask_dj/dialogue.py": "a3a1915410ae65a002dc68212567985778a00c3e4721433b587ff5425b26ddf9",
     "custom_components/djconnect/ask_dj/intents.py": "545c7cf45bc5a66719d66bed5ef2633a4e01343645080af733a11869f1c01032",
@@ -15,7 +15,7 @@
     "custom_components/djconnect/ask_dj/profile.py": "88843b457ff8374199c650f37ffe8274b2edcb88ab4f7cc6aee1595f6d349530",
     "custom_components/djconnect/ask_dj/recent_history.py": "bdaafde32b1fd64627e7a026497449adf827d70ddf32203b8661dde9965494ed",
     "custom_components/djconnect/ask_dj/responses.py": "66364a9e6cc0de37581adfbee882413a83f5cd5ef01f84fddf6bc4fff3c9df92",
-    "custom_components/djconnect/ask_dj/service.py": "1fa1c8ebc6896a924e3ca2ccb32e00441e903ee674173b7bf7b6624419547251",
+    "custom_components/djconnect/ask_dj/service.py": "8b8cbb0e572044621f525e945ee20d65ccd87cfd326a0977e68c53a937c4a775",
     "custom_components/djconnect/ask_dj_history.py": "c6ba551c2c8a01fc5d6755526bde50277ba991335699f3a70d528b271d745b27",
     "custom_components/djconnect/assist_stt.py": "609b5a7ec4c40eda3d87a84d9391256bd930c1dd1c80a5171b03df79c68aa6e5",
     "custom_components/djconnect/ble.py": "2223ccb7fb718e51501e72042588d6920619d05d6b9b83b4a6452edbdf7e389d",
@@ -138,8 +138,8 @@
     "custom_components/djconnect/websocket_api.py": "e6eac83401c6599b2b06f22425fcf6beae3dbe71881ebfd99fcd3cca193a8130",
     "scripts/verification/verify_ask_dj_contextual_dialogue_http.py": "fa3dab1103a375e814c5134e09638bdf38d568ab5a09693022ff910ff196beca"
   },
-  "model_calls": 0,
-  "mutating_provider_calls": 0,
+  "model_calls": [],
+  "mutating_provider_calls": [],
   "cases": [
     {
       "case": "artist-old-clarification-seed",
@@ -194,11 +194,6 @@
         "success": true,
         "text": "Dit is Above & Beyond, met Major Drop.",
         "dj_text": "Dit is Above & Beyond, met Major Drop.",
-        "action": "none",
-        "intent": {
-          "category": "informational",
-          "intent": "current_artist_information"
-        },
         "images": [],
         "links": [
           {
@@ -217,7 +212,11 @@
           }
         ],
         "playback_actions": [],
-        "history_persisted": false,
+        "intent": {
+          "category": "informational",
+          "intent": "current_artist_information"
+        },
+        "action": "none",
         "owner_profile_id": "profile-a",
         "client_message_id": "artist-standalone-0-text",
         "conversation": {
@@ -252,11 +251,6 @@
         "success": true,
         "text": "Dit is Above & Beyond, met Major Drop.",
         "dj_text": "Dit is Above & Beyond, met Major Drop.",
-        "action": "none",
-        "intent": {
-          "category": "informational",
-          "intent": "current_artist_information"
-        },
         "images": [],
         "links": [
           {
@@ -275,7 +269,11 @@
           }
         ],
         "playback_actions": [],
-        "history_persisted": false,
+        "intent": {
+          "category": "informational",
+          "intent": "current_artist_information"
+        },
+        "action": "none",
         "owner_profile_id": "profile-a",
         "client_message_id": "artist-standalone-0-voice",
         "conversation": {
@@ -301,8 +299,7 @@
             "lookup_calls": 0,
             "prompt_bytes": 0
           }
-        },
-        "transcript": "welke artiest is dit"
+        }
       }
     },
     {
@@ -313,11 +310,6 @@
         "success": true,
         "text": "Dit is Above & Beyond, met Major Drop.",
         "dj_text": "Dit is Above & Beyond, met Major Drop.",
-        "action": "none",
-        "intent": {
-          "category": "informational",
-          "intent": "current_artist_information"
-        },
         "images": [],
         "links": [
           {
@@ -336,7 +328,11 @@
           }
         ],
         "playback_actions": [],
-        "history_persisted": false,
+        "intent": {
+          "category": "informational",
+          "intent": "current_artist_information"
+        },
+        "action": "none",
         "owner_profile_id": "profile-a",
         "client_message_id": "artist-standalone-1-text",
         "conversation": {
@@ -371,11 +367,6 @@
         "success": true,
         "text": "Dit is Above & Beyond, met Major Drop.",
         "dj_text": "Dit is Above & Beyond, met Major Drop.",
-        "action": "none",
-        "intent": {
-          "category": "informational",
-          "intent": "current_artist_information"
-        },
         "images": [],
         "links": [
           {
@@ -394,7 +385,11 @@
           }
         ],
         "playback_actions": [],
-        "history_persisted": false,
+        "intent": {
+          "category": "informational",
+          "intent": "current_artist_information"
+        },
+        "action": "none",
         "owner_profile_id": "profile-a",
         "client_message_id": "artist-standalone-1-voice",
         "conversation": {
@@ -420,8 +415,7 @@
             "lookup_calls": 0,
             "prompt_bytes": 0
           }
-        },
-        "transcript": "Welke artiest is dit?"
+        }
       }
     },
     {
@@ -432,11 +426,6 @@
         "success": true,
         "text": "Dit is Above & Beyond, met Major Drop.",
         "dj_text": "Dit is Above & Beyond, met Major Drop.",
-        "action": "none",
-        "intent": {
-          "category": "informational",
-          "intent": "current_artist_information"
-        },
         "images": [],
         "links": [
           {
@@ -455,7 +444,11 @@
           }
         ],
         "playback_actions": [],
-        "history_persisted": false,
+        "intent": {
+          "category": "informational",
+          "intent": "current_artist_information"
+        },
+        "action": "none",
         "owner_profile_id": "profile-a",
         "client_message_id": "artist-standalone-2-text",
         "conversation": {
@@ -490,11 +483,6 @@
         "success": true,
         "text": "Dit is Above & Beyond, met Major Drop.",
         "dj_text": "Dit is Above & Beyond, met Major Drop.",
-        "action": "none",
-        "intent": {
-          "category": "informational",
-          "intent": "current_artist_information"
-        },
         "images": [],
         "links": [
           {
@@ -513,7 +501,11 @@
           }
         ],
         "playback_actions": [],
-        "history_persisted": false,
+        "intent": {
+          "category": "informational",
+          "intent": "current_artist_information"
+        },
+        "action": "none",
         "owner_profile_id": "profile-a",
         "client_message_id": "artist-standalone-2-voice",
         "conversation": {
@@ -539,8 +531,7 @@
             "lookup_calls": 0,
             "prompt_bytes": 0
           }
-        },
-        "transcript": "wie hoor ik nu?"
+        }
       }
     },
     {
@@ -551,11 +542,6 @@
         "success": true,
         "text": "Dit is Above & Beyond, met Major Drop.",
         "dj_text": "Dit is Above & Beyond, met Major Drop.",
-        "action": "none",
-        "intent": {
-          "category": "informational",
-          "intent": "current_artist_information"
-        },
         "images": [],
         "links": [
           {
@@ -574,7 +560,11 @@
           }
         ],
         "playback_actions": [],
-        "history_persisted": false,
+        "intent": {
+          "category": "informational",
+          "intent": "current_artist_information"
+        },
+        "action": "none",
         "owner_profile_id": "profile-a",
         "client_message_id": "artist-standalone-3-text",
         "conversation": {
@@ -609,11 +599,6 @@
         "success": true,
         "text": "Dit is Above & Beyond, met Major Drop.",
         "dj_text": "Dit is Above & Beyond, met Major Drop.",
-        "action": "none",
-        "intent": {
-          "category": "informational",
-          "intent": "current_artist_information"
-        },
         "images": [],
         "links": [
           {
@@ -632,7 +617,11 @@
           }
         ],
         "playback_actions": [],
-        "history_persisted": false,
+        "intent": {
+          "category": "informational",
+          "intent": "current_artist_information"
+        },
+        "action": "none",
         "owner_profile_id": "profile-a",
         "client_message_id": "artist-standalone-3-voice",
         "conversation": {
@@ -658,8 +647,7 @@
             "lookup_calls": 0,
             "prompt_bytes": 0
           }
-        },
-        "transcript": "wie is dit?"
+        }
       }
     },
     {
@@ -670,11 +658,6 @@
         "success": true,
         "text": "Dit is Above & Beyond, met Major Drop.",
         "dj_text": "Dit is Above & Beyond, met Major Drop.",
-        "action": "none",
-        "intent": {
-          "category": "informational",
-          "intent": "current_artist_information"
-        },
         "images": [],
         "links": [
           {
@@ -693,7 +676,11 @@
           }
         ],
         "playback_actions": [],
-        "history_persisted": false,
+        "intent": {
+          "category": "informational",
+          "intent": "current_artist_information"
+        },
+        "action": "none",
         "owner_profile_id": "profile-a",
         "client_message_id": "artist-standalone-0-text",
         "conversation": {
@@ -728,11 +715,6 @@
         "success": true,
         "text": "Dit is Above & Beyond, met Major Drop.",
         "dj_text": "Dit is Above & Beyond, met Major Drop.",
-        "action": "none",
-        "intent": {
-          "category": "informational",
-          "intent": "current_artist_information"
-        },
         "images": [],
         "links": [
           {
@@ -751,7 +733,11 @@
           }
         ],
         "playback_actions": [],
-        "history_persisted": false,
+        "intent": {
+          "category": "informational",
+          "intent": "current_artist_information"
+        },
+        "action": "none",
         "owner_profile_id": "profile-a",
         "client_message_id": "artist-session-0-text",
         "conversation": {
@@ -786,11 +772,6 @@
         "success": true,
         "text": "Dit is Above & Beyond, met Major Drop.",
         "dj_text": "Dit is Above & Beyond, met Major Drop.",
-        "action": "none",
-        "intent": {
-          "category": "informational",
-          "intent": "current_artist_information"
-        },
         "images": [],
         "links": [
           {
@@ -809,7 +790,11 @@
           }
         ],
         "playback_actions": [],
-        "history_persisted": false,
+        "intent": {
+          "category": "informational",
+          "intent": "current_artist_information"
+        },
+        "action": "none",
         "owner_profile_id": "profile-a",
         "client_message_id": "artist-session-0-voice",
         "conversation": {
@@ -835,8 +820,7 @@
             "lookup_calls": 0,
             "prompt_bytes": 0
           }
-        },
-        "transcript": "welke artiest is dit"
+        }
       }
     },
     {
@@ -847,11 +831,6 @@
         "success": true,
         "text": "Dit is Above & Beyond, met Major Drop.",
         "dj_text": "Dit is Above & Beyond, met Major Drop.",
-        "action": "none",
-        "intent": {
-          "category": "informational",
-          "intent": "current_artist_information"
-        },
         "images": [],
         "links": [
           {
@@ -870,7 +849,11 @@
           }
         ],
         "playback_actions": [],
-        "history_persisted": false,
+        "intent": {
+          "category": "informational",
+          "intent": "current_artist_information"
+        },
+        "action": "none",
         "owner_profile_id": "profile-a",
         "client_message_id": "artist-session-1-text",
         "conversation": {
@@ -905,11 +888,6 @@
         "success": true,
         "text": "Dit is Above & Beyond, met Major Drop.",
         "dj_text": "Dit is Above & Beyond, met Major Drop.",
-        "action": "none",
-        "intent": {
-          "category": "informational",
-          "intent": "current_artist_information"
-        },
         "images": [],
         "links": [
           {
@@ -928,7 +906,11 @@
           }
         ],
         "playback_actions": [],
-        "history_persisted": false,
+        "intent": {
+          "category": "informational",
+          "intent": "current_artist_information"
+        },
+        "action": "none",
         "owner_profile_id": "profile-a",
         "client_message_id": "artist-session-1-voice",
         "conversation": {
@@ -954,8 +936,7 @@
             "lookup_calls": 0,
             "prompt_bytes": 0
           }
-        },
-        "transcript": "Welke artiest is dit?"
+        }
       }
     },
     {
@@ -966,11 +947,6 @@
         "success": true,
         "text": "Dit is Above & Beyond, met Major Drop.",
         "dj_text": "Dit is Above & Beyond, met Major Drop.",
-        "action": "none",
-        "intent": {
-          "category": "informational",
-          "intent": "current_artist_information"
-        },
         "images": [],
         "links": [
           {
@@ -989,7 +965,11 @@
           }
         ],
         "playback_actions": [],
-        "history_persisted": false,
+        "intent": {
+          "category": "informational",
+          "intent": "current_artist_information"
+        },
+        "action": "none",
         "owner_profile_id": "profile-a",
         "client_message_id": "artist-session-2-text",
         "conversation": {
@@ -1024,11 +1004,6 @@
         "success": true,
         "text": "Dit is Above & Beyond, met Major Drop.",
         "dj_text": "Dit is Above & Beyond, met Major Drop.",
-        "action": "none",
-        "intent": {
-          "category": "informational",
-          "intent": "current_artist_information"
-        },
         "images": [],
         "links": [
           {
@@ -1047,7 +1022,11 @@
           }
         ],
         "playback_actions": [],
-        "history_persisted": false,
+        "intent": {
+          "category": "informational",
+          "intent": "current_artist_information"
+        },
+        "action": "none",
         "owner_profile_id": "profile-a",
         "client_message_id": "artist-session-2-voice",
         "conversation": {
@@ -1073,8 +1052,7 @@
             "lookup_calls": 0,
             "prompt_bytes": 0
           }
-        },
-        "transcript": "wie hoor ik nu?"
+        }
       }
     },
     {
@@ -1085,11 +1063,6 @@
         "success": true,
         "text": "Dit is Above & Beyond, met Major Drop.",
         "dj_text": "Dit is Above & Beyond, met Major Drop.",
-        "action": "none",
-        "intent": {
-          "category": "informational",
-          "intent": "current_artist_information"
-        },
         "images": [],
         "links": [
           {
@@ -1108,7 +1081,11 @@
           }
         ],
         "playback_actions": [],
-        "history_persisted": false,
+        "intent": {
+          "category": "informational",
+          "intent": "current_artist_information"
+        },
+        "action": "none",
         "owner_profile_id": "profile-a",
         "client_message_id": "artist-session-3-text",
         "conversation": {
@@ -1143,11 +1120,6 @@
         "success": true,
         "text": "Dit is Above & Beyond, met Major Drop.",
         "dj_text": "Dit is Above & Beyond, met Major Drop.",
-        "action": "none",
-        "intent": {
-          "category": "informational",
-          "intent": "current_artist_information"
-        },
         "images": [],
         "links": [
           {
@@ -1166,7 +1138,11 @@
           }
         ],
         "playback_actions": [],
-        "history_persisted": false,
+        "intent": {
+          "category": "informational",
+          "intent": "current_artist_information"
+        },
+        "action": "none",
         "owner_profile_id": "profile-a",
         "client_message_id": "artist-session-3-voice",
         "conversation": {
@@ -1192,8 +1168,7 @@
             "lookup_calls": 0,
             "prompt_bytes": 0
           }
-        },
-        "transcript": "wie is dit?"
+        }
       }
     },
     {
@@ -1204,11 +1179,6 @@
         "success": true,
         "text": "Dit is Above & Beyond, met Major Drop.",
         "dj_text": "Dit is Above & Beyond, met Major Drop.",
-        "action": "none",
-        "intent": {
-          "category": "informational",
-          "intent": "current_artist_information"
-        },
         "images": [],
         "links": [
           {
@@ -1227,7 +1197,11 @@
           }
         ],
         "playback_actions": [],
-        "history_persisted": false,
+        "intent": {
+          "category": "informational",
+          "intent": "current_artist_information"
+        },
+        "action": "none",
         "owner_profile_id": "profile-a",
         "client_message_id": "artist-session-0-text",
         "conversation": {
@@ -1262,11 +1236,6 @@
         "success": true,
         "text": "Dit is Above & Beyond, met Major Drop.",
         "dj_text": "Dit is Above & Beyond, met Major Drop.",
-        "action": "none",
-        "intent": {
-          "category": "informational",
-          "intent": "current_artist_information"
-        },
         "images": [],
         "links": [
           {
@@ -1285,7 +1254,11 @@
           }
         ],
         "playback_actions": [],
-        "history_persisted": false,
+        "intent": {
+          "category": "informational",
+          "intent": "current_artist_information"
+        },
+        "action": "none",
         "owner_profile_id": "profile-a",
         "client_message_id": "artist-selected-earlier",
         "conversation": {
@@ -1294,8 +1267,8 @@
           "thread_id": "default",
           "context": {
             "selected_entry": {
-              "session_id": "session-1de3410aff7e48f79ea4a87dc3b45eb2",
-              "entry_id": "entry-3b48c9cff1b458b6a5a33c15399d9462"
+              "session_id": "session-77987b719a7d42eaa264f1d8dc805c0b",
+              "entry_id": "entry-2191a69ab9625da398cb27e04ea07cda"
             }
           },
           "entry_ids": [],
@@ -1323,8 +1296,8 @@
       "status": 403,
       "response": {
         "success": false,
-        "error": "profile_device_mismatch",
-        "message": "profile_device_mismatch"
+        "message": "profile_device_mismatch",
+        "error": "profile_device_mismatch"
       }
     },
     {
@@ -1335,11 +1308,6 @@
         "success": true,
         "text": "Dit is Above & Beyond, met Major Drop.",
         "dj_text": "Dit is Above & Beyond, met Major Drop.",
-        "action": "none",
-        "intent": {
-          "category": "informational",
-          "intent": "current_artist_information"
-        },
         "images": [],
         "links": [
           {
@@ -1358,7 +1326,11 @@
           }
         ],
         "playback_actions": [],
-        "history_persisted": false,
+        "intent": {
+          "category": "informational",
+          "intent": "current_artist_information"
+        },
+        "action": "none",
         "owner_profile_id": "profile-a",
         "client_message_id": "artist-state-invariant",
         "conversation": {
@@ -1391,9 +1363,9 @@
       "status": 200,
       "response": {
         "success": true,
-        "text": "Goedemorgen! Zal ik Major Drop van Above & Beyond voor je aanzetten?",
-        "dj_text": "Goedemorgen! Zal ik Major Drop van Above & Beyond voor je aanzetten?",
-        "message": "Goedemorgen! Zal ik Major Drop van Above & Beyond voor je aanzetten?",
+        "text": "Goedemorgen! Zal ik Synthetic live recording van Synthetic performer voor je aanzetten?",
+        "dj_text": "Goedemorgen! Zal ik Synthetic live recording van Synthetic performer voor je aanzetten?",
+        "message": "Goedemorgen! Zal ik Synthetic live recording van Synthetic performer voor je aanzetten?",
         "images": [],
         "links": [],
         "sources": [
@@ -1440,25 +1412,25 @@
         ],
         "playback_actions": [
           {
-            "id": "spotify:track:0000000000000000000000",
+            "id": "spotify:track:1111111111111111111111",
             "kind": "track",
             "label": "Play Now",
             "button_label": "Play Now",
             "action_style": "play_now",
-            "title": "Major Drop",
-            "subtitle": "Above & Beyond",
+            "title": "Synthetic live recording",
+            "subtitle": "Synthetic performer",
             "reason": "Past bij je recente luisterprofiel.",
             "backend": "spotify_direct",
             "provider": "spotify",
             "music_backend_revision": 0,
             "value": {
-              "uri": "spotify:track:0000000000000000000000",
-              "title": "Major Drop",
-              "subtitle": "Above & Beyond"
+              "uri": "spotify:track:1111111111111111111111",
+              "title": "Synthetic live recording",
+              "subtitle": "Synthetic performer"
             },
-            "uri": "spotify:track:0000000000000000000000",
-            "result_set_id": "choices-4ac250885c08420b885a70e1ba60f158",
-            "action_id": "8ea75bd537618fb1cba1f08688276722"
+            "uri": "spotify:track:1111111111111111111111",
+            "result_set_id": "choices-949467d3d65241a0adc7fb525d76eaed",
+            "action_id": "fc847cf742318b4219927cccbcb8c59c"
           }
         ],
         "error": null,
@@ -1468,7 +1440,6 @@
           "action": "none"
         },
         "action": "none",
-        "history_persisted": false,
         "owner_profile_id": "profile-a",
         "client_message_id": "artist-pending-proposal",
         "conversation": {
@@ -1503,11 +1474,6 @@
         "success": true,
         "text": "Dit is Above & Beyond, met Major Drop.",
         "dj_text": "Dit is Above & Beyond, met Major Drop.",
-        "action": "none",
-        "intent": {
-          "category": "informational",
-          "intent": "current_artist_information"
-        },
         "images": [],
         "links": [
           {
@@ -1526,7 +1492,11 @@
           }
         ],
         "playback_actions": [],
-        "history_persisted": false,
+        "intent": {
+          "category": "informational",
+          "intent": "current_artist_information"
+        },
+        "action": "none",
         "owner_profile_id": "profile-a",
         "client_message_id": "artist-not-confirmation",
         "conversation": {
@@ -1561,11 +1531,6 @@
         "success": true,
         "text": "Ik kan de artiest niet betrouwbaar vaststellen uit de beschikbare muziekcontext.",
         "dj_text": "Ik kan de artiest niet betrouwbaar vaststellen uit de beschikbare muziekcontext.",
-        "action": "none",
-        "intent": {
-          "category": "informational",
-          "intent": "current_artist_information"
-        },
         "images": [],
         "links": [],
         "sources": [
@@ -1575,7 +1540,11 @@
           }
         ],
         "playback_actions": [],
-        "history_persisted": false,
+        "intent": {
+          "category": "informational",
+          "intent": "current_artist_information"
+        },
+        "action": "none",
         "owner_profile_id": "profile-a",
         "client_message_id": "artist-provider-unavailable",
         "conversation": {
@@ -1608,26 +1577,26 @@
       "status": 409,
       "response": {
         "success": false,
-        "error": "session_context_changed",
-        "message": "session_context_changed"
+        "message": "session_context_changed",
+        "error": "session_context_changed"
       }
     }
   ],
   "separate_moment_receipt": {
     "published_moments": [
       {
-        "moment_id": "moment-419e22193b364b6688b3dcb1dea45c26",
+        "moment_id": "moment-5e48938b02364f83958d0afd77a2f3de",
         "type": "genre"
       }
     ],
     "native_admissions_at_opening": {
       "schema_version": 1,
-      "session_id": "session-1de3410aff7e48f79ea4a87dc3b45eb2",
+      "session_id": "session-77987b719a7d42eaa264f1d8dc805c0b",
       "current_moment_id": null,
       "active_flow_moment_ids": [],
       "admissions": [
         {
-          "moment_id": "moment-419e22193b364b6688b3dcb1dea45c26",
+          "moment_id": "moment-5e48938b02364f83958d0afd77a2f3de",
           "qualification": "unqualified",
           "current_display_allowed": false,
           "active_flow_display_allowed": false,
@@ -1638,7 +1607,7 @@
         }
       ],
       "revocation_scope": "session",
-      "revision": "e9afee5dbbe0e5f0659da03a"
+      "revision": "d318dcb0661c98593764cbcd"
     },
     "limits": "Synthetic opening contribution; not proof of intra-track native presentation. Admission flags, not mere publication, govern display."
   },

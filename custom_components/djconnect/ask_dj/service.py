@@ -134,6 +134,9 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
             # transport whose pairing/entry may have been withdrawn meanwhile.
             await admission(owner=validate_owner, immediate=validate_immediate)
             return result
+        if intent.intent == "current_artist_information":
+            # Even a subsequently rejected read is not consent to retry older music.
+            frame.retry = None
         selected = (await query().async_open_entry(profile_id, target["session_id"], target["entry_id"]))["entry"] if target else None
         if live:
             selected = await _live_reference(manager, profile_id, live)
@@ -233,9 +236,6 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
                 if frame.result_set is not accepted_offer:
                     raise DialogueError("choice_changed")
 
-        if intent.intent == "current_artist_information":
-            # Even a subsequently rejected read is not consent to retry older music.
-            frame.retry = None
         turn.effect_grants = request_effect_grants(text, intent)
         token = current_turn.set(turn)
         saved = await history_manager.async_saved_exchange(scope, client_id) if persist_history else None

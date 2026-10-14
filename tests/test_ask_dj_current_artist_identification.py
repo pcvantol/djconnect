@@ -41,6 +41,25 @@ class CurrentArtistIdentificationTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(self.effects, [])
         self.assertTrue(reads)
 
+    async def test_selected_catalog_result_precedes_implicit_current_artist(self):
+        async def offer(*args, **kwargs):
+            return {"success": True, "text": "Catalog result", "playback_actions": [{"kind": "track",
+                "uri": "spotify:track:" + "A" * 22, "title": "Selected work", "subtitle": "Selected Artist"}]}
+        with patch.object(self.handlers.http_helpers, "async_handle_ask_dj", offer):
+            await self.request("Find tracks", identifier="catalog-offer")
+        await self.request("the first", identifier="catalog-select")
+        async def provider(*args, **kwargs):
+            return {"success": True, "playback": {"uri": "spotify:track:" + "B" * 22,
+                "title": "Other work", "artist": "Other Artist"}}
+        with patch.object(self.core, "run_music_command", provider):
+            result, status = await self.request("Who is this artist?", identifier="catalog-question")
+        self.assertEqual(status, 200, result)
+        self.assertEqual(result["intent"]["intent"], "selected_result_identification")
+        self.assertIn("Selected Artist", result["text"])
+        self.assertNotIn("Other Artist", result["text"])
+        self.assertEqual(self.prompts, [])
+        self.assertEqual(self.effects, [])
+
     async def test_missing_expired_or_cached_context_never_borrows_runtime_cache(self):
         self.runtime.last_playback = {"uri": "spotify:track:" + "A" * 22, "artist": "Old artist", "title": "Old track"}
         cases = [{}, None, {"uri":"spotify:track:"+"A"*22,"artist":"A"*513,"title":"Oversized"}, {"state":"unavailable", **self.runtime.last_playback}, {"valid_until":"bad-date", **self.runtime.last_playback}, {"valid_until":"2000-01-01T00:00:00", **self.runtime.last_playback}, {"cached": True, **self.runtime.last_playback}, {"valid_until": "2000-01-01T00:00:00+00:00", **self.runtime.last_playback}, {"artist": "No identity", "title": "No identity"}]
@@ -160,6 +179,18 @@ class CurrentArtistIdentificationTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(result["error"],"session_context_changed")
         self.assertIsNone(frame.retry)
         self.assertEqual(self.effects,[])
+
+    async def test_missing_selected_source_clears_obsolete_music_retry(self):
+        session, _, _ = await dialogue_fixtures.SharedDialogueTest.selected_credit(self)
+        await self.request("A standalone information question", identifier="source-retry-seed")
+        frame = self.history.dialogue.owners["profile:profile-a"]["default"]
+        frame.retry = {"text": "play an old song", "uncertain": False}
+        result, status = await self.request("welke artiest is dit", identifier="missing-selected",
+            context={"selected_moment": {"session_id": session.session_id, "moment_id": "missing"}})
+        self.assertGreaterEqual(status, 400, result)
+        self.assertIsNone(frame.retry)
+        await self.request("retry", identifier="after-missing-selected")
+        self.assertEqual(self.effects, [])
 
     async def test_selected_published_artist_moment_keeps_its_subject_and_attribution(self):
         from custom_components.djconnect import session_facts

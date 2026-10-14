@@ -604,3 +604,9 @@ existing shared acceptance owner, not granted durable archival/model retention.
 Ordinary device auth, Profile/source withdrawal, in-flight joins, selected-source
 rights and turn/client-message correlation remain mandatory. Production/native
 acceptance is separate from isolated HA/provider-fixture qualification.
+
+Selected frozen catalog-result referents retain their existing priority over
+implicit current-playback identification; explicit qualified entry/Moment context
+retains its own priority. An admitted new artist-information turn clears an older
+music retry before selected-source validation can reject it. Neither rejection
+nor retry grants permission to execute the earlier music request.

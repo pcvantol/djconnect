@@ -122,7 +122,7 @@ async def async_handle_ask_dj(
         await turn.guard()
         turn.source_context = source
     from .observations import current_artist_question, current_artist_read
-    if action_request is None and current_artist_question(text):
+    if action_request is None and confirmed_entry is not None and current_artist_question(text):
         return await current_artist_read(hass, runtime, confirmed_entry)
     if action_request is not None:
         return await _execute_dialogue_command(hass, runtime, payload, action_request, user_id=user_id)
@@ -140,6 +140,8 @@ async def async_handle_ask_dj(
         selected = await _dialogue_choice_response(hass, runtime, payload, text)
         if selected is not None:
             return selected
+    if current_artist_question(text):
+        return await current_artist_read(hass, runtime)
     if payload.get("mood_zone"):
         _LOGGER.debug(
             "DJConnect Ask DJ mood context: mood=%s zone=%s",
