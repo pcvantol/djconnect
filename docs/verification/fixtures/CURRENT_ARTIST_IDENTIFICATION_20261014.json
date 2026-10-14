@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "finding_id": "DJC-ASKDJ-CURRENT-ARTIST-TEXT-VOICE-REGRESSION-20261014",
-  "worktree_fingerprint": "f20fcb119be9937d55e855f9e5e30dc05883dbca3e85d4ec3b7c41868d552042",
+  "worktree_fingerprint": "9bb00fabb61a6c3bd0cba60c2c606c4d5f1895e8f91cd913a822002f0b866995",
   "integration_source_hashes": {
     "custom_components/djconnect/__init__.py": "0fd8a6e0a7602cf4199f5c106965539112cefe8ec36e6f5dd10ddec28861c295",
     "custom_components/djconnect/ai_tools.py": "175ac20dc1ebdb535aaec839b6fc8e8fe012ac3c81e0f0f07e1856b692c9f0c8",
@@ -11,7 +11,7 @@
     "custom_components/djconnect/ask_dj/actions.py": "8e42edc5bf0a3a3ef73c99273c5860d1f3ebad42dd8897cf8d2877239a25b053",
     "custom_components/djconnect/ask_dj/dialogue.py": "a3a1915410ae65a002dc68212567985778a00c3e4721433b587ff5425b26ddf9",
     "custom_components/djconnect/ask_dj/intents.py": "545c7cf45bc5a66719d66bed5ef2633a4e01343645080af733a11869f1c01032",
-    "custom_components/djconnect/ask_dj/observations.py": "9c0862dcaa0d176c929dd8c468a8e6d2b26c936ddd59b65200bb09af7c91e710",
+    "custom_components/djconnect/ask_dj/observations.py": "36fb4d590e125e53e3297b3b79385a50ec3fab0dc35e46803e35f9e8eff1ccad",
     "custom_components/djconnect/ask_dj/profile.py": "88843b457ff8374199c650f37ffe8274b2edcb88ab4f7cc6aee1595f6d349530",
     "custom_components/djconnect/ask_dj/recent_history.py": "bdaafde32b1fd64627e7a026497449adf827d70ddf32203b8661dde9965494ed",
     "custom_components/djconnect/ask_dj/responses.py": "66364a9e6cc0de37581adfbee882413a83f5cd5ef01f84fddf6bc4fff3c9df92",
@@ -1267,8 +1267,8 @@
           "thread_id": "default",
           "context": {
             "selected_entry": {
-              "session_id": "session-597d90499fab4b1890d39cb56cda2a5d",
-              "entry_id": "entry-441e7ffc6e1d5e059fe71b8b5f4268f9"
+              "session_id": "session-5c58f0eaf4ea41d68e54f016a84201fc",
+              "entry_id": "entry-7ffe8151dc29527bbbb36d8922226bac"
             }
           },
           "entry_ids": [],
@@ -1429,8 +1429,8 @@
               "subtitle": "Synthetic performer"
             },
             "uri": "spotify:track:1111111111111111111111",
-            "result_set_id": "choices-41a835e7e32b45fcad5e018c2bc56899",
-            "action_id": "41ec911a6abba783092983a6fe890445"
+            "result_set_id": "choices-39b1bcd74d7747a1b6a3d1005d5d2a87",
+            "action_id": "dbe3ce81541080591f6d439f2d71fe4b"
           }
         ],
         "error": null,
@@ -1585,18 +1585,18 @@
   "separate_moment_receipt": {
     "published_moments": [
       {
-        "moment_id": "moment-62d448b581224b0a8684bd19726f1442",
+        "moment_id": "moment-8ac882e492b748659e9fc6ff6d10bff4",
         "type": "genre"
       }
     ],
     "native_admissions_at_opening": {
       "schema_version": 1,
-      "session_id": "session-597d90499fab4b1890d39cb56cda2a5d",
+      "session_id": "session-5c58f0eaf4ea41d68e54f016a84201fc",
       "current_moment_id": null,
       "active_flow_moment_ids": [],
       "admissions": [
         {
-          "moment_id": "moment-62d448b581224b0a8684bd19726f1442",
+          "moment_id": "moment-8ac882e492b748659e9fc6ff6d10bff4",
           "qualification": "unqualified",
           "current_display_allowed": false,
           "active_flow_display_allowed": false,
@@ -1607,7 +1607,7 @@
         }
       ],
       "revocation_scope": "session",
-      "revision": "376ac97a9154e6847ac6a1fa"
+      "revision": "66cb87fbdf77c9e46f0bbace"
     },
     "limits": "Synthetic opening contribution; not proof of intra-track native presentation. Admission flags, not mere publication, govern display."
   },

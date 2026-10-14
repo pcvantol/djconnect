@@ -87,7 +87,7 @@ only external music/speech providers are fixtures. Text/case/punctuation variant
 inside/outside Session, request retry, qualified selected earlier playback,
 Profile rejection, source outage, actual accepted pending morning proposal, state
 invariants and a held read crossing an explicit separate Session end are exercised.
-The pending proposal remains unexecuted; the ended read returns409. Fifteen owning
+The pending proposal remains unexecuted; the ended read returns409. Sixteen owning
 unit tests include source expiry/cache rejection, track/Runtime races, selected
 published Artist attribution, composer distinction, five languages and stale retry.
 
@@ -122,7 +122,7 @@ HA agent and shared acceptance/history boundary. The subsequent artist questions
 make zero agent calls and zero mutating provider calls. The fixture is not a live
 model-quality measurement: no paid API/network call occurs. Music/speech I/O and
 that one prior agent response are the explicit external fixtures; Core admission,
-normalization, storage, effects and acceptance are real. Fifteen owning tests
+normalization, storage, effects and acceptance are real. Sixteen owning tests
 now cover the direct subject, stale context, old clarification/retry, selected
 Artist/credit boundaries, languages and races.
 
@@ -156,3 +156,13 @@ The existing service retains the catalog choice and its original deadline while
 marking the turn/frame nonarchiveable; no catalog text enters model context.
 Other current-playback/Forecast private responses retain their topic reset.
 The final candidate requires fresh exact reviews after this continuity fix.
+
+## Hosted security finding before merge
+
+Source PR1168 on513fe66e is blocked by CodeQL alert23
+(py/incomplete-hostname-regexp): the fallback stored Spotify source-link pattern
+used unescaped hostname dots. A negative test reproduces acceptance of
+openXspotify.com before the fix. Escaping both dots now requires the exact
+open.spotify.com hostname and rejects suffix/query substitutions. No workflow,
+allowlist bypass or alert dismissal is used. This changed candidate requires new
+exact reviews and owner publication authority before updating the existing PR.

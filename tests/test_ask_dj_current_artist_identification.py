@@ -230,6 +230,22 @@ class CurrentArtistIdentificationTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(result["sources"][0]["license"],"CC0-1.0")
         self.assertEqual(self.prompts,[])
 
+    async def test_selected_playback_link_requires_exact_spotify_host(self):
+        from custom_components.djconnect.ask_dj.observations import current_artist_read
+        valid = "https://open.spotify.com/track/" + "A" * 22
+        for i, url in enumerate((valid, valid.replace("open.spotify", "openXspotify"),
+                valid.replace("spotify.com", "spotifyXcom"), valid + "?redirect=other")):
+            async def read(*args, **kwargs):
+                return await current_artist_read(self.hass, self.runtime, {"playback": {
+                    "item_id": "qualified-stored-identity", "artist": "Selected Artist",
+                    "title": "Selected work", "provider": "Spotify", "source_url": url}})
+            with patch.object(self.handlers.http_helpers, "async_handle_ask_dj", read):
+                result, status = await self.request("Who is this artist?", identifier="source-host-" + str(i))
+            self.assertEqual(status, 200, result)
+            self.assertEqual([x["url"] for x in result["links"]], [valid] if i == 0 else [])
+        self.assertEqual(self.prompts, [])
+        self.assertEqual(self.effects, [])
+
     async def test_transport_failure_never_reuses_old_playback(self):
         self.runtime.last_playback={"uri":"spotify:track:"+"A"*22,"title":"Old track","artist":"Old artist"}
         async def unavailable(*args,**kwargs):

@@ -73,4 +73,4 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 | [docs/product/KNOWLEDGE_SOURCE_ARCHITECTURE.md](../../../docs/product/KNOWLEDGE_SOURCE_ARCHITECTURE.md) | `8846dff1f9c18bfb6aa9817b9a1d46f4bcbad0ceb79fd5b695d6bbb71cbfa55d` |
 | [docs/verification/ASK_DJ_CONTEXTUAL_DIALOGUE_V1_SOURCE_READBACK.md](../../../docs/verification/ASK_DJ_CONTEXTUAL_DIALOGUE_V1_SOURCE_READBACK.md) | `377bda221f6c6fe0bc542ba53844f67e0a7582f8995175d7b42739f21c6e5157` |
 | [docs/history/prompts/2026-10-14-ask-dj-contextual-dialogue-finalization.md](../../../docs/history/prompts/2026-10-14-ask-dj-contextual-dialogue-finalization.md) | `1d4ce399484389030df619f35e84a5b40fef5e94c98143008325470ab2c8b35a` |
-| [docs/verification/ASK_DJ_CURRENT_ARTIST_REGRESSION_20261014.md](../../../docs/verification/ASK_DJ_CURRENT_ARTIST_REGRESSION_20261014.md) | `32c0a3c751a43ea1811f96c4c278c7eef1502faa2594a34ae7937b606b27e6ca` |
+| [docs/verification/ASK_DJ_CURRENT_ARTIST_REGRESSION_20261014.md](../../../docs/verification/ASK_DJ_CURRENT_ARTIST_REGRESSION_20261014.md) | `78758c7bd3d6a8d599cc477d296464c8b1bc6043398b3e6a219b03aede34f38e` |

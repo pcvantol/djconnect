@@ -293,7 +293,7 @@ async def current_artist_read(hass, runtime, selected=None):
         elif isinstance(selected.get("playback"), dict) and selected["playback"].get("provider") == "Spotify":
             sources = [{"source": "spotify_playback_context", "title": "Spotify", "kind": "source"}]
             url = selected["playback"].get("source_url", "")
-            if isinstance(url, str) and re.fullmatch(r"https://open.spotify.com/track/[A-Za-z0-9]{22}", url):
+            if isinstance(url, str) and re.fullmatch(r"https://open\.spotify\.com/track/[A-Za-z0-9]{22}", url):
                 sources[0]["url"] = url
     if turn:
         await turn.guard()
