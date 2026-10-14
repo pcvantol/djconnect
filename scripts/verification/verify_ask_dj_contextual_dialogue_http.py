@@ -43,7 +43,7 @@ from homeassistant.helpers import device_registry, entity_registry, area_registr
 # ruff: noqa: E402
 ROOT = Path(os.environ.get("DJC_SOURCE_ROOT", "/candidate"))
 sys.path.insert(0, str(ROOT))
-from custom_components.djconnect import DJConnectRuntime, register_http_views
+from custom_components.djconnect import DJConnectRuntime, register_http_views, _register_developer_services
 from custom_components.djconnect.ask_dj_history import AskDJHistoryManager
 from custom_components.djconnect.domain.backend import BackendProvider
 from custom_components.djconnect.domain.music_account import MusicAccountKind
@@ -321,6 +321,7 @@ async def main():
         )
         h.data["djconnect"]["session_runtime_manager"] = manager
         register_http_views(h)
+        _register_developer_services(h, owner, runtime)
         receipts, provider_calls = [], []
         state = {
             "index": 0,
@@ -616,6 +617,17 @@ async def main():
                     return body
 
                 if os.environ.get("DJC_SAFETY_PROBE") == "previous":
+                    service_receipts = []
+                    for i, question in enumerate(("wat speelt er?", "wat was vorige nummer", "wat was vorige nummer")):
+                        service_result = await h.services.async_call("djconnect", "ask_dj", {
+                            **identity, "text": question, "language": "nl", "audio_response": "never",
+                            "client_message_id": "service-now" if i == 0 else "service-previous",
+                        }, blocking=True, return_response=True)
+                        assert service_result["success"], service_result.get("error")
+                        assert service_result["history_persisted"] is False
+                        assert service_result["conversation"]["history_scope"] == "private_ephemeral"
+                        service_receipts.append({"question": question, "body": service_result})
+                    assert (await history.async_history("profile:profile-a"))["messages"] == []
                     result = await call("ask_dj/message", {"text": "wat was vorige nummer", "client_message_id": "baseline-previous-question", "language": "nl", "audio_response": "never"}, label="baseline-previous-question")
                     mutations = [c for c in provider_calls if c["method"] in {"POST", "PUT", "DELETE"}]
                     assert not mutations
@@ -626,6 +638,7 @@ async def main():
                         "qualification": "CORE_PAIRED_INFORMATIONAL_PREVIOUS_NO_EFFECT",
                         "source_hashes": hashes(), "pairing": "ordinary_device_token_minted_persisted",
                         "request": "wat was vorige nummer", "response": result,
+                        "registered_ha_service": service_receipts,
                         "effects": mutations, "model_calls": model_receipts, "safe_failures": failures,
                         "provider_boundary": "explicit_external_fixture", "installed": "NOT_RUN",
                     }, ensure_ascii=False, indent=2) + "\n")

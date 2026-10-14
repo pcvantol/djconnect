@@ -7,7 +7,7 @@ import random
 import re
 import secrets
 from typing import Any
-from urllib.parse import quote
+from urllib.parse import quote, urlsplit
 
 from aiohttp import ClientTimeout
 from homeassistant.core import HomeAssistant
@@ -8595,29 +8595,36 @@ def _spotify_uri_kind(uri: str) -> str:
 
 
 def _sources_from_context(result: dict[str, Any], links: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    provided = result.get("sources")
     sources: list[dict[str, Any]] = []
-    if isinstance(provided, list):
-        for item in provided:
-            if isinstance(item, dict):
-                sources.append(
-                    {
-                        "source": str(item.get("source") or item.get("title") or "source"),
-                        "title": str(item.get("title") or item.get("source") or "Source"),
-                        "kind": str(item.get("kind") or "source"),
-                    }
-                )
-            elif item:
-                sources.append({"source": str(item), "title": str(item), "kind": "source"})
-    for link in links:
+    provided = result.get("sources")
+    for item in (provided[:12] if isinstance(provided, list) else []):
+        if isinstance(item, dict):
+            provider = str(item.get("provider") or item.get("source") or item.get("title") or "source")[:128]
+            source = {"source": provider, "title": str(item.get("title") or provider)[:256], "kind": "source"}
+            for key in ("provider", "license", "claim_scope"):
+                if isinstance(item.get(key), str):
+                    source[key] = item[key][:128]
+            url = item.get("url")
+            if isinstance(url, str) and len(url) <= 2048:
+                try:
+                    parsed = urlsplit(url)
+                    safe = parsed.scheme == "https" and bool(parsed.hostname) and not parsed.username and not parsed.password
+                except ValueError:
+                    safe = False
+                if safe:
+                    source["url"] = url
+                    if not any(link.get("url") == url for link in links):
+                        links.append({"url": url, "title": source["title"], "kind": "source", "source": provider,
+                                      **{key: source[key] for key in ("license", "claim_scope") if key in source}})
+            sources.append(source)
+        elif isinstance(item, str) and item:
+            sources.append({"source": item[:128], "title": item[:256], "kind": "source"})
+    for link in links[:12]:
         if isinstance(link, dict) and (link.get("kind") == "source" or link.get("source") == "source"):
-            sources.append(
-                {
-                    "source": str(link.get("source") or link.get("title") or "source"),
-                    "title": str(link.get("title") or link.get("source") or "Source"),
-                    "kind": "source",
-                }
-            )
+            if any(source.get("url") == link.get("url") for source in sources if source.get("url")):
+                continue
+            sources.append({"source": str(link.get("source") or link.get("title") or "source")[:128],
+                            "title": str(link.get("title") or link.get("source") or "Source")[:256], "kind": "source"})
     return sources
 
 
@@ -9895,9 +9902,26 @@ async def _dialogue_choice_response(hass, runtime, payload, text, *, index=None)
                 "fr": "Quel artiste ou quel aspect du résultat sélectionné veux-tu approfondir ? Nomme-le pour que je puisse l’expliquer.",
                 "es": "¿Qué artista o aspecto del resultado seleccionado quieres conocer? Nómbralo para que pueda explicarlo.",
             }
-            reply = labels[turn.style.get("language", "en")]
+            artist = action.get("artist") or action.get("artist_name")
+            if action.get("kind") == "track" and not artist:
+                artist = action.get("subtitle")
+            if action.get("kind") == "artist":
+                artist = action.get("title") or action.get("name") or artist
+            # Display rights do not grant model processing or external lookups.
+            # Multiple credited names remain genuinely ambiguous; never choose one.
+            single_artist = isinstance(artist, str) and 0 < len(artist) <= 256 and not re.search(r"[,;/&]|\b(?:feat\.?|featuring|with|and|en|und|et|y)\b", artist, re.I)
+            if single_artist:
+                labels = {
+                    "en": "The selected result credits {artist}. I can identify that catalog credit here; I do not yet have independently qualified context for a further explanation.",
+                    "nl": "Het gekozen resultaat vermeldt {artist} als artiest. Ik kan die catalogusvermelding hier identificeren; voor verdere uitleg ontbreekt nog onafhankelijk gekwalificeerde context.",
+                    "de": "Das ausgewählte Ergebnis nennt {artist} als Künstler. Diese Katalogangabe kann ich hier zuordnen; für eine weitere Erklärung fehlt noch unabhängig qualifizierter Kontext.",
+                    "fr": "Le résultat sélectionné indique {artist} comme artiste. Je peux identifier cette mention du catalogue ; il manque encore un contexte qualifié indépendant pour l’expliquer davantage.",
+                    "es": "El resultado seleccionado acredita a {artist} como artista. Puedo identificar esa mención del catálogo; aún falta contexto cualificado independiente para ampliarla.",
+                }
+            reply = labels[turn.style.get("language", "en")].format(artist=artist)
             return {"success": True, "text": reply, "dj_text": reply, "items": [action],
-                "playback_actions": [], "intent": {"intent": "selected_result_clarification"}}
+                "text_source": "qualified_catalog_result", "is_generated_text": False,
+                "playback_actions": [], "intent": {"intent": "selected_result_identification" if single_artist else "selected_result_clarification"}}
         return None
     shown = turn.frame.result_set
     if shown is None and activate_reference:

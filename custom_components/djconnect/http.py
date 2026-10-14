@@ -1693,7 +1693,14 @@ async def _recommendation_play_success_response(
         target_uri = str(recommendation.get("uri") or recommendation.get("offset_uri") or "")
         actual_context=str(state.get("context_uri") or (state.get("context") or {}).get("uri") or "")
         observed_identity=actual_uri if target_uri.startswith("spotify:track:") else actual_context
-        confirmed = bool(observed_identity and observed_identity == target_uri and (state.get("is_playing") is True or state.get("state") == "playing"))
+        device = state.get("device") if isinstance(state.get("device"), dict) else {}
+        observed_output = str(state.get("output_id") or state.get("device_id") or device.get("id") or "")
+        required_output = turn.play_output_id if turn else None
+        confirmed = bool(
+            observed_identity and observed_identity == target_uri
+            and (state.get("is_playing") is True or state.get("state") == "playing")
+            and (not required_output or observed_output == required_output)
+        )
     except Exception:
         pass
     if not confirmed:

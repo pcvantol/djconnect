@@ -153,6 +153,64 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
 
         return await DJConnectUseCases(self.hass, self.runtime, backend=ProviderBoundary()).command(command, value)
 
+    async def test_credit_attribution_survives_http_and_archive_rights(self):
+        session, moment, entry = await self.selected_credit()
+        context = {"session_id": session.session_id, "selected_entry": entry}
+        result, status = await self.request("Who is the composer?", context=context)
+        self.assertEqual(status, 200, result)
+        source = result["sources"][0]
+        self.assertEqual(source["provider"], "MusicBrainz")
+        self.assertEqual(source["license"], "CC0-1.0")
+        self.assertEqual(source["claim_scope"], "qualified_credit_only")
+        self.assertTrue(source["url"].startswith("https://musicbrainz.org/"))
+        self.assertEqual(result["links"][0]["url"], source["url"])
+        archived = await self.history.async_history("profile:profile-a")
+        self.assertTrue(archived["messages"])
+        self.assertNotIn("image_url", json.dumps(archived))
+        links = []
+        unsafe = self.core._sources_from_context({"sources": [{"provider": "fixture", "url": "https://user:secret@example.invalid/x"}]}, links)
+        self.assertNotIn("url", unsafe[0])
+        self.assertEqual(links, [])
+
+    async def test_selected_catalog_artist_is_identified_locally_without_model_grant(self):
+        for i, artist in enumerate(("Synthetic Artist", "Artist A & Artist B")):
+            async def offer(*args, **kwargs):
+                return {"success": True, "text": "Catalog result", "playback_actions": [{"kind": "track",
+                    "uri": "spotify:track:" + str(i + 1) * 22, "title": "Synthetic track", "subtitle": artist}]}
+            with patch.object(self.handlers.http_helpers, "async_handle_ask_dj", offer):
+                await self.request("Find tracks", identifier=f"referent-offer-{i}")
+            await self.request("the first", identifier=f"referent-select-{i}")
+            result, status = await self.request("Who is that artist?", identifier=f"referent-question-{i}")
+            self.assertEqual(status, 200, result)
+            self.assertEqual(result["intent"]["intent"], "selected_result_identification" if i == 0 else "selected_result_clarification")
+            if i == 0:
+                self.assertIn(artist, result["text"])
+            self.assertEqual(self.prompts, [])
+            self.assertEqual(self.effects, [])
+
+    async def test_play_readback_requires_exact_requested_output(self):
+        from custom_components.djconnect import http
+        from types import SimpleNamespace
+        uri = "spotify:track:" + "1" * 22
+        async def guard():
+            pass
+        self.runtime.update = lambda **values: self.runtime.__dict__.update(values)
+        turn = SimpleNamespace(play_output_id="output-B", style={"language": "en"}, guard=guard)
+        token = self.dialogue.current_turn.set(turn)
+        try:
+            for output in ("output-A", None, "output-B"):
+                async def status(*args, **kwargs):
+                    return {"playback": {"uri": uri, "is_playing": True,
+                                         "device": {"id": output} if output else {}}}
+                with patch.object(http, "run_music_command", status):
+                    result = await http._recommendation_play_success_response(self.hass, self.runtime,
+                        {"kind": "track", "uri": uri, "title": "Synthetic track"},
+                        {"audio_response": "never"}, {"success": True})
+                self.assertEqual(result["action_outcome"]["readback_confirmed"], output == "output-B")
+                self.assertEqual(result["action_outcome"]["state"], "confirmed" if output == "output-B" else "dispatched")
+        finally:
+            self.dialogue.current_turn.reset(token)
+
     async def test_one_service_screen_and_voice_parity_with_rich_results(self):
         calls = []
 

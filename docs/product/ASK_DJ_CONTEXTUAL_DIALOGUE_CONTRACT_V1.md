@@ -468,3 +468,26 @@ ritual greeting/footer, correct roles, subject and actionable real results.
 Exact technical/privacy and conversation/UX reviews follow the final candidate;
 public/source/installed/native/hardware/joint states remain separate. Apple#87
 receives pinned real transport fixtures and explicit adoption/timing boundary.
+
+
+## Independent-review refinements
+
+The registered HA `djconnect.ask_dj` raw service normalizes through the same
+owner-authorized message adapter and exchange as HTTP, with `persist_history`
+false. It retains optional request identity for replay safety, and cannot reach
+a separate agent or effect path. The message service keeps its existing
+persistence policy. Service transport does not weaken agent qualification.
+
+When explicit Play binds output B, confirmation requires the observed exact
+media/context identity, playing state **and output B**. Same media on another
+output or missing output identity remains dispatched, without an automatic retry.
+
+Qualified CC0 credit attribution preserves bounded provider, HTTPS source URL,
+license and `qualified_credit_only` scope in live sources and source links.
+Additional model knowledge is separate from the credit evidence; archive rights
+remain governed by the existing per-turn source acceptance, not the live fields.
+A selected catalog result can identify its one displayed artist locally, without
+transmitting its fields to the model. Multiple credits require clarification;
+unqualified additional explanation cannot be invented or fetched under a new
+source permission. Ordinary genre phrases are localized; generated answers must
+respect the selected Persona sentence form and omit unsupported named techniques.
