@@ -217,6 +217,9 @@ the observed target value; an output confirmation requires the observed exact
 output identity. Forward the existing observer/Broadcast projection receipt.
 Never treat the pre-command snapshot as confirmation or generate an extra
 announcement/model call for a skip.
+Fast controls do not prefetch an unrelated queue. They preserve the current
+conversation choice set; an explicit queue question provides its own qualified,
+expiring result set through the shared queue-read projection.
 
 Output selection is inert. Activate transfers to the selected, currently
 available unrestricted output with `play: false`; it cannot reuse a previous
