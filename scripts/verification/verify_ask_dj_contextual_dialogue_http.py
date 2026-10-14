@@ -90,6 +90,8 @@ async def main():
     access = json.load(sys.stdin)
     api = AsyncOpenAI(api_key=access["api_key"], timeout=25, max_retries=0)
     model = access.get("model") or "gpt-4o-mini"
+    max_tokens = access.get("max_tokens", 700)
+    assert type(max_tokens) is int and 1 <= max_tokens <= 3000
     del access
     model_receipts = []
     failures = []
@@ -230,7 +232,7 @@ async def main():
                         "chat_model": model,
                         "llm_hass_api": [],
                         "store_responses": False,
-                        "max_tokens": 700,
+                        "max_tokens": max_tokens,
                         "web_search": False,
                         "code_interpreter": False,
                         "prompt": "Answer the DJConnect user request using only its explicit data. No tools or HA state.",
