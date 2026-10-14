@@ -517,3 +517,25 @@ within the established two-to-three sentence range. The existing bounded
 repair is retained for demonstrable genre-language format violations. This
 neither adds a general language engine nor guarantees every future model's
 style; exact generated samples require independent review.
+
+
+## HA-native service authority preservation
+
+The existing registered `djconnect.ask_dj` service also operates on a
+`conversation_agent`-only integration, whose server identity is
+`djconnect-conversation-agent` and which has no app device token. Its internal
+adapter uses the service closure's loaded ConfigEntry/runtime and the canonical
+server-owned binding for that identity. Payload routing hints cannot choose a
+different device or Profile. Missing/unloaded/replaced entry, withdrawn or
+reassigned Profile/source and privacy denial fail closed at the same exchange
+await/acceptance fences. No fallback Profile or forged app token is introduced.
+
+Both raw and message service normalization reach the same `async_exchange` and
+interpretation/agent/tools/acceptance; raw retains `persist_history=false`.
+The private runtime authority is a Python caller argument of the registered HA
+service, never a request/header flag. HTTP/voice/websocket device ingress still
+rejects `conversation_agent` and requires normal supported-device auth. The
+agent-only service's existing configured binding is its authority; ordinary
+paired app acceptance is separately proven and never replaced with HA-user
+credentials. Qualify actual registered service, duplicate/control, unsuitable
+agent and entry/owner withdrawal on the no-device-token configuration.
