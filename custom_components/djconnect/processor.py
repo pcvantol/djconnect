@@ -242,6 +242,9 @@ async def _record_ask_dj_memory(
     memory_payload: dict[str, Any] | None = None,
     user_id: str | None = None,
 ) -> None:
+    from .ask_dj.dialogue import current_turn
+    if current_turn.get() is not None:
+        return
     memory = getattr(runtime, "memory", None)
     recorder = getattr(memory, "async_update_last_ask_dj", None)
     if not callable(recorder):

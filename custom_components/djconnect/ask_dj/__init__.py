@@ -133,7 +133,7 @@ async def async_handle_ask_dj(
                 "dj_text": str(confirmed_entry.get("text") or ""),
                 "sources": [attribution] if isinstance(attribution, dict) else attribution,
                 "playback_actions": [], "intent": {"intent": "selected_contribution_quote"}}
-    if turn is not None:
+    if turn is not None and not turn.resolving_output_request:
         selected = await _dialogue_choice_response(hass, runtime, payload, text)
         if selected is not None:
             return selected
@@ -173,6 +173,8 @@ async def async_handle_ask_dj(
         if turn.frame.retry.get("uncertain"):
             raise DialogueError("action_outcome_uncertain")
         text = turn.frame.retry["text"]
+        from .dialogue import request_effect_grants
+        turn.effect_grants = request_effect_grants(text, classify_ask_dj(text))
     conversation_turn = classify_conversation_turn(text, memory_context)
     if source or (_current_track_version_request(text) and not _has_clear_playback_action(_normalize(text))):
         conversation_turn = AskDjConversationTurn("request", text)
@@ -205,8 +207,9 @@ async def async_handle_ask_dj(
         or bool(_current_track_seed_mix_request(effective_text))
         or ("nog meer leuk" in _normalize(effective_text) and "artiest" in _normalize(effective_text))
         or bool(re.search(r"\b(?:nu|now|current|currently|huidige|gerade|aktuell|maintenant|ahora)\b", effective_text.casefold())))
+    private_reads = {"previous_track_information", "session_forecast_information", "next_track_info", "list_outputs", "playback_control"}
     playback_context = (await _playback_context(hass, runtime)
-        if classification.intent != "ask_music_info" or classification.category in {"action", "hybrid"} or current_reference
+        if classification.intent not in private_reads and (classification.intent != "ask_music_info" or classification.category in {"action", "hybrid"} or current_reference)
         else {})
     output_devices = await _output_devices(hass, runtime, classification)
     effective_text, classification, response = await _async_special_ask_dj_response(
@@ -471,7 +474,8 @@ async def _async_current_track_response(
         request = _current_track_seed_mix_request(text)
         if request:
             result = await _current_track_seed_mix_response(hass, runtime, playback_context, request)
-            intent = AskDjIntent("informational", "current_track_seed_mix", "none")
+            intent = (AskDjIntent("hybrid", "current_track_seed_mix", "play_music", play=True)
+                if request == "play" else AskDjIntent("informational", "current_track_seed_mix", "none"))
         else:
             return await _async_track_version_response(
                 hass, runtime, text, playback_context, music_dna_key,
@@ -560,7 +564,8 @@ def _should_defer_playback(
         classification.category == "hybrid"
         and _is_deferred_playback_request(text)
         and (
-            _playback_is_active(playback_context)
+            not _execution_request(text)
+            or _playback_is_active(playback_context)
             or _is_fuzzy_music_search_request(normalized_text)
             or _genre_options_request(text)
             or _is_something_from_artist_request(normalized_text)
@@ -618,6 +623,9 @@ async def _async_update_ask_dj_memory(
     include_items: bool = False,
 ) -> None:
     """Persist the normalized Ask DJ result when memory is available."""
+    from .dialogue import current_turn
+    if current_turn.get() is not None:
+        return  # One operational dialogue owner, not a second last-Ask-DJ stack.
     if memory is None:
         return
     result = {
@@ -1186,14 +1194,16 @@ def _simple_control_intent(normalized: str) -> AskDjIntent | None:
     }
     if value in controls:
         return AskDjIntent("action","playback_control",controls[value])
-    down={"turn the volume down","lower the volume","volume down","zet zachter","zachter", "mach leiser", "lautstärke verringern", "baisse le volume", "baja el volumen"}
-    up={"turn the volume up","raise the volume","volume up","zet harder","harder", "mach lauter", "lautstärke erhöhen", "augmente le volume", "sube el volumen"}
+    down={"turn the volume down","lower the volume","volume down","volume omlaag","zet zachter","zachter", "mach leiser", "lautstärke verringern", "baisse le volume", "baja el volumen"}
+    up={"turn the volume up","raise the volume","volume up","volume omhoog","zet harder","harder", "mach lauter", "lautstärke erhöhen", "augmente le volume", "sube el volumen"}
     if value in down or value in up:
         return AskDjIntent("action","playback_control","volume_delta",-10 if value in down else 10)
     return None
 
 
 def _has_clear_playback_action(normalized: str) -> bool:
+    if _nonexecuting_speech_act(normalized):
+        return False
     if _simple_control_intent(normalized) is not None:
         return True
     if _is_playback_mode_status_question(normalized):
@@ -1481,15 +1491,66 @@ def _handle_conversational_followup(turn: AskDjConversationTurn) -> dict[str, An
 def classify_ask_dj(text: str) -> AskDjIntent:
     """Classify Ask DJ text into informational, action or hybrid buckets."""
     normalized = _normalize(text)
+    nonexecuting = _nonexecuting_speech_act(normalized)
+    from .observations import forecast_question, previous_question
+    if forecast_question(normalized) and not _execution_request(normalized):
+        return AskDjIntent("informational", "session_forecast_information")
+    if previous_question(normalized):
+        return AskDjIntent("informational", "previous_track_information")
+    if (seed_request := _current_track_seed_mix_request(normalized)) in {"queue", "play"}:
+        if seed_request == "play" and _execution_request(normalized):
+            return AskDjIntent("hybrid", "current_track_seed_mix", "play_music", play=True)
+        return AskDjIntent("informational", "current_track_seed_mix", "none")
     if control := _simple_control_intent(normalized):
         return control
     favorite_target = _current_track_favorite_target(normalized)
-    if favorite_target is not None:
+    if favorite_target is not None and not nonexecuting:
         return AskDjIntent("action", "playback_control", "set_current_track_favorite", favorite_target)
     for predicate, intent in _ASK_DJ_INTENT_RULES:
         if predicate(normalized, text):
-            return intent(normalized) if callable(intent) else intent
+            resolved = intent(normalized) if callable(intent) else intent
+            if (resolved.category in {"action", "hybrid"} and resolved.action != "announce"
+                and (nonexecuting or not _execution_request(normalized))):
+                if resolved.intent == "play_music" and _is_deferred_playback_request(normalized) and (
+                    not nonexecuting or _is_fuzzy_music_search_request(normalized)
+                ):
+                    # Catalog choices are not an execution grant.
+                    return AskDjIntent("hybrid", "play_music", "play_music", play=False)
+                return AskDjIntent("informational", "ask_music_info")
+            return resolved
     return AskDjIntent("informational", "ask_music_info")
+
+
+def _nonexecuting_speech_act(text: str) -> bool:
+    """Questions, quotations, negation and hypotheses are not execution grants.
+
+    This lens qualifies existing intents; it does not answer music questions.
+    Polite imperative requests (can you pause / kun je pauzeren) remain requests.
+    """
+    value = text.casefold().strip().lstrip("¿¡")
+    if value.startswith(("\"", "'", "“", "‘")):
+        return True
+    if re.match(r"^(?:wat|welk\w*|wie|waar\w*|wanneer|hoe|what|which|who|why|when|where|how|was|welch\w*|wer|warum|wieso|wann|wo|wie|quoi|quel\w*|qui|pourquoi|quand|comment|qu[eé]|cu[aá]l\w*|qui[eé]n|por qu[eé]|cu[aá]ndo|d[oó]nde|c[oó]mo)\b", value):
+        return True
+    if re.match(r"^(?:if|suppose|imagine|als|stel|wenn|falls|si|disons|explain|leg uit|erkl[aä]r\w*|explique\w*|explica\w*|citeer|quote|zitier\w*|citer|cita)\b", value):
+        return True
+    return bool(re.match(r"^(?:(?:please|alsjeblieft|bitte|s'il te plaît|por favor)\s+)?(?:do not|don't|never|niet|geen|no|ne\s+\w+\s+pas|nicht|kein\w*)\b", value)
+                or re.search(r"\b(?:speel|draai|zet|play|start|pause|skip|joue\w*|reproduz\w*|spiel\w*)\s+(?:(?:dit|dat|deze|die|het|this|that|it|das|le|la|el|af)\s+)*(?:niet|geen|not|never|nicht|keine?|pas|no)\b", value))
+
+
+def _execution_request(text: str) -> bool:
+    if _nonexecuting_speech_act(text):
+        return False
+    value = text.casefold().strip(" .!?")
+    value = re.sub(r"^(?:ok(?:ay)?|goed|alright|bon|vale|bien|gut),?\s+", "", value)
+    if _simple_control_intent(value) is not None:
+        return True
+    value = re.sub(r"^(?:please|alsjeblieft|bitte|por favor|s'il te plaît)\s+", "", value)
+    value = re.sub(r"^(?:can|could|would) you\s+|^(?:kun|wil|zou) je\s+|^(?:kannst|könntest) du\s+|^(?:peux|pourrais)-tu\s+|^(?:puedes|podrías)\s+", "", value)
+    if _nonexecuting_speech_act(value):
+        return False
+    return bool(re.match(r"^(?:speel|draai|zet|start|hervat|pauzeer|stop|volgende|vorige|harder|zachter|shuffle|repeat|herhaal|skip|play|resume|pause|next|previous|put on|turn|set|save|sla|bewaar|verwijder|like|unlike|voeg|queue|enqueue|spiel\w*|mach|schalte|pausier\w*|joue\w*|mets|arrête|reprends|reprodu\w*|pon|pausa|sube|baja)\b", value)
+                or value in {"ik ga slapen", "ga slapen", "i'm going to sleep", "i am going to sleep"})
 
 
 _ASK_DJ_INTENT_RULES = (
@@ -1590,7 +1651,8 @@ async def _volume_delta_response(hass: HomeAssistant, runtime: Any, classificati
     current = _playback_volume(playback, runtime)
     if current is None:
         return {"success": False, "text": "Ik kan het huidige volume nu niet bepalen.", "error": "playback_unavailable"}
-    result = await run_music_command(hass, runtime, "set_volume", max(0, min(60, current + int(classification.value or 0))))
+    target = max(0, min(60, current + int(classification.value or 0)))
+    result = await run_music_command(hass, runtime, "set_volume", target)
     if failure := _failed_backend_action(result):
         return failure
     from .dialogue import current_turn
@@ -1599,7 +1661,10 @@ async def _volume_delta_response(hass: HomeAssistant, runtime: Any, classificati
     text={"en":"Volume change requested.","nl":"Volumeaanpassing aangevraagd.",
           "de":"Lautstärkeänderung angefordert.","fr":"Modification du volume demandée.",
           "es":"Cambio de volumen solicitado."}[language]
-    return {"success": True, "text": text, "dj_text": text, "action_outcome": {"state": "dispatched", "readback_confirmed": False}, "playback": {}, "images": [], "links": [], "sources": [], "items": [], "audio_url": None, "playback_actions": _volume_control_actions()}
+    confirmed = result.get("playback") if isinstance(result.get("playback"), dict) else {}
+    observed_volume = _playback_volume(confirmed, None) if confirmed else None
+    return {"success": True, "text": text, "dj_text": text, "action_outcome": {"state": "dispatched", "readback_confirmed": observed_volume == target}, "playback": confirmed, "images": [], "links": [], "sources": [], "items": [], "audio_url": None, "playback_actions": _volume_control_actions(),
+        **({"playback_projection_receipt": result["playback_projection_receipt"]} if "playback_projection_receipt" in result else {})}
 
 
 async def _playback_action_response(hass: HomeAssistant, runtime: Any, text: str, action: str) -> dict[str, Any]:
@@ -1609,11 +1674,13 @@ async def _playback_action_response(hass: HomeAssistant, runtime: Any, text: str
     if failure := _failed_backend_action(result):
         return failure
     text_response = _control_dispatch_text(action)
-    return {"success": True, "text": text_response, "dj_text": text_response, "action_outcome": {"state": "dispatched", "readback_confirmed": False}, "playback": result.get("playback") if isinstance(result, dict) else {}, "images": [], "links": [], "sources": [], "playback_actions": _playback_control_actions(action)}
+    return {"success": True, "text": text_response, "dj_text": text_response, "action_outcome": {"state": "dispatched", "readback_confirmed": False}, "playback": result.get("playback") if isinstance(result, dict) else {}, "images": [], "links": [], "sources": [], "playback_actions": _playback_control_actions(action),
+        **({"playback_projection_receipt": result["playback_projection_receipt"]} if "playback_projection_receipt" in result else {})}
 
 
 async def _skip_playback_action_response(hass: HomeAssistant, runtime: Any, text: str, action: str) -> dict[str, Any]:
-    result = await run_text_command(hass, runtime, text, play=True, correct_stt=False)
+    # The qualified control stays typed; never reparse it as a music search.
+    result = await run_music_command(hass, runtime, action)
     if failure := _failed_backend_action(result):
         return failure
     text_response = _control_dispatch_text(action)
@@ -1628,9 +1695,9 @@ async def _skip_playback_action_response(hass: HomeAssistant, runtime: Any, text
             "de": ("Aktuelle Wiedergabe", "von"), "fr": ("Lecture actuelle", "de"), "es": ("Reproducción actual", "de")}
         label, join = labels[language]
         text_response += f" {label}: {title}{f' {join} {artist}' if artist else ''}."
-    queue_action = await _next_queue_playback_action(hass, runtime, current_playback=result.get("playback") if isinstance(result, dict) else {})
-    actions = [queue_action] if queue_action else []
-    return {"success": True, "text": text_response, "dj_text": text_response, "action_outcome": {"state": "dispatched", "readback_confirmed": False}, "playback": result.get("playback") if isinstance(result, dict) else {}, "images": [], "links": [], "sources": [], "playback_actions": actions, "items": actions}
+    # A control neither prefetches an unrelated queue nor replaces its choice set.
+    return {"success": True, "text": text_response, "dj_text": text_response, "action_outcome": {"state": "dispatched", "readback_confirmed": False}, "playback": playback, "images": [], "links": [], "sources": [], "playback_actions": [], "items": [],
+        **({"playback_projection_receipt": result["playback_projection_receipt"]} if "playback_projection_receipt" in result else {})}
 
 
 def _control_dispatch_text(action):
@@ -2358,9 +2425,16 @@ async def _informational_intent_response(
 ) -> dict[str, Any] | None:
     if ask_intent.intent == "help":
         return _help_response(_response_language(runtime, payload))
+    if ask_intent.intent == "session_forecast_information":
+        from .observations import forecast_read
+        return await forecast_read(hass, runtime)
+    if ask_intent.intent == "previous_track_information":
+        from .observations import previous_read
+        return await previous_read(hass, runtime)
     if ask_intent.action == "devices":
-        message = _devices_text(output_devices)
-        actions = _output_device_actions(output_devices)
+        language = _response_language(runtime, payload)
+        message = _devices_text(output_devices, language)
+        actions = _output_device_actions(output_devices, language)
         return {
             "success": True,
             "text": message,
@@ -2370,6 +2444,7 @@ async def _informational_intent_response(
             "links": [],
             "sources": [],
             "playback_actions": actions,
+            "items": actions,
         }
     if ask_intent.intent == "morning_music_suggestion":
         return await _morning_music_suggestion_response(
@@ -2948,21 +3023,15 @@ async def _next_track_info_response(
     hass: HomeAssistant,
     runtime: Any,
 ) -> dict[str, Any]:
-    try:
-        result = await run_music_command(hass, runtime, "queue")
-    except Exception as exc:  # noqa: BLE001
-        _LOGGER.debug("DJConnect Spotify queue unavailable for Ask DJ: %s", exc)
-        result = {}
-    queue_items = _queue_items_without_current(result, runtime)
-    if not queue_items:
-        return _empty_queue_response()
-    return _queue_response(hass, result, queue_items[:10])
+    from .observations import queue_read
+    return await queue_read(hass, runtime)
 
 
 def _queue_items_without_current(result: Any, runtime: Any) -> list[dict[str, Any]]:
     queue = result.get("queue") if isinstance(result, dict) else []
-    current_uri = _current_playback_uri(runtime)
-    return _dedupe_queue_items(item for item in (queue if isinstance(queue, list) else []) if isinstance(item, dict) and item and not (current_uri and str(item.get("uri") or "").strip() == current_uri))
+    # Provider queue already excludes now-playing. A repeated current URI is
+    # still a legitimate upcoming occurrence, not a duplicate snapshot.
+    return [item for item in (queue if isinstance(queue, list) else []) if isinstance(item, dict) and item]
 
 
 def _spotify_queue_source() -> dict[str, str]:
@@ -2984,7 +3053,7 @@ def _queue_playback_action(hass: HomeAssistant, result: Any, item: dict[str, Any
         return {}
     image_url = str(item.get("image_url") or item.get("album_image_url") or item.get("thumbnail_url") or "").strip()
     action = {"id": uri, "title": str(item.get("title") or item.get("track_name") or f"nummer {index}").strip(), "subtitle": str(item.get("subtitle") or item.get("artist") or "").strip(), "uri": uri, "kind": "track", "label": "Play Now", "button_label": "Play Now", "action_style": "play_now", "reason": "Track uit je Spotify wachtrij."}
-    context_uri = str(item.get("context_uri") or item.get("contextUri") or (result.get("context_uri") if isinstance(result, dict) else "") or "").strip()
+    context_uri = str(item.get("context_uri") or item.get("contextUri") or "").strip()
     if context_uri:
         action.update({"context_uri": context_uri, "offset_uri": uri})
     if image_url:
@@ -2999,7 +3068,7 @@ def _dedupe_queue_items(items: Any) -> list[dict[str, Any]]:
     for item in items:
         if not isinstance(item, dict):
             continue
-        uri = str(item.get("uri") or "").strip().lower()
+        uri = str(item.get("uri") or "").strip()
         title = str(item.get("title") or item.get("track_name") or item.get("name") or "").strip().lower()
         artist = str(item.get("subtitle") or item.get("artist") or item.get("artist_name") or "").strip().lower()
         key = uri or f"{title}|{artist}"
@@ -3008,51 +3077,6 @@ def _dedupe_queue_items(items: Any) -> list[dict[str, Any]]:
         seen.add(key)
         deduped.append(item)
     return deduped
-
-
-async def _next_queue_playback_action(
-    hass: HomeAssistant,
-    runtime: Any,
-    *,
-    current_playback: dict[str, Any] | None = None,
-) -> dict[str, Any]:
-    try:
-        result = await run_music_command(hass, runtime, "queue")
-    except Exception as exc:  # noqa: BLE001
-        _LOGGER.debug("DJConnect Spotify queue unavailable after skip: %s", exc)
-        return {}
-    queue = result.get("queue") if isinstance(result, dict) else []
-    current_uri = _playback_uri(current_playback or {}) or _current_playback_uri(runtime)
-    for item in queue if isinstance(queue, list) else []:
-        if not isinstance(item, dict):
-            continue
-        uri = str(item.get("uri") or "").strip()
-        if not uri.startswith("spotify:track:") or (current_uri and uri == current_uri):
-            continue
-        title = str(item.get("title") or item.get("track_name") or "Volgende nummer").strip()
-        artist = str(item.get("subtitle") or item.get("artist") or "").strip()
-        image_url = str(item.get("image_url") or item.get("album_image_url") or item.get("thumbnail_url") or "").strip()
-        proxy = register_image_proxy_url(hass, image_url) if image_url.startswith(("http://", "https://")) else image_url
-        action: dict[str, Any] = {
-            "id": uri,
-            "title": title,
-            "subtitle": artist,
-            "uri": uri,
-            "kind": "track",
-            "label": "Play Now",
-            "button_label": "Play Now",
-            "action_style": "play_now",
-            "reason": "Daaropvolgende track uit je Spotify wachtrij.",
-        }
-        context_uri = str(item.get("context_uri") or item.get("contextUri") or result.get("context_uri") or "").strip()
-        if context_uri:
-            action["context_uri"] = context_uri
-            action["offset_uri"] = uri
-        if proxy:
-            action["image_url"] = proxy
-            action["thumbnail_url"] = proxy
-        return action
-    return {}
 
 
 def _playback_uri(playback: dict[str, Any]) -> str:
@@ -5194,7 +5218,8 @@ def _normalized_response_payload(
         "dj_text": text,
         "message": text,
         **text_generation_fields,
-        **{key: result[key] for key in ("model_processing_basis", "knowledge_basis", "action_outcome", "analysis_basis") if key in result},
+        **{key: result[key] for key in ("model_processing_basis", "knowledge_basis", "action_outcome", "analysis_basis",
+            "queue_observation", "queue_append", "session_forecast", "previous_observation", "_private_current_context", "playback_projection_receipt") if key in result},
         "images": images,
         "links": links,
         "sources": sources,
@@ -6237,7 +6262,11 @@ def _current_track_seed_mix_request(text: str) -> str:
             "i want similar songs",
         )
     ):
-        return "queue"
+        if any(word in normalized for word in ("wachtrij", "queue", "enqueue")):
+            return "queue"
+        if _execution_request(normalized) and normalized.startswith(("speel", "draai", "play")):
+            return "play"
+        return "more"
     if any(
         phrase in normalized
         for phrase in (
@@ -6519,6 +6548,22 @@ async def _current_track_seed_mix_response(
     result_seeds = result.get("seeds") if isinstance(result.get("seeds"), dict) else seeds
     mix_action = {} if used_search_fallback else _seed_mix_playback_action(hass, result_seeds, tracks)
     if request_kind == "queue":
+        from .dialogue import current_turn
+        turn = current_turn.get()
+        language = turn.style.get("language", "en") if turn else "en"
+        message = {
+            "en": "Appending these suggestions to the queue is not supported. Playback is unchanged; choose Play Now to start a result.",
+            "nl": "Deze suggesties toevoegen aan de wachtrij wordt niet ondersteund. Playback blijft ongewijzigd; kies Afspelen om een resultaat te starten.",
+            "de": "Diese Vorschläge können nicht zur Warteschlange hinzugefügt werden. Die Wiedergabe bleibt unverändert; wähle Abspielen, um ein Ergebnis zu starten.",
+            "fr": "L’ajout de ces suggestions à la file n’est pas pris en charge. La lecture reste inchangée ; choisis Lire pour lancer un résultat.",
+            "es": "No se admite añadir estas sugerencias a la cola. La reproducción no cambia; elige Reproducir para iniciar un resultado.",
+        }[language]
+        return {"success": True, "text": message, "dj_text": message, "action": "none",
+            "queue_append": {"state": "unsupported"}, "images": [], "items": track_actions,
+            "playback_actions": track_actions, "sources": [
+                {"source": "spotify_playback_context", "title": "Spotify playback context", "kind": "source"},
+                {"source": "spotify_recommendations", "title": "Spotify recommendations", "kind": "source"}]}
+    if request_kind == "play":
         uris = _track_uris_from_items(tracks, limit=50)
         playback_result = {}
         if uris:
@@ -6528,12 +6573,12 @@ async def _current_track_seed_mix_response(
                 _LOGGER.debug("DJConnect current-track similar queue failed: %s", exc)
         if track_actions and playback_result:
             message = (
-                f"Ik heb vergelijkbare tracks op basis van {label} in je wachtrij gezet. "
+                f"Afspelen van vergelijkbare tracks op basis van {label} is aangevraagd. "
                 "Dit zijn de eerste nummers; tik op Play Now om er eentje direct te starten."
             )
         elif track_actions:
             message = (
-                f"Ik vond vergelijkbare tracks op basis van {label}, maar kon de wachtrij nu niet vullen. "
+                f"Ik vond vergelijkbare tracks op basis van {label}, maar kon ze nu niet starten. "
                 "Tik op Play Now om er eentje te starten."
             )
         else:
@@ -6810,6 +6855,8 @@ def _track_recommendation_actions(
             continue
         seen.add(uri)
         action = _play_now_action_from_spotify_item(hass, {**item, "type": "track"}, runtime=runtime)
+        if not action:
+            continue
         action["label"] = "Play Now"
         action["reason"] = "Aanbevolen op basis van je Ask DJ vraag."
         actions.append(action)
@@ -8655,10 +8702,17 @@ async def _output_devices(
         return devices if isinstance(devices, list) else []
     try:
         result = await async_call_ai_tool(hass, runtime, "djconnect_list_outputs")
-        devices = result.get("outputs") if isinstance(result, dict) else []
-        return devices if isinstance(devices, list) else []
-    except Exception:  # noqa: BLE001
-        return []
+        from .dialogue import DialogueError
+        if not isinstance(result, dict) or result.get("success") is False or not isinstance(result.get("outputs"), list):
+            raise DialogueError("output_read_unavailable", 503)
+        return [d for d in result["outputs"] if isinstance(d, dict)
+                and isinstance(d.get("id"), str) and 0 < len(d["id"].strip()) <= 128
+                and not d.get("cached") and not d.get("is_restricted")]
+    except Exception as exc:  # noqa: BLE001
+        from .dialogue import DialogueError
+        if isinstance(exc, DialogueError):
+            raise
+        raise DialogueError("output_read_unavailable", 503) from exc
 
 
 def _informational_prompt(
@@ -8894,7 +8948,9 @@ def _links_from_context(
                     "source": str(item.get("source") or "source"),
                 }
             )
-    uri = result.get("uri") or playback_context.get("uri") or playback_context.get("track_uri")
+    uri = result.get("uri")
+    if "links" not in result and _should_use_playback_context_images(result, classification):
+        uri = uri or playback_context.get("uri") or playback_context.get("track_uri")
     if uri:
         links.append(
             {
@@ -9501,11 +9557,19 @@ def _looks_dutch(normalized: str) -> bool:
     )
 
 
-def _devices_text(devices: list[dict[str, Any]]) -> str:
+def _devices_text(devices: list[dict[str, Any]], language: str = "nl") -> str:
     names = [str(device.get("name")) for device in devices if isinstance(device, dict) and device.get("name")]
+    labels = {
+        "en": ("No speakers are currently available.", "Currently available speakers:"),
+        "nl": ("Er zijn nu geen speakers beschikbaar.", "Momenteel beschikbare speakers:"),
+        "de": ("Derzeit sind keine Lautsprecher verfügbar.", "Derzeit verfügbare Lautsprecher:"),
+        "fr": ("Aucune enceinte n’est disponible actuellement.", "Enceintes actuellement disponibles :"),
+        "es": ("No hay altavoces disponibles ahora.", "Altavoces disponibles ahora:"),
+    }
+    empty, title = labels.get(language, labels["en"])
     if not names:
-        return "Ik zie nu geen Spotify speakers."
-    return "Dit zijn de momenteel beschikbare speakers:\n\n" + "\n".join(f"- {name}" for name in names)
+        return empty
+    return title + "\n\n" + "\n".join(f"- {name}" for name in names)
 
 
 def _is_output_selection_request(normalized: str) -> bool:
@@ -9516,6 +9580,7 @@ def _is_output_selection_request(normalized: str) -> bool:
         or "laat speakers zien" in normalized
         or "toon beschikbare speakers" in normalized
         or "toon outputs" in normalized
+        or any(term in normalized for term in ("which speakers", "available speakers", "show outputs", "welche lautsprecher", "verfügbare lautsprecher", "quelles enceintes", "enceintes disponibles", "qué altavoces", "altavoces disponibles"))
     ):
         return True
     has_output = any(
@@ -9549,15 +9614,19 @@ def _is_output_selection_request(normalized: str) -> bool:
     )
 
 
-def _output_device_actions(devices: list[dict[str, Any]]) -> list[dict[str, Any]]:
+def _output_device_actions(devices: list[dict[str, Any]], language: str = "nl") -> list[dict[str, Any]]:
     actions: list[dict[str, Any]] = []
     seen: set[str] = set()
+    labels = {"en": ("Active", "Activate", "Active output"), "nl": ("Actief", "Activeer", "Actieve uitvoer"),
+              "de": ("Aktiv", "Aktivieren", "Aktive Ausgabe"), "fr": ("Active", "Activer", "Sortie active"),
+              "es": ("Activo", "Activar", "Salida activa")}
+    active_label, activate_label, active_subtitle = labels.get(language, labels["en"])
     for device in devices:
         if not isinstance(device, dict):
             continue
         device_id = str(device.get("id") or "").strip()
         name = str(device.get("name") or "").strip()
-        if not device_id or not name or device_id in seen:
+        if not device_id or not name or device_id in seen or device.get("is_restricted") or device.get("cached"):
             continue
         seen.add(device_id)
         device_type = str(device.get("type") or "Spotify Connect").strip()
@@ -9568,8 +9637,8 @@ def _output_device_actions(devices: list[dict[str, Any]]) -> list[dict[str, Any]
                 for key, value in {
                     "id": f"set_output:{device_id}",
                     "title": name,
-                    "subtitle": "Actieve uitvoer" if is_active else device_type,
-                    "label": "Actief" if is_active else "Activeer",
+                    "subtitle": active_subtitle if is_active else device_type,
+                    "label": active_label if is_active else activate_label,
                     "kind": "output",
                     "command": "set_output",
                     "value": device_id,
@@ -9578,7 +9647,6 @@ def _output_device_actions(devices: list[dict[str, Any]]) -> list[dict[str, Any]
                     "active": is_active,
                     "backend": device.get("backend") or device.get("provider") or "spotify_direct",
                     "provider": device.get("provider") or device.get("source") or "spotify",
-                    "reason": "Backend-uitvoer wijzigen vanuit Ask DJ.",
                 }.items()
                 if value not in ("", None)
             }
@@ -9801,15 +9869,17 @@ async def _realize_dialogue_plan(hass, runtime, payload, text, response, plan):
 
 
 async def _dialogue_choice_response(hass, runtime, payload, text, *, index=None):
-    from .dialogue import current_turn, choice_index, explicit_play, play_selected, references_topic, DialogueError, valid_uri
+    from .dialogue import current_turn, choice_index, explicit_play, explicit_activate, play_selected, references_topic, DialogueError, valid_uri
     turn = current_turn.get()
     if turn is None:
         return None
     value = payload.get("choice_action")
     chosen = choice_index(text) if index is None else index
     version_match = re.fullmatch(r"(?:(?:de|die|the|la|le|el|speel|play|joue|spiel|pon)\s+)*(live|acoustic|akoestische|akustische|acoustique|acústica)(?:\s*(?:versie|version|versión|one))?", text.casefold().strip(" .!?"))
-    play_reference = play_selected(text)
-    if chosen is None and value is None and version_match is None and not play_reference:
+    play_reference = play_selected(text) and not (
+        _is_current_album_play_request(text) and turn.frame.result_set is None)
+    activate_reference = explicit_activate(text) and (references_topic(text) or text.casefold().strip(" .!?") in {"activate", "activeer", "aktiviere", "active", "activa"})
+    if chosen is None and value is None and version_match is None and not play_reference and not activate_reference:
         shown = turn.frame.result_set
         if (shown and turn.frame.chosen_action_id and not turn.reset_topic and not turn.source_context
             and references_topic(text)):
@@ -9830,6 +9900,8 @@ async def _dialogue_choice_response(hass, runtime, payload, text, *, index=None)
                 "playback_actions": [], "intent": {"intent": "selected_result_clarification"}}
         return None
     shown = turn.frame.result_set
+    if shown is None and activate_reference:
+        raise DialogueError("choice_expired")
     if shown is None and play_reference:
         labels = {"en":"Which shown result should I play? Please search or choose a result first.",
                   "nl":"Welk getoond resultaat wil je afspelen? Zoek of kies eerst een resultaat.",
@@ -9838,7 +9910,7 @@ async def _dialogue_choice_response(hass, runtime, payload, text, *, index=None)
                   "es":"¿Qué resultado mostrado quieres reproducir? Busca o elige un resultado primero."}
         reply = labels[turn.style.get("language", "en")]
         return {"success":True,"text":reply,"dj_text":reply,"action":"none",
-                "intent":{"intent":"clarification_needed"},"playback_actions":[]}
+                "intent":{"category":"informational", "intent":"clarification_needed"},"playback_actions":[]}
     if shown is None or turn.history.dialogue.clock() >= shown["deadline"]:
         raise DialogueError("choice_expired")
     context = payload.get("conversation_context") or {}
@@ -9846,10 +9918,10 @@ async def _dialogue_choice_response(hass, runtime, payload, text, *, index=None)
     if expected and expected != shown["result_set_id"]:
         raise DialogueError("choice_changed")
     if value is not None:
-        if not isinstance(value, dict) or set(value) != {"result_set_id", "action_id", "operation"} or value.get("operation") not in {"select", "play"}:
+        if not isinstance(value, dict) or set(value) != {"result_set_id", "action_id", "operation"} or value.get("operation") not in {"select", "play", "activate"}:
             raise DialogueError("invalid_choice_action", 400)
         chosen = next((i for i, a in enumerate(shown["items"]) if a["action_id"] == value.get("action_id")), None)
-    if play_reference and chosen is None and value is None:
+    if (play_reference or activate_reference) and chosen is None and value is None:
         chosen = next((i for i, a in enumerate(shown["items"]) if a["action_id"] == turn.frame.chosen_action_id), None)
         if chosen is None:
             if len(shown["items"]) != 1:
@@ -9864,7 +9936,8 @@ async def _dialogue_choice_response(hass, runtime, payload, text, *, index=None)
     if chosen is None or not 0 <= chosen < len(shown["items"]):
         raise DialogueError("choice_unavailable")
     action = shown["items"][chosen]
-    if shown["generation"] != turn.generation or not valid_uri(action.get("uri") or action.get("context_uri")):
+    output = action.get("kind") == "output" and bool(action.get("device_id"))
+    if shown["generation"] != turn.generation or (not output and not valid_uri(action.get("uri") or action.get("context_uri"))):
         raise DialogueError("choice_changed")
     # Bind authorization to the exact offered set through adapter token/receipt awaits.
     action_identity = dict(action)
@@ -9881,10 +9954,25 @@ async def _dialogue_choice_response(hass, runtime, payload, text, *, index=None)
             raise DialogueError("choice_changed")
     turn.effect_validators.append(validate_choice)
     await turn.guard()
-    if explicit_play(text) or (isinstance(value, dict) and value["operation"] == "play"):
+    activate = explicit_activate(text) or (isinstance(value, dict) and value["operation"] == "activate")
+    play = explicit_play(text) or (isinstance(value, dict) and value["operation"] == "play")
+    no_play = re.search(r"\b(?:without (?:starting |resuming )?(?:playback|playing)|zonder (?:afspelen|te spelen|muziek te starten)|ohne (?:wiedergabe|abzuspielen)|sans (?:lancer|reprendre|jouer)|sin (?:reproducir|iniciar))\b", text.casefold())
+    if play and (_nonexecuting_speech_act(text) or no_play):
+        raise DialogueError("playback_effect_not_authorized", 403)
+    if output and (activate or play):
+        return await _activate_dialogue_output(hass, runtime, payload, action, turn, play=play)
+    if activate and not output:
+        raise DialogueError("invalid_choice_action", 400)
+    if play:
+        from .dialogue import EffectGrant, effect_media
+        turn.effect_grants = (EffectGrant(frozenset({"play"}), "validated_result_play", media=effect_media(action)),)
         from ..http import _handle_ask_dj_play_recommendation
         result = await _handle_ask_dj_play_recommendation(hass, runtime, action, payload)
         await turn.guard()
+        if result.get("action") == "select_output":
+            # A new output offer needs its own frozen identity, not the old
+            # media selection marker that would suppress result-set admission.
+            return result
         return {**result, "selected_action_id": action["action_id"]}
     labels = {"en": "Selected; playback is unchanged.", "nl": "Geselecteerd; afspelen is niet gewijzigd.",
               "de": "Ausgewählt; die Wiedergabe bleibt unverändert.", "fr": "Sélectionné ; la lecture reste inchangée.",
@@ -9892,6 +9980,58 @@ async def _dialogue_choice_response(hass, runtime, payload, text, *, index=None)
     language = turn.style.get("language", "en")
     return {"success": True, "text": labels[language], "dj_text": labels[language],
             "selected_action_id": action["action_id"], "playback_actions": [action], "items": [action]}
+
+
+async def _activate_dialogue_output(hass, runtime, payload, action, turn, *, play=False):
+    from .dialogue import EffectGrant, effect_media, DialogueError
+    # Revalidate the exact ID using the same existing backend inventory.
+    inventory = await run_music_command(hass, runtime, "devices")
+    devices = inventory.get("devices", []) if isinstance(inventory, dict) else []
+    if not any(d.get("id") == action["device_id"] and not d.get("is_restricted") and not d.get("cached") for d in devices if isinstance(d, dict)):
+        raise DialogueError("choice_unavailable")
+    await turn.guard()
+    output_grant = EffectGrant(frozenset({"output"}), "validated_output_activation", output_id=action["device_id"])
+    compound = action.get("command")
+    if play and compound == "ask_dj_play_recommendation_on_output":
+        recommendation = (action.get("value") or {}).get("recommendation")
+        if not isinstance(recommendation, dict) or not effect_media(recommendation):
+            raise DialogueError("invalid_choice_action", 400)
+        turn.play_output_id = action["device_id"]
+        turn.effect_grants = (output_grant, EffectGrant(frozenset({"play"}), "validated_output_result_play", media=effect_media(recommendation), output_id=action["device_id"]))
+        from ..http import _handle_ask_dj_play_recommendation_on_output
+        result = await _handle_ask_dj_play_recommendation_on_output(hass, runtime, action["value"], payload)
+        await turn.guard()
+        return {**result, "selected_action_id": action["action_id"]}
+    if play and compound == "ask_dj_play_request_on_output":
+        original = (action.get("value") or {}).get("request") or {}
+        original_text = str(original.get("text") or "")
+        from .dialogue import request_effect_grants
+        grants = request_effect_grants(original_text, classify_ask_dj(original_text))
+        if not grants or any(g.families != frozenset({"play"}) for g in grants):
+            raise DialogueError("invalid_choice_action", 400)
+        turn.play_output_id = action["device_id"]
+        turn.effect_grants = (output_grant, *(EffectGrant(g.families, g.origin, g.media, action["device_id"]) for g in grants))
+        from ..http import _handle_ask_dj_play_request_on_output
+        turn.resolving_output_request = True
+        try:
+            result = await _handle_ask_dj_play_request_on_output(hass, runtime, action["value"], payload)
+        finally:
+            turn.resolving_output_request = False
+        await turn.guard()
+        return {**result, "selected_action_id": action["action_id"]}
+    turn.effect_grants = (output_grant,)
+    result = await run_music_command(hass, runtime, "set_output", action["device_id"], play=False)
+    if failure := _failed_backend_action(result):
+        return failure
+    language = turn.style.get("language", "en")
+    text = {"en": "Output transfer requested; playback state is preserved.", "nl": "Uitvoerwissel aangevraagd; de afspeeltoestand blijft behouden.",
+            "de": "Ausgabewechsel angefordert; der Wiedergabestatus bleibt erhalten.", "fr": "Changement de sortie demandé ; l’état de lecture est conservé.",
+            "es": "Cambio de salida solicitado; se conserva el estado de reproducción."}[language]
+    playback = result.get("playback") or {}
+    confirmed = ((playback.get("device") or {}).get("id") or playback.get("device_id")) == action["device_id"]
+    return {"success": True, "text": text, "dj_text": text, "selected_action_id": action["action_id"], "playback": playback,
+            "action_outcome": {"state": "dispatched", "readback_confirmed": confirmed}, "playback_actions": [], "items": [],
+            **({"playback_projection_receipt": result["playback_projection_receipt"]} if "playback_projection_receipt" in result else {})}
 
 
 async def _execute_dialogue_command(hass, runtime, payload, action_request, *, user_id=None):
@@ -9909,10 +10049,47 @@ async def _execute_dialogue_command(hass, runtime, payload, action_request, *, u
                "ask_dj_followup_response": _handle_ask_dj_followup_response}.get(command)
     if handler is None:
         raise DialogueError("unsupported_dialogue_action", 400)
+    if command in {"ask_dj_play_recommendation_on_output", "ask_dj_play_request_on_output"}:
+        if not isinstance(value, dict):
+            raise DialogueError("invalid_choice_action", 400)
+        from .dialogue import effect_media
+        shown = turn.frame.result_set
+        output_id = value.get("output_id") or value.get("device_id")
+        def matches_output(action):
+            if action.get("command") != command or action.get("device_id") != output_id:
+                return False
+            frozen = action.get("value") or {}
+            if command == "ask_dj_play_recommendation_on_output":
+                media = effect_media(frozen.get("recommendation"))
+                return bool(media) and media == effect_media(value.get("recommendation"))
+            return frozen.get("request") == value.get("request")
+        matches = [a for a in (shown or {}).get("items", []) if matches_output(a)]
+        if len(matches) != 1:
+            raise DialogueError("choice_expired")
+        return await _dialogue_choice_response(hass, runtime, {**payload, "choice_action": {
+            "result_set_id": shown["result_set_id"], "action_id": matches[0]["action_id"], "operation": "play"}}, str(payload.get("text") or "play"))
     if command == "ask_dj_play_recommendation" and isinstance(value, dict) and value.get("action_id"):
         return await _dialogue_choice_response(hass, runtime,
             {**payload, "choice_action": {"result_set_id": value.get("result_set_id"),
              "action_id": value["action_id"], "operation": "play"}}, "play")
+    if command == "ask_dj_play_recommendation" and isinstance(value, dict):
+        from .dialogue import effect_media, valid_uri
+        from ..http import (_stale_backend_action_error, _normalize_recommendation_value,
+                           _validated_spotify_recommendation, music_backend_metadata)
+        normalized = _normalize_recommendation_value(value)
+        if stale := _stale_backend_action_error(runtime, normalized):
+            return {**stale, **music_backend_metadata(hass, runtime), "_response_status": 400}
+        checked = _validated_spotify_recommendation(normalized)
+        if isinstance(checked, dict):
+            return {**checked, "_response_status": 400}
+        if any(not valid_uri(uri) for uri in effect_media(normalized)):
+            raise DialogueError("invalid_recommendation_uri", 400)
+        shown = turn.frame.result_set
+        matches = [a for a in (shown or {}).get("items", []) if effect_media(a) and effect_media(a) == effect_media(value)]
+        if not matches:
+            raise DialogueError("choice_expired")
+        return await _dialogue_choice_response(hass, runtime, {**payload, "choice_action": {
+            "result_set_id": shown["result_set_id"], "action_id": matches[0]["action_id"], "operation": "play"}}, "play")
     await turn.guard()
     result = await handler(hass, runtime, value, payload, user_id=user_id)
     await turn.guard()

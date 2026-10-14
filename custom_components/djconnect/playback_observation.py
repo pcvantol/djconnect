@@ -49,6 +49,7 @@ class _SpotifyObservationSession:
     forecast_art_task: asyncio.Task[Any] | None = None
     enrichment_media_identity: str = ""
     unavailable: bool = False
+    command_revision: int = 0
 
 
 class PlaybackObservationManager:
@@ -255,6 +256,50 @@ class PlaybackObservationManager:
             getattr(getattr(integration_runtime, "entry", None), "entry_id", "") or ""
         ).strip()
 
+    async def async_accept_command_readback(self, integration_runtime, playback: dict) -> dict | None:
+        """Accept confirmed private-command state through the existing observer owner.
+
+        No provider lookup, enrichment, timer or new Moment is required here.
+        The regular observer retains knowledge/publication and its normal pacing.
+        """
+        from .ask_dj.dialogue import current_turn
+        turn = current_turn.get()
+        if turn is None or not turn.effect_started or not isinstance(playback, dict):
+            return None
+        await turn.guard()
+        owner = turn.scope.removeprefix("profile:")
+        observed = self._spotify_sessions.get(owner)
+        if observed is None:
+            return None
+        manager = session_runtime_manager(self._hass)
+        active = manager.current_active(owner)
+        if active is None or active.session_id != observed.session_id:
+            return None
+        from .forecast_imagery import artist_authority
+        authority = artist_authority(self._hass, integration_runtime, owner_profile_id=owner,
+            expected_source=manager._history_source_contexts.get(observed.session_id, {}))
+        if not authority():
+            return None
+        item = str(playback.get("uri") or "")
+        if item and not item.startswith("spotify:track:"):
+            return None
+        observed.command_revision += 1
+        device = playback.get("device") or {}
+        changed = await manager.async_update_playback_projection(owner_profile_id=owner, session_id=observed.session_id,
+            state="playing" if playback.get("is_playing") else "paused" if item else "idle",
+            media_identity=item, title=str(playback.get("track_name") or playback.get("title") or ""),
+            artist=str(playback.get("artist_name") or playback.get("artist") or ""), album=str(playback.get("album_name") or ""),
+            artwork_url=register_image_proxy_url(self._hass, playback.get("album_image_url", "")),
+            target_name=str(device.get("name") or ""), duration_ms=playback.get("duration_ms"),
+            position_ms=playback.get("progress_ms"), forecast_authority=authority)
+        await turn.guard()
+        current = manager.current_active(owner)
+        if (self._spotify_sessions.get(owner) is not observed or current is None
+            or current.session_id != observed.session_id):
+            return None
+        return {"session_id": observed.session_id, "command_revision": observed.command_revision,
+                "projection_changed": changed, "broadcast_delivery_sequence": current.broadcast.delivery_sequence}
+
     async def _async_poll_spotify(self, observed: _SpotifyObservationSession) -> None:
         """Poll one observer without overlap or provider details in Runtime."""
         if self._spotify_sessions.get(observed.owner_profile_id) is not observed:
@@ -271,6 +316,7 @@ class PlaybackObservationManager:
                 await self.async_stop(observed.owner_profile_id, observed.session_id)
                 return
             previous_media_identity = active.last_accepted_media_identity
+            captured_command_revision = observed.command_revision
             try:
                 result = await SpotifyBackend(
                     self._hass, observed.integration_runtime
@@ -292,7 +338,8 @@ class PlaybackObservationManager:
                 observed.unavailable = True
                 return
             observed.unavailable = False
-            if self._spotify_sessions.get(observed.owner_profile_id) is not observed:
+            if (self._spotify_sessions.get(observed.owner_profile_id) is not observed
+                or observed.command_revision != captured_command_revision):
                 return
             from .forecast_imagery import artist_authority
             forecast_authority = artist_authority(self._hass, observed.integration_runtime, owner_profile_id=observed.owner_profile_id,

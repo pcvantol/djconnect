@@ -7,6 +7,7 @@ permission from displaying or retaining a contribution. No durable profiling.
 from __future__ import annotations
 
 import asyncio
+from collections.abc import Mapping
 from contextvars import ContextVar
 from copy import deepcopy
 from dataclasses import dataclass, field
@@ -14,9 +15,10 @@ import hashlib
 import json
 import re
 import time
+from datetime import datetime
 from typing import Any
 from uuid import uuid4
-from urllib.parse import urlparse
+from urllib.parse import parse_qs, urlparse
 
 MAX_MESSAGES = 12
 MAX_WINDOW_BYTES = 12 * 1024
@@ -34,6 +36,75 @@ class DialogueError(ValueError):
     def __init__(self, code: str, status: int = 409):
         super().__init__(code)
         self.code, self.status = code, status
+
+
+@dataclass(frozen=True)
+class EffectGrant:
+    """Current explicit user authority, separate from Profile/request authority."""
+
+    families: frozenset[str]
+    origin: str
+    media: tuple[str, ...] = ()
+    output_id: str = ""
+
+
+def command_family(command, value=None):
+    if command == "queue" and value is None:
+        return None
+    return {
+        "play": "play", "play_uris": "play", "play_context_at": "play",
+        "play_artist_top_tracks": "play", "start_playlist": "play", "start_liked_proxy": "play",
+        "pause": "pause", "stop": "pause", "next": "next", "previous": "previous",
+        "set_volume": "volume", "volume_delta": "volume", "set_output": "output",
+        "set_shuffle": "shuffle", "set_repeat": "repeat", "seek_relative": "seek",
+        "save_current_track": "favorite", "set_current_track_favorite": "favorite",
+        "toggle_current_track_favorite": "favorite", "create_playlist": "playlist",
+        "queue": "queue", "clear_queue": "queue",
+    }.get(command)
+
+
+def request_effect_grants(text, intent):
+    from . import _execution_request
+    if not _execution_request(text):
+        return ()
+    family = command_family(intent.action)
+    if intent.action == "play_music":
+        family = "play"
+    return (EffectGrant(frozenset({family}), "current_user_request"),) if family else ()
+
+
+def source_scope(profile):
+    prefs = getattr(profile, "preferences", None)
+    return tuple(str(getattr(prefs, field, "") or "") for field in (
+        "default_backend_id", "default_music_account_id", "fallback_playback_zone_id"))
+
+
+@dataclass(frozen=True)
+class CommandEffect:
+    family: str
+    command: str
+    value: Any
+    play: bool | None
+
+
+current_effect: ContextVar[CommandEffect | None] = ContextVar("djconnect_dialogue_effect", default=None)
+
+
+def effect_media(value):
+    """Exact existing playback target, including a context's recording offset."""
+    if isinstance(value, str):
+        return (value,) if valid_uri(value) else ()
+    if isinstance(value, (list, tuple)):
+        return tuple(value)
+    if isinstance(value, dict):
+        if value.get("uris"):
+            return tuple(value["uris"])
+        if value.get("context_uri"):
+            offset = value.get("offset_uri") or (value.get("offset") or {}).get("uri")
+            return (value["context_uri"], offset) if offset else (value["context_uri"],)
+        if value.get("uri"):
+            return (value["uri"],)
+    return ()
 
 
 @dataclass
@@ -86,6 +157,20 @@ class DialogueTurn:
     pending: dict | None = None
     reset_topic: bool = False
     archiveable: bool = True
+    effect_grants: tuple[EffectGrant, ...] = ()
+    resolving_output_request: bool = False
+    play_output_id: str = ""
+
+    def require_effect(self, family, *, media=(), output_id=""):
+        for grant in self.effect_grants:
+            if family not in grant.families:
+                continue
+            if grant.media and tuple(media) != grant.media:
+                continue
+            if grant.output_id and output_id != grant.output_id:
+                continue
+            return
+        raise DialogueError("playback_effect_not_authorized", 403)
 
     async def guard(self) -> None:
         await self.validate()
@@ -113,10 +198,47 @@ class DialogueTurn:
 current_turn: ContextVar[DialogueTurn | None] = ContextVar("djconnect_dialogue_turn", default=None)
 
 
-async def guard_effect_dispatch() -> None:
+async def guard_effect_dispatch(*, method=None, path=None, body=None, service=None, target=None, data=None) -> None:
     """Revalidate after adapter awaits, immediately before each effect dispatch."""
     turn = current_turn.get()
     if turn is not None:
+        await turn.guard()
+        effect = current_effect.get()
+        if effect is None:
+            raise DialogueError("playback_effect_not_authorized", 403)
+        family, media, output_id = effect.family, (), ""
+        if path is not None:
+            parsed = urlparse(path)
+            value = body if isinstance(body, dict) else {}
+            family = {"/me/player/play": "play", "/me/player/pause": "pause",
+                "/me/player/next": "next", "/me/player/previous": "previous",
+                "/me/player/volume": "volume", "/me/player/shuffle": "shuffle",
+                "/me/player/repeat": "repeat", "/me/player/seek": "seek",
+                "/me/player": "output", "/me/player/queue": "queue",
+                "/me/tracks": "favorite"}.get(parsed.path)
+            if re.fullmatch(r"/users/[^/]+/playlists|/playlists/[^/]+(?:/tracks)?", parsed.path):
+                family = "playlist"
+            media = effect_media(value)
+            output_id = str((value.get("device_ids") or [""])[0])
+            if family == "play":
+                output_id = str((parse_qs(parsed.query).get("device_id") or [""])[0])
+            if family == "output" and value.get("play") is True:
+                turn.require_effect("play")
+            if family == "queue":
+                media = tuple(parse_qs(parsed.query).get("uri", []))
+        elif service is not None:
+            family = {"media_play": "play", "play_media": "play", "media_pause": "pause",
+                "media_next_track": "next", "media_previous_track": "previous",
+                "volume_set": "volume", "shuffle_set": "shuffle", "repeat_set": "repeat",
+                "media_seek": "seek"}.get(service)
+            media = (str((data or {}).get("media_content_id")),) if (data or {}).get("media_content_id") else ()
+        if family is None or family != effect.family:
+            raise DialogueError("playback_effect_not_authorized", 403)
+        if effect.family == "play" and effect_media(effect.value) and tuple(media) != effect_media(effect.value):
+            raise DialogueError("playback_effect_not_authorized", 403)
+        if effect.family == "output" and isinstance(effect.value, str) and output_id != effect.value:
+            raise DialogueError("playback_effect_not_authorized", 403)
+        turn.require_effect(family, media=media, output_id=output_id)
         if not turn.effect_started:
             await turn.before_effect()
         else:
@@ -225,8 +347,14 @@ class DialogueState:
             deepcopy(a)
             for a in result.get("playback_actions", [])
             if isinstance(a, dict)
-            and a.get("kind") in {"track", "album", "artist", "playlist"}
-            and valid_uri(a.get("uri") or a.get("context_uri"))
+            and ((a.get("kind") in {"track", "album", "artist", "playlist"}
+                  and valid_uri(a.get("uri") or a.get("context_uri")))
+                 or (a.get("kind") == "track_mix" and isinstance(a.get("uris"), list)
+                     and 0 < len(a["uris"]) <= 50
+                     and all(valid_uri(uri) and uri.startswith("spotify:track:") for uri in a["uris"]))
+                 or (a.get("kind") == "output" and isinstance(a.get("device_id"), str)
+                     and 0 < len(a["device_id"]) <= 128 and a.get("command") in {
+                         "set_output", "ask_dj_play_recommendation_on_output", "ask_dj_play_request_on_output"}))
         ][:MAX_ITEMS]
         if actions and encoded_size(actions) > MAX_RESULT_BYTES:
             frame.result_set = None
@@ -238,6 +366,14 @@ class DialogueState:
             }
             actions = []
         if actions and not turn.fast_control and not result.get("selected_action_id"):
+            remaining = float(CHOICE_SECONDS)
+            for projection in (result.get("queue_observation"), result.get("session_forecast")):
+                if isinstance(projection, dict) and projection.get("valid_until"):
+                    try:
+                        remaining = min(remaining, datetime.fromisoformat(projection["valid_until"]).timestamp() - time.time())
+                    except (TypeError, ValueError):
+                        remaining = 0
+            remaining = max(0, remaining)
             set_id = "choices-" + uuid4().hex
             frozen = []
             for index, action in enumerate(actions):
@@ -248,16 +384,21 @@ class DialogueState:
             frame.result_set = {
                 "result_set_id": set_id,
                 "items": frozen,
-                "deadline": self.clock() + CHOICE_SECONDS,
+                "deadline": self.clock() + remaining,
                 "generation": turn.generation,
                 "session_id": turn.session_id,
             }
             result["result_set"] = {
                 "schema_version": 1,
                 "result_set_id": set_id,
-                "expires_in": CHOICE_SECONDS,
+                "expires_in": remaining,
                 "items": deepcopy(frozen),
             }
+            result["playback_actions"] = deepcopy(frozen)
+            if result.get("items"):
+                by_identity = {a.get("id"): a for a in frozen}
+                result["items"] = [deepcopy(by_identity.get(item.get("id"), item)) if isinstance(item, dict) else item
+                                   for item in result["items"]]
 
 
 def encoded_size(value: Any) -> int:
@@ -306,7 +447,7 @@ def choice_index(text: str) -> int | None:
         )
     ):
         if re.fullmatch(
-            r"(?:(?:speel|play|joue|spiel|reproduce|die|de|the|le|la|el|toch|actually)\s+)*(?:"
+            r"(?:(?:speel|play|joue|spiel|reproduce|activeer|activate|aktiviere|active|activa|die|de|the|le|la|el|toch|actually)\s+)*(?:"
             + names
             + r")(?:\s+(?:one|result|versie|version|af|nu))?",
             value,
@@ -316,12 +457,21 @@ def choice_index(text: str) -> int | None:
 
 
 def explicit_play(text: str) -> bool:
+    from . import _nonexecuting_speech_act
+    if _nonexecuting_speech_act(text):
+        return False
     return bool(
         re.match(
             r"^(?:speel|draai|play|put on|spiel(?:e)?|joue|mets|reproduce(?:lo)?|reprodúcelo|pon(?:lo)?)\b",
             text.casefold().strip(),
         )
     )
+
+
+def explicit_activate(text):
+    from . import _nonexecuting_speech_act
+    return not _nonexecuting_speech_act(text) and bool(re.match(
+        r"^(?:activeer|activate|aktiviere|active|activa|gebruik|use)\b", text.casefold().strip()))
 
 
 def play_selected(text: str) -> bool:
@@ -561,20 +711,24 @@ def qualify_agent(hass, identifier):
     agent = async_get_agent(hass, identifier)
     if (
         agent is None
+        or type(agent).__module__ != "homeassistant.components.openai_conversation.conversation"
         or getattr(agent, "supported_features", ConversationEntityFeature.CONTROL)
         & ConversationEntityFeature.CONTROL
     ):
         raise DialogueError("conversation_agent_scope_unqualified", 503)
-    # HA OpenAI subentry is public configuration metadata; read only these two fields.
+    # Public provider configuration must explicitly establish scope. Empty legacy
+    # alias/default metadata is not evidence of a safe agent or static prompt.
     subentry = getattr(agent, "subentry", None)
-    options = getattr(subentry, "data", {})
+    options = getattr(subentry, "data", None)
+    required = {"llm_hass_api", "store_responses", "web_search", "code_interpreter", "prompt"}
+    if (not isinstance(options, Mapping) or not required.issubset(options)
+        or not isinstance(options["prompt"], str) or not options["prompt"].strip()
+        or len(options["prompt"].encode()) > 8192):
+        raise DialogueError("conversation_agent_scope_unqualified", 503)
     if any(
         options.get(k)
         for k in ("llm_hass_api", "store_responses", "web_search", "code_interpreter")
-    ) or re.search(
-        r"\b(?:states|state_attr|is_state|expand|config_entry_attr)\s*\(",
-        str(options.get("prompt") or ""),
-    ):
+    ) or any(marker in options["prompt"] for marker in ("{{", "{%", "{#")):
         raise DialogueError("conversation_agent_scope_unqualified", 503)
     return agent
 

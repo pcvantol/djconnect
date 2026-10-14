@@ -1234,6 +1234,9 @@ def _conversation_profile_fence(hass, runtime, identity, headers, context):
         raise SessionConversationError("profile_device_mismatch", 403) from exc
     if current_profile.profile_id != context.profile_id or not resolve_profile_privacy_policy(current_profile, {}).allow_personal_read:
         raise SessionConversationError("history_not_allowed", 403)
+    from .ask_dj.dialogue import source_scope
+    if source_scope(current_profile) != source_scope(context.profile):
+        raise SessionConversationError("conversation_context_changed")
 
 
 def _conversation_scope_error(payload, user_id):
@@ -1344,6 +1347,9 @@ async def async_handle_ask_dj_message_payload(
         )
         if current_error is not None or _runtime is not bound_runtime or current.profile_id != context.profile_id:
             raise SessionConversationError("session_context_changed", int(current_status or 409))
+        from .ask_dj.dialogue import source_scope
+        if source_scope(current.profile) != source_scope(context.profile):
+            raise SessionConversationError("conversation_context_changed")
         minimum = resolve_profile_privacy_policy(current.profile, {})
         if not current.privacy_policy.allow_personal_read or not minimum.allow_personal_read:
             raise SessionConversationError("history_not_allowed", 403)

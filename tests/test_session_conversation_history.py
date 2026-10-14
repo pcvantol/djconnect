@@ -764,6 +764,8 @@ class SessionConversationHistoryTest(unittest.IsolatedAsyncioTestCase):
         runtime.update = lambda **updates: runtime.__dict__.update(updates)
 
         async def status_read(*args, **kwargs):
+            if args[2] == "next":
+                return await command(*args, **kwargs)
             return {
                 "success": True,
                 "playback": {"state": "playing", "track_name": "One", "artist": "Metallica"},

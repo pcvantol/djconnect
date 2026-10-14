@@ -3962,7 +3962,7 @@ class VoiceHttpHelperTest(unittest.TestCase):
                         "backend": "spotify_direct",
                         "music_backend_revision": 3,
                         "kind": "track",
-                        "uri": "spotify:track:old",
+                        "uri": "spotify:track:cba06b5736faf67e54b07b",
                         "title": "Old Track",
                     },
                 }
@@ -4076,7 +4076,7 @@ class VoiceHttpHelperTest(unittest.TestCase):
             calls.append((command, value, play))
             return {
                 "success": True,
-                "playback": {"uri":"spotify:track:123", "is_playing":True,
+                "playback": {"uri":"spotify:track:a665a45920422f9d417e48", "is_playing":True,
                     "track_name": "Track Title",
                     "artist": "Artist Name",
                     "album_name": "Album Title",
@@ -4120,14 +4120,26 @@ class VoiceHttpHelperTest(unittest.TestCase):
                     "value": {
                         "title": "Track Title",
                         "subtitle": "Artist Name",
-                        "uri": "spotify:track:123",
-                        "context_uri": "spotify:album:456",
-                        "offset_uri": "spotify:track:123",
+                        "uri": "spotify:track:a665a45920422f9d417e48",
+                        "context_uri": "spotify:album:b3a8e0e1f9ab1bfe3a36f2",
+                        "offset_uri": "spotify:track:a665a45920422f9d417e48",
                         "kind": "track",
                         "music_dna_key": "shared",
                         "reason": "Past bij je profiel.",
                     },
                 }
+
+        from tests.ask_dj_operational_fixture import seed_results_with_service
+        async def offer():
+            data = await Request().json()
+            value = data["value"]
+            if data["command"] in {"ask_dj_play_recommendation_on_output", "ask_dj_play_request_on_output"}:
+                action = {"kind": "output", "id": "output-choice", "title": "Speaker", "device_id": value["output_id"], "command": data["command"], "value": value}
+            else:
+                action = dict(value)
+                action.setdefault("kind", "track")
+            return await seed_results_with_service(self.http, Request.app["hass"], runtime, [action])
+        asyncio.run(offer())
 
         original = self.http.run_music_command
         original_dj_response = self.http.async_send_dj_response_best_effort
@@ -4179,15 +4191,15 @@ class VoiceHttpHelperTest(unittest.TestCase):
                 (
                     "play_context_at",
                     {
-                        "context_uri": "spotify:album:456",
-                        "offset_uri": "spotify:track:123",
+                        "context_uri": "spotify:album:b3a8e0e1f9ab1bfe3a36f2",
+                        "offset_uri": "spotify:track:a665a45920422f9d417e48",
                     },
                     True,
                 ),
                 ("status",None,None)
             ],
         )
-        self.assertEqual(runtime.memory.recorded[0][0]["uri"], "spotify:track:123")
+        self.assertEqual(runtime.memory.recorded[0][0]["uri"], "spotify:track:a665a45920422f9d417e48")
         self.assertEqual(runtime.memory.recorded[0][1]["music_dna_key"], "profile:test-owner")
 
     def test_command_view_play_now_fallback_uses_voice_profile_style(self) -> None:
@@ -4209,7 +4221,7 @@ class VoiceHttpHelperTest(unittest.TestCase):
         async def command_handler(hass, runtime_arg, command, value=None, *, play=None):
             return {
                 "success": True,
-                "playback": {"uri":"spotify:track:played", "context_uri":"spotify:album:456", "is_playing":True,
+                "playback": {"uri":"spotify:track:8000dce068b164c20509fb", "context_uri":"spotify:album:b3a8e0e1f9ab1bfe3a36f2", "is_playing":True,
                     "track_name": "Dream On",
                     "artist": "Scala & Kolacny Brothers",
                     "album_name": "Dream On",
@@ -4246,10 +4258,22 @@ class VoiceHttpHelperTest(unittest.TestCase):
                     "value": {
                         "title": "Dream On",
                         "subtitle": "Scala & Kolacny Brothers",
-                        "uri": "spotify:album:456",
+                        "uri": "spotify:album:b3a8e0e1f9ab1bfe3a36f2",
                         "kind": "album",
                     },
                 }
+
+        from tests.ask_dj_operational_fixture import seed_results_with_service
+        async def offer():
+            data = await Request().json()
+            value = data["value"]
+            if data["command"] in {"ask_dj_play_recommendation_on_output", "ask_dj_play_request_on_output"}:
+                action = {"kind": "output", "id": "output-choice", "title": "Speaker", "device_id": value["output_id"], "command": data["command"], "value": value}
+            else:
+                action = dict(value)
+                action.setdefault("kind", "track")
+            return await seed_results_with_service(self.http, Request.app["hass"], runtime, [action])
+        asyncio.run(offer())
 
         original = self.http.run_music_command
         original_create_audio = self.http.async_create_dj_audio_url
@@ -4295,7 +4319,7 @@ class VoiceHttpHelperTest(unittest.TestCase):
         async def command_handler(hass, runtime_arg, command, value=None, *, play=None):
             return {
                 "success": True,
-                "playback": {"uri":"spotify:track:strong", "context_uri":"spotify:album:456", "is_playing":True,
+                "playback": {"uri":"spotify:track:eda15ce4834ac303532bc6", "context_uri":"spotify:album:b3a8e0e1f9ab1bfe3a36f2", "is_playing":True,
                     "track_name": "Strong",
                     "artist": "London Grammar",
                 },
@@ -4330,10 +4354,22 @@ class VoiceHttpHelperTest(unittest.TestCase):
                     "value": {
                         "title": "Strong",
                         "subtitle": "London Grammar",
-                        "uri": "spotify:track:strong",
+                        "uri": "spotify:track:eda15ce4834ac303532bc6",
                         "kind": "track",
                     },
                 }
+
+        from tests.ask_dj_operational_fixture import seed_results_with_service
+        async def offer():
+            data = await Request().json()
+            value = data["value"]
+            if data["command"] in {"ask_dj_play_recommendation_on_output", "ask_dj_play_request_on_output"}:
+                action = {"kind": "output", "id": "output-choice", "title": "Speaker", "device_id": value["output_id"], "command": data["command"], "value": value}
+            else:
+                action = dict(value)
+                action.setdefault("kind", "track")
+            return await seed_results_with_service(self.http, Request.app["hass"], runtime, [action])
+        asyncio.run(offer())
 
         original = self.http.run_music_command
         original_generate = self.http.generate_dj_response_with_assist
@@ -4399,10 +4435,22 @@ class VoiceHttpHelperTest(unittest.TestCase):
                     "value": {
                         "title": "I Think Of Home",
                         "subtitle": "Snow Patrol",
-                        "uri": "spotify:album:home",
+                        "uri": "spotify:album:4ea140588150773ce3aace",
                         "kind": "album",
                     },
                 }
+
+        from tests.ask_dj_operational_fixture import seed_results_with_service
+        async def offer():
+            data = await Request().json()
+            value = data["value"]
+            if data["command"] in {"ask_dj_play_recommendation_on_output", "ask_dj_play_request_on_output"}:
+                action = {"kind": "output", "id": "output-choice", "title": "Speaker", "device_id": value["output_id"], "command": data["command"], "value": value}
+            else:
+                action = dict(value)
+                action.setdefault("kind", "track")
+            return await seed_results_with_service(self.http, Request.app["hass"], runtime, [action])
+        asyncio.run(offer())
 
         original = self.http.run_music_command
         self.http.run_music_command = command_handler
@@ -4424,7 +4472,7 @@ class VoiceHttpHelperTest(unittest.TestCase):
         first = response["payload"]["playback_actions"][0]
         self.assertEqual(first["command"], "ask_dj_play_recommendation_on_output")
         self.assertEqual(first["value"]["output_id"], "speaker-1")
-        self.assertEqual(first["value"]["recommendation"]["uri"], "spotify:album:home")
+        self.assertEqual(first["value"]["recommendation"]["uri"], "spotify:album:4ea140588150773ce3aace")
         self.assertEqual([call[0] for call in calls], ["play", "devices"])
 
     def test_command_view_plays_recommendation_after_output_choice(self) -> None:
@@ -4446,6 +4494,8 @@ class VoiceHttpHelperTest(unittest.TestCase):
 
         async def command_handler(hass, runtime_arg, command, value=None, *, play=None):
             calls.append((command, value, play))
+            if command == "devices":
+                return {"success": True, "devices": [{"id": "speaker-1", "name": "Woonkamer"}]}
             return {"success": True, "playback": {"track_name": "I Think Of Home"}}
 
         async def dj_response(hass, runtime_arg, text):
@@ -4467,12 +4517,27 @@ class VoiceHttpHelperTest(unittest.TestCase):
                         "output_id": "speaker-1",
                         "recommendation": {
                             "title": "I Think Of Home",
-                            "uri": "spotify:album:home",
+                            "uri": "spotify:album:4ea140588150773ce3aace",
                             "kind": "album",
                         },
                     },
                 }
 
+        from tests.ask_dj_operational_fixture import seed_results_with_service
+        async def offer():
+            data = await Request().json()
+            value = data["value"]
+            if data["command"] in {"ask_dj_play_recommendation_on_output", "ask_dj_play_request_on_output"}:
+                action = {"kind": "output", "id": "output-choice", "title": "Speaker", "device_id": value["output_id"], "command": data["command"], "value": value}
+            else:
+                action = dict(value)
+                action.setdefault("kind", "track")
+            return await seed_results_with_service(self.http, Request.app["hass"], runtime, [action])
+        asyncio.run(offer())
+
+        ask_dj = importlib.import_module("custom_components.djconnect.ask_dj")
+        original_core_command = ask_dj.run_music_command
+        ask_dj.run_music_command = command_handler
         original = self.http.run_music_command
         original_dj_response = self.http.async_send_dj_response_best_effort
         self.http.run_music_command = command_handler
@@ -4482,6 +4547,7 @@ class VoiceHttpHelperTest(unittest.TestCase):
                 asyncio.run(self.http.DJConnectCommandView(None).post(Request()))
             )
         finally:
+            ask_dj.run_music_command = original_core_command
             self.http.run_music_command = original
             self.http.async_send_dj_response_best_effort = original_dj_response
 
@@ -4491,8 +4557,9 @@ class VoiceHttpHelperTest(unittest.TestCase):
         self.assertEqual(
             calls,
             [
+                ("devices", None, None),
                 ("set_output", "speaker-1", False),
-                ("play", "spotify:album:home", True),
+                ("play", "spotify:album:4ea140588150773ce3aace", True),
                 ("status",None,None),
             ],
         )
@@ -4521,6 +4588,8 @@ class VoiceHttpHelperTest(unittest.TestCase):
 
         async def command_handler(hass, runtime_arg, command, value=None, *, play=None):
             calls.append((command, value, play))
+            if command == "devices":
+                return {"success": True, "devices": [{"id": "speaker-1", "name": "Woonkamer"}]}
             if command == "set_output":
                 return {"success": True}
             if command == "status":
@@ -4558,6 +4627,20 @@ class VoiceHttpHelperTest(unittest.TestCase):
                     },
                 }
 
+        from tests.ask_dj_operational_fixture import seed_results_with_service
+        async def offer():
+            data = await Request().json()
+            value = data["value"]
+            if data["command"] in {"ask_dj_play_recommendation_on_output", "ask_dj_play_request_on_output"}:
+                action = {"kind": "output", "id": "output-choice", "title": "Speaker", "device_id": value["output_id"], "command": data["command"], "value": value}
+            else:
+                action = dict(value)
+                action.setdefault("kind", "track")
+            return await seed_results_with_service(self.http, Request.app["hass"], runtime, [action])
+        asyncio.run(offer())
+
+        original_core_command = ask_dj.run_music_command
+        ask_dj.run_music_command = command_handler
         original_command = self.http.run_music_command
         original_process = self.http.run_text_command
         original_ask_dj_process = ask_dj.run_text_command
@@ -4569,6 +4652,7 @@ class VoiceHttpHelperTest(unittest.TestCase):
                 asyncio.run(self.http.DJConnectCommandView(None).post(Request()))
             )
         finally:
+            ask_dj.run_music_command = original_core_command
             self.http.run_music_command = original_command
             self.http.run_text_command = original_process
             ask_dj.run_text_command = original_ask_dj_process
@@ -4580,7 +4664,9 @@ class VoiceHttpHelperTest(unittest.TestCase):
         self.assertEqual(
             calls,
             [
+                ("devices", None, None),
                 ("set_output", "speaker-1", False),
+                ("status", None, None),
                 ("process", "speel london grammar", True),
             ],
         )
@@ -4831,7 +4917,7 @@ class VoiceHttpHelperTest(unittest.TestCase):
 
         async def command_handler(hass, runtime_arg, command, value=None, *, play=None):
             calls.append((command, value, play))
-            return {"success": True, "playback": {"track_name": "One","uri":"spotify:track:one","is_playing":True}}
+            return {"success": True, "playback": {"track_name": "One","uri":"spotify:track:7692c3ad3540bb803c020b","is_playing":True}}
 
         class Request:
             headers = {
@@ -4849,12 +4935,24 @@ class VoiceHttpHelperTest(unittest.TestCase):
                     "play": True,
                     "value": {
                         "title": "DJConnect mix",
-                        "uri": "spotify:track:one",
-                        "uris": ["spotify:track:one", "spotify:track:two"],
+                        "uri": "spotify:track:7692c3ad3540bb803c020b",
+                        "uris": ["spotify:track:7692c3ad3540bb803c020b", "spotify:track:3fc4ccfe745870e2c0d99f"],
                         "kind": "track_mix",
                         "music_dna_key": "shared",
                     },
                 }
+
+        from tests.ask_dj_operational_fixture import seed_results_with_service
+        async def offer():
+            data = await Request().json()
+            value = data["value"]
+            if data["command"] in {"ask_dj_play_recommendation_on_output", "ask_dj_play_request_on_output"}:
+                action = {"kind": "output", "id": "output-choice", "title": "Speaker", "device_id": value["output_id"], "command": data["command"], "value": value}
+            else:
+                action = dict(value)
+                action.setdefault("kind", "track")
+            return await seed_results_with_service(self.http, Request.app["hass"], runtime, [action])
+        asyncio.run(offer())
 
         original = self.http.run_music_command
         self.http.run_music_command = command_handler
@@ -4867,10 +4965,10 @@ class VoiceHttpHelperTest(unittest.TestCase):
 
         self.assertEqual(response["status_code"], 200)
         self.assertTrue(response["payload"]["success"])
-        self.assertEqual(calls, [("play_uris", ["spotify:track:one", "spotify:track:two"], True),("status",None,None)])
+        self.assertEqual(calls, [("play_uris", ["spotify:track:7692c3ad3540bb803c020b", "spotify:track:3fc4ccfe745870e2c0d99f"], True),("status",None,None)])
         self.assertIn("opsla als Spotify playlist", response["payload"]["dj_text"])
         self.assertEqual(
-            runtime.memory.recorded[0][0]["uris"], ["spotify:track:one", "spotify:track:two"]
+            runtime.memory.recorded[0][0]["uris"], ["spotify:track:7692c3ad3540bb803c020b", "spotify:track:3fc4ccfe745870e2c0d99f"]
         )
 
     def test_command_view_playlists_marks_backend_available_when_idle(self) -> None:

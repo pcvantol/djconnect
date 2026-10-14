@@ -139,6 +139,20 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
         entry = next(e for e in entries["entries"] if e.get("moment_id") == moment.moment_id)
         return session, moment, {"session_id": session.session_id, "entry_id": entry["entry_id"]}
 
+    async def external_effect_probe(self, command, value, dispatch):
+        """Use the actual command/grant owner; only the adapter transport is a probe."""
+        from custom_components.djconnect.use_cases import DJConnectUseCases, SpotifyDirectBackend
+
+        class ProviderBoundary:
+            provider = "spotify_direct"
+            capabilities = SpotifyDirectBackend.capabilities
+
+            async def handle_command(self, command, value=None, *, play=None):
+                await dispatch()
+                return {"success": True}
+
+        return await DJConnectUseCases(self.hass, self.runtime, backend=ProviderBoundary()).command(command, value)
+
     async def test_one_service_screen_and_voice_parity_with_rich_results(self):
         calls = []
 
@@ -875,8 +889,10 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
             dispatched = []
 
             async def provider_effect(h, r, action, payload):
-                await self.dialogue.guard_effect_dispatch()
-                dispatched.append(action["uri"])
+                async def send():
+                    await self.dialogue.guard_effect_dispatch(method="PUT", path="/me/player/play", body={"uris": [action["uri"]]})
+                    dispatched.append(action["uri"])
+                await self.external_effect_probe("play", action["uri"], send)
                 return {
                     "success": True,
                     "text": "Provider dispatch fixture",
@@ -1251,14 +1267,11 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
         backend._access_token = token
 
         async def perform(hass, runtime, action, payload):
-            await backend._request_with_token(
-                "PUT",
-                "/me/player/play",
-                json={"uris": [action["uri"]]},
-                expected_empty=True,
-                force_refresh=False,
-                retry_on_unauthorized=False,
-            )
+            async def send():
+                await backend._request_with_token(
+                    "PUT", "/me/player/play", json={"uris": [action["uri"]]},
+                    expected_empty=True, force_refresh=False, retry_on_unauthorized=False)
+            await self.external_effect_probe("play", action["uri"], send)
             return {"success": True, "text": "Unreachable dispatch"}
 
         from custom_components.djconnect import http
@@ -1342,7 +1355,7 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
 
         async def control(*args, **kwargs):
             try:
-                await backend.pause()
+                await self.external_effect_probe("pause", None, backend.pause)
             except RuntimeError:
                 return {
                     "success": True,
@@ -1371,6 +1384,266 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(attempts[0], 2)
         self.assertIsNone(frame.retry)
 
+    async def test_information_negation_quote_and_hypothesis_have_no_effect_authority(self):
+        cases = ("wat was vorige nummer", "wat betekent speel verder", "speel niet de vorige track",
+                 "als ik vorige zeg, wat gebeurt er", "citeer de opdracht speel iets van Nirvana",
+                 "I said previous yesterday", "what does next mean?", "was passiert wenn ich vorheriges sage?",
+                 "explique pourquoi tu joues cette chanson", "no reproduzcas la canción anterior")
+        sent = []
+
+        async def hostile_agent(hass, data, **kwargs):
+            async def dispatch():
+                sent.append("unauthorized")
+            # The untrusted provider attempts a Core music tool despite an info question.
+            await self.external_effect_probe("play", "spotify:track:" + "1" * 22, dispatch)
+            return {"response": {"speech": {"plain": {"speech": "Unreachable."}}}}
+
+        with patch.object(self.pipeline, "_call_conversation_process_transport", hostile_agent):
+            for i, question in enumerate(cases):
+                with self.subTest(question=question):
+                    intent = self.core.classify_ask_dj(question)
+                    self.assertEqual(intent.category, "informational")
+                    self.assertEqual(self.dialogue.request_effect_grants(question, intent), ())
+                    result, status = await self.request(question, identifier=f"hostile-info-{i}")
+                    if i == 0:
+                        self.assertEqual(status, 200, result)
+                        self.assertEqual(result["previous_observation"]["state"], "unknown")
+                        self.assertFalse(result["history_persisted"])
+                    else:
+                        self.assertEqual(status, 403, result)
+                        self.assertEqual(result["error"], "playback_effect_not_authorized")
+        self.assertEqual(sent, [])
+        self.assertEqual((await self.history.async_history("profile:profile-a"))["messages"], [])
+        self.assertEqual(self.history._user_state("profile:profile-a").get("dialogue_effect_receipts", {}), {})
+
+    async def test_agent_scope_requires_explicit_static_known_provider_metadata(self):
+        from types import SimpleNamespace
+        from enum import IntFlag
+        import sys
+
+        class Features(IntFlag):
+            CONTROL = 1
+
+        class Agent:
+            __module__ = "homeassistant.components.openai_conversation.conversation"
+            supported_features = 0
+
+        safe = {"llm_hass_api": [], "store_responses": False, "web_search": False,
+                "code_interpreter": False, "prompt": "Answer only the explicit user data."}
+        agent = Agent()
+        module = SimpleNamespace(async_get_agent=lambda *a: agent, ConversationEntityFeature=Features)
+        with patch.dict(sys.modules, {"homeassistant.components.conversation": module}):
+            h = SimpleNamespace(bus=object())
+            agent.subentry = SimpleNamespace(data=safe)
+            self.assertIs(self.dialogue.qualify_agent(h, "owned-agent"), agent)
+            for data in ({}, {**safe, "prompt": "{{ states.sensor.private.state }}"},
+                         {**safe, "prompt": "{% for s in states %}{{ s }}{% endfor %}"},
+                         {**safe, "llm_hass_api": ["assist"]}, {**safe, "store_responses": True},
+                         {**safe, "web_search": True}, {**safe, "prompt": ""}):
+                with self.subTest(keys=list(data)):
+                    agent.subentry = SimpleNamespace(data=data)
+                    with self.assertRaises(self.dialogue.DialogueError) as error:
+                        self.dialogue.qualify_agent(h, "owned-agent")
+                    self.assertEqual(error.exception.code, "conversation_agent_scope_unqualified")
+
+    async def test_changed_wire_media_cannot_use_a_valid_offered_choice_grant(self):
+        first_uri, other_uri = "spotify:track:" + "1" * 22, "spotify:track:" + "2" * 22
+
+        async def catalog(*args, **kwargs):
+            return {"success": True, "text": "Found one result.", "playback_actions": [
+                {"kind": "track", "uri": first_uri, "title": "Owned fixture result"}]}
+
+        with patch.object(self.handlers.http_helpers, "async_handle_ask_dj", catalog):
+            response, status = await self.request("Find a result", identifier="wire-offer")
+        self.assertEqual(status, 200, response)
+
+        async def hostile_dispatch(h, r, action, payload):
+            async def send():
+                await self.dialogue.guard_effect_dispatch(method="PUT", path="/me/player/play", body={"uris": [other_uri]})
+                raise AssertionError("Different media must not reach the network")
+            return await self.external_effect_probe("play", action["uri"], send)
+
+        from custom_components.djconnect import http
+        with patch.object(http, "_handle_ask_dj_play_recommendation", hostile_dispatch):
+            response, status = await self.request("Play the first", identifier="wire-other-target")
+        self.assertEqual(status, 403, response)
+        self.assertEqual(response["error"], "playback_effect_not_authorized")
+        self.assertEqual(self.history._user_state("profile:profile-a").get("dialogue_effect_receipts", {}), {})
+
+    async def test_typed_previous_next_and_pause_are_not_reparsed_or_cross_granted(self):
+        sent = []
+        reads = []
+
+        async def command(hass, runtime, command, value=None, **kwargs):
+            if command in {"status", "queue"}:
+                reads.append(command)
+                return {"success": True, "queue": [], "playback": {}}
+            async def dispatch():
+                path = "/me/player/" + command
+                method = "POST" if command in {"previous", "next"} else "PUT"
+                await self.dialogue.guard_effect_dispatch(method=method, path=path, body=None)
+                sent.append((method, path))
+            return await self.external_effect_probe(command, value, dispatch)
+
+        with patch.object(self.core, "run_music_command", command):
+            for i, text in enumerate(("vorige", "vorige nummer afspelen", "volgende", "pauze")):
+                result, status = await self.request(text, identifier=f"typed-control-{i}", language="nl")
+                self.assertEqual(status, 200, result)
+                self.assertTrue(result["success"], result)
+        self.assertEqual(sent, [("POST", "/me/player/previous"), ("POST", "/me/player/previous"),
+                                ("POST", "/me/player/next"), ("PUT", "/me/player/pause")])
+        self.assertEqual(self.prompts, [])
+        self.assertNotIn("status", reads)
+
+    async def test_queue_append_request_cannot_replace_playback_in_any_language(self):
+        from custom_components.djconnect.domain.profile import ProfilePreferences
+        await self.handlers.profile_storage(self.hass).async_update_profile("profile-a", preferences=ProfilePreferences(
+            default_backend_id="source-spotify", default_music_account_id="source-account"))
+        uri = "spotify:track:" + "2" * 22
+        calls = []
+        async def command(hass, runtime, name, value=None, **kwargs):
+            calls.append(name)
+            if name == "status":
+                return {"success": True, "playback": {"track_name": "Current", "artist": "Artist", "uri": "spotify:track:" + "1" * 22}}
+            if name == "artist_recommendations":
+                return {"success": True, "tracks": [{"uri": uri, "track_name": "Suggestion", "artist": "Artist"}]}
+            raise AssertionError("Unsupported append must not invoke playback: " + name)
+        for language in ("en", "nl", "de", "fr", "es"):
+            with patch.object(self.core, "run_music_command", command):
+                response, status = await self.request("queue similar tracks", identifier="append-" + language, language=language)
+            self.assertEqual(status, 200, response)
+            self.assertEqual(response["queue_append"], {"state": "unsupported"})
+            self.assertEqual(response["action"], "none")
+            self.assertEqual(response["playback_actions"][0]["uri"], uri)
+        self.assertEqual(set(calls), {"status", "artist_recommendations"})
+        self.assertEqual(self.effects, [])
+        self.assertEqual(self.prompts, [])
+
+    async def test_bounded_mix_uses_exact_original_uri_array_and_expiry(self):
+        from custom_components.djconnect import http
+        uris = ["spotify:track:" + "1" * 22, "spotify:track:" + "2" * 22]
+        async def offer(*args, **kwargs):
+            return {"success": True, "text": "Two fixture recordings.", "playback_actions": [
+                {"kind": "track_mix", "uri": uris[0], "uris": list(uris), "title": "Shown mix"}]}
+        with patch.object(self.handlers.http_helpers, "async_handle_ask_dj", offer):
+            offered, status = await self.request("Find a mix", identifier="mix-offer")
+        self.assertEqual(status, 200, offered)
+        selected = []
+        async def play(hass, runtime, action, payload):
+            async def dispatch():
+                await self.dialogue.guard_effect_dispatch(method="PUT", path="/me/player/play", body={"uris": action["uris"]})
+                selected.append(list(action["uris"]))
+            return await self.external_effect_probe("play_uris", action["uris"], dispatch)
+        with patch.object(http, "_handle_ask_dj_play_recommendation", play):
+            response, status = await self.request("Play the first", identifier="mix-play")
+        self.assertEqual(status, 200, response)
+        self.assertEqual(selected, [uris])
+        self.assertEqual(self.prompts, [])
+        frame = self.history.dialogue.owners["profile:profile-a"]["default"]
+        frame.result_set["deadline"] = 0
+        response, status = await self.request("Play the first", identifier="mix-expired")
+        self.assertEqual(status, 409, response)
+        self.assertEqual(response["error"], "choice_expired")
+        self.assertEqual(selected, [uris])
+
+    async def test_invalid_or_over_limit_mix_cannot_become_a_choice(self):
+        for i, uris in enumerate((["spotify:track:" + "1" * 22] * 51, ["https://example.invalid/not-a-recording"])):
+            async def offer(*args, **kwargs):
+                return {"success": True, "text": "Unqualified mix fixture.", "playback_actions": [
+                    {"kind": "track_mix", "uri": "spotify:track:" + "1" * 22, "uris": uris}]}
+            with patch.object(self.handlers.http_helpers, "async_handle_ask_dj", offer):
+                response, status = await self.request("Find a mix", identifier=f"bad-mix-{i}")
+            self.assertEqual(status, 200, response)
+            self.assertNotIn("result_set", response)
+        self.assertEqual(self.effects, [])
+
+    async def test_effect_family_and_actual_media_target_are_checked_before_receipt(self):
+        async def attack(h, r, p, **kwargs):
+            async def dispatch():
+                # A qualified previous command cannot become artist/media playback.
+                await self.dialogue.guard_effect_dispatch(method="PUT", path="/me/player/play", body={"uris": ["spotify:track:" + "1" * 22]})
+            await self.external_effect_probe("previous", None, dispatch)
+            return {"success": True, "text": "Unreachable"}
+
+        with patch.object(self.handlers.http_helpers, "async_handle_ask_dj", attack):
+            result, status = await self.request("Previous", identifier="wrong-family")
+        self.assertEqual(status, 403, result)
+        self.assertEqual(result["error"], "playback_effect_not_authorized")
+        self.assertEqual(self.history._user_state("profile:profile-a").get("dialogue_effect_receipts", {}), {})
+
+    async def test_queue_states_and_repeated_case_sensitive_items_survive_shared_response(self):
+        from datetime import UTC, datetime, timedelta
+        uri = "spotify:track:" + "a" * 22
+        upper = "spotify:track:" + "A" * 22
+        cases = [({}, "unavailable"), ({"queue": []}, "known_empty"),
+                 ({"queue": [], "queue_state": "unsupported"}, "unsupported"),
+                 ({"queue": [{"uri": uri, "title": "Stored"}], "queue_observed_at": (datetime.now(UTC)-timedelta(minutes=2)).isoformat()}, "stale"),
+                 ({"queue": [None]}, "partial")]
+        calls = []
+        current = {}
+
+        async def read(h, r, command, *args, **kwargs):
+            self.assertEqual(command, "queue", "A queue question must not fetch unrelated tools/status")
+            calls.append(command)
+            return current
+
+        with patch.object(self.core, "run_music_command", read):
+            for i, (value, state) in enumerate(cases):
+                current = value
+                response, status = await self.request("wat staat er in de wachtrij", identifier=f"queue-state-{i}", language="nl")
+                self.assertEqual(status, 200, response)
+                self.assertEqual(response["queue_observation"]["state"], state)
+                self.assertEqual(response["playback_actions"], [])
+                self.assertTrue(response["text"])
+            current = {"queue": [{"uri": uri, "title": "Same title", "artist": "Artist X"},
+                                 {"uri": uri, "title": "Same title", "artist": "Artist X"},
+                                 {"uri": upper, "title": "Same title", "artist": "Artist Y"}]}
+            response, status = await self.request("wat staat er in de wachtrij", identifier="queue-occurrences", language="nl")
+        self.assertEqual(status, 200, response)
+        self.assertEqual(response["queue_observation"]["state"], "present")
+        self.assertEqual([a["uri"] for a in response["items"]], [uri, uri, upper])
+        self.assertEqual(len({a["action_id"] for a in response["result_set"]["items"]}), 3)
+        self.assertEqual(response["assistant_message"]["items"], response["items"])
+        self.assertEqual(len(calls), len(cases)+1)
+        self.assertEqual(self.prompts, [])
+
+    async def test_previous_question_uses_actual_accepted_owner_observations_without_effects(self):
+        session, moment, _ = await self.selected_credit()
+        await self.fixture.manager.async_update_playback_projection(owner_profile_id="profile-a", session_id=session.session_id,
+            state="playing", media_identity="spotify:track:" + "B" * 22, title="Current B", artist="Other performer",
+            duration_ms=300000, position_ms=1000)
+        moments = tuple(session.broadcast.state.dj_moments)
+        for i, context in enumerate((None, {"session_id": session.session_id})):
+            response, status = await self.request("wat was vorige nummer", identifier=f"previous-info-{i}", context=context, language="nl")
+            self.assertEqual(status, 200, response)
+            self.assertEqual(response["previous_observation"]["state"], "observed", response)
+            self.assertIn("Synthetic work", response["text"])
+            self.assertNotIn("Current B", response["text"])
+            self.assertFalse(response["history_persisted"])
+            self.assertEqual(response["playback_actions"], [])
+        self.assertEqual(tuple(session.broadcast.state.dj_moments), moments)
+        self.assertEqual(self.prompts, [])
+        self.assertEqual(self.history._user_state("profile:profile-a").get("dialogue_effect_receipts", {}), {})
+
+    async def test_quarter_hour_uses_existing_projection_and_queue_without_model_or_mutation(self):
+        session, _moment, _ = await self.selected_credit()
+        projection = await self.fixture.manager.async_forecast_snapshot(owner_profile_id="profile-a", session_id=session.session_id)
+        calls = []
+        async def queue(h, r, command, *args, **kwargs):
+            self.assertEqual(command, "queue")
+            calls.append(command)
+            return {"queue": [{"uri": "spotify:track:" + "C" * 22, "title": "Queued C", "artist": "Distinct artist"}]}
+        with patch.object(self.core, "run_music_command", queue):
+            response, status = await self.request("wat komt er komend kwartier aan?", identifier="quarter-hour", language="nl")
+        self.assertEqual(status, 200, response)
+        self.assertEqual(response["session_forecast"], projection)
+        self.assertEqual(response["queue_observation"]["state"], "present")
+        self.assertEqual(response["items"][0]["title"], "Queued C")
+        self.assertFalse(response["history_persisted"])
+        self.assertEqual(calls, ["queue"])
+        self.assertEqual(self.prompts, [])
+        self.assertEqual(self.history._user_state("profile:profile-a").get("dialogue_effect_receipts", {}), {})
+
     async def test_unknown_actual_dispatch_outcome_cannot_be_replayed_by_retry(self):
         from custom_components.djconnect.spotify_backend import SpotifyBackend
 
@@ -1393,7 +1666,7 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
 
         async def control(*args, **kwargs):
             try:
-                await backend.pause()
+                await self.external_effect_probe("pause", None, backend.pause)
             except TimeoutError:
                 return {"success": True, "text": "Outcome unknown.", "error": "playback_failed"}
             raise AssertionError("Lost dispatch cannot be acknowledged")
@@ -1405,6 +1678,131 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(status, 409, retried)
         self.assertEqual(retried["error"], "action_outcome_uncertain")
         self.assertEqual(sent, ["PUT"])
+
+
+    async def test_output_selection_activation(self):
+        devices=[{"id":"output-A","name":"Same room","active":True},{"id":"output-B","name":"Same room","active":False}]
+        calls=[]
+        async def command(h,r,cmd,value=None,**kwargs):
+            if cmd == "devices":
+                return {"devices": devices}
+            self.assertEqual(cmd,"set_output")
+            self.assertFalse(kwargs["play"])
+            async def dispatch():
+                await self.dialogue.guard_effect_dispatch(method="PUT",path="/me/player",body={"device_ids":[value],"play":False})
+                calls.append(value)
+            return await self.external_effect_probe(cmd,value,dispatch)
+        with patch.object(self.core,"run_music_command",command):
+            response,status=await self.request("Which speakers are available?",identifier="outputs")
+            self.assertEqual(status,200,response)
+            self.assertEqual(len(response["result_set"]["items"]),2,response)
+            self.assertEqual(response["items"],response["result_set"]["items"])
+            selected,status=await self.request("the second",identifier="output-select")
+            self.assertEqual(status,200,selected)
+            self.assertEqual(calls,[])
+            response,status=await self.request("activate it",identifier="output-activate")
+            self.assertEqual(status,200,response)
+            self.assertEqual(calls,["output-B"])
+        self.assertEqual(self.prompts,[])
+
+
+    async def test_output_labels_all_languages(self):
+        devices=[{"id":"output-A","name":"Room","active":True},{"id":"output-B","name":"Other"},{"id":"restricted","name":"Restricted","is_restricted":True}]
+        cases=(("en","Which speakers are available?","Active","Activate"),("nl","welke speakers zijn beschikbaar?","Actief","Activeer"),("de","welche lautsprecher sind verfügbar?","Aktiv","Aktivieren"),("fr","quelles enceintes sont disponibles ?","Active","Activer"),("es","qué altavoces están disponibles?","Activo","Activar"))
+        async def command(h,r,cmd,*args,**kwargs):
+            self.assertEqual(cmd,"devices")
+            return {"devices":devices}
+        with patch.object(self.core,"run_music_command",command):
+            for i,(language,question,active,activate) in enumerate(cases):
+                response,status=await self.request(question,identifier=f"outputs-{i}",language=language)
+                self.assertEqual(status,200,response)
+                self.assertEqual([x["label"] for x in response["items"]],[active,activate],response)
+                self.assertEqual(response["items"],response["result_set"]["items"])
+        self.assertEqual(self.prompts,[])
+
+
+    async def test_negated_selected_play_grants_no_effect(self):
+        async def found(*args,**kwargs):
+            return {"success":True,"text":"Provider result","playback_actions":[{"id":"one","kind":"track","title":"One","uri":"spotify:track:"+"A"*22}]}
+        with patch.object(self.handlers.http_helpers,"async_handle_ask_dj",found):
+            response,status=await self.request("Find track",identifier="negation-results")
+        selected,status=await self.request("the first",identifier="negation-select")
+        self.assertEqual(status,200,selected)
+        async def forbidden(*args,**kwargs):
+            raise AssertionError("Negated request must not dispatch")
+        with patch.object(self.core,"run_music_command",forbidden):
+            response,status=await self.request("speel dit niet",identifier="negated-play",language="nl")
+        self.assertEqual(status,200,response)
+        self.assertEqual(self.history._user_state("profile:profile-a").get("dialogue_effect_receipts",{}),{})
+
+
+    async def test_activate_only_does_not_reuse_old_play_intent(self):
+        recommendation={"kind":"track","uri":"spotify:track:"+"A"*22,"title":"A"}
+        async def found(*args,**kwargs):
+            return {"success":True,"text":"Choose output","playback_actions":[{"id":"output-B","kind":"output","command":"ask_dj_play_recommendation_on_output","device_id":"output-B","value":{"output_id":"output-B","recommendation":recommendation}}]}
+        with patch.object(self.handlers.http_helpers,"async_handle_ask_dj",found):
+            offered,status=await self.request("Play A",identifier="compound-offer")
+        calls=[]
+        async def command(h,r,cmd,value=None,**kwargs):
+            if cmd == "devices":
+                return {"devices": [{"id": "output-B", "name": "B"}]}
+            async def dispatch():
+                await self.dialogue.guard_effect_dispatch(method="PUT",path="/me/player",body={"device_ids":[value],"play":False})
+                calls.append("output")
+            return await self.external_effect_probe(cmd,value,dispatch)
+        async def play(h,r,value,payload,**kwargs):
+            calls.append("play")
+            return {"success":True,"text":"Play invoked"}
+        from custom_components.djconnect import http
+        with patch.object(self.core,"run_music_command",command), patch.object(http,"_handle_ask_dj_play_recommendation_on_output",play):
+            result,status=await self.request("Activate it without starting playback",identifier="compound-activate",choice_action={"result_set_id":offered["result_set"]["result_set_id"],"action_id":offered["result_set"]["items"][0]["action_id"],"operation":"activate"})
+        self.assertEqual(status,200,result)
+        self.assertEqual(calls,["output"],result)
+
+
+    async def test_compound_play_binds_actual_transport_to_exact_output(self):
+        from custom_components.djconnect import http
+        from custom_components.djconnect.spotify_backend import SpotifyBackend
+        recommendation = {"kind": "track", "uri": "spotify:track:" + "A" * 22}
+        async def found(*args, **kwargs):
+            return {"success": True, "text": "Choose output", "playback_actions": [{
+                "id": "output-B", "kind": "output", "command": "ask_dj_play_recommendation_on_output",
+                "device_id": "output-B", "value": {"output_id": "output-B", "recommendation": recommendation}}]}
+        with patch.object(self.handlers.http_helpers, "async_handle_ask_dj", found):
+            offered, status = await self.request("Play A", identifier="bound-output-offer")
+        self.assertEqual(status, 200, offered)
+        backend = object.__new__(SpotifyBackend)
+        backend.hass, backend.runtime = self.hass, self.runtime
+        async def token(**kwargs):
+            return "SYNTHETIC_FIXTURE_TOKEN"
+        backend._access_token = token
+        sent = []
+        class Response:
+            status = 204
+            async def __aenter__(self):
+                return self
+            async def __aexit__(self, *args):
+                return False
+        class Transport:
+            def request(self, method, url, **kwargs):
+                sent.append((method, url, kwargs.get("json")))
+                return Response()
+        backend.session = Transport()
+        async def devices(h, r, cmd, *args, **kwargs):
+            self.assertEqual(cmd, "devices")
+            return {"devices": [{"id": "output-B", "name": "B"}]}
+        async def compound(h, r, value, payload, **kwargs):
+            async def send():
+                await backend.play(recommendation["uri"])
+            return await self.external_effect_probe("play", recommendation["uri"], send)
+        with patch.object(self.core, "run_music_command", devices), patch.object(http, "_handle_ask_dj_play_recommendation_on_output", compound):
+            response, status = await self.request("play", identifier="bound-output-play", choice_action={
+                "result_set_id": offered["result_set"]["result_set_id"],
+                "action_id": offered["result_set"]["items"][0]["action_id"], "operation": "play"})
+        self.assertEqual(status, 200, response)
+        self.assertEqual(len(sent), 1)
+        self.assertTrue(sent[0][1].endswith("/me/player/play?device_id=output-B"), sent)
+        self.assertEqual(sent[0][2], {"uris": [recommendation["uri"]]})
 
 
 if __name__ == "__main__":

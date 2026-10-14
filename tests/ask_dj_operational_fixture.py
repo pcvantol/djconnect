@@ -47,8 +47,9 @@ async def ask_operational(core, hass, runtime, payload, **kwargs):
     data = {
         **payload,
         "client_message_id": payload.get("client_message_id") or "unit-" + uuid4().hex,
-        "language": payload.get("language")
-        or getattr(getattr(hass, "config", None), "language", "nl"),
+        # Legacy interpretation cases explicitly use Dutch unless overridden;
+        # another suite's installed HA stubs are not this fixture's locale.
+        "language": payload.get("language") or "nl",
     }
     turn = dialogue.DialogueTurn(
         frame,
@@ -61,6 +62,7 @@ async def ask_operational(core, hass, runtime, payload, **kwargs):
         state,
         style=dialogue.style_projection(data),
         fast_control=core.classify_ask_dj(str(data.get("text") or "")).category == "action",
+        effect_grants=dialogue.request_effect_grants(str(data.get("text") or ""), core.classify_ask_dj(str(data.get("text") or ""))),
     )
     token = dialogue.current_turn.set(turn)
     try:
@@ -172,3 +174,27 @@ async def seed_pending_with_service(core_http, hass, runtime):
         )
     if status != 200 or not result.get("success"):
         raise AssertionError(("pending-fixture-rejected", status, result))
+
+
+async def seed_results_with_service(core_http, hass, runtime, actions):
+    """Unit catalog offer with actual shared acceptance/storage, not frame seeding.
+
+    Interpretation output alone is a routing fixture. This does not qualify a
+    provider, model, installed client or hardware.
+    """
+    from unittest.mock import patch
+    from custom_components.djconnect.api_handlers import async_handle_ask_dj_message_payload
+
+    async def catalog(*args, **kwargs):
+        return {"success": True, "text": "Synthetic qualified catalog offer.",
+                "items": deepcopy(actions), "playback_actions": deepcopy(actions)}
+
+    with patch.object(core_http, "async_handle_ask_dj", catalog):
+        response, status = await async_handle_ask_dj_message_payload(hass, {
+            "device_id": runtime.device_status["device_id"], "client_type": "ios",
+            "client_message_id": "offer-" + uuid4().hex, "text": "Find fixture choices",
+            "audio_response": "never", "language": "nl",
+        }, headers={"Authorization": "Bearer " + runtime.device_token})
+    if status != 200 or not response.get("result_set", {}).get("items"):
+        raise AssertionError(("catalog-fixture-rejected", status, response.get("error")))
+    return response

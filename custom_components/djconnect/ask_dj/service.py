@@ -11,6 +11,8 @@ from uuid import NAMESPACE_URL, uuid5
 from .dialogue import (
     DialogueError, DialogueTurn, current_turn, model_source, references_topic,
     style_projection, explicit_quote, explicit_subject,
+    request_effect_grants,
+    source_scope,
 )
 from ..session_conversation import (
     SessionConversationError, history_question, query_service, async_history_grant_revision,
@@ -122,7 +124,8 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
         # Body archiveability is per turn. A live reference and its next question
         # share the same operational rights epoch, even without another chip.
         frame = history_manager.dialogue.frame(scope, thread,
-            scope_revision + ":" + grant + ":" + str(payload.get("privacy_mode") or "default"))
+            scope_revision + ":" + grant + ":" + hashlib.sha256(json.dumps(source_scope(profile)).encode()).hexdigest()
+            + ":" + str(payload.get("privacy_mode") or "default"))
         future, reserved = history_manager.dialogue.reserve(frame, client_id, digest, fast)
         if not reserved:
             return deepcopy(await asyncio.shield(future))
@@ -206,6 +209,7 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
                             style=style_projection(payload, active, profile), session_id=session_id,
                             source_context=model_source(selected), dependencies=dependencies, fast_control=fast, reset_topic=reset_topic,
                             archiveable=persist_history)
+        turn.effect_grants = request_effect_grants(text, intent)
         token = current_turn.set(turn)
         saved = await history_manager.async_saved_exchange(scope, client_id) if persist_history else None
         if saved:
@@ -221,6 +225,12 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
             playback = await query().async_find_playback(profile_id, artist=artist) if artist else None
             result = await delegate(payload, scope, selected, playback)
             await turn.guard()
+            if result.pop("_private_current_context", False):
+                # Live mutable intent and unqualified catalog retention are not
+                # promoted into the permanent conversation/Session archive.
+                persist_history = False
+                turn.archiveable = False
+                turn.reset_topic = True
             if not result.get("success"):
                 frame.retry = {"text": text, "uncertain": turn.effect_started}
                 future.set_result(deepcopy(result))

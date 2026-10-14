@@ -386,6 +386,11 @@ class DevOnboardingScriptTests(unittest.TestCase):
 
     def test_macos_host_bootstrap_manifest_version_gate_fails_closed_for_apply(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
+            # This negative version test owns its fixture root. A real host
+            # admission is a separate operation; do not traverse another
+            # writer's active Apple build output just to reject version 9.
+            fixture_root = Path(temporary_directory) / "github-fixture"
+            fixture_root.mkdir()
             incompatible_manifest = Path(temporary_directory) / "desired-state.yml"
             incompatible_manifest.write_text(
                 MACOS_DEVELOPMENT_HOST_DESIRED_STATE.read_text(encoding="utf-8").replace(
@@ -395,20 +400,22 @@ class DevOnboardingScriptTests(unittest.TestCase):
                 encoding="utf-8",
             )
             verify = subprocess.run(
-                [str(HOST_BOOTSTRAP_SCRIPT), "--verify", "--desired-state", str(incompatible_manifest)],
+                [str(HOST_BOOTSTRAP_SCRIPT), "--verify", "--github-root", str(fixture_root), "--desired-state", str(incompatible_manifest)],
                 cwd=ROOT,
                 text=True,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
                 check=False,
+                timeout=60,
             )
             apply = subprocess.run(
-                [str(HOST_BOOTSTRAP_SCRIPT), "--dry-run", "--desired-state", str(incompatible_manifest)],
+                [str(HOST_BOOTSTRAP_SCRIPT), "--dry-run", "--github-root", str(fixture_root), "--desired-state", str(incompatible_manifest)],
                 cwd=ROOT,
                 text=True,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
                 check=False,
+                timeout=60,
             )
 
         self.assertNotEqual(verify.returncode, 0, verify.stdout)

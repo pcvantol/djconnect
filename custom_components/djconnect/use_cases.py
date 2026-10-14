@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from copy import deepcopy
 from dataclasses import dataclass, field
 from enum import StrEnum
 from typing import Any, Protocol
@@ -404,7 +405,7 @@ class MusicAssistantBackend:
             raise SpotifyBackendError("Home Assistant media_player services are unavailable")
         from .ask_dj.dialogue import guard_effect_dispatch
 
-        await guard_effect_dispatch()
+        await guard_effect_dispatch(service=service, target=entity_id, data=data)
         await caller(
             "media_player",
             service,
@@ -485,7 +486,25 @@ class DJConnectUseCases:
         normalized = normalize_music_command(command)
         if not isinstance(self.backend, ManualMusicBackend):
             self._ensure_capability(normalized)
-        result = await self.backend.handle_command(normalized, value, play=play)
+        from .ask_dj.dialogue import current_turn, current_effect, command_family, CommandEffect, DialogueError
+        turn = current_turn.get()
+        family = command_family(normalized, value)
+        token = None
+        if turn is not None and family:
+            await turn.guard()
+            if not any(family in grant.families for grant in turn.effect_grants):
+                raise DialogueError("playback_effect_not_authorized", 403)
+            token = current_effect.set(CommandEffect(family, normalized, deepcopy(value), play))
+        try:
+            result = await self.backend.handle_command(normalized, value, play=play)
+        finally:
+            if token is not None:
+                current_effect.reset(token)
+        if turn is not None and family and isinstance(result, dict) and result.get("success") is not False:
+            from .playback_observation import playback_observation_manager
+            projection = await playback_observation_manager(self.hass).async_accept_command_readback(self.runtime, result.get("playback"))
+            if projection:
+                result["playback_projection_receipt"] = projection
         return self._normalize_result(result)
 
     async def play_music(self, value: Any = None) -> dict[str, Any]:

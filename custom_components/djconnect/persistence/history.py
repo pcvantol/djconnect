@@ -133,18 +133,19 @@ class HistoricalProjectionRepository(PersistenceRepository):
         limit: int = 251,
         before: int | None = None,
         descending: bool = False,
+        kind: str = "",
     ) -> list[dict]:
         def read(tx):
             # Both query shapes are fixed SQL; all cursor/owner/bound values bind as data.
             query = (
                 "SELECT entry_id,session_id,entry_order,kind,reference_id,body,occurred_at,"
                 "retained_until,visibility,revoked_at FROM djconnect_session_entries "
-                "WHERE owner_profile_id=? AND session_id=? AND entry_order>? AND entry_order<? "
+                "WHERE owner_profile_id=? AND session_id=? AND entry_order>? AND entry_order<? AND (?='' OR kind=?) "
                 "ORDER BY entry_order DESC LIMIT ?"
                 if descending
                 else "SELECT entry_id,session_id,entry_order,kind,reference_id,body,occurred_at,"
                 "retained_until,visibility,revoked_at FROM djconnect_session_entries "
-                "WHERE owner_profile_id=? AND session_id=? AND entry_order>? AND entry_order<? "
+                "WHERE owner_profile_id=? AND session_id=? AND entry_order>? AND entry_order<? AND (?='' OR kind=?) "
                 "ORDER BY entry_order ASC LIMIT ?"
             )
             rows = tx.fetchall(
@@ -154,6 +155,8 @@ class HistoricalProjectionRepository(PersistenceRepository):
                     session_id,
                     after,
                     before if before is not None else 9223372036854775807,
+                    kind,
+                    kind,
                     min(251, limit),
                 ),
             )

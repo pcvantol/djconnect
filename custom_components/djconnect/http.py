@@ -1898,7 +1898,9 @@ async def _handle_ask_dj_play_recommendation_on_output(
             "message": "Ik weet niet welke aanbeveling ik moet afspelen.",
         }
     try:
-        await run_music_command(hass, runtime, "set_output", output_id, play=False)
+        transfer = await run_music_command(hass, runtime, "set_output", output_id, play=False)
+        if isinstance(transfer, dict) and transfer.get("success") is False:
+            return transfer
     except SpotifyBackendError as exc:
         return {
             "success": False,
@@ -1944,7 +1946,9 @@ async def _handle_ask_dj_play_request_on_output(
             "message": "Ik weet niet welk muziekverzoek ik moet starten.",
         }
     try:
-        await run_music_command(hass, runtime, "set_output", output_id, play=False)
+        transfer = await run_music_command(hass, runtime, "set_output", output_id, play=False)
+        if isinstance(transfer, dict) and transfer.get("success") is False:
+            return transfer
     except SpotifyBackendError as exc:
         return {
             "success": False,
@@ -2147,6 +2151,10 @@ async def _handle_ask_dj_followup_response(
         }
         await _append_followup_history(hass, runtime, request_payload, result, user_id=user_id)
         return result
+    if turn is not None:
+        from .ask_dj.dialogue import EffectGrant, effect_media
+        await turn.guard()
+        turn.effect_grants = (EffectGrant(frozenset({"play"}), "validated_pending_yes", media=effect_media(proposed_payload)),)
     result = await _handle_ask_dj_play_recommendation(
         hass,
         runtime,

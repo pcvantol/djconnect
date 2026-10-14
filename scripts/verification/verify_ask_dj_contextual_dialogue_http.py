@@ -45,7 +45,6 @@ ROOT = Path(os.environ.get("DJC_SOURCE_ROOT", "/candidate"))
 sys.path.insert(0, str(ROOT))
 from custom_components.djconnect import DJConnectRuntime, register_http_views
 from custom_components.djconnect.ask_dj_history import AskDJHistoryManager
-from custom_components.djconnect.ask_dj.dialogue import guard_effect_dispatch
 from custom_components.djconnect.domain.backend import BackendProvider
 from custom_components.djconnect.domain.music_account import MusicAccountKind
 from custom_components.djconnect.domain.storage import ProfilePlatformStorage
@@ -72,8 +71,8 @@ def configured_entry(identifier, domain, data, subentries=None):
         discovery_keys=MappingProxyType({}),
         source="user",
         unique_id=identifier,
-        version=1,
-        minor_version=1,
+        version=2 if domain == "openai_conversation" else 1,
+        minor_version=7 if domain == "openai_conversation" else 1,
         subentries_data=subentries,
     )
 
@@ -101,7 +100,10 @@ async def main():
         def emit(self, record):
             import traceback
 
-            for value in record.args if isinstance(record.args, tuple) else ():
+            values = record.args if isinstance(record.args, tuple) else ()
+            if isinstance(sys.exc_info()[1], Exception):
+                values = (*values, sys.exc_info()[1])
+            for value in values:
                 if isinstance(value, Exception):
                     failures.append(
                         {
@@ -122,6 +124,7 @@ async def main():
     original_create = api.responses.create
 
     async def measured_create(**kwargs):
+        assert os.environ.get("DJC_SAFETY_PROBE") not in {"previous", "output"}, "Safety probes must not call a model"
         inputs = json.dumps(kwargs.get("input", []), ensure_ascii=False)
         assert not any(
             value in inputs
@@ -247,6 +250,14 @@ async def main():
             e._async_set_state(h, ConfigEntryState.LOADED, None)
         agent_entry.runtime_data = api
         assert await h.data[conversation.DATA_COMPONENT].async_setup_entry(agent_entry)
+        # A parent-entry alias may select a migrated default subentry instead.
+        registry = entity_registry.async_get(h)
+        model_entity_id = next(e.entity_id for e in registry.entities.values()
+            if e.config_entry_id == agent_entry.entry_id and e.config_subentry_id == "own-model-subentry"
+            and e.domain == "conversation")
+        selected_agent = conversation.async_get_agent(h, model_entity_id)
+        assert selected_agent.subentry.subentry_id == "own-model-subentry"
+        assert selected_agent.subentry.data["prompt"] == "Answer the DJConnect user request using only its explicit data. No tools or HA state."
         from homeassistant.components.assist_pipeline.pipeline import (
             PipelineStore,
             async_setup_pipeline_store,
@@ -261,7 +272,7 @@ async def main():
             "id": "own-dialogue-pipeline",
             "name": "Owned Ask DJ",
             "language": "en",
-            "conversation_engine": "own-model-entry",
+            "conversation_engine": model_entity_id,
             "conversation_language": "en",
             "stt_engine": None,
             "stt_language": None,
@@ -317,6 +328,7 @@ async def main():
             "volume": 40,
             "position_ms": 1000,
             "last_tick": time.monotonic(),
+            "output_id": "own-speaker",
         }
         tracks = [
             {
@@ -353,14 +365,19 @@ async def main():
             force_refresh=False,
             retry_on_unauthorized=True,
         ):
-            provider_calls.append({"method": method, "path": path})
+            provider_calls.append({"method": method, "path": path,
+                                   **({"body": json} if method in {"POST", "PUT", "DELETE"} else {})})
             if state.get("provider_unavailable"):
                 raise ConnectionError("Explicit external provider outage fixture")
             parsed = urlparse(path)
             query = parse_qs(parsed.query)
             if method in {"POST", "PUT", "DELETE"}:
-                await guard_effect_dispatch()
                 if parsed.path == "/me/player/play":
+                    if state.get("no_active_output"):
+                        from custom_components.djconnect.spotify_backend import SpotifyBackendError
+                        raise SpotifyBackendError("No active device")
+                    if query.get("device_id"):
+                        state["output_id"] = query["device_id"][0]
                     uri = (json or {}).get("uris", [None])[0]
                     if uri:
                         state["index"] = next(i for i, t in enumerate(tracks) if t["uri"] == uri)
@@ -373,6 +390,10 @@ async def main():
                     state["playing"] = False
                 if parsed.path == "/me/player/volume":
                     state["volume"] = int(query["volume_percent"][0])
+                if parsed.path == "/me/player":
+                    assert (json or {}).get("play") is False
+                    state["output_id"] = json["device_ids"][0]
+                    state["no_active_output"] = False
                 return {}
             if parsed.path == "/me/player":
                 return {
@@ -385,7 +406,7 @@ async def main():
                         else 0
                     ),
                     "device": {
-                        "id": "own-speaker",
+                        "id": state["output_id"],
                         "name": "Owned fixture speaker",
                         "is_active": True,
                         "volume_percent": state["volume"],
@@ -397,6 +418,10 @@ async def main():
             if parsed.path == "/me/player/queue":
                 return {"queue": []}
             if parsed.path == "/me/player/devices":
+                if state.get("two_outputs"):
+                    return {"devices": [{"id": name, "name": "Same fixture name",
+                        "is_active": name == state["output_id"] and not state.get("no_active_output")}
+                        for name in ("output-A", "output-B") if name not in state.get("offline_outputs", [])]}
                 return {
                     "devices": [
                         {"id": "own-speaker", "name": "Owned fixture speaker", "is_active": True}
@@ -468,8 +493,42 @@ async def main():
                 }
             return {}
 
+        class ProviderResponse:
+            """External HTTP fixture; token waits, grants and dispatch stay real."""
+            headers = {}
+            def __init__(self, method, url, body):
+                parsed = urlparse(url)
+                self.method = method
+                self.path = parsed.path.removeprefix("/v1") + ("?" + parsed.query if parsed.query else "")
+                self.body = body
+            async def __aenter__(self):
+                from custom_components.djconnect.spotify_backend import SpotifyBackendError
+                try:
+                    self.payload = await provider(None, self.method, self.path, json=self.body)
+                    self.status = 204 if self.method in {"POST", "PUT", "DELETE"} else 200
+                except SpotifyBackendError as exc:
+                    self.status, self.payload = 404, {"error": {"message": str(exc)}}
+                return self
+            async def __aexit__(self, *args):
+                return False
+            async def json(self, **kwargs):
+                return self.payload
+            async def text(self):
+                return jsonlib(self.payload)
+            async def read(self):
+                return jsonlib(self.payload).encode()
+
+        class ProviderSession:
+            def request(self, method, url, **kwargs):
+                return ProviderResponse(method, url, kwargs.get("json"))
+
+        async def provider_token(self, **kwargs):
+            # OAuth is an external provider boundary, not device authentication.
+            return "UNUSED_SYNTHETIC_PROVIDER_TOKEN"
+
         with (
-            patch.object(SpotifyBackend, "_request_with_token", provider),
+            patch("custom_components.djconnect.spotify_backend.async_get_clientsession", return_value=ProviderSession()),
+            patch.object(SpotifyBackend, "_access_token", provider_token),
             patch.object(SessionFactsResolver, "_get", source_fixture),
         ):
             async with TestClient(TestServer(h.http.app)) as client:
@@ -555,6 +614,67 @@ async def main():
                         flush=True,
                     )
                     return body
+
+                if os.environ.get("DJC_SAFETY_PROBE") == "previous":
+                    result = await call("ask_dj/message", {"text": "wat was vorige nummer", "client_message_id": "baseline-previous-question", "language": "nl", "audio_response": "never"}, label="baseline-previous-question")
+                    mutations = [c for c in provider_calls if c["method"] in {"POST", "PUT", "DELETE"}]
+                    assert not mutations
+                    assert not model_receipts
+                    assert result.get("success") and not result.get("playback_actions")
+                    assert result.get("previous_observation", {}).get("state") in {"unknown", "unavailable"}
+                    Path("/lab/previous-safety-fixed.json").write_text(json.dumps({
+                        "qualification": "CORE_PAIRED_INFORMATIONAL_PREVIOUS_NO_EFFECT",
+                        "source_hashes": hashes(), "pairing": "ordinary_device_token_minted_persisted",
+                        "request": "wat was vorige nummer", "response": result,
+                        "effects": mutations, "model_calls": model_receipts, "safe_failures": failures,
+                        "provider_boundary": "explicit_external_fixture", "installed": "NOT_RUN",
+                    }, ensure_ascii=False, indent=2) + "\n")
+                    await async_shutdown_persistence(h)
+                    await h.async_stop(force=True)
+                    await api.close()
+                    return
+
+                if os.environ.get("DJC_SAFETY_PROBE") == "output":
+                    state.update(two_outputs=True, output_id="output-A")
+                    offered = await call("ask_dj/message", {"text": "Wissel van speakers", "language": "nl",
+                        "client_message_id": "output-offer", "audio_response": "never"}, label="output-offer")
+                    assert [a["device_id"] for a in offered["result_set"]["items"]] == ["output-A", "output-B"]
+                    assert offered["items"] == offered["playback_actions"]
+                    await call("ask_dj/message", {"text": "de tweede", "client_message_id": "output-select",
+                        "language": "nl", "audio_response": "never"}, label="output-select")
+                    assert not [c for c in provider_calls if c["method"] in {"POST", "PUT", "DELETE"}]
+                    before = state["playing"]
+                    activated = await call("ask_dj/message", {"text": "activeer die", "client_message_id": "output-activate",
+                        "language": "nl", "audio_response": "never"}, label="output-activate")
+                    assert state["output_id"] == "output-B" and state["playing"] is before
+                    assert activated["action_outcome"]["readback_confirmed"] is True
+                    transfers = [c for c in provider_calls if c["method"] == "PUT" and c["path"] == "/me/player"]
+                    assert len(transfers) == 1 and transfers[0]["body"] == {"device_ids": ["output-B"], "play": False}
+                    state["no_active_output"] = True
+                    found = await call("ask_dj/message", {"text": "geef drie nummers van Synthetic performer",
+                        "client_message_id": "output-track-offer", "language": "nl", "audio_response": "never"}, label="output-track-offer")
+                    assert found.get("result_set"), found.get("error")
+                    deferred = await call("ask_dj/message", {"text": "speel de eerste", "client_message_id": "output-needs-choice",
+                        "language": "nl", "audio_response": "never"}, label="output-needs-choice")
+                    assert deferred["action"] == "select_output" and deferred.get("result_set")
+                    output = next(a for a in deferred["result_set"]["items"] if a["device_id"] == "output-B")
+                    played = await call("command", {"command": "ask_dj_play_recommendation_on_output", "value": output["value"],
+                        "client_message_id": "output-compound-play", "audio_response": "never"}, label="output-compound-play")
+                    assert played["success"] and state["output_id"] == "output-B"
+                    plays = [c for c in provider_calls if c["method"] == "PUT" and c["path"].startswith("/me/player/play")]
+                    assert plays[-1]["path"].endswith("device_id=output-B"), plays
+                    state["offline_outputs"] = ["output-B"]
+                    await call("command", {"command": "ask_dj_play_recommendation_on_output", "value": output["value"],
+                        "client_message_id": "output-offline", "audio_response": "never"}, label="output-offline", expected=409)
+                    assert len([c for c in provider_calls if c["method"] == "PUT" and c["path"].startswith("/me/player/play")]) == len(plays)
+                    assert not model_receipts
+                    Path("/lab/output-safety-fixed.json").write_text(json.dumps({"qualification": "REAL_PAIRED_OUTPUT_SELECTION_TRANSFER_EXACT_TARGET",
+                        "source_hashes": hashes(), "pairing": "ordinary_device_token_minted_persisted", "core_transports": receipts,
+                        "provider_calls": provider_calls, "model_calls": model_receipts, "installed": "NOT_RUN"}, ensure_ascii=False, indent=2) + "\n")
+                    await async_shutdown_persistence(h)
+                    await h.async_stop(force=True)
+                    await api.close()
+                    return
 
                 async def start(label):
                     state.update(playing=True, position_ms=1000, last_tick=time.monotonic())
