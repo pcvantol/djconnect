@@ -234,6 +234,10 @@ Play proposal. Explicit Play on a compound result additionally binds the exact
 recording/context and output. Spotify Play carries that output's `device_id`
 at the actual request boundary, including retries; transfer completion alone is
 not proof of request ordering. Recheck a fresh output inventory before dispatch.
+When a Play request has no active output, it offers a new frozen output choice
+instead of silently transferring to a default speaker. The new offer preserves
+the original media/request and receives its own choice identity; an old media
+selection must not suppress admission of that offer.
 Negation, stale/restricted/cached-only outputs, expiry and revoked owner/source
 authority fail closed. Text/voice and existing typed taps share these validators.
 
