@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "finding_id": "DJC-ASKDJ-CURRENT-ARTIST-TEXT-VOICE-REGRESSION-20261014",
-  "worktree_fingerprint": "00b380f93a2539ff5afc274808770a716b8e07311bd41657e8f90750808e7a74",
+  "worktree_fingerprint": "f20fcb119be9937d55e855f9e5e30dc05883dbca3e85d4ec3b7c41868d552042",
   "integration_source_hashes": {
     "custom_components/djconnect/__init__.py": "0fd8a6e0a7602cf4199f5c106965539112cefe8ec36e6f5dd10ddec28861c295",
     "custom_components/djconnect/ai_tools.py": "175ac20dc1ebdb535aaec839b6fc8e8fe012ac3c81e0f0f07e1856b692c9f0c8",
@@ -15,7 +15,7 @@
     "custom_components/djconnect/ask_dj/profile.py": "88843b457ff8374199c650f37ffe8274b2edcb88ab4f7cc6aee1595f6d349530",
     "custom_components/djconnect/ask_dj/recent_history.py": "bdaafde32b1fd64627e7a026497449adf827d70ddf32203b8661dde9965494ed",
     "custom_components/djconnect/ask_dj/responses.py": "66364a9e6cc0de37581adfbee882413a83f5cd5ef01f84fddf6bc4fff3c9df92",
-    "custom_components/djconnect/ask_dj/service.py": "8b8cbb0e572044621f525e945ee20d65ccd87cfd326a0977e68c53a937c4a775",
+    "custom_components/djconnect/ask_dj/service.py": "a1202e6067d452e7f3aba5d5054815718f123c782f9ea5c94c8edc3020115bdf",
     "custom_components/djconnect/ask_dj_history.py": "c6ba551c2c8a01fc5d6755526bde50277ba991335699f3a70d528b271d745b27",
     "custom_components/djconnect/assist_stt.py": "609b5a7ec4c40eda3d87a84d9391256bd930c1dd1c80a5171b03df79c68aa6e5",
     "custom_components/djconnect/ble.py": "2223ccb7fb718e51501e72042588d6920619d05d6b9b83b4a6452edbdf7e389d",
@@ -1267,8 +1267,8 @@
           "thread_id": "default",
           "context": {
             "selected_entry": {
-              "session_id": "session-b94526d2c03c49cba54a1560fae21414",
-              "entry_id": "entry-62241e06ade0536ab0c9493be1e32456"
+              "session_id": "session-597d90499fab4b1890d39cb56cda2a5d",
+              "entry_id": "entry-441e7ffc6e1d5e059fe71b8b5f4268f9"
             }
           },
           "entry_ids": [],
@@ -1363,9 +1363,9 @@
       "status": 200,
       "response": {
         "success": true,
-        "text": "Goedemorgen! Zal ik Major Drop van Above & Beyond voor je aanzetten?",
-        "dj_text": "Goedemorgen! Zal ik Major Drop van Above & Beyond voor je aanzetten?",
-        "message": "Goedemorgen! Zal ik Major Drop van Above & Beyond voor je aanzetten?",
+        "text": "Goedemorgen! Zal ik Synthetic live recording van Synthetic performer voor je aanzetten?",
+        "dj_text": "Goedemorgen! Zal ik Synthetic live recording van Synthetic performer voor je aanzetten?",
+        "message": "Goedemorgen! Zal ik Synthetic live recording van Synthetic performer voor je aanzetten?",
         "images": [],
         "links": [],
         "sources": [
@@ -1412,25 +1412,25 @@
         ],
         "playback_actions": [
           {
-            "id": "spotify:track:0000000000000000000000",
+            "id": "spotify:track:1111111111111111111111",
             "kind": "track",
             "label": "Play Now",
             "button_label": "Play Now",
             "action_style": "play_now",
-            "title": "Major Drop",
-            "subtitle": "Above & Beyond",
+            "title": "Synthetic live recording",
+            "subtitle": "Synthetic performer",
             "reason": "Past bij je recente luisterprofiel.",
             "backend": "spotify_direct",
             "provider": "spotify",
             "music_backend_revision": 0,
             "value": {
-              "uri": "spotify:track:0000000000000000000000",
-              "title": "Major Drop",
-              "subtitle": "Above & Beyond"
+              "uri": "spotify:track:1111111111111111111111",
+              "title": "Synthetic live recording",
+              "subtitle": "Synthetic performer"
             },
-            "uri": "spotify:track:0000000000000000000000",
-            "result_set_id": "choices-887b54346b334e90a9177b25030fb59e",
-            "action_id": "b892983ca93f4d17d82e8f39ab7e6130"
+            "uri": "spotify:track:1111111111111111111111",
+            "result_set_id": "choices-41a835e7e32b45fcad5e018c2bc56899",
+            "action_id": "41ec911a6abba783092983a6fe890445"
           }
         ],
         "error": null,
@@ -1585,18 +1585,18 @@
   "separate_moment_receipt": {
     "published_moments": [
       {
-        "moment_id": "moment-ea51e88fda4e4901a283b49f777a48fe",
+        "moment_id": "moment-62d448b581224b0a8684bd19726f1442",
         "type": "genre"
       }
     ],
     "native_admissions_at_opening": {
       "schema_version": 1,
-      "session_id": "session-b94526d2c03c49cba54a1560fae21414",
+      "session_id": "session-597d90499fab4b1890d39cb56cda2a5d",
       "current_moment_id": null,
       "active_flow_moment_ids": [],
       "admissions": [
         {
-          "moment_id": "moment-ea51e88fda4e4901a283b49f777a48fe",
+          "moment_id": "moment-62d448b581224b0a8684bd19726f1442",
           "qualification": "unqualified",
           "current_display_allowed": false,
           "active_flow_display_allowed": false,
@@ -1607,7 +1607,7 @@
         }
       ],
       "revocation_scope": "session",
-      "revision": "9987796cc1f291819a14301e"
+      "revision": "376ac97a9154e6847ac6a1fa"
     },
     "limits": "Synthetic opening contribution; not proof of intra-track native presentation. Admission flags, not mere publication, govern display."
   },

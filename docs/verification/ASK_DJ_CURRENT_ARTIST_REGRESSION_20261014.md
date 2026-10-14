@@ -148,3 +148,11 @@ stored body. The existing catalog identification/clarification response now uses
 the shared private-current marker; the test verifies both history_persisted=false
 and absence of its assistant body from Store. This is not a new archive grant.
 The7796 candidate is also NO-GO until this changed exact candidate is rereviewed.
+
+Both reviewers rejected54a230b8 because the private marker also reset the frozen
+choice. The extended red/green test now continues through explicit “Play that”:
+no effects during identification, then exactly selected A once while B is current.
+The existing service retains the catalog choice and its original deadline while
+marking the turn/frame nonarchiveable; no catalog text enters model context.
+Other current-playback/Forecast private responses retain their topic reset.
+The final candidate requires fresh exact reviews after this continuity fix.

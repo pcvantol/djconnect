@@ -257,7 +257,10 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
                 # promoted into the permanent conversation/Session archive.
                 persist_history = False
                 turn.archiveable = False
-                turn.reset_topic = True
+                # Display-only selected catalog credits keep the existing bounded
+                # choice/deadline for a later explicit action, without model or
+                # archival rights. Current playback/Forecast still reset topic.
+                turn.reset_topic = turn.reset_topic or result.get("text_source") != "qualified_catalog_result"
             if not result.get("success"):
                 frame.retry = {"text": text, "uncertain": turn.effect_started}
                 future.set_result((deepcopy(result), joined_admission))

@@ -48,6 +48,8 @@ class CurrentArtistIdentificationTest(unittest.IsolatedAsyncioTestCase):
         with patch.object(self.handlers.http_helpers, "async_handle_ask_dj", offer):
             await self.request("Find tracks", identifier="catalog-offer")
         await self.request("the first", identifier="catalog-select")
+        frame = self.history.dialogue.owners["profile:profile-a"]["default"]
+        original_deadline = frame.result_set["deadline"]
         async def provider(*args, **kwargs):
             return {"success": True, "playback": {"uri": "spotify:track:" + "B" * 22,
                 "title": "Other work", "artist": "Other Artist"}}
@@ -60,8 +62,20 @@ class CurrentArtistIdentificationTest(unittest.IsolatedAsyncioTestCase):
         archived = await self.history.async_history("profile:profile-a")
         self.assertNotIn(result["text"], [m.get("text") for m in archived["messages"]])
         self.assertFalse(result["history_persisted"])
+        self.assertEqual(frame.result_set["deadline"], original_deadline)
         self.assertEqual(self.prompts, [])
         self.assertEqual(self.effects, [])
+
+        from custom_components.djconnect import http
+        async def play(h, r, action, payload):
+            async def dispatch():
+                await self.dialogue.guard_effect_dispatch(method="PUT", path="/me/player/play", body={"uris": [action["uri"]]})
+                self.effects.append(action["uri"])
+            return await dialogue_fixtures.SharedDialogueTest.external_effect_probe(self, "play", action["uri"], dispatch)
+        with patch.object(http, "_handle_ask_dj_play_recommendation", play):
+            played, status = await self.request("Play that", identifier="catalog-explicit-play")
+        self.assertEqual(status, 200, played)
+        self.assertEqual(self.effects, ["spotify:track:" + "A" * 22])
 
     async def test_missing_expired_or_cached_context_never_borrows_runtime_cache(self):
         self.runtime.last_playback = {"uri": "spotify:track:" + "A" * 22, "artist": "Old artist", "title": "Old track"}
