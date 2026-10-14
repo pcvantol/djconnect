@@ -179,3 +179,125 @@ async def previous_read(hass, runtime):
                 "as_of": datetime.now(UTC).isoformat(), "references": refs}, "_private_current_context": True,
             "sources": [{"source": "session_playback_observed", "title": entry["playback"].get("provider", "Session history"),
                 "url": entry["playback"].get("source_url", "")} ] if entry else []}
+
+
+def current_artist_question(text: str) -> bool:
+    """Closed identification intent at the common text/STT interpretation boundary."""
+    value = " ".join(text.casefold().strip().strip("¿¡?.! ").split())
+    return value in {
+        "welke artiest is dit", "welke band is dit", "wie is dit", "wie hoor ik nu",
+        "wie zingt dit", "who is this", "which artist is this", "who is this artist",
+        "who am i listening to", "who is singing this", "wer ist das",
+        "welcher künstler ist das", "welche band ist das", "wen höre ich gerade",
+        "qui est cet artiste", "qui est-ce", "qui chante", "quel artiste est-ce",
+        "quién es este artista", "qué artista es este", "quién canta esto",
+    }
+
+
+async def current_artist_read(hass, runtime, selected=None):
+    """Present qualified metadata locally; never treat catalog rights as model rights."""
+    import asyncio
+    import hashlib
+    from . import run_music_command
+    from ..spotify_backend import SpotifyBackendError
+    from ..use_cases import MusicBackendCapabilityError
+
+    turn = current_turn.get()
+    locale = language()
+    unavailable = {
+        "en": "I cannot reliably identify the artist from the authorized music context.",
+        "nl": "Ik kan de artiest niet betrouwbaar vaststellen uit de beschikbare muziekcontext.",
+        "de": "Ich kann den Künstler aus dem verfügbaren Musikkontext nicht zuverlässig bestimmen.",
+        "fr": "Je ne peux pas identifier l’artiste de manière fiable dans le contexte musical disponible.",
+        "es": "No puedo identificar con fiabilidad al artista en el contexto musical disponible.",
+    }
+    identified = {
+        "en": "This is {artist}, with {title}.", "nl": "Dit is {artist}, met {title}.",
+        "de": "Das ist {artist} mit {title}.", "fr": "C’est {artist}, avec {title}.",
+        "es": "Es {artist}, con {title}.",
+    }
+    artist_only = {
+        "en": "This is {artist}.", "nl": "Dit is {artist}.", "de": "Das ist {artist}.",
+        "fr": "C’est {artist}.", "es": "Es {artist}.",
+    }
+
+    def subject(playback):
+        if (not isinstance(playback, dict)
+            or any(playback.get(k) for k in ("cached", "stale", "withdrawn"))
+            or playback.get("state") in {"idle", "unavailable", "unknown", "off"}):
+            return None
+        expiry = playback.get("valid_until") or playback.get("expires_at")
+        if expiry:
+            try:
+                deadline = datetime.fromisoformat(expiry)
+                if deadline.tzinfo is None or deadline.astimezone(UTC) <= datetime.now(UTC):
+                    return None
+            except (TypeError, ValueError):
+                return None
+        identity = playback.get("uri") or playback.get("track_uri") or playback.get("item_id")
+        artist = playback.get("artist") or playback.get("artist_name")
+        title = playback.get("title") or playback.get("track_name") or playback.get("name")
+        if not all(isinstance(v, str) and v.strip() for v in (identity, artist, title)):
+            return None
+        if len(identity) > 2048 or len(artist) > 512 or len(title) > 512:
+            return None
+        return (identity, artist, title)
+
+    async def fresh():
+        if turn:
+            await turn.guard()
+        try:
+            result = await asyncio.wait_for(run_music_command(hass, runtime, "status"), 5)
+        except (SpotifyBackendError, MusicBackendCapabilityError, OSError, TimeoutError):
+            return None
+        if turn:
+            await turn.guard()
+        return subject(result.get("playback")) if isinstance(result, dict) and result.get("success") is not False else None
+
+    answer = None
+    target = None
+    sources = [{"source": "djconnect_authorized_music_context", "kind": "source"}]
+    if selected is not None:
+        # Query/Runtime already qualified this exact selected contribution and its rights.
+        target = subject(selected.get("playback"))
+        if target:
+            answer = identified[locale].format(artist=target[1], title=target[2])
+        else:
+            roles = {"artist", "performer"}
+            if selected.get("moment_type") == "artist" and selected.get("archive_basis") == "cc0_normalized_fields_v1":
+                # Existing qualified Artist facts carry Person/Group entity types.
+                roles.update({"Person", "Group"})
+            artists = [s.get("name") for s in selected.get("dialogue_subjects", [])
+                       if s.get("role") in roles and isinstance(s.get("name"), str)]
+            if len(artists) == 1:
+                answer = artist_only[locale].format(artist=artists[0][:512])
+    else:
+        target = await fresh()
+        if target:
+            if (turn and turn.captured_playback_item_id
+                and hashlib.sha256(target[0].encode()).hexdigest()[:24] != turn.captured_playback_item_id):
+                raise DialogueError("session_context_changed", 409)
+            # No stale cache fallback and no acceptance of a response crossing tracks.
+            confirmed = await fresh()
+            if confirmed is not None and confirmed != target:
+                raise DialogueError("playback_context_changed", 409)
+            if confirmed == target:
+                answer = identified[locale].format(artist=target[1], title=target[2])
+    if answer and target and re.fullmatch(r"spotify:track:[A-Za-z0-9]{22}", target[0]):
+        sources = [{"source": "spotify_playback_context", "title": "Spotify", "kind": "source",
+                    "url": "https://open.spotify.com/track/" + target[0].rsplit(":", 1)[-1]}]
+    elif answer and selected:
+        attribution = selected.get("source_attribution") or {}
+        if isinstance(attribution, dict) and attribution.get("provider") and attribution.get("url"):
+            sources = [{**attribution, "source": attribution["provider"], "title": attribution["provider"], "kind": "source"}]
+        elif isinstance(selected.get("playback"), dict) and selected["playback"].get("provider") == "Spotify":
+            sources = [{"source": "spotify_playback_context", "title": "Spotify", "kind": "source"}]
+            url = selected["playback"].get("source_url", "")
+            if isinstance(url, str) and re.fullmatch(r"https://open\.spotify\.com/track/[A-Za-z0-9]{22}", url):
+                sources[0]["url"] = url
+    if turn:
+        await turn.guard()
+    return {"success": True, "text": answer or unavailable[locale], "dj_text": answer or unavailable[locale],
+            "action": "none", "intent": {"category": "informational", "intent": "current_artist_information"},
+            "images": [], "links": [dict(source) for source in sources if source.get("url")], "sources": sources,
+            "playback_actions": [], "_private_current_context": True}

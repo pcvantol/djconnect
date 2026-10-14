@@ -439,6 +439,21 @@
       "spotify_reauth_done": {
         "title": "OAuth de Spotify correcto",
         "description": "OAuth de Spotify para DJConnect correcto. Puedes cerrar esta ventana; Home Assistant ahora gestiona la reproducción de Spotify."
+      },
+      "profile_platform": {
+        "title": "Gestionar perfiles",
+        "description": "Elige una acción, un perfil y un dispositivo. Se conservan los nombres existentes de perfiles y dispositivos.",
+        "data": {
+          "profile_platform_action": "Acción",
+          "profile_id": "Perfil",
+          "profile_name": "Nombre del perfil",
+          "profile_type": "Tipo de perfil",
+          "profile_privacy_mode": "Modo de privacidad",
+          "device_id": "Dispositivo",
+          "device_name": "Nombre del dispositivo",
+          "client_type": "Tipo de dispositivo",
+          "require_profile": "Perfil obligatorio"
+        }
       }
     },
     "error": {
@@ -700,6 +715,34 @@
         "concise": "Conciso",
         "balanced": "Equilibrado",
         "expressive": "Expresivo"
+      }
+    },
+    "profile_platform_action": {
+      "options": {
+        "add_profile": "Añadir perfil",
+        "edit_profile": "Editar perfil",
+        "delete_profile": "Eliminar perfil",
+        "link_device": "Vincular dispositivo al perfil",
+        "unlink_device": "Desvincular dispositivo",
+        "set_fallback_profile": "Establecer perfil alternativo"
+      }
+    },
+    "profile_privacy_mode": {
+      "options": {
+        "normal": "Normal",
+        "private": "Privado",
+        "shared": "Compartido",
+        "guest-safe": "Seguro para invitados"
+      }
+    },
+    "profile_platform_client_type": {
+      "options": {
+        "esp32": "ESP32",
+        "ios": "iPhone/iPad",
+        "macos": "Mac",
+        "watchos": "Apple Watch",
+        "raspberry_pi": "Linux/Raspberry Pi",
+        "conversation_agent": "Agente de conversación Assist"
       }
     }
   }

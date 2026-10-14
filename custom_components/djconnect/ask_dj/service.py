@@ -62,7 +62,7 @@ async def _live_reference(manager, profile, target):
         or dict(moment.source_attribution) != {"provider": source.provider, "url": source.source_url, "license": source.license}):
         raise SessionConversationError("moment_context_unqualified", 403)
     from .dialogue import normalized_subjects
-    return {"text": moment.content, "archive_basis": "cc0_normalized_fields_v1",
+    return {"text": moment.content, "moment_type": moment.moment_type.value, "archive_basis": "cc0_normalized_fields_v1",
             "source_attribution": dict(moment.source_attribution),
             "dialogue_subjects": normalized_subjects(source)}
 
@@ -134,6 +134,9 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
             # transport whose pairing/entry may have been withdrawn meanwhile.
             await admission(owner=validate_owner, immediate=validate_immediate)
             return result
+        if intent.intent == "current_artist_information":
+            # Even a subsequently rejected read is not consent to retry older music.
+            frame.retry = None
         selected = (await query().async_open_entry(profile_id, target["session_id"], target["entry_id"]))["entry"] if target else None
         if live:
             selected = await _live_reference(manager, profile_id, live)
@@ -154,8 +157,11 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
             dependencies.append(live)
         captured = active.broadcast.state.playback.item_id if active else ""
         # Only genuinely current-playback questions bind to a playback item.
-        track_bound = not target and not live and (intent.intent in {"current_track_reference", "track_insight", "dj_announcement"}
+        track_bound = not target and not live and (intent.intent in {"current_track_reference", "current_artist_information", "track_insight", "dj_announcement"}
             or (references_topic(text) and not frame.messages and not frame.subjects and not frame.result_set))
+        playback_fence_session = session_id or (
+            active.session_id if active and track_bound and intent.intent == "current_artist_information" else ""
+        )
         implicit = None
         if session_id:
             if track_bound and captured:
@@ -189,7 +195,7 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
                 raise SessionConversationError("conversation_context_changed")
             if check_runtime:
                 current = await manager.async_get_active(profile_id)
-                if session_id and (current is None or current.session_id != session_id
+                if playback_fence_session and (current is None or current.session_id != playback_fence_session
                     or (track_bound and not explicit_action and current.broadcast.state.playback.item_id != captured)):
                     raise SessionConversationError("session_context_changed")
             for dependency in dependencies:
@@ -202,9 +208,9 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
                 raise SessionConversationError("conversation_history_changed")
             if history_grant_revision(hass, profile_id) != grant:
                 raise SessionConversationError("conversation_context_changed")
-            if session_id:
+            if playback_fence_session:
                 current = manager.current_active(profile_id)
-                if current is None or current.session_id != session_id or (
+                if current is None or current.session_id != playback_fence_session or (
                     track_bound and not explicit_action and current.broadcast.state.playback.item_id != captured):
                     raise SessionConversationError("session_context_changed")
             if frame.generation != generation:
@@ -214,6 +220,7 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
 
         turn = DialogueTurn(frame, scope, thread, client_id, digest, generation, guard, history_manager,
                             style=style_projection(payload, active, profile), session_id=session_id,
+                            captured_playback_item_id=captured if track_bound and intent.intent == "current_artist_information" else "",
                             source_context=model_source(selected), dependencies=dependencies, fast_control=fast, reset_topic=reset_topic,
                             archiveable=persist_history)
         accepted_offer = None
@@ -250,7 +257,10 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
                 # promoted into the permanent conversation/Session archive.
                 persist_history = False
                 turn.archiveable = False
-                turn.reset_topic = True
+                # Display-only selected catalog credits keep the existing bounded
+                # choice/deadline for a later explicit action, without model or
+                # archival rights. Current playback/Forecast still reset topic.
+                turn.reset_topic = turn.reset_topic or result.get("text_source") != "qualified_catalog_result"
             if not result.get("success"):
                 frame.retry = {"text": text, "uncertain": turn.effect_started}
                 future.set_result((deepcopy(result), joined_admission))

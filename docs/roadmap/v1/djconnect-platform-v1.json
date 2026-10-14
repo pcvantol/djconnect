@@ -39251,7 +39251,7 @@
       },
       {
         "path": "PRODUCT_BACKLOG.md",
-        "sha256": "902166f6abdb774a5639c2cc3484469c1d25f190a62f26c63c96ec76b2cfa13c"
+        "sha256": "c3e3c01c2186448b00ac90958778da02fd02c725bfa1da0f7049b75a594343b6"
       },
       {
         "path": "docs/product/DJ_PRESENCE_V1.md",
@@ -39287,7 +39287,7 @@
       },
       {
         "path": "API_CONTRACT.md",
-        "sha256": "e6dcc3e5f1a5fab7f392106810f94194ac7df5e34688d35b8ad894446bc976e8"
+        "sha256": "7e42cc3a36ca083255b13732101b4fe60bafed2245634e0d2aa6c2097ff3d46e"
       },
       {
         "path": "docs/product/NARRATIVE_ALBUM_CONTINUITY_V1.md",
@@ -39391,7 +39391,7 @@
       },
       {
         "path": "docs/product/ASK_DJ_CONTEXTUAL_DIALOGUE_CONTRACT_V1.md",
-        "sha256": "e41929bdf8ea66782d980ae6bafca9926fa6d9e7e76cc85f6ab60ad2a04c9321"
+        "sha256": "136c81fdc255b66f2a921e9250262f79b19efb4b6c0470260f6febcb088831fb"
       },
       {
         "path": "docs/product/MOMENT_TRACK_INSIGHT_DRILLDOWN_V1.md",
@@ -39424,6 +39424,10 @@
       {
         "path": "docs/history/prompts/2026-10-14-ask-dj-contextual-dialogue-finalization.md",
         "sha256": "1d4ce399484389030df619f35e84a5b40fef5e94c98143008325470ab2c8b35a"
+      },
+      {
+        "path": "docs/verification/ASK_DJ_CURRENT_ARTIST_REGRESSION_20261014.md",
+        "sha256": "78758c7bd3d6a8d599cc477d296464c8b1bc6043398b3e6a219b03aede34f38e"
       }
     ],
     "implementation_receipt": {

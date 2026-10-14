@@ -387,3 +387,14 @@ No lifecycle/start/replace/control, continuation, notification or second slice
 is admitted. Source [#1162](https://github.com/pcvantol/djconnect/pull/1162) is protected merged as
 `ccbb839f4e544b3739c31202685d147207e4c289`; [exact source readback](docs/verification/SESSION_HISTORY_SUMMARY_V1_SOURCE_READBACK.md)
 qualifies the connected producer. Separate Finalization retains its own gate.
+
+## Current bounded corrective work — 2026-10-14
+
+Core finding6175876899 (ACK6176184085) corrects current-artist text/STT identification
+and the direct owner Profile-label report within the existing shared Ask DJ family.
+Local qualification/review does not reopen delivered1166/1167 or promote native/joint
+acceptance. CI/publication/installation stay owner-paused. General Profile sharing
+is owner-confirmed; automatic discovery is Apple-owned. Intra-track Moment visibility
+remains a separate open joint receipt/consumer boundary, without a new generator.
+Existing queue remains Hybrid6149934177, then artwork6175336907; neither starts
+inside this corrective candidate. See the [bounded proof](docs/verification/ASK_DJ_CURRENT_ARTIST_REGRESSION_20261014.md).

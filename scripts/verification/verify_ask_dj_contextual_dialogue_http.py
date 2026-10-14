@@ -22,7 +22,7 @@ import time
 import wave
 from tempfile import TemporaryDirectory
 from types import MappingProxyType
-from urllib.parse import parse_qs, urlparse
+from urllib.parse import parse_qs, urlparse, urlencode
 from unittest.mock import patch
 
 from aiohttp.test_utils import TestClient, TestServer
@@ -94,6 +94,7 @@ async def main():
     assert type(max_tokens) is int and 1 <= max_tokens <= 3000
     del access
     model_receipts = []
+    agent_boundary_fixtures = []
     failures = []
     model_gate = None
     window_samples = []
@@ -123,9 +124,38 @@ async def main():
     logger.addHandler(observer)
     logger.setLevel(logging.WARNING)
     logger.propagate = False
+    for name in ("homeassistant.components.openai_conversation", "homeassistant.components.conversation"):
+        provider_logger = logging.getLogger(name)
+        provider_logger.handlers = [observer]
+        provider_logger.propagate = False
     original_create = api.responses.create
 
     async def measured_create(**kwargs):
+        if os.environ.get("DJC_SAFETY_PROBE") == "current_artist":
+            parts = []
+            for message in kwargs.get("input", []):
+                if isinstance(message, dict):
+                    content = message.get("content", "")
+                    parts.append(content if isinstance(content, str) else "".join(v.get("text", "") for v in content if isinstance(v, dict)))
+            prompt = "\n".join(parts)
+            assert "Welke muziek bedoel je?" in prompt, "Current-artist questions must not call the agent"
+            assert "spotify:" not in prompt and "Above & Beyond" not in prompt
+            # One external agent response fixture establishes a genuinely accepted old clarification.
+            # It is not a live/model-quality call; actual paid model calls remain zero.
+            from openai.types.responses import (Response, ResponseOutputMessage, ResponseOutputText,
+                ResponseOutputItemAddedEvent, ResponseTextDeltaEvent, ResponseOutputItemDoneEvent, ResponseCompletedEvent)
+            agent_boundary_fixtures.append({"case":"artist-old-clarification-seed","boundary":"external OpenAI response only","paid_model_call":False})
+            text = "Welk nummer of welke artiest wil je horen?"
+            item = ResponseOutputMessage(id="msg_synthetic_clarification",role="assistant",status="completed",type="message",
+                content=[ResponseOutputText(annotations=[],text=text,type="output_text",logprobs=[])])
+            completed = Response.model_construct(id="resp_synthetic_clarification",created_at=0,model=model,object="response",
+                status="completed",error=None,incomplete_details=None,usage=None,parallel_tool_calls=False,output=[item])
+            async def fixture_stream():
+                yield ResponseOutputItemAddedEvent.model_construct(type="response.output_item.added",sequence_number=0,output_index=0,item=item)
+                yield ResponseTextDeltaEvent.model_construct(type="response.output_text.delta",sequence_number=1,output_index=0,content_index=0,item_id=item.id,delta=text,logprobs=[])
+                yield ResponseOutputItemDoneEvent.model_construct(type="response.output_item.done",sequence_number=2,output_index=0,item=item)
+                yield ResponseCompletedEvent.model_construct(type="response.completed",sequence_number=3,response=completed)
+            return fixture_stream()
         assert os.environ.get("DJC_SAFETY_PROBE") not in {"previous", "output"}, "Safety probes must not call a model"
         inputs = json.dumps(kwargs.get("input", []), ensure_ascii=False)
         assert not any(
@@ -416,6 +446,14 @@ async def main():
                     state["no_active_output"] = False
                 return {}
             if parsed.path == "/me/player":
+                if os.environ.get("DJC_SAFETY_PROBE") == "current_artist" and state.get("read_gate"):
+                    from custom_components.djconnect.ask_dj.dialogue import current_turn
+                    request_turn = current_turn.get()
+                    if request_turn and request_turn.client_id == "artist-end-race":
+                        state["read_gate"]["entered"].set()
+                        await state["read_gate"]["release"].wait()
+                if state.get("no_current_item"):
+                    return {}
                 return {
                     "item": tracks[state["index"]],
                     "is_playing": state["playing"],
@@ -469,6 +507,13 @@ async def main():
                     "genres": ["rock"],
                     "images": [],
                 }
+            if os.environ.get("DJC_SAFETY_PROBE") == "current_artist":
+                if parsed.path == "/me/top/tracks":
+                    return {"items": tracks}
+                if parsed.path == "/me/top/artists":
+                    return {"items": []}
+                if parsed.path == "/me/player/recently-played":
+                    return {"items": []}
             if parsed.path == "/search":
                 return {
                     "tracks": {"items": tracks},
@@ -710,6 +755,110 @@ async def main():
                         "provider_calls": provider_calls, "model_calls": model_receipts,
                         "safe_failures": failures, "installed": "NOT_RUN", "native_apple": "NOT_RUN",
                     }, ensure_ascii=False, indent=2)+"\n")
+                    await async_shutdown_persistence(h)
+                    await h.async_stop(force=True)
+                    await api.close()
+                    return
+
+                if os.environ.get("DJC_SAFETY_PROBE") == "current_artist":
+                    tracks[0]["name"] = "Major Drop"
+                    tracks[0]["artists"][0]["name"] = "Above & Beyond"
+                    # Real pairing/router/Core/Store; only external music and speech I/O are fixtures.
+                    wav_buffer = io.BytesIO()
+                    with wave.open(wav_buffer, "wb") as writer:
+                        writer.setnchannels(1)
+                        writer.setsampwidth(2)
+                        writer.setframerate(16000)
+                        writer.writeframes(b"\x00\x00" * 1600)
+                    wav_bytes = wav_buffer.getvalue()
+                    voice_text = "Welke artiest is dit?"
+                    async def artist_speech_provider(_hass, audio, _config):
+                        assert audio == wav_bytes
+                        return voice_text
+                    h.data["djconnect"]["stt_handler"] = artist_speech_provider
+                    async def voice_case(identifier):
+                        response = await client.post("/api/djconnect/v1/voice", data=wav_bytes, headers={
+                            **headers, "Content-Type": "audio/wav", "X-DJConnect-Language": "nl",
+                            "X-DJConnect-Conversation-Scope": "profile", "X-DJConnect-Client-Message-ID": identifier,
+                        })
+                        body = await response.json()
+                        receipts.append({"case":identifier,"path":"voice","status":response.status,"body":body})
+                        assert response.status == 200, (identifier,response.status,body.get("error"))
+                        assert body["transcript"] == voice_text
+                        return body
+                    seed = await ask("Welke muziek bedoel je?", "artist-old-clarification-seed", language="nl")
+                    assert "welke artiest" in seed["text"]
+                    assert history.dialogue.owners["profile:profile-a"]["default"].local_turns[-1]["text"] == seed["text"]
+                    for phase in ("standalone", "session"):
+                        if phase == "session":
+                            await call("session/start", {"mood":"groove","dj_persona":"home_dj","language":"nl"},label="artist-session-start",expected=201)
+                        for index, phrase in enumerate(("welke artiest is dit", "Welke artiest is dit?", "wie hoor ik nu?", "wie is dit?")):
+                            voice_text = phrase
+                            for mode in ("text", "voice"):
+                                identifier = f"artist-{phase}-{index}-{mode}"
+                                body = await voice_case(identifier) if mode == "voice" else await ask(phrase,identifier,language="nl")
+                                assert "Above & Beyond" in body["text"] and "Major Drop" in body["text"], (identifier,body.get("text"))
+                                assert not body.get("playback_actions")
+                                assert body.get("history_persisted") is False
+                                assert body.get("user_message",{}).get("client_message_id",identifier)==identifier
+                        # Same transport retry must not create a mutating or model outcome.
+                        replay = await ask("welke artiest is dit", f"artist-{phase}-0-text", language="nl")
+                        assert "Above & Beyond" in replay["text"]
+                    # A qualified previous playback is selected through the real owner history query.
+                    active = await manager.async_get_active("profile-a")
+                    query = urlencode(identity)
+                    timeline_response = await client.get("/api/djconnect/v1/session/history/"+active.session_id+"?"+query,headers=headers)
+                    timeline = await timeline_response.json()
+                    assert timeline_response.status == 200
+                    observed = next(e for e in timeline["entries"] if e["kind"] == "playback_observed")
+                    state["index"] = 1
+                    selected = await ask("welke artiest is dit", "artist-selected-earlier", context={"selected_entry":{"session_id":active.session_id,"entry_id":observed["entry_id"]}},language="nl")
+                    assert "Major Drop" in selected["text"] and "Synthetic live" not in selected["text"]
+                    state["index"] = 0
+                    other = await call("ask_dj/message", {"text":"Welke artiest is dit?","client_message_id":"artist-other-profile","profile_id":"another-owner","language":"nl"},label="artist-other-profile",expected=403)
+                    assert not other["success"]
+                    active_before = await manager.async_get_active("profile-a")
+                    invariant = (active_before.session_id,active_before.selected_mood,active_before.presence_revision,active_before.mood_revision,state["output_id"],state["volume"])
+                    await ask("Welke artiest is dit?","artist-state-invariant",language="nl")
+                    active_after = await manager.async_get_active("profile-a")
+                    assert invariant == (active_after.session_id,active_after.selected_mood,active_after.presence_revision,active_after.mood_revision,state["output_id"],state["volume"])
+                    state["playing"] = False
+                    state["no_current_item"] = True
+                    proposal = await ask("Goedemorgen", "artist-pending-proposal", language="nl")
+                    assert proposal.get("confirmation_actions")
+                    pending_frame = history.dialogue.owners["profile:profile-a"]["default"]
+                    assert pending_frame.pending is not None
+                    state["playing"] = True
+                    state["no_current_item"] = False
+                    after_proposal = await ask("Welke artiest is dit?", "artist-not-confirmation", language="nl")
+                    assert "Above & Beyond" in after_proposal["text"] and not after_proposal.get("playback_actions")
+                    state["provider_unavailable"] = True
+                    missing = await ask("Welke artiest is dit?", "artist-provider-unavailable", language="nl")
+                    state["provider_unavailable"] = False
+                    assert "niet betrouwbaar" in missing["text"] and "Above" not in missing["text"]
+                    denied = await client.post("/api/djconnect/v1/ask_dj/message",headers={**headers,"Authorization":"Bearer invalid"},json={**identity,"client_message_id":"artist-revoked","text":"Welke artiest is dit?"})
+                    assert denied.status == 401
+                    mutations = [c for c in provider_calls if c["method"] in {"POST","PUT","DELETE"}]
+                    assert not mutations and not model_receipts
+                    active = await manager.async_get_active("profile-a")
+                    moment_receipt = [{"moment_id":m.moment_id,"type":m.moment_type.value} for m in active.broadcast.state.dj_moments] if active else []
+                    state["read_gate"] = {"entered":asyncio.Event(),"release":asyncio.Event()}
+                    raced = asyncio.create_task(call("ask_dj/message",{"text":"Welke artiest is dit?","client_message_id":"artist-end-race","language":"nl","audio_response":"never"},label="artist-end-race",expected=409))
+                    await asyncio.wait_for(state["read_gate"]["entered"].wait(),10)
+                    await call("session/end",{"session_id":active.session_id},label="artist-intentional-session-end")
+                    state["read_gate"]["release"].set()
+                    ended = await asyncio.wait_for(raced,10)
+                    assert ended["error"] == "session_context_changed"
+                    assert await manager.async_get_active("profile-a") is None
+                    assert not [c for c in provider_calls if c["method"] in {"POST","PUT","DELETE"}]
+                    Path("/lab/current-artist.json").write_text(json.dumps({
+                        "qualification":"ISOLATED_REAL_HA_TEXT_STT_CURRENT_ARTIST_ZERO_EFFECTS",
+                        "source_hashes":hashes(),"pairing":"ordinary_device_token_minted_persisted",
+                        "core_transports":receipts,"provider_calls":provider_calls,"model_calls":model_receipts,
+                        "agent_provider_fixtures":agent_boundary_fixtures,
+                        "published_moments":moment_receipt,"effects":mutations,"installed":"NOT_RUN",
+                        "provider_boundary":"external music and speech fixtures only",
+                    },ensure_ascii=False,indent=2)+"\n")
                     await async_shutdown_persistence(h)
                     await h.async_stop(force=True)
                     await api.close()

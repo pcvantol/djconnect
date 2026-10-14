@@ -667,9 +667,19 @@ def _profile_setup_schema(defaults: dict[str, Any] | None = None) -> dict[Any, A
 def _profile_platform_schema(
     household: Any,
     defaults: dict[str, Any] | None = None,
+    *,
+    language: str = "en",
 ) -> dict[Any, Any]:
     """Build the minimum options-flow profile management schema."""
     defaults = defaults or {}
+    language = language.split("-", 1)[0].lower()
+    new_profile, manual_device = {
+        "en": ("New profile", "Manual device"),
+        "nl": ("Nieuw profiel", "Handmatig apparaat"),
+        "de": ("Neues Profil", "Manuelles Gerät"),
+        "fr": ("Nouveau profil", "Appareil manuel"),
+        "es": ("Nuevo perfil", "Dispositivo manual"),
+    }.get(language, ("New profile", "Manual device"))
     profile_options = {
         profile_id: profile.display_name
         for profile_id, profile in getattr(household, "profiles", {}).items()
@@ -685,9 +695,12 @@ def _profile_platform_schema(
                 PROFILE_PLATFORM_ACTION_FIELD,
                 PROFILE_PLATFORM_ACTION_ADD_PROFILE,
             ),
-        ): vol.In(PROFILE_PLATFORM_ACTION_NAMES),
+        ): selector.SelectSelector(selector.SelectSelectorConfig(
+            options=list(PROFILE_PLATFORM_ACTION_NAMES), mode="dropdown",
+            translation_key="profile_platform_action",
+        )),
         vol.Optional(CONF_PROFILE_ID, default=defaults.get(CONF_PROFILE_ID, "")): vol.In(
-            {"": "New profile", **profile_options}
+            {"": new_profile, **profile_options}
         ),
         vol.Optional(
             CONF_PROFILE_NAME,
@@ -696,13 +709,19 @@ def _profile_platform_schema(
         vol.Optional(
             CONF_PROFILE_TYPE,
             default=defaults.get(CONF_PROFILE_TYPE, ProfileType.PERSONAL.value),
-        ): vol.In(PROFILE_TYPE_NAMES),
+        ): selector.SelectSelector(selector.SelectSelectorConfig(
+            options=list(PROFILE_TYPE_NAMES), mode="dropdown",
+            translation_key="onboarding_profile_type",
+        )),
         vol.Optional(
             CONF_PROFILE_PRIVACY_MODE,
             default=defaults.get(CONF_PROFILE_PRIVACY_MODE, ProfilePrivacyMode.NORMAL.value),
-        ): vol.In(PROFILE_PRIVACY_MODE_NAMES),
+        ): selector.SelectSelector(selector.SelectSelectorConfig(
+            options=list(PROFILE_PRIVACY_MODE_NAMES), mode="dropdown",
+            translation_key="profile_privacy_mode",
+        )),
         vol.Optional(CONF_DEVICE_ID, default=defaults.get(CONF_DEVICE_ID, "")): vol.In(
-            {"": "Manual device", **device_options}
+            {"": manual_device, **device_options}
         ),
         vol.Optional(
             CONF_DEVICE_NAME,
@@ -711,7 +730,10 @@ def _profile_platform_schema(
         vol.Optional(
             CONF_CLIENT_TYPE,
             default=defaults.get(CONF_CLIENT_TYPE, DEFAULT_CLIENT_TYPE),
-        ): vol.In(CLIENT_TYPE_NAMES),
+        ): selector.SelectSelector(selector.SelectSelectorConfig(
+            options=[key for key in CLIENT_TYPE_NAMES if key != "windows"],
+            mode="dropdown", translation_key="profile_platform_client_type",
+        )),
         vol.Optional(
             CONF_REQUIRE_PROFILE,
             default=defaults.get(CONF_REQUIRE_PROFILE, False),
@@ -2922,7 +2944,7 @@ class DJConnectOptionsFlow(config_entries.OptionsFlow):
 
         return self.async_show_form(
             step_id="profile_platform",
-            data_schema=vol.Schema(_profile_platform_schema(household, user_input)),
+            data_schema=vol.Schema(_profile_platform_schema(household, user_input, language=_ha_language(self.hass))),
             errors=errors,
             last_step=False,
         )
