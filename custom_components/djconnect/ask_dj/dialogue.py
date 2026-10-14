@@ -153,6 +153,7 @@ class DialogueTurn:
     prompt_bytes: int = 0
     effect_started: bool = False
     effect_validators: list[Any] = field(default_factory=list)
+    delivery_validators: list[Any] = field(default_factory=list)
     fast_control: bool = False
     pending: dict | None = None
     reset_topic: bool = False

@@ -113,6 +113,7 @@ async def forecast_read(hass, runtime):
             if current is None or current.session_id != active.session_id:
                 raise DialogueError("session_context_changed")
         turn.effect_validators.append(validate_session)
+        turn.delivery_validators.append(validate_session)
     response = await queue_read(hass, runtime)
     if active:
         fresh = await manager.async_forecast_snapshot(owner_profile_id=owner, session_id=active.session_id)
@@ -148,6 +149,7 @@ async def previous_read(hass, runtime):
             current is None or current.session_id != active.session_id or current.broadcast.state.playback.item_id != captured_item)):
             raise DialogueError("session_context_changed")
     turn.effect_validators.append(validate_previous_context)
+    turn.delivery_validators.append(validate_previous_context)
     query = query_service(hass, turn.history)
     entry, revision = None, None
     try:

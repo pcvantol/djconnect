@@ -9973,7 +9973,7 @@ async def _dialogue_choice_response(hass, runtime, payload, text, *, index=None)
         raise DialogueError("choice_changed")
     # Bind authorization to the exact offered set through adapter token/receipt awaits.
     action_identity = dict(action)
-    def validate_choice():
+    def validate_choice_evidence():
         if turn.history.dialogue.clock() >= shown["deadline"]:
             raise DialogueError("choice_expired")
         if shown.get("session_id"):
@@ -9981,10 +9981,13 @@ async def _dialogue_choice_response(hass, runtime, payload, text, *, index=None)
             active = session_runtime_manager(hass).current_active(turn.scope.removeprefix("profile:"))
             if active is None or active.session_id != shown["session_id"]:
                 raise DialogueError("choice_expired")
+    def validate_choice():
+        validate_choice_evidence()
         if (turn.frame.result_set is not shown or shown["generation"] != turn.generation
             or chosen >= len(shown["items"]) or shown["items"][chosen] != action_identity):
             raise DialogueError("choice_changed")
     turn.effect_validators.append(validate_choice)
+    turn.delivery_validators.append(validate_choice_evidence)
     await turn.guard()
     activate = explicit_activate(text) or (isinstance(value, dict) and value["operation"] == "activate")
     play = explicit_play(text) or (isinstance(value, dict) and value["operation"] == "play")

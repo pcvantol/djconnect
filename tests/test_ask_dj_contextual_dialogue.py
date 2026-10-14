@@ -319,6 +319,39 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
                     if change not in {"end", "forecast"}:
                         await self.fixture.manager.async_end(owner_profile_id="profile-a", session_id=session.session_id)
 
+    async def test_joined_play_returns_same_replacement_output_offer(self):
+        from custom_components.djconnect import http
+        async def catalog(*args, **kwargs):
+            return {"success": True, "text": "One fixture recording.", "playback_actions": [
+                {"kind": "track", "uri": "spotify:track:" + "1" * 22, "title": "Fixture recording"}]}
+        with patch.object(self.handlers.http_helpers, "async_handle_ask_dj", catalog):
+            offered, status = await self.request("Find a recording", identifier="replacement-offer")
+        self.assertEqual(status, 200, offered)
+        entered, release = asyncio.Event(), asyncio.Event()
+        calls = []
+        async def missing_output(*args):
+            # External backend outcome fixture; real selection admission and
+            # DialogueState.complete own the replacement offer and joining.
+            calls.append("backend_attempt")
+            entered.set()
+            await release.wait()
+            return {"success": True, "text": "Choose an output.", "action": "select_output",
+                "playback_actions": [{"kind": "output", "device_id": "output-B", "label": "Room B",
+                    "command": "ask_dj_play_recommendation_on_output", "uri": "spotify:track:" + "1" * 22}]}
+        with patch.object(http, "_handle_ask_dj_play_recommendation", missing_output):
+            first = asyncio.create_task(self.request("Play the first", identifier="replacement-play"))
+            await asyncio.wait_for(entered.wait(), 3)
+            joined = asyncio.create_task(self.request("Play the first", identifier="replacement-play"))
+            await asyncio.sleep(0.01)
+            release.set()
+            (a, sa), (b, sb) = await asyncio.gather(first, joined)
+        self.assertEqual(sa, 200, a)
+        self.assertEqual(sb, 200, b)
+        self.assertEqual(a["result_set"], b["result_set"])
+        self.assertNotEqual(a["result_set"]["result_set_id"], offered["result_set"]["result_set_id"])
+        self.assertEqual(a["result_set"]["items"][0]["device_id"], "output-B")
+        self.assertEqual(calls, ["backend_attempt"])
+
     async def test_native_service_payload_flag_never_opens_http_device_ingress(self):
         await self.native_service_fixture()
         result, status = await self.handlers.async_handle_ask_dj_message_payload(self.hass,

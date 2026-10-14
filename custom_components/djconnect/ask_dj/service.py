@@ -216,12 +216,18 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
                             style=style_projection(payload, active, profile), session_id=session_id,
                             source_context=model_source(selected), dependencies=dependencies, fast_control=fast, reset_topic=reset_topic,
                             archiveable=persist_history)
+        accepted_offer = None
         async def joined_admission(*, owner, immediate):
             await guard(owner=owner, immediate=immediate)
             # Local read/effect adapters can add narrower Session, item or
             # output fences even without an explicit conversation_context.
-            for validate in turn.effect_validators:
+            for validate in turn.delivery_validators:
                 validate()
+            if accepted_offer is not None:
+                if history_manager.dialogue.clock() >= accepted_offer["deadline"]:
+                    raise DialogueError("choice_expired")
+                if frame.result_set is not accepted_offer:
+                    raise DialogueError("choice_changed")
 
         turn.effect_grants = request_effect_grants(text, intent)
         token = current_turn.set(turn)
@@ -307,6 +313,8 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
         if not saved or not result.get("deduplicated"):
             result["_dialogue_question"] = text
             history_manager.dialogue.complete(turn, result)
+            if result.get("result_set", {}).get("result_set_id"):
+                accepted_offer = frame.result_set
             if explicit_action and (not result.get("success") or result.get("error")):
                 # Chat delivery can succeed while the requested playback failed.
                 # Only a proven pre-dispatch failure is safe for an explicit retry.

@@ -2092,15 +2092,20 @@ async def _handle_ask_dj_followup_response(
     if pending and turn is not None:
         from .ask_dj.dialogue import DialogueError
         offered = pending
-        def validate_pending():
-            if turn.frame.pending is not offered or turn.history.dialogue.clock() >= offered["deadline"]:
+        def validate_pending_evidence():
+            if turn.history.dialogue.clock() >= offered["deadline"]:
                 raise DialogueError("followup_expired")
             if offered.get("session_id"):
                 from .session_runtime import session_runtime_manager
                 active = session_runtime_manager(hass).current_active(turn.scope.removeprefix("profile:"))
                 if active is None or active.session_id != offered["session_id"]:
                     raise DialogueError("followup_expired")
+        def validate_pending():
+            validate_pending_evidence()
+            if turn.frame.pending is not offered:
+                raise DialogueError("followup_expired")
         turn.effect_validators.append(validate_pending)
+        turn.delivery_validators.append(validate_pending_evidence)
     pending = dict(pending or {})
     if pending and turn.history.dialogue.clock() >= pending["deadline"]:
         pending = {"expired": True}

@@ -676,7 +676,7 @@ async def main():
                         pending = asyncio.create_task(native_call("Who is Miles Davis?", "native-withdraw-"+kind))
                         await asyncio.wait_for(model_gate["entered"].wait(), 30)
                         if kind == "entry":
-                            native_owner._async_set_state(h, ConfigEntryState.UNLOADED, None)
+                            native_owner._async_set_state(h, ConfigEntryState.NOT_LOADED, None)
                         else:
                             await storage.async_create_profile("Other synthetic owner", profile_id="profile-b", default_backend_id="spotify_direct")
                             await storage.async_upsert_device("djconnect-conversation-agent", "conversation_agent", linked_profile_id="profile-b")
