@@ -205,26 +205,39 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(self.effects, [])
 
     async def test_repeated_invalid_format_fails_without_acceptance_or_third_call(self):
-        self.reply = "One sentence cannot satisfy the Radio form."
-        result, status = await self.request("Who is Brian Eno?", dj_persona="radio_dj")
+        self.reply = "Il compose de l'ambient music."
+        result, status = await self.request("Qui est Brian Eno ?", language="fr", dj_persona="radio_dj")
         self.assertEqual(status, 502, result)
         self.assertEqual(result["error"], "conversation_model_response_invalid")
         self.assertEqual(len(self.prompts), 2)
         self.assertEqual((await self.history.async_history("profile:profile-a"))["messages"], [])
         self.assertEqual(self.effects, [])
 
-    def test_prose_format_handles_titles_initials_and_persona_counts(self):
-        self.assertIsNone(self.dialogue.answer_form_issue('Il cite «Ambient Music». Il compose.', {"language": "fr", "persona": "radio_dj"}))
-        self.assertIsNone(self.dialogue.answer_form_issue('R.E.M. worked with Dr. Example. Their music changed.', {"language": "en", "persona": "radio_dj"}))
-        for name in ("J. S. Bach", "B. B. King", "Brian P. Eno"):
-            self.assertIsNone(self.dialogue.answer_form_issue(f'{name} shaped music.', {"language": "en", "persona": "club_dj"}))
-            self.assertIsNone(self.dialogue.answer_form_issue(f'{name} shaped music. Their work influenced others.', {"language": "en", "persona": "radio_dj"}))
-            self.assertIsNotNone(self.dialogue.answer_form_issue(f'{name} shaped music. Their work influenced others. This is extra.', {"language": "en", "persona": "radio_dj"}))
-        self.assertIsNone(self.dialogue.answer_form_issue('He played in C. The music stopped.', {"language": "en", "persona": "radio_dj"}))
-        self.assertIsNotNone(self.dialogue.answer_form_issue('He played in C. The music stopped.', {"language": "en", "persona": "club_dj"}))
-        self.assertIsNotNone(self.dialogue.answer_form_issue('First. Second. Third. Fourth.', {"language": "nl", "persona": "festival_dj"}))
+    def test_language_format_preserves_titles_names_abbreviations_and_pitch(self):
+        examples = [
+            ('fr', 'Il cite «Ambient Music». Il compose.'),
+            ('en', 'J. Cole is an American rapper.'),
+            ('en', 'The recording was produced by J. Cole.'),
+            ('en', 'R.E.M. worked with Dr. Example.'),
+            ('en', 'He played in C. The music stopped.'),
+            ('en', 'He plays R&B, e.g. a slow ballad.'),
+            ('de', 'Er nutzt Kontraste, z.B. zwischen leisen und lauten Passagen.'),
+            ('nl', 'Hij gebruikt contrasten, bijv. tussen zachte en luide passages.'),
+            ('fr', 'Il utilise des contrastes, p.ex. entre les passages doux et forts.'),
+            ('es', 'Usa contrastes, p.ej. entre pasajes suaves y fuertes.'),
+        ]
+        for language, answer in examples:
+            self.assertIsNone(self.dialogue.answer_language_format_issue(answer, {"language": language, "persona": "club_dj"}))
         for language in ("nl", "de", "fr", "es"):
-            self.assertIsNotNone(self.dialogue.answer_form_issue('He makes ambient music.', {"language": language, "persona": "home_dj"}))
+            self.assertIsNotNone(self.dialogue.answer_language_format_issue('He makes ambient music.', {"language": language}))
+
+    async def test_valid_music_name_prose_is_not_rejected_as_sentence_format(self):
+        self.reply = "J. Cole is a rapper."
+        result, status = await self.request("Who is J. Cole?", dj_persona="club_dj")
+        self.assertEqual(status, 200, result)
+        self.assertEqual(result["conversation"]["metrics"]["agent_calls"], 1)
+        self.assertEqual(result["text"], self.reply)
+        self.assertEqual(len((await self.history.async_history("profile:profile-a"))["messages"]), 2)
 
     async def test_user_named_subject_survives_possessive_followup_and_control(self):
         await self.request("¿Quién es Brian Eno?", identifier="named-subject", language="es", dj_persona="club_dj")

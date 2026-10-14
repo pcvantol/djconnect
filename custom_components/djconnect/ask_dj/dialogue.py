@@ -599,7 +599,7 @@ def model_prompt(text: str, payload: dict, source: dict | None = None) -> str:
         "home_dj": "Use calm, plainspoken context in one or two connected sentences, as a thoughtful conversation. Prefer the concrete answer over a CV or metaphor. Never append a setting, invitation or analogy as an ending.",
         "radio_dj": "Use exactly two short connected sentences: factual identification or answer, then one concrete musical meaning or consequence. Clear fact-to-meaning radio phrasing; avoid a list of achievements.",
         "club_dj": "Use one direct compact sentence, normally at most 30 words. Give one precise answer or musical contrast; omit biography lists, soft introductions and hype.",
-        "festival_dj": "Use two or three short warm sentences with lively changes of rhythm. Bring the relevant musical fact forward and develop it through concrete detail rather than a CV. No imagined place, invitation, listening image, metaphor ending, exclamations or event. Aim for at most 65 words.",
+        "festival_dj": "Use exactly three short warm sentences with lively changes of rhythm. Bring the relevant musical fact forward and develop it through concrete detail rather than a CV. No imagined place, invitation, listening image, metaphor ending, exclamations or event. Aim for at most 65 words.",
     }
     projection = {
         "question": text[:4000],
@@ -635,7 +635,7 @@ def model_prompt(text: str, payload: dict, source: dict | None = None) -> str:
         "Do not invent or name a technique, method or system. Describe only well-established musical practices in plain terms; "
         "omit a named technique when evidence does not qualify that name. "
         "Before returning, check the selected answer_form sentence count: Radio exactly two; Club exactly one; "
-        "Home one or two; Festival two or three. Revise internally to that count, without adding claims. "
+        "Home one or two; Festival exactly three. Revise internally to that count, without adding claims. "
         "Do not call someone the inventor or first user of a technique unless the qualified evidence proves it. "
         "A factual answer with an identified subject ends with the answer, never with a question or invitation. "
         "Persona is a way of telling, never a real club, festival, venue, audience or event. Never mention Persona names "
@@ -673,8 +673,8 @@ def model_prompt(text: str, payload: dict, source: dict | None = None) -> str:
     return prompt
 
 
-def answer_form_issue(answer: str, style: dict) -> str | None:
-    """Closed prose-format check, not language detection or factual rewriting."""
+def answer_language_format_issue(answer: str, style: dict) -> str | None:
+    """Closed genre-language check; never infer grammar or count name periods."""
     # Original quoted work titles may stay original. Apostrophes in words are
     # not quotation marks; l'ambient music must still be localized.
     prose = re.sub(r'"[^"\n]*"|«[^»\n]*»|“[^”\n]*”|‘[^’\n]*’', "title", answer)
@@ -682,18 +682,6 @@ def answer_form_issue(answer: str, style: dict) -> str | None:
         r"\b(?:ambient|electronic|classical|rock|jazz|house) music\b", prose, re.I
     ):
         return "Translate ordinary genre phrases into the selected language; keep only genuine quoted titles original."
-    # Avoid counting initials, common name honorifics and decimal points as
-    # sentence boundaries. This only checks the already declared Persona form.
-    prose = re.sub(r"\b(?:[A-Z]\.){2,}|\b(?:Dr|Mr|Mrs|Ms|Prof|Sr|Sra|Mme|M)\.", "name", prose)
-    prose = re.sub(r"\b(?:[A-Z]\.\s+){2,}(?=[A-Z][\wÀ-ÿ])", "initial ", prose)
-    prose = re.sub(r"\b([A-Z][\wÀ-ÿ]+)\s+[A-Z]\.(?=\s+[A-Z][\wÀ-ÿ]+)", r"\1 initial", prose)
-    sentences = len(re.findall(r'[.!?]+(?:["”»)])*(?:\s+|$)', prose))
-    if prose.strip() and not re.search(r'[.!?]+(?:["”»)])*$', prose.strip()):
-        sentences += 1
-    minimum, maximum = {"home_dj": (1, 2), "radio_dj": (2, 2),
-                        "club_dj": (1, 1), "festival_dj": (2, 3)}.get(style.get("persona"), (1, 2))
-    if not minimum <= sentences <= maximum:
-        return f"Use {minimum} to {maximum} connected sentences for the selected answer_form; omit extra closing invitations."
     return None
 
 

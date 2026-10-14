@@ -2807,7 +2807,7 @@ async def _informational_assist_response(
     if not message:
         message = _fallback_info_text(text, memory_context, playback_context)
         return {"success": True, "text": message, "dj_text": message, "images": []}
-    from .dialogue import parse_model_reply, requests_lookup, answer_form_issue
+    from .dialogue import parse_model_reply, requests_lookup, answer_language_format_issue
     format_issue = None
 
     def parse_reply(reply):
@@ -2820,7 +2820,7 @@ async def _informational_assist_response(
         if turn and not requests_lookup(text) and operation:
             raise DialogueError("conversation_model_response_invalid", 502)
         if turn and not operation:
-            format_issue = answer_form_issue(answer, turn.style)
+            format_issue = answer_language_format_issue(answer, turn.style)
             if format_issue:
                 raise DialogueError("conversation_model_response_invalid", 502)
         return answer, operation
