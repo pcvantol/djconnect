@@ -1,10 +1,10 @@
 {
   "schema_version": "djconnect-ask-dj-transport-fixtures/1",
-  "runtime_sha": "87e881a4269370f4ddf294862a06311c63529976",
-  "agent_model": "gpt-4.1-2025-04-14",
+  "runtime_sha": "c21dc3375ba57d19beeeda6fbb6dd3590de8431c",
+  "agent_model": "gpt-6-luna",
   "origin": "actual ordinary-paired isolated HA HTTP responses; synthetic music/provider-boundary fixtures; real model responses",
   "projection": "Bodies and requests retain observed values; image/audio/capability URLs, raw input and credential fields are omitted recursively. No live credential or executable production choice is provided. Optional user-facing action prompt strings are also omitted; prompt_bytes is only a numeric size metric.",
-  "source_proof_sha256": "90781b525bcc0ba915ec96c12b50de8e81493d9cb5a831023a572b769cce5b67",
+  "source_proof_sha256": "19e16cff713c5f3f70016fee8a711ade41c26d4b4adb9ed41077c57ba4622c24",
   "native_acceptance": "NOT_RUN",
   "installed_acceptance": "NOT_RUN",
   "fixtures": [
@@ -18,19 +18,19 @@
         "audio_response": "never",
         "conversation_context": {
           "selected_entry": {
-            "session_id": "session-ac55c22eaa6e44daa44b0c6a927070ed",
-            "entry_id": "entry-ffebf23d8223577e8d4bbc1ce8de923c"
+            "session_id": "session-9d60b660662147b68132d2b547826678",
+            "entry_id": "entry-dbb7e78271e0531ba5a0023d69fa887a"
           }
         }
       },
       "status": 200,
       "cache_control": "no-store",
-      "latency_ms": 1104,
+      "latency_ms": 1573,
       "body": {
         "success": true,
-        "text": "The composer is Brian Eno. He is recognized for shaping the sound through his production and composition work.",
-        "dj_text": "The composer is Brian Eno. He is recognized for shaping the sound through his production and composition work.",
-        "message": "The composer is Brian Eno. He is recognized for shaping the sound through his production and composition work.",
+        "text": "The composer is Brian Eno. The recording’s composition credit names him.",
+        "dj_text": "The composer is Brian Eno. The recording’s composition credit names him.",
+        "message": "The composer is Brian Eno. The recording’s composition credit names him.",
         "text_source": "generated",
         "is_generated_text": true,
         "model_processing_basis": "qualified_dialogue_v1",
@@ -67,12 +67,12 @@
         "action": null,
         "music_dna_key": "profile:profile-a",
         "assistant_message": {
-          "id": "server-32e95944-c0bb-47f5-8b53-e7ab1ff1578b",
+          "id": "server-838cc880-30d2-4b3f-afe7-7ff32951e0e6",
           "client_message_id": "standalone-credit",
           "role": "assistant",
           "message_kind": "assistant",
-          "text": "The composer is Brian Eno. He is recognized for shaping the sound through his production and composition work.",
-          "created_at": "2026-10-14T13:45:39.330126Z",
+          "text": "The composer is Brian Eno. The recording’s composition credit names him.",
+          "created_at": "2026-10-14T14:37:33.254538Z",
           "client_id": "djconnect-ios-ABCDEF123456",
           "client_type": "ios",
           "status": "delivered",
@@ -104,12 +104,12 @@
           },
           "session_turn": {
             "turn_id": "turn-78281de9dde35fa0850f83a19b138c99",
-            "request_digest": "56f305f203f2f88452b1e8bed9c65036d98b61bb087e854a5c9574380b563789",
+            "request_digest": "d20680687a0f2aa295f6bd830c12d5c3c0dbd17aad854651082c23255046d854",
             "profile_id": "profile-a",
             "context": {
               "selected_entry": {
-                "session_id": "session-ac55c22eaa6e44daa44b0c6a927070ed",
-                "entry_id": "entry-ffebf23d8223577e8d4bbc1ce8de923c"
+                "session_id": "session-9d60b660662147b68132d2b547826678",
+                "entry_id": "entry-dbb7e78271e0531ba5a0023d69fa887a"
               }
             },
             "captured_playback_item_id": "",
@@ -118,19 +118,19 @@
             "implicit_playback_entry": null,
             "dependency_entries": [
               {
-                "session_id": "session-ac55c22eaa6e44daa44b0c6a927070ed",
-                "entry_id": "entry-ffebf23d8223577e8d4bbc1ce8de923c"
+                "session_id": "session-9d60b660662147b68132d2b547826678",
+                "entry_id": "entry-dbb7e78271e0531ba5a0023d69fa887a"
               }
             ]
           },
           "historical_entry_references": [
             {
-              "session_id": "session-ac55c22eaa6e44daa44b0c6a927070ed",
-              "entry_id": "entry-ffebf23d8223577e8d4bbc1ce8de923c"
+              "session_id": "session-9d60b660662147b68132d2b547826678",
+              "entry_id": "entry-dbb7e78271e0531ba5a0023d69fa887a"
             },
             {
-              "session_id": "session-ac55c22eaa6e44daa44b0c6a927070ed",
-              "entry_id": "entry-ffebf23d8223577e8d4bbc1ce8de923c"
+              "session_id": "session-9d60b660662147b68132d2b547826678",
+              "entry_id": "entry-dbb7e78271e0531ba5a0023d69fa887a"
             }
           ],
           "exchange_id": "standalone-credit",
@@ -151,11 +151,11 @@
         },
         "user_id": null,
         "user_message": {
-          "id": "server-0ee2d140-5f95-47df-9b51-2e426c5c6cbf",
+          "id": "server-f3bfa210-d8f7-42e0-a8f7-d1a00006da09",
           "client_message_id": "standalone-credit",
           "role": "user",
           "text": "Who is that composer?",
-          "created_at": "2026-10-14T13:45:39.330085Z",
+          "created_at": "2026-10-14T14:37:33.254453Z",
           "client_id": "djconnect-ios-ABCDEF123456",
           "client_type": "ios",
           "status": "delivered",
@@ -164,12 +164,12 @@
           "playback_actions": [],
           "session_turn": {
             "turn_id": "turn-78281de9dde35fa0850f83a19b138c99",
-            "request_digest": "56f305f203f2f88452b1e8bed9c65036d98b61bb087e854a5c9574380b563789",
+            "request_digest": "d20680687a0f2aa295f6bd830c12d5c3c0dbd17aad854651082c23255046d854",
             "profile_id": "profile-a",
             "context": {
               "selected_entry": {
-                "session_id": "session-ac55c22eaa6e44daa44b0c6a927070ed",
-                "entry_id": "entry-ffebf23d8223577e8d4bbc1ce8de923c"
+                "session_id": "session-9d60b660662147b68132d2b547826678",
+                "entry_id": "entry-dbb7e78271e0531ba5a0023d69fa887a"
               }
             },
             "captured_playback_item_id": "",
@@ -178,19 +178,19 @@
             "implicit_playback_entry": null,
             "dependency_entries": [
               {
-                "session_id": "session-ac55c22eaa6e44daa44b0c6a927070ed",
-                "entry_id": "entry-ffebf23d8223577e8d4bbc1ce8de923c"
+                "session_id": "session-9d60b660662147b68132d2b547826678",
+                "entry_id": "entry-dbb7e78271e0531ba5a0023d69fa887a"
               }
             ]
           },
           "historical_entry_references": [
             {
-              "session_id": "session-ac55c22eaa6e44daa44b0c6a927070ed",
-              "entry_id": "entry-ffebf23d8223577e8d4bbc1ce8de923c"
+              "session_id": "session-9d60b660662147b68132d2b547826678",
+              "entry_id": "entry-dbb7e78271e0531ba5a0023d69fa887a"
             },
             {
-              "session_id": "session-ac55c22eaa6e44daa44b0c6a927070ed",
-              "entry_id": "entry-ffebf23d8223577e8d4bbc1ce8de923c"
+              "session_id": "session-9d60b660662147b68132d2b547826678",
+              "entry_id": "entry-dbb7e78271e0531ba5a0023d69fa887a"
             }
           ],
           "exchange_id": "standalone-credit",
@@ -198,11 +198,11 @@
         },
         "messages": [
           {
-            "id": "server-0ee2d140-5f95-47df-9b51-2e426c5c6cbf",
+            "id": "server-f3bfa210-d8f7-42e0-a8f7-d1a00006da09",
             "client_message_id": "standalone-credit",
             "role": "user",
             "text": "Who is that composer?",
-            "created_at": "2026-10-14T13:45:39.330085Z",
+            "created_at": "2026-10-14T14:37:33.254453Z",
             "client_id": "djconnect-ios-ABCDEF123456",
             "client_type": "ios",
             "status": "delivered",
@@ -211,12 +211,12 @@
             "playback_actions": [],
             "session_turn": {
               "turn_id": "turn-78281de9dde35fa0850f83a19b138c99",
-              "request_digest": "56f305f203f2f88452b1e8bed9c65036d98b61bb087e854a5c9574380b563789",
+              "request_digest": "d20680687a0f2aa295f6bd830c12d5c3c0dbd17aad854651082c23255046d854",
               "profile_id": "profile-a",
               "context": {
                 "selected_entry": {
-                  "session_id": "session-ac55c22eaa6e44daa44b0c6a927070ed",
-                  "entry_id": "entry-ffebf23d8223577e8d4bbc1ce8de923c"
+                  "session_id": "session-9d60b660662147b68132d2b547826678",
+                  "entry_id": "entry-dbb7e78271e0531ba5a0023d69fa887a"
                 }
               },
               "captured_playback_item_id": "",
@@ -225,31 +225,31 @@
               "implicit_playback_entry": null,
               "dependency_entries": [
                 {
-                  "session_id": "session-ac55c22eaa6e44daa44b0c6a927070ed",
-                  "entry_id": "entry-ffebf23d8223577e8d4bbc1ce8de923c"
+                  "session_id": "session-9d60b660662147b68132d2b547826678",
+                  "entry_id": "entry-dbb7e78271e0531ba5a0023d69fa887a"
                 }
               ]
             },
             "historical_entry_references": [
               {
-                "session_id": "session-ac55c22eaa6e44daa44b0c6a927070ed",
-                "entry_id": "entry-ffebf23d8223577e8d4bbc1ce8de923c"
+                "session_id": "session-9d60b660662147b68132d2b547826678",
+                "entry_id": "entry-dbb7e78271e0531ba5a0023d69fa887a"
               },
               {
-                "session_id": "session-ac55c22eaa6e44daa44b0c6a927070ed",
-                "entry_id": "entry-ffebf23d8223577e8d4bbc1ce8de923c"
+                "session_id": "session-9d60b660662147b68132d2b547826678",
+                "entry_id": "entry-dbb7e78271e0531ba5a0023d69fa887a"
               }
             ],
             "exchange_id": "standalone-credit",
             "exchange_order": 0
           },
           {
-            "id": "server-32e95944-c0bb-47f5-8b53-e7ab1ff1578b",
+            "id": "server-838cc880-30d2-4b3f-afe7-7ff32951e0e6",
             "client_message_id": "standalone-credit",
             "role": "assistant",
             "message_kind": "assistant",
-            "text": "The composer is Brian Eno. He is recognized for shaping the sound through his production and composition work.",
-            "created_at": "2026-10-14T13:45:39.330126Z",
+            "text": "The composer is Brian Eno. The recording’s composition credit names him.",
+            "created_at": "2026-10-14T14:37:33.254538Z",
             "client_id": "djconnect-ios-ABCDEF123456",
             "client_type": "ios",
             "status": "delivered",
@@ -281,12 +281,12 @@
             },
             "session_turn": {
               "turn_id": "turn-78281de9dde35fa0850f83a19b138c99",
-              "request_digest": "56f305f203f2f88452b1e8bed9c65036d98b61bb087e854a5c9574380b563789",
+              "request_digest": "d20680687a0f2aa295f6bd830c12d5c3c0dbd17aad854651082c23255046d854",
               "profile_id": "profile-a",
               "context": {
                 "selected_entry": {
-                  "session_id": "session-ac55c22eaa6e44daa44b0c6a927070ed",
-                  "entry_id": "entry-ffebf23d8223577e8d4bbc1ce8de923c"
+                  "session_id": "session-9d60b660662147b68132d2b547826678",
+                  "entry_id": "entry-dbb7e78271e0531ba5a0023d69fa887a"
                 }
               },
               "captured_playback_item_id": "",
@@ -295,19 +295,19 @@
               "implicit_playback_entry": null,
               "dependency_entries": [
                 {
-                  "session_id": "session-ac55c22eaa6e44daa44b0c6a927070ed",
-                  "entry_id": "entry-ffebf23d8223577e8d4bbc1ce8de923c"
+                  "session_id": "session-9d60b660662147b68132d2b547826678",
+                  "entry_id": "entry-dbb7e78271e0531ba5a0023d69fa887a"
                 }
               ]
             },
             "historical_entry_references": [
               {
-                "session_id": "session-ac55c22eaa6e44daa44b0c6a927070ed",
-                "entry_id": "entry-ffebf23d8223577e8d4bbc1ce8de923c"
+                "session_id": "session-9d60b660662147b68132d2b547826678",
+                "entry_id": "entry-dbb7e78271e0531ba5a0023d69fa887a"
               },
               {
-                "session_id": "session-ac55c22eaa6e44daa44b0c6a927070ed",
-                "entry_id": "entry-ffebf23d8223577e8d4bbc1ce8de923c"
+                "session_id": "session-9d60b660662147b68132d2b547826678",
+                "entry_id": "entry-dbb7e78271e0531ba5a0023d69fa887a"
               }
             ],
             "exchange_id": "standalone-credit",
@@ -324,7 +324,7 @@
         "history_limit": 1000,
         "history_trimmed_before": null,
         "history_trimmed_count": 0,
-        "server_time": "2026-10-14T13:45:39.333532Z",
+        "server_time": "2026-10-14T14:37:33.257800Z",
         "media_delivery_basis": "current_response_only",
         "owner_profile_id": "profile-a",
         "client_message_id": "standalone-credit",
@@ -334,8 +334,8 @@
           "thread_id": "default",
           "context": {
             "selected_entry": {
-              "session_id": "session-ac55c22eaa6e44daa44b0c6a927070ed",
-              "entry_id": "entry-ffebf23d8223577e8d4bbc1ce8de923c"
+              "session_id": "session-9d60b660662147b68132d2b547826678",
+              "entry_id": "entry-dbb7e78271e0531ba5a0023d69fa887a"
             }
           },
           "entry_ids": [],
@@ -352,7 +352,7 @@
           "metrics": {
             "agent_calls": 1,
             "lookup_calls": 0,
-            "prompt_bytes": 5201
+            "prompt_bytes": 5565
           }
         }
       }
@@ -368,12 +368,12 @@
       },
       "status": 200,
       "cache_control": "no-store",
-      "latency_ms": 1054,
+      "latency_ms": 4718,
       "body": {
         "success": true,
-        "text": "Brian Eno’s ambient approach grew from his interest in minimalism, tape loops and generative processes, alongside his collaborations with experimental and electronic musicians. He focused on using studio technology and layering techniques to create evolving textures rather than traditional song structures.",
-        "dj_text": "Brian Eno’s ambient approach grew from his interest in minimalism, tape loops and generative processes, alongside his collaborations with experimental and electronic musicians. He focused on using studio technology and layering techniques to create evolving textures rather than traditional song structures.",
-        "message": "Brian Eno’s ambient approach grew from his interest in minimalism, tape loops and generative processes, alongside his collaborations with experimental and electronic musicians. He focused on using studio technology and layering techniques to create evolving textures rather than traditional song structures.",
+        "text": "As general musical knowledge, Brian Eno’s ambient approach drew on Erik Satie’s idea of music that could function as part of an environment, as well as minimalist music’s use of repetition and gradual change. John Cage’s interest in chance and in sounds beyond conventional music is another commonly noted influence.",
+        "dj_text": "As general musical knowledge, Brian Eno’s ambient approach drew on Erik Satie’s idea of music that could function as part of an environment, as well as minimalist music’s use of repetition and gradual change. John Cage’s interest in chance and in sounds beyond conventional music is another commonly noted influence.",
+        "message": "As general musical knowledge, Brian Eno’s ambient approach drew on Erik Satie’s idea of music that could function as part of an environment, as well as minimalist music’s use of repetition and gradual change. John Cage’s interest in chance and in sounds beyond conventional music is another commonly noted influence.",
         "text_source": "generated",
         "is_generated_text": true,
         "model_processing_basis": "qualified_dialogue_v1",
@@ -391,12 +391,12 @@
         "action": null,
         "music_dna_key": "profile:profile-a",
         "assistant_message": {
-          "id": "server-4483b0a1-c9c1-4242-aa5f-bbbda8a35217",
+          "id": "server-531510bf-47f4-4dcb-857c-c3404dabb2c3",
           "client_message_id": "standalone-pronoun",
           "role": "assistant",
           "message_kind": "assistant",
-          "text": "Brian Eno’s ambient approach grew from his interest in minimalism, tape loops and generative processes, alongside his collaborations with experimental and electronic musicians. He focused on using studio technology and layering techniques to create evolving textures rather than traditional song structures.",
-          "created_at": "2026-10-14T13:45:40.385565Z",
+          "text": "As general musical knowledge, Brian Eno’s ambient approach drew on Erik Satie’s idea of music that could function as part of an environment, as well as minimalist music’s use of repetition and gradual change. John Cage’s interest in chance and in sounds beyond conventional music is another commonly noted influence.",
+          "created_at": "2026-10-14T14:37:37.973003Z",
           "client_id": "djconnect-ios-ABCDEF123456",
           "client_type": "ios",
           "status": "delivered",
@@ -418,15 +418,15 @@
             "implicit_playback_entry": null,
             "dependency_entries": [
               {
-                "session_id": "session-ac55c22eaa6e44daa44b0c6a927070ed",
-                "entry_id": "entry-ffebf23d8223577e8d4bbc1ce8de923c"
+                "session_id": "session-9d60b660662147b68132d2b547826678",
+                "entry_id": "entry-dbb7e78271e0531ba5a0023d69fa887a"
               }
             ]
           },
           "historical_entry_references": [
             {
-              "session_id": "session-ac55c22eaa6e44daa44b0c6a927070ed",
-              "entry_id": "entry-ffebf23d8223577e8d4bbc1ce8de923c"
+              "session_id": "session-9d60b660662147b68132d2b547826678",
+              "entry_id": "entry-dbb7e78271e0531ba5a0023d69fa887a"
             }
           ],
           "exchange_id": "standalone-pronoun",
@@ -447,11 +447,11 @@
         },
         "user_id": null,
         "user_message": {
-          "id": "server-306ffd76-c0f7-42a0-aa08-a5f3d8a19dbc",
+          "id": "server-709fd9c5-4330-4c23-bf1b-96e4f4ce7bf4",
           "client_message_id": "standalone-pronoun",
           "role": "user",
           "text": "What influenced his ambient approach?",
-          "created_at": "2026-10-14T13:45:40.385528Z",
+          "created_at": "2026-10-14T14:37:37.972949Z",
           "client_id": "djconnect-ios-ABCDEF123456",
           "client_type": "ios",
           "status": "delivered",
@@ -469,15 +469,15 @@
             "implicit_playback_entry": null,
             "dependency_entries": [
               {
-                "session_id": "session-ac55c22eaa6e44daa44b0c6a927070ed",
-                "entry_id": "entry-ffebf23d8223577e8d4bbc1ce8de923c"
+                "session_id": "session-9d60b660662147b68132d2b547826678",
+                "entry_id": "entry-dbb7e78271e0531ba5a0023d69fa887a"
               }
             ]
           },
           "historical_entry_references": [
             {
-              "session_id": "session-ac55c22eaa6e44daa44b0c6a927070ed",
-              "entry_id": "entry-ffebf23d8223577e8d4bbc1ce8de923c"
+              "session_id": "session-9d60b660662147b68132d2b547826678",
+              "entry_id": "entry-dbb7e78271e0531ba5a0023d69fa887a"
             }
           ],
           "exchange_id": "standalone-pronoun",
@@ -485,11 +485,11 @@
         },
         "messages": [
           {
-            "id": "server-306ffd76-c0f7-42a0-aa08-a5f3d8a19dbc",
+            "id": "server-709fd9c5-4330-4c23-bf1b-96e4f4ce7bf4",
             "client_message_id": "standalone-pronoun",
             "role": "user",
             "text": "What influenced his ambient approach?",
-            "created_at": "2026-10-14T13:45:40.385528Z",
+            "created_at": "2026-10-14T14:37:37.972949Z",
             "client_id": "djconnect-ios-ABCDEF123456",
             "client_type": "ios",
             "status": "delivered",
@@ -507,27 +507,27 @@
               "implicit_playback_entry": null,
               "dependency_entries": [
                 {
-                  "session_id": "session-ac55c22eaa6e44daa44b0c6a927070ed",
-                  "entry_id": "entry-ffebf23d8223577e8d4bbc1ce8de923c"
+                  "session_id": "session-9d60b660662147b68132d2b547826678",
+                  "entry_id": "entry-dbb7e78271e0531ba5a0023d69fa887a"
                 }
               ]
             },
             "historical_entry_references": [
               {
-                "session_id": "session-ac55c22eaa6e44daa44b0c6a927070ed",
-                "entry_id": "entry-ffebf23d8223577e8d4bbc1ce8de923c"
+                "session_id": "session-9d60b660662147b68132d2b547826678",
+                "entry_id": "entry-dbb7e78271e0531ba5a0023d69fa887a"
               }
             ],
             "exchange_id": "standalone-pronoun",
             "exchange_order": 0
           },
           {
-            "id": "server-4483b0a1-c9c1-4242-aa5f-bbbda8a35217",
+            "id": "server-531510bf-47f4-4dcb-857c-c3404dabb2c3",
             "client_message_id": "standalone-pronoun",
             "role": "assistant",
             "message_kind": "assistant",
-            "text": "Brian Eno’s ambient approach grew from his interest in minimalism, tape loops and generative processes, alongside his collaborations with experimental and electronic musicians. He focused on using studio technology and layering techniques to create evolving textures rather than traditional song structures.",
-            "created_at": "2026-10-14T13:45:40.385565Z",
+            "text": "As general musical knowledge, Brian Eno’s ambient approach drew on Erik Satie’s idea of music that could function as part of an environment, as well as minimalist music’s use of repetition and gradual change. John Cage’s interest in chance and in sounds beyond conventional music is another commonly noted influence.",
+            "created_at": "2026-10-14T14:37:37.973003Z",
             "client_id": "djconnect-ios-ABCDEF123456",
             "client_type": "ios",
             "status": "delivered",
@@ -549,15 +549,15 @@
               "implicit_playback_entry": null,
               "dependency_entries": [
                 {
-                  "session_id": "session-ac55c22eaa6e44daa44b0c6a927070ed",
-                  "entry_id": "entry-ffebf23d8223577e8d4bbc1ce8de923c"
+                  "session_id": "session-9d60b660662147b68132d2b547826678",
+                  "entry_id": "entry-dbb7e78271e0531ba5a0023d69fa887a"
                 }
               ]
             },
             "historical_entry_references": [
               {
-                "session_id": "session-ac55c22eaa6e44daa44b0c6a927070ed",
-                "entry_id": "entry-ffebf23d8223577e8d4bbc1ce8de923c"
+                "session_id": "session-9d60b660662147b68132d2b547826678",
+                "entry_id": "entry-dbb7e78271e0531ba5a0023d69fa887a"
               }
             ],
             "exchange_id": "standalone-pronoun",
@@ -574,7 +574,7 @@
         "history_limit": 1000,
         "history_trimmed_before": null,
         "history_trimmed_count": 0,
-        "server_time": "2026-10-14T13:45:40.388945Z",
+        "server_time": "2026-10-14T14:37:37.977526Z",
         "media_delivery_basis": "current_response_only",
         "owner_profile_id": "profile-a",
         "client_message_id": "standalone-pronoun",
@@ -597,7 +597,7 @@
           "metrics": {
             "agent_calls": 1,
             "lookup_calls": 0,
-            "prompt_bytes": 5137
+            "prompt_bytes": 5465
           }
         }
       }
@@ -613,12 +613,12 @@
       },
       "status": 200,
       "cache_control": "no-store",
-      "latency_ms": 1418,
+      "latency_ms": 1661,
       "body": {
         "success": true,
-        "text": "Miles Davis was a trumpet player, composer and bandleader known for his influence on jazz music. He explored different styles throughout his career, including bebop, cool jazz, modal jazz and jazz fusion.",
-        "dj_text": "Miles Davis was a trumpet player, composer and bandleader known for his influence on jazz music. He explored different styles throughout his career, including bebop, cool jazz, modal jazz and jazz fusion.",
-        "message": "Miles Davis was a trumpet player, composer and bandleader known for his influence on jazz music. He explored different styles throughout his career, including bebop, cool jazz, modal jazz and jazz fusion.",
+        "text": "Miles Davis was an American jazz trumpeter, composer, and bandleader, widely regarded as one of the most influential figures in jazz. Across a career spanning several decades, he helped shape styles including cool jazz, hard bop, modal jazz, and jazz fusion.",
+        "dj_text": "Miles Davis was an American jazz trumpeter, composer, and bandleader, widely regarded as one of the most influential figures in jazz. Across a career spanning several decades, he helped shape styles including cool jazz, hard bop, modal jazz, and jazz fusion.",
+        "message": "Miles Davis was an American jazz trumpeter, composer, and bandleader, widely regarded as one of the most influential figures in jazz. Across a career spanning several decades, he helped shape styles including cool jazz, hard bop, modal jazz, and jazz fusion.",
         "text_source": "generated",
         "is_generated_text": true,
         "model_processing_basis": "qualified_dialogue_v1",
@@ -636,12 +636,12 @@
         "action": null,
         "music_dna_key": "profile:profile-a",
         "assistant_message": {
-          "id": "server-edd0d7c4-3cf2-4b0b-9883-8437d692e416",
+          "id": "server-3a64f9d2-2faf-474c-bdf8-b32762ee57f0",
           "client_message_id": "standalone-topic",
           "role": "assistant",
           "message_kind": "assistant",
-          "text": "Miles Davis was a trumpet player, composer and bandleader known for his influence on jazz music. He explored different styles throughout his career, including bebop, cool jazz, modal jazz and jazz fusion.",
-          "created_at": "2026-10-14T13:45:41.804504Z",
+          "text": "Miles Davis was an American jazz trumpeter, composer, and bandleader, widely regarded as one of the most influential figures in jazz. Across a career spanning several decades, he helped shape styles including cool jazz, hard bop, modal jazz, and jazz fusion.",
+          "created_at": "2026-10-14T14:37:39.635345Z",
           "client_id": "djconnect-ios-ABCDEF123456",
           "client_type": "ios",
           "status": "delivered",
@@ -682,11 +682,11 @@
         },
         "user_id": null,
         "user_message": {
-          "id": "server-75044a0c-181a-46df-93ef-1d844dd5d6d6",
+          "id": "server-02ae5ed4-8d3c-4941-ab3a-e9c40a590f64",
           "client_message_id": "standalone-topic",
           "role": "user",
           "text": "Who is Miles Davis?",
-          "created_at": "2026-10-14T13:45:41.804399Z",
+          "created_at": "2026-10-14T14:37:39.635268Z",
           "client_id": "djconnect-ios-ABCDEF123456",
           "client_type": "ios",
           "status": "delivered",
@@ -710,11 +710,11 @@
         },
         "messages": [
           {
-            "id": "server-75044a0c-181a-46df-93ef-1d844dd5d6d6",
+            "id": "server-02ae5ed4-8d3c-4941-ab3a-e9c40a590f64",
             "client_message_id": "standalone-topic",
             "role": "user",
             "text": "Who is Miles Davis?",
-            "created_at": "2026-10-14T13:45:41.804399Z",
+            "created_at": "2026-10-14T14:37:39.635268Z",
             "client_id": "djconnect-ios-ABCDEF123456",
             "client_type": "ios",
             "status": "delivered",
@@ -737,12 +737,12 @@
             "exchange_order": 0
           },
           {
-            "id": "server-edd0d7c4-3cf2-4b0b-9883-8437d692e416",
+            "id": "server-3a64f9d2-2faf-474c-bdf8-b32762ee57f0",
             "client_message_id": "standalone-topic",
             "role": "assistant",
             "message_kind": "assistant",
-            "text": "Miles Davis was a trumpet player, composer and bandleader known for his influence on jazz music. He explored different styles throughout his career, including bebop, cool jazz, modal jazz and jazz fusion.",
-            "created_at": "2026-10-14T13:45:41.804504Z",
+            "text": "Miles Davis was an American jazz trumpeter, composer, and bandleader, widely regarded as one of the most influential figures in jazz. Across a career spanning several decades, he helped shape styles including cool jazz, hard bop, modal jazz, and jazz fusion.",
+            "created_at": "2026-10-14T14:37:39.635345Z",
             "client_id": "djconnect-ios-ABCDEF123456",
             "client_type": "ios",
             "status": "delivered",
@@ -779,7 +779,7 @@
         "history_limit": 1000,
         "history_trimmed_before": null,
         "history_trimmed_count": 0,
-        "server_time": "2026-10-14T13:45:41.807321Z",
+        "server_time": "2026-10-14T14:37:39.638733Z",
         "media_delivery_basis": "current_response_only",
         "owner_profile_id": "profile-a",
         "client_message_id": "standalone-topic",
@@ -802,7 +802,7 @@
           "metrics": {
             "agent_calls": 1,
             "lookup_calls": 0,
-            "prompt_bytes": 4884
+            "prompt_bytes": 5248
           }
         }
       }
@@ -818,7 +818,7 @@
       },
       "status": 200,
       "cache_control": "no-store",
-      "latency_ms": 10,
+      "latency_ms": 13,
       "body": {
         "success": true,
         "text": "Volume change requested.",
@@ -865,12 +865,12 @@
         "action": "volume_delta",
         "music_dna_key": "profile:profile-a",
         "assistant_message": {
-          "id": "server-aeb7eb8d-5fad-48f9-b9b0-080a25060091",
+          "id": "server-097c5149-8a42-44cd-8935-22c223bfa82f",
           "client_message_id": "standalone-volume",
           "role": "assistant",
           "message_kind": "assistant",
           "text": "Volume change requested.",
-          "created_at": "2026-10-14T13:45:41.816592Z",
+          "created_at": "2026-10-14T14:37:39.651364Z",
           "client_id": "djconnect-ios-ABCDEF123456",
           "client_type": "ios",
           "status": "delivered",
@@ -938,11 +938,11 @@
         },
         "user_id": null,
         "user_message": {
-          "id": "server-af962caa-d874-4159-a6f8-430f4b5fe9d9",
+          "id": "server-e3b4c6bd-57a9-4951-807b-f6befe43e821",
           "client_message_id": "standalone-volume",
           "role": "user",
           "text": "Turn the volume down",
-          "created_at": "2026-10-14T13:45:41.816549Z",
+          "created_at": "2026-10-14T14:37:39.651321Z",
           "client_id": "djconnect-ios-ABCDEF123456",
           "client_type": "ios",
           "status": "delivered",
@@ -966,11 +966,11 @@
         },
         "messages": [
           {
-            "id": "server-af962caa-d874-4159-a6f8-430f4b5fe9d9",
+            "id": "server-e3b4c6bd-57a9-4951-807b-f6befe43e821",
             "client_message_id": "standalone-volume",
             "role": "user",
             "text": "Turn the volume down",
-            "created_at": "2026-10-14T13:45:41.816549Z",
+            "created_at": "2026-10-14T14:37:39.651321Z",
             "client_id": "djconnect-ios-ABCDEF123456",
             "client_type": "ios",
             "status": "delivered",
@@ -993,12 +993,12 @@
             "exchange_order": 0
           },
           {
-            "id": "server-aeb7eb8d-5fad-48f9-b9b0-080a25060091",
+            "id": "server-097c5149-8a42-44cd-8935-22c223bfa82f",
             "client_message_id": "standalone-volume",
             "role": "assistant",
             "message_kind": "assistant",
             "text": "Volume change requested.",
-            "created_at": "2026-10-14T13:45:41.816592Z",
+            "created_at": "2026-10-14T14:37:39.651364Z",
             "client_id": "djconnect-ios-ABCDEF123456",
             "client_type": "ios",
             "status": "delivered",
@@ -1062,7 +1062,7 @@
         "history_limit": 1000,
         "history_trimmed_before": null,
         "history_trimmed_count": 0,
-        "server_time": "2026-10-14T13:45:41.817872Z",
+        "server_time": "2026-10-14T14:37:39.652778Z",
         "media_delivery_basis": "current_response_only",
         "owner_profile_id": "profile-a",
         "client_message_id": "standalone-volume",
@@ -1101,7 +1101,7 @@
       },
       "status": 200,
       "cache_control": "no-store",
-      "latency_ms": 1080,
+      "latency_ms": 3352,
       "body": {
         "success": true,
         "text": "Found 3 tracks for acoustic jazz songs.",
@@ -1129,8 +1129,8 @@
               "subtitle": "Synthetic performer"
             },
             "uri": "spotify:track:0000000000000000000000",
-            "result_set_id": "choices-226c0f007b72497fa6f41c123a65055b",
-            "action_id": "6d11b933255aa96b319b9a78e189f340"
+            "result_set_id": "choices-684b91a84a5447ef87dfce11de4d2e81",
+            "action_id": "6601cb8de54f6e24677056e3db098104"
           },
           {
             "id": "spotify:track:1111111111111111111111",
@@ -1150,8 +1150,8 @@
               "subtitle": "Synthetic performer"
             },
             "uri": "spotify:track:1111111111111111111111",
-            "result_set_id": "choices-226c0f007b72497fa6f41c123a65055b",
-            "action_id": "392bd33d9600d0657129bcb964ebd07d"
+            "result_set_id": "choices-684b91a84a5447ef87dfce11de4d2e81",
+            "action_id": "e5abc138ab7e64d8b7613f59c056b2fc"
           },
           {
             "id": "spotify:track:2222222222222222222222",
@@ -1171,8 +1171,8 @@
               "subtitle": "Synthetic performer"
             },
             "uri": "spotify:track:2222222222222222222222",
-            "result_set_id": "choices-226c0f007b72497fa6f41c123a65055b",
-            "action_id": "4c29c6a170b1bf151d8d2b3a5ed9f8d5"
+            "result_set_id": "choices-684b91a84a5447ef87dfce11de4d2e81",
+            "action_id": "6d5d3be790368fe0d240e59790320866"
           }
         ],
         "playback_actions": [
@@ -1194,8 +1194,8 @@
               "subtitle": "Synthetic performer"
             },
             "uri": "spotify:track:0000000000000000000000",
-            "result_set_id": "choices-226c0f007b72497fa6f41c123a65055b",
-            "action_id": "6d11b933255aa96b319b9a78e189f340"
+            "result_set_id": "choices-684b91a84a5447ef87dfce11de4d2e81",
+            "action_id": "6601cb8de54f6e24677056e3db098104"
           },
           {
             "id": "spotify:track:1111111111111111111111",
@@ -1215,8 +1215,8 @@
               "subtitle": "Synthetic performer"
             },
             "uri": "spotify:track:1111111111111111111111",
-            "result_set_id": "choices-226c0f007b72497fa6f41c123a65055b",
-            "action_id": "392bd33d9600d0657129bcb964ebd07d"
+            "result_set_id": "choices-684b91a84a5447ef87dfce11de4d2e81",
+            "action_id": "e5abc138ab7e64d8b7613f59c056b2fc"
           },
           {
             "id": "spotify:track:2222222222222222222222",
@@ -1236,8 +1236,8 @@
               "subtitle": "Synthetic performer"
             },
             "uri": "spotify:track:2222222222222222222222",
-            "result_set_id": "choices-226c0f007b72497fa6f41c123a65055b",
-            "action_id": "4c29c6a170b1bf151d8d2b3a5ed9f8d5"
+            "result_set_id": "choices-684b91a84a5447ef87dfce11de4d2e81",
+            "action_id": "6d5d3be790368fe0d240e59790320866"
           }
         ],
         "sources": [
@@ -1249,7 +1249,7 @@
         ],
         "result_set": {
           "schema_version": 1,
-          "result_set_id": "choices-226c0f007b72497fa6f41c123a65055b",
+          "result_set_id": "choices-684b91a84a5447ef87dfce11de4d2e81",
           "expires_in": 600.0,
           "items": [
             {
@@ -1270,8 +1270,8 @@
                 "subtitle": "Synthetic performer"
               },
               "uri": "spotify:track:0000000000000000000000",
-              "result_set_id": "choices-226c0f007b72497fa6f41c123a65055b",
-              "action_id": "6d11b933255aa96b319b9a78e189f340"
+              "result_set_id": "choices-684b91a84a5447ef87dfce11de4d2e81",
+              "action_id": "6601cb8de54f6e24677056e3db098104"
             },
             {
               "id": "spotify:track:1111111111111111111111",
@@ -1291,8 +1291,8 @@
                 "subtitle": "Synthetic performer"
               },
               "uri": "spotify:track:1111111111111111111111",
-              "result_set_id": "choices-226c0f007b72497fa6f41c123a65055b",
-              "action_id": "392bd33d9600d0657129bcb964ebd07d"
+              "result_set_id": "choices-684b91a84a5447ef87dfce11de4d2e81",
+              "action_id": "e5abc138ab7e64d8b7613f59c056b2fc"
             },
             {
               "id": "spotify:track:2222222222222222222222",
@@ -1312,18 +1312,18 @@
                 "subtitle": "Synthetic performer"
               },
               "uri": "spotify:track:2222222222222222222222",
-              "result_set_id": "choices-226c0f007b72497fa6f41c123a65055b",
-              "action_id": "4c29c6a170b1bf151d8d2b3a5ed9f8d5"
+              "result_set_id": "choices-684b91a84a5447ef87dfce11de4d2e81",
+              "action_id": "6d5d3be790368fe0d240e59790320866"
             }
           ]
         },
         "user_id": null,
         "user_message": {
-          "id": "server-131f250d-2300-48ca-8dca-d7e9c534a5ab",
+          "id": "server-9478a788-666e-4ff2-bf86-d89c8df1c3a4",
           "client_message_id": "standalone-search",
           "role": "user",
           "text": "Suggest acoustic jazz songs to search for, keeping playback unchanged.",
-          "created_at": "2026-10-14T13:45:44.306579Z",
+          "created_at": "2026-10-14T14:37:44.459078Z",
           "client_id": "djconnect-ios-ABCDEF123456",
           "client_type": "ios",
           "status": "delivered",
@@ -1346,12 +1346,12 @@
           "exchange_order": 0
         },
         "assistant_message": {
-          "id": "server-87e1cd22-c90d-4a79-a67c-0a82789c45e6",
+          "id": "server-ed4521f2-d617-470a-b955-e0ac99975e42",
           "client_message_id": "standalone-search",
           "role": "assistant",
           "message_kind": "assistant",
           "text": "Found 3 tracks for acoustic jazz songs.",
-          "created_at": "2026-10-14T13:45:44.306617Z",
+          "created_at": "2026-10-14T14:37:44.459126Z",
           "client_id": "djconnect-ios-ABCDEF123456",
           "client_type": "ios",
           "status": "delivered",
@@ -1382,8 +1382,8 @@
                 "subtitle": "Synthetic performer"
               },
               "uri": "spotify:track:0000000000000000000000",
-              "result_set_id": "choices-226c0f007b72497fa6f41c123a65055b",
-              "action_id": "6d11b933255aa96b319b9a78e189f340"
+              "result_set_id": "choices-684b91a84a5447ef87dfce11de4d2e81",
+              "action_id": "6601cb8de54f6e24677056e3db098104"
             },
             {
               "id": "spotify:track:1111111111111111111111",
@@ -1403,8 +1403,8 @@
                 "subtitle": "Synthetic performer"
               },
               "uri": "spotify:track:1111111111111111111111",
-              "result_set_id": "choices-226c0f007b72497fa6f41c123a65055b",
-              "action_id": "392bd33d9600d0657129bcb964ebd07d"
+              "result_set_id": "choices-684b91a84a5447ef87dfce11de4d2e81",
+              "action_id": "e5abc138ab7e64d8b7613f59c056b2fc"
             },
             {
               "id": "spotify:track:2222222222222222222222",
@@ -1424,8 +1424,8 @@
                 "subtitle": "Synthetic performer"
               },
               "uri": "spotify:track:2222222222222222222222",
-              "result_set_id": "choices-226c0f007b72497fa6f41c123a65055b",
-              "action_id": "4c29c6a170b1bf151d8d2b3a5ed9f8d5"
+              "result_set_id": "choices-684b91a84a5447ef87dfce11de4d2e81",
+              "action_id": "6d5d3be790368fe0d240e59790320866"
             }
           ],
           "session_turn": {
@@ -1461,8 +1461,8 @@
                 "subtitle": "Synthetic performer"
               },
               "uri": "spotify:track:0000000000000000000000",
-              "result_set_id": "choices-226c0f007b72497fa6f41c123a65055b",
-              "action_id": "6d11b933255aa96b319b9a78e189f340"
+              "result_set_id": "choices-684b91a84a5447ef87dfce11de4d2e81",
+              "action_id": "6601cb8de54f6e24677056e3db098104"
             },
             {
               "id": "spotify:track:1111111111111111111111",
@@ -1482,8 +1482,8 @@
                 "subtitle": "Synthetic performer"
               },
               "uri": "spotify:track:1111111111111111111111",
-              "result_set_id": "choices-226c0f007b72497fa6f41c123a65055b",
-              "action_id": "392bd33d9600d0657129bcb964ebd07d"
+              "result_set_id": "choices-684b91a84a5447ef87dfce11de4d2e81",
+              "action_id": "e5abc138ab7e64d8b7613f59c056b2fc"
             },
             {
               "id": "spotify:track:2222222222222222222222",
@@ -1503,8 +1503,8 @@
                 "subtitle": "Synthetic performer"
               },
               "uri": "spotify:track:2222222222222222222222",
-              "result_set_id": "choices-226c0f007b72497fa6f41c123a65055b",
-              "action_id": "4c29c6a170b1bf151d8d2b3a5ed9f8d5"
+              "result_set_id": "choices-684b91a84a5447ef87dfce11de4d2e81",
+              "action_id": "6d5d3be790368fe0d240e59790320866"
             }
           ],
           "text_source": "qualified_catalog_result",
@@ -1512,11 +1512,11 @@
         },
         "messages": [
           {
-            "id": "server-131f250d-2300-48ca-8dca-d7e9c534a5ab",
+            "id": "server-9478a788-666e-4ff2-bf86-d89c8df1c3a4",
             "client_message_id": "standalone-search",
             "role": "user",
             "text": "Suggest acoustic jazz songs to search for, keeping playback unchanged.",
-            "created_at": "2026-10-14T13:45:44.306579Z",
+            "created_at": "2026-10-14T14:37:44.459078Z",
             "client_id": "djconnect-ios-ABCDEF123456",
             "client_type": "ios",
             "status": "delivered",
@@ -1539,12 +1539,12 @@
             "exchange_order": 0
           },
           {
-            "id": "server-87e1cd22-c90d-4a79-a67c-0a82789c45e6",
+            "id": "server-ed4521f2-d617-470a-b955-e0ac99975e42",
             "client_message_id": "standalone-search",
             "role": "assistant",
             "message_kind": "assistant",
             "text": "Found 3 tracks for acoustic jazz songs.",
-            "created_at": "2026-10-14T13:45:44.306617Z",
+            "created_at": "2026-10-14T14:37:44.459126Z",
             "client_id": "djconnect-ios-ABCDEF123456",
             "client_type": "ios",
             "status": "delivered",
@@ -1575,8 +1575,8 @@
                   "subtitle": "Synthetic performer"
                 },
                 "uri": "spotify:track:0000000000000000000000",
-                "result_set_id": "choices-226c0f007b72497fa6f41c123a65055b",
-                "action_id": "6d11b933255aa96b319b9a78e189f340"
+                "result_set_id": "choices-684b91a84a5447ef87dfce11de4d2e81",
+                "action_id": "6601cb8de54f6e24677056e3db098104"
               },
               {
                 "id": "spotify:track:1111111111111111111111",
@@ -1596,8 +1596,8 @@
                   "subtitle": "Synthetic performer"
                 },
                 "uri": "spotify:track:1111111111111111111111",
-                "result_set_id": "choices-226c0f007b72497fa6f41c123a65055b",
-                "action_id": "392bd33d9600d0657129bcb964ebd07d"
+                "result_set_id": "choices-684b91a84a5447ef87dfce11de4d2e81",
+                "action_id": "e5abc138ab7e64d8b7613f59c056b2fc"
               },
               {
                 "id": "spotify:track:2222222222222222222222",
@@ -1617,8 +1617,8 @@
                   "subtitle": "Synthetic performer"
                 },
                 "uri": "spotify:track:2222222222222222222222",
-                "result_set_id": "choices-226c0f007b72497fa6f41c123a65055b",
-                "action_id": "4c29c6a170b1bf151d8d2b3a5ed9f8d5"
+                "result_set_id": "choices-684b91a84a5447ef87dfce11de4d2e81",
+                "action_id": "6d5d3be790368fe0d240e59790320866"
               }
             ],
             "session_turn": {
@@ -1654,8 +1654,8 @@
                   "subtitle": "Synthetic performer"
                 },
                 "uri": "spotify:track:0000000000000000000000",
-                "result_set_id": "choices-226c0f007b72497fa6f41c123a65055b",
-                "action_id": "6d11b933255aa96b319b9a78e189f340"
+                "result_set_id": "choices-684b91a84a5447ef87dfce11de4d2e81",
+                "action_id": "6601cb8de54f6e24677056e3db098104"
               },
               {
                 "id": "spotify:track:1111111111111111111111",
@@ -1675,8 +1675,8 @@
                   "subtitle": "Synthetic performer"
                 },
                 "uri": "spotify:track:1111111111111111111111",
-                "result_set_id": "choices-226c0f007b72497fa6f41c123a65055b",
-                "action_id": "392bd33d9600d0657129bcb964ebd07d"
+                "result_set_id": "choices-684b91a84a5447ef87dfce11de4d2e81",
+                "action_id": "e5abc138ab7e64d8b7613f59c056b2fc"
               },
               {
                 "id": "spotify:track:2222222222222222222222",
@@ -1696,8 +1696,8 @@
                   "subtitle": "Synthetic performer"
                 },
                 "uri": "spotify:track:2222222222222222222222",
-                "result_set_id": "choices-226c0f007b72497fa6f41c123a65055b",
-                "action_id": "4c29c6a170b1bf151d8d2b3a5ed9f8d5"
+                "result_set_id": "choices-684b91a84a5447ef87dfce11de4d2e81",
+                "action_id": "6d5d3be790368fe0d240e59790320866"
               }
             ],
             "text_source": "qualified_catalog_result",
@@ -1709,7 +1709,7 @@
         "history_limit": 1000,
         "history_trimmed_before": null,
         "history_trimmed_count": 0,
-        "server_time": "2026-10-14T13:45:44.308144Z",
+        "server_time": "2026-10-14T14:37:44.460422Z",
         "media_delivery_basis": "current_response_only",
         "owner_profile_id": "profile-a",
         "client_message_id": "standalone-search",
@@ -1732,7 +1732,7 @@
           "metrics": {
             "agent_calls": 1,
             "lookup_calls": 1,
-            "prompt_bytes": 4803
+            "prompt_bytes": 5167
           }
         }
       }
@@ -1748,11 +1748,11 @@
       },
       "status": 200,
       "cache_control": "no-store",
-      "latency_ms": 808,
+      "latency_ms": 2208,
       "body": {
         "success": true,
-        "text": "Found 3 tracks for live acoustic jazz.",
-        "dj_text": "Found 3 tracks for live acoustic jazz.",
+        "text": "Found 3 tracks for live acoustic jazz songs.",
+        "dj_text": "Found 3 tracks for live acoustic jazz songs.",
         "text_source": "qualified_catalog_result",
         "is_generated_text": false,
         "knowledge_basis": "qualified_provider_result_fields",
@@ -1776,8 +1776,8 @@
               "subtitle": "Synthetic performer"
             },
             "uri": "spotify:track:0000000000000000000000",
-            "result_set_id": "choices-508f8bf217a34fa79559ddfb9675ad9d",
-            "action_id": "ed6913e16e5a2341844167dd0fe67d2f"
+            "result_set_id": "choices-bde225599e494e04ac32d6b50b2d6989",
+            "action_id": "d89622dfb92edd81760cfd514556e5fa"
           },
           {
             "id": "spotify:track:1111111111111111111111",
@@ -1797,8 +1797,8 @@
               "subtitle": "Synthetic performer"
             },
             "uri": "spotify:track:1111111111111111111111",
-            "result_set_id": "choices-508f8bf217a34fa79559ddfb9675ad9d",
-            "action_id": "c75c98ac7b79f36b110cd53005339b59"
+            "result_set_id": "choices-bde225599e494e04ac32d6b50b2d6989",
+            "action_id": "8fd7ed24ce09d88218d8ff03a40cd6e1"
           },
           {
             "id": "spotify:track:2222222222222222222222",
@@ -1818,8 +1818,8 @@
               "subtitle": "Synthetic performer"
             },
             "uri": "spotify:track:2222222222222222222222",
-            "result_set_id": "choices-508f8bf217a34fa79559ddfb9675ad9d",
-            "action_id": "6e332c3d962cc656f81997e0014ef15c"
+            "result_set_id": "choices-bde225599e494e04ac32d6b50b2d6989",
+            "action_id": "2474f5703844f2a7d5df5065ec6f1635"
           }
         ],
         "playback_actions": [
@@ -1841,8 +1841,8 @@
               "subtitle": "Synthetic performer"
             },
             "uri": "spotify:track:0000000000000000000000",
-            "result_set_id": "choices-508f8bf217a34fa79559ddfb9675ad9d",
-            "action_id": "ed6913e16e5a2341844167dd0fe67d2f"
+            "result_set_id": "choices-bde225599e494e04ac32d6b50b2d6989",
+            "action_id": "d89622dfb92edd81760cfd514556e5fa"
           },
           {
             "id": "spotify:track:1111111111111111111111",
@@ -1862,8 +1862,8 @@
               "subtitle": "Synthetic performer"
             },
             "uri": "spotify:track:1111111111111111111111",
-            "result_set_id": "choices-508f8bf217a34fa79559ddfb9675ad9d",
-            "action_id": "c75c98ac7b79f36b110cd53005339b59"
+            "result_set_id": "choices-bde225599e494e04ac32d6b50b2d6989",
+            "action_id": "8fd7ed24ce09d88218d8ff03a40cd6e1"
           },
           {
             "id": "spotify:track:2222222222222222222222",
@@ -1883,8 +1883,8 @@
               "subtitle": "Synthetic performer"
             },
             "uri": "spotify:track:2222222222222222222222",
-            "result_set_id": "choices-508f8bf217a34fa79559ddfb9675ad9d",
-            "action_id": "6e332c3d962cc656f81997e0014ef15c"
+            "result_set_id": "choices-bde225599e494e04ac32d6b50b2d6989",
+            "action_id": "2474f5703844f2a7d5df5065ec6f1635"
           }
         ],
         "sources": [
@@ -1896,7 +1896,7 @@
         ],
         "result_set": {
           "schema_version": 1,
-          "result_set_id": "choices-508f8bf217a34fa79559ddfb9675ad9d",
+          "result_set_id": "choices-bde225599e494e04ac32d6b50b2d6989",
           "expires_in": 600.0,
           "items": [
             {
@@ -1917,8 +1917,8 @@
                 "subtitle": "Synthetic performer"
               },
               "uri": "spotify:track:0000000000000000000000",
-              "result_set_id": "choices-508f8bf217a34fa79559ddfb9675ad9d",
-              "action_id": "ed6913e16e5a2341844167dd0fe67d2f"
+              "result_set_id": "choices-bde225599e494e04ac32d6b50b2d6989",
+              "action_id": "d89622dfb92edd81760cfd514556e5fa"
             },
             {
               "id": "spotify:track:1111111111111111111111",
@@ -1938,8 +1938,8 @@
                 "subtitle": "Synthetic performer"
               },
               "uri": "spotify:track:1111111111111111111111",
-              "result_set_id": "choices-508f8bf217a34fa79559ddfb9675ad9d",
-              "action_id": "c75c98ac7b79f36b110cd53005339b59"
+              "result_set_id": "choices-bde225599e494e04ac32d6b50b2d6989",
+              "action_id": "8fd7ed24ce09d88218d8ff03a40cd6e1"
             },
             {
               "id": "spotify:track:2222222222222222222222",
@@ -1959,18 +1959,18 @@
                 "subtitle": "Synthetic performer"
               },
               "uri": "spotify:track:2222222222222222222222",
-              "result_set_id": "choices-508f8bf217a34fa79559ddfb9675ad9d",
-              "action_id": "6e332c3d962cc656f81997e0014ef15c"
+              "result_set_id": "choices-bde225599e494e04ac32d6b50b2d6989",
+              "action_id": "2474f5703844f2a7d5df5065ec6f1635"
             }
           ]
         },
         "user_id": null,
         "user_message": {
-          "id": "server-93a60495-b158-49ba-bd8f-86d63fc06abc",
+          "id": "server-c376a2a1-c81b-4202-99d3-910f62794c36",
           "client_message_id": "standalone-refine",
           "role": "user",
           "text": "Rather a live version; search for one, do not play yet.",
-          "created_at": "2026-10-14T13:45:45.114354Z",
+          "created_at": "2026-10-14T14:37:46.667257Z",
           "client_id": "djconnect-ios-ABCDEF123456",
           "client_type": "ios",
           "status": "delivered",
@@ -1993,12 +1993,12 @@
           "exchange_order": 0
         },
         "assistant_message": {
-          "id": "server-d98368ea-5595-4aa4-b7cc-c075c575c0d6",
+          "id": "server-f17dd6cb-fe30-478b-b298-d47998030f4f",
           "client_message_id": "standalone-refine",
           "role": "assistant",
           "message_kind": "assistant",
-          "text": "Found 3 tracks for live acoustic jazz.",
-          "created_at": "2026-10-14T13:45:45.114406Z",
+          "text": "Found 3 tracks for live acoustic jazz songs.",
+          "created_at": "2026-10-14T14:37:46.667297Z",
           "client_id": "djconnect-ios-ABCDEF123456",
           "client_type": "ios",
           "status": "delivered",
@@ -2029,8 +2029,8 @@
                 "subtitle": "Synthetic performer"
               },
               "uri": "spotify:track:0000000000000000000000",
-              "result_set_id": "choices-508f8bf217a34fa79559ddfb9675ad9d",
-              "action_id": "ed6913e16e5a2341844167dd0fe67d2f"
+              "result_set_id": "choices-bde225599e494e04ac32d6b50b2d6989",
+              "action_id": "d89622dfb92edd81760cfd514556e5fa"
             },
             {
               "id": "spotify:track:1111111111111111111111",
@@ -2050,8 +2050,8 @@
                 "subtitle": "Synthetic performer"
               },
               "uri": "spotify:track:1111111111111111111111",
-              "result_set_id": "choices-508f8bf217a34fa79559ddfb9675ad9d",
-              "action_id": "c75c98ac7b79f36b110cd53005339b59"
+              "result_set_id": "choices-bde225599e494e04ac32d6b50b2d6989",
+              "action_id": "8fd7ed24ce09d88218d8ff03a40cd6e1"
             },
             {
               "id": "spotify:track:2222222222222222222222",
@@ -2071,8 +2071,8 @@
                 "subtitle": "Synthetic performer"
               },
               "uri": "spotify:track:2222222222222222222222",
-              "result_set_id": "choices-508f8bf217a34fa79559ddfb9675ad9d",
-              "action_id": "6e332c3d962cc656f81997e0014ef15c"
+              "result_set_id": "choices-bde225599e494e04ac32d6b50b2d6989",
+              "action_id": "2474f5703844f2a7d5df5065ec6f1635"
             }
           ],
           "session_turn": {
@@ -2108,8 +2108,8 @@
                 "subtitle": "Synthetic performer"
               },
               "uri": "spotify:track:0000000000000000000000",
-              "result_set_id": "choices-508f8bf217a34fa79559ddfb9675ad9d",
-              "action_id": "ed6913e16e5a2341844167dd0fe67d2f"
+              "result_set_id": "choices-bde225599e494e04ac32d6b50b2d6989",
+              "action_id": "d89622dfb92edd81760cfd514556e5fa"
             },
             {
               "id": "spotify:track:1111111111111111111111",
@@ -2129,8 +2129,8 @@
                 "subtitle": "Synthetic performer"
               },
               "uri": "spotify:track:1111111111111111111111",
-              "result_set_id": "choices-508f8bf217a34fa79559ddfb9675ad9d",
-              "action_id": "c75c98ac7b79f36b110cd53005339b59"
+              "result_set_id": "choices-bde225599e494e04ac32d6b50b2d6989",
+              "action_id": "8fd7ed24ce09d88218d8ff03a40cd6e1"
             },
             {
               "id": "spotify:track:2222222222222222222222",
@@ -2150,8 +2150,8 @@
                 "subtitle": "Synthetic performer"
               },
               "uri": "spotify:track:2222222222222222222222",
-              "result_set_id": "choices-508f8bf217a34fa79559ddfb9675ad9d",
-              "action_id": "6e332c3d962cc656f81997e0014ef15c"
+              "result_set_id": "choices-bde225599e494e04ac32d6b50b2d6989",
+              "action_id": "2474f5703844f2a7d5df5065ec6f1635"
             }
           ],
           "text_source": "qualified_catalog_result",
@@ -2159,11 +2159,11 @@
         },
         "messages": [
           {
-            "id": "server-93a60495-b158-49ba-bd8f-86d63fc06abc",
+            "id": "server-c376a2a1-c81b-4202-99d3-910f62794c36",
             "client_message_id": "standalone-refine",
             "role": "user",
             "text": "Rather a live version; search for one, do not play yet.",
-            "created_at": "2026-10-14T13:45:45.114354Z",
+            "created_at": "2026-10-14T14:37:46.667257Z",
             "client_id": "djconnect-ios-ABCDEF123456",
             "client_type": "ios",
             "status": "delivered",
@@ -2186,12 +2186,12 @@
             "exchange_order": 0
           },
           {
-            "id": "server-d98368ea-5595-4aa4-b7cc-c075c575c0d6",
+            "id": "server-f17dd6cb-fe30-478b-b298-d47998030f4f",
             "client_message_id": "standalone-refine",
             "role": "assistant",
             "message_kind": "assistant",
-            "text": "Found 3 tracks for live acoustic jazz.",
-            "created_at": "2026-10-14T13:45:45.114406Z",
+            "text": "Found 3 tracks for live acoustic jazz songs.",
+            "created_at": "2026-10-14T14:37:46.667297Z",
             "client_id": "djconnect-ios-ABCDEF123456",
             "client_type": "ios",
             "status": "delivered",
@@ -2222,8 +2222,8 @@
                   "subtitle": "Synthetic performer"
                 },
                 "uri": "spotify:track:0000000000000000000000",
-                "result_set_id": "choices-508f8bf217a34fa79559ddfb9675ad9d",
-                "action_id": "ed6913e16e5a2341844167dd0fe67d2f"
+                "result_set_id": "choices-bde225599e494e04ac32d6b50b2d6989",
+                "action_id": "d89622dfb92edd81760cfd514556e5fa"
               },
               {
                 "id": "spotify:track:1111111111111111111111",
@@ -2243,8 +2243,8 @@
                   "subtitle": "Synthetic performer"
                 },
                 "uri": "spotify:track:1111111111111111111111",
-                "result_set_id": "choices-508f8bf217a34fa79559ddfb9675ad9d",
-                "action_id": "c75c98ac7b79f36b110cd53005339b59"
+                "result_set_id": "choices-bde225599e494e04ac32d6b50b2d6989",
+                "action_id": "8fd7ed24ce09d88218d8ff03a40cd6e1"
               },
               {
                 "id": "spotify:track:2222222222222222222222",
@@ -2264,8 +2264,8 @@
                   "subtitle": "Synthetic performer"
                 },
                 "uri": "spotify:track:2222222222222222222222",
-                "result_set_id": "choices-508f8bf217a34fa79559ddfb9675ad9d",
-                "action_id": "6e332c3d962cc656f81997e0014ef15c"
+                "result_set_id": "choices-bde225599e494e04ac32d6b50b2d6989",
+                "action_id": "2474f5703844f2a7d5df5065ec6f1635"
               }
             ],
             "session_turn": {
@@ -2301,8 +2301,8 @@
                   "subtitle": "Synthetic performer"
                 },
                 "uri": "spotify:track:0000000000000000000000",
-                "result_set_id": "choices-508f8bf217a34fa79559ddfb9675ad9d",
-                "action_id": "ed6913e16e5a2341844167dd0fe67d2f"
+                "result_set_id": "choices-bde225599e494e04ac32d6b50b2d6989",
+                "action_id": "d89622dfb92edd81760cfd514556e5fa"
               },
               {
                 "id": "spotify:track:1111111111111111111111",
@@ -2322,8 +2322,8 @@
                   "subtitle": "Synthetic performer"
                 },
                 "uri": "spotify:track:1111111111111111111111",
-                "result_set_id": "choices-508f8bf217a34fa79559ddfb9675ad9d",
-                "action_id": "c75c98ac7b79f36b110cd53005339b59"
+                "result_set_id": "choices-bde225599e494e04ac32d6b50b2d6989",
+                "action_id": "8fd7ed24ce09d88218d8ff03a40cd6e1"
               },
               {
                 "id": "spotify:track:2222222222222222222222",
@@ -2343,8 +2343,8 @@
                   "subtitle": "Synthetic performer"
                 },
                 "uri": "spotify:track:2222222222222222222222",
-                "result_set_id": "choices-508f8bf217a34fa79559ddfb9675ad9d",
-                "action_id": "6e332c3d962cc656f81997e0014ef15c"
+                "result_set_id": "choices-bde225599e494e04ac32d6b50b2d6989",
+                "action_id": "2474f5703844f2a7d5df5065ec6f1635"
               }
             ],
             "text_source": "qualified_catalog_result",
@@ -2356,7 +2356,7 @@
         "history_limit": 1000,
         "history_trimmed_before": null,
         "history_trimmed_count": 0,
-        "server_time": "2026-10-14T13:45:45.116176Z",
+        "server_time": "2026-10-14T14:37:46.668535Z",
         "media_delivery_basis": "current_response_only",
         "owner_profile_id": "profile-a",
         "client_message_id": "standalone-refine",
@@ -2379,7 +2379,7 @@
           "metrics": {
             "agent_calls": 1,
             "lookup_calls": 1,
-            "prompt_bytes": 4900
+            "prompt_bytes": 5264
           }
         }
       }
@@ -2393,17 +2393,17 @@
         "language": "en",
         "audio_response": "never",
         "conversation_context": {
-          "result_set_id": "choices-508f8bf217a34fa79559ddfb9675ad9d"
+          "result_set_id": "choices-bde225599e494e04ac32d6b50b2d6989"
         }
       },
       "status": 200,
       "cache_control": "no-store",
-      "latency_ms": 8,
+      "latency_ms": 7,
       "body": {
         "success": true,
         "text": "Selected; playback is unchanged.",
         "dj_text": "Selected; playback is unchanged.",
-        "selected_action_id": "c75c98ac7b79f36b110cd53005339b59",
+        "selected_action_id": "8fd7ed24ce09d88218d8ff03a40cd6e1",
         "playback_actions": [
           {
             "id": "spotify:track:1111111111111111111111",
@@ -2423,8 +2423,8 @@
               "subtitle": "Synthetic performer"
             },
             "uri": "spotify:track:1111111111111111111111",
-            "result_set_id": "choices-508f8bf217a34fa79559ddfb9675ad9d",
-            "action_id": "c75c98ac7b79f36b110cd53005339b59"
+            "result_set_id": "choices-bde225599e494e04ac32d6b50b2d6989",
+            "action_id": "8fd7ed24ce09d88218d8ff03a40cd6e1"
           }
         ],
         "items": [
@@ -2446,17 +2446,17 @@
               "subtitle": "Synthetic performer"
             },
             "uri": "spotify:track:1111111111111111111111",
-            "result_set_id": "choices-508f8bf217a34fa79559ddfb9675ad9d",
-            "action_id": "c75c98ac7b79f36b110cd53005339b59"
+            "result_set_id": "choices-bde225599e494e04ac32d6b50b2d6989",
+            "action_id": "8fd7ed24ce09d88218d8ff03a40cd6e1"
           }
         ],
         "user_id": null,
         "user_message": {
-          "id": "server-d5a8ae3f-7dec-44ef-a12b-736b6391313a",
+          "id": "server-1d9aa6c9-40c1-49c6-9c46-92e5c6ab599d",
           "client_message_id": "standalone-select",
           "role": "user",
           "text": "The second",
-          "created_at": "2026-10-14T13:45:45.122610Z",
+          "created_at": "2026-10-14T14:37:46.673205Z",
           "client_id": "djconnect-ios-ABCDEF123456",
           "client_type": "ios",
           "status": "delivered",
@@ -2465,10 +2465,10 @@
           "playback_actions": [],
           "session_turn": {
             "turn_id": "turn-9a99341ce65f514abc72d297086048f5",
-            "request_digest": "773ff1ad98e455e413da4593f132a14490413ca047de6ede0023d5057c8106dd",
+            "request_digest": "89a9f23e1ae3c609e939bcc7622b13e5a07ce6f0f4e32191bb582eb6b0920a72",
             "profile_id": "profile-a",
             "context": {
-              "result_set_id": "choices-508f8bf217a34fa79559ddfb9675ad9d"
+              "result_set_id": "choices-bde225599e494e04ac32d6b50b2d6989"
             },
             "captured_playback_item_id": "",
             "input_type": "text",
@@ -2481,12 +2481,12 @@
           "exchange_order": 0
         },
         "assistant_message": {
-          "id": "server-5d429da8-506e-4b05-82dc-1b0d5b02ef99",
+          "id": "server-f88efb95-a33d-4d53-ac84-b08a64d3e449",
           "client_message_id": "standalone-select",
           "role": "assistant",
           "message_kind": "assistant",
           "text": "Selected; playback is unchanged.",
-          "created_at": "2026-10-14T13:45:45.122668Z",
+          "created_at": "2026-10-14T14:37:46.673243Z",
           "client_id": "djconnect-ios-ABCDEF123456",
           "client_type": "ios",
           "status": "delivered",
@@ -2511,16 +2511,16 @@
                 "subtitle": "Synthetic performer"
               },
               "uri": "spotify:track:1111111111111111111111",
-              "result_set_id": "choices-508f8bf217a34fa79559ddfb9675ad9d",
-              "action_id": "c75c98ac7b79f36b110cd53005339b59"
+              "result_set_id": "choices-bde225599e494e04ac32d6b50b2d6989",
+              "action_id": "8fd7ed24ce09d88218d8ff03a40cd6e1"
             }
           ],
           "session_turn": {
             "turn_id": "turn-9a99341ce65f514abc72d297086048f5",
-            "request_digest": "773ff1ad98e455e413da4593f132a14490413ca047de6ede0023d5057c8106dd",
+            "request_digest": "89a9f23e1ae3c609e939bcc7622b13e5a07ce6f0f4e32191bb582eb6b0920a72",
             "profile_id": "profile-a",
             "context": {
-              "result_set_id": "choices-508f8bf217a34fa79559ddfb9675ad9d"
+              "result_set_id": "choices-bde225599e494e04ac32d6b50b2d6989"
             },
             "captured_playback_item_id": "",
             "input_type": "text",
@@ -2550,18 +2550,18 @@
                 "subtitle": "Synthetic performer"
               },
               "uri": "spotify:track:1111111111111111111111",
-              "result_set_id": "choices-508f8bf217a34fa79559ddfb9675ad9d",
-              "action_id": "c75c98ac7b79f36b110cd53005339b59"
+              "result_set_id": "choices-bde225599e494e04ac32d6b50b2d6989",
+              "action_id": "8fd7ed24ce09d88218d8ff03a40cd6e1"
             }
           ]
         },
         "messages": [
           {
-            "id": "server-d5a8ae3f-7dec-44ef-a12b-736b6391313a",
+            "id": "server-1d9aa6c9-40c1-49c6-9c46-92e5c6ab599d",
             "client_message_id": "standalone-select",
             "role": "user",
             "text": "The second",
-            "created_at": "2026-10-14T13:45:45.122610Z",
+            "created_at": "2026-10-14T14:37:46.673205Z",
             "client_id": "djconnect-ios-ABCDEF123456",
             "client_type": "ios",
             "status": "delivered",
@@ -2570,10 +2570,10 @@
             "playback_actions": [],
             "session_turn": {
               "turn_id": "turn-9a99341ce65f514abc72d297086048f5",
-              "request_digest": "773ff1ad98e455e413da4593f132a14490413ca047de6ede0023d5057c8106dd",
+              "request_digest": "89a9f23e1ae3c609e939bcc7622b13e5a07ce6f0f4e32191bb582eb6b0920a72",
               "profile_id": "profile-a",
               "context": {
-                "result_set_id": "choices-508f8bf217a34fa79559ddfb9675ad9d"
+                "result_set_id": "choices-bde225599e494e04ac32d6b50b2d6989"
               },
               "captured_playback_item_id": "",
               "input_type": "text",
@@ -2586,12 +2586,12 @@
             "exchange_order": 0
           },
           {
-            "id": "server-5d429da8-506e-4b05-82dc-1b0d5b02ef99",
+            "id": "server-f88efb95-a33d-4d53-ac84-b08a64d3e449",
             "client_message_id": "standalone-select",
             "role": "assistant",
             "message_kind": "assistant",
             "text": "Selected; playback is unchanged.",
-            "created_at": "2026-10-14T13:45:45.122668Z",
+            "created_at": "2026-10-14T14:37:46.673243Z",
             "client_id": "djconnect-ios-ABCDEF123456",
             "client_type": "ios",
             "status": "delivered",
@@ -2616,16 +2616,16 @@
                   "subtitle": "Synthetic performer"
                 },
                 "uri": "spotify:track:1111111111111111111111",
-                "result_set_id": "choices-508f8bf217a34fa79559ddfb9675ad9d",
-                "action_id": "c75c98ac7b79f36b110cd53005339b59"
+                "result_set_id": "choices-bde225599e494e04ac32d6b50b2d6989",
+                "action_id": "8fd7ed24ce09d88218d8ff03a40cd6e1"
               }
             ],
             "session_turn": {
               "turn_id": "turn-9a99341ce65f514abc72d297086048f5",
-              "request_digest": "773ff1ad98e455e413da4593f132a14490413ca047de6ede0023d5057c8106dd",
+              "request_digest": "89a9f23e1ae3c609e939bcc7622b13e5a07ce6f0f4e32191bb582eb6b0920a72",
               "profile_id": "profile-a",
               "context": {
-                "result_set_id": "choices-508f8bf217a34fa79559ddfb9675ad9d"
+                "result_set_id": "choices-bde225599e494e04ac32d6b50b2d6989"
               },
               "captured_playback_item_id": "",
               "input_type": "text",
@@ -2655,8 +2655,8 @@
                   "subtitle": "Synthetic performer"
                 },
                 "uri": "spotify:track:1111111111111111111111",
-                "result_set_id": "choices-508f8bf217a34fa79559ddfb9675ad9d",
-                "action_id": "c75c98ac7b79f36b110cd53005339b59"
+                "result_set_id": "choices-bde225599e494e04ac32d6b50b2d6989",
+                "action_id": "8fd7ed24ce09d88218d8ff03a40cd6e1"
               }
             ]
           }
@@ -2666,7 +2666,7 @@
         "history_limit": 1000,
         "history_trimmed_before": null,
         "history_trimmed_count": 0,
-        "server_time": "2026-10-14T13:45:45.124498Z",
+        "server_time": "2026-10-14T14:37:46.675790Z",
         "media_delivery_basis": "current_response_only",
         "owner_profile_id": "profile-a",
         "client_message_id": "standalone-select",
@@ -2675,7 +2675,7 @@
           "turn_id": "turn-9a99341ce65f514abc72d297086048f5",
           "thread_id": "default",
           "context": {
-            "result_set_id": "choices-508f8bf217a34fa79559ddfb9675ad9d"
+            "result_set_id": "choices-bde225599e494e04ac32d6b50b2d6989"
           },
           "entry_ids": [],
           "history_scope": "profile",
@@ -2705,7 +2705,7 @@
         "language": "en",
         "audio_response": "never",
         "conversation_context": {
-          "result_set_id": "choices-508f8bf217a34fa79559ddfb9675ad9d"
+          "result_set_id": "choices-bde225599e494e04ac32d6b50b2d6989"
         }
       },
       "status": 200,
@@ -2778,12 +2778,12 @@
         },
         "audio_type": null,
         "assistant_message": {
-          "id": "server-ec902ab4-a525-44be-ac02-4c706bff2399",
+          "id": "server-8a44a62e-55ba-4671-a44e-2fddee0f098b",
           "client_message_id": "standalone-play",
           "role": "assistant",
           "message_kind": "assistant",
           "text": "Here is Synthetic live recording by Synthetic performer · Synthetic release.",
-          "created_at": "2026-10-14T13:45:45.139787Z",
+          "created_at": "2026-10-14T14:37:46.690029Z",
           "client_id": "djconnect-ios-ABCDEF123456",
           "client_type": "ios",
           "status": "delivered",
@@ -2793,10 +2793,10 @@
           "action": "spotify_start_recommendation",
           "session_turn": {
             "turn_id": "turn-a90281dc9ebd5b868cd6d68c4e27e1b3",
-            "request_digest": "241ab648835661c1fcba14e72a794c49cd363ead0c79af3988f4c18bb71ca0ea",
+            "request_digest": "0ea716aee1ff3f0176e015eb978f7d2afb90dc929970c789cfd037970f1981f9",
             "profile_id": "profile-a",
             "context": {
-              "result_set_id": "choices-508f8bf217a34fa79559ddfb9675ad9d"
+              "result_set_id": "choices-bde225599e494e04ac32d6b50b2d6989"
             },
             "captured_playback_item_id": "",
             "input_type": "text",
@@ -2853,14 +2853,14 @@
         },
         "music_target_player": {},
         "music_backend_error": null,
-        "selected_action_id": "c75c98ac7b79f36b110cd53005339b59",
+        "selected_action_id": "8fd7ed24ce09d88218d8ff03a40cd6e1",
         "user_id": null,
         "user_message": {
-          "id": "server-9f39aec1-b5a3-4ce7-8eb6-0547bb5a0a9d",
+          "id": "server-a68b7c63-3d94-4433-9f7e-b07fb405ecde",
           "client_message_id": "standalone-play",
           "role": "user",
           "text": "Play that",
-          "created_at": "2026-10-14T13:45:45.139755Z",
+          "created_at": "2026-10-14T14:37:46.689992Z",
           "client_id": "djconnect-ios-ABCDEF123456",
           "client_type": "ios",
           "status": "delivered",
@@ -2869,10 +2869,10 @@
           "playback_actions": [],
           "session_turn": {
             "turn_id": "turn-a90281dc9ebd5b868cd6d68c4e27e1b3",
-            "request_digest": "241ab648835661c1fcba14e72a794c49cd363ead0c79af3988f4c18bb71ca0ea",
+            "request_digest": "0ea716aee1ff3f0176e015eb978f7d2afb90dc929970c789cfd037970f1981f9",
             "profile_id": "profile-a",
             "context": {
-              "result_set_id": "choices-508f8bf217a34fa79559ddfb9675ad9d"
+              "result_set_id": "choices-bde225599e494e04ac32d6b50b2d6989"
             },
             "captured_playback_item_id": "",
             "input_type": "text",
@@ -2886,11 +2886,11 @@
         },
         "messages": [
           {
-            "id": "server-9f39aec1-b5a3-4ce7-8eb6-0547bb5a0a9d",
+            "id": "server-a68b7c63-3d94-4433-9f7e-b07fb405ecde",
             "client_message_id": "standalone-play",
             "role": "user",
             "text": "Play that",
-            "created_at": "2026-10-14T13:45:45.139755Z",
+            "created_at": "2026-10-14T14:37:46.689992Z",
             "client_id": "djconnect-ios-ABCDEF123456",
             "client_type": "ios",
             "status": "delivered",
@@ -2899,10 +2899,10 @@
             "playback_actions": [],
             "session_turn": {
               "turn_id": "turn-a90281dc9ebd5b868cd6d68c4e27e1b3",
-              "request_digest": "241ab648835661c1fcba14e72a794c49cd363ead0c79af3988f4c18bb71ca0ea",
+              "request_digest": "0ea716aee1ff3f0176e015eb978f7d2afb90dc929970c789cfd037970f1981f9",
               "profile_id": "profile-a",
               "context": {
-                "result_set_id": "choices-508f8bf217a34fa79559ddfb9675ad9d"
+                "result_set_id": "choices-bde225599e494e04ac32d6b50b2d6989"
               },
               "captured_playback_item_id": "",
               "input_type": "text",
@@ -2915,12 +2915,12 @@
             "exchange_order": 0
           },
           {
-            "id": "server-ec902ab4-a525-44be-ac02-4c706bff2399",
+            "id": "server-8a44a62e-55ba-4671-a44e-2fddee0f098b",
             "client_message_id": "standalone-play",
             "role": "assistant",
             "message_kind": "assistant",
             "text": "Here is Synthetic live recording by Synthetic performer · Synthetic release.",
-            "created_at": "2026-10-14T13:45:45.139787Z",
+            "created_at": "2026-10-14T14:37:46.690029Z",
             "client_id": "djconnect-ios-ABCDEF123456",
             "client_type": "ios",
             "status": "delivered",
@@ -2930,10 +2930,10 @@
             "action": "spotify_start_recommendation",
             "session_turn": {
               "turn_id": "turn-a90281dc9ebd5b868cd6d68c4e27e1b3",
-              "request_digest": "241ab648835661c1fcba14e72a794c49cd363ead0c79af3988f4c18bb71ca0ea",
+              "request_digest": "0ea716aee1ff3f0176e015eb978f7d2afb90dc929970c789cfd037970f1981f9",
               "profile_id": "profile-a",
               "context": {
-                "result_set_id": "choices-508f8bf217a34fa79559ddfb9675ad9d"
+                "result_set_id": "choices-bde225599e494e04ac32d6b50b2d6989"
               },
               "captured_playback_item_id": "",
               "input_type": "text",
@@ -2959,7 +2959,7 @@
         "history_limit": 1000,
         "history_trimmed_before": null,
         "history_trimmed_count": 0,
-        "server_time": "2026-10-14T13:45:45.140888Z",
+        "server_time": "2026-10-14T14:37:46.691404Z",
         "media_delivery_basis": "current_response_only",
         "owner_profile_id": "profile-a",
         "client_message_id": "standalone-play",
@@ -2968,7 +2968,7 @@
           "turn_id": "turn-a90281dc9ebd5b868cd6d68c4e27e1b3",
           "thread_id": "default",
           "context": {
-            "result_set_id": "choices-508f8bf217a34fa79559ddfb9675ad9d"
+            "result_set_id": "choices-bde225599e494e04ac32d6b50b2d6989"
           },
           "entry_ids": [],
           "history_scope": "profile",
@@ -2998,21 +2998,21 @@
         "language": "en",
         "audio_response": "never",
         "conversation_context": {
-          "session_id": "session-cad79d0f7b034f34a3b7a83ddefd19d9",
+          "session_id": "session-4d9e744ebf9d47e5ab6d9cf72b2de311",
           "selected_moment": {
-            "session_id": "session-cad79d0f7b034f34a3b7a83ddefd19d9",
-            "moment_id": "moment-6426a47765b44fddaa82457738061556"
+            "session_id": "session-4d9e744ebf9d47e5ab6d9cf72b2de311",
+            "moment_id": "moment-0bc67373d4374c17ade4430fdcae5d72"
           }
         }
       },
       "status": 200,
       "cache_control": "no-store",
-      "latency_ms": 1124,
+      "latency_ms": 2256,
       "body": {
         "success": true,
-        "text": "Brian Eno is the composer. His influence often brings ambient textures and experimental sound layering to a recording.",
-        "dj_text": "Brian Eno is the composer. His influence often brings ambient textures and experimental sound layering to a recording.",
-        "message": "Brian Eno is the composer. His influence often brings ambient textures and experimental sound layering to a recording.",
+        "text": "The composer is Brian Eno, according to the MusicBrainz credit for this recording’s composition. That identifies him as the writer of the composition, not necessarily as its performer.",
+        "dj_text": "The composer is Brian Eno, according to the MusicBrainz credit for this recording’s composition. That identifies him as the writer of the composition, not necessarily as its performer.",
+        "message": "The composer is Brian Eno, according to the MusicBrainz credit for this recording’s composition. That identifies him as the writer of the composition, not necessarily as its performer.",
         "text_source": "generated",
         "is_generated_text": true,
         "model_processing_basis": "qualified_dialogue_v1",
@@ -3052,7 +3052,7 @@
           "role": "assistant",
           "message_kind": "assistant",
           "origin": "",
-          "text": "Brian Eno is the composer. His influence often brings ambient textures and experimental sound layering to a recording.",
+          "text": "The composer is Brian Eno, according to the MusicBrainz credit for this recording’s composition. That identifies him as the writer of the composition, not necessarily as its performer.",
           "text_source": "generated",
           "is_generated_text": true,
           "links": [
@@ -3105,10 +3105,10 @@
           "turn_id": "turn-dec6441f586e5320aad7d42a03e2a0f6",
           "thread_id": "default",
           "context": {
-            "session_id": "session-cad79d0f7b034f34a3b7a83ddefd19d9",
+            "session_id": "session-4d9e744ebf9d47e5ab6d9cf72b2de311",
             "selected_moment": {
-              "session_id": "session-cad79d0f7b034f34a3b7a83ddefd19d9",
-              "moment_id": "moment-6426a47765b44fddaa82457738061556"
+              "session_id": "session-4d9e744ebf9d47e5ab6d9cf72b2de311",
+              "moment_id": "moment-0bc67373d4374c17ade4430fdcae5d72"
             }
           },
           "entry_ids": [],
@@ -3125,7 +3125,7 @@
           "metrics": {
             "agent_calls": 1,
             "lookup_calls": 0,
-            "prompt_bytes": 5191
+            "prompt_bytes": 5555
           }
         }
       }
@@ -3136,18 +3136,18 @@
       "request": {
         "track_insight_target": {
           "schema_version": 1,
-          "session_id": "session-cad79d0f7b034f34a3b7a83ddefd19d9",
-          "moment_id": "moment-6426a47765b44fddaa82457738061556",
-          "action_id": "insight-moment-6426a47765b44fddaa82457738061556"
+          "session_id": "session-4d9e744ebf9d47e5ab6d9cf72b2de311",
+          "moment_id": "moment-0bc67373d4374c17ade4430fdcae5d72",
+          "action_id": "insight-moment-0bc67373d4374c17ade4430fdcae5d72"
         },
         "language": "en"
       },
       "status": 200,
       "cache_control": "no-store",
-      "latency_ms": 3414,
+      "latency_ms": 5371,
       "body": {
         "id": "track_insight_c36a1d4bc78eee2b136e639c",
-        "created_at": "2026-10-14T13:46:38.484308+00:00",
+        "created_at": "2026-10-14T14:38:47.300294+00:00",
         "source": "moment_detail",
         "language": "en",
         "mood_context": {
@@ -3168,13 +3168,9 @@
           "progress_ms": null
         },
         "analysis": {
-          "summary": "This track is composed by Brian Eno, whose work is noted for its thoughtful approach and the ability to create immersive musical experiences. Listeners can expect a thoughtful and engaging atmosphere shaped by Eno's creative direction.",
-          "full_text": "The composition behind this recording credits Brian Eno. Eno’s approach to composition often emphasizes mood, exploration, and nuanced layers. Within tracks credited to Eno, listeners may find a well-crafted sense of groove and flow, highlighting his unique musical intent. The aura of the piece may prompt listeners to focus on the evolving textures and shifts in the sonic landscape.",
-          "listening_cues": [
-            "Notice how the music establishes a groove, pulling you into its rhythmic core.",
-            "Listen for subtle changes in mood and development, reflecting Brian Eno's compositional style.",
-            "Pay attention to the transitions—how different thematic moments flow into one another."
-          ],
+          "summary": "{'en': 'The composition behind this recording credits Brian Eno as composer.'}",
+          "full_text": "{'en': 'The qualified credit identifies Brian Eno as the composer of the composition behind this recording. A composer credit points to authorship of the composition; by itself, it does not identify who performs this recording or describe how it sounds. The supplied mood is “groove.” Any connection between that mood and the composition’s meaning is an interpretation, not something established by the credit.'}",
+          "listening_cues": [],
           "genre": null,
           "subgenre": null,
           "mood": null,
@@ -3222,12 +3218,12 @@
           "mode": "explicit",
           "reference": {
             "schema_version": 1,
-            "session_id": "session-cad79d0f7b034f34a3b7a83ddefd19d9",
-            "moment_id": "moment-6426a47765b44fddaa82457738061556",
-            "action_id": "insight-moment-6426a47765b44fddaa82457738061556"
+            "session_id": "session-4d9e744ebf9d47e5ab6d9cf72b2de311",
+            "moment_id": "moment-0bc67373d4374c17ade4430fdcae5d72",
+            "action_id": "insight-moment-0bc67373d4374c17ade4430fdcae5d72"
           },
           "media_identity": "spotify:track:1111111111111111111111",
-          "expires_in": 589
+          "expires_in": 581
         }
       }
     },
@@ -3241,9 +3237,9 @@
       "cache_control": "no-store",
       "body": {
         "success": true,
-        "text": "Miles Davis’s trumpet phrasing was marked by his use of space, subtle timing and distinctive melodic lines that often avoided fast runs in favor of expressive, pared-down statements. He would let notes linger or hang in the air, creating a sense of openness and emotional depth that set his sound apart from many other jazz players.",
-        "dj_text": "Miles Davis’s trumpet phrasing was marked by his use of space, subtle timing and distinctive melodic lines that often avoided fast runs in favor of expressive, pared-down statements. He would let notes linger or hang in the air, creating a sense of openness and emotional depth that set his sound apart from many other jazz players.",
-        "message": "Miles Davis’s trumpet phrasing was marked by his use of space, subtle timing and distinctive melodic lines that often avoided fast runs in favor of expressive, pared-down statements. He would let notes linger or hang in the air, creating a sense of openness and emotional depth that set his sound apart from many other jazz players.",
+        "text": "Miles Davis’s trumpet phrasing was often spare and economical: he used space, short motifs, and subtle shifts in timing rather than filling every measure with notes. His muted tone and restrained vibrato also gave his lines a distinctive, understated character.",
+        "dj_text": "Miles Davis’s trumpet phrasing was often spare and economical: he used space, short motifs, and subtle shifts in timing rather than filling every measure with notes. His muted tone and restrained vibrato also gave his lines a distinctive, understated character.",
+        "message": "Miles Davis’s trumpet phrasing was often spare and economical: he used space, short motifs, and subtle shifts in timing rather than filling every measure with notes. His muted tone and restrained vibrato also gave his lines a distinctive, understated character.",
         "text_source": "generated",
         "is_generated_text": true,
         "model_processing_basis": "qualified_dialogue_v1",
@@ -3261,12 +3257,12 @@
         "action": null,
         "music_dna_key": "profile:profile-a",
         "assistant_message": {
-          "id": "server-d9b2dc27-2ce9-42a4-a188-fb47ec9ce12a",
+          "id": "server-d3a7241c-9caa-4b84-8747-707f37eba3af",
           "client_message_id": "voice-followup",
           "role": "assistant",
           "message_kind": "assistant",
-          "text": "Miles Davis’s trumpet phrasing was marked by his use of space, subtle timing and distinctive melodic lines that often avoided fast runs in favor of expressive, pared-down statements. He would let notes linger or hang in the air, creating a sense of openness and emotional depth that set his sound apart from many other jazz players.",
-          "created_at": "2026-10-14T13:48:19.137830Z",
+          "text": "Miles Davis’s trumpet phrasing was often spare and economical: he used space, short motifs, and subtle shifts in timing rather than filling every measure with notes. His muted tone and restrained vibrato also gave his lines a distinctive, understated character.",
+          "created_at": "2026-10-14T14:40:50.501944Z",
           "client_id": "djconnect-ios-ABCDEF123456",
           "client_type": "ios",
           "status": "delivered",
@@ -3309,11 +3305,11 @@
         },
         "user_id": null,
         "user_message": {
-          "id": "server-9c2cc00e-8416-4732-8d89-d1a8846ffdad",
+          "id": "server-913a745a-972b-48cc-a7fd-7b28b7f2be49",
           "client_message_id": "voice-followup",
           "role": "user",
           "text": "What distinguished his trumpet phrasing?",
-          "created_at": "2026-10-14T13:48:19.137809Z",
+          "created_at": "2026-10-14T14:40:50.501898Z",
           "client_id": "djconnect-ios-ABCDEF123456",
           "client_type": "ios",
           "status": "delivered",
@@ -3339,11 +3335,11 @@
         },
         "messages": [
           {
-            "id": "server-9c2cc00e-8416-4732-8d89-d1a8846ffdad",
+            "id": "server-913a745a-972b-48cc-a7fd-7b28b7f2be49",
             "client_message_id": "voice-followup",
             "role": "user",
             "text": "What distinguished his trumpet phrasing?",
-            "created_at": "2026-10-14T13:48:19.137809Z",
+            "created_at": "2026-10-14T14:40:50.501898Z",
             "client_id": "djconnect-ios-ABCDEF123456",
             "client_type": "ios",
             "status": "delivered",
@@ -3368,12 +3364,12 @@
             "exchange_order": 0
           },
           {
-            "id": "server-d9b2dc27-2ce9-42a4-a188-fb47ec9ce12a",
+            "id": "server-d3a7241c-9caa-4b84-8747-707f37eba3af",
             "client_message_id": "voice-followup",
             "role": "assistant",
             "message_kind": "assistant",
-            "text": "Miles Davis’s trumpet phrasing was marked by his use of space, subtle timing and distinctive melodic lines that often avoided fast runs in favor of expressive, pared-down statements. He would let notes linger or hang in the air, creating a sense of openness and emotional depth that set his sound apart from many other jazz players.",
-            "created_at": "2026-10-14T13:48:19.137830Z",
+            "text": "Miles Davis’s trumpet phrasing was often spare and economical: he used space, short motifs, and subtle shifts in timing rather than filling every measure with notes. His muted tone and restrained vibrato also gave his lines a distinctive, understated character.",
+            "created_at": "2026-10-14T14:40:50.501944Z",
             "client_id": "djconnect-ios-ABCDEF123456",
             "client_type": "ios",
             "status": "delivered",
@@ -3412,7 +3408,7 @@
         "history_limit": 1000,
         "history_trimmed_before": null,
         "history_trimmed_count": 0,
-        "server_time": "2026-10-14T13:48:19.138899Z",
+        "server_time": "2026-10-14T14:40:50.504467Z",
         "media_delivery_basis": "current_response_only",
         "owner_profile_id": "profile-a",
         "client_message_id": "voice-followup",
@@ -3437,7 +3433,7 @@
           "metrics": {
             "agent_calls": 1,
             "lookup_calls": 0,
-            "prompt_bytes": 5333
+            "prompt_bytes": 5656
           }
         },
         "transcript": "What distinguished his trumpet phrasing?",
@@ -3468,7 +3464,7 @@
       },
       "status": 403,
       "cache_control": "no-store",
-      "latency_ms": 0,
+      "latency_ms": 1,
       "body": {
         "success": false,
         "error": "profile_device_mismatch",
@@ -3485,7 +3481,7 @@
       },
       "status": 409,
       "cache_control": "no-store",
-      "latency_ms": 1163,
+      "latency_ms": 1366,
       "body": {
         "success": false,
         "error": "conversation_history_changed",
@@ -3502,12 +3498,12 @@
       },
       "status": 200,
       "cache_control": "no-store",
-      "latency_ms": 1424,
+      "latency_ms": 1604,
       "body": {
         "success": true,
-        "text": "Miles Davis was a trumpeter, composer and bandleader widely recognized for shaping modern jazz through innovative albums and group lineups. His music moved through styles like bebop, cool jazz and fusion, influencing generations of musicians.",
-        "dj_text": "Miles Davis was a trumpeter, composer and bandleader widely recognized for shaping modern jazz through innovative albums and group lineups. His music moved through styles like bebop, cool jazz and fusion, influencing generations of musicians.",
-        "message": "Miles Davis was a trumpeter, composer and bandleader widely recognized for shaping modern jazz through innovative albums and group lineups. His music moved through styles like bebop, cool jazz and fusion, influencing generations of musicians.",
+        "text": "Miles Davis was an American jazz trumpeter, composer and bandleader, widely regarded as one of jazz’s most influential musicians. Across a career spanning several decades, he helped shape styles including bebop, cool jazz, modal jazz and jazz fusion.",
+        "dj_text": "Miles Davis was an American jazz trumpeter, composer and bandleader, widely regarded as one of jazz’s most influential musicians. Across a career spanning several decades, he helped shape styles including bebop, cool jazz, modal jazz and jazz fusion.",
+        "message": "Miles Davis was an American jazz trumpeter, composer and bandleader, widely regarded as one of jazz’s most influential musicians. Across a career spanning several decades, he helped shape styles including bebop, cool jazz, modal jazz and jazz fusion.",
         "text_source": "generated",
         "is_generated_text": true,
         "model_processing_basis": "qualified_dialogue_v1",
@@ -3525,12 +3521,12 @@
         "action": null,
         "music_dna_key": "profile:profile-a",
         "assistant_message": {
-          "id": "server-4f6af802-fa7b-4d4e-8a54-cd690fe7868b",
+          "id": "server-9eee74bb-36a7-4dc5-95d4-0f3096ebe1ef",
           "client_message_id": "real-duplicate",
           "role": "assistant",
           "message_kind": "assistant",
-          "text": "Miles Davis was a trumpeter, composer and bandleader widely recognized for shaping modern jazz through innovative albums and group lineups. His music moved through styles like bebop, cool jazz and fusion, influencing generations of musicians.",
-          "created_at": "2026-10-14T13:48:21.726668Z",
+          "text": "Miles Davis was an American jazz trumpeter, composer and bandleader, widely regarded as one of jazz’s most influential musicians. Across a career spanning several decades, he helped shape styles including bebop, cool jazz, modal jazz and jazz fusion.",
+          "created_at": "2026-10-14T14:40:53.490584Z",
           "client_id": "djconnect-ios-ABCDEF123456",
           "client_type": "ios",
           "status": "delivered",
@@ -3571,11 +3567,11 @@
         },
         "user_id": null,
         "user_message": {
-          "id": "server-f11bbfc7-0e26-4f1b-b140-c18b0611e51b",
+          "id": "server-5386ac02-d844-47ce-8b5e-55b3121be51d",
           "client_message_id": "real-duplicate",
           "role": "user",
           "text": "Who is Miles Davis?",
-          "created_at": "2026-10-14T13:48:21.726628Z",
+          "created_at": "2026-10-14T14:40:53.490539Z",
           "client_id": "djconnect-ios-ABCDEF123456",
           "client_type": "ios",
           "status": "delivered",
@@ -3599,11 +3595,11 @@
         },
         "messages": [
           {
-            "id": "server-f11bbfc7-0e26-4f1b-b140-c18b0611e51b",
+            "id": "server-5386ac02-d844-47ce-8b5e-55b3121be51d",
             "client_message_id": "real-duplicate",
             "role": "user",
             "text": "Who is Miles Davis?",
-            "created_at": "2026-10-14T13:48:21.726628Z",
+            "created_at": "2026-10-14T14:40:53.490539Z",
             "client_id": "djconnect-ios-ABCDEF123456",
             "client_type": "ios",
             "status": "delivered",
@@ -3626,12 +3622,12 @@
             "exchange_order": 0
           },
           {
-            "id": "server-4f6af802-fa7b-4d4e-8a54-cd690fe7868b",
+            "id": "server-9eee74bb-36a7-4dc5-95d4-0f3096ebe1ef",
             "client_message_id": "real-duplicate",
             "role": "assistant",
             "message_kind": "assistant",
-            "text": "Miles Davis was a trumpeter, composer and bandleader widely recognized for shaping modern jazz through innovative albums and group lineups. His music moved through styles like bebop, cool jazz and fusion, influencing generations of musicians.",
-            "created_at": "2026-10-14T13:48:21.726668Z",
+            "text": "Miles Davis was an American jazz trumpeter, composer and bandleader, widely regarded as one of jazz’s most influential musicians. Across a career spanning several decades, he helped shape styles including bebop, cool jazz, modal jazz and jazz fusion.",
+            "created_at": "2026-10-14T14:40:53.490584Z",
             "client_id": "djconnect-ios-ABCDEF123456",
             "client_type": "ios",
             "status": "delivered",
@@ -3668,7 +3664,7 @@
         "history_limit": 1000,
         "history_trimmed_before": null,
         "history_trimmed_count": 0,
-        "server_time": "2026-10-14T13:48:21.728453Z",
+        "server_time": "2026-10-14T14:40:53.491933Z",
         "media_delivery_basis": "current_response_only",
         "owner_profile_id": "profile-a",
         "client_message_id": "real-duplicate",
@@ -3691,7 +3687,7 @@
           "metrics": {
             "agent_calls": 1,
             "lookup_calls": 0,
-            "prompt_bytes": 4884
+            "prompt_bytes": 5248
           }
         }
       }
@@ -3706,12 +3702,12 @@
       },
       "status": 200,
       "cache_control": "no-store",
-      "latency_ms": 970,
+      "latency_ms": 1184,
       "body": {
         "success": true,
-        "text": "Miles Davis was a trumpeter, composer and bandleader widely recognized for shaping modern jazz through innovative albums and group lineups. His music moved through styles like bebop, cool jazz and fusion, influencing generations of musicians.",
-        "dj_text": "Miles Davis was a trumpeter, composer and bandleader widely recognized for shaping modern jazz through innovative albums and group lineups. His music moved through styles like bebop, cool jazz and fusion, influencing generations of musicians.",
-        "message": "Miles Davis was a trumpeter, composer and bandleader widely recognized for shaping modern jazz through innovative albums and group lineups. His music moved through styles like bebop, cool jazz and fusion, influencing generations of musicians.",
+        "text": "Miles Davis was an American jazz trumpeter, composer and bandleader, widely regarded as one of jazz’s most influential musicians. Across a career spanning several decades, he helped shape styles including bebop, cool jazz, modal jazz and jazz fusion.",
+        "dj_text": "Miles Davis was an American jazz trumpeter, composer and bandleader, widely regarded as one of jazz’s most influential musicians. Across a career spanning several decades, he helped shape styles including bebop, cool jazz, modal jazz and jazz fusion.",
+        "message": "Miles Davis was an American jazz trumpeter, composer and bandleader, widely regarded as one of jazz’s most influential musicians. Across a career spanning several decades, he helped shape styles including bebop, cool jazz, modal jazz and jazz fusion.",
         "text_source": "generated",
         "is_generated_text": true,
         "model_processing_basis": "qualified_dialogue_v1",
@@ -3729,12 +3725,12 @@
         "action": null,
         "music_dna_key": "profile:profile-a",
         "assistant_message": {
-          "id": "server-4f6af802-fa7b-4d4e-8a54-cd690fe7868b",
+          "id": "server-9eee74bb-36a7-4dc5-95d4-0f3096ebe1ef",
           "client_message_id": "real-duplicate",
           "role": "assistant",
           "message_kind": "assistant",
-          "text": "Miles Davis was a trumpeter, composer and bandleader widely recognized for shaping modern jazz through innovative albums and group lineups. His music moved through styles like bebop, cool jazz and fusion, influencing generations of musicians.",
-          "created_at": "2026-10-14T13:48:21.726668Z",
+          "text": "Miles Davis was an American jazz trumpeter, composer and bandleader, widely regarded as one of jazz’s most influential musicians. Across a career spanning several decades, he helped shape styles including bebop, cool jazz, modal jazz and jazz fusion.",
+          "created_at": "2026-10-14T14:40:53.490584Z",
           "client_id": "djconnect-ios-ABCDEF123456",
           "client_type": "ios",
           "status": "delivered",
@@ -3775,11 +3771,11 @@
         },
         "user_id": null,
         "user_message": {
-          "id": "server-f11bbfc7-0e26-4f1b-b140-c18b0611e51b",
+          "id": "server-5386ac02-d844-47ce-8b5e-55b3121be51d",
           "client_message_id": "real-duplicate",
           "role": "user",
           "text": "Who is Miles Davis?",
-          "created_at": "2026-10-14T13:48:21.726628Z",
+          "created_at": "2026-10-14T14:40:53.490539Z",
           "client_id": "djconnect-ios-ABCDEF123456",
           "client_type": "ios",
           "status": "delivered",
@@ -3803,11 +3799,11 @@
         },
         "messages": [
           {
-            "id": "server-f11bbfc7-0e26-4f1b-b140-c18b0611e51b",
+            "id": "server-5386ac02-d844-47ce-8b5e-55b3121be51d",
             "client_message_id": "real-duplicate",
             "role": "user",
             "text": "Who is Miles Davis?",
-            "created_at": "2026-10-14T13:48:21.726628Z",
+            "created_at": "2026-10-14T14:40:53.490539Z",
             "client_id": "djconnect-ios-ABCDEF123456",
             "client_type": "ios",
             "status": "delivered",
@@ -3830,12 +3826,12 @@
             "exchange_order": 0
           },
           {
-            "id": "server-4f6af802-fa7b-4d4e-8a54-cd690fe7868b",
+            "id": "server-9eee74bb-36a7-4dc5-95d4-0f3096ebe1ef",
             "client_message_id": "real-duplicate",
             "role": "assistant",
             "message_kind": "assistant",
-            "text": "Miles Davis was a trumpeter, composer and bandleader widely recognized for shaping modern jazz through innovative albums and group lineups. His music moved through styles like bebop, cool jazz and fusion, influencing generations of musicians.",
-            "created_at": "2026-10-14T13:48:21.726668Z",
+            "text": "Miles Davis was an American jazz trumpeter, composer and bandleader, widely regarded as one of jazz’s most influential musicians. Across a career spanning several decades, he helped shape styles including bebop, cool jazz, modal jazz and jazz fusion.",
+            "created_at": "2026-10-14T14:40:53.490584Z",
             "client_id": "djconnect-ios-ABCDEF123456",
             "client_type": "ios",
             "status": "delivered",
@@ -3872,7 +3868,7 @@
         "history_limit": 1000,
         "history_trimmed_before": null,
         "history_trimmed_count": 0,
-        "server_time": "2026-10-14T13:48:21.728453Z",
+        "server_time": "2026-10-14T14:40:53.491933Z",
         "media_delivery_basis": "current_response_only",
         "owner_profile_id": "profile-a",
         "client_message_id": "real-duplicate",
@@ -3895,7 +3891,7 @@
           "metrics": {
             "agent_calls": 1,
             "lookup_calls": 0,
-            "prompt_bytes": 4884
+            "prompt_bytes": 5248
           }
         }
       }

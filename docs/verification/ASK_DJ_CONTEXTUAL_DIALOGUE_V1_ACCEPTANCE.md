@@ -4,16 +4,28 @@ Assignment: `DJC-CORE-ASKDJ-CONTEXTUAL-DIALOGUE-V1-20261013`, including the
 approved exact Moment → Track Insight extension. Base:
 `c955ec80407f4ab0237bc4e9381761d3c9274617`; sole writer branch:
 `codex/askdj-contextual-dialogue-v1`. Runtime proof pin:
-`87e881a4269370f4ddf294862a06311c63529976`.
+`c21dc3375ba57d19beeeda6fbb6dd3590de8431c`.
 
 ## Qualification boundary
 
 The same Core service handles standalone, Session, text, STT, raw and registered
 HA services. Session/Moment references supply optional qualified context. The
-actual isolated HA/OpenAI configuration `gpt-4.1-2025-04-14`, with no household
-tools, web/code tools or response retention and a static data-only prompt,
+actual isolated HA/OpenAI configuration `gpt-6-luna`, with no household
+tools, web/code tools or response retention and a static music-only prompt,
 received independent product/conversation/UX/privacy **GO**. This is a tested
-configuration, not a new mandatory model or a product-default change.
+configuration, not a new mandatory model or a product-default change. The
+owner selected it for HA-dev and HA-prod; neither setting has been applied.
+The previous `gpt-4.1-2025-04-14` GO remains historical configuration-specific
+evidence. The Luna configuration uses the HA-recommended low reasoning effort
+and a 3,000-token output cap; authorized public general musical knowledge is
+explicitly allowed alongside separately qualified source facts.
+
+The first complete Luna run on `e6ae7186` was independently NO GO for one
+accepted incorrect origin anecdote. The current contract and common Core prompt
+require supplied qualified evidence for precise biographical incident details;
+general musical explanations remain available. The unmodified new complete run
+received independent content/UX/privacy GO. No hardcoded replacement fact,
+new provider or automatic factuality verifier was introduced.
 
 The separately tested `gpt-4o-mini` configuration remains **NO GO for the current
 conversation quality**: accepted prose included an incorrect Spanish musical
@@ -35,10 +47,10 @@ this local qualification.
 | Proof | Observed result |
 | --- | --- |
 | Ordinary paired HA → common Core → actual HA/OpenAI agent → history/follow-up | 106 HTTP responses, 69 actual modelcalls; zero broad HA-user testcredentials |
-| Four Personas × en/nl/de/fr/es | 20 independently reviewed identity/follow-up combinations, GO only for the stated GPT-4.1 snapshot |
+| Four Personas × en/nl/de/fr/es | 20 independently reviewed identity/follow-up combinations, GO only for the stated GPT-6 Luna configuration |
 | Standalone, active, paused mixed conversations | Three complete chains; topic changes, controls, refinement, inert selection and explicit Play |
-| Bounded duration/resources | 208.621 s, peak RSS 272,340 KiB; maximum model input 5,977 bytes; existing per-turn two-agent/two-lookup limits |
-| Direct volume controls | 9–11 ms in this isolated lab, zero agentcalls; not native/device network latency |
+| Bounded duration/resources | 247.974 s, peak RSS 272,116 KiB; maximum model input 6,556 bytes; existing per-turn two-agent/two-lookup limits |
+| Direct volume controls | 12–13 ms in this isolated lab, zero agentcalls; not native/device network latency |
 | Registered HA-native service | No device-token surrogate, zero HA-user credentials; same turn for in-flight duplicate, one volume effect, replay refused |
 | Informational `wat was vorige nummer` | Zero playback effects and zero modelcalls; existing Stage 1 observation limits retained |
 | Speaker/output chain | Same-name IDs remain distinct; select inert, Activate uses play:false, explicit Play targets exact output; offline target refuses before effect |
