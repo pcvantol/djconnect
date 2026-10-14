@@ -216,6 +216,10 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
     def test_prose_format_handles_titles_initials_and_persona_counts(self):
         self.assertIsNone(self.dialogue.answer_form_issue('Il cite «Ambient Music». Il compose.', {"language": "fr", "persona": "radio_dj"}))
         self.assertIsNone(self.dialogue.answer_form_issue('R.E.M. worked with Dr. Example. Their music changed.', {"language": "en", "persona": "radio_dj"}))
+        for name in ("J. S. Bach", "B. B. King", "Brian P. Eno"):
+            self.assertIsNone(self.dialogue.answer_form_issue(f'{name} shaped music.', {"language": "en", "persona": "club_dj"}))
+            self.assertIsNone(self.dialogue.answer_form_issue(f'{name} shaped music. Their work influenced others.', {"language": "en", "persona": "radio_dj"}))
+            self.assertIsNotNone(self.dialogue.answer_form_issue(f'{name} shaped music. Their work influenced others. This is extra.', {"language": "en", "persona": "radio_dj"}))
         self.assertIsNotNone(self.dialogue.answer_form_issue('First. Second. Third. Fourth.', {"language": "nl", "persona": "festival_dj"}))
         for language in ("nl", "de", "fr", "es"):
             self.assertIsNotNone(self.dialogue.answer_form_issue('He makes ambient music.', {"language": language, "persona": "home_dj"}))
