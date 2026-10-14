@@ -287,3 +287,139 @@ festival/event claims or fictive performance context. User language remains
 exactly en/nl/de/fr/es; identity/credit/role facts remain unchanged and uncertain
 gender uses neutral naming. Actual generated examples receive independent
 editorial review; these forms never consume proactive style memory or budgets.
+
+
+## Connected live-regression refinement (before corresponding runtime fixes)
+
+Decision input: Core6154181590,6154227030,6154393277; Apple6154194577,
+6154234425,6154408539. Same assignment, sole writer and base c955ec80;
+no new Planner, provider, consumer writer or transport project.
+
+### Baseline and qualification boundary
+
+The exact user question is **wat was vorige nummer**. On local checkpoint
+ba84d2aca0ebaac29295540b7b04e3d2d43d0055 the shared classifier selects
+previous, then the existing skip handler passes the whole question to the
+music text parser. In the isolated real paired HA/Store/SQLite chain, an
+explicit external artist-search fixture returning unrelated qualified media
+leads to one PUT /me/player/play, zero model calls. This proves the source
+failure path; it does not establish the installed producer or native cause.
+Older104HTTP/69model qualification does not cover these later findings.
+
+### Current user authority, separate from request ownership
+
+An authenticated request is not permission for every music effect. One
+immutable current-turn grant records its provenance, allowed effect families
+and exact target binding. Questions, quotes, mere selection, navigation,
+negation, hypothetical explanations, model proposals and old commands confer
+no effect authority. Polite but unambiguous execution requests remain commands.
+The common classifier resolves this speech act before broad action keywords.
+
+A typed control stays typed all the way to the existing command use-case:
+previous can dispatch previous only, never reinterpret its text as artist play.
+Current valid result-play, a validated pending yes or an existing trusted typed
+command may add only their expressly confirmed family/target. Receiving an
+answer/action list does nothing. Select alone is inert. Retry without proof of
+pre-dispatch failure cannot authorize a second uncertain effect.
+
+The existing use-case owns normalization and target resolution. It verifies
+this grant, captured Profile/backend/account/output authority and target before
+command dispatch. The actual Spotify mutating request / MA service boundary
+rechecks the same immutable command context after token/provider awaits, before
+receipt and transport. Model-to-tool mutation is denied even if a model tries.
+A transport outside a qualified command context is denied during a dialogue.
+Compound speaker+play requires explicit authority for both targets; choosing an
+output alone preserves existing playing/paused state and cannot add play.
+No second action engine or general event bus is introduced.
+
+HA Conversation qualification must prove no household tools, retention or state
+context. CONTROL=False alone is insufficient. The supported provider's public
+configuration has no Assist API/tools and a static system prompt; dynamic
+Jinja context is unqualified, including states property access. Require present explicit scope/prompt metadata rather than silently using defaults.
+The owned lab uses the current public HA OpenAI config version2:7 and selects
+its exact subentry/entity via the public entity registry, not a legacy parent
+alias; older v1 migration can create an additional default agent. Check before
+and after each fresh conversation; never switch to an unrestricted default.
+No agent/service/configuration changes are authorized by this design.
+
+### Private backend reads and quarter-hour intent
+
+wat komt er komend kwartier aan resolves the existing circa15-minute Session
+Forecast direction, plus a necessary bounded queue read from the same existing
+owner/backend/account resolver. It never requests private Horizon slots, creates
+future-media claims or sends raw catalog/Forecast/artwork data to the model.
+Existing Core forecast realization supplies the Persona/Mood narrative; local
+five-language catalog captions and cards supply genuinely observed queue anchors.
+Intent and observed queue order are separate claims; shuffle/autoplay and finite
+queue do not prove every upcoming track. Without a Session, report the queue
+but do not invent a DJ plan. PresenceOff permits this explicit private answer.
+
+Queue observation records schema/version, state, captured scope, as_of, bounded
+coverage and reason. States distinguish not_requested, present, known_empty,
+unsupported, unavailable, stale, partial and withdrawn. None, absent queue,
+fetch failure or foreign authority never becomes known_empty. Invalid/unrenderable
+items mean partial, not empty. Preserve exact case-sensitive media IDs, repeated
+queue occurrences, source order and the provider's separate now-playing field.
+Use the same existing queue-use-case and normalization as the standalone route;
+no cache/provider fetch on unrelated questions. Queue/speaker error responses
+contain useful localized explanations, not an empty heading or canned invitation.
+
+Previous-track information uses accepted qualified owner observations / existing
+history projection, not a previous command, client cache or guessed playback.
+Stage1 observation limits and missing history remain explicit; no exact same-track
+replay claim, playback reconstruction or seek occurs.
+
+### One rich current response, bounded result authority
+
+Keep actual items and playback/output actions on top-level and live assistant
+message, attached to the same immutable turn/result-set/item identities. The
+full text archive and transient action grant are different rights. Never persist
+catalog/artwork/action bodies without qualified retention. Current response-only
+values are not reconstructed from old retained text after reconnect. A valid
+RAM result may be revalidated against owner, backend/account/output, Session,
+source and original deadline through the existing shared route. Lost/expired/
+withdrawn authority leaves historical text inert with a typed reason.
+
+General and Session responses use the same result/action contract; opt-in Session
+Flow references do not become a second conversation store or decoder. Exact
+artistX/query/result/art/action remain X while playbackY becomesZ. Selection and
+PlayNow use the identical frozen item, not array index after reorder or a new
+fuzzy title lookup. Speakers retain Activate/Active state and exact output-ID;
+no inventory/read/presentation causes transfer or playback. Native shared result
+rendering/adoption is Apple-owned and remains separately open.
+
+### Direct control outcome and timing
+
+Distinguish immediate native pending, dispatched provider request and observed
+state. Use a necessary targeted existing read/observation after a qualified
+explicit effect, without an extra poller or fabricated state. Apply confirmed
+playback/output through existing Runtime/Broadcast acceptance immediately;
+no LLM/TTS/artwork/history reload/card-dwell dependency. Source/owner/Session
+fences survive all awaits. New proactive Moments still obey normal publication,
+presence and pacing; pause/volume requires no new Moment. A→B does not rewrite
+immutableA or showA as currentB. Trace monotone durations per host; correlate
+turn/result/command IDs, and report dispatch/state/Moment timing separately.
+Native reducer/render timing cannot be claimed from Core HTTP measurements.
+
+### Connected acceptance additions
+
+Before/after actual paired chain measures real effect dispatches: exact previous
+question, informational/quoted/negative/hypothetical control text and malicious
+agent attempt must yield zero; explicit previous/next/pause/volume/exact-result
+play/output yields only the intended effect. Test result deadline/owner/Session/
+backend/account/default/output changes during adapter waits, duplicate/retry/
+cancellation and pending staleYes. Keep playbuttons; don't solve safety by
+removing all actions. Test current-response and nested-message media equality,
+archival subset, reconnect/revalidation and source withdrawal.
+
+Same filled queue and current scope produce useful items/actions in AskDJ and
+the standalone queue. Include duplicate title/different artist/version, missing
+art, repeated track, case-sensitive ID, partial/empty/error/stale/foreign scope,
+quarter-hour forecast ready/limited/expired/missing and noSession. Reads do not
+mutate playback/queue/Session/Mood/presence or model context. Real five-language
+four-Persona multi-turn transcripts demonstrate direct relevant answers without
+ritual greeting/footer, correct roles, subject and actionable real results.
+
+Exact technical/privacy and conversation/UX reviews follow the final candidate;
+public/source/installed/native/hardware/joint states remain separate. Apple#87
+receives pinned real transport fixtures and explicit adoption/timing boundary.

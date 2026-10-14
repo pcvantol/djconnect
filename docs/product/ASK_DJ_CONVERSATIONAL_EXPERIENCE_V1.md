@@ -141,3 +141,19 @@ Local implementation/qualification is not protected source delivery. Exact sourc
 and Finalization permissions remain distinct. The owner additionally requested HA-dev
 and HA-prod integration updates after readiness; installation/readback follows the
 qualified exact artifact and does not establish native or hardware acceptance.
+
+
+## Live-regression acceptance refinement
+
+Core6154181590/6154227030/6154393277 extend the same assignment before the
+corresponding runtime fixes. The producer contract's connected refinement
+separates information from explicit effect authority and preserves rich live
+queue/speaker/media actions without archiving expired execution grants.
+The quarter-hour question uses existing Forecast direction and a qualified
+queue read, never invents empty or future playback. Confirmed command state,
+current card selection and eventual new proactive Moment remain different
+observations. Both composers retain one pipeline and exact result identities.
+The real paired baseline on ba84d2ac reproduces one unintended play request
+from 'wat was vorige nummer'; this is source proof, not installed root cause.
+Both independent reviewers approved the directed contract refinement; new
+source, real conversation and native/installed acceptance remain pending.
