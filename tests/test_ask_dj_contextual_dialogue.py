@@ -153,6 +153,120 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
 
         return await DJConnectUseCases(self.hass, self.runtime, backend=ProviderBoundary()).command(command, value)
 
+    async def native_service_fixture(self):
+        from types import SimpleNamespace
+        storage = self.handlers.profile_storage(self.hass)
+        await storage.async_upsert_device("djconnect-conversation-agent", "conversation_agent", linked_profile_id="profile-a")
+        entry = SimpleNamespace(entry_id="native-service", disabled_by=None, state="loaded",
+            data={"device_id": "djconnect-conversation-agent", "client_type": "conversation_agent"}, options={})
+        self.runtime.entry = entry
+        self.runtime.config.update(entry.data)
+        self.runtime.device_status.update(entry.data)
+        self.runtime.device_token = None
+        self.runtime.client_type = lambda: "conversation_agent"
+        self.hass.config_entries.async_get_entry = lambda identifier: entry if identifier == entry.entry_id else None
+        self.hass.data["djconnect"].pop("owner-entry", None)
+        self.hass.data["djconnect"][entry.entry_id] = self.runtime
+        return entry, storage
+
+    async def native_request(self, text, identifier, **fields):
+        return await self.handlers.async_handle_ask_dj_message_payload(self.hass,
+            {"text": text, "client_message_id": identifier, "language": "en", "audio_response": "never", **fields},
+            _ha_service_runtime=self.runtime, persist_history=False)
+
+    async def test_native_service_uses_canonical_binding_without_app_token(self):
+        await self.native_service_fixture()
+        entered, release = asyncio.Event(), asyncio.Event()
+        async def delayed(hass, data, **kwargs):
+            self.prompts.append(json.loads(data["text"].split("\nData:\n", 1)[1]))
+            entered.set()
+            await release.wait()
+            return {"response": {"speech": {"plain": {"speech": self.reply}}}}
+        with patch.object(self.pipeline, "_call_conversation_process_transport", delayed):
+            first = asyncio.create_task(self.native_request("Who is Brian Eno?", "native-first"))
+            await entered.wait()
+            joined = asyncio.create_task(self.native_request("Who is Brian Eno?", "native-first"))
+            await asyncio.sleep(0)
+            release.set()
+            (result, status), (duplicate, duplicate_status) = await asyncio.gather(first, joined)
+        self.assertEqual(status, 200, result)
+        self.assertEqual(duplicate_status, 200, duplicate)
+        self.assertEqual(result["conversation"]["turn_id"], duplicate["conversation"]["turn_id"])
+        self.assertFalse(result["history_persisted"])
+        self.assertEqual(result["owner_profile_id"], "profile-a")
+        self.assertEqual(len(self.prompts), 1)
+        self.assertEqual((await self.history.async_history("profile:profile-a"))["messages"], [])
+        for hints in ({"profile_id": "profile-b"}, {"device_id": self.identity["device_id"]}):
+            result, status = await self.native_request("Who is Miles Davis?", "foreign-native-"+next(iter(hints)), **hints)
+            self.assertEqual(status, 403, result)
+        self.assertEqual(len(self.prompts), 1)
+
+    async def test_native_service_entry_and_owner_withdrawal_during_agent_await(self):
+        for mode in ("entry", "binding"):
+            entry, storage = await self.native_service_fixture()
+            entered, release = asyncio.Event(), asyncio.Event()
+            async def delayed(hass, data, **kwargs):
+                entered.set()
+                await release.wait()
+                return {"response": {"speech": {"plain": {"speech": "A forbidden late fixture answer."}}}}
+            with patch.object(self.pipeline, "_call_conversation_process_transport", delayed):
+                task = asyncio.create_task(self.native_request("Who is Brian Eno?", "native-race-"+mode))
+                await entered.wait()
+                if mode == "entry":
+                    entry.state = "unloaded"
+                else:
+                    await storage.async_create_profile("Other native owner", profile_id="profile-b", default_backend_id="later_manual")
+                    await storage.async_upsert_device("djconnect-conversation-agent", "conversation_agent", linked_profile_id="profile-b")
+                release.set()
+                result, status = await task
+            self.assertIn(status, (401, 403, 409), result)
+            self.assertNotIn("forbidden late", json.dumps(result))
+            self.assertEqual((await self.history.async_history("profile:profile-a"))["messages"], [])
+
+    async def test_joined_caller_revalidates_its_own_pairing_after_model_wait(self):
+        from types import SimpleNamespace
+        beta_id = "djconnect-ios-000000000002"
+        beta = SimpleNamespace(**self.runtime.__dict__)
+        beta.config = {**self.runtime.config, "device_id": beta_id}
+        beta.device_status = {**self.runtime.device_status, "device_id": beta_id}
+        beta.device_token = "synthetic-beta-token"
+        beta.authorize_device_request = lambda headers, device_id=None, client_type=None: (
+            beta.device_token == "synthetic-beta-token" and headers.get("Authorization") == "Bearer synthetic-beta-token"
+            and device_id == beta_id and client_type == "ios")
+        self.hass.data["djconnect"]["beta-owner"] = beta
+        await self.handlers.profile_storage(self.hass).async_upsert_device(beta_id, "ios", linked_profile_id="profile-a")
+        entered, release = asyncio.Event(), asyncio.Event()
+        async def delayed(hass, data, **kwargs):
+            self.prompts.append(data["text"])
+            entered.set()
+            await release.wait()
+            return {"response": {"speech": {"plain": {"speech": "A private fixture answer for the still-authorized caller."}}}}
+        with patch.object(self.pipeline, "_call_conversation_process_transport", delayed):
+            first = asyncio.create_task(self.request("Who is Brian Eno?", identifier="joined-auth"))
+            await entered.wait()
+            joined = asyncio.create_task(self.handlers.async_handle_ask_dj_message_payload(self.hass,
+                {"device_id": beta_id, "client_type": "ios", "text": "Who is Brian Eno?",
+                 "client_message_id": "joined-auth", "language": "en", "audio_response": "never"},
+                headers={"Authorization": "Bearer synthetic-beta-token"}))
+            await asyncio.sleep(0)
+            beta.device_token = None
+            release.set()
+            (accepted, status), (denied, denied_status) = await asyncio.gather(first, joined)
+        self.assertEqual(status, 200, accepted)
+        self.assertEqual(denied_status, 401, denied)
+        self.assertNotIn("private fixture answer", json.dumps(denied))
+        self.assertEqual(len(self.prompts), 1)
+        self.assertEqual(len((await self.history.async_history("profile:profile-a"))["messages"]), 2)
+
+    async def test_native_service_payload_flag_never_opens_http_device_ingress(self):
+        await self.native_service_fixture()
+        result, status = await self.handlers.async_handle_ask_dj_message_payload(self.hass,
+            {"device_id": "djconnect-conversation-agent", "client_type": "conversation_agent",
+             "text": "Who is Brian Eno?", "_ha_service_runtime": {"entry_id": "native-service"}})
+        self.assertEqual(status, 400, result)
+        self.assertEqual(result["error"], "invalid_client_type")
+        self.assertEqual(self.prompts, [])
+
     async def test_credit_attribution_survives_http_and_archive_rights(self):
         session, moment, entry = await self.selected_credit()
         context = {"session_id": session.session_id, "selected_entry": entry}

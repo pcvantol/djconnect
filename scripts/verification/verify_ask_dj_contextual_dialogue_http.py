@@ -238,15 +238,24 @@ async def main():
                 }
             ],
         )
+        native_owner = configured_entry("native-service-entry", "djconnect", {
+            "device_id": "djconnect-conversation-agent", "client_type": "conversation_agent",
+            "profile_id": "profile-a", "music_backend": "spotify_direct", "music_account_id": "source-account",
+            "spotify_client_id": "SYNTHETIC_CLIENT_ID", "spotify_refresh_token": "SYNTHETIC_SOURCE_GRANT",
+            "assist_pipeline_id": "own-dialogue-pipeline",
+        }) if os.environ.get("DJC_SAFETY_PROBE") == "ha_service" else None
+        configured = (owner, source, agent_entry) + ((native_owner,) if native_owner else ())
         await ConfigEntryStore(h).async_save(
-            {"entries": [e.as_storage_fragment for e in (owner, source, agent_entry)]}
+            {"entries": [e.as_storage_fragment for e in configured]}
         )
         h.config_entries = ConfigEntries(h, {})
         await h.config_entries.async_initialize()
         owner, source, agent_entry = [
             h.config_entries.async_get_entry(e.entry_id) for e in (owner, source, agent_entry)
         ]
-        for e in (owner, source, agent_entry):
+        if native_owner:
+            native_owner = h.config_entries.async_get_entry(native_owner.entry_id)
+        for e in (owner, source, agent_entry) + ((native_owner,) if native_owner else ()):
             e._async_set_state(h, ConfigEntryState.LOADED, None)
         agent_entry.runtime_data = api
         assert await h.data[conversation.DATA_COMPONENT].async_setup_entry(agent_entry)
@@ -322,6 +331,14 @@ async def main():
         h.data["djconnect"]["session_runtime_manager"] = manager
         register_http_views(h)
         _register_developer_services(h, owner, runtime)
+        native_runtime = None
+        if native_owner:
+            native_runtime = DJConnectRuntime(native_owner, _profile_backend_hass=h)
+            native_runtime.device_status.update(device_id="djconnect-conversation-agent", client_type="conversation_agent")
+            native_runtime.ask_dj_history = history
+            h.data["djconnect"][native_owner.entry_id] = native_runtime
+            await storage.async_upsert_device("djconnect-conversation-agent", "conversation_agent", linked_profile_id="profile-a")
+            _register_developer_services(h, native_owner, native_runtime)
         receipts, provider_calls = [], []
         state = {
             "index": 0,
@@ -615,6 +632,86 @@ async def main():
                         flush=True,
                     )
                     return body
+
+                if os.environ.get("DJC_SAFETY_PROBE") == "ha_service":
+                    assert native_runtime and native_runtime.device_token is None
+                    assert "device_token" not in native_owner.data
+                    service_receipts = []
+                    async def native_call(text, identifier, **fields):
+                        body = await h.services.async_call("djconnect", "ask_dj", {
+                            "text": text, "client_message_id": identifier, "language": "en",
+                            "audio_response": "never", **fields,
+                        }, blocking=True, return_response=True)
+                        service_receipts.append({"question": text, "body": body})
+                        return body
+                    model_gate = {"entered": asyncio.Event(), "release": asyncio.Event()}
+                    first = asyncio.create_task(native_call("Who is Brian Eno?", "native-question"))
+                    await asyncio.wait_for(model_gate["entered"].wait(), 30)
+                    duplicate = asyncio.create_task(native_call("Who is Brian Eno?", "native-question"))
+                    await asyncio.sleep(0.1)
+                    model_gate["release"].set()
+                    answer, joined = await asyncio.gather(first, duplicate)
+                    model_gate = None
+                    assert answer["success"] and joined["success"]
+                    assert answer["conversation"]["turn_id"] == joined["conversation"]["turn_id"]
+                    assert len(model_receipts) == 1
+                    assert answer["history_persisted"] is False and answer["owner_profile_id"] == "profile-a"
+                    assert (await history.async_history("profile:profile-a"))["messages"] == []
+                    before_effects = len([c for c in provider_calls if c["method"] in {"POST", "PUT", "DELETE"}])
+                    controlled = await native_call("Turn volume down", "native-control")
+                    assert controlled["success"], controlled.get("error")
+                    assert len(model_receipts) == 1
+                    after_effects = len([c for c in provider_calls if c["method"] in {"POST", "PUT", "DELETE"}])
+                    assert after_effects == before_effects + 1
+                    duplicate_control = await native_call("Turn volume down", "native-control")
+                    assert not duplicate_control["success"]
+                    assert len([c for c in provider_calls if c["method"] in {"POST", "PUT", "DELETE"}]) == after_effects
+                    forged = await native_call("Who is Miles Davis?", "native-foreign-owner", profile_id="profile-b")
+                    assert forged["success"] is False and forged["error"] == "profile_device_mismatch"
+                    await call("ask_dj/message", {"device_id": "djconnect-conversation-agent", "client_type": "conversation_agent",
+                        "text": "Who is Brian Eno?", "client_message_id": "native-http-forbidden",
+                        "_ha_service_runtime": {"entry_id": native_owner.entry_id}}, label="native-http-forbidden", expected=400)
+                    for kind in ("entry", "owner"):
+                        model_gate = {"entered": asyncio.Event(), "release": asyncio.Event()}
+                        pending = asyncio.create_task(native_call("Who is Miles Davis?", "native-withdraw-"+kind))
+                        await asyncio.wait_for(model_gate["entered"].wait(), 30)
+                        if kind == "entry":
+                            native_owner._async_set_state(h, ConfigEntryState.UNLOADED, None)
+                        else:
+                            await storage.async_create_profile("Other synthetic owner", profile_id="profile-b", default_backend_id="spotify_direct")
+                            await storage.async_upsert_device("djconnect-conversation-agent", "conversation_agent", linked_profile_id="profile-b")
+                        model_gate["release"].set()
+                        refused = await pending
+                        model_gate = None
+                        assert refused["success"] is False and not refused.get("text"), refused.get("error")
+                        if kind == "entry":
+                            native_owner._async_set_state(h, ConfigEntryState.LOADED, None)
+                        else:
+                            await storage.async_upsert_device("djconnect-conversation-agent", "conversation_agent", linked_profile_id="profile-a")
+                    subentry = agent_entry.subentries["own-model-subentry"]
+                    original_data = dict(subentry.data)
+                    h.config_entries.async_update_subentry(agent_entry, subentry, data={**original_data, "llm_hass_api": ["assist"]})
+                    await h.data[conversation.DATA_COMPONENT].async_unload_entry(agent_entry)
+                    assert await h.data[conversation.DATA_COMPONENT].async_setup_entry(agent_entry)
+                    unqualified = await native_call("Who is Brian Eno?", "native-unsuitable-agent")
+                    assert unqualified["success"] is False and unqualified["error"] == "conversation_agent_scope_unqualified"
+                    assert len(model_receipts) == 3
+                    h.config_entries.async_update_subentry(agent_entry, agent_entry.subentries["own-model-subentry"], data=original_data)
+                    await h.data[conversation.DATA_COMPONENT].async_unload_entry(agent_entry)
+                    assert await h.data[conversation.DATA_COMPONENT].async_setup_entry(agent_entry)
+                    assert (await history.async_history("profile:profile-a"))["messages"] == []
+                    Path("/lab/ha-native-service.json").write_text(json.dumps({
+                        "qualification": "REAL_REGISTERED_HA_NATIVE_SERVICE_COMMON_EXCHANGE",
+                        "source_hashes": hashes(), "authority": "loaded_registered_entry_and_canonical_server_profile_binding",
+                        "native_device_token": None, "ha_user_credentials_issued": 0,
+                        "service_transports": service_receipts, "http_transports": receipts,
+                        "provider_calls": provider_calls, "model_calls": model_receipts,
+                        "safe_failures": failures, "installed": "NOT_RUN", "native_apple": "NOT_RUN",
+                    }, ensure_ascii=False, indent=2)+"\n")
+                    await async_shutdown_persistence(h)
+                    await h.async_stop(force=True)
+                    await api.close()
+                    return
 
                 if os.environ.get("DJC_SAFETY_PROBE") == "previous":
                     service_receipts = []

@@ -128,7 +128,15 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
             + ":" + str(payload.get("privacy_mode") or "default"))
         future, reserved = history_manager.dialogue.reserve(frame, client_id, digest, fast)
         if not reserved:
-            return deepcopy(await asyncio.shield(future))
+            result = deepcopy(await asyncio.shield(future))
+            # The original caller's fence does not authorize another joined
+            # transport whose pairing/entry may have been withdrawn meanwhile.
+            await validate_owner()
+            if validate_immediate is not None:
+                validate_immediate()
+            if history_manager.scope_revision(scope) != scope_revision or history_grant_revision(hass, profile_id) != grant:
+                raise SessionConversationError("conversation_context_changed")
+            return result
         selected = (await query().async_open_entry(profile_id, target["session_id"], target["entry_id"]))["entry"] if target else None
         if live:
             selected = await _live_reference(manager, profile_id, live)

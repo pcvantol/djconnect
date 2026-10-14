@@ -2352,6 +2352,7 @@ def _register_developer_services(
             payload,
             headers=ask_dj_service_headers(payload),
             user_id=ask_dj_service_user_id(call),
+            _ha_service_runtime=runtime if runtime.client_type() == CLIENT_TYPE_CONVERSATION_AGENT else None,
             persist_history=False,
         )
         return result
@@ -2371,6 +2372,7 @@ def _register_developer_services(
             payload,
             headers=ask_dj_service_headers(payload),
             user_id=ask_dj_service_user_id(call),
+            _ha_service_runtime=runtime if runtime.client_type() == CLIENT_TYPE_CONVERSATION_AGENT else None,
         )
         return result
 

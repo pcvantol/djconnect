@@ -80,6 +80,21 @@ _LOGGER = http_helpers._LOGGER
 MUSIC_DNA_PROFILE_REFRESH_SECONDS = 60 * 60
 
 
+def _ha_native_service_identity(hass, runtime):
+    """Trust only the actual registered loaded agent-only entry, never payload flags."""
+    from .session_conversation import SessionConversationError
+    entry = getattr(runtime, "entry", None)
+    entries = getattr(hass, "config_entries", None)
+    if (entry is None or entries is None or entries.async_get_entry(entry.entry_id) is not entry
+        or entry.disabled_by is not None or getattr(entry.state, "value", entry.state) != "loaded"
+        or hass.data.get("djconnect", {}).get(entry.entry_id) is not runtime
+        or entry.data.get("client_type") != "conversation_agent"
+        or runtime_client_type(runtime) != "conversation_agent"
+        or entry.data.get("device_id") != "djconnect-conversation-agent"):
+        raise SessionConversationError("unauthorized", 401)
+    return {"device_id": "djconnect-conversation-agent", "client_type": "conversation_agent"}
+
+
 async def _session_profile_context(
     hass: Any,
     data: dict[str, Any],
@@ -87,16 +102,28 @@ async def _session_profile_context(
     headers: Any | None,
     user_id: str | None,
     source: str,
+    _ha_service_runtime: Any | None = None,
 ) -> tuple[Any | None, Any | None, dict[str, Any] | None, int | None]:
-    """Authenticate a Session request against its device-bound owner Profile."""
+    """Authenticate against paired-device or internal HA-native server binding."""
     headers = headers or {}
-    runtime = resolve_runtime(hass, data.get("device_id") or headers.get("X-DJConnect-Device-ID"), headers)
-    if runtime is None:
-        return None, None, _error_payload("not_configured"), 503
-    if not authorize_runtime_device_request(runtime, headers, data.get("device_id"), payload_client_type(data)):
-        return None, None, _error_payload("unauthorized"), 401
-    if validate_required_client_type(data) is None:
-        return None, None, _error_payload("invalid_client_type"), 400
+    if _ha_service_runtime is not None:
+        runtime = _ha_service_runtime
+        from .session_conversation import SessionConversationError
+        try:
+            server_identity = _ha_native_service_identity(hass, runtime)
+        except SessionConversationError as exc:
+            return None, None, _error_payload(exc.code), exc.status
+        if any(data.get(key) and data[key] != value for key, value in server_identity.items()):
+            return None, None, _error_payload("profile_device_mismatch"), 403
+        data.update(server_identity)
+    else:
+        runtime = resolve_runtime(hass, data.get("device_id") or headers.get("X-DJConnect-Device-ID"), headers)
+        if runtime is None:
+            return None, None, _error_payload("not_configured"), 503
+        if not authorize_runtime_device_request(runtime, headers, data.get("device_id"), payload_client_type(data)):
+            return None, None, _error_payload("unauthorized"), 401
+        if validate_required_client_type(data) is None:
+            return None, None, _error_payload("invalid_client_type"), 400
     try:
         bound = await async_resolve_device_bound_request_context(
             hass, runtime, data, request_source=source
@@ -1211,14 +1238,19 @@ def _is_current_track_question_text(value: str) -> bool:
     }
 
 
-def _conversation_profile_fence(hass, runtime, identity, headers, context):
+def _conversation_profile_fence(hass, runtime, identity, headers, context, *, _ha_service_runtime=None):
     """A synchronous owner fence after the final Store/source/Profile await."""
     from .session_conversation import SessionConversationError
-    device_id = identity.get("device_id") or headers.get("X-DJConnect-Device-ID")
-    if resolve_runtime(hass, device_id, headers) is not runtime or not authorize_runtime_device_request(
-        runtime, headers, device_id, identity.get("client_type")
-    ):
-        raise SessionConversationError("unauthorized", 401)
+    if _ha_service_runtime is not None:
+        if _ha_service_runtime is not runtime:
+            raise SessionConversationError("unauthorized", 401)
+        device_id = _ha_native_service_identity(hass, runtime)["device_id"]
+    else:
+        device_id = identity.get("device_id") or headers.get("X-DJConnect-Device-ID")
+        if resolve_runtime(hass, device_id, headers) is not runtime or not authorize_runtime_device_request(
+            runtime, headers, device_id, identity.get("client_type")
+        ):
+            raise SessionConversationError("unauthorized", 401)
     entry = getattr(runtime, "entry", None)
     if entry is not None:
         entries = getattr(hass, "config_entries", None)
@@ -1257,6 +1289,7 @@ async def async_handle_ask_dj_message_payload(
     voice_input: bool = False,
     persist_history: bool = True,
     action_request: tuple[str, Any] | None = None,
+    _ha_service_runtime: Any | None = None,
 ) -> tuple[dict[str, Any], int]:
     """Handle Ask DJ chat messages for HTTP and HA websocket transports."""
     headers = headers or {}
@@ -1264,39 +1297,32 @@ async def async_handle_ask_dj_message_payload(
         _debug_ask_dj_error("message", {}, (_error_payload("invalid_json"), 400))
         return _error_payload("invalid_json"), 400
     identity = identity_payload(data)
-    runtime = resolve_runtime(
-        hass,
-        identity.get("device_id") or headers.get("X-DJConnect-Device-ID"),
-        headers,
-    )
-    if runtime is None:
-        _debug_ask_dj_error("message", data, (_error_payload("not_configured"), 503))
-        return _error_payload("not_configured"), 503
-    client_type = validate_required_client_type(identity)
-    if client_type is None:
-        _debug_ask_dj_error("message", data, (_error_payload("invalid_client_type"), 400), runtime=runtime)
-        return _error_payload("invalid_client_type"), 400
-    identity[CONF_CLIENT_TYPE] = client_type
-    if not authorize_runtime_device_request(
-        runtime,
-        headers,
-        identity.get("device_id"),
-        client_type,
-    ):
-        _debug_ask_dj_error("message", data, (_error_payload("unauthorized"), 401), runtime=runtime)
-        return _error_payload("unauthorized"), 401
+    if _ha_service_runtime is not None:
+        runtime = _ha_service_runtime
+        from .session_conversation import SessionConversationError
+        try:
+            server_identity = _ha_native_service_identity(hass, runtime)
+        except SessionConversationError as exc:
+            return _error_payload(exc.code), exc.status
+        if any(identity.get(key) and identity[key] != value for key, value in server_identity.items()):
+            return _error_payload("profile_device_mismatch"), 403
+        identity.update(server_identity)
+        client_type = server_identity["client_type"]
+    else:
+        runtime = resolve_runtime(
+            hass, identity.get("device_id") or headers.get("X-DJConnect-Device-ID"), headers,
+        )
+        if runtime is None:
+            return _error_payload("not_configured"), 503
+        client_type = validate_required_client_type(identity)
+        if client_type is None:
+            return _error_payload("invalid_client_type"), 400
+        identity[CONF_CLIENT_TYPE] = client_type
+        if not authorize_runtime_device_request(runtime, headers, identity.get("device_id"), client_type):
+            return _error_payload("unauthorized"), 401
     payload = dict(data)
     payload.update({key: value for key, value in identity.items() if value is not None})
     payload = enrich_payload_with_mood_zone(payload)
-    profile_error, profile_status = await _apply_profile_or_error(
-        hass,
-        runtime,
-        payload,
-        user_id=user_id,
-        source="ask_dj_message",
-    )
-    if profile_error is not None:
-        return profile_error, int(profile_status or 400)
     _debug_ask_dj_request("message", runtime, payload, user_id=user_id)
     from .ask_dj.service import async_exchange
     from .session_conversation import SessionConversationError
@@ -1311,7 +1337,8 @@ async def async_handle_ask_dj_message_payload(
     payload["input_type"] = "voice" if voice_input else "text"
     payload.setdefault("audio_response","auto")
     bound_runtime, context, error, status = await _session_profile_context(
-        hass, payload, headers=headers, user_id=user_id, source="session_conversation"
+        hass, payload, headers=headers, user_id=user_id, source="session_conversation",
+        _ha_service_runtime=_ha_service_runtime,
     )
     if error is not None:
         return error, status
@@ -1344,6 +1371,7 @@ async def async_handle_ask_dj_message_payload(
             headers=headers,
             user_id=user_id,
             source="session_conversation_complete",
+            _ha_service_runtime=_ha_service_runtime,
         )
         if current_error is not None or _runtime is not bound_runtime or current.profile_id != context.profile_id:
             raise SessionConversationError("session_context_changed", int(current_status or 409))
@@ -1364,7 +1392,8 @@ async def async_handle_ask_dj_message_payload(
             raise SessionConversationError("history_not_allowed", 403)
 
     def validate_immediate():
-        _conversation_profile_fence(hass, bound_runtime, identity, headers, context)
+        _conversation_profile_fence(hass, bound_runtime, identity, headers, context,
+                                    _ha_service_runtime=_ha_service_runtime)
 
     try:
         result = await async_exchange(
