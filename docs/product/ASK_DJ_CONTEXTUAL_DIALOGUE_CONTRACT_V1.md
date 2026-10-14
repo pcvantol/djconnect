@@ -196,6 +196,37 @@ Core delivery and native adoption retain distinct acceptance statuses.
 
 ## Connected implementation refinement
 
+### Qualified reads, controls and output selection
+
+The current queue route is a read, not an append capability. Preserve reported
+order and repeated recording occurrences; do not infer an upcoming item's album
+or playlist from the currently playing context. Invalid identities yield partial
+coverage, never a fabricated playable card. Empty, unavailable and partial are
+different results. A queue or Forecast read has no preliminary status lookup,
+generation, model call or playback effect.
+
+The old similar-tracks helper incorrectly used `play_uris` while claiming to
+enqueue. Retire that effect and claim: an unsupported append request may return
+qualified suggestions with explicit Play actions, but cannot start or replace
+playback. This correction does not introduce a queue writer or queue planner.
+An explicit request to play similar tracks keeps the existing typed Play route.
+
+Fast controls use the typed existing command, not reparsing through music search.
+Use its actual post-command playback readback. A volume confirmation requires
+the observed target value; an output confirmation requires the observed exact
+output identity. Forward the existing observer/Broadcast projection receipt.
+Never treat the pre-command snapshot as confirmation or generate an extra
+announcement/model call for a skip.
+
+Output selection is inert. Activate transfers to the selected, currently
+available unrestricted output with `play: false`; it cannot reuse a previous
+Play proposal. Explicit Play on a compound result additionally binds the exact
+recording/context and output. Spotify Play carries that output's `device_id`
+at the actual request boundary, including retries; transfer completion alone is
+not proof of request ordering. Recheck a fresh output inventory before dispatch.
+Negation, stale/restricted/cached-only outputs, expiry and revoked owner/source
+authority fail closed. Text/voice and existing typed taps share these validators.
+
 All application text, post-STT voice, raw HTTP compatibility and Ask DJ command
 adapters enter `ask_dj.service.async_exchange`; optional Session context only
 enriches this service. Read-only legacy administrative history remains an explicit
