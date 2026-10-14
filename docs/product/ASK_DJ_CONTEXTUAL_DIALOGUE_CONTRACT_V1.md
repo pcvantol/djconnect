@@ -124,6 +124,13 @@ knowledge. Explicit quoting returns faithful allowed text locally. Unknown
 rights produce local alternatives/clarification; never a fabricated biography
 or a blanket fallback echo for otherwise qualified public context.
 
+For general explanations of musical influence or approach, prefer established
+musical characteristics. Precise origin stories, accident anecdotes and causal
+biographical incident details require supplied source-qualified evidence; omit
+them when that evidence is absent. A general-knowledge label does not verify
+such an incident. This is an expression boundary, not a new fact provider or
+an automatic factuality validator.
+
 ## One style resolver
 
 Active or paused Session context uses confirmed `dj_persona` and symbolic
