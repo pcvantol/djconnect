@@ -685,7 +685,8 @@ def answer_form_issue(answer: str, style: dict) -> str | None:
     # Avoid counting initials, common name honorifics and decimal points as
     # sentence boundaries. This only checks the already declared Persona form.
     prose = re.sub(r"\b(?:[A-Z]\.){2,}|\b(?:Dr|Mr|Mrs|Ms|Prof|Sr|Sra|Mme|M)\.", "name", prose)
-    prose = re.sub(r"\b[A-Z]\.(?=\s+(?:[A-Z]\.|[A-Z][\wÀ-ÿ]))", "initial", prose)
+    prose = re.sub(r"\b(?:[A-Z]\.\s+){2,}(?=[A-Z][\wÀ-ÿ])", "initial ", prose)
+    prose = re.sub(r"\b([A-Z][\wÀ-ÿ]+)\s+[A-Z]\.(?=\s+[A-Z][\wÀ-ÿ]+)", r"\1 initial", prose)
     sentences = len(re.findall(r'[.!?]+(?:["”»)])*(?:\s+|$)', prose))
     if prose.strip() and not re.search(r'[.!?]+(?:["”»)])*$', prose.strip()):
         sentences += 1

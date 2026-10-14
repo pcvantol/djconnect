@@ -220,6 +220,8 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
             self.assertIsNone(self.dialogue.answer_form_issue(f'{name} shaped music.', {"language": "en", "persona": "club_dj"}))
             self.assertIsNone(self.dialogue.answer_form_issue(f'{name} shaped music. Their work influenced others.', {"language": "en", "persona": "radio_dj"}))
             self.assertIsNotNone(self.dialogue.answer_form_issue(f'{name} shaped music. Their work influenced others. This is extra.', {"language": "en", "persona": "radio_dj"}))
+        self.assertIsNone(self.dialogue.answer_form_issue('He played in C. The music stopped.', {"language": "en", "persona": "radio_dj"}))
+        self.assertIsNotNone(self.dialogue.answer_form_issue('He played in C. The music stopped.', {"language": "en", "persona": "club_dj"}))
         self.assertIsNotNone(self.dialogue.answer_form_issue('First. Second. Third. Fourth.', {"language": "nl", "persona": "festival_dj"}))
         for language in ("nl", "de", "fr", "es"):
             self.assertIsNotNone(self.dialogue.answer_form_issue('He makes ambient music.', {"language": language, "persona": "home_dj"}))
