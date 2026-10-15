@@ -407,7 +407,8 @@ class HybridOperations:
         return result
 
     async def _run(self, key, authority, operation, payload):
-        token = _current_operation.set((self, key, authority))
+        scope = [self, key, authority]
+        token = _current_operation.set(scope)
         invoked = False
         try:
             await authority.validate()
@@ -456,6 +457,9 @@ class HybridOperations:
                 )
             raise OperationError(code, getattr(exc, "status", 503)) from None
         finally:
+            # Detached tasks must not retain pairing headers or a live execution
+            # grant through an inherited ContextVar after this operation ends.
+            scope.clear()
             _current_operation.reset(token)
             self.journal.release(key)
 
@@ -464,6 +468,8 @@ async def guard_transport_effect():
     """Existing provider adapters call this through their established send guard."""
     current = _current_operation.get()
     if current is not None:
+        if not current:
+            raise OperationError("operation_context_changed", 409)
         manager, key, authority = current
         await authority.validate()
         manager.journal._validate_time(manager.journal._state["records"][key]["operation_id"])
@@ -476,6 +482,8 @@ def validate_transport_effect_now():
     """Final non-yielding fence after every Ask DJ/domain owner await."""
     current = _current_operation.get()
     if current is not None:
+        if not current:
+            raise OperationError("operation_context_changed", 409)
         manager, key, _authority = current
         if manager.journal._failed:
             raise OperationError("operation_unavailable", 503)

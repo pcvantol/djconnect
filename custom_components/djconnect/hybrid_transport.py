@@ -162,6 +162,7 @@ class HybridActionsView(HomeAssistantView):
         writer = None
         reader = None
         failure = None
+        authenticated = False
         try:
             auth_deadline = asyncio.get_running_loop().time() + AUTH_TIMEOUT
             await ws.send_json(
@@ -215,6 +216,7 @@ class HybridActionsView(HomeAssistantView):
                     ],
                 }
             )
+            authenticated = True
             queue = asyncio.Queue(maxsize=64)
             overflow = False
             deadline = asyncio.get_running_loop().time() + LEASE_SECONDS
@@ -354,8 +356,10 @@ class HybridActionsView(HomeAssistantView):
                 reader = asyncio.create_task(ws.receive())
         except asyncio.CancelledError:
             raise
-        except (TimeoutError, ValueError, TypeError):
-            failure = "invalid_auth"
+        except TimeoutError:
+            failure = "slow_consumer" if authenticated else "auth_timeout"
+        except (ValueError, TypeError):
+            failure = "invalid_projection" if authenticated else "invalid_auth"
         except OperationError as exc:
             failure = exc.code
         finally:

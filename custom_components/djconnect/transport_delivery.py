@@ -6,7 +6,9 @@ Session or media policy and never persists a callback or a result body.
 
 from contextlib import contextmanager
 from contextvars import ContextVar
+import asyncio
 import inspect
+import weakref
 
 _admissions = ContextVar("djconnect_transport_delivery_admissions", default=None)
 
@@ -14,17 +16,26 @@ _admissions = ContextVar("djconnect_transport_delivery_admissions", default=None
 @contextmanager
 def capture_delivery_admissions():
     admissions = []
-    token = _admissions.set(admissions)
+    scope = {"task": weakref.ref(asyncio.current_task()), "admissions": admissions}
+    token = _admissions.set(scope)
     try:
         yield admissions
     finally:
+        # Background tasks inherit ContextVars. Detach their shared scope from
+        # private callbacks while the returned in-flight result keeps its own copy.
+        scope["admissions"] = None
         _admissions.reset(token)
 
 
 def register_delivery_admission(validate):
-    admissions = _admissions.get()
-    if admissions is not None:
-        admissions.append(validate)
+    scope = _admissions.get()
+    if scope is not None and scope["admissions"] is not None:
+        try:
+            owner_task = asyncio.current_task() is scope["task"]()
+        except RuntimeError:
+            return
+        if owner_task:
+            scope["admissions"].append(validate)
 
 
 class OwnerDeliveryResult(dict):

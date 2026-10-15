@@ -213,7 +213,7 @@ async def main():
         async def provider_token(self, **kwargs):
             from custom_components.djconnect.hybrid_service import _current_operation
 
-            if state["token_gate"] is not None and _current_operation.get() is not None:
+            if state["token_gate"] is not None and _current_operation.get():
                 state["token_entered"].set()
                 await state["token_gate"].wait()
             return "UNUSED_SYNTHETIC_PROVIDER_TOKEN"
@@ -880,7 +880,7 @@ async def main():
                                 "device_token": token,
                             }
                         )
-                        await cancelled.receive_json()
+                        cancelled_auth = await cancelled.receive_json()
                         state["token_gate"], state["token_entered"] = (
                             asyncio.Event(),
                             asyncio.Event(),
@@ -890,6 +890,40 @@ async def main():
                             {"id": 1, "type": "djconnect/operation/execute", **cancelled_intent}
                         )
                         await asyncio.wait_for(state["token_entered"].wait(), 5)
+                        # The genuine external provider boundary holds ID1. A pure
+                        # owner read ID2 must complete first, without a second reader.
+                        await cancelled.send_json({
+                            "id": 2, "type": "djconnect/read",
+                            "operation": "session/active", "payload": {},
+                        })
+                        out_of_order = await asyncio.wait_for(cancelled.receive_json(), 5)
+                        assert out_of_order["id"] == 2
+                        assert out_of_order["connection_id"] == cancelled_auth["connection_id"]
+                        assert out_of_order["result"]["session"]["session_id"] == session_id
+                        receipts.append({"case": "actual-out-of-order-held-effect-fast-read",
+                                         "received_id": 2, "still_pending_id": 1})
+                        async with client.ws_connect(
+                            secure + "/api/djconnect/v1/actions/paired"
+                        ) as replacement:
+                            await replacement.receive_json()
+                            await replacement.send_json({
+                                "type": "auth", "protocol_version": 1,
+                                "audience": "paired_owner_actions", **identity,
+                                "device_token": token,
+                            })
+                            replacement_auth = await replacement.receive_json()
+                            assert replacement_auth["connection_id"] != cancelled_auth["connection_id"]
+                            await replacement.send_json({
+                                "id": 1, "type": "djconnect/operation/status",
+                                **{k: cancelled_intent[k] for k in
+                                   ("contract_version", "operation_id", "operation_epoch")},
+                            })
+                            replacing = await asyncio.wait_for(replacement.receive_json(), 5)
+                            assert replacing["id"] == 1
+                            assert replacing["connection_id"] == replacement_auth["connection_id"]
+                            assert replacing["result"]["operation_receipt"]["phase"] == "accepted"
+                            receipts.append({"case": "replacement-socket-original-id-status",
+                                             "body": replacing, "new_connection_id": True})
                     pending = await post(
                         "transport/operation", {"identity": identity, **cancelled_intent}, 202
                     )
@@ -1110,6 +1144,9 @@ async def main():
                     h.data["djconnect"].pop("hybrid_operation_manager")
                     await post("transport/operation/status", {"identity": identity, **status})
                     await post("transport/operation", {"identity": identity, **request}, 409)
+                    journal_pre_idle_bytes = (
+                        (directory / ".storage/djconnect_transport_operations").stat().st_size
+                    )
                     if os.environ.get("DJC_HYBRID_LEASE_PROBE") == "1":
                         # Actual production timers, no patched clock or shortened lease.
                         await post(
@@ -1226,7 +1263,8 @@ async def main():
                     assert "snapshot" not in withdrawn_recovery
             source_hashes = {
                 str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest()
-                for p in sorted((ROOT / "custom_components/djconnect").rglob("*.py"))
+                for p in sorted((ROOT / "custom_components/djconnect").rglob("*"))
+                if p.is_file() and "__pycache__" not in p.parts
             }
             source_hashes[str(Path(__file__).relative_to(ROOT))] = hashlib.sha256(
                 Path(__file__).read_bytes()
@@ -1245,10 +1283,11 @@ async def main():
                         "journal_bytes": (directory / ".storage/djconnect_transport_operations")
                         .stat()
                         .st_size,
+                        "journal_pre_idle_bytes": journal_pre_idle_bytes,
                         "native": "OPEN",
                         "installed": "NOT_RUN",
                         "provider_boundary": "explicit external music/source fixtures only",
-                        "remaining": "full races/revocation/recovery/liveness and consumer qualification still required",
+                        "remaining": "Exact independent review and separately owned native/installed/hardware/joint qualification; physical routing remains OPEN",
                     },
                     indent=2,
                 )

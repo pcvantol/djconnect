@@ -382,3 +382,53 @@ class OperationServiceTests(unittest.IsolatedAsyncioTestCase):
         self.assertFalse(self.manager.tasks)
         self.assertFalse(self.manager.journal._active)
         self.assertEqual(next(iter(self.store.data["records"].values()))["phase"], "rejected")
+
+    async def test_detached_task_cannot_retain_live_operation_authority(self):
+        release = asyncio.Event()
+        children, effects = [], []
+
+        async def late_effect():
+            await release.wait()
+            self.assertEqual(self.service._current_operation.get(), [])
+            await self.service.guard_transport_effect()
+            effects.append("forbidden-late-effect")
+
+        async def domain(*args):
+            children.append(asyncio.create_task(late_effect()))
+            return {"success": True}, 200
+
+        with patch.object(self.service, "invoke", domain):
+            result, _status = await self.manager.execute(
+                self.authority, self.request, transport="http"
+            )
+        self.assertEqual(result["operation_receipt"]["phase"], "confirmed")
+        release.set()
+        with self.assertRaises(self.service.OperationError) as failure:
+            await children[0]
+        self.assertEqual(failure.exception.code, "operation_context_changed")
+        self.assertEqual(effects, [])
+
+    async def test_inherited_delivery_scope_cannot_accumulate_private_callbacks(self):
+        from custom_components.djconnect import transport_delivery as delivery
+
+        release = asyncio.Event()
+        observed = []
+
+        def owner_guard():
+            return None
+
+        async def background():
+            delivery.register_delivery_admission(lambda: None)
+            await release.wait()
+            observed.append(delivery._admissions.get()["admissions"])
+            delivery.register_delivery_admission(lambda: None)
+
+        with delivery.capture_delivery_admissions() as admissions:
+            delivery.register_delivery_admission(owner_guard)
+            child = asyncio.create_task(background())
+            await asyncio.sleep(0)
+            self.assertEqual(admissions, [owner_guard])
+        release.set()
+        await child
+        self.assertEqual(observed, [None])
+        self.assertEqual(admissions, [owner_guard])
