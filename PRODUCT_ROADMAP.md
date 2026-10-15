@@ -15,6 +15,28 @@ review are under final qualification. Core remains In progress and unpublished;
 Apple/native audible and joint acceptance remain open. No successor is admitted.
 
 
+## Separate web-first VibeCast documentary assignment
+
+[DJC-VIBECAST-WEB-FIRST-GUEST-EXPERIENCE-DESIGN-V1-20261015](https://github.com/pcvantol/djconnect/issues/1174)
+records [product direction](docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md),
+[onboarding/authority](docs/product/VIBECAST_ONBOARDING_GUEST_AUTHORITY_V1.md) and
+[temporary Apple mode](docs/product/APPLE_VIBECAST_GUEST_MODE_V1.md). Design source protected merged in [PR #1175](https://github.com/pcvantol/djconnect/pull/1175)
+as `7266bc2540e4b7699cf47c028214e4b22c4c5afe`; separate Finalization reconciles delivery. Product implementation
+Planned, consumer/shared-media and joint/physical acceptance OPEN. Existing
+VibeCast/Audience/Guest families are reused by bounded WEB:: subsets in the
+[live DAG](docs/roadmap/v1/djconnect-platform-v1.json); no duplicate initiative or
+automatic dispatch. Cast-first/native-TV prerequisites are superseded forward
+positioning; historical delivered receipts stay exact. Core Speech/Persona and
+existing Apple/receiver work continue independently; no release order changes.
+
+Future gated sequence: disposition + trust → bootstrap/display/shared grants;
+guest authority → browser/app join; shared projection + authority → reactions/chat;
+aggregate + host policy → bounded DJ influence; exact request dialogue +
+Planner/effect policy → real enqueue/observed-playback announcement. Shared art,
+Forecast and speech need separate audience grants/consumer acceptance. Final
+short URL, unspecified exception, five emoji and implementation details remain
+OPEN. No runtime/deployment/domain registration is delivered by this assignment.
+
 ## Session artwork — Core producer delivered; separate Finalization pending
 
 [Source #1172](https://github.com/pcvantol/djconnect/pull/1172) protected merged as `5c7ecb7941c555f12bd94a2969167cfaaff0cb44`. [Exact readback](docs/verification/SESSION_ARTWORK_V1_SOURCE_READBACK_20261015.md) qualifies all164 integration files and formal/coverage evidence. Three MEDIA::CORE contract/live/history subsets Completed/CORE_DELIVERED. Apple adoption and joint acceptance remain Planned/open; family PARTIAL, installed artwork NOT_RUN. One existing image owner; exact subject/edition/source/account, independent surface rights and bounded explicit archive refresh. No provider work in pure reads or semantic Moment mutation.

@@ -87,6 +87,9 @@ def validate_delta(plan: dict[str, Any]) -> list[str]:
     if version == "djconnect-federated-planning-delta/12":
         from speech_persona_delta import validate
         return validate(plan, validate_delta)
+    if "web_first_receipt" in d:
+        from web_first_delta import validate
+        return validate(plan, validate_delta)
     if version == "djconnect-federated-planning-delta/11":
         from session_artwork_delta import validate
         return validate(plan, validate_delta)
@@ -1116,4 +1119,7 @@ def render_delta(p):
     out["diagrams/ready-frontier.mmd"] = (
         'flowchart LR\n  Planned["All presence product work Planned; no dispatch"]\n'
     )
+    if "web_first_receipt" in d:
+        from web_first_delta import add_views
+        return add_views(out, p)
     return out

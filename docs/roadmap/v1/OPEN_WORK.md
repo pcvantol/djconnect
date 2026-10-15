@@ -1,5 +1,7 @@
 # Planned product work — no dispatch
 
+Web-first #1174 documentary extension: SOURCE_PROTECTED_MERGED; design authored only, product implementation Planned/NOT_ISSUED and joint acceptance OPEN. Cast-first/native-TV prerequisites superseded for forward design; original receipts remain historical. URL/exception/emoji OPEN. No automatic dispatch or runtime/publication grant.
+
 Generated from djconnect-platform-v1.json, maintenance DJC-DJ-PRESENCE-ROADMAP-DESIGN-V1-20261011.
 
 The original3October snapshot/audit/source pins and projections are immutable history in [history/20261003](history/20261003/README.md). Only this bounded delta is current here; inherited premerge statuses are not current blockers. No portfolio-wide refresh, writer reservation, product dispatch or runtime acceptance is claimed.
@@ -39,6 +41,26 @@ Selected and freshly admitted speech/Persona implementation: DJC-SESSION-SPEECH-
 - `TRANSPORT::JOINT::HYBRID` — Planned: Native LAN external and recovery acceptance across supported Apple devices; no installed/native/hardware claim from producer proof.
 - `MEDIA::APPLE::SESSION-ARTWORK` — Planned: Shared native Session artwork presentation; separate Core/native/installed/joint evidence.
 - `MEDIA::JOINT::SESSION-ARTWORK` — Planned: Core and Apple subject/rights/expiry acceptance; separate Core/native/installed/joint evidence.
+- `WEB::DISPOSITION` — Planned: Implement reviewed web-first legacy disposition; exact source/consumer, visible/audible/physical and joint acceptance OPEN.
+- `WEB::TRUST` — Planned: Qualify browser-bound onboarding and guest trust contract; exact source/consumer, visible/audible/physical and joint acceptance OPEN.
+- `WEB::BOOTSTRAP` — Planned: Temporary encrypted rendezvous service; exact source/consumer, visible/audible/physical and joint acceptance OPEN.
+- `WEB::DISPLAY` — Planned: Separate HA code and readonly display grant; exact source/consumer, visible/audible/physical and joint acceptance OPEN.
+- `WEB::OWNER-SCANNER` — Planned: Paired owner scanner and explicit installation confirmation; exact source/consumer, visible/audible/physical and joint acceptance OPEN.
+- `WEB::SHARED` — Planned: Explicit shared Flow NowPlaying Forecast projection; exact source/consumer, visible/audible/physical and joint acceptance OPEN.
+- `WEB::MEDIA` — Planned: Independent shared artwork and speech grants expiry attribution; exact source/consumer, visible/audible/physical and joint acceptance OPEN.
+- `WEB::GUEST` — Planned: Invitation redemption guest principal and revocation; exact source/consumer, visible/audible/physical and joint acceptance OPEN.
+- `WEB::BROWSER` — Planned: One responsive web UI and accountless browser join; exact source/consumer, visible/audible/physical and joint acceptance OPEN.
+- `WEB::DISTRIBUTION` — Planned: Reviewed generic static bootstrap and browser distribution; exact source/consumer, visible/audible/physical and joint acceptance OPEN.
+- `WEB::DISCOVERY` — Planned: Admission-scoped HA local discovery announcement; exact source/consumer, visible/audible/physical and joint acceptance OPEN.
+- `WEB::APP` — Planned: Isolated temporary guest shell discovery scanner leave home restore; exact source/consumer, visible/audible/physical and joint acceptance OPEN.
+- `WEB::REACTIONS` — Planned: Five subject-bound ephemeral reactions and bounded sparkle; exact source/consumer, visible/audible/physical and joint acceptance OPEN.
+- `WEB::AGGREGATE` — Planned: Temporary audience aggregation and host lock budget policy; exact source/consumer, visible/audible/physical and joint acceptance OPEN.
+- `WEB::INFLUENCE` — Planned: Bounded DJ-led Mood direction influence and owner confirmation; exact source/consumer, visible/audible/physical and joint acceptance OPEN.
+- `WEB::CHAT` — Planned: Guest Ask DJ isolated thread safe dispatch and spend budgets; exact source/consumer, visible/audible/physical and joint acceptance OPEN.
+- `WEB::REQUEST` — Planned: Exact recording clarification and guest proposal dialogue; exact source/consumer, visible/audible/physical and joint acceptance OPEN.
+- `WEB::EFFECT-POLICY` — Planned: DJ request consideration fairness and uncertain-effect policy; exact source/consumer, visible/audible/physical and joint acceptance OPEN.
+- `WEB::ENQUEUE` — Planned: Real enqueue reconciliation and observed-recording Persona announcement; exact source/consumer, visible/audible/physical and joint acceptance OPEN.
+- `WEB::JOINT` — Planned: Joint browser native media lifecycle physical five-language acceptance; exact source/consumer, visible/audible/physical and joint acceptance OPEN.
 - `SPEECH::APPLE::ADOPTION` — Planned: Core software, installed, native/audible and joint evidence independent; no consumer dispatch.
 - `SPEECH::CORE::CONTRACT` — In progress: Core software, installed, native/audible and joint evidence independent; no consumer dispatch.
 - `SPEECH::CORE::DELIVERY` — In progress: Core software, installed, native/audible and joint evidence independent; no consumer dispatch.

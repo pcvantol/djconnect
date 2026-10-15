@@ -1,5 +1,7 @@
 # DJC-CORE presence projection
 
+Web-first #1174 documentary extension: SOURCE_PROTECTED_MERGED; design authored only, product implementation Planned/NOT_ISSUED and joint acceptance OPEN. Cast-first/native-TV prerequisites superseded for forward design; original receipts remain historical. URL/exception/emoji OPEN. No automatic dispatch or runtime/publication grant.
+
 Generated from djconnect-platform-v1.json, maintenance DJC-DJ-PRESENCE-ROADMAP-DESIGN-V1-20261011.
 
 The original3October snapshot/audit/source pins and projections are immutable history in [history/20261003](../history/20261003/README.md). Only this bounded delta is current here; inherited premerge statuses are not current blockers. No portfolio-wide refresh, writer reservation, product dispatch or runtime acceptance is claimed.
@@ -39,6 +41,22 @@ Selected and freshly admitted speech/Persona implementation: DJC-SESSION-SPEECH-
 - `MEDIA::CORE::SESSION-LIVE` — Completed; Published Moment and playback artwork delivery
 - `MEDIA::CORE::SESSION-HISTORY` — Completed; Explicit original-source historical artwork resolution
 - `MEDIA::JOINT::SESSION-ARTWORK` — Planned; Core and Apple subject/rights/expiry acceptance
+- `WEB::DOCS` — Completed; Whole web-first documentary design
+- `WEB::DISPOSITION` — Planned; Implement reviewed web-first legacy disposition
+- `WEB::TRUST` — Planned; Qualify browser-bound onboarding and guest trust contract
+- `WEB::DISPLAY` — Planned; Separate HA code and readonly display grant
+- `WEB::SHARED` — Planned; Explicit shared Flow NowPlaying Forecast projection
+- `WEB::MEDIA` — Planned; Independent shared artwork and speech grants expiry attribution
+- `WEB::GUEST` — Planned; Invitation redemption guest principal and revocation
+- `WEB::DISCOVERY` — Planned; Admission-scoped HA local discovery announcement
+- `WEB::REACTIONS` — Planned; Five subject-bound ephemeral reactions and bounded sparkle
+- `WEB::AGGREGATE` — Planned; Temporary audience aggregation and host lock budget policy
+- `WEB::INFLUENCE` — Planned; Bounded DJ-led Mood direction influence and owner confirmation
+- `WEB::CHAT` — Planned; Guest Ask DJ isolated thread safe dispatch and spend budgets
+- `WEB::REQUEST` — Planned; Exact recording clarification and guest proposal dialogue
+- `WEB::EFFECT-POLICY` — Planned; DJ request consideration fairness and uncertain-effect policy
+- `WEB::ENQUEUE` — Planned; Real enqueue reconciliation and observed-recording Persona announcement
+- `WEB::JOINT` — Planned; Joint browser native media lifecycle physical five-language acceptance
 - `SPEECH::CORE::CONTRACT` — In progress; Shared narration and speech/source contract; existing owner selection6189231491 only
 - `SPEECH::CORE::DELIVERY` — In progress; Owner speech/manual replay and renderer voice admission; existing owner selection6189231491 only
 - `SPEECH::CORE::PERSONA` — In progress; Live ordered Session Persona settings; existing owner selection6189231491 only

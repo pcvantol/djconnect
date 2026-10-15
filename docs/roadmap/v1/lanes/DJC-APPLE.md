@@ -1,5 +1,7 @@
 # DJC-APPLE presence projection
 
+Web-first #1174 documentary extension: SOURCE_PROTECTED_MERGED; design authored only, product implementation Planned/NOT_ISSUED and joint acceptance OPEN. Cast-first/native-TV prerequisites superseded for forward design; original receipts remain historical. URL/exception/emoji OPEN. No automatic dispatch or runtime/publication grant.
+
 Generated from djconnect-platform-v1.json, maintenance DJC-DJ-PRESENCE-ROADMAP-DESIGN-V1-20261011.
 
 The original3October snapshot/audit/source pins and projections are immutable history in [history/20261003](../history/20261003/README.md). Only this bounded delta is current here; inherited premerge statuses are not current blockers. No portfolio-wide refresh, writer reservation, product dispatch or runtime acceptance is claimed.
@@ -22,6 +24,8 @@ Selected and freshly admitted speech/Persona implementation: DJC-SESSION-SPEECH-
 - `INSIGHT::APPLE::MOMENT-DRILLDOWN` — Planned; Native pinned Track Insight and return to the same Flow/draft
 - `TRANSPORT::APPLE::HYBRID` — Planned; Existing Apple route coordinator adopts qualified producer contract
 - `MEDIA::APPLE::SESSION-ARTWORK` — Planned; Shared native Session artwork presentation
+- `WEB::OWNER-SCANNER` — Planned; Paired owner scanner and explicit installation confirmation
+- `WEB::APP` — Planned; Isolated temporary guest shell discovery scanner leave home restore
 - `SPEECH::APPLE::ADOPTION` — Planned; Native shared speech, voice and autoplay adoption; existing owner selection6189231491 only
 
 Fresh owner/writer/resource admission is separate from functional prerequisites. Historical writer observations are not current leases.

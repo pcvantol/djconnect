@@ -123,3 +123,19 @@ locale/gender without fallback. The full c39 browser/301s/model proof above stay
 historical; this focused correction does not claim a repeated browser, duration,
 model or native/audible qualification. Source delivery remains unpublished and
 requires new exact cumulative review and its own publication gate.
+
+## Delivered documentary main integration
+
+Web-first source1175 and separate Finalization1176 are protected delivered and
+reconciled at `a6d666fea7f30254b20bea015fad8d1fd8d7b059` ([terminal receipt](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6199088973)).
+The same existing Speech branch now integrates this main. Original admission
+base70c0a300 stays historical; the source-PR base is the delivered a6d666fe.
+All21 WEB nodes/44 edges and its whole receipt are unchanged. A new separately
+named incoming-v11 maintenance snapshot preserves those exact values; original
+artwork and3October snapshots remain immutable. The Speech-v12 outer validator
+strips only Speech before applying the unchanged WEB/base-v11 validation.
+156 DAG tests and all23 generated projections pass, including negative cases for
+cross-family cycles, altered WEB state and wrong integration base. All167 runtime
+files are byte-equal to the real HA-tested27c22afd successor; this documentary
+merge does not repin historical model/browser/duration proof. The integrated
+candidate still needs exact cumulative reviews and its own publication gate.

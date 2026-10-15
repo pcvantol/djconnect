@@ -47,5 +47,22 @@
     "owning_tests": 107,
     "prior_full_qualification": "c39a4f8020fb21a9d40da22af0928a420c97a44a retained; only session_speech.py differs among143CorePythonfiles",
     "source_publication": "UNPUBLISHED"
+  },
+  "documentary_integration": {
+    "main_base": "a6d666fea7f30254b20bea015fad8d1fd8d7b059",
+    "WEB_nodes_preserved": 21,
+    "WEB_edges_preserved": 44,
+    "DAG_tests": 156,
+    "generated_views": 23,
+    "runtime_checkpoint": "27c22afdaca8a7a701ba839928c9d16ed8acd794",
+    "tracked_runtime_files": 167,
+    "runtime_mismatches": 0,
+    "publication": "UNPUBLISHED",
+    "own_workspace": "ACTIVE_SPEECH_NOT_READY_FOR_SUCCESSOR",
+    "regression_run": 1994,
+    "regression_passed": 1987,
+    "existing_skips": 7,
+    "framework_tests": 172,
+    "relative_link_targets_checked": 475
   }
 }

@@ -3154,3 +3154,30 @@ source/Session/clear/expiry cancellation. No second writer, Swift write,
 source-right downgrade, passive surface export or native/audible PASS follows
 from Core fixtures. Early pins remain explicitly local/partial; definitive
 protected producerpin and full remaining-family qualification follow delivery.
+
+## Documentary handoff — VibeCast web-first/guest design v1
+
+Issue [#1174](https://github.com/pcvantol/djconnect/issues/1174) and
+[experience](docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md),
+[authority](docs/product/VIBECAST_ONBOARDING_GUEST_AUTHORITY_V1.md),
+[Apple guest mode](docs/product/APPLE_VIBECAST_GUEST_MODE_V1.md) are future design,
+not a consumer start prompt. Core1101 retains current Speech/Persona ownership;
+Apple87 and receiver10 retain existing source writers and queues.
+Core owns grants/shared projection/effect policy; Apple owns scanner/discovery/
+isolated temporary shell; receiver owns one web UI/distribution; existing API
+owner is proposed for bounded central rendezvous, pending contract/cost review.
+
+Web-first supersedes Cast/native-TV prerequisites. Keep one shared renderer and
+historical delivery pins; do not regenerate or edit a separate bubble source.
+Two-step owner bootstrap/display admission differs from accountless guest join.
+No owner history/Profile/DNA/private media/speech export; no guest playback/skip/
+volume/output/end rights. New TV readonly; legacy opt-in end-only grant remains
+installed behavior until separate approved migration.
+
+WEB:: nodes refine existing VibeCast/Audience/Guest parents; all runtime subsets
+Planned/NOT_ISSUED, physical/native/joint OPEN. Exact future consumer acceptance
+includes shared Forecast/art/speech rights and expiry, browser/app home isolation,
+zero forbidden guest effects, real queue acknowledgement then observed correct
+recording and anonymous Persona announcement. URL/exception/emoji remain OPEN.
+This handoff does not reopen artwork/transport/Forecast producers or authorize
+Swift/source/runtime changes, deployments, DNS, signing or automatic follow-up.

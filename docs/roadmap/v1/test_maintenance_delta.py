@@ -204,6 +204,9 @@ class MaintenanceTests(unittest.TestCase):
                     if delivered
                     else ("In progress", "IN_PROGRESS"),
                 )
+            elif n["id"] == "WEB::DOCS":
+                self.assertEqual((n["status"], n["assignment_status"]), ("Completed", "DESIGN_AUTHORED"))
+                self.assertEqual(d["web_first_receipt"]["product_implementation"], "Planned")
             elif "ACTIVE-SESSION-MOOD" not in n["id"]:
                 self.assertEqual((n["status"], n["assignment_status"]), ("Planned", "NOT_ISSUED"))
         receipt = d["implementation_receipt"]
@@ -624,6 +627,45 @@ class SpeechPersonaMaintenanceTests(unittest.TestCase):
         self.assertIn('Selected and freshly admitted speech/Persona implementation', readme)
         self.assertNotIn('Owner-selected queued successor:', readme)
 
+    def test_documentary_web_predecessor_and_both_families_survive_composition(self):
+        import json
+        d = self.p['planning_maintenance']
+        previous_file = ROOT / 'history/20261015/web-first-finalization-maintenance-v11.json'
+        previous = json.loads(previous_file.read_text())
+        self.assertEqual(hashlib.sha256(previous_file.read_bytes()).hexdigest(),
+                         d['speech_persona_receipt']['previous_delta_sha256'])
+        self.assertEqual(d['speech_persona_receipt']['integration_main_sha'],
+                         'a6d666fea7f30254b20bea015fad8d1fd8d7b059')
+        self.assertEqual(d['web_first_receipt'], previous['web_first_receipt'])
+        self.assertEqual([n for n in d['nodes'] if not n['id'].startswith('SPEECH::')], previous['nodes'])
+        self.assertEqual([e for e in d['edges'] if not e['id'].startswith('SPEECH-')], previous['edges'])
+        self.assertEqual(len([n for n in d['nodes'] if n['id'].startswith('WEB::')]), 21)
+        self.assertEqual(len([e for e in d['edges'] if e['id'].startswith('WEB-FIRST-')]), 44)
+        self.assertIn('Selected and freshly admitted speech/Persona implementation', render(self.p)['README.md'])
+        self.assertIn('Web-first #1174 documentary extension', render(self.p)['README.md'])
+
+    def test_composition_rejects_documentary_rewrite_or_cross_family_cycle(self):
+        for mutation in ('receipt', 'node', 'edge', 'cycle', 'integration_base'):
+            with self.subTest(mutation=mutation):
+                p = copy.deepcopy(self.p)
+                d = p['planning_maintenance']
+                if mutation == 'receipt':
+                    d['web_first_receipt']['source_main_sha'] = '0' * 40
+                elif mutation == 'node':
+                    next(n for n in d['nodes'] if n['id'] == 'WEB::DOCS')['status'] = 'Planned'
+                elif mutation == 'edge':
+                    d['edges'] = [e for e in d['edges'] if e['id'] != 'WEB-FIRST-1']
+                elif mutation == 'integration_base':
+                    d['speech_persona_receipt']['integration_main_sha'] = '0' * 40
+                else:
+                    edge = copy.deepcopy(next(e for e in d['edges'] if e['id'].startswith('SPEECH-')))
+                    edge.update(id='SPEECH-web-cycle-a', producer='WEB::JOINT', consumer='SPEECH::CORE::CONTRACT')
+                    d['edges'].append(edge)
+                    edge = copy.deepcopy(edge)
+                    edge.update(id='SPEECH-web-cycle-b', producer='SPEECH::CORE::CONTRACT', consumer='WEB::JOINT')
+                    d['edges'].append(edge)
+                self.assertTrue(validate(p))
+
     def test_missing_admission_or_unproved_acceptance_rejected(self):
         for key, value in [('ack', 1), ('base_sha', '0'*40), ('source_delivery', 'PROTECTED_MERGED'),
                            ('native', 'PASS'), ('installed', 'PASS'), ('audible', 'PASS'), ('joint', 'PASS'),
@@ -652,3 +694,50 @@ class SpeechPersonaMaintenanceTests(unittest.TestCase):
         edge = next(e for e in p['planning_maintenance']['edges'] if e['id'].startswith('SPEECH-'))
         edge['producer']='SPEECH::JOINT::ACCEPTANCE'
         self.assertTrue(validate(p))
+
+class WebFirstNegativeTests(unittest.TestCase):
+    def setUp(self):
+        self.p = load(ROOT / "djconnect-platform-v1.json")
+
+    def test_reject_product_completion_dispatch_and_hidden_choices(self):
+        for key, value in (
+            ("product_implementation", "Completed"),
+            ("joint_acceptance", "PASS"),
+            ("automatic_dispatch", True),
+            ("runtime_writes", True),
+            ("open_decisions", []),
+            ("base_delta_version", "unknown"),
+        ):
+            with self.subTest(key=key):
+                bad = copy.deepcopy(self.p)
+                bad["planning_maintenance"]["web_first_receipt"][key] = value
+                self.assertTrue(validate(bad))
+
+    def test_reject_prior_overwrite_guest_owner_swap_and_missing_edge(self):
+        for mutation in ("prior", "owner", "edge", "group", "cycle", "hash"):
+            with self.subTest(mutation=mutation):
+                bad = copy.deepcopy(self.p)
+                d = bad["planning_maintenance"]
+                if mutation == "prior":
+                    d["nodes"][0]["scope"] = "unauthorized overwrite"
+                if mutation == "owner":
+                    next(n for n in d["nodes"] if n["id"] == "WEB::APP")["repository"] = (
+                        "pcvantol/djconnect"
+                    )
+                if mutation == "edge":
+                    d["edges"] = [e for e in d["edges"] if e["id"] != "WEB-FIRST-1"]
+                if mutation == "group":
+                    next(n for n in d["nodes"] if n["id"] == "WEB::APP")["prerequisite_groups"] = []
+                if mutation == "cycle":
+                    e = copy.deepcopy(
+                        next(e for e in d["edges"] if e["id"].startswith("WEB-FIRST-"))
+                    )
+                    e.update(id="WEB-FIRST-cycle", producer="WEB::JOINT", consumer="WEB::DOCS")
+                    d["edges"].append(e)
+                if mutation == "hash":
+                    next(
+                        r
+                        for r in d["document_references"]
+                        if r["path"].endswith("VIBECAST_WEB_FIRST_EXPERIENCE_V1.md")
+                    )["sha256"] = "0" * 64
+                self.assertTrue(validate(bad))

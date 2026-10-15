@@ -12,7 +12,7 @@ Fresh full bootstrap/hostverify MATCH exit0/package4.5.3, sync-clean main and wr
 
 [Canonical narration/Persona design](docs/product/SESSION_SPEECH_PERSONA_V1.md) and [speech delivery/replay contract](docs/product/SESSION_SPEECH_DELIVERY_V1.md) precede runtime changes. Every intended proactive DJ narration must use confirmed SessionPersona in bubble and speech, including admitted playback announcement; factual observations/counts stay separate. Mood/Presence/concrete voice/autoplay remain independent. One existing Planner/Engine/Composer/dialogue/history/audio owner; no provider/cloud workaround, source-rights broadening or private receiver grant.
 
-Live Persona CAS/no-op/readback/Broadcast/Hybrid is connected;1951regressions(7existing skips) pass after additive contract expectations,31focused tests pass. Speech preparation, per-family connected realization, voice inventory/admission and real paired-HA/native evidence are still in progress; no complete slice/audio/native/installed PASS. No source push or PR yet.
+Local runtime, common private speech, narration families and conditional processor advertisement are qualified:1994regression tests run/7existing skips,107owning tests, actual paired HA and separately pinned full browser/model/301s proof; both exact reviews GO before this documentary integration. [Qualification](docs/verification/SESSION_SPEECH_PERSONA_LOCAL_QUALIFICATION_20261015.md) retains precise source and acceptance boundaries. Source is UNPUBLISHED; integrated candidate requires refreshed checks/reviews and its own exact source-publication gate. Native/audible/installed/hardware/joint remain open.
 
 ### Roadmap Position
 
@@ -41,6 +41,48 @@ Repository State: `MERGED_RECONCILED` for verified predecessor1173. Current spee
 ### Workspace State
 
 Workspace State: `NOT_READY` for another increment during this speech WIP. Other VibeCast worktree4b3a8059, Applelab and both HA environments retained; no own lab running at admission. Only this selected Core writer mutates source.
+
+Documentary main integration: #1174 source1175/7266bc25 and Finalization1176/a6d666fea7f30254b20bea015fad8d1fd8d7b059 are verified delivered ([terminal receipt](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6199088973)). Preserve WEB receipt/21nodes/44edges and original historical bytes while adding the same existing Speech scope. Original admission remains70c0a300; integration base is a6d666fe. This does not reopen web-first product implementation or grant source publication.
+
+## Recorded documentary predecessor context
+
+## Delivered documentary predecessor: VibeCast web-first design
+
+### Repository Status
+
+PR [#1175](https://github.com/pcvantol/djconnect/pull/1175) protected merged as `7266bc2540e4b7699cf47c028214e4b22c4c5afe` from exact independently reviewed/owner-authorized `a048d46383c82b086ab7986c765df4e6a8d50e00`, base70c0a300. Complete tree equality;32successful checks/5conditional skips; actual Owner Authorization38771192832 SUCCESS. [Source readback](docs/verification/VIBECAST_WEB_FIRST_DESIGN_V1_SOURCE_READBACK_20261015.md) verifies all164 integration files unchanged, zero mismatches, and exact main/artifact/formal/raw/coverage bindings. Earlier artwork1172/1173 and other completed sources stay closed.
+
+### Management Summary
+
+Three canonical designs cover the whole web-first experience, two-step owner onboarding, temporary display/guest authority, browser and isolated Apple guest mode, reactions, limited Ask DJ and exact request planning/effect/playback states. Cast-first/native-TV prerequisites are superseded forward design, with historical proof and installed end-only opt-in preserved. No runtime, deployment, domain registration or new provider/cost commitment. URL, unspecified exception, five emoji and technical implementation decisions remain OPEN.
+
+### Roadmap Position
+
+Generation2 DJConnect Product Development; Phase2 Reference/Renderer Experience documentary increment under existing VibeCast/Audience/Guest families.21bounded WEB subsets/44dependencies/23generated views; design source delivered,20product subsets Planned/NOT_ISSUED, native/shared-media/joint/physical acceptance OPEN. Existing producers remain delivered; owner artwork/speech/history grants do not become guest grants. This Finalization reconciles source1175, never starts a guest implementation or changes release order.
+
+### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+1. **DJC-SESSION-SPEECH-PERSONA-VOICE-20261015 — existing Core execution, source unpublished.** Retain the active Core writer and selected scope. Rebase its additive documentary integration after this Finalization, then requalify and seek its own exact publication gate; no new pickup.
+2. **Unfilled product slot 2 — no further authorized selection.** Not dispatched.
+3. **Unfilled product slot 3 — no further authorized selection.** Not dispatched.
+4. **Unfilled product slot 4 — no further authorized selection.** Not dispatched.
+5. **Unfilled product slot 5 — no further authorized selection.** Not dispatched.
+
+### Blocked Items
+
+This Finalization has its own exact review/publication gate; source authorization does not authorize this candidate. Current full hostverify is MATCH/exit0/package4.5.3 after owner-reported space restoration; earlier diskDRIFT is resolved, no cleanup performed by this writer. Planned product slices retain trust/crypto/browser/media-rights/consumer gates. Existing Speech source is unpublished and must integrate this documentary main before its own final qualification.
+
+### Deferred Items
+
+All web-first runtime, central service/Pages/DNS, native guest implementation, discovery, audience/Mood effects, guest chat, queue effects and physical acceptance remain Planned or OPEN. Existing Apple/receiver writers and queues remain untouched. No new runtimewriter, signer/runner/workflow/HA configuration, installation, cost route or implicit automatic dispatch.
+
+### Repository State
+
+Repository State: `MERGED_RECONCILED` for documentary source1175 when this separate Finalization is protected merged and read back. This is the Finalization candidate's intended postmerge record, not a premerge claim that its own publication gate has passed. Source alone was MERGED_UNRECONCILED; the immutable [Finalization record](docs/history/prompts/2026-10-15-vibecast-web-first-guest-design-finalization.md) binds the verified source and bounded reconciliation. Concurrent unmerged Speech remains a separate active assignment.
+
+### Workspace State
+
+Workspace State: `NOT_READY` for a new assignment until this candidate's protected delivery/readback and safe own-checkout cleanup. Cleanup is limited to this docs writer's isolated clone/branches. The shared Core runtime checkout and Apple/receiver worktrees/evidence stay owned and untouched; no global clean-workspace claim is inferred. Terminal own-scope WORKSPACE_READY follows actual synchronization/branch disposition, not this premerge text.
 
 ## Historical operational context
 ## Current: Session artwork — separate documentary Finalization

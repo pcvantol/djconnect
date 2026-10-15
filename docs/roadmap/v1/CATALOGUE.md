@@ -1,5 +1,7 @@
 # Maintained node catalogue
 
+Web-first #1174 documentary extension: SOURCE_PROTECTED_MERGED; design authored only, product implementation Planned/NOT_ISSUED and joint acceptance OPEN. Cast-first/native-TV prerequisites superseded for forward design; original receipts remain historical. URL/exception/emoji OPEN. No automatic dispatch or runtime/publication grant.
+
 Generated from djconnect-platform-v1.json, maintenance DJC-DJ-PRESENCE-ROADMAP-DESIGN-V1-20261011.
 
 The original3October snapshot/audit/source pins and projections are immutable history in [history/20261003](history/20261003/README.md). Only this bounded delta is current here; inherited premerge statuses are not current blockers. No portfolio-wide refresh, writer reservation, product dispatch or runtime acceptance is claimed.
@@ -59,6 +61,27 @@ Selected and freshly admitted speech/Persona implementation: DJC-SESSION-SPEECH-
 | `MEDIA::CORE::SESSION-HISTORY` | DJC-CORE | Completed | Explicit original-source historical artwork resolution |
 | `MEDIA::APPLE::SESSION-ARTWORK` | DJC-APPLE | Planned | Shared native Session artwork presentation |
 | `MEDIA::JOINT::SESSION-ARTWORK` | DJC-CORE | Planned | Core and Apple subject/rights/expiry acceptance |
+| `WEB::DOCS` | DJC-CORE | Completed | Whole web-first documentary design |
+| `WEB::DISPOSITION` | DJC-CORE | Planned | Implement reviewed web-first legacy disposition |
+| `WEB::TRUST` | DJC-CORE | Planned | Qualify browser-bound onboarding and guest trust contract |
+| `WEB::BOOTSTRAP` | DJC-API | Planned | Temporary encrypted rendezvous service |
+| `WEB::DISPLAY` | DJC-CORE | Planned | Separate HA code and readonly display grant |
+| `WEB::OWNER-SCANNER` | DJC-APPLE | Planned | Paired owner scanner and explicit installation confirmation |
+| `WEB::SHARED` | DJC-CORE | Planned | Explicit shared Flow NowPlaying Forecast projection |
+| `WEB::MEDIA` | DJC-CORE | Planned | Independent shared artwork and speech grants expiry attribution |
+| `WEB::GUEST` | DJC-CORE | Planned | Invitation redemption guest principal and revocation |
+| `WEB::BROWSER` | DJC-VIBECAST | Planned | One responsive web UI and accountless browser join |
+| `WEB::DISTRIBUTION` | DJC-VIBECAST | Planned | Reviewed generic static bootstrap and browser distribution |
+| `WEB::DISCOVERY` | DJC-CORE | Planned | Admission-scoped HA local discovery announcement |
+| `WEB::APP` | DJC-APPLE | Planned | Isolated temporary guest shell discovery scanner leave home restore |
+| `WEB::REACTIONS` | DJC-CORE | Planned | Five subject-bound ephemeral reactions and bounded sparkle |
+| `WEB::AGGREGATE` | DJC-CORE | Planned | Temporary audience aggregation and host lock budget policy |
+| `WEB::INFLUENCE` | DJC-CORE | Planned | Bounded DJ-led Mood direction influence and owner confirmation |
+| `WEB::CHAT` | DJC-CORE | Planned | Guest Ask DJ isolated thread safe dispatch and spend budgets |
+| `WEB::REQUEST` | DJC-CORE | Planned | Exact recording clarification and guest proposal dialogue |
+| `WEB::EFFECT-POLICY` | DJC-CORE | Planned | DJ request consideration fairness and uncertain-effect policy |
+| `WEB::ENQUEUE` | DJC-CORE | Planned | Real enqueue reconciliation and observed-recording Persona announcement |
+| `WEB::JOINT` | DJC-CORE | Planned | Joint browser native media lifecycle physical five-language acceptance |
 | `SPEECH::APPLE::ADOPTION` | DJC-APPLE | Planned | Native shared speech, voice and autoplay adoption |
 | `SPEECH::CORE::CONTRACT` | DJC-CORE | In progress | Shared narration and speech/source contract |
 | `SPEECH::CORE::DELIVERY` | DJC-CORE | In progress | Owner speech/manual replay and renderer voice admission |
