@@ -333,102 +333,66 @@ OTHER_ROLES = {
         "Esta grabación incluye a {n} en {d}.",
     ),
 }
-EDITION = {
-    "en": (
-        "A little date beside this edition of {s}: Spotify lists {d}.",
-        "For this edition of {s}, Spotify gives {d} as its date.",
-        "This edition of {s}: {d}, according to Spotify.",
-        "This edition of {s} gets its date too: {d}, as listed by Spotify.",
-    ),
-    "nl": (
-        "Een datum bij deze uitgave van {s}: Spotify vermeldt {d}.",
-        "Voor deze uitgave van {s} noemt Spotify {d} als datum.",
-        "Deze uitgave van {s}: {d}, volgens Spotify.",
-        "Ook deze uitgave van {s} krijgt haar datum erbij: {d}, zoals Spotify die vermeldt.",
-    ),
-    "de": (
-        "Ein Datum zu dieser Ausgabe von {s}: Spotify nennt {d}.",
-        "Für diese Ausgabe von {s} nennt Spotify das Datum {d}.",
-        "Diese Ausgabe von {s}: {d}, laut Spotify.",
-        "Auch diese Ausgabe von {s} bekommt ihr Datum dazu: {d}, wie Spotify es angibt.",
-    ),
-    "fr": (
-        "Une date pour cette édition de {s} : Spotify indique {d}.",
-        "Pour cette édition de {s}, Spotify indique la date {d}.",
-        "Cette édition de {s} : {d}, selon Spotify.",
-        "Cette édition de {s} a aussi sa date : {d}, telle que Spotify l’indique.",
-    ),
-    "es": (
-        "Una fecha para esta edición de {s}: Spotify indica {d}.",
-        "Para esta edición de {s}, Spotify señala la fecha {d}.",
-        "Esta edición de {s}: {d}, según Spotify.",
-        "Esta edición de {s} también tiene su fecha: {d}, tal como la indica Spotify.",
-    ),
-}
-BIRTH = {
-    "en": (
-        "A small detail about {s}: the recorded birth date is {d}.",
-        "A brief biographical note on {s}: the birth date is recorded as {d}.",
-        "Birth date of {s}: {d}.",
-        "A date beside the name {s}: {d}, the recorded birth date.",
-    ),
-    "nl": (
-        "Een klein detail bij {s}: de vastgelegde geboortedatum is {d}.",
-        "Een korte biografische voetnoot bij {s}: als geboortedatum staat {d} vermeld.",
-        "Geboortedatum van {s}: {d}.",
-        "Ook bij de naam {s} hoort een datum: {d}, de vermelde geboortedatum.",
-    ),
-    "de": (
-        "Ein kleines Detail zu {s}: Als Geburtsdatum ist {d} angegeben.",
-        "Eine kurze biografische Notiz zu {s}: Das angegebene Geburtsdatum ist {d}.",
-        "Geburtsdatum von {s}: {d}.",
-        "Auch zum Namen {s} gehört ein Datum: {d}, das angegebene Geburtsdatum.",
-    ),
-    "fr": (
-        "Un petit détail sur {s} : la date de naissance indiquée est {d}.",
-        "Une brève note biographique sur {s} : la date de naissance indiquée est {d}.",
-        "Date de naissance de {s} : {d}.",
-        "Une date à côté du nom de {s} : {d}, la date de naissance indiquée.",
-    ),
-    "es": (
-        "Un pequeño detalle sobre {s}: la fecha de nacimiento indicada es {d}.",
-        "Una breve nota biográfica sobre {s}: la fecha de nacimiento indicada es {d}.",
-        "Fecha de nacimiento de {s}: {d}.",
-        "Una fecha junto al nombre de {s}: {d}, la fecha de nacimiento indicada.",
-    ),
-}
-FORMATION = {
-    "en": (
-        "A small detail about {s}: the formation date is recorded as {d}.",
-        "For the beginning of {s}, the recorded formation date is {d}.",
-        "Formation date of {s}: {d}.",
-        "A date beside the name {s}: {d}, the recorded formation date.",
-    ),
-    "nl": (
-        "Een klein detail bij {s}: voor de oprichting staat {d} vermeld.",
-        "Voor het begin van {s} staat {d} als oprichtingsdatum vermeld.",
-        "Oprichtingsdatum van {s}: {d}.",
-        "Ook bij de naam {s} hoort een datum: {d}, de vermelde oprichtingsdatum.",
-    ),
-    "de": (
-        "Ein kleines Detail zu {s}: Als Gründungsdatum ist {d} angegeben.",
-        "Für den Beginn von {s} ist {d} als Gründungsdatum angegeben.",
-        "Gründungsdatum von {s}: {d}.",
-        "Auch zum Namen {s} gehört ein Datum: {d}, das angegebene Gründungsdatum.",
-    ),
-    "fr": (
-        "Un petit détail sur {s} : la date de formation indiquée est {d}.",
-        "Pour les débuts de {s}, la date de formation indiquée est {d}.",
-        "Date de formation de {s} : {d}.",
-        "Une date à côté du nom de {s} : {d}, la date de formation indiquée.",
-    ),
-    "es": (
-        "Un pequeño detalle sobre {s}: la fecha de formación indicada es {d}.",
-        "Para el comienzo de {s}, la fecha de formación indicada es {d}.",
-        "Fecha de formación de {s}: {d}.",
-        "Una fecha junto al nombre de {s}: {d}, la fecha de formación indicada.",
-    ),
-}
+EDITION = {'en': ('Spotify dates this edition of {s} to {d}.',
+        'For this edition of {s}, Spotify gives the date {d}.',
+        'This edition of {s} is dated {d} by Spotify.',
+        'Let’s place this edition of {s} in time: Spotify lists {d}.'),
+ 'nl': ('Voor deze uitgave van {s} vermeldt Spotify {d}.',
+        'Spotify vermeldt {d} als datum voor deze uitgave van {s}.',
+        'Deze uitgave van {s}: {d}, volgens Spotify.',
+        'Deze uitgave van {s} plaatsen we in de tijd: Spotify vermeldt {d}.'),
+ 'de': ('Für diese Ausgabe von {s} nennt Spotify {d}.',
+        'Spotify nennt für diese Ausgabe von {s} das Datum {d}.',
+        'Diese Ausgabe von {s}: {d}, laut Spotify.',
+        'Ordnen wir diese Ausgabe von {s} zeitlich ein: Spotify nennt {d}.'),
+ 'fr': ('Pour cette édition de {s}, Spotify indique {d}.',
+        'Spotify indique la date {d} pour cette édition de {s}.',
+        'Cette édition de {s} : {d}, selon Spotify.',
+        'Situons cette édition de {s} dans le temps : Spotify indique {d}.'),
+ 'es': ('Para esta edición de {s}, Spotify indica {d}.',
+        'Spotify indica la fecha {d} para esta edición de {s}.',
+        'Esta edición de {s}: {d}, según Spotify.',
+        'Situemos esta edición de {s} en el tiempo: Spotify indica {d}.')}
+BIRTH = {'en': ('{s} came into the world {when}.',
+        '{when}, {s} was born.',
+        '{s} was born {when}.',
+        'It was {when} that {s} came into the world.'),
+ 'nl': ('{s} kwam {when} ter wereld.',
+        '{when} werd {s} geboren.',
+        '{s} werd {when} geboren.',
+        '{when} kwam {s} ter wereld.'),
+ 'de': ('{s} kam {when} zur Welt.',
+        'Zur Welt kam {s} {when}.',
+        '{s} wurde {when} geboren.',
+        '{when} kam {s} zur Welt.'),
+ 'fr': ('{s} vient au monde {when}.',
+        'La naissance de {s} a lieu {when}.',
+        '{s} naît {when}.',
+        'C’est {when} que {s} voit le jour.'),
+ 'es': ('{s} vino al mundo {when}.',
+        '{when} nació {s}.',
+        '{s} nació {when}.',
+        'Fue {when} cuando {s} vino al mundo.')}
+FORMATION = {'en': ('{s} came together as a group {when}.',
+        'The history of {s} as a group begins {when}.',
+        '{s} formed {when}.',
+        '{when}, {s} began as a group.'),
+ 'nl': ('{s} ontstond {when} als groep.',
+        'De geschiedenis van {s} als groep begint {when}.',
+        '{s} werd {when} opgericht.',
+        '{when} begon {s} als groep.'),
+ 'de': ('{s} entstand {when} als Gruppe.',
+        'Die Geschichte von {s} als Gruppe beginnt {when}.',
+        '{s} wurde {when} gegründet.',
+        '{when} wurde die Gruppe {s} gegründet.'),
+ 'fr': ('{s} se constitue en groupe {when}.',
+        'L’histoire de {s} en tant que groupe commence {when}.',
+        '{s} se forme {when}.',
+        'C’est {when} que {s} se forme.'),
+ 'es': ('{s} se constituyó como grupo {when}.',
+        'La historia de {s} como grupo comienza {when}.',
+        '{s} se formó {when}.',
+        'Fue {when} cuando {s} comenzó como grupo.')}
 COMPOSERS = {
     "en": (
         "For the underlying composition, the credits name {n}. ",
@@ -531,12 +495,20 @@ def realize(
     lang = locale[:2].lower()
     if lang not in CREDITS or persona not in PERSONAS or fact.copy_for(locale) is None:
         return None
+    from .context_expression import human_date, date_phrase
     profile = PERSONAS.index(persona)
     if isinstance(fact, AlbumContinuityFact):
         if not fact.current_album or (fact.summaries, fact.contents) != album_continuity_copy(fact.current_album):
             return None
         summaries, contents = album_continuity_copy(fact.current_album, profile)
-        return dict(summaries)[lang], dict(contents)[lang]
+        current = realize(fact.current_album, locale=locale, persona=persona, form=form, mood=mood)
+        if current is None:
+            return None
+        original = dict(fact.current_album.contents)[lang]
+        framed = dict(contents)[lang]
+        if not framed.endswith(original):
+            return None
+        return dict(summaries)[lang], framed[:-len(original)] + current[1]
     syntax = form % 4
     callback = isinstance(fact, SharedProducerFact)
     if callback:
@@ -588,7 +560,13 @@ def realize(
                           if core.entity_type == "Person"
                           else (FORMATION_ALTERNATE if form % 2 else FORMATION)[lang])
                 )
-                body = templates[profile].format(s=core.subject, d=core.date)
+                date = human_date(core.date, core.precision, lang)
+                if date is None:
+                    return None
+                body = templates[profile].format(s=core.subject, d=date,
+                    when=date_phrase(core.date, core.precision, lang))
+                if templates[profile].startswith("{when}"):
+                    body = body[0].upper() + body[1:]
         elif fact.key == "artist_description":
             body = (DESCRIPTION_ALTERNATE if form % 2 else DESCRIPTION)[lang][profile].format(
                 s=fact.copy_for(locale)[0], d=fact.copy_for(locale)[1]

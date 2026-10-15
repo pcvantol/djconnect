@@ -25,7 +25,7 @@ from .session_facts import (
     AlbumContinuityFact, PublishedAlbumContext,
 )
 from .moment_expression import realize as realize_fact_expression
-from .context_expression import FACT_FAMILIES, form_count, genre_copy
+from .context_expression import form_count, genre_copy
 from .native_moment_delivery import (
     MomentDeliveryBoundary, admission as native_admission, withdrawn_native_delivery,
 )
@@ -2010,33 +2010,38 @@ class DJMomentEngine:
         return key + ("|" + "|".join(fact.relation_key)
                       if isinstance(fact, (SharedProducerFact, AlbumContinuityFact)) else "")
 
+    def _qualified_variants(self, fact, selected_mood, persona, locale):
+        """Bounded approved syntax only; a raw source sentence is not a fallback."""
+        first = self.next_expression_form(persona, fact.key)
+        variants = []
+        count = form_count(fact.key)
+        for offset in range(count):
+            form = (first + offset) % count
+            try:
+                expressed = realize_fact_expression(fact, locale=locale, persona=persona.value,
+                                                    form=form, mood=selected_mood)
+            except (TypeError, ValueError, KeyError, IndexError, AttributeError):
+                continue
+            if expressed is not None:
+                summary, content = expressed
+                variants.append(QualifiedFactRealization(summary, content, self.fact_key(fact),
+                    f"{persona.value}:{fact.key}:{form}"))
+        return tuple(variants)
+
     def preview_qualified_fact(self, *, fact: QualifiedSessionFact, selected_mood: str,
                                persona: DJPersona, locale: str, remaining_seconds: float) -> QualifiedFactRealization | None:
-        """Pure Moment realization/read-fit; rejected previews have no memory."""
-        original = fact.copy_for(locale)
-        if original is None or not fact.eligible(fact.media_identity,time.monotonic()):
+        """Pure Persona realization/read-fit; rejected previews have no memory."""
+        if fact.copy_for(locale) is None or not fact.eligible(fact.media_identity, time.monotonic()):
             return None
-        form = self.next_expression_form(persona, fact.key)
-        try:
-            expressed = realize_fact_expression(fact,locale=locale,persona=persona.value,form=form,mood=selected_mood)
-        except (TypeError,ValueError,KeyError,IndexError,AttributeError):
-            expressed = None
-        expression_form = (f"{persona.value}:album_continuity:0" if expressed and isinstance(fact, AlbumContinuityFact)
-                           else f"{persona.value}:{fact.key}:{form}" if expressed and fact.key in FACT_FAMILIES | {"recording_credits", "shared_producer"} else "")
-        variants = ((expressed, expression_form), (original, ""))
-        for localized, expression_form in variants:
-            if localized is None:
+        for realization in self._qualified_variants(fact, selected_mood, persona, locale):
+            summary, content = realization.summary, realization.content
+            characters = len(summary) + len(content)
+            if len(summary) > 320 or len(content) > 1200 or characters > 90 * 14:
                 continue
-            summary,content=localized
-            characters=len(summary)+len(content)
-            # Never let duration clamping or the renderer's text bound hide an
-            # oversized fact. The exact source copy is the final short fallback.
-            if len(summary)>320 or len(content)>1200 or characters>90*14:
-                continue
-            read_seconds=_presentation_intent(selected_mood,persona,reading_characters=characters,
+            read_seconds = _presentation_intent(selected_mood, persona, reading_characters=characters,
                 minimum_duration_seconds=40).maximum_duration_seconds
-            if read_seconds+5 <= remaining_seconds:
-                return QualifiedFactRealization(summary,content,self.fact_key(fact),expression_form)
+            if read_seconds + 5 <= remaining_seconds:
+                return realization
         return None
 
     def next_expression_form(self, persona: DJPersona, family: str) -> int:
@@ -2099,24 +2104,30 @@ class DJMomentEngine:
         moment_type, title, summary, content = specialized
         expression_form = ""
         if moment_type is DJMomentType.GENRE:
-            form = self.next_expression_form(persona, "genre_context")
-            expressed = genre_copy(locale=locale, persona=persona.value, form=form,
-                                   genre=title, title=_bounded_text(track.get("title"), 160),
-                                   artist=artist)
-            # Genre already has an approved read window. Never lengthen that
-            # window merely for style: the exact existing copy is the short
-            # fallback, including at a later track's remaining-time boundary.
+            first = self.next_expression_form(persona, "genre_context")
+            # Preserve the admitted read window, including later-track windows.
+            # Only authored Persona forms can fit it; raw metadata copy cannot
+            # silently bypass the same realization gate as qualified facts.
             original_seconds = _presentation_intent(
                 selected_mood, persona, reading_characters=len(summary) + len(content),
                 minimum_duration_seconds=45).maximum_duration_seconds
-            expressed_seconds = _presentation_intent(
-                selected_mood, persona, reading_characters=len(summary) + len(expressed or ""),
-                minimum_duration_seconds=45).maximum_duration_seconds
-            if (expressed and len(expressed) <= 1200
-                    and len(summary) + len(expressed) <= 90 * 14
-                    and expressed_seconds <= original_seconds):
-                content = expressed
-                expression_form = f"{persona.value}:genre_context:{form}"
+            for offset in range(form_count("genre_context")):
+                form = (first + offset) % form_count("genre_context")
+                expressed = genre_copy(locale=locale, persona=persona.value, form=form,
+                                       genre=title, title=_bounded_text(track.get("title"), 160),
+                                       artist=artist)
+                expressed_seconds = _presentation_intent(
+                    selected_mood, persona, reading_characters=len(summary) + len(expressed or ""),
+                    minimum_duration_seconds=45).maximum_duration_seconds
+                if (expressed and len(expressed) <= 1200
+                        and len(summary) + len(expressed) <= 90 * 14
+                        and expressed_seconds <= original_seconds):
+                    content = expressed
+                    expression_form = f"{persona.value}:genre_context:{form}"
+                    break
+            if not expression_form:
+                return self.create_silence(session_id=session_id, selected_mood=selected_mood,
+                                           persona=persona, locale=locale, reason="persona_read_window")
         source_hints = _planner_knowledge_hints(source_insight or insight)
         angle_key = f"{track_key}|{moment_type.value}"
         if angle_key in self._track_keys:
@@ -2178,13 +2189,10 @@ class DJMomentEngine:
         realization = realization or self.preview_qualified_fact(fact=fact,selected_mood=selected_mood,
             persona=persona,locale=locale,remaining_seconds=float("inf"))
         key = self.fact_key(fact)
-        expected = self.preview_qualified_fact(fact=fact,selected_mood=selected_mood,persona=persona,locale=locale,
-            remaining_seconds=float("inf"))
-        faithful_fallback = bool(realization and not realization.expression_form
-            and (realization.summary,realization.content)==fact.copy_for(locale)
-            and len(realization.summary)+len(realization.content)<=90*14
-            and len(realization.summary)<=320 and len(realization.content)<=1200)
-        if realization is None or (realization != expected and not faithful_fallback) or realization.source_key != key or not fact.eligible(fact.media_identity, time.monotonic()) or fact.intent != intent.intent_type.value or key in self._track_keys:
+        approved = self._qualified_variants(fact, selected_mood, persona, locale)
+        if (realization is None or realization not in approved or realization.source_key != key
+            or not fact.eligible(fact.media_identity, time.monotonic())
+            or fact.intent != intent.intent_type.value or key in self._track_keys):
             return self.create_silence(session_id=session_id, selected_mood=selected_mood, persona=persona, locale=locale, reason="unqualified_or_duplicate_fact")
         summary, content = realization.summary, realization.content
         self._track_keys.add(key)

@@ -152,13 +152,49 @@ class ExpressiveContextVariationTest(unittest.TestCase):
                                 if family == "description":
                                     self.assertIn(source.copy_for(locale)[1], moment["content"])
                                 else:
-                                    self.assertIn(source.display_core.date, moment["content"])
+                                    dates = {"en": "4 March 1960", "nl": "4 maart 1960", "de": "4. März 1960",
+                                             "fr": "4 mars 1960", "es": "4 de marzo de 1960"}
+                                    self.assertIn(dates[locale], moment["content"])
+                                    self.assertEqual(source.display_core.date, "1960-03-04")
                             self.assertLessEqual(
                                 len(moment["summary"]) + len(moment["content"]), 1260
                             )
                 self.assertEqual(len(set(first_forms)), 4)
 
-    def test_preview_is_pure_exact_fallback_precision_and_missing_language(self):
+    def test_connected_birth_and_formation_preserve_all_date_precisions(self):
+        from tests.context_variation_fixtures import source
+        expected = {
+            "en": ("1960", "March 1960", "4 March 1960"),
+            "nl": ("1960", "maart 1960", "4 maart 1960"),
+            "de": ("1960", "März 1960", "4. März 1960"),
+            "fr": ("1960", "mars 1960", "4 mars 1960"),
+            "es": ("1960", "marzo de 1960", "4 de marzo de 1960"),
+        }
+        for family in ("birth", "formation"):
+            for index, (date, precision) in enumerate((("1960", "year"),
+                    ("1960-03", "month"), ("1960-03-04", "day"))):
+                for locale, dates in expected.items():
+                    for persona in self.runtime.DJPersona:
+                        with self.subTest(family=family, precision=precision, locale=locale, persona=persona):
+                            def fixed(family, number):
+                                return source(family, number, date=date, precision=precision)
+                            with patch.object(self, "source", fixed):
+                                published = self.run_sequence(family, persona, locale)
+                            self.assertEqual(len(published), 2)
+                            for moment in published:
+                                self.assertEqual(moment["type"], "artist")
+                                self.assertIn(dates[index], moment["content"])
+                                self.assertNotIn("{when}", moment["content"])
+                                self.assertNotIn("biographical note", moment["content"])
+                                self.assertNotIn("footnote", moment["content"])
+                                self.assertTrue(all(key.startswith(persona.value + ":")
+                                                    for key in self.session.moment_engine._expression_forms))
+                                self.assertEqual(moment["source_attribution"]["license"], "CC0-1.0")
+                                if precision != "day":
+                                    self.assertNotIn("1960-03-04", moment["content"])
+                                    self.assertNotIn("on the date", moment["content"])
+
+    def test_preview_is_pure_no_raw_bypass_precision_and_missing_language(self):
         engine = self.runtime.DJMomentEngine()
         args = {
             "persona": self.runtime.DJPersona.HOME_DJ,
@@ -183,8 +219,7 @@ class ExpressiveContextVariationTest(unittest.TestCase):
                         fallback = engine.preview_qualified_fact(
                             fact=replace(fact, display_core=core), **args
                         )
-                        self.assertEqual((fallback.summary, fallback.content), fact.copy_for("nl"))
-                        self.assertEqual(fallback.expression_form, "")
+                        self.assertIsNone(fallback)  # No raw provider bypass of Persona admission.
 
     def test_bounded_memory_only_publication_and_end_clears(self):
         self.run_sequence("edition", self.runtime.DJPersona.HOME_DJ, "nl", count=8)
@@ -205,7 +240,7 @@ class ExpressiveContextVariationTest(unittest.TestCase):
         )
         self.assertEqual(engine._expression_forms, ())
 
-    def test_later_genre_exact_short_fallback_publishes_at_remaining_boundary(self):
+    def test_later_genre_uses_approved_short_persona_form_at_remaining_boundary(self):
         async def scenario():
             clock = [100.0]
             manager = self.runtime.SessionRuntimeManager(monotonic_source=lambda: clock[0])
@@ -273,10 +308,12 @@ class ExpressiveContextVariationTest(unittest.TestCase):
             self.assertIsNotNone(later)
             self.assertEqual(later.moment_type, self.runtime.DJMomentType.GENRE)
             original = self.runtime._genre_moment_copy("en", genre, title, artist)
-            self.assertEqual((later.summary, later.content), original)
+            self.assertEqual(later.summary, original[0])
+            self.assertEqual(later.content, f"{artist}, with {title}: the genre context here is {genre}.")
+            self.assertNotEqual(later.content, original[1])
             self.assertEqual(later.presentation_intent.maximum_duration_seconds, 49)
-            self.assertEqual(later.expression_form, "")
-            self.assertEqual(session.moment_engine._expression_forms, ())
+            self.assertEqual(later.expression_form, "home_dj:genre_context:1")
+            self.assertEqual(session.moment_engine._expression_forms, (later.expression_form,))
             self.assertIn(
                 later.moment_id, [m.moment_id for m in session.broadcast.state.dj_moments]
             )

@@ -61,7 +61,9 @@ contract](https://developers.home-assistant.io/docs/core/entity/tts/).
 
 At most one target per request, two concurrent syntheses per existing owner and
 bounded deduplicated in-flight/resource slots. Complete20s preparation deadline;
-maximum1200characters/8ordered segments,2MiB audio and original300s resource TTL.
+maximum4000accepted answer characters in at most8ordered segments of at most
+1200characters each,2MiB audio and original300s resource TTL. Existing Moment
+content retains its original1200character bound. No truncation or extra prose.
 Negative backoff60s. Cache key includes owner/source/contribution, exact text and
 presentation revision, locale, effective real voice/provider and qualified style.
 Reads/reconnect/cachehits never slide original source/resource deadlines.
@@ -125,7 +127,8 @@ require that existing Apple writer's own tests; Core fixtures do not certify the
 
 The first connected producer uses `reference:{turn_id}` for common Ask DJ on both
 screens. Accepted private early/current replies stay only in the existing bounded
-dialogue frame: eight references of at most1200characters each, maximum300seconds,
+dialogue frame: eight references of at most4000characters each (ordered exact
+segments, at most1200characters per segment), maximum300seconds,
 shorter original source/queue/Forecast/choice deadlines. Current playback reads
 have at most60seconds from their original read. Scoped expiry removes text and
 private audio even without another request. Source/Profile changes latch
@@ -170,3 +173,57 @@ default action (even while the gender selector is hidden); no
 silent gender fallback or Persona/Mood/Profile change. Re-read provider support
 when opening voice settings or after a provider change. All client labels and
 accessibility states follow en/nl/de/fr/es.
+
+## Common post-acceptance presentation disposition
+
+Both Profile Ask DJ screens use the same common service and accepted-reference
+presentation path, including early replies, help, model prose and voice-derived
+text. Their underlying answer helpers no longer synthesize/activate a speaker
+before semantic acceptance. A client opts into the private adapter with
+`speech_contract_version:1` on the common Ask DJ request. Other supplied versions,
+including booleans and strings, fail400 before a turn/effect. This option is part
+of request identity; it cannot mutate the protocol of a replayed request.
+`audio_delivery:{mode:accepted_reference,state:deferred}` for opted-in clients
+keeps text delivery independent of synthesis. Per-device autoplay/manual Listen
+uses the one qualified prepare route after acceptance; failure does not resend
+the original question or replay a music action. `audio_response:never` retains
+manual listening, while always/auto express presentation eligibility and do not
+promise a pre-rendered legacy public audio URL. Explicit raw/ESP HA integration
+output remains its existing non-chat delivery contract; there is no general-versus-
+Session Ask DJ dialogue fork. Apple adoption of the accepted-reference player is
+required and remains separately open; old native audio URL handling is not a
+qualified new speech player. Private audio never uses the legacy bearer-free URL.
+
+Without that opt-in, accepted private text remains usable. When always or the
+existing voice/auto policy requests audio, return `audio_delivery.state:unavailable`,
+`reason:client_protocol_upgrade_required`, `required_speech_contract_version:1`,
+no `audio_url` and no new autoplay grant. Otherwise state is `not_requested`.
+The already accepted reference can be prepared after client adoption; the user
+must not resend the original question to repair audio. The existing Apple and
+Watch `AVPlayerItem(url:)` path cannot send the paired POST required by the new
+private asset. Moving those bytes to its bearer-free GET would weaken authority.
+This is an explicit consumer compatibility boundary, not audible parity or an
+installed fix for unmodified native clients. Raw/ESP output keeps its own
+existing contract; no second general/Session dialogue implementation is added.
+
+Scoped expiry removes the additional speech-reference text/audio, not separately
+qualified conversation history or the existing bounded conversational window.
+Those retain their own original archive/context rights and independent lifecycle.
+No new history copy or historical access right follows from speech eligibility.
+
+Optional presentation refinements in the unpublished candidate:
+- Ordered speech segments reuse the existing Presentation Composer schema:
+  `ordinal`, `speaker_role:dj`, exact `text`. Joined segments equal the accepted
+  text character-for-character; no independent private-role/voice generator.
+- Rich current assistant-message projections carry the same descriptor as the
+  top-level result, without archiving resource metadata. A deduplicated/recovered
+  result has no new autoplay opportunity.
+- Accepted turn metadata retains its compact effective style/revision. Retry after
+  a Persona change returns that original style, not the new Session style applied
+  to old prose. Legacy stored turns lacking style report `style:null` and
+  `style_basis:legacy_unknown`; render original text without inventing a Persona.
+- Gone/expired private speech references/assets use404, not a pairing failure.
+  Genuine device authentication remains401; Profile policy denial remains403.
+  Resource disappearance must not clear an otherwise valid device pairing.
+- Provider-supported gender gating also applies to local preparation. An actual
+  native gender voice alone cannot authorize a server-unsupported preference.

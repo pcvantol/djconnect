@@ -118,3 +118,21 @@ Source and separate Finalization retain exact candidate publication gates.
 Existing latest-main HA-dev/prod installation authority applies only after
 qualified delivery. No native writes, new provider/cost/contract, home-speaker
 mutation, second planner/store/dialogue engine, hardware or new product family.
+
+## Connected realization refinement
+
+Qualified fact read-fit now considers only authored Persona variants. A shorter
+raw provider sentence cannot bypass the Persona invariant; if no approved form
+fits the original opportunity, choose an existing alternative or Silence without
+consuming style memory. Year/month/day display uses exact qualified precision in
+en/nl/de/fr/es; source fields remain unchanged. Album-continuity framing uses the
+same current edition realization, including published-only variation, rather than
+appending a raw catalog sentence. This is a connected foundation, not completion
+of every Track/Insight/trivia/announcement/Forecast family or editorial approval.
+
+The same Persona-only admission now applies to genre read-fit. The original
+opportunity duration remains authoritative: an approved shorter alternate may
+fit, otherwise Silence, never raw genre prose. Birth/formation sentences use the
+grammatical year/month/day phrase; edition sentences name the qualified catalog
+edition without implying its first release. A single date is still a single
+fact, not evidence of a rich multi-fact narrative or finished Persona acceptance.

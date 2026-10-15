@@ -178,17 +178,28 @@ async def main():
             assert changed["persona_revision"] == 1
             reply = await post("/ask_dj/message", {**identity, "client_message_id": "speech-current-artist",
                 "text": "Who is this artist?", "language": "en", "audio_response": "never",
+                "speech_contract_version": 1,
                 "conversation_context": {"session_id": sid}})
             descriptor = reply["session_speech"]
+            assert reply["audio_delivery"] == {"mode": "accepted_reference", "state": "deferred"}
             assert descriptor["manual_allowed"] and descriptor["persona"] == "radio_dj", reply
             assert descriptor["segments"][0]["text"] == reply["text"]
             request = {**identity, "contract_version": 1, "reference": descriptor["reference"],
-                       "processor": "local_on_device", "voice_preference": "female"}
+                       "processor": "local_on_device", "voice_preference": "default"}
             before = len(calls)
             prepared = await post("/speech/prepare", request)
             assert prepared["session_speech"]["audio_state"] == "renderer_pending"
             assert prepared["session_speech"]["expires_at"] == descriptor["expires_at"]
             assert not prepared["session_speech"]["autoplay_eligible"]
+            # Old native AVPlayer has no paired POST adapter. Keep semantic text
+            # accepted, but never downgrade this private audio to a public GET.
+            old_reply = await post("/ask_dj/message", {**identity,
+                "client_message_id": "old-speech-client", "text": "help",
+                "language": "en", "audio_response": "always"})
+            assert old_reply["audio_delivery"]["reason"] == "client_protocol_upgrade_required"
+            assert not old_reply.get("audio_url")
+            assert not old_reply["session_speech"]["autoplay_eligible"]
+            receipts["old_client_protocol_disposition"] = old_reply["audio_delivery"]
             assert len(calls) == before
             receipts.update(pairing="normal_device_minted_and_persisted", persona=changed,
                             accepted_reply=reply, manual_after_never=prepared, manual_provider_calls=0)
@@ -227,10 +238,10 @@ async def main():
                             audible_acceptance="OPEN_EXTERNAL_WAVEFORM_FIXTURE_ONLY")
             await storage.async_update_profile("profile-a", privacy_mode=ProfilePrivacyMode.SHARED)
             await storage.async_update_profile("profile-a", privacy_mode=ProfilePrivacyMode.NORMAL)
-            receipts["profile_aba"] = await post("/speech/prepare", request, expected=403)
+            receipts["profile_aba"] = await post("/speech/prepare", request, expected=404)
             assert not hass.data["djconnect"]["tts_audio"]
             denied = await client.post("/api/djconnect/v1/speech/audio", json={**identity, "contract_version": 1, "asset_id": asset}, headers=headers)
-            assert denied.status == 403
+            assert denied.status == 404
             receipts["withdrawn_audio_status"] = denied.status
             # An actual uninterrupted idle TTL run can be enabled for qualification.
             duration = int(os.environ.get("DJC_SPEECH_IDLE_SECONDS", "0"))

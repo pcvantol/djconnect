@@ -37,70 +37,46 @@ EDITION_ALTERNATE = {
         "Tomemos esta edición de {s}: Spotify le asigna la fecha {d} en el catálogo.",
     ),
 }
-BIRTH_ALTERNATE = {
-    "en": (
-        "{s} was born on the date recorded as {d}.",
-        "{d} marks the recorded birth date of {s}.",
-        "Birth date recorded: {d}, for {s}.",
-        "Put {d} beside the name {s}: it is the recorded birth date.",
-    ),
-    "nl": (
-        "Voor {s} staat {d} als geboortedatum genoteerd.",
-        "{d} is de geregistreerde geboortedatum van {s}.",
-        "Geboortedatum genoteerd: {d}, voor {s}.",
-        "Zet {d} bij de naam {s}: dat is de vermelde geboortedatum.",
-    ),
-    "de": (
-        "Für {s} ist {d} als Geburtsdatum vermerkt.",
-        "{d} ist das verzeichnete Geburtsdatum von {s}.",
-        "Verzeichnetes Geburtsdatum: {d}, für {s}.",
-        "Setzen wir {d} neben den Namen {s}: das ist das verzeichnete Geburtsdatum.",
-    ),
-    "fr": (
-        "Pour {s}, la date de naissance indiquée est {d}.",
-        "{d} est la date de naissance indiquée pour {s}.",
-        "Date de naissance indiquée : {d}, pour {s}.",
-        "Plaçons {d} à côté du nom de {s} : c’est la date de naissance indiquée.",
-    ),
-    "es": (
-        "Para {s}, la fecha de nacimiento registrada es {d}.",
-        "{d} es la fecha de nacimiento registrada de {s}.",
-        "Fecha de nacimiento registrada: {d}, de {s}.",
-        "Pongamos {d} junto al nombre de {s}: es la fecha de nacimiento registrada.",
-    ),
-}
-FORMATION_ALTERNATE = {
-    "en": (
-        "For {s}, the recorded formation date is {d}.",
-        "{d} is the recorded formation date of {s}.",
-        "Group formation recorded: {d}, for {s}.",
-        "Back to the beginning of {s} as a group: the recorded formation date is {d}.",
-    ),
-    "nl": (
-        "Voor {s} staat {d} als oprichtingsdatum genoteerd.",
-        "{d} is de geregistreerde oprichtingsdatum van {s}.",
-        "Oprichting van de groep genoteerd: {d}, voor {s}.",
-        "Terug naar het begin van {s} als groep: de vermelde oprichtingsdatum is {d}.",
-    ),
-    "de": (
-        "Für {s} ist {d} als Gründungsdatum vermerkt.",
-        "{d} ist das verzeichnete Gründungsdatum von {s}.",
-        "Gründung der Gruppe verzeichnet: {d}, für {s}.",
-        "Zum Beginn von {s} als Gruppe: das verzeichnete Gründungsdatum ist {d}.",
-    ),
-    "fr": (
-        "Pour {s}, la date de formation indiquée est {d}.",
-        "{d} est la date de formation indiquée pour {s}.",
-        "Formation du groupe indiquée : {d}, pour {s}.",
-        "Aux débuts de {s} en tant que groupe : la date de formation indiquée est {d}.",
-    ),
-    "es": (
-        "Para {s}, la fecha de formación registrada es {d}.",
-        "{d} es la fecha de formación registrada de {s}.",
-        "Formación del grupo registrada: {d}, de {s}.",
-        "Volvamos al comienzo de {s} como grupo: la fecha de formación registrada es {d}.",
-    ),
-}
+BIRTH_ALTERNATE = {'en': ('{when}, {s} came into the world.',
+        '{s}’s birth dates to {d}.',
+        'Born {when}: {s}.',
+        '{s} was born {when}.'),
+ 'nl': ('{when} kwam {s} ter wereld.',
+        'De geboorte van {s} dateert van {d}.',
+        'Geboren {when}: {s}.',
+        '{s} kwam {when} ter wereld.'),
+ 'de': ('{when} kam {s} zur Welt.',
+        'Geboren wurde {s} {when}.',
+        'Geboren {when}: {s}.',
+        '{s} kam {when} zur Welt.'),
+ 'fr': ('{when}, {s} vient au monde.',
+        'La naissance de {s} date de {d}.',
+        'Naissance de {s} : {d}.',
+        '{s} voit le jour {when}.'),
+ 'es': ('{when}, {s} vino al mundo.',
+        'El nacimiento de {s} data de {d}.',
+        'Nacimiento de {s}: {d}.',
+        '{s} vino al mundo {when}.')}
+FORMATION_ALTERNATE = {'en': ('{when}, {s} came together as a group.',
+        '{s}’s formation as a group dates to {d}.',
+        'Formed {when}: {s}.',
+        '{s} began as a group {when}.'),
+ 'nl': ('{when} ontstond {s} als groep.',
+        'De oprichting van {s} als groep dateert van {d}.',
+        'Opgericht {when}: {s}.',
+        '{s} begon {when} als groep.'),
+ 'de': ('{when} entstand {s} als Gruppe.',
+        'Gegründet wurde {s} {when}.',
+        'Gegründet {when}: {s}.',
+        'Die Gruppe {s} wurde {when} gegründet.'),
+ 'fr': ('{when}, {s} se constitue en groupe.',
+        'La formation de {s} en tant que groupe date de {d}.',
+        'Formation de {s} : {d}.',
+        'Le groupe {s} se forme {when}.'),
+ 'es': ('{when}, {s} se constituyó como grupo.',
+        'La formación de {s} como grupo data de {d}.',
+        'Formación de {s}: {d}.',
+        'El grupo {s} se formó {when}.')}
 DESCRIPTION_ALTERNATE = {
     "en": (
         "{s} appears in the short description as “{d}”.",
@@ -223,7 +199,7 @@ GENRE = {
 
 def form_count(family: str) -> int:
     """Keep existing credits/callback four-form sequencing intact."""
-    return 2 if family in FACT_FAMILIES or family == "genre_context" else 4
+    return 1 if family == "work_composers" else 2 if family in FACT_FAMILIES | {"genre_context", "album_continuity"} else 4
 
 
 def genre_copy(

@@ -14,7 +14,9 @@ import time
 
 PATH = "/api/djconnect/v1/speech/prepare"
 TTL = 300
-MAX_TEXT = 1200
+MAX_TEXT = 4000
+MAX_SEGMENT = 1200
+MAX_SEGMENTS = 8
 MAX_REFERENCES = 8
 
 
@@ -27,7 +29,10 @@ def capability():
             "gender_preference": {"optional": True, "authority": "configured_ha_assist_pipeline_provider",
                                   "options_path": "/api/djconnect/v1/speech/voice-options"}, "voice_selection": "renderer_owned_or_exact_configured",
             "autoplay_scope": "per_device_new_publication_only", "manual_after_never": True,
+            "ask_dj_request_version_field": "speech_contract_version",
+            "legacy_private_audio_disposition": "client_protocol_upgrade_required",
             "history_mints_reference": False, "maximum_seconds": TTL,
+            "maximum_text_characters": MAX_TEXT, "maximum_segments": MAX_SEGMENTS,
             "cache_policy": "private,no-store"}
 
 
@@ -37,6 +42,24 @@ def unavailable(reference, reason):
             "segments": [], "processors": [], "cache_policy": "private,no-store"}
 
 
+def exact_segments(text):
+    """Keep every accepted character; split only at natural whitespace boundaries."""
+    if not isinstance(text, str) or not text.strip() or len(text) > MAX_TEXT:
+        return None
+    from .presentation_composer import SpeechSegment, SpeakerRole
+    remaining, result = text, []
+    while remaining and len(result) < MAX_SEGMENTS:
+        end = min(MAX_SEGMENT, len(remaining))
+        if len(remaining) > end:
+            end = max(remaining.rfind("\n", 0, end) + 1,
+                      remaining.rfind(" ", 0, end) + 1)
+            if end <= 0:
+                return None
+        result.append(SpeechSegment(len(result) + 1, SpeakerRole.DJ, remaining[:end]).as_dict())
+        remaining = remaining[end:]
+    return result if not remaining else None
+
+
 def projection(record, *, autoplay=False):
     return {"schema_version": 1, "reference": {"turn_id": record["turn_id"]},
             "source_kind": "accepted_ask_dj", "source_id": record["turn_id"],
@@ -44,7 +67,7 @@ def projection(record, *, autoplay=False):
             "text_revision": record["text_revision"],
             "presentation_revision": record["text_revision"],
             "persona": record["persona"], "persona_revision": record["persona_revision"],
-            "locale": record["locale"], "segments": [{"role": "answer", "text": record["text"]}],
+            "locale": record["locale"], "segments": exact_segments(record["text"]),
             "state": "available", "reason": None, "manual_allowed": True,
             "autoplay_eligible": autoplay, "processors": ["local_on_device"],
             "expires_at": record["expires_at"], "cache_policy": "private,no-store",
@@ -55,7 +78,7 @@ def remember(state, turn, result, *, turn_id, session_id, persona_revision,
              scope_revision, grant_revision, profile_source, playback_item_id="", deduplicated=False, autoplay_eligible=False):
     """Attach an immutable reference only after the common semantic commit.
 
-    Exactly eight short replies per already bounded frame, original five-minute
+    Exactly eight bounded replies per already bounded frame, original five-minute
     deadlines. Deleting a frame deletes its references. A saved/deduplicated turn
     never opens a new grant or renews the first one.
     """
@@ -71,7 +94,7 @@ def remember(state, turn, result, *, turn_id, session_id, persona_revision,
     text = result.get("text") or result.get("dj_text")
     if deduplicated:
         return unavailable(reference, "original_reference_not_retained")
-    if not isinstance(text, str) or not text.strip() or len(text) > MAX_TEXT:
+    if exact_segments(text) is None:
         return unavailable(reference, "unsupported_text_extent")
     if len(frame.speech_references) >= MAX_REFERENCES:
         old = frame.speech_references.pop(next(iter(frame.speech_references)))
@@ -172,7 +195,17 @@ async def resolve_dialogue(hass, history, profile_id, reference, *, profile_sour
         else:
             await query_service(hass, history).async_open_entry(profile_id, dependency["session_id"], dependency["entry_id"])
         guard()
-    guard.on_withdraw = record["disposals"].append
+    def on_withdraw(callback):
+        if record.get("withdrawn"):
+            callback()
+            return lambda: None
+        record["disposals"].append(callback)
+        def remove():
+            callbacks = record.get("disposals", [])
+            if callback in callbacks:
+                callbacks.remove(callback)
+        return remove
+    guard.on_withdraw = on_withdraw
     guard.processor_basis = record["processor_basis"]
     return projection(record), guard
 
@@ -183,6 +216,7 @@ async def async_handle_prepare(hass, data, *, headers=None):
     from .http import _history_manager
     from .profile_privacy import resolve_profile_privacy_policy
     from .session_conversation import SessionConversationError
+    from .ask_dj.dialogue import DialogueError
     from .transport_delivery import register_delivery_admission
 
     fields = {"contract_version", "device_id", "client_type", "reference", "processor", "voice_preference"}
@@ -218,11 +252,22 @@ async def async_handle_prepare(hass, data, *, headers=None):
                                           descriptor, guard)
             guard()
         else:
-            descriptor.update(audio_state="renderer_pending", effective_voice=None,
-                              voice_preference=data["voice_preference"], autoplay_eligible=False)
+            from .speech_processor import voice_options
+            allowed = voice_options(hass, runtime.config)["gender_selection"]["values"]
+            if data["voice_preference"] != "default" and data["voice_preference"] not in allowed:
+                descriptor = unavailable(data["reference"], "voice_gender_unavailable")
+            else:
+                descriptor.update(audio_state="renderer_pending", effective_voice=None,
+                                  voice_preference=data["voice_preference"], autoplay_eligible=False)
+        guard()
         return {"success": True, "session_speech": descriptor}, 200
-    except (PermissionError, SessionConversationError) as exc:
-        return {"success": False, "error": getattr(exc, "code", "speech_reference_unavailable")}, 403
+    except SessionConversationError as exc:
+        return {"success": False, "error": exc.code}, exc.status
+    except DialogueError:
+        return {"success": False, "error": "speech_reference_unavailable"}, 404
+    except PermissionError as exc:
+        status = 403 if str(exc) == "speech_not_allowed" else 404
+        return {"success": False, "error": "speech_reference_unavailable"}, status
 
 
 async def prepare_ha(hass, runtime, owner, data, descriptor, admission):
@@ -235,14 +280,13 @@ async def prepare_ha(hass, runtime, owner, data, descriptor, admission):
         return unavailable(data["reference"], "source_processor_not_qualified")
     try:
         entity, voice = configured_processor(hass, runtime.config, descriptor["locale"], data["voice_preference"])
-        generation = getattr(getattr(entity, "coordinator", None), "data", entity)
         key = (owner, descriptor["source_id"], descriptor["text_revision"],
-               descriptor["presentation_revision"], voice["engine"], voice["voice_id"], voice["locale"], id(entity), id(generation))
+               descriptor["presentation_revision"], voice["engine"], voice["voice_id"], voice["locale"], id(entity),
+               voice.get("provider_version"), voice.get("voice_version"))
         def qualified_admission():
             admission()
             current_entity, current_voice = configured_processor(hass, runtime.config, descriptor["locale"], data["voice_preference"])
-            if (current_entity is not entity or current_voice != voice
-                or getattr(getattr(entity, "coordinator", None), "data", entity) is not generation):
+            if current_entity is not entity or current_voice != voice:
                 raise PermissionError("speech_voice_changed")
         qualified_admission.on_withdraw = admission.on_withdraw
         token = await prepare_private_tts_audio(hass, owner_profile_id=owner, cache_key=key,
@@ -283,8 +327,10 @@ async def async_handle_audio(hass, data, *, headers=None):
         _conversation_profile_fence(hass, runtime, identity, headers, context)
         item = get_private_tts_audio(hass, data["asset_id"], context.profile_id)
         return item, 200
-    except (PermissionError, SessionConversationError):
-        return None, 403
+    except SessionConversationError as exc:
+        return None, exc.status
+    except PermissionError:
+        return None, 404
 
 
 async def async_handle_voice_options(hass, data, *, headers=None):

@@ -73,7 +73,12 @@ class NarrativeAlbumContinuityTest(unittest.TestCase):
                     b = await self.track(1)
                     self.assertEqual(b.moment_type.value, "track")
                     self.assertIsInstance(b.source_fact, self.facts.AlbumContinuityFact)
-                    self.assertTrue(b.content.endswith(self.pool(1)[0].copy_for(locale)[1]))
+                    self.assertEqual(b.source_fact.current_album.contents, self.pool(1)[0].contents)
+                    dates = {"en": "4 March 2001", "nl": "4 maart 2001", "de": "4. März 2001",
+                             "fr": "4 mars 2001", "es": "4 de marzo de 2001"}
+                    self.assertIn("Exact edition", b.content)
+                    self.assertIn(dates[locale], b.content)
+                    self.assertIn("Spotify", b.content)
                     self.assertEqual(dict(b.source_attribution)["url"], self.pool(1)[0].source_url)
                     self.assertEqual(a.as_dict(), frozen)
                     self.assertEqual(len(self.session.published_album_context.used_relations), 1)

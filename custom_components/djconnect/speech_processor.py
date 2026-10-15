@@ -47,11 +47,15 @@ def configured_processor(hass, conf, locale, preference):
     actual = next((v for v in voices if v.voice_id == voice_id), None)
     if not voice_id or actual is None:
         raise ProcessorUnavailable("no_matching_voice")
+    installed_voice = next((v for v in programs[0].voices if v.installed and v.name == voice_id and language in v.languages), None)
+    if installed_voice is None:
+        raise ProcessorUnavailable("no_matching_voice")
     if preference != "default":
         raise ProcessorUnavailable("voice_gender_unavailable")
     return entity, {"processor": "ha_configured", "engine": engine_id,
                     "provider": "wyoming_piper_local_network", "voice_id": actual.voice_id,
-                    "voice_name": actual.name, "locale": language, "gender": None}
+                    "voice_name": actual.name, "locale": language, "gender": None,
+                    "provider_version": programs[0].version, "voice_version": installed_voice.version}
 
 
 async def synthesize(entity, voice, text):

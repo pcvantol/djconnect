@@ -40168,11 +40168,11 @@
       },
       {
         "path": "docs/product/SESSION_SPEECH_PERSONA_V1.md",
-        "sha256": "8c4378ac09b036ee705b10b859ba547be84bcef1b5ec0c1445e062d759eda1e4"
+        "sha256": "0bf68daaab0920d525a3ee596ce8ad570cdbf470e595cb9ec4b715065174a632"
       },
       {
         "path": "docs/product/SESSION_SPEECH_DELIVERY_V1.md",
-        "sha256": "ca5e29903498dd524800316f241be5cba254f99b17e6dd9377896351f059caad"
+        "sha256": "e87373aa57aeb3c20beb6c6a2473aa528a772c253541a5a2a08fff1188dbc00f"
       }
     ],
     "implementation_receipt": {

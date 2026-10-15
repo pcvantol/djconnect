@@ -1021,7 +1021,7 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
         before = await self.history.async_history("profile:profile-a")
         calls = len(self.prompts)
         payload = {**self.identity, "contract_version": 1, "reference": descriptor["reference"],
-                   "processor": "local_on_device", "voice_preference": "female"}
+                   "processor": "local_on_device", "voice_preference": "default"}
         # This narrow route accepts only ordinary paired identity, no caller text.
         payload = {k: v for k, v in payload.items() if k in {
             "contract_version", "reference", "processor", "voice_preference", "device_id", "client_type"}}
@@ -1034,6 +1034,10 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
             self.assertFalse(speech["autoplay_eligible"])
             self.assertEqual(speech["audio_state"], "renderer_pending")
             self.assertIsNone(speech["effective_voice"])
+        gender, status = await async_handle_prepare(self.hass, {**payload, "voice_preference": "female"}, headers=self.headers)
+        self.assertEqual(status, 200, gender)
+        self.assertEqual(gender["session_speech"]["reason"], "voice_gender_unavailable")
+        self.assertEqual(gender["session_speech"]["segments"], [])
         self.assertEqual(len(self.prompts), calls)
         after = await self.history.async_history("profile:profile-a")
         for value in (before, after):
@@ -1047,7 +1051,79 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(unsupported["session_speech"]["segments"], [])
         self.history.dialogue.invalidate("profile:profile-a")
         withdrawn, status = await async_handle_prepare(self.hass, payload, headers=self.headers)
-        self.assertEqual(status, 403, withdrawn)
+        self.assertEqual(status, 404, withdrawn)
+
+    async def test_accepted_turn_style_and_speech_remain_original_after_persona_change_and_retry(self):
+        from custom_components.djconnect.session_runtime import DJPersona
+        session, _, _ = await self.selected_credit()
+        response, status = await self.request("Who is Brian Eno?", identifier="accepted-persona-style",
+                                             context={"session_id": session.session_id})
+        self.assertEqual(status, 200, response)
+        calls = len(self.prompts)
+        self.assertEqual(response["conversation"]["style"]["persona"], "home_dj")
+        await self.fixture.manager.async_update_persona(owner_profile_id="profile-a", session_id=session.session_id,
+                                                       dj_persona=DJPersona.CLUB_DJ)
+        replay, status = await self.request("Who is Brian Eno?", identifier="accepted-persona-style",
+                                           context={"session_id": session.session_id})
+        self.assertEqual(status, 200, replay)
+        self.assertEqual(replay["conversation"]["style"], response["conversation"]["style"])
+        self.assertEqual(replay["text"], response["text"])
+        self.assertFalse(replay["session_speech"]["autoplay_eligible"])
+        self.assertEqual(len(self.prompts), calls)
+        self.assertEqual(replay["assistant_message"]["session_speech"], replay["session_speech"])
+        self.assertEqual(replay["session_speech"]["segments"][0]["speaker_role"], "dj")
+        self.assertEqual(replay["session_speech"]["segments"][0]["ordinal"], 1)
+
+    async def test_common_help_and_model_answers_defer_audio_until_accepted_reference(self):
+        from unittest.mock import AsyncMock
+        from custom_components.djconnect.session_speech import exact_segments
+        forbidden = AsyncMock(side_effect=AssertionError("No preacceptance audio or speaker dispatch"))
+        with patch.object(self.core, "async_apply_announcement_output", forbidden):
+            for question, identifier in (("help", "speech-help"), ("Who is Brian Eno?", "speech-agent")):
+                response, status = await self.request(question, identifier=identifier,
+                                                      audio_response="always", speech_contract_version=1)
+                self.assertEqual(status, 200, response)
+                self.assertEqual(response["audio_delivery"], {"mode": "accepted_reference", "state": "deferred"})
+                descriptor = response["session_speech"]
+                self.assertTrue(descriptor["manual_allowed"], descriptor)
+                self.assertTrue(descriptor["autoplay_eligible"])
+                self.assertEqual("".join(s["text"] for s in descriptor["segments"]), response["text"])
+            forbidden.assert_not_awaited()
+        long = ("Exact accepted prose. " * 150) + "Final sentence."
+        segments = exact_segments(long)
+        self.assertGreater(len(segments), 1)
+        self.assertLessEqual(len(segments), 8)
+        self.assertTrue(all(len(segment["text"]) <= 1200 for segment in segments))
+        self.assertEqual("".join(segment["text"] for segment in segments), long)
+        self.assertIsNone(exact_segments("x" * 1300))
+        self.assertIsNone(exact_segments("word " * 900))
+
+    async def test_old_audio_clients_get_explicit_upgrade_without_private_get_downgrade(self):
+        from unittest.mock import AsyncMock
+        forbidden = AsyncMock(side_effect=AssertionError("No old unqualified GET or preacceptance synthesis"))
+        with patch.object(self.core, "async_apply_announcement_output", forbidden):
+            for index, fields in enumerate(({"audio_response": "always"},
+                    {"audio_response": "auto", "input_type": "voice"},
+                    {"audio_response": "never"})):
+                response, status = await self.handlers.async_handle_ask_dj_message_payload(
+                    self.hass, {**self.identity, "client_message_id": f"old-speech-{index}",
+                                "text": "help", "language": "en", **fields},
+                    headers=self.headers, voice_input=index == 1)
+                self.assertEqual(status, 200, response)
+                delivery = response["audio_delivery"]
+                requested = index < 2
+                self.assertEqual(delivery["state"], "unavailable" if requested else "not_requested")
+                self.assertEqual(delivery["reason"], "client_protocol_upgrade_required" if requested else None)
+                self.assertEqual(delivery["required_speech_contract_version"], 1)
+                self.assertFalse(response.get("audio_url"))
+                self.assertTrue(response["session_speech"]["manual_allowed"])
+                self.assertFalse(response["session_speech"]["autoplay_eligible"])
+            forbidden.assert_not_awaited()
+        self.assertEqual(self.prompts, [])
+        for value in (True, 2, "1"):
+            response, status = await self.request("help", identifier="bad-speech-version", speech_contract_version=value)
+            self.assertEqual(status, 400, response)
+            self.assertEqual(response["error"], "unsupported_speech_contract")
 
     async def test_optional_gender_setting_uses_server_provider_capability_without_effects(self):
         from types import SimpleNamespace
@@ -1194,7 +1270,7 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
             self.assertIsNone(denied)
             self.history.dialogue.invalidate("profile:profile-a")
             denied, status = await session_speech.async_handle_audio(self.hass, audio_request, headers=self.headers)
-            self.assertEqual(status, 403)
+            self.assertEqual(status, 404)
             self.assertIsNone(denied)
 
     async def test_reloaded_processor_with_same_ids_cannot_authorize_previous_entity_bytes(self):
@@ -1227,7 +1303,7 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(replacement["session_speech"]["audio_state"], "ready")
             release.set()
             denied, status = await first
-            self.assertEqual(status, 403, denied)
+            self.assertEqual(status, 404, denied)
             self.assertIs(calls[0], a)
             self.assertIs(calls[1], b)
             self.assertEqual(len(self.hass.data["djconnect"]["tts_audio"]), 1)
@@ -1360,9 +1436,9 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
             return {"response": {"speech": {"plain": {"speech": "one accepted answer"}}}}
 
         with patch.object(self.pipeline, "_call_conversation_process_transport", delayed):
-            first = asyncio.create_task(self.request("An open music question", audio_response="auto"))
+            first = asyncio.create_task(self.request("An open music question", audio_response="always", speech_contract_version=1))
             await asyncio.wait_for(entered.wait(), 2)
-            duplicate = asyncio.create_task(self.request("An open music question", audio_response="auto"))
+            duplicate = asyncio.create_task(self.request("An open music question", audio_response="always", speech_contract_version=1))
             busy, status = await self.request("Another open question", identifier="other")
             self.assertEqual(status, 409, busy)
             self.assertEqual(busy["error"], "conversation_busy")

@@ -26,6 +26,17 @@ normal paired POST download, no fallback to arbitrary/cloud voices. Preserve
 input draft/scroll/controls. Native visible/audible and joint acceptance remain
 Apple-owned/open; no Swift writes or expansion of existing Apple WIP implied.
 
+`private-protocol.http.json` records the later unpublished private-protocol
+refinement. Ask DJ opts in with `speech_contract_version:1`; speech segments use
+the existing `ordinal`/`speaker_role`/`text` schema. Old native audio requests get
+explicit `client_protocol_upgrade_required`, not a private asset copied to the
+headerless legacy GET. Gone resources use404; pairing401 and policy403 remain
+distinct. Original early fixtures above retain their historical draft shapes.
+This fixture binds all143 executed Core Python hashes. The ordinary imported
+async runner exits0 with all assertions; direct-script execution currently
+segfaults in final interpreter garbage collection after assertions. That
+teardown issue remains recorded/open, not hidden by a forced exit or GC bypass.
+
 Moment/Forecast/history reference adoption and full families×4Personas×5languages
 are still in Core implementation. These early connected routes are not a final
 contract/producer delivery or permission to treat the whole slice as complete.

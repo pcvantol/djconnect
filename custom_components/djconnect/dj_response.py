@@ -311,12 +311,18 @@ async def prepare_private_tts_audio(hass, *, owner_profile_id, cache_key, expire
         raise ValueError("speech_capacity")
     caller = object()
     job["waiters"][caller] = admission
+    def withdraw():
+        job["waiters"].pop(caller, None)
+        # Revocation/expiry/cancel stops orphan work, while a valid joined
+        # caller retains the same actual owner task/slot until it is settled.
+        if not job["waiters"] and not job["task"].done():
+            job["task"].cancel()
+    unsubscribe = admission.on_withdraw(withdraw)
     try:
         token = await asyncio.shield(job["task"])
         admission()
         return token
     finally:
-        # Caller cancellation withdraws only this presentation admission. The
-        # bounded owner task/slot survives until actual completion, so another
-        # already admitted caller can finish without a duplicate provider call.
-        job["waiters"].pop(caller, None)
+        if callable(unsubscribe):
+            unsubscribe()
+        withdraw()
