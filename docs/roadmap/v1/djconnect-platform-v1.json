@@ -41008,11 +41008,11 @@
     "document_references": [
       {
         "path": "PRODUCT_ROADMAP.md",
-        "sha256": "ea96aafca9d9bba6a96943660f5e06f58369c9d8083eed7335a66c4e8c671db1"
+        "sha256": "d09182b79e83a582629e75bdf0ccd4243220dfc2eadc354cdef52eb37d3c0756"
       },
       {
         "path": "PRODUCT_BACKLOG.md",
-        "sha256": "1b27d7e35651d7f7b114db3e29a5e4f77cdf37fd4753dc65d679c3cb6c4688e3"
+        "sha256": "6d8383b87900be029dfd22f6e91046a7e7ce78d8ce188273a43054db9443e7da"
       },
       {
         "path": "docs/product/DJ_PRESENCE_V1.md",
@@ -41674,7 +41674,7 @@
         "authority": "https://github.com/pcvantol/djconnect/issues/1174#issuecomment-6201605985",
         "prior_snapshot": "history/20261015/web-first-design-before-decisions.json",
         "prior_snapshot_sha256": "a35482a0c2cbf04781fc27d90b664e51a9f795bf27df5e8daa42568acc444dcb",
-        "phase": "LOCAL_DOCUMENTARY",
+        "phase": "SOURCE_PROTECTED_MERGED",
         "selected_receiver": {
           "assignment_id": "DJC-VIBECAST-TV-BOOTSTRAP-CLOUDFLARE-V1-20261015",
           "issue": "https://github.com/pcvantol/djconnect-vibecast-receiver/issues/16",
@@ -41693,7 +41693,18 @@
         "runtime_writes": false,
         "ci_config_writes": false,
         "deployment": false,
-        "other_product_admission": false
+        "other_product_admission": false,
+        "source_pr": 1181,
+        "source_main_sha": "8a48a6ffdfb92d90719626c78a3e70093385cc70",
+        "reviewed_candidate": "43a088d02c7d23a3485a4a76b4b6ff3f12e1d337",
+        "protected_merge": true,
+        "required_checks": "PASS",
+        "owner_authorization_run": 38806293235,
+        "source_archive_sha256": "28e8e57d08cb4847291cabc712aa9d382e80ffc0ec8297e96401ed4363e37254",
+        "source_formal_sha256": "76d2177ca0706b455e066c48a0a755d8cb40a972f4aa3be224055a1f91d7d117",
+        "source_main_validation": 38806376852,
+        "source_artifact_run": 38806846502,
+        "source_formal_run": 38806846573
       }
     }
   }

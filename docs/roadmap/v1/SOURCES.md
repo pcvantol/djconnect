@@ -1,6 +1,6 @@
 # Maintenance source bindings
 
-Web-first #1174 decision delta: LOCAL_DOCUMENTARY; vibecast.tv/root and existing-app guest exception RESOLVED. Receiver16 PUBLIC_WEB_DELIVERY SELECTED/QUEUED after this delta delivery/Finalization and fresh own admission; executor ACK pending. API rendezvous/Core/Apple/guest integration separately Planned; full onboarding and hardware OPEN. Final reaction/rocket and technical choices OPEN. No runtime/deploy by this docs writer.
+Web-first #1174 decision delta: SOURCE_PROTECTED_MERGED; vibecast.tv/root and existing-app guest exception RESOLVED. Receiver16 PUBLIC_WEB_DELIVERY SELECTED/QUEUED after this delta delivery/Finalization and fresh own admission; executor ACK pending. API rendezvous/Core/Apple/guest integration separately Planned; full onboarding and hardware OPEN. Final reaction/rocket and technical choices OPEN. No runtime/deploy by this docs writer.
 
 Generated from djconnect-platform-v1.json, maintenance DJC-DJ-PRESENCE-ROADMAP-DESIGN-V1-20261011.
 
@@ -36,8 +36,8 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 
 | Local design source | SHA256 |
 |---|---|
-| [PRODUCT_ROADMAP.md](../../../PRODUCT_ROADMAP.md) | `ea96aafca9d9bba6a96943660f5e06f58369c9d8083eed7335a66c4e8c671db1` |
-| [PRODUCT_BACKLOG.md](../../../PRODUCT_BACKLOG.md) | `1b27d7e35651d7f7b114db3e29a5e4f77cdf37fd4753dc65d679c3cb6c4688e3` |
+| [PRODUCT_ROADMAP.md](../../../PRODUCT_ROADMAP.md) | `d09182b79e83a582629e75bdf0ccd4243220dfc2eadc354cdef52eb37d3c0756` |
+| [PRODUCT_BACKLOG.md](../../../PRODUCT_BACKLOG.md) | `6d8383b87900be029dfd22f6e91046a7e7ce78d8ce188273a43054db9443e7da` |
 | [docs/product/DJ_PRESENCE_V1.md](../../../docs/product/DJ_PRESENCE_V1.md) | `c97be3bcebbd4ca70d640cdf4fc0a9a4808451e986bc977e3173e19842a928c4` |
 | [DJ_SESSION_RUNTIME_CONTRACTS.md](../../../DJ_SESSION_RUNTIME_CONTRACTS.md) | `6ae7a05260bc2a997252dbb70c28917ac6b7fd25930263d7c0940df929b1ec92` |
 | [docs/product/DJ_INTELLIGENCE_ARCHITECTURE.md](../../../docs/product/DJ_INTELLIGENCE_ARCHITECTURE.md) | `5345f4a3db6b2bfb97931d6acdde09439dc3dbae7a7d311107269922e08aef12` |
