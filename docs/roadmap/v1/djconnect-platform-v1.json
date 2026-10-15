@@ -41008,11 +41008,11 @@
     "document_references": [
       {
         "path": "PRODUCT_ROADMAP.md",
-        "sha256": "1303eb66ce08ec482b63f058799f692f0b0fc7fa394b26ff29833bd0dd0e4829"
+        "sha256": "132f40b6258eff99e4570ff2c89f76b7586c55e04685b57585d5da2a5415f749"
       },
       {
         "path": "PRODUCT_BACKLOG.md",
-        "sha256": "3b4c3f2f40e9002a19a94edac4d4673cf0b75bb56ed1adc102cdee91f42fb2cb"
+        "sha256": "254db7ac09d43968db5ce11374fe780023efdfe0925e18a2a7af89fba8bbb2cf"
       },
       {
         "path": "docs/product/DJ_PRESENCE_V1.md",
@@ -41253,6 +41253,10 @@
       {
         "path": "docs/product/HYBRID_LOCAL_TRANSPORT_POLICY_V1.md",
         "sha256": "b7d62c93f26b4883c993f89f7a929c57ba6be8c082bb6ed7c220e60c5045aac6"
+      },
+      {
+        "path": "docs/verification/HYBRID_LOCAL_TRANSPORT_SOURCE_READBACK_20261015.md",
+        "sha256": "4bb082dd358cc9594240868cb163133be0320729b2d5687a337bcba2b5feeda3"
       }
     ],
     "implementation_receipt": {
