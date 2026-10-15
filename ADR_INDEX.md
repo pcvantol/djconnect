@@ -244,3 +244,14 @@ Decision for VibeCast Guest Companion and similar features to use scoped tempora
 2. Update this index.
 3. Link related roadmap or Innovation Lab items.
 4. Update `ARCHITECTURE_PRINCIPLES.md` if the decision changes platform rules.
+
+
+## Web-first VibeCast design delta (issue #1174)
+
+[Experience v1](docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md) supersedes
+Cast-first/native-TV prerequisites and extends the deferred Audience/temporary
+guest design. [Onboarding/authority](docs/product/VIBECAST_ONBOARDING_GUEST_AUTHORITY_V1.md)
+refines Planned guest-facing scoped endpoints above; it does not mark the
+planned ADR implemented or alter frozen server ownership. Crypto/service choice,
+shared media rights and Apple renderer realization remain explicit review gates.
+No accepted historical ADR or delivered evidence is rewritten.

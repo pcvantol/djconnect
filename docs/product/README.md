@@ -99,3 +99,12 @@ until separately selected.
 - `VIBECAST_ARCHITECTURE.md`
 - `DJ_SESSION_VISION.md`
 - `../../DJCONNECT_V4_ARCHITECTURE.md`
+
+
+## VibeCast web-first design
+
+[Experience v1](VIBECAST_WEB_FIRST_EXPERIENCE_V1.md),
+[onboarding and guest authority](VIBECAST_ONBOARDING_GUEST_AUTHORITY_V1.md),
+[temporary Apple mode](APPLE_VIBECAST_GUEST_MODE_V1.md): issue #1174, design only.
+These are the forward web-first/guest contract; product implementation and joint
+acceptance remain Planned/OPEN.

@@ -205,3 +205,13 @@ explicitly checks out and scopes that repository.
 - Platform roadmap: read `PROMPT_INDEX.md`.
 
 `CHAT_BOOTSTRAP.md` is deprecated and is not a canonical entrypoint.
+
+
+## VibeCast web-first and temporary guest design
+
+- Canonical product direction: [web-first experience v1](docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md).
+- Technical trust/authority: [onboarding and guest grants](docs/product/VIBECAST_ONBOARDING_GUEST_AUTHORITY_V1.md).
+- Consumer contract: [temporary Apple guest mode](docs/product/APPLE_VIBECAST_GUEST_MODE_V1.md).
+- Authority: [issue #1174](https://github.com/pcvantol/djconnect/issues/1174); design only, implementation Planned.
+- Existing Runtime/Planner/Knowledge/Moment/Broadcast owners remain; no new intelligence engine.
+- Cast-first/native-TV prerequisites superseded for forward design; historical evidence preserved.

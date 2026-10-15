@@ -1,5 +1,13 @@
 # Universal Receiver V1 — Server Architecture
 
+## Web-first reuse boundary
+
+The [web-first VibeCast design](../product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md)
+reuses this connection/projection foundation with separate display and guest
+grants. Its ambient/responsive product does not replace the interactive receiver
+or broaden current Broadcast authority. Existing delivered evidence below remains
+scoped to its original contracts; new shared rights/guest behavior are Planned.
+
 ## Status
 
 Accepted server architecture and current-contract boundary. Capabilities 1
