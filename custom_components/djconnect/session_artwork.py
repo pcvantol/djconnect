@@ -111,7 +111,7 @@ async def _fetch(hass, backend, uri, *, guard, expected_album_uri=""):
     body = bytes(body)
     if not image_format(body, mime):
         raise ValueError('unsafe_image')
-    width, height = await hass.async_add_executor_job(_decoded_size, body)
+    width, height = await session_images(hass).decode(_decoded_size, body)
     await guard()
     name = item.get('name')
     if not isinstance(name, str) or not 0 < len(name) <= 320 or any(ord(c) < 32 for c in name):
@@ -203,7 +203,7 @@ async def _prepare(hass, runtime, context, *, session_id, target, complete_deadl
                 artwork = {'state': 'ready', 'subject': {'provider': 'spotify', 'uri': uri,
                            'type': URI.fullmatch(uri)[1], **({'album_uri': album} if album else {})},
                            'role': role, 'resolution_basis': 'resolved_now',
-                           'edition_basis': 'original_bound' if expected_album else 'provider_resolved_now',
+                           'edition_basis': edition_basis(uri, expected_album),
                            'source_url': source, 'attribution': {'provider': 'Spotify', 'mark': 'spotify', 'url': source},
                            'usage_basis': 'spotify_temporary_owner_display',
                            'captured_at': datetime.fromtimestamp(wall, UTC).isoformat(),
@@ -214,7 +214,7 @@ async def _prepare(hass, runtime, context, *, session_id, target, complete_deadl
                            'crop_allowed': False, 'requires_device_auth': True,
                            'width': width, 'height': height, 'alt_text': alt_text(name, ':artist:' in uri),
                            'url': PATH.format(session_id=session_id, asset_id=asset_id)}
-                revision = hashlib.sha256(json.dumps(artwork, sort_keys=True).encode()).hexdigest()[:24]
+                revision = projection_revision(artwork)
                 artwork['media_revision'] = revision
                 projection = {'schema_version': 1, 'session_id': session_id, **target,
                               'revision': revision, 'artwork': artwork}
@@ -229,18 +229,18 @@ async def _prepare(hass, runtime, context, *, session_id, target, complete_deadl
         except asyncio.CancelledError:
             raise
         except PermissionError:
-            registry.states[key] = (time.monotonic()+60, 'source_withdrawn')
+            registry.record_state(key, 'source_withdrawn')
             return unavailable(session_id, target, 'source_withdrawn')
         except ValueError as exc:
             known = {'missing_image', 'missing_edition', 'edition_mismatch', 'subject_mismatch',
                      'unsafe_image', 'image_too_large', 'source_unavailable', 'missing_subject_label'}
             reason = str(exc) if str(exc) in known else 'source_unavailable'
             registry.negative[key] = time.monotonic()+60
-            registry.states[key] = (time.monotonic()+60, reason)
+            registry.record_state(key, reason)
             return unavailable(session_id, target, reason)
         except Exception:  # Optional image failure never invalidates semantic text.
             registry.negative[key] = time.monotonic() + 60
-            registry.states[key] = (time.monotonic()+60, 'source_unavailable')
+            registry.record_state(key, 'source_unavailable')
             return unavailable(session_id, target, 'source_unavailable')
         finally:
             registry.inflight.pop(key, None)
@@ -343,6 +343,19 @@ async def image(hass, context, session_id, asset_id, *, runtime):
     return None
 
 
+def edition_basis(uri, original_album):
+    """An album subject itself binds its edition; artist imagery has no edition."""
+    if ':artist:' in uri:
+        return 'not_applicable'
+    return 'original_bound' if original_album or ':album:' in uri else 'provider_resolved_now'
+
+
+def projection_revision(artwork):
+    """One equality hash for initial response and later unchanged projections."""
+    value = {key: item for key, item in artwork.items() if key != 'media_revision'}
+    return hashlib.sha256(json.dumps(value, sort_keys=True).encode()).hexdigest()[:24]
+
+
 def project(asset, *, current, historical):
     from copy import deepcopy
 
@@ -351,7 +364,7 @@ def project(asset, *, current, historical):
     artwork['current_display_allowed'] = bool(current and not historical)
     artwork['active_flow_display_allowed'] = not historical
     artwork['historical_display_allowed'] = historical
-    value['revision'] = hashlib.sha256(json.dumps(artwork, sort_keys=True).encode()).hexdigest()[:24]
+    value['revision'] = projection_revision(artwork)
     return value
 
 

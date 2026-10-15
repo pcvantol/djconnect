@@ -46,6 +46,9 @@ class ManagedSessionImages:
         self.inflight = {}
         self.negative = {}
         self.semaphore = asyncio.Semaphore(2)
+        self.decode_slots = (hass.data.setdefault(DOMAIN, {}).setdefault(
+            "session_image_decode_slots", asyncio.Semaphore(2)) if hass is not None
+            else asyncio.Semaphore(2))
         self.hass = hass
         self.closed = False
         self.timers = {}
@@ -54,7 +57,32 @@ class ManagedSessionImages:
         self._unsubscribe = None
         if hass is not None:
             from homeassistant.const import EVENT_HOMEASSISTANT_STOP
-            self._unsubscribe = hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STOP, lambda _: self.close())
+            self._unsubscribe = hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STOP, self._on_stop)
+
+    async def _on_stop(self, _event):
+        # HA removes one-shot listeners before invoking them.
+        self._unsubscribe = None
+        self.close()
+
+    async def decode(self, callback, body):
+        """Keep the shared decode permit until the actual executor job finishes.
+
+        Cancelling an awaiting request cannot stop a running decoder thread.
+        The permit survives request timeout and registry unload/reload.
+        """
+        import asyncio
+
+        await self.decode_slots.acquire()
+        if self.closed:
+            self.decode_slots.release()
+            raise PermissionError('source_withdrawn')
+        try:
+            future = self.hass.async_add_executor_job(callback, body)
+        except BaseException:
+            self.decode_slots.release()
+            raise
+        future.add_done_callback(lambda _: self.decode_slots.release())
+        return await asyncio.shield(future)
 
     def close(self):
         self.closed = True
@@ -75,12 +103,15 @@ class ManagedSessionImages:
         self.work_guards.clear()
 
     def evict(self, key, reason):
-        import time
-
         self.assets.pop(key, None)
         timer = self.timers.pop(key, None)
         if timer:
             timer.cancel()
+        self.record_state(key, reason)
+
+    def record_state(self, key, reason):
+        import time
+
         if len(self.states) < 64 or key in self.states:
             self.states[key] = (time.monotonic() + 60, reason)
 

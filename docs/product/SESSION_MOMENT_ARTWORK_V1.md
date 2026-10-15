@@ -42,7 +42,7 @@ No model, new scheduler, second image/history store or Music DNA opt-in.
 | --- | --- | --- |
 | Exact Spotify track URI and provider-returned album edition | Qualified cover, link/mark required | Explicit bounded refresh under original valid source/account; new pixels are current enrichment. |
 | Exact Spotify album URI | That edition's cover | Same rules; never choose a remaster by title. |
-| Artist fact with exact Spotify artist cross-reference from the qualified MusicBrainz URL relation or reciprocal Wikidata identity | `/artists/{id}` photo, contextual role, source link/mark | Only if that compact subject reference and original source binding were retained under the entry's independent archive permission. |
+| Artist fact with exact Spotify artist cross-reference from the qualified MusicBrainz URL relation or reciprocal Wikidata identity | `/artists/{id}` image, contextual role, source link/mark | Only if that compact subject reference and original source binding were retained under the entry's independent archive permission. |
 | Old Spotify playback row with exact original Spotify track source URL and retained source binding | Not a current playback assertion | May resolve exact track and its returned edition; mark `resolved_now`, never `captured_then`. |
 | Old Moment without exact retained subject / absent source/account | Text remains governed by existing history owner | `unavailable: insufficient_identity` / `source_withdrawn`; no name lookup or current-image substitution. |
 | Music Assistant or other unqualified image source | Typed unavailable | No speculative adapter or broad web scraping. |

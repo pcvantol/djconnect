@@ -8,15 +8,21 @@ remain v1 with additive optional fields and a separately advertised capability.
 ## Representation
 
 An optional `session_media` projection has `schema_version:1`, stable target
-`session_id`, `moment_id` or `entry_id`, monotonically changing content-derived
-`revision`, and `artwork`. The latter contains:
+`session_id`, `moment_id` or `entry_id`, opaque content-derived equality-token
+`revision` (unordered; never a numeric freshness sequence), and `artwork`. The latter contains:
 
 - `state`: `ready`, `loading`, `missing`, `expired`, `withdrawn`, `unavailable`;
   closed machine `reason`, never human prose used as a protocol discriminator.
 - `subject`: provider `spotify`, type `track|album|artist`, exact provider URI;
   optional proven `album_uri` for a track, never title-based identity.
 - `role`: `cover|contextual_artist|playback_thumbnail`; role is not proof of
-  current or future playback. `resolution_basis`: `observed|resolved_now`.
+  current or future playback. `resolution_basis`: `resolved_now` for freshly fetched pixels, independently
+  of whether the Session is still open or ended; future reuse of genuinely
+  captured observational pixels would require its own `observed` evidence.
+- `edition_basis`: `original_bound` for an exact original album subject or a
+  track matched to its retained original album URI; `provider_resolved_now` for
+  an old exact track without retained album identity; `not_applicable` for artist
+  imagery. An artist image has no album edition.
 - `source_url`, `attribution` (provider, mark, exact linked subject), `usage_basis`;
   `captured_at`, original `expires_at`, `media_revision` and optional relative
   managed `url` only while admitted. Never forward provider credentials.
@@ -26,7 +32,10 @@ An optional `session_media` projection has `schema_version:1`, stable target
 
 A ready image always has complete provenance and an actual validated byte
 resource. A prepared body with missing publication/authority is not ready.
-Clients clear URL and decoded pixels on expiry/revision/withdrawal. Unknown
+Clients compare revisions for equality, never sort hashes; preserve the existing
+ordered transport/lifecycle boundary and discard late responses for superseded
+requests or withdrawn targets. Clients clear URL and decoded pixels on
+expiry/revision/withdrawal. Unknown
 optional schema degrades to existing text-only card. Five-language alt text is
 presentation copy, distinct from stable subject/provider/protocol identifiers.
 
@@ -39,26 +48,34 @@ caller-supplied subject, source URL, account, CDN URL or archive permission.
 Source proof is selected from the authorized published Runtime/retained record.
 Wrong Profile is denied, hidden/deleted/expired entries unavailable. Recheck
 normal owner/source authority after every external await and at byte delivery.
+Existing Profile storage commits immediately collect revoked resident resources
+and latch pending preparations invalid. A temporary withdrawal followed by
+reassignment cannot revive earlier bytes or an in-flight preparation; a new
+explicitly authorized preparation must qualify independently.
 
 Pure owner snapshots/history may project existing prepared media or a typed
 unavailable state, never fetch/prepare/renew. Explicit preparation may perform
 provider work and returns per-target states. Errors remain normal400/401/403/404/
 409/503 application outcomes; one source failure must not remove valid text.
 Byte delivery uses a short unguessable managed capability bound to original
-owner, source/account/revision, target, subject and applicable audience. No
+owner, source/account/revision, target, subject and applicable audience. The image route requires the same normal paired-device authorization and Profile
+identity as other owner reads; the asset ID alone grants no access. No
 unrestricted URL fetch, shared-screen exposure or HA-admin credential fallback.
 No separate client image lookup, second WebSocket action family or new eventbus.
 
 ## Bounds and storage
 
 At most8 requested targets,2 simultaneous preparations,64 prepared target slots,
-32MiB aggregate decoded-source byte budget,2MiB per image,4096px per side and
+32MiB aggregate compressed resident-byte budget,2MiB per image,4096px per side and
 16million pixels; reject mismatched MIME/magic/invalid decode and animation.
 Timeout8s per external operation, bounded complete preparation deadline20s;
 negative backoff60s, original asset TTL at most300s and grant at most300s. Cache
 hits and reconnect never slide either deadline. Identical in-flight target work
 is shared; target replacement invalidates late results. Capacity rejects safely
-rather than silently retaining unlimited assets. No headers/cookies/credentials
+rather than silently retaining unlimited assets. Decode workers are limited to two; their temporary pixel RAM is measured
+separately from the compressed resident-byte budget. Resource-expiry callbacks
+in the existing HA loop dispose pixels without provider work; Session end and
+last-entry unload explicitly clear their scoped resources. No headers/cookies/credentials
 forwarded to CDN; exact HTTPS `i.scdn.co/image/<hex>` only, redirects denied.
 
 Persistent history stores only optional versioned minimal exact subject and

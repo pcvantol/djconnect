@@ -79,6 +79,12 @@ class SessionArtworkTests(unittest.TestCase):
         self.assertFalse(registry.commit(64, self.asset()))
         self.assertEqual(len(registry.assets), 64)
 
+    def test_failed_target_metadata_is_bounded_independently_of_negative_cache(self):
+        registry=self.proxy.ManagedSessionImages()
+        for i in range(200):
+            registry.record_state(i,'source_withdrawn')
+        self.assertEqual(len(registry.states),64)
+
     def test_aggregate_byte_bound(self):
         registry = self.proxy.ManagedSessionImages()
         for i in range(16):
@@ -126,6 +132,25 @@ class SessionArtworkTests(unittest.TestCase):
         result = self.art.unavailable('s', {'entry_id': 'e'}, 'insufficient_identity')
         self.assertNotIn('url', result['artwork'])
         self.assertFalse(result['artwork']['historical_display_allowed'])
+
+    def test_unchanged_projection_has_identical_initial_and_cached_revision(self):
+        artwork={'state':'ready','subject':{'uri':'spotify:track:'+'A'*22},
+                 'current_display_allowed':True,'active_flow_display_allowed':True,
+                 'historical_display_allowed':False}
+        revision=self.art.projection_revision(artwork)
+        artwork['media_revision']=revision
+        original={'revision':revision,'artwork':artwork}
+        projected=self.art.project({'projection':original},current=True,historical=False)
+        self.assertEqual(projected,original)
+        changed=self.art.project({'projection':original},current=False,historical=False)
+        self.assertNotEqual(changed['revision'],revision)
+        self.assertEqual(changed['artwork']['media_revision'],revision)
+
+    def test_edition_basis_distinguishes_album_identity_from_artist(self):
+        self.assertEqual(self.art.edition_basis('spotify:album:'+'A'*22,''),'original_bound')
+        self.assertEqual(self.art.edition_basis('spotify:track:'+'A'*22,''),'provider_resolved_now')
+        self.assertEqual(self.art.edition_basis('spotify:track:'+'A'*22,'spotify:album:'+'B'*22),'original_bound')
+        self.assertEqual(self.art.edition_basis('spotify:artist:'+'A'*22,''),'not_applicable')
 
     def test_reprojection_does_not_mutate_original_resource(self):
         original = {'schema_version': 1, 'session_id': 's', 'moment_id': 'm', 'revision': 'one',
@@ -298,6 +323,31 @@ class ManagedSessionExpiryAsyncTests(unittest.IsolatedAsyncioTestCase):
         registry.close()
         registry.close()
         remove.assert_called_once_with()
+
+    async def test_cancelled_decode_keeps_permit_until_executor_really_finishes(self):
+        import asyncio
+        future=asyncio.get_running_loop().create_future()
+        self.hass.async_add_executor_job=lambda *args:future
+        task=asyncio.create_task(self.registry.decode(lambda body:None,b'pixels'))
+        await asyncio.sleep(0)
+        task.cancel()
+        with self.assertRaises(asyncio.CancelledError):
+            await task
+        self.assertFalse(future.cancelled())
+        self.assertEqual(self.registry.decode_slots._value,1)
+        self.registry.close()
+        self.assertEqual(self.registry.decode_slots._value,1)
+        future.set_result((64,64))
+        await asyncio.sleep(0)
+        self.assertEqual(self.registry.decode_slots._value,2)
+
+    async def test_actual_stop_does_not_remove_an_already_removed_one_shot_listener(self):
+        from unittest.mock import Mock
+        remove=Mock()
+        self.registry._unsubscribe=remove
+        await self.registry._on_stop(None)
+        self.assertTrue(self.registry.closed)
+        remove.assert_not_called()
 
     async def test_no_oversized_commit_and_closed_owner_rejects_late_commit(self):
         async def allowed():

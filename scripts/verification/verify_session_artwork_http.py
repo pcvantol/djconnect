@@ -64,7 +64,7 @@ async def main():
     hass.config.language = "nl"
     hass.http = HomeAssistantHTTP(hass, None, None, None, ["127.0.0.1"], 0, [], "modern")
     await hass.http.async_initialize(
-        cors_origins=[],
+        cors_origins=["https://localhost:18234"] if os.environ.get("DJC_MEDIA_BROWSER")=="1" else [],
         use_x_forwarded_for=False,
         login_threshold=-1,
         is_ban_enabled=False,
@@ -249,7 +249,11 @@ async def main():
     class Network:
         def get(self, url, **kwargs):
             u = urlsplit(url)
-            assert u.scheme == 'https' and u.hostname == 'i.scdn.co' and kwargs.get('allow_redirects') is False
+            assert u.scheme == 'https' and u.hostname == 'i.scdn.co'
+            assert kwargs.get('allow_redirects') in (None, False)
+            # Existing shared cover proxy omits this argument; this bounded
+            # external fixture never follows redirects in either call path.
+            kwargs['allow_redirects']=False
             return image_client.get(u.path, **kwargs)
     hass.data[aiohttp_client.DATA_CLIENTSESSION][cache_key] = Network()
     SpotifyBackend._request = provider
@@ -327,12 +331,59 @@ async def main():
             await playback_observation_manager(hass)._async_poll_spotify(observed)
         assert 'album_story' in cases
         assert any(m.source_fact.intent == 'artist_story' for m in moments), [m.moment_type.value for m in moments]
+        if os.environ.get('DJC_MEDIA_BROWSER')=='1':
+            import ssl
+            tls=ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+            tls.load_cert_chain(directory/'server.pem',directory/'server-key.pem')
+            await web.TCPSite(client.server.runner,'0.0.0.0',18233,ssl_context=tls).start()
+            static=web.Application()
+            async def static_index(request):
+                return web.Response(body=(directory/'build/cast/index.html').read_bytes(),content_type='text/html')
+            static.router.add_get('/',static_index)
+            static_runner=web.AppRunner(static)
+            await static_runner.setup()
+            await web.TCPSite(static_runner,'0.0.0.0',18234,ssl_context=tls).start()
+            token=await post('/session/broadcast/token',{**identity,'session_id':sid})
+            (directory/'browser-ready.json').write_text(json.dumps({'session_id':sid,
+                'broadcast_token':token['broadcast_token'],'snapshot':active.broadcast.as_dict()},indent=2))
+            async with asyncio.timeout(120):
+                while not (directory/'browser-continue').exists():
+                    await asyncio.sleep(0.2)
+            cases['browser_attached']={'actual_HA_Broadcast':True,'native':'NOT_RUN'}
         # Keep the already published artist A while ordinary observation moves to B.
         await post('/session/presence', {**identity,'contract_version':1,'session_id':sid,
                    'selected_presence':'music_only','expected_presence_revision':0})
+        artist_moment=next(m for m in moments if m.source_fact.intent=='artist_story')
+        warm=await post('/session/media/prepare',{**identity,'contract_version':1,'session_id':sid,
+                        'targets':[{'moment_id':artist_moment.moment_id}]})
+        assert warm['session_media'][0]['artwork']['state']=='ready',warm
+        await storage.async_upsert_device(identity['device_id'],'ios',linked_profile_id='profile-other')
+        await storage.async_upsert_device(identity['device_id'],'ios',linked_profile_id='profile-a')
+        image_entered.clear()
+        image_release.clear()
+        image_mode[0]='blocked'
+        artist_moment=next(m for m in moments if m.source_fact.intent=='artist_story')
+        late=asyncio.create_task(post('/session/media/prepare',{**identity,'contract_version':1,'session_id':sid,
+                                'targets':[{'moment_id':artist_moment.moment_id}]}))
+        await asyncio.wait_for(image_entered.wait(),10)
+        _, pending_snapshot=await get('/session/broadcast/'+sid)
+        pending_media=next(x for x in pending_snapshot['snapshot']['session_media'] if x.get('moment_id')==artist_moment.moment_id)
+        assert pending_media['artwork']['state']=='loading' and 'url' not in pending_media['artwork']
+        cases['loading']={'projection':pending_media,'pure_owner_snapshot':True}
         selected[0]='D'
         observed = playback_observation_manager(hass)._spotify_sessions['profile-a']
         await playback_observation_manager(hass)._async_poll_spotify(observed)
+        image_release.set()
+        late_result=await late
+        late_media=late_result['session_media'][0]
+        assert late_media['artwork']['state']=='ready',late_result
+        assert late_media['artwork']['subject']['uri']=='spotify:artist:'+artist_id
+        assert late_media['artwork']['current_display_allowed'] is False
+        assert late_media['artwork']['active_flow_display_allowed'] is True
+        cases['late_artist_after_track_change']={'projection':late_media,'different_current_artist':True}
+        image_mode[0]='ok'
+        image_entered.clear()
+        image_release.clear()
         before_ids = [m.moment_id for m in active.broadcast.state.dj_moments]
         for moment in [m for m in moments if m.source_fact.intent=='artist_story']:
             ready = await post('/session/media/prepare', {**identity,'contract_version':1,'session_id':sid,
@@ -348,6 +399,7 @@ async def main():
             denied = await client.get(url, params=identity)
             assert denied.status in (401,403)
             assert media['artwork']['subject']['uri']=='spotify:artist:'+artist_id
+            assert media['revision']==late_media['revision']
             cases[moment.source_fact.intent] = {'current_recording': 'spotify:track:'+'D'*22, 'current_artist': 'spotify:artist:'+'Z'*22,'projection':media,'bytes_sha256':hashlib.sha256(data).hexdigest(),'denied_status':denied.status}
         assert before_ids == [m.moment_id for m in active.broadcast.state.dj_moments]
         for identifier in ('F','G','H','I'):
@@ -357,6 +409,9 @@ async def main():
         negative_entries=[e for e in all_entries['entries'] if e['kind']=='playback_observed'
                           and e['entry_id']!=playback['entry_id']]
         await post('/session/end', {**identity,'session_id':sid})
+        if os.environ.get('DJC_MEDIA_BROWSER')=='1':
+            await asyncio.sleep(3)
+            await static_runner.cleanup()
         # Old stored exact identity, original source authority, real owner query.
         ready = await post('/session/media/prepare', {**identity,'contract_version':1,'session_id':sid,
                            'targets':[{'entry_id': playback['entry_id']}]})
