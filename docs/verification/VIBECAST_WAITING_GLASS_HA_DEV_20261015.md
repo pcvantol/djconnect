@@ -60,3 +60,33 @@ waiting-page visual proof, not iPad-to-Pi Session/Mood/Presence acceptance.
 The iPad UI helper failed enabling automation mode; those E2E cases remain open.
 No production HA, Python module, release/CI, pairing, Profile or playback change
 was performed for this waiting-page deployment. No push or merge.
+
+## Shared glass cards follow-up
+
+Owner requested the Apple glass/card/corner treatment throughout VibeCast,
+including album artwork. Applied Apple geometry tokens:32px outer radius,
+8px artwork inset,24px inner image radius,1.25px white border at32% opacity.
+Current artwork now has a real wrapper card, square contained image, translucent
+blurred surface, highlight and shadow. DJMoment cards use the same symmetric
+radius instead of alternate asymmetric speech bubbles. Waiting instructions,
+branding, Up Next and its artwork receive matching material/border treatment.
+Reduce Transparency and unsupported-blur fallbacks remain readable.
+
+A presentation-only renderer line hides the artwork wrapper when artwork is
+withdrawn/unavailable. Existing terminal-authority test now verifies that wrapper
+also clears, alongside the private image. All11 build/renderer tests PASS0.239s;
+deterministic build verification and diff whitespace PASS.
+
+Offline1200x1920 Chromium preview with synthetic artwork visually inspected:
+/private/tmp/djc-vibecast-waiting/glass-cards-preview.png. This exposed an old
+fixed image-height rule; height:auto now preserves the square cover/card.
+This is a modeled visual preview, not a physical live-session screenshot.
+
+Only generated vibecast.html deployed to HA-dev, no HA restart.162 other
+integration source files verified unchanged. Exact receipt and prior HTML backup:
+/private/tmp/djc-vibecast-waiting/glass-cards-receipt.json and
+/private/tmp/djc-vibecast-waiting/before-glass-cards.html.
+Final HTML SHA256:a5b3000f6ac81500e5d1cf05be9e4cfe3926b84692fe9ddf71bd39f8343d7eee.
+Physical Pi was already LIVE; captured its before-screen but did not reload its
+in-memory receiver authority to replace styling. New styling takes effect on
+reload. No playback, pairing, session mutation or receiver-repo publication.

@@ -227,6 +227,8 @@
     if (validSpotify) e("spotify-source").href=p.source_url; else e("spotify-source").removeAttribute("href");
     const art = asset(p.artwork_url || "");
     e("artwork").hidden = !art;
+    const artworkCard = e("artwork-card");
+    if (artworkCard) artworkCard.hidden = !art;
     if (art !== lastArtwork) { e("artwork").src = art; lastArtwork = art; }
     e("artwork").alt = art ? (p.album || p.title || "") : "";
     root.style.setProperty("--art",art ? `url("${art.split('"').join('%22')}")` : "none");
