@@ -1,5 +1,45 @@
 # DJConnect Engineering Status
 
+## Current: Profile-bound playback DEBUG hotfix — separate Finalization
+
+#### Repository Status
+
+Source PR [#1178](https://github.com/pcvantol/djconnect/pull/1178) protected merged as `fe8c66a120a44faaeb49432729359e6a2055194e` from exact independently reviewed and human-authorized `94e531e4fde0b9fd58a19b85bf231f96ce3a132b`, basea6d666fe. Full candidate/main tree equality;32checksPASS/5conditional skips; actual exact Owner Authorization38795093899 SUCCESS. [Exact source/artifact/HA-dev readback](docs/verification/PLAYBACK_DEBUG_PROFILE_CONTEXT_SOURCE_READBACK_20261015.md) qualifies164files/0mismatch and formal/raw/coverage/provenance bindings. Existing artwork, web-first, history and other delivered producers stay closed.
+
+#### Management Summary
+
+Maintenance repair only: diagnostic logging previously resolved Profile/provider metadata with a missing HA context and threw500 before normal dispatch. Six helpers now use only existing request backend/observed availability. Real authorization, Profile/provider checks and actual errors remain in their owners; no silent empty-success fallback, pairing reset or Profile merge. No new product family, provider, model, queue effect or client implementation.
+
+#### Roadmap Position
+
+Existing Core maintenance within the current platform; no new product node or changed product delivery state. Canonical roadmap/backlog reference this bounded repair and generated source bindings follow current document hashes. WEB21nodes/44edges/receipt and frozen snapshots remain unchanged. Speech/Persona remains the same active assignment, with sourcePR1177/head533fa48c separately frozen; it must integrate this newer main and obtain exact renewed qualification/publication authority before delivery.
+
+#### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+1. **DJC-SESSION-SPEECH-PERSONA-VOICE-20261015 — existing Core execution, not delivered.** Keep the same writer and preserved source; integrate the delivered maintenance main after this Finalization, rerun relevant exact qualification/review and respect its own actual publication gate.
+2. **Unfilled product slot2 — no additional admitted assignment.** Passive surfaces/ActivityKit remain a separately preserved future dependency, not dispatched here.
+3. **Unfilled product slot3 — no additional admitted assignment.**
+4. **Unfilled product slot4 — no additional admitted assignment.**
+5. **Unfilled product slot5 — no additional admitted assignment.**
+
+#### Blocked Items
+
+This documentary Finalization retains its own exact review/publication gate. Source94 authorization is not an authorization for an unknown Finalization SHA. Speech533 retains a separate gate and is not silently changed. Current hostverify MATCH/exit0/package4.5.3. Apple reports physical build40098 PASS for the three HTTP500 screens; Core read back the probe receipts/logs. Broader native, Speech and hardware acceptance remain outside this repair. HA-prod has not been updated by this urgent HA-dev repair.
+
+#### Deferred Items
+
+Speech delivery/Persona/audio adoption, passive/locked-screen/ActivityKit grants, guest/web-first runtime and all other product work remain separate. No Swift/receiver writer, signing, Pages, workflow/runner/service change or new provider/model/cost route. No new lifecycle or queue planning. Existing selected scopes and other worktrees/labs/WIP are preserved.
+
+#### Repository State
+
+Repository State: `MERGED_UNRECONCILED` for this source until this separate Finalization is protected merged and exact-main/artifact read back; intended terminal scope is `MERGED_RECONCILED`. This candidate does not claim its own publication has already passed. [Immutable Finalization record](docs/history/prompts/2026-10-15-playback-debug-context-finalization.md) binds the verified source and bounded reconciliation. Whole Speech delivery remains open.
+
+#### Workspace State
+
+Workspace State: `NOT_READY` for another product assignment while Speech WIP and this exact Finalization gate remain. Preserve source94/Finalization/Speech533 refs and recovery; never force-delete squash refs under another candidate's grant. Own safe cleanup follows actual protected delivery and proven branch disposition; no global clean-workspace claim. HA-dev sourcefe8 is installed with verified backup/rollback,164files0mismatch, unchanged pairing/Profile and actual iPad-identity HTTP500→200 for status/queue/playlists. Production remains open; physical iPad acceptance is limited to the three repaired screens as recorded in the readback.
+
+## Historical operational context
+
 ## Current: VibeCast web-first design — separate Finalization
 
 #### Repository Status
