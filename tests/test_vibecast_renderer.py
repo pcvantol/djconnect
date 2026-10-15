@@ -137,7 +137,7 @@ class VibeCastRendererTest(unittest.TestCase):
             assert.match(handoff[1].children[1].children[0].innerHTML,/<svg/);
             assert.match(handoff[1].children[2].children[0].textContent,/Code in der App/);
             assert.equal(handoff[3].textContent,"123456");
-            assert.match(handoff[4].textContent,/dieselbe Home Assistant-Installation/);
+            assert.equal(handoff.length,4); // Instructions and code; no redundant installation reminder.
             assert.equal(context.document.documentElement.lang,"de");
             assert.equal(elements.get("title").textContent,"Warten auf eine Session");
             assert.equal(calls.length,2); assert.equal(timers.length,1);

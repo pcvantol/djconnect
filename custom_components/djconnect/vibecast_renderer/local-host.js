@@ -9,8 +9,7 @@
       "Choose the VibeCast icon in the DJ-session toolbar.",
       "Enter the code below in the app."
     ],
-    "code": "Your code",
-    "same": "Use the same Home Assistant installation on both devices."
+    "code": "Your code"
   },
   "nl": {
     "title": "Toon je DJ-sessie op dit scherm",
@@ -19,8 +18,7 @@
       "Kies het VibeCast-icoon bovenin de DJ-sessie.",
       "Vul de onderstaande code in de app in."
     ],
-    "code": "Jouw code",
-    "same": "Gebruik op beide apparaten dezelfde Home Assistant-installatie."
+    "code": "Jouw code"
   },
   "de": {
     "title": "Zeige deine DJ-Session hier",
@@ -29,8 +27,7 @@
       "Wähle das VibeCast-Symbol in der Symbolleiste der DJ-Session.",
       "Gib den unten stehenden Code in der App ein."
     ],
-    "code": "Dein Code",
-    "same": "Verwende auf beiden Geräten dieselbe Home Assistant-Installation."
+    "code": "Dein Code"
   },
   "fr": {
     "title": "Affichez votre session DJ ici",
@@ -39,8 +36,7 @@
       "Choisissez l’icône VibeCast dans la barre d’outils de la session DJ.",
       "Saisissez le code ci-dessous dans l’app."
     ],
-    "code": "Votre code",
-    "same": "Utilisez la même installation Home Assistant sur les deux appareils."
+    "code": "Votre code"
   },
   "es": {
     "title": "Muestra tu sesión de DJ aquí",
@@ -49,8 +45,7 @@
       "Elige el icono de VibeCast en la barra de la sesión de DJ.",
       "Introduce el código de abajo en la app."
     ],
-    "code": "Tu código",
-    "same": "Usa la misma instalación de Home Assistant en ambos dispositivos."
+    "code": "Tu código"
   }
 };
   const language = (navigator.language || "en").slice(0, 2);
@@ -101,10 +96,7 @@
       codeLabel.textContent = label.code;
       const code = document.createElement("strong");
       code.textContent = claim.code;
-      const note = document.createElement("p");
-      note.className = "same-installation";
-      note.textContent = label.same;
-      panel.append(caption, steps, codeLabel, code, note);
+      panel.append(caption, steps, codeLabel, code);
       panel.hidden = false;
       poll(claim);
     } catch (_) { if (!stopped) later(begin, 5000); }

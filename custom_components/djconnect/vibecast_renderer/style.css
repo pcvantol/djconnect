@@ -121,7 +121,6 @@ progress { height:.7rem; border-radius:1rem; overflow:hidden }
 .handoff-icon svg { width:1.9rem; height:1.9rem }
 .handoff .code-label { display:block; margin-top:1.75rem; color:#e0d6fa; text-align:center; font-size:1rem; font-weight:650 }
 .handoff strong { margin:.4rem 0 0; padding:.5rem 0; border:1px solid #ffffff38; border-radius:1.2rem; background:#100e2980; font-size:clamp(3rem,7vw,5.5rem); line-height:1.2; text-align:center; letter-spacing:.18em; text-indent:.18em; color:#fff }
-.handoff .same-installation { margin:1rem 0 0; color:#e0d9ed; text-align:center; font-size:1rem; line-height:1.4 }
 @media (orientation:landscape) and (min-width:900px) { .idle .stage { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.2fr); align-content:center; gap:3rem } .idle .handoff { max-width:46rem } }
 @media (max-height:700px) { .idle .stage { gap:1.25rem } .idle .waiting-brand { padding:1rem 1.5rem } .waiting-brand img { width:4rem; height:4rem } .waiting-wordmark { font-size:2rem } .waiting-product { font-size:1rem } .idle .track { margin-top:1rem; font-size:2rem } .idle .handoff { padding:1.25rem 1.5rem } .handoff h2 { margin-bottom:.75rem; font-size:1.2rem } .handoff ol { gap:.6rem; font-size:1rem } .handoff .code-label { margin-top:1rem } .handoff strong { font-size:3.5rem } }
 @media (prefers-reduced-transparency:reduce) { .idle .waiting-brand,.idle .handoff { background:#24233d; -webkit-backdrop-filter:none; backdrop-filter:none } }
