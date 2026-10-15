@@ -48,6 +48,7 @@ class FinalIngressFenceTests(unittest.IsolatedAsyncioTestCase):
         authority = object.__new__(service.PairedAuthority)
         authority.hass, authority.identity, authority.headers = None, {}, {}
         authority.runtime, authority.binding = object(), "unit-binding"
+        authority.owner_final_guard = lambda: None
         authority.transport_guard_now = self.check_now
         authority.transport_guard = AsyncMock(side_effect=self.check_now)
 
@@ -59,6 +60,35 @@ class FinalIngressFenceTests(unittest.IsolatedAsyncioTestCase):
         with patch.object(service.PairedAuthority, "resolve", AsyncMock(side_effect=resolve)):
             with self.assertRaises(service.OperationError):
                 await authority.validate()
+
+    async def test_owner_revoked_during_last_ingress_await_is_denied(self):
+        authority = object.__new__(service.PairedAuthority)
+        authority.hass, authority.identity, authority.headers = None, {}, {}
+        authority.runtime, authority.binding = object(), "unit-binding"
+        entered, release = asyncio.Event(), asyncio.Event()
+        revoked = False
+
+        def owner_final():
+            if revoked:
+                raise service.OperationError("unauthorized", 401)
+
+        async def ingress():
+            entered.set()
+            await release.wait()
+            self.check_now()
+
+        authority.owner_final_guard = owner_final
+        authority.transport_guard = ingress
+        authority.transport_guard_now = self.check_now
+        current = SimpleNamespace(runtime=authority.runtime, binding=authority.binding)
+        with patch.object(service.PairedAuthority, "resolve", AsyncMock(return_value=current)):
+            pending = asyncio.create_task(authority.validate())
+            await entered.wait()
+            revoked = True
+            release.set()
+            with self.assertRaises(service.OperationError) as caught:
+                await pending
+            self.assertEqual(caught.exception.code, "unauthorized")
 
     async def delivery_race(self, *, expiry):
         authority = self.fixture_authority()

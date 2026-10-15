@@ -84,6 +84,21 @@ class IngressQualificationTests(unittest.TestCase):
             self.path.write_text(raw)
             self.assertIsNone(qualification.read_qualification(self.tmp.name))
 
+    def test_final_metadata_fence_rejects_expiry_replacement_and_removal(self):
+        grant = self.allowed()
+        self.assertTrue(qualification.qualification_current_now(self.tmp.name, grant, now=150))
+        self.assertFalse(qualification.qualification_current_now(self.tmp.name, grant, now=200))
+        self.path.chmod(0o640)
+        self.assertFalse(qualification.qualification_current_now(self.tmp.name, grant, now=150))
+        grant = self.allowed()
+        other = self.path.with_suffix(".replacement")
+        other.write_text(self.path.read_text())
+        other.replace(self.path)
+        self.assertFalse(qualification.qualification_current_now(self.tmp.name, grant, now=150))
+        grant = self.allowed()
+        self.path.unlink()
+        self.assertFalse(qualification.qualification_current_now(self.tmp.name, grant, now=150))
+
     def test_atomic_path_replacement_during_read_is_not_a_valid_snapshot(self):
         self.write()
         original = qualification.os.read

@@ -90,7 +90,9 @@ unknown fields or mismatched binding. No raw config or request secrets in logs.
 Bind the exact record digest and descriptor metadata into ordinary paired
 authority validation, after its last owner await. A final non-yielding metadata/
 expiry fence (no file-body read) runs at the existing effect/send boundary and
-latches withdrawal; it cannot revive an observed revoked admission. Check again before domain/provider effects, private delivery and each existing WS
+latches withdrawal; it cannot revive an observed revoked admission. Reuse the
+existing synchronous paired/Profile/source/grant/entry-generation owner fence
+alongside it, so owner revocation during the ingress await cannot reopen delivery. Check again before domain/provider effects, private delivery and each existing WS
 revocation interval. Removal, expiry, replacement, installation or interface
 changes revoke the old local connection and its waiting actions/deliveries.
 A new valid record permits a new admission, not continuation under an old grant.
@@ -126,6 +128,8 @@ Negative cases include public peers with forged internal Host/Origin, other
 private subnets, missing peer/config, Docker gateway, forwarding/cloud headers,
 null/foreign/malformed/multiple Origin, missing/invalid paired credentials,
 revocation and installation mismatch. All routes share the same rejection.
+`transport_security_required` withdraws this route, not pairing/Profile itself;
+external TLS recovery may reconcile the original operation without blind replay.
 An unqualified HTTP request retains426 transport_security_required; an invalid
 Origin retains403 origin_not_allowed. No redirect or HTTP mutation retry.
 
