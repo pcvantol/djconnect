@@ -1,5 +1,24 @@
 # DJConnect Product Backlog
 
+## Current-artist/Profile-label correction — Core source delivered
+
+Finding6175876899/ACK6176184085 within the existing shared Ask DJ family is delivered
+by [#1168](https://github.com/pcvantol/djconnect/pull/1168), exactmain
+`eeb1c7e763f72ee346ec8eabb52e1c7d87d39433`. [Source/artifact readback](docs/verification/ASK_DJ_CURRENT_ARTIST_SOURCE_READBACK_20261014.md)
+qualifies fresh text/STT artist identification, selected/current/credit fences,
+nonarchiveable catalog display, safe retry and retained explicit selection, plus
+five-language Profile labels without Profile-operation changes.1882 regressions,
+94owningtests and actual isolated HA26cases pass; source32checks and formal
+exact-SHA artifact qualification PASS. Native/installed/microphone remain open.
+
+Separate documentaryFinalization is prepared, with its own exact publication gate;
+installation pause remains. Prior1166/1167 and earlier deliveries remain closed.
+General same-Profile Session sharing is owner-confirmed; automatic discovery is
+Apple-owned. Hybrid6149934177 is next after valid closure/cleanup/freshadmission,
+then artwork6175336907 with6176704119. No new generator, source, archive grant,
+consumer writer or promotion of joint acceptance. Older source records below are
+retained as historical checkpoints, not reopened gates.
+
 ## Shared contextual Ask DJ — bounded Core source delivered
 
 `DJC-CORE-ASKDJ-CONTEXTUAL-DIALOGUE-V1-20261013`, including owner-approved
@@ -387,14 +406,3 @@ No lifecycle/start/replace/control, continuation, notification or second slice
 is admitted. Source [#1162](https://github.com/pcvantol/djconnect/pull/1162) is protected merged as
 `ccbb839f4e544b3739c31202685d147207e4c289`; [exact source readback](docs/verification/SESSION_HISTORY_SUMMARY_V1_SOURCE_READBACK.md)
 qualifies the connected producer. Separate Finalization retains its own gate.
-
-## Current bounded corrective work — 2026-10-14
-
-Core finding6175876899 (ACK6176184085) corrects current-artist text/STT identification
-and the direct owner Profile-label report within the existing shared Ask DJ family.
-Local qualification/review does not reopen delivered1166/1167 or promote native/joint
-acceptance. CI/publication/installation stay owner-paused. General Profile sharing
-is owner-confirmed; automatic discovery is Apple-owned. Intra-track Moment visibility
-remains a separate open joint receipt/consumer boundary, without a new generator.
-Existing queue remains Hybrid6149934177, then artwork6175336907; neither starts
-inside this corrective candidate. See the [bounded proof](docs/verification/ASK_DJ_CURRENT_ARTIST_REGRESSION_20261014.md).

@@ -39247,11 +39247,11 @@
     "document_references": [
       {
         "path": "PRODUCT_ROADMAP.md",
-        "sha256": "955585460c2caa61b3bbc4973be6c647bfbe0ef333e03657821dbf2d9442256e"
+        "sha256": "504db576e4f066b4878c419e80338c314fa71aa73995c547df947282bfdf8333"
       },
       {
         "path": "PRODUCT_BACKLOG.md",
-        "sha256": "c3e3c01c2186448b00ac90958778da02fd02c725bfa1da0f7049b75a594343b6"
+        "sha256": "f981930163192327e2625054ce6b9db85f85d3a1d6bc26abd14b53b01d44c54f"
       },
       {
         "path": "docs/product/DJ_PRESENCE_V1.md",
@@ -39428,6 +39428,14 @@
       {
         "path": "docs/verification/ASK_DJ_CURRENT_ARTIST_REGRESSION_20261014.md",
         "sha256": "78758c7bd3d6a8d599cc477d296464c8b1bc6043398b3e6a219b03aede34f38e"
+      },
+      {
+        "path": "docs/verification/ASK_DJ_CURRENT_ARTIST_SOURCE_READBACK_20261014.md",
+        "sha256": "6c96f139d01007ce310e136be0527901a73e20748a92645954a3b98d6b8d6709"
+      },
+      {
+        "path": "docs/history/prompts/2026-10-14-current-artist-profile-label-finalization.md",
+        "sha256": "8ff79d233563f7d8f7d4c118abe2c4b4eb05bb6cb3603a697b109dc62f359474"
       }
     ],
     "implementation_receipt": {
@@ -39712,7 +39720,23 @@
       "finalization": "RECONCILIATION_CANDIDATE_SEPARATE_GATE",
       "ha_model_configuration": "OWNER_AUTHORIZED_TEXT_LUNA_STT_GPT_TRANSCRIBE_APPLIED",
       "ha_integration_installation": "PENDING_AFTER_ALL_MERGES",
-      "tts_migration": "CURRENT_HA_REALTIME_ADAPTER_GAP"
+      "tts_migration": "CURRENT_HA_REALTIME_ADAPTER_GAP",
+      "corrective_delivery": {
+        "finding_id": "DJC-ASKDJ-CURRENT-ARTIST-TEXT-VOICE-REGRESSION-20261014",
+        "source_pr": "https://github.com/pcvantol/djconnect/pull/1168",
+        "source_candidate": "56e08ff3dc87d196759b97c8442bcf680c99b051",
+        "source_main_sha": "eeb1c7e763f72ee346ec8eabb52e1c7d87d39433",
+        "source_review": "PASS",
+        "required_checks": "PASS",
+        "source_delivery": "PROTECTED_MERGED",
+        "archive_sha256": "29c28755e063a587c432d2730feefec4019a0e92fe4342fafc02bae7997606f8",
+        "formal_evidence_sha256": "53e18a5fb006a5b7b96d86876fd93158ffb47041b056374acfd7674818527ea7",
+        "native": "OPEN",
+        "installed": "NOT_RUN",
+        "joint_acceptance": "OPEN",
+        "finalization": "PREPARED_SEPARATE_EXACT_GATE",
+        "apple_handoff": "https://github.com/pcvantol/djconnect-app/issues/87#issuecomment-6178030609"
+      }
     }
   }
 }

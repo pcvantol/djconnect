@@ -28,8 +28,8 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 
 | Local design source | SHA256 |
 |---|---|
-| [PRODUCT_ROADMAP.md](../../../PRODUCT_ROADMAP.md) | `955585460c2caa61b3bbc4973be6c647bfbe0ef333e03657821dbf2d9442256e` |
-| [PRODUCT_BACKLOG.md](../../../PRODUCT_BACKLOG.md) | `c3e3c01c2186448b00ac90958778da02fd02c725bfa1da0f7049b75a594343b6` |
+| [PRODUCT_ROADMAP.md](../../../PRODUCT_ROADMAP.md) | `504db576e4f066b4878c419e80338c314fa71aa73995c547df947282bfdf8333` |
+| [PRODUCT_BACKLOG.md](../../../PRODUCT_BACKLOG.md) | `f981930163192327e2625054ce6b9db85f85d3a1d6bc26abd14b53b01d44c54f` |
 | [docs/product/DJ_PRESENCE_V1.md](../../../docs/product/DJ_PRESENCE_V1.md) | `c97be3bcebbd4ca70d640cdf4fc0a9a4808451e986bc977e3173e19842a928c4` |
 | [DJ_SESSION_RUNTIME_CONTRACTS.md](../../../DJ_SESSION_RUNTIME_CONTRACTS.md) | `6ae7a05260bc2a997252dbb70c28917ac6b7fd25930263d7c0940df929b1ec92` |
 | [docs/product/DJ_INTELLIGENCE_ARCHITECTURE.md](../../../docs/product/DJ_INTELLIGENCE_ARCHITECTURE.md) | `5345f4a3db6b2bfb97931d6acdde09439dc3dbae7a7d311107269922e08aef12` |
@@ -74,3 +74,5 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 | [docs/verification/ASK_DJ_CONTEXTUAL_DIALOGUE_V1_SOURCE_READBACK.md](../../../docs/verification/ASK_DJ_CONTEXTUAL_DIALOGUE_V1_SOURCE_READBACK.md) | `377bda221f6c6fe0bc542ba53844f67e0a7582f8995175d7b42739f21c6e5157` |
 | [docs/history/prompts/2026-10-14-ask-dj-contextual-dialogue-finalization.md](../../../docs/history/prompts/2026-10-14-ask-dj-contextual-dialogue-finalization.md) | `1d4ce399484389030df619f35e84a5b40fef5e94c98143008325470ab2c8b35a` |
 | [docs/verification/ASK_DJ_CURRENT_ARTIST_REGRESSION_20261014.md](../../../docs/verification/ASK_DJ_CURRENT_ARTIST_REGRESSION_20261014.md) | `78758c7bd3d6a8d599cc477d296464c8b1bc6043398b3e6a219b03aede34f38e` |
+| [docs/verification/ASK_DJ_CURRENT_ARTIST_SOURCE_READBACK_20261014.md](../../../docs/verification/ASK_DJ_CURRENT_ARTIST_SOURCE_READBACK_20261014.md) | `6c96f139d01007ce310e136be0527901a73e20748a92645954a3b98d6b8d6709` |
+| [docs/history/prompts/2026-10-14-current-artist-profile-label-finalization.md](../../../docs/history/prompts/2026-10-14-current-artist-profile-label-finalization.md) | `8ff79d233563f7d8f7d4c118abe2c4b4eb05bb6cb3603a697b109dc62f359474` |
