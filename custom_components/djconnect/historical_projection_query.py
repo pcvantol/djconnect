@@ -104,6 +104,9 @@ class HistoricalProjectionQueryService:
         if entry is not None and self.media_projector is not None:
             entry = self.media_projector(owner, row, entry)
         if entry is None or "conversation_reference" not in entry:
+            if entry is not None and entry["kind"] == "dj_moment":
+                from .session_speech import retained_projection
+                entry["session_speech"] = retained_projection(entry)
             return entry
         ref = entry["conversation_reference"]
         if not self._conversation_history or ref.get("history_scope") != "profile:" + owner:
@@ -143,10 +146,14 @@ class HistoricalProjectionQueryService:
         entry["turn_id"] = ref["turn_id"]
         entry["role"] = "user" if row["kind"] == "conversation_user" else "assistant"
         entry["input_type"] = message.get("session_turn", {}).get("input_type", "text")
+        entry["effective_style"] = message.get("session_turn", {}).get("effective_style")
         entry["context"] = message.get("session_turn", {}).get("context", {})
         for field in ("sources", "links", "historical_matches", "navigation_actions"):
             if isinstance(message.get(field), list):
                 entry[field] = message[field][:20]
+        if entry["kind"] == "conversation_dj":
+            from .session_speech import retained_projection
+            entry["session_speech"] = retained_projection(entry)
         return entry
 
     async def _revision_session(self, owner: str, session: dict) -> dict:

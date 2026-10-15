@@ -26,6 +26,84 @@ from .tts import UnsupportedTtsAudioError, TtsAudio, create_tts_audio
 _LOGGER = logging.getLogger(__name__)
 
 
+class PrivateSpeechSource:
+    """Callback-only lifecycle metadata in the existing temporary audio owner."""
+
+    def __init__(self, hass, validate, *, expires_at, session_id=None):
+        self.hass, self.validate = hass, validate
+        self.expires_at, self.session_id = expires_at, session_id
+        domain = hass.data.setdefault(DOMAIN, {})
+        self.epoch = domain.setdefault("tts_audio_authority_revision", 0)
+        self.callbacks = []
+        self.timer = None
+        self.withdrawn = False
+
+    def __call__(self):
+        domain = self.hass.data.get(DOMAIN, {})
+        try:
+            if (self.withdrawn or time.time() >= self.expires_at
+                    or domain.get("tts_audio_authority_revision") != self.epoch):
+                raise PermissionError("speech_source_withdrawn")
+            self.validate()
+        except Exception:
+            self.withdraw()
+            raise
+
+    def withdraw(self):
+        self.withdrawn = True
+        self._unwatch()
+        callbacks, self.callbacks = self.callbacks, []
+        for callback in callbacks:
+            try:
+                callback()
+            except Exception:
+                _LOGGER.debug("Private speech withdrawal callback failed")
+
+    def _unwatch(self):
+        self.hass.data.get(DOMAIN, {}).get("tts_audio_source_watches", {}).pop(id(self), None)
+        if self.timer is not None:
+            self.timer.cancel()
+            self.timer = None
+
+    def on_withdraw(self, callback):
+        import asyncio
+        self()
+        watches = self.hass.data.setdefault(DOMAIN, {}).setdefault("tts_audio_source_watches", {})
+        if id(self) not in watches:
+            if len(watches) >= 64:
+                raise ValueError("speech_capacity")
+            watches[id(self)] = self
+            self.timer = asyncio.get_running_loop().call_later(
+                max(0, self.expires_at - time.time()), self.withdraw)
+        self.callbacks.append(callback)
+        def remove():
+            if callback in self.callbacks:
+                self.callbacks.remove(callback)
+            if not self.callbacks:
+                self._unwatch()
+        return remove
+
+
+def invalidate_private_speech_sources(hass, *, session_id=None):
+    """Existing byte-owner revocation; no events, provider work or body archive."""
+    domain = hass.data.get(DOMAIN, {})
+    if session_id is None:
+        domain["tts_audio_authority_revision"] = domain.get("tts_audio_authority_revision", 0) + 1
+    for watch in tuple(domain.get("tts_audio_source_watches", {}).values()):
+        if session_id is None or watch.session_id == session_id:
+            watch.withdraw()
+
+
+def collect_private_speech_sources(hass, *, session_id):
+    """Reuse an existing publication/lifecycle tick, never create a monitor."""
+    for watch in tuple(hass.data.get(DOMAIN, {}).get("tts_audio_source_watches", {}).values()):
+        if watch.session_id == session_id:
+            try:
+                watch()
+            except Exception:
+                pass  # The source already withdrew its callbacks and bytes.
+
+
 @dataclass
 class TtsAudioItem:
     """Temporary audio item served to the paired DJConnect device."""
@@ -317,9 +395,21 @@ async def prepare_private_tts_audio(hass, *, owner_profile_id, cache_key, expire
         # caller retains the same actual owner task/slot until it is settled.
         if not job["waiters"] and not job["task"].done():
             job["task"].cancel()
-    unsubscribe = admission.on_withdraw(withdraw)
     try:
-        token = await asyncio.shield(job["task"])
+        unsubscribe = admission.on_withdraw(withdraw)
+    except BaseException:
+        withdraw()
+        raise
+    try:
+        try:
+            token = await asyncio.shield(job["task"])
+        except asyncio.CancelledError:
+            # Source withdrawal cancels the owner job, not the HTTP caller.
+            # Preserve genuine caller cancellation; otherwise return a typed
+            # unavailable reference through the common preparation handler.
+            if job["task"].cancelled() and not asyncio.current_task().cancelling():
+                raise PermissionError("speech_source_withdrawn") from None
+            raise
         admission()
         return token
     finally:

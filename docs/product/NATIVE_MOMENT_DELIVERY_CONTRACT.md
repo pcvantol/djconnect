@@ -193,3 +193,22 @@ and qualification are owned by the admitted Session Moment artwork slice.
 ## Selected Session narration/speech implementation delta
 
 [Session speech/Persona v1](SESSION_SPEECH_PERSONA_V1.md) records owner6189231491/autonomous-next6189912293. Its connected implementation is pending. The historical delivered/deferred qualifications above are preserved; this selected delta must explicitly qualify each source/processor and owner lifecycle before enabling speech. No blanket removal of visual-only, private Broadcast grant, new planner/provider or native implementation follows from this reference.
+
+
+## Optional private owner speech extension
+
+[Session speech delivery v1](SESSION_SPEECH_DELIVERY_V1.md) adds a separate private
+owner presentation over the existing admission. It does not turn native display
+permission into arbitrary speech/model/archival rights. Only a qualified current
+or retained-in-Flow contribution can advertise a live `session_id`+`moment_id`
+reference; saved replay uses the existing qualified owner entry query. A source
+or retention denial yields no executable speech text or bytes. Original Persona,
+revision, exact content, attribution and deadlines are preserved.
+
+Owner snapshots/events optionally contain `session_speech:{schema_version:1,
+moments:[...]}` (latest64 published candidates). Shared/Receiver channels remove
+that field entirely; no new receiver token, private audio or Profile history is
+exported. Autoplay eligibility is true only in the original new Moment event,
+never snapshots, Presentation/Flow updates or reconnect/replay. Manual listening
+creates no new DJMoment, Summary count or budget debit. Passive WidgetKit/
+ActivityKit/locked-display/cache rights are not granted by this extension.

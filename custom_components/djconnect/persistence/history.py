@@ -391,10 +391,15 @@ class HistoricalProjectionRepository(PersistenceRepository):
     async def _async_history_change(self, operation, **scope):
         """Fence the single RAM image owner across the destructive transaction."""
         media = getattr(self._persistence, "session_image_owner", None)
+        speech = getattr(self._persistence, "session_speech_invalidator", None)
+        if speech is not None:
+            speech()
         token = media.begin_history_change(**scope) if media is not None else None
         try:
             return await self._async_in_transaction(operation)
         finally:
+            if speech is not None:
+                speech()
             if media is not None:
                 media.end_history_change(token, **scope)
 

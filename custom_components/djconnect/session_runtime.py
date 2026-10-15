@@ -3392,6 +3392,8 @@ class DJSessionBroadcastEngine:
     forecast_artwork: ForecastArtwork = field(default_factory=ForecastArtwork, repr=False)
     media_projector: Any = field(default=None, repr=False)
     media_cleanup: Any = field(default=None, repr=False)
+    speech_cleanup: Any = field(default=None, repr=False)
+    speech_refresh: Any = field(default=None, repr=False)
     _media_revision: str = field(default="", init=False, repr=False)
     pending_events: tuple[BroadcastEventType, ...] = ()
     replay_log_limit: int = 128
@@ -3573,6 +3575,10 @@ class DJSessionBroadcastEngine:
 
     def close(self) -> None:
         """Notify renderers of Runtime termination, then release every subscription."""
+        if self.speech_cleanup is not None:
+            self.speech_cleanup()
+            self.speech_cleanup = None
+            self.speech_refresh = None
         state = self.as_dict()
         self._publish(BroadcastEventType.RUNTIME_ENDED, {"session": state["session"]})
         self._publish(BroadcastEventType.BROADCAST_STOPPED, {"broadcast": state["broadcast"]})
@@ -3591,9 +3597,12 @@ class DJSessionBroadcastEngine:
 
     def _publish(self, event_type: BroadcastEventType, payload: dict[str, Any]) -> None:
         """Deliver one incremental, renderer-safe event to active subscribers."""
+        if self.speech_refresh is not None:
+            self.speech_refresh()
         self.delivery_sequence += 1
         opaque_cursor = secrets.token_urlsafe(32)
-        payload = self._safe_delivery_payload(payload)
+        payload = self._safe_delivery_payload(payload,
+            new_publication=event_type is BroadcastEventType.DJ_MOMENT_PUBLISHED)
         self._native_revision = payload["native_delivery"]["revision"]
         self._append_replay_entry(event_type, payload, opaque_cursor)
         self._issue_recovery_cursor(opaque_cursor)
@@ -3614,7 +3623,8 @@ class DJSessionBroadcastEngine:
                                 "payload": self.subscription_withdrawal_payload()}
             else:
                 scoped_event = {**event, "payload": self._safe_delivery_payload(
-                    payload, include_owner_only=include_owner_only)}
+                    payload, include_owner_only=include_owner_only,
+                    new_publication=event_type is BroadcastEventType.DJ_MOMENT_PUBLISHED)}
             pending_events = self._pending_subscriptions.get(subscription_id)
             if pending_events is not None:
                 if subscription_id in self._revoked_subscriptions:
@@ -3770,7 +3780,8 @@ class DJSessionBroadcastEngine:
             return
         self._moment_delivery_boundaries.setdefault(moment.moment_id, MomentDeliveryBoundary(
             time.monotonic(), moment.created_at, self.state.playback.item_id,
-            tuple((key, getattr(self.state.playback,key)) for key in ("title","artist","album","duration_ms"))))
+            tuple((key, getattr(self.state.playback,key)) for key in ("title","artist","album","duration_ms")),
+            self.state.persona_revision))
         if moment.presentation_intent.visibility is DJMomentVisibility.OWNER_ONLY:
             self._owner_only_moment_ids.add(moment.moment_id)
 
@@ -3807,7 +3818,8 @@ class DJSessionBroadcastEngine:
         result["revision"] = hashlib.sha256(json.dumps(result, sort_keys=True).encode()).hexdigest()[:24]
         return result
 
-    def _safe_delivery_payload(self, payload: dict[str, Any], *, include_owner_only: bool = True, historical: bool = False) -> dict[str, Any]:
+    def _safe_delivery_payload(self, payload: dict[str, Any], *, include_owner_only: bool = True,
+                               historical: bool = False, new_publication: bool = False) -> dict[str, Any]:
         """Remove expired source copies at every transport delivery boundary."""
         native = self.native_delivery(include_owner_only=include_owner_only)
         # Use all scopes for redaction even when the receiver lacks an owner card.
@@ -3833,6 +3845,16 @@ class DJSessionBroadcastEngine:
             result["session_flow"]["items"] = [item for item in result["session_flow"]["items"]
                                                if item.get("moment_id") not in excluded]
         result["native_delivery"] = native
+        result.pop("session_speech", None)
+        if include_owner_only:
+            from .session_speech import moment_projection
+            admissions = {a["moment_id"]: a for a in native["admissions"]}
+            published_id = result.get("dj_moment", {}).get("moment_id") if new_publication and not historical else None
+            result["session_speech"] = {"schema_version": 1, "moments": [
+                moment_projection(self, moment, admission=admissions[moment.moment_id],
+                                  autoplay=moment.moment_id == published_id)
+                for moment in self.state.dj_moments[-64:]
+                if moment.moment_id in admissions and moment.moment_type is not DJMomentType.SILENCE]}
         result.pop("session_media", None)
         if include_owner_only and self.media_projector is not None:
             result["session_media"] = self.media_projector()
@@ -5773,7 +5795,8 @@ class SessionRuntimeManager:
                      "body":{"moment_id":moment.moment_id,"moment_type":moment.moment_type.value,
                              "text":moment.content,"summary":moment.summary,
                              "source_attribution":dict(moment.source_attribution),"archive_basis":basis,
-                             "persona":active.dj_persona.value,"locale":active.locale}}
+                             "persona":moment.presentation_intent.dj_persona.value,
+                             "persona_revision":active.persona_revision,"locale":active.locale}}
             if basis == "cc0_normalized_fields_v1":
                 from .ask_dj.dialogue import normalized_subjects
                 entry["body"]["dialogue_subjects"] = normalized_subjects(source)

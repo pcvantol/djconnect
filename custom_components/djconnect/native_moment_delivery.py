@@ -23,6 +23,7 @@ class MomentDeliveryBoundary:
     published_at: str
     playback_item_id: str
     track_snapshot: tuple[tuple[str, Any], ...] = ()
+    persona_revision: int | None = None
 
     def utc_at(self, deadline: float) -> str:
         return (datetime.fromisoformat(self.published_at) + timedelta(

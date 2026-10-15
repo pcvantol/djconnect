@@ -39960,7 +39960,7 @@
       },
       {
         "path": "docs/product/DJ_PRESENTATION_ARCHITECTURE.md",
-        "sha256": "98515858c458619c2db156a14b319cb4b6d8cd76525812768de29afa84616f84"
+        "sha256": "df56caa5685110bca26b8e819a1cecb67ab7f9f5608c51526c83d4c35cc5cdff"
       },
       {
         "path": "docs/technical/PLATFORM_AMBIENT_EXPERIENCE.md",
@@ -40004,7 +40004,7 @@
       },
       {
         "path": "docs/product/NATIVE_MOMENT_DELIVERY_CONTRACT.md",
-        "sha256": "0642039334ed887bdaf9b8ea071a6a1b8d5e877d67c6715d6e9a45a5a22bf9ef"
+        "sha256": "589b5ae2a02315694fb2356495c75a7889a1ad62f5a4161d60c55ddfd634114d"
       },
       {
         "path": "docs/technical/BROADCAST_TRANSPORT.md",
@@ -40084,7 +40084,7 @@
       },
       {
         "path": "docs/product/ASK_DJ_CONTEXTUAL_DIALOGUE_CONTRACT_V1.md",
-        "sha256": "136c81fdc255b66f2a921e9250262f79b19efb4b6c0470260f6febcb088831fb"
+        "sha256": "5a9c86630217e414d892ded5d14d2dde9f4f4387bf98f6ca11fea3437d97aed7"
       },
       {
         "path": "docs/product/MOMENT_TRACK_INSIGHT_DRILLDOWN_V1.md",
@@ -40104,7 +40104,7 @@
       },
       {
         "path": "docs/product/EXPRESSIVE_DJ_PERSONA_CONTRACT.md",
-        "sha256": "bfc86b961bfb0146a0ebd8f6265b7ebf8153509fcd3a2b965dad3e1393d6a726"
+        "sha256": "39e010daf6a3e1b5109a5e407cdefa15b3d77c448eeb367992585c5123ad5764"
       },
       {
         "path": "docs/product/KNOWLEDGE_SOURCE_ARCHITECTURE.md",
@@ -40172,7 +40172,7 @@
       },
       {
         "path": "docs/product/SESSION_SPEECH_DELIVERY_V1.md",
-        "sha256": "9708edd2aa18b43d0ed88cf335703209c80e7b2e4007a9cae41ddd915a800dae"
+        "sha256": "205c8c87c0b94d5f397cd1694e3a5c8fb1b088484120089c5aebef2d6976fbbc"
       }
     ],
     "implementation_receipt": {

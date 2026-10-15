@@ -134,22 +134,43 @@ async def main():
     manager = SessionRuntimeManager(PersistentSessionRepository(service), HistoricalProjectionRepository(service))
     hass.data["djconnect"]["session_runtime_manager"] = manager
     calls = []
+    selected_track = ["A"*22]
+    def track_item():
+        return {"id": selected_track[0], "uri": "spotify:track:"+selected_track[0], "type": "track",
+                "name": "Fixture track", "artists": [{"id": "B"*22, "name": "Fixture artist"}],
+                "external_ids": {"isrc": "USAAA0100001"}, "duration_ms": 300000,
+                "album": {"id": "C"*22, "uri": "spotify:album:"+"C"*22,
+                          "name": "Fixture album", "images": []}}
     async def provider(self, method, path, **kwargs):
         calls.append(path)
         if path == "/me/player":
-            return {"is_playing": True, "progress_ms": 15000, "device": {"id": "fixture-output", "name": "Fixture"},
-                    "item": {"id": "A" * 22, "uri": "spotify:track:" + "A" * 22, "type": "track",
-                             "name": "Fixture track", "artists": [{"id": "B" * 22, "name": "Fixture artist"}],
-                             "duration_ms": 300000, "album": {"id": "C" * 22, "uri": "spotify:album:" + "C" * 22,
-                             "name": "Fixture album", "images": []}}}
+            return {"is_playing": True, "progress_ms": 15000,
+                    "device": {"id": "fixture-output", "name": "Fixture"}, "item": track_item()}
         if path == "/me/player/queue":
             return {"queue": []}
         if path.startswith("/me/tracks/contains"):
             return [False]
+        if path.startswith("/tracks/"):
+            return track_item()
+        if path.startswith("/artists/"):
+            return {"id": "B"*22, "name": "Fixture artist", "genres": [], "images": []}
         if path.startswith("/artists"):
-            return {"artists": []}
+            return {"artists": [{"id": "B"*22, "name": "Fixture artist", "genres": [], "images": []}]}
         return {}
-    async def facts(self, *args, **kwargs):
+    async def facts(self, path, params=None, **kwargs):
+        if not os.environ.get("DJC_MOMENT_SPEECH"):
+            return {}
+        calls.append("knowledge:"+path)
+        mbid = "12345678-1234-1234-1234-123456789abc"
+        rid = "22345678-1234-1234-1234-123456789abc"
+        credit = [{"artist": {"id": mbid, "name": "Fixture artist"}}]
+        if path.startswith("isrc/"):
+            return {"recordings": [{"id": rid, "title": "Fixture track", "artist-credit": credit}]}
+        if path.startswith("recording/"):
+            return {"id": rid, "title": "Fixture track", "artist-credit": credit, "relations": []}
+        if path.startswith("artist/"):
+            return {"id": mbid, "name": "Fixture artist", "type": "Group", "life-span": {"begin": "1991"},
+                    "relations": [{"type": "streaming", "url": {"resource": "https://open.spotify.com/artist/"+"B"*22}}]}
         return {}
     SpotifyBackend._request = provider
     SessionFactsResolver._get = facts
@@ -171,6 +192,7 @@ async def main():
                 assert response.status == expected, (response.status, body)
                 assert response.headers["Cache-Control"] == "no-store"
                 return body
+            session_started_clock = time.monotonic()
             started = await post("/session/start", {**identity, "mood": "groove", "locale": "en"}, expected=201)
             sid = started["session"]["session_id"]
             changed = await post("/session/persona", {**identity, "contract_version": 1, "session_id": sid,
@@ -264,6 +286,72 @@ async def main():
             receipts.update(ha_configured_audio=synthesized, ha_gender_unavailable=female,
                             synthesis_calls=1, legacy_public_audio_status=public.status,
                             audible_acceptance="OPEN_EXTERNAL_WAVEFORM_FIXTURE_ONLY")
+            if os.environ.get("DJC_MOMENT_SPEECH"):
+                # Respect the real existing35s shared presence/readability budget.
+                # No clock patch or ledger reset to manufacture an extra Moment.
+                print("WAIT_REAL_PRESENCE_INTERVAL", flush=True)
+                while time.monotonic()-session_started_clock < 36:
+                    await asyncio.sleep(min(2, 36-(time.monotonic()-session_started_clock)))
+                selected_track[0] = "D"*22
+                for _ in range(150):
+                    active = await manager.async_get_active("profile-a")
+                    moment = next((m for m in active.broadcast.state.dj_moments if m.source_fact is not None), None)
+                    if moment:
+                        break
+                    await asyncio.sleep(0.1)
+                if moment is None:
+                    (output / "moment-start-diagnostic.json").write_text(json.dumps({
+                        "provider_calls": calls, "broadcast": active.broadcast.as_dict()}, indent=2))
+                assert moment is not None, "No real qualified published Moment from the fixture boundary"
+                live_request = {**identity, "contract_version": 1,
+                    "reference": {"session_id": sid, "moment_id": moment.moment_id},
+                    "processor": "ha_configured", "voice_preference": "default"}
+                original_persona = moment.presentation_intent.dj_persona.value
+                before_count = len(active.broadcast.state.dj_moments)
+                spoken = await post("/speech/prepare", live_request)
+                live_speech = spoken["session_speech"]
+                assert live_speech["audio_state"] == "ready", spoken
+                assert "".join(s["text"] for s in live_speech["segments"]) == moment.content
+                assert live_speech["persona"] == original_persona
+                assert synthesis_calls[-1] == moment.content
+                cached_moment = await post("/speech/prepare", live_request)
+                assert cached_moment["session_speech"]["audio_reference"] == live_speech["audio_reference"]
+                assert cached_moment["session_speech"]["expires_at"] == live_speech["expires_at"]
+                assert len(active.broadcast.state.dj_moments) == before_count
+                assert "session_speech" not in active.broadcast.as_dict(include_owner_only=False)
+                snapshots = active.broadcast.as_dict()["session_speech"]["moments"]
+                assert not any(d["autoplay_eligible"] for d in snapshots)
+                changed_again = await post("/session/persona", {**identity, "contract_version": 1, "session_id": sid,
+                    "selected_persona": "festival_dj", "expected_persona_revision": active.persona_revision})
+                old_style = await post("/speech/prepare", {**live_request, "processor": "local_on_device"})
+                assert old_style["session_speech"]["persona"] == original_persona
+                live_asset = live_speech["audio_reference"]["asset_id"]
+                ended = await post("/session/end", {**identity, "session_id": sid})
+                rejected_live = await post("/speech/prepare", live_request, expected=404)
+                deleted = await client.post("/api/djconnect/v1/speech/audio",
+                    json={**identity, "contract_version": 1, "asset_id": live_asset}, headers=headers)
+                assert deleted.status == 404
+                response = await client.get("/api/djconnect/v1/session/history/"+sid, params=identity, headers=headers)
+                timeline = await response.json()
+                assert response.status == 200, timeline
+                history_entry = next(e for e in timeline["entries"] if e.get("moment_id") == moment.moment_id)
+                projected = history_entry["session_speech"]
+                assert projected["reference"] == {"session_id": sid, "entry_id": history_entry["entry_id"]}
+                assert projected["persona"] == original_persona
+                assert not projected["autoplay_eligible"]
+                assert "audio_reference" not in projected
+                assert "".join(s["text"] for s in projected["segments"]) == moment.content
+                retained_request = {**live_request, "reference": {"session_id": sid, "entry_id": history_entry["entry_id"]}}
+                retained = await post("/speech/prepare", retained_request)
+                assert retained["session_speech"]["audio_state"] == "ready", retained
+                assert retained["session_speech"]["persona"] == original_persona
+                assert not retained["session_speech"]["autoplay_eligible"]
+                assert "".join(s["text"] for s in retained["session_speech"]["segments"]) == moment.content
+                receipts["published_and_retained_moment_speech"] = {"moment": moment.as_dict(),
+                    "live": spoken, "same_cache": cached_moment, "persona_change": changed_again,
+                    "original_style_replay": old_style, "end": ended, "live_after_end": rejected_live,
+                    "old_bytes_after_end": deleted.status, "retained_entry": history_entry,
+                    "retained_replay": retained, "new_moments_from_listening": 0}
             await storage.async_update_profile("profile-a", privacy_mode=ProfilePrivacyMode.SHARED)
             await storage.async_update_profile("profile-a", privacy_mode=ProfilePrivacyMode.NORMAL)
             receipts["profile_aba"] = await post("/speech/prepare", request, expected=404)

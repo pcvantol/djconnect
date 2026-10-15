@@ -215,6 +215,42 @@ qualified conversation history or the existing bounded conversational window.
 Those retain their own original archive/context rights and independent lifecycle.
 No new history copy or historical access right follows from speech eligibility.
 
+## Moment admission refinement
+
+Live references are exactly `session_id`+`moment_id`, resolved only from the
+semantically published Broadcast set and its original native-delivery boundary.
+Current catalog facts require current-display permission; retained-in-Flow CC0
+and authored direction may use active-Flow permission. The original qualified
+source expiry applies; authored live direction has a publication-bound1800s
+window and Session end. Persona/revision are captured at publication, never
+relabelled from the current Session. Private owner snapshots/events may advertise
+these descriptors; shared VibeCast never receives private speech references.
+Only the actual new Moment publication event marks autoplay eligibility; snapshot,
+Flow refresh, Presentation event and replay never do.
+
+Retained references are exactly `session_id`+`entry_id`, using the existing scoped
+owner entry query. Only qualified saved DJMoment text or an accepted archived DJ
+answer is eligible, never playback observations/user turns. Original retention,
+source/account/Profile/clear/purge and dependency admission still apply. Stored
+style/locale are used; unknown locale is explicit unavailable and missing old
+Persona revision remains null, without backfill. A replay is not new publication.
+Existing owner timeline/entry projections attach that speech state to DJMoment
+and DJ-answer entries only. Ordinary history reads retain the fixed original
+`retained_until` as source expiry and allocate no audio/watch/grant. User turns
+and playback observations do not become narration. The same pure descriptor
+builder serves reads and explicit preparation; only preparation bounds a new
+temporary audio resource to at most300s within that retention/source window.
+
+The existing temporary audio owner holds at most64 callback-only source watches;
+no second text/event/history store. Watches exist only while pending audio or
+bytes need them, expire on an absolute deadline and unsubscribe when unused.
+End/Profile withdrawal and destructive history transactions invalidate their
+scoped work before any late synthesis can commit bytes. The configured HA
+processor and private paired download are identical for all reference kinds.
+Each explicit preparation may create at most300s audio within the still-valid
+source/retention window. Cache hits report the actual original asset expiry;
+reads cannot extend source, retention or existing audio lifetimes.
+
 Optional presentation refinements in the unpublished candidate:
 - Ordered speech segments reuse the existing Presentation Composer schema:
   `ordinal`, `speaker_role:dj`, exact `text`. Joined segments equal the accepted

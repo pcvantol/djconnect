@@ -118,6 +118,9 @@ class ProfilePlatformStorage:
         self.authority_revision += 1
         if self.hass is not None:
             domain = self.hass.data.get("djconnect", {})
+            if "tts_audio_authority_revision" in domain:
+                from ..dj_response import invalidate_private_speech_sources
+                invalidate_private_speech_sources(self.hass)
             for value in list(domain.values()):
                 history = getattr(value, "ask_dj_history", None)
                 if history is not None and hasattr(history, "dialogue"):

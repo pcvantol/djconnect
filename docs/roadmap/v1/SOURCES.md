@@ -17,7 +17,7 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 | [docs/product/DJ_PRESENCE_V1.md](../../../docs/product/DJ_PRESENCE_V1.md) | `c97be3bcebbd4ca70d640cdf4fc0a9a4808451e986bc977e3173e19842a928c4` |
 | [DJ_SESSION_RUNTIME_CONTRACTS.md](../../../DJ_SESSION_RUNTIME_CONTRACTS.md) | `6ae7a05260bc2a997252dbb70c28917ac6b7fd25930263d7c0940df929b1ec92` |
 | [docs/product/DJ_INTELLIGENCE_ARCHITECTURE.md](../../../docs/product/DJ_INTELLIGENCE_ARCHITECTURE.md) | `5345f4a3db6b2bfb97931d6acdde09439dc3dbae7a7d311107269922e08aef12` |
-| [docs/product/DJ_PRESENTATION_ARCHITECTURE.md](../../../docs/product/DJ_PRESENTATION_ARCHITECTURE.md) | `98515858c458619c2db156a14b319cb4b6d8cd76525812768de29afa84616f84` |
+| [docs/product/DJ_PRESENTATION_ARCHITECTURE.md](../../../docs/product/DJ_PRESENTATION_ARCHITECTURE.md) | `df56caa5685110bca26b8e819a1cecb67ab7f9f5608c51526c83d4c35cc5cdff` |
 | [docs/technical/PLATFORM_AMBIENT_EXPERIENCE.md](../../../docs/technical/PLATFORM_AMBIENT_EXPERIENCE.md) | `5dc485caa24c1e7a690f0a0aefef1c0b844bcaf1aea7ea52e3895aabcf7fbd8e` |
 | [docs/product/DJ_PRESENCE_CORE_POLICY_V1.md](../../../docs/product/DJ_PRESENCE_CORE_POLICY_V1.md) | `32ed8a6a47cc6f64fb07b9ef4df1cf8fb7e92c2368cd0c35c66ad31b76b64909` |
 | [docs/product/DJ_PRESENCE_OWNER_CONTRACT_V1.md](../../../docs/product/DJ_PRESENCE_OWNER_CONTRACT_V1.md) | `2580acda7c9e19020c030cb1b8cecd47ef87af0f43a643b90f37d7bd89ee65a3` |
@@ -28,7 +28,7 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 | [docs/product/SHARED_PRODUCER_CONTINUITY_CONTRACT.md](../../../docs/product/SHARED_PRODUCER_CONTINUITY_CONTRACT.md) | `d06d2563b1de4fcfdff15bd76e0952e19f0970666b8ce5677db10cf6ee11a2ed` |
 | [docs/product/DISCOVER_NARRATIVE_TRANSITION_CONTRACT.md](../../../docs/product/DISCOVER_NARRATIVE_TRANSITION_CONTRACT.md) | `a27c694d57bca4908d4a258c9a6e0aec1de95d3ee6ddd89a377e32bf6b9f8e32` |
 | [docs/product/EXPRESSIVE_CONTEXT_VARIATION_V1.md](../../../docs/product/EXPRESSIVE_CONTEXT_VARIATION_V1.md) | `01e6cbe92d1fc240b3b444e646cb5bdd809a242cf61b2044edc5fb26775f26c7` |
-| [docs/product/NATIVE_MOMENT_DELIVERY_CONTRACT.md](../../../docs/product/NATIVE_MOMENT_DELIVERY_CONTRACT.md) | `0642039334ed887bdaf9b8ea071a6a1b8d5e877d67c6715d6e9a45a5a22bf9ef` |
+| [docs/product/NATIVE_MOMENT_DELIVERY_CONTRACT.md](../../../docs/product/NATIVE_MOMENT_DELIVERY_CONTRACT.md) | `589b5ae2a02315694fb2356495c75a7889a1ad62f5a4161d60c55ddfd634114d` |
 | [docs/technical/BROADCAST_TRANSPORT.md](../../../docs/technical/BROADCAST_TRANSPORT.md) | `9571ebd859d90f2190e8c8d6102d08477bf65d62ec3d145c328c13bef58b2e9f` |
 | [docs/verification/NARRATIVE_ALBUM_CONTINUITY_V1_ACCEPTANCE.md](../../../docs/verification/NARRATIVE_ALBUM_CONTINUITY_V1_ACCEPTANCE.md) | `c71d70e105a56b63a34d814f74ed51b2d59c084738a0350a3e1abb98c3358f3e` |
 | [docs/product/SESSION_FORECAST_V1.md](../../../docs/product/SESSION_FORECAST_V1.md) | `fa9ebfc5e90a893a1c1f8e0cf89660e8c506e4d79f12594b5ff092fb05b24a90` |
@@ -48,12 +48,12 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 | [docs/verification/SESSION_HISTORY_SUMMARY_V1_SOURCE_READBACK.md](../../../docs/verification/SESSION_HISTORY_SUMMARY_V1_SOURCE_READBACK.md) | `5a65bd4853a878c2d6e8a50603fd6b5fb4d1e41225853d94097d010e38faadf4` |
 | [docs/history/prompts/2026-10-13-session-history-summary-finalization.md](../../../docs/history/prompts/2026-10-13-session-history-summary-finalization.md) | `b3d248b51a46e9e4b74439f2331b888ec5e70a80d348ec598601ca8447bada0c` |
 | [docs/product/ASK_DJ_CONVERSATIONAL_EXPERIENCE_V1.md](../../../docs/product/ASK_DJ_CONVERSATIONAL_EXPERIENCE_V1.md) | `fff4b43c1acf28a84ff0464e244a6536984bed00782e7abc4aa3e5016e535e91` |
-| [docs/product/ASK_DJ_CONTEXTUAL_DIALOGUE_CONTRACT_V1.md](../../../docs/product/ASK_DJ_CONTEXTUAL_DIALOGUE_CONTRACT_V1.md) | `136c81fdc255b66f2a921e9250262f79b19efb4b6c0470260f6febcb088831fb` |
+| [docs/product/ASK_DJ_CONTEXTUAL_DIALOGUE_CONTRACT_V1.md](../../../docs/product/ASK_DJ_CONTEXTUAL_DIALOGUE_CONTRACT_V1.md) | `5a9c86630217e414d892ded5d14d2dde9f4f4387bf98f6ca11fea3437d97aed7` |
 | [docs/product/MOMENT_TRACK_INSIGHT_DRILLDOWN_V1.md](../../../docs/product/MOMENT_TRACK_INSIGHT_DRILLDOWN_V1.md) | `6057cd78740abff3a9a6a8c0d6f34f4218a89e10f11ad18a516933e38476cb77` |
 | [DJCONNECT_STORAGE_ARCHITECTURE.md](../../../DJCONNECT_STORAGE_ARCHITECTURE.md) | `40fd31bd4ff256821ec30e2d0430fe7af5ef615fa6e125969cfebbc66d035da5` |
 | [docs/technical/HTTP_API.md](../../../docs/technical/HTTP_API.md) | `3cfa19c673c42065c5a3a0ff78e9657271c66563ef9097f555962106acfa3489` |
 | [docs/technical/VOICE_TRANSPORT.md](../../../docs/technical/VOICE_TRANSPORT.md) | `65065f48e8e8a069a43ac3efde885e5ef2636622269725a008a478cf71197cd5` |
-| [docs/product/EXPRESSIVE_DJ_PERSONA_CONTRACT.md](../../../docs/product/EXPRESSIVE_DJ_PERSONA_CONTRACT.md) | `bfc86b961bfb0146a0ebd8f6265b7ebf8153509fcd3a2b965dad3e1393d6a726` |
+| [docs/product/EXPRESSIVE_DJ_PERSONA_CONTRACT.md](../../../docs/product/EXPRESSIVE_DJ_PERSONA_CONTRACT.md) | `39e010daf6a3e1b5109a5e407cdefa15b3d77c448eeb367992585c5123ad5764` |
 | [docs/product/KNOWLEDGE_SOURCE_ARCHITECTURE.md](../../../docs/product/KNOWLEDGE_SOURCE_ARCHITECTURE.md) | `8846dff1f9c18bfb6aa9817b9a1d46f4bcbad0ceb79fd5b695d6bbb71cbfa55d` |
 | [docs/verification/ASK_DJ_CONTEXTUAL_DIALOGUE_V1_SOURCE_READBACK.md](../../../docs/verification/ASK_DJ_CONTEXTUAL_DIALOGUE_V1_SOURCE_READBACK.md) | `377bda221f6c6fe0bc542ba53844f67e0a7582f8995175d7b42739f21c6e5157` |
 | [docs/history/prompts/2026-10-14-ask-dj-contextual-dialogue-finalization.md](../../../docs/history/prompts/2026-10-14-ask-dj-contextual-dialogue-finalization.md) | `1d4ce399484389030df619f35e84a5b40fef5e94c98143008325470ab2c8b35a` |
@@ -70,4 +70,4 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 | [docs/product/SESSION_MOMENT_ARTWORK_V1.md](../../../docs/product/SESSION_MOMENT_ARTWORK_V1.md) | `580e7022b2a1684117a16f7602ecd21cd1672988001825d3e869712bde2dda4a` |
 | [docs/product/SESSION_ARTWORK_DELIVERY_CONTRACT_V1.md](../../../docs/product/SESSION_ARTWORK_DELIVERY_CONTRACT_V1.md) | `3e3da658daa128f5eae618740ba8e86a39766a661d559f86badfb20a6f9f8c09` |
 | [docs/product/SESSION_SPEECH_PERSONA_V1.md](../../../docs/product/SESSION_SPEECH_PERSONA_V1.md) | `0bf68daaab0920d525a3ee596ce8ad570cdbf470e595cb9ec4b715065174a632` |
-| [docs/product/SESSION_SPEECH_DELIVERY_V1.md](../../../docs/product/SESSION_SPEECH_DELIVERY_V1.md) | `9708edd2aa18b43d0ed88cf335703209c80e7b2e4007a9cae41ddd915a800dae` |
+| [docs/product/SESSION_SPEECH_DELIVERY_V1.md](../../../docs/product/SESSION_SPEECH_DELIVERY_V1.md) | `205c8c87c0b94d5f397cd1694e3a5c8fb1b088484120089c5aebef2d6976fbbc` |

@@ -44,8 +44,22 @@ uses the explicit existing external-STT boundary, not Core turn/storage/query
 mocks. Its source hashes identify the later unpublished refinement; native
 microphone, actual speech recognition quality and audible output remain open.
 
-Moment/Forecast/history reference adoption and full families×4Personas×5languages
-are still in Core implementation. These early connected routes are not a final
+`moment-replay.http.json` adds actual qualified published-Moment and retained
+entry replay through the same private owner. Normal pairing/Session/observer/
+Planner/Knowledge/Moment/SQLite/HA TTS entity/TCP are real; only external provider
+boundaries and waveform generation are fixtures. It waits the real36s presence
+interval and observes another track; no clock patch, budget reset or second
+publication path. Manual/cache replay preserves original Persona/revision/text;
+end denies live reference/old bytes, while a qualified saved entry can replay.
+The fixture binds a frozen read-only source manifest and executed harness hash;
+all143 Core file hashes also match the local checkpoint. End response keeps only
+actual identity/state, omitting Runtime Performance Memory. Shared speech
+exclusion/autoplay replay guards and purge/rollback/cancel/ABA/watch bounds have
+separate owning tests; native audible and full browser proof remain open.
+
+Remaining playback/TrackInsight/trivia/direction realization and complete
+families×4Personas×5languages qualification are still in Core implementation.
+These connected routes are not a final
 contract/producer delivery or permission to treat the whole slice as complete.
 
 Owner clarification: gender is an **optional client setting gated by the server's

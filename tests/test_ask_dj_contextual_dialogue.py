@@ -266,11 +266,22 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
             with self.subTest(change=change):
                 self.history.dialogue.invalidate("profile:profile-a")
                 session, moment, entry = await self.selected_credit()
-                entered, release, accepted, resume = (asyncio.Event() for _ in range(4))
+                entered, release, joined_waiting, accepted, resume = (asyncio.Event() for _ in range(5))
                 original_shield = asyncio.shield
+                original_reserve = self.history.dialogue.reserve
+                target_future = None
+                def reserve(*args):
+                    nonlocal target_future
+                    future, reserved = original_reserve(*args)
+                    if not reserved:
+                        target_future = future
+                    return future, reserved
                 async def delayed_join(future):
+                    is_joined = future is target_future
+                    if is_joined:
+                        joined_waiting.set()
                     value = await original_shield(future)
-                    if isinstance(future, asyncio.Future) and isinstance(value, tuple):
+                    if is_joined:
                         accepted.set()
                         await resume.wait()
                     return value
@@ -296,11 +307,11 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
                     return await service.async_exchange(self.hass, self.runtime, payload,
                         profile_id="profile-a", history_manager=self.history, delegate=delegate,
                         validate_owner=owner, persist_history=False)
-                with patch.object(service.asyncio, "shield", delayed_join):
+                with patch.object(service.asyncio, "shield", delayed_join), patch.object(self.history.dialogue, "reserve", reserve):
                     first = asyncio.create_task(exchange())
                     await asyncio.wait_for(entered.wait(), 3)
                     joined = asyncio.create_task(exchange())
-                    await asyncio.sleep(0.01)
+                    await asyncio.wait_for(joined_waiting.wait(), 3)
                     release.set()
                     await asyncio.wait_for(accepted.wait(), 3)
                     self.assertTrue((await first)["success"])
@@ -1050,6 +1061,296 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
         self.assertIn("trumpeter", result["text"])
         self.assertNotIn("result_set", result)
         self.assertEqual(len(calls), 2)
+
+    async def test_published_moment_speech_keeps_original_persona_and_owner_only_autoplay(self):
+        from custom_components.djconnect import session_speech
+        from custom_components.djconnect.session_runtime import DJPersona, _thaw_broadcast_payload
+        session, moment, retained = await self.selected_credit()
+        reference = {"session_id": session.session_id, "moment_id": moment.moment_id}
+        request = {**self.identity, "contract_version": 1, "reference": reference,
+                   "processor": "local_on_device", "voice_preference": "default"}
+        count = len(session.broadcast.state.dj_moments)
+        publications = [_thaw_broadcast_payload(event.payload) for event in session.broadcast.replay_log
+                        if event.event_type.value == "dj_moment_published"]
+        published = next(d for d in publications[-1]["session_speech"]["moments"]
+                         if d["source_id"] == moment.moment_id)
+        self.assertTrue(published["autoplay_eligible"])
+        before = session.broadcast.as_dict()["session_speech"]["moments"][-1]
+        self.assertFalse(before["autoplay_eligible"])
+        self.assertNotIn("session_speech", session.broadcast.as_dict(include_owner_only=False))
+        received = []
+        subscription, _ = session.broadcast.subscribe_with_broadcast_token(session.broadcast.broadcast_token, received.append)
+        session.broadcast.publish_session_flow(session.broadcast.state.session_flow)
+        self.assertNotIn("session_speech", received[-1]["payload"])
+        session.broadcast.unsubscribe(subscription)
+        await self.fixture.manager.async_update_persona(owner_profile_id="profile-a",
+            session_id=session.session_id, dj_persona=DJPersona.CLUB_DJ)
+        result, status = await session_speech.async_handle_prepare(self.hass, request, headers=self.headers)
+        self.assertEqual(status, 200, result)
+        speech = result["session_speech"]
+        self.assertEqual(speech["persona"], moment.presentation_intent.dj_persona.value)
+        self.assertEqual(speech["persona_revision"], 0)
+        self.assertEqual(speech["text_revision"], before["text_revision"])
+        self.assertEqual("".join(part["text"] for part in speech["segments"]), moment.content)
+        self.assertFalse(speech["autoplay_eligible"])
+        self.assertEqual(len(session.broadcast.state.dj_moments), count)
+        self.assertEqual(self.prompts, [])
+        for ref in ({"session_id": session.session_id, "moment_id": "unpublished"},
+                    {"session_id": "foreign-session", "moment_id": moment.moment_id}):
+            denied, status = await session_speech.async_handle_prepare(self.hass, {**request, "reference": ref}, headers=self.headers)
+            self.assertEqual(status, 404, denied)
+        await self.fixture.manager.async_end(owner_profile_id="profile-a", session_id=session.session_id)
+        ended, status = await session_speech.async_handle_prepare(self.hass, request, headers=self.headers)
+        self.assertEqual(status, 404, ended)
+        historical, status = await session_speech.async_handle_prepare(self.hass,
+            {**request, "reference": retained}, headers=self.headers)
+        self.assertEqual(status, 200, historical)
+        self.assertEqual(historical["session_speech"]["source_kind"], "retained_dj_contribution")
+        self.assertEqual(historical["session_speech"]["persona_revision"], 0)
+        self.assertEqual("".join(p["text"] for p in historical["session_speech"]["segments"]), moment.content)
+        self.assertFalse(historical["session_speech"]["autoplay_eligible"])
+
+    async def test_retained_moment_speech_bytes_and_pending_work_withdraw_on_purge(self):
+        from types import SimpleNamespace
+        from custom_components.djconnect import session_speech, speech_processor
+        from custom_components.djconnect.tts import TtsAudio
+        from custom_components.djconnect.wav_util import simple_tone_wav
+        session, moment, reference = await self.selected_credit()
+        await self.fixture.manager.async_end(owner_profile_id="profile-a", session_id=session.session_id)
+        request = {**self.identity, "contract_version": 1, "reference": reference,
+                   "processor": "ha_configured", "voice_preference": "default"}
+        entity = SimpleNamespace()
+        voice = {"engine": "tts.fixture", "voice_id": "actual-id", "voice_name": "Fixture",
+                 "locale": "en", "gender": None, "processor": "ha_configured"}
+        entered, release, cancelled = asyncio.Event(), asyncio.Event(), asyncio.Event()
+        calls = []
+        async def synthesize(*args):
+            calls.append(args[-1])
+            entered.set()
+            try:
+                await release.wait()
+            except asyncio.CancelledError:
+                cancelled.set()
+                raise
+            return TtsAudio(simple_tone_wav(), "wav", "audio/wav")
+        with patch.object(speech_processor, "configured_processor", return_value=(entity, voice)), patch.object(speech_processor, "synthesize", synthesize):
+            pending = asyncio.create_task(session_speech.async_handle_prepare(self.hass, request, headers=self.headers))
+            await asyncio.wait_for(entered.wait(), 2)
+            await self.fixture.repo.async_remove_entry_records("profile-a", [reference["entry_id"]])
+            result, status = await asyncio.wait_for(pending, 2)
+            self.assertEqual(status, 404, result)
+            self.assertTrue(cancelled.is_set())
+            self.assertEqual(calls, [moment.content])
+            self.assertFalse(self.hass.data["djconnect"].get("tts_audio"))
+            self.assertFalse(self.hass.data["djconnect"].get("tts_audio_source_watches"))
+            denied, status = await session_speech.async_handle_prepare(self.hass, request, headers=self.headers)
+            self.assertEqual(status, 404, denied)
+            self.assertEqual(len(calls), 1)
+        self.assertEqual(self.prompts, [])
+
+    async def test_live_moment_pending_synthesis_cancels_on_session_end_without_bytes(self):
+        from types import SimpleNamespace
+        from custom_components.djconnect import session_speech, speech_processor
+        from custom_components.djconnect.tts import TtsAudio
+        from custom_components.djconnect.wav_util import simple_tone_wav
+        session, moment, _ = await self.selected_credit()
+        request = {**self.identity, "contract_version": 1,
+                   "reference": {"session_id": session.session_id, "moment_id": moment.moment_id},
+                   "processor": "ha_configured", "voice_preference": "default"}
+        entity = SimpleNamespace()
+        voice = {"engine": "tts.fixture", "voice_id": "actual", "voice_name": "Fixture",
+                 "locale": "en", "gender": None}
+        entered, cancelled = asyncio.Event(), asyncio.Event()
+        async def synthesize(*args):
+            entered.set()
+            try:
+                await asyncio.Event().wait()
+            except asyncio.CancelledError:
+                cancelled.set()
+                raise
+            return TtsAudio(simple_tone_wav(), "wav", "audio/wav")
+        with patch.object(speech_processor, "configured_processor", return_value=(entity, voice)), patch.object(speech_processor, "synthesize", synthesize):
+            pending = asyncio.create_task(session_speech.async_handle_prepare(self.hass, request, headers=self.headers))
+            await asyncio.wait_for(entered.wait(), 2)
+            await self.fixture.manager.async_end(owner_profile_id="profile-a", session_id=session.session_id)
+            result, status = await asyncio.wait_for(pending, 2)
+            self.assertEqual(status, 404, result)
+            self.assertTrue(cancelled.is_set())
+            self.assertFalse(self.hass.data["djconnect"].get("tts_audio"))
+            self.assertFalse(self.hass.data["djconnect"].get("tts_audio_source_watches"))
+        self.assertEqual(self.prompts, [])
+
+    async def test_live_moment_cached_audio_uses_original_expiry_and_profile_aba_erases_bytes(self):
+        from types import SimpleNamespace
+        import time
+        from custom_components.djconnect import session_speech, speech_processor
+        from custom_components.djconnect.tts import TtsAudio
+        from custom_components.djconnect.wav_util import simple_tone_wav
+        session, moment, _ = await self.selected_credit()
+        request = {**self.identity, "contract_version": 1,
+                   "reference": {"session_id": session.session_id, "moment_id": moment.moment_id},
+                   "processor": "ha_configured", "voice_preference": "default"}
+        entity = SimpleNamespace()
+        voice = {"engine": "tts.fixture", "voice_id": "actual", "voice_name": "Fixture",
+                 "locale": "en", "gender": None}
+        calls = []
+        async def synthesize(*args):
+            calls.append(args[-1])
+            return TtsAudio(simple_tone_wav(), "wav", "audio/wav")
+        with patch.object(speech_processor, "configured_processor", return_value=(entity, voice)), patch.object(speech_processor, "synthesize", synthesize):
+            first, status = await session_speech.async_handle_prepare(self.hass, request, headers=self.headers)
+            self.assertEqual(status, 200, first)
+            self.assertEqual(first["session_speech"]["audio_state"], "ready")
+            original = first["session_speech"]
+            now = time.time()
+            with patch("time.time", return_value=now + 3):
+                cached, status = await session_speech.async_handle_prepare(self.hass, request, headers=self.headers)
+            self.assertEqual(status, 200, cached)
+            self.assertEqual(cached["session_speech"]["audio_reference"], original["audio_reference"])
+            self.assertEqual(cached["session_speech"]["expires_at"], original["expires_at"])
+            self.assertEqual(calls, [moment.content])
+            watches = self.hass.data["djconnect"]["tts_audio_source_watches"]
+            self.assertEqual(len(watches), 1)  # Cache hits add no callback slots.
+            storage = self.handlers.profile_storage(self.hass)
+            storage.hass = self.hass  # Exercise the real commit invalidation hook.
+            await storage.async_create_profile("Other", profile_id="speech-other", default_backend_id="later_manual")
+            await storage.async_upsert_device(self.identity["device_id"], "ios", linked_profile_id="speech-other")
+            await storage.async_upsert_device(self.identity["device_id"], "ios", linked_profile_id="profile-a")
+            self.assertFalse(watches)
+            self.assertFalse(self.hass.data["djconnect"]["tts_audio"])
+            result, status = await session_speech.async_handle_audio(self.hass,
+                {**{k: request[k] for k in ("contract_version", "device_id", "client_type")},
+                 "asset_id": original["audio_reference"]["asset_id"]}, headers=self.headers)
+            self.assertEqual(status, 404)
+            self.assertIsNone(result)
+
+    async def test_callback_only_speech_watch_bound_unsubscribe_and_real_idle_expiry(self):
+        import time
+        from custom_components.djconnect.dj_response import PrivateSpeechSource, invalidate_private_speech_sources
+        expired = []
+        watches = []
+        for index in range(64):
+            source = PrivateSpeechSource(self.hass, lambda: None, expires_at=time.time()+30)
+            watches.append((source, source.on_withdraw(lambda index=index: expired.append(index))))
+        extra = PrivateSpeechSource(self.hass, lambda: None, expires_at=time.time()+30)
+        with self.assertRaisesRegex(ValueError, "speech_capacity"):
+            extra.on_withdraw(lambda: None)
+        watches[0][1]()
+        self.assertEqual(len(self.hass.data["djconnect"]["tts_audio_source_watches"]), 63)
+        short = PrivateSpeechSource(self.hass, lambda: None, expires_at=time.time()+0.02)
+        short.on_withdraw(lambda: expired.append("idle"))
+        await asyncio.sleep(0.04)
+        self.assertIn("idle", expired)
+        self.assertTrue(short.withdrawn)
+        self.assertEqual(len(self.hass.data["djconnect"]["tts_audio_source_watches"]), 63)
+        invalidate_private_speech_sources(self.hass)
+        self.assertFalse(self.hass.data["djconnect"]["tts_audio_source_watches"])
+        self.assertEqual(len(expired), 64)
+
+    async def test_retained_purge_rollback_withdraws_old_audio_without_losing_original_entry(self):
+        from types import SimpleNamespace
+        from custom_components.djconnect import session_speech, speech_processor
+        from custom_components.djconnect.tts import TtsAudio
+        from custom_components.djconnect.wav_util import simple_tone_wav
+        session, moment, reference = await self.selected_credit()
+        await self.fixture.manager.async_end(owner_profile_id="profile-a", session_id=session.session_id)
+        request = {**self.identity, "contract_version": 1, "reference": reference,
+                   "processor": "ha_configured", "voice_preference": "default"}
+        entity = SimpleNamespace()
+        voice = {"engine": "tts.fixture", "voice_id": "actual", "voice_name": "Fixture",
+                 "locale": "en", "gender": None}
+        calls = []
+        async def synthesize(*args):
+            calls.append(args[-1])
+            return TtsAudio(simple_tone_wav(), "wav", "audio/wav")
+        actual_transaction = self.fixture.repo._async_in_transaction
+        async def fail_after_real_delete(operation):
+            def rollback(tx):
+                operation(tx)
+                raise OSError("Injected transaction failure after deletion")
+            return await actual_transaction(rollback)
+        with patch.object(speech_processor, "configured_processor", return_value=(entity, voice)), patch.object(speech_processor, "synthesize", synthesize):
+            first, status = await session_speech.async_handle_prepare(self.hass, request, headers=self.headers)
+            self.assertEqual(status, 200, first)
+            old_asset = first["session_speech"]["audio_reference"]["asset_id"]
+            with patch.object(self.fixture.repo, "_async_in_transaction", fail_after_real_delete):
+                with self.assertRaises(OSError):
+                    await self.fixture.repo.async_remove_entry_records("profile-a", [reference["entry_id"]])
+            self.assertIsNotNone(await self.fixture.repo.async_entry_record("profile-a", session.session_id, reference["entry_id"]))
+            self.assertFalse(self.hass.data["djconnect"]["tts_audio"])
+            audio, status = await session_speech.async_handle_audio(self.hass,
+                {**{k: request[k] for k in ("contract_version", "device_id", "client_type")},
+                 "asset_id": old_asset}, headers=self.headers)
+            self.assertEqual(status, 404)
+            self.assertIsNone(audio)
+            fresh, status = await session_speech.async_handle_prepare(self.hass, request, headers=self.headers)
+            self.assertEqual(status, 200, fresh)
+            self.assertNotEqual(fresh["session_speech"]["audio_reference"]["asset_id"], old_asset)
+            self.assertEqual(calls, [moment.content, moment.content])
+            self.assertFalse(fresh["session_speech"]["autoplay_eligible"])
+
+    async def test_retained_entry_read_racing_real_purge_cannot_mint_speech(self):
+        from custom_components.djconnect import session_speech
+        from custom_components.djconnect.session_conversation import query_service
+        session, _, reference = await self.selected_credit()
+        await self.fixture.manager.async_end(owner_profile_id="profile-a", session_id=session.session_id)
+        repository = query_service(self.hass, self.history)._repository
+        actual_read = repository.async_entry_record
+        entered, release = asyncio.Event(), asyncio.Event()
+        async def hold_after_actual_read(*args, **kwargs):
+            row = await actual_read(*args, **kwargs)
+            entered.set()
+            await release.wait()
+            return row
+        request = {**self.identity, "contract_version": 1, "reference": reference,
+                   "processor": "local_on_device", "voice_preference": "default"}
+        with patch.object(repository, "async_entry_record", hold_after_actual_read):
+            pending = asyncio.create_task(session_speech.async_handle_prepare(self.hass, request, headers=self.headers))
+            await asyncio.wait_for(entered.wait(), 2)
+            await self.fixture.repo.async_remove_entry_records("profile-a", [reference["entry_id"]])
+            release.set()
+            result, status = await asyncio.wait_for(pending, 2)
+        self.assertIn(status, (404, 409), result)
+        self.assertNotIn("session_speech", result)
+        self.assertFalse(self.hass.data["djconnect"].get("tts_audio"))
+        self.assertFalse(self.hass.data["djconnect"].get("tts_audio_source_watches"))
+        self.assertEqual(self.prompts, [])
+
+    async def test_owner_timeline_speech_projection_is_readonly_exact_and_never_autoplay(self):
+        from custom_components.djconnect.session_conversation import query_service
+        session, moment, _ = await self.selected_credit()
+        answer, status = await self.request("Who is Brian Eno?", identifier="retained-dialogue-speech",
+                                            context={"session_id": session.session_id})
+        self.assertEqual(status, 200, answer)
+        query = query_service(self.hass, self.history)
+        before_calls = len(self.prompts)
+        before = await self.history.async_history("profile:profile-a")
+        first = await query.async_timeline_page("profile-a", session.session_id)
+        second = await query.async_timeline_page("profile-a", session.session_id)
+        self.assertEqual(first["entries"], second["entries"])
+        self.assertEqual(first["revision"], second["revision"])
+        narratives = [e for e in first["entries"] if e["kind"] in {"dj_moment", "conversation_dj"}]
+        self.assertEqual(len(narratives), 2)
+        self.assertEqual({"".join(p["text"] for p in e["session_speech"]["segments"])
+                          for e in narratives}, {moment.content, answer["text"]})
+        for entry in first["entries"]:
+            if entry["kind"] not in {"dj_moment", "conversation_dj"}:
+                self.assertNotIn("session_speech", entry)
+                continue
+            speech = entry["session_speech"]
+            self.assertTrue(speech["manual_allowed"])
+            self.assertFalse(speech["autoplay_eligible"])
+            self.assertEqual(speech["expires_at"], entry["retained_until"])
+            self.assertEqual(speech["source_expires_at"], entry["retained_until"])
+            self.assertEqual(speech["reference"], {"session_id": session.session_id, "entry_id": entry["entry_id"]})
+            self.assertEqual(speech["persona_revision"], 0)
+        after = await self.history.async_history("profile:profile-a")
+        for value in (before, after):
+            value.pop("server_time", None)
+        self.assertEqual(before, after)
+        self.assertEqual(len(self.prompts), before_calls)
+        self.assertFalse(self.hass.data["djconnect"].get("tts_audio"))
+        self.assertFalse(self.hass.data["djconnect"].get("tts_audio_source_watches"))
 
     async def test_manual_speech_after_never_reuses_accepted_text_without_model_or_history_write(self):
         from custom_components.djconnect.session_speech import async_handle_prepare

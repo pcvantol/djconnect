@@ -610,3 +610,20 @@ implicit current-playback identification; explicit qualified entry/Moment contex
 retains its own priority. An admitted new artist-information turn clears an older
 music retry before selected-source validation can reject it. Neither rejection
 nor retry grants permission to execute the earlier music request.
+
+
+## Selected accepted-reference speech adapter
+
+The [Session speech delivery/replay contract](SESSION_SPEECH_DELIVERY_V1.md)
+extends this same common application service for both screens. Interpretation
+and helpers no longer synthesize or activate a speaker before semantic
+acceptance. Explicit `speech_contract_version:1` (WAV uses
+`X-DJConnect-Speech-Contract-Version: 1`) selects private accepted-reference
+preparation. Manual Listen remains available after never; replay uses the exact
+accepted text and original style, without re-executing the question or music
+action. Old private audio requests receive a concrete client-protocol upgrade
+outcome rather than a silent downgrade to the legacy bearer-free ESP URL.
+Retained DJ answers use the existing owner entry/history dependency query;
+unknown old style/locale is not backfilled. This adds neither a second Session
+implementation nor extra conversation/summary/publication events. Native
+postacceptance audio-adapter adoption and actual listening remain open.

@@ -147,3 +147,16 @@ Composer or introduces a second presentation pipeline.
 ## Selected Session narration/speech implementation delta
 
 [Session speech/Persona v1](../product/SESSION_SPEECH_PERSONA_V1.md) records owner6189231491/autonomous-next6189912293. Its connected implementation is pending. The historical delivered/deferred qualifications above are preserved; this selected delta must explicitly qualify each source/processor and owner lifecycle before enabling speech. No blanket removal of visual-only, private Broadcast grant, new planner/provider or native implementation follows from this reference.
+
+
+## Selected private owner resource adapter
+
+The [Session speech delivery/replay extension](../product/SESSION_SPEECH_DELIVERY_V1.md)
+reuses the ordered `ordinal`/`speaker_role`/`text` schema for exact accepted
+contributions. One private paired owner adapter prepares supported on-device
+segments or the separately qualified configured HA processor. Audio bytes stay
+in the existing temporary resource owner and require paired owner/source checks;
+shared Broadcast still carries no private audio/voice/settings grants. This is
+not a second dialogue engine, free-text synthesizer or permission for a Renderer
+to rewrite content. Old native headerless URL playback cannot fetch private POST
+assets; protocol adoption and audible acceptance remain consumer-owned/open.

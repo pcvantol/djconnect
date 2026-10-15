@@ -129,3 +129,18 @@ The [shared Ask DJ design](ASK_DJ_CONVERSATIONAL_EXPERIENCE_V1.md) reuses the fo
 ## Selected Session narration/speech implementation delta
 
 [Session speech/Persona v1](SESSION_SPEECH_PERSONA_V1.md) records owner6189231491/autonomous-next6189912293. Its connected implementation is pending. The historical delivered/deferred qualifications above are preserved; this selected delta must explicitly qualify each source/processor and owner lifecycle before enabling speech. No blanket removal of visual-only, private Broadcast grant, new planner/provider or native implementation follows from this reference.
+
+
+## Selected speech/live-Persona extension (2026-10-15)
+
+The historical source qualification above remains its original bounded visual
+proof. The selected [Session speech/Persona](SESSION_SPEECH_PERSONA_V1.md) and
+[delivery/replay](SESSION_SPEECH_DELIVERY_V1.md) extension separately qualifies
+exact local reading of approved normalized content. An old visual-only slice is
+neither a permanent product ban nor a blanket model/cloud-processing grant.
+Persona-only read-fit now uses approved alternatives or Silence; it cannot fall
+back to a raw catalog sentence. Human date prose preserves actual year/month/day
+precision. Live Persona changes are paired/CAS-confirmed and affect future
+realizations; accepted old text/style stays immutable during replay. Processor,
+voice, Mood and Presence remain separate. The selected implementation is still
+local/in progress; no historical or whole-product acceptance is rewritten.
