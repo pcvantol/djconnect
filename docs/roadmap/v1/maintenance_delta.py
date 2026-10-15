@@ -84,6 +84,9 @@ def validate_delta(plan: dict[str, Any]) -> list[str]:
             errors.append("maintenance: " + reason)
 
     version = d.get("schema_version")
+    if version == "djconnect-federated-planning-delta/11":
+        from session_artwork_delta import validate
+        return validate(plan, validate_delta)
     implementation = version in {
         "djconnect-federated-planning-delta/2",
         "djconnect-federated-planning-delta/3",
@@ -918,7 +921,7 @@ def render_delta(p):
         "djconnect-federated-planning-delta/6",
         "djconnect-federated-planning-delta/7",
         "djconnect-federated-planning-delta/8",
-        "djconnect-federated-planning-delta/9", "djconnect-federated-planning-delta/10",
+        "djconnect-federated-planning-delta/9", "djconnect-federated-planning-delta/10", "djconnect-federated-planning-delta/11",
     }
     artwork = d.get("schema_version") in {
         "djconnect-federated-planning-delta/3",
@@ -927,7 +930,7 @@ def render_delta(p):
         "djconnect-federated-planning-delta/6",
         "djconnect-federated-planning-delta/7",
         "djconnect-federated-planning-delta/8",
-        "djconnect-federated-planning-delta/9", "djconnect-federated-planning-delta/10",
+        "djconnect-federated-planning-delta/9", "djconnect-federated-planning-delta/10", "djconnect-federated-planning-delta/11",
     }
     delivery = d.get("implementation_receipt", {}).get("source_delivery", "UNPUBLISHED")
     intro = (
@@ -950,7 +953,7 @@ def render_delta(p):
         "djconnect-federated-planning-delta/6",
         "djconnect-federated-planning-delta/7",
         "djconnect-federated-planning-delta/8",
-        "djconnect-federated-planning-delta/9", "djconnect-federated-planning-delta/10",
+        "djconnect-federated-planning-delta/9", "djconnect-federated-planning-delta/10", "djconnect-federated-planning-delta/11",
     }:
         r = d["narrative_receipt"]
         intro += f"Selected bounded Album→Track continuity: [{r['assignment_id']}]({r['selection_url']}); source {r['source_delivery']}, Stage4 PARTIAL, joint/native/installed/hardware acceptance open. Artwork1152/1153 is terminal at admitted0f37; prior version3 is preserved in history/20261012. No automatic consumer dispatch or new Core writer.\n\n"
@@ -959,7 +962,7 @@ def render_delta(p):
         "djconnect-federated-planning-delta/6",
         "djconnect-federated-planning-delta/7",
         "djconnect-federated-planning-delta/8",
-        "djconnect-federated-planning-delta/9", "djconnect-federated-planning-delta/10",
+        "djconnect-federated-planning-delta/9", "djconnect-federated-planning-delta/10", "djconnect-federated-planning-delta/11",
     }:
         f = d["forecast_receipt"]
         intro += f"Selected Session Forecast: [{f['assignment_id']}]({f['selection_url']}); existing Direction parent, source {f['source_delivery']}, current-only qualified artist imagery, native/visible/upcoming/joint acceptance open. Album1154/1155 terminal before this writer admission; previous version4 preserved in history/20261012. Early contract fixtures allow independently admitted consumer source integration; no automatic dispatch.\n\n"
@@ -967,29 +970,35 @@ def render_delta(p):
         "djconnect-federated-planning-delta/6",
         "djconnect-federated-planning-delta/7",
         "djconnect-federated-planning-delta/8",
-        "djconnect-federated-planning-delta/9", "djconnect-federated-planning-delta/10",
+        "djconnect-federated-planning-delta/9", "djconnect-federated-planning-delta/10", "djconnect-federated-planning-delta/11",
     }:
         a = d["ambient_receipt"]
         intro += f"Selected ambient convergence: [{a['assignment_id']}]({a['selection_url']}); source {a['source_delivery']}, qualified Session reuse and passive producer retirement; native/joint acceptance open. Forecast1156/1157 stays closed; version5 preserved in history/20261012. No new source/model/consumer dispatch.\n\n"
     if d.get("schema_version") in {
         "djconnect-federated-planning-delta/7",
         "djconnect-federated-planning-delta/8",
-        "djconnect-federated-planning-delta/9", "djconnect-federated-planning-delta/10",
+        "djconnect-federated-planning-delta/9", "djconnect-federated-planning-delta/10", "djconnect-federated-planning-delta/11",
     }:
         r = d["documentary_receipt"]
         intro += f"Combined Session entry/history/native-surface documentary design: [{r['assignment_id']}]({r['selection_url']}); documentation {r['source_delivery']}. Documentary delivery does not itself admit product execution; Continuation is independent and rich passive rights are not inherited. Ambient1158/1159 remains terminal; version6 is preserved in history/20261012. No new product writer or native/APNs/installed/hardware PASS.\n\n"
-    if d.get("schema_version") in {"djconnect-federated-planning-delta/8", "djconnect-federated-planning-delta/9", "djconnect-federated-planning-delta/10"}:
+    if d.get("schema_version") in {"djconnect-federated-planning-delta/8", "djconnect-federated-planning-delta/9", "djconnect-federated-planning-delta/10", "djconnect-federated-planning-delta/11"}:
         r = d["summary_receipt"]
         intro += f"Selected connected Core history summary: {r['assignment_id']}; source {r['source_delivery']}. Reuses HISTORY::CORE::SUMMARY, with Apple adoption Planned and native/installed/joint acceptance open. Predecessor version7 is preserved byte-for-byte.\n\n"
-    if d.get("schema_version") in {"djconnect-federated-planning-delta/9", "djconnect-federated-planning-delta/10"}:
+    if d.get("schema_version") in {"djconnect-federated-planning-delta/9", "djconnect-federated-planning-delta/10", "djconnect-federated-planning-delta/11"}:
         r = d["dialogue_receipt"]
         intro += f"Selected one-pipeline Ask DJ + exact Moment Track Insight: [{r['assignment_id']}]({r['selection_url']}); source {r['source_delivery']}. Both screens use the same service with optional qualified context. Native Apple and joint acceptance remain Planned/open; no consumer writes or automatic dispatch. History summary1162/1163 stays closed; version8 is preserved in history/20261013. Owner-requested HA-dev/prod updates follow qualified delivery and installed readback.\n\n"
         observed = r.get("consumer_reconciliation")
         if observed:
             intro += f"Existing Apple Presence execution: {observed['observed_status']} ([owning readback]({observed['apple_checkpoint']})); native Mac/installed acceptance and protected Apple delivery remain open. This observation updates no historical planning node and grants no Core/consumer admission. Installed Presence advertisement is absent in the owner readback; completed Core policy remains closed. Dialogue adoption and intra-track visibility remain distinct open joint findings.\n\n"
-    if d.get("schema_version") == "djconnect-federated-planning-delta/10":
+    if d.get("schema_version") in {"djconnect-federated-planning-delta/10", "djconnect-federated-planning-delta/11"}:
         r = d["hybrid_receipt"]
         intro += f"Selected bounded Hybrid transport: [{r['assignment_id']}]({r['selection_url']}); source {r['source_delivery']}. Existing connectivity parent retained; protocol, journal/recovery and paired actions share current Core owners. Apple adoption and joint/native transitions remain Planned/open; no consumer writes, installation or automatic dispatch. Current-artist1168/1169 closed before admission; version9 and its whole snapshot are preserved byte-for-byte.\n\n"
+    if d.get("schema_version") == "djconnect-federated-planning-delta/11":
+        r = d["session_artwork_receipt"]
+        intro += f"Selected subject-bound Session artwork: {r['assignment_id']}; source {r['source_delivery']}. Three bounded Core subsets; native Apple and joint acceptance remain Planned/open. Prior delivered v10 is preserved; no transport functional prerequisite or automatic consumer dispatch.\n\n"
+    successor = d.get("session_artwork_receipt", {}).get("selected_successor")
+    if successor:
+        intro += f"Owner-selected queued successor: {successor['assignment_id']} ([selection](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-{successor['owner_selection']}), [autonomous-next](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-{successor['autonomous_next']})). Not admitted or implemented here; starts only after valid artwork closure and fresh sole-writer admission. Separate exact publication gates remain.\n\n"
     out = {}
     out["README.md"] = (
         "# Federated roadmap — versioned maintenance\n\n"

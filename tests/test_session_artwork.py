@@ -349,6 +349,58 @@ class ManagedSessionExpiryAsyncTests(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(self.registry.closed)
         remove.assert_not_called()
 
+    async def test_external_metadata_cannot_change_subject_edition_or_source(self):
+        import copy
+        import sys
+        from unittest.mock import AsyncMock
+        uri='spotify:track:'+'A'*22
+        item={'id':'A'*22,'uri':uri,'type':'track','name':'Fixture track',
+              'external_urls':{'spotify':'https://open.spotify.com/track/'+'A'*22},
+              'album':{'id':'B'*22,'uri':'spotify:album:'+'B'*22,
+                       'images':[{'url':'https://i.scdn.co/image/'+'a'*40}]}}
+        pixels=(__import__('pathlib').Path(__file__).resolve().parents[1]/
+                'examples/client_contracts/session_artwork_v1/assets/cover.png').read_bytes()
+        async def chunks(_size):
+            yield pixels
+        response=SimpleNamespace(status=200,headers={'Content-Type':'image/png'},
+                                 content=SimpleNamespace(iter_chunked=chunks))
+        class Wire:
+            async def __aenter__(self):
+                return response
+            async def __aexit__(self,*args):
+                return None
+        network=SimpleNamespace(get=lambda *args,**kwargs:Wire())
+        cases=[('id','wrong','subject_mismatch'),('external_urls',{},'subject_mismatch'),
+               ('album',None,'missing_edition'),('name','','missing_subject_label')]
+        for field,value,reason in cases:
+            with self.subTest(field=field):
+                candidate=copy.deepcopy(item)
+                candidate[field]=value
+                with (patch.dict(sys.modules,{'aiohttp':SimpleNamespace(ClientTimeout=lambda **kwargs:None),
+                                              'homeassistant.helpers.aiohttp_client':
+                                              SimpleNamespace(async_get_clientsession=lambda hass:network)}),
+                      patch.object(self.registry,'decode',AsyncMock(return_value=(64,64)))):
+                    with self.assertRaisesRegex(ValueError,'^'+reason+'$'):
+                        await self.art._fetch(self.hass,SimpleNamespace(_request=AsyncMock(return_value=candidate)),
+                                              uri,guard=AsyncMock(),expected_album_uri='spotify:album:'+'B'*22)
+        for album,reason in (({'id':'wrong','uri':'spotify:album:'+'B'*22},'missing_edition'),
+                             ({'id':'B'*22,'uri':'spotify:album:'+'B'*22,'images':None},'missing_image'),
+                             ({'id':'B'*22,'uri':'spotify:album:'+'B'*22,'images':[{'url':'https://evil.invalid/a'}]},'missing_image'),
+                             ({'id':'C'*22,'uri':'spotify:album:'+'C'*22},'edition_mismatch')):
+            with self.subTest(album=album):
+                candidate={**item,'album':album}
+                with self.assertRaisesRegex(ValueError,'^'+reason+'$'):
+                    await self.art._fetch(self.hass,SimpleNamespace(_request=AsyncMock(return_value=candidate)),
+                                          uri,guard=AsyncMock(),expected_album_uri='spotify:album:'+'B'*22)
+
+    async def test_source_withdrawal_after_provider_response_prevents_cdn_request(self):
+        from unittest.mock import AsyncMock
+        guard=AsyncMock(side_effect=PermissionError('source_withdrawn'))
+        with self.assertRaises(PermissionError):
+            await self.art._fetch(self.hass,SimpleNamespace(_request=AsyncMock(return_value={})),
+                                  'spotify:track:'+'A'*22,guard=guard)
+        guard.assert_awaited_once_with()
+
     async def test_no_oversized_commit_and_closed_owner_rejects_late_commit(self):
         async def allowed():
             return True

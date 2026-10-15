@@ -33,10 +33,23 @@ class MaintenanceTests(unittest.TestCase):
         for name, body in render(self.p).items():
             self.assertEqual((ROOT / name).read_text(), body)
 
+    def test_queued_successor_does_not_claim_admission_or_implementation(self):
+        d = self.p["planning_maintenance"]
+        if d["schema_version"] != "djconnect-federated-planning-delta/11":
+            self.skipTest("Version11 queue receipt")
+        for key, value in (("admission", "ADMITTED"), ("implementation_in_this_slice", True),
+                           ("owner_selection", 0), ("new_publication_gates_preserved", False)):
+            with self.subTest(key=key):
+                bad = copy.deepcopy(self.p)
+                bad["planning_maintenance"]["session_artwork_receipt"]["selected_successor"][key] = value
+                self.assertTrue(validate(bad))
+
     def test_documentary_v7_preserves_v6_and_no_product_dispatch(self):
         import json
 
         d = self.p["planning_maintenance"]
+        if d["schema_version"] == "djconnect-federated-planning-delta/11":
+            d = json.loads((ROOT / d["session_artwork_receipt"]["previous_delta"]).read_text())
         if d["schema_version"] == "djconnect-federated-planning-delta/10":
             d = json.loads((ROOT / d["hybrid_receipt"]["previous_delta"]).read_text())
         if d["schema_version"] == "djconnect-federated-planning-delta/9":
@@ -129,6 +142,10 @@ class MaintenanceTests(unittest.TestCase):
                     else ("In progress", "IN_PROGRESS")
                 )
                 self.assertEqual((n["status"], n["assignment_status"]), expected)
+            elif n["id"].startswith("MEDIA::CORE::"):
+                delivered = d["session_artwork_receipt"]["source_delivery"] == "PROTECTED_MERGED"
+                self.assertEqual((n["status"], n["assignment_status"]),
+                                 ("Completed", "CORE_DELIVERED") if delivered else ("In progress", "IN_PROGRESS"))
             elif n["id"].startswith("TRANSPORT::CORE::"):
                 delivered = d["hybrid_receipt"]["source_delivery"] == "PROTECTED_MERGED"
                 self.assertEqual((n["status"], n["assignment_status"]),
@@ -206,6 +223,10 @@ class MaintenanceTests(unittest.TestCase):
 
     def test_delivery_requires_exact_receipts_and_preserves_joint_gate(self):
         p = copy.deepcopy(self.p)
+        if p["planning_maintenance"]["schema_version"] == "djconnect-federated-planning-delta/11":
+            import json
+            path = p["planning_maintenance"]["session_artwork_receipt"]["previous_delta"]
+            p["planning_maintenance"] = json.loads((ROOT / path).read_text())
         d = p["planning_maintenance"]
         r = d["implementation_receipt"]
         # The negative fixture must stay missing evidence after real delivery.
@@ -398,6 +419,10 @@ class AmbientMaintenanceTests(unittest.TestCase):
 class DialogueMaintenanceTests(unittest.TestCase):
     def setUp(self):
         self.p = load(ROOT / "djconnect-platform-v1.json")
+        if self.p["planning_maintenance"]["schema_version"] == "djconnect-federated-planning-delta/11":
+            import json
+            path = self.p["planning_maintenance"]["session_artwork_receipt"]["previous_delta"]
+            self.p["planning_maintenance"] = json.loads((ROOT / path).read_text())
         if self.p["planning_maintenance"]["schema_version"] == "djconnect-federated-planning-delta/10":
             import json
             path = self.p["planning_maintenance"]["hybrid_receipt"]["previous_delta"]
@@ -452,6 +477,10 @@ class DialogueMaintenanceTests(unittest.TestCase):
 class HybridMaintenanceTests(unittest.TestCase):
     def setUp(self):
         self.p = load(ROOT / "djconnect-platform-v1.json")
+        if self.p["planning_maintenance"]["schema_version"] == "djconnect-federated-planning-delta/11":
+            import json
+            path = self.p["planning_maintenance"]["session_artwork_receipt"]["previous_delta"]
+            self.p["planning_maintenance"] = json.loads((ROOT / path).read_text())
 
     def test_hybrid_preserves_complete_previous_snapshot_and_delta(self):
         import json
@@ -527,4 +556,40 @@ class HybridMaintenanceTests(unittest.TestCase):
             source_delivery="PROTECTED_MERGED",
             protected_merge=False,
         )
+        self.assertTrue(validate(p))
+
+
+class SessionArtworkMaintenanceTests(unittest.TestCase):
+    def setUp(self):
+        self.p = load(ROOT / "djconnect-platform-v1.json")
+
+    def test_live_version_preserves_delivered_predecessor_and_is_valid(self):
+        self.assertEqual(self.p['planning_maintenance']['schema_version'], 'djconnect-federated-planning-delta/11')
+        self.assertEqual(validate(self.p), [])
+
+    def test_missing_admission_source_or_fabricated_consumer_acceptance_rejected(self):
+        for key,value in [('ack',1),('material_commit','0'*40),('native','PASS'),
+                          ('joint_acceptance','PASS'),('automatic_dispatch',True),('installed','PASS'),('hardware','PASS'),
+                          ('previous_delta_sha256','0'*64),('source_delivery','PROTECTED_MERGED')]:
+            p=copy.deepcopy(self.p)
+            p['planning_maintenance']['session_artwork_receipt'][key]=value
+            self.assertTrue(validate(p),(key,value))
+
+    def test_duplicate_and_unadmitted_consumer_rejected(self):
+        p=copy.deepcopy(self.p)
+        p['planning_maintenance']['nodes'].append(copy.deepcopy(p['planning_maintenance']['nodes'][-1]))
+        self.assertTrue(validate(p))
+        p=copy.deepcopy(self.p)
+        next(n for n in p['planning_maintenance']['nodes'] if n['id']=='MEDIA::APPLE::SESSION-ARTWORK')['status']='Completed'
+        self.assertTrue(validate(p))
+
+    def test_cycle_or_transport_prerequisite_rejected(self):
+        for producer in ('MEDIA::JOINT::SESSION-ARTWORK','TRANSPORT::CORE::PAIRED-ACTIONS'):
+            p=copy.deepcopy(self.p)
+            next(e for e in p['planning_maintenance']['edges'] if e['id']=='SESSION-MEDIA-1')['producer']=producer
+            self.assertTrue(validate(p))
+
+    def test_existing_producer_state_cannot_be_rewritten(self):
+        p=copy.deepcopy(self.p)
+        next(n for n in p['planning_maintenance']['nodes'] if n['id']=='TRANSPORT::CORE::CONTRACT')['status']='Planned'
         self.assertTrue(validate(p))

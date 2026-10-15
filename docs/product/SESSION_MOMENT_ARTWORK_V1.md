@@ -100,3 +100,23 @@ No all-fallback or JSON-only product PASS. Any required unqualified source subse
 stays explicitly OPEN. Source and separate Finalization retain exact publication
 gates; latest direct owner installation instruction applies after qualification,
 not to an unreviewed local candidate. No next productslice within this assignment.
+
+## Current local software evidence
+
+[Actual transport/acceptance fixtures](../../examples/client_contracts/session_artwork_v1/README.md)
+bind164 integration source hashes. Real normal-pairing HA proves cover/album/artist,
+artist A/current artist B including late completion, retained Artist-Moment and
+legacy playback resolution after SQLite reopen without Runtime restoration,
+authority races, source/Profile denial, original301-second idle expiry and zero
+provider/semantic writes from pure reads/repeated preparation. Final Chrome
+checks exercise actual HA Broadcast into local/static shared builds in both
+orientations, with loaded existing cover pixels, unchanged text/source links,
+readability, reconnect, Session-end clearing and no private media grants. CAF is
+modeled only; Apple/native, installed artwork and joint acceptance remain open.
+
+1942 regression tests (7 existing skips),28 owning tests and148 DAG tests pass;
+Ruff passes and Bandit has zero medium/high findings. Three actual4000×4000
+decodes reach at most2 concurrent decoders; measured peak increment126632KiB
+is temporary decoder RAM, separate from the32MiB compressed resident budget.
+No coverage exclusion is added. Exact independent reviews and protected source
+and separate Finalization publication have not yet occurred.

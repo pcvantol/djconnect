@@ -1,5 +1,89 @@
 # DJConnect Generation 2 Management Summary
 
+## Current: Session Moment artwork — admitted Core implementation
+
+### Repository Status
+
+Predecessor Finalization PR [#1171](https://github.com/pcvantol/djconnect/pull/1171)
+protected merged as `f0a7ff4bb878247db9ab25c4a22320f17d806cd6`, after
+[source #1170](https://github.com/pcvantol/djconnect/pull/1170). It reached
+MERGED_RECONCILED / WORKSPACE_READY; [terminal
+readback](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6189021233).
+Exact artifact/formal qualification and safe own cleanup completed. Under a later
+explicit installation grant both HA-dev and HA-prod match all163 files,zero
+mismatches,loaded (dev9/prod1 entries); backups and rollback retained. Installed
+loading does not establish native or physical transport acceptance.
+
+Current artwork selection6175336907/refinement6176704119 admitted after fresh
+hostverify MATCH/package4.5.3, synchronized clean main and sole-writer/resource
+checks. Actual base f0a7ff4b, branch `codex/session-moment-artwork-v1`,
+[ACK6189044515](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6189044515).
+Contract-first1668d71d; material source23f58d2b / [receipt6189241629](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6189241629).
+
+### Management Summary
+
+[Session artwork design](docs/product/SESSION_MOMENT_ARTWORK_V1.md) and
+[delivery contract](docs/product/SESSION_ARTWORK_DELIVERY_CONTRACT_V1.md) preserve
+one existing image owner, immutable Moment/publication/summary and pure history
+queries. Only exact subjects and original source/account authority qualify.
+Current display, active flow and explicit older-entry refresh have independent
+rights. Images never enter persistent history as bodies, CDNURLs or deliverytokens.
+
+Local implementation and qualification are in progress; checkpoint26730568 plus
+subsequent reviewed fixes. All28 owning tests and1942 regression tests pass
+(seven existing skips); Ruff and DAG validation pass. Actual paired HA proved
+cover/album/contextual artist, late track change, old-entry refresh, authority
+races and301-second idle expiry. Final four-path browser/lifecycle qualification passes, including loaded cover
+pixels, source links, reconnect, terminal clearing and receiver privacy; no final exact candidate GO or Apple-visible acceptance.
+
+### Roadmap Position
+
+Generation2 Product Development, bounded Session presentation/history subset.
+Three Core leaves in progress; Apple adoption and joint acceptance remain Planned.
+Discovery artwork, Hybrid and earlier completed product slices remain closed.
+Live JSON maintenance version11 preserves delivered v10 and the original frozen
+snapshot; contract/live/history/Apple/joint dependencies do not invent a Hybrid
+functional prerequisite. Current local work is not delivered main.
+
+### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+1. **DJC-CORE-SESSION-MOMENT-ARTWORK-V1-20261014 — active.** Core#1101 selection6175336907/refinement6176704119; finish the already admitted bounded producer with native/joint evidence separately owned. Execution Rationale: latest explicit owner instruction after valid Hybrid closure.
+2. **DJC-SESSION-SPEECH-PERSONA-VOICE-20261015 — owner-selected queued successor.** Owner6189231491/autonomous-next6189912293; after valid artwork closure, fresh admission and same writer. Not yet admitted or implemented; separate candidate/publication gates.
+3. **Unfilled product slot 3 — no further authorized selection.** Not dispatched.
+4. **Unfilled product slot 4 — no further authorized selection.** Not dispatched.
+5. **Unfilled product slot 5 — no further authorized selection.** Not dispatched.
+
+### Blocked Items
+
+No external blocker to authorized local qualification. Exact source publication
+and separate Finalization retain their own candidate gates after review; no
+old Hybrid grant reused. Apple-native and joint image adoption remain OPEN.
+Speech/Persona/voice audit6188230166 was promoted by owner6189231491 and
+autonomous-next6189912293 to selected queued work. It starts only after valid
+artwork closure and fresh admission; no speech implementation joins this candidate.
+
+### Deferred Items
+
+No Swift/receiver writes, new writer, model/provider/cost route, artwork guessing,
+queueplanning, widgets/APNs/Activity, Pages, signing, workflow/runner/host-service
+change or new productslice. Latest owner install instruction applies only after
+reviewed protected delivery and exact artifact qualification, not to this WIP.
+
+### Repository State
+
+Repository State: `MERGED_RECONCILED` for the latest merged baseline f0a7ff4b.
+Current local artwork: ACTIVE_IMPLEMENTATION, source unpublished. Finalization
+Pending: YES after future artwork source delivery. No claim that local artwork
+is already on main or that its current workspace is ready for another increment.
+
+### Workspace State
+
+Workspace State: `NOT_READY` for another increment while this artwork WIP is
+active. Same sole writer, one own branch; unrelated VibeCast worktree, Applelab,
+HA environments and recovery evidence preserved. Final cleanup follows qualified
+source and separately authorized Finalization.
+
+## Historical operational context
 ## Current: Hybrid transport/localization — separate Finalization
 
 ### Repository Status

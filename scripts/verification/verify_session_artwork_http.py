@@ -276,21 +276,26 @@ async def main():
             _, listing=await get('/session/history')
             old_session=listing['sessions'][0]['session_id']
             _, old_page=await get('/session/history/'+old_session)
-            old_entry=next(e for e in old_page['entries'] if e['kind']=='playback_observed')
+            current_format=os.environ.get('DJC_MEDIA_REOPEN_CURRENT')=='1'
+            old_entry=next(e for e in old_page['entries'] if e['kind']==('dj_moment' if current_format else 'playback_observed'))
             stored=await HistoricalProjectionRepository(service).async_entry_record('profile-a',old_session,old_entry['entry_id'])
             raw_body=json.loads(stored['body'])
-            assert not raw_body.get('album_uri') and 'session_media_reference' not in raw_body
+            if current_format:
+                assert raw_body['session_media_reference']['subject_uri']=='spotify:artist:'+artist_id
+            else:
+                assert not raw_body.get('album_uri') and 'session_media_reference' not in raw_body
             reply=await post('/session/media/prepare',{**identity,'contract_version':1,'session_id':old_session,
                              'targets':[{'entry_id':old_entry['entry_id']}]})
             art=reply['session_media'][0]['artwork']
             assert art['state']=='ready' and art['resolution_basis']=='resolved_now'
-            assert art['edition_basis']=='provider_resolved_now'
+            assert art['edition_basis']==('not_applicable' if current_format else 'provider_resolved_now')
+            assert art['historical_display_allowed'] and not art['current_display_allowed']
             r=await client.get(art['url'],params=identity,headers=headers)
-            assert r.status==200 and await r.read()==pixels['a'*40]
-            (directory/'legacy-reopened.json').write_text(json.dumps({'ordinary_pairing':True,
+            assert r.status==200 and await r.read()==pixels[('c' if current_format else 'a')*40]
+            (directory/('moment-reopened.json' if current_format else 'legacy-reopened.json')).write_text(json.dumps({'ordinary_pairing':True,
                 'actual_predecessor_sqlite_store':True,'no_runtime_restored':not manager._active_by_profile,
                 'old_stored_body':raw_body,'response':reply,'source_hashes':source_hashes},indent=2)+'\n')
-            print('LEGACY_REOPEN_PASS',flush=True)
+            print('MOMENT_REOPEN_PASS' if current_format else 'LEGACY_REOPEN_PASS',flush=True)
             hass.data[aiohttp_client.DATA_CLIENTSESSION][cache_key]=provider_session
             await image_client.close()
             await provider_session.close()

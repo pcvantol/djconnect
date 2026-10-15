@@ -22,6 +22,10 @@ Existing Apple Presence execution: In progress ([owning readback](https://github
 
 Selected bounded Hybrid transport: [DJC-CORE-HYBRID-TRANSPORT-CONVERGENCE-V1-20261013](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6149934177); source PROTECTED_MERGED. Existing connectivity parent retained; protocol, journal/recovery and paired actions share current Core owners. Apple adoption and joint/native transitions remain Planned/open; no consumer writes, installation or automatic dispatch. Current-artist1168/1169 closed before admission; version9 and its whole snapshot are preserved byte-for-byte.
 
+Selected subject-bound Session artwork: DJC-CORE-SESSION-MOMENT-ARTWORK-V1-20261014; source UNPUBLISHED. Three bounded Core subsets; native Apple and joint acceptance remain Planned/open. Prior delivered v10 is preserved; no transport functional prerequisite or automatic consumer dispatch.
+
+Owner-selected queued successor: DJC-SESSION-SPEECH-PERSONA-VOICE-20261015 ([selection](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6189231491), [autonomous-next](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6189912293)). Not admitted or implemented here; starts only after valid artwork closure and fresh sole-writer admission. Separate exact publication gates remain.
+
 Selected implementation [DJC-CORE-DJ-PRESENCE-V1-20261011](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6111222122); early local contract `1d5e8c2518db5902031898991b7f4857d5263a5c`; source delivery PROTECTED_MERGED.
 
 Authority: [DJC-DJ-PRESENCE-ROADMAP-DESIGN-V1-20261011](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6110375785).
@@ -30,8 +34,8 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 
 | Local design source | SHA256 |
 |---|---|
-| [PRODUCT_ROADMAP.md](../../../PRODUCT_ROADMAP.md) | `3947a018bbc92dd4269a2597b3254dd2bc88a98488d05484beb02da41e82cc24` |
-| [PRODUCT_BACKLOG.md](../../../PRODUCT_BACKLOG.md) | `3fb5e117ce16c76ad872ca28a5b2829b8e26cf7a1496d3ba7bbb2d1805db9cca` |
+| [PRODUCT_ROADMAP.md](../../../PRODUCT_ROADMAP.md) | `d45c0fec7bd0478d0280389349b2f127695da89c65eaec61b51e6cbd8a06043a` |
+| [PRODUCT_BACKLOG.md](../../../PRODUCT_BACKLOG.md) | `85838f59ce376b87e4dffaf15a05094d3733ccb0d06ea90abc2653886c17fd97` |
 | [docs/product/DJ_PRESENCE_V1.md](../../../docs/product/DJ_PRESENCE_V1.md) | `c97be3bcebbd4ca70d640cdf4fc0a9a4808451e986bc977e3173e19842a928c4` |
 | [DJ_SESSION_RUNTIME_CONTRACTS.md](../../../DJ_SESSION_RUNTIME_CONTRACTS.md) | `6ae7a05260bc2a997252dbb70c28917ac6b7fd25930263d7c0940df929b1ec92` |
 | [docs/product/DJ_INTELLIGENCE_ARCHITECTURE.md](../../../docs/product/DJ_INTELLIGENCE_ARCHITECTURE.md) | `5345f4a3db6b2bfb97931d6acdde09439dc3dbae7a7d311107269922e08aef12` |
@@ -46,7 +50,7 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 | [docs/product/SHARED_PRODUCER_CONTINUITY_CONTRACT.md](../../../docs/product/SHARED_PRODUCER_CONTINUITY_CONTRACT.md) | `d06d2563b1de4fcfdff15bd76e0952e19f0970666b8ce5677db10cf6ee11a2ed` |
 | [docs/product/DISCOVER_NARRATIVE_TRANSITION_CONTRACT.md](../../../docs/product/DISCOVER_NARRATIVE_TRANSITION_CONTRACT.md) | `a27c694d57bca4908d4a258c9a6e0aec1de95d3ee6ddd89a377e32bf6b9f8e32` |
 | [docs/product/EXPRESSIVE_CONTEXT_VARIATION_V1.md](../../../docs/product/EXPRESSIVE_CONTEXT_VARIATION_V1.md) | `01e6cbe92d1fc240b3b444e646cb5bdd809a242cf61b2044edc5fb26775f26c7` |
-| [docs/product/NATIVE_MOMENT_DELIVERY_CONTRACT.md](../../../docs/product/NATIVE_MOMENT_DELIVERY_CONTRACT.md) | `3b957568ad7076d55c8e250aec6dd742df90bd02c6421dc8db84a9ac8b42c5d4` |
+| [docs/product/NATIVE_MOMENT_DELIVERY_CONTRACT.md](../../../docs/product/NATIVE_MOMENT_DELIVERY_CONTRACT.md) | `363efecf9d31c1fd818a0806305eea8bf60b0caa41fc7e08c31002835e1b0f19` |
 | [docs/technical/BROADCAST_TRANSPORT.md](../../../docs/technical/BROADCAST_TRANSPORT.md) | `9571ebd859d90f2190e8c8d6102d08477bf65d62ec3d145c328c13bef58b2e9f` |
 | [docs/verification/NARRATIVE_ALBUM_CONTINUITY_V1_ACCEPTANCE.md](../../../docs/verification/NARRATIVE_ALBUM_CONTINUITY_V1_ACCEPTANCE.md) | `c71d70e105a56b63a34d814f74ed51b2d59c084738a0350a3e1abb98c3358f3e` |
 | [docs/product/SESSION_FORECAST_V1.md](../../../docs/product/SESSION_FORECAST_V1.md) | `fa9ebfc5e90a893a1c1f8e0cf89660e8c506e4d79f12594b5ff092fb05b24a90` |
@@ -85,3 +89,5 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 | [docs/verification/HYBRID_TRANSPORT_SOURCE_QUALIFICATION_20261015.md](../../../docs/verification/HYBRID_TRANSPORT_SOURCE_QUALIFICATION_20261015.md) | `34fdf1f596d20f35628a6e27db963e75c4042055abebf19b8d712909e46422c8` |
 | [docs/verification/HYBRID_TRANSPORT_V1_SOURCE_READBACK_20261015.md](../../../docs/verification/HYBRID_TRANSPORT_V1_SOURCE_READBACK_20261015.md) | `103d6b01196951e03379de984ac523a76f928f63e37a38055d8222ffea673000` |
 | [docs/history/prompts/2026-10-15-hybrid-transport-localization-finalization.md](../../../docs/history/prompts/2026-10-15-hybrid-transport-localization-finalization.md) | `cbdabdb5c5201df3b220c306a0d9ca16f1215a480c624c452cefc9a63efa20f6` |
+| [docs/product/SESSION_MOMENT_ARTWORK_V1.md](../../../docs/product/SESSION_MOMENT_ARTWORK_V1.md) | `ab19a8ca4c761146ab4ade6fc659ec3f885872aa9966119b850533fe36aac51c` |
+| [docs/product/SESSION_ARTWORK_DELIVERY_CONTRACT_V1.md](../../../docs/product/SESSION_ARTWORK_DELIVERY_CONTRACT_V1.md) | `a2c98c515e399d0e8cf75960e17dab1263688299f7b7da351028308ecd12b9ce` |

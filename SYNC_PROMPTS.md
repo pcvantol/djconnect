@@ -1,3 +1,25 @@
+# Current Core Session artwork — early local producer handoff
+
+`DJC-CORE-SESSION-MOMENT-ARTWORK-V1-20261014`, same writer, active branch
+`codex/session-moment-artwork-v1`, base f0a7ff4b. Local unpublished source/contract
+checkpoint7201e6a51ef42f1dec1f992fcb27bfa839456313; all164 integration files match
+actual paired HA proof. [Early Apple handoff6190335298](https://github.com/pcvantol/djconnect-app/issues/87#issuecomment-6190335298).
+Read docs/product/SESSION_MOMENT_ARTWORK_V1.md and
+SESSION_ARTWORK_DELIVERY_CONTRACT_V1.md; actual transport/pixel fixtures under
+examples/client_contracts/session_artwork_v1/. No final protected producer pin yet.
+Owner-only optional media revisions and independently authorized historical
+preparation reuse the existing image owner. Private fields/grants never cross
+the shared receiver boundary; local/static shared renderer1.1.0 stays compatible.
+Apple native/joint remains open and separately owned; no new consumer writer.
+Qualified post-slice HA-dev/prod installation is authorized, WIP installation is not.
+
+Speech/Persona/voice6189231491 is the selected queued successor, with explicit
+autonomous-next6189912293 after valid artwork closure and fresh admission.
+It is not implemented/admitted within this artwork candidate. Existing exact
+source/Finalization publication gates remain; no historical grant reused.
+
+## Historical producer handoffs
+
 # Current bounded hybrid transport design
 
 DJC-CORE-HYBRID-TRANSPORT-CONVERGENCE-V1-20261013 is admitted after1168/1169
@@ -3117,3 +3139,16 @@ with its existing device token and the same owner Broadcast subscribe/recover
 handlers. See `docs/product/PAIRED_OWNER_LIVE_CONTRACT_V1.md` for the exact
 route, first-frame auth, lease, errors and Apple-owned consumer delta. No
 `/websocket/session` HA token issuer or shared VibeCast token is a substitute.
+
+## Session Moment artwork — current bounded Core producer
+
+Core assignment `DJC-CORE-SESSION-MOMENT-ARTWORK-V1-20261014`, selection6175336907
+and refinement6176704119, ACK6189044515 on basef0a7ff4b, same writer. Canonical
+[design](docs/product/SESSION_MOMENT_ARTWORK_V1.md) and
+[contract](docs/product/SESSION_ARTWORK_DELIVERY_CONTRACT_V1.md); early actual
+[sanitized transport and own assets](examples/client_contracts/session_artwork_v1/README.md).
+WIP producerpin, not native acceptance or a new Apple admission. Existing Apple
+adoption `DJC-APPLE-SESSION-MOMENT-ARTWORK-V1-20261014` belongs to the current
+Apple writer; no Swift/receiver writes from Core. Subject/provenance/permissions,
+paired image auth and expiry apply equally to each device. Final exact pin and
+qualification follow protected source delivery; Apple/joint remain OPEN.

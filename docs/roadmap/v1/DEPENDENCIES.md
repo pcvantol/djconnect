@@ -22,6 +22,10 @@ Existing Apple Presence execution: In progress ([owning readback](https://github
 
 Selected bounded Hybrid transport: [DJC-CORE-HYBRID-TRANSPORT-CONVERGENCE-V1-20261013](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6149934177); source PROTECTED_MERGED. Existing connectivity parent retained; protocol, journal/recovery and paired actions share current Core owners. Apple adoption and joint/native transitions remain Planned/open; no consumer writes, installation or automatic dispatch. Current-artist1168/1169 closed before admission; version9 and its whole snapshot are preserved byte-for-byte.
 
+Selected subject-bound Session artwork: DJC-CORE-SESSION-MOMENT-ARTWORK-V1-20261014; source UNPUBLISHED. Three bounded Core subsets; native Apple and joint acceptance remain Planned/open. Prior delivered v10 is preserved; no transport functional prerequisite or automatic consumer dispatch.
+
+Owner-selected queued successor: DJC-SESSION-SPEECH-PERSONA-VOICE-20261015 ([selection](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6189231491), [autonomous-next](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6189912293)). Not admitted or implemented here; starts only after valid artwork closure and fresh sole-writer admission. Separate exact publication gates remain.
+
 | Producer → consumer | Kind / phase / gate | Hard | AND/OR | Required subset | Evidence |
 |---|---|---|---|---|---|
 | `SLICE::CORE::DJ-PRESENCE-CONTRACT` → `SLICE::CORE::DJ-PRESENCE-POLICY` | implementation_contract / implementation / start | True | AND | Exact policy table/default/ownercontract | Pinned contract and producer fixtures |
@@ -74,3 +78,9 @@ Selected bounded Hybrid transport: [DJC-CORE-HYBRID-TRANSPORT-CONVERGENCE-V1-202
 | `TRANSPORT::CORE::CONTRACT` → `TRANSPORT::APPLE::HYBRID` | implementation_contract / implementation / completion | True | AND | Pinned qualified producer contract; Apple retains its own admission | docs/product/HYBRID_HTTP_WEBSOCKET_TRANSPORT_V1.md |
 | `TRANSPORT::CORE::PAIRED-ACTIONS` → `TRANSPORT::JOINT::HYBRID` | implementation_contract / integration_acceptance / completion | True | AND | Protected producer delivery and exact actual transport fixtures | docs/product/HYBRID_HTTP_WEBSOCKET_TRANSPORT_V1.md |
 | `TRANSPORT::APPLE::HYBRID` → `TRANSPORT::JOINT::HYBRID` | implementation_contract / integration_acceptance / completion | True | AND | Actual native route transitions liveness and state preservation | docs/product/HYBRID_HTTP_WEBSOCKET_TRANSPORT_V1.md |
+| `MEDIA::CORE::SESSION-CONTRACT` → `MEDIA::CORE::SESSION-LIVE` | implementation_contract / implementation / completion | True | AND | Exact subject, source rights and lifecycle qualification | docs/product/SESSION_ARTWORK_DELIVERY_CONTRACT_V1.md |
+| `MEDIA::CORE::SESSION-LIVE` → `MEDIA::CORE::SESSION-HISTORY` | implementation_contract / implementation / completion | True | AND | Exact subject, source rights and lifecycle qualification | docs/product/SESSION_ARTWORK_DELIVERY_CONTRACT_V1.md |
+| `MEDIA::CORE::SESSION-CONTRACT` → `MEDIA::APPLE::SESSION-ARTWORK` | implementation_contract / implementation / completion | True | AND | Exact subject, source rights and lifecycle qualification | docs/product/SESSION_ARTWORK_DELIVERY_CONTRACT_V1.md |
+| `MEDIA::CORE::SESSION-LIVE` → `MEDIA::JOINT::SESSION-ARTWORK` | joint_acceptance / acceptance / completion | True | AND | Exact subject, source rights and lifecycle qualification | docs/product/SESSION_ARTWORK_DELIVERY_CONTRACT_V1.md |
+| `MEDIA::CORE::SESSION-HISTORY` → `MEDIA::JOINT::SESSION-ARTWORK` | joint_acceptance / acceptance / completion | True | AND | Exact subject, source rights and lifecycle qualification | docs/product/SESSION_ARTWORK_DELIVERY_CONTRACT_V1.md |
+| `MEDIA::APPLE::SESSION-ARTWORK` → `MEDIA::JOINT::SESSION-ARTWORK` | joint_acceptance / acceptance / completion | True | AND | Exact subject, source rights and lifecycle qualification | docs/product/SESSION_ARTWORK_DELIVERY_CONTRACT_V1.md |
