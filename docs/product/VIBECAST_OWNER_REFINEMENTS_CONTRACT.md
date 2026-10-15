@@ -1,5 +1,17 @@
 # VibeCast owner refinements — current-slice extension
 
+## Web-first design precedence (2026-10-15)
+
+The [web-first experience v1](VIBECAST_WEB_FIRST_EXPERIENCE_V1.md) is the canonical
+forward design under [issue #1174](https://github.com/pcvantol/djconnect/issues/1174).
+Its [onboarding/guest authority](VIBECAST_ONBOARDING_GUEST_AUTHORITY_V1.md) and
+[Apple guest mode](APPLE_VIBECAST_GUEST_MODE_V1.md) define separately Planned
+shared/guest behavior. Cast-first/native-TV prerequisites and the old four-emoji
+vocabulary below are superseded design choices, not delivered new behavior.
+Prior implementation/source/hardware receipts and opt-in end grants remain
+historically scoped and unchanged. New TV is readonly; guest write authority is
+separate. No private owner media/history/speech grant is inherited.
+
 The selected [shared-producer slice](SHARED_PRODUCER_CONTINUITY_CONTRACT.md)
 extends only this qualified CC0 visual recording-credit application: exact
 contributor identity/role is retained transiently, two independently qualified

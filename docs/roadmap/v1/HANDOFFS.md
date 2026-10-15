@@ -1,5 +1,7 @@
 # Planned handoffs
 
+Web-first #1174 documentary extension: LOCAL_DOCUMENTARY; design authored only, product implementation Planned/NOT_ISSUED and joint acceptance OPEN. Cast-first/native-TV prerequisites superseded for forward design; original receipts remain historical. URL/exception/emoji OPEN. No automatic dispatch or runtime/publication grant.
+
 Generated from djconnect-platform-v1.json, maintenance DJC-DJ-PRESENCE-ROADMAP-DESIGN-V1-20261011.
 
 The original3October snapshot/audit/source pins and projections are immutable history in [history/20261003](history/20261003/README.md). Only this bounded delta is current here; inherited premerge statuses are not current blockers. Only the selected existing Core writer is admitted by implementation receipt; no automatic dispatch, second writer or native/installed/hardware acceptance.
@@ -35,3 +37,5 @@ Core → Apple: pinned early presence contract/policy fixtures permit contract i
 Core shared renderer → VibeCast: actual authorized varied Broadcast traces on both existing builds; no second renderer.
 
 Core + Apple owning receipts → joint product acceptance, no extra writerlane. Physical/native/installed effects stay separately qualified.
+
+WEB #1174 → existing Core1101/Apple87/receiver10: canonical experience, guest trust, temporary app isolation; source and Finalization pins separately required. Existing API owner proposed for temporary bootstrap only. No new runtime pickup.

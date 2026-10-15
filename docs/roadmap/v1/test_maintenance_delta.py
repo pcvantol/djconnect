@@ -189,6 +189,9 @@ class MaintenanceTests(unittest.TestCase):
                     if delivered
                     else ("In progress", "IN_PROGRESS"),
                 )
+            elif n["id"] == "WEB::DOCS":
+                self.assertEqual((n["status"], n["assignment_status"]), ("Completed", "DESIGN_AUTHORED"))
+                self.assertEqual(d["web_first_receipt"]["product_implementation"], "Planned")
             elif "ACTIVE-SESSION-MOOD" not in n["id"]:
                 self.assertEqual((n["status"], n["assignment_status"]), ("Planned", "NOT_ISSUED"))
         receipt = d["implementation_receipt"]
@@ -595,3 +598,51 @@ class SessionArtworkMaintenanceTests(unittest.TestCase):
         p=copy.deepcopy(self.p)
         next(n for n in p['planning_maintenance']['nodes'] if n['id']=='TRANSPORT::CORE::CONTRACT')['status']='Planned'
         self.assertTrue(validate(p))
+
+
+class WebFirstNegativeTests(unittest.TestCase):
+    def setUp(self):
+        self.p = load(ROOT / "djconnect-platform-v1.json")
+
+    def test_reject_product_completion_dispatch_and_hidden_choices(self):
+        for key, value in (
+            ("product_implementation", "Completed"),
+            ("joint_acceptance", "PASS"),
+            ("automatic_dispatch", True),
+            ("runtime_writes", True),
+            ("open_decisions", []),
+            ("base_delta_version", "unknown"),
+        ):
+            with self.subTest(key=key):
+                bad = copy.deepcopy(self.p)
+                bad["planning_maintenance"]["web_first_receipt"][key] = value
+                self.assertTrue(validate(bad))
+
+    def test_reject_prior_overwrite_guest_owner_swap_and_missing_edge(self):
+        for mutation in ("prior", "owner", "edge", "group", "cycle", "hash"):
+            with self.subTest(mutation=mutation):
+                bad = copy.deepcopy(self.p)
+                d = bad["planning_maintenance"]
+                if mutation == "prior":
+                    d["nodes"][0]["scope"] = "unauthorized overwrite"
+                if mutation == "owner":
+                    next(n for n in d["nodes"] if n["id"] == "WEB::APP")["repository"] = (
+                        "pcvantol/djconnect"
+                    )
+                if mutation == "edge":
+                    d["edges"] = [e for e in d["edges"] if e["id"] != "WEB-FIRST-1"]
+                if mutation == "group":
+                    next(n for n in d["nodes"] if n["id"] == "WEB::APP")["prerequisite_groups"] = []
+                if mutation == "cycle":
+                    e = copy.deepcopy(
+                        next(e for e in d["edges"] if e["id"].startswith("WEB-FIRST-"))
+                    )
+                    e.update(id="WEB-FIRST-cycle", producer="WEB::JOINT", consumer="WEB::DOCS")
+                    d["edges"].append(e)
+                if mutation == "hash":
+                    next(
+                        r
+                        for r in d["document_references"]
+                        if r["path"].endswith("VIBECAST_WEB_FIRST_EXPERIENCE_V1.md")
+                    )["sha256"] = "0" * 64
+                self.assertTrue(validate(bad))
