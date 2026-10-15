@@ -1,5 +1,20 @@
 # DJConnect Product Roadmap
 
+## Session speech/Persona/voice — selected active Core implementation
+
+DJC-SESSION-SPEECH-PERSONA-VOICE-20261015, owner6189231491/autonomous-next6189912293, fresh admission after valid artwork1172/1173 closure at70c0a300. Same Core writer/ACK6191876871; contract-first e2072d80, material03634bf7. [Narration/Persona](docs/product/SESSION_SPEECH_PERSONA_V1.md), [speech delivery/replay](docs/product/SESSION_SPEECH_DELIVERY_V1.md). Live Persona ordered setting connected; common manual speech, every-family realization and qualified voice/processor/lifecycle implementation in progress. No product completion inferred from initial Persona tests.
+
+JSON maintenance12 reuses existing Voice/Speech/Audio Renderer architecture and preserves delivered artwork11. Four bounded Core leaves In progress; Apple adoption and joint visible/audible acceptance remain Planned/open with their existing writer/admission. Every intended proactive narration includes SessionPersona in bubble and speech; observed playback remains factual, announcement shares existing Planner/Presence/publication/count boundaries. No new provider/model/cost route or nativewrites. Source/Finalization retain exact publication gates; existing latest-qualified-main HA-dev/prod installation authority retained, no WIP install. No further selected productfamily.
+
+Local follow-up connects live/retained exact Moment references, current-playback
+announcements and qualified ArtistGenre→Track narration to the same speech owner.
+Direction and eligible Track Insight use the confirmed Persona. Source expiry
+survives cache hits and pending synthesis; common Presence/count/history budgets
+remain authoritative. Connected four-Persona/five-language output and independent
+review are under final qualification. Core remains In progress and unpublished;
+Apple/native audible and joint acceptance remain open. No successor is admitted.
+
+
 ## Bounded hybrid local HTTP/WS correction — Core source delivered
 
 [Source PR #1184](https://github.com/pcvantol/djconnect/pull/1184) protected merged as `0f92b74e76ae055efdbf2b375d95c58e86328e27` from exact reviewed/owner-authorizeda0714b44. Existing hybrid transport now implements the [qualified direct local policy](docs/product/HYBRID_LOCAL_TRANSPORT_POLICY_V1.md), with68genuine HA cases/300slease,38owning+5raceunits and1964regressions/7existing skips. External TLS and ordinary pairing/Profile/source/installation/operation authority remain. No new product family or reopened prior delivery. HA-dev Docker direct LAN, installed/native and joint acceptance remain OPEN. Speech1177 remains preserved; passive projection waits for its Speech predecessor. Separate Finalization and safe own cleanup reconcile this maintenance increment, without starting a successor.

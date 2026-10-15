@@ -37594,7 +37594,7 @@
     }
   ],
   "planning_maintenance": {
-    "schema_version": "djconnect-federated-planning-delta/11",
+    "schema_version": "djconnect-federated-planning-delta/12",
     "decision_id": "DJC-DJ-PRESENCE-ROADMAP-DESIGN-V1-20261011",
     "decision_url": "https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6110375785",
     "design_date": "2026-10-11",
@@ -39348,6 +39348,161 @@
             ]
           }
         ]
+      },
+      {
+        "id": "SPEECH::APPLE::ADOPTION",
+        "title": "Native shared speech, voice and autoplay adoption",
+        "lane": "DJC-APPLE",
+        "repository": "pcvantol/djconnect-app",
+        "status": "Planned",
+        "assignment_status": "NOT_ISSUED",
+        "scope": "Native shared speech, voice and autoplay adoption; existing owner selection6189231491 only",
+        "acceptance_boundary": "Core software, installed, native/audible and joint evidence independent; no consumer dispatch",
+        "contract_binding": "docs/product/SESSION_SPEECH_PERSONA_V1.md",
+        "source_ids": [
+          "OWNER-SESSION-SPEECH-PERSONA-VOICE-20261015"
+        ],
+        "parent_reference": "PROJ::ROADMAP::P2-REFERENCE",
+        "family_reference": "Existing Speech Presentation, Audio Renderer Host and Session Persona architecture",
+        "prerequisite_groups": [
+          {
+            "edge_ids": [
+              "SPEECH-2"
+            ],
+            "mode": "AND"
+          }
+        ]
+      },
+      {
+        "id": "SPEECH::CORE::CONTRACT",
+        "title": "Shared narration and speech/source contract",
+        "lane": "DJC-CORE",
+        "repository": "pcvantol/djconnect",
+        "status": "In progress",
+        "assignment_status": "IN_PROGRESS",
+        "scope": "Shared narration and speech/source contract; existing owner selection6189231491 only",
+        "acceptance_boundary": "Core software, installed, native/audible and joint evidence independent; no consumer dispatch",
+        "contract_binding": "docs/product/SESSION_SPEECH_PERSONA_V1.md",
+        "source_ids": [
+          "OWNER-SESSION-SPEECH-PERSONA-VOICE-20261015"
+        ],
+        "parent_reference": "PROJ::ROADMAP::P2-REFERENCE",
+        "family_reference": "Existing Speech Presentation, Audio Renderer Host and Session Persona architecture",
+        "prerequisite_groups": []
+      },
+      {
+        "id": "SPEECH::CORE::DELIVERY",
+        "title": "Owner speech/manual replay and renderer voice admission",
+        "lane": "DJC-CORE",
+        "repository": "pcvantol/djconnect",
+        "status": "In progress",
+        "assignment_status": "IN_PROGRESS",
+        "scope": "Owner speech/manual replay and renderer voice admission; existing owner selection6189231491 only",
+        "acceptance_boundary": "Core software, installed, native/audible and joint evidence independent; no consumer dispatch",
+        "contract_binding": "docs/product/SESSION_SPEECH_PERSONA_V1.md",
+        "source_ids": [
+          "OWNER-SESSION-SPEECH-PERSONA-VOICE-20261015"
+        ],
+        "parent_reference": "PROJ::ROADMAP::P2-REFERENCE",
+        "family_reference": "Existing Speech Presentation, Audio Renderer Host and Session Persona architecture",
+        "prerequisite_groups": [
+          {
+            "edge_ids": [
+              "SPEECH-3"
+            ],
+            "mode": "AND"
+          }
+        ]
+      },
+      {
+        "id": "SPEECH::CORE::PERSONA",
+        "title": "Live ordered Session Persona settings",
+        "lane": "DJC-CORE",
+        "repository": "pcvantol/djconnect",
+        "status": "In progress",
+        "assignment_status": "IN_PROGRESS",
+        "scope": "Live ordered Session Persona settings; existing owner selection6189231491 only",
+        "acceptance_boundary": "Core software, installed, native/audible and joint evidence independent; no consumer dispatch",
+        "contract_binding": "docs/product/SESSION_SPEECH_PERSONA_V1.md",
+        "source_ids": [
+          "OWNER-SESSION-SPEECH-PERSONA-VOICE-20261015"
+        ],
+        "parent_reference": "PROJ::ROADMAP::VOICE",
+        "family_reference": "Existing Speech Presentation, Audio Renderer Host and Session Persona architecture",
+        "prerequisite_groups": [
+          {
+            "edge_ids": [
+              "SPEECH-4"
+            ],
+            "mode": "AND"
+          }
+        ]
+      },
+      {
+        "id": "SPEECH::CORE::REALIZATION",
+        "title": "Persona-realized proactive narration in every family",
+        "lane": "DJC-CORE",
+        "repository": "pcvantol/djconnect",
+        "status": "In progress",
+        "assignment_status": "IN_PROGRESS",
+        "scope": "Persona-realized proactive narration in every family; existing owner selection6189231491 only",
+        "acceptance_boundary": "Core software, installed, native/audible and joint evidence independent; no consumer dispatch",
+        "contract_binding": "docs/product/SESSION_SPEECH_PERSONA_V1.md",
+        "source_ids": [
+          "OWNER-SESSION-SPEECH-PERSONA-VOICE-20261015"
+        ],
+        "parent_reference": "PROJ::ROADMAP::P2-REFERENCE",
+        "family_reference": "Existing Speech Presentation, Audio Renderer Host and Session Persona architecture",
+        "prerequisite_groups": [
+          {
+            "edge_ids": [
+              "SPEECH-5"
+            ],
+            "mode": "AND"
+          }
+        ]
+      },
+      {
+        "id": "SPEECH::JOINT::ACCEPTANCE",
+        "title": "Visible and audible shared product qualification",
+        "lane": "DJC-CORE",
+        "repository": "pcvantol/djconnect",
+        "status": "Planned",
+        "assignment_status": "NOT_ISSUED",
+        "scope": "Visible and audible shared product qualification; existing owner selection6189231491 only",
+        "acceptance_boundary": "Core software, installed, native/audible and joint evidence independent; no consumer dispatch",
+        "contract_binding": "docs/product/SESSION_SPEECH_PERSONA_V1.md",
+        "source_ids": [
+          "OWNER-SESSION-SPEECH-PERSONA-VOICE-20261015"
+        ],
+        "parent_reference": "PROJ::ROADMAP::P2-REFERENCE",
+        "family_reference": "Existing Speech Presentation, Audio Renderer Host and Session Persona architecture",
+        "prerequisite_groups": [
+          {
+            "edge_ids": [
+              "SPEECH-1"
+            ],
+            "mode": "AND"
+          },
+          {
+            "edge_ids": [
+              "SPEECH-6"
+            ],
+            "mode": "AND"
+          },
+          {
+            "edge_ids": [
+              "SPEECH-7"
+            ],
+            "mode": "AND"
+          },
+          {
+            "edge_ids": [
+              "SPEECH-8"
+            ],
+            "mode": "AND"
+          }
+        ]
       }
     ],
     "edges": [
@@ -41003,16 +41158,144 @@
         "source_ids": [
           "OWNER-WEB-FIRST-DECISIONS-6201605985"
         ]
+      },
+      {
+        "id": "SPEECH-1",
+        "producer": "SPEECH::APPLE::ADOPTION",
+        "consumer": "SPEECH::JOINT::ACCEPTANCE",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "source_ids": [
+          "OWNER-SESSION-SPEECH-PERSONA-VOICE-20261015"
+        ],
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "completion",
+        "required_subset": "Exact accepted text, source/processor and owner lifecycle qualification",
+        "contract_or_evidence": "docs/product/SESSION_SPEECH_DELIVERY_V1.md",
+        "reason": "Bounded selected existing Speech/Persona producer and consumer dependency"
+      },
+      {
+        "id": "SPEECH-2",
+        "producer": "SPEECH::CORE::CONTRACT",
+        "consumer": "SPEECH::APPLE::ADOPTION",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "source_ids": [
+          "OWNER-SESSION-SPEECH-PERSONA-VOICE-20261015"
+        ],
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "completion",
+        "required_subset": "Exact accepted text, source/processor and owner lifecycle qualification",
+        "contract_or_evidence": "docs/product/SESSION_SPEECH_DELIVERY_V1.md",
+        "reason": "Bounded selected existing Speech/Persona producer and consumer dependency"
+      },
+      {
+        "id": "SPEECH-3",
+        "producer": "SPEECH::CORE::CONTRACT",
+        "consumer": "SPEECH::CORE::DELIVERY",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "source_ids": [
+          "OWNER-SESSION-SPEECH-PERSONA-VOICE-20261015"
+        ],
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "completion",
+        "required_subset": "Exact accepted text, source/processor and owner lifecycle qualification",
+        "contract_or_evidence": "docs/product/SESSION_SPEECH_DELIVERY_V1.md",
+        "reason": "Bounded selected existing Speech/Persona producer and consumer dependency"
+      },
+      {
+        "id": "SPEECH-4",
+        "producer": "SPEECH::CORE::CONTRACT",
+        "consumer": "SPEECH::CORE::PERSONA",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "source_ids": [
+          "OWNER-SESSION-SPEECH-PERSONA-VOICE-20261015"
+        ],
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "completion",
+        "required_subset": "Exact accepted text, source/processor and owner lifecycle qualification",
+        "contract_or_evidence": "docs/product/SESSION_SPEECH_DELIVERY_V1.md",
+        "reason": "Bounded selected existing Speech/Persona producer and consumer dependency"
+      },
+      {
+        "id": "SPEECH-5",
+        "producer": "SPEECH::CORE::CONTRACT",
+        "consumer": "SPEECH::CORE::REALIZATION",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "source_ids": [
+          "OWNER-SESSION-SPEECH-PERSONA-VOICE-20261015"
+        ],
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "completion",
+        "required_subset": "Exact accepted text, source/processor and owner lifecycle qualification",
+        "contract_or_evidence": "docs/product/SESSION_SPEECH_DELIVERY_V1.md",
+        "reason": "Bounded selected existing Speech/Persona producer and consumer dependency"
+      },
+      {
+        "id": "SPEECH-6",
+        "producer": "SPEECH::CORE::DELIVERY",
+        "consumer": "SPEECH::JOINT::ACCEPTANCE",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "source_ids": [
+          "OWNER-SESSION-SPEECH-PERSONA-VOICE-20261015"
+        ],
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "completion",
+        "required_subset": "Exact accepted text, source/processor and owner lifecycle qualification",
+        "contract_or_evidence": "docs/product/SESSION_SPEECH_DELIVERY_V1.md",
+        "reason": "Bounded selected existing Speech/Persona producer and consumer dependency"
+      },
+      {
+        "id": "SPEECH-7",
+        "producer": "SPEECH::CORE::PERSONA",
+        "consumer": "SPEECH::JOINT::ACCEPTANCE",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "source_ids": [
+          "OWNER-SESSION-SPEECH-PERSONA-VOICE-20261015"
+        ],
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "completion",
+        "required_subset": "Exact accepted text, source/processor and owner lifecycle qualification",
+        "contract_or_evidence": "docs/product/SESSION_SPEECH_DELIVERY_V1.md",
+        "reason": "Bounded selected existing Speech/Persona producer and consumer dependency"
+      },
+      {
+        "id": "SPEECH-8",
+        "producer": "SPEECH::CORE::REALIZATION",
+        "consumer": "SPEECH::JOINT::ACCEPTANCE",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "source_ids": [
+          "OWNER-SESSION-SPEECH-PERSONA-VOICE-20261015"
+        ],
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "completion",
+        "required_subset": "Exact accepted text, source/processor and owner lifecycle qualification",
+        "contract_or_evidence": "docs/product/SESSION_SPEECH_DELIVERY_V1.md",
+        "reason": "Bounded selected existing Speech/Persona producer and consumer dependency"
       }
     ],
     "document_references": [
       {
         "path": "PRODUCT_ROADMAP.md",
-        "sha256": "132f40b6258eff99e4570ff2c89f76b7586c55e04685b57585d5da2a5415f749"
+        "sha256": "5350ceeb8af3caea1bd3d25016520bd6f951fbfc82f06ed4453c7cf2affe2830"
       },
       {
         "path": "PRODUCT_BACKLOG.md",
-        "sha256": "254db7ac09d43968db5ce11374fe780023efdfe0925e18a2a7af89fba8bbb2cf"
+        "sha256": "cf20a9126c1c0701b127cc309d2af8dd8ef1dbac37e7b7ac42dfbea1fc57ad05"
       },
       {
         "path": "docs/product/DJ_PRESENCE_V1.md",
@@ -41028,7 +41311,7 @@
       },
       {
         "path": "docs/product/DJ_PRESENTATION_ARCHITECTURE.md",
-        "sha256": "7dd7c816a46c9d49cf7a9ced45bfeccacd628b3e279c4e5fd5ca4656f4e57ad6"
+        "sha256": "df56caa5685110bca26b8e819a1cecb67ab7f9f5608c51526c83d4c35cc5cdff"
       },
       {
         "path": "docs/technical/PLATFORM_AMBIENT_EXPERIENCE.md",
@@ -41072,7 +41355,7 @@
       },
       {
         "path": "docs/product/NATIVE_MOMENT_DELIVERY_CONTRACT.md",
-        "sha256": "363efecf9d31c1fd818a0806305eea8bf60b0caa41fc7e08c31002835e1b0f19"
+        "sha256": "75286b63087b0dec98f42d2bbf9c9fd1d6d9f50cbc9c75a51154b3ddb9173af2"
       },
       {
         "path": "docs/technical/BROADCAST_TRANSPORT.md",
@@ -41152,7 +41435,7 @@
       },
       {
         "path": "docs/product/ASK_DJ_CONTEXTUAL_DIALOGUE_CONTRACT_V1.md",
-        "sha256": "136c81fdc255b66f2a921e9250262f79b19efb4b6c0470260f6febcb088831fb"
+        "sha256": "5a9c86630217e414d892ded5d14d2dde9f4f4387bf98f6ca11fea3437d97aed7"
       },
       {
         "path": "docs/product/MOMENT_TRACK_INSIGHT_DRILLDOWN_V1.md",
@@ -41172,7 +41455,7 @@
       },
       {
         "path": "docs/product/EXPRESSIVE_DJ_PERSONA_CONTRACT.md",
-        "sha256": "a5c9bde64dc087acf3a9b4ab88480e5daebaa8f5b6cc5ef07c0b4ed66c1f202e"
+        "sha256": "39e010daf6a3e1b5109a5e407cdefa15b3d77c448eeb367992585c5123ad5764"
       },
       {
         "path": "docs/product/KNOWLEDGE_SOURCE_ARCHITECTURE.md",
@@ -41257,6 +41540,14 @@
       {
         "path": "docs/verification/HYBRID_LOCAL_TRANSPORT_SOURCE_READBACK_20261015.md",
         "sha256": "4bb082dd358cc9594240868cb163133be0320729b2d5687a337bcba2b5feeda3"
+      },
+      {
+        "path": "docs/product/SESSION_SPEECH_PERSONA_V1.md",
+        "sha256": "e357217fcfb95c1ceb10fde47600f4a594d4d6ee58ad237fc133fb45d85bec18"
+      },
+      {
+        "path": "docs/product/SESSION_SPEECH_DELIVERY_V1.md",
+        "sha256": "8147e214c3ac1c23dcc262ee8ebd87a7c47ec0ddbfea39d047c6e529e5ae2c9a"
       }
     ],
     "implementation_receipt": {
@@ -41714,6 +42005,29 @@
         "source_artifact_run": 38806846502,
         "source_formal_run": 38806846573
       }
+    },
+    "speech_persona_receipt": {
+      "assignment_id": "DJC-SESSION-SPEECH-PERSONA-VOICE-20261015",
+      "owner_selection": 6189231491,
+      "autonomous_next": 6189912293,
+      "base_sha": "70c0a3009910db8763e65949d0a10eade7d006dc",
+      "branch": "codex/session-speech-persona-voice-v1",
+      "ack": 6191876871,
+      "contract_commit": "e2072d8025056089b3bf403366307be70dd53ae8",
+      "material_commit": "03634bf7a8bcdc904505a4a22dc23fbae4dabd1b",
+      "previous_delta": "history/20261016/pre-speech-main582-maintenance-v11.json",
+      "previous_delta_sha256": "34f9801689d4b19c360c1b5b240fc0df3fa93d29332e8bd8eb06d117d359340b",
+      "phase": "LOCAL_IMPLEMENTATION_AND_QUALIFICATION",
+      "source_delivery": "UNPUBLISHED",
+      "native": "OPEN_APPLE",
+      "joint": "OPEN",
+      "installed": "NOT_RUN",
+      "hardware": "NOT_RUN",
+      "audible": "NOT_RUN",
+      "consumer_writes": false,
+      "same_writer": true,
+      "predecessor_closure": "https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6191836891",
+      "integration_main_sha": "58205056c235a73488591591dd3d83f80f7bf847"
     }
   }
 }

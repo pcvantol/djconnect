@@ -43,12 +43,12 @@ class SharedProducerContinuityTest(unittest.TestCase):
         return tuple(self.facts.recording_facts(self.catalog(number), self.recording(number, **kwargs)))
 
     def run_pair(self, *, locale="nl", discover=True, second=None, first=None,
-                 first_duration=300000, second_duration=300000, restart=False):
+                 first_duration=300000, second_duration=300000, restart=False, persona=None):
         async def scenario():
             now = [100.0]
             manager = self.runtime.SessionRuntimeManager(monotonic_source=lambda: now[0])
             async def start():
-                return await manager.async_start(owner_profile_id="owner", locale=locale,
+                return await manager.async_start(owner_profile_id="owner", locale=locale, dj_persona=persona or self.runtime.DJPersona.HOME_DJ,
                     music_backend="spotify_direct", session_start_strategy=self.runtime.SessionStartStrategy.DISCOVER
                     if discover else self.runtime.SessionStartStrategy.MANUAL)
             session = await start()
@@ -92,6 +92,22 @@ class SharedProducerContinuityTest(unittest.TestCase):
             self.assertIn("Producer 8", b.content)
             self.assertIn("url_previous", dict(b.source_attribution))
             self.assertNotEqual(a.content, b.content)
+
+    def test_recording_and_shared_producer_speech_preserve_all_persona_locale_sources(self):
+        from custom_components.djconnect import session_speech
+        from tests.speech_capture import capture
+        for locale in self.facts.LANGUAGES:
+            for persona in self.runtime.DJPersona:
+                a, b = self.run_pair(locale=locale, persona=persona)
+                for family, moment in (('recording_credits', a), ('shared_producer', b)):
+                    descriptor = session_speech.moment_projection(self.session.broadcast, moment)
+                    self.assertTrue(descriptor['manual_allowed'], (family, locale, persona, descriptor))
+                    self.assertEqual(''.join(part['text'] for part in descriptor['segments']), moment.content)
+                    self.assertEqual(descriptor['attribution'], [dict(moment.source_attribution)])
+                    self.assertFalse(descriptor['autoplay_eligible'])
+                    capture('credit-relation-speech', {'family': family, 'locale': locale,
+                        'persona': persona.value, 'moment': moment.as_dict(), 'speech': descriptor,
+                        'scope': 'Actual Runtime/Planner/Knowledge/Moment/Flow/Broadcast with elapsed fixture; pure private descriptor, no SQLite/native synthesis claim.'})
 
     def test_producer_choice_is_stable_under_source_order(self):
         _, a = self.run_pair(second=self.pool(1, ids=(8, 9)))

@@ -25,7 +25,7 @@ from .session_facts import (
     AlbumContinuityFact, PublishedAlbumContext,
 )
 from .moment_expression import realize as realize_fact_expression
-from .context_expression import FACT_FAMILIES, form_count, genre_copy
+from .context_expression import form_count, genre_copy
 from .native_moment_delivery import (
     MomentDeliveryBoundary, admission as native_admission, withdrawn_native_delivery,
 )
@@ -156,6 +156,7 @@ class BroadcastEventType(StrEnum):
     PLANNER_UPDATED = "planner_updated"
     MOOD_CHANGED = "mood_changed"
     PRESENCE_CHANGED = "presence_changed"
+    PERSONA_CHANGED = "persona_changed"
     FORECAST_CHANGED = "forecast_changed"
     TRACK_CHANGED = "track_changed"
     SESSION_FLOW_UPDATED = "session_flow_updated"
@@ -392,6 +393,56 @@ class DJMomentAction:
 
 
 @dataclass(frozen=True)
+class ObservedPlaybackNarration:
+    """Current-only immutable Runtime proof, never an archived observation copy."""
+
+    item_id: str
+    title: str
+    artist: str
+    source_url: str
+    observed_at: float
+    locale: str = "en"
+    artist_id: str = ""
+    genre: str = ""
+
+    def eligible(self, now: float) -> bool:
+        return bool(self.item_id == hashlib.sha256(("spotify:track:" + self.source_url.rsplit("/", 1)[-1]).encode()).hexdigest()[:24]
+                    and self.locale in {"en", "nl", "de", "fr", "es"} and _narrative_label(self.title, 160)
+                    and _narrative_label(self.artist, 160)
+                    and ((not self.artist_id and not self.genre) or
+                         (re.fullmatch(r"[A-Za-z0-9]{22}", self.artist_id) and _narrative_label(self.genre, 160) == self.genre))
+                    and re.fullmatch(r"https://open\.spotify\.com/track/[A-Za-z0-9]{22}", self.source_url)
+                    and 0 <= now - self.observed_at < 30)
+
+
+@dataclass(frozen=True)
+class GenreTransitionNarration:
+    """Published genre anchor plus a fresh observation, within one Runtime."""
+
+    earlier: QualifiedSessionFact
+    current: ObservedPlaybackNarration
+    source_moment_id: str
+    target_moment_id: str
+
+    def context(self) -> dict[str, str]:
+        core = self.earlier.display_core
+        return {"genre": core.subject, "artist": core.roles[1][1][0],
+                "source_track": core.roles[0][1][0], "target_track": self.current.title}
+
+    def eligible(self, now: float) -> bool:
+        fact, current = self.earlier, self.current
+        return bool(type(fact) is QualifiedSessionFact and fact.key == "genre_context"
+            and fact.display_core is not None and fact.display_core.validates(fact)
+            and fact.eligible(fact.media_identity, now) and current.eligible(now)
+            and self.source_moment_id and self.target_moment_id and self.source_moment_id != self.target_moment_id
+            and fact.source_url == "https://open.spotify.com/artist/"+current.artist_id
+            and fact.display_core.subject == current.genre
+            and fact.display_core.roles[1][1][0] == current.artist
+            and fact.display_core.roles[0][1][0] != current.title
+            and hashlib.sha256(fact.media_identity.encode()).hexdigest()[:24] != current.item_id)
+
+
+@dataclass(frozen=True)
 class DJMoment:
     """Universal immutable, validated presentation contribution."""
 
@@ -413,6 +464,8 @@ class DJMoment:
     visual_only: bool = field(default=False, repr=False)
     expression_form: str = field(default="", repr=False)
     source_fact: QualifiedSessionFact | None = field(default=None, repr=False)
+    observed_playback: ObservedPlaybackNarration | None = field(default=None, repr=False)
+    genre_transition: GenreTransitionNarration | None = field(default=None, repr=False)
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -1688,8 +1741,8 @@ class DJSessionPlanner:
             if remaining_seconds < read_seconds + 5:
                 continue
             moment_type = {"track_context": DJMomentType.TRACK, "album_story": DJMomentType.ALBUM,
-                           "artist_story": DJMomentType.ARTIST}[fact.intent]
-            score = {DJMomentType.TRACK: 30, DJMomentType.ALBUM: 20, DJMomentType.ARTIST: 10}[moment_type]
+                           "artist_story": DJMomentType.ARTIST, "genre_story": DJMomentType.GENRE}[fact.intent]
+            score = {DJMomentType.TRACK: 30, DJMomentType.ALBUM: 20, DJMomentType.ARTIST: 10, DJMomentType.GENRE: 5}[moment_type]
             reasons = ["current_scope"]
             if isinstance(fact, SharedProducerFact):
                 score += 100
@@ -1698,10 +1751,10 @@ class DJSessionPlanner:
                 score += 100
                 reasons.append("published_album_continuity")
             if session_start_strategy is SessionStartStrategy.DISCOVER or session_direction is SessionDirectionType.EXPLORING:
-                score += {DJMomentType.TRACK: 0, DJMomentType.ALBUM: 20, DJMomentType.ARTIST: 40}[moment_type]
+                score += {DJMomentType.TRACK: 0, DJMomentType.ALBUM: 20, DJMomentType.ARTIST: 40, DJMomentType.GENRE: 0}[moment_type]
                 reasons.append("exploration")
             if session_direction is SessionDirectionType.DEEPENING:
-                score += {DJMomentType.TRACK: 20, DJMomentType.ALBUM: 10, DJMomentType.ARTIST: 0}[moment_type]
+                score += {DJMomentType.TRACK: 20, DJMomentType.ALBUM: 10, DJMomentType.ARTIST: 0, DJMomentType.GENRE: 0}[moment_type]
                 reasons.append("deepening")
             if moment_type is DJMomentType.ALBUM:
                 if selected_mood in {"chill", "focus", "deep"}:
@@ -2009,33 +2062,38 @@ class DJMomentEngine:
         return key + ("|" + "|".join(fact.relation_key)
                       if isinstance(fact, (SharedProducerFact, AlbumContinuityFact)) else "")
 
+    def _qualified_variants(self, fact, selected_mood, persona, locale):
+        """Bounded approved syntax only; a raw source sentence is not a fallback."""
+        first = self.next_expression_form(persona, fact.key)
+        variants = []
+        count = form_count(fact.key)
+        for offset in range(count):
+            form = (first + offset) % count
+            try:
+                expressed = realize_fact_expression(fact, locale=locale, persona=persona.value,
+                                                    form=form, mood=selected_mood)
+            except (TypeError, ValueError, KeyError, IndexError, AttributeError):
+                continue
+            if expressed is not None:
+                summary, content = expressed
+                variants.append(QualifiedFactRealization(summary, content, self.fact_key(fact),
+                    f"{persona.value}:{fact.key}:{form}"))
+        return tuple(variants)
+
     def preview_qualified_fact(self, *, fact: QualifiedSessionFact, selected_mood: str,
                                persona: DJPersona, locale: str, remaining_seconds: float) -> QualifiedFactRealization | None:
-        """Pure Moment realization/read-fit; rejected previews have no memory."""
-        original = fact.copy_for(locale)
-        if original is None or not fact.eligible(fact.media_identity,time.monotonic()):
+        """Pure Persona realization/read-fit; rejected previews have no memory."""
+        if fact.copy_for(locale) is None or not fact.eligible(fact.media_identity, time.monotonic()):
             return None
-        form = self.next_expression_form(persona, fact.key)
-        try:
-            expressed = realize_fact_expression(fact,locale=locale,persona=persona.value,form=form,mood=selected_mood)
-        except (TypeError,ValueError,KeyError,IndexError,AttributeError):
-            expressed = None
-        expression_form = (f"{persona.value}:album_continuity:0" if expressed and isinstance(fact, AlbumContinuityFact)
-                           else f"{persona.value}:{fact.key}:{form}" if expressed and fact.key in FACT_FAMILIES | {"recording_credits", "shared_producer"} else "")
-        variants = ((expressed, expression_form), (original, ""))
-        for localized, expression_form in variants:
-            if localized is None:
+        for realization in self._qualified_variants(fact, selected_mood, persona, locale):
+            summary, content = realization.summary, realization.content
+            characters = len(summary) + len(content)
+            if len(summary) > 320 or len(content) > 1200 or characters > 90 * 14:
                 continue
-            summary,content=localized
-            characters=len(summary)+len(content)
-            # Never let duration clamping or the renderer's text bound hide an
-            # oversized fact. The exact source copy is the final short fallback.
-            if len(summary)>320 or len(content)>1200 or characters>90*14:
-                continue
-            read_seconds=_presentation_intent(selected_mood,persona,reading_characters=characters,
+            read_seconds = _presentation_intent(selected_mood, persona, reading_characters=characters,
                 minimum_duration_seconds=40).maximum_duration_seconds
-            if read_seconds+5 <= remaining_seconds:
-                return QualifiedFactRealization(summary,content,self.fact_key(fact),expression_form)
+            if read_seconds + 5 <= remaining_seconds:
+                return realization
         return None
 
     def next_expression_form(self, persona: DJPersona, family: str) -> int:
@@ -2068,8 +2126,16 @@ class DJMomentEngine:
         if isinstance(qualified, QualifiedSessionFact):
             return self.create_qualified_fact(session_id=session_id, intent=knowledge_intent, fact=qualified,
                                               selected_mood=selected_mood, persona=persona, locale=locale, realization=fact_realization)
+        observed = insight.get("_observed_playback")
+        if knowledge_intent.intent_type is KnowledgeIntentType.TRACK_CONTEXT and isinstance(observed, ObservedPlaybackNarration):
+            return self.create_playback_announcement(session_id=session_id, observed=observed,
+                selected_mood=selected_mood, persona=persona, locale=locale)
         track = insight.get("track") if isinstance(insight.get("track"), dict) else {}
         analysis = insight.get("analysis") if isinstance(insight.get("analysis"), dict) else {}
+        if (knowledge_intent.intent_type in {KnowledgeIntentType.TRACK_CONTEXT, KnowledgeIntentType.GENRE_STORY}
+                and analysis.get("basis") == "unmeasured_metadata_only_v1"):
+            return self.create_silence(session_id=session_id, selected_mood=selected_mood,
+                persona=persona, locale=locale, reason="unqualified_playback_announcement")
         title = _bounded_text(track.get("title"), 160)
         artist = _bounded_text(track.get("artist"), 160)
         summary = _bounded_text(analysis.get("summary"), 320)
@@ -2098,24 +2164,30 @@ class DJMomentEngine:
         moment_type, title, summary, content = specialized
         expression_form = ""
         if moment_type is DJMomentType.GENRE:
-            form = self.next_expression_form(persona, "genre_context")
-            expressed = genre_copy(locale=locale, persona=persona.value, form=form,
-                                   genre=title, title=_bounded_text(track.get("title"), 160),
-                                   artist=artist)
-            # Genre already has an approved read window. Never lengthen that
-            # window merely for style: the exact existing copy is the short
-            # fallback, including at a later track's remaining-time boundary.
+            first = self.next_expression_form(persona, "genre_context")
+            # Preserve the admitted read window, including later-track windows.
+            # Only authored Persona forms can fit it; raw metadata copy cannot
+            # silently bypass the same realization gate as qualified facts.
             original_seconds = _presentation_intent(
                 selected_mood, persona, reading_characters=len(summary) + len(content),
                 minimum_duration_seconds=45).maximum_duration_seconds
-            expressed_seconds = _presentation_intent(
-                selected_mood, persona, reading_characters=len(summary) + len(expressed or ""),
-                minimum_duration_seconds=45).maximum_duration_seconds
-            if (expressed and len(expressed) <= 1200
-                    and len(summary) + len(expressed) <= 90 * 14
-                    and expressed_seconds <= original_seconds):
-                content = expressed
-                expression_form = f"{persona.value}:genre_context:{form}"
+            for offset in range(form_count("genre_context")):
+                form = (first + offset) % form_count("genre_context")
+                expressed = genre_copy(locale=locale, persona=persona.value, form=form,
+                                       genre=title, title=_bounded_text(track.get("title"), 160),
+                                       artist=artist)
+                expressed_seconds = _presentation_intent(
+                    selected_mood, persona, reading_characters=len(summary) + len(expressed or ""),
+                    minimum_duration_seconds=45).maximum_duration_seconds
+                if (expressed and len(expressed) <= 1200
+                        and len(summary) + len(expressed) <= 90 * 14
+                        and expressed_seconds <= original_seconds):
+                    content = expressed
+                    expression_form = f"{persona.value}:genre_context:{form}"
+                    break
+            if not expression_form:
+                return self.create_silence(session_id=session_id, selected_mood=selected_mood,
+                                           persona=persona, locale=locale, reason="persona_read_window")
         source_hints = _planner_knowledge_hints(source_insight or insight)
         angle_key = f"{track_key}|{moment_type.value}"
         if angle_key in self._track_keys:
@@ -2177,13 +2249,10 @@ class DJMomentEngine:
         realization = realization or self.preview_qualified_fact(fact=fact,selected_mood=selected_mood,
             persona=persona,locale=locale,remaining_seconds=float("inf"))
         key = self.fact_key(fact)
-        expected = self.preview_qualified_fact(fact=fact,selected_mood=selected_mood,persona=persona,locale=locale,
-            remaining_seconds=float("inf"))
-        faithful_fallback = bool(realization and not realization.expression_form
-            and (realization.summary,realization.content)==fact.copy_for(locale)
-            and len(realization.summary)+len(realization.content)<=90*14
-            and len(realization.summary)<=320 and len(realization.content)<=1200)
-        if realization is None or (realization != expected and not faithful_fallback) or realization.source_key != key or not fact.eligible(fact.media_identity, time.monotonic()) or fact.intent != intent.intent_type.value or key in self._track_keys:
+        approved = self._qualified_variants(fact, selected_mood, persona, locale)
+        if (realization is None or realization not in approved or realization.source_key != key
+            or not fact.eligible(fact.media_identity, time.monotonic())
+            or fact.intent != intent.intent_type.value or key in self._track_keys):
             return self.create_silence(session_id=session_id, selected_mood=selected_mood, persona=persona, locale=locale, reason="unqualified_or_duplicate_fact")
         summary, content = realization.summary, realization.content
         self._track_keys.add(key)
@@ -2199,7 +2268,10 @@ class DJMomentEngine:
         moment = DJMoment(moment_id=identifier, session_id=session_id, created_at=_timestamp(), moment_type=moment_type,
                           knowledge_intent=intent, presentation_intent=_presentation_intent(selected_mood, persona, reading_characters=len(summary)+len(content), minimum_duration_seconds=40),
                           title=summary, summary=summary, content=content, artwork_url=None, actions=insight_actions, source_references=(fact.provider,),
-                          generation_metadata=(("provider", fact.provider), ("validated", "true")), source_context_fingerprint=hashlib.sha256(key.encode()).hexdigest(),
+                          generation_metadata=(("provider", fact.provider), ("validated", "true"))
+                              + ((("track_title", fact.display_core.roles[0][1][0]),
+                                  ("artist", fact.display_core.roles[1][1][0]), ("genre", fact.display_core.subject))
+                                 if fact.key == "genre_context" else ()), source_context_fingerprint=hashlib.sha256(key.encode()).hexdigest(),
                           source_attribution=(("provider", fact.provider), ("url", fact.source_url), ("license", fact.license))
                           + ((("url_previous", fact.previous_evidence.source_url),)
                              if isinstance(fact, SharedProducerFact) and fact.previous_evidence else ()),
@@ -2243,6 +2315,7 @@ class DJMomentEngine:
         selected_mood: str,
         persona: DJPersona,
         locale: str,
+        current_observed: ObservedPlaybackNarration | None = None,
     ) -> DJMoment:
         """Perform only one complete Planner-approved Transition decision."""
         if not _valid_transition_approval(approval):
@@ -2284,19 +2357,37 @@ class DJMomentEngine:
             if relation == "discover_same_artist_genre":
                 return _discover_transition_copy(locale, part, context)
             return _transition_copy(locale, part, source.title, target.title)
+        from .context_expression import transition_copy
+        content = transition_copy(locale=locale, persona=persona.value,
+            context=context if relation == "discover_same_artist_genre" else
+                {"source": source.title, "target": target.title}, relation=relation)
+        proof = None
+        if (relation == "discover_same_artist_genre" and source.source_fact is not None
+                and source.source_fact.key == "genre_context" and current_observed is not None):
+            candidate = GenreTransitionNarration(source.source_fact, current_observed, source_id, target_id)
+            if (candidate.eligible(time.monotonic()) and candidate.context() == context
+                    and target.observed_playback is not None and target.observed_playback.item_id == current_observed.item_id):
+                proof = candidate
+        intent = _presentation_intent(selected_mood, persona, reading_characters=len(copy("summary"))+len(content))
+        if proof is not None and time.monotonic()+intent.maximum_duration_seconds > proof.current.observed_at+30:
+            return self.create_silence(session_id=session_id, selected_mood=selected_mood, persona=persona,
+                locale=locale, reason="relation_read_window")
         moment = DJMoment(
             moment_id=f"moment-{uuid4().hex}",
             session_id=session_id,
             created_at=_timestamp(),
             moment_type=DJMomentType.TRANSITION,
             knowledge_intent=approval.knowledge_intent,
-            presentation_intent=_presentation_intent(selected_mood, persona),
+            presentation_intent=intent,
             title=copy("title"),
             summary=copy("summary"),
-            content=copy("content"),
+            content=content,
             artwork_url=None,
             actions=(),
             source_references=("session_flow",),
+            source_attribution=(("provider", "Spotify"), ("url", proof.current.source_url),
+                ("url_previous", proof.earlier.source_url), ("license", "Spotify-Policy")) if proof else (),
+            genre_transition=proof,
             generation_metadata=(
                 ("transition_from_moment_id", source.moment_id),
                 ("transition_to_moment_id", target.moment_id),
@@ -2305,6 +2396,33 @@ class DJMomentEngine:
                 ("validated", "true"),
             ),
         )
+        self.moments = (*self.moments, moment)
+        return moment
+
+    def create_playback_announcement(self, *, session_id: str, observed: ObservedPlaybackNarration,
+                                     selected_mood: str, persona: DJPersona, locale: str) -> DJMoment:
+        from .context_expression import playback_copy
+        key = observed.item_id + "|playback_announcement"
+        if not observed.eligible(time.monotonic()) or observed.locale != locale or key in self._track_keys:
+            return self.create_silence(session_id=session_id, selected_mood=selected_mood,
+                persona=persona, locale=locale, reason="invalid_or_duplicate_playback_announcement")
+        form = self.next_expression_form(persona, "playback_announcement")
+        content = playback_copy(locale=locale, persona=persona.value, form=form,
+            title=observed.title, artist=observed.artist)
+        moment = DJMoment(moment_id=f"moment-{uuid4().hex}", session_id=session_id, created_at=_timestamp(),
+            moment_type=DJMomentType.TRACK,
+            knowledge_intent=KnowledgeIntent(KnowledgeIntentType.TRACK_CONTEXT,
+                "Name the currently observed recording.", observed.item_id),
+            presentation_intent=_presentation_intent(selected_mood, persona, reading_characters=len(content),
+                minimum_duration_seconds=15), title=f"{observed.title} — {observed.artist}",
+            summary=f"{observed.title} — {observed.artist}", content=content, artwork_url=None, actions=(),
+            source_references=("spotify_playback_status",),
+            source_attribution=(("provider", "Spotify"), ("url", observed.source_url), ("license", "Spotify-Policy")),
+            generation_metadata=(("context_source", "observed_playback"), ("validated", "true"),
+                ("track_title", observed.title), ("artist", observed.artist), ("genre", observed.genre)),
+            visual_only=True, expression_form=f"{persona.value}:playback_announcement:{form}",
+            observed_playback=observed)
+        self._track_keys.add(key)
         self.moments = (*self.moments, moment)
         return moment
 
@@ -2342,7 +2460,7 @@ class DJMomentEngine:
             presentation_intent=_presentation_intent(selected_mood, persona),
             title=_session_direction_copy(locale, direction, "title"),
             summary=_session_direction_copy(locale, direction, "summary"),
-            content=_session_direction_copy(locale, direction, "content"),
+            content=_direction_narration(locale, direction, persona),
             artwork_url=None,
             actions=(),
             source_references=("session_direction",),
@@ -2371,12 +2489,15 @@ class KnowledgeContext:
     discover_context: DiscoverContext | None = None
     performance_memory: PerformanceMemory | None = None
     qualified_fact: QualifiedSessionFact | None = None
+    observed_playback: ObservedPlaybackNarration | None = None
 
     def as_insight(self) -> dict[str, Any]:
         """Adapt the safe context to the existing Moment Engine contract."""
         insight = {"track": dict(self.track), "analysis": dict(self.analysis)}
         if self.qualified_fact is not None:
             insight["_qualified_fact"] = self.qualified_fact
+        if self.observed_playback is not None:
+            insight["_observed_playback"] = self.observed_playback
         if self.session_direction is not None:
             insight["session_direction"] = self.session_direction.as_dict()
         if self.session_start_strategy is not None:
@@ -2471,6 +2592,10 @@ class DJKnowledgeEngine:
         """Reuse Track Insight while excluding raw Profile and Music DNA data."""
         track = raw_insight.get("track") if isinstance(raw_insight.get("track"), dict) else {}
         analysis = raw_insight.get("analysis") if isinstance(raw_insight.get("analysis"), dict) else {}
+        genre_fact = raw_insight.get("_qualified_genre_fact")
+        if (intent.intent_type is KnowledgeIntentType.GENRE_STORY and type(genre_fact) is QualifiedSessionFact
+                and genre_fact.key == "genre_context" and genre_fact.eligible(genre_fact.media_identity, time.monotonic())):
+            return KnowledgeContext(track=(), analysis=(), sources=(genre_fact.provider,), qualified_fact=genre_fact)
         primary_evidence = _primary_knowledge_evidence(intent.intent_type, track, analysis)
         if primary_evidence is not None:
             evidence_source, evidence_key, evidence_value = primary_evidence
@@ -2480,7 +2605,7 @@ class DJKnowledgeEngine:
             }
             analysis_values = {
                 key: _bounded_text(analysis.get(key), 1200)
-                for key in ("summary", "full_text")
+                for key in ("summary", "full_text", "basis")
             }
             if evidence_source == "track":
                 track_values[evidence_key] = evidence_value
@@ -2512,6 +2637,10 @@ class DJKnowledgeEngine:
                 )
             )
         track_fields, analysis_fields = _knowledge_fields_for_intent(intent.intent_type)
+        observed = raw_insight.get("_observed_playback")
+        observed = observed if (intent.intent_type is KnowledgeIntentType.TRACK_CONTEXT
+            and isinstance(observed, ObservedPlaybackNarration) and observed.eligible(time.monotonic())
+            and track.get("title") == observed.title and track.get("artist") == observed.artist) else None
         context = KnowledgeContext(
             track=tuple(
                 (key, value)
@@ -2525,6 +2654,7 @@ class DJKnowledgeEngine:
             ),
             sources=("track_insight",),
             personal_context_used=personal_context_authorized,
+            observed_playback=observed,
             session_direction=session_direction,
             session_start_strategy=session_start_strategy,
             session_mood=session_mood,
@@ -2551,6 +2681,15 @@ class DJKnowledgeEngine:
         personal_context_authorized: bool = False,
     ) -> KnowledgeContext:
         """Resolve an approved future intent from valid prefetch output or existing input."""
+        if (knowledge_intent.intent_type is KnowledgeIntentType.GENRE_STORY
+                and type(raw_insight.get("_qualified_genre_fact")) is QualifiedSessionFact):
+            # Prepared descriptive fields cannot replace exact current source
+            # qualification or turn an unmeasured fallback into spoken content.
+            return await self.async_assemble_track_context(intent=knowledge_intent,
+                raw_insight=raw_insight, session_direction=session_direction,
+                session_start_strategy=session_start_strategy, session_mood=session_mood,
+                discover_context=discover_context, performance_memory=performance_memory,
+                personal_context_authorized=personal_context_authorized)
         prepared_context = self._matching_prepared_context(
             approved_intent=approved_intent,
             planned_intent=planned_intent,
@@ -3054,7 +3193,12 @@ def _planning_realization_insight(
     }
     track.update(dict(knowledge.track))
     analysis.update(dict(knowledge.analysis))
-    return {"track": track, "analysis": analysis}
+    result = {"track": track, "analysis": analysis}
+    if knowledge.qualified_fact is not None:
+        result["_qualified_fact"] = knowledge.qualified_fact
+    if knowledge.observed_playback is not None:
+        result["_observed_playback"] = knowledge.observed_playback
+    return result
 
 
 def _knowledge_fields_for_intent(
@@ -3062,7 +3206,7 @@ def _knowledge_fields_for_intent(
 ) -> tuple[tuple[str, ...], tuple[str, ...]]:
     """Select only existing metadata relevant to one Planner-owned intent."""
     track_fields = ("title", "artist", "album", "artwork_url", "backend")
-    analysis_fields = ("summary", "full_text")
+    analysis_fields = ("summary", "full_text", "basis")
     if intent_type is KnowledgeIntentType.ARTIST_STORY:
         return (
             (*track_fields, "producer", "composer", "recording_context", "related_artists"),
@@ -3293,6 +3437,8 @@ class DJBroadcastState:
     mood_revision: int = 0
     selected_presence: str = DEFAULT_PRESENCE
     presence_revision: int = 0
+    dj_persona: str = "home_dj"
+    persona_revision: int = 0
 
     def as_dict(self, *, include_owner_only: bool = True) -> dict[str, Any]:
         """Return canonical state with its Planner-produced Session Flow."""
@@ -3304,6 +3450,8 @@ class DJBroadcastState:
                 "mood_revision": self.mood_revision,
                 "selected_presence": self.selected_presence,
                 "presence_revision": self.presence_revision,
+                "dj_persona": self.dj_persona,
+                "persona_revision": self.persona_revision,
                 "locale": self.locale,
             },
             "playback": self.playback.as_dict(),
@@ -3379,6 +3527,8 @@ class DJSessionBroadcastEngine:
     forecast_artwork: ForecastArtwork = field(default_factory=ForecastArtwork, repr=False)
     media_projector: Any = field(default=None, repr=False)
     media_cleanup: Any = field(default=None, repr=False)
+    speech_cleanup: Any = field(default=None, repr=False)
+    speech_refresh: Any = field(default=None, repr=False)
     _media_revision: str = field(default="", init=False, repr=False)
     pending_events: tuple[BroadcastEventType, ...] = ()
     replay_log_limit: int = 128
@@ -3560,6 +3710,10 @@ class DJSessionBroadcastEngine:
 
     def close(self) -> None:
         """Notify renderers of Runtime termination, then release every subscription."""
+        if self.speech_cleanup is not None:
+            self.speech_cleanup()
+            self.speech_cleanup = None
+            self.speech_refresh = None
         state = self.as_dict()
         self._publish(BroadcastEventType.RUNTIME_ENDED, {"session": state["session"]})
         self._publish(BroadcastEventType.BROADCAST_STOPPED, {"broadcast": state["broadcast"]})
@@ -3578,9 +3732,12 @@ class DJSessionBroadcastEngine:
 
     def _publish(self, event_type: BroadcastEventType, payload: dict[str, Any]) -> None:
         """Deliver one incremental, renderer-safe event to active subscribers."""
+        if self.speech_refresh is not None:
+            self.speech_refresh()
         self.delivery_sequence += 1
         opaque_cursor = secrets.token_urlsafe(32)
-        payload = self._safe_delivery_payload(payload)
+        payload = self._safe_delivery_payload(payload,
+            new_publication=event_type is BroadcastEventType.DJ_MOMENT_PUBLISHED)
         self._native_revision = payload["native_delivery"]["revision"]
         self._append_replay_entry(event_type, payload, opaque_cursor)
         self._issue_recovery_cursor(opaque_cursor)
@@ -3601,7 +3758,8 @@ class DJSessionBroadcastEngine:
                                 "payload": self.subscription_withdrawal_payload()}
             else:
                 scoped_event = {**event, "payload": self._safe_delivery_payload(
-                    payload, include_owner_only=include_owner_only)}
+                    payload, include_owner_only=include_owner_only,
+                    new_publication=event_type is BroadcastEventType.DJ_MOMENT_PUBLISHED)}
             pending_events = self._pending_subscriptions.get(subscription_id)
             if pending_events is not None:
                 if subscription_id in self._revoked_subscriptions:
@@ -3757,7 +3915,8 @@ class DJSessionBroadcastEngine:
             return
         self._moment_delivery_boundaries.setdefault(moment.moment_id, MomentDeliveryBoundary(
             time.monotonic(), moment.created_at, self.state.playback.item_id,
-            tuple((key, getattr(self.state.playback,key)) for key in ("title","artist","album","duration_ms"))))
+            tuple((key, getattr(self.state.playback,key)) for key in ("title","artist","album","duration_ms")),
+            self.state.persona_revision))
         if moment.presentation_intent.visibility is DJMomentVisibility.OWNER_ONLY:
             self._owner_only_moment_ids.add(moment.moment_id)
 
@@ -3794,7 +3953,8 @@ class DJSessionBroadcastEngine:
         result["revision"] = hashlib.sha256(json.dumps(result, sort_keys=True).encode()).hexdigest()[:24]
         return result
 
-    def _safe_delivery_payload(self, payload: dict[str, Any], *, include_owner_only: bool = True, historical: bool = False) -> dict[str, Any]:
+    def _safe_delivery_payload(self, payload: dict[str, Any], *, include_owner_only: bool = True,
+                               historical: bool = False, new_publication: bool = False) -> dict[str, Any]:
         """Remove expired source copies at every transport delivery boundary."""
         native = self.native_delivery(include_owner_only=include_owner_only)
         # Use all scopes for redaction even when the receiver lacks an owner card.
@@ -3820,6 +3980,16 @@ class DJSessionBroadcastEngine:
             result["session_flow"]["items"] = [item for item in result["session_flow"]["items"]
                                                if item.get("moment_id") not in excluded]
         result["native_delivery"] = native
+        result.pop("session_speech", None)
+        if include_owner_only:
+            from .session_speech import moment_projection
+            admissions = {a["moment_id"]: a for a in native["admissions"]}
+            published_id = result.get("dj_moment", {}).get("moment_id") if new_publication and not historical else None
+            result["session_speech"] = {"schema_version": 1, "moments": [
+                moment_projection(self, moment, admission=admissions[moment.moment_id],
+                                  autoplay=moment.moment_id == published_id)
+                for moment in self.state.dj_moments[-64:]
+                if moment.moment_id in admissions and moment.moment_type is not DJMomentType.SILENCE]}
         result.pop("session_media", None)
         if include_owner_only and self.media_projector is not None:
             result["session_media"] = self.media_projector()
@@ -3879,6 +4049,14 @@ class PresenceRevisionConflictError(RuntimeError):
     def __init__(self, active: "DJSessionRuntime") -> None:
         self.active = active
         super().__init__("presence_revision_conflict")
+
+
+class PersonaRevisionConflictError(RuntimeError):
+    """Authorized Persona CAS conflict with current Runtime state."""
+
+    def __init__(self, active: "DJSessionRuntime") -> None:
+        self.active = active
+        super().__init__("persona_revision_conflict")
 
 
 class ActiveSessionExistsError(RuntimeError):
@@ -3944,7 +4122,7 @@ def _safe_intra_track_insight(raw_insight: dict[str, Any]) -> dict[str, Any]:
     safe_track["artwork_url"] = _safe_artwork_url(track.get("artwork_url"))
     safe_analysis = {
         key: _bounded_evidence_value(analysis.get(key), limit)
-        for key, limit in (("summary", 320), ("full_text", 1200), ("genre", 160))
+        for key, limit in (("summary", 320), ("full_text", 1200), ("genre", 160), ("basis", 80))
     }
     if not all(safe_track.get(key) for key in ("title", "artist")):
         return {}
@@ -3999,6 +4177,7 @@ class DJSessionRuntime:
             "room": self.room,
             "selected_mood": self.selected_mood,
             "dj_persona": self.dj_persona.value,
+            "persona_revision": self.persona_revision,
             "locale": self.locale,
             "music_backend": self.music_backend,
             "runtime_state": str(self.runtime_state),
@@ -4183,6 +4362,7 @@ class SessionRuntimeManager:
                 moment_engine=DJMomentEngine(),
                 presentation_composer=PresentationComposer(),
                 broadcast=_create_broadcast_engine(
+                    dj_persona=dj_persona,
                     session_id=session_id,
                     runtime_state=SessionRuntimeState.CREATING,
                     selected_mood=selected_mood,
@@ -4797,8 +4977,19 @@ class SessionRuntimeManager:
                     or not active.allows_proactive()):
                 self._restore_track_started_media_locked(owner_profile_id, session_id, media_identity, previous_media_identity)
                 return None
+            raw_insight = dict(raw_insight)
+            raw_insight.pop("_qualified_genre_fact", None)
             facts = raw_insight.get("_qualified_facts")
             opportunity = self._intra_track_opportunities.get(owner_profile_id)
+            if (require_current_playback and not facts
+                    and isinstance(raw_insight.get("analysis"), dict)
+                    and raw_insight["analysis"].get("basis") == "unmeasured_metadata_only_v1"):
+                from .session_facts import observed_genre_facts
+                playback = active.broadcast.state.playback
+                genre_facts = observed_genre_facts(raw_insight.get("_session_narrative_evidence"),
+                    media_identity=media_identity, title=playback.title, artist=playback.artist)
+                if genre_facts:
+                    raw_insight["_qualified_genre_fact"] = genre_facts[0]
             if isinstance(facts, tuple) and opportunity is not None and opportunity.media_identity == media_identity and not opportunity.blocked:
                 opportunity.qualified_facts = tuple(fact for fact in facts[:6] if type(fact) is QualifiedSessionFact
                                                     and fact.eligible(media_identity, time.monotonic()))
@@ -4808,6 +4999,24 @@ class SessionRuntimeManager:
                 # Initial metadata establishes the old baseline unless a new
                 # qualified source fact exists; never manufacture an intro.
                 return None
+            raw_insight = dict(raw_insight)
+            # A provider cannot supply its own Runtime acceptance proof. Only
+            # the actual observed playing projection can open this fallback.
+            raw_insight.pop("_observed_playback", None)
+            track = raw_insight.get("track") or {}
+            analysis = raw_insight.get("analysis") or {}
+            playback = active.broadcast.state.playback
+            if (require_current_playback and opportunity is not None
+                    and analysis.get("basis") == "unmeasured_metadata_only_v1"
+                    and playback.state == "playing"
+                    and playback.item_id == hashlib.sha256(media_identity.encode()).hexdigest()[:24]
+                    and track.get("title") == playback.title and track.get("artist") == playback.artist):
+                proof = ObservedPlaybackNarration(playback.item_id, playback.title, playback.artist,
+                    playback.source_url, opportunity.last_observed_monotonic, active.locale,
+                    raw_insight["_qualified_genre_fact"].source_url.rsplit("/", 1)[-1] if "_qualified_genre_fact" in raw_insight else "",
+                    raw_insight["_qualified_genre_fact"].display_core.subject if "_qualified_genre_fact" in raw_insight else "")
+                if proof.eligible(self._monotonic_source()):
+                    raw_insight["_observed_playback"] = proof
             working_planner = copy.deepcopy(active.planner)
             working_knowledge_engine = copy.deepcopy(active.knowledge_engine)
             working_moment_engine = copy.deepcopy(active.moment_engine)
@@ -5190,8 +5399,18 @@ class SessionRuntimeManager:
             opportunity.pending_transition = None
             return None
         working_engine = copy.deepcopy(active.moment_engine)
+        current_observed = None
+        target = next((m for m in active.broadcast.state.dj_moments
+                       if m.moment_id == decision.transition_moment_ids[1]), None)
+        if (target is not None and target.observed_playback is not None
+                and target.observed_playback.item_id == playback.item_id
+                and target.observed_playback.title == playback.title and target.observed_playback.artist == playback.artist):
+            prior = target.observed_playback
+            current_observed = ObservedPlaybackNarration(playback.item_id, playback.title, playback.artist,
+                playback.source_url, opportunity.last_observed_monotonic, active.locale, prior.artist_id, prior.genre)
         transition = working_engine.create_transition(session_id=active.session_id, approval=decision,
-            selected_mood=active.selected_mood, persona=active.dj_persona, locale=active.locale)
+            selected_mood=active.selected_mood, persona=active.dj_persona, locale=active.locale,
+            current_observed=current_observed)
         if (transition.moment_type is not DJMomentType.TRANSITION
                 or playback.duration_ms - opportunity.last_observed_position_ms <
                     (transition.presentation_intent.maximum_duration_seconds + 5) * 1000):
@@ -5352,13 +5571,21 @@ class SessionRuntimeManager:
             return updated
 
     async def async_update_persona(
-        self, *, owner_profile_id: str, session_id: str, dj_persona: DJPersona
+        self, *, owner_profile_id: str, session_id: str, dj_persona: DJPersona,
+        expected_revision: int | None = None, authorize: Callable[[], bool] | None = None,
     ) -> DJSessionRuntime | None:
         """Change only future Moment behaviour for this active Runtime."""
+        dj_persona = DJPersona(dj_persona)
         async with self._lock:
+            if authorize is not None and not authorize():
+                raise PermissionError("unauthorized")
             active = self._active_by_profile.get(owner_profile_id)
             if active is None or active.session_id != session_id:
                 return None
+            if expected_revision is not None and expected_revision != active.persona_revision:
+                raise PersonaRevisionConflictError(active)
+            if dj_persona is active.dj_persona:
+                return active
             if (active.planner.discover_narrative_line is not None
                     and dj_persona is not active.dj_persona):
                 active.planner.clear_discover_narrative()
@@ -5368,9 +5595,12 @@ class SessionRuntimeManager:
                     opportunity.pending_transition = None
             updated = DJSessionRuntime(**{**active.__dict__, "dj_persona": dj_persona,
                 "persona_revision": active.persona_revision + (dj_persona is not active.dj_persona)})
+            active.broadcast.state = DJBroadcastState(**{**active.broadcast.state.__dict__,
+                "dj_persona": dj_persona.value, "persona_revision": updated.persona_revision})
             active.presence_ledger.persona_revision = updated.persona_revision
             self._active_by_profile[owner_profile_id] = updated
             active.broadcast.update_forecast(updated)
+            active.broadcast._publish(BroadcastEventType.PERSONA_CHANGED, {"session": active.broadcast.as_dict()["session"]})
             return updated
 
     async def async_accept_conversation(
@@ -5381,6 +5611,7 @@ class SessionRuntimeManager:
         playback_item_id: str,
         track_bound: bool,
         commit,
+        persona_revision: int | None = None,
     ):
         """Serialize the brief accepted Store/reference commit against Runtime end."""
         async with self._lock:
@@ -5388,6 +5619,7 @@ class SessionRuntimeManager:
             if (
                 active is None
                 or active.session_id != session_id
+                or (persona_revision is not None and active.persona_revision != persona_revision)
                 or (track_bound and active.broadcast.state.playback.item_id != playback_item_id)
             ):
                 raise ValueError("session_context_changed")
@@ -5686,6 +5918,14 @@ class SessionRuntimeManager:
             source = getattr(moment, "source_fact", None)
             if source is not None and not source.eligible(source.media_identity, time.monotonic()):
                 return False
+            observed = moment.observed_playback
+            if observed is not None and (not observed.eligible(self._monotonic_source())
+                    or active.broadcast.state.playback.item_id != observed.item_id):
+                return False
+            relation = moment.genre_transition
+            if relation is not None and (not relation.eligible(self._monotonic_source())
+                    or active.broadcast.state.playback.item_id != relation.current.item_id):
+                return False
             if opportunity is not None and moment.moment_type is not DJMomentType.SESSION:
                 playback = active.broadcast.state.playback
                 age = self._monotonic_source() - opportunity.last_observed_monotonic
@@ -5737,7 +5977,8 @@ class SessionRuntimeManager:
                      "body":{"moment_id":moment.moment_id,"moment_type":moment.moment_type.value,
                              "text":moment.content,"summary":moment.summary,
                              "source_attribution":dict(moment.source_attribution),"archive_basis":basis,
-                             "persona":active.dj_persona.value,"locale":active.locale}}
+                             "persona":moment.presentation_intent.dj_persona.value,
+                             "persona_revision":active.persona_revision,"locale":active.locale}}
             if basis == "cc0_normalized_fields_v1":
                 from .ask_dj.dialogue import normalized_subjects
                 entry["body"]["dialogue_subjects"] = normalized_subjects(source)
@@ -6168,6 +6409,7 @@ def _create_broadcast_engine(
     session_id: str,
     runtime_state: SessionRuntimeState,
     selected_mood: str,
+    dj_persona: DJPersona = DJPersona.HOME_DJ,
     locale: str = "en",
     session_direction: SessionDirection,
     planner: DJSessionPlanner,
@@ -6179,6 +6421,7 @@ def _create_broadcast_engine(
             session_id=session_id,
             runtime_state=runtime_state,
             selected_mood=selected_mood,
+            dj_persona=dj_persona.value,
             locale=_locale_family(locale),
             planning_state=planner.planner_state,
             planning_horizon_minutes=planner.planning_horizon_minutes,
@@ -6405,7 +6648,7 @@ def _planner_knowledge_hints(raw_insight: dict[str, Any]) -> dict[str, str]:
         "related_tracks": _bounded_text(track.get("related_tracks") or analysis.get("similar_tracks"), 1200),
         "producer": _bounded_text(track.get("producer") or track.get("recording_context"), 600),
         "release_year": _bounded_text(track.get("release_year") or track.get("release_date"), 32),
-        "genre": _bounded_text(analysis.get("genre") or track.get("genres"), 160),
+        "genre": _bounded_evidence_value(analysis.get("genre"), 160) or _bounded_evidence_value(track.get("genres"), 160),
         "artist": _bounded_text(track.get("artist"), 160),
         "album": _bounded_text(track.get("album"), 160),
         "summary": _bounded_text(analysis.get("summary"), 320),
@@ -6467,6 +6710,11 @@ def _genre_moment_copy(locale: str, genre: str, title: str, artist: str) -> tupl
         "es": ("Género: {genre}", "El contexto de género de {title} de {artist} es {genre}."),
     }
     return tuple(part.format(genre=genre, title=title, artist=artist) for part in copy[_locale_family(locale)])
+
+
+def _direction_narration(locale: str, direction: SessionDirectionType, persona: DJPersona) -> str:
+    from .forecast_expression import direction_narration
+    return direction_narration(direction.value, _locale_family(locale), persona.value)
 
 
 def _session_direction_copy(

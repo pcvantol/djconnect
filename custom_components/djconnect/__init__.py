@@ -114,6 +114,10 @@ from .http import (
     DJConnectStatusView,
     DJConnectSessionStartView,
     DJConnectSessionMoodView,
+    DJConnectSessionPersonaView,
+    DJConnectSpeechPrepareView,
+    DJConnectSpeechVoiceOptionsView,
+    DJConnectSpeechAudioView,
     DJConnectSessionPresenceView,
     DJConnectSessionForecastView,
     DJConnectForecastImageView,
@@ -1830,6 +1834,10 @@ def register_http_views(hass: HomeAssistant) -> None:
             DJConnectTransportCapabilitiesView(),
             DJConnectSessionStartView(hass),
             DJConnectSessionMoodView(hass),
+            DJConnectSessionPersonaView(hass),
+            DJConnectSpeechPrepareView(hass),
+            DJConnectSpeechVoiceOptionsView(hass),
+            DJConnectSpeechAudioView(hass),
             DJConnectSessionPresenceView(hass),
             DJConnectSessionForecastView(hass),
             DJConnectSessionMediaPrepareView(hass),
@@ -3424,6 +3432,9 @@ def _has_runtime_entries(hass: HomeAssistant) -> bool:
 async def _async_clear_all_server_state(hass: HomeAssistant) -> None:
     """Clear server-side state after the last DJConnect entry unloads."""
     domain_data = hass.data.setdefault(DOMAIN, {})
+    if "tts_audio_authority_revision" in domain_data:
+        from .dj_response import invalidate_private_speech_sources
+        invalidate_private_speech_sources(hass)
     handoff_manager = domain_data.pop("broadcast_handoff_manager", None)
     if handoff_manager is not None:
         await handoff_manager.clear()

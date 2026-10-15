@@ -26,6 +26,84 @@ from .tts import UnsupportedTtsAudioError, TtsAudio, create_tts_audio
 _LOGGER = logging.getLogger(__name__)
 
 
+class PrivateSpeechSource:
+    """Callback-only lifecycle metadata in the existing temporary audio owner."""
+
+    def __init__(self, hass, validate, *, expires_at, session_id=None):
+        self.hass, self.validate = hass, validate
+        self.expires_at, self.session_id = expires_at, session_id
+        domain = hass.data.setdefault(DOMAIN, {})
+        self.epoch = domain.setdefault("tts_audio_authority_revision", 0)
+        self.callbacks = []
+        self.timer = None
+        self.withdrawn = False
+
+    def __call__(self):
+        domain = self.hass.data.get(DOMAIN, {})
+        try:
+            if (self.withdrawn or time.time() >= self.expires_at
+                    or domain.get("tts_audio_authority_revision") != self.epoch):
+                raise PermissionError("speech_source_withdrawn")
+            self.validate()
+        except Exception:
+            self.withdraw()
+            raise
+
+    def withdraw(self):
+        self.withdrawn = True
+        self._unwatch()
+        callbacks, self.callbacks = self.callbacks, []
+        for callback in callbacks:
+            try:
+                callback()
+            except Exception:
+                _LOGGER.debug("Private speech withdrawal callback failed")
+
+    def _unwatch(self):
+        self.hass.data.get(DOMAIN, {}).get("tts_audio_source_watches", {}).pop(id(self), None)
+        if self.timer is not None:
+            self.timer.cancel()
+            self.timer = None
+
+    def on_withdraw(self, callback):
+        import asyncio
+        self()
+        watches = self.hass.data.setdefault(DOMAIN, {}).setdefault("tts_audio_source_watches", {})
+        if id(self) not in watches:
+            if len(watches) >= 64:
+                raise ValueError("speech_capacity")
+            watches[id(self)] = self
+            self.timer = asyncio.get_running_loop().call_later(
+                max(0, self.expires_at - time.time()), self.withdraw)
+        self.callbacks.append(callback)
+        def remove():
+            if callback in self.callbacks:
+                self.callbacks.remove(callback)
+            if not self.callbacks:
+                self._unwatch()
+        return remove
+
+
+def invalidate_private_speech_sources(hass, *, session_id=None):
+    """Existing byte-owner revocation; no events, provider work or body archive."""
+    domain = hass.data.get(DOMAIN, {})
+    if session_id is None:
+        domain["tts_audio_authority_revision"] = domain.get("tts_audio_authority_revision", 0) + 1
+    for watch in tuple(domain.get("tts_audio_source_watches", {}).values()):
+        if session_id is None or watch.session_id == session_id:
+            watch.withdraw()
+
+
+def collect_private_speech_sources(hass, *, session_id):
+    """Reuse an existing publication/lifecycle tick, never create a monitor."""
+    for watch in tuple(hass.data.get(DOMAIN, {}).get("tts_audio_source_watches", {}).values()):
+        if watch.session_id == session_id:
+            try:
+                watch()
+            except Exception:
+                pass  # The source already withdrew its callbacks and bytes.
+
+
 @dataclass
 class TtsAudioItem:
     """Temporary audio item served to the paired DJConnect device."""
@@ -34,6 +112,9 @@ class TtsAudioItem:
     content_type: str
     extension: str
     expires_at: float
+    owner_profile_id: str | None = None
+    admission: Any = None
+    cache_key: tuple | None = None
 
 
 def _store(hass: HomeAssistant) -> dict[str, TtsAudioItem]:
@@ -53,12 +134,44 @@ def get_tts_audio(hass: HomeAssistant, token: str) -> tuple[int, TtsAudioItem | 
     """Return status code and audio bytes for a temporary TTS token."""
     store = _store(hass)
     item = store.get(token)
-    if item is None:
+    if item is None or item.owner_profile_id is not None:
         return 404, None
     if item.expires_at <= time.time():
         store.pop(token, None)
         return 410, None
     return 200, item
+
+
+def get_private_tts_audio(hass, token, owner_profile_id):
+    """The caller must separately prove current ordinary paired Profile authority."""
+    cleanup_tts_audio(hass)
+    item = _store(hass).get(token)
+    if item is None or item.owner_profile_id != owner_profile_id or item.admission is None:
+        raise PermissionError("speech_audio_unavailable")
+    try:
+        item.admission()
+    except Exception:
+        _store(hass).pop(token, None)
+        raise PermissionError("speech_audio_unavailable") from None
+    return item
+
+
+def store_private_tts_audio(hass, audio, *, owner_profile_id, admission, cache_key, expires_at):
+    """Same RAM byte owner as legacy ESP; private slots have a hard total bound."""
+    cleanup_tts_audio(hass)
+    admission()
+    store = _store(hass)
+    private = [(key, value) for key, value in store.items() if value.owner_profile_id is not None]
+    own = [(key, value) for key, value in private if value.owner_profile_id == owner_profile_id]
+    if len(private) >= 64 or len(own) >= 8:
+        raise ValueError("speech_capacity")
+    if not 0 < len(audio.data) <= 2 * 1024 * 1024 or expires_at <= time.time():
+        raise ValueError("unsupported_audio_extent")
+    token = secrets.token_urlsafe(24)
+    store[token] = TtsAudioItem(audio.data, audio.content_type, audio.extension, expires_at,
+                              owner_profile_id, admission, cache_key)
+    admission.on_withdraw(lambda: store.pop(token, None))
+    return token
 
 
 def store_tts_audio(
@@ -208,3 +321,98 @@ def _format_exception(exc: Exception) -> str:
 
 async def _async_ha_base_url(hass: HomeAssistant, conf: dict[str, Any]) -> str:
     return await async_ha_local_url(hass, conf)
+
+
+async def prepare_private_tts_audio(hass, *, owner_profile_id, cache_key, expires_at, admission, synthesize):
+    """Deduplicate only private presentation work; never dispatch original semantics."""
+    import asyncio
+
+    cleanup_tts_audio(hass)
+    admission()
+    for token, item in list(_store(hass).items()):
+        if item.owner_profile_id == owner_profile_id and item.cache_key == cache_key:
+            try:
+                item.admission()
+            except Exception:
+                _store(hass).pop(token, None)
+            else:
+                return token
+    domain = hass.data.setdefault(DOMAIN, {})
+    pending = domain.setdefault("tts_audio_preparations", {})
+    backoff = domain.setdefault("tts_audio_backoff", {})
+    now = time.monotonic()
+    for key, deadline in list(backoff.items()):
+        if deadline <= now:
+            del backoff[key]
+    if cache_key in backoff:
+        raise ValueError("speech_retry_backoff")
+    job = pending.get(cache_key)
+    if job is None:
+        if len(pending) >= 64 or sum(key[0] == owner_profile_id for key in pending) >= 2:
+            raise ValueError("speech_capacity")
+        job = {"waiters": {}}
+        def accepted_admission():
+            for validate in list(job["waiters"].values()):
+                try:
+                    validate()
+                except Exception:
+                    continue
+                return validate
+            raise PermissionError("speech_request_withdrawn")
+
+        async def prepare():
+            try:
+                async with asyncio.timeout(20):
+                    accepted_admission()
+                    audio = await synthesize()
+                    validate = accepted_admission()
+                    return store_private_tts_audio(hass, audio, owner_profile_id=owner_profile_id,
+                        admission=validate, cache_key=cache_key, expires_at=expires_at)
+            except asyncio.CancelledError:
+                raise
+            except Exception:
+                if len(backoff) >= 64:
+                    backoff.pop(next(iter(backoff)))
+                backoff[cache_key] = time.monotonic() + 60
+                raise
+
+        task = asyncio.create_task(prepare())
+        job["task"] = task
+        pending[cache_key] = job
+        def finished(done):
+            if pending.get(cache_key) is job:
+                pending.pop(cache_key, None)
+            if not done.cancelled():
+                done.exception()  # An abandoned owner task never emits unobserved errors.
+        task.add_done_callback(finished)
+    if len(job["waiters"]) >= 8:
+        raise ValueError("speech_capacity")
+    caller = object()
+    job["waiters"][caller] = admission
+    def withdraw():
+        job["waiters"].pop(caller, None)
+        # Revocation/expiry/cancel stops orphan work, while a valid joined
+        # caller retains the same actual owner task/slot until it is settled.
+        if not job["waiters"] and not job["task"].done():
+            job["task"].cancel()
+    try:
+        unsubscribe = admission.on_withdraw(withdraw)
+    except BaseException:
+        withdraw()
+        raise
+    try:
+        try:
+            token = await asyncio.shield(job["task"])
+        except asyncio.CancelledError:
+            # Source withdrawal cancels the owner job, not the HTTP caller.
+            # Preserve genuine caller cancellation; otherwise return a typed
+            # unavailable reference through the common preparation handler.
+            if job["task"].cancelled() and not asyncio.current_task().cancelling():
+                raise PermissionError("speech_source_withdrawn") from None
+            raise
+        admission()
+        return token
+    finally:
+        if callable(unsubscribe):
+            unsubscribe()
+        withdraw()

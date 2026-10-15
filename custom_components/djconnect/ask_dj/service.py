@@ -73,6 +73,9 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
     client_id = payload.get("client_message_id")
     if not _identifier(client_id):
         raise SessionConversationError("client_message_id_required", 400)
+    speech_version = payload.get("speech_contract_version")
+    if speech_version is not None and (type(speech_version) is not int or speech_version != 1):
+        raise SessionConversationError("unsupported_speech_contract", 400)
     context = _context(payload)
     text = str(payload.get("text") or payload.get("message") or "").strip()
     if not text or len(text) > 4000:
@@ -84,7 +87,7 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
     digest = hashlib.sha256(json.dumps({"context": context, "text": text,
         "choice_action": payload.get("choice_action"), "command_action": payload.get("_command_action"),
         "track_insight_target":payload.get("track_insight_target"),
-        "options":{k:payload.get(k) for k in ("language","locale","mood","dj_persona","audio_response","privacy_mode")}}, sort_keys=True).encode()).hexdigest()
+        "options":{k:payload.get(k) for k in ("language","locale","mood","dj_persona","audio_response","privacy_mode","speech_contract_version")}}, sort_keys=True).encode()).hexdigest()
     scope, thread = "profile:" + profile_id, context.get("thread_id") or "default"
     history_manager.register_session_request(scope, client_id)
     token = None
@@ -102,6 +105,17 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
         def query():
             return query_service(hass, history_manager)
         active = await manager.async_get_active(profile_id)
+        # Style is captured once, including general-screen turns enriched by an
+        # active Session. Never relabel or accept old prose after a live CAS.
+        style_session = active.session_id if active else ""
+        style_revision = active.persona_revision if active else None
+        def validate_persona():
+            if style_session:
+                current = manager.current_active(profile_id)
+                if (current is None or current.session_id != style_session
+                    or current.persona_revision != style_revision):
+                    raise SessionConversationError("conversation_context_changed")
+
         session_id = context.get("session_id") or ""
         if session_id and (active is None or active.session_id != session_id):
             raise SessionConversationError("session_context_changed")
@@ -130,6 +144,8 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
         if not reserved:
             accepted, admission = await asyncio.shield(future)
             result = deepcopy(accepted)
+            if "session_speech" in result:
+                result["session_speech"]["autoplay_eligible"] = False
             # The original caller's fence does not authorize another joined
             # transport whose pairing/entry may have been withdrawn meanwhile.
             await admission(owner=validate_owner, immediate=validate_immediate)
@@ -215,6 +231,7 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
                 if current is None or current.session_id != playback_fence_session or (
                     track_bound and not explicit_action and current.broadcast.state.playback.item_id != captured):
                     raise SessionConversationError("session_context_changed")
+            validate_persona()
             if frame.generation != generation:
                 raise SessionConversationError("conversation_context_changed")
             if immediate is not None:
@@ -272,6 +289,7 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
                 return result
         turn_record = {"turn_id": "turn-" + uuid5(NAMESPACE_URL, scope + ":" + client_id).hex,
                        "request_digest": digest, "profile_id": profile_id, "context": context,
+                       "effective_style": {**turn.style, "persona_revision": style_revision},
                        "captured_playback_item_id": captured if track_bound else "",
                        "input_type": "voice" if payload.get("input_type") == "voice" else "text",
                        "explicit_playback_request": explicit_action,
@@ -282,7 +300,7 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
             new = saved is None
             async def persistence_guard():
                 # SessionRuntimeManager owns its short lock here; never reacquire it.
-                await guard(check_runtime=not bool(session_id))
+                await guard(check_runtime=not bool(style_session))
 
             async def finish():
                 nonlocal saved
@@ -311,6 +329,7 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
                         if current is None or current.session_id != session_id or (
                             track_bound and not explicit_action and current.broadcast.state.playback.item_id != captured):
                             raise SessionConversationError("session_context_changed")
+                    validate_persona()
                     if validate_immediate is not None:
                         validate_immediate()
                 except Exception:
@@ -320,9 +339,10 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
                         await history_manager.async_discard_session_exchange(scope, client_id, turn_record["turn_id"])
                     raise
                 return entries
-            if session_id:
-                ids = await manager.async_accept_conversation(owner_profile_id=profile_id, session_id=session_id,
-                    playback_item_id=captured, track_bound=track_bound and not explicit_action, commit=finish)
+            if style_session:
+                ids = await manager.async_accept_conversation(owner_profile_id=profile_id, session_id=style_session,
+                    playback_item_id=captured, track_bound=track_bound and not explicit_action,
+                    persona_revision=style_revision, commit=finish)
             else:
                 ids = await async_complete_conversation_commit(finish)
         if not saved or not result.get("deduplicated"):
@@ -350,9 +370,38 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
             "owner_profile_id": profile_id, "client_message_id": client_id,
             "conversation": {"schema_version": 1, "turn_id": turn_record["turn_id"], "thread_id": thread,
                 "context": context, "entry_ids": ids, "history_scope": "profile" if persist_history else "private_ephemeral",
-                "input_type": turn_record["input_type"], "style": turn.style,
+                "input_type": turn_record["input_type"],
+                "style": (saved["assistant_message"].get("session_turn", {}).get("effective_style")
+                          if saved and result.get("deduplicated") else turn_record["effective_style"]),
+                "style_basis": "accepted_turn" if not result.get("deduplicated") or (saved and saved["assistant_message"].get("session_turn", {}).get("effective_style")) else "legacy_unknown",
                 "model_source_basis": turn.source_context.get("basis"),
                 "metrics": {"agent_calls": turn.agent_calls, "lookup_calls": turn.lookup_calls, "prompt_bytes": turn.prompt_bytes}}}
+        from ..session_speech import remember
+        from . import _should_generate_audio_response
+        requested_audio = _should_generate_audio_response(payload, intent)
+        # Old AVPlayer clients only understand a headerless GET audio_url.
+        # An accepted private reference cannot be downgraded to that grant.
+        # Negotiate the new adapter explicitly; text/semantic acceptance stays
+        # the same and upgrade is never an invitation to resend the question.
+        response["audio_delivery"] = ({"mode": "accepted_reference", "state": "deferred"}
+            if speech_version == 1 else {"mode": "accepted_reference",
+                "state": "unavailable" if requested_audio else "not_requested",
+                "reason": "client_protocol_upgrade_required" if requested_audio else None,
+                "required_speech_contract_version": 1})
+        response["session_speech"] = remember(history_manager.dialogue, turn, result,
+            turn_id=turn_record["turn_id"], session_id=style_session,
+            persona_revision=style_revision, scope_revision=history_manager.scope_revision(scope),
+            grant_revision=grant, profile_source=source_scope(profile),
+            playback_item_id=captured if track_bound and not explicit_action else "",
+            deduplicated=bool(result.get("deduplicated")),
+            autoplay_eligible=speech_version == 1 and requested_audio)
+        if isinstance(response.get("assistant_message"), dict):
+            live_assistant = {**response["assistant_message"], "session_speech": response["session_speech"],
+                              "audio_delivery": response["audio_delivery"]}
+            response["assistant_message"] = live_assistant
+            if isinstance(response.get("messages"), list):
+                response["messages"] = [live_assistant if message.get("id") == live_assistant.get("id") else message
+                                        for message in response["messages"]]
         # RAM-only admission travels with this bounded in-flight future. Each
         # waiter rechecks the original evidence with its own caller authority.
         future.set_result((deepcopy(response), joined_admission))

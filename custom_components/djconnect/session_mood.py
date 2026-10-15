@@ -38,15 +38,16 @@ async def async_handle_owner_setting(hass, data, *, headers=None, setting):
         resolve_runtime,
         runtime_matches_device,
     )
-    from .session_runtime import MoodRevisionConflictError, PresenceRevisionConflictError
+    from .session_runtime import DJPersona, MoodRevisionConflictError, PresenceRevisionConflictError, PersonaRevisionConflictError
     from .presence_policy import POLICIES
 
-    assert setting in {"mood", "presence"}
+    assert setting in {"mood", "presence", "persona"}
     selected_key = f"selected_{setting}"
     revision_key = f"{setting}_revision"
     expected_key = f"expected_{setting}_revision"
-    values = MOODS if setting == "mood" else POLICIES
-    conflict_type = MoodRevisionConflictError if setting == "mood" else PresenceRevisionConflictError
+    values = {"mood": MOODS, "presence": POLICIES, "persona": tuple(p.value for p in DJPersona)}[setting]
+    conflict_type = {"mood": MoodRevisionConflictError, "presence": PresenceRevisionConflictError, "persona": PersonaRevisionConflictError}[setting]
+    selected_attribute = "dj_persona" if setting == "persona" else selected_key
 
     def error(code, status, **extra):
         return {"success": False, "error": code, **extra}, status
@@ -71,7 +72,7 @@ async def async_handle_owner_setting(hass, data, *, headers=None, setting):
     if (
         type(data["client_type"]) is not str
         or data["client_type"] not in CLIENT_TYPES
-        or (setting == "presence" and data["client_type"] == "windows")
+        or (setting in {"presence", "persona"} and data["client_type"] == "windows")
         or any(type(data[key]) is not str or not data[key] for key in ("device_id", "session_id"))
     ):
         return error("invalid_request", 400)
@@ -140,11 +141,12 @@ async def async_handle_owner_setting(hass, data, *, headers=None, setting):
             return False
 
     try:
-        update = manager.async_update_mood if setting == "mood" else manager.async_update_presence
+        update = {"mood": manager.async_update_mood, "presence": manager.async_update_presence,
+                  "persona": manager.async_update_persona}[setting]
         active = await update(
             owner_profile_id=profile_id,
             session_id=data["session_id"],
-            **{selected_key: data[selected_key]},
+            **{selected_attribute: DJPersona(data[selected_key]) if setting == "persona" else data[selected_key]},
             expected_revision=revision,
             authorize=owner_is_current,
         )
@@ -156,7 +158,7 @@ async def async_handle_owner_setting(hass, data, *, headers=None, setting):
             409,
             current={
                 "session_id": exc.active.session_id,
-                selected_key: getattr(exc.active, selected_key),
+                selected_key: getattr(exc.active, selected_attribute),
                 revision_key: getattr(exc.active, revision_key),
             },
         )
@@ -174,7 +176,7 @@ async def async_handle_owner_setting(hass, data, *, headers=None, setting):
         "success": True,
         "contract_version": VERSION,
         "session_id": active.session_id,
-        selected_key: getattr(active, selected_key),
+        selected_key: getattr(active, selected_attribute),
         revision_key: getattr(active, revision_key),
         "changed": getattr(active, revision_key) != revision,
     }, 200

@@ -1,0 +1,3535 @@
+{
+  "schema_version": 1,
+  "assignment": "DJC-SESSION-SPEECH-PERSONA-VOICE-20261015",
+  "local_source_checkpoint": "c39a4f8020fb21a9d40da22af0928a420c97a44a",
+  "claim_boundary": "Synthetic sources, actual Core/SQLite/paired-owner adapters and real model outputs. No publication, installed, native audible or hardware claim. No auth material or executable source grants included.",
+  "qualified_fact_cases": [
+    {
+      "family": "birth",
+      "locale": "en",
+      "persona": "home_dj",
+      "content": "Nora Vale 1 came into the world on 4 March 1960.",
+      "attribution": [
+        {
+          "provider": "MusicBrainz",
+          "url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000001",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "birth",
+      "locale": "en",
+      "persona": "radio_dj",
+      "content": "On 4 March 1960, Nora Vale 1 was born.",
+      "attribution": [
+        {
+          "provider": "MusicBrainz",
+          "url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000001",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "birth",
+      "locale": "en",
+      "persona": "club_dj",
+      "content": "Nora Vale 1 was born on 4 March 1960.",
+      "attribution": [
+        {
+          "provider": "MusicBrainz",
+          "url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000001",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "birth",
+      "locale": "en",
+      "persona": "festival_dj",
+      "content": "It was on 4 March 1960 that Nora Vale 1 came into the world.",
+      "attribution": [
+        {
+          "provider": "MusicBrainz",
+          "url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000001",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "birth",
+      "locale": "nl",
+      "persona": "home_dj",
+      "content": "Nora Vale 1 kwam op 4 maart 1960 ter wereld.",
+      "attribution": [
+        {
+          "provider": "MusicBrainz",
+          "url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000001",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "birth",
+      "locale": "nl",
+      "persona": "radio_dj",
+      "content": "Op 4 maart 1960 werd Nora Vale 1 geboren.",
+      "attribution": [
+        {
+          "provider": "MusicBrainz",
+          "url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000001",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "birth",
+      "locale": "nl",
+      "persona": "club_dj",
+      "content": "Nora Vale 1 werd op 4 maart 1960 geboren.",
+      "attribution": [
+        {
+          "provider": "MusicBrainz",
+          "url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000001",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "birth",
+      "locale": "nl",
+      "persona": "festival_dj",
+      "content": "Op 4 maart 1960 kwam Nora Vale 1 ter wereld.",
+      "attribution": [
+        {
+          "provider": "MusicBrainz",
+          "url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000001",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "birth",
+      "locale": "de",
+      "persona": "home_dj",
+      "content": "Nora Vale 1 kam am 4. März 1960 zur Welt.",
+      "attribution": [
+        {
+          "provider": "MusicBrainz",
+          "url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000001",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "birth",
+      "locale": "de",
+      "persona": "radio_dj",
+      "content": "Zur Welt kam Nora Vale 1 am 4. März 1960.",
+      "attribution": [
+        {
+          "provider": "MusicBrainz",
+          "url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000001",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "birth",
+      "locale": "de",
+      "persona": "club_dj",
+      "content": "Nora Vale 1 wurde am 4. März 1960 geboren.",
+      "attribution": [
+        {
+          "provider": "MusicBrainz",
+          "url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000001",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "birth",
+      "locale": "de",
+      "persona": "festival_dj",
+      "content": "Am 4. März 1960 kam Nora Vale 1 zur Welt.",
+      "attribution": [
+        {
+          "provider": "MusicBrainz",
+          "url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000001",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "birth",
+      "locale": "fr",
+      "persona": "home_dj",
+      "content": "Nora Vale 1 vient au monde le 4 mars 1960.",
+      "attribution": [
+        {
+          "provider": "MusicBrainz",
+          "url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000001",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "birth",
+      "locale": "fr",
+      "persona": "radio_dj",
+      "content": "La naissance de Nora Vale 1 a lieu le 4 mars 1960.",
+      "attribution": [
+        {
+          "provider": "MusicBrainz",
+          "url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000001",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "birth",
+      "locale": "fr",
+      "persona": "club_dj",
+      "content": "Nora Vale 1 naît le 4 mars 1960.",
+      "attribution": [
+        {
+          "provider": "MusicBrainz",
+          "url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000001",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "birth",
+      "locale": "fr",
+      "persona": "festival_dj",
+      "content": "C’est le 4 mars 1960 que Nora Vale 1 voit le jour.",
+      "attribution": [
+        {
+          "provider": "MusicBrainz",
+          "url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000001",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "birth",
+      "locale": "es",
+      "persona": "home_dj",
+      "content": "Nora Vale 1 vino al mundo el 4 de marzo de 1960.",
+      "attribution": [
+        {
+          "provider": "MusicBrainz",
+          "url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000001",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "birth",
+      "locale": "es",
+      "persona": "radio_dj",
+      "content": "El 4 de marzo de 1960 nació Nora Vale 1.",
+      "attribution": [
+        {
+          "provider": "MusicBrainz",
+          "url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000001",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "birth",
+      "locale": "es",
+      "persona": "club_dj",
+      "content": "Nora Vale 1 nació el 4 de marzo de 1960.",
+      "attribution": [
+        {
+          "provider": "MusicBrainz",
+          "url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000001",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "birth",
+      "locale": "es",
+      "persona": "festival_dj",
+      "content": "Fue el 4 de marzo de 1960 cuando Nora Vale 1 vino al mundo.",
+      "attribution": [
+        {
+          "provider": "MusicBrainz",
+          "url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000001",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "formation",
+      "locale": "en",
+      "persona": "home_dj",
+      "content": "Nora Vale 1 came together as a group on 4 March 1960.",
+      "attribution": [
+        {
+          "provider": "MusicBrainz",
+          "url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000001",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "formation",
+      "locale": "en",
+      "persona": "radio_dj",
+      "content": "The history of Nora Vale 1 as a group begins on 4 March 1960.",
+      "attribution": [
+        {
+          "provider": "MusicBrainz",
+          "url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000001",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "formation",
+      "locale": "en",
+      "persona": "club_dj",
+      "content": "Nora Vale 1 formed on 4 March 1960.",
+      "attribution": [
+        {
+          "provider": "MusicBrainz",
+          "url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000001",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "formation",
+      "locale": "en",
+      "persona": "festival_dj",
+      "content": "On 4 March 1960, Nora Vale 1 began as a group.",
+      "attribution": [
+        {
+          "provider": "MusicBrainz",
+          "url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000001",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "formation",
+      "locale": "nl",
+      "persona": "home_dj",
+      "content": "Nora Vale 1 ontstond op 4 maart 1960 als groep.",
+      "attribution": [
+        {
+          "provider": "MusicBrainz",
+          "url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000001",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "formation",
+      "locale": "nl",
+      "persona": "radio_dj",
+      "content": "De geschiedenis van Nora Vale 1 als groep begint op 4 maart 1960.",
+      "attribution": [
+        {
+          "provider": "MusicBrainz",
+          "url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000001",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "formation",
+      "locale": "nl",
+      "persona": "club_dj",
+      "content": "Nora Vale 1 werd op 4 maart 1960 opgericht.",
+      "attribution": [
+        {
+          "provider": "MusicBrainz",
+          "url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000001",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "formation",
+      "locale": "nl",
+      "persona": "festival_dj",
+      "content": "Op 4 maart 1960 begon Nora Vale 1 als groep.",
+      "attribution": [
+        {
+          "provider": "MusicBrainz",
+          "url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000001",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "formation",
+      "locale": "de",
+      "persona": "home_dj",
+      "content": "Nora Vale 1 entstand am 4. März 1960 als Gruppe.",
+      "attribution": [
+        {
+          "provider": "MusicBrainz",
+          "url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000001",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "formation",
+      "locale": "de",
+      "persona": "radio_dj",
+      "content": "Die Geschichte von Nora Vale 1 als Gruppe beginnt am 4. März 1960.",
+      "attribution": [
+        {
+          "provider": "MusicBrainz",
+          "url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000001",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "formation",
+      "locale": "de",
+      "persona": "club_dj",
+      "content": "Nora Vale 1 wurde am 4. März 1960 gegründet.",
+      "attribution": [
+        {
+          "provider": "MusicBrainz",
+          "url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000001",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "formation",
+      "locale": "de",
+      "persona": "festival_dj",
+      "content": "Am 4. März 1960 wurde die Gruppe Nora Vale 1 gegründet.",
+      "attribution": [
+        {
+          "provider": "MusicBrainz",
+          "url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000001",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "formation",
+      "locale": "fr",
+      "persona": "home_dj",
+      "content": "Nora Vale 1 se constitue en groupe le 4 mars 1960.",
+      "attribution": [
+        {
+          "provider": "MusicBrainz",
+          "url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000001",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "formation",
+      "locale": "fr",
+      "persona": "radio_dj",
+      "content": "L’histoire de Nora Vale 1 en tant que groupe commence le 4 mars 1960.",
+      "attribution": [
+        {
+          "provider": "MusicBrainz",
+          "url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000001",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "formation",
+      "locale": "fr",
+      "persona": "club_dj",
+      "content": "Nora Vale 1 se forme le 4 mars 1960.",
+      "attribution": [
+        {
+          "provider": "MusicBrainz",
+          "url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000001",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "formation",
+      "locale": "fr",
+      "persona": "festival_dj",
+      "content": "C’est le 4 mars 1960 que Nora Vale 1 se forme.",
+      "attribution": [
+        {
+          "provider": "MusicBrainz",
+          "url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000001",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "formation",
+      "locale": "es",
+      "persona": "home_dj",
+      "content": "Nora Vale 1 se constituyó como grupo el 4 de marzo de 1960.",
+      "attribution": [
+        {
+          "provider": "MusicBrainz",
+          "url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000001",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "formation",
+      "locale": "es",
+      "persona": "radio_dj",
+      "content": "La historia de Nora Vale 1 como grupo comienza el 4 de marzo de 1960.",
+      "attribution": [
+        {
+          "provider": "MusicBrainz",
+          "url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000001",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "formation",
+      "locale": "es",
+      "persona": "club_dj",
+      "content": "Nora Vale 1 se formó el 4 de marzo de 1960.",
+      "attribution": [
+        {
+          "provider": "MusicBrainz",
+          "url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000001",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "formation",
+      "locale": "es",
+      "persona": "festival_dj",
+      "content": "Fue el 4 de marzo de 1960 cuando Nora Vale 1 comenzó como grupo.",
+      "attribution": [
+        {
+          "provider": "MusicBrainz",
+          "url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000001",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "description",
+      "locale": "en",
+      "persona": "home_dj",
+      "content": "If you’re getting to know Nora Vale 1, Wikidata offers this starting point: “American musician”.",
+      "attribution": [
+        {
+          "provider": "Wikidata",
+          "url": "https://www.wikidata.org/wiki/Q1",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "description",
+      "locale": "en",
+      "persona": "radio_dj",
+      "content": "Introducing Nora Vale 1, described by Wikidata as “American musician”.",
+      "attribution": [
+        {
+          "provider": "Wikidata",
+          "url": "https://www.wikidata.org/wiki/Q1",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "description",
+      "locale": "en",
+      "persona": "club_dj",
+      "content": "Nora Vale 1. “American musician”, according to Wikidata.",
+      "attribution": [
+        {
+          "provider": "Wikidata",
+          "url": "https://www.wikidata.org/wiki/Q1",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "description",
+      "locale": "en",
+      "persona": "festival_dj",
+      "content": "Meet Nora Vale 1: “American musician”, in Wikidata’s words.",
+      "attribution": [
+        {
+          "provider": "Wikidata",
+          "url": "https://www.wikidata.org/wiki/Q1",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "description",
+      "locale": "nl",
+      "persona": "home_dj",
+      "content": "Om Nora Vale 1 te leren kennen, biedt Wikidata dit aanknopingspunt: “Amerikaans musicus”.",
+      "attribution": [
+        {
+          "provider": "Wikidata",
+          "url": "https://www.wikidata.org/wiki/Q1",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "description",
+      "locale": "nl",
+      "persona": "radio_dj",
+      "content": "Dit is Nora Vale 1, door Wikidata omschreven als “Amerikaans musicus”.",
+      "attribution": [
+        {
+          "provider": "Wikidata",
+          "url": "https://www.wikidata.org/wiki/Q1",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "description",
+      "locale": "nl",
+      "persona": "club_dj",
+      "content": "Nora Vale 1. “Amerikaans musicus”, volgens Wikidata.",
+      "attribution": [
+        {
+          "provider": "Wikidata",
+          "url": "https://www.wikidata.org/wiki/Q1",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "description",
+      "locale": "nl",
+      "persona": "festival_dj",
+      "content": "Maak kennis met Nora Vale 1: “Amerikaans musicus”, in de woorden van Wikidata.",
+      "attribution": [
+        {
+          "provider": "Wikidata",
+          "url": "https://www.wikidata.org/wiki/Q1",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "description",
+      "locale": "de",
+      "persona": "home_dj",
+      "content": "Wer Nora Vale 1 kennenlernen möchte, findet bei Wikidata diesen Einstieg: „US-amerikanischer Musiker“.",
+      "attribution": [
+        {
+          "provider": "Wikidata",
+          "url": "https://www.wikidata.org/wiki/Q1",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "description",
+      "locale": "de",
+      "persona": "radio_dj",
+      "content": "Wir stellen vor: Nora Vale 1, von Wikidata als „US-amerikanischer Musiker“ beschrieben.",
+      "attribution": [
+        {
+          "provider": "Wikidata",
+          "url": "https://www.wikidata.org/wiki/Q1",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "description",
+      "locale": "de",
+      "persona": "club_dj",
+      "content": "Nora Vale 1. „US-amerikanischer Musiker“, laut Wikidata.",
+      "attribution": [
+        {
+          "provider": "Wikidata",
+          "url": "https://www.wikidata.org/wiki/Q1",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "description",
+      "locale": "de",
+      "persona": "festival_dj",
+      "content": "Lernen wir Nora Vale 1 kennen: „US-amerikanischer Musiker“, in den Worten von Wikidata.",
+      "attribution": [
+        {
+          "provider": "Wikidata",
+          "url": "https://www.wikidata.org/wiki/Q1",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "description",
+      "locale": "fr",
+      "persona": "home_dj",
+      "content": "Pour découvrir Nora Vale 1, Wikidata propose ce point de départ : « musicien américain ».",
+      "attribution": [
+        {
+          "provider": "Wikidata",
+          "url": "https://www.wikidata.org/wiki/Q1",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "description",
+      "locale": "fr",
+      "persona": "radio_dj",
+      "content": "Voici Nora Vale 1, selon les mots de Wikidata : « musicien américain ».",
+      "attribution": [
+        {
+          "provider": "Wikidata",
+          "url": "https://www.wikidata.org/wiki/Q1",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "description",
+      "locale": "fr",
+      "persona": "club_dj",
+      "content": "Nora Vale 1. « musicien américain », selon Wikidata.",
+      "attribution": [
+        {
+          "provider": "Wikidata",
+          "url": "https://www.wikidata.org/wiki/Q1",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "description",
+      "locale": "fr",
+      "persona": "festival_dj",
+      "content": "Faisons connaissance avec Nora Vale 1 : « musicien américain », dans les mots de Wikidata.",
+      "attribution": [
+        {
+          "provider": "Wikidata",
+          "url": "https://www.wikidata.org/wiki/Q1",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "description",
+      "locale": "es",
+      "persona": "home_dj",
+      "content": "Para conocer a Nora Vale 1, Wikidata ofrece este punto de partida: «músico estadounidense».",
+      "attribution": [
+        {
+          "provider": "Wikidata",
+          "url": "https://www.wikidata.org/wiki/Q1",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "description",
+      "locale": "es",
+      "persona": "radio_dj",
+      "content": "Presentamos a Nora Vale 1, en palabras de Wikidata: «músico estadounidense».",
+      "attribution": [
+        {
+          "provider": "Wikidata",
+          "url": "https://www.wikidata.org/wiki/Q1",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "description",
+      "locale": "es",
+      "persona": "club_dj",
+      "content": "Nora Vale 1. «músico estadounidense», según Wikidata.",
+      "attribution": [
+        {
+          "provider": "Wikidata",
+          "url": "https://www.wikidata.org/wiki/Q1",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "description",
+      "locale": "es",
+      "persona": "festival_dj",
+      "content": "Conozcamos a Nora Vale 1: «músico estadounidense», en palabras de Wikidata.",
+      "attribution": [
+        {
+          "provider": "Wikidata",
+          "url": "https://www.wikidata.org/wiki/Q1",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "edition",
+      "locale": "en",
+      "persona": "home_dj",
+      "content": "Spotify dates this edition of Paper Windows 1 to 4 March 1960.",
+      "attribution": [
+        {
+          "provider": "Spotify",
+          "url": "https://open.spotify.com/album/0000000000000000000001",
+          "license": "Spotify metadata display"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "edition",
+      "locale": "en",
+      "persona": "radio_dj",
+      "content": "For this edition of Paper Windows 1, Spotify gives the date 4 March 1960.",
+      "attribution": [
+        {
+          "provider": "Spotify",
+          "url": "https://open.spotify.com/album/0000000000000000000001",
+          "license": "Spotify metadata display"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "edition",
+      "locale": "en",
+      "persona": "club_dj",
+      "content": "This edition of Paper Windows 1 is dated 4 March 1960 by Spotify.",
+      "attribution": [
+        {
+          "provider": "Spotify",
+          "url": "https://open.spotify.com/album/0000000000000000000001",
+          "license": "Spotify metadata display"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "edition",
+      "locale": "en",
+      "persona": "festival_dj",
+      "content": "Let’s place this edition of Paper Windows 1 in time: Spotify lists 4 March 1960.",
+      "attribution": [
+        {
+          "provider": "Spotify",
+          "url": "https://open.spotify.com/album/0000000000000000000001",
+          "license": "Spotify metadata display"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "edition",
+      "locale": "nl",
+      "persona": "home_dj",
+      "content": "Voor deze uitgave van Paper Windows 1 vermeldt Spotify 4 maart 1960.",
+      "attribution": [
+        {
+          "provider": "Spotify",
+          "url": "https://open.spotify.com/album/0000000000000000000001",
+          "license": "Spotify metadata display"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "edition",
+      "locale": "nl",
+      "persona": "radio_dj",
+      "content": "Spotify vermeldt 4 maart 1960 als datum voor deze uitgave van Paper Windows 1.",
+      "attribution": [
+        {
+          "provider": "Spotify",
+          "url": "https://open.spotify.com/album/0000000000000000000001",
+          "license": "Spotify metadata display"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "edition",
+      "locale": "nl",
+      "persona": "club_dj",
+      "content": "Deze uitgave van Paper Windows 1: 4 maart 1960, volgens Spotify.",
+      "attribution": [
+        {
+          "provider": "Spotify",
+          "url": "https://open.spotify.com/album/0000000000000000000001",
+          "license": "Spotify metadata display"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "edition",
+      "locale": "nl",
+      "persona": "festival_dj",
+      "content": "Deze uitgave van Paper Windows 1 plaatsen we in de tijd: Spotify vermeldt 4 maart 1960.",
+      "attribution": [
+        {
+          "provider": "Spotify",
+          "url": "https://open.spotify.com/album/0000000000000000000001",
+          "license": "Spotify metadata display"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "edition",
+      "locale": "de",
+      "persona": "home_dj",
+      "content": "Für diese Ausgabe von Paper Windows 1 nennt Spotify 4. März 1960.",
+      "attribution": [
+        {
+          "provider": "Spotify",
+          "url": "https://open.spotify.com/album/0000000000000000000001",
+          "license": "Spotify metadata display"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "edition",
+      "locale": "de",
+      "persona": "radio_dj",
+      "content": "Spotify nennt für diese Ausgabe von Paper Windows 1 das Datum 4. März 1960.",
+      "attribution": [
+        {
+          "provider": "Spotify",
+          "url": "https://open.spotify.com/album/0000000000000000000001",
+          "license": "Spotify metadata display"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "edition",
+      "locale": "de",
+      "persona": "club_dj",
+      "content": "Diese Ausgabe von Paper Windows 1: 4. März 1960, laut Spotify.",
+      "attribution": [
+        {
+          "provider": "Spotify",
+          "url": "https://open.spotify.com/album/0000000000000000000001",
+          "license": "Spotify metadata display"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "edition",
+      "locale": "de",
+      "persona": "festival_dj",
+      "content": "Ordnen wir diese Ausgabe von Paper Windows 1 zeitlich ein: Spotify nennt 4. März 1960.",
+      "attribution": [
+        {
+          "provider": "Spotify",
+          "url": "https://open.spotify.com/album/0000000000000000000001",
+          "license": "Spotify metadata display"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "edition",
+      "locale": "fr",
+      "persona": "home_dj",
+      "content": "Pour cette édition de l’album « Paper Windows 1 », Spotify indique 4 mars 1960.",
+      "attribution": [
+        {
+          "provider": "Spotify",
+          "url": "https://open.spotify.com/album/0000000000000000000001",
+          "license": "Spotify metadata display"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "edition",
+      "locale": "fr",
+      "persona": "radio_dj",
+      "content": "Spotify indique la date 4 mars 1960 pour cette édition de l’album « Paper Windows 1 ».",
+      "attribution": [
+        {
+          "provider": "Spotify",
+          "url": "https://open.spotify.com/album/0000000000000000000001",
+          "license": "Spotify metadata display"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "edition",
+      "locale": "fr",
+      "persona": "club_dj",
+      "content": "Cette édition de l’album « Paper Windows 1 » : 4 mars 1960, selon Spotify.",
+      "attribution": [
+        {
+          "provider": "Spotify",
+          "url": "https://open.spotify.com/album/0000000000000000000001",
+          "license": "Spotify metadata display"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "edition",
+      "locale": "fr",
+      "persona": "festival_dj",
+      "content": "Situons cette édition de l’album « Paper Windows 1 » dans le temps : Spotify indique 4 mars 1960.",
+      "attribution": [
+        {
+          "provider": "Spotify",
+          "url": "https://open.spotify.com/album/0000000000000000000001",
+          "license": "Spotify metadata display"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "edition",
+      "locale": "es",
+      "persona": "home_dj",
+      "content": "Para esta edición de Paper Windows 1, Spotify indica 4 de marzo de 1960.",
+      "attribution": [
+        {
+          "provider": "Spotify",
+          "url": "https://open.spotify.com/album/0000000000000000000001",
+          "license": "Spotify metadata display"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "edition",
+      "locale": "es",
+      "persona": "radio_dj",
+      "content": "Spotify indica la fecha 4 de marzo de 1960 para esta edición de Paper Windows 1.",
+      "attribution": [
+        {
+          "provider": "Spotify",
+          "url": "https://open.spotify.com/album/0000000000000000000001",
+          "license": "Spotify metadata display"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "edition",
+      "locale": "es",
+      "persona": "club_dj",
+      "content": "Esta edición de Paper Windows 1: 4 de marzo de 1960, según Spotify.",
+      "attribution": [
+        {
+          "provider": "Spotify",
+          "url": "https://open.spotify.com/album/0000000000000000000001",
+          "license": "Spotify metadata display"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "edition",
+      "locale": "es",
+      "persona": "festival_dj",
+      "content": "Situemos esta edición de Paper Windows 1 en el tiempo: Spotify indica 4 de marzo de 1960.",
+      "attribution": [
+        {
+          "provider": "Spotify",
+          "url": "https://open.spotify.com/album/0000000000000000000001",
+          "license": "Spotify metadata display"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "work_composers",
+      "locale": "en",
+      "persona": "home_dj",
+      "content": "For the underlying composition, the credits name Fixture composer.",
+      "attribution": [
+        {
+          "provider": "MusicBrainz",
+          "url": "https://musicbrainz.org/work/00000000-0000-0000-0000-000000000003",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "work_composers",
+      "locale": "en",
+      "persona": "radio_dj",
+      "content": "The composition behind this recording credits Fixture composer.",
+      "attribution": [
+        {
+          "provider": "MusicBrainz",
+          "url": "https://musicbrainz.org/work/00000000-0000-0000-0000-000000000003",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "work_composers",
+      "locale": "en",
+      "persona": "club_dj",
+      "content": "Composition credits for the underlying work: Fixture composer.",
+      "attribution": [
+        {
+          "provider": "MusicBrainz",
+          "url": "https://musicbrainz.org/work/00000000-0000-0000-0000-000000000003",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "work_composers",
+      "locale": "en",
+      "persona": "festival_dj",
+      "content": "The underlying work brings Fixture composer into the composition credits.",
+      "attribution": [
+        {
+          "provider": "MusicBrainz",
+          "url": "https://musicbrainz.org/work/00000000-0000-0000-0000-000000000003",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "work_composers",
+      "locale": "nl",
+      "persona": "home_dj",
+      "content": "Voor de onderliggende compositie noemen de credits Fixture composer.",
+      "attribution": [
+        {
+          "provider": "MusicBrainz",
+          "url": "https://musicbrainz.org/work/00000000-0000-0000-0000-000000000003",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "work_composers",
+      "locale": "nl",
+      "persona": "radio_dj",
+      "content": "Het werk achter deze opname vermeldt Fixture composer in de componistenrol.",
+      "attribution": [
+        {
+          "provider": "MusicBrainz",
+          "url": "https://musicbrainz.org/work/00000000-0000-0000-0000-000000000003",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "work_composers",
+      "locale": "nl",
+      "persona": "club_dj",
+      "content": "Compositiecredits van het onderliggende werk: Fixture composer.",
+      "attribution": [
+        {
+          "provider": "MusicBrainz",
+          "url": "https://musicbrainz.org/work/00000000-0000-0000-0000-000000000003",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "work_composers",
+      "locale": "nl",
+      "persona": "festival_dj",
+      "content": "Het onderliggende werk brengt Fixture composer in de compositiecredits naar voren.",
+      "attribution": [
+        {
+          "provider": "MusicBrainz",
+          "url": "https://musicbrainz.org/work/00000000-0000-0000-0000-000000000003",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "work_composers",
+      "locale": "de",
+      "persona": "home_dj",
+      "content": "Für die zugrunde liegende Komposition nennen die Credits Fixture composer.",
+      "attribution": [
+        {
+          "provider": "MusicBrainz",
+          "url": "https://musicbrainz.org/work/00000000-0000-0000-0000-000000000003",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "work_composers",
+      "locale": "de",
+      "persona": "radio_dj",
+      "content": "Das Werk hinter dieser Aufnahme nennt Fixture composer für die Komposition.",
+      "attribution": [
+        {
+          "provider": "MusicBrainz",
+          "url": "https://musicbrainz.org/work/00000000-0000-0000-0000-000000000003",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "work_composers",
+      "locale": "de",
+      "persona": "club_dj",
+      "content": "Kompositionscredits des zugrunde liegenden Werks: Fixture composer.",
+      "attribution": [
+        {
+          "provider": "MusicBrainz",
+          "url": "https://musicbrainz.org/work/00000000-0000-0000-0000-000000000003",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "work_composers",
+      "locale": "de",
+      "persona": "festival_dj",
+      "content": "Das zugrunde liegende Werk rückt Fixture composer in den Kompositionscredits nach vorn.",
+      "attribution": [
+        {
+          "provider": "MusicBrainz",
+          "url": "https://musicbrainz.org/work/00000000-0000-0000-0000-000000000003",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "work_composers",
+      "locale": "fr",
+      "persona": "home_dj",
+      "content": "Pour la composition sous-jacente, les crédits citent Fixture composer.",
+      "attribution": [
+        {
+          "provider": "MusicBrainz",
+          "url": "https://musicbrainz.org/work/00000000-0000-0000-0000-000000000003",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "work_composers",
+      "locale": "fr",
+      "persona": "radio_dj",
+      "content": "L’œuvre derrière cet enregistrement cite Fixture composer à la composition.",
+      "attribution": [
+        {
+          "provider": "MusicBrainz",
+          "url": "https://musicbrainz.org/work/00000000-0000-0000-0000-000000000003",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "work_composers",
+      "locale": "fr",
+      "persona": "club_dj",
+      "content": "Crédits de composition de l’œuvre sous-jacente : Fixture composer.",
+      "attribution": [
+        {
+          "provider": "MusicBrainz",
+          "url": "https://musicbrainz.org/work/00000000-0000-0000-0000-000000000003",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "work_composers",
+      "locale": "fr",
+      "persona": "festival_dj",
+      "content": "L’œuvre sous-jacente met Fixture composer en avant dans les crédits de composition.",
+      "attribution": [
+        {
+          "provider": "MusicBrainz",
+          "url": "https://musicbrainz.org/work/00000000-0000-0000-0000-000000000003",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "work_composers",
+      "locale": "es",
+      "persona": "home_dj",
+      "content": "Para la composición subyacente, los créditos mencionan a Fixture composer.",
+      "attribution": [
+        {
+          "provider": "MusicBrainz",
+          "url": "https://musicbrainz.org/work/00000000-0000-0000-0000-000000000003",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "work_composers",
+      "locale": "es",
+      "persona": "radio_dj",
+      "content": "La obra detrás de esta grabación incluye a Fixture composer en la composición.",
+      "attribution": [
+        {
+          "provider": "MusicBrainz",
+          "url": "https://musicbrainz.org/work/00000000-0000-0000-0000-000000000003",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "work_composers",
+      "locale": "es",
+      "persona": "club_dj",
+      "content": "Créditos de composición de la obra subyacente: Fixture composer.",
+      "attribution": [
+        {
+          "provider": "MusicBrainz",
+          "url": "https://musicbrainz.org/work/00000000-0000-0000-0000-000000000003",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "work_composers",
+      "locale": "es",
+      "persona": "festival_dj",
+      "content": "La obra subyacente pone a Fixture composer en primer plano en los créditos de composición.",
+      "attribution": [
+        {
+          "provider": "MusicBrainz",
+          "url": "https://musicbrainz.org/work/00000000-0000-0000-0000-000000000003",
+          "license": "CC0-1.0"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "genre",
+      "locale": "en",
+      "persona": "home_dj",
+      "content": "With Amber Lines 1 playing, a little about Nora Vale 1: Spotify includes ambient among this artist’s genres.",
+      "attribution": [
+        {
+          "provider": "Spotify",
+          "url": "https://open.spotify.com/artist/ZZZZZZZZZZZZZZZZZZZZZZ",
+          "license": "Spotify metadata display"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "genre",
+      "locale": "en",
+      "persona": "radio_dj",
+      "content": "From Nora Vale 1, this is Amber Lines 1. Spotify lists ambient among the artist’s genres.",
+      "attribution": [
+        {
+          "provider": "Spotify",
+          "url": "https://open.spotify.com/artist/ZZZZZZZZZZZZZZZZZZZZZZ",
+          "license": "Spotify metadata display"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "genre",
+      "locale": "en",
+      "persona": "club_dj",
+      "content": "Nora Vale 1, Amber Lines 1. Artist genre on Spotify: ambient.",
+      "attribution": [
+        {
+          "provider": "Spotify",
+          "url": "https://open.spotify.com/artist/ZZZZZZZZZZZZZZZZZZZZZZ",
+          "license": "Spotify metadata display"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "genre",
+      "locale": "en",
+      "persona": "festival_dj",
+      "content": "Meet Nora Vale 1 through Amber Lines 1: Spotify places the artist among ambient acts.",
+      "attribution": [
+        {
+          "provider": "Spotify",
+          "url": "https://open.spotify.com/artist/ZZZZZZZZZZZZZZZZZZZZZZ",
+          "license": "Spotify metadata display"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "genre",
+      "locale": "nl",
+      "persona": "home_dj",
+      "content": "Terwijl Amber Lines 1 speelt, iets over Nora Vale 1: Spotify noemt ambient bij de genres van deze artiest.",
+      "attribution": [
+        {
+          "provider": "Spotify",
+          "url": "https://open.spotify.com/artist/ZZZZZZZZZZZZZZZZZZZZZZ",
+          "license": "Spotify metadata display"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "genre",
+      "locale": "nl",
+      "persona": "radio_dj",
+      "content": "Van Nora Vale 1 hoor je Amber Lines 1. Spotify noemt ambient bij de genres van de artiest.",
+      "attribution": [
+        {
+          "provider": "Spotify",
+          "url": "https://open.spotify.com/artist/ZZZZZZZZZZZZZZZZZZZZZZ",
+          "license": "Spotify metadata display"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "genre",
+      "locale": "nl",
+      "persona": "club_dj",
+      "content": "Nora Vale 1, Amber Lines 1. Artiestgenre op Spotify: ambient.",
+      "attribution": [
+        {
+          "provider": "Spotify",
+          "url": "https://open.spotify.com/artist/ZZZZZZZZZZZZZZZZZZZZZZ",
+          "license": "Spotify metadata display"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "genre",
+      "locale": "nl",
+      "persona": "festival_dj",
+      "content": "Maak kennis met Nora Vale 1 via Amber Lines 1: Spotify plaatst de artiest bij ambient.",
+      "attribution": [
+        {
+          "provider": "Spotify",
+          "url": "https://open.spotify.com/artist/ZZZZZZZZZZZZZZZZZZZZZZ",
+          "license": "Spotify metadata display"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "genre",
+      "locale": "de",
+      "persona": "home_dj",
+      "content": "Während Amber Lines 1 läuft, etwas zu Nora Vale 1: Spotify nennt ambient unter den Genres dieses Künstlers.",
+      "attribution": [
+        {
+          "provider": "Spotify",
+          "url": "https://open.spotify.com/artist/ZZZZZZZZZZZZZZZZZZZZZZ",
+          "license": "Spotify metadata display"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "genre",
+      "locale": "de",
+      "persona": "radio_dj",
+      "content": "Von Nora Vale 1 läuft Amber Lines 1. Spotify führt ambient unter den Genres des Künstlers.",
+      "attribution": [
+        {
+          "provider": "Spotify",
+          "url": "https://open.spotify.com/artist/ZZZZZZZZZZZZZZZZZZZZZZ",
+          "license": "Spotify metadata display"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "genre",
+      "locale": "de",
+      "persona": "club_dj",
+      "content": "Nora Vale 1, Amber Lines 1. Künstlergenre bei Spotify: ambient.",
+      "attribution": [
+        {
+          "provider": "Spotify",
+          "url": "https://open.spotify.com/artist/ZZZZZZZZZZZZZZZZZZZZZZ",
+          "license": "Spotify metadata display"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "genre",
+      "locale": "de",
+      "persona": "festival_dj",
+      "content": "Lernen wir Nora Vale 1 mit Amber Lines 1 kennen: Spotify ordnet den Künstler ambient zu.",
+      "attribution": [
+        {
+          "provider": "Spotify",
+          "url": "https://open.spotify.com/artist/ZZZZZZZZZZZZZZZZZZZZZZ",
+          "license": "Spotify metadata display"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "genre",
+      "locale": "fr",
+      "persona": "home_dj",
+      "content": "Pendant que le titre « Amber Lines 1 » passe, un mot sur Nora Vale 1 : Spotify cite ambient parmi les genres de cet artiste.",
+      "attribution": [
+        {
+          "provider": "Spotify",
+          "url": "https://open.spotify.com/artist/ZZZZZZZZZZZZZZZZZZZZZZ",
+          "license": "Spotify metadata display"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "genre",
+      "locale": "fr",
+      "persona": "radio_dj",
+      "content": "Avec Nora Vale 1, voici Amber Lines 1. Spotify cite ambient parmi les genres de l’artiste.",
+      "attribution": [
+        {
+          "provider": "Spotify",
+          "url": "https://open.spotify.com/artist/ZZZZZZZZZZZZZZZZZZZZZZ",
+          "license": "Spotify metadata display"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "genre",
+      "locale": "fr",
+      "persona": "club_dj",
+      "content": "Nora Vale 1, Amber Lines 1. Genre de l’artiste sur Spotify : ambient.",
+      "attribution": [
+        {
+          "provider": "Spotify",
+          "url": "https://open.spotify.com/artist/ZZZZZZZZZZZZZZZZZZZZZZ",
+          "license": "Spotify metadata display"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "genre",
+      "locale": "fr",
+      "persona": "festival_dj",
+      "content": "Découvrons Nora Vale 1 avec Amber Lines 1 : Spotify associe cet artiste au genre « ambient ».",
+      "attribution": [
+        {
+          "provider": "Spotify",
+          "url": "https://open.spotify.com/artist/ZZZZZZZZZZZZZZZZZZZZZZ",
+          "license": "Spotify metadata display"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "genre",
+      "locale": "es",
+      "persona": "home_dj",
+      "content": "Mientras suena Amber Lines 1, algo sobre Nora Vale 1: Spotify incluye ambient entre los géneros de este artista.",
+      "attribution": [
+        {
+          "provider": "Spotify",
+          "url": "https://open.spotify.com/artist/ZZZZZZZZZZZZZZZZZZZZZZ",
+          "license": "Spotify metadata display"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "genre",
+      "locale": "es",
+      "persona": "radio_dj",
+      "content": "De Nora Vale 1, suena Amber Lines 1. Spotify incluye ambient entre los géneros del artista.",
+      "attribution": [
+        {
+          "provider": "Spotify",
+          "url": "https://open.spotify.com/artist/ZZZZZZZZZZZZZZZZZZZZZZ",
+          "license": "Spotify metadata display"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "genre",
+      "locale": "es",
+      "persona": "club_dj",
+      "content": "Nora Vale 1, Amber Lines 1. Género del artista en Spotify: ambient.",
+      "attribution": [
+        {
+          "provider": "Spotify",
+          "url": "https://open.spotify.com/artist/ZZZZZZZZZZZZZZZZZZZZZZ",
+          "license": "Spotify metadata display"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    },
+    {
+      "family": "genre",
+      "locale": "es",
+      "persona": "festival_dj",
+      "content": "Conozcamos a Nora Vale 1 con Amber Lines 1: Spotify sitúa al artista en ambient.",
+      "attribution": [
+        {
+          "provider": "Spotify",
+          "url": "https://open.spotify.com/artist/ZZZZZZZZZZZZZZZZZZZZZZ",
+          "license": "Spotify metadata display"
+        }
+      ],
+      "speech_text_equal": true,
+      "autoplay_eligible": false
+    }
+  ],
+  "joined_relation_cases": [
+    {
+      "family": "shared_producer",
+      "locale": "en",
+      "persona": "home_dj",
+      "scope": "Actual Runtime/Planner/Knowledge/Moment/SQLite semantic acceptance/Broadcast/paired private owner speech adapter; external source fixtures and injected elapsed clock only.",
+      "sequence": [
+        {
+          "content": "Let's have a look together: Producer 9 and Producer 8 are credited here as producers.",
+          "attribution": [
+            {
+              "provider": "MusicBrainz",
+              "url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000001",
+              "license": "CC0-1.0"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        },
+        {
+          "content": "We met the name Producer 8 earlier in the producer credits for “Recording 0”. “Recording 1” credits that name in the same role.",
+          "attribution": [
+            {
+              "provider": "MusicBrainz",
+              "url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000002",
+              "license": "CC0-1.0",
+              "url_previous": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000001"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        }
+      ]
+    },
+    {
+      "family": "shared_producer",
+      "locale": "en",
+      "persona": "radio_dj",
+      "scope": "Actual Runtime/Planner/Knowledge/Moment/SQLite semantic acceptance/Broadcast/paired private owner speech adapter; external source fixtures and injected elapsed clock only.",
+      "sequence": [
+        {
+          "content": "Alongside this recording, the producer credits name Producer 9 and Producer 8.",
+          "attribution": [
+            {
+              "provider": "MusicBrainz",
+              "url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000001",
+              "license": "CC0-1.0"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        },
+        {
+          "content": "The producer credits for “Recording 1” take us back to the earlier-discussed recording “Recording 0”: Producer 8 is named in that role on both.",
+          "attribution": [
+            {
+              "provider": "MusicBrainz",
+              "url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000002",
+              "license": "CC0-1.0",
+              "url_previous": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000001"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        }
+      ]
+    },
+    {
+      "family": "shared_producer",
+      "locale": "en",
+      "persona": "club_dj",
+      "scope": "Actual Runtime/Planner/Knowledge/Moment/SQLite semantic acceptance/Broadcast/paired private owner speech adapter; external source fixtures and injected elapsed clock only.",
+      "sequence": [
+        {
+          "content": "Producer 9 and Producer 8. Credited as producers on this recording.",
+          "attribution": [
+            {
+              "provider": "MusicBrainz",
+              "url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000001",
+              "license": "CC0-1.0"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        },
+        {
+          "content": "Producer 8: producer on “Recording 1”. Also on “Recording 0”, which we discussed earlier.",
+          "attribution": [
+            {
+              "provider": "MusicBrainz",
+              "url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000002",
+              "license": "CC0-1.0",
+              "url_previous": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000001"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        }
+      ]
+    },
+    {
+      "family": "shared_producer",
+      "locale": "en",
+      "persona": "festival_dj",
+      "scope": "Actual Runtime/Planner/Knowledge/Moment/SQLite semantic acceptance/Broadcast/paired private owner speech adapter; external source fixtures and injected elapsed clock only.",
+      "sequence": [
+        {
+          "content": "A little attention for Producer 9 and Producer 8, credited as producers on this recording.",
+          "attribution": [
+            {
+              "provider": "MusicBrainz",
+              "url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000001",
+              "license": "CC0-1.0"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        },
+        {
+          "content": "There is Producer 8 again in the producer credits: on “Recording 1”, and earlier in our discussion of “Recording 0”.",
+          "attribution": [
+            {
+              "provider": "MusicBrainz",
+              "url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000002",
+              "license": "CC0-1.0",
+              "url_previous": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000001"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        }
+      ]
+    },
+    {
+      "family": "shared_producer",
+      "locale": "nl",
+      "persona": "home_dj",
+      "scope": "Actual Runtime/Planner/Knowledge/Moment/SQLite semantic acceptance/Broadcast/paired private owner speech adapter; external source fixtures and injected elapsed clock only.",
+      "sequence": [
+        {
+          "content": "Even meekijken in de credits: Producer 9 en Producer 8 zijn hier als producers gecrediteerd.",
+          "attribution": [
+            {
+              "provider": "MusicBrainz",
+              "url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000001",
+              "license": "CC0-1.0"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        },
+        {
+          "content": "Producer 8 kwamen we eerder tegen bij «Recording 0», als producer. Bij «Recording 1» staat die naam opnieuw in de producercredits.",
+          "attribution": [
+            {
+              "provider": "MusicBrainz",
+              "url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000002",
+              "license": "CC0-1.0",
+              "url_previous": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000001"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        }
+      ]
+    },
+    {
+      "family": "shared_producer",
+      "locale": "nl",
+      "persona": "radio_dj",
+      "scope": "Actual Runtime/Planner/Knowledge/Moment/SQLite semantic acceptance/Broadcast/paired private owner speech adapter; external source fixtures and injected elapsed clock only.",
+      "sequence": [
+        {
+          "content": "Bij deze opname horen ook de producercredits: Producer 9 en Producer 8.",
+          "attribution": [
+            {
+              "provider": "MusicBrainz",
+              "url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000001",
+              "license": "CC0-1.0"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        },
+        {
+          "content": "De producercredits van «Recording 1» brengen ons terug bij de eerder besproken opname «Recording 0»: Producer 8 staat bij beide in die rol vermeld.",
+          "attribution": [
+            {
+              "provider": "MusicBrainz",
+              "url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000002",
+              "license": "CC0-1.0",
+              "url_previous": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000001"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        }
+      ]
+    },
+    {
+      "family": "shared_producer",
+      "locale": "nl",
+      "persona": "club_dj",
+      "scope": "Actual Runtime/Planner/Knowledge/Moment/SQLite semantic acceptance/Broadcast/paired private owner speech adapter; external source fixtures and injected elapsed clock only.",
+      "sequence": [
+        {
+          "content": "Producer 9 en Producer 8. Als producers gecrediteerd bij deze opname.",
+          "attribution": [
+            {
+              "provider": "MusicBrainz",
+              "url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000001",
+              "license": "CC0-1.0"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        },
+        {
+          "content": "Producer 8: producer op «Recording 1». Ook bij «Recording 0», dat we eerder bespraken.",
+          "attribution": [
+            {
+              "provider": "MusicBrainz",
+              "url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000002",
+              "license": "CC0-1.0",
+              "url_previous": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000001"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        }
+      ]
+    },
+    {
+      "family": "shared_producer",
+      "locale": "nl",
+      "persona": "festival_dj",
+      "scope": "Actual Runtime/Planner/Knowledge/Moment/SQLite semantic acceptance/Broadcast/paired private owner speech adapter; external source fixtures and injected elapsed clock only.",
+      "sequence": [
+        {
+          "content": "Ook even aandacht voor Producer 9 en Producer 8: als producers gecrediteerd bij deze opname.",
+          "attribution": [
+            {
+              "provider": "MusicBrainz",
+              "url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000001",
+              "license": "CC0-1.0"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        },
+        {
+          "content": "Daar is Producer 8 weer in de producercredits: bij «Recording 1», en eerder bij de besproken opname «Recording 0».",
+          "attribution": [
+            {
+              "provider": "MusicBrainz",
+              "url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000002",
+              "license": "CC0-1.0",
+              "url_previous": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000001"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        }
+      ]
+    },
+    {
+      "family": "shared_producer",
+      "locale": "de",
+      "persona": "home_dj",
+      "scope": "Actual Runtime/Planner/Knowledge/Moment/SQLite semantic acceptance/Broadcast/paired private owner speech adapter; external source fixtures and injected elapsed clock only.",
+      "sequence": [
+        {
+          "content": "Schauen wir gemeinsam in die Credits: Producer 9 und Producer 8 werden hier als Produzenten genannt.",
+          "attribution": [
+            {
+              "provider": "MusicBrainz",
+              "url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000001",
+              "license": "CC0-1.0"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        },
+        {
+          "content": "Den Namen Producer 8 sahen wir zuvor in den Produktionscredits von „Recording 0“. „Recording 1“ nennt diesen Namen in derselben Rolle.",
+          "attribution": [
+            {
+              "provider": "MusicBrainz",
+              "url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000002",
+              "license": "CC0-1.0",
+              "url_previous": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000001"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        }
+      ]
+    },
+    {
+      "family": "shared_producer",
+      "locale": "de",
+      "persona": "radio_dj",
+      "scope": "Actual Runtime/Planner/Knowledge/Moment/SQLite semantic acceptance/Broadcast/paired private owner speech adapter; external source fixtures and injected elapsed clock only.",
+      "sequence": [
+        {
+          "content": "Zu dieser Aufnahme gehören auch die Produktionscredits: Producer 9 und Producer 8.",
+          "attribution": [
+            {
+              "provider": "MusicBrainz",
+              "url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000001",
+              "license": "CC0-1.0"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        },
+        {
+          "content": "Die Produktionscredits von „Recording 1“ führen zur zuvor besprochenen Aufnahme „Recording 0“ zurück: Producer 8 wird bei beiden in dieser Rolle genannt.",
+          "attribution": [
+            {
+              "provider": "MusicBrainz",
+              "url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000002",
+              "license": "CC0-1.0",
+              "url_previous": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000001"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        }
+      ]
+    },
+    {
+      "family": "shared_producer",
+      "locale": "de",
+      "persona": "club_dj",
+      "scope": "Actual Runtime/Planner/Knowledge/Moment/SQLite semantic acceptance/Broadcast/paired private owner speech adapter; external source fixtures and injected elapsed clock only.",
+      "sequence": [
+        {
+          "content": "Producer 9 und Producer 8. Bei dieser Aufnahme als Produzenten genannt.",
+          "attribution": [
+            {
+              "provider": "MusicBrainz",
+              "url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000001",
+              "license": "CC0-1.0"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        },
+        {
+          "content": "Producer 8: Produzent bei „Recording 1“. Auch bei „Recording 0“, das wir zuvor besprochen haben.",
+          "attribution": [
+            {
+              "provider": "MusicBrainz",
+              "url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000002",
+              "license": "CC0-1.0",
+              "url_previous": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000001"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        }
+      ]
+    },
+    {
+      "family": "shared_producer",
+      "locale": "de",
+      "persona": "festival_dj",
+      "scope": "Actual Runtime/Planner/Knowledge/Moment/SQLite semantic acceptance/Broadcast/paired private owner speech adapter; external source fixtures and injected elapsed clock only.",
+      "sequence": [
+        {
+          "content": "Auch kurz Aufmerksamkeit für Producer 9 und Producer 8: bei dieser Aufnahme als Produzenten genannt.",
+          "attribution": [
+            {
+              "provider": "MusicBrainz",
+              "url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000001",
+              "license": "CC0-1.0"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        },
+        {
+          "content": "Da ist Producer 8 wieder in den Produktionscredits: bei „Recording 1“ und zuvor in unserem Beitrag über „Recording 0“.",
+          "attribution": [
+            {
+              "provider": "MusicBrainz",
+              "url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000002",
+              "license": "CC0-1.0",
+              "url_previous": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000001"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        }
+      ]
+    },
+    {
+      "family": "shared_producer",
+      "locale": "fr",
+      "persona": "home_dj",
+      "scope": "Actual Runtime/Planner/Knowledge/Moment/SQLite semantic acceptance/Broadcast/paired private owner speech adapter; external source fixtures and injected elapsed clock only.",
+      "sequence": [
+        {
+          "content": "Regardons ensemble les crédits : Producer 9 et Producer 8 figurent ici comme producteurs.",
+          "attribution": [
+            {
+              "provider": "MusicBrainz",
+              "url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000001",
+              "license": "CC0-1.0"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        },
+        {
+          "content": "Nous avions vu le nom de Producer 8 dans les crédits de production sur « Recording 0 ». « Recording 1 » cite ce nom dans le même rôle.",
+          "attribution": [
+            {
+              "provider": "MusicBrainz",
+              "url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000002",
+              "license": "CC0-1.0",
+              "url_previous": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000001"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        }
+      ]
+    },
+    {
+      "family": "shared_producer",
+      "locale": "fr",
+      "persona": "radio_dj",
+      "scope": "Actual Runtime/Planner/Knowledge/Moment/SQLite semantic acceptance/Broadcast/paired private owner speech adapter; external source fixtures and injected elapsed clock only.",
+      "sequence": [
+        {
+          "content": "Aux côtés de cet enregistrement, les crédits de production citent Producer 9 et Producer 8.",
+          "attribution": [
+            {
+              "provider": "MusicBrainz",
+              "url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000001",
+              "license": "CC0-1.0"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        },
+        {
+          "content": "Les crédits de production sur « Recording 1 » nous ramènent à l’enregistrement évoqué précédemment, « Recording 0 » : Producer 8 figure dans ce rôle sur les deux.",
+          "attribution": [
+            {
+              "provider": "MusicBrainz",
+              "url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000002",
+              "license": "CC0-1.0",
+              "url_previous": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000001"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        }
+      ]
+    },
+    {
+      "family": "shared_producer",
+      "locale": "fr",
+      "persona": "club_dj",
+      "scope": "Actual Runtime/Planner/Knowledge/Moment/SQLite semantic acceptance/Broadcast/paired private owner speech adapter; external source fixtures and injected elapsed clock only.",
+      "sequence": [
+        {
+          "content": "Producer 9 et Producer 8. Comme producteurs dans les crédits de cet enregistrement.",
+          "attribution": [
+            {
+              "provider": "MusicBrainz",
+              "url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000001",
+              "license": "CC0-1.0"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        },
+        {
+          "content": "Producer 8 : à la production sur « Recording 1 ». Aussi sur « Recording 0 », que nous avions évoqué.",
+          "attribution": [
+            {
+              "provider": "MusicBrainz",
+              "url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000002",
+              "license": "CC0-1.0",
+              "url_previous": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000001"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        }
+      ]
+    },
+    {
+      "family": "shared_producer",
+      "locale": "fr",
+      "persona": "festival_dj",
+      "scope": "Actual Runtime/Planner/Knowledge/Moment/SQLite semantic acceptance/Broadcast/paired private owner speech adapter; external source fixtures and injected elapsed clock only.",
+      "sequence": [
+        {
+          "content": "Un peu d’attention aussi pour Producer 9 et Producer 8, dans les crédits comme producteurs sur cet enregistrement.",
+          "attribution": [
+            {
+              "provider": "MusicBrainz",
+              "url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000001",
+              "license": "CC0-1.0"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        },
+        {
+          "content": "Voici de nouveau Producer 8 dans les crédits de production : sur « Recording 1 », et auparavant dans notre échange sur « Recording 0 ».",
+          "attribution": [
+            {
+              "provider": "MusicBrainz",
+              "url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000002",
+              "license": "CC0-1.0",
+              "url_previous": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000001"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        }
+      ]
+    },
+    {
+      "family": "shared_producer",
+      "locale": "es",
+      "persona": "home_dj",
+      "scope": "Actual Runtime/Planner/Knowledge/Moment/SQLite semantic acceptance/Broadcast/paired private owner speech adapter; external source fixtures and injected elapsed clock only.",
+      "sequence": [
+        {
+          "content": "Miremos juntos los créditos: Producer 9 y Producer 8 figuran aquí como productores.",
+          "attribution": [
+            {
+              "provider": "MusicBrainz",
+              "url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000001",
+              "license": "CC0-1.0"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        },
+        {
+          "content": "Ya vimos el nombre de Producer 8 en los créditos de producción de «Recording 0». «Recording 1» incluye ese nombre en el mismo papel.",
+          "attribution": [
+            {
+              "provider": "MusicBrainz",
+              "url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000002",
+              "license": "CC0-1.0",
+              "url_previous": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000001"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        }
+      ]
+    },
+    {
+      "family": "shared_producer",
+      "locale": "es",
+      "persona": "radio_dj",
+      "scope": "Actual Runtime/Planner/Knowledge/Moment/SQLite semantic acceptance/Broadcast/paired private owner speech adapter; external source fixtures and injected elapsed clock only.",
+      "sequence": [
+        {
+          "content": "Junto a esta grabación, los créditos de producción mencionan a Producer 9 y Producer 8.",
+          "attribution": [
+            {
+              "provider": "MusicBrainz",
+              "url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000001",
+              "license": "CC0-1.0"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        },
+        {
+          "content": "Los créditos de producción de «Recording 1» nos llevan a la grabación comentada antes, «Recording 0»: Producer 8 figura en ese papel en ambas.",
+          "attribution": [
+            {
+              "provider": "MusicBrainz",
+              "url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000002",
+              "license": "CC0-1.0",
+              "url_previous": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000001"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        }
+      ]
+    },
+    {
+      "family": "shared_producer",
+      "locale": "es",
+      "persona": "club_dj",
+      "scope": "Actual Runtime/Planner/Knowledge/Moment/SQLite semantic acceptance/Broadcast/paired private owner speech adapter; external source fixtures and injected elapsed clock only.",
+      "sequence": [
+        {
+          "content": "Producer 9 y Producer 8. En los créditos como productores de esta grabación.",
+          "attribution": [
+            {
+              "provider": "MusicBrainz",
+              "url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000001",
+              "license": "CC0-1.0"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        },
+        {
+          "content": "Producer 8: productor en «Recording 1». También en «Recording 0», que comentamos antes.",
+          "attribution": [
+            {
+              "provider": "MusicBrainz",
+              "url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000002",
+              "license": "CC0-1.0",
+              "url_previous": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000001"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        }
+      ]
+    },
+    {
+      "family": "shared_producer",
+      "locale": "es",
+      "persona": "festival_dj",
+      "scope": "Actual Runtime/Planner/Knowledge/Moment/SQLite semantic acceptance/Broadcast/paired private owner speech adapter; external source fixtures and injected elapsed clock only.",
+      "sequence": [
+        {
+          "content": "Un momento de atención también para Producer 9 y Producer 8, en los créditos como productores de esta grabación.",
+          "attribution": [
+            {
+              "provider": "MusicBrainz",
+              "url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000001",
+              "license": "CC0-1.0"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        },
+        {
+          "content": "Ahí vuelve Producer 8 a los créditos de producción: en «Recording 1», y antes en nuestra intervención sobre «Recording 0».",
+          "attribution": [
+            {
+              "provider": "MusicBrainz",
+              "url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000002",
+              "license": "CC0-1.0",
+              "url_previous": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000001"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        }
+      ]
+    },
+    {
+      "family": "album_continuity",
+      "locale": "en",
+      "persona": "home_dj",
+      "scope": "Actual Runtime/Planner/Knowledge/Moment/SQLite semantic acceptance/Broadcast/paired private owner speech adapter; external source fixtures and injected elapsed clock only.",
+      "sequence": [
+        {
+          "content": "Spotify dates this edition of Exact edition to 4 March 2001.",
+          "attribution": [
+            {
+              "provider": "Spotify",
+              "url": "https://open.spotify.com/album/ZZZZZZZZZZZZZZZZZZZZZZ",
+              "license": "Spotify metadata display"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        },
+        {
+          "content": "Another track from the edition mentioned earlier. Spotify dates this edition of Exact edition to 4 March 2001.",
+          "attribution": [
+            {
+              "provider": "Spotify",
+              "url": "https://open.spotify.com/album/ZZZZZZZZZZZZZZZZZZZZZZ",
+              "license": "Spotify metadata display"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        }
+      ]
+    },
+    {
+      "family": "album_continuity",
+      "locale": "en",
+      "persona": "radio_dj",
+      "scope": "Actual Runtime/Planner/Knowledge/Moment/SQLite semantic acceptance/Broadcast/paired private owner speech adapter; external source fixtures and injected elapsed clock only.",
+      "sequence": [
+        {
+          "content": "For this edition of Exact edition, Spotify gives the date 4 March 2001.",
+          "attribution": [
+            {
+              "provider": "Spotify",
+              "url": "https://open.spotify.com/album/ZZZZZZZZZZZZZZZZZZZZZZ",
+              "license": "Spotify metadata display"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        },
+        {
+          "content": "Our earlier album note connects to this track: the edition is the same. For this edition of Exact edition, Spotify gives the date 4 March 2001.",
+          "attribution": [
+            {
+              "provider": "Spotify",
+              "url": "https://open.spotify.com/album/ZZZZZZZZZZZZZZZZZZZZZZ",
+              "license": "Spotify metadata display"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        }
+      ]
+    },
+    {
+      "family": "album_continuity",
+      "locale": "en",
+      "persona": "club_dj",
+      "scope": "Actual Runtime/Planner/Knowledge/Moment/SQLite semantic acceptance/Broadcast/paired private owner speech adapter; external source fixtures and injected elapsed clock only.",
+      "sequence": [
+        {
+          "content": "This edition of Exact edition is dated 4 March 2001 by Spotify.",
+          "attribution": [
+            {
+              "provider": "Spotify",
+              "url": "https://open.spotify.com/album/ZZZZZZZZZZZZZZZZZZZZZZ",
+              "license": "Spotify metadata display"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        },
+        {
+          "content": "Same edition, another track. Back to our album note: This edition of Exact edition is dated 4 March 2001 by Spotify.",
+          "attribution": [
+            {
+              "provider": "Spotify",
+              "url": "https://open.spotify.com/album/ZZZZZZZZZZZZZZZZZZZZZZ",
+              "license": "Spotify metadata display"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        }
+      ]
+    },
+    {
+      "family": "album_continuity",
+      "locale": "en",
+      "persona": "festival_dj",
+      "scope": "Actual Runtime/Planner/Knowledge/Moment/SQLite semantic acceptance/Broadcast/paired private owner speech adapter; external source fixtures and injected elapsed clock only.",
+      "sequence": [
+        {
+          "content": "Let’s place this edition of Exact edition in time: Spotify lists 4 March 2001.",
+          "attribution": [
+            {
+              "provider": "Spotify",
+              "url": "https://open.spotify.com/album/ZZZZZZZZZZZZZZZZZZZZZZ",
+              "license": "Spotify metadata display"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        },
+        {
+          "content": "That edition returns here, with a different track. Let’s place this edition of Exact edition in time: Spotify lists 4 March 2001.",
+          "attribution": [
+            {
+              "provider": "Spotify",
+              "url": "https://open.spotify.com/album/ZZZZZZZZZZZZZZZZZZZZZZ",
+              "license": "Spotify metadata display"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        }
+      ]
+    },
+    {
+      "family": "album_continuity",
+      "locale": "nl",
+      "persona": "home_dj",
+      "scope": "Actual Runtime/Planner/Knowledge/Moment/SQLite semantic acceptance/Broadcast/paired private owner speech adapter; external source fixtures and injected elapsed clock only.",
+      "sequence": [
+        {
+          "content": "Voor deze uitgave van Exact edition vermeldt Spotify 4 maart 2001.",
+          "attribution": [
+            {
+              "provider": "Spotify",
+              "url": "https://open.spotify.com/album/ZZZZZZZZZZZZZZZZZZZZZZ",
+              "license": "Spotify metadata display"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        },
+        {
+          "content": "Nog een nummer uit de eerder genoemde uitgave. Voor deze uitgave van Exact edition vermeldt Spotify 4 maart 2001.",
+          "attribution": [
+            {
+              "provider": "Spotify",
+              "url": "https://open.spotify.com/album/ZZZZZZZZZZZZZZZZZZZZZZ",
+              "license": "Spotify metadata display"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        }
+      ]
+    },
+    {
+      "family": "album_continuity",
+      "locale": "nl",
+      "persona": "radio_dj",
+      "scope": "Actual Runtime/Planner/Knowledge/Moment/SQLite semantic acceptance/Broadcast/paired private owner speech adapter; external source fixtures and injected elapsed clock only.",
+      "sequence": [
+        {
+          "content": "Spotify vermeldt 4 maart 2001 als datum voor deze uitgave van Exact edition.",
+          "attribution": [
+            {
+              "provider": "Spotify",
+              "url": "https://open.spotify.com/album/ZZZZZZZZZZZZZZZZZZZZZZ",
+              "license": "Spotify metadata display"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        },
+        {
+          "content": "Onze eerdere albumnotitie sluit aan bij dit nummer: het is dezelfde uitgave. Spotify vermeldt 4 maart 2001 als datum voor deze uitgave van Exact edition.",
+          "attribution": [
+            {
+              "provider": "Spotify",
+              "url": "https://open.spotify.com/album/ZZZZZZZZZZZZZZZZZZZZZZ",
+              "license": "Spotify metadata display"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        }
+      ]
+    },
+    {
+      "family": "album_continuity",
+      "locale": "nl",
+      "persona": "club_dj",
+      "scope": "Actual Runtime/Planner/Knowledge/Moment/SQLite semantic acceptance/Broadcast/paired private owner speech adapter; external source fixtures and injected elapsed clock only.",
+      "sequence": [
+        {
+          "content": "Deze uitgave van Exact edition: 4 maart 2001, volgens Spotify.",
+          "attribution": [
+            {
+              "provider": "Spotify",
+              "url": "https://open.spotify.com/album/ZZZZZZZZZZZZZZZZZZZZZZ",
+              "license": "Spotify metadata display"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        },
+        {
+          "content": "Dezelfde uitgave, een ander nummer. Terug naar onze albumnotitie: Deze uitgave van Exact edition: 4 maart 2001, volgens Spotify.",
+          "attribution": [
+            {
+              "provider": "Spotify",
+              "url": "https://open.spotify.com/album/ZZZZZZZZZZZZZZZZZZZZZZ",
+              "license": "Spotify metadata display"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        }
+      ]
+    },
+    {
+      "family": "album_continuity",
+      "locale": "nl",
+      "persona": "festival_dj",
+      "scope": "Actual Runtime/Planner/Knowledge/Moment/SQLite semantic acceptance/Broadcast/paired private owner speech adapter; external source fixtures and injected elapsed clock only.",
+      "sequence": [
+        {
+          "content": "Deze uitgave van Exact edition plaatsen we in de tijd: Spotify vermeldt 4 maart 2001.",
+          "attribution": [
+            {
+              "provider": "Spotify",
+              "url": "https://open.spotify.com/album/ZZZZZZZZZZZZZZZZZZZZZZ",
+              "license": "Spotify metadata display"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        },
+        {
+          "content": "Diezelfde uitgave komt weer langs, nu met een ander nummer. Deze uitgave van Exact edition plaatsen we in de tijd: Spotify vermeldt 4 maart 2001.",
+          "attribution": [
+            {
+              "provider": "Spotify",
+              "url": "https://open.spotify.com/album/ZZZZZZZZZZZZZZZZZZZZZZ",
+              "license": "Spotify metadata display"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        }
+      ]
+    },
+    {
+      "family": "album_continuity",
+      "locale": "de",
+      "persona": "home_dj",
+      "scope": "Actual Runtime/Planner/Knowledge/Moment/SQLite semantic acceptance/Broadcast/paired private owner speech adapter; external source fixtures and injected elapsed clock only.",
+      "sequence": [
+        {
+          "content": "Für diese Ausgabe von Exact edition nennt Spotify 4. März 2001.",
+          "attribution": [
+            {
+              "provider": "Spotify",
+              "url": "https://open.spotify.com/album/ZZZZZZZZZZZZZZZZZZZZZZ",
+              "license": "Spotify metadata display"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        },
+        {
+          "content": "Ein weiterer Titel aus der zuvor erwähnten Ausgabe. Für diese Ausgabe von Exact edition nennt Spotify 4. März 2001.",
+          "attribution": [
+            {
+              "provider": "Spotify",
+              "url": "https://open.spotify.com/album/ZZZZZZZZZZZZZZZZZZZZZZ",
+              "license": "Spotify metadata display"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        }
+      ]
+    },
+    {
+      "family": "album_continuity",
+      "locale": "de",
+      "persona": "radio_dj",
+      "scope": "Actual Runtime/Planner/Knowledge/Moment/SQLite semantic acceptance/Broadcast/paired private owner speech adapter; external source fixtures and injected elapsed clock only.",
+      "sequence": [
+        {
+          "content": "Spotify nennt für diese Ausgabe von Exact edition das Datum 4. März 2001.",
+          "attribution": [
+            {
+              "provider": "Spotify",
+              "url": "https://open.spotify.com/album/ZZZZZZZZZZZZZZZZZZZZZZ",
+              "license": "Spotify metadata display"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        },
+        {
+          "content": "Unsere frühere Albumnotiz passt zu diesem Titel: Es ist dieselbe Ausgabe. Spotify nennt für diese Ausgabe von Exact edition das Datum 4. März 2001.",
+          "attribution": [
+            {
+              "provider": "Spotify",
+              "url": "https://open.spotify.com/album/ZZZZZZZZZZZZZZZZZZZZZZ",
+              "license": "Spotify metadata display"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        }
+      ]
+    },
+    {
+      "family": "album_continuity",
+      "locale": "de",
+      "persona": "club_dj",
+      "scope": "Actual Runtime/Planner/Knowledge/Moment/SQLite semantic acceptance/Broadcast/paired private owner speech adapter; external source fixtures and injected elapsed clock only.",
+      "sequence": [
+        {
+          "content": "Diese Ausgabe von Exact edition: 4. März 2001, laut Spotify.",
+          "attribution": [
+            {
+              "provider": "Spotify",
+              "url": "https://open.spotify.com/album/ZZZZZZZZZZZZZZZZZZZZZZ",
+              "license": "Spotify metadata display"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        },
+        {
+          "content": "Dieselbe Ausgabe, ein anderer Titel. Zurück zu unserer Albumnotiz: Diese Ausgabe von Exact edition: 4. März 2001, laut Spotify.",
+          "attribution": [
+            {
+              "provider": "Spotify",
+              "url": "https://open.spotify.com/album/ZZZZZZZZZZZZZZZZZZZZZZ",
+              "license": "Spotify metadata display"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        }
+      ]
+    },
+    {
+      "family": "album_continuity",
+      "locale": "de",
+      "persona": "festival_dj",
+      "scope": "Actual Runtime/Planner/Knowledge/Moment/SQLite semantic acceptance/Broadcast/paired private owner speech adapter; external source fixtures and injected elapsed clock only.",
+      "sequence": [
+        {
+          "content": "Ordnen wir diese Ausgabe von Exact edition zeitlich ein: Spotify nennt 4. März 2001.",
+          "attribution": [
+            {
+              "provider": "Spotify",
+              "url": "https://open.spotify.com/album/ZZZZZZZZZZZZZZZZZZZZZZ",
+              "license": "Spotify metadata display"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        },
+        {
+          "content": "Dieselbe Ausgabe ist wieder da, jetzt mit einem anderen Titel. Ordnen wir diese Ausgabe von Exact edition zeitlich ein: Spotify nennt 4. März 2001.",
+          "attribution": [
+            {
+              "provider": "Spotify",
+              "url": "https://open.spotify.com/album/ZZZZZZZZZZZZZZZZZZZZZZ",
+              "license": "Spotify metadata display"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        }
+      ]
+    },
+    {
+      "family": "album_continuity",
+      "locale": "fr",
+      "persona": "home_dj",
+      "scope": "Actual Runtime/Planner/Knowledge/Moment/SQLite semantic acceptance/Broadcast/paired private owner speech adapter; external source fixtures and injected elapsed clock only.",
+      "sequence": [
+        {
+          "content": "Pour cette édition de l’album « Exact edition », Spotify indique 4 mars 2001.",
+          "attribution": [
+            {
+              "provider": "Spotify",
+              "url": "https://open.spotify.com/album/ZZZZZZZZZZZZZZZZZZZZZZ",
+              "license": "Spotify metadata display"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        },
+        {
+          "content": "Un autre titre de l’édition présentée plus tôt. Pour cette édition de l’album « Exact edition », Spotify indique 4 mars 2001.",
+          "attribution": [
+            {
+              "provider": "Spotify",
+              "url": "https://open.spotify.com/album/ZZZZZZZZZZZZZZZZZZZZZZ",
+              "license": "Spotify metadata display"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        }
+      ]
+    },
+    {
+      "family": "album_continuity",
+      "locale": "fr",
+      "persona": "radio_dj",
+      "scope": "Actual Runtime/Planner/Knowledge/Moment/SQLite semantic acceptance/Broadcast/paired private owner speech adapter; external source fixtures and injected elapsed clock only.",
+      "sequence": [
+        {
+          "content": "Spotify indique la date 4 mars 2001 pour cette édition de l’album « Exact edition ».",
+          "attribution": [
+            {
+              "provider": "Spotify",
+              "url": "https://open.spotify.com/album/ZZZZZZZZZZZZZZZZZZZZZZ",
+              "license": "Spotify metadata display"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        },
+        {
+          "content": "Ce titre vient de l’édition présentée plus tôt. Spotify indique la date 4 mars 2001 pour cette édition de l’album « Exact edition ».",
+          "attribution": [
+            {
+              "provider": "Spotify",
+              "url": "https://open.spotify.com/album/ZZZZZZZZZZZZZZZZZZZZZZ",
+              "license": "Spotify metadata display"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        }
+      ]
+    },
+    {
+      "family": "album_continuity",
+      "locale": "fr",
+      "persona": "club_dj",
+      "scope": "Actual Runtime/Planner/Knowledge/Moment/SQLite semantic acceptance/Broadcast/paired private owner speech adapter; external source fixtures and injected elapsed clock only.",
+      "sequence": [
+        {
+          "content": "Cette édition de l’album « Exact edition » : 4 mars 2001, selon Spotify.",
+          "attribution": [
+            {
+              "provider": "Spotify",
+              "url": "https://open.spotify.com/album/ZZZZZZZZZZZZZZZZZZZZZZ",
+              "license": "Spotify metadata display"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        },
+        {
+          "content": "Même édition, autre titre. Retour à notre note sur l’album : Cette édition de l’album « Exact edition » : 4 mars 2001, selon Spotify.",
+          "attribution": [
+            {
+              "provider": "Spotify",
+              "url": "https://open.spotify.com/album/ZZZZZZZZZZZZZZZZZZZZZZ",
+              "license": "Spotify metadata display"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        }
+      ]
+    },
+    {
+      "family": "album_continuity",
+      "locale": "fr",
+      "persona": "festival_dj",
+      "scope": "Actual Runtime/Planner/Knowledge/Moment/SQLite semantic acceptance/Broadcast/paired private owner speech adapter; external source fixtures and injected elapsed clock only.",
+      "sequence": [
+        {
+          "content": "Situons cette édition de l’album « Exact edition » dans le temps : Spotify indique 4 mars 2001.",
+          "attribution": [
+            {
+              "provider": "Spotify",
+              "url": "https://open.spotify.com/album/ZZZZZZZZZZZZZZZZZZZZZZ",
+              "license": "Spotify metadata display"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        },
+        {
+          "content": "Cette même édition revient, avec un autre titre. Situons cette édition de l’album « Exact edition » dans le temps : Spotify indique 4 mars 2001.",
+          "attribution": [
+            {
+              "provider": "Spotify",
+              "url": "https://open.spotify.com/album/ZZZZZZZZZZZZZZZZZZZZZZ",
+              "license": "Spotify metadata display"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        }
+      ]
+    },
+    {
+      "family": "album_continuity",
+      "locale": "es",
+      "persona": "home_dj",
+      "scope": "Actual Runtime/Planner/Knowledge/Moment/SQLite semantic acceptance/Broadcast/paired private owner speech adapter; external source fixtures and injected elapsed clock only.",
+      "sequence": [
+        {
+          "content": "Para esta edición de Exact edition, Spotify indica 4 de marzo de 2001.",
+          "attribution": [
+            {
+              "provider": "Spotify",
+              "url": "https://open.spotify.com/album/ZZZZZZZZZZZZZZZZZZZZZZ",
+              "license": "Spotify metadata display"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        },
+        {
+          "content": "Otro tema de la edición mencionada antes. Para esta edición de Exact edition, Spotify indica 4 de marzo de 2001.",
+          "attribution": [
+            {
+              "provider": "Spotify",
+              "url": "https://open.spotify.com/album/ZZZZZZZZZZZZZZZZZZZZZZ",
+              "license": "Spotify metadata display"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        }
+      ]
+    },
+    {
+      "family": "album_continuity",
+      "locale": "es",
+      "persona": "radio_dj",
+      "scope": "Actual Runtime/Planner/Knowledge/Moment/SQLite semantic acceptance/Broadcast/paired private owner speech adapter; external source fixtures and injected elapsed clock only.",
+      "sequence": [
+        {
+          "content": "Spotify indica la fecha 4 de marzo de 2001 para esta edición de Exact edition.",
+          "attribution": [
+            {
+              "provider": "Spotify",
+              "url": "https://open.spotify.com/album/ZZZZZZZZZZZZZZZZZZZZZZ",
+              "license": "Spotify metadata display"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        },
+        {
+          "content": "Nuestra nota anterior sobre el álbum conecta con este tema: es la misma edición. Spotify indica la fecha 4 de marzo de 2001 para esta edición de Exact edition.",
+          "attribution": [
+            {
+              "provider": "Spotify",
+              "url": "https://open.spotify.com/album/ZZZZZZZZZZZZZZZZZZZZZZ",
+              "license": "Spotify metadata display"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        }
+      ]
+    },
+    {
+      "family": "album_continuity",
+      "locale": "es",
+      "persona": "club_dj",
+      "scope": "Actual Runtime/Planner/Knowledge/Moment/SQLite semantic acceptance/Broadcast/paired private owner speech adapter; external source fixtures and injected elapsed clock only.",
+      "sequence": [
+        {
+          "content": "Esta edición de Exact edition: 4 de marzo de 2001, según Spotify.",
+          "attribution": [
+            {
+              "provider": "Spotify",
+              "url": "https://open.spotify.com/album/ZZZZZZZZZZZZZZZZZZZZZZ",
+              "license": "Spotify metadata display"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        },
+        {
+          "content": "La misma edición, otro tema. Volvemos a nuestra nota sobre el álbum: Esta edición de Exact edition: 4 de marzo de 2001, según Spotify.",
+          "attribution": [
+            {
+              "provider": "Spotify",
+              "url": "https://open.spotify.com/album/ZZZZZZZZZZZZZZZZZZZZZZ",
+              "license": "Spotify metadata display"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        }
+      ]
+    },
+    {
+      "family": "album_continuity",
+      "locale": "es",
+      "persona": "festival_dj",
+      "scope": "Actual Runtime/Planner/Knowledge/Moment/SQLite semantic acceptance/Broadcast/paired private owner speech adapter; external source fixtures and injected elapsed clock only.",
+      "sequence": [
+        {
+          "content": "Situemos esta edición de Exact edition en el tiempo: Spotify indica 4 de marzo de 2001.",
+          "attribution": [
+            {
+              "provider": "Spotify",
+              "url": "https://open.spotify.com/album/ZZZZZZZZZZZZZZZZZZZZZZ",
+              "license": "Spotify metadata display"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        },
+        {
+          "content": "Vuelve esa misma edición, ahora con otro tema. Situemos esta edición de Exact edition en el tiempo: Spotify indica 4 de marzo de 2001.",
+          "attribution": [
+            {
+              "provider": "Spotify",
+              "url": "https://open.spotify.com/album/ZZZZZZZZZZZZZZZZZZZZZZ",
+              "license": "Spotify metadata display"
+            }
+          ],
+          "speech_text_equal": true,
+          "audio_state": "renderer_pending"
+        }
+      ]
+    }
+  ],
+  "actual_model_outputs": [
+    {
+      "locale": "en",
+      "persona": "home_dj",
+      "common_question": "What does an ostinato mean in music?",
+      "accepted_answer": "An ostinato is a short musical pattern that repeats, usually in the same part or across the music. It can be a rhythm, a melody, or a sequence of chords.",
+      "accepted_speech_text_equal": true,
+      "insight": {
+        "summary": "Brian Eno is credited as the composer.",
+        "full_text": "The available context identifies Brian Eno as the work’s composer, pointing to his credited role in creating it. This credit alone does not establish further details about the music.",
+        "listening_cues": [],
+        "verified_context": "Brian Eno is credited as composer of the work.",
+        "source_attribution": {
+          "provider": "MusicBrainz",
+          "license": "CC0-1.0"
+        }
+      },
+      "synthetic_context": true
+    },
+    {
+      "locale": "en",
+      "persona": "radio_dj",
+      "common_question": "What does an ostinato mean in music?",
+      "accepted_answer": "An ostinato is a musical pattern that repeats, often in the same part of a piece. That repetition provides a steady rhythmic or melodic foundation for other musical parts to change around.",
+      "accepted_speech_text_equal": true,
+      "insight": {
+        "summary": "Brian Eno is credited as composer of the work.",
+        "full_text": "That credit identifies Eno as its composer; as an interpretation, you might listen for how the work’s ideas unfold.",
+        "listening_cues": [],
+        "verified_context": "Brian Eno is credited as composer of the work.",
+        "source_attribution": {
+          "provider": "MusicBrainz",
+          "license": "CC0-1.0"
+        }
+      },
+      "synthetic_context": true
+    },
+    {
+      "locale": "en",
+      "persona": "club_dj",
+      "common_question": "What does an ostinato mean in music?",
+      "accepted_answer": "An ostinato is a short rhythmic, melodic, or harmonic pattern that repeats through a piece of music.",
+      "accepted_speech_text_equal": true,
+      "insight": {
+        "summary": "Brian Eno is credited as the work’s composer; the supplied context does not specify its musical meaning.",
+        "full_text": "Brian Eno is credited as the work’s composer, but the supplied context does not specify its musical meaning.",
+        "listening_cues": [],
+        "verified_context": "Brian Eno is credited as composer of the work.",
+        "source_attribution": {
+          "provider": "MusicBrainz",
+          "license": "CC0-1.0"
+        }
+      },
+      "synthetic_context": true
+    },
+    {
+      "locale": "en",
+      "persona": "festival_dj",
+      "common_question": "What does an ostinato mean in music?",
+      "accepted_answer": "An ostinato is a musical pattern that repeats, often with little change. It might be a bass line, rhythm, melody, or chord sequence. That repetition gives the music a steady foundation while other parts develop.",
+      "accepted_speech_text_equal": true,
+      "insight": {
+        "summary": "Brian Eno is credited as the work’s composer.",
+        "full_text": "That credit foregrounds composition as a key part of how the work was shaped.",
+        "listening_cues": [],
+        "verified_context": "Brian Eno is credited as composer of the work.",
+        "source_attribution": {
+          "provider": "MusicBrainz",
+          "license": "CC0-1.0"
+        }
+      },
+      "synthetic_context": true
+    },
+    {
+      "locale": "nl",
+      "persona": "home_dj",
+      "common_question": "Wat betekent een ostinato in muziek?",
+      "accepted_answer": "Een ostinato is een ritmisch, melodisch of harmonisch patroon dat in een muziekstuk herhaald wordt. Die herhaling vormt vaak een vaste basis terwijl andere partijen veranderen.",
+      "accepted_speech_text_equal": true,
+      "insight": {
+        "summary": "Brian Eno wordt vermeld als componist van het werk.",
+        "full_text": "De beschikbare context schrijft de compositie toe aan Brian Eno, maar geeft geen informatie over een specifieke betekenis of boodschap. Dat krediet zegt dus wie als componist wordt genoemd, niet hoe het werk geïnterpreteerd moet worden.",
+        "listening_cues": [],
+        "verified_context": "Brian Eno is credited as composer of the work.",
+        "source_attribution": {
+          "provider": "MusicBrainz",
+          "license": "CC0-1.0"
+        }
+      },
+      "synthetic_context": true
+    },
+    {
+      "locale": "nl",
+      "persona": "radio_dj",
+      "common_question": "Wat betekent een ostinato in muziek?",
+      "accepted_answer": "Een ostinato is een ritmisch, melodisch of harmonisch patroon dat steeds terugkeert in een muziekstuk. Die herhaling geeft de muziek een vaste basis, terwijl andere partijen zich eromheen kunnen ontwikkelen.",
+      "accepted_speech_text_equal": true,
+      "insight": {
+        "summary": "Brian Eno wordt als componist vermeld",
+        "full_text": "MusicBrainz vermeldt Brian Eno als componist van dit werk. Interpretatie: luister desgewenst naar hoe de muzikale ideeën zich ontvouwen, zonder aannames over specifieke klanken.",
+        "listening_cues": [],
+        "verified_context": "Brian Eno is credited as composer of the work.",
+        "source_attribution": {
+          "provider": "MusicBrainz",
+          "license": "CC0-1.0"
+        }
+      },
+      "synthetic_context": true
+    },
+    {
+      "locale": "nl",
+      "persona": "club_dj",
+      "common_question": "Wat betekent een ostinato in muziek?",
+      "accepted_answer": "Een ostinato is een kort ritmisch, melodisch of harmonisch patroon dat herhaaldelijk terugkomt in een muziekstuk.",
+      "accepted_speech_text_equal": true,
+      "insight": {
+        "summary": "Brian Eno staat vermeld als componist van dit werk.",
+        "full_text": "De credit wijst Eno aan als maker van de compositie, zonder verdere muzikale details te geven.",
+        "listening_cues": [],
+        "verified_context": "Brian Eno is credited as composer of the work.",
+        "source_attribution": {
+          "provider": "MusicBrainz",
+          "license": "CC0-1.0"
+        }
+      },
+      "synthetic_context": true
+    },
+    {
+      "locale": "nl",
+      "persona": "festival_dj",
+      "common_question": "Wat betekent een ostinato in muziek?",
+      "accepted_answer": "Een ostinato is een ritmisch, melodisch of harmonisch patroon dat steeds terugkeert. Het kan bijvoorbeeld een baslijn of kort motief zijn. Zo ontstaat een herkenbare basis, terwijl andere muzikale partijen veranderen of zich verder ontwikkelen.",
+      "accepted_speech_text_equal": true,
+      "insight": {
+        "summary": "Brian Eno staat vermeld als componist van dit werk.",
+        "full_text": "Die credit geeft auteurschap aan, maar zegt op zichzelf niet hoe de muziek klinkt.",
+        "listening_cues": [],
+        "verified_context": "Brian Eno is credited as composer of the work.",
+        "source_attribution": {
+          "provider": "MusicBrainz",
+          "license": "CC0-1.0"
+        }
+      },
+      "synthetic_context": true
+    },
+    {
+      "locale": "de",
+      "persona": "home_dj",
+      "common_question": "Was bedeutet ein Ostinato in der Musik?",
+      "accepted_answer": "Ein Ostinato ist ein kurzes rhythmisches, melodisches oder harmonisches Muster, das in einem Musikstück wiederholt wird. Es bildet oft eine gleichbleibende Grundlage, während sich andere musikalische Teile verändern.",
+      "accepted_speech_text_equal": true,
+      "insight": {
+        "summary": "Brian Eno wird als Komponist des Werks genannt.",
+        "full_text": "Der Komponistenkredit ordnet Brian Eno die Urheberschaft des Werks zu, verrät aber für sich genommen nicht, welche Bedeutung er ihm geben wollte. Als Interpretation kannst du beim Hören darauf achten, welche Gedanken oder Stimmungen das Werk bei dir auslöst.",
+        "listening_cues": [],
+        "verified_context": "Brian Eno is credited as composer of the work.",
+        "source_attribution": {
+          "provider": "MusicBrainz",
+          "license": "CC0-1.0"
+        }
+      },
+      "synthetic_context": true
+    },
+    {
+      "locale": "de",
+      "persona": "radio_dj",
+      "common_question": "Was bedeutet ein Ostinato in der Musik?",
+      "accepted_answer": "Ein Ostinato ist ein rhythmisches, melodisches oder harmonisches Muster, das in einem Musikstück wiederholt wird. Es schafft eine feste Grundlage, während sich andere musikalische Teile verändern können.",
+      "accepted_speech_text_equal": true,
+      "insight": {
+        "summary": "Komponistenangabe",
+        "full_text": "Brian Eno wird als Komponist des Werks geführt.",
+        "listening_cues": [],
+        "verified_context": "Brian Eno is credited as composer of the work.",
+        "source_attribution": {
+          "provider": "MusicBrainz",
+          "license": "CC0-1.0"
+        }
+      },
+      "synthetic_context": true
+    },
+    {
+      "locale": "de",
+      "persona": "club_dj",
+      "common_question": "Was bedeutet ein Ostinato in der Musik?",
+      "accepted_answer": "Ein Ostinato ist ein rhythmisches, melodisches oder harmonisches Muster, das wiederholt wird und der Musik oft eine gleichbleibende Grundlage gibt.",
+      "accepted_speech_text_equal": true,
+      "insight": {
+        "summary": "Brian Eno ist als Komponist des Werks genannt.",
+        "full_text": "Das belegt seine kompositorische Zuschreibung, sagt für sich genommen aber nichts über konkrete musikalische Merkmale aus.",
+        "listening_cues": [],
+        "verified_context": "Brian Eno is credited as composer of the work.",
+        "source_attribution": {
+          "provider": "MusicBrainz",
+          "license": "CC0-1.0"
+        }
+      },
+      "synthetic_context": true
+    },
+    {
+      "locale": "de",
+      "persona": "festival_dj",
+      "common_question": "Was bedeutet ein Ostinato in der Musik?",
+      "accepted_answer": "Ein Ostinato ist ein rhythmisches, melodisches oder harmonisches Muster, das wiederholt erklingt. Es kann etwa eine Basslinie oder ein kurzes Motiv sein. So entsteht ein beständiger musikalischer Bezugspunkt, während sich andere Teile verändern.",
+      "accepted_speech_text_equal": true,
+      "insight": {
+        "summary": "Brian Eno ist als Komponist des Werks genannt.",
+        "full_text": "Dieser Credit lenkt den Blick auf die musikalische Gestaltung, ohne konkrete Aufführungsdetails festzulegen.",
+        "listening_cues": [],
+        "verified_context": "Brian Eno is credited as composer of the work.",
+        "source_attribution": {
+          "provider": "MusicBrainz",
+          "license": "CC0-1.0"
+        }
+      },
+      "synthetic_context": true
+    },
+    {
+      "locale": "fr",
+      "persona": "home_dj",
+      "common_question": "Que signifie un ostinato en musique ?",
+      "accepted_answer": "Un ostinato est un motif rythmique, mélodique ou harmonique qui se répète dans un morceau. Il sert souvent de base stable tandis que d’autres éléments musicaux évoluent.",
+      "accepted_speech_text_equal": true,
+      "insight": {
+        "summary": "Brian Eno est crédité comme compositeur de l’œuvre.",
+        "full_text": "Ce crédit indique qu’Eno est associé à la composition, sans préciser à lui seul le sens ou le sujet de l’œuvre. Interprétation possible : l’écouter en se demandant quelles idées ou émotions elle évoque pour vous.",
+        "listening_cues": [],
+        "verified_context": "Brian Eno is credited as composer of the work.",
+        "source_attribution": {
+          "provider": "MusicBrainz",
+          "license": "CC0-1.0"
+        }
+      },
+      "synthetic_context": true
+    },
+    {
+      "locale": "fr",
+      "persona": "radio_dj",
+      "common_question": "Que signifie un ostinato en musique ?",
+      "accepted_answer": "Un ostinato est un motif rythmique, mélodique ou harmonique qui se répète au cours d’un morceau. Il crée un repère musical stable, tandis que d’autres éléments peuvent évoluer.",
+      "accepted_speech_text_equal": true,
+      "insight": {
+        "summary": "Crédit de composition : Brian Eno.",
+        "full_text": "Brian Eno est crédité comme compositeur de cette œuvre. Cette attribution invite à considérer le rôle de la composition dans sa conception.",
+        "listening_cues": [],
+        "verified_context": "Brian Eno is credited as composer of the work.",
+        "source_attribution": {
+          "provider": "MusicBrainz",
+          "license": "CC0-1.0"
+        }
+      },
+      "synthetic_context": true
+    },
+    {
+      "locale": "fr",
+      "persona": "club_dj",
+      "common_question": "Que signifie un ostinato en musique ?",
+      "accepted_answer": "Un ostinato est un motif rythmique, mélodique ou harmonique qui se répète et sert souvent de base stable pendant que d’autres éléments musicaux évoluent.",
+      "accepted_speech_text_equal": true,
+      "insight": {
+        "summary": "Le crédit attribue la composition à Brian Eno, mais ne suffit pas à établir le sens musical de l’œuvre.",
+        "full_text": "Brian Eno est crédité comme compositeur. Sans autre contexte sur l’œuvre, son sens musical ne peut être précisé.",
+        "listening_cues": [],
+        "verified_context": "Brian Eno is credited as composer of the work.",
+        "source_attribution": {
+          "provider": "MusicBrainz",
+          "license": "CC0-1.0"
+        }
+      },
+      "synthetic_context": true
+    },
+    {
+      "locale": "fr",
+      "persona": "festival_dj",
+      "common_question": "Que signifie un ostinato en musique ?",
+      "accepted_answer": "Un ostinato est un motif rythmique, mélodique ou harmonique qui se répète au fil d’un morceau. Une basse récurrente ou une courte cellule de notes peut en tenir le rôle. Cette répétition crée un repère stable, même lorsque les autres éléments évoluent.",
+      "accepted_speech_text_equal": true,
+      "insight": {
+        "summary": "Brian Eno est crédité comme compositeur de l’œuvre.",
+        "full_text": "Cette attribution souligne son rôle dans l’écriture musicale, sans décrire à elle seule le résultat sonore.",
+        "listening_cues": [],
+        "verified_context": "Brian Eno is credited as composer of the work.",
+        "source_attribution": {
+          "provider": "MusicBrainz",
+          "license": "CC0-1.0"
+        }
+      },
+      "synthetic_context": true
+    },
+    {
+      "locale": "es",
+      "persona": "home_dj",
+      "common_question": "¿Qué significa un ostinato en música?",
+      "accepted_answer": "Un ostinato es un patrón rítmico, melódico o armónico que se repite durante una pieza. Puede ser una línea de bajo o una breve secuencia de notas que da continuidad mientras otros elementos cambian.",
+      "accepted_speech_text_equal": true,
+      "insight": {
+        "summary": "Brian Eno figura como compositor de la obra.",
+        "full_text": "El crédito identifica a Brian Eno como compositor. Ese dato sitúa su papel en la creación de la obra, pero no basta por sí solo para precisar su significado.",
+        "listening_cues": [],
+        "verified_context": "Brian Eno is credited as composer of the work.",
+        "source_attribution": {
+          "provider": "MusicBrainz",
+          "license": "CC0-1.0"
+        }
+      },
+      "synthetic_context": true
+    },
+    {
+      "locale": "es",
+      "persona": "radio_dj",
+      "common_question": "¿Qué significa un ostinato en música?",
+      "accepted_answer": "Un ostinato es un patrón rítmico, melódico o armónico que se repite a lo largo de una pieza. Puede ser, por ejemplo, una línea de bajo recurrente que aporta continuidad mientras otros elementos musicales cambian.",
+      "accepted_speech_text_equal": true,
+      "insight": {
+        "summary": "La ficha atribuye la composición de la obra a Brian Eno.",
+        "full_text": "La ficha atribuye la composición de la obra a Brian Eno; como interpretación, esa autoría invita a atender a cómo se construye su sentido musical. Si la escuchas, puedes seguir qué ideas te sugiere la obra, sin dar por sentada una intención concreta.",
+        "listening_cues": [],
+        "verified_context": "Brian Eno is credited as composer of the work.",
+        "source_attribution": {
+          "provider": "MusicBrainz",
+          "license": "CC0-1.0"
+        }
+      },
+      "synthetic_context": true
+    },
+    {
+      "locale": "es",
+      "persona": "club_dj",
+      "common_question": "¿Qué significa un ostinato en música?",
+      "accepted_answer": "Un ostinato es un patrón rítmico, melódico o armónico que se repite a lo largo de una pieza y mantiene una base reconocible mientras otros elementos cambian.",
+      "accepted_speech_text_equal": true,
+      "insight": {
+        "summary": "El crédito de composición a Brian Eno no determina un significado único.",
+        "full_text": "Interpretación: puede invitar a buscar qué sentido personal adquiere la obra, sin atribuirle una intención concreta.",
+        "listening_cues": [],
+        "verified_context": "Brian Eno is credited as composer of the work.",
+        "source_attribution": {
+          "provider": "MusicBrainz",
+          "license": "CC0-1.0"
+        }
+      },
+      "synthetic_context": true
+    },
+    {
+      "locale": "es",
+      "persona": "festival_dj",
+      "common_question": "¿Qué significa un ostinato en música?",
+      "accepted_answer": "Un ostinato es un patrón rítmico, melódico o armónico que se repite a lo largo de una pieza. Puede ser una frase breve de notas o un ritmo constante. Mientras ese patrón se mantiene, otros elementos musicales pueden cambiar.",
+      "accepted_speech_text_equal": true,
+      "insight": {
+        "summary": "La obra se atribuye a Brian Eno como compositor: el crédito señala su papel en la creación musical.",
+        "full_text": "Ese dato sitúa la composición en el centro, sin determinar por sí solo cómo suena o qué expresa la pieza.",
+        "listening_cues": [],
+        "verified_context": "Brian Eno is credited as composer of the work.",
+        "source_attribution": {
+          "provider": "MusicBrainz",
+          "license": "CC0-1.0"
+        }
+      },
+      "synthetic_context": true
+    }
+  ],
+  "model_proof": {
+    "calls": 40,
+    "model": "gpt-6-luna",
+    "tools": 0,
+    "store": false,
+    "total_input_tokens": 34285,
+    "total_output_tokens": 6140,
+    "per_call_elapsed_seconds": [
+      2.6661926259985194,
+      3.5060703759954777,
+      1.9474557509965962,
+      6.115574461000506,
+      1.0450189170078374,
+      4.397030626991182,
+      1.5878026260033948,
+      3.6871067929896526,
+      1.0965555840084562,
+      3.9067803349898895,
+      1.132355459005339,
+      5.699898461010889,
+      1.3434604999929434,
+      3.0607983760128263,
+      2.4215309179999167,
+      3.6070402519981144,
+      0.9792108760011615,
+      3.1903854179981863,
+      1.6798315850028303,
+      6.401239127997542,
+      1.3000664179999148,
+      2.695350085006794,
+      1.4296282510040328,
+      5.590328334990772,
+      1.4457242930075154,
+      4.325366043995018,
+      1.0800182499951916,
+      5.423567669000477,
+      1.2131177919945912,
+      5.11871275199519,
+      1.479406875994755,
+      3.970832502003759,
+      1.145339624999906,
+      3.4089226679934654,
+      1.0544335419981508,
+      3.9470438770076726,
+      1.267160541989142,
+      2.7595325849979417,
+      1.4523415000003297,
+      3.5610052940028254
+    ],
+    "unchanged_model_route_sha256": {
+      "custom_components/djconnect/ask_dj/dialogue.py": "5b8127cda50ed61589b9f276678a9150bb4e3731840638f91bc70780876d58bd",
+      "custom_components/djconnect/ask_dj/service.py": "f98b3308e5d2e06bfbfe6982789fed210c0c9a24e5d60cd87eda91993293b915",
+      "custom_components/djconnect/track_insight.py": "a333523f9bf299837dca2d95bebca940987c6dde4d06c4460fd701eb391eb4dc",
+      "custom_components/djconnect/pipeline.py": "36ff6bf121bbc293714805f60bc7951c8341fb68cb14de4e6027d2af6040d237",
+      "custom_components/djconnect/session_speech.py": "a3a5126f2931caeeea18eb87cdcec88dda6ddb7851740398c80d0c39c5f65642",
+      "custom_components/djconnect/session_persona.py": "d07c30bd3b8b85b1b080a6db3e3aa6505fceeb37424c2663fd14cc3c783a41ef"
+    },
+    "whole_runtime_manifest_equality": false,
+    "later_authored_copy_repairs": [
+      "custom_components/djconnect/context_expression.py",
+      "custom_components/djconnect/moment_expression.py"
+    ]
+  }
+}

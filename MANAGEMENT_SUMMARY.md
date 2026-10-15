@@ -1,5 +1,69 @@
 # DJConnect Generation 2 Management Summary
 
+## Current: Speech/Persona — existing source integration resumed
+
+### Repository Status
+
+Predecessor Finalization PR [#1185](https://github.com/pcvantol/djconnect/pull/1185) protected merged as `58205056c235a73488591591dd3d83f80f7bf847`; source1184 remains closed. Repository State: `MERGED_RECONCILED` describes that delivered predecessor. Existing Speech PR [#1177](https://github.com/pcvantol/djconnect/pull/1177) remains open at published533fa48c; its local successor integrates this main on the same branch and is not published or merged.
+
+### Management Summary
+
+[Resume ACK6203295611](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6203295611), same sole Core writer. Fresh hostverify MATCH/package4.5.3 and projection PASS; original533 preserved in verified complete-history bundle. Normal owner and final synchronous ingress fences plus declared network/Wyoming dependencies coexist. No gateway exemption, Swift write or second pickup. Existing native/audible/joint acceptance remains open.
+
+### Roadmap Position
+
+Existing Speech leaves stay In progress. Canonical maintenance12 composes over byte-preserved actual main582 maintenance11 with WEB schema2,21nodes/47edges and receipts intact.23 views regenerated from JSON. No successor admission or consumer implementation is inferred.
+
+### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+1. **DJC-SESSION-SPEECH-PERSONA-VOICE-20261015 — active existing continuation.** Integrate582, renew affected real qualification and independent reviews, then exact publication gate and separate Finalization.
+2. **DJC-VIBECAST-TV-BOOTSTRAP-CLOUDFLARE-V1-20261015 — separate receiver selection.** Existing receiver writer owns admission and contract gates; no Core takeover.
+3. **Unfilled product slot3 — no further eligible admission.** Passive projection waits for Speech closure.
+4. **Unfilled product slot4 — no further eligible admission.**
+5. **Unfilled product slot5 — no further eligible admission.**
+
+### Blocked Items
+
+Integrated source requires its own exact reviews/checks/publication grant; old533 merge authorization was not granted. Actual direct-LAN ingress remains unqualified on both installed HAs; no native LAN PASS.
+
+### Deferred Items
+
+Passive Session projection6199213014 waits for Speech completion and fresh admission. New providers/models/costs, topology/service/workflow changes and consumerwrites are outside this continuation.
+
+### Repository State
+
+Predecessor MERGED_RECONCILED; current Speech implementation is local WIP, not a delivered source or Finalization. Historical records below retain their original pins.
+
+### Workspace State
+
+Workspace State: `NOT_READY` for another assignment; same existing branch codex/session-speech-persona-voice-v1 under requalification. Separate VibeCast worktree, Applelab, dashboard lease and recovery remain preserved. Standing HA-dev/prod installation instruction follows valid final qualified main, not local WIP.
+
+## Historical operational context
+
+## Current: Session speech, live Persona and voice — admitted Core implementation
+
+### Repository Status
+
+Predecessor Finalization PR [#1173](https://github.com/pcvantol/djconnect/pull/1173) protected merged as `70c0a3009910db8763e65949d0a10eade7d006dc`, after artwork source1172. Exact candidate tree/164-file archive/formal/coverage qualified;32checks PASS/5conditional skips and exact HIGH_RISK Owner Authorization SUCCESS. [Terminal6191836891](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6191836891) records MERGED_RECONCILED/WORKSPACE_READY, scoped owncleanup/recovery bundles and both HA-dev/prod installed exact70c0a300/164files/0mismatches/allloaded(dev9/prod1), backups/rollback retained. Earlier deliveries remain closed; native/joint still open.
+
+Fresh full bootstrap/hostverify MATCH exit0/package4.5.3, sync-clean main and writer/WIP/resource admission for existing owner6189231491/autonomous-next6189912293. [ACK6191876871](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6191876871), actual base70c0a300, branch codex/session-speech-persona-voice-v1. Contract-first e2072d80; material03634bf7 connects ordered paired Persona through existing Session owners. Same sole Core writer, no duplicate pickup or new nativewriter.
+
+### Management Summary
+
+[Canonical narration/Persona design](docs/product/SESSION_SPEECH_PERSONA_V1.md) and [speech delivery/replay contract](docs/product/SESSION_SPEECH_DELIVERY_V1.md) precede runtime changes. Every intended proactive DJ narration must use confirmed SessionPersona in bubble and speech, including admitted playback announcement; factual observations/counts stay separate. Mood/Presence/concrete voice/autoplay remain independent. One existing Planner/Engine/Composer/dialogue/history/audio owner; no provider/cloud workaround, source-rights broadening or private receiver grant.
+
+Local runtime, common private speech, narration families and conditional processor advertisement are qualified:1994regression tests run/7existing skips,107owning tests, actual paired HA and separately pinned full browser/model/301s proof; both exact reviews GO before this documentary integration. [Qualification](docs/verification/SESSION_SPEECH_PERSONA_LOCAL_QUALIFICATION_20261015.md) retains precise source and acceptance boundaries. Source is UNPUBLISHED; integrated candidate requires refreshed checks/reviews and its own exact source-publication gate. Native/audible/installed/hardware/joint remain open.
+
+### Roadmap Position
+
+Live JSON maintenance12 preserves delivered artwork11/history bytes. Four bounded Core speech-contract/Persona/realization/delivery leaves In progress reuse existing Voice/Speech/Audio Renderer architecture. Existing Apple adoption and joint visible/audible acceptance remain Planned/open. No duplicate platform or consumer dispatch. Historical Speech deferred qualifications remain historical, not permission to skip the selected implementation.
+
+### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+1. **DJC-SESSION-SPEECH-PERSONA-VOICE-20261015 — active selected implementation.** Owner6189231491/autonomous-next6189912293; same writer, fresh admission after valid artwork closure. Finish exact producer qualification/reviews/delivery/Finalization and Apple handoff; native acceptance separately owned.
+2. **Unfilled product slot 2 — no further authorized selection.** Not dispatched.
+3. **Unfilled product slot 3 — no further authorized selection.** Not dispatched.
+
 ## Current: qualified direct local HTTP/WS — separate Finalization
 
 ### Repository Status
@@ -63,6 +127,26 @@ Generation2 DJConnect Product Development, Phase2 Reference/Renderer Experience 
 5. **Unfilled product slot 5 — no further authorized selection.** Not dispatched.
 
 ### Blocked Items
+
+No external blocker to authorized local engineering. Exact source publication and separate Finalization retain their later candidate gates. Apple/native actual voices, audible quality and joint acceptance remain OPEN; no hardware or consumerstart authority inferred. Latest qualified-main installation authority for HA-dev/prod retained after this slice's delivery; no WIP installation.
+
+### Deferred Items
+
+No new provider/model/cost/contract, direct external API, global home-speaker action, Swift/receiver write, new planner/dialogue engine/history store, Pages/signing/hardware, workflow/runner/service change or next productfamily.
+
+### Repository State
+
+Repository State: `MERGED_RECONCILED` for verified predecessor1173. Current speech source ACTIVE_IMPLEMENTATION/UNPUBLISHED, Finalization Pending: YES after future source delivery. No claim that current local work is on main.
+
+### Workspace State
+
+Workspace State: `NOT_READY` for another increment during this speech WIP. Other VibeCast worktree4b3a8059, Applelab and both HA environments retained; no own lab running at admission. Only this selected Core writer mutates source.
+
+Documentary main integration: #1174 source1175/7266bc25 and Finalization1176/a6d666fea7f30254b20bea015fad8d1fd8d7b059 are verified delivered ([terminal receipt](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6199088973)). Preserve WEB receipt/21nodes/44edges and original historical bytes while adding the same existing Speech scope. Original admission remains70c0a300; integration base is a6d666fe. This does not reopen web-first product implementation or grant source publication.
+
+## Recorded documentary predecessor context
+
+## Delivered documentary predecessor: VibeCast web-first design
 
 This separate Finalization retains its own exact independent reviews/checks and candidate/publication gate; source approval does not cover it. Receiver's fresh admission waits only for actual new docs source/Finalization terminal pin and own earlier WIP closure; no general restart permission. TRUST/API contract gates receiver serviceadapter, DISPLAY/OWNER-SCANNER gate full onboarding, BROWSER/GUEST/SHARED gate full guest acceptance. No physical or live account/domain/TLS PASS from owner-reported domain purchase.
 

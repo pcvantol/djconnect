@@ -566,6 +566,34 @@ class SpotifyBackendTest(unittest.TestCase):
         self.assertFalse(hasattr(runtime, "last_ambient_fact_key"))
         self.assertEqual(runtime.last_playback["track_name"], "No Surprises")
 
+    def test_artist_genre_cache_hit_preserves_original_deadline_until_reload(self):
+        from unittest.mock import patch
+        runtime = types.SimpleNamespace(config={}, backend_cache={})
+        backend = self.backend.SpotifyBackend(object(), runtime)
+        calls = []
+        artist_id = "Z"*22
+        async def request(method, path):
+            calls.append((method, path))
+            return {"artists": [{"id": artist_id, "genres": ["ambient"]}]}
+        backend._request = request
+        ttl = self.backend.LISTENING_PROFILE_CACHE_TTL_SECONDS
+        async def scenario():
+            with patch.object(self.backend.time, "monotonic", return_value=100):
+                first = {"artist_ids": [artist_id]}
+                await backend._enrich_playback_artist_genres(first)
+            for now in (100+ttl-1, 100+ttl-0.5):
+                with patch.object(self.backend.time, "monotonic", return_value=now):
+                    cached = {"artist_ids": [artist_id]}
+                    await backend._enrich_playback_artist_genres(cached)
+                self.assertEqual(cached["_artist_genres_expires_monotonic"], 100+ttl)
+            self.assertEqual(len(calls), 1)
+            with patch.object(self.backend.time, "monotonic", return_value=100+ttl):
+                renewed = {"artist_ids": [artist_id]}
+                await backend._enrich_playback_artist_genres(renewed)
+            self.assertEqual(len(calls), 2)
+            self.assertEqual(renewed["_artist_genres_expires_monotonic"], 100+2*ttl)
+        asyncio.run(scenario())
+
     def test_playback_state_records_artist_genres_in_music_dna_when_enabled(self) -> None:
         class Response:
             status = 200

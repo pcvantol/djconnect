@@ -57,6 +57,7 @@ class ProfilePlatformStorage:
         self._loaded = False
         self._write_lock = asyncio.Lock()
         self._household = default_household()
+        self.authority_revision = 0
 
     @property
     def household(self) -> Household:
@@ -113,9 +114,21 @@ class ProfilePlatformStorage:
             self._invalidate_session_images()
 
     def _invalidate_session_images(self) -> None:
-        """Fence already resident and pending private art on authority changes."""
+        """Latch private presentation withdrawal, including A→B→A changes."""
+        self.authority_revision += 1
         if self.hass is not None:
-            registry = self.hass.data.get("djconnect", {}).get("session_images")
+            domain = self.hass.data.get("djconnect", {})
+            if "tts_audio_authority_revision" in domain:
+                from ..dj_response import invalidate_private_speech_sources
+                invalidate_private_speech_sources(self.hass)
+            for value in list(domain.values()):
+                history = getattr(value, "ask_dj_history", None)
+                if history is not None and hasattr(history, "dialogue"):
+                    history.dialogue.invalidate_speech()
+            history = domain.get("ask_dj_history_manager")
+            if history is not None:
+                history.dialogue.invalidate_speech()
+            registry = domain.get("session_images")
             if registry is not None:
                 registry.collect()
 

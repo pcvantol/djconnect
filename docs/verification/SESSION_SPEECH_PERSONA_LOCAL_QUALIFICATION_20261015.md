@@ -1,0 +1,196 @@
+# Session speech / Persona local qualification — 2026-10-15
+
+Assignment `DJC-SESSION-SPEECH-PERSONA-VOICE-20261015`; same sole Core writer,
+base `70c0a3009910db8763e65949d0a10eade7d006dc`, branch
+`codex/session-speech-persona-voice-v1`. Runtime checkpoint
+`c39a4f8020fb21a9d40da22af0928a420c97a44a` has exact independent technical/privacy
+and editorial source GO. Source publication, protected delivery and separate
+Finalization remain open. No HA-dev/prod or native installation is claimed.
+
+## Connected source and immutable speech
+
+[Actual redacted HTTP/expiry/browser proof](../../examples/client_contracts/session_speech/qualified-runtime.http.json)
+binds all 143 executed Core Python hashes, with zero differences against that
+checkpoint. Ordinary pairing, owner auth, Session start, Persona CAS/readback,
+playback observer, Planner, Knowledge, Moment, SQLite semantic acceptance,
+Broadcast, HA configured TTS entity/inventory/TCP and private byte delivery are
+real. External music/source/STT/Wyoming inventory and waveform production are
+explicit fixtures. The isolated container uses 1 GiB, 2 CPUs and 256 PIDs, its own
+bridge and loopback-only published TLS ports. HA-dev/prod and other labs are untouched.
+
+Accepted common Ask DJ replies, published live Moments and independently
+qualified retained entries use one exact private speech owner.
+`audio_response:never` suppresses autoplay while preserving explicit manual Listen. Live end, Profile ABA, source expiry,
+clear/purge and cancellation revoke grants; retained CC0 replay after end is
+independently qualified. Legacy native clients get explicit protocol-upgrade
+unavailability instead of a private legacy GET downgrade. Both JSON and real
+WAV-header adapters are exercised. Original text/Persona/revision, attribution,
+counts and expiry survive manual/cache replay; no new model call, question,
+publication, history write or playback effect is caused by listening.
+
+The final real HA sequence includes ordinary source-poor current playback,
+qualified artist evidence, a separately accepted Genre, another observed Track
+and the existing Genre→Track Transition. It waits the real 35-second Presence
+interval and 91-second Planner interval, without clock patch or budget reset.
+The new relation has a fresh current-track proof; the original announcement and
+original artist-cache deadline are not renewed. Source-poor unmeasured evidence
+without identity/rights stays Silence. Facts do not become audio-analysis claims.
+
+## Four Personas and five languages
+
+[Produced text and speech-equivalence matrix](../../examples/client_contracts/session_speech/realization-output.json)
+contains 120 qualified fact cases and 40 actual two-publication producer/album
+relation chains through Runtime/Planner/Knowledge/Moment/SQLite/Broadcast and the
+paired private-owner speech adapter. All 80 relation publications retain exact
+text and attribution. Additional recorded existing multi-track sequences prove
+published-only form variation and exact year/month/day precision. Separate
+Knowledge/Moment previews are not counted as Runtime publications. Playback
+opportunities preserve Club Silence and Festival Direction priority.
+
+The real configured HA/OpenAI agent test made 40 GPT-6 Luna calls: 20 paired common
+Ask DJ/Session/Persona/accepted-speech answers and 20 production qualified Track
+Insight outputs, each four Personas × five languages. Only public ostinato
+questions and synthetic normalized CC0 composer context were used; no household
+tools, catalog/private payload or new production provider route. API calls assert
+zero tools and `store:false`; this is not a zero-retention-policy claim. See the
+[Responses API fields](https://developers.openai.com/api/reference/python/resources/responses/methods/create).
+34,285 input and 6,140 output tokens. Per-call median 2.681 s, 95th percentile 5.700 s,
+maximum 6.401 s; these are model-route measurements, not native audio latency.
+
+The model run predates final repairs in two authored presentation files. Its
+model-route modules match the runtime checkpoint; its entire 143-file manifest
+does not. The later exact-checkpoint HA/browser proof supplies full runtime
+binding. Independent editorial review read the actual five-language outputs,
+not only prompt templates. Attribution, artist-versus-track genre, date precision,
+natural grammatical name frames and optional interpretation were corrected.
+Native reading/listening remains separately Apple-owned/open.
+
+## Bounds, regression and package
+
+The uninterrupted expiry trial ran 301.108475 seconds without reads/prepares and
+removed the short-lived speech reference body. Instrumented HA SQLite grew
+609,760 bytes; peak RSS 196,636 KiB. The HTTP timings in the receipt use external
+waveform/source fixtures; they do not estimate real speech synthesis performance.
+Configured Piper inventory supplies no gender metadata: only provider default is
+advertised; unsupported saved preferences remain explicitly unavailable.
+
+Full product suite: 1,993 tests, 1,986 passed, 7 existing skips. Engineering framework:
+172 passed. Complete family owning group: 49 passed. Roadmap/DAG: 152 tests plus
+schema, document hashes and 23 generated views. Ruff and whitespace checks pass;
+Bandit reports zero medium/high severity findings. The
+[branch-aware owning report](../../examples/client_contracts/session_speech/owning-coverage.json)
+combines full units and exact-checkpoint real HA, with remaining unexecuted guards
+and broad-file denominators disclosed. Coverage is not a claim of complete fault
+exhaustion or actual native voice availability.
+
+The locally built exact-commit package contains 167 tracked integration files;
+all 167 were byte-read back with zero differences. This is not the future
+protected-main release artifact. Exact-main/internal artifact/formal qualification
+readback must follow protected source delivery and separate Finalization.
+
+## Browser and consumer boundary
+
+Both the local and static shared renderer were built at the runtime checkpoint.
+Four actual HA/Broadcast/browser paths pass: portrait and landscape for each
+host. Current track, exact content, source link, Spotify mark, readable geometry,
+offline/reconnect, original expiry/no resurrection and Session-end are asserted;
+final screenshots were visually inspected. Missing-art fallback is exercised,
+not new artwork qualification. The CAF host adapter is modeled; no Pages,
+receiverrepo, physical Cast/LG or native speech claim follows.
+
+Private speech is absent from shared receiver snapshots/frames. Apple must use
+the same immutable contribution, independently authorized local/native voice,
+conditional server-supported gender UI, bounded per-device autoplay/Stop queue
+and exact expiry/revocation/end behavior. Native visible/audible, installed,
+hardware and joint acceptance remain OPEN/NOT_RUN. See the
+[qualification receipt](../../examples/client_contracts/session_speech/qualification-summary.json).
+
+## Consumer-found preparation advertisement correction
+
+Apple correctly failed closed on the c39 initial `processors:[local_on_device]`
+descriptor even though explicit HA preparation later succeeded. Local successor
+`27c22afdaca8a7a701ba839928c9d16ed8acd794` makes both permitted prepare attempts
+explicit and adds `processor_qualification_required:true`. The list promises no
+provider/source/voice/locale qualification or ready audio. Unavailable replies
+keep empty processors; client permissions need no inferred widening.
+
+[Actual successor HA transport](../../examples/client_contracts/session_speech/processor-advertisement.http.json)
+records ordinary pairing, accepted descriptor, configured HA prepare/private
+bytes, explicit unsupported gender and revocation. All143 actual Python hashes
+match that successor; only session_speech.py differs from c39.107 owning tests
+pass, including permitted qualified success and fail-closed source/provider/
+locale/gender without fallback. The full c39 browser/301s/model proof above stays
+historical; this focused correction does not claim a repeated browser, duration,
+model or native/audible qualification. Source delivery remains unpublished and
+requires new exact cumulative review and its own publication gate.
+
+## Delivered documentary main integration
+
+Web-first source1175 and separate Finalization1176 are protected delivered and
+reconciled at `a6d666fea7f30254b20bea015fad8d1fd8d7b059` ([terminal receipt](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6199088973)).
+The same existing Speech branch now integrates this main. Original admission
+base70c0a300 stays historical; the source-PR base is the delivered a6d666fe.
+All21 WEB nodes/44 edges and its whole receipt are unchanged. A new separately
+named incoming-v11 maintenance snapshot preserves those exact values; original
+artwork and3October snapshots remain immutable. The Speech-v12 outer validator
+strips only Speech before applying the unchanged WEB/base-v11 validation.
+156 DAG tests and all23 generated projections pass, including negative cases for
+cross-family cycles, altered WEB state and wrong integration base. All167 runtime
+files are byte-equal to the real HA-tested27c22afd successor; this documentary
+merge does not repin historical model/browser/duration proof. The integrated
+candidate still needs exact cumulative reviews and its own publication gate.
+
+## Required CI manifest correction
+
+Source PR1177's real hassfest check rejected the existing direct Wyoming
+integration import because manifest.json did not declare that optional component.
+The sole repair adds `wyoming` to `after_dependencies`, preserving ordinary
+DJConnect startup without a configured Wyoming entry. No provider, workflow,
+runner, voice policy or production API is added. This follows the official
+[HA after-dependency contract](https://developers.home-assistant.io/docs/creating_integration_manifest/#after-dependencies).
+The locally available official hassfest image sha256:4b1adfb1e0a37710af0390708eb8000230b80b2193ccffbeed0a901fa9765181
+passes after this correction (one integration, zero invalid).
+All143 Python files remain equal to the realHA27c22afd fixture. Of the167 runtime
+package files, only manifest.json now differs from that executed checkpoint;
+prior167-file-equality statements above describe the preceding integration
+checkpoint81592b25 and are not relabelled as a new HA run. The new package must
+be compared to its own exact Git candidate/main before delivery.
+
+## Resumed integration of delivered maintenance main582
+
+The existing sole writer resumed PR1177 after valid1184/1185 closure;
+[ACK6203295611](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6203295611).
+Original533fa48c is retained in a verified complete-history recovery bundle.
+The same local branch integrates `58205056c235a73488591591dd3d83f80f7bf847`;
+this is a new candidate, not permission to merge the earlier rejected head.
+No remote update, merge or installation is claimed at this checkpoint.
+
+The new [actual HA transport fixture](../../examples/client_contracts/session_speech/integrated-main582.http.json)
+SHA256 `e629511ee034d738a8f6e9173074d3298dc66ddcdc9a132b3e77ea24f064f767` binds all145 tracked Python files, zero mismatches.
+It repeats normal pairing, Persona CAS, accepted common reply, manual listening
+after never, real configured HA TTS/entity/inventory/private bytes, retained
+replay, playback announcement, Genre→Track transition, Profile ABA and end
+revocation. External music/STT/Wyoming waveform boundaries remain fixtures.
+Real35s Presence/91s Planner waits are unchanged; no clock patch or budget reset.
+SQLite214056→823816bytes; peak RSS176504KiB;29 instrumented owner requests
+0.289–11.576ms, not model/native latency. Network none,1GiB/2CPU/256PIDs;
+the owned container exited0 and was removed. No HA-dev/prod changes.
+
+2009 regressions executed,2002 passed/7existing skips;138 targeted owning
+tests;160 DAG tests;23 regenerated views; official hassfest1integration/0invalid;
+Ruff and diff checks pass. New targeted unit-only combined statement/branch
+coverage is75%; this does not replace or relabel the prior owning/actual-HA
+coverage proof or claim a newly measured complete-suite threshold.
+The earlier browser/model/301s receipts retain their original pins.162 prior
+package files are byte-equal to533; five changed and two added through delivered
+maintenance. The renderer and original speech/model realization modules remain
+unchanged; integrated private transport has the separately repeated HA proof.
+
+The live maintenance12 preserves a byte-frozen actual main582 maintenance11
+snapshot at history/20261016/pre-speech-main582-maintenance-v11.json; WEB schema2
+and21nodes/47edges/receipts remain exact. Original snapshots remain untouched.
+Fifteen unrelated identical untracked duplicate files stay outside the candidate
+and archive; active/ambiguous VM handles prevent cleanup. Their checksums and
+disposition are retained locally; no global clean-workspace claim is made.
+Both exact cumulative reviews and the changed-candidate publication gate remain
+required. Native audible, installed Speech, hardware and joint acceptance stay open.

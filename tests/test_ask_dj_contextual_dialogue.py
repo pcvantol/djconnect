@@ -7,6 +7,7 @@ Real OpenAI-generated conversation quality is independently qualified in the HA 
 from __future__ import annotations
 
 import asyncio
+import time
 from copy import deepcopy
 from contextlib import nullcontext
 import json
@@ -266,11 +267,22 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
             with self.subTest(change=change):
                 self.history.dialogue.invalidate("profile:profile-a")
                 session, moment, entry = await self.selected_credit()
-                entered, release, accepted, resume = (asyncio.Event() for _ in range(4))
+                entered, release, joined_waiting, accepted, resume = (asyncio.Event() for _ in range(5))
                 original_shield = asyncio.shield
+                original_reserve = self.history.dialogue.reserve
+                target_future = None
+                def reserve(*args):
+                    nonlocal target_future
+                    future, reserved = original_reserve(*args)
+                    if not reserved:
+                        target_future = future
+                    return future, reserved
                 async def delayed_join(future):
+                    is_joined = future is target_future
+                    if is_joined:
+                        joined_waiting.set()
                     value = await original_shield(future)
-                    if isinstance(future, asyncio.Future) and isinstance(value, tuple):
+                    if is_joined:
                         accepted.set()
                         await resume.wait()
                     return value
@@ -296,11 +308,11 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
                     return await service.async_exchange(self.hass, self.runtime, payload,
                         profile_id="profile-a", history_manager=self.history, delegate=delegate,
                         validate_owner=owner, persist_history=False)
-                with patch.object(service.asyncio, "shield", delayed_join):
+                with patch.object(service.asyncio, "shield", delayed_join), patch.object(self.history.dialogue, "reserve", reserve):
                     first = asyncio.create_task(exchange())
                     await asyncio.wait_for(entered.wait(), 3)
                     joined = asyncio.create_task(exchange())
-                    await asyncio.sleep(0.01)
+                    await asyncio.wait_for(joined_waiting.wait(), 3)
                     release.set()
                     await asyncio.wait_for(accepted.wait(), 3)
                     self.assertTrue((await first)["success"])
@@ -816,6 +828,47 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(len((await self.history.async_history("profile:profile-a"))["messages"]), 2)
         self.assertTrue(self.history.dialogue.owners["profile:profile-a"]["default"].messages)
 
+    async def test_wav_voice_header_negotiates_same_private_speech_protocol_before_body(self):
+        from types import SimpleNamespace
+        from custom_components.djconnect import http
+        self.runtime.update = lambda **values: self.runtime.__dict__.update(values)
+        reads, transcripts = [], []
+        async def read():
+            reads.append(True)
+            return b"RIFFxxxxWAVEdata"
+        async def transcribe(*args):
+            transcripts.append(True)
+            return "help"
+        for index, version in enumerate(("1", None, "true", "01", "2", "", "1.0")):
+            with self.subTest(version=version):
+                headers = {**self.headers, "X-DJConnect-Device-ID": self.identity["device_id"],
+                    "X-DJConnect-Client-Type": "ios", "Content-Type": "audio/wav",
+                    "X-DJConnect-Language": "en", "X-DJConnect-Client-Message-ID": f"wav-speech-{index}"}
+                if version is not None:
+                    headers["X-DJConnect-Speech-Contract-Version"] = version
+                before = len(reads), len(transcripts)
+                request = SimpleNamespace(app={"hass": self.hass}, headers=headers, read=read)
+                with patch.object(http, "transcribe_wav_with_assist", transcribe):
+                    response = await http.DJConnectVoiceView(self.hass).post(request)
+                result = json.loads(response.text)
+                self.assertEqual(response.headers["Cache-Control"], "no-store")
+                if version not in (None, "1"):
+                    self.assertEqual(response.status, 400, result)
+                    self.assertEqual(result["error"], "unsupported_speech_contract")
+                    self.assertEqual((len(reads), len(transcripts)), before)
+                    continue
+                self.assertEqual(response.status, 200, result)
+                self.assertEqual(result["transcript"], "help")
+                self.assertTrue(result["session_speech"]["manual_allowed"])
+                if version == "1":
+                    self.assertEqual(result["audio_delivery"]["state"], "deferred")
+                    self.assertTrue(result["session_speech"]["autoplay_eligible"])
+                else:
+                    self.assertEqual(result["audio_delivery"]["reason"], "client_protocol_upgrade_required")
+                    self.assertFalse(result["session_speech"]["autoplay_eligible"])
+                self.assertFalse(result.get("audio_url"))
+        self.assertEqual(self.prompts, [])
+
     async def test_voice_owner_withdrawal_at_body_stt_and_model_boundaries_leaks_nothing(self):
         from types import SimpleNamespace
         from custom_components.djconnect import http
@@ -1010,6 +1063,923 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
         self.assertNotIn("result_set", result)
         self.assertEqual(len(calls), 2)
 
+    async def test_published_moment_speech_keeps_original_persona_and_owner_only_autoplay(self):
+        from custom_components.djconnect import session_speech
+        from custom_components.djconnect.session_runtime import DJPersona, _thaw_broadcast_payload
+        session, moment, retained = await self.selected_credit()
+        reference = {"session_id": session.session_id, "moment_id": moment.moment_id}
+        request = {**self.identity, "contract_version": 1, "reference": reference,
+                   "processor": "local_on_device", "voice_preference": "default"}
+        count = len(session.broadcast.state.dj_moments)
+        publications = [_thaw_broadcast_payload(event.payload) for event in session.broadcast.replay_log
+                        if event.event_type.value == "dj_moment_published"]
+        published = next(d for d in publications[-1]["session_speech"]["moments"]
+                         if d["source_id"] == moment.moment_id)
+        self.assertTrue(published["autoplay_eligible"])
+        before = session.broadcast.as_dict()["session_speech"]["moments"][-1]
+        self.assertEqual(before["processors"], ["local_on_device", "ha_configured"])
+        self.assertTrue(before["processor_qualification_required"])
+        self.assertFalse(before["autoplay_eligible"])
+        self.assertNotIn("session_speech", session.broadcast.as_dict(include_owner_only=False))
+        received = []
+        subscription, _ = session.broadcast.subscribe_with_broadcast_token(session.broadcast.broadcast_token, received.append)
+        session.broadcast.publish_session_flow(session.broadcast.state.session_flow)
+        self.assertNotIn("session_speech", received[-1]["payload"])
+        session.broadcast.unsubscribe(subscription)
+        await self.fixture.manager.async_update_persona(owner_profile_id="profile-a",
+            session_id=session.session_id, dj_persona=DJPersona.CLUB_DJ)
+        result, status = await session_speech.async_handle_prepare(self.hass, request, headers=self.headers)
+        self.assertEqual(status, 200, result)
+        speech = result["session_speech"]
+        self.assertEqual(speech["persona"], moment.presentation_intent.dj_persona.value)
+        self.assertEqual(speech["persona_revision"], 0)
+        self.assertEqual(speech["text_revision"], before["text_revision"])
+        self.assertEqual("".join(part["text"] for part in speech["segments"]), moment.content)
+        self.assertFalse(speech["autoplay_eligible"])
+        self.assertEqual(len(session.broadcast.state.dj_moments), count)
+        self.assertEqual(self.prompts, [])
+        for ref in ({"session_id": session.session_id, "moment_id": "unpublished"},
+                    {"session_id": "foreign-session", "moment_id": moment.moment_id}):
+            denied, status = await session_speech.async_handle_prepare(self.hass, {**request, "reference": ref}, headers=self.headers)
+            self.assertEqual(status, 404, denied)
+        await self.fixture.manager.async_end(owner_profile_id="profile-a", session_id=session.session_id)
+        ended, status = await session_speech.async_handle_prepare(self.hass, request, headers=self.headers)
+        self.assertEqual(status, 404, ended)
+        historical, status = await session_speech.async_handle_prepare(self.hass,
+            {**request, "reference": retained}, headers=self.headers)
+        self.assertEqual(status, 200, historical)
+        self.assertEqual(historical["session_speech"]["source_kind"], "retained_dj_contribution")
+        self.assertEqual(historical["session_speech"]["persona_revision"], 0)
+        self.assertEqual("".join(p["text"] for p in historical["session_speech"]["segments"]), moment.content)
+        self.assertFalse(historical["session_speech"]["autoplay_eligible"])
+
+    async def test_retained_moment_speech_bytes_and_pending_work_withdraw_on_purge(self):
+        from types import SimpleNamespace
+        from custom_components.djconnect import session_speech, speech_processor
+        from custom_components.djconnect.tts import TtsAudio
+        from custom_components.djconnect.wav_util import simple_tone_wav
+        session, moment, reference = await self.selected_credit()
+        await self.fixture.manager.async_end(owner_profile_id="profile-a", session_id=session.session_id)
+        request = {**self.identity, "contract_version": 1, "reference": reference,
+                   "processor": "ha_configured", "voice_preference": "default"}
+        entity = SimpleNamespace()
+        voice = {"engine": "tts.fixture", "voice_id": "actual-id", "voice_name": "Fixture",
+                 "locale": "en", "gender": None, "processor": "ha_configured"}
+        entered, release, cancelled = asyncio.Event(), asyncio.Event(), asyncio.Event()
+        calls = []
+        async def synthesize(*args):
+            calls.append(args[-1])
+            entered.set()
+            try:
+                await release.wait()
+            except asyncio.CancelledError:
+                cancelled.set()
+                raise
+            return TtsAudio(simple_tone_wav(), "wav", "audio/wav")
+        with patch.object(speech_processor, "configured_processor", return_value=(entity, voice)), patch.object(speech_processor, "synthesize", synthesize):
+            pending = asyncio.create_task(session_speech.async_handle_prepare(self.hass, request, headers=self.headers))
+            await asyncio.wait_for(entered.wait(), 2)
+            await self.fixture.repo.async_remove_entry_records("profile-a", [reference["entry_id"]])
+            result, status = await asyncio.wait_for(pending, 2)
+            self.assertEqual(status, 404, result)
+            self.assertTrue(cancelled.is_set())
+            self.assertEqual(calls, [moment.content])
+            self.assertFalse(self.hass.data["djconnect"].get("tts_audio"))
+            self.assertFalse(self.hass.data["djconnect"].get("tts_audio_source_watches"))
+            denied, status = await session_speech.async_handle_prepare(self.hass, request, headers=self.headers)
+            self.assertEqual(status, 404, denied)
+            self.assertEqual(len(calls), 1)
+        self.assertEqual(self.prompts, [])
+
+    async def test_live_moment_pending_synthesis_cancels_on_session_end_without_bytes(self):
+        from types import SimpleNamespace
+        from custom_components.djconnect import session_speech, speech_processor
+        from custom_components.djconnect.tts import TtsAudio
+        from custom_components.djconnect.wav_util import simple_tone_wav
+        session, moment, _ = await self.selected_credit()
+        request = {**self.identity, "contract_version": 1,
+                   "reference": {"session_id": session.session_id, "moment_id": moment.moment_id},
+                   "processor": "ha_configured", "voice_preference": "default"}
+        entity = SimpleNamespace()
+        voice = {"engine": "tts.fixture", "voice_id": "actual", "voice_name": "Fixture",
+                 "locale": "en", "gender": None}
+        entered, cancelled = asyncio.Event(), asyncio.Event()
+        async def synthesize(*args):
+            entered.set()
+            try:
+                await asyncio.Event().wait()
+            except asyncio.CancelledError:
+                cancelled.set()
+                raise
+            return TtsAudio(simple_tone_wav(), "wav", "audio/wav")
+        with patch.object(speech_processor, "configured_processor", return_value=(entity, voice)), patch.object(speech_processor, "synthesize", synthesize):
+            pending = asyncio.create_task(session_speech.async_handle_prepare(self.hass, request, headers=self.headers))
+            await asyncio.wait_for(entered.wait(), 2)
+            await self.fixture.manager.async_end(owner_profile_id="profile-a", session_id=session.session_id)
+            result, status = await asyncio.wait_for(pending, 2)
+            self.assertEqual(status, 404, result)
+            self.assertTrue(cancelled.is_set())
+            self.assertFalse(self.hass.data["djconnect"].get("tts_audio"))
+            self.assertFalse(self.hass.data["djconnect"].get("tts_audio_source_watches"))
+        self.assertEqual(self.prompts, [])
+
+    async def test_live_moment_cached_audio_uses_original_expiry_and_profile_aba_erases_bytes(self):
+        from types import SimpleNamespace
+        import time
+        from custom_components.djconnect import session_speech, speech_processor
+        from custom_components.djconnect.tts import TtsAudio
+        from custom_components.djconnect.wav_util import simple_tone_wav
+        session, moment, _ = await self.selected_credit()
+        request = {**self.identity, "contract_version": 1,
+                   "reference": {"session_id": session.session_id, "moment_id": moment.moment_id},
+                   "processor": "ha_configured", "voice_preference": "default"}
+        entity = SimpleNamespace()
+        voice = {"engine": "tts.fixture", "voice_id": "actual", "voice_name": "Fixture",
+                 "locale": "en", "gender": None}
+        calls = []
+        async def synthesize(*args):
+            calls.append(args[-1])
+            return TtsAudio(simple_tone_wav(), "wav", "audio/wav")
+        with patch.object(speech_processor, "configured_processor", return_value=(entity, voice)), patch.object(speech_processor, "synthesize", synthesize):
+            first, status = await session_speech.async_handle_prepare(self.hass, request, headers=self.headers)
+            self.assertEqual(status, 200, first)
+            self.assertEqual(first["session_speech"]["audio_state"], "ready")
+            original = first["session_speech"]
+            now = time.time()
+            with patch("time.time", return_value=now + 3):
+                cached, status = await session_speech.async_handle_prepare(self.hass, request, headers=self.headers)
+            self.assertEqual(status, 200, cached)
+            self.assertEqual(cached["session_speech"]["audio_reference"], original["audio_reference"])
+            self.assertEqual(cached["session_speech"]["expires_at"], original["expires_at"])
+            self.assertEqual(calls, [moment.content])
+            watches = self.hass.data["djconnect"]["tts_audio_source_watches"]
+            self.assertEqual(len(watches), 1)  # Cache hits add no callback slots.
+            storage = self.handlers.profile_storage(self.hass)
+            storage.hass = self.hass  # Exercise the real commit invalidation hook.
+            await storage.async_create_profile("Other", profile_id="speech-other", default_backend_id="later_manual")
+            await storage.async_upsert_device(self.identity["device_id"], "ios", linked_profile_id="speech-other")
+            await storage.async_upsert_device(self.identity["device_id"], "ios", linked_profile_id="profile-a")
+            self.assertFalse(watches)
+            self.assertFalse(self.hass.data["djconnect"]["tts_audio"])
+            result, status = await session_speech.async_handle_audio(self.hass,
+                {**{k: request[k] for k in ("contract_version", "device_id", "client_type")},
+                 "asset_id": original["audio_reference"]["asset_id"]}, headers=self.headers)
+            self.assertEqual(status, 404)
+            self.assertIsNone(result)
+
+    async def test_callback_only_speech_watch_bound_unsubscribe_and_real_idle_expiry(self):
+        import time
+        from custom_components.djconnect.dj_response import PrivateSpeechSource, invalidate_private_speech_sources
+        expired = []
+        watches = []
+        for index in range(64):
+            source = PrivateSpeechSource(self.hass, lambda: None, expires_at=time.time()+30)
+            watches.append((source, source.on_withdraw(lambda index=index: expired.append(index))))
+        extra = PrivateSpeechSource(self.hass, lambda: None, expires_at=time.time()+30)
+        with self.assertRaisesRegex(ValueError, "speech_capacity"):
+            extra.on_withdraw(lambda: None)
+        watches[0][1]()
+        self.assertEqual(len(self.hass.data["djconnect"]["tts_audio_source_watches"]), 63)
+        short = PrivateSpeechSource(self.hass, lambda: None, expires_at=time.time()+0.02)
+        short.on_withdraw(lambda: expired.append("idle"))
+        await asyncio.sleep(0.04)
+        self.assertIn("idle", expired)
+        self.assertTrue(short.withdrawn)
+        self.assertEqual(len(self.hass.data["djconnect"]["tts_audio_source_watches"]), 63)
+        invalidate_private_speech_sources(self.hass)
+        self.assertFalse(self.hass.data["djconnect"]["tts_audio_source_watches"])
+        self.assertEqual(len(expired), 64)
+
+    async def test_retained_purge_rollback_withdraws_old_audio_without_losing_original_entry(self):
+        from types import SimpleNamespace
+        from custom_components.djconnect import session_speech, speech_processor
+        from custom_components.djconnect.tts import TtsAudio
+        from custom_components.djconnect.wav_util import simple_tone_wav
+        session, moment, reference = await self.selected_credit()
+        await self.fixture.manager.async_end(owner_profile_id="profile-a", session_id=session.session_id)
+        request = {**self.identity, "contract_version": 1, "reference": reference,
+                   "processor": "ha_configured", "voice_preference": "default"}
+        entity = SimpleNamespace()
+        voice = {"engine": "tts.fixture", "voice_id": "actual", "voice_name": "Fixture",
+                 "locale": "en", "gender": None}
+        calls = []
+        async def synthesize(*args):
+            calls.append(args[-1])
+            return TtsAudio(simple_tone_wav(), "wav", "audio/wav")
+        actual_transaction = self.fixture.repo._async_in_transaction
+        async def fail_after_real_delete(operation):
+            def rollback(tx):
+                operation(tx)
+                raise OSError("Injected transaction failure after deletion")
+            return await actual_transaction(rollback)
+        with patch.object(speech_processor, "configured_processor", return_value=(entity, voice)), patch.object(speech_processor, "synthesize", synthesize):
+            first, status = await session_speech.async_handle_prepare(self.hass, request, headers=self.headers)
+            self.assertEqual(status, 200, first)
+            old_asset = first["session_speech"]["audio_reference"]["asset_id"]
+            with patch.object(self.fixture.repo, "_async_in_transaction", fail_after_real_delete):
+                with self.assertRaises(OSError):
+                    await self.fixture.repo.async_remove_entry_records("profile-a", [reference["entry_id"]])
+            self.assertIsNotNone(await self.fixture.repo.async_entry_record("profile-a", session.session_id, reference["entry_id"]))
+            self.assertFalse(self.hass.data["djconnect"]["tts_audio"])
+            audio, status = await session_speech.async_handle_audio(self.hass,
+                {**{k: request[k] for k in ("contract_version", "device_id", "client_type")},
+                 "asset_id": old_asset}, headers=self.headers)
+            self.assertEqual(status, 404)
+            self.assertIsNone(audio)
+            fresh, status = await session_speech.async_handle_prepare(self.hass, request, headers=self.headers)
+            self.assertEqual(status, 200, fresh)
+            self.assertNotEqual(fresh["session_speech"]["audio_reference"]["asset_id"], old_asset)
+            self.assertEqual(calls, [moment.content, moment.content])
+            self.assertFalse(fresh["session_speech"]["autoplay_eligible"])
+
+    async def test_retained_entry_read_racing_real_purge_cannot_mint_speech(self):
+        from custom_components.djconnect import session_speech
+        from custom_components.djconnect.session_conversation import query_service
+        session, _, reference = await self.selected_credit()
+        await self.fixture.manager.async_end(owner_profile_id="profile-a", session_id=session.session_id)
+        repository = query_service(self.hass, self.history)._repository
+        actual_read = repository.async_entry_record
+        entered, release = asyncio.Event(), asyncio.Event()
+        async def hold_after_actual_read(*args, **kwargs):
+            row = await actual_read(*args, **kwargs)
+            entered.set()
+            await release.wait()
+            return row
+        request = {**self.identity, "contract_version": 1, "reference": reference,
+                   "processor": "local_on_device", "voice_preference": "default"}
+        with patch.object(repository, "async_entry_record", hold_after_actual_read):
+            pending = asyncio.create_task(session_speech.async_handle_prepare(self.hass, request, headers=self.headers))
+            await asyncio.wait_for(entered.wait(), 2)
+            await self.fixture.repo.async_remove_entry_records("profile-a", [reference["entry_id"]])
+            release.set()
+            result, status = await asyncio.wait_for(pending, 2)
+        self.assertIn(status, (404, 409), result)
+        self.assertNotIn("session_speech", result)
+        self.assertFalse(self.hass.data["djconnect"].get("tts_audio"))
+        self.assertFalse(self.hass.data["djconnect"].get("tts_audio_source_watches"))
+        self.assertEqual(self.prompts, [])
+
+    async def test_published_fact_families_keep_exact_persona_text_in_private_speech_for_twenty_settings(self):
+        from custom_components.djconnect import session_speech, session_facts
+        from tests.context_variation_fixtures import source
+        rows = []
+        for family in ('birth', 'formation', 'description', 'edition', 'work_composers', 'genre'):
+            for locale in session_facts.LANGUAGES:
+                copies = []
+                for persona in self.fixture.runtime.DJPersona:
+                    catalog, fact = source('birth' if family in {'work_composers', 'genre'} else family, 0)
+                    if family == 'genre':
+                        fact = session_facts.observed_genre_facts({'source': 'spotify_playback_status',
+                            'backend': 'spotify_direct', 'is_playing': True, 'media_identity': catalog['uri'],
+                            'artist_ids': ['Z'*22], 'genres': ['ambient'], 'title': catalog['title'],
+                            'artist': catalog['artist'], 'genre_source_expires_at': time.monotonic()+1800},
+                            media_identity=catalog['uri'],
+                            title=catalog['title'], artist=catalog['artist'])[0]
+                    if family == 'work_composers':
+                        fact = session_facts.work_facts(catalog, {'relations': [{
+                            'type': 'performance', 'target-type': 'work', 'work': {
+                                'id': '00000000-0000-0000-0000-000000000003',
+                                'relations': [{'type': 'composer', 'target-type': 'artist',
+                                    'artist': {'name': 'Fixture composer'}}]}}]})[0]
+                    original = fact.copy_for(locale)
+                    active = await self.fixture.manager.async_start(owner_profile_id='profile-a',
+                        locale=locale, dj_persona=persona, selected_mood='groove',
+                        history_source_context={'backend_id': 'source-spotify',
+                            'music_account_id': 'source-account', 'provider_entry_id': 'source-entry'})
+                    await self.fixture.manager.async_update_playback_projection(owner_profile_id='profile-a',
+                        session_id=active.session_id, state='playing', media_identity=catalog['uri'],
+                        title=catalog['title'], artist=catalog['artist'], album=catalog['album_name'],
+                        duration_ms=300000, position_ms=0)
+                    async def external_source():
+                        return {'_qualified_facts': (fact,)}
+                    moment = await self.fixture.manager.async_process_track_started(owner_profile_id='profile-a',
+                        session_id=active.session_id, media_identity=catalog['uri'], insight_provider=external_source,
+                        require_current_playback=True, allow_initial_facts=True)
+                    self.assertIsNotNone(moment, (family, locale, persona))
+                    self.assertNotEqual(moment.moment_type.value, 'silence', (family, locale, persona))
+                    result, status = await session_speech.async_handle_prepare(self.hass, {
+                        **self.identity, 'contract_version': 1, 'reference': {
+                            'session_id': active.session_id, 'moment_id': moment.moment_id},
+                        'processor': 'local_on_device', 'voice_preference': 'default'}, headers=self.headers)
+                    self.assertEqual(status, 200, result)
+                    speech = result['session_speech']
+                    self.assertTrue(speech['manual_allowed'], speech)
+                    self.assertEqual(speech['audio_state'], 'renderer_pending')
+                    self.assertEqual(speech['locale'], locale)
+                    self.assertEqual(speech['persona'], persona.value)
+                    self.assertEqual(''.join(s['text'] for s in speech['segments']), moment.content)
+                    self.assertEqual(speech['attribution'], [dict(moment.source_attribution)])
+                    self.assertFalse(speech['autoplay_eligible'])
+                    self.assertEqual(fact.copy_for(locale), original)
+                    self.assertNotIn('session_speech', active.broadcast.as_dict(include_owner_only=False))
+                    self.assertEqual(active.presence_ledger.total_published, 1)
+                    copies.append(moment.content)
+                    rows.append({'family': family, 'locale': locale, 'persona': persona.value,
+                        'moment': moment.as_dict(), 'speech': speech})
+                    await self.fixture.manager.async_end(owner_profile_id='profile-a', session_id=active.session_id)
+                self.assertEqual(len(set(copies)), 4, (family, locale))
+        self.assertEqual(len(rows), 120)
+        self.assertEqual(self.prompts, [])
+        self.assertEqual(self.effects, [])
+        import os
+        from pathlib import Path
+        if capture := os.environ.get('DJC_SPEECH_MATRIX_CAPTURE_DIR'):
+            directory = Path(capture)
+            directory.mkdir(parents=True, exist_ok=True)
+            (directory/'connected-fact-speech-matrix.json').write_text(json.dumps({
+                'scope': 'Real Core Runtime/Knowledge/Moment/Flow/Broadcast/SQLite/paired-owner adapters; external source fixtures; no actual native speech.',
+                'rows': rows}, ensure_ascii=False, indent=2)+'\n')
+
+    async def test_shared_producer_and_album_relations_join_the_actual_private_speech_route(self):
+        from dataclasses import replace
+        from custom_components.djconnect import session_facts, session_speech
+        from tests.test_shared_producer_continuity import SharedProducerContinuityTest
+        from tests.test_narrative_album_continuity import NarrativeAlbumContinuityTest
+        from tests.speech_capture import capture
+        clock = [time.monotonic()]
+        manager = self.fixture.manager
+        original_clock = manager._monotonic_source
+        manager._monotonic_source = lambda: clock[0]
+        try:
+            for family, helper in (('shared_producer', SharedProducerContinuityTest()),
+                                   ('album_continuity', NarrativeAlbumContinuityTest())):
+                helper.facts = session_facts
+                for locale in session_facts.LANGUAGES:
+                    for persona in self.fixture.runtime.DJPersona:
+                        active = await manager.async_start(owner_profile_id='profile-a', locale=locale,
+                            dj_persona=persona, selected_mood='groove',
+                            session_start_strategy=self.fixture.runtime.SessionStartStrategy.DISCOVER,
+                            elapsed_time_source=lambda: clock[0],
+                            history_source_context={'backend_id': 'source-spotify',
+                                'music_account_id': 'source-account', 'provider_entry_id': 'source-entry'})
+                        active = replace(active, session_direction=replace(active.session_direction,
+                            direction=self.fixture.runtime.SessionDirectionType.EXPLORING))
+                        manager._active_by_profile['profile-a'] = active
+                        sequence = []
+                        for index in (0, 1):
+                            clock[0] += 200
+                            catalog = helper.catalog(index)
+                            facts = helper.pool(index)
+                            await manager.async_update_playback_projection(owner_profile_id='profile-a',
+                                session_id=active.session_id, state='playing', media_identity=catalog['uri'],
+                                title=catalog['title'], artist=catalog['artist'], album=catalog['album_name'],
+                                duration_ms=300000, position_ms=0)
+                            async def provider():
+                                return {'_qualified_facts': facts}
+                            moment = await manager.async_process_track_started(owner_profile_id='profile-a',
+                                session_id=active.session_id, media_identity=catalog['uri'], insight_provider=provider,
+                                require_current_playback=True, allow_initial_facts=True)
+                            self.assertIsNotNone(moment, (family, locale, persona, index))
+                            if index:
+                                expected = session_facts.SharedProducerFact if family == 'shared_producer' else session_facts.AlbumContinuityFact
+                                self.assertIsInstance(moment.source_fact, expected)
+                            result, status = await session_speech.async_handle_prepare(self.hass, {
+                                **self.identity, 'contract_version': 1, 'reference': {
+                                    'session_id': active.session_id, 'moment_id': moment.moment_id},
+                                'processor': 'local_on_device', 'voice_preference': 'default'}, headers=self.headers)
+                            self.assertEqual(status, 200, (family, locale, persona, result))
+                            speech = result['session_speech']
+                            self.assertTrue(speech['manual_allowed'], speech)
+                            self.assertEqual(speech['persona'], persona.value)
+                            self.assertEqual(speech['attribution'], [dict(moment.source_attribution)])
+                            self.assertEqual(''.join(p['text'] for p in speech['segments']), moment.content)
+                            self.assertFalse(speech['autoplay_eligible'])
+                            sequence.append({'moment': moment.as_dict(), 'speech': speech})
+                        self.assertEqual(active.presence_ledger.total_published, 2)
+                        capture('joined-private-relations', {'family': family, 'locale': locale,
+                            'persona': persona.value, 'sequence': sequence,
+                            'scope': 'Actual Runtime/Planner/Knowledge/Moment/SQLite semantic acceptance/Broadcast/paired private owner speech adapter; external source fixtures and injected elapsed clock only.'})
+                        await manager.async_end(owner_profile_id='profile-a', session_id=active.session_id)
+        finally:
+            manager._monotonic_source = original_clock
+        self.assertEqual(self.prompts, [])
+        self.assertEqual(self.effects, [])
+
+    async def test_original_genre_deadline_cancels_pending_private_synthesis(self):
+        from types import SimpleNamespace
+        from custom_components.djconnect import session_speech, session_facts, speech_processor
+        active = await self.fixture.manager.async_start(owner_profile_id='profile-a', locale='en',
+            selected_mood='groove', history_source_context={'backend_id': 'source-spotify',
+                'music_account_id': 'source-account', 'provider_entry_id': 'source-entry'})
+        media = 'spotify:track:'+'B'*22
+        fact = session_facts.observed_genre_facts({'source': 'spotify_playback_status',
+            'backend': 'spotify_direct', 'is_playing': True, 'media_identity': media,
+            'artist_ids': ['Z'*22], 'genres': ['ambient'], 'title': 'Actual track',
+            'artist': 'Actual artist', 'genre_source_expires_at': time.monotonic()+0.5},
+            media_identity=media, title='Actual track', artist='Actual artist')[0]
+        await self.fixture.manager.async_update_playback_projection(owner_profile_id='profile-a',
+            session_id=active.session_id, state='playing', media_identity=media,
+            title='Actual track', artist='Actual artist', duration_ms=300000, position_ms=0)
+        async def external_source():
+            return {'_qualified_facts': (fact,)}
+        moment = await self.fixture.manager.async_process_track_started(owner_profile_id='profile-a',
+            session_id=active.session_id, media_identity=media, insight_provider=external_source,
+            require_current_playback=True, allow_initial_facts=True)
+        self.assertEqual(moment.moment_type.value, 'genre')
+        entered, cancelled = asyncio.Event(), asyncio.Event()
+        async def synthesize(*args):
+            entered.set()
+            try:
+                await asyncio.Event().wait()
+            except asyncio.CancelledError:
+                cancelled.set()
+                raise
+        voice = {'engine': 'tts.fixture', 'voice_id': 'actual', 'voice_name': 'Fixture',
+            'locale': 'en', 'gender': None}
+        request = {**self.identity, 'contract_version': 1,
+            'reference': {'session_id': active.session_id, 'moment_id': moment.moment_id},
+            'processor': 'ha_configured', 'voice_preference': 'default'}
+        with patch.object(speech_processor, 'configured_processor', return_value=(SimpleNamespace(), voice)), \
+                patch.object(speech_processor, 'synthesize', synthesize):
+            pending = asyncio.create_task(session_speech.async_handle_prepare(self.hass, request, headers=self.headers))
+            await asyncio.wait_for(entered.wait(), 2)
+            result, status = await asyncio.wait_for(pending, 2)
+            self.assertEqual(status, 404, result)
+            self.assertTrue(cancelled.is_set())
+            denied, status = await session_speech.async_handle_prepare(self.hass, request, headers=self.headers)
+            self.assertEqual(status, 404, denied)
+        self.assertFalse(self.hass.data['djconnect'].get('tts_audio'))
+        self.assertFalse(self.hass.data['djconnect'].get('tts_audio_source_watches'))
+        self.assertEqual(active.presence_ledger.total_published, 1)
+        self.assertEqual(self.prompts, [])
+        await self.fixture.manager.async_end(owner_profile_id='profile-a', session_id=active.session_id)
+
+    async def test_owner_timeline_speech_projection_is_readonly_exact_and_never_autoplay(self):
+        from custom_components.djconnect.session_conversation import query_service
+        session, moment, _ = await self.selected_credit()
+        answer, status = await self.request("Who is Brian Eno?", identifier="retained-dialogue-speech",
+                                            context={"session_id": session.session_id})
+        self.assertEqual(status, 200, answer)
+        query = query_service(self.hass, self.history)
+        before_calls = len(self.prompts)
+        before = await self.history.async_history("profile:profile-a")
+        first = await query.async_timeline_page("profile-a", session.session_id)
+        second = await query.async_timeline_page("profile-a", session.session_id)
+        self.assertEqual(first["entries"], second["entries"])
+        self.assertEqual(first["revision"], second["revision"])
+        narratives = [e for e in first["entries"] if e["kind"] in {"dj_moment", "conversation_dj"}]
+        self.assertEqual(len(narratives), 2)
+        self.assertEqual({"".join(p["text"] for p in e["session_speech"]["segments"])
+                          for e in narratives}, {moment.content, answer["text"]})
+        for entry in first["entries"]:
+            if entry["kind"] not in {"dj_moment", "conversation_dj"}:
+                self.assertNotIn("session_speech", entry)
+                continue
+            speech = entry["session_speech"]
+            self.assertEqual(speech["processors"], ["local_on_device", "ha_configured"])
+            self.assertTrue(speech["processor_qualification_required"])
+            self.assertTrue(speech["manual_allowed"])
+            self.assertFalse(speech["autoplay_eligible"])
+            self.assertEqual(speech["expires_at"], entry["retained_until"])
+            self.assertEqual(speech["source_expires_at"], entry["retained_until"])
+            self.assertEqual(speech["reference"], {"session_id": session.session_id, "entry_id": entry["entry_id"]})
+            self.assertEqual(speech["persona_revision"], 0)
+        after = await self.history.async_history("profile:profile-a")
+        for value in (before, after):
+            value.pop("server_time", None)
+        self.assertEqual(before, after)
+        self.assertEqual(len(self.prompts), before_calls)
+        self.assertFalse(self.hass.data["djconnect"].get("tts_audio"))
+        self.assertFalse(self.hass.data["djconnect"].get("tts_audio_source_watches"))
+
+    async def test_advertised_prepare_routes_are_conditional_and_never_grant_fallback(self):
+        from custom_components.djconnect import session_speech, speech_processor
+        answer, status = await self.request("Who is Brian Eno?", identifier="conditional-processor")
+        self.assertEqual(status, 200, answer)
+        initial = answer["session_speech"]
+        payload = {**self.identity, "contract_version": 1, "reference": initial["reference"],
+                   "processor": "ha_configured", "voice_preference": "default"}
+        before = len(self.prompts)
+        for reason in ("processor_not_qualified", "no_matching_locale", "voice_gender_unavailable"):
+            with self.subTest(reason=reason), patch.object(speech_processor, "configured_processor",
+                    side_effect=speech_processor.ProcessorUnavailable(reason)), \
+                    patch.object(speech_processor, "synthesize") as synthesize:
+                denied, status = await session_speech.async_handle_prepare(self.hass, payload, headers=self.headers)
+                self.assertEqual(status, 200, denied)
+                descriptor = denied["session_speech"]
+                self.assertEqual(descriptor["reason"], reason)
+                self.assertEqual(descriptor["processors"], [])
+                self.assertEqual(descriptor["segments"], [])
+                self.assertFalse(descriptor["manual_allowed"])
+                synthesize.assert_not_called()
+        help_reply, status = await self.request("help", identifier="unqualified-source-processor")
+        self.assertEqual(status, 200, help_reply)
+        with patch.object(speech_processor, "configured_processor") as configured:
+            denied, status = await session_speech.async_handle_prepare(self.hass,
+                {**payload, "reference": help_reply["session_speech"]["reference"]}, headers=self.headers)
+            self.assertEqual(status, 200, denied)
+            self.assertEqual(denied["session_speech"]["reason"], "source_processor_not_qualified")
+            self.assertEqual(denied["session_speech"]["processors"], [])
+            configured.assert_not_called()
+        self.assertEqual(len(self.prompts), before)
+        self.assertFalse(self.hass.data["djconnect"].get("tts_audio"))
+
+    async def test_manual_speech_after_never_reuses_accepted_text_without_model_or_history_write(self):
+        from custom_components.djconnect.session_speech import async_handle_prepare
+        result, status = await self.request("Who is Brian Eno?", identifier="manual-never")
+        self.assertEqual(status, 200, result)
+        descriptor = result["session_speech"]
+        self.assertEqual(descriptor["segments"][0]["text"], result["text"])
+        self.assertTrue(descriptor["manual_allowed"])
+        self.assertEqual(descriptor["processors"], ["local_on_device", "ha_configured"])
+        self.assertTrue(descriptor["processor_qualification_required"])
+        self.assertFalse(descriptor["autoplay_eligible"])
+        before = await self.history.async_history("profile:profile-a")
+        calls = len(self.prompts)
+        payload = {**self.identity, "contract_version": 1, "reference": descriptor["reference"],
+                   "processor": "local_on_device", "voice_preference": "default"}
+        # This narrow route accepts only ordinary paired identity, no caller text.
+        payload = {k: v for k, v in payload.items() if k in {
+            "contract_version", "reference", "processor", "voice_preference", "device_id", "client_type"}}
+        for _ in range(2):
+            prepared, status = await async_handle_prepare(self.hass, payload, headers=self.headers)
+            self.assertEqual(status, 200, prepared)
+            speech = prepared["session_speech"]
+            self.assertEqual(speech["segments"], descriptor["segments"])
+            self.assertEqual(speech["expires_at"], descriptor["expires_at"])
+            self.assertFalse(speech["autoplay_eligible"])
+            self.assertEqual(speech["audio_state"], "renderer_pending")
+            self.assertIsNone(speech["effective_voice"])
+        gender, status = await async_handle_prepare(self.hass, {**payload, "voice_preference": "female"}, headers=self.headers)
+        self.assertEqual(status, 200, gender)
+        self.assertEqual(gender["session_speech"]["reason"], "voice_gender_unavailable")
+        self.assertEqual(gender["session_speech"]["segments"], [])
+        self.assertEqual(len(self.prompts), calls)
+        after = await self.history.async_history("profile:profile-a")
+        for value in (before, after):
+            value.pop("server_time", None)
+        self.assertEqual(after, before)
+        denied, status = await async_handle_prepare(self.hass, {**payload, "text": "Injected"}, headers=self.headers)
+        self.assertEqual(status, 400, denied)
+        unsupported, status = await async_handle_prepare(self.hass, {**payload, "processor": "ha_configured"}, headers=self.headers)
+        self.assertEqual(status, 200, unsupported)
+        self.assertFalse(unsupported["session_speech"]["manual_allowed"])
+        self.assertEqual(unsupported["session_speech"]["segments"], [])
+        self.assertEqual(unsupported["session_speech"]["processors"], [])
+        self.history.dialogue.invalidate("profile:profile-a")
+        withdrawn, status = await async_handle_prepare(self.hass, payload, headers=self.headers)
+        self.assertEqual(status, 404, withdrawn)
+
+    async def test_accepted_turn_style_and_speech_remain_original_after_persona_change_and_retry(self):
+        from custom_components.djconnect.session_runtime import DJPersona
+        session, _, _ = await self.selected_credit()
+        response, status = await self.request("Who is Brian Eno?", identifier="accepted-persona-style",
+                                             context={"session_id": session.session_id})
+        self.assertEqual(status, 200, response)
+        calls = len(self.prompts)
+        self.assertEqual(response["conversation"]["style"]["persona"], "home_dj")
+        await self.fixture.manager.async_update_persona(owner_profile_id="profile-a", session_id=session.session_id,
+                                                       dj_persona=DJPersona.CLUB_DJ)
+        replay, status = await self.request("Who is Brian Eno?", identifier="accepted-persona-style",
+                                           context={"session_id": session.session_id})
+        self.assertEqual(status, 200, replay)
+        self.assertEqual(replay["conversation"]["style"], response["conversation"]["style"])
+        self.assertEqual(replay["text"], response["text"])
+        self.assertFalse(replay["session_speech"]["autoplay_eligible"])
+        self.assertEqual(len(self.prompts), calls)
+        self.assertEqual(replay["assistant_message"]["session_speech"], replay["session_speech"])
+        self.assertEqual(replay["session_speech"]["segments"][0]["speaker_role"], "dj")
+        self.assertEqual(replay["session_speech"]["segments"][0]["ordinal"], 1)
+
+    async def test_common_help_and_model_answers_defer_audio_until_accepted_reference(self):
+        from unittest.mock import AsyncMock
+        from custom_components.djconnect.session_speech import exact_segments
+        forbidden = AsyncMock(side_effect=AssertionError("No preacceptance audio or speaker dispatch"))
+        with patch.object(self.core, "async_apply_announcement_output", forbidden):
+            for question, identifier in (("help", "speech-help"), ("Who is Brian Eno?", "speech-agent")):
+                response, status = await self.request(question, identifier=identifier,
+                                                      audio_response="always", speech_contract_version=1)
+                self.assertEqual(status, 200, response)
+                self.assertEqual(response["audio_delivery"], {"mode": "accepted_reference", "state": "deferred"})
+                descriptor = response["session_speech"]
+                self.assertTrue(descriptor["manual_allowed"], descriptor)
+                self.assertTrue(descriptor["autoplay_eligible"])
+                self.assertEqual("".join(s["text"] for s in descriptor["segments"]), response["text"])
+            forbidden.assert_not_awaited()
+        long = ("Exact accepted prose. " * 150) + "Final sentence."
+        segments = exact_segments(long)
+        self.assertGreater(len(segments), 1)
+        self.assertLessEqual(len(segments), 8)
+        self.assertTrue(all(len(segment["text"]) <= 1200 for segment in segments))
+        self.assertEqual("".join(segment["text"] for segment in segments), long)
+        self.assertIsNone(exact_segments("x" * 1300))
+        self.assertIsNone(exact_segments("word " * 900))
+
+    async def test_old_audio_clients_get_explicit_upgrade_without_private_get_downgrade(self):
+        from unittest.mock import AsyncMock
+        forbidden = AsyncMock(side_effect=AssertionError("No old unqualified GET or preacceptance synthesis"))
+        with patch.object(self.core, "async_apply_announcement_output", forbidden):
+            for index, fields in enumerate(({"audio_response": "always"},
+                    {"audio_response": "auto", "input_type": "voice"},
+                    {"audio_response": "never"})):
+                response, status = await self.handlers.async_handle_ask_dj_message_payload(
+                    self.hass, {**self.identity, "client_message_id": f"old-speech-{index}",
+                                "text": "help", "language": "en", **fields},
+                    headers=self.headers, voice_input=index == 1)
+                self.assertEqual(status, 200, response)
+                delivery = response["audio_delivery"]
+                requested = index < 2
+                self.assertEqual(delivery["state"], "unavailable" if requested else "not_requested")
+                self.assertEqual(delivery["reason"], "client_protocol_upgrade_required" if requested else None)
+                self.assertEqual(delivery["required_speech_contract_version"], 1)
+                self.assertFalse(response.get("audio_url"))
+                self.assertTrue(response["session_speech"]["manual_allowed"])
+                self.assertFalse(response["session_speech"]["autoplay_eligible"])
+            forbidden.assert_not_awaited()
+        self.assertEqual(self.prompts, [])
+        for value in (True, 2, "1"):
+            response, status = await self.request("help", identifier="bad-speech-version", speech_contract_version=value)
+            self.assertEqual(status, 400, response)
+            self.assertEqual(response["error"], "unsupported_speech_contract")
+
+    async def test_optional_gender_setting_uses_server_provider_capability_without_effects(self):
+        from types import SimpleNamespace
+        from custom_components.djconnect import session_speech, speech_processor
+        voice = {"engine": "tts.fixture", "voice_id": "actual-provider-id", "voice_name": "Voice named Male",
+                 "locale": "en", "gender": None}
+        identity = {key: self.identity[key] for key in ("device_id", "client_type")}
+        payload = {**identity, "contract_version": 1}
+        before = await self.history.async_history("profile:profile-a")
+        with patch("custom_components.djconnect.tts.detect_tts_support", return_value={"language": "en"}), patch.object(speech_processor, "configured_processor", return_value=(SimpleNamespace(), voice)):
+            result, status = await session_speech.async_handle_voice_options(self.hass, payload, headers=self.headers)
+            self.assertEqual(status, 200, result)
+            options = result["speech_voice_options"]
+            self.assertTrue(options["default_available"])
+            self.assertEqual(options["supported_preferences"], ["default"])
+            self.assertFalse(options["gender_selection"]["available"])
+            self.assertEqual(options["gender_selection"]["values"], [])
+            repeated, status = await session_speech.async_handle_voice_options(self.hass, payload, headers=self.headers)
+            self.assertEqual(repeated, result)
+        self.assertEqual(self.prompts, [])
+        after = await self.history.async_history("profile:profile-a")
+        for value in (before, after):
+            value.pop("server_time", None)
+        self.assertEqual(after, before)
+        denied, status = await session_speech.async_handle_voice_options(self.hass, payload, headers={})
+        self.assertEqual(status, 401, denied)
+        invalid, status = await session_speech.async_handle_voice_options(self.hass, {**payload, "gender": "male"}, headers=self.headers)
+        self.assertEqual(status, 400, invalid)
+
+    async def test_private_audio_cancel_capacity_and_failure_backoff_never_reexecute_semantics(self):
+        import time
+        from custom_components.djconnect.dj_response import prepare_private_tts_audio
+        from custom_components.djconnect.tts import TtsAudio
+        from custom_components.djconnect.wav_util import simple_tone_wav
+        callbacks = []
+        def admission():
+            return None
+        admission.on_withdraw = callbacks.append
+        entered, release = asyncio.Event(), asyncio.Event()
+        calls = []
+        async def synthesizer():
+            calls.append(True)
+            entered.set()
+            await release.wait()
+            return TtsAudio(simple_tone_wav(), "wav", "audio/wav")
+        async def prepare(key):
+            return await prepare_private_tts_audio(self.hass, owner_profile_id="profile-a",
+                cache_key=("profile-a", key), expires_at=time.time() + 30,
+                admission=admission, synthesize=synthesizer)
+        first = asyncio.create_task(prepare("cancel"))
+        await entered.wait()
+        joined = asyncio.create_task(prepare("cancel"))
+        await asyncio.sleep(0)
+        first.cancel()
+        with self.assertRaises(asyncio.CancelledError):
+            await first
+        self.assertEqual(len(self.hass.data["djconnect"]["tts_audio_preparations"]), 1)
+        retry = asyncio.create_task(prepare("cancel"))
+        release.set()
+        a, b = await asyncio.gather(joined, retry)
+        self.assertEqual(a, b)
+        self.assertEqual(len(calls), 1)
+        for callback in callbacks:
+            callback()
+        callbacks.clear()
+        entered.clear()
+        release.clear()
+        one = asyncio.create_task(prepare("one"))
+        two = asyncio.create_task(prepare("two"))
+        await entered.wait()
+        with self.assertRaisesRegex(ValueError, "speech_capacity"):
+            await prepare("three")
+        release.set()
+        tokens = await asyncio.gather(one, two)
+        self.assertEqual(len(set(tokens)), 2)
+        for callback in callbacks:
+            callback()
+        self.assertFalse(self.hass.data["djconnect"]["tts_audio"])
+        attempts = []
+        async def failure():
+            attempts.append(True)
+            raise ValueError("external_synthesis_failed")
+        for expected in ("external_synthesis_failed", "speech_retry_backoff"):
+            with self.assertRaisesRegex(ValueError, expected):
+                await prepare_private_tts_audio(self.hass, owner_profile_id="profile-a",
+                    cache_key=("profile-a", "failure"), expires_at=time.time() + 30,
+                    admission=admission, synthesize=failure)
+        self.assertEqual(len(attempts), 1)
+
+    async def test_private_ha_audio_rejects_mime_only_and_truncated_wav(self):
+        from types import SimpleNamespace
+        from custom_components.djconnect.speech_processor import synthesize, ProcessorUnavailable
+        from custom_components.djconnect.wav_util import simple_tone_wav
+        body = [b"not audio"]
+        async def external(*args):
+            return "audio/wav", body[0]
+        entity = SimpleNamespace(async_get_tts_audio=external)
+        voice = {"locale": "en", "voice_id": "fixture"}
+        for value in (b"not audio", b"RIFF" + bytes(4) + b"WAVE", simple_tone_wav()[:-32]):
+            body[0] = value
+            with self.assertRaises(ProcessorUnavailable):
+                await synthesize(entity, voice, "Exact accepted text")
+        body[0] = simple_tone_wav()
+        audio = await synthesize(entity, voice, "Exact accepted text")
+        self.assertEqual(audio.data, body[0])
+
+    async def test_private_audio_is_owner_bound_cached_and_withdrawn_with_original_reference(self):
+        from types import SimpleNamespace
+        from custom_components.djconnect import session_speech, speech_processor, dj_response
+        from custom_components.djconnect.tts import TtsAudio
+        from custom_components.djconnect.wav_util import simple_tone_wav
+        answer, status = await self.request("Who is Brian Eno?", identifier="audio-owner")
+        self.assertEqual(status, 200, answer)
+        self.assertIn("ha_configured", answer["session_speech"]["processors"])
+        self.assertTrue(answer["session_speech"]["processor_qualification_required"])
+        self.assertNotIn("effective_voice", answer["session_speech"])
+        self.assertFalse(self.hass.data["djconnect"].get("tts_audio"))
+        payload = {"device_id": self.identity["device_id"], "client_type": self.identity["client_type"],
+                   "contract_version": 1, "reference": answer["session_speech"]["reference"],
+                   "processor": "ha_configured", "voice_preference": "default"}
+        voice = {"engine": "tts.fixture", "voice_id": "actual-inventory-id", "voice_name": "Fixture voice",
+                 "locale": "en", "gender": None, "processor": "ha_configured"}
+        entity = SimpleNamespace()
+        calls = []
+        async def synthesize(actual, actual_voice, text):
+            self.assertIs(actual, entity)
+            self.assertEqual(actual_voice, voice)
+            calls.append(text)
+            return TtsAudio(simple_tone_wav(), "wav", "audio/wav")
+        # Only external configured inventory and synthesizer are fixtures. Core
+        # paired owner, accepted reference, cache and byte admission are real.
+        with patch.object(speech_processor, "configured_processor", return_value=(entity, voice)), patch.object(speech_processor, "synthesize", synthesize):
+            first, status = await session_speech.async_handle_prepare(self.hass, payload, headers=self.headers)
+            self.assertEqual(status, 200, first)
+            self.assertEqual(first["session_speech"]["audio_state"], "ready")
+            self.assertEqual(first["session_speech"]["processors"], answer["session_speech"]["processors"])
+            self.assertTrue(first["session_speech"]["processor_qualification_required"])
+            ref = first["session_speech"]["audio_reference"]
+            second, status = await session_speech.async_handle_prepare(self.hass, payload, headers=self.headers)
+            self.assertEqual(second["session_speech"]["audio_reference"], ref)
+            self.assertEqual(calls, [answer["text"]])
+            self.assertEqual(dj_response.get_tts_audio(self.hass, ref["asset_id"]), (404, None))
+            identity = {k: payload[k] for k in ("contract_version", "device_id", "client_type")}
+            audio_request = {**identity, "asset_id": ref["asset_id"]}
+            audio, status = await session_speech.async_handle_audio(self.hass, audio_request, headers=self.headers)
+            self.assertEqual(status, 200)
+            self.assertTrue(audio.data.startswith(b"RIFF"))
+            denied, status = await session_speech.async_handle_audio(self.hass, audio_request, headers={})
+            self.assertEqual(status, 401)
+            self.assertIsNone(denied)
+            self.history.dialogue.invalidate("profile:profile-a")
+            denied, status = await session_speech.async_handle_audio(self.hass, audio_request, headers=self.headers)
+            self.assertEqual(status, 404)
+            self.assertIsNone(denied)
+
+    async def test_reloaded_processor_with_same_ids_cannot_authorize_previous_entity_bytes(self):
+        from types import SimpleNamespace
+        from custom_components.djconnect import session_speech, speech_processor
+        from custom_components.djconnect.tts import TtsAudio
+        from custom_components.djconnect.wav_util import simple_tone_wav
+        reply, status = await self.request("Who is Brian Eno?", identifier="processor-incarnation")
+        self.assertEqual(status, 200, reply)
+        a, b = SimpleNamespace(), SimpleNamespace()
+        current = [a]
+        entered, release = asyncio.Event(), asyncio.Event()
+        voice = {"engine": "tts.same_id", "voice_id": "same_voice_id", "voice_name": "Same label", "locale": "en"}
+        calls = []
+        async def synthesize(entity, *args):
+            calls.append(entity)
+            if entity is a:
+                entered.set()
+                await release.wait()
+            return TtsAudio(simple_tone_wav(), "wav", "audio/wav")
+        request = {"device_id": self.identity["device_id"], "client_type": self.identity["client_type"],
+                   "contract_version": 1, "reference": reply["session_speech"]["reference"],
+                   "processor": "ha_configured", "voice_preference": "default"}
+        with patch.object(speech_processor, "configured_processor", side_effect=lambda *args: (current[0], voice)), patch.object(speech_processor, "synthesize", synthesize):
+            first = asyncio.create_task(session_speech.async_handle_prepare(self.hass, request, headers=self.headers))
+            await entered.wait()
+            current[0] = b
+            replacement, status = await session_speech.async_handle_prepare(self.hass, request, headers=self.headers)
+            self.assertEqual(status, 200, replacement)
+            self.assertEqual(replacement["session_speech"]["audio_state"], "ready")
+            release.set()
+            denied, status = await first
+            self.assertEqual(status, 404, denied)
+            self.assertIs(calls[0], a)
+            self.assertIs(calls[1], b)
+            self.assertEqual(len(self.hass.data["djconnect"]["tts_audio"]), 1)
+
+    async def test_speech_reference_timer_removes_idle_body_and_profile_aba_cannot_revive_it(self):
+        from custom_components.djconnect import session_speech
+        from custom_components.djconnect.profile_context import profile_storage
+        from custom_components.djconnect.domain import ProfilePrivacyMode
+        with patch.object(session_speech, "TTL", 0.03):
+            result, status = await self.request("Who is Brian Eno?", identifier="idle-speech")
+            self.assertEqual(status, 200, result)
+        frame = self.history.dialogue.owners["profile:profile-a"]["default"]
+        self.assertTrue(frame.speech_references)
+        await asyncio.sleep(0.06)
+        self.assertFalse(frame.speech_references)
+        result, status = await self.request("Who is Brian Eno?", identifier="aba-speech")
+        self.assertEqual(status, 200, result)
+        self.assertTrue(frame.speech_references)
+        storage = profile_storage(self.hass)
+        storage.hass = self.hass  # Fixture now exercises the real commit invalidation hook.
+        epoch = storage.authority_revision
+        await storage.async_update_profile("profile-a", privacy_mode=ProfilePrivacyMode.SHARED)
+        await storage.async_update_profile("profile-a", privacy_mode=ProfilePrivacyMode.NORMAL)
+        self.assertGreater(storage.authority_revision, epoch)
+        self.assertFalse(frame.speech_references)
+        with self.assertRaises(PermissionError):
+            await session_speech.resolve_dialogue(self.hass, self.history, "profile-a",
+                result["session_speech"]["reference"], profile_source=())
+
+    async def test_private_reply_speech_uses_same_frame_and_expires_without_archiving(self):
+        from custom_components.djconnect import session_speech
+        from custom_components.djconnect.ask_dj import service
+        from custom_components.djconnect.ask_dj.dialogue import source_scope
+        from unittest.mock import Mock
+        async def delegate(*args):
+            return {"success": True, "text": "A private accepted local answer.", "_private_current_context": True}
+        async def owner():
+            return None
+        before = await self.history.async_history("profile:profile-a")
+        result = await service.async_exchange(self.hass, self.runtime,
+            {"client_message_id": "private-speech", "text": "Who is Brian Eno?"},
+            profile_id="profile-a", history_manager=self.history, delegate=delegate, validate_owner=owner)
+        self.assertFalse(result["history_persisted"])
+        ref = result["session_speech"]["reference"]
+        frame = self.history.dialogue.owners["profile:profile-a"]["default"]
+        self.assertEqual(len(frame.speech_references), 1)
+        record = frame.speech_references[ref["turn_id"]]
+        prepared, guard = await session_speech.resolve_dialogue(self.hass, self.history,
+            "profile-a", ref, profile_source=source_scope(None))
+        self.assertEqual(prepared["segments"][0]["text"], result["text"])
+        guard()
+        after = await self.history.async_history("profile:profile-a")
+        for value in (before, after):
+            value.pop("server_time", None)
+        self.assertEqual(after, before)
+        with patch.object(self.history.dialogue, "clock", Mock(return_value=record["deadline"])):
+            with self.assertRaises(PermissionError):
+                guard()
+        frame.reset("clear")
+        self.assertEqual(frame.speech_references, {})
+
+    async def test_persona_cas_rejects_pending_general_session_and_private_reply(self):
+        from custom_components.djconnect.session_runtime import DJPersona
+        from custom_components.djconnect.ask_dj import service
+
+        for mode in ("general", "session", "private"):
+            with self.subTest(mode=mode):
+                session = await self.fixture.manager.async_start(
+                    owner_profile_id="profile-a", locale="en", selected_mood="groove",
+                    music_backend="spotify_direct", dj_persona=DJPersona.RADIO_DJ)
+                before = await self.history.async_history("profile:profile-a")
+                entered, release = asyncio.Event(), asyncio.Event()
+                calls = []
+                async def delegate(*args):
+                    calls.append(True)
+                    entered.set()
+                    await release.wait()
+                    return {"success": True, "text": "Old Radio answer.",
+                            "_private_current_context": mode == "private"}
+                async def owner():
+                    return None
+                payload = {"client_message_id": "persona-race-" + mode,
+                           "text": "Who is Brian Eno?", "language": "en"}
+                if mode != "general":
+                    payload["conversation_context"] = {"session_id": session.session_id}
+                task = asyncio.create_task(service.async_exchange(
+                    self.hass, self.runtime, payload, profile_id="profile-a",
+                    history_manager=self.history, delegate=delegate, validate_owner=owner))
+                await asyncio.wait_for(entered.wait(), 2)
+                await self.fixture.manager.async_update_persona(
+                    owner_profile_id="profile-a", session_id=session.session_id,
+                    dj_persona=DJPersona.CLUB_DJ, expected_revision=0)
+                release.set()
+                with self.assertRaises(service.SessionConversationError) as denied:
+                    await task
+                self.assertEqual(denied.exception.code, "conversation_context_changed")
+                after = await self.history.async_history("profile:profile-a")
+                for value in (before, after):
+                    value.pop("server_time", None)
+                self.assertEqual(after, before)
+                self.assertEqual(len(calls), 1)
+                await self.fixture.manager.async_end(owner_profile_id="profile-a", session_id=session.session_id)
+
     async def test_clear_while_agent_pending_rejects_response_and_future_context(self):
         entered, release = asyncio.Event(), asyncio.Event()
 
@@ -1039,15 +2009,19 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
             return {"response": {"speech": {"plain": {"speech": "one accepted answer"}}}}
 
         with patch.object(self.pipeline, "_call_conversation_process_transport", delayed):
-            first = asyncio.create_task(self.request("An open music question"))
+            first = asyncio.create_task(self.request("An open music question", audio_response="always", speech_contract_version=1))
             await asyncio.wait_for(entered.wait(), 2)
-            duplicate = asyncio.create_task(self.request("An open music question"))
+            duplicate = asyncio.create_task(self.request("An open music question", audio_response="always", speech_contract_version=1))
             busy, status = await self.request("Another open question", identifier="other")
             self.assertEqual(status, 409, busy)
             self.assertEqual(busy["error"], "conversation_busy")
             release.set()
             a, b = await asyncio.gather(first, duplicate)
-        self.assertEqual(a, b)
+        self.assertTrue(a[0]["session_speech"]["autoplay_eligible"])
+        self.assertFalse(b[0]["session_speech"]["autoplay_eligible"])
+        expected = deepcopy(a)
+        expected[0]["session_speech"]["autoplay_eligible"] = False
+        self.assertEqual(expected, b)
         self.assertEqual(
             len((await self.history.async_history("profile:profile-a"))["messages"]), 2
         )

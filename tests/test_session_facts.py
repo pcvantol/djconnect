@@ -38,6 +38,34 @@ class SessionFactsTest(unittest.TestCase):
             "isrc": "USABC0100001",
         }
 
+    def test_genre_requires_original_source_deadline_and_never_renews_it(self):
+        from custom_components.djconnect.native_moment_delivery import source_deadline
+        catalog = self.catalog()
+        evidence = {"source": "spotify_playback_status", "backend": "spotify_direct",
+            "is_playing": True, "media_identity": catalog["uri"], "title": catalog["title"],
+            "artist": catalog["artist"], "artist_ids": ["Z"*22], "genres": ["ambient"]}
+        def qualify(value, now=100):
+            with patch.object(self.facts.time, "monotonic", return_value=now):
+                return self.facts.observed_genre_facts(value, media_identity=catalog["uri"],
+                    title=catalog["title"], artist=catalog["artist"])
+        self.assertEqual(qualify(evidence), ())
+        for deadline in (None, True, "101", float("inf"), float("nan"), 99, 100, 21701):
+            self.assertEqual(qualify({**evidence, "genre_source_expires_at": deadline}), ())
+        near_expiry = {**evidence, "genre_source_expires_at": 101}
+        first = qualify(near_expiry)[0]
+        repeated = qualify(near_expiry, now=100.5)[0]
+        self.assertEqual(source_deadline(first), 101)
+        self.assertEqual(source_deadline(repeated), 101)
+        self.assertTrue(first.eligible(catalog["uri"], 100.9))
+        self.assertFalse(first.eligible(catalog["uri"], 101))
+        self.assertEqual(qualify(near_expiry, now=101), ())
+        fresh = qualify({**evidence, "genre_source_expires_at": 21700})[0]
+        self.assertEqual(source_deadline(fresh), 1900)
+        for changes in ({"artist_ids": ["Z"*22, "Y"*22]}, {"artist_ids": []},
+                        {"title": "Different track"}, {"is_playing": False},
+                        {"source": "artist_name_search"}):
+            self.assertEqual(qualify({**near_expiry, **changes}), ())
+
     def test_date_precision_binding_and_no_original_release_claim(self):
         for precision, value in [("year", "2001"), ("month", "2001-03"), ("day", "2001-03-04")]:
             catalog = {**self.catalog(), "release_date": value, "release_date_precision": precision}

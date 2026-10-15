@@ -113,6 +113,7 @@ class DialogueFrame:
     generation: str
     messages: list[dict] = field(default_factory=list)
     local_turns: list[dict] = field(default_factory=list)
+    speech_references: dict[str, dict] = field(default_factory=dict)
     retry: dict | None = None
     subjects: list[dict] = field(default_factory=list)
     dependencies: list[dict] = field(default_factory=list)
@@ -126,12 +127,18 @@ class DialogueFrame:
         self.generation = generation
         self.messages.clear()
         self.local_turns.clear()
+        self.clear_speech()
         self.retry = None
         self.subjects.clear()
         self.dependencies.clear()
         self.result_set = self.pending = None
         self.chosen_action_id = ""
         self.archiveable = True
+
+    def clear_speech(self):
+        for record in list(self.speech_references.values()):
+            record["dispose"]()
+        self.speech_references.clear()
 
 
 @dataclass
@@ -155,6 +162,7 @@ class DialogueTurn:
     effect_started: bool = False
     effect_validators: list[Any] = field(default_factory=list)
     delivery_validators: list[Any] = field(default_factory=list)
+    speech_deadline: float | None = None
     fast_control: bool = False
     pending: dict | None = None
     reset_topic: bool = False
@@ -287,6 +295,11 @@ class DialogueState:
             if scope is None or owner == scope:
                 for frame in threads.values():
                     frame.reset("invalidated:" + uuid4().hex)
+
+    def invalidate_speech(self):
+        for threads in self.owners.values():
+            for frame in threads.values():
+                frame.clear_speech()
 
     def reserve(self, frame, identifier, digest, fast):
         previous = frame.inflight.get(identifier)
@@ -595,22 +608,27 @@ def style_projection(payload: dict, active=None, profile=None) -> dict:
     }
 
 
-def model_prompt(text: str, payload: dict, source: dict | None = None) -> str:
-    turn = current_turn.get()
-    style = turn.style if turn else style_projection(payload)
-    frame = turn.frame if turn else None
-    operation = "refine" if is_refinement(text) else "lookup" if requests_lookup(text) else "answer"
+def persona_answer_form(persona: str) -> str:
+    """One authored Persona instruction owner for dialogue and qualified insight."""
     forms = {
         "home_dj": "Use calm, plainspoken context in one or two connected sentences, as a thoughtful conversation. Prefer the concrete answer over a CV or metaphor. Never append a setting, invitation or analogy as an ending.",
         "radio_dj": "Use exactly two short connected sentences: factual identification or answer, then one concrete musical meaning or consequence. Clear fact-to-meaning radio phrasing; avoid a list of achievements.",
         "club_dj": "Use one direct compact sentence, normally at most 30 words. Give one precise answer or musical contrast; omit biography lists, soft introductions and hype.",
         "festival_dj": "Use exactly three short warm sentences with lively changes of rhythm. Bring the relevant musical fact forward and develop it through concrete detail rather than a CV. No imagined place, invitation, listening image, metaphor ending, exclamations or event. Aim for at most 65 words.",
     }
+    return forms.get(persona, forms["home_dj"])
+
+
+def model_prompt(text: str, payload: dict, source: dict | None = None) -> str:
+    turn = current_turn.get()
+    style = turn.style if turn else style_projection(payload)
+    frame = turn.frame if turn else None
+    operation = "refine" if is_refinement(text) else "lookup" if requests_lookup(text) else "answer"
     projection = {
         "question": text[:4000],
         "requested_operation": operation,
         "style": style,
-        "answer_form": forms.get(style.get("persona"), forms["home_dj"])
+        "answer_form": persona_answer_form(style.get("persona"))
         if operation == "answer" else "Return only the typed read-only query object; Core owns result captions.",
         "recent_turns": [{"role": m["role"], "text": m["text"]} for m in frame.messages]
         if frame and not turn.reset_topic

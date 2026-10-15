@@ -395,6 +395,9 @@ class DiscoverNarrativeTests(unittest.TestCase):
                     "summary": f"Observed context for {title}.",
                     "full_text": f"A bounded explanation for {title}.",
                     "genre": "ambient",
+                    # This explicit external narrative fixture replaces the
+                    # real unmeasured fallback, including its basis marker.
+                    "basis": "external_provider_narrative_fixture",
                 })
                 return result
             results = []

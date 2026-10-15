@@ -52,6 +52,7 @@ from .const import (
     API_SESSION_END,
     API_SESSION_ACTIVE,
     API_SESSION_MOOD,
+    API_SESSION_PERSONA,
     API_SESSION_PRESENCE,
     API_SESSION_HISTORY,
     API_SESSION_HISTORY_DETAIL,
@@ -830,6 +831,10 @@ def _voice_header_payload(headers: Any, device_id: str, client_type: str | None)
     mood = str(headers.get("X-DJConnect-Mood") or "").strip()
     if mood:
         payload["mood"] = mood
+    speech_version = headers.get("X-DJConnect-Speech-Contract-Version")
+    if speech_version is not None:
+        # Closed wire version; do not accept booleans, floats or coercible text.
+        payload["speech_contract_version"] = 1 if speech_version == "1" else 0
     return enrich_payload_with_mood_zone(payload)
 
 
@@ -2105,6 +2110,7 @@ async def _handle_ask_dj_followup_response(
             if turn.frame.pending is not offered:
                 raise DialogueError("followup_expired")
         turn.effect_validators.append(validate_pending)
+        validate_pending_evidence.speech_deadline = offered["deadline"]
         turn.delivery_validators.append(validate_pending_evidence)
     pending = dict(pending or {})
     if pending and turn.history.dialogue.clock() >= pending["deadline"]:
@@ -2929,6 +2935,63 @@ class DJConnectSessionMoodView(_DJConnectSessionView):
         return self.json(result, status_code=status)
 
 
+class DJConnectSpeechVoiceOptionsView(_DJConnectSessionView):
+    url = "/api/djconnect/v1/speech/voice-options"
+    name = "api:djconnect:speech:voice_options"
+
+    async def post(self, request):
+        from .session_speech import async_handle_voice_options
+        data = await self._payload(request)
+        if data is None or request.query_string:
+            return self.json({"success": False, "error": "invalid_request"}, status_code=400)
+        result, status = await async_handle_voice_options(request.app["hass"], data, headers=request.headers)
+        return self.json(result, status_code=status)
+
+
+class DJConnectSpeechPrepareView(_DJConnectSessionView):
+    url = "/api/djconnect/v1/speech/prepare"
+    name = "api:djconnect:speech:prepare"
+
+    async def post(self, request):
+        from .session_speech import async_handle_prepare
+
+        data = await self._payload(request)
+        if data is None or request.query_string:
+            return self.json({"success": False, "error": "invalid_request"}, status_code=400)
+        result, status = await async_handle_prepare(request.app["hass"], data, headers=request.headers)
+        return self.json(result, status_code=status)
+
+
+class DJConnectSpeechAudioView(_DJConnectSessionView):
+    url = "/api/djconnect/v1/speech/audio"
+    name = "api:djconnect:speech:audio"
+
+    async def post(self, request):
+        from .session_speech import async_handle_audio
+        data = await self._payload(request)
+        if data is None or request.query_string:
+            return self.json({"success": False, "error": "invalid_request"}, status_code=400)
+        item, status = await async_handle_audio(request.app["hass"], data, headers=request.headers)
+        if item is None:
+            return self.json({"success": False, "error": "speech_audio_unavailable"}, status_code=status)
+        return web.Response(body=item.data, content_type=item.content_type, headers={
+            "Cache-Control": "no-store", "Referrer-Policy": "no-referrer", "X-Content-Type-Options": "nosniff"})
+
+
+class DJConnectSessionPersonaView(_DJConnectSessionView):
+    url = API_SESSION_PERSONA
+    name = "api:djconnect:session:persona"
+
+    async def post(self, request):
+        from .session_persona import async_handle_persona
+
+        data = await self._payload(request)
+        if data is None or request.query_string:
+            return self.json({"success": False, "error": "invalid_request"}, status_code=400)
+        result, status = await async_handle_persona(request.app["hass"], data, headers=request.headers)
+        return self.json(result, status_code=status)
+
+
 class DJConnectSessionPresenceView(_DJConnectSessionView):
     url = API_SESSION_PRESENCE
     name = "api:djconnect:session:presence"
@@ -3019,9 +3082,11 @@ class DJConnectTransportCapabilitiesView(HomeAssistantView):
         from .capability_contract import _platform_capabilities, _contract_versions
         from .hybrid_contract import hybrid_transport_capability
         from .session_mood import capability as mood_capability
+        from .session_persona import capability as persona_capability
         from .session_presence import capability as presence_capability
         from .session_forecast import capability as forecast_capability
         from .session_artwork import capability as artwork_capability
+        from .session_speech import capability as speech_capability
         return self.json(
             {
                 "success": True,
@@ -3032,9 +3097,11 @@ class DJConnectTransportCapabilitiesView(HomeAssistantView):
                 "transports": {"http": True, "websocket": True},
                 "session_broadcast": session_broadcast_transport_capabilities(),
                 "active_session_mood": mood_capability(),
+                "active_session_persona": persona_capability(),
                 "active_session_presence": presence_capability(),
                 "session_forecast": forecast_capability(),
                 "session_artwork": artwork_capability(),
+                "session_speech": speech_capability(),
                 "hybrid_transport": hybrid_transport_capability(),
             }
         )
@@ -4483,6 +4550,9 @@ class DJConnectVoiceView(HomeAssistantView):
             return _json_error(reply_view, "unauthorized", 401)
         if not _runtime_versions_compatible(runtime):
             return _runtime_version_mismatch_response(reply_view, runtime)
+        if (request.headers.get("X-DJConnect-Speech-Contract-Version") is not None
+                and request.headers.get("X-DJConnect-Speech-Contract-Version") != "1"):
+            return _json_error(reply_view, "unsupported_speech_contract", 400)
         voice_owner = None
         if _is_ask_dj_voice_client(client_type) and _is_audio_upload(
             request.headers.get("Content-Type", "").split(";", 1)[0].strip().lower()

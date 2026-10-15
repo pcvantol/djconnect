@@ -653,7 +653,15 @@ async def _async_announce_ask_dj_response(
     payload: dict[str, Any],
     classification: AskDjIntent,
 ) -> None:
-    """Apply Ask DJ announcement output using the existing audio policy."""
+    """Common Profile dialogue presents accepted references after semantic commit."""
+    from .dialogue import current_turn
+    turn = current_turn.get()
+    if turn is not None:
+        # All common general/Session early and model replies converge in service.
+        # Never synthesize or activate a speaker before the accepted turn exists.
+        # Manual/autoplay preparation consumes that reference, not this request.
+        response["audio_delivery"] = {"mode": "accepted_reference", "state": "deferred"}
+        return
     await async_apply_announcement_output(
         hass, runtime, response, payload=payload,
         generate_audio=(
@@ -10001,6 +10009,7 @@ async def _dialogue_choice_response(hass, runtime, payload, text, *, index=None)
             or chosen >= len(shown["items"]) or shown["items"][chosen] != action_identity):
             raise DialogueError("choice_changed")
     turn.effect_validators.append(validate_choice)
+    validate_choice_evidence.speech_deadline = shown["deadline"]
     turn.delivery_validators.append(validate_choice_evidence)
     await turn.guard()
     activate = explicit_activate(text) or (isinstance(value, dict) and value["operation"] == "activate")

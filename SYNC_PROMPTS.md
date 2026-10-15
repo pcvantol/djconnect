@@ -3173,6 +3173,21 @@ paired image auth and expiry apply equally to each device. Final exact pin and
 qualification follow protected source delivery; Apple/joint remain OPEN.
 
 
+## Session speech / live Persona — selected Core producer in progress
+
+`DJC-SESSION-SPEECH-PERSONA-VOICE-20261015`, owning Core ACK6191876871, same writer
+on `codex/session-speech-persona-voice-v1`; source and separate Finalization gates
+remain. Canonical [Persona/source matrix](docs/product/SESSION_SPEECH_PERSONA_V1.md)
+and [speech delivery](docs/product/SESSION_SPEECH_DELIVERY_V1.md) define the single
+common Ask DJ and accepted Moment/history speech owner. Existing Apple writer
+adopts optional server-provider-gated gender preferences, explicit private
+speech protocol for text/WAV, paired POST audio, exact original styles, manual
+Listen after never, per-device autoplay only for new intended publication and
+source/Session/clear/expiry cancellation. No second writer, Swift write,
+source-right downgrade, passive surface export or native/audible PASS follows
+from Core fixtures. Early pins remain explicitly local/partial; definitive
+protected producerpin and full remaining-family qualification follow delivery.
+
 ## Documentary handoff — VibeCast web-first/guest design v1
 
 Issue [#1174](https://github.com/pcvantol/djconnect/issues/1174) and

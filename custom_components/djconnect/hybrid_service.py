@@ -19,7 +19,7 @@ from .transport_delivery import (
 )
 
 ACTION_OPERATIONS = frozenset(
-    {"command", "ask_dj/message", "track_insight", "session/mood", "session/presence"}
+    {"command", "ask_dj/message", "track_insight", "session/mood", "session/presence", "session/persona"}
 )
 HTTP_OPERATIONS = ACTION_OPERATIONS | {"session/start", "session/end"}
 READ_OPERATIONS = frozenset(
@@ -271,7 +271,7 @@ async def invoke(hass, authority, operation, payload):
 
             register_delivery_admission(command_delivery)
         return result
-    if operation in {"session/mood", "session/presence"}:
+    if operation in {"session/mood", "session/presence", "session/persona"}:
         from .session_mood import async_handle_owner_setting
 
         return await async_handle_owner_setting(
@@ -461,7 +461,7 @@ class HybridOperations:
             # Existing setting owners reject stale CAS before any write. This
             # narrow qualified error is not a generic HTTP-code assumption.
             rejected = (
-                operation in {"session/mood", "session/presence"}
+                operation in {"session/mood", "session/presence", "session/persona"}
                 and status == 409
                 and code == operation.split("/")[1] + "_revision_conflict"
                 and self.journal._state["records"][key]["phase"] == "accepted"
