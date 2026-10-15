@@ -64,5 +64,18 @@
     "existing_skips": 7,
     "framework_tests": 172,
     "relative_link_targets_checked": 475
+  },
+  "manifest_ci_repair": {
+    "PR": 1177,
+    "original_candidate": "81592b252c159a2320d67236555229663d61c2df",
+    "actual_hassfest_failure": "Using component wyoming but not in dependencies or after_dependencies",
+    "change": "Declare existing optional wyoming import in after_dependencies",
+    "local_official_hassfest": "PASS_ONE_INTEGRATION_ZERO_INVALID",
+    "all143Python_hashes_match_HA27c": true,
+    "runtime_file_differences_from_HA27c": [
+      "custom_components/djconnect/manifest.json"
+    ],
+    "new_provider_or_workflow_change": false,
+    "source_delivery": "PR_OPEN_REQUIRED_CHECKS_PENDING"
   }
 }

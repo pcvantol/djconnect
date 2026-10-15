@@ -2,7 +2,8 @@
   "domain": "djconnect",
   "name": "DJConnect",
   "after_dependencies": [
-    "cloud"
+    "cloud",
+    "wyoming"
   ],
   "bluetooth": [
     {

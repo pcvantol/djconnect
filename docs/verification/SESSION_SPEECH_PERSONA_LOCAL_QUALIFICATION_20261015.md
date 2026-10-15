@@ -139,3 +139,19 @@ cross-family cycles, altered WEB state and wrong integration base. All167 runtim
 files are byte-equal to the real HA-tested27c22afd successor; this documentary
 merge does not repin historical model/browser/duration proof. The integrated
 candidate still needs exact cumulative reviews and its own publication gate.
+
+## Required CI manifest correction
+
+Source PR1177's real hassfest check rejected the existing direct Wyoming
+integration import because manifest.json did not declare that optional component.
+The sole repair adds `wyoming` to `after_dependencies`, preserving ordinary
+DJConnect startup without a configured Wyoming entry. No provider, workflow,
+runner, voice policy or production API is added. This follows the official
+[HA after-dependency contract](https://developers.home-assistant.io/docs/creating_integration_manifest/#after-dependencies).
+The locally available official hassfest image sha256:4b1adfb1e0a37710af0390708eb8000230b80b2193ccffbeed0a901fa9765181
+passes after this correction (one integration, zero invalid).
+All143 Python files remain equal to the realHA27c22afd fixture. Of the167 runtime
+package files, only manifest.json now differs from that executed checkpoint;
+prior167-file-equality statements above describe the preceding integration
+checkpoint81592b25 and are not relabelled as a new HA run. The new package must
+be compared to its own exact Git candidate/main before delivery.
