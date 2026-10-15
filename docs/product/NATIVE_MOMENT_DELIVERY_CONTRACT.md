@@ -189,3 +189,7 @@ preparation are defined in [Session artwork delivery v1](SESSION_ARTWORK_DELIVER
 It does not widen semantic text archival rights, native current-display admission,
 shared-screen access or existing pure history-query semantics. Implementation
 and qualification are owned by the admitted Session Moment artwork slice.
+
+## Selected Session narration/speech implementation delta
+
+[Session speech/Persona v1](SESSION_SPEECH_PERSONA_V1.md) records owner6189231491/autonomous-next6189912293. Its connected implementation is pending. The historical delivered/deferred qualifications above are preserved; this selected delta must explicitly qualify each source/processor and owner lifecycle before enabling speech. No blanket removal of visual-only, private Broadcast grant, new planner/provider or native implementation follows from this reference.

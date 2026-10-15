@@ -143,3 +143,7 @@ Composer or introduces a second presentation pipeline.
 - [Audio Renderer Host Architecture](AUDIO_RENDERER_HOST_ARCHITECTURE.md)
 - [Room Presentation Routing Architecture](ROOM_PRESENTATION_ROUTING_ARCHITECTURE.md)
 - [VibeCast Architecture](../product/VIBECAST_ARCHITECTURE.md)
+
+## Selected Session narration/speech implementation delta
+
+[Session speech/Persona v1](../product/SESSION_SPEECH_PERSONA_V1.md) records owner6189231491/autonomous-next6189912293. Its connected implementation is pending. The historical delivered/deferred qualifications above are preserved; this selected delta must explicitly qualify each source/processor and owner lifecycle before enabling speech. No blanket removal of visual-only, private Broadcast grant, new planner/provider or native implementation follows from this reference.
