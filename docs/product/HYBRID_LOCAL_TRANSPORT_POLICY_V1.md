@@ -25,9 +25,11 @@ and the separate Broadcast audience are unchanged.
 
 ## Local admission: every condition is required
 
+0. An explicit operator-owned deployment qualification must exist. Subnet and
+   loopback membership alone are never sufficient; see the record below.
 1. The actual socket peer comes from `request.transport` peername, independently
    of the forwarded middleware's `request.remote`. Missing/invalid peers fail.
-2. A direct loopback peer is local. Otherwise the peer must be an RFC1918 IPv4
+2. Loopback requires the same explicit qualification. Otherwise the peer must be an RFC1918 IPv4
    or IPv6 ULA/link-local address on an enabled HA interface's actual subnet,
    using HA's existing public network adapter helper and configured prefix.
    Being merely private or arriving through a bridge is insufficient.
@@ -58,11 +60,46 @@ preserves the required peer/configuration evidence. This repair must not silentl
 add a gateway exemption or report a physical LAN PASS from loopback tests.
 Deployment topology changes, if needed, retain their own actual authorization.
 
+## Operator qualification record and revocation
+
+The existing HA configuration directory may contain the administrative file
+`djconnect_direct_local_ingress.json`. Requests never create or repair it.
+Missing, invalid or expired means426 for every plaintext route, including
+loopback. This is explicit operator configuration backed by deployment evidence,
+not a claim that a boolean proves arbitrary network safety. No record is
+provisioned on HA-dev/prod by the source implementation or its tests.
+
+Closed schema, no extra/duplicate keys: `version:1`, `ha_install_id`,
+`internal_origin`, `interface_digest`, `allowed_peers`, `excluded_peers`,
+`source_preserved:true`, `proxies_excluded:true`, `qualified_at`, `expires_at`,
+`evidence_sha256`. Times are integer Unix seconds; validity is at most24hours.
+Digests are64lowercase hex. Bind the exact existing installation and internal
+origin, and the digest of actual enabled HA interface addresses/prefixes/indices.
+Network changes invalidate the record. Admit at most64exact `/32` or `/128`
+peer addresses; broader CIDRs are not supported. Require1–64explicit gateway/
+proxy exclusions; deny wins over allow. The operator's evidence must establish
+source preservation and exclude forwarding/SNAT ingress. Unknown topology stays
+closed; a known NAT gateway must not be added to the allowlist as a workaround.
+
+Read at most8192bytes through a no-follow, nonblocking descriptor; require a
+regular root/service-user-owned file with no group/world write permissions and
+consistent descriptor/path identity, size and timestamps before/after reading.
+Reject malformed JSON, duplicate keys, non-finite values, invalid addresses,
+unknown fields or mismatched binding. No raw config or request secrets in logs.
+
+Bind the exact record digest into ordinary paired authority validation. Check
+again before domain/provider effects, private delivery and each existing WS
+revocation interval. Removal, expiry, replacement, installation or interface
+changes revoke the old local connection and its waiting actions/deliveries.
+A new valid record permits a new admission, not continuation under an old grant.
+Existing accepted-operation receipts retain their conservative semantic outcome;
+withdrawal never authorizes speculative retries. TLS authority remains unchanged.
+
 ## Compatible capability and context
 
 Keep top-level hybrid `requires_authenticated_tls:true` as the conservative
 legacy client instruction. Add a versioned `transport_security` policy:
-`policy_version:1`, `external:"authenticated_tls"`,
+`policy_version:1`, `deployment_qualification_required:true`, `external:"authenticated_tls"`,
 `local_plaintext:"qualified_direct_only"`,
 `peer_policy:"enabled_interface_subnet_or_loopback"`,
 `internal_origin_required:true`, `forwarded_plaintext:"forbidden"`.
