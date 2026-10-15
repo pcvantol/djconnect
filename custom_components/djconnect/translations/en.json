@@ -1663,7 +1663,7 @@
         },
         "play": {
           "name": "Start playback",
-          "description": "Whether the backend should start playback when the command supports it."
+          "description": "Only affects commands that support this option. Disabling it is not a dry run: commands such as play can still start music."
         },
         "client_type": {
           "name": "Client type",

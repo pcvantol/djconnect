@@ -1663,7 +1663,7 @@
         },
         "play": {
           "name": "Iniciar reproducción",
-          "description": "Inicia la reproducción si el comando lo admite. Desactive para probar sin iniciar música."
+          "description": "Solo afecta a comandos que admiten esta opción. Desactivarla no es una simulación: comandos como play pueden seguir iniciando música."
         },
         "client_type": {
           "name": "Tipo de cliente",

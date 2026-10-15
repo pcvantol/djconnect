@@ -1663,7 +1663,7 @@
         },
         "play": {
           "name": "Afspelen starten",
-          "description": "Start playback als het commando dit ondersteunt. Schakel uit om te testen zonder muziek te starten."
+          "description": "Geldt alleen voor commando’s die deze optie ondersteunen. Uitschakelen is geen droge proef: commando’s zoals play kunnen nog steeds muziek starten."
         },
         "client_type": {
           "name": "Clienttype",

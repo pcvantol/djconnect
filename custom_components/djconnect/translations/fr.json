@@ -1663,7 +1663,7 @@
         },
         "play": {
           "name": "Démarrer la lecture",
-          "description": "Démarre la lecture si la commande le permet. Désactivez pour tester sans lancer de musique."
+          "description": "Ne concerne que les commandes prenant cette option en charge. La désactiver ne simule pas l’action : des commandes comme play peuvent toujours lancer de la musique."
         },
         "client_type": {
           "name": "Type de client",

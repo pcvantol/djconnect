@@ -209,6 +209,16 @@ ALLOWED_IDENTICAL_NON_ENGLISH_VALUES = {
 
 
 class TranslationTest(unittest.TestCase):
+    def test_playback_play_option_does_not_claim_a_dry_run(self) -> None:
+        for language in SUPPORTED_LANGUAGES:
+            services = json.loads((TRANSLATIONS / f"{language}.json").read_text())["services"]
+            description = services["playback_command"]["fields"]["play"]["description"]
+            with self.subTest(language=language):
+                self.assertIn("play", description)
+                self.assertNotEqual(description, services["test_command"]["fields"]["play"]["description"])
+        english = json.loads((TRANSLATIONS / "en.json").read_text())["services"]
+        self.assertIn("not a dry run", english["playback_command"]["fields"]["play"]["description"])
+
     def test_service_examples_do_not_offer_the_retired_windows_client(self) -> None:
         paths = [INTEGRATION / "services.yaml", INTEGRATION / "strings.json"] + [
             TRANSLATIONS / f"{language}.json" for language in SUPPORTED_LANGUAGES

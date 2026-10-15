@@ -1663,7 +1663,7 @@
         },
         "play": {
           "name": "Wiedergabe starten",
-          "description": "Startet die Wiedergabe, wenn der Befehl dies unterstützt. Zum Testen ohne Musikstart deaktivieren."
+          "description": "Gilt nur für Befehle, die diese Option unterstützen. Deaktivieren ist kein Probelauf: Befehle wie play können weiterhin Musik starten."
         },
         "client_type": {
           "name": "Clienttyp",
