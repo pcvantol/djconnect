@@ -62,7 +62,7 @@ jobs:
       - id: app-token
         if: github.repository == 'pcvantol/djconnect'
         name: Mint scoped central authorization token
-        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
         with:
           app-id: ${{ vars.DJCONNECT_TRUSTED_DELIVERY_APP_ID }}
           private-key: ${{ secrets.DJCONNECT_TRUSTED_DELIVERY_PRIVATE_KEY }}
@@ -126,7 +126,7 @@ jobs:
           script: |
             const [targetOwner, targetRepo] = process.env.TARGET_REPOSITORY.split("/");
             await github.rest.repos.createCommitStatus({owner: targetOwner, repo: targetRepo, sha: process.env.TARGET_SHA, context: "Owner Authorization", state: "success", description: "HIGH_RISK authorized for this exact SHA", target_url: `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`});
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: trusted-delivery-owner-authorization-evidence
           path: owner-authorization-evidence.json
