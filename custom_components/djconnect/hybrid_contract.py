@@ -2,6 +2,8 @@
 
 import json
 
+from .hybrid_local_policy import transport_security_policy
+
 FRAME_LIMIT = 65_536
 
 
@@ -31,6 +33,7 @@ def hybrid_transport_capability():
         "available": True,
         "version": 1,
         "requires_authenticated_tls": True,
+        "transport_security": transport_security_policy(),
         "client_types": ["ios", "macos", "watchos"],
         "audience": "paired_owner_actions",
         "path": "/api/djconnect/v1/actions/paired",

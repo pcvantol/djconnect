@@ -1,4 +1,4 @@
-"""TLS-only paired action adapters; ordinary owner HTTP and WS share services."""
+"""Qualified TLS/direct-local paired adapters; HTTP and WS share domain services."""
 
 from __future__ import annotations
 
@@ -6,7 +6,6 @@ import asyncio
 from contextlib import suppress
 import json
 import secrets
-from urllib.parse import urlsplit
 
 from aiohttp import WSMsgType, web
 from homeassistant.components.http import HomeAssistantView
@@ -14,6 +13,7 @@ from homeassistant.components.http import HomeAssistantView
 from .hybrid_service import OperationError, PairedAuthority, operations
 from .transport_delivery import OwnerDeliveryResult
 from .hybrid_contract import FRAME_LIMIT, bounded_frame
+from .hybrid_local_policy import direct_local_allowed, same_origin, transport_security_policy
 
 ACTION_PATH = "/api/djconnect/v1/actions/paired"
 AUTH_TIMEOUT = 5
@@ -27,31 +27,37 @@ def response(body, status=200):
     )
 
 
-def request_error(request):
+async def request_error(hass, request):
     if request.query_string:
         return response({"success": False, "error": "query_not_allowed"}, 400)
     if not request.secure:
-        return response({"success": False, "error": "transport_security_required"}, 426)
-    origin = request.headers.get("Origin")
-    if origin is not None:
+        from homeassistant.components.network import async_get_adapters
+        from homeassistant.helpers.network import NoURLAvailableError, get_url
+
         try:
-            supplied = urlsplit(origin)
-            expected = urlsplit("https://" + request.host)
-            allowed = (
-                supplied.scheme == "https"
-                and not supplied.username
-                and not supplied.password
-                and not supplied.path
-                and not supplied.query
-                and not supplied.fragment
-                and supplied.hostname == expected.hostname
-                and (supplied.port or 443) == (expected.port or 443)
+            internal_url = get_url(
+                hass, allow_external=False, allow_cloud=False, require_current_request=True
             )
-        except ValueError:
-            allowed = False
-        if not allowed:
-            return response({"success": False, "error": "origin_not_allowed"}, 403)
+        except NoURLAvailableError:
+            internal_url = None
+        peer = request.transport.get_extra_info("peername") if request.transport else None
+        adapters = await async_get_adapters(hass)
+        if not direct_local_allowed(peer, adapters, internal_url, request.host, request.headers):
+            return response({"success": False, "error": "transport_security_required"}, 426)
+    if not same_origin(request.headers.getall("Origin", []), request.scheme, request.host):
+        return response({"success": False, "error": "origin_not_allowed"}, 403)
     return None
+
+
+def transport_context(result, request):
+    return {
+        **result,
+        "requires_authenticated_tls": bool(request.secure),
+        "transport_security": {
+            **transport_security_policy(),
+            "mode": "authenticated_tls" if request.secure else "qualified_direct_http",
+        },
+    }
 
 
 async def json_body(request):
@@ -77,7 +83,7 @@ class _HybridHTTP(HomeAssistantView):
         self.hass = hass
 
     async def post(self, request):
-        invalid = request_error(request)
+        invalid = await request_error(self.hass, request)
         if invalid is not None:
             return invalid
         try:
@@ -88,7 +94,7 @@ class _HybridHTTP(HomeAssistantView):
             if self.action == "context":
                 if body != {"contract_version": 1} or type(body.get("contract_version")) is not int:
                     raise OperationError("invalid_request", 400)
-                result, status = await manager.context(authority), 200
+                result, status = transport_context(await manager.context(authority), request), 200
             elif self.action == "execute":
                 result, status = await manager.execute(authority, body, transport="http")
             elif self.action == "status":
@@ -143,7 +149,7 @@ class HybridActionsView(HomeAssistantView):
         self.connections = {}
 
     async def get(self, request):
-        invalid = request_error(request)
+        invalid = await request_error(self.hass, request)
         if invalid is not None:
             return invalid
         if len(self.connections) >= 16:
@@ -200,7 +206,7 @@ class HybridActionsView(HomeAssistantView):
                 if sum(device == authority.device for device in self.connections.values()) >= 2:
                     raise OperationError("connection_capacity", 429)
                 self.connections[connection_id] = authority.device
-                context = await manager.context(authority)
+                context = transport_context(await manager.context(authority), request)
             await ws.send_json(
                 {
                     **context,
