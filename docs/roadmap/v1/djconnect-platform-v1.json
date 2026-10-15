@@ -38645,8 +38645,8 @@
         "title": "Subject-bound Session artwork contract",
         "lane": "DJC-CORE",
         "repository": "pcvantol/djconnect",
-        "status": "In progress",
-        "assignment_status": "IN_PROGRESS",
+        "status": "Completed",
+        "assignment_status": "CORE_DELIVERED",
         "scope": "Subject-bound Session artwork contract",
         "acceptance_boundary": "Subject-bound Session artwork contract; separate Core/native/installed/joint evidence",
         "contract_binding": "docs/product/SESSION_ARTWORK_DELIVERY_CONTRACT_V1.md",
@@ -38662,8 +38662,8 @@
         "title": "Published Moment and playback artwork delivery",
         "lane": "DJC-CORE",
         "repository": "pcvantol/djconnect",
-        "status": "In progress",
-        "assignment_status": "IN_PROGRESS",
+        "status": "Completed",
+        "assignment_status": "CORE_DELIVERED",
         "scope": "Published Moment and playback artwork delivery",
         "acceptance_boundary": "Published Moment and playback artwork delivery; separate Core/native/installed/joint evidence",
         "contract_binding": "docs/product/SESSION_ARTWORK_DELIVERY_CONTRACT_V1.md",
@@ -38686,8 +38686,8 @@
         "title": "Explicit original-source historical artwork resolution",
         "lane": "DJC-CORE",
         "repository": "pcvantol/djconnect",
-        "status": "In progress",
-        "assignment_status": "IN_PROGRESS",
+        "status": "Completed",
+        "assignment_status": "CORE_DELIVERED",
         "scope": "Explicit original-source historical artwork resolution",
         "acceptance_boundary": "Explicit original-source historical artwork resolution; separate Core/native/installed/joint evidence",
         "contract_binding": "docs/product/SESSION_ARTWORK_DELIVERY_CONTRACT_V1.md",
@@ -39657,11 +39657,11 @@
     "document_references": [
       {
         "path": "PRODUCT_ROADMAP.md",
-        "sha256": "d45c0fec7bd0478d0280389349b2f127695da89c65eaec61b51e6cbd8a06043a"
+        "sha256": "6a5fa91ab587a82682176ae757da7af6f794814d68d6e7d7fecee11fd52425e5"
       },
       {
         "path": "PRODUCT_BACKLOG.md",
-        "sha256": "85838f59ce376b87e4dffaf15a05094d3733ccb0d06ea90abc2653886c17fd97"
+        "sha256": "5c4fae47fa2fdf28e8694d2387138644b39fb35121d0e36372cbe9c96487e1f7"
       },
       {
         "path": "docs/product/DJ_PRESENCE_V1.md",
@@ -39877,7 +39877,7 @@
       },
       {
         "path": "docs/product/SESSION_MOMENT_ARTWORK_V1.md",
-        "sha256": "5f172dd75526383e1986dbf987891c23059466088270c24bf270502c0d65b28f"
+        "sha256": "580e7022b2a1684117a16f7602ecd21cd1672988001825d3e869712bde2dda4a"
       },
       {
         "path": "docs/product/SESSION_ARTWORK_DELIVERY_CONTRACT_V1.md",
@@ -40231,8 +40231,8 @@
       "material_commit": "23f58d2b5d8e0ba373d26d3058e9bdd687320a5a",
       "previous_delta": "history/20261015/hybrid-finalization-maintenance-v10.json",
       "previous_delta_sha256": "161875131418a1c079db8df99137da28baf4242da0e91e5abab419d0c721eeb7",
-      "phase": "LOCAL_IMPLEMENTATION_AND_QUALIFICATION",
-      "source_delivery": "UNPUBLISHED",
+      "phase": "SOURCE_PROTECTED_MERGED",
+      "source_delivery": "PROTECTED_MERGED",
       "native": "OPEN_APPLE",
       "installed": "NOT_RUN",
       "hardware": "NOT_RUN",
@@ -40249,7 +40249,16 @@
         "same_writer": true,
         "new_publication_gates_preserved": true,
         "implementation_in_this_slice": false
-      }
+      },
+      "source_main_sha": "5c7ecb7941c555f12bd94a2969167cfaaff0cb44",
+      "source_candidate_sha": "dac4738ede119a48c092ecd873a4bf7a3d7ea5b6",
+      "source_pr": 1172,
+      "source_review": "PASS",
+      "required_checks": "PASS",
+      "protected_merge": true,
+      "archive_sha256": "73fd4ca39fb6e1ed99b1f6f1622cc642c66d7e3fa60e2fa0095f04eb37df2b9e",
+      "formal_evidence_sha256": "f3622fcd5c21e794d9da3e32a201440f4098c5ca47e5c32a6345f13149a147dc",
+      "source_readback": "docs/verification/SESSION_ARTWORK_V1_SOURCE_READBACK_20261015.md"
     }
   }
 }

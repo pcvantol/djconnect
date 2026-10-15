@@ -1,24 +1,12 @@
 # DJConnect Product Roadmap
 
-## Session Moment artwork — active bounded Core slice
+## Session artwork — Core producer delivered; separate Finalization pending
 
-`DJC-CORE-SESSION-MOMENT-ARTWORK-V1-20261014`, Core#1101 selection6175336907 /
-refinement6176704119, admitted ACK6189044515 after Hybrid1170/1171 closure at
-f0a7ff4b. [Design](docs/product/SESSION_MOMENT_ARTWORK_V1.md) and
-[delivery contract](docs/product/SESSION_ARTWORK_DELIVERY_CONTRACT_V1.md).
-Contract1668d71d before material23f58d2b; current local source is unpublished,
-qualification in progress. Exact subject/edition/source rights, optional live
-media revisions and explicit bounded historical refresh; no semantic Moment,
-summary/Presence charge, pure-read providerfetch or name-only backfill.
+[Source #1172](https://github.com/pcvantol/djconnect/pull/1172) protected merged as `5c7ecb7941c555f12bd94a2969167cfaaff0cb44`. [Exact readback](docs/verification/SESSION_ARTWORK_V1_SOURCE_READBACK_20261015.md) qualifies all164 integration files and formal/coverage evidence. Three MEDIA::CORE contract/live/history subsets Completed/CORE_DELIVERED. Apple adoption and joint acceptance remain Planned/open; family PARTIAL, installed artwork NOT_RUN. One existing image owner; exact subject/edition/source/account, independent surface rights and bounded explicit archive refresh. No provider work in pure reads or semantic Moment mutation.
 
-Reuses existing Session presentation/history and image owners. JSON delta11
-preserves delivered v10; three Core subsets in progress, Apple-native adoption
-and joint product acceptance Planned/open. No duplicate Discovery correction,
-Hybrid prerequisite or consumer writer. Speech/Persona/voice6189231491 is a
-separate selected successor with autonomous-next6189912293 after valid artwork
-closure and fresh admission; its implementation is not part of this candidate. Source/Finalization
-publication retain new exact gates. Later direct owner instruction authorizes
-qualified post-slice dev/prod installation with backup/readback; no WIP install.
+Both exact independent source reviews GO;1949regressions/35owning/148DAG,18real HA cases and four browserpaths pass. Finalization, exact readback and safe own cleanup remain before closure. Existing qualified HA-dev/prod installation authority applies after last merge; no WIP install.
+
+Speech/Persona/voice6189231491/autonomous-next6189912293 remains the selected queued successor, NOT_ADMITTED until valid artwork closure and fresh admission; same writer, separate publication gates. No speech code or second productslice here. Historical snapshots and completed product deliveries retained.
 
 ## Hybrid transport convergence — delivered Core producer; Finalization pending
 

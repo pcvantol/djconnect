@@ -1,22 +1,8 @@
-# Current Core Session artwork — early local producer handoff
+# Current Core Session artwork — definitive protected producer handoff
 
-`DJC-CORE-SESSION-MOMENT-ARTWORK-V1-20261014`, same writer, active branch
-`codex/session-moment-artwork-v1`, base f0a7ff4b. Local unpublished source/contract
-checkpoint7201e6a51ef42f1dec1f992fcb27bfa839456313; all164 integration files match
-actual paired HA proof. [Early Apple handoff6190335298](https://github.com/pcvantol/djconnect-app/issues/87#issuecomment-6190335298).
-Read docs/product/SESSION_MOMENT_ARTWORK_V1.md and
-SESSION_ARTWORK_DELIVERY_CONTRACT_V1.md; actual transport/pixel fixtures under
-examples/client_contracts/session_artwork_v1/. No final protected producer pin yet.
-Owner-only optional media revisions and independently authorized historical
-preparation reuse the existing image owner. Private fields/grants never cross
-the shared receiver boundary; local/static shared renderer1.1.0 stays compatible.
-Apple native/joint remains open and separately owned; no new consumer writer.
-Qualified post-slice HA-dev/prod installation is authorized, WIP installation is not.
+Source [#1172](https://github.com/pcvantol/djconnect/pull/1172), exact main `5c7ecb7941c555f12bd94a2969167cfaaff0cb44`. [Readback](docs/verification/SESSION_ARTWORK_V1_SOURCE_READBACK_20261015.md):164files,0mismatches; artifact/formal/coverage PASS. [Apple87](https://github.com/pcvantol/djconnect-app/issues/87#issuecomment-6191468438) and [VibeCast10](https://github.com/pcvantol/djconnect-vibecast-receiver/issues/10#issuecomment-6191468743) definitive pins posted/read back. Canonical artwork contract and sanitized fixtures are on this exact main. Native/joint remain open; receiver compatibility only, private Session media never forwarded. No new consumer writer/admission.
 
-Speech/Persona/voice6189231491 is the selected queued successor, with explicit
-autonomous-next6189912293 after valid artwork closure and fresh admission.
-It is not implemented/admitted within this artwork candidate. Existing exact
-source/Finalization publication gates remain; no historical grant reused.
+Separate Finalization publication remains gated; installed artwork NOT_RUN. Existing owner authority installs qualified latest main to both HA-dev/prod after final merge with backup/readback. Speech/Persona/voice6189231491/autonomous-next6189912293 starts only after valid artwork closure and fresh same-writer admission.
 
 ## Historical producer handoffs
 

@@ -568,9 +568,11 @@ class SessionArtworkMaintenanceTests(unittest.TestCase):
         self.assertEqual(validate(self.p), [])
 
     def test_missing_admission_source_or_fabricated_consumer_acceptance_rejected(self):
+        wrong_delivery = ('UNPUBLISHED' if self.p['planning_maintenance']['session_artwork_receipt']['source_delivery']
+                          == 'PROTECTED_MERGED' else 'PROTECTED_MERGED')
         for key,value in [('ack',1),('material_commit','0'*40),('native','PASS'),
                           ('joint_acceptance','PASS'),('automatic_dispatch',True),('installed','PASS'),('hardware','PASS'),
-                          ('previous_delta_sha256','0'*64),('source_delivery','PROTECTED_MERGED')]:
+                          ('previous_delta_sha256','0'*64),('source_delivery',wrong_delivery)]:
             p=copy.deepcopy(self.p)
             p['planning_maintenance']['session_artwork_receipt'][key]=value
             self.assertTrue(validate(p),(key,value))

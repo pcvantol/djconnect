@@ -3,7 +3,7 @@
 Assignment `DJC-CORE-SESSION-MOMENT-ARTWORK-V1-20261014`, selection
 [6175336907](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6175336907),
 refinement [6176704119](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6176704119).
-Design-first implementation increment; qualification and delivery remain pending.
+Core producer source delivered via #1172; native/joint acceptance remains open.
 Actual admission base `f0a7ff4bb878247db9ab25c4a22320f17d806cd6`, same Core writer,
 branch `codex/session-moment-artwork-v1`. Hybrid1170/1171 stays closed.
 
@@ -126,5 +126,5 @@ modeled only; Apple/native, installed artwork and joint acceptance remain open.
 Ruff passes and Bandit has zero medium/high findings. Three actual4000×4000
 decodes reach at most2 concurrent decoders; measured peak increment126924KiB
 is temporary decoder RAM, separate from the32MiB compressed resident budget.
-No coverage exclusion is added. Exact independent reviews and protected source
-and separate Finalization publication have not yet occurred.
+No coverage exclusion is added. Both exact independent reviews GO and source #1172
+is protected merged; [exact source readback](../verification/SESSION_ARTWORK_V1_SOURCE_READBACK_20261015.md). Separate Finalization remains pending; native/joint and installed acceptance stay separate.
