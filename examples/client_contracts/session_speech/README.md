@@ -85,3 +85,14 @@ the real model; model-route hashes match but the earlier model run's full runtim
 manifest differs in two later repaired authored-copy files. This distinction is
 explicit. `owning-coverage.json` and `qualification-summary.json` retain bounds,
 measurements and open native/installed/audible/hardware/joint acceptance.
+
+`processor-advertisement.http.json` supersedes only the initial processor-list
+ambiguity in the earlier c39 and draft transport captures. It binds exact local
+runtime27c22afd and all143 executed Core Python hashes. Available references now
+advertise both permitted prepare attempts plus
+`processor_qualification_required:true`; provider/source/locale/gender approval
+and ready audio still require explicit paired preparation. Actual ordinary HA
+pairing, initial accepted response, HA prepare, private bytes and failures are
+recorded. Earlier full browser/idle/model evidence remains pinned to c39, rather
+than being relabelled as a new run. Only session_speech.py differs in the Core
+Python manifest; no source-publication/native/audible/install grant follows.

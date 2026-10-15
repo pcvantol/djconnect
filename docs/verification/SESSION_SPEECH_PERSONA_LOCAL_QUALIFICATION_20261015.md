@@ -104,3 +104,22 @@ conditional server-supported gender UI, bounded per-device autoplay/Stop queue
 and exact expiry/revocation/end behavior. Native visible/audible, installed,
 hardware and joint acceptance remain OPEN/NOT_RUN. See the
 [qualification receipt](../../examples/client_contracts/session_speech/qualification-summary.json).
+
+## Consumer-found preparation advertisement correction
+
+Apple correctly failed closed on the c39 initial `processors:[local_on_device]`
+descriptor even though explicit HA preparation later succeeded. Local successor
+`27c22afdaca8a7a701ba839928c9d16ed8acd794` makes both permitted prepare attempts
+explicit and adds `processor_qualification_required:true`. The list promises no
+provider/source/voice/locale qualification or ready audio. Unavailable replies
+keep empty processors; client permissions need no inferred widening.
+
+[Actual successor HA transport](../../examples/client_contracts/session_speech/processor-advertisement.http.json)
+records ordinary pairing, accepted descriptor, configured HA prepare/private
+bytes, explicit unsupported gender and revocation. All143 actual Python hashes
+match that successor; only session_speech.py differs from c39.107 owning tests
+pass, including permitted qualified success and fail-closed source/provider/
+locale/gender without fallback. The full c39 browser/301s/model proof above stays
+historical; this focused correction does not claim a repeated browser, duration,
+model or native/audible qualification. Source delivery remains unpublished and
+requires new exact cumulative review and its own publication gate.
