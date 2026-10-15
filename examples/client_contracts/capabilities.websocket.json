@@ -104,6 +104,14 @@
     "available": true,
     "version": 1,
     "requires_authenticated_tls": true,
+    "transport_security": {
+      "policy_version": 1,
+      "external": "authenticated_tls",
+      "local_plaintext": "qualified_direct_only",
+      "peer_policy": "enabled_interface_subnet_or_loopback",
+      "internal_origin_required": true,
+      "forwarded_plaintext": "forbidden"
+    },
     "client_types": [
       "ios",
       "macos",

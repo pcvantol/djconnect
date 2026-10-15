@@ -40882,11 +40882,11 @@
     "document_references": [
       {
         "path": "PRODUCT_ROADMAP.md",
-        "sha256": "141ff1ef326f517d592c51f81e3f672bb1d15d49a2fe33d197704287f8d4e0c7"
+        "sha256": "909cf0642794091cea8d5f7603b74c503c77e018fa1b9c3dd8bc9640965f1e75"
       },
       {
         "path": "PRODUCT_BACKLOG.md",
-        "sha256": "82972042a52c2c09e39931c4328fd36246f201fe00f407ddfd6a1a7a48ce328e"
+        "sha256": "8156ea43287067cc24e929ddc0df9b166bff0764598d02bc12ce999507fbd308"
       },
       {
         "path": "docs/product/DJ_PRESENCE_V1.md",
@@ -41074,11 +41074,11 @@
       },
       {
         "path": "docs/product/HYBRID_HTTP_WEBSOCKET_TRANSPORT_V1.md",
-        "sha256": "b1be6a3f8d98f5f3430c1aca6549c7caa6f56013f5fad7af688fe390d0babbb3"
+        "sha256": "c1ff21765e4aeba32dbaa67c5202663cbeb2e8d0f3aace11099af492b1f17720"
       },
       {
         "path": "docs/product/TRANSPORT_OPERATION_RECOVERY_CONTRACT_V1.md",
-        "sha256": "0ba644ddfd23139de80f50cf8b658cedab370c9fcc72e4e3ea9c35282f76b562"
+        "sha256": "952f50b3ecdd7979a1e67740816abeb1450d09b62c14fd3c97f4baa44f18869d"
       },
       {
         "path": "docs/verification/HYBRID_TRANSPORT_V1_ACCEPTANCE_MATRIX.md",
@@ -41119,6 +41119,10 @@
       {
         "path": "docs/product/APPLE_VIBECAST_GUEST_MODE_V1.md",
         "sha256": "3d63330af648ad9b42c7d59662cd8bc61a07adbf3e44967e463a5f89914769f9"
+      },
+      {
+        "path": "docs/product/HYBRID_LOCAL_TRANSPORT_POLICY_V1.md",
+        "sha256": "9323e2ceced0560817faf28f05f50fbcebf06e6b8a06715e77c726a23b02c8d7"
       }
     ],
     "implementation_receipt": {

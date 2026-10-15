@@ -1,0 +1,72 @@
+{
+  "runtime_checkpoint": "5815c6bc28be248e4c634abed37d680af6e5c8c4",
+  "base": "62c8156db376c679eb636a7c8ff4d088276632e9",
+  "qualification": "PASS_CORE_TLS_AND_QUALIFIED_DIRECT_LOOPBACK",
+  "transport_cases": 66,
+  "accepted_provider_mutations": 4,
+  "expected_provider_mutations": 4,
+  "model_calls": 0,
+  "source_files_verified": 167,
+  "fixture_sha256": "cbad901860fed074a69a76418aa5994462fe7bc1051e5aa8c0c71c89e5aa4fd5",
+  "owning_units": 31,
+  "regressions_run": 1957,
+  "regressions_existing_skips": 7,
+  "regressions_failures": 0,
+  "coverage": {
+    "custom_components/djconnect/hybrid_contract.py": 100.0,
+    "custom_components/djconnect/hybrid_local_policy.py": 100.0,
+    "custom_components/djconnect/hybrid_service.py": 88.69565217391305,
+    "custom_components/djconnect/hybrid_transport.py": 87.22741433021807
+  },
+  "total_coverage": 89.62386511024643,
+  "max_rss_kib": 223124,
+  "journal_bytes": 879,
+  "journal_pre_idle_bytes": 17048,
+  "duration_cases": [
+    {
+      "case": "actual-idle-missing-pong-close",
+      "elapsed_seconds": 23.014476636002655
+    },
+    {
+      "case": "actual-idle-source-withdrawal",
+      "elapsed_seconds": 1.0070112499961397,
+      "body": {
+        "type": "auth_invalid",
+        "code": "operation_context_changed"
+      }
+    },
+    {
+      "case": "actual-idle-token-rotation",
+      "elapsed_seconds": 1.004332541997428,
+      "body": {
+        "type": "auth_invalid",
+        "code": "unauthorized"
+      }
+    },
+    {
+      "case": "actual-auth-deadline",
+      "elapsed_seconds": 5.011358585994458,
+      "body": {
+        "type": "auth_invalid",
+        "code": "auth_timeout"
+      }
+    },
+    {
+      "case": "actual-300s-idle-music-only-lease",
+      "elapsed_seconds": 300.01221417800116,
+      "body": {
+        "type": "auth_invalid",
+        "code": "auth_expired"
+      },
+      "lease_connection_id": "eac7bfd285fa4a2d06410a96668bfb14"
+    },
+    {
+      "case": "lease-renewal-retains-pairing-and-session",
+      "same_session": true
+    }
+  ],
+  "installed": "NOT_RUN_NEW_HTTP_WS_CODE",
+  "native_LAN": "OPEN_APPLE_OWNED",
+  "HA_dev_topology": "UNQUALIFIED_RAW_PEER192.168.65.1_NOT_INTERFACE172.18.0.2_AND_INTERNAL_URL_UNSET",
+  "publication": "LOCAL_UNPUBLISHED"
+}

@@ -5,7 +5,9 @@ Base: `62c8156db376c679eb636a7c8ff4d088276632e9`; same existing Core writer.
 Owner requirement and forwarding approval were verified from the actual human
 messages in the existing Apple task (reply01a1412e-7d38-74f2-ad25-96641ab78b9e).
 This contract precedes runtime changes. It defines qualification, not an
-advertisement that this implementation or installed LAN acceptance has passed.
+advertisement of installed LAN acceptance. The subsequent
+[software qualification](../verification/HYBRID_LOCAL_TRANSPORT_QUALIFICATION_20261015.md)
+records the local implementation and its separate remaining delivery gates.
 
 ## Scope and trust boundary
 
