@@ -1,3 +1,16 @@
+# Current direct-local HTTP/WS correction — design before runtime
+
+`DJC-CORE-HYBRID-LOCAL-HTTP-WS-FIX-V1-20261015`, base62c8156d, same existing
+Core writer. Read [qualified local policy](docs/product/HYBRID_LOCAL_TRANSPORT_POLICY_V1.md)
+before changes. Owner requires direct internal HTTP/WS, external HTTPS/WSS.
+Only actual socket peer + enabled HA subnet/loopback + qualified internal origin,
+without forwarding headers and with explicit operator ingress qualification, may
+admit plaintext. Absent/invalid/withdrawn qualification rejects even loopback;
+exact peer allowlist and explicit proxy/gateway denylist bind current interfaces. No blanket private-IP/gateway
+exception. Current Docker HA-dev ingress is unqualified; no installed/native
+LAN PASS. Existing pairing/install/operation/reconciliation/source fences remain.
+This forward correction does not change frozen Speech PR1177 or earlier delivery.
+
 # Current Core Session artwork — definitive protected producer handoff
 
 ## VibeCast decisions delta — selected receiver follow-up

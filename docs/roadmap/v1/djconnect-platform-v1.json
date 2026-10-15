@@ -41008,11 +41008,11 @@
     "document_references": [
       {
         "path": "PRODUCT_ROADMAP.md",
-        "sha256": "d09182b79e83a582629e75bdf0ccd4243220dfc2eadc354cdef52eb37d3c0756"
+        "sha256": "1303eb66ce08ec482b63f058799f692f0b0fc7fa394b26ff29833bd0dd0e4829"
       },
       {
         "path": "PRODUCT_BACKLOG.md",
-        "sha256": "6d8383b87900be029dfd22f6e91046a7e7ce78d8ce188273a43054db9443e7da"
+        "sha256": "3b4c3f2f40e9002a19a94edac4d4673cf0b75bb56ed1adc102cdee91f42fb2cb"
       },
       {
         "path": "docs/product/DJ_PRESENCE_V1.md",
@@ -41200,11 +41200,11 @@
       },
       {
         "path": "docs/product/HYBRID_HTTP_WEBSOCKET_TRANSPORT_V1.md",
-        "sha256": "b1be6a3f8d98f5f3430c1aca6549c7caa6f56013f5fad7af688fe390d0babbb3"
+        "sha256": "c1ff21765e4aeba32dbaa67c5202663cbeb2e8d0f3aace11099af492b1f17720"
       },
       {
         "path": "docs/product/TRANSPORT_OPERATION_RECOVERY_CONTRACT_V1.md",
-        "sha256": "0ba644ddfd23139de80f50cf8b658cedab370c9fcc72e4e3ea9c35282f76b562"
+        "sha256": "952f50b3ecdd7979a1e67740816abeb1450d09b62c14fd3c97f4baa44f18869d"
       },
       {
         "path": "docs/verification/HYBRID_TRANSPORT_V1_ACCEPTANCE_MATRIX.md",
@@ -41249,6 +41249,10 @@
       {
         "path": "docs/product/VIBECAST_WEB_ENTRY_DISTRIBUTION_V1.md",
         "sha256": "e996a4973e21e8cd895f0d6a7bdfee8cc972c1e780f0568bdfc8a5219026d68d"
+      },
+      {
+        "path": "docs/product/HYBRID_LOCAL_TRANSPORT_POLICY_V1.md",
+        "sha256": "b7d62c93f26b4883c993f89f7a929c57ba6be8c082bb6ed7c220e60c5045aac6"
       }
     ],
     "implementation_receipt": {
