@@ -23,7 +23,9 @@ def capability():
             "authentication": "paired_device_bearer", "owner_only": True,
             "supported_reference_kinds": ["turn_id"], "source_kinds": ["accepted_ask_dj"],
             "processors": ["local_on_device", "ha_configured"],
-            "processor_qualification_required": True, "voice_selection": "renderer_owned_or_exact_configured",
+            "processor_qualification_required": True,
+            "gender_preference": {"optional": True, "authority": "configured_ha_assist_pipeline_provider",
+                                  "options_path": "/api/djconnect/v1/speech/voice-options"}, "voice_selection": "renderer_owned_or_exact_configured",
             "autoplay_scope": "per_device_new_publication_only", "manual_after_never": True,
             "history_mints_reference": False, "maximum_seconds": TTL,
             "cache_policy": "private,no-store"}
@@ -283,3 +285,28 @@ async def async_handle_audio(hass, data, *, headers=None):
         return item, 200
     except (PermissionError, SessionConversationError):
         return None, 403
+
+
+async def async_handle_voice_options(hass, data, *, headers=None):
+    """Private owner readback for the optional provider-supported client setting."""
+    from .api_handlers import _session_profile_context, _conversation_profile_fence
+    from .speech_processor import voice_options
+    from .session_conversation import SessionConversationError
+    fields = {"contract_version", "device_id", "client_type"}
+    if (not isinstance(data, dict) or set(data) != fields
+        or type(data["contract_version"]) is not int or data["contract_version"] != 1):
+        return {"success": False, "error": "invalid_request"}, 400
+    headers = headers or {}
+    if not str(headers.get("Authorization", "")).startswith("Bearer ") or data["client_type"] == "windows":
+        return {"success": False, "error": "unauthorized"}, 401
+    identity = {key: data[key] for key in ("device_id", "client_type")}
+    runtime, context, error, status = await _session_profile_context(
+        hass, identity, headers=headers, user_id=None, source="session_speech_voice_options")
+    if error is not None:
+        return error, status
+    try:
+        result = voice_options(hass, runtime.config)
+        _conversation_profile_fence(hass, runtime, identity, headers, context)
+        return {"success": True, "speech_voice_options": result}, 200
+    except SessionConversationError as exc:
+        return {"success": False, "error": exc.code}, exc.status

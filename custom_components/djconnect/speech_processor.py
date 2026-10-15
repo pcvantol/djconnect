@@ -75,3 +75,29 @@ async def synthesize(entity, voice, text):
     except (EOFError, wave.Error):
         raise ProcessorUnavailable("unsupported_audio_type") from None
     return TtsAudio(body, "wav", "audio/wav")
+
+
+def voice_options(hass, conf):
+    """Read current provider support; no synthesis, lookup, inferred gender or writes."""
+    from .tts import detect_tts_support
+    status = detect_tts_support(hass, conf)
+    locale = str(status.get("language") or "").replace("_", "-").split("-", 1)[0]
+    options = {"schema_version": 1, "authority": "configured_ha_assist_pipeline_provider",
+               "preference_scope": "device_local", "default_preference": "default",
+               "default_available": False, "supported_preferences": ["default"],
+               "gender_selection": {"available": False, "values": [],
+                                    "reason": "provider_gender_metadata_unavailable"},
+               "provider_voice": None, "cache_policy": "private,no-store"}
+    try:
+        _, voice = configured_processor(hass, conf, locale, "default")
+    except ProcessorUnavailable as exc:
+        options["state"] = "unavailable"
+        options["reason"] = str(exc)
+    else:
+        options.update(state="available", reason=None, default_available=True, provider_voice=voice)
+    # HA2026.10's supported Voice object exposes ID/name only. This qualified
+    # adapter has no gender values to advertise, regardless of voice name/pitch.
+    import hashlib
+    import json
+    options["revision"] = hashlib.sha256(json.dumps(options, sort_keys=True).encode()).hexdigest()[:24]
+    return options

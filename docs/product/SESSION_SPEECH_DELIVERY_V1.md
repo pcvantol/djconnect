@@ -52,7 +52,8 @@ Local-on-device preparation returns renderer_pending, not synthesized audio;
 its concrete gender/voice selection and audible acceptance remain Apple-owned.
 There is no config-flow mutation, added provider or direct API. Do not infer
 male/female from names, pitch or Persona. Where the engine lacks qualified gender
-metadata, report that limitation and retain explicit local-renderer alternative.
+metadata, report that limitation. Local reading may remain available, but it
+does not enable an unsupported gender selector.
 Never silently switch to another voice/engine/cloud route. See [HA TTS voice
 contract](https://developers.home-assistant.io/docs/core/entity/tts/).
 
@@ -76,8 +77,14 @@ No provider work, original Ask DJ execution or playback effect on replay.
 
 ## Renderer-local voice and autoplay
 
-Concrete voice/provider and male/female preference belong to the audio output;
-Persona belongs to the Session. Device preferences must not rewrite Profile
+Concrete playback and optional male/female preference belong to the client
+audio output; Persona belongs to the Session. Gender UI is conditional on the
+configured server Assist pipeline/provider advertising qualified support. Query
+the private read-only voice-options route; absent/unsupported metadata hides the
+selector and presents provider default. A previously selected now-unsupported
+preference is explicitly unavailable; never silently relabel another voice.
+Actual native inventory must also match before playback and cannot independently
+enable server-unsupported gender options. Device preferences must not rewrite Profile
 or shared Session implicitly. Match actual locale and explicitly available voice;
 otherwise expose missing capability. Apply changes to pending/next/replay as a
 new voice revision; never relabel cached old-voice bytes. An ordinary voice-preference change may let the playing sentence finish.
@@ -135,8 +142,8 @@ the exact accepted owner-visible title/artist sentence, its original at-most60s
 read deadline and attribution, through this qualified household Piper route.
 This is local authorized reading, not a model/cloud grant or playback control.
 No API/config change adds a new synthesizer. Other source/processor combinations
-remain unavailable until independently qualified. Local Apple male/female choice
-remains a consumer capability and requires real voice-inventory/audible evidence.
+remain unavailable until independently qualified. Client male/female choice remains optional and provider-gated; native rendering
+also requires real matching voice-inventory/audible evidence.
 
 Prepared HA audio is private RAM data in the existing TTS resource owner, at most
 eight resources per Profile/64 total, two concurrent preparations per Profile,
@@ -147,3 +154,19 @@ identity plus asset reference; the old bearer-free ESP audio route cannot read
 these resources. Stop/cancellation/withdrawal cannot create late deliverable bytes.
 Neither these early connected routes nor a nonempty WAV qualifies complete Moment
 family adoption, actual Apple voice quality, autoplay or joint acceptance.
+
+## Optional gender-setting readback (owner clarification)
+
+`POST /api/djconnect/v1/speech/voice-options` accepts only normal paired
+client_type/device_id and contract_version1. It reads the currently configured
+HA Assist pipeline/provider without synthesis, media/provider lookup, model,
+playback or Session/Profile mutation. `speech_voice_options` has an unordered
+equality `revision`, provider-default availability and optional `gender_selection`:
+`available`, actual `values`, and reason. Current HA/Piper metadata exposes only
+voice ID/name, so gender `available:false`, `values:[]`; the client hides that
+optional selector. No name/pitch-to-gender inference. A stored unsupported
+preference remains explicitly unavailable with an accessible Use provider
+default action (even while the gender selector is hidden); no
+silent gender fallback or Persona/Mood/Profile change. Re-read provider support
+when opening voice settings or after a provider change. All client labels and
+accessibility states follow en/nl/de/fr/es.

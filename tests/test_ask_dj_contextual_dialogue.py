@@ -1049,6 +1049,34 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
         withdrawn, status = await async_handle_prepare(self.hass, payload, headers=self.headers)
         self.assertEqual(status, 403, withdrawn)
 
+    async def test_optional_gender_setting_uses_server_provider_capability_without_effects(self):
+        from types import SimpleNamespace
+        from custom_components.djconnect import session_speech, speech_processor
+        voice = {"engine": "tts.fixture", "voice_id": "actual-provider-id", "voice_name": "Voice named Male",
+                 "locale": "en", "gender": None}
+        identity = {key: self.identity[key] for key in ("device_id", "client_type")}
+        payload = {**identity, "contract_version": 1}
+        before = await self.history.async_history("profile:profile-a")
+        with patch("custom_components.djconnect.tts.detect_tts_support", return_value={"language": "en"}), patch.object(speech_processor, "configured_processor", return_value=(SimpleNamespace(), voice)):
+            result, status = await session_speech.async_handle_voice_options(self.hass, payload, headers=self.headers)
+            self.assertEqual(status, 200, result)
+            options = result["speech_voice_options"]
+            self.assertTrue(options["default_available"])
+            self.assertEqual(options["supported_preferences"], ["default"])
+            self.assertFalse(options["gender_selection"]["available"])
+            self.assertEqual(options["gender_selection"]["values"], [])
+            repeated, status = await session_speech.async_handle_voice_options(self.hass, payload, headers=self.headers)
+            self.assertEqual(repeated, result)
+        self.assertEqual(self.prompts, [])
+        after = await self.history.async_history("profile:profile-a")
+        for value in (before, after):
+            value.pop("server_time", None)
+        self.assertEqual(after, before)
+        denied, status = await session_speech.async_handle_voice_options(self.hass, payload, headers={})
+        self.assertEqual(status, 401, denied)
+        invalid, status = await session_speech.async_handle_voice_options(self.hass, {**payload, "gender": "male"}, headers=self.headers)
+        self.assertEqual(status, 400, invalid)
+
     async def test_private_audio_cancel_capacity_and_failure_backoff_never_reexecute_semantics(self):
         import time
         from custom_components.djconnect.dj_response import prepare_private_tts_audio

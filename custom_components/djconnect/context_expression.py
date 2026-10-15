@@ -241,3 +241,47 @@ def genre_copy(
     ):
         return None
     return GENRE[lang][PERSONAS.index(persona)][form % 2].format(g=genre, t=title, a=artist)
+
+
+MONTHS = {
+    "en": ("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"),
+    "nl": ("januari", "februari", "maart", "april", "mei", "juni", "juli", "augustus", "september", "oktober", "november", "december"),
+    "de": ("Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"),
+    "fr": ("janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"),
+    "es": ("enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"),
+}
+
+
+def human_date(value: str, precision: str, locale: str) -> str | None:
+    """Present the qualified date only; never fill unknown month/day values."""
+    from .session_facts import qualified_date
+
+    lang = locale.split("-", 1)[0].lower()
+    if lang not in MONTHS or not qualified_date(value, precision):
+        return None
+    if precision == "year":
+        return value
+    year, month, *days = value.split("-")
+    name = MONTHS[lang][int(month) - 1]
+    if precision == "month":
+        return f"{name} de {year}" if lang == "es" else f"{name} {year}"
+    day = int(days[0])
+    if lang == "de":
+        return f"{day}. {name} {year}"
+    if lang == "es":
+        return f"{day} de {name} de {year}"
+    if lang == "fr" and day == 1:
+        return f"1er {name} {year}"
+    return f"{day} {name} {year}"
+
+
+def date_phrase(value: str, precision: str, locale: str) -> str | None:
+    """A grammatical birth/formation date phrase, without numeric enum logic."""
+    date = human_date(value, precision, locale)
+    lang = locale.split("-", 1)[0].lower()
+    if date is None:
+        return None
+    if lang == "de":
+        return ("am " if precision == "day" else "im Jahr " if precision == "year" else "im ") + date
+    prefixes = {"en": ("on ", "in "), "nl": ("op ", "in "), "fr": ("le ", "en "), "es": ("el ", "en ")}
+    return prefixes[lang][precision != "day"] + date

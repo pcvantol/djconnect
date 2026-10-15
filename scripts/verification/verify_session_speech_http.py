@@ -194,6 +194,19 @@ async def main():
                             accepted_reply=reply, manual_after_never=prepared, manual_provider_calls=0)
             rejected = await post("/speech/prepare", {**request, "text": "Caller replacement"}, expected=400)
             receipts["arbitrary_text_rejected"] = rejected
+            voice_request = {**identity, "contract_version": 1}
+            provider_calls, audio_calls = len(calls), len(synthesis_calls)
+            options = await post("/speech/voice-options", voice_request)
+            repeated_options = await post("/speech/voice-options", voice_request)
+            voice_options = options["speech_voice_options"]
+            assert voice_options["default_available"]
+            assert voice_options["gender_selection"]["available"] is False
+            assert voice_options["gender_selection"]["values"] == []
+            assert voice_options["supported_preferences"] == ["default"]
+            assert options == repeated_options
+            assert len(calls) == provider_calls and len(synthesis_calls) == audio_calls
+            receipts["provider_voice_options"] = options
+            receipts["voice_options_music_provider_and_synthesis_calls"] = 0
             synthesized = await post("/speech/prepare", {**request, "processor": "ha_configured", "voice_preference": "default"})
             speech = synthesized["session_speech"]
             assert speech["audio_state"] == "ready", synthesized

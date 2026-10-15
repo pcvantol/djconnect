@@ -2931,6 +2931,19 @@ class DJConnectSessionMoodView(_DJConnectSessionView):
         return self.json(result, status_code=status)
 
 
+class DJConnectSpeechVoiceOptionsView(_DJConnectSessionView):
+    url = "/api/djconnect/v1/speech/voice-options"
+    name = "api:djconnect:speech:voice_options"
+
+    async def post(self, request):
+        from .session_speech import async_handle_voice_options
+        data = await self._payload(request)
+        if data is None or request.query_string:
+            return self.json({"success": False, "error": "invalid_request"}, status_code=400)
+        result, status = await async_handle_voice_options(request.app["hass"], data, headers=request.headers)
+        return self.json(result, status_code=status)
+
+
 class DJConnectSpeechPrepareView(_DJConnectSessionView):
     url = "/api/djconnect/v1/speech/prepare"
     name = "api:djconnect:speech:prepare"

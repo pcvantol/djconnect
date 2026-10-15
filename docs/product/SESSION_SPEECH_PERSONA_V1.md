@@ -25,7 +25,11 @@ Session Persona is shared semantic state: `home_dj`, `radio_dj`, `club_dj`,
 `festival_dj`. Home is warm/curious, Radio polished/narrative, Club compact and
 restrained, Festival playful/energetic without permanent hype. Mood shades that
 identity; Presence doses unsolicited contributions; neither selects a voice.
-Concrete voice/provider and autoplay belong to the device/audio output. A
+Concrete voice playback and autoplay belong to the device/audio output.
+Owner clarification: gender preference is an optional client setting, gated by
+the actual configured server Assist pipeline/provider capabilities. No supported
+provider gender metadata means no male/female selector; keep provider default.
+Native voice inventory alone cannot enable an unadvertised gender setting. A
 female preference does not silently fall back to male or create a new Persona.
 An unavailable matching voice is a visible capability outcome.
 

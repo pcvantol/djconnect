@@ -29,3 +29,13 @@ Apple-owned/open; no Swift writes or expansion of existing Apple WIP implied.
 Moment/Forecast/history reference adoption and full families×4Personas×5languages
 are still in Core implementation. These early connected routes are not a final
 contract/producer delivery or permission to treat the whole slice as complete.
+
+Owner clarification: gender is an **optional client setting gated by the server's
+configured HA Assist pipeline/provider**, not independently enabled from native
+voice inventory. `POST /speech/voice-options` (paired identity+contract_version1)
+reads support without media/model/TTS work. `voice-options.http.json` is actual
+normal-pairing HA transport: current Piper offers provider default only, with no
+qualified gender metadata. Hide the selector; do not infer gender from names or
+pitch. A saved now-unsupported preference needs explicit unavailable status and
+an accessible Use provider default action. This adds no Persona/Mood/Profile
+write or automatic voice fallback. Consumer UI/native acceptance remains open.
