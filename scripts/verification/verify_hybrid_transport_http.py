@@ -447,7 +447,7 @@ async def main():
                     assert not manager.current_active("profile-a").broadcast._subscribers
                     from scripts.verification.hybrid_direct_local_probe import probe
 
-                    await probe(h, client, plain, identity, headers, ctx, session_id, new_id, receipts, provider_calls)
+                    await probe(h, client, plain, identity, headers, ctx, session_id, new_id, receipts, provider_calls, state)
                     async with client.ws_connect(
                         secure + "/api/djconnect/v1/actions/paired"
                     ) as wrong:

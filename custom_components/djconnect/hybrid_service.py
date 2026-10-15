@@ -86,6 +86,7 @@ class PairedAuthority:
     def __init__(self, hass, identity, headers, runtime, context, binding):
         self.hass, self.identity, self.headers = hass, identity, headers
         self.runtime, self.context, self.binding = runtime, context, binding
+        self.transport_guard = None
         self.owner = hashlib.sha256(context.profile_id.encode()).hexdigest()
         self.device = hashlib.sha256(identity["device_id"].encode()).hexdigest()
 
@@ -148,6 +149,8 @@ class PairedAuthority:
         return cls(hass, dict(identity), dict(headers), runtime, context, binding)
 
     async def validate(self):
+        if self.transport_guard is not None:
+            await self.transport_guard()
         current = await self.resolve(self.hass, self.identity, self.headers)
         if current.runtime is not self.runtime or current.binding != self.binding:
             raise OperationError("operation_context_changed", 403)

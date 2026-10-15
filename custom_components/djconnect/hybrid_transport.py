@@ -13,7 +13,8 @@ from homeassistant.components.http import HomeAssistantView
 from .hybrid_service import OperationError, PairedAuthority, operations
 from .transport_delivery import OwnerDeliveryResult
 from .hybrid_contract import FRAME_LIMIT, bounded_frame
-from .hybrid_local_policy import direct_local_allowed, same_origin, transport_security_policy
+from .hybrid_local_policy import same_origin, transport_security_policy
+from .hybrid_ingress_qualification import read_qualification, qualify
 
 ACTION_PATH = "/api/djconnect/v1/actions/paired"
 AUTH_TIMEOUT = 5
@@ -27,26 +28,60 @@ def response(body, status=200):
     )
 
 
+async def local_qualification(hass, peer, host, header_names):
+    from homeassistant.components.network import async_get_adapters
+    from homeassistant.helpers.network import NoURLAvailableError, get_url
+    from .const import CONF_HA_INSTALL_ID, DOMAIN
+
+    try:
+        internal_url = get_url(hass, allow_external=False, allow_cloud=False)
+    except NoURLAvailableError:
+        return None
+    adapters = await async_get_adapters(hass)
+    install_ids = {
+        runtime.config.get(CONF_HA_INSTALL_ID)
+        for runtime in hass.data.get(DOMAIN, {}).values()
+        if isinstance(getattr(runtime, "config", None), dict)
+        and isinstance(runtime.config.get(CONF_HA_INSTALL_ID), str)
+        and runtime.config.get(CONF_HA_INSTALL_ID)
+    }
+    snapshot = await hass.async_add_executor_job(read_qualification, hass.config.config_dir)
+    return qualify(snapshot, peer, adapters, internal_url, host, header_names, install_ids)
+
+
 async def request_error(hass, request):
     if request.query_string:
         return response({"success": False, "error": "query_not_allowed"}, 400)
     if not request.secure:
-        from homeassistant.components.network import async_get_adapters
-        from homeassistant.helpers.network import NoURLAvailableError, get_url
-
-        try:
-            internal_url = get_url(
-                hass, allow_external=False, allow_cloud=False, require_current_request=True
-            )
-        except NoURLAvailableError:
-            internal_url = None
         peer = request.transport.get_extra_info("peername") if request.transport else None
-        adapters = await async_get_adapters(hass)
-        if not direct_local_allowed(peer, adapters, internal_url, request.host, request.headers):
+        qualification = await local_qualification(hass, peer, request.host, tuple(request.headers))
+        if qualification is None:
             return response({"success": False, "error": "transport_security_required"}, 426)
+        request["djconnect_local_qualification"] = qualification
     if not same_origin(request.headers.getall("Origin", []), request.scheme, request.host):
         return response({"success": False, "error": "origin_not_allowed"}, 403)
     return None
+
+
+def bind_ingress_guard(hass, authority, request):
+    if request.secure:
+        return
+    from .const import CONF_HA_INSTALL_ID
+
+    original = request["djconnect_local_qualification"]
+    peer = request.transport.get_extra_info("peername")
+    host, header_names = request.host, tuple(request.headers)
+
+    async def validate():
+        current = await local_qualification(hass, peer, host, header_names)
+        if (
+            current is None
+            or current["fingerprint"] != original["fingerprint"]
+            or current["ha_install_id"] != authority.runtime.config.get(CONF_HA_INSTALL_ID)
+        ):
+            raise OperationError("transport_security_required", 426)
+
+    authority.transport_guard = validate
 
 
 def transport_context(result, request):
@@ -90,6 +125,7 @@ class _HybridHTTP(HomeAssistantView):
             body = await json_body(request)
             identity = body.pop("identity", None)
             authority = await PairedAuthority.resolve(self.hass, identity, request.headers)
+            bind_ingress_guard(self.hass, authority, request)
             manager = operations(self.hass)
             if self.action == "context":
                 if body != {"contract_version": 1} or type(body.get("contract_version")) is not int:
@@ -203,6 +239,7 @@ class HybridActionsView(HomeAssistantView):
             manager = operations(self.hass)
             async with asyncio.timeout_at(auth_deadline):
                 authority = await PairedAuthority.resolve(self.hass, identity, headers)
+                bind_ingress_guard(self.hass, authority, request)
                 if sum(device == authority.device for device in self.connections.values()) >= 2:
                     raise OperationError("connection_capacity", 429)
                 self.connections[connection_id] = authority.device

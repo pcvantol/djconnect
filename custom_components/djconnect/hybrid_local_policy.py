@@ -10,6 +10,7 @@ _PROXY_HEADERS = {"forwarded", "via", "x-real-ip", "cf-connecting-ip", "true-cli
 def transport_security_policy():
     return {
         "policy_version": 1,
+        "deployment_qualification_required": True,
         "external": "authenticated_tls",
         "local_plaintext": "qualified_direct_only",
         "peer_policy": "enabled_interface_subnet_or_loopback",
