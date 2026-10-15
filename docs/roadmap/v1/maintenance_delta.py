@@ -84,6 +84,9 @@ def validate_delta(plan: dict[str, Any]) -> list[str]:
             errors.append("maintenance: " + reason)
 
     version = d.get("schema_version")
+    if version == "djconnect-federated-planning-delta/12":
+        from speech_persona_delta import validate
+        return validate(plan, validate_delta)
     if version == "djconnect-federated-planning-delta/11":
         from session_artwork_delta import validate
         return validate(plan, validate_delta)
@@ -997,8 +1000,11 @@ def render_delta(p):
         r = d["session_artwork_receipt"]
         intro += f"Selected subject-bound Session artwork: {r['assignment_id']}; source {r['source_delivery']}. Three bounded Core subsets; native Apple and joint acceptance remain Planned/open. Prior delivered v10 is preserved; no transport functional prerequisite or automatic consumer dispatch.\n\n"
     successor = d.get("session_artwork_receipt", {}).get("selected_successor")
-    if successor:
+    if successor and not d.get("speech_persona_receipt"):
         intro += f"Owner-selected queued successor: {successor['assignment_id']} ([selection](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-{successor['owner_selection']}), [autonomous-next](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-{successor['autonomous_next']})). Not admitted or implemented here; starts only after valid artwork closure and fresh sole-writer admission. Separate exact publication gates remain.\n\n"
+    if d.get("speech_persona_receipt"):
+        r = d["speech_persona_receipt"]
+        intro += f"Selected and freshly admitted speech/Persona implementation: {r['assignment_id']}; source {r['source_delivery']}. Four bounded Core leaves reuse existing Voice/Speech/Audio Renderer architecture; Apple/native audible/joint acceptance remains Planned/open. Delivered artwork v11 and historical snapshots preserved; no new provider/model/cost route or consumer writer.\n\n"
     out = {}
     out["README.md"] = (
         "# Federated roadmap — versioned maintenance\n\n"

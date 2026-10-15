@@ -5407,6 +5407,7 @@ class SessionRuntimeManager:
         playback_item_id: str,
         track_bound: bool,
         commit,
+        persona_revision: int | None = None,
     ):
         """Serialize the brief accepted Store/reference commit against Runtime end."""
         async with self._lock:
@@ -5414,6 +5415,7 @@ class SessionRuntimeManager:
             if (
                 active is None
                 or active.session_id != session_id
+                or (persona_revision is not None and active.persona_revision != persona_revision)
                 or (track_bound and active.broadcast.state.playback.item_id != playback_item_id)
             ):
                 raise ValueError("session_context_changed")

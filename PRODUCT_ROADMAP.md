@@ -1,5 +1,11 @@
 # DJConnect Product Roadmap
 
+## Session speech/Persona/voice — selected active Core implementation
+
+DJC-SESSION-SPEECH-PERSONA-VOICE-20261015, owner6189231491/autonomous-next6189912293, fresh admission after valid artwork1172/1173 closure at70c0a300. Same Core writer/ACK6191876871; contract-first e2072d80, material03634bf7. [Narration/Persona](docs/product/SESSION_SPEECH_PERSONA_V1.md), [speech delivery/replay](docs/product/SESSION_SPEECH_DELIVERY_V1.md). Live Persona ordered setting connected; common manual speech, every-family realization and qualified voice/processor/lifecycle implementation in progress. No product completion inferred from initial Persona tests.
+
+JSON maintenance12 reuses existing Voice/Speech/Audio Renderer architecture and preserves delivered artwork11. Four bounded Core leaves In progress; Apple adoption and joint visible/audible acceptance remain Planned/open with their existing writer/admission. Every intended proactive narration includes SessionPersona in bubble and speech; observed playback remains factual, announcement shares existing Planner/Presence/publication/count boundaries. No new provider/model/cost route or nativewrites. Source/Finalization retain exact publication gates; existing latest-qualified-main HA-dev/prod installation authority retained, no WIP install. No further selected productfamily.
+
 ## Session artwork — Core producer delivered; separate Finalization pending
 
 [Source #1172](https://github.com/pcvantol/djconnect/pull/1172) protected merged as `5c7ecb7941c555f12bd94a2969167cfaaff0cb44`. [Exact readback](docs/verification/SESSION_ARTWORK_V1_SOURCE_READBACK_20261015.md) qualifies all164 integration files and formal/coverage evidence. Three MEDIA::CORE contract/live/history subsets Completed/CORE_DELIVERED. Apple adoption and joint acceptance remain Planned/open; family PARTIAL, installed artwork NOT_RUN. One existing image owner; exact subject/edition/source/account, independent surface rights and bounded explicit archive refresh. No provider work in pure reads or semantic Moment mutation.

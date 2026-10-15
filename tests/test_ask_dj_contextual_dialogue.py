@@ -1010,6 +1010,48 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
         self.assertNotIn("result_set", result)
         self.assertEqual(len(calls), 2)
 
+    async def test_persona_cas_rejects_pending_general_session_and_private_reply(self):
+        from custom_components.djconnect.session_runtime import DJPersona
+        from custom_components.djconnect.ask_dj import service
+
+        for mode in ("general", "session", "private"):
+            with self.subTest(mode=mode):
+                session = await self.fixture.manager.async_start(
+                    owner_profile_id="profile-a", locale="en", selected_mood="groove",
+                    music_backend="spotify_direct", dj_persona=DJPersona.RADIO_DJ)
+                before = await self.history.async_history("profile:profile-a")
+                entered, release = asyncio.Event(), asyncio.Event()
+                calls = []
+                async def delegate(*args):
+                    calls.append(True)
+                    entered.set()
+                    await release.wait()
+                    return {"success": True, "text": "Old Radio answer.",
+                            "_private_current_context": mode == "private"}
+                async def owner():
+                    return None
+                payload = {"client_message_id": "persona-race-" + mode,
+                           "text": "Who is Brian Eno?", "language": "en"}
+                if mode != "general":
+                    payload["conversation_context"] = {"session_id": session.session_id}
+                task = asyncio.create_task(service.async_exchange(
+                    self.hass, self.runtime, payload, profile_id="profile-a",
+                    history_manager=self.history, delegate=delegate, validate_owner=owner))
+                await asyncio.wait_for(entered.wait(), 2)
+                await self.fixture.manager.async_update_persona(
+                    owner_profile_id="profile-a", session_id=session.session_id,
+                    dj_persona=DJPersona.CLUB_DJ, expected_revision=0)
+                release.set()
+                with self.assertRaises(service.SessionConversationError) as denied:
+                    await task
+                self.assertEqual(denied.exception.code, "conversation_context_changed")
+                after = await self.history.async_history("profile:profile-a")
+                for value in (before, after):
+                    value.pop("server_time", None)
+                self.assertEqual(after, before)
+                self.assertEqual(len(calls), 1)
+                await self.fixture.manager.async_end(owner_profile_id="profile-a", session_id=session.session_id)
+
     async def test_clear_while_agent_pending_rejects_response_and_future_context(self):
         entered, release = asyncio.Event(), asyncio.Event()
 

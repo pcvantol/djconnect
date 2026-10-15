@@ -2,31 +2,9 @@
 
 Generated from djconnect-platform-v1.json, maintenance DJC-DJ-PRESENCE-ROADMAP-DESIGN-V1-20261011.
 
-The original3October snapshot/audit/source pins and projections are immutable history in [history/20261003](history/20261003/README.md). Only this bounded delta is current here; inherited premerge statuses are not current blockers. Only the selected existing Core writer is admitted by implementation receipt; no automatic dispatch, second writer or native/installed/hardware acceptance.
+The original3October snapshot/audit/source pins and projections are immutable history in [history/20261003](history/20261003/README.md). Only this bounded delta is current here; inherited premerge statuses are not current blockers. No portfolio-wide refresh, writer reservation, product dispatch or runtime acceptance is claimed.
 
-Current bounded artwork correction: [owner6117357579](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6117357579). Existing Discovery capability only; source/Finalization gates remain separate, native/installed/live acceptance remains open. Presence source1150/Finalization1151 stays closed. Prior version2 is preserved in history/20261012.
-
-Selected bounded Album→Track continuity: [DJC-CORE-NARRATIVE-ALBUM-CONTINUITY-V1-20261012](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6121336412); source PROTECTED_MERGED, Stage4 PARTIAL, joint/native/installed/hardware acceptance open. Artwork1152/1153 is terminal at admitted0f37; prior version3 is preserved in history/20261012. No automatic consumer dispatch or new Core writer.
-
-Selected Session Forecast: [DJC-CORE-SESSION-FORECAST-V1-20261012](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6123328620); existing Direction parent, source PROTECTED_MERGED, current-only qualified artist imagery, native/visible/upcoming/joint acceptance open. Album1154/1155 terminal before this writer admission; previous version4 preserved in history/20261012. Early contract fixtures allow independently admitted consumer source integration; no automatic dispatch.
-
-Selected ambient convergence: [DJC-CORE-AMBIENT-FACT-MOMENT-CONVERGENCE-V1-20261012](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6125691006); source PROTECTED_MERGED, qualified Session reuse and passive producer retirement; native/joint acceptance open. Forecast1156/1157 stays closed; version5 preserved in history/20261012. No new source/model/consumer dispatch.
-
-Combined Session entry/history/native-surface documentary design: [DJC-SESSION-ENTRY-LIFECYCLE-HISTORY-DESIGN-V1-20261012](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6131363097); documentation PROTECTED_MERGED. Documentary delivery does not itself admit product execution; Continuation is independent and rich passive rights are not inherited. Ambient1158/1159 remains terminal; version6 is preserved in history/20261012. No new product writer or native/APNs/installed/hardware PASS.
-
-Selected connected Core history summary: DJC-CORE-SESSION-HISTORY-SUMMARY-V1-20261013; source PROTECTED_MERGED. Reuses HISTORY::CORE::SUMMARY, with Apple adoption Planned and native/installed/joint acceptance open. Predecessor version7 is preserved byte-for-byte.
-
-Selected one-pipeline Ask DJ + exact Moment Track Insight: [DJC-CORE-ASKDJ-CONTEXTUAL-DIALOGUE-V1-20261013](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6145537044); source PROTECTED_MERGED. Both screens use the same service with optional qualified context. Native Apple and joint acceptance remain Planned/open; no consumer writes or automatic dispatch. History summary1162/1163 stays closed; version8 is preserved in history/20261013. Owner-requested HA-dev/prod updates follow qualified delivery and installed readback.
-
-Existing Apple Presence execution: In progress ([owning readback](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6168870771)); native Mac/installed acceptance and protected Apple delivery remain open. This observation updates no historical planning node and grants no Core/consumer admission. Installed Presence advertisement is absent in the owner readback; completed Core policy remains closed. Dialogue adoption and intra-track visibility remain distinct open joint findings.
-
-Selected bounded Hybrid transport: [DJC-CORE-HYBRID-TRANSPORT-CONVERGENCE-V1-20261013](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6149934177); source PROTECTED_MERGED. Existing connectivity parent retained; protocol, journal/recovery and paired actions share current Core owners. Apple adoption and joint/native transitions remain Planned/open; no consumer writes, installation or automatic dispatch. Current-artist1168/1169 closed before admission; version9 and its whole snapshot are preserved byte-for-byte.
-
-Selected subject-bound Session artwork: DJC-CORE-SESSION-MOMENT-ARTWORK-V1-20261014; source PROTECTED_MERGED. Three bounded Core subsets; native Apple and joint acceptance remain Planned/open. Prior delivered v10 is preserved; no transport functional prerequisite or automatic consumer dispatch.
-
-Owner-selected queued successor: DJC-SESSION-SPEECH-PERSONA-VOICE-20261015 ([selection](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6189231491), [autonomous-next](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6189912293)). Not admitted or implemented here; starts only after valid artwork closure and fresh sole-writer admission. Separate exact publication gates remain.
-
-Selected implementation [DJC-CORE-DJ-PRESENCE-V1-20261011](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6111222122); early local contract `1d5e8c2518db5902031898991b7f4857d5263a5c`; source delivery PROTECTED_MERGED.
+Selected and freshly admitted speech/Persona implementation: DJC-SESSION-SPEECH-PERSONA-VOICE-20261015; source UNPUBLISHED. Four bounded Core leaves reuse existing Voice/Speech/Audio Renderer architecture; Apple/native audible/joint acceptance remains Planned/open. Delivered artwork v11 and historical snapshots preserved; no new provider/model/cost route or consumer writer.
 
 Authority: [DJC-DJ-PRESENCE-ROADMAP-DESIGN-V1-20261011](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6110375785).
 
@@ -34,12 +12,12 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 
 | Local design source | SHA256 |
 |---|---|
-| [PRODUCT_ROADMAP.md](../../../PRODUCT_ROADMAP.md) | `6a5fa91ab587a82682176ae757da7af6f794814d68d6e7d7fecee11fd52425e5` |
-| [PRODUCT_BACKLOG.md](../../../PRODUCT_BACKLOG.md) | `5c4fae47fa2fdf28e8694d2387138644b39fb35121d0e36372cbe9c96487e1f7` |
+| [PRODUCT_ROADMAP.md](../../../PRODUCT_ROADMAP.md) | `444528ea2d546880f0627192c20953ca49faff16ed27a6a756e237547d120d18` |
+| [PRODUCT_BACKLOG.md](../../../PRODUCT_BACKLOG.md) | `127136c5651bc960933e9c22813e2898abead9740d3283f1547f90bdf6023471` |
 | [docs/product/DJ_PRESENCE_V1.md](../../../docs/product/DJ_PRESENCE_V1.md) | `c97be3bcebbd4ca70d640cdf4fc0a9a4808451e986bc977e3173e19842a928c4` |
 | [DJ_SESSION_RUNTIME_CONTRACTS.md](../../../DJ_SESSION_RUNTIME_CONTRACTS.md) | `6ae7a05260bc2a997252dbb70c28917ac6b7fd25930263d7c0940df929b1ec92` |
 | [docs/product/DJ_INTELLIGENCE_ARCHITECTURE.md](../../../docs/product/DJ_INTELLIGENCE_ARCHITECTURE.md) | `5345f4a3db6b2bfb97931d6acdde09439dc3dbae7a7d311107269922e08aef12` |
-| [docs/product/DJ_PRESENTATION_ARCHITECTURE.md](../../../docs/product/DJ_PRESENTATION_ARCHITECTURE.md) | `7dd7c816a46c9d49cf7a9ced45bfeccacd628b3e279c4e5fd5ca4656f4e57ad6` |
+| [docs/product/DJ_PRESENTATION_ARCHITECTURE.md](../../../docs/product/DJ_PRESENTATION_ARCHITECTURE.md) | `98515858c458619c2db156a14b319cb4b6d8cd76525812768de29afa84616f84` |
 | [docs/technical/PLATFORM_AMBIENT_EXPERIENCE.md](../../../docs/technical/PLATFORM_AMBIENT_EXPERIENCE.md) | `5dc485caa24c1e7a690f0a0aefef1c0b844bcaf1aea7ea52e3895aabcf7fbd8e` |
 | [docs/product/DJ_PRESENCE_CORE_POLICY_V1.md](../../../docs/product/DJ_PRESENCE_CORE_POLICY_V1.md) | `32ed8a6a47cc6f64fb07b9ef4df1cf8fb7e92c2368cd0c35c66ad31b76b64909` |
 | [docs/product/DJ_PRESENCE_OWNER_CONTRACT_V1.md](../../../docs/product/DJ_PRESENCE_OWNER_CONTRACT_V1.md) | `2580acda7c9e19020c030cb1b8cecd47ef87af0f43a643b90f37d7bd89ee65a3` |
@@ -50,7 +28,7 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 | [docs/product/SHARED_PRODUCER_CONTINUITY_CONTRACT.md](../../../docs/product/SHARED_PRODUCER_CONTINUITY_CONTRACT.md) | `d06d2563b1de4fcfdff15bd76e0952e19f0970666b8ce5677db10cf6ee11a2ed` |
 | [docs/product/DISCOVER_NARRATIVE_TRANSITION_CONTRACT.md](../../../docs/product/DISCOVER_NARRATIVE_TRANSITION_CONTRACT.md) | `a27c694d57bca4908d4a258c9a6e0aec1de95d3ee6ddd89a377e32bf6b9f8e32` |
 | [docs/product/EXPRESSIVE_CONTEXT_VARIATION_V1.md](../../../docs/product/EXPRESSIVE_CONTEXT_VARIATION_V1.md) | `01e6cbe92d1fc240b3b444e646cb5bdd809a242cf61b2044edc5fb26775f26c7` |
-| [docs/product/NATIVE_MOMENT_DELIVERY_CONTRACT.md](../../../docs/product/NATIVE_MOMENT_DELIVERY_CONTRACT.md) | `363efecf9d31c1fd818a0806305eea8bf60b0caa41fc7e08c31002835e1b0f19` |
+| [docs/product/NATIVE_MOMENT_DELIVERY_CONTRACT.md](../../../docs/product/NATIVE_MOMENT_DELIVERY_CONTRACT.md) | `0642039334ed887bdaf9b8ea071a6a1b8d5e877d67c6715d6e9a45a5a22bf9ef` |
 | [docs/technical/BROADCAST_TRANSPORT.md](../../../docs/technical/BROADCAST_TRANSPORT.md) | `9571ebd859d90f2190e8c8d6102d08477bf65d62ec3d145c328c13bef58b2e9f` |
 | [docs/verification/NARRATIVE_ALBUM_CONTINUITY_V1_ACCEPTANCE.md](../../../docs/verification/NARRATIVE_ALBUM_CONTINUITY_V1_ACCEPTANCE.md) | `c71d70e105a56b63a34d814f74ed51b2d59c084738a0350a3e1abb98c3358f3e` |
 | [docs/product/SESSION_FORECAST_V1.md](../../../docs/product/SESSION_FORECAST_V1.md) | `fa9ebfc5e90a893a1c1f8e0cf89660e8c506e4d79f12594b5ff092fb05b24a90` |
@@ -75,7 +53,7 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 | [DJCONNECT_STORAGE_ARCHITECTURE.md](../../../DJCONNECT_STORAGE_ARCHITECTURE.md) | `40fd31bd4ff256821ec30e2d0430fe7af5ef615fa6e125969cfebbc66d035da5` |
 | [docs/technical/HTTP_API.md](../../../docs/technical/HTTP_API.md) | `3cfa19c673c42065c5a3a0ff78e9657271c66563ef9097f555962106acfa3489` |
 | [docs/technical/VOICE_TRANSPORT.md](../../../docs/technical/VOICE_TRANSPORT.md) | `65065f48e8e8a069a43ac3efde885e5ef2636622269725a008a478cf71197cd5` |
-| [docs/product/EXPRESSIVE_DJ_PERSONA_CONTRACT.md](../../../docs/product/EXPRESSIVE_DJ_PERSONA_CONTRACT.md) | `a5c9bde64dc087acf3a9b4ab88480e5daebaa8f5b6cc5ef07c0b4ed66c1f202e` |
+| [docs/product/EXPRESSIVE_DJ_PERSONA_CONTRACT.md](../../../docs/product/EXPRESSIVE_DJ_PERSONA_CONTRACT.md) | `bfc86b961bfb0146a0ebd8f6265b7ebf8153509fcd3a2b965dad3e1393d6a726` |
 | [docs/product/KNOWLEDGE_SOURCE_ARCHITECTURE.md](../../../docs/product/KNOWLEDGE_SOURCE_ARCHITECTURE.md) | `8846dff1f9c18bfb6aa9817b9a1d46f4bcbad0ceb79fd5b695d6bbb71cbfa55d` |
 | [docs/verification/ASK_DJ_CONTEXTUAL_DIALOGUE_V1_SOURCE_READBACK.md](../../../docs/verification/ASK_DJ_CONTEXTUAL_DIALOGUE_V1_SOURCE_READBACK.md) | `377bda221f6c6fe0bc542ba53844f67e0a7582f8995175d7b42739f21c6e5157` |
 | [docs/history/prompts/2026-10-14-ask-dj-contextual-dialogue-finalization.md](../../../docs/history/prompts/2026-10-14-ask-dj-contextual-dialogue-finalization.md) | `1d4ce399484389030df619f35e84a5b40fef5e94c98143008325470ab2c8b35a` |
@@ -91,3 +69,5 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 | [docs/history/prompts/2026-10-15-hybrid-transport-localization-finalization.md](../../../docs/history/prompts/2026-10-15-hybrid-transport-localization-finalization.md) | `cbdabdb5c5201df3b220c306a0d9ca16f1215a480c624c452cefc9a63efa20f6` |
 | [docs/product/SESSION_MOMENT_ARTWORK_V1.md](../../../docs/product/SESSION_MOMENT_ARTWORK_V1.md) | `580e7022b2a1684117a16f7602ecd21cd1672988001825d3e869712bde2dda4a` |
 | [docs/product/SESSION_ARTWORK_DELIVERY_CONTRACT_V1.md](../../../docs/product/SESSION_ARTWORK_DELIVERY_CONTRACT_V1.md) | `3e3da658daa128f5eae618740ba8e86a39766a661d559f86badfb20a6f9f8c09` |
+| [docs/product/SESSION_SPEECH_PERSONA_V1.md](../../../docs/product/SESSION_SPEECH_PERSONA_V1.md) | `74c1e0157c6b973f23a02655af6852cafe8682015600ebd4602b82f8b04f99a7` |
+| [docs/product/SESSION_SPEECH_DELIVERY_V1.md](../../../docs/product/SESSION_SPEECH_DELIVERY_V1.md) | `f65837fbeb897552e2e3ef7f1a2b9f020f4baa9ac65f5132a649d7573ed65ef7` |

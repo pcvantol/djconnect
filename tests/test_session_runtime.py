@@ -1521,6 +1521,8 @@ class SessionRuntimeManagerTest(unittest.TestCase):
                 "mood_revision": 0,
                 "selected_presence": "balanced",
                 "presence_revision": 0,
+                "dj_persona": "home_dj",
+                "persona_revision": 0,
                 "locale": "en",
             },
         )
@@ -2177,6 +2179,7 @@ class SessionRuntimeManagerTest(unittest.TestCase):
                 "planner_updated",
                 "mood_changed",
                 "presence_changed",
+                "persona_changed",
                 "forecast_changed",
                 "track_changed",
                 "session_flow_updated",

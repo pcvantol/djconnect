@@ -11,9 +11,24 @@ from render_snapshot import render
 ROOT = Path(__file__).resolve().parent
 
 
+def delivered_artwork_plan():
+    """Earlier stage invariants run on the preserved delivered v11 scope.
+
+    The new live v12 scope is validated separately below, including unchanged
+    predecessor equality. Current canonical document references still apply.
+    """
+    import json
+    plan = load(ROOT / "djconnect-platform-v1.json")
+    if plan["planning_maintenance"]["schema_version"] == "djconnect-federated-planning-delta/12":
+        refs = plan["planning_maintenance"]["document_references"]
+        plan["planning_maintenance"] = json.loads((ROOT / "history/20261015/artwork-finalization-maintenance-v11.json").read_text())
+        plan["planning_maintenance"]["document_references"] = refs
+    return plan
+
+
 class MaintenanceTests(unittest.TestCase):
     def setUp(self):
-        self.p = load(ROOT / "djconnect-platform-v1.json")
+        self.p = delivered_artwork_plan()
 
     def test_preserved_history_and_current_references(self):
         d = self.p["planning_maintenance"]
@@ -30,7 +45,7 @@ class MaintenanceTests(unittest.TestCase):
             self.assertEqual(
                 hashlib.sha256((ROOT.parents[2] / r["path"]).read_bytes()).hexdigest(), r["sha256"]
             )
-        for name, body in render(self.p).items():
+        for name, body in render(load(ROOT / "djconnect-platform-v1.json")).items():
             self.assertEqual((ROOT / name).read_text(), body)
 
     def test_queued_successor_does_not_claim_admission_or_implementation(self):
@@ -418,7 +433,7 @@ class AmbientMaintenanceTests(unittest.TestCase):
 
 class DialogueMaintenanceTests(unittest.TestCase):
     def setUp(self):
-        self.p = load(ROOT / "djconnect-platform-v1.json")
+        self.p = delivered_artwork_plan()
         if self.p["planning_maintenance"]["schema_version"] == "djconnect-federated-planning-delta/11":
             import json
             path = self.p["planning_maintenance"]["session_artwork_receipt"]["previous_delta"]
@@ -476,7 +491,7 @@ class DialogueMaintenanceTests(unittest.TestCase):
 
 class HybridMaintenanceTests(unittest.TestCase):
     def setUp(self):
-        self.p = load(ROOT / "djconnect-platform-v1.json")
+        self.p = delivered_artwork_plan()
         if self.p["planning_maintenance"]["schema_version"] == "djconnect-federated-planning-delta/11":
             import json
             path = self.p["planning_maintenance"]["session_artwork_receipt"]["previous_delta"]
@@ -561,7 +576,7 @@ class HybridMaintenanceTests(unittest.TestCase):
 
 class SessionArtworkMaintenanceTests(unittest.TestCase):
     def setUp(self):
-        self.p = load(ROOT / "djconnect-platform-v1.json")
+        self.p = delivered_artwork_plan()
 
     def test_live_version_preserves_delivered_predecessor_and_is_valid(self):
         self.assertEqual(self.p['planning_maintenance']['schema_version'], 'djconnect-federated-planning-delta/11')
@@ -594,4 +609,46 @@ class SessionArtworkMaintenanceTests(unittest.TestCase):
     def test_existing_producer_state_cannot_be_rewritten(self):
         p=copy.deepcopy(self.p)
         next(n for n in p['planning_maintenance']['nodes'] if n['id']=='TRANSPORT::CORE::CONTRACT')['status']='Planned'
+        self.assertTrue(validate(p))
+
+
+class SpeechPersonaMaintenanceTests(unittest.TestCase):
+    def setUp(self):
+        self.p = load(ROOT / "djconnect-platform-v1.json")
+
+    def test_live_v12_and_delivered_v11_are_valid_and_reference_only_consumer(self):
+        self.assertEqual(self.p['planning_maintenance']['schema_version'], 'djconnect-federated-planning-delta/12')
+        self.assertEqual(validate(self.p), [])
+        self.assertEqual(validate(delivered_artwork_plan()), [])
+        readme = render(self.p)['README.md']
+        self.assertIn('Selected and freshly admitted speech/Persona implementation', readme)
+        self.assertNotIn('Owner-selected queued successor:', readme)
+
+    def test_missing_admission_or_unproved_acceptance_rejected(self):
+        for key, value in [('ack', 1), ('base_sha', '0'*40), ('source_delivery', 'PROTECTED_MERGED'),
+                           ('native', 'PASS'), ('installed', 'PASS'), ('audible', 'PASS'), ('joint', 'PASS'),
+                           ('consumer_writes', True), ('previous_delta_sha256', '0'*64)]:
+            p = copy.deepcopy(self.p)
+            p['planning_maintenance']['speech_persona_receipt'][key] = value
+            self.assertTrue(validate(p), (key,value))
+
+    def test_historical_delivery_receipts_and_nodes_are_immutable(self):
+        for name in ['session_artwork_receipt','hybrid_receipt','implementation_receipt']:
+            p = copy.deepcopy(self.p)
+            p['planning_maintenance'][name]['source_delivery'] = 'UNPUBLISHED'
+            self.assertTrue(validate(p), name)
+        p = copy.deepcopy(self.p)
+        next(n for n in p['planning_maintenance']['nodes'] if n['id']=='MEDIA::CORE::SESSION-LIVE')['status']='Planned'
+        self.assertTrue(validate(p))
+
+    def test_duplicate_consumer_admission_and_cycle_are_rejected(self):
+        p = copy.deepcopy(self.p)
+        p['planning_maintenance']['nodes'].append(copy.deepcopy(p['planning_maintenance']['nodes'][-1]))
+        self.assertTrue(validate(p))
+        p = copy.deepcopy(self.p)
+        next(n for n in p['planning_maintenance']['nodes'] if n['id']=='SPEECH::APPLE::ADOPTION')['status']='In progress'
+        self.assertTrue(validate(p))
+        p = copy.deepcopy(self.p)
+        edge = next(e for e in p['planning_maintenance']['edges'] if e['id'].startswith('SPEECH-'))
+        edge['producer']='SPEECH::JOINT::ACCEPTANCE'
         self.assertTrue(validate(p))

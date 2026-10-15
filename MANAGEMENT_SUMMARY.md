@@ -1,5 +1,48 @@
 # DJConnect Generation 2 Management Summary
 
+## Current: Session speech, live Persona and voice — admitted Core implementation
+
+### Repository Status
+
+Predecessor Finalization PR [#1173](https://github.com/pcvantol/djconnect/pull/1173) protected merged as `70c0a3009910db8763e65949d0a10eade7d006dc`, after artwork source1172. Exact candidate tree/164-file archive/formal/coverage qualified;32checks PASS/5conditional skips and exact HIGH_RISK Owner Authorization SUCCESS. [Terminal6191836891](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6191836891) records MERGED_RECONCILED/WORKSPACE_READY, scoped owncleanup/recovery bundles and both HA-dev/prod installed exact70c0a300/164files/0mismatches/allloaded(dev9/prod1), backups/rollback retained. Earlier deliveries remain closed; native/joint still open.
+
+Fresh full bootstrap/hostverify MATCH exit0/package4.5.3, sync-clean main and writer/WIP/resource admission for existing owner6189231491/autonomous-next6189912293. [ACK6191876871](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6191876871), actual base70c0a300, branch codex/session-speech-persona-voice-v1. Contract-first e2072d80; material03634bf7 connects ordered paired Persona through existing Session owners. Same sole Core writer, no duplicate pickup or new nativewriter.
+
+### Management Summary
+
+[Canonical narration/Persona design](docs/product/SESSION_SPEECH_PERSONA_V1.md) and [speech delivery/replay contract](docs/product/SESSION_SPEECH_DELIVERY_V1.md) precede runtime changes. Every intended proactive DJ narration must use confirmed SessionPersona in bubble and speech, including admitted playback announcement; factual observations/counts stay separate. Mood/Presence/concrete voice/autoplay remain independent. One existing Planner/Engine/Composer/dialogue/history/audio owner; no provider/cloud workaround, source-rights broadening or private receiver grant.
+
+Live Persona CAS/no-op/readback/Broadcast/Hybrid is connected;1951regressions(7existing skips) pass after additive contract expectations,31focused tests pass. Speech preparation, per-family connected realization, voice inventory/admission and real paired-HA/native evidence are still in progress; no complete slice/audio/native/installed PASS. No source push or PR yet.
+
+### Roadmap Position
+
+Live JSON maintenance12 preserves delivered artwork11/history bytes. Four bounded Core speech-contract/Persona/realization/delivery leaves In progress reuse existing Voice/Speech/Audio Renderer architecture. Existing Apple adoption and joint visible/audible acceptance remain Planned/open. No duplicate platform or consumer dispatch. Historical Speech deferred qualifications remain historical, not permission to skip the selected implementation.
+
+### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+1. **DJC-SESSION-SPEECH-PERSONA-VOICE-20261015 — active selected implementation.** Owner6189231491/autonomous-next6189912293; same writer, fresh admission after valid artwork closure. Finish exact producer qualification/reviews/delivery/Finalization and Apple handoff; native acceptance separately owned.
+2. **Unfilled product slot 2 — no further authorized selection.** Not dispatched.
+3. **Unfilled product slot 3 — no further authorized selection.** Not dispatched.
+4. **Unfilled product slot 4 — no further authorized selection.** Not dispatched.
+5. **Unfilled product slot 5 — no further authorized selection.** Not dispatched.
+
+### Blocked Items
+
+No external blocker to authorized local engineering. Exact source publication and separate Finalization retain their later candidate gates. Apple/native actual voices, audible quality and joint acceptance remain OPEN; no hardware or consumerstart authority inferred. Latest qualified-main installation authority for HA-dev/prod retained after this slice's delivery; no WIP installation.
+
+### Deferred Items
+
+No new provider/model/cost/contract, direct external API, global home-speaker action, Swift/receiver write, new planner/dialogue engine/history store, Pages/signing/hardware, workflow/runner/service change or next productfamily.
+
+### Repository State
+
+Repository State: `MERGED_RECONCILED` for verified predecessor1173. Current speech source ACTIVE_IMPLEMENTATION/UNPUBLISHED, Finalization Pending: YES after future source delivery. No claim that current local work is on main.
+
+### Workspace State
+
+Workspace State: `NOT_READY` for another increment during this speech WIP. Other VibeCast worktree4b3a8059, Applelab and both HA environments retained; no own lab running at admission. Only this selected Core writer mutates source.
+
+## Historical operational context
 ## Current: Session artwork — separate documentary Finalization
 
 ### Repository Status

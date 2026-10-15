@@ -22,7 +22,12 @@ copy and accessibility labels require all five languages.
 
 `POST /api/djconnect/v1/speech/prepare` uses normal paired device/Profile owner,
 contract1 and exactly one existing target: accepted `message_id`, published
-`session_id`+`moment_id`, or retained `session_id`+`entry_id`. No free text, provider
+`session_id`+`moment_id`, or retained `session_id`+`entry_id`, or an accepted `turn_id` in the existing
+bounded dialogue frame. The latter includes private non-archived early replies;
+its original rights/deadline/frame generation apply, without a second store or
+archival promotion. Preparation selects `processor:local_on_device|ha_configured`
+and `voice_preference:default|male|female`; neither is a provider/voice identifier.
+No free text, provider
 URL, arbitrary voice/engine ID, model prompt or playback instruction. Resolve
 through existing dialogue/history/Runtime owners and original source rights.
 Live and historical replay have independently qualified admission; no whole
@@ -34,8 +39,15 @@ can consume only exact admitted segments and declared local processor. It must
 report effective voice/locale or explicit no-matching-voice. Core must not claim
 an Apple voice exists before the renderer's actual inventory/acceptance.
 
-For HA synthesis reuse the configured Assist/HA TTS entity and supported voice
-inventory; no config-flow mutation, added provider or direct API. Do not infer
+For HA synthesis use only the currently configured Assist/HA TTS entity and
+voice, with its actual supported inventory. Default uses that exact voice; male
+or female requests are unavailable unless explicit qualified metadata matches
+that configured voice. A configured engine alone establishes neither local
+processing nor permission: qualify its processor identity and each source basis;
+unknown/cloud-unqualified processors return unavailable, without fallback.
+Local-on-device preparation returns renderer_pending, not synthesized audio;
+its concrete gender/voice selection and audible acceptance remain Apple-owned.
+There is no config-flow mutation, added provider or direct API. Do not infer
 male/female from names, pitch or Persona. Where the engine lacks qualified gender
 metadata, report that limitation and retain explicit local-renderer alternative.
 Never silently switch to another voice/engine/cloud route. See [HA TTS voice
@@ -65,8 +77,10 @@ Concrete voice/provider and male/female preference belong to the audio output;
 Persona belongs to the Session. Device preferences must not rewrite Profile
 or shared Session implicitly. Match actual locale and explicitly available voice;
 otherwise expose missing capability. Apply changes to pending/next/replay as a
-new voice revision; never relabel cached old-voice bytes. A playing sentence
-finishes unless the user explicitly stops it. Native UI exposes effective voice
+new voice revision; never relabel cached old-voice bytes. An ordinary voice-preference change may let the playing sentence finish.
+Authority withdrawal, Profile change, source expiry, Session end or explicit Stop
+takes precedence: stop running audio and discard pending audio immediately;
+never finish a sentence under a withdrawn grant. Native UI exposes effective voice
 and accessible Listen/Stop/current unavailability in the active Session.
 
 Autoplay is per device and off does not remove manual listening. Only live newly

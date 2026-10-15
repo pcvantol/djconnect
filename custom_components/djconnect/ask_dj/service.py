@@ -102,6 +102,17 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
         def query():
             return query_service(hass, history_manager)
         active = await manager.async_get_active(profile_id)
+        # Style is captured once, including general-screen turns enriched by an
+        # active Session. Never relabel or accept old prose after a live CAS.
+        style_session = active.session_id if active else ""
+        style_revision = active.persona_revision if active else None
+        def validate_persona():
+            if style_session:
+                current = manager.current_active(profile_id)
+                if (current is None or current.session_id != style_session
+                    or current.persona_revision != style_revision):
+                    raise SessionConversationError("conversation_context_changed")
+
         session_id = context.get("session_id") or ""
         if session_id and (active is None or active.session_id != session_id):
             raise SessionConversationError("session_context_changed")
@@ -215,6 +226,7 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
                 if current is None or current.session_id != playback_fence_session or (
                     track_bound and not explicit_action and current.broadcast.state.playback.item_id != captured):
                     raise SessionConversationError("session_context_changed")
+            validate_persona()
             if frame.generation != generation:
                 raise SessionConversationError("conversation_context_changed")
             if immediate is not None:
@@ -282,7 +294,7 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
             new = saved is None
             async def persistence_guard():
                 # SessionRuntimeManager owns its short lock here; never reacquire it.
-                await guard(check_runtime=not bool(session_id))
+                await guard(check_runtime=not bool(style_session))
 
             async def finish():
                 nonlocal saved
@@ -311,6 +323,7 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
                         if current is None or current.session_id != session_id or (
                             track_bound and not explicit_action and current.broadcast.state.playback.item_id != captured):
                             raise SessionConversationError("session_context_changed")
+                    validate_persona()
                     if validate_immediate is not None:
                         validate_immediate()
                 except Exception:
@@ -320,9 +333,10 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
                         await history_manager.async_discard_session_exchange(scope, client_id, turn_record["turn_id"])
                     raise
                 return entries
-            if session_id:
-                ids = await manager.async_accept_conversation(owner_profile_id=profile_id, session_id=session_id,
-                    playback_item_id=captured, track_bound=track_bound and not explicit_action, commit=finish)
+            if style_session:
+                ids = await manager.async_accept_conversation(owner_profile_id=profile_id, session_id=style_session,
+                    playback_item_id=captured, track_bound=track_bound and not explicit_action,
+                    persona_revision=style_revision, commit=finish)
             else:
                 ids = await async_complete_conversation_commit(finish)
         if not saved or not result.get("deduplicated"):
