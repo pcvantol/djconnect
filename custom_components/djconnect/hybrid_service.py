@@ -87,6 +87,7 @@ class PairedAuthority:
         self.hass, self.identity, self.headers = hass, identity, headers
         self.runtime, self.context, self.binding = runtime, context, binding
         self.transport_guard = None
+        self.transport_guard_now = None
         self.owner = hashlib.sha256(context.profile_id.encode()).hexdigest()
         self.device = hashlib.sha256(identity["device_id"].encode()).hexdigest()
 
@@ -149,11 +150,16 @@ class PairedAuthority:
         return cls(hass, dict(identity), dict(headers), runtime, context, binding)
 
     async def validate(self):
-        if self.transport_guard is not None:
-            await self.transport_guard()
         current = await self.resolve(self.hass, self.identity, self.headers)
         if current.runtime is not self.runtime or current.binding != self.binding:
             raise OperationError("operation_context_changed", 403)
+        if self.transport_guard is not None:
+            await self.transport_guard()
+        self.validate_now()
+
+    def validate_now(self):
+        if self.transport_guard_now is not None:
+            self.transport_guard_now()
 
     def payload(self, value):
         if not isinstance(value, dict):
@@ -487,7 +493,10 @@ def validate_transport_effect_now():
     if current is not None:
         if not current:
             raise OperationError("operation_context_changed", 409)
-        manager, key, _authority = current
+        manager, key, authority = current
+        final_guard = getattr(authority, "validate_now", None)
+        if final_guard is not None:
+            final_guard()
         if manager.journal._failed:
             raise OperationError("operation_unavailable", 503)
         manager.journal._validate_time(manager.journal._state["records"][key]["operation_id"])

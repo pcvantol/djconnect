@@ -14,7 +14,7 @@ from .hybrid_service import OperationError, PairedAuthority, operations
 from .transport_delivery import OwnerDeliveryResult
 from .hybrid_contract import FRAME_LIMIT, bounded_frame
 from .hybrid_local_policy import same_origin, transport_security_policy
-from .hybrid_ingress_qualification import read_qualification, qualify
+from .hybrid_ingress_qualification import read_qualification, qualify, qualification_current_now
 
 ACTION_PATH = "/api/djconnect/v1/actions/paired"
 AUTH_TIMEOUT = 5
@@ -69,19 +69,33 @@ def bind_ingress_guard(hass, authority, request):
     from .const import CONF_HA_INSTALL_ID
 
     original = request["djconnect_local_qualification"]
+    config_dir = hass.config.config_dir
+    revoked = False
     peer = request.transport.get_extra_info("peername")
     host, header_names = request.host, tuple(request.headers)
 
+    def validate_now():
+        nonlocal revoked
+        if revoked or not qualification_current_now(config_dir, original):
+            revoked = True
+            raise OperationError("transport_security_required", 426)
+
     async def validate():
+        nonlocal revoked
+        validate_now()
         current = await local_qualification(hass, peer, host, header_names)
         if (
             current is None
             or current["fingerprint"] != original["fingerprint"]
+            or current["stamp"] != original["stamp"]
             or current["ha_install_id"] != authority.runtime.config.get(CONF_HA_INSTALL_ID)
         ):
+            revoked = True
             raise OperationError("transport_security_required", 426)
+        validate_now()
 
     authority.transport_guard = validate
+    authority.transport_guard_now = validate_now
 
 
 def transport_context(result, request):
@@ -146,6 +160,8 @@ class _HybridHTTP(HomeAssistantView):
             await authority.validate()
             if isinstance(result, OwnerDeliveryResult):
                 result = await result.admitted_body()
+            await authority.validate()
+            authority.validate_now()
             return response(result, status)
         except OperationError as exc:
             return response({"success": False, "error": exc.code}, exc.status)
@@ -287,6 +303,8 @@ class HybridActionsView(HomeAssistantView):
                                 )
                         elif isinstance(item.get("result"), OwnerDeliveryResult):
                             item["result"] = await item["result"].admitted_body()
+                        await authority.validate()
+                        authority.validate_now()
                         await ws.send_str(bounded_frame(item))
 
             writer = asyncio.create_task(send())

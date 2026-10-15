@@ -32,6 +32,22 @@ def _pairs(items):
     return result
 
 
+def _signature(value):
+    return value.st_dev, value.st_ino, value.st_size, value.st_mtime_ns, value.st_ctime_ns
+
+
+def qualification_current_now(config_dir, qualification, *, now=None):
+    """Final metadata/clock fence: no file body read and no event-loop yield."""
+    now = time.time() if now is None else now
+    if now >= qualification["expires_at"]:
+        return False
+    try:
+        current = os.stat(Path(config_dir) / FILENAME, follow_symlinks=False)
+    except OSError:
+        return False
+    return _signature(current) == qualification["stamp"]
+
+
 def read_qualification(config_dir):
     """Read one regular, operator-owned immutable snapshot without following links."""
     fd = None
@@ -44,9 +60,7 @@ def read_qualification(config_dir):
         raw = os.read(fd, _LIMIT + 1)
         after = os.fstat(fd)
         current = os.stat(path, follow_symlinks=False)
-        def signature(value):
-            return value.st_dev, value.st_ino, value.st_size, value.st_mtime_ns, value.st_ctime_ns
-        if len(raw) > _LIMIT or signature(before) != signature(after) or signature(after) != signature(current):
+        if len(raw) > _LIMIT or _signature(before) != _signature(after) or _signature(after) != _signature(current):
             return None
         def reject_constant(_value):
             raise ValueError("non-finite qualification value")
@@ -54,7 +68,7 @@ def read_qualification(config_dir):
         record = json.loads(raw, object_pairs_hook=_pairs, parse_constant=reject_constant)
         if not isinstance(record, dict):
             return None
-        return record, hashlib.sha256(raw).hexdigest()
+        return record, hashlib.sha256(raw).hexdigest(), _signature(before)
     except (OSError, ValueError, UnicodeError):
         return None
     finally:
@@ -65,7 +79,7 @@ def read_qualification(config_dir):
 def qualify(snapshot, peername, adapters, internal_url, host, headers, install_ids, *, now=None):
     if snapshot is None:
         return None
-    record, fingerprint = snapshot
+    record, fingerprint, stamp = snapshot
     now = time.time() if now is None else now
     try:
         if set(record) != _FIELDS or type(record["version"]) is not int or record["version"] != 1:
@@ -106,4 +120,4 @@ def qualify(snapshot, peername, adapters, internal_url, host, headers, install_i
             return None
     except (ValueError, TypeError, KeyError, IndexError):
         return None
-    return {"fingerprint": fingerprint, "ha_install_id": record["ha_install_id"], "expires_at": end}
+    return {"fingerprint": fingerprint, "ha_install_id": record["ha_install_id"], "expires_at": end, "stamp": stamp}

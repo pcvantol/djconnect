@@ -87,8 +87,10 @@ consistent descriptor/path identity, size and timestamps before/after reading.
 Reject malformed JSON, duplicate keys, non-finite values, invalid addresses,
 unknown fields or mismatched binding. No raw config or request secrets in logs.
 
-Bind the exact record digest into ordinary paired authority validation. Check
-again before domain/provider effects, private delivery and each existing WS
+Bind the exact record digest and descriptor metadata into ordinary paired
+authority validation, after its last owner await. A final non-yielding metadata/
+expiry fence (no file-body read) runs at the existing effect/send boundary and
+latches withdrawal; it cannot revive an observed revoked admission. Check again before domain/provider effects, private delivery and each existing WS
 revocation interval. Removal, expiry, replacement, installation or interface
 changes revoke the old local connection and its waiting actions/deliveries.
 A new valid record permits a new admission, not continuation under an old grant.
