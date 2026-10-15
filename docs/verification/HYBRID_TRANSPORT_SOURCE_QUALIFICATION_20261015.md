@@ -19,21 +19,21 @@ Broadcast owners. Only external music/source provider I/O is explicitly fixed.
 It is a verification composition, not an installed HA integration test.
 
 Exact run fingerprint:
-`7fe2ede341edd84bfc5f9b2330245f53e82bf5fa3b15f2ada308268f1e50e66e`.
+`616e9fdbf82261f26660bba9420c5dd08cd5fa0e803ae820e5f01d9ef638f381`.
 All 163 integration-file SHA256 values and the canonical verifier hash match
 current source. The full-worktree fingerprint also includes the then-current
 documentation snapshot; later evidence-only edits do not change tested runtime
 or verifier bytes. The fixture excludes authentication frames, paired tokens,
 credentials and real account material.
 
-Fixture SHA256: `5f280e138d32dd21a4b149cea3331f1e29db96b1db3a250439b2d151d2831304`.
+Fixture SHA256: `56194457132eb329a81e240ebc0e116bfab600574223ec757c7d76d3d42f2474`.
 
 - Four deliberate provider mutation acceptances; reconciliation/duplicate attempts
   add zero effects. No real model calls. No provider exactly-once guarantee.
-- Production idle music-only lease: 300.008863 seconds. Authentication deadline:
-  5.002693 seconds. Missing-pong close: 23.927369 seconds.
-- Idle source withdrawal: 1.002720 seconds; token rotation: 1.005035 seconds.
-- Real maximum process RSS: 250,848 KiB under the explicit container bound.
+- Production idle music-only lease: 300.010418 seconds. Authentication deadline:
+  5.011397 seconds. Missing-pong close: 23.489158 seconds.
+- Idle source withdrawal: 1.004832 seconds; token rotation: 1.006995 seconds.
+- Real maximum process RSS: 251,360 KiB under the explicit container bound.
 - Journal before idle expiry: 16,349 bytes; after expiry/GC: 879 bytes. This is
   measured sample storage, not a claim that the final file is peak storage.
 - Actual out-of-order held-effect/fast-read replies and replacement socket
@@ -43,7 +43,7 @@ Fixture SHA256: `5f280e138d32dd21a4b149cea3331f1e29db96b1db3a250439b2d151d283130
 
 ## Regression, owning coverage and design consistency
 
-Full current-main regression: 1,913 tests PASS, seven existing skips. Twenty-four
+Full current-main regression: 1,914 tests PASS, seven existing skips. Twenty-four
 journal/service owning units PASS. All 142 living-DAG tests, schema/reference/
 acyclicity/generation checks, package snapshot and offline governance projection
 checks pass. Changed Python passes Ruff; the new transport implementation passes
@@ -56,7 +56,7 @@ hashes accompany the fixture; coverage does not substitute for an unexecuted
 native, installed or physical test.
 
 Owner-requested [localization](INTEGRATION_UX_LOCALIZATION_20261015.md) is separately
-committed and independently reviewed, with 156 focused tests/159 subtests.
+committed and independently reviewed, with 157 focused tests/2,991 subtests.
 Historical roadmap snapshots and all prior delivered product changes remain
 preserved. Live JSON maintenance v10 and generated views retain source In progress,
 Apple/joint Planned/open and family PARTIAL until their actual delivery gates.
@@ -78,3 +78,16 @@ pins follow protected source delivery. Automatic native LAN/external/return,
 suspension/foreground, actual view continuity and native energy measurements
 remain Apple-owned OPEN. Installed/hardware/joint acceptance is NOT_RUN/OPEN;
 no HA-dev/prod restart, deployment, Pages, signing or hardware effects occurred.
+
+## Exact hassfest repair
+
+PR #1170 remains on the original approved candidate pending a separate repair
+publication grant. Its genuine hassfest failure was confined to English service
+text formatting: trailing YAML block-string newlines and two literal JSON
+examples interpreted as invalid placeholders. The repair changes only
+`strings.json` and `translations/en.json` within the integration, plus a regression
+and refreshed evidence. All Python runtime and four other locales are unchanged.
+The full 54-case production-lease proof is repeated on the repaired catalogue
+bytes, and the official exact CI hassfest image passes locally (one integration,
+zero invalid). New remote checks and exact Owner Authorization are still required
+on the repair SHA; no old candidate grant or failed check is bypassed.

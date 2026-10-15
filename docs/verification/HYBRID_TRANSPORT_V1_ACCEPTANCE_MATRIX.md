@@ -15,7 +15,7 @@ Apple40021 PARTIAL evidence is not current native acceptance.
 | Broadcast HTTP recovery | Same actual Runtime/Broadcast cursor/DTO, published opening Moment retained, honest snapshot_required, no added subscription, end→404 | PASS_CORE_HA; missing client rendering is not inferred |
 | Rich-result bounds | Actual oversized queue body after admission becomes confirmed receipt-only; both availability flags false; same-ID retry adds no provider fetch | PASS_CORE_HA + frame/admission units; no partial body or regeneration |
 | Native automatic routes | Existing Apple writer owns Mac/iPhone/iPad coordinator and actual transitions | OPEN_APPLE; no Swift writes or installed/native acceptance here |
-| Regression/localization | Full suite 1,913 tests, seven existing skips; 156 focused UX tests/159 subtests; five-language action/field/Repair wiring | PASS_LOCAL_SOFTWARE; actual frontend layout NOT_RUN |
+| Regression/localization | Full suite 1,914 tests, seven existing skips; 157 focused UX tests/2,991 subtests; five-language action/field/Repair wiring | PASS_LOCAL_SOFTWARE; actual frontend layout NOT_RUN |
 
 
 Use genuine isolated HA/router/auth/Profile/Runtime/Store/Broadcast and real

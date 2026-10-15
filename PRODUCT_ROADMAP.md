@@ -18,7 +18,7 @@ recovery reuses Runtime/Broadcast without a second timeline or subscription.
 
 The current isolated HA/TLS software qualification has 54 actual transport
 cases, four deliberate provider effects and zero retry effects/model calls;
-24 journal/service owning units and the full 1,913-test regression suite pass
+24 journal/service owning units and the full 1,914-test regression suite pass
 (seven existing skips). The production 300-second lease, auth deadline,
 no-pong/source/token withdrawal, out-of-order replies, socket replacement and
 oversized admitted-result fallback are exercised. Exact final candidate

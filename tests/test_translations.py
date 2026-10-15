@@ -227,6 +227,20 @@ class TranslationTest(unittest.TestCase):
             with self.subTest(catalogue=path.name):
                 self.assertNotIn("raspberry_pi or windows", path.read_text())
 
+    def test_service_strings_follow_ha_whitespace_and_placeholder_rules(self) -> None:
+        import re
+
+        paths = [INTEGRATION / "strings.json"] + [
+            TRANSLATIONS / f"{language}.json" for language in SUPPORTED_LANGUAGES
+        ]
+        for path in paths:
+            services = json.loads(path.read_text())["services"]
+            for key, value in _leaf_values(services).items():
+                with self.subTest(catalogue=path.name, key=key):
+                    self.assertEqual(value, value.strip())
+                    for placeholder in re.findall(r"\{([^{}]*)\}", value):
+                        self.assertRegex(placeholder, r"^[a-zA-Z_][a-zA-Z0-9_]*$")
+
     def test_all_service_forms_have_localized_names_and_field_help(self) -> None:
         import yaml
 

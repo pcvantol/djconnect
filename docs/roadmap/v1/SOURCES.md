@@ -30,8 +30,8 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 
 | Local design source | SHA256 |
 |---|---|
-| [PRODUCT_ROADMAP.md](../../../PRODUCT_ROADMAP.md) | `dedcf9c44e4a4c848f68d814ec0570975ceb84fdc71b6a67382be1e37338787c` |
-| [PRODUCT_BACKLOG.md](../../../PRODUCT_BACKLOG.md) | `a10b6461f84b2402437495954dd71f685abd2dac383ef3b054b7b0a66f4fab56` |
+| [PRODUCT_ROADMAP.md](../../../PRODUCT_ROADMAP.md) | `6b6b98c9133ebd3fc288953372bbda21e8e5b274435305c4413036adbef4eb01` |
+| [PRODUCT_BACKLOG.md](../../../PRODUCT_BACKLOG.md) | `cc80b0bdc7b45b72be7fd86991a9632eee2454a0a44b04c78fc6ca75a7cf31c9` |
 | [docs/product/DJ_PRESENCE_V1.md](../../../docs/product/DJ_PRESENCE_V1.md) | `c97be3bcebbd4ca70d640cdf4fc0a9a4808451e986bc977e3173e19842a928c4` |
 | [DJ_SESSION_RUNTIME_CONTRACTS.md](../../../DJ_SESSION_RUNTIME_CONTRACTS.md) | `6ae7a05260bc2a997252dbb70c28917ac6b7fd25930263d7c0940df929b1ec92` |
 | [docs/product/DJ_INTELLIGENCE_ARCHITECTURE.md](../../../docs/product/DJ_INTELLIGENCE_ARCHITECTURE.md) | `5345f4a3db6b2bfb97931d6acdde09439dc3dbae7a7d311107269922e08aef12` |
@@ -80,6 +80,6 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 | [docs/history/prompts/2026-10-14-current-artist-profile-label-finalization.md](../../../docs/history/prompts/2026-10-14-current-artist-profile-label-finalization.md) | `8ff79d233563f7d8f7d4c118abe2c4b4eb05bb6cb3603a697b109dc62f359474` |
 | [docs/product/HYBRID_HTTP_WEBSOCKET_TRANSPORT_V1.md](../../../docs/product/HYBRID_HTTP_WEBSOCKET_TRANSPORT_V1.md) | `b1be6a3f8d98f5f3430c1aca6549c7caa6f56013f5fad7af688fe390d0babbb3` |
 | [docs/product/TRANSPORT_OPERATION_RECOVERY_CONTRACT_V1.md](../../../docs/product/TRANSPORT_OPERATION_RECOVERY_CONTRACT_V1.md) | `0ba644ddfd23139de80f50cf8b658cedab370c9fcc72e4e3ea9c35282f76b562` |
-| [docs/verification/HYBRID_TRANSPORT_V1_ACCEPTANCE_MATRIX.md](../../../docs/verification/HYBRID_TRANSPORT_V1_ACCEPTANCE_MATRIX.md) | `9acbf4cd89c4bf0be2d4bc2c7289da00f4a47a5796ba90cd4ade9de7bd0026ba` |
-| [docs/verification/INTEGRATION_UX_LOCALIZATION_20261015.md](../../../docs/verification/INTEGRATION_UX_LOCALIZATION_20261015.md) | `c05ccc94df6827c276d1b86a5177d4a52e1f00ab9e8469db5d94f358966f7dc7` |
-| [docs/verification/HYBRID_TRANSPORT_SOURCE_QUALIFICATION_20261015.md](../../../docs/verification/HYBRID_TRANSPORT_SOURCE_QUALIFICATION_20261015.md) | `8bc271ce861abcc3470d783407d10579ebc2efd4414f9bcee039184ccd7da6fa` |
+| [docs/verification/HYBRID_TRANSPORT_V1_ACCEPTANCE_MATRIX.md](../../../docs/verification/HYBRID_TRANSPORT_V1_ACCEPTANCE_MATRIX.md) | `779ce43ddb313e2d19f6cb15835a7bf16f9d8f76c70449751a699eea5259d3bf` |
+| [docs/verification/INTEGRATION_UX_LOCALIZATION_20261015.md](../../../docs/verification/INTEGRATION_UX_LOCALIZATION_20261015.md) | `c7d3dd11e4f9156ec1f25a7c28dd2af5264b3e2816a89abe5a3f7697241cc5e8` |
+| [docs/verification/HYBRID_TRANSPORT_SOURCE_QUALIFICATION_20261015.md](../../../docs/verification/HYBRID_TRANSPORT_SOURCE_QUALIFICATION_20261015.md) | `34fdf1f596d20f35628a6e27db963e75c4042055abebf19b8d712909e46422c8` |
