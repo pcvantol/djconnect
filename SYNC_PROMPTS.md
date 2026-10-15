@@ -1,15 +1,8 @@
-# Current direct-local HTTP/WS correction — design before runtime
+# Qualified direct-local HTTP/WS — protected Core producer
 
-`DJC-CORE-HYBRID-LOCAL-HTTP-WS-FIX-V1-20261015`, base62c8156d, same existing
-Core writer. Read [qualified local policy](docs/product/HYBRID_LOCAL_TRANSPORT_POLICY_V1.md)
-before changes. Owner requires direct internal HTTP/WS, external HTTPS/WSS.
-Only actual socket peer + enabled HA subnet/loopback + qualified internal origin,
-without forwarding headers and with explicit operator ingress qualification, may
-admit plaintext. Absent/invalid/withdrawn qualification rejects even loopback;
-exact peer allowlist and explicit proxy/gateway denylist bind current interfaces. No blanket private-IP/gateway
-exception. Current Docker HA-dev ingress is unqualified; no installed/native
-LAN PASS. Existing pairing/install/operation/reconciliation/source fences remain.
-This forward correction does not change frozen Speech PR1177 or earlier delivery.
+Source [#1184](https://github.com/pcvantol/djconnect/pull/1184), exact main `0f92b74e76ae055efdbf2b375d95c58e86328e27`, reviewed/owner-authorizeda0714b44. Read [policy](docs/product/HYBRID_LOCAL_TRANSPORT_POLICY_V1.md) and [source readback](docs/verification/HYBRID_LOCAL_TRANSPORT_SOURCE_READBACK_20261015.md). Additive policy_version1/deployment_qualification_required keeps legacy global TLS true; only authenticated qualified request context/auth_ok can report qualified_direct_http andrequires_authenticated_tlsfalse. WS route withdrawal is auth_invalid/transport_security_required, not re-pair/Profile/cachewipe. Reconcile original operation-ID/status through already-trusted TLS; never retry an uncertain execute. Administrative exact-peer qualification expires within24h; reads/reconnect never renew it. Existing dispatcher, pairing/installation/Profile/source and final owner/ingress fences remain authoritative.
+
+Actual HA-dev Docker ingress remains UNQUALIFIED, source loopback proof is not installed/native LAN acceptance. Finalization and exact terminal artifact pin remain separate. No Swift/receiver writes, consumer admission, topology/trust/service change or inferred hardware PASS. Frozen Speech1177 is preserved and must independently integrate actual finalmain before its renewed exact gates.
 
 # Current Core Session artwork — definitive protected producer handoff
 

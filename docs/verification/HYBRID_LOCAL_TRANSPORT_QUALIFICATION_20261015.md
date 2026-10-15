@@ -98,8 +98,10 @@ is required separately; no proxy, certificate, firewall or service change occurs
 in this Core repair. Source software success does not establish installed/native
 LAN, LAN→cellular→LAN, widgets/Speech, physical hardware or joint acceptance.
 
-This candidate remains LOCAL/UNPUBLISHED until exact independent review and its
-own valid publication/protected delivery gates. Current installed dev/prodmain62c
+Source [PR #1184](https://github.com/pcvantol/djconnect/pull/1184) is protected
+merged as0f92b74e76ae055efdbf2b375d95c58e86328e27 after exact a0714b44 reviews,
+owner approval and32green checks; [official source readback](HYBRID_LOCAL_TRANSPORT_SOURCE_READBACK_20261015.md)
+qualifies166files with0mismatches and actual formal/coverage bindings. Current installed dev/prodmain62c
 contains the previous iPad500 repair, not this new local transport implementation.
 Apple receives an exact producer/schema/fixture pin under its existing writer;
 no Swift writes, new consumer admission or native PASS is inferred. Separate

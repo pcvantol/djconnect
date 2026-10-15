@@ -1,8 +1,8 @@
 # DJConnect Product Roadmap
 
-## Bounded hybrid local HTTP/WS correction — in progress
+## Bounded hybrid local HTTP/WS correction — Core source delivered
 
-Existing hybrid transport receives the owner-requested [qualified direct local policy](docs/product/HYBRID_LOCAL_TRANSPORT_POLICY_V1.md). Design precedes runtime; local source is not delivered. External TLS, ordinary pairing/install/operation/privacy boundaries remain. No new product family or reopened prior delivery. Docker HA-dev direct-LAN qualification remains open where peer provenance is erased; Speech1177 stays preserved separately.
+[Source PR #1184](https://github.com/pcvantol/djconnect/pull/1184) protected merged as `0f92b74e76ae055efdbf2b375d95c58e86328e27` from exact reviewed/owner-authorizeda0714b44. Existing hybrid transport now implements the [qualified direct local policy](docs/product/HYBRID_LOCAL_TRANSPORT_POLICY_V1.md), with68genuine HA cases/300slease,38owning+5raceunits and1964regressions/7existing skips. External TLS and ordinary pairing/Profile/source/installation/operation authority remain. No new product family or reopened prior delivery. HA-dev Docker direct LAN, installed/native and joint acceptance remain OPEN. Speech1177 remains preserved; passive projection waits for its Speech predecessor. Separate Finalization and safe own cleanup reconcile this maintenance increment, without starting a successor.
 
 ## Selected VibeCast decisions delta and receiver slice1
 
