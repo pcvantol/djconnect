@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
   "fixture_kind": "sanitized_real_isolated_HA_transport",
-  "contract_commit": "7201e6a51ef42f1dec1f992fcb27bfa839456313",
+  "contract_commit": "16128ef994e5d14cb25ed4fd387112300e946038",
   "producer_candidate": "LOCAL_UNPUBLISHED_NOT_FINAL_DELIVERY_PIN",
   "ordinary_pairing": true,
-  "source_manifest_sha256": "6ba54e4d9f9c902831e8a98f50c91bf12427d9fc852e6601c8e4406c84e0fdef",
+  "source_manifest_sha256": "a0bfe9ac21b6ca9d4a80ca125d7fb42849106eba72019fa869f313c0903aecf1",
   "source_files": 164,
   "external_fixtures": "Spotify/knowledge/CDN only; bundled images are own synthetic test pixels, not licensed live artist photographs",
   "examples": {
@@ -13,7 +13,7 @@
         "schema_version": 1,
         "session_id": "session-fixture-1",
         "entry_id": "entry-fixture-2",
-        "revision": "1198e53183b2c74da8bca02f",
+        "revision": "a00b41bb9431da478a219384",
         "artwork": {
           "state": "ready",
           "subject": {
@@ -32,8 +32,8 @@
             "url": "https://open.spotify.com/track/AAAAAAAAAAAAAAAAAAAAAA"
           },
           "usage_basis": "spotify_temporary_owner_display",
-          "captured_at": "2026-10-15T10:41:57.535110+00:00",
-          "expires_at": "2026-10-15T10:46:57.535110+00:00",
+          "captured_at": "2026-10-15T11:38:48.487570+00:00",
+          "expires_at": "2026-10-15T11:43:48.487570+00:00",
           "current_display_allowed": true,
           "active_flow_display_allowed": true,
           "historical_display_allowed": false,
@@ -50,7 +50,7 @@
             "es": "Portada de Fixture track"
           },
           "url": "/api/djconnect/v1/session/media/image/session-fixture-1/resource-fixture-3",
-          "media_revision": "1198e53183b2c74da8bca02f"
+          "media_revision": "a00b41bb9431da478a219384"
         }
       },
       "bytes_sha256": "f0bc137aba271fb8901172ebbea85ad1ead2891cd2f5dbf32c415f23c179e146"
@@ -60,7 +60,7 @@
         "schema_version": 1,
         "session_id": "session-fixture-1",
         "moment_id": "moment-fixture-4",
-        "revision": "27cc4e4edf85e0628cfdf9ca",
+        "revision": "379f1675ed2cc291773137e6",
         "artwork": {
           "state": "ready",
           "subject": {
@@ -78,8 +78,8 @@
             "url": "https://open.spotify.com/album/BBBBBBBBBBBBBBBBBBBBBB"
           },
           "usage_basis": "spotify_temporary_owner_display",
-          "captured_at": "2026-10-15T10:42:33.667844+00:00",
-          "expires_at": "2026-10-15T10:47:33.667844+00:00",
+          "captured_at": "2026-10-15T11:39:24.622566+00:00",
+          "expires_at": "2026-10-15T11:44:24.622566+00:00",
           "current_display_allowed": true,
           "active_flow_display_allowed": true,
           "historical_display_allowed": false,
@@ -96,7 +96,7 @@
             "es": "Portada de Fixture album"
           },
           "url": "/api/djconnect/v1/session/media/image/session-fixture-1/resource-fixture-5",
-          "media_revision": "27cc4e4edf85e0628cfdf9ca"
+          "media_revision": "379f1675ed2cc291773137e6"
         }
       }
     },
@@ -104,7 +104,7 @@
       "projection": {
         "schema_version": 1,
         "session_id": "session-fixture-1",
-        "moment_id": "moment-fixture-6",
+        "entry_id": "entry-fixture-2",
         "revision": "loading",
         "artwork": {
           "state": "loading",
@@ -123,7 +123,7 @@
         "schema_version": 1,
         "session_id": "session-fixture-1",
         "moment_id": "moment-fixture-6",
-        "revision": "d520c708eebe4f16cb67c234",
+        "revision": "ccce32076ead141b08d5f03b",
         "artwork": {
           "state": "ready",
           "subject": {
@@ -141,8 +141,8 @@
             "url": "https://open.spotify.com/artist/CCCCCCCCCCCCCCCCCCCCCC"
           },
           "usage_basis": "spotify_temporary_owner_display",
-          "captured_at": "2026-10-15T10:43:33.001951+00:00",
-          "expires_at": "2026-10-15T10:48:33.001951+00:00",
+          "captured_at": "2026-10-15T11:40:00.806703+00:00",
+          "expires_at": "2026-10-15T11:45:00.806703+00:00",
           "current_display_allowed": false,
           "active_flow_display_allowed": true,
           "historical_display_allowed": false,
@@ -154,12 +154,12 @@
           "alt_text": {
             "en": "Artist image for Fixture artist",
             "nl": "Artiestbeeld van Fixture artist",
-            "de": "Künstlerbild von Fixture artist",
-            "fr": "Image de l’artiste Fixture artist",
+            "de": "K\u00fcnstlerbild von Fixture artist",
+            "fr": "Image de l\u2019artiste Fixture artist",
             "es": "Imagen del artista Fixture artist"
           },
           "url": "/api/djconnect/v1/session/media/image/session-fixture-1/resource-fixture-7",
-          "media_revision": "d520c708eebe4f16cb67c234"
+          "media_revision": "f7be3e5b3fe32a60be2071a2"
         }
       },
       "bytes_sha256": "c84cb44d143ac921adb1f2322753b86b3c0b2a50fd26b3e0f1ebca99b64ef950",
@@ -170,7 +170,7 @@
         "schema_version": 1,
         "session_id": "session-fixture-1",
         "moment_id": "moment-fixture-6",
-        "revision": "d520c708eebe4f16cb67c234",
+        "revision": "ccce32076ead141b08d5f03b",
         "artwork": {
           "state": "ready",
           "subject": {
@@ -188,8 +188,8 @@
             "url": "https://open.spotify.com/artist/CCCCCCCCCCCCCCCCCCCCCC"
           },
           "usage_basis": "spotify_temporary_owner_display",
-          "captured_at": "2026-10-15T10:43:33.001951+00:00",
-          "expires_at": "2026-10-15T10:48:33.001951+00:00",
+          "captured_at": "2026-10-15T11:40:00.806703+00:00",
+          "expires_at": "2026-10-15T11:45:00.806703+00:00",
           "current_display_allowed": false,
           "active_flow_display_allowed": true,
           "historical_display_allowed": false,
@@ -201,22 +201,23 @@
           "alt_text": {
             "en": "Artist image for Fixture artist",
             "nl": "Artiestbeeld van Fixture artist",
-            "de": "Künstlerbild von Fixture artist",
-            "fr": "Image de l’artiste Fixture artist",
+            "de": "K\u00fcnstlerbild von Fixture artist",
+            "fr": "Image de l\u2019artiste Fixture artist",
             "es": "Imagen del artista Fixture artist"
           },
           "url": "/api/djconnect/v1/session/media/image/session-fixture-1/resource-fixture-7",
-          "media_revision": "d520c708eebe4f16cb67c234"
+          "media_revision": "f7be3e5b3fe32a60be2071a2"
         }
       },
-      "different_current_artist": true
+      "different_current_artist": true,
+      "early_ready_then_other_target_waited": true
     },
     "older_entry_refresh": {
       "projection": {
         "schema_version": 1,
         "session_id": "session-fixture-1",
         "entry_id": "entry-fixture-2",
-        "revision": "1344eabf68820bdb9607aa27",
+        "revision": "23ae68f933dbab81d71153df",
         "artwork": {
           "state": "ready",
           "subject": {
@@ -235,8 +236,8 @@
             "url": "https://open.spotify.com/track/AAAAAAAAAAAAAAAAAAAAAA"
           },
           "usage_basis": "spotify_temporary_owner_display",
-          "captured_at": "2026-10-15T10:43:36.064312+00:00",
-          "expires_at": "2026-10-15T10:48:36.064312+00:00",
+          "captured_at": "2026-10-15T11:40:00.887666+00:00",
+          "expires_at": "2026-10-15T11:45:00.887666+00:00",
           "current_display_allowed": false,
           "active_flow_display_allowed": false,
           "historical_display_allowed": true,
@@ -253,7 +254,7 @@
             "es": "Portada de Fixture track"
           },
           "url": "/api/djconnect/v1/session/media/image/session-fixture-1/resource-fixture-8",
-          "media_revision": "1344eabf68820bdb9607aa27"
+          "media_revision": "23ae68f933dbab81d71153df"
         }
       },
       "pure_reads_provider_calls": 0
@@ -262,7 +263,7 @@
   "actual_observed_lifecycle_cases": {
     "expiry": {
       "image_status": 404,
-      "real_elapsed_seconds": 301.0066267610091,
+      "real_elapsed_seconds": 301.0070024710003,
       "idle_bytes_removed_before_read": true
     },
     "binding_away_and_back_inflight": {
@@ -280,6 +281,43 @@
       "provider_calls": 0,
       "history_revision_equal": true,
       "summary_equal": true
+    },
+    "history_purge_during_batch": {
+      "response": {
+        "success": true,
+        "contract_version": 1,
+        "session_media": [
+          {
+            "schema_version": 1,
+            "session_id": "session-fixture-9",
+            "entry_id": "entry-fixture-10",
+            "revision": "source_withdrawn",
+            "artwork": {
+              "state": "withdrawn",
+              "reason": "source_withdrawn",
+              "current_display_allowed": false,
+              "active_flow_display_allowed": false,
+              "historical_display_allowed": false
+            }
+          },
+          {
+            "schema_version": 1,
+            "session_id": "session-fixture-9",
+            "entry_id": "entry-fixture-11",
+            "revision": "source_withdrawn",
+            "artwork": {
+              "state": "withdrawn",
+              "reason": "source_withdrawn",
+              "current_display_allowed": false,
+              "active_flow_display_allowed": false,
+              "historical_display_allowed": false
+            }
+          }
+        ]
+      },
+      "image_status": 404,
+      "profile_and_pairing_preserved": true,
+      "real_storage_owner": true
     }
   },
   "native": "OPEN_APPLE",

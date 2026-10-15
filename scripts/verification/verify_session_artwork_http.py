@@ -536,6 +536,10 @@ async def main():
         _,purge_page=await get('/session/history/'+purge_sid)
         targets=[{'entry_id':e['entry_id']} for e in purge_page['entries'] if e['kind']=='playback_observed'][:2]
         assert len(targets)==2
+        # Clear any live-prepared grants through the real Profile owner after
+        # end, then warm only A. No active Runtime remains to prefetch B.
+        await storage.async_upsert_device(identity['device_id'],'ios',linked_profile_id='profile-other')
+        await storage.async_upsert_device(identity['device_id'],'ios',linked_profile_id='profile-a')
         initial=await post('/session/media/prepare',{**identity,'contract_version':1,'session_id':purge_sid,'targets':targets[:1]})
         original=initial['session_media'][0]
         assert original['artwork']['state']=='ready',initial
@@ -543,7 +547,9 @@ async def main():
         image_release.clear()
         image_mode[0]='blocked'
         pending=asyncio.create_task(post('/session/media/prepare',{**identity,'contract_version':1,'session_id':purge_sid,'targets':targets}))
-        await asyncio.wait_for(image_entered.wait(),10)
+        entered=asyncio.create_task(image_entered.wait())
+        done,_=await asyncio.wait({entered,pending},timeout=10,return_when=asyncio.FIRST_COMPLETED)
+        assert entered in done, ('Purge fixture did not hold target B',pending.result() if pending.done() else 'request still pending')
         await HistoricalProjectionRepository(service).async_purge_profile_history('profile-a')
         image_release.set()
         purged=await pending

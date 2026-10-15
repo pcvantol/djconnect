@@ -53,6 +53,23 @@ and latch pending preparations invalid. A temporary withdrawal followed by
 reassignment cannot revive earlier bytes or an in-flight preparation; a new
 explicitly authorized preparation must qualify independently.
 
+Batch preparation has a final synchronous delivery fence after all preparation
+and authorization awaits. It revalidates every returned resource and its actual
+current/flow/history scope without another await; an early ready target cannot
+keep a stale current grant while another target is pending. This fence preserves
+the original resource, media revision and expiry rather than resolving again.
+
+Existing historical storage transactions notify the same RAM image owner before
+and after Profile purge, entry removal, source withdrawal and retention cleanup.
+Scoped barriers prevent matching entry grants during the destructive await;
+pending work is invalidated on both boundaries, including failed transactions.
+At most eight scopes of at most250 entry IDs are retained; overflow fails closed
+for entry grants until outstanding scopes finish. Provider withdrawal matches
+the original provider entry; retention uses the actual historical Session header
+creation time or the entry's original retained-until deadline. Other Profiles
+and independent live Moment grants are preserved. No event journal, persistent
+image store, schema migration or second owner is introduced.
+
 Pure owner snapshots/history may project existing prepared media or a typed
 unavailable state, never fetch/prepare/renew. Explicit preparation may perform
 provider work and returns per-target states. Errors remain normal400/401/403/404/

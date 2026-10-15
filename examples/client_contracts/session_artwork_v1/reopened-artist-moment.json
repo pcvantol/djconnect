@@ -6,9 +6,9 @@
   "session_media": [
     {
       "schema_version": 1,
-      "session_id": "session-fixture-reopened",
-      "entry_id": "entry-fixture-archived-artist",
-      "revision": "e4cbfb931e7568e5a1340ea1",
+      "session_id": "session-fixture-12",
+      "entry_id": "entry-fixture-13",
+      "revision": "f28f251bb92c630813a7c883",
       "artwork": {
         "state": "ready",
         "subject": {
@@ -26,8 +26,8 @@
           "url": "https://open.spotify.com/artist/CCCCCCCCCCCCCCCCCCCCCC"
         },
         "usage_basis": "spotify_temporary_owner_display",
-        "captured_at": "2026-10-15T10:53:54.939421+00:00",
-        "expires_at": "2026-10-15T10:58:54.939421+00:00",
+        "captured_at": "2026-10-15T11:31:12.543335+00:00",
+        "expires_at": "2026-10-15T11:36:12.543335+00:00",
         "current_display_allowed": false,
         "active_flow_display_allowed": false,
         "historical_display_allowed": true,
@@ -39,12 +39,12 @@
         "alt_text": {
           "en": "Artist image for Fixture artist",
           "nl": "Artiestbeeld van Fixture artist",
-          "de": "Künstlerbild von Fixture artist",
-          "fr": "Image de l’artiste Fixture artist",
+          "de": "K\u00fcnstlerbild von Fixture artist",
+          "fr": "Image de l\u2019artiste Fixture artist",
           "es": "Imagen del artista Fixture artist"
         },
-        "url": "/api/djconnect/v1/session/media/image/session-fixture-reopened/resource-fixture-reopened",
-        "media_revision": "e4cbfb931e7568e5a1340ea1"
+        "url": "/api/djconnect/v1/session/media/image/session-fixture-12/resource-fixture-14",
+        "media_revision": "f28f251bb92c630813a7c883"
       }
     }
   ]

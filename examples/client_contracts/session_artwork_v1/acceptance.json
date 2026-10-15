@@ -1,9 +1,9 @@
 {
   "assignment": "DJC-CORE-SESSION-MOMENT-ARTWORK-V1-20261014",
   "state": "LOCAL_SOFTWARE_QUALIFIED_PENDING_EXACT_INDEPENDENT_REVIEW_AND_PUBLICATION",
-  "source_checkpoint": "7201e6a51ef42f1dec1f992fcb27bfa839456313",
+  "source_checkpoint": "16128ef994e5d14cb25ed4fd387112300e946038",
   "source_files": 164,
-  "source_manifest_sha256": "6ba54e4d9f9c902831e8a98f50c91bf12427d9fc852e6601c8e4406c84e0fdef",
+  "source_manifest_sha256": "a0bfe9ac21b6ca9d4a80ca125d7fb42849106eba72019fa869f313c0903aecf1",
   "source_manifest_canonicalization": "JSON sorted keys, compact comma/colon separators, UTF-8",
   "source_files_sha256": {
     "custom_components/djconnect/update.py": "d6a1ea30a3a33e04e8668dd6b11b6720d5b8f531b1160ac8771a16742179c7a5",
@@ -67,7 +67,7 @@
     "custom_components/djconnect/button.py": "aa1c3290c4369d99ecf6fc88f865e65e02d438d7e3b0a399621a5791062ba9bc",
     "custom_components/djconnect/wav_util.py": "06841ae5e471e20b2c234c2214eebb14dc764bf3a59acd9cd4767fdef3cc7c45",
     "custom_components/djconnect/session_forecast.py": "d57c7d6bb0abcfb7d881c395c3f2ee1615051908bbdfcc3b4ae80799d5f919f3",
-    "custom_components/djconnect/session_artwork.py": "8d36da9a1aaa0ee36dfd276b3d54b1698ff691b3fa8f71d722740825dff21fc9",
+    "custom_components/djconnect/session_artwork.py": "22db115f8689bf4805a2050b844c8cd4a9bb69ffdb8abec06332273bedff48f3",
     "custom_components/djconnect/paired_live.py": "b4f2796aab724309b31e750b8991031527921916f295a488c3f36a69a8dd17b6",
     "custom_components/djconnect/logo.png": "ff9007c335731b2c35b66961abfed09c80ce3da91032a9e947dbde94ffe8360b",
     "custom_components/djconnect/native_moment_delivery.py": "e7f4c9be356a60cc9dae05a6a200a58b3e07f1118a3e304e47380ddda528c642",
@@ -81,7 +81,7 @@
     "custom_components/djconnect/profile_export.py": "47975a364fd47395f839fc47b31fa0fec93e5f2d0604a164191a7876e1bcafc9",
     "custom_components/djconnect/manifest.json": "9635fb3c3a9990bdffbf993d3f2af9432bda12310bc24dc5267d27ea814bb67c",
     "custom_components/djconnect/strings.json": "2f65fcdac9429fb21f5f66a674e6ce59b15ba15dc97ec83d25bf5b78dfdaabd7",
-    "custom_components/djconnect/image_proxy.py": "96a54cbfc40c05b889717a7478a2ede73f21891067fb28ecc68788551f72d740",
+    "custom_components/djconnect/image_proxy.py": "77a855a75a02f8a8d643cfb9decfbb0c1ced33693cd8f70f91f01aa059296b53",
     "custom_components/djconnect/session_conversation.py": "96566ab23f76496028c8a716a172d6609d5a408429376c22e9e07f6bad5c5d6f",
     "custom_components/djconnect/paired_live_contract.py": "fb4485b6acd9d548c17953edf64af4c4c4aa98c93cb325721acc033ff787f736",
     "custom_components/djconnect/session_facts.py": "c0bccda3bed471a3196069b80d82b84ebaafac864e5e2c073d6ae25a4c31eba4",
@@ -144,11 +144,16 @@
     "custom_components/djconnect/persistence/README.md": "c305e30879e4a3006a72fcf44487408ec7afba4caff509503d2b603c6ecf927f",
     "custom_components/djconnect/persistence/summary.py": "f97711ebd2366e33d4164dd541cf6b2526f2d7cb0e26c0c13dcbc33b0e1125db",
     "custom_components/djconnect/persistence/schema.py": "a4162c0f093a9b4113a563154e8c0d62502e012fd939f9a8bfabc6f24da87745",
-    "custom_components/djconnect/persistence/history.py": "8ae35a7f6a58946bce802566b7869eebc3b240cfd60b9832f7654b34cf22b0c8",
+    "custom_components/djconnect/persistence/history.py": "d3c694b92b6dc64d9fdfd1d4af8a1c55891a595a249198d91eb73d1593542a13",
     "custom_components/djconnect/prompts/dj_persona.md": "dc9047cbadf58a7d5a89e5555ea93f5ef427c5b0ad79f3018ca57e02c9f61b1a",
     "custom_components/djconnect/domain/__init__.py": "104de8336815898807e43ff381c27e7ed22d47d62ce4855adc7446eb26d67902",
     "custom_components/djconnect/domain/storage.py": "1ea4141ed775fe26f839a664159f19d74808ca90cb6f719bbd3e0faf8e268a6e",
     "custom_components/djconnect/domain/errors.py": "d9766fd1d4e50dda60104676f16f8f6fb3ea89d64f65b9db001fc8d8b77f76cf",
+    "custom_components/djconnect/translations/nl.json": "25bcbbd71f08a8550ee4be37f633cf1b752ed3f5d617ba5ec6eaba2c62dbe095",
+    "custom_components/djconnect/translations/de.json": "8f412f0a12dd88929d572c6dfe8a22da071605358d2167b414a42d0c895548c0",
+    "custom_components/djconnect/translations/en.json": "2f962a629466627e99efc8eb2c24b20072aa0477021f0e10ed3b9e176bcb63e7",
+    "custom_components/djconnect/translations/fr.json": "dc46cb320886454665f17b8c111cc3e37f9e24aaf1311016734d9d895fb9db24",
+    "custom_components/djconnect/translations/es.json": "951473fdd5d6cc2477d57dbe2b0d9f685102a904cbea382810ab2755f5e41dd7",
     "custom_components/djconnect/domain/music_account/models.py": "eefc64ac272cd7cbf17ac4af8ec08213184d90e224280aab5a63f8a9ab2487d0",
     "custom_components/djconnect/domain/music_account/__init__.py": "36ad7ec36df88b1d51c173af9e0ade1ee382368120f8cc04759dcd164292f785",
     "custom_components/djconnect/domain/backend/models.py": "a521deaff497130fe275de653f672e7e0829c4baec3e798b245db0f1b8c72fe3",
@@ -164,23 +169,17 @@
     "custom_components/djconnect/domain/playback_zone/models.py": "05738f7064e3dbcd03651bcf9a679bd92d64cc848307b5a30aa520ee92ab99b3",
     "custom_components/djconnect/domain/playback_zone/__init__.py": "f5fa81c0bc682dd7f806108fb6bc012609dc94a0199d3784f8c92669879a0e4c",
     "custom_components/djconnect/domain/resolver/profile_resolver.py": "a13f58d7d965157ac0db2c31767a7460d60d6d8df9b34fb3b2f29357b8aa8167",
-    "custom_components/djconnect/domain/resolver/__init__.py": "f2a44fb57c5aba95ae343c1f60e4468bb33b1bdb4eea134fe5fc9f0e6d184268",
-    "custom_components/djconnect/translations/nl.json": "25bcbbd71f08a8550ee4be37f633cf1b752ed3f5d617ba5ec6eaba2c62dbe095",
-    "custom_components/djconnect/translations/de.json": "8f412f0a12dd88929d572c6dfe8a22da071605358d2167b414a42d0c895548c0",
-    "custom_components/djconnect/translations/en.json": "2f962a629466627e99efc8eb2c24b20072aa0477021f0e10ed3b9e176bcb63e7",
-    "custom_components/djconnect/translations/fr.json": "dc46cb320886454665f17b8c111cc3e37f9e24aaf1311016734d9d895fb9db24",
-    "custom_components/djconnect/translations/es.json": "951473fdd5d6cc2477d57dbe2b0d9f685102a904cbea382810ab2755f5e41dd7"
+    "custom_components/djconnect/domain/resolver/__init__.py": "f2a44fb57c5aba95ae343c1f60e4468bb33b1bdb4eea134fe5fc9f0e6d184268"
   },
-  "regression_tests": 1942,
+  "regression_tests": 1949,
   "existing_skips": 7,
-  "owning_tests": 28,
+  "owning_tests": 35,
   "dag_tests": 148,
   "ruff": "PASS",
   "bandit_medium_high": "ZERO_FINDINGS",
   "actual_HA_cases": [
     "playback_cover",
     "album_story",
-    "browser_attached",
     "loading",
     "late_artist_after_track_change",
     "artist_story",
@@ -195,11 +194,12 @@
     "other_profile_denied",
     "binding_away_and_back_inflight",
     "expiry",
-    "source_withdrawal"
+    "source_withdrawal",
+    "history_purge_during_batch"
   ],
   "real_expiry": {
     "image_status": 404,
-    "real_elapsed_seconds": 301.0066267610091,
+    "real_elapsed_seconds": 301.0070024710003,
     "idle_bytes_removed_before_read": true
   },
   "old_store_without_subject_reference": {
@@ -222,7 +222,7 @@
         "host": "local",
         "orientation": "portrait",
         "actual_HA_Broadcast": true,
-        "frames": 27,
+        "frames": 25,
         "currentTrack": true,
         "unchangedMoment": true,
         "sourceLinks": true,
@@ -237,7 +237,7 @@
         "host": "local",
         "orientation": "landscape",
         "actual_HA_Broadcast": true,
-        "frames": 27,
+        "frames": 25,
         "currentTrack": true,
         "unchangedMoment": true,
         "sourceLinks": true,
@@ -252,7 +252,7 @@
         "host": "cast",
         "orientation": "portrait",
         "actual_HA_Broadcast": true,
-        "frames": 27,
+        "frames": 25,
         "currentTrack": true,
         "unchangedMoment": true,
         "sourceLinks": true,
@@ -267,7 +267,7 @@
         "host": "cast",
         "orientation": "landscape",
         "actual_HA_Broadcast": true,
-        "frames": 27,
+        "frames": 25,
         "currentTrack": true,
         "unchangedMoment": true,
         "sourceLinks": true,
@@ -301,15 +301,15 @@
     ],
     "compressed_bytes_each": 56311,
     "max_concurrent_actual_decoders": 2,
-    "ru_maxrss_before_KiB": 136160,
-    "ru_maxrss_after_KiB": 262792,
-    "peak_increment_KiB": 126632,
-    "elapsed_seconds": 0.07720899999549147,
+    "ru_maxrss_before_KiB": 136576,
+    "ru_maxrss_after_KiB": 263500,
+    "peak_increment_KiB": 126924,
+    "elapsed_seconds": 0.08149804201093502,
     "decoder": "actual Pillow via HA executor and shared image owner"
   },
   "latency_seconds": {
-    "session_start": 0.017831832999945618,
-    "explicit_first_image": 0.08095074999437202
+    "session_start": 0.03857258400239516,
+    "explicit_first_image": 0.12580650000018068
   },
   "pure_reads_provider_calls": 0,
   "duplicate_prepare_provider_calls": 0,
@@ -320,5 +320,17 @@
   "installed_artwork": "NOT_RUN",
   "joint": "OPEN",
   "hardware": "NOT_CLAIMED",
-  "protected_delivery": "NOT_STARTED"
+  "protected_delivery": "NOT_STARTED",
+  "review_regression_fixes": {
+    "batch_final_response_fence": true,
+    "history_purge_during_batch": 404,
+    "scoped_barrier_retention_cancellation": "35 owning boundary tests plus real SQLite purge"
+  },
+  "evidence_sources": {
+    "complete_HA": "lab-batch-expiry/session-artwork.json",
+    "browser": "lab-batch-final/browser/receipt.json",
+    "reopen": "lab-batch-final/{legacy,moment}-readback",
+    "decode": "lab-batch-final/decode-load.json",
+    "same_164_source_hashes_verified": true
+  }
 }

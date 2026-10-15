@@ -103,6 +103,14 @@ not to an unreviewed local candidate. No next productslice within this assignmen
 
 ## Current local software evidence
 
+Golden Scenario relationship is indirect: this slice changes presentation/media
+grants after existing semantic acceptance, never Knowledge selection, Planner
+priority, Moment realization or Presence dosing. The real HA test waits for
+actual published Album/Artist contributions and proves their identity, history
+revision and summary remain unchanged by preparation. Existing intelligence,
+Mood, Presence, Forecast and Ask DJ suites remain regression gates; image
+delivery is qualified separately with byte, authority and lifecycle evidence.
+
 [Actual transport/acceptance fixtures](../../examples/client_contracts/session_artwork_v1/README.md)
 bind164 integration source hashes. Real normal-pairing HA proves cover/album/artist,
 artist A/current artist B including late completion, retained Artist-Moment and
@@ -114,9 +122,9 @@ orientations, with loaded existing cover pixels, unchanged text/source links,
 readability, reconnect, Session-end clearing and no private media grants. CAF is
 modeled only; Apple/native, installed artwork and joint acceptance remain open.
 
-1942 regression tests (7 existing skips),28 owning tests and148 DAG tests pass;
+1949 regression tests (7 existing skips),35 owning tests and148 DAG tests pass;
 Ruff passes and Bandit has zero medium/high findings. Three actual4000×4000
-decodes reach at most2 concurrent decoders; measured peak increment126632KiB
+decodes reach at most2 concurrent decoders; measured peak increment126924KiB
 is temporary decoder RAM, separate from the32MiB compressed resident budget.
 No coverage exclusion is added. Exact independent reviews and protected source
 and separate Finalization publication have not yet occurred.

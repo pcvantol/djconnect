@@ -39877,11 +39877,11 @@
       },
       {
         "path": "docs/product/SESSION_MOMENT_ARTWORK_V1.md",
-        "sha256": "ab19a8ca4c761146ab4ade6fc659ec3f885872aa9966119b850533fe36aac51c"
+        "sha256": "5f172dd75526383e1986dbf987891c23059466088270c24bf270502c0d65b28f"
       },
       {
         "path": "docs/product/SESSION_ARTWORK_DELIVERY_CONTRACT_V1.md",
-        "sha256": "a2c98c515e399d0e8cf75960e17dab1263688299f7b7da351028308ecd12b9ce"
+        "sha256": "3e3da658daa128f5eae618740ba8e86a39766a661d559f86badfb20a6f9f8c09"
       }
     ],
     "implementation_receipt": {

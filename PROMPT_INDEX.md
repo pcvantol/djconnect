@@ -29,8 +29,7 @@ queries. Only exact subjects and original source/account authority qualify.
 Current display, active flow and explicit older-entry refresh have independent
 rights. Images never enter persistent history as bodies, CDNURLs or deliverytokens.
 
-Local implementation and qualification are in progress; checkpoint26730568 plus
-subsequent reviewed fixes. All28 owning tests and1942 regression tests pass
+Local implementation and qualification are in progress; runtime checkpoint16128ef9 with batch-delivery/history-transaction race fixes. All35 owning tests and1949 regression tests pass
 (seven existing skips); Ruff and DAG validation pass. Actual paired HA proved
 cover/album/contextual artist, late track change, old-entry refresh, authority
 races and301-second idle expiry. Final four-path browser/lifecycle qualification passes, including loaded cover

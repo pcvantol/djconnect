@@ -7,7 +7,7 @@ knowledge-source and CDN responses alone were fixtures. Bundled PNGs are our
 own synthetic test pixels; no live artist photo/license or native acceptance is
 claimed. Match their checksums to actual fetched lab bytes.
 
-Contract/source checkpoint `7201e6a51ef42f1dec1f992fcb27bfa839456313` is local
+Contract/source checkpoint `16128ef994e5d14cb25ed4fd387112300e946038` is local
 and unpublished, not a final producer delivery pin. All164 integration files in
 the actual capture match this source checkpoint; its canonical source-manifest
 SHA256 is embedded in the JSON. No current/native/installed acceptance follows. `transport-examples.json`
