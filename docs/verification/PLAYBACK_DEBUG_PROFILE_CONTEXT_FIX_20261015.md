@@ -1,6 +1,9 @@
 # Profile-bound playback DEBUG hotfix — 2026-10-15
 
-Status: local repair; no source publication, main merge or installed iPad PASS.
+Historical local qualification at source94. Current protected delivery and
+installed Core HA-dev evidence: [exact readback](PLAYBACK_DEBUG_PROFILE_CONTEXT_SOURCE_READBACK_20261015.md).
+The readback separately records Apple's physical iPad retest for the three
+repaired screens; broader native acceptance remains open.
 Base: `a6d666fea7f30254b20bea015fad8d1fd8d7b059`. Same existing Core writer;
 branch `codex/playback-debug-context-hotfix-v1`. Speech PR1177 remains frozen at
 533fa48c and retains its own exact merge gate; this urgent maintenance repair
@@ -41,6 +44,8 @@ normal HA network/multicast setup in the networkless container; those are not
 product proofs. The successful v3 runs use an explicit external-provider HTTP
 session boundary and exit0 normally.
 
-No runtime installed/restarted, pairing/Profile reset, playback change, Swift
-write, deployment or hardware acceptance. Exact independent review, normal
-publication/protected delivery and separately verified installed readback remain.
+At the original local qualification no runtime was installed/restarted. No
+pairing/Profile reset, playback change, Swift
+write, deployment or hardware acceptance was claimed by that local qualification.
+Subsequent exact independent review, protected delivery and installed/consumer
+readback are recorded in the linked report.

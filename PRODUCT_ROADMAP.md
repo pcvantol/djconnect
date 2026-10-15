@@ -1,5 +1,9 @@
 # DJConnect Product Roadmap
 
+## Maintenance: Profile-bound playback DEBUG500 repaired
+
+[Source1178](https://github.com/pcvantol/djconnect/pull/1178) delivered at `fe8c66a120a44faaeb49432729359e6a2055194e`; [source/artifact/installed HA-dev proof](docs/verification/PLAYBACK_DEBUG_PROFILE_CONTEXT_SOURCE_READBACK_20261015.md). Diagnostic logging alone uses existing request metadata; normal Profile/provider authority/errors remain unchanged. Existing iPad identity now returns status/queue/playlists200/success after verified backup/restart; pairing/Profile unchanged,164files0mismatch. Physical Apple/native and HA-prod remain separate. No new product node/family or product implementation promoted; original WEB/historical receipts preserved. Separate exact Finalization remains pending before this maintenance scope closes. Speech source1177/533 remains separate and must integrate this newer main before renewed delivery qualification.
+
 ## Separate web-first VibeCast documentary assignment
 
 [DJC-VIBECAST-WEB-FIRST-GUEST-EXPERIENCE-DESIGN-V1-20261015](https://github.com/pcvantol/djconnect/issues/1174)
