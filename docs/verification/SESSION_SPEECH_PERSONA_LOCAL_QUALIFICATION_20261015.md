@@ -19,8 +19,8 @@ explicit fixtures. The isolated container uses 1 GiB, 2 CPUs and 256 PIDs, its o
 bridge and loopback-only published TLS ports. HA-dev/prod and other labs are untouched.
 
 Accepted common Ask DJ replies, published live Moments and independently
-qualified retained entries use one exact private speech owner. Never suppresses
-autoplay while preserving manual Listen. Live end, Profile ABA, source expiry,
+qualified retained entries use one exact private speech owner.
+`audio_response:never` suppresses autoplay while preserving explicit manual Listen. Live end, Profile ABA, source expiry,
 clear/purge and cancellation revoke grants; retained CC0 replay after end is
 independently qualified. Legacy native clients get explicit protocol-upgrade
 unavailability instead of a private legacy GET downgrade. Both JSON and real
