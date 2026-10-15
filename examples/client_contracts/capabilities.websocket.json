@@ -106,6 +106,7 @@
     "requires_authenticated_tls": true,
     "transport_security": {
       "policy_version": 1,
+      "deployment_qualification_required": true,
       "external": "authenticated_tls",
       "local_plaintext": "qualified_direct_only",
       "peer_policy": "enabled_interface_subnet_or_loopback",

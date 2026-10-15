@@ -96,6 +96,9 @@ alongside it, so owner revocation during the ingress await cannot reopen deliver
 revocation interval. Removal, expiry, replacement, installation or interface
 changes revoke the old local connection and its waiting actions/deliveries.
 A new valid record permits a new admission, not continuation under an old grant.
+The24hour maximum and exact peer binding are operational availability limits:
+expiry or a changed DHCP address requires operator requalification. Reads,
+reconnect and client requests never rewrite or renew this administrative record.
 Existing accepted-operation receipts retain their conservative semantic outcome;
 withdrawal never authorizes speculative retries. TLS authority remains unchanged.
 
@@ -129,7 +132,11 @@ private subnets, missing peer/config, Docker gateway, forwarding/cloud headers,
 null/foreign/malformed/multiple Origin, missing/invalid paired credentials,
 revocation and installation mismatch. All routes share the same rejection.
 `transport_security_required` withdraws this route, not pairing/Profile itself;
-external TLS recovery may reconcile the original operation without blind replay.
+WS reports `{type:"auth_invalid",code:"transport_security_required"}` for
+this withdrawal. Clients must not re-pair, clear Profile state or erase owner
+caches because this transport route closed. Recovery uses only an already
+trusted TLS route and the original operation ID/status; it never resubmits
+an uncertain execute or silently trusts a new address.
 An unqualified HTTP request retains426 transport_security_required; an invalid
 Origin retains403 origin_not_allowed. No redirect or HTTP mutation retry.
 
