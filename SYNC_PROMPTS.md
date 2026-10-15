@@ -1,3 +1,14 @@
+# Current direct-local HTTP/WS correction — design before runtime
+
+`DJC-CORE-HYBRID-LOCAL-HTTP-WS-FIX-V1-20261015`, base62c8156d, same existing
+Core writer. Read [qualified local policy](docs/product/HYBRID_LOCAL_TRANSPORT_POLICY_V1.md)
+before changes. Owner requires direct internal HTTP/WS, external HTTPS/WSS.
+Only actual socket peer + enabled HA subnet/loopback + qualified internal origin,
+without forwarding headers, may admit plaintext. No blanket private-IP/gateway
+exception. Current Docker HA-dev ingress is unqualified; no installed/native
+LAN PASS. Existing pairing/install/operation/reconciliation/source fences remain.
+This forward correction does not change frozen Speech PR1177 or earlier delivery.
+
 # Current Core Session artwork — definitive protected producer handoff
 
 Source [#1172](https://github.com/pcvantol/djconnect/pull/1172), exact main `5c7ecb7941c555f12bd94a2969167cfaaff0cb44`. [Readback](docs/verification/SESSION_ARTWORK_V1_SOURCE_READBACK_20261015.md):164files,0mismatches; artifact/formal/coverage PASS. [Apple87](https://github.com/pcvantol/djconnect-app/issues/87#issuecomment-6191468438) and [VibeCast10](https://github.com/pcvantol/djconnect-vibecast-receiver/issues/10#issuecomment-6191468743) definitive pins posted/read back. Canonical artwork contract and sanitized fixtures are on this exact main. Native/joint remain open; receiver compatibility only, private Session media never forwarded. No new consumer writer/admission.

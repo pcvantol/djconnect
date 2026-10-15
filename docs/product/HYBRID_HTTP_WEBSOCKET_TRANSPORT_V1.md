@@ -1,5 +1,14 @@
 # Hybrid HTTP/WebSocket transport v1
 
+## Forward local-transport refinement
+
+[Qualified direct local HTTP/WS policy v1](HYBRID_LOCAL_TRANSPORT_POLICY_V1.md)
+supersedes the TLS-only admission statements below exclusively for a proven
+direct local ingress. External/proxy access still requires authenticated TLS.
+No global downgrade or native/installed acceptance follows from this design.
+The original TLS-only baseline remains documented below for historical and
+legacy-client behavior; all operation, identity and privacy semantics remain.
+
 Assignment: `DJC-CORE-HYBRID-TRANSPORT-CONVERGENCE-V1-20261013`;
 [selection6149934177](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6149934177),
 ACK6185332170. Contract-first design, not an advertisement of unfinished routes.
