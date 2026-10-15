@@ -1,5 +1,16 @@
 # Audience Experience Architecture
 
+## Current web-first decisions delta
+
+[Decisions, distribution and optional Cast lifecycle](VIBECAST_WEB_ENTRY_DISTRIBUTION_V1.md)
+records vibecast.tv/root, the resolved existing-app exception with both discovery/
+QR entries, adaptive Glass/Soft/Solid and the still-open final reaction/rocket choice.
+Receiver#16 selects only independent bootstrap/build/CI/CD; API rendezvous,
+Core display admission, Apple and guest functionality retain separate gates.
+Cast is optional, with different origin/admission/CAF departure/idle behavior;
+no native-TV or Cast-hardware prerequisite for independent browser delivery.
+Historical source/physical/installed evidence below is not rewritten or upgraded.
+
 ## Web-first design precedence (2026-10-15)
 
 The [web-first experience v1](VIBECAST_WEB_FIRST_EXPERIENCE_V1.md) is the canonical

@@ -204,6 +204,9 @@ def strip(plan):
 def validate(plan, previous_validator):
     d = plan["planning_maintenance"]
     r = d["web_first_receipt"]
+    if r.get("schema_version") == "djconnect-web-first-design/2":
+        from web_first_decisions_delta import validate as validate_decisions
+        return validate_decisions(plan, validate, previous_validator)
     old = strip(plan)
     errors = previous_validator(old)
 
@@ -350,7 +353,12 @@ def validate(plan, previous_validator):
 
 def add_views(out, plan):
     r = plan["planning_maintenance"]["web_first_receipt"]
+    decisions = r.get("schema_version") == "djconnect-web-first-design/2"
     intro = (
+        f"Web-first #1174 decision delta: {r['decisions_delta']['phase']}; vibecast.tv/root and existing-app guest exception RESOLVED. "
+        "Receiver16 PUBLIC_WEB_DELIVERY SELECTED/QUEUED after this delta delivery/Finalization and fresh own admission; executor ACK pending. "
+        "API rendezvous/Core/Apple/guest integration separately Planned; full onboarding and hardware OPEN. Final reaction/rocket and technical choices OPEN. No runtime/deploy by this docs writer.\n\n"
+        if decisions else
         f"Web-first #1174 documentary extension: {r['phase']}; design authored only, product implementation Planned/NOT_ISSUED and joint acceptance OPEN. "
         "Cast-first/native-TV prerequisites superseded for forward design; original receipts remain historical. URL/exception/emoji OPEN. No automatic dispatch or runtime/publication grant.\n\n"
     )
@@ -367,4 +375,7 @@ def add_views(out, plan):
     out["diagrams/ready-frontier.mmd"] = (
         'flowchart LR\n  Docs["#1174 designs authored; delivery gates separate"] --> Trust["Trust and legacy disposition qualification Planned"]\n  Trust --> Join["Bootstrap/display/shared guest slices Planned; no dispatch"]\n'
     )
+    if decisions:
+        out["HANDOFFS.md"] += "\nDecision delta -> receiver10/16, Core1101, Apple87, API90: exact new design/DAG source+Finalization pin. Receiver16 may autonomously perform fresh lane admission after own earlier closure, no new general start permission. API/Core/Apple producers not selected by this handoff.\n"
+        out["diagrams/ready-frontier.mmd"] = 'flowchart LR\n  Docs["New decisions delta source+Finalization pin"] --> Public["Receiver16 public frontend/build/CD SELECTED QUEUED"]\n  API["API trust/rendezvous Planned"] --> E2E["Full onboarding integration OPEN"]\n  Core["Core display / Apple scan Planned"] --> E2E\n  Public --> E2E\n'
     return out
