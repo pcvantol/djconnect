@@ -86,17 +86,31 @@ authenticated TLS/server identity before any paired secret. Legacy plaintext
 HTTP remains separately bounded compatibility, not a new automatic trust grant.
 
 POST `/api/djconnect/v1/transport/operation` uses ordinary paired bearer/device
-headers and closed JSON `contract_version:1`, `operation_epoch`, `operation_id`,
-`operation`, `payload`. WS `djconnect/operation/execute` carries the same fields
+headers and closed JSON `identity:{device_id,client_type}`, `contract_version:1`,
+`operation_epoch`, `operation_id`, `operation`, `payload`. The HTTP adapter removes
+the required identity envelope after authenticating its exact device binding;
+the shared service accepts only the remaining closed operation fields.
+WS `djconnect/operation/execute` carries the same operation fields
 plus its connection/request envelope; both invoke one dispatcher and the existing
 handler. A first completed response carries its canonical result/status plus a
-versioned operation receipt. Repeat execution requests return status/receipt and
+versioned operation receipt only while its original owner delivery admission
+remains valid. Ask DJ and Track Insight register the existing RAM-only result
+guards; no callback is serialized. At actual HTTP/WS delivery those guards run
+again. A queued pure read is projected by its existing owner at actual send.
+If an original rich-result guard is unavailable or has become invalid, return
+only the compact semantic receipt with `result_available:false`; confirmation
+is retained, never promoted into renewed content rights. Repeat execution requests return status/receipt and
 `result_available:false` where content cannot be safely replayed; they do not
 regenerate a private answer or create a new publication. Clients may use a
 qualified existing history/query owner where available; absence remains honest.
 
 POST `/api/djconnect/v1/transport/operation/status` and WS status use version,
-original ID/epoch only. No secrets in query parameters. All responses no-store,
+original ID/epoch, plus the HTTP identity envelope. POST
+`/api/djconnect/v1/transport/context` accepts only `contract_version:1` and that
+identity envelope; its owner response includes the existing paired installation
+ID, boot operation epoch, effective server clock, lifetime and declared operation
+sets. It neither issues credentials nor creates an installation identity.
+No secrets in query parameters. All responses no-store,
 no-referrer. Typed errors include operation_expired, operation_conflict,
 operation_context_changed, operation_epoch_changed, operation_capacity,
 operation_unavailable and operation_unknown. Unknown is not a successful playback

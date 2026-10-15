@@ -42,3 +42,19 @@ qualify the exact final candidate after fixes. No deployment/installation here.
 Early design454a470f is not runtimeGO: independent reviews rejected its standalone
 HMAC-origin assumption and missing rollback fence/phase-content distinction.
 Those findings are corrected before corresponding runtime implementation.
+
+## Connected preliminary checkpoint
+
+`tests/fixtures/hybrid_transport_v1.json` records 17 actual isolated HA/TLS/WS
+transport cases from the exact source hashes it embeds. Ordinary pairing,
+validated local TLS, first-frame paired actions, canonical active Session,
+HTTP snapshot-required recovery, HTTP/WS operation dedup, two deliberate skips,
+payload conflict, audience rejection, request-ID reuse rejection and journal
+reopening pass. Exactly two external provider mutations occur; no model calls.
+No installed or native result is inferred. This is `PASS_CORE_TLS_HA_BASELINE`,
+not completion of the matrix above. Full operation parity, withdrawal/race,
+backpressure, liveness, resource and final independent reviews remain required.
+
+Fourteen journal/service owning units additionally cover cancellation, uncertain
+Store acknowledgement, revoked authority, slow-save expiry and original
+owner delivery guards. These are unit evidence, distinct from actual HA sockets.

@@ -5495,6 +5495,18 @@ class SessionRuntimeManager:
                 active.broadcast._owner_subscription_entries[subscription_id] = authorization_entry_id
             return subscription_id
 
+    async def async_recover_owner_projection(
+        self, *, owner_profile_id: str, session_id: str, recovery_cursor: str,
+        authorization_entry_id: str = "", authorization_entry_generation: int = 0,
+    ) -> dict[str, Any] | None:
+        """Reuse the owner recovery engine without creating a live subscription."""
+        async with self._lock:
+            active = self._active_by_profile.get(owner_profile_id)
+            if (active is None or active.session_id != session_id
+                or (authorization_entry_id and authorization_entry_generation != self.receiver_entry_generation(authorization_entry_id))):
+                return None
+            return active.broadcast.recover_owner(recovery_cursor)
+
     async def async_recover_owner_subscription(
         self,
         *,

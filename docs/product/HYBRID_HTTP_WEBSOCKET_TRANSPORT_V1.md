@@ -116,7 +116,12 @@ Owner HTTP recovery must use the existing Runtime/Broadcast recovery owner,
 not a second timeline. A bounded owner POST recovery projection may expose the
 same cursor result without a retained subscription. Replay returns only qualified
 currently deliverable events; snapshot_required is an honest coverage gap, not
-proof that every missed Moment was rendered. Never replay expired/inaccessible
+proof that every missed Moment was rendered. The TLS-only owner POST is
+`/api/djconnect/v1/session/broadcast/recovery` with closed JSON
+`contract_version:1`, `identity:{device_id,client_type}`, `session_id` and the
+original opaque `recovery_cursor`, using ordinary paired bearer/device headers.
+The same read is available as `session/broadcast/recover` on paired actions.
+Never replay expired/inaccessible
 cards or count transport deliveries as new publication.
 
 Apple receives an exact source/schema pin and real transport fixtures early.

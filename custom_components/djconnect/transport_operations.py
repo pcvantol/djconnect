@@ -10,6 +10,7 @@ import asyncio
 from copy import deepcopy
 import hashlib
 import secrets
+import re
 import time
 from uuid import UUID
 
@@ -204,6 +205,14 @@ class OperationJournal:
     async def transition(self, key, phase, *, response_status=None, error=None):
         if phase not in PHASES:
             raise ValueError("invalid operation phase")
+        if response_status is not None and (
+            type(response_status) is not int or not 100 <= response_status <= 599
+        ):
+            raise ValueError("invalid response status")
+        if error is not None and (
+            not isinstance(error, str) or not re.fullmatch(r"[a-z][a-z0-9_]{0,79}", error)
+        ):
+            error = "operation_domain_error"
         async with self._lock:
             await self._load()
             old = self._state["records"].get(key)
