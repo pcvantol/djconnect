@@ -22,6 +22,10 @@ Existing Apple Presence execution: In progress ([owning readback](https://github
 
 Selected bounded Hybrid transport: [DJC-CORE-HYBRID-TRANSPORT-CONVERGENCE-V1-20261013](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6149934177); source PROTECTED_MERGED. Existing connectivity parent retained; protocol, journal/recovery and paired actions share current Core owners. Apple adoption and joint/native transitions remain Planned/open; no consumer writes, installation or automatic dispatch. Current-artist1168/1169 closed before admission; version9 and its whole snapshot are preserved byte-for-byte.
 
+Selected subject-bound Session artwork: DJC-CORE-SESSION-MOMENT-ARTWORK-V1-20261014; source UNPUBLISHED. Three bounded Core subsets; native Apple and joint acceptance remain Planned/open. Prior delivered v10 is preserved; no transport functional prerequisite or automatic consumer dispatch.
+
+Owner-selected queued successor: DJC-SESSION-SPEECH-PERSONA-VOICE-20261015 ([selection](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6189231491), [autonomous-next](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6189912293)). Not admitted or implemented here; starts only after valid artwork closure and fresh sole-writer admission. Separate exact publication gates remain.
+
 Selected implementation [DJC-CORE-DJ-PRESENCE-V1-20261011](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6111222122); early local contract `1d5e8c2518db5902031898991b7f4857d5263a5c`; source delivery PROTECTED_MERGED.
 
 No presence implementation assigned to this lane.

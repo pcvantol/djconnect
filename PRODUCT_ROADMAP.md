@@ -1,5 +1,25 @@
 # DJConnect Product Roadmap
 
+## Session Moment artwork — active bounded Core slice
+
+`DJC-CORE-SESSION-MOMENT-ARTWORK-V1-20261014`, Core#1101 selection6175336907 /
+refinement6176704119, admitted ACK6189044515 after Hybrid1170/1171 closure at
+f0a7ff4b. [Design](docs/product/SESSION_MOMENT_ARTWORK_V1.md) and
+[delivery contract](docs/product/SESSION_ARTWORK_DELIVERY_CONTRACT_V1.md).
+Contract1668d71d before material23f58d2b; current local source is unpublished,
+qualification in progress. Exact subject/edition/source rights, optional live
+media revisions and explicit bounded historical refresh; no semantic Moment,
+summary/Presence charge, pure-read providerfetch or name-only backfill.
+
+Reuses existing Session presentation/history and image owners. JSON delta11
+preserves delivered v10; three Core subsets in progress, Apple-native adoption
+and joint product acceptance Planned/open. No duplicate Discovery correction,
+Hybrid prerequisite or consumer writer. Speech/Persona/voice6189231491 is a
+separate selected successor with autonomous-next6189912293 after valid artwork
+closure and fresh admission; its implementation is not part of this candidate. Source/Finalization
+publication retain new exact gates. Later direct owner instruction authorizes
+qualified post-slice dev/prod installation with backup/readback; no WIP install.
+
 ## Hybrid transport convergence — delivered Core producer; Finalization pending
 
 `DJC-CORE-HYBRID-TRANSPORT-CONVERGENCE-V1-20261013`: [source #1170](https://github.com/pcvantol/djconnect/pull/1170)

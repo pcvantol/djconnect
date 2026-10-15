@@ -2957,6 +2957,42 @@ class DJConnectForecastImageView(_DJConnectSessionView):
             "Cache-Control": "no-store", "Referrer-Policy": "no-referrer", "X-Content-Type-Options": "nosniff"})
 
 
+class DJConnectSessionMediaPrepareView(_DJConnectSessionView):
+    url = "/api/djconnect/v1/session/media/prepare"
+    name = "api:djconnect:session:media:prepare"
+
+    async def post(self, request):
+        from .session_artwork import handle_prepare
+
+        data = await self._payload(request)
+        result, status = await handle_prepare(request.app["hass"], data,
+            headers=request.headers, user_id=_request_user_id(request))
+        return self.json(result, status_code=status)
+
+
+class DJConnectSessionMediaImageView(_DJConnectSessionView):
+    url = "/api/djconnect/v1/session/media/image/{session_id}/{asset_id}"
+    name = "api:djconnect:session:media:image"
+
+    async def get(self, request, session_id, asset_id):
+        from .api_handlers import _session_profile_context
+        from .session_artwork import image
+
+        runtime, context, error, status = await _session_profile_context(request.app["hass"],
+            dict(request.query), headers=request.headers, user_id=_request_user_id(request),
+            source="session_media_image")
+        if error is not None:
+            return self.json(error, status_code=status)
+        if not context.privacy_policy.allow_personal_read:
+            return self.json({"success": False, "error": "media_not_allowed"}, status_code=403)
+        resource = await image(request.app["hass"], context, session_id, asset_id, runtime=runtime)
+        if resource is None:
+            return self.json({"success": False, "error": "media_unavailable"}, status_code=404)
+        return web.Response(body=resource[0], content_type=resource[1], headers={
+            "Cache-Control": "no-store", "Referrer-Policy": "no-referrer",
+            "X-Content-Type-Options": "nosniff"})
+
+
 class DJConnectSessionForecastView(_DJConnectSessionView):
     url = "/api/djconnect/v1/session/forecast/{session_id}"
     name = "api:djconnect:session:forecast"
@@ -2985,6 +3021,7 @@ class DJConnectTransportCapabilitiesView(HomeAssistantView):
         from .session_mood import capability as mood_capability
         from .session_presence import capability as presence_capability
         from .session_forecast import capability as forecast_capability
+        from .session_artwork import capability as artwork_capability
         return self.json(
             {
                 "success": True,
@@ -2997,6 +3034,7 @@ class DJConnectTransportCapabilitiesView(HomeAssistantView):
                 "active_session_mood": mood_capability(),
                 "active_session_presence": presence_capability(),
                 "session_forecast": forecast_capability(),
+                "session_artwork": artwork_capability(),
                 "hybrid_transport": hybrid_transport_capability(),
             }
         )

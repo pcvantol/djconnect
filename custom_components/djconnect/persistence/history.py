@@ -388,6 +388,16 @@ class HistoricalProjectionRepository(PersistenceRepository):
 
         await self._async_in_transaction(accept, authorize=authorize)
 
+    async def _async_history_change(self, operation, **scope):
+        """Fence the single RAM image owner across the destructive transaction."""
+        media = getattr(self._persistence, "session_image_owner", None)
+        token = media.begin_history_change(**scope) if media is not None else None
+        try:
+            return await self._async_in_transaction(operation)
+        finally:
+            if media is not None:
+                media.end_history_change(token, **scope)
+
     async def async_purge_profile_history(self, owner: str) -> None:
         """Erase the deleted owner's projections, never reassign them with devices."""
 
@@ -412,7 +422,7 @@ class HistoricalProjectionRepository(PersistenceRepository):
                 (owner,),
             )
 
-        await self._async_in_transaction(erase)
+        await self._async_history_change(erase, owner=owner)
 
     async def async_remove_entry_records(self, owner: str, identifiers: list[str]) -> None:
         """Withdraw source rows and invalidate affected query cursors atomically."""
@@ -443,7 +453,7 @@ class HistoricalProjectionRepository(PersistenceRepository):
                     (session_id, owner),
                 )
 
-        await self._async_in_transaction(erase)
+        await self._async_history_change(erase, owner=owner, identifiers=identifiers[:250])
 
     async def async_withdraw_source_entry(self, provider_entry_id: str) -> None:
         """Permanent revocation: scan bounded batches in one canonical transaction."""
@@ -485,7 +495,7 @@ class HistoricalProjectionRepository(PersistenceRepository):
                     (session_id,),
                 )
 
-        await self._async_in_transaction(erase)
+        await self._async_history_change(erase, provider_entry_id=provider_entry_id)
 
     async def async_playback_maintenance_records(
         self, *, after: str = "", limit: int = 250
@@ -508,6 +518,8 @@ class HistoricalProjectionRepository(PersistenceRepository):
         self, *, cutoff: str, batch_size: int, entry_deadline: str | None = None
     ) -> tuple[int, int, int, int]:
         """Delete expired Moments before Sessions, plus expired orphan Moments."""
+        # Fence only entry grants covered by this destructive retention pass.
+        now = datetime.fromisoformat(entry_deadline) if entry_deadline else datetime.now(UTC)
 
         def cleanup(tx: PersistenceTransaction) -> tuple[int, int, int, int]:
             # Entry deadlines are independent of the final Session header date.
@@ -589,7 +601,7 @@ class HistoricalProjectionRepository(PersistenceRepository):
                 )
             return len(session_rows), deleted_moments, len(orphan_rows), len(session_rows)
 
-        return await self._async_in_transaction(cleanup)
+        return await self._async_history_change(cleanup, expired_before=now.timestamp(), session_cutoff=datetime.fromisoformat(cutoff).timestamp())
 
     def _project_terminal_tx(
         self, tx: PersistenceTransaction, session: PersistentSession

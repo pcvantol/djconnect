@@ -40,6 +40,7 @@ class HistoricalProjectionQueryService:
         self._source_validator = source_validator
         self._grant_revision = grant_revision
         self._summary_validator = summary_validator
+        self.media_projector = None
         from .session_history_projection import HistoryCursorCodec
 
         self._history_cursor = HistoryCursorCodec()
@@ -100,6 +101,8 @@ class HistoricalProjectionQueryService:
         if self._source_validator is not None and not await self._source_validator(owner, row):
             return None
         entry = project_entry(row)
+        if entry is not None and self.media_projector is not None:
+            entry = self.media_projector(owner, row, entry)
         if entry is None or "conversation_reference" not in entry:
             return entry
         ref = entry["conversation_reference"]

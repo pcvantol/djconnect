@@ -37594,7 +37594,7 @@
     }
   ],
   "planning_maintenance": {
-    "schema_version": "djconnect-federated-planning-delta/10",
+    "schema_version": "djconnect-federated-planning-delta/11",
     "decision_id": "DJC-DJ-PRESENCE-ROADMAP-DESIGN-V1-20261011",
     "decision_url": "https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6110375785",
     "design_date": "2026-10-11",
@@ -38639,6 +38639,121 @@
             ]
           }
         ]
+      },
+      {
+        "id": "MEDIA::CORE::SESSION-CONTRACT",
+        "title": "Subject-bound Session artwork contract",
+        "lane": "DJC-CORE",
+        "repository": "pcvantol/djconnect",
+        "status": "In progress",
+        "assignment_status": "IN_PROGRESS",
+        "scope": "Subject-bound Session artwork contract",
+        "acceptance_boundary": "Subject-bound Session artwork contract; separate Core/native/installed/joint evidence",
+        "contract_binding": "docs/product/SESSION_ARTWORK_DELIVERY_CONTRACT_V1.md",
+        "source_ids": [
+          "OWNER-SESSION-MOMENT-ARTWORK-20261014"
+        ],
+        "parent_reference": "PROJ::ROADMAP::P2-SESSION",
+        "family_reference": "Existing Session presentation and history; bounded artwork subset",
+        "prerequisite_groups": []
+      },
+      {
+        "id": "MEDIA::CORE::SESSION-LIVE",
+        "title": "Published Moment and playback artwork delivery",
+        "lane": "DJC-CORE",
+        "repository": "pcvantol/djconnect",
+        "status": "In progress",
+        "assignment_status": "IN_PROGRESS",
+        "scope": "Published Moment and playback artwork delivery",
+        "acceptance_boundary": "Published Moment and playback artwork delivery; separate Core/native/installed/joint evidence",
+        "contract_binding": "docs/product/SESSION_ARTWORK_DELIVERY_CONTRACT_V1.md",
+        "source_ids": [
+          "OWNER-SESSION-MOMENT-ARTWORK-20261014"
+        ],
+        "parent_reference": "PROJ::ROADMAP::P2-SESSION",
+        "family_reference": "Existing Session presentation and history; bounded artwork subset",
+        "prerequisite_groups": [
+          {
+            "mode": "AND",
+            "edge_ids": [
+              "SESSION-MEDIA-1"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "MEDIA::CORE::SESSION-HISTORY",
+        "title": "Explicit original-source historical artwork resolution",
+        "lane": "DJC-CORE",
+        "repository": "pcvantol/djconnect",
+        "status": "In progress",
+        "assignment_status": "IN_PROGRESS",
+        "scope": "Explicit original-source historical artwork resolution",
+        "acceptance_boundary": "Explicit original-source historical artwork resolution; separate Core/native/installed/joint evidence",
+        "contract_binding": "docs/product/SESSION_ARTWORK_DELIVERY_CONTRACT_V1.md",
+        "source_ids": [
+          "OWNER-SESSION-MOMENT-ARTWORK-20261014"
+        ],
+        "parent_reference": "PROJ::ROADMAP::P2-SESSION",
+        "family_reference": "Existing Session presentation and history; bounded artwork subset",
+        "prerequisite_groups": [
+          {
+            "mode": "AND",
+            "edge_ids": [
+              "SESSION-MEDIA-2"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "MEDIA::APPLE::SESSION-ARTWORK",
+        "title": "Shared native Session artwork presentation",
+        "lane": "DJC-APPLE",
+        "repository": "pcvantol/djconnect-app",
+        "status": "Planned",
+        "assignment_status": "NOT_ISSUED",
+        "scope": "Shared native Session artwork presentation",
+        "acceptance_boundary": "Shared native Session artwork presentation; separate Core/native/installed/joint evidence",
+        "contract_binding": "docs/product/SESSION_ARTWORK_DELIVERY_CONTRACT_V1.md",
+        "source_ids": [
+          "OWNER-SESSION-MOMENT-ARTWORK-20261014"
+        ],
+        "parent_reference": "PROJ::ROADMAP::P2-SESSION",
+        "family_reference": "Existing Session presentation and history; bounded artwork subset",
+        "prerequisite_groups": [
+          {
+            "mode": "AND",
+            "edge_ids": [
+              "SESSION-MEDIA-3"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "MEDIA::JOINT::SESSION-ARTWORK",
+        "title": "Core and Apple subject/rights/expiry acceptance",
+        "lane": "DJC-CORE",
+        "repository": "pcvantol/djconnect",
+        "status": "Planned",
+        "assignment_status": "NOT_ISSUED",
+        "scope": "Core and Apple subject/rights/expiry acceptance",
+        "acceptance_boundary": "Core and Apple subject/rights/expiry acceptance; separate Core/native/installed/joint evidence",
+        "contract_binding": "docs/product/SESSION_ARTWORK_DELIVERY_CONTRACT_V1.md",
+        "source_ids": [
+          "OWNER-SESSION-MOMENT-ARTWORK-20261014"
+        ],
+        "parent_reference": "PROJ::ROADMAP::P2-SESSION",
+        "family_reference": "Existing Session presentation and history; bounded artwork subset",
+        "prerequisite_groups": [
+          {
+            "mode": "AND",
+            "edge_ids": [
+              "SESSION-MEDIA-4",
+              "SESSION-MEDIA-5",
+              "SESSION-MEDIA-6"
+            ]
+          }
+        ]
       }
     ],
     "edges": [
@@ -39441,16 +39556,112 @@
         "source_ids": [
           "OWNER-HYBRID-TRANSPORT-20261013"
         ]
+      },
+      {
+        "id": "SESSION-MEDIA-1",
+        "producer": "MEDIA::CORE::SESSION-CONTRACT",
+        "consumer": "MEDIA::CORE::SESSION-LIVE",
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "completion",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "required_subset": "Exact subject, source rights and lifecycle qualification",
+        "contract_or_evidence": "docs/product/SESSION_ARTWORK_DELIVERY_CONTRACT_V1.md",
+        "reason": "Bounded same-slice producer/consumer dependency",
+        "source_ids": [
+          "OWNER-SESSION-MOMENT-ARTWORK-20261014"
+        ]
+      },
+      {
+        "id": "SESSION-MEDIA-2",
+        "producer": "MEDIA::CORE::SESSION-LIVE",
+        "consumer": "MEDIA::CORE::SESSION-HISTORY",
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "completion",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "required_subset": "Exact subject, source rights and lifecycle qualification",
+        "contract_or_evidence": "docs/product/SESSION_ARTWORK_DELIVERY_CONTRACT_V1.md",
+        "reason": "Bounded same-slice producer/consumer dependency",
+        "source_ids": [
+          "OWNER-SESSION-MOMENT-ARTWORK-20261014"
+        ]
+      },
+      {
+        "id": "SESSION-MEDIA-3",
+        "producer": "MEDIA::CORE::SESSION-CONTRACT",
+        "consumer": "MEDIA::APPLE::SESSION-ARTWORK",
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "completion",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "required_subset": "Exact subject, source rights and lifecycle qualification",
+        "contract_or_evidence": "docs/product/SESSION_ARTWORK_DELIVERY_CONTRACT_V1.md",
+        "reason": "Bounded same-slice producer/consumer dependency",
+        "source_ids": [
+          "OWNER-SESSION-MOMENT-ARTWORK-20261014"
+        ]
+      },
+      {
+        "id": "SESSION-MEDIA-4",
+        "producer": "MEDIA::CORE::SESSION-LIVE",
+        "consumer": "MEDIA::JOINT::SESSION-ARTWORK",
+        "kind": "joint_acceptance",
+        "phase": "acceptance",
+        "prerequisite_stage": "completion",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "required_subset": "Exact subject, source rights and lifecycle qualification",
+        "contract_or_evidence": "docs/product/SESSION_ARTWORK_DELIVERY_CONTRACT_V1.md",
+        "reason": "Bounded same-slice producer/consumer dependency",
+        "source_ids": [
+          "OWNER-SESSION-MOMENT-ARTWORK-20261014"
+        ]
+      },
+      {
+        "id": "SESSION-MEDIA-5",
+        "producer": "MEDIA::CORE::SESSION-HISTORY",
+        "consumer": "MEDIA::JOINT::SESSION-ARTWORK",
+        "kind": "joint_acceptance",
+        "phase": "acceptance",
+        "prerequisite_stage": "completion",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "required_subset": "Exact subject, source rights and lifecycle qualification",
+        "contract_or_evidence": "docs/product/SESSION_ARTWORK_DELIVERY_CONTRACT_V1.md",
+        "reason": "Bounded same-slice producer/consumer dependency",
+        "source_ids": [
+          "OWNER-SESSION-MOMENT-ARTWORK-20261014"
+        ]
+      },
+      {
+        "id": "SESSION-MEDIA-6",
+        "producer": "MEDIA::APPLE::SESSION-ARTWORK",
+        "consumer": "MEDIA::JOINT::SESSION-ARTWORK",
+        "kind": "joint_acceptance",
+        "phase": "acceptance",
+        "prerequisite_stage": "completion",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "required_subset": "Exact subject, source rights and lifecycle qualification",
+        "contract_or_evidence": "docs/product/SESSION_ARTWORK_DELIVERY_CONTRACT_V1.md",
+        "reason": "Bounded same-slice producer/consumer dependency",
+        "source_ids": [
+          "OWNER-SESSION-MOMENT-ARTWORK-20261014"
+        ]
       }
     ],
     "document_references": [
       {
         "path": "PRODUCT_ROADMAP.md",
-        "sha256": "3947a018bbc92dd4269a2597b3254dd2bc88a98488d05484beb02da41e82cc24"
+        "sha256": "d45c0fec7bd0478d0280389349b2f127695da89c65eaec61b51e6cbd8a06043a"
       },
       {
         "path": "PRODUCT_BACKLOG.md",
-        "sha256": "3fb5e117ce16c76ad872ca28a5b2829b8e26cf7a1496d3ba7bbb2d1805db9cca"
+        "sha256": "85838f59ce376b87e4dffaf15a05094d3733ccb0d06ea90abc2653886c17fd97"
       },
       {
         "path": "docs/product/DJ_PRESENCE_V1.md",
@@ -39510,7 +39721,7 @@
       },
       {
         "path": "docs/product/NATIVE_MOMENT_DELIVERY_CONTRACT.md",
-        "sha256": "3b957568ad7076d55c8e250aec6dd742df90bd02c6421dc8db84a9ac8b42c5d4"
+        "sha256": "363efecf9d31c1fd818a0806305eea8bf60b0caa41fc7e08c31002835e1b0f19"
       },
       {
         "path": "docs/technical/BROADCAST_TRANSPORT.md",
@@ -39663,6 +39874,14 @@
       {
         "path": "docs/history/prompts/2026-10-15-hybrid-transport-localization-finalization.md",
         "sha256": "cbdabdb5c5201df3b220c306a0d9ca16f1215a480c624c452cefc9a63efa20f6"
+      },
+      {
+        "path": "docs/product/SESSION_MOMENT_ARTWORK_V1.md",
+        "sha256": "5f172dd75526383e1986dbf987891c23059466088270c24bf270502c0d65b28f"
+      },
+      {
+        "path": "docs/product/SESSION_ARTWORK_DELIVERY_CONTRACT_V1.md",
+        "sha256": "3e3da658daa128f5eae618740ba8e86a39766a661d559f86badfb20a6f9f8c09"
       }
     ],
     "implementation_receipt": {
@@ -39999,6 +40218,38 @@
       "protected_merge": true,
       "archive_sha256": "aca4faeac97ed5b229296284a50c8ec268327ac5feb9096b477c206f42601379",
       "formal_evidence_sha256": "595875f116f21181a0b8f972202c7f3f4d06e561ace165179ecc8220f487bc83"
+    },
+    "session_artwork_receipt": {
+      "assignment_id": "DJC-CORE-SESSION-MOMENT-ARTWORK-V1-20261014",
+      "selection": 6175336907,
+      "refinement": 6176704119,
+      "base_sha": "f0a7ff4bb878247db9ab25c4a22320f17d806cd6",
+      "branch": "codex/session-moment-artwork-v1",
+      "ack": 6189044515,
+      "material_start": 6189241629,
+      "contract_commit": "1668d71d3d639a12d7c61d96fc9656a2c3ce2b81",
+      "material_commit": "23f58d2b5d8e0ba373d26d3058e9bdd687320a5a",
+      "previous_delta": "history/20261015/hybrid-finalization-maintenance-v10.json",
+      "previous_delta_sha256": "161875131418a1c079db8df99137da28baf4242da0e91e5abab419d0c721eeb7",
+      "phase": "LOCAL_IMPLEMENTATION_AND_QUALIFICATION",
+      "source_delivery": "UNPUBLISHED",
+      "native": "OPEN_APPLE",
+      "installed": "NOT_RUN",
+      "hardware": "NOT_RUN",
+      "joint_acceptance": "OPEN",
+      "family_acceptance": "PARTIAL",
+      "consumer_writes": false,
+      "automatic_dispatch": false,
+      "selected_successor": {
+        "assignment_id": "DJC-SESSION-SPEECH-PERSONA-VOICE-20261015",
+        "owner_selection": 6189231491,
+        "autonomous_next": 6189912293,
+        "admission": "NOT_ADMITTED",
+        "start_boundary": "AFTER_VALID_ARTWORK_FINALIZATION_AND_FRESH_ADMISSION",
+        "same_writer": true,
+        "new_publication_gates_preserved": true,
+        "implementation_in_this_slice": false
+      }
     }
   }
 }

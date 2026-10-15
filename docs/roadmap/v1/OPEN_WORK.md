@@ -22,6 +22,10 @@ Existing Apple Presence execution: In progress ([owning readback](https://github
 
 Selected bounded Hybrid transport: [DJC-CORE-HYBRID-TRANSPORT-CONVERGENCE-V1-20261013](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6149934177); source PROTECTED_MERGED. Existing connectivity parent retained; protocol, journal/recovery and paired actions share current Core owners. Apple adoption and joint/native transitions remain Planned/open; no consumer writes, installation or automatic dispatch. Current-artist1168/1169 closed before admission; version9 and its whole snapshot are preserved byte-for-byte.
 
+Selected subject-bound Session artwork: DJC-CORE-SESSION-MOMENT-ARTWORK-V1-20261014; source UNPUBLISHED. Three bounded Core subsets; native Apple and joint acceptance remain Planned/open. Prior delivered v10 is preserved; no transport functional prerequisite or automatic consumer dispatch.
+
+Owner-selected queued successor: DJC-SESSION-SPEECH-PERSONA-VOICE-20261015 ([selection](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6189231491), [autonomous-next](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6189912293)). Not admitted or implemented here; starts only after valid artwork closure and fresh sole-writer admission. Separate exact publication gates remain.
+
 - `PROJ::INTELLIGENCE::DJ-PRESENCE` — Planned: Independent presence, Mood and Persona; no new dispatch.
 - `SLICE::APPLE::DJ-PRESENCE-CONTROL` — Planned: Accessible five-language native confirmation; reuse existing Apple writer.
 - `QUAL::VIBECAST::DJ-PRESENCE-COMPAT` — Planned: Core shared-renderer + receiver owner, both existing software builds.
@@ -53,5 +57,10 @@ Selected bounded Hybrid transport: [DJC-CORE-HYBRID-TRANSPORT-CONVERGENCE-V1-202
 - `CONVERSATION::PRODUCT::JOINT` — Planned: Shared dialogue and exact Moment detail joint acceptance.
 - `TRANSPORT::APPLE::HYBRID` — Planned: Existing Apple route coordinator adopts qualified producer contract; no installed/native/hardware claim from producer proof.
 - `TRANSPORT::JOINT::HYBRID` — Planned: Native LAN external and recovery acceptance across supported Apple devices; no installed/native/hardware claim from producer proof.
+- `MEDIA::CORE::SESSION-CONTRACT` — In progress: Subject-bound Session artwork contract; separate Core/native/installed/joint evidence.
+- `MEDIA::CORE::SESSION-LIVE` — In progress: Published Moment and playback artwork delivery; separate Core/native/installed/joint evidence.
+- `MEDIA::CORE::SESSION-HISTORY` — In progress: Explicit original-source historical artwork resolution; separate Core/native/installed/joint evidence.
+- `MEDIA::APPLE::SESSION-ARTWORK` — Planned: Shared native Session artwork presentation; separate Core/native/installed/joint evidence.
+- `MEDIA::JOINT::SESSION-ARTWORK` — Planned: Core and Apple subject/rights/expiry acceptance; separate Core/native/installed/joint evidence.
 
 Core policy/ownercontract status follows the exact implementation receipt. Native/installed/hardware acceptance remains open.

@@ -117,6 +117,8 @@ from .http import (
     DJConnectSessionPresenceView,
     DJConnectSessionForecastView,
     DJConnectForecastImageView,
+    DJConnectSessionMediaPrepareView,
+    DJConnectSessionMediaImageView,
     DJConnectSessionHistoryListView,
     DJConnectSessionHistoryDetailView,
     DJConnectSessionHistorySearchView,
@@ -1830,6 +1832,8 @@ def register_http_views(hass: HomeAssistant) -> None:
             DJConnectSessionMoodView(hass),
             DJConnectSessionPresenceView(hass),
             DJConnectSessionForecastView(hass),
+            DJConnectSessionMediaPrepareView(hass),
+            DJConnectSessionMediaImageView(hass),
             DJConnectForecastImageView(hass),
             DJConnectSessionHistoryListView(hass),
             DJConnectSessionHistoryOpenView(hass),
@@ -3342,6 +3346,9 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         if runtime and runtime.entry.entry_id == entry.entry_id:
             hass.data[DOMAIN].pop("runtime", None)
         if not _has_runtime_entries(hass):
+            images = hass.data[DOMAIN].pop("session_images", None)
+            if images is not None:
+                images.close()
             transport_manager = hass.data[DOMAIN].pop("hybrid_operation_manager", None)
             if transport_manager is not None:
                 # Stop bounded task/GC ownership on final unload. Retain only

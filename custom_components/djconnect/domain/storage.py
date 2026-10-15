@@ -79,6 +79,7 @@ class ProfilePlatformStorage:
             self._household = household
         self.validate_household(self._household)
         self._loaded = True
+        self._invalidate_session_images()
         async with self._write_lock:
             if self._store is not None:
                 await self._store.async_save(household_to_storage(self._household))
@@ -109,6 +110,14 @@ class ProfilePlatformStorage:
                     await self._store.async_save(household_to_storage(self._household))
                     raise ProfileStorageValidationError("profile_state_changed")
             self._household = updated
+            self._invalidate_session_images()
+
+    def _invalidate_session_images(self) -> None:
+        """Fence already resident and pending private art on authority changes."""
+        if self.hass is not None:
+            registry = self.hass.data.get("djconnect", {}).get("session_images")
+            if registry is not None:
+                registry.collect()
 
     async def async_create_profile(
         self,
