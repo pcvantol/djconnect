@@ -1,6 +1,6 @@
 # Maintenance source bindings
 
-Web-first #1174 documentary extension: LOCAL_DOCUMENTARY; design authored only, product implementation Planned/NOT_ISSUED and joint acceptance OPEN. Cast-first/native-TV prerequisites superseded for forward design; original receipts remain historical. URL/exception/emoji OPEN. No automatic dispatch or runtime/publication grant.
+Web-first #1174 documentary extension: SOURCE_PROTECTED_MERGED; design authored only, product implementation Planned/NOT_ISSUED and joint acceptance OPEN. Cast-first/native-TV prerequisites superseded for forward design; original receipts remain historical. URL/exception/emoji OPEN. No automatic dispatch or runtime/publication grant.
 
 Generated from djconnect-platform-v1.json, maintenance DJC-DJ-PRESENCE-ROADMAP-DESIGN-V1-20261011.
 
@@ -36,8 +36,8 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 
 | Local design source | SHA256 |
 |---|---|
-| [PRODUCT_ROADMAP.md](../../../PRODUCT_ROADMAP.md) | `c2bdc3bd71cfa28d0780d6a1f0e4c3a61ff896db6aba7b078ab6f13b77017fc7` |
-| [PRODUCT_BACKLOG.md](../../../PRODUCT_BACKLOG.md) | `6b2664148197a951dd78fb630efc0704d3b032c00776ac19b034a4b1582296ba` |
+| [PRODUCT_ROADMAP.md](../../../PRODUCT_ROADMAP.md) | `b66b7fecf297629344a58e0988f94e2165f8d6c664d67520171393de2206caeb` |
+| [PRODUCT_BACKLOG.md](../../../PRODUCT_BACKLOG.md) | `4057ff579e8d447dcd83c291bd27ad3947a383b5ef9b96aeeb349ff027da6777` |
 | [docs/product/DJ_PRESENCE_V1.md](../../../docs/product/DJ_PRESENCE_V1.md) | `c97be3bcebbd4ca70d640cdf4fc0a9a4808451e986bc977e3173e19842a928c4` |
 | [DJ_SESSION_RUNTIME_CONTRACTS.md](../../../DJ_SESSION_RUNTIME_CONTRACTS.md) | `6ae7a05260bc2a997252dbb70c28917ac6b7fd25930263d7c0940df929b1ec92` |
 | [docs/product/DJ_INTELLIGENCE_ARCHITECTURE.md](../../../docs/product/DJ_INTELLIGENCE_ARCHITECTURE.md) | `5345f4a3db6b2bfb97931d6acdde09439dc3dbae7a7d311107269922e08aef12` |

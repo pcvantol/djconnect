@@ -5,8 +5,8 @@
 [DJC-VIBECAST-WEB-FIRST-GUEST-EXPERIENCE-DESIGN-V1-20261015](https://github.com/pcvantol/djconnect/issues/1174)
 records [product direction](docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md),
 [onboarding/authority](docs/product/VIBECAST_ONBOARDING_GUEST_AUTHORITY_V1.md) and
-[temporary Apple mode](docs/product/APPLE_VIBECAST_GUEST_MODE_V1.md). Designs are
-locally authored, pending protected delivery/Finalization; product implementation
+[temporary Apple mode](docs/product/APPLE_VIBECAST_GUEST_MODE_V1.md). Design source protected merged in [PR #1175](https://github.com/pcvantol/djconnect/pull/1175)
+as `7266bc2540e4b7699cf47c028214e4b22c4c5afe`; separate Finalization reconciles delivery. Product implementation
 Planned, consumer/shared-media and joint/physical acceptance OPEN. Existing
 VibeCast/Audience/Guest families are reused by bounded WEB:: subsets in the
 [live DAG](docs/roadmap/v1/djconnect-platform-v1.json); no duplicate initiative or
