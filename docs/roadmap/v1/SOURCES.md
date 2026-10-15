@@ -20,7 +20,7 @@ Selected one-pipeline Ask DJ + exact Moment Track Insight: [DJC-CORE-ASKDJ-CONTE
 
 Existing Apple Presence execution: In progress ([owning readback](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6168870771)); native Mac/installed acceptance and protected Apple delivery remain open. This observation updates no historical planning node and grants no Core/consumer admission. Installed Presence advertisement is absent in the owner readback; completed Core policy remains closed. Dialogue adoption and intra-track visibility remain distinct open joint findings.
 
-Selected bounded Hybrid transport: [DJC-CORE-HYBRID-TRANSPORT-CONVERGENCE-V1-20261013](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6149934177); source UNPUBLISHED. Existing connectivity parent retained; protocol, journal/recovery and paired actions share current Core owners. Apple adoption and joint/native transitions remain Planned/open; no consumer writes, installation or automatic dispatch. Current-artist1168/1169 closed before admission; version9 and its whole snapshot are preserved byte-for-byte.
+Selected bounded Hybrid transport: [DJC-CORE-HYBRID-TRANSPORT-CONVERGENCE-V1-20261013](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6149934177); source PROTECTED_MERGED. Existing connectivity parent retained; protocol, journal/recovery and paired actions share current Core owners. Apple adoption and joint/native transitions remain Planned/open; no consumer writes, installation or automatic dispatch. Current-artist1168/1169 closed before admission; version9 and its whole snapshot are preserved byte-for-byte.
 
 Selected implementation [DJC-CORE-DJ-PRESENCE-V1-20261011](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6111222122); early local contract `1d5e8c2518db5902031898991b7f4857d5263a5c`; source delivery PROTECTED_MERGED.
 
@@ -30,8 +30,8 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 
 | Local design source | SHA256 |
 |---|---|
-| [PRODUCT_ROADMAP.md](../../../PRODUCT_ROADMAP.md) | `6b6b98c9133ebd3fc288953372bbda21e8e5b274435305c4413036adbef4eb01` |
-| [PRODUCT_BACKLOG.md](../../../PRODUCT_BACKLOG.md) | `cc80b0bdc7b45b72be7fd86991a9632eee2454a0a44b04c78fc6ca75a7cf31c9` |
+| [PRODUCT_ROADMAP.md](../../../PRODUCT_ROADMAP.md) | `3947a018bbc92dd4269a2597b3254dd2bc88a98488d05484beb02da41e82cc24` |
+| [PRODUCT_BACKLOG.md](../../../PRODUCT_BACKLOG.md) | `3fb5e117ce16c76ad872ca28a5b2829b8e26cf7a1496d3ba7bbb2d1805db9cca` |
 | [docs/product/DJ_PRESENCE_V1.md](../../../docs/product/DJ_PRESENCE_V1.md) | `c97be3bcebbd4ca70d640cdf4fc0a9a4808451e986bc977e3173e19842a928c4` |
 | [DJ_SESSION_RUNTIME_CONTRACTS.md](../../../DJ_SESSION_RUNTIME_CONTRACTS.md) | `6ae7a05260bc2a997252dbb70c28917ac6b7fd25930263d7c0940df929b1ec92` |
 | [docs/product/DJ_INTELLIGENCE_ARCHITECTURE.md](../../../docs/product/DJ_INTELLIGENCE_ARCHITECTURE.md) | `5345f4a3db6b2bfb97931d6acdde09439dc3dbae7a7d311107269922e08aef12` |
@@ -83,3 +83,5 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 | [docs/verification/HYBRID_TRANSPORT_V1_ACCEPTANCE_MATRIX.md](../../../docs/verification/HYBRID_TRANSPORT_V1_ACCEPTANCE_MATRIX.md) | `779ce43ddb313e2d19f6cb15835a7bf16f9d8f76c70449751a699eea5259d3bf` |
 | [docs/verification/INTEGRATION_UX_LOCALIZATION_20261015.md](../../../docs/verification/INTEGRATION_UX_LOCALIZATION_20261015.md) | `c7d3dd11e4f9156ec1f25a7c28dd2af5264b3e2816a89abe5a3f7697241cc5e8` |
 | [docs/verification/HYBRID_TRANSPORT_SOURCE_QUALIFICATION_20261015.md](../../../docs/verification/HYBRID_TRANSPORT_SOURCE_QUALIFICATION_20261015.md) | `34fdf1f596d20f35628a6e27db963e75c4042055abebf19b8d712909e46422c8` |
+| [docs/verification/HYBRID_TRANSPORT_V1_SOURCE_READBACK_20261015.md](../../../docs/verification/HYBRID_TRANSPORT_V1_SOURCE_READBACK_20261015.md) | `103d6b01196951e03379de984ac523a76f928f63e37a38055d8222ffea673000` |
+| [docs/history/prompts/2026-10-15-hybrid-transport-localization-finalization.md](../../../docs/history/prompts/2026-10-15-hybrid-transport-localization-finalization.md) | `cbdabdb5c5201df3b220c306a0d9ca16f1215a480c624c452cefc9a63efa20f6` |

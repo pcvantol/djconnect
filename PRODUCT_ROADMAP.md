@@ -1,43 +1,35 @@
 # DJConnect Product Roadmap
 
-## Hybrid transport convergence — active bounded Core implementation
+## Hybrid transport convergence — delivered Core producer; Finalization pending
 
-`DJC-CORE-HYBRID-TRANSPORT-CONVERGENCE-V1-20261013` is admitted after
-[#1168](https://github.com/pcvantol/djconnect/pull/1168)/
-[#1169](https://github.com/pcvantol/djconnect/pull/1169) closed at exact main
-`9efd1977768d2574b66c16de9c5d8ba53e9157b1` with verified internal artifact,
-formal evidence and safe own cleanup. The older prepared-Finalization statements
-below are historical checkpoints, not current predecessor gates.
+`DJC-CORE-HYBRID-TRANSPORT-CONVERGENCE-V1-20261013`: [source #1170](https://github.com/pcvantol/djconnect/pull/1170)
+protected merged as `d552a5524245c82aae83b350eddf14126d3c117b` from exact reviewed/owner-authorized
+`a23a599e85dfc2b9cd82e13ae45a23e897765389`. [Source/artifact/formal readback](docs/verification/HYBRID_TRANSPORT_V1_SOURCE_READBACK_20261015.md)
+qualifies all163 integration files with zero archive mismatches and
+POST_MERGE_RELEASE_EVIDENCE_QUALIFIED. 31 sourcechecks PASS/5 conditional skips;
+exact HIGH_RISK authorization PASS. The genuine hassfest repair was independently
+reviewed and separately authorized. Earlier1168/1169 remain closed.
 
-The [hybrid contract](docs/product/HYBRID_HTTP_WEBSOCKET_TRANSPORT_V1.md) and
-[operation recovery contract](docs/product/TRANSPORT_OPERATION_RECOVERY_CONTRACT_V1.md)
-precede connected implementation. Paired TLS actions and HTTP operations use
-one journal and existing domain owners; original Ask DJ/Track Insight delivery
-guards prevent a queued result from extending its source rights. HTTP owner
-recovery reuses Runtime/Broadcast without a second timeline or subscription.
+[Hybrid contract](docs/product/HYBRID_HTTP_WEBSOCKET_TRANSPORT_V1.md) and
+[operation recovery](docs/product/TRANSPORT_OPERATION_RECOVERY_CONTRACT_V1.md)
+reuse existing Core owners, original UUID/epoch receipts and private admission.
+54 actual isolated HA/TLS cases,4 deliberate external-fixture effects,0 repeat
+provider effects/modelcalls;1914 regressions/7 existing skips,24 owning tests,
+142 DAG tests and89% combined new-module branch-aware coverage. Owner-requested
+[localization](docs/verification/INTEGRATION_UX_LOCALIZATION_20261015.md) covers
+all five languages/50 HA actions/186 fields with157 focused tests/2991 subtests.
 
-The current isolated HA/TLS software qualification has 54 actual transport
-cases, four deliberate provider effects and zero retry effects/model calls;
-24 journal/service owning units and the full 1,914-test regression suite pass
-(seven existing skips). The production 300-second lease, auth deadline,
-no-pong/source/token withdrawal, out-of-order replies, socket replacement and
-oversized admitted-result fallback are exercised. Exact final candidate
-consolidation/review remains required before source publication.
-[Acceptance and actual pinned fixtures](docs/verification/HYBRID_TRANSPORT_V1_ACCEPTANCE_MATRIX.md)
-retain the distinction from native/installed acceptance. The
-[early Apple handoff](https://github.com/pcvantol/djconnect-app/issues/87#issuecomment-6185756317)
-and [explicit adoption/test handoff](https://github.com/pcvantol/djconnect-app/issues/87#issuecomment-6186713492)
-preserve Apple ownership; no Swift writes or consumer admission. The separate
-[owner-requested localization correction](docs/verification/INTEGRATION_UX_LOCALIZATION_20261015.md)
-adds five-language action/field/Repair labels without product behavior changes.
+[Final Apple producer pin](https://github.com/pcvantol/djconnect-app/issues/87#issuecomment-6188493265)
+and the [explicit adoption/test checklist](https://github.com/pcvantol/djconnect-app/issues/87#issuecomment-6186713492)
+are posted/read back. Three bounded Core transport leaves record producer
+delivery; Apple/joint remain Planned/open and overall family PARTIAL. No Swift,
+native, installed, hardware or joint PASS is inferred. Live JSON maintenance v10
+and generated views retain all prior historical snapshots and delivered scopes.
 
-Living JSON maintenance v10 adds only the missing bounded transport contract,
-recovery, paired producer, Apple adoption and joint leaves under existing
-`PROJ::ROADMAP::CONNECTIVITY`; source remains unpublished/In progress, Apple
-and joint Planned/open, whole capability PARTIAL. Historical v9 delta and full
-snapshot are retained; generated dependency/lane/open-work/diagram views derive
-from JSON. No new provider, cost route, installation, workflow or runner change.
-Artwork remains queued separately until this assignment closes.
+Separate documentary Finalization and safe own cleanup remain pending their
+exact gates. Next ownerselected Moment artwork6175336907/refinement6176704119
+is not started; new Speech/Persona/voice audit6188230166 is not an admission or
+queue override. No installation/restart/deployment/workflow/runner change.
 
 ## Current-artist/Profile-label correction — Core source delivered
 

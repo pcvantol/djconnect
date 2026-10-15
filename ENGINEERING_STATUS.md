@@ -1,5 +1,82 @@
 # DJConnect Engineering Status
 
+## Current: Hybrid transport/localization — separate Finalization
+
+#### Repository Status
+
+PR [#1170](https://github.com/pcvantol/djconnect/pull/1170) protected merged as
+`d552a5524245c82aae83b350eddf14126d3c117b` from exact reviewed/owner-authorized `a23a599e85dfc2b9cd82e13ae45a23e897765389`,
+base2ad7b85f. Full tree `9a228268e47ac138b49aab613d255e330f495ea0` identical.
+31 sourcechecks PASS/5 conditional skips; Owner Authorization38709354388 PASS.
+Mainvalidation38709510498/artifact38709922206/formal38709922367 SUCCESS;
+163 integration files byte-equal,zero mismatches. Formal decision
+POST_MERGE_RELEASE_EVIDENCE_QUALIFIED; raw/durable/coverage bindings checked.
+Local main equals origin/main at the verified source SHA; current checkout is
+its separate Finalization branch. Own stale refs are retained pending authorized
+cleanup; the unrelated VibeCast worktree/WIP remains untouched.
+[Source readback](docs/verification/HYBRID_TRANSPORT_V1_SOURCE_READBACK_20261015.md) and [completion record](docs/history/prompts/2026-10-15-hybrid-transport-localization-finalization.md).
+
+#### Management Summary
+
+One existing-owner paired TLS action/HTTP operation service provides durable
+original-ID recovery, no blind after-send replay and original private delivery
+admission. Broadcast remains subscribe/recover; no broad HA credential issuer.
+54 real isolated HA/TLS cases,4 deliberate external-fixture provider effects,
+0 retry effects/modelcalls;1914 regressions/7 existing skips,24 owning tests,
+142 DAG tests,89% combined new-module branch-aware coverage. Owner-requested
+five-language UI correction covers50 HA actions/186 fields, Repair and choices;
+157 focused tests/2991 subtests. Both exact independent source reviews GO.
+[Definitive Apple handoff](https://github.com/pcvantol/djconnect-app/issues/87#issuecomment-6188493265)
+is posted/read back; no native or installed acceptance is inferred.
+
+#### Roadmap Position
+
+Generation2, Platform Qualification, bounded Hybrid transport producer source
+milestone. Existing connectivity parent retained; three TRANSPORT::CORE leaves
+Completed/CORE_DELIVERED only after verified source1170 delivery. Apple adoption
+and joint native qualification remain Planned/open; whole family PARTIAL.
+Earlier1168/1169 and other completed deliveries stay closed; no Stage promotion.
+Finalization is the sole active increment; no new product writer/admission.
+
+#### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+1. **DJC-CORE-SESSION-MOMENT-ARTWORK-V1-20261014 — selected, not admitted.** Canonical source: Core#1101 comments6175336907/6176704119 and the existing PRODUCT_BACKLOG selection. Direct dependency: valid Hybrid Finalization/cleanup and fresh admission. Execution Rationale: the existing owner-selected successor; this assignment stops without starting it.
+2. **Unfilled product slot 2 — no further authorized selection.** No execution rationale exists; not a dispatched task.
+3. **Unfilled product slot 3 — no further authorized selection.** No execution rationale exists; not a dispatched task.
+4. **Unfilled product slot 4 — no further authorized selection.** No execution rationale exists; not a dispatched task.
+5. **Unfilled product slot 5 — no further authorized selection.** No execution rationale exists; not a dispatched task.
+
+#### Blocked Items
+
+This separate Finalization publication/automatic artifact effects require its
+own exact candidate grant after independent review. Source approval does not
+cover it. Apple-owned native routing/view/energy and joint qualification remain
+OPEN; installed HA/frontend and hardware NOT_RUN. No additional source blocker.
+Speech/Persona/voice finding6188230166 is SOURCE_AUDIT_RECORDED, not selected or
+admitted; retain it for owner disposition without queue reordering.
+
+#### Deferred Items
+
+No runtime implementation, HA-dev/prod update/restart, deployment, Pages,
+signing/hardware, provider/model/cost, host-service, workflow/runner or consumer
+source mutation in this Finalization. No artwork/speech/following slice starts.
+Historical snapshots and earlier immutable prompt records remain unchanged.
+
+#### Repository State
+
+Repository State: `MERGED_UNRECONCILED`; Finalization Pending: YES.
+This candidate is prospective: MERGED_RECONCILED only after its own exact
+protected merge and main/artifact/formal readback. No terminal claim before that.
+
+#### Workspace State
+
+Workspace State: `NOT_READY` pending this exact Finalization and authorized
+safe cleanup of only its two own source/Finalization refs. Source recoverybundle
+is complete and verified; no unpublished work may be discarded. Other worktrees,
+Apple/HA labs and recovery evidence remain preserved. WORKSPACE_READY is a
+post-merge/readback/cleanup result, not the current candidate's claim.
+
+## Historical operational context
 ## Current: Ask DJ current-artist and Profile-label corrective Finalization
 
 #### Repository Status

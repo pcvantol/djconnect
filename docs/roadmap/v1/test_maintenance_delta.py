@@ -475,6 +475,10 @@ class HybridMaintenanceTests(unittest.TestCase):
         self.assertEqual(validate(old), [])
 
     def test_hybrid_missing_admission_or_fabricated_acceptance_is_rejected(self):
+        # Genuine protected delivery is valid after Finalization. Flip the live
+        # flag so this remains a negative phase/delivery consistency check.
+        current = self.p["planning_maintenance"]["hybrid_receipt"]["source_delivery"]
+        wrong_delivery = "UNPUBLISHED" if current == "PROTECTED_MERGED" else "PROTECTED_MERGED"
         for key, value in [
             ("assignment_id", "wrong"),
             ("ack", 1),
@@ -485,7 +489,7 @@ class HybridMaintenanceTests(unittest.TestCase):
             ("family_acceptance", "Completed"),
             ("previous_delta_sha256", ""),
             ("phase", "COMPLETED"),
-            ("source_delivery", "PROTECTED_MERGED"),
+            ("source_delivery", wrong_delivery),
         ]:
             p = copy.deepcopy(self.p)
             p["planning_maintenance"]["hybrid_receipt"][key] = value
