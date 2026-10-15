@@ -140,7 +140,7 @@ async def _prepare(hass, runtime, context, *, session_id, target, complete_deadl
         return unavailable(session_id, target, 'target_unavailable')
     if resolved is None:
         return unavailable(session_id, target, 'insufficient_identity')
-    uri, expected_source, allowed, current, historical, expected_album, role = resolved
+    uri, expected_source, allowed, current, historical, expected_album, role, delivery_scope = resolved
     if (not isinstance(expected_source, dict) or not all(expected_source.get(k) for k in
             ('backend_id', 'music_account_id', 'provider_entry_id', 'provider_account_id'))):
         return unavailable(session_id, target, 'source_withdrawn')
@@ -150,13 +150,16 @@ async def _prepare(hass, runtime, context, *, session_id, target, complete_deadl
 
     def invalidate():
         lifetime_valid[0] = False
+    invalidate.delivery_scope = delivery_scope
+    invalidate.provider_entry_id = expected_source['provider_entry_id']
 
     def authority():
         from .profile_context import profile_storage
         from .profile_privacy import resolve_profile_privacy_policy
 
         profile = profile_storage(hass).household.profiles.get(context.profile_id)
-        return bool(lifetime_valid[0] and source_authority() and profile is not None
+        return bool(lifetime_valid[0] and not registry.history_blocked(key, expected_source, delivery_scope)
+                    and source_authority() and profile is not None
                     and resolve_profile_privacy_policy(profile, {}).allow_personal_read)
 
     async def fresh_scope():
@@ -220,7 +223,7 @@ async def _prepare(hass, runtime, context, *, session_id, target, complete_deadl
                               'revision': revision, 'artwork': artwork}
                 asset = {'body': body, 'mime': mime, 'deadline': mono + TTL, 'authority': authority,
                          'allowed': allowed, 'asset_id': asset_id, 'subject': uri, 'projection': projection,
-                         'historical': historical, 'expected_source': dict(expected_source)}
+                         'historical': historical, 'expected_source': dict(expected_source), 'delivery_scope': delivery_scope}
                 if not registry.commit(key, asset):
                     return unavailable(session_id, target, 'capacity')
                 if not historical:
@@ -274,16 +277,20 @@ async def resolve_target(hass, runtime, context, session_id, target):
         uri = subject_for_fact(fact)
         if not uri or not (admission.get('current_display_allowed') or admission.get('active_flow_display_allowed')):
             return None
-        async def allowed():
-            current = await manager.async_get_active(context.profile_id)
+        def delivery_scope():
+            current = manager._active_by_profile.get(context.profile_id)
             if current is None or current.broadcast is not active.broadcast:
-                return False
+                return None
             a = next((a for a in current.broadcast.native_delivery()['admissions'] if a['moment_id'] == moment_id), {})
-            return bool(a.get('current_display_allowed') or a.get('active_flow_display_allowed'))
+            if not (a.get('current_display_allowed') or a.get('active_flow_display_allowed')):
+                return None
+            return bool(a.get('current_display_allowed')), False
+        async def allowed():
+            return delivery_scope() is not None
         return (uri, manager._history_source_contexts.get(session_id, {}), allowed,
                 bool(admission.get('current_display_allowed')), False,
                 getattr(fact, 'artwork_album_uri', '') if ':track:' in uri else '',
-                'contextual_artist' if ':artist:' in uri else 'cover')
+                'contextual_artist' if ':artist:' in uri else 'cover', delivery_scope)
     from .session_conversation import query_service
 
     query = query_service(hass)
@@ -319,7 +326,21 @@ async def resolve_target(hass, runtime, context, session_id, target):
                       and body.get('item_id') == active.broadcast.state.playback.item_id)
     if album and not re.fullmatch(r'spotify:album:[A-Za-z0-9]{22}', str(album)):
         return None
-    return uri, source, allowed, is_current, historical, album if ':track:' in uri else '', role
+    retained_until = datetime.fromisoformat(row['retained_until']).timestamp() if row.get('retained_until') else None
+    def delivery_scope():
+        if retained_until is not None and time.time() >= retained_until:
+            return None
+        latest = manager._active_by_profile.get(context.profile_id)
+        same_session = latest is not None and latest.session_id == session_id
+        if historical:
+            return None if same_session else (False, True)
+        if not same_session or latest.broadcast is not active.broadcast:
+            return None
+        return body.get('item_id') == latest.broadcast.state.playback.item_id, False
+    delivery_scope.history_retained_until = retained_until
+    header = await query._repository.async_get_session_for_originating_id(session_id) if historical else None
+    delivery_scope.history_session_created_at = datetime.fromisoformat(header.created_at).timestamp() if header else None
+    return uri, source, allowed, is_current, historical, album if ':track:' in uri else '', role, delivery_scope
 
 
 async def image(hass, context, session_id, asset_id, *, runtime):
@@ -407,6 +428,25 @@ def attach_live_projection(hass, owner, session_id):
                               {'session_flow': active.broadcast.state.session_flow.as_dict()})
 
 
+def delivery_projection(hass, owner, session_id, target, prepared):
+    """Final no-await response fence after every target and authorization await."""
+    if prepared.get('artwork', {}).get('state') != 'ready':
+        return prepared
+    registry = hass.data.get('djconnect', {}).get('session_images')
+    key = (owner, session_id, tuple(sorted(target.items())))
+    asset = registry.get(key) if registry is not None else None
+    if asset is None:
+        reason = registry.states.get(key, (0, 'source_withdrawn'))[1] if registry else 'source_withdrawn'
+        return unavailable(session_id, target, reason)
+    if asset['projection']['artwork']['url'] != prepared['artwork'].get('url'):
+        return unavailable(session_id, target, 'source_withdrawn')
+    scope = asset['delivery_scope']()
+    if scope is None:
+        registry.evict(key, 'source_withdrawn')
+        return unavailable(session_id, target, 'source_withdrawn')
+    return project(asset, current=scope[0], historical=scope[1])
+
+
 async def handle_prepare(hass, data, *, headers=None, user_id=None):
     from .api_handlers import _session_profile_context, _error_payload
 
@@ -436,6 +476,8 @@ async def handle_prepare(hass, data, *, headers=None, user_id=None):
         return error, status
     if current.profile_id != context.profile_id or not current.privacy_policy.allow_personal_read:
         return _error_payload('media_not_allowed'), 403
+    projections = [delivery_projection(hass, current.profile_id, data['session_id'], target, prepared)
+                   for target, prepared in zip(targets, projections, strict=True)]
     return {'success': True, 'contract_version': 1, 'session_media': projections}, 200
 
 

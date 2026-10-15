@@ -55,6 +55,8 @@ class ManagedSessionImages:
         self.states = {}
         self.work_guards = {}
         self._unsubscribe = None
+        self.history_barriers = {}
+        self.history_overflow = 0
         if hass is not None:
             from homeassistant.const import EVENT_HOMEASSISTANT_STOP
             self._unsubscribe = hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STOP, self._on_stop)
@@ -86,6 +88,10 @@ class ManagedSessionImages:
 
     def close(self):
         self.closed = True
+        if self.hass is not None:
+            service = self.hass.data.get(DOMAIN, {}).get("persistence_service")
+            if getattr(service, "session_image_owner", None) is self:
+                service.session_image_owner = None
         unsubscribe, self._unsubscribe = self._unsubscribe, None
         if unsubscribe is not None:
             unsubscribe()
@@ -101,6 +107,8 @@ class ManagedSessionImages:
         for _, invalidate in self.work_guards.values():
             invalidate()
         self.work_guards.clear()
+        self.history_barriers.clear()
+        self.history_overflow = 0
 
     def evict(self, key, reason):
         self.assets.pop(key, None)
@@ -119,6 +127,69 @@ class ManagedSessionImages:
         asset = self.assets.get(key)
         if asset is not None and asset.get('asset_id') == asset_id:
             self.evict(key, 'expired')
+
+    @staticmethod
+    def _history_matches(key, source, delivery_scope, scope):
+        target = dict(key[2])
+        if 'entry_id' not in target or (scope.get('owner') is not None and key[0] != scope['owner']):
+            return False
+        ids = scope.get('identifiers')
+        if ids is not None and target['entry_id'] not in ids:
+            return False
+        provider = scope.get('provider_entry_id')
+        if provider is not None and source.get('provider_entry_id') != provider:
+            return False
+        if scope.get('expired_before') is not None:
+            retained = getattr(delivery_scope, 'history_retained_until', None)
+            header = getattr(delivery_scope, 'history_session_created_at', None)
+            cutoff = scope.get('session_cutoff')
+            if (retained is not None and retained > scope['expired_before']
+                    and (header is None or cutoff is None or header > cutoff)):
+                return False
+        return True
+
+    def history_blocked(self, key, source, delivery_scope):
+        if 'entry_id' not in dict(key[2]):
+            return False
+        return self.history_overflow > 0 or any(
+            self._history_matches(key, source, delivery_scope, scope)
+            for scope in self.history_barriers.values())
+
+    def invalidate_history(self, **scope):
+        """Bounded synchronous link from the existing destructive history owner."""
+        for key in set(self.assets) | set(self.inflight) | set(self.work_guards):
+            asset = self.assets.get(key)
+            guard = self.work_guards.get(key)
+            source = (asset.get('expected_source', {}) if asset is not None else
+                      {'provider_entry_id': getattr(guard[1], 'provider_entry_id', None)} if guard else {})
+            delivery_scope = (asset.get('delivery_scope') if asset is not None else
+                              getattr(guard[1], 'delivery_scope', None) if guard else None)
+            if not self._history_matches(key, source, delivery_scope, scope):
+                continue
+            if guard is not None:
+                guard[1]()
+            self.evict(key, 'source_withdrawn')
+
+    def begin_history_change(self, **scope):
+        token = object()
+        if len(self.history_barriers) >= 8:
+            self.history_overflow += 1
+            self.invalidate_history()
+            return None
+        if scope.get('identifiers') is not None:
+            scope['identifiers'] = frozenset(scope['identifiers'])
+        self.history_barriers[token] = scope
+        self.invalidate_history(**scope)
+        return token
+
+    def end_history_change(self, token, **scope):
+        if self.closed:
+            return
+        self.invalidate_history(**scope)
+        if token is None:
+            self.history_overflow = max(0, self.history_overflow - 1)
+        else:
+            self.history_barriers.pop(token, None)
 
     def end_session(self, owner, session_id):
         for key, (_, invalidate) in list(self.work_guards.items()):
@@ -150,7 +221,7 @@ class ManagedSessionImages:
 
     def commit(self, key, asset):
         self.collect()
-        if self.closed:
+        if self.closed or not asset['authority']():
             return False
         total = sum(len(v['body']) for k, v in self.assets.items() if k != key)
         if len(asset['body']) > 2 * 1024 * 1024:
@@ -174,4 +245,7 @@ def session_images(hass):
     owner = hass.data.setdefault(DOMAIN, {})
     if 'session_images' not in owner:
         owner['session_images'] = ManagedSessionImages(hass)
+    service = owner.get('persistence_service')
+    if service is not None:
+        service.session_image_owner = owner['session_images']
     return owner['session_images']

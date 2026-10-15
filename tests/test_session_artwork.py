@@ -243,7 +243,7 @@ class ManagedSessionExpiryAsyncTests(unittest.IsolatedAsyncioTestCase):
             return True
         resolved=('spotify:track:'+'A'*22,
                   dict.fromkeys(('backend_id','music_account_id','provider_entry_id','provider_account_id'),'unit'),
-                  allowed,False,True,'','playback_thumbnail')
+                  allowed,False,True,'','playback_thumbnail',lambda:(False,True))
         storage=SimpleNamespace(household=SimpleNamespace(profiles={'profile-unit':SimpleNamespace()}))
         await self.registry.semaphore.acquire()
         await self.registry.semaphore.acquire()
@@ -274,7 +274,7 @@ class ManagedSessionExpiryAsyncTests(unittest.IsolatedAsyncioTestCase):
             await asyncio.Event().wait()
         uri = 'spotify:track:'+'A'*22
         resolved = (uri, dict.fromkeys(('backend_id','music_account_id','provider_entry_id','provider_account_id'),'unit'),
-                    blocked,False,True,'','playback_thumbnail')
+                    blocked,False,True,'','playback_thumbnail',lambda:(False,True))
         storage=SimpleNamespace(household=SimpleNamespace(profiles={'profile-unit':SimpleNamespace()}))
         for cached in (False, True):
             with self.subTest(cached=cached):
@@ -299,7 +299,7 @@ class ManagedSessionExpiryAsyncTests(unittest.IsolatedAsyncioTestCase):
             return True
         resolved=('spotify:track:'+'A'*22,
                   dict.fromkeys(('backend_id','music_account_id','provider_entry_id','provider_account_id'),'unit'),
-                  allowed,False,True,'','playback_thumbnail')
+                  allowed,False,True,'','playback_thumbnail',lambda:(False,True))
         storage=SimpleNamespace(household=SimpleNamespace(profiles={'profile-unit':SimpleNamespace()}))
         pending=asyncio.create_task(asyncio.Event().wait())
         self.registry.inflight[self.key]=pending
@@ -400,6 +400,195 @@ class ManagedSessionExpiryAsyncTests(unittest.IsolatedAsyncioTestCase):
             await self.art._fetch(self.hass,SimpleNamespace(_request=AsyncMock(return_value={})),
                                   'spotify:track:'+'A'*22,guard=guard)
         guard.assert_awaited_once_with()
+
+    async def test_batch_delivery_rechecks_early_ready_asset_after_other_target_wait(self):
+        import asyncio
+        import sys
+        from copy import deepcopy
+        for mutation in ('end','source','track','expiry'):
+            with self.subTest(mutation=mutation):
+                scope=[(True,False)]
+                granted=[True]
+                ready={'schema_version':1,'session_id':'session-unit','entry_id':'entry-unit','revision':'initial',
+                       'artwork':{'state':'ready','url':'/original','expires_at':'original-deadline',
+                                  'current_display_allowed':True,'active_flow_display_allowed':True,
+                                  'historical_display_allowed':False,'media_revision':'pixels'}}
+                async def allowed():
+                    return True
+                asset=self.asset(allowed,authority=lambda:granted[0])
+                asset.update(subject='spotify:track:'+'A'*22,projection=deepcopy(ready),
+                             historical=False,delivery_scope=lambda:scope[0])
+                self.registry.commit(self.key,asset)
+                entered,release=asyncio.Event(),asyncio.Event()
+                async def preparing(hass,runtime,context,*,session_id,target):
+                    if target['entry_id']=='entry-unit':
+                        return deepcopy(ready)
+                    entered.set()
+                    await release.wait()
+                    return self.art.unavailable(session_id,target)
+                context=SimpleNamespace(profile_id='profile-unit',privacy_policy=SimpleNamespace(allow_personal_read=True))
+                async def auth(*args,**kwargs):
+                    return object(),context,None,200
+                with (patch.object(self.art,'prepare',preparing),
+                      patch.dict(sys.modules,{'custom_components.djconnect.api_handlers':
+                                             SimpleNamespace(_error_payload=lambda code:{'error':code},
+                                                             _session_profile_context=auth)})):
+                    request=asyncio.create_task(self.art.handle_prepare(self.hass,{'contract_version':1,
+                        'session_id':'session-unit','targets':[{'entry_id':'entry-unit'},{'entry_id':'blocked'}]}))
+                    await entered.wait()
+                    if mutation=='end':
+                        scope[0]=None
+                        self.registry.end_session('profile-unit','session-unit')
+                    elif mutation=='source':
+                        granted[0]=False
+                        self.registry.collect()
+                    elif mutation=='track':
+                        scope[0]=(False,False)
+                    else:
+                        asset['deadline']=time.monotonic()-1
+                    release.set()
+                    response,status=await request
+                projected=response['session_media'][0]
+                self.assertEqual(status,200)
+                if mutation=='track':
+                    self.assertEqual(projected['artwork']['state'],'ready')
+                    self.assertFalse(projected['artwork']['current_display_allowed'])
+                    self.assertTrue(projected['artwork']['active_flow_display_allowed'])
+                    self.assertEqual(projected['artwork']['url'],'/original')
+                    self.assertEqual(projected['artwork']['expires_at'],'original-deadline')
+                else:
+                    self.assertNotEqual(projected['artwork']['state'],'ready')
+                    self.assertNotIn('url',projected['artwork'])
+
+    async def test_last_authorization_await_cannot_return_ready_after_end(self):
+        import sys
+        from unittest.mock import AsyncMock
+        ready={'artwork':{'state':'ready','url':'/original'}}
+        async def allowed():
+            return True
+        asset=self.asset(allowed)
+        asset.update(projection=ready,historical=False,delivery_scope=lambda:(True,False))
+        self.registry.commit(self.key,asset)
+        context=SimpleNamespace(profile_id='profile-unit',privacy_policy=SimpleNamespace(allow_personal_read=True))
+        calls=0
+        async def auth(*args,**kwargs):
+            nonlocal calls
+            calls+=1
+            if calls==2:
+                self.registry.end_session('profile-unit','session-unit')
+            return object(),context,None,200
+        with (patch.object(self.art,'prepare',AsyncMock(return_value=ready)),
+              patch.dict(sys.modules,{'custom_components.djconnect.api_handlers':
+                                     SimpleNamespace(_error_payload=lambda code:{'error':code},_session_profile_context=auth)})):
+            response,status=await self.art.handle_prepare(self.hass,{'contract_version':1,'session_id':'session-unit',
+                'targets':[{'entry_id':'entry-unit'}]})
+        self.assertEqual(status,200)
+        self.assertEqual(response['session_media'][0]['artwork']['state'],'withdrawn')
+
+    async def test_history_repository_purge_fences_assets_before_storage_await(self):
+        import asyncio
+        from custom_components.djconnect.persistence.history import HistoricalProjectionRepository
+        async def allowed():
+            return True
+        ready={'artwork':{'state':'ready','url':'/old'}}
+        asset=self.asset(allowed)
+        asset.update(historical=True,projection=ready,delivery_scope=lambda:(False,True))
+        self.registry.commit(self.key,asset)
+        valid=[True]
+        self.registry.work_guards[self.key]=(lambda:valid[0],lambda:valid.__setitem__(0,False))
+        entered,release=asyncio.Event(),asyncio.Event()
+        async def transaction(*args,**kwargs):
+            entered.set()
+            await release.wait()
+        service=SimpleNamespace(session_image_owner=self.registry,async_in_transaction=transaction)
+        task=asyncio.create_task(HistoricalProjectionRepository(service).async_purge_profile_history('profile-unit'))
+        await entered.wait()
+        self.assertFalse(valid[0])
+        self.assertNotIn(self.key,self.registry.assets)
+        result=self.art.delivery_projection(self.hass,'profile-unit','session-unit',{'entry_id':'entry-unit'},ready)
+        self.assertEqual(result['artwork']['state'],'withdrawn')
+        self.assertNotIn('url',result['artwork'])
+        release.set()
+        await task
+
+    async def test_retention_fence_preserves_unexpired_other_profile_and_live_moment(self):
+        async def allowed():
+            return True
+        now=time.time()
+        def expired_scope():
+            return False,True
+        expired_scope.history_retained_until=now-1
+        expired_scope.history_session_created_at=now-100
+        def retained_scope():
+            return False,True
+        retained_scope.history_retained_until=now+300
+        retained_scope.history_session_created_at=now
+        old=self.asset(allowed)
+        old.update(delivery_scope=expired_scope,historical=True)
+        self.registry.commit(self.key,old)
+        other=('profile-other','other-session',(('entry_id','other-entry'),))
+        kept=self.asset(allowed)
+        kept.update(delivery_scope=retained_scope,historical=True)
+        self.registry.commit(other,kept)
+        live=('profile-unit','session-unit',(('moment_id','live-moment'),))
+        self.registry.commit(live,self.asset(allowed))
+        self.registry.invalidate_history(expired_before=now,session_cutoff=now-1000)
+        self.assertNotIn(self.key,self.registry.assets)
+        self.assertIn(other,self.registry.assets)
+        self.assertIn(live,self.registry.assets)
+
+    async def test_purge_barrier_blocks_new_grants_until_finally_and_is_bounded(self):
+        async def allowed():
+            return True
+        def scope():
+            return False,True
+        source={'provider_entry_id':'provider-X'}
+        token=self.registry.begin_history_change(owner='profile-unit')
+        self.assertTrue(self.registry.history_blocked(self.key,source,scope))
+        asset=self.asset(allowed,authority=lambda:not self.registry.history_blocked(self.key,source,scope))
+        self.assertFalse(self.registry.commit(self.key,asset))
+        self.registry.end_history_change(token,owner='profile-unit')
+        self.assertFalse(self.registry.history_blocked(self.key,source,scope))
+        self.assertTrue(self.registry.commit(self.key,asset))
+        tokens=[self.registry.begin_history_change(owner='profile-unit') for _ in range(10)]
+        self.assertEqual(len(self.registry.history_barriers),8)
+        self.assertEqual(self.registry.history_overflow,2)
+        for token in tokens:
+            self.registry.end_history_change(token,owner='profile-unit')
+        self.assertEqual(self.registry.history_barriers,{})
+        self.assertEqual(self.registry.history_overflow,0)
+
+    async def test_source_X_withdrawal_preserves_unrelated_Y_pending_preparation(self):
+        valid={'X':True,'Y':True}
+        keys={}
+        for provider in valid:
+            key=('profile-unit','session-unit',(('entry_id','entry-'+provider),))
+            keys[provider]=key
+            def invalidate(provider=provider):
+                valid[provider]=False
+            invalidate.provider_entry_id='provider-'+provider
+            invalidate.delivery_scope=lambda:(False,True)
+            self.registry.work_guards[key]=(lambda provider=provider:valid[provider],invalidate)
+        token=self.registry.begin_history_change(provider_entry_id='provider-X')
+        self.assertEqual(valid,{'X':False,'Y':True})
+        self.assertFalse(self.registry.history_blocked(keys['Y'],{'provider_entry_id':'provider-Y'},lambda:(False,True)))
+        self.registry.end_history_change(token,provider_entry_id='provider-X')
+        self.assertTrue(valid['Y'])
+
+    async def test_old_session_header_retention_revokes_even_recent_retained_entry(self):
+        async def allowed():
+            return True
+        now=time.time()
+        def scope():
+            return False,True
+        scope.history_retained_until=now+300
+        scope.history_session_created_at=now-1000
+        asset=self.asset(allowed)
+        asset.update(historical=True,delivery_scope=scope)
+        self.registry.commit(self.key,asset)
+        token=self.registry.begin_history_change(expired_before=now,session_cutoff=now-100)
+        self.assertNotIn(self.key,self.registry.assets)
+        self.registry.end_history_change(token,expired_before=now,session_cutoff=now-100)
 
     async def test_no_oversized_commit_and_closed_owner_rejects_late_commit(self):
         async def allowed():

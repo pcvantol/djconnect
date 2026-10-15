@@ -364,15 +364,17 @@ async def main():
         assert warm['session_media'][0]['artwork']['state']=='ready',warm
         await storage.async_upsert_device(identity['device_id'],'ios',linked_profile_id='profile-other')
         await storage.async_upsert_device(identity['device_id'],'ios',linked_profile_id='profile-a')
+        warm=await post('/session/media/prepare',{**identity,'contract_version':1,'session_id':sid,
+                        'targets':[{'moment_id':artist_moment.moment_id}]})
+        assert warm['session_media'][0]['artwork']['current_display_allowed'] is True,warm
         image_entered.clear()
         image_release.clear()
         image_mode[0]='blocked'
-        artist_moment=next(m for m in moments if m.source_fact.intent=='artist_story')
         late=asyncio.create_task(post('/session/media/prepare',{**identity,'contract_version':1,'session_id':sid,
-                                'targets':[{'moment_id':artist_moment.moment_id}]}))
+                                'targets':[{'moment_id':artist_moment.moment_id},{'entry_id':playback['entry_id']}]}))
         await asyncio.wait_for(image_entered.wait(),10)
         _, pending_snapshot=await get('/session/broadcast/'+sid)
-        pending_media=next(x for x in pending_snapshot['snapshot']['session_media'] if x.get('moment_id')==artist_moment.moment_id)
+        pending_media=next(x for x in pending_snapshot['snapshot']['session_media'] if x.get('entry_id')==playback['entry_id'])
         assert pending_media['artwork']['state']=='loading' and 'url' not in pending_media['artwork']
         cases['loading']={'projection':pending_media,'pure_owner_snapshot':True}
         selected[0]='D'
@@ -385,7 +387,7 @@ async def main():
         assert late_media['artwork']['subject']['uri']=='spotify:artist:'+artist_id
         assert late_media['artwork']['current_display_allowed'] is False
         assert late_media['artwork']['active_flow_display_allowed'] is True
-        cases['late_artist_after_track_change']={'projection':late_media,'different_current_artist':True}
+        cases['late_artist_after_track_change']={'projection':late_media,'different_current_artist':True,'early_ready_then_other_target_waited':True}
         image_mode[0]='ok'
         image_entered.clear()
         image_release.clear()
@@ -520,6 +522,37 @@ async def main():
         withdrawn=await client.get(historical['artwork']['url'],params=identity,headers=headers)
         assert withdrawn.status in (401,403,404,409)
         cases['source_withdrawal']={'status':withdrawn.status}
+        # A separate short owned qualification Session supplies two actual retained
+        # observations; historical purge leaves the Profile/pairing itself valid.
+        await storage.async_upsert_music_account('fixture-account','spotify_direct',kind=MusicAccountKind.PERSONAL,
+            display_name='Fixture provider account',linked_profile_ids=frozenset({'profile-a'}),provider_account_id='fixture-client')
+        selected[0]='A'
+        fresh_session=await post('/session/start',{**identity,'mood':'groove','locale':'nl'})
+        purge_sid=fresh_session['session']['session_id']
+        observed=playback_observation_manager(hass)._spotify_sessions['profile-a']
+        selected[0]='D'
+        await playback_observation_manager(hass)._async_poll_spotify(observed)
+        await post('/session/end',{**identity,'session_id':purge_sid})
+        _,purge_page=await get('/session/history/'+purge_sid)
+        targets=[{'entry_id':e['entry_id']} for e in purge_page['entries'] if e['kind']=='playback_observed'][:2]
+        assert len(targets)==2
+        initial=await post('/session/media/prepare',{**identity,'contract_version':1,'session_id':purge_sid,'targets':targets[:1]})
+        original=initial['session_media'][0]
+        assert original['artwork']['state']=='ready',initial
+        image_entered.clear()
+        image_release.clear()
+        image_mode[0]='blocked'
+        pending=asyncio.create_task(post('/session/media/prepare',{**identity,'contract_version':1,'session_id':purge_sid,'targets':targets}))
+        await asyncio.wait_for(image_entered.wait(),10)
+        await HistoricalProjectionRepository(service).async_purge_profile_history('profile-a')
+        image_release.set()
+        purged=await pending
+        assert all(x['artwork']['state']!='ready' and 'url' not in x['artwork'] for x in purged['session_media']),purged
+        old_image=await client.get(original['artwork']['url'],params=identity,headers=headers)
+        assert old_image.status==404
+        image_mode[0]='ok'
+        cases['history_purge_during_batch']={'response':purged,'image_status':old_image.status,
+                                           'profile_and_pairing_preserved':True,'real_storage_owner':True}
         assert source_hashes=={str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest()
                               for p in (ROOT/'custom_components/djconnect').rglob('*')
                               if p.is_file() and '__pycache__' not in p.parts}
