@@ -120,6 +120,11 @@ never proof that pairing or Profile was revoked. Native requests normally omit
 Origin; a supplied browser Origin must match this exact HTTPS origin. Foreign,
 opaque or malformed browser origins are rejected before reading credentials.
 No cross-origin redirect or certificate-validation bypass is introduced.
+Connection close codes distinguish authority rejection from transport/protocol
+loss. `auth_timeout`, `auth_expired`, `slow_consumer`, `connection_capacity`,
+`invalid_request_id` and `invalid_projection` never by themselves revoke stored
+pairing. A post-auth send timeout is `slow_consumer`, not invalid credentials.
+Only a qualified authenticated owner/source rejection withdraws its authority.
 
 ## Recovery and consumer acceptance
 

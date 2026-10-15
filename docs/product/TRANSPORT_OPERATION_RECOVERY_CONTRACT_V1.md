@@ -112,6 +112,11 @@ its delivery admission: true on an admitted first body, false on receipt-only
 fallback, duplicate and status responses. The receipt in the same envelope uses
 the same value. No durable body is implied by a true first-response value; the
 journal stores no body and a later status still returns false.
+In-flight admission callbacks belong only to the invoking task. Inherited
+background-task contexts are detached at return and cannot accumulate callbacks
+or retain pairing headers. A late background effect cannot reuse the completed
+operation's execution grant. Final unload closes the operation owner and its
+stop listener; a reservation that finishes after closure cannot start a task.
 
 Initial response policy by family: Ask DJ and Track Insight use their original
 joined/source/target guards; Session start requires the same still-active owner

@@ -1,21 +1,22 @@
 # Hybrid transport acceptance matrix v1
 
-Assignment DJC-CORE-HYBRID-TRANSPORT-CONVERGENCE-V1-20261013. All new rows start
-NOT_RUN; historical Apple40021 PARTIAL evidence is not current acceptance.
+Assignment DJC-CORE-HYBRID-TRANSPORT-CONVERGENCE-V1-20261013. Historical
+Apple40021 PARTIAL evidence is not current native acceptance.
 
-| Boundary | Positive proof | Negative/race proof | Initial status |
-| --- | --- | --- | --- |
-| Paired origin/auth | Real paired identity on validated TLS and first-frame auth | Relay/wrongcertificate/plaintext,wrongtoken/retiredclient,Profilechange | NOT_RUN |
-| Action parity | Actual HTTP/WS same application handler/result/revision | Unsupported operation,identity override,authoritative rejection | NOT_RUN |
-| Correlation | Concurrent out-of-order IDs/results,one reader | duplicateID,cancel,late reply,socketreplacement,queuefull | NOT_RUN |
-| Receipts | Same ID acrossWS/HTTP invokes domain/provider once | conflict,expiry/GC→clockrollback/restart,capacity,oldboot,Storefail | NOT_RUN |
-| Dispatch boundary | Qualified result and real effect count | before/after provider send/local commit,cancellation/crash | NOT_RUN |
-| Private data | Current owner/no-store/response rights | source/Profile/token withdrawal,expired grant,recovery leakage | NOT_RUN |
-| Quiet liveness | Real ping/pong and lease renewal | half-open,Off/pause,noevent,suspension,end | NOT_RUN |
-| Broadcast HTTP recovery | Existing cursor/watermark/DTO projection | gap,snapshot_required,expiry,no duplicate publication | NOT_RUN |
-| Routing producer | Authenticated install identity/metadata contract | wrongorigin/redirect/TLS/absentexternal | NOT_RUN |
-| Native automatic routes | Apple-owned Mac/iPhone/iPad live route coordinator | LAN→cellular→LAN/foreignWi-Fi/background,requests/cost/battery | OPEN_APPLE |
-| Regression | Presence/Mood/Forecast/history/summary/sharedAskDJ/drilldown | selection/clear/revision/source races andoldHTTPclients | NOT_RUN |
+| Boundary | Actual proof | Boundary/status |
+| --- | --- | --- |
+| Paired origin/auth | Actual pairing, trusted TLS/context, foreign Origin/no auth/plain HTTP/wrong certificate rejection | PASS_CORE_HA; real configured native LAN origin remains OPEN_APPLE |
+| Action parity | First HTTP Session start/end, WS/HTTP commands, Mood/presence CAS, shared Ask DJ/Track Insight, Forecast and recovery | PASS_CORE_HA for sampled declared families; no new domain implementation |
+| Correlation | Concurrent and deliberately out-of-order replies, replacement socket/original operation status, duplicate ID close, real 8-pending/16-global/2-device bounds | PASS_CORE_HA; Apple demux/late-view handling OPEN_APPLE |
+| Receipts | Same ID HTTP/WS/second TLS entry, conflicting payload/context, pending join, provider acknowledgement loss, real HA Store close/reopen | PASS_CORE_HA plus 24 owning units for clock/GC/corruption/Store failure/cancellation fences |
+| Dispatch boundary | Exactly four deliberate provider effects, zero repeat effects; cancelled waiter, original task completion, Profile reassignment during external wait | PASS_CORE_HA; external provider I/O explicitly fixture, no provider exactly-once claim |
+| Private data | Source/token withdrawal on idle sockets, Profile change before effect, original owner delivery guards and detached background context tests | PASS_CORE_HA + owning units; no durable result bodies |
+| Quiet liveness | Real no-pong close, auth deadline, production 300s idle music-only lease, reconnect retaining pairing/Session | PASS_CORE_HA; native suspension and physical route changes OPEN_APPLE |
+| Broadcast HTTP recovery | Same actual Runtime/Broadcast cursor/DTO, published opening Moment retained, honest snapshot_required, no added subscription, end→404 | PASS_CORE_HA; missing client rendering is not inferred |
+| Rich-result bounds | Actual oversized queue body after admission becomes confirmed receipt-only; both availability flags false; same-ID retry adds no provider fetch | PASS_CORE_HA + frame/admission units; no partial body or regeneration |
+| Native automatic routes | Existing Apple writer owns Mac/iPhone/iPad coordinator and actual transitions | OPEN_APPLE; no Swift writes or installed/native acceptance here |
+| Regression/localization | Full suite 1,913 tests, seven existing skips; 156 focused UX tests/159 subtests; five-language action/field/Repair wiring | PASS_LOCAL_SOFTWARE; actual frontend layout NOT_RUN |
+
 
 Use genuine isolated HA/router/auth/Profile/Runtime/Store/Broadcast and real
 HTTP/WebSocket sockets. Only external music/speech/model boundaries may be
@@ -43,18 +44,42 @@ Early design454a470f is not runtimeGO: independent reviews rejected its standalo
 HMAC-origin assumption and missing rollback fence/phase-content distinction.
 Those findings are corrected before corresponding runtime implementation.
 
-## Connected preliminary checkpoint
+## Connected software checkpoint
 
-`tests/fixtures/hybrid_transport_v1.json` records 17 actual isolated HA/TLS/WS
-transport cases from the exact source hashes it embeds. Ordinary pairing,
-validated local TLS, first-frame paired actions, canonical active Session,
-HTTP snapshot-required recovery, HTTP/WS operation dedup, two deliberate skips,
-payload conflict, audience rejection, request-ID reuse rejection and journal
-reopening pass. Exactly two external provider mutations occur; no model calls.
-No installed or native result is inferred. This is `PASS_CORE_TLS_HA_BASELINE`,
-not completion of the matrix above. Full operation parity, withdrawal/race,
-backpressure, liveness, resource and final independent reviews remain required.
+`tests/fixtures/hybrid_transport_v1.json` contains actual synthetic request and
+response envelopes, source/driver SHA256 pins, effect counts, resource and elapsed
+measurements. Secrets/auth headers/first-frame paired tokens are not exported.
+The original 17-case checkpoint remains history in the existing Apple handoff;
+the current fixture supersedes it for producer qualification.
 
-Fourteen journal/service owning units additionally cover cancellation, uncertain
-Store acknowledgement, revoked authority, slow-save expiry and original
-owner delivery guards. These are unit evidence, distinct from actual HA sockets.
+The 54-case production-lease run uses real isolated HA/router/auth/Profile/Store,
+Runtime/Planner/Moment/Broadcast and TLS/HTTP/WS sockets. Only external
+Spotify/music/source boundaries are explicit fixtures; no real model calls.
+Exactly four deliberate provider mutations occur, including one accepted effect
+with lost acknowledgement. Reconciliation adds no effect. The fixture's
+`PASS_CORE_TLS_HA_BASELINE` is a producer software result, not an installed or
+native claim. Real lease duration is about 300 seconds, auth deadline about five
+seconds, and absent-pong disconnect about 23 seconds; exact measurements are
+recorded in the fixture. The compact journal is measured before idle expiry and
+after GC; a small final journal is not a claimed peak storage measurement.
+
+Twenty-four journal/service units include save uncertainty, durable clock
+highwater, expiry/GC/restart, corruption, bounded retention, cancellation,
+Profile/device binding, late effects and admission detachment. First-result,
+oversize and capability assertions supplement the genuine socket chain.
+Independent technical/privacy and product/network-UX review must approve the
+exact final candidate; earlier checkpoint reviews do not qualify later fixes.
+
+[Owner-requested integration localization correction](INTEGRATION_UX_LOCALIZATION_20261015.md)
+is independently reviewed and separately committed. It changes presentation, not
+transport semantics. Actual native/installed/hardware/joint acceptance remains
+OPEN/NOT_RUN. The final source/fixture consolidation was repeated after the last
+catalogue-only review corrections and current-main dependency merge: all 163
+integration files and the verifier match the 54-case production-lease proof.
+[Exact source qualification](HYBRID_TRANSPORT_SOURCE_QUALIFICATION_20261015.md)
+records its measurements and evidence boundaries.
+
+[Explicit Apple implementation/test handoff](https://github.com/pcvantol/djconnect-app/issues/87#issuecomment-6186713492)
+records route trust, automatic transitions, demux/reconciliation, Session/UI
+continuity, test matrix and separate native evidence. Registration/readback is
+confirmed; Apple ACK/consumer delivery is not assumed.

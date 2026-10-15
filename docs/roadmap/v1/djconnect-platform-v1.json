@@ -39446,11 +39446,11 @@
     "document_references": [
       {
         "path": "PRODUCT_ROADMAP.md",
-        "sha256": "5296b0db7c5c2cc5e16236f8a10e5471e60c712061ee3881463711c48c1da4ec"
+        "sha256": "dedcf9c44e4a4c848f68d814ec0570975ceb84fdc71b6a67382be1e37338787c"
       },
       {
         "path": "PRODUCT_BACKLOG.md",
-        "sha256": "82f16f635841fe4864710f2cc1eb2504adbb2434cfeec05413e9f38d3909cf05"
+        "sha256": "a10b6461f84b2402437495954dd71f685abd2dac383ef3b054b7b0a66f4fab56"
       },
       {
         "path": "docs/product/DJ_PRESENCE_V1.md",
@@ -39638,15 +39638,23 @@
       },
       {
         "path": "docs/product/HYBRID_HTTP_WEBSOCKET_TRANSPORT_V1.md",
-        "sha256": "ff1f9c658578e0f5837f59d7736cc171b83169828c9c0bbf5cb2b19cf9888983"
+        "sha256": "b1be6a3f8d98f5f3430c1aca6549c7caa6f56013f5fad7af688fe390d0babbb3"
       },
       {
         "path": "docs/product/TRANSPORT_OPERATION_RECOVERY_CONTRACT_V1.md",
-        "sha256": "20d140ed36560aad6438a3b3178f7a97cf4668662593ccd808015a3fe9adcc1a"
+        "sha256": "0ba644ddfd23139de80f50cf8b658cedab370c9fcc72e4e3ea9c35282f76b562"
       },
       {
         "path": "docs/verification/HYBRID_TRANSPORT_V1_ACCEPTANCE_MATRIX.md",
-        "sha256": "ac03954c1e0842797fa99dbeb8865119d1a69a58c17a6f3ebdd3d36eaee8cdf5"
+        "sha256": "9acbf4cd89c4bf0be2d4bc2c7289da00f4a47a5796ba90cd4ade9de7bd0026ba"
+      },
+      {
+        "path": "docs/verification/INTEGRATION_UX_LOCALIZATION_20261015.md",
+        "sha256": "c05ccc94df6827c276d1b86a5177d4a52e1f00ab9e8469db5d94f358966f7dc7"
+      },
+      {
+        "path": "docs/verification/HYBRID_TRANSPORT_SOURCE_QUALIFICATION_20261015.md",
+        "sha256": "8bc271ce861abcc3470d783407d10579ebc2efd4414f9bcee039184ccd7da6fa"
       }
     ],
     "implementation_receipt": {
