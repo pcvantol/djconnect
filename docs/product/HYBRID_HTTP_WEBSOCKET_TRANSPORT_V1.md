@@ -53,20 +53,28 @@ Apple owns one shared coordinator for Mac/iPhone/iPad: local-ready,
 local-degraded, remote-ready, recovering/offline, terminal-authority-withdrawn.
 Wi-Fi/Ethernet is a hint, not proof of this HA installation. Use configured trusted
 origins and existing TLS policy; never follow cross-origin redirects with secrets.
-A local paired-origin challenge proves possession of the existing device secret
-without sending that secret to a potentially conflicting foreign-LAN address.
-It is not a credential issuer or Profile chooser. Failure leaves local sensitive
-routes unqualified; trusted external HTTPS may be probed separately.
+The new paired action and operation routes require authenticated HTTPS/WSS with
+normal certificate/hostname validation or an explicitly existing pinned HA identity.
+Never release a paired secret because a public capability, interface, HTTP200 or
+challenge response looked plausible. A relay can forward a valid HMAC challenge;
+a standalone HMAC probe does not bind the subsequent channel and is rejected as
+authority. No new probe/token-issuer route or replacement cryptographic channel.
 
-Probe challenge contract: POST `/api/djconnect/v1/transport/probe`, closed JSON
-`device_id`, `client_type`, `challenge` (32 random bytes encoded hex), `proof`.
-Request proof is HMAC-SHA256 with the existing paired device token over UTF-8
-`djconnect-hybrid-probe-v1:request:` + challenge. Server response proof uses
-`djconnect-hybrid-probe-v1:response:` + challenge + `:` + stable HA installation ID.
-Compare constant-time; challenge is unique per attempt. No token in URL/payload,
-no cookie/redirect, no private content, no discovery-based arbitrary origin.
-Current pairing/Profile/retirement authority must also pass. A response is accepted
-only for its outstanding challenge and expected installation; it grants no action.
+An owner-authenticated transport-context read on that protected channel returns
+version1, stable existing ha_install_id, server epoch/time and supported policy.
+The expected installation is retained from ordinary pairing; identity mismatch
+withdraws that route without trying another account. No read creates a new
+installation ID or changes endpoint configuration. A missing legacy install ID is
+unqualified until the existing authorized setup lifecycle supplies it.
+
+Local cleartext HTTP is retained legacy compatibility, not proof for a new
+sensitive automatic fast path on foreign networks. HTTPS/WSS-positive local
+qualification is required; do not declare completion from universally disabling
+local actions. Apple must qualify its existing configured/pinned local HTTPS
+route, or report the affected plaintext-only installation subset OPEN rather
+than weaken server identity or send secrets to an unproven LAN address. Core
+provides working TLS-positive sockets and rejects insecure new action/operation
+requests; it does not install a proxy, certificate, service or global trust rule.
 
 After confirmed remote readiness, share one probe and bounded backoff/hysteresis;
 do not pay full LAN timeout per request. Foreground/network change triggers a
@@ -79,7 +87,7 @@ an Apple-owned migration and visible fallback guidance in all five languages.
 ## Separate paired action adapter
 
 New relative path `/api/djconnect/v1/actions/paired`, protocol1, audience
-`paired_owner_actions`. Same paired first-frame identity/secret as Broadcast,
+`paired_owner_actions`. On the authenticated TLS channel, same paired first-frame identity/secret as Broadcast,
 5s auth deadline,300s connection lease,1s revocation checks, no HA token. Never
 silently add commands to Broadcast v1. Allow only declared domain operations.
 Session/owner/Profile resolve server-side and are revalidated before acceptance,

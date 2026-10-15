@@ -5,10 +5,10 @@ NOT_RUN; historical Apple40021 PARTIAL evidence is not current acceptance.
 
 | Boundary | Positive proof | Negative/race proof | Initial status |
 | --- | --- | --- | --- |
-| Paired origin/auth | Real paired identity, challenge and first-frame auth | Foreign host/challenge,wrongtoken/retiredclient,Profilechange | NOT_RUN |
+| Paired origin/auth | Real paired identity on validated TLS and first-frame auth | Relay/wrongcertificate/plaintext,wrongtoken/retiredclient,Profilechange | NOT_RUN |
 | Action parity | Actual HTTP/WS same application handler/result/revision | Unsupported operation,identity override,authoritative rejection | NOT_RUN |
 | Correlation | Concurrent out-of-order IDs/results,one reader | duplicateID,cancel,late reply,socketreplacement,queuefull | NOT_RUN |
-| Receipts | Same ID acrossWS/HTTP invokes domain/provider once | conflict,expiredID,capacity,oldboot,Storefail | NOT_RUN |
+| Receipts | Same ID acrossWS/HTTP invokes domain/provider once | conflict,expiry/GC→clockrollback/restart,capacity,oldboot,Storefail | NOT_RUN |
 | Dispatch boundary | Qualified result and real effect count | before/after provider send/local commit,cancellation/crash | NOT_RUN |
 | Private data | Current owner/no-store/response rights | source/Profile/token withdrawal,expired grant,recovery leakage | NOT_RUN |
 | Quiet liveness | Real ping/pong and lease renewal | half-open,Off/pause,noevent,suspension,end | NOT_RUN |
@@ -23,3 +23,22 @@ explicit fixtures. Measure latency,requests,peak resources and executioncounts.
 A producer software PASS does not promote native/installed/hardware/joint status.
 Independent technical/concurrency/security and product/network-UX reviews must
 qualify the exact final candidate after fixes. No deployment/installation here.
+
+## Explicit consumer-context chains
+
+- Chosen catalog A → qualified route change → explicit Play stays exactly A;
+  no re-search, selection loss or extra effect. Original deadlines remain.
+- Confirmed private answer → body loss/expiry/restart retains confirmed phase,
+  result_available:false, no automatic regeneration/model cost.
+- Expired selected source chip is withdrawn without destroying a local draft;
+  history paging/search/scroll position remains consumer-owned and stable.
+- Unproven LAN, wrong TLS identity or failed reachability does not delete pairing,
+  Profile/history or an authorized Session. Only authoritative authenticated
+  revocation/profile/source denial withdraws the corresponding private view;
+  leaseexpiry alone reconnects and does not mean pairingrevocation.
+- A relayed valid standalone challenge is never accepted as channel identity;
+  server certificate/hostname/pinning validation precedes token release.
+
+Early design454a470f is not runtimeGO: independent reviews rejected its standalone
+HMAC-origin assumption and missing rollback fence/phase-content distinction.
+Those findings are corrected before corresponding runtime implementation.

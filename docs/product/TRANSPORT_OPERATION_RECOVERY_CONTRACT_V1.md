@@ -11,6 +11,13 @@ Each deliberate user action receives a fresh UUIDv7 `operation_id`; retries keep
 that exact ID, payload and original `operation_epoch`. UUIDv7's immutable creation
 millisecond timestamp bounds eligibility:300s total lifetime, maximum30s future
 clock skew. Expired IDs are rejected before dispatch even after journal cleanup.
+Eligibility uses a nondecreasing effective clock: maximum of wall time, the
+boot's wall-plus-monotonic anchor, and a durable journal high-watermark. Reservation,
+phase transition and expired-record removal persist that high-watermark atomically
+with the receipt update. A backwards wall-clock adjustment cannot re-admit an ID,
+including after expiry/GC and restart. Server time metadata reflects this qualified
+clock; an unqualified client clock fails closed instead of creating a new ID to
+retry an uncertain action.
 A subsequent deliberate skip has a new ID; changing an ID/epoch to replay an
 uncertain action is forbidden. Server exposes its boot epoch and clock to an
 authenticated client, without an HA credential or new account grant.
@@ -30,7 +37,11 @@ new history engine. Total256 unexpired receipts,64 per owner,8 active executions
 capacity rejects new work, never evicts unexpired dedup evidence. Expired IDs
 remain inadmissible from their own timestamp, so expired metadata may be removed.
 Active tasks retain their fence until terminal; timeout cannot make work eligible
-again. Store failure before durable reservation means no handler/provider dispatch.
+again. One journal owner and short async lock serialize load, capacity checks,
+reservation and phase transitions; HA Store alone is not this transaction owner.
+A failed/uncertain save freezes new dispatch until verified reload, so RAM cannot
+forget a possibly committed reservation. Store failure before durable reservation
+means no handler/provider dispatch.
 
 ## Phases and semantic boundary
 
@@ -42,7 +53,7 @@ again. Store failure before durable reservation means no handler/provider dispat
 | confirmed | Handler returned a known accepted result and receipt commit succeeded | Render canonical result; duplicate returns receipt, never execute again. |
 | rejected | Qualified pre-dispatch/domain rejection | Preserve typed authoritative error; no alternate transport/account bypass. |
 | cancelled | Cancelled before dispatch with qualified proof | Report cancellation; do not invent a new ID automatically. |
-| unknown | Restart after reservation, ambiguous failure, or result no longer safely available | Honest reconciliation; explicit new user action only, no hidden replay. |
+| unknown | Restart before a terminal receipt or genuinely ambiguous execution/commit | Honest reconciliation; explicit new user action only, no hidden replay. |
 
 The service reserves before Core invocation and revalidates at real provider send
 hooks. Durable sent_unknown reservation precedes each first mutating provider
@@ -57,12 +68,22 @@ of nonexecution. Owner revocation, source withdrawal, context/expiry fences rema
 active before later effects. Provider timeouts and after-commit Broadcast failure
 retain their actual acceptance meaning. Never retry after authoritative denial.
 
-Boot epoch changes on restart. Old in-flight reservations project unknown and
-cannot run again; no Runtime/job restoration. An old epoch execute is rejected.
+Execution phase and result availability are independent. A durably confirmed
+operation stays confirmed after private content expires, RAM response loss or
+restart; result_available:false never downgrades known acceptance to unknown.
+A client keeps a known confirmed receipt when a later receipt query expires.
+
+Boot epoch changes on restart. Old nonterminal reservations project unknown and
+cannot run again; no Runtime/job restoration. Confirmed/rejected terminal receipts
+retain their known phase while still valid and authorized. An old epoch execute is rejected.
 A status read may explain the previous bound outcome but cannot dispatch, generate
 or rewrite history. No fresh epoch/ID is fabricated to conceal an unknown outcome.
 
 ## HTTP and WS wire
+
+New transport context/operation/status and paired action routes require an
+authenticated TLS/server identity before any paired secret. Legacy plaintext
+HTTP remains separately bounded compatibility, not a new automatic trust grant.
 
 POST `/api/djconnect/v1/transport/operation` uses ordinary paired bearer/device
 headers and closed JSON `contract_version:1`, `operation_epoch`, `operation_id`,
