@@ -40882,11 +40882,11 @@
     "document_references": [
       {
         "path": "PRODUCT_ROADMAP.md",
-        "sha256": "c2bdc3bd71cfa28d0780d6a1f0e4c3a61ff896db6aba7b078ab6f13b77017fc7"
+        "sha256": "b66b7fecf297629344a58e0988f94e2165f8d6c664d67520171393de2206caeb"
       },
       {
         "path": "PRODUCT_BACKLOG.md",
-        "sha256": "6b2664148197a951dd78fb630efc0704d3b032c00776ac19b034a4b1582296ba"
+        "sha256": "4057ff579e8d447dcd83c291bd27ad3947a383b5ef9b96aeeb349ff027da6777"
       },
       {
         "path": "docs/product/DJ_PRESENCE_V1.md",
@@ -41502,7 +41502,7 @@
       "base_delta_version": "djconnect-federated-planning-delta/11",
       "assignment_id": "DJC-VIBECAST-WEB-FIRST-GUEST-EXPERIENCE-DESIGN-V1-20261015",
       "issue": "https://github.com/pcvantol/djconnect/issues/1174",
-      "phase": "LOCAL_DOCUMENTARY",
+      "phase": "SOURCE_PROTECTED_MERGED",
       "product_implementation": "Planned",
       "joint_acceptance": "OPEN",
       "automatic_dispatch": false,
@@ -41525,7 +41525,15 @@
         "universal-receiver": "REUSE",
         "legacy-opt-in-end": "KEEP_INSTALLED_NEW_TV_READONLY"
       },
-      "coordination": "Existing Core writer confirmed docs-before-speech serialization; no unmerged speech bytes imported; future speech wrapper must preserve this versioned extension."
+      "coordination": "Existing Core writer confirmed docs-before-speech serialization; no unmerged speech bytes imported; future speech wrapper must preserve this versioned extension.",
+      "source_pr": 1175,
+      "source_main_sha": "7266bc2540e4b7699cf47c028214e4b22c4c5afe",
+      "reviewed_candidate": "a048d46383c82b086ab7986c765df4e6a8d50e00",
+      "protected_merge": true,
+      "required_checks": "PASS",
+      "owner_authorization_run": 38771192832,
+      "source_archive_sha256": "19887cceb075bac98d04fe8bf147873587b93d52849c06446f70165cce88990c",
+      "source_formal_sha256": "add8bb4a37c3edffbef9db5d6e56a5b8e211925b7ede771d64622ab43e4d1926"
     }
   }
 }
