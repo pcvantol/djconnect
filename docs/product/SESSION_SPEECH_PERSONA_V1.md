@@ -2,7 +2,9 @@
 
 Assignment `DJC-SESSION-SPEECH-PERSONA-VOICE-20261015`; owner decision6189231491,
 original audit6188230166 and autonomous-next6189912293. Design-first contract;
-implementation and all acceptance remain pending. Base70c0a300, after genuinely
+Core source is protected delivered in [PR1177](https://github.com/pcvantol/djconnect/pull/1177)
+at `3535c97c3b50e9a126d0f22fcc5ce50d81851499`; native/audible/installed/joint
+acceptance remains separate and open. Original admission base70c0a300, after genuinely
 closed artwork1172/1173. This does not reopen historical expressive/artwork work.
 
 ## Existing owners and bounded change

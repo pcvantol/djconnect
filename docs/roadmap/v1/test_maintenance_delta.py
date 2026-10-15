@@ -671,12 +671,36 @@ class SpeechPersonaMaintenanceTests(unittest.TestCase):
                 self.assertTrue(validate(p))
 
     def test_missing_admission_or_unproved_acceptance_rejected(self):
-        for key, value in [('ack', 1), ('base_sha', '0'*40), ('source_delivery', 'PROTECTED_MERGED'),
+        bad_delivery = ('UNPUBLISHED' if self.p['planning_maintenance']['speech_persona_receipt']['source_delivery'] == 'PROTECTED_MERGED'
+                        else 'PROTECTED_MERGED')
+        for key, value in [('ack', 1), ('base_sha', '0'*40), ('source_delivery', bad_delivery),
                            ('native', 'PASS'), ('installed', 'PASS'), ('audible', 'PASS'), ('joint', 'PASS'),
                            ('consumer_writes', True), ('previous_delta_sha256', '0'*64), ('previous_delta', 'history/20261015/artwork-finalization-maintenance-v11.json')]:
             p = copy.deepcopy(self.p)
             p['planning_maintenance']['speech_persona_receipt'][key] = value
             self.assertTrue(validate(p), (key,value))
+
+    def test_protected_delivery_requires_exact_provenance_and_qualified_assets(self):
+        for key in ('source_candidate', 'source_main_sha', 'source_pr', 'source_review',
+                    'required_checks', 'protected_merge', 'owner_authorization_run',
+                    'archive_sha256', 'formal_evidence_sha256', 'coverage_sha256'):
+            with self.subTest(key=key):
+                p = copy.deepcopy(self.p)
+                r = p['planning_maintenance']['speech_persona_receipt']
+                r.update(phase='SOURCE_PROTECTED_MERGED', source_delivery='PROTECTED_MERGED')
+                r.pop(key, None)
+                self.assertTrue(validate(p))
+
+    def test_successor_keeps_selection_without_admission_or_effect_authority(self):
+        r = self.p['planning_maintenance']['speech_persona_receipt']
+        if 'selected_successor' not in r:
+            self.skipTest('Selected successor reconciled only in separate Finalization')
+        for key, value in (('admission', 'ADMITTED'), ('implementation_in_this_slice', True),
+                           ('same_writer', False), ('new_publication_gates_preserved', False)):
+            with self.subTest(key=key):
+                p = copy.deepcopy(self.p)
+                p['planning_maintenance']['speech_persona_receipt']['selected_successor'][key] = value
+                self.assertTrue(validate(p))
 
     def test_historical_delivery_receipts_and_nodes_are_immutable(self):
         for name in ['session_artwork_receipt','hybrid_receipt','implementation_receipt']:

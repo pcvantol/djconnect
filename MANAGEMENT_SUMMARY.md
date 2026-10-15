@@ -1,5 +1,45 @@
 # DJConnect Generation 2 Management Summary
 
+## Current: Session speech/Persona — separate Finalization
+
+### Repository Status
+
+Source PR [#1177](https://github.com/pcvantol/djconnect/pull/1177) protected merged as `3535c97c3b50e9a126d0f22fcc5ce50d81851499`, exact reviewed/owner-authorized `50cbae2665a7f7e25d4744136f64ba0e8f16def7` on base58205056.32checksPASS/5conditional skips; actual exact Owner Authorization38816161823 SUCCESS.169official archive files match Git with zero differences; durable/raw/coverage/main/PR bindings PASS. [Exact source readback](docs/verification/SESSION_SPEECH_PERSONA_SOURCE_READBACK_20261016.md). Earlier1184/1185,1181/1183 and1178/1179 stay closed.
+
+### Management Summary
+
+One accepted contribution and immutable text use the existing speech owner across common Ask DJ and proactivity. Confirmed live Session Persona is ordered and shared; Mood, Presence, device autoplay and optional actual provider-supported gender remain independent. Native replay never resends an original task. No source-rights/processor/grant widening or gateway exemption. [Narration design](docs/product/SESSION_SPEECH_PERSONA_V1.md) and [private speech contract](docs/product/SESSION_SPEECH_DELIVERY_V1.md) are connected.
+
+### Roadmap Position
+
+Generation2 Phase2 existing Voice/Speech/Audio Renderer work. Four bounded SPEECH::CORE leaves Completed/CORE_DELIVERED; family acceptance remains PARTIAL. Apple adoption and joint visible/audible acceptance remain Planned/open. Canonical maintenance12 retains all previous receipts and frozen main582maintenance11 with WEBschema2/21nodes47edges. No second planner, provider/model/cost route or consumerwriter.
+
+### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+1. **DJC-CORE-PASSIVE-SESSION-PROJECTION-V1-20261015 — selected queued Core successor.** [Owner6199213014](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6199213014), existing SURFACE::CORE::PROJECTION. Execution rationale: only after this valid Speech Finalization/cleanup and fresh sole-writer admission; existing pickup/stash must be reused, no implementation or dispatch here.
+2. **DJC-VIBECAST-TV-BOOTSTRAP-CLOUDFLARE-V1-20261015 — independently selected receiver16.** Its own writer/previous closure/admission and producer contracts gate integration; no Core takeover or native/hardware inference.
+3. **Unfilled product slot3 — no further authorized eligible selection.**
+4. **Unfilled product slot4 — no further authorized eligible selection.**
+5. **Unfilled product slot5 — no further authorized eligible selection.**
+
+### Blocked Items
+
+This separate documentary candidate needs its own exact independent reviews, publication grant, checks/protected merge and artifact readback. Source approval does not authorize it. Installed Speech follows valid finalmain qualification under standing owner instruction. Native audible/voice UI and joint acceptance remain Apple-owned/open; direct LAN ingress remains unqualified.
+
+### Deferred Items
+
+No Swift/receiver writes, network/proxy/Docker/service/runner/workflow changes, new provider/model/cost route, signing/Pages/hardware work or following implementation. Original model/browser/301s receipts retain pins. Provider/source/inventory/waveform fixtures and unit-only coverage remain explicitly bounded.
+
+### Repository State
+
+Repository State: `MERGED_RECONCILED` is intended only after this separate Finalization is actually protected merged and exact main/artifacts read back. Before that source1177 remains MERGED_UNRECONCILED; this premerge text invents no future SHA. [Immutable completion record](docs/history/prompts/2026-10-16-session-speech-persona-finalization.md) binds actual source evidence and the remaining gates.
+
+### Workspace State
+
+Workspace State: `NOT_READY` until actual synchronization and safe own disposition. Own source50cbae26 and this Finalization ref only; preserve original history/recovery bundles, other VibeCast worktree, Applelab and all WIP. Source squash has15git-cherry'+' despite proven complete tree equality, so normal cleanup is blocked pending its precise bounded exception. Fifteen byte-identical untracked duplicate copies have active/ambiguous VM handles; retain them, no deletion or global clean-workspace claim. No locks or active files are removed.
+
+## Historical operational context
+
 ## Current: Speech/Persona — existing source integration resumed
 
 ### Repository Status

@@ -6,7 +6,7 @@ Generated from djconnect-platform-v1.json, maintenance DJC-DJ-PRESENCE-ROADMAP-D
 
 The original3October snapshot/audit/source pins and projections are immutable history in [history/20261003](../history/20261003/README.md). Only this bounded delta is current here; inherited premerge statuses are not current blockers. No portfolio-wide refresh, writer reservation, product dispatch or runtime acceptance is claimed.
 
-Selected and freshly admitted speech/Persona implementation: DJC-SESSION-SPEECH-PERSONA-VOICE-20261015; source UNPUBLISHED. Four bounded Core leaves reuse existing Voice/Speech/Audio Renderer architecture; Apple/native audible/joint acceptance remains Planned/open. Delivered artwork v11 and historical snapshots preserved; no new provider/model/cost route or consumer writer.
+Selected and freshly admitted speech/Persona implementation: DJC-SESSION-SPEECH-PERSONA-VOICE-20261015; source PROTECTED_MERGED. Four bounded Core leaves reuse existing Voice/Speech/Audio Renderer architecture; Apple/native audible/joint acceptance remains Planned/open. Delivered artwork v11 and historical snapshots preserved; no new provider/model/cost route or consumer writer.
 
 - `PROJ::INTELLIGENCE::DJ-PRESENCE` — Planned; Independent presence, Mood and Persona; no new dispatch
 - `SLICE::CORE::DJ-PRESENCE-CONTRACT` — Completed; Pin numeric policy/default, capability/schema and producer fixtures
@@ -57,10 +57,10 @@ Selected and freshly admitted speech/Persona implementation: DJC-SESSION-SPEECH-
 - `WEB::EFFECT-POLICY` — Planned; DJ request consideration fairness and uncertain-effect policy
 - `WEB::ENQUEUE` — Planned; Real enqueue reconciliation and observed-recording Persona announcement
 - `WEB::JOINT` — Planned; Joint browser native media lifecycle physical five-language acceptance
-- `SPEECH::CORE::CONTRACT` — In progress; Shared narration and speech/source contract; existing owner selection6189231491 only
-- `SPEECH::CORE::DELIVERY` — In progress; Owner speech/manual replay and renderer voice admission; existing owner selection6189231491 only
-- `SPEECH::CORE::PERSONA` — In progress; Live ordered Session Persona settings; existing owner selection6189231491 only
-- `SPEECH::CORE::REALIZATION` — In progress; Persona-realized proactive narration in every family; existing owner selection6189231491 only
+- `SPEECH::CORE::CONTRACT` — Completed; Shared narration and speech/source contract; existing owner selection6189231491 only
+- `SPEECH::CORE::DELIVERY` — Completed; Owner speech/manual replay and renderer voice admission; existing owner selection6189231491 only
+- `SPEECH::CORE::PERSONA` — Completed; Live ordered Session Persona settings; existing owner selection6189231491 only
+- `SPEECH::CORE::REALIZATION` — Completed; Persona-realized proactive narration in every family; existing owner selection6189231491 only
 - `SPEECH::JOINT::ACCEPTANCE` — Planned; Visible and audible shared product qualification; existing owner selection6189231491 only
 
 Fresh owner/writer/resource admission is separate from functional prerequisites. Historical writer observations are not current leases.

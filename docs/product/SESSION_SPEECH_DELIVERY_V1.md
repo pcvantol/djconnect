@@ -2,9 +2,10 @@
 
 Design-first companion to [Session narration/live Persona](SESSION_SPEECH_PERSONA_V1.md).
 One existing contribution and one accepted text; audio is a presentation resource,
-never a new DJMoment or conversation turn. Core implementation is locally
-connected and under qualification; source delivery, native adoption and joint
-audible acceptance remain separate open gates.
+never a new DJMoment or conversation turn. Core source is protected delivered
+in [PR1177](https://github.com/pcvantol/djconnect/pull/1177) at
+`3535c97c3b50e9a126d0f22fcc5ce50d81851499`. Native adoption, installed Speech
+and joint audible acceptance remain separate open gates.
 
 ## Optional owner projection and explicit preparation
 

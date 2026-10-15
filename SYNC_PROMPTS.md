@@ -1,5 +1,15 @@
 # Qualified direct-local HTTP/WS — protected Core producer
 
+## Session speech/Persona — Core source delivered; separate Finalization
+
+Source PR [#1177](https://github.com/pcvantol/djconnect/pull/1177) protected merged as `3535c97c3b50e9a126d0f22fcc5ce50d81851499`, exact reviewed/owner-authorized `50cbae2665a7f7e25d4744136f64ba0e8f16def7` on base58205056.32checksPASS/5conditional skips; actual exact Owner Authorization38816161823 SUCCESS.169official archive files match Git with zero differences; durable/raw/coverage/main/PR bindings PASS. [Exact source readback](docs/verification/SESSION_SPEECH_PERSONA_SOURCE_READBACK_20261016.md). Earlier1184/1185,1181/1183 and1178/1179 stay closed.
+
+Four existing SPEECH::CORE contract/Persona/realization/delivery leaves Completed/CORE_DELIVERED; full Voice/Speech family remains PARTIAL. Apple/native audible/installed Speech/joint acceptance remain open. Optional gender requires actual configured HA provider metadata; device autoplay/manual replay and confirmed Session Persona remain distinct from Mood/Presence. No shared private speech grant or new provider/model/cost route.
+
+[Selected passive successor6199213014](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6199213014) reuses SURFACE::CORE::PROJECTION, NOT_ADMITTED: valid Speech Finalization, safe own workspace disposition and fresh same-writer admission are prerequisites. Reuse any existing pickup/stash; no new writer, implementation or consumer dispatch in this reconciliation. Receiver16 remains separately owned. Historical planning snapshots/WEBschema2/21nodes47edges/receipts stay exact. Finalization has its own exact publication gate; standing qualified-finalmain HA-dev/prod install instruction remains separate.
+
+## Historical scope records
+
 Source [#1184](https://github.com/pcvantol/djconnect/pull/1184), exact main `0f92b74e76ae055efdbf2b375d95c58e86328e27`, reviewed/owner-authorizeda0714b44. Read [policy](docs/product/HYBRID_LOCAL_TRANSPORT_POLICY_V1.md) and [source readback](docs/verification/HYBRID_LOCAL_TRANSPORT_SOURCE_READBACK_20261015.md). Additive policy_version1/deployment_qualification_required keeps legacy global TLS true; only authenticated qualified request context/auth_ok can report qualified_direct_http andrequires_authenticated_tlsfalse. WS route withdrawal is auth_invalid/transport_security_required, not re-pair/Profile/cachewipe. Reconcile original operation-ID/status through already-trusted TLS; never retry an uncertain execute. Administrative exact-peer qualification expires within24h; reads/reconnect never renew it. Existing dispatcher, pairing/installation/Profile/source and final owner/ingress fences remain authoritative.
 
 Actual HA-dev Docker ingress remains UNQUALIFIED, source loopback proof is not installed/native LAN acceptance. Finalization and exact terminal artifact pin remain separate. No Swift/receiver writes, consumer admission, topology/trust/service change or inferred hardware PASS. Frozen Speech1177 is preserved and must independently integrate actual finalmain before its renewed exact gates.

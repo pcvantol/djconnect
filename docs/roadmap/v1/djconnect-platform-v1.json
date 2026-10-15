@@ -39378,8 +39378,8 @@
         "title": "Shared narration and speech/source contract",
         "lane": "DJC-CORE",
         "repository": "pcvantol/djconnect",
-        "status": "In progress",
-        "assignment_status": "IN_PROGRESS",
+        "status": "Completed",
+        "assignment_status": "CORE_DELIVERED",
         "scope": "Shared narration and speech/source contract; existing owner selection6189231491 only",
         "acceptance_boundary": "Core software, installed, native/audible and joint evidence independent; no consumer dispatch",
         "contract_binding": "docs/product/SESSION_SPEECH_PERSONA_V1.md",
@@ -39395,8 +39395,8 @@
         "title": "Owner speech/manual replay and renderer voice admission",
         "lane": "DJC-CORE",
         "repository": "pcvantol/djconnect",
-        "status": "In progress",
-        "assignment_status": "IN_PROGRESS",
+        "status": "Completed",
+        "assignment_status": "CORE_DELIVERED",
         "scope": "Owner speech/manual replay and renderer voice admission; existing owner selection6189231491 only",
         "acceptance_boundary": "Core software, installed, native/audible and joint evidence independent; no consumer dispatch",
         "contract_binding": "docs/product/SESSION_SPEECH_PERSONA_V1.md",
@@ -39419,8 +39419,8 @@
         "title": "Live ordered Session Persona settings",
         "lane": "DJC-CORE",
         "repository": "pcvantol/djconnect",
-        "status": "In progress",
-        "assignment_status": "IN_PROGRESS",
+        "status": "Completed",
+        "assignment_status": "CORE_DELIVERED",
         "scope": "Live ordered Session Persona settings; existing owner selection6189231491 only",
         "acceptance_boundary": "Core software, installed, native/audible and joint evidence independent; no consumer dispatch",
         "contract_binding": "docs/product/SESSION_SPEECH_PERSONA_V1.md",
@@ -39443,8 +39443,8 @@
         "title": "Persona-realized proactive narration in every family",
         "lane": "DJC-CORE",
         "repository": "pcvantol/djconnect",
-        "status": "In progress",
-        "assignment_status": "IN_PROGRESS",
+        "status": "Completed",
+        "assignment_status": "CORE_DELIVERED",
         "scope": "Persona-realized proactive narration in every family; existing owner selection6189231491 only",
         "acceptance_boundary": "Core software, installed, native/audible and joint evidence independent; no consumer dispatch",
         "contract_binding": "docs/product/SESSION_SPEECH_PERSONA_V1.md",
@@ -41291,11 +41291,11 @@
     "document_references": [
       {
         "path": "PRODUCT_ROADMAP.md",
-        "sha256": "5350ceeb8af3caea1bd3d25016520bd6f951fbfc82f06ed4453c7cf2affe2830"
+        "sha256": "8bdf263230bcb4b572b723835642cab33df487bf6a446118f3525ed03386aca9"
       },
       {
         "path": "PRODUCT_BACKLOG.md",
-        "sha256": "cf20a9126c1c0701b127cc309d2af8dd8ef1dbac37e7b7ac42dfbea1fc57ad05"
+        "sha256": "95ab010d0548f099cc264305c3bd4efabff665ff2fd586a51b18a40fe9823390"
       },
       {
         "path": "docs/product/DJ_PRESENCE_V1.md",
@@ -41543,11 +41543,19 @@
       },
       {
         "path": "docs/product/SESSION_SPEECH_PERSONA_V1.md",
-        "sha256": "e357217fcfb95c1ceb10fde47600f4a594d4d6ee58ad237fc133fb45d85bec18"
+        "sha256": "e5854e479ad7cd76f1251300c068e8af47c2776719c7cbfb4f34f30adb11e80e"
       },
       {
         "path": "docs/product/SESSION_SPEECH_DELIVERY_V1.md",
-        "sha256": "8147e214c3ac1c23dcc262ee8ebd87a7c47ec0ddbfea39d047c6e529e5ae2c9a"
+        "sha256": "965a2f336102c12e56bb891fb003790c56c47132fa64719f7cef9e30cb119981"
+      },
+      {
+        "path": "docs/verification/SESSION_SPEECH_PERSONA_SOURCE_READBACK_20261016.md",
+        "sha256": "88d1f61b742c7b5e9258f7cd96ae35c691a3ea952ee98e345b8ffc9f1720dd38"
+      },
+      {
+        "path": "docs/history/prompts/2026-10-16-session-speech-persona-finalization.md",
+        "sha256": "08bfdd2e39d730e38d6a76b7cf8ffd8d1463781c59e52fa4aab8f3df0de16732"
       }
     ],
     "implementation_receipt": {
@@ -42017,8 +42025,8 @@
       "material_commit": "03634bf7a8bcdc904505a4a22dc23fbae4dabd1b",
       "previous_delta": "history/20261016/pre-speech-main582-maintenance-v11.json",
       "previous_delta_sha256": "34f9801689d4b19c360c1b5b240fc0df3fa93d29332e8bd8eb06d117d359340b",
-      "phase": "LOCAL_IMPLEMENTATION_AND_QUALIFICATION",
-      "source_delivery": "UNPUBLISHED",
+      "phase": "SOURCE_PROTECTED_MERGED",
+      "source_delivery": "PROTECTED_MERGED",
       "native": "OPEN_APPLE",
       "joint": "OPEN",
       "installed": "NOT_RUN",
@@ -42027,7 +42035,28 @@
       "consumer_writes": false,
       "same_writer": true,
       "predecessor_closure": "https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6191836891",
-      "integration_main_sha": "58205056c235a73488591591dd3d83f80f7bf847"
+      "integration_main_sha": "58205056c235a73488591591dd3d83f80f7bf847",
+      "source_candidate": "50cbae2665a7f7e25d4744136f64ba0e8f16def7",
+      "source_main_sha": "3535c97c3b50e9a126d0f22fcc5ce50d81851499",
+      "source_pr": "https://github.com/pcvantol/djconnect/pull/1177",
+      "source_review": "PASS",
+      "required_checks": "PASS",
+      "protected_merge": true,
+      "owner_authorization_run": 38816161823,
+      "archive_sha256": "2b6e15d867d070d4b7a6f35942aacbfe2c20db607a20737671f56ebdb7cf7b46",
+      "formal_evidence_sha256": "660dbb3f87cb326d9db7b41790a678089f294dabbd9f50f718b39ce97a887884",
+      "coverage_sha256": "a3d910fcac2a96168086536ac8b2cb569fae31b8c559fcad8b564f9b67f05694",
+      "family_acceptance": "PARTIAL",
+      "selected_successor": {
+        "assignment_id": "DJC-CORE-PASSIVE-SESSION-PROJECTION-V1-20261015",
+        "owner_selection": 6199213014,
+        "node": "SURFACE::CORE::PROJECTION",
+        "admission": "NOT_ADMITTED",
+        "start_boundary": "AFTER_VALID_SPEECH_FINALIZATION_AND_FRESH_ADMISSION",
+        "same_writer": true,
+        "implementation_in_this_slice": false,
+        "new_publication_gates_preserved": true
+      }
     }
   }
 }

@@ -6,7 +6,7 @@ Generated from djconnect-platform-v1.json, maintenance DJC-DJ-PRESENCE-ROADMAP-D
 
 The original3October snapshot/audit/source pins and projections are immutable history in [history/20261003](history/20261003/README.md). Only this bounded delta is current here; inherited premerge statuses are not current blockers. No portfolio-wide refresh, writer reservation, product dispatch or runtime acceptance is claimed.
 
-Selected and freshly admitted speech/Persona implementation: DJC-SESSION-SPEECH-PERSONA-VOICE-20261015; source UNPUBLISHED. Four bounded Core leaves reuse existing Voice/Speech/Audio Renderer architecture; Apple/native audible/joint acceptance remains Planned/open. Delivered artwork v11 and historical snapshots preserved; no new provider/model/cost route or consumer writer.
+Selected and freshly admitted speech/Persona implementation: DJC-SESSION-SPEECH-PERSONA-VOICE-20261015; source PROTECTED_MERGED. Four bounded Core leaves reuse existing Voice/Speech/Audio Renderer architecture; Apple/native audible/joint acceptance remains Planned/open. Delivered artwork v11 and historical snapshots preserved; no new provider/model/cost route or consumer writer.
 
 Authority: [DJC-DJ-PRESENCE-ROADMAP-DESIGN-V1-20261011](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6110375785).
 
@@ -14,8 +14,8 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 
 | Local design source | SHA256 |
 |---|---|
-| [PRODUCT_ROADMAP.md](../../../PRODUCT_ROADMAP.md) | `5350ceeb8af3caea1bd3d25016520bd6f951fbfc82f06ed4453c7cf2affe2830` |
-| [PRODUCT_BACKLOG.md](../../../PRODUCT_BACKLOG.md) | `cf20a9126c1c0701b127cc309d2af8dd8ef1dbac37e7b7ac42dfbea1fc57ad05` |
+| [PRODUCT_ROADMAP.md](../../../PRODUCT_ROADMAP.md) | `8bdf263230bcb4b572b723835642cab33df487bf6a446118f3525ed03386aca9` |
+| [PRODUCT_BACKLOG.md](../../../PRODUCT_BACKLOG.md) | `95ab010d0548f099cc264305c3bd4efabff665ff2fd586a51b18a40fe9823390` |
 | [docs/product/DJ_PRESENCE_V1.md](../../../docs/product/DJ_PRESENCE_V1.md) | `c97be3bcebbd4ca70d640cdf4fc0a9a4808451e986bc977e3173e19842a928c4` |
 | [DJ_SESSION_RUNTIME_CONTRACTS.md](../../../DJ_SESSION_RUNTIME_CONTRACTS.md) | `6ae7a05260bc2a997252dbb70c28917ac6b7fd25930263d7c0940df929b1ec92` |
 | [docs/product/DJ_INTELLIGENCE_ARCHITECTURE.md](../../../docs/product/DJ_INTELLIGENCE_ARCHITECTURE.md) | `5345f4a3db6b2bfb97931d6acdde09439dc3dbae7a7d311107269922e08aef12` |
@@ -77,5 +77,7 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 | [docs/product/VIBECAST_WEB_ENTRY_DISTRIBUTION_V1.md](../../../docs/product/VIBECAST_WEB_ENTRY_DISTRIBUTION_V1.md) | `e996a4973e21e8cd895f0d6a7bdfee8cc972c1e780f0568bdfc8a5219026d68d` |
 | [docs/product/HYBRID_LOCAL_TRANSPORT_POLICY_V1.md](../../../docs/product/HYBRID_LOCAL_TRANSPORT_POLICY_V1.md) | `b7d62c93f26b4883c993f89f7a929c57ba6be8c082bb6ed7c220e60c5045aac6` |
 | [docs/verification/HYBRID_LOCAL_TRANSPORT_SOURCE_READBACK_20261015.md](../../../docs/verification/HYBRID_LOCAL_TRANSPORT_SOURCE_READBACK_20261015.md) | `4bb082dd358cc9594240868cb163133be0320729b2d5687a337bcba2b5feeda3` |
-| [docs/product/SESSION_SPEECH_PERSONA_V1.md](../../../docs/product/SESSION_SPEECH_PERSONA_V1.md) | `e357217fcfb95c1ceb10fde47600f4a594d4d6ee58ad237fc133fb45d85bec18` |
-| [docs/product/SESSION_SPEECH_DELIVERY_V1.md](../../../docs/product/SESSION_SPEECH_DELIVERY_V1.md) | `8147e214c3ac1c23dcc262ee8ebd87a7c47ec0ddbfea39d047c6e529e5ae2c9a` |
+| [docs/product/SESSION_SPEECH_PERSONA_V1.md](../../../docs/product/SESSION_SPEECH_PERSONA_V1.md) | `e5854e479ad7cd76f1251300c068e8af47c2776719c7cbfb4f34f30adb11e80e` |
+| [docs/product/SESSION_SPEECH_DELIVERY_V1.md](../../../docs/product/SESSION_SPEECH_DELIVERY_V1.md) | `965a2f336102c12e56bb891fb003790c56c47132fa64719f7cef9e30cb119981` |
+| [docs/verification/SESSION_SPEECH_PERSONA_SOURCE_READBACK_20261016.md](../../../docs/verification/SESSION_SPEECH_PERSONA_SOURCE_READBACK_20261016.md) | `88d1f61b742c7b5e9258f7cd96ae35c691a3ea952ee98e345b8ffc9f1720dd38` |
+| [docs/history/prompts/2026-10-16-session-speech-persona-finalization.md](../../../docs/history/prompts/2026-10-16-session-speech-persona-finalization.md) | `08bfdd2e39d730e38d6a76b7cf8ffd8d1463781c59e52fa4aab8f3df0de16732` |
