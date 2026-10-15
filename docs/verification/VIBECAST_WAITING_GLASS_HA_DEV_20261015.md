@@ -35,3 +35,28 @@ restart, release/CI trigger, receiverrepo publish or other integration deploymen
 Physical visual result will be recorded separately after the preview is loaded.
 
 Generated candidate HTML SHA256: cef03b2796cb3be9c6473d872de6b6d285f789f7034b93483b084cfead98294e
+
+## Actual HA-dev deployment and physical Pi readback
+
+Source candidate723ba043, separate branch unchanged by other Core work.
+Before deployment the dev HTML exactly matched main; session-renderer script
+remains byte-identical. Atomically replaced only vibecast.html in the local
+homeassistant (HA-dev) container.156 other integration files SHA256-verified
+unchanged. No HA restart. Exact previous HTML retained locally at
+/private/tmp/djc-ha-dev-running-vibecast-20261015.html. Deployment receipt:
+/private/tmp/djc-vibecast-waiting/ha-dev-deployment-receipt.json.
+
+Old HTML SHA256: d72acde5b311e69eebd30ae3a4c47a658f263555da3feed9c709ba426564f4c8
+New HTML SHA256: cef03b2796cb3be9c6473d872de6b6d285f789f7034b93483b084cfead98294e
+
+Pi10 fetched HTTP200 through the same configured HA-dev HTTPS origin; served
+HTML SHA matches the installed candidate. Refreshed only the verified existing
+VibeCast Chromium window. Actual1200x1920 Pi screenshot visually inspected: logo,
+glass branding, localized waiting title, three readable instructions, monitor/
+Wi-Fi icon, code and same-installation reminder all fit without clipping.
+Screenshot is temporary local evidence (contains an ephemeral handoff code),
+not committed: /private/tmp/djc-vibecast-waiting/pi-preview.png. This is physical
+waiting-page visual proof, not iPad-to-Pi Session/Mood/Presence acceptance.
+The iPad UI helper failed enabling automation mode; those E2E cases remain open.
+No production HA, Python module, release/CI, pairing, Profile or playback change
+was performed for this waiting-page deployment. No push or merge.
