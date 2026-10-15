@@ -273,6 +273,8 @@ def query_service(hass, history_manager=None) -> HistoricalProjectionQueryServic
         domain["session_history_query"] = query
     elif history_manager is not None:
         query._conversation_history = history_manager
+    from .session_artwork import project_history_media
+    query.media_projector = lambda owner, row, entry: project_history_media(hass, owner, row, entry)
     return query
 
 

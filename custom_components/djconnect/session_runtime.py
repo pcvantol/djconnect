@@ -3377,6 +3377,7 @@ class DJSessionBroadcastEngine:
     state: DJBroadcastState
     forecast: ForecastProjection = field(init=False, repr=False)
     forecast_artwork: ForecastArtwork = field(default_factory=ForecastArtwork, repr=False)
+    media_projector: Any = field(default=None, repr=False)
     pending_events: tuple[BroadcastEventType, ...] = ()
     replay_log_limit: int = 128
     broadcast_token: str = field(default_factory=lambda: secrets.token_urlsafe(32), repr=False)
@@ -3817,6 +3818,8 @@ class DJSessionBroadcastEngine:
             result["session_flow"]["items"] = [item for item in result["session_flow"]["items"]
                                                if item.get("moment_id") not in excluded]
         result["native_delivery"] = native
+        if include_owner_only and self.media_projector is not None:
+            result["session_media"] = self.media_projector()
         if historical:
             result.pop("session_forecast", None)
             return result
@@ -5410,6 +5413,8 @@ class SessionRuntimeManager:
                 active = self._active_by_profile[owner_profile_id]
                 active.broadcast.forecast_artwork.commit(asset)
                 active.broadcast.update_forecast(active)
+        from .session_artwork import prepare_visible
+        await prepare_visible(hass, integration_runtime, owner_profile_id, session_id)
 
     async def async_forecast_image(self, *, session_id, asset_id):
         """Pure headerless capability read; no remote fetch or expiry renewal."""
@@ -5725,6 +5730,13 @@ class SessionRuntimeManager:
             if basis == "cc0_normalized_fields_v1":
                 from .ask_dj.dialogue import normalized_subjects
                 entry["body"]["dialogue_subjects"] = normalized_subjects(source)
+                from .session_artwork import subject_for_fact
+                subject = subject_for_fact(source)
+                if subject:
+                    entry["body"]["session_media_reference"] = {
+                        "version": 1, "subject_uri": subject,
+                        "source_context": dict(self._history_source_contexts.get(active.session_id, {}))}
+
         try:
             accepted = await self._historical_projections.async_accept_moment(
                 active.owner_profile_id, active.session_id, moment.moment_id, entry,

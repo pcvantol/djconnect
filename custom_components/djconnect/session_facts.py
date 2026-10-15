@@ -151,6 +151,7 @@ class QualifiedSessionFact:
     observed_at: float
     recording_evidence: RecordingCreditEvidence | None = None
     display_core: DisplayFactCore | None = None
+    artwork_subject_uri: str = ""
 
     def copy_for(self, locale: str) -> tuple[str, str] | None:
         lang = locale[:2].lower()
@@ -741,7 +742,7 @@ def artist_facts(catalog: dict[str, Any], person: dict[str, Any]) -> list[Qualif
         f"{artist} a été formé en {begin}.",
         f"{artist} se formó en {begin}.",
     ]
-    return [
+    facts = [
         _fact(
             "artist_begin",
             catalog,
@@ -754,6 +755,15 @@ def artist_facts(catalog: dict[str, Any], person: dict[str, Any]) -> list[Qualif
         )
     ]
 
+    artist_ids = catalog.get("artist_ids") or []
+    links = {r.get("url", {}).get("resource") for r in person.get("relations", [])
+             if isinstance(r, dict) and r.get("type") == "streaming"}
+    exact = [i for i in artist_ids if isinstance(i, str) and re.fullmatch(r"[A-Za-z0-9]{22}", i)
+             and "https://open.spotify.com/artist/" + i in links]
+    if len(set(exact)) == 1:
+        facts = [replace(f, artwork_subject_uri="spotify:artist:" + exact[0]) for f in facts]
+    return facts
+
 
 def description_fact(
     catalog: dict[str, Any], entity: dict[str, Any], qid: str
@@ -764,7 +774,7 @@ def description_fact(
         return None
     artist = label(catalog.get("artist"))
     # Missing translations suppress this card in that locale; never show English as Dutch.
-    return _fact(
+    fact = _fact(
         "artist_description",
         catalog,
         "artist_story",
@@ -773,6 +783,16 @@ def description_fact(
         "Wikidata",
         "https://www.wikidata.org/wiki/" + qid,
     )
+
+    source_ids = {c.get("mainsnak", {}).get("datavalue", {}).get("value")
+                  for c in entity.get("claims", {}).get("P1902", [])
+                  if isinstance(c, dict) and c.get("rank") != "deprecated"}
+    ids = set(catalog.get("artist_ids") or [])
+    if len(source_ids) == 1 and source_ids.issubset(ids):
+        identifier = next(iter(source_ids))
+        if isinstance(identifier, str) and re.fullmatch(r"[A-Za-z0-9]{22}", identifier):
+            fact = replace(fact, artwork_subject_uri="spotify:artist:" + identifier)
+    return fact
 
 
 def work_facts(catalog: dict[str, Any], recording: dict[str, Any]) -> list[QualifiedSessionFact]:

@@ -30,3 +30,43 @@ def image_proxy_target(hass: Any, token: str) -> str | None:
         .get(IMAGE_PROXY_KEY, {})
         .get(str(token or "").strip())
     )
+
+
+class ManagedSessionImages:
+    """Bounded private Session resources within the existing image owner.
+
+    This cache is RAM-only. Callers own subject/retention admission; delivery
+    must additionally authenticate the current owner, never just an asset ID.
+    """
+
+    def __init__(self):
+        import asyncio
+
+        self.assets = {}
+        self.inflight = {}
+        self.negative = {}
+        self.semaphore = asyncio.Semaphore(2)
+
+    def collect(self):
+        import time
+
+        now = time.monotonic()
+        self.assets = {k: v for k, v in self.assets.items() if v['deadline'] > now and v['authority']()}
+        self.negative = {k: v for k, v in self.negative.items() if v > now}
+
+    def get(self, key):
+        self.collect()
+        return self.assets.get(key)
+
+    def commit(self, key, asset):
+        self.collect()
+        total = sum(len(v['body']) for k, v in self.assets.items() if k != key)
+        if (key not in self.assets and len(self.assets) >= 64) or total + len(asset['body']) > 32 * 1024 * 1024:
+            return False
+        self.assets[key] = asset
+        return True
+
+
+def session_images(hass):
+    """One RAM registry under the existing shared image-proxy owner."""
+    return hass.data.setdefault(DOMAIN, {}).setdefault('session_images', ManagedSessionImages())

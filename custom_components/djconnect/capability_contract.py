@@ -20,6 +20,7 @@ def _platform_capabilities() -> dict[str, bool]:
         "session_forecast": True,
         "session_history_summary": True,
         "hybrid_transport": True,
+        "session_artwork": True,
     }
 
 
@@ -36,5 +37,6 @@ def _contract_versions() -> dict[str, int]:
         "active_session_presence": 1,
         "session_forecast": 1,
         "hybrid_transport": 1,
+        "session_artwork": 1,
         "session_history_summary": 1,
     }

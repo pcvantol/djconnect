@@ -131,7 +131,7 @@ def project_entry(row: dict) -> dict | None:
             "runtime_authored_direction_v1",
         }:
             return None
-        result.update(body)
+        result.update({k: v for k, v in body.items() if k != "session_media_reference"})
     elif row["kind"] in {"conversation_user", "conversation_dj"}:
         # Text is resolved by the existing Ask DJ history authority, never copied here.
         result["conversation_reference"] = body
