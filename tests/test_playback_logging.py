@@ -5,6 +5,7 @@ import importlib
 import logging
 import types
 import unittest
+from unittest.mock import patch
 
 from tests.test_http_voice_helpers import install_http_stubs
 
@@ -13,6 +14,36 @@ class PlaybackLoggingTests(unittest.TestCase):
     def setUp(self) -> None:
         install_http_stubs()
         self.api_handlers = importlib.import_module("custom_components.djconnect.api_handlers")
+
+    def test_profile_bound_debug_helpers_never_resolve_backend_connections(self) -> None:
+        runtime = types.SimpleNamespace(
+            entry=types.SimpleNamespace(data={"profile_backend_entry_id": "owner-entry"}, options={}),
+            config={"music_backend": "spotify_direct", "profile_backend_entry_id": "owner-entry",
+                    "spotify_refresh_token": "never-log-this-secret"},
+            profile_context_backend_id="spotify_direct",
+            device_status={"client_type": "ios", "backend_available": True},
+        )
+        payload = {"client_type": "ios", "device_id": "djconnect-ios-ABCDEF123456"}
+        result = {"success": True, "music_backend": "spotify_direct", "backend_available": True}
+        # Profile authority resolution belongs to the ordinary dispatcher, not
+        # diagnostics. DEBUG must not introduce any additional resolver calls.
+        calls = [
+            lambda: self.api_handlers._debug_playback_request(runtime, payload, command="status"),
+            lambda: self.api_handlers._debug_playback_result("command", result, 200, runtime=runtime, command="status"),
+            lambda: self.api_handlers._debug_queue_request(runtime, payload),
+            lambda: self.api_handlers._debug_queue_result(result, 200, runtime=runtime),
+            lambda: self.api_handlers._debug_playlists_request(runtime, payload, {}),
+            lambda: self.api_handlers._debug_playlists_result(result, 200, runtime=runtime),
+        ]
+        for index, call in enumerate(calls):
+            with self.subTest(helper=index), patch.object(self.api_handlers, "music_backend_metadata",
+                    side_effect=AssertionError("Debug must not resolve live Profile authority")) as resolver:
+                with self.assertLogs(self.api_handlers._LOGGER, level="DEBUG") as captured:
+                    call()
+                resolver.assert_not_called()
+                logs = "\n".join(captured.output)
+                self.assertIn("backend=spotify_direct", logs)
+                self.assertNotIn("never-log-this-secret", logs)
 
     def test_command_endpoint_debug_log_omits_playback_secrets_and_metadata(self) -> None:
         runtime = types.SimpleNamespace(

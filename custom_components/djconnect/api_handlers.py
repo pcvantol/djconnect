@@ -2233,6 +2233,21 @@ def _debug_track_insight_error(
     )
 
 
+def _debug_backend_snapshot(runtime: Any) -> dict[str, Any]:
+    """Log existing request state without resolving live Profile/provider authority.
+
+    The normal dispatcher still owns connection validation and errors. Logging
+    must neither add a resolver call nor turn an otherwise valid request into500.
+    Unknown availability stays unknown; it is not inferred from credentials.
+    """
+    backend = getattr(runtime, "profile_context_backend_id", None)
+    if not backend:
+        backend = (getattr(runtime, "config", {}) or {}).get("music_backend")
+    status = getattr(runtime, "device_status", {}) or {}
+    return {"music_backend": backend,
+            "music_backend_available": status.get("backend_available")}
+
+
 def _debug_playback_request(
     runtime: Any,
     payload: dict[str, Any],
@@ -2241,7 +2256,7 @@ def _debug_playback_request(
 ) -> None:
     if not _LOGGER.isEnabledFor(logging.DEBUG):
         return
-    backend = music_backend_metadata(None, runtime)
+    backend = _debug_backend_snapshot(runtime)
     _LOGGER.debug(
         "DJConnect playback command request command=%s client_type=%s device_id=%s backend=%s backend_available=%s play=%s value_shape=%s output_requested=%s mood_zone=%s",
         command,
@@ -2267,7 +2282,7 @@ def _debug_playback_result(
     if not _LOGGER.isEnabledFor(logging.DEBUG):
         return
     playback = result.get("playback") if isinstance(result, dict) else {}
-    backend = music_backend_metadata(None, runtime) if runtime is not None else {}
+    backend = _debug_backend_snapshot(runtime) if runtime is not None else {}
     _LOGGER.debug(
         "DJConnect playback %s result command=%s status=%s success=%s backend=%s backend_available=%s playback_state=%s has_playback=%s is_playing=%s devices=%s queue_items=%s playlists=%s playback_actions=%s error=%s client_type=%s",
         endpoint,
@@ -2313,7 +2328,7 @@ def _debug_playback_error(
 def _debug_queue_request(runtime: Any, payload: dict[str, Any]) -> None:
     if not _LOGGER.isEnabledFor(logging.DEBUG):
         return
-    backend = music_backend_metadata(None, runtime)
+    backend = _debug_backend_snapshot(runtime)
     _LOGGER.debug(
         "DJConnect queue endpoint request client_type=%s device_id=%s backend=%s backend_available=%s value_shape=%s",
         payload_client_type(payload) or runtime_client_type(runtime),
@@ -2334,7 +2349,7 @@ def _debug_queue_result(
         return
     queue = _queue_payload(result)
     playback = result.get("playback") if isinstance(result, dict) else {}
-    backend = music_backend_metadata(None, runtime) if runtime is not None else {}
+    backend = _debug_backend_snapshot(runtime) if runtime is not None else {}
     _LOGGER.debug(
         "DJConnect queue endpoint result status=%s success=%s backend=%s backend_available=%s queue_items=%s context_present=%s current_present=%s playback_state=%s error=%s client_type=%s",
         status,
@@ -2357,7 +2372,7 @@ def _debug_playlists_request(
 ) -> None:
     if not _LOGGER.isEnabledFor(logging.DEBUG):
         return
-    backend = music_backend_metadata(None, runtime)
+    backend = _debug_backend_snapshot(runtime)
     _LOGGER.debug(
         "DJConnect playlists endpoint request client_type=%s device_id=%s backend=%s backend_available=%s limit=%s has_client_context=%s value_shape=%s",
         payload_client_type(payload) or runtime_client_type(runtime),
@@ -2378,7 +2393,7 @@ def _debug_playlists_result(
 ) -> None:
     if not _LOGGER.isEnabledFor(logging.DEBUG):
         return
-    backend = music_backend_metadata(None, runtime) if runtime is not None else {}
+    backend = _debug_backend_snapshot(runtime) if runtime is not None else {}
     _LOGGER.debug(
         "DJConnect playlists endpoint result status=%s success=%s backend=%s backend_available=%s playlists=%s count=%s aliases_present=%s error=%s client_type=%s",
         status,
