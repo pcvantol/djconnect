@@ -2,6 +2,10 @@
 
 ## Selected VibeCast decisions delta and receiver slice1
 
+Design source [PR #1181](https://github.com/pcvantol/djconnect/pull/1181) protected merged as
+`8a48a6ffdfb92d90719626c78a3e70093385cc70`; this separate documentary Finalization reconciles
+its actual delivery. No runtime or consumer acceptance is inferred.
+
 [DJC-VIBECAST-WEB-FIRST-DECISIONS-DELTA-V1-20261015](https://github.com/pcvantol/djconnect/issues/1174#issuecomment-6201605985)
 updates [canonical designs](docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md) and
 [entry/distribution/Cast lifecycle](docs/product/VIBECAST_WEB_ENTRY_DISTRIBUTION_V1.md).
