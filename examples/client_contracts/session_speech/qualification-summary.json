@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "source_commit": "c39a4f8020fb21a9d40da22af0928a420c97a44a",
+  "repository_delivery": "UNPUBLISHED",
+  "regressions": {
+    "run": 1993,
+    "passed": 1986,
+    "existing_skips": 7
+  },
+  "engineering_framework": {
+    "passed": 172
+  },
+  "DAG_tests": 152,
+  "complete_family_owning_tests": 49,
+  "qualified_fact_cases": 120,
+  "joined_relation_chains": 40,
+  "joined_relation_publications": 80,
+  "model_calls": 40,
+  "idle_seconds": 301.108475052999,
+  "sqlite_growth_bytes": 609760,
+  "max_rss_kib": 196636,
+  "tracked_package_files": 167,
+  "package_mismatches": 0,
+  "actual_core_python_hashes": 143,
+  "core_hash_mismatches": 0,
+  "browser_software": "PASS_FOUR_PATHS",
+  "CAF": "MODELED_ONLY",
+  "native": "OPEN_APPLE",
+  "audible": "OPEN",
+  "installed": "NOT_RUN",
+  "hardware": "NOT_RUN",
+  "joint": "OPEN",
+  "public_fixture_sha256": {
+    "realization-output.json": "0ccb333e0e19c54856f52dea20aee1199fb1343c5a9f0529a0291784178693fd",
+    "private-protocol.http.json": "d6d4ee0c828c75c22969d7fb5e89c490c96dd2ce45e7bac4fade45b1cbf90d58",
+    "voice-options.http.json": "a1448c7df0a75d4e0e86fa078a34ccb6cc33602a6a088350b564d1607b09f0e9",
+    "wav-protocol.http.json": "0a668bba3ca596ec9ca4c7772c6fa64af74ee60b46ee7f9651a7907346abf039",
+    "moment-replay.http.json": "4af8c01e2beb45819ae99b4515f65ce3c82fafabfeb24fdbc3bd72c66ca281ae",
+    "qualified-runtime.http.json": "8c2fb025d7e93d43220276a915b3964ce962e653c20ecd9f3a7e02a3fb15646a",
+    "early-http.json": "11d9754219621da4173314f68ac2b29521ade145eeed65c96ec6bda496be0e2e",
+    "owning-coverage.json": "11b963c8c23e43411d0f87b7971cbd4a839dfbe727c89deb64b7c4adc9d87cde"
+  }
+}

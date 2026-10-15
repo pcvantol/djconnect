@@ -71,3 +71,17 @@ qualified gender metadata. Hide the selector; do not infer gender from names or
 pitch. A saved now-unsupported preference needs explicit unavailable status and
 an accessible Use provider default action. This adds no Persona/Mood/Profile
 write or automatic voice fallback. Consumer UI/native acceptance remains open.
+
+`qualified-runtime.http.json` is the later exact-c39a4f80 producer proof: normal
+paired HA, common/private/live/retained speech, current playback, qualified Genre
+and existing Track Transition, actual local/static browser paths, original
+expiry and301s idle. Authentication fields are redacted. All143 executed Core
+hashes match this runtime checkpoint; source delivery remains unpublished.
+
+`realization-output.json` contains120 fact cases,40 joined two-publication
+relations and40 actual GPT-6 Luna outputs across four Personas/five languages.
+Only synthetic normalized CC0 field context and public music questions enter
+the real model; model-route hashes match but the earlier model run's full runtime
+manifest differs in two later repaired authored-copy files. This distinction is
+explicit. `owning-coverage.json` and `qualification-summary.json` retain bounds,
+measurements and open native/installed/audible/hardware/joint acceptance.

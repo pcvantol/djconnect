@@ -260,3 +260,7 @@ and the common local/static renderer, with a modeled CAF host adapter. External
 provider/STT/Wyoming inventory and waveform boundaries are explicit fixtures;
 nonempty WAV bytes do not qualify real audible voice quality. Native visible/
 audible adoption, installed acceptance and joint product acceptance remain open.
+
+The [local qualification record](../verification/SESSION_SPEECH_PERSONA_LOCAL_QUALIFICATION_20261015.md)
+binds the exact runtime checkpoint, real model-route output, full family/locale
+receipts, browser/expiry proof and the separate open delivery/consumer gates.

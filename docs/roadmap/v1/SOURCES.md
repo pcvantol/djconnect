@@ -69,5 +69,5 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 | [docs/history/prompts/2026-10-15-hybrid-transport-localization-finalization.md](../../../docs/history/prompts/2026-10-15-hybrid-transport-localization-finalization.md) | `cbdabdb5c5201df3b220c306a0d9ca16f1215a480c624c452cefc9a63efa20f6` |
 | [docs/product/SESSION_MOMENT_ARTWORK_V1.md](../../../docs/product/SESSION_MOMENT_ARTWORK_V1.md) | `580e7022b2a1684117a16f7602ecd21cd1672988001825d3e869712bde2dda4a` |
 | [docs/product/SESSION_ARTWORK_DELIVERY_CONTRACT_V1.md](../../../docs/product/SESSION_ARTWORK_DELIVERY_CONTRACT_V1.md) | `3e3da658daa128f5eae618740ba8e86a39766a661d559f86badfb20a6f9f8c09` |
-| [docs/product/SESSION_SPEECH_PERSONA_V1.md](../../../docs/product/SESSION_SPEECH_PERSONA_V1.md) | `438c313b6483fee43b45afb75ea4824b8c7fb100b43b85f6798130fe2b4934c2` |
+| [docs/product/SESSION_SPEECH_PERSONA_V1.md](../../../docs/product/SESSION_SPEECH_PERSONA_V1.md) | `e357217fcfb95c1ceb10fde47600f4a594d4d6ee58ad237fc133fb45d85bec18` |
 | [docs/product/SESSION_SPEECH_DELIVERY_V1.md](../../../docs/product/SESSION_SPEECH_DELIVERY_V1.md) | `410f1dd05c2f5a81def6e063ee78b127d988fb4b31ed9c072cfeacfd8d2029f1` |
