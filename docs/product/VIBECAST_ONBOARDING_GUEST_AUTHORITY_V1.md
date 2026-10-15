@@ -4,6 +4,23 @@ Status: **proposed technical contract; no runtime implementation**.
 Parent: [web-first experience](VIBECAST_WEB_FIRST_EXPERIENCE_V1.md), issue #1174.
 Terms below describe required future operations, not new live API paths.
 
+## Resolved public entry and current service boundary
+
+The public entry is https://vibecast.tv/ directly at root, per owner-reported
+Cloudflare domain purchase. This does not prove DNS, TLS, account bindings,
+Pages deployment or onboarding operation. Keep public alias separate from stable
+wire identity; no arbitrary URL query redirect. The [web entry/distribution
+contract](VIBECAST_WEB_ENTRY_DISTRIBUTION_V1.md) places generic UI/build/Pages
+ownership in receiverrepo, while proposed temporary rendezvous service and its
+Worker/security/deployment remain API-owned, pending exact service/wire contract.
+No APNs keys, push-registration data or general Session backend may be reused.
+Receiver#16 can deliver a real independently tested frontend/CI route with an
+honest unavailable-service production state; no fake QR/scan/pairing success.
+The original expiry/crypto/trust gates below remain separate integration gates.
+Glass/Soft/Solid and Minder effecten affect only presentation; QR/code stay opaque,
+still and sharp. A missing security/TLS/crypto capability cannot fall back to a
+weaker protocol. Final emoji choice does not affect this bootstrap contract.
+
 ## Trust boundaries and minimum central service
 
 Pages serves generic bootstrap code, not HA data. A small Worker with temporary

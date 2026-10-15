@@ -73,5 +73,7 @@
   "native_LAN": "OPEN_APPLE_OWNED",
   "HA_dev_topology": "UNQUALIFIED_RAW_PEER192.168.65.1_NOT_INTERFACE172.18.0.2_AND_INTERNAL_URL_UNSET",
   "publication": "LOCAL_UNPUBLISHED",
-  "prior_candidates": "920/b2/658 superseded after technical NO_GO; their receipts are not current acceptance"
+  "prior_candidates": "920/b2/658 superseded after technical NO_GO; their receipts are not current acceptance",
+  "integrated_documentary_main": "f32b625eb0a3d1b8abfc2c81378d25d769c6766d",
+  "qualification_reuse_basis": "All168recordedruntime/verifier/helper source hashes unchanged after full documentary integration; auxiliary race helper hash unchanged"
 }

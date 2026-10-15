@@ -1,6 +1,6 @@
 # Planned product work — no dispatch
 
-Web-first #1174 documentary extension: SOURCE_PROTECTED_MERGED; design authored only, product implementation Planned/NOT_ISSUED and joint acceptance OPEN. Cast-first/native-TV prerequisites superseded for forward design; original receipts remain historical. URL/exception/emoji OPEN. No automatic dispatch or runtime/publication grant.
+Web-first #1174 decision delta: SOURCE_PROTECTED_MERGED; vibecast.tv/root and existing-app guest exception RESOLVED. Receiver16 PUBLIC_WEB_DELIVERY SELECTED/QUEUED after this delta delivery/Finalization and fresh own admission; executor ACK pending. API rendezvous/Core/Apple/guest integration separately Planned; full onboarding and hardware OPEN. Final reaction/rocket and technical choices OPEN. No runtime/deploy by this docs writer.
 
 Generated from djconnect-platform-v1.json, maintenance DJC-DJ-PRESENCE-ROADMAP-DESIGN-V1-20261011.
 
@@ -70,7 +70,7 @@ Owner-selected queued successor: DJC-SESSION-SPEECH-PERSONA-VOICE-20261015 ([sel
 - `WEB::MEDIA` — Planned: Independent shared artwork and speech grants expiry attribution; exact source/consumer, visible/audible/physical and joint acceptance OPEN.
 - `WEB::GUEST` — Planned: Invitation redemption guest principal and revocation; exact source/consumer, visible/audible/physical and joint acceptance OPEN.
 - `WEB::BROWSER` — Planned: One responsive web UI and accountless browser join; exact source/consumer, visible/audible/physical and joint acceptance OPEN.
-- `WEB::DISTRIBUTION` — Planned: Reviewed generic static bootstrap and browser distribution; exact source/consumer, visible/audible/physical and joint acceptance OPEN.
+- `WEB::DISTRIBUTION` — Planned: Public website/CI/Pages/domain, service adapter, Apple/HA onboarding and full shared guest acceptance are distinct; no executor ACK or product PASS.
 - `WEB::DISCOVERY` — Planned: Admission-scoped HA local discovery announcement; exact source/consumer, visible/audible/physical and joint acceptance OPEN.
 - `WEB::APP` — Planned: Isolated temporary guest shell discovery scanner leave home restore; exact source/consumer, visible/audible/physical and joint acceptance OPEN.
 - `WEB::REACTIONS` — Planned: Five subject-bound ephemeral reactions and bounded sparkle; exact source/consumer, visible/audible/physical and joint acceptance OPEN.

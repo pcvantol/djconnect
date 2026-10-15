@@ -71,13 +71,17 @@ and5auxiliary race units PASS. Combined branch-aware units plus real HA coverage
 service88.48%, HTTP/WS adapter89.53%. Coverage combines current path-mapped
 measurements; dynamic-import units are traced by source file path. Actual isolated
 HA coverage is combined, not relabelled unit evidence.
-150DAG tests, capability snapshots, schema/reference/generation,13bootstrap/
+154integrated DAG tests, capability snapshots, schema/reference/generation,13bootstrap/
 lifecycle tests, offline governance projection, Ruff and onboarding package
 freshness pass. Fresh hostverify reports MATCH/exit0/package4.5.3. Existing nodes,
 edges, receipts and historical snapshots remain; only current document references
-and generated source views change. Incoming documentary main changes must be
-integrated and rechecked before publication; these measurements are not approval
-of an unreviewed future candidate.
+and generated source views change. Documentary source1181/Finalization1183 terminalmain
+`f32b625eb0a3d1b8abfc2c81378d25d769c6766d` is now locally integrated. Its full
+DAG/WEBschema2/decisions/receipts are retained; only document references are
+united/refreshed. All168recorded runtime/verifier/helper hashes and the auxiliary
+race-helper hash remain identical, qualifying reuse of the actual HA/coverage
+measurements. Integrated document/schema/regression checks and exact independent
+reviews are separately required before publication.
 
 ## Explicit remaining boundaries
 

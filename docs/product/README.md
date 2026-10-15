@@ -108,3 +108,8 @@ until separately selected.
 [temporary Apple mode](APPLE_VIBECAST_GUEST_MODE_V1.md): issue #1174, design only.
 These are the forward web-first/guest contract; product implementation and joint
 acceptance remain Planned/OPEN.
+
+
+[Current VibeCast entry/distribution decisions and Cast lifecycle](VIBECAST_WEB_ENTRY_DISTRIBUTION_V1.md)
+resolves vibecast.tv/root and the app exception, records adaptive glass and selected
+receiver#16 with separate integration dependencies. Historical1175/1176 stay exact.

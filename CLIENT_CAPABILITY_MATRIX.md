@@ -21,7 +21,7 @@ No client owns product features. Clients render or expose platform capabilities 
 | Music control | Full | Basic/shared when the receiver permits it | Physical or voice controls |
 | Ask DJ | Rich text and voice where available | Guest-safe/read-only where permitted | Voice and short TTS only |
 | Music DNA | Personal UI | Never exposed without explicit policy | Never exposed without explicit policy |
-| VibeCast | Supported iOS/iPadOS sender launch and handoff only | Guest + Ambient Renderer experience by default; VibeCast itself is the television web renderer | No visual rendering |
+| VibeCast | Paired owner display setup; existing-app temporary guest join from pairing screen or paired top menu, by discovery or QR; optional Cast sender | Web-first ambient TV/desktop/tablet plus responsive guest view; same server-authorized meaning | No visual rendering |
 | Diagnostics and updates | Platform-specific | Platform-specific | Device-focused |
 
 ## Rules
@@ -45,10 +45,17 @@ separates Device Lifecycle (Guest/Registered) from Experience Mode
 (Interactive/Ambient). Chromecast need not be permanently registered; the
 Raspberry Pi Wall Panel is Registered + Interactive by default, with a future
 renderer-local Ambient state. VibeCast is Guest + Ambient by default. Its
-future V1 target is Google TV through a Google Cast Custom Web Receiver that
-renders renderer-safe Broadcast projections locally, rather than a native
-television app or a mirrored sender stream; see
-[`docs/product/VIBECAST_ARCHITECTURE.md`](docs/product/VIBECAST_ARCHITECTURE.md).
+web-first entry is https://vibecast.tv/ at root, with two-step destination/display
+admission. The only web-first exception is guest participation through the
+existing DJConnect app, retaining home pairing and isolated guest authority.
+Google Cast is an optional adapter to the same renderer; native TV applications
+and Cast hardware are not browser-bootstrap prerequisites. Glass/Soft/Solid retain
+identical authorized functions. Readonly display, guest proposal/chat/reaction
+writes and owner playback authority are distinct; generic shared-host capability
+rows above do not widen new VibeCast TV permissions. See the
+[canonical VibeCast architecture](docs/product/VIBECAST_ARCHITECTURE.md),
+[web-first experience](docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md) and
+[route/lifecycle contract](docs/product/VIBECAST_WEB_ENTRY_DISTRIBUTION_V1.md).
 
 By default, Pi should resolve to a shared profile unless explicitly linked to a personal profile.
 

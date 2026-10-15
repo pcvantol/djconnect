@@ -13,6 +13,33 @@ This forward correction does not change frozen Speech PR1177 or earlier delivery
 
 # Current Core Session artwork — definitive protected producer handoff
 
+## VibeCast decisions delta — selected receiver follow-up
+
+[DJC-VIBECAST-WEB-FIRST-DECISIONS-DELTA-V1-20261015](https://github.com/pcvantol/djconnect/issues/1174#issuecomment-6201605985):
+[canonical entry/distribution/Cast contract](docs/product/VIBECAST_WEB_ENTRY_DISTRIBUTION_V1.md).
+vibecast.tv/root and existing-app guest exception RESOLVED. Both unpaired pairing
+screen and paired-main highlighted top menu offer discovery/QR, explicit choice,
+contextual permission, isolated temporary guest transport/storage and offline exit.
+Glass/Soft/Solid capability/performance tiers keep identical authorized features;
+QR/code opaque/still/sharp, fewer effects/accessibility/five languages. 🤩 preference;
+🚀 and final reaction set/count/labels OPEN. Browser route independent of CAF;
+Cast optional with explicit sender-departure/view-stop versus share/session-end delta.
+
+receiver#16 selects WEB::DISTRIBUTION PUBLIC_WEB_DELIVERY plus conditionally its
+RENDEZVOUS_INTEGRATION adapter after exact TRUST/API contract: own bootstrap source/
+output/CI/Pages target beside pinned Cast output, proposed gated Actions→Wrangler
+promotion, existing auto-deploy effects audited before pushes. API owns proposed
+temporary rendezvous Worker/service, never receiver/APNs-data reuse. Core owns one
+renderer and HA grants/Session; website only marketing/links. Full E2E depends on
+exact API/Core/Apple pins; no fake working QR/redirect/pairing in production.
+
+At actual source+Finalization completion send exact new design/DAG mainpin to
+receiver10/16,Core1101,Apple87,API90. Receiver's existing writer may then autonomously
+admit the selected slice after own earlier closure; no new general start permission.
+Concrete candidate/effect gates remain. No change to current Core/Speech/passive/
+hotfix/Apple/Watch work or new runtimewriter; this docs assignment performs no
+CI/service/DNS/Pages/runtime/Swift/deployment mutation. Historical receipts retained.
+
 Source [#1172](https://github.com/pcvantol/djconnect/pull/1172), exact main `5c7ecb7941c555f12bd94a2969167cfaaff0cb44`. [Readback](docs/verification/SESSION_ARTWORK_V1_SOURCE_READBACK_20261015.md):164files,0mismatches; artifact/formal/coverage PASS. [Apple87](https://github.com/pcvantol/djconnect-app/issues/87#issuecomment-6191468438) and [VibeCast10](https://github.com/pcvantol/djconnect-vibecast-receiver/issues/10#issuecomment-6191468743) definitive pins posted/read back. Canonical artwork contract and sanitized fixtures are on this exact main. Native/joint remain open; receiver compatibility only, private Session media never forwarded. No new consumer writer/admission.
 
 Separate Finalization publication remains gated; installed artwork NOT_RUN. Existing owner authority installs qualified latest main to both HA-dev/prod after final merge with backup/readback. Speech/Persona/voice6189231491/autonomous-next6189912293 starts only after valid artwork closure and fresh same-writer admission.
@@ -3176,6 +3203,7 @@ WEB:: nodes refine existing VibeCast/Audience/Guest parents; all runtime subsets
 Planned/NOT_ISSUED, physical/native/joint OPEN. Exact future consumer acceptance
 includes shared Forecast/art/speech rights and expiry, browser/app home isolation,
 zero forbidden guest effects, real queue acknowledgement then observed correct
-recording and anonymous Persona announcement. URL/exception/emoji remain OPEN.
+recording and anonymous Persona announcement. Domain/root and app exception are resolved by the later decisions delta;
+final reaction/rocket and technical implementation choices remain OPEN.
 This handoff does not reopen artwork/transport/Forecast producers or authorize
 Swift/source/runtime changes, deployments, DNS, signing or automatic follow-up.

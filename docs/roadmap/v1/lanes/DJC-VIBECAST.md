@@ -1,6 +1,6 @@
 # DJC-VIBECAST presence projection
 
-Web-first #1174 documentary extension: SOURCE_PROTECTED_MERGED; design authored only, product implementation Planned/NOT_ISSUED and joint acceptance OPEN. Cast-first/native-TV prerequisites superseded for forward design; original receipts remain historical. URL/exception/emoji OPEN. No automatic dispatch or runtime/publication grant.
+Web-first #1174 decision delta: SOURCE_PROTECTED_MERGED; vibecast.tv/root and existing-app guest exception RESOLVED. Receiver16 PUBLIC_WEB_DELIVERY SELECTED/QUEUED after this delta delivery/Finalization and fresh own admission; executor ACK pending. API rendezvous/Core/Apple/guest integration separately Planned; full onboarding and hardware OPEN. Final reaction/rocket and technical choices OPEN. No runtime/deploy by this docs writer.
 
 Generated from djconnect-platform-v1.json, maintenance DJC-DJ-PRESENCE-ROADMAP-DESIGN-V1-20261011.
 
@@ -33,6 +33,6 @@ Selected implementation [DJC-CORE-DJ-PRESENCE-V1-20261011](https://github.com/pc
 - `QUAL::VIBECAST::DJ-PRESENCE-COMPAT` — Planned; Core shared-renderer + receiver owner, both existing software builds
 - `FORECAST::VIBECAST::VISIBLE` — Planned; Bounded Session Direction Forecast projection; no internal Horizon/queue/second Planner or consumer admission
 - `WEB::BROWSER` — Planned; One responsive web UI and accountless browser join
-- `WEB::DISTRIBUTION` — Planned; Reviewed generic static bootstrap and browser distribution
+- `WEB::DISTRIBUTION` — Planned; Receiver16 PUBLIC_WEB_DELIVERY and conditionally RENDEZVOUS_INTEGRATION alongside pinned Cast output; API/Core/Apple producers not selected
 
 Fresh owner/writer/resource admission is separate from functional prerequisites. Historical writer observations are not current leases.

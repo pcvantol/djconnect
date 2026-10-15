@@ -61,7 +61,7 @@ flowchart LR
   n269["Admission-scoped HA local discovery announcement"]
   n262["Separate HA code and readonly display grant"]
   n259["Implement reviewed web-first legacy disposition"]
-  n268["Reviewed generic static bootstrap and browser distribution"]
+  n268["Receiver public bootstrap selected; serviceadapter conditionally selected; full E2E separately gated"]
   n258["Whole web-first documentary design"]
   n276["DJ request consideration fairness and uncertain-effect policy"]
   n277["Real enqueue reconciliation and observed-recording Persona announcement"]
@@ -134,9 +134,9 @@ flowchart LR
   n135 -->|contract_or_consumer_acceptance / implementation / contract| n264
   n272 -->|contract_or_consumer_acceptance / implementation / contract| n273
   n270 -->|contract_or_consumer_acceptance / qualification / completion| n278
-  n261 -->|contract_or_consumer_acceptance / implementation / contract| n268
+  n261 -->|contract_or_consumer_acceptance / integration_acceptance / qualified_integration_contract| n268
   n261 -->|contract_or_consumer_acceptance / implementation / contract| n263
-  n267 -->|contract_or_consumer_acceptance / implementation / contract| n268
+  n267 -->|contract_or_consumer_acceptance / integration_acceptance / qualified_integration_contract| n268
   n274 -->|contract_or_consumer_acceptance / qualification / completion| n278
   n274 -->|contract_or_consumer_acceptance / implementation / contract| n275
   n269 -->|contract_or_consumer_acceptance / implementation / contract| n270
@@ -171,3 +171,6 @@ flowchart LR
   n260 -->|contract_or_consumer_acceptance / implementation / contract| n266
   n260 -->|contract_or_consumer_acceptance / implementation / contract| n263
   n260 -->|contract_or_consumer_acceptance / implementation / contract| n264
+  n258 -->|documentary_predecessor / public_web_delivery / protected_delivery_and_finalization| n268
+  n262 -->|joint_acceptance / onboarding_e2e / qualified_producer_and_consumer| n268
+  n263 -->|joint_acceptance / onboarding_e2e / qualified_producer_and_consumer| n268

@@ -1,5 +1,44 @@
 # DJConnect Verification Prompt Index
 
+## Current: VibeCast decisions delta — separate documentary Finalization
+
+### Repository Status
+
+PR [#1181](https://github.com/pcvantol/djconnect/pull/1181) protected merged as `8a48a6ffdfb92d90719626c78a3e70093385cc70` from exact independently reviewed/owner-authorized `43a088d02c7d23a3485a4a76b4b6ff3f12e1d337`, base62c8156d. Complete tree equalitydc16605a46fa231d7d03ae1cb7f8941a09b49d87;32successful checks/5conditional skips; actual Owner Authorization38806293235 SUCCESS. [Exact source readback](docs/verification/VIBECAST_DECISIONS_DELTA_V1_SOURCE_READBACK_20261015.md) binds main/artifact/formal/coverage evidence. Prior1175/1176, maintenance1178/1179 and other historical receipts remain exact.
+
+### Management Summary
+
+Canonical designs resolve vibecast.tv/root and the existing-app exception, both discovery/QR entries, temporary guest isolation and adaptive Glass/Soft/Solid. 🤩 replaces 🤯 in the working proposal; final set/count/labels and 🚀 remain OPEN. Repo/CI owners and optional Cast lifecycle differ explicitly: current sender departure/supersession stops a view, not shared/Session authority; future independent Cast continuity still requires qualification. No runtime/Swift/CI-config/DNS/deployment or source relocation.
+
+### Roadmap Position
+
+Generation2 DJConnect Product Development, Phase2 Reference/Renderer Experience documentary decisions delta.21existing WEB nodes preserved,47phase-bound dependencies,23generated views. Receiver16 PUBLIC_WEB_DELIVERY SELECTED_QUEUED and its RENDEZVOUS_INTEGRATION SELECTED_CONTRACT_GATED; full Apple/HA onboarding and shared guest acceptance remain OPEN with separate producer gates. All other WEB product implementation remains Planned/NOT_ISSUED. No API/Core/Apple producerselection, fake E2E or Cast hardware prerequisite for independent bootstrap. Existing runtime/Apple/Watch queues remain.
+
+### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+1. **DJC-VIBECAST-TV-BOOTSTRAP-CLOUDFLARE-V1-20261015 — selected/queued receiver16.** After this new docsdelta source/Finalization pin and own prior WIP closure, the existing receiver writer autonomously performs fresh admission; no new general start question. Public frontend/build/CD independent, adapter contract-gated; no executor ACK inferred.
+2. **DJC-CORE-HYBRID-LOCAL-HTTP-WS-FIX-V1-20261015 — existing Core maintenance WIP.** Preserve the same writer/current scope and integrate this documentary main before its own exact qualification/publication; no new assignment or reordered Core queue.
+3. **DJC-SESSION-SPEECH-PERSONA-VOICE-20261015 — existing frozen source1177.** Retain candidate and its own exact changed-base/review/publication/Finalization gates; no grant or merge inferred from docs closure.
+4. **Unfilled product slot 4 — no further authorized selection.** Not dispatched.
+5. **Unfilled product slot 5 — no further authorized selection.** Not dispatched.
+
+### Blocked Items
+
+This separate Finalization retains its own exact independent reviews/checks and candidate/publication gate; source approval does not cover it. Receiver's fresh admission waits only for actual new docs source/Finalization terminal pin and own earlier WIP closure; no general restart permission. TRUST/API contract gates receiver serviceadapter, DISPLAY/OWNER-SCANNER gate full onboarding, BROWSER/GUEST/SHARED gate full guest acceptance. No physical or live account/domain/TLS PASS from owner-reported domain purchase.
+
+### Deferred Items
+
+Final reaction count/set/labels/rocket; exact service/wire/crypto/TTL/budgets/retention and actual Cloudflare bindings; browser minimum/bugs/long-running evidence; Apple WebView/native rendering; shared media rights; share/cancel policy; actual CAF continuity. Domain/root and app exception are RESOLVED, not reopened. No new Core runtime, Swift, DNS, Pages/Worker, CI-config, provider/cost, signing/installation or hardware scope in this docs assignment.
+
+### Repository State
+
+Repository State: `MERGED_RECONCILED` for source1181 when this separate Finalization is protected merged and exact main/artifacts read back. This is the candidate's intended postmerge reconciliation, not a premerge success claim. Source alone was MERGED_UNRECONCILED. The [immutable Finalization record](docs/history/prompts/2026-10-15-vibecast-web-first-decisions-delta-finalization.md) binds actual source evidence; concurrent Core/Speech/Apple/receiver WIP stays separate.
+
+### Workspace State
+
+Workspace State: `NOT_READY` for a new unrelated assignment until own postmerge synchronization/cleanup disposition is verified. Own scope is the isolated docs checkout only; shared Core/Apple/receiver WIP and evidence remain untouched. Squash refs are preserved if normal safe deletion/patch checks fail; no forced cleanup or global WORKSPACE_READY claim. This housekeeping limit does not grant or revoke the already-selected receiver's separate fresh admission after documentary closure.
+
+## Historical operational context
 ## Current: Profile-bound playback DEBUG hotfix — separate Finalization
 
 ### Repository Status
