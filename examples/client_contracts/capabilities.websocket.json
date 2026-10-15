@@ -80,7 +80,8 @@
     "session_forecast": true,
     "session_history_summary": true,
     "hybrid_transport": true,
-    "session_artwork": true
+    "session_artwork": true,
+    "active_session_persona": true
   },
   "contract_versions": {
     "profile_context": 1,
@@ -94,7 +95,8 @@
     "session_forecast": 1,
     "session_history_summary": 1,
     "hybrid_transport": 1,
-    "session_artwork": 1
+    "session_artwork": 1,
+    "active_session_persona": 1
   },
   "transports": {
     "http": true,

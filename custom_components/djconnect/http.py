@@ -52,6 +52,7 @@ from .const import (
     API_SESSION_END,
     API_SESSION_ACTIVE,
     API_SESSION_MOOD,
+    API_SESSION_PERSONA,
     API_SESSION_PRESENCE,
     API_SESSION_HISTORY,
     API_SESSION_HISTORY_DETAIL,
@@ -2929,6 +2930,20 @@ class DJConnectSessionMoodView(_DJConnectSessionView):
         return self.json(result, status_code=status)
 
 
+class DJConnectSessionPersonaView(_DJConnectSessionView):
+    url = API_SESSION_PERSONA
+    name = "api:djconnect:session:persona"
+
+    async def post(self, request):
+        from .session_persona import async_handle_persona
+
+        data = await self._payload(request)
+        if data is None or request.query_string:
+            return self.json({"success": False, "error": "invalid_request"}, status_code=400)
+        result, status = await async_handle_persona(request.app["hass"], data, headers=request.headers)
+        return self.json(result, status_code=status)
+
+
 class DJConnectSessionPresenceView(_DJConnectSessionView):
     url = API_SESSION_PRESENCE
     name = "api:djconnect:session:presence"
@@ -3019,6 +3034,7 @@ class DJConnectTransportCapabilitiesView(HomeAssistantView):
         from .capability_contract import _platform_capabilities, _contract_versions
         from .hybrid_contract import hybrid_transport_capability
         from .session_mood import capability as mood_capability
+        from .session_persona import capability as persona_capability
         from .session_presence import capability as presence_capability
         from .session_forecast import capability as forecast_capability
         from .session_artwork import capability as artwork_capability
@@ -3032,6 +3048,7 @@ class DJConnectTransportCapabilitiesView(HomeAssistantView):
                 "transports": {"http": True, "websocket": True},
                 "session_broadcast": session_broadcast_transport_capabilities(),
                 "active_session_mood": mood_capability(),
+                "active_session_persona": persona_capability(),
                 "active_session_presence": presence_capability(),
                 "session_forecast": forecast_capability(),
                 "session_artwork": artwork_capability(),

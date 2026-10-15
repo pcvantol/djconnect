@@ -156,6 +156,7 @@ class BroadcastEventType(StrEnum):
     PLANNER_UPDATED = "planner_updated"
     MOOD_CHANGED = "mood_changed"
     PRESENCE_CHANGED = "presence_changed"
+    PERSONA_CHANGED = "persona_changed"
     FORECAST_CHANGED = "forecast_changed"
     TRACK_CHANGED = "track_changed"
     SESSION_FLOW_UPDATED = "session_flow_updated"
@@ -3293,6 +3294,8 @@ class DJBroadcastState:
     mood_revision: int = 0
     selected_presence: str = DEFAULT_PRESENCE
     presence_revision: int = 0
+    dj_persona: str = "home_dj"
+    persona_revision: int = 0
 
     def as_dict(self, *, include_owner_only: bool = True) -> dict[str, Any]:
         """Return canonical state with its Planner-produced Session Flow."""
@@ -3304,6 +3307,8 @@ class DJBroadcastState:
                 "mood_revision": self.mood_revision,
                 "selected_presence": self.selected_presence,
                 "presence_revision": self.presence_revision,
+                "dj_persona": self.dj_persona,
+                "persona_revision": self.persona_revision,
                 "locale": self.locale,
             },
             "playback": self.playback.as_dict(),
@@ -3881,6 +3886,14 @@ class PresenceRevisionConflictError(RuntimeError):
         super().__init__("presence_revision_conflict")
 
 
+class PersonaRevisionConflictError(RuntimeError):
+    """Authorized Persona CAS conflict with current Runtime state."""
+
+    def __init__(self, active: "DJSessionRuntime") -> None:
+        self.active = active
+        super().__init__("persona_revision_conflict")
+
+
 class ActiveSessionExistsError(RuntimeError):
     """Raised when a Profile already owns an active DJ Session."""
 
@@ -3999,6 +4012,7 @@ class DJSessionRuntime:
             "room": self.room,
             "selected_mood": self.selected_mood,
             "dj_persona": self.dj_persona.value,
+            "persona_revision": self.persona_revision,
             "locale": self.locale,
             "music_backend": self.music_backend,
             "runtime_state": str(self.runtime_state),
@@ -4183,6 +4197,7 @@ class SessionRuntimeManager:
                 moment_engine=DJMomentEngine(),
                 presentation_composer=PresentationComposer(),
                 broadcast=_create_broadcast_engine(
+                    dj_persona=dj_persona,
                     session_id=session_id,
                     runtime_state=SessionRuntimeState.CREATING,
                     selected_mood=selected_mood,
@@ -5352,13 +5367,21 @@ class SessionRuntimeManager:
             return updated
 
     async def async_update_persona(
-        self, *, owner_profile_id: str, session_id: str, dj_persona: DJPersona
+        self, *, owner_profile_id: str, session_id: str, dj_persona: DJPersona,
+        expected_revision: int | None = None, authorize: Callable[[], bool] | None = None,
     ) -> DJSessionRuntime | None:
         """Change only future Moment behaviour for this active Runtime."""
+        dj_persona = DJPersona(dj_persona)
         async with self._lock:
+            if authorize is not None and not authorize():
+                raise PermissionError("unauthorized")
             active = self._active_by_profile.get(owner_profile_id)
             if active is None or active.session_id != session_id:
                 return None
+            if expected_revision is not None and expected_revision != active.persona_revision:
+                raise PersonaRevisionConflictError(active)
+            if dj_persona is active.dj_persona:
+                return active
             if (active.planner.discover_narrative_line is not None
                     and dj_persona is not active.dj_persona):
                 active.planner.clear_discover_narrative()
@@ -5368,9 +5391,12 @@ class SessionRuntimeManager:
                     opportunity.pending_transition = None
             updated = DJSessionRuntime(**{**active.__dict__, "dj_persona": dj_persona,
                 "persona_revision": active.persona_revision + (dj_persona is not active.dj_persona)})
+            active.broadcast.state = DJBroadcastState(**{**active.broadcast.state.__dict__,
+                "dj_persona": dj_persona.value, "persona_revision": updated.persona_revision})
             active.presence_ledger.persona_revision = updated.persona_revision
             self._active_by_profile[owner_profile_id] = updated
             active.broadcast.update_forecast(updated)
+            active.broadcast._publish(BroadcastEventType.PERSONA_CHANGED, {"session": active.broadcast.as_dict()["session"]})
             return updated
 
     async def async_accept_conversation(
@@ -6168,6 +6194,7 @@ def _create_broadcast_engine(
     session_id: str,
     runtime_state: SessionRuntimeState,
     selected_mood: str,
+    dj_persona: DJPersona = DJPersona.HOME_DJ,
     locale: str = "en",
     session_direction: SessionDirection,
     planner: DJSessionPlanner,
@@ -6179,6 +6206,7 @@ def _create_broadcast_engine(
             session_id=session_id,
             runtime_state=runtime_state,
             selected_mood=selected_mood,
+            dj_persona=dj_persona.value,
             locale=_locale_family(locale),
             planning_state=planner.planner_state,
             planning_horizon_minutes=planner.planning_horizon_minutes,
