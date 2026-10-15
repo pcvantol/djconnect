@@ -181,3 +181,11 @@ No installed HA/Apple, live provider, new signing or Pi qualification follows.
 The [dedicated Finalization](../history/prompts/2026-10-08-native-moment-delivery-finalization.md)
 reconciles this Core producer increment only; its distinct automatic internal
 SHA publication requires a separate exact-candidate owner decision.
+
+## Subject-bound Session artwork
+
+The additive, independently scoped media projection and explicit historical
+preparation are defined in [Session artwork delivery v1](SESSION_ARTWORK_DELIVERY_CONTRACT_V1.md).
+It does not widen semantic text archival rights, native current-display admission,
+shared-screen access or existing pure history-query semantics. Implementation
+and qualification are owned by the admitted Session Moment artwork slice.

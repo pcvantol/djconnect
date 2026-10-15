@@ -355,3 +355,11 @@ adds an exact, temporary owner read through the existing full detail service.
 This is one bounded connected correction; full interactive/narrative maturity,
 native adoption, entry/lifecycle and joint acceptance remain independently Planned/open.
 No model/provider lookup occurs merely by rendering a navigation offer.
+
+## Subject-bound Session artwork
+
+The additive, independently scoped media projection and explicit historical
+preparation are defined in [Session artwork delivery v1](SESSION_ARTWORK_DELIVERY_CONTRACT_V1.md).
+It does not widen semantic text archival rights, native current-display admission,
+shared-screen access or existing pure history-query semantics. Implementation
+and qualification are owned by the admitted Session Moment artwork slice.
