@@ -129,6 +129,16 @@ def make_runtime():
     return Runtime()
 
 
+
+def _response_envelope(response):
+    """Inspect either the SDK JSON adapter or the actual no-store HTTP response."""
+    if isinstance(response, dict):
+        return response
+    import json
+    assert response.headers["Cache-Control"] == "no-store"
+    return {"status_code": response.status, "payload": json.loads(response.text)}
+
+
 class FakeAskDJHistory:
     def __init__(self, messages):
         self.messages = messages
@@ -142,6 +152,19 @@ class FakeAskDJHistory:
 
 
 class AskDjTest(unittest.TestCase):
+    async def ask_operational(self, hass, runtime, payload, **kwargs):
+        from tests.ask_dj_operational_fixture import ask_operational
+        return await ask_operational(self.ask_dj, hass, runtime, payload, **kwargs)
+
+    def owner_hass(self, runtime):
+        from tempfile import TemporaryDirectory
+        from tests.ask_dj_operational_fixture import owner_transport
+        directory=TemporaryDirectory(prefix='djc-ask-unit-owner-')
+        hass,service=asyncio.run(owner_transport(runtime,directory.name))
+        self.addCleanup(directory.cleanup)
+        self.addCleanup(lambda:asyncio.run(service.async_close()))
+        return hass
+
     @classmethod
     def setUpClass(cls) -> None:
         install_http_stubs()
@@ -150,6 +173,58 @@ class AskDjTest(unittest.TestCase):
         cls.const = importlib.import_module("custom_components.djconnect.const")
         cls.processor = importlib.import_module("custom_components.djconnect.processor")
         cls.track_insight = importlib.import_module("custom_components.djconnect.track_insight")
+
+    def test_manual_backend_does_not_confirm_pause_or_shuffle(self) -> None:
+        hass = types.SimpleNamespace(config=types.SimpleNamespace(language="nl"))
+        runtime = make_runtime()
+        runtime.config = {"music_backend": "later_manual"}
+
+        pause = asyncio.run(
+            self.ask_dj._playback_action_response(hass, runtime, "pauze", "pause")
+        )
+        shuffle = asyncio.run(
+            self.ask_dj._toggle_playback_response(hass, runtime, "set_shuffle", True)
+        )
+
+        self.assertFalse(pause["success"])
+        self.assertEqual(pause["error"], "music_backend_not_configured")
+        self.assertEqual(pause.get("playback_actions"), [])
+        self.assertFalse(shuffle["success"])
+        self.assertEqual(shuffle["error"], "music_backend_not_configured")
+
+    def test_manual_backend_does_not_emit_empty_playback_actions(self) -> None:
+        runtime = make_runtime()
+        runtime.config = {"music_backend": "later_manual"}
+        hass = types.SimpleNamespace(data={self.const.DOMAIN: {"entry": runtime}})
+        track = {
+            "uri": "spotify:track:abc",
+            "track_name": "Track",
+            "context_uri": "spotify:album:parent",
+        }
+
+        recommendations = self.ask_dj._recommendation_playback_actions(
+            hass, runtime, {}, track, {}, limit=1
+        )
+        playlists = self.ask_dj._playlist_search_playback_actions(
+            hass, [{"uri": "spotify:playlist:abc", "name": "Playlist"}]
+        )
+        albums = self.ask_dj._album_search_playback_actions(
+            hass, [{"uri": "spotify:album:abc", "name": "Album"}]
+        )
+        artists = self.ask_dj._personal_artist_recommendation_actions(
+            hass,
+            runtime,
+            {"memory": {"favorite_artists": [{"name": "Artist", "uri": "spotify:artist:abc"}]}},
+            {},
+            limit=1,
+        )
+        play_now = self.ask_dj._play_now_action_from_spotify_item(hass, track, runtime=runtime)
+
+        self.assertEqual(recommendations, [])
+        self.assertEqual(playlists, [])
+        self.assertEqual(albums, [])
+        self.assertEqual(artists, [])
+        self.assertEqual(play_now, {})
 
     def test_informational_request_does_not_modify_playback(self) -> None:
         runtime = make_runtime()
@@ -187,7 +262,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=Services(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -252,7 +327,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -276,7 +351,7 @@ class AskDjTest(unittest.TestCase):
         self.assertTrue(all(action["label"] == "Play Now" for action in result["playback_actions"]))
         self.assertIn("Nothing else matters", result["text"])
         self.assertNotIn("spotify:track:partial", str(result["playback_actions"]))
-        self.assertEqual([call[0] for call in calls], ["status", "search_tracks"])
+        self.assertEqual([call[0] for call in calls], ["search_tracks"])
 
     def test_track_versions_search_supports_documented_phrase_variants(self) -> None:
         runtime = make_runtime()
@@ -316,7 +391,7 @@ class AskDjTest(unittest.TestCase):
                 with self.subTest(text=text):
                     before = len(calls)
                     result = asyncio.run(
-                        self.ask_dj.async_handle_ask_dj(
+                        self.ask_operational(
                             types.SimpleNamespace(data={self.const.DOMAIN: {}}),
                             runtime,
                             {
@@ -330,9 +405,9 @@ class AskDjTest(unittest.TestCase):
                     self.assertTrue(result["success"])
                     self.assertEqual(result["intent"]["intent"], "track_versions_search")
                     self.assertEqual(result["playback_actions"][0]["label"], "Play Now")
-                    self.assertEqual(calls[before + 1][0], "search_tracks")
-                    self.assertEqual(calls[before + 1][1]["query"], expected_query)
-                    self.assertEqual(calls[before + 1][1]["limit"], 10)
+                    self.assertEqual(next(c[0] for c in calls[before:] if c[0] != "status"), "search_tracks")
+                    self.assertEqual(next(c[1] for c in calls[before:] if c[0] == "search_tracks")["query"], expected_query)
+                    self.assertEqual(next(c[1] for c in calls[before:] if c[0] == "search_tracks")["limit"], 10)
         finally:
             self.ask_dj.run_music_command = original_command
 
@@ -364,7 +439,7 @@ class AskDjTest(unittest.TestCase):
                 with self.subTest(text=text):
                     before = len(calls)
                     result = asyncio.run(
-                        self.ask_dj.async_handle_ask_dj(
+                        self.ask_operational(
                             types.SimpleNamespace(data={self.const.DOMAIN: {}}),
                             runtime,
                             {
@@ -411,7 +486,7 @@ class AskDjTest(unittest.TestCase):
             ):
                 with self.subTest(text=text):
                     result = asyncio.run(
-                        self.ask_dj.async_handle_ask_dj(
+                        self.ask_operational(
                             types.SimpleNamespace(data={self.const.DOMAIN: {}}),
                             runtime,
                             {
@@ -445,7 +520,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -466,6 +541,40 @@ class AskDjTest(unittest.TestCase):
         self.assertEqual(result["items"], [])
         self.assertFalse(result.get("audio_url"))
 
+    def test_manual_profile_status_has_no_shuffle_or_repeat_controls(self) -> None:
+        runtime = make_runtime()
+        runtime.config = {"music_backend": "spotify_direct"}
+        runtime.profile_context_backend_id = "later_manual"
+        runtime.last_playback = {}
+
+        async def command(hass, runtime_arg, command_name, value=None, *, play=None):
+            if command_name == "status":
+                return {"success": True, "playback": runtime.last_playback}
+            raise AssertionError(f"unexpected playback mutation: {command_name}")
+
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
+        try:
+            hass = types.SimpleNamespace(
+                services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}
+            )
+            for question in ("staat shuffle aan?", "staat herhalen aan?"):
+                result = asyncio.run(
+                    self.ask_operational(
+                        hass,
+                        runtime,
+                        {
+                            "text": question,
+                            "device_id": runtime.device_status["device_id"],
+                            "client_type": "ios",
+                        },
+                    )
+                )
+                self.assertTrue(result["success"])
+                self.assertEqual(result["playback_actions"], [])
+        finally:
+            self.ask_dj.run_music_command = original_command
+
     def test_shuffle_status_returns_enable_action_when_off(self) -> None:
         runtime = make_runtime()
         runtime.last_playback = {"has_playback": True, "shuffle_state": "off"}
@@ -479,7 +588,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -523,7 +632,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.async_send_dj_response_best_effort = tts
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -576,7 +685,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -591,48 +700,19 @@ class AskDjTest(unittest.TestCase):
             self.ask_dj.run_music_command = original_command
 
         self.assertTrue(result["success"])
-        self.assertEqual(calls, [("status", None, None), ("devices", None, None)])
+        self.assertEqual(calls, [("devices", None, None)])
         self.assertEqual(result["intent"]["intent"], "list_outputs")
-        self.assertIn("Dit zijn de momenteel beschikbare speakers:", result["text"])
+        self.assertIn("Momenteel beschikbare speakers:", result["text"])
         self.assertIn("\n\n- Woonkamer", result["text"])
         self.assertIn("- Keuken", result["text"])
         self.assertEqual(result["images"], [])
         self.assertEqual(result["assistant_message"]["images"], [])
-        self.assertEqual(
-            result["playback_actions"],
-            [
-                {
-                    "id": "set_output:speaker-1",
-                    "title": "Woonkamer",
-                    "subtitle": "Actieve uitvoer",
-                    "label": "Actief",
-                    "kind": "output",
-                    "command": "set_output",
-                    "value": "speaker-1",
-                    "device_id": "speaker-1",
-                    "device_name": "Woonkamer",
-                    "active": True,
-                    "backend": "spotify_direct",
-                    "provider": "spotify",
-                    "reason": "Backend-uitvoer wijzigen vanuit Ask DJ.",
-                },
-                {
-                    "id": "set_output:speaker-2",
-                    "title": "Keuken",
-                    "subtitle": "Computer",
-                    "label": "Activeer",
-                    "kind": "output",
-                    "command": "set_output",
-                    "value": "speaker-2",
-                    "device_id": "speaker-2",
-                    "device_name": "Keuken",
-                    "active": False,
-                    "backend": "spotify_direct",
-                    "provider": "spotify",
-                    "reason": "Backend-uitvoer wijzigen vanuit Ask DJ.",
-                },
-            ],
-        )
+        self.assertEqual([(a["device_id"], a["command"], a["value"], a["active"], a["label"]) for a in result["playback_actions"]], [
+            ("speaker-1", "set_output", "speaker-1", True, "Actief"),
+            ("speaker-2", "set_output", "speaker-2", False, "Activeer")])
+        self.assertEqual(result["items"], result["playback_actions"])
+        self.assertEqual(result["result_set"]["items"], result["playback_actions"])
+        self.assertTrue(all(a["action_id"] for a in result["playback_actions"]))
 
     def test_help_request_returns_exhaustive_prompt_options_without_media_context(self) -> None:
         runtime = make_runtime()
@@ -651,7 +731,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -735,7 +815,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.async_send_dj_response_best_effort = audio
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -790,7 +870,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -856,7 +936,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -870,7 +950,7 @@ class AskDjTest(unittest.TestCase):
         finally:
             self.ask_dj.run_music_command = original_command
 
-        self.assertEqual([call[0] for call in calls], ["status", "artist_albums"])
+        self.assertEqual([call[0] for call in calls], ["artist_albums"])
         self.assertEqual(result["intent"]["intent"], "ask_music_info")
         self.assertIn("Volgens Spotify heeft The Cranberries", result["dj_text"])
         self.assertIn("- No Need To Argue (1994)", result["dj_text"])
@@ -913,7 +993,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -927,8 +1007,8 @@ class AskDjTest(unittest.TestCase):
         finally:
             self.ask_dj.run_music_command = original_command
 
-        self.assertEqual([call[0] for call in calls], ["status", "artist_albums"])
-        self.assertEqual(calls[1][1], {"artist": "guns n roses"})
+        self.assertEqual([call[0] for call in calls], ["artist_albums"])
+        self.assertEqual(calls[0][1], {"artist": "guns n roses"})
         self.assertIn("- Appetite for Destruction (1987)", result["dj_text"])
         self.assertEqual([image["title"] for image in result["images"]], ["Appetite for Destruction", "Use Your Illusion I"])
         self.assertEqual([action["kind"] for action in result["playback_actions"]], ["album", "album"])
@@ -983,7 +1063,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -1037,7 +1117,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -1087,7 +1167,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -1146,7 +1226,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -1195,7 +1275,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -1245,7 +1325,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -1289,7 +1369,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -1340,7 +1420,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj._fetch_artist_concert_events = fetch_events
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -1384,7 +1464,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj._fetch_artist_concert_events = fetch_events
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -1426,7 +1506,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -1440,8 +1520,8 @@ class AskDjTest(unittest.TestCase):
         finally:
             self.ask_dj.run_music_command = original_command
 
-        self.assertEqual([call[0] for call in calls], ["status", "artist_profile"])
-        self.assertEqual(calls[1][1], {"artist": "Beastie Boys"})
+        self.assertEqual([call[0] for call in calls], ["artist_profile"])
+        self.assertEqual(calls[0][1], {"artist": "Beastie Boys"})
         self.assertIn("een mix van old school hip hop, alternative rock en een vleugje rap rock", result["dj_text"])
         self.assertEqual(result["sources"][0]["source"], "spotify_artist_profile")
         self.assertEqual(result["images"][0]["title"], "Beastie Boys")
@@ -1469,7 +1549,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -1515,7 +1595,7 @@ class AskDjTest(unittest.TestCase):
             for text in ("wat voor genre is dit?", "welk genre is dit"):
                 calls = []
                 result = asyncio.run(
-                    self.ask_dj.async_handle_ask_dj(
+                    self.ask_operational(
                         types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                         runtime,
                         {
@@ -1575,7 +1655,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=Services(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -1612,7 +1692,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.async_send_dj_response_best_effort = audio
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -1646,7 +1726,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -1679,7 +1759,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -1722,7 +1802,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=Services(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -1740,7 +1820,7 @@ class AskDjTest(unittest.TestCase):
             "Welke albums heeft Prince uitgebracht? alleen tussen 1980 en 1990",
             seen["prompt"],
         )
-        self.assertEqual(seen["commands"], ["status"])
+        self.assertEqual(seen.get("commands", []), [])
         self.assertEqual(result["intent"]["intent"], "ask_music_info")
         self.assertIn("Prince", result["dj_text"])
 
@@ -1763,7 +1843,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=Services(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -1778,8 +1858,8 @@ class AskDjTest(unittest.TestCase):
         finally:
             self.ask_dj.run_music_command = original_command
 
-        self.assertIn("Mood/energy: 70/100 (energy:", seen["prompt"])
-        self.assertIn("uptempo", seen["prompt"])
+        self.assertIn('"mood": "energy"', seen["prompt"])
+        self.assertIn('"mood_basis": "request_numeric"', seen["prompt"])
         self.assertEqual(seen["commands"], ["status"])
         self.assertEqual(result["intent"]["category"], "informational")
 
@@ -1836,7 +1916,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -1883,7 +1963,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=Services(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -1897,7 +1977,7 @@ class AskDjTest(unittest.TestCase):
         finally:
             self.ask_dj.run_music_command = original_command
 
-        self.assertEqual(calls, ["status"])
+        self.assertEqual(calls, [])
         self.assertEqual(result["dj_text"], "Sorry, ik begrijp niet wat je bedoelt.")
         self.assertEqual(result["action"], "none")
         self.assertEqual(result["images"], [])
@@ -1926,7 +2006,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=Services(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -1961,7 +2041,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=Services(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -1974,7 +2054,7 @@ class AskDjTest(unittest.TestCase):
         finally:
             self.ask_dj.run_music_command = original_command
 
-        self.assertEqual(calls, ["status"])
+        self.assertEqual(calls, [])
         self.assertEqual(result["dj_text"], "Sorry, ik begrijp niet wat je bedoelt.")
         self.assertEqual(result["action"], "none")
 
@@ -1996,7 +2076,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=Services(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -2009,7 +2089,7 @@ class AskDjTest(unittest.TestCase):
         finally:
             self.ask_dj.run_music_command = original_command
 
-        self.assertEqual(calls, ["status"])
+        self.assertEqual(calls, [])
         self.assertEqual(result["dj_text"], "Sorry, ik begrijp niet wat je bedoelt.")
         self.assertEqual(result["action"], "none")
 
@@ -2037,7 +2117,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=Services(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -2051,7 +2131,7 @@ class AskDjTest(unittest.TestCase):
         finally:
             self.ask_dj.run_music_command = original_command
 
-        self.assertEqual(calls, ["status"])
+        self.assertEqual(calls, [])
         self.assertNotEqual(result.get("action"), "play")
         self.assertNotIn("Je bent DJConnect Ask DJ", result["dj_text"])
         self.assertNotIn("Beantwoord informatieve muziekvragen", result["dj_text"])
@@ -2059,7 +2139,7 @@ class AskDjTest(unittest.TestCase):
         self.assertNotIn("geen apparaat vinden", result["dj_text"])
         self.assertTrue(result["dj_text"])
 
-    def test_contextual_speel_af_uses_recent_track_and_artist_context(self) -> None:
+    def test_contextual_play_requires_provider_choice_not_biography(self) -> None:
         runtime = make_runtime()
         runtime.ask_dj_history = FakeAskDJHistory(
             [
@@ -2091,7 +2171,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_text_command = process
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -2105,10 +2185,10 @@ class AskDjTest(unittest.TestCase):
         finally:
             self.ask_dj.run_text_command = original_process
 
-        self.assertEqual(seen["text"], "speel sun & moon Above & Beyond")
-        self.assertTrue(seen["play"])
-        self.assertEqual(result["intent"]["intent"], "play_music")
-        self.assertIn("Sun & Moon", result["dj_text"])
+        self.assertEqual(seen, {})
+        self.assertEqual(result.get("playback_actions"), [])
+        self.assertEqual(result["intent"]["intent"], "clarification_needed")
+        self.assertIn("getoond resultaat", result["dj_text"])
         self.assertNotIn("AFROJACK", result["dj_text"])
 
     def test_play_request_uses_recent_artist_track_action_context(self) -> None:
@@ -2152,7 +2232,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_text_command = process
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -2202,7 +2282,7 @@ class AskDjTest(unittest.TestCase):
         try:
             hass = types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}})
             first = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     hass,
                     runtime,
                     {
@@ -2214,7 +2294,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
             second = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     hass,
                     runtime,
                     {
@@ -2226,7 +2306,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
             third = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     hass,
                     runtime,
                     {
@@ -2296,7 +2376,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -2344,7 +2424,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.async_send_dj_response_best_effort = tts
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -2382,7 +2462,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -2401,7 +2481,7 @@ class AskDjTest(unittest.TestCase):
         self.assertNotIn("playback", result)
         self.assertEqual(result["playback_actions"], [])
 
-    def test_current_track_question_prefers_generated_announcement_text(self) -> None:
+    def test_current_track_catalog_is_not_model_input_and_keeps_local_caption_audio(self) -> None:
         runtime = make_runtime()
         runtime.last_playback = {
             "has_playback": True,
@@ -2442,7 +2522,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.async_send_dj_response_best_effort = tts
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=Services(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -2456,17 +2536,17 @@ class AskDjTest(unittest.TestCase):
             self.ask_dj.run_music_command = original_command
             self.ask_dj.async_send_dj_response_best_effort = original_tts
 
-        self.assertEqual(result["dj_text"], "Je hoort nu Gave It All van HAEVN, warm en ruim neergezet.")
-        self.assertEqual(result["text_source"], "generated")
-        self.assertTrue(result["is_generated_text"])
-        self.assertEqual(result["assistant_message"]["text_source"], "generated")
-        self.assertTrue(result["assistant_message"]["is_generated_text"])
+        self.assertEqual(result["dj_text"], "Er speelt nu Gave It All van HAEVN, op het album Eyes Closed.")
+        self.assertEqual(result["text_source"], "fallback")
+        self.assertFalse(result["is_generated_text"])
+        self.assertEqual(result["assistant_message"]["text_source"], "fallback")
+        self.assertFalse(result["assistant_message"]["is_generated_text"])
         self.assertEqual(result["audio_url"], "/api/djconnect/v1/tts/generated-current.wav")
         self.assertEqual(result["audio_type"], "wav")
         self.assertEqual(result["assistant_message"]["audio_url"], "/api/djconnect/v1/tts/generated-current.wav")
         self.assertEqual(result["assistant_message"]["audio_type"], "wav")
         self.assertEqual(tts_calls, [result["dj_text"]])
-        self.assertEqual(calls[0][0], "conversation")
+        self.assertEqual(calls, [])
 
     def test_play_album_containing_track_request_searches_track_then_plays_album(self) -> None:
         runtime = make_runtime()
@@ -2499,7 +2579,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -2545,7 +2625,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -2569,7 +2649,7 @@ class AskDjTest(unittest.TestCase):
         self.assertEqual(result["playback_actions"][0]["context_uri"], "spotify:album:ten")
         self.assertEqual(result["playback_actions"][1]["uri"], "spotify:album:ten")
         self.assertTrue(result["playback_actions"][0]["image_url"].startswith(self.const.API_IMAGE_PROXY_BASE))
-        self.assertEqual([call[0] for call in calls], ["status", "search_media"])
+        self.assertEqual([call[0] for call in calls], ["search_media"])
 
     def test_broad_music_request_returns_track_playlist_and_album_actions(self) -> None:
         runtime = make_runtime()
@@ -2619,7 +2699,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -2655,7 +2735,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -2715,7 +2795,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -2738,7 +2818,8 @@ class AskDjTest(unittest.TestCase):
         self.assertEqual(result["assistant_message"]["images"], [])
         self.assertEqual(result["assistant_message"]["items"], [])
         self.assertEqual(result["assistant_message"]["playback_actions"], [])
-        self.assertEqual(runtime.memory.updated[-1][1]["playback_actions"], [])
+        self.assertEqual(runtime.memory.updated, [])
+        self.assertEqual(runtime._unit_dialogue_owner.dialogue.owners["profile:unit-owner"]["default"].local_turns[-1].get("playback_actions", []), [])
 
     def test_deferred_playback_response_never_exposes_spotify_uri_as_label(self) -> None:
         runtime = make_runtime()
@@ -2762,7 +2843,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -2813,7 +2894,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -2879,7 +2960,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -2955,7 +3036,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -3008,7 +3089,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -3055,7 +3136,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -3139,7 +3220,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -3152,7 +3233,7 @@ class AskDjTest(unittest.TestCase):
         finally:
             self.ask_dj.run_music_command = original_command
 
-        self.assertEqual([call[0] for call in calls], ["status", "search_albums", "search_playlists", "search_tracks"])
+        self.assertEqual([call[0] for call in calls], ["search_albums", "search_playlists", "search_tracks"])
         self.assertIn("eerst albums, daarna playlists en tracks", result["text"])
         self.assertEqual(len(result["playback_actions"]), 10)
         self.assertEqual(
@@ -3180,7 +3261,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_text_command = process
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -3196,7 +3277,7 @@ class AskDjTest(unittest.TestCase):
 
         self.assertEqual(result["intent"]["intent"], "clarification_needed")
         self.assertEqual(result["action"], "none")
-        self.assertIn("Welke artiest bedoel je", result["dj_text"])
+        self.assertIn("Welk getoond resultaat", result["dj_text"])
         self.assertNotIn("audio_url", result)
 
     def test_direct_track_answer_after_clarification_starts_contextual_playback(self) -> None:
@@ -3229,7 +3310,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_text_command = process
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -3287,7 +3368,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_text_command = process
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -3361,7 +3442,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_text_command = process
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -3401,7 +3482,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -3430,8 +3511,10 @@ class AskDjTest(unittest.TestCase):
         runtime.last_playback = {
             "track_name": "In And Out Of Love",
             "artist": "Armin van Buuren",
-            "uri": "spotify:track:in-out-love",
+            "uri": "spotify:track:"+"7"*22,
         }
+        runtime.ask_dj_history = FakeAskDJHistory([{"role":"assistant","text":"Shown current recording", "playback_actions":[
+            {"kind":"track","uri":runtime.last_playback["uri"],"title":"In And Out Of Love","artist":"Armin van Buuren"}]}])
         seen = {}
 
         async def command(hass, runtime_arg, command_name, value=None, *, play=None):
@@ -3439,23 +3522,23 @@ class AskDjTest(unittest.TestCase):
                 return {"success": True, "playback": runtime.last_playback}
             raise AssertionError(f"unexpected Spotify command: {command_name}")
 
-        async def process(hass, runtime_arg, text, *, play, correct_stt):
-            seen["text"] = text
-            seen["play"] = play
+        async def process(hass, runtime_arg, action, payload):
+            seen["uri"] = action["uri"]
+            seen["play"] = True
             return {
                 "text": "Ik speel In And Out Of Love.",
                 "dj_text": "Ik speel In And Out Of Love.",
-                "intent": {"type": "track", "title": "In And Out Of Love", "artist": "Armin van Buuren"},
+                "intent": {"intent":"play_music", "type": "track", "title": "In And Out Of Love", "artist": "Armin van Buuren"},
                 "playback": runtime.last_playback,
             }
 
         original_command = self.ask_dj.run_music_command
-        original_process = self.ask_dj.run_text_command
+        original_process = self.http._handle_ask_dj_play_recommendation
         self.ask_dj.run_music_command = command
-        self.ask_dj.run_text_command = process
+        self.http._handle_ask_dj_play_recommendation = process
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -3467,9 +3550,9 @@ class AskDjTest(unittest.TestCase):
             )
         finally:
             self.ask_dj.run_music_command = original_command
-            self.ask_dj.run_text_command = original_process
+            self.http._handle_ask_dj_play_recommendation = original_process
 
-        self.assertEqual(seen["text"], "speel Armin van Buuren - In And Out Of Love")
+        self.assertEqual(seen["uri"], "spotify:track:"+"7"*22)
         self.assertTrue(seen["play"])
         self.assertEqual(result["intent"]["intent"], "play_music")
 
@@ -3490,7 +3573,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.async_send_dj_response_best_effort = fail_tts
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -3526,7 +3609,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.async_send_dj_response_best_effort = tts
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -3568,7 +3651,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.async_send_dj_response_best_effort = tts
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -3627,7 +3710,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.async_send_dj_response_best_effort = tts
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -3641,8 +3724,9 @@ class AskDjTest(unittest.TestCase):
             self.ask_dj.run_music_command = original_command
             self.ask_dj.async_send_dj_response_best_effort = original_tts
 
-        self.assertEqual(calls, [("status", None), ("status", None), ("set_volume", 20)])
-        self.assertEqual(result["dj_text"], "Ik heb het volume aangepast.")
+        self.assertEqual(calls, [("status", None), ("set_volume", 20)])
+        self.assertEqual(result["dj_text"], "Volumeaanpassing aangevraagd.")
+        self.assertEqual(result["action_outcome"], {"state": "dispatched", "readback_confirmed": True})
         self.assertEqual(result["images"], [])
         self.assertEqual(result["assistant_message"]["images"], [])
         self.assertFalse(result.get("audio_url"))
@@ -3668,7 +3752,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -3707,7 +3791,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -3720,7 +3804,7 @@ class AskDjTest(unittest.TestCase):
         finally:
             self.ask_dj.run_music_command = original_command
 
-        self.assertEqual(calls, [("status", None), ("pause", None)])
+        self.assertEqual(calls, [("pause", None)])
         self.assertEqual(result["action"], "pause")
         self.assertEqual(result["images"], [])
         self.assertEqual(result["assistant_message"]["images"], [])
@@ -3752,7 +3836,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -3765,7 +3849,7 @@ class AskDjTest(unittest.TestCase):
         finally:
             self.ask_dj.run_music_command = original_command
 
-        self.assertEqual(calls, [("status", None), ("play", None)])
+        self.assertEqual(calls, [("play", None)])
         self.assertEqual(result["intent"]["category"], "action")
         self.assertEqual(result["action"], "play")
         self.assertEqual(result["images"], [])
@@ -3811,7 +3895,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -3840,8 +3924,9 @@ class AskDjTest(unittest.TestCase):
             [action["title"] for action in result["playback_actions"] if action["kind"] == "confirmation"],
             ["Ja", "Nee"],
         )
-        self.assertEqual(stored[0][0]["proposed_action"], "ask_dj_play_recommendation")
-        self.assertEqual(stored[0][0]["proposed_payload"]["uri"], "spotify:track:morning")
+        self.assertEqual(stored, [])
+        self.assertEqual(runtime._unit_dialogue_owner.dialogue.owners['profile:unit-owner']['default'].pending["proposed_action"], "ask_dj_play_recommendation")
+        self.assertEqual(runtime._unit_dialogue_owner.dialogue.owners['profile:unit-owner']['default'].pending["proposed_payload"]["uri"], "spotify:track:morning")
         self.assertEqual(result["assistant_message"]["playback_actions"], result["playback_actions"])
 
     def test_repeat_action_names_enabled_or_disabled_state(self) -> None:
@@ -3871,7 +3956,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.async_send_dj_response_best_effort = tts
         try:
             off_result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -3882,7 +3967,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
             on_result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -3940,7 +4025,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.async_send_dj_response_best_effort = tts
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -3954,7 +4039,7 @@ class AskDjTest(unittest.TestCase):
             self.ask_dj.run_music_command = original_command
             self.ask_dj.async_send_dj_response_best_effort = original_tts
 
-        self.assertEqual(calls, ["status", "set_current_track_favorite"])
+        self.assertEqual(calls, ["set_current_track_favorite"])
         self.assertEqual(result["dj_text"], "Ik heb Candlebox - Far Behind toegevoegd aan je favorieten.")
         self.assertEqual(result["images"], [])
         self.assertEqual(result["items"], [])
@@ -3999,7 +4084,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.async_send_dj_response_best_effort = no_tts
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -4013,7 +4098,7 @@ class AskDjTest(unittest.TestCase):
             self.ask_dj.run_music_command = original_command
             self.ask_dj.async_send_dj_response_best_effort = original_tts
 
-        self.assertEqual(calls, [("status", None), ("set_current_track_favorite", False)])
+        self.assertEqual(calls, [("set_current_track_favorite", False)])
         self.assertEqual(result["dj_text"], "Ik heb Radiohead - Karma Police uit je favorieten gehaald.")
         self.assertEqual(len(runtime.memory.blocked), 1)
         blocked_item, blocked_payload, blocked_user_id = runtime.memory.blocked[0]
@@ -4050,7 +4135,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.async_send_dj_response_best_effort = no_tts
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -4090,7 +4175,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_text_command = process
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -4139,7 +4224,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_text_command = process
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -4187,7 +4272,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_text_command = process
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -4253,7 +4338,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_text_command = process
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -4313,7 +4398,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_text_command = process
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -4373,7 +4458,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.async_send_dj_response_best_effort = tts
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -4442,7 +4527,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.async_send_dj_response_best_effort = tts
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -4509,7 +4594,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.async_send_dj_response_best_effort = tts
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -4572,11 +4657,11 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_text_command = process
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
-                        "text": "ik wil always hardcore",
+                        "text": "speel always hardcore",
                         "device_id": runtime.device_status["device_id"],
                         "client_type": "ios",
                         "input_type": "voice",
@@ -4626,7 +4711,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_text_command = process
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -4674,7 +4759,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_text_command = process
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -4694,7 +4779,7 @@ class AskDjTest(unittest.TestCase):
         self.assertEqual(result["images"][0]["title"], "Karma Police")
         self.assertEqual(result["images"][0]["subtitle"], "Radiohead")
 
-    def test_bare_voice_artist_request_is_treated_as_playback_request(self) -> None:
+    def test_explicit_voice_artist_request_preserves_playback_capability(self) -> None:
         runtime = make_runtime()
         calls = []
 
@@ -4717,11 +4802,11 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_text_command = process
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
-                        "text": "Armin van Buuren",
+                        "text": "Speel Armin van Buuren",
                         "device_id": runtime.device_status["device_id"],
                         "client_type": "watchos",
                         "input_type": "voice",
@@ -4735,7 +4820,7 @@ class AskDjTest(unittest.TestCase):
         self.assertTrue(result["success"])
         self.assertEqual(result["intent"]["category"], "hybrid")
         self.assertEqual(result["intent"]["intent"], "play_music")
-        self.assertEqual(calls, [("Armin van Buuren", True, True)])
+        self.assertEqual(calls, [("Speel Armin van Buuren", True, True)])
         self.assertNotEqual(
             result["text"],
             "Ik heb nu niet genoeg betrouwbare broninformatie om daar zeker antwoord op te geven.",
@@ -4765,7 +4850,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.async_send_dj_response_best_effort = tts
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -4823,7 +4908,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_text_command = process
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -4848,8 +4933,9 @@ class AskDjTest(unittest.TestCase):
         self.assertEqual(first["value"]["output_id"], "speaker-1")
         self.assertEqual(first["value"]["request"]["text"], "Speel Armin")
         self.assertEqual(calls, ["status", "devices"])
-        self.assertEqual(stored[0][0]["proposed_action"], "select_output_for_playback")
-        self.assertEqual(stored[0][0]["proposed_payload"]["text"], "Speel Armin")
+        self.assertEqual(stored, [])
+        self.assertEqual(runtime._unit_dialogue_owner.dialogue.owners['profile:unit-owner']['default'].pending["proposed_action"], "select_output_for_playback")
+        self.assertEqual(runtime._unit_dialogue_owner.dialogue.owners['profile:unit-owner']['default'].pending["proposed_payload"]["text"], "Speel Armin")
 
     def test_retry_request_replays_previous_failed_music_request_from_history(self) -> None:
         runtime = make_runtime()
@@ -4884,7 +4970,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_text_command = process
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -4903,9 +4989,10 @@ class AskDjTest(unittest.TestCase):
         self.assertEqual(calls, [("Speel maar nothing else meters", True, False)])
         self.assertEqual(result["intent"]["category"], "hybrid")
         self.assertEqual(result["intent"]["intent"], "play_music")
-        self.assertEqual(runtime.memory.updated[-1][0], "Speel maar nothing else meters")
+        self.assertEqual(runtime.memory.updated, [])
+        self.assertEqual(runtime._unit_dialogue_owner.dialogue.owners["profile:unit-owner"]["default"].local_turns[-2]["text"], "Probeer opnieuw")
 
-    def test_retry_request_replays_previous_music_request_from_memory(self) -> None:
+    def test_retry_does_not_import_dna_as_operational_authority(self) -> None:
         runtime = make_runtime()
         runtime.memory.updated.clear()
         calls = []
@@ -4929,7 +5016,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_text_command = process
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -4945,8 +5032,8 @@ class AskDjTest(unittest.TestCase):
             self.ask_dj.run_text_command = original_process
 
         self.assertTrue(result["success"])
-        self.assertEqual(calls, [("Draai iets rustigers", True, False)])
-        self.assertEqual(runtime.memory.updated[-1][0], "Draai iets rustigers")
+        self.assertEqual(calls, [])
+        self.assertNotEqual(result.get("action"), "play")
 
     def test_personal_music_profile_analysis_does_not_modify_playback(self) -> None:
         runtime = make_runtime()
@@ -4980,7 +5067,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -5027,7 +5114,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -5052,7 +5139,7 @@ class AskDjTest(unittest.TestCase):
         self.assertEqual(result["track_insight"]["track"]["title"], "Intro")
         self.assertEqual(result["track_insight"]["track"]["artist"], "The xx")
         self.assertEqual(result["playback_actions"], [])
-        self.assertIsInstance(result["analysis"]["energy"], float)
+        self.assertIsNone(result["analysis"]["energy"])
         self.assertIsInstance(result["track_insight"]["visual_profile"], dict)
 
     def test_track_insight_prompt_routes_to_same_contract(self) -> None:
@@ -5074,11 +5161,11 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
-                        "text": "analyseer dit nummer",
+                        "text": "open Track Insight voor dit nummer",
                         "device_id": runtime.device_status["device_id"],
                         "client_type": "watchos",
                     },
@@ -5113,7 +5200,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -5180,7 +5267,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -5230,7 +5317,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     hass,
                     runtime,
                     {
@@ -5270,7 +5357,7 @@ class AskDjTest(unittest.TestCase):
         runtime.config["music_assistant_player"] = "media_player.mass_living"
 
         result = asyncio.run(
-            self.ask_dj.async_handle_ask_dj(
+            self.ask_operational(
                 types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                 runtime,
                 {
@@ -5314,7 +5401,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -5347,7 +5434,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -5399,7 +5486,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -5454,7 +5541,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -5501,7 +5588,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -5543,7 +5630,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -5593,7 +5680,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -5653,7 +5740,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -5708,7 +5795,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -5799,7 +5886,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.random.shuffle = lambda items: None
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -5865,7 +5952,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.random.shuffle = lambda items: None
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -5928,7 +6015,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.random.shuffle = lambda items: None
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -5982,7 +6069,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -6038,7 +6125,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -6084,7 +6171,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -6138,7 +6225,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -6189,7 +6276,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -6249,7 +6336,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -6317,7 +6404,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.async_send_dj_response_best_effort = tts
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -6372,7 +6459,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -6431,7 +6518,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -6475,7 +6562,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -6517,7 +6604,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -6561,7 +6648,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -6609,7 +6696,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -6658,7 +6745,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -6707,7 +6794,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -6758,7 +6845,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -6810,7 +6897,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -6865,7 +6952,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -6906,7 +6993,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -6931,7 +7018,8 @@ class AskDjTest(unittest.TestCase):
             [action["command"] for action in result["playback_actions"]],
             ["ask_dj_followup_response", "ask_dj_followup_response"],
         )
-        self.assertEqual(stored[0][0]["proposed_action"], "ask_dj_personal_recommendations")
+        self.assertEqual(stored, [])
+        self.assertEqual(runtime._unit_dialogue_owner.dialogue.owners['profile:unit-owner']['default'].pending["proposed_action"], "ask_dj_personal_recommendations")
 
     def test_next_track_question_returns_queue_info_without_skipping(self) -> None:
         runtime = make_runtime()
@@ -6949,7 +7037,7 @@ class AskDjTest(unittest.TestCase):
                         {
                             "title": f"HAEVN Song {index}",
                             "subtitle": "HAEVN",
-                            "uri": f"spotify:track:haevn-{index}",
+                            "uri": f"spotify:track:{index:022d}",
                             "context_uri": "spotify:playlist:haevn",
                             "album_image_url": f"https://img.example/haevn-{index}.jpg",
                         }
@@ -6962,7 +7050,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -6975,22 +7063,22 @@ class AskDjTest(unittest.TestCase):
         finally:
             self.ask_dj.run_music_command = original_command
 
-        self.assertEqual([call[0] for call in calls], ["status", "queue"])
+        self.assertEqual([call[0] for call in calls], ["queue"])
         self.assertEqual(result["intent"]["intent"], "next_track_info")
         self.assertEqual(result["action"], "none")
-        self.assertEqual(result["dj_text"], "Hierna in de wachtrij:")
+        self.assertEqual(result["queue_observation"]["state"], "present")
         self.assertEqual(result["images"], [])
         self.assertEqual(len(result["playback_actions"]), 6)
         self.assertEqual(result["playback_actions"][0]["kind"], "track")
-        self.assertEqual(result["playback_actions"][0]["label"], "Play Now")
-        self.assertEqual(result["playback_actions"][0]["button_label"], "Play Now")
+        self.assertEqual(result["playback_actions"][0]["label"], "Afspelen")
+        self.assertEqual(result["playback_actions"][0]["button_label"], "Afspelen")
         self.assertEqual(result["playback_actions"][0]["action_style"], "play_now")
-        self.assertEqual(result["playback_actions"][0]["uri"], "spotify:track:haevn-1")
+        self.assertEqual(result["playback_actions"][0]["uri"], "spotify:track:0000000000000000000001")
         self.assertEqual(result["playback_actions"][0]["context_uri"], "spotify:playlist:haevn")
-        self.assertEqual(result["playback_actions"][0]["offset_uri"], "spotify:track:haevn-1")
+        self.assertEqual(result["playback_actions"][0]["offset_uri"], "spotify:track:0000000000000000000001")
         self.assertTrue(result["playback_actions"][0]["image_url"].startswith(self.const.API_IMAGE_PROXY_BASE))
 
-    def test_next_numbers_question_returns_first_ten_queue_actions(self) -> None:
+    def test_next_numbers_question_returns_first_twelve_queue_actions(self) -> None:
         runtime = make_runtime()
         calls = []
 
@@ -7006,7 +7094,7 @@ class AskDjTest(unittest.TestCase):
                         {
                             "title": f"Queue Song {index}",
                             "subtitle": f"Queue Artist {index}",
-                            "uri": f"spotify:track:queue-{index}",
+                            "uri": f"spotify:track:{index:022d}",
                             "album_image_url": f"https://img.example/queue-{index}.jpg",
                         }
                         for index in range(1, 13)
@@ -7018,7 +7106,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -7031,19 +7119,19 @@ class AskDjTest(unittest.TestCase):
         finally:
             self.ask_dj.run_music_command = original_command
 
-        self.assertEqual([call[0] for call in calls], ["status", "queue"])
+        self.assertEqual([call[0] for call in calls], ["queue"])
         self.assertEqual(result["intent"]["intent"], "next_track_info")
         self.assertEqual(result["action"], "none")
-        self.assertEqual(result["text"], "Hierna in de wachtrij:")
+        self.assertEqual(result["queue_observation"]["state"], "present")
         self.assertEqual(result["images"], [])
         self.assertNotIn("Queue Song 11", result["text"])
-        self.assertEqual(len(result["playback_actions"]), 10)
+        self.assertEqual(len(result["playback_actions"]), 12)
         self.assertTrue(all(action["kind"] == "track" for action in result["playback_actions"]))
-        self.assertTrue(all(action["label"] == "Play Now" for action in result["playback_actions"]))
-        self.assertTrue(all(action["button_label"] == "Play Now" for action in result["playback_actions"]))
-        self.assertEqual(result["playback_actions"][9]["uri"], "spotify:track:queue-10")
+        self.assertTrue(all(action["label"] == "Afspelen" for action in result["playback_actions"]))
+        self.assertTrue(all(action["button_label"] == "Afspelen" for action in result["playback_actions"]))
+        self.assertEqual(result["playback_actions"][9]["uri"], "spotify:track:0000000000000000000010")
 
-    def test_next_track_question_dedupes_repeated_queue_items(self) -> None:
+    def test_next_track_question_preserves_repeated_queue_occurrences(self) -> None:
         runtime = make_runtime()
 
         async def command(hass, runtime_arg, command_name, value=None, *, play=None):
@@ -7054,19 +7142,19 @@ class AskDjTest(unittest.TestCase):
                     {
                         "title": "Carry Me Home - Extended Mix",
                         "subtitle": "Above & Beyond, Zoe Johnston",
-                        "uri": "spotify:track:carry-extended",
+                        "uri": "spotify:track:b5ba27312e99a03044c321",
                         "album_image_url": "https://img.example/carry-extended.jpg",
                     },
                     {
                         "title": "Carry Me Home",
                         "subtitle": "Above & Beyond, Zoe Johnston",
-                        "uri": "spotify:track:carry",
+                        "uri": "spotify:track:6ef49cacb4c39f8fe29c35",
                         "album_image_url": "https://img.example/carry.jpg",
                     },
                     {
                         "title": "Alchemy - Original Mix",
                         "subtitle": "Above & Beyond, Zoe Johnston",
-                        "uri": "spotify:track:alchemy",
+                        "uri": "spotify:track:924b68a85ca137100ecf3c",
                         "album_image_url": "https://img.example/alchemy.jpg",
                     },
                 ]
@@ -7081,7 +7169,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -7095,18 +7183,14 @@ class AskDjTest(unittest.TestCase):
             self.ask_dj.run_music_command = original_command
 
         self.assertEqual(result["intent"]["intent"], "next_track_info")
-        self.assertEqual(len(result["playback_actions"]), 3)
+        self.assertEqual(len(result["playback_actions"]), 10)
         self.assertEqual(result["images"], [])
-        self.assertEqual(result["text"], "Hierna in de wachtrij:")
+        self.assertEqual(result["queue_observation"]["state"], "present")
         self.assertNotIn("4. Carry Me Home", result["text"])
-        self.assertEqual(
-            [action["uri"] for action in result["playback_actions"]],
-            [
-                "spotify:track:carry-extended",
-                "spotify:track:carry",
-                "spotify:track:alchemy",
-            ],
-        )
+        expected = [item["uri"] for item in asyncio.run(command(None, runtime, "queue"))["queue"]]
+        self.assertEqual([action["uri"] for action in result["playback_actions"]], expected)
+        self.assertEqual([action["queue_position"] for action in result["playback_actions"]], list(range(10)))
+        self.assertEqual(len({action["id"] for action in result["playback_actions"]}), 10)
 
     def test_what_plays_after_this_reads_queue(self) -> None:
         runtime = make_runtime()
@@ -7123,7 +7207,7 @@ class AskDjTest(unittest.TestCase):
                         {
                             "title": "The Lightning Strike",
                             "subtitle": "Snow Patrol",
-                            "uri": "spotify:track:lightning",
+                            "uri": "spotify:track:01db71ab8048f74a4b92c2",
                             "album_image_url": "https://img.example/lightning.jpg",
                         }
                     ],
@@ -7134,7 +7218,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -7147,11 +7231,11 @@ class AskDjTest(unittest.TestCase):
         finally:
             self.ask_dj.run_music_command = original_command
 
-        self.assertEqual([call[0] for call in calls], ["status", "queue"])
+        self.assertEqual([call[0] for call in calls], ["queue"])
         self.assertEqual(result["intent"]["intent"], "next_track_info")
-        self.assertEqual(result["dj_text"], "Hierna in de wachtrij:")
+        self.assertEqual(result["queue_observation"]["state"], "present")
         self.assertEqual(result["images"], [])
-        self.assertEqual(result["playback_actions"][0]["uri"], "spotify:track:lightning")
+        self.assertEqual(result["playback_actions"][0]["uri"], "spotify:track:01db71ab8048f74a4b92c2")
 
     def test_next_track_question_does_not_double_proxy_queue_art(self) -> None:
         runtime = make_runtime()
@@ -7168,7 +7252,7 @@ class AskDjTest(unittest.TestCase):
                         {
                             "title": "Queue Track",
                             "subtitle": "Queue Artist",
-                            "uri": "spotify:track:queue",
+                            "uri": "spotify:track:00b109cf1123a591253cc5",
                             "image_url": proxy_url,
                         }
                     ],
@@ -7179,7 +7263,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     hass,
                     runtime,
                     {
@@ -7209,223 +7293,77 @@ class AskDjTest(unittest.TestCase):
         self.assertEqual(classified.category, "action")
         self.assertEqual(classified.action, "next")
 
-    def test_next_command_uses_dj_announcement_pipeline(self) -> None:
+    def test_next_command_stays_typed_and_forwards_observer_receipt(self) -> None:
+        from unittest.mock import patch
         runtime = make_runtime()
         calls = []
-
-        async def process(hass, runtime_arg, text, *, play=True, correct_stt=False):
-            calls.append((text, play, correct_stt))
-            return {
-                "text": text,
-                "dj_text": "Nieuwe ronde: Snow Patrol staat klaar met een frisse volgende track.",
-                "playback": {
-                    "has_playback": True,
-                    "track_name": "All",
-                    "artist": "Snow Patrol",
-                    "album_name": "The Forest Is The Path",
-                    "album_image_url": "https://img.example/snowpatrol-all.jpg",
-                    "uri": "spotify:track:all",
-                },
-            }
-
-        original_process = self.ask_dj.run_text_command
-        self.ask_dj.run_text_command = process
-        try:
-            result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
-                    types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
-                    runtime,
-                    {
-                        "text": "next",
-                        "device_id": runtime.device_status["device_id"],
-                        "client_type": "watchos",
-                    },
-                )
-            )
-        finally:
-            self.ask_dj.run_text_command = original_process
-
-        self.assertEqual(calls, [("next", True, False)])
-        self.assertEqual(result["intent"]["intent"], "playback_control")
+        playback = {"has_playback": True, "is_playing": True, "track_name": "All", "artist": "Snow Patrol", "uri": "spotify:track:" + "1" * 22}
+        projection = {"session_id": "synthetic-session", "command_revision": 3, "projection_changed": True, "broadcast_delivery_sequence": 8}
+        async def command(hass, runtime_arg, command_name, value=None, *, play=None):
+            calls.append(command_name)
+            self.assertEqual(command_name, "next", "Fast control must not issue a pre-status or unsolicited queue read")
+            return {"success": True, "playback": playback, "playback_projection_receipt": projection}
+        with patch.object(self.ask_dj, "run_music_command", command), patch.object(self.ask_dj, "run_text_command", side_effect=AssertionError("Typed control must not be reparsed")):
+            result = asyncio.run(self.ask_operational(types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}), runtime, {"text": "next", "client_type": "watchos", "device_id": runtime.device_status["device_id"], "audio_response": "never"}))
+        self.assertEqual(calls, ["next"])
         self.assertEqual(result["action"], "next")
-        self.assertIn("Snow Patrol", result["dj_text"])
-        self.assertNotEqual(result["dj_text"], "Ik ga naar het volgende nummer.")
-        self.assertEqual(result["assistant_message"]["images"][0]["title"], "All")
+        self.assertEqual(result["intent"]["intent"], "playback_control")
+        self.assertIn("All van Snow Patrol", result["dj_text"])
+        self.assertNotIn("playback", result)  # Raw provider state is not an Ask DJ archive/response contract.
+        self.assertEqual(result["playback_projection_receipt"], projection)
+        self.assertEqual(result["playback_actions"], [])
+        self.assertEqual(result["action_outcome"], {"state": "dispatched", "readback_confirmed": False})
 
-    def test_next_command_uses_post_skip_playback_snapshot(self) -> None:
+    def test_next_command_uses_actual_post_command_readback_without_extra_reads(self) -> None:
+        from unittest.mock import patch
         runtime = make_runtime()
-        runtime.update = lambda **kwargs: None
         calls = []
-
+        playback = {"has_playback": True, "is_playing": True, "track_name": "New Song", "artist": "New Artist", "uri": "spotify:track:" + "1" * 22}
+        projection = {"session_id": "synthetic-session", "command_revision": 3, "projection_changed": True, "broadcast_delivery_sequence": 8}
         async def command(hass, runtime_arg, command_name, value=None, *, play=None):
             calls.append(command_name)
-            if command_name == "status":
-                return {
-                    "success": True,
-                    "playback": {
-                        "has_playback": True,
-                        "is_playing": True,
-                        "track_name": "New Song",
-                        "artist": "New Artist",
-                        "album_name": "New Album",
-                        "album_image_url": "https://img.example/new.jpg",
-                        "uri": "spotify:track:new",
-                    },
-                }
-            if command_name == "next":
-                return {
-                    "success": True,
-                    "playback": {
-                        "has_playback": True,
-                        "is_playing": True,
-                        "track_name": "Old Song",
-                        "artist": "Old Artist",
-                        "album_name": "Old Album",
-                        "album_image_url": "https://img.example/old.jpg",
-                        "uri": "spotify:track:old",
-                    },
-                }
-            if command_name == "queue":
-                return {
-                    "success": True,
-                    "context_uri": "spotify:playlist:queue",
-                    "queue": [
-                        {
-                            "title": "New Song",
-                            "subtitle": "New Artist",
-                            "uri": "spotify:track:new",
-                            "album_image_url": "https://img.example/new.jpg",
-                        },
-                        {
-                            "title": "Queue Song",
-                            "subtitle": "Queue Artist",
-                            "uri": "spotify:track:queue",
-                            "album_image_url": "https://img.example/queue.jpg",
-                        },
-                    ],
-                }
-            raise AssertionError(f"unexpected Spotify command: {command_name}")
-
-        async def dj_response(hass, *, media, fallback_text, conf, memory_context=None, debug=None):
-            self.assertEqual(media["track_name"], "New Song")
-            self.assertEqual(media["artist"], "New Artist")
-            self.assertEqual(media["album_image_url"], "https://img.example/new.jpg")
-            return f"Nu speelt {media['track_name']} van {media['artist']}."
-
-        original_command = self.ask_dj.run_music_command
-        original_processor_command = self.processor.run_music_command
-        original_dj_response = self.processor.generate_dj_response_with_assist
-        self.ask_dj.run_music_command = command
-        self.processor.run_music_command = command
-        self.processor.generate_dj_response_with_assist = dj_response
-        try:
-            result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
-                    types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
-                    runtime,
-                    {
-                        "text": "volgende nummer",
-                        "device_id": runtime.device_status["device_id"],
-                        "client_type": "watchos",
-                    },
-                )
-            )
-        finally:
-            self.ask_dj.run_music_command = original_command
-            self.processor.run_music_command = original_processor_command
-            self.processor.generate_dj_response_with_assist = original_dj_response
-
-        self.assertEqual(calls, ["status", "next", "status", "queue"])
+            self.assertEqual(command_name, "next", "Fast control must not issue a pre-status or unsolicited queue read")
+            return {"success": True, "playback": playback, "playback_projection_receipt": projection}
+        with patch.object(self.ask_dj, "run_music_command", command), patch.object(self.ask_dj, "run_text_command", side_effect=AssertionError("Typed control must not be reparsed")):
+            result = asyncio.run(self.ask_operational(types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}), runtime, {"text": "next", "client_type": "watchos", "device_id": runtime.device_status["device_id"], "audio_response": "never"}))
+        self.assertEqual(calls, ["next"])
+        self.assertEqual(result["action"], "next")
+        self.assertEqual(result["intent"]["intent"], "playback_control")
         self.assertIn("New Song van New Artist", result["dj_text"])
-        self.assertEqual(result["assistant_message"]["images"][0]["title"], "New Song")
-        self.assertEqual(result["playback_actions"][0]["title"], "Queue Song")
-        self.assertEqual(result["playback_actions"][0]["label"], "Play Now")
-        self.assertEqual(result["playback_actions"][0]["button_label"], "Play Now")
-        self.assertEqual(result["playback_actions"][0]["uri"], "spotify:track:queue")
-        self.assertEqual(result["items"], result["playback_actions"])
-        self.assertNotIn("Old Song", result["dj_text"])
+        self.assertNotIn("playback", result)  # Raw provider state is not an Ask DJ archive/response contract.
+        self.assertEqual(result["playback_projection_receipt"], projection)
+        self.assertEqual(result["playback_actions"], [])
+        self.assertEqual(result["action_outcome"], {"state": "dispatched", "readback_confirmed": False})
 
-    def test_previous_command_also_returns_next_queue_row_best_effort(self) -> None:
+    def test_previous_command_uses_actual_readback_without_unsolicited_queue(self) -> None:
+        from unittest.mock import patch
         runtime = make_runtime()
-        runtime.update = lambda **kwargs: None
         calls = []
-
+        playback = {"has_playback": True, "is_playing": True, "track_name": "Previous Song", "artist": "Previous Artist", "uri": "spotify:track:" + "1" * 22}
+        projection = {"session_id": "synthetic-session", "command_revision": 3, "projection_changed": True, "broadcast_delivery_sequence": 8}
         async def command(hass, runtime_arg, command_name, value=None, *, play=None):
             calls.append(command_name)
-            if command_name == "status":
-                return {
-                    "success": True,
-                    "playback": {
-                        "has_playback": True,
-                        "is_playing": True,
-                        "track_name": "Previous Song",
-                        "artist": "Previous Artist",
-                        "album_image_url": "https://img.example/previous.jpg",
-                        "uri": "spotify:track:previous",
-                    },
-                }
-            if command_name == "previous":
-                return {"success": True, "playback": {"track_name": "Old Song", "uri": "spotify:track:old"}}
-            if command_name == "queue":
-                return {
-                    "success": True,
-                    "queue": [
-                        {
-                            "title": "Previous Song",
-                            "subtitle": "Previous Artist",
-                            "uri": "spotify:track:previous",
-                        },
-                        {
-                            "title": "After Previous",
-                            "subtitle": "Queue Artist",
-                            "uri": "spotify:track:after-previous",
-                            "album_image_url": "https://img.example/after.jpg",
-                        },
-                    ],
-                }
-            raise AssertionError(f"unexpected Spotify command: {command_name}")
-
-        async def dj_response(hass, *, media, fallback_text, conf, memory_context=None, debug=None):
-            return f"Nu speelt {media['track_name']} van {media['artist']}."
-
-        original_command = self.ask_dj.run_music_command
-        original_processor_command = self.processor.run_music_command
-        original_dj_response = self.processor.generate_dj_response_with_assist
-        self.ask_dj.run_music_command = command
-        self.processor.run_music_command = command
-        self.processor.generate_dj_response_with_assist = dj_response
-        try:
-            result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
-                    types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
-                    runtime,
-                    {
-                        "text": "vorige nummer",
-                        "device_id": runtime.device_status["device_id"],
-                        "client_type": "watchos",
-                    },
-                )
-            )
-        finally:
-            self.ask_dj.run_music_command = original_command
-            self.processor.run_music_command = original_processor_command
-            self.processor.generate_dj_response_with_assist = original_dj_response
-
-        self.assertEqual(calls, ["status", "previous", "status", "queue"])
+            self.assertEqual(command_name, "previous", "Fast control must not issue a pre-status or unsolicited queue read")
+            return {"success": True, "playback": playback, "playback_projection_receipt": projection}
+        with patch.object(self.ask_dj, "run_music_command", command), patch.object(self.ask_dj, "run_text_command", side_effect=AssertionError("Typed control must not be reparsed")):
+            result = asyncio.run(self.ask_operational(types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}), runtime, {"text": "previous", "client_type": "watchos", "device_id": runtime.device_status["device_id"], "audio_response": "never"}))
+        self.assertEqual(calls, ["previous"])
+        self.assertEqual(result["action"], "previous")
+        self.assertEqual(result["intent"]["intent"], "playback_control")
         self.assertIn("Previous Song van Previous Artist", result["dj_text"])
-        self.assertEqual(result["playback_actions"][0]["title"], "After Previous")
-        self.assertEqual(result["playback_actions"][0]["label"], "Play Now")
-        self.assertEqual(result["playback_actions"][0]["button_label"], "Play Now")
-        self.assertEqual(result["playback_actions"][0]["uri"], "spotify:track:after-previous")
+        self.assertNotIn("playback", result)  # Raw provider state is not an Ask DJ archive/response contract.
+        self.assertEqual(result["playback_projection_receipt"], projection)
+        self.assertEqual(result["playback_actions"], [])
+        self.assertEqual(result["action_outcome"], {"state": "dispatched", "readback_confirmed": False})
 
     def test_english_next_question_still_reports_queue_info(self) -> None:
         intent = self.ask_dj.classify_ask_dj("what is next?")
         self.assertEqual(intent.category, "informational")
         self.assertEqual(intent.intent, "next_track_info")
 
-    def test_next_track_question_reports_empty_queue_when_only_current_track_is_present(self) -> None:
+    def test_next_track_question_preserves_upcoming_replay_of_current_recording(self) -> None:
         runtime = make_runtime()
-        runtime.last_playback = {"uri": "spotify:track:in-out-love"}
+        runtime.last_playback = {"uri": "spotify:track:2292dd4cd3d19d0dc6436d"}
         calls = []
 
         async def command(hass, runtime_arg, command_name, value=None, *, play=None):
@@ -7439,7 +7377,7 @@ class AskDjTest(unittest.TestCase):
                         {
                             "title": "In And Out Of Love",
                             "subtitle": "Armin van Buuren",
-                            "uri": "spotify:track:in-out-love",
+                            "uri": "spotify:track:2292dd4cd3d19d0dc6436d",
                             "album_image_url": "https://img.example/in-out-love.jpg",
                         }
                     ],
@@ -7450,7 +7388,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -7463,13 +7401,14 @@ class AskDjTest(unittest.TestCase):
         finally:
             self.ask_dj.run_music_command = original_command
 
-        self.assertEqual([call[0] for call in calls], ["status", "queue"])
+        self.assertEqual([call[0] for call in calls], ["queue"])
         self.assertEqual(result["action"], "none")
-        self.assertIn("geen volgend nummer", result["dj_text"])
+        self.assertEqual(result["queue_observation"]["state"], "present")
         self.assertEqual(result["images"], [])
-        self.assertEqual(result["playback_actions"], [])
+        self.assertEqual(len(result["playback_actions"]), 1)
+        self.assertEqual(result["playback_actions"][0]["uri"], runtime.last_playback["uri"])
 
-    def test_queue_question_empty_queue_suggests_surprise_me_followup(self) -> None:
+    def test_queue_question_empty_queue_reports_known_zero_without_followup(self) -> None:
         runtime = make_runtime()
         calls = []
 
@@ -7485,7 +7424,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -7498,11 +7437,11 @@ class AskDjTest(unittest.TestCase):
         finally:
             self.ask_dj.run_music_command = original_command
 
-        self.assertEqual([call[0] for call in calls], ["status", "queue"])
+        self.assertEqual([call[0] for call in calls], ["queue"])
         self.assertEqual(result["intent"]["intent"], "next_track_info")
-        self.assertIn("Wil je wat anders horen", result["dj_text"])
-        self.assertIn("'verras me'", result["dj_text"])
-        self.assertIn("op basis van jouw voorkeur", result["dj_text"])
+        self.assertEqual(result["queue_observation"]["state"], "known_empty")
+        self.assertEqual(result["playback_actions"], [])
+        self.assertEqual(result.get("confirmation_actions", []), [])
 
     def test_speel_wat_anders_returns_play_now_recommendations_without_playing(self) -> None:
         runtime = make_runtime()
@@ -7547,7 +7486,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -7598,7 +7537,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -7648,7 +7587,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -7702,7 +7641,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -7755,7 +7694,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -7804,7 +7743,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -7869,7 +7808,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             first = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -7880,7 +7819,7 @@ class AskDjTest(unittest.TestCase):
                 )
             )
             second = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -7942,7 +7881,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.random.shuffle = lambda items: None
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -8021,7 +7960,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -8069,7 +8008,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -8120,7 +8059,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -8183,7 +8122,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -8205,7 +8144,7 @@ class AskDjTest(unittest.TestCase):
         self.assertEqual([action["uri"] for action in result["playback_actions"]], ["spotify:track:creep-scala"])
         self.assertEqual(result["items"], result["playback_actions"])
 
-    def test_i_want_similar_tracks_queues_recommendations_and_returns_first_ten_rows(self) -> None:
+    def test_i_want_similar_tracks_offers_recommendations_without_playback(self) -> None:
         runtime = make_runtime()
         runtime.last_playback = {
             "track_name": "Freed From Desire",
@@ -8242,7 +8181,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -8255,12 +8194,12 @@ class AskDjTest(unittest.TestCase):
         finally:
             self.ask_dj.run_music_command = original_command
 
-        self.assertEqual([call[0] for call in calls], ["status", "artist_recommendations", "play_uris"])
-        self.assertEqual(result["action"], "play_music")
-        self.assertIn("in je wachtrij gezet", result["dj_text"])
-        self.assertEqual(len(result["items"]), 10)
-        self.assertEqual([action["uri"] for action in result["items"]], [f"spotify:track:similar-{index}" for index in range(1, 11)])
-        self.assertTrue(all(action["label"] == "Play Now" for action in result["items"]))
+        self.assertEqual([call[0] for call in calls], ["status", "artist_recommendations"])
+        self.assertEqual(result["action"], "none")
+        self.assertNotIn("in je wachtrij gezet", result["dj_text"])
+        self.assertEqual(len(result["items"]), 11)
+        self.assertEqual([action["uri"] for action in result["items"] if action.get("kind") == "track"], [f"spotify:track:similar-{index}" for index in range(1, 11)])
+        self.assertTrue(all(action["label"] == "Play Now" for action in result["items"] if action.get("kind") == "track"))
 
     def test_similar_tracks_queue_falls_back_to_current_artist_when_track_seed_is_empty(self) -> None:
         runtime = make_runtime()
@@ -8303,7 +8242,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_music_command = command
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -8318,10 +8257,11 @@ class AskDjTest(unittest.TestCase):
 
         self.assertEqual(
             [call[0] for call in calls],
-            ["status", "artist_recommendations", "artist_recommendations", "artist_recommendations", "play_uris"],
+            ["status", "artist_recommendations", "artist_recommendations", "artist_recommendations"],
         )
-        self.assertEqual(result["action"], "play_music")
-        self.assertIn("in je wachtrij gezet", result["dj_text"])
+        self.assertEqual(result["action"], "none")
+        self.assertEqual(result["queue_append"], {"state": "unsupported"})
+        self.assertNotIn("in je wachtrij gezet", result["dj_text"])
         self.assertEqual([action["uri"] for action in result["items"]], [f"spotify:track:snow-similar-{index}" for index in range(1, 4)])
 
     def test_dutch_playback_failure_does_not_return_english_message(self) -> None:
@@ -8335,7 +8275,7 @@ class AskDjTest(unittest.TestCase):
         self.ask_dj.run_text_command = process
         try:
             result = asyncio.run(
-                self.ask_dj.async_handle_ask_dj(
+                self.ask_operational(
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
@@ -8370,6 +8310,8 @@ class AskDjTest(unittest.TestCase):
 
         response = asyncio.run(self.http.DJConnectAskDjView(None).post(Request()))
 
+        from tests.test_http_voice_helpers import VoiceHttpHelperTest
+        response = VoiceHttpHelperTest.response_envelope(response)
         self.assertEqual(response["status_code"], 400)
         self.assertEqual(response["payload"]["error"], "invalid_client_type")
 
@@ -8386,9 +8328,10 @@ class AskDjTest(unittest.TestCase):
                 return {
                     "device_id": runtime.device_status["device_id"],
                     "client_type": "watchos",
+                    "conversation_scope": "legacy",
                 }
 
-        clear = asyncio.run(self.http.DJConnectAskDjHistoryClearView(None).post(ClearRequest()))
+        clear = _response_envelope(asyncio.run(self.http.DJConnectAskDjHistoryClearView(None).post(ClearRequest())))
 
         self.assertEqual(clear["payload"]["user_id"], "user-1")
         self.assertEqual(clear["payload"]["history_revision"], 1)
@@ -8404,11 +8347,12 @@ class AskDjTest(unittest.TestCase):
                 return {
                     "device_id": runtime.device_status["device_id"],
                     "client_type": "watchos",
+                    "conversation_scope": "legacy",
                     "history_revision": 0,
                     "clear_revision": 0,
                 }
 
-        state = asyncio.run(self.http.DJConnectAskDjHistoryStateView(None).post(StateRequest()))
+        state = _response_envelope(asyncio.run(self.http.DJConnectAskDjHistoryStateView(None).post(StateRequest())))
 
         self.assertTrue(state["payload"]["ask_dj_clear_required"])
         self.assertEqual(state["payload"]["history_revision"], 1)
@@ -8427,9 +8371,10 @@ class AskDjTest(unittest.TestCase):
                 return {
                     "device_id": runtime.device_status["device_id"],
                     "client_type": "watchos",
+                    "conversation_scope": "legacy",
                 }
 
-        clear = asyncio.run(self.http.DJConnectAskDjHistoryClearView(None).post(MacClearRequest()))
+        clear = _response_envelope(asyncio.run(self.http.DJConnectAskDjHistoryClearView(None).post(MacClearRequest())))
         self.assertEqual(clear["payload"]["clear_revision"], 1)
 
         class IPhoneStateRequest:
@@ -8441,20 +8386,21 @@ class AskDjTest(unittest.TestCase):
                 return {
                     "device_id": runtime.device_status["device_id"],
                     "client_type": "watchos",
+                    "conversation_scope": "legacy",
                     "history_revision": 0,
                     "clear_revision": 0,
                 }
 
-        state = asyncio.run(self.http.DJConnectAskDjHistoryStateView(None).post(IPhoneStateRequest()))
+        state = _response_envelope(asyncio.run(self.http.DJConnectAskDjHistoryStateView(None).post(IPhoneStateRequest())))
         self.assertFalse(state["payload"]["ask_dj_clear_required"])
         self.assertEqual(state["payload"]["user_id"], "iphone-user")
         self.assertEqual(state["payload"]["clear_revision"], 0)
 
     def test_history_clear_removes_old_messages_but_keeps_new_messages_after_clear(self) -> None:
         runtime = make_runtime()
-        hass = types.SimpleNamespace(data={self.const.DOMAIN: {"runtime": runtime}})
+        hass = self.owner_hass(runtime)
 
-        async def ask_dj(hass_arg, runtime_arg, payload, *, user_id=None):
+        async def ask_dj(hass_arg, runtime_arg, payload, *, user_id=None, **context):
             return {
                 "success": True,
                 "text": f"Antwoord op {payload['text']}",
@@ -8503,17 +8449,18 @@ class AskDjTest(unittest.TestCase):
         original = self.http.async_handle_ask_dj
         self.http.async_handle_ask_dj = ask_dj
         try:
-            first = asyncio.run(self.http.DJConnectAskDjMessageView(None).post(MessageRequest("oud", "old-1")))
-            clear = asyncio.run(self.http.DJConnectAskDjHistoryClearView(None).post(ClearRequest()))
-            after_clear = asyncio.run(self.http.DJConnectAskDjHistoryView(None).get(HistoryRequest()))
-            second = asyncio.run(self.http.DJConnectAskDjMessageView(None).post(MessageRequest("nieuw", "new-1")))
-            history = asyncio.run(self.http.DJConnectAskDjHistoryView(None).get(HistoryRequest()))
+            first = _response_envelope(asyncio.run(self.http.DJConnectAskDjMessageView(None).post(MessageRequest("oud", "old-1"))))
+            clear = _response_envelope(asyncio.run(self.http.DJConnectAskDjHistoryClearView(None).post(ClearRequest())))
+            after_clear = _response_envelope(asyncio.run(self.http.DJConnectAskDjHistoryView(None).get(HistoryRequest())))
+            second = _response_envelope(asyncio.run(self.http.DJConnectAskDjMessageView(None).post(MessageRequest("nieuw", "new-1"))))
+            history = _response_envelope(asyncio.run(self.http.DJConnectAskDjHistoryView(None).get(HistoryRequest())))
         finally:
             self.http.async_handle_ask_dj = original
 
         self.assertEqual(first["payload"]["history_revision"], 1)
         self.assertEqual(clear["payload"]["clear_revision"], 1)
         self.assertEqual(clear["payload"]["history_revision"], 2)
+        self.assertEqual(after_clear["status_code"], 200, after_clear)
         self.assertEqual(after_clear["payload"]["messages"], [])
         self.assertEqual(second["payload"]["history_revision"], 3)
         self.assertEqual([message["text"] for message in history["payload"]["messages"]], ["nieuw", "Antwoord op nieuw"])
@@ -8533,16 +8480,16 @@ class AskDjTest(unittest.TestCase):
                     "client_type": "watchos",
                 }
 
-        response = asyncio.run(self.http.DJConnectAskDjHistoryClearView(None).post(ClearRequest()))
+        response = _response_envelope(asyncio.run(self.http.DJConnectAskDjHistoryClearView(None).post(ClearRequest())))
 
         self.assertEqual(response["status_code"], 401)
         self.assertEqual(response["payload"]["error"], "unauthorized")
 
     def test_message_endpoint_stores_history_for_sync(self) -> None:
         runtime = make_runtime()
-        hass = types.SimpleNamespace(data={self.const.DOMAIN: {"runtime": runtime}})
+        hass = self.owner_hass(runtime)
 
-        async def ask_dj(hass_arg, runtime_arg, payload, *, user_id=None):
+        async def ask_dj(hass_arg, runtime_arg, payload, *, user_id=None, **context):
             self.assertEqual(payload["mood"], 70)
             self.assertEqual(payload["mood_zone"], "energy")
             return {
@@ -8581,8 +8528,8 @@ class AskDjTest(unittest.TestCase):
         self.http.async_handle_ask_dj = ask_dj
         self.http.async_send_push_event = send_push
         try:
-            response = asyncio.run(self.http.DJConnectAskDjMessageView(None).post(MessageRequest()))
-            duplicate = asyncio.run(self.http.DJConnectAskDjMessageView(None).post(MessageRequest()))
+            response = _response_envelope(asyncio.run(self.http.DJConnectAskDjMessageView(None).post(MessageRequest())))
+            duplicate = _response_envelope(asyncio.run(self.http.DJConnectAskDjMessageView(None).post(MessageRequest())))
         finally:
             self.http.async_handle_ask_dj = original
             self.http.async_send_push_event = original_push
@@ -8608,11 +8555,11 @@ class AskDjTest(unittest.TestCase):
         )
         self.assertTrue(duplicate["payload"]["deduplicated"])
         self.assertEqual([message["role"] for message in duplicate["payload"]["messages"]], ["user", "assistant"])
-        self.assertEqual(push_events[0]["user_id"], "user-1")
-        self.assertEqual(push_events[0]["event_type"], "ask_dj_response")
-        self.assertEqual(push_events[0]["history_revision"], 1)
-        self.assertEqual(push_events[0]["client_message_id"], "client-1")
-        self.assertTrue(push_events[0]["explicit_user_request"])
+        self.assertEqual(push_events, [])
+        self.assertEqual(response["payload"]["conversation"]["history_scope"], "profile")
+        self.assertEqual(response["payload"]["owner_profile_id"], "test-owner")
+        self.assertEqual(response["payload"]["client_message_id"], "client-1")
+        self.assertIsNone(response["payload"]["user_id"])
 
         class HistoryRequest:
             headers = {
@@ -8623,7 +8570,7 @@ class AskDjTest(unittest.TestCase):
             context = types.SimpleNamespace(user_id="user-1")
             query = {}
 
-        history = asyncio.run(self.http.DJConnectAskDjHistoryView(None).get(HistoryRequest()))
+        history = _response_envelope(asyncio.run(self.http.DJConnectAskDjHistoryView(None).get(HistoryRequest())))
 
         self.assertEqual(history["payload"]["history_revision"], 1)
         self.assertEqual(history["payload"]["history_limit"], 1000)
@@ -8633,11 +8580,11 @@ class AskDjTest(unittest.TestCase):
         self.assertEqual(history["payload"]["messages"][0]["role"], "user")
         self.assertEqual(history["payload"]["messages"][1]["role"], "assistant")
 
-    def test_message_endpoint_confirmation_actions_trigger_confirm_push(self) -> None:
+    def test_message_endpoint_keeps_confirmation_private_without_push(self) -> None:
         runtime = make_runtime()
-        hass = types.SimpleNamespace(data={self.const.DOMAIN: {"runtime": runtime}})
+        hass = self.owner_hass(runtime)
 
-        async def ask_dj(hass_arg, runtime_arg, payload, *, user_id=None):
+        async def ask_dj(hass_arg, runtime_arg, payload, *, user_id=None, **context):
             return {
                 "success": True,
                 "text": "Wil je dit nu starten?",
@@ -8674,15 +8621,15 @@ class AskDjTest(unittest.TestCase):
         self.http.async_handle_ask_dj = ask_dj
         self.http.async_send_push_event = send_push
         try:
-            response = asyncio.run(self.http.DJConnectAskDjMessageView(None).post(MessageRequest()))
+            response = _response_envelope(asyncio.run(self.http.DJConnectAskDjMessageView(None).post(MessageRequest())))
         finally:
             self.http.async_handle_ask_dj = original
             self.http.async_send_push_event = original_push
 
         self.assertEqual(response["status_code"], 200)
-        self.assertEqual(push_events[0]["event_type"], "ask_dj_confirm")
-        self.assertEqual(push_events[0]["history_revision"], 1)
-        self.assertTrue(push_events[0]["explicit_user_request"])
+        self.assertEqual(push_events, [])
+        self.assertEqual(response["payload"]["history_revision"], 1)
+        self.assertTrue(response["payload"]["confirmation_actions"])
 
     def test_idle_suggestion_endpoint_appends_system_message_with_play_now_action(self) -> None:
         runtime = make_runtime()
@@ -8746,9 +8693,9 @@ class AskDjTest(unittest.TestCase):
 
     def test_message_endpoint_returns_200_for_text_playback_failure(self) -> None:
         runtime = make_runtime()
-        hass = types.SimpleNamespace(data={self.const.DOMAIN: {"runtime": runtime}})
+        hass = self.owner_hass(runtime)
 
-        async def ask_dj(hass_arg, runtime_arg, payload, *, user_id=None):
+        async def ask_dj(hass_arg, runtime_arg, payload, *, user_id=None, **context):
             return {
                 "success": True,
                 "error": "playback_failed",
@@ -8773,7 +8720,7 @@ class AskDjTest(unittest.TestCase):
         original = self.http.async_handle_ask_dj
         self.http.async_handle_ask_dj = ask_dj
         try:
-            response = asyncio.run(self.http.DJConnectAskDjMessageView(None).post(MessageRequest()))
+            response = _response_envelope(asyncio.run(self.http.DJConnectAskDjMessageView(None).post(MessageRequest())))
         finally:
             self.http.async_handle_ask_dj = original
 

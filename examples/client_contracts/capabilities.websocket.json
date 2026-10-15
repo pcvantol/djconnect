@@ -70,11 +70,27 @@
     "profile_export": true,
     "request_context": true,
     "voice_endpoint_request_context": true,
-    "voice_endpoint_mappings": true
+    "voice_endpoint_mappings": true,
+    "session_conversation_history": true,
+    "ask_dj_contextual_dialogue": true,
+    "moment_track_insight_navigation_v1": true,
+    "session_flow_text_search": true,
+    "active_session_mood": true,
+    "active_session_presence": true,
+    "session_forecast": true,
+    "session_history_summary": true
   },
   "contract_versions": {
     "profile_context": 1,
-    "client_contract_fixtures": 1
+    "client_contract_fixtures": 1,
+    "session_conversation_history": 1,
+    "ask_dj_contextual_dialogue": 1,
+    "moment_track_insight_navigation": 1,
+    "session_flow_text_search": 1,
+    "active_session_mood": 1,
+    "active_session_presence": 1,
+    "session_forecast": 1,
+    "session_history_summary": 1
   },
   "transports": {
     "http": true,

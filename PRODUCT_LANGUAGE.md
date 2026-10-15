@@ -154,11 +154,11 @@ Avoid:
 
 Use:
 
-> Windows renders the same Insight Feed with desktop affordances.
+> macOS renders the same Insight Feed with desktop affordances.
 
 Avoid:
 
-> Windows has different insight logic.
+> macOS has different insight logic.
 
 ## Backend language
 

@@ -1,18 +1,19 @@
 from __future__ import annotations
 
 import asyncio
+import hashlib
 import time
 import logging
 import re
-from dataclasses import dataclass
-from urllib.parse import urlencode
+from dataclasses import dataclass, field
+from datetime import UTC, datetime
+from urllib.parse import urlencode, parse_qs, urlsplit
 from typing import Any
 
 from aiohttp import ClientTimeout
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
-from .ambient_ask_dj import async_maybe_append_ambient_fact
 from .const import (
     CONF_LIKED_PROXY,
     CONF_SPOTIFY_CLIENT_ID,
@@ -22,6 +23,7 @@ from .const import (
     DEFAULT_SPOTIFY_MARKET,
 )
 from .music_dna import resolve_music_dna_key
+from .discovery_artwork import capture_artwork, runtime_scope, credential_cache_scope
 from .spotify_oauth import SpotifyTokenRefreshError, refresh_access_token
 
 SPOTIFY_API_BASE = "https://api.spotify.com/v1"
@@ -65,6 +67,7 @@ class SpotifyPlaybackObservation:
     target_name: str = ""
     duration_ms: int | None = None
     position_ms: int | None = None
+    catalog: dict[str, Any] = field(default_factory=dict)
 
 
 async def handle_spotify_command(
@@ -243,8 +246,9 @@ class SpotifyBackend:
     """Small Spotify Web API backend using credentials stored in Home Assistant."""
 
     def __init__(self, hass: HomeAssistant, runtime: Any) -> None:
+        from .profile_backend import profile_backend_runtime
         self.hass = hass
-        self.runtime = runtime
+        self.runtime = profile_backend_runtime(hass, runtime)
         self.session = async_get_clientsession(hass)
 
     @property
@@ -348,6 +352,11 @@ class SpotifyBackend:
                     self.hass,
                     getattr(self.runtime, "entry", None),
                 )
+                from .session_history_maintenance import async_maintain_session_history
+                source_entry = getattr(self.runtime, "entry", None)
+                if source_entry is not None:
+                    await async_maintain_session_history(self.hass, revoked_entry_id=source_entry.entry_id)
+
                 message = (
                     "Spotify authorization has expired or was revoked. "
                     "Reauthorize DJConnect from the integration options or run "
@@ -425,6 +434,18 @@ class SpotifyBackend:
         retry_on_unauthorized: bool,
     ) -> Any:
         token = await self._access_token(force_refresh=force_refresh)
+        from .ask_dj.dialogue import current_turn, DialogueError
+        turn = current_turn.get()
+        if turn is not None and turn.play_output_id and urlsplit(path).path == "/me/player/play":
+            supplied = parse_qs(urlsplit(path).query).get("device_id", [])
+            if supplied and supplied != [turn.play_output_id]:
+                raise DialogueError("playback_effect_not_authorized", 403)
+            if not supplied:
+                path += ("&" if "?" in path else "?") + urlencode({"device_id": turn.play_output_id})
+        if method.upper() in {"POST", "PUT", "DELETE", "PATCH"}:
+            from .ask_dj.dialogue import guard_effect_dispatch
+
+            await guard_effect_dispatch(method=method, path=path, body=json)
         async with self.session.request(
             method,
             SPOTIFY_API_BASE + path,
@@ -462,17 +483,36 @@ class SpotifyBackend:
                 )
             return body or {}
 
+    def _scoped_cache_key(self, key: str) -> str:
+        scope = (runtime_scope(self.runtime), credential_cache_scope(self.runtime))
+        return key + ":" + hashlib.sha256(repr(scope).encode()).hexdigest()
+
     async def _cached(self, key: str, loader, *, ttl: int = CACHE_TTL_SECONDS) -> Any:
         cache = getattr(self.runtime, "backend_cache", None)
         if cache is None:
             self.runtime.backend_cache = {}
             cache = self.runtime.backend_cache
+        scope = (runtime_scope(self.runtime), credential_cache_scope(self.runtime))
+        scoped_key = self._scoped_cache_key(key)
+        if key == "listening_profile:v1":
+            key = scoped_key
+            for old_key in list(cache):
+                if old_key == "listening_profile:v1" or (old_key.startswith("listening_profile:v1:") and old_key != key):
+                    cache.pop(old_key)
+        else:
+            # Catalog/output cache reuse has the same owner/account/credential
+            # boundary as the existing listening-profile cache.
+            key = scoped_key
         now = time.monotonic()
         cached = cache.get(key)
         if cached and now - cached[0] < ttl:
             return cached[1]
         value = await loader()
-        cache[key] = (now, value)
+        if (runtime_scope(self.runtime), credential_cache_scope(self.runtime)) == scope:
+            cache[key] = (now, value)
+            if len(cache) > 256:
+                for old_key in sorted(cache, key=lambda k: cache[k][0])[:len(cache)-256]:
+                    cache.pop(old_key, None)
         return value
 
     async def playback_state(self) -> dict[str, Any]:
@@ -494,7 +534,6 @@ class SpotifyBackend:
         )
         self.runtime.update(last_playback=playback, last_error=None)
         await self._record_playback_in_music_dna(playback)
-        await async_maybe_append_ambient_fact(self.hass, self.runtime, playback)
         return playback
 
     async def async_observe_current_playback(self) -> SpotifyPlaybackObservation:
@@ -520,7 +559,34 @@ class SpotifyBackend:
             target_name=str(device.get("name") or ""),
             duration_ms=_int_or_none(playback.get("duration_ms")),
             position_ms=_int_or_none(playback.get("progress_ms")),
+            catalog={key: playback[key] for key in ("uri", "title", "artist", "album_name", "album_uri", "release_date", "release_date_precision", "isrc", "artist_ids") if key in playback},
         )
+
+    async def async_observe_next_item(self, media_identity: str) -> dict[str, str]:
+        """Read one queue item, bound to the exact current account playback."""
+        async def load() -> dict[str, Any]:
+            raw = await self._request("GET", "/me/player/queue")
+            current = raw.get("currently_playing") or {}
+            queue = raw.get("queue") or []
+            first = queue[0] if queue and isinstance(queue[0], dict) else {}
+            item = _normalize_queue_item(first) if first.get("type") == "track" else None
+            return {"current_uri": str(current.get("uri") or ""),
+                    "next_item": {key: item.get(key) for key in ("title", "artist", "image_url")} if item else {}}
+        try:
+            data = await self._cached("session_up_next", load, ttl=30)
+        except SpotifyBackendError:
+            return {}
+        if data.get("current_uri") != media_identity:
+            return {}
+        item = data.get("next_item")
+        if item is None or not item.get("title") or not item.get("artist"):
+            return {}
+        cached = getattr(self.runtime, "backend_cache", {}).get(self._scoped_cache_key("session_up_next"))
+        remaining = max(0, 30 - (time.monotonic() - cached[0])) if cached else 0
+        if remaining <= 0:
+            return {}
+        return {"title": str(item["title"])[:256], "artist": str(item["artist"])[:256], "artwork_url": str(item.get("image_url") or ""),
+                "expires_at": datetime.fromtimestamp(time.time() + remaining, UTC).isoformat()}
 
     async def _enrich_playback_artist_genres(self, playback: dict[str, Any]) -> None:
         artist_ids = [
@@ -531,7 +597,7 @@ class SpotifyBackend:
         if not artist_ids:
             return
         cache_key = "artists:" + ",".join(sorted(set(artist_ids)))
-        backoff_key = f"{cache_key}:error_backoff"
+        backoff_key = self._scoped_cache_key(f"{cache_key}:error_backoff")
         cache = getattr(self.runtime, "backend_cache", None)
         if cache is None:
             self.runtime.backend_cache = {}
@@ -554,8 +620,11 @@ class SpotifyBackend:
         cache.pop(backoff_key, None)
         artists = data.get("artists") if isinstance(data, dict) else []
         genres: list[str] = []
+        requested_artist_ids = set(artist_ids)
         for artist in artists if isinstance(artists, list) else []:
             if not isinstance(artist, dict):
+                continue
+            if str(artist.get("id") or "").strip() not in requested_artist_ids:
                 continue
             for genre in artist.get("genres") or []:
                 text = str(genre or "").strip()
@@ -600,7 +669,12 @@ class SpotifyBackend:
             data = await self._request("GET", "/me/player/devices")
             return [_normalize_device(device) for device in data.get("devices", [])]
 
-        devices = _merge_known_spotify_devices(self.runtime, await self._cached("devices", load))
+        from .ask_dj.dialogue import current_turn
+        turn = current_turn.get()
+        current = await load() if turn is not None else await self._cached("devices", load)
+        if turn is not None:
+            await turn.guard()
+        devices = _merge_known_spotify_devices(self.runtime, current)
         self.runtime.device_status["available_outputs"] = devices
         _persist_runtime_device_status(self.hass, self.runtime)
         self.runtime.update()
@@ -608,24 +682,31 @@ class SpotifyBackend:
 
     async def queue(self) -> dict[str, Any]:
         data = await self._request("GET", "/me/player/queue")
-        queue = data.get("queue") or []
+        if not isinstance(data, dict) or not isinstance(data.get("queue"), list):
+            raise SpotifyBackendError("queue_read_unavailable")
+        queue = data["queue"]
         normalized = _normalize_queue_items(queue, limit=MAX_QUEUE_ITEMS)
         playback = self.runtime.last_playback or {}
         context_uri = str(playback.get("context_uri") or playback.get("queue_context") or "").strip()
-        if context_uri:
-            for item in normalized:
-                item["context_uri"] = context_uri
-                item["contextUri"] = context_uri
+        from .ask_dj.dialogue import current_turn
+        turn = current_turn.get()
+        if turn is not None:
+            await turn.guard()
+        # The current album/playlist is not proof of each upcoming item's context.
+        state = "partial" if len(normalized) < len(queue) else "present" if normalized else "known_empty"
         self.runtime.device_status["queue"] = {
             "items": normalized,
             "context_uri": context_uri,
             "contextUri": context_uri,
+            "state": state,
         }
         self.runtime.update()
         return {
             "queue": normalized,
             "context_uri": context_uri,
             "contextUri": context_uri,
+            "queue_state": state,
+            "queue_observed_at": datetime.now(UTC).isoformat(),
         }
 
     async def playlists(self, *, limit: int | None = DEFAULT_PLAYLIST_LIMIT) -> list[dict[str, str]]:
@@ -1296,6 +1377,12 @@ class SpotifyBackend:
         return uri
 
     async def _ensure_playback_device(self, *, play: bool) -> str:
+        from .ask_dj.dialogue import current_turn
+        turn = current_turn.get()
+        if turn is not None:
+            # Ask DJ Play does not authorize a silent transfer to another
+            # output. The existing handler will offer an explicit choice.
+            raise SpotifyBackendError("No active device; choose an output explicitly")
         devices = await self.devices()
         configured = str(self.conf.get(CONF_SPOTIFY_SOURCE) or "").strip()
         selected = _select_spotify_device(devices, configured)
@@ -1332,6 +1419,11 @@ class SpotifyBackend:
         if not device_id:
             raise ValueError("Provide an output device id")
         devices = await self.devices()
+        from .ask_dj.dialogue import current_turn
+        if current_turn.get() is not None:
+            devices = [d for d in devices if d.get("id") == device_id and not d.get("cached") and not d.get("is_restricted")]
+            if not devices:
+                raise SpotifyBackendError("Selected output is unavailable")
         selected = _select_spotify_device(devices, device_id)
         device_id = str(selected.get("id") or device_id).strip()
         if not device_id:
@@ -1403,6 +1495,10 @@ def _normalize_playback(data: dict[str, Any]) -> dict[str, Any]:
             if isinstance(artist, dict) and str(artist.get("id") or "").strip()
         ][:10],
         "album_name": album.get("name") or "",
+        "album_uri": album.get("uri") or "",
+        "release_date": album.get("release_date") or "",
+        "release_date_precision": album.get("release_date_precision") or "",
+        "isrc": (item.get("external_ids") or {}).get("isrc") or "",
         "album_image_url": album_image_url,
         "media_image_url": album_image_url,
         "progress_ms": data.get("progress_ms"),
@@ -1668,6 +1764,7 @@ def _normalize_album_item(item: dict[str, Any]) -> dict[str, Any]:
             for artist in artists
             if isinstance(artist, dict) and artist.get("name")
         ),
+        "artwork": capture_artwork(_best_image_url(images), uri, uri) if str(item.get("id") or "") == uri.rsplit(":", 1)[-1] else {},
         "image_url": _best_image_url(images),
         "album_image_url": _best_image_url(images),
     }
@@ -2099,6 +2196,7 @@ def _normalize_profile_track(item: dict[str, Any]) -> dict[str, Any]:
             "album_name": album.get("name") or "",
             "album_uri": album_uri,
             "context_uri": album_uri,
+            "artwork": capture_artwork(_best_image_url(album.get("images") or []), uri, album_uri) if str(album.get("id") or "") == album_uri.rsplit(":", 1)[-1] and track_id == uri.rsplit(":", 1)[-1] else {},
             "album_image_url": image_url,
             "image_url": image_url,
             "duration_ms": item.get("duration_ms"),
@@ -2147,6 +2245,7 @@ def _normalize_profile_artist(item: dict[str, Any]) -> dict[str, Any]:
             "artist": name,
             "artist_name": name,
             "genres": genres[:10],
+            "artwork": capture_artwork(image_url, uri, uri) if artist_id == uri.rsplit(":", 1)[-1] else {},
             "image_url": image_url,
             "popularity": item.get("popularity"),
         }.items()

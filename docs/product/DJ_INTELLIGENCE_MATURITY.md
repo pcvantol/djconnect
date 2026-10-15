@@ -1,4 +1,104 @@
 # DJ Intelligence Maturity Model
+## Selected ambient producer convergence
+
+[Ambient convergence v1](AMBIENT_FACT_MOMENT_CONVERGENCE_V1.md) removes independent proactivity from playback-status reads. Existing qualified Runtime/Planner/Knowledge/Moment/Flow/Broadcast publication remains the only unsolicited content path; generated Track Insight interpretation is not source-fact proof. Explicit Ask DJ and previously stored ambient/system records retain their contracts; no history import, filtering or new source/model is added. Core source #1158 is protected delivered as `6114c5a05600f6b066d4e1f057f236841fe4f574` with exact archive/formal readback PASS. Apple/joint qualification remains separately open; full narrative Stage4 is not promoted.
+
+
+## Delivered bounded Session Forecast Core foundation
+
+[Session Forecast](SESSION_FORECAST_V1.md) refines the existing Direction Projection
+under DJC-CORE-SESSION-FORECAST-V1-20261012. Bounded Core source1156 is protected
+delivered as `3cfa55121e6c29cf6308fa570cbb5af0d2261057`; exact archive/formal readback PASS.
+Only Core contract/projection/shared compatibility are Completed; upcoming, native,
+visible VibeCast and joint product acceptance remain separately open.
+One existing Planner provides closed semantic intentions, existing authored expression
+provides five-language Persona text, Runtime/Broadcast owns mutable lifecycle. Reads
+make no plans/lookups/Moments/playback changes. Current/contextual/qualified-upcoming
+claims and independent image rights remain distinct; no Horizon/private Discovery
+export. Off remains proactively quiet. Native/visible/joint acceptance remains open,
+Stage4 PARTIAL; album1154/1155 source/Finalization remain closed.
+
+Selected bounded [Album→Track continuity](NARRATIVE_ALBUM_CONTINUITY_V1.md) extends the existing
+Discover/Exploring Runtime with published-only exact-edition evidence.
+Core source #1154 protected delivered as `c317707024847dd32968483cd23141de40a3c706`; this one bounded
+relation is Completed. Stage4 remains partially developed, not Completed. This contract’s existing delivered behavior and source rights
+remain unchanged. No consumer, installed or hardware acceptance is implied.
+
+## Completed Core producer source — native Moment delivery
+
+Completed Core producer source: `DJC-CORE-NATIVE-MOMENT-DELIVERY-V1-20261008`,
+PR [#1128](https://github.com/pcvantol/djconnect/pull/1128) protected merged as
+`3ea178fa3098b2c432008827ce009f867f66f63e`. The
+[native delivery contract](NATIVE_MOMENT_DELIVERY_CONTRACT.md)
+adds authoritative current/active-Flow admission, original source deadlines,
+expiry/recovery/entry-channel withdrawal, full attribution and no-store to the
+existing owner route. Immutable Persona/text, Planner/dose and Transitions stay
+intact; unsupported sources/actions fail closed. Source/main software1602 tests
+(seven skips), independent exact review and existing browser regression PASS.
+Exact source prerelease archive:129 safe files byte-equal to merge;
+SHA256 `46e1c9de04093b51ce645adf2e591e82a63398f44cafd0f447a178df2aa87f85`.
+Canonical qualification JSON SHA256
+`fbb7cee8e28a8614f3a84a44e46c605852626480a1a112a70c6f20c95e8665e9`:
+integrity and every required check PASS. Coverage digest
+`533bf0b0046ac5c63fd0f5a275e695a766b91f974cbb5b20eeae8c2e4ddbfe58`.
+[Unchanged evidence attempt2](https://github.com/pcvantol/djconnect/actions/runs/37781489376)
+PASS after specifically approved deletion of the preserved extra manual run;
+original failed evidence remains recorded in the completion history.
+Actual Apple decode/state and iPhone/iPad card/link/lifecycle readback PASS,
+while its overall readback stays PARTIAL and #95 retains its remaining native
+UI/Mac/review gates. No installation, signing, live provider, Store or Pi claim.
+[Completion and Finalization](../history/prompts/2026-10-08-native-moment-delivery-finalization.md)
+reconciles only this Core delivery; no new intelligence family is activated.
+
+This qualifies existing content delivery, not a new intelligence stage or
+full native/installed cross-platform Experience Qualification.
+
+## Completed source — expressive DJ persona
+
+Completed source: `DJC-CORE-EXPRESSIVE-DJ-PERSONA-V1-20261007`,
+PR [#1126](https://github.com/pcvantol/djconnect/pull/1126) protected merged as
+`cadbf7560baf43bd393c7f0aa525ecc5a137fa93`. The [expressive persona contract](EXPRESSIVE_DJ_PERSONA_CONTRACT.md)
+qualifies local five-language realization of immutable facts within the existing
+Moment Engine: distinct Home/Radio/Club/Festival voices, published-only credit
+variation, proven producer callbacks, final-text read-fit and faithful fallback.
+Both independent reviews, software Runtime/browser, required checks and exact
+internal source artifact/readback PASS. No new facts/ranking/provider/TTS,
+installation or live/hardware qualification. [Completion and Finalization](../history/prompts/2026-10-08-expressive-dj-persona-finalization.md)
+reconciles this one selected slice; no following assignment is activated.
+
+This is a bounded local-realization increment, not promotion of full Knowledge
+Stage 3/4 or unrestricted generative expression. Other fact families retain
+one authored persona realization; four-form published variation applies to
+ordinary credits and qualified producer callbacks.
+
+## Completed source — shared-producer continuity
+
+`DJC-CORE-SHARED-PRODUCER-CONTINUITY-V1-20261007` implements the bounded
+[shared-producer contract](SHARED_PRODUCER_CONTINUITY_CONTRACT.md) under
+Discover/Exploring. Recording identity and explicit producer IDs from existing
+authorized responses may connect only previously published, fresh evidence in
+the same Runtime. The existing track Moment carries deterministic five-language
+copy and both source links. This is one selected visual relation, not full
+Knowledge Stage 3/4, new transitions or cross-Session learning. Source PR #1124 merged as `c542d8ea9889db3509cab2dd5f19b26dd1a21342` with exact-main and
+internal artifact/evidence PASS. The separate
+[Finalization](../history/prompts/2026-10-07-shared-producer-continuity-finalization.md)
+reconciles software-only qualification; Pi capture/frame-rate remains PARTIAL.
+
+## Completed source increment — contextual fact planning
+
+`DJC-CORE-CONTEXTUAL-FACT-PLANNING-V1-20261007` extends the qualified #1120
+visual facts through the same current-item Runtime chain. The
+[deterministic policy](CONTEXTUAL_FACT_PLANNING_CONTRACT.md) gates eligibility
+before ranking and per-candidate readable fit, then uses existing Strategy,
+Direction, bounded Mood/Persona and published Flow type memory. Same-pool
+Runtime/browser evidence distinguishes Manual and Discover and proves the
+short-fit alternative. No new knowledge provider, TTS, Moment family,
+future queue or cross-Session learning; no intelligence-stage promotion.
+Independent exact review, protected source delivery and exact-main passed:
+PR #1122 merged as `d7a646e0e83a92211875e2f3b45606678e992e76`.
+[Finalization](../history/prompts/2026-10-07-contextual-fact-planning-finalization.md)
+reconciles this software result, with completion after its merge/cleanup. Existing physical
+capture/frame-rate PARTIAL findings remain parked.
 
 ## Purpose
 
@@ -22,6 +122,20 @@ that lifecycle. The legacy Track Started route is only bounded runtime
 protection for lifecycle failure. Future maturity cells extend these existing
 abstractions and never introduce a parallel Runtime, Flow or Broadcast path.
 
+The protected-merged [same-track VibeCast slice](VIBECAST_MULTIMOMENT_TIMELINE_CONTRACT.md)
+reuses this lifecycle for one later, fresh observed-track opportunity. The
+Planner may choose a different existing Track/Genre factual angle only when its
+current Track Insight evidence and timing are sufficient. A Runtime-local
+generation cancels stale work; the existing Flow/Broadcast and Presentation
+path publish the result. This narrow current-item behavior does not qualify
+future-track planning, general continuous replanning or full Stage 4.
+
+The subsequent owner refinement [PR #1120](https://github.com/pcvantol/djconnect/pull/1120)
+uses qualified source facts with attribution for more eligible current-track
+Moment angles. A physical Pi run observed two distinct factual types on one
+real Spotify track. It did not prove dense continuous narration, future-track
+planning or a new intelligence stage.
+
 This milestone does not advance deferred intelligence. In particular,
 Audience Intelligence remains intentionally deferred until a separately
 authorized bounded Planner-influence cell has its required evidence. It is
@@ -36,6 +150,12 @@ which already-supported Planner intents are eligible before Knowledge and
 Moment realization; it neither adds a Planner input nor changes Knowledge,
 Moment, Flow, Broadcast, Golden Scenario or renderer semantics. See
 [`DJ_BRAIN_CAPABILITY_PLATFORM.md`](DJ_BRAIN_CAPABILITY_PLATFORM.md).
+
+The [selected production and credits qualification](CREDIT_PROVENANCE_SOURCE_CONTRACT.md)
+adds a Phase A source policy only. Current Track Insight production hints are
+interpretive metadata, not named, source-qualified producer or engineering
+credits. No Artist/Album credit Moment may be added until a Session-bound
+producer, provenance and safe attribution are proven by that contract.
 
 ## Maturity principles
 
@@ -58,8 +178,8 @@ DJMoment type, provider, API, persistence or renderer responsibility.
 | --- | --- |
 | 1 — current | Track Started trigger, Track Context, Silence and Runtime heuristics. |
 | 2 — partial | Deterministic Artist, Album, Genre and Recommendation intent selection from available knowledge hints. Discover has selected Stage 2 behaviour; Transition and broader Session Update refinement remain deferred. |
-| 3 — current | The live Track Started Runtime path resolves one safe Track Insight projection and deterministically combines its bounded knowledge hints with Session Start Strategy, Session Mood, DJ Persona, Session Direction and Runtime-scoped Performance Memory when selecting its initial semantic intent. Direction and Mood guide trajectory, pacing and silence; Persona influences the performance profile; Discover favours exploration; Performance Memory prevents immediate repetition. Audience-driven adaptation, additional context-aware Transition policies, continuous replanning and multi-track planning remain deferred. |
-| 4 | Persistent cross-session performance learning, multi-track planning, narrative sequencing, dynamic replanning and pacing. `ROLLING_SESSION_HORIZON_ARCHITECTURE.md` defines their prerequisite architecture and bounded implementation order; no Stage 4 behaviour is current. Continue Stage 2 remains externally blocked pending backend-owned occurrence identity. |
+| 3 — current | The live Track Started Runtime path resolves one safe Track Insight projection and deterministically combines its bounded knowledge hints with Session Start Strategy, Session Mood, DJ Persona, Session Direction and Runtime-scoped Performance Memory when selecting its initial semantic intent. Direction and Mood guide trajectory, pacing and silence; Persona influences the performance profile; Discover favours exploration; Performance Memory prevents immediate repetition. One bounded Discover Genre→Track narrative relation uses verified, same-artist Spotify status evidence and immediate Flow adjacency. Audience-driven adaptation, other Transition policies, continuous replanning and future-track planning remain deferred. |
+| 4 | Persistent cross-session performance learning, true future-track planning, autonomous narrative sequencing and dynamic replanning. `ROLLING_SESSION_HORIZON_ARCHITECTURE.md` defines their prerequisite architecture and bounded implementation order. The selected Runtime-bounded continuity slice below does not qualify this full stage. Continue Stage 2 remains externally blocked pending backend-owned occurrence identity. |
 | 5 | Autonomous session strategy and long-term performance optimisation. |
 
 ## Knowledge Engine
@@ -77,7 +197,7 @@ DJMoment type, provider, API, persistence or renderer responsibility.
 | --- | --- |
 | 1 — current | Track Context and Silence. |
 | 2 — current | Artist Story, Album Story, Genre Story and Recommendation deterministically translate their selected Knowledge Context into immutable Moments with frozen Presentation Intent and intent-specific semantic actions. Invalid, incomplete or empty selected context creates canonical Silence. |
-| 3 — partial | Session Update Moments expose Planner-approved Session Direction changes and deterministically realize the existing safe Session Direction Knowledge Context, including Direction, Start Strategy, Mood and runtime-scoped Performance Memory. In addition to Mood/Persona direction changes, two immediately preceding Silence Moments in the bounded Performance Memory window approve one `RESETTING` Session Update; when that Resetting update is the immediately preceding Flow contribution, the Planner deterministically approves one `RETURNING` Session Update. The existing Flow and Broadcast path publish each immutable result. The live Transition slice supports one Planner-approved `NEXT` Transition after a current Exploring Recommendation follows an existing Track, Artist, Album or Genre Flow contribution. The Planner owns approval and placement; the Moment Engine freezes the immutable Transition. No-transition is silent and recent Transition memory prevents immediate repetition. Audience Experience is separate participant presentation: no Audience Event may generate a Session Update. Broader Session Update policy, multiple Session Updates per Track Started event, broader Transition timing, multiple Transitions, future-track or queue context, autonomous replanning, Concert Suggestion, Music History and Discovery remain deferred. |
+| 3 — partial | Session Update Moments expose Planner-approved Session Direction changes and deterministically realize the existing safe Session Direction Knowledge Context, including Direction, Start Strategy, Mood and runtime-scoped Performance Memory. Two consecutive Silences can approve one `RESETTING` update when no Session Update occurred in the same three-Moment window; a later eligible opportunity may approve `RETURNING` while that reset remains the latest Session direction, even after interval Silence. Ordinary changes are spaced when a Session Update occurred in the last two Flow Moments, then the current Mood can guide the next eligible Direction. The existing Flow and Broadcast path publish each immutable result. The existing Exploring Recommendation `NEXT` Transition remains; another recent Transition within four Moments suppresses a second. A Discover-only Genre→Track `NEXT` Transition now connects two consecutive, verified same-artist observations once per Runtime. The Moment Engine freezes the approved immutable result. No-transition is silent. Audience Events cannot generate Session Updates. Other Transition relationships, future-track or queue context, autonomous replanning and external knowledge remain deferred. |
 | 4 | Narrative storytelling, linked Moments and multi-step experiences. |
 
 ## DJ Moment types
@@ -95,7 +215,7 @@ than create a feature-specific execution path.
 | --- | --- |
 | 1 — complete | Immutable Discover Session Start Strategy initializes the Exploring Direction and a high exploration preference; it does not prescribe Mood or Persona. |
 | 2 — current | Repository-alignment of already implemented and tested behaviour: deterministic Discover Planner preference for Recommendation, Artist, Genre and Album context; Performance Memory diversity; optional, safe opt-in Music DNA familiarity avoidance. No dedicated Discover provider, search or playback behaviour. |
-| 3 | Discover-specific narrative sequencing and richer DJ-guided transitions beyond the already-current narrow Exploring Recommendation Transition. These require a separately defined policy cell; Discover remains a Session Start Strategy, never a provider, feature page or playback owner. |
+| 3 — bounded partial | One Discover-specific narrative sequence is the same-artist Genre→Track continuation described in DI-3.2. Discover remains a Session Start Strategy, never a provider, feature page or playback owner. Other narrative relationships remain unselected. |
 | 4 | Autonomous discovery journeys. |
 
 ## Implementation-sized future cells
@@ -114,6 +234,23 @@ Session Flow → Broadcast path.
 | PL-4.1 — recommendation spacing | Current | **Objective:** avoid consecutive Recommendation intents when another already valid contextual intent is available. **Trigger:** existing Track Started evaluation. **Input:** the immediately preceding Flow Moment type through Runtime-scoped Performance Memory, current bounded hints and existing priority order. **Policy:** when the previous Moment is Recommendation, deterministically demote Recommendation for this one decision only if Artist, Album or Genre has a safe, non-repeating and Discover-eligible hint; otherwise preserve the existing ordering. **Output:** one existing Knowledge Intent; no new Moment type. **Fallback:** existing Recommendation or Track Context selection; spacing never creates Silence. **Evidence:** focused Planner and live Track Started tests prove deterministic selection, preserved Discover preference where no alternative exists, immutable Moment delivery and unchanged Flow/Broadcast publication. **Deferred:** frequency learning, timers, future-track or queue context, persistent history and autonomous pacing. |
 | PL-4.2 — session-arc policy | Gated | Existing Stage 4 direction (`narrative sequencing`, `dynamic replanning` and `pacing`) needs one later, explicit policy that defines its Flow evidence, direction transition, fallback and test contract. It is not authorized by the broad label alone. |
 
+The [2026-10-04 owner directive](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-5977878118)
+selects a smaller Phase-1 continuity policy within this direction. On each
+eligible observed Track Started event, the existing Planner uses only safe
+current Track Insight, Start Strategy, Mood, Persona, Direction and the last
+eight committed Flow Moments. Runtime Performance Memory records the delivered
+Moment type, its actual subject and a hash of already-safe context; it carries
+no cross-Session state. The Planner first applies the existing minimum interval
+and Direction policy, then prefers unused Artist/Album/Genre/Recommendation
+angles. It demotes the last factual type within four Flow Moments, including
+across an automatic Transition, only when another complete safe angle exists.
+If the safe spoken context repeats for that artist, it approves Silence before
+choosing another type. The existing Horizon and prepared
+knowledge realize only the current observed opportunity; future slots remain
+silence-capable without a qualified upcoming-playback producer. This bounded
+policy does not complete PL-4.2's broader autonomous narrative or future-track
+work. Its Session-level tests are in `tests/test_session_intelligence_continuity.py`.
+
 ### Knowledge Engine
 
 | Cell | Status | Bounded contract |
@@ -128,15 +265,15 @@ Session Flow → Broadcast path.
 | Cell | Status | Bounded contract |
 | --- | --- | --- |
 | ME-3.3 — audience-direction Session Update | Deferred — blocked behind a separate future Audience Observation decision | No Audience Event may generate a DJMoment or Session Update. This cell may be reconsidered only after a future coarse observation is explicitly authorized for Planner use; it is not implied by Audience Experience. |
-| ME-3.4 — additional Transition policy | Gated | Existing Stage 3 broad Transition wording requires a later cell that selects one exact allowed predecessor/successor relationship, Direction/Strategy constraint, repetition guard and no-transition fallback. The already-current Exploring Recommendation policy remains unchanged. |
-| ME-4.1 — narrative continuation | Gated | Existing Stage 4 linked Moments and multi-step experiences require a separately approved semantic sequence contract. It must not be inferred from a renderer, queue or future-track state. |
+| ME-3.4 — additional Transition policy | Bounded subset implemented | DI-3.2 approves exactly one new predecessor/successor relation, Discover Genre→Track, after immediate same-artist and artist-genre evidence. The existing Exploring Recommendation Transition and its spacing remain. Other relations require their own policy. |
+| ME-4.1 — narrative continuation | Bounded subset implemented | The same Runtime opens one Genre thread, deepens it with an immediately following verified Track, then closes or abandons it. This does not qualify broader multi-step journeys, a renderer, queue state or future-track knowledge. |
 
 ### Discover
 
 | Cell | Status | Bounded contract |
 | --- | --- | --- |
 | DI-3.1 — Discover recommendation spacing | Planned, depends on PL-4.1 | **Objective:** apply the existing Planner recommendation-spacing policy within a Discover Session while preserving Discover's exploration preference. **Trigger/input/output/fallback:** PL-4.1, with `DISCOVER` Strategy as the only additional input. **Policy:** use an alternative existing contextual intent only when its safe hint is valid; otherwise retain the Discover Recommendation. **Deferred:** search, provider ownership, playback action, new Discover Moment type and narrative multi-track journeys. |
-| DI-3.2 — narrative Discover sequence | Gated | Existing Stage 3 narrative discovery requires a later policy that defines one allowed sequence of existing Moment intents and its Session Flow evidence. It cannot be implemented from the current broad label alone. |
+| DI-3.2 — narrative Discover sequence | Bounded subset implemented | `docs/product/DISCOVER_NARRATIVE_TRANSITION_CONTRACT.md` defines the sole allowed Genre→Track line: two immediately adjacent committed Moments from distinct observed Spotify tracks, one unique shared artist ID, an artist genre verified by the current production Spotify status path, unchanged Mood, Persona and Exploring Direction, and no recent Transition. The Planner opens once, then closes on the next accepted Track Started event whether it approves or abandons. Private identity stays in one Runtime; missing, conflicting or ambiguous evidence retains safe behaviour or Silence. |
 
 ### Ownership and readiness
 
@@ -272,3 +409,14 @@ one safe observed current item, never a queue, history or persistent Session.
 - Every stage should feel like a complete product.
 - Nothing is implemented solely because it may eventually be needed.
 - Architecture supports future stages; implementation reaches them incrementally.
+
+
+## Shared reactive dialogue and bounded Moment drilldown
+
+The selected [common Ask DJ contract](ASK_DJ_CONTEXTUAL_DIALOGUE_CONTRACT_V1.md)
+uses the existing conversation owner for both screens; optional Session/Moment
+context does not create a second pipeline. The [Moment Track Insight subset](MOMENT_TRACK_INSIGHT_DRILLDOWN_V1.md)
+adds an exact, temporary owner read through the existing full detail service.
+This is one bounded connected correction; full interactive/narrative maturity,
+native adoption, entry/lifecycle and joint acceptance remain independently Planned/open.
+No model/provider lookup occurs merely by rendering a navigation offer.

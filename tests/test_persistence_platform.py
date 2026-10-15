@@ -31,6 +31,7 @@ from custom_components.djconnect.persistence.bootstrap import (  # noqa: E402
 )
 from custom_components.djconnect.persistence.sqlite import SQLitePersistenceProvider  # noqa: E402
 from custom_components.djconnect.persistence.schema import CURRENT_SCHEMA_VERSION, MIGRATIONS  # noqa: E402
+from custom_components.djconnect.persistence.sessions import ACTIVE, INTERRUPTED, ENDED, PersistentSessionRepository  # noqa: E402
 
 
 class PersistenceFoundationTest(unittest.TestCase):
@@ -320,6 +321,37 @@ class PersistenceFoundationTest(unittest.TestCase):
             self.assertIs(first, second)
             self.assertTrue(first.readiness.ready)
             asyncio.run(async_shutdown_persistence(hass))
+
+    def test_second_entry_and_reload_preserve_live_session_restart_interrupts_leftovers(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            hass = _FakeHass(directory)
+
+            async def scenario() -> None:
+                service = await async_initialize_persistence(hass)
+                sessions = PersistentSessionRepository(service)
+                await sessions.async_create("profile-a", session_id="live")
+                await sessions.async_transition("profile-a", "live", ACTIVE)
+                # A second entry and a concurrent reload share one boot lifetime.
+                await asyncio.gather(async_initialize_persistence(hass), async_initialize_persistence(hass))
+                candidates = await sessions.async_reconciliation_candidates()
+                self.assertEqual([(s.session_id, s.lifecycle_status) for s in candidates], [("live", ACTIVE)])
+                await async_shutdown_persistence(hass, preserve_for_reload=True)
+                self.assertIs(await async_initialize_persistence(hass), service)
+                # The old Runtime-owned repository must still write successfully.
+                ended = await sessions.async_transition("profile-a", "live", ENDED)
+                self.assertEqual(ended.lifecycle_status, ENDED)
+                await sessions.async_create("profile-b", session_id="crash-leftover")
+                await sessions.async_transition("profile-b", "crash-leftover", ACTIVE)
+                await async_shutdown_persistence(hass)
+                rebooted_hass = _FakeHass(directory)
+                restarted = await async_initialize_persistence(rebooted_hass)
+                sessions = PersistentSessionRepository(restarted)
+                self.assertEqual(await sessions.async_non_terminal(), [])
+                interrupted = await sessions.async_transition("profile-b", "crash-leftover", INTERRUPTED)
+                self.assertEqual(interrupted.interruption_reason, "startup_reconciliation")
+                await async_shutdown_persistence(rebooted_hass)
+
+            asyncio.run(scenario())
 
     def test_readiness_and_source_boundary_expose_no_credentials_or_connections(self) -> None:
         readiness_fields = {field.name for field in fields(PersistenceReadiness)}

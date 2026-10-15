@@ -2,7 +2,9 @@
 
 ## Status
 
-**Primary active Epic:** Automated Session Intelligence E2E Verification.
+**Original selected Epic:** Automated Session Intelligence E2E Verification —
+complete for its six original Golden Scenarios and enabling verification path.
+Optional additions below remain deferred and require separate selection.
 
 Golden Smoke, Golden Session Regression and Advisory Intelligence Quality
 Metrics are complete. Full CI Qualification and readable reports is complete
@@ -81,8 +83,8 @@ own Planner, Knowledge, Moments, Flow or Broadcast behavior.
 
 ## Ordered delivery sequence
 
-Only the first item is active. Each later item requires predecessor evidence
-and a separately authorized capability.
+The completed entries below record the original delivery sequence. Deferred
+entries require a separate owning selection and predecessor evidence.
 
 | Order | Capability | Status | Boundary |
 | --- | --- | --- | --- |

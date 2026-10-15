@@ -1,5 +1,48 @@
 # DJConnect Home Assistant Integration Handoff
 
+## Current: album continuity Core source delivered — separate Finalization
+
+`DJC-CORE-NARRATIVE-ALBUM-CONTINUITY-V1-20261012`: [source #1154](https://github.com/pcvantol/djconnect/pull/1154)
+protected merged as `c317707024847dd32968483cd23141de40a3c706` from exact owner-authorized and independently
+reviewed `1482eafe3713bd1bd7b21927c4fb481ed1a15c9c`; identical tree
+`95258741a03ffe4d897e4e7a4f7f3adcf5cec0f5`. All32 applicable checks PASS,
+five conditional skips; normal HIGH_RISK Owner Authorization38248553185 PASS.
+[Contract](docs/product/NARRATIVE_ALBUM_CONTINUITY_V1.md), [acceptance](docs/verification/NARRATIVE_ALBUM_CONTINUITY_V1_ACCEPTANCE.md)
+and [completion record](docs/history/prompts/2026-10-12-narrative-album-core-finalization.md) preserve admission, source proof and limits.
+148 safe regular package files match exact main and candidate; archive SHA256
+`ab9476de000a723e4b749f84f0d5ecc628183d4c49ecf8300b5cf066934b1638`; formal asset SHA256 `545c5b0d6162a895ae33b524ef57f61016bd9007b1825f11834d8296d13c18fd`. Pinned policy and raw PR→main derivation PASS,
+all12 formal fields PASS / POST_MERGE_RELEASE_EVIDENCE_QUALIFIED.
+
+One published qualified Album A can connect once to observed distinct Track B
+on the exact same edition within Discover AND Exploring. Publication alone
+consumes the bounded relation; Off/in-flight, scope exit, retry, reconnect and
+Session-end preserve shared presence policy and immutable prior Moments.
+1749 tests/7 existing skips,128 DAG checks,171 frameworktests/234 scenarios,
+20 real paired HA Persona-language chains,4 races,4 real local/static browser
+paths, same-data baseline and real60.388s/40-observation bounded duration PASS.
+Modelled200s input spacing is not real two-hour listening. Direct Festival
+startup remains Building Energy; Festival/Exploring uses existing Core Persona
+update after Home HTTP startup. CAF modeled only; renderer1.1 bytes unchanged.
+
+Only this bounded Core relation is Completed/CORE_DELIVERED. Full Stage4 PARTIAL;
+native, installed, live Spotify and hardware NOT_RUN; joint acceptance OPEN.
+No consumer writer/admission, installation/restart, deployment/Pages/signing,
+hardware, workflow/runner/service or new provider/model/cost/queue route.
+Separate documentary Finalization is prepared on `codex/narrative-album-finalization-v1`
+from this source-main; its independent exact review/publication gate and protected
+readback still precede MERGED_RECONCILED and WORKSPACE_READY. Existing source
+approval excludes Finalization. Selected Forecast6123328620 is queued only;
+no admission or runtime start until valid album closure and fresh bootstrap.
+Historical prepared records below keep their original temporal state.
+
+## Paired owner live source delivered; Finalization pending
+
+PR [#1140](https://github.com/pcvantol/djconnect/pull/1140) merged
+`889fc93b78f723a12a75fa1b331a748a109acd5e`; exact source/package qualification
+PASS. See `docs/history/prompts/2026-10-10-paired-owner-live-auth-finalization.md`
+for hashes, genuine pairing proof, owner grants and separate installed/native
+acceptance. Finalization publication/cleanup are still concrete gates.
+
 ## Current State
 
 - Repository: `pcvantol/djconnect`.
@@ -559,3 +602,15 @@ python3 -m json.tool custom_components/djconnect/translations/nl.json >/tmp/djco
 python3 -m py_compile custom_components/djconnect/*.py tests/*.py
 python3 -m unittest discover -s tests
 ```
+
+## Core paired owner live auth candidate — 2026-10-10
+
+`DJC-CORE-PAIRED-LIVE-AUTH-V1-20261010` supplies the minimal ordinary paired
+Apple live adapter and versioned contract. Real isolated pairing/auth/Store/
+Session/Broadcast proof, 300-second expiry, negative cases and independent
+review are qualified in `docs/verification/paired-owner-live-auth-v1.md`.
+Apple #87 has the early immutable contract and exact sanitized receipts.
+Source delivery/Finalization and installed/native acceptance remain distinct.
+No HA-dev install/restart, Swift change or receiver deployment is included.
+No dependency upgrade is required; frozen runtime dependencies and existing
+five-language UI resources are retained for this bounded auth correction.

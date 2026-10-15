@@ -29,6 +29,52 @@ class FakeStore:
 
 
 class AskDJHistoryManagerTest(unittest.TestCase):
+    def test_failed_store_exchange_is_not_cached_or_deduplicated(self):
+        class FailingStore(FakeStore):
+            async def async_save(self, data):
+                raise OSError("synthetic write failure")
+        manager = AskDJHistoryManager(store=FailingStore())
+        async def run():
+            with self.assertRaises(OSError):
+                await manager.async_append_exchange("profile:a", {"client_message_id": "one", "text": "Question"}, {"success": True, "text": "Answer"})
+            self.assertIsNone(await manager.async_saved_exchange("profile:a", "one"))
+            self.assertEqual((await manager.async_history("profile:a"))["messages"], [])
+        asyncio.run(run())
+
+    def test_post_save_grant_rejection_restores_committed_store(self):
+        store = FakeStore()
+        manager = AskDJHistoryManager(store=store)
+        async def run():
+            calls = 0
+            async def guard():
+                nonlocal calls
+                calls += 1
+                if calls == 2:
+                    raise PermissionError("privacy changed during save")
+            with self.assertRaises(PermissionError):
+                await manager.async_append_exchange("profile:a", {"client_message_id": "one", "text": "Question"}, {"success": True, "text": "Answer"}, commit_guard=guard)
+            self.assertIsNone(await manager.async_saved_exchange("profile:a", "one"))
+            reread = AskDJHistoryManager(store=store)
+            self.assertEqual((await reread.async_history("profile:a"))["messages"], [])
+        asyncio.run(run())
+
+    def test_selected_entry_is_retained_as_answer_dependency(self):
+        manager = AskDJHistoryManager(store=FakeStore())
+        async def run():
+            result = await manager.async_append_exchange("profile:a", {"client_message_id": "one", "text": "Explain"}, {"success": True, "text": "Original fact"}, session_turn={"context": {"selected_entry": {"session_id": "s", "entry_id": "e"}}})
+            self.assertEqual(result["assistant_message"]["historical_entry_references"], [{"session_id": "s", "entry_id": "e"}])
+        asyncio.run(run())
+
+    def test_session_archive_turns_never_enter_model_prompt_history(self):
+        manager = AskDJHistoryManager(store=FakeStore())
+        async def run():
+            await manager.async_append_exchange("profile:a", {"client_message_id": "one", "text": "History question"}, {"success": True, "text": "Private saved playback"}, session_turn={"context": {}})
+            self.assertEqual(manager.recent_messages_for_prompt("profile:a"), [])
+            self.assertEqual(len((await manager.async_history("profile:a"))["messages"]), 2)
+            await manager.async_append_exchange("ha-user", {"client_message_id": "two", "text": "Regular chat"}, {"success": True, "text": "Regular answer"})
+            self.assertEqual(len(manager.recent_messages_for_prompt("ha-user")), 2)
+        asyncio.run(run())
+
     def test_history_is_user_scoped_and_shared_by_clients(self) -> None:
         manager = AskDJHistoryManager(store=FakeStore())
 
@@ -89,6 +135,7 @@ class AskDJHistoryManagerTest(unittest.TestCase):
                         "device_name": "iPhone",
                     },
                     "app_version": "3.2.21",
+                    "conversation_scope": "legacy",
                 },
                 headers={"Authorization": "Bearer token"},
                 user_id="ha-user-1",
@@ -130,7 +177,7 @@ class AskDJHistoryManagerTest(unittest.TestCase):
             lambda runtime_arg, headers, device_id=None, client_type=None: True
         )
 
-        async def ask_handler(hass, runtime_arg, payload, *, user_id=None):
+        async def ask_handler(hass, runtime_arg, payload, *, user_id=None, **kwargs):
             return {
                 "success": True,
                 "text": "Assistant private answer",
@@ -144,23 +191,27 @@ class AskDJHistoryManagerTest(unittest.TestCase):
 
         api_handlers.http_helpers.async_handle_ask_dj = ask_handler
         api_handlers.http_helpers.async_send_push_event = push_handler
+        async def accepted_request():
+            from custom_components.djconnect.domain.storage import ProfilePlatformStorage
+            from custom_components.djconnect.domain.backend import BackendProvider
+            storage = ProfilePlatformStorage()
+            await storage.async_upsert_music_backend("later_manual", BackendProvider.FUTURE_PROVIDER, display_name="Debug fixture")
+            await storage.async_create_profile("Owner", profile_id="debug-owner", default_backend_id="later_manual")
+            await storage.async_upsert_device("djconnect-ios-ABCDEFGHIJKL", "ios", linked_profile_id="debug-owner")
+            hass = types.SimpleNamespace(data={"djconnect": {
+                "djconnect_profile_platform": storage, "ask_dj_history_manager": manager,
+                "runtime": runtime}}, config=types.SimpleNamespace(language="en"))
+            runtime.config = {"device_id": "djconnect-ios-ABCDEFGHIJKL", "client_type": "ios", "music_backend": "later_manual"}
+            return await api_handlers.async_handle_ask_dj_message_payload(hass,
+                {"device_id": "djconnect-ios-ABCDEFGHIJKL", "client_type": "ios",
+                 "client_message_id": "ios-message-1", "text": "User private question"},
+                headers={"Authorization": "Bearer token"}, user_id="ha-user-1")
+
         previous = api_handlers._LOGGER.level
         api_handlers._LOGGER.setLevel(logging.DEBUG)
         try:
             with self.assertLogs(api_handlers._LOGGER, level="DEBUG") as captured:
-                result, status = asyncio.run(
-                    api_handlers.async_handle_ask_dj_message_payload(
-                        types.SimpleNamespace(data={}),
-                        {
-                            "device_id": "djconnect-ios-ABCDEFGHIJKL",
-                            "client_type": "ios",
-                            "client_message_id": "ios-message-1",
-                            "text": "User private question",
-                        },
-                        headers={"Authorization": "Bearer token"},
-                        user_id="ha-user-1",
-                    )
-                )
+                result, status = asyncio.run(accepted_request())
         finally:
             api_handlers._LOGGER.setLevel(previous)
             api_handlers.resolve_runtime = original_resolve_runtime

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 from dataclasses import replace
 from typing import Any
 import uuid
@@ -43,6 +44,10 @@ class ProfileStorageValidationError(ValueError):
     """Raised when Profile Platform storage contains invalid references."""
 
 
+class SharedProfileBackendChange(ProfileStorageValidationError):
+    """Raised when one options entry cannot safely update a shared Profile."""
+
+
 class ProfilePlatformStorage:
     """Load, validate and persist Profile Platform state."""
 
@@ -50,6 +55,7 @@ class ProfilePlatformStorage:
         self.hass = hass
         self._store = store if store is not None else self._create_store(hass)
         self._loaded = False
+        self._write_lock = asyncio.Lock()
         self._household = default_household()
 
     @property
@@ -73,9 +79,36 @@ class ProfilePlatformStorage:
             self._household = household
         self.validate_household(self._household)
         self._loaded = True
-        if self._store is not None:
-            await self._store.async_save(household_to_storage(self._household))
+        async with self._write_lock:
+            if self._store is not None:
+                await self._store.async_save(household_to_storage(self._household))
+        if self.hass is not None:
+            from ..session_history_maintenance import schedule_history_maintenance
+            schedule_history_maintenance(self.hass)
         return self._household
+
+    async def async_commit_onboarding(self, before: Household, updated: Household) -> None:
+        """Commit a staged onboarding update without exposing uncommitted state."""
+        self.validate_household(updated)
+        async with self._write_lock:
+            if self._household != before:
+                raise ProfileStorageValidationError("profile_state_changed")
+            if self._store is not None:
+                save = asyncio.create_task(self._store.async_save(household_to_storage(updated)))
+                try:
+                    await asyncio.shield(save)
+                except asyncio.CancelledError:
+                    # A file write may already be running. Finish it, restore the
+                    # latest committed state (including other Profile edits), then abort.
+                    try:
+                        await save
+                    finally:
+                        await asyncio.shield(self._store.async_save(household_to_storage(self._household)))
+                    raise
+                if self._household != before:
+                    await self._store.async_save(household_to_storage(self._household))
+                    raise ProfileStorageValidationError("profile_state_changed")
+            self._household = updated
 
     async def async_create_profile(
         self,
@@ -195,6 +228,9 @@ class ProfilePlatformStorage:
             fallback=fallback,
         )
         await self.async_save()
+        if self.hass is not None:
+            from ..session_history_maintenance import async_purge_profile_history
+            await async_purge_profile_history(self.hass, profile.profile_id)
         return self._household
 
     async def async_upsert_device(
@@ -310,6 +346,68 @@ class ProfilePlatformStorage:
         )
         await self.async_save()
         return account
+
+    async def async_bind_device_profile_backend(
+        self,
+        device_id: str,
+        client_type: str,
+        backend: MusicBackendRegistration,
+        *,
+        account: MusicAccount | None = None,
+        fallback_playback_zone_id: str = "",
+    ) -> bool:
+        """Bind a paired device's Profile to a backend in one Store update."""
+        household = await self.async_load()
+        device = household.devices.get(clean_identifier(device_id))
+        if device is None or device.client_type != client_type:
+            raise ProfileStorageValidationError("paired device is not registered")
+        profile = household.profiles.get(clean_identifier(device.linked_profile_id))
+        if profile is None:
+            raise ProfileStorageValidationError("paired device has no linked profile")
+        if sum(
+            other.linked_profile_id == profile.profile_id
+            for other in household.devices.values()
+        ) > 1:
+            raise SharedProfileBackendChange("profile is linked to multiple devices")
+        if account is not None and (
+            account.backend_id != backend.backend_id
+            or profile.profile_id not in account.linked_profile_ids
+        ):
+            raise ProfileStorageValidationError("backend account does not match profile")
+        existing_account = household.music_accounts.get(account.account_id) if account else None
+        if existing_account is not None:
+            if (
+                existing_account.backend_id != backend.backend_id
+                or profile.profile_id not in existing_account.linked_profile_ids
+            ):
+                raise ProfileStorageValidationError("existing backend account has different owner")
+            account = existing_account
+        preferences = replace(
+            profile.preferences,
+            default_backend_id=backend.backend_id,
+            default_music_account_id=account.account_id if account else "",
+            fallback_playback_zone_id=fallback_playback_zone_id,
+        )
+        changed = preferences != profile.preferences
+        backend_record = household.music_backends.get(backend.backend_id) or backend
+        updated = replace(
+            household,
+            profiles={**household.profiles, profile.profile_id: replace(profile, preferences=preferences)},
+            music_backends={**household.music_backends, backend.backend_id: backend_record},
+            music_accounts=(
+                {**household.music_accounts, account.account_id: account}
+                if account is not None
+                else household.music_accounts
+            ),
+        )
+        if updated == household:
+            return False
+        try:
+            await self.async_save(updated)
+        except Exception:
+            self._household = household
+            raise
+        return changed
 
     async def async_set_fallback_profile(
         self,

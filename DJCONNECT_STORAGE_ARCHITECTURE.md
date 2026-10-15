@@ -38,7 +38,7 @@ and rebuilding disposable local storage. There are no renderer backup formats.
 | --- | --- | --- | --- |
 | Profile, preferences, device/profile mappings, backend references | HA `Store` key `djconnect_profile_platform` | Canonical | HA integration |
 | Music DNA | HA `Store` key `djconnect_music_dna` | Canonical, opt-in | HA integration |
-| Ask DJ history | HA `Store` key `djconnect_ask_dj_history` | Canonical, user-scoped | HA integration |
+| Ask DJ history | HA `Store` key `djconnect_ask_dj_history` | Canonical, paired Profile scope for current application writes; preserved explicit HA-user legacy archive | HA integration |
 | Pairing, OAuth and integration options | HA config entries/options | Canonical configuration; secret-bearing | HA integration |
 | Session Runtime, Planner, Performance Memory, live Session Flow | Python runtime objects | Runtime only | HA process; never persisted as runtime |
 | Persistent Session metadata and historical Moment projections | integration-owned SQLite schema/migrations | Canonical foundation | HA integration |
@@ -52,6 +52,48 @@ uses forward-only migrations and exposes only repository transaction boundaries.
 Existing HA Store records remain canonical until a separately approved,
 lossless server migration moves a specific aggregate; no parallel authority is
 created by this architecture.
+
+## Selected Session conversation/history adapter
+
+The selected `DJC-CORE-SESSION-CONVERSATION-HISTORY-V1-20261008` candidate adds
+accepted, source-qualified owner timeline entries behind the existing Session
+persistence repository and forward-only schema. Its conversation entries are
+references to server-confirmed Profile-scoped exchanges in the existing Ask DJ
+HA Store, not a copied chat database. No migration of generic HA-user history,
+Music DNA, credentials, Runtime or Broadcast recovery is authorized. Literal
+search and historical playback query results are temporary authorized
+projections; opening them is read-only navigation.
+
+See [the selected contract](docs/product/SESSION_CONVERSATION_HISTORY_CONTRACT.md)
+for field qualification, retention/deletion, projection versions and fail-closed
+client behavior. Generic existing history and the new Profile-scoped reference
+namespace remain explicitly distinct; pairing device→Profile is the authority.
+
+## Shared reactive conversation ownership
+
+The [shared Ask DJ contract](docs/product/ASK_DJ_CONTEXTUAL_DIALOGUE_CONTRACT_V1.md)
+connects all application text/STT/compatibility adapters to one existing Store
+owner and one bounded Profile/thread functional window. The window is runtime
+only: at most 32 owners × 4 threads, 12 messages / 12 KiB per model/local window,
+four subjects, 20 source dependencies, a 12-action / 16 KiB immutable choice set and
+an 8 KiB pending decision. Idle context expires after 20 minutes; choices expire
+after 10 minutes. Capacity fails closed and does not evict an in-flight owner.
+No Music DNA opt-in is needed and no persistent taste inference is introduced.
+
+Only successful qualified exchange acceptance advances functional context.
+RAM-only/raw/private or live-only source turns do not acquire archive rights
+through dependent follow-ups. Fresh independent subjects can qualify separately.
+Optional Session Flow rows reference the accepted Store exchange; reactive
+references never count as proactive Moments or enter shared Broadcast.
+
+Opaque effect receipts remain in the same Store to prevent repeating a possible
+external dispatch after clear/reload/cancellation. Each owner has a 1000-receipt
+hard bound and fails closed instead of deleting still-needed replay evidence.
+Receipts retain no prompts, bodies, provider URI, artwork or credentials.
+Existing clear/source-withdrawal/deletion rights still govern bodies and source
+references. The preserved legacy HA-user archive is never imported into
+functional/model memory. Read/state/export/clear default to the paired Profile;
+explicit legacy administration requires the authenticated HA user.
 
 ## Storage profiles
 

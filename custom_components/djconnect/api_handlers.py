@@ -4,6 +4,8 @@ from __future__ import annotations
 import logging
 from typing import Any, Awaitable, Callable
 
+from .discovery_artwork import capture_refresh_guard
+
 from . import http as http_helpers
 from .const import CLIENT_TYPE_ESP32, CONF_CLIENT_TYPE, CONF_LOCAL_URL, VERSION
 from .http import (
@@ -33,7 +35,7 @@ from .http import (
     _with_playlist_aliases,
 )
 from .mood import enrich_payload_with_mood_zone
-from .push import EVENT_ASK_DJ_CONFIRM, EVENT_ASK_DJ_RESPONSE
+from .profile_privacy import resolve_profile_privacy_policy
 from .profile_context import (
     ProfilePlatformNotConfigured,
     async_apply_profile_context,
@@ -51,6 +53,7 @@ from .profile_export import (
     profile_export_error_payload,
 )
 from .playback_observation import playback_observation_manager
+from .pipeline import normalize_supported_language, resolve_assist_language
 from .request_auth import (
     authorize_runtime_device_request,
     identity_payload,
@@ -77,6 +80,21 @@ _LOGGER = http_helpers._LOGGER
 MUSIC_DNA_PROFILE_REFRESH_SECONDS = 60 * 60
 
 
+def _ha_native_service_identity(hass, runtime):
+    """Trust only the actual registered loaded agent-only entry, never payload flags."""
+    from .session_conversation import SessionConversationError
+    entry = getattr(runtime, "entry", None)
+    entries = getattr(hass, "config_entries", None)
+    if (entry is None or entries is None or entries.async_get_entry(entry.entry_id) is not entry
+        or entry.disabled_by is not None or getattr(entry.state, "value", entry.state) != "loaded"
+        or hass.data.get("djconnect", {}).get(entry.entry_id) is not runtime
+        or entry.data.get("client_type") != "conversation_agent"
+        or runtime_client_type(runtime) != "conversation_agent"
+        or entry.data.get("device_id") != "djconnect-conversation-agent"):
+        raise SessionConversationError("unauthorized", 401)
+    return {"device_id": "djconnect-conversation-agent", "client_type": "conversation_agent"}
+
+
 async def _session_profile_context(
     hass: Any,
     data: dict[str, Any],
@@ -84,16 +102,41 @@ async def _session_profile_context(
     headers: Any | None,
     user_id: str | None,
     source: str,
+    _ha_service_runtime: Any | None = None,
 ) -> tuple[Any | None, Any | None, dict[str, Any] | None, int | None]:
-    """Authenticate a session request and resolve its owning Profile."""
+    """Authenticate against paired-device or internal HA-native server binding."""
     headers = headers or {}
-    runtime = resolve_runtime(hass, data.get("device_id") or headers.get("X-DJConnect-Device-ID"), headers)
-    if runtime is None:
-        return None, None, _error_payload("not_configured"), 503
-    if not authorize_runtime_device_request(runtime, headers, data.get("device_id"), payload_client_type(data)):
-        return None, None, _error_payload("unauthorized"), 401
-    if validate_required_client_type(data) is None:
-        return None, None, _error_payload("invalid_client_type"), 400
+    if _ha_service_runtime is not None:
+        runtime = _ha_service_runtime
+        from .session_conversation import SessionConversationError
+        try:
+            server_identity = _ha_native_service_identity(hass, runtime)
+        except SessionConversationError as exc:
+            return None, None, _error_payload(exc.code), exc.status
+        if any(data.get(key) and data[key] != value for key, value in server_identity.items()):
+            return None, None, _error_payload("profile_device_mismatch"), 403
+        data.update(server_identity)
+    else:
+        runtime = resolve_runtime(hass, data.get("device_id") or headers.get("X-DJConnect-Device-ID"), headers)
+        if runtime is None:
+            return None, None, _error_payload("not_configured"), 503
+        if not authorize_runtime_device_request(runtime, headers, data.get("device_id"), payload_client_type(data)):
+            return None, None, _error_payload("unauthorized"), 401
+        if validate_required_client_type(data) is None:
+            return None, None, _error_payload("invalid_client_type"), 400
+    try:
+        bound = await async_resolve_device_bound_request_context(
+            hass, runtime, data, request_source=source
+        )
+    except Exception as exc:  # noqa: BLE001
+        result, resolved_status = profile_error_payload(exc)
+        return None, None, result, resolved_status
+    profile_hints = (
+        str(data.get(key) or "").strip() for key in ("profile_id", "explicit_profile_id")
+    )
+    if any(hint and hint != bound.profile_id for hint in profile_hints):
+        return None, None, _error_payload("profile_device_mismatch"), 403
+    data["profile_id"] = bound.profile_id
     profile_error, profile_status = await _apply_profile_or_error(
         hass, runtime, data, user_id=user_id, source=source
     )
@@ -111,6 +154,92 @@ async def _session_profile_context(
     return runtime, context, None, None
 
 
+async def async_handle_session_history_payload(
+    hass, data, *, operation="list", headers=None, user_id=None
+):
+    """Existing Profile-bound application/transport boundary for private projections."""
+    if not isinstance(data, dict):
+        return _error_payload("invalid_json"), 400
+    runtime, context, error, status = await _session_profile_context(
+        hass, data, headers=headers, user_id=user_id, source="session_history:" + operation
+    )
+    if error is not None:
+        return error, status
+    if (
+        not context.privacy_policy.allow_personal_read
+        or not resolve_profile_privacy_policy(context.profile, {}).allow_personal_read
+    ):
+        return _error_payload("history_not_allowed"), 403
+    from .session_conversation import query_service
+    from .session_history_projection import HistoryQueryError
+    from .historical_projection_query import HistoricalProjectionAccessDenied
+    from .persistence.service import PersistenceError
+
+    try:
+        query = query_service(hass, _history_manager(hass, runtime))
+        limit = data.get("limit", 20)
+        if isinstance(limit, str) and limit.isascii() and limit.isdigit():
+            limit = int(limit)
+        cursor = data.get("cursor", "")
+        if operation == "list":
+            result = await query.async_session_page(
+                context.profile_id,
+                limit=limit,
+                cursor=cursor,
+                include_active=data.get("include_active") in {True, "true", "1"},
+            )
+        elif operation == "timeline":
+            if data.get("window"):
+                if cursor:
+                    raise HistoryQueryError("invalid_history_cursor")
+                result = await query.async_timeline_window(
+                    context.profile_id, str(data.get("session_id") or ""),
+                    window=data["window"], limit=limit,
+                    anchor_entry_id=str(data.get("anchor_entry_id") or ""),
+                )
+            else:
+                result = await query.async_timeline_page(
+                    context.profile_id, str(data.get("session_id") or ""), limit=limit, cursor=cursor
+                )
+        elif operation == "search":
+            result = await query.async_search_entries(
+                context.profile_id,
+                str(data.get("session_id") or ""),
+                data.get("q"),
+                limit=limit,
+                cursor=cursor,
+            )
+        elif operation == "open":
+            action = data.get("action")
+            if (
+                not isinstance(action, dict)
+                or action.get("kind") != "open_session"
+                or set(action) - {"kind", "session_id", "entry_id", "navigation_only"}
+            ):
+                raise HistoryQueryError("invalid_history_action")
+            result = await query.async_open_entry(
+                context.profile_id,
+                str(action.get("session_id") or ""),
+                str(action.get("entry_id") or ""),
+            )
+        else:
+            return _error_payload("unsupported_history_operation"), 400
+        _current_runtime, current, current_error, current_status = await _session_profile_context(
+            hass, dict(data), headers=headers, user_id=user_id, source="session_history_complete"
+        )
+        if current_error is not None:
+            return current_error, int(current_status or 409)
+        if current.profile_id != context.profile_id:
+            return _error_payload("history_unavailable"), 403
+        if not current.privacy_policy.allow_personal_read or not resolve_profile_privacy_policy(current.profile, {}).allow_personal_read:
+            return _error_payload("history_not_allowed"), 403
+        return result, 200
+    except HistoricalProjectionAccessDenied:
+        return _error_payload("history_unavailable"), 404
+    except HistoryQueryError as exc:
+        return _error_payload(str(exc)), 409 if "cursor" in str(exc) else 400
+    except (PersistenceError, RuntimeError):
+        return _error_payload("history_unavailable"), 503
 async def async_handle_session_start_payload(
     hass: Any, data: dict[str, Any], *, headers: Any | None = None, user_id: str | None = None
 ) -> tuple[dict[str, Any], int]:
@@ -131,9 +260,16 @@ async def async_handle_session_start_payload(
             selected_mood=str(data.get("mood") or "").strip(),
             music_backend=context.backend_id,
             dj_persona=_dj_persona(data.get("dj_persona")),
-            locale=str(data.get("language") or data.get("locale") or "en"),
+            locale=_session_locale(hass, runtime, data),
             session_start_strategy=strategy,
             discover_context=discover_context,
+            history_enabled=context.privacy_policy.allow_history_persistence and resolve_profile_privacy_policy(context.profile,{}).allow_history_persistence,
+            history_source_context={
+                "backend_id": context.backend_id,
+                "music_account_id": context.music_account_id,
+                "provider_account_id": str(getattr(profile_storage(hass).household.music_accounts.get(context.music_account_id), "provider_account_id", "")),
+                "provider_entry_id": str(getattr(runtime, "config", {}).get("profile_backend_entry_id") or getattr(getattr(runtime, "entry", None), "entry_id", "")),
+            },
         )
     except ActiveSessionExistsError:
         active = await session_runtime_manager(hass).async_get_active(context.profile_id)
@@ -149,8 +285,10 @@ async def async_handle_session_start_payload(
         await playback_observation_manager(hass).async_start_spotify(
             integration_runtime=runtime,
             session=active,
-            insight_provider=_session_track_insight_provider(
-                hass, runtime, active
+            insight_provider_factory=lambda active_runtime, active_session: (
+                _session_track_insight_provider(
+                    hass, active_runtime, active_session
+                )
             ),
         )
     return {"success": True, "session": (active or session).as_dict()}, 201
@@ -181,6 +319,7 @@ def _session_track_insight_provider(
             {
                 "source": "session_moment",
                 "music_backend": session.music_backend,
+                "locale": session.locale,
                 "include_visual_profile": False,
                 "presentation_style": (
                     f"DJ Persona: {session.dj_persona.value}; "
@@ -188,9 +327,18 @@ def _session_track_insight_provider(
                 ),
             },
             source="session_moment",
+            session_evidence=True,
         )
 
     return insight_provider
+
+
+def _session_locale(hass: Any, runtime: Any, data: dict[str, Any]) -> str:
+    """Resolve Session language from the client or preferred Assist pipeline."""
+    explicit = str(data.get("language") or data.get("locale") or "").strip()
+    if explicit:
+        return normalize_supported_language(explicit)
+    return resolve_assist_language(hass, getattr(runtime, "config", {}) or {})
 
 
 def _dj_persona(value: Any) -> DJPersona:
@@ -254,14 +402,14 @@ async def async_handle_session_end_payload(
     )
     if error is not None:
         return error, int(status or 400)
-    await playback_observation_manager(hass).async_stop(
-        context.profile_id, str(data.get("session_id") or "").strip()
-    )
     session = await session_runtime_manager(hass).async_end(
         owner_profile_id=context.profile_id, session_id=str(data.get("session_id") or "").strip()
     )
     if session is None:
         return _error_payload("active_session_not_found"), 404
+    await playback_observation_manager(hass).async_stop(
+        context.profile_id, session.session_id
+    )
     return {"success": True, "session": session.as_dict()}, 200
 
 
@@ -313,7 +461,12 @@ async def _async_owner_broadcast_session_context(
     active = await manager.async_get_active(context.profile_id)
     if active is None or active.session_id != session_id:
         return _error_payload("active_session_not_found"), 404, None, None
-    return {"success": True, "session_id": session_id}, 200, manager, context.profile_id
+    entry_id = str(getattr(getattr(runtime, "entry", None), "entry_id", "") or "")
+    generation = getattr(runtime, "_receiver_end_generation", 0)
+    if entry_id and generation != manager.receiver_entry_generation(entry_id):
+        return _error_payload("unauthorized"), 401, None, None
+    return {"success": True, "session_id": session_id,
+            "_owner_entry_id": entry_id, "_owner_entry_generation": generation}, 200, manager, context.profile_id
 
 
 async def _async_owner_broadcast_snapshot_query(
@@ -338,7 +491,7 @@ async def _async_owner_broadcast_snapshot_query(
     except Exception as exc:  # noqa: BLE001
         _LOGGER.debug("DJConnect Broadcast snapshot unavailable: %s", exc.__class__.__name__)
         return _error_payload("broadcast_snapshot_unavailable"), 500, None, None
-    return {**result, "snapshot": snapshot}, 200, manager, profile_id
+    return {"success": True, "session_id": result["session_id"], "snapshot": snapshot}, 200, manager, profile_id
 
 
 async def async_handle_session_broadcast_snapshot_payload(
@@ -380,48 +533,65 @@ async def async_handle_session_broadcast_subscribe_payload(
         owner_profile_id=profile_id,
         session_id=session_id,
         callback=callback,
+        authorization_entry_id=context.get("_owner_entry_id", ""),
+        authorization_entry_generation=context.get("_owner_entry_generation", 0),
     )
     if subscription_id is None:
         return _error_payload("active_session_not_found"), 404, None, None
 
-    result, status, snapshot_manager, snapshot_profile_id = await _async_owner_broadcast_snapshot_query(
-        hass, data, headers=headers, user_id=user_id, source="session_broadcast_subscribe"
-    )
-    if snapshot_manager is None or snapshot_profile_id is None:
+    try:
+        result, status, snapshot_manager, snapshot_profile_id = await _async_owner_broadcast_snapshot_query(
+            hass, data, headers=headers, user_id=user_id, source="session_broadcast_subscribe"
+        )
+        if snapshot_manager is None or snapshot_profile_id is None:
+            await manager.async_unsubscribe(
+                owner_profile_id=profile_id,
+                session_id=session_id,
+                subscription_id=subscription_id,
+            )
+            return result, status, None, None
+
+        async def cleanup() -> None:
+            await manager.async_unsubscribe(
+                owner_profile_id=profile_id,
+                session_id=session_id,
+                subscription_id=subscription_id,
+            )
+
+        async def activate() -> None:
+            activated = await manager.async_activate_subscription(
+                owner_profile_id=profile_id,
+                session_id=session_id,
+                subscription_id=subscription_id,
+            )
+            if activated is False:
+                # End/unload during transport setup cannot leave its earlier
+                # snapshot authoritative. Terminal denial never grants content.
+                from .native_moment_delivery import withdrawn_native_delivery
+
+                callback({"event_type": "broadcast_stopped", "session_id": session_id,
+                          "payload": {"broadcast": {"subscription_state": "revoked"},
+                                      "native_delivery": withdrawn_native_delivery(session_id)}})
+
+        active = await manager.async_get_active(profile_id)
+        cursor_provider = (
+            getattr(active.broadcast, "owner_recovery_cursor", None)
+            if active is not None and active.session_id == session_id
+            else None
+        )
+        recovery_cursor = cursor_provider() if callable(cursor_provider) else None
+
+        return {
+            "subscription_id": subscription_id,
+            "recovery_cursor": recovery_cursor,
+            **result,
+        }, 200, activate, cleanup
+    except BaseException:
+        # Retain cleanup ownership until all pending setup returns to transport.
         await manager.async_unsubscribe(
-            owner_profile_id=profile_id,
-            session_id=session_id,
-            subscription_id=subscription_id,
+            owner_profile_id=profile_id, session_id=session_id, subscription_id=subscription_id
         )
-        return result, status, None, None
-
-    async def cleanup() -> None:
-        await manager.async_unsubscribe(
-            owner_profile_id=profile_id,
-            session_id=session_id,
-            subscription_id=subscription_id,
-        )
-
-    async def activate() -> None:
-        await manager.async_activate_subscription(
-            owner_profile_id=profile_id,
-            session_id=session_id,
-            subscription_id=subscription_id,
-        )
-
-    active = await manager.async_get_active(profile_id)
-    cursor_provider = (
-        getattr(active.broadcast, "owner_recovery_cursor", None)
-        if active is not None and active.session_id == session_id
-        else None
-    )
-    recovery_cursor = cursor_provider() if callable(cursor_provider) else None
-
-    return {
-        "subscription_id": subscription_id,
-        "recovery_cursor": recovery_cursor,
-        **result,
-    }, 200, activate, cleanup
+        raise
 
 
 async def async_handle_session_broadcast_recovery_payload(
@@ -452,6 +622,8 @@ async def async_handle_session_broadcast_recovery_payload(
         session_id=session_id,
         recovery_cursor=recovery_cursor,
         callback=callback,
+        authorization_entry_id=context.get("_owner_entry_id", ""),
+        authorization_entry_generation=context.get("_owner_entry_generation", 0),
     )
     if recovered is None:
         return _error_payload("invalid_recovery_cursor"), 400, None, None
@@ -465,11 +637,19 @@ async def async_handle_session_broadcast_recovery_payload(
         )
 
     async def activate() -> None:
-        await manager.async_activate_subscription(
+        activated = await manager.async_activate_subscription(
             owner_profile_id=profile_id,
             session_id=session_id,
             subscription_id=subscription_id,
         )
+        if activated is False:
+            # End/unload during transport setup cannot leave its earlier
+            # snapshot authoritative. Terminal denial never grants content.
+            from .native_moment_delivery import withdrawn_native_delivery
+
+            callback({"event_type": "broadcast_stopped", "session_id": session_id,
+                      "payload": {"broadcast": {"subscription_state": "revoked"},
+                                  "native_delivery": withdrawn_native_delivery(session_id)}})
 
     return {
         "success": True,
@@ -483,20 +663,59 @@ async def async_handle_session_broadcast_token_payload(
     hass: Any, data: dict[str, Any], *, headers: Any | None = None, user_id: str | None = None
 ) -> tuple[dict[str, Any], int]:
     """Mint no new secret: return the current Runtime's owner-authorized token."""
-    _runtime, context, error, status = await _session_profile_context(
+    result, status, manager, profile_id = await _async_owner_broadcast_session_context(
         hass, data, headers=headers, user_id=user_id, source="session_broadcast_token"
     )
-    if error is not None:
-        return error, int(status or 400)
-    session_id = str(data.get("session_id") or "").strip()
-    if not session_id:
-        return _error_payload("session_id_required"), 400
-    contract = await session_runtime_manager(hass).async_broadcast_token_for_owner(
-        owner_profile_id=context.profile_id, session_id=session_id
+    if manager is None or profile_id is None:
+        return result, status
+    contract = await manager.async_broadcast_token_for_owner(
+        owner_profile_id=profile_id, session_id=result["session_id"]
     )
     if contract is None:
         return _error_payload("active_session_not_found"), 404
     return {"success": True, **contract}, 200
+
+
+async def async_handle_session_broadcast_handoff_approve_payload(
+    hass: Any, data: dict[str, Any], *, headers: Any | None = None, user_id: str | None = None
+) -> tuple[dict[str, Any], int]:
+    """Let only the active Session owner approve a browser's short-lived code."""
+    result, status, manager, profile_id = await _async_owner_broadcast_session_context(
+        hass, data, headers=headers, user_id=user_id, source="session_broadcast_handoff"
+    )
+    if manager is None or profile_id is None:
+        return result, status
+    session_id = result["session_id"]
+    code = str(data.get("code") or "").strip()
+    if len(code) != 6 or not code.isascii() or not code.isdigit():
+        return _error_payload("handoff_code_invalid"), 400
+    contract = await manager.async_broadcast_token_for_owner(
+        owner_profile_id=profile_id, session_id=session_id
+    )
+    if contract is None:
+        return _error_payload("active_session_not_found"), 404
+    from .broadcast_handoff import broadcast_handoff_manager
+
+    # The normal paired owner approval alone remains a read-only handoff.
+    # This opt-in is saved through HA options, never inferred from a receiver.
+    runtime, _context, error, _status = await _session_profile_context(
+        hass, data, headers=headers, user_id=user_id, source="session_broadcast_end_consent"
+    )
+    end_grant = ""
+    if error is None and getattr(runtime, "config", {}).get("vibecast_session_end_allowed") is True:
+        end_grant = await manager.async_issue_receiver_end_grant(owner_profile_id=profile_id, session_id=session_id,
+            entry_id=str(getattr(getattr(runtime, "entry", None), "entry_id", "") or ""),
+            entry_generation=getattr(runtime, "_receiver_end_generation", 0))
+    approved = await broadcast_handoff_manager(hass).approve(
+        code,
+        owner_profile_id=profile_id,
+        session_id=session_id,
+        broadcast_token=str(contract["broadcast_token"]),
+        end_grant=end_grant,
+    )
+    if not approved:
+        return _error_payload("handoff_code_unavailable"), 404
+    return {"success": True, "session_id": session_id, "handoff": "approved"}, 200
 
 
 async def _apply_profile_or_error(
@@ -510,13 +729,16 @@ async def _apply_profile_or_error(
     """Apply canonical Profile context or return structured error."""
     _clear_profile_runtime_context(runtime)
     try:
-        await async_apply_profile_context(
+        context = await async_apply_profile_context(
             hass,
             runtime,
             payload,
             user_id=user_id,
             request_source=source,
         )
+        if source.startswith(("music_dna_", "music_discovery_")):
+            payload.pop("user_id", None)
+            payload["music_dna_key"] = context.music_dna_key
         return None, None
     except Exception as exc:  # noqa: BLE001
         if isinstance(exc, ProfilePlatformNotConfigured):
@@ -542,6 +764,26 @@ async def async_handle_command_payload(
     user_id: str | None = None,
 ) -> tuple[dict[str, Any], int]:
     """Handle a DJConnect command payload for HTTP and HA websocket transports."""
+    # Ask DJ commands are compatibility inputs to the same application exchange.
+    if isinstance(data, dict):
+        command = str(data.get("command") or "").strip().lower()
+        value = data.get("value")
+        action_commands = {"ask_dj_play_recommendation", "ask_dj_play_recommendation_on_output",
+                           "ask_dj_play_request_on_output", "ask_dj_followup_response"}
+        text = _current_track_question_text(data, command, value)
+        if command == "ask_dj_message":
+            part = value if isinstance(value, dict) else {"text": value}
+            text = _ask_dj_message_text(data, part)
+            normalized = {**data, **part, "text": text}
+        else:
+            normalized = {**data, "text": text or command}
+        if command in action_commands or command in {"ask_dj_message", "help", "hulp", "commands", "show_help", "show_commands"} or text:
+            if not normalized.get("text"):
+                return _error_payload("missing_ask_dj_text"), 400
+            return await async_handle_ask_dj_message_payload(
+                hass, normalized, headers=headers, user_id=user_id,
+                action_request=(command, value) if command in action_commands else None,
+            )
     headers = headers or {}
     context = await _prepare_command_context(hass, data, headers, user_id=user_id)
     if "response" in context:
@@ -996,12 +1238,58 @@ def _is_current_track_question_text(value: str) -> bool:
     }
 
 
+def _conversation_profile_fence(hass, runtime, identity, headers, context, *, _ha_service_runtime=None):
+    """A synchronous owner fence after the final Store/source/Profile await."""
+    from .session_conversation import SessionConversationError
+    if _ha_service_runtime is not None:
+        if _ha_service_runtime is not runtime:
+            raise SessionConversationError("unauthorized", 401)
+        device_id = _ha_native_service_identity(hass, runtime)["device_id"]
+    else:
+        device_id = identity.get("device_id") or headers.get("X-DJConnect-Device-ID")
+        if resolve_runtime(hass, device_id, headers) is not runtime or not authorize_runtime_device_request(
+            runtime, headers, device_id, identity.get("client_type")
+        ):
+            raise SessionConversationError("unauthorized", 401)
+    entry = getattr(runtime, "entry", None)
+    if entry is not None:
+        entries = getattr(hass, "config_entries", None)
+        if (entries is None or entries.async_get_entry(entry.entry_id) is not entry
+            or entry.disabled_by is not None
+            or getattr(entry.state, "value", entry.state) != "loaded"
+            or hass.data.get("djconnect", {}).get(entry.entry_id) is not runtime
+            or entry.data.get("device_token") != getattr(runtime, "device_token", None)):
+            raise SessionConversationError("session_context_changed")
+    try:
+        current_profile = profile_storage(hass).resolver().resolve_bound_device(device_id)
+    except Exception as exc:
+        raise SessionConversationError("profile_device_mismatch", 403) from exc
+    if current_profile.profile_id != context.profile_id or not resolve_profile_privacy_policy(current_profile, {}).allow_personal_read:
+        raise SessionConversationError("history_not_allowed", 403)
+    from .ask_dj.dialogue import source_scope
+    if source_scope(current_profile) != source_scope(context.profile):
+        raise SessionConversationError("conversation_context_changed")
+
+
+def _conversation_scope_error(payload, user_id):
+    scope = payload.get("conversation_scope", "profile")
+    if not isinstance(scope, str) or scope not in {"profile", "legacy"}:
+        return _error_payload("invalid_conversation_scope"), 400
+    if scope == "legacy" and not user_id:
+        return _error_payload("ha_user_required"), 401
+    return None
+
+
 async def async_handle_ask_dj_message_payload(
     hass: Any,
     data: dict[str, Any],
     *,
     headers: Any | None = None,
     user_id: str | None = None,
+    voice_input: bool = False,
+    persist_history: bool = True,
+    action_request: tuple[str, Any] | None = None,
+    _ha_service_runtime: Any | None = None,
 ) -> tuple[dict[str, Any], int]:
     """Handle Ask DJ chat messages for HTTP and HA websocket transports."""
     headers = headers or {}
@@ -1009,81 +1297,129 @@ async def async_handle_ask_dj_message_payload(
         _debug_ask_dj_error("message", {}, (_error_payload("invalid_json"), 400))
         return _error_payload("invalid_json"), 400
     identity = identity_payload(data)
-    runtime = resolve_runtime(
-        hass,
-        identity.get("device_id") or headers.get("X-DJConnect-Device-ID"),
-        headers,
-    )
-    if runtime is None:
-        _debug_ask_dj_error("message", data, (_error_payload("not_configured"), 503))
-        return _error_payload("not_configured"), 503
-    client_type = validate_required_client_type(identity)
-    if client_type is None:
-        _debug_ask_dj_error("message", data, (_error_payload("invalid_client_type"), 400), runtime=runtime)
-        return _error_payload("invalid_client_type"), 400
-    identity[CONF_CLIENT_TYPE] = client_type
-    if not authorize_runtime_device_request(
-        runtime,
-        headers,
-        identity.get("device_id"),
-        client_type,
-    ):
-        _debug_ask_dj_error("message", data, (_error_payload("unauthorized"), 401), runtime=runtime)
-        return _error_payload("unauthorized"), 401
+    if _ha_service_runtime is not None:
+        runtime = _ha_service_runtime
+        from .session_conversation import SessionConversationError
+        try:
+            server_identity = _ha_native_service_identity(hass, runtime)
+        except SessionConversationError as exc:
+            return _error_payload(exc.code), exc.status
+        if any(identity.get(key) and identity[key] != value for key, value in server_identity.items()):
+            return _error_payload("profile_device_mismatch"), 403
+        identity.update(server_identity)
+        client_type = server_identity["client_type"]
+    else:
+        runtime = resolve_runtime(
+            hass, identity.get("device_id") or headers.get("X-DJConnect-Device-ID"), headers,
+        )
+        if runtime is None:
+            return _error_payload("not_configured"), 503
+        client_type = validate_required_client_type(identity)
+        if client_type is None:
+            return _error_payload("invalid_client_type"), 400
+        identity[CONF_CLIENT_TYPE] = client_type
+        if not authorize_runtime_device_request(runtime, headers, identity.get("device_id"), client_type):
+            return _error_payload("unauthorized"), 401
     payload = dict(data)
     payload.update({key: value for key, value in identity.items() if value is not None})
     payload = enrich_payload_with_mood_zone(payload)
-    profile_error, profile_status = await _apply_profile_or_error(
-        hass,
-        runtime,
-        payload,
-        user_id=user_id,
-        source="ask_dj_message",
-    )
-    if profile_error is not None:
-        return profile_error, int(profile_status or 400)
     _debug_ask_dj_request("message", runtime, payload, user_id=user_id)
-    result = await http_helpers.async_handle_ask_dj(hass, runtime, payload, user_id=user_id)
-    if not result.get("success"):
-        _debug_ask_dj_result("message", result, 500, runtime=runtime)
-        return result, 500
-    privacy_policy = getattr(runtime, "profile_context_privacy_policy", None)
-    if getattr(privacy_policy, "allow_history_persistence", True):
-        sync = await _history_manager(hass, runtime).async_append_exchange(
-            user_id,
-            payload,
-            result,
-        )
-    else:
-        sync = {
-            "success": True,
-            "history_revision": None,
-            "clear_revision": None,
-            "messages": [],
-            "history_persisted": False,
-            "privacy_mode": str(payload.get("profile_privacy_mode") or ""),
-        }
-    event_type = (
-        EVENT_ASK_DJ_CONFIRM
-        if result.get("confirmation_actions")
-        else EVENT_ASK_DJ_RESPONSE
+    from .ask_dj.service import async_exchange
+    from .session_conversation import SessionConversationError
+    from uuid import uuid4
+
+    # Older id-less transports get an explicit new identity; retaining it enables retries.
+    if "conversation_context" not in payload and not payload.get("client_message_id"):
+        payload["client_message_id"] = "server-turn-" + uuid4().hex
+    payload.pop("_command_action", None)
+    if action_request is not None:
+        payload["_command_action"] = action_request
+    payload["input_type"] = "voice" if voice_input else "text"
+    payload.setdefault("audio_response","auto")
+    bound_runtime, context, error, status = await _session_profile_context(
+        hass, payload, headers=headers, user_id=user_id, source="session_conversation",
+        _ha_service_runtime=_ha_service_runtime,
     )
-    if sync.get("history_persisted", True):
-        await http_helpers.async_send_push_event(
+    if error is not None:
+        return error, status
+    if (
+        not context.privacy_policy.allow_personal_read
+        or not resolve_profile_privacy_policy(context.profile, {}).allow_personal_read
+    ):
+        return _error_payload("history_not_allowed"), 403
+
+    # Profile authorization also owns the Music DNA namespace; client hints do not.
+    payload["music_dna_key"] = context.music_dna_key
+
+    async def delegate(confirmed_payload, scope_key, selected_entry, playback_result):
+        return await http_helpers.async_handle_ask_dj(
             hass,
-            runtime,
+            bound_runtime,
+            confirmed_payload,
             user_id=user_id,
-            event_type=event_type,
-            history_revision=sync.get("history_revision"),
-            client_message_id=payload.get("client_message_id"),
-            source_device_id=identity.get("device_id"),
-            client_type=identity.get("client_type"),
-            explicit_user_request=True,
-            announcement=result.get("announcement") if isinstance(result, dict) else None,
+            conversation_history_scope=scope_key,
+            ephemeral_conversation=bool(confirmed_payload.get("private_session")),
+            confirmed_entry=selected_entry,
+            saved_playback_result=playback_result,
+            action_request=action_request,
         )
-    response = {**result, **sync}
-    _debug_ask_dj_result("message", response, 200, runtime=runtime)
-    return response, 200
+
+    async def validate_owner():
+        _runtime, current, current_error, current_status = await _session_profile_context(
+            hass,
+            dict(payload),
+            headers=headers,
+            user_id=user_id,
+            source="session_conversation_complete",
+            _ha_service_runtime=_ha_service_runtime,
+        )
+        if current_error is not None or _runtime is not bound_runtime or current.profile_id != context.profile_id:
+            raise SessionConversationError("session_context_changed", int(current_status or 409))
+        from .ask_dj.dialogue import source_scope
+        if source_scope(current.profile) != source_scope(context.profile):
+            raise SessionConversationError("conversation_context_changed")
+        minimum = resolve_profile_privacy_policy(current.profile, {})
+        if not current.privacy_policy.allow_personal_read or not minimum.allow_personal_read:
+            raise SessionConversationError("history_not_allowed", 403)
+        if (
+            context.privacy_policy.allow_history_persistence
+            and resolve_profile_privacy_policy(context.profile, {}).allow_history_persistence
+            and (
+                not current.privacy_policy.allow_history_persistence
+                or not minimum.allow_history_persistence
+            )
+        ):
+            raise SessionConversationError("history_not_allowed", 403)
+
+    def validate_immediate():
+        _conversation_profile_fence(hass, bound_runtime, identity, headers, context,
+                                    _ha_service_runtime=_ha_service_runtime)
+
+    try:
+        result = await async_exchange(
+            hass,
+            bound_runtime,
+            payload,
+            profile_id=context.profile_id,
+            history_manager=_history_manager(hass, bound_runtime),
+            delegate=delegate,
+            validate_owner=validate_owner,
+            validate_immediate=validate_immediate,
+            profile=context.profile,
+            persist_history=persist_history and context.privacy_policy.allow_history_persistence
+            and resolve_profile_privacy_policy(context.profile, {}).allow_history_persistence,
+        )
+        result_status=int(result.pop("_response_status",200))
+        _debug_ask_dj_result("message", result, result_status, runtime=bound_runtime)
+        return result, result_status
+    except SessionConversationError as exc:
+        return _error_payload(exc.code), exc.status
+    except PermissionError:
+        return _error_payload("history_unavailable"), 404
+    except (OSError, RuntimeError):
+        return _error_payload("history_storage_unavailable"), 503
+    except ValueError:
+        return _error_payload("session_context_changed"), 409
 
 
 async def async_handle_track_insight_payload(
@@ -1141,13 +1477,40 @@ async def async_handle_track_insight_payload(
         if value and not payload.get(payload_key):
             payload[payload_key] = str(value).split(",", 1)[0].strip()
     _debug_track_insight_request(runtime, payload, source=source)
+    _bound, owner, error, status = await _session_profile_context(
+        hass,payload,headers=headers,user_id=None,source="track_insight_owner")
+    if error is not None:
+        return error,status
+    from .session_conversation import history_grant_revision
+    source_revision = history_grant_revision(hass,owner.profile_id)
+    def owner_guard():
+        if resolve_runtime(hass,identity.get("device_id"),headers) is not runtime or not authorize_runtime_device_request(runtime,headers,identity.get("device_id"),client_type):
+            raise TrackInsightError("unauthorized","Access was withdrawn.",status=401)
+        entry = getattr(runtime, "entry", None)
+        if entry is not None:
+            entries = getattr(hass, "config_entries", None)
+            if (entries is None or entries.async_get_entry(entry.entry_id) is not entry
+                or entry.disabled_by is not None or getattr(entry.state, "value", entry.state) != "loaded"
+                or hass.data.get("djconnect", {}).get(entry.entry_id) is not runtime
+                or entry.data.get("device_token") != getattr(runtime, "device_token", None)):
+                raise TrackInsightError("unauthorized", "Access was withdrawn.", status=401)
+        try:
+            current = profile_storage(hass).resolver().resolve_bound_device(identity["device_id"])
+        except Exception as exc:
+            raise TrackInsightError("profile_device_mismatch", "The device owner changed.", status=403) from exc
+        if current.profile_id != owner.profile_id or not resolve_profile_privacy_policy(current,{}).allow_personal_read or history_grant_revision(hass,owner.profile_id) != source_revision:
+            raise TrackInsightError("track_insight_target_withdrawn","The owner or source changed.",status=403)
     try:
+        owner_guard()
         result = await TrackInsightService().async_analyze(
             hass,
             runtime,
             payload,
             source=source,
+            owner_profile_id=owner.profile_id,
+            commit_guard=owner_guard,
         )
+        owner_guard()
     except TrackInsightError as exc:
         _debug_track_insight_error("result", payload, (exc.as_dict(), exc.status), runtime=runtime, source=source)
         return exc.as_dict(), exc.status
@@ -1265,14 +1628,19 @@ async def async_handle_music_dna_profile_payload(
     if not callable(profile_getter):
         _debug_music_dna_error("profile", payload, (_error_payload("music_dna_unavailable"), 503), runtime=runtime)
         return _error_payload("music_dna_unavailable"), 503
+    response_guard = await capture_refresh_guard(runtime, payload, user_id=user_id)
+    if response_guard is not None and not response_guard.valid():
+        return {"success": False, "error": "music_dna_context_changed"}, 409
     result = await profile_getter(runtime, payload, user_id=user_id)
-    if result.get("enabled") and await _refresh_music_dna_profile_if_stale(
-        hass,
-        runtime,
-        payload,
-        user_id=user_id,
-    ):
+    if response_guard is not None and not response_guard.valid():
+        return {"success": False, "error": "music_dna_context_changed"}, 409
+    if result.get("enabled"):
+        await _refresh_music_dna_profile_if_stale(hass, runtime, payload, user_id=user_id)
+        if response_guard is not None and not response_guard.valid():
+            return {"success": False, "error": "music_dna_context_changed"}, 409
         result = await profile_getter(runtime, payload, user_id=user_id)
+        if response_guard is not None and not response_guard.valid():
+            return {"success": False, "error": "music_dna_context_changed"}, 409
     _debug_music_dna_result("profile", result, 200, runtime=runtime)
     return result, 200
 
@@ -1471,15 +1839,22 @@ async def _refresh_music_dna_profile_if_stale(
             ttl_seconds=MUSIC_DNA_PROFILE_REFRESH_SECONDS,
         ):
             return False
+        guard = await capture_refresh_guard(runtime, payload, user_id=user_id)
+        if guard is not None and (not guard.valid() or not guard.persistence_allowed):
+            return False
         result = await run_music_command(
             hass,
             runtime,
             "listening_profile",
         )
+        if guard is not None and not guard.valid():
+            return False
         profile = result.get("profile") if isinstance(result, dict) else {}
         if not isinstance(profile, dict) or not profile:
             return False
-        await updater(runtime, profile, payload, user_id=user_id)
+        await updater(runtime, profile, payload, user_id=user_id, **({"refresh_guard": guard} if guard is not None else {}))
+        if guard is not None and not guard.valid():
+            return False
     except Exception as exc:  # noqa: BLE001
         _LOGGER.debug(
             "DJConnect Music DNA profile refresh skipped: %s",
@@ -2148,6 +2523,7 @@ async def async_handle_ask_dj_history_payload(
     *,
     headers: Any | None = None,
     user_id: str | None = None,
+    history_limit: int = 50,
 ) -> tuple[dict[str, Any], int]:
     """Return Ask DJ history for HTTP and HA websocket transports."""
     headers = headers or {}
@@ -2159,6 +2535,9 @@ async def async_handle_ask_dj_history_payload(
         _debug_ask_dj_error("history", data, (_error_payload(error), status), runtime=runtime)
         return _error_payload(error), status
     payload = {**data, **identity}
+    scope_error = _conversation_scope_error(payload, user_id)
+    if scope_error:
+        return scope_error
     profile_error, profile_status = await _apply_profile_or_error(
         hass,
         runtime,
@@ -2169,6 +2548,62 @@ async def async_handle_ask_dj_history_payload(
     if profile_error is not None:
         return profile_error, int(profile_status or 400)
     _debug_ask_dj_request("history", runtime, payload, user_id=user_id)
+    if payload.get("conversation_scope", "profile")=="profile":
+        _bound,context,error,status=await _session_profile_context(hass,payload,headers=headers,user_id=user_id,source="profile_conversation_history")
+        if error is not None:
+            return error,status
+        if (not context.privacy_policy.allow_personal_read
+            or not resolve_profile_privacy_policy(context.profile,{}).allow_personal_read):
+            return _error_payload("history_not_allowed"),403
+        manager = _history_manager(hass, runtime)
+        scope_revision = await manager.async_scope_revision("profile:" + context.profile_id)
+        from .session_conversation import async_history_grant_revision, query_service, SessionConversationError
+        from .session_history_projection import HistoryQueryError
+
+        query = query_service(hass, manager)
+        grant_revision = await async_history_grant_revision(hass, context.profile_id)
+        archive_revision = await query._repository.async_owner_revision(
+            context.profile_id, include_active=True
+        )
+        result=await manager.async_history("profile:"+context.profile_id,since_revision=_int_or_none(payload.get("since_revision")),limit=history_limit)
+        safe=[]
+        for message in result["messages"]:
+            visible=True
+            for target in message.get("historical_entry_references",[]):
+                try:
+                    await query.async_open_entry(context.profile_id,target["session_id"],target["entry_id"])
+                except PermissionError:
+                    visible=False
+                except HistoryQueryError as exc:
+                    return _error_payload(str(exc)), 409
+            if visible:
+                safe.append(message)
+        _bound, current, error, status = await _session_profile_context(
+            hass, dict(payload), headers=headers, user_id=user_id,
+            source="profile_conversation_history_complete",
+        )
+        if error is not None:
+            return error, status
+        if current.profile_id != context.profile_id:
+            return _error_payload("history_unavailable"), 403
+        if (not current.privacy_policy.allow_personal_read
+            or not resolve_profile_privacy_policy(current.profile, {}).allow_personal_read):
+            return _error_payload("history_not_allowed"), 403
+        if await manager.async_scope_revision("profile:" + context.profile_id) != scope_revision:
+            return _error_payload("conversation_history_changed"), 409
+        if (await query._repository.async_owner_revision(context.profile_id, include_active=True)
+            != archive_revision
+            or await async_history_grant_revision(hass, context.profile_id) != grant_revision):
+            return _error_payload("conversation_history_changed"), 409
+        result["messages"]=safe
+        result["user_id"]=None
+        result["owner_profile_id"]=context.profile_id
+        result["history_scope"]="profile"
+        try:
+            _conversation_profile_fence(hass, runtime, identity, headers, context)
+        except SessionConversationError as exc:
+            return _error_payload(exc.code), exc.status
+        return result,200
     result = await _history_manager(hass, runtime).async_history(
         user_id,
         since_revision=_int_or_none(payload.get("since_revision")),
@@ -2195,6 +2630,9 @@ async def async_handle_ask_dj_history_export_payload(
         _debug_ask_dj_error("history_export", data, (_error_payload(error), status), runtime=runtime)
         return _error_payload(error), status
     payload = {**data, **identity}
+    scope_error = _conversation_scope_error(payload, user_id)
+    if scope_error:
+        return scope_error
     profile_error, profile_status = await _apply_profile_or_error(
         hass,
         runtime,
@@ -2205,7 +2643,14 @@ async def async_handle_ask_dj_history_export_payload(
     if profile_error is not None:
         return profile_error, int(profile_status or 400)
     _debug_ask_dj_request("history_export", runtime, payload, user_id=user_id)
-    history = await _history_manager(hass, runtime).async_history(user_id)
+    if payload.get("conversation_scope", "profile") == "profile":
+        history, status = await async_handle_ask_dj_history_payload(
+            hass, payload, headers=headers, user_id=user_id, history_limit=1000
+        )
+        if status != 200:
+            return history, status
+    else:
+        history = await _history_manager(hass, runtime).async_history(user_id)
     response = {
         "success": True,
         "format": "djconnect.ask_dj.history.export",
@@ -2344,6 +2789,9 @@ async def async_handle_ask_dj_history_clear_payload(
         _debug_ask_dj_error("history_clear", data, (_error_payload(error), status), runtime=runtime)
         return _error_payload(error), status
     payload = {**data, **identity}
+    scope_error = _conversation_scope_error(payload, user_id)
+    if scope_error:
+        return scope_error
     profile_error, profile_status = await _apply_profile_or_error(
         hass,
         runtime,
@@ -2354,7 +2802,37 @@ async def async_handle_ask_dj_history_clear_payload(
     if profile_error is not None:
         return profile_error, int(profile_status or 400)
     _debug_ask_dj_request("history_clear", runtime, payload, user_id=user_id)
-    result = await _history_manager(hass, runtime).async_clear(user_id)
+    if payload.get("conversation_scope", "profile")=="profile":
+        _bound,context,error,status=await _session_profile_context(hass,payload,headers=headers,user_id=user_id,source="profile_conversation_clear")
+        if error is not None:
+            return error,status
+        if (not context.privacy_policy.allow_personal_read
+            or not resolve_profile_privacy_policy(context.profile,{}).allow_personal_read):
+            return _error_payload("history_not_allowed"),403
+        from .session_conversation import SessionConversationError
+        async def commit_guard():
+            current_runtime, current, failure, status = await _session_profile_context(
+                hass, dict(payload), headers=headers, user_id=user_id, source="profile_conversation_clear_commit"
+            )
+            if failure is not None:
+                raise SessionConversationError(failure.get("error", "history_not_allowed"), int(status or 403))
+            if current_runtime is not runtime or current.profile_id != context.profile_id:
+                raise SessionConversationError("history_not_allowed", 403)
+            if not current.privacy_policy.allow_personal_read:
+                raise SessionConversationError("history_not_allowed", 403)
+            _conversation_profile_fence(hass, runtime, identity, headers, context)
+        try:
+            result=await _history_manager(hass,runtime).async_clear("profile:"+context.profile_id, commit_guard=commit_guard)
+        except SessionConversationError as exc:
+            return _error_payload(exc.code), exc.status
+        except Exception:
+            return _error_payload("history_storage_unavailable"), 503
+        result.update(user_id=None,owner_profile_id=context.profile_id,history_scope="profile")
+        return result,200
+    try:
+        result = await _history_manager(hass, runtime).async_clear(user_id)
+    except Exception:
+        return _error_payload("history_storage_unavailable"), 503
     _decorate_profile_response(result, payload)
     _debug_ask_dj_result("history_clear", result, 200, runtime=runtime)
     return result, 200
@@ -2382,6 +2860,9 @@ async def async_handle_ask_dj_history_state_payload(
         _debug_ask_dj_error("history_state", data, (_error_payload(error), status), runtime=runtime)
         return _error_payload(error), status
     payload = {**data, **identity}
+    scope_error = _conversation_scope_error(payload, user_id)
+    if scope_error:
+        return scope_error
     profile_error, profile_status = await _apply_profile_or_error(
         hass,
         runtime,
@@ -2392,10 +2873,11 @@ async def async_handle_ask_dj_history_state_payload(
     if profile_error is not None:
         return profile_error, int(profile_status or 400)
     _debug_ask_dj_request("history_state", runtime, payload, user_id=user_id)
-    result = await _history_manager(hass, runtime).async_history(
-        user_id,
-        since_revision=_int_or_none(payload.get("since_revision")),
+    result, status = await async_handle_ask_dj_history_payload(
+        hass, payload, headers=headers, user_id=user_id
     )
+    if status != 200:
+        return result, status
     clear_revision = int(result.get("clear_revision") or 0)
     client_clear_revision = _int_or_none(payload.get("clear_revision")) or 0
     response = {
@@ -2407,6 +2889,8 @@ async def async_handle_ask_dj_history_state_payload(
         "history_trimmed_before": result.get("history_trimmed_before"),
         "history_trimmed_count": result.get("history_trimmed_count"),
         "ask_dj_clear_required": client_clear_revision < clear_revision,
+        "owner_profile_id": result.get("owner_profile_id"),
+        "history_scope": result.get("history_scope", "legacy"),
         "server_time": result.get("server_time"),
     }
     _decorate_profile_response(response, payload)
@@ -2593,6 +3077,7 @@ async def async_handle_profile_clear_payload(
         )
         if payload.get("ask_dj") or payload.get("all"):
             await _history_manager(hass, runtime).async_clear(user_id)
+            await _history_manager(hass, runtime).async_clear("profile:" + profile_id)
         if payload.get("music_dna") or payload.get("all"):
             memory = getattr(runtime, "memory", None)
             if memory is not None and callable(getattr(memory, "async_clear", None)):
@@ -2773,6 +3258,9 @@ def _authorized_history_runtime(
         client_type,
     ):
         return runtime, identity, "unauthorized", 401
+    # Normalize the already-validated header identity for the shared Profile boundary.
+    identity["device_id"] = identity.get("device_id") or headers.get("X-DJConnect-Device-ID")
+    identity[CONF_CLIENT_TYPE] = client_type
     return runtime, identity, None, 200
 
 

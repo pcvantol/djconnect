@@ -1,5 +1,13 @@
 # Engineering Platform 2.x extraction and migration plan
 
+> Historical phase plan. For DJConnect source retirement on 2026-10-03, the
+> owner waived the real DJConnect Engineering Action and EP self-development
+> prerequisites while validating standalone distribution and responsibility
+> transfer. The current bounded decision is recorded in
+> [LANE_5](../governance/LANE_5_EP_SOURCE_RETIREMENT.md). The original phase
+> gates below remain historical; no live cutover or data migration is part of
+> this source-retirement assignment.
+
 **Status:** Phase 0 complete; Phase 1 complete / qualified; Phase 2 closed / retired clean-slate decision; Phase 3 authorized for history-preserving physical extraction
 **Scope:** Engineering Platform 2.x extraction from `pcvantol/djconnect` to a
 standalone, local-first Execution Operations Platform

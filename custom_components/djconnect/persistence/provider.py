@@ -15,10 +15,14 @@ class ProviderTransaction(Protocol):
     def execute(self, statement: str, parameters: tuple[object, ...] = ()) -> None:
         """Execute one provider statement inside the active transaction."""
 
-    def fetchone(self, statement: str, parameters: tuple[object, ...] = ()) -> tuple[object, ...] | None:
+    def fetchone(
+        self, statement: str, parameters: tuple[object, ...] = ()
+    ) -> tuple[object, ...] | None:
         """Read one row inside the active transaction."""
 
-    def fetchall(self, statement: str, parameters: tuple[object, ...] = ()) -> list[tuple[object, ...]]:
+    def fetchall(
+        self, statement: str, parameters: tuple[object, ...] = ()
+    ) -> list[tuple[object, ...]]:
         """Read bounded rows inside the active transaction."""
 
 
@@ -46,5 +50,7 @@ class PersistenceProvider(Protocol):
     async def async_run_transaction(
         self,
         operation: Callable[[ProviderTransaction], ResultT],
+        *,
+        authorize: Callable[[], bool] | None = None,
     ) -> ResultT:
         """Run one short platform-owned transaction."""

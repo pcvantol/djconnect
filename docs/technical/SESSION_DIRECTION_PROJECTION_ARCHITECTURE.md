@@ -1,6 +1,7 @@
 # Session Direction Projection Architecture
 
-**Status:** Future technical design; no implementation authorization.
+**Status:** Selected bounded implementation under DJC-CORE-SESSION-FORECAST-V1-20261012;
+local qualification in progress, protected delivery pending.
 
 ## Reconciliation
 
@@ -42,3 +43,17 @@ Any implementation requires a dedicated Pre-Flight, schema/privacy contract,
 Broadcast compatibility evidence, renderer assessment and focused validation.
 This design changes no Runtime, Planner, DJMoment, Session Flow, Broadcast,
 HTTP or WebSocket behavior.
+
+## Session Forecast v1 refinement
+
+[Canonical Forecast contract](../product/SESSION_FORECAST_V1.md) implements the
+small mutable projection with ordinary paired owner-read and additive Broadcast
+state/update, not a new Horizon or Moment. Planner semantics are allowlisted and
+realized by existing authored presentation ownership for four Personas/five locales.
+Nominal external900s is conditional intent coverage; current Runtime15-minute
+foundation and future internal20-minute target are unchanged. Artist imagery has
+separate exact subject/role/source/usage/expiry/audience qualification; private
+Discovery grants and unknown future media never leave Core. Reads are pure and
+expiry/authority/end remove content. Current Core, native view, shared compatibility,
+visible ambient adoption and joint acceptance retain separate qualification.
+Earlier future-design wording above is the preserved pre-implementation baseline.

@@ -48,7 +48,7 @@ class HistoricalProjectionRetentionService:
             orphans,
             eligible_sessions,
         ) = await self._repository.async_cleanup_expired(
-            cutoff=cutoff, batch_size=self._policy.batch_size
+            cutoff=cutoff, batch_size=self._policy.batch_size, entry_deadline=current.isoformat()
         )
         return HistoricalCleanupStatistics(
             0,

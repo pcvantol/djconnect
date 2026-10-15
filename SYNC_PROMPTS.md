@@ -1,9 +1,120 @@
+## Delivered Core Cast status pin — 2026-10-10
+
+Source PR#1138 protected merge c41b6079ed54eb40b0027a6666b0f784bb48f703 equals
+independently reviewed d7396554cb6179c7cdce67c473bd9b069c4c9a92 / tree29010a9f6a3267045e314cb54f2b578bc2134c80.
+The additive contract docs/product/VIBECAST_CAST_STATUS_CONTRACT.md and status
+schema remain authoritative. Build1.1.0 supplies opt-in status v1 with directed
+current sender/handoff/Session correlation, bounded lease/timeout, Silence and
+view-only stop. SDK/heartbeat are not HA-health or physical-visibility proof.
+Legacy Pi/v1/private Apple contracts stay intact; closed#1136/#1137 remain closed.
+Immutable bundle: https://github.com/pcvantol/djconnect/releases/download/internal-ha-c41b6079ed54eb40b0027a6666b0f784bb48f703/vibecast-status-d7396554.tar.gz
+Manifest b401cb5e02e7a34b2674c4432c3f79675df6819bb667685124b928915839350a;
+bundle939ab00f70d1122410559b6f0eaedf5dd831240e65d04d15a24a58497d5cd74a.
+Use the matching pinned verifier/exact supplying revision; receiver imports with
+new delta review under its own authority. Source/main/package139files and
+canonical qualification/coverage PASS;79real-browser statuses/11HA sequences
+PASS with modeled CAF. Distinct Finalization and canonical invalid-ref
+archive/disposition remain pending; no Pages/Console/install/native/hardware
+claim, generated-HTML patch or next lane dispatch.
+
+## Delivered shared renderer pin — 2026-10-09
+
+PR#1136 source-main b211e5e99235e5862b3befb100dd9e64438f6e80 equals exact reviewed
+7460ef5e1d4c15888569b857d7c636620ace7e37/tree7774f7d002d0946eeaefe6bc769f3ee853ee0de5.
+Build1.0.0 manifest72239b47 / bundledfb80063 / shared renderer2f08d8f0 are pinned
+in VibeCast#10/6080217273; historical24e4 pin is superseded. Local HA/Pi stays
+self-contained; receiver consumes the generated static build under its own
+import/promotion authority. Existing v1 handoff and exact configured HTTPS
+origin gate/current snapshot capabilities are explicit; no arbitrary old-HA
+support, wildcard credentials or private Apple history/search sharing.
+Eleven actual TLS/Broadcast browser sequences qualify software only; CAF
+transport is modeled and physical Cast/LG, Pages, PiPARTIAL remain separate.
+HA-dev is unchanged on69315f43. Separate Finalization closes this Core slice,
+not a receiving deployment or next product assignment.
+
+## Core shared VibeCast build handoff — 2026-10-09
+
+Assignment DJC-CORE-VIBECAST-SHARED-RENDERER-V1-20261009 consumes the existing
+snapshot/event-v1 Broadcast and v1 Cast handoff. Core owns one rich renderer
+source and reproducible local/static builds; VibeCast receiver owns pinned
+import/Pages promotion. See docs/product/VIBECAST_SHARED_RENDERER_BUILD_CONTRACT.md.
+Apple conversation/history/search/HTTP-scope contracts are retained; private
+questions and archived sessions do not become guest/room content. Software
+browser receipts and exact build pins must precede deployment/hardware claims.
+No Pages, receiverrepo, Apple, LG or Pi deployment is implied by this increment.
+
 # DJConnect Sync Prompts
 
 This is the only canonical cross-repo sync prompt bundle for DJConnect. The
 Home Assistant integration repo `pcvantol/djconnect` is the leading source for
 this file. Do not copy this file into sibling repos and do not reintroduce
 repo-local sync prompt files.
+
+## Corrective Profile-history HTTP producer — 2026-10-09
+
+Core `DJC-CORE-PROFILE-HISTORY-HTTP-SCOPE-FIX-V1-20261009`, source PR#1134
+protected merge2337e06f514dfa2d847d9de26189a10bc618b555 from reviewed4ada2b61.
+The actual Apple consumer exposed scope/identity loss in documented GET history;
+24 real isolated HA requests now qualify corrected owner/message identity,
+privacy/auth/revision/clear and legacy isolation. Immutable corrected receipt:
+`examples/client_contracts/profile_history_http_scope_fix/http-producer-receipt.json`.
+Existing Apple assignment consumes exact pinned source and independently
+qualifies native UI; no anonymous-as-Profile import or local namespace workaround.
+Core publication/Finalization and Apple signing/install effects retain distinct
+authority. Original eleven-request evidence remains historical, not expanded.
+
+## Session conversation/history Core→Apple protected delivery — 2026-10-09
+
+Core assignment `DJC-CORE-SESSION-CONVERSATION-HISTORY-V1-20261008`; dependent
+Apple assignment `DJC-APPLE-SESSION-CONVERSATION-HISTORY-V1-20261008`; literal
+search addendum `DJC-SESSION-FLOW-TEXT-SEARCH-V1-20261008`. The owning Core
+contract is [SESSION_CONVERSATION_HISTORY_CONTRACT.md](docs/product/SESSION_CONVERSATION_HISTORY_CONTRACT.md);
+JSON schema and real synthetic producer receipts are under
+`examples/client_contracts/session_conversation_history/`. Exact candidate SHA,
+review state and capability availability are pinned externally in #1101/#87;
+source PR#1132 merged as `30eba3749a5d16322b5bd45695e6adc25750805d` from exact reviewed `19b815612319291cc7e4ab1fca4718667f173970`; both trees `d08283c47ea75cf5e049cd22a9d2244f05110e52`. No mutable Core WIP is a consumer contract. Source fixtures qualify
+software semantics, not HA-dev installation, real microphone or native UI.
+
+Apple may consume this exact merged producer within its existing assignment;
+no wait for every Finalization document and no new writer. Wire/rights deltas require a
+new exact receipt and targeted reconciliation. Core owns auth/query/storage and
+Ask DJ; Apple owns native conversation/archive/search UI and decode/state proof.
+Private conversations, archive queries/snippets/links stay outside shared
+VibeCast/room/guest Broadcast. No second writer, Swift in Core, new provider,
+model history ingestion, TTS/replay, playback mutation or implicit installation.
+
+## Selected portrait Pi VibeCast handoff candidate — 2026-10-04
+
+This is the source coordination contract for the single selected first product
+slice `DJC-VIBECAST-PI-OWNER-HANDOFF-V1-20261004`. It is a candidate until
+protected source merges and real Apple-to-Pi acceptance; it does not select
+the later Google Cast increment or change the older protocol-line history
+below.
+
+- The HA repository owns `POST /api/djconnect/v1/session/broadcast/handoff/claim`
+  and `/collect` for a five-minute browser-memory claim, plus owner-authenticated
+  `/approve`. Only the paired owner of the exact active Session may approve a
+  six-digit code. The code is visual confirmation; a separate high-entropy
+  browser claim secret is required to collect the existing Runtime-scoped
+  Broadcast Token once. Approval returns no token to the Apple client.
+- The Apple repository owns a code-entry action visible only for its active
+  Session, sends `session_id` plus `code` through its existing identified,
+  bearer-authenticated request, and stores no Broadcast Token or receiver
+  secret. Its active-Session GET includes device ID and client type. The
+  five-language UI reports code approval as waiting for the Pi, without
+  claiming receiver delivery or exposing tokens.
+- The HA owner Session lifecycle and Broadcast Token/approval paths require
+  the authenticated device's server-side Profile binding. Client-supplied
+  Profile hints cannot select another Session. An unmapped paired client fails
+  closed until mapped through the existing Profile Platform.
+- The physical portrait Pi uses the HA-hosted `/djconnect/vibecast` browser
+  page. Its native client need not pair or gain a new token/transport for this
+  reference subset. Browser state is in memory; it consumes only the existing
+  Broadcast WebSocket snapshot and updates. Actual Pi/Apple/HA live acceptance
+  remains required for reconnect, Runtime end, privacy and readability.
+- Neither source candidate authorizes a product release, automatic prerelease,
+  deployment or Cast follow-on. Each repository retains its own protected
+  merge, Finalization and exact consumer-evidence gates.
 
 Canonical repo locations:
 
@@ -103,12 +214,18 @@ and `<3.3.0`.
 ```text
 Sync an authenticated owner renderer with the DJ Session Broadcast Transport.
 
-Use Home Assistant's authenticated /api/websocket as the one canonical live
-transport. After normal Home Assistant websocket authentication, send
-djconnect/session/broadcast/subscribe with the existing DJConnect identity and
-device token fields plus the active session_id. The command result contains the
-complete Broadcast State snapshot. Apply that snapshot before applying later
-djconnect/session/broadcast events.
+Use the advertised paired_owner_websocket v1 route for ordinary Apple pairing
+(see docs/product/PAIRED_OWNER_LIVE_CONTRACT_V1.md). Clients with an existing
+HA credential may still use the native /api/websocket adapter.
+
+For the paired adapter, send identity and device_token only in its first auth
+frame. After auth_ok, subscribe with only id, type and active session_id;
+recovery adds only recovery_cursor. Do not repeat identity/token/Profile fields
+in these commands. For the native HA adapter, retain the existing authenticated
+subscribe/recover commands with DJConnect identity and device token fields.
+
+Both adapters return the complete Broadcast State snapshot in the command
+result. Apply that snapshot before later djconnect/session/broadcast events.
 
 The client never sends, chooses or claims a Profile for this subscription. The
 server authorizes through the existing authenticated device binding and permits
@@ -2963,3 +3080,25 @@ Requirements:
 - Never log bearer tokens, HA tokens, Spotify secrets, WiFi passwords, or
   temporary audio URLs.
 ```
+
+## HA-DJC-APPLE: native Moment delivery (2026-10-08, selected Core increment)
+
+DJC-CORE-NATIVE-MOMENT-DELIVERY-V1-20261008 reuses the existing owner HTTP
+snapshot and authenticated Broadcast subscription/recovery. Native consumers
+must require the additive `native_delivery` v1 admission projection; semantic
+Moments stay immutable. It supplies current/active-Flow allowed IDs, original
+source deadlines and explicit action admission. Unknown qualification fails
+closed. Source lifetime, current-card duration and active-Session recall are
+separate. No disk cache, lifetime renewal on reconnect or inference from
+source names/action payloads. The field/source and lifecycle contract is in
+`docs/product/NATIVE_MOMENT_DELIVERY_CONTRACT.md`; exact producer receipt and
+Apple consumer readback belong in #1101/#87. Apple #95 remains its sole writer.
+
+### Ordinary paired Apple live transport
+
+The native HA `/api/websocket` requires an HA credential. Ordinary DJConnect
+Apple pairing instead uses the advertised `paired_owner_websocket` v1 adapter
+with its existing device token and the same owner Broadcast subscribe/recover
+handlers. See `docs/product/PAIRED_OWNER_LIVE_CONTRACT_V1.md` for the exact
+route, first-frame auth, lease, errors and Apple-owned consumer delta. No
+`/websocket/session` HA token issuer or shared VibeCast token is a substitute.

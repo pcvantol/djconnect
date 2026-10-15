@@ -75,6 +75,8 @@ from .const import (
     DJ_ANNOUNCEMENT_CLIENT_DEVICE,
     FIRMWARE_CHANNELS,
     MUSIC_BACKEND_NAMES,
+    MUSIC_BACKEND_LATER_MANUAL,
+    MUSIC_BACKEND_MANUAL_NAMES,
     MUSIC_BACKEND_MUSIC_ASSISTANT,
     MUSIC_BACKEND_SPOTIFY_DIRECT,
     CLIENT_TYPE_NAMES,
@@ -83,6 +85,7 @@ from .const import (
     CLIENT_TYPE_MACOS,
     CLIENT_TYPE_WATCHOS,
     CLIENT_TYPE_WINDOWS,
+    CLIENT_TYPES,
     DOMAIN,
     SETUP_METHOD_BLE_WIFI,
     SETUP_METHOD_CONVERSATION_AGENT,
@@ -107,10 +110,14 @@ from .discovery_selection import (
     selected_discovered_client,
 )
 from .domain import ProfilePrivacyMode, ProfileType, ResponseStyle
-from .domain.backend import BackendProvider, MusicBackendCapabilities
-from .domain.music_account import MusicAccountKind
+from .domain.backend import BackendProvider, MusicBackendCapabilities, MusicBackendRegistration
+from .domain.music_account import MusicAccount, MusicAccountKind
 from .domain.profile import ProfilePreferences
-from .domain.storage import ProfilePlatformStorage, ProfileStorageValidationError
+from .domain.storage import (
+    ProfilePlatformStorage,
+    ProfileStorageValidationError,
+    SharedProfileBackendChange,
+)
 from .domain.storage import STORE_KEY as PROFILE_PLATFORM_STORE_KEY
 from .pairing_defaults import (
     clean as _clean,
@@ -142,12 +149,13 @@ PROFILE_PLATFORM_ACTION_LINK_DEVICE = "link_device"
 PROFILE_PLATFORM_ACTION_UNLINK_DEVICE = "unlink_device"
 PROFILE_PLATFORM_ACTION_SET_FALLBACK = "set_fallback_profile"
 CONF_PROFILE_ID = "profile_id"
+PROFILE_NEW = "new"
 CONF_PROFILE_NAME = "profile_name"
 CONF_PROFILE_TYPE = "profile_type"
 CONF_PROFILE_PRIVACY_MODE = "profile_privacy_mode"
 CONF_PROFILE_RESPONSE_STYLE = "profile_response_style"
 CONF_REQUIRE_PROFILE = "require_profile"
-BACKEND_LATER_MANUAL = "later_manual"
+BACKEND_LATER_MANUAL = MUSIC_BACKEND_LATER_MANUAL
 BLE_ACTION_FIELD = "ble_action"
 BLE_ACTION_PROVISION = "provision_wifi"
 BLE_ACTION_RETRY_SCAN = "retry_ble_scan"
@@ -172,7 +180,7 @@ SETUP_METHOD_NAMES_EN = {
     ),
     SETUP_METHOD_PAIR_APP: (
         "Pair DJConnect app\n"
-        "iPhone/iPad, Apple Watch, macOS or Windows"
+        "iPhone/iPad, Apple Watch or macOS"
     ),
     SETUP_METHOD_BLE_WIFI: "Configure ESP32 device WiFi (over Bluetooth)",
 }
@@ -186,7 +194,7 @@ SETUP_METHOD_NAMES_NL = {
     ),
     SETUP_METHOD_PAIR_APP: (
         "DJConnect app koppelen\n"
-        "iPhone/iPad, Apple Watch, macOS of Windows"
+        "iPhone/iPad, Apple Watch of macOS"
     ),
     SETUP_METHOD_BLE_WIFI: "ESP32 apparaat WiFi configureren (via Bluetooth)",
 }
@@ -247,11 +255,11 @@ CLIENT_TYPE_NAME_SUFFIXES = {
     "macos": "macOS",
     "watchos": "Watch",
     "raspberry_pi": "Pi",
-    "windows": "Windows",
     CLIENT_TYPE_CONVERSATION_AGENT: "Assist",
 }
 
 VOICE_FORM_FIELDS = {
+    "vibecast_session_end_allowed",
     CONF_ASSIST_PIPELINE_ID,
     CONF_DJ_ANNOUNCEMENT_OUTPUT,
     CONF_DJ_ANNOUNCEMENT_SPEAKER,
@@ -316,6 +324,9 @@ def _ha_language(hass: Any) -> str:
 def _options_actions_for_status(hass: Any, defaults: dict[str, Any]) -> dict[str, str]:
     """Return visible options actions for the current pairing state."""
     actions = dict(_options_action_names(hass))
+    if defaults.get("profile_backend_entry_id"):
+        # A shared client must reauthorize the original connection, never copy its tokens.
+        actions.pop(OPTIONS_ACTION_SPOTIFY_REAUTH, None)
     if defaults.get(CONF_MUSIC_BACKEND) == MUSIC_BACKEND_MUSIC_ASSISTANT:
         actions.pop(OPTIONS_ACTION_SPOTIFY_REAUTH, None)
     pairing_status = str(defaults.get("ha_pairing_status") or "").strip().lower()
@@ -606,12 +617,23 @@ def _spotify_schema() -> dict[Any, Any]:
     return _spotify_schema_with_defaults()
 
 
-def _backend_schema(default_backend: str = DEFAULT_MUSIC_BACKEND) -> dict[Any, Any]:
-    """Build the hard backend choice schema."""
-    backend_names = {
+def _backend_choice_names(hass: Any) -> dict[str, str]:
+    """Show the manual choice in the Home Assistant language."""
+    language = _ha_language(hass).lower().replace("_", "-").split("-")[0]
+    return {
         **MUSIC_BACKEND_NAMES,
-        BACKEND_LATER_MANUAL: "Later / manual",
+        BACKEND_LATER_MANUAL: MUSIC_BACKEND_MANUAL_NAMES.get(
+            language, MUSIC_BACKEND_MANUAL_NAMES["en"]
+        ),
     }
+
+
+def _backend_schema(
+    hass: Any,
+    default_backend: str = DEFAULT_MUSIC_BACKEND,
+) -> dict[Any, Any]:
+    """Build the hard backend choice schema."""
+    backend_names = _backend_choice_names(hass)
     return {
         vol.Required(CONF_MUSIC_BACKEND, default=default_backend): vol.In(
             backend_names
@@ -630,11 +652,11 @@ def _profile_setup_schema(defaults: dict[str, Any] | None = None) -> dict[Any, A
         vol.Required(
             CONF_PROFILE_TYPE,
             default=defaults.get(CONF_PROFILE_TYPE, ProfileType.PERSONAL.value),
-        ): vol.In(PROFILE_TYPE_NAMES),
+        ): selector.SelectSelector(selector.SelectSelectorConfig(options=list(PROFILE_TYPE_NAMES), mode="dropdown", translation_key="onboarding_profile_type")),
         vol.Optional(
             CONF_PROFILE_RESPONSE_STYLE,
             default=defaults.get(CONF_PROFILE_RESPONSE_STYLE, ResponseStyle.BALANCED.value),
-        ): vol.In(PROFILE_RESPONSE_STYLE_NAMES),
+        ): selector.SelectSelector(selector.SelectSelectorConfig(options=list(PROFILE_RESPONSE_STYLE_NAMES), mode="dropdown", translation_key="onboarding_response_style")),
         vol.Required(
             CONF_REQUIRE_PROFILE,
             default=defaults.get(CONF_REQUIRE_PROFILE, False),
@@ -645,9 +667,19 @@ def _profile_setup_schema(defaults: dict[str, Any] | None = None) -> dict[Any, A
 def _profile_platform_schema(
     household: Any,
     defaults: dict[str, Any] | None = None,
+    *,
+    language: str = "en",
 ) -> dict[Any, Any]:
     """Build the minimum options-flow profile management schema."""
     defaults = defaults or {}
+    language = language.split("-", 1)[0].lower()
+    new_profile, manual_device = {
+        "en": ("New profile", "Manual device"),
+        "nl": ("Nieuw profiel", "Handmatig apparaat"),
+        "de": ("Neues Profil", "Manuelles Gerät"),
+        "fr": ("Nouveau profil", "Appareil manuel"),
+        "es": ("Nuevo perfil", "Dispositivo manual"),
+    }.get(language, ("New profile", "Manual device"))
     profile_options = {
         profile_id: profile.display_name
         for profile_id, profile in getattr(household, "profiles", {}).items()
@@ -663,9 +695,12 @@ def _profile_platform_schema(
                 PROFILE_PLATFORM_ACTION_FIELD,
                 PROFILE_PLATFORM_ACTION_ADD_PROFILE,
             ),
-        ): vol.In(PROFILE_PLATFORM_ACTION_NAMES),
+        ): selector.SelectSelector(selector.SelectSelectorConfig(
+            options=list(PROFILE_PLATFORM_ACTION_NAMES), mode="dropdown",
+            translation_key="profile_platform_action",
+        )),
         vol.Optional(CONF_PROFILE_ID, default=defaults.get(CONF_PROFILE_ID, "")): vol.In(
-            {"": "New profile", **profile_options}
+            {"": new_profile, **profile_options}
         ),
         vol.Optional(
             CONF_PROFILE_NAME,
@@ -674,13 +709,19 @@ def _profile_platform_schema(
         vol.Optional(
             CONF_PROFILE_TYPE,
             default=defaults.get(CONF_PROFILE_TYPE, ProfileType.PERSONAL.value),
-        ): vol.In(PROFILE_TYPE_NAMES),
+        ): selector.SelectSelector(selector.SelectSelectorConfig(
+            options=list(PROFILE_TYPE_NAMES), mode="dropdown",
+            translation_key="onboarding_profile_type",
+        )),
         vol.Optional(
             CONF_PROFILE_PRIVACY_MODE,
             default=defaults.get(CONF_PROFILE_PRIVACY_MODE, ProfilePrivacyMode.NORMAL.value),
-        ): vol.In(PROFILE_PRIVACY_MODE_NAMES),
+        ): selector.SelectSelector(selector.SelectSelectorConfig(
+            options=list(PROFILE_PRIVACY_MODE_NAMES), mode="dropdown",
+            translation_key="profile_privacy_mode",
+        )),
         vol.Optional(CONF_DEVICE_ID, default=defaults.get(CONF_DEVICE_ID, "")): vol.In(
-            {"": "Manual device", **device_options}
+            {"": manual_device, **device_options}
         ),
         vol.Optional(
             CONF_DEVICE_NAME,
@@ -689,7 +730,10 @@ def _profile_platform_schema(
         vol.Optional(
             CONF_CLIENT_TYPE,
             default=defaults.get(CONF_CLIENT_TYPE, DEFAULT_CLIENT_TYPE),
-        ): vol.In(CLIENT_TYPE_NAMES),
+        ): selector.SelectSelector(selector.SelectSelectorConfig(
+            options=[key for key in CLIENT_TYPE_NAMES if key != "windows"],
+            mode="dropdown", translation_key="profile_platform_client_type",
+        )),
         vol.Optional(
             CONF_REQUIRE_PROFILE,
             default=defaults.get(CONF_REQUIRE_PROFILE, False),
@@ -729,27 +773,46 @@ async def _ensure_profile_platform_setup(
     pairing: dict[str, Any],
     backend: dict[str, Any],
     spotify: dict[str, Any],
+    manager: ProfilePlatformStorage | None = None,
 ) -> dict[str, str]:
     """Persist minimum first-run Profile Platform state."""
-    manager = _profile_storage(hass)
+    manager = manager or _profile_storage(hass)
+    before = await manager.async_load()
+    selected_id = str(profile_input.get(CONF_PROFILE_ID) or "").strip()
+    if selected_id:
+        profile = before.profiles.get(selected_id)
+        if profile is None:
+            raise ProfileStorageValidationError("profile_unavailable")
+        device_id = str(pairing.get(CONF_DEVICE_ID) or "").strip()
+        if device_id:
+            await manager.async_upsert_device(device_id, str(pairing.get(CONF_CLIENT_TYPE) or DEFAULT_CLIENT_TYPE),
+                display_name=str(pairing.get(CONF_DEVICE_NAME) or device_id), linked_profile_id=selected_id)
+        return {CONF_PROFILE_ID: selected_id, "music_account_id": profile.preferences.default_music_account_id,
+            "music_backend_id": profile.preferences.default_backend_id}
+    name = str(profile_input.get(CONF_PROFILE_NAME) or "").strip()
+    if not name:
+        raise ProfileStorageValidationError("profile_name_required")
+    if any(p.display_name.casefold() == name.casefold() for p in before.profiles.values()):
+        raise ProfileStorageValidationError("profile_name_exists")
     backend_choice = str(backend.get(CONF_MUSIC_BACKEND) or BACKEND_LATER_MANUAL).strip()
     backend_id = _backend_id_for_config(backend_choice)
-    await manager.async_upsert_music_backend(
-        backend_id,
-        _backend_provider_for_config(backend_choice),
-        display_name=MUSIC_BACKEND_NAMES.get(backend_choice, "Manual music backend"),
-        capabilities=MusicBackendCapabilities(
-            search=backend_choice != BACKEND_LATER_MANUAL,
-            playlists=backend_choice != BACKEND_LATER_MANUAL,
-            outputs=backend_choice != BACKEND_LATER_MANUAL,
-            volume=backend_choice != BACKEND_LATER_MANUAL,
-        ),
-        configuration={
-            key: value
-            for key, value in backend.items()
-            if key not in {CONF_SPOTIFY_REFRESH_TOKEN}
-        },
-    )
+    if backend_id not in before.music_backends:
+        await manager.async_upsert_music_backend(
+            backend_id,
+            _backend_provider_for_config(backend_choice),
+            display_name=MUSIC_BACKEND_NAMES.get(backend_choice, "Manual music backend"),
+            capabilities=MusicBackendCapabilities(
+                search=backend_choice != BACKEND_LATER_MANUAL,
+                playlists=backend_choice != BACKEND_LATER_MANUAL,
+                outputs=backend_choice != BACKEND_LATER_MANUAL,
+                volume=backend_choice != BACKEND_LATER_MANUAL,
+            ),
+            configuration={
+                key: value
+                for key, value in backend.items()
+                if key not in {CONF_SPOTIFY_REFRESH_TOKEN}
+            },
+        )
     profile_type = ProfileType(str(profile_input.get(CONF_PROFILE_TYPE) or ProfileType.PERSONAL.value))
     privacy_mode = (
         ProfilePrivacyMode.SHARED
@@ -800,10 +863,11 @@ async def _ensure_profile_platform_setup(
             display_name=str(pairing.get(CONF_DEVICE_NAME) or device_id),
             linked_profile_id=profile.profile_id,
         )
-    await manager.async_set_fallback_profile(
-        profile.profile_id,
-        require_profile=bool(profile_input.get(CONF_REQUIRE_PROFILE)),
-    )
+    if not before.profiles:
+        await manager.async_set_fallback_profile(
+            profile.profile_id,
+            require_profile=bool(profile_input.get(CONF_REQUIRE_PROFILE)),
+        )
     return {
         CONF_PROFILE_ID: profile.profile_id,
         "music_account_id": account_id,
@@ -1115,6 +1179,7 @@ def _base_voice_schema(
             {readonly_local_url: label}
         )
     schema.update({
+        vol.Optional("vibecast_session_end_allowed", default=defaults.get("vibecast_session_end_allowed", False)): bool,
         vol.Optional(
             CONF_DJ_ANNOUNCEMENT_SPEAKER,
             default=defaults.get(CONF_DJ_ANNOUNCEMENT_SPEAKER, ""),
@@ -1186,14 +1251,14 @@ async def _conversation_agent_options_schema(
     return vol.Schema(schema)
 
 
-def _music_backend_switch_schema(defaults: dict[str, Any]) -> vol.Schema:
+def _music_backend_switch_schema(hass: Any, defaults: dict[str, Any]) -> vol.Schema:
     """Build the explicit backend switch schema."""
     return vol.Schema(
         {
             vol.Required(
                 CONF_MUSIC_BACKEND,
                 default=defaults.get(CONF_MUSIC_BACKEND, DEFAULT_MUSIC_BACKEND),
-            ): vol.In(MUSIC_BACKEND_NAMES),
+            ): vol.In(_backend_choice_names(hass)),
         }
     )
 
@@ -1280,6 +1345,7 @@ def _voice_defaults(
     """Return voice/options config with safe defaults."""
     source = data or {}
     return {
+        "vibecast_session_end_allowed": source.get("vibecast_session_end_allowed") is True,
         CONF_ASSIST_PIPELINE_ID: _defaultable_value(
             source,
             CONF_ASSIST_PIPELINE_ID,
@@ -1453,6 +1519,8 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self._selected_discovered_key = ""
         self._pairing_setup_method = SETUP_METHOD_PAIR_APP
         self._profile_platform: dict[str, Any] = {}
+        self._profile_input: dict[str, Any] = {}
+        self._profile_snapshot: Any = None
 
     async def async_step_user(
         self,
@@ -1495,7 +1563,7 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     CONF_CLIENT_TYPE: CLIENT_TYPE_CONVERSATION_AGENT,
                 }
                 self._conversation_agent_only = True
-                return await self.async_step_backend()
+                return await self.async_step_profile_choice()
             if method in {SETUP_METHOD_PAIR_LOCAL_DEVICE, SETUP_METHOD_PAIR_APP}:
                 self._pairing_setup_method = method
             else:
@@ -1569,6 +1637,13 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         user_input: dict[str, Any] | None = None,
     ) -> FlowResult:
         """Pair the DJConnect device using the displayed pair code."""
+        explicit_type = (user_input or {}).get(CONF_CLIENT_TYPE)
+        if user_input is not None and CONF_CLIENT_TYPE in user_input and str(explicit_type or "").strip() not in CLIENT_TYPES:
+            return self.async_abort(reason="client_retired" if explicit_type == CLIENT_TYPE_WINDOWS else "invalid_client_type")
+        selected_type = getattr(self, "_selected_pair_client_type", "")
+        for value in (explicit_type, selected_type, getattr(self, "_discovered_defaults", {}).get(CONF_CLIENT_TYPE)):
+            if value is not None and str(value).strip() and str(value).strip() not in CLIENT_TYPES:
+                return self.async_abort(reason="client_retired" if str(value).strip() == CLIENT_TYPE_WINDOWS else "invalid_client_type")
         errors: dict[str, str] = {}
         step_id = self._pair_details_step_id()
         is_app_pairing = (
@@ -1641,6 +1716,10 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     )
                 if not device_id or client_type == CLIENT_TYPE_ESP32:
                     device_id = f"djconnect-{pair_code}"
+                from .client_identity import device_id_matches_client_type
+
+                if not device_id_matches_client_type(device_id, client_type):
+                    return self.async_abort(reason="client_retired" if client_type == CLIENT_TYPE_WINDOWS or device_id.startswith("djconnect-windows-") else "invalid_client_type")
                 await self.async_set_unique_id(device_id)
                 self._abort_if_unique_id_configured()
                 self._pairing = {
@@ -1674,7 +1753,7 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     )
                 if is_app_pairing:
                     self._clear_pending_app_pairing(pair_code)
-                return await self.async_step_backend()
+                return await self.async_step_profile_choice()
 
         return self.async_show_form(
             step_id=step_id,
@@ -1742,8 +1821,6 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 return "pair_app_watch_details"
             if client_type == CLIENT_TYPE_MACOS:
                 return "pair_app_macos_details"
-            if client_type == CLIENT_TYPE_WINDOWS:
-                return "pair_app_windows_details"
             return "pair_app_details"
         return "pair"
 
@@ -1824,10 +1901,8 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self,
         user_input: dict[str, Any] | None = None,
     ) -> FlowResult:
-        """Handle Windows app pairing details after client type selection."""
-        self._pairing_setup_method = SETUP_METHOD_PAIR_APP
-        self._selected_pair_client_type = CLIENT_TYPE_WINDOWS
-        return await self.async_step_pair(user_input)
+        """Refuse stale direct links to the retired details step."""
+        return self.async_abort(reason="client_retired")
 
     async def _async_step_pair_type(
         self,
@@ -1835,12 +1910,14 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     ) -> FlowResult:
         """Handle the client type choice before showing pairing details."""
         if user_input is not None:
+            if CONF_CLIENT_TYPE in user_input and str(user_input.get(CONF_CLIENT_TYPE) or "").strip() not in self._pair_client_type_options():
+                return self.async_abort(reason="client_retired" if str(user_input.get(CONF_CLIENT_TYPE) or "").strip() == CLIENT_TYPE_WINDOWS else "invalid_client_type")
             client_type = _clean(
                 user_input.get(CONF_CLIENT_TYPE),
                 self._default_pair_client_type(),
             )
             if client_type not in self._pair_client_type_options():
-                client_type = self._default_pair_client_type()
+                return self.async_abort(reason="client_retired" if client_type == CLIENT_TYPE_WINDOWS else "invalid_client_type")
             self._selected_pair_client_type = client_type
             defaults = dict(getattr(self, "_discovered_defaults", {}) or {})
             defaults[CONF_CLIENT_TYPE] = client_type
@@ -2168,14 +2245,14 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 if not _music_assistant_available(self.hass):
                     return self.async_show_form(
                         step_id="backend",
-                        data_schema=vol.Schema(_backend_schema()),
+                        data_schema=vol.Schema(_backend_schema(self.hass)),
                         errors={"base": "music_assistant_unavailable"},
                         last_step=False,
                     )
                 if not _music_assistant_players(self.hass):
                     return self.async_show_form(
                         step_id="backend",
-                        data_schema=vol.Schema(_backend_schema()),
+                        data_schema=vol.Schema(_backend_schema(self.hass)),
                         errors={"base": "music_assistant_no_players"},
                         last_step=False,
                     )
@@ -2184,13 +2261,13 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             if backend == BACKEND_LATER_MANUAL:
                 self._backend = {CONF_MUSIC_BACKEND: BACKEND_LATER_MANUAL}
                 self._spotify = {}
-                return await self.async_step_profile_setup()
+                return await self._async_after_backend_setup()
             self._backend = {CONF_MUSIC_BACKEND: MUSIC_BACKEND_SPOTIFY_DIRECT}
             return await self.async_step_spotify()
 
         return self.async_show_form(
             step_id="backend",
-            data_schema=vol.Schema(_backend_schema()),
+            data_schema=vol.Schema(_backend_schema(self.hass)),
             errors={},
             last_step=False,
         )
@@ -2219,7 +2296,7 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     CONF_MUSIC_ASSISTANT_PLAYER: player,
                 }
                 self._spotify = {}
-                return await self.async_step_profile_setup()
+                return await self._async_after_backend_setup()
 
         return self.async_show_form(
             step_id="music_assistant",
@@ -2331,7 +2408,7 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             errors = self._handle_spotify_oauth_result(user_input)
             if not errors:
-                return self.async_external_step_done(next_step_id="profile_setup")
+                return self.async_external_step_done(next_step_id="voice" if self._profile_input else "profile_setup")
 
         if errors:
             return self.async_show_form(
@@ -2360,31 +2437,177 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         result["description"] = _spotify_oauth_description(self.hass)
         return result
 
-    async def async_step_profile_setup(
-        self,
-        user_input: dict[str, Any] | None = None,
+    async def async_step_profile_choice(
+        self, user_input: dict[str, Any] | None = None, *, error: str | None = None
     ) -> FlowResult:
-        """Create the first DJConnect Profile Platform state."""
-        errors: dict[str, str] = {}
-        if user_input is not None:
-            try:
-                self._profile_platform = await _ensure_profile_platform_setup(
-                    self.hass,
-                    profile_input=user_input,
-                    pairing=self._pairing,
-                    backend=self._backend,
-                    spotify=self._spotify,
-                )
-                return await self.async_step_voice()
-            except (ProfileStorageValidationError, ValueError) as exc:
-                _LOGGER.debug("DJConnect profile setup validation failed: %s", exc)
-                errors["base"] = "profile_setup_failed"
+        """Select an explicit household Profile before backend/account setup."""
+        household = await _profile_storage(self.hass).async_load()
+        errors: dict[str, str] = {CONF_PROFILE_ID: error} if error else {}
+        if user_input is not None and not error:
+            selected = str(user_input.get(CONF_PROFILE_ID) or "").strip()
+            self._profile_input = {}
+            self._profile_platform = {}
+            self._profile_snapshot = None
+            self._spotify = {}
+            if selected == PROFILE_NEW:
+                self._backend = {CONF_MUSIC_BACKEND: DEFAULT_MUSIC_BACKEND}
+                return await self.async_step_profile_setup()
+            profile = household.profiles.get(selected)
+            if profile is None or str(profile.state) != "active":
+                errors[CONF_PROFILE_ID] = "profile_unavailable"
+            else:
+                from .profile_backend import profile_backend_entry_id
 
+                try:
+                    owner_entry = profile_backend_entry_id(self.hass, profile.profile_id)
+                except ProfileStorageValidationError:
+                    errors[CONF_PROFILE_ID] = "profile_connection_unavailable"
+                else:
+                    self._profile_input = {CONF_PROFILE_ID: selected}
+                    self._profile_snapshot = profile
+                    self._backend = {
+                        CONF_MUSIC_BACKEND: profile.preferences.default_backend_id
+                        or BACKEND_LATER_MANUAL
+                    }
+                    if owner_entry:
+                        self._backend["profile_backend_entry_id"] = owner_entry
+                    return await self.async_step_voice()
+        elif not household.profiles and not error:
+            return await self.async_step_profile_setup()
+        # SelectSelector gives HA translated static choices and dynamic profile names.
+        from homeassistant.helpers.selector import SelectSelector, SelectSelectorConfig
+
+        options = [{"value": PROFILE_NEW, "label": "new"}] + [
+            {"value": p.profile_id, "label": p.display_name}
+            for p in sorted(
+                household.profiles.values(), key=lambda p: (p.display_name.casefold(), p.profile_id)
+            )
+            if str(p.state) == "active"
+        ]
         return self.async_show_form(
-            step_id="profile_setup",
-            data_schema=vol.Schema(_profile_setup_schema(user_input)),
+            step_id="profile_choice",
+            data_schema=vol.Schema(
+                {
+                    vol.Required(CONF_PROFILE_ID): SelectSelector(
+                        SelectSelectorConfig(
+                            options=options, mode="dropdown", translation_key="onboarding_profile"
+                        )
+                    )
+                }
+            ),
             errors=errors,
             last_step=False,
+        )
+
+    async def async_step_profile_setup(
+        self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
+        """Keep a new Profile as a draft until the final entry confirmation."""
+        household = await _profile_storage(self.hass).async_load()
+        errors: dict[str, str] = {}
+        if user_input is not None:
+            selected = str(user_input.get(CONF_PROFILE_ID) or PROFILE_NEW)
+            if selected != PROFILE_NEW:
+                return await self.async_step_profile_choice({CONF_PROFILE_ID: selected})
+            name = str(user_input.get(CONF_PROFILE_NAME) or "").strip()
+            if not name:
+                errors[CONF_PROFILE_NAME] = "profile_name_required"
+            elif any(
+                p.display_name.casefold() == name.casefold() for p in household.profiles.values()
+            ):
+                errors[CONF_PROFILE_NAME] = "profile_name_exists"
+            else:
+                try:
+                    ProfileType(
+                        str(user_input.get(CONF_PROFILE_TYPE) or ProfileType.PERSONAL.value)
+                    )
+                    ResponseStyle(
+                        str(
+                            user_input.get(CONF_PROFILE_RESPONSE_STYLE)
+                            or ResponseStyle.BALANCED.value
+                        )
+                    )
+                except ValueError:
+                    errors["base"] = "profile_setup_failed"
+                else:
+                    self._profile_input = {**user_input, CONF_PROFILE_NAME: name}
+                    self._profile_input.pop(CONF_PROFILE_ID, None)
+                    self._profile_snapshot = None
+                    return await self.async_step_backend()
+        schema = _profile_setup_schema(user_input)
+        if household.profiles:
+            from homeassistant.helpers.selector import SelectSelector, SelectSelectorConfig
+
+            options = [{"value": PROFILE_NEW, "label": "new"}] + [
+                {"value": p.profile_id, "label": p.display_name}
+                for p in sorted(
+                    household.profiles.values(),
+                    key=lambda p: (p.display_name.casefold(), p.profile_id),
+                )
+                if str(p.state) == "active"
+            ]
+            schema = {
+                vol.Optional(CONF_PROFILE_ID, default=PROFILE_NEW): SelectSelector(
+                    SelectSelectorConfig(
+                        options=options, mode="dropdown", translation_key="onboarding_profile"
+                    )
+                ),
+                **schema,
+            }
+            schema = {k: v for k, v in schema.items() if k.schema != CONF_REQUIRE_PROFILE}
+        return self.async_show_form(
+            step_id="profile_setup", data_schema=vol.Schema(schema), errors=errors, last_step=False
+        )
+
+    async def _async_validate_profile_draft(self) -> None:
+        household = await _profile_storage(self.hass).async_load()
+        selected = self._profile_input.get(CONF_PROFILE_ID)
+        if selected:
+            profile = household.profiles.get(selected)
+            if profile is None or profile != self._profile_snapshot:
+                raise ProfileStorageValidationError("profile_unavailable")
+            from .profile_backend import profile_backend_entry_id
+
+            if profile_backend_entry_id(self.hass, selected) != self._backend.get(
+                "profile_backend_entry_id", ""
+            ):
+                raise ProfileStorageValidationError("profile_connection_unavailable")
+        elif self._profile_input:
+            name = str(self._profile_input[CONF_PROFILE_NAME]).strip()
+            if any(
+                p.display_name.casefold() == name.casefold() for p in household.profiles.values()
+            ):
+                raise ProfileStorageValidationError("profile_name_exists")
+
+    async def _async_commit_profile_draft(self) -> None:
+        """Serialize onboarding commits and persist one validated household update."""
+        if not self._profile_input:
+            return
+        manager = _profile_storage(self.hass)
+        if not hasattr(manager, "_onboarding_lock"):
+            manager._onboarding_lock = asyncio.Lock()
+        async with manager._onboarding_lock:
+            await self._async_validate_profile_draft()
+            before = await manager.async_load()
+            staged = ProfilePlatformStorage()
+            staged._household = before
+            staged._loaded = True
+            binding = await _ensure_profile_platform_setup(
+                self.hass,
+                profile_input=self._profile_input,
+                pairing=self._pairing,
+                backend=self._backend,
+                spotify=self._spotify,
+                manager=staged,
+            )
+            await manager.async_commit_onboarding(before, staged.household)
+            self._profile_platform = binding
+
+    async def _async_after_backend_setup(self) -> FlowResult:
+        return (
+            await self.async_step_voice()
+            if self._profile_input
+            else await self.async_step_profile_setup()
         )
 
     def _handle_spotify_oauth_result(self, user_input: dict[str, Any]) -> dict[str, str]:
@@ -2432,6 +2655,7 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         data.update(self._pairing)
         data.update(self._backend)
         data.update(self._spotify)
+        data.update(self._profile_platform)
         data.update(
             _voice_defaults_for_client(
                 voice_values or {},
@@ -2441,6 +2665,36 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         return self.async_create_entry(
             title=data.get(CONF_DEVICE_NAME, "DJConnect DJ"),
             data=data,
+        )
+
+    async def _async_finish_profile_entry(
+        self, data: dict[str, Any], user_input: dict[str, Any]
+    ) -> FlowResult:
+        try:
+            await self._async_commit_profile_draft()
+        except ProfileStorageValidationError as exc:
+            if str(exc) == "profile_state_changed":
+                return self.async_show_form(step_id="voice", data_schema=await _voice_schema(self.hass,
+                    {**self._pairing, **_voice_form_values(user_input)}), errors={"base": "profile_setup_failed"})
+            if str(exc) == "profile_name_exists":
+                return await self.async_step_profile_setup(self._profile_input)
+            return await self.async_step_profile_choice(
+                error=str(exc)
+                if str(exc) in {"profile_unavailable", "profile_connection_unavailable"}
+                else "profile_unavailable"
+            )
+        except Exception as exc:  # noqa: BLE001
+            _LOGGER.warning("DJConnect profile setup save failed: %s", exc.__class__.__name__)
+            return self.async_show_form(
+                step_id="voice",
+                data_schema=await _voice_schema(self.hass, {**self._pairing, **_voice_form_values(user_input)}),
+                errors={"base": "profile_setup_failed"},
+            )
+        data.update(self._profile_platform)
+        if getattr(self, "_conversation_agent_only", False):
+            return self._create_conversation_agent_entry(_voice_form_values(user_input))
+        return self.async_create_entry(
+            title=data.get(CONF_DEVICE_NAME, DEFAULT_DEVICE_NAME), data=data
         )
 
     async def async_step_voice(
@@ -2453,6 +2707,12 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             errors = _voice_errors(user_input)
             errors.update(_announcement_errors(self.hass, user_input))
             if not errors:
+                try:
+                    await self._async_validate_profile_draft()
+                except ProfileStorageValidationError as exc:
+                    if str(exc) == "profile_name_exists":
+                        return await self.async_step_profile_setup(self._profile_input)
+                    return await self.async_step_profile_choice(error=str(exc) if str(exc) in {"profile_unavailable", "profile_connection_unavailable"} else "profile_unavailable")
                 data: dict[str, Any] = {}
                 data.update(self._pairing)
                 data.update(self._backend)
@@ -2466,14 +2726,9 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     )
                 )
                 if getattr(self, "_conversation_agent_only", False):
-                    return self._create_conversation_agent_entry(
-                        _voice_form_values(user_input)
-                    )
+                    return await self._async_finish_profile_entry(data, user_input)
                 if not self._client_type_uses_local_device_api(client_type):
-                    return self.async_create_entry(
-                        title=data.get(CONF_DEVICE_NAME, DEFAULT_DEVICE_NAME),
-                        data=data,
-                    )
+                    return await self._async_finish_profile_entry(data, user_input)
                 try:
                     await _async_pair_before_create(self.hass, data)
                 except Exception as exc:  # noqa: BLE001
@@ -2496,10 +2751,7 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         ),
                         errors=errors,
                     )
-                return self.async_create_entry(
-                    title=data.get(CONF_DEVICE_NAME, DEFAULT_DEVICE_NAME),
-                    data=data,
-                )
+                return await self._async_finish_profile_entry(data, user_input)
 
         return self.async_show_form(
             step_id="voice",
@@ -2551,6 +2803,10 @@ class DJConnectOptionsFlow(config_entries.OptionsFlow):
         user_input: dict[str, Any] | None = None,
     ) -> FlowResult:
         """Manage DJConnect options."""
+        from .client_retirement import is_retired_entry
+
+        if is_retired_entry(self._config_entry):
+            return self.async_abort(reason="client_retired")
         current = {**self._config_entry.data, **self._config_entry.options}
         errors: dict[str, str] = {}
         if user_input is not None:
@@ -2688,7 +2944,7 @@ class DJConnectOptionsFlow(config_entries.OptionsFlow):
 
         return self.async_show_form(
             step_id="profile_platform",
-            data_schema=vol.Schema(_profile_platform_schema(household, user_input)),
+            data_schema=vol.Schema(_profile_platform_schema(household, user_input, language=_ha_language(self.hass))),
             errors=errors,
             last_step=False,
         )
@@ -2727,13 +2983,17 @@ class DJConnectOptionsFlow(config_entries.OptionsFlow):
                         CONF_MUSIC_BACKEND: selected_backend,
                     }
                     return await self.async_step_spotify_reauth()
-                return self._finish_backend_switch(merged)
+                return await self._finish_backend_switch(merged)
+            elif selected_backend == BACKEND_LATER_MANUAL:
+                return await self._finish_backend_switch(
+                    self._backend_switch_options({CONF_MUSIC_BACKEND: selected_backend})
+                )
             else:
                 errors[CONF_MUSIC_BACKEND] = "backend_switch_failed"
 
         return self.async_show_form(
             step_id="music_backend",
-            data_schema=_music_backend_switch_schema(current),
+            data_schema=_music_backend_switch_schema(self.hass, current),
             errors=errors,
         )
 
@@ -2769,18 +3029,18 @@ class DJConnectOptionsFlow(config_entries.OptionsFlow):
                         CONF_MUSIC_ASSISTANT_PLAYER: selected_player,
                     }
                 )
-                return self._finish_backend_switch(merged)
+                return await self._finish_backend_switch(merged)
 
         if not _music_assistant_available(self.hass):
             return self.async_show_form(
                 step_id="music_backend",
-                data_schema=_music_backend_switch_schema(current),
+                data_schema=_music_backend_switch_schema(self.hass, current),
                 errors={"base": "music_assistant_not_configured"},
             )
         if not players:
             return self.async_show_form(
                 step_id="music_backend",
-                data_schema=_music_backend_switch_schema(current),
+                data_schema=_music_backend_switch_schema(self.hass, current),
                 errors={"base": "music_assistant_no_players"},
             )
         return self.async_show_form(
@@ -2818,7 +3078,34 @@ class DJConnectOptionsFlow(config_entries.OptionsFlow):
             )
         return merged
 
-    def _finish_backend_switch(self, options: dict[str, Any]) -> FlowResult:
+    async def _finish_backend_switch(self, options: dict[str, Any]) -> FlowResult:
+        try:
+            profile_changed = await self._bind_entry_profile_backend(options)
+        except SharedProfileBackendChange:
+            return self.async_show_form(
+                step_id="music_backend",
+                data_schema=_music_backend_switch_schema(
+                    self.hass,
+                    {**self._config_entry.data, **self._config_entry.options},
+                ),
+                errors={"base": "profile_shared_backend_change"},
+            )
+        except Exception:  # noqa: BLE001
+            _LOGGER.warning("DJConnect backend Profile binding failed")
+            return self.async_show_form(
+                step_id="music_backend",
+                data_schema=_music_backend_switch_schema(
+                    self.hass,
+                    {**self._config_entry.data, **self._config_entry.options}
+                ),
+                errors={"base": "profile_platform_failed"},
+            )
+        if profile_changed and _current_backend_revision(options) <= _current_backend_revision(
+            {**self._config_entry.data, **self._config_entry.options}
+        ):
+            options[CONF_MUSIC_BACKEND_REVISION] = _next_backend_revision(
+                {**self._config_entry.data, **self._config_entry.options}
+            )
         runtime = self.hass.data.get(DOMAIN, {}).get(self._config_entry.entry_id)
         if runtime is not None:
             current_revision = _current_backend_revision(
@@ -2831,6 +3118,60 @@ class DJConnectOptionsFlow(config_entries.OptionsFlow):
                 )
             runtime.update(last_error=None)
         return self.async_create_entry(title="", data=options)
+
+    async def _bind_entry_profile_backend(self, options: dict[str, Any]) -> bool:
+        """Apply the options choice to the Profile linked to this paired client."""
+        device_id = str(self._config_entry.data.get(CONF_DEVICE_ID) or "").strip()
+        if not device_id:
+            return False  # Legacy entries without a paired device have no Profile binding.
+        manager = _profile_storage(self.hass)
+        household = await manager.async_load()
+        device = household.devices.get(device_id)
+        if device is None or device.client_type != self._config_entry.data.get(CONF_CLIENT_TYPE):
+            raise ProfileStorageValidationError("paired device is not registered")
+        profile = household.profiles.get(device.linked_profile_id)
+        if profile is None:
+            raise ProfileStorageValidationError("paired device has no linked profile")
+        selected = str(options[CONF_MUSIC_BACKEND])
+        backend = MusicBackendRegistration(
+            backend_id=selected,
+            provider=_backend_provider_for_config(selected),
+            display_name=(
+                "Later / manual"
+                if selected == BACKEND_LATER_MANUAL
+                else MUSIC_BACKEND_NAMES[selected]
+            ),
+            capabilities=MusicBackendCapabilities(
+                search=selected != BACKEND_LATER_MANUAL,
+                playlists=selected != BACKEND_LATER_MANUAL,
+                outputs=selected != BACKEND_LATER_MANUAL,
+                volume=selected != BACKEND_LATER_MANUAL,
+            ),
+        )
+        account = None
+        if selected != BACKEND_LATER_MANUAL:
+            account = MusicAccount(
+                account_id=f"account-{selected}-{profile.profile_id}",
+                backend_id=selected,
+                kind=(
+                    MusicAccountKind.HOUSEHOLD
+                    if profile.profile_type == ProfileType.HOUSEHOLD
+                    else MusicAccountKind.PERSONAL
+                ),
+                display_name=MUSIC_BACKEND_NAMES[selected],
+                linked_profile_ids=frozenset({profile.profile_id}),
+            )
+        return await manager.async_bind_device_profile_backend(
+            device_id,
+            device.client_type,
+            backend,
+            account=account,
+            fallback_playback_zone_id=(
+                str(options.get(CONF_MUSIC_ASSISTANT_PLAYER) or "")
+                if selected == MUSIC_BACKEND_MUSIC_ASSISTANT
+                else ""
+            ),
+        )
 
     async def async_step_central_api(
         self,
@@ -2967,7 +3308,7 @@ class DJConnectOptionsFlow(config_entries.OptionsFlow):
             if self._pending_backend_switch:
                 merged = self._backend_switch_options(self._pending_backend_switch)
                 self._pending_backend_switch = None
-                return self._finish_backend_switch(merged)
+                return await self._finish_backend_switch(merged)
             return self.async_create_entry(
                 title="",
                 data=dict(self._config_entry.options),
@@ -2982,6 +3323,10 @@ class DJConnectOptionsFlow(config_entries.OptionsFlow):
         user_input: dict[str, Any] | None = None,
     ) -> FlowResult:
         """Collect a fresh pairing code before fully re-pairing the ESP."""
+        from .client_retirement import is_retired_entry
+
+        if is_retired_entry(self._config_entry):
+            return self.async_abort(reason="client_retired")
         errors: dict[str, str] = {}
         if user_input is not None:
             pair_code = str(user_input.get(CONF_PAIR_CODE, "")).strip()
@@ -3013,6 +3358,10 @@ class DJConnectOptionsFlow(config_entries.OptionsFlow):
         local_url: str | None = None,
     ) -> FlowResult:
         """Generate a fresh device token and retry pairing with the ESP."""
+        from .client_retirement import is_retired_entry
+
+        if is_retired_entry(self._config_entry):
+            return self.async_abort(reason="client_retired")
         errors: dict[str, str] = {}
         try:
             runtime = self.hass.data.get(DOMAIN, {}).get(self._config_entry.entry_id)

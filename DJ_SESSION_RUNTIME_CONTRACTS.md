@@ -1,4 +1,38 @@
 # DJ Session Runtime Contracts
+## Selected ambient producer convergence
+
+[Ambient convergence v1](docs/product/AMBIENT_FACT_MOMENT_CONVERGENCE_V1.md) removes independent proactivity from playback-status reads. Existing qualified Runtime/Planner/Knowledge/Moment/Flow/Broadcast publication remains the only unsolicited content path; generated Track Insight interpretation is not source-fact proof. Explicit Ask DJ and previously stored ambient/system records retain their contracts; no history import, filtering or new source/model is added. Core source #1158 is protected delivered as `6114c5a05600f6b066d4e1f057f236841fe4f574` with exact archive/formal readback PASS. Apple/joint qualification remains separately open; full narrative Stage4 is not promoted.
+
+
+## Selected Forecast projection boundary
+
+[Session Forecast v1](docs/product/SESSION_FORECAST_V1.md) is a mutable allowlisted
+active-session read/live projection, not an export of internal Horizon/slots or
+a rewritten DJMoment. Runtime15-minute foundation, future internal20-minute policy
+target and nominal external900s intent window are distinct. Planner supplies
+meaning; authored expression realizes text. Reads/toggles do no lookup/planning/
+playback/Moment/budget work. Qualified current artist art has separate source,
+audience and original expiry; upcoming anchors remain absent without qualification.
+Local Core work in progress, publication/native/visible/joint gates remain.
+
+The selected bounded [published Album→current Track relation](docs/product/NARRATIVE_ALBUM_CONTINUITY_V1.md)
+uses the existing Planner/Knowledge/Moment/Flow/Broadcast, current-edition
+Spotify display qualification, published-only Runtime evidence and shared
+presence policy. Its source delivery is pending; no new planner, type, history
+rights, consumer dispatch or full narrative maturity completion is implied.
+
+## DJ presence Core delivered boundary
+
+[DJ presence v1](docs/product/DJ_PRESENCE_V1.md) is a separately selected independent Runtime/Planner input for
+proactive contribution budgets and spacing. Mood, Persona and presence remain
+orthogonal; actual Core policy, native Apple control and existing shared-renderer
+compatibility require joint qualification. Core source #1150 is protected delivered with a separate versioned
+ownercontract and shared contribution ledger;
+protected publication and native/installed/hardware acceptance remain separate.
+Off suppresses future unsolicited publication including
+in-flight results; immutable prior Moments, explicit Ask DJ and privacy remain.
+Richer narrative presenter mode is separately planned; existing eligibility,
+contextual dosing and expressive contracts retain their qualified boundaries.
 
 **Status:** Accepted architecture contract
 **Owner:** DJConnect Product Development
@@ -150,6 +184,12 @@ foundation exposes `session_flow: null` and generates no flow.
 
 Mood belongs exclusively to the active Session Runtime. The Planner consumes
 runtime mood as an input and never owns it; a Profile never owns mood.
+The ordinary paired owner can update the exact active Session through
+[`Active Session Mood v1`](docs/product/ACTIVE_SESSION_MOOD_V1.md). Its
+`mood_revision` is Session-scoped, value/revision publication is atomic, and a
+current same-value request produces no event or Moment. Async candidates whose
+captured revision changed are discarded before merge/publication, preserving
+the next eligible opportunity. Immutable Moments retain their decision context.
 
 Future Planner implementations will add replanning, announcements, Track
 Insight scheduling, Discover scheduling, mood progression and transition
@@ -363,3 +403,20 @@ renderer-consumption rule before implementation.
 This slice must remain bounded: it does not add AI logic, playback logic,
 Broadcast Feed transport, Audience Experience execution, persistence beyond the
 accepted contract, or v3 compatibility work.
+
+## Planned Session entry, history and native-surface refinement
+
+The combined documentary decision `DJC-SESSION-ENTRY-LIFECYCLE-HISTORY-DESIGN-V1-20261012` (including Apple addendum C) is defined in [Session Entry Lifecycle Experience V1](docs/product/SESSION_ENTRY_LIFECYCLE_EXPERIENCE_V1.md), [Session History Summary V1](docs/product/SESSION_HISTORY_SUMMARY_V1.md), [Apple Session Native Surfaces V1](docs/product/APPLE_SESSION_NATIVE_SURFACES_V1.md).
+It preserves this contract and its delivered capabilities. New lifecycle replacement/intent operations, qualified history aggregates and passive native-surface rights remain **Planned**, with separate producer/consumer acceptance. Navigation is read-only; foreground owner display rights do not grant widget storage or category-invitation content. No Runtime, provider or consumer implementation is introduced by the design.
+
+## Private Session summary acceptance v1
+
+See [connected summary contract](docs/product/SESSION_HISTORY_SUMMARY_ACCEPTANCE_V1.md)
+and [summary projection](docs/product/SESSION_HISTORY_SUMMARY_V1.md). Existing owners
+provide a version6 compact Session aggregate and non-evicted bounded acceptance
+keys; no full Moment-body archival right follows from a semantic count.
+Registration and count commit together before Runtime publication/budget debit;
+reads only project a provisional open Mood interval, without writes or providers.
+Old stores remain unknown, restart leaves unobserved Mood time unknown, and
+owner/source/privacy/retention withdrawal applies to derived totals.
+No summary enters shared Broadcast, notifications or diagnostics.

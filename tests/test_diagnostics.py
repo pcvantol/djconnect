@@ -190,6 +190,23 @@ class DiagnosticsTest(unittest.TestCase):
             result["music_backend"]["capabilities"]["supports_recently_played"]
         )
 
+    def test_manual_backend_diagnostics_do_not_claim_spotify_capabilities(self) -> None:
+        entry = types.SimpleNamespace(
+            entry_id="entry-1",
+            title="DJConnect",
+            data={"music_backend": "spotify_direct"},
+            options={"music_backend": "later_manual"},
+        )
+        hass = types.SimpleNamespace(data={"djconnect": {"entry-1": None}})
+
+        result = asyncio.run(
+            self.diagnostics.async_get_config_entry_diagnostics(hass, entry)
+        )
+
+        self.assertEqual(result["music_backend"]["selected"], "later_manual")
+        self.assertFalse(result["spotify_oauth"]["required"])
+        self.assertFalse(result["music_backend"]["capabilities"]["supports_volume"])
+
     def test_assist_diagnostics_include_stt_tts_pipeline_summary(self) -> None:
         from homeassistant.components.assist_pipeline import pipeline as pipeline_module
         from homeassistant.components import stt as stt_module

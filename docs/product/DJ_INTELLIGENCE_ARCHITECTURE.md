@@ -1,4 +1,39 @@
 # DJ Intelligence Architecture
+## Selected ambient producer convergence
+
+[Ambient convergence v1](AMBIENT_FACT_MOMENT_CONVERGENCE_V1.md) removes independent proactivity from playback-status reads. Existing qualified Runtime/Planner/Knowledge/Moment/Flow/Broadcast publication remains the only unsolicited content path; generated Track Insight interpretation is not source-fact proof. Explicit Ask DJ and previously stored ambient/system records retain their contracts; no history import, filtering or new source/model is added. Core source #1158 is protected delivered as `6114c5a05600f6b066d4e1f057f236841fe4f574` with exact archive/formal readback PASS. Apple/joint qualification remains separately open; full narrative Stage4 is not promoted.
+
+
+## Selected bounded Session Forecast v1
+
+[Session Forecast](SESSION_FORECAST_V1.md) refines the existing Direction Projection
+under DJC-CORE-SESSION-FORECAST-V1-20261012. Local paired Core implementation and
+current-artist imagery qualification are in progress, not yet protected delivered.
+One existing Planner provides closed semantic intentions, existing authored expression
+provides five-language Persona text, Runtime/Broadcast owns mutable lifecycle. Reads
+make no plans/lookups/Moments/playback changes. Current/contextual/qualified-upcoming
+claims and independent image rights remain distinct; no Horizon/private Discovery
+export. Off remains proactively quiet. Native/visible/joint acceptance remains open,
+Stage4 PARTIAL; album1154/1155 source/Finalization remain closed.
+
+The selected bounded [published Album→current Track relation](NARRATIVE_ALBUM_CONTINUITY_V1.md)
+uses the existing Planner/Knowledge/Moment/Flow/Broadcast, current-edition
+Spotify display qualification, published-only Runtime evidence and shared
+presence policy. Its source delivery is pending; no new planner, type, history
+rights, consumer dispatch or full narrative maturity completion is implied.
+
+## DJ presence Core delivered boundary
+
+[DJ presence v1](DJ_PRESENCE_V1.md) is a separately selected independent Runtime/Planner input for
+proactive contribution budgets and spacing. Mood, Persona and presence remain
+orthogonal; actual Core policy, native Apple control and existing shared-renderer
+compatibility require joint qualification. Core source #1150 is protected delivered with a separate versioned
+ownercontract and shared contribution ledger;
+protected publication and native/installed/hardware acceptance remain separate.
+Off suppresses future unsolicited publication including
+in-flight results; immutable prior Moments, explicit Ask DJ and privacy remain.
+Richer narrative presenter mode is separately planned; existing eligibility,
+contextual dosing and expressive contracts retain their qualified boundaries.
 
 ## Status
 
@@ -69,12 +104,23 @@ Intent**: a semantic statement of what the DJ may want to communicate and why.
 It may intentionally choose Silence. Silence is a successful performance
 decision, never an error.
 
-The accepted Rolling Session Horizon plans approximately twenty minutes of
-experience around only safely observable playback context. It is ephemeral,
+The current Rolling Session Horizon holds a bounded fifteen-minute planning
+window around only safely observable playback context. It is ephemeral,
 provider-neutral and degrades to a shorter or current-track plan when future
 context is absent. It never controls a provider queue or exposes speculative
 plans to Renderers. See
 [`../../ROLLING_SESSION_HORIZON_ARCHITECTURE.md`](../../ROLLING_SESSION_HORIZON_ARCHITECTURE.md).
+
+The selected bounded continuity policy reads the active Session Flow through
+Runtime-scoped Performance Memory. It distinguishes the subject of an Artist,
+Album, Genre or Recommendation Moment from incidental metadata attached to
+other Moment types. The Planner prefers a distinct safe angle when available;
+if the current Track Insight offers only already-used context, Silence remains
+a valid planned result. Mood, Persona and Direction retain their existing
+bounded priority and direction roles. The existing PlanningWindow and prepared
+knowledge path realize only the current observed track; without a qualified
+upcoming-playback producer, future slots remain silence-capable. Memory and
+content fingerprints end with the Runtime and are not Broadcast fields.
 
 ## Context-aware Transition contract
 
@@ -94,6 +140,9 @@ playback command. When needed, the Knowledge Engine may assemble only already
 available, safe context for that approved intent. The DJ Moment Engine then
 performs the approval as an immutable Transition Moment with Presentation
 Intent frozen at creation. No Planner approval produces no Transition Moment.
+The current Exploring Recommendation relationship has a bounded recent-Moment
+cooldown. Its localized wording describes the observed sequence of existing
+contributions; it makes no independent musical or future-track claim.
 
 ## Knowledge Intent
 
@@ -147,6 +196,15 @@ and DJ Moment Renderers as defined in
 [`DJ_PRESENTATION_ARCHITECTURE.md`](DJ_PRESENTATION_ARCHITECTURE.md).
 For a Transition, the Engine never infers timing or necessity; it only realizes
 Planner approval.
+
+Qualified visual facts now have bounded local persona realization in the same
+Engine. Immutable normalized display anchors qualify against the source fact
+before authored en/nl/de/fr/es wording; Planner still owns selection and dose,
+using final-text read-fit. Ordinary credits and proven producer callbacks vary
+from actually published contributions, with bounded Runtime-only form memory.
+Source attribution and visual-only Composer projection remain intact. The
+existing HA Assist route is unchanged; these credit fields do not enter a new
+model prompt. See [Expressive DJ persona v1](EXPRESSIVE_DJ_PERSONA_CONTRACT.md).
 
 ## Music DNA and privacy
 
@@ -218,3 +276,14 @@ not itself authorize any implementation or deprecation.
 - The AI never generates UI.
 - The AI never knows platforms.
 - The AI thinks in Sessions rather than features.
+
+
+## Shared reactive dialogue and bounded Moment drilldown
+
+The selected [common Ask DJ contract](ASK_DJ_CONTEXTUAL_DIALOGUE_CONTRACT_V1.md)
+uses the existing conversation owner for both screens; optional Session/Moment
+context does not create a second pipeline. The [Moment Track Insight subset](MOMENT_TRACK_INSIGHT_DRILLDOWN_V1.md)
+adds an exact, temporary owner read through the existing full detail service.
+This is one bounded connected correction; full interactive/narrative maturity,
+native adoption, entry/lifecycle and joint acceptance remain independently Planned/open.
+No model/provider lookup occurs merely by rendering a navigation offer.

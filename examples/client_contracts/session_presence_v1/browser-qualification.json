@@ -1,0 +1,97 @@
+{
+  "receipts": [
+    {
+      "host": "local",
+      "orientation": "portrait",
+      "viewport": {
+        "width": 1200,
+        "height": 1920
+      },
+      "owner_post": true,
+      "immutable_cards_preserved": true,
+      "future_mood": "groove",
+      "presence_off": true,
+      "no_late_publication": true,
+      "multiple_moment_types": true,
+      "off_midtrack": true,
+      "source_links": true,
+      "reconnect": true,
+      "expiry": true,
+      "end": true,
+      "cast_status": "NOT_APPLICABLE",
+      "tls": "Node trusts owned CA; browser permits only owned server SPKI",
+      "hardware": "NOT_RUN"
+    },
+    {
+      "host": "local",
+      "orientation": "landscape",
+      "viewport": {
+        "width": 1920,
+        "height": 1200
+      },
+      "owner_post": true,
+      "immutable_cards_preserved": true,
+      "future_mood": "groove",
+      "presence_off": true,
+      "no_late_publication": true,
+      "multiple_moment_types": true,
+      "off_midtrack": true,
+      "source_links": true,
+      "reconnect": true,
+      "expiry": true,
+      "end": true,
+      "cast_status": "NOT_APPLICABLE",
+      "tls": "Node trusts owned CA; browser permits only owned server SPKI",
+      "hardware": "NOT_RUN"
+    },
+    {
+      "host": "cast",
+      "orientation": "portrait",
+      "viewport": {
+        "width": 1200,
+        "height": 1920
+      },
+      "owner_post": true,
+      "immutable_cards_preserved": true,
+      "future_mood": "groove",
+      "presence_off": true,
+      "no_late_publication": true,
+      "multiple_moment_types": true,
+      "off_midtrack": true,
+      "source_links": true,
+      "reconnect": true,
+      "expiry": true,
+      "end": true,
+      "cast_status": "MODELED_CAF_ONLY",
+      "tls": "Node trusts owned CA; browser permits only owned server SPKI",
+      "hardware": "NOT_RUN"
+    },
+    {
+      "host": "cast",
+      "orientation": "landscape",
+      "viewport": {
+        "width": 1920,
+        "height": 1200
+      },
+      "owner_post": true,
+      "immutable_cards_preserved": true,
+      "future_mood": "groove",
+      "presence_off": true,
+      "no_late_publication": true,
+      "multiple_moment_types": true,
+      "off_midtrack": true,
+      "source_links": true,
+      "reconnect": true,
+      "expiry": true,
+      "end": true,
+      "cast_status": "MODELED_CAF_ONLY",
+      "tls": "Node trusts owned CA; browser permits only owned server SPKI",
+      "hardware": "NOT_RUN"
+    }
+  ],
+  "renderer_version": "1.1.0",
+  "renderer_source_revision": "6429b3c42d773e9c17799da5c9fcd4b3142abf94",
+  "native": "NOT_RUN",
+  "installed": "NOT_RUN",
+  "hardware": "NOT_RUN"
+}

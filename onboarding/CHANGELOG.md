@@ -1,5 +1,11 @@
 # DJConnect Developer Onboarding Changelog
 
+## 4.5.3 — 2026-10-03
+
+- Retire current instructions for the embedded Engineering Platform Inbox,
+  watcher and dashboard after the generic source moved to the standalone peer.
+- Preserve the immutable 4.5.2 distribution artifacts unchanged.
+
 ## 4.5.2 — 2026-09-30
 
 - Update the Pico developer-tool Ruff requirement to 0.16.8 and publish a new

@@ -4,6 +4,7 @@ from __future__ import annotations
 from typing import Any
 
 from .const import API_SESSION_BROADCAST
+from .paired_live_contract import paired_live_capability
 
 
 def session_broadcast_transport_capabilities() -> dict[str, Any]:
@@ -13,6 +14,7 @@ def session_broadcast_transport_capabilities() -> dict[str, Any]:
     while Runtime and Broadcast behaviour remain independent of discovery.
     """
     return {
+        "paired_owner_websocket": paired_live_capability(),
         "http_snapshot": {
             "available": True,
             "path": API_SESSION_BROADCAST,
@@ -24,6 +26,10 @@ def session_broadcast_transport_capabilities() -> dict[str, Any]:
         "websocket_recovery": {
             "available": True,
             "command": "djconnect/session/broadcast/recover",
+        },
+        "native_moment_delivery": {
+            "schema_version": 1, "projection": "native_delivery",
+            "retention": "active_session_only", "executable_actions": [],
         },
         "snapshot_recovery": True,
         "replay": True,

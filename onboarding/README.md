@@ -6,7 +6,7 @@ contract tests and package documentation.
 
 ## Release alignment
 
-The current onboarding package is released as `4.5.2`, aligned with the current
+The current onboarding package is released as `4.5.3`, aligned with the current
 DJConnect platform release for operator clarity. This is version alignment only:
 the package remains independently versioned, does not consume platform release
 artifacts, and does not require a matching platform version to run or verify.
@@ -26,120 +26,14 @@ services, Project Agents or Server/CENTRAL stores. DJConnect may be developed
 without an active EP instance; use EP only when explicitly working through an
 EP-managed integration or execution flow.
 
-<!-- Historical legacy Engineering Inbox documentation retained below for
-provenance only; it is not an active DJConnect onboarding contract. -->
+## Historical Engineering Inbox
 
-## Historical Engineering Inbox (macOS)
-
-Engineering Platform `2.0.0` provides a local iCloud Engineering Inbox through
-the configured Remote Submission Provider. Run
-`./onboarding/dev_onboarding_macos.sh --steps 31 --yes` to create the private
-workspace, install the per-user `com.djconnect.engineering-inbox` watcher and
-the private dashboard LaunchAgent, and verify both. Submit UTF-8 `.md` or
-`.txt` prompts to `iCloud Drive/DJConnect Engineering/Inbox`; iOS-created
-`.txt` files and filename-neutral Markdown are supported. The watcher claims
-stable files one at a time, oldest File Date Modified first, and invokes only
-this repository's `engineering-execution-host`.
-
-After admission, the Engineering runner is detached from the polling watcher.
-The watcher continues to scan the Inbox and updates the dashboard queue during
-the active run, while the admission record enforces exactly one execution at a
-time. A prompt added during a run is therefore visible in **Inbox-wachtrij**
-on the next polling cycle, but remains queued until the active execution is
-terminal.
-
-iCloud is transport only. After a prompt is claimed, the executed prompt copy,
-status, reports, logs and terminal archive live locally under `.engineering/`:
-
-- `.engineering/inbox/Running`, `Completed` and `Failed` hold the local prompt
-  lifecycle archive;
-- `.engineering/inbox-processing/` contains the immutable executed input;
-- `.engineering/status/` holds the canonical dashboard status;
-- `.engineering/reports/` holds Engineering Reports; and
-- `.engineering/engineering.db` holds redacted component logs and other
-  versioned local Engineering evidence. `.engineering/logs/` is only a private
-  fallback for early startup or crash logging when SQLite is unavailable.
-
-The installed Inbox watcher and dashboard record bounded lifecycle `INFO`
-events for startup, received shutdown signals and orderly shutdown. A confirmed
-dashboard restart records the fixed component requested before the owned
-LaunchAgent is kickstarted. Each lifecycle event contains only component
-version, short build commit and fixed LaunchAgent identity; it never includes
-prompt content, secrets, account data or a browser-supplied command. Inspect
-these records through **Engineering Status → Logs**. If SQLite is unavailable
-during early startup, use the corresponding owned LaunchAgent output stream as
-the fallback diagnostic source, then run the documented `doctor` command.
-
-Each completed Engineering Report also records the execution provenance for
-that exact run: Runtime Provider, reported AI Model, reported Reasoning and
-Configuration Profiles, and detected Codex CLI Version. Values are shown as
-`not reported` when the CLI did not supply them; the runner and Engineering
-Status never guess them. In Engineering Status, open the matching
-**Promptgeschiedenis** row to view those fields in its read-only execution
-detail dialog. The Engineering Report and AI analysis remain separate actions
-on that same row, so every view stays bound to its exact Run ID. There is no
-separate **Laatst uitgevoerde prompt** card.
-
-The detail dialog is a read-only projection, not a second history store. It
-loads one immutable SQLite history row and its bounded companion data for the
-selected Run ID, then derives only the compact Evidence Bundle and displayed
-target-repository provenance from that run's report. It never modifies a
-report or stored history, and it never falls back to evidence from another
-prompt. If a matching report is absent or cannot be read, the dialog retains
-the history fields and shows no derived evidence.
-
-### Dashboard language verification
-
-Engineering Status supports the canonical five language families `en`, `nl`,
-`de`, `fr` and `es`. Its language selector changes both fixed dashboard chrome
-and dynamic feedback such as AI-chat labels, copy actions and component-status
-messages. When changing any dashboard copy, add the key to all five language
-blocks in `tools/engineering/assets/dashboard_locales.mjs`; do not put a
-user-facing sentence directly in `dashboard.js`.
-
-Before handing off dashboard copy, run:
-
-```sh
-npx playwright test tests/engineering/dashboard.spec.mjs
-```
-
-The suite checks catalogue completeness, scans client-created presentation
-text for unexpected literals, and renders each supported language in the
-browser. Its source-to-interface check also covers template bindings, modal
-copy, pull-to-refresh feedback, downloadable chat labels and accessibility
-names. It therefore catches a missing translation as well as a label that was
-accidentally left in the source language.
-
-Do not create or rely on `iCloud Drive/DJConnect Engineering/Reports` or an
-iCloud `status.json`. Existing legacy iCloud archives can be moved safely with
-`python3 -m tools.engineering.inbox_watcher migrate-icloud-archives` after
-checking the local copies. Use `python3 -m tools.engineering.inbox_watcher
-doctor` or `./tools/engineering/dj-engineering-dashboard doctor` for corrective
-actions. Use each component's `uninstall` command to remove only its own
-LaunchAgent. Repository and GitHub evidence remain authoritative.
-
-The Inbox is deliberately strict: if a prompt ends `BLOCKED` or `FAILED`,
-later prompts remain unclaimed with dashboardstatus `WAITING_FOR_PREDECESSOR`.
-Submit the repaired prompt with `Retry-Of:
-<blocking-run-id>` on its own line to release the sequence after that retry
-completes. The dashboard identifies the blocking prompt and recovery action.
-
-Engineering prompts require Engineering Platform `>= 2.0.0`. An older platform
-is incompatible: upgrade it before starting a prompt; do not bypass bootstrap
-compatibility validation.
-
-## Authoring a prompt without Forge
-
-Engineering Platform accepts producer-neutral prompts. In the Operations
-Platform does not provide a prompt-authoring UI. Obtain the canonical English
-Markdown [starter template](../docs/engineering/EP_PROMPT_TEMPLATE.md) directly
-from Repository Truth for a new or existing project. A human or any GPT can
-complete it, then submit it through a supported mechanism. The canonical
-[Prompt Authoring Contract](../docs/engineering/EP_PROMPT_AUTHORING_CONTRACT.md)
-explains the authoring rules, the distinction from the Producer Submission and
-Execution Host contracts, execution-mode guidance, versioning and the no-runtime-
-enforcement boundary. Future Project Workspace and prompt-authoring tooling may
-reuse these canonical artifacts; they are not part of the Operations Console.
+The former DJConnect-hosted Engineering Inbox, watcher and dashboard are
+retired source boundaries. Their original commands and behavior remain in
+[historical Engineering Platform documentation](../docs/engineering/) and
+Git history. Use the current standalone EP documentation for supported
+Server HTTP, installed CLI and File Inbox operations. DJConnect onboarding
+continues to cover only the DJConnect development host.
 
 ## Raspberry Pi Pico 2 W development (macOS)
 
@@ -283,7 +177,7 @@ Developer readiness remains read-only. Run:
 It reports `storage.<repository>.ignored_build_output` for each checked-out
 repository, verifies the 14-day retention result, confirms that the LaunchAgent
 is loaded, and requires the canonical `djconnect/onboarding/manifest.yml`
-package version to be `4.5.2`. It does not delete files or change the host.
+package version to be `4.5.3`. It does not delete files or change the host.
 
 Engineering Platform is not a DJConnect host-readiness prerequisite. The
 bootstrap does not check, install, repair or start legacy Inbox, dashboard,

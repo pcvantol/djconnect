@@ -1,5 +1,18 @@
 # Platform Ambient Experience
 
+## DJ presence Core delivered boundary
+
+[DJ presence v1](../product/DJ_PRESENCE_V1.md) is a separately selected independent Runtime/Planner input for
+proactive contribution budgets and spacing. Mood, Persona and presence remain
+orthogonal; actual Core policy, native Apple control and existing shared-renderer
+compatibility require joint qualification. Core source #1150 is protected delivered with a separate versioned
+ownercontract and shared contribution ledger;
+protected publication and native/installed/hardware acceptance remain separate.
+Off suppresses future unsolicited publication including
+in-flight results; immutable prior Moments, explicit Ask DJ and privacy remain.
+Richer narrative presenter mode is separately planned; existing eligibility,
+contextual dosing and expressive contracts retain their qualified boundaries.
+
 ## Status
 
 **Deferred architecture.** This document preserves a future direction only. It

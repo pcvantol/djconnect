@@ -74,6 +74,7 @@ def install_homeassistant_stubs() -> None:
     class Marker:
         def __init__(self, key, default=None):
             self.key = key
+            self.schema = key
             self.default = default
 
     class ClientTimeout:
@@ -573,7 +574,6 @@ class ConfigFlowHelperTest(unittest.TestCase):
                 self.const.CLIENT_TYPE_MACOS,
                 self.const.CLIENT_TYPE_WATCHOS,
                 self.const.CLIENT_TYPE_RASPBERRY_PI,
-                self.const.CLIENT_TYPE_WINDOWS,
                 self.const.CLIENT_TYPE_ESP32,
             ],
         )
@@ -585,10 +585,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
             self.const.CLIENT_TYPE_NAMES[self.const.CLIENT_TYPE_RASPBERRY_PI],
             "Linux/Raspberry Pi client",
         )
-        self.assertEqual(
-            self.const.CLIENT_TYPE_NAMES[self.const.CLIENT_TYPE_WINDOWS],
-            "Windows app",
-        )
+        self.assertNotIn(self.const.CLIENT_TYPE_WINDOWS, self.const.CLIENT_TYPE_NAMES)
 
     def test_local_device_schema_does_not_prefill_manual_device_url_from_pair_code(self) -> None:
         flow = self.config_flow.DJConnectConfigFlow()
@@ -983,7 +980,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
         async def fake_backend(user_input=None):
             return {"type": "next_step", "pairing": flow._pairing}
 
-        flow.async_step_backend = fake_backend
+        flow.async_step_profile_choice = fake_backend
 
         result = asyncio.run(
             flow.async_step_pair(
@@ -1038,7 +1035,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
         async def fake_backend(user_input=None):
             return {"type": "next_step", "pairing": flow._pairing}
 
-        flow.async_step_backend = fake_backend
+        flow.async_step_profile_choice = fake_backend
 
         result = asyncio.run(
             flow.async_step_pair(
@@ -1168,7 +1165,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
         async def fake_backend(user_input=None):
             return {"type": "next_step", "pairing": flow._pairing}
 
-        flow.async_step_backend = fake_backend
+        flow.async_step_profile_choice = fake_backend
 
         result = asyncio.run(
             flow.async_step_pair(
@@ -1280,7 +1277,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
         self.assertEqual(identity.default_pair_client_type("pair_app"), "ios")
         self.assertEqual(
             identity.pair_client_type_options("pair_app"),
-            ["ios", "macos", "watchos", "windows"],
+            ["ios", "macos", "watchos"],
         )
         self.assertTrue(identity.client_type_uses_local_device_api("raspberry_pi"))
         self.assertFalse(identity.client_type_uses_local_device_api("ios"))
@@ -1340,7 +1337,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
                 self.const.SETUP_METHOD_PAIR_APP
             ],
             "Pair DJConnect app\n"
-            "iPhone/iPad, Apple Watch, macOS or Windows",
+            "iPhone/iPad, Apple Watch or macOS",
         )
         self.assertEqual(
             self.config_flow._setup_method_names(nl_hass)[
@@ -1563,11 +1560,6 @@ class ConfigFlowHelperTest(unittest.TestCase):
                 "pair_app_macos_details",
                 "async_step_pair_app_macos_details",
             ),
-            (
-                self.const.CLIENT_TYPE_WINDOWS,
-                "pair_app_windows_details",
-                "async_step_pair_app_windows_details",
-            ),
         ):
             with self.subTest(client_type=client_type):
                 flow = self.config_flow.DJConnectConfigFlow()
@@ -1620,7 +1612,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
             )
         )
 
-        self.assertEqual(result["step_id"], "backend")
+        self.assertEqual(result["step_id"], "profile_setup")
         self.assertEqual(unique_ids, ["djconnect-conversation-agent"])
         self.assertTrue(flow._conversation_agent_only)
         self.assertEqual(
@@ -1768,11 +1760,15 @@ class ConfigFlowHelperTest(unittest.TestCase):
             )
         )
 
+        self.assertEqual(profile_result["step_id"], "backend")
         manager = flow.hass.data[self.const.DOMAIN][self.config_flow.PROFILE_PLATFORM_STORE_KEY]
+        self.assertFalse(manager.household.profiles)
+        asyncio.run(flow.async_step_backend({self.const.CONF_MUSIC_BACKEND: self.config_flow.BACKEND_LATER_MANUAL}))
+        entry_result = asyncio.run(flow.async_step_voice({}))
+        self.assertEqual(entry_result["type"], "create_entry")
         household = manager.household
         profile = next(iter(household.profiles.values()))
         self.assertEqual(backend_result["step_id"], "profile_setup")
-        self.assertEqual(profile_result["step_id"], "voice")
         self.assertEqual(profile.display_name, "Peter")
         self.assertEqual(
             household.devices["djconnect-ios-ABCDEFGHIJKL"].linked_profile_id,
@@ -2513,6 +2509,187 @@ class ConfigFlowHelperTest(unittest.TestCase):
         self.assertEqual(form["step_id"], "music_backend")
         self.assertEqual(marker.default, self.const.MUSIC_BACKEND_SPOTIFY_DIRECT)
 
+    def test_manual_backend_choice_has_five_language_labels(self) -> None:
+        expected = {
+            "en": "Later / manual",
+            "nl": "Later / handmatig",
+            "de": "Später / manuell",
+            "fr": "Plus tard / manuel",
+            "es": "Más tarde / manual",
+        }
+        for language, label in expected.items():
+            hass = types.SimpleNamespace(config=types.SimpleNamespace(language=language))
+            self.assertEqual(
+                self.config_flow._backend_choice_names(hass)[
+                    self.config_flow.BACKEND_LATER_MANUAL
+                ],
+                label,
+            )
+
+    def _bound_ios_backend_flow(self, *, linked: bool = True):
+        hass = types.SimpleNamespace(
+            config=types.SimpleNamespace(language="en"),
+            data={},
+        )
+        manager = self.config_flow._profile_storage(hass)
+        asyncio.run(
+            manager.async_upsert_music_backend(
+                self.config_flow.BACKEND_LATER_MANUAL,
+                self.config_flow.BackendProvider.FUTURE_PROVIDER,
+                display_name="Later / manual",
+            )
+        )
+        profile = asyncio.run(
+            manager.async_create_profile(
+                "Owner",
+                response_style=self.config_flow.ResponseStyle.EXPRESSIVE,
+                default_backend_id=self.config_flow.BACKEND_LATER_MANUAL,
+            )
+        )
+        device_id = "djconnect-ios-ABCDEFGHIJKL"
+        if linked:
+            asyncio.run(
+                manager.async_upsert_device(
+                    device_id,
+                    self.const.CLIENT_TYPE_IOS,
+                    display_name="iPhone",
+                    linked_profile_id=profile.profile_id,
+                )
+            )
+        entry = types.SimpleNamespace(
+            entry_id="entry-1",
+            data={
+                self.const.CONF_CLIENT_TYPE: self.const.CLIENT_TYPE_IOS,
+                self.const.CONF_DEVICE_ID: device_id,
+                self.config_flow.CONF_PROFILE_ID: profile.profile_id,
+                self.const.CONF_MUSIC_BACKEND: self.config_flow.BACKEND_LATER_MANUAL,
+                self.const.CONF_SPOTIFY_CLIENT_ID: "spotify-app-id",
+                self.const.CONF_SPOTIFY_REFRESH_TOKEN: "keep-refresh-token",
+            },
+            options={
+                self.const.CONF_MUSIC_BACKEND: self.const.MUSIC_BACKEND_SPOTIFY_DIRECT,
+                self.const.CONF_MUSIC_BACKEND_REVISION: 2,
+            },
+        )
+        flow = self.config_flow.DJConnectOptionsFlow(entry)
+        flow.hass = hass
+        return flow, manager, profile, entry
+
+    def test_options_same_spotify_choice_repairs_bound_profile(self) -> None:
+        flow, manager, profile, _entry = self._bound_ios_backend_flow()
+
+        result = asyncio.run(
+            flow.async_step_music_backend(
+                {self.const.CONF_MUSIC_BACKEND: self.const.MUSIC_BACKEND_SPOTIFY_DIRECT}
+            )
+        )
+
+        updated = manager.household.profiles[profile.profile_id]
+        self.assertEqual(result["type"], "create_entry")
+        self.assertEqual(result["data"][self.const.CONF_MUSIC_BACKEND_REVISION], 3)
+        self.assertEqual(
+            updated.preferences.default_backend_id,
+            self.const.MUSIC_BACKEND_SPOTIFY_DIRECT,
+        )
+        account_id = updated.preferences.default_music_account_id
+        self.assertTrue(account_id)
+        account = manager.household.music_accounts[account_id]
+        self.assertEqual(account.backend_id, self.const.MUSIC_BACKEND_SPOTIFY_DIRECT)
+        self.assertIn(profile.profile_id, account.linked_profile_ids)
+        self.assertEqual(updated.preferences.response_style, profile.preferences.response_style)
+        self.assertNotIn("keep-refresh-token", str(manager.household))
+
+    def test_options_backend_choice_can_return_bound_profile_to_manual(self) -> None:
+        flow, manager, profile, entry = self._bound_ios_backend_flow()
+        spotify_result = asyncio.run(
+            flow.async_step_music_backend(
+                {self.const.CONF_MUSIC_BACKEND: self.const.MUSIC_BACKEND_SPOTIFY_DIRECT}
+            )
+        )
+        entry.options = spotify_result["data"]
+        manual_flow = self.config_flow.DJConnectOptionsFlow(entry)
+        manual_flow.hass = flow.hass
+
+        result = asyncio.run(
+            manual_flow.async_step_music_backend(
+                {self.const.CONF_MUSIC_BACKEND: self.config_flow.BACKEND_LATER_MANUAL}
+            )
+        )
+
+        updated = manager.household.profiles[profile.profile_id]
+        self.assertEqual(result["type"], "create_entry")
+        self.assertEqual(result["data"][self.const.CONF_MUSIC_BACKEND_REVISION], 4)
+        self.assertEqual(
+            updated.preferences.default_backend_id,
+            self.config_flow.BACKEND_LATER_MANUAL,
+        )
+        self.assertEqual(updated.preferences.default_music_account_id, "")
+        self.assertEqual(updated.preferences.response_style, profile.preferences.response_style)
+
+    def test_options_backend_choice_rejects_unbound_device(self) -> None:
+        flow, manager, profile, _entry = self._bound_ios_backend_flow(linked=False)
+
+        result = asyncio.run(
+            flow.async_step_music_backend(
+                {self.const.CONF_MUSIC_BACKEND: self.const.MUSIC_BACKEND_SPOTIFY_DIRECT}
+            )
+        )
+
+        self.assertEqual(result["type"], "form")
+        self.assertEqual(result["errors"]["base"], "profile_platform_failed")
+        self.assertEqual(
+            manager.household.profiles[profile.profile_id].preferences.default_backend_id,
+            self.config_flow.BACKEND_LATER_MANUAL,
+        )
+        self.assertNotIn(self.const.MUSIC_BACKEND_SPOTIFY_DIRECT, manager.household.music_backends)
+
+    def test_options_backend_binding_save_failure_keeps_profile_and_options(self) -> None:
+        flow, manager, profile, entry = self._bound_ios_backend_flow()
+
+        class FailingStore:
+            async def async_save(self, data):
+                raise OSError("store unavailable")
+
+        manager._store = FailingStore()
+        result = asyncio.run(
+            flow.async_step_music_backend(
+                {self.const.CONF_MUSIC_BACKEND: self.const.MUSIC_BACKEND_SPOTIFY_DIRECT}
+            )
+        )
+
+        self.assertEqual(result["type"], "form")
+        self.assertEqual(result["errors"]["base"], "profile_platform_failed")
+        self.assertEqual(entry.options[self.const.CONF_MUSIC_BACKEND_REVISION], 2)
+        self.assertEqual(
+            manager.household.profiles[profile.profile_id].preferences.default_backend_id,
+            self.config_flow.BACKEND_LATER_MANUAL,
+        )
+        self.assertNotIn(self.const.MUSIC_BACKEND_SPOTIFY_DIRECT, manager.household.music_backends)
+
+    def test_options_backend_choice_rejects_shared_profile(self) -> None:
+        flow, manager, profile, entry = self._bound_ios_backend_flow()
+        asyncio.run(
+            manager.async_upsert_device(
+                "djconnect-macos-ABCDEFGHIJKL",
+                self.const.CLIENT_TYPE_MACOS,
+                linked_profile_id=profile.profile_id,
+            )
+        )
+
+        result = asyncio.run(
+            flow.async_step_music_backend(
+                {self.const.CONF_MUSIC_BACKEND: self.const.MUSIC_BACKEND_SPOTIFY_DIRECT}
+            )
+        )
+
+        self.assertEqual(result["type"], "form")
+        self.assertEqual(result["errors"]["base"], "profile_shared_backend_change")
+        self.assertEqual(entry.options[self.const.CONF_MUSIC_BACKEND_REVISION], 2)
+        self.assertEqual(
+            manager.household.profiles[profile.profile_id].preferences.default_backend_id,
+            self.config_flow.BACKEND_LATER_MANUAL,
+        )
+
     def test_options_switch_to_music_assistant_without_spotify_fields(self) -> None:
         entry = types.SimpleNamespace(
             entry_id="entry-1",
@@ -2662,6 +2839,18 @@ class ConfigFlowHelperTest(unittest.TestCase):
 
         self.assertEqual(result["type"], "form")
         self.assertEqual(result["errors"]["base"], "oauth_setup_failed")
+
+    def test_vibecast_end_consent_options_roundtrip_and_default(self) -> None:
+        entry = types.SimpleNamespace(data={self.const.CONF_CLIENT_TYPE: self.const.CLIENT_TYPE_IOS}, options={})
+        for allowed in [True, False]:
+            flow = self.config_flow.DJConnectOptionsFlow(entry)
+            flow.hass = types.SimpleNamespace(config=types.SimpleNamespace(language="en"))
+            result = asyncio.run(flow.async_step_init({self.config_flow.OPTIONS_ACTION_FIELD: self.config_flow.OPTIONS_ACTION_SAVE,
+                                                      "vibecast_session_end_allowed": allowed}))
+            self.assertEqual(result["type"], "create_entry")
+            self.assertIs(result["data"]["vibecast_session_end_allowed"], allowed)
+            entry.options = result["data"]
+        self.assertIs(self.config_flow._voice_defaults({})["vibecast_session_end_allowed"], False)
 
     def test_options_flow_save_preserves_hidden_device_values(self) -> None:
         entry = types.SimpleNamespace(

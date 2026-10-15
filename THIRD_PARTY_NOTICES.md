@@ -77,3 +77,20 @@ DJConnect repositories are MIT-licensed unless a specific repository or
 third-party dependency states otherwise.
 The Home Assistant integration may be distributed separately for use with
 DJConnect devices under the terms of `LICENSE`.
+
+## VibeCast qualified factual cards and Spotify asset
+
+The current-slice factual adapter uses only MusicBrainz core CC0 data (entity
+identity, life-span and explicit relationships) and Wikidata structured CC0
+localized descriptions with reciprocal artist identity. It excludes
+MusicBrainz supplementary annotations/tags/ratings and Wikipedia article text.
+Public resource attribution accompanies each visual fact. See the bounded
+[source qualification contract](docs/product/VIBECAST_OWNER_REFINEMENTS_CONTRACT.md).
+
+The inline white Spotify full logo in `vibecast.html` is the unchanged
+`Full_Logo_White_RGB.svg` from Spotify's official
+[2024 full-logo asset archive](https://developer.spotify.com/images/guidelines/design/2024-spotify-full-logo.zip).
+Spotify retains its trademark and asset rights; the DJConnect MIT license does
+not relicense this asset. Its use attributes Spotify metadata/artwork under the
+[Spotify design guidelines](https://developer.spotify.com/documentation/design).
+DJConnect remains independent of Spotify AB; no endorsement is implied.

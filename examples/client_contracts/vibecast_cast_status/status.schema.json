@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DJConnect directed Cast status v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["kind", "version", "handoff_id", "session_id", "sequence", "state", "lease_ms"],
+  "properties": {
+    "kind": {"const": "vibecast_status"},
+    "version": {"const": 1},
+    "handoff_id": {"type": "string", "pattern": "^[a-f0-9]{32}$"},
+    "session_id": {"type": "string", "minLength": 1, "maxLength": 128},
+    "sequence": {"type": "integer", "minimum": 1},
+    "lease_ms": {"const": 15000},
+    "state": {"enum": ["receiver_ready", "connecting", "snapshot_accepted", "presenting", "recovering", "error", "ended", "stopped"]},
+    "presentation": {"enum": ["moment", "silence"]},
+    "reason": {"enum": ["snapshot_timeout", "invalid_handoff", "incompatible_snapshot", "access_rejected", "runtime_end", "host_stop", "sender_disconnected", "superseded"]}
+  },
+  "allOf": [{"if": {"properties": {"state": {"const": "presenting"}}}, "then": {"required": ["presentation"]}, "else": {"not": {"required": ["presentation"]}}}]
+}

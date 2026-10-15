@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "DJConnect einrichten",
-        "description": "Beginne mit dem Weg, der zu deiner Einrichtung passt. Verwende den Assist-Agent ohne physisches Gerät, wähle lokales Gerät für ESP32/Raspberry Pi in deinem Netzwerk oder App für iPhone/iPad, Apple Watch, macOS und Windows.",
+        "description": "Beginne mit dem Weg, der zu deiner Einrichtung passt. Verwende den Assist-Agent ohne physisches Gerät, wähle lokales Gerät für ESP32/Raspberry Pi in deinem Netzwerk oder App für iPhone/iPad, Apple Watch oder macOS.",
         "data": {
           "setup_method": "Einrichtungsmethode"
         }
@@ -28,7 +28,7 @@
           "client_type": "Wähle ESP32 oder Raspberry Pi.",
           "local_url": "Fallback für die lokale Geräte-API; leer lassen, wenn mDNS funktioniert.",
           "discovered_client": "Wähle einen automatisch gefundenen DJConnect-Client, um Kopplungsdetails vorauszufüllen, oder verwende die manuelle Eingabe.",
-          "app_pair_code": "Verwende diesen Code in macOS/Windows oder lasse iPhone/iPad/Apple Watch ihn aus dem QR-/Deep-Link-Payload übernehmen.",
+          "app_pair_code": "Verwende diesen Code in macOS oder lasse iPhone/iPad/Apple Watch ihn aus dem QR-/Deep-Link-Payload übernehmen.",
           "app_ha_local_url": "Lokale Home Assistant-URL, die die App beim Koppeln verwendet.",
           "app_iphone_pairing_uri": "QR-/Deep-Link-Payload für die iPhone/iPad-App.",
           "app_watch_pairing_uri": "QR-/Deep-Link-Payload, der auf iPhone/iPad gescannt wird, um die verknüpfte Apple Watch zu koppeln."
@@ -87,7 +87,7 @@
       },
       "pair_app": {
         "title": "App koppeln",
-        "description": "Verwende diesen Weg für iPhone/iPad, Apple Watch, macOS und Windows.\n\n**iPhone/iPad**\n\n![iPhone/iPad QR code]({iphone_qr_image})\n\n**Apple Watch**\n\n![Apple Watch QR code]({watch_qr_image})\n\nmacOS und Windows verwenden die Home Assistant-URL und den Kopplungscode unten.",
+        "description": "Verwende diesen Weg für iPhone/iPad, Apple Watch oder macOS.\n\n**iPhone/iPad**\n\n![iPhone/iPad QR code]({iphone_qr_image})\n\n**Apple Watch**\n\n![Apple Watch QR code]({watch_qr_image})\n\nmacOS verwendet die Home Assistant-URL und den Kopplungscode unten.",
         "data": {
           "pair_code": "Kopplungscode",
           "device_name": "Gerätename",
@@ -99,8 +99,8 @@
         },
         "data_description": {
           "device_name": "Anzeigename für diese App-Installation.",
-          "client_type": "Wähle iPhone/iPad, Apple Watch, macOS oder Windows.",
-          "app_pair_code": "Verwende diesen Code in macOS/Windows oder lasse iPhone/iPad/Apple Watch ihn aus dem QR-/Deep-Link-Payload übernehmen.",
+          "client_type": "Wähle iPhone/iPad, Apple Watch oder macOS.",
+          "app_pair_code": "Verwende diesen Code in macOS oder lasse iPhone/iPad/Apple Watch ihn aus dem QR-/Deep-Link-Payload übernehmen.",
           "app_ha_local_url": "Lokale Home Assistant-URL, die die App beim Koppeln verwendet.",
           "app_iphone_pairing_uri": "QR-/Deep-Link-Payload für die iPhone/iPad-App.",
           "app_watch_pairing_uri": "QR-/Deep-Link-Payload, der auf iPhone/iPad gescannt wird, um die verknüpfte Apple Watch zu koppeln."
@@ -155,20 +155,6 @@
           "device_name": "Anzeigename für diese macOS-App-Installation."
         }
       },
-      "pair_app_windows_details": {
-        "title": "DJConnect Windows App koppeln",
-        "description": "Verwende diese Werte in der Windows-App:\n\n- Home Assistant-URL: `{ha_local_url}`\n- Kopplungscode: `{pair_code}`",
-        "data": {
-          "app_pair_code": "Kopplungscode",
-          "app_ha_local_url": "Home Assistant-URL",
-          "device_name": "Gerätename"
-        },
-        "data_description": {
-          "app_pair_code": "Gib diesen Kopplungscode in der Windows-App ein.",
-          "app_ha_local_url": "Lokale Home Assistant-URL, die die App beim Koppeln verwendet.",
-          "device_name": "Anzeigename für diese Windows-App-Installation."
-        }
-      },
       "ble_wifi": {
         "title": "ESP32-Geräte-WLAN konfigurieren (über Bluetooth)",
         "description": "Wähle ein DJConnect-Gerät im Einrichtungsmodus, um WLAN per BLE zu schreiben, oder fahre mit dem Koppeln fort, wenn WLAN bereits über das Captive Portal konfiguriert wurde.",
@@ -210,7 +196,8 @@
           "firmware_channel": "Firmware-Kanal",
           "dj_announcement_speaker_entity_id": "Home Assistant-Lautsprecher für DJ-Ansagen",
           "options_action": "Aktion",
-          "voice_profile": "DJ-Sprachprofil"
+          "voice_profile": "DJ-Sprachprofil",
+          "vibecast_session_end_allowed": "Genehmigte VibeCast-Bildschirme dürfen die Session beenden"
         },
         "data_description": {
           "assist_pipeline_id": "Assist-Pipeline, die DJConnect-Geräte für Spracherkennung und DJ-Ansageaudio verwenden.",
@@ -264,7 +251,7 @@
           "music_backend": "Musik-Backend"
         },
         "data_description": {
-          "music_backend": "Wähle Spotify Direct oder Music Assistant. Spotify is a trademark of Spotify AB. DJConnect is not affiliated with, endorsed by, or sponsored by Spotify AB."
+          "music_backend": "Wähle Spotify Direct, Music Assistant oder Später / manuell. Spotify is a trademark of Spotify AB. DJConnect is not affiliated with, endorsed by, or sponsored by Spotify AB."
         }
       },
       "music_assistant": {
@@ -285,6 +272,34 @@
         "data_description": {
           "music_backend": "Ausgewähltes Wiedergabe-Backend.",
           "music_assistant_player": "Konfigurierter Ziel-Player von Music Assistant."
+        }
+      },
+      "profile_choice": {
+        "title": "Profil auswählen",
+        "description": "Profile werden innerhalb dieser Home-Assistant-Installation geteilt. Wähle ein bestehendes Profil oder erstelle ein neues.",
+        "data": {
+          "profile_id": "Profil"
+        },
+        "data_description": {
+          "profile_id": "Profile werden innerhalb dieser Home-Assistant-Installation geteilt. Wähle ein bestehendes Profil oder erstelle ein neues."
+        }
+      },
+      "profile_setup": {
+        "title": "Neues Profil",
+        "description": "Gib dem neuen Profil einen eindeutigen Namen. Um das Profil eines anderen Geräts zu verwenden, wähle es aus der Profilliste.",
+        "data": {
+          "profile_id": "Profil",
+          "profile_name": "Profilname",
+          "profile_type": "Profiltyp",
+          "profile_response_style": "Antwortstil",
+          "require_profile": "Ein ausdrücklich gewähltes Profil verlangen"
+        },
+        "data_description": {
+          "profile_id": "Profile werden innerhalb dieser Home-Assistant-Installation geteilt. Wähle ein bestehendes Profil oder erstelle ein neues.",
+          "profile_name": "Gib dem neuen Profil einen eindeutigen Namen. Um das Profil eines anderen Geräts zu verwenden, wähle es aus der Profilliste.",
+          "profile_type": "Profiltyp",
+          "profile_response_style": "Antwortstil",
+          "require_profile": "Ein ausdrücklich gewähltes Profil verlangen"
         }
       }
     },
@@ -311,10 +326,17 @@
       "music_assistant_unavailable": "Music Assistant ist in Home Assistant nicht installiert oder nicht konfiguriert.",
       "music_assistant_no_players": "Es wurden keine nutzbaren Music Assistant-Player gefunden.",
       "music_assistant_player_missing": "Der ausgewählte Music Assistant-Player existiert nicht mehr.",
-      "invalid_voice_profile": "Wähle ein unterstütztes DJ-Sprachprofil."
+      "invalid_voice_profile": "Wähle ein unterstütztes DJ-Sprachprofil.",
+      "profile_name_exists": "Dieser Name wird bereits verwendet. Wähle das bestehende Profil aus der Liste oder gib einen anderen Namen ein.",
+      "profile_name_required": "Gib einen Profilnamen ein.",
+      "profile_unavailable": "Dieses Profil wurde geändert oder ist nicht mehr verfügbar. Wähle es erneut aus der aktualisierten Liste.",
+      "profile_connection_unavailable": "Die bestehende Musikverbindung ist nicht verfügbar oder nicht eindeutig. Stelle sie wieder her oder wähle ein anderes Profil.",
+      "profile_setup_failed": "Das Profil konnte nicht gespeichert werden. Versuche es erneut."
     },
     "abort": {
-      "already_configured": "Dieses DJConnect-Gerät ist bereits konfiguriert."
+      "already_configured": "Dieses DJConnect-Gerät ist bereits konfiguriert.",
+      "client_retired": "Dieser Client wird nicht mehr unterstützt. Wähle einen unterstützten Client.",
+      "invalid_client_type": "Unbekannter Clienttyp. Wähle einen unterstützten Client."
     }
   },
   "options": {
@@ -331,7 +353,8 @@
           "music_backend": "Musik-Backend",
           "music_assistant_player": "Music Assistant-Player",
           "dj_announcement_speaker_entity_id": "Home Assistant-Lautsprecher für DJ-Ansagen",
-          "voice_profile": "DJ-Sprachprofil"
+          "voice_profile": "DJ-Sprachprofil",
+          "vibecast_session_end_allowed": "Genehmigte VibeCast-Bildschirme dürfen die Session beenden"
         },
         "data_description": {
           "assist_pipeline_id": "Assist-Pipeline, die DJConnect-Geräte für Spracherkennung und DJ-Ansageaudio verwenden.",
@@ -363,12 +386,12 @@
       },
       "music_backend": {
         "title": "Musik-Backend ändern",
-        "description": "Das aktuelle Backend wird unten angezeigt. Beim Wechsel bleiben Kopplung, Gerätetokens, Ask DJ-Verlauf, Music DNA und Push-Registrierungen erhalten. Music DNA Export/Import läuft über HTTP und bleibt durch serverseitiges Opt-in geschützt. Ältere backend-spezifische Ask DJ-Wiedergabeaktionen oder Empfehlungen sind möglicherweise nicht mehr ausführbar.",
+        "description": "Diese Auswahl ändert auch das Backend des verknüpften Profils. Du kannst später zu manuell zurückkehren. Kopplung, Gerätetokens, Ask DJ-Verlauf, Music DNA und Push-Registrierungen bleiben erhalten. Ältere Backend-Aktionen funktionieren möglicherweise nicht mehr.",
         "data": {
           "music_backend": "Musik-Backend"
         },
         "data_description": {
-          "music_backend": "Wähle Spotify Direct oder Music Assistant. Spotify is a trademark of Spotify AB. DJConnect is not affiliated with, endorsed by, or sponsored by Spotify AB."
+          "music_backend": "Wähle Spotify Direct, Music Assistant oder Später / manuell. Spotify is a trademark of Spotify AB. DJConnect is not affiliated with, endorsed by, or sponsored by Spotify AB."
         }
       },
       "music_assistant_player": {
@@ -416,6 +439,21 @@
       "spotify_reauth_done": {
         "title": "Spotify OAuth erfolgreich",
         "description": "DJConnect Spotify OAuth war erfolgreich. Du kannst dieses Fenster schließen; Home Assistant verwaltet Spotify-Wiedergabe nun selbst."
+      },
+      "profile_platform": {
+        "title": "Profile verwalten",
+        "description": "Wähle eine Aktion, ein Profil und ein Gerät. Bestehende Profil- und Gerätenamen bleiben erhalten.",
+        "data": {
+          "profile_platform_action": "Aktion",
+          "profile_id": "Profil",
+          "profile_name": "Profilname",
+          "profile_type": "Profiltyp",
+          "profile_privacy_mode": "Datenschutzmodus",
+          "device_id": "Gerät",
+          "device_name": "Gerätename",
+          "client_type": "Gerätetyp",
+          "require_profile": "Profil erforderlich"
+        }
       }
     },
     "error": {
@@ -436,7 +474,12 @@
       "announcement_speaker_no_play_media": "Wähle einen media_player, der Audio wiedergeben kann.",
       "spotify_oauth_required": "Spotify OAuth ist erforderlich, bevor Spotify Direct aktiv werden kann.",
       "backend_switch_failed": "DJConnect konnte das Musik-Backend nicht wechseln. Prüfe das ausgewählte Backend und versuche es erneut.",
+      "profile_platform_failed": "Das verknüpfte Profil konnte nicht aktualisiert werden. Prüfe die Gerätekopplung und versuche es erneut.",
+      "profile_shared_backend_change": "Dieses Profil ist mit mehreren Geräten verknüpft. Verknüpfe dieses Gerät mit einem eigenen Profil, bevor du das Musik-Backend änderst.",
       "invalid_voice_profile": "Wähle ein unterstütztes DJ-Sprachprofil."
+    },
+    "abort": {
+      "client_retired": "Dieser Client wird nicht mehr unterstützt. Wähle einen unterstützten Client."
     }
   },
   "entity": {
@@ -642,6 +685,64 @@
         "abort": {
           "entry_not_found": "Die DJConnect-Konfiguration wurde nicht gefunden."
         }
+      }
+    },
+    "windows_client_retired": {
+      "title": "Windows-App eingestellt: Musikverbindung erhalten — {configuration}",
+      "description": "Die DJConnect Windows-App wird nicht mehr unterstützt und kann sich nicht verbinden. Dieser Eintrag behält seine bestehende Musikverbindung für verknüpfte Clients. Behalte ihn, bis die gemeinsame Verbindung sicher übertragen wurde; das Entfernen kann das Konto trennen. Profiles und Verlauf werden nicht automatisch gelöscht."
+    },
+    "windows_client_retired_safe": {
+      "title": "Windows-App eingestellt: kann entfernt werden — {configuration}",
+      "description": "Die DJConnect Windows-App wird nicht mehr unterstützt und kann sich nicht verbinden. Diese Konfiguration besitzt keine Musikverbindung mehr und kann entfernt werden. Bestehende verknüpfte Clients, Profiles, Musikkonten und Verlauf bleiben erhalten."
+    }
+  },
+  "selector": {
+    "onboarding_profile": {
+      "options": {
+        "new": "Neues Profil erstellen"
+      }
+    },
+    "onboarding_profile_type": {
+      "options": {
+        "personal": "Persönlich",
+        "household": "Haushalt",
+        "guest": "Gast",
+        "kids": "Kinder"
+      }
+    },
+    "onboarding_response_style": {
+      "options": {
+        "concise": "Kurz",
+        "balanced": "Ausgewogen",
+        "expressive": "Ausdrucksstark"
+      }
+    },
+    "profile_platform_action": {
+      "options": {
+        "add_profile": "Profil hinzufügen",
+        "edit_profile": "Profil bearbeiten",
+        "delete_profile": "Profil löschen",
+        "link_device": "Gerät mit Profil verknüpfen",
+        "unlink_device": "Gerät trennen",
+        "set_fallback_profile": "Fallback-Profil festlegen"
+      }
+    },
+    "profile_privacy_mode": {
+      "options": {
+        "normal": "Normal",
+        "private": "Privat",
+        "shared": "Geteilt",
+        "guest-safe": "Gastsicher"
+      }
+    },
+    "profile_platform_client_type": {
+      "options": {
+        "esp32": "ESP32",
+        "ios": "iPhone/iPad",
+        "macos": "Mac",
+        "watchos": "Apple Watch",
+        "raspberry_pi": "Linux/Raspberry Pi",
+        "conversation_agent": "Assist-Konversationsagent"
       }
     }
   }

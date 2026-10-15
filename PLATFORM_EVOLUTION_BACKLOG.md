@@ -16,17 +16,18 @@ user-facing roadmap progress; the current Product Initiative is recorded in
 
 | Initiative | Priority | Status | Dependencies | Promotion path |
 | --- | --- | --- | --- | --- |
-| Engineering Platform 2.0 versioned boundary | P0 | Current execution | `tools/engineering/ENGINEERING_PLATFORM_VERSION.json`, compatibility tests and host desired state | `EP_2_0_VERSION_BOUNDARY`; platform, runner, watcher and dashboard move to 2.0.0 together; no storage/protocol migration, standalone extraction or authority expansion |
-| Engineering Platform 1.5 operational hardening | P2 | Completed | EP 1.5 finalization and PRs #689–#699; `tools/engineering/ENGINEERING_QUALIFICATION.md` | `EP_1_5_OPERATIONAL`; private engineering remains repository-owned, qualified and behaviorally separate from DJConnect Product/Runtime/Release/Deployment work |
+| Embedded Engineering Platform source retirement | P0 | Completed | [LANE_5 owner decision and qualification](docs/governance/LANE_5_EP_SOURCE_RETIREMENT.md), [PR #1099](https://github.com/pcvantol/djconnect/pull/1099), published EP 2.3.106 receipt | Transferred generic runtime removed and active DJConnect boundaries converted; product validation and historical evidence retained, no live cutover |
+| Engineering Platform 2.0 versioned boundary | P0 | Historical | EP 2.0 version and qualification evidence in Git history | Earlier embedded platform, runner, watcher and dashboard alignment; standalone EP now owns current releases |
+| Engineering Platform 1.5 operational hardening | P2 | Historical | EP 1.5 finalization and PRs #689–#699 | Earlier embedded runtime evidence; no current DJConnect EP implementation ownership |
 | Engineering Platform 1.x feature-complete declaration | P0 | Completed | `docs/engineering/ENGINEERING_PLATFORM_1_X_COMPLETION_REPORT.md`; stable Execution Host and Producer Contract | `ENGINEERING_PLATFORM_1_X_FEATURE_COMPLETE`; future work requires explicit architectural authorization and remains generic execution-platform work |
-| Legacy iCloud Engineering archive migration | P3 | Planned operational maintenance | local `.engineering/` copies verified; `python3 -m tools.engineering.inbox_watcher migrate-icloud-archives` | run only on the owner workstation after local copies are verified; leave `iCloud Drive/DJConnect Engineering/Inbox` as the sole iCloud engineering folder; no product or platform capability change |
+| Legacy iCloud Engineering archive migration | P3 | Retired | ADR-0026 and retained migration/forensic records | Historical operational plan only; no source-retirement task may migrate or delete local archives |
 | Capability-profile assessment follow-up | P2 | Completed | PR #539 / `QUALIFICATION_REGISTER.md`; current CMB-05/CMB-06/CMB-07/CMB-09/CMB-12 evidence | `GO_CAPABILITY_PROFILE_FOLLOW_UP_RECONCILED`; seven original items reconciled to six unique active items; no product implementation authorization |
 | Canonical governance Version 2.2 alignment | P0 | Historical | merged governance evidence | retained governance evidence only |
 | Component Release Mode | P2 | Implemented and Finalized — Execute Qualification pending | `docs/release/COMPONENT_RELEASE_MODE_ASSESSMENT.md`, `docs/release/COMPONENT_RELEASE_QUALIFICATION_ASSESSMENT.md`, `docs/release/COMPONENT_RELEASE_SCOPE_REFINEMENT.md` and `docs/release/COMPONENT_RELEASE_SELECTION_EVIDENCE_CLOSURE_IMPLEMENTATION.md` | `GO_COMPONENT_RELEASE_SELECTION_EVIDENCE_CLOSURE_IMPLEMENTED`; canonical profiles are deterministically selected and fail closed against exact closure evidence. Component execution and release remain unauthorized pending profile-specific Execute Qualification. |
 | GitHub Actions retention and evidence preservation (`TD-GITHUB-001`) | P1 | Completed | PRs #547–#554; `docs/software_assurance/EVIDENCE_PRESERVATION_IMPLEMENTATION_REPORT.md`; durable record for `f6e346018dadaccc8457dac7b5cadd19a03b80e7` | `GO_TD_GITHUB_001_QUALIFIED`; redacted, immutable release-asset evidence is published and read back fail-closed |
 | Platform Dependency Governance conformance | P1 | Completed | `docs/software_assurance/PLATFORM_DEPENDENCY_GOVERNANCE_POLICY.md`; merged Dependabot rollout and successor finalization evidence | GitHub-native version-update conformance is complete; TDE 1.1.1 supplies separate canonical non-blocking observe evidence and does not replace native security controls |
 | Public distribution: Apple | P1 | Planned | qualified Internal Release consumers and explicit authorization | release-operational work |
-| Public distribution: Windows | P1 | Planned | qualified Internal Release consumers and explicit authorization | release-operational work |
+| Public distribution: Windows | P1 | Retired | [owner product decision6066406727](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6066406727) | Product discontinued; not delivered and not an open publication/parity gate. Technical retirement remains separately Planned. |
 | Public HACS distribution | P1 | Planned | fresh candidate and release authorization | release-operational work |
 | Client Connectivity & Resilience qualification | P1 | Assessed | `docs/technical/CLIENT_CONNECTIVITY_RESILIENCE_ARCHITECTURE.md`, Public Release Readiness Assessment | `GO_CLIENT_CONNECTIVITY_PARTIALLY_QUALIFIED`; bounded external HTTP and resilience evidence remains required before Public Release Readiness, with no Runtime, transport or client implementation authorization |
 | HACS 3.3.0 release visibility (`HACS-3.3.0-001`) | P1 | Planned | verify release/tag metadata, HACS cache/index discovery and update presentation | bounded distribution investigation |
@@ -42,8 +43,16 @@ user-facing roadmap progress; the current Product Initiative is recorded in
 | Release Health and observability | P2 | Planned | operational release evidence and [`PLATFORM_RELEASE_OBSERVATORY_DESIGN.md`](docs/platform_evolution/PLATFORM_RELEASE_OBSERVATORY_DESIGN.md) | three bounded delivery increments; no implementation authorization |
 | Platform diagnostics | P3 | Planned | privacy and redaction review | scoped Platform Evolution proposal |
 | Future governance improvements | P3 | Planned | governance evidence | governance review |
+| Active Session mood — bounded Core producer (`DJC-CORE-ACTIVE-SESSION-MOOD-V1-20261011`) | P1 | Completed | [selected assignment6108886915](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6108886915); existing Runtime/owner authority; Apple87 existing pickup | [Source #1146](https://github.com/pcvantol/djconnect/pull/1146), exact-main package, real isolated HA and both browser paths PASS. [Own Finalization](docs/history/prompts/2026-10-11-active-session-mood-finalization.md) binds separate final delivery/cleanup. Native/installed/hardware and artwork remain separate; no next execution. |
+| Windows client retirement — Core subset (`DJC-CORE-WINDOWS-CLIENT-RETIREMENT-V1-20261011`) | P1 | Completed | [Core assignment6106139356](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6106139356); [legacy disposition and acceptance](docs/product/WINDOWS_CLIENT_RETIREMENT_V1.md) | Remove active Core client ingress, preserve shared Profile/account/history and qualify retained consumers. [Protected source PR #1144](https://github.com/pcvantol/djconnect/pull/1144), exact-main package and software qualification PASS; [own Finalization](docs/history/prompts/2026-10-11-windows-client-retirement-finalization.md) binds final delivery/cleanup. Installed acceptance not claimed; parent infrastructure remains open. |
+| Windows product removal and dedicated infrastructure retirement (`DJC-WINDOWS-RETIREMENT-V1-20261008`) | P1 | Planned | [owner decision6066406727](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6066406727); owning [Windows #76](https://github.com/pcvantol/djconnect-windows/issues/76) admission and exact resource/effect scope | Parent remains open. Core product subset is tracked above; repository, runner, CI, website and distribution retirement need their own inventory and authority. Preserve native Apple/shared distribution and historical evidence. |
 
 ## Engineering Platform operational updates
+
+The 1.x/2.0 entries below preserve historical DJConnect-hosted EP planning.
+The current source-retirement owner decision is in the table above and the
+[LANE_5 register](docs/governance/LANE_5_EP_SOURCE_RETIREMENT.md); standalone
+EP owns current runtime and release planning.
 
 ## Backlog detail: Engineering Platform 1.x feature-complete declaration
 
@@ -94,7 +103,7 @@ providers, public exposure, release automation or a 1.6 implementation.
 **Owner:** Platform Evolution / local maintainer
 
 **Priority:** P0
-**Status:** Current execution
+**Status:** Historical
 
 Engineering Platform 2.0.0 establishes one major-version boundary across the
 platform, runner, Inbox watcher and private dashboard. New engineering prompts

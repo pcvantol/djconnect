@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "DJConnect instellen",
-        "description": "Begin met de route die past bij je setup. Gebruik de Assist-agent zonder fysiek apparaat, kies lokaal apparaat voor ESP32/Raspberry Pi op je netwerk, of kies app voor iPhone/iPad, Apple Watch, macOS en Windows.",
+        "description": "Begin met de route die past bij je setup. Gebruik de Assist-agent zonder fysiek apparaat, kies lokaal apparaat voor ESP32/Raspberry Pi op je netwerk, of kies app voor iPhone/iPad, Apple Watch of macOS.",
         "data": {
           "setup_method": "Setup methode"
         }
@@ -28,7 +28,7 @@
           "client_type": "Kies ESP32 of Raspberry Pi.",
           "local_url": "Lokale apparaat-API fallback; laat leeg wanneer mDNS werkt.",
           "discovered_client": "Kies een automatisch gevonden DJConnect client om de koppelgegevens voor te vullen, of gebruik handmatige invoer.",
-          "app_pair_code": "Gebruik deze code in macOS/Windows, of laat iPhone/iPad/Apple Watch hem via de QR/deep-link payload overnemen.",
+          "app_pair_code": "Gebruik deze code in macOS, of laat iPhone/iPad/Apple Watch hem via de QR/deep-link payload overnemen.",
           "app_ha_local_url": "Lokale Home Assistant URL die de app tijdens het koppelen gebruikt.",
           "app_iphone_pairing_uri": "QR/deep-link payload voor de iPhone/iPad app.",
           "app_watch_pairing_uri": "QR/deep-link payload die je op iPhone/iPad scant om de gekoppelde Apple Watch te koppelen."
@@ -87,7 +87,7 @@
       },
       "pair_app": {
         "title": "App koppelen",
-        "description": "Gebruik deze route voor iPhone/iPad, Apple Watch, macOS en Windows.\n\n**iPhone/iPad**\n\n![iPhone/iPad QR-code]({iphone_qr_image})\n\n**Apple Watch**\n\n![Apple Watch QR-code]({watch_qr_image})\n\nmacOS en Windows gebruiken de Home Assistant URL en koppelcode hieronder.",
+        "description": "Gebruik deze route voor iPhone/iPad, Apple Watch of macOS.\n\n**iPhone/iPad**\n\n![iPhone/iPad QR-code]({iphone_qr_image})\n\n**Apple Watch**\n\n![Apple Watch QR-code]({watch_qr_image})\n\nmacOS gebruikt de Home Assistant URL en koppelcode hieronder.",
         "data": {
           "pair_code": "Koppelcode",
           "device_name": "Apparaatnaam",
@@ -99,8 +99,8 @@
         },
         "data_description": {
           "device_name": "Leesbare naam voor deze app-installatie.",
-          "client_type": "Kies iPhone/iPad, Apple Watch, macOS of Windows.",
-          "app_pair_code": "Gebruik deze code in macOS/Windows, of laat iPhone/iPad/Apple Watch hem via de QR/deep-link payload overnemen.",
+          "client_type": "Kies iPhone/iPad, Apple Watch of macOS.",
+          "app_pair_code": "Gebruik deze code in macOS, of laat iPhone/iPad/Apple Watch hem via de QR/deep-link payload overnemen.",
           "app_ha_local_url": "Lokale Home Assistant URL die de app tijdens het koppelen gebruikt.",
           "app_iphone_pairing_uri": "QR/deep-link payload voor de iPhone/iPad app.",
           "app_watch_pairing_uri": "QR/deep-link payload die je op iPhone/iPad scant om de gekoppelde Apple Watch te koppelen."
@@ -155,20 +155,6 @@
           "device_name": "Leesbare naam voor deze macOS app-installatie."
         }
       },
-      "pair_app_windows_details": {
-        "title": "DJConnect Windows app koppelen",
-        "description": "Gebruik deze waarden in de Windows app:\n\n- Home Assistant URL: `{ha_local_url}`\n- Koppelcode: `{pair_code}`",
-        "data": {
-          "app_pair_code": "Koppelcode",
-          "app_ha_local_url": "Home Assistant URL",
-          "device_name": "Apparaatnaam"
-        },
-        "data_description": {
-          "app_pair_code": "Voer deze koppelcode in de Windows app in.",
-          "app_ha_local_url": "Lokale Home Assistant URL die de app tijdens het koppelen gebruikt.",
-          "device_name": "Leesbare naam voor deze Windows app-installatie."
-        }
-      },
       "ble_wifi": {
         "title": "ESP32 apparaat WiFi configureren (via Bluetooth)",
         "description": "Selecteer een DJConnect apparaat in setupmodus om WiFi via BLE te schrijven, of ga door naar koppelen als WiFi al via captive portal is ingesteld.",
@@ -210,7 +196,8 @@
           "firmware_channel": "Firmwarekanaal",
           "dj_announcement_speaker_entity_id": "Home Assistant speaker voor DJ-aankondigingen",
           "options_action": "Actie",
-          "voice_profile": "DJ stemprofiel"
+          "voice_profile": "DJ stemprofiel",
+          "vibecast_session_end_allowed": "Goedgekeurde VibeCast-schermen mogen de sessie beëindigen"
         },
         "data_description": {
           "assist_pipeline_id": "Assist pipeline die DJConnect apparaten gebruiken voor spraakherkenning en DJ aankondiging audio.",
@@ -264,7 +251,7 @@
           "music_backend": "Muziekbackend"
         },
         "data_description": {
-          "music_backend": "Kies Spotify Direct of Music Assistant. Spotify is een handelsmerk van Spotify AB. DJConnect is niet verbonden aan, goedgekeurd door of gesponsord door Spotify AB."
+          "music_backend": "Kies Spotify Direct, Music Assistant of Later / handmatig. Spotify is een handelsmerk van Spotify AB. DJConnect is niet verbonden aan, goedgekeurd door of gesponsord door Spotify AB."
         }
       },
       "music_assistant": {
@@ -285,6 +272,34 @@
         "data_description": {
           "music_backend": "Gekozen playback-backend.",
           "music_assistant_player": "Geconfigureerde Music Assistant doelplayer."
+        }
+      },
+      "profile_choice": {
+        "title": "Choose a profile",
+        "description": "Profiles are shared across this Home Assistant installation. Choose an existing profile, or create a new one.",
+        "data": {
+          "profile_id": "Profile"
+        },
+        "data_description": {
+          "profile_id": "Profiles are shared across this Home Assistant installation. Choose an existing profile, or create a new one."
+        }
+      },
+      "profile_setup": {
+        "title": "New profile",
+        "description": "Give the new profile a unique name. To use a profile from another device, select it from the profile list.",
+        "data": {
+          "profile_id": "Profile",
+          "profile_name": "Profile name",
+          "profile_type": "Profile type",
+          "profile_response_style": "Response style",
+          "require_profile": "Require an explicit profile"
+        },
+        "data_description": {
+          "profile_id": "Profiles are shared across this Home Assistant installation. Choose an existing profile, or create a new one.",
+          "profile_name": "Give the new profile a unique name. To use a profile from another device, select it from the profile list.",
+          "profile_type": "Profile type",
+          "profile_response_style": "Response style",
+          "require_profile": "Require an explicit profile"
         }
       }
     },
@@ -311,10 +326,17 @@
       "music_assistant_unavailable": "Music Assistant is niet geïnstalleerd of geconfigureerd in Home Assistant.",
       "music_assistant_no_players": "Er zijn geen bruikbare Music Assistant players gevonden.",
       "music_assistant_player_missing": "De gekozen Music Assistant player bestaat niet meer.",
-      "invalid_voice_profile": "Kies een ondersteund DJ stemprofiel."
+      "invalid_voice_profile": "Kies een ondersteund DJ stemprofiel.",
+      "profile_name_exists": "This name is already used. Choose the existing profile from the list, or enter another name.",
+      "profile_name_required": "Enter a profile name.",
+      "profile_unavailable": "This profile changed or is no longer available. Choose it again from the refreshed list.",
+      "profile_connection_unavailable": "The existing music connection is unavailable or ambiguous. Restore that connection, or choose another profile.",
+      "profile_setup_failed": "The profile could not be saved. Try again."
     },
     "abort": {
-      "already_configured": "DJConnect is al geconfigureerd."
+      "already_configured": "DJConnect is al geconfigureerd.",
+      "client_retired": "Deze client wordt niet meer ondersteund. Kies een ondersteunde client.",
+      "invalid_client_type": "Onbekend clienttype. Kies een ondersteunde client."
     }
   },
   "options": {
@@ -331,7 +353,8 @@
           "options_action": "Actie",
           "music_backend": "Muziekbackend",
           "music_assistant_player": "Music Assistant player",
-          "voice_profile": "DJ stemprofiel"
+          "voice_profile": "DJ stemprofiel",
+          "vibecast_session_end_allowed": "Goedgekeurde VibeCast-schermen mogen de sessie beëindigen"
         },
         "data_description": {
           "assist_pipeline_id": "Assist pipeline die DJConnect apparaten gebruiken voor spraakherkenning en DJ aankondiging audio.",
@@ -363,12 +386,12 @@
       },
       "music_backend": {
         "title": "Muziekbackend wijzigen",
-        "description": "De huidige backend staat hieronder. Wisselen behoudt de koppeling, apparaattokens, Ask DJ history, Music DNA en pushregistraties. Music DNA export/import loopt via HTTP en blijft server-side opt-in beschermd. Oude backend-specifieke Ask DJ playback-acties of aanbevelingen zijn mogelijk niet meer uitvoerbaar.",
+        "description": "Deze keuze wijzigt ook de backend van het gekoppelde profiel. Je kunt later weer handmatig kiezen. Wisselen behoudt de koppeling, apparaattokens, Ask DJ history, Music DNA en pushregistraties. Oude backend-specifieke acties zijn mogelijk niet meer uitvoerbaar.",
         "data": {
           "music_backend": "Muziekbackend"
         },
         "data_description": {
-          "music_backend": "Kies Spotify Direct of Music Assistant. Spotify is een handelsmerk van Spotify AB. DJConnect is niet verbonden aan, goedgekeurd door of gesponsord door Spotify AB."
+          "music_backend": "Kies Spotify Direct, Music Assistant of Later / handmatig. Spotify is een handelsmerk van Spotify AB. DJConnect is niet verbonden aan, goedgekeurd door of gesponsord door Spotify AB."
         }
       },
       "music_assistant_player": {
@@ -416,6 +439,21 @@
       "spotify_reauth_done": {
         "title": "Spotify OAuth gelukt",
         "description": "DJConnect Spotify OAuth is gelukt. Je kunt dit venster sluiten; Home Assistant beheert Spotify playback nu zelf."
+      },
+      "profile_platform": {
+        "title": "Manage profiles",
+        "description": "Choose an action, profile and device. Existing profile and device names are preserved.",
+        "data": {
+          "profile_platform_action": "Action",
+          "profile_id": "Profile",
+          "profile_name": "Profile name",
+          "profile_type": "Profile type",
+          "profile_privacy_mode": "Privacy mode",
+          "device_id": "Device",
+          "device_name": "Device name",
+          "client_type": "Device type",
+          "require_profile": "Require a profile"
+        }
       }
     },
     "error": {
@@ -436,7 +474,12 @@
       "announcement_speaker_no_play_media": "Kies een media_player die audio kan afspelen.",
       "spotify_oauth_required": "Spotify OAuth is vereist voordat Spotify Direct actief kan worden.",
       "backend_switch_failed": "DJConnect kon de muziekbackend niet wijzigen. Controleer de gekozen backend en probeer opnieuw.",
+      "profile_platform_failed": "Het gekoppelde profiel kon niet worden bijgewerkt. Controleer de apparaatkoppeling en probeer opnieuw.",
+      "profile_shared_backend_change": "Dit profiel is gekoppeld aan meerdere apparaten. Koppel dit apparaat aan een eigen profiel voordat je de muziekbackend wijzigt.",
       "invalid_voice_profile": "Kies een ondersteund DJ stemprofiel."
+    },
+    "abort": {
+      "client_retired": "Deze client wordt niet meer ondersteund. Kies een ondersteunde client."
     }
   },
   "entity": {
@@ -642,6 +685,64 @@
         "abort": {
           "entry_not_found": "DJConnect configuratie kon niet worden gevonden."
         }
+      }
+    },
+    "windows_client_retired": {
+      "title": "Windows app retired: connection retained — {configuration}",
+      "description": "De DJConnect Windows-app wordt niet meer ondersteund en kan niet verbinden. Deze configuratie bewaart zijn bestaande muziekverbinding voor gekoppelde clients. Bewaar hem totdat de gedeelde verbinding veilig is overgedragen; verwijderen vóór overdracht kan dat account ontkoppelen. Profiles en geschiedenis worden niet automatisch gewist."
+    },
+    "windows_client_retired_safe": {
+      "title": "Windows app retired: ready to remove — {configuration}",
+      "description": "De DJConnect Windows-app wordt niet meer ondersteund en kan niet verbinden. Deze configuratie is geen eigenaar meer van een muziekverbinding en kan worden verwijderd. Bestaande gekoppelde clients, Profiles, muziekaccounts en geschiedenis blijven behouden."
+    }
+  },
+  "selector": {
+    "onboarding_profile": {
+      "options": {
+        "new": "Create a new profile"
+      }
+    },
+    "onboarding_profile_type": {
+      "options": {
+        "personal": "Personal",
+        "household": "Household",
+        "guest": "Guest",
+        "kids": "Kids"
+      }
+    },
+    "onboarding_response_style": {
+      "options": {
+        "concise": "Concise",
+        "balanced": "Balanced",
+        "expressive": "Expressive"
+      }
+    },
+    "profile_platform_action": {
+      "options": {
+        "add_profile": "Add profile",
+        "edit_profile": "Edit profile",
+        "delete_profile": "Delete profile",
+        "link_device": "Link device to profile",
+        "unlink_device": "Unlink device",
+        "set_fallback_profile": "Set fallback profile"
+      }
+    },
+    "profile_privacy_mode": {
+      "options": {
+        "normal": "Normal",
+        "private": "Private",
+        "shared": "Shared",
+        "guest-safe": "Guest safe"
+      }
+    },
+    "profile_platform_client_type": {
+      "options": {
+        "esp32": "ESP32",
+        "ios": "iPhone/iPad",
+        "macos": "Mac",
+        "watchos": "Apple Watch",
+        "raspberry_pi": "Linux/Raspberry Pi",
+        "conversation_agent": "Assist conversation agent"
       }
     }
   }

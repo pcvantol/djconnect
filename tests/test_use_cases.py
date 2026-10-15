@@ -360,6 +360,43 @@ class UseCaseLayerTest(unittest.TestCase):
             {"id": "media_player.mass_woonkamer", "name": "Woonkamer"},
         )
 
+    def test_manual_backend_does_not_expose_spotify_playback(self) -> None:
+        uc = self.use_cases
+        hass = types.SimpleNamespace(config=types.SimpleNamespace(language="nl"))
+        runtime = types.SimpleNamespace(
+            config={"music_backend": "later_manual", "music_backend_revision": 4}
+        )
+
+        metadata = uc.music_backend_metadata(hass, runtime)
+        status = asyncio.run(uc.run_music_command(hass, runtime, "status"))
+        play = asyncio.run(uc.run_music_command(hass, runtime, "play"))
+        action = uc.build_playback_action(
+            runtime, {"uri": "spotify:track:abc", "title": "Track"}, "track"
+        )
+
+        self.assertEqual(metadata["music_backend"], "later_manual")
+        self.assertEqual(metadata["music_backend_name"], "Later / handmatig")
+        self.assertFalse(metadata["music_backend_available"])
+        self.assertFalse(metadata["music_backend_capabilities"]["supports_search"])
+        self.assertFalse(status["backend_available"])
+        self.assertFalse(play["success"])
+        self.assertEqual(action, {})
+
+    def test_resolved_manual_profile_overrides_older_entry_backend(self) -> None:
+        runtime = types.SimpleNamespace(
+            config={"music_backend": "spotify_direct", "music_backend_revision": 2},
+            profile_context_backend_id="later_manual",
+        )
+
+        metadata = self.use_cases.music_backend_metadata(types.SimpleNamespace(), runtime)
+        action = self.use_cases.build_playback_action(
+            runtime, {"uri": "spotify:track:abc", "title": "Track"}, "track"
+        )
+
+        self.assertEqual(metadata["music_backend"], "later_manual")
+        self.assertFalse(metadata["music_backend_available"])
+        self.assertEqual(action, {})
+
     def test_music_assistant_unsupported_use_case_degrades_by_capability(self) -> None:
         uc = self.use_cases
         hass = types.SimpleNamespace()

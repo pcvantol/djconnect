@@ -7,6 +7,26 @@ Session Runtime. The implemented storage foundation is recorded in
 `DJCONNECT_STORAGE_ARCHITECTURE.md`; this record does not authorize Runtime
 serialization, renderer persistence or recovery redesign.
 
+## Selected connected implementation candidate — 2026-10-08
+
+`DJC-CORE-SESSION-CONVERSATION-HISTORY-V1-20261008` and its literal Session
+text-search addendum connect the existing persistence/query foundation to the
+existing owner transport and Ask DJ. The live Runtime, Planner, Session Flow
+and Broadcast remain ephemeral. Canonical accepted playback observations and
+independently qualified historical Moment bodies use the existing SQLite
+repository transaction. Session-bound conversation entries store references to
+Profile-scoped exchanges in the existing Ask DJ HA Store; they do not copy a
+full Ask DJ history or establish a second conversation authority. Old HA-user
+history is neither imported nor shared between Profiles.
+
+The [selected implementation contract](docs/product/SESSION_CONVERSATION_HISTORY_CONTRACT.md)
+records concrete routes, source fields, chronological entries, confirmed turn
+context, literal search and navigation. The existing paragraphs describing
+future persistence describe the accepted architecture/foundation stage; this
+selected candidate implements only its bounded owner projections. It does not
+serialize Runtime objects, restore old playback, create a provider queue or
+convert the earlier native_delivery grant into general archive permission.
+
 ## Decision
 
 A **DJ Session** is a persistent, Profile-owned lifecycle aggregate. A
@@ -288,3 +308,20 @@ ownership and import/export boundary is canonical in
 - [`SESSION_FLOW_RECOVERY_ARCHITECTURE.md`](SESSION_FLOW_RECOVERY_ARCHITECTURE.md)
 - [`docs/product/CONTINUE_CURRENT_PLAYBACK_CONTINUITY.md`](docs/product/CONTINUE_CURRENT_PLAYBACK_CONTINUITY.md)
 - [`DJCONNECT_STORAGE_ARCHITECTURE.md`](DJCONNECT_STORAGE_ARCHITECTURE.md)
+
+## Planned Session entry, history and native-surface refinement
+
+The combined documentary decision `DJC-SESSION-ENTRY-LIFECYCLE-HISTORY-DESIGN-V1-20261012` (including Apple addendum C) is defined in [Session Entry Lifecycle Experience V1](docs/product/SESSION_ENTRY_LIFECYCLE_EXPERIENCE_V1.md), [Session History Summary V1](docs/product/SESSION_HISTORY_SUMMARY_V1.md), [Apple Session Native Surfaces V1](docs/product/APPLE_SESSION_NATIVE_SURFACES_V1.md).
+It preserves this contract and its delivered capabilities. New lifecycle replacement/intent operations, qualified history aggregates and passive native-surface rights remain **Planned**, with separate producer/consumer acceptance. Navigation is read-only; foreground owner display rights do not grant widget storage or category-invitation content. No Runtime, provider or consumer implementation is introduced by the design.
+
+## Private Session summary acceptance v1
+
+See [connected summary contract](docs/product/SESSION_HISTORY_SUMMARY_ACCEPTANCE_V1.md)
+and [summary projection](docs/product/SESSION_HISTORY_SUMMARY_V1.md). Existing owners
+provide a version6 compact Session aggregate and non-evicted bounded acceptance
+keys; no full Moment-body archival right follows from a semantic count.
+Registration and count commit together before Runtime publication/budget debit;
+reads only project a provisional open Mood interval, without writes or providers.
+Old stores remain unknown, restart leaves unobserved Mood time unknown, and
+owner/source/privacy/retention withdrawal applies to derived totals.
+No summary enters shared Broadcast, notifications or diagnostics.

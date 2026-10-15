@@ -7,7 +7,7 @@ It is intentionally compact; `README.md` remains the full user/developer guide.
 
 Pairing, status, command, Ask DJ and voice requests use canonical
 `client_type` values to distinguish runtimes. Current values are `esp32`, `ios`,
-`macos`, `watchos`, `raspberry_pi` and `windows`.
+`macos`, `watchos` and `raspberry_pi`.
 
 Client ids must match their client type prefix and use the first 12
 alphanumeric characters of the stable client install id where applicable:
@@ -16,7 +16,12 @@ alphanumeric characters of the stable client install id where applicable:
 - `macos`: `djconnect-macos-XXXXXXXXXXXX`
 - `watchos`: `djconnect-watchos-XXXXXXXXXXXX`
 - `raspberry_pi`: `djconnect-raspberry-pi-XXXXXXXXXXXX`
-- `windows`: `djconnect-windows-XXXXXXXXXXXX`
+
+`windows` and its old device prefix are recognized only for safe retirement of
+existing configurations. New pairing and retired-device authentication are
+rejected; changing the supplied type does not change stored device ownership.
+Shared-provider compatibility is defined in
+[`WINDOWS_CLIENT_RETIREMENT_V1.md`](docs/product/WINDOWS_CLIENT_RETIREMENT_V1.md).
 
 ESP32 and Raspberry Pi are local devices. They may advertise `_djconnect._tcp`
 with TXT records including `device_id`, `client_type`, `device_name`,
@@ -24,7 +29,7 @@ with TXT records including `device_id`, `client_type`, `device_name`,
 treats `GET /api/device/pairing-info` as authoritative when reachable.
 No app-client mDNS/local-API discovery is supported.
 
-iOS, macOS, watchOS and Windows are inbound-only app clients. They do not expose a
+iOS, macOS and watchOS are inbound-only app clients. They do not expose a
 Home Assistant-callable `/api/device/*` API, do not need a Client address in the
 Home Assistant setup flow, and post local pairing requests to
 `POST /api/djconnect/v1/pair`. Home Assistant generates the app pairing code. The
@@ -35,6 +40,14 @@ djconnect://pair?ha_url=<local-ha-url>&pair_code=<code>&client_type=ios&pair_pat
 ```
 
 ## Profile Resolution
+
+The active Session mood write is a stricter device-bound exception:
+`POST /api/djconnect/v1/session/mood` accepts the ordinary paired device bearer,
+an exact active Session ID and versioned `expected_mood_revision` compare-and-set.
+It does not accept a client-selected Profile or general HA/service authority.
+See [`Active Session Mood v1`](docs/product/ACTIVE_SESSION_MOOD_V1.md) for the
+six-field schema, capability detection, four existing symbolic choices,
+acknowledgements, conflicts, lifecycle fences and consumer recovery rules.
 
 Service and API entrypoints that touch personal state, backend routing, Ask DJ,
 Music DNA, Discovery, Track Insight or playback preferences may include optional
@@ -115,10 +128,10 @@ not require manual HA URL entry:
 djconnect://pair?ha_url=<local-ha-url>&pair_code=<code>&client_type=watchos&pair_path=/api/djconnect/v1/pair
 ```
 
-macOS and Windows clients pair by manually entering the local Home Assistant URL
+macOS clients pair by manually entering the local Home Assistant URL
 and the HA-generated pairing code. After app pairing, Home Assistant returns
 `device_token`, `ha_local_url`, optional `ha_remote_url`, capability flags and
-API paths. `ha_remote_url` is only returned to `ios`, `macos` and `windows`
+API paths. `ha_remote_url` is only returned to `ios` and `macos`
 when Home Assistant has an HTTPS external/Nabu Casa URL. ESP32 and Raspberry Pi
 must never receive `ha_remote_url`.
 
@@ -214,7 +227,7 @@ or another HA-supported websocket auth mechanism before this fast path is
 product-ready. After HA websocket login, feature-detect DJConnect support with:
 
 Client contract fixtures are exported from `examples/client_contracts/` for
-Apple, Raspberry Pi and Windows client tests. Use
+Apple and Raspberry Pi client tests. Use
 `python3 tools/export_client_contracts.py --output <client-fixture-dir>` to copy
 the current golden payloads. The source manifest is named
 `contract_manifest.json` so Home Assistant hassfest does not confuse it with an
@@ -598,6 +611,53 @@ Example disabled response:
   "items": []
 }
 ```
+
+## Shared contextual Ask DJ v1
+
+All application Ask DJ text, post-STT voice and compatibility transports use
+`ask_dj.service.async_exchange`. General and Session composers differ only by
+optional confirmed `conversation_context`; no screen-origin pipeline exists.
+The additive `ask_dj_contextual_dialogue` capability advertises contract version 1.
+Current application history/state/export/clear defaults to the paired Profile;
+explicit `conversation_scope: legacy` administrative access requires the HA user
+and never imports the old archive into model or functional memory.
+
+Responses may add `conversation`, a bounded immutable `result_set`, exact
+`selected_action_id`, `action_outcome`, `knowledge_basis` and `analysis_basis`.
+Existing media/links/cards remain available in the qualified current response;
+`media_delivery_basis: current_response_only` does not grant archival retention.
+Reads, result selection and inert navigation never dispatch playback. The same
+existing command adapters validate an explicit effect and distinguish successful
+dispatch from qualified readback. Duplicate accepted turns share their revision;
+a possible external effect is not automatically repeated after an uncertain
+outcome. Pairing/Profile/source authority is checked at the actual boundary.
+
+Optional `track_insight_target` is the closed version 1 Session/Moment/action DTO
+from a qualified `moment_track_insight_navigation_v1` offer. Dedicated detail and
+both composers reuse the existing TrackInsightService/cache, keep the selected
+recording across A→B, and fail on expiry/withdrawal without silently substituting
+B. Analysis discussion stays in chat; explicit navigation may open detail.
+Unknown measured audio stays unknown. Neither path produces a proactive Moment,
+rewrites its source, resets presence budget or exposes private conversation to
+VibeCast.
+
+The field, rights, lifecycle, error and resource contracts are canonical in
+[shared dialogue](docs/product/ASK_DJ_CONTEXTUAL_DIALOGUE_CONTRACT_V1.md) and
+[Moment drilldown](docs/product/MOMENT_TRACK_INSIGHT_DRILLDOWN_V1.md). Active HA
+routes retain HA Conversation/STT/TTS; direct API access is qualification-only.
+
+### Current-artist identification (2026-10-14 corrective qualification)
+
+Shared text/STT identification uses informational intent
+`current_artist_information`, optional existing selected-entry/Moment context,
+and normal paired Profile authority. It returns localized text, attribution,
+empty `playback_actions` and current/private response semantics; catalog display
+metadata is not external model input or durable archive permission. Missing or
+expired evidence gives an honest unavailable answer; it is not a failed playback.
+An admission-to-acceptance target change returns HTTP409
+`playback_context_changed` or existing `session_context_changed`. No alternate
+transport, automatic playback retry or different Profile bypass follows a
+rejection. See the [joint contextual contract](docs/product/ASK_DJ_CONTEXTUAL_DIALOGUE_CONTRACT_V1.md#current-artist-identification-corrective-contract-2026-10-14).
 
 ## Ask DJ Mood Zones
 
@@ -1018,6 +1078,17 @@ The conversation/AI tool allowlist also exposes read-only
 the same structured profile without mutating playback or consent.
 
 ## Music Discovery Contract
+
+Artwork continuity is specified in
+[`DISCOVERY_ARTWORK_CONTINUITY_V1.md`](docs/product/DISCOVERY_ARTWORK_CONTINUITY_V1.md).
+Optional image output is a scoped relative HA proxy URL with UNIX-second
+`image_expires_at` and exact Spotify `image_attribution`. Reference TTL ≤6h;
+image lease ≤900s; feed TTL never extends either. Headerless image loads remain
+supported, explicitly wrong credentials fail401, expired/revoked grants fail404,
+unsafe/failed upstream content fails502. Existing legacy Ask DJ/shared-renderer
+image tokens retain their contract. Refresh context withdrawal returns409
+`music_dna_context_changed`; retry uses the same ordinary authorized routes.
+
 
 Music Discovery is a first-class client surface for iOS, macOS and watchOS. It
 uses Music DNA as its primary recommendation input and is disabled until Music
@@ -1808,7 +1879,7 @@ Users do not need to see, copy or enter the token. Push relay calls use
 `.p8` key, APNs private key or Cloudflare secret. When no bootstrap proof is
 available yet or the central API is temporarily unavailable, push stays disabled
 and normal Ask DJ flows continue; the next central API use can retry token
-bootstrap after an Apple client supplies a fresh proof. ESP32, Raspberry Pi, Windows and
+bootstrap after an Apple client supplies a fresh proof. ESP32, Raspberry Pi and
 Assist-agent-only entries do not require this proof because they do not use APNs
 push. The central
 `djconnect-api` service owns proof validation, APNs provider-token auth, topics,
@@ -1926,3 +1997,14 @@ Central API event payload shape for `ask_dj_confirm`:
 If Ask DJ proposes music from a contextual follow-up, playback must still start only
 after confirmation via `playback_actions[]` / `confirmation_actions[]` and
 `command:"ask_dj_followup_response"`.
+
+## Ordinary paired Apple Session live transport v1
+
+`GET /api/djconnect/v1/capabilities` advertises
+`session_broadcast.paired_owner_websocket` v1 at
+`/api/djconnect/v1/session/broadcast/paired`. Existing paired Apple identity
+and device token authenticate the first JSON frame; only the existing owner
+Broadcast subscribe/recover commands are accepted. Authority is server-owned,
+with a 300-second connection lease and Profile/pairing revocation. No HA user
+credential is issued. See [the exact contract](docs/product/PAIRED_OWNER_LIVE_CONTRACT_V1.md)
+and [qualification evidence](docs/verification/paired-owner-live-auth-v1.md).

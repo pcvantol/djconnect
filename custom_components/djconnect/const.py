@@ -37,8 +37,18 @@ API_SESSION = f"{API_BASE}/session"
 API_SESSION_START = f"{API_SESSION}/start"
 API_SESSION_END = f"{API_SESSION}/end"
 API_SESSION_ACTIVE = f"{API_SESSION}/active"
+API_SESSION_MOOD = f"{API_SESSION}/mood"
+API_SESSION_PRESENCE = "/api/djconnect/v1/session/presence"
+API_SESSION_HISTORY = f"{API_SESSION}/history"
+API_SESSION_HISTORY_DETAIL = f"{API_SESSION_HISTORY}/{{session_id}}"
+API_SESSION_HISTORY_SEARCH = f"{API_SESSION_HISTORY}/{{session_id}}/search"
+API_SESSION_HISTORY_OPEN = f"{API_SESSION_HISTORY}/open"
+
 API_SESSION_BROADCAST = f"{API_SESSION}/broadcast/{{session_id}}"
 API_SESSION_BROADCAST_TOKEN = f"{API_SESSION}/broadcast/token"
+API_SESSION_BROADCAST_HANDOFF_CLAIM = f"{API_SESSION}/broadcast/handoff/claim"
+API_SESSION_BROADCAST_HANDOFF_COLLECT = f"{API_SESSION}/broadcast/handoff/collect"
+API_SESSION_BROADCAST_HANDOFF_APPROVE = f"{API_SESSION}/broadcast/handoff/approve"
 API_SESSION_BROADCAST_WS = f"{API_SESSION}/broadcast/ws/{{session_id}}"
 UNIVERSAL_RECEIVER_PATH = "/djconnect/receiver"
 VIBECAST_RENDERER_PATH = "/djconnect/vibecast"
@@ -119,7 +129,7 @@ CLIENT_TYPE_IOS = "ios"
 CLIENT_TYPE_MACOS = "macos"
 CLIENT_TYPE_WATCHOS = "watchos"
 CLIENT_TYPE_RASPBERRY_PI = "raspberry_pi"
-CLIENT_TYPE_WINDOWS = "windows"
+CLIENT_TYPE_WINDOWS = "windows"  # Legacy recognition only; never supported ingress.
 CLIENT_TYPE_CONVERSATION_AGENT = "conversation_agent"
 DEFAULT_CLIENT_TYPE = CLIENT_TYPE_ESP32
 CLIENT_TYPES = [
@@ -127,13 +137,11 @@ CLIENT_TYPES = [
     CLIENT_TYPE_MACOS,
     CLIENT_TYPE_WATCHOS,
     CLIENT_TYPE_RASPBERRY_PI,
-    CLIENT_TYPE_WINDOWS,
     CLIENT_TYPE_ESP32,
 ]
 REMOTE_CAPABLE_CLIENT_TYPES = [
     CLIENT_TYPE_IOS,
     CLIENT_TYPE_MACOS,
-    CLIENT_TYPE_WINDOWS,
 ]
 LOCAL_DEVICE_CLIENT_TYPES = [
     CLIENT_TYPE_ESP32,
@@ -144,7 +152,6 @@ CLIENT_TYPE_NAMES = {
     CLIENT_TYPE_MACOS: "macOS app",
     CLIENT_TYPE_WATCHOS: "Apple Watch app",
     CLIENT_TYPE_RASPBERRY_PI: "Linux/Raspberry Pi client",
-    CLIENT_TYPE_WINDOWS: "Windows app",
     CLIENT_TYPE_ESP32: "ESP32 device",
 }
 SETUP_METHOD_PAIR_EXISTING = "pair_existing"
@@ -156,6 +163,21 @@ DEFAULT_SETUP_METHOD = SETUP_METHOD_CONVERSATION_AGENT
 DEFAULT_API_BASE_URL = "https://api.djconnect.dev"
 MUSIC_BACKEND_SPOTIFY_DIRECT = "spotify_direct"
 MUSIC_BACKEND_MUSIC_ASSISTANT = "music_assistant"
+MUSIC_BACKEND_LATER_MANUAL = "later_manual"
+MUSIC_BACKEND_MANUAL_NAMES = {
+    "en": "Later / manual",
+    "nl": "Later / handmatig",
+    "de": "Später / manuell",
+    "fr": "Plus tard / manuel",
+    "es": "Más tarde / manual",
+}
+MUSIC_BACKEND_MANUAL_MESSAGES = {
+    "en": "Select a music backend in DJConnect options.",
+    "nl": "Kies een muziekbackend in de DJConnect-opties.",
+    "de": "Wähle in den DJConnect-Optionen ein Musik-Backend aus.",
+    "fr": "Choisis un backend musical dans les options DJConnect.",
+    "es": "Elige un backend de música en las opciones de DJConnect.",
+}
 DEFAULT_MUSIC_BACKEND = MUSIC_BACKEND_SPOTIFY_DIRECT
 MUSIC_BACKEND_NAMES = {
     MUSIC_BACKEND_SPOTIFY_DIRECT: "Spotify Direct",

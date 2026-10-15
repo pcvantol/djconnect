@@ -15,11 +15,11 @@ Every Renderer Host consumes only authorized renderer-safe projections.
 
 | Atomic renderer capability | Owner | Maturity | Consumers and boundary |
 | --- | --- | --- | --- |
-| Renderer-safe playback / Now Playing | HA Broadcast and Music Backend boundary | Implemented | Apple, Windows, Pi and Universal Receiver; local display only. |
+| Renderer-safe playback / Now Playing | HA Broadcast and Music Backend boundary | Implemented | Apple, Pi and Universal Receiver; local display only. |
 | Current immutable DJMoment and Presentation | HA DJMoment Engine / Presentation | Implemented | eligible Renderer Hosts; no local Moment generation. |
-| Session Flow projection | HA Session Runtime / Broadcast | Implemented | Apple/Windows rich clients, Pi 10-inch and Universal Receiver; intentionally absent on constrained voice/Pi 4-inch surfaces. |
-| Track Insight | HA Insight service | Implemented | Apple, Windows and Pi; server-authoritative insight. |
-| Ask DJ and Discover | HA Conversation / Discovery | Implemented personal projections | Apple and Windows rich; Pi read-heavy where authorized; not guest/ambient defaults. |
+| Session Flow projection | HA Session Runtime / Broadcast | Implemented | Apple rich clients, Pi 10-inch and Universal Receiver; intentionally absent on constrained voice/Pi 4-inch surfaces. |
+| Track Insight | HA Insight service | Implemented | Apple and Pi; server-authoritative insight. |
+| Ask DJ and Discover | HA Conversation / Discovery | Implemented personal projections | Apple rich; Pi read-heavy where authorized; not guest/ambient defaults. |
 | Native Track Insight sharing | Apple Renderer Host | Implemented reference realization | explicit user action through Apple Share Sheet; no Broadcast, Runtime or API scope. |
 | Universal Receiver interactive web presentation | Web Renderer Host | Implemented | browser Session Flow and Now Playing through existing Broadcast only. |
 | VibeCast ambient experience | VibeCast Renderer Host | Planned / selected reference increment | separate Guest + Ambient experience; portrait Pi reference validation precedes landscape Custom Web Receiver feasibility. |
@@ -161,3 +161,8 @@ projections. CMB-02 and CMB-03 depend on this distinction for profile and
 divergence validation; CMB-05/CMB-06 remain independent Pi profile assessments.
 The bounded planning and exit criteria for the selected work are recorded in
 [`VibeCast Reference Renderer Increment`](VIBECAST_REFERENCE_RENDERER_INCREMENT.md).
+
+## Planned Session entry, history and native-surface refinement
+
+The combined documentary decision `DJC-SESSION-ENTRY-LIFECYCLE-HISTORY-DESIGN-V1-20261012` (including Apple addendum C) is defined in [Session Entry Lifecycle Experience V1](SESSION_ENTRY_LIFECYCLE_EXPERIENCE_V1.md), [Session History Summary V1](SESSION_HISTORY_SUMMARY_V1.md), [Apple Session Native Surfaces V1](APPLE_SESSION_NATIVE_SURFACES_V1.md).
+It preserves this contract and its delivered capabilities. New lifecycle replacement/intent operations, qualified history aggregates and passive native-surface rights remain **Planned**, with separate producer/consumer acceptance. Navigation is read-only; foreground owner display rights do not grant widget storage or category-invitation content. No Runtime, provider or consumer implementation is introduced by the design.

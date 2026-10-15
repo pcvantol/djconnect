@@ -25,6 +25,7 @@ from .const import (
     DEFAULT_SPOTIFY_SCOPES,
     DOMAIN,
     MUSIC_BACKEND_MUSIC_ASSISTANT,
+    MUSIC_BACKEND_LATER_MANUAL,
     SETUP_METHOD_CONVERSATION_AGENT,
 )
 from .spotify_oauth import (
@@ -83,6 +84,11 @@ async def async_create_fixable_issues(hass: HomeAssistant, entry: ConfigEntry) -
             severity=ir.IssueSeverity.WARNING,
             translation_key="missing_device_token",
         )
+    if _entry_value(entry, "profile_backend_entry_id"):
+        # The original connection owns OAuth repairs; preserve its global legacy issues.
+        for suffix in ("missing_spotify_client_id", "missing_spotify_refresh_token", "missing_spotify_oauth_scopes"):
+            _delete_issue_best_effort(hass, f"{entry.entry_id}_{suffix}")
+        return
     if not _entry_requires_spotify_oauth(entry):
         _delete_spotify_prerequisite_issues(hass, entry.entry_id)
         return
@@ -164,7 +170,7 @@ def _entry_requires_device_token(entry: ConfigEntry) -> bool:
 
 def _entry_requires_spotify_oauth(entry: ConfigEntry) -> bool:
     """Return true only for entries that own Spotify OAuth configuration."""
-    if str(_entry_value(entry, CONF_MUSIC_BACKEND) or "").strip() == MUSIC_BACKEND_MUSIC_ASSISTANT:
+    if str(_entry_value(entry, CONF_MUSIC_BACKEND) or "").strip() in {MUSIC_BACKEND_MUSIC_ASSISTANT, MUSIC_BACKEND_LATER_MANUAL}:
         return False
     client_type = str(_entry_value(entry, CONF_CLIENT_TYPE) or "").strip()
     if client_type == CLIENT_TYPE_CONVERSATION_AGENT:

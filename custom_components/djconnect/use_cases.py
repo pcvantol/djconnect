@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from copy import deepcopy
 from dataclasses import dataclass, field
 from enum import StrEnum
 from typing import Any, Protocol
@@ -15,6 +16,9 @@ from .const import (
     CONF_SPOTIFY_REFRESH_TOKEN,
     DEFAULT_MUSIC_BACKEND,
     MUSIC_BACKEND_MUSIC_ASSISTANT,
+    MUSIC_BACKEND_LATER_MANUAL,
+    MUSIC_BACKEND_MANUAL_NAMES,
+    MUSIC_BACKEND_MANUAL_MESSAGES,
     MUSIC_BACKEND_NAMES,
     MUSIC_BACKEND_SPOTIFY_DIRECT,
 )
@@ -284,6 +288,31 @@ class SpotifyDirectBackend:
         )
 
 
+class ManualMusicBackend:
+    """Explicitly defer playback until a supported provider is selected."""
+
+    provider = MUSIC_BACKEND_LATER_MANUAL
+    capabilities = MusicBackendCapabilities()
+    observation_capabilities = MusicBackendObservationCapabilities()
+
+    def __init__(self, hass: HomeAssistant) -> None:
+        self.hass = hass
+
+    async def handle_command(
+        self,
+        command: MusicCommand | str,
+        value: Any = None,
+        *,
+        play: bool | None = None,
+    ) -> dict[str, Any]:
+        return {
+            "success": False,
+            "backend_available": False,
+            "error": "music_backend_not_configured",
+            "message": _manual_backend_text(self.hass, MUSIC_BACKEND_MANUAL_MESSAGES),
+        }
+
+
 class MusicAssistantBackend:
     """Music Assistant adapter using Home Assistant media_player services."""
 
@@ -374,6 +403,9 @@ class MusicAssistantBackend:
         caller = getattr(services, "async_call", None)
         if not callable(caller):
             raise SpotifyBackendError("Home Assistant media_player services are unavailable")
+        from .ask_dj.dialogue import guard_effect_dispatch
+
+        await guard_effect_dispatch(service=service, target=entity_id, data=data)
         await caller(
             "media_player",
             service,
@@ -452,8 +484,27 @@ class DJConnectUseCases:
     ) -> dict[str, Any]:
         """Run a normalized DJConnect music command through the backend."""
         normalized = normalize_music_command(command)
-        self._ensure_capability(normalized)
-        result = await self.backend.handle_command(normalized, value, play=play)
+        if not isinstance(self.backend, ManualMusicBackend):
+            self._ensure_capability(normalized)
+        from .ask_dj.dialogue import current_turn, current_effect, command_family, CommandEffect, DialogueError
+        turn = current_turn.get()
+        family = command_family(normalized, value)
+        token = None
+        if turn is not None and family:
+            await turn.guard()
+            if not any(family in grant.families for grant in turn.effect_grants):
+                raise DialogueError("playback_effect_not_authorized", 403)
+            token = current_effect.set(CommandEffect(family, normalized, deepcopy(value), play))
+        try:
+            result = await self.backend.handle_command(normalized, value, play=play)
+        finally:
+            if token is not None:
+                current_effect.reset(token)
+        if turn is not None and family and isinstance(result, dict) and result.get("success") is not False:
+            from .playback_observation import playback_observation_manager
+            projection = await playback_observation_manager(self.hass).async_accept_command_readback(self.runtime, result.get("playback"))
+            if projection:
+                result["playback_projection_receipt"] = projection
         return self._normalize_result(result)
 
     async def play_music(self, value: Any = None) -> dict[str, Any]:
@@ -554,30 +605,47 @@ def normalize_music_command(command: MusicCommand | str) -> str:
 
 
 def _selected_backend(hass: HomeAssistant, runtime: Any) -> MusicBackend:
-    backend = str(
+    backend = _active_backend_name(runtime)
+    from .profile_backend import profile_backend_runtime
+    runtime = profile_backend_runtime(hass, runtime)
+    if backend == MUSIC_BACKEND_MUSIC_ASSISTANT:
+        return MusicAssistantBackend(hass, runtime)
+    if backend == MUSIC_BACKEND_LATER_MANUAL:
+        return ManualMusicBackend(hass)
+    return SpotifyDirectBackend(hass, runtime)
+
+
+def _active_backend_name(runtime: Any) -> str:
+    """Use the resolved Profile backend when a request has one."""
+    return str(
         getattr(runtime, "profile_context_backend_id", "")
         or getattr(runtime, "config", {}).get(CONF_MUSIC_BACKEND)
         or DEFAULT_MUSIC_BACKEND
     ).strip()
-    if backend == MUSIC_BACKEND_MUSIC_ASSISTANT:
-        return MusicAssistantBackend(hass, runtime)
-    return SpotifyDirectBackend(hass, runtime)
+
+
+def _manual_backend_text(hass: HomeAssistant, translations: dict[str, str]) -> str:
+    language = (
+        str(getattr(getattr(hass, "config", None), "language", "en"))
+        .lower()
+        .replace("_", "-")
+        .split("-")[0]
+    )
+    return translations.get(language, translations["en"])
 
 
 def music_backend_metadata(hass: HomeAssistant, runtime: Any) -> dict[str, Any]:
     """Return the client-visible selected music backend contract."""
-    backend = str(
-        getattr(runtime, "profile_context_backend_id", "")
-        or getattr(runtime, "config", {}).get(CONF_MUSIC_BACKEND)
-        or DEFAULT_MUSIC_BACKEND
-    ).strip()
-    if backend not in MUSIC_BACKEND_NAMES:
+    backend = _active_backend_name(runtime)
+    if backend not in MUSIC_BACKEND_NAMES and backend != MUSIC_BACKEND_LATER_MANUAL:
         backend = DEFAULT_MUSIC_BACKEND
     adapter = _selected_backend(hass, runtime)
+    from .profile_backend import profile_backend_runtime
+    connection_runtime = profile_backend_runtime(hass, runtime)
     target_player = {}
     if backend == MUSIC_BACKEND_MUSIC_ASSISTANT:
         player_id = str(
-            getattr(runtime, "config", {}).get(CONF_MUSIC_ASSISTANT_PLAYER) or ""
+            getattr(connection_runtime, "config", {}).get(CONF_MUSIC_ASSISTANT_PLAYER) or ""
         ).strip()
         if player_id:
             state = _state_for_entity(hass, player_id)
@@ -588,9 +656,15 @@ def music_backend_metadata(hass: HomeAssistant, runtime: Any) -> dict[str, Any]:
             }
     available = True
     error = None
+    if backend == MUSIC_BACKEND_LATER_MANUAL:
+        available = False
+        error = {
+            "code": "music_backend_not_configured",
+            "message": _manual_backend_text(hass, MUSIC_BACKEND_MANUAL_MESSAGES),
+        }
     if (
         backend == MUSIC_BACKEND_SPOTIFY_DIRECT
-        and not str(getattr(runtime, "config", {}).get(CONF_SPOTIFY_REFRESH_TOKEN) or "").strip()
+        and not str(getattr(connection_runtime, "config", {}).get(CONF_SPOTIFY_REFRESH_TOKEN) or "").strip()
     ):
         available = False
         error = {
@@ -605,7 +679,11 @@ def music_backend_metadata(hass: HomeAssistant, runtime: Any) -> dict[str, Any]:
         }
     return {
         "music_backend": backend,
-        "music_backend_name": MUSIC_BACKEND_NAMES[backend],
+        "music_backend_name": (
+            _manual_backend_text(hass, MUSIC_BACKEND_MANUAL_NAMES)
+            if backend == MUSIC_BACKEND_LATER_MANUAL
+            else MUSIC_BACKEND_NAMES[backend]
+        ),
         "music_backend_available": available,
         "music_backend_revision": _int_revision(
             getattr(runtime, "config", {}).get(CONF_MUSIC_BACKEND_REVISION)
@@ -627,15 +705,19 @@ def music_backend_action_fields(
 ) -> dict[str, Any]:
     """Return backend-aware playback action metadata for client contracts."""
     config = getattr(runtime, "config", {}) if runtime is not None else {}
-    backend = str(config.get(CONF_MUSIC_BACKEND) or DEFAULT_MUSIC_BACKEND).strip()
-    if backend not in MUSIC_BACKEND_NAMES:
+    backend = _active_backend_name(runtime)
+    if backend not in MUSIC_BACKEND_NAMES and backend != MUSIC_BACKEND_LATER_MANUAL:
         backend = DEFAULT_MUSIC_BACKEND
     revision = _int_revision(config.get(CONF_MUSIC_BACKEND_REVISION))
     provider = (
-        MUSIC_BACKEND_MUSIC_ASSISTANT if backend == MUSIC_BACKEND_MUSIC_ASSISTANT else "spotify"
+        MUSIC_BACKEND_MUSIC_ASSISTANT
+        if backend == MUSIC_BACKEND_MUSIC_ASSISTANT
+        else MUSIC_BACKEND_LATER_MANUAL if backend == MUSIC_BACKEND_LATER_MANUAL else "spotify"
     )
     clean_kind = str(kind or "music").strip().lower() or "music"
-    if backend == MUSIC_BACKEND_MUSIC_ASSISTANT:
+    if backend == MUSIC_BACKEND_LATER_MANUAL:
+        value = BackendActionValue()
+    elif backend == MUSIC_BACKEND_MUSIC_ASSISTANT:
         value = BackendActionValue(
             item_id=item_id,
             provider=provider,
@@ -668,6 +750,8 @@ def build_playback_action(
 ) -> dict[str, Any]:
     """Build a backend-aware client playback action from an intent item."""
     if not isinstance(item, dict):
+        return {}
+    if _active_backend_name(runtime) == MUSIC_BACKEND_LATER_MANUAL:
         return {}
     item_id = _playback_item_id(item)
     clean_kind = str(kind or _playback_item_kind(item, item_id)).strip().lower() or "music"
@@ -844,6 +928,17 @@ async def run_music_command(
     play: bool | None = None,
 ) -> dict[str, Any]:
     """Run a DJConnect music command through the use-case layer."""
+    from .ask_dj.dialogue import current_turn
+    turn = current_turn.get()
+    if turn is not None and str(command) in {
+        "play", "play_uris", "play_context_at", "play_artist_top_tracks", "start_playlist",
+        "pause", "stop", "next", "previous", "set_volume", "set_output", "set_shuffle",
+        "set_repeat", "save_current_track", "set_current_track_favorite", "create_playlist",
+        "queue", "clear_queue",
+    } and not (str(command) == "queue" and value is None):
+        await turn.guard()
+        # The adapter reserves the effect receipt after search/token waits,
+        # immediately before the actual mutating transport dispatch.
     return await DJConnectUseCases(hass, runtime).command(command, value, play=play)
 
 

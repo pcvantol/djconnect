@@ -1045,3 +1045,16 @@ unless imported or declared here.
 - Keep license information aligned with upstream source URLs and
   `THIRD_PARTY_NOTICES.md`.
 - Re-run `python3 -m unittest discover -s tests` after code or contract changes.
+
+## 2026-10-10 — ordinary paired owner live adapter
+
+Normal DJConnect pairing does not authenticate HA's native `/api/websocket`.
+The selected Core correction adds a thin HA HTTP WebSocket view with existing
+device authorization and server-bound Profile context. It reuses the owner
+Broadcast subscribe/recover handlers and their snapshot/event/native projection.
+The alternative of issuing HA credentials was rejected because it grants a
+broader audience than active owner Broadcast. No private HA auth hook, shared
+VibeCast token, backend or duplicate event engine is introduced. The route has
+strict frame/command schemas, a hard lease, authority revalidation, bounded
+queues and cancellation-safe subscription cleanup. See
+`docs/product/PAIRED_OWNER_LIVE_CONTRACT_V1.md` and its qualification record.

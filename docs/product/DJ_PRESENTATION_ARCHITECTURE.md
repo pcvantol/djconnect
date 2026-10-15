@@ -1,5 +1,26 @@
 # DJ Presentation Architecture
 
+Session Forecast v1 is the separately mutable, session-bound projection defined
+in [SESSION_FORECAST_V1.md](SESSION_FORECAST_V1.md). Its current artist imagery
+has explicit subject/role, provenance, display basis and independent asset
+expiry. Visible pixels must expire at the earlier narrative/image deadline.
+Existing Moments remain immutable. Core additive shared-renderer compatibility
+is separate from visible Forecast composition, native adoption and hardware
+acceptance; those consumer states remain open.
+
+## DJ presence Core delivered boundary
+
+[DJ presence v1](DJ_PRESENCE_V1.md) is a separately selected independent Runtime/Planner input for
+proactive contribution budgets and spacing. Mood, Persona and presence remain
+orthogonal; actual Core policy, native Apple control and existing shared-renderer
+compatibility require joint qualification. Core source #1150 is protected delivered with a separate versioned
+ownercontract and shared contribution ledger;
+protected publication and native/installed/hardware acceptance remain separate.
+Off suppresses future unsolicited publication including
+in-flight results; immutable prior Moments, explicit Ask DJ and privacy remain.
+Richer narrative presenter mode is separately planned; existing eligibility,
+contextual dosing and expressive contracts retain their qualified boundaries.
+
 ## Status
 
 Canonical conceptual architecture. This document introduces no production

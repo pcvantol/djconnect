@@ -1,127 +1,57 @@
-name: Engineering Platform validation
+name: DJConnect EP consumer boundary
 
 on:
   pull_request:
-    paths:
-      - 'tools/engineering/**'
-      - 'tests/engineering/**'
-      - 'docs/engineering/**'
-      - 'docs/development/**'
-      - 'onboarding/**'
-      - 'package.json'
-      - 'package-lock.json'
-      - 'BOOTSTRAP.md'
-      - '.github/workflows/engineering-platform-validation.yml'
   push:
     branches: [main]
-    paths:
-      - 'tools/engineering/**'
-      - 'tests/engineering/**'
-      - 'docs/engineering/**'
-      - 'docs/development/**'
-      - 'onboarding/**'
-      - 'package.json'
-      - 'package-lock.json'
-      - 'BOOTSTRAP.md'
+
+permissions:
+  contents: read
 
 jobs:
-  validation-profile:
-    runs-on: ubuntu-latest
-    outputs:
-      tier: ${{ steps.profile.outputs.tier }}
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v5
-        with: {fetch-depth: 0}
-      - id: profile
-        run: python3 -m tools.engineering.validation_profile --base "${{ github.event.pull_request.base.sha || github.event.before }}" --github-output "$GITHUB_OUTPUT"
-  validate:
-    needs: validation-profile
+  retirement-guard:
+    name: Guard retired source and project identity
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v5
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
-        with: {python-version: '3.12'}
-      - name: Install Engineering Platform validation tools
-        run: python3 -m pip install -r requirements-dev.txt
-      - name: Version and configuration contracts
-        run: python3 -c "from pathlib import Path; from tools.engineering.platform_api import PlatformConfiguration; from tools.engineering.platform_version import EngineeringPlatformManifest; r=Path('.'); assert PlatformConfiguration.load(r).platform.version == EngineeringPlatformManifest.load(r/'tools/engineering/ENGINEERING_PLATFORM_VERSION.json').platform_version"
-      - name: Provider, qualification and golden scenario
+        with:
+          python-version: '3.14'
+      - name: Verify no embedded EP runtime or active legacy source dependency
+        run: python3 -m unittest tests.test_ep_source_retirement
+      - name: Verify committed AI-development projection
         run: |
-          python3 -m unittest tests.engineering.test_platform_productization tests.engineering.test_engineering_platform_golden
-          ./tools/engineering/engineering-execution-host qualify
-          python3 -c "from pathlib import Path; from tools.engineering.golden_scenario import run; assert run(Path('.'))['result'] == 'ENGINEERING_PLATFORM_GOLDEN_PASS'"
-      - name: Enforce Engineering Platform coverage contract
+          python3 docs/ai-development/validate_projection.py \
+            --profile djconnect \
+            --source-commit ec070e399ff4dbd92e760370002995fe4f4d52d6 \
+            --extension-identity DJCONNECT_DEVELOPMENT_EXTENSION
+
+  pinned-release:
+    name: Verify installed standalone EP release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v5
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: '3.14'
+      - name: Download only the exact published wheel with its qualified digest
         run: |
-          coverage run --branch -m unittest discover -s tests/engineering
-          coverage json -o engineering-platform-coverage.json
-          python3 - <<'PY'
+          EP_VENV="$RUNNER_TEMP/djconnect-ep-release-venv"
+          EP_DIST="$RUNNER_TEMP/djconnect-ep-release-dist"
+          python3 -m venv "$EP_VENV"
+          "$EP_VENV/bin/python" -m pip download \
+            --no-deps --only-binary=:all: --require-hashes \
+            -r .engineering-platform/requirements.txt --dest "$EP_DIST"
+          set -- "$EP_DIST"/engineering_platform-*.whl
+          test "$#" -eq 1
+          "$EP_VENV/bin/python" -m pip install --no-index --no-deps "$1"
+          "$EP_VENV/bin/python" - <<'PY'
           import json
+          from importlib.metadata import version
           from pathlib import Path
 
-          # The platform quality bar is deliberately above 80%, while leaving
-          # a small, verified margin below the current dashboard evidence.
-          minimum = 80.20
-          targets = (
-              "tools/engineering/dashboard.py",
-              "tools/engineering/platform_bootstrap.py",
-              "tools/engineering/providers.py",
-              "tools/engineering/inbox_watcher.py",
-          )
-          report = json.loads(Path("engineering-platform-coverage.json").read_text())
-          files = report["files"]
-          failures = []
-          for target in targets:
-              covered = files.get(target, {}).get("summary", {}).get("percent_covered")
-              if covered is None or covered < minimum:
-                  failures.append(f"{target}: {covered if covered is not None else 'missing'}% (minimum 80.20%)")
-              else:
-                  print(f"{target}: {covered:.2f}%")
-          if failures:
-              raise SystemExit("Engineering Platform coverage contract failed:\n" + "\n".join(failures))
+          pin = json.loads(Path('.engineering-platform/release-pin.json').read_text())
+          assert version('engineering-platform') == pin['version']
           PY
-  browser-dashboard:
-    needs: validation-profile
-    if: needs.validation-profile.outputs.tier != 'DOCUMENTATION'
-    runs-on: ubuntu-latest
-    strategy:
-      # The dashboard regression is intentionally complete, but split into
-      # deterministic Playwright shards so both halves can use separate
-      # GitHub runners and report their failures independently.
-      fail-fast: false
-      max-parallel: 4
-      matrix:
-        include:
-          - shard: "1/4"
-            artifact_suffix: "1-of-4"
-          - shard: "2/4"
-            artifact_suffix: "2-of-4"
-          - shard: "3/4"
-            artifact_suffix: "3-of-4"
-          - shard: "4/4"
-            artifact_suffix: "4-of-4"
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v5
-      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
-        with: {python-version: '3.12'}
-      - name: Install Engineering Platform runtime
-        run: python3 -m pip install -r requirements-dev.txt
-      - name: Install browser validation dependencies
-        run: npm ci
-      - name: Install Chromium for browser validation
-        # ubuntu-latest already provides the system libraries Playwright needs.
-        # Avoid refreshing third-party apt repositories here: their transient
-        # availability must not make one dashboard shard fail before tests run.
-        run: npx playwright install chromium
-      - name: Browser smoke test for Engineering Status (shard ${{ matrix.shard }})
-        # Keep successful runs compact; Playwright's dot reporter still emits
-        # the full failure diagnostics, traces and artifact references.
-        run: npm run test:engineering-dashboard -- --reporter=dot --shard=${{ matrix.shard }}
-      - name: Upload Engineering Status browser screenshots
-        if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: engineering-status-browser-screenshots-${{ matrix.artifact_suffix }}
-          path: |
-            test-results/**
-            tests/engineering/dashboard.spec.mjs-snapshots/**
-          if-no-files-found: warn
+          "$EP_VENV/bin/engineering-platform" --help >/dev/null
+          "$EP_VENV/bin/engineering-platform-server" --help >/dev/null

@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "assignment_id": "DJC-CORE-PAIRED-LIVE-AUTH-V1-20261010",
+  "base_commit": "ffaa4df0ea1a184669622a6c98d9f0f5aae7a4f2",
+  "early_contract_archive_sha256": "648496f3c218305323c752a632a086cfad97fb15f8f0c9d9126ae92fc319f58b",
+  "receipt_sha256": "ef5ca18183e3742b4e15b4375b2525ce3028a447c6c75238fc36204b8c342137",
+  "verification_script_sha256": "f1e937464f2c0b7a4fb32f781c14cb51cd603f6fcada6b7dc0f8f6cd77fa22b8",
+  "qualification": "ISOLATED_REAL_HA_ORDINARY_PAIRED_TRANSPORT_PASS",
+  "installed_ha": "NOT_RUN",
+  "native_apple": "APPLE_OWNED_NOT_CLAIMED",
+  "qualified_verification_script_sha256": "44c067c47b2cf24cb7b6d070f2935a839e00c96d418f3680420e14c45e523fa9",
+  "verification_script_delta": "lint suppression placement only; no executable change"
+}

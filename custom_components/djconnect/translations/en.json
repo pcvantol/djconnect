@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "Set up DJConnect",
-        "description": "Start with the route that matches your setup. Use the Assist agent without a physical device, choose local device for ESP32/Raspberry Pi on your network, or choose app for iPhone/iPad, Apple Watch, macOS and Windows.",
+        "description": "Start with the route that matches your setup. Use the Assist agent without a physical device, choose local device for ESP32/Raspberry Pi on your network, or choose app for iPhone/iPad, Apple Watch or macOS.",
         "data": {
           "setup_method": "Setup method"
         }
@@ -28,7 +28,7 @@
           "client_type": "Choose ESP32 or Raspberry Pi.",
           "local_url": "Local device API fallback; leave empty when mDNS works.",
           "discovered_client": "Choose an automatically discovered DJConnect client to prefill pairing details, or use manual entry.",
-          "app_pair_code": "Use this code in macOS/Windows, or let iPhone/iPad/Apple Watch receive it from the QR/deep-link payload.",
+          "app_pair_code": "Use this code in macOS, or let iPhone/iPad/Apple Watch receive it from the QR/deep-link payload.",
           "app_ha_local_url": "Local Home Assistant URL the app uses during pairing.",
           "app_iphone_pairing_uri": "QR/deep-link payload for the iPhone/iPad app.",
           "app_watch_pairing_uri": "QR/deep-link payload scanned on iPhone/iPad to pair the linked Apple Watch."
@@ -87,7 +87,7 @@
       },
       "pair_app": {
         "title": "Pair App",
-        "description": "Use this route for iPhone/iPad, Apple Watch, macOS and Windows.\n\n**iPhone/iPad**\n\n![iPhone/iPad QR code]({iphone_qr_image})\n\n**Apple Watch**\n\n![Apple Watch QR code]({watch_qr_image})\n\nmacOS and Windows use the Home Assistant URL and pairing code below.",
+        "description": "Use this route for iPhone/iPad, Apple Watch or macOS.\n\n**iPhone/iPad**\n\n![iPhone/iPad QR code]({iphone_qr_image})\n\n**Apple Watch**\n\n![Apple Watch QR code]({watch_qr_image})\n\nmacOS uses the Home Assistant URL and pairing code below.",
         "data": {
           "pair_code": "Pairing code",
           "device_name": "Device name",
@@ -99,8 +99,8 @@
         },
         "data_description": {
           "device_name": "Friendly name for this app installation.",
-          "client_type": "Choose iPhone/iPad, Apple Watch, macOS or Windows.",
-          "app_pair_code": "Use this code in macOS/Windows, or let iPhone/iPad/Apple Watch receive it from the QR/deep-link payload.",
+          "client_type": "Choose iPhone/iPad, Apple Watch or macOS.",
+          "app_pair_code": "Use this code in macOS, or let iPhone/iPad/Apple Watch receive it from the QR/deep-link payload.",
           "app_ha_local_url": "Local Home Assistant URL the app uses during pairing.",
           "app_iphone_pairing_uri": "QR/deep-link payload for the iPhone/iPad app.",
           "app_watch_pairing_uri": "QR/deep-link payload scanned on iPhone/iPad to pair the linked Apple Watch."
@@ -155,20 +155,6 @@
           "device_name": "Friendly name for this macOS app installation."
         }
       },
-      "pair_app_windows_details": {
-        "title": "Pair DJConnect Windows App",
-        "description": "Use these values in the Windows app:\n\n- Home Assistant URL: `{ha_local_url}`\n- Pairing code: `{pair_code}`",
-        "data": {
-          "app_pair_code": "Pairing code",
-          "app_ha_local_url": "Home Assistant URL",
-          "device_name": "Device name"
-        },
-        "data_description": {
-          "app_pair_code": "Enter this pairing code in the Windows app.",
-          "app_ha_local_url": "Local Home Assistant URL the app uses during pairing.",
-          "device_name": "Friendly name for this Windows app installation."
-        }
-      },
       "ble_wifi": {
         "title": "Configure ESP32 device WiFi (over Bluetooth)",
         "description": "Select a DJConnect device in setup mode to write WiFi over BLE, or continue to pairing if WiFi was already configured through the captive portal.",
@@ -210,7 +196,8 @@
           "firmware_channel": "Firmware channel",
           "dj_announcement_speaker_entity_id": "Home Assistant speaker for DJ announcements",
           "options_action": "Action",
-          "voice_profile": "DJ voice profile"
+          "voice_profile": "DJ voice profile",
+          "vibecast_session_end_allowed": "Allow approved VibeCast screens to end the session"
         },
         "data_description": {
           "assist_pipeline_id": "Assist pipeline used by DJConnect devices for speech recognition and DJ announcement audio.",
@@ -264,7 +251,7 @@
           "music_backend": "Music backend"
         },
         "data_description": {
-          "music_backend": "Choose Spotify Direct or Music Assistant. Spotify is a trademark of Spotify AB. DJConnect is not affiliated with, endorsed by or sponsored by Spotify AB."
+          "music_backend": "Choose Spotify Direct, Music Assistant or Later / manual. Spotify is a trademark of Spotify AB. DJConnect is not affiliated with, endorsed by or sponsored by Spotify AB."
         }
       },
       "music_assistant": {
@@ -285,6 +272,34 @@
         "data_description": {
           "music_backend": "Selected playback backend.",
           "music_assistant_player": "Configured Music Assistant target player."
+        }
+      },
+      "profile_choice": {
+        "title": "Choose a profile",
+        "description": "Profiles are shared across this Home Assistant installation. Choose an existing profile, or create a new one.",
+        "data": {
+          "profile_id": "Profile"
+        },
+        "data_description": {
+          "profile_id": "Profiles are shared across this Home Assistant installation. Choose an existing profile, or create a new one."
+        }
+      },
+      "profile_setup": {
+        "title": "New profile",
+        "description": "Give the new profile a unique name. To use a profile from another device, select it from the profile list.",
+        "data": {
+          "profile_id": "Profile",
+          "profile_name": "Profile name",
+          "profile_type": "Profile type",
+          "profile_response_style": "Response style",
+          "require_profile": "Require an explicit profile"
+        },
+        "data_description": {
+          "profile_id": "Profiles are shared across this Home Assistant installation. Choose an existing profile, or create a new one.",
+          "profile_name": "Give the new profile a unique name. To use a profile from another device, select it from the profile list.",
+          "profile_type": "Profile type",
+          "profile_response_style": "Response style",
+          "require_profile": "Require an explicit profile"
         }
       }
     },
@@ -311,10 +326,17 @@
       "music_assistant_unavailable": "Music Assistant is not installed or configured in Home Assistant.",
       "music_assistant_no_players": "No usable Music Assistant players were found.",
       "music_assistant_player_missing": "The selected Music Assistant player no longer exists.",
-      "invalid_voice_profile": "Choose a supported DJ voice profile."
+      "invalid_voice_profile": "Choose a supported DJ voice profile.",
+      "profile_name_exists": "This name is already used. Choose the existing profile from the list, or enter another name.",
+      "profile_name_required": "Enter a profile name.",
+      "profile_unavailable": "This profile changed or is no longer available. Choose it again from the refreshed list.",
+      "profile_connection_unavailable": "The existing music connection is unavailable or ambiguous. Restore that connection, or choose another profile.",
+      "profile_setup_failed": "The profile could not be saved. Try again."
     },
     "abort": {
-      "already_configured": "This DJConnect device is already configured."
+      "already_configured": "This DJConnect device is already configured.",
+      "client_retired": "This client is no longer supported. Choose a supported client.",
+      "invalid_client_type": "Unknown client type. Choose a supported client."
     }
   },
   "options": {
@@ -331,7 +353,8 @@
           "music_backend": "Music backend",
           "music_assistant_player": "Music Assistant player",
           "dj_announcement_speaker_entity_id": "Home Assistant speaker for DJ announcements",
-          "voice_profile": "DJ voice profile"
+          "voice_profile": "DJ voice profile",
+          "vibecast_session_end_allowed": "Allow approved VibeCast screens to end the session"
         },
         "data_description": {
           "assist_pipeline_id": "Assist pipeline used by DJConnect devices for speech recognition and DJ announcement audio.",
@@ -363,12 +386,12 @@
       },
       "music_backend": {
         "title": "Change music backend",
-        "description": "Current backend is shown below. Switching keeps pairing, device tokens, Ask DJ history, Music DNA and push registrations. Music DNA export/import uses HTTP and remains protected by server-side opt-in. Older backend-specific Ask DJ playback actions or recommendations may no longer be executable.",
+        "description": "This choice also changes the linked profile's backend. You can return to manual later. Switching preserves pairing, device tokens, Ask DJ history, Music DNA and push registrations. Older backend-specific actions may no longer work.",
         "data": {
           "music_backend": "Music backend"
         },
         "data_description": {
-          "music_backend": "Choose Spotify Direct or Music Assistant. Spotify is a trademark of Spotify AB. DJConnect is not affiliated with, endorsed by or sponsored by Spotify AB."
+          "music_backend": "Choose Spotify Direct, Music Assistant or Later / manual. Spotify is a trademark of Spotify AB. DJConnect is not affiliated with, endorsed by or sponsored by Spotify AB."
         }
       },
       "music_assistant_player": {
@@ -416,6 +439,21 @@
       "spotify_reauth_done": {
         "title": "Spotify OAuth succeeded",
         "description": "DJConnect Spotify OAuth succeeded. You can close this window; Home Assistant now manages Spotify playback itself."
+      },
+      "profile_platform": {
+        "title": "Manage profiles",
+        "description": "Choose an action, profile and device. Existing profile and device names are preserved.",
+        "data": {
+          "profile_platform_action": "Action",
+          "profile_id": "Profile",
+          "profile_name": "Profile name",
+          "profile_type": "Profile type",
+          "profile_privacy_mode": "Privacy mode",
+          "device_id": "Device",
+          "device_name": "Device name",
+          "client_type": "Device type",
+          "require_profile": "Require a profile"
+        }
       }
     },
     "error": {
@@ -436,7 +474,12 @@
       "announcement_speaker_no_play_media": "Choose a media_player that can play audio.",
       "spotify_oauth_required": "Spotify OAuth is required before Spotify Direct can become active.",
       "backend_switch_failed": "DJConnect could not switch the music backend. Check the selected backend and try again.",
+      "profile_platform_failed": "The linked profile could not be updated. Check device pairing and try again.",
+      "profile_shared_backend_change": "This profile is linked to multiple devices. Link this device to its own profile before changing the music backend.",
       "invalid_voice_profile": "Choose a supported DJ voice profile."
+    },
+    "abort": {
+      "client_retired": "This client is no longer supported. Choose a supported client."
     }
   },
   "entity": {
@@ -642,6 +685,64 @@
         "abort": {
           "entry_not_found": "DJConnect configuration could not be found."
         }
+      }
+    },
+    "windows_client_retired": {
+      "title": "Windows app retired: connection retained — {configuration}",
+      "description": "The DJConnect Windows app is no longer supported and cannot connect. This configuration retains its existing music connection for linked clients. Keep it until the shared connection has been safely transferred; removing it before transfer can disconnect that account. Profiles and history are not automatically deleted."
+    },
+    "windows_client_retired_safe": {
+      "title": "Windows app retired: ready to remove — {configuration}",
+      "description": "The DJConnect Windows app is no longer supported and cannot connect. This configuration no longer owns a music connection and can be removed. Existing linked clients, Profiles, music accounts and history are retained."
+    }
+  },
+  "selector": {
+    "onboarding_profile": {
+      "options": {
+        "new": "Create a new profile"
+      }
+    },
+    "onboarding_profile_type": {
+      "options": {
+        "personal": "Personal",
+        "household": "Household",
+        "guest": "Guest",
+        "kids": "Kids"
+      }
+    },
+    "onboarding_response_style": {
+      "options": {
+        "concise": "Concise",
+        "balanced": "Balanced",
+        "expressive": "Expressive"
+      }
+    },
+    "profile_platform_action": {
+      "options": {
+        "add_profile": "Add profile",
+        "edit_profile": "Edit profile",
+        "delete_profile": "Delete profile",
+        "link_device": "Link device to profile",
+        "unlink_device": "Unlink device",
+        "set_fallback_profile": "Set fallback profile"
+      }
+    },
+    "profile_privacy_mode": {
+      "options": {
+        "normal": "Normal",
+        "private": "Private",
+        "shared": "Shared",
+        "guest-safe": "Guest safe"
+      }
+    },
+    "profile_platform_client_type": {
+      "options": {
+        "esp32": "ESP32",
+        "ios": "iPhone/iPad",
+        "macos": "Mac",
+        "watchos": "Apple Watch",
+        "raspberry_pi": "Linux/Raspberry Pi",
+        "conversation_agent": "Assist conversation agent"
       }
     }
   }

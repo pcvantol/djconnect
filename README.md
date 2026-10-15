@@ -14,8 +14,8 @@ Website: [https://djconnect.dev](https://djconnect.dev)
 
 ## What You Get
 
-- Pair DJConnect ESP32, Raspberry Pi, iPhone/iPad, Apple Watch, macOS and
-  Windows clients with Home Assistant.
+- Pair DJConnect ESP32, Raspberry Pi, iPhone/iPad, Apple Watch and macOS
+  clients with Home Assistant.
 - Choose **Spotify Direct** or **Music Assistant** as the music backend.
 - Control playback from DJConnect commands, app screens, Assist satellites or
   Home Assistant entities.
@@ -42,8 +42,8 @@ Website: [https://djconnect.dev](https://djconnect.dev)
 
 - Home Assistant with HACS installed.
 - A configured Home Assistant Assist pipeline with STT and TTS.
-- A DJConnect ESP32 device, Raspberry Pi client, iOS/macOS/watchOS app or
-  Windows client on the same local network during pairing.
+- A DJConnect ESP32 device, Raspberry Pi client or iOS/macOS/watchOS app
+  on the same local network during pairing.
 - For ESP32 devices: 2.4 GHz WiFi.
 - For Spotify Direct: Spotify Premium, a Spotify Developer app Client ID and a
   Home Assistant external HTTPS URL, preferably Nabu Casa.
@@ -73,7 +73,7 @@ The setup flow starts with a route choice:
 - **Assist Conversation Agent**: use DJConnect DJ from Home Assistant Assist
   satellites without pairing a separate client.
 - **DJConnect local device**: pair an ESP32 or Raspberry Pi client on your LAN.
-- **DJConnect app**: pair iPhone/iPad, Apple Watch, macOS or Windows.
+- **DJConnect app**: pair iPhone/iPad, Apple Watch or macOS.
 - **ESP32 WiFi over Bluetooth**: optionally write WiFi credentials before
   pairing an ESP32 device.
 
@@ -227,22 +227,17 @@ verification work.
 
 ## Engineering Platform
 
-Engineering Platform 1.x is `FEATURE_COMPLETE`: a stable, producer-neutral
-execution platform for Forge, Human Architects and future compliant Producers.
-It owns Engineering Action execution, qualification, preflight, Execution
-Evidence, Engineering Reports, Execution Receipts, telemetry, dashboard and
-Prompt History. Producer identity is traceability and audit provenance only;
-execution semantics remain identical for every Producer.
+The generic Engineering Platform runtime is distributed independently from
+[`pcvantol/engineering-platform`](https://github.com/pcvantol/engineering-platform).
+DJConnect keeps its product code, verification, developer onboarding and a
+declarative EP project identity. The [source-retirement record](docs/development/ENGINEERING_PLATFORM_SOURCE_RETIREMENT.md)
+defines the current DJConnect boundary and exact standalone release pin.
 
-Forge owns Mission planning, Runtime Prompts, Decision Evidence and Runtime
-Instance concepts. Engineering Platform does not implement Forge or introduce
-Forge-specific planning capabilities. Future innovation is expected primarily
-within Forge; Engineering Platform evolution is limited to generic execution
-platform concerns and requires explicit architectural authorization.
-
-Start with the [Architecture Handbook](docs/engineering/ENGINEERING_PLATFORM_ARCHITECTURE_HANDBOOK.md),
+The former DJConnect-hosted 1.x platform is historical evidence. Its
+[Architecture Handbook](docs/engineering/ENGINEERING_PLATFORM_ARCHITECTURE_HANDBOOK.md),
 [Execution Host and Producer Contract](docs/engineering/EXECUTION_HOST_CONTRACT.md)
-and [Platform 1.x Completion Report](docs/engineering/ENGINEERING_PLATFORM_1_X_COMPLETION_REPORT.md).
+and [Completion Report](docs/engineering/ENGINEERING_PLATFORM_1_X_COMPLETION_REPORT.md)
+describe the earlier embedded implementation, not current setup instructions.
 
 ## Software Assurance Platform
 

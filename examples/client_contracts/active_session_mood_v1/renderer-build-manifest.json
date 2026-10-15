@@ -1,0 +1,32 @@
+{
+  "build_version": "1.1.0",
+  "contracts": {
+    "broadcast_transport": "snapshot-event-v1",
+    "cast_handoff_versions": [
+      1
+    ],
+    "cast_status_versions": [
+      1
+    ],
+    "required_capabilities": {
+      "owner_controls": false,
+      "view_broadcast": true
+    }
+  },
+  "files": {
+    "cast/index.html": "cdd24ff51d0719d07d0929d7ab6c988df1b77e10b753f06028ad13b3caad9a14",
+    "local/vibecast.html": "d72acde5b311e69eebd30ae3a4c47a658f263555da3feed9c709ba426564f4c8"
+  },
+  "private_runtime_data_in_build": false,
+  "promotion": "explicit receiver-owner import; no automatic deployment",
+  "renderer_source_sha256": "f0455cbe8b294e55d9add12c9c1fff86578a0f7b8c403314fb7ce2a041c4d60c",
+  "schema_version": 1,
+  "source_revision": "ad178c7b88d8f2e502c2930afe95352554838572",
+  "sources": {
+    "cast-host.js": "b3b15f607735918f83d130b6afffb460f6d7a808e3c69228ece9b947816be52b",
+    "local-host.js": "d13b693b8c983db1e171f9a5373301bd7359f7f3de555819dc2931c08d317a0e",
+    "renderer.js": "f0455cbe8b294e55d9add12c9c1fff86578a0f7b8c403314fb7ce2a041c4d60c",
+    "style.css": "6f32448f84e06e5d2bb4241503af9247843b834f506f9f564402f8072d5b925e",
+    "template.html": "698eb9bc06fa5e14618f178996a612d10c514f1559026da12a32919e34c87ed6"
+  }
+}
