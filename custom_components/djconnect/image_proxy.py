@@ -39,19 +39,78 @@ class ManagedSessionImages:
     must additionally authenticate the current owner, never just an asset ID.
     """
 
-    def __init__(self):
+    def __init__(self, hass=None):
         import asyncio
 
         self.assets = {}
         self.inflight = {}
         self.negative = {}
         self.semaphore = asyncio.Semaphore(2)
+        self.hass = hass
+        self.closed = False
+        self.timers = {}
+        self.states = {}
+        self.work_guards = {}
+        self._unsubscribe = None
+        if hass is not None:
+            from homeassistant.const import EVENT_HOMEASSISTANT_STOP
+            self._unsubscribe = hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STOP, lambda _: self.close())
+
+    def close(self):
+        self.closed = True
+        unsubscribe, self._unsubscribe = self._unsubscribe, None
+        if unsubscribe is not None:
+            unsubscribe()
+        for handle in self.timers.values():
+            handle.cancel()
+        for task in self.inflight.values():
+            task.cancel()
+        self.timers.clear()
+        self.assets.clear()
+        self.inflight.clear()
+        self.negative.clear()
+        self.states.clear()
+        for _, invalidate in self.work_guards.values():
+            invalidate()
+        self.work_guards.clear()
+
+    def evict(self, key, reason):
+        import time
+
+        self.assets.pop(key, None)
+        timer = self.timers.pop(key, None)
+        if timer:
+            timer.cancel()
+        if len(self.states) < 64 or key in self.states:
+            self.states[key] = (time.monotonic() + 60, reason)
+
+    def expire(self, key, asset_id):
+        asset = self.assets.get(key)
+        if asset is not None and asset.get('asset_id') == asset_id:
+            self.evict(key, 'expired')
+
+    def end_session(self, owner, session_id):
+        for key, (_, invalidate) in list(self.work_guards.items()):
+            if key[:2] == (owner, session_id):
+                invalidate()
+        for key, asset in list(self.assets.items()):
+            if key[:2] == (owner, session_id) and not asset.get('historical'):
+                self.evict(key, 'source_withdrawn')
 
     def collect(self):
         import time
 
         now = time.monotonic()
-        self.assets = {k: v for k, v in self.assets.items() if v['deadline'] > now and v['authority']()}
+        for key, (authority, invalidate) in list(self.work_guards.items()):
+            if not authority():
+                invalidate()
+                self.evict(key, 'source_withdrawn')
+        for key, asset in list(self.assets.items()):
+            if asset['deadline'] <= now:
+                self.evict(key, 'expired')
+            elif not asset['authority']():
+                self.evict(key, 'source_withdrawn')
+        self.states = {k: v for k, v in self.states.items() if v[0] > now}
         self.negative = {k: v for k, v in self.negative.items() if v > now}
 
     def get(self, key):
@@ -60,13 +119,28 @@ class ManagedSessionImages:
 
     def commit(self, key, asset):
         self.collect()
+        if self.closed:
+            return False
         total = sum(len(v['body']) for k, v in self.assets.items() if k != key)
+        if len(asset['body']) > 2 * 1024 * 1024:
+            return False
         if (key not in self.assets and len(self.assets) >= 64) or total + len(asset['body']) > 32 * 1024 * 1024:
             return False
+        old = self.timers.pop(key, None)
+        if old:
+            old.cancel()
         self.assets[key] = asset
+        self.states.pop(key, None)
+        if self.hass is not None:
+            import time
+            self.timers[key] = self.hass.loop.call_later(
+                max(0, asset['deadline'] - time.monotonic()), self.expire, key, asset.get('asset_id'))
         return True
 
 
 def session_images(hass):
     """One RAM registry under the existing shared image-proxy owner."""
-    return hass.data.setdefault(DOMAIN, {}).setdefault('session_images', ManagedSessionImages())
+    owner = hass.data.setdefault(DOMAIN, {})
+    if 'session_images' not in owner:
+        owner['session_images'] = ManagedSessionImages(hass)
+    return owner['session_images']

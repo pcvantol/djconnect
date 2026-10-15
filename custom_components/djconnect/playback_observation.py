@@ -352,6 +352,7 @@ class PlaybackObservationManager:
                 title=getattr(result, "title", ""),
                 artist=getattr(result, "artist", ""),
                 album=getattr(result, "album", ""),
+                album_uri=str((getattr(result, "catalog", {}) or {}).get("album_uri") or ""),
                 artwork_url=register_image_proxy_url(
                     self._hass, getattr(result, "artwork_url", "")
                 ),

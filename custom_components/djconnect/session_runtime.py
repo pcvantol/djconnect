@@ -3378,6 +3378,8 @@ class DJSessionBroadcastEngine:
     forecast: ForecastProjection = field(init=False, repr=False)
     forecast_artwork: ForecastArtwork = field(default_factory=ForecastArtwork, repr=False)
     media_projector: Any = field(default=None, repr=False)
+    media_cleanup: Any = field(default=None, repr=False)
+    _media_revision: str = field(default="", init=False, repr=False)
     pending_events: tuple[BroadcastEventType, ...] = ()
     replay_log_limit: int = 128
     broadcast_token: str = field(default_factory=lambda: secrets.token_urlsafe(32), repr=False)
@@ -3818,6 +3820,7 @@ class DJSessionBroadcastEngine:
             result["session_flow"]["items"] = [item for item in result["session_flow"]["items"]
                                                if item.get("moment_id") not in excluded]
         result["native_delivery"] = native
+        result.pop("session_media", None)
         if include_owner_only and self.media_projector is not None:
             result["session_media"] = self.media_projector()
         if historical:
@@ -3844,8 +3847,11 @@ class DJSessionBroadcastEngine:
         if changed:
             self._publish(BroadcastEventType.FORECAST_CHANGED, {"session_forecast": self.forecast.as_dict()})
         revision = self.native_delivery()["revision"]
-        if revision != self._native_revision:
+        media_revision = (hashlib.sha256(json.dumps(self.media_projector(), sort_keys=True).encode()).hexdigest()
+                          if self.media_projector is not None else self._media_revision)
+        if revision != self._native_revision or media_revision != self._media_revision:
             self._native_revision = revision
+            self._media_revision = media_revision
             self._publish(BroadcastEventType.SESSION_FLOW_UPDATED,
                           {"session_flow": self.state.session_flow.as_dict()})
 
@@ -4227,6 +4233,7 @@ class SessionRuntimeManager:
         artist: str = "",
         album: str = "",
         artwork_url: str = "",
+        album_uri: str = "",
         target_name: str = "",
         duration_ms: int | None = None,
         position_ms: int | None = None,
@@ -4252,6 +4259,7 @@ class SessionRuntimeManager:
                     "kind":"playback_observed", "reference_id":new_observation_reference(),
                     "body":{"item_id":projection.item_id,"title":projection.title,"artist":projection.artist,
                             "album":projection.album,"source_url":projection.source_url,
+                            "album_uri": album_uri if re.fullmatch(r"spotify:album:[A-Za-z0-9]{22}", album_uri) else "",
                             "source_context":self._history_source_contexts.get(session_id, {}),
                             "provider":"Spotify" if projection.source_url.startswith("https://open.spotify.com/") else "Music Assistant" if active.music_backend == "music_assistant" else "DJConnect",
                             "coverage":"observed_playing_not_full_listen"},
@@ -5414,7 +5422,10 @@ class SessionRuntimeManager:
                 active.broadcast.forecast_artwork.commit(asset)
                 active.broadcast.update_forecast(active)
         from .session_artwork import prepare_visible
-        await prepare_visible(hass, integration_runtime, owner_profile_id, session_id)
+        try:
+            await prepare_visible(hass, integration_runtime, owner_profile_id, session_id)
+        except Exception:  # Optional media cannot break observation or Session end.
+            _LOGGER.debug("DJConnect optional Session artwork preparation unavailable")
 
     async def async_forecast_image(self, *, session_id, asset_id):
         """Pure headerless capability read; no remote fetch or expiry renewal."""
@@ -5735,6 +5746,7 @@ class SessionRuntimeManager:
                 if subject:
                     entry["body"]["session_media_reference"] = {
                         "version": 1, "subject_uri": subject,
+                        "album_uri": getattr(source, "artwork_album_uri", ""),
                         "source_context": dict(self._history_source_contexts.get(active.session_id, {}))}
 
         try:
@@ -5792,6 +5804,8 @@ class SessionRuntimeManager:
                     ),
                 }
             )
+            if active.broadcast.media_cleanup is not None:
+                active.broadcast.media_cleanup()
             active.broadcast.close()
             self._active_by_profile.pop(owner_profile_id, None)
             self._history_source_contexts.pop(session_id, None)

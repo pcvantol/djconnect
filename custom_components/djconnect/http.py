@@ -2978,14 +2978,14 @@ class DJConnectSessionMediaImageView(_DJConnectSessionView):
         from .api_handlers import _session_profile_context
         from .session_artwork import image
 
-        _, context, error, status = await _session_profile_context(request.app["hass"],
+        runtime, context, error, status = await _session_profile_context(request.app["hass"],
             dict(request.query), headers=request.headers, user_id=_request_user_id(request),
             source="session_media_image")
         if error is not None:
             return self.json(error, status_code=status)
         if not context.privacy_policy.allow_personal_read:
             return self.json({"success": False, "error": "media_not_allowed"}, status_code=403)
-        resource = await image(request.app["hass"], context, session_id, asset_id)
+        resource = await image(request.app["hass"], context, session_id, asset_id, runtime=runtime)
         if resource is None:
             return self.json({"success": False, "error": "media_unavailable"}, status_code=404)
         return web.Response(body=resource[0], content_type=resource[1], headers={

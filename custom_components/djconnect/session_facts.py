@@ -152,6 +152,7 @@ class QualifiedSessionFact:
     recording_evidence: RecordingCreditEvidence | None = None
     display_core: DisplayFactCore | None = None
     artwork_subject_uri: str = ""
+    artwork_album_uri: str = ""
 
     def copy_for(self, locale: str) -> tuple[str, str] | None:
         lang = locale[:2].lower()
@@ -285,7 +286,8 @@ class PublishedRecordingContext:
             if previous is not None:
                 fact = shared_producer_fact(current[0], previous, now)
                 if fact and fact.relation_key not in self.used_relations:
-                    return fact
+                    original = next((f for f in facts if f.recording_evidence is current[0]), None)
+                    return replace(fact, artwork_album_uri=getattr(original, "artwork_album_uri", ""))
         return None
 
     def clear(self) -> None:
@@ -416,7 +418,8 @@ class PublishedAlbumContext:
             fact = AlbumContinuityFact(
                 "album_continuity", media_identity, "track_context", summaries, contents,
                 "Spotify", current[0].source_url, "Spotify metadata display", current[0].observed_at,
-                display_core=current[0].display_core, current_album=current[0], previous_album=previous)
+                display_core=current[0].display_core, current_album=current[0], previous_album=previous,
+                artwork_album_uri=current[0].artwork_album_uri)
             if fact.eligible(media_identity, now) and fact.relation_key not in self.used_relations:
                 return fact
         return None
@@ -452,6 +455,8 @@ def _fact(
         "Spotify metadata display" if provider == "Spotify" else "CC0-1.0",
         time.monotonic(),
         display_core=core,
+        artwork_album_uri=str(catalog.get("album_uri") or "") if re.fullmatch(
+            r"spotify:album:[A-Za-z0-9]{22}", str(catalog.get("album_uri") or "")) else "",
     )
 
 
