@@ -2,8 +2,10 @@
 
 import asyncio
 
+from aiohttp import WSServerHandshakeError
 
-async def probe(hass, client, plain, identity, headers, tls_context, session_id, new_id, receipts):
+
+async def probe(hass, client, plain, identity, headers, tls_context, session_id, new_id, receipts, provider_calls):
     previous = hass.config.internal_url
     hass.config.internal_url = plain
 
@@ -25,6 +27,18 @@ async def probe(hass, client, plain, identity, headers, tls_context, session_id,
         assert context["ha_install_id"] == tls_context["ha_install_id"]
         assert context["operation_epoch"] == tls_context["operation_epoch"]
         receipts.append({"case": "real-direct-loopback-context", "body": context})
+        await post("transport/context", {"contract_version": 1, "identity": identity}, extra={"Origin": plain})
+        for path in ("transport/context", "transport/operation", "transport/operation/status", "session/broadcast/recovery"):
+            await post(path, {}, 426, extra={"Forwarded": "for=192.168.1.20"})
+        for extra, expected in (({"Origin": "http://foreign.invalid"}, 403), ({"Forwarded": "for=192.168.1.20"}, 426)):
+            try:
+                socket = await client.ws_connect(plain + "/api/djconnect/v1/actions/paired", headers=extra)
+            except WSServerHandshakeError as exc:
+                assert exc.status == expected
+                receipts.append({"case": "direct-local-ws-negative-" + next(iter(extra)), "status": exc.status})
+            else:
+                await socket.close()
+                raise AssertionError("Unqualified WS ingress accepted")
         await post("transport/context", {"contract_version": 1, "identity": identity}, 401, authenticated=False)
         receipts.append({"case": "local-pairing-still-required", "status": 401})
         for extra, expected in (({"Origin": "http://foreign.invalid"}, 403), ({"Forwarded": "for=192.168.1.20;proto=http"}, 426), ({"Via": "unqualified-proxy"}, 426)):
@@ -38,6 +52,7 @@ async def probe(hass, client, plain, identity, headers, tls_context, session_id,
         accepted = await post("transport/operation", operation)
         assert accepted["operation_receipt"]["phase"] == "confirmed", accepted
         receipts.append({"case": "direct-local-http-operation", "body": accepted})
+        provider_count = len(provider_calls)
         status_body = {key: operation[key] for key in ("contract_version", "operation_id", "operation_epoch")}
         for reconnect in range(2):
             async with client.ws_connect(plain + "/api/djconnect/v1/actions/paired") as ws:
@@ -57,10 +72,16 @@ async def probe(hass, client, plain, identity, headers, tls_context, session_id,
                 await ws.send_json({"id": 2, "type": "djconnect/operation/status", **status_body})
                 status = await ws.receive_json()
                 assert status["result"]["operation_receipt"]["phase"] == "confirmed", status
+                await ws.send_json({"id": 3, "type": "djconnect/operation/execute", **{key: value for key, value in operation.items() if key != "identity"}})
+                duplicate = await ws.receive_json()
+                assert duplicate["result"]["operation_receipt"]["phase"] == "confirmed", duplicate
+                assert not duplicate["result"]["result_available"]
+                assert len(provider_calls) == provider_count
                 receipts.append({"case": "direct-local-ws-reconnect-status", "reconnect": reconnect, "context": ready, "read": active, "status": status})
             await asyncio.sleep(0.05)
         status = await post("transport/operation/status", {**status_body, "identity": identity})
         assert status["operation_receipt"]["phase"] == "confirmed"
+        assert len(provider_calls) == provider_count
         receipts.append({"case": "direct-local-original-id-http-status", "body": status})
         recovery = await post("session/broadcast/recovery", {"contract_version": 1, "identity": identity, "session_id": session_id, "recovery_cursor": "0" * 32})
         assert recovery["session_id"] == session_id and recovery["recovery"] == "snapshot_required"

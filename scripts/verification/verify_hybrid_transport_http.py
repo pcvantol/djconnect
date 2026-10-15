@@ -447,7 +447,7 @@ async def main():
                     assert not manager.current_active("profile-a").broadcast._subscribers
                     from scripts.verification.hybrid_direct_local_probe import probe
 
-                    await probe(h, client, plain, identity, headers, ctx, session_id, new_id, receipts)
+                    await probe(h, client, plain, identity, headers, ctx, session_id, new_id, receipts, provider_calls)
                     async with client.ws_connect(
                         secure + "/api/djconnect/v1/actions/paired"
                     ) as wrong:
@@ -1269,13 +1269,12 @@ async def main():
                 for p in sorted((ROOT / "custom_components/djconnect").rglob("*"))
                 if p.is_file() and "__pycache__" not in p.parts
             }
-            source_hashes[str(Path(__file__).relative_to(ROOT))] = hashlib.sha256(
-                Path(__file__).read_bytes()
-            ).hexdigest()
+            for script in (Path(__file__), ROOT / "scripts/verification/hybrid_direct_local_probe.py"):
+                source_hashes[str(script.relative_to(ROOT))] = hashlib.sha256(script.read_bytes()).hexdigest()
             Path("/lab/hybrid.json").write_text(
                 json.dumps(
                     {
-                        "qualification": "PASS_CORE_TLS_HA_BASELINE",
+                        "qualification": "PASS_CORE_TLS_AND_QUALIFIED_DIRECT_LOOPBACK",
                         "source_hashes": source_hashes,
                         "transport_receipts": receipts,
                         "provider_calls": provider_calls,
@@ -1299,7 +1298,7 @@ async def main():
             print(
                 json.dumps(
                     {
-                        "qualification": "PASS_CORE_TLS_HA_BASELINE",
+                        "qualification": "PASS_CORE_TLS_AND_QUALIFIED_DIRECT_LOOPBACK",
                         "cases": len(receipts),
                         "mutations": state["mutations"],
                     }
