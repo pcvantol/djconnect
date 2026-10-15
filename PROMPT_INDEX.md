@@ -1,5 +1,44 @@
 # DJConnect Verification Prompt Index
 
+## Current: Session artwork — separate documentary Finalization
+
+### Repository Status
+
+PR [#1172](https://github.com/pcvantol/djconnect/pull/1172) protected merged as `5c7ecb7941c555f12bd94a2969167cfaaff0cb44` from exact reviewed/owner-authorized `dac4738ede119a48c092ecd873a4bf7a3d7ea5b6`, base f0a7ff4b. Complete tree equality,32successful checks/5conditional skips and actual Owner Authorization SUCCESS; no bypass. [Exact source/artifact/formal readback](docs/verification/SESSION_ARTWORK_V1_SOURCE_READBACK_20261015.md) verifies all164 integration files,0mismatches and POST_MERGE_RELEASE_EVIDENCE_QUALIFIED. Earlier1170/1171 and completed slices remain closed.
+
+### Management Summary
+
+Core exact-subject media capability, normal-owner preparation/authenticated bytes, optional live projection and qualified historical refresh delivered. Existing image/Session/history owners reused; source/account/edition and separate current/flow/archive rights preserved. No semantic Moment/summary/Presence change, hidden provider work in reads or private receiver leakage.1949regressions(7skips),35owning,148DAG and18actual HA cases pass, including301s idle expiry and actual batch purge. Four real Broadcast browser paths and SQLite reopen pass on identical source hashes. Both exact independent source reviews GO; native/installed artwork/joint/hardware not inferred.
+
+### Roadmap Position
+
+Three bounded MEDIA::CORE leaves Completed/CORE_DELIVERED after verified source1172. Apple-native adoption and joint acceptance Planned/open; family PARTIAL. Live JSON delta11 preserves delivered v10 and historical snapshots; no duplicate initiative, false Hybrid prerequisite or consumer dispatch. Finalization changes only documentary/governance evidence; all164 integration files, workflows and runners stay identical to source main.
+
+### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+1. **DJC-SESSION-SPEECH-PERSONA-VOICE-20261015 — selected queued successor.** Owner6189231491/autonomous-next6189912293; starts automatically after valid artwork closure and fresh same-writer admission. Not admitted or implemented here; exact publication gates preserved.
+2. **Unfilled product slot 2 — no further authorized selection.** Not dispatched.
+3. **Unfilled product slot 3 — no further authorized selection.** Not dispatched.
+4. **Unfilled product slot 4 — no further authorized selection.** Not dispatched.
+5. **Unfilled product slot 5 — no further authorized selection.** Not dispatched.
+
+### Blocked Items
+
+Only separate exact Finalization publication gate remains after its local checks/reviews. Source grant does not authorize a changed candidate or this Finalization. Apple/native and joint remain OPEN; installed artwork NOT_RUN. Qualified latest-main installation on HA-dev/prod is already authorized, planned after the last Finalization merge; no new generic installation gate.
+
+### Deferred Items
+
+No Swift/receiverrepo write, consumer start, deployment/Pages/signing/hardware, source/model/cost route or workflow/runner/service mutation. Speech implementation is outside this Finalization.
+
+### Repository State
+
+Repository State: `MERGED_UNRECONCILED` for source1172. Finalization Pending: YES until this separate candidate is protected merged, exact-main/artifact read back and own cleanup proved. Reconciliation is prospective; source PR alone is not lifecycle completion.
+
+### Workspace State
+
+Workspace State: `NOT_READY` until Finalization and safe own cleanup. Source and Finalization refs preserved with recovery evidence; unrelated VibeCast worktree, Applelab and all other WIP retained. No next admission before closure.
+
+## Historical operational context
 ## Current: Session Moment artwork — admitted Core implementation
 
 ### Repository Status
