@@ -71,7 +71,8 @@ def projection(record, *, autoplay=False):
             "persona": record["persona"], "persona_revision": record["persona_revision"],
             "locale": record["locale"], "segments": exact_segments(record["text"]),
             "state": "available", "reason": None, "manual_allowed": True,
-            "autoplay_eligible": autoplay, "processors": ["local_on_device"],
+            "autoplay_eligible": autoplay, "processors": ["local_on_device", "ha_configured"],
+            "processor_qualification_required": True,
             "expires_at": record["expires_at"], "cache_policy": "private,no-store",
             "attribution": deepcopy(record["attribution"])}
 
@@ -260,7 +261,8 @@ def _contribution_descriptor(reference, *, text, locale, persona, persona_revisi
             "persona_revision": persona_revision, "locale": locale, "segments": segments,
             "style_basis": "accepted_contribution" if persona is not None else "legacy_unknown",
             "state": "available", "reason": None, "manual_allowed": True,
-            "autoplay_eligible": autoplay, "processors": ["local_on_device"],
+            "autoplay_eligible": autoplay, "processors": ["local_on_device", "ha_configured"],
+            "processor_qualification_required": True,
             "expires_at": expires_at, "source_expires_at": expires_at,
             "attribution": attribution, "cache_policy": "private,no-store"}
 
@@ -467,7 +469,6 @@ async def prepare_ha(hass, runtime, owner, data, descriptor, admission):
             synthesize=lambda: synthesize(entity, voice, "".join(segment["text"] for segment in descriptor["segments"])))
         asset = get_private_tts_audio(hass, token, owner)
         return {**descriptor, "expires_at": datetime.fromtimestamp(asset.expires_at, UTC).isoformat(),
-                "processors": ["local_on_device", "ha_configured"],
                 "audio_state": "ready", "effective_voice": voice, "autoplay_eligible": False,
                 "audio_reference": {"asset_id": token, "path": "/api/djconnect/v1/speech/audio", "method": "POST"}}
     except PermissionError:

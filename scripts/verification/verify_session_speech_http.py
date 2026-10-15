@@ -231,6 +231,8 @@ async def main():
             assert reply["audio_delivery"] == {"mode": "accepted_reference", "state": "deferred"}
             assert descriptor["manual_allowed"] and descriptor["persona"] == "radio_dj", reply
             assert descriptor["segments"][0]["text"] == reply["text"]
+            assert descriptor["processors"] == ["local_on_device", "ha_configured"]
+            assert descriptor["processor_qualification_required"] is True
             request = {**identity, "contract_version": 1, "reference": descriptor["reference"],
                        "processor": "local_on_device", "voice_preference": "default"}
             before = len(calls)

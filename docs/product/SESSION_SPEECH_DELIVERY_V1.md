@@ -17,9 +17,19 @@ Descriptor: `schema_version`, contribution `source_kind`/`source_id`, optional
 `session_id`, immutable `text_revision`, `presentation_revision`, effective
 `persona`/`persona_revision`, `locale`, ordered exact `segments`, `state`,
 `reason`, original `expires_at`, independent `manual_allowed` and new-publication
-`autoplay_eligible`, allowed `processors`, source attribution and `cache_policy`.
+`autoplay_eligible`, allowed preparation-attempt `processors`,
+`processor_qualification_required:true`, source attribution and `cache_policy`.
 States: available,unavailable,expired,withdrawn. A source/audience/processor denial
-has no executable text/audio grant. Machine codes stay untranslated; client
+has no executable text/audio grant. Available turn, live Moment and retained-entry
+descriptors advertise both `local_on_device` and `ha_configured` as permitted
+prepare attempts. This list never establishes provider availability, source
+processing rights, matching locale/gender, effective voice or ready audio. Those
+conditions are checked during explicit paired preparation; a denied route returns
+unavailable with `processors:[]`, without fallback. A prepared descriptor keeps
+the same list meaning; only its `audio_state:ready` and `effective_voice` establish
+that exact prepared resource. Descriptor reads perform no TTS/provider work.
+Clients must require the explicitly advertised route before attempting prepare;
+legacy descriptors that omit it grant no additional attempt. Machine codes stay untranslated; client
 copy and accessibility labels require all five languages.
 
 `POST /api/djconnect/v1/speech/prepare` uses normal paired device/Profile owner,

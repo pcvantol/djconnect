@@ -1077,6 +1077,8 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
                          if d["source_id"] == moment.moment_id)
         self.assertTrue(published["autoplay_eligible"])
         before = session.broadcast.as_dict()["session_speech"]["moments"][-1]
+        self.assertEqual(before["processors"], ["local_on_device", "ha_configured"])
+        self.assertTrue(before["processor_qualification_required"])
         self.assertFalse(before["autoplay_eligible"])
         self.assertNotIn("session_speech", session.broadcast.as_dict(include_owner_only=False))
         received = []
@@ -1524,6 +1526,8 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
                 self.assertNotIn("session_speech", entry)
                 continue
             speech = entry["session_speech"]
+            self.assertEqual(speech["processors"], ["local_on_device", "ha_configured"])
+            self.assertTrue(speech["processor_qualification_required"])
             self.assertTrue(speech["manual_allowed"])
             self.assertFalse(speech["autoplay_eligible"])
             self.assertEqual(speech["expires_at"], entry["retained_until"])
@@ -1538,6 +1542,38 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
         self.assertFalse(self.hass.data["djconnect"].get("tts_audio"))
         self.assertFalse(self.hass.data["djconnect"].get("tts_audio_source_watches"))
 
+    async def test_advertised_prepare_routes_are_conditional_and_never_grant_fallback(self):
+        from custom_components.djconnect import session_speech, speech_processor
+        answer, status = await self.request("Who is Brian Eno?", identifier="conditional-processor")
+        self.assertEqual(status, 200, answer)
+        initial = answer["session_speech"]
+        payload = {**self.identity, "contract_version": 1, "reference": initial["reference"],
+                   "processor": "ha_configured", "voice_preference": "default"}
+        before = len(self.prompts)
+        for reason in ("processor_not_qualified", "no_matching_locale", "voice_gender_unavailable"):
+            with self.subTest(reason=reason), patch.object(speech_processor, "configured_processor",
+                    side_effect=speech_processor.ProcessorUnavailable(reason)), \
+                    patch.object(speech_processor, "synthesize") as synthesize:
+                denied, status = await session_speech.async_handle_prepare(self.hass, payload, headers=self.headers)
+                self.assertEqual(status, 200, denied)
+                descriptor = denied["session_speech"]
+                self.assertEqual(descriptor["reason"], reason)
+                self.assertEqual(descriptor["processors"], [])
+                self.assertEqual(descriptor["segments"], [])
+                self.assertFalse(descriptor["manual_allowed"])
+                synthesize.assert_not_called()
+        help_reply, status = await self.request("help", identifier="unqualified-source-processor")
+        self.assertEqual(status, 200, help_reply)
+        with patch.object(speech_processor, "configured_processor") as configured:
+            denied, status = await session_speech.async_handle_prepare(self.hass,
+                {**payload, "reference": help_reply["session_speech"]["reference"]}, headers=self.headers)
+            self.assertEqual(status, 200, denied)
+            self.assertEqual(denied["session_speech"]["reason"], "source_processor_not_qualified")
+            self.assertEqual(denied["session_speech"]["processors"], [])
+            configured.assert_not_called()
+        self.assertEqual(len(self.prompts), before)
+        self.assertFalse(self.hass.data["djconnect"].get("tts_audio"))
+
     async def test_manual_speech_after_never_reuses_accepted_text_without_model_or_history_write(self):
         from custom_components.djconnect.session_speech import async_handle_prepare
         result, status = await self.request("Who is Brian Eno?", identifier="manual-never")
@@ -1545,6 +1581,8 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
         descriptor = result["session_speech"]
         self.assertEqual(descriptor["segments"][0]["text"], result["text"])
         self.assertTrue(descriptor["manual_allowed"])
+        self.assertEqual(descriptor["processors"], ["local_on_device", "ha_configured"])
+        self.assertTrue(descriptor["processor_qualification_required"])
         self.assertFalse(descriptor["autoplay_eligible"])
         before = await self.history.async_history("profile:profile-a")
         calls = len(self.prompts)
@@ -1577,6 +1615,7 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(status, 200, unsupported)
         self.assertFalse(unsupported["session_speech"]["manual_allowed"])
         self.assertEqual(unsupported["session_speech"]["segments"], [])
+        self.assertEqual(unsupported["session_speech"]["processors"], [])
         self.history.dialogue.invalidate("profile:profile-a")
         withdrawn, status = await async_handle_prepare(self.hass, payload, headers=self.headers)
         self.assertEqual(status, 404, withdrawn)
@@ -1765,6 +1804,10 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
         from custom_components.djconnect.wav_util import simple_tone_wav
         answer, status = await self.request("Who is Brian Eno?", identifier="audio-owner")
         self.assertEqual(status, 200, answer)
+        self.assertIn("ha_configured", answer["session_speech"]["processors"])
+        self.assertTrue(answer["session_speech"]["processor_qualification_required"])
+        self.assertNotIn("effective_voice", answer["session_speech"])
+        self.assertFalse(self.hass.data["djconnect"].get("tts_audio"))
         payload = {"device_id": self.identity["device_id"], "client_type": self.identity["client_type"],
                    "contract_version": 1, "reference": answer["session_speech"]["reference"],
                    "processor": "ha_configured", "voice_preference": "default"}
@@ -1783,6 +1826,8 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
             first, status = await session_speech.async_handle_prepare(self.hass, payload, headers=self.headers)
             self.assertEqual(status, 200, first)
             self.assertEqual(first["session_speech"]["audio_state"], "ready")
+            self.assertEqual(first["session_speech"]["processors"], answer["session_speech"]["processors"])
+            self.assertTrue(first["session_speech"]["processor_qualification_required"])
             ref = first["session_speech"]["audio_reference"]
             second, status = await session_speech.async_handle_prepare(self.hass, payload, headers=self.headers)
             self.assertEqual(second["session_speech"]["audio_reference"], ref)
