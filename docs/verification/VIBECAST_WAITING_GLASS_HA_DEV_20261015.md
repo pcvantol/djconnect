@@ -1,0 +1,37 @@
+# VibeCast waiting page — bounded HA-dev preview
+
+Owner explicitly requested a separate djconnect branch, DJConnect branding,
+glass styling, device/session/VibeCast/code instructions with icon, and publishing
+only this HTML to Mac mini HA-dev for testing. This is not a release/merge or
+permission to install Python integration changes, restart HA or alter pairing.
+
+Branch: codex/vibecast-waiting-glass-v1. Base:9efd1977768d2574b66c16de9c5d8ba53e9157b1.
+Isolated worktree:/private/tmp/djc-vibecast-waiting/source. Active Core Hybrid
+writer, its dirty files and branch remain untouched. Non-mutating hostverify MATCH.
+
+Canonical renderer template/style/local-host sources produce the single local
+HTML through scripts/build_vibecast.py. Existing DJConnect brand icon embedded
+in the artifact: no remote asset request or new dependency. Idle-only branding
+and instructional glass panel; three steps and code in en/nl/de/fr/es. Explicit
+same-HA-installation reminder, decorative inline VibeCast monitor/Wi-Fi icon,
+Reduce Transparency fallback and short/landscape layouts. Google notranslate
+metadata avoids browser translation competing with the built-in languages.
+
+No transport, owner permission, live rendering, claims/polling cadence, storage,
+Mood or Presence behavior changed. Main renderer inline script is byte-identical
+to the installed dev baseline and main. The original complete installed HTML
+also equals the main baseline before mutation.
+
+Validation: deterministic local/static build/verification PASS;11 renderer/build
+tests PASS with Python3.14 (0.242s). Existing claim/collect/Broadcast test now
+checks actual instructions/icon/code and retains no-URL/private-storage tests.
+The first invocation used system Python3.9 and failed dataclass slots import;
+corrected runtime used. git diff --check PASS.
+
+Deployment plan: retain exact installed HTML backup locally, require its SHA
+unchanged, atomically replace only vibecast.html, compare all other integration
+file hashes, fetch same-origin page back and inspect actual Pi screen. No HA
+restart, release/CI trigger, receiverrepo publish or other integration deployment.
+Physical visual result will be recorded separately after the preview is loaded.
+
+Generated candidate HTML SHA256: cef03b2796cb3be9c6473d872de6b6d285f789f7034b93483b084cfead98294e
