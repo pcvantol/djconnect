@@ -1,6 +1,6 @@
 # DJC-ESP32 presence projection
 
-Web-first #1174 documentary extension: SOURCE_PROTECTED_MERGED; design authored only, product implementation Planned/NOT_ISSUED and joint acceptance OPEN. Cast-first/native-TV prerequisites superseded for forward design; original receipts remain historical. URL/exception/emoji OPEN. No automatic dispatch or runtime/publication grant.
+Web-first #1174 decision delta: LOCAL_DOCUMENTARY; vibecast.tv/root and existing-app guest exception RESOLVED. Receiver16 PUBLIC_WEB_DELIVERY SELECTED/QUEUED after this delta delivery/Finalization and fresh own admission; executor ACK pending. API rendezvous/Core/Apple/guest integration separately Planned; full onboarding and hardware OPEN. Final reaction/rocket and technical choices OPEN. No runtime/deploy by this docs writer.
 
 Generated from djconnect-platform-v1.json, maintenance DJC-DJ-PRESENCE-ROADMAP-DESIGN-V1-20261011.
 

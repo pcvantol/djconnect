@@ -1,6 +1,6 @@
 # VibeCast web-first experience v1
 
-Status: **design only; implementation Planned; physical/joint acceptance OPEN**.
+Status: **design only; receiver slice1 selected/queued; other implementation Planned; joint acceptance OPEN**.
 Authority: [issue #1174](https://github.com/pcvantol/djconnect/issues/1174),
 `DJC-VIBECAST-WEB-FIRST-GUEST-EXPERIENCE-DESIGN-V1-20261015`.
 This is the canonical forward product direction. It supersedes Cast-first and
@@ -12,28 +12,33 @@ Companion contracts: [onboarding and guest authority](VIBECAST_ONBOARDING_GUEST_
 [temporary Apple guest mode](APPLE_VIBECAST_GUEST_MODE_V1.md).
 These documents specify future behavior, not available routes or SDKs.
 
+Decision delta: [DJC-VIBECAST-WEB-FIRST-DECISIONS-DELTA-V1-20261015](https://github.com/pcvantol/djconnect/issues/1174#issuecomment-6201605985).
+[Web entry/distribution and Cast lifecycle](VIBECAST_WEB_ENTRY_DISTRIBUTION_V1.md)
+is the technical companion for the newly resolved choices and selected receiver#16.
+Source1175/Finalization1176 remain historically scoped; these later decisions
+are not retrospectively claimed as part of their delivery.
+
 ## Product and explicit unknowns
 
 One maintained web product serves TV browsers, iPad, Android tablets, PC and Mac:
 ambient large-screen composition plus responsive mobile guest participation.
 A Windows browser does not reopen the retired Windows app. Apple/Pi/ESP/Assist
 remain supported. Cast may be an optional adapter; LG/webOS, Samsung and Android
-TV native apps are not the entry condition. The owner mentioned one exception
-to web-first but has not described it: **OPEN**, including whether it affects
-any listed host. Apple guest mode is not assumed to be that exception.
+TV native apps are not the entry condition. The web-first exception is now
+**RESOLVED: joining through the existing DJConnect app**, using temporary guest
+mode. It is not a native-TV exception and does not make Cast mandatory. Browser
+guest participation remains complete.
 
-A central short URL is hosted once globally through Cloudflare Pages. Its final
-name/domain/path is **OPEN**. `vibecast.dev` and a short path under an existing
-valid domain are naming candidates only: availability/ownership is unverified.
-`djconnect.cast` and `vibe.cast` are ideas, not ordinary registrable addresses:
-`.cast` was absent from the [IANA root database](https://www.iana.org/domains/root/db)
-at the 2026-10-15 design check. Alias, configured service origin and stable
-protocol identity must be independent; renaming cannot rotate session identity.
-No registration, cost commitment, hosting or DNS change is authorized here.
+The selected global entry is **https://vibecast.tv/**: its root opens the QR/start
+page directly, without a required /go, /start, /connect or marketing step.
+Peter reports buying the domain through Cloudflare; this is ownership context,
+not DNS/TLS/Pages/live-onboarding proof. Public alias and configured service origin
+remain independent of protocol identity. Earlier name candidates are historical
+only. No domain purchase, DNS, hosting or deployment is performed by this delta.
 
 ## Two deliberately separate onboarding steps
 
-**A. Find the right installation.** The screen opens the central short URL and
+**A. Find the right installation.** The screen opens https://vibecast.tv/ and
 waits with a rotating short-lived QR. An already HA-paired iPhone/iPad owner
 scans using the new owner scanner, selects the intended installation and confirms
 the screen and external HTTPS destination. A minimal temporary rendezvous
@@ -73,6 +78,22 @@ Closing the owner app or losing central bootstrap does not end an admitted
 Session. Music stays on the selected backend output; participation supplies no
 music stream. Externally reachable HA with valid TLS is a real prerequisite,
 not a property a QR can supply.
+
+## Adaptive glass presentation
+
+One capability-first design has **Glass / Soft / Solid** levels, with the same
+content, authority and functions. Glass adds restrained blur/translucency/gloss
+only where both feature support and actual device performance qualify it; Soft
+reduces blur/layers, Solid uses opaque panels. This is Apple-glass-inspired web
+styling, not native Liquid Glass. Engine/brand/UA/version alone cannot qualify
+performance. Prefer conservative defaults and graceful downshift; never promote
+or drop security based on an effect tier.
+
+Respect Reduce Motion, contrast and reduced-transparency preferences where
+supported, with an accessible local **Minder effecten** choice. All QR and code
+panels stay opaque, still, sharp, high-contrast and readable at every tier. No
+animation or glare may compromise scanning. Feature checks, browser qualifications
+and long-running acceptance belong to the [distribution contract](VIBECAST_WEB_ENTRY_DISTRIBUTION_V1.md).
 
 ## Shared meaning, distinct surfaces
 
@@ -115,8 +136,12 @@ Browser participation remains a complete product route.
 
 ## Reactions and DJ-led audience influence
 
-Five fixed emoji are intended; their exact set is **OPEN**. The old conceptual
-Heart/Love/Applause/Cheer quartet is not the chosen five. Each reaction identifies
+The working proposal is ❤️ Raakt me / 🔥 Hier ga ik op / 😌 Heerlijk ontspannen /
+🤩 Wow / 👎 Niet mijn vibe. Owner preference replaces 🤯 with **🤩**. The later
+**🚀 suggestion remains OPEN as an addition or alternative**: no sixth reaction
+or replacement is silently selected. Final set, count and localized labels still
+need explicit owner decision. The old four-icon vocabulary is not final either.
+This choice does not block bootstrap/CI slice1. Each reaction identifies
 its subject: exact music/playback occurrence, DJ story, or session atmosphere.
 Liking trivia does not establish liking the track; like does not mean energy up,
 dislike does not mean down, and silence is not rejection. These transient events
@@ -212,7 +237,7 @@ migration; new web-first TV targets have no end grant or end control.
 | Browser qualification | ADAPT | Real old-TV engine/TLS/crypto/storage/media/suspend plus phone/tablet/accessibility matrix |
 | Owner-only artwork/Forecast/speech | KEEP producer | Add explicit shared grants and visible consumer proof; never reuse private bearer |
 | Legacy screen end-only grant | KEEP installed; RETIRE from new design | Separate opt-in remains until authorized migration, new TV readonly |
-| Prior Audience concept | ADAPT deferred | Five reactions, scoped chat/requests and aggregate policy extend future scope |
+| Prior Audience concept | ADAPT deferred | Reaction proposal, scoped chat/requests and aggregate policy extend future scope |
 
 Core owns grants, shared projections, Ask DJ, Planner and effects. Apple owns
 owner scanner and temporary app guest shell. Existing receiver repo owns static
@@ -226,8 +251,18 @@ native service advertising by a TV webpage.
 
 ## Traceability, slices and acceptance
 
-All issue sections map to durable design and DAG slices. All product slices are
-Planned/NOT_ISSUED, not automatic dispatch, including after docs delivery.
+All issue sections map to durable design and DAG slices. Receiver
+[issue16](https://github.com/pcvantol/djconnect-vibecast-receiver/issues/16),
+`DJC-VIBECAST-TV-BOOTSTRAP-CLOUDFLARE-V1-20261015`, is **SELECTED/QUEUED** for independent public bootstrap/build/CI/CD in
+WEB::DISTRIBUTION and conditionally for the receiver-owned rendezvous adapter
+once the exact TRUST/API contract is qualified. This does not select producers.
+There is no executor ACK or product PASS here. After this delta's protected
+delivery/Finalization and closure of its own earlier WIP, the owning receiver
+writer may autonomously admit that slice, without another general start question.
+API rendezvous, Core admission, Apple and guest functionality remain separately
+Planned/NOT_ISSUED. Full onboarding E2E stays OPEN pending their exact contracts.
+The [decision mapping](VIBECAST_WEB_ENTRY_DISTRIBUTION_V1.md#decision-to-dag-mapping)
+records phase-specific dependencies without dispatching those other owners.
 
 | Issue #1174 | Canonical detail | DAG subset / owning lane |
 | --- | --- | --- |
@@ -252,11 +287,11 @@ candidate/producer/consumer identities. Fallback-only proof is insufficient.
 | WF-03 | Ordinary camera/browser, unpaired app and home-paired app; multiple independent guests |
 | WF-04 | Leave offline/online, crash/relaunch, late callback; exact home restoration, no home playback/action |
 | WF-05 | Stop share versus end Session; revoke all grants/WS/media/pending work; offline stale lease and resume |
-| WF-06 | All five chosen reactions, distinct subjects, bounded sparkle/Reduce Motion, host lock and cooldown |
+| WF-06 | All finally chosen reactions, distinct subjects, bounded sparkle/Reduce Motion, host lock and cooldown |
 | WF-07 | Guest chat injection/retry/confirmation/result choice; zero forbidden effects and zero private read |
 | WF-08 | Exact version → accepted plan → confirmed backend enqueue → observed playback → correct anonymous Persona announcement |
 | WF-09 | Wrong origin/install/browser, QR replay/photo, brute-force/rate/model budget, leak-free logs/URLs and revocation races |
-| WF-10 | Old TV crypto/TLS/browser, iPad/Android/PC/Mac, portrait/landscape, touch/keyboard/screen reader; en/nl/de/fr/es |
+| WF-10 | Real modern WebKit/Chromium and older TV engines, Glass/Soft/Solid functional parity, long-running recovery/thermal/memory stability, sharp QR, portrait/landscape, touch/remote/keyboard/screen reader; en/nl/de/fr/es |
 | WF-11 | Visible shared Forecast/art/source expiry; owner-only media denied; shared speech separately audible/qualified |
 | WF-12 | VLAN/multicast/permission denial, multiple Sessions, invitation closed/rotated, central failure and honest recovery |
 
@@ -264,10 +299,11 @@ UI strings/accessibility/QR alternatives must follow [five-language policy](../.
 Host display must be readable at distance; guest layout supports zoom/text scaling,
 contrast, focus/keyboard, screen reader labels and non-color state cues. No forced
 motion or automatic speech; use short localized statuses and static reduced-motion
-feedback. Exact copy/catalogue and five-emoji labels are implementation decisions,
+feedback. Exact copy/catalogue and reaction labels are implementation decisions,
 to ship in all five languages together. No new user-facing runtime copy ships here.
 
-Open design gates: final URL; unspecified exception; exact emoji set; browser
+Resolved: vibecast.tv/root and the existing-app guest-join exception. Open design
+gates: final emoji set/count/labels and 🚀 addition/alternative; browser
 minimum; reviewed encrypted rendezvous protocol/library; TTL/budgets and abuse
 thresholds; share multiplicity and close/cancel policy; shared image/speech rights;
 Apple webview versus native renderer; cross-repo central-service binding. They

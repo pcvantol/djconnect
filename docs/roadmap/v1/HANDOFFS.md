@@ -1,6 +1,6 @@
 # Planned handoffs
 
-Web-first #1174 documentary extension: SOURCE_PROTECTED_MERGED; design authored only, product implementation Planned/NOT_ISSUED and joint acceptance OPEN. Cast-first/native-TV prerequisites superseded for forward design; original receipts remain historical. URL/exception/emoji OPEN. No automatic dispatch or runtime/publication grant.
+Web-first #1174 decision delta: LOCAL_DOCUMENTARY; vibecast.tv/root and existing-app guest exception RESOLVED. Receiver16 PUBLIC_WEB_DELIVERY SELECTED/QUEUED after this delta delivery/Finalization and fresh own admission; executor ACK pending. API rendezvous/Core/Apple/guest integration separately Planned; full onboarding and hardware OPEN. Final reaction/rocket and technical choices OPEN. No runtime/deploy by this docs writer.
 
 Generated from djconnect-platform-v1.json, maintenance DJC-DJ-PRESENCE-ROADMAP-DESIGN-V1-20261011.
 
@@ -39,3 +39,5 @@ Core shared renderer → VibeCast: actual authorized varied Broadcast traces on 
 Core + Apple owning receipts → joint product acceptance, no extra writerlane. Physical/native/installed effects stay separately qualified.
 
 WEB #1174 → existing Core1101/Apple87/receiver10: canonical experience, guest trust, temporary app isolation; source and Finalization pins separately required. Existing API owner proposed for temporary bootstrap only. No new runtime pickup.
+
+Decision delta -> receiver10/16, Core1101, Apple87, API90: exact new design/DAG source+Finalization pin. Receiver16 may autonomously perform fresh lane admission after own earlier closure, no new general start permission. API/Core/Apple producers not selected by this handoff.

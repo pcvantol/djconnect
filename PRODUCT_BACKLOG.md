@@ -1,5 +1,35 @@
 # DJConnect Product Backlog
 
+## Selected VibeCast decisions delta and receiver slice1
+
+[DJC-VIBECAST-WEB-FIRST-DECISIONS-DELTA-V1-20261015](https://github.com/pcvantol/djconnect/issues/1174#issuecomment-6201605985)
+updates [canonical designs](docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md) and
+[entry/distribution/Cast lifecycle](docs/product/VIBECAST_WEB_ENTRY_DISTRIBUTION_V1.md).
+Resolved: vibecast.tv/root (owner-reported purchase, no DNS/TLS PASS) and existing-app
+guest exception; both pairing-screen and paired-main discovery/QR entries,
+isolated temporary mode and safe home return. Glass/Soft/Solid preserve content,
+rights and functions. 🤩 preference replaces 🤯; 🚀 extra/alternative and final
+set/count/labels remain OPEN. Historical1175/1176 evidence stays exact.
+
+[Receiver#16](https://github.com/pcvantol/djconnect-vibecast-receiver/issues/16),
+DJC-VIBECAST-TV-BOOTSTRAP-CLOUDFLARE-V1-20261015, is SELECTED/QUEUED for existing
+WEB::DISTRIBUTION's PUBLIC_WEB_DELIVERY subset and conditionally selected
+receiver-owned RENDEZVOUS_INTEGRATION adapter once exact TRUST/API contracts exist. It is real frontend/build/CI/CD/
+controlled Pages delivery, with an honest service-unavailable state until exact
+rendezvous exists; not fake QR or full onboarding PASS. Its admission requires this
+new delta's actual protected delivery/Finalization pin and own earlier WIP closure;
+then the existing receiver writer autonomously picks it up after fresh admission,
+without another general start question. No executor ACK/start is claimed here.
+
+API WEB::BOOTSTRAP/TRUST, Core DISPLAY/SHARED/GUEST and Apple OWNER-SCANNER/APP/
+DISCOVERY integration retain separate gates. Original API bootstrap incoming edge binds RENDEZVOUS_INTEGRATION; browser
+incoming edge binds FULL_SHARED_GUEST_ACCEPTANCE. Core display/Apple scanner
+bind full APPLE_HA_ONBOARDING_E2E, not public build or service-adapter work.
+No optional Cast hardware prerequisite. Existing Core runtime/Speech/passive/
+maintenance and Apple/Watch/receiver WIP remain intact; no release reorder or
+extra runtimewriter. This Core delta changes docs/DAG and necessary docsgates only,
+never runtime/Swift/CI-config/DNS/deployment. Separate exact publication gates apply.
+
 ## Maintenance: Profile-bound playback DEBUG500 repaired
 
 [Source1178](https://github.com/pcvantol/djconnect/pull/1178) delivered at `fe8c66a120a44faaeb49432729359e6a2055194e`; [source/artifact/installed HA-dev proof](docs/verification/PLAYBACK_DEBUG_PROFILE_CONTEXT_SOURCE_READBACK_20261015.md). Diagnostic logging alone uses existing request metadata; normal Profile/provider authority/errors remain unchanged. Existing iPad identity now returns status/queue/playlists200/success after verified backup/restart; pairing/Profile unchanged,164files0mismatch. Physical Apple/native and HA-prod remain separate. No new product node/family or product implementation promoted; original WEB/historical receipts preserved. Separate exact Finalization remains pending before this maintenance scope closes. Speech source1177/533 remains separate and must integrate this newer main before renewed delivery qualification.
@@ -22,9 +52,8 @@ Future gated sequence: disposition + trust → bootstrap/display/shared grants;
 guest authority → browser/app join; shared projection + authority → reactions/chat;
 aggregate + host policy → bounded DJ influence; exact request dialogue +
 Planner/effect policy → real enqueue/observed-playback announcement. Shared art,
-Forecast and speech need separate audience grants/consumer acceptance. Final
-short URL, unspecified exception, five emoji and implementation details remain
-OPEN. No runtime/deployment/domain registration is delivered by this assignment.
+Forecast and speech need separate audience grants/consumer acceptance. The later decisions delta above resolves the domain/root and app exception.
+Final reaction set/count/labels/rocket and genuine implementation details remain OPEN. No runtime/deployment/domain registration is delivered by this assignment.
 
 ## Session artwork — Core producer delivered; separate Finalization pending
 
