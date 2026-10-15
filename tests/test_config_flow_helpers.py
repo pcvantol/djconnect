@@ -1322,6 +1322,29 @@ class ConfigFlowHelperTest(unittest.TestCase):
         self.assertEqual(self.config_flow._ha_device_language(nl_hass), "nl")
         self.assertEqual(self.config_flow._ha_device_language(en_hass), "en")
 
+    def test_translated_choices_are_wired_into_form_builders(self) -> None:
+        for language, default, none, stable in (
+            ("nl-NL", "Standaard", "Geen", "Stabiel"),
+            ("de-DE", "Standard", "Keine", "Stabil"),
+            ("fr-FR", "Par défaut", "Aucun", "Stable"),
+            ("es-ES", "Predeterminado", "Ninguno", "Estable"),
+            ("en-US", "Default", "None", "Stable"),
+        ):
+            hass = types.SimpleNamespace(config=types.SimpleNamespace(language=language), states=None)
+            with self.subTest(language=language):
+                self.assertEqual(self.config_flow._entity_options(hass, "media_player")[""], default)
+                self.assertEqual(asyncio.run(self.config_flow._assist_pipeline_options(hass))[""], default)
+                self.assertEqual(self.config_flow.announcement_speaker_options(hass)[""], none)
+                firmware = self.config_flow._firmware_channel_selector(hass)
+                options = {item["value"]: item["label"] for item in firmware.config.kwargs["options"]}
+                self.assertEqual(set(options), {"stable", "beta"})
+                self.assertEqual(options["stable"], stable)
+                setup = self.config_flow._setup_method_names(hass)
+                self.assertEqual(set(setup), set(self.config_flow._setup_method_names(None)))
+                if not language.startswith("en"):
+                    self.assertNotEqual(self.config_flow._options_action_names(hass), self.config_flow._options_action_names(None))
+                    self.assertNotEqual(self.config_flow._ble_action_names(hass), self.config_flow._ble_action_names(None))
+
     def test_setup_method_labels_follow_ha_language(self) -> None:
         nl_hass = types.SimpleNamespace(config=types.SimpleNamespace(language="nl-NL"))
         en_hass = types.SimpleNamespace(config=types.SimpleNamespace(language="en-US"))

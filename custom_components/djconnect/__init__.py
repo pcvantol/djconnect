@@ -1805,8 +1805,11 @@ def register_http_views(hass: HomeAssistant) -> None:
     hass.data.setdefault(DOMAIN, {})
     if not hass.data[DOMAIN].get("http_registered"):
         from .paired_live import DJConnectPairedLiveView
+        from .hybrid_transport import HybridActionsView, HybridContextView, HybridOperationView, HybridOperationStatusView, HybridRecoveryView
 
         for view in [
+            HybridActionsView(hass), HybridContextView(hass), HybridOperationView(hass),
+            HybridOperationStatusView(hass), HybridRecoveryView(hass),
             DJConnectPairedLiveView(hass),
             DJConnectVoiceView(hass),
             DJConnectAskDjView(hass),
@@ -3339,6 +3342,11 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         if runtime and runtime.entry.entry_id == entry.entry_id:
             hass.data[DOMAIN].pop("runtime", None)
         if not _has_runtime_entries(hass):
+            transport_manager = hass.data[DOMAIN].pop("hybrid_operation_manager", None)
+            if transport_manager is not None:
+                # Stop bounded task/GC ownership on final unload. Retain only
+                # compact unexpired dedup fences; never clear them into replay.
+                await transport_manager.close()
             if retired or entry.entry_id in hass.data[DOMAIN].get(_ENTRY_RELOAD_PRESERVE_KEY, set()):
                 handoff_manager = hass.data[DOMAIN].pop("broadcast_handoff_manager", None)
                 if handoff_manager is not None:

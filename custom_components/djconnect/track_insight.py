@@ -320,6 +320,9 @@ class TrackInsightService:
                 request = replace(request,qualified_context={},commit_guard=commit_guard)
                 track["_detail_context"] = "unmeasured-owner-v1"
                 track["_owner_scope"] = owner_profile_id
+        if request.commit_guard is not None:
+            from .transport_delivery import register_delivery_admission
+            register_delivery_admission(request.commit_guard)
         track["_visual_variant"] = "visual-v1:"+str(request.include_visual_profile)
         track["_detail_source"] = "full" if request.source != "session_moment" else "session_narrative"
 

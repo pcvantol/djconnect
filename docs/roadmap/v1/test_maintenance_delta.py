@@ -37,6 +37,8 @@ class MaintenanceTests(unittest.TestCase):
         import json
 
         d = self.p["planning_maintenance"]
+        if d["schema_version"] == "djconnect-federated-planning-delta/10":
+            d = json.loads((ROOT / d["hybrid_receipt"]["previous_delta"]).read_text())
         if d["schema_version"] == "djconnect-federated-planning-delta/9":
             d = json.loads((ROOT / d["dialogue_receipt"]["previous_delta"]).read_text())
         if d["schema_version"] == "djconnect-federated-planning-delta/8":
@@ -127,6 +129,10 @@ class MaintenanceTests(unittest.TestCase):
                     else ("In progress", "IN_PROGRESS")
                 )
                 self.assertEqual((n["status"], n["assignment_status"]), expected)
+            elif n["id"].startswith("TRANSPORT::CORE::"):
+                delivered = d["hybrid_receipt"]["source_delivery"] == "PROTECTED_MERGED"
+                self.assertEqual((n["status"], n["assignment_status"]),
+                                 ("Completed", "CORE_DELIVERED") if delivered else ("In progress", "IN_PROGRESS"))
             elif n["id"] in {"CONVERSATION::CORE::SHARED-DIALOGUE", "INSIGHT::CORE::MOMENT-DRILLDOWN"}:
                 delivered = d["dialogue_receipt"]["source_delivery"] == "PROTECTED_MERGED"
                 self.assertEqual((n["status"], n["assignment_status"]), ("Completed", "CORE_DELIVERED") if delivered else ("In progress", "IN_PROGRESS"))
@@ -392,6 +398,10 @@ class AmbientMaintenanceTests(unittest.TestCase):
 class DialogueMaintenanceTests(unittest.TestCase):
     def setUp(self):
         self.p = load(ROOT / "djconnect-platform-v1.json")
+        if self.p["planning_maintenance"]["schema_version"] == "djconnect-federated-planning-delta/10":
+            import json
+            path = self.p["planning_maintenance"]["hybrid_receipt"]["previous_delta"]
+            self.p["planning_maintenance"] = json.loads((ROOT / path).read_text())
 
     def test_dialogue_v9_preserves_v8_and_has_only_one_core_admission(self):
         import json
@@ -437,3 +447,80 @@ class DialogueMaintenanceTests(unittest.TestCase):
             p = copy.deepcopy(self.p)
             p["planning_maintenance"]["dialogue_receipt"]["consumer_reconciliation"][key] = value
             self.assertTrue(validate(p))
+
+
+class HybridMaintenanceTests(unittest.TestCase):
+    def setUp(self):
+        self.p = load(ROOT / "djconnect-platform-v1.json")
+
+    def test_hybrid_preserves_complete_previous_snapshot_and_delta(self):
+        import json
+
+        d = self.p["planning_maintenance"]
+        r = d["hybrid_receipt"]
+        prior = (ROOT / r["previous_delta"]).read_bytes()
+        snapshot = (ROOT / r["previous_snapshot"]).read_bytes()
+        self.assertEqual(hashlib.sha256(prior).hexdigest(), r["previous_delta_sha256"])
+        self.assertEqual(hashlib.sha256(snapshot).hexdigest(), r["previous_snapshot_sha256"])
+        previous = json.loads(prior)
+        self.assertEqual(json.loads(snapshot)["planning_maintenance"], previous)
+        for key in previous.keys() - {"schema_version", "nodes", "edges", "document_references"}:
+            self.assertEqual(d[key], previous[key], key)
+        self.assertEqual(d["nodes"][: len(previous["nodes"])], previous["nodes"])
+        self.assertEqual(d["edges"][: len(previous["edges"])], previous["edges"])
+        self.assertEqual(len(d["nodes"]) - len(previous["nodes"]), 5)
+        self.assertEqual(len(d["edges"]) - len(previous["edges"]), 5)
+        old = copy.deepcopy(self.p)
+        old["planning_maintenance"] = previous
+        self.assertEqual(validate(old), [])
+
+    def test_hybrid_missing_admission_or_fabricated_acceptance_is_rejected(self):
+        for key, value in [
+            ("assignment_id", "wrong"),
+            ("ack", 1),
+            ("base_sha", "0" * 40),
+            ("native", "PASS"),
+            ("installed", "PASS"),
+            ("consumer_writes", True),
+            ("family_acceptance", "Completed"),
+            ("previous_delta_sha256", ""),
+            ("phase", "COMPLETED"),
+            ("source_delivery", "PROTECTED_MERGED"),
+        ]:
+            p = copy.deepcopy(self.p)
+            p["planning_maintenance"]["hybrid_receipt"][key] = value
+            self.assertTrue(validate(p), (key, value))
+
+    def test_hybrid_duplicate_or_unadmitted_consumer_nodes_are_rejected(self):
+        p = copy.deepcopy(self.p)
+        d = p["planning_maintenance"]
+        d["nodes"].append(copy.deepcopy(d["nodes"][-1]))
+        self.assertTrue(validate(p))
+        p = copy.deepcopy(self.p)
+        d = p["planning_maintenance"]
+        next(n for n in d["nodes"] if n["id"] == "TRANSPORT::APPLE::HYBRID").update(
+            status="In progress", assignment_status="IN_PROGRESS"
+        )
+        self.assertTrue(validate(p))
+
+    def test_hybrid_cycle_and_unrelated_prerequisite_are_rejected(self):
+        p = copy.deepcopy(self.p)
+        d = p["planning_maintenance"]
+        edge = next(e for e in d["edges"] if e["id"] == "HYBRID-1")
+        edge["producer"] = "TRANSPORT::JOINT::HYBRID"
+        self.assertTrue(validate(p))
+        p = copy.deepcopy(self.p)
+        d = p["planning_maintenance"]
+        next(n for n in d["nodes"] if n["id"] == "TRANSPORT::CORE::CONTRACT")[
+            "parent_reference"
+        ] = "PROJ::ROADMAP::INTERACTIVE"
+        self.assertTrue(validate(p))
+
+    def test_hybrid_unproved_protected_delivery_is_rejected(self):
+        p = copy.deepcopy(self.p)
+        p["planning_maintenance"]["hybrid_receipt"].update(
+            phase="SOURCE_PROTECTED_MERGED",
+            source_delivery="PROTECTED_MERGED",
+            protected_merge=False,
+        )
+        self.assertTrue(validate(p))

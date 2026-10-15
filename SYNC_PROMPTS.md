@@ -1,3 +1,15 @@
+# Current bounded hybrid transport design
+
+DJC-CORE-HYBRID-TRANSPORT-CONVERGENCE-V1-20261013 is admitted after1168/1169
+closure on9efd1977. Read docs/product/HYBRID_HTTP_WEBSOCKET_TRANSPORT_V1.md and
+TRANSPORT_OPERATION_RECOVERY_CONTRACT_V1.md before transport changes. New routes
+were designed first and are now connected under additive hybrid_transport v1
+metadata; protected publication and consumer adoption remain separate gates.
+Earlier blanket WS-error→HTTP-retry
+instructions below are superseded: only qualified pre-send/read fallback is safe;
+after-send ambiguity and auth/Profile rejection must not replay mutations.
+Apple adoption is a separate existing-writer workpackage, not Core Swift work.
+
 ## Delivered Core Cast status pin — 2026-10-10
 
 Source PR#1138 protected merge c41b6079ed54eb40b0027a6666b0f784bb48f703 equals
@@ -170,8 +182,11 @@ and `<3.3.0`.
   `djconnect/track_insight` only when advertised. Payloads reuse the matching
   HTTP contracts and still include the DJConnect `device_token`, `device_id`
   and canonical `client_type`; HTTP remains canonical fallback for remote
-  access, pairing, history clear/sync, voice uploads, image/TTS URLs and every
-  websocket timeout/error/disconnect.
+  access, pairing, history clear/sync, voice uploads and image/TTS URLs.
+  Historical blanket retry after every WebSocket error is superseded: only
+  qualified pre-send failures/repeatable reads permit fallback. After-send
+  ambiguity requires the original operation identity/reconciliation; auth or
+  Profile rejection is terminal across transports.
 
 3.2 backend abstraction contract:
 

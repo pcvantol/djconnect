@@ -3,6 +3,19 @@
 This document summarizes the client-facing DJConnect Home Assistant API contract.
 It is intentionally compact; `README.md` remains the full user/developer guide.
 
+## Additive hybrid transport v1
+
+The [hybrid contract](docs/product/HYBRID_HTTP_WEBSOCKET_TRANSPORT_V1.md) and
+[operation policy](docs/product/TRANSPORT_OPERATION_RECOVERY_CONTRACT_V1.md)
+define TLS-only `/api/djconnect/v1/actions/paired` with the separate
+`paired_owner_actions` audience, owner HTTP context/operation/status and bounded
+Broadcast recovery. Capability `hybrid_transport` and contract version1 are
+additive. Existing paired Broadcast v1 remains subscribe/recover; native HA
+`/api/websocket` requires its own HA authority. There is no credential issuer.
+Normal pairing remains required; no discovery response or Wi-Fi hint authorizes
+secret release, cross-origin redirect or an after-send mutation retry.
+First response content and compact outcome receipts have separate validity.
+
 ## Client Identity
 
 Pairing, status, command, Ask DJ and voice requests use canonical
@@ -206,6 +219,12 @@ Stale backend-specific actions return:
 ```
 
 ## Local WebSocket Fast Path
+
+The following native HA-authenticated adapter is retained compatibility. Ordinary
+paired Apple action transport is being qualified separately under
+`docs/product/HYBRID_HTTP_WEBSOCKET_TRANSPORT_V1.md`; no HA token issuer exists.
+Do not apply historical blanket HTTP retry guidance to uncertain mutations. New
+routes remain unadvertised until connected implementation and qualification.
 
 Local app clients may use Home Assistant's native websocket API as an optional
 low-latency transport for DJConnect commands. This is a fast path for local
@@ -441,10 +460,13 @@ Music DNA import/export is intentionally HTTP-only; clients should not expect
 `djconnect/music_dna/export` or `djconnect/music_dna/import` websocket commands
 in capabilities.
 
-Clients should treat websocket failures as transport failures, not pairing
-failures. On disconnect, auth error, HA websocket error, DJConnect websocket
-capability miss, timeout or protocol mismatch, immediately retry the user action
-through HTTP and reconnect the websocket later with backoff. Suggested client
+Superseded unsafe retry guidance: a WebSocket failure is not proof that an
+operation did not execute. Do not automatically replay an action through HTTP
+on disconnect, timeout, cancellation or authoritative auth/Profile rejection.
+Only a qualified pre-send failure or repeatable read permits route fallback;
+uncertain mutations require the original operation identity and receipt policy.
+See `docs/product/TRANSPORT_OPERATION_RECOVERY_CONTRACT_V1.md`. Reconnect with
+bounded backoff; a different transport never bypasses an authoritative denial. Suggested client
 timeouts are about 2 seconds for short playback controls, 5 seconds for
 status/list requests and the existing longer Ask DJ/action timeout for commands
 that already wait on backend work. Never log HA auth tokens, DJConnect device

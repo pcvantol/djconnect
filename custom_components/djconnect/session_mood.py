@@ -162,6 +162,14 @@ async def async_handle_owner_setting(hass, data, *, headers=None, setting):
         )
     if active is None:
         return error("active_session_not_found", 404)
+    accepted_revision = getattr(active, revision_key)
+    def delivery_guard():
+        current = manager.current_active(profile_id)
+        if (not owner_is_current() or current is None or current.session_id != active.session_id
+                or getattr(current, revision_key) != accepted_revision):
+            raise PermissionError("setting_result_withdrawn")
+    from .transport_delivery import register_delivery_admission
+    register_delivery_admission(delivery_guard)
     return {
         "success": True,
         "contract_version": VERSION,

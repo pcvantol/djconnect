@@ -2981,6 +2981,7 @@ class DJConnectTransportCapabilitiesView(HomeAssistantView):
 
     async def get(self, request):
         from .capability_contract import _platform_capabilities, _contract_versions
+        from .hybrid_contract import hybrid_transport_capability
         from .session_mood import capability as mood_capability
         from .session_presence import capability as presence_capability
         from .session_forecast import capability as forecast_capability
@@ -2996,6 +2997,7 @@ class DJConnectTransportCapabilitiesView(HomeAssistantView):
                 "active_session_mood": mood_capability(),
                 "active_session_presence": presence_capability(),
                 "session_forecast": forecast_capability(),
+                "hybrid_transport": hybrid_transport_capability(),
             }
         )
 

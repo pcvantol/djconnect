@@ -1,5 +1,44 @@
 # DJConnect Product Roadmap
 
+## Hybrid transport convergence — active bounded Core implementation
+
+`DJC-CORE-HYBRID-TRANSPORT-CONVERGENCE-V1-20261013` is admitted after
+[#1168](https://github.com/pcvantol/djconnect/pull/1168)/
+[#1169](https://github.com/pcvantol/djconnect/pull/1169) closed at exact main
+`9efd1977768d2574b66c16de9c5d8ba53e9157b1` with verified internal artifact,
+formal evidence and safe own cleanup. The older prepared-Finalization statements
+below are historical checkpoints, not current predecessor gates.
+
+The [hybrid contract](docs/product/HYBRID_HTTP_WEBSOCKET_TRANSPORT_V1.md) and
+[operation recovery contract](docs/product/TRANSPORT_OPERATION_RECOVERY_CONTRACT_V1.md)
+precede connected implementation. Paired TLS actions and HTTP operations use
+one journal and existing domain owners; original Ask DJ/Track Insight delivery
+guards prevent a queued result from extending its source rights. HTTP owner
+recovery reuses Runtime/Broadcast without a second timeline or subscription.
+
+The current isolated HA/TLS software qualification has 54 actual transport
+cases, four deliberate provider effects and zero retry effects/model calls;
+24 journal/service owning units and the full 1,914-test regression suite pass
+(seven existing skips). The production 300-second lease, auth deadline,
+no-pong/source/token withdrawal, out-of-order replies, socket replacement and
+oversized admitted-result fallback are exercised. Exact final candidate
+consolidation/review remains required before source publication.
+[Acceptance and actual pinned fixtures](docs/verification/HYBRID_TRANSPORT_V1_ACCEPTANCE_MATRIX.md)
+retain the distinction from native/installed acceptance. The
+[early Apple handoff](https://github.com/pcvantol/djconnect-app/issues/87#issuecomment-6185756317)
+and [explicit adoption/test handoff](https://github.com/pcvantol/djconnect-app/issues/87#issuecomment-6186713492)
+preserve Apple ownership; no Swift writes or consumer admission. The separate
+[owner-requested localization correction](docs/verification/INTEGRATION_UX_LOCALIZATION_20261015.md)
+adds five-language action/field/Repair labels without product behavior changes.
+
+Living JSON maintenance v10 adds only the missing bounded transport contract,
+recovery, paired producer, Apple adoption and joint leaves under existing
+`PROJ::ROADMAP::CONNECTIVITY`; source remains unpublished/In progress, Apple
+and joint Planned/open, whole capability PARTIAL. Historical v9 delta and full
+snapshot are retained; generated dependency/lane/open-work/diagram views derive
+from JSON. No new provider, cost route, installation, workflow or runner change.
+Artwork remains queued separately until this assignment closes.
+
 ## Current-artist/Profile-label correction — Core source delivered
 
 Finding6175876899/ACK6176184085 within the existing shared Ask DJ family is delivered

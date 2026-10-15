@@ -78,7 +78,8 @@
     "active_session_mood": true,
     "active_session_presence": true,
     "session_forecast": true,
-    "session_history_summary": true
+    "session_history_summary": true,
+    "hybrid_transport": true
   },
   "contract_versions": {
     "profile_context": 1,
@@ -90,10 +91,50 @@
     "active_session_mood": 1,
     "active_session_presence": 1,
     "session_forecast": 1,
-    "session_history_summary": 1
+    "session_history_summary": 1,
+    "hybrid_transport": 1
   },
   "transports": {
     "http": true,
     "websocket": true
+  },
+  "hybrid_transport": {
+    "available": true,
+    "version": 1,
+    "requires_authenticated_tls": true,
+    "client_types": [
+      "ios",
+      "macos",
+      "watchos"
+    ],
+    "audience": "paired_owner_actions",
+    "path": "/api/djconnect/v1/actions/paired",
+    "auth": "paired_device_first_frame",
+    "ha_credentials_issued": false,
+    "commands": [
+      "djconnect/read",
+      "djconnect/operation/execute",
+      "djconnect/operation/status"
+    ],
+    "context_path": "/api/djconnect/v1/transport/context",
+    "operation_path": "/api/djconnect/v1/transport/operation",
+    "status_path": "/api/djconnect/v1/transport/operation/status",
+    "recovery_path": "/api/djconnect/v1/session/broadcast/recovery",
+    "lease_seconds": 300,
+    "auth_timeout_seconds": 5,
+    "revocation_check_seconds": 1,
+    "heartbeat_seconds": 15,
+    "frame_bytes": 65536,
+    "pending_limit": 8,
+    "outgoing_queue_limit": 64,
+    "connection_request_limit": 256,
+    "connection_limit": 16,
+    "paired_device_connection_limit": 2,
+    "operation_identity": "uuidv7",
+    "operation_lifetime_ms": 300000,
+    "after_send_retry": "reconcile_original_operation_only",
+    "cross_origin_redirects": "forbidden",
+    "browser_origin": "same_https_origin_only",
+    "native_adoption": "separate_consumer_qualification"
   }
 }

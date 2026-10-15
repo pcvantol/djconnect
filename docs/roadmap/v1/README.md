@@ -20,6 +20,8 @@ Selected one-pipeline Ask DJ + exact Moment Track Insight: [DJC-CORE-ASKDJ-CONTE
 
 Existing Apple Presence execution: In progress ([owning readback](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6168870771)); native Mac/installed acceptance and protected Apple delivery remain open. This observation updates no historical planning node and grants no Core/consumer admission. Installed Presence advertisement is absent in the owner readback; completed Core policy remains closed. Dialogue adoption and intra-track visibility remain distinct open joint findings.
 
+Selected bounded Hybrid transport: [DJC-CORE-HYBRID-TRANSPORT-CONVERGENCE-V1-20261013](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6149934177); source UNPUBLISHED. Existing connectivity parent retained; protocol, journal/recovery and paired actions share current Core owners. Apple adoption and joint/native transitions remain Planned/open; no consumer writes, installation or automatic dispatch. Current-artist1168/1169 closed before admission; version9 and its whole snapshot are preserved byte-for-byte.
+
 [Owner decision](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6110375785); documentary design date 2026-10-11.
 
 Joint presence acceptance remains Planned; delivered Core policy remains closed. Mood, Persona and presence are independent. Corepolicy + Applecontrol + local/static VibeCast receipts form joint acceptance. Richer narrative is later, not a v1 gate.

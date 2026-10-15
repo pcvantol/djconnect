@@ -291,6 +291,13 @@ async def async_handle_session_start_payload(
                 )
             ),
         )
+    def delivery_guard():
+        _conversation_profile_fence(hass, runtime, identity_payload(data), headers or {}, context)
+        current = session_runtime_manager(hass).current_active(context.profile_id)
+        if current is None or current.session_id != session.session_id:
+            raise PermissionError("session_result_withdrawn")
+    from .transport_delivery import register_delivery_admission
+    register_delivery_admission(delivery_guard)
     return {"success": True, "session": (active or session).as_dict()}, 201
 
 
@@ -410,6 +417,9 @@ async def async_handle_session_end_payload(
     await playback_observation_manager(hass).async_stop(
         context.profile_id, session.session_id
     )
+    from .transport_delivery import register_delivery_admission
+    register_delivery_admission(lambda: _conversation_profile_fence(
+        hass, runtime, identity_payload(data), headers or {}, context))
     return {"success": True, "session": session.as_dict()}, 200
 
 
@@ -502,6 +512,26 @@ async def async_handle_session_broadcast_snapshot_payload(
         hass, data, headers=headers, user_id=user_id
     )
     return result, status
+
+
+async def async_handle_session_broadcast_recovery_read_payload(
+    hass: Any, data: dict[str, Any], *, headers: Any | None = None, user_id: str | None = None,
+) -> tuple[dict[str, Any], int]:
+    """Pure bounded owner HTTP/WS recovery through the existing Broadcast owner."""
+    context, status, manager, profile_id = await _async_owner_broadcast_session_context(
+        hass, data, headers=headers, user_id=user_id, source="session_broadcast_http_recovery")
+    if manager is None or profile_id is None:
+        return context, status
+    cursor = data.get("recovery_cursor")
+    if not isinstance(cursor, str) or not cursor:
+        return _error_payload("invalid_recovery_cursor"), 400
+    recovered = await manager.async_recover_owner_projection(
+        owner_profile_id=profile_id, session_id=context["session_id"], recovery_cursor=cursor,
+        authorization_entry_id=context.get("_owner_entry_id", ""),
+        authorization_entry_generation=context.get("_owner_entry_generation", 0))
+    if recovered is None:
+        return _error_payload("active_session_not_found"), 404
+    return {"success": True, "session_id": context["session_id"], **recovered}, 200
 
 
 async def async_handle_session_broadcast_subscribe_payload(

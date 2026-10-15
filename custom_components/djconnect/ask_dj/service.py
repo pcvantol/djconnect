@@ -133,6 +133,8 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
             # The original caller's fence does not authorize another joined
             # transport whose pairing/entry may have been withdrawn meanwhile.
             await admission(owner=validate_owner, immediate=validate_immediate)
+            from ..transport_delivery import register_delivery_admission
+            register_delivery_admission(lambda: admission(owner=validate_owner, immediate=validate_immediate))
             return result
         if intent.intent == "current_artist_information":
             # Even a subsequently rejected read is not consent to retry older music.
@@ -235,6 +237,9 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
                     raise DialogueError("choice_expired")
                 if frame.result_set is not accepted_offer:
                     raise DialogueError("choice_changed")
+
+        from ..transport_delivery import register_delivery_admission
+        register_delivery_admission(lambda: joined_admission(owner=validate_owner, immediate=validate_immediate))
 
         turn.effect_grants = request_effect_grants(text, intent)
         token = current_turn.set(turn)

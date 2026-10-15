@@ -202,6 +202,8 @@ current_turn: ContextVar[DialogueTurn | None] = ContextVar("djconnect_dialogue_t
 
 async def guard_effect_dispatch(*, method=None, path=None, body=None, service=None, target=None, data=None) -> None:
     """Revalidate after adapter awaits, immediately before each effect dispatch."""
+    from ..hybrid_service import guard_transport_effect, validate_transport_effect_now
+    await guard_transport_effect()
     turn = current_turn.get()
     if turn is not None:
         await turn.guard()
@@ -245,6 +247,7 @@ async def guard_effect_dispatch(*, method=None, path=None, body=None, service=No
             await turn.before_effect()
         else:
             await turn.guard()
+    validate_transport_effect_now()
 
 
 class DialogueState:

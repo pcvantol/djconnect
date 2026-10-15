@@ -128,6 +128,7 @@ from .pairing_defaults import (
 from .ha_urls import async_ha_local_url
 from .spotify_oauth import build_authorize_url, build_redirect_uri, create_code_verifier
 from .voice_profiles import normalize_voice_profile, voice_profile_options
+from .flow_labels import flow_label
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -170,60 +171,21 @@ APP_PAIR_CODE_DIGITS = 6
 APP_PAIRING_PENDING_KEY = "config_flow_app_pairing_pending"
 BLE_DISCOVERY_TIMEOUT = 5
 BLE_PROVISION_TIMEOUT = 25
-SETUP_METHOD_NAMES_EN = {
-    SETUP_METHOD_CONVERSATION_AGENT: (
-        "DJConnect DJ Assist-agent\n"
-        "For Home Assistant Assist satellites"
-    ),
-    SETUP_METHOD_PAIR_LOCAL_DEVICE: (
-        "Pair DJConnect device ESP32 or Raspberry Pi"
-    ),
-    SETUP_METHOD_PAIR_APP: (
-        "Pair DJConnect app\n"
-        "iPhone/iPad, Apple Watch or macOS"
-    ),
-    SETUP_METHOD_BLE_WIFI: "Configure ESP32 device WiFi (over Bluetooth)",
-}
-SETUP_METHOD_NAMES_NL = {
-    SETUP_METHOD_CONVERSATION_AGENT: (
-        "DJConnect DJ Assist-agent\n"
-        "Voor Home Assistant Assist-satellites"
-    ),
-    SETUP_METHOD_PAIR_LOCAL_DEVICE: (
-        "DJConnect apparaat koppelen ESP32 of Raspberry Pi"
-    ),
-    SETUP_METHOD_PAIR_APP: (
-        "DJConnect app koppelen\n"
-        "iPhone/iPad, Apple Watch of macOS"
-    ),
-    SETUP_METHOD_BLE_WIFI: "ESP32 apparaat WiFi configureren (via Bluetooth)",
-}
-BLE_ACTION_NAMES_EN = {
-    BLE_ACTION_PROVISION: "Write WiFi over Bluetooth",
-    BLE_ACTION_RETRY_SCAN: "Rescan Bluetooth devices",
-    BLE_ACTION_CONTINUE_PAIRING: "Continue to pairing",
-}
-BLE_ACTION_NAMES_NL = {
-    BLE_ACTION_PROVISION: "WiFi via Bluetooth schrijven",
-    BLE_ACTION_RETRY_SCAN: "Bluetooth apparaten opnieuw scannen",
-    BLE_ACTION_CONTINUE_PAIRING: "Doorgaan naar koppelen",
-}
-OPTIONS_ACTION_NAMES_EN = {
-    OPTIONS_ACTION_SAVE: "Save settings",
-    OPTIONS_ACTION_PROFILE_PLATFORM: "Manage profiles",
-    OPTIONS_ACTION_SPOTIFY_REAUTH: "Reauthorize Spotify",
-    OPTIONS_ACTION_CHANGE_MUSIC_BACKEND: "Change music backend",
-    OPTIONS_ACTION_RETRY_PAIRING: "Retry pairing with current code",
-    OPTIONS_ACTION_REPAIR: "Re-pair with new pairing code",
-}
-OPTIONS_ACTION_NAMES_NL = {
-    OPTIONS_ACTION_SAVE: "Instellingen opslaan",
-    OPTIONS_ACTION_PROFILE_PLATFORM: "Profielen beheren",
-    OPTIONS_ACTION_SPOTIFY_REAUTH: "Spotify opnieuw autoriseren",
-    OPTIONS_ACTION_CHANGE_MUSIC_BACKEND: "Muziekbackend wijzigen",
-    OPTIONS_ACTION_RETRY_PAIRING: "Koppelen opnieuw proberen met huidige code",
-    OPTIONS_ACTION_REPAIR: "Opnieuw koppelen met nieuwe koppelcode",
-}
+BLE_ACTION_KEYS = (
+    BLE_ACTION_PROVISION,
+    BLE_ACTION_RETRY_SCAN,
+    BLE_ACTION_CONTINUE_PAIRING,
+)
+
+OPTIONS_ACTION_KEYS = (
+    OPTIONS_ACTION_SAVE,
+    OPTIONS_ACTION_PROFILE_PLATFORM,
+    OPTIONS_ACTION_SPOTIFY_REAUTH,
+    OPTIONS_ACTION_CHANGE_MUSIC_BACKEND,
+    OPTIONS_ACTION_RETRY_PAIRING,
+    OPTIONS_ACTION_REPAIR,
+)
+
 PROFILE_PLATFORM_ACTION_NAMES = {
     PROFILE_PLATFORM_ACTION_ADD_PROFILE: "Add profile",
     PROFILE_PLATFORM_ACTION_EDIT_PROFILE: "Edit profile",
@@ -300,20 +262,22 @@ def _ha_device_language(hass: Any) -> str:
 
 def _setup_method_names(hass: Any) -> dict[str, str]:
     """Return setup method labels in the current Home Assistant language."""
-    language = str(getattr(getattr(hass, "config", None), "language", "") or "").lower()
-    return SETUP_METHOD_NAMES_NL if language.startswith("nl") else SETUP_METHOD_NAMES_EN
+    return {
+        SETUP_METHOD_CONVERSATION_AGENT: flow_label(hass, "conversation_agent"),
+        SETUP_METHOD_PAIR_LOCAL_DEVICE: flow_label(hass, "pair_local"),
+        SETUP_METHOD_PAIR_APP: flow_label(hass, "pair_app"),
+        SETUP_METHOD_BLE_WIFI: flow_label(hass, "ble_wifi"),
+    }
 
 
 def _ble_action_names(hass: Any) -> dict[str, str]:
     """Return mutually exclusive BLE setup actions in the current HA language."""
-    language = str(getattr(getattr(hass, "config", None), "language", "") or "").lower()
-    return BLE_ACTION_NAMES_NL if language.startswith("nl") else BLE_ACTION_NAMES_EN
+    return {key: flow_label(hass, key) for key in BLE_ACTION_KEYS}
 
 
 def _options_action_names(hass: Any) -> dict[str, str]:
     """Return options flow actions in the current HA language."""
-    language = str(getattr(getattr(hass, "config", None), "language", "") or "").lower()
-    return OPTIONS_ACTION_NAMES_NL if language.startswith("nl") else OPTIONS_ACTION_NAMES_EN
+    return {key: flow_label(hass, key) for key in OPTIONS_ACTION_KEYS}
 
 
 def _ha_language(hass: Any) -> str:
@@ -548,7 +512,7 @@ def _entity_options(
     include_empty: bool = True,
 ) -> dict[str, str]:
     """Return HA entity IDs as dropdown options."""
-    options: dict[str, str] = {"": "Default"} if include_empty else {}
+    options: dict[str, str] = {"": flow_label(hass, "default")} if include_empty else {}
     states = getattr(hass, "states", None)
     if states and hasattr(states, "async_entity_ids"):
         try:
@@ -567,7 +531,7 @@ def _entity_options(
 
 def _ble_wifi_schema(devices: dict[str, str], hass: Any = None) -> dict[Any, Any]:
     """Build BLE WiFi provisioning fields with discovered devices when present."""
-    device_validator = vol.In({"": "Select device", **devices}) if devices else str
+    device_validator = vol.In({"": flow_label(hass, "select_device"), **devices}) if devices else str
     default_device = next(iter(devices), "") if len(devices) == 1 else ""
     return {
         vol.Required(BLE_ACTION_FIELD, default=BLE_ACTION_PROVISION): vol.In(
@@ -1133,7 +1097,7 @@ def _get_assist_pipeline(hass: Any, pipeline_id: str) -> Any | None:
 
 async def _assist_pipeline_options(hass: Any, current: Any = "") -> dict[str, str]:
     """Return Assist pipeline IDs as dropdown options."""
-    options = {"": "Default"}
+    options = {"": flow_label(hass, "default")}
     for pipeline in _get_assist_pipelines(hass):
         pipeline_id = getattr(pipeline, "id", "")
         if pipeline_id:
@@ -1174,7 +1138,7 @@ def _base_voice_schema(
             )
         ] = vol.In(options_actions)
     if readonly_local_url is not None:
-        label = readonly_local_url or "Not configured"
+        label = readonly_local_url or flow_label(hass, "not_configured")
         schema[vol.Optional(CONF_LOCAL_URL, default=readonly_local_url)] = vol.In(
             {readonly_local_url: label}
         )
@@ -1185,7 +1149,7 @@ def _base_voice_schema(
             default=defaults.get(CONF_DJ_ANNOUNCEMENT_SPEAKER, ""),
         ): vol.In(
             announcement_speaker_options(hass)
-            or {"": "None"}
+            or {"": flow_label(hass, "none")}
         ),
         vol.Optional(
             CONF_VOICE_PROFILE,
@@ -1202,11 +1166,11 @@ def _base_voice_schema(
                 CONF_FIRMWARE_CHANNEL,
                 default=defaults.get(CONF_FIRMWARE_CHANNEL, DEFAULT_FIRMWARE_CHANNEL),
             )
-        ] = _firmware_channel_selector()
+        ] = _firmware_channel_selector(hass)
     return schema
 
 
-def _firmware_channel_selector() -> Any:
+def _firmware_channel_selector(hass: Any = None) -> Any:
     """Return a labeled firmware channel selector when HA exposes selector helpers."""
     select_selector = getattr(selector, "SelectSelector", None)
     select_config = getattr(selector, "SelectSelectorConfig", None)
@@ -1215,8 +1179,8 @@ def _firmware_channel_selector() -> Any:
         return select_selector(
             select_config(
                 options=[
-                    select_option(value="stable", label="Stable"),
-                    select_option(value="beta", label="Beta"),
+                    select_option(value="stable", label=flow_label(hass, "stable")),
+                    select_option(value="beta", label=flow_label(hass, "beta")),
                 ]
             )
         )
@@ -1275,7 +1239,7 @@ def _conversation_agent_voice_schema(hass: Any, defaults: dict[str, Any]) -> vol
     )
 
 
-def _central_api_schema(current: dict[str, Any]) -> vol.Schema:
+def _central_api_schema(current: dict[str, Any], hass: Any = None) -> vol.Schema:
     """Build the central DJConnect API token options schema."""
     install_id = _central_api_install_id(current)
     token = str(current.get(CONF_DJCONNECT_INSTALL_TOKEN) or "").strip()
@@ -1288,8 +1252,8 @@ def _central_api_schema(current: dict[str, Any]) -> vol.Schema:
         vol.Optional(CONF_DJCONNECT_INSTALL_TOKEN, default=token): _password_selector(),
         vol.Optional(OPTIONS_ACTION_FIELD, default=OPTIONS_ACTION_SAVE): vol.In(
             {
-                OPTIONS_ACTION_SAVE: "Save token",
-                OPTIONS_ACTION_ROTATE_INSTALL_TOKEN: "Rotate token",
+                OPTIONS_ACTION_SAVE: flow_label(hass, "save_token"),
+                OPTIONS_ACTION_ROTATE_INSTALL_TOKEN: flow_label(hass, "rotate_token"),
             }
         ),
     }
@@ -3222,7 +3186,7 @@ class DJConnectOptionsFlow(config_entries.OptionsFlow):
 
         return self.async_show_form(
             step_id="central_api",
-            data_schema=_central_api_schema(current),
+            data_schema=_central_api_schema(current, self.hass),
             errors=errors,
         )
 

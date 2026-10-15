@@ -493,7 +493,7 @@ ask_dj:
           multiline: false
     client_type:
       name: Client type
-      description: DJConnect client type such as ios, macos, watchos, raspberry_pi or windows.
+      description: Supported DJConnect client type such as ios, macos, watchos or raspberry_pi. The Windows app is retired.
       required: false
       selector:
         text:
@@ -593,7 +593,7 @@ ask_dj_message:
           multiline: false
     client_type:
       name: Client type
-      description: DJConnect client type such as ios, macos, watchos, raspberry_pi or windows.
+      description: Supported DJConnect client type such as ios, macos, watchos or raspberry_pi. The Windows app is retired.
       required: false
       selector:
         text:
@@ -642,7 +642,7 @@ ask_dj_idle_suggestion:
           multiline: false
     client_type:
       name: Client type
-      description: DJConnect client type such as ios, macos, watchos, raspberry_pi or windows.
+      description: Supported DJConnect client type such as ios, macos, watchos or raspberry_pi. The Windows app is retired.
       required: false
       selector:
         text:
@@ -673,7 +673,7 @@ ask_dj_history:
           multiline: false
     client_type:
       name: Client type
-      description: DJConnect client type such as ios, macos, watchos, raspberry_pi or windows.
+      description: Supported DJConnect client type such as ios, macos, watchos or raspberry_pi. The Windows app is retired.
       required: false
       selector:
         text:
@@ -1629,7 +1629,8 @@ playback_command:
         object:
     play:
       name: Start playback
-      description: Whether the backend should start playback when the command supports it.
+      description: >-
+        Only affects commands that support this option. Disabling it is not a dry run: commands such as play can still start music.
       required: false
       default: false
       selector:

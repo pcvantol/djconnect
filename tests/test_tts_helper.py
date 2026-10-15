@@ -2193,6 +2193,13 @@ class TtsHelperTest(unittest.TestCase):
             async def async_clear_all(self):
                 self.cleared = True
 
+        class Transport:
+            closed = False
+
+            async def close(self):
+                self.closed = True
+
+        transport = Transport()
         memory = Memory()
         history = History()
         runtime = Runtime(entry)
@@ -2203,6 +2210,7 @@ class TtsHelperTest(unittest.TestCase):
                     entry.entry_id: runtime,
                     "runtime": runtime,
                     "memory_manager": memory,
+                    "hybrid_operation_manager": transport,
                     "ask_dj_history_manager": history,
                 }
             },
@@ -2211,6 +2219,8 @@ class TtsHelperTest(unittest.TestCase):
         unloaded = asyncio.run(self.integration.async_unload_entry(hass, entry))
 
         self.assertTrue(unloaded)
+        self.assertTrue(transport.closed)
+        self.assertNotIn("hybrid_operation_manager", hass.data[const.DOMAIN])
         self.assertTrue(memory.cleared)
         self.assertTrue(history.cleared)
         self.assertNotIn("memory_manager", hass.data[const.DOMAIN])
