@@ -1017,7 +1017,7 @@
         },
         "client_type": {
           "name": "Client type",
-          "description": "DJConnect client type such as ios, macos, watchos, raspberry_pi or windows."
+          "description": "Supported DJConnect client type such as ios, macos, watchos or raspberry_pi. The Windows app is retired."
         },
         "client_id": {
           "name": "Client ID",
@@ -1071,7 +1071,7 @@
         },
         "client_type": {
           "name": "Client type",
-          "description": "DJConnect client type such as ios, macos, watchos, raspberry_pi or windows."
+          "description": "Supported DJConnect client type such as ios, macos, watchos or raspberry_pi. The Windows app is retired."
         },
         "audio_response": {
           "name": "Audio response",
@@ -1097,7 +1097,7 @@
         },
         "client_type": {
           "name": "Client type",
-          "description": "DJConnect client type such as ios, macos, watchos, raspberry_pi or windows."
+          "description": "Supported DJConnect client type such as ios, macos, watchos or raspberry_pi. The Windows app is retired."
         }
       }
     },
@@ -1115,7 +1115,7 @@
         },
         "client_type": {
           "name": "Client type",
-          "description": "DJConnect client type such as ios, macos, watchos, raspberry_pi or windows."
+          "description": "Supported DJConnect client type such as ios, macos, watchos or raspberry_pi. The Windows app is retired."
         }
       }
     },

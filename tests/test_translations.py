@@ -209,6 +209,14 @@ ALLOWED_IDENTICAL_NON_ENGLISH_VALUES = {
 
 
 class TranslationTest(unittest.TestCase):
+    def test_service_examples_do_not_offer_the_retired_windows_client(self) -> None:
+        paths = [INTEGRATION / "services.yaml", INTEGRATION / "strings.json"] + [
+            TRANSLATIONS / f"{language}.json" for language in SUPPORTED_LANGUAGES
+        ]
+        for path in paths:
+            with self.subTest(catalogue=path.name):
+                self.assertNotIn("raspberry_pi or windows", path.read_text())
+
     def test_all_service_forms_have_localized_names_and_field_help(self) -> None:
         import yaml
 
