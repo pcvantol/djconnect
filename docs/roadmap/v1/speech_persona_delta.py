@@ -43,6 +43,8 @@ def validate(plan, previous_validator):
         "actual admission missing",
     )
     check(r.get("integration_main_sha") == "a6d666fea7f30254b20bea015fad8d1fd8d7b059", "documentary integration base missing")
+    check(r.get("previous_delta") == "history/20261015/web-first-finalization-maintenance-v11.json",
+          "wrong predecessor snapshot path")
     previous_file = (
         Path(__file__).parent / "history/20261015/web-first-finalization-maintenance-v11.json"
     )

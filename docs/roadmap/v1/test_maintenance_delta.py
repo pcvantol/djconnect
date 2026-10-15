@@ -669,7 +669,7 @@ class SpeechPersonaMaintenanceTests(unittest.TestCase):
     def test_missing_admission_or_unproved_acceptance_rejected(self):
         for key, value in [('ack', 1), ('base_sha', '0'*40), ('source_delivery', 'PROTECTED_MERGED'),
                            ('native', 'PASS'), ('installed', 'PASS'), ('audible', 'PASS'), ('joint', 'PASS'),
-                           ('consumer_writes', True), ('previous_delta_sha256', '0'*64)]:
+                           ('consumer_writes', True), ('previous_delta_sha256', '0'*64), ('previous_delta', 'history/20261015/artwork-finalization-maintenance-v11.json')]:
             p = copy.deepcopy(self.p)
             p['planning_maintenance']['speech_persona_receipt'][key] = value
             self.assertTrue(validate(p), (key,value))

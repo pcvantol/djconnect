@@ -41835,7 +41835,7 @@
       "ack": 6191876871,
       "contract_commit": "e2072d8025056089b3bf403366307be70dd53ae8",
       "material_commit": "03634bf7a8bcdc904505a4a22dc23fbae4dabd1b",
-      "previous_delta": "history/20261015/artwork-finalization-maintenance-v11.json",
+      "previous_delta": "history/20261015/web-first-finalization-maintenance-v11.json",
       "previous_delta_sha256": "56be3a5a0f7234745b894ecc5eca15321087dbce8d5977431dee472d13014ea6",
       "phase": "LOCAL_IMPLEMENTATION_AND_QUALIFICATION",
       "source_delivery": "UNPUBLISHED",
