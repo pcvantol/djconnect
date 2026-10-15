@@ -1,0 +1,119 @@
+# Hybrid HTTP/WebSocket transport v1
+
+Assignment: `DJC-CORE-HYBRID-TRANSPORT-CONVERGENCE-V1-20261013`;
+[selection6149934177](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6149934177),
+ACK6185332170. Contract-first design, not an advertisement of unfinished routes.
+Admission main9efd1977768d2574b66c16de9c5d8ba53e9157b1, sole Core writer.
+
+## Ownership and baseline
+
+One Session Runtime, Planner, shared Ask DJ service, TrackInsightService and music
+command owner remain. Transport authenticates, correlates, bounds and routes;
+it does not plan music or reconstruct conversations/history. The original
+`active_owner_broadcast` audience remains subscribe/recover only. Native HA
+`/api/websocket` retains HA authentication; no HA credential issuer is introduced.
+
+The historical Apple40021 audit in its existing writer's recovery directory is
+PARTIAL, sourceffc65884 plus WIP, not current installed evidence. It reports a404
+issuer, undemultiplexed optional action replies, ambiguous mutation retry and
+missing quiet-socket liveness. Source fixes and497 tests/builds belong to that
+writer and are not rerun or claimed by Core. Actual Apple root2fc7fdf plus WIP
+is preserved; remote main446ff156 is distinct. Apple consumer admission is separate.
+
+### KEEP/REUSE/FIX/RETIRE inventory
+
+| Existing family / owner | Local v1 preference | External | Effects/cost/identity and disposition |
+| --- | --- | --- | --- |
+| Pairing/configuration / existing pairing owner | HTTP | Trusted HTTPS | KEEP; no reset or token issuer; configuration mutation never retried speculatively. |
+| Capabilities / shared declarations | HTTP discovery | HTTPS | REUSE; flags only after connected positive qualification, not a grant. |
+| Active Session / existing active handler | Paired action read, HTTP fallback | HTTPS | REUSE; owner/Profile/no-store; no new Runtime or provider fetch. |
+| Start/end / existing lifecycle handlers | HTTP operation envelope | HTTPS same envelope | REUSE; Session identity and authorization unchanged; receipt/CAS, not blind retry. |
+| Mood/presence / existing CAS handlers | Paired action, HTTP same owner | HTTPS | REUSE; independent revisions and existing race/off/in-flight rules. |
+| Broadcast/Moments/Forecast | Existing paired Broadcast; owner HTTP recovery | HTTPS recovery | REUSE/fix liveness; watermark/cursor distinct from Flow sequence. Source expiry/native admissions unchanged. |
+| History/search/open/summary / query owner | HTTP | HTTPS | KEEP HTTP-only paging; no client counting/N+1 or WS private-history replay. |
+| Ask DJ text / shared exchange | Paired action or HTTP operation | HTTPS operation | REUSE; same client_message_id and receipt; one generation/acceptance; no transport-owned history. |
+| Voice/STT/raw audio / existing voice route | HTTP-only | HTTPS | KEEP uploads; no binary/base64 WS; after-send timeout is unknown, never automatic reupload/model replay. Shared post-STT exchange remains owner. |
+| Raw Ask DJ / existing shared compatibility | HTTP-only | HTTPS | KEEP compatibility; no automatic after-send retry without qualified exchange identity. |
+| Ask DJ history/clear / history owner | HTTP | HTTPS | KEEP revision/clear rights; nonrepeatable clear cannot fall back after rejection/uncertain send. |
+| Playback/result/output choices / command/shared exchange | Limited paired action, same HTTP operation | HTTPS operation | REUSE actual command handler; relative/toggle/queue actions require one immutable operation identity per deliberate action. Selection never implies Play. |
+| Track Insight/drilldown / TrackInsightService | Paired action or HTTP operation | HTTPS operation | REUSE exact target; generation is not a harmless read. Never substitute B for target A. |
+| Music DNA/profile/settings/clear/export/import | HTTP-only | HTTPS | KEEP opt-in, retention, revision and export/import scopes. No new management product; no automatic uncertain mutation retry. |
+| Discover/feed/refresh/play/feedback | HTTP-only | HTTPS | KEEP generation/source/rights boundaries; refresh may cost, play mutates; never automatic after-send replay. |
+| Images/TTS/audio/art/export files | HTTP-only original managed resources | HTTPS | KEEP grants/provenance/expiry; no private grant copied into Broadcast or VibeCast. |
+| Optional native HA action adapter | Existing HA auth only | No new dependency | RETAIN compatibility, same domain handlers; old broad catch→HTTP rule RETIRED. |
+| `/websocket/session` issuer expectation | Not supported | Not supported | RETIRE consumer expectation, never restore an HA credential issuer. |
+
+Detailed live route inventory remains docs/technical/inventory/http_routes.json
+and websocket_commands.json; this family matrix defines supported migration,
+not a claim every existing native HA command belongs to the new paired audience.
+
+## Route authority and transitions
+
+Apple owns one shared coordinator for Mac/iPhone/iPad: local-ready,
+local-degraded, remote-ready, recovering/offline, terminal-authority-withdrawn.
+Wi-Fi/Ethernet is a hint, not proof of this HA installation. Use configured trusted
+origins and existing TLS policy; never follow cross-origin redirects with secrets.
+A local paired-origin challenge proves possession of the existing device secret
+without sending that secret to a potentially conflicting foreign-LAN address.
+It is not a credential issuer or Profile chooser. Failure leaves local sensitive
+routes unqualified; trusted external HTTPS may be probed separately.
+
+Probe challenge contract: POST `/api/djconnect/v1/transport/probe`, closed JSON
+`device_id`, `client_type`, `challenge` (32 random bytes encoded hex), `proof`.
+Request proof is HMAC-SHA256 with the existing paired device token over UTF-8
+`djconnect-hybrid-probe-v1:request:` + challenge. Server response proof uses
+`djconnect-hybrid-probe-v1:response:` + challenge + `:` + stable HA installation ID.
+Compare constant-time; challenge is unique per attempt. No token in URL/payload,
+no cookie/redirect, no private content, no discovery-based arbitrary origin.
+Current pairing/Profile/retirement authority must also pass. A response is accepted
+only for its outstanding challenge and expected installation; it grants no action.
+
+After confirmed remote readiness, share one probe and bounded backoff/hysteresis;
+do not pay full LAN timeout per request. Foreground/network change triggers a
+bounded reassessment, not a new Session, history clear or playback transfer.
+Missing external URL is an honest offline/configuration state, never a fabricated
+endpoint. Consumer defaults automatic routing; optional diagnostic override is
+bounded and not a permanent normal-use checkbox. Existing explicit settings need
+an Apple-owned migration and visible fallback guidance in all five languages.
+
+## Separate paired action adapter
+
+New relative path `/api/djconnect/v1/actions/paired`, protocol1, audience
+`paired_owner_actions`. Same paired first-frame identity/secret as Broadcast,
+5s auth deadline,300s connection lease,1s revocation checks, no HA token. Never
+silently add commands to Broadcast v1. Allow only declared domain operations.
+Session/owner/Profile resolve server-side and are revalidated before acceptance,
+private result delivery and actual provider dispatch. Shared rooms, retired Windows,
+Pi/Cast/TV and guest renderer credentials do not acquire action grants.
+
+One reader, request-ID demultiplexing and one bounded writer queue. At most8
+outstanding commands,64 queued responses,64KiB text frame and256 distinct IDs per
+connection. IDs are positive integers and cannot be reused on that connection;
+`connection_id` changes on replacement and accompanies results. Register pending
+request before send; replies/events never share positional receive assumptions.
+Heartbeats use WebSocket ping/pong; no Moment/pause/presence-Off is not failure.
+Heartbeat15s, bounded pong deadline; reconnection before/at300s lease does not
+rotate pairing, operation epoch, Session or receipts. Background limits remain
+platform-owned, not an unlimited polling promise.
+
+Commands: `djconnect/read` for qualified declared pure projections,
+`djconnect/operation/execute` and `djconnect/operation/status` for the closed
+operation policy. Reads use the same handlers; uploads/paging remain HTTP-only.
+Command semantics and restart/uncertainty are in the operation recovery contract.
+Server advertises only implemented operation/version sets after real qualification.
+
+## Recovery and consumer acceptance
+
+Owner HTTP recovery must use the existing Runtime/Broadcast recovery owner,
+not a second timeline. A bounded owner POST recovery projection may expose the
+same cursor result without a retained subscription. Replay returns only qualified
+currently deliverable events; snapshot_required is an honest coverage gap, not
+proof that every missed Moment was rendered. Never replay expired/inaccessible
+cards or count transport deliveries as new publication.
+
+Apple receives an exact source/schema pin and real transport fixtures early.
+Its existing writer owns automatic routing, request demux, retained drafts/scroll,
+no-known-Session discovery, view withdrawal and actual Mac/iPhone/iPad behavior.
+Native/installed LAN→cellular→LAN, foreign Wi-Fi, suspension and lease renewal
+remain OPEN until separately authorized actual evidence. Core producer completion
+does not close the joint capability. Artwork remains the next separate slice.

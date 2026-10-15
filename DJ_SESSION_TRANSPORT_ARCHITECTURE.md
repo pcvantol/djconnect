@@ -101,7 +101,16 @@ The server must never require a permanently connected WebSocket for a Session to
 
 ## Client Expectations
 
-Clients should discover capabilities, then prefer WebSocket when it is available and authorized. If it is unavailable, disabled, unauthorized or disconnected, they use the equivalent HTTP capability. On disconnection they recover with HTTP and may subsequently reconnect WebSocket.
+Clients discover capabilities and prefer a qualified local WebSocket where supported.
+HTTP remains the functional external route and pure-state recovery fallback.
+Unavailable pre-send transport and repeatable reads may move routes; an authoritative
+auth/Profile rejection cannot be bypassed through HTTP. Disconnect, timeout or
+cancellation after send does not prove nonexecution and never authorizes blind
+mutation replay. Preserve operation identity and reconcile uncertain outcomes under
+[the hybrid contract](docs/product/HYBRID_HTTP_WEBSOCKET_TRANSPORT_V1.md) and
+[operation recovery policy](docs/product/TRANSPORT_OPERATION_RECOVERY_CONTRACT_V1.md).
+These targeted designs precede their runtime implementation; unchanged public
+capabilities do not yet advertise a new paired action audience.
 
 Clients render only authorized immutable Broadcast projections and canonical Session Flow state. They do not compensate for a missing live connection by reimplementing Planner, Knowledge Engine, Moment Engine or Runtime behaviour.
 

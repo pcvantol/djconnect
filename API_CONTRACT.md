@@ -207,6 +207,12 @@ Stale backend-specific actions return:
 
 ## Local WebSocket Fast Path
 
+The following native HA-authenticated adapter is retained compatibility. Ordinary
+paired Apple action transport is being qualified separately under
+`docs/product/HYBRID_HTTP_WEBSOCKET_TRANSPORT_V1.md`; no HA token issuer exists.
+Do not apply historical blanket HTTP retry guidance to uncertain mutations. New
+routes remain unadvertised until connected implementation and qualification.
+
 Local app clients may use Home Assistant's native websocket API as an optional
 low-latency transport for DJConnect commands. This is a fast path for local
 control only; HTTP remains canonical and must remain available for remote use,
@@ -441,10 +447,13 @@ Music DNA import/export is intentionally HTTP-only; clients should not expect
 `djconnect/music_dna/export` or `djconnect/music_dna/import` websocket commands
 in capabilities.
 
-Clients should treat websocket failures as transport failures, not pairing
-failures. On disconnect, auth error, HA websocket error, DJConnect websocket
-capability miss, timeout or protocol mismatch, immediately retry the user action
-through HTTP and reconnect the websocket later with backoff. Suggested client
+Superseded unsafe retry guidance: a WebSocket failure is not proof that an
+operation did not execute. Do not automatically replay an action through HTTP
+on disconnect, timeout, cancellation or authoritative auth/Profile rejection.
+Only a qualified pre-send failure or repeatable read permits route fallback;
+uncertain mutations require the original operation identity and receipt policy.
+See `docs/product/TRANSPORT_OPERATION_RECOVERY_CONTRACT_V1.md`. Reconnect with
+bounded backoff; a different transport never bypasses an authoritative denial. Suggested client
 timeouts are about 2 seconds for short playback controls, 5 seconds for
 status/list requests and the existing longer Ask DJ/action timeout for commands
 that already wait on backend work. Never log HA auth tokens, DJConnect device

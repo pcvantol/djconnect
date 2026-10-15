@@ -1,0 +1,100 @@
+# Transport operation recovery contract v1
+
+Part of DJC-CORE-HYBRID-TRANSPORT-CONVERGENCE-V1-20261013. Design before code;
+capabilities stay absent until the corresponding implementation is qualified.
+One operation service surrounds existing application handlers, not new music/chat
+implementations. HTTP and paired action WS normalize to that service.
+
+## Identity, lifetime and bounded journal
+
+Each deliberate user action receives a fresh UUIDv7 `operation_id`; retries keep
+that exact ID, payload and original `operation_epoch`. UUIDv7's immutable creation
+millisecond timestamp bounds eligibility:300s total lifetime, maximum30s future
+clock skew. Expired IDs are rejected before dispatch even after journal cleanup.
+A subsequent deliberate skip has a new ID; changing an ID/epoch to replay an
+uncertain action is forbidden. Server exposes its boot epoch and clock to an
+authenticated client, without an HA credential or new account grant.
+
+Scope binds authenticated device, Profile, entry/pairing generation, backend/account
+context, boot epoch, operation name and SHA256 of canonical JSON payload. Identity
+fields and authorization cannot be overridden inside nested payloads. Same ID with
+other operation/payload/context returns409 operation_conflict/context_changed.
+Operation IDs are not access credentials; status/retry revalidate the current
+caller and original authority. No fallback across Profile/account/auth rejection.
+
+Use existing HA Store primitives for one compact versioned receipt journal;
+never persist request bodies, conversation text, artwork, raw audio or provider
+payloads. Records contain only bound identity fingerprints, payload digest, clock,
+epoch, phase, typed status/error and expiry. No full Runtime serialization or
+new history engine. Total256 unexpired receipts,64 per owner,8 active executions;
+capacity rejects new work, never evicts unexpired dedup evidence. Expired IDs
+remain inadmissible from their own timestamp, so expired metadata may be removed.
+Active tasks retain their fence until terminal; timeout cannot make work eligible
+again. Store failure before durable reservation means no handler/provider dispatch.
+
+## Phases and semantic boundary
+
+| Phase | Meaning | Safe automatic behavior |
+| --- | --- | --- |
+| not_sent | Client has not handed request to a transport | May choose another qualified route, same intent/ID. |
+| accepted | Durable server reservation exists before invoking the handler | Join/reconcile same ID; no second domain invocation. |
+| sent_unknown | Actual provider dispatch boundary durably reserved, or crash/cancellation prevents proof | Query status; never blind replay, never infer failure/success from current playback. |
+| confirmed | Handler returned a known accepted result and receipt commit succeeded | Render canonical result; duplicate returns receipt, never execute again. |
+| rejected | Qualified pre-dispatch/domain rejection | Preserve typed authoritative error; no alternate transport/account bypass. |
+| cancelled | Cancelled before dispatch with qualified proof | Report cancellation; do not invent a new ID automatically. |
+| unknown | Restart after reservation, ambiguous failure, or result no longer safely available | Honest reconciliation; explicit new user action only, no hidden replay. |
+
+The service reserves before Core invocation and revalidates at real provider send
+hooks. Durable sent_unknown reservation precedes each first mutating provider
+boundary. No adapter can claim provider exactly-once: a provider may accept before
+its response or local completion commit is lost. Existing Ask DJ effect receipts
+and client_message_id remain the owning conversation dedup/cost boundary, not a
+second conversation log. Existing revision CAS still decides Mood/presence validity.
+
+Caller/socket cancellation after admission does not cancel and redispatch a shared
+execution. Await shielded bounded execution; disconnect stops delivery, not proof
+of nonexecution. Owner revocation, source withdrawal, context/expiry fences remain
+active before later effects. Provider timeouts and after-commit Broadcast failure
+retain their actual acceptance meaning. Never retry after authoritative denial.
+
+Boot epoch changes on restart. Old in-flight reservations project unknown and
+cannot run again; no Runtime/job restoration. An old epoch execute is rejected.
+A status read may explain the previous bound outcome but cannot dispatch, generate
+or rewrite history. No fresh epoch/ID is fabricated to conceal an unknown outcome.
+
+## HTTP and WS wire
+
+POST `/api/djconnect/v1/transport/operation` uses ordinary paired bearer/device
+headers and closed JSON `contract_version:1`, `operation_epoch`, `operation_id`,
+`operation`, `payload`. WS `djconnect/operation/execute` carries the same fields
+plus its connection/request envelope; both invoke one dispatcher and the existing
+handler. A first completed response carries its canonical result/status plus a
+versioned operation receipt. Repeat execution requests return status/receipt and
+`result_available:false` where content cannot be safely replayed; they do not
+regenerate a private answer or create a new publication. Clients may use a
+qualified existing history/query owner where available; absence remains honest.
+
+POST `/api/djconnect/v1/transport/operation/status` and WS status use version,
+original ID/epoch only. No secrets in query parameters. All responses no-store,
+no-referrer. Typed errors include operation_expired, operation_conflict,
+operation_context_changed, operation_epoch_changed, operation_capacity,
+operation_unavailable and operation_unknown. Unknown is not a successful playback
+readback and not authorization to retry. Response source rights/expiry remain
+those of the original handler, not the receipt lifetime.
+
+Initial closed policy: shared command actions, Ask DJ text and Track Insight;
+Session start/end (HTTP only), Mood/presence (HTTP/paired actions). Pure active,
+Forecast, Broadcast snapshot reads are separately declared and safely repeatable.
+Other management/paging/voice/binary/file routes remain HTTP-only with their
+existing domain identity/revision and explicit no-automatic-after-send-retry rule.
+No unsupported command is advertised. New operations require a versioned policy
+entry, source/right/effect qualification and parity/failure tests.
+
+## Privacy and resource withdrawal
+
+A receipt cannot grant expired private/media data. Return only compact status
+on repeat/status; no durable rich result body. Recheck device/Profile/source/entry
+binding before receipt delivery and current handler result delivery. Pairingrotation
+or deleted/reassigned Profile withdraws old material; leaseexpiry alone permits
+reconnection with current pairing. Legacy clients keep existing HTTP behavior,
+but get no new cross-transport idempotency promise unless using this contract.
