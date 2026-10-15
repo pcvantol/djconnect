@@ -816,6 +816,47 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(len((await self.history.async_history("profile:profile-a"))["messages"]), 2)
         self.assertTrue(self.history.dialogue.owners["profile:profile-a"]["default"].messages)
 
+    async def test_wav_voice_header_negotiates_same_private_speech_protocol_before_body(self):
+        from types import SimpleNamespace
+        from custom_components.djconnect import http
+        self.runtime.update = lambda **values: self.runtime.__dict__.update(values)
+        reads, transcripts = [], []
+        async def read():
+            reads.append(True)
+            return b"RIFFxxxxWAVEdata"
+        async def transcribe(*args):
+            transcripts.append(True)
+            return "help"
+        for index, version in enumerate(("1", None, "true", "01", "2", "", "1.0")):
+            with self.subTest(version=version):
+                headers = {**self.headers, "X-DJConnect-Device-ID": self.identity["device_id"],
+                    "X-DJConnect-Client-Type": "ios", "Content-Type": "audio/wav",
+                    "X-DJConnect-Language": "en", "X-DJConnect-Client-Message-ID": f"wav-speech-{index}"}
+                if version is not None:
+                    headers["X-DJConnect-Speech-Contract-Version"] = version
+                before = len(reads), len(transcripts)
+                request = SimpleNamespace(app={"hass": self.hass}, headers=headers, read=read)
+                with patch.object(http, "transcribe_wav_with_assist", transcribe):
+                    response = await http.DJConnectVoiceView(self.hass).post(request)
+                result = json.loads(response.text)
+                self.assertEqual(response.headers["Cache-Control"], "no-store")
+                if version not in (None, "1"):
+                    self.assertEqual(response.status, 400, result)
+                    self.assertEqual(result["error"], "unsupported_speech_contract")
+                    self.assertEqual((len(reads), len(transcripts)), before)
+                    continue
+                self.assertEqual(response.status, 200, result)
+                self.assertEqual(result["transcript"], "help")
+                self.assertTrue(result["session_speech"]["manual_allowed"])
+                if version == "1":
+                    self.assertEqual(result["audio_delivery"]["state"], "deferred")
+                    self.assertTrue(result["session_speech"]["autoplay_eligible"])
+                else:
+                    self.assertEqual(result["audio_delivery"]["reason"], "client_protocol_upgrade_required")
+                    self.assertFalse(result["session_speech"]["autoplay_eligible"])
+                self.assertFalse(result.get("audio_url"))
+        self.assertEqual(self.prompts, [])
+
     async def test_voice_owner_withdrawal_at_body_stt_and_model_boundaries_leaks_nothing(self):
         from types import SimpleNamespace
         from custom_components.djconnect import http

@@ -30,6 +30,7 @@ def capability():
                                   "options_path": "/api/djconnect/v1/speech/voice-options"}, "voice_selection": "renderer_owned_or_exact_configured",
             "autoplay_scope": "per_device_new_publication_only", "manual_after_never": True,
             "ask_dj_request_version_field": "speech_contract_version",
+            "voice_request_version_header": "X-DJConnect-Speech-Contract-Version",
             "legacy_private_audio_disposition": "client_protocol_upgrade_required",
             "history_mints_reference": False, "maximum_seconds": TTL,
             "maximum_text_characters": MAX_TEXT, "maximum_segments": MAX_SEGMENTS,

@@ -831,6 +831,10 @@ def _voice_header_payload(headers: Any, device_id: str, client_type: str | None)
     mood = str(headers.get("X-DJConnect-Mood") or "").strip()
     if mood:
         payload["mood"] = mood
+    speech_version = headers.get("X-DJConnect-Speech-Contract-Version")
+    if speech_version is not None:
+        # Closed wire version; do not accept booleans, floats or coercible text.
+        payload["speech_contract_version"] = 1 if speech_version == "1" else 0
     return enrich_payload_with_mood_zone(payload)
 
 
@@ -4546,6 +4550,9 @@ class DJConnectVoiceView(HomeAssistantView):
             return _json_error(reply_view, "unauthorized", 401)
         if not _runtime_versions_compatible(runtime):
             return _runtime_version_mismatch_response(reply_view, runtime)
+        if (request.headers.get("X-DJConnect-Speech-Contract-Version") is not None
+                and request.headers.get("X-DJConnect-Speech-Contract-Version") != "1"):
+            return _json_error(reply_view, "unsupported_speech_contract", 400)
         voice_owner = None
         if _is_ask_dj_voice_client(client_type) and _is_audio_upload(
             request.headers.get("Content-Type", "").split(";", 1)[0].strip().lower()

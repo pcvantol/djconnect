@@ -183,6 +183,10 @@ before semantic acceptance. A client opts into the private adapter with
 `speech_contract_version:1` on the common Ask DJ request. Other supplied versions,
 including booleans and strings, fail400 before a turn/effect. This option is part
 of request identity; it cannot mutate the protocol of a replayed request.
+WAV/PTT uses `X-DJConnect-Speech-Contract-Version: 1` on the existing paired voice
+route; it maps to the same integer payload field. Other header values reject400
+after device authentication and before reading audio or invoking STT. Absence
+retains the explicit old-client disposition below, not an implicit opt-in.
 `audio_delivery:{mode:accepted_reference,state:deferred}` for opted-in clients
 keeps text delivery independent of synthesis. Per-device autoplay/manual Listen
 uses the one qualified prepare route after acceptance; failure does not resend

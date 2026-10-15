@@ -37,6 +37,13 @@ async runner exits0 with all assertions; direct-script execution currently
 segfaults in final interpreter garbage collection after assertions. That
 teardown issue remains recorded/open, not hidden by a forced exit or GC bypass.
 
+`wav-protocol.http.json` adds the real paired WAV/header adapter. Send
+`X-DJConnect-Speech-Contract-Version: 1` on the existing voice endpoint to select
+the same private protocol; other values reject before audio/STT. The fixture
+uses the explicit existing external-STT boundary, not Core turn/storage/query
+mocks. Its source hashes identify the later unpublished refinement; native
+microphone, actual speech recognition quality and audible output remain open.
+
 Moment/Forecast/history reference adoption and full families×4Personas×5languages
 are still in Core implementation. These early connected routes are not a final
 contract/producer delivery or permission to treat the whole slice as complete.

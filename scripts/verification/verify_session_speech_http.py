@@ -233,6 +233,34 @@ async def main():
             assert public.status == 404
             female = await post("/speech/prepare", {**request, "processor": "ha_configured", "voice_preference": "female"})
             assert female["session_speech"]["reason"] == "voice_gender_unavailable"
+            # Real WAV/header/HTTP adapter, with only external STT decoding
+            # represented by its existing explicit provider boundary fixture.
+            from custom_components.djconnect.wav_util import simple_tone_wav
+            stt_calls = []
+            async def external_stt(_hass, wav, _config):
+                assert wav.startswith(b"RIFF")
+                stt_calls.append(len(wav))
+                return "Who is this artist?"
+            hass.data["djconnect"]["stt_handler"] = external_stt
+            voice_headers = {**headers, "X-DJConnect-Client-Type": "ios",
+                "Content-Type": "audio/wav", "X-DJConnect-Language": "en",
+                "X-DJConnect-Speech-Contract-Version": "1",
+                "X-DJConnect-Client-Message-ID": "wave-speech-contract"}
+            response = await client.post("/api/djconnect/v1/voice", headers=voice_headers, data=simple_tone_wav())
+            voice_reply = await response.json()
+            assert response.status == 200, voice_reply
+            assert voice_reply["transcript"] == "Who is this artist?"
+            assert voice_reply["audio_delivery"] == {"mode": "accepted_reference", "state": "deferred"}
+            assert voice_reply["session_speech"]["manual_allowed"]
+            assert voice_reply["session_speech"]["autoplay_eligible"]
+            assert len(stt_calls) == 1
+            response = await client.post("/api/djconnect/v1/voice",
+                headers={**voice_headers, "X-DJConnect-Speech-Contract-Version": "true"}, data=simple_tone_wav())
+            invalid_voice = await response.json()
+            assert response.status == 400 and invalid_voice["error"] == "unsupported_speech_contract"
+            assert len(stt_calls) == 1  # Version rejection precedes STT work.
+            receipts["wav_speech_contract"] = {"reply": voice_reply,
+                "invalid_version": invalid_voice, "external_stt_calls": len(stt_calls)}
             receipts.update(ha_configured_audio=synthesized, ha_gender_unavailable=female,
                             synthesis_calls=1, legacy_public_audio_status=public.status,
                             audible_acceptance="OPEN_EXTERNAL_WAVEFORM_FIXTURE_ONLY")
