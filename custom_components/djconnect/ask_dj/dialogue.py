@@ -113,6 +113,7 @@ class DialogueFrame:
     generation: str
     messages: list[dict] = field(default_factory=list)
     local_turns: list[dict] = field(default_factory=list)
+    speech_references: dict[str, dict] = field(default_factory=dict)
     retry: dict | None = None
     subjects: list[dict] = field(default_factory=list)
     dependencies: list[dict] = field(default_factory=list)
@@ -126,12 +127,18 @@ class DialogueFrame:
         self.generation = generation
         self.messages.clear()
         self.local_turns.clear()
+        self.clear_speech()
         self.retry = None
         self.subjects.clear()
         self.dependencies.clear()
         self.result_set = self.pending = None
         self.chosen_action_id = ""
         self.archiveable = True
+
+    def clear_speech(self):
+        for record in list(self.speech_references.values()):
+            record["dispose"]()
+        self.speech_references.clear()
 
 
 @dataclass
@@ -155,6 +162,7 @@ class DialogueTurn:
     effect_started: bool = False
     effect_validators: list[Any] = field(default_factory=list)
     delivery_validators: list[Any] = field(default_factory=list)
+    speech_deadline: float | None = None
     fast_control: bool = False
     pending: dict | None = None
     reset_topic: bool = False
@@ -287,6 +295,11 @@ class DialogueState:
             if scope is None or owner == scope:
                 for frame in threads.values():
                     frame.reset("invalidated:" + uuid4().hex)
+
+    def invalidate_speech(self):
+        for threads in self.owners.values():
+            for frame in threads.values():
+                frame.clear_speech()
 
     def reserve(self, frame, identifier, digest, fast):
         previous = frame.inflight.get(identifier)

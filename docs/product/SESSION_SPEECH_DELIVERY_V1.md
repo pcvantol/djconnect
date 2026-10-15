@@ -21,11 +21,14 @@ has no executable text/audio grant. Machine codes stay untranslated; client
 copy and accessibility labels require all five languages.
 
 `POST /api/djconnect/v1/speech/prepare` uses normal paired device/Profile owner,
-contract1 and exactly one existing target: accepted `message_id`, published
+contract1 and exactly one existing target: published
 `session_id`+`moment_id`, or retained `session_id`+`entry_id`, or an accepted `turn_id` in the existing
 bounded dialogue frame. The latter includes private non-archived early replies;
 its original rights/deadline/frame generation apply, without a second store or
-archival promotion. Preparation selects `processor:local_on_device|ha_configured`
+archival promotion. Common Ask DJ uses `reference:{turn_id}` consistently on
+both screens, including responses with a durable message ID; no message-ID lookup
+is silently substituted and old history cannot mint a new ephemeral grant.
+Preparation selects `processor:local_on_device|ha_configured`
 and `voice_preference:default|male|female`; neither is a provider/voice identifier.
 No free text, provider
 URL, arbitrary voice/engine ID, model prompt or playback instruction. Resolve
@@ -83,7 +86,9 @@ takes precedence: stop running audio and discard pending audio immediately;
 never finish a sentence under a withdrawn grant. Native UI exposes effective voice
 and accessible Listen/Stop/current unavailability in the active Session.
 
-Autoplay is per device and off does not remove manual listening. Only live newly
+Autoplay is per device and off does not remove manual listening. An explicit
+`audio_response:never` excludes autoplay eligibility while preserving manual
+listening. Joined/deduplicated responses never open another autoplay opportunity. Only live newly
 accepted intended publications are eligible once under original contribution ID;
 history/open/read/recovery/reconnect are never new eligibility. Maintain one
 bounded local playback queue and discard withdrawn/expired/superseded entries.
@@ -108,3 +113,37 @@ Runtime/Planner/Flow/Broadcast; fixtures only external provider/synthesizer edge
 Deliver early exact contract and real sanitized fixtures/checksums to Apple87.
 Native Mac/iPhone/iPad audible quality, interruptions and per-device autoplay
 require that existing Apple writer's own tests; Core fixtures do not certify them.
+
+## Qualified local implementation boundary
+
+The first connected producer uses `reference:{turn_id}` for common Ask DJ on both
+screens. Accepted private early/current replies stay only in the existing bounded
+dialogue frame: eight references of at most1200characters each, maximum300seconds,
+shorter original source/queue/Forecast/choice deadlines. Current playback reads
+have at most60seconds from their original read. Scoped expiry removes text and
+private audio even without another request. Source/Profile changes latch
+invalidation through the existing Profile storage owner; a return to the original
+configuration does not revive old grants. Final unload clears scoped resources.
+
+HA synthesis currently qualifies only the actual existing Wyoming Piper entity
+on a literal private/loopback endpoint, matching configured locale and configured
+voice in its supported inventory. A generic Wyoming entity or engine name is
+insufficient. HA2026.10 Voice exposes ID/name, not gender; male/female requests on
+this HA route return `voice_gender_unavailable`. No provider or pipeline fallback.
+A confirmed current-artist reply may use `spotify_owner_local_read_v1`: only
+the exact accepted owner-visible title/artist sentence, its original at-most60s
+read deadline and attribution, through this qualified household Piper route.
+This is local authorized reading, not a model/cloud grant or playback control.
+No API/config change adds a new synthesizer. Other source/processor combinations
+remain unavailable until independently qualified. Local Apple male/female choice
+remains a consumer capability and requires real voice-inventory/audible evidence.
+
+Prepared HA audio is private RAM data in the existing TTS resource owner, at most
+eight resources per Profile/64 total, two concurrent preparations per Profile,
+20seconds per preparation,2MiB per resource. Exact cache identity includes accepted
+text/presentation revision, configured real voice/locale and owner. Failed attempts
+have bounded60second backoff. `POST /speech/audio` requires ordinary paired owner
+identity plus asset reference; the old bearer-free ESP audio route cannot read
+these resources. Stop/cancellation/withdrawal cannot create late deliverable bytes.
+Neither these early connected routes nor a nonempty WAV qualifies complete Moment
+family adoption, actual Apple voice quality, autoplay or joint acceptance.

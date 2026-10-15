@@ -1,0 +1,285 @@
+"""Private accepted-reference speech presentation in existing contribution owners.
+
+Text is never supplied by a caller. The dialogue window owns ephemeral replies;
+this module neither archives a body nor repeats semantic Ask DJ execution.
+"""
+from __future__ import annotations
+
+import asyncio
+from copy import deepcopy
+from datetime import UTC, datetime
+import hashlib
+import json
+import time
+
+PATH = "/api/djconnect/v1/speech/prepare"
+TTL = 300
+MAX_TEXT = 1200
+MAX_REFERENCES = 8
+
+
+def capability():
+    return {"available": True, "version": 1, "path": PATH, "method": "POST",
+            "authentication": "paired_device_bearer", "owner_only": True,
+            "supported_reference_kinds": ["turn_id"], "source_kinds": ["accepted_ask_dj"],
+            "processors": ["local_on_device", "ha_configured"],
+            "processor_qualification_required": True, "voice_selection": "renderer_owned_or_exact_configured",
+            "autoplay_scope": "per_device_new_publication_only", "manual_after_never": True,
+            "history_mints_reference": False, "maximum_seconds": TTL,
+            "cache_policy": "private,no-store"}
+
+
+def unavailable(reference, reason):
+    return {"schema_version": 1, "reference": reference, "state": "unavailable",
+            "reason": reason, "manual_allowed": False, "autoplay_eligible": False,
+            "segments": [], "processors": [], "cache_policy": "private,no-store"}
+
+
+def projection(record, *, autoplay=False):
+    return {"schema_version": 1, "reference": {"turn_id": record["turn_id"]},
+            "source_kind": "accepted_ask_dj", "source_id": record["turn_id"],
+            "session_id": record["session_id"] or None,
+            "text_revision": record["text_revision"],
+            "presentation_revision": record["text_revision"],
+            "persona": record["persona"], "persona_revision": record["persona_revision"],
+            "locale": record["locale"], "segments": [{"role": "answer", "text": record["text"]}],
+            "state": "available", "reason": None, "manual_allowed": True,
+            "autoplay_eligible": autoplay, "processors": ["local_on_device"],
+            "expires_at": record["expires_at"], "cache_policy": "private,no-store",
+            "attribution": deepcopy(record["attribution"])}
+
+
+def remember(state, turn, result, *, turn_id, session_id, persona_revision,
+             scope_revision, grant_revision, profile_source, playback_item_id="", deduplicated=False, autoplay_eligible=False):
+    """Attach an immutable reference only after the common semantic commit.
+
+    Exactly eight short replies per already bounded frame, original five-minute
+    deadlines. Deleting a frame deletes its references. A saved/deduplicated turn
+    never opens a new grant or renews the first one.
+    """
+    frame = turn.frame
+    now = state.clock()
+    for key, item in list(frame.speech_references.items()):
+        if now >= item["deadline"]:
+            old = frame.speech_references.pop(key)
+            old["dispose"]()
+    if turn_id in frame.speech_references:
+        return projection(frame.speech_references[turn_id])
+    reference = {"turn_id": turn_id}
+    text = result.get("text") or result.get("dj_text")
+    if deduplicated:
+        return unavailable(reference, "original_reference_not_retained")
+    if not isinstance(text, str) or not text.strip() or len(text) > MAX_TEXT:
+        return unavailable(reference, "unsupported_text_extent")
+    if len(frame.speech_references) >= MAX_REFERENCES:
+        old = frame.speech_references.pop(next(iter(frame.speech_references)))
+        old["dispose"]()
+    revision = hashlib.sha256(text.encode()).hexdigest()[:24]
+    admissions = tuple(turn.delivery_validators)
+    deadline = min([now + TTL, *(getattr(validate, "speech_deadline", now + TTL) for validate in admissions)])
+    if turn.speech_deadline is not None:
+        deadline = min(deadline, turn.speech_deadline)
+    if frame.result_set:
+        deadline = min(deadline, frame.result_set["deadline"])
+    for name in ("queue_observation", "session_forecast"):
+        stamp = (result.get(name) or {}).get("valid_until")
+        if stamp:
+            try:
+                expiry = datetime.fromisoformat(stamp)
+                if expiry.tzinfo is None:
+                    return unavailable(reference, "original_source_expired")
+                deadline = min(deadline, now + expiry.timestamp() - time.time())
+            except (TypeError, ValueError, OverflowError):
+                return unavailable(reference, "original_source_expired")
+    try:
+        for validate in admissions:
+            validate()
+    except Exception:
+        return unavailable(reference, "original_source_withdrawn")
+    attribution = result.get("sources") or []
+    if not isinstance(attribution, list) or len(attribution) > 8 or len(json.dumps(attribution)) > 4096:
+        return unavailable(reference, "unsupported_attribution_extent")
+    if deadline <= now:
+        return unavailable(reference, "original_source_expired")
+    record = {"turn_id": turn_id, "text": text, "text_revision": revision,
+              "persona": turn.style["persona"], "persona_revision": persona_revision,
+              "locale": turn.style["language"], "session_id": session_id,
+              "playback_item_id": playback_item_id, "generation": frame.generation,
+              "scope_revision": scope_revision, "grant_revision": grant_revision,
+              "profile_source": deepcopy(profile_source), "dependencies": deepcopy(turn.dependencies),
+              "deadline": deadline, "admissions": admissions,
+              "expires_at": datetime.fromtimestamp(time.time() + deadline - now, UTC).isoformat(),
+              "attribution": deepcopy(attribution),
+              "processor_basis": result.get("speech_processing_basis") or result.get("model_processing_basis") or result.get("text_source") or "accepted_local_reply"}
+    record["disposals"] = []
+    def expire():
+        if frame.speech_references.get(turn_id) is record:
+            frame.speech_references.pop(turn_id, None)
+        handle = record.pop("expiry_handle", None)
+        if handle is not None:
+            handle.cancel()
+        record["withdrawn"] = True
+        record.pop("text", None)
+        record["admissions"] = ()
+        for dispose in record.pop("disposals", []):
+            dispose()
+    record["dispose"] = expire
+    record["expiry_handle"] = asyncio.get_running_loop().call_later(deadline - now, expire)
+    frame.speech_references[turn_id] = record
+    return projection(record, autoplay=autoplay_eligible)
+
+
+async def resolve_dialogue(hass, history, profile_id, reference, *, profile_source):
+    """Read an accepted RAM reference without touching idle or source deadlines."""
+    from .ask_dj.service import _live_reference
+    from .session_conversation import async_history_grant_revision, history_grant_revision, query_service
+    from .session_runtime import session_runtime_manager
+
+    threads = history.dialogue.owners.get("profile:" + profile_id, {})
+    found = next(((f, f.speech_references[reference["turn_id"]]) for f in threads.values()
+                  if reference["turn_id"] in f.speech_references), None)
+    if found is None:
+        raise PermissionError("speech_reference_unavailable")
+    frame, record = found
+    manager = session_runtime_manager(hass)
+    scope = "profile:" + profile_id
+    # Read durable invalidation epochs before checking the synchronous final fence.
+    await history.async_scope_revision(scope)
+    await async_history_grant_revision(hass, profile_id)
+
+    def guard():
+        if (record.get("withdrawn") or record["generation"] != frame.generation
+            or not any(current is frame for current in history.dialogue.owners.get(scope, {}).values())
+            or frame.speech_references.get(record["turn_id"]) is not record
+            or history.dialogue.clock() >= record["deadline"]
+            or record["scope_revision"] != history.scope_revision(scope)
+            or record["grant_revision"] != history_grant_revision(hass, profile_id)
+            or record["profile_source"] != profile_source):
+            raise PermissionError("speech_reference_withdrawn")
+        for validate in record["admissions"]:
+            validate()
+        if record["session_id"]:
+            active = manager.current_active(profile_id)
+            if (active is None or active.session_id != record["session_id"]
+                or (record["playback_item_id"] and active.broadcast.state.playback.item_id != record["playback_item_id"])):
+                raise PermissionError("speech_reference_withdrawn")
+    guard()
+    for dependency in record["dependencies"]:
+        if "moment_id" in dependency:
+            await _live_reference(manager, profile_id, dependency)
+        else:
+            await query_service(hass, history).async_open_entry(profile_id, dependency["session_id"], dependency["entry_id"])
+        guard()
+    guard.on_withdraw = record["disposals"].append
+    guard.processor_basis = record["processor_basis"]
+    return projection(record), guard
+
+
+async def async_handle_prepare(hass, data, *, headers=None):
+    from .api_handlers import _session_profile_context, _conversation_profile_fence
+    from .ask_dj.dialogue import source_scope
+    from .http import _history_manager
+    from .profile_privacy import resolve_profile_privacy_policy
+    from .session_conversation import SessionConversationError
+    from .transport_delivery import register_delivery_admission
+
+    fields = {"contract_version", "device_id", "client_type", "reference", "processor", "voice_preference"}
+    if (not isinstance(data, dict) or set(data) != fields
+        or type(data["contract_version"]) is not int or data["contract_version"] != 1
+        or data["processor"] not in ("local_on_device", "ha_configured")
+        or data["voice_preference"] not in ("default", "male", "female")
+        or not isinstance(data["reference"], dict) or set(data["reference"]) != {"turn_id"}
+        or not isinstance(data["reference"]["turn_id"], str) or not 0 < len(data["reference"]["turn_id"]) <= 128):
+        return {"success": False, "error": "invalid_request"}, 400
+    headers = headers or {}
+    if not str(headers.get("Authorization", "")).startswith("Bearer ") or data["client_type"] == "windows":
+        return {"success": False, "error": "unauthorized"}, 401
+    identity = {key: data[key] for key in ("device_id", "client_type")}
+    runtime, context, error, status = await _session_profile_context(
+        hass, identity, headers=headers, user_id=None, source="session_speech_prepare")
+    if error is not None:
+        return error, status
+    try:
+        if not context.privacy_policy.allow_personal_read or not resolve_profile_privacy_policy(context.profile, {}).allow_personal_read:
+            raise PermissionError("speech_not_allowed")
+        descriptor, source_guard = await resolve_dialogue(hass, _history_manager(hass, runtime),
+            context.profile_id, data["reference"], profile_source=source_scope(context.profile))
+        def guard():
+            _conversation_profile_fence(hass, runtime, identity, headers, context)
+            source_guard()
+        guard.on_withdraw = source_guard.on_withdraw
+        guard.processor_basis = source_guard.processor_basis
+        guard()
+        register_delivery_admission(guard)
+        if data["processor"] == "ha_configured":
+            descriptor = await prepare_ha(hass, runtime, context.profile_id, data,
+                                          descriptor, guard)
+            guard()
+        else:
+            descriptor.update(audio_state="renderer_pending", effective_voice=None,
+                              voice_preference=data["voice_preference"], autoplay_eligible=False)
+        return {"success": True, "session_speech": descriptor}, 200
+    except (PermissionError, SessionConversationError) as exc:
+        return {"success": False, "error": getattr(exc, "code", "speech_reference_unavailable")}, 403
+
+
+async def prepare_ha(hass, runtime, owner, data, descriptor, admission):
+    from .dj_response import prepare_private_tts_audio
+    from .speech_processor import configured_processor, synthesize, ProcessorUnavailable
+
+    # CC0/direction support is admitted by its original owner below, not inferred
+    # from a provider label. Private/catalog display is no cloud-processing grant.
+    if admission.processor_basis not in {"qualified_dialogue_v1", "cc0_normalized_fields_v1", "runtime_authored_direction_v1", "spotify_owner_local_read_v1"}:
+        return unavailable(data["reference"], "source_processor_not_qualified")
+    try:
+        entity, voice = configured_processor(hass, runtime.config, descriptor["locale"], data["voice_preference"])
+        generation = getattr(getattr(entity, "coordinator", None), "data", entity)
+        key = (owner, descriptor["source_id"], descriptor["text_revision"],
+               descriptor["presentation_revision"], voice["engine"], voice["voice_id"], voice["locale"], id(entity), id(generation))
+        def qualified_admission():
+            admission()
+            current_entity, current_voice = configured_processor(hass, runtime.config, descriptor["locale"], data["voice_preference"])
+            if (current_entity is not entity or current_voice != voice
+                or getattr(getattr(entity, "coordinator", None), "data", entity) is not generation):
+                raise PermissionError("speech_voice_changed")
+        qualified_admission.on_withdraw = admission.on_withdraw
+        token = await prepare_private_tts_audio(hass, owner_profile_id=owner, cache_key=key,
+            expires_at=datetime.fromisoformat(descriptor["expires_at"]).timestamp(), admission=qualified_admission,
+            synthesize=lambda: synthesize(entity, voice, "".join(segment["text"] for segment in descriptor["segments"])))
+        return {**descriptor, "processors": ["local_on_device", "ha_configured"],
+                "audio_state": "ready", "effective_voice": voice, "autoplay_eligible": False,
+                "audio_reference": {"asset_id": token, "path": "/api/djconnect/v1/speech/audio", "method": "POST"}}
+    except PermissionError:
+        raise
+    except Exception as exc:
+        codes = {"processor_not_qualified", "no_matching_locale", "no_matching_voice", "voice_gender_unavailable",
+                 "unsupported_audio_extent", "unsupported_audio_type", "speech_retry_backoff", "speech_capacity"}
+        reason = str(exc) if isinstance(exc, (ProcessorUnavailable, ValueError)) and str(exc) in codes else (
+            "speech_preparation_timeout" if isinstance(exc, TimeoutError) else "speech_preparation_failed")
+        return unavailable(data["reference"], reason)
+
+
+async def async_handle_audio(hass, data, *, headers=None):
+    """No bearer-free speech audio URL. Exact source admission on every byte read."""
+    from .api_handlers import _session_profile_context, _conversation_profile_fence
+    from .dj_response import get_private_tts_audio
+    from .session_conversation import SessionConversationError
+    fields = {"contract_version", "device_id", "client_type", "asset_id"}
+    if (not isinstance(data, dict) or set(data) != fields
+        or type(data["contract_version"]) is not int or data["contract_version"] != 1
+        or not isinstance(data["asset_id"], str) or not 0 < len(data["asset_id"]) <= 64):
+        return None, 400
+    headers = headers or {}
+    if not str(headers.get("Authorization", "")).startswith("Bearer ") or data["client_type"] == "windows":
+        return None, 401
+    identity = {key: data[key] for key in ("device_id", "client_type")}
+    runtime, context, error, status = await _session_profile_context(
+        hass, identity, headers=headers, user_id=None, source="session_speech_audio")
+    if error is not None:
+        return None, status
+    try:
+        _conversation_profile_fence(hass, runtime, identity, headers, context)
+        item = get_private_tts_audio(hass, data["asset_id"], context.profile_id)
+        return item, 200
+    except (PermissionError, SessionConversationError):
+        return None, 403

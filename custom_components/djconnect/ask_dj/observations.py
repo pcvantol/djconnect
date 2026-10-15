@@ -246,12 +246,26 @@ async def current_artist_read(hass, runtime, selected=None):
     async def fresh():
         if turn:
             await turn.guard()
+        observed = turn.history.dialogue.clock() if turn else 0
         try:
             result = await asyncio.wait_for(run_music_command(hass, runtime, "status"), 5)
         except (SpotifyBackendError, MusicBackendCapabilityError, OSError, TimeoutError):
             return None
         if turn:
             await turn.guard()
+        if turn:
+            deadline = observed + 60
+            playback = result.get("playback") if isinstance(result, dict) else None
+            stamp = (playback or {}).get("valid_until") or (playback or {}).get("expires_at")
+            if stamp:
+                try:
+                    expiry = datetime.fromisoformat(stamp)
+                    if expiry.tzinfo is None:
+                        return None
+                    deadline = min(deadline, turn.history.dialogue.clock() + (expiry - datetime.now(UTC)).total_seconds())
+                except (TypeError, ValueError):
+                    return None
+            turn.speech_deadline = min(turn.speech_deadline or deadline, deadline)
         return subject(result.get("playback")) if isinstance(result, dict) and result.get("success") is not False else None
 
     answer = None
@@ -300,4 +314,5 @@ async def current_artist_read(hass, runtime, selected=None):
     return {"success": True, "text": answer or unavailable[locale], "dj_text": answer or unavailable[locale],
             "action": "none", "intent": {"category": "informational", "intent": "current_artist_information"},
             "images": [], "links": [dict(source) for source in sources if source.get("url")], "sources": sources,
-            "playback_actions": [], "_private_current_context": True}
+            "playback_actions": [], "_private_current_context": True,
+            "speech_processing_basis": "spotify_owner_local_read_v1" if answer and target else "accepted_local_reply"}

@@ -246,6 +246,7 @@ def history_grant_revision(hass, owner: str, household=None) -> str:
         issue = None
     repair_source = str((issue.data or {}).get("entry_id") or "") if issue else ""
     payload = (
+        getattr(profile_storage(hass), "authority_revision", 0),
         str(profile.state) if profile else "missing",
         str(profile.privacy_mode) if profile else "",
         sorted(accounts),

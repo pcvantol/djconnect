@@ -10001,6 +10001,7 @@ async def _dialogue_choice_response(hass, runtime, payload, text, *, index=None)
             or chosen >= len(shown["items"]) or shown["items"][chosen] != action_identity):
             raise DialogueError("choice_changed")
     turn.effect_validators.append(validate_choice)
+    validate_choice_evidence.speech_deadline = shown["deadline"]
     turn.delivery_validators.append(validate_choice_evidence)
     await turn.guard()
     activate = explicit_activate(text) or (isinstance(value, dict) and value["operation"] == "activate")

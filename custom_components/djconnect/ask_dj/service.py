@@ -141,6 +141,8 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
         if not reserved:
             accepted, admission = await asyncio.shield(future)
             result = deepcopy(accepted)
+            if "session_speech" in result:
+                result["session_speech"]["autoplay_eligible"] = False
             # The original caller's fence does not authorize another joined
             # transport whose pairing/entry may have been withdrawn meanwhile.
             await admission(owner=validate_owner, immediate=validate_immediate)
@@ -367,6 +369,14 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
                 "input_type": turn_record["input_type"], "style": turn.style,
                 "model_source_basis": turn.source_context.get("basis"),
                 "metrics": {"agent_calls": turn.agent_calls, "lookup_calls": turn.lookup_calls, "prompt_bytes": turn.prompt_bytes}}}
+        from ..session_speech import remember
+        response["session_speech"] = remember(history_manager.dialogue, turn, result,
+            turn_id=turn_record["turn_id"], session_id=style_session,
+            persona_revision=style_revision, scope_revision=history_manager.scope_revision(scope),
+            grant_revision=grant, profile_source=source_scope(profile),
+            playback_item_id=captured if track_bound and not explicit_action else "",
+            deduplicated=bool(result.get("deduplicated")),
+            autoplay_eligible=payload.get("audio_response", "auto") != "never")
         # RAM-only admission travels with this bounded in-flight future. Each
         # waiter rechecks the original evidence with its own caller authority.
         future.set_result((deepcopy(response), joined_admission))
