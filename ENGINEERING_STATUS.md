@@ -1,5 +1,45 @@
 # DJConnect Engineering Status
 
+## Current: Speech/Persona — existing source integration resumed
+
+#### Repository Status
+
+Predecessor Finalization PR [#1185](https://github.com/pcvantol/djconnect/pull/1185) protected merged as `58205056c235a73488591591dd3d83f80f7bf847`; source1184 remains closed. Repository State: `MERGED_RECONCILED` describes that delivered predecessor. Existing Speech PR [#1177](https://github.com/pcvantol/djconnect/pull/1177) remains open at published533fa48c; its local successor integrates this main on the same branch and is not published or merged.
+
+#### Management Summary
+
+[Resume ACK6203295611](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6203295611), same sole Core writer. Fresh hostverify MATCH/package4.5.3 and projection PASS; original533 preserved in verified complete-history bundle. Normal owner and final synchronous ingress fences plus declared network/Wyoming dependencies coexist. No gateway exemption, Swift write or second pickup. Existing native/audible/joint acceptance remains open.
+
+#### Roadmap Position
+
+Existing Speech leaves stay In progress. Canonical maintenance12 composes over byte-preserved actual main582 maintenance11 with WEB schema2,21nodes/47edges and receipts intact.23 views regenerated from JSON. No successor admission or consumer implementation is inferred.
+
+#### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+1. **DJC-SESSION-SPEECH-PERSONA-VOICE-20261015 — active existing continuation.** Integrate582, renew affected real qualification and independent reviews, then exact publication gate and separate Finalization.
+2. **DJC-VIBECAST-TV-BOOTSTRAP-CLOUDFLARE-V1-20261015 — separate receiver selection.** Existing receiver writer owns admission and contract gates; no Core takeover.
+3. **Unfilled product slot3 — no further eligible admission.** Passive projection waits for Speech closure.
+4. **Unfilled product slot4 — no further eligible admission.**
+5. **Unfilled product slot5 — no further eligible admission.**
+
+#### Blocked Items
+
+Integrated source requires its own exact reviews/checks/publication grant; old533 merge authorization was not granted. Actual direct-LAN ingress remains unqualified on both installed HAs; no native LAN PASS.
+
+#### Deferred Items
+
+Passive Session projection6199213014 waits for Speech completion and fresh admission. New providers/models/costs, topology/service/workflow changes and consumerwrites are outside this continuation.
+
+#### Repository State
+
+Predecessor MERGED_RECONCILED; current Speech implementation is local WIP, not a delivered source or Finalization. Historical records below retain their original pins.
+
+#### Workspace State
+
+Workspace State: `NOT_READY` for another assignment; same existing branch codex/session-speech-persona-voice-v1 under requalification. Separate VibeCast worktree, Applelab, dashboard lease and recovery remain preserved. Standing HA-dev/prod installation instruction follows valid final qualified main, not local WIP.
+
+## Historical operational context
+
 ## Current: Session speech, live Persona and voice — admitted Core implementation
 
 #### Repository Status
@@ -23,6 +63,66 @@ Live JSON maintenance12 preserves delivered artwork11/history bytes. Four bounde
 1. **DJC-SESSION-SPEECH-PERSONA-VOICE-20261015 — active selected implementation.** Owner6189231491/autonomous-next6189912293; same writer, fresh admission after valid artwork closure. Finish exact producer qualification/reviews/delivery/Finalization and Apple handoff; native acceptance separately owned.
 2. **Unfilled product slot 2 — no further authorized selection.** Not dispatched.
 3. **Unfilled product slot 3 — no further authorized selection.** Not dispatched.
+
+## Current: qualified direct local HTTP/WS — separate Finalization
+
+#### Repository Status
+
+PR [#1184](https://github.com/pcvantol/djconnect/pull/1184) protected merged as `0f92b74e76ae055efdbf2b375d95c58e86328e27` from exact reviewed and owner-authorized `a0714b44d22918cbefa5ed0dfe3fc21afff5160a`, basef32b625e. Complete candidate/main tree equalityda6f2f6f6c8201d651586fae6aadd0d43bbed122;32successful checks/5conditional skips; actual Owner Authorization38810415033 SUCCESS. Exact automatic artifact/formal readback is recorded in [source readback](docs/verification/HYBRID_LOCAL_TRANSPORT_SOURCE_READBACK_20261015.md). Historical1178/1179 and VibeCast1181/1183 stay closed. Source integration is qualified; deployment and physical LAN remain separate.
+
+#### Management Summary
+
+Direct local HTTP/WS uses the existing paired dispatcher under explicit operator-owned, exact-peer ingress qualification. External TLS and ordinary pairing/Profile/source/installation/operation authority remain. Final synchronous owner and ingress checks close revocation races before effects and private delivery. The real hassfest dependency failure was repaired by declaring the already-used HA network dependency; no workflow, runner or trust bypass. Current HA-dev Docker ingress remains unqualified; software loopback proof is not installed/native LAN acceptance.
+
+#### Roadmap Position
+
+Generation2 DJConnect Product Development, Phase2 platform transport maintenance under the existing hybrid owner-action path. No new product family, planner or consumer writer. All incoming VibeCast WEB-schema2 nodes, edges, decisions and receipts are preserved; current DAG changes only documentary references. Source Core software is delivered; shared guest, native LAN, hardware and joint acceptance remain OPEN.
+
+#### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+1. **DJC-SESSION-SPEECH-PERSONA-VOICE-20261015 — existing selected Core continuation.** [Owner selection6189231491](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6189231491) and autonomous-next6189912293; frozen source1177/head533 remains preserved. Execution rationale: resume the already-selected writer after this maintenance Finalization, safe own cleanup and fresh admission, then integrate actual main and renew qualification/reviews/exact candidate gates. No second writer or old-SHA grant reuse.
+2. **DJC-VIBECAST-TV-BOOTSTRAP-CLOUDFLARE-V1-20261015 — independently selected receiver16.** [Canonical backlog](PRODUCT_BACKLOG.md) and documentary1181/1183 terminalf32b625e; public delivery queued and adapter contract-gated. Execution rationale: its existing receiver writer follows its own prior WIP closure/fresh admission; Core neither starts nor takes over that work.
+3. **Unfilled product slot 3 — no additional eligible selection.** Not dispatched.
+4. **Unfilled product slot 4 — no additional eligible selection.** Not dispatched.
+5. **Unfilled product slot 5 — no additional eligible selection.** Not dispatched.
+
+#### Blocked Items
+
+HA-dev direct LAN needs actual source-preserving ingress/operator evidence; observed Docker gateway and missing internal URL do not qualify, and no gateway exemption is introduced. Installed/native LAN and joint acceptance remain open. This separate Finalization retains its own exact publication gate. Speech1177 requires fresh integration/review/publication on its actual newer base. Selected passive Session projection6199213014 waits for its explicit Speech predecessor and fresh admission; it is not dispatched or counted as a ready horizon entry. Standing owner installation instructions for dev/prod follow valid slice Finalization and exact qualified latest-main readback; they do not themselves qualify a local ingress.
+
+#### Deferred Items
+
+Actual direct-LAN/cellular/LAN native acceptance, topology qualification and any separately authorized configuration work; broader Speech, passive surfaces and consumer adoption remain outside this repair. No Swift/receiver, network/proxy/certificate/firewall/service/runner/workflow or provider/model changes in this increment. No private shared content or new credentials. No second productslice from this reconciliation.
+
+#### Repository State
+
+Repository State: `MERGED_RECONCILED` is the intended state after this separate Finalization is protected merged and exact main/artifacts are read back. Before that actual merge source1184 remains MERGED_UNRECONCILED. The [immutable completion record](docs/history/prompts/2026-10-15-hybrid-local-http-ws-finalization.md) and terminal register bind the real effects; this premerge freeze does not claim a future merge SHA.
+
+#### Workspace State
+
+Workspace State: `NOT_READY` until the existing sole writer verifies own postmerge synchronization and safe cleanup. Only this repair source/Finalization refs are in scope; frozen Speech1177, the other VibeCast worktree and recovery evidence are preserved. Normal deletion, squash equivalence, remote absence and unpublished-work checks must pass; otherwise retain refs pending a precise safe exception. No force or global WORKSPACE_READY claim from documentary completion.
+
+## Historical operational context
+
+## Current: VibeCast decisions delta — separate documentary Finalization
+
+#### Repository Status
+
+PR [#1181](https://github.com/pcvantol/djconnect/pull/1181) protected merged as `8a48a6ffdfb92d90719626c78a3e70093385cc70` from exact independently reviewed/owner-authorized `43a088d02c7d23a3485a4a76b4b6ff3f12e1d337`, base62c8156d. Complete tree equalitydc16605a46fa231d7d03ae1cb7f8941a09b49d87;32successful checks/5conditional skips; actual Owner Authorization38806293235 SUCCESS. [Exact source readback](docs/verification/VIBECAST_DECISIONS_DELTA_V1_SOURCE_READBACK_20261015.md) binds main/artifact/formal/coverage evidence. Prior1175/1176, maintenance1178/1179 and other historical receipts remain exact.
+
+#### Management Summary
+
+Canonical designs resolve vibecast.tv/root and the existing-app exception, both discovery/QR entries, temporary guest isolation and adaptive Glass/Soft/Solid. 🤩 replaces 🤯 in the working proposal; final set/count/labels and 🚀 remain OPEN. Repo/CI owners and optional Cast lifecycle differ explicitly: current sender departure/supersession stops a view, not shared/Session authority; future independent Cast continuity still requires qualification. No runtime/Swift/CI-config/DNS/deployment or source relocation.
+
+#### Roadmap Position
+
+Generation2 DJConnect Product Development, Phase2 Reference/Renderer Experience documentary decisions delta.21existing WEB nodes preserved,47phase-bound dependencies,23generated views. Receiver16 PUBLIC_WEB_DELIVERY SELECTED_QUEUED and its RENDEZVOUS_INTEGRATION SELECTED_CONTRACT_GATED; full Apple/HA onboarding and shared guest acceptance remain OPEN with separate producer gates. All other WEB product implementation remains Planned/NOT_ISSUED. No API/Core/Apple producerselection, fake E2E or Cast hardware prerequisite for independent bootstrap. Existing runtime/Apple/Watch queues remain.
+
+#### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+1. **DJC-VIBECAST-TV-BOOTSTRAP-CLOUDFLARE-V1-20261015 — selected/queued receiver16.** After this new docsdelta source/Finalization pin and own prior WIP closure, the existing receiver writer autonomously performs fresh admission; no new general start question. Public frontend/build/CD independent, adapter contract-gated; no executor ACK inferred.
+2. **DJC-CORE-HYBRID-LOCAL-HTTP-WS-FIX-V1-20261015 — existing Core maintenance WIP.** Preserve the same writer/current scope and integrate this documentary main before its own exact qualification/publication; no new assignment or reordered Core queue.
+3. **DJC-SESSION-SPEECH-PERSONA-VOICE-20261015 — existing frozen source1177.** Retain candidate and its own exact changed-base/review/publication/Finalization gates; no grant or merge inferred from docs closure.
 4. **Unfilled product slot 4 — no further authorized selection.** Not dispatched.
 5. **Unfilled product slot 5 — no further authorized selection.** Not dispatched.
 
@@ -47,6 +147,63 @@ Documentary main integration: #1174 source1175/7266bc25 and Finalization1176/a6d
 ## Recorded documentary predecessor context
 
 ## Delivered documentary predecessor: VibeCast web-first design
+
+This separate Finalization retains its own exact independent reviews/checks and candidate/publication gate; source approval does not cover it. Receiver's fresh admission waits only for actual new docs source/Finalization terminal pin and own earlier WIP closure; no general restart permission. TRUST/API contract gates receiver serviceadapter, DISPLAY/OWNER-SCANNER gate full onboarding, BROWSER/GUEST/SHARED gate full guest acceptance. No physical or live account/domain/TLS PASS from owner-reported domain purchase.
+
+#### Deferred Items
+
+Final reaction count/set/labels/rocket; exact service/wire/crypto/TTL/budgets/retention and actual Cloudflare bindings; browser minimum/bugs/long-running evidence; Apple WebView/native rendering; shared media rights; share/cancel policy; actual CAF continuity. Domain/root and app exception are RESOLVED, not reopened. No new Core runtime, Swift, DNS, Pages/Worker, CI-config, provider/cost, signing/installation or hardware scope in this docs assignment.
+
+#### Repository State
+
+Repository State: `MERGED_RECONCILED` for source1181 when this separate Finalization is protected merged and exact main/artifacts read back. This is the candidate's intended postmerge reconciliation, not a premerge success claim. Source alone was MERGED_UNRECONCILED. The [immutable Finalization record](docs/history/prompts/2026-10-15-vibecast-web-first-decisions-delta-finalization.md) binds actual source evidence; concurrent Core/Speech/Apple/receiver WIP stays separate.
+
+#### Workspace State
+
+Workspace State: `NOT_READY` for a new unrelated assignment until own postmerge synchronization/cleanup disposition is verified. Own scope is the isolated docs checkout only; shared Core/Apple/receiver WIP and evidence remain untouched. Squash refs are preserved if normal safe deletion/patch checks fail; no forced cleanup or global WORKSPACE_READY claim. This housekeeping limit does not grant or revoke the already-selected receiver's separate fresh admission after documentary closure.
+
+## Historical operational context
+## Current: Profile-bound playback DEBUG hotfix — separate Finalization
+
+#### Repository Status
+
+Source PR [#1178](https://github.com/pcvantol/djconnect/pull/1178) protected merged as `fe8c66a120a44faaeb49432729359e6a2055194e` from exact independently reviewed and human-authorized `94e531e4fde0b9fd58a19b85bf231f96ce3a132b`, basea6d666fe. Full candidate/main tree equality;32checksPASS/5conditional skips; actual exact Owner Authorization38795093899 SUCCESS. [Exact source/artifact/HA-dev readback](docs/verification/PLAYBACK_DEBUG_PROFILE_CONTEXT_SOURCE_READBACK_20261015.md) qualifies164files/0mismatch and formal/raw/coverage/provenance bindings. Existing artwork, web-first, history and other delivered producers stay closed.
+
+#### Management Summary
+
+Maintenance repair only: diagnostic logging previously resolved Profile/provider metadata with a missing HA context and threw500 before normal dispatch. Six helpers now use only existing request backend/observed availability. Real authorization, Profile/provider checks and actual errors remain in their owners; no silent empty-success fallback, pairing reset or Profile merge. No new product family, provider, model, queue effect or client implementation.
+
+#### Roadmap Position
+
+Existing Core maintenance within the current platform; no new product node or changed product delivery state. Canonical roadmap/backlog reference this bounded repair and generated source bindings follow current document hashes. WEB21nodes/44edges/receipt and frozen snapshots remain unchanged. Speech/Persona remains the same active assignment, with sourcePR1177/head533fa48c separately frozen; it must integrate this newer main and obtain exact renewed qualification/publication authority before delivery.
+
+#### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+1. **DJC-SESSION-SPEECH-PERSONA-VOICE-20261015 — existing Core execution, not delivered.** Keep the same writer and preserved source; integrate the delivered maintenance main after this Finalization, rerun relevant exact qualification/review and respect its own actual publication gate.
+2. **Unfilled product slot2 — no additional admitted assignment.** Passive surfaces/ActivityKit remain a separately preserved future dependency, not dispatched here.
+3. **Unfilled product slot3 — no additional admitted assignment.**
+4. **Unfilled product slot4 — no additional admitted assignment.**
+5. **Unfilled product slot5 — no additional admitted assignment.**
+
+#### Blocked Items
+
+This documentary Finalization retains its own exact review/publication gate. Source94 authorization is not an authorization for an unknown Finalization SHA. Speech533 retains a separate gate and is not silently changed. Current hostverify MATCH/exit0/package4.5.3. Apple reports physical build40098 PASS for the three HTTP500 screens; Core read back the probe receipts/logs. Broader native, Speech and hardware acceptance remain outside this repair. HA-prod has not been updated by this urgent HA-dev repair.
+
+#### Deferred Items
+
+Speech delivery/Persona/audio adoption, passive/locked-screen/ActivityKit grants, guest/web-first runtime and all other product work remain separate. No Swift/receiver writer, signing, Pages, workflow/runner/service change or new provider/model/cost route. No new lifecycle or queue planning. Existing selected scopes and other worktrees/labs/WIP are preserved.
+
+#### Repository State
+
+Repository State: `MERGED_UNRECONCILED` for this source until this separate Finalization is protected merged and exact-main/artifact read back; intended terminal scope is `MERGED_RECONCILED`. This candidate does not claim its own publication has already passed. [Immutable Finalization record](docs/history/prompts/2026-10-15-playback-debug-context-finalization.md) binds the verified source and bounded reconciliation. Whole Speech delivery remains open.
+
+#### Workspace State
+
+Workspace State: `NOT_READY` for another product assignment while Speech WIP and this exact Finalization gate remain. Preserve source94/Finalization/Speech533 refs and recovery; never force-delete squash refs under another candidate's grant. Own safe cleanup follows actual protected delivery and proven branch disposition; no global clean-workspace claim. HA-dev sourcefe8 is installed with verified backup/rollback,164files0mismatch, unchanged pairing/Profile and actual iPad-identity HTTP500→200 for status/queue/playlists. Production remains open; physical iPad acceptance is limited to the three repaired screens as recorded in the readback.
+
+## Historical operational context
+
+## Current: VibeCast web-first design — separate Finalization
 
 #### Repository Status
 

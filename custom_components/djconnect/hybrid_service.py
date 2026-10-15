@@ -86,6 +86,9 @@ class PairedAuthority:
     def __init__(self, hass, identity, headers, runtime, context, binding):
         self.hass, self.identity, self.headers = hass, identity, headers
         self.runtime, self.context, self.binding = runtime, context, binding
+        self.transport_guard = None
+        self.transport_guard_now = None
+        self.owner_final_guard = None
         self.owner = hashlib.sha256(context.profile_id.encode()).hexdigest()
         self.device = hashlib.sha256(identity["device_id"].encode()).hexdigest()
 
@@ -145,12 +148,41 @@ class PairedAuthority:
                 "grant": grant,
             }
         )
-        return cls(hass, dict(identity), dict(headers), runtime, context, binding)
+        authority = cls(hass, dict(identity), dict(headers), runtime, context, binding)
+
+        def owner_final_guard():
+            from .api_handlers import _conversation_profile_fence
+            from .session_conversation import history_grant_revision, SessionConversationError
+
+            try:
+                _conversation_profile_fence(hass, runtime, authority.identity, authority.headers, context)
+            except SessionConversationError as exc:
+                raise OperationError(exc.code, exc.status) from None
+            current_manager = hass.data.get(DOMAIN, {}).get("session_runtime_manager")
+            if (
+                getattr(runtime, "_receiver_end_generation", 0) != generation
+                or (current_manager and current_manager.receiver_entry_generation(entry_id) != generation)
+                or history_grant_revision(hass, context.profile_id) != grant
+            ):
+                raise OperationError("operation_context_changed", 403)
+
+        authority.owner_final_guard = owner_final_guard
+        return authority
 
     async def validate(self):
         current = await self.resolve(self.hass, self.identity, self.headers)
         if current.runtime is not self.runtime or current.binding != self.binding:
             raise OperationError("operation_context_changed", 403)
+        if self.transport_guard is not None:
+            await self.transport_guard()
+        self.validate_now()
+
+    def validate_now(self):
+        if self.owner_final_guard is None:
+            raise OperationError("operation_context_changed", 403)
+        self.owner_final_guard()
+        if self.transport_guard_now is not None:
+            self.transport_guard_now()
 
     def payload(self, value):
         if not isinstance(value, dict):
@@ -484,7 +516,10 @@ def validate_transport_effect_now():
     if current is not None:
         if not current:
             raise OperationError("operation_context_changed", 409)
-        manager, key, _authority = current
+        manager, key, authority = current
+        final_guard = getattr(authority, "validate_now", None)
+        if final_guard is not None:
+            final_guard()
         if manager.journal._failed:
             raise OperationError("operation_unavailable", 503)
         manager.journal._validate_time(manager.journal._state["records"][key]["operation_id"])

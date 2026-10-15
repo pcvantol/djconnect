@@ -1,3 +1,5 @@
 flowchart LR
-  Docs["#1174 designs authored; delivery gates separate"] --> Trust["Trust and legacy disposition qualification Planned"]
-  Trust --> Join["Bootstrap/display/shared guest slices Planned; no dispatch"]
+  Docs["New decisions delta source+Finalization pin"] --> Public["Receiver16 public frontend/build/CD SELECTED QUEUED"]
+  API["API trust/rendezvous Planned"] --> E2E["Full onboarding integration OPEN"]
+  Core["Core display / Apple scan Planned"] --> E2E
+  Public --> E2E

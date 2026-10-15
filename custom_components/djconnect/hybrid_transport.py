@@ -1,4 +1,4 @@
-"""TLS-only paired action adapters; ordinary owner HTTP and WS share services."""
+"""Qualified TLS/direct-local paired adapters; HTTP and WS share domain services."""
 
 from __future__ import annotations
 
@@ -6,7 +6,6 @@ import asyncio
 from contextlib import suppress
 import json
 import secrets
-from urllib.parse import urlsplit
 
 from aiohttp import WSMsgType, web
 from homeassistant.components.http import HomeAssistantView
@@ -14,6 +13,8 @@ from homeassistant.components.http import HomeAssistantView
 from .hybrid_service import OperationError, PairedAuthority, operations
 from .transport_delivery import OwnerDeliveryResult
 from .hybrid_contract import FRAME_LIMIT, bounded_frame
+from .hybrid_local_policy import same_origin, transport_security_policy
+from .hybrid_ingress_qualification import read_qualification, qualify, qualification_current_now
 
 ACTION_PATH = "/api/djconnect/v1/actions/paired"
 AUTH_TIMEOUT = 5
@@ -27,31 +28,85 @@ def response(body, status=200):
     )
 
 
-def request_error(request):
+async def local_qualification(hass, peer, host, header_names):
+    from homeassistant.components.network import async_get_adapters
+    from homeassistant.helpers.network import NoURLAvailableError, get_url
+    from .const import CONF_HA_INSTALL_ID, DOMAIN
+
+    try:
+        internal_url = get_url(hass, allow_external=False, allow_cloud=False)
+    except NoURLAvailableError:
+        return None
+    adapters = await async_get_adapters(hass)
+    install_ids = {
+        runtime.config.get(CONF_HA_INSTALL_ID)
+        for runtime in hass.data.get(DOMAIN, {}).values()
+        if isinstance(getattr(runtime, "config", None), dict)
+        and isinstance(runtime.config.get(CONF_HA_INSTALL_ID), str)
+        and runtime.config.get(CONF_HA_INSTALL_ID)
+    }
+    snapshot = await hass.async_add_executor_job(read_qualification, hass.config.config_dir)
+    return qualify(snapshot, peer, adapters, internal_url, host, header_names, install_ids)
+
+
+async def request_error(hass, request):
     if request.query_string:
         return response({"success": False, "error": "query_not_allowed"}, 400)
     if not request.secure:
-        return response({"success": False, "error": "transport_security_required"}, 426)
-    origin = request.headers.get("Origin")
-    if origin is not None:
-        try:
-            supplied = urlsplit(origin)
-            expected = urlsplit("https://" + request.host)
-            allowed = (
-                supplied.scheme == "https"
-                and not supplied.username
-                and not supplied.password
-                and not supplied.path
-                and not supplied.query
-                and not supplied.fragment
-                and supplied.hostname == expected.hostname
-                and (supplied.port or 443) == (expected.port or 443)
-            )
-        except ValueError:
-            allowed = False
-        if not allowed:
-            return response({"success": False, "error": "origin_not_allowed"}, 403)
+        peer = request.transport.get_extra_info("peername") if request.transport else None
+        qualification = await local_qualification(hass, peer, request.host, tuple(request.headers))
+        if qualification is None:
+            return response({"success": False, "error": "transport_security_required"}, 426)
+        request["djconnect_local_qualification"] = qualification
+    if not same_origin(request.headers.getall("Origin", []), request.scheme, request.host):
+        return response({"success": False, "error": "origin_not_allowed"}, 403)
     return None
+
+
+def bind_ingress_guard(hass, authority, request):
+    if request.secure:
+        return
+    from .const import CONF_HA_INSTALL_ID
+
+    original = request["djconnect_local_qualification"]
+    config_dir = hass.config.config_dir
+    revoked = False
+    peer = request.transport.get_extra_info("peername")
+    host, header_names = request.host, tuple(request.headers)
+
+    def validate_now():
+        nonlocal revoked
+        if revoked or not qualification_current_now(config_dir, original):
+            revoked = True
+            raise OperationError("transport_security_required", 426)
+
+    async def validate():
+        nonlocal revoked
+        validate_now()
+        current = await local_qualification(hass, peer, host, header_names)
+        if (
+            current is None
+            or current["fingerprint"] != original["fingerprint"]
+            or current["stamp"] != original["stamp"]
+            or current["ha_install_id"] != authority.runtime.config.get(CONF_HA_INSTALL_ID)
+        ):
+            revoked = True
+            raise OperationError("transport_security_required", 426)
+        validate_now()
+
+    authority.transport_guard = validate
+    authority.transport_guard_now = validate_now
+
+
+def transport_context(result, request):
+    return {
+        **result,
+        "requires_authenticated_tls": bool(request.secure),
+        "transport_security": {
+            **transport_security_policy(),
+            "mode": "authenticated_tls" if request.secure else "qualified_direct_http",
+        },
+    }
 
 
 async def json_body(request):
@@ -77,18 +132,19 @@ class _HybridHTTP(HomeAssistantView):
         self.hass = hass
 
     async def post(self, request):
-        invalid = request_error(request)
+        invalid = await request_error(self.hass, request)
         if invalid is not None:
             return invalid
         try:
             body = await json_body(request)
             identity = body.pop("identity", None)
             authority = await PairedAuthority.resolve(self.hass, identity, request.headers)
+            bind_ingress_guard(self.hass, authority, request)
             manager = operations(self.hass)
             if self.action == "context":
                 if body != {"contract_version": 1} or type(body.get("contract_version")) is not int:
                     raise OperationError("invalid_request", 400)
-                result, status = await manager.context(authority), 200
+                result, status = transport_context(await manager.context(authority), request), 200
             elif self.action == "execute":
                 result, status = await manager.execute(authority, body, transport="http")
             elif self.action == "status":
@@ -104,6 +160,8 @@ class _HybridHTTP(HomeAssistantView):
             await authority.validate()
             if isinstance(result, OwnerDeliveryResult):
                 result = await result.admitted_body()
+            await authority.validate()
+            authority.validate_now()
             return response(result, status)
         except OperationError as exc:
             return response({"success": False, "error": exc.code}, exc.status)
@@ -143,7 +201,7 @@ class HybridActionsView(HomeAssistantView):
         self.connections = {}
 
     async def get(self, request):
-        invalid = request_error(request)
+        invalid = await request_error(self.hass, request)
         if invalid is not None:
             return invalid
         if len(self.connections) >= 16:
@@ -197,10 +255,11 @@ class HybridActionsView(HomeAssistantView):
             manager = operations(self.hass)
             async with asyncio.timeout_at(auth_deadline):
                 authority = await PairedAuthority.resolve(self.hass, identity, headers)
+                bind_ingress_guard(self.hass, authority, request)
                 if sum(device == authority.device for device in self.connections.values()) >= 2:
                     raise OperationError("connection_capacity", 429)
                 self.connections[connection_id] = authority.device
-                context = await manager.context(authority)
+                context = transport_context(await manager.context(authority), request)
             await ws.send_json(
                 {
                     **context,
@@ -244,6 +303,8 @@ class HybridActionsView(HomeAssistantView):
                                 )
                         elif isinstance(item.get("result"), OwnerDeliveryResult):
                             item["result"] = await item["result"].admitted_body()
+                        await authority.validate()
+                        authority.validate_now()
                         await ws.send_str(bounded_frame(item))
 
             writer = asyncio.create_task(send())

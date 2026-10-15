@@ -204,6 +204,10 @@ class MaintenanceTests(unittest.TestCase):
                     if delivered
                     else ("In progress", "IN_PROGRESS"),
                 )
+            elif n["id"] == "WEB::DISTRIBUTION" and d["web_first_receipt"].get("schema_version") == "djconnect-web-first-design/2":
+                self.assertEqual((n["status"], n["assignment_status"]), ("Planned", "SELECTED_QUEUED"))
+                self.assertEqual(n["delivery_subsets"]["PUBLIC_WEB_DELIVERY"]["executor_ack"], "PENDING")
+                self.assertEqual(n["delivery_subsets"]["RENDEZVOUS_INTEGRATION"]["assignment_status"], "SELECTED_CONTRACT_GATED")
             elif n["id"] == "WEB::DOCS":
                 self.assertEqual((n["status"], n["assignment_status"]), ("Completed", "DESIGN_AUTHORED"))
                 self.assertEqual(d["web_first_receipt"]["product_implementation"], "Planned")
@@ -630,19 +634,19 @@ class SpeechPersonaMaintenanceTests(unittest.TestCase):
     def test_documentary_web_predecessor_and_both_families_survive_composition(self):
         import json
         d = self.p['planning_maintenance']
-        previous_file = ROOT / 'history/20261015/web-first-finalization-maintenance-v11.json'
+        previous_file = ROOT / 'history/20261016/pre-speech-main582-maintenance-v11.json'
         previous = json.loads(previous_file.read_text())
         self.assertEqual(hashlib.sha256(previous_file.read_bytes()).hexdigest(),
                          d['speech_persona_receipt']['previous_delta_sha256'])
         self.assertEqual(d['speech_persona_receipt']['integration_main_sha'],
-                         'a6d666fea7f30254b20bea015fad8d1fd8d7b059')
+                         '58205056c235a73488591591dd3d83f80f7bf847')
         self.assertEqual(d['web_first_receipt'], previous['web_first_receipt'])
         self.assertEqual([n for n in d['nodes'] if not n['id'].startswith('SPEECH::')], previous['nodes'])
         self.assertEqual([e for e in d['edges'] if not e['id'].startswith('SPEECH-')], previous['edges'])
         self.assertEqual(len([n for n in d['nodes'] if n['id'].startswith('WEB::')]), 21)
-        self.assertEqual(len([e for e in d['edges'] if e['id'].startswith('WEB-FIRST-')]), 44)
+        self.assertEqual(len([e for e in d['edges'] if e['id'].startswith('WEB-FIRST-')]), 47)
         self.assertIn('Selected and freshly admitted speech/Persona implementation', render(self.p)['README.md'])
-        self.assertIn('Web-first #1174 documentary extension', render(self.p)['README.md'])
+        self.assertIn('Web-first #1174 decision delta', render(self.p)['README.md'])
 
     def test_composition_rejects_documentary_rewrite_or_cross_family_cycle(self):
         for mutation in ('receipt', 'node', 'edge', 'cycle', 'integration_base'):
@@ -741,3 +745,118 @@ class WebFirstNegativeTests(unittest.TestCase):
                         if r["path"].endswith("VIBECAST_WEB_FIRST_EXPERIENCE_V1.md")
                     )["sha256"] = "0" * 64
                 self.assertTrue(validate(bad))
+
+
+class WebDecisionTests(unittest.TestCase):
+    def setUp(self):
+        self.p = load(ROOT / "djconnect-platform-v1.json")
+
+    def test_resolved_choices_are_not_runtime_or_other_lane_selection(self):
+        from web_first_decisions_delta import RESOLVED, PUBLIC
+
+        d = self.p["planning_maintenance"]
+        self.assertEqual(d["web_first_receipt"]["resolved_decisions"], RESOLVED)
+        self.assertEqual(d["web_first_receipt"]["decisions_delta"]["selected_receiver"], PUBLIC)
+        for node in d["nodes"]:
+            if node["id"].startswith("WEB::") and node["id"] not in {
+                "WEB::DOCS",
+                "WEB::DISTRIBUTION",
+            }:
+                self.assertEqual(
+                    (node["status"], node["assignment_status"]), ("Planned", "NOT_ISSUED")
+                )
+
+    def test_independent_public_subset_has_own_document_pin_not_api_or_cast_gate(self):
+        d = self.p["planning_maintenance"]
+        node = next(n for n in d["nodes"] if n["id"] == "WEB::DISTRIBUTION")
+        public = next(
+            g
+            for g in node["prerequisite_groups"]
+            if g.get("consumer_subset") == "PUBLIC_WEB_DELIVERY"
+        )
+        self.assertEqual(public["edge_ids"], ["WEB-FIRST-DECISIONS-PIN"])
+        edges = {e["id"]: e for e in d["edges"]}
+        self.assertEqual(edges[public["edge_ids"][0]]["producer"], "WEB::DOCS")
+        self.assertTrue(
+            all(
+                e.get("consumer_subset")
+                in {
+                    "RENDEZVOUS_INTEGRATION",
+                    "FULL_SHARED_GUEST_ACCEPTANCE",
+                    "APPLE_HA_ONBOARDING_E2E",
+                }
+                for e in d["edges"]
+                if e["consumer"] == "WEB::DISTRIBUTION" and e["id"] != "WEB-FIRST-DECISIONS-PIN"
+            )
+        )
+
+    def test_receiver_adapter_does_not_wait_for_guest_product_or_reselect_producers(self):
+        d = self.p["planning_maintenance"]
+        subsets = next(n for n in d["nodes"] if n["id"] == "WEB::DISTRIBUTION")["delivery_subsets"]
+        self.assertEqual(
+            subsets["RENDEZVOUS_INTEGRATION"]["assignment_status"], "SELECTED_CONTRACT_GATED"
+        )
+        self.assertEqual(
+            subsets["RENDEZVOUS_INTEGRATION"]["required_nodes"], ["WEB::TRUST", "WEB::BOOTSTRAP"]
+        )
+        self.assertEqual(
+            subsets["APPLE_HA_ONBOARDING_E2E"]["required_nodes"],
+            ["WEB::DISPLAY", "WEB::OWNER-SCANNER"],
+        )
+        self.assertEqual(
+            subsets["FULL_SHARED_GUEST_ACCEPTANCE"]["required_nodes"], ["WEB::BROWSER"]
+        )
+        for node in d["nodes"]:
+            if node["id"] in {"WEB::TRUST", "WEB::BOOTSTRAP", "WEB::DISPLAY", "WEB::OWNER-SCANNER"}:
+                self.assertEqual(node["assignment_status"], "NOT_ISSUED")
+
+    def test_reject_false_choice_closure_runtime_start_or_moved_gate(self):
+        for case in (
+            "url",
+            "exception",
+            "rocket",
+            "ack",
+            "effect",
+            "other_lane",
+            "public_dependency",
+            "pin_removed",
+            "prior_receipt",
+            "history",
+            "wrong_owner",
+        ):
+            with self.subTest(case=case):
+                p = copy.deepcopy(self.p)
+                d = p["planning_maintenance"]
+                r = d["web_first_receipt"]
+                delta = r["decisions_delta"]
+                if case == "url":
+                    r["resolved_decisions"]["entry_url"] = "https://vibecast.tv/go"
+                if case == "exception":
+                    r["resolved_decisions"]["web_first_exception"] = "NATIVE_TV"
+                if case == "rocket":
+                    r["open_decisions"] = [x for x in r["open_decisions"] if "reaction" not in x]
+                if case == "ack":
+                    delta["selected_receiver"]["executor_ack"] = "STARTED"
+                if case == "effect":
+                    delta["deployment"] = True
+                if case == "other_lane":
+                    next(n for n in d["nodes"] if n["id"] == "WEB::BOOTSTRAP")[
+                        "assignment_status"
+                    ] = "SELECTED_QUEUED"
+                if case == "public_dependency":
+                    next(
+                        e
+                        for e in d["edges"]
+                        if e.get("consumer_subset") == "RENDEZVOUS_INTEGRATION"
+                    )["consumer_subset"] = "PUBLIC_WEB_DELIVERY"
+                if case == "pin_removed":
+                    d["edges"] = [e for e in d["edges"] if e["id"] != "WEB-FIRST-DECISIONS-PIN"]
+                if case == "prior_receipt":
+                    r["source_main_sha"] = "0" * 40
+                if case == "history":
+                    delta["prior_snapshot_sha256"] = "0" * 64
+                if case == "wrong_owner":
+                    next(n for n in d["nodes"] if n["id"] == "WEB::DISTRIBUTION")["lane"] = (
+                        "DJC-CORE"
+                    )
+                self.assertTrue(validate(p))

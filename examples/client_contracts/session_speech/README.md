@@ -96,3 +96,12 @@ pairing, initial accepted response, HA prepare, private bytes and failures are
 recorded. Earlier full browser/idle/model evidence remains pinned to c39, rather
 than being relabelled as a new run. Only session_speech.py differs in the Core
 Python manifest; no source-publication/native/audible/install grant follows.
+
+## Maintenance-main integration readback
+
+`integrated-main582.http.json` repeats the real networkless owner Speech chain
+after integrating58205056 on the existing Speech branch. Its provenance object
+compares all145 tracked Python files, with zero differences; one untracked
+identical copy is inventory only, never shipped. Original browser/model/301s
+fixtures keep their earlier pins. New source publication and native/audible
+acceptance are not implied.

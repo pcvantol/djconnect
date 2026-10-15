@@ -1,6 +1,6 @@
 # Maintenance source bindings
 
-Web-first #1174 documentary extension: SOURCE_PROTECTED_MERGED; design authored only, product implementation Planned/NOT_ISSUED and joint acceptance OPEN. Cast-first/native-TV prerequisites superseded for forward design; original receipts remain historical. URL/exception/emoji OPEN. No automatic dispatch or runtime/publication grant.
+Web-first #1174 decision delta: SOURCE_PROTECTED_MERGED; vibecast.tv/root and existing-app guest exception RESOLVED. Receiver16 PUBLIC_WEB_DELIVERY SELECTED/QUEUED after this delta delivery/Finalization and fresh own admission; executor ACK pending. API rendezvous/Core/Apple/guest integration separately Planned; full onboarding and hardware OPEN. Final reaction/rocket and technical choices OPEN. No runtime/deploy by this docs writer.
 
 Generated from djconnect-platform-v1.json, maintenance DJC-DJ-PRESENCE-ROADMAP-DESIGN-V1-20261011.
 
@@ -14,8 +14,8 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 
 | Local design source | SHA256 |
 |---|---|
-| [PRODUCT_ROADMAP.md](../../../PRODUCT_ROADMAP.md) | `7e43316c8ded736c26639a53f4b975067c4aa821a2c716a8d85449c1fb5423c0` |
-| [PRODUCT_BACKLOG.md](../../../PRODUCT_BACKLOG.md) | `76d24c537a84a9bc9f484e074e478417db7f34022b94fd7fa82e636a2cc2e258` |
+| [PRODUCT_ROADMAP.md](../../../PRODUCT_ROADMAP.md) | `5350ceeb8af3caea1bd3d25016520bd6f951fbfc82f06ed4453c7cf2affe2830` |
+| [PRODUCT_BACKLOG.md](../../../PRODUCT_BACKLOG.md) | `cf20a9126c1c0701b127cc309d2af8dd8ef1dbac37e7b7ac42dfbea1fc57ad05` |
 | [docs/product/DJ_PRESENCE_V1.md](../../../docs/product/DJ_PRESENCE_V1.md) | `c97be3bcebbd4ca70d640cdf4fc0a9a4808451e986bc977e3173e19842a928c4` |
 | [DJ_SESSION_RUNTIME_CONTRACTS.md](../../../DJ_SESSION_RUNTIME_CONTRACTS.md) | `6ae7a05260bc2a997252dbb70c28917ac6b7fd25930263d7c0940df929b1ec92` |
 | [docs/product/DJ_INTELLIGENCE_ARCHITECTURE.md](../../../docs/product/DJ_INTELLIGENCE_ARCHITECTURE.md) | `5345f4a3db6b2bfb97931d6acdde09439dc3dbae7a7d311107269922e08aef12` |
@@ -37,7 +37,7 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 | [docs/technical/SESSION_DIRECTION_PROJECTION_ARCHITECTURE.md](../../../docs/technical/SESSION_DIRECTION_PROJECTION_ARCHITECTURE.md) | `2cd12d11dc721aa95ac145fa5e4e418ea054017016c3fa1379ec31cdac027f10` |
 | [ROLLING_SESSION_HORIZON_ARCHITECTURE.md](../../../ROLLING_SESSION_HORIZON_ARCHITECTURE.md) | `f3ad240a96f606cbd35b748af6112b769b8b8035233b306c254b79fc1a84dd62` |
 | [docs/product/PRESENTATION_COMPOSER_ARCHITECTURE.md](../../../docs/product/PRESENTATION_COMPOSER_ARCHITECTURE.md) | `bd77cd1153bc310971493528bf8df33d868ab7420d7b25c5ce6e415e3e4e0cf2` |
-| [docs/product/VIBECAST_SHARED_RENDERER_BUILD_CONTRACT.md](../../../docs/product/VIBECAST_SHARED_RENDERER_BUILD_CONTRACT.md) | `6288cbf44e88fa99b6597f0f94f319609b6a80e0ff56e0eb83aee4d977df5e8c` |
+| [docs/product/VIBECAST_SHARED_RENDERER_BUILD_CONTRACT.md](../../../docs/product/VIBECAST_SHARED_RENDERER_BUILD_CONTRACT.md) | `cf40e653f962f0d90573e1cf362637cb2ae4730c2e835258dcbb48bdf4e77662` |
 | [docs/product/AMBIENT_FACT_MOMENT_CONVERGENCE_V1.md](../../../docs/product/AMBIENT_FACT_MOMENT_CONVERGENCE_V1.md) | `602ab34d4ee960349db8843189860a25894ce3ca57870d474c7bc6ce5fb7918e` |
 | [docs/verification/AMBIENT_FACT_MOMENT_CONVERGENCE_V1_SOURCE_READBACK.md](../../../docs/verification/AMBIENT_FACT_MOMENT_CONVERGENCE_V1_SOURCE_READBACK.md) | `500c0f99872817e857e5106e7c2a8ed39ac6877c153f616bd6795389171fc629` |
 | [docs/history/prompts/2026-10-12-ambient-fact-core-finalization.md](../../../docs/history/prompts/2026-10-12-ambient-fact-core-finalization.md) | `7391647babdf4eca2a287c7c8e654d3f98c0d04121367e030173c474bfde59a6` |
@@ -62,8 +62,8 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 | [docs/verification/ASK_DJ_CURRENT_ARTIST_REGRESSION_20261014.md](../../../docs/verification/ASK_DJ_CURRENT_ARTIST_REGRESSION_20261014.md) | `78758c7bd3d6a8d599cc477d296464c8b1bc6043398b3e6a219b03aede34f38e` |
 | [docs/verification/ASK_DJ_CURRENT_ARTIST_SOURCE_READBACK_20261014.md](../../../docs/verification/ASK_DJ_CURRENT_ARTIST_SOURCE_READBACK_20261014.md) | `6c96f139d01007ce310e136be0527901a73e20748a92645954a3b98d6b8d6709` |
 | [docs/history/prompts/2026-10-14-current-artist-profile-label-finalization.md](../../../docs/history/prompts/2026-10-14-current-artist-profile-label-finalization.md) | `8ff79d233563f7d8f7d4c118abe2c4b4eb05bb6cb3603a697b109dc62f359474` |
-| [docs/product/HYBRID_HTTP_WEBSOCKET_TRANSPORT_V1.md](../../../docs/product/HYBRID_HTTP_WEBSOCKET_TRANSPORT_V1.md) | `b1be6a3f8d98f5f3430c1aca6549c7caa6f56013f5fad7af688fe390d0babbb3` |
-| [docs/product/TRANSPORT_OPERATION_RECOVERY_CONTRACT_V1.md](../../../docs/product/TRANSPORT_OPERATION_RECOVERY_CONTRACT_V1.md) | `0ba644ddfd23139de80f50cf8b658cedab370c9fcc72e4e3ea9c35282f76b562` |
+| [docs/product/HYBRID_HTTP_WEBSOCKET_TRANSPORT_V1.md](../../../docs/product/HYBRID_HTTP_WEBSOCKET_TRANSPORT_V1.md) | `c1ff21765e4aeba32dbaa67c5202663cbeb2e8d0f3aace11099af492b1f17720` |
+| [docs/product/TRANSPORT_OPERATION_RECOVERY_CONTRACT_V1.md](../../../docs/product/TRANSPORT_OPERATION_RECOVERY_CONTRACT_V1.md) | `952f50b3ecdd7979a1e67740816abeb1450d09b62c14fd3c97f4baa44f18869d` |
 | [docs/verification/HYBRID_TRANSPORT_V1_ACCEPTANCE_MATRIX.md](../../../docs/verification/HYBRID_TRANSPORT_V1_ACCEPTANCE_MATRIX.md) | `779ce43ddb313e2d19f6cb15835a7bf16f9d8f76c70449751a699eea5259d3bf` |
 | [docs/verification/INTEGRATION_UX_LOCALIZATION_20261015.md](../../../docs/verification/INTEGRATION_UX_LOCALIZATION_20261015.md) | `c7d3dd11e4f9156ec1f25a7c28dd2af5264b3e2816a89abe5a3f7697241cc5e8` |
 | [docs/verification/HYBRID_TRANSPORT_SOURCE_QUALIFICATION_20261015.md](../../../docs/verification/HYBRID_TRANSPORT_SOURCE_QUALIFICATION_20261015.md) | `34fdf1f596d20f35628a6e27db963e75c4042055abebf19b8d712909e46422c8` |
@@ -71,8 +71,11 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 | [docs/history/prompts/2026-10-15-hybrid-transport-localization-finalization.md](../../../docs/history/prompts/2026-10-15-hybrid-transport-localization-finalization.md) | `cbdabdb5c5201df3b220c306a0d9ca16f1215a480c624c452cefc9a63efa20f6` |
 | [docs/product/SESSION_MOMENT_ARTWORK_V1.md](../../../docs/product/SESSION_MOMENT_ARTWORK_V1.md) | `580e7022b2a1684117a16f7602ecd21cd1672988001825d3e869712bde2dda4a` |
 | [docs/product/SESSION_ARTWORK_DELIVERY_CONTRACT_V1.md](../../../docs/product/SESSION_ARTWORK_DELIVERY_CONTRACT_V1.md) | `3e3da658daa128f5eae618740ba8e86a39766a661d559f86badfb20a6f9f8c09` |
-| [docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md](../../../docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md) | `979595c3b73e7cb1cddbfc7b54956f8e1094d0bc5862acadb9b9318a55fccecf` |
-| [docs/product/VIBECAST_ONBOARDING_GUEST_AUTHORITY_V1.md](../../../docs/product/VIBECAST_ONBOARDING_GUEST_AUTHORITY_V1.md) | `6d75246588062c7b7a480d0bcfb483fce44aac7e96c301ff933e1f9fe301f967` |
-| [docs/product/APPLE_VIBECAST_GUEST_MODE_V1.md](../../../docs/product/APPLE_VIBECAST_GUEST_MODE_V1.md) | `3d63330af648ad9b42c7d59662cd8bc61a07adbf3e44967e463a5f89914769f9` |
+| [docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md](../../../docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md) | `d3bee293d4e2f3253fcafa96427093631e6996a360ec66efe5c14b64082c66dc` |
+| [docs/product/VIBECAST_ONBOARDING_GUEST_AUTHORITY_V1.md](../../../docs/product/VIBECAST_ONBOARDING_GUEST_AUTHORITY_V1.md) | `da543d0ebf266dfb4ec8ab491e7214940c946a85b381c44802b68f7d6e1708b2` |
+| [docs/product/APPLE_VIBECAST_GUEST_MODE_V1.md](../../../docs/product/APPLE_VIBECAST_GUEST_MODE_V1.md) | `3141ad70b91b124937a9268a33b24fb19b9eb1e3fbe143d5c456848ca4b1c268` |
+| [docs/product/VIBECAST_WEB_ENTRY_DISTRIBUTION_V1.md](../../../docs/product/VIBECAST_WEB_ENTRY_DISTRIBUTION_V1.md) | `e996a4973e21e8cd895f0d6a7bdfee8cc972c1e780f0568bdfc8a5219026d68d` |
+| [docs/product/HYBRID_LOCAL_TRANSPORT_POLICY_V1.md](../../../docs/product/HYBRID_LOCAL_TRANSPORT_POLICY_V1.md) | `b7d62c93f26b4883c993f89f7a929c57ba6be8c082bb6ed7c220e60c5045aac6` |
+| [docs/verification/HYBRID_LOCAL_TRANSPORT_SOURCE_READBACK_20261015.md](../../../docs/verification/HYBRID_LOCAL_TRANSPORT_SOURCE_READBACK_20261015.md) | `4bb082dd358cc9594240868cb163133be0320729b2d5687a337bcba2b5feeda3` |
 | [docs/product/SESSION_SPEECH_PERSONA_V1.md](../../../docs/product/SESSION_SPEECH_PERSONA_V1.md) | `e357217fcfb95c1ceb10fde47600f4a594d4d6ee58ad237fc133fb45d85bec18` |
 | [docs/product/SESSION_SPEECH_DELIVERY_V1.md](../../../docs/product/SESSION_SPEECH_DELIVERY_V1.md) | `8147e214c3ac1c23dcc262ee8ebd87a7c47ec0ddbfea39d047c6e529e5ae2c9a` |

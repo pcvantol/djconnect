@@ -39002,13 +39002,13 @@
       },
       {
         "id": "WEB::DISTRIBUTION",
-        "title": "Reviewed generic static bootstrap and browser distribution",
+        "title": "Receiver public bootstrap selected; serviceadapter conditionally selected; full E2E separately gated",
         "lane": "DJC-VIBECAST",
         "repository": "pcvantol/djconnect-vibecast-receiver",
         "status": "Planned",
-        "assignment_status": "NOT_ISSUED",
-        "scope": "Reviewed generic static bootstrap and browser distribution",
-        "acceptance_boundary": "Reviewed generic static bootstrap and browser distribution; exact source/consumer, visible/audible/physical and joint acceptance OPEN",
+        "assignment_status": "SELECTED_QUEUED",
+        "scope": "Receiver16 PUBLIC_WEB_DELIVERY and conditionally RENDEZVOUS_INTEGRATION alongside pinned Cast output; API/Core/Apple producers not selected",
+        "acceptance_boundary": "Public website/CI/Pages/domain, service adapter, Apple/HA onboarding and full shared guest acceptance are distinct; no executor ACK or product PASS",
         "contract_binding": "docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md",
         "source_ids": [
           "OWNER-WEB-FIRST-1174"
@@ -39018,12 +39018,85 @@
         "prerequisite_groups": [
           {
             "mode": "AND",
+            "consumer_subset": "PUBLIC_WEB_DELIVERY",
             "edge_ids": [
-              "WEB-FIRST-8",
+              "WEB-FIRST-DECISIONS-PIN"
+            ]
+          },
+          {
+            "mode": "AND",
+            "consumer_subset": "RENDEZVOUS_INTEGRATION",
+            "edge_ids": [
+              "WEB-FIRST-8"
+            ]
+          },
+          {
+            "mode": "AND",
+            "consumer_subset": "APPLE_HA_ONBOARDING_E2E",
+            "edge_ids": [
+              "WEB-FIRST-DECISIONS-E2E-DISPLAY",
+              "WEB-FIRST-DECISIONS-E2E-OWNER-SCANNER"
+            ]
+          },
+          {
+            "mode": "AND",
+            "consumer_subset": "FULL_SHARED_GUEST_ACCEPTANCE",
+            "edge_ids": [
               "WEB-FIRST-10"
             ]
           }
-        ]
+        ],
+        "selected_assignment": "DJC-VIBECAST-TV-BOOTSTRAP-CLOUDFLARE-V1-20261015",
+        "selected_issue": "https://github.com/pcvantol/djconnect-vibecast-receiver/issues/16",
+        "delivery_subsets": {
+          "PUBLIC_WEB_DELIVERY": {
+            "assignment_id": "DJC-VIBECAST-TV-BOOTSTRAP-CLOUDFLARE-V1-20261015",
+            "issue": "https://github.com/pcvantol/djconnect-vibecast-receiver/issues/16",
+            "selection_state": "SELECTED_QUEUED",
+            "executor_ack": "PENDING",
+            "status": "Planned",
+            "prerequisites": [
+              "DECISIONS_DELTA_PROTECTED_DELIVERY_AND_FINALIZATION",
+              "OWN_PREVIOUS_WIP_CLOSED",
+              "FRESH_RECEIVER_ADMISSION"
+            ],
+            "autonomous_pickup_after_prerequisites": true,
+            "new_general_start_permission_required": false,
+            "integration_or_hardware_pass": false
+          },
+          "RENDEZVOUS_INTEGRATION": {
+            "status": "Planned",
+            "assignment_status": "SELECTED_CONTRACT_GATED",
+            "assignment_id": "DJC-VIBECAST-TV-BOOTSTRAP-CLOUDFLARE-V1-20261015",
+            "executor_ack": "PENDING",
+            "required_nodes": [
+              "WEB::TRUST",
+              "WEB::BOOTSTRAP"
+            ],
+            "public_build_blocker": false,
+            "full_onboarding_acceptance": "OPEN"
+          },
+          "APPLE_HA_ONBOARDING_E2E": {
+            "status": "OPEN",
+            "required_nodes": [
+              "WEB::DISPLAY",
+              "WEB::OWNER-SCANNER"
+            ],
+            "required_subsets": [
+              "PUBLIC_WEB_DELIVERY",
+              "RENDEZVOUS_INTEGRATION"
+            ],
+            "public_build_blocker": false
+          },
+          "FULL_SHARED_GUEST_ACCEPTANCE": {
+            "status": "Planned",
+            "assignment_status": "NOT_ISSUED",
+            "required_nodes": [
+              "WEB::BROWSER"
+            ],
+            "public_build_blocker": false
+          }
+        }
       },
       {
         "id": "WEB::DISCOVERY",
@@ -40446,16 +40519,17 @@
         "producer": "WEB::BOOTSTRAP",
         "consumer": "WEB::DISTRIBUTION",
         "kind": "contract_or_consumer_acceptance",
-        "phase": "implementation",
-        "prerequisite_stage": "contract",
+        "phase": "integration_acceptance",
+        "prerequisite_stage": "qualified_integration_contract",
         "hard_precedence": true,
         "logical_mode": "AND",
-        "required_subset": "Exact bounded predecessor contract; documentary or owner producer delivery is not joint acceptance",
+        "required_subset": "Qualified WEB::BOOTSTRAP for RENDEZVOUS_INTEGRATION; no prerequisite for independent PUBLIC_WEB_DELIVERY",
         "contract_or_evidence": "docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md",
         "reason": "Issue1174 real functional prerequisite; resource/admission gates remain separate",
         "source_ids": [
           "OWNER-WEB-FIRST-1174"
-        ]
+        ],
+        "consumer_subset": "RENDEZVOUS_INTEGRATION"
       },
       {
         "id": "WEB-FIRST-9",
@@ -40478,16 +40552,17 @@
         "producer": "WEB::BROWSER",
         "consumer": "WEB::DISTRIBUTION",
         "kind": "contract_or_consumer_acceptance",
-        "phase": "implementation",
-        "prerequisite_stage": "contract",
+        "phase": "integration_acceptance",
+        "prerequisite_stage": "qualified_integration_contract",
         "hard_precedence": true,
         "logical_mode": "AND",
-        "required_subset": "Exact bounded predecessor contract; documentary or owner producer delivery is not joint acceptance",
+        "required_subset": "Qualified WEB::BROWSER for FULL_SHARED_GUEST_ACCEPTANCE; no prerequisite for independent PUBLIC_WEB_DELIVERY",
         "contract_or_evidence": "docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md",
         "reason": "Issue1174 real functional prerequisite; resource/admission gates remain separate",
         "source_ids": [
           "OWNER-WEB-FIRST-1174"
-        ]
+        ],
+        "consumer_subset": "FULL_SHARED_GUEST_ACCEPTANCE"
       },
       {
         "id": "WEB-FIRST-11",
@@ -41034,6 +41109,57 @@
         ]
       },
       {
+        "id": "WEB-FIRST-DECISIONS-PIN",
+        "producer": "WEB::DOCS",
+        "consumer": "WEB::DISTRIBUTION",
+        "kind": "documentary_predecessor",
+        "phase": "public_web_delivery",
+        "prerequisite_stage": "protected_delivery_and_finalization",
+        "consumer_subset": "PUBLIC_WEB_DELIVERY",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "required_subset": "DJC-VIBECAST-WEB-FIRST-DECISIONS-DELTA-V1-20261015 actual source and Finalization design/DAG pin; previous1175/1176 alone insufficient",
+        "contract_or_evidence": "docs/product/VIBECAST_WEB_ENTRY_DISTRIBUTION_V1.md",
+        "reason": "Explicit receiver16 selection waits for this new documentary delta; no API or Cast prerequisite for independent public frontend/build/CD",
+        "source_ids": [
+          "OWNER-WEB-FIRST-DECISIONS-6201605985"
+        ]
+      },
+      {
+        "id": "WEB-FIRST-DECISIONS-E2E-DISPLAY",
+        "producer": "WEB::DISPLAY",
+        "consumer": "WEB::DISTRIBUTION",
+        "kind": "joint_acceptance",
+        "phase": "onboarding_e2e",
+        "prerequisite_stage": "qualified_producer_and_consumer",
+        "consumer_subset": "APPLE_HA_ONBOARDING_E2E",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "required_subset": "Qualified DISPLAY with public frontend and rendezvous connected; not a public build or adapter source prerequisite",
+        "contract_or_evidence": "docs/product/VIBECAST_WEB_ENTRY_DISTRIBUTION_V1.md",
+        "reason": "Full two-step onboarding acceptance requires actual HA display admission and Apple scanner; do not absorb producer implementation into receiver16",
+        "source_ids": [
+          "OWNER-WEB-FIRST-DECISIONS-6201605985"
+        ]
+      },
+      {
+        "id": "WEB-FIRST-DECISIONS-E2E-OWNER-SCANNER",
+        "producer": "WEB::OWNER-SCANNER",
+        "consumer": "WEB::DISTRIBUTION",
+        "kind": "joint_acceptance",
+        "phase": "onboarding_e2e",
+        "prerequisite_stage": "qualified_producer_and_consumer",
+        "consumer_subset": "APPLE_HA_ONBOARDING_E2E",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "required_subset": "Qualified OWNER-SCANNER with public frontend and rendezvous connected; not a public build or adapter source prerequisite",
+        "contract_or_evidence": "docs/product/VIBECAST_WEB_ENTRY_DISTRIBUTION_V1.md",
+        "reason": "Full two-step onboarding acceptance requires actual HA display admission and Apple scanner; do not absorb producer implementation into receiver16",
+        "source_ids": [
+          "OWNER-WEB-FIRST-DECISIONS-6201605985"
+        ]
+      },
+      {
         "id": "SPEECH-1",
         "producer": "SPEECH::APPLE::ADOPTION",
         "consumer": "SPEECH::JOINT::ACCEPTANCE",
@@ -41165,11 +41291,11 @@
     "document_references": [
       {
         "path": "PRODUCT_ROADMAP.md",
-        "sha256": "7e43316c8ded736c26639a53f4b975067c4aa821a2c716a8d85449c1fb5423c0"
+        "sha256": "5350ceeb8af3caea1bd3d25016520bd6f951fbfc82f06ed4453c7cf2affe2830"
       },
       {
         "path": "PRODUCT_BACKLOG.md",
-        "sha256": "76d24c537a84a9bc9f484e074e478417db7f34022b94fd7fa82e636a2cc2e258"
+        "sha256": "cf20a9126c1c0701b127cc309d2af8dd8ef1dbac37e7b7ac42dfbea1fc57ad05"
       },
       {
         "path": "docs/product/DJ_PRESENCE_V1.md",
@@ -41257,7 +41383,7 @@
       },
       {
         "path": "docs/product/VIBECAST_SHARED_RENDERER_BUILD_CONTRACT.md",
-        "sha256": "6288cbf44e88fa99b6597f0f94f319609b6a80e0ff56e0eb83aee4d977df5e8c"
+        "sha256": "cf40e653f962f0d90573e1cf362637cb2ae4730c2e835258dcbb48bdf4e77662"
       },
       {
         "path": "docs/product/AMBIENT_FACT_MOMENT_CONVERGENCE_V1.md",
@@ -41357,11 +41483,11 @@
       },
       {
         "path": "docs/product/HYBRID_HTTP_WEBSOCKET_TRANSPORT_V1.md",
-        "sha256": "b1be6a3f8d98f5f3430c1aca6549c7caa6f56013f5fad7af688fe390d0babbb3"
+        "sha256": "c1ff21765e4aeba32dbaa67c5202663cbeb2e8d0f3aace11099af492b1f17720"
       },
       {
         "path": "docs/product/TRANSPORT_OPERATION_RECOVERY_CONTRACT_V1.md",
-        "sha256": "0ba644ddfd23139de80f50cf8b658cedab370c9fcc72e4e3ea9c35282f76b562"
+        "sha256": "952f50b3ecdd7979a1e67740816abeb1450d09b62c14fd3c97f4baa44f18869d"
       },
       {
         "path": "docs/verification/HYBRID_TRANSPORT_V1_ACCEPTANCE_MATRIX.md",
@@ -41393,15 +41519,27 @@
       },
       {
         "path": "docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md",
-        "sha256": "979595c3b73e7cb1cddbfc7b54956f8e1094d0bc5862acadb9b9318a55fccecf"
+        "sha256": "d3bee293d4e2f3253fcafa96427093631e6996a360ec66efe5c14b64082c66dc"
       },
       {
         "path": "docs/product/VIBECAST_ONBOARDING_GUEST_AUTHORITY_V1.md",
-        "sha256": "6d75246588062c7b7a480d0bcfb483fce44aac7e96c301ff933e1f9fe301f967"
+        "sha256": "da543d0ebf266dfb4ec8ab491e7214940c946a85b381c44802b68f7d6e1708b2"
       },
       {
         "path": "docs/product/APPLE_VIBECAST_GUEST_MODE_V1.md",
-        "sha256": "3d63330af648ad9b42c7d59662cd8bc61a07adbf3e44967e463a5f89914769f9"
+        "sha256": "3141ad70b91b124937a9268a33b24fb19b9eb1e3fbe143d5c456848ca4b1c268"
+      },
+      {
+        "path": "docs/product/VIBECAST_WEB_ENTRY_DISTRIBUTION_V1.md",
+        "sha256": "e996a4973e21e8cd895f0d6a7bdfee8cc972c1e780f0568bdfc8a5219026d68d"
+      },
+      {
+        "path": "docs/product/HYBRID_LOCAL_TRANSPORT_POLICY_V1.md",
+        "sha256": "b7d62c93f26b4883c993f89f7a929c57ba6be8c082bb6ed7c220e60c5045aac6"
+      },
+      {
+        "path": "docs/verification/HYBRID_LOCAL_TRANSPORT_SOURCE_READBACK_20261015.md",
+        "sha256": "4bb082dd358cc9594240868cb163133be0320729b2d5687a337bcba2b5feeda3"
       },
       {
         "path": "docs/product/SESSION_SPEECH_PERSONA_V1.md",
@@ -41789,7 +41927,7 @@
       "source_readback": "docs/verification/SESSION_ARTWORK_V1_SOURCE_READBACK_20261015.md"
     },
     "web_first_receipt": {
-      "schema_version": "djconnect-web-first-design/1",
+      "schema_version": "djconnect-web-first-design/2",
       "base_delta_version": "djconnect-federated-planning-delta/11",
       "assignment_id": "DJC-VIBECAST-WEB-FIRST-GUEST-EXPERIENCE-DESIGN-V1-20261015",
       "issue": "https://github.com/pcvantol/djconnect/issues/1174",
@@ -41801,13 +41939,13 @@
       "predecessor_nodes_sha256": "76906156bbab02e63909305b0fd47cf1639d87093033eb6085a161148f0cb9a6",
       "predecessor_edges_sha256": "5d08ea2f48c4fb72967d006f35370ebada5f225244cd783851d08ff7826d4926",
       "open_decisions": [
-        "short_url",
-        "unspecified_exception",
-        "five_emoji",
+        "reaction_set_count_labels_rocket",
         "crypto_service_browser",
         "shared_media_rights",
         "apple_renderer",
-        "budgets_share_policy"
+        "budgets_share_policy",
+        "actual_account_domain_tls",
+        "cast_continuity_qualification"
       ],
       "legacy_disposition": {
         "Cast-first": "SUPERSEDED_DESIGN",
@@ -41824,7 +41962,49 @@
       "required_checks": "PASS",
       "owner_authorization_run": 38771192832,
       "source_archive_sha256": "19887cceb075bac98d04fe8bf147873587b93d52849c06446f70165cce88990c",
-      "source_formal_sha256": "add8bb4a37c3edffbef9db5d6e56a5b8e211925b7ede771d64622ab43e4d1926"
+      "source_formal_sha256": "add8bb4a37c3edffbef9db5d6e56a5b8e211925b7ede771d64622ab43e4d1926",
+      "resolved_decisions": {
+        "entry_url": "https://vibecast.tv/",
+        "domain_evidence": "OWNER_REPORTED_PURCHASE_NOT_DNS_TLS_PROOF",
+        "web_first_exception": "EXISTING_APP_GUEST_JOIN"
+      },
+      "decisions_delta": {
+        "assignment_id": "DJC-VIBECAST-WEB-FIRST-DECISIONS-DELTA-V1-20261015",
+        "authority": "https://github.com/pcvantol/djconnect/issues/1174#issuecomment-6201605985",
+        "prior_snapshot": "history/20261015/web-first-design-before-decisions.json",
+        "prior_snapshot_sha256": "a35482a0c2cbf04781fc27d90b664e51a9f795bf27df5e8daa42568acc444dcb",
+        "phase": "SOURCE_PROTECTED_MERGED",
+        "selected_receiver": {
+          "assignment_id": "DJC-VIBECAST-TV-BOOTSTRAP-CLOUDFLARE-V1-20261015",
+          "issue": "https://github.com/pcvantol/djconnect-vibecast-receiver/issues/16",
+          "selection_state": "SELECTED_QUEUED",
+          "executor_ack": "PENDING",
+          "status": "Planned",
+          "prerequisites": [
+            "DECISIONS_DELTA_PROTECTED_DELIVERY_AND_FINALIZATION",
+            "OWN_PREVIOUS_WIP_CLOSED",
+            "FRESH_RECEIVER_ADMISSION"
+          ],
+          "autonomous_pickup_after_prerequisites": true,
+          "new_general_start_permission_required": false,
+          "integration_or_hardware_pass": false
+        },
+        "runtime_writes": false,
+        "ci_config_writes": false,
+        "deployment": false,
+        "other_product_admission": false,
+        "source_pr": 1181,
+        "source_main_sha": "8a48a6ffdfb92d90719626c78a3e70093385cc70",
+        "reviewed_candidate": "43a088d02c7d23a3485a4a76b4b6ff3f12e1d337",
+        "protected_merge": true,
+        "required_checks": "PASS",
+        "owner_authorization_run": 38806293235,
+        "source_archive_sha256": "28e8e57d08cb4847291cabc712aa9d382e80ffc0ec8297e96401ed4363e37254",
+        "source_formal_sha256": "76d2177ca0706b455e066c48a0a755d8cb40a972f4aa3be224055a1f91d7d117",
+        "source_main_validation": 38806376852,
+        "source_artifact_run": 38806846502,
+        "source_formal_run": 38806846573
+      }
     },
     "speech_persona_receipt": {
       "assignment_id": "DJC-SESSION-SPEECH-PERSONA-VOICE-20261015",
@@ -41835,8 +42015,8 @@
       "ack": 6191876871,
       "contract_commit": "e2072d8025056089b3bf403366307be70dd53ae8",
       "material_commit": "03634bf7a8bcdc904505a4a22dc23fbae4dabd1b",
-      "previous_delta": "history/20261015/web-first-finalization-maintenance-v11.json",
-      "previous_delta_sha256": "56be3a5a0f7234745b894ecc5eca15321087dbce8d5977431dee472d13014ea6",
+      "previous_delta": "history/20261016/pre-speech-main582-maintenance-v11.json",
+      "previous_delta_sha256": "34f9801689d4b19c360c1b5b240fc0df3fa93d29332e8bd8eb06d117d359340b",
       "phase": "LOCAL_IMPLEMENTATION_AND_QUALIFICATION",
       "source_delivery": "UNPUBLISHED",
       "native": "OPEN_APPLE",
@@ -41847,7 +42027,7 @@
       "consumer_writes": false,
       "same_writer": true,
       "predecessor_closure": "https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6191836891",
-      "integration_main_sha": "a6d666fea7f30254b20bea015fad8d1fd8d7b059"
+      "integration_main_sha": "58205056c235a73488591591dd3d83f80f7bf847"
     }
   }
 }

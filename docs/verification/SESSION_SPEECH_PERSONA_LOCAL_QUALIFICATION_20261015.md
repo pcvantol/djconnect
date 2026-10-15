@@ -155,3 +155,42 @@ package files, only manifest.json now differs from that executed checkpoint;
 prior167-file-equality statements above describe the preceding integration
 checkpoint81592b25 and are not relabelled as a new HA run. The new package must
 be compared to its own exact Git candidate/main before delivery.
+
+## Resumed integration of delivered maintenance main582
+
+The existing sole writer resumed PR1177 after valid1184/1185 closure;
+[ACK6203295611](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6203295611).
+Original533fa48c is retained in a verified complete-history recovery bundle.
+The same local branch integrates `58205056c235a73488591591dd3d83f80f7bf847`;
+this is a new candidate, not permission to merge the earlier rejected head.
+No remote update, merge or installation is claimed at this checkpoint.
+
+The new [actual HA transport fixture](../../examples/client_contracts/session_speech/integrated-main582.http.json)
+SHA256 `e629511ee034d738a8f6e9173074d3298dc66ddcdc9a132b3e77ea24f064f767` binds all145 tracked Python files, zero mismatches.
+It repeats normal pairing, Persona CAS, accepted common reply, manual listening
+after never, real configured HA TTS/entity/inventory/private bytes, retained
+replay, playback announcement, Genre→Track transition, Profile ABA and end
+revocation. External music/STT/Wyoming waveform boundaries remain fixtures.
+Real35s Presence/91s Planner waits are unchanged; no clock patch or budget reset.
+SQLite214056→823816bytes; peak RSS176504KiB;29 instrumented owner requests
+0.289–11.576ms, not model/native latency. Network none,1GiB/2CPU/256PIDs;
+the owned container exited0 and was removed. No HA-dev/prod changes.
+
+2009 regressions executed,2002 passed/7existing skips;138 targeted owning
+tests;160 DAG tests;23 regenerated views; official hassfest1integration/0invalid;
+Ruff and diff checks pass. New targeted unit-only combined statement/branch
+coverage is75%; this does not replace or relabel the prior owning/actual-HA
+coverage proof or claim a newly measured complete-suite threshold.
+The earlier browser/model/301s receipts retain their original pins.162 prior
+package files are byte-equal to533; five changed and two added through delivered
+maintenance. The renderer and original speech/model realization modules remain
+unchanged; integrated private transport has the separately repeated HA proof.
+
+The live maintenance12 preserves a byte-frozen actual main582 maintenance11
+snapshot at history/20261016/pre-speech-main582-maintenance-v11.json; WEB schema2
+and21nodes/47edges/receipts remain exact. Original snapshots remain untouched.
+Fifteen unrelated identical untracked duplicate files stay outside the candidate
+and archive; active/ambiguous VM handles prevent cleanup. Their checksums and
+disposition are retained locally; no global clean-workspace claim is made.
+Both exact cumulative reviews and the changed-candidate publication gate remain
+required. Native audible, installed Speech, hardware and joint acceptance stay open.

@@ -42,11 +42,11 @@ def validate(plan, previous_validator):
         and r.get("material_commit") == "03634bf7a8bcdc904505a4a22dc23fbae4dabd1b",
         "actual admission missing",
     )
-    check(r.get("integration_main_sha") == "a6d666fea7f30254b20bea015fad8d1fd8d7b059", "documentary integration base missing")
-    check(r.get("previous_delta") == "history/20261015/web-first-finalization-maintenance-v11.json",
+    check(r.get("integration_main_sha") == "58205056c235a73488591591dd3d83f80f7bf847", "documentary integration base missing")
+    check(r.get("previous_delta") == "history/20261016/pre-speech-main582-maintenance-v11.json",
           "wrong predecessor snapshot path")
     previous_file = (
-        Path(__file__).parent / "history/20261015/web-first-finalization-maintenance-v11.json"
+        Path(__file__).parent / "history/20261016/pre-speech-main582-maintenance-v11.json"
     )
     raw = previous_file.read_bytes()
     check(r.get("previous_delta_sha256") == hashlib.sha256(raw).hexdigest(), "prior bytes changed")
