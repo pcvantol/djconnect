@@ -209,6 +209,57 @@ ALLOWED_IDENTICAL_NON_ENGLISH_VALUES = {
 
 
 class TranslationTest(unittest.TestCase):
+    def test_all_service_forms_have_localized_names_and_field_help(self) -> None:
+        import yaml
+
+        services = yaml.safe_load((INTEGRATION / "services.yaml").read_text())
+        paths = [INTEGRATION / "strings.json"] + [
+            TRANSLATIONS / f"{language}.json" for language in SUPPORTED_LANGUAGES
+        ]
+        for path in paths:
+            translated = json.loads(path.read_text())["services"]
+            with self.subTest(catalogue=path.name):
+                self.assertEqual(set(translated), set(services))
+                for service, definition in services.items():
+                    entry = translated[service]
+                    self.assertTrue(entry["name"].strip(), service)
+                    self.assertTrue(entry["description"].strip(), service)
+                    self.assertEqual(
+                        set(entry.get("fields", {})),
+                        set(definition.get("fields", {})),
+                        service,
+                    )
+                    for field in definition.get("fields", {}):
+                        self.assertTrue(entry["fields"][field]["name"].strip())
+                        self.assertTrue(entry["fields"][field]["description"].strip())
+
+    def test_every_literal_repair_key_has_a_title_and_explanation(self) -> None:
+        import ast
+
+        keys = set()
+        for source in INTEGRATION.glob("*.py"):
+            for call in ast.walk(ast.parse(source.read_text())):
+                if not (
+                    isinstance(call, ast.Call)
+                    and isinstance(call.func, ast.Attribute)
+                    and call.func.attr == "async_create_issue"
+                ):
+                    continue
+                keys.update(
+                    keyword.value.value
+                    for keyword in call.keywords
+                    if keyword.arg == "translation_key"
+                    and isinstance(keyword.value, ast.Constant)
+                    and isinstance(keyword.value.value, str)
+                )
+        self.assertIn("missing_spotify_client_id", keys)
+        for language in SUPPORTED_LANGUAGES:
+            issues = json.loads((TRANSLATIONS / f"{language}.json").read_text())["issues"]
+            for key in keys:
+                with self.subTest(language=language, issue=key):
+                    self.assertTrue(issues[key]["title"].strip())
+                    self.assertTrue(issues[key].get("description") or issues[key].get("fix_flow"))
+
     def test_translation_files_cover_base_strings_schema(self) -> None:
         base = _leaf_paths(json.loads((INTEGRATION / "strings.json").read_text()))
         for language in SUPPORTED_LANGUAGES:

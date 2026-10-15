@@ -694,6 +694,10 @@
     "windows_client_retired_safe": {
       "title": "Windows-app beëindigd: kan worden verwijderd — {configuration}",
       "description": "De DJConnect Windows-app wordt niet meer ondersteund en kan niet verbinden. Deze configuratie is geen eigenaar meer van een muziekverbinding en kan worden verwijderd. Bestaande gekoppelde clients, Profiles, muziekaccounts en geschiedenis blijven behouden."
+    },
+    "missing_spotify_client_id": {
+      "title": "Spotify Client ID ontbreekt",
+      "description": "DJConnect heeft voor Spotify Direct een Client ID van je Spotify Developer-app nodig. Open de DJConnect-instellingen, vul de Client ID in en autoriseer Spotify opnieuw. Deel nooit tokens of geheimen."
     }
   },
   "selector": {
@@ -743,6 +747,1044 @@
         "watchos": "Apple Watch",
         "raspberry_pi": "Linux/Raspberry Pi",
         "conversation_agent": "Assist-gespreksagent"
+      }
+    }
+  },
+  "services": {
+    "start_session": {
+      "name": "DJ-sessie starten",
+      "description": "Start de ene actieve serversessie voor het gekozen profiel.",
+      "fields": {
+        "profile_id": {
+          "name": "Profiel",
+          "description": "Optioneel profiel-ID voor resolutie en autorisatie. Zonder ID gelden de bestaande apparaat-, HA-gebruiker- en terugvalregels."
+        },
+        "mood": {
+          "name": "Sfeer",
+          "description": "Optionele sessiesfeer: chill, groove, energy of party."
+        },
+        "room": {
+          "name": "Ruimte",
+          "description": "Optionele ruimtenaam voor de actieve sessie."
+        }
+      }
+    },
+    "end_session": {
+      "name": "DJ-sessie beëindigen",
+      "description": "Beëindig de actieve serversessie en ruim de runtime op.",
+      "fields": {
+        "profile_id": {
+          "name": "Profiel",
+          "description": "Optioneel profiel-ID voor resolutie en autorisatie. Zonder ID gelden de bestaande apparaat-, HA-gebruiker- en terugvalregels."
+        },
+        "session_id": {
+          "name": "Sessie",
+          "description": "Optioneel ID van de actieve sessie die moet worden beëindigd."
+        }
+      }
+    },
+    "active_session": {
+      "name": "Actieve DJ-sessie ophalen",
+      "description": "Lees de actieve serversessie voor het gekozen profiel.",
+      "fields": {
+        "profile_id": {
+          "name": "Profiel",
+          "description": "Optioneel profiel-ID voor resolutie en autorisatie. Zonder ID gelden de bestaande apparaat-, HA-gebruiker- en terugvalregels."
+        }
+      }
+    },
+    "developer_session_bootstrap": {
+      "name": "Geïsoleerd testscenario voorbereiden",
+      "description": "Ontwikkelaarstest: start of stop de geïsoleerde sessie voor een van de zes goedgekeurde Golden Scenarios. Voert het scenario niet uit en geeft geen interne runtimegegevens of tokens vrij.",
+      "fields": {
+        "action": {
+          "name": "Actie",
+          "description": "Start de geïsoleerde testsessie of stop en ruim deze op."
+        },
+        "scenario_id": {
+          "name": "Scenario",
+          "description": "Expliciet ID van een goedgekeurd Golden Scenario."
+        }
+      }
+    },
+    "developer_session_scenario_driver": {
+      "name": "Intelligentie-testscenario uitvoeren",
+      "description": "Voer na de testvoorbereiding het gekozen goedgekeurde scenario uit via de bestaande runtime, met vaste Track Insight-invoer. Roept geen Planner-, Knowledge- of Moment Engine-internals rechtstreeks aan.",
+      "fields": {
+        "scenario_id": {
+          "name": "Scenario",
+          "description": "Expliciet ID van een goedgekeurd Golden Scenario."
+        }
+      }
+    },
+    "developer_session_capture": {
+      "name": "Testscenario vastleggen",
+      "description": "Maak een onveranderlijke alleen-lezen observatie van het afgeronde scenario, zonder credentials, wijzigbare runtimeobjecten of Planner-internals.",
+      "fields": {
+        "scenario_id": {
+          "name": "Scenario",
+          "description": "Expliciet ID van een goedgekeurd Golden Scenario."
+        }
+      }
+    },
+    "golden_qualification": {
+      "name": "Volledige scenariokwalificatie uitvoeren",
+      "description": "Voer de vaste serverkwalificatie voor alle uitvoerbare Golden Scenarios uit via bestaande voorbereiding, uitvoering, vastlegging en validatie; ruim elke testsessie op. Bewijst geen schermweergave, audio, TTS of hardware.",
+      "fields": {
+        "include_advisory_metrics": {
+          "name": "Adviesmetingen opnemen",
+          "description": "Voeg begrensde alleen-lezen kwaliteitsmetingen toe; verandert het kwalificatieresultaat niet."
+        }
+      }
+    },
+    "golden_smoke": {
+      "name": "Kleine scenarioproef uitvoeren",
+      "description": "Voer de kleinste goedgekeurde selectie, nu SI-GOLDEN-001, uit via dezelfde kwalificatieroute. Wijzigt geen scenario of CI-workflow.",
+      "fields": {
+        "include_advisory_metrics": {
+          "name": "Adviesmetingen opnemen",
+          "description": "Voeg begrensde alleen-lezen kwaliteitsmetingen toe; verandert het kwalificatieresultaat niet."
+        }
+      }
+    },
+    "golden_regression": {
+      "name": "Scenarioregressie uitvoeren",
+      "description": "Voer SI-GOLDEN-001 tot en met SI-GOLDEN-006 uit via de bestaande kwalificatieroute, inclusief validatie en opruimen. Dit vaste profiel biedt geen scenarioselectie, CI-workflow of releasegate.",
+      "fields": {
+        "include_advisory_metrics": {
+          "name": "Adviesmetingen opnemen",
+          "description": "Voeg begrensde alleen-lezen kwaliteitsmetingen toe; verandert het kwalificatieresultaat niet."
+        }
+      }
+    },
+    "test_parse": {
+      "name": "Assist-interpretatie testen",
+      "description": "Test de ingestelde Assist-gespreksroute zonder muziek te starten of een DJ-aankondiging te versturen.",
+      "fields": {
+        "command_text": {
+          "name": "Opdrachttekst",
+          "description": "Muziekverzoek, vraag over het huidige nummer of afspeelcommando in natuurlijke taal."
+        }
+      }
+    },
+    "test_tts": {
+      "name": "DJ-aankondiging testen",
+      "description": "Stuur een losse aankondiging naar het gekoppelde apparaat. Home Assistant maakt indien mogelijk tijdelijke WAV- of MP3-audio; anders wordt alleen tekst verstuurd.",
+      "fields": {
+        "dj_response_text": {
+          "name": "Tekst van DJ-aankondiging",
+          "description": "Tekst die het gekoppelde apparaat toont en waar mogelijk uitspreekt."
+        }
+      }
+    },
+    "test_command": {
+      "name": "Volledig tekstcommando testen",
+      "description": "Test de normale apparaatroute voor tekstcommando’s, met optionele muziekweergave en DJ-aankondiging. Playback blijft bij de gekozen serverbackend.",
+      "fields": {
+        "command_text": {
+          "name": "Opdrachttekst",
+          "description": "Muziekverzoek, vraag over het huidige nummer of afspeelcommando in natuurlijke taal."
+        },
+        "play": {
+          "name": "Afspelen starten",
+          "description": "Start playback als het commando dit ondersteunt. Schakel uit om te testen zonder muziek te starten."
+        }
+      }
+    },
+    "test_ptt_text": {
+      "name": "Spraaktekst testen",
+      "description": "Test vanaf de herkende spraaktekst: interpretatie, ondersteund zoeken/afspelen en terugsturen van tekst en eventuele audio naar het gekoppelde apparaat.",
+      "fields": {
+        "command_text": {
+          "name": "Opdrachttekst",
+          "description": "Muziekverzoek, vraag over het huidige nummer of afspeelcommando in natuurlijke taal."
+        }
+      }
+    },
+    "test_apns_push": {
+      "name": "APNs-push testen",
+      "description": "Controleer de pushgereedheid van Apple-clients. Verstuur uitsluitend een privacyveilig testbericht wanneer verzenden expliciet is ingeschakeld.",
+      "fields": {
+        "device_id": {
+          "name": "Apparaat-ID",
+          "description": "Optioneel DJConnect-apparaat-ID. Laat leeg om het gekoppelde apparaat te gebruiken."
+        },
+        "client_type": {
+          "name": "Clienttype",
+          "description": "Optioneel ondersteund DJConnect-clienttype. Laat leeg om het gekoppelde clienttype te gebruiken; Windows is beëindigd."
+        },
+        "event_type": {
+          "name": "Gebeurtenistype",
+          "description": "Pushgebeurtenis die moet worden getest."
+        },
+        "user_id": {
+          "name": "Gebruikers-ID",
+          "description": "Optioneel HA-gebruikers-ID voor dezelfde gebruikersgebonden pushroute als Ask DJ."
+        },
+        "send": {
+          "name": "Push versturen",
+          "description": "Schakel in om de centrale relay echt aan te roepen. Uitgeschakeld blijft dit een diagnostische proef zonder verzending."
+        },
+        "explicit_user_request": {
+          "name": "Expliciet gebruikersverzoek",
+          "description": "Laat ingeschakeld bij handmatige tests; andere voorwaarden van het Ask DJ-pushbeleid blijven gelden."
+        }
+      }
+    },
+    "push_register": {
+      "name": "APNs-push registreren",
+      "description": "Registreer een Apple-pushtoken via de bestaande relayroute; lokaal blijft alleen compacte status. Bij missing_bootstrap_proof levert de vertrouwde Apple-pairinguitgever het kortlevende bewijs. HA maakt of bewaart dat bewijs niet zelf.",
+      "fields": {
+        "push_token": {
+          "name": "Pushtoken",
+          "description": "APNs-apparaattoken van de Apple-client. Wordt naar de relay gestuurd; deel dit nooit in logs."
+        },
+        "push_environment": {
+          "name": "Pushomgeving",
+          "description": "APNs-omgeving voor dit token."
+        },
+        "device_id": {
+          "name": "Apparaat-ID",
+          "description": "Optioneel DJConnect-apparaat-ID. Laat leeg om het gekoppelde apparaat te gebruiken."
+        },
+        "client_type": {
+          "name": "Clienttype",
+          "description": "Optioneel ondersteund DJConnect-clienttype. Laat leeg om het gekoppelde clienttype te gebruiken; Windows is beëindigd."
+        },
+        "user_id": {
+          "name": "Gebruikers-ID",
+          "description": "Optioneel HA-gebruikers-ID voor dezelfde gebruikersgebonden pushroute als Ask DJ."
+        },
+        "app_bundle_id": {
+          "name": "App-bundel-ID",
+          "description": "Optionele bundel-ID van de Apple-app."
+        },
+        "app_version": {
+          "name": "Appversie",
+          "description": "Optionele versie van de aanvragende app."
+        },
+        "locale": {
+          "name": "Taal/regio",
+          "description": "Optionele taal/regio voor het antwoord, bijvoorbeeld nl of en."
+        },
+        "bootstrap_proof": {
+          "name": "Tijdelijk koppelbewijs",
+          "description": "Optioneel kortlevend bewijs van de vertrouwde Apple-pairinguitgever, alleen tijdelijk gebruikt om zo nodig een install-token te verkrijgen."
+        }
+      }
+    },
+    "push_unregister": {
+      "name": "APNs-push afmelden",
+      "description": "Meld het Apple-pushtoken af via de bestaande relayroute. Wis de lokale registratiestatus na aanvaarding door de relay.",
+      "fields": {
+        "push_token": {
+          "name": "Pushtoken",
+          "description": "APNs-apparaattoken van de Apple-client. Wordt naar de relay gestuurd; deel dit nooit in logs."
+        },
+        "push_environment": {
+          "name": "Pushomgeving",
+          "description": "APNs-omgeving voor dit token."
+        },
+        "device_id": {
+          "name": "Apparaat-ID",
+          "description": "Optioneel DJConnect-apparaat-ID. Laat leeg om het gekoppelde apparaat te gebruiken."
+        },
+        "client_type": {
+          "name": "Clienttype",
+          "description": "Optioneel ondersteund DJConnect-clienttype. Laat leeg om het gekoppelde clienttype te gebruiken; Windows is beëindigd."
+        },
+        "user_id": {
+          "name": "Gebruikers-ID",
+          "description": "Optioneel HA-gebruikers-ID voor dezelfde gebruikersgebonden pushroute als Ask DJ."
+        },
+        "app_bundle_id": {
+          "name": "App-bundel-ID",
+          "description": "Optionele bundel-ID van de Apple-app."
+        }
+      }
+    },
+    "ask_dj": {
+      "name": "Ask DJ raadplegen",
+      "description": "Directe Ask DJ-tekstaanvraag via Home Assistant, met bestaande intentrouting en Music DNA. Gebruik Ask DJ-bericht voor gesynchroniseerde appgeschiedenis.",
+      "fields": {
+        "text": {
+          "name": "Tekst",
+          "description": "Tekst van het Ask DJ-bericht."
+        },
+        "music_dna_key": {
+          "name": "Music DNA-sleutel",
+          "description": "Optionele Music DNA-contextsleutel; Home Assistant mag deze normaliseren. Verleent geen extra toegang."
+        },
+        "client_type": {
+          "name": "Clienttype",
+          "description": "Optioneel ondersteund DJConnect-clienttype. Laat leeg om het gekoppelde clienttype te gebruiken; Windows is beëindigd."
+        },
+        "client_id": {
+          "name": "Client-ID",
+          "description": "Optionele installatie-ID als clientmetadata."
+        },
+        "client_message_id": {
+          "name": "Bericht-ID van client",
+          "description": "Optionele idempotentiesleutel; herhaling binnen dezelfde HA-gebruiker levert de bestaande uitwisseling terug."
+        },
+        "audio_response": {
+          "name": "Gesproken antwoord",
+          "description": "Audiobeleid: auto, always of never."
+        },
+        "mood": {
+          "name": "Sfeer",
+          "description": "Optionele sfeer-/energiewaarde van 0 tot 100; bij sessiestart de ondersteunde sessiesfeer."
+        },
+        "dj_style": {
+          "name": "DJ-stijl",
+          "description": "Optionele stijlhint voor Ask DJ."
+        },
+        "locale": {
+          "name": "Taal/regio",
+          "description": "Optionele taal/regio voor het antwoord, bijvoorbeeld nl of en."
+        },
+        "timezone": {
+          "name": "Tijdzone",
+          "description": "Optionele tijdzone van de client."
+        }
+      }
+    },
+    "ask_dj_message": {
+      "name": "Ask DJ-bericht",
+      "description": "Verstuur een appbericht via de bestaande chatroute. Bewaart vraag en antwoord in de Ask DJ-geschiedenis van de aangemelde HA-gebruiker.",
+      "fields": {
+        "text": {
+          "name": "Tekst",
+          "description": "Tekst van het Ask DJ-bericht."
+        },
+        "client_message_id": {
+          "name": "Bericht-ID van client",
+          "description": "Optionele idempotentiesleutel; herhaling binnen dezelfde HA-gebruiker levert de bestaande uitwisseling terug."
+        },
+        "client_id": {
+          "name": "Client-ID",
+          "description": "Optionele installatie-ID als clientmetadata."
+        },
+        "music_dna_key": {
+          "name": "Music DNA-sleutel",
+          "description": "Optionele Music DNA-contextsleutel; Home Assistant mag deze normaliseren. Verleent geen extra toegang."
+        },
+        "client_type": {
+          "name": "Clienttype",
+          "description": "Optioneel ondersteund DJConnect-clienttype. Laat leeg om het gekoppelde clienttype te gebruiken; Windows is beëindigd."
+        },
+        "audio_response": {
+          "name": "Gesproken antwoord",
+          "description": "Audiobeleid: auto, always of never."
+        },
+        "mood": {
+          "name": "Sfeer",
+          "description": "Optionele sfeer-/energiewaarde van 0 tot 100; bij sessiestart de ondersteunde sessiesfeer."
+        },
+        "locale": {
+          "name": "Taal/regio",
+          "description": "Optionele taal/regio voor het antwoord, bijvoorbeeld nl of en."
+        }
+      }
+    },
+    "ask_dj_idle_suggestion": {
+      "name": "Ask DJ-suggestie ophalen",
+      "description": "Haal een suggestie op voor de gebruiker/client en voeg het geslaagde antwoord toe aan de bestaande Ask DJ-geschiedenis.",
+      "fields": {
+        "music_dna_key": {
+          "name": "Music DNA-sleutel",
+          "description": "Optionele Music DNA-contextsleutel; Home Assistant mag deze normaliseren. Verleent geen extra toegang."
+        },
+        "client_type": {
+          "name": "Clienttype",
+          "description": "Optioneel ondersteund DJConnect-clienttype. Laat leeg om het gekoppelde clienttype te gebruiken; Windows is beëindigd."
+        }
+      }
+    },
+    "ask_dj_history": {
+      "name": "Ask DJ-geschiedenis ophalen",
+      "description": "Lees de bestaande servergeschiedenis. Gebruik since_revision om bij synchronisatie alleen nieuwere wijzigingen op te halen.",
+      "fields": {
+        "since_revision": {
+          "name": "Vanaf revisie",
+          "description": "Haal alleen geschiedeniswijzigingen na deze optionele revisie op."
+        },
+        "music_dna_key": {
+          "name": "Music DNA-sleutel",
+          "description": "Optionele Music DNA-contextsleutel; Home Assistant mag deze normaliseren. Verleent geen extra toegang."
+        },
+        "client_type": {
+          "name": "Clienttype",
+          "description": "Optioneel ondersteund DJConnect-clienttype. Laat leeg om het gekoppelde clienttype te gebruiken; Windows is beëindigd."
+        }
+      }
+    },
+    "track_insight": {
+      "name": "Track Insight ophalen",
+      "description": "Analyseer het huidige nummer of een expliciete artiest/titel via de bestaande route. Geeft analyse, cache- en visualisatiegegevens terug en verstuurt bij succes djconnect_track_insight.",
+      "fields": {
+        "entity_id": {
+          "name": "Entiteits-ID",
+          "description": "Optionele media_player-entiteit voor metadata van de huidige playback."
+        },
+        "player_id": {
+          "name": "Speler-ID",
+          "description": "Optionele backend-/speleridentificatie."
+        },
+        "title": {
+          "name": "Nummertitel",
+          "description": "Optionele expliciete nummertitel. Geef ook de artiest op wanneer actuele playbackmetadata ontbreekt."
+        },
+        "artist": {
+          "name": "Artiest",
+          "description": "Optionele expliciete artiestennaam."
+        },
+        "album": {
+          "name": "Album",
+          "description": "Optionele albumnaam voor identiteit, cache en visuele basis."
+        },
+        "genres": {
+          "name": "Genres",
+          "description": "Optionele genrelijst of object uit client-/backendmetadata."
+        },
+        "music_dna_key": {
+          "name": "Music DNA-sleutel",
+          "description": "Optionele Music DNA-contextsleutel; Home Assistant mag deze normaliseren. Verleent geen extra toegang."
+        },
+        "client_type": {
+          "name": "Clienttype",
+          "description": "Optioneel ondersteund DJConnect-clienttype. Laat leeg om het gekoppelde clienttype te gebruiken; Windows is beëindigd."
+        },
+        "client_id": {
+          "name": "Client-ID",
+          "description": "Optionele installatie-ID als clientmetadata."
+        },
+        "device_id": {
+          "name": "Apparaat-ID",
+          "description": "Optioneel DJConnect-apparaat-ID. Laat leeg om het gekoppelde apparaat te gebruiken."
+        },
+        "music_backend": {
+          "name": "Muziekbackend",
+          "description": "Optionele backendhint voor de cache-identiteit en analyse van een expliciet nummer."
+        },
+        "force_refresh": {
+          "name": "Vernieuwen afdwingen",
+          "description": "Negeer de bestaande cache en vraag nieuwe gegevens aan. Bestaande serverlimieten blijven gelden."
+        },
+        "include_visual_profile": {
+          "name": "Visueel profiel opnemen",
+          "description": "Voeg deterministische visualisatiehints toe voor clients."
+        },
+        "include_raw_response": {
+          "name": "Ruw antwoord opnemen",
+          "description": "Voeg het ruwe AI-antwoord toe voor ontwikkelaarsdiagnostiek. Deel geen persoonlijke inhoud in logs."
+        },
+        "locale": {
+          "name": "Taal/regio",
+          "description": "Optionele taal/regio voor het antwoord, bijvoorbeeld nl of en."
+        },
+        "language": {
+          "name": "Taal",
+          "description": "Optionele taalhint, bijvoorbeeld nl of en."
+        },
+        "mood": {
+          "name": "Sfeer",
+          "description": "Optionele sfeer-/energiewaarde van 0 tot 100; bij sessiestart de ondersteunde sessiesfeer."
+        },
+        "timezone": {
+          "name": "Tijdzone",
+          "description": "Optionele tijdzone van de client."
+        }
+      }
+    },
+    "vibecast_feed": {
+      "name": "VibeCast-feed ophalen",
+      "description": "Lees de bestaande VibeCast-feed voor Apple-clients. Geeft korte weergaveklare items bij ingeschakelde VibeCast en actieve playback.",
+      "fields": {
+        "client_type": {
+          "name": "Clienttype",
+          "description": "Optioneel ondersteund DJConnect-clienttype. Laat leeg om het gekoppelde clienttype te gebruiken; Windows is beëindigd."
+        },
+        "device_id": {
+          "name": "Apparaat-ID",
+          "description": "Optioneel DJConnect-apparaat-ID. Laat leeg om het gekoppelde apparaat te gebruiken."
+        },
+        "render_capabilities": {
+          "name": "Weergavemogelijkheden",
+          "description": "Optionele kommagescheiden mogelijkheden, bijvoorbeeld bold, emphasis, accent of emoji_safe."
+        },
+        "locale": {
+          "name": "Taal/regio",
+          "description": "Optionele taal/regio voor het antwoord, bijvoorbeeld nl of en."
+        },
+        "language": {
+          "name": "Taal",
+          "description": "Optionele taalhint, bijvoorbeeld nl of en."
+        }
+      }
+    },
+    "music_discovery_feed": {
+      "name": "Music Discovery-feed ophalen",
+      "description": "Lees de bestaande ontdekkingsfeed voor de Music DNA-context. Music DNA moet voor deze gebruiker/client zijn ingeschakeld.",
+      "fields": {
+        "music_dna_key": {
+          "name": "Music DNA-sleutel",
+          "description": "Optionele Music DNA-contextsleutel; Home Assistant mag deze normaliseren. Verleent geen extra toegang."
+        },
+        "client_type": {
+          "name": "Clienttype",
+          "description": "Optioneel ondersteund DJConnect-clienttype. Laat leeg om het gekoppelde clienttype te gebruiken; Windows is beëindigd."
+        },
+        "force_refresh": {
+          "name": "Vernieuwen afdwingen",
+          "description": "Negeer de bestaande cache en vraag nieuwe gegevens aan. Bestaande serverlimieten blijven gelden."
+        },
+        "locale": {
+          "name": "Taal/regio",
+          "description": "Optionele taal/regio voor het antwoord, bijvoorbeeld nl of en."
+        },
+        "timezone": {
+          "name": "Tijdzone",
+          "description": "Optionele tijdzone van de client."
+        }
+      }
+    },
+    "refresh_music_discovery": {
+      "name": "Music Discovery vernieuwen",
+      "description": "Vernieuw de ontdekkingsfeed via de bestaande route, met dezelfde serverlimiet als voor clients.",
+      "fields": {
+        "music_dna_key": {
+          "name": "Music DNA-sleutel",
+          "description": "Optionele Music DNA-contextsleutel; Home Assistant mag deze normaliseren. Verleent geen extra toegang."
+        },
+        "client_type": {
+          "name": "Clienttype",
+          "description": "Optioneel ondersteund DJConnect-clienttype. Laat leeg om het gekoppelde clienttype te gebruiken; Windows is beëindigd."
+        },
+        "locale": {
+          "name": "Taal/regio",
+          "description": "Optionele taal/regio voor het antwoord, bijvoorbeeld nl of en."
+        },
+        "timezone": {
+          "name": "Tijdzone",
+          "description": "Optionele tijdzone van de client."
+        }
+      }
+    },
+    "play_music_discovery_item": {
+      "name": "Ontdekt item afspelen",
+      "description": "Speel een gecachet ontdekkingsitem af. Registreer positieve Music DNA-feedback zodra de playback start.",
+      "fields": {
+        "discovery_item_id": {
+          "name": "Ontdekkingsitem-ID",
+          "description": "Item-ID uit de bestaande ontdekkingsfeed."
+        },
+        "section_id": {
+          "name": "Sectie-ID",
+          "description": "Optionele sectie-ID uit de ontdekkingsfeed."
+        },
+        "music_dna_key": {
+          "name": "Music DNA-sleutel",
+          "description": "Optionele Music DNA-contextsleutel; Home Assistant mag deze normaliseren. Verleent geen extra toegang."
+        },
+        "client_type": {
+          "name": "Clienttype",
+          "description": "Optioneel ondersteund DJConnect-clienttype. Laat leeg om het gekoppelde clienttype te gebruiken; Windows is beëindigd."
+        },
+        "locale": {
+          "name": "Taal/regio",
+          "description": "Optionele taal/regio voor het antwoord, bijvoorbeeld nl of en."
+        },
+        "timezone": {
+          "name": "Tijdzone",
+          "description": "Optionele tijdzone van de client."
+        }
+      }
+    },
+    "music_discovery_feedback": {
+      "name": "Ontdekkingsfeedback vastleggen",
+      "description": "Leg negatieve feedback vast voor een gecachet item. Werkt compacte Music DNA-voorkeuren bij zonder playback te starten.",
+      "fields": {
+        "discovery_item_id": {
+          "name": "Ontdekkingsitem-ID",
+          "description": "Item-ID uit de bestaande ontdekkingsfeed."
+        },
+        "section_id": {
+          "name": "Sectie-ID",
+          "description": "Optionele sectie-ID uit de ontdekkingsfeed."
+        },
+        "feedback": {
+          "name": "Feedback",
+          "description": "Negatieve feedbackactie die moet worden vastgelegd."
+        },
+        "music_dna_key": {
+          "name": "Music DNA-sleutel",
+          "description": "Optionele Music DNA-contextsleutel; Home Assistant mag deze normaliseren. Verleent geen extra toegang."
+        },
+        "client_type": {
+          "name": "Clienttype",
+          "description": "Optioneel ondersteund DJConnect-clienttype. Laat leeg om het gekoppelde clienttype te gebruiken; Windows is beëindigd."
+        }
+      }
+    },
+    "music_dna_profile": {
+      "name": "Music DNA-profiel ophalen",
+      "description": "Lees het bestaande Music DNA-profiel. Zonder toestemming blijft het profiel leeg en enabled onwaar.",
+      "fields": {
+        "music_dna_key": {
+          "name": "Music DNA-sleutel",
+          "description": "Optionele Music DNA-contextsleutel; Home Assistant mag deze normaliseren. Verleent geen extra toegang."
+        },
+        "client_type": {
+          "name": "Clienttype",
+          "description": "Optioneel ondersteund DJConnect-clienttype. Laat leeg om het gekoppelde clienttype te gebruiken; Windows is beëindigd."
+        },
+        "client_id": {
+          "name": "Client-ID",
+          "description": "Optionele installatie-ID als clientmetadata."
+        },
+        "device_id": {
+          "name": "Apparaat-ID",
+          "description": "Optioneel DJConnect-apparaat-ID. Laat leeg om het gekoppelde apparaat te gebruiken."
+        },
+        "device_name": {
+          "name": "Apparaatnaam",
+          "description": "Optionele weergavenaam van de aanvragende client."
+        }
+      }
+    },
+    "set_music_dna_enabled": {
+      "name": "Music DNA-toestemming instellen",
+      "description": "Schakel Music DNA in of uit voor de gebruiker/client. Uitschakelen wist geleerde kennis en stopt nieuwe kennisopbouw.",
+      "fields": {
+        "enabled": {
+          "name": "Ingeschakeld",
+          "description": "Of Music DNA voor deze context kennis mag opbouwen."
+        },
+        "music_dna_key": {
+          "name": "Music DNA-sleutel",
+          "description": "Optionele Music DNA-contextsleutel; Home Assistant mag deze normaliseren. Verleent geen extra toegang."
+        },
+        "client_type": {
+          "name": "Clienttype",
+          "description": "Optioneel ondersteund DJConnect-clienttype. Laat leeg om het gekoppelde clienttype te gebruiken; Windows is beëindigd."
+        },
+        "client_id": {
+          "name": "Client-ID",
+          "description": "Optionele installatie-ID als clientmetadata."
+        },
+        "device_id": {
+          "name": "Apparaat-ID",
+          "description": "Optioneel DJConnect-apparaat-ID. Laat leeg om het gekoppelde apparaat te gebruiken."
+        },
+        "device_name": {
+          "name": "Apparaatnaam",
+          "description": "Optionele weergavenaam van de aanvragende client."
+        }
+      }
+    },
+    "clear_music_dna": {
+      "name": "Music DNA wissen",
+      "description": "Wis geleerde Music DNA-kennis met behoud van de huidige toestemmingsinstelling.",
+      "fields": {
+        "music_dna_key": {
+          "name": "Music DNA-sleutel",
+          "description": "Optionele Music DNA-contextsleutel; Home Assistant mag deze normaliseren. Verleent geen extra toegang."
+        },
+        "client_type": {
+          "name": "Clienttype",
+          "description": "Optioneel ondersteund DJConnect-clienttype. Laat leeg om het gekoppelde clienttype te gebruiken; Windows is beëindigd."
+        },
+        "client_id": {
+          "name": "Client-ID",
+          "description": "Optionele installatie-ID als clientmetadata."
+        },
+        "device_id": {
+          "name": "Apparaat-ID",
+          "description": "Optioneel DJConnect-apparaat-ID. Laat leeg om het gekoppelde apparaat te gebruiken."
+        },
+        "device_name": {
+          "name": "Apparaatnaam",
+          "description": "Optionele weergavenaam van de aanvragende client."
+        }
+      }
+    },
+    "music_dna_export": {
+      "name": "Music DNA exporteren",
+      "description": "Exporteer het bestaande profiel als importeerbare djconnect.music_dna.export voor de juiste HA-gebruiker/client.",
+      "fields": {
+        "music_dna_key": {
+          "name": "Music DNA-sleutel",
+          "description": "Optionele Music DNA-contextsleutel; Home Assistant mag deze normaliseren. Verleent geen extra toegang."
+        },
+        "client_type": {
+          "name": "Clienttype",
+          "description": "Optioneel ondersteund DJConnect-clienttype. Laat leeg om het gekoppelde clienttype te gebruiken; Windows is beëindigd."
+        },
+        "client_id": {
+          "name": "Client-ID",
+          "description": "Optionele installatie-ID als clientmetadata."
+        },
+        "device_id": {
+          "name": "Apparaat-ID",
+          "description": "Optioneel DJConnect-apparaat-ID. Laat leeg om het gekoppelde apparaat te gebruiken."
+        },
+        "device_name": {
+          "name": "Apparaatnaam",
+          "description": "Optionele weergavenaam van de aanvragende client."
+        },
+        "app_version": {
+          "name": "Appversie",
+          "description": "Optionele versie van de aanvragende app."
+        }
+      }
+    },
+    "music_dna_import": {
+      "name": "Music DNA importeren",
+      "description": "Importeer een Music DNA-export via de bestaande route. Vereist reeds ingeschakelde Music DNA voor de juiste gebruiker/client.",
+      "fields": {
+        "profile": {
+          "name": "Profiel",
+          "description": "Music DNA-export of profielgegevens die moeten worden geïmporteerd."
+        },
+        "music_dna_key": {
+          "name": "Music DNA-sleutel",
+          "description": "Optionele Music DNA-contextsleutel; Home Assistant mag deze normaliseren. Verleent geen extra toegang."
+        },
+        "client_type": {
+          "name": "Clienttype",
+          "description": "Optioneel ondersteund DJConnect-clienttype. Laat leeg om het gekoppelde clienttype te gebruiken; Windows is beëindigd."
+        },
+        "client_id": {
+          "name": "Client-ID",
+          "description": "Optionele installatie-ID als clientmetadata."
+        },
+        "device_id": {
+          "name": "Apparaat-ID",
+          "description": "Optioneel DJConnect-apparaat-ID. Laat leeg om het gekoppelde apparaat te gebruiken."
+        },
+        "device_name": {
+          "name": "Apparaatnaam",
+          "description": "Optionele weergavenaam van de aanvragende client."
+        },
+        "app_version": {
+          "name": "Appversie",
+          "description": "Optionele versie van de aanvragende app."
+        }
+      }
+    },
+    "clear_ask_dj_history": {
+      "name": "Ask DJ-geschiedenis wissen",
+      "description": "Wis alleen de Ask DJ-servergeschiedenis van de aangemelde HA-gebruiker. Verhoog clear_revision en history_revision voor clientsynchronisatie.",
+      "fields": {
+        "music_dna_key": {
+          "name": "Music DNA-sleutel",
+          "description": "Optionele Music DNA-contextsleutel; Home Assistant mag deze normaliseren. Verleent geen extra toegang."
+        },
+        "client_type": {
+          "name": "Clienttype",
+          "description": "Optioneel ondersteund DJConnect-clienttype. Laat leeg om het gekoppelde clienttype te gebruiken; Windows is beëindigd."
+        }
+      }
+    },
+    "ask_dj_history_state": {
+      "name": "Ask DJ-synchronisatiestatus ophalen",
+      "description": "Lees de compacte revisiestatus en of de client zijn lokale chatcache moet wissen.",
+      "fields": {
+        "music_dna_key": {
+          "name": "Music DNA-sleutel",
+          "description": "Optionele Music DNA-contextsleutel; Home Assistant mag deze normaliseren. Verleent geen extra toegang."
+        },
+        "history_revision": {
+          "name": "Geschiedenisrevisie",
+          "description": "Laatste Ask DJ-geschiedenisrevisie die bij de client bekend is."
+        },
+        "clear_revision": {
+          "name": "Wisrevisie",
+          "description": "Laatste Ask DJ-wisrevisie die bij de client bekend is."
+        }
+      }
+    },
+    "start_spotify_oauth": {
+      "name": "Spotify-autorisatie starten",
+      "description": "Maak een Spotify PKCE-autorisatie-URL. Open deze en meld je aan; de callback bewaart het refresh-token in HA. Niet gebruikt bij Music Assistant.",
+      "fields": {
+        "client_id": {
+          "name": "Spotify Client ID",
+          "description": "Client ID van je Spotify Developer-app. Leeg gebruikt de ingestelde waarde."
+        },
+        "ha_base_url": {
+          "name": "Externe Home Assistant-URL",
+          "description": "Bereikbare basis-URL voor Spotify, bij voorkeur Nabu Casa. Leeg gebruikt de ingestelde URL. De redirect voegt /api/djconnect/v1/spotify/callback toe."
+        },
+        "market": {
+          "name": "Markt/regio",
+          "description": "Optionele Spotify-regio voor zoeken en playback, bijvoorbeeld NL of US."
+        },
+        "scopes": {
+          "name": "Spotify-machtigingen",
+          "description": "Spotify OAuth-scopes; leeg gebruikt de standaardmachtigingen van DJConnect."
+        }
+      }
+    },
+    "music_backend_status": {
+      "name": "Muziekbackendstatus ophalen",
+      "description": "Controleer de gekozen backend, mogelijkheden, revisie, doelspeler en veilige foutstatus zonder playback te starten."
+    },
+    "device_command": {
+      "name": "Apparaatcommando sturen",
+      "description": "Stuur een lokaal commando naar het gekoppelde apparaat via /api/device/command met het opgeslagen bearer-token.",
+      "fields": {
+        "command": {
+          "name": "Commando",
+          "description": "Ondersteund technisch commando dat moet worden uitgevoerd."
+        },
+        "payload": {
+          "name": "Opdrachtgegevens",
+          "description": "Optionele opdrachtgegevens als object, bijvoorbeeld een value-veld met waarde 35."
+        }
+      }
+    },
+    "queue": {
+      "name": "Muziekwachtrij ophalen",
+      "description": "Lees de huidige wachtrij via de bestaande backendroute, zonder playback te starten, stoppen of wijzigen.",
+      "fields": {
+        "client_type": {
+          "name": "Clienttype",
+          "description": "Optioneel ondersteund DJConnect-clienttype. Laat leeg om het gekoppelde clienttype te gebruiken; Windows is beëindigd."
+        },
+        "client_id": {
+          "name": "Client-ID",
+          "description": "Optionele installatie-ID als clientmetadata."
+        },
+        "device_id": {
+          "name": "Apparaat-ID",
+          "description": "Optioneel DJConnect-apparaat-ID. Laat leeg om het gekoppelde apparaat te gebruiken."
+        },
+        "music_dna_key": {
+          "name": "Music DNA-sleutel",
+          "description": "Optionele Music DNA-contextsleutel; Home Assistant mag deze normaliseren. Verleent geen extra toegang."
+        },
+        "locale": {
+          "name": "Taal/regio",
+          "description": "Optionele taal/regio voor het antwoord, bijvoorbeeld nl of en."
+        },
+        "timezone": {
+          "name": "Tijdzone",
+          "description": "Optionele tijdzone van de client."
+        }
+      }
+    },
+    "playlists": {
+      "name": "Afspeellijsten ophalen",
+      "description": "Lees de afspeellijsten via de bestaande backendroute, zonder playback te starten, stoppen of wijzigen.",
+      "fields": {
+        "client_type": {
+          "name": "Clienttype",
+          "description": "Optioneel ondersteund DJConnect-clienttype. Laat leeg om het gekoppelde clienttype te gebruiken; Windows is beëindigd."
+        },
+        "client_id": {
+          "name": "Client-ID",
+          "description": "Optionele installatie-ID als clientmetadata."
+        },
+        "device_id": {
+          "name": "Apparaat-ID",
+          "description": "Optioneel DJConnect-apparaat-ID. Laat leeg om het gekoppelde apparaat te gebruiken."
+        },
+        "limit": {
+          "name": "Maximumaantal",
+          "description": "Maximaal aantal afspeellijsten dat wordt teruggegeven."
+        },
+        "market": {
+          "name": "Markt/regio",
+          "description": "Optionele Spotify-regio voor zoeken en playback, bijvoorbeeld NL of US."
+        },
+        "music_dna_key": {
+          "name": "Music DNA-sleutel",
+          "description": "Optionele Music DNA-contextsleutel; Home Assistant mag deze normaliseren. Verleent geen extra toegang."
+        },
+        "locale": {
+          "name": "Taal/regio",
+          "description": "Optionele taal/regio voor het antwoord, bijvoorbeeld nl of en."
+        },
+        "timezone": {
+          "name": "Tijdzone",
+          "description": "Optionele tijdzone van de client."
+        }
+      }
+    },
+    "playback_status": {
+      "name": "Afspeelstatus ophalen",
+      "description": "Lees de afspeelstatus van de gekozen backend zonder playback te wijzigen.",
+      "fields": {
+        "client_type": {
+          "name": "Clienttype",
+          "description": "Optioneel ondersteund DJConnect-clienttype. Laat leeg om het gekoppelde clienttype te gebruiken; Windows is beëindigd."
+        },
+        "device_id": {
+          "name": "Apparaat-ID",
+          "description": "Optioneel DJConnect-apparaat-ID. Laat leeg om het gekoppelde apparaat te gebruiken."
+        },
+        "locale": {
+          "name": "Taal/regio",
+          "description": "Optionele taal/regio voor het antwoord, bijvoorbeeld nl of en."
+        }
+      }
+    },
+    "playback_devices": {
+      "name": "Afspeelapparaten ophalen",
+      "description": "Lees de uitgangen/apparaten van de gekozen backend zonder playback te wijzigen.",
+      "fields": {
+        "client_type": {
+          "name": "Clienttype",
+          "description": "Optioneel ondersteund DJConnect-clienttype. Laat leeg om het gekoppelde clienttype te gebruiken; Windows is beëindigd."
+        },
+        "device_id": {
+          "name": "Apparaat-ID",
+          "description": "Optioneel DJConnect-apparaat-ID. Laat leeg om het gekoppelde apparaat te gebruiken."
+        },
+        "locale": {
+          "name": "Taal/regio",
+          "description": "Optionele taal/regio voor het antwoord, bijvoorbeeld nl of en."
+        }
+      }
+    },
+    "playback_command": {
+      "name": "Afspeelcommando sturen",
+      "description": "Voer een ondersteund afspeelcommando uit via de bestaande backendroute, bijvoorbeeld play, pause, next, set_volume, set_output, set_shuffle of set_repeat.",
+      "fields": {
+        "command": {
+          "name": "Commando",
+          "description": "Ondersteund technisch commando dat moet worden uitgevoerd."
+        },
+        "value": {
+          "name": "Waarde",
+          "description": "Optionele commandowaarde, zoals 40 voor set_volume, true voor set_shuffle, off voor set_repeat of een uris-object voor play_uris."
+        },
+        "play": {
+          "name": "Afspelen starten",
+          "description": "Start playback als het commando dit ondersteunt. Schakel uit om te testen zonder muziek te starten."
+        },
+        "client_type": {
+          "name": "Clienttype",
+          "description": "Optioneel ondersteund DJConnect-clienttype. Laat leeg om het gekoppelde clienttype te gebruiken; Windows is beëindigd."
+        },
+        "device_id": {
+          "name": "Apparaat-ID",
+          "description": "Optioneel DJConnect-apparaat-ID. Laat leeg om het gekoppelde apparaat te gebruiken."
+        },
+        "locale": {
+          "name": "Taal/regio",
+          "description": "Optionele taal/regio voor het antwoord, bijvoorbeeld nl of en."
+        }
+      }
+    },
+    "refresh_device_info": {
+      "name": "Apparaatgegevens vernieuwen",
+      "description": "Lees /api/device/info van het gekoppelde apparaat en werk de HA-statussensoren bij."
+    },
+    "reboot_device": {
+      "name": "Apparaat herstarten",
+      "description": "Vraag het gekoppelde apparaat via /api/device/reboot om te herstarten."
+    },
+    "forget_device": {
+      "name": "Apparaatkoppeling vergeten",
+      "description": "Wis de lokale koppeling op het apparaat via /api/device/forget. Koppel het apparaat daarna opnieuw."
+    },
+    "profile_export": {
+      "name": "Profiel exporteren",
+      "description": "Exporteer het gekozen DJConnect-profiel zonder OAuth-, provider-, HA-, APNs- of apparaattokens.",
+      "fields": {
+        "profile_id": {
+          "name": "Profiel",
+          "description": "Optioneel profiel-ID voor resolutie en autorisatie. Zonder ID gelden de bestaande apparaat-, HA-gebruiker- en terugvalregels."
+        },
+        "include_personal_data": {
+          "name": "Persoonlijke gegevens opnemen",
+          "description": "Neem toegestane Music DNA-, sfeer- en voorkeursgegevens op. Privé- en gastveilige exports blijven persoonlijke gegevens afschermen."
+        }
+      }
+    },
+    "household_export": {
+      "name": "Huishouden exporteren",
+      "description": "Exporteer niet-geheime huishouden-, profiel-, koppelings- en accountmetadata. Providercredentials moeten na import opnieuw worden gekoppeld.",
+      "fields": {
+        "profile_id": {
+          "name": "Profiel",
+          "description": "Optioneel profiel-ID voor resolutie en autorisatie. Zonder ID gelden de bestaande apparaat-, HA-gebruiker- en terugvalregels."
+        }
+      }
+    },
+    "integration_export": {
+      "name": "Integratie exporteren",
+      "description": "Exporteer de volledige niet-geheime integratieconfiguratie. Uitgesloten geheimen worden expliciet vermeld.",
+      "fields": {
+        "profile_id": {
+          "name": "Profiel",
+          "description": "Optioneel profiel-ID voor resolutie en autorisatie. Zonder ID gelden de bestaande apparaat-, HA-gebruiker- en terugvalregels."
+        }
+      }
+    },
+    "profile_import": {
+      "name": "Profiel importeren",
+      "description": "Importeer één profiel. Geheimachtige velden worden geweigerd; ontbrekende providercredentials vereisen opnieuw koppelen.",
+      "fields": {
+        "export": {
+          "name": "Exportbestand",
+          "description": "Bestaande exportgegevens die moeten worden geïmporteerd."
+        },
+        "overwrite": {
+          "name": "Overschrijven",
+          "description": "Sta expliciet toe dat bestaande gegevens door deze import worden vervangen."
+        },
+        "reassign_id": {
+          "name": "Nieuw profiel-ID maken",
+          "description": "Maak bij een bestaand export-ID een nieuw ID voor het geïmporteerde profiel."
+        }
+      }
+    },
+    "household_import": {
+      "name": "Huishouden importeren",
+      "description": "Importeer een huishouden of niet-geheime integratie-export. Bestaande profielen worden alleen bij expliciet overschrijven vervangen.",
+      "fields": {
+        "export": {
+          "name": "Exportbestand",
+          "description": "Bestaande exportgegevens die moeten worden geïmporteerd."
+        },
+        "overwrite": {
+          "name": "Overschrijven",
+          "description": "Sta expliciet toe dat bestaande gegevens door deze import worden vervangen."
+        }
+      }
+    },
+    "clear_profile_state": {
+      "name": "Persoonlijke profielgegevens wissen",
+      "description": "Wis de geselecteerde persoonlijke gegevens zonder het profiel te verwijderen.",
+      "fields": {
+        "profile_id": {
+          "name": "Profiel",
+          "description": "Optioneel profiel-ID voor resolutie en autorisatie. Zonder ID gelden de bestaande apparaat-, HA-gebruiker- en terugvalregels."
+        },
+        "ask_dj": {
+          "name": "Ask DJ-geschiedenis",
+          "description": "Wis Ask DJ-gespreksverwijzingen en geschiedenis voor deze context."
+        },
+        "music_dna": {
+          "name": "Music DNA",
+          "description": "Wis Music DNA-verwijzingen en gegevens voor deze context."
+        },
+        "recommendations": {
+          "name": "Aanbevelingen",
+          "description": "Wis aanbevelingsverwijzingen en positieve/negatieve voorkeuren."
+        },
+        "mood": {
+          "name": "Sfeer",
+          "description": "Wis de opgeslagen sfeerinstelling."
+        },
+        "all": {
+          "name": "Alle persoonlijke gegevens",
+          "description": "Wis alle persoonlijke gegevensverwijzingen zonder het profiel te verwijderen."
+        }
       }
     }
   }

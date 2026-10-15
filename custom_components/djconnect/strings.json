@@ -694,6 +694,10 @@
     "windows_client_retired_safe": {
       "title": "Windows app retired: ready to remove — {configuration}",
       "description": "De DJConnect Windows-app wordt niet meer ondersteund en kan niet verbinden. Deze configuratie is geen eigenaar meer van een muziekverbinding en kan worden verwijderd. Bestaande gekoppelde clients, Profiles, muziekaccounts en geschiedenis blijven behouden."
+    },
+    "missing_spotify_client_id": {
+      "title": "Spotify Client ID missing",
+      "description": "DJConnect needs a Spotify Developer App Client ID for Spotify Direct. Open DJConnect settings, enter the Client ID and authorize Spotify again. Never share tokens or secrets."
     }
   },
   "selector": {
@@ -743,6 +747,1044 @@
         "watchos": "Apple Watch",
         "raspberry_pi": "Linux/Raspberry Pi",
         "conversation_agent": "Assist conversation agent"
+      }
+    }
+  },
+  "services": {
+    "start_session": {
+      "name": "Start DJ Session",
+      "description": "Create the one active server-owned DJ Session for a resolved Profile.",
+      "fields": {
+        "profile_id": {
+          "name": "Profile",
+          "description": "Optional DJConnect Profile identifier. If omitted, resolve the paired Profile."
+        },
+        "mood": {
+          "name": "Mood",
+          "description": "Optional session mood."
+        },
+        "room": {
+          "name": "Room",
+          "description": "Optional room label for the active session."
+        }
+      }
+    },
+    "end_session": {
+      "name": "End DJ Session",
+      "description": "End and dispose of the active server-owned DJ Session for a resolved Profile.",
+      "fields": {
+        "profile_id": {
+          "name": "Profile",
+          "description": "Optional DJConnect Profile identifier. If omitted, resolve the paired Profile."
+        },
+        "session_id": {
+          "name": "Session",
+          "description": "Optional active session identifier to end."
+        }
+      }
+    },
+    "active_session": {
+      "name": "Get active DJ Session",
+      "description": "Return the active server-owned DJ Session for a resolved Profile.",
+      "fields": {
+        "profile_id": {
+          "name": "Profile",
+          "description": "Optional DJConnect Profile identifier. If omitted, resolve the paired Profile."
+        }
+      }
+    },
+    "developer_session_bootstrap": {
+      "name": "Bootstrap Session Intelligence Golden Scenario",
+      "description": "Developer and CI helper: start or stop the isolated server-owned Runtime Session required to enable the explicitly selected Session Intelligence Golden Scenario. It supports the six approved original Session Intelligence Golden Scenarios. It does not execute the scenario, generate a DJMoment or expose Runtime, Planner, Knowledge, Performance Memory or Broadcast-token internals.\n",
+      "fields": {
+        "action": {
+          "name": "Action",
+          "description": "Start the isolated Session or stop and clean it up."
+        },
+        "scenario_id": {
+          "name": "Scenario",
+          "description": "Explicit approved Golden Scenario identifier."
+        }
+      }
+    },
+    "developer_session_scenario_driver": {
+      "name": "Run Session Intelligence Golden Scenario",
+      "description": "Developer and CI helper: run the explicitly selected approved Golden Scenario through the existing server-owned Runtime after developer_session_bootstrap has started its isolated Session. It supplies only the fixed deterministic Track Insight input or inputs and does not invoke Planner, Knowledge or DJ Moment Engine internals directly.\n",
+      "fields": {
+        "scenario_id": {
+          "name": "Scenario",
+          "description": "Explicit approved Golden Scenario identifier."
+        }
+      }
+    },
+    "developer_session_capture": {
+      "name": "Capture Session Intelligence Golden Scenario",
+      "description": "Developer and CI helper: create one immutable, read-only observation of the completed approved Golden Scenario Runtime execution. It captures no credentials, mutable Runtime objects or Planner internals.\n",
+      "fields": {
+        "scenario_id": {
+          "name": "Scenario",
+          "description": "Explicit approved Golden Scenario identifier."
+        }
+      }
+    },
+    "golden_qualification": {
+      "name": "Run Golden Qualification Foundation",
+      "description": "Developer and future-CI helper: execute the canonical deterministic server-side qualification path for all executable Session Intelligence Golden Scenarios. It reuses Bootstrap, Scenario Driver, immutable Capture and Structural Validation, then cleans every isolated Session. It validates only Planner, Knowledge, DJMoment, Presentation, Session Flow and renderer-safe Broadcast projections; it does not test a Renderer Host, visual output, audio, TTS or hardware.\n",
+      "fields": {
+        "include_advisory_metrics": {
+          "name": "Include advisory metrics",
+          "description": "Add the bounded, read-only Intelligence Quality Metrics v1 projection to this report. It does not affect qualification success or failure.\n"
+        }
+      }
+    },
+    "golden_smoke": {
+      "name": "Run Golden Smoke",
+      "description": "Developer and future-CI helper: run the smallest approved Golden Smoke selection, currently SI-GOLDEN-001, through the existing Golden Qualification Foundation. It reuses the same Bootstrap, Scenario Driver, immutable Capture, Structural Validation and bounded report. This service does not implement a CI workflow or change Golden Scenario behavior.\n",
+      "fields": {
+        "include_advisory_metrics": {
+          "name": "Include advisory metrics",
+          "description": "Add the bounded, read-only Intelligence Quality Metrics v1 projection to this report. It does not affect qualification success or failure.\n"
+        }
+      }
+    },
+    "golden_regression": {
+      "name": "Run Golden Regression",
+      "description": "Local developer helper: run the complete approved Session Intelligence contract, SI-GOLDEN-001 through SI-GOLDEN-006, through the existing Golden Qualification Foundation. It reuses the same Bootstrap, Scenario Driver, Runtime, immutable Capture, Structural Validation, cleanup and bounded report. This fixed profile accepts no scenario selection or configuration, and does not implement a CI workflow or release gate.\n",
+      "fields": {
+        "include_advisory_metrics": {
+          "name": "Include advisory metrics",
+          "description": "Add the bounded, read-only Intelligence Quality Metrics v1 projection to this report. It does not affect qualification success or failure.\n"
+        }
+      }
+    },
+    "test_parse": {
+      "name": "Test Assist parser",
+      "description": "Developer test: send text through the configured Home Assistant Assist conversation pipeline and return the DJConnect intent. This action does not start playback on Spotify Direct or Music Assistant and does not send a DJ announcement.\n",
+      "fields": {
+        "command_text": {
+          "name": "Command text",
+          "description": "Text as the DJConnect device would send it after HA Assist STT. Current-track questions and playback controls are handled by Home Assistant through the selected music backend without client-side provider credentials."
+        }
+      }
+    },
+    "test_tts": {
+      "name": "Test DJ announcement",
+      "description": "Developer test: send a standalone DJ announcement to the paired DJConnect device. Home Assistant tries to create a temporary WAV or MP3 audio_url through the configured TTS engine; if that fails, DJConnect sends text only so the device can display the announcement.\n",
+      "fields": {
+        "dj_response_text": {
+          "name": "DJ announcement text",
+          "description": "Text the DJConnect device should display and speak when possible."
+        }
+      }
+    },
+    "test_command": {
+      "name": "Test full text command",
+      "description": "Developer test: use the same text-command route as the DJConnect device. Text goes through Home Assistant to a DJConnect intent, can optionally start playback through Spotify Direct or Music Assistant, and then sends the DJ announcement to the ESP device. Current-track questions and direct playback controls are handled by Home Assistant without client-side provider credentials or playback backend logic.\n",
+      "fields": {
+        "command_text": {
+          "name": "Command text",
+          "description": "Music request, current-track question or playback-control text."
+        },
+        "play": {
+          "name": "Start playback",
+          "description": "Turn off to test parser/result data without starting playback on the selected backend."
+        }
+      }
+    },
+    "test_ptt_text": {
+      "name": "Test PTT text flow",
+      "description": "Developer test: start exactly after STT conversion. Enter the natural language sentence the user said; DJConnect runs intent parsing, selected backend search/playback where supported, DJ announcement generation with text/audio, and sends the result back to the connected DJConnect device/client.\n",
+      "fields": {
+        "command_text": {
+          "name": "Natural language text",
+          "description": "Text as recognized by STT from a PTT voice request."
+        }
+      }
+    },
+    "test_apns_push": {
+      "name": "Test APNs push",
+      "description": "Developer diagnostic: inspect DJConnect APNs push readiness for iOS, macOS or Apple Watch clients. By default this returns decision, relay, registration and last error details without sending a push. Set send to true to attempt a privacy-safe test push through the DJConnect central relay.\n",
+      "fields": {
+        "device_id": {
+          "name": "Device ID",
+          "description": "Optional DJConnect Apple client id. Leave empty to use the paired client."
+        },
+        "client_type": {
+          "name": "Client type",
+          "description": "ios, macos or watchos. Leave empty to use the paired client type."
+        },
+        "event_type": {
+          "name": "Event type",
+          "description": "Push event to test."
+        },
+        "user_id": {
+          "name": "User ID",
+          "description": "Optional HA user id for the same user-scoped push path as Ask DJ."
+        },
+        "send": {
+          "name": "Send push",
+          "description": "Turn on to actually call the central relay; leave off for diagnostic dry-run."
+        },
+        "explicit_user_request": {
+          "name": "Explicit user request",
+          "description": "Leave on for manual tests so Ask DJ push policy allows the event when otherwise valid."
+        }
+      }
+    },
+    "push_register": {
+      "name": "APNs push registration",
+      "description": "Developer helper: register an iOS, macOS or Apple Watch APNs token through the same backend path as /api/djconnect/v1/push/register. Home Assistant forwards the token to the DJConnect central relay and stores only compact registration status. If registration reports missing_bootstrap_proof, a paired Apple client should obtain a trusted central-issued short-lived bootstrap proof from the Apple pairing issuer and retry registration with bootstrap_proof. HA does not locally mint, request or store bootstrap proofs; /api/djconnect/v1/push/bootstrap only reports bootstrap_proof_unavailable.\n",
+      "fields": {
+        "push_token": {
+          "name": "Push token",
+          "description": "APNs device token from the Apple client. This is forwarded to the relay and must not be shared in logs."
+        },
+        "push_environment": {
+          "name": "Push environment",
+          "description": "APNs environment for this token."
+        },
+        "device_id": {
+          "name": "Device ID",
+          "description": "DJConnect Apple client id, for example djconnect-ios-ABCDEFGHIJKL."
+        },
+        "client_type": {
+          "name": "Client type",
+          "description": "ios, macos or watchos. Leave empty to use the paired client type."
+        },
+        "user_id": {
+          "name": "User ID",
+          "description": "Optional HA user id for the same user-scoped push registration path as Ask DJ."
+        },
+        "app_bundle_id": {
+          "name": "App bundle ID",
+          "description": "Optional Apple app bundle id."
+        },
+        "app_version": {
+          "name": "App version",
+          "description": "Optional app version metadata."
+        },
+        "locale": {
+          "name": "Locale",
+          "description": "Optional client locale, for example nl or en."
+        },
+        "bootstrap_proof": {
+          "name": "Bootstrap proof",
+          "description": "Optional short-lived Apple client bootstrap proof from the trusted Apple pairing issuer, used transiently to mint a DJConnect install token when needed."
+        }
+      }
+    },
+    "push_unregister": {
+      "name": "APNs push unregistration",
+      "description": "Developer helper: unregister an iOS, macOS or Apple Watch APNs token through the same backend path as /api/djconnect/v1/push/unregister. Home Assistant clears local compact registration status when the relay accepts the request.\n",
+      "fields": {
+        "push_token": {
+          "name": "Push token",
+          "description": "APNs device token from the Apple client. This is forwarded to the relay and must not be shared in logs."
+        },
+        "push_environment": {
+          "name": "Push environment",
+          "description": "APNs environment for this token."
+        },
+        "device_id": {
+          "name": "Device ID",
+          "description": "DJConnect Apple client id, for example djconnect-ios-ABCDEFGHIJKL."
+        },
+        "client_type": {
+          "name": "Client type",
+          "description": "ios, macos or watchos. Leave empty to use the paired client type."
+        },
+        "user_id": {
+          "name": "User ID",
+          "description": "Optional HA user id for the same user-scoped push registration path as Ask DJ."
+        },
+        "app_bundle_id": {
+          "name": "App bundle ID",
+          "description": "Optional Apple app bundle id."
+        }
+      }
+    },
+    "ask_dj": {
+      "name": "Ask DJ",
+      "description": "Developer/raw Ask DJ text request. Home Assistant handles intent routing, Music DNA, selected-backend/Home Assistant actions and informational answers. Use Ask DJ message for the app-style server-side chat history flow.\n",
+      "fields": {
+        "text": {
+          "name": "Text",
+          "description": "Ask DJ chat text."
+        },
+        "music_dna_key": {
+          "name": "Memory key",
+          "description": "Optional client-suggested Music DNA key. Home Assistant may normalize it."
+        },
+        "client_type": {
+          "name": "Client type",
+          "description": "DJConnect client type such as ios, macos, watchos, raspberry_pi or windows."
+        },
+        "client_id": {
+          "name": "Client ID",
+          "description": "Optional app/client install id metadata."
+        },
+        "client_message_id": {
+          "name": "Client message ID",
+          "description": "Optional idempotency key supplied by the client."
+        },
+        "audio_response": {
+          "name": "Audio response",
+          "description": "auto, always or never."
+        },
+        "mood": {
+          "name": "Mood",
+          "description": "Optional mood/energy value from 0 to 100."
+        },
+        "dj_style": {
+          "name": "DJ style",
+          "description": "Optional Ask DJ style hint."
+        },
+        "locale": {
+          "name": "Locale",
+          "description": "Optional response locale, for example en or nl."
+        },
+        "timezone": {
+          "name": "Time zone",
+          "description": "Optional client time zone."
+        }
+      }
+    },
+    "ask_dj_message": {
+      "name": "Ask DJ message",
+      "description": "App-style Ask DJ chat message using the same server-side history sync route as /api/djconnect/v1/ask_dj/message. Stores the user request and assistant response in the authenticated Home Assistant user's Ask DJ history.\n",
+      "fields": {
+        "text": {
+          "name": "Text",
+          "description": "Ask DJ chat text."
+        },
+        "client_message_id": {
+          "name": "Client message ID",
+          "description": "Optional idempotency key; repeated ids return the existing exchange for the same HA user."
+        },
+        "client_id": {
+          "name": "Client ID",
+          "description": "Optional app/client install id metadata."
+        },
+        "music_dna_key": {
+          "name": "Music DNA key",
+          "description": "Optional client-suggested Music DNA key. Home Assistant may normalize it."
+        },
+        "client_type": {
+          "name": "Client type",
+          "description": "DJConnect client type such as ios, macos, watchos, raspberry_pi or windows."
+        },
+        "audio_response": {
+          "name": "Audio response",
+          "description": "auto, always or never."
+        },
+        "mood": {
+          "name": "Mood",
+          "description": "Optional mood/energy value from 0 to 100."
+        },
+        "locale": {
+          "name": "Locale",
+          "description": "Optional response locale, for example en or nl."
+        }
+      }
+    },
+    "ask_dj_idle_suggestion": {
+      "name": "Ask DJ idle suggestion",
+      "description": "Return an Ask DJ idle suggestion for the resolved user/client context and append the assistant message to server-side Ask DJ history when successful.\n",
+      "fields": {
+        "music_dna_key": {
+          "name": "Music DNA key",
+          "description": "Optional Music DNA key to use for the suggestion context."
+        },
+        "client_type": {
+          "name": "Client type",
+          "description": "DJConnect client type such as ios, macos, watchos, raspberry_pi or windows."
+        }
+      }
+    },
+    "ask_dj_history": {
+      "name": "Ask DJ history",
+      "description": "Return server-side Ask DJ chat history using the same route as /api/djconnect/v1/ask_dj/history. Use since_revision to fetch only newer history when syncing a client.\n",
+      "fields": {
+        "since_revision": {
+          "name": "Since revision",
+          "description": "Optional history revision to fetch changes after."
+        },
+        "music_dna_key": {
+          "name": "Music DNA key",
+          "description": "Optional Music DNA key metadata."
+        },
+        "client_type": {
+          "name": "Client type",
+          "description": "DJConnect client type such as ios, macos, watchos, raspberry_pi or windows."
+        }
+      }
+    },
+    "track_insight": {
+      "name": "Track Insight",
+      "description": "Analyze the currently playing track or an explicit artist/title through the same handler as /api/djconnect/v1/track_insight. The service returns normalized Track Insight JSON with analysis, cache metadata and visual-profile hints, then fires the djconnect_track_insight event for automations and dashboards when successful.\n",
+      "fields": {
+        "entity_id": {
+          "name": "Entity ID",
+          "description": "Optional media_player entity to inspect for now-playing metadata."
+        },
+        "player_id": {
+          "name": "Player ID",
+          "description": "Optional backend/player identifier."
+        },
+        "title": {
+          "name": "Track title",
+          "description": "Optional explicit track title. Provide artist too to analyze a track without now-playing metadata."
+        },
+        "artist": {
+          "name": "Artist",
+          "description": "Optional explicit artist name."
+        },
+        "album": {
+          "name": "Album",
+          "description": "Optional album name for identity, cache and visual seed."
+        },
+        "genres": {
+          "name": "Genres",
+          "description": "Optional genre list or object from client/backend metadata."
+        },
+        "music_dna_key": {
+          "name": "Music DNA key",
+          "description": "Optional Music DNA key metadata for this Track Insight context."
+        },
+        "client_type": {
+          "name": "Client type",
+          "description": "Optional DJConnect client type. Leave empty to use the paired client type."
+        },
+        "client_id": {
+          "name": "Client ID",
+          "description": "Optional app/client install id metadata."
+        },
+        "device_id": {
+          "name": "Device ID",
+          "description": "Optional DJConnect device/client id. Leave empty to use the paired client."
+        },
+        "music_backend": {
+          "name": "Music backend",
+          "description": "Optional backend hint for cache identity and explicit-track analysis."
+        },
+        "force_refresh": {
+          "name": "Force refresh",
+          "description": "Ignore cached insight and request a fresh analysis."
+        },
+        "include_visual_profile": {
+          "name": "Include visual profile",
+          "description": "Include deterministic visualization hints for clients."
+        },
+        "include_raw_response": {
+          "name": "Include raw response",
+          "description": "Include the raw AI response for developer diagnostics."
+        },
+        "locale": {
+          "name": "Locale",
+          "description": "Optional response locale, for example en or nl."
+        },
+        "language": {
+          "name": "Language",
+          "description": "Optional language hint, for example en or nl."
+        },
+        "mood": {
+          "name": "Mood",
+          "description": "Optional mood/energy value from 0 to 100."
+        },
+        "timezone": {
+          "name": "Time zone",
+          "description": "Optional client time zone."
+        }
+      }
+    },
+    "vibecast_feed": {
+      "name": "VibeCast feed",
+      "description": "Developer helper: return the same VibeCast bubble feed as /api/djconnect/v1/vibecast for iOS, macOS or Apple Watch clients. The feed uses the current backend playback context and returns short display-ready items when VibeCast is enabled and playback is active.\n",
+      "fields": {
+        "client_type": {
+          "name": "Client type",
+          "description": "iOS, macOS or watchOS client type. Leave empty to use the paired client type."
+        },
+        "device_id": {
+          "name": "Device ID",
+          "description": "Optional DJConnect Apple client id. Leave empty to use the paired client."
+        },
+        "render_capabilities": {
+          "name": "Render capabilities",
+          "description": "Optional comma-separated render capabilities such as bold, emphasis, accent or emoji_safe."
+        },
+        "locale": {
+          "name": "Locale",
+          "description": "Optional response locale, for example en or nl."
+        },
+        "language": {
+          "name": "Language",
+          "description": "Optional language hint, for example en or nl."
+        }
+      }
+    },
+    "music_discovery_feed": {
+      "name": "Music Discovery feed",
+      "description": "Developer helper: return the same Music Discovery feed as /api/djconnect/v1/music_discovery for the resolved Music DNA context. Music DNA must be enabled for this user/client context.\n",
+      "fields": {
+        "music_dna_key": {
+          "name": "Music DNA key",
+          "description": "Optional Music DNA key to inspect."
+        },
+        "client_type": {
+          "name": "Client type",
+          "description": "Optional DJConnect client type used when resolving Music DNA."
+        },
+        "force_refresh": {
+          "name": "Force refresh",
+          "description": "Ignore the cached discovery feed and rebuild it."
+        },
+        "locale": {
+          "name": "Locale",
+          "description": "Optional response locale, for example en or nl."
+        },
+        "timezone": {
+          "name": "Time zone",
+          "description": "Optional client time zone."
+        }
+      }
+    },
+    "refresh_music_discovery": {
+      "name": "Refresh Music Discovery",
+      "description": "Developer helper: force-refresh the Music Discovery feed through the same route as /api/djconnect/v1/music_discovery/refresh. The backend applies the same server-side refresh rate limit as clients.\n",
+      "fields": {
+        "music_dna_key": {
+          "name": "Music DNA key",
+          "description": "Optional Music DNA key to refresh."
+        },
+        "client_type": {
+          "name": "Client type",
+          "description": "Optional DJConnect client type used when resolving Music DNA."
+        },
+        "locale": {
+          "name": "Locale",
+          "description": "Optional response locale, for example en or nl."
+        },
+        "timezone": {
+          "name": "Time zone",
+          "description": "Optional client time zone."
+        }
+      }
+    },
+    "play_music_discovery_item": {
+      "name": "Play Music Discovery item",
+      "description": "Developer helper: play a cached Music Discovery item through the same route as /api/djconnect/v1/music_discovery/play and record positive Music DNA feedback when playback starts.\n",
+      "fields": {
+        "discovery_item_id": {
+          "name": "Discovery item ID",
+          "description": "Item id from a Music Discovery feed response."
+        },
+        "section_id": {
+          "name": "Section ID",
+          "description": "Optional section id from the Music Discovery feed response."
+        },
+        "music_dna_key": {
+          "name": "Music DNA key",
+          "description": "Optional Music DNA key to resolve the cached feed."
+        },
+        "client_type": {
+          "name": "Client type",
+          "description": "Optional DJConnect client type used when resolving Music DNA."
+        },
+        "locale": {
+          "name": "Locale",
+          "description": "Optional response locale, for example en or nl."
+        },
+        "timezone": {
+          "name": "Time zone",
+          "description": "Optional client time zone."
+        }
+      }
+    },
+    "music_discovery_feedback": {
+      "name": "Music Discovery feedback",
+      "description": "Developer helper: record negative feedback for a cached Music Discovery item through the same route as /api/djconnect/v1/music_discovery/feedback. This updates compact Music DNA preference signals without starting playback.\n",
+      "fields": {
+        "discovery_item_id": {
+          "name": "Discovery item ID",
+          "description": "Item id from a Music Discovery feed response."
+        },
+        "section_id": {
+          "name": "Section ID",
+          "description": "Optional section id from the Music Discovery feed response."
+        },
+        "feedback": {
+          "name": "Feedback",
+          "description": "Negative feedback action to record."
+        },
+        "music_dna_key": {
+          "name": "Music DNA key",
+          "description": "Optional Music DNA key to resolve the cached feed."
+        },
+        "client_type": {
+          "name": "Client type",
+          "description": "Optional DJConnect client type used when resolving Music DNA."
+        }
+      }
+    },
+    "music_dna_profile": {
+      "name": "Music DNA profile",
+      "description": "Return the current structured Music DNA profile through the same backend path as /api/djconnect/v1/music_dna/profile. If Music DNA is not enabled, the profile is empty and enabled is false.\n",
+      "fields": {
+        "music_dna_key": {
+          "name": "Music DNA key",
+          "description": "Optional Music DNA key to inspect."
+        },
+        "client_type": {
+          "name": "Client type",
+          "description": "Optional DJConnect client type used when resolving Music DNA."
+        },
+        "client_id": {
+          "name": "Client ID",
+          "description": "Optional app/client install id metadata."
+        },
+        "device_id": {
+          "name": "Device ID",
+          "description": "Optional DJConnect device/client id."
+        },
+        "device_name": {
+          "name": "Device name",
+          "description": "Optional display name for the requesting client."
+        }
+      }
+    },
+    "set_music_dna_enabled": {
+      "name": "Set Music DNA enabled",
+      "description": "Opt a user/client context in or out of Music DNA through the same backend path as /api/djconnect/v1/music_dna/settings. Disabling Music DNA clears learned Music DNA knowledge and stops future knowledge collection.\n",
+      "fields": {
+        "enabled": {
+          "name": "Enabled",
+          "description": "Whether Music DNA may build knowledge for this context."
+        },
+        "music_dna_key": {
+          "name": "Music DNA key",
+          "description": "Optional Music DNA key to update."
+        },
+        "client_type": {
+          "name": "Client type",
+          "description": "Optional DJConnect client type used when resolving Music DNA."
+        },
+        "client_id": {
+          "name": "Client ID",
+          "description": "Optional app/client install id metadata."
+        },
+        "device_id": {
+          "name": "Device ID",
+          "description": "Optional DJConnect device/client id."
+        },
+        "device_name": {
+          "name": "Device name",
+          "description": "Optional display name for the requesting client."
+        }
+      }
+    },
+    "clear_music_dna": {
+      "name": "Clear Music DNA",
+      "description": "Clear learned Music DNA knowledge through the same backend path as /api/djconnect/v1/music_dna/clear while preserving the current opt-in setting.\n",
+      "fields": {
+        "music_dna_key": {
+          "name": "Music DNA key",
+          "description": "Optional Music DNA key to clear."
+        },
+        "client_type": {
+          "name": "Client type",
+          "description": "Optional DJConnect client type used when resolving Music DNA."
+        },
+        "client_id": {
+          "name": "Client ID",
+          "description": "Optional app/client install id metadata."
+        },
+        "device_id": {
+          "name": "Device ID",
+          "description": "Optional DJConnect device/client id."
+        },
+        "device_name": {
+          "name": "Device name",
+          "description": "Optional display name for the requesting client."
+        }
+      }
+    },
+    "music_dna_export": {
+      "name": "Music DNA export",
+      "description": "Export the current Music DNA profile through the same backend path as /api/djconnect/v1/music_dna/export. The response is an importable djconnect.music_dna.export envelope for the resolved Home Assistant user/client context.\n",
+      "fields": {
+        "music_dna_key": {
+          "name": "Music DNA key",
+          "description": "Optional Music DNA key to export."
+        },
+        "client_type": {
+          "name": "Client type",
+          "description": "Optional DJConnect client type used when resolving Music DNA."
+        },
+        "client_id": {
+          "name": "Client ID",
+          "description": "Optional app/client install id metadata."
+        },
+        "device_id": {
+          "name": "Device ID",
+          "description": "Optional DJConnect device/client id."
+        },
+        "device_name": {
+          "name": "Device name",
+          "description": "Optional display name for the requesting client."
+        },
+        "app_version": {
+          "name": "App version",
+          "description": "Optional requesting app version metadata included in the export envelope."
+        }
+      }
+    },
+    "music_dna_import": {
+      "name": "Music DNA import",
+      "description": "Import a Music DNA export envelope through the same backend path as /api/djconnect/v1/music_dna/import. Music DNA must already be enabled for the resolved Home Assistant user/client context.\n",
+      "fields": {
+        "profile": {
+          "name": "Profile",
+          "description": "Music DNA export envelope or profile payload to import."
+        },
+        "music_dna_key": {
+          "name": "Music DNA key",
+          "description": "Optional Music DNA key to import into."
+        },
+        "client_type": {
+          "name": "Client type",
+          "description": "Optional DJConnect client type used when resolving Music DNA."
+        },
+        "client_id": {
+          "name": "Client ID",
+          "description": "Optional app/client install id metadata."
+        },
+        "device_id": {
+          "name": "Device ID",
+          "description": "Optional DJConnect device/client id."
+        },
+        "device_name": {
+          "name": "Device name",
+          "description": "Optional display name for the requesting client."
+        },
+        "app_version": {
+          "name": "App version",
+          "description": "Optional requesting app version metadata."
+        }
+      }
+    },
+    "clear_ask_dj_history": {
+      "name": "Clear Ask DJ history",
+      "description": "Clear server-side Ask DJ history for the authenticated Home Assistant user. The backend increases clear_revision and history_revision so clients know they must clear local chat cache.\n",
+      "fields": {
+        "music_dna_key": {
+          "name": "Memory key",
+          "description": "Music DNA key to clear."
+        },
+        "client_type": {
+          "name": "Client type",
+          "description": "Optional DJConnect client type used when resolving memory."
+        }
+      }
+    },
+    "ask_dj_history_state": {
+      "name": "Ask DJ history state",
+      "description": "Return compact Ask DJ history sync state, including history_revision, clear_revision and whether a client should clear local chat cache.\n",
+      "fields": {
+        "music_dna_key": {
+          "name": "Memory key",
+          "description": "Music DNA key to check."
+        },
+        "history_revision": {
+          "name": "History revision",
+          "description": "Last Ask DJ history revision known by the client."
+        },
+        "clear_revision": {
+          "name": "Clear revision",
+          "description": "Last Ask DJ clear revision known by the client."
+        }
+      }
+    },
+    "start_spotify_oauth": {
+      "name": "Start Spotify OAuth",
+      "description": "Developer helper: create a Spotify PKCE authorization URL for the Home Assistant Spotify Direct backend. Open the URL, sign in to Spotify, and the callback stores the refresh token in DJConnect. This is not used when Music Assistant is the selected backend.\n",
+      "fields": {
+        "client_id": {
+          "name": "Spotify Client ID",
+          "description": "Spotify Developer App Client ID. Leave empty to use the value from DJConnect options."
+        },
+        "ha_base_url": {
+          "name": "Home Assistant external URL",
+          "description": "Base URL Spotify can reach after login, preferably your Nabu Casa URL. Leave empty to use the URL from DJConnect options. The full redirect URI is this URL plus /api/djconnect/v1/spotify/callback.\n"
+        },
+        "market": {
+          "name": "Spotify market",
+          "description": "Spotify region for search and playback."
+        },
+        "scopes": {
+          "name": "Spotify scopes",
+          "description": "Spotify OAuth scopes. Leave empty for the default DJConnect scopes."
+        }
+      }
+    },
+    "music_backend_status": {
+      "name": "Music backend status",
+      "description": "Developer diagnostic: return the selected DJConnect music backend, capabilities, revision, target player and safe availability/error metadata. Use this to verify Music Assistant selection and target-player readiness from Home Assistant Developer Tools without starting playback.\n"
+    },
+    "device_command": {
+      "name": "Send device command",
+      "description": "Developer helper: send a command to the paired DJConnect device through the local /api/device/command endpoint using the stored bearer token.\n",
+      "fields": {
+        "command": {
+          "name": "Command",
+          "description": "Local DJConnect command, for example status, next, previous, set_volume, set_output, start_playlist, ask_dj_play_recommendation, set_language or dj_response."
+        },
+        "payload": {
+          "name": "Payload",
+          "description": "Optional command payload as an object, for example {\"value\": 35}.\n"
+        }
+      }
+    },
+    "queue": {
+      "name": "Music queue",
+      "description": "Developer diagnostic: return the current selected-backend queue through the same command route as /api/djconnect/v1/command with command queue. This does not start, stop or mutate playback.\n",
+      "fields": {
+        "client_type": {
+          "name": "Client type",
+          "description": "Optional DJConnect client type. Leave empty to use the paired client type."
+        },
+        "client_id": {
+          "name": "Client ID",
+          "description": "Optional app/client install id metadata."
+        },
+        "device_id": {
+          "name": "Device ID",
+          "description": "Optional DJConnect device/client id. Leave empty to use the paired client."
+        },
+        "music_dna_key": {
+          "name": "Music DNA key",
+          "description": "Optional Music DNA key metadata for the queue request context."
+        },
+        "locale": {
+          "name": "Locale",
+          "description": "Optional response locale, for example en or nl."
+        },
+        "timezone": {
+          "name": "Time zone",
+          "description": "Optional client time zone."
+        }
+      }
+    },
+    "playlists": {
+      "name": "Music playlists",
+      "description": "Developer diagnostic: return selected-backend playlists through the same command route as /api/djconnect/v1/command with command playlists. This does not start, stop or mutate playback.\n",
+      "fields": {
+        "client_type": {
+          "name": "Client type",
+          "description": "Optional DJConnect client type. Leave empty to use the paired client type."
+        },
+        "client_id": {
+          "name": "Client ID",
+          "description": "Optional app/client install id metadata."
+        },
+        "device_id": {
+          "name": "Device ID",
+          "description": "Optional DJConnect device/client id. Leave empty to use the paired client."
+        },
+        "limit": {
+          "name": "Limit",
+          "description": "Maximum number of playlists to return."
+        },
+        "market": {
+          "name": "Market",
+          "description": "Optional Spotify market hint, for example NL or US."
+        },
+        "music_dna_key": {
+          "name": "Music DNA key",
+          "description": "Optional Music DNA key metadata for the playlists request context."
+        },
+        "locale": {
+          "name": "Locale",
+          "description": "Optional response locale, for example en or nl."
+        },
+        "timezone": {
+          "name": "Time zone",
+          "description": "Optional client time zone."
+        }
+      }
+    },
+    "playback_status": {
+      "name": "Playback status",
+      "description": "Developer diagnostic: return selected-backend playback status through the same command route as /api/djconnect/v1/command with command status. This does not mutate playback.\n",
+      "fields": {
+        "client_type": {
+          "name": "Client type",
+          "description": "Optional DJConnect client type. Leave empty to use the paired client type."
+        },
+        "device_id": {
+          "name": "Device ID",
+          "description": "Optional DJConnect device/client id. Leave empty to use the paired client."
+        },
+        "locale": {
+          "name": "Locale",
+          "description": "Optional response locale, for example en or nl."
+        }
+      }
+    },
+    "playback_devices": {
+      "name": "Playback devices",
+      "description": "Developer diagnostic: return selected-backend playback outputs/devices through the same command route as /api/djconnect/v1/command with command devices. This does not mutate playback.\n",
+      "fields": {
+        "client_type": {
+          "name": "Client type",
+          "description": "Optional DJConnect client type. Leave empty to use the paired client type."
+        },
+        "device_id": {
+          "name": "Device ID",
+          "description": "Optional DJConnect device/client id. Leave empty to use the paired client."
+        },
+        "locale": {
+          "name": "Locale",
+          "description": "Optional response locale, for example en or nl."
+        }
+      }
+    },
+    "playback_command": {
+      "name": "Playback command",
+      "description": "Developer helper: send a selected-backend playback command through the same route as /api/djconnect/v1/command. Use for commands such as play, play_uris, pause, next, previous, set_volume, set_output, set_shuffle, set_repeat, seek_relative, save_current_track and current-track favorite commands.\n",
+      "fields": {
+        "command": {
+          "name": "Command",
+          "description": "Playback command to execute."
+        },
+        "value": {
+          "name": "Value",
+          "description": "Optional command value. Examples are 40 for set_volume, true for set_shuffle, \"off\" for set_repeat or {\"uris\":[\"spotify:track:...\"]} for play_uris."
+        },
+        "play": {
+          "name": "Start playback",
+          "description": "Whether the backend should start playback when the command supports it."
+        },
+        "client_type": {
+          "name": "Client type",
+          "description": "Optional DJConnect client type. Leave empty to use the paired client type."
+        },
+        "device_id": {
+          "name": "Device ID",
+          "description": "Optional DJConnect device/client id. Leave empty to use the paired client."
+        },
+        "locale": {
+          "name": "Locale",
+          "description": "Optional response locale, for example en or nl."
+        }
+      }
+    },
+    "refresh_device_info": {
+      "name": "Refresh device info",
+      "description": "Developer helper: fetch /api/device/info from the paired DJConnect device and update Home Assistant status sensors.\n"
+    },
+    "reboot_device": {
+      "name": "Reboot device",
+      "description": "Developer helper: ask the paired DJConnect device to reboot through /api/device/reboot.\n"
+    },
+    "forget_device": {
+      "name": "Forget device pairing",
+      "description": "Developer helper: ask the paired DJConnect device to forget its local pairing through /api/device/forget. Re-pair the device afterwards.\n"
+    },
+    "profile_export": {
+      "name": "Export profile",
+      "description": "Export the resolved DJConnect Profile without OAuth tokens, provider secrets, Home Assistant tokens, APNs tokens or device tokens.\n",
+      "fields": {
+        "profile_id": {
+          "name": "Profile ID",
+          "description": "Optional explicit Profile ID. Device, HA user and fallback resolution are used when omitted."
+        },
+        "include_personal_data": {
+          "name": "Include personal data",
+          "description": "Include allowed personal references such as Music DNA, mood and likes. Guest-safe/private exports still redact personal state."
+        }
+      }
+    },
+    "household_export": {
+      "name": "Export household",
+      "description": "Export household Profile Platform metadata, mappings, backend/account metadata and non-secret configuration. Provider credentials must be re-linked after import.\n",
+      "fields": {
+        "profile_id": {
+          "name": "Profile ID",
+          "description": "Optional Profile ID used only for profile resolution/authorization context."
+        }
+      }
+    },
+    "integration_export": {
+      "name": "Export integration",
+      "description": "Export a full non-secret DJConnect integration envelope. Secrets are excluded by default and explicitly marked as excluded in the response.\n",
+      "fields": {
+        "profile_id": {
+          "name": "Profile ID",
+          "description": "Optional Profile ID used only for profile resolution/authorization context."
+        }
+      }
+    },
+    "profile_import": {
+      "name": "Import profile",
+      "description": "Import a single DJConnect Profile export. Secret-like fields are rejected and provider accounts must be re-linked where credentials are missing.\n",
+      "fields": {
+        "export": {
+          "name": "Export",
+          "description": "Profile export envelope."
+        },
+        "overwrite": {
+          "name": "Overwrite",
+          "description": "Allow replacing an existing profile with the same ID."
+        },
+        "reassign_id": {
+          "name": "Reassign ID",
+          "description": "Create a new imported Profile ID when the export ID already exists."
+        }
+      }
+    },
+    "household_import": {
+      "name": "Import household",
+      "description": "Import a household or full non-secret integration export. Existing profiles are not overwritten unless overwrite is true.\n",
+      "fields": {
+        "export": {
+          "name": "Export",
+          "description": "Household or integration export envelope."
+        },
+        "overwrite": {
+          "name": "Overwrite",
+          "description": "Allow replacing the existing Profile Platform household state."
+        }
+      }
+    },
+    "clear_profile_state": {
+      "name": "Clear profile state",
+      "description": "Clear selected personal state for the resolved Profile without deleting the Profile.\n",
+      "fields": {
+        "profile_id": {
+          "name": "Profile ID",
+          "description": "Optional explicit Profile ID. Device, HA user and fallback resolution are used when omitted."
+        },
+        "ask_dj": {
+          "name": "Ask DJ history",
+          "description": "Clear Ask DJ conversation references/history for this context."
+        },
+        "music_dna": {
+          "name": "Music DNA",
+          "description": "Reset Music DNA references/data for this context."
+        },
+        "recommendations": {
+          "name": "Recommendations",
+          "description": "Clear recommendation references, likes and dislikes."
+        },
+        "mood": {
+          "name": "Mood",
+          "description": "Clear durable mood state."
+        },
+        "all": {
+          "name": "All personal state",
+          "description": "Clear all personal state references without deleting the Profile."
+        }
       }
     }
   }

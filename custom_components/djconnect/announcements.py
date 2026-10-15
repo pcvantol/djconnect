@@ -24,13 +24,14 @@ from .const import (
     DJ_ANNOUNCEMENT_TEXT_ONLY,
 )
 from .dj_response import async_create_dj_audio_url
+from .flow_labels import flow_label
 
 _LOGGER = logging.getLogger(__name__)
 
 
 def announcement_speaker_options(hass: Any) -> dict[str, str]:
     """Return media_player entities that can likely play DJ announcement TTS."""
-    options: dict[str, str] = {"": "None"}
+    options: dict[str, str] = {"": flow_label(hass, "none")}
     states = getattr(hass, "states", None)
     if not states or not hasattr(states, "async_entity_ids"):
         return options

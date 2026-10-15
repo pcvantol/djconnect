@@ -694,6 +694,10 @@
     "windows_client_retired_safe": {
       "title": "App de Windows retirada: se puede eliminar — {configuration}",
       "description": "La app DJConnect Windows ya no es compatible y no puede conectarse. Esta configuración ya no es propietaria de una conexión musical y se puede eliminar. Se conservan los clientes vinculados, Profiles, cuentas musicales y el historial existentes."
+    },
+    "missing_spotify_client_id": {
+      "title": "Falta el ID de cliente de Spotify",
+      "description": "DJConnect necesita el ID de cliente de tu app Spotify Developer para Spotify Direct. Abre los ajustes de DJConnect, introduce el ID y vuelve a autorizar Spotify. Nunca compartas tokens ni secretos."
     }
   },
   "selector": {
@@ -743,6 +747,1044 @@
         "watchos": "Apple Watch",
         "raspberry_pi": "Linux/Raspberry Pi",
         "conversation_agent": "Agente de conversación Assist"
+      }
+    }
+  },
+  "services": {
+    "start_session": {
+      "name": "Iniciar sesión DJ",
+      "description": "Crea la única sesión activa del servidor para el perfil elegido.",
+      "fields": {
+        "profile_id": {
+          "name": "Perfil",
+          "description": "ID de perfil opcional para resolución y autorización. Sin él se aplican las reglas existentes de dispositivo, usuario HA y respaldo."
+        },
+        "mood": {
+          "name": "Ambiente",
+          "description": "Ambiente de sesión opcional: chill, groove, energy o party."
+        },
+        "room": {
+          "name": "Habitación",
+          "description": "Nombre de habitación opcional para la sesión activa."
+        }
+      }
+    },
+    "end_session": {
+      "name": "Finalizar sesión DJ",
+      "description": "Finaliza la sesión activa del servidor y libera su ejecución.",
+      "fields": {
+        "profile_id": {
+          "name": "Perfil",
+          "description": "ID de perfil opcional para resolución y autorización. Sin él se aplican las reglas existentes de dispositivo, usuario HA y respaldo."
+        },
+        "session_id": {
+          "name": "Sesión",
+          "description": "ID opcional de la sesión activa que se finalizará."
+        }
+      }
+    },
+    "active_session": {
+      "name": "Consultar sesión DJ activa",
+      "description": "Lee la sesión activa del servidor para el perfil elegido.",
+      "fields": {
+        "profile_id": {
+          "name": "Perfil",
+          "description": "ID de perfil opcional para resolución y autorización. Sin él se aplican las reglas existentes de dispositivo, usuario HA y respaldo."
+        }
+      }
+    },
+    "developer_session_bootstrap": {
+      "name": "Preparar escenario de prueba aislado",
+      "description": "Prueba de desarrollo: inicia o detiene la sesión aislada para uno de los seis Golden Scenarios aprobados, sin ejecutar el escenario ni exponer datos internos o tokens.",
+      "fields": {
+        "action": {
+          "name": "Acción",
+          "description": "Inicia la sesión de prueba aislada o la detiene y limpia."
+        },
+        "scenario_id": {
+          "name": "Escenario",
+          "description": "ID explícito de un Golden Scenario aprobado."
+        }
+      }
+    },
+    "developer_session_scenario_driver": {
+      "name": "Ejecutar escenario de prueba de inteligencia",
+      "description": "Tras la preparación, ejecuta el escenario aprobado elegido con entradas fijas de Track Insight mediante la ejecución existente, sin llamar directamente a componentes internos de Planner, Knowledge o Moment Engine.",
+      "fields": {
+        "scenario_id": {
+          "name": "Escenario",
+          "description": "ID explícito de un Golden Scenario aprobado."
+        }
+      }
+    },
+    "developer_session_capture": {
+      "name": "Capturar escenario de prueba",
+      "description": "Crea una observación inmutable de solo lectura del escenario completado, sin credenciales, objetos de ejecución modificables ni componentes internos del Planner.",
+      "fields": {
+        "scenario_id": {
+          "name": "Escenario",
+          "description": "ID explícito de un Golden Scenario aprobado."
+        }
+      }
+    },
+    "golden_qualification": {
+      "name": "Ejecutar calificación completa de escenarios",
+      "description": "Ejecuta la calificación fija del servidor para todos los Golden Scenarios ejecutables con preparación, ejecución, captura, validación y limpieza existentes. No valida pantalla, audio, TTS ni hardware.",
+      "fields": {
+        "include_advisory_metrics": {
+          "name": "Incluir métricas orientativas",
+          "description": "Añade métricas de calidad limitadas y de solo lectura, sin cambiar el resultado de calificación."
+        }
+      }
+    },
+    "golden_smoke": {
+      "name": "Ejecutar prueba mínima de escenarios",
+      "description": "Ejecuta la selección mínima aprobada, actualmente SI-GOLDEN-001, mediante la misma calificación, sin modificar escenarios ni flujos CI.",
+      "fields": {
+        "include_advisory_metrics": {
+          "name": "Incluir métricas orientativas",
+          "description": "Añade métricas de calidad limitadas y de solo lectura, sin cambiar el resultado de calificación."
+        }
+      }
+    },
+    "golden_regression": {
+      "name": "Ejecutar regresión de escenarios",
+      "description": "Ejecuta SI-GOLDEN-001 a SI-GOLDEN-006 mediante la calificación existente, con validación y limpieza. Este perfil fijo no ofrece selección de escenarios, flujo CI ni autorización de publicación.",
+      "fields": {
+        "include_advisory_metrics": {
+          "name": "Incluir métricas orientativas",
+          "description": "Añade métricas de calidad limitadas y de solo lectura, sin cambiar el resultado de calificación."
+        }
+      }
+    },
+    "test_parse": {
+      "name": "Probar interpretación Assist",
+      "description": "Prueba la ruta de conversación Assist configurada, sin iniciar música ni enviar un anuncio DJ.",
+      "fields": {
+        "command_text": {
+          "name": "Texto del comando",
+          "description": "Petición musical, pregunta sobre la pista actual o comando de reproducción en lenguaje natural."
+        }
+      }
+    },
+    "test_tts": {
+      "name": "Probar anuncio DJ",
+      "description": "Envía un anuncio al dispositivo emparejado. Home Assistant crea audio WAV o MP3 temporal si es posible; en caso contrario, solo envía texto.",
+      "fields": {
+        "dj_response_text": {
+          "name": "Texto del anuncio DJ",
+          "description": "Texto que el dispositivo emparejado muestra y pronuncia si es posible."
+        }
+      }
+    },
+    "test_command": {
+      "name": "Probar comando de texto completo",
+      "description": "Prueba la ruta normal de comandos de texto del dispositivo, con reproducción opcional y anuncio DJ. La reproducción sigue en el servicio del servidor elegido.",
+      "fields": {
+        "command_text": {
+          "name": "Texto del comando",
+          "description": "Petición musical, pregunta sobre la pista actual o comando de reproducción en lenguaje natural."
+        },
+        "play": {
+          "name": "Iniciar reproducción",
+          "description": "Inicia la reproducción si el comando lo admite. Desactive para probar sin iniciar música."
+        }
+      }
+    },
+    "test_ptt_text": {
+      "name": "Probar texto de voz",
+      "description": "Prueba desde el texto de voz reconocido: interpretación, búsqueda/reproducción compatible y devolución de texto con audio si está disponible al dispositivo emparejado.",
+      "fields": {
+        "command_text": {
+          "name": "Texto del comando",
+          "description": "Petición musical, pregunta sobre la pista actual o comando de reproducción en lenguaje natural."
+        }
+      }
+    },
+    "test_apns_push": {
+      "name": "Probar notificación APNs",
+      "description": "Comprueba la disponibilidad de notificaciones de clientes Apple. Solo envía una prueba respetuosa con la privacidad si el envío está activado explícitamente.",
+      "fields": {
+        "device_id": {
+          "name": "ID del dispositivo",
+          "description": "ID de dispositivo DJConnect opcional. Déjelo vacío para usar el dispositivo emparejado."
+        },
+        "client_type": {
+          "name": "Tipo de cliente",
+          "description": "Tipo de cliente DJConnect compatible, opcional. En blanco usa el tipo emparejado; Windows está retirado."
+        },
+        "event_type": {
+          "name": "Tipo de evento",
+          "description": "Evento de notificación que se probará."
+        },
+        "user_id": {
+          "name": "ID del usuario",
+          "description": "ID de usuario HA opcional para la misma ruta de notificaciones por usuario que Ask DJ."
+        },
+        "send": {
+          "name": "Enviar notificación",
+          "description": "Active para llamar realmente al relé central. Desactivado, la prueba es un diagnóstico sin envío."
+        },
+        "explicit_user_request": {
+          "name": "Solicitud explícita del usuario",
+          "description": "Déjelo activado en pruebas manuales; siguen vigentes las demás condiciones de notificación de Ask DJ."
+        }
+      }
+    },
+    "push_register": {
+      "name": "Registrar notificaciones APNs",
+      "description": "Registra un token Apple mediante el relé existente; solo conserva estado compacto localmente. Con missing_bootstrap_proof, el emisor de emparejamiento Apple de confianza aporta la prueba temporal. HA no la crea ni la almacena.",
+      "fields": {
+        "push_token": {
+          "name": "Token de notificación",
+          "description": "Token APNs del dispositivo Apple. Se envía al relé; nunca lo comparta en registros."
+        },
+        "push_environment": {
+          "name": "Entorno de notificaciones",
+          "description": "Entorno APNs para este token."
+        },
+        "device_id": {
+          "name": "ID del dispositivo",
+          "description": "ID de dispositivo DJConnect opcional. Déjelo vacío para usar el dispositivo emparejado."
+        },
+        "client_type": {
+          "name": "Tipo de cliente",
+          "description": "Tipo de cliente DJConnect compatible, opcional. En blanco usa el tipo emparejado; Windows está retirado."
+        },
+        "user_id": {
+          "name": "ID del usuario",
+          "description": "ID de usuario HA opcional para la misma ruta de notificaciones por usuario que Ask DJ."
+        },
+        "app_bundle_id": {
+          "name": "ID del paquete de la app",
+          "description": "ID de paquete opcional de la app Apple."
+        },
+        "app_version": {
+          "name": "Versión de la app",
+          "description": "Versión opcional de la app solicitante."
+        },
+        "locale": {
+          "name": "Idioma/región",
+          "description": "Idioma/región opcional de la respuesta, por ejemplo es o en."
+        },
+        "bootstrap_proof": {
+          "name": "Prueba temporal de emparejamiento",
+          "description": "Prueba temporal opcional del emisor de emparejamiento Apple de confianza, usada solo para obtener un token de instalación si es necesario."
+        }
+      }
+    },
+    "push_unregister": {
+      "name": "Dar de baja notificaciones APNs",
+      "description": "Da de baja el token Apple mediante el relé existente y borra el estado local tras su aceptación.",
+      "fields": {
+        "push_token": {
+          "name": "Token de notificación",
+          "description": "Token APNs del dispositivo Apple. Se envía al relé; nunca lo comparta en registros."
+        },
+        "push_environment": {
+          "name": "Entorno de notificaciones",
+          "description": "Entorno APNs para este token."
+        },
+        "device_id": {
+          "name": "ID del dispositivo",
+          "description": "ID de dispositivo DJConnect opcional. Déjelo vacío para usar el dispositivo emparejado."
+        },
+        "client_type": {
+          "name": "Tipo de cliente",
+          "description": "Tipo de cliente DJConnect compatible, opcional. En blanco usa el tipo emparejado; Windows está retirado."
+        },
+        "user_id": {
+          "name": "ID del usuario",
+          "description": "ID de usuario HA opcional para la misma ruta de notificaciones por usuario que Ask DJ."
+        },
+        "app_bundle_id": {
+          "name": "ID del paquete de la app",
+          "description": "ID de paquete opcional de la app Apple."
+        }
+      }
+    },
+    "ask_dj": {
+      "name": "Consultar Ask DJ",
+      "description": "Consulta de texto directa a Ask DJ mediante Home Assistant con enrutamiento y Music DNA existentes. Utilice el mensaje Ask DJ para el historial sincronizado de las apps.",
+      "fields": {
+        "text": {
+          "name": "Texto",
+          "description": "Texto del mensaje Ask DJ."
+        },
+        "music_dna_key": {
+          "name": "Clave Music DNA",
+          "description": "Clave de contexto Music DNA opcional; Home Assistant puede normalizarla. No otorga acceso adicional."
+        },
+        "client_type": {
+          "name": "Tipo de cliente",
+          "description": "Tipo de cliente DJConnect compatible, opcional. En blanco usa el tipo emparejado; Windows está retirado."
+        },
+        "client_id": {
+          "name": "ID del cliente",
+          "description": "ID de instalación opcional como metadato del cliente."
+        },
+        "client_message_id": {
+          "name": "ID de mensaje del cliente",
+          "description": "Clave de idempotencia opcional; repetirla para el mismo usuario HA devuelve el intercambio existente."
+        },
+        "audio_response": {
+          "name": "Respuesta de audio",
+          "description": "Política de audio: auto, always o never."
+        },
+        "mood": {
+          "name": "Ambiente",
+          "description": "Valor de ambiente/energía opcional de 0 a 100; al iniciar sesión, el ambiente de sesión compatible."
+        },
+        "dj_style": {
+          "name": "Estilo DJ",
+          "description": "Indicación de estilo opcional para Ask DJ."
+        },
+        "locale": {
+          "name": "Idioma/región",
+          "description": "Idioma/región opcional de la respuesta, por ejemplo es o en."
+        },
+        "timezone": {
+          "name": "Zona horaria",
+          "description": "Zona horaria opcional del cliente."
+        }
+      }
+    },
+    "ask_dj_message": {
+      "name": "Mensaje Ask DJ",
+      "description": "Envía un mensaje mediante la ruta de chat existente. Guarda pregunta y respuesta en el historial Ask DJ del usuario HA autenticado.",
+      "fields": {
+        "text": {
+          "name": "Texto",
+          "description": "Texto del mensaje Ask DJ."
+        },
+        "client_message_id": {
+          "name": "ID de mensaje del cliente",
+          "description": "Clave de idempotencia opcional; repetirla para el mismo usuario HA devuelve el intercambio existente."
+        },
+        "client_id": {
+          "name": "ID del cliente",
+          "description": "ID de instalación opcional como metadato del cliente."
+        },
+        "music_dna_key": {
+          "name": "Clave Music DNA",
+          "description": "Clave de contexto Music DNA opcional; Home Assistant puede normalizarla. No otorga acceso adicional."
+        },
+        "client_type": {
+          "name": "Tipo de cliente",
+          "description": "Tipo de cliente DJConnect compatible, opcional. En blanco usa el tipo emparejado; Windows está retirado."
+        },
+        "audio_response": {
+          "name": "Respuesta de audio",
+          "description": "Política de audio: auto, always o never."
+        },
+        "mood": {
+          "name": "Ambiente",
+          "description": "Valor de ambiente/energía opcional de 0 a 100; al iniciar sesión, el ambiente de sesión compatible."
+        },
+        "locale": {
+          "name": "Idioma/región",
+          "description": "Idioma/región opcional de la respuesta, por ejemplo es o en."
+        }
+      }
+    },
+    "ask_dj_idle_suggestion": {
+      "name": "Obtener sugerencia Ask DJ",
+      "description": "Obtiene una sugerencia para el usuario/cliente y añade la respuesta correcta al historial Ask DJ existente.",
+      "fields": {
+        "music_dna_key": {
+          "name": "Clave Music DNA",
+          "description": "Clave de contexto Music DNA opcional; Home Assistant puede normalizarla. No otorga acceso adicional."
+        },
+        "client_type": {
+          "name": "Tipo de cliente",
+          "description": "Tipo de cliente DJConnect compatible, opcional. En blanco usa el tipo emparejado; Windows está retirado."
+        }
+      }
+    },
+    "ask_dj_history": {
+      "name": "Consultar historial Ask DJ",
+      "description": "Lee el historial existente del servidor. Utilice since_revision para sincronizar solo cambios más recientes.",
+      "fields": {
+        "since_revision": {
+          "name": "Desde la revisión",
+          "description": "Obtiene solo cambios del historial posteriores a esta revisión opcional."
+        },
+        "music_dna_key": {
+          "name": "Clave Music DNA",
+          "description": "Clave de contexto Music DNA opcional; Home Assistant puede normalizarla. No otorga acceso adicional."
+        },
+        "client_type": {
+          "name": "Tipo de cliente",
+          "description": "Tipo de cliente DJConnect compatible, opcional. En blanco usa el tipo emparejado; Windows está retirado."
+        }
+      }
+    },
+    "track_insight": {
+      "name": "Obtener Track Insight",
+      "description": "Analiza la pista actual o un artista/título explícito mediante la ruta existente. Devuelve análisis, caché y visualización y emite djconnect_track_insight si tiene éxito.",
+      "fields": {
+        "entity_id": {
+          "name": "ID de la entidad",
+          "description": "Entidad media_player opcional para metadatos de la reproducción actual."
+        },
+        "player_id": {
+          "name": "ID del reproductor",
+          "description": "Identificador opcional del servicio/reproductor."
+        },
+        "title": {
+          "name": "Título de la pista",
+          "description": "Título explícito opcional de la pista. Indique también el artista si faltan metadatos de reproducción actual."
+        },
+        "artist": {
+          "name": "Artista",
+          "description": "Nombre explícito opcional del artista."
+        },
+        "album": {
+          "name": "Álbum",
+          "description": "Nombre de álbum opcional para identidad, caché y base visual."
+        },
+        "genres": {
+          "name": "Géneros",
+          "description": "Lista u objeto de géneros opcional de metadatos del cliente/servicio."
+        },
+        "music_dna_key": {
+          "name": "Clave Music DNA",
+          "description": "Clave de contexto Music DNA opcional; Home Assistant puede normalizarla. No otorga acceso adicional."
+        },
+        "client_type": {
+          "name": "Tipo de cliente",
+          "description": "Tipo de cliente DJConnect compatible, opcional. En blanco usa el tipo emparejado; Windows está retirado."
+        },
+        "client_id": {
+          "name": "ID del cliente",
+          "description": "ID de instalación opcional como metadato del cliente."
+        },
+        "device_id": {
+          "name": "ID del dispositivo",
+          "description": "ID de dispositivo DJConnect opcional. Déjelo vacío para usar el dispositivo emparejado."
+        },
+        "music_backend": {
+          "name": "Servicio musical",
+          "description": "Indicación opcional del servicio para identidad de caché y análisis de una pista explícita."
+        },
+        "force_refresh": {
+          "name": "Forzar actualización",
+          "description": "Ignora la caché existente y solicita datos nuevos. Siguen vigentes los límites existentes del servidor."
+        },
+        "include_visual_profile": {
+          "name": "Incluir perfil visual",
+          "description": "Añade indicaciones de visualización deterministas para clientes."
+        },
+        "include_raw_response": {
+          "name": "Incluir respuesta sin procesar",
+          "description": "Añade la respuesta de IA sin procesar para diagnóstico de desarrollo. No comparta contenido personal en registros."
+        },
+        "locale": {
+          "name": "Idioma/región",
+          "description": "Idioma/región opcional de la respuesta, por ejemplo es o en."
+        },
+        "language": {
+          "name": "Idioma",
+          "description": "Indicación de idioma opcional, por ejemplo es o en."
+        },
+        "mood": {
+          "name": "Ambiente",
+          "description": "Valor de ambiente/energía opcional de 0 a 100; al iniciar sesión, el ambiente de sesión compatible."
+        },
+        "timezone": {
+          "name": "Zona horaria",
+          "description": "Zona horaria opcional del cliente."
+        }
+      }
+    },
+    "vibecast_feed": {
+      "name": "Obtener flujo VibeCast",
+      "description": "Lee el flujo VibeCast existente para clientes Apple. Devuelve elementos breves listos para mostrar si VibeCast y la reproducción están activos.",
+      "fields": {
+        "client_type": {
+          "name": "Tipo de cliente",
+          "description": "Tipo de cliente DJConnect compatible, opcional. En blanco usa el tipo emparejado; Windows está retirado."
+        },
+        "device_id": {
+          "name": "ID del dispositivo",
+          "description": "ID de dispositivo DJConnect opcional. Déjelo vacío para usar el dispositivo emparejado."
+        },
+        "render_capabilities": {
+          "name": "Capacidades de visualización",
+          "description": "Capacidades opcionales separadas por comas, por ejemplo bold, emphasis, accent o emoji_safe."
+        },
+        "locale": {
+          "name": "Idioma/región",
+          "description": "Idioma/región opcional de la respuesta, por ejemplo es o en."
+        },
+        "language": {
+          "name": "Idioma",
+          "description": "Indicación de idioma opcional, por ejemplo es o en."
+        }
+      }
+    },
+    "music_discovery_feed": {
+      "name": "Obtener flujo Music Discovery",
+      "description": "Lee el flujo de descubrimiento existente para el contexto Music DNA. Music DNA debe estar activado para este usuario/cliente.",
+      "fields": {
+        "music_dna_key": {
+          "name": "Clave Music DNA",
+          "description": "Clave de contexto Music DNA opcional; Home Assistant puede normalizarla. No otorga acceso adicional."
+        },
+        "client_type": {
+          "name": "Tipo de cliente",
+          "description": "Tipo de cliente DJConnect compatible, opcional. En blanco usa el tipo emparejado; Windows está retirado."
+        },
+        "force_refresh": {
+          "name": "Forzar actualización",
+          "description": "Ignora la caché existente y solicita datos nuevos. Siguen vigentes los límites existentes del servidor."
+        },
+        "locale": {
+          "name": "Idioma/región",
+          "description": "Idioma/región opcional de la respuesta, por ejemplo es o en."
+        },
+        "timezone": {
+          "name": "Zona horaria",
+          "description": "Zona horaria opcional del cliente."
+        }
+      }
+    },
+    "refresh_music_discovery": {
+      "name": "Actualizar Music Discovery",
+      "description": "Actualiza el flujo de descubrimiento mediante la ruta existente, con el mismo límite del servidor que para clientes.",
+      "fields": {
+        "music_dna_key": {
+          "name": "Clave Music DNA",
+          "description": "Clave de contexto Music DNA opcional; Home Assistant puede normalizarla. No otorga acceso adicional."
+        },
+        "client_type": {
+          "name": "Tipo de cliente",
+          "description": "Tipo de cliente DJConnect compatible, opcional. En blanco usa el tipo emparejado; Windows está retirado."
+        },
+        "locale": {
+          "name": "Idioma/región",
+          "description": "Idioma/región opcional de la respuesta, por ejemplo es o en."
+        },
+        "timezone": {
+          "name": "Zona horaria",
+          "description": "Zona horaria opcional del cliente."
+        }
+      }
+    },
+    "play_music_discovery_item": {
+      "name": "Reproducir elemento descubierto",
+      "description": "Reproduce un elemento descubierto en caché. Registra una señal positiva de Music DNA cuando empieza la reproducción.",
+      "fields": {
+        "discovery_item_id": {
+          "name": "ID del elemento descubierto",
+          "description": "ID de elemento del flujo de descubrimiento existente."
+        },
+        "section_id": {
+          "name": "ID de sección",
+          "description": "ID de sección opcional del flujo de descubrimiento."
+        },
+        "music_dna_key": {
+          "name": "Clave Music DNA",
+          "description": "Clave de contexto Music DNA opcional; Home Assistant puede normalizarla. No otorga acceso adicional."
+        },
+        "client_type": {
+          "name": "Tipo de cliente",
+          "description": "Tipo de cliente DJConnect compatible, opcional. En blanco usa el tipo emparejado; Windows está retirado."
+        },
+        "locale": {
+          "name": "Idioma/región",
+          "description": "Idioma/región opcional de la respuesta, por ejemplo es o en."
+        },
+        "timezone": {
+          "name": "Zona horaria",
+          "description": "Zona horaria opcional del cliente."
+        }
+      }
+    },
+    "music_discovery_feedback": {
+      "name": "Registrar opinión de descubrimiento",
+      "description": "Registra una opinión negativa sobre un elemento en caché. Actualiza preferencias compactas de Music DNA sin iniciar reproducción.",
+      "fields": {
+        "discovery_item_id": {
+          "name": "ID del elemento descubierto",
+          "description": "ID de elemento del flujo de descubrimiento existente."
+        },
+        "section_id": {
+          "name": "ID de sección",
+          "description": "ID de sección opcional del flujo de descubrimiento."
+        },
+        "feedback": {
+          "name": "Opinión",
+          "description": "Acción de opinión negativa que se registrará."
+        },
+        "music_dna_key": {
+          "name": "Clave Music DNA",
+          "description": "Clave de contexto Music DNA opcional; Home Assistant puede normalizarla. No otorga acceso adicional."
+        },
+        "client_type": {
+          "name": "Tipo de cliente",
+          "description": "Tipo de cliente DJConnect compatible, opcional. En blanco usa el tipo emparejado; Windows está retirado."
+        }
+      }
+    },
+    "music_dna_profile": {
+      "name": "Consultar perfil Music DNA",
+      "description": "Lee el perfil Music DNA existente. Sin consentimiento, el perfil está vacío y enabled es falso.",
+      "fields": {
+        "music_dna_key": {
+          "name": "Clave Music DNA",
+          "description": "Clave de contexto Music DNA opcional; Home Assistant puede normalizarla. No otorga acceso adicional."
+        },
+        "client_type": {
+          "name": "Tipo de cliente",
+          "description": "Tipo de cliente DJConnect compatible, opcional. En blanco usa el tipo emparejado; Windows está retirado."
+        },
+        "client_id": {
+          "name": "ID del cliente",
+          "description": "ID de instalación opcional como metadato del cliente."
+        },
+        "device_id": {
+          "name": "ID del dispositivo",
+          "description": "ID de dispositivo DJConnect opcional. Déjelo vacío para usar el dispositivo emparejado."
+        },
+        "device_name": {
+          "name": "Nombre del dispositivo",
+          "description": "Nombre visible opcional del cliente solicitante."
+        }
+      }
+    },
+    "set_music_dna_enabled": {
+      "name": "Establecer consentimiento Music DNA",
+      "description": "Activa o desactiva Music DNA para el usuario/cliente. Desactivarlo borra el conocimiento aprendido y detiene su recopilación.",
+      "fields": {
+        "enabled": {
+          "name": "Activado",
+          "description": "Indica si Music DNA puede aprender en este contexto."
+        },
+        "music_dna_key": {
+          "name": "Clave Music DNA",
+          "description": "Clave de contexto Music DNA opcional; Home Assistant puede normalizarla. No otorga acceso adicional."
+        },
+        "client_type": {
+          "name": "Tipo de cliente",
+          "description": "Tipo de cliente DJConnect compatible, opcional. En blanco usa el tipo emparejado; Windows está retirado."
+        },
+        "client_id": {
+          "name": "ID del cliente",
+          "description": "ID de instalación opcional como metadato del cliente."
+        },
+        "device_id": {
+          "name": "ID del dispositivo",
+          "description": "ID de dispositivo DJConnect opcional. Déjelo vacío para usar el dispositivo emparejado."
+        },
+        "device_name": {
+          "name": "Nombre del dispositivo",
+          "description": "Nombre visible opcional del cliente solicitante."
+        }
+      }
+    },
+    "clear_music_dna": {
+      "name": "Borrar Music DNA",
+      "description": "Borra el conocimiento aprendido de Music DNA y conserva el consentimiento actual.",
+      "fields": {
+        "music_dna_key": {
+          "name": "Clave Music DNA",
+          "description": "Clave de contexto Music DNA opcional; Home Assistant puede normalizarla. No otorga acceso adicional."
+        },
+        "client_type": {
+          "name": "Tipo de cliente",
+          "description": "Tipo de cliente DJConnect compatible, opcional. En blanco usa el tipo emparejado; Windows está retirado."
+        },
+        "client_id": {
+          "name": "ID del cliente",
+          "description": "ID de instalación opcional como metadato del cliente."
+        },
+        "device_id": {
+          "name": "ID del dispositivo",
+          "description": "ID de dispositivo DJConnect opcional. Déjelo vacío para usar el dispositivo emparejado."
+        },
+        "device_name": {
+          "name": "Nombre del dispositivo",
+          "description": "Nombre visible opcional del cliente solicitante."
+        }
+      }
+    },
+    "music_dna_export": {
+      "name": "Exportar Music DNA",
+      "description": "Exporta el perfil existente como djconnect.music_dna.export importable para el usuario/cliente HA correspondiente.",
+      "fields": {
+        "music_dna_key": {
+          "name": "Clave Music DNA",
+          "description": "Clave de contexto Music DNA opcional; Home Assistant puede normalizarla. No otorga acceso adicional."
+        },
+        "client_type": {
+          "name": "Tipo de cliente",
+          "description": "Tipo de cliente DJConnect compatible, opcional. En blanco usa el tipo emparejado; Windows está retirado."
+        },
+        "client_id": {
+          "name": "ID del cliente",
+          "description": "ID de instalación opcional como metadato del cliente."
+        },
+        "device_id": {
+          "name": "ID del dispositivo",
+          "description": "ID de dispositivo DJConnect opcional. Déjelo vacío para usar el dispositivo emparejado."
+        },
+        "device_name": {
+          "name": "Nombre del dispositivo",
+          "description": "Nombre visible opcional del cliente solicitante."
+        },
+        "app_version": {
+          "name": "Versión de la app",
+          "description": "Versión opcional de la app solicitante."
+        }
+      }
+    },
+    "music_dna_import": {
+      "name": "Importar Music DNA",
+      "description": "Importa una exportación Music DNA mediante la ruta existente. Music DNA ya debe estar activado para el usuario/cliente correspondiente.",
+      "fields": {
+        "profile": {
+          "name": "Perfil",
+          "description": "Exportación Music DNA o datos de perfil que se importarán."
+        },
+        "music_dna_key": {
+          "name": "Clave Music DNA",
+          "description": "Clave de contexto Music DNA opcional; Home Assistant puede normalizarla. No otorga acceso adicional."
+        },
+        "client_type": {
+          "name": "Tipo de cliente",
+          "description": "Tipo de cliente DJConnect compatible, opcional. En blanco usa el tipo emparejado; Windows está retirado."
+        },
+        "client_id": {
+          "name": "ID del cliente",
+          "description": "ID de instalación opcional como metadato del cliente."
+        },
+        "device_id": {
+          "name": "ID del dispositivo",
+          "description": "ID de dispositivo DJConnect opcional. Déjelo vacío para usar el dispositivo emparejado."
+        },
+        "device_name": {
+          "name": "Nombre del dispositivo",
+          "description": "Nombre visible opcional del cliente solicitante."
+        },
+        "app_version": {
+          "name": "Versión de la app",
+          "description": "Versión opcional de la app solicitante."
+        }
+      }
+    },
+    "clear_ask_dj_history": {
+      "name": "Borrar historial Ask DJ",
+      "description": "Borra solo el historial Ask DJ del servidor del usuario HA autenticado. Incrementa clear_revision e history_revision para sincronización.",
+      "fields": {
+        "music_dna_key": {
+          "name": "Clave Music DNA",
+          "description": "Clave de contexto Music DNA opcional; Home Assistant puede normalizarla. No otorga acceso adicional."
+        },
+        "client_type": {
+          "name": "Tipo de cliente",
+          "description": "Tipo de cliente DJConnect compatible, opcional. En blanco usa el tipo emparejado; Windows está retirado."
+        }
+      }
+    },
+    "ask_dj_history_state": {
+      "name": "Consultar estado de sincronización Ask DJ",
+      "description": "Lee el estado compacto de revisiones e indica si el cliente debe borrar su caché local del chat.",
+      "fields": {
+        "music_dna_key": {
+          "name": "Clave Music DNA",
+          "description": "Clave de contexto Music DNA opcional; Home Assistant puede normalizarla. No otorga acceso adicional."
+        },
+        "history_revision": {
+          "name": "Revisión del historial",
+          "description": "Última revisión del historial Ask DJ conocida por el cliente."
+        },
+        "clear_revision": {
+          "name": "Revisión de borrado",
+          "description": "Última revisión de borrado Ask DJ conocida por el cliente."
+        }
+      }
+    },
+    "start_spotify_oauth": {
+      "name": "Iniciar autorización Spotify",
+      "description": "Crea una URL de autorización Spotify PKCE. Tras abrirla e iniciar sesión, el retorno guarda el token de actualización en HA. No se utiliza con Music Assistant.",
+      "fields": {
+        "client_id": {
+          "name": "ID de cliente de Spotify",
+          "description": "ID de cliente de tu app Spotify Developer. Vacío usa el valor configurado."
+        },
+        "ha_base_url": {
+          "name": "URL externa de Home Assistant",
+          "description": "URL base accesible para Spotify, preferiblemente Nabu Casa. Vacío usa la URL configurada. El retorno añade /api/djconnect/v1/spotify/callback."
+        },
+        "market": {
+          "name": "Mercado/región",
+          "description": "Región Spotify opcional para búsqueda y reproducción, por ejemplo ES o US."
+        },
+        "scopes": {
+          "name": "Permisos de Spotify",
+          "description": "Permisos OAuth de Spotify; vacío usa los permisos predeterminados de DJConnect."
+        }
+      }
+    },
+    "music_backend_status": {
+      "name": "Consultar estado del servicio musical",
+      "description": "Comprueba el servicio elegido, capacidades, revisión, reproductor de destino y estado de error seguro, sin iniciar reproducción."
+    },
+    "device_command": {
+      "name": "Enviar comando al dispositivo",
+      "description": "Envía un comando local al dispositivo emparejado mediante /api/device/command con el token de acceso guardado.",
+      "fields": {
+        "command": {
+          "name": "Comando",
+          "description": "Comando técnico compatible que se ejecutará."
+        },
+        "payload": {
+          "name": "Datos del comando",
+          "description": "Datos de comando opcionales como objeto, por ejemplo un campo value con valor 35."
+        }
+      }
+    },
+    "queue": {
+      "name": "Consultar cola musical",
+      "description": "Lee la cola actual mediante el servicio existente, sin iniciar, detener ni modificar la reproducción.",
+      "fields": {
+        "client_type": {
+          "name": "Tipo de cliente",
+          "description": "Tipo de cliente DJConnect compatible, opcional. En blanco usa el tipo emparejado; Windows está retirado."
+        },
+        "client_id": {
+          "name": "ID del cliente",
+          "description": "ID de instalación opcional como metadato del cliente."
+        },
+        "device_id": {
+          "name": "ID del dispositivo",
+          "description": "ID de dispositivo DJConnect opcional. Déjelo vacío para usar el dispositivo emparejado."
+        },
+        "music_dna_key": {
+          "name": "Clave Music DNA",
+          "description": "Clave de contexto Music DNA opcional; Home Assistant puede normalizarla. No otorga acceso adicional."
+        },
+        "locale": {
+          "name": "Idioma/región",
+          "description": "Idioma/región opcional de la respuesta, por ejemplo es o en."
+        },
+        "timezone": {
+          "name": "Zona horaria",
+          "description": "Zona horaria opcional del cliente."
+        }
+      }
+    },
+    "playlists": {
+      "name": "Consultar listas de reproducción",
+      "description": "Lee las listas mediante el servicio existente, sin iniciar, detener ni modificar la reproducción.",
+      "fields": {
+        "client_type": {
+          "name": "Tipo de cliente",
+          "description": "Tipo de cliente DJConnect compatible, opcional. En blanco usa el tipo emparejado; Windows está retirado."
+        },
+        "client_id": {
+          "name": "ID del cliente",
+          "description": "ID de instalación opcional como metadato del cliente."
+        },
+        "device_id": {
+          "name": "ID del dispositivo",
+          "description": "ID de dispositivo DJConnect opcional. Déjelo vacío para usar el dispositivo emparejado."
+        },
+        "limit": {
+          "name": "Cantidad máxima",
+          "description": "Cantidad máxima de listas de reproducción devueltas."
+        },
+        "market": {
+          "name": "Mercado/región",
+          "description": "Región Spotify opcional para búsqueda y reproducción, por ejemplo ES o US."
+        },
+        "music_dna_key": {
+          "name": "Clave Music DNA",
+          "description": "Clave de contexto Music DNA opcional; Home Assistant puede normalizarla. No otorga acceso adicional."
+        },
+        "locale": {
+          "name": "Idioma/región",
+          "description": "Idioma/región opcional de la respuesta, por ejemplo es o en."
+        },
+        "timezone": {
+          "name": "Zona horaria",
+          "description": "Zona horaria opcional del cliente."
+        }
+      }
+    },
+    "playback_status": {
+      "name": "Consultar estado de reproducción",
+      "description": "Lee el estado de reproducción del servicio elegido sin modificar la reproducción.",
+      "fields": {
+        "client_type": {
+          "name": "Tipo de cliente",
+          "description": "Tipo de cliente DJConnect compatible, opcional. En blanco usa el tipo emparejado; Windows está retirado."
+        },
+        "device_id": {
+          "name": "ID del dispositivo",
+          "description": "ID de dispositivo DJConnect opcional. Déjelo vacío para usar el dispositivo emparejado."
+        },
+        "locale": {
+          "name": "Idioma/región",
+          "description": "Idioma/región opcional de la respuesta, por ejemplo es o en."
+        }
+      }
+    },
+    "playback_devices": {
+      "name": "Consultar dispositivos de reproducción",
+      "description": "Lee las salidas/dispositivos del servicio elegido sin modificar la reproducción.",
+      "fields": {
+        "client_type": {
+          "name": "Tipo de cliente",
+          "description": "Tipo de cliente DJConnect compatible, opcional. En blanco usa el tipo emparejado; Windows está retirado."
+        },
+        "device_id": {
+          "name": "ID del dispositivo",
+          "description": "ID de dispositivo DJConnect opcional. Déjelo vacío para usar el dispositivo emparejado."
+        },
+        "locale": {
+          "name": "Idioma/región",
+          "description": "Idioma/región opcional de la respuesta, por ejemplo es o en."
+        }
+      }
+    },
+    "playback_command": {
+      "name": "Enviar comando de reproducción",
+      "description": "Ejecuta un comando de reproducción compatible mediante el servicio existente, por ejemplo play, pause, next, set_volume, set_output, set_shuffle o set_repeat.",
+      "fields": {
+        "command": {
+          "name": "Comando",
+          "description": "Comando técnico compatible que se ejecutará."
+        },
+        "value": {
+          "name": "Valor",
+          "description": "Valor opcional del comando, como 40 para set_volume, true para set_shuffle, off para set_repeat o un objeto uris para play_uris."
+        },
+        "play": {
+          "name": "Iniciar reproducción",
+          "description": "Inicia la reproducción si el comando lo admite. Desactive para probar sin iniciar música."
+        },
+        "client_type": {
+          "name": "Tipo de cliente",
+          "description": "Tipo de cliente DJConnect compatible, opcional. En blanco usa el tipo emparejado; Windows está retirado."
+        },
+        "device_id": {
+          "name": "ID del dispositivo",
+          "description": "ID de dispositivo DJConnect opcional. Déjelo vacío para usar el dispositivo emparejado."
+        },
+        "locale": {
+          "name": "Idioma/región",
+          "description": "Idioma/región opcional de la respuesta, por ejemplo es o en."
+        }
+      }
+    },
+    "refresh_device_info": {
+      "name": "Actualizar información del dispositivo",
+      "description": "Lee /api/device/info del dispositivo emparejado y actualiza los sensores de estado HA."
+    },
+    "reboot_device": {
+      "name": "Reiniciar dispositivo",
+      "description": "Solicita reiniciar el dispositivo emparejado mediante /api/device/reboot."
+    },
+    "forget_device": {
+      "name": "Olvidar emparejamiento del dispositivo",
+      "description": "Borra el emparejamiento local del dispositivo mediante /api/device/forget. Después, vuelva a emparejarlo."
+    },
+    "profile_export": {
+      "name": "Exportar perfil",
+      "description": "Exporta el perfil DJConnect elegido sin tokens OAuth, del proveedor, HA, APNs ni del dispositivo.",
+      "fields": {
+        "profile_id": {
+          "name": "Perfil",
+          "description": "ID de perfil opcional para resolución y autorización. Sin él se aplican las reglas existentes de dispositivo, usuario HA y respaldo."
+        },
+        "include_personal_data": {
+          "name": "Incluir datos personales",
+          "description": "Incluye datos permitidos de Music DNA, ambiente y preferencias. Las exportaciones privadas o seguras para invitados siguen ocultando datos personales."
+        }
+      }
+    },
+    "household_export": {
+      "name": "Exportar hogar",
+      "description": "Exporta metadatos no secretos del hogar, perfiles, asociaciones y cuentas. Los accesos al proveedor deben vincularse de nuevo tras importar.",
+      "fields": {
+        "profile_id": {
+          "name": "Perfil",
+          "description": "ID de perfil opcional para resolución y autorización. Sin él se aplican las reglas existentes de dispositivo, usuario HA y respaldo."
+        }
+      }
+    },
+    "integration_export": {
+      "name": "Exportar integración",
+      "description": "Exporta toda la configuración no secreta de la integración. Los secretos excluidos se indican explícitamente.",
+      "fields": {
+        "profile_id": {
+          "name": "Perfil",
+          "description": "ID de perfil opcional para resolución y autorización. Sin él se aplican las reglas existentes de dispositivo, usuario HA y respaldo."
+        }
+      }
+    },
+    "profile_import": {
+      "name": "Importar perfil",
+      "description": "Importa un perfil. Se rechazan campos similares a secretos; los accesos al proveedor que falten deben vincularse de nuevo.",
+      "fields": {
+        "export": {
+          "name": "Archivo de exportación",
+          "description": "Datos exportados existentes que se importarán."
+        },
+        "overwrite": {
+          "name": "Sobrescribir",
+          "description": "Permite explícitamente sustituir datos existentes con esta importación."
+        },
+        "reassign_id": {
+          "name": "Crear nuevo ID de perfil",
+          "description": "Crea un ID nuevo para el perfil importado si el ID de la exportación ya existe."
+        }
+      }
+    },
+    "household_import": {
+      "name": "Importar hogar",
+      "description": "Importa un hogar o una exportación no secreta de la integración. Solo sustituye perfiles existentes si se permite sobrescribir explícitamente.",
+      "fields": {
+        "export": {
+          "name": "Archivo de exportación",
+          "description": "Datos exportados existentes que se importarán."
+        },
+        "overwrite": {
+          "name": "Sobrescribir",
+          "description": "Permite explícitamente sustituir datos existentes con esta importación."
+        }
+      }
+    },
+    "clear_profile_state": {
+      "name": "Borrar datos personales del perfil",
+      "description": "Borra los datos personales elegidos sin eliminar el perfil.",
+      "fields": {
+        "profile_id": {
+          "name": "Perfil",
+          "description": "ID de perfil opcional para resolución y autorización. Sin él se aplican las reglas existentes de dispositivo, usuario HA y respaldo."
+        },
+        "ask_dj": {
+          "name": "Historial Ask DJ",
+          "description": "Borra referencias de conversación e historial Ask DJ de este contexto."
+        },
+        "music_dna": {
+          "name": "Music DNA",
+          "description": "Borra referencias y datos de Music DNA de este contexto."
+        },
+        "recommendations": {
+          "name": "Recomendaciones",
+          "description": "Borra referencias de recomendaciones y preferencias positivas/negativas."
+        },
+        "mood": {
+          "name": "Ambiente",
+          "description": "Borra el ajuste de ambiente guardado."
+        },
+        "all": {
+          "name": "Todos los datos personales",
+          "description": "Borra todas las referencias a datos personales sin eliminar el perfil."
+        }
       }
     }
   }
