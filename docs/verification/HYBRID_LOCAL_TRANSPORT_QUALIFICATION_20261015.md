@@ -17,7 +17,7 @@ operation service/journal, domain dispatch and delivery fences are unchanged.
 [Real transport fixture](../../examples/client_contracts/hybrid_local/qualified-runtime.http.json)
 and [measurement summary](../../examples/client_contracts/hybrid_local/qualification-summary.json)
 record68 actual isolated HA2026.10.0 cases on runtime checkpoint
-1474907711ef6b3f2ab4017963a1c357fcefa714. Ordinary pairing, Session Runtime,
+50a3a0b92fdb314b7e6ed8f38685fcfd871436df. Ordinary pairing, Session Runtime,
 HTTP context/operation/status/recovery, WS first-frame authentication, current
 Session read, reconnect and original-ID status/duplicate execution use real Core
 owners and storage. Only external music/source I/O is a fixture in that chain.
@@ -35,8 +35,8 @@ identity without extra provider queries. Zero real model calls. No provider
 exactly-once guarantee is introduced. All168 integration/verifier/helper file
 hashes in the fixture match current bytes; documentary descendants change none.
 
-Actual idle lease300.002s; missing-pong close23.137s; auth deadline5.007s;
-idle source withdrawal1.001s; token rotation1.007s. Real maximum RSS248292KiB
+Actual idle lease300.010s; missing-pong close23.514s; auth deadline5.002s;
+idle source withdrawal1.003s; token rotation1.007s. Real maximum RSS248740KiB
 inside the1GiB/2CPU/256PID networkless owned container. Journal17762bytes before
 idle expiry,879bytes after expiry/GC. These measure this sample, not an absolute
 peak storage claim. Own containers remove themselves; shared HA/Apple labs,
@@ -78,10 +78,15 @@ edges, receipts and historical snapshots remain; only current document reference
 and generated source views change. Documentary source1181/Finalization1183 terminalmain
 `f32b625eb0a3d1b8abfc2c81378d25d769c6766d` is now locally integrated. Its full
 DAG/WEBschema2/decisions/receipts are retained; only document references are
-united/refreshed. All168recorded runtime/verifier/helper hashes and the auxiliary
-race-helper hash remain identical, qualifying reuse of the actual HA/coverage
-measurements. Integrated document/schema/regression checks and exact independent
-reviews are separately required before publication.
+united/refreshed. SourcePR1184 on approved6a0c3398 then hit a real hassfest
+failure: direct use of HA network was not declared in the integration manifest.
+The sole runtime repair adds network to existing dependencies; no dispatcher,
+fence, workflow or runner changes. The fresh50a3checkpoint reruns actual HA/300s
+and coverage, with all168recorded hashes checked against the corrected bytes;
+the earlier manifest hash is not silently relabelled. Integrated document/schema/
+regression checks and exact independent reviews remain required before updating
+the existing PR. Remote hassfest must pass on the new exact head before merge;
+the known6a failure is not waived or treated as a transient failure.
 
 ## Explicit remaining boundaries
 

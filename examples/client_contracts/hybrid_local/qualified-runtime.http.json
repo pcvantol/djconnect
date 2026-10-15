@@ -82,7 +82,7 @@
     "custom_components/djconnect/icon@2x.png": "058def399acd93b3d298e4a0a9869eec0ef67307d483db049a02e902f596b5f1",
     "custom_components/djconnect/image_proxy.py": "77a855a75a02f8a8d643cfb9decfbb0c1ced33693cd8f70f91f01aa059296b53",
     "custom_components/djconnect/logo.png": "ff9007c335731b2c35b66961abfed09c80ce3da91032a9e947dbde94ffe8360b",
-    "custom_components/djconnect/manifest.json": "9635fb3c3a9990bdffbf993d3f2af9432bda12310bc24dc5267d27ea814bb67c",
+    "custom_components/djconnect/manifest.json": "cecf84fd5ca4abe692b5bd3227326454d1aff8c8056c57be52ab62ea46997711",
     "custom_components/djconnect/moment_expression.py": "a154684f2d14affdb96228b0de8f3cba2df819ce0548c925637510852d090871",
     "custom_components/djconnect/moment_navigation.py": "7c4d94c6d4ebe947abf083818a2264c28e9d2ae3b577b45c2009e72712412af6",
     "custom_components/djconnect/mood.py": "84aefec705178fe6b32f601771d6280e5eb788f161c8cff1fd106a061d792e8c",
@@ -236,8 +236,8 @@
         "success": true,
         "contract_version": 1,
         "ha_install_id": "ha_owned_hybrid_fixture",
-        "operation_epoch": "f438a14648afa9f80ea70414a594b83b",
-        "server_time_ms": 1792097932638,
+        "operation_epoch": "651269b9d387c0bc84378cfdab94d94f",
+        "server_time_ms": 1792099311140,
         "operation_lifetime_ms": 300000,
         "requires_authenticated_tls": true,
         "action_operations": [
@@ -299,8 +299,8 @@
           "client_type": "ios"
         },
         "contract_version": 1,
-        "operation_id": "01a1415c-5560-7000-be3d-f8a93b696369",
-        "operation_epoch": "f438a14648afa9f80ea70414a594b83b",
+        "operation_id": "01a14171-5e28-7000-94bf-39b4aadd3bc2",
+        "operation_epoch": "651269b9d387c0bc84378cfdab94d94f",
         "operation": "session/start",
         "payload": {
           "mood": "groove",
@@ -311,7 +311,7 @@
       "body": {
         "success": true,
         "session": {
-          "session_id": "session-0c670b7976a54ed3b99901a109a0e109",
+          "session_id": "session-068c2260bd73439097e80a68fde34fa9",
           "owner_profile_id": "profile-a",
           "room": "",
           "selected_mood": "groove",
@@ -319,8 +319,8 @@
           "locale": "en",
           "music_backend": "spotify_direct",
           "runtime_state": "active",
-          "created_at": "2026-10-15T20:58:52.644262+00:00",
-          "started_at": "2026-10-15T20:58:52.647609+00:00",
+          "created_at": "2026-10-15T21:21:51.149309+00:00",
+          "started_at": "2026-10-15T21:21:51.155054+00:00",
           "session_start_strategy": "manual",
           "initial_session_mood": "groove",
           "mood_revision": 0,
@@ -329,15 +329,15 @@
           "interaction_profile": "balanced",
           "session_direction": {
             "direction": "maintaining_energy",
-            "initialized_at": "2026-10-15T20:58:52.644262+00:00",
-            "updated_at": "2026-10-15T20:58:52.644262+00:00",
+            "initialized_at": "2026-10-15T21:21:51.149309+00:00",
+            "updated_at": "2026-10-15T21:21:51.149309+00:00",
             "start_strategy": "manual"
           },
           "discover_personalization_available": false,
           "performance_memory": {
-            "source_flow_id": "flow-session-0c670b7976a54ed3b99901a109a0e109",
+            "source_flow_id": "flow-session-068c2260bd73439097e80a68fde34fa9",
             "recent_moment_ids": [
-              "moment-739798d9e30c405f9dcd540f2b2318e3"
+              "moment-3c94c272996348dd9c6705b49e082b02"
             ],
             "recent_moment_types": [
               "track"
@@ -356,8 +356,8 @@
           "planner": {
             "planner_state": "ready",
             "planning_horizon_minutes": 15,
-            "created_at": "2026-10-15T20:58:52.644262+00:00",
-            "last_replan_at": "2026-10-15T20:58:52.668039+00:00",
+            "created_at": "2026-10-15T21:21:51.149309+00:00",
+            "last_replan_at": "2026-10-15T21:21:51.181189+00:00",
             "current_goal": "",
             "configuration": {
               "minimum_time_between_moments_seconds": 60.0,
@@ -371,10 +371,10 @@
             "pending_events": [],
             "output": {
               "session_flow": {
-                "flow_id": "flow-session-0c670b7976a54ed3b99901a109a0e109",
+                "flow_id": "flow-session-068c2260bd73439097e80a68fde34fa9",
                 "flow_revision": 1,
                 "planning_horizon_minutes": 15,
-                "created_at": "2026-10-15T20:58:52.668039+00:00",
+                "created_at": "2026-10-15T21:21:51.181189+00:00",
                 "items": [
                   {
                     "item_id": "now-current-track",
@@ -407,11 +407,11 @@
                     "label": "Future Placeholder"
                   },
                   {
-                    "item_id": "moment-moment-739798d9e30c405f9dcd540f2b2318e3",
+                    "item_id": "moment-moment-3c94c272996348dd9c6705b49e082b02",
                     "item_type": "dj_moment",
                     "position": "next",
                     "label": "Fixture work \u2014 Fixture artist",
-                    "moment_id": "moment-739798d9e30c405f9dcd540f2b2318e3",
+                    "moment_id": "moment-3c94c272996348dd9c6705b49e082b02",
                     "moment_type": "track"
                   }
                 ]
@@ -420,7 +420,7 @@
           },
           "broadcast": {
             "session": {
-              "session_id": "session-0c670b7976a54ed3b99901a109a0e109",
+              "session_id": "session-068c2260bd73439097e80a68fde34fa9",
               "runtime_state": "active",
               "selected_mood": "groove",
               "mood_revision": 0,
@@ -434,7 +434,7 @@
               "title": "Fixture work",
               "artist": "Fixture artist",
               "album": "Fixture album",
-              "updated_at": "2026-10-15T20:58:52.672311+00:00",
+              "updated_at": "2026-10-15T21:21:51.186998+00:00",
               "duration_ms": 300000,
               "position_ms": 1000,
               "source_url": "https://open.spotify.com/track/1111111111111111111111"
@@ -445,16 +445,16 @@
               "current_direction": "maintaining_energy",
               "session_direction": {
                 "direction": "maintaining_energy",
-                "initialized_at": "2026-10-15T20:58:52.644262+00:00",
-                "updated_at": "2026-10-15T20:58:52.644262+00:00",
+                "initialized_at": "2026-10-15T21:21:51.149309+00:00",
+                "updated_at": "2026-10-15T21:21:51.149309+00:00",
                 "start_strategy": "manual"
               }
             },
             "session_flow": {
-              "flow_id": "flow-session-0c670b7976a54ed3b99901a109a0e109",
+              "flow_id": "flow-session-068c2260bd73439097e80a68fde34fa9",
               "flow_revision": 1,
               "planning_horizon_minutes": 15,
-              "created_at": "2026-10-15T20:58:52.668039+00:00",
+              "created_at": "2026-10-15T21:21:51.181189+00:00",
               "items": [
                 {
                   "item_id": "now-current-track",
@@ -487,11 +487,11 @@
                   "label": "Future Placeholder"
                 },
                 {
-                  "item_id": "moment-moment-739798d9e30c405f9dcd540f2b2318e3",
+                  "item_id": "moment-moment-3c94c272996348dd9c6705b49e082b02",
                   "item_type": "dj_moment",
                   "position": "next",
                   "label": "Fixture work \u2014 Fixture artist",
-                  "moment_id": "moment-739798d9e30c405f9dcd540f2b2318e3",
+                  "moment_id": "moment-3c94c272996348dd9c6705b49e082b02",
                   "moment_type": "track"
                 }
               ]
@@ -502,9 +502,9 @@
             },
             "dj_moments": [
               {
-                "moment_id": "moment-739798d9e30c405f9dcd540f2b2318e3",
-                "session_id": "session-0c670b7976a54ed3b99901a109a0e109",
-                "created_at": "2026-10-15T20:58:52.666246+00:00",
+                "moment_id": "moment-3c94c272996348dd9c6705b49e082b02",
+                "session_id": "session-068c2260bd73439097e80a68fde34fa9",
+                "created_at": "2026-10-15T21:21:51.179049+00:00",
                 "type": "track",
                 "knowledge_intent": {
                   "type": "track_context",
@@ -616,8 +616,8 @@
             ],
             "presentations": [
               {
-                "presentation_id": "presentation-moment-739798d9e30c405f9dcd540f2b2318e3",
-                "source_moment_id": "moment-739798d9e30c405f9dcd540f2b2318e3",
+                "presentation_id": "presentation-moment-3c94c272996348dd9c6705b49e082b02",
+                "source_moment_id": "moment-3c94c272996348dd9c6705b49e082b02",
                 "source_moment_type": "track",
                 "visibility": "session_shared",
                 "speech": {
@@ -633,17 +633,17 @@
               }
             ],
             "broadcast": {
-              "started_at": "2026-10-15T20:58:52.644262+00:00",
+              "started_at": "2026-10-15T21:21:51.149309+00:00",
               "snapshot_watermark": 8
             },
             "native_delivery": {
               "schema_version": 1,
-              "session_id": "session-0c670b7976a54ed3b99901a109a0e109",
+              "session_id": "session-068c2260bd73439097e80a68fde34fa9",
               "current_moment_id": null,
               "active_flow_moment_ids": [],
               "admissions": [
                 {
-                  "moment_id": "moment-739798d9e30c405f9dcd540f2b2318e3",
+                  "moment_id": "moment-3c94c272996348dd9c6705b49e082b02",
                   "qualification": "unqualified",
                   "current_display_allowed": false,
                   "active_flow_display_allowed": false,
@@ -654,15 +654,15 @@
                 }
               ],
               "revocation_scope": "session",
-              "revision": "cc494f0274ad782377a6907e"
+              "revision": "5e6b7f27701e8252466b2131"
             },
             "session_forecast": {
               "contract_version": 1,
-              "session_id": "session-0c670b7976a54ed3b99901a109a0e109",
+              "session_id": "session-068c2260bd73439097e80a68fde34fa9",
               "revision": 1,
               "state": "ready",
-              "issued_at": "2026-10-15T20:58:52.677512+00:00",
-              "valid_until": "2026-10-15T21:00:52.676756+00:00",
+              "issued_at": "2026-10-15T21:21:51.195014+00:00",
+              "valid_until": "2026-10-15T21:23:51.193858+00:00",
               "nominal_window_seconds": 900,
               "supported_window_seconds": 900,
               "current_anchor": {
@@ -697,10 +697,10 @@
         },
         "operation_receipt": {
           "contract_version": 1,
-          "operation_id": "01a1415c-5560-7000-be3d-f8a93b696369",
-          "operation_epoch": "f438a14648afa9f80ea70414a594b83b",
+          "operation_id": "01a14171-5e28-7000-94bf-39b4aadd3bc2",
+          "operation_epoch": "651269b9d387c0bc84378cfdab94d94f",
           "phase": "confirmed",
-          "expires_at_ms": 1792098232640,
+          "expires_at_ms": 1792099611144,
           "result_available": true,
           "response_status": 201,
           "error": null
@@ -717,16 +717,16 @@
           "device_id": "djconnect-ios-ABCDEF123456",
           "client_type": "ios"
         },
-        "session_id": "session-0c670b7976a54ed3b99901a109a0e109",
+        "session_id": "session-068c2260bd73439097e80a68fde34fa9",
         "recovery_cursor": "00000000000000000000000000000000"
       },
       "body": {
         "success": true,
-        "session_id": "session-0c670b7976a54ed3b99901a109a0e109",
+        "session_id": "session-068c2260bd73439097e80a68fde34fa9",
         "recovery": "snapshot_required",
         "snapshot": {
           "session": {
-            "session_id": "session-0c670b7976a54ed3b99901a109a0e109",
+            "session_id": "session-068c2260bd73439097e80a68fde34fa9",
             "runtime_state": "active",
             "selected_mood": "groove",
             "mood_revision": 0,
@@ -740,7 +740,7 @@
             "title": "Fixture work",
             "artist": "Fixture artist",
             "album": "Fixture album",
-            "updated_at": "2026-10-15T20:58:52.672311+00:00",
+            "updated_at": "2026-10-15T21:21:51.186998+00:00",
             "duration_ms": 300000,
             "position_ms": 1000,
             "source_url": "https://open.spotify.com/track/1111111111111111111111"
@@ -751,16 +751,16 @@
             "current_direction": "maintaining_energy",
             "session_direction": {
               "direction": "maintaining_energy",
-              "initialized_at": "2026-10-15T20:58:52.644262+00:00",
-              "updated_at": "2026-10-15T20:58:52.644262+00:00",
+              "initialized_at": "2026-10-15T21:21:51.149309+00:00",
+              "updated_at": "2026-10-15T21:21:51.149309+00:00",
               "start_strategy": "manual"
             }
           },
           "session_flow": {
-            "flow_id": "flow-session-0c670b7976a54ed3b99901a109a0e109",
+            "flow_id": "flow-session-068c2260bd73439097e80a68fde34fa9",
             "flow_revision": 1,
             "planning_horizon_minutes": 15,
-            "created_at": "2026-10-15T20:58:52.668039+00:00",
+            "created_at": "2026-10-15T21:21:51.181189+00:00",
             "items": [
               {
                 "item_id": "now-current-track",
@@ -793,11 +793,11 @@
                 "label": "Future Placeholder"
               },
               {
-                "item_id": "moment-moment-739798d9e30c405f9dcd540f2b2318e3",
+                "item_id": "moment-moment-3c94c272996348dd9c6705b49e082b02",
                 "item_type": "dj_moment",
                 "position": "next",
                 "label": "Fixture work \u2014 Fixture artist",
-                "moment_id": "moment-739798d9e30c405f9dcd540f2b2318e3",
+                "moment_id": "moment-3c94c272996348dd9c6705b49e082b02",
                 "moment_type": "track"
               }
             ]
@@ -808,9 +808,9 @@
           },
           "dj_moments": [
             {
-              "moment_id": "moment-739798d9e30c405f9dcd540f2b2318e3",
-              "session_id": "session-0c670b7976a54ed3b99901a109a0e109",
-              "created_at": "2026-10-15T20:58:52.666246+00:00",
+              "moment_id": "moment-3c94c272996348dd9c6705b49e082b02",
+              "session_id": "session-068c2260bd73439097e80a68fde34fa9",
+              "created_at": "2026-10-15T21:21:51.179049+00:00",
               "type": "track",
               "knowledge_intent": {
                 "type": "track_context",
@@ -922,8 +922,8 @@
           ],
           "presentations": [
             {
-              "presentation_id": "presentation-moment-739798d9e30c405f9dcd540f2b2318e3",
-              "source_moment_id": "moment-739798d9e30c405f9dcd540f2b2318e3",
+              "presentation_id": "presentation-moment-3c94c272996348dd9c6705b49e082b02",
+              "source_moment_id": "moment-3c94c272996348dd9c6705b49e082b02",
               "source_moment_type": "track",
               "visibility": "session_shared",
               "speech": {
@@ -939,17 +939,17 @@
             }
           ],
           "broadcast": {
-            "started_at": "2026-10-15T20:58:52.644262+00:00",
+            "started_at": "2026-10-15T21:21:51.149309+00:00",
             "snapshot_watermark": 8
           },
           "native_delivery": {
             "schema_version": 1,
-            "session_id": "session-0c670b7976a54ed3b99901a109a0e109",
+            "session_id": "session-068c2260bd73439097e80a68fde34fa9",
             "current_moment_id": null,
             "active_flow_moment_ids": [],
             "admissions": [
               {
-                "moment_id": "moment-739798d9e30c405f9dcd540f2b2318e3",
+                "moment_id": "moment-3c94c272996348dd9c6705b49e082b02",
                 "qualification": "unqualified",
                 "current_display_allowed": false,
                 "active_flow_display_allowed": false,
@@ -960,15 +960,15 @@
               }
             ],
             "revocation_scope": "session",
-            "revision": "cc494f0274ad782377a6907e"
+            "revision": "5e6b7f27701e8252466b2131"
           },
           "session_forecast": {
             "contract_version": 1,
-            "session_id": "session-0c670b7976a54ed3b99901a109a0e109",
+            "session_id": "session-068c2260bd73439097e80a68fde34fa9",
             "revision": 1,
             "state": "ready",
-            "issued_at": "2026-10-15T20:58:52.677512+00:00",
-            "valid_until": "2026-10-15T21:00:52.676756+00:00",
+            "issued_at": "2026-10-15T21:21:51.195014+00:00",
+            "valid_until": "2026-10-15T21:23:51.193858+00:00",
             "nominal_window_seconds": 900,
             "supported_window_seconds": 900,
             "current_anchor": {
@@ -1000,7 +1000,7 @@
             "imagery": []
           }
         },
-        "recovery_cursor": "31sg1F2ek5yJNCs2yYnepjShaRg7-d21SEpFPgkUYVY"
+        "recovery_cursor": "4_E_ZgXOvEqg3GnfEFSvCeq1-hJmb3hyuyeqXGi2gZg"
       }
     },
     {
@@ -1013,8 +1013,8 @@
         "success": true,
         "contract_version": 1,
         "ha_install_id": "ha_owned_hybrid_fixture",
-        "operation_epoch": "f438a14648afa9f80ea70414a594b83b",
-        "server_time_ms": 1792097932693,
+        "operation_epoch": "651269b9d387c0bc84378cfdab94d94f",
+        "server_time_ms": 1792099311218,
         "operation_lifetime_ms": 300000,
         "requires_authenticated_tls": false,
         "action_operations": [
@@ -1158,10 +1158,10 @@
         "music_backend_error": null,
         "operation_receipt": {
           "contract_version": 1,
-          "operation_id": "01a1415c-5599-7000-b86d-e1155e1b55ff",
-          "operation_epoch": "f438a14648afa9f80ea70414a594b83b",
+          "operation_id": "01a14171-5e78-7000-8e03-2ad5fc210556",
+          "operation_epoch": "651269b9d387c0bc84378cfdab94d94f",
           "phase": "confirmed",
-          "expires_at_ms": 1792098232697,
+          "expires_at_ms": 1792099611224,
           "result_available": true,
           "response_status": 200,
           "error": null
@@ -1176,8 +1176,8 @@
         "success": true,
         "contract_version": 1,
         "ha_install_id": "ha_owned_hybrid_fixture",
-        "operation_epoch": "f438a14648afa9f80ea70414a594b83b",
-        "server_time_ms": 1792097932701,
+        "operation_epoch": "651269b9d387c0bc84378cfdab94d94f",
+        "server_time_ms": 1792099311228,
         "operation_lifetime_ms": 300000,
         "requires_authenticated_tls": false,
         "action_operations": [
@@ -1216,7 +1216,7 @@
         "protocol_version": 1,
         "audience": "paired_owner_actions",
         "lease_seconds": 300,
-        "connection_id": "b2cfce677c0582354faea2b6b0d2e38c",
+        "connection_id": "69d081f84f29d082b3546d81373d372b",
         "commands": [
           "djconnect/read",
           "djconnect/operation/execute",
@@ -1225,12 +1225,12 @@
       },
       "read": {
         "id": 1,
-        "connection_id": "b2cfce677c0582354faea2b6b0d2e38c",
+        "connection_id": "69d081f84f29d082b3546d81373d372b",
         "type": "result",
         "result": {
           "success": true,
           "session": {
-            "session_id": "session-0c670b7976a54ed3b99901a109a0e109",
+            "session_id": "session-068c2260bd73439097e80a68fde34fa9",
             "owner_profile_id": "profile-a",
             "room": "",
             "selected_mood": "groove",
@@ -1238,8 +1238,8 @@
             "locale": "en",
             "music_backend": "spotify_direct",
             "runtime_state": "active",
-            "created_at": "2026-10-15T20:58:52.644262+00:00",
-            "started_at": "2026-10-15T20:58:52.647609+00:00",
+            "created_at": "2026-10-15T21:21:51.149309+00:00",
+            "started_at": "2026-10-15T21:21:51.155054+00:00",
             "session_start_strategy": "manual",
             "initial_session_mood": "groove",
             "mood_revision": 0,
@@ -1248,15 +1248,15 @@
             "interaction_profile": "balanced",
             "session_direction": {
               "direction": "maintaining_energy",
-              "initialized_at": "2026-10-15T20:58:52.644262+00:00",
-              "updated_at": "2026-10-15T20:58:52.644262+00:00",
+              "initialized_at": "2026-10-15T21:21:51.149309+00:00",
+              "updated_at": "2026-10-15T21:21:51.149309+00:00",
               "start_strategy": "manual"
             },
             "discover_personalization_available": false,
             "performance_memory": {
-              "source_flow_id": "flow-session-0c670b7976a54ed3b99901a109a0e109",
+              "source_flow_id": "flow-session-068c2260bd73439097e80a68fde34fa9",
               "recent_moment_ids": [
-                "moment-739798d9e30c405f9dcd540f2b2318e3"
+                "moment-3c94c272996348dd9c6705b49e082b02"
               ],
               "recent_moment_types": [
                 "track"
@@ -1275,8 +1275,8 @@
             "planner": {
               "planner_state": "ready",
               "planning_horizon_minutes": 15,
-              "created_at": "2026-10-15T20:58:52.644262+00:00",
-              "last_replan_at": "2026-10-15T20:58:52.668039+00:00",
+              "created_at": "2026-10-15T21:21:51.149309+00:00",
+              "last_replan_at": "2026-10-15T21:21:51.181189+00:00",
               "current_goal": "",
               "configuration": {
                 "minimum_time_between_moments_seconds": 60.0,
@@ -1290,10 +1290,10 @@
               "pending_events": [],
               "output": {
                 "session_flow": {
-                  "flow_id": "flow-session-0c670b7976a54ed3b99901a109a0e109",
+                  "flow_id": "flow-session-068c2260bd73439097e80a68fde34fa9",
                   "flow_revision": 1,
                   "planning_horizon_minutes": 15,
-                  "created_at": "2026-10-15T20:58:52.668039+00:00",
+                  "created_at": "2026-10-15T21:21:51.181189+00:00",
                   "items": [
                     {
                       "item_id": "now-current-track",
@@ -1326,11 +1326,11 @@
                       "label": "Future Placeholder"
                     },
                     {
-                      "item_id": "moment-moment-739798d9e30c405f9dcd540f2b2318e3",
+                      "item_id": "moment-moment-3c94c272996348dd9c6705b49e082b02",
                       "item_type": "dj_moment",
                       "position": "next",
                       "label": "Fixture work \u2014 Fixture artist",
-                      "moment_id": "moment-739798d9e30c405f9dcd540f2b2318e3",
+                      "moment_id": "moment-3c94c272996348dd9c6705b49e082b02",
                       "moment_type": "track"
                     }
                   ]
@@ -1339,7 +1339,7 @@
             },
             "broadcast": {
               "session": {
-                "session_id": "session-0c670b7976a54ed3b99901a109a0e109",
+                "session_id": "session-068c2260bd73439097e80a68fde34fa9",
                 "runtime_state": "active",
                 "selected_mood": "groove",
                 "mood_revision": 0,
@@ -1353,7 +1353,7 @@
                 "title": "Fixture work",
                 "artist": "Fixture artist",
                 "album": "Fixture album",
-                "updated_at": "2026-10-15T20:58:52.672311+00:00",
+                "updated_at": "2026-10-15T21:21:51.186998+00:00",
                 "duration_ms": 300000,
                 "position_ms": 1000,
                 "source_url": "https://open.spotify.com/track/1111111111111111111111"
@@ -1364,16 +1364,16 @@
                 "current_direction": "maintaining_energy",
                 "session_direction": {
                   "direction": "maintaining_energy",
-                  "initialized_at": "2026-10-15T20:58:52.644262+00:00",
-                  "updated_at": "2026-10-15T20:58:52.644262+00:00",
+                  "initialized_at": "2026-10-15T21:21:51.149309+00:00",
+                  "updated_at": "2026-10-15T21:21:51.149309+00:00",
                   "start_strategy": "manual"
                 }
               },
               "session_flow": {
-                "flow_id": "flow-session-0c670b7976a54ed3b99901a109a0e109",
+                "flow_id": "flow-session-068c2260bd73439097e80a68fde34fa9",
                 "flow_revision": 1,
                 "planning_horizon_minutes": 15,
-                "created_at": "2026-10-15T20:58:52.668039+00:00",
+                "created_at": "2026-10-15T21:21:51.181189+00:00",
                 "items": [
                   {
                     "item_id": "now-current-track",
@@ -1406,11 +1406,11 @@
                     "label": "Future Placeholder"
                   },
                   {
-                    "item_id": "moment-moment-739798d9e30c405f9dcd540f2b2318e3",
+                    "item_id": "moment-moment-3c94c272996348dd9c6705b49e082b02",
                     "item_type": "dj_moment",
                     "position": "next",
                     "label": "Fixture work \u2014 Fixture artist",
-                    "moment_id": "moment-739798d9e30c405f9dcd540f2b2318e3",
+                    "moment_id": "moment-3c94c272996348dd9c6705b49e082b02",
                     "moment_type": "track"
                   }
                 ]
@@ -1421,9 +1421,9 @@
               },
               "dj_moments": [
                 {
-                  "moment_id": "moment-739798d9e30c405f9dcd540f2b2318e3",
-                  "session_id": "session-0c670b7976a54ed3b99901a109a0e109",
-                  "created_at": "2026-10-15T20:58:52.666246+00:00",
+                  "moment_id": "moment-3c94c272996348dd9c6705b49e082b02",
+                  "session_id": "session-068c2260bd73439097e80a68fde34fa9",
+                  "created_at": "2026-10-15T21:21:51.179049+00:00",
                   "type": "track",
                   "knowledge_intent": {
                     "type": "track_context",
@@ -1535,8 +1535,8 @@
               ],
               "presentations": [
                 {
-                  "presentation_id": "presentation-moment-739798d9e30c405f9dcd540f2b2318e3",
-                  "source_moment_id": "moment-739798d9e30c405f9dcd540f2b2318e3",
+                  "presentation_id": "presentation-moment-3c94c272996348dd9c6705b49e082b02",
+                  "source_moment_id": "moment-3c94c272996348dd9c6705b49e082b02",
                   "source_moment_type": "track",
                   "visibility": "session_shared",
                   "speech": {
@@ -1552,17 +1552,17 @@
                 }
               ],
               "broadcast": {
-                "started_at": "2026-10-15T20:58:52.644262+00:00",
+                "started_at": "2026-10-15T21:21:51.149309+00:00",
                 "snapshot_watermark": 8
               },
               "native_delivery": {
                 "schema_version": 1,
-                "session_id": "session-0c670b7976a54ed3b99901a109a0e109",
+                "session_id": "session-068c2260bd73439097e80a68fde34fa9",
                 "current_moment_id": null,
                 "active_flow_moment_ids": [],
                 "admissions": [
                   {
-                    "moment_id": "moment-739798d9e30c405f9dcd540f2b2318e3",
+                    "moment_id": "moment-3c94c272996348dd9c6705b49e082b02",
                     "qualification": "unqualified",
                     "current_display_allowed": false,
                     "active_flow_display_allowed": false,
@@ -1573,15 +1573,15 @@
                   }
                 ],
                 "revocation_scope": "session",
-                "revision": "cc494f0274ad782377a6907e"
+                "revision": "5e6b7f27701e8252466b2131"
               },
               "session_forecast": {
                 "contract_version": 1,
-                "session_id": "session-0c670b7976a54ed3b99901a109a0e109",
+                "session_id": "session-068c2260bd73439097e80a68fde34fa9",
                 "revision": 1,
                 "state": "ready",
-                "issued_at": "2026-10-15T20:58:52.677512+00:00",
-                "valid_until": "2026-10-15T21:00:52.676756+00:00",
+                "issued_at": "2026-10-15T21:21:51.195014+00:00",
+                "valid_until": "2026-10-15T21:23:51.193858+00:00",
                 "nominal_window_seconds": 900,
                 "supported_window_seconds": 900,
                 "current_anchor": {
@@ -1620,7 +1620,7 @@
       },
       "status": {
         "id": 2,
-        "connection_id": "b2cfce677c0582354faea2b6b0d2e38c",
+        "connection_id": "69d081f84f29d082b3546d81373d372b",
         "type": "result",
         "success": true,
         "status": 200,
@@ -1628,10 +1628,10 @@
           "success": true,
           "operation_receipt": {
             "contract_version": 1,
-            "operation_id": "01a1415c-5599-7000-b86d-e1155e1b55ff",
-            "operation_epoch": "f438a14648afa9f80ea70414a594b83b",
+            "operation_id": "01a14171-5e78-7000-8e03-2ad5fc210556",
+            "operation_epoch": "651269b9d387c0bc84378cfdab94d94f",
             "phase": "confirmed",
-            "expires_at_ms": 1792098232697,
+            "expires_at_ms": 1792099611224,
             "result_available": false,
             "response_status": 200,
             "error": null
@@ -1647,8 +1647,8 @@
         "success": true,
         "contract_version": 1,
         "ha_install_id": "ha_owned_hybrid_fixture",
-        "operation_epoch": "f438a14648afa9f80ea70414a594b83b",
-        "server_time_ms": 1792097932757,
+        "operation_epoch": "651269b9d387c0bc84378cfdab94d94f",
+        "server_time_ms": 1792099311293,
         "operation_lifetime_ms": 300000,
         "requires_authenticated_tls": false,
         "action_operations": [
@@ -1687,7 +1687,7 @@
         "protocol_version": 1,
         "audience": "paired_owner_actions",
         "lease_seconds": 300,
-        "connection_id": "b3369a1805b1429d9e40eafb289d5fb2",
+        "connection_id": "5fe1963d51e322bf771a9339251d4ae9",
         "commands": [
           "djconnect/read",
           "djconnect/operation/execute",
@@ -1696,12 +1696,12 @@
       },
       "read": {
         "id": 1,
-        "connection_id": "b3369a1805b1429d9e40eafb289d5fb2",
+        "connection_id": "5fe1963d51e322bf771a9339251d4ae9",
         "type": "result",
         "result": {
           "success": true,
           "session": {
-            "session_id": "session-0c670b7976a54ed3b99901a109a0e109",
+            "session_id": "session-068c2260bd73439097e80a68fde34fa9",
             "owner_profile_id": "profile-a",
             "room": "",
             "selected_mood": "groove",
@@ -1709,8 +1709,8 @@
             "locale": "en",
             "music_backend": "spotify_direct",
             "runtime_state": "active",
-            "created_at": "2026-10-15T20:58:52.644262+00:00",
-            "started_at": "2026-10-15T20:58:52.647609+00:00",
+            "created_at": "2026-10-15T21:21:51.149309+00:00",
+            "started_at": "2026-10-15T21:21:51.155054+00:00",
             "session_start_strategy": "manual",
             "initial_session_mood": "groove",
             "mood_revision": 0,
@@ -1719,15 +1719,15 @@
             "interaction_profile": "balanced",
             "session_direction": {
               "direction": "maintaining_energy",
-              "initialized_at": "2026-10-15T20:58:52.644262+00:00",
-              "updated_at": "2026-10-15T20:58:52.644262+00:00",
+              "initialized_at": "2026-10-15T21:21:51.149309+00:00",
+              "updated_at": "2026-10-15T21:21:51.149309+00:00",
               "start_strategy": "manual"
             },
             "discover_personalization_available": false,
             "performance_memory": {
-              "source_flow_id": "flow-session-0c670b7976a54ed3b99901a109a0e109",
+              "source_flow_id": "flow-session-068c2260bd73439097e80a68fde34fa9",
               "recent_moment_ids": [
-                "moment-739798d9e30c405f9dcd540f2b2318e3"
+                "moment-3c94c272996348dd9c6705b49e082b02"
               ],
               "recent_moment_types": [
                 "track"
@@ -1746,8 +1746,8 @@
             "planner": {
               "planner_state": "ready",
               "planning_horizon_minutes": 15,
-              "created_at": "2026-10-15T20:58:52.644262+00:00",
-              "last_replan_at": "2026-10-15T20:58:52.668039+00:00",
+              "created_at": "2026-10-15T21:21:51.149309+00:00",
+              "last_replan_at": "2026-10-15T21:21:51.181189+00:00",
               "current_goal": "",
               "configuration": {
                 "minimum_time_between_moments_seconds": 60.0,
@@ -1761,10 +1761,10 @@
               "pending_events": [],
               "output": {
                 "session_flow": {
-                  "flow_id": "flow-session-0c670b7976a54ed3b99901a109a0e109",
+                  "flow_id": "flow-session-068c2260bd73439097e80a68fde34fa9",
                   "flow_revision": 1,
                   "planning_horizon_minutes": 15,
-                  "created_at": "2026-10-15T20:58:52.668039+00:00",
+                  "created_at": "2026-10-15T21:21:51.181189+00:00",
                   "items": [
                     {
                       "item_id": "now-current-track",
@@ -1797,11 +1797,11 @@
                       "label": "Future Placeholder"
                     },
                     {
-                      "item_id": "moment-moment-739798d9e30c405f9dcd540f2b2318e3",
+                      "item_id": "moment-moment-3c94c272996348dd9c6705b49e082b02",
                       "item_type": "dj_moment",
                       "position": "next",
                       "label": "Fixture work \u2014 Fixture artist",
-                      "moment_id": "moment-739798d9e30c405f9dcd540f2b2318e3",
+                      "moment_id": "moment-3c94c272996348dd9c6705b49e082b02",
                       "moment_type": "track"
                     }
                   ]
@@ -1810,7 +1810,7 @@
             },
             "broadcast": {
               "session": {
-                "session_id": "session-0c670b7976a54ed3b99901a109a0e109",
+                "session_id": "session-068c2260bd73439097e80a68fde34fa9",
                 "runtime_state": "active",
                 "selected_mood": "groove",
                 "mood_revision": 0,
@@ -1824,7 +1824,7 @@
                 "title": "Fixture work",
                 "artist": "Fixture artist",
                 "album": "Fixture album",
-                "updated_at": "2026-10-15T20:58:52.672311+00:00",
+                "updated_at": "2026-10-15T21:21:51.186998+00:00",
                 "duration_ms": 300000,
                 "position_ms": 1000,
                 "source_url": "https://open.spotify.com/track/1111111111111111111111"
@@ -1835,16 +1835,16 @@
                 "current_direction": "maintaining_energy",
                 "session_direction": {
                   "direction": "maintaining_energy",
-                  "initialized_at": "2026-10-15T20:58:52.644262+00:00",
-                  "updated_at": "2026-10-15T20:58:52.644262+00:00",
+                  "initialized_at": "2026-10-15T21:21:51.149309+00:00",
+                  "updated_at": "2026-10-15T21:21:51.149309+00:00",
                   "start_strategy": "manual"
                 }
               },
               "session_flow": {
-                "flow_id": "flow-session-0c670b7976a54ed3b99901a109a0e109",
+                "flow_id": "flow-session-068c2260bd73439097e80a68fde34fa9",
                 "flow_revision": 1,
                 "planning_horizon_minutes": 15,
-                "created_at": "2026-10-15T20:58:52.668039+00:00",
+                "created_at": "2026-10-15T21:21:51.181189+00:00",
                 "items": [
                   {
                     "item_id": "now-current-track",
@@ -1877,11 +1877,11 @@
                     "label": "Future Placeholder"
                   },
                   {
-                    "item_id": "moment-moment-739798d9e30c405f9dcd540f2b2318e3",
+                    "item_id": "moment-moment-3c94c272996348dd9c6705b49e082b02",
                     "item_type": "dj_moment",
                     "position": "next",
                     "label": "Fixture work \u2014 Fixture artist",
-                    "moment_id": "moment-739798d9e30c405f9dcd540f2b2318e3",
+                    "moment_id": "moment-3c94c272996348dd9c6705b49e082b02",
                     "moment_type": "track"
                   }
                 ]
@@ -1892,9 +1892,9 @@
               },
               "dj_moments": [
                 {
-                  "moment_id": "moment-739798d9e30c405f9dcd540f2b2318e3",
-                  "session_id": "session-0c670b7976a54ed3b99901a109a0e109",
-                  "created_at": "2026-10-15T20:58:52.666246+00:00",
+                  "moment_id": "moment-3c94c272996348dd9c6705b49e082b02",
+                  "session_id": "session-068c2260bd73439097e80a68fde34fa9",
+                  "created_at": "2026-10-15T21:21:51.179049+00:00",
                   "type": "track",
                   "knowledge_intent": {
                     "type": "track_context",
@@ -2006,8 +2006,8 @@
               ],
               "presentations": [
                 {
-                  "presentation_id": "presentation-moment-739798d9e30c405f9dcd540f2b2318e3",
-                  "source_moment_id": "moment-739798d9e30c405f9dcd540f2b2318e3",
+                  "presentation_id": "presentation-moment-3c94c272996348dd9c6705b49e082b02",
+                  "source_moment_id": "moment-3c94c272996348dd9c6705b49e082b02",
                   "source_moment_type": "track",
                   "visibility": "session_shared",
                   "speech": {
@@ -2023,17 +2023,17 @@
                 }
               ],
               "broadcast": {
-                "started_at": "2026-10-15T20:58:52.644262+00:00",
+                "started_at": "2026-10-15T21:21:51.149309+00:00",
                 "snapshot_watermark": 8
               },
               "native_delivery": {
                 "schema_version": 1,
-                "session_id": "session-0c670b7976a54ed3b99901a109a0e109",
+                "session_id": "session-068c2260bd73439097e80a68fde34fa9",
                 "current_moment_id": null,
                 "active_flow_moment_ids": [],
                 "admissions": [
                   {
-                    "moment_id": "moment-739798d9e30c405f9dcd540f2b2318e3",
+                    "moment_id": "moment-3c94c272996348dd9c6705b49e082b02",
                     "qualification": "unqualified",
                     "current_display_allowed": false,
                     "active_flow_display_allowed": false,
@@ -2044,15 +2044,15 @@
                   }
                 ],
                 "revocation_scope": "session",
-                "revision": "cc494f0274ad782377a6907e"
+                "revision": "5e6b7f27701e8252466b2131"
               },
               "session_forecast": {
                 "contract_version": 1,
-                "session_id": "session-0c670b7976a54ed3b99901a109a0e109",
+                "session_id": "session-068c2260bd73439097e80a68fde34fa9",
                 "revision": 1,
                 "state": "ready",
-                "issued_at": "2026-10-15T20:58:52.677512+00:00",
-                "valid_until": "2026-10-15T21:00:52.676756+00:00",
+                "issued_at": "2026-10-15T21:21:51.195014+00:00",
+                "valid_until": "2026-10-15T21:23:51.193858+00:00",
                 "nominal_window_seconds": 900,
                 "supported_window_seconds": 900,
                 "current_anchor": {
@@ -2091,7 +2091,7 @@
       },
       "status": {
         "id": 2,
-        "connection_id": "b3369a1805b1429d9e40eafb289d5fb2",
+        "connection_id": "5fe1963d51e322bf771a9339251d4ae9",
         "type": "result",
         "success": true,
         "status": 200,
@@ -2099,10 +2099,10 @@
           "success": true,
           "operation_receipt": {
             "contract_version": 1,
-            "operation_id": "01a1415c-5599-7000-b86d-e1155e1b55ff",
-            "operation_epoch": "f438a14648afa9f80ea70414a594b83b",
+            "operation_id": "01a14171-5e78-7000-8e03-2ad5fc210556",
+            "operation_epoch": "651269b9d387c0bc84378cfdab94d94f",
             "phase": "confirmed",
-            "expires_at_ms": 1792098232697,
+            "expires_at_ms": 1792099611224,
             "result_available": false,
             "response_status": 200,
             "error": null
@@ -2117,10 +2117,10 @@
         "success": true,
         "operation_receipt": {
           "contract_version": 1,
-          "operation_id": "01a1415c-5599-7000-b86d-e1155e1b55ff",
-          "operation_epoch": "f438a14648afa9f80ea70414a594b83b",
+          "operation_id": "01a14171-5e78-7000-8e03-2ad5fc210556",
+          "operation_epoch": "651269b9d387c0bc84378cfdab94d94f",
           "phase": "confirmed",
-          "expires_at_ms": 1792098232697,
+          "expires_at_ms": 1792099611224,
           "result_available": false,
           "response_status": 200,
           "error": null
@@ -2130,7 +2130,7 @@
     },
     {
       "case": "direct-local-original-broadcast-recovery",
-      "session_id": "session-0c670b7976a54ed3b99901a109a0e109"
+      "session_id": "session-068c2260bd73439097e80a68fde34fa9"
     },
     {
       "case": "qualification-withdrawal-closes-ws-and-fences-accepted-inflight-effect",
@@ -2163,8 +2163,8 @@
         "id": 2,
         "type": "djconnect/operation/execute",
         "contract_version": 1,
-        "operation_id": "01a1415c-56d0-7000-b5f7-a97127f39911",
-        "operation_epoch": "f438a14648afa9f80ea70414a594b83b",
+        "operation_id": "01a14171-5fdc-7000-becb-a0b396dc870d",
+        "operation_epoch": "651269b9d387c0bc84378cfdab94d94f",
         "operation": "command",
         "payload": {
           "command": "next"
@@ -2172,7 +2172,7 @@
       },
       "body": {
         "id": 2,
-        "connection_id": "3dee391d859b26a8099ab194da3eef1d",
+        "connection_id": "03292cb433d9342a9602aba7d6b75c09",
         "type": "result",
         "success": true,
         "status": 200,
@@ -2257,10 +2257,10 @@
           "music_backend_error": null,
           "operation_receipt": {
             "contract_version": 1,
-            "operation_id": "01a1415c-56d0-7000-b5f7-a97127f39911",
-            "operation_epoch": "f438a14648afa9f80ea70414a594b83b",
+            "operation_id": "01a14171-5fdc-7000-becb-a0b396dc870d",
+            "operation_epoch": "651269b9d387c0bc84378cfdab94d94f",
             "phase": "confirmed",
-            "expires_at_ms": 1792098233008,
+            "expires_at_ms": 1792099611580,
             "result_available": true,
             "response_status": 200,
             "error": null
@@ -2278,8 +2278,8 @@
           "client_type": "ios"
         },
         "contract_version": 1,
-        "operation_id": "01a1415c-56d0-7000-b5f7-a97127f39911",
-        "operation_epoch": "f438a14648afa9f80ea70414a594b83b",
+        "operation_id": "01a14171-5fdc-7000-becb-a0b396dc870d",
+        "operation_epoch": "651269b9d387c0bc84378cfdab94d94f",
         "operation": "command",
         "payload": {
           "command": "next"
@@ -2289,10 +2289,10 @@
         "success": true,
         "operation_receipt": {
           "contract_version": 1,
-          "operation_id": "01a1415c-56d0-7000-b5f7-a97127f39911",
-          "operation_epoch": "f438a14648afa9f80ea70414a594b83b",
+          "operation_id": "01a14171-5fdc-7000-becb-a0b396dc870d",
+          "operation_epoch": "651269b9d387c0bc84378cfdab94d94f",
           "phase": "confirmed",
-          "expires_at_ms": 1792098233008,
+          "expires_at_ms": 1792099611580,
           "result_available": false,
           "response_status": 200,
           "error": null
@@ -2306,10 +2306,10 @@
         "success": true,
         "operation_receipt": {
           "contract_version": 1,
-          "operation_id": "01a1415c-56d0-7000-b5f7-a97127f39911",
-          "operation_epoch": "f438a14648afa9f80ea70414a594b83b",
+          "operation_id": "01a14171-5fdc-7000-becb-a0b396dc870d",
+          "operation_epoch": "651269b9d387c0bc84378cfdab94d94f",
           "phase": "confirmed",
-          "expires_at_ms": 1792098233008,
+          "expires_at_ms": 1792099611580,
           "result_available": false,
           "response_status": 200,
           "error": null
@@ -2327,8 +2327,8 @@
           "client_type": "ios"
         },
         "contract_version": 1,
-        "operation_id": "01a1415c-56d0-7000-b5f7-a97127f39911",
-        "operation_epoch": "f438a14648afa9f80ea70414a594b83b",
+        "operation_id": "01a14171-5fdc-7000-becb-a0b396dc870d",
+        "operation_epoch": "651269b9d387c0bc84378cfdab94d94f",
         "operation": "command",
         "payload": {
           "command": "previous"
@@ -2348,8 +2348,8 @@
           "client_type": "ios"
         },
         "contract_version": 1,
-        "operation_id": "01a1415c-56d6-7000-a753-8f16e0e463b0",
-        "operation_epoch": "f438a14648afa9f80ea70414a594b83b",
+        "operation_id": "01a14171-5fe5-7000-acf3-324baaa4277f",
+        "operation_epoch": "651269b9d387c0bc84378cfdab94d94f",
         "operation": "command",
         "payload": {
           "command": "next"
@@ -2436,10 +2436,10 @@
         "music_backend_error": null,
         "operation_receipt": {
           "contract_version": 1,
-          "operation_id": "01a1415c-56d6-7000-a753-8f16e0e463b0",
-          "operation_epoch": "f438a14648afa9f80ea70414a594b83b",
+          "operation_id": "01a14171-5fe5-7000-acf3-324baaa4277f",
+          "operation_epoch": "651269b9d387c0bc84378cfdab94d94f",
           "phase": "confirmed",
-          "expires_at_ms": 1792098233014,
+          "expires_at_ms": 1792099611589,
           "result_available": true,
           "response_status": 200,
           "error": null
@@ -2460,35 +2460,35 @@
         "id": 7,
         "type": "djconnect/operation/execute",
         "contract_version": 1,
-        "operation_id": "01a1415c-56db-7000-a307-1f11ea81fecc",
-        "operation_epoch": "f438a14648afa9f80ea70414a594b83b",
+        "operation_id": "01a14171-5fe9-7000-a3c3-bf6343faa568",
+        "operation_epoch": "651269b9d387c0bc84378cfdab94d94f",
         "operation": "session/mood",
         "payload": {
           "contract_version": 1,
-          "session_id": "session-0c670b7976a54ed3b99901a109a0e109",
+          "session_id": "session-068c2260bd73439097e80a68fde34fa9",
           "selected_mood": "energy",
           "expected_mood_revision": 0
         }
       },
       "body": {
         "id": 7,
-        "connection_id": "3dee391d859b26a8099ab194da3eef1d",
+        "connection_id": "03292cb433d9342a9602aba7d6b75c09",
         "type": "result",
         "success": true,
         "status": 200,
         "result": {
           "success": true,
           "contract_version": 1,
-          "session_id": "session-0c670b7976a54ed3b99901a109a0e109",
+          "session_id": "session-068c2260bd73439097e80a68fde34fa9",
           "selected_mood": "energy",
           "mood_revision": 1,
           "changed": true,
           "operation_receipt": {
             "contract_version": 1,
-            "operation_id": "01a1415c-56db-7000-a307-1f11ea81fecc",
-            "operation_epoch": "f438a14648afa9f80ea70414a594b83b",
+            "operation_id": "01a14171-5fe9-7000-a3c3-bf6343faa568",
+            "operation_epoch": "651269b9d387c0bc84378cfdab94d94f",
             "phase": "confirmed",
-            "expires_at_ms": 1792098233019,
+            "expires_at_ms": 1792099611593,
             "result_available": true,
             "response_status": 200,
             "error": null
@@ -2506,12 +2506,12 @@
           "client_type": "ios"
         },
         "contract_version": 1,
-        "operation_id": "01a1415c-56db-7000-a307-1f11ea81fecc",
-        "operation_epoch": "f438a14648afa9f80ea70414a594b83b",
+        "operation_id": "01a14171-5fe9-7000-a3c3-bf6343faa568",
+        "operation_epoch": "651269b9d387c0bc84378cfdab94d94f",
         "operation": "session/mood",
         "payload": {
           "contract_version": 1,
-          "session_id": "session-0c670b7976a54ed3b99901a109a0e109",
+          "session_id": "session-068c2260bd73439097e80a68fde34fa9",
           "selected_mood": "energy",
           "expected_mood_revision": 0
         }
@@ -2520,10 +2520,10 @@
         "success": true,
         "operation_receipt": {
           "contract_version": 1,
-          "operation_id": "01a1415c-56db-7000-a307-1f11ea81fecc",
-          "operation_epoch": "f438a14648afa9f80ea70414a594b83b",
+          "operation_id": "01a14171-5fe9-7000-a3c3-bf6343faa568",
+          "operation_epoch": "651269b9d387c0bc84378cfdab94d94f",
           "phase": "confirmed",
-          "expires_at_ms": 1792098233019,
+          "expires_at_ms": 1792099611593,
           "result_available": false,
           "response_status": 200,
           "error": null
@@ -2537,19 +2537,19 @@
         "id": 8,
         "type": "djconnect/operation/execute",
         "contract_version": 1,
-        "operation_id": "01a1415c-56de-7000-a3b1-902ca34075bd",
-        "operation_epoch": "f438a14648afa9f80ea70414a594b83b",
+        "operation_id": "01a14171-5fef-7000-8c90-2c43954422ef",
+        "operation_epoch": "651269b9d387c0bc84378cfdab94d94f",
         "operation": "session/mood",
         "payload": {
           "contract_version": 1,
-          "session_id": "session-0c670b7976a54ed3b99901a109a0e109",
+          "session_id": "session-068c2260bd73439097e80a68fde34fa9",
           "selected_mood": "party",
           "expected_mood_revision": 0
         }
       },
       "body": {
         "id": 8,
-        "connection_id": "3dee391d859b26a8099ab194da3eef1d",
+        "connection_id": "03292cb433d9342a9602aba7d6b75c09",
         "type": "result",
         "success": false,
         "status": 409,
@@ -2557,10 +2557,10 @@
           "success": false,
           "operation_receipt": {
             "contract_version": 1,
-            "operation_id": "01a1415c-56de-7000-a3b1-902ca34075bd",
-            "operation_epoch": "f438a14648afa9f80ea70414a594b83b",
+            "operation_id": "01a14171-5fef-7000-8c90-2c43954422ef",
+            "operation_epoch": "651269b9d387c0bc84378cfdab94d94f",
             "phase": "rejected",
-            "expires_at_ms": 1792098233022,
+            "expires_at_ms": 1792099611599,
             "result_available": false,
             "response_status": 409,
             "error": "mood_revision_conflict"
@@ -2579,17 +2579,17 @@
           "client_type": "ios"
         },
         "contract_version": 1,
-        "operation_id": "01a1415c-56de-7000-a3b1-902ca34075bd",
-        "operation_epoch": "f438a14648afa9f80ea70414a594b83b"
+        "operation_id": "01a14171-5fef-7000-8c90-2c43954422ef",
+        "operation_epoch": "651269b9d387c0bc84378cfdab94d94f"
       },
       "body": {
         "success": false,
         "operation_receipt": {
           "contract_version": 1,
-          "operation_id": "01a1415c-56de-7000-a3b1-902ca34075bd",
-          "operation_epoch": "f438a14648afa9f80ea70414a594b83b",
+          "operation_id": "01a14171-5fef-7000-8c90-2c43954422ef",
+          "operation_epoch": "651269b9d387c0bc84378cfdab94d94f",
           "phase": "rejected",
-          "expires_at_ms": 1792098233022,
+          "expires_at_ms": 1792099611599,
           "result_available": false,
           "response_status": 409,
           "error": "mood_revision_conflict"
@@ -2604,35 +2604,35 @@
         "id": 9,
         "type": "djconnect/operation/execute",
         "contract_version": 1,
-        "operation_id": "01a1415c-56e0-7000-828f-16562bf503a5",
-        "operation_epoch": "f438a14648afa9f80ea70414a594b83b",
+        "operation_id": "01a14171-5ff5-7000-a04b-e60b02db858d",
+        "operation_epoch": "651269b9d387c0bc84378cfdab94d94f",
         "operation": "session/presence",
         "payload": {
           "contract_version": 1,
-          "session_id": "session-0c670b7976a54ed3b99901a109a0e109",
+          "session_id": "session-068c2260bd73439097e80a68fde34fa9",
           "selected_presence": "occasional",
           "expected_presence_revision": 0
         }
       },
       "body": {
         "id": 9,
-        "connection_id": "3dee391d859b26a8099ab194da3eef1d",
+        "connection_id": "03292cb433d9342a9602aba7d6b75c09",
         "type": "result",
         "success": true,
         "status": 200,
         "result": {
           "success": true,
           "contract_version": 1,
-          "session_id": "session-0c670b7976a54ed3b99901a109a0e109",
+          "session_id": "session-068c2260bd73439097e80a68fde34fa9",
           "selected_presence": "occasional",
           "presence_revision": 1,
           "changed": true,
           "operation_receipt": {
             "contract_version": 1,
-            "operation_id": "01a1415c-56e0-7000-828f-16562bf503a5",
-            "operation_epoch": "f438a14648afa9f80ea70414a594b83b",
+            "operation_id": "01a14171-5ff5-7000-a04b-e60b02db858d",
+            "operation_epoch": "651269b9d387c0bc84378cfdab94d94f",
             "phase": "confirmed",
-            "expires_at_ms": 1792098233024,
+            "expires_at_ms": 1792099611605,
             "result_available": true,
             "response_status": 200,
             "error": null
@@ -2650,12 +2650,12 @@
           "client_type": "ios"
         },
         "contract_version": 1,
-        "operation_id": "01a1415c-56e4-7000-9755-42bec34d955f",
-        "operation_epoch": "f438a14648afa9f80ea70414a594b83b",
+        "operation_id": "01a14171-5ffe-7000-a974-f9b529ca127b",
+        "operation_epoch": "651269b9d387c0bc84378cfdab94d94f",
         "operation": "session/presence",
         "payload": {
           "contract_version": 1,
-          "session_id": "session-0c670b7976a54ed3b99901a109a0e109",
+          "session_id": "session-068c2260bd73439097e80a68fde34fa9",
           "selected_presence": "balanced",
           "expected_presence_revision": 1
         }
@@ -2663,16 +2663,16 @@
       "body": {
         "success": true,
         "contract_version": 1,
-        "session_id": "session-0c670b7976a54ed3b99901a109a0e109",
+        "session_id": "session-068c2260bd73439097e80a68fde34fa9",
         "selected_presence": "balanced",
         "presence_revision": 2,
         "changed": true,
         "operation_receipt": {
           "contract_version": 1,
-          "operation_id": "01a1415c-56e4-7000-9755-42bec34d955f",
-          "operation_epoch": "f438a14648afa9f80ea70414a594b83b",
+          "operation_id": "01a14171-5ffe-7000-a974-f9b529ca127b",
+          "operation_epoch": "651269b9d387c0bc84378cfdab94d94f",
           "phase": "confirmed",
-          "expires_at_ms": 1792098233028,
+          "expires_at_ms": 1792099611614,
           "result_available": true,
           "response_status": 200,
           "error": null
@@ -2686,8 +2686,8 @@
         "id": 10,
         "type": "djconnect/operation/execute",
         "contract_version": 1,
-        "operation_id": "01a1415c-56e6-7000-837c-19421b70ebc3",
-        "operation_epoch": "f438a14648afa9f80ea70414a594b83b",
+        "operation_id": "01a14171-6001-7000-9ad7-00830a787058",
+        "operation_epoch": "651269b9d387c0bc84378cfdab94d94f",
         "operation": "ask_dj/message",
         "payload": {
           "text": "help",
@@ -2698,7 +2698,7 @@
       },
       "body": {
         "id": 10,
-        "connection_id": "3dee391d859b26a8099ab194da3eef1d",
+        "connection_id": "03292cb433d9342a9602aba7d6b75c09",
         "type": "result",
         "success": true,
         "status": 200,
@@ -2722,12 +2722,12 @@
           "action": "none",
           "music_dna_key": "profile:profile-a",
           "assistant_message": {
-            "id": "server-31fab8b1-628a-4198-9f79-1146f5173d9e",
+            "id": "server-eed2a747-481d-433b-a354-9a37eb4a6d5f",
             "client_message_id": "hybrid-owned-help-1",
             "role": "assistant",
             "message_kind": "assistant",
             "text": "# Things you can ask Ask DJ\n\n## Start music\n- Play [artist]\n- I want to hear [song]\n- Play [song] by [artist]\n- Put on a [genre] playlist\n- Play something for cooking\n\n## Play Now choices\n- Show me albums by [artist]\n- Which albums did [artist] release?\n- Give me 5 songs by [artist]\n- Give me 10 versions of [song] by different artists\n- Find artists similar to [artist]\n- Which playlists are there for [genre]?\n- Which playlists do I have?\n- Make a mix based on [artist], [artist] and [artist]\n\n## Speakers and playback\n- Which speakers are available?\n- Switch speaker\n- What is playing on?\n- Pause\n- Resume\n- Next song\n- Previous song\n- What is in the queue?\n- Louder\n- Softer\n- Shuffle on\n- Repeat off\n\n## DJ context\n- What is playing now?\n- Why did you choose this song?\n- Tell me about this artist\n- Do you have a live version?\n- Do you have an acoustic version?\n- Give a DJ intro for this song\n- Analyze this song\n- What genre is this?\n\n## Discover and Music DNA\n- What is new in Discover?\n- Refresh my Discover recommendations\n- What does my Music DNA say?\n- Which Discover recommendations fit me best?\n- Why does this recommendation fit my taste?\n\n## Personal taste\n- What do you know about me?\n- Analyze my listening profile\n- What did I listen to this month?\n- Give personal music recommendations\n- Which artists fit my taste?\n- I want more music like this\n\n## Follow-ups\n- Try again\n- Play it\n- I want to hear [song]\n- No, I mean the live version\n- Only from the 90s\n- Make this a playlist\n\n## Good to know\n- Ask DJ only starts music directly for clear playback requests.\n- For lists, albums, recommendations and speakers you get buttons such as Play Now or Activate.",
-            "created_at": "2026-10-15T20:58:53.119149Z",
+            "created_at": "2026-10-15T21:21:51.724738Z",
             "client_id": "djconnect-ios-ABCDEF123456",
             "client_type": "ios",
             "status": "delivered",
@@ -2762,11 +2762,11 @@
           },
           "user_id": null,
           "user_message": {
-            "id": "server-15d110f8-c4ae-4c51-9fb0-159afa36ec6b",
+            "id": "server-c43da21e-dd43-4e88-ac55-fbb3285183f9",
             "client_message_id": "hybrid-owned-help-1",
             "role": "user",
             "text": "help",
-            "created_at": "2026-10-15T20:58:53.119011Z",
+            "created_at": "2026-10-15T21:21:51.724611Z",
             "client_id": "djconnect-ios-ABCDEF123456",
             "client_type": "ios",
             "status": "delivered",
@@ -2792,11 +2792,11 @@
           },
           "messages": [
             {
-              "id": "server-15d110f8-c4ae-4c51-9fb0-159afa36ec6b",
+              "id": "server-c43da21e-dd43-4e88-ac55-fbb3285183f9",
               "client_message_id": "hybrid-owned-help-1",
               "role": "user",
               "text": "help",
-              "created_at": "2026-10-15T20:58:53.119011Z",
+              "created_at": "2026-10-15T21:21:51.724611Z",
               "client_id": "djconnect-ios-ABCDEF123456",
               "client_type": "ios",
               "status": "delivered",
@@ -2821,12 +2821,12 @@
               "exchange_order": 0
             },
             {
-              "id": "server-31fab8b1-628a-4198-9f79-1146f5173d9e",
+              "id": "server-eed2a747-481d-433b-a354-9a37eb4a6d5f",
               "client_message_id": "hybrid-owned-help-1",
               "role": "assistant",
               "message_kind": "assistant",
               "text": "# Things you can ask Ask DJ\n\n## Start music\n- Play [artist]\n- I want to hear [song]\n- Play [song] by [artist]\n- Put on a [genre] playlist\n- Play something for cooking\n\n## Play Now choices\n- Show me albums by [artist]\n- Which albums did [artist] release?\n- Give me 5 songs by [artist]\n- Give me 10 versions of [song] by different artists\n- Find artists similar to [artist]\n- Which playlists are there for [genre]?\n- Which playlists do I have?\n- Make a mix based on [artist], [artist] and [artist]\n\n## Speakers and playback\n- Which speakers are available?\n- Switch speaker\n- What is playing on?\n- Pause\n- Resume\n- Next song\n- Previous song\n- What is in the queue?\n- Louder\n- Softer\n- Shuffle on\n- Repeat off\n\n## DJ context\n- What is playing now?\n- Why did you choose this song?\n- Tell me about this artist\n- Do you have a live version?\n- Do you have an acoustic version?\n- Give a DJ intro for this song\n- Analyze this song\n- What genre is this?\n\n## Discover and Music DNA\n- What is new in Discover?\n- Refresh my Discover recommendations\n- What does my Music DNA say?\n- Which Discover recommendations fit me best?\n- Why does this recommendation fit my taste?\n\n## Personal taste\n- What do you know about me?\n- Analyze my listening profile\n- What did I listen to this month?\n- Give personal music recommendations\n- Which artists fit my taste?\n- I want more music like this\n\n## Follow-ups\n- Try again\n- Play it\n- I want to hear [song]\n- No, I mean the live version\n- Only from the 90s\n- Make this a playlist\n\n## Good to know\n- Ask DJ only starts music directly for clear playback requests.\n- For lists, albums, recommendations and speakers you get buttons such as Play Now or Activate.",
-              "created_at": "2026-10-15T20:58:53.119149Z",
+              "created_at": "2026-10-15T21:21:51.724738Z",
               "client_id": "djconnect-ios-ABCDEF123456",
               "client_type": "ios",
               "status": "delivered",
@@ -2865,7 +2865,7 @@
           "history_limit": 1000,
           "history_trimmed_before": null,
           "history_trimmed_count": 0,
-          "server_time": "2026-10-15T20:58:53.120048Z",
+          "server_time": "2026-10-15T21:21:51.725561Z",
           "media_delivery_basis": "current_response_only",
           "owner_profile_id": "profile-a",
           "client_message_id": "hybrid-owned-help-1",
@@ -2893,10 +2893,10 @@
           },
           "operation_receipt": {
             "contract_version": 1,
-            "operation_id": "01a1415c-56e6-7000-837c-19421b70ebc3",
-            "operation_epoch": "f438a14648afa9f80ea70414a594b83b",
+            "operation_id": "01a14171-6001-7000-9ad7-00830a787058",
+            "operation_epoch": "651269b9d387c0bc84378cfdab94d94f",
             "phase": "confirmed",
-            "expires_at_ms": 1792098233030,
+            "expires_at_ms": 1792099611617,
             "result_available": true,
             "response_status": 200,
             "error": null
@@ -2914,8 +2914,8 @@
           "client_type": "ios"
         },
         "contract_version": 1,
-        "operation_id": "01a1415c-56e6-7000-837c-19421b70ebc3",
-        "operation_epoch": "f438a14648afa9f80ea70414a594b83b",
+        "operation_id": "01a14171-6001-7000-9ad7-00830a787058",
+        "operation_epoch": "651269b9d387c0bc84378cfdab94d94f",
         "operation": "ask_dj/message",
         "payload": {
           "text": "help",
@@ -2928,10 +2928,10 @@
         "success": true,
         "operation_receipt": {
           "contract_version": 1,
-          "operation_id": "01a1415c-56e6-7000-837c-19421b70ebc3",
-          "operation_epoch": "f438a14648afa9f80ea70414a594b83b",
+          "operation_id": "01a14171-6001-7000-9ad7-00830a787058",
+          "operation_epoch": "651269b9d387c0bc84378cfdab94d94f",
           "phase": "confirmed",
-          "expires_at_ms": 1792098233030,
+          "expires_at_ms": 1792099611617,
           "result_available": false,
           "response_status": 200,
           "error": null
@@ -2945,8 +2945,8 @@
         "id": 11,
         "type": "djconnect/operation/execute",
         "contract_version": 1,
-        "operation_id": "01a1415c-5742-7000-8eb4-c7ac0085e672",
-        "operation_epoch": "f438a14648afa9f80ea70414a594b83b",
+        "operation_id": "01a14171-606f-7000-b96d-fa745979ebc3",
+        "operation_epoch": "651269b9d387c0bc84378cfdab94d94f",
         "operation": "track_insight",
         "payload": {
           "title": "Fixture work",
@@ -2956,13 +2956,13 @@
       },
       "body": {
         "id": 11,
-        "connection_id": "3dee391d859b26a8099ab194da3eef1d",
+        "connection_id": "03292cb433d9342a9602aba7d6b75c09",
         "type": "result",
         "success": true,
         "status": 200,
         "result": {
           "id": "track_insight_3edc15c15520501bb7b47366",
-          "created_at": "2026-10-15T20:58:53.123105+00:00",
+          "created_at": "2026-10-15T21:21:51.729369+00:00",
           "source": "http",
           "language": "en",
           "mood_context": null,
@@ -3023,10 +3023,10 @@
           },
           "operation_receipt": {
             "contract_version": 1,
-            "operation_id": "01a1415c-5742-7000-8eb4-c7ac0085e672",
-            "operation_epoch": "f438a14648afa9f80ea70414a594b83b",
+            "operation_id": "01a14171-606f-7000-b96d-fa745979ebc3",
+            "operation_epoch": "651269b9d387c0bc84378cfdab94d94f",
             "phase": "confirmed",
-            "expires_at_ms": 1792098233122,
+            "expires_at_ms": 1792099611727,
             "result_available": true,
             "response_status": 200,
             "error": null
@@ -3039,19 +3039,19 @@
       "case": "actual-wss-forecast-after-mood",
       "body": {
         "id": 12,
-        "connection_id": "3dee391d859b26a8099ab194da3eef1d",
+        "connection_id": "03292cb433d9342a9602aba7d6b75c09",
         "type": "result",
         "result": {
           "success": true,
           "contract_version": 1,
-          "session_id": "session-0c670b7976a54ed3b99901a109a0e109",
+          "session_id": "session-068c2260bd73439097e80a68fde34fa9",
           "forecast": {
             "contract_version": 1,
-            "session_id": "session-0c670b7976a54ed3b99901a109a0e109",
+            "session_id": "session-068c2260bd73439097e80a68fde34fa9",
             "revision": 2,
             "state": "ready",
-            "issued_at": "2026-10-15T20:58:53.021173+00:00",
-            "valid_until": "2026-10-15T21:00:52.676756+00:00",
+            "issued_at": "2026-10-15T21:21:51.596292+00:00",
+            "valid_until": "2026-10-15T21:23:51.193858+00:00",
             "nominal_window_seconds": 900,
             "supported_window_seconds": 900,
             "current_anchor": {
@@ -3096,16 +3096,16 @@
           "device_id": "djconnect-ios-ABCDEF123456",
           "client_type": "ios"
         },
-        "session_id": "session-0c670b7976a54ed3b99901a109a0e109",
-        "recovery_cursor": "31sg1F2ek5yJNCs2yYnepjShaRg7-d21SEpFPgkUYVY"
+        "session_id": "session-068c2260bd73439097e80a68fde34fa9",
+        "recovery_cursor": "4_E_ZgXOvEqg3GnfEFSvCeq1-hJmb3hyuyeqXGi2gZg"
       },
       "body": {
         "success": true,
-        "session_id": "session-0c670b7976a54ed3b99901a109a0e109",
+        "session_id": "session-068c2260bd73439097e80a68fde34fa9",
         "recovery": "snapshot_required",
         "snapshot": {
           "session": {
-            "session_id": "session-0c670b7976a54ed3b99901a109a0e109",
+            "session_id": "session-068c2260bd73439097e80a68fde34fa9",
             "runtime_state": "active",
             "selected_mood": "energy",
             "mood_revision": 1,
@@ -3119,7 +3119,7 @@
             "title": "Fixture work",
             "artist": "Fixture artist",
             "album": "Fixture album",
-            "updated_at": "2026-10-15T20:58:52.672311+00:00",
+            "updated_at": "2026-10-15T21:21:51.186998+00:00",
             "duration_ms": 300000,
             "position_ms": 1000,
             "source_url": "https://open.spotify.com/track/1111111111111111111111"
@@ -3130,16 +3130,16 @@
             "current_direction": "maintaining_energy",
             "session_direction": {
               "direction": "maintaining_energy",
-              "initialized_at": "2026-10-15T20:58:52.644262+00:00",
-              "updated_at": "2026-10-15T20:58:52.644262+00:00",
+              "initialized_at": "2026-10-15T21:21:51.149309+00:00",
+              "updated_at": "2026-10-15T21:21:51.149309+00:00",
               "start_strategy": "manual"
             }
           },
           "session_flow": {
-            "flow_id": "flow-session-0c670b7976a54ed3b99901a109a0e109",
+            "flow_id": "flow-session-068c2260bd73439097e80a68fde34fa9",
             "flow_revision": 1,
             "planning_horizon_minutes": 15,
-            "created_at": "2026-10-15T20:58:52.668039+00:00",
+            "created_at": "2026-10-15T21:21:51.181189+00:00",
             "items": [
               {
                 "item_id": "now-current-track",
@@ -3172,11 +3172,11 @@
                 "label": "Future Placeholder"
               },
               {
-                "item_id": "moment-moment-739798d9e30c405f9dcd540f2b2318e3",
+                "item_id": "moment-moment-3c94c272996348dd9c6705b49e082b02",
                 "item_type": "dj_moment",
                 "position": "next",
                 "label": "Fixture work \u2014 Fixture artist",
-                "moment_id": "moment-739798d9e30c405f9dcd540f2b2318e3",
+                "moment_id": "moment-3c94c272996348dd9c6705b49e082b02",
                 "moment_type": "track"
               }
             ]
@@ -3187,9 +3187,9 @@
           },
           "dj_moments": [
             {
-              "moment_id": "moment-739798d9e30c405f9dcd540f2b2318e3",
-              "session_id": "session-0c670b7976a54ed3b99901a109a0e109",
-              "created_at": "2026-10-15T20:58:52.666246+00:00",
+              "moment_id": "moment-3c94c272996348dd9c6705b49e082b02",
+              "session_id": "session-068c2260bd73439097e80a68fde34fa9",
+              "created_at": "2026-10-15T21:21:51.179049+00:00",
               "type": "track",
               "knowledge_intent": {
                 "type": "track_context",
@@ -3301,8 +3301,8 @@
           ],
           "presentations": [
             {
-              "presentation_id": "presentation-moment-739798d9e30c405f9dcd540f2b2318e3",
-              "source_moment_id": "moment-739798d9e30c405f9dcd540f2b2318e3",
+              "presentation_id": "presentation-moment-3c94c272996348dd9c6705b49e082b02",
+              "source_moment_id": "moment-3c94c272996348dd9c6705b49e082b02",
               "source_moment_type": "track",
               "visibility": "session_shared",
               "speech": {
@@ -3318,17 +3318,17 @@
             }
           ],
           "broadcast": {
-            "started_at": "2026-10-15T20:58:52.644262+00:00",
+            "started_at": "2026-10-15T21:21:51.149309+00:00",
             "snapshot_watermark": 12
           },
           "native_delivery": {
             "schema_version": 1,
-            "session_id": "session-0c670b7976a54ed3b99901a109a0e109",
+            "session_id": "session-068c2260bd73439097e80a68fde34fa9",
             "current_moment_id": null,
             "active_flow_moment_ids": [],
             "admissions": [
               {
-                "moment_id": "moment-739798d9e30c405f9dcd540f2b2318e3",
+                "moment_id": "moment-3c94c272996348dd9c6705b49e082b02",
                 "qualification": "unqualified",
                 "current_display_allowed": false,
                 "active_flow_display_allowed": false,
@@ -3339,15 +3339,15 @@
               }
             ],
             "revocation_scope": "session",
-            "revision": "cc494f0274ad782377a6907e"
+            "revision": "5e6b7f27701e8252466b2131"
           },
           "session_forecast": {
             "contract_version": 1,
-            "session_id": "session-0c670b7976a54ed3b99901a109a0e109",
+            "session_id": "session-068c2260bd73439097e80a68fde34fa9",
             "revision": 2,
             "state": "ready",
-            "issued_at": "2026-10-15T20:58:53.021173+00:00",
-            "valid_until": "2026-10-15T21:00:52.676756+00:00",
+            "issued_at": "2026-10-15T21:21:51.596292+00:00",
+            "valid_until": "2026-10-15T21:23:51.193858+00:00",
             "nominal_window_seconds": 900,
             "supported_window_seconds": 900,
             "current_anchor": {
@@ -3379,7 +3379,7 @@
             "imagery": []
           }
         },
-        "recovery_cursor": "MhM-wPW7o3-dMjbMJS5FqX44VhvDg69wSHlfO8F-yiw"
+        "recovery_cursor": "oa2XnEo4VVP2J6DSR9Y9g4u3TG08tLulnoJVtfiHDYk"
       }
     },
     {
@@ -3388,8 +3388,8 @@
         "id": 14,
         "type": "djconnect/operation/execute",
         "contract_version": 1,
-        "operation_id": "01a1415c-5746-7000-8c0f-b35185796f73",
-        "operation_epoch": "f438a14648afa9f80ea70414a594b83b",
+        "operation_id": "01a14171-6075-7000-a01c-920a8f934bc5",
+        "operation_epoch": "651269b9d387c0bc84378cfdab94d94f",
         "operation": "command",
         "payload": {
           "command": "queue"
@@ -3397,17 +3397,17 @@
       },
       "body": {
         "id": 14,
-        "connection_id": "3dee391d859b26a8099ab194da3eef1d",
+        "connection_id": "03292cb433d9342a9602aba7d6b75c09",
         "type": "result",
         "success": true,
         "status": 200,
         "result": {
           "operation_receipt": {
             "contract_version": 1,
-            "operation_id": "01a1415c-5746-7000-8c0f-b35185796f73",
-            "operation_epoch": "f438a14648afa9f80ea70414a594b83b",
+            "operation_id": "01a14171-6075-7000-a01c-920a8f934bc5",
+            "operation_epoch": "651269b9d387c0bc84378cfdab94d94f",
             "phase": "confirmed",
-            "expires_at_ms": 1792098233126,
+            "expires_at_ms": 1792099611733,
             "result_available": false,
             "response_status": 200,
             "error": null
@@ -3425,8 +3425,8 @@
           "client_type": "ios"
         },
         "contract_version": 1,
-        "operation_id": "01a1415c-5746-7000-8c0f-b35185796f73",
-        "operation_epoch": "f438a14648afa9f80ea70414a594b83b",
+        "operation_id": "01a14171-6075-7000-a01c-920a8f934bc5",
+        "operation_epoch": "651269b9d387c0bc84378cfdab94d94f",
         "operation": "command",
         "payload": {
           "command": "queue"
@@ -3436,10 +3436,10 @@
         "success": true,
         "operation_receipt": {
           "contract_version": 1,
-          "operation_id": "01a1415c-5746-7000-8c0f-b35185796f73",
-          "operation_epoch": "f438a14648afa9f80ea70414a594b83b",
+          "operation_id": "01a14171-6075-7000-a01c-920a8f934bc5",
+          "operation_epoch": "651269b9d387c0bc84378cfdab94d94f",
           "phase": "confirmed",
-          "expires_at_ms": 1792098233126,
+          "expires_at_ms": 1792099611733,
           "result_available": false,
           "response_status": 200,
           "error": null
@@ -3453,8 +3453,8 @@
         "id": 13,
         "type": "djconnect/operation/execute",
         "contract_version": 1,
-        "operation_id": "01a1415c-574a-7000-b710-754f7bd0b8a4",
-        "operation_epoch": "f438a14648afa9f80ea70414a594b83b",
+        "operation_id": "01a14171-607a-7000-ad1c-84074d4b2a78",
+        "operation_epoch": "651269b9d387c0bc84378cfdab94d94f",
         "operation": "command",
         "payload": {
           "command": "devices"
@@ -3462,7 +3462,7 @@
       },
       "body": {
         "id": 13,
-        "connection_id": "3dee391d859b26a8099ab194da3eef1d",
+        "connection_id": "03292cb433d9342a9602aba7d6b75c09",
         "type": "result",
         "success": true,
         "status": 200,
@@ -3477,8 +3477,8 @@
               "volume_percent": null,
               "is_active": true,
               "cached": false,
-              "first_seen_at": 1792097933.130927,
-              "last_seen_at": 1792097933.130927,
+              "first_seen_at": 1792099311.7398996,
+              "last_seen_at": 1792099311.7398996,
               "source": "spotify",
               "provider": "spotify"
             }
@@ -3523,10 +3523,10 @@
           "music_backend_error": null,
           "operation_receipt": {
             "contract_version": 1,
-            "operation_id": "01a1415c-574a-7000-b710-754f7bd0b8a4",
-            "operation_epoch": "f438a14648afa9f80ea70414a594b83b",
+            "operation_id": "01a14171-607a-7000-ad1c-84074d4b2a78",
+            "operation_epoch": "651269b9d387c0bc84378cfdab94d94f",
             "phase": "confirmed",
-            "expires_at_ms": 1792098233130,
+            "expires_at_ms": 1792099611738,
             "result_available": true,
             "response_status": 200,
             "error": null
@@ -3544,8 +3544,8 @@
           "client_type": "ios"
         },
         "contract_version": 1,
-        "operation_id": "01a1415c-574c-7000-b176-0832695fc84b",
-        "operation_epoch": "f438a14648afa9f80ea70414a594b83b",
+        "operation_id": "01a14171-607e-7000-b569-f57766042116",
+        "operation_epoch": "651269b9d387c0bc84378cfdab94d94f",
         "operation": "command",
         "payload": {
           "command": "devices"
@@ -3562,8 +3562,8 @@
             "volume_percent": null,
             "is_active": true,
             "cached": false,
-            "first_seen_at": 1792097933.130927,
-            "last_seen_at": 1792097933.1331518,
+            "first_seen_at": 1792099311.7398996,
+            "last_seen_at": 1792099311.7431464,
             "source": "spotify",
             "provider": "spotify"
           }
@@ -3608,10 +3608,10 @@
         "music_backend_error": null,
         "operation_receipt": {
           "contract_version": 1,
-          "operation_id": "01a1415c-574c-7000-b176-0832695fc84b",
-          "operation_epoch": "f438a14648afa9f80ea70414a594b83b",
+          "operation_id": "01a14171-607e-7000-b569-f57766042116",
+          "operation_epoch": "651269b9d387c0bc84378cfdab94d94f",
           "phase": "confirmed",
-          "expires_at_ms": 1792098233132,
+          "expires_at_ms": 1792099611742,
           "result_available": true,
           "response_status": 200,
           "error": null
@@ -3623,7 +3623,7 @@
       "case": "closed-read-policy",
       "body": {
         "id": 6,
-        "connection_id": "3dee391d859b26a8099ab194da3eef1d",
+        "connection_id": "03292cb433d9342a9602aba7d6b75c09",
         "type": "result",
         "success": false,
         "status": 400,
@@ -3648,7 +3648,7 @@
       "case": "replacement-socket-original-id-status",
       "body": {
         "id": 1,
-        "connection_id": "801df28e68aefe5660ceb3de4526de32",
+        "connection_id": "1c33c56820965daf37ca7c910d573ec8",
         "type": "result",
         "success": true,
         "status": 202,
@@ -3656,10 +3656,10 @@
           "success": true,
           "operation_receipt": {
             "contract_version": 1,
-            "operation_id": "01a1415c-574f-7000-86c5-890498619c72",
-            "operation_epoch": "f438a14648afa9f80ea70414a594b83b",
+            "operation_id": "01a14171-6081-7000-8d9e-86e9ad7cb457",
+            "operation_epoch": "651269b9d387c0bc84378cfdab94d94f",
             "phase": "accepted",
-            "expires_at_ms": 1792098233135,
+            "expires_at_ms": 1792099611745,
             "result_available": false,
             "response_status": null,
             "error": null
@@ -3678,8 +3678,8 @@
           "client_type": "ios"
         },
         "contract_version": 1,
-        "operation_id": "01a1415c-574f-7000-86c5-890498619c72",
-        "operation_epoch": "f438a14648afa9f80ea70414a594b83b",
+        "operation_id": "01a14171-6081-7000-8d9e-86e9ad7cb457",
+        "operation_epoch": "651269b9d387c0bc84378cfdab94d94f",
         "operation": "command",
         "payload": {
           "command": "next"
@@ -3689,10 +3689,10 @@
         "success": true,
         "operation_receipt": {
           "contract_version": 1,
-          "operation_id": "01a1415c-574f-7000-86c5-890498619c72",
-          "operation_epoch": "f438a14648afa9f80ea70414a594b83b",
+          "operation_id": "01a14171-6081-7000-8d9e-86e9ad7cb457",
+          "operation_epoch": "651269b9d387c0bc84378cfdab94d94f",
           "phase": "accepted",
-          "expires_at_ms": 1792098233135,
+          "expires_at_ms": 1792099611745,
           "result_available": false,
           "response_status": null,
           "error": null
@@ -3709,8 +3709,8 @@
           "client_type": "ios"
         },
         "contract_version": 1,
-        "operation_id": "01a1415c-574f-7000-86c5-890498619c72",
-        "operation_epoch": "f438a14648afa9f80ea70414a594b83b",
+        "operation_id": "01a14171-6081-7000-8d9e-86e9ad7cb457",
+        "operation_epoch": "651269b9d387c0bc84378cfdab94d94f",
         "operation": "command",
         "payload": {
           "command": "next"
@@ -3720,10 +3720,10 @@
         "success": true,
         "operation_receipt": {
           "contract_version": 1,
-          "operation_id": "01a1415c-574f-7000-86c5-890498619c72",
-          "operation_epoch": "f438a14648afa9f80ea70414a594b83b",
+          "operation_id": "01a14171-6081-7000-8d9e-86e9ad7cb457",
+          "operation_epoch": "651269b9d387c0bc84378cfdab94d94f",
           "phase": "confirmed",
-          "expires_at_ms": 1792098233135,
+          "expires_at_ms": 1792099611745,
           "result_available": false,
           "response_status": 200,
           "error": null
@@ -3815,10 +3815,10 @@
         "music_backend_error": null,
         "operation_receipt": {
           "contract_version": 1,
-          "operation_id": "01a1415c-5755-7000-afd5-eb06d7ebffcb",
-          "operation_epoch": "f438a14648afa9f80ea70414a594b83b",
+          "operation_id": "01a14171-6088-7000-a360-75bf24c26a71",
+          "operation_epoch": "651269b9d387c0bc84378cfdab94d94f",
           "phase": "unknown",
-          "expires_at_ms": 1792098233141,
+          "expires_at_ms": 1792099611752,
           "result_available": true,
           "response_status": 200,
           "error": "backend_unavailable"
@@ -3835,7 +3835,7 @@
       "case": "actual-eight-pending-bound",
       "body": {
         "id": 9,
-        "connection_id": "721e98c65f99e4f2ddb8f2d6c9f3f88b",
+        "connection_id": "28ca55032a2a15c1a97acdb993a6bfa8",
         "type": "result",
         "success": false,
         "status": 429,
@@ -3846,11 +3846,11 @@
     },
     {
       "case": "actual-idle-missing-pong-close",
-      "elapsed_seconds": 23.137028386001475
+      "elapsed_seconds": 23.513985343990498
     },
     {
       "case": "actual-idle-source-withdrawal",
-      "elapsed_seconds": 1.001370333993691,
+      "elapsed_seconds": 1.0028658340015681,
       "body": {
         "type": "auth_invalid",
         "code": "operation_context_changed"
@@ -3858,7 +3858,7 @@
     },
     {
       "case": "actual-idle-token-rotation",
-      "elapsed_seconds": 1.0065219169919146,
+      "elapsed_seconds": 1.0066818749910453,
       "body": {
         "type": "auth_invalid",
         "code": "unauthorized"
@@ -3873,17 +3873,17 @@
           "client_type": "ios"
         },
         "contract_version": 1,
-        "operation_id": "01a1415c-56d0-7000-b5f7-a97127f39911",
-        "operation_epoch": "f438a14648afa9f80ea70414a594b83b"
+        "operation_id": "01a14171-5fdc-7000-becb-a0b396dc870d",
+        "operation_epoch": "651269b9d387c0bc84378cfdab94d94f"
       },
       "body": {
         "success": true,
         "operation_receipt": {
           "contract_version": 1,
-          "operation_id": "01a1415c-56d0-7000-b5f7-a97127f39911",
-          "operation_epoch": "f438a14648afa9f80ea70414a594b83b",
+          "operation_id": "01a14171-5fdc-7000-becb-a0b396dc870d",
+          "operation_epoch": "651269b9d387c0bc84378cfdab94d94f",
           "phase": "confirmed",
-          "expires_at_ms": 1792098233008,
+          "expires_at_ms": 1792099611580,
           "result_available": false,
           "response_status": 200,
           "error": null
@@ -3900,8 +3900,8 @@
           "client_type": "ios"
         },
         "contract_version": 1,
-        "operation_id": "01a1415c-56d0-7000-b5f7-a97127f39911",
-        "operation_epoch": "f438a14648afa9f80ea70414a594b83b",
+        "operation_id": "01a14171-5fdc-7000-becb-a0b396dc870d",
+        "operation_epoch": "651269b9d387c0bc84378cfdab94d94f",
         "operation": "command",
         "payload": {
           "command": "next"
@@ -3919,14 +3919,14 @@
         "device_id": "djconnect-ios-ABCDEF123456",
         "client_type": "ios",
         "contract_version": 1,
-        "session_id": "session-0c670b7976a54ed3b99901a109a0e109",
+        "session_id": "session-068c2260bd73439097e80a68fde34fa9",
         "selected_presence": "music_only",
         "expected_presence_revision": 2
       },
       "body": {
         "success": true,
         "contract_version": 1,
-        "session_id": "session-0c670b7976a54ed3b99901a109a0e109",
+        "session_id": "session-068c2260bd73439097e80a68fde34fa9",
         "selected_presence": "music_only",
         "presence_revision": 3,
         "changed": true
@@ -3934,7 +3934,7 @@
     },
     {
       "case": "actual-auth-deadline",
-      "elapsed_seconds": 5.006622333996347,
+      "elapsed_seconds": 5.002077668003039,
       "body": {
         "type": "auth_invalid",
         "code": "auth_timeout"
@@ -3942,12 +3942,12 @@
     },
     {
       "case": "actual-300s-idle-music-only-lease",
-      "elapsed_seconds": 300.0023836370092,
+      "elapsed_seconds": 300.00995855400106,
       "body": {
         "type": "auth_invalid",
         "code": "auth_expired"
       },
-      "lease_connection_id": "0c6cb1e2860d7c8d779b525b77d7260d"
+      "lease_connection_id": "b5a408e37c13398f30e60e74a42025ab"
     },
     {
       "case": "lease-renewal-retains-pairing-and-session",
@@ -3967,8 +3967,8 @@
         "success": true,
         "contract_version": 1,
         "ha_install_id": "ha_owned_hybrid_fixture",
-        "operation_epoch": "8f9b264bc5438237a0dd0911c2b9f1ee",
-        "server_time_ms": 1792098263370,
+        "operation_epoch": "62da90df886cd5f9300e5cfb06fad86e",
+        "server_time_ms": 1792099642380,
         "operation_lifetime_ms": 300000,
         "requires_authenticated_tls": true,
         "action_operations": [
@@ -4014,17 +4014,17 @@
           "client_type": "ios"
         },
         "contract_version": 1,
-        "operation_id": "01a14161-614b-7000-a596-83ca9533fcf7",
-        "operation_epoch": "8f9b264bc5438237a0dd0911c2b9f1ee",
+        "operation_id": "01a14176-6c0d-7000-8b81-97f9a6b1dfa4",
+        "operation_epoch": "62da90df886cd5f9300e5cfb06fad86e",
         "operation": "session/end",
         "payload": {
-          "session_id": "session-0c670b7976a54ed3b99901a109a0e109"
+          "session_id": "session-068c2260bd73439097e80a68fde34fa9"
         }
       },
       "body": {
         "success": true,
         "session": {
-          "session_id": "session-0c670b7976a54ed3b99901a109a0e109",
+          "session_id": "session-068c2260bd73439097e80a68fde34fa9",
           "owner_profile_id": "profile-a",
           "room": "",
           "selected_mood": "energy",
@@ -4032,8 +4032,8 @@
           "locale": "en",
           "music_backend": "spotify_direct",
           "runtime_state": "ended",
-          "created_at": "2026-10-15T20:58:52.644262+00:00",
-          "started_at": "2026-10-15T20:58:52.647609+00:00",
+          "created_at": "2026-10-15T21:21:51.149309+00:00",
+          "started_at": "2026-10-15T21:21:51.155054+00:00",
           "session_start_strategy": "manual",
           "initial_session_mood": "groove",
           "mood_revision": 1,
@@ -4042,13 +4042,13 @@
           "interaction_profile": "balanced",
           "session_direction": {
             "direction": "maintaining_energy",
-            "initialized_at": "2026-10-15T20:58:52.644262+00:00",
-            "updated_at": "2026-10-15T20:58:52.644262+00:00",
+            "initialized_at": "2026-10-15T21:21:51.149309+00:00",
+            "updated_at": "2026-10-15T21:21:51.149309+00:00",
             "start_strategy": "manual"
           },
           "discover_personalization_available": false,
           "performance_memory": {
-            "source_flow_id": "flow-session-0c670b7976a54ed3b99901a109a0e109",
+            "source_flow_id": "flow-session-068c2260bd73439097e80a68fde34fa9",
             "recent_moment_ids": [],
             "recent_moment_types": [],
             "recent_artists": [],
@@ -4061,8 +4061,8 @@
           "planner": {
             "planner_state": "ready",
             "planning_horizon_minutes": 15,
-            "created_at": "2026-10-15T20:58:52.644262+00:00",
-            "last_replan_at": "2026-10-15T20:58:52.668039+00:00",
+            "created_at": "2026-10-15T21:21:51.149309+00:00",
+            "last_replan_at": "2026-10-15T21:21:51.181189+00:00",
             "current_goal": "",
             "configuration": {
               "minimum_time_between_moments_seconds": 60.0,
@@ -4076,10 +4076,10 @@
             "pending_events": [],
             "output": {
               "session_flow": {
-                "flow_id": "flow-session-0c670b7976a54ed3b99901a109a0e109",
+                "flow_id": "flow-session-068c2260bd73439097e80a68fde34fa9",
                 "flow_revision": 1,
                 "planning_horizon_minutes": 15,
-                "created_at": "2026-10-15T20:58:52.668039+00:00",
+                "created_at": "2026-10-15T21:21:51.181189+00:00",
                 "items": [
                   {
                     "item_id": "now-current-track",
@@ -4117,7 +4117,7 @@
           },
           "broadcast": {
             "session": {
-              "session_id": "session-0c670b7976a54ed3b99901a109a0e109",
+              "session_id": "session-068c2260bd73439097e80a68fde34fa9",
               "runtime_state": "ended",
               "selected_mood": "energy",
               "mood_revision": 1,
@@ -4131,9 +4131,9 @@
               "title": "Fixture work",
               "artist": "Fixture artist",
               "album": "Fixture album",
-              "updated_at": "2026-10-15T21:04:23.021237+00:00",
+              "updated_at": "2026-10-15T21:27:21.847198+00:00",
               "duration_ms": 300000,
-              "position_ms": 1256,
+              "position_ms": 1578,
               "source_url": "https://open.spotify.com/track/5555555555555555555555"
             },
             "planner": {
@@ -4142,16 +4142,16 @@
               "current_direction": "maintaining_energy",
               "session_direction": {
                 "direction": "maintaining_energy",
-                "initialized_at": "2026-10-15T20:58:52.644262+00:00",
-                "updated_at": "2026-10-15T20:58:52.644262+00:00",
+                "initialized_at": "2026-10-15T21:21:51.149309+00:00",
+                "updated_at": "2026-10-15T21:21:51.149309+00:00",
                 "start_strategy": "manual"
               }
             },
             "session_flow": {
-              "flow_id": "flow-session-0c670b7976a54ed3b99901a109a0e109",
+              "flow_id": "flow-session-068c2260bd73439097e80a68fde34fa9",
               "flow_revision": 1,
               "planning_horizon_minutes": 15,
-              "created_at": "2026-10-15T20:58:52.668039+00:00",
+              "created_at": "2026-10-15T21:21:51.181189+00:00",
               "items": [
                 {
                   "item_id": "now-current-track",
@@ -4192,25 +4192,25 @@
             "dj_moments": [],
             "presentations": [],
             "broadcast": {
-              "started_at": "2026-10-15T20:58:52.644262+00:00",
+              "started_at": "2026-10-15T21:21:51.149309+00:00",
               "snapshot_watermark": 0
             },
             "native_delivery": {
               "schema_version": 1,
-              "session_id": "session-0c670b7976a54ed3b99901a109a0e109",
+              "session_id": "session-068c2260bd73439097e80a68fde34fa9",
               "current_moment_id": null,
               "active_flow_moment_ids": [],
               "admissions": [],
               "revocation_scope": "session",
-              "revision": "b5dbe2075125a5dcde119cc4"
+              "revision": "aac8470d0f4bc47cbac2f555"
             },
             "session_forecast": {
               "contract_version": 1,
-              "session_id": "session-0c670b7976a54ed3b99901a109a0e109",
+              "session_id": "session-068c2260bd73439097e80a68fde34fa9",
               "revision": 16,
               "state": "withdrawn",
-              "issued_at": "2026-10-15T21:04:22.764624+00:00",
-              "valid_until": "2026-10-15T21:06:22.764569+00:00",
+              "issued_at": "2026-10-15T21:27:21.268867+00:00",
+              "valid_until": "2026-10-15T21:29:21.268810+00:00",
               "nominal_window_seconds": 900,
               "supported_window_seconds": 0,
               "current_anchor": null,
@@ -4222,10 +4222,10 @@
         },
         "operation_receipt": {
           "contract_version": 1,
-          "operation_id": "01a14161-614b-7000-a596-83ca9533fcf7",
-          "operation_epoch": "8f9b264bc5438237a0dd0911c2b9f1ee",
+          "operation_id": "01a14176-6c0d-7000-8b81-97f9a6b1dfa4",
+          "operation_epoch": "62da90df886cd5f9300e5cfb06fad86e",
           "phase": "confirmed",
-          "expires_at_ms": 1792098563371,
+          "expires_at_ms": 1792099942381,
           "result_available": true,
           "response_status": 200,
           "error": null
@@ -4242,8 +4242,8 @@
           "device_id": "djconnect-ios-ABCDEF123456",
           "client_type": "ios"
         },
-        "session_id": "session-0c670b7976a54ed3b99901a109a0e109",
-        "recovery_cursor": "31sg1F2ek5yJNCs2yYnepjShaRg7-d21SEpFPgkUYVY"
+        "session_id": "session-068c2260bd73439097e80a68fde34fa9",
+        "recovery_cursor": "4_E_ZgXOvEqg3GnfEFSvCeq1-hJmb3hyuyeqXGi2gZg"
       },
       "body": {
         "success": false,
@@ -4415,11 +4415,11 @@
     },
     {
       "method": "GET",
-      "path": "/v1/me/player/queue"
+      "path": "/v1/me/player"
     },
     {
       "method": "GET",
-      "path": "/v1/me/player"
+      "path": "/v1/me/player/queue"
     },
     {
       "method": "GET",
@@ -4431,14 +4431,6 @@
     },
     {
       "method": "GET",
-      "path": "/v1/me/player/queue"
-    },
-    {
-      "method": "GET",
-      "path": "/v1/me/player"
-    },
-    {
-      "method": "GET",
       "path": "/v1/me/player"
     },
     {
@@ -4448,6 +4440,14 @@
     {
       "method": "GET",
       "path": "/v1/me/player"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/me/player"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/me/player/queue"
     },
     {
       "method": "GET",
@@ -4459,14 +4459,6 @@
     },
     {
       "method": "GET",
-      "path": "/v1/me/player/queue"
-    },
-    {
-      "method": "GET",
-      "path": "/v1/me/player"
-    },
-    {
-      "method": "GET",
       "path": "/v1/me/player"
     },
     {
@@ -4476,6 +4468,14 @@
     {
       "method": "GET",
       "path": "/v1/me/player"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/me/player"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/me/player/queue"
     },
     {
       "method": "GET",
@@ -4487,14 +4487,6 @@
     },
     {
       "method": "GET",
-      "path": "/v1/me/player/queue"
-    },
-    {
-      "method": "GET",
-      "path": "/v1/me/player"
-    },
-    {
-      "method": "GET",
       "path": "/v1/me/player"
     },
     {
@@ -4504,6 +4496,14 @@
     {
       "method": "GET",
       "path": "/v1/me/player"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/me/player"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/me/player/queue"
     },
     {
       "method": "GET",
@@ -4515,14 +4515,6 @@
     },
     {
       "method": "GET",
-      "path": "/v1/me/player/queue"
-    },
-    {
-      "method": "GET",
-      "path": "/v1/me/player"
-    },
-    {
-      "method": "GET",
       "path": "/v1/me/player"
     },
     {
@@ -4532,6 +4524,14 @@
     {
       "method": "GET",
       "path": "/v1/me/player"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/me/player"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/me/player/queue"
     },
     {
       "method": "GET",
@@ -4543,25 +4543,21 @@
     },
     {
       "method": "GET",
-      "path": "/v1/me/player/queue"
-    },
-    {
-      "method": "GET",
-      "path": "/v1/me/player"
-    },
-    {
-      "method": "GET",
       "path": "/v1/me/player"
     },
     {
       "method": "GET",
       "path": "/v1/me/player/queue"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/me/player"
     }
   ],
   "accepted_provider_mutations": 4,
   "expected_mutations": 4,
   "real_model_calls": 0,
-  "max_rss_kib": 248292,
+  "max_rss_kib": 248740,
   "journal_bytes": 879,
   "journal_pre_idle_bytes": 17762,
   "native": "OPEN",

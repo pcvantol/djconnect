@@ -1,5 +1,5 @@
 {
-  "runtime_checkpoint": "1474907711ef6b3f2ab4017963a1c357fcefa714",
+  "runtime_checkpoint": "50a3a0b92fdb314b7e6ed8f38685fcfd871436df",
   "base": "62c8156db376c679eb636a7c8ff4d088276632e9",
   "qualification": "PASS_CORE_TLS_AND_QUALIFIED_DIRECT_LOOPBACK",
   "transport_cases": 68,
@@ -7,7 +7,7 @@
   "expected_provider_mutations": 4,
   "model_calls": 0,
   "source_files_verified": 168,
-  "fixture_sha256": "ab15a05c419b7b80e62d3dc70cb74a778183a1a69f9f2aedcbb8c5eaa9d3e78e",
+  "fixture_sha256": "b186107b4d531a6cc8e910d9d901cc1433b700f8aad809c5642816d27e3cd88c",
   "owning_units": 38,
   "auxiliary_fence_units": 5,
   "auxiliary_fence_unit_boundary": "authority/dispatcher fixtures, not real pairing acceptance",
@@ -23,17 +23,17 @@
     "custom_components/djconnect/hybrid_transport.py": 89.53168044077135
   },
   "total_coverage": 91.56626506024097,
-  "max_rss_kib": 248292,
+  "max_rss_kib": 248740,
   "journal_bytes": 879,
   "journal_pre_idle_bytes": 17762,
   "duration_cases": [
     {
       "case": "actual-idle-missing-pong-close",
-      "elapsed_seconds": 23.137028386001475
+      "elapsed_seconds": 23.513985343990498
     },
     {
       "case": "actual-idle-source-withdrawal",
-      "elapsed_seconds": 1.001370333993691,
+      "elapsed_seconds": 1.0028658340015681,
       "body": {
         "type": "auth_invalid",
         "code": "operation_context_changed"
@@ -41,7 +41,7 @@
     },
     {
       "case": "actual-idle-token-rotation",
-      "elapsed_seconds": 1.0065219169919146,
+      "elapsed_seconds": 1.0066818749910453,
       "body": {
         "type": "auth_invalid",
         "code": "unauthorized"
@@ -49,7 +49,7 @@
     },
     {
       "case": "actual-auth-deadline",
-      "elapsed_seconds": 5.006622333996347,
+      "elapsed_seconds": 5.002077668003039,
       "body": {
         "type": "auth_invalid",
         "code": "auth_timeout"
@@ -57,12 +57,12 @@
     },
     {
       "case": "actual-300s-idle-music-only-lease",
-      "elapsed_seconds": 300.0023836370092,
+      "elapsed_seconds": 300.00995855400106,
       "body": {
         "type": "auth_invalid",
         "code": "auth_expired"
       },
-      "lease_connection_id": "0c6cb1e2860d7c8d779b525b77d7260d"
+      "lease_connection_id": "b5a408e37c13398f30e60e74a42025ab"
     },
     {
       "case": "lease-renewal-retains-pairing-and-session",
@@ -75,5 +75,6 @@
   "publication": "LOCAL_UNPUBLISHED",
   "prior_candidates": "920/b2/658 superseded after technical NO_GO; their receipts are not current acceptance",
   "integrated_documentary_main": "f32b625eb0a3d1b8abfc2c81378d25d769c6766d",
-  "qualification_reuse_basis": "All168recordedruntime/verifier/helper source hashes unchanged after full documentary integration; auxiliary race helper hash unchanged"
+  "qualification_basis": "Fresh actual68case/300sHA and coverage run on50a3manifest-correctedsource; all168sourcehashes verified againstcurrentbytes",
+  "ci_repair": "PR1184 approved6a had realhassfest missingnetworkdependency; onlymanifestdependency corrected; no workflow/guard changes; newexactpublicationgrant required"
 }
