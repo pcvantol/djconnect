@@ -259,6 +259,8 @@ class HybridOperations:
         self.hass = hass
         self.journal = OperationJournal(store)
         self.tasks = {}
+        self._closed = False
+        self._unsubscribe_stop = None
         self._sweep_task = asyncio.create_task(self._sweep())
 
     async def _sweep(self):
@@ -270,14 +272,23 @@ class HybridOperations:
             return
 
     async def close(self, _event=None):
+        self._closed = True
+        if self._unsubscribe_stop is not None:
+            remove, self._unsubscribe_stop = self._unsubscribe_stop, None
+            remove()
         self._sweep_task.cancel()
         for task in self.tasks.values():
             task.cancel()
         await asyncio.gather(self._sweep_task, *tuple(self.tasks.values()), return_exceptions=True)
 
+    def _require_open(self):
+        if self._closed:
+            raise OperationError("operation_unavailable", 503)
+
     async def context(self, authority):
         from .const import CONF_HA_INSTALL_ID
 
+        self._require_open()
         await authority.validate()
         async with self.journal._lock:
             await self.journal._load()
@@ -299,6 +310,7 @@ class HybridOperations:
         }
 
     async def read(self, authority, operation, payload):
+        self._require_open()
         if not isinstance(operation, str) or operation not in READ_OPERATIONS:
             raise OperationError("unsupported_read", 400)
         await authority.validate()
@@ -307,6 +319,7 @@ class HybridOperations:
         return result
 
     async def status(self, authority, request):
+        self._require_open()
         self._envelope(request, status=True)
         await authority.validate()
         receipt = await self.journal.status(
@@ -349,6 +362,7 @@ class HybridOperations:
         return result, 200
 
     async def execute(self, authority, request, *, transport):
+        self._require_open()
         self._envelope(request)
         operation = request["operation"]
         if not isinstance(operation, str) or operation not in (
@@ -369,6 +383,14 @@ class HybridOperations:
         if not created:
             await authority.validate()
             return self._status_result(receipt)
+        if self._closed:
+            try:
+                await self.journal.transition(
+                    key, "rejected", response_status=503, error="operation_unavailable"
+                )
+            finally:
+                self.journal.release(key)
+            raise OperationError("operation_unavailable", 503)
         task = asyncio.create_task(self._run(key, authority, operation, payload))
         self.tasks[key] = task
 
@@ -470,5 +492,5 @@ def operations(hass):
         data["hybrid_operation_manager"] = manager
         bus = getattr(hass, "bus", None)
         if bus is not None:
-            bus.async_listen_once("homeassistant_stop", manager.close)
+            manager._unsubscribe_stop = bus.async_listen_once("homeassistant_stop", manager.close)
     return manager

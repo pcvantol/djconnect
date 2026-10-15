@@ -207,6 +207,7 @@ async def main():
             "token_gate": None,
             "token_entered": None,
             "fail_after_effect": False,
+            "large_queue": False,
         }
 
         async def provider_token(self, **kwargs):
@@ -244,7 +245,27 @@ async def main():
                         },
                     )
                 elif self.path.endswith("/queue"):
-                    self.status, self.payload = 200, {"queue": []}
+                    self.status, self.payload = (
+                        200,
+                        {
+                            "queue": [
+                                {
+                                    "id": str(i).zfill(22),
+                                    "uri": "spotify:track:" + str(i).zfill(22),
+                                    "name": "Synthetic large queue title " + "x" * 700,
+                                    "artists": [{"name": "Fixture artist"}],
+                                    "album": {
+                                        "id": "b" * 22,
+                                        "name": "Fixture album",
+                                        "images": [],
+                                    },
+                                }
+                                for i in range(100)
+                            ]
+                            if state["large_queue"]
+                            else []
+                        },
+                    )
                 elif self.path.endswith("/player"):
                     self.status, self.payload = (
                         200,
@@ -337,7 +358,14 @@ async def main():
                             secure + "/api/djconnect/v1/" + path, json=body, headers=headers
                         ) as result:
                             data = await result.json()
-                            receipts.append({"path": path, "status": result.status, "body": data})
+                            receipts.append(
+                                {
+                                    "path": path,
+                                    "status": result.status,
+                                    "request": body,
+                                    "body": data,
+                                }
+                            )
                             assert result.status == expected, (path, result.status, data)
                             assert result.headers.get("Cache-Control") == "no-store"
                             return data
@@ -537,7 +565,17 @@ async def main():
                         executed = await ws.receive_json()
                         assert executed["success"], executed
                         assert executed["result"]["operation_receipt"]["phase"] == "confirmed"
-                        receipts.append({"case": "actual-wss-next", "body": executed})
+                        receipts.append(
+                            {
+                                "case": "actual-wss-next",
+                                "request": {
+                                    "id": 2,
+                                    "type": "djconnect/operation/execute",
+                                    **request,
+                                },
+                                "body": executed,
+                            }
+                        )
                         before = state["mutations"]
                         duplicate = await post(
                             "transport/operation", {"identity": identity, **request}
@@ -617,7 +655,17 @@ async def main():
                                 {"id": rid, "type": "djconnect/operation/execute", **intent}
                             )
                             reply = await ws.receive_json()
-                            receipts.append({"case": "actual-wss-" + operation, "body": reply})
+                            receipts.append(
+                                {
+                                    "case": "actual-wss-" + operation,
+                                    "request": {
+                                        "id": rid,
+                                        "type": "djconnect/operation/execute",
+                                        **intent,
+                                    },
+                                    "body": reply,
+                                }
+                            )
                             return intent, reply
 
                         mood_intent, mood = await execute(
@@ -737,6 +785,23 @@ async def main():
                         assert all(
                             current_moments.get(m["moment_id"]) == m for m in opening_moments
                         )
+                        state["large_queue"] = True
+                        queue_before = sum(v["path"].endswith("/queue") for v in provider_calls)
+                        large_intent, large = await execute(14, "command", {"command": "queue"})
+                        assert (
+                            large["success"]
+                            and large["result"]["operation_receipt"]["phase"] == "confirmed"
+                        )
+                        assert large["result"]["result_available"] is False
+                        assert large["result"]["operation_receipt"]["result_available"] is False
+                        assert "queue" not in large["result"]
+                        queue_after = sum(v["path"].endswith("/queue") for v in provider_calls)
+                        assert queue_after == queue_before + 1
+                        await post("transport/operation", {"identity": identity, **large_intent})
+                        assert (
+                            sum(v["path"].endswith("/queue") for v in provider_calls) == queue_after
+                        )
+                        state["large_queue"] = False
                         assert not manager.current_active("profile-a").broadcast._subscribers
                         _outputs, outputs = await execute(13, "command", {"command": "devices"})
                         assert outputs["success"] and outputs["result"].get("devices"), outputs

@@ -16,7 +16,10 @@ def bounded_frame(item):
         minimal.update(
             success=receipt["phase"] == "confirmed",
             status=item["status"],
-            result={"operation_receipt": receipt, "result_available": False},
+            result={
+                "operation_receipt": {**receipt, "result_available": False},
+                "result_available": False,
+            },
         )
     else:
         minimal.update(success=False, status=413, error={"code": "projection_too_large"})

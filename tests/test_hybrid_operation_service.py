@@ -313,10 +313,17 @@ class OperationServiceTests(unittest.IsolatedAsyncioTestCase):
         refused = json.loads(bounded_frame(oversized))
         self.assertEqual(refused["error"]["code"], "projection_too_large")
         self.assertNotIn("result", refused)
-        oversized["result"]["operation_receipt"] = {"phase": "confirmed"}
+        from custom_components.djconnect.transport_delivery import OwnerDeliveryResult
+
+        oversized["result"]["operation_receipt"] = {"phase": "confirmed", "result_available": False}
+        oversized["result"] = await OwnerDeliveryResult(
+            oversized["result"], [lambda: None]
+        ).admitted_body()
+        self.assertTrue(oversized["result"]["operation_receipt"]["result_available"])
         compact = json.loads(bounded_frame(oversized))
         self.assertTrue(compact["success"])
         self.assertFalse(compact["result"]["result_available"])
+        self.assertFalse(compact["result"]["operation_receipt"]["result_available"])
         self.assertNotIn("text", compact["result"])
 
     async def test_identity_and_flattened_compatibility_payload_cannot_override_owner(self):
@@ -341,3 +348,37 @@ class OperationServiceTests(unittest.IsolatedAsyncioTestCase):
                 object(), {"device_id": "own-device", "client_type": []}, {}
             )
         self.assertEqual(failure.exception.status, 400)
+
+    async def test_close_during_reservation_cannot_start_a_late_domain_task(self):
+        entered, release = asyncio.Event(), asyncio.Event()
+        save = self.store.async_save
+        calls, unsubscribed = [], []
+        self.manager._unsubscribe_stop = lambda: unsubscribed.append(True)
+
+        async def delayed_save(value):
+            entered.set()
+            await release.wait()
+            await save(value)
+
+        async def domain(*args):
+            calls.append("forbidden-after-close")
+            return {"success": True}, 200
+
+        with (
+            patch.object(self.store, "async_save", delayed_save),
+            patch.object(self.service, "invoke", domain),
+        ):
+            request = asyncio.create_task(
+                self.manager.execute(self.authority, self.request, transport="http")
+            )
+            await entered.wait()
+            await self.manager.close()
+            release.set()
+            with self.assertRaises(self.service.OperationError) as failure:
+                await request
+        self.assertEqual(failure.exception.code, "operation_unavailable")
+        await self.manager.close()
+        self.assertEqual((calls, unsubscribed), ([], [True]))
+        self.assertFalse(self.manager.tasks)
+        self.assertFalse(self.manager.journal._active)
+        self.assertEqual(next(iter(self.store.data["records"].values()))["phase"], "rejected")
