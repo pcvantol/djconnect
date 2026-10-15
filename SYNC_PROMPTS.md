@@ -3,7 +3,9 @@
 DJC-CORE-HYBRID-TRANSPORT-CONVERGENCE-V1-20261013 is admitted after1168/1169
 closure on9efd1977. Read docs/product/HYBRID_HTTP_WEBSOCKET_TRANSPORT_V1.md and
 TRANSPORT_OPERATION_RECOVERY_CONTRACT_V1.md before transport changes. New routes
-are design-first and not yet advertised. Earlier blanket WS-error→HTTP-retry
+were designed first and are now connected under additive hybrid_transport v1
+metadata; protected publication and consumer adoption remain separate gates.
+Earlier blanket WS-error→HTTP-retry
 instructions below are superseded: only qualified pre-send/read fallback is safe;
 after-send ambiguity and auth/Profile rejection must not replay mutations.
 Apple adoption is a separate existing-writer workpackage, not Core Swift work.

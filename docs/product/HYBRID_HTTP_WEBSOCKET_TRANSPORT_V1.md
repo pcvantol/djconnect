@@ -108,7 +108,18 @@ Commands: `djconnect/read` for qualified declared pure projections,
 `djconnect/operation/execute` and `djconnect/operation/status` for the closed
 operation policy. Reads use the same handlers; uploads/paging remain HTTP-only.
 Command semantics and restart/uncertainty are in the operation recovery contract.
+Additive hybrid_transport capability metadata describes implemented paths and limits;
+it never authorizes a URL, token release or native acceptance.
 Server advertises only implemented operation/version sets after real qualification.
+
+Server allocation is bounded to16 action connections in total (including the
+5s unauthenticated window), and2 authenticated action connections per paired
+device. The second slot permits replacement/reconnect overlap; close the old
+socket once the new one is authoritative. A capacity rejection is transient,
+never proof that pairing or Profile was revoked. Native requests normally omit
+Origin; a supplied browser Origin must match this exact HTTPS origin. Foreign,
+opaque or malformed browser origins are rejected before reading credentials.
+No cross-origin redirect or certificate-validation bypass is introduced.
 
 ## Recovery and consumer acceptance
 

@@ -3,6 +3,19 @@
 This document summarizes the client-facing DJConnect Home Assistant API contract.
 It is intentionally compact; `README.md` remains the full user/developer guide.
 
+## Additive hybrid transport v1
+
+The [hybrid contract](docs/product/HYBRID_HTTP_WEBSOCKET_TRANSPORT_V1.md) and
+[operation policy](docs/product/TRANSPORT_OPERATION_RECOVERY_CONTRACT_V1.md)
+define TLS-only `/api/djconnect/v1/actions/paired` with the separate
+`paired_owner_actions` audience, owner HTTP context/operation/status and bounded
+Broadcast recovery. Capability `hybrid_transport` and contract version1 are
+additive. Existing paired Broadcast v1 remains subscribe/recover; native HA
+`/api/websocket` requires its own HA authority. There is no credential issuer.
+Normal pairing remains required; no discovery response or Wi-Fi hint authorizes
+secret release, cross-origin redirect or an after-send mutation retry.
+First response content and compact outcome receipts have separate validity.
+
 ## Client Identity
 
 Pairing, status, command, Ask DJ and voice requests use canonical

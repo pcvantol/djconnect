@@ -23,7 +23,11 @@ uncertain action is forbidden. Server exposes its boot epoch and clock to an
 authenticated client, without an HA credential or new account grant.
 
 Scope binds authenticated device, Profile, entry/pairing generation, backend/account
-context, boot epoch, operation name and SHA256 of canonical JSON payload. Identity
+context, boot epoch, operation name and SHA256 of canonical JSON payload. The
+unexpired UUID itself has one global journal key; owner/device bindings are
+checked on that record. Moving to another Profile/device can never create a
+second journal key for the same intent or make an uncertain intent executable.
+Identity
 fields and authorization cannot be overridden inside nested payloads. Same ID with
 other operation/payload/context returns409 operation_conflict/context_changed.
 Operation IDs are not access credentials; status/retry revalidate the current
@@ -103,6 +107,30 @@ is retained, never promoted into renewed content rights. Repeat execution reques
 `result_available:false` where content cannot be safely replayed; they do not
 regenerate a private answer or create a new publication. Clients may use a
 qualified existing history/query owner where available; absence remains honest.
+`result_available` describes content included in this particular response after
+its delivery admission: true on an admitted first body, false on receipt-only
+fallback, duplicate and status responses. The receipt in the same envelope uses
+the same value. No durable body is implied by a true first-response value; the
+journal stores no body and a later status still returns false.
+
+Initial response policy by family: Ask DJ and Track Insight use their original
+joined/source/target guards; Session start requires the same still-active owner
+Session, and end uses its existing private owner fence for the immutable ended
+Session result. Mood/presence use the original owner guard and committed setting
+revision; a superseded setting result becomes receipt-only. Ordinary commands
+reuse the existing synchronous paired/Profile/source owner fence, capture the
+result's current Session/playback identity and add a maximum five-second in-flight
+delivery window. Query bodies such as outputs/queue/search remain renderable;
+context change, a slow queue or source withdrawal yields only the receipt. This
+window never extends original media/selection expiry or proxy-grant rights.
+Consumers reconcile unavailable bodies via an existing authorized query owner,
+never by resending the command. No provider query is authorized where the selected
+function forbids one.
+Only the existing Mood/presence CAS conflict is currently qualified as a returned
+pre-write `rejected` receipt. Other handler failures remain conservatively unknown
+unless a specific operation proves its non-execution boundary; HTTP status alone
+does not establish that proof. A typed authority rejection before handler entry
+is rejected; an after-entry/after-send ambiguity is never relabelled pre-send.
 
 POST `/api/djconnect/v1/transport/operation/status` and WS status use version,
 original ID/epoch, plus the HTTP identity envelope. POST

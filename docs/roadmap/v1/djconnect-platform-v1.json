@@ -37594,7 +37594,7 @@
     }
   ],
   "planning_maintenance": {
-    "schema_version": "djconnect-federated-planning-delta/9",
+    "schema_version": "djconnect-federated-planning-delta/10",
     "decision_id": "DJC-DJ-PRESENCE-ROADMAP-DESIGN-V1-20261011",
     "decision_url": "https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6110375785",
     "design_date": "2026-10-11",
@@ -38520,6 +38520,125 @@
             ]
           }
         ]
+      },
+      {
+        "id": "TRANSPORT::CORE::CONTRACT",
+        "title": "Paired TLS hybrid protocol and closed operation policy",
+        "lane": "DJC-CORE",
+        "repository": "pcvantol/djconnect",
+        "status": "In progress",
+        "assignment_status": "IN_PROGRESS",
+        "scope": "Paired TLS hybrid protocol and closed operation policy",
+        "acceptance_boundary": "Paired TLS hybrid protocol and closed operation policy; no installed/native/hardware claim from producer proof",
+        "contract_binding": "docs/product/HYBRID_HTTP_WEBSOCKET_TRANSPORT_V1.md",
+        "source_ids": [
+          "OWNER-HYBRID-TRANSPORT-20261013"
+        ],
+        "parent_reference": "PROJ::ROADMAP::CONNECTIVITY",
+        "family_reference": "Existing connectivity capability; bounded hybrid producer and separately owned Apple adoption",
+        "prerequisite_groups": []
+      },
+      {
+        "id": "TRANSPORT::CORE::RECOVERY",
+        "title": "Bounded durable operation receipts and original delivery admission",
+        "lane": "DJC-CORE",
+        "repository": "pcvantol/djconnect",
+        "status": "In progress",
+        "assignment_status": "IN_PROGRESS",
+        "scope": "Bounded durable operation receipts and original delivery admission",
+        "acceptance_boundary": "Bounded durable operation receipts and original delivery admission; no installed/native/hardware claim from producer proof",
+        "contract_binding": "docs/product/TRANSPORT_OPERATION_RECOVERY_CONTRACT_V1.md",
+        "source_ids": [
+          "OWNER-HYBRID-TRANSPORT-20261013"
+        ],
+        "parent_reference": "PROJ::ROADMAP::CONNECTIVITY",
+        "family_reference": "Existing connectivity capability; bounded hybrid producer and separately owned Apple adoption",
+        "prerequisite_groups": [
+          {
+            "mode": "AND",
+            "edge_ids": [
+              "HYBRID-1"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "TRANSPORT::CORE::PAIRED-ACTIONS",
+        "title": "Connected paired action WS and owner HTTP recovery",
+        "lane": "DJC-CORE",
+        "repository": "pcvantol/djconnect",
+        "status": "In progress",
+        "assignment_status": "IN_PROGRESS",
+        "scope": "Connected paired action WS and owner HTTP recovery",
+        "acceptance_boundary": "Connected paired action WS and owner HTTP recovery; no installed/native/hardware claim from producer proof",
+        "contract_binding": "docs/product/HYBRID_HTTP_WEBSOCKET_TRANSPORT_V1.md",
+        "source_ids": [
+          "OWNER-HYBRID-TRANSPORT-20261013"
+        ],
+        "parent_reference": "PROJ::ROADMAP::CONNECTIVITY",
+        "family_reference": "Existing connectivity capability; bounded hybrid producer and separately owned Apple adoption",
+        "prerequisite_groups": [
+          {
+            "mode": "AND",
+            "edge_ids": [
+              "HYBRID-2"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "TRANSPORT::APPLE::HYBRID",
+        "title": "Existing Apple route coordinator adopts qualified producer contract",
+        "lane": "DJC-APPLE",
+        "repository": "pcvantol/djconnect-app",
+        "status": "Planned",
+        "assignment_status": "NOT_ISSUED",
+        "scope": "Existing Apple route coordinator adopts qualified producer contract",
+        "acceptance_boundary": "Existing Apple route coordinator adopts qualified producer contract; no installed/native/hardware claim from producer proof",
+        "contract_binding": "docs/product/HYBRID_HTTP_WEBSOCKET_TRANSPORT_V1.md",
+        "source_ids": [
+          "OWNER-HYBRID-TRANSPORT-20261013"
+        ],
+        "parent_reference": "PROJ::ROADMAP::CONNECTIVITY",
+        "family_reference": "Existing connectivity capability; bounded hybrid producer and separately owned Apple adoption",
+        "prerequisite_groups": [
+          {
+            "mode": "AND",
+            "edge_ids": [
+              "HYBRID-3"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "TRANSPORT::JOINT::HYBRID",
+        "title": "Native LAN external and recovery acceptance across supported Apple devices",
+        "lane": "DJC-CORE",
+        "repository": "pcvantol/djconnect",
+        "status": "Planned",
+        "assignment_status": "NOT_ISSUED",
+        "scope": "Native LAN external and recovery acceptance across supported Apple devices",
+        "acceptance_boundary": "Native LAN external and recovery acceptance across supported Apple devices; no installed/native/hardware claim from producer proof",
+        "contract_binding": "docs/product/HYBRID_HTTP_WEBSOCKET_TRANSPORT_V1.md",
+        "source_ids": [
+          "OWNER-HYBRID-TRANSPORT-20261013"
+        ],
+        "parent_reference": "PROJ::ROADMAP::CONNECTIVITY",
+        "family_reference": "Existing connectivity capability; bounded hybrid producer and separately owned Apple adoption",
+        "prerequisite_groups": [
+          {
+            "mode": "AND",
+            "edge_ids": [
+              "HYBRID-4"
+            ]
+          },
+          {
+            "mode": "AND",
+            "edge_ids": [
+              "HYBRID-5"
+            ]
+          }
+        ]
       }
     ],
     "edges": [
@@ -39242,16 +39361,96 @@
         "source_ids": [
           "OWNER-SHARED-DIALOGUE-20261013"
         ]
+      },
+      {
+        "id": "HYBRID-1",
+        "producer": "TRANSPORT::CORE::CONTRACT",
+        "consumer": "TRANSPORT::CORE::RECOVERY",
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "completion",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "required_subset": "Qualified protocol and immutable retry identity",
+        "contract_or_evidence": "docs/product/HYBRID_HTTP_WEBSOCKET_TRANSPORT_V1.md",
+        "reason": "Qualified protocol and immutable retry identity",
+        "source_ids": [
+          "OWNER-HYBRID-TRANSPORT-20261013"
+        ]
+      },
+      {
+        "id": "HYBRID-2",
+        "producer": "TRANSPORT::CORE::RECOVERY",
+        "consumer": "TRANSPORT::CORE::PAIRED-ACTIONS",
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "completion",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "required_subset": "Durable dedup and dispatch guard wired through the same domain owners",
+        "contract_or_evidence": "docs/product/TRANSPORT_OPERATION_RECOVERY_CONTRACT_V1.md",
+        "reason": "Durable dedup and dispatch guard wired through the same domain owners",
+        "source_ids": [
+          "OWNER-HYBRID-TRANSPORT-20261013"
+        ]
+      },
+      {
+        "id": "HYBRID-3",
+        "producer": "TRANSPORT::CORE::CONTRACT",
+        "consumer": "TRANSPORT::APPLE::HYBRID",
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "completion",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "required_subset": "Pinned qualified producer contract; Apple retains its own admission",
+        "contract_or_evidence": "docs/product/HYBRID_HTTP_WEBSOCKET_TRANSPORT_V1.md",
+        "reason": "Pinned qualified producer contract; Apple retains its own admission",
+        "source_ids": [
+          "OWNER-HYBRID-TRANSPORT-20261013"
+        ]
+      },
+      {
+        "id": "HYBRID-4",
+        "producer": "TRANSPORT::CORE::PAIRED-ACTIONS",
+        "consumer": "TRANSPORT::JOINT::HYBRID",
+        "kind": "implementation_contract",
+        "phase": "integration_acceptance",
+        "prerequisite_stage": "completion",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "required_subset": "Protected producer delivery and exact actual transport fixtures",
+        "contract_or_evidence": "docs/product/HYBRID_HTTP_WEBSOCKET_TRANSPORT_V1.md",
+        "reason": "Protected producer delivery and exact actual transport fixtures",
+        "source_ids": [
+          "OWNER-HYBRID-TRANSPORT-20261013"
+        ]
+      },
+      {
+        "id": "HYBRID-5",
+        "producer": "TRANSPORT::APPLE::HYBRID",
+        "consumer": "TRANSPORT::JOINT::HYBRID",
+        "kind": "implementation_contract",
+        "phase": "integration_acceptance",
+        "prerequisite_stage": "completion",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "required_subset": "Actual native route transitions liveness and state preservation",
+        "contract_or_evidence": "docs/product/HYBRID_HTTP_WEBSOCKET_TRANSPORT_V1.md",
+        "reason": "Actual native route transitions liveness and state preservation",
+        "source_ids": [
+          "OWNER-HYBRID-TRANSPORT-20261013"
+        ]
       }
     ],
     "document_references": [
       {
         "path": "PRODUCT_ROADMAP.md",
-        "sha256": "504db576e4f066b4878c419e80338c314fa71aa73995c547df947282bfdf8333"
+        "sha256": "5296b0db7c5c2cc5e16236f8a10e5471e60c712061ee3881463711c48c1da4ec"
       },
       {
         "path": "PRODUCT_BACKLOG.md",
-        "sha256": "f981930163192327e2625054ce6b9db85f85d3a1d6bc26abd14b53b01d44c54f"
+        "sha256": "82f16f635841fe4864710f2cc1eb2504adbb2434cfeec05413e9f38d3909cf05"
       },
       {
         "path": "docs/product/DJ_PRESENCE_V1.md",
@@ -39287,7 +39486,7 @@
       },
       {
         "path": "API_CONTRACT.md",
-        "sha256": "7e42cc3a36ca083255b13732101b4fe60bafed2245634e0d2aa6c2097ff3d46e"
+        "sha256": "f284c67ae2ed82c8df29efd62408da1e0bfc75efdad4bde9640e0e5bf529a214"
       },
       {
         "path": "docs/product/NARRATIVE_ALBUM_CONTINUITY_V1.md",
@@ -39436,6 +39635,18 @@
       {
         "path": "docs/history/prompts/2026-10-14-current-artist-profile-label-finalization.md",
         "sha256": "8ff79d233563f7d8f7d4c118abe2c4b4eb05bb6cb3603a697b109dc62f359474"
+      },
+      {
+        "path": "docs/product/HYBRID_HTTP_WEBSOCKET_TRANSPORT_V1.md",
+        "sha256": "ff1f9c658578e0f5837f59d7736cc171b83169828c9c0bbf5cb2b19cf9888983"
+      },
+      {
+        "path": "docs/product/TRANSPORT_OPERATION_RECOVERY_CONTRACT_V1.md",
+        "sha256": "20d140ed36560aad6438a3b3178f7a97cf4668662593ccd808015a3fe9adcc1a"
+      },
+      {
+        "path": "docs/verification/HYBRID_TRANSPORT_V1_ACCEPTANCE_MATRIX.md",
+        "sha256": "ac03954c1e0842797fa99dbeb8865119d1a69a58c17a6f3ebdd3d36eaee8cdf5"
       }
     ],
     "implementation_receipt": {
@@ -39737,6 +39948,34 @@
         "finalization": "PREPARED_SEPARATE_EXACT_GATE",
         "apple_handoff": "https://github.com/pcvantol/djconnect-app/issues/87#issuecomment-6178030609"
       }
+    },
+    "hybrid_receipt": {
+      "schema_version": "djconnect-hybrid-maintenance/1",
+      "assignment_id": "DJC-CORE-HYBRID-TRANSPORT-CONVERGENCE-V1-20261013",
+      "selection_url": "https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6149934177",
+      "base_sha": "9efd1977768d2574b66c16de9c5d8ba53e9157b1",
+      "branch": "codex/hybrid-transport-convergence-v1",
+      "ack": 6185332170,
+      "material_start": 6185498845,
+      "contract_commit": "454a470f9eb68fbce667738423c1779a62920162",
+      "material_commit": "cf5c5adba523c0e799e56f999e2fa243a0df38ec",
+      "connected_checkpoint": "2c3734d0d336d64a125eeb35dfe7fade69e28126",
+      "previous_delta": "history/20261015/current-artist-maintenance-v9.json",
+      "previous_delta_sha256": "ed89d5c9c51106353960117a76116e59e7429275f41d1f9934554f2008f3ec0e",
+      "previous_snapshot": "history/20261015/current-artist-snapshot-v9.json",
+      "previous_snapshot_sha256": "843c46464ab079440832c701f78ea14aae5561d672150608cc41360bd333c4db",
+      "predecessor_finalization_pr": "https://github.com/pcvantol/djconnect/pull/1169",
+      "predecessor_closure": "https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6185306694",
+      "early_apple_handoff": "https://github.com/pcvantol/djconnect-app/issues/87#issuecomment-6185756317",
+      "phase": "LOCAL_IMPLEMENTATION_AND_QUALIFICATION",
+      "source_delivery": "UNPUBLISHED",
+      "native": "OPEN_APPLE",
+      "installed": "NOT_RUN",
+      "hardware": "NOT_RUN",
+      "joint_acceptance": "OPEN",
+      "consumer_writes": false,
+      "automatic_dispatch": false,
+      "family_acceptance": "PARTIAL"
     }
   }
 }

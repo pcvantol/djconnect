@@ -35,6 +35,7 @@ class OwnerDeliveryResult(dict):
         self._admissions = tuple(admissions)
 
     async def admitted_body(self):
+        admitted = False
         if self._admissions:
             try:
                 for validate in self._admissions:
@@ -42,14 +43,25 @@ class OwnerDeliveryResult(dict):
                     if inspect.isawaitable(result):
                         await result
             except Exception:
-                pass
+                # An owner rejection or unavailable validity check withdraws
+                # rich content; retain only the separately committed outcome.
+                admitted = False
             else:
-                return dict(self)
+                admitted = True
+        if admitted:
+            return {
+                **self,
+                "result_available": True,
+                "operation_receipt": {**self["operation_receipt"], "result_available": True},
+            }
         # A known semantic outcome survives loss of rich-content delivery rights.
         # Never re-invoke a mutating/generating handler to recreate its body.
         receipt = self["operation_receipt"]
-        return {
+        body = {
             "success": receipt["phase"] == "confirmed",
             "operation_receipt": receipt,
             "result_available": False,
         }
+        if receipt["phase"] in {"rejected", "unknown", "cancelled"}:
+            body["error"] = receipt.get("error") or "operation_" + receipt["phase"]
+        return body

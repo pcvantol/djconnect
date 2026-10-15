@@ -40,6 +40,7 @@ class ClientContractSnapshotsTest(unittest.TestCase):
         snapshot = _load_snapshot("capabilities.websocket.json")
 
         commands = websocket_api._supported_websocket_commands()
+        from custom_components.djconnect.hybrid_contract import hybrid_transport_capability
         generated = {
             "success": True,
             "domain": "djconnect",
@@ -52,6 +53,7 @@ class ClientContractSnapshotsTest(unittest.TestCase):
             },
             "capabilities": websocket_api._platform_capabilities(),
             "contract_versions": websocket_api._contract_versions(),
+            "hybrid_transport": hybrid_transport_capability(),
             "transports": {
                 "http": True,
                 "websocket": True,

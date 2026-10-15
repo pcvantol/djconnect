@@ -109,8 +109,11 @@ cancellation after send does not prove nonexecution and never authorizes blind
 mutation replay. Preserve operation identity and reconcile uncertain outcomes under
 [the hybrid contract](docs/product/HYBRID_HTTP_WEBSOCKET_TRANSPORT_V1.md) and
 [operation recovery policy](docs/product/TRANSPORT_OPERATION_RECOVERY_CONTRACT_V1.md).
-These targeted designs precede their runtime implementation; unchanged public
-capabilities do not yet advertise a new paired action audience.
+These targeted designs precede their connected implementation. Additive
+`hybrid_transport` version1 metadata now advertises the separate TLS-only
+paired-action audience and HTTP context/receipt/recovery paths. Broadcast v1
+and native HA WebSocket authentication remain unchanged. Discovery is not
+authorization or proof of native route adoption.
 
 Clients render only authorized immutable Broadcast projections and canonical Session Flow state. They do not compensate for a missing live connection by reimplementing Planner, Knowledge Engine, Moment Engine or Runtime behaviour.
 

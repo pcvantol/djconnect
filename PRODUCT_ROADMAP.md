@@ -1,5 +1,38 @@
 # DJConnect Product Roadmap
 
+## Hybrid transport convergence — active bounded Core implementation
+
+`DJC-CORE-HYBRID-TRANSPORT-CONVERGENCE-V1-20261013` is admitted after
+[#1168](https://github.com/pcvantol/djconnect/pull/1168)/
+[#1169](https://github.com/pcvantol/djconnect/pull/1169) closed at exact main
+`9efd1977768d2574b66c16de9c5d8ba53e9157b1` with verified internal artifact,
+formal evidence and safe own cleanup. The older prepared-Finalization statements
+below are historical checkpoints, not current predecessor gates.
+
+The [hybrid contract](docs/product/HYBRID_HTTP_WEBSOCKET_TRANSPORT_V1.md) and
+[operation recovery contract](docs/product/TRANSPORT_OPERATION_RECOVERY_CONTRACT_V1.md)
+precede connected implementation. Paired TLS actions and HTTP operations use
+one journal and existing domain owners; original Ask DJ/Track Insight delivery
+guards prevent a queued result from extending its source rights. HTTP owner
+recovery reuses Runtime/Broadcast without a second timeline or subscription.
+
+Local connected checkpoint `2c3734d0d336d64a125eeb35dfe7fade69e28126` has
+an initial 17-case isolated HA/TLS/WS baseline. Current runtime has 43 actual
+HA/TLS cases and 21 journal/service owning units; exact final source qualification
+is still in progress.
+This is preliminary proof, not final source qualification. Full parity,
+withdrawal/race, liveness, resource and independent exact reviews remain in
+progress. [Early Apple handoff](https://github.com/pcvantol/djconnect-app/issues/87#issuecomment-6185756317)
+pins actual synthetic transport fixtures. No Swift writes or consumer admission.
+
+Living JSON maintenance v10 adds only the missing bounded transport contract,
+recovery, paired producer, Apple adoption and joint leaves under existing
+`PROJ::ROADMAP::CONNECTIVITY`; source remains unpublished/In progress, Apple
+and joint Planned/open, whole capability PARTIAL. Historical v9 delta and full
+snapshot are retained; generated dependency/lane/open-work/diagram views derive
+from JSON. No new provider, cost route, installation, workflow or runner change.
+Artwork remains queued separately until this assignment closes.
+
 ## Current-artist/Profile-label correction — Core source delivered
 
 Finding6175876899/ACK6176184085 within the existing shared Ask DJ family is delivered

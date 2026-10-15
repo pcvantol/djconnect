@@ -8,10 +8,15 @@ from contextvars import ContextVar
 import hashlib
 import json
 import re
+import time
 
 from .const import DOMAIN
 from .transport_operations import OperationError, OperationJournal
-from .transport_delivery import capture_delivery_admissions, OwnerDeliveryResult
+from .transport_delivery import (
+    capture_delivery_admissions,
+    register_delivery_admission,
+    OwnerDeliveryResult,
+)
 
 ACTION_OPERATIONS = frozenset(
     {"command", "ask_dj/message", "track_insight", "session/mood", "session/presence"}
@@ -98,6 +103,7 @@ class PairedAuthority:
         if (
             not isinstance(identity, dict)
             or set(identity) != {"device_id", "client_type"}
+            or not isinstance(identity.get("client_type"), str)
             or identity.get("client_type") not in {"ios", "macos", "watchos"}
             or not isinstance(identity.get("device_id"), str)
         ):
@@ -156,7 +162,14 @@ class PairedAuthority:
             "user_id",
             "_ha_service_runtime",
         )
-        for source in (value, value.get("identity") or {}):
+        sources = [value]
+        if "identity" in value:
+            sources.append(value["identity"])
+        if value.get("command") == "ask_dj_message" and isinstance(value.get("value"), dict):
+            # The existing compatibility adapter flattens this command value
+            # into the shared Ask DJ request. Fence that exact normalization.
+            sources.append(value["value"])
+        for source in sources:
             if not isinstance(source, dict):
                 raise OperationError("invalid_identity", 400)
             if any(key in source for key in forbidden):
@@ -176,7 +189,7 @@ async def invoke(hass, authority, operation, payload):
     from . import api_handlers
 
     if operation == "command":
-        if payload.get("command") not in COMMANDS:
+        if not isinstance(payload.get("command"), str) or payload["command"] not in COMMANDS:
             raise OperationError("unsupported_command", 400)
         handler = api_handlers.async_handle_command_payload
     else:
@@ -190,7 +203,42 @@ async def invoke(hass, authority, operation, payload):
             "session/broadcast/recover": api_handlers.async_handle_session_broadcast_recovery_read_payload,
         }.get(operation)
     if handler is not None:
-        return await handler(hass, payload, headers=authority.headers)
+        result = await handler(hass, payload, headers=authority.headers)
+        if operation == "command":
+            # Reuse the existing synchronous paired/Profile/source owner fence.
+            # This bounds in-flight snapshots, without refreshing a command or
+            # reconstructing source/artwork rights in the transport layer.
+            manager = hass.data.get(DOMAIN, {}).get("session_runtime_manager")
+            active = manager.current_active(authority.context.profile_id) if manager else None
+            captured_session = active.session_id if active else None
+            captured_item = active.broadcast.state.playback.item_id if active else None
+            deadline = time.monotonic() + 5
+
+            def command_delivery():
+                api_handlers._conversation_profile_fence(
+                    hass,
+                    authority.runtime,
+                    authority.identity,
+                    authority.headers,
+                    authority.context,
+                )
+                current_manager = hass.data.get(DOMAIN, {}).get("session_runtime_manager")
+                current = (
+                    current_manager.current_active(authority.context.profile_id)
+                    if current_manager
+                    else None
+                )
+                if (
+                    time.monotonic() >= deadline
+                    or current_manager is not manager
+                    or (current.session_id if current else None) != captured_session
+                    or (current.broadcast.state.playback.item_id if current else None)
+                    != captured_item
+                ):
+                    raise OperationError("command_result_withdrawn", 409)
+
+            register_delivery_admission(command_delivery)
+        return result
     if operation in {"session/mood", "session/presence"}:
         from .session_mood import async_handle_owner_setting
 
@@ -338,6 +386,7 @@ class HybridOperations:
 
     async def _run(self, key, authority, operation, payload):
         token = _current_operation.set((self, key, authority))
+        invoked = False
         try:
             await authority.validate()
             remaining = (
@@ -345,6 +394,7 @@ class HybridOperations:
             ) / 1000
             with capture_delivery_admissions() as admissions:
                 async with asyncio.timeout(max(0, min(300, remaining))):
+                    invoked = True
                     result, status = await invoke(self.hass, authority, operation, payload)
             successful = status < 400 and result.get("success") is not False
             code = result.get("error")
@@ -353,8 +403,19 @@ class HybridOperations:
                 if isinstance(code, str) and re.fullmatch(r"[a-z][a-z0-9_]{0,79}", code)
                 else None
             )
+            # Existing setting owners reject stale CAS before any write. This
+            # narrow qualified error is not a generic HTTP-code assumption.
+            rejected = (
+                operation in {"session/mood", "session/presence"}
+                and status == 409
+                and code == operation.split("/")[1] + "_revision_conflict"
+                and self.journal._state["records"][key]["phase"] == "accepted"
+            )
             receipt = await self.journal.transition(
-                key, "confirmed" if successful else "unknown", response_status=status, error=code
+                key,
+                "confirmed" if successful else "rejected" if rejected else "unknown",
+                response_status=status,
+                error=code,
             )
             await authority.validate()
             return OwnerDeliveryResult({**result, "operation_receipt": receipt}, admissions), status
@@ -366,7 +427,10 @@ class HybridOperations:
             code = exc.code if isinstance(exc, OperationError) else "operation_unknown"
             with suppress(OperationError):
                 await self.journal.transition(
-                    key, "unknown", response_status=getattr(exc, "status", 503), error=code
+                    key,
+                    "rejected" if not invoked and isinstance(exc, OperationError) else "unknown",
+                    response_status=getattr(exc, "status", 503),
+                    error=code,
                 )
             raise OperationError(code, getattr(exc, "status", 503)) from None
         finally:
@@ -383,9 +447,16 @@ async def guard_transport_effect():
         manager.journal._validate_time(manager.journal._state["records"][key]["operation_id"])
         await manager.journal.transition(key, "sent_unknown")
         await authority.validate()
-        # No await between this final expiry fence and the existing provider's
-        # synchronous request construction. A slow Store/auth await cannot extend
-        # the immutable operation lifetime.
+        validate_transport_effect_now()
+
+
+def validate_transport_effect_now():
+    """Final non-yielding fence after every Ask DJ/domain owner await."""
+    current = _current_operation.get()
+    if current is not None:
+        manager, key, _authority = current
+        if manager.journal._failed:
+            raise OperationError("operation_unavailable", 503)
         manager.journal._validate_time(manager.journal._state["records"][key]["operation_id"])
 
 

@@ -28,6 +28,11 @@ class TransportCapabilitiesTest(unittest.TestCase):
         self.assertTrue(result["session_broadcast"]["http_snapshot"]["available"])
         self.assertTrue(result["session_broadcast"]["websocket_subscription"]["available"])
         self.assertTrue(result["session_broadcast"]["snapshot_recovery"])
+        hybrid = result["hybrid_transport"]
+        self.assertEqual((hybrid["audience"], hybrid["version"]), ("paired_owner_actions", 1))
+        self.assertTrue(hybrid["requires_authenticated_tls"])
+        self.assertFalse(hybrid["ha_credentials_issued"])
+        self.assertEqual(hybrid["after_send_retry"], "reconcile_original_operation_only")
 
     def test_websocket_recovery_capabilities_match_the_implemented_contract(self) -> None:
         capability = transport_capabilities.session_broadcast_transport_capabilities()

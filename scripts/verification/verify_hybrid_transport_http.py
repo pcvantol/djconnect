@@ -17,12 +17,22 @@ from pathlib import Path
 import secrets
 import ssl
 import sys
+import time
+import resource
 from tempfile import TemporaryDirectory
 from unittest.mock import patch
 from urllib.parse import urlparse
 from uuid import UUID
 
-from aiohttp import ClientSession, TCPConnector, web, ClientConnectorCertificateError
+from aiohttp import (
+    ClientSession,
+    TCPConnector,
+    web,
+    ClientConnectorCertificateError,
+    ClientConnectionError,
+    WSMsgType,
+    WSServerHandshakeError,
+)
 from cryptography import x509
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import ec
@@ -191,9 +201,20 @@ async def main():
         )
         h.data["djconnect"]["session_runtime_manager"] = manager
         register_http_views(h)
-        state = {"index": 1, "mutations": 0}
+        state = {
+            "index": 1,
+            "mutations": 0,
+            "token_gate": None,
+            "token_entered": None,
+            "fail_after_effect": False,
+        }
 
         async def provider_token(self, **kwargs):
+            from custom_components.djconnect.hybrid_service import _current_operation
+
+            if state["token_gate"] is not None and _current_operation.get() is not None:
+                state["token_entered"].set()
+                await state["token_gate"].wait()
             return "UNUSED_SYNTHETIC_PROVIDER_TOKEN"
 
         async def no_fact(self, *args, **kwargs):
@@ -209,6 +230,9 @@ async def main():
                     state["mutations"] += 1
                     if self.path.endswith("/next"):
                         state["index"] += 1
+                    if state["fail_after_effect"]:
+                        state["fail_after_effect"] = False
+                        raise ClientConnectionError("synthetic external acknowledgement loss")
                     self.status, self.payload = 204, {}
                 elif self.path.endswith("/devices"):
                     self.status, self.payload = (
@@ -269,9 +293,12 @@ async def main():
         await runner.setup()
         secure_site = web.TCPSite(runner, "127.0.0.1", 0, ssl_context=server_ssl)
         await secure_site.start()
+        external_entry = web.TCPSite(runner, "127.0.0.1", 0, ssl_context=server_ssl)
+        await external_entry.start()
         plain_site = web.TCPSite(runner, "127.0.0.1", 0)
         await plain_site.start()
         secure = "https://127.0.0.1:" + str(secure_site._server.sockets[0].getsockname()[1])
+        external = "https://127.0.0.1:" + str(external_entry._server.sockets[0].getsockname()[1])
         plain = "http://127.0.0.1:" + str(plain_site._server.sockets[0].getsockname()[1])
         try:
             with (
@@ -283,6 +310,20 @@ async def main():
                 patch.object(SessionFactsResolver, "_get", no_fact),
             ):
                 async with ClientSession(connector=TCPConnector(ssl=client_ssl)) as client:
+                    async with client.get(secure + "/api/djconnect/v1/capabilities") as advertised:
+                        metadata = await advertised.json()
+                        assert metadata["hybrid_transport"]["audience"] == "paired_owner_actions"
+                        assert metadata["hybrid_transport"]["requires_authenticated_tls"]
+                        assert (
+                            metadata["session_broadcast"]["paired_owner_websocket"]["audience"]
+                            == "active_owner_broadcast"
+                        )
+                        receipts.append(
+                            {
+                                "case": "additive-disjoint-capability",
+                                "body": metadata["hybrid_transport"],
+                            }
+                        )
                     async with client.post(
                         secure + "/api/djconnect/v1/pair", json={**identity, "pair_code": "123456"}
                     ) as paired:
@@ -305,6 +346,21 @@ async def main():
                         "transport/context", {"contract_version": 1, "identity": identity}
                     )
                     assert ctx["ha_install_id"] == "ha_owned_hybrid_fixture"
+                    async with client.post(
+                        secure + "/api/djconnect/v1/transport/context",
+                        headers={"Origin": "https://foreign.invalid"},
+                        json={"contract_version": 1, "identity": identity},
+                    ) as foreign:
+                        assert (
+                            foreign.status == 403
+                            and (await foreign.json())["error"] == "origin_not_allowed"
+                        )
+                        receipts.append(
+                            {
+                                "case": "foreign-browser-origin-before-secret",
+                                "status": foreign.status,
+                            }
+                        )
                     async with client.post(
                         secure + "/api/djconnect/v1/transport/context",
                         json={"contract_version": 1, "identity": identity},
@@ -330,8 +386,19 @@ async def main():
                                 {"case": "untrusted-certificate-rejected", "before_secret": True}
                             )
                     start = await post(
-                        "session/start",
-                        {**identity, "mood": "groove", "dj_persona": "home_dj", "language": "en"},
+                        "transport/operation",
+                        {
+                            "identity": identity,
+                            "contract_version": 1,
+                            "operation_id": new_id(),
+                            "operation_epoch": ctx["operation_epoch"],
+                            "operation": "session/start",
+                            "payload": {
+                                "mood": "groove",
+                                "dj_persona": "home_dj",
+                                "language": "en",
+                            },
+                        },
                         201,
                     )
                     session_id = start["session"]["session_id"]
@@ -346,6 +413,10 @@ async def main():
                     )
                     assert recovery["recovery"] == "snapshot_required"
                     assert recovery["session_id"] == session_id
+                    opening_moments = recovery["snapshot"]["dj_moments"]
+                    assert opening_moments and all(m["type"] != "silence" for m in opening_moments)
+                    original_cursor = recovery["recovery_cursor"]
+                    assert not manager.current_active("profile-a").broadcast._subscribers
                     async with client.ws_connect(
                         secure + "/api/djconnect/v1/actions/paired"
                     ) as wrong:
@@ -354,7 +425,7 @@ async def main():
                             {
                                 "type": "auth",
                                 "protocol_version": 1,
-                                "audience": "paired_owner_broadcast",
+                                "audience": "active_owner_broadcast",
                                 **identity,
                                 "device_token": token,
                             }
@@ -367,6 +438,62 @@ async def main():
                                 "body": rejected,
                             }
                         )
+                    held = []
+                    try:
+                        for number in range(3):
+                            socket = await client.ws_connect(
+                                secure + "/api/djconnect/v1/actions/paired"
+                            )
+                            held.append(socket)
+                            await socket.receive_json()
+                            await socket.send_json(
+                                {
+                                    "type": "auth",
+                                    "protocol_version": 1,
+                                    "audience": "paired_owner_actions",
+                                    **identity,
+                                    "device_token": token,
+                                }
+                            )
+                            allocation = await socket.receive_json()
+                            assert allocation["type"] == (
+                                "auth_ok" if number < 2 else "auth_invalid"
+                            )
+                            if number == 2:
+                                assert allocation["code"] == "connection_capacity"
+                        receipts.append(
+                            {
+                                "case": "actual-two-device-connection-bound",
+                                "accepted": 2,
+                                "denied": 1,
+                            }
+                        )
+                    finally:
+                        await asyncio.gather(*(s.close() for s in held))
+                    await asyncio.sleep(0.05)
+                    held = []
+                    try:
+                        for _ in range(16):
+                            socket = await client.ws_connect(
+                                secure + "/api/djconnect/v1/actions/paired"
+                            )
+                            held.append(socket)
+                            assert (await socket.receive_json())["type"] == "auth_required"
+                        try:
+                            await client.ws_connect(secure + "/api/djconnect/v1/actions/paired")
+                            raise AssertionError("Unbounded unauthenticated socket allocation")
+                        except WSServerHandshakeError as limit:
+                            assert limit.status == 429
+                        receipts.append(
+                            {
+                                "case": "actual-sixteen-total-connection-bound",
+                                "accepted": 16,
+                                "denied": 1,
+                            }
+                        )
+                    finally:
+                        await asyncio.gather(*(s.close() for s in held))
+                    await asyncio.sleep(0.05)
                     async with client.ws_connect(secure + "/api/djconnect/v1/actions/paired") as ws:
                         assert (await ws.receive_json())["type"] == "auth_required"
                         await ws.send_json(
@@ -419,6 +546,25 @@ async def main():
                             duplicate["operation_receipt"]["phase"] == "confirmed"
                             and state["mutations"] == before
                         )
+                        async with client.post(
+                            external + "/api/djconnect/v1/transport/operation",
+                            json={"identity": identity, **request},
+                            headers=headers,
+                            allow_redirects=False,
+                        ) as remote:
+                            remote_receipt = await remote.json()
+                            assert (
+                                remote.status == 200
+                                and remote_receipt["operation_receipt"]["phase"] == "confirmed"
+                            )
+                            assert state["mutations"] == before
+                            receipts.append(
+                                {
+                                    "case": "second-qualified-http-entry-reconciles-original-id",
+                                    "body": remote_receipt,
+                                    "boundary": "two TLS entry points on one isolated HA; not native cellular routing",
+                                }
+                            )
                         conflict = {**request, "payload": {"command": "previous"}}
                         await post("transport/operation", {"identity": identity, **conflict}, 409)
                         status = {
@@ -458,6 +604,175 @@ async def main():
                         receipts.append(
                             {"case": "concurrent-correlation", "ids": [v["id"] for v in concurrent]}
                         )
+
+                        async def execute(rid, operation, payload):
+                            intent = {
+                                "contract_version": 1,
+                                "operation_id": new_id(),
+                                "operation_epoch": epoch,
+                                "operation": operation,
+                                "payload": payload,
+                            }
+                            await ws.send_json(
+                                {"id": rid, "type": "djconnect/operation/execute", **intent}
+                            )
+                            reply = await ws.receive_json()
+                            receipts.append({"case": "actual-wss-" + operation, "body": reply})
+                            return intent, reply
+
+                        mood_intent, mood = await execute(
+                            7,
+                            "session/mood",
+                            {
+                                "contract_version": 1,
+                                "session_id": session_id,
+                                "selected_mood": "energy",
+                                "expected_mood_revision": 0,
+                            },
+                        )
+                        assert mood["success"] and mood["result"]["mood_revision"] == 1
+                        assert mood["result"]["selected_mood"] == "energy"
+                        await post("transport/operation", {"identity": identity, **mood_intent})
+                        _stale, stale = await execute(
+                            8,
+                            "session/mood",
+                            {
+                                "contract_version": 1,
+                                "session_id": session_id,
+                                "selected_mood": "party",
+                                "expected_mood_revision": 0,
+                            },
+                        )
+                        assert (
+                            stale["status"] == 409
+                            and stale["result"]["operation_receipt"]["phase"] == "rejected"
+                        )
+                        await post(
+                            "transport/operation/status",
+                            {
+                                "identity": identity,
+                                **{
+                                    k: _stale[k]
+                                    for k in ("contract_version", "operation_id", "operation_epoch")
+                                },
+                            },
+                            409,
+                        )
+                        _presence, presence = await execute(
+                            9,
+                            "session/presence",
+                            {
+                                "contract_version": 1,
+                                "session_id": session_id,
+                                "selected_presence": "occasional",
+                                "expected_presence_revision": 0,
+                            },
+                        )
+                        assert presence["success"] and presence["result"]["presence_revision"] == 1
+                        hp = await post(
+                            "transport/operation",
+                            {
+                                "identity": identity,
+                                "contract_version": 1,
+                                "operation_id": new_id(),
+                                "operation_epoch": epoch,
+                                "operation": "session/presence",
+                                "payload": {
+                                    "contract_version": 1,
+                                    "session_id": session_id,
+                                    "selected_presence": "balanced",
+                                    "expected_presence_revision": 1,
+                                },
+                            },
+                        )
+                        assert (
+                            hp["selected_presence"] == "balanced" and hp["presence_revision"] == 2
+                        )
+                        _help, helped = await execute(
+                            10,
+                            "ask_dj/message",
+                            {
+                                "text": "help",
+                                "client_message_id": "hybrid-owned-help-1",
+                                "language": "en",
+                                "audio_response": "never",
+                            },
+                        )
+                        assert helped["success"] and helped["result"].get("text")
+                        await post("transport/operation", {"identity": identity, **_help})
+                        _insight, insight = await execute(
+                            11,
+                            "track_insight",
+                            {"title": "Fixture work", "artist": "Fixture artist", "locale": "en"},
+                        )
+                        assert insight["success"] and insight["result"].get("track"), insight
+                        await ws.send_json(
+                            {
+                                "id": 12,
+                                "type": "djconnect/read",
+                                "operation": "session/forecast",
+                                "payload": {"contract_version": 1, "session_id": session_id},
+                            }
+                        )
+                        forecast = await ws.receive_json()
+                        assert (
+                            forecast["success"] and forecast["result"]["session_id"] == session_id
+                        )
+                        receipts.append(
+                            {"case": "actual-wss-forecast-after-mood", "body": forecast}
+                        )
+                        recovered = await post(
+                            "session/broadcast/recovery",
+                            {
+                                "contract_version": 1,
+                                "identity": identity,
+                                "session_id": session_id,
+                                "recovery_cursor": original_cursor,
+                            },
+                        )
+                        assert recovered["recovery"] == "snapshot_required"
+                        current_moments = {
+                            m["moment_id"]: m for m in recovered["snapshot"]["dj_moments"]
+                        }
+                        assert all(
+                            current_moments.get(m["moment_id"]) == m for m in opening_moments
+                        )
+                        assert not manager.current_active("profile-a").broadcast._subscribers
+                        _outputs, outputs = await execute(13, "command", {"command": "devices"})
+                        assert outputs["success"] and outputs["result"].get("devices"), outputs
+                        http_outputs = await post(
+                            "transport/operation",
+                            {"identity": identity, **_outputs, "operation_id": new_id()},
+                        )
+                        ws_devices, http_devices = (
+                            outputs["result"]["devices"],
+                            http_outputs["devices"],
+                        )
+
+                        # Each deliberate query records its actual observation
+                        # time in the existing provider cache. Compare every
+                        # other canonical field and require time to advance.
+                        def stable(rows):
+                            return [
+                                {k: v for k, v in row.items() if k != "last_seen_at"}
+                                for row in rows
+                            ]
+
+                        if stable(http_devices) != stable(ws_devices):
+                            Path("/lab/device-parity-mismatch.json").write_text(
+                                json.dumps(
+                                    {
+                                        "http": http_outputs["devices"],
+                                        "ws": outputs["result"]["devices"],
+                                    },
+                                    indent=2,
+                                )
+                            )
+                            raise AssertionError("Canonical device projection parity mismatch")
+                        assert all(
+                            h["last_seen_at"] >= w["last_seen_at"]
+                            for h, w in zip(http_devices, ws_devices, strict=True)
+                        )
                         await ws.send_json(
                             {"id": 6, "type": "djconnect/read", "operation": [], "payload": {}}
                         )
@@ -484,14 +799,366 @@ async def main():
                         receipts.append(
                             {"case": "request-id-reuse-closes-connection", "body": duplicate_id}
                         )
+                    # Disconnect after durable admission, before the external token
+                    # boundary completes. The original owner continues once; HTTP
+                    # reconciliation cannot cause another provider execution.
+                    async with client.ws_connect(
+                        secure + "/api/djconnect/v1/actions/paired"
+                    ) as cancelled:
+                        await cancelled.receive_json()
+                        await cancelled.send_json(
+                            {
+                                "type": "auth",
+                                "protocol_version": 1,
+                                "audience": "paired_owner_actions",
+                                **identity,
+                                "device_token": token,
+                            }
+                        )
+                        await cancelled.receive_json()
+                        state["token_gate"], state["token_entered"] = (
+                            asyncio.Event(),
+                            asyncio.Event(),
+                        )
+                        cancelled_intent = {**request, "operation_id": new_id()}
+                        await cancelled.send_json(
+                            {"id": 1, "type": "djconnect/operation/execute", **cancelled_intent}
+                        )
+                        await asyncio.wait_for(state["token_entered"].wait(), 5)
+                    pending = await post(
+                        "transport/operation", {"identity": identity, **cancelled_intent}, 202
+                    )
+                    assert pending["operation_receipt"]["phase"] == "accepted"
+                    state["token_gate"].set()
+                    await asyncio.wait_for(
+                        asyncio.gather(
+                            *tuple(operations(h).tasks.values()), return_exceptions=True
+                        ),
+                        5,
+                    )
+                    state["token_gate"] = None
+                    settled = await post(
+                        "transport/operation", {"identity": identity, **cancelled_intent}
+                    )
+                    assert (
+                        settled["operation_receipt"]["phase"] == "confirmed"
+                        and state["mutations"] == 3
+                    )
+                    receipts.append(
+                        {
+                            "case": "disconnect-before-provider-send-no-duplicate",
+                            "mutations": state["mutations"],
+                        }
+                    )
+                    # External provider accepted but its acknowledgement was lost.
+                    state["fail_after_effect"] = True
+                    uncertain_intent = {**request, "operation_id": new_id()}
+                    async with client.post(
+                        secure + "/api/djconnect/v1/transport/operation",
+                        json={"identity": identity, **uncertain_intent},
+                        headers=headers,
+                    ) as uncertain:
+                        uncertain_body = await uncertain.json()
+                        assert uncertain_body["operation_receipt"]["phase"] == "unknown"
+                        receipts.append(
+                            {
+                                "case": "actual-provider-ack-loss",
+                                "status": uncertain.status,
+                                "body": uncertain_body,
+                            }
+                        )
+                    before_retry = state["mutations"]
+                    async with client.post(
+                        secure + "/api/djconnect/v1/transport/operation",
+                        json={"identity": identity, **uncertain_intent},
+                        headers=headers,
+                    ) as retry:
+                        assert (await retry.json())["operation_receipt"]["phase"] == "unknown"
+                    assert state["mutations"] == before_retry == 4
+                    # A real Profile-store reassignment during an external-token
+                    # await invalidates original authority before the send guard.
+                    await storage.async_create_profile("Synthetic other", profile_id="profile-b")
+                    state["token_gate"], state["token_entered"] = asyncio.Event(), asyncio.Event()
+                    revoked_intent = {**request, "operation_id": new_id()}
+                    revoked_call = asyncio.create_task(
+                        client.post(
+                            secure + "/api/djconnect/v1/transport/operation",
+                            json={"identity": identity, **revoked_intent},
+                            headers=headers,
+                        )
+                    )
+                    await asyncio.wait_for(state["token_entered"].wait(), 5)
+                    await storage.async_upsert_device(device, "ios", linked_profile_id="profile-b")
+                    records_before = len(operations(h).journal._state["records"])
+                    async with client.post(
+                        secure + "/api/djconnect/v1/transport/operation",
+                        json={"identity": identity, **request},
+                        headers=headers,
+                    ) as foreign_retry:
+                        assert foreign_retry.status in {403, 409}
+                        await foreign_retry.read()
+                    assert len(operations(h).journal._state["records"]) == records_before
+                    state["token_gate"].set()
+                    denied = await revoked_call
+                    assert denied.status in {401, 403}
+                    await denied.read()
+                    denied.release()
+                    state["token_gate"] = None
+                    assert state["mutations"] == 4
+                    await storage.async_upsert_device(device, "ios", linked_profile_id="profile-a")
+                    receipts.append(
+                        {
+                            "case": "profile-reassignment-before-send",
+                            "status": denied.status,
+                            "additional_mutations": 0,
+                        }
+                    )
+                    async with client.ws_connect(
+                        secure + "/api/djconnect/v1/actions/paired"
+                    ) as bounded:
+                        await bounded.receive_json()
+                        await bounded.send_json(
+                            {
+                                "type": "auth",
+                                "protocol_version": 1,
+                                "audience": "paired_owner_actions",
+                                **identity,
+                                "device_token": token,
+                            }
+                        )
+                        await bounded.receive_json()
+                        state["token_gate"], state["token_entered"] = (
+                            asyncio.Event(),
+                            asyncio.Event(),
+                        )
+                        for rid in range(1, 9):
+                            await bounded.send_json(
+                                {
+                                    "id": rid,
+                                    "type": "djconnect/operation/execute",
+                                    **request,
+                                    "operation_id": new_id(),
+                                    "payload": {"command": "status"},
+                                }
+                            )
+
+                        async def all_reserved():
+                            while len(operations(h).tasks) != 8:
+                                await asyncio.sleep(0.01)
+
+                        await asyncio.wait_for(all_reserved(), 5)
+                        await bounded.send_json(
+                            {
+                                "id": 9,
+                                "type": "djconnect/operation/execute",
+                                **request,
+                                "operation_id": new_id(),
+                                "payload": {"command": "status"},
+                            }
+                        )
+                        capacity = await bounded.receive_json()
+                        assert capacity["id"] == 9 and capacity["status"] == 429
+                        receipts.append({"case": "actual-eight-pending-bound", "body": capacity})
+                        state["token_gate"].set()
+                        replies = [await bounded.receive_json() for _ in range(8)]
+                        assert {v["id"] for v in replies} == set(range(1, 9))
+                        assert all(v["success"] for v in replies) and state["mutations"] == 4
+                        state["token_gate"] = None
+                    async with client.ws_connect(
+                        secure + "/api/djconnect/v1/actions/paired", autoping=False
+                    ) as half_open:
+                        await half_open.receive_json()
+                        await half_open.send_json(
+                            {
+                                "type": "auth",
+                                "protocol_version": 1,
+                                "audience": "paired_owner_actions",
+                                **identity,
+                                "device_token": token,
+                            }
+                        )
+                        await half_open.receive_json()
+                        began = time.monotonic()
+                        ping = await half_open.receive(timeout=20)
+                        assert ping.type == WSMsgType.PING
+                        # Deliberately omit pong on this own socket only.
+                        closed = await half_open.receive(timeout=12)
+                        elapsed = time.monotonic() - began
+                        assert closed.type in {WSMsgType.CLOSE, WSMsgType.CLOSED, WSMsgType.ERROR}
+                        assert 20 <= elapsed < 30
+                        receipts.append(
+                            {"case": "actual-idle-missing-pong-close", "elapsed_seconds": elapsed}
+                        )
+                    # Authoritative Store changes invalidate an otherwise quiet
+                    # socket without needing a new playback/Broadcast event.
+                    for fault in ("source-withdrawal", "token-rotation"):
+                        async with client.ws_connect(
+                            secure + "/api/djconnect/v1/actions/paired"
+                        ) as withdrawn:
+                            await withdrawn.receive_json()
+                            await withdrawn.send_json(
+                                {
+                                    "type": "auth",
+                                    "protocol_version": 1,
+                                    "audience": "paired_owner_actions",
+                                    **identity,
+                                    "device_token": token,
+                                }
+                            )
+                            assert (await withdrawn.receive_json())["type"] == "auth_ok"
+                            if fault == "source-withdrawal":
+                                before_profile = storage.household.profiles["profile-a"]
+                                await storage.async_update_profile(
+                                    "profile-a",
+                                    preferences=replace(
+                                        before_profile.preferences, default_music_account_id=""
+                                    ),
+                                )
+                            else:
+                                rotated = secrets.token_urlsafe(32)
+                                h.config_entries.async_update_entry(
+                                    owner, data={**owner.data, "device_token": rotated}
+                                )
+                                runtime.device_token = rotated
+                            began = time.monotonic()
+                            denied = await withdrawn.receive_json(timeout=3)
+                            assert denied["type"] == "auth_invalid", denied
+                            receipts.append(
+                                {
+                                    "case": "actual-idle-" + fault,
+                                    "elapsed_seconds": time.monotonic() - began,
+                                    "body": denied,
+                                }
+                            )
+                            if fault == "source-withdrawal":
+                                await storage.async_update_profile(
+                                    "profile-a", preferences=before_profile.preferences
+                                )
+                            else:
+                                h.config_entries.async_update_entry(
+                                    owner, data={**owner.data, "device_token": token}
+                                )
+                                runtime.device_token = token
                     # Reopen durable journal under a fresh boot epoch: known result stays confirmed.
                     old = operations(h)
                     await old.close()
                     h.data["djconnect"].pop("hybrid_operation_manager")
                     await post("transport/operation/status", {"identity": identity, **status})
                     await post("transport/operation", {"identity": identity, **request}, 409)
-                    end = await post("session/end", {**identity, "session_id": session_id})
-                    assert end["success"]
+                    if os.environ.get("DJC_HYBRID_LEASE_PROBE") == "1":
+                        # Actual production timers, no patched clock or shortened lease.
+                        await post(
+                            "session/presence",
+                            {
+                                **identity,
+                                "contract_version": 1,
+                                "session_id": session_id,
+                                "selected_presence": "music_only",
+                                "expected_presence_revision": 2,
+                            },
+                        )
+                        async with client.ws_connect(
+                            secure + "/api/djconnect/v1/actions/paired"
+                        ) as quiet:
+                            await quiet.receive_json()
+                            began = time.monotonic()
+                            missing_auth = await quiet.receive_json(timeout=7)
+                            assert missing_auth["type"] == "auth_invalid"
+                            receipts.append(
+                                {
+                                    "case": "actual-auth-deadline",
+                                    "elapsed_seconds": time.monotonic() - began,
+                                    "body": missing_auth,
+                                }
+                            )
+                        async with client.ws_connect(
+                            secure + "/api/djconnect/v1/actions/paired"
+                        ) as quiet:
+                            await quiet.receive_json()
+                            await quiet.send_json(
+                                {
+                                    "type": "auth",
+                                    "protocol_version": 1,
+                                    "audience": "paired_owner_actions",
+                                    **identity,
+                                    "device_token": token,
+                                }
+                            )
+                            lease_auth = await quiet.receive_json()
+                            assert lease_auth["lease_seconds"] == 300
+                            began = time.monotonic()
+                            expired = await quiet.receive_json(timeout=304)
+                            elapsed = time.monotonic() - began
+                            assert expired == {"type": "auth_invalid", "code": "auth_expired"}
+                            assert 299 <= elapsed < 304
+                            receipts.append(
+                                {
+                                    "case": "actual-300s-idle-music-only-lease",
+                                    "elapsed_seconds": elapsed,
+                                    "body": expired,
+                                    "lease_connection_id": lease_auth["connection_id"],
+                                }
+                            )
+                        async with client.ws_connect(
+                            secure + "/api/djconnect/v1/actions/paired"
+                        ) as renewed:
+                            await renewed.receive_json()
+                            await renewed.send_json(
+                                {
+                                    "type": "auth",
+                                    "protocol_version": 1,
+                                    "audience": "paired_owner_actions",
+                                    **identity,
+                                    "device_token": token,
+                                }
+                            )
+                            renewal = await renewed.receive_json()
+                            assert (
+                                renewal["type"] == "auth_ok"
+                                and renewal["connection_id"] != lease_auth["connection_id"]
+                            )
+                            await renewed.send_json(
+                                {
+                                    "id": 1,
+                                    "type": "djconnect/read",
+                                    "operation": "session/active",
+                                    "payload": {},
+                                }
+                            )
+                            same = await renewed.receive_json()
+                            assert same["result"]["session"]["session_id"] == session_id
+                            receipts.append(
+                                {
+                                    "case": "lease-renewal-retains-pairing-and-session",
+                                    "same_session": True,
+                                }
+                            )
+                    fresh_context = await post(
+                        "transport/context", {"contract_version": 1, "identity": identity}
+                    )
+                    end = await post(
+                        "transport/operation",
+                        {
+                            "identity": identity,
+                            "contract_version": 1,
+                            "operation_id": new_id(),
+                            "operation_epoch": fresh_context["operation_epoch"],
+                            "operation": "session/end",
+                            "payload": {"session_id": session_id},
+                        },
+                    )
+                    assert end["success"] and end["session"]["session_id"] == session_id
+                    withdrawn_recovery = await post(
+                        "session/broadcast/recovery",
+                        {
+                            "contract_version": 1,
+                            "identity": identity,
+                            "session_id": session_id,
+                            "recovery_cursor": original_cursor,
+                        },
+                        404,
+                    )
+                    assert "snapshot" not in withdrawn_recovery
             source_hashes = {
                 str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest()
                 for p in sorted((ROOT / "custom_components/djconnect").rglob("*.py"))
@@ -507,8 +1174,12 @@ async def main():
                         "transport_receipts": receipts,
                         "provider_calls": provider_calls,
                         "accepted_provider_mutations": state["mutations"],
-                        "expected_mutations": 2,
+                        "expected_mutations": 4,
                         "real_model_calls": 0,
+                        "max_rss_kib": resource.getrusage(resource.RUSAGE_SELF).ru_maxrss,
+                        "journal_bytes": (directory / ".storage/djconnect_transport_operations")
+                        .stat()
+                        .st_size,
                         "native": "OPEN",
                         "installed": "NOT_RUN",
                         "provider_boundary": "explicit external music/source fixtures only",

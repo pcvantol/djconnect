@@ -62,6 +62,47 @@ class JournalTests(unittest.IsolatedAsyncioTestCase):
             self.store, wall_ms=lambda: self.clock[0], monotonic=lambda: self.clock[1]
         )
 
+    async def test_owner_and_global_capacity_never_evict_unexpired_receipts(self):
+        for sequence in range(256):
+            args = {
+                **self.args,
+                "owner": "owner-" + str(sequence // 64),
+                "identifier": identifier(self.clock[0], sequence + 1),
+            }
+            key, _, _ = await self.journal.reserve(**args)
+            await self.journal.transition(key, "confirmed", response_status=200)
+            self.journal.release(key)
+            if sequence == 63:
+                with self.assertRaises(OperationError) as error:
+                    await self.journal.reserve(
+                        **{**args, "identifier": identifier(self.clock[0], 1000)}
+                    )
+                self.assertEqual(error.exception.code, "operation_capacity")
+        before = deepcopy(self.store.data)
+        with self.assertRaises(OperationError) as error:
+            await self.journal.reserve(
+                **{**self.args, "owner": "new-owner", "identifier": identifier(self.clock[0], 1001)}
+            )
+        self.assertEqual(error.exception.code, "operation_capacity")
+        self.assertEqual(self.store.data, before)
+        self.assertEqual(len(self.store.data["records"]), 256)
+
+    async def test_unknown_store_fields_or_unbounded_error_fail_closed(self):
+        key, _, _ = await self.journal.reserve(**self.args)
+        valid = deepcopy(self.store.data)
+        for extra in (
+            {"body": "private body must never be retained"},
+            {"error": "private arbitrary sentence"},
+            {"response_status": 999},
+        ):
+            self.store.data = deepcopy(valid)
+            self.store.data["records"][key].update(extra)
+            with self.assertRaises(OperationError) as error:
+                await self.make().status(
+                    **{k: v for k, v in self.args.items() if k not in {"operation", "digest"}}
+                )
+            self.assertEqual(error.exception.code, "operation_unavailable")
+
     async def test_concurrent_same_identity_reserves_once_and_conflict_never_replaces(self):
         results = await asyncio.gather(*(self.journal.reserve(**self.args) for _ in range(6)))
         self.assertEqual(sum(r[2] for r in results), 1)
@@ -69,6 +110,21 @@ class JournalTests(unittest.IsolatedAsyncioTestCase):
         with self.assertRaises(OperationError) as error:
             await self.journal.reserve(**{**self.args, "digest": "changed"})
         self.assertEqual(error.exception.code, "operation_conflict")
+
+    async def test_original_uuid_cannot_reexecute_after_profile_or_device_change(self):
+        key, _, _ = await self.journal.reserve(**self.args)
+        await self.journal.transition(key, "confirmed", response_status=200)
+        self.journal.release(key)
+        before = deepcopy(self.store.data)
+        for change in (
+            {"owner": "other-owner"},
+            {"device": "other-device"},
+            {"binding": "other-source"},
+        ):
+            with self.assertRaises(OperationError) as error:
+                await self.journal.reserve(**{**self.args, **change})
+            self.assertEqual(error.exception.code, "operation_conflict")
+        self.assertEqual(self.store.data, before)
 
     async def test_gc_and_clock_rollback_cannot_reopen_same_id_even_after_restart(self):
         key, _, _ = await self.journal.reserve(**self.args)

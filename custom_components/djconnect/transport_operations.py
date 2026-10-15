@@ -78,6 +78,8 @@ class OperationJournal:
                 state = {"version": VERSION, "high_water_ms": 0, "records": {}}
             if (
                 not isinstance(state, dict)
+                or set(state) != {"version", "high_water_ms", "records"}
+                or type(state.get("version")) is not int
                 or state.get("version") != VERSION
                 or type(state.get("high_water_ms")) is not int
                 or not isinstance(state.get("records"), dict)
@@ -87,15 +89,31 @@ class OperationJournal:
             for key, record in state["records"].items():
                 if (
                     not isinstance(key, str)
+                    or not re.fullmatch(r"[a-f0-9]{64}", key)
                     or not isinstance(record, dict)
+                    or set(record)
+                    - {
+                        "owner",
+                        "device",
+                        "binding",
+                        "operation_id",
+                        "epoch",
+                        "operation",
+                        "digest",
+                        "expires_ms",
+                        "phase",
+                        "response_status",
+                        "error",
+                    }
                     or record.get("phase") not in PHASES
                     or type(record.get("expires_ms")) is not int
                     or not all(
-                        isinstance(record.get(k), str)
+                        isinstance(record.get(k), str) and 0 < len(record[k]) <= 128
                         for k in (
                             "operation_id",
                             "epoch",
                             "owner",
+                            "device",
                             "binding",
                             "operation",
                             "digest",
@@ -103,6 +121,17 @@ class OperationJournal:
                     )
                     or record["expires_ms"]
                     != operation_created_ms(record["operation_id"]) + LIFETIME_MS
+                ):
+                    raise ValueError
+                status, error = record.get("response_status"), record.get("error")
+                if (
+                    status is not None
+                    and (type(status) is not int or not 100 <= status <= 599)
+                    or error is not None
+                    and (
+                        not isinstance(error, str)
+                        or not re.fullmatch(r"[a-z][a-z0-9_]{0,79}", error)
+                    )
                 ):
                     raise ValueError
             self._state = deepcopy(state)
@@ -120,8 +149,10 @@ class OperationJournal:
         return created + LIFETIME_MS
 
     @staticmethod
-    def _key(owner, device, identifier):
-        return hashlib.sha256((owner + "\n" + device + "\n" + identifier).encode()).hexdigest()
+    def _key(identifier):
+        # The UUID names one deliberate intent across contexts. A Profile/device
+        # change must conflict with its original binding, not create a new key.
+        return hashlib.sha256(identifier.encode()).hexdigest()
 
     def _candidate(self):
         state = deepcopy(self._state)
@@ -164,10 +195,19 @@ class OperationJournal:
             expires = self._validate_time(identifier)
             if epoch != self.epoch:
                 raise OperationError("operation_epoch_changed")
-            key = self._key(owner, device, identifier)
+            key = self._key(identifier)
             old = self._state["records"].get(key)
             if old is not None:
-                if (old["binding"], old["epoch"], old["operation"], old["digest"]) != (
+                if (
+                    old["owner"],
+                    old["device"],
+                    old["binding"],
+                    old["epoch"],
+                    old["operation"],
+                    old["digest"],
+                ) != (
+                    owner,
+                    device,
                     binding,
                     epoch,
                     operation,
@@ -184,6 +224,7 @@ class OperationJournal:
                 raise OperationError("operation_capacity", 429)
             record = {
                 "owner": owner,
+                "device": device,
                 "binding": binding,
                 "operation_id": identifier,
                 "epoch": epoch,
@@ -238,10 +279,15 @@ class OperationJournal:
         async with self._lock:
             await self._load()
             self._validate_time(identifier)
-            record = self._state["records"].get(self._key(owner, device, identifier))
+            record = self._state["records"].get(self._key(identifier))
             if record is None:
                 raise OperationError("operation_unknown")
-            if record["binding"] != binding or record["epoch"] != epoch:
+            if (record["owner"], record["device"], record["binding"], record["epoch"]) != (
+                owner,
+                device,
+                binding,
+                epoch,
+            ):
                 raise OperationError("operation_context_changed")
             return self.receipt(record)
 

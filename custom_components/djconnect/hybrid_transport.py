@@ -6,18 +6,19 @@ import asyncio
 from contextlib import suppress
 import json
 import secrets
+from urllib.parse import urlsplit
 
 from aiohttp import WSMsgType, web
 from homeassistant.components.http import HomeAssistantView
 
 from .hybrid_service import OperationError, PairedAuthority, operations
 from .transport_delivery import OwnerDeliveryResult
+from .hybrid_contract import FRAME_LIMIT, bounded_frame
 
 ACTION_PATH = "/api/djconnect/v1/actions/paired"
 AUTH_TIMEOUT = 5
 LEASE_SECONDS = 300
 RECHECK_SECONDS = 1
-FRAME_LIMIT = 65_536
 
 
 def response(body, status=200):
@@ -31,6 +32,25 @@ def request_error(request):
         return response({"success": False, "error": "query_not_allowed"}, 400)
     if not request.secure:
         return response({"success": False, "error": "transport_security_required"}, 426)
+    origin = request.headers.get("Origin")
+    if origin is not None:
+        try:
+            supplied = urlsplit(origin)
+            expected = urlsplit("https://" + request.host)
+            allowed = (
+                supplied.scheme == "https"
+                and not supplied.username
+                and not supplied.password
+                and not supplied.path
+                and not supplied.query
+                and not supplied.fragment
+                and supplied.hostname == expected.hostname
+                and (supplied.port or 443) == (expected.port or 443)
+            )
+        except ValueError:
+            allowed = False
+        if not allowed:
+            return response({"success": False, "error": "origin_not_allowed"}, 403)
     return None
 
 
@@ -120,11 +140,22 @@ class HybridActionsView(HomeAssistantView):
 
     def __init__(self, hass):
         self.hass = hass
+        self.connections = {}
 
     async def get(self, request):
         invalid = request_error(request)
         if invalid is not None:
             return invalid
+        if len(self.connections) >= 16:
+            return response({"success": False, "error": "connection_capacity"}, 429)
+        connection_id = secrets.token_hex(16)
+        self.connections[connection_id] = None
+        try:
+            return await self._serve(request, connection_id)
+        finally:
+            self.connections.pop(connection_id, None)
+
+    async def _serve(self, request, connection_id):
         ws = web.WebSocketResponse(max_msg_size=FRAME_LIMIT, heartbeat=15)
         await ws.prepare(request)
         workers = {}
@@ -165,8 +196,10 @@ class HybridActionsView(HomeAssistantView):
             manager = operations(self.hass)
             async with asyncio.timeout_at(auth_deadline):
                 authority = await PairedAuthority.resolve(self.hass, identity, headers)
+                if sum(device == authority.device for device in self.connections.values()) >= 2:
+                    raise OperationError("connection_capacity", 429)
+                self.connections[connection_id] = authority.device
                 context = await manager.context(authority)
-            connection_id = secrets.token_hex(16)
             await ws.send_json(
                 {
                     **context,
@@ -209,7 +242,7 @@ class HybridActionsView(HomeAssistantView):
                                 )
                         elif isinstance(item.get("result"), OwnerDeliveryResult):
                             item["result"] = await item["result"].admitted_body()
-                        await ws.send_json(item)
+                        await ws.send_str(bounded_frame(item))
 
             writer = asyncio.create_task(send())
             seen = set()

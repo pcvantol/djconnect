@@ -291,6 +291,13 @@ async def async_handle_session_start_payload(
                 )
             ),
         )
+    def delivery_guard():
+        _conversation_profile_fence(hass, runtime, identity_payload(data), headers or {}, context)
+        current = session_runtime_manager(hass).current_active(context.profile_id)
+        if current is None or current.session_id != session.session_id:
+            raise PermissionError("session_result_withdrawn")
+    from .transport_delivery import register_delivery_admission
+    register_delivery_admission(delivery_guard)
     return {"success": True, "session": (active or session).as_dict()}, 201
 
 
@@ -410,6 +417,9 @@ async def async_handle_session_end_payload(
     await playback_observation_manager(hass).async_stop(
         context.profile_id, session.session_id
     )
+    from .transport_delivery import register_delivery_admission
+    register_delivery_admission(lambda: _conversation_profile_fence(
+        hass, runtime, identity_payload(data), headers or {}, context))
     return {"success": True, "session": session.as_dict()}, 200
 
 

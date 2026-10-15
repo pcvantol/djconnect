@@ -3,6 +3,7 @@
 import asyncio
 import json
 import time
+from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 
@@ -200,6 +201,37 @@ class OperationServiceTests(unittest.IsolatedAsyncioTestCase):
             (failure.exception.code, failure.exception.status), ("unsupported_read", 400)
         )
 
+    async def test_last_ask_dj_guard_await_cannot_extend_dispatch_lifetime(self):
+        from custom_components.djconnect.ask_dj import dialogue
+
+        now = [int(time.time() * 1000)]
+        self.manager.journal._wall = lambda: now[0]
+        self.manager.journal._mono = lambda: self.manager.journal._anchor_mono
+        calls = []
+
+        async def slow_owner():
+            await asyncio.sleep(0)
+            now[0] += 300_001
+
+        async def domain(*args):
+            turn = SimpleNamespace(
+                guard=slow_owner, effect_started=True, require_effect=lambda *a, **k: None
+            )
+            tt = dialogue.current_turn.set(turn)
+            et = dialogue.current_effect.set(SimpleNamespace(family="next", value=None))
+            try:
+                await dialogue.guard_effect_dispatch(method="POST", path="/me/player/next")
+                calls.append("forbidden")
+            finally:
+                dialogue.current_effect.reset(et)
+                dialogue.current_turn.reset(tt)
+
+        with patch.object(self.service, "invoke", domain):
+            with self.assertRaises(self.service.OperationError) as error:
+                await self.manager.execute(self.authority, self.request, transport="http")
+        self.assertEqual(error.exception.code, "operation_expired")
+        self.assertEqual(calls, [])
+
     async def test_queued_rich_result_reuses_original_owner_admission(self):
         from custom_components.djconnect.transport_delivery import register_delivery_admission
 
@@ -219,7 +251,10 @@ class OperationServiceTests(unittest.IsolatedAsyncioTestCase):
             result, status = await self.manager.execute(
                 self.authority, self.request, transport="websocket"
             )
-        self.assertEqual((await result.admitted_body())["text"], "private-source-body")
+        delivered = await result.admitted_body()
+        self.assertEqual(delivered["text"], "private-source-body")
+        self.assertTrue(delivered["result_available"])
+        self.assertTrue(delivered["operation_receipt"]["result_available"])
         valid[0] = False
         withdrawn = await result.admitted_body()
         self.assertNotIn("text", withdrawn)
@@ -240,3 +275,69 @@ class OperationServiceTests(unittest.IsolatedAsyncioTestCase):
         self.assertNotIn("images", body)
         self.assertFalse(body["result_available"])
         self.assertEqual(body["operation_receipt"]["phase"], "confirmed")
+
+    async def test_setting_cas_rejection_is_known_but_after_send_stays_unknown(self):
+        self.request["operation"] = "session/mood"
+
+        async def reject(*args):
+            return {"success": False, "error": "mood_revision_conflict"}, 409
+
+        with patch.object(self.service, "invoke", reject):
+            result, code = await self.manager.execute(
+                self.authority, self.request, transport="websocket"
+            )
+        body = await result.admitted_body()
+        self.assertEqual(
+            (code, body["operation_receipt"]["phase"], body["error"]),
+            (409, "rejected", "mood_revision_conflict"),
+        )
+        stored, code = await self.manager.status(self.authority, self.status_request())
+        self.assertEqual((code, stored["operation_receipt"]["phase"]), (409, "rejected"))
+        self.request["operation_id"] = identifier(int(time.time() * 1000), sequence=2)
+
+        async def sent_then_failed(*args):
+            await self.service.guard_transport_effect()
+            return await reject(*args)
+
+        with patch.object(self.service, "invoke", sent_then_failed):
+            result, code = await self.manager.execute(
+                self.authority, self.request, transport="http"
+            )
+        self.assertEqual(result["operation_receipt"]["phase"], "unknown")
+
+    async def test_outgoing_frame_limit_preserves_receipt_or_refuses_projection(self):
+        from custom_components.djconnect.hybrid_contract import bounded_frame
+
+        base = {"id": 1, "connection_id": "own-connection", "type": "result", "status": 200}
+        oversized = {**base, "result": {"text": "private-source-content" * 4000}}
+        refused = json.loads(bounded_frame(oversized))
+        self.assertEqual(refused["error"]["code"], "projection_too_large")
+        self.assertNotIn("result", refused)
+        oversized["result"]["operation_receipt"] = {"phase": "confirmed"}
+        compact = json.loads(bounded_frame(oversized))
+        self.assertTrue(compact["success"])
+        self.assertFalse(compact["result"]["result_available"])
+        self.assertNotIn("text", compact["result"])
+
+    async def test_identity_and_flattened_compatibility_payload_cannot_override_owner(self):
+        authority = self.service.PairedAuthority(
+            object(),
+            {"device_id": "own-device", "client_type": "ios"},
+            {},
+            object(),
+            SimpleNamespace(profile_id="own-profile"),
+            "binding",
+        )
+        for payload in (
+            {"identity": []},
+            {"identity": {"device_token": "forbidden"}},
+            {"command": "ask_dj_message", "value": {"profile_id": "other-profile"}},
+            {"command": "ask_dj_message", "value": {"device_id": "other-device"}},
+        ):
+            with self.assertRaises(self.service.OperationError):
+                authority.payload(payload)
+        with self.assertRaises(self.service.OperationError) as failure:
+            await self.service.PairedAuthority.resolve(
+                object(), {"device_id": "own-device", "client_type": []}, {}
+            )
+        self.assertEqual(failure.exception.status, 400)
