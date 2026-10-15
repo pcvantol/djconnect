@@ -7,6 +7,7 @@ Real OpenAI-generated conversation quality is independently qualified in the HA 
 from __future__ import annotations
 
 import asyncio
+import time
 from copy import deepcopy
 from contextlib import nullcontext
 import json
@@ -1315,6 +1316,191 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
         self.assertFalse(self.hass.data["djconnect"].get("tts_audio"))
         self.assertFalse(self.hass.data["djconnect"].get("tts_audio_source_watches"))
         self.assertEqual(self.prompts, [])
+
+    async def test_published_fact_families_keep_exact_persona_text_in_private_speech_for_twenty_settings(self):
+        from custom_components.djconnect import session_speech, session_facts
+        from tests.context_variation_fixtures import source
+        rows = []
+        for family in ('birth', 'formation', 'description', 'edition', 'work_composers', 'genre'):
+            for locale in session_facts.LANGUAGES:
+                copies = []
+                for persona in self.fixture.runtime.DJPersona:
+                    catalog, fact = source('birth' if family in {'work_composers', 'genre'} else family, 0)
+                    if family == 'genre':
+                        fact = session_facts.observed_genre_facts({'source': 'spotify_playback_status',
+                            'backend': 'spotify_direct', 'is_playing': True, 'media_identity': catalog['uri'],
+                            'artist_ids': ['Z'*22], 'genres': ['ambient'], 'title': catalog['title'],
+                            'artist': catalog['artist'], 'genre_source_expires_at': time.monotonic()+1800},
+                            media_identity=catalog['uri'],
+                            title=catalog['title'], artist=catalog['artist'])[0]
+                    if family == 'work_composers':
+                        fact = session_facts.work_facts(catalog, {'relations': [{
+                            'type': 'performance', 'target-type': 'work', 'work': {
+                                'id': '00000000-0000-0000-0000-000000000003',
+                                'relations': [{'type': 'composer', 'target-type': 'artist',
+                                    'artist': {'name': 'Fixture composer'}}]}}]})[0]
+                    original = fact.copy_for(locale)
+                    active = await self.fixture.manager.async_start(owner_profile_id='profile-a',
+                        locale=locale, dj_persona=persona, selected_mood='groove',
+                        history_source_context={'backend_id': 'source-spotify',
+                            'music_account_id': 'source-account', 'provider_entry_id': 'source-entry'})
+                    await self.fixture.manager.async_update_playback_projection(owner_profile_id='profile-a',
+                        session_id=active.session_id, state='playing', media_identity=catalog['uri'],
+                        title=catalog['title'], artist=catalog['artist'], album=catalog['album_name'],
+                        duration_ms=300000, position_ms=0)
+                    async def external_source():
+                        return {'_qualified_facts': (fact,)}
+                    moment = await self.fixture.manager.async_process_track_started(owner_profile_id='profile-a',
+                        session_id=active.session_id, media_identity=catalog['uri'], insight_provider=external_source,
+                        require_current_playback=True, allow_initial_facts=True)
+                    self.assertIsNotNone(moment, (family, locale, persona))
+                    self.assertNotEqual(moment.moment_type.value, 'silence', (family, locale, persona))
+                    result, status = await session_speech.async_handle_prepare(self.hass, {
+                        **self.identity, 'contract_version': 1, 'reference': {
+                            'session_id': active.session_id, 'moment_id': moment.moment_id},
+                        'processor': 'local_on_device', 'voice_preference': 'default'}, headers=self.headers)
+                    self.assertEqual(status, 200, result)
+                    speech = result['session_speech']
+                    self.assertTrue(speech['manual_allowed'], speech)
+                    self.assertEqual(speech['audio_state'], 'renderer_pending')
+                    self.assertEqual(speech['locale'], locale)
+                    self.assertEqual(speech['persona'], persona.value)
+                    self.assertEqual(''.join(s['text'] for s in speech['segments']), moment.content)
+                    self.assertEqual(speech['attribution'], [dict(moment.source_attribution)])
+                    self.assertFalse(speech['autoplay_eligible'])
+                    self.assertEqual(fact.copy_for(locale), original)
+                    self.assertNotIn('session_speech', active.broadcast.as_dict(include_owner_only=False))
+                    self.assertEqual(active.presence_ledger.total_published, 1)
+                    copies.append(moment.content)
+                    rows.append({'family': family, 'locale': locale, 'persona': persona.value,
+                        'moment': moment.as_dict(), 'speech': speech})
+                    await self.fixture.manager.async_end(owner_profile_id='profile-a', session_id=active.session_id)
+                self.assertEqual(len(set(copies)), 4, (family, locale))
+        self.assertEqual(len(rows), 120)
+        self.assertEqual(self.prompts, [])
+        self.assertEqual(self.effects, [])
+        import os
+        from pathlib import Path
+        if capture := os.environ.get('DJC_SPEECH_MATRIX_CAPTURE_DIR'):
+            directory = Path(capture)
+            directory.mkdir(parents=True, exist_ok=True)
+            (directory/'connected-fact-speech-matrix.json').write_text(json.dumps({
+                'scope': 'Real Core Runtime/Knowledge/Moment/Flow/Broadcast/SQLite/paired-owner adapters; external source fixtures; no actual native speech.',
+                'rows': rows}, ensure_ascii=False, indent=2)+'\n')
+
+    async def test_shared_producer_and_album_relations_join_the_actual_private_speech_route(self):
+        from dataclasses import replace
+        from custom_components.djconnect import session_facts, session_speech
+        from tests.test_shared_producer_continuity import SharedProducerContinuityTest
+        from tests.test_narrative_album_continuity import NarrativeAlbumContinuityTest
+        from tests.speech_capture import capture
+        clock = [time.monotonic()]
+        manager = self.fixture.manager
+        original_clock = manager._monotonic_source
+        manager._monotonic_source = lambda: clock[0]
+        try:
+            for family, helper in (('shared_producer', SharedProducerContinuityTest()),
+                                   ('album_continuity', NarrativeAlbumContinuityTest())):
+                helper.facts = session_facts
+                for locale in session_facts.LANGUAGES:
+                    for persona in self.fixture.runtime.DJPersona:
+                        active = await manager.async_start(owner_profile_id='profile-a', locale=locale,
+                            dj_persona=persona, selected_mood='groove',
+                            session_start_strategy=self.fixture.runtime.SessionStartStrategy.DISCOVER,
+                            elapsed_time_source=lambda: clock[0],
+                            history_source_context={'backend_id': 'source-spotify',
+                                'music_account_id': 'source-account', 'provider_entry_id': 'source-entry'})
+                        active = replace(active, session_direction=replace(active.session_direction,
+                            direction=self.fixture.runtime.SessionDirectionType.EXPLORING))
+                        manager._active_by_profile['profile-a'] = active
+                        sequence = []
+                        for index in (0, 1):
+                            clock[0] += 200
+                            catalog = helper.catalog(index)
+                            facts = helper.pool(index)
+                            await manager.async_update_playback_projection(owner_profile_id='profile-a',
+                                session_id=active.session_id, state='playing', media_identity=catalog['uri'],
+                                title=catalog['title'], artist=catalog['artist'], album=catalog['album_name'],
+                                duration_ms=300000, position_ms=0)
+                            async def provider():
+                                return {'_qualified_facts': facts}
+                            moment = await manager.async_process_track_started(owner_profile_id='profile-a',
+                                session_id=active.session_id, media_identity=catalog['uri'], insight_provider=provider,
+                                require_current_playback=True, allow_initial_facts=True)
+                            self.assertIsNotNone(moment, (family, locale, persona, index))
+                            if index:
+                                expected = session_facts.SharedProducerFact if family == 'shared_producer' else session_facts.AlbumContinuityFact
+                                self.assertIsInstance(moment.source_fact, expected)
+                            result, status = await session_speech.async_handle_prepare(self.hass, {
+                                **self.identity, 'contract_version': 1, 'reference': {
+                                    'session_id': active.session_id, 'moment_id': moment.moment_id},
+                                'processor': 'local_on_device', 'voice_preference': 'default'}, headers=self.headers)
+                            self.assertEqual(status, 200, (family, locale, persona, result))
+                            speech = result['session_speech']
+                            self.assertTrue(speech['manual_allowed'], speech)
+                            self.assertEqual(speech['persona'], persona.value)
+                            self.assertEqual(speech['attribution'], [dict(moment.source_attribution)])
+                            self.assertEqual(''.join(p['text'] for p in speech['segments']), moment.content)
+                            self.assertFalse(speech['autoplay_eligible'])
+                            sequence.append({'moment': moment.as_dict(), 'speech': speech})
+                        self.assertEqual(active.presence_ledger.total_published, 2)
+                        capture('joined-private-relations', {'family': family, 'locale': locale,
+                            'persona': persona.value, 'sequence': sequence,
+                            'scope': 'Actual Runtime/Planner/Knowledge/Moment/SQLite semantic acceptance/Broadcast/paired private owner speech adapter; external source fixtures and injected elapsed clock only.'})
+                        await manager.async_end(owner_profile_id='profile-a', session_id=active.session_id)
+        finally:
+            manager._monotonic_source = original_clock
+        self.assertEqual(self.prompts, [])
+        self.assertEqual(self.effects, [])
+
+    async def test_original_genre_deadline_cancels_pending_private_synthesis(self):
+        from types import SimpleNamespace
+        from custom_components.djconnect import session_speech, session_facts, speech_processor
+        active = await self.fixture.manager.async_start(owner_profile_id='profile-a', locale='en',
+            selected_mood='groove', history_source_context={'backend_id': 'source-spotify',
+                'music_account_id': 'source-account', 'provider_entry_id': 'source-entry'})
+        media = 'spotify:track:'+'B'*22
+        fact = session_facts.observed_genre_facts({'source': 'spotify_playback_status',
+            'backend': 'spotify_direct', 'is_playing': True, 'media_identity': media,
+            'artist_ids': ['Z'*22], 'genres': ['ambient'], 'title': 'Actual track',
+            'artist': 'Actual artist', 'genre_source_expires_at': time.monotonic()+0.5},
+            media_identity=media, title='Actual track', artist='Actual artist')[0]
+        await self.fixture.manager.async_update_playback_projection(owner_profile_id='profile-a',
+            session_id=active.session_id, state='playing', media_identity=media,
+            title='Actual track', artist='Actual artist', duration_ms=300000, position_ms=0)
+        async def external_source():
+            return {'_qualified_facts': (fact,)}
+        moment = await self.fixture.manager.async_process_track_started(owner_profile_id='profile-a',
+            session_id=active.session_id, media_identity=media, insight_provider=external_source,
+            require_current_playback=True, allow_initial_facts=True)
+        self.assertEqual(moment.moment_type.value, 'genre')
+        entered, cancelled = asyncio.Event(), asyncio.Event()
+        async def synthesize(*args):
+            entered.set()
+            try:
+                await asyncio.Event().wait()
+            except asyncio.CancelledError:
+                cancelled.set()
+                raise
+        voice = {'engine': 'tts.fixture', 'voice_id': 'actual', 'voice_name': 'Fixture',
+            'locale': 'en', 'gender': None}
+        request = {**self.identity, 'contract_version': 1,
+            'reference': {'session_id': active.session_id, 'moment_id': moment.moment_id},
+            'processor': 'ha_configured', 'voice_preference': 'default'}
+        with patch.object(speech_processor, 'configured_processor', return_value=(SimpleNamespace(), voice)), \
+                patch.object(speech_processor, 'synthesize', synthesize):
+            pending = asyncio.create_task(session_speech.async_handle_prepare(self.hass, request, headers=self.headers))
+            await asyncio.wait_for(entered.wait(), 2)
+            result, status = await asyncio.wait_for(pending, 2)
+            self.assertEqual(status, 404, result)
+            self.assertTrue(cancelled.is_set())
+            denied, status = await session_speech.async_handle_prepare(self.hass, request, headers=self.headers)
+            self.assertEqual(status, 404, denied)
+        self.assertFalse(self.hass.data['djconnect'].get('tts_audio'))
+        self.assertFalse(self.hass.data['djconnect'].get('tts_audio_source_watches'))
+        self.assertEqual(active.presence_ledger.total_published, 1)
+        self.assertEqual(self.prompts, [])
+        await self.fixture.manager.async_end(owner_profile_id='profile-a', session_id=active.session_id)
 
     async def test_owner_timeline_speech_projection_is_readonly_exact_and_never_autoplay(self):
         from custom_components.djconnect.session_conversation import query_service

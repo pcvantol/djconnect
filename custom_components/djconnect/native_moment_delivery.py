@@ -36,7 +36,8 @@ def source_deadline(fact: QualifiedSessionFact) -> float:
         observations.append(fact.previous_evidence.observed_at)
     if isinstance(fact, AlbumContinuityFact) and fact.previous_album is not None:
         observations.append(fact.previous_album.observed_at)
-    return min(observations) + 1800
+    deadline = min(observations) + 1800
+    return min(deadline, fact.source_expires_at) if fact.source_expires_at is not None else deadline
 
 
 def admission(moment: Any, boundary: MomentDeliveryBoundary | None, *,
@@ -88,6 +89,56 @@ def admission(moment: Any, boundary: MomentDeliveryBoundary | None, *,
             deadline = min(deadline, source_limit)
         except (AttributeError, TypeError, ValueError, OverflowError):
             return result
+    elif getattr(moment, 'genre_transition', None) is not None:
+        from .session_runtime import GenreTransitionNarration
+        from .context_expression import transition_copy
+        proof = moment.genre_transition
+        if not isinstance(proof, GenreTransitionNarration):
+            return result
+        source_limit = min(source_deadline(proof.earlier), proof.current.observed_at+30)
+        result['source_expires_at'] = boundary.utc_at(source_limit)
+        if not proof.eligible(now):
+            result['qualification'] = 'expired'
+            return result
+        snapshot, metadata = dict(boundary.track_snapshot), dict(moment.generation_metadata)
+        if (moment.moment_type.value != 'transition' or moment.knowledge_intent.intent_type.value != 'transition'
+                or moment.source_references != ('session_flow',)
+                or metadata.get('relation') != 'discover_same_artist_genre'
+                or metadata.get('transition_from_moment_id') != proof.source_moment_id
+                or metadata.get('transition_to_moment_id') != proof.target_moment_id
+                or boundary.playback_item_id != proof.current.item_id
+                or snapshot.get('title') != proof.current.title or snapshot.get('artist') != proof.current.artist
+                or dict(moment.source_attribution) != {'provider': 'Spotify', 'url': proof.current.source_url,
+                    'url_previous': proof.earlier.source_url, 'license': 'Spotify-Policy'}
+                or moment.content != transition_copy(locale=proof.current.locale,
+                    persona=moment.presentation_intent.dj_persona.value, context=proof.context(),
+                    relation='discover_same_artist_genre')):
+            return result
+        result['requires_spotify_attribution'] = True
+        deadline = min(deadline, source_limit)
+    elif getattr(moment, 'observed_playback', None) is not None:
+        from .session_runtime import ObservedPlaybackNarration
+        from .context_expression import playback_copy
+        observed = moment.observed_playback
+        if not isinstance(observed, ObservedPlaybackNarration):
+            return result
+        source_limit = observed.observed_at + 30
+        result['source_expires_at'] = boundary.utc_at(source_limit)
+        if not observed.eligible(now):
+            result['qualification'] = 'expired'
+            return result
+        snapshot = dict(boundary.track_snapshot)
+        if (moment.moment_type.value != 'track' or moment.knowledge_intent.intent_type.value != 'track_context'
+                or moment.source_references != ('spotify_playback_status',)
+                or dict(moment.source_attribution) != {'provider': 'Spotify', 'url': observed.source_url, 'license': 'Spotify-Policy'}
+                or boundary.playback_item_id != observed.item_id
+                or snapshot.get('title') != observed.title or snapshot.get('artist') != observed.artist
+                or moment.content not in {playback_copy(locale=observed.locale,
+                    persona=moment.presentation_intent.dj_persona.value, form=form,
+                    title=observed.title, artist=observed.artist) for form in (0, 1)}):
+            return result
+        result['requires_spotify_attribution'] = True
+        deadline = min(deadline, source_limit)
     elif (not moment.source_attribution
           and moment.source_references == ('session_direction',)
           and moment.moment_type.value == 'session'

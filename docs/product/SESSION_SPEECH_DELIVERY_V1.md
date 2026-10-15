@@ -2,7 +2,9 @@
 
 Design-first companion to [Session narration/live Persona](SESSION_SPEECH_PERSONA_V1.md).
 One existing contribution and one accepted text; audio is a presentation resource,
-never a new DJMoment or conversation turn. Implementation pending.
+never a new DJMoment or conversation turn. Core implementation is locally
+connected and under qualification; source delivery, native adoption and joint
+audible acceptance remain separate open gates.
 
 ## Optional owner projection and explicit preparation
 

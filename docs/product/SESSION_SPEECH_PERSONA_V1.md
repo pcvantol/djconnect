@@ -64,6 +64,71 @@ history entry. Presence music_only suppresses unsolicited narration including
 pending work; compact playback context remains. Explicit owner listening to an
 already authorized contribution remains a distinct user action.
 
+### Current-track announcement admission refinement
+
+Inventory: the normal observer already invokes the one Track Started
+Planner/Knowledge/Moment lifecycle. Its unmeasured Track Insight fallback can
+currently publish a generic analysis-unavailable sentence, spending the common
+Presence opportunity without a useful narration. Replace only that fallback
+within an approved Track-context opportunity with an authored current-track
+announcement. Qualified Artist/Album/credit facts retain selection priority.
+
+Runtime may attach a typed immutable proof from its actual current playing
+projection only after the existing observed-item/generation/freshness checks.
+Require exact current canonical item identity and exact title/artist agreement
+with the provider boundary. Knowledge carries that proof, not a caller flag or
+raw provider narrative; the Moment Engine realizes the four Persona forms in
+the selected language. Missing/mismatching evidence gives the existing safe
+alternative/Silence, not a fabricated announcement. No new listener, opportunity,
+Planner, counter or backend action. No status-read publication.
+
+The proof is ephemeral, current-only and bounded to the original observation
+freshness deadline (30s), publication display window and Session lifetime.
+Native owner/shared visual admission requires the exact published binding and
+Spotify source link/mark; it grants no archive. Speech is independently the
+qualified owner-local exact reading, never cloud/model processing of catalog
+metadata. Historical aggregate acceptance may count the actual Moment once,
+while its body remains unavailable for retention. Reconnect, preparation and
+later observations cannot renew the old proof or rewrite its content.
+
+### Genre fallback qualification refinement (review finding)
+
+The real Track Insight fallback can enrich artist genres even when no catalog
+fact qualifies. A generic Genre card with only `track_insight` as source has no
+native/speech grant. Do not widen that grant on a source label. Reuse the
+existing qualified-fact path for the already available exact-ID Spotify
+playback-status artist/genre evidence: same canonical current recording,
+matching title/artist, exactly one identified artist and a bounded genre label
+actually present in that observation. Its normalized fact names genre context,
+not measured track audio; attribute/link the identified Spotify artist. No new
+lookup, source, model input, historical body or independent publication path.
+
+Name-only `artist_profile` search, absent/multiple artist identities, malformed
+or stale evidence does not qualify this extension. The production unmeasured
+Genre fallback then becomes Silence, with ordinary compact playback context
+remaining available. Four-Persona local forms retain the original anchors;
+current-only display and owner-local speech keep their existing source expiry,
+attribution and session/profile withdrawal checks. This closes a real review
+gap; legacy source fixtures are not evidence of a broader processing right.
+
+Genre qualification attaches to the existing Genre intent after Planner
+selection, so it does not change that Planner's Silence/Direction priority or
+replace the delivered Genre→Track continuity policy. Existing narrative line,
+published anchor checks, pending-transition budget and final fences remain the
+owners. A later relation needs the original published qualified genre fact and
+a fresh existing observation of the actually current different recording; it
+cannot renew an old announcement's30s display proof. The new relation has its
+own current-only proof/deadline and original two-anchor identity, both Spotify
+source links, no archive, and four authored Persona realizations. No queue,
+future-media promise, catch-up publication or new relation selection is added.
+
+The existing Spotify artist cache deadline is part of the private qualification
+proof. A read, fact realization or relation never renews that deadline. Genre
+validity ends at the earlier of the original six-hour cache deadline and the
+ordinary thirty-minute fact bound. Missing, malformed or elapsed cache evidence
+fails closed, including while generation or speech is in flight. The deadline
+stays internal; owner/native delivery receives only its existing safe expiry.
+
 ## Per-family realization and processor qualification
 
 | Family / evidence | Bubble realization | Speech route and limits |
@@ -91,6 +156,32 @@ separate from generic cloud synthesis and archive processing. Unsupported use
 must return explicit processor/source unavailability, not a silent fallback.
 
 ## Content and five-language acceptance
+
+### Direction realization refinement before runtime changes
+
+The existing Planner-approved Session update remains the sole publication
+opportunity. Knowledge's validated Direction context owns its meaning. The
+Moment Engine chooses an authored Home/Radio/Club/Festival wording for that
+same intent; it adds no track, artist, album, next-media or observed-energy
+claim. An unanchored Direction update cannot borrow Forecast's artist/album
+placeholders. Use four explicit unanchored forms for exploring, deepening and
+maintaining; reuse Forecast's already authored intent forms for building,
+cooling, returning and resetting. Keep intent/uncertainty, locale, source,
+Presence budget and semantic commit unchanged. Existing Forecast current and
+conditional-target facts retain their factual labels; its narrative intent
+continues to use its four Persona forms. No speech preparation creates or
+rewrites either projection.
+
+Qualified Track Insight continues to use its existing independently authorized
+model context and configured HA conversation route. Reuse the common Ask DJ
+Persona answer-form instructions for that request's confirmed style instead of
+passing only a machine Persona label. This is presentation guidance on the same
+already permitted evidence/call, not another generation, fallback provider or
+permission to submit catalog display metadata. Keep its existing target/style/
+locale cache partition and acceptance guard. A general or Session Ask DJ screen
+still reaches the same backend; insight is a selected capability, not a parallel
+conversation implementation. Missing source permission keeps the existing
+unmeasured detail, without a model call or fabricated musical analysis.
 
 Use en/nl/de/fr/es and actual Home/Radio/Club/Festival forms in the factual
 sentence, not a fixed greeting, Persona label or hype suffix. Preserve exact
@@ -136,3 +227,36 @@ fit, otherwise Silence, never raw genre prose. Birth/formation sentences use the
 grammatical year/month/day phrase; edition sentences name the qualified catalog
 edition without implying its first release. A single date is still a single
 fact, not evidence of a rich multi-fact narrative or finished Persona acceptance.
+
+## Local connected qualification checkpoint
+
+The implementation joins accepted common dialogue turns, live immutable Moments
+and independently retained historical contributions to the same private speech
+preparation/byte owner. Current playback announcements share the existing Planner
+and Presence ledger; they neither create playback observations nor archive catalog
+bodies. A later Genre→Track relation uses its existing pending opportunity and
+budget, original published genre proof and a fresh current-track observation.
+
+The captured connected matrix contains six qualified fact families across four
+Personas and five languages (120 real Core/SQLite/owner-adapter cases). The
+transition matrix distinguishes one complete Runtime sequence with simulated
+elapsed time from twenty Moment-engine previews of its actual approval; previews
+are not twenty publications. Exact text, original source links, original Persona,
+manual-only replay and shared-screen exclusion are asserted. Backend cache-hit
+tests prove that repeated reads cannot renew near-expired genre evidence; an
+actual pending private synthesis is cancelled at that original deadline.
+
+Description realization preserves the exact localized Wikidata descriptor inside
+a natural attributed introduction. Qualified Spotify genre narration refers to
+the identified artist’s classification, not measured audio properties of the
+recording. Its richer source-specific wording requires the validated display
+core; generic metadata cannot acquire a Spotify attribution through presentation.
+The source-poor unmeasured fallback remains Silence, including when Knowledge
+receives a fact whose deadline elapsed before realization.
+
+These are local qualification results, not source/main delivery or native
+listening acceptance. Browser software proofs use actual isolated HA/Broadcast
+and the common local/static renderer, with a modeled CAF host adapter. External
+provider/STT/Wyoming inventory and waveform boundaries are explicit fixtures;
+nonempty WAV bytes do not qualify real audible voice quality. Native visible/
+audible adoption, installed acceptance and joint product acceptance remain open.

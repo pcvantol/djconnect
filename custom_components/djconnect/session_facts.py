@@ -7,6 +7,7 @@ Wikidata CC0 descriptions are eligible. Provider payloads remain transient.
 from __future__ import annotations
 
 import asyncio
+import math
 from dataclasses import dataclass, replace, field
 from datetime import date
 import re
@@ -39,6 +40,13 @@ class DisplayFactCore:
     def validates(self, fact: QualifiedSessionFact) -> bool:
         if self.kind != fact.key:
             return False
+        if self.kind == "genre_context":
+            if (self.entity_type != "ArtistGenre" or not label(self.subject, 160)
+                    or len(self.roles) != 2 or tuple(r for r, _ in self.roles) != ("track", "artist")
+                    or any(len(names) != 1 or not label(names[0], 160) for _, names in self.roles)):
+                return False
+            return fact.contents == tuple(zip(LANGUAGES, _genre_bodies(self.subject,
+                self.roles[0][1][0], self.roles[1][1][0])))
         if self.kind == "recording_credits":
             if (not self.roles or len({r for r, _ in self.roles}) != len(self.roles)
                     or any(r not in CREDIT_ROLES or not names or any(not label(n,160) for n in names)
@@ -153,6 +161,7 @@ class QualifiedSessionFact:
     display_core: DisplayFactCore | None = None
     artwork_subject_uri: str = ""
     artwork_album_uri: str = ""
+    source_expires_at: float | None = None
 
     def copy_for(self, locale: str) -> tuple[str, str] | None:
         lang = locale[:2].lower()
@@ -164,6 +173,7 @@ class QualifiedSessionFact:
         # widen the narrow visual-only producer contract.
         fields = {
             "album_release": ("Spotify", "album_story", "Spotify metadata display", r"https://open\.spotify\.com/album/[A-Za-z0-9]{22}"),
+            "genre_context": ("Spotify", "genre_story", "Spotify metadata display", r"https://open\.spotify\.com/artist/[A-Za-z0-9]{22}"),
             "recording_credits": ("MusicBrainz", "track_context", "CC0-1.0", r"https://musicbrainz\.org/recording/" + MBID.pattern),
             "work_composers": ("MusicBrainz", "track_context", "CC0-1.0", r"https://musicbrainz\.org/work/" + MBID.pattern),
             "artist_begin": ("MusicBrainz", "artist_story", "CC0-1.0", r"https://musicbrainz\.org/artist/" + MBID.pattern),
@@ -177,6 +187,11 @@ class QualifiedSessionFact:
             and re.fullmatch(r"spotify:track:[A-Za-z0-9]{22}", media_identity)
             and self.media_identity == media_identity
             and 0 <= now - self.observed_at <= 1800
+            and (self.source_expires_at is None or (not isinstance(self.source_expires_at, bool)
+                 and isinstance(self.source_expires_at, (int, float)) and math.isfinite(self.source_expires_at)
+                 and now < self.source_expires_at))
+            and (self.key != "genre_context" or (self.source_expires_at is not None
+                 and self.display_core is not None and self.display_core.validates(self)))
         )
 
 
@@ -458,6 +473,44 @@ def _fact(
         artwork_album_uri=str(catalog.get("album_uri") or "") if re.fullmatch(
             r"spotify:album:[A-Za-z0-9]{22}", str(catalog.get("album_uri") or "")) else "",
     )
+
+
+def _genre_bodies(genre: str, title: str, artist: str) -> list[str]:
+    return [
+        f"The genre context for {title} by {artist} is {genre}.",
+        f"De genrecontext bij {title} van {artist} is {genre}.",
+        f"Der Genrekontext zu {title} von {artist} ist {genre}.",
+        f"Le contexte de genre de {title} par {artist} est {genre}.",
+        f"El contexto de género de {title} de {artist} es {genre}.",
+    ]
+
+
+def observed_genre_facts(evidence: Any, *, media_identity: str, title: str, artist: str) -> tuple[QualifiedSessionFact, ...]:
+    """Reuse exact-ID current status evidence, never a name-search genre guess."""
+    if (not isinstance(evidence, dict) or evidence.get("source") != "spotify_playback_status"
+            or evidence.get("backend") != "spotify_direct" or evidence.get("is_playing") is not True
+            or evidence.get("media_identity") != media_identity
+            or not re.fullmatch(r"spotify:track:[A-Za-z0-9]{22}", media_identity)
+            or evidence.get("title") != title or evidence.get("artist") != artist
+            or label(title, 160) != title or label(artist, 160) != artist):
+        return ()
+    ids, genres = evidence.get("artist_ids"), evidence.get("genres")
+    now, deadline = time.monotonic(), evidence.get("genre_source_expires_at")
+    if (isinstance(deadline, bool) or not isinstance(deadline, (int, float))
+            or not math.isfinite(deadline) or not now < deadline <= now+6*60*60):
+        return ()
+    if (not isinstance(ids, (list, tuple)) or len(ids) != 1
+            or not isinstance(ids[0], str) or not re.fullmatch(r"[A-Za-z0-9]{22}", ids[0])
+            or not isinstance(genres, (list, tuple)) or not 0 < len(genres) <= 10):
+        return ()
+    genre = next((value for value in genres if isinstance(value, str) and label(value, 160) == value), "")
+    if not genre:
+        return ()
+    fact = _fact("genre_context", {"uri": media_identity}, "genre_story", [genre]*5,
+        _genre_bodies(genre, title, artist), "Spotify", "https://open.spotify.com/artist/"+ids[0],
+        DisplayFactCore("genre_context", genre, roles=(("track", (title,)), ("artist", (artist,))),
+                        entity_type="ArtistGenre"))
+    return (replace(fact, source_expires_at=min(deadline, fact.observed_at+1800)),)
 
 
 def catalog_facts(catalog: dict[str, Any]) -> list[QualifiedSessionFact]:

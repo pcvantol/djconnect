@@ -70,6 +70,10 @@ class NarrativeAlbumContinuityTest(unittest.TestCase):
                     a = await self.track(0)
                     self.assertEqual(a.moment_type.value, "album")
                     frozen = a.as_dict()
+                    from custom_components.djconnect import session_speech
+                    from tests.speech_capture import capture
+                    first_speech = session_speech.moment_projection(self.session.broadcast, a)
+                    self.assertTrue(first_speech['manual_allowed'])
                     b = await self.track(1)
                     self.assertEqual(b.moment_type.value, "track")
                     self.assertIsInstance(b.source_fact, self.facts.AlbumContinuityFact)
@@ -88,6 +92,13 @@ class NarrativeAlbumContinuityTest(unittest.TestCase):
                     self.assertTrue(delivery["current_display_allowed"])
                     self.assertFalse(delivery["active_flow_display_allowed"])
                     self.assertTrue(delivery["requires_spotify_attribution"])
+                    speech = session_speech.moment_projection(self.session.broadcast, b)
+                    self.assertTrue(speech['manual_allowed'], speech)
+                    self.assertEqual(''.join(p['text'] for p in speech['segments']), b.content)
+                    self.assertEqual(speech['attribution'], [dict(b.source_attribution)])
+                    capture('album-continuity-speech', {'locale': locale, 'persona': persona.value,
+                        'sequence': [a.as_dict(), b.as_dict()], 'speech': [first_speech, speech],
+                        'scope': 'Actual published Runtime/Planner album relation, elapsed fixture; same private speech descriptor; no native synthesis claim.'})
                     copies.append(b.content)
                 self.assertEqual(len(set(copies)), 4)
         asyncio.run(scenario())

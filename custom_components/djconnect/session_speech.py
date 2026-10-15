@@ -311,7 +311,7 @@ async def resolve_moment(hass, profile_id, reference):
     guard = PrivateSpeechSource(hass, validate,
         expires_at=datetime.fromisoformat(descriptor["expires_at"]).timestamp(), session_id=active.session_id)
     source = moment.source_fact
-    guard.processor_basis = ("spotify_owner_local_read_v1" if source is not None and source.provider == "Spotify"
+    guard.processor_basis = ("spotify_owner_local_read_v1" if (source is not None and source.provider == "Spotify") or moment.observed_playback is not None or moment.genre_transition is not None
         else "cc0_normalized_fields_v1" if source is not None else "runtime_authored_direction_v1")
     broadcast.speech_cleanup = lambda: invalidate_private_speech_sources(hass, session_id=active.session_id)
     broadcast.speech_refresh = lambda: collect_private_speech_sources(hass, session_id=active.session_id)

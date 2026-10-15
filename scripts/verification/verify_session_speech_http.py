@@ -42,7 +42,7 @@ from custom_components.djconnect.spotify_backend import SpotifyBackend  # noqa: 
 from custom_components.djconnect.session_facts import SessionFactsResolver  # noqa: E402
 
 
-async def processor_fixture(hass):
+async def processor_fixture(hass, model_entity_id=None):
     """External Wyoming service only is a fixture; HA entity/inventory/TCP are real."""
     from homeassistant.components import tts, websocket_api
     from homeassistant.components.wyoming.tts import WyomingTtsProvider
@@ -86,7 +86,7 @@ async def processor_fixture(hass):
     await component.async_add_entities([entity])
     await websocket_api.async_setup(hass, {})
     settings = {"id": "own-speech-pipeline", "name": "Own speech qualification", "language": "en",
-                "conversation_engine": None, "conversation_language": None, "stt_engine": None, "stt_language": None,
+                "conversation_engine": model_entity_id, "conversation_language": None, "stt_engine": None, "stt_language": None,
                 "tts_engine": entity.entity_id, "tts_language": "en", "tts_voice": "fixture-en",
                 "wake_word_entity": None, "wake_word_id": None}
     await PipelineStore(hass, STORAGE_VERSION, STORAGE_KEY, minor_version=STORAGE_VERSION_MINOR).async_save(
@@ -108,13 +108,20 @@ async def main():
     await area_registry.async_load(hass, load_empty=True)
     hass.auth = await auth.auth_manager_from_config(hass, [{"type": "homeassistant"}], [])
     hass.http = HomeAssistantHTTP(hass, None, None, None, ["127.0.0.1"], 0, [], "modern")
-    await hass.http.async_initialize(cors_origins=[], use_x_forwarded_for=False,
+    await hass.http.async_initialize(cors_origins=["https://localhost:18236"] if os.environ.get("DJC_SPEECH_BROWSER") else [], use_x_forwarded_for=False,
         login_threshold=-1, is_ban_enabled=False, use_x_frame_options=True)
     identity = {"device_id": "djconnect-ios-ABCDEF123456", "client_type": "ios"}
     slot = entry("speech-owner", {**identity, "pair_code": "123456", "profile_id": "profile-a",
         "music_backend": "spotify_direct", "music_account_id": "fixture-account",
         "spotify_client_id": "fixture-client", "spotify_refresh_token": "fixture-not-sent"})
-    await ConfigEntryStore(hass).async_save({"entries": [slot.as_storage_fragment]})
+    model_bundle = None
+    if os.environ.get('DJC_SPEECH_MODEL_MATRIX'):
+        from session_speech_model_lab import entry_from_stdin
+        model_bundle = entry_from_stdin()
+    entries = [slot.as_storage_fragment]
+    if model_bundle:
+        entries.append(model_bundle[0].as_storage_fragment)
+    await ConfigEntryStore(hass).async_save({"entries": entries})
     hass.config_entries = ConfigEntries(hass, {})
     await hass.config_entries.async_initialize()
     slot = hass.config_entries.async_get_entry("speech-owner")
@@ -135,13 +142,16 @@ async def main():
     hass.data["djconnect"]["session_runtime_manager"] = manager
     calls = []
     selected_track = ["A"*22]
+    def genre_artist_id():
+        return "Z"*22 if selected_track[0] in {"G"*22, "H"*22, "I"*22} else "B"*22
     def track_item():
         return {"id": selected_track[0], "uri": "spotify:track:"+selected_track[0], "type": "track",
-                "name": "Fixture track", "artists": [{"id": "B"*22, "name": "Fixture artist"}],
+                "name": ({"G"*22: "Baseline", "H"*22: "First Light", "I"*22: "Second Light"}.get(selected_track[0], "Fixture track")), "artists": [{"id": genre_artist_id(), "name": "Fixture artist"}],
                 "external_ids": {"isrc": "USAAA0100001"}, "duration_ms": 300000,
                 "album": {"id": "C"*22, "uri": "spotify:album:"+"C"*22,
                           "name": "Fixture album", "images": []}}
     async def provider(self, method, path, **kwargs):
+        assert method.upper() == "GET", (method, path)
         calls.append(path)
         if path == "/me/player":
             return {"is_playing": True, "progress_ms": 15000,
@@ -153,12 +163,14 @@ async def main():
         if path.startswith("/tracks/"):
             return track_item()
         if path.startswith("/artists/"):
-            return {"id": "B"*22, "name": "Fixture artist", "genres": [], "images": []}
+            return {"id": genre_artist_id(), "name": "Fixture artist", "genres": (["ambient"] if selected_track[0] in {"G"*22, "H"*22, "I"*22} else []), "images": []}
         if path.startswith("/artists"):
-            return {"artists": [{"id": "B"*22, "name": "Fixture artist", "genres": [], "images": []}]}
+            return {"artists": [{"id": genre_artist_id(), "name": "Fixture artist", "genres": (["ambient"] if selected_track[0] in {"G"*22, "H"*22, "I"*22} else []), "images": []}]}
         return {}
     async def facts(self, path, params=None, **kwargs):
         if not os.environ.get("DJC_MOMENT_SPEECH"):
+            return {}
+        if os.environ.get("DJC_PLAYBACK_NARRATION") and selected_track[0] != "D"*22:
             return {}
         calls.append("knowledge:"+path)
         mbid = "12345678-1234-1234-1234-123456789abc"
@@ -178,8 +190,18 @@ async def main():
     key = aiohttp_client._make_key(True, socket.AF_UNSPEC, aiohttp_client.ssl_util.SSLCipherList.PYTHON_DEFAULT)
     hass.data.setdefault(aiohttp_client.DATA_CLIENTSESSION, {})[key] = provider_session
     register_http_views(hass)
+    browser_serve = None
+    if os.environ.get("DJC_SPEECH_BROWSER"):
+        from session_speech_browser_lab import register
+        browser_serve = register(hass, output=output)
     receipts = {}
-    fixture_server, synthesis_calls = await processor_fixture(hass)
+    timings = []
+    sqlite_start_bytes = sum(p.stat().st_size for p in config.rglob('*.sqlite*') if p.is_file())
+    model_entity_id = None
+    if model_bundle:
+        from session_speech_model_lab import install
+        model_entity_id = await install(hass, model_bundle[0], model_bundle[1])
+    fixture_server, synthesis_calls = await processor_fixture(hass, model_entity_id)
     try:
         async with TestClient(TestServer(hass.http.app)) as client:
             response = await client.post("/api/djconnect/v1/pair", json={**identity, "pair_code": "123456"})
@@ -187,8 +209,11 @@ async def main():
             assert response.status == 200 and paired["device_token"] == slot.data["device_token"]
             headers = {"Authorization": "Bearer " + paired["device_token"], "X-DJConnect-Device-ID": identity["device_id"]}
             async def post(path, payload, expected=200):
+                began = time.perf_counter()
                 response = await client.post("/api/djconnect/v1" + path, json=payload, headers=headers)
                 body = await response.json()
+                timings.append({'path': path, 'status': response.status,
+                                'elapsed_ms': round((time.perf_counter()-began)*1000, 3)})
                 assert response.status == expected, (response.status, body)
                 assert response.headers["Cache-Control"] == "no-store"
                 return body
@@ -352,6 +377,118 @@ async def main():
                     "original_style_replay": old_style, "end": ended, "live_after_end": rejected_live,
                     "old_bytes_after_end": deleted.status, "retained_entry": history_entry,
                     "retained_replay": retained, "new_moments_from_listening": 0}
+                if os.environ.get("DJC_PLAYBACK_NARRATION"):
+                    # Another ordinary Session, no source facts: only actual
+                    # observed metadata may support the authored fallback.
+                    selected_track[0] = "E"*22
+                    again = await post("/session/start", {**identity, "mood": "groove", "locale": "en"}, expected=201)
+                    again_id = again["session"]["session_id"]
+                    await post("/session/persona", {**identity, "contract_version": 1, "session_id": again_id,
+                        "selected_persona": "radio_dj", "expected_persona_revision": 0})
+                    for _ in range(150):
+                        again_active = await manager.async_get_active("profile-a")
+                        if again_active.broadcast.state.playback.source_url.endswith("E"*22):
+                            break
+                        await asyncio.sleep(0.1)
+                    assert again_active.broadcast.state.playback.source_url.endswith("E"*22)
+                    selected_track[0] = "F"*22
+                    announced = None
+                    for _ in range(150):
+                        again_active = await manager.async_get_active("profile-a")
+                        announced = next((m for m in again_active.broadcast.state.dj_moments if m.observed_playback is not None), None)
+                        if announced:
+                            break
+                        await asyncio.sleep(0.1)
+                    assert announced is not None, again_active.broadcast.as_dict()
+                    assert announced.content == "Now playing: Fixture track, by Fixture artist."
+                    assert announced.observed_playback.source_url.endswith("F"*22)
+                    assert again_active.presence_ledger.total_published == 1
+                    announce_request = {**identity, "contract_version": 1,
+                        "reference": {"session_id": again_id, "moment_id": announced.moment_id},
+                        "processor": "ha_configured", "voice_preference": "default"}
+                    announcement_audio = await post("/speech/prepare", announce_request)
+                    assert announcement_audio["session_speech"]["audio_state"] == "ready", announcement_audio
+                    assert synthesis_calls[-1] == announced.content
+                    if browser_serve is not None:
+                        async with browser_serve(client, identity, post, again_active, announced) as ended_again:
+                            pass
+                    else:
+                        ended_again = await post("/session/end", {**identity, "session_id": again_id})
+                    response = await client.get("/api/djconnect/v1/session/history/"+again_id, params=identity, headers=headers)
+                    announcement_history = await response.json()
+                    assert response.status == 200, announcement_history
+                    assert not any(e.get("moment_id") == announced.moment_id for e in announcement_history["entries"])
+                    summary = announcement_history['session']['summary']
+                    assert summary['moments_published']['value'] == 1
+                    assert summary['tracks_observed']['value'] == 2
+                    receipts["observed_playback_announcement"] = {"moment": announced.as_dict(),
+                        "speech": announcement_audio, "accepted_moments": 1,
+                        "retained_body": False, "history": announcement_history,
+                        "end": {"session_id": ended_again["session"]["session_id"],
+                                "runtime_state": ended_again["session"]["runtime_state"]}}
+            if os.environ.get("DJC_GENRE_TRANSITION_SPEECH"):
+                selected_track[0] = "G"*22
+                started_genre = await post("/session/start", {**identity, "mood": "groove", "locale": "en",
+                    "session_start_strategy": "discover"}, expected=201)
+                genre_sid = started_genre["session"]["session_id"]
+                for _ in range(150):
+                    genre_active = await manager.async_get_active("profile-a")
+                    if genre_active.broadcast.state.playback.source_url.endswith("G"*22):
+                        break
+                    await asyncio.sleep(0.1)
+                assert genre_active.broadcast.state.playback.source_url.endswith("G"*22)
+                selected_track[0] = "H"*22
+                genre_moment = None
+                for _ in range(150):
+                    genre_moment = next((m for m in genre_active.broadcast.state.dj_moments
+                        if m.source_fact is not None and m.source_fact.key == "genre_context"), None)
+                    if genre_moment:
+                        break
+                    await asyncio.sleep(0.1)
+                assert genre_moment is not None, genre_active.broadcast.as_dict()
+                async def speak_exact(m):
+                    request = {**identity, "contract_version": 1,
+                        "reference": {"session_id": genre_sid, "moment_id": m.moment_id},
+                        "processor": "ha_configured", "voice_preference": "default"}
+                    result = await post("/speech/prepare", request)
+                    assert result["session_speech"]["audio_state"] == "ready", result
+                    assert synthesis_calls[-1] == m.content
+                    return result
+                genre_audio = await speak_exact(genre_moment)
+                # Existing common budget, real elapsed time; no counter/clock reset.
+                print("WAIT_REAL_GENRE_PLANNER_INTERVAL", flush=True)
+                await asyncio.sleep(91)
+                selected_track[0] = "I"*22
+                target_moment = None
+                for _ in range(150):
+                    target_moment = next((m for m in genre_active.broadcast.state.dj_moments
+                        if m.observed_playback is not None and m.observed_playback.source_url.endswith("I"*22)), None)
+                    if target_moment:
+                        break
+                    await asyncio.sleep(0.1)
+                assert target_moment is not None, genre_active.broadcast.as_dict()
+                target_audio = await speak_exact(target_moment)
+                print("WAIT_REAL_EXISTING_TRANSITION_BUDGET", flush=True)
+                relation = None
+                for _ in range(500):
+                    relation = next((m for m in genre_active.broadcast.state.dj_moments
+                        if m.genre_transition is not None), None)
+                    if relation:
+                        break
+                    await asyncio.sleep(0.1)
+                assert relation is not None, genre_active.broadcast.as_dict()
+                relation_audio = await speak_exact(relation)
+                assert genre_active.presence_ledger.total_published == 3
+                assert relation.genre_transition.earlier.source_expires_at == genre_moment.source_fact.source_expires_at
+                receipts["genre_transition_speech"] = {"genre": genre_moment.as_dict(),
+                    "genre_audio": genre_audio, "target": target_moment.as_dict(), "target_audio": target_audio,
+                    "relation": relation.as_dict(), "relation_audio": relation_audio,
+                    "accepted_moments": 3, "original_genre_deadline": genre_moment.source_fact.source_expires_at,
+                    "no_clock_patch_or_budget_reset": True}
+                await post("/session/end", {**identity, "session_id": genre_sid})
+                await post("/speech/prepare", {**identity, "contract_version": 1,
+                    "reference": {"session_id": genre_sid, "moment_id": relation.moment_id},
+                    "processor": "ha_configured", "voice_preference": "default"}, expected=404)
             await storage.async_update_profile("profile-a", privacy_mode=ProfilePrivacyMode.SHARED)
             await storage.async_update_profile("profile-a", privacy_mode=ProfilePrivacyMode.NORMAL)
             receipts["profile_aba"] = await post("/speech/prepare", request, expected=404)
@@ -359,6 +496,13 @@ async def main():
             denied = await client.post("/api/djconnect/v1/speech/audio", json={**identity, "contract_version": 1, "asset_id": asset}, headers=headers)
             assert denied.status == 404
             receipts["withdrawn_audio_status"] = denied.status
+            if model_bundle:
+                current_for_model = manager.current_active('profile-a')
+                if current_for_model is not None:
+                    await post('/session/end', {**identity, 'session_id': current_for_model.session_id})
+                from session_speech_model_lab import matrix
+                receipts['actual_model_persona_matrix'] = await matrix(
+                    hass, runtime, post, identity, model_bundle[2])
             # An actual uninterrupted idle TTL run can be enabled for qualification.
             duration = int(os.environ.get("DJC_SPEECH_IDLE_SECONDS", "0"))
             if duration:
@@ -374,12 +518,20 @@ async def main():
             receipts["source_hashes"] = {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest()
                 for p in (ROOT / "custom_components/djconnect").rglob("*.py") if "__pycache__" not in p.parts}
             receipts["scope"] = "EARLY_CORE_TRANSPORT_ONLY_NOT_FULL_SLICE_OR_NATIVE_AUDIO"
+            import resource
+            receipts['bounded_resources'] = {'http_timings': timings,
+                'sqlite_start_bytes': sqlite_start_bytes,
+                'sqlite_final_bytes': sum(p.stat().st_size for p in config.rglob('*.sqlite*') if p.is_file()),
+                'max_rss_kib': resource.getrusage(resource.RUSAGE_SELF).ru_maxrss,
+                'scope': 'Owned Linux HA fixture; external provider/STT/waveform boundaries are fixtures; instrumentation included, not live model/native latency.'}
             (output / "speech-http-early.json").write_text(json.dumps(receipts, indent=2) + "\n")
             print("SPEECH_EARLY_HTTP_PASS", flush=True)
     finally:
         fixture_server.close()
         await fixture_server.wait_closed()
         await provider_session.close()
+        if model_bundle:
+            await model_bundle[1].close()
         await async_shutdown_persistence(hass)
         await hass.async_stop()
 

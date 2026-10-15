@@ -345,10 +345,10 @@ EDITION = {'en': ('Spotify dates this edition of {s} to {d}.',
         'Spotify nennt für diese Ausgabe von {s} das Datum {d}.',
         'Diese Ausgabe von {s}: {d}, laut Spotify.',
         'Ordnen wir diese Ausgabe von {s} zeitlich ein: Spotify nennt {d}.'),
- 'fr': ('Pour cette édition de {s}, Spotify indique {d}.',
-        'Spotify indique la date {d} pour cette édition de {s}.',
-        'Cette édition de {s} : {d}, selon Spotify.',
-        'Situons cette édition de {s} dans le temps : Spotify indique {d}.'),
+ 'fr': ('Pour cette édition de l’album « {s} », Spotify indique {d}.',
+        'Spotify indique la date {d} pour cette édition de l’album « {s} ».',
+        'Cette édition de l’album « {s} » : {d}, selon Spotify.',
+        'Situons cette édition de l’album « {s} » dans le temps : Spotify indique {d}.'),
  'es': ('Para esta edición de {s}, Spotify indica {d}.',
         'Spotify indica la fecha {d} para esta edición de {s}.',
         'Esta edición de {s}: {d}, según Spotify.',
@@ -447,38 +447,26 @@ HEADINGS = {
         "Nombres en primer plano",
     ),
 }
-DESCRIPTION = {
-    "en": (
-        "The short description of {s} reads: “{d}”.",
-        "In the short description, {s} is introduced as “{d}”.",
-        "{s}: “{d}”, from the short description.",
-        "The short description gives {s} this introduction: “{d}”.",
-    ),
-    "nl": (
-        "De korte beschrijving van {s} luidt: “{d}”.",
-        "In de korte beschrijving wordt {s} voorgesteld als “{d}”.",
-        "{s}: “{d}”, uit de korte beschrijving.",
-        "De korte beschrijving stelt {s} zo voor: “{d}”.",
-    ),
-    "de": (
-        "Die Kurzbeschreibung von {s} lautet: „{d}“.",
-        "In der Kurzbeschreibung wird {s} als „{d}“ vorgestellt.",
-        "{s}: „{d}“, aus der Kurzbeschreibung.",
-        "Die Kurzbeschreibung stellt {s} so vor: „{d}“.",
-    ),
-    "fr": (
-        "La courte description de {s} dit : « {d} ».",
-        "Dans la courte description, {s} est présenté ainsi : « {d} ».",
-        "{s} : « {d} », d’après la courte description.",
-        "La courte description présente {s} ainsi : « {d} ».",
-    ),
-    "es": (
-        "La descripción breve de {s} dice: «{d}».",
-        "En la descripción breve, {s} se presenta como «{d}».",
-        "{s}: «{d}», de la descripción breve.",
-        "La descripción breve presenta así a {s}: «{d}».",
-    ),
-}
+DESCRIPTION = {'en': ('If you’re getting to know {s}, Wikidata offers this starting point: “{d}”.',
+        'Introducing {s}, described by Wikidata as “{d}”.',
+        '{s}. “{d}”, according to Wikidata.',
+        'Meet {s}: “{d}”, in Wikidata’s words.'),
+ 'nl': ('Om {s} te leren kennen, biedt Wikidata dit aanknopingspunt: “{d}”.',
+        'Dit is {s}, door Wikidata omschreven als “{d}”.',
+        '{s}. “{d}”, volgens Wikidata.',
+        'Maak kennis met {s}: “{d}”, in de woorden van Wikidata.'),
+ 'de': ('Wer {s} kennenlernen möchte, findet bei Wikidata diesen Einstieg: „{d}“.',
+        'Wir stellen vor: {s}, von Wikidata als „{d}“ beschrieben.',
+        '{s}. „{d}“, laut Wikidata.',
+        'Lernen wir {s} kennen: „{d}“, in den Worten von Wikidata.'),
+ 'fr': ('Pour découvrir {s}, Wikidata propose ce point de départ : « {d} ».',
+        'Voici {s}, selon les mots de Wikidata : « {d} ».',
+        '{s}. « {d} », selon Wikidata.',
+        'Faisons connaissance avec {s} : « {d} », dans les mots de Wikidata.'),
+ 'es': ('Para conocer a {s}, Wikidata ofrece este punto de partida: «{d}».',
+        'Presentamos a {s}, en palabras de Wikidata: «{d}».',
+        '{s}. «{d}», según Wikidata.',
+        'Conozcamos a {s}: «{d}», en palabras de Wikidata.')}
 
 
 def joined(names: tuple[str, ...], locale: str) -> str:
@@ -550,6 +538,12 @@ def realize(
                         )
                     lines.append(line)
                 body = " ".join(lines)
+            elif core.kind == "genre_context":
+                from .context_expression import genre_copy
+                body = genre_copy(locale=lang, persona=persona, form=form, genre=core.subject,
+                    title=core.roles[0][1][0], artist=core.roles[1][1][0], qualified_artist=True)
+                if body is None:
+                    return None
             elif core.kind == "work_composers":
                 body = COMPOSERS[lang][profile].format(n=joined(core.roles[0][1], lang))
             else:

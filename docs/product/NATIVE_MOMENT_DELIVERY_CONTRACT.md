@@ -212,3 +212,16 @@ exported. Autoplay eligibility is true only in the original new Moment event,
 never snapshots, Presentation/Flow updates or reconnect/replay. Manual listening
 creates no new DJMoment, Summary count or budget debit. Passive WidgetKit/
 ActivityKit/locked-display/cache rights are not granted by this extension.
+
+## Current-playback narration qualification (selected speech slice)
+
+An ordinary Planner-approved Track-context fallback may hold the Runtime's
+typed `ObservedPlaybackNarration` proof. It names only the current observed
+title/artist. Native admission validates the exact original item, publication
+metadata snapshot, authored Persona copy and Spotify source link/mark. Its
+source expiry is the original observation plus30s, bounded further by the
+original display duration and Session end; subsequent polls/reconnects do not
+renew it. It is current-only, never retained-in-Flow or an archived body. Shared
+visual compatibility adds no private speech field. Exact owner-local reading
+has separate processor qualification; no cloud/model grant follows. Planner
+Silence and higher-priority Direction/qualified facts remain authoritative.

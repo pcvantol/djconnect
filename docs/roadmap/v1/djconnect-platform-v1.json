@@ -39940,11 +39940,11 @@
     "document_references": [
       {
         "path": "PRODUCT_ROADMAP.md",
-        "sha256": "444528ea2d546880f0627192c20953ca49faff16ed27a6a756e237547d120d18"
+        "sha256": "796c2d0997874329b0b825a3884bbf3d571b4d9b2aec8783c1e63fbe1d88c0b4"
       },
       {
         "path": "PRODUCT_BACKLOG.md",
-        "sha256": "127136c5651bc960933e9c22813e2898abead9740d3283f1547f90bdf6023471"
+        "sha256": "a5ed64932919b47fb841b25b9293962e6b3fda3ffddfc5bd5a07b92257602b50"
       },
       {
         "path": "docs/product/DJ_PRESENCE_V1.md",
@@ -40004,7 +40004,7 @@
       },
       {
         "path": "docs/product/NATIVE_MOMENT_DELIVERY_CONTRACT.md",
-        "sha256": "589b5ae2a02315694fb2356495c75a7889a1ad62f5a4161d60c55ddfd634114d"
+        "sha256": "75286b63087b0dec98f42d2bbf9c9fd1d6d9f50cbc9c75a51154b3ddb9173af2"
       },
       {
         "path": "docs/technical/BROADCAST_TRANSPORT.md",
@@ -40168,11 +40168,11 @@
       },
       {
         "path": "docs/product/SESSION_SPEECH_PERSONA_V1.md",
-        "sha256": "0bf68daaab0920d525a3ee596ce8ad570cdbf470e595cb9ec4b715065174a632"
+        "sha256": "438c313b6483fee43b45afb75ea4824b8c7fb100b43b85f6798130fe2b4934c2"
       },
       {
         "path": "docs/product/SESSION_SPEECH_DELIVERY_V1.md",
-        "sha256": "205c8c87c0b94d5f397cd1694e3a5c8fb1b088484120089c5aebef2d6976fbbc"
+        "sha256": "410f1dd05c2f5a81def6e063ee78b127d988fb4b31ed9c072cfeacfd8d2029f1"
       }
     ],
     "implementation_receipt": {

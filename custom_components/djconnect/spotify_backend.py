@@ -633,6 +633,10 @@ class SpotifyBackend:
         unique = _unique_values(genres)[:10]
         if unique:
             playback["genres"] = unique
+            cached_source = cache.get(self._scoped_cache_key(cache_key))
+            if cached_source and cached_source[1] is data:
+                # Private source deadline, not a new observation/read-time TTL.
+                playback["_artist_genres_expires_monotonic"] = cached_source[0] + LISTENING_PROFILE_CACHE_TTL_SECONDS
 
     async def _record_playback_in_music_dna(self, playback: dict[str, Any]) -> None:
         if not playback.get("has_playback") or not playback.get("track_name"):

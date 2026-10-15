@@ -6,6 +6,15 @@ DJC-SESSION-SPEECH-PERSONA-VOICE-20261015, owner6189231491/autonomous-next618991
 
 JSON maintenance12 reuses existing Voice/Speech/Audio Renderer architecture and preserves delivered artwork11. Four bounded Core leaves In progress; Apple adoption and joint visible/audible acceptance remain Planned/open with their existing writer/admission. Every intended proactive narration includes SessionPersona in bubble and speech; observed playback remains factual, announcement shares existing Planner/Presence/publication/count boundaries. No new provider/model/cost route or nativewrites. Source/Finalization retain exact publication gates; existing latest-qualified-main HA-dev/prod installation authority retained, no WIP install. No further selected productfamily.
 
+Local follow-up connects live/retained exact Moment references, current-playback
+announcements and qualified ArtistGenre→Track narration to the same speech owner.
+Direction and eligible Track Insight use the confirmed Persona. Source expiry
+survives cache hits and pending synthesis; common Presence/count/history budgets
+remain authoritative. Connected four-Persona/five-language output and independent
+review are under final qualification. Core remains In progress and unpublished;
+Apple/native audible and joint acceptance remain open. No successor is admitted.
+
+
 ## Session artwork — Core producer delivered; separate Finalization pending
 
 [Source #1172](https://github.com/pcvantol/djconnect/pull/1172) protected merged as `5c7ecb7941c555f12bd94a2969167cfaaff0cb44`. [Exact readback](docs/verification/SESSION_ARTWORK_V1_SOURCE_READBACK_20261015.md) qualifies all164 integration files and formal/coverage evidence. Three MEDIA::CORE contract/live/history subsets Completed/CORE_DELIVERED. Apple adoption and joint acceptance remain Planned/open; family PARTIAL, installed artwork NOT_RUN. One existing image owner; exact subject/edition/source/account, independent surface rights and bounded explicit archive refresh. No provider work in pure reads or semantic Moment mutation.

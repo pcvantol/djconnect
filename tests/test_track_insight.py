@@ -69,6 +69,41 @@ class TrackInsightTests(unittest.TestCase):
         asyncio.run(bind())
         hass.data['djconnect']['djconnect_profile_platform']=storage
 
+    def test_qualified_insight_reuses_common_persona_forms_without_expanding_source_or_calls(self):
+        import json
+        from copy import deepcopy
+        from custom_components.djconnect.ask_dj.dialogue import persona_answer_form
+        async def scenario():
+            module = self.track_insight
+            context = {'qualified_excerpt': 'Fixture composer is credited as composer.',
+                       'attribution': {'provider': 'MusicBrainz', 'license': 'CC0-1.0'}}
+            original = deepcopy(context)
+            prompts = []
+            class ExternalProviderFixture(module.TrackInsightAnalyzer):
+                async def _ask_conversation(self, hass, runtime, prompt, request):
+                    prompts.append(prompt)
+                    return json.dumps({'summary': context['qualified_excerpt'],
+                                       'full_text': context['qualified_excerpt']})
+            analyzer = ExternalProviderFixture()
+            for locale in ('en', 'nl', 'de', 'fr', 'es'):
+                for persona in ('home_dj', 'radio_dj', 'club_dj', 'festival_dj'):
+                    request = module.TrackInsightRequest(source='moment_detail', locale=locale,
+                        qualified_context=context, presentation_style=persona+':balanced')
+                    result, _ = await analyzer.analyze(FakeHass(), Runtime(),
+                        {'title': 'private catalog must not enter prompt'}, request)
+                    projection = json.loads(prompts[-1].split('\n', 1)[1])
+                    self.assertEqual(projection['qualified_context'], original)
+                    self.assertEqual(projection['answer_form'], persona_answer_form(persona))
+                    self.assertNotIn('private catalog', prompts[-1])
+                    self.assertIn(locale, prompts[-1])
+                    self.assertEqual(result['verified_context'], context['qualified_excerpt'])
+                    self.assertEqual(context, original)
+            self.assertEqual(len(prompts), 20)
+            await analyzer.analyze(FakeHass(), Runtime(), {'title': 'Catalog'},
+                module.TrackInsightRequest(source='session_moment', locale='en', qualified_context={}))
+            self.assertEqual(len(prompts), 20)  # No source grant, no extra model call.
+        asyncio.run(scenario())
+
     def test_prompt_builder_requests_json_only(self) -> None:
         prompt = self.track_insight.TrackInsightPromptBuilder().build(
             {"title": "Innerbloom", "artist": "RUFUS DU SOL", "album": "Bloom"},

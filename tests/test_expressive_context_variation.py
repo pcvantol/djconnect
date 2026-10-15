@@ -96,6 +96,10 @@ class ExpressiveContextVariationTest(unittest.TestCase):
                 "originals": originals,
                 "memory": memory,
             }
+            from tests.speech_capture import capture
+            capture('published-multitrack-forms', {'family': family, 'persona': persona.value,
+                'locale': locale, 'capture': self.last_capture,
+                'scope': 'Actual Runtime/Planner/Knowledge/Moment/Flow/Broadcast with explicit clocks, no independent SQLite/native voice claim.'})
             return receipts
 
         base = datetime.now(UTC)
