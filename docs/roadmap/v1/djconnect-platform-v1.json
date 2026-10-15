@@ -38526,8 +38526,8 @@
         "title": "Paired TLS hybrid protocol and closed operation policy",
         "lane": "DJC-CORE",
         "repository": "pcvantol/djconnect",
-        "status": "In progress",
-        "assignment_status": "IN_PROGRESS",
+        "status": "Completed",
+        "assignment_status": "CORE_DELIVERED",
         "scope": "Paired TLS hybrid protocol and closed operation policy",
         "acceptance_boundary": "Paired TLS hybrid protocol and closed operation policy; no installed/native/hardware claim from producer proof",
         "contract_binding": "docs/product/HYBRID_HTTP_WEBSOCKET_TRANSPORT_V1.md",
@@ -38543,8 +38543,8 @@
         "title": "Bounded durable operation receipts and original delivery admission",
         "lane": "DJC-CORE",
         "repository": "pcvantol/djconnect",
-        "status": "In progress",
-        "assignment_status": "IN_PROGRESS",
+        "status": "Completed",
+        "assignment_status": "CORE_DELIVERED",
         "scope": "Bounded durable operation receipts and original delivery admission",
         "acceptance_boundary": "Bounded durable operation receipts and original delivery admission; no installed/native/hardware claim from producer proof",
         "contract_binding": "docs/product/TRANSPORT_OPERATION_RECOVERY_CONTRACT_V1.md",
@@ -38567,8 +38567,8 @@
         "title": "Connected paired action WS and owner HTTP recovery",
         "lane": "DJC-CORE",
         "repository": "pcvantol/djconnect",
-        "status": "In progress",
-        "assignment_status": "IN_PROGRESS",
+        "status": "Completed",
+        "assignment_status": "CORE_DELIVERED",
         "scope": "Connected paired action WS and owner HTTP recovery",
         "acceptance_boundary": "Connected paired action WS and owner HTTP recovery; no installed/native/hardware claim from producer proof",
         "contract_binding": "docs/product/HYBRID_HTTP_WEBSOCKET_TRANSPORT_V1.md",
@@ -39446,11 +39446,11 @@
     "document_references": [
       {
         "path": "PRODUCT_ROADMAP.md",
-        "sha256": "6b6b98c9133ebd3fc288953372bbda21e8e5b274435305c4413036adbef4eb01"
+        "sha256": "3947a018bbc92dd4269a2597b3254dd2bc88a98488d05484beb02da41e82cc24"
       },
       {
         "path": "PRODUCT_BACKLOG.md",
-        "sha256": "cc80b0bdc7b45b72be7fd86991a9632eee2454a0a44b04c78fc6ca75a7cf31c9"
+        "sha256": "3fb5e117ce16c76ad872ca28a5b2829b8e26cf7a1496d3ba7bbb2d1805db9cca"
       },
       {
         "path": "docs/product/DJ_PRESENCE_V1.md",
@@ -39655,6 +39655,14 @@
       {
         "path": "docs/verification/HYBRID_TRANSPORT_SOURCE_QUALIFICATION_20261015.md",
         "sha256": "34fdf1f596d20f35628a6e27db963e75c4042055abebf19b8d712909e46422c8"
+      },
+      {
+        "path": "docs/verification/HYBRID_TRANSPORT_V1_SOURCE_READBACK_20261015.md",
+        "sha256": "103d6b01196951e03379de984ac523a76f928f63e37a38055d8222ffea673000"
+      },
+      {
+        "path": "docs/history/prompts/2026-10-15-hybrid-transport-localization-finalization.md",
+        "sha256": "cbdabdb5c5201df3b220c306a0d9ca16f1215a480c624c452cefc9a63efa20f6"
       }
     ],
     "implementation_receipt": {
@@ -39975,15 +39983,22 @@
       "predecessor_finalization_pr": "https://github.com/pcvantol/djconnect/pull/1169",
       "predecessor_closure": "https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6185306694",
       "early_apple_handoff": "https://github.com/pcvantol/djconnect-app/issues/87#issuecomment-6185756317",
-      "phase": "LOCAL_IMPLEMENTATION_AND_QUALIFICATION",
-      "source_delivery": "UNPUBLISHED",
+      "phase": "SOURCE_PROTECTED_MERGED",
+      "source_delivery": "PROTECTED_MERGED",
       "native": "OPEN_APPLE",
       "installed": "NOT_RUN",
       "hardware": "NOT_RUN",
       "joint_acceptance": "OPEN",
       "consumer_writes": false,
       "automatic_dispatch": false,
-      "family_acceptance": "PARTIAL"
+      "family_acceptance": "PARTIAL",
+      "source_main_sha": "d552a5524245c82aae83b350eddf14126d3c117b",
+      "source_pr": "https://github.com/pcvantol/djconnect/pull/1170",
+      "source_review": "PASS",
+      "required_checks": "PASS",
+      "protected_merge": true,
+      "archive_sha256": "aca4faeac97ed5b229296284a50c8ec268327ac5feb9096b477c206f42601379",
+      "formal_evidence_sha256": "595875f116f21181a0b8f972202c7f3f4d06e561ace165179ecc8220f487bc83"
     }
   }
 }

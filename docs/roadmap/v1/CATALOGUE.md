@@ -20,7 +20,7 @@ Selected one-pipeline Ask DJ + exact Moment Track Insight: [DJC-CORE-ASKDJ-CONTE
 
 Existing Apple Presence execution: In progress ([owning readback](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6168870771)); native Mac/installed acceptance and protected Apple delivery remain open. This observation updates no historical planning node and grants no Core/consumer admission. Installed Presence advertisement is absent in the owner readback; completed Core policy remains closed. Dialogue adoption and intra-track visibility remain distinct open joint findings.
 
-Selected bounded Hybrid transport: [DJC-CORE-HYBRID-TRANSPORT-CONVERGENCE-V1-20261013](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6149934177); source UNPUBLISHED. Existing connectivity parent retained; protocol, journal/recovery and paired actions share current Core owners. Apple adoption and joint/native transitions remain Planned/open; no consumer writes, installation or automatic dispatch. Current-artist1168/1169 closed before admission; version9 and its whole snapshot are preserved byte-for-byte.
+Selected bounded Hybrid transport: [DJC-CORE-HYBRID-TRANSPORT-CONVERGENCE-V1-20261013](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6149934177); source PROTECTED_MERGED. Existing connectivity parent retained; protocol, journal/recovery and paired actions share current Core owners. Apple adoption and joint/native transitions remain Planned/open; no consumer writes, installation or automatic dispatch. Current-artist1168/1169 closed before admission; version9 and its whole snapshot are preserved byte-for-byte.
 
 | Node | Owner | Status | Outcome |
 |---|---|---|---|
@@ -65,8 +65,8 @@ Selected bounded Hybrid transport: [DJC-CORE-HYBRID-TRANSPORT-CONVERGENCE-V1-202
 | `INSIGHT::CORE::MOMENT-DRILLDOWN` | DJC-CORE | Completed | Qualified exact-track Moment navigation and shared detail |
 | `INSIGHT::APPLE::MOMENT-DRILLDOWN` | DJC-APPLE | Planned | Native pinned Track Insight and return to the same Flow/draft |
 | `CONVERSATION::PRODUCT::JOINT` | DJC-CORE | Planned | Shared dialogue and exact Moment detail joint acceptance |
-| `TRANSPORT::CORE::CONTRACT` | DJC-CORE | In progress | Paired TLS hybrid protocol and closed operation policy |
-| `TRANSPORT::CORE::RECOVERY` | DJC-CORE | In progress | Bounded durable operation receipts and original delivery admission |
-| `TRANSPORT::CORE::PAIRED-ACTIONS` | DJC-CORE | In progress | Connected paired action WS and owner HTTP recovery |
+| `TRANSPORT::CORE::CONTRACT` | DJC-CORE | Completed | Paired TLS hybrid protocol and closed operation policy |
+| `TRANSPORT::CORE::RECOVERY` | DJC-CORE | Completed | Bounded durable operation receipts and original delivery admission |
+| `TRANSPORT::CORE::PAIRED-ACTIONS` | DJC-CORE | Completed | Connected paired action WS and owner HTTP recovery |
 | `TRANSPORT::APPLE::HYBRID` | DJC-APPLE | Planned | Existing Apple route coordinator adopts qualified producer contract |
 | `TRANSPORT::JOINT::HYBRID` | DJC-CORE | Planned | Native LAN external and recovery acceptance across supported Apple devices |
