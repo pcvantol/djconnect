@@ -1,5 +1,15 @@
 # DJConnect Product Roadmap
 
+## Session speech/Persona — Core source delivered; separate Finalization
+
+Source PR [#1177](https://github.com/pcvantol/djconnect/pull/1177) protected merged as `3535c97c3b50e9a126d0f22fcc5ce50d81851499`, exact reviewed/owner-authorized `50cbae2665a7f7e25d4744136f64ba0e8f16def7` on base58205056.32checksPASS/5conditional skips; actual exact Owner Authorization38816161823 SUCCESS.169official archive files match Git with zero differences; durable/raw/coverage/main/PR bindings PASS. [Exact source readback](docs/verification/SESSION_SPEECH_PERSONA_SOURCE_READBACK_20261016.md). Earlier1184/1185,1181/1183 and1178/1179 stay closed.
+
+Four existing SPEECH::CORE contract/Persona/realization/delivery leaves Completed/CORE_DELIVERED; full Voice/Speech family remains PARTIAL. Apple/native audible/installed Speech/joint acceptance remain open. Optional gender requires actual configured HA provider metadata; device autoplay/manual replay and confirmed Session Persona remain distinct from Mood/Presence. No shared private speech grant or new provider/model/cost route.
+
+[Selected passive successor6199213014](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6199213014) reuses SURFACE::CORE::PROJECTION, NOT_ADMITTED: valid Speech Finalization, safe own workspace disposition and fresh same-writer admission are prerequisites. Reuse any existing pickup/stash; no new writer, implementation or consumer dispatch in this reconciliation. Receiver16 remains separately owned. Historical planning snapshots/WEBschema2/21nodes47edges/receipts stay exact. Finalization has its own exact publication gate; standing qualified-finalmain HA-dev/prod install instruction remains separate.
+
+## Historical scope records
+
 ## Session speech/Persona/voice — selected active Core implementation
 
 DJC-SESSION-SPEECH-PERSONA-VOICE-20261015, owner6189231491/autonomous-next6189912293, fresh admission after valid artwork1172/1173 closure at70c0a300. Same Core writer/ACK6191876871; contract-first e2072d80, material03634bf7. [Narration/Persona](docs/product/SESSION_SPEECH_PERSONA_V1.md), [speech delivery/replay](docs/product/SESSION_SPEECH_DELIVERY_V1.md). Live Persona ordered setting connected; common manual speech, every-family realization and qualified voice/processor/lifecycle implementation in progress. No product completion inferred from initial Persona tests.

@@ -4,6 +4,7 @@ from copy import deepcopy
 from pathlib import Path
 import hashlib
 import json
+import re
 
 CORE = {
     "SPEECH::CORE::CONTRACT",
@@ -61,11 +62,37 @@ def validate(plan, previous_validator):
     old = deepcopy(plan)
     old["planning_maintenance"] = stripped
     errors.extend(previous_validator(old))
+    delivered = r.get("phase") == "SOURCE_PROTECTED_MERGED"
     check(
-        r.get("phase") == "LOCAL_IMPLEMENTATION_AND_QUALIFICATION"
-        and r.get("source_delivery") == "UNPUBLISHED",
+        r.get("phase") in {"LOCAL_IMPLEMENTATION_AND_QUALIFICATION", "SOURCE_PROTECTED_MERGED"}
+        and r.get("source_delivery") == ("PROTECTED_MERGED" if delivered else "UNPUBLISHED"),
         "unproved delivery",
     )
+    if delivered:
+        check(
+            r.get("source_candidate") == "50cbae2665a7f7e25d4744136f64ba0e8f16def7"
+            and r.get("source_main_sha") == "3535c97c3b50e9a126d0f22fcc5ce50d81851499"
+            and r.get("source_pr") == "https://github.com/pcvantol/djconnect/pull/1177"
+            and r.get("source_review") == "PASS"
+            and r.get("required_checks") == "PASS"
+            and r.get("protected_merge") is True
+            and r.get("owner_authorization_run") == 38816161823
+            and all(re.fullmatch(r"[a-f0-9]{64}", str(r.get(k, "")))
+                    for k in ("archive_sha256", "formal_evidence_sha256", "coverage_sha256")),
+            "protected delivery evidence missing",
+        )
+    successor = r.get("selected_successor")
+    if successor is not None:
+        check(successor == {
+            "assignment_id": "DJC-CORE-PASSIVE-SESSION-PROJECTION-V1-20261015",
+            "owner_selection": 6199213014,
+            "node": "SURFACE::CORE::PROJECTION",
+            "admission": "NOT_ADMITTED",
+            "start_boundary": "AFTER_VALID_SPEECH_FINALIZATION_AND_FRESH_ADMISSION",
+            "same_writer": True,
+            "implementation_in_this_slice": False,
+            "new_publication_gates_preserved": True,
+        }, "successor admission or authority overclaim")
     check(
         r.get("native") == "OPEN_APPLE"
         and r.get("joint") == "OPEN"
@@ -83,7 +110,9 @@ def validate(plan, previous_validator):
         n = nodes[name]
         check(
             (n.get("status"), n.get("assignment_status"))
-            == (("In progress", "IN_PROGRESS") if name in CORE else ("Planned", "NOT_ISSUED")),
+            == (("Completed", "CORE_DELIVERED") if name in CORE and delivered
+                else ("In progress", "IN_PROGRESS") if name in CORE
+                else ("Planned", "NOT_ISSUED")),
             "state/consumer admission",
         )
         check(

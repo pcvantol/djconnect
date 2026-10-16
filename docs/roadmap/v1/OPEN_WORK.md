@@ -6,7 +6,7 @@ Generated from djconnect-platform-v1.json, maintenance DJC-DJ-PRESENCE-ROADMAP-D
 
 The original3October snapshot/audit/source pins and projections are immutable history in [history/20261003](history/20261003/README.md). Only this bounded delta is current here; inherited premerge statuses are not current blockers. No portfolio-wide refresh, writer reservation, product dispatch or runtime acceptance is claimed.
 
-Selected and freshly admitted speech/Persona implementation: DJC-SESSION-SPEECH-PERSONA-VOICE-20261015; source UNPUBLISHED. Four bounded Core leaves reuse existing Voice/Speech/Audio Renderer architecture; Apple/native audible/joint acceptance remains Planned/open. Delivered artwork v11 and historical snapshots preserved; no new provider/model/cost route or consumer writer.
+Selected and freshly admitted speech/Persona implementation: DJC-SESSION-SPEECH-PERSONA-VOICE-20261015; source PROTECTED_MERGED. Four bounded Core leaves reuse existing Voice/Speech/Audio Renderer architecture; Apple/native audible/joint acceptance remains Planned/open. Delivered artwork v11 and historical snapshots preserved; no new provider/model/cost route or consumer writer.
 
 - `PROJ::INTELLIGENCE::DJ-PRESENCE` — Planned: Independent presence, Mood and Persona; no new dispatch.
 - `SLICE::APPLE::DJ-PRESENCE-CONTROL` — Planned: Accessible five-language native confirmation; reuse existing Apple writer.
@@ -62,10 +62,6 @@ Selected and freshly admitted speech/Persona implementation: DJC-SESSION-SPEECH-
 - `WEB::ENQUEUE` — Planned: Real enqueue reconciliation and observed-recording Persona announcement; exact source/consumer, visible/audible/physical and joint acceptance OPEN.
 - `WEB::JOINT` — Planned: Joint browser native media lifecycle physical five-language acceptance; exact source/consumer, visible/audible/physical and joint acceptance OPEN.
 - `SPEECH::APPLE::ADOPTION` — Planned: Core software, installed, native/audible and joint evidence independent; no consumer dispatch.
-- `SPEECH::CORE::CONTRACT` — In progress: Core software, installed, native/audible and joint evidence independent; no consumer dispatch.
-- `SPEECH::CORE::DELIVERY` — In progress: Core software, installed, native/audible and joint evidence independent; no consumer dispatch.
-- `SPEECH::CORE::PERSONA` — In progress: Core software, installed, native/audible and joint evidence independent; no consumer dispatch.
-- `SPEECH::CORE::REALIZATION` — In progress: Core software, installed, native/audible and joint evidence independent; no consumer dispatch.
 - `SPEECH::JOINT::ACCEPTANCE` — Planned: Core software, installed, native/audible and joint evidence independent; no consumer dispatch.
 
 Policy values/budgets/default and exact presence route/schema remain unqualified design details. No runtime/native/browser/installed/hardware PASS.
