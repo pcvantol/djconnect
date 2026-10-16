@@ -27,6 +27,18 @@ The existing Apple writer received this explicit owner requirement and prepared
 a five-language component; integration/installed/audible acceptance remains open
 until the exact renewed producer pin and fixtures are adopted and tested.
 
+Owner additions: active-session Voice menu with runtime concrete voice choice
+and conditional provider-qualified gender. New optional `voice_id` on HA prepare
+must come from bounded current `voices`; never send native/provider-arbitrary IDs.
+`preference_context` keys the client-local choice by installation/Profile/Session/
+device and discards at Session end. No shared pipeline/default/Persona mutation.
+Current actual HA Voice interface contains ID/name only, so gender remains
+unavailable rather than guessed. Actual supported voice selection is independent.
+Also expose active-session Persona editing through the already delivered paired
+`/session/persona` CAS route: shared Session change/Broadcast/readback, not a
+Profile default write. These explicit instructions were sent to the existing
+Apple writer; controls/decoding/installed/audible proof remain Apple-owned/open.
+
 ## Previous producer handoffs
 
 # Qualified direct-local HTTP/WS — protected Core producer

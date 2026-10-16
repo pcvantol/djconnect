@@ -59,6 +59,40 @@ from role, text, attribution or archive membership. Legacy absence retains only
 the prior qualified local-read possibility, never retroactive cloud permission.
 No body backfill, Store-version rewrite or new event/history engine is required.
 
+## Active-session voice menu (owner additions, 2026-10-16)
+
+Apple exposes a localized Voice menu in the active DJ-session. Concrete voice
+selection and optional provider-qualified gender are runtime settings scoped to
+HA installation + authorized user/Profile + session_id + device/install-ID.
+The client owns this short local preference; Core validates every prepare against
+the actual current configured provider and language. Do not write shared HA
+pipeline options, Profile defaults, Persona or another device's preference.
+Discard session-scoped choice at end; no migration from a global app preference.
+
+The private voice-options projection adds bounded `voices` (max64 unique opaque
+IDs with safe names and qualified gender or null), `voice_selection` availability
+and `preference_context` scope metadata. Prepare optionally accepts `voice_id`
+(max128 characters) only for `ha_configured`, drawn from that exact current
+inventory. Unknown/removed IDs fail unavailable, without default fallback.
+Old clients omitting it retain the configured/default voice. Revalidate after
+await and at byte read; selected voice and configuration fence participate in
+cache identity. A change applies to next/pending/explicit replay; it never
+rewrites accepted text or replays the original Ask DJ/playback operation.
+
+Gender values require explicit metadata from a supported provider interface.
+Actual installed HA2026.10 `Voice` exposes only `voice_id` and `name`; that is
+not gender evidence. Current adapter therefore advertises no gender choices;
+name, pitch, Persona, inferred provider catalogue and native inventory never
+fabricate support. The UI must hide the unsupported selector while concrete
+supported voice choice remains usable. No direct provider API/lookup or new
+provider-specific gender catalogue is introduced by this conditional contract.
+
+Menu opening, preference editing and refresh synthesize nothing. Fetch current
+options on open/foreground/reconnect and before explicit preparation. Preserve
+text/controls, display current effective voice, and show HA TTS recovery help
+when provider/settings fail. Native five-language menu, preference isolation and
+installed/audible acceptance remain Apple-owned, separate from Core proof.
+
 ## Qualification and delivery
 
 ### Runtime provider feedback (owner addition, 2026-10-16)

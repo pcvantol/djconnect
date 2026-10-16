@@ -35,6 +35,24 @@ Native voice inventory alone cannot enable an unadvertised gender setting. A
 female preference does not silently fall back to male or create a new Persona.
 An unavailable matching voice is a visible capability outcome.
 
+### Active-session controls (owner clarification, 2026-10-16)
+
+Apple exposes Voice and Persona controls in the active DJ-session, not solely
+in Profile setup. Voice/gender preferences are runtime mutable and scoped to
+HA installation + authorized user/Profile + session_id + device/install-ID;
+Core validates current provider metadata on each explicit prepare. Only actual
+supported voices/qualified genders are offered. No shared HA pipeline/default
+write; no preference leak to other sessions/devices. See the
+[generic provider contract](GENERIC_HA_TTS_V1.md).
+
+Persona uses the existing confirmed Session update route below and synchronizes
+as shared Session state across authorized devices. The Profile choice remains
+the start default; an active-session change must not silently overwrite it.
+Show pending/error/CAS conflict and confirmed readback, preserving published
+text, playback, presence budgets and other client draft/scroll state. No new
+Persona endpoint, Planner or product implementation is required in Core for
+this existing delivered capability; actual native controls remain Apple-owned.
+
 ## Semantic acceptance and live changes
 
 `POST /api/djconnect/v1/session/persona`, contract1, exact normal paired identity,

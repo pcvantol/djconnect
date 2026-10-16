@@ -45,7 +45,7 @@ async def run(hass, runtime, client, post, identity, output, bundle, headers):
     def measured(**kwargs):
         assert len(calls) < 5
         assert kwargs["model"] == subentry.data["chat_model"]
-        assert kwargs["voice"] == "marin"
+        assert kwargs["voice"] in {"marin", "cedar", "alloy"}
         assert "spotify:" not in kwargs["input"]
         calls.append({"model": kwargs["model"], "voice": kwargs["voice"],
                       "input_sha256": hashlib.sha256(kwargs["input"].encode()).hexdigest(),
@@ -82,12 +82,18 @@ async def run(hass, runtime, client, post, identity, output, bundle, headers):
         assert exact == answer["text"]
         request = {**identity, "contract_version": 1, "reference": descriptor["reference"],
                    "processor": "ha_configured", "voice_preference": "default"}
+        chosen_voice = {"nl": "cedar", "fr": "alloy"}.get(locale)
+        if chosen_voice:
+            assert chosen_voice in [v["voice_id"] for v in options["speech_voice_options"]["voices"]]
+            request["voice_id"] = chosen_voice
+        assert options["speech_voice_options"]["preference_context"]["scope"] == "owner_session_device"
         started = time.monotonic()
         prepared = await post("/speech/prepare", request)
         actual = prepared["session_speech"]
         assert actual["audio_state"] == "ready", prepared
         assert actual["effective_voice"]["pipeline_id"] == selected.id
-        assert actual["effective_voice"]["voice_id"] == "marin"
+        assert actual["effective_voice"]["voice_id"] == (chosen_voice or "marin")
+        assert selected.tts_voice == "marin"
         assert actual["effective_voice"]["locale"] == language
         assert len(calls) == before + 1
         assert calls[-1]["input_sha256"] == hashlib.sha256(exact.encode()).hexdigest()
@@ -152,6 +158,7 @@ async def run(hass, runtime, client, post, identity, output, bundle, headers):
                      "audio_bytes": len(body), "audio_sha256": hashlib.sha256(body).hexdigest(),
                      "latency_seconds": round(time.monotonic()-started, 3),
                      "cached_no_new_call": True, "gender_unavailable": True,
+                     "explicit_voice_choice": chosen_voice, "configured_pipeline_voice_unchanged": True,
                      "active_session_manual_speech_in_music_only": True,
                      "session_end_audio_status": ended.status,
                      "unauthenticated_status": unauthenticated.status})

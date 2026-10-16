@@ -41543,11 +41543,11 @@
       },
       {
         "path": "docs/product/SESSION_SPEECH_PERSONA_V1.md",
-        "sha256": "7a94cc8719e3f76faf5a841a662f23c89d801476b1c4fc881746506257090140"
+        "sha256": "b1311efd9043f1a584d6c970814c6f58f295ef2c9375fb3d865b0b80ba766f7e"
       },
       {
         "path": "docs/product/SESSION_SPEECH_DELIVERY_V1.md",
-        "sha256": "142616e9e44d9693118ecb4a8a76ec6c4e386527d3110869c364e0ad11138e1c"
+        "sha256": "26c7dd3c62874ea7c00d1cca41768e3411177aa50ae7becf7dda29a2ebf128a2"
       },
       {
         "path": "docs/verification/SESSION_SPEECH_PERSONA_SOURCE_READBACK_20261016.md",
@@ -41559,11 +41559,11 @@
       },
       {
         "path": "docs/product/GENERIC_HA_TTS_V1.md",
-        "sha256": "7608cdf74a63e0d27a513868a7536c6e7e5bc64fbfb05eee4bec8a237b2c037d"
+        "sha256": "652ad261bfb6ca5fb6366330c2d15172872d4ff045b71b26466253b241cfcd73"
       },
       {
         "path": "docs/verification/GENERIC_HA_TTS_SOURCE_20261016.md",
-        "sha256": "56664ad7b3add53cc988f1d97ad5f5f8177b972b6c536ed11ff7619e4f6ceda2"
+        "sha256": "9b54d922da5945e771bdd16be922b7c2f0b04715368e0ece75616facec1f97e7"
       }
     ],
     "implementation_receipt": {

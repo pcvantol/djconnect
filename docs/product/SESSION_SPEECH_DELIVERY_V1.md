@@ -42,9 +42,11 @@ archival promotion. Common Ask DJ uses `reference:{turn_id}` consistently on
 both screens, including responses with a durable message ID; no message-ID lookup
 is silently substituted and old history cannot mint a new ephemeral grant.
 Preparation selects `processor:local_on_device|ha_configured`
-and `voice_preference:default|male|female`; neither is a provider/voice identifier.
-No free text, provider
-URL, arbitrary voice/engine ID, model prompt or playback instruction. Resolve
+and `voice_preference:default|male|female`; neither is a provider identifier.
+For `ha_configured` only, optional `voice_id` selects one exact ID from the
+current bounded provider inventory returned by voice-options (max64); a removed
+or unknown ID is unavailable, without fallback. No free text, provider URL,
+arbitrary engine ID, model prompt or playback instruction. Resolve
 through existing dialogue/history/Runtime owners and original source rights.
 Live and historical replay have independently qualified admission; no whole
 history scan or archive backfill. Unknown/revoked/deleted references fail closed.
@@ -126,8 +128,14 @@ No provider work, original Ask DJ execution or playback effect on replay.
 
 ## Renderer-local voice and autoplay
 
-Concrete playback and optional male/female preference belong to the client
-audio output; Persona belongs to the Session. Gender UI is conditional on the
+The active DJ-session exposes a localized Voice menu. Concrete voice choice
+and optional male/female preference are client-local settings keyed by HA
+installation, authorized user/Profile, session_id and device/install-ID.
+`preference_context` advertises this scope, runtime mutation and discard-on-end;
+`voices` exposes at most64 current supported IDs/names, gender null unless
+qualified. Explicit per-prepare choice never changes shared HA pipeline/defaults.
+Native local voice IDs are separate and cannot be submitted as HA voice IDs.
+Concrete playback belongs to the client audio output; Persona belongs to the Session. Gender UI is conditional on the
 configured server Assist pipeline/provider advertising qualified support. Query
 the private read-only voice-options route; absent/unsupported metadata hides the
 selector and presents provider default. A previously selected now-unsupported

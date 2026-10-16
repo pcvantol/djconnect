@@ -48,7 +48,34 @@ def _selected_pipeline(hass, conf):
         raise ProcessorUnavailable("processor_not_qualified") from None
 
 
-def configured_processor(hass, conf, locale, preference):
+def preference_context():
+    """Client-local Session preference; never shared pipeline/Profile settings."""
+    return {"scope": "owner_session_device", "storage_owner": "client",
+            "key_fields": ["ha_installation", "profile_id", "session_id", "device_id"],
+            "runtime_mutable": True, "session_end": "discard"}
+
+
+def voice_inventory(entity, language):
+    """Only supported HA Voice metadata; bounded, no inferred gender."""
+    from itertools import islice
+    callback = getattr(entity, "async_get_supported_voices", None)
+    voices = callback(language) if callable(callback) else []
+    result = []
+    seen = set()
+    for voice in islice(voices or [], 64):
+        identifier = getattr(voice, "voice_id", None)
+        name = getattr(voice, "name", None)
+        if (not isinstance(identifier, str) or not 0 < len(identifier) <= 128
+                or identifier != identifier.strip() or not identifier.isprintable()
+                or identifier in seen or not isinstance(name, str) or not name.strip()
+                or not name.isprintable()):
+            continue
+        seen.add(identifier)
+        result.append({"voice_id": identifier, "name": name[:120], "gender": None})
+    return result
+
+
+def configured_processor(hass, conf, locale, preference, *, selected_voice=None):
     """Resolve only the selected HA provider, language and voice, without I/O."""
     try:
         from homeassistant.components import tts
@@ -66,6 +93,7 @@ def configured_processor(hass, conf, locale, preference):
     engine_id = str(_first_attr(pipeline, "tts_engine", "tts_engine_id") or "")
     language = str(_first_attr(pipeline, "tts_language", "language") or "")
     voice_id = str(_first_attr(pipeline, "tts_voice", "voice") or "")
+    configured_voice = voice_id
     explicit_voice = bool(voice_id)
     try:
         entity = tts.get_engine_instance(hass, engine_id) if engine_id else None
@@ -82,6 +110,10 @@ def configured_processor(hass, conf, locale, preference):
     defaults = entity.default_options or {}
     if not voice_id:
         voice_id = str(defaults.get("voice") or "")
+    if selected_voice is not None:
+        if not any(v["voice_id"] == selected_voice for v in voice_inventory(entity, language)):
+            raise ProcessorUnavailable("no_matching_voice")
+        voice_id = selected_voice
     actual = next((v for v in voices if v.voice_id == voice_id), None)
     if voice_id and actual is None and (explicit_voice or voices):
         raise ProcessorUnavailable("no_matching_voice")
@@ -99,13 +131,14 @@ def configured_processor(hass, conf, locale, preference):
     revision = hashlib.sha256(json.dumps({
         "entry_modified": str(getattr(entry or platform_entry, "modified_at", "")),
         "subentry": getattr(subentry, "data", {}), "defaults": dict(defaults),
+        "pipeline_voice": configured_voice,
     }, sort_keys=True, default=str).encode()).hexdigest()[:24]
     return entity, {"processor": "ha_configured", "engine": engine_id,
                     "pipeline_id": pipeline_id,
                     "provider": str(getattr(platform, "platform_name", "") or engine_id.split(".")[0]),
                     "voice_id": voice_id or None,
                     "voice_name": actual.name if actual else None,
-                    "voice_selection": "configured" if explicit_voice else "provider_default",
+                    "voice_selection": "session_device_preference" if selected_voice is not None else ("configured" if explicit_voice else "provider_default"),
                     "locale": language, "gender": None,
                     "processing_scope": "qualified_local" if local else "configured_provider",
                     "configuration_revision": revision, **(local or {})}
@@ -176,11 +209,14 @@ def voice_options(hass, conf):
                "default_available": False, "supported_preferences": ["default"],
                "gender_selection": {"available": False, "values": [],
                                     "reason": "provider_gender_metadata_unavailable"},
-               "provider_voice": None, "cache_policy": "private,no-store"}
+               "provider_voice": None, "cache_policy": "private,no-store",
+               "preference_context": preference_context(), "voices": [],
+               "voice_selection": {"available": False, "maximum_voices": 64}}
     try:
         pipeline = _selected_pipeline(hass, conf)
         locale = str(_first_attr(pipeline, "tts_language", "language") or "").replace("_", "-").split("-", 1)[0]
-        _, voice = configured_processor(hass, conf, locale, "default")
+        entity, voice = configured_processor(hass, conf, locale, "default")
+        inventory = voice_inventory(entity, voice["locale"])
     except ProcessorUnavailable as exc:
         options["state"] = "unavailable"
         options["reason"] = str(exc)
@@ -188,7 +224,8 @@ def voice_options(hass, conf):
         options["state"] = "unavailable"
         options["reason"] = "processor_not_qualified"
     else:
-        options.update(state="available", reason=None, default_available=True, provider_voice=voice)
+        options.update(state="available", reason=None, default_available=True, provider_voice=voice,
+                       voices=inventory, voice_selection={"available": bool(inventory), "maximum_voices": 64})
     # HA2026.10's supported Voice object exposes ID/name only. This qualified
     # adapter has no gender values to advertise, regardless of voice name/pitch.
     import hashlib

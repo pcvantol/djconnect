@@ -5,7 +5,7 @@
   "rows": [
     {
       "locale": "en",
-      "accepted_answer": "An ostinato is a short musical pattern that repeats, often in the same part throughout a piece.",
+      "accepted_answer": "An ostinato is a short musical pattern that repeats, often providing a steady foundation beneath other parts.",
       "voice_options": {
         "success": true,
         "speech_voice_options": {
@@ -25,7 +25,7 @@
           "provider_voice": {
             "processor": "ha_configured",
             "engine": "tts.owned_actual_openai",
-            "pipeline_id": "01m51yc7hvcv365qxeytx73kgq",
+            "pipeline_id": "01m51yrz8hdh859bv0gb4pprba",
             "provider": "tts",
             "voice_id": "marin",
             "voice_name": "Marin",
@@ -33,12 +33,95 @@
             "locale": "en-US",
             "gender": null,
             "processing_scope": "configured_provider",
-            "configuration_revision": "539caac7c3819c139035d899"
+            "configuration_revision": "f8068d25c92cb9cc13543ff9"
           },
           "cache_policy": "private,no-store",
+          "preference_context": {
+            "scope": "owner_session_device",
+            "storage_owner": "client",
+            "key_fields": [
+              "ha_installation",
+              "profile_id",
+              "session_id",
+              "device_id"
+            ],
+            "runtime_mutable": true,
+            "session_end": "discard"
+          },
+          "voices": [
+            {
+              "voice_id": "marin",
+              "name": "Marin",
+              "gender": null
+            },
+            {
+              "voice_id": "cedar",
+              "name": "Cedar",
+              "gender": null
+            },
+            {
+              "voice_id": "alloy",
+              "name": "Alloy",
+              "gender": null
+            },
+            {
+              "voice_id": "ash",
+              "name": "Ash",
+              "gender": null
+            },
+            {
+              "voice_id": "ballad",
+              "name": "Ballad",
+              "gender": null
+            },
+            {
+              "voice_id": "coral",
+              "name": "Coral",
+              "gender": null
+            },
+            {
+              "voice_id": "echo",
+              "name": "Echo",
+              "gender": null
+            },
+            {
+              "voice_id": "fable",
+              "name": "Fable",
+              "gender": null
+            },
+            {
+              "voice_id": "nova",
+              "name": "Nova",
+              "gender": null
+            },
+            {
+              "voice_id": "onyx",
+              "name": "Onyx",
+              "gender": null
+            },
+            {
+              "voice_id": "sage",
+              "name": "Sage",
+              "gender": null
+            },
+            {
+              "voice_id": "shimmer",
+              "name": "Shimmer",
+              "gender": null
+            },
+            {
+              "voice_id": "verse",
+              "name": "Verse",
+              "gender": null
+            }
+          ],
+          "voice_selection": {
+            "available": true,
+            "maximum_voices": 64
+          },
           "state": "available",
           "reason": null,
-          "revision": "dfbe80e6761fa219fe6aac1c",
+          "revision": "eea064c86ff3ebd5f87a95e5",
           "provider_status": {
             "schema_version": 1,
             "configuration_state": "ready",
@@ -62,9 +145,9 @@
           },
           "source_kind": "accepted_ask_dj",
           "source_id": "turn-5fb1fdbedfd45944a9a49c02dac989f6",
-          "session_id": "session-e1bbb65f04b34fc39d420c09cd656ce5",
-          "text_revision": "e26dbf6aa65235d946f3472d",
-          "presentation_revision": "e26dbf6aa65235d946f3472d",
+          "session_id": "session-acbd139ea6414f47920533d68bc0babc",
+          "text_revision": "0cb804f9bd945417c4b6f078",
+          "presentation_revision": "0cb804f9bd945417c4b6f078",
           "persona": "home_dj",
           "persona_revision": 0,
           "locale": "en",
@@ -72,7 +155,7 @@
             {
               "ordinal": 1,
               "speaker_role": "dj",
-              "text": "An ostinato is a short musical pattern that repeats, often in the same part throughout a piece."
+              "text": "An ostinato is a short musical pattern that repeats, often providing a steady foundation beneath other parts."
             }
           ],
           "state": "available",
@@ -84,14 +167,14 @@
             "ha_configured"
           ],
           "processor_qualification_required": true,
-          "expires_at": "2026-10-16T08:53:38.355033+00:00",
+          "expires_at": "2026-10-16T09:00:36.035273+00:00",
           "cache_policy": "private,no-store",
           "attribution": [],
           "audio_state": "ready",
           "effective_voice": {
             "processor": "ha_configured",
             "engine": "tts.owned_actual_openai",
-            "pipeline_id": "01m51yc7hvcv365qxeytx73kgq",
+            "pipeline_id": "01m51yrz8hdh859bv0gb4pprba",
             "provider": "tts",
             "voice_id": "marin",
             "voice_name": "Marin",
@@ -99,10 +182,10 @@
             "locale": "en-US",
             "gender": null,
             "processing_scope": "configured_provider",
-            "configuration_revision": "539caac7c3819c139035d899"
+            "configuration_revision": "f8068d25c92cb9cc13543ff9"
           },
           "audio_reference": {
-            "asset_id": "c4HqUtgYh53fBJIjansEKWRPbZHFwgRP",
+            "asset_id": "QtN0FOA8Npaz965aViQK-CzTwmODX7N1",
             "path": "/api/djconnect/v1/speech/audio",
             "method": "POST"
           }
@@ -110,18 +193,20 @@
       },
       "audio_status": 200,
       "content_type": "audio/mpeg",
-      "audio_bytes": 98688,
-      "audio_sha256": "c8db6cb21d304b0e0048ff0e0f556ef129ad50917f19cf67953f339559d6ddaa",
-      "latency_seconds": 1.334,
+      "audio_bytes": 109056,
+      "audio_sha256": "f8212e698f1b5a72cadf2cae9eda85d10f39d103942c8414c713d4fb27981f27",
+      "latency_seconds": 1.547,
       "cached_no_new_call": true,
       "gender_unavailable": true,
+      "explicit_voice_choice": null,
+      "configured_pipeline_voice_unchanged": true,
       "active_session_manual_speech_in_music_only": true,
       "session_end_audio_status": 404,
       "unauthenticated_status": 401
     },
     {
       "locale": "nl",
-      "accepted_answer": "Een ostinato is een kort muzikaal patroon dat steeds opnieuw wordt herhaald, vaak in dezelfde partij.",
+      "accepted_answer": "Een ostinato is een kort muzikaal patroon dat steeds wordt herhaald, vaak als basis onder andere partijen.",
       "voice_options": {
         "success": true,
         "speech_voice_options": {
@@ -141,7 +226,7 @@
           "provider_voice": {
             "processor": "ha_configured",
             "engine": "tts.owned_actual_openai",
-            "pipeline_id": "01m51yc7hvcv365qxeytx73kgq",
+            "pipeline_id": "01m51yrz8hdh859bv0gb4pprba",
             "provider": "tts",
             "voice_id": "marin",
             "voice_name": "Marin",
@@ -149,12 +234,95 @@
             "locale": "nl-NL",
             "gender": null,
             "processing_scope": "configured_provider",
-            "configuration_revision": "539caac7c3819c139035d899"
+            "configuration_revision": "f8068d25c92cb9cc13543ff9"
           },
           "cache_policy": "private,no-store",
+          "preference_context": {
+            "scope": "owner_session_device",
+            "storage_owner": "client",
+            "key_fields": [
+              "ha_installation",
+              "profile_id",
+              "session_id",
+              "device_id"
+            ],
+            "runtime_mutable": true,
+            "session_end": "discard"
+          },
+          "voices": [
+            {
+              "voice_id": "marin",
+              "name": "Marin",
+              "gender": null
+            },
+            {
+              "voice_id": "cedar",
+              "name": "Cedar",
+              "gender": null
+            },
+            {
+              "voice_id": "alloy",
+              "name": "Alloy",
+              "gender": null
+            },
+            {
+              "voice_id": "ash",
+              "name": "Ash",
+              "gender": null
+            },
+            {
+              "voice_id": "ballad",
+              "name": "Ballad",
+              "gender": null
+            },
+            {
+              "voice_id": "coral",
+              "name": "Coral",
+              "gender": null
+            },
+            {
+              "voice_id": "echo",
+              "name": "Echo",
+              "gender": null
+            },
+            {
+              "voice_id": "fable",
+              "name": "Fable",
+              "gender": null
+            },
+            {
+              "voice_id": "nova",
+              "name": "Nova",
+              "gender": null
+            },
+            {
+              "voice_id": "onyx",
+              "name": "Onyx",
+              "gender": null
+            },
+            {
+              "voice_id": "sage",
+              "name": "Sage",
+              "gender": null
+            },
+            {
+              "voice_id": "shimmer",
+              "name": "Shimmer",
+              "gender": null
+            },
+            {
+              "voice_id": "verse",
+              "name": "Verse",
+              "gender": null
+            }
+          ],
+          "voice_selection": {
+            "available": true,
+            "maximum_voices": 64
+          },
           "state": "available",
           "reason": null,
-          "revision": "a7affbcb3700c5f4fe64dcb6",
+          "revision": "e53ecef0229d7441f852c19f",
           "provider_status": {
             "schema_version": 1,
             "configuration_state": "ready",
@@ -178,9 +346,9 @@
           },
           "source_kind": "accepted_ask_dj",
           "source_id": "turn-abf2299f819551d093b71bc7e7fbe10a",
-          "session_id": "session-4225cdad70b94fc0abc588614ec7b622",
-          "text_revision": "6a069a65896e2bc2923426cb",
-          "presentation_revision": "6a069a65896e2bc2923426cb",
+          "session_id": "session-286291a7c4ae4a168ad934d77b70c0e9",
+          "text_revision": "d946b7a29809de6821fc28b5",
+          "presentation_revision": "d946b7a29809de6821fc28b5",
           "persona": "home_dj",
           "persona_revision": 0,
           "locale": "nl",
@@ -188,7 +356,7 @@
             {
               "ordinal": 1,
               "speaker_role": "dj",
-              "text": "Een ostinato is een kort muzikaal patroon dat steeds opnieuw wordt herhaald, vaak in dezelfde partij."
+              "text": "Een ostinato is een kort muzikaal patroon dat steeds wordt herhaald, vaak als basis onder andere partijen."
             }
           ],
           "state": "available",
@@ -200,25 +368,25 @@
             "ha_configured"
           ],
           "processor_qualification_required": true,
-          "expires_at": "2026-10-16T08:53:40.987319+00:00",
+          "expires_at": "2026-10-16T09:00:39.005329+00:00",
           "cache_policy": "private,no-store",
           "attribution": [],
           "audio_state": "ready",
           "effective_voice": {
             "processor": "ha_configured",
             "engine": "tts.owned_actual_openai",
-            "pipeline_id": "01m51yc7hvcv365qxeytx73kgq",
+            "pipeline_id": "01m51yrz8hdh859bv0gb4pprba",
             "provider": "tts",
-            "voice_id": "marin",
-            "voice_name": "Marin",
-            "voice_selection": "configured",
+            "voice_id": "cedar",
+            "voice_name": "Cedar",
+            "voice_selection": "session_device_preference",
             "locale": "nl-NL",
             "gender": null,
             "processing_scope": "configured_provider",
-            "configuration_revision": "539caac7c3819c139035d899"
+            "configuration_revision": "f8068d25c92cb9cc13543ff9"
           },
           "audio_reference": {
-            "asset_id": "gyaq1pm4U0XWs0XUwHU9au7NLgRYvwvy",
+            "asset_id": "bL4sPrnHVPU2ms3VBCIEXNSef1YytfdQ",
             "path": "/api/djconnect/v1/speech/audio",
             "method": "POST"
           }
@@ -226,18 +394,20 @@
       },
       "audio_status": 200,
       "content_type": "audio/mpeg",
-      "audio_bytes": 118656,
-      "audio_sha256": "43457caf35cca35e3b08003e283c11e62715e8912df98649a539a4700a0957ec",
-      "latency_seconds": 3.411,
+      "audio_bytes": 120960,
+      "audio_sha256": "0e945e2b666781a36c04d312d2abcb40f54dbd6b23b44973f9f08bba86a45d80",
+      "latency_seconds": 1.405,
       "cached_no_new_call": true,
       "gender_unavailable": true,
+      "explicit_voice_choice": "cedar",
+      "configured_pipeline_voice_unchanged": true,
       "active_session_manual_speech_in_music_only": true,
       "session_end_audio_status": 404,
       "unauthenticated_status": 401
     },
     {
       "locale": "de",
-      "accepted_answer": "Ein Ostinato ist ein kurzes musikalisches Muster, das wiederholt wird, oft in derselben Stimme oder Instrumentalstimme.",
+      "accepted_answer": "Ein Ostinato ist ein kurzes musikalisches Motiv, das wiederholt wird und oft anderen Stimmen als Grundlage dient.",
       "voice_options": {
         "success": true,
         "speech_voice_options": {
@@ -257,7 +427,7 @@
           "provider_voice": {
             "processor": "ha_configured",
             "engine": "tts.owned_actual_openai",
-            "pipeline_id": "01m51yc7hvcv365qxeytx73kgq",
+            "pipeline_id": "01m51yrz8hdh859bv0gb4pprba",
             "provider": "tts",
             "voice_id": "marin",
             "voice_name": "Marin",
@@ -265,12 +435,95 @@
             "locale": "de-DE",
             "gender": null,
             "processing_scope": "configured_provider",
-            "configuration_revision": "539caac7c3819c139035d899"
+            "configuration_revision": "f8068d25c92cb9cc13543ff9"
           },
           "cache_policy": "private,no-store",
+          "preference_context": {
+            "scope": "owner_session_device",
+            "storage_owner": "client",
+            "key_fields": [
+              "ha_installation",
+              "profile_id",
+              "session_id",
+              "device_id"
+            ],
+            "runtime_mutable": true,
+            "session_end": "discard"
+          },
+          "voices": [
+            {
+              "voice_id": "marin",
+              "name": "Marin",
+              "gender": null
+            },
+            {
+              "voice_id": "cedar",
+              "name": "Cedar",
+              "gender": null
+            },
+            {
+              "voice_id": "alloy",
+              "name": "Alloy",
+              "gender": null
+            },
+            {
+              "voice_id": "ash",
+              "name": "Ash",
+              "gender": null
+            },
+            {
+              "voice_id": "ballad",
+              "name": "Ballad",
+              "gender": null
+            },
+            {
+              "voice_id": "coral",
+              "name": "Coral",
+              "gender": null
+            },
+            {
+              "voice_id": "echo",
+              "name": "Echo",
+              "gender": null
+            },
+            {
+              "voice_id": "fable",
+              "name": "Fable",
+              "gender": null
+            },
+            {
+              "voice_id": "nova",
+              "name": "Nova",
+              "gender": null
+            },
+            {
+              "voice_id": "onyx",
+              "name": "Onyx",
+              "gender": null
+            },
+            {
+              "voice_id": "sage",
+              "name": "Sage",
+              "gender": null
+            },
+            {
+              "voice_id": "shimmer",
+              "name": "Shimmer",
+              "gender": null
+            },
+            {
+              "voice_id": "verse",
+              "name": "Verse",
+              "gender": null
+            }
+          ],
+          "voice_selection": {
+            "available": true,
+            "maximum_voices": 64
+          },
           "state": "available",
           "reason": null,
-          "revision": "9b10d93e26ece3aabdfe1d9c",
+          "revision": "ae17b83a869f32de82674d86",
           "provider_status": {
             "schema_version": 1,
             "configuration_state": "ready",
@@ -294,9 +547,9 @@
           },
           "source_kind": "accepted_ask_dj",
           "source_id": "turn-9617f722390855f0bf4c739e2c428a78",
-          "session_id": "session-342413c48f3c44edaa9ce772070dbaff",
-          "text_revision": "ec77bba925fd3e0bed89b732",
-          "presentation_revision": "ec77bba925fd3e0bed89b732",
+          "session_id": "session-749464dd6856426d96b7cca70ad72135",
+          "text_revision": "4ebcda1736af734105f7de63",
+          "presentation_revision": "4ebcda1736af734105f7de63",
           "persona": "home_dj",
           "persona_revision": 0,
           "locale": "de",
@@ -304,7 +557,7 @@
             {
               "ordinal": 1,
               "speaker_role": "dj",
-              "text": "Ein Ostinato ist ein kurzes musikalisches Muster, das wiederholt wird, oft in derselben Stimme oder Instrumentalstimme."
+              "text": "Ein Ostinato ist ein kurzes musikalisches Motiv, das wiederholt wird und oft anderen Stimmen als Grundlage dient."
             }
           ],
           "state": "available",
@@ -316,14 +569,14 @@
             "ha_configured"
           ],
           "processor_qualification_required": true,
-          "expires_at": "2026-10-16T08:53:45.727004+00:00",
+          "expires_at": "2026-10-16T09:00:42.012303+00:00",
           "cache_policy": "private,no-store",
           "attribution": [],
           "audio_state": "ready",
           "effective_voice": {
             "processor": "ha_configured",
             "engine": "tts.owned_actual_openai",
-            "pipeline_id": "01m51yc7hvcv365qxeytx73kgq",
+            "pipeline_id": "01m51yrz8hdh859bv0gb4pprba",
             "provider": "tts",
             "voice_id": "marin",
             "voice_name": "Marin",
@@ -331,10 +584,10 @@
             "locale": "de-DE",
             "gender": null,
             "processing_scope": "configured_provider",
-            "configuration_revision": "539caac7c3819c139035d899"
+            "configuration_revision": "f8068d25c92cb9cc13543ff9"
           },
           "audio_reference": {
-            "asset_id": "ExVbuA1lkHcJd0BUq195hJz7wSrvk2U9",
+            "asset_id": "bmJtW03qyxo5xP_uhha_D623BvNgkheP",
             "path": "/api/djconnect/v1/speech/audio",
             "method": "POST"
           }
@@ -342,18 +595,20 @@
       },
       "audio_status": 200,
       "content_type": "audio/mpeg",
-      "audio_bytes": 137856,
-      "audio_sha256": "b7a5999e76141950c6d16221f0e5f02fbee9fa4cdae017829116e26002c51753",
-      "latency_seconds": 2.835,
+      "audio_bytes": 132864,
+      "audio_sha256": "b25a602533d69d912aafa245ee93d09175af9d69fec0bb37a4ea2feae56528a9",
+      "latency_seconds": 1.997,
       "cached_no_new_call": true,
       "gender_unavailable": true,
+      "explicit_voice_choice": null,
+      "configured_pipeline_voice_unchanged": true,
       "active_session_manual_speech_in_music_only": true,
       "session_end_audio_status": 404,
       "unauthenticated_status": 401
     },
     {
       "locale": "fr",
-      "accepted_answer": "Un ostinato est un motif musical court qui se r\u00e9p\u00e8te, souvent dans la m\u00eame partie.",
+      "accepted_answer": "Un ostinato est un motif musical court qui se r\u00e9p\u00e8te, souvent pour soutenir les autres parties.",
       "voice_options": {
         "success": true,
         "speech_voice_options": {
@@ -373,7 +628,7 @@
           "provider_voice": {
             "processor": "ha_configured",
             "engine": "tts.owned_actual_openai",
-            "pipeline_id": "01m51yc7hvcv365qxeytx73kgq",
+            "pipeline_id": "01m51yrz8hdh859bv0gb4pprba",
             "provider": "tts",
             "voice_id": "marin",
             "voice_name": "Marin",
@@ -381,12 +636,95 @@
             "locale": "fr-FR",
             "gender": null,
             "processing_scope": "configured_provider",
-            "configuration_revision": "539caac7c3819c139035d899"
+            "configuration_revision": "f8068d25c92cb9cc13543ff9"
           },
           "cache_policy": "private,no-store",
+          "preference_context": {
+            "scope": "owner_session_device",
+            "storage_owner": "client",
+            "key_fields": [
+              "ha_installation",
+              "profile_id",
+              "session_id",
+              "device_id"
+            ],
+            "runtime_mutable": true,
+            "session_end": "discard"
+          },
+          "voices": [
+            {
+              "voice_id": "marin",
+              "name": "Marin",
+              "gender": null
+            },
+            {
+              "voice_id": "cedar",
+              "name": "Cedar",
+              "gender": null
+            },
+            {
+              "voice_id": "alloy",
+              "name": "Alloy",
+              "gender": null
+            },
+            {
+              "voice_id": "ash",
+              "name": "Ash",
+              "gender": null
+            },
+            {
+              "voice_id": "ballad",
+              "name": "Ballad",
+              "gender": null
+            },
+            {
+              "voice_id": "coral",
+              "name": "Coral",
+              "gender": null
+            },
+            {
+              "voice_id": "echo",
+              "name": "Echo",
+              "gender": null
+            },
+            {
+              "voice_id": "fable",
+              "name": "Fable",
+              "gender": null
+            },
+            {
+              "voice_id": "nova",
+              "name": "Nova",
+              "gender": null
+            },
+            {
+              "voice_id": "onyx",
+              "name": "Onyx",
+              "gender": null
+            },
+            {
+              "voice_id": "sage",
+              "name": "Sage",
+              "gender": null
+            },
+            {
+              "voice_id": "shimmer",
+              "name": "Shimmer",
+              "gender": null
+            },
+            {
+              "voice_id": "verse",
+              "name": "Verse",
+              "gender": null
+            }
+          ],
+          "voice_selection": {
+            "available": true,
+            "maximum_voices": 64
+          },
           "state": "available",
           "reason": null,
-          "revision": "3474bd5a166bbbf24e03cca4",
+          "revision": "7c57fd2bd83ff7bcf308f538",
           "provider_status": {
             "schema_version": 1,
             "configuration_state": "ready",
@@ -410,9 +748,9 @@
           },
           "source_kind": "accepted_ask_dj",
           "source_id": "turn-159e516fc04950ebbb27c506d610e58c",
-          "session_id": "session-e1760e408644420dbc83fc921bcf24eb",
-          "text_revision": "3531cf3564deeea78f653ede",
-          "presentation_revision": "3531cf3564deeea78f653ede",
+          "session_id": "session-2f4d18e546444981a5a01eabc8461ef2",
+          "text_revision": "daaf9ead3da693deac29eac7",
+          "presentation_revision": "daaf9ead3da693deac29eac7",
           "persona": "home_dj",
           "persona_revision": 0,
           "locale": "fr",
@@ -420,7 +758,7 @@
             {
               "ordinal": 1,
               "speaker_role": "dj",
-              "text": "Un ostinato est un motif musical court qui se r\u00e9p\u00e8te, souvent dans la m\u00eame partie."
+              "text": "Un ostinato est un motif musical court qui se r\u00e9p\u00e8te, souvent pour soutenir les autres parties."
             }
           ],
           "state": "available",
@@ -432,25 +770,25 @@
             "ha_configured"
           ],
           "processor_qualification_required": true,
-          "expires_at": "2026-10-16T08:53:50.187796+00:00",
+          "expires_at": "2026-10-16T09:00:44.914342+00:00",
           "cache_policy": "private,no-store",
           "attribution": [],
           "audio_state": "ready",
           "effective_voice": {
             "processor": "ha_configured",
             "engine": "tts.owned_actual_openai",
-            "pipeline_id": "01m51yc7hvcv365qxeytx73kgq",
+            "pipeline_id": "01m51yrz8hdh859bv0gb4pprba",
             "provider": "tts",
-            "voice_id": "marin",
-            "voice_name": "Marin",
-            "voice_selection": "configured",
+            "voice_id": "alloy",
+            "voice_name": "Alloy",
+            "voice_selection": "session_device_preference",
             "locale": "fr-FR",
             "gender": null,
             "processing_scope": "configured_provider",
-            "configuration_revision": "539caac7c3819c139035d899"
+            "configuration_revision": "f8068d25c92cb9cc13543ff9"
           },
           "audio_reference": {
-            "asset_id": "oPF8Uhww3fxA9lbUMhRphUpG-nc2h0w1",
+            "asset_id": "hs1sgC-lkxu8K_ai9lML2hwlhQMfmERR",
             "path": "/api/djconnect/v1/speech/audio",
             "method": "POST"
           }
@@ -458,18 +796,20 @@
       },
       "audio_status": 200,
       "content_type": "audio/mpeg",
-      "audio_bytes": 85632,
-      "audio_sha256": "4c8e341ec15682c22f3c9189fd1e05f48eee8b7214c5858ccd97322e77c4e1ca",
-      "latency_seconds": 1.45,
+      "audio_bytes": 118656,
+      "audio_sha256": "38c90855453bccad487ce254fc1c92ef4ad4c2e32a0947febf2e38d4f408e8db",
+      "latency_seconds": 1.544,
       "cached_no_new_call": true,
       "gender_unavailable": true,
+      "explicit_voice_choice": "alloy",
+      "configured_pipeline_voice_unchanged": true,
       "active_session_manual_speech_in_music_only": true,
       "session_end_audio_status": 404,
       "unauthenticated_status": 401
     },
     {
       "locale": "es",
-      "accepted_answer": "Un ostinato es un patr\u00f3n musical breve que se repite, a menudo en la misma parte de la obra.",
+      "accepted_answer": "Un ostinato es un patr\u00f3n musical breve que se repite y suele servir de base para otras partes.",
       "voice_options": {
         "success": true,
         "speech_voice_options": {
@@ -489,7 +829,7 @@
           "provider_voice": {
             "processor": "ha_configured",
             "engine": "tts.owned_actual_openai",
-            "pipeline_id": "01m51yc7hvcv365qxeytx73kgq",
+            "pipeline_id": "01m51yrz8hdh859bv0gb4pprba",
             "provider": "tts",
             "voice_id": "marin",
             "voice_name": "Marin",
@@ -497,12 +837,95 @@
             "locale": "es-ES",
             "gender": null,
             "processing_scope": "configured_provider",
-            "configuration_revision": "539caac7c3819c139035d899"
+            "configuration_revision": "f8068d25c92cb9cc13543ff9"
           },
           "cache_policy": "private,no-store",
+          "preference_context": {
+            "scope": "owner_session_device",
+            "storage_owner": "client",
+            "key_fields": [
+              "ha_installation",
+              "profile_id",
+              "session_id",
+              "device_id"
+            ],
+            "runtime_mutable": true,
+            "session_end": "discard"
+          },
+          "voices": [
+            {
+              "voice_id": "marin",
+              "name": "Marin",
+              "gender": null
+            },
+            {
+              "voice_id": "cedar",
+              "name": "Cedar",
+              "gender": null
+            },
+            {
+              "voice_id": "alloy",
+              "name": "Alloy",
+              "gender": null
+            },
+            {
+              "voice_id": "ash",
+              "name": "Ash",
+              "gender": null
+            },
+            {
+              "voice_id": "ballad",
+              "name": "Ballad",
+              "gender": null
+            },
+            {
+              "voice_id": "coral",
+              "name": "Coral",
+              "gender": null
+            },
+            {
+              "voice_id": "echo",
+              "name": "Echo",
+              "gender": null
+            },
+            {
+              "voice_id": "fable",
+              "name": "Fable",
+              "gender": null
+            },
+            {
+              "voice_id": "nova",
+              "name": "Nova",
+              "gender": null
+            },
+            {
+              "voice_id": "onyx",
+              "name": "Onyx",
+              "gender": null
+            },
+            {
+              "voice_id": "sage",
+              "name": "Sage",
+              "gender": null
+            },
+            {
+              "voice_id": "shimmer",
+              "name": "Shimmer",
+              "gender": null
+            },
+            {
+              "voice_id": "verse",
+              "name": "Verse",
+              "gender": null
+            }
+          ],
+          "voice_selection": {
+            "available": true,
+            "maximum_voices": 64
+          },
           "state": "available",
           "reason": null,
-          "revision": "1b8ce21c9d73c239bd49fa2f",
+          "revision": "c28d0db8900378613add58e0",
           "provider_status": {
             "schema_version": 1,
             "configuration_state": "ready",
@@ -526,9 +949,9 @@
           },
           "source_kind": "accepted_ask_dj",
           "source_id": "turn-49bb0680b25156f4aaa49befa28b4a5d",
-          "session_id": "session-16d3a0dcd3954478b76839f367c4d302",
-          "text_revision": "9fb4d2955d8a1ad2d104fb6f",
-          "presentation_revision": "9fb4d2955d8a1ad2d104fb6f",
+          "session_id": "session-cfabbb83d8ea4d65a571c9c3b3fea267",
+          "text_revision": "726ae765105f4863b2221f91",
+          "presentation_revision": "726ae765105f4863b2221f91",
           "persona": "home_dj",
           "persona_revision": 0,
           "locale": "es",
@@ -536,7 +959,7 @@
             {
               "ordinal": 1,
               "speaker_role": "dj",
-              "text": "Un ostinato es un patr\u00f3n musical breve que se repite, a menudo en la misma parte de la obra."
+              "text": "Un ostinato es un patr\u00f3n musical breve que se repite y suele servir de base para otras partes."
             }
           ],
           "state": "available",
@@ -548,14 +971,14 @@
             "ha_configured"
           ],
           "processor_qualification_required": true,
-          "expires_at": "2026-10-16T08:53:53.600739+00:00",
+          "expires_at": "2026-10-16T09:00:47.445732+00:00",
           "cache_policy": "private,no-store",
           "attribution": [],
           "audio_state": "ready",
           "effective_voice": {
             "processor": "ha_configured",
             "engine": "tts.owned_actual_openai",
-            "pipeline_id": "01m51yc7hvcv365qxeytx73kgq",
+            "pipeline_id": "01m51yrz8hdh859bv0gb4pprba",
             "provider": "tts",
             "voice_id": "marin",
             "voice_name": "Marin",
@@ -563,10 +986,10 @@
             "locale": "es-ES",
             "gender": null,
             "processing_scope": "configured_provider",
-            "configuration_revision": "539caac7c3819c139035d899"
+            "configuration_revision": "f8068d25c92cb9cc13543ff9"
           },
           "audio_reference": {
-            "asset_id": "uJDcFUMf0wRWPWd-4j5pB3xlv53RsYze",
+            "asset_id": "Sy-wNsbFT5Rxhf0RHCaaoYNAIGfRhrmZ",
             "path": "/api/djconnect/v1/speech/audio",
             "method": "POST"
           }
@@ -574,11 +997,13 @@
       },
       "audio_status": 200,
       "content_type": "audio/mpeg",
-      "audio_bytes": 109824,
-      "audio_sha256": "61bdca12eb49d7b71f3b3e28b22834bccb953b376f2ff46dbdd126d6347f79cd",
-      "latency_seconds": 2.233,
+      "audio_bytes": 130560,
+      "audio_sha256": "035e689b8b6137ed3b5d193f0e610b642929774c307be60c7a90dffaba57fcdc",
+      "latency_seconds": 2.157,
       "cached_no_new_call": true,
       "gender_unavailable": true,
+      "explicit_voice_choice": null,
+      "configured_pipeline_voice_unchanged": true,
       "active_session_manual_speech_in_music_only": true,
       "session_end_audio_status": 404,
       "unauthenticated_status": 401
@@ -588,36 +1013,36 @@
     {
       "model": "gpt-4o-mini-tts",
       "voice": "marin",
-      "input_sha256": "e26dbf6aa65235d946f3472d8445dae7cbba6ebc577c81dcde49247a52829d1c",
+      "input_sha256": "0cb804f9bd945417c4b6f078f174f2164a16844cd5466f390b85f7f8b6b84d0d",
+      "input_characters": 109,
+      "format": "mp3"
+    },
+    {
+      "model": "gpt-4o-mini-tts",
+      "voice": "cedar",
+      "input_sha256": "d946b7a29809de6821fc28b5dad3085146dfc4d43f151b2f23dd1a407ff4b87c",
+      "input_characters": 106,
+      "format": "mp3"
+    },
+    {
+      "model": "gpt-4o-mini-tts",
+      "voice": "marin",
+      "input_sha256": "4ebcda1736af734105f7de637a3019b955406d81685bfd1914f7d74e2539c07d",
+      "input_characters": 113,
+      "format": "mp3"
+    },
+    {
+      "model": "gpt-4o-mini-tts",
+      "voice": "alloy",
+      "input_sha256": "daaf9ead3da693deac29eac7ce2df589d835afe3795d5eed357be787eaee50f4",
       "input_characters": 95,
       "format": "mp3"
     },
     {
       "model": "gpt-4o-mini-tts",
       "voice": "marin",
-      "input_sha256": "6a069a65896e2bc2923426cbec38266e55ad1c7029efad3941d7440a92117eea",
-      "input_characters": 101,
-      "format": "mp3"
-    },
-    {
-      "model": "gpt-4o-mini-tts",
-      "voice": "marin",
-      "input_sha256": "ec77bba925fd3e0bed89b7325d1bbd9185187527c81eada5d932290b18ad755a",
-      "input_characters": 119,
-      "format": "mp3"
-    },
-    {
-      "model": "gpt-4o-mini-tts",
-      "voice": "marin",
-      "input_sha256": "3531cf3564deeea78f653eded4f0f119bdf5efac998209f6a5cb0ad5ef51402a",
-      "input_characters": 82,
-      "format": "mp3"
-    },
-    {
-      "model": "gpt-4o-mini-tts",
-      "voice": "marin",
-      "input_sha256": "9fb4d2955d8a1ad2d104fb6f870a8f3dc2f7c43ff3b94e459e8777ec969c8f2b",
-      "input_characters": 92,
+      "input_sha256": "726ae765105f4863b2221f91740dfabc4ef04fee8ec8813c59e90fa6d975a9d9",
+      "input_characters": 94,
       "format": "mp3"
     }
   ],
@@ -701,7 +1126,7 @@
         "provider_voice": {
           "processor": "ha_configured",
           "engine": "tts.owned_actual_openai",
-          "pipeline_id": "01m51yc7hvcv365qxeytx73kgq",
+          "pipeline_id": "01m51yrz8hdh859bv0gb4pprba",
           "provider": "tts",
           "voice_id": "cedar",
           "voice_name": "Cedar",
@@ -709,18 +1134,101 @@
           "locale": "es-ES",
           "gender": null,
           "processing_scope": "configured_provider",
-          "configuration_revision": "539caac7c3819c139035d899"
+          "configuration_revision": "5af59a8c391de4439136704a"
         },
         "cache_policy": "private,no-store",
+        "preference_context": {
+          "scope": "owner_session_device",
+          "storage_owner": "client",
+          "key_fields": [
+            "ha_installation",
+            "profile_id",
+            "session_id",
+            "device_id"
+          ],
+          "runtime_mutable": true,
+          "session_end": "discard"
+        },
+        "voices": [
+          {
+            "voice_id": "marin",
+            "name": "Marin",
+            "gender": null
+          },
+          {
+            "voice_id": "cedar",
+            "name": "Cedar",
+            "gender": null
+          },
+          {
+            "voice_id": "alloy",
+            "name": "Alloy",
+            "gender": null
+          },
+          {
+            "voice_id": "ash",
+            "name": "Ash",
+            "gender": null
+          },
+          {
+            "voice_id": "ballad",
+            "name": "Ballad",
+            "gender": null
+          },
+          {
+            "voice_id": "coral",
+            "name": "Coral",
+            "gender": null
+          },
+          {
+            "voice_id": "echo",
+            "name": "Echo",
+            "gender": null
+          },
+          {
+            "voice_id": "fable",
+            "name": "Fable",
+            "gender": null
+          },
+          {
+            "voice_id": "nova",
+            "name": "Nova",
+            "gender": null
+          },
+          {
+            "voice_id": "onyx",
+            "name": "Onyx",
+            "gender": null
+          },
+          {
+            "voice_id": "sage",
+            "name": "Sage",
+            "gender": null
+          },
+          {
+            "voice_id": "shimmer",
+            "name": "Shimmer",
+            "gender": null
+          },
+          {
+            "voice_id": "verse",
+            "name": "Verse",
+            "gender": null
+          }
+        ],
+        "voice_selection": {
+          "available": true,
+          "maximum_voices": 64
+        },
         "state": "available",
         "reason": null,
-        "revision": "63b8d6ae4128d0d6e3ec3664",
+        "revision": "748d3a0f2e8fc97b92ab0b31",
         "provider_status": {
           "schema_version": 1,
           "configuration_state": "ready",
           "synthesis_state": "failed",
           "reason": "speech_preparation_failed",
-          "observed_at": "2026-10-16T08:48:55.825025+00:00",
+          "observed_at": "2026-10-16T08:55:49.596460+00:00",
           "retry_after_seconds": 60,
           "cache_policy": "private,no-store",
           "notification": {
@@ -741,7 +1249,7 @@
             "preserve_text": true,
             "repeat_original_request": false
           },
-          "revision": "9715f2cee17e3790971c8e19"
+          "revision": "b76d178af9b77fc009501407"
         },
         "notification": {
           "schema_version": 1,
@@ -781,9 +1289,26 @@
         },
         "provider_voice": null,
         "cache_policy": "private,no-store",
+        "preference_context": {
+          "scope": "owner_session_device",
+          "storage_owner": "client",
+          "key_fields": [
+            "ha_installation",
+            "profile_id",
+            "session_id",
+            "device_id"
+          ],
+          "runtime_mutable": true,
+          "session_end": "discard"
+        },
+        "voices": [],
+        "voice_selection": {
+          "available": false,
+          "maximum_voices": 64
+        },
         "state": "unavailable",
         "reason": "tts_provider_unavailable",
-        "revision": "1ff25c44396b284281e3f468",
+        "revision": "1b923068a7b8321582669446",
         "provider_status": {
           "schema_version": 1,
           "configuration_state": "unavailable",
@@ -905,7 +1430,7 @@
     "custom_components/djconnect/hybrid_ingress_qualification.py": "8e220874b16e7bbb1162261a1e89607a2a6067dca3fa3c820d2cc52ee3232933",
     "custom_components/djconnect/dj_brain_capabilities.py": "c0f1e79f64c1d5d437aa0f114de1ef153037b32049e35428d656f1e01b8a52a9",
     "custom_components/djconnect/profile_export.py": "47975a364fd47395f839fc47b31fa0fec93e5f2d0604a164191a7876e1bcafc9",
-    "custom_components/djconnect/speech_processor.py": "e4582660c5aa1248ff4fbac3775fe9b722f893978819d374e4bd8ebf55208218",
+    "custom_components/djconnect/speech_processor.py": "ea29a24248fec5ed49e3b380b74f59d4b2c4433a066e18083846ffa11253a345",
     "custom_components/djconnect/image_proxy.py": "77a855a75a02f8a8d643cfb9decfbb0c1ced33693cd8f70f91f01aa059296b53",
     "custom_components/djconnect/session_conversation.py": "06d62e1c264676d764ca1f54f4078a509f19a1006c3a3e90aa1f3397c6d6f981",
     "custom_components/djconnect/paired_live_contract.py": "fb4485b6acd9d548c17953edf64af4c4c4aa98c93cb325721acc033ff787f736",
@@ -931,7 +1456,7 @@
     "custom_components/djconnect/profile_backend.py": "4b19f7b37dac97573fd4dbccd3fe2973aeac236e5783a2d08ccdb360d38f3ad4",
     "custom_components/djconnect/ai_tools.py": "175ac20dc1ebdb535aaec839b6fc8e8fe012ac3c81e0f0f07e1856b692c9f0c8",
     "custom_components/djconnect/track_insight.py": "a333523f9bf299837dca2d95bebca940987c6dde4d06c4460fd701eb391eb4dc",
-    "custom_components/djconnect/session_speech.py": "95be7f560edfcf64b1afb348d345f22a00a8841a71696909ec65aac9afe3e225",
+    "custom_components/djconnect/session_speech.py": "927e9cbcb909dc90fe069eedb038c80c57ec1884adad599cae901e1805af0dd8",
     "custom_components/djconnect/historical_projection_retention.py": "29594182bc7e7fcbaf81fa65ddd70ea04b2f1129cec361b932ea67c3df841486",
     "custom_components/djconnect/discovery_selection.py": "09df528e850f3459c5f7b332c3d49efc22aef39a1a6835ac7ebbc10054e4645a",
     "custom_components/djconnect/const.py": "803bd0bf83eb3f9d120693d428afba9e2d72ca4a7315e78d03624165da28dd00",

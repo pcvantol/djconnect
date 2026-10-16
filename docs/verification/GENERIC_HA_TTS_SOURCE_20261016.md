@@ -20,7 +20,8 @@ new accepted messages carry a bounded server-owned processing-basis marker.
 [Real transport fixture](../../examples/client_contracts/session_speech/generic-ha-tts-real.http.json)
 comes from HA2026.10.0 in one bounded isolated container. All146 integration
 Python hashes match the candidate's actual files, zero differences. Actual
-OpenAI HA entity and configured `gpt-4o-mini-tts`, voiceMarin; existing authorized
+OpenAI HA entity and configured `gpt-4o-mini-tts`, default voiceMarin and explicit
+current-inventory Cedar/Alloy choices; existing authorized
 access entered only via stdin, no installed HA config mount/change. Five public
 music questions use the already qualified GPT-6 Luna agent with no tools or
 stored responses; five real TTS requests contain only their exact accepted
@@ -35,11 +36,11 @@ unsupported gender makes zero additional calls; unauthenticated audio is401.
 
 | Language | Actual MP3 bytes | Prepare/download/cache/deny sequence seconds |
 | --- | ---: | ---: |
-| en | 98688 | 1.334 |
-| nl | 118656 | 3.411 |
-| de | 137856 | 2.835 |
-| fr | 85632 | 1.450 |
-| es | 109824 | 2.233 |
+| en | 109056 | 1.547 |
+| nl | 120960 | 1.405 |
+| de | 132864 | 1.997 |
+| fr | 118656 | 1.544 |
+| es | 130560 | 2.157 |
 
 These are measured isolated software timings, not a latency promise or audible
 quality score. Five model requests and five syntheses completed. This table describes only the final active-Session fixture.
@@ -65,15 +66,33 @@ locale even when HA uses another language. Both have connected regression tests.
 Failure observations are private/bounded/expiring; reads and cache hits do not
 renew health. Text remains usable, no automatic synthesis or question replay.
 
+## Active-session controls and provider inventory
+
+Actual real HA voice-options advertises bounded current supported voices and
+owner/Session/device preference scope. Dutch preparation explicitly selects
+Cedar and French selects Alloy from the actual OpenAI HA inventory; the other
+three use the configured Marin voice. Exact accepted text/selected IDs/private
+bytes/cache/end are proved without changing the pipeline default. Connected
+unit tests additionally prove removed voice denial/replay409, independent
+per-request choices/cache resources, no shared preference/config write,64voice
+limit, unknown/oversize/invalid/native-route ID rejection and no inferred gender.
+The existing Persona route's two targeted tests also pass; it remains shared
+Session CAS state. Native Voice menu/preferences/Persona editing remain open.
+
+Read-only inspection of actual installed HA2026.10 `tts.Voice` confirms only
+`voice_id`/`name`. Thus gender is correctly unavailable in this actual adapter;
+this does not claim a positive gender selector or provider-specific metadata.
+No custom gender catalogue, direct provider lookup or native voice inference.
+
 ## Validation and claim limits
 
-Local regression:2023 tests,2016PASS/7existing skips. Owning dialogue/speech117
+Local regression:2025 tests,2018PASS/7existing skips. Owning dialogue/speech119
 testsPASS, including configured/default/no-inventory voice, missing pipeline,
 locale and provider, malformed WAV/MP3, option change during synthesis/replay,
 catalog cloud-denial, retained qualified versus legacy unknown provenance,
 capacity/cancellation/backoff, Session-end/Profile ABA and existing privacy.
-Unit-only branch-aware coverage: `speech_processor.py`83%,
-`speech_feedback.py`89%, combined84%; real HA/Piper execution is
+Unit-only branch-aware coverage: `speech_processor.py`84%,
+`speech_feedback.py`89%, combined85%; real HA/Piper execution is
 separate evidence, not falsely added to that coverage number. DAG162 tests,
 bootstrap/lifecycle/onboarding selected suites70 (63PASS/7existing skips),
 schema/generation23views,

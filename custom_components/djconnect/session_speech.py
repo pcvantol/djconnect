@@ -37,6 +37,9 @@ def capability():
             "provider_feedback": {"version": 1, "voice_options_path": "/api/djconnect/v1/speech/voice-options",
                                   "audio_configuration_error_status": 409,
                                   "languages": ["en", "nl", "de", "fr", "es"]},
+            "voice_preference_context": {"scope": "owner_session_device", "storage_owner": "client",
+                                         "runtime_mutable": True, "session_end": "discard"},
+            "session_voice_selection": {"optional_voice_id": True, "authority": "configured_ha_assist_pipeline_provider"},
             "gender_preference": {"optional": True, "authority": "configured_ha_assist_pipeline_provider",
                                   "options_path": "/api/djconnect/v1/speech/voice-options"}, "voice_selection": "renderer_owned_or_exact_configured",
             "autoplay_scope": "per_device_new_publication_only", "manual_after_never": True,
@@ -393,7 +396,10 @@ async def async_handle_prepare(hass, data, *, headers=None):
     from .session_history_projection import HistoryQueryError
 
     fields = {"contract_version", "device_id", "client_type", "reference", "processor", "voice_preference"}
-    if (not isinstance(data, dict) or set(data) != fields
+    if (not isinstance(data, dict) or not fields <= set(data) or set(data) - fields - {"voice_id"}
+        or ("voice_id" in data and (data.get("processor") != "ha_configured"
+            or not isinstance(data["voice_id"], str) or not 0 < len(data["voice_id"]) <= 128
+            or data["voice_id"] != data["voice_id"].strip() or not data["voice_id"].isprintable()))
         or type(data["contract_version"]) is not int or data["contract_version"] != 1
         or data["processor"] not in ("local_on_device", "ha_configured")
         or data["voice_preference"] not in ("default", "male", "female")
@@ -474,9 +480,15 @@ async def prepare_ha(hass, runtime, owner, data, descriptor, admission):
     # from a provider label. Private/catalog display is no cloud-processing grant.
     if admission.processor_basis not in {"qualified_dialogue_v1", "cc0_normalized_fields_v1", "runtime_authored_direction_v1", "spotify_owner_local_read_v1", "retained_owner_local_read_v1"}:
         return unavailable(data["reference"], "source_processor_not_qualified")
+    def resolve_processor():
+        if "voice_id" in data:
+            return configured_processor(hass, runtime.config, descriptor["locale"],
+                                        data["voice_preference"], selected_voice=data["voice_id"])
+        return configured_processor(hass, runtime.config, descriptor["locale"], data["voice_preference"])
+
     entity = voice = None
     try:
-        entity, voice = configured_processor(hass, runtime.config, descriptor["locale"], data["voice_preference"])
+        entity, voice = resolve_processor()
         if (admission.processor_basis in {"spotify_owner_local_read_v1", "retained_owner_local_read_v1"}
                 and voice.get("processing_scope") != "qualified_local"):
             return unavailable(data["reference"], "source_processor_not_qualified")
@@ -487,7 +499,7 @@ async def prepare_ha(hass, runtime, owner, data, descriptor, admission):
         def qualified_admission():
             admission()
             try:
-                current_entity, current_voice = configured_processor(hass, runtime.config, descriptor["locale"], data["voice_preference"])
+                current_entity, current_voice = resolve_processor()
             except ProcessorUnavailable as exc:
                 raise SpeechProviderChanged(str(exc), descriptor["locale"]) from None
             if current_entity is not entity or current_voice != voice:

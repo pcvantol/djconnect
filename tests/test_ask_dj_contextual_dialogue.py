@@ -70,6 +70,77 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
             self.assertTrue(processor._valid_mp3(audio.data))
             self.assertEqual(len(self.prompts), 1)
 
+    async def test_active_session_voice_choice_is_explicit_bounded_and_does_not_change_pipeline(self):
+        from types import SimpleNamespace
+        from custom_components.djconnect import session_speech
+        session, _, _ = await self.selected_credit()
+        answer, _ = await self.request("What is an ostinato?", identifier="session-voice-choice",
+                                       context={"session_id": session.session_id})
+        payload = {**self.identity, "contract_version": 1, "reference": answer["session_speech"]["reference"],
+                   "processor": "ha_configured", "voice_preference": "default"}
+        stack, entity, pipeline, calls, processor = self.generic_tts()
+        inventory = [SimpleNamespace(voice_id="marin", name="Marin"), SimpleNamespace(voice_id="cedar", name="Cedar")]
+        entity.async_get_supported_voices = lambda language: inventory
+        before = deepcopy(self.runtime.config)
+        with stack:
+            options, _ = await session_speech.async_handle_voice_options(self.hass,
+                {**self.identity, "contract_version": 1}, headers=self.headers)
+            projected = options["speech_voice_options"]
+            self.assertEqual([v["voice_id"] for v in projected["voices"]], ["marin", "cedar"])
+            self.assertTrue(projected["voice_selection"]["available"])
+            self.assertEqual(projected["preference_context"]["scope"], "owner_session_device")
+            self.assertEqual(projected["preference_context"]["key_fields"],
+                             ["ha_installation", "profile_id", "session_id", "device_id"])
+            self.assertEqual(calls, [])
+            selected, status = await session_speech.async_handle_prepare(self.hass,
+                {**payload, "voice_id": "cedar"}, headers=self.headers)
+            self.assertEqual(status, 200, selected)
+            picked = selected["session_speech"]
+            self.assertEqual(picked["effective_voice"]["voice_id"], "cedar")
+            self.assertEqual(picked["effective_voice"]["voice_selection"], "session_device_preference")
+            default, _ = await session_speech.async_handle_prepare(self.hass, payload, headers=self.headers)
+            self.assertEqual(default["session_speech"]["effective_voice"]["voice_id"], "marin")
+            self.assertNotEqual(default["session_speech"]["audio_reference"], picked["audio_reference"])
+            self.assertEqual([c[2]["voice"] for c in calls], ["cedar", "marin"])
+            replay, _ = await session_speech.async_handle_prepare(self.hass,
+                {**payload, "voice_id": "cedar"}, headers=self.headers)
+            self.assertEqual(replay["session_speech"]["audio_reference"], picked["audio_reference"])
+            self.assertEqual(len(calls), 2)
+            self.assertEqual(pipeline.tts_voice, "marin")
+            self.assertEqual(self.runtime.config, before)
+            inventory.pop()
+            denied, _ = await session_speech.async_handle_prepare(self.hass,
+                {**payload, "voice_id": "cedar"}, headers=self.headers)
+            self.assertEqual(denied["session_speech"]["reason"], "no_matching_voice")
+            unavailable, status = await session_speech.async_handle_audio(self.hass,
+                {**self.identity, "contract_version": 1, "asset_id": picked["audio_reference"]["asset_id"]}, headers=self.headers)
+            self.assertEqual(status, 409, unavailable)
+            self.assertEqual(unavailable["notification"]["code"], "tts_voice_language_unavailable")
+            self.assertEqual(len(calls), 2)
+        self.assertEqual(len(self.prompts), 1)
+
+    async def test_voice_menu_inventory_and_request_reject_unqualified_or_unbounded_choices(self):
+        from types import SimpleNamespace
+        from custom_components.djconnect import session_speech
+        stack, entity, pipeline, calls, processor = self.generic_tts()
+        entity.async_get_supported_voices = lambda language: [SimpleNamespace(voice_id=str(i), name="Voice named Female") for i in range(80)]
+        with stack:
+            inventory = processor.voice_inventory(entity, "en-US")
+            self.assertEqual(len(inventory), 64)
+            self.assertTrue(all(v["gender"] is None for v in inventory))
+            with self.assertRaisesRegex(processor.ProcessorUnavailable, "no_matching_voice"):
+                processor.configured_processor(self.hass, {}, "en", "default", selected_voice="79")
+        answer, _ = await self.request("What is an ostinato?", identifier="invalid-voice-choice")
+        payload = {**self.identity, "contract_version": 1, "reference": answer["session_speech"]["reference"],
+                   "processor": "ha_configured", "voice_preference": "default"}
+        for value in (None, True, "", " x", "x" * 129, "x\n"):
+            denied, status = await session_speech.async_handle_prepare(self.hass,
+                {**payload, "voice_id": value}, headers=self.headers)
+            self.assertEqual(status, 400, denied)
+        denied, status = await session_speech.async_handle_prepare(self.hass,
+            {**payload, "processor": "local_on_device", "voice_id": "marin"}, headers=self.headers)
+        self.assertEqual(status, 400, denied)
+
     async def test_generic_ha_provider_defaults_and_no_inferred_gender(self):
         stack, entity, pipeline, calls, processor = self.generic_tts(voice_id="", inventory=False)
         with stack:
