@@ -269,3 +269,56 @@ class ProfileDJSettingsPersistenceTests(unittest.IsolatedAsyncioTestCase):
             result = await self.choose({'mood':'party'}, context=self.context())
         self.assertEqual(result['snapshot']['session']['updated_at'],
                          datetime.fromtimestamp(clock/1000, UTC).isoformat())
+
+    async def test_commit_failure_after_loop_admission_rolls_back_every_axis(self):
+        import sqlite3
+        provider = self.service._provider
+        connection = provider._connection
+        class FailCommit:
+            def __getattr__(self, name):
+                return getattr(connection, name)
+            def execute(self, statement, parameters=()):
+                if statement == 'COMMIT':
+                    raise sqlite3.OperationalError('injected commit failure')
+                return connection.execute(statement, parameters)
+        provider._connection = FailCommit()
+        try:
+            with self.assertRaisesRegex(RuntimeError, 'transaction failed'):
+                await self.choose({'mood':'party', 'persona':'club_dj'}, context=self.context())
+        finally:
+            provider._connection = connection
+        self.assertEqual((await self.read())['defaults_revision'], 0)
+        self.assertIsNone((await self.read())['session'])
+        row = await self.service.async_in_transaction(lambda tx: tx.fetchone(
+            'SELECT mood_current FROM djconnect_session_summaries WHERE session_id=?', (self.sid,)))
+        self.assertEqual(row, ('chill',))
+        self.assertFalse((await self.choose({'mood':'party'}, context=self.context()))['replayed'])
+
+    async def test_cancellation_after_admission_settles_before_releasing_provider_lock(self):
+        provider = self.service._provider
+        connection = provider._connection
+        reached, release = threading.Event(), threading.Event()
+        class DelayedCommit:
+            def __getattr__(self, name):
+                return getattr(connection, name)
+            def execute(self, statement, parameters=()):
+                if statement == 'COMMIT':
+                    reached.set()
+                    if not release.wait(5):
+                        raise AssertionError('test synchronization timeout')
+                return connection.execute(statement, parameters)
+        provider._connection = DelayedCommit()
+        try:
+            task = asyncio.create_task(self.choose({'mood':'party'}, context=self.context()))
+            self.assertTrue(await asyncio.to_thread(reached.wait, 5))
+            task.cancel()
+            self.assertTrue(provider._write_lock.locked())
+            release.set()
+            accepted = await task
+            self.assertTrue(accepted['accepted'])
+        finally:
+            release.set()
+            provider._connection = connection
+        replay = await self.choose({'mood':'party'}, context=self.context())
+        self.assertTrue(replay['replayed'])
+        self.assertEqual(replay['snapshot']['defaults_revision'], 1)

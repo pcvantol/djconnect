@@ -216,6 +216,9 @@ async def async_handle_settings(hass, data, *, headers=None, write=False, operat
             result = {'snapshot': snapshot}
         if not authority():
             return error('unauthorized', 401)
+        # Reads and non-voice patches may have waited through a provider change.
+        # Project current availability without replacing the retained choice.
+        policy = VoicePolicy.from_options(voice_options(hass, runtime.config))
         register_delivery_admission(lambda: _require_authority(authority))
         return {'success': True, **result, 'contract_version': 2, 'binding': binding,
                 'scope': 'profile_and_active_session', 'allowed_values': allowed_values(policy),

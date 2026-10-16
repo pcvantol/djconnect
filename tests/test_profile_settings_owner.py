@@ -153,3 +153,29 @@ class ProfileSettingsOwnerTests(unittest.IsolatedAsyncioTestCase):
             accepted, status = await self.choose(before, {'voice': {'kind': 'provider_default'}})
         self.assertEqual(status, 200, accepted)
         self.assertGreaterEqual(len(calls), 3)
+
+    async def test_read_refreshes_provider_availability_after_storage_wait(self):
+        from custom_components.djconnect import speech_processor
+        manager = self.fixture.manager
+        original = manager.async_read_dj_settings
+        withdrawn = False
+        async def read_after_change(**kwargs):
+            nonlocal withdrawn
+            result = await original(**kwargs)
+            withdrawn = True
+            return result
+        def options(*args):
+            return {'state': 'unavailable' if withdrawn else 'available',
+                    'revision': 'withdrawn' if withdrawn else 'before',
+                    'reason': 'tts_provider_unavailable' if withdrawn else None,
+                    'provider_voice': {'engine': 'tts.fixture'}, 'voices': [],
+                    'gender_selection': {'values': []}}
+        with patch.object(manager, 'async_read_dj_settings', read_after_change), \
+                patch.object(speech_processor, 'voice_options', options):
+            result, status = await self.read()
+        self.assertEqual(status, 200, result)
+        self.assertEqual(result['voice_revision'], 'withdrawn')
+        self.assertEqual(result['voice_availability'],
+                         {'available': False, 'reason': 'tts_provider_unavailable'})
+        self.assertEqual(result['snapshot']['defaults_revision'], 0)
+        self.assertEqual(result['snapshot']['defaults']['voice'], {'kind': 'provider_default'})
