@@ -149,7 +149,8 @@ retry/cancellation and uncertain dispatch; `text_only` zero synthesis through
 all alternate routes, old assets and in-flight changes; renderer live removal,
 reconnect, expiry and end in portrait/landscape. HA-only payloads must never leak
 through settings read/write/events/cache or migration. Native UI, audible speaker
-and physical device outcomes need their own evidence. No six-field PASS yet.
+and physical device outcomes need their own evidence. The local software proof
+below does not establish those consumer or physical outcomes.
 
 ## Local six-field software checkpoint
 
@@ -171,10 +172,53 @@ old grants with404. Queued, unavailable and unknown outcomes are distinct from
 local-ready and audible playback. A failed speaker target does not discard a
 still-authorized local result. No shared display receives settings or grants.
 
-These are local Core software checkpoints. Complete semantic inventory,
-renderer/consumer qualification, final exact independent reviews, protected
+These are local Core software checkpoints. Final exact independent reviews, protected
 source delivery, Finalization and any installed/native/audible acceptance remain
 open; the SETTINGS family is not Completed.
+
+### Legacy authority and shared-screen qualification
+
+A pre-activation Session may have genuinely unknown Mood. Its settings read
+retains the Session identity/generation/revision, but returns `settings: null`,
+`selection_required: true` and `selection_basis: legacy_mood_unknown`. Separate
+factory defaults are proposals, not a measured/effective Session Mood. Reads,
+Ask DJ1 and prepare1 preserve existing unknown-Mood behavior without activation
+or fabricated summary coverage. Prepare3 and the first shared mutation require
+all six explicit fields in this case; acceptance then materializes the typed
+Session and defaults in the existing transaction. No partial voice edit may
+silently turn unknown Mood into a factory Mood.
+
+Profile-ID creation/replacement must fail closed while an existing canonical
+SQLite service is unavailable: orphan erasure/accepted-default checks cannot
+be skipped. A genuinely absent service during first-install bootstrap retains
+the existing creation route. Existing owner identity and defaults survive a
+failed attempt and remain valid after storage recovers.
+
+Source `62047f49cd5e3a7516bca90897a67ebaa027c7ca` closes the old
+`dj_response_enabled=false` authority gap. Before explicit six-field acceptance,
+old bound-entry evidence requires review for every prepare version and legacy
+generation route. The same evidence is checked again during synthesis and on
+private asset access. Once contract3 is explicitly accepted, that old flag
+cannot override canonical output. Factory reads and contract1 prepare neither
+activate contract3 nor invent an accepted choice; only explicit acceptance
+changes the old consumer mutation boundary. Twenty-five focused speech tests
+cover these boundaries, withdrawal, races, exact voice and output behavior.
+
+The actual isolated HA/Broadcast browser run reaches both unchanged maintained
+renderer builds in portrait and landscape. All four views preserve the actual
+current track, immutable Moment text, source link, Spotify mark and readable
+layout, through offline/reconnect, original expiry, reload without resurrection
+and Session end. Switching text-only/client output causes no speech requests,
+audio controls, private settings projection or catch-up synthesis. The CAF
+adapter is modeled; this is browser software compatibility, not receiver
+deployment, native adoption, audible playback or physical hardware acceptance.
+
+All46 Core constant settings have a source setter/storage/reader/effect
+classification in the inventory. Existing active legacy locale, tone and
+playback-output adapters retain explicit owning-consumer migration boundaries;
+they are not labelled dead merely because no current HA form writes them.
+Unchanged administrative paths have source classification, not new physical
+acceptance. Platform-wide removal and joint acceptance remain dependency-gated.
 
 ## Original five-parameter foundation and local checkpoint history
 

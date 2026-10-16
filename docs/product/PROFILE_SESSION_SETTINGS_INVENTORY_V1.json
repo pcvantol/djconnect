@@ -2453,62 +2453,82 @@
     {
       "identifier": "ProfilePreferences.response_style",
       "source": "custom_components/djconnect/domain/profile/models.py",
-      "disposition": "READER_EFFECT_INVESTIGATION",
-      "acceptance": "STATIC_ONLY_BEHAVIOR_PROOF_PENDING"
+      "disposition": "REPLACE_MIGRATE",
+      "acceptance": "SOURCE_TRACE_CLASSIFIED; changed Core boundaries qualified by owning tests/connected HA, unchanged compatibility metadata is not dynamic acceptance",
+      "semantic_trace": "domain.storage profile update/import -> legacy Store evidence -> settings_migration.assessment -> explicit six-field choice; activated retirement removes old public projection; never infer Persona",
+      "owning_lane": "DJC-CORE; dependent consumer removal remains owning-lane gated"
     },
     {
       "identifier": "ProfilePreferences.voice_style",
       "source": "custom_components/djconnect/domain/profile/models.py",
-      "disposition": "READER_EFFECT_INVESTIGATION",
-      "acceptance": "STATIC_ONLY_BEHAVIOR_PROOF_PENDING"
+      "disposition": "REPLACE_MIGRATE",
+      "acceptance": "SOURCE_TRACE_CLASSIFIED; changed Core boundaries qualified by owning tests/connected HA, unchanged compatibility metadata is not dynamic acceptance",
+      "semantic_trace": "domain.storage profile update/import -> legacy Store evidence -> settings_migration.assessment -> explicit six-field choice; activated retirement resets old tone; no accepted shared override",
+      "owning_lane": "DJC-CORE; dependent consumer removal remains owning-lane gated"
     },
     {
       "identifier": "ProfilePreferences.language",
       "source": "custom_components/djconnect/domain/profile/models.py",
-      "disposition": "CONSOLIDATE_CONTENT_LANGUAGE_NOT_UI_LANGUAGE",
-      "acceptance": "STATIC_ONLY_BEHAVIOR_PROOF_PENDING"
+      "disposition": "KEEP_COMPATIBILITY_METADATA_PENDING_OWNING_CONSUMER_REMOVAL",
+      "acceptance": "SOURCE_TRACE_CLASSIFIED; changed Core boundaries qualified by owning tests/connected HA, unchanged compatibility metadata is not dynamic acceptance",
+      "semantic_trace": "domain.storage profile_from_dict/profile_to_dict retains schema1 language metadata; no Core speech/Session content-language effect established; actual content locale comes from qualified request/HA pipeline. Not a new language setting or completed platform removal",
+      "owning_lane": "DJC-CORE; dependent consumer removal remains owning-lane gated"
     },
     {
       "identifier": "Profile.mood.value",
       "source": "custom_components/djconnect/domain/profile/models.py",
-      "disposition": "MIGRATION_CONFLICT_REVIEW_NO_NUMERIC_INFERENCE",
-      "acceptance": "STATIC_ONLY_BEHAVIOR_PROOF_PENDING"
+      "disposition": "REPLACE_MIGRATE",
+      "acceptance": "SOURCE_TRACE_CLASSIFIED; changed Core boundaries qualified by owning tests/connected HA, unchanged compatibility metadata is not dynamic acceptance",
+      "semantic_trace": "existing Profile numeric value -> bounded legacy migration evidence; common accepted AskDJ/runtime reads typed shared Mood; no numeric-to-Persona conversion",
+      "owning_lane": "DJC-CORE; dependent consumer removal remains owning-lane gated"
     },
     {
       "identifier": "voice_preference",
       "source": "custom_components/djconnect/session_speech.py",
-      "disposition": "REPLACE_DEVICE_LOCAL_WITH_TYPED_ROAMING_V2",
-      "acceptance": "STATIC_ONLY_BEHAVIOR_PROOF_PENDING"
+      "disposition": "REPLACE_MIGRATE",
+      "acceptance": "SOURCE_TRACE_CLASSIFIED; changed Core boundaries qualified by owning tests/connected HA, unchanged compatibility metadata is not dynamic acceptance",
+      "semantic_trace": "prepare1 legacy request until explicit acceptance; after acceptance typed426; prepare3 reads canonical gender; provider inventory validation and real HA synthesis",
+      "owning_lane": "DJC-CORE; dependent consumer removal remains owning-lane gated"
     },
     {
       "identifier": "voice_id",
       "source": "custom_components/djconnect/session_speech.py",
-      "disposition": "KEEP_QUALIFIED_PROVIDER_ID_REPLACE_SCOPE_V2",
-      "acceptance": "STATIC_ONLY_BEHAVIOR_PROOF_PENDING"
+      "disposition": "REPLACE_MIGRATE",
+      "acceptance": "SOURCE_TRACE_CLASSIFIED; changed Core boundaries qualified by owning tests/connected HA, unchanged compatibility metadata is not dynamic acceptance",
+      "semantic_trace": "legacy exact provider voice request -> qualified provider inventory; prepare3 rejects client override and uses accepted typed Profile/Session voice",
+      "owning_lane": "DJC-CORE; dependent consumer removal remains owning-lane gated"
     },
     {
       "identifier": "selected_persona",
       "source": "custom_components/djconnect/session_persona.py",
-      "disposition": "REUSE_EFFECT_OWNER_TYPED_SHARED_V2",
-      "acceptance": "STATIC_ONLY_BEHAVIOR_PROOF_PENDING"
+      "disposition": "REPLACE_MIGRATE",
+      "acceptance": "SOURCE_TRACE_CLASSIFIED; changed Core boundaries qualified by owning tests/connected HA, unchanged compatibility metadata is not dynamic acceptance",
+      "semantic_trace": "profile_settings PATCH -> existing SQLite/default+Session transaction -> Runtime Persona -> future immutable Moments/common AskDJ; legacy mutation upgrade fence",
+      "owning_lane": "DJC-CORE; dependent consumer removal remains owning-lane gated"
     },
     {
       "identifier": "selected_mood",
       "source": "custom_components/djconnect/session_mood.py",
-      "disposition": "REUSE_EFFECT_AND_SUMMARY_OWNER_TYPED_SHARED_V2",
-      "acceptance": "STATIC_ONLY_BEHAVIOR_PROOF_PENDING"
+      "disposition": "REPLACE_MIGRATE",
+      "acceptance": "SOURCE_TRACE_CLASSIFIED; changed Core boundaries qualified by owning tests/connected HA, unchanged compatibility metadata is not dynamic acceptance",
+      "semantic_trace": "profile_settings PATCH -> existing SQL summary interval+defaults/Session -> Runtime Planner/Mood; automatic evolution preserves remembered default; legacy unknown remains explicit",
+      "owning_lane": "DJC-CORE; dependent consumer removal remains owning-lane gated"
     },
     {
       "identifier": "selected_presence",
       "source": "custom_components/djconnect/session_presence.py",
-      "disposition": "REUSE_LEDGER_INFLIGHT_OWNER_TYPED_SHARED_V2",
-      "acceptance": "STATIC_ONLY_BEHAVIOR_PROOF_PENDING"
+      "disposition": "REPLACE_MIGRATE",
+      "acceptance": "SOURCE_TRACE_CLASSIFIED; changed Core boundaries qualified by owning tests/connected HA, unchanged compatibility metadata is not dynamic acceptance",
+      "semantic_trace": "profile_settings PATCH -> same SQL+Runtime owner -> existing shared Presence ledger/inflight gates; no reset/catchup",
+      "owning_lane": "DJC-CORE; dependent consumer removal remains owning-lane gated"
     },
     {
       "identifier": "announcement_output",
       "source": "owner6220590330/6220695648; announcements.py; API_CONTRACT.md",
       "disposition": "REPLACE_MIGRATE",
-      "acceptance": "CONTRACT3_DESIGN_BEFORE_RUNTIME; NO SIX_FIELD_PASS"
+      "acceptance": "SOURCE_TRACE_CLASSIFIED; changed Core boundaries qualified by owning tests/connected HA, unchanged compatibility metadata is not dynamic acceptance",
+      "semantic_trace": "six-field PATCH -> same SQL/Runtime -> new-publication callback/manual operation/asset admission; real HA mediafetch and text_only zero synthesis",
+      "owning_lane": "DJC-CORE; dependent consumer removal remains owning-lane gated"
     },
     {
       "identifier": "vibecast_session_end_allowed",
@@ -2738,11 +2758,9 @@
     }
   ],
   "remaining_core_qualification": [
-    "Core46 source classifications complete; finish active-lane consumer dispositions and qualify isolated tone/locale/playback-output compatibility boundaries without guessing Persona",
-    "Full failure/restart and final exact candidate acceptance; current targeted lifecycle/expiry/cancellation tests and intermediate HA duration probes are not total acceptance",
-    "Owning coverage and final exact independent technical/privacy/experience reviews. Intermediate review findings fixed; Bandit medium/high zero on local source checkpoint",
-    "Complete owning-lane semantic inventory and consumer adoption gates; early private Apple contract handoff exists but does not authorize its WIP expansion",
-    "Protected source publication, exact-main/artifact readback and separate Finalization; no source publication grant yet"
+    "Final exact independent technical/privacy and product/experience reviews after current review repairs and qualification",
+    "Protected source delivery, exact-main/artifact/formal readback and separate Finalization under current human merge/Finalization authorization",
+    "Native editor/adoption, consumer-dependent legacy adapter removal and joint acceptance remain owning-lane gates; no consumer WIP expanded"
   ],
   "consumer_source_findings": [
     {

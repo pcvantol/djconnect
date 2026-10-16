@@ -492,6 +492,9 @@ async def async_handle_prepare(hass, data, *, headers=None, _speaker_operation=F
                 return {'success': False, 'error': 'settings_contract_upgrade_required',
                         'settings_contract_version': 3}, 426
             if shared_settings:
+                if snapshot['session'] and snapshot['session'].get('selection_required'):
+                    return {'success': True, 'session_speech': unavailable(
+                        data['reference'], 'settings_migration_choice_required')}, 200
                 selected = DJSettings.from_dict(snapshot['session']['settings'] if snapshot['session'] else snapshot['defaults'])
                 if selected.announcement_output == 'text_only':
                     return {'success': True, 'session_speech': unavailable(data['reference'], 'announcement_text_only')}, 200

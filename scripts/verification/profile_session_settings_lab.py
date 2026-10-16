@@ -30,6 +30,30 @@ async def run(hass, runtime, client, post, identity, output, headers, manager, s
     source_hashes = {str(path.relative_to(root)): hashlib.sha256(path.read_bytes()).hexdigest() for path in source_files}
 
     manager._settings_repository = ProfileDJSettingsRepository(persistence_service(hass))
+    # Ordinary legacy HTTP entry without an explicit Mood must stay usable.
+    # This precedes Cloud setup, so the existing real HA Wyoming entity owns
+    # the qualified synthesis; only its external waveform service is a fixture.
+    legacy_created = await post('/session/start', {**identity, 'locale': 'en'}, expected=201)
+    legacy_sid = legacy_created['session']['session_id']
+    legacy_session = manager.current_active('profile-a')
+    assert legacy_session.selected_mood == '' and legacy_session.settings_contract_version == 1
+    legacy_answer = await post('/ask_dj/message', {**identity, 'client_message_id': 'legacy-unknown-mood-probe',
+        'text': 'help', 'audio_response': 'never', 'speech_contract_version': 1,
+        'context': {'session_id': legacy_sid}})
+    legacy_prepared = await post('/speech/prepare', {**identity, 'contract_version': 1,
+        'processor': 'ha_configured', 'voice_preference': 'default',
+        'reference': legacy_answer['session_speech']['reference']})
+    assert legacy_prepared['session_speech']['audio_state'] == 'ready', legacy_prepared
+    response = await client.get('/api/djconnect/v1/profile/settings',
+        params={**identity, 'contract_version': '3'}, headers=headers)
+    legacy_read = await response.json()
+    assert response.status == 200 and not legacy_read['snapshot']['activated']
+    assert legacy_read['snapshot']['session']['settings'] is None
+    assert legacy_read['snapshot']['session']['selection_required']
+    assert legacy_read['migration']['requires_review']
+    assert manager.current_active('profile-a').selected_mood == ''
+    await playback_observation_manager(hass).async_stop('profile-a', legacy_sid)
+    await post('/session/end', {**identity, 'session_id': legacy_sid})
     calls = []
     async def waveform(**kwargs):
         assert len(calls) < 12
@@ -56,7 +80,9 @@ async def run(hass, runtime, client, post, identity, output, headers, manager, s
         peer = hass.config_entries.async_get_entry(entry_id)
         hass.config_entries.async_update_entry(peer, data={**peer.data, 'assist_pipeline_id': pipeline.id})
     counter = 0
-    rows = []
+    rows = [{'case': 'ordinary_legacy_HTTP_start_unknown_mood_askdj1_prepare1_settings_read',
+             'response': legacy_read, 'speech_state': legacy_prepared['session_speech']['audio_state'],
+             'activation': False, 'invented_mood': False}]
 
     async def read(auth=headers):
         response = await client.get('/api/djconnect/v1/profile/settings', params={

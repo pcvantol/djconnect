@@ -287,6 +287,43 @@ class SharedSettingsSpeechTests(unittest.IsolatedAsyncioTestCase):
             self.assertEqual((status, denied['error']), (426, 'settings_contract_upgrade_required'))
             self.assertEqual(len(calls), 1)
 
+    async def test_legacy_session_unknown_mood_remains_usable_until_explicit_complete_selection(self):
+        from custom_components.djconnect.domain.profile.dj_settings import DJSettings
+        session = await self.f.fixture.manager.async_start(owner_profile_id='profile-a', locale='en')
+        self.assertEqual(session.selected_mood, '')
+        stack, _, _, _, _ = self.provider()
+        with stack:
+            answer, status = await self.f.request('What is an ostinato?', identifier='unknown-mood-legacy',
+                context={'session_id': session.session_id}, speech_contract_version=1)
+            self.assertEqual(status, 200, answer)
+            payload = {**self.f.identity, 'contract_version': 1, 'processor': 'ha_configured',
+                       'voice_preference': 'default', 'reference': answer['session_speech']['reference']}
+            ready, status = await self.speech.async_handle_prepare(self.hass, payload, headers=self.f.headers)
+            self.assertEqual(status, 200, ready)
+            self.assertEqual(ready['session_speech']['audio_state'], 'ready')
+            before, status = await self.settings.async_handle_settings(self.hass,
+                {**self.f.identity, 'contract_version': 3}, headers=self.f.headers)
+            self.assertEqual(status, 200, before)
+            self.assertIsNone(before['snapshot']['session']['settings'])
+            self.assertTrue(before['snapshot']['session']['selection_required'])
+            self.assertTrue(before['migration']['requires_review'])
+            self.assertFalse(before['snapshot']['activated'])
+            denied, status = await self.speech.async_handle_prepare(self.hass,
+                {**{key: value for key, value in payload.items() if key != 'voice_preference'},
+                 'contract_version': 3, 'target': 'local', 'intent': 'manual'}, headers=self.f.headers)
+            self.assertEqual((status, denied['session_speech']['reason']),
+                             (200, 'settings_migration_choice_required'))
+            self.assertEqual(self.f.fixture.manager.current_active('profile-a').selected_mood, '')
+            selected = DJSettings().as_dict()
+            await self.choose('marin', extra=selected)
+            active = self.f.fixture.manager.current_active('profile-a')
+            self.assertEqual(active.selected_mood, 'groove')
+            row = await self.f.fixture.service.async_in_transaction(lambda tx: tx.fetchone(
+                'SELECT mood_current,mood_coverage,mood_since FROM djconnect_session_summaries WHERE session_id=?',
+                (session.session_id,)))
+            self.assertEqual(row[:2], ('groove', 'unknown'))
+            self.assertTrue(row[2])
+
     async def test_legacy_output_review_revokes_inflight_and_existing_private_audio(self):
         payload = await self.contribution()
         stack, entity, _, calls, _ = self.provider()
@@ -624,6 +661,32 @@ class SharedSettingsSpeechTests(unittest.IsolatedAsyncioTestCase):
                 'speaker_reason':'announcement_speaker_not_found', 'local':'ready', 'audible':'not_proven'})
             self.assertIn('audio_reference', result['session_speech'])
             self.assertEqual(len(calls), 1)
+            dispatch.assert_not_awaited()
+
+    async def test_both_target_keeps_local_audio_when_media_base_url_is_missing(self):
+        from unittest.mock import AsyncMock, patch
+        from custom_components.djconnect import hybrid_service, speaker_delivery
+        stack, _, _, _, _ = self.provider()
+        self.runtime.config['dj_announcement_speaker_entity_id'] = 'media_player.owned_speaker'
+        self.hass.states = SimpleNamespace(get=lambda _: SimpleNamespace(
+            state='idle', attributes={'supported_features': 512}))
+        dispatch = AsyncMock()
+        self.hass.services = SimpleNamespace(async_call=dispatch)
+        with stack, patch.object(speaker_delivery, '_async_ha_base_url', new=AsyncMock(return_value=None)):
+            await self.choose('marin', extra={'announcement_output': 'both'})
+            session, moment, _ = await self.f.selected_credit()
+            authority = await hybrid_service.PairedAuthority.resolve(self.hass, self.f.identity, self.f.headers)
+            result, status = await speaker_delivery.async_play(self.hass, authority,
+                {**self.f.identity, 'contract_version': 3, 'processor': 'ha_configured', 'intent': 'manual',
+                 'target': 'both', 'reference': {'session_id': session.session_id, 'moment_id': moment.moment_id}})
+            self.assertEqual(status, 200, result)
+            self.assertEqual(result['delivery'], {'ha_speaker': 'unavailable',
+                'speaker_reason': 'speech_media_url_unavailable', 'local': 'ready', 'audible': 'not_proven'})
+            item, status = await self.speech.async_handle_audio(self.hass,
+                {**self.f.identity, 'contract_version': 1,
+                 'asset_id': result['session_speech']['audio_reference']['asset_id']}, headers=self.f.headers)
+            self.assertEqual(status, 200)
+            self.assertIsNotNone(item)
             dispatch.assert_not_awaited()
 
     async def test_uncertain_both_target_dispatch_preserves_local_result_and_never_retries_effect(self):

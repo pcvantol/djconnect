@@ -48,13 +48,14 @@ class SessionSettingsContext:
     session_id: str
     generation: str
     expected_revision: int
-    effective: DJSettings
+    effective: DJSettings | None
 
     def __post_init__(self):
         _identifier(self.session_id)
         _identifier(self.generation)
         _revision(self.expected_revision)
-        if not isinstance(self.effective, DJSettings):
+        if not isinstance(self.effective, DJSettings) and not (
+                self.effective is None and self.expected_revision == 0):
             raise SettingsValidationError('invalid_effective_settings')
 
 
@@ -223,13 +224,18 @@ class ProfileDJSettingsRepository(PersistenceRepository):
                     live_revision = previous['revision']
                     if effective != session.effective:
                         raise SettingsCommitError('runtime_settings_not_reconciled')
-                next_effective = effective.patched(patch)
+                if effective is None:
+                    if not complete_selection:
+                        raise SettingsCommitError('settings_migration_choice_required')
+                    next_effective = DJSettings.from_dict(patch)
+                else:
+                    next_effective = effective.patched(patch)
                 if validate_choices is not None:
                     validate_choices(next_effective)
                 live = {'session_id': session.session_id, 'generation': session.generation,
                         'settings': next_effective.as_dict(),
                         'revision': live_revision + int(initial_acceptance or live_revision == 0 or next_effective != effective)}
-                if next_effective.mood != effective.mood:
+                if effective is None or next_effective.mood != effective.mood:
                     from .summary import mood_tx
                     stamp = datetime.fromtimestamp(clock / 1000, UTC).isoformat()
                     mood_tx(tx, session.session_id, next_effective.mood, stamp)

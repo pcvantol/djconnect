@@ -104,6 +104,12 @@ async def async_play(hass, authority, payload):
     guard()
     base_url = await _async_ha_base_url(hass, runtime.config)
     if not base_url:
+        guard()
+        if payload['target'] == 'both':
+            return {'success': True, 'session_speech': descriptor,
+                    'delivery': {'ha_speaker': 'unavailable',
+                                 'speaker_reason': 'speech_media_url_unavailable',
+                                 'local': 'ready', 'audible': 'not_proven'}}, 200
         return {'success': False, 'error': 'speech_media_url_unavailable'}, 503
     from .session_runtime import session_runtime_manager
     manager = session_runtime_manager(hass)

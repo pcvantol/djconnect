@@ -205,6 +205,16 @@ async def async_handle_settings(hass, data, *, headers=None, write=False, operat
         if 'announcement_output' in data['patch']:
             delivery_policy.validate(settings)
 
+    def migration_state(*, activated=False, accepted_contract_version=None):
+        state = assessment(hass, storage.household,
+                           storage.household.profiles[context.profile_id],
+                           activated=activated, accepted_contract_version=accepted_contract_version)
+        active = manager.current_active(context.profile_id)
+        if active is not None and active.settings_contract_version == 1 and not active.selected_mood:
+            state.update(state='choice_required', requires_review=True,
+                         complete_selection_fields=sorted(FIELDS), selection_basis='legacy_mood_unknown')
+        return state
+
     try:
         if operation:
             if data['binding'] != binding:
@@ -220,9 +230,7 @@ async def async_handle_settings(hass, data, *, headers=None, write=False, operat
             if data['binding'] != binding:
                 return error('settings_binding_changed', 409)
             def migration_requires_review():
-                return assessment(hass, storage.household,
-                                  storage.household.profiles[context.profile_id],
-                                  activated=False)['requires_review']
+                return migration_state()['requires_review']
             result = await manager.async_accept_dj_settings(
                 owner_profile_id=context.profile_id, operation_id=data['operation_id'], binding=binding,
                 patch=data['patch'], expected_defaults_revision=data['expected_defaults_revision'],
@@ -246,19 +254,18 @@ async def async_handle_settings(hass, data, *, headers=None, write=False, operat
         # Reads and non-voice patches may have waited through a provider change.
         # Project current availability without replacing the retained choice.
         policy = VoicePolicy.from_options(voice_options(hass, runtime.config))
+        projected_choices = (snapshot['session'] or {}).get('settings') or snapshot['defaults']
         register_delivery_admission(lambda: _require_authority(authority))
         return {'success': True, **result, 'contract_version': SETTINGS_VERSION, 'binding': binding,
                 'scope': 'profile_and_active_session',
-                'migration': assessment(hass, storage.household,
-                                        storage.household.profiles[context.profile_id],
-                                        activated=snapshot['activated'],
-                                        accepted_contract_version=snapshot['accepted_contract_version']),
+                'migration': migration_state(activated=snapshot['activated'],
+                                            accepted_contract_version=snapshot['accepted_contract_version']),
                 'announcement_output': output_policy(hass, runtime).projection(
-                    (snapshot['session']['settings'] if snapshot['session'] else snapshot['defaults'])['announcement_output']),
+                    projected_choices['announcement_output']),
                 'allowed_values': allowed_values(policy),
                 'writable_fields': sorted(FIELDS), 'voice_revision': policy.revision,
                 'voice_availability': policy.selection_state(DJSettings.from_dict(
-                    snapshot['session']['settings'] if snapshot['session'] else snapshot['defaults'])),
+                    projected_choices)),
                 'as_of': datetime.now(UTC).isoformat(), 'cache_policy': 'private,no-store'}, 200
     except SettingsRevisionConflict as exc:
         if not authority():
@@ -272,8 +279,7 @@ async def async_handle_settings(hass, data, *, headers=None, write=False, operat
             if not authority():
                 return error('unauthorized', 401)
             register_delivery_admission(lambda: _require_authority(authority))
-            return error(str(exc), 409, migration=assessment(hass, storage.household,
-                storage.household.profiles[context.profile_id], activated=False))
+            return error(str(exc), 409, migration=migration_state())
         return error(str(exc), 409)
     except RuntimeError:
         return error('settings_unavailable', 503)

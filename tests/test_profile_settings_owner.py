@@ -237,6 +237,41 @@ class ProfileSettingsOwnerTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(status, 200, after)
         self.assertEqual(after['snapshot']['defaults']['persona'], 'festival_dj')
 
+    async def test_closed_settings_store_denies_identity_reuse_and_overwrite(self):
+        from custom_components.djconnect.persistence.dj_settings import ProfileDJSettingsRepository
+        from custom_components.djconnect.domain.storage import ProfileStorageValidationError
+        from custom_components.djconnect.profile_export import async_export_profile, async_import_profile
+        storage = self.hass.data['djconnect']['djconnect_profile_platform']
+        await storage.async_create_profile('Other', profile_id='profile-b', default_backend_id='later_manual')
+        historical = await async_export_profile(storage, 'profile-a')
+        before, _ = await self.read()
+        await self.choose(before, {'persona': 'club_dj'})
+        await self.fixture.service.async_close()
+        committed = storage.household
+        with self.assertRaisesRegex(ProfileStorageValidationError, 'profile_settings_unavailable'):
+            await async_import_profile(storage, historical, overwrite=True)
+        self.assertEqual(storage.household, committed)
+        await self.fixture.service.async_initialize()
+        after, status = await self.read()
+        self.assertEqual(status, 200, after)
+        self.assertEqual(after['snapshot']['defaults']['persona'], 'club_dj')
+        await storage.async_delete_profile('profile-a', reassign_to_profile_id='profile-b')
+        repo = ProfileDJSettingsRepository(self.fixture.service)
+        await repo.async_accept_user_choice('profile-a', operation_id=operation(self.now, 7), binding='a'*64,
+            patch={'mood': 'energy'}, expected_defaults_revision=0, now_ms=self.now, authorize=lambda: True)
+        await self.fixture.service.async_close()
+        committed = storage.household
+        with self.assertRaisesRegex(ProfileStorageValidationError, 'profile_settings_unavailable'):
+            await storage.async_create_profile('Recreated', profile_id='profile-a', default_backend_id='later_manual')
+        self.assertEqual(storage.household, committed)
+        await self.fixture.service.async_initialize()
+        await storage.async_create_profile('Recreated', profile_id='profile-a', default_backend_id='later_manual')
+        fresh = await repo.async_read('profile-a', authorize=lambda: True)
+        self.assertEqual(fresh['defaults_revision'], 0)
+        absent = await repo.async_operation_result('profile-a', operation_id=operation(self.now, 7),
+            binding='a'*64, now_ms=self.now, authorize=lambda: True)
+        self.assertEqual(absent['phase'], 'not_accepted')
+
     async def test_parked_portability_retains_schema1_and_rejects_unpublished_schema2(self):
         from custom_components.djconnect.profile_export import (
             async_export_profile, async_export_household, async_import_profile, ProfileExportError)

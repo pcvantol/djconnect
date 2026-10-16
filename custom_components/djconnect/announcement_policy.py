@@ -100,7 +100,7 @@ async def capture_announcement_admission(hass, runtime):
         raise PermissionError('settings_migration_choice_required')
     migration_acceptance = {key: snapshot[key] for key in ('activated', 'accepted_contract_version')}
     token = manager.dj_settings_fence_token(context.profile_id)
-    selected = DJSettings.from_dict(snapshot['session']['settings'] if snapshot['session'] else snapshot['defaults'])
+    selected = DJSettings.from_dict((snapshot['session'] or {}).get('settings') or snapshot['defaults'])
     def guard():
         if not current():
             raise PermissionError('announcement_settings_changed')

@@ -4347,11 +4347,14 @@ class SessionRuntimeManager:
                 owner_profile_id, session_id=active.session_id if active else '', authorize=authorize)
             if active is not None:
                 if snapshot['session'] is None:
+                    legacy_unknown = active.settings_contract_version == 1 and not active.selected_mood
                     snapshot['session'] = {
                         'session_id': active.session_id, 'generation': active.settings_generation,
-                        'settings': active.effective_dj_settings().as_dict(),
+                        'settings': None if legacy_unknown else active.effective_dj_settings().as_dict(),
                         'revision': active.settings_revision, 'defaults_revision': active.defaults_revision,
                         'updated_at': active.started_at}
+                    if legacy_unknown:
+                        snapshot['session'].update(selection_required=True, selection_basis='legacy_mood_unknown')
                 elif (snapshot['session']['settings'] != active.effective_dj_settings().as_dict()
                       or snapshot['session']['revision'] != active.settings_revision
                       or snapshot['session']['generation'] != active.settings_generation):
@@ -4397,7 +4400,13 @@ class SessionRuntimeManager:
                         or expected_session['session_id'] != active.session_id
                         or expected_session['generation'] != active.settings_generation):
                     raise SettingsCommitError('session_context_changed')
-                effective = active.effective_dj_settings()
+                if active.settings_contract_version == 1 and not active.selected_mood:
+                    if set(patch) != set(DJSettings().as_dict()):
+                        raise SettingsCommitError('settings_migration_choice_required')
+                    effective = None  # No invented previous Mood or summary interval.
+                    require_full_selection = True
+                else:
+                    effective = active.effective_dj_settings()
                 context = SessionSettingsContext(active.session_id, active.settings_generation,
                                                  expected_session['revision'], effective)
             # Pure closed validation precedes storage; actual voice validation

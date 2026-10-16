@@ -137,6 +137,8 @@ class ProfilePlatformStorage:
                                            for owner in removed | replaced | added):
                 raise ProfileStorageValidationError('profile_has_active_session')
             service = domain.get('persistence_service')
+            if service is not None and not service.readiness.ready and (added or replaced):
+                raise ProfileStorageValidationError('profile_settings_unavailable')
             if service is not None and service.readiness.ready:
                 from ..persistence.dj_settings import ProfileDJSettingsRepository
                 repository = ProfileDJSettingsRepository(service)
