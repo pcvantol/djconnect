@@ -86,4 +86,4 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 | [docs/verification/GENERIC_HA_TTS_SOURCE_READBACK_20261016.md](../../../docs/verification/GENERIC_HA_TTS_SOURCE_READBACK_20261016.md) | `ab9c27e02320f17f063e75b6bf318d9b20eba72141e0f002c48506923c8f7059` |
 | [docs/history/prompts/2026-10-16-generic-ha-tts-finalization.md](../../../docs/history/prompts/2026-10-16-generic-ha-tts-finalization.md) | `487548baa5d99882bbec786dc36e79157635ba7c9e5753a913624016cf44fcb4` |
 | [docs/product/PROVIDER_VOICE_GENDER_V1.md](../../../docs/product/PROVIDER_VOICE_GENDER_V1.md) | `aadf89980707aa2998d24acf10f12d9890c92920f6d0627d01c937d6e8b67497` |
-| [docs/verification/PROVIDER_VOICE_GENDER_SOURCE_20261016.md](../../../docs/verification/PROVIDER_VOICE_GENDER_SOURCE_20261016.md) | `cd0d453de378cdb27be50992384ad76b91ff4abab76df4bf930c6ebfae2d7ba7` |
+| [docs/verification/PROVIDER_VOICE_GENDER_SOURCE_20261016.md](../../../docs/verification/PROVIDER_VOICE_GENDER_SOURCE_20261016.md) | `ab02670e4c5b33433be036ac8165c9f123df238afa759c45a52c1951ddba41db` |

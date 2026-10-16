@@ -2,6 +2,16 @@
 
 ## Current: Provider-qualified Session voice/gender
 
+Latest completed predecessor: PR [#1188](https://github.com/pcvantol/djconnect/pull/1188)
+protected merged as `f04fc578d11252f48324a22cb6f71039bdcc59d5`.
+Repository State: `MERGED_RECONCILED` describes that completed predecessor,
+not the unmerged current voice/gender correction. Source PR
+[#1189](https://github.com/pcvantol/djconnect/pull/1189) exists for earlier
+headc91cf4ee; CI found missing current predecessor references in the rolling
+records. This local documentary repair restores those references without changing
+runtime, tests, workflows or the qualified transportfixture. It requires new
+exact review/publication authorization; the c91cf4ee grant is not reused.
+
 `DJC-CORE-PROVIDER-VOICE-GENDER-V1-20261016`, direct owner corrective request.
 Same sole writer, synchronized basef04fc578, branchcodex/provider-voice-gender-v1,
 ACK6213291374; fresh hostverify MATCH. Predecessor1187/1188 protected merged,
@@ -20,8 +30,9 @@ fixtures with real pairing/Core/Cloud inventory/selection/private bytes/cache/
 withdrawal. [Contract](docs/product/PROVIDER_VOICE_GENDER_V1.md),
 [qualification](docs/verification/PROVIDER_VOICE_GENDER_SOURCE_20261016.md).
 
-Independent exact reviews and candidate-specific source publication remain
-pending. Source/PR/main delivery is not claimed. Separate Finalization retains
+The earlier c91cf4ee reviews/publication were valid for that exact head; this
+documentary repair retains its own exact reviews and publication gate.
+Main delivery is not claimed. Separate Finalization retains
 its own publication gate. Installed HA-dev/prod remain predecessorf04fc578;
 standing install instruction applies only after qualified protected delivery.
 Native Voice menu, audible and joint acceptance remain Apple-owned/open.

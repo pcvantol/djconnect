@@ -54,3 +54,16 @@ acceptance. Apple owns client-local preference storage, menu refresh and visible
 adoption. No unsolicited provider-change push exists; current options become
 visible through existing authorized reads. Source publication and separate
 Finalization retain their exact candidate-specific gates.
+
+## CI documentary correction
+
+The first published headc91cf4ee received valid exact reviews/owner approval,
+but CI found two rolling-record tests failing: the latest local status header
+had hidden the completed predecessor's explicit PR/merge-SHA/state evidence.
+The header was added after the earlier local full regression; that ordering
+error is acknowledged. The minimal follow-up restores the actual completed
+PR1188/f04fc578 reference consistently in current rolling records, including
+Prompt Index, and regenerates canonical document hashes/views. No runtime,
+workflow, test or transportfixture change; no skip/expectation weakening.
+The complete final candidate must pass regression after all tracked edits and
+receive new exact reviews and publication authority before updating PR1189.
