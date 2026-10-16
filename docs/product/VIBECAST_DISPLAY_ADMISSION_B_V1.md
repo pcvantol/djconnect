@@ -54,6 +54,10 @@ pairing fingerprints, Profile/source bindings and Runtime generations.
 | Display online lease |60s, renewal request at20s; bounded by original share expiry and current authority |
 | HTTP JSON / WSS preauth |4KiB body/message; first authentication within5s;16 preauth sockets globally,2 per source |
 | Live displays | One live socket per display; new authenticated connection supersedes old connection generation |
+| Outbound data |128KiB maximum serialized snapshot/frame; truncate nothing that removes attribution or changes facts |
+| Writer backlog |16 frames and256KiB per display,4MiB globally; bounded reservations before allocation |
+| Projection/write work | One writer and at most one current projection per display;8 projections globally; no task per event |
+| Slow consumer |5s send timeout; overflow closes connection1013 and clears viewer state; no unbounded catch-up |
 
 These are testable policy proposals, not measured qualification. Legacy handoff
 300s/global64 behavior does not prove the new bounds. Derive wall-clock expiry
@@ -67,15 +71,25 @@ An exhausted owner throttle denies further attempts without extending any claim.
 New routes use `contract_version:1` and reject unknown authority/effect fields.
 All responses carry no-store, no-referrer and nosniff; the shell has a reviewed
 self-only CSP. No cookie authentication, wildcard CORS, credentials in URLs,
-localStorage/sessionStorage, analytics or payload logging. Browser requests
-require exact configured selected HA Origin; absent/null/foreign Origin is
-denied. Native owner requests use ordinary explicit paired identity, not an
-Origin exemption for display credentials. No untrusted Host/header URL guessing.
+localStorage/sessionStorage, analytics or payload logging. Browser POST and WSS
+requests require exact configured selected HA Origin; absent/null/foreign Origin
+is denied for display authority. Native owner requests use ordinary explicit
+paired identity, not an Origin exemption for display credentials. No untrusted
+Host/header URL guessing.
+
+The public shell GET is the explicit exception: top-level navigation normally
+has no Origin. It allocates no claim/grant/state, returns no private content and
+accepts ordinary absent Origin; a supplied null/foreign Origin is denied. Harden
+with CSP, frame-ancestors none and no-store/no-referrer/nosniff. GET serves the
+shell only; it never counts as native or display authority. Authenticated context
+and snapshot are POST pure reads, not GET requests that assume a browser can set
+the forbidden Origin header. Qualify the real browser wire before implementation
+acceptance; a mocked request dictionary does not prove this policy works.
 
 | Route | Caller / exact purpose |
 | --- | --- |
 | GET `/djconnect/vibecast/display` | Public empty shell; direct200; no Session data |
-| GET `/api/djconnect/v1/display/owner/context` | Paired owner; current Session and B epoch/limits/share metadata; pure read |
+| POST `/api/djconnect/v1/display/owner/context` | Paired owner; current Session and B epoch/limits/share metadata; pure read |
 | POST `/api/djconnect/v1/display/claim` | Same-origin public browser; create one bounded claim |
 | POST `/api/djconnect/v1/display/owner/resolve` | Paired owner plus code; resolve opaque claim ID/generation/deadline only |
 | POST `/api/djconnect/v1/display/owner/approve` | Paired owner; approve exact claim and explicit existing/new share |
@@ -84,7 +98,7 @@ Origin exemption for display credentials. No untrusted Host/header URL guessing.
 | POST `/api/djconnect/v1/display/renew` | Display bearer; renew current lease idempotently while consent remains valid |
 | POST `/api/djconnect/v1/display/leave` | Display bearer; revoke itself only |
 | POST `/api/djconnect/v1/display/owner/revoke` | Paired current owner; revoke exact display or close exact share, distinct from Session end |
-| GET `/api/djconnect/v1/display/snapshot` | Display Authorization bearer; pure bounded shared snapshot |
+| POST `/api/djconnect/v1/display/snapshot` | Display Authorization bearer plus closed context body; pure bounded shared snapshot |
 | GET `/api/djconnect/v1/display/live` | Same-origin WSS; first bounded message authenticates display; no token in URL |
 
 Owner requests include the existing paired `identity` object and required
@@ -92,6 +106,10 @@ Owner requests include the existing paired `identity` object and required
 Context returns only the caller's actual active Session, `issuer_epoch`, limits,
 and optional current `share_id`, `share_generation`, `expires_at`. No capability
 is advertised until handlers, source fences and real-chain tests are delivered.
+Snapshot body is exactly `{contract_version, issuer_epoch, display_id}`; its
+bearer remains in Authorization, never body/query. Context includes version and
+paired identity, plus the current session_id when available. POST reads perform
+no write, renewal, provider lookup or publication.
 
 Claim request is `{contract_version, browser_nonce}`. Response is
 `{success, contract_version, issuer_epoch, claim_id, claim_secret, code,
@@ -176,6 +194,34 @@ offline resume, revoke, Session/share end or authority loss immediately clears
 cards, decoded media and pending callbacks. An expired viewer cannot resurrect
 content after a late successful HTTP/WSS response.
 
+Use the existing bounded-writer/backpressure pattern explicitly; merely using
+WSS does not inherit it. Each display owns one long-lived writer. Callbacks queue
+bounded invalidation descriptors/revisions, never retain old private/content
+frames or spawn a task per publication. Coalesce consecutive invalidations to a
+fresh shared snapshot; never replay historical effects. Enforce both queue count
+and serialized-byte budgets globally and per display before reservation. Bound
+in-flight projection output too; an oversized item fails closed or falls back
+without dropping attribution/changing fact text. At most one projection per
+display and8 globally; waiting work is one bounded invalidation flag/display.
+
+Build/send under current issuer/share/lease/entry/Profile/source/generation
+fences. Check after projection awaits and immediately before each actual send;
+discard stale queued work. Revocation/end fences the generation and cancels the
+writer before further content release. A send already started cannot recall
+bytes already delivered; if authority changes while awaiting it, cancel/close
+and issue no later data. Sendtimeout5s or overflow closes1013, releases queue/
+task/socket reservations and leaves only the original still-current lease.
+Client clears content and may reconnect with backoff only within that lease;
+it does not renew expiry or build a backlog. Test blocked sends plus revoke/end,
+not only an empty queue. Actual byte/task/resource accounting remains a runtime
+qualification requirement, not proof supplied by these proposed limits.
+
+The optional [Origin wire probe](../../scripts/verification/vibecast_origin_wire_probe.mjs)
+measures actual Chromium/WebKit GET/POST/upgrade header behavior on own temporary
+loopback servers using the same existing Playwright prerequisites as the frame
+probe. It uses synthetic strings, no real credentials, and deliberately refuses
+the upgrade. It proves neither HA authentication nor successful B/live transport.
+
 Entry removal/re-pair/Profile reassignment invalidates displays approved by that
 entry; loss of the share-creating consent closes that share and all displays.
 Another current paired device on the same Profile may explicitly revoke or
@@ -190,7 +236,13 @@ playback, not an owner response with fields hidden by renderer CSS. Required
 identity fields are contract version, issuer/display/share/Session generation,
 coherent projection revision and as_of. Allow qualified public current-track
 labels, approved non-Silence shared Moments with immutable fact text, sources/
-attribution and original expiry, and Mood/Persona/presence public presentation.
+attribution and original expiry. Optional `session_presentation` is exactly
+`{mood, persona, presence}` containing only qualified current active-Session enum
+labels under the explicit share policy. Unknown/unqualified labels are omitted;
+never infer them from Profile defaults or rewrite a published Moment's original
+Persona/Mood. No settings/default snapshot, settings revision, voice, gender,
+announcement_output, provider/pipeline or device preference appears here. These
+three presentation labels confer no settings read/write capability.
 No Planner/Horizon, owner Flow conversation, Ask DJ/history/DNA, account/device/
 Profile IDs, prompts, source payloads or private native deliveries are serialized.
 Unknown fields are denied. Display reads never generate a Moment or provider call.
