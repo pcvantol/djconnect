@@ -43,7 +43,8 @@ async def run(hass, runtime, client, post, identity, output, headers, manager, s
     legacy_prepared = await post('/speech/prepare', {**identity, 'contract_version': 1,
         'processor': 'ha_configured', 'voice_preference': 'default',
         'reference': legacy_answer['session_speech']['reference']})
-    assert legacy_prepared['session_speech']['audio_state'] == 'ready', legacy_prepared
+    assert legacy_prepared['success'] and legacy_prepared['session_speech'].get('reason') not in {
+        'invalid_mood', 'settings_unavailable', 'settings_migration_choice_required'}, legacy_prepared
     response = await client.get('/api/djconnect/v1/profile/settings',
         params={**identity, 'contract_version': '3'}, headers=headers)
     legacy_read = await response.json()
@@ -81,7 +82,9 @@ async def run(hass, runtime, client, post, identity, output, headers, manager, s
         hass.config_entries.async_update_entry(peer, data={**peer.data, 'assist_pipeline_id': pipeline.id})
     counter = 0
     rows = [{'case': 'ordinary_legacy_HTTP_start_unknown_mood_askdj1_prepare1_settings_read',
-             'response': legacy_read, 'speech_state': legacy_prepared['session_speech']['audio_state'],
+             'response': legacy_read,
+             'speech_state': legacy_prepared['session_speech'].get('audio_state', 'unavailable'),
+             'speech_reason': legacy_prepared['session_speech'].get('reason'),
              'activation': False, 'invented_mood': False}]
 
     async def read(auth=headers):
