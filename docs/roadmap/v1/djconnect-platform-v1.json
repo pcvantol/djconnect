@@ -42092,7 +42092,7 @@
       },
       {
         "path": "docs/product/VIBECAST_DISPLAY_ADMISSION_V1.md",
-        "sha256": "b32b6d02c5c57519dbc43bab3027691d42857859ef7885c66ffe29d30ce54654"
+        "sha256": "97ee45a3799f19189ed2fc25c538bf464031b9b45c01f500f60bb82b98ec34b8"
       },
       {
         "path": "docs/verification/VIBECAST_DISPLAY_DESIGN_REVIEW_20261016.md",
@@ -42100,7 +42100,7 @@
       },
       {
         "path": "docs/product/VIBECAST_DISPLAY_ADMISSION_B_V1.md",
-        "sha256": "b8ddd392de562a44c16555a7467272c7cb7cf1586f83ce8aa79ddf4848c49c20"
+        "sha256": "305b483a3d4ea2c092155393c1408a5506f9701acab53d511bca60eb854133b6"
       }
     ],
     "implementation_receipt": {
@@ -42714,11 +42714,11 @@
       "first_contract_commit": "275679322111fbda110bce2dad1f16da2932017e",
       "previous_delta": "history/20261016/settings-capability-finalization-maintenance-v14.json",
       "previous_delta_sha256": "57699566d3cfdec653e9c87d4416d706c0b1d2131ee58fc5911aba92718d017e",
-      "phase": "B_IMPLEMENTATION_A_CONTRACT_REVIEW",
-      "source_delivery": "UNPUBLISHED",
+      "phase": "B_CORE_SOURCE_GO_A_CONTRACT_GATED",
+      "source_delivery": "DRAFT_PR_PUBLISHED_NOT_MERGED",
       "trust_anchor": "OPEN_JOINT_REVIEW",
       "wire": "NOT_FROZEN",
-      "runtime": "IN_PROGRESS_B_NOT_ADVERTISED",
+      "runtime": "B_SOFTWARE_QUALIFIED_NOT_INSTALLED",
       "native": "OPEN_APPLE",
       "TV": "NOT_RUN",
       "joint": "OPEN",
@@ -42728,6 +42728,18 @@
         "reviewed_sha": "ae2adfe9e162a00d00715e26418656976b6f02a2",
         "scope": "ISOLATED_B_ONLY_A_UNAVAILABLE",
         "runtime_acceptance": "NOT_RUN"
+      },
+      "b_source_go": {
+        "reviewed_sha": "325aabc7205f1f18928bc2c809817956d91609f8",
+        "producer_sha": "3cb9cf129f31d419e8b2027e4dc1ba08fafdb9d8",
+        "scope": "B_CORE_ONLY_A_UNAVAILABLE",
+        "technical_privacy": "GO",
+        "product_ux_privacy": "GO",
+        "source_files": 163,
+        "source_sha256": "fd37dfb681d436214f330a37ddb02c1568ec10ed6e1e14c1b9197e7c494ab904",
+        "public_TLS": "NOT_QUALIFIED",
+        "native": "OPEN",
+        "installed": "NOT_DELIVERED"
       }
     }
   }

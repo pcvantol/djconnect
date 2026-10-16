@@ -7,12 +7,16 @@ Base `1329ad1ce8bd066d65a08b3988261a44e2cac730`; existing Core writer,
 branch `codex/vibecast-display-admission-v1`. Existing roadmap node `WEB::DISPLAY`.
 Settings source1193/Finalization1194 and repair1195/Finalization1196 remain closed.
 
-Status: **A_CONTRACT_REVIEW / B_IMPLEMENTATION_IN_PROGRESS / NOT_FROZEN**.
-The B design received exact independent GO on ae2adfe9 and is being implemented
-separately with A unavailable; no secure-A, native or runtime acceptance is
-inferred. The first B foundation is bounded Runtime-owned ephemeral authority,
-not enabled public routes/capabilities. This is not a replacement
-for the selected implementation. The
+Status: **A_CONTRACT_REVIEW / B_CORE_SOURCE_GO / DRAFT_NOT_MERGED**.
+After exact independent B-design GO on ae2adfe9, B was implemented independently
+with A unavailable. Runtime/discovery pin3cb9cf12 and fixture/candidate pin325aabc7
+have independent technical/privacy and product/UX/privacy GO for B-Core.
+Normal candidate registration includes bounded Runtime-owned authority, paired
+HTTP transitions, dedicated snapshot/live, the shared-renderer host and generic
+support discovery. Real isolated HA/browser proofs are scoped in the
+[B contract](VIBECAST_DISPLAY_ADMISSION_B_V1.md). This candidate is not main or
+installed; no secure-A, public-route, native or hardware acceptance is inferred.
+The
 [onboarding authority](VIBECAST_ONBOARDING_GUEST_AUTHORITY_V1.md),
 [distribution ownership](VIBECAST_WEB_ENTRY_DISTRIBUTION_V1.md) and
 [Apple guest boundary](APPLE_VIBECAST_GUEST_MODE_V1.md) remain canonical parents.
@@ -27,7 +31,9 @@ No rendezvous algorithm, signing suite or TV trust root is frozen here.
 
 ## Existing chain and the missing trust boundary
 
-Core already authenticates paired owner requests against the loaded config entry,
+The following preserved inventory describes main/base1329 before B; the current
+candidate adds the separately reviewed display principal described below.
+Core authenticates paired owner requests against the loaded config entry,
 device token, current Profile and active Session. `broadcast_handoff.py` supplies
 an independent browser claim secret and six-digit approval code, a300-second
 memory-only claim, capacity64/per-source3 and owner attempt throttling. Collection
@@ -117,10 +123,12 @@ are explicit and are not bypassed by the code-free product choice.
 
 ## ROUTE-1 candidate: one exact external entry
 
-The proposed new HA page is **`/djconnect/vibecast/display`**, served from the
+The candidate HA page is **`/djconnect/vibecast/display`**, served from the
 existing Core renderer source through a thin host adapter. Existing
 `/djconnect/vibecast` and Cast integration remain separate compatibility surfaces.
-This document does not register that page or any new HTTP endpoint yet.
+Candidate source registers this page and the B routes through the normal
+integration path. Its isolated synthetic-TLS proof is not qualification of a
+real externally configured DNS/TLS/proxy route or an installed endpoint.
 
 The authoritative selected installation returns its configured external origin
 through an ordinary paired owner request. Never take that origin from a QR,
@@ -229,7 +237,8 @@ or draft green checks alone; independently reviewed B work remains separate.
 | Owner revoke / share close | Existing paired owner; distinct from Session end | Fence pending claims, connections, media and late callbacks |
 
 B's exact endpoint schemas, claim/grant IDs, lease values, attempt/capacity budgets
-and live transport need design review before runtime. Reuse the existing owner,
+and live transport received independent design review before runtime. The
+implementation reuses the existing owner,
 Runtime, Session, Flow and renderer; do not create a second planner/event bus or
 forward the unscoped owner Broadcast bearer as the new display credential.
 Grants require installation/Profile/Session/share/browser/purpose/generation and
@@ -238,15 +247,18 @@ No owner history, DNA, Ask DJ, private forecast media, settings or playback/
 queue/volume/end operation is available to a display. Missing Origin is not
 native authority; wildcard CORS/cookie reuse is forbidden.
 
-### B source qualification before schema freeze
+### B software qualification and preserved baseline inventory
 
-The [B v1 review candidate](VIBECAST_DISPLAY_ADMISSION_B_V1.md) now specifies
-proposed routes, authority bindings, concrete budgets, consent, retries/leases,
-commit points and shared projection/media fences. Its independent exact B-design
-GO permits isolated implementation, not product advertisement or acceptance.
-It does not close A's trust gate or freeze the whole interoperable contract.
+The [B v1 contract](VIBECAST_DISPLAY_ADMISSION_B_V1.md) specifies the implemented
+routes, authority bindings, budgets, consent, retries/leases, commit points and
+shared projection/media fences. Source3cb9cf12/fixtures325aabc7 independently pass
+B technical/privacy and UX review, actual HA transitions/live/resource checks,
+both browser engines/orientations, original expiry/reconnect/end and generic
+support discovery. Discovery exposes no route or consent and requires current
+paired owner-context read. These B-only proofs do not close A's trust gate,
+freeze the whole interoperable contract or qualify public/native/installed/TV.
 
-Source inspection at base1329 confirms that current `BroadcastAuthorizationScope`
+Historical source inspection at base1329 confirms that its `BroadcastAuthorizationScope`
 has only OWNER and there is no delivered share/display-grant identity. The old
 Broadcast token also permits audience signals, and owner serialization defaults
 to including owner-only data. Neither is a read-only display principal or an
@@ -263,11 +275,13 @@ authority checks, but do not silently promote the relay install ID to a global
 TV trust root, mutate existing pairing identities or couple B to private history
 consent. Issuer/entry/Runtime-epoch semantics need an explicit reviewed mapping.
 
-The parent contract's proposed120s claim/code and<=60s online lease remain
-unqualified starting bounds, distinct from the legacy300s handoff. An exact B
-schema must settle atomic approval/collection/revoke ownership, lock order,
-capacity/attempt budgets, absolute deadlines and lease refresh without extending
-an expired grant. This inventory is preparation, not delivered B runtime.
+The candidate B implementation uses120s claims and60s online leases, distinct
+from the unchanged legacy300s handoff. Atomic approval/one-time collection/revoke,
+the existing Runtime lock, bounded reservations and original deadlines are
+implemented and tested; renewal cannot extend an already expired authority.
+The preceding inventory remains a baseline record, not a claim that candidate B
+is still absent. Maximum-load/public-route and A/native/joint qualification are
+separate and remain open; the draft has not delivered these changes to main.
 
 ## Legacy end authority: inventory before retirement
 

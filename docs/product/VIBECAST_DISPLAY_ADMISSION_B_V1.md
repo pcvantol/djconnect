@@ -2,12 +2,12 @@
 
 Part of `DJC-CORE-VIBECAST-DISPLAY-ADMISSION-V1-20261016`, existing Core
 writer, base1329ad1ce8bd066d65a08b3988261a44e2cac730 and draft1197.
-Status **B_DESIGN_REVIEWED / IMPLEMENTATION_IN_PROGRESS / NOT_ADVERTISED**.
+Status **B_CORE_SOURCE_GO / DRAFT_NOT_MERGED / A_UNAVAILABLE**.
 Exact B-design `ae2adfe9e162a00d00715e26418656976b6f02a2` received independent
 technical/privacy and product/UX/privacy GO after the three concrete findings
 were fixed. Independent isolated Core B implementation may proceed while A is
 fully unavailable; no A crypto/profile value is a prerequisite for that work.
-Current partial implementation includes Runtime-owned in-memory authority,
+Current B source implementation includes Runtime-owned in-memory authority,
 normal paired-owner fences, closed transitions, bounded HTTP/snapshot delivery,
 one WSS writer per display and a thin host over the maintained shared renderer.
 Its own isolated real HA HTTPS probe exercises ordinary pairing, Session start,
@@ -24,10 +24,12 @@ projection reservation, seven sampled HA tasks and292KiB RSS high-water increase
 Real preauth source-capacity denial/released slots and owner-effect denials pass.
 Both browsers clear offline, recover a fresh live snapshot and discard the
 originally expired Moment without clock rewriting. Combined owning coverage is
-88%, including real-HA and adapter execution. Broader capacity/failure and exact
-final candidate reviews remain open. This is partial
-evidence, not complete B acceptance. Unit tests alone are not HA auth or product
-acceptance.
+88%, including real-HA and adapter execution. Independent technical/privacy and
+product/UX/privacy source reviews GO on candidate325aabc7, whose integration tree
+equals producer3cb9cf12; A and broader maximum-load/public-route/native/joint
+qualification remain open. B support discovery is declared, without asserting
+route/consent/admission availability. This is B software evidence, not complete
+product acceptance. Unit tests alone are not HA auth or product acceptance.
 This refines the [parent admission contract](VIBECAST_DISPLAY_ADMISSION_V1.md),
 not a second assignment. No endpoint or capability below exists merely because
 it is described here. A's unresolved trust/profile/wire remains a separate gate;

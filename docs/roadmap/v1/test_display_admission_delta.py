@@ -19,7 +19,7 @@ class DisplayAdmissionMaintenanceTests(unittest.TestCase):
             self.plan["planning_maintenance"]["schema_version"],
             "djconnect-federated-planning-delta/15",
         )
-        self.assertIn("wire NOT_FROZEN, runtime IN_PROGRESS_B_NOT_ADVERTISED", render(self.plan)["README.md"])
+        self.assertIn("wire NOT_FROZEN, runtime B_SOFTWARE_QUALIFIED_NOT_INSTALLED", render(self.plan)["README.md"])
 
     def test_b_implementation_cannot_promote_a_or_replace_its_exact_design_review(self):
         for key, value in [("reviewed_sha", "0" * 40), ("scope", "A_AND_B"),
@@ -45,6 +45,19 @@ class DisplayAdmissionMaintenanceTests(unittest.TestCase):
                 p = deepcopy(self.plan)
                 p["planning_maintenance"]["display_admission_receipt"][key] = value
                 self.assertTrue(validate(p))
+
+    def test_B_source_GO_needs_exact_review_and_never_becomes_A_or_install_acceptance(self):
+        for key, value in [("reviewed_sha", "0" * 40), ("producer_sha", "0" * 40),
+                           ("scope", "A_AND_B"), ("source_sha256", "0" * 64),
+                           ("technical_privacy", "PENDING"), ("public_TLS", "PASS"),
+                           ("installed", "PASS"), ("native", "PASS")]:
+            with self.subTest(key=key):
+                p = deepcopy(self.plan)
+                p["planning_maintenance"]["display_admission_receipt"]["b_source_go"][key] = value
+                self.assertTrue(validate(p))
+        p = deepcopy(self.plan)
+        p["planning_maintenance"]["display_admission_receipt"].pop("b_source_go")
+        self.assertTrue(validate(p))
 
     def test_no_node_completion_or_unrelated_admission(self):
         for nid in ["WEB::TRUST", "WEB::DISPLAY", "WEB::OWNER-SCANNER", "SETTINGS::CORE::PRODUCER"]:
