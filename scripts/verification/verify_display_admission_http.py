@@ -255,7 +255,7 @@ async def main():
             checks.append("normal_pairing_minted_persisted_device_token")
             owner_headers = {"Authorization": "Bearer " + paired["device_token"]}
 
-            async def post(action, body, *, owner=False, headers=None, expected=200, origin=selected):
+            async def post(action, body, *, owner=False, headers=None, expected=200, origin=selected, record=True):
                 request_headers = {**(owner_headers if owner else {}), **(headers or {})}
                 if origin is not None:
                     request_headers["Origin"] = origin
@@ -267,12 +267,13 @@ async def main():
                 result = await response.json()
                 assert response.status == expected, (action, response.status, result)
                 assert response.headers["Cache-Control"] == "no-store"
-                assert len(wire_examples) < 64
-                wire_examples.append({"transport": "HTTP", "method": "POST",
-                    "path": "/api/djconnect/v1/display/" + action,
-                    "authentication": "ordinary_paired_owner" if owner else "dedicated_display" if headers else "none",
-                    "origin": origin, "request": payload, "status": response.status,
-                    "cache_control": response.headers["Cache-Control"], "response": result})
+                if record:
+                    assert len(wire_examples) < 64
+                    wire_examples.append({"transport": "HTTP", "method": "POST",
+                        "path": "/api/djconnect/v1/display/" + action,
+                        "authentication": "ordinary_paired_owner" if owner else "dedicated_display" if headers else "none",
+                        "origin": origin, "request": payload, "status": response.status,
+                        "cache_control": response.headers["Cache-Control"], "response": result})
                 return result
 
             response = await client.post("/api/djconnect/v1/session/start", headers=owner_headers,
@@ -451,6 +452,133 @@ async def main():
             assert response.status == 200, ended
             assert not manager._display_admission._shares
             checks.append("ordinary_session_end_clears_all_share_authority")
+            multi_receipt = {"state": "NOT_RUN"}
+            multi_enabled = os.environ.get("DJC_DISPLAY_MULTI_CLIENT", "0")
+            assert multi_enabled in {"0", "1"}
+            if multi_enabled == "1":
+                multi_seconds = int(os.environ.get("DJC_DISPLAY_MULTI_SECONDS", "70"))
+                assert 60 <= multi_seconds <= 90
+                response = await client.post("/api/djconnect/v1/session/start", headers=owner_headers,
+                    json={**identity, "mood": "groove", "locale": "en"})
+                multi_started = await response.json()
+                assert response.status == 201, multi_started
+                multi_sid = multi_started["session"]["session_id"]
+                viewers, readers = [], []
+                frame_counts, last_moods = [0] * 8, [None] * 8
+                hub = display_live_hub(manager)
+                began = time.monotonic()
+                rss_before = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+                peak_tasks, peak_connections, renew_count = 0, 0, 0
+                changes, next_renew = 0, 20
+                try:
+                    for index in range(9):
+                        nonce = secrets.token_urlsafe(32)
+                        new_claim = await post("claim", {"browser_nonce": nonce}, record=False)
+                        fields = {name: new_claim[name] for name in (
+                            "issuer_epoch", "claim_id", "browser_generation", "code")}
+                        share = ({"mode": "create", "consent": True} if index == 0 else {
+                            "mode": "existing", "share_id": viewers[0][0]["share_id"],
+                            "share_generation": viewers[0][0]["share_generation"]})
+                        before = set(manager._display_admission._displays)
+                        approved = await post("owner/approve", fields | {"session_id": multi_sid,
+                            "share": share}, owner=True, expected=429 if index == 8 else 200, record=False)
+                        browser = {name: new_claim[name] for name in (
+                            "issuer_epoch", "claim_id", "claim_secret", "browser_generation")}
+                        if index == 8:
+                            assert approved["error"] == "display_capacity"
+                            assert set(manager._display_admission._displays) == before and len(before) == 8
+                            await post("cancel", browser | {"browser_nonce": nonce}, record=False)
+                            break
+                        accepted = await post("collect", browser | {"browser_nonce": nonce}, record=False)
+                        binding = {name: accepted[name] for name in ("issuer_epoch", "display_id")}
+                        headers = {"Authorization": "Bearer " + accepted["grant_token"]}
+                        ws = await client.ws_connect("/api/djconnect/v1/display/live", headers={"Origin": selected})
+                        viewers.append((accepted, binding, headers, ws))
+                        await ws.send_json({"type": "authenticate", "contract_version": 1,
+                            "grant_token": accepted["grant_token"], **binding,
+                            "connection_nonce": secrets.token_urlsafe(32)})
+                        first = await ws.receive_json(timeout=5)
+                        assert first["snapshot"]["session_id"] == multi_sid
+                        assert first["snapshot"]["display_id"] == accepted["display_id"]
+                        frame_counts[index] = 1
+                    assert len(hub.connections) == len(viewers) == 8
+                    assert hub.preauth == 0 and not hub.sources
+
+                    async def drain(index, viewer):
+                        async for message in viewer[3]:
+                            assert message.type == WSMsgType.TEXT, message.type
+                            update = message.json()["snapshot"]
+                            assert update["session_id"] == multi_sid
+                            assert update["display_id"] == viewer[0]["display_id"]
+                            frame_counts[index] += 1
+                            assert frame_counts[index] <= 1000
+                            last_moods[index] = update["session_presentation"].get("mood")
+
+                    readers = [asyncio.create_task(drain(i, v)) for i, v in enumerate(viewers)]
+                    while time.monotonic() - began < multi_seconds:
+                        elapsed = time.monotonic() - began
+                        if elapsed >= next_renew:
+                            sequence = int(next_renew / 20)
+                            for _, binding, headers, _ in viewers:
+                                renewed = await post("renew", binding | {"renew_sequence": sequence},
+                                    headers=headers, record=False)
+                                assert renewed["lease_revision"] == sequence
+                                renew_count += 1
+                            next_renew += 20
+                        if changes < 3 and elapsed >= (15, 35, 55)[changes]:
+                            mood = ("chill", "energy", "party")[changes]
+                            response = await client.post("/api/djconnect/v1/session/mood", headers=owner_headers,
+                                json={**identity, "contract_version": 1, "session_id": multi_sid,
+                                    "selected_mood": mood, "expected_mood_revision": changes})
+                            reply = await response.json()
+                            assert response.status == 200, reply
+                            until = time.monotonic() + 5
+                            while any(value != mood for value in last_moods) and time.monotonic() < until:
+                                await asyncio.sleep(0.02)
+                            assert last_moods == [mood] * 8
+                            changes += 1
+                        assert len(hub.connections) == 8
+                        assert not any(reader.done() for reader in readers)
+                        assert hub.preauth == 0 and hub.projections <= 8
+                        assert hub.reserved_bytes <= 4 * 1024 * 1024
+                        peak_tasks = max(peak_tasks, len(asyncio.all_tasks()))
+                        peak_connections = max(peak_connections, len(hub.connections))
+                        await asyncio.sleep(0.25)
+                    response = await client.post("/api/djconnect/v1/session/end", headers=owner_headers,
+                        json={**identity, "session_id": multi_sid})
+                    ended_multi = await response.json()
+                    assert response.status == 200, ended_multi
+                    async with asyncio.timeout(5):
+                        await asyncio.gather(*readers)
+                        while hub.connections or hub.projections or hub.reserved_bytes:
+                            await asyncio.sleep(0.01)
+                    assert hub.preauth == 0 and not hub.sources
+                    assert not manager._display_admission._shares and not manager._display_admission._displays
+                    for _, binding, headers, _ in viewers:
+                        await post("snapshot", binding, headers=headers, expected=401, record=False)
+                    assert not any(call["request_path"].startswith("/api/djconnect/v1/display/") for call in calls)
+                    multi_receipt = {"state": "MEASURED_EIGHT_VIEWERS_ONE_SHARE",
+                        "elapsed_seconds": round(time.monotonic()-began, 3), "viewers": 8,
+                        "frames_per_viewer": frame_counts, "renewal_commits": renew_count,
+                        "confirmed_mood_updates_all_viewers": changes,
+                        "ninth_admission": "429_no_eviction", "peak_connections": peak_connections,
+                        "peak_reserved_bytes": hub.peak_reserved_bytes, "peak_projections": hub.peak_projections,
+                        "peak_tasks_including_8_probe_readers": peak_tasks,
+                        "rss_highwater_before_kib": rss_before,
+                        "rss_highwater_after_kib": resource.getrusage(resource.RUSAGE_SELF).ru_maxrss,
+                        "session_end": "all_8_connections_and_reservations_released_all_grants_denied",
+                        "scope": "one share, networkless actual HA transport; not global64 capacity or native/browser acceptance"}
+                    checks.append("eight_real_live_viewers_ninth_denied_no_eviction_renew_Broadcast_end_release")
+                finally:
+                    for reader in readers:
+                        reader.cancel()
+                    await asyncio.gather(*readers, return_exceptions=True)
+                    for _, _, _, ws in viewers:
+                        await ws.close()
+                    if manager.current_active("profile-a") is not None:
+                        response = await client.post("/api/djconnect/v1/session/end", headers=owner_headers,
+                            json={**identity, "session_id": multi_sid})
+                        await response.read()
             # Generic support is not configured reachability or consent. Even
             # without an external URL, discovery exposes no guessed endpoint;
             # the ordinary paired context read gives the functional failure.
@@ -475,7 +603,7 @@ async def main():
                 Path(fixture_path).write_text(public_transport_fixture(wire_examples))
             print(json.dumps({"qualification": "REAL_ISOLATED_HA_HTTPS_DISPLAY_TRANSITIONS_SNAPSHOT_BASIC_LIVE",
                 "checks": checks, "provider_calls_during_B": 0,
-                "duration": duration_receipt,
+                "duration": duration_receipt, "multi_viewer": multi_receipt,
                 "source_files": len(qualified_hashes), "source_sha256": hashlib.sha256(json.dumps(
                     qualified_hashes, sort_keys=True).encode()).hexdigest(),
                 "credentials": "ephemeral ordinary device pairing only; never exported",
