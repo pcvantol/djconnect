@@ -41291,11 +41291,11 @@
     "document_references": [
       {
         "path": "PRODUCT_ROADMAP.md",
-        "sha256": "e790edf6d42454e19c3fe7f335241436bbee4857b9f60ee26d77ca0d3f902085"
+        "sha256": "922c2e2772a71afa469751b024775e269a709d1963064d7793dcbbc3e17c1a68"
       },
       {
         "path": "PRODUCT_BACKLOG.md",
-        "sha256": "4323eaf183ba1befb209c4149a751722ed063187961269d98153b50034c9b966"
+        "sha256": "1d614ea4c168d6ec30f7a06c7bb2399215ea747edf94b4917832de95bb3446d7"
       },
       {
         "path": "docs/product/DJ_PRESENCE_V1.md",
@@ -41580,6 +41580,14 @@
       {
         "path": "docs/verification/PROVIDER_VOICE_GENDER_SOURCE_20261016.md",
         "sha256": "ab02670e4c5b33433be036ac8165c9f123df238afa759c45a52c1951ddba41db"
+      },
+      {
+        "path": "docs/verification/PROVIDER_VOICE_GENDER_SOURCE_READBACK_20261016.md",
+        "sha256": "15062c222152e2fd58810f4d9f92b74225d2beecca7ee1c1d78382fc4309c9f8"
+      },
+      {
+        "path": "docs/history/prompts/2026-10-16-provider-voice-gender-finalization.md",
+        "sha256": "ee784e85d90f928df38d43cd1bba17b2c912c60ff8c9d06d8d2f060f62ce822f"
       }
     ],
     "implementation_receipt": {
