@@ -36,6 +36,7 @@ def notification(reason, locale="en", *, retry_after=0):
              "tts_provider_unavailable": "tts_provider_unavailable",
              "no_matching_locale": "tts_voice_language_unavailable",
              "no_matching_voice": "tts_voice_language_unavailable",
+             "voice_gender_unavailable": "tts_voice_language_unavailable",
              "speech_configuration_changed": "tts_configuration_changed",
              "speech_preparation_failed": "tts_preparation_failed",
              "speech_preparation_timeout": "tts_preparation_failed",

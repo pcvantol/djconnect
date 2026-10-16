@@ -221,6 +221,10 @@ async def main():
                 from generic_ha_tts_lab import run
                 await run(hass, runtime, client, post, identity, output, model_bundle, headers)
                 return
+            if os.environ.get("DJC_PROVIDER_GENDER_PROBE"):
+                from provider_voice_gender_lab import run
+                await run(hass, runtime, client, post, identity, output, model_bundle, headers)
+                return
             session_started_clock = time.monotonic()
             started = await post("/session/start", {**identity, "mood": "groove", "locale": "en"}, expected=201)
             sid = started["session"]["session_id"]

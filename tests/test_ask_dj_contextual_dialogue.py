@@ -18,6 +18,96 @@ from tests import test_session_conversation_history as fixture_defs
 
 
 class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
+    async def test_explicit_provider_gender_selects_exact_voice_without_shared_setting_write(self):
+        from types import SimpleNamespace
+        from custom_components.djconnect import session_speech
+        answer, _ = await self.request("What is an ostinato?", identifier="qualified-gender")
+        payload = {**self.identity, "contract_version": 1, "reference": answer["session_speech"]["reference"],
+                   "processor": "ha_configured", "voice_preference": "female"}
+        stack, entity, pipeline, calls, processor = self.generic_tts()
+        voices = [SimpleNamespace(voice_id="marin", name="Configured", gender="male"),
+                  SimpleNamespace(voice_id="explicit-f", name="A voice", gender="female")]
+        entity.async_get_supported_voices = lambda language: voices
+        with stack:
+            options = processor.voice_options(self.hass, {})
+            self.assertEqual(options["gender_selection"]["voice_ids"], {"female": "explicit-f", "male": "marin"})
+            self.assertEqual(calls, [])
+            prepared, status = await session_speech.async_handle_prepare(self.hass, payload, headers=self.headers)
+            self.assertEqual(status, 200)
+            selected = prepared["session_speech"]
+            self.assertEqual(selected["effective_voice"]["voice_id"], "explicit-f")
+            self.assertEqual(selected["effective_voice"]["gender"], "female")
+            self.assertEqual(calls[-1][2]["voice"], "explicit-f")
+            self.assertEqual(pipeline.tts_voice, "marin")
+            invalid, _ = await session_speech.async_handle_prepare(self.hass,
+                {**payload, "voice_id": "marin"}, headers=self.headers)
+            self.assertEqual(invalid["session_speech"]["reason"], "no_matching_voice")
+            voices[1].gender = None
+            changed = processor.voice_options(self.hass, {})
+            self.assertNotEqual(changed["revision"], options["revision"])
+            self.assertEqual(changed["gender_selection"]["values"], ["male"])
+            denied, status = await session_speech.async_handle_audio(self.hass,
+                {**self.identity, "contract_version": 1, "asset_id": selected["audio_reference"]["asset_id"]}, headers=self.headers)
+            self.assertEqual(status, 409, denied)
+            self.assertEqual(len(calls), 1)
+
+    async def test_cloud_gender_uses_installed_mapping_intersection_and_never_deprecated_option(self):
+        import sys
+        from types import ModuleType, SimpleNamespace
+        cloud_module = ModuleType("homeassistant.components.cloud.tts")
+        class Cloud:
+            pass
+        Cloud.__module__ = cloud_module.__name__
+        cloud_module.CloudTTSEntity = Cloud
+        cloud_module.CloudProvider = type("LegacyCloud", (), {})
+        dependency = ModuleType("hass_nabucasa.voice")
+        dependency.MAP_VOICE = {("nl-NL", "female"): "ColetteNeural", ("nl-NL", "male"): "MaartenNeural",
+                                ("en-US", "female"): "JennyNeural", "invalid": "Ignored"}
+        stack, entity, pipeline, calls, processor = self.generic_tts()
+        cloud = Cloud()
+        cloud.__dict__.update(entity.__dict__)
+        cloud.default_options = {"gender": "female"}
+        voices = [SimpleNamespace(voice_id=v, name=v) for v in ("ColetteNeural", "MaartenNeural", "FennaNeural")]
+        cloud.async_get_supported_voices = lambda language: voices
+        pipeline.tts_language, pipeline.tts_voice = "nl-NL", "ColetteNeural"
+        with stack, patch.dict(sys.modules, {cloud_module.__name__: cloud_module, dependency.__name__: dependency}):
+            sys.modules["homeassistant.components.tts"].get_engine_instance = lambda *args: cloud
+            options = processor.voice_options(self.hass, {})
+            self.assertEqual([v["gender"] for v in options["voices"]], ["female", "male", None])
+            _, selected = processor.configured_processor(self.hass, {}, "nl", "male")
+            self.assertEqual(selected["voice_id"], "MaartenNeural")
+            await processor.synthesize(cloud, selected, "An authored sentence.")
+            self.assertEqual(calls[-1][2], {"voice": "MaartenNeural"})
+            self.assertEqual(cloud.default_options, {"gender": "female"})
+            dependency.MAP_VOICE.clear()
+            revoked = processor.voice_options(self.hass, {})
+            self.assertFalse(revoked["gender_selection"]["available"])
+            self.assertNotEqual(options["revision"], revoked["revision"])
+            with self.assertRaisesRegex(processor.ProcessorUnavailable, "voice_gender_unavailable"):
+                processor.configured_processor(self.hass, {}, "nl", "male")
+            # A different provider called Cloud is not metadata authority.
+            self.assertIsNone(processor._cloud_voice_genders(entity, "nl-NL"))
+
+    async def test_gender_metadata_change_during_synthesis_discards_pending_audio(self):
+        from types import SimpleNamespace
+        from custom_components.djconnect import session_speech
+        answer, _ = await self.request("What is an ostinato?", identifier="gender-race")
+        payload = {**self.identity, "contract_version": 1, "reference": answer["session_speech"]["reference"],
+                   "processor": "ha_configured", "voice_preference": "female"}
+        stack, entity, pipeline, calls, processor = self.generic_tts()
+        voice = SimpleNamespace(voice_id="marin", name="A voice", gender="female")
+        entity.async_get_supported_voices = lambda language: [voice]
+        external = entity.async_get_tts_audio
+        async def changed(*args):
+            voice.gender = None
+            return await external(*args)
+        entity.async_get_tts_audio = changed
+        with stack:
+            prepared, _ = await session_speech.async_handle_prepare(self.hass, payload, headers=self.headers)
+            self.assertNotEqual(prepared["session_speech"].get("audio_state"), "ready")
+            self.assertNotIn("audio_reference", prepared["session_speech"])
+            self.assertEqual(len(calls), 1)
+
     def generic_tts(self, *, voice_id="marin", inventory=True):
         """Explicit external provider inventory; Core references/admission stay real."""
         from contextlib import ExitStack
@@ -368,7 +458,7 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
                     self.assertTrue(notice["preserve_text"])
                     self.assertEqual(notice["presentation"], "inline")
                     self.assertFalse(notice["repeat_original_request"])
-        for reason in ("source_processor_not_qualified", "unauthorized", "speech_reference_withdrawn", "voice_gender_unavailable"):
+        for reason in ("source_processor_not_qualified", "unauthorized", "speech_reference_withdrawn"):
             self.assertIsNone(notification(reason, "nl"))
 
     async def test_joined_device_retains_tts_success_when_starting_device_pairing_is_revoked(self):
