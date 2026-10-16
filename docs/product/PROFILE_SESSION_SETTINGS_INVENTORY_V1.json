@@ -2855,5 +2855,6 @@
     "formal_run": "38955894451",
     "decision": "POST_MERGE_RELEASE_EVIDENCE_QUALIFIED",
     "release": "https://github.com/pcvantol/djconnect/releases/tag/internal-ha-e8cc70ddffb4112b09babdda4d45140b98926ae5"
-  }
+  },
+  "delivered_producer_pin": "e8cc70ddffb4112b09babdda4d45140b98926ae5"
 }

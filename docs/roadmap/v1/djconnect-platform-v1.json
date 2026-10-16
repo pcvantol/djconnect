@@ -42652,7 +42652,7 @@
       "automatic_dispatch": false,
       "consumer_writes": false,
       "inventory_path": "docs/product/PROFILE_SESSION_SETTINGS_INVENTORY_V1.json",
-      "inventory_sha256": "472499a050ae03d4c493e96414bd810e232692e552b304b2b0ada573b9898137",
+      "inventory_sha256": "98a836db9cd136f26bb2d0101519edde875637c2170f89bca56c21d41bfe7444",
       "runtime_checkpoint_contract_version": 3,
       "owner_addenda": [
         6220504359,
@@ -42675,7 +42675,7 @@
         "physical_device_preferences"
       ],
       "portability": "PARKED_NO_PICKUP",
-      "core_source_pin": "187d2cd126c5db1a2791e1d47d80d803aafc5cc1",
+      "core_source_pin": "e8cc70ddffb4112b09babdda4d45140b98926ae5",
       "source_PR": 1193,
       "source_main_sha": "e8cc70ddffb4112b09babdda4d45140b98926ae5",
       "reviewed_head": "6882a43e3e0e73cd1b918161b27f88d3697bcb4f",
