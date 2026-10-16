@@ -336,6 +336,18 @@ async def main():
             await playback_observation_manager(hass)._async_poll_spotify(observed)
         assert 'album_story' in cases
         assert any(m.source_fact.intent == 'artist_story' for m in moments), [m.moment_type.value for m in moments]
+        if os.environ.get('DJC_PASSIVE_PROBE') == '1':
+            from passive_session_lab import run
+            await run(hass=hass, runtime=runtime, client=client, headers=headers,
+                      identity=identity, manager=manager, storage=storage, sid=sid,
+                      calls=calls, output=directory, source_hashes=source_hashes,
+                      second_identity=second_identity, selected=selected)
+            hass.data[aiohttp_client.DATA_CLIENTSESSION][cache_key] = provider_session
+            await image_client.close()
+            await provider_session.close()
+            await async_shutdown_persistence(hass)
+            await hass.async_stop()
+            return
         if os.environ.get('DJC_MEDIA_BROWSER')=='1':
             import ssl
             tls=ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)

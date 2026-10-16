@@ -41407,7 +41407,7 @@
       },
       {
         "path": "docs/product/APPLE_SESSION_NATIVE_SURFACES_V1.md",
-        "sha256": "6677b8f6ae1935fedb13f277711b08522b47a87ebf0b65b19ca958cdfb74615a"
+        "sha256": "ed08b85c7f39c1e06ef70ebdb59cec6f4fe35a2bf6d5c74abb89ec7087994b7f"
       },
       {
         "path": "docs/verification/SESSION_ENTRY_LIFECYCLE_HISTORY_DESIGN_V1_SOURCE_READBACK.md",
@@ -41588,6 +41588,10 @@
       {
         "path": "docs/history/prompts/2026-10-16-provider-voice-gender-finalization.md",
         "sha256": "ee784e85d90f928df38d43cd1bba17b2c912c60ff8c9d06d8d2f060f62ce822f"
+      },
+      {
+        "path": "docs/product/PASSIVE_SESSION_PROJECTION_V1.md",
+        "sha256": "de04b361cbf278d97629dc74be19b064f750bbc128a3439fea2ec44e6ec7a575"
       }
     ],
     "implementation_receipt": {
