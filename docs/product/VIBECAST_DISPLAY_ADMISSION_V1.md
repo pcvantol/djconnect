@@ -224,6 +224,12 @@ native authority; wildcard CORS/cookie reuse is forbidden.
 
 ### B source qualification before schema freeze
 
+The [B v1 review candidate](VIBECAST_DISPLAY_ADMISSION_B_V1.md) now specifies
+proposed routes, authority bindings, concrete budgets, consent, retries/leases,
+commit points and shared projection/media fences. It remains independently
+reviewable and NOT_IMPLEMENTED/NOT_ADVERTISED; it does not close A's trust gate
+or freeze an interoperable contract by itself.
+
 Source inspection at base1329 confirms that current `BroadcastAuthorizationScope`
 has only OWNER and there is no delivered share/display-grant identity. The old
 Broadcast token also permits audience signals, and owner serialization defaults

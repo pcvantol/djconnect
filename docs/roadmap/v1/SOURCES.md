@@ -103,5 +103,6 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 | [docs/technical/SPEECH_RENDERING_CONTRACT.md](../../../docs/technical/SPEECH_RENDERING_CONTRACT.md) | `cb39d32ecd4b4d11140a0d8e2e037bf6bca388dfe9c45d0b1b9a27b6a228d2e4` |
 | [docs/verification/PROFILE_SESSION_SETTINGS_SOURCE_READBACK_20261016.md](../../../docs/verification/PROFILE_SESSION_SETTINGS_SOURCE_READBACK_20261016.md) | `344eac1436adc3b56108b4645ec51f262889a7f6d6b1d0c7aa890cc6355a9d8f` |
 | [docs/history/prompts/2026-10-16-profile-session-settings-finalization.md](../../../docs/history/prompts/2026-10-16-profile-session-settings-finalization.md) | `fd8f95f219e8293cc4133e1e7543209c66993fa3e636c52f83d189df640b013d` |
-| [docs/product/VIBECAST_DISPLAY_ADMISSION_V1.md](../../../docs/product/VIBECAST_DISPLAY_ADMISSION_V1.md) | `ab0a4ff39ba9458c4b7b98bc5b91fc46d8901647e5d66d02450968c9ff4c8aaa` |
+| [docs/product/VIBECAST_DISPLAY_ADMISSION_V1.md](../../../docs/product/VIBECAST_DISPLAY_ADMISSION_V1.md) | `0b92c35796bff2efea61cd5870ae40af563f3f9bde6d5b4728b65c25b5e20b8c` |
 | [docs/verification/VIBECAST_DISPLAY_DESIGN_REVIEW_20261016.md](../../../docs/verification/VIBECAST_DISPLAY_DESIGN_REVIEW_20261016.md) | `ae1cff51e7ca3c8b1f905fdb651dce7539403d261c25f17f328932a208f363a6` |
+| [docs/product/VIBECAST_DISPLAY_ADMISSION_B_V1.md](../../../docs/product/VIBECAST_DISPLAY_ADMISSION_B_V1.md) | `888d98c7f7af0809f8e91a1a7fc439a67a490ad3adbca61a0de965919bc63e14` |
