@@ -28,8 +28,11 @@ are explicit review boundaries. A passing corpus is not protocol freeze.
 `b-transport-actual-ha-v1.json` contains HTTP request/response and WSS snapshot
 examples captured from the real isolated HA probe, using normal production
 registration, ordinary device pairing, actual Profile storage and Session
-Runtime. Only external providers are fixtures. Producer code pin:
-`951da5d0d7943aa672d60b93f5dfe1d32489b93c`; consumer adoption remains separate.
+Runtime. Only external providers are fixtures. Current producer code pin:
+`3cb9cf129f31d419e8b2027e4dc1ba08fafdb9d8`;26 examples include B support
+discovery and a missing-external-HTTPS owner-context failure. The discovery
+record explicitly uses `response_projection` for its B-only subset, not a
+pretended complete platform response. Consumer adoption remains separate.
 
 All grant/claim secrets, nonces, issuer/browser/display/share opaque values and
 six-digit codes are replaced with nonfunctional examples. Replacements preserve

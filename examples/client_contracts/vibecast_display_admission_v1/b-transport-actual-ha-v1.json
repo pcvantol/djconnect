@@ -22,7 +22,7 @@
       "response": {
         "success": true,
         "contract_version": 1,
-        "session_id": "session-ab1c2817e65243b99f4ee24ca2365798",
+        "session_id": "session-8376b1ae922d4c8885c4aa19d17ad05d",
         "display_entry_url": "https://ha.display-lab.djconnect.dev/djconnect/vibecast/display",
         "route_trust": "paired_owner_response",
         "issuer_epoch": "FYrt5jgIX3fcPYyWqII3Q4J56CCi6fmel5j9tvvd7bc",
@@ -55,7 +55,7 @@
         "code": "000000",
         "browser_generation": "W0OBrbMviGcawZZJm5NZVAYqYVkWZV0gjyZjnHQhUU4",
         "expires_in": 120,
-        "expires_at": "2026-10-16T22:42:54.176675+00:00"
+        "expires_at": "2026-10-16T22:48:43.631950+00:00"
       }
     },
     {
@@ -116,8 +116,8 @@
         "claim_id": "-QzCBTkjWnJGiCZRHxBAKELEi-x5WSgaDc6Kz2abltc",
         "browser_generation": "W0OBrbMviGcawZZJm5NZVAYqYVkWZV0gjyZjnHQhUU4",
         "issuer_epoch": "FYrt5jgIX3fcPYyWqII3Q4J56CCi6fmel5j9tvvd7bc",
-        "expires_in": 119.99856979199103,
-        "expires_at": "2026-10-16T22:42:54.176673+00:00"
+        "expires_in": 119.99859120800102,
+        "expires_at": "2026-10-16T22:48:43.631947+00:00"
       }
     },
     {
@@ -132,7 +132,7 @@
         "claim_id": "-QzCBTkjWnJGiCZRHxBAKELEi-x5WSgaDc6Kz2abltc",
         "browser_generation": "W0OBrbMviGcawZZJm5NZVAYqYVkWZV0gjyZjnHQhUU4",
         "code": "000000",
-        "session_id": "session-ab1c2817e65243b99f4ee24ca2365798",
+        "session_id": "session-8376b1ae922d4c8885c4aa19d17ad05d",
         "share": {
           "mode": "create",
           "consent": true
@@ -149,11 +149,11 @@
         "contract_version": 1,
         "state": "approved",
         "display_id": "u4teneO9FhexM6z1kjV38jbMhmrHsQcnydFwbnIT_x0",
-        "session_id": "session-ab1c2817e65243b99f4ee24ca2365798",
+        "session_id": "session-8376b1ae922d4c8885c4aa19d17ad05d",
         "share_id": "_XhsMHwCnFpvuN0O8azPN0Hx21LKkhQryZxtGyN4M6A",
         "share_generation": 1,
-        "share_expires_in": 7199.999996416998,
-        "share_expires_at": "2026-10-17T00:40:54.178801+00:00"
+        "share_expires_in": 7199.999996458995,
+        "share_expires_at": "2026-10-17T00:46:43.634043+00:00"
       }
     },
     {
@@ -168,7 +168,7 @@
         "claim_id": "-QzCBTkjWnJGiCZRHxBAKELEi-x5WSgaDc6Kz2abltc",
         "browser_generation": "W0OBrbMviGcawZZJm5NZVAYqYVkWZV0gjyZjnHQhUU4",
         "code": "000000",
-        "session_id": "session-ab1c2817e65243b99f4ee24ca2365798",
+        "session_id": "session-8376b1ae922d4c8885c4aa19d17ad05d",
         "share": {
           "mode": "create",
           "consent": true
@@ -185,11 +185,11 @@
         "contract_version": 1,
         "state": "approved",
         "display_id": "u4teneO9FhexM6z1kjV38jbMhmrHsQcnydFwbnIT_x0",
-        "session_id": "session-ab1c2817e65243b99f4ee24ca2365798",
+        "session_id": "session-8376b1ae922d4c8885c4aa19d17ad05d",
         "share_id": "_XhsMHwCnFpvuN0O8azPN0Hx21LKkhQryZxtGyN4M6A",
         "share_generation": 1,
-        "share_expires_in": 7199.999056417,
-        "share_expires_at": "2026-10-17T00:40:54.178801+00:00"
+        "share_expires_in": 7199.999049709004,
+        "share_expires_at": "2026-10-17T00:46:43.634044+00:00"
       }
     },
     {
@@ -215,12 +215,12 @@
         "issuer_epoch": "FYrt5jgIX3fcPYyWqII3Q4J56CCi6fmel5j9tvvd7bc",
         "display_id": "u4teneO9FhexM6z1kjV38jbMhmrHsQcnydFwbnIT_x0",
         "grant_token": "djcd_gGv7Q6MZrOqjVGpOrazTnv-6qJfaxDNDJrSCeoeSmRM",
-        "session_id": "session-ab1c2817e65243b99f4ee24ca2365798",
+        "session_id": "session-8376b1ae922d4c8885c4aa19d17ad05d",
         "share_id": "_XhsMHwCnFpvuN0O8azPN0Hx21LKkhQryZxtGyN4M6A",
         "share_generation": 1,
         "lease_revision": 0,
-        "lease_expires_in": 59.99999750001007,
-        "share_expires_in": 7199.998435500005,
+        "lease_expires_in": 59.99999770800059,
+        "share_expires_in": 7199.998411249995,
         "capabilities": {
           "view_display": true,
           "owner_controls": false,
@@ -229,8 +229,8 @@
           "session_end": false,
           "share_close": false
         },
-        "lease_expires_at": "2026-10-16T22:41:54.180364+00:00",
-        "share_expires_at": "2026-10-17T00:40:54.178802+00:00"
+        "lease_expires_at": "2026-10-16T22:47:43.635631+00:00",
+        "share_expires_at": "2026-10-17T00:46:43.634044+00:00"
       }
     },
     {
@@ -298,10 +298,10 @@
           "display_id": "u4teneO9FhexM6z1kjV38jbMhmrHsQcnydFwbnIT_x0",
           "share_id": "_XhsMHwCnFpvuN0O8azPN0Hx21LKkhQryZxtGyN4M6A",
           "share_generation": 1,
-          "session_id": "session-ab1c2817e65243b99f4ee24ca2365798",
+          "session_id": "session-8376b1ae922d4c8885c4aa19d17ad05d",
           "lease_revision": 0,
           "session": {
-            "session_id": "session-ab1c2817e65243b99f4ee24ca2365798",
+            "session_id": "session-8376b1ae922d4c8885c4aa19d17ad05d",
             "runtime_state": "active",
             "locale": "en"
           },
@@ -311,7 +311,7 @@
             "title": "Fixture track",
             "artist": "Fixture artist",
             "album": "Fixture album",
-            "updated_at": "2026-10-16T22:40:54.173534+00:00",
+            "updated_at": "2026-10-16T22:46:43.628501+00:00",
             "duration_ms": 300000,
             "position_ms": 1000,
             "source_url": "https://open.spotify.com/track/AAAAAAAAAAAAAAAAAAAAAA"
@@ -325,10 +325,10 @@
             "persona": "home_dj",
             "presence": "balanced"
           },
-          "projection_revision": "859ac0b83c018bca7bf5aaa0b296270a",
-          "as_of": "2026-10-16T22:40:54.183810+00:00",
-          "lease_expires_at": "2026-10-16T22:41:54.180242+00:00",
-          "share_expires_at": "2026-10-17T00:40:54.178680+00:00"
+          "projection_revision": "8702ce8ad672be8bd791e58a6b10bc91",
+          "as_of": "2026-10-16T22:46:43.638964+00:00",
+          "lease_expires_at": "2026-10-16T22:47:43.635523+00:00",
+          "share_expires_at": "2026-10-17T00:46:43.633937+00:00"
         }
       }
     },
@@ -346,10 +346,10 @@
           "display_id": "u4teneO9FhexM6z1kjV38jbMhmrHsQcnydFwbnIT_x0",
           "share_id": "_XhsMHwCnFpvuN0O8azPN0Hx21LKkhQryZxtGyN4M6A",
           "share_generation": 1,
-          "session_id": "session-ab1c2817e65243b99f4ee24ca2365798",
+          "session_id": "session-8376b1ae922d4c8885c4aa19d17ad05d",
           "lease_revision": 0,
           "session": {
-            "session_id": "session-ab1c2817e65243b99f4ee24ca2365798",
+            "session_id": "session-8376b1ae922d4c8885c4aa19d17ad05d",
             "runtime_state": "active",
             "locale": "en"
           },
@@ -359,7 +359,7 @@
             "title": "Fixture track",
             "artist": "Fixture artist",
             "album": "Fixture album",
-            "updated_at": "2026-10-16T22:40:54.173534+00:00",
+            "updated_at": "2026-10-16T22:46:43.628501+00:00",
             "duration_ms": 300000,
             "position_ms": 1000,
             "source_url": "https://open.spotify.com/track/AAAAAAAAAAAAAAAAAAAAAA"
@@ -373,10 +373,10 @@
             "persona": "home_dj",
             "presence": "balanced"
           },
-          "projection_revision": "859ac0b83c018bca7bf5aaa0b296270a",
-          "as_of": "2026-10-16T22:40:54.188272+00:00",
-          "lease_expires_at": "2026-10-16T22:41:54.180297+00:00",
-          "share_expires_at": "2026-10-17T00:40:54.178735+00:00"
+          "projection_revision": "8702ce8ad672be8bd791e58a6b10bc91",
+          "as_of": "2026-10-16T22:46:43.643563+00:00",
+          "lease_expires_at": "2026-10-16T22:47:43.635561+00:00",
+          "share_expires_at": "2026-10-17T00:46:43.633975+00:00"
         }
       }
     },
@@ -398,8 +398,8 @@
         "success": true,
         "contract_version": 1,
         "lease_revision": 1,
-        "lease_expires_in": 59.999999291001586,
-        "lease_expires_at": "2026-10-16T22:41:54.192927+00:00"
+        "lease_expires_in": 59.999999209001544,
+        "lease_expires_at": "2026-10-16T22:47:43.648386+00:00"
       }
     },
     {
@@ -420,8 +420,8 @@
         "success": true,
         "contract_version": 1,
         "lease_revision": 1,
-        "lease_expires_in": 59.9994352079957,
-        "lease_expires_at": "2026-10-16T22:41:54.192926+00:00"
+        "lease_expires_in": 59.999410250005894,
+        "lease_expires_at": "2026-10-16T22:47:43.648386+00:00"
       }
     },
     {
@@ -447,12 +447,78 @@
     {
       "transport": "HTTP",
       "method": "POST",
+      "path": "/api/djconnect/v1/display/renew",
+      "authentication": "dedicated_display",
+      "origin": "https://ha.display-lab.djconnect.dev",
+      "request": {
+        "contract_version": 1,
+        "issuer_epoch": "FYrt5jgIX3fcPYyWqII3Q4J56CCi6fmel5j9tvvd7bc",
+        "display_id": "u4teneO9FhexM6z1kjV38jbMhmrHsQcnydFwbnIT_x0",
+        "renew_sequence": 2
+      },
+      "status": 200,
+      "cache_control": "no-store",
+      "response": {
+        "success": true,
+        "contract_version": 1,
+        "lease_revision": 2,
+        "lease_expires_in": 59.999997666993295,
+        "lease_expires_at": "2026-10-16T22:48:03.772734+00:00"
+      }
+    },
+    {
+      "transport": "HTTP",
+      "method": "POST",
+      "path": "/api/djconnect/v1/display/renew",
+      "authentication": "dedicated_display",
+      "origin": "https://ha.display-lab.djconnect.dev",
+      "request": {
+        "contract_version": 1,
+        "issuer_epoch": "FYrt5jgIX3fcPYyWqII3Q4J56CCi6fmel5j9tvvd7bc",
+        "display_id": "u4teneO9FhexM6z1kjV38jbMhmrHsQcnydFwbnIT_x0",
+        "renew_sequence": 3
+      },
+      "status": 200,
+      "cache_control": "no-store",
+      "response": {
+        "success": true,
+        "contract_version": 1,
+        "lease_revision": 3,
+        "lease_expires_in": 59.99999924999429,
+        "lease_expires_at": "2026-10-16T22:48:23.953839+00:00"
+      }
+    },
+    {
+      "transport": "HTTP",
+      "method": "POST",
+      "path": "/api/djconnect/v1/display/renew",
+      "authentication": "dedicated_display",
+      "origin": "https://ha.display-lab.djconnect.dev",
+      "request": {
+        "contract_version": 1,
+        "issuer_epoch": "FYrt5jgIX3fcPYyWqII3Q4J56CCi6fmel5j9tvvd7bc",
+        "display_id": "u4teneO9FhexM6z1kjV38jbMhmrHsQcnydFwbnIT_x0",
+        "renew_sequence": 4
+      },
+      "status": 200,
+      "cache_control": "no-store",
+      "response": {
+        "success": true,
+        "contract_version": 1,
+        "lease_revision": 4,
+        "lease_expires_in": 59.999998540995875,
+        "lease_expires_at": "2026-10-16T22:48:44.124676+00:00"
+      }
+    },
+    {
+      "transport": "HTTP",
+      "method": "POST",
       "path": "/api/djconnect/v1/display/owner/revoke",
       "authentication": "ordinary_paired_owner",
       "origin": "https://ha.display-lab.djconnect.dev",
       "request": {
         "contract_version": 1,
-        "session_id": "session-ab1c2817e65243b99f4ee24ca2365798",
+        "session_id": "session-8376b1ae922d4c8885c4aa19d17ad05d",
         "share_id": "_XhsMHwCnFpvuN0O8azPN0Hx21LKkhQryZxtGyN4M6A",
         "display_id": "u4teneO9FhexM6z1kjV38jbMhmrHsQcnydFwbnIT_x0",
         "identity": {
@@ -508,7 +574,7 @@
         "code": "000000",
         "browser_generation": "FpUXVdC--I64NmKCoCV_xoqlIlzDFHLFrILGEUTfXJM",
         "expires_in": 120,
-        "expires_at": "2026-10-16T22:42:54.248774+00:00"
+        "expires_at": "2026-10-16T22:49:54.263786+00:00"
       }
     },
     {
@@ -523,7 +589,7 @@
         "claim_id": "BGZvbDOjaTAszz23ALyNu6-pixCK9Lb7MlQ7D_LLEjU",
         "browser_generation": "FpUXVdC--I64NmKCoCV_xoqlIlzDFHLFrILGEUTfXJM",
         "code": "000000",
-        "session_id": "session-ab1c2817e65243b99f4ee24ca2365798",
+        "session_id": "session-8376b1ae922d4c8885c4aa19d17ad05d",
         "share": {
           "mode": "existing",
           "share_id": "_XhsMHwCnFpvuN0O8azPN0Hx21LKkhQryZxtGyN4M6A",
@@ -541,11 +607,11 @@
         "contract_version": 1,
         "state": "approved",
         "display_id": "hFW0CXfMiUmw4dsC5fD49x38CmZ63bXcJRGXtB4Zz0I",
-        "session_id": "session-ab1c2817e65243b99f4ee24ca2365798",
+        "session_id": "session-8376b1ae922d4c8885c4aa19d17ad05d",
         "share_id": "_XhsMHwCnFpvuN0O8azPN0Hx21LKkhQryZxtGyN4M6A",
         "share_generation": 1,
-        "share_expires_in": 7199.929403792004,
-        "share_expires_at": "2026-10-17T00:40:54.178802+00:00"
+        "share_expires_in": 7129.365206426999,
+        "share_expires_at": "2026-10-17T00:46:43.633637+00:00"
       }
     },
     {
@@ -571,12 +637,12 @@
         "issuer_epoch": "FYrt5jgIX3fcPYyWqII3Q4J56CCi6fmel5j9tvvd7bc",
         "display_id": "hFW0CXfMiUmw4dsC5fD49x38CmZ63bXcJRGXtB4Zz0I",
         "grant_token": "djcd_DF4QusGKWZ6RJK6E1l_cQXXdVBJW7D0g8VPpxIo0XVg",
-        "session_id": "session-ab1c2817e65243b99f4ee24ca2365798",
+        "session_id": "session-8376b1ae922d4c8885c4aa19d17ad05d",
         "share_id": "_XhsMHwCnFpvuN0O8azPN0Hx21LKkhQryZxtGyN4M6A",
         "share_generation": 1,
         "lease_revision": 0,
-        "lease_expires_in": 59.99999741699139,
-        "share_expires_in": 7199.928670417008,
+        "lease_expires_in": 59.99998895799217,
+        "share_expires_in": 7129.362011135003,
         "capabilities": {
           "view_display": true,
           "owner_controls": false,
@@ -585,8 +651,8 @@
           "session_end": false,
           "share_close": false
         },
-        "lease_expires_at": "2026-10-16T22:41:54.250129+00:00",
-        "share_expires_at": "2026-10-17T00:40:54.178802+00:00"
+        "lease_expires_at": "2026-10-16T22:48:54.271617+00:00",
+        "share_expires_at": "2026-10-17T00:46:43.633639+00:00"
       }
     },
     {
@@ -608,8 +674,51 @@
         "contract_version": 1,
         "error": "display_grant_invalid"
       }
+    },
+    {
+      "transport": "HTTP",
+      "method": "GET",
+      "path": "/api/djconnect/v1/capabilities",
+      "status": 200,
+      "response_projection": {
+        "session_broadcast": {
+          "paired_display_admission": {
+            "supported": true,
+            "version": 1,
+            "availability": "owner_context_required",
+            "owner_context_path": "/api/djconnect/v1/display/owner/context",
+            "entry_path": "/djconnect/vibecast/display",
+            "requires_external_https": true,
+            "owner_authentication": "paired_device_bearer",
+            "display_authentication": "dedicated_display_bearer",
+            "read_only": true,
+            "rendezvous_a": false
+          }
+        }
+      }
+    },
+    {
+      "transport": "HTTP",
+      "method": "POST",
+      "path": "/api/djconnect/v1/display/owner/context",
+      "authentication": "ordinary_paired_owner",
+      "origin": null,
+      "request": {
+        "contract_version": 1,
+        "identity": {
+          "device_id": "djconnect-ios-ABCDEF123456",
+          "client_type": "ios"
+        }
+      },
+      "status": 503,
+      "cache_control": "no-store",
+      "response": {
+        "success": false,
+        "contract_version": 1,
+        "error": "display_external_url_unavailable"
+      }
     }
   ],
-  "producer_code_pin": "951da5d0d7943aa672d60b93f5dfe1d32489b93c",
+  "producer_code_pin": "3cb9cf129f31d419e8b2027e4dc1ba08fafdb9d8",
   "capture_context": "Ephemeral synthetic owner/Profile/Session, ordinary pairing; actual HA production registration/HTTP/WSS. Only external provider boundaries are fixtures. Session ended and lab removed; identifiers are examples, not authority."
 }
