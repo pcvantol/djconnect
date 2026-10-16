@@ -48,6 +48,43 @@ class SessionRuntimeManagerTest(unittest.TestCase):
         else:
             sys.modules[f"{PACKAGE}.const"] = cls.previous_const
 
+    def test_b_admission_shares_runtime_end_entry_revocation_and_last_unload_ownership(self):
+        """Real Runtime transitions; synthetic owner stamps are not HA auth proof."""
+        async def run():
+            manager = self.runtime.SessionRuntimeManager()
+            owner_one = await manager.async_start(owner_profile_id="one")
+            owner_two = await manager.async_start(owner_profile_id="two")
+            admission = manager._display_admission
+            module = sys.modules[type(admission).__module__]
+            grants = []
+            for profile, active, entry in (("one", owner_one, "first"), ("two", owner_two, "second")):
+                binding = module.DisplayOwnerBinding(profile, active.session_id, entry, "unit-stamp",
+                    lambda p=profile, sid=active.session_id: manager.current_active(p) is not None
+                    and manager.current_active(p).session_id == sid)
+                async with manager._lock:
+                    nonce = self.runtime.secrets.token_urlsafe(32)
+                    claim = admission.create_claim(source=profile, browser_nonce=nonce)
+                    admission.approve(owner=binding, issuer_epoch=claim["issuer_epoch"],
+                        claim_id=claim["claim_id"], browser_generation=claim["browser_generation"],
+                        code=claim["code"], share={"mode": "create", "consent": True})
+                    admitted = admission.collect(**{key: claim[key] for key in
+                        ("issuer_epoch", "claim_id", "claim_secret", "browser_generation")}, browser_nonce=nonce)
+                    grants.append({"token": admitted["grant_token"], "display_id": admitted["display_id"],
+                                   "issuer_epoch": admitted["issuer_epoch"]})
+            await manager.async_end(owner_profile_id="one", session_id=owner_one.session_id)
+            with self.assertRaises(module.DisplayAdmissionError):
+                admission.authorize(**grants[0])
+            admission.authorize(**grants[1])
+            await manager.async_revoke_receiver_end_grants_for_entry("second")
+            with self.assertRaises(module.DisplayAdmissionError):
+                admission.authorize(**grants[1])
+            self.assertIsNotNone(manager.current_active("two"))
+            admission.create_claim(source="unapproved", browser_nonce=self.runtime.secrets.token_urlsafe(32))
+            await manager.async_clear_display_admission()
+            self.assertFalse(admission._claims)
+            self.assertIsNotNone(manager.current_active("two"))
+        asyncio.run(run())
+
     async def _process_presence_fixture(self, manager, *, owner_profile_id, session_id, insight_provider):
         """Observe real tracks and advance a fixture clock instead of resetting budgets."""
         if not hasattr(manager, "_test_presence_clock"):

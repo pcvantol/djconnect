@@ -27,12 +27,20 @@ def validate(plan, previous_validator):
           and r.get('base_sha') == '1329ad1ce8bd066d65a08b3988261a44e2cac730'
           and r.get('branch') == 'codex/vibecast-display-admission-v1'
           and r.get('first_contract_commit') == '275679322111fbda110bce2dad1f16da2932017e', 'selected admission')
-    check(r.get('phase') == 'CONTRACT_REVIEW' and r.get('source_delivery') == 'UNPUBLISHED'
+    check((r.get('phase'), r.get('runtime')) in {
+              ('CONTRACT_REVIEW', 'NOT_IMPLEMENTED'),
+              ('B_IMPLEMENTATION_A_CONTRACT_REVIEW', 'IN_PROGRESS_B_NOT_ADVERTISED')}
+          and r.get('source_delivery') == 'UNPUBLISHED'
           and r.get('trust_anchor') == 'OPEN_JOINT_REVIEW' and r.get('wire') == 'NOT_FROZEN'
-          and r.get('runtime') == 'NOT_IMPLEMENTED' and r.get('native') == 'OPEN_APPLE'
+          and r.get('native') == 'OPEN_APPLE'
           and r.get('TV') == 'NOT_RUN' and r.get('joint') == 'OPEN'
           and r.get('consumer_writes') is False and r.get('automatic_dispatch') is False,
           'trust/runtime/consumer claim boundary')
+    if r.get('runtime') == 'IN_PROGRESS_B_NOT_ADVERTISED':
+        check(r.get('b_design_go') == {
+            'reviewed_sha': 'ae2adfe9e162a00d00715e26418656976b6f02a2',
+            'scope': 'ISOLATED_B_ONLY_A_UNAVAILABLE', 'runtime_acceptance': 'NOT_RUN'},
+            'exact independent B design scope')
     nodes = d.get('nodes', [])
     by_id = {n['id']: n for n in nodes}
     previous_nodes = {n['id']: n for n in prior['nodes']}

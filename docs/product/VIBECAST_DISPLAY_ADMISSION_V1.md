@@ -7,8 +7,11 @@ Base `1329ad1ce8bd066d65a08b3988261a44e2cac730`; existing Core writer,
 branch `codex/vibecast-display-admission-v1`. Existing roadmap node `WEB::DISPLAY`.
 Settings source1193/Finalization1194 and repair1195/Finalization1196 remain closed.
 
-Status: **CONTRACT_REVIEW / NOT_FROZEN / NO_RUNTIME_IMPLEMENTATION**.
-This is the required design before changing HA runtime. It is not a replacement
+Status: **A_CONTRACT_REVIEW / B_IMPLEMENTATION_IN_PROGRESS / NOT_FROZEN**.
+The B design received exact independent GO on ae2adfe9 and is being implemented
+separately with A unavailable; no secure-A, native or runtime acceptance is
+inferred. The first B foundation is bounded Runtime-owned ephemeral authority,
+not enabled public routes/capabilities. This is not a replacement
 for the selected implementation. The
 [onboarding authority](VIBECAST_ONBOARDING_GUEST_AUTHORITY_V1.md),
 [distribution ownership](VIBECAST_WEB_ENTRY_DISTRIBUTION_V1.md) and
@@ -226,9 +229,9 @@ native authority; wildcard CORS/cookie reuse is forbidden.
 
 The [B v1 review candidate](VIBECAST_DISPLAY_ADMISSION_B_V1.md) now specifies
 proposed routes, authority bindings, concrete budgets, consent, retries/leases,
-commit points and shared projection/media fences. It remains independently
-reviewable and NOT_IMPLEMENTED/NOT_ADVERTISED; it does not close A's trust gate
-or freeze an interoperable contract by itself.
+commit points and shared projection/media fences. Its independent exact B-design
+GO permits isolated implementation, not product advertisement or acceptance.
+It does not close A's trust gate or freeze the whole interoperable contract.
 
 Source inspection at base1329 confirms that current `BroadcastAuthorizationScope`
 has only OWNER and there is no delivered share/display-grant identity. The old

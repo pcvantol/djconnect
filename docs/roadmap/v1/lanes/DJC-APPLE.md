@@ -12,7 +12,7 @@ Selected passive Session projection: DJC-CORE-PASSIVE-SESSION-PROJECTION-V1-2026
 
 Selected shared Profile/Session settings consolidation: DJC-PROFILE-SESSION-SETTINGS-CONSOLIDATION-V1-20261016; six shared Persona/voice/gender/Mood/Presence/announcement_output, protected source delivered contract3 (Core producer only), last explicit accepted choice becomes default, atomic active+default acceptance. Source PROTECTED_MERGED; Core producer and migration work only; Apple/other consumers/joint separately open, no automatic dispatch or whole-family completion. Delivered v13 preserved.
 
-Selected Core display-admission review: DJC-CORE-VIBECAST-DISPLAY-ADMISSION-V1-20261016; existing WEB::TRUST and WEB::DISPLAY only. TRUST anchor OPEN_JOINT_REVIEW, wire NOT_FROZEN, runtime NOT_IMPLEMENTED; source UNPUBLISHED, native/TV/joint open. Original settings delivery and all prior receipts remain preserved; no consumer dispatch or deployment.
+Selected Core display-admission: DJC-CORE-VIBECAST-DISPLAY-ADMISSION-V1-20261016; existing WEB::TRUST and WEB::DISPLAY only. TRUST anchor OPEN_JOINT_REVIEW, wire NOT_FROZEN, runtime IN_PROGRESS_B_NOT_ADVERTISED; source UNPUBLISHED, native/TV/joint open. Independently reviewed B may be implemented/qualified in isolation while A stays unavailable; no runtime acceptance inferred. Original settings delivery and all prior receipts remain preserved; no consumer dispatch or deployment.
 
 - `SLICE::APPLE::DJ-PRESENCE-CONTROL` — Planned; Accessible five-language native confirmation; reuse existing Apple writer
 - `CORRECTION::APPLE::DISCOVERY-ARTWORK-ACCEPTANCE` — Planned; Consume pinned producer; native visible attribution, expiry and clear acceptance remain Apple-owned, no new writer/admission

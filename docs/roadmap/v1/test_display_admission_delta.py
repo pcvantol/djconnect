@@ -19,7 +19,15 @@ class DisplayAdmissionMaintenanceTests(unittest.TestCase):
             self.plan["planning_maintenance"]["schema_version"],
             "djconnect-federated-planning-delta/15",
         )
-        self.assertIn("wire NOT_FROZEN, runtime NOT_IMPLEMENTED", render(self.plan)["README.md"])
+        self.assertIn("wire NOT_FROZEN, runtime IN_PROGRESS_B_NOT_ADVERTISED", render(self.plan)["README.md"])
+
+    def test_b_implementation_cannot_promote_a_or_replace_its_exact_design_review(self):
+        for key, value in [("reviewed_sha", "0" * 40), ("scope", "A_AND_B"),
+                           ("runtime_acceptance", "PASS")]:
+            with self.subTest(key=key):
+                p = deepcopy(self.plan)
+                p["planning_maintenance"]["display_admission_receipt"]["b_design_go"][key] = value
+                self.assertTrue(validate(p))
 
     def test_no_unqualified_trust_runtime_or_consumer_promotion(self):
         for key, value in [

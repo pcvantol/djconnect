@@ -3366,6 +3366,8 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         if runtime and runtime.entry.entry_id == entry.entry_id:
             hass.data[DOMAIN].pop("runtime", None)
         if not _has_runtime_entries(hass):
+            if session_manager is not None:
+                await session_manager.async_clear_display_admission()
             images = hass.data[DOMAIN].pop("session_images", None)
             if images is not None:
                 images.close()

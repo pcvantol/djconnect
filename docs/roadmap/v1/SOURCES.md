@@ -12,7 +12,7 @@ Selected passive Session projection: DJC-CORE-PASSIVE-SESSION-PROJECTION-V1-2026
 
 Selected shared Profile/Session settings consolidation: DJC-PROFILE-SESSION-SETTINGS-CONSOLIDATION-V1-20261016; six shared Persona/voice/gender/Mood/Presence/announcement_output, protected source delivered contract3 (Core producer only), last explicit accepted choice becomes default, atomic active+default acceptance. Source PROTECTED_MERGED; Core producer and migration work only; Apple/other consumers/joint separately open, no automatic dispatch or whole-family completion. Delivered v13 preserved.
 
-Selected Core display-admission review: DJC-CORE-VIBECAST-DISPLAY-ADMISSION-V1-20261016; existing WEB::TRUST and WEB::DISPLAY only. TRUST anchor OPEN_JOINT_REVIEW, wire NOT_FROZEN, runtime NOT_IMPLEMENTED; source UNPUBLISHED, native/TV/joint open. Original settings delivery and all prior receipts remain preserved; no consumer dispatch or deployment.
+Selected Core display-admission: DJC-CORE-VIBECAST-DISPLAY-ADMISSION-V1-20261016; existing WEB::TRUST and WEB::DISPLAY only. TRUST anchor OPEN_JOINT_REVIEW, wire NOT_FROZEN, runtime IN_PROGRESS_B_NOT_ADVERTISED; source UNPUBLISHED, native/TV/joint open. Independently reviewed B may be implemented/qualified in isolation while A stays unavailable; no runtime acceptance inferred. Original settings delivery and all prior receipts remain preserved; no consumer dispatch or deployment.
 
 Authority: [DJC-DJ-PRESENCE-ROADMAP-DESIGN-V1-20261011](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6110375785).
 
@@ -103,6 +103,6 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 | [docs/technical/SPEECH_RENDERING_CONTRACT.md](../../../docs/technical/SPEECH_RENDERING_CONTRACT.md) | `cb39d32ecd4b4d11140a0d8e2e037bf6bca388dfe9c45d0b1b9a27b6a228d2e4` |
 | [docs/verification/PROFILE_SESSION_SETTINGS_SOURCE_READBACK_20261016.md](../../../docs/verification/PROFILE_SESSION_SETTINGS_SOURCE_READBACK_20261016.md) | `344eac1436adc3b56108b4645ec51f262889a7f6d6b1d0c7aa890cc6355a9d8f` |
 | [docs/history/prompts/2026-10-16-profile-session-settings-finalization.md](../../../docs/history/prompts/2026-10-16-profile-session-settings-finalization.md) | `fd8f95f219e8293cc4133e1e7543209c66993fa3e636c52f83d189df640b013d` |
-| [docs/product/VIBECAST_DISPLAY_ADMISSION_V1.md](../../../docs/product/VIBECAST_DISPLAY_ADMISSION_V1.md) | `0b92c35796bff2efea61cd5870ae40af563f3f9bde6d5b4728b65c25b5e20b8c` |
+| [docs/product/VIBECAST_DISPLAY_ADMISSION_V1.md](../../../docs/product/VIBECAST_DISPLAY_ADMISSION_V1.md) | `4437768ead30d9e5175e06cec1fcf6ac36be76306b02330a1fa4c840a9458c95` |
 | [docs/verification/VIBECAST_DISPLAY_DESIGN_REVIEW_20261016.md](../../../docs/verification/VIBECAST_DISPLAY_DESIGN_REVIEW_20261016.md) | `ae1cff51e7ca3c8b1f905fdb651dce7539403d261c25f17f328932a208f363a6` |
-| [docs/product/VIBECAST_DISPLAY_ADMISSION_B_V1.md](../../../docs/product/VIBECAST_DISPLAY_ADMISSION_B_V1.md) | `7b3d1f5d1f43afa3e9d8499673cbb48f2267b38cec52651734ce6b7103f67df6` |
+| [docs/product/VIBECAST_DISPLAY_ADMISSION_B_V1.md](../../../docs/product/VIBECAST_DISPLAY_ADMISSION_B_V1.md) | `74e913527f01f41788684e6acd426e33c9b04969c9576221512b04c1d07c96af` |

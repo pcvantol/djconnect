@@ -2,7 +2,14 @@
 
 Part of `DJC-CORE-VIBECAST-DISPLAY-ADMISSION-V1-20261016`, existing Core
 writer, base1329ad1ce8bd066d65a08b3988261a44e2cac730 and draft1197.
-Status **B_CONTRACT_REVIEW / NOT_IMPLEMENTED / NOT_ADVERTISED**.
+Status **B_DESIGN_REVIEWED / IMPLEMENTATION_IN_PROGRESS / NOT_ADVERTISED**.
+Exact B-design `ae2adfe9e162a00d00715e26418656976b6f02a2` received independent
+technical/privacy and product/UX/privacy GO after the three concrete findings
+were fixed. Independent isolated Core B implementation may proceed while A is
+fully unavailable; no A crypto/profile value is a prerequisite for that work.
+Current first implementation is Runtime-owned in-memory authority/lifecycle
+state only. Public HTTP/WSS/renderer wiring and real HA acceptance are not yet
+delivered. Unit state/Runtime tests are not HA auth or product acceptance.
 This refines the [parent admission contract](VIBECAST_DISPLAY_ADMISSION_V1.md),
 not a second assignment. No endpoint or capability below exists merely because
 it is described here. A's unresolved trust/profile/wire remains a separate gate;
@@ -48,6 +55,7 @@ pairing fingerprints, Profile/source bindings and Runtime generations.
 | Code | Exactly six ASCII digits, CSPRNG; unique among pending claims |
 | Claim ID / secret / browser nonce | Independent32-byte CSPRNG values; ID is not authority |
 | Failed approvals |5 per claim and10 per current owner per60s; generic errors, no enumeration |
+| Throttle bookkeeping |256 unexpired owner-window entries; deny new keys at capacity, no eviction/reset |
 | Active shares | One per Runtime,16 globally; explicit owner consent only |
 | Active/approved display reservations |8 per share,64 globally, included in capacity before collection |
 | Share absolute lifetime | Explicit owner choice120–28,800s, default7,200s; never beyond Session end |

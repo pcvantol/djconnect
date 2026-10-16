@@ -17,6 +17,7 @@ from typing import Any, Awaitable, Callable
 from uuid import uuid4
 
 from .const import API_IMAGE_PROXY_BASE, DOMAIN
+from .display_admission import DisplayAdmissionState
 from .session_forecast import ForecastProjection
 from .forecast_imagery import ForecastArtwork
 from .presence_policy import DEFAULT as DEFAULT_PRESENCE, POLICIES, PresenceLedger
@@ -4326,6 +4327,9 @@ class SessionRuntimeManager:
         self._receiver_entry_generations: dict[str, int] = {}
         self._monotonic_source = monotonic_source or (lambda: time.monotonic())
         self._lock = asyncio.Lock()
+        # B state shares this manager's semantic commit lock; no second planner
+        # or authority registry. No public route/capability is enabled here.
+        self._display_admission = DisplayAdmissionState(self._monotonic_source)
         self._persistent_sessions = persistent_sessions
         self._historical_projections = historical_projections
         self._settings_repository = settings_repository
@@ -6126,9 +6130,15 @@ class SessionRuntimeManager:
         """Revoke owner-entry authority even when no playback observer exists."""
         async with self._lock:
             self._receiver_entry_generations[entry_id] = self.receiver_entry_generation(entry_id) + 1
+            self._display_admission.revoke_entry(entry_id)
             self._end_grants = {key: value for key, value in self._end_grants.items() if value[3] != entry_id}
             for active in self._active_by_profile.values():
                 active.broadcast.revoke_owner_entry_subscriptions(entry_id)
+
+    async def async_clear_display_admission(self) -> None:
+        """Forget pending B claims too on last unload; never end owner Sessions."""
+        async with self._lock:
+            self._display_admission.clear()
 
     async def async_end_with_receiver_grant(self, *, session_id: str, grant: str, authorized_entry_ids: frozenset[str] | None = None) -> DJSessionRuntime | None:
         """Consume one exact-session end grant; Broadcast credentials cannot end."""
@@ -6266,6 +6276,7 @@ class SessionRuntimeManager:
                     owner_profile_id,active.session_id,PERSISTENT_SESSION_ENDED,
                     historical_projections=self._historical_projections,
                 )
+            self._display_admission.revoke_session(active.session_id)
             self._playback_progress_clocks.pop(owner_profile_id, None)
             self._intra_track_opportunities.pop(owner_profile_id, None)
             active.published_recording_context.clear()

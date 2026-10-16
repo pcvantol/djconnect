@@ -1,6 +1,6 @@
 # DJConnect Engineering Status
 
-## Current: VibeCast Core display-admission — contract review
+## Current: VibeCast Core display-admission — isolated B implementation, A contract open
 
 #### Repository Status
 
@@ -8,7 +8,7 @@ Predecessor Finalization PR [#1196](https://github.com/pcvantol/djconnect/pull/1
 
 #### Management Summary
 
-DJC-CORE-VIBECAST-DISPLAY-ADMISSION-V1-20261016, owner6222775045/ACK6224062979; same Core writer, actual base1329ad1c and branchcodex/vibecast-display-admission-v1. First material contract commit275679322111fbda110bce2dad1f16da2932017e precedes HA runtime changes. [Canonical review](docs/product/VIBECAST_DISPLAY_ADMISSION_V1.md) records the missing browser trust-anchor, an explicit out-of-band proposal for joint review, exact candidate HTTPS entry, separate A/B states and legacy-end audit. Forty synthetic route cases pass independent Python/WHATWG checks; this is lexical proof only.
+DJC-CORE-VIBECAST-DISPLAY-ADMISSION-V1-20261016, owner6222775045/ACK6224062979; same Core writer, actual base1329ad1c and branchcodex/vibecast-display-admission-v1. First material contract275679322111fbda110bce2dad1f16da2932017e remains preserved. Exact [B design](docs/product/VIBECAST_DISPLAY_ADMISSION_B_V1.md) ae2adfe9e162a00d00715e26418656976b6f02a2 received independent technical/privacy and UX/privacy GO after3 findings/fixes; isolated B can proceed with A unavailable. Runtime-owned bounded ephemeral claim/share/display authority and end/entry/unload fences are being implemented.137 unit/Runtime tests32subtests pass; HTTP/WSS, shared projection/media and real HA/browser acceptance are not delivered. [A contract](docs/product/VIBECAST_DISPLAY_ADMISSION_V1.md) still requires qualified trust/profile/wire; direct-navigation HA/proxy trust handoff has Core/receiver/API design ACK, not live acceptance.
 
 #### Roadmap Position
 
@@ -28,11 +28,11 @@ TRUST-1/2 needs an independently authenticated bootstrap, concrete interoperable
 
 #### Deferred Items
 
-No runtimecrypto/HA endpoint, Swift/receiver/API source write, new consumerwriter, Pages/API deployment or hardware action during this contract step. The selected implementation remains required after its design gates; a document or corpus is not its completion.
+A remains unavailable: no unreviewed crypto, substitute QR flow or A trust claim. No Swift/receiver/API source writes, new consumerwriter, Pages/API deployment or hardware action. B HTTP/WSS/renderer implementation and real isolated qualification follow the reviewed B design; no native/product acceptance is inferred from unit tests.
 
 #### Repository State
 
-Repository State: `MERGED_RECONCILED` for predecessor1196 only. New contract/corpus/DAG work is local and unpublished, NOT_FROZEN, not protected source delivery. It will require exact independent reviews and applicable normal checks. Current human autonomous merge/Finalization authority is preserved; no repeated generic authorization request is needed.
+Repository State: `MERGED_RECONCILED` for predecessor1196 only. Contract/corpus/probes are published in draft1197; the new Runtime foundation is local and unpublished, not protected source delivery. Whole interoperability remains NOT_FROZEN; exact runtime reviews and applicable normal checks remain required. Current human autonomous merge/Finalization authority is preserved; no repeated generic authorization request is needed.
 
 #### Workspace State
 
