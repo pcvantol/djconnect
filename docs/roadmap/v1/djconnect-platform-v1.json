@@ -39509,8 +39509,8 @@
         "title": "Six-parameter canonical contract and platform settings inventory",
         "lane": "DJC-CORE",
         "repository": "pcvantol/djconnect",
-        "status": "In progress",
-        "assignment_status": "IN_PROGRESS",
+        "status": "Completed",
+        "assignment_status": "CORE_DELIVERED",
         "scope": "Six-parameter canonical contract and platform settings inventory; six shared parameters incl announcement_output; no new owning writer or automatic dispatch",
         "acceptance_boundary": "Core source, native/installed/audible/hardware and whole-family cleanup distinct; owning consumer evidence required",
         "contract_binding": "docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md",
@@ -39526,8 +39526,8 @@
         "title": "Atomic roaming Profile defaults and effective Session producer",
         "lane": "DJC-CORE",
         "repository": "pcvantol/djconnect",
-        "status": "In progress",
-        "assignment_status": "IN_PROGRESS",
+        "status": "Completed",
+        "assignment_status": "CORE_DELIVERED",
         "scope": "Atomic roaming Profile defaults and effective Session producer; six shared parameters incl announcement_output; no new owning writer or automatic dispatch",
         "acceptance_boundary": "Core source, native/installed/audible/hardware and whole-family cleanup distinct; owning consumer evidence required",
         "contract_binding": "docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md",
@@ -41760,11 +41760,11 @@
     "document_references": [
       {
         "path": "PRODUCT_ROADMAP.md",
-        "sha256": "a5b226f417b65a50deeb4121ba52dfdecb8504f91cb1be4edc6704c0947dafb8"
+        "sha256": "88e403979acf7793701aa2f99533b23de78072cb27551c0842d815bb8b738935"
       },
       {
         "path": "PRODUCT_BACKLOG.md",
-        "sha256": "9714fc324d4ded07a7e1f873c2caf2747058db4e8b115a16ab19595d25f61bb5"
+        "sha256": "c8eafff92fc1db8b5beed44362363f63d8790b052a77e0c0c6884f76d79b1633"
       },
       {
         "path": "docs/product/DJ_PRESENCE_V1.md",
@@ -41800,7 +41800,7 @@
       },
       {
         "path": "API_CONTRACT.md",
-        "sha256": "6d35fe6c65c8e1b4961ba387f8bd956b64b99aef756ae5ca13321854c9c2ba03"
+        "sha256": "71f70da6b7f18020a562dc68e5fd66176f59082a57e530e75ce4c9cdb9d69a4b"
       },
       {
         "path": "docs/product/NARRATIVE_ALBUM_CONTINUITY_V1.md",
@@ -42076,11 +42076,19 @@
       },
       {
         "path": "docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md",
-        "sha256": "0693e3b04b6e7dfb5f7846d032c1f43ec3f67fb998bb7ca65bdabbc389fdfd9a"
+        "sha256": "687f1a7c471261c03d18245beb5b82aa837c5ef17d897a170f352f56ef0e5531"
       },
       {
         "path": "docs/technical/SPEECH_RENDERING_CONTRACT.md",
         "sha256": "cb39d32ecd4b4d11140a0d8e2e037bf6bca388dfe9c45d0b1b9a27b6a228d2e4"
+      },
+      {
+        "path": "docs/verification/PROFILE_SESSION_SETTINGS_SOURCE_READBACK_20261016.md",
+        "sha256": "344eac1436adc3b56108b4645ec51f262889a7f6d6b1d0c7aa890cc6355a9d8f"
+      },
+      {
+        "path": "docs/history/prompts/2026-10-16-profile-session-settings-finalization.md",
+        "sha256": "fd8f95f219e8293cc4133e1e7543209c66993fa3e636c52f83d189df640b013d"
       }
     ],
     "implementation_receipt": {
@@ -42635,8 +42643,8 @@
       "atomic_active_and_default": true,
       "voice_scope": "profile_and_session",
       "contract_version": 3,
-      "phase": "LOCAL_IMPLEMENTATION_AND_QUALIFICATION",
-      "source_delivery": "UNPUBLISHED",
+      "phase": "SOURCE_PROTECTED_MERGED",
+      "source_delivery": "PROTECTED_MERGED",
       "native": "OPEN_APPLE",
       "other_consumers": "OPEN_OWNING_LANES",
       "joint": "OPEN",
@@ -42644,7 +42652,7 @@
       "automatic_dispatch": false,
       "consumer_writes": false,
       "inventory_path": "docs/product/PROFILE_SESSION_SETTINGS_INVENTORY_V1.json",
-      "inventory_sha256": "f7c072d1e1a084a9e9bc9d9b60daccd2405fccb32efd8d66586cbc32eccf7a2a",
+      "inventory_sha256": "98a836db9cd136f26bb2d0101519edde875637c2170f89bca56c21d41bfe7444",
       "runtime_checkpoint_contract_version": 3,
       "owner_addenda": [
         6220504359,
@@ -42667,7 +42675,15 @@
         "physical_device_preferences"
       ],
       "portability": "PARKED_NO_PICKUP",
-      "core_source_pin": "187d2cd126c5db1a2791e1d47d80d803aafc5cc1"
+      "core_source_pin": "e8cc70ddffb4112b09babdda4d45140b98926ae5",
+      "source_PR": 1193,
+      "source_main_sha": "e8cc70ddffb4112b09babdda4d45140b98926ae5",
+      "reviewed_head": "6882a43e3e0e73cd1b918161b27f88d3697bcb4f",
+      "source_review": "PASS",
+      "required_checks": "PASS",
+      "protected_merge": true,
+      "archive_sha256": "57039b049de57ba7c01d61ac516d854d18e339645a5cc991ce2c727226a0bca1",
+      "formal_evidence_sha256": "b65789edc31b4c877d3f82df7c6b09742d04837921dbbeb4fd0301f465de88e9"
     }
   }
 }

@@ -1,5 +1,11 @@
 # Shared settings3 and target-aware speech3 — local producer checkpoint
 
+## Protected source delivery
+
+Core source PR1193 is delivered as `e8cc70ddffb4112b09babdda4d45140b98926ae5`, reviewed head `6882a43e3e0e73cd1b918161b27f88d3697bcb4f`. The fixture producer pin below identifies the exact tested pre-merge source; all158helper/source hashes and177integration files are byte-equal through the reviewed and merged candidate. Earlier local publication/review gates below are historical, not a missing source gate. Separate Finalization, native/adoption/installed/audible/joint evidence remain distinct.
+
+## Exact isolated software checkpoint
+
 Source pin: `b58644bcc843d191aa95c87ec2e14cc9c099454b` (unpublished).
 [Actual transport evidence](connected-ha-transport.json) pins all 158 relevant
 Python source/helper hashes before/after the same isolated HA run.

@@ -67,6 +67,7 @@ def validate(plan, previous_validator):
     if delivered:
         check(all(re.fullmatch('[a-f0-9]{40}', str(receipt.get(k, ''))) for k in ('source_main_sha', 'reviewed_head'))
               and receipt.get('source_review') == 'PASS' and receipt.get('required_checks') == 'PASS'
+              and receipt.get('core_source_pin') == receipt.get('source_main_sha')
               and receipt.get('protected_merge') is True
               and all(re.fullmatch('[a-f0-9]{64}', str(receipt.get(k, '')))
                       for k in ('archive_sha256', 'formal_evidence_sha256')), 'source evidence')

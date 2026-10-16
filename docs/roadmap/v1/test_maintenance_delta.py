@@ -73,7 +73,18 @@ class SharedSettingsMaintenanceTests(unittest.TestCase):
         p = copy.deepcopy(self.p)
         r = p['planning_maintenance']['settings_consolidation_receipt']
         r.update(phase='SOURCE_PROTECTED_MERGED', source_delivery='PROTECTED_MERGED')
+        # Remain a meaningful negative test once the canonical plan is merged:
+        # completion without its mandatory exact artifact binding must fail.
+        r.pop('archive_sha256', None)
         self.assertTrue(validate(p))
+
+    def test_delivered_producer_pin_cannot_point_to_old_local_checkpoint(self):
+        p = copy.deepcopy(self.p)
+        r = p['planning_maintenance']['settings_consolidation_receipt']
+        if r['phase'] != 'SOURCE_PROTECTED_MERGED':
+            return  # The local phase makes no delivered producer claim.
+        r['core_source_pin'] = '187d2cd126c5db1a2791e1d47d80d803aafc5cc1'
+        self.assertTrue(any('source evidence' in error for error in validate(p)))
 
 
 def delivered_passive_plan():
