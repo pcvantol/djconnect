@@ -395,14 +395,18 @@ async def async_handle_prepare(hass, data, *, headers=None):
     from .transport_delivery import register_delivery_admission
     from .session_history_projection import HistoryQueryError
 
-    fields = {"contract_version", "device_id", "client_type", "reference", "processor", "voice_preference"}
+    shared_settings = type(data) is dict and type(data.get('contract_version')) is int and data['contract_version'] == 2
+    fields = {"contract_version", "device_id", "client_type", "reference", "processor"}
+    if not shared_settings:
+        fields.add('voice_preference')
     if (not isinstance(data, dict) or not fields <= set(data) or set(data) - fields - {"voice_id"}
+        or (shared_settings and ('voice_id' in data or data.get('processor') != 'ha_configured'))
         or ("voice_id" in data and (data.get("processor") != "ha_configured"
             or not isinstance(data["voice_id"], str) or not 0 < len(data["voice_id"]) <= 128
             or data["voice_id"] != data["voice_id"].strip() or not data["voice_id"].isprintable()))
-        or type(data["contract_version"]) is not int or data["contract_version"] != 1
+        or type(data["contract_version"]) is not int or data["contract_version"] not in (1, 2)
         or data["processor"] not in ("local_on_device", "ha_configured")
-        or data["voice_preference"] not in ("default", "male", "female")
+        or (not shared_settings and data["voice_preference"] not in ("default", "male", "female"))
         or not isinstance(data["reference"], dict)
         or set(data["reference"]) not in ({"turn_id"}, {"session_id", "moment_id"}, {"session_id", "entry_id"})
         or not all(isinstance(value, str) and 0 < len(value) <= 128 and value == value.strip()
@@ -417,6 +421,31 @@ async def async_handle_prepare(hass, data, *, headers=None):
     if error is not None:
         return error, status
     try:
+        from .session_runtime import session_runtime_manager
+        from .profile_settings import VoicePolicy
+        from .domain.profile.dj_settings import DJSettings
+        from .speech_processor import voice_options
+        from .persistence.dj_settings import SettingsCommitError
+        manager = session_runtime_manager(hass)
+        selected = None
+        settings_token = None
+        if shared_settings or manager._settings_repository is not None:
+            snapshot = await manager.async_read_dj_settings(owner_profile_id=context.profile_id,
+                authorize=lambda: _speech_settings_authority(hass, runtime, identity, headers, context))
+            if not shared_settings and (snapshot['activated'] or (
+                    snapshot['session'] is not None and manager.current_active(context.profile_id).settings_contract_version == 2)):
+                return {'success': False, 'error': 'settings_contract_upgrade_required',
+                        'settings_contract_version': 2}, 426
+            if shared_settings:
+                selected = DJSettings.from_dict(snapshot['session']['settings'] if snapshot['session'] else snapshot['defaults'])
+                policy = VoicePolicy.from_options(voice_options(hass, runtime.config))
+                availability = policy.selection_state(selected)
+                if not availability['available']:
+                    return {'success': True, 'session_speech': unavailable(data['reference'], availability['reason'])}, 200
+                data = {**data, 'voice_preference': selected.gender.value}
+                if selected.voice.kind == 'provider_voice':
+                    data['voice_id'] = selected.voice.voice_id
+                settings_token = manager.dj_settings_fence_token(context.profile_id)
         if not context.privacy_policy.allow_personal_read or not resolve_profile_privacy_policy(context.profile, {}).allow_personal_read:
             raise PermissionError("speech_not_allowed")
         history = _history_manager(hass, runtime)
@@ -430,6 +459,8 @@ async def async_handle_prepare(hass, data, *, headers=None):
                 context.profile_id, reference, profile_source=source_scope(context.profile))
         def guard():
             _conversation_profile_fence(hass, runtime, identity, headers, context)
+            if shared_settings and manager.dj_settings_fence_token(context.profile_id) != settings_token:
+                raise PermissionError('speech_settings_changed')
             source_guard()
         guard.on_withdraw = source_guard.on_withdraw
         guard.processor_basis = source_guard.processor_basis
@@ -437,9 +468,14 @@ async def async_handle_prepare(hass, data, *, headers=None):
         register_delivery_admission(guard)
         if not descriptor["manual_allowed"]:
             return {"success": True, "session_speech": descriptor}, 200
+        if shared_settings:
+            descriptor = {**descriptor, 'settings_contract_version': 2,
+                          'settings_revision': settings_token}
         if data["processor"] == "ha_configured":
             descriptor = await prepare_ha(hass, runtime, context.profile_id, data,
-                                          descriptor, guard)
+                                          descriptor, guard, expected_provider=(
+                                              selected.voice.provider_id if selected is not None
+                                              and selected.voice.kind == 'provider_voice' else None))
             guard()
         else:
             from .speech_processor import voice_options
@@ -457,12 +493,23 @@ async def async_handle_prepare(hass, data, *, headers=None):
         return {"success": False, "error": "speech_reference_unavailable"}, 404
     except HistoryQueryError:
         return {"success": False, "error": "speech_context_changed"}, 409
+    except SettingsCommitError:
+        return {'success': False, 'error': 'settings_unavailable'}, 503
     except PermissionError as exc:
         status = 403 if str(exc) == "speech_not_allowed" else 404
         return {"success": False, "error": "speech_reference_unavailable"}, status
 
 
-async def prepare_ha(hass, runtime, owner, data, descriptor, admission):
+def _speech_settings_authority(hass, runtime, identity, headers, context):
+    from .api_handlers import _conversation_profile_fence
+    try:
+        _conversation_profile_fence(hass, runtime, identity, headers, context)
+        return True
+    except Exception:
+        return False
+
+
+async def prepare_ha(hass, runtime, owner, data, descriptor, admission, *, expected_provider=None):
     from .dj_response import prepare_private_tts_audio, get_private_tts_audio
     from .speech_processor import configured_processor, synthesize, ProcessorUnavailable
     from .speech_feedback import SpeechProviderChanged, notification, record
@@ -482,9 +529,13 @@ async def prepare_ha(hass, runtime, owner, data, descriptor, admission):
         return unavailable(data["reference"], "source_processor_not_qualified")
     def resolve_processor():
         if "voice_id" in data:
-            return configured_processor(hass, runtime.config, descriptor["locale"],
-                                        data["voice_preference"], selected_voice=data["voice_id"])
-        return configured_processor(hass, runtime.config, descriptor["locale"], data["voice_preference"])
+            result = configured_processor(hass, runtime.config, descriptor["locale"],
+                                          data["voice_preference"], selected_voice=data["voice_id"])
+        else:
+            result = configured_processor(hass, runtime.config, descriptor["locale"], data["voice_preference"])
+        if expected_provider is not None and result[1]['engine'] != expected_provider:
+            raise ProcessorUnavailable('no_matching_voice')
+        return result
 
     entity = voice = None
     try:
@@ -496,6 +547,8 @@ async def prepare_ha(hass, runtime, owner, data, descriptor, admission):
                descriptor["presentation_revision"], voice["engine"], voice["voice_id"], voice["locale"], id(entity),
                voice.get("provider_version"), voice.get("voice_version"),
                voice.get("configuration_revision"))
+        if descriptor.get('settings_contract_version') == 2:
+            key += (json.dumps(descriptor['settings_revision'], separators=(',', ':')),)
         def qualified_admission():
             admission()
             try:

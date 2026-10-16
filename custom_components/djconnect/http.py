@@ -2935,6 +2935,40 @@ class DJConnectSessionMoodView(_DJConnectSessionView):
         return self.json(result, status_code=status)
 
 
+class DJConnectProfileSettingsView(_DJConnectSessionView):
+    url = '/api/djconnect/v1/profile/settings'
+    name = 'api:djconnect:profile:settings'
+
+    async def get(self, request):
+        from .profile_settings import async_handle_settings
+        data = dict(request.query)
+        if data.get('contract_version') == '2':
+            data['contract_version'] = 2
+        result, status = await async_handle_settings(request.app['hass'], data, headers=request.headers)
+        return self.json(result, status_code=status)
+
+    async def patch(self, request):
+        from .profile_settings import async_handle_settings
+        data = await self._payload(request)
+        if data is None or request.query_string:
+            return self.json({'success': False, 'error': 'invalid_request'}, status_code=400)
+        result, status = await async_handle_settings(request.app['hass'], data, headers=request.headers, write=True)
+        return self.json(result, status_code=status)
+
+
+class DJConnectProfileSettingsOperationView(_DJConnectSessionView):
+    url = '/api/djconnect/v1/profile/settings/operation'
+    name = 'api:djconnect:profile:settings:operation'
+
+    async def post(self, request):
+        from .profile_settings import async_handle_settings
+        data = await self._payload(request)
+        if data is None or request.query_string:
+            return self.json({'success': False, 'error': 'invalid_request'}, status_code=400)
+        result, status = await async_handle_settings(request.app['hass'], data, headers=request.headers, operation=True)
+        return self.json(result, status_code=status)
+
+
 class DJConnectSpeechVoiceOptionsView(_DJConnectSessionView):
     url = "/api/djconnect/v1/speech/voice-options"
     name = "api:djconnect:speech:voice_options"

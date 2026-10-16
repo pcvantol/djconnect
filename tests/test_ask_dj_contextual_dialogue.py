@@ -2229,7 +2229,7 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
                 self.assertFalse(response["session_speech"]["autoplay_eligible"])
             forbidden.assert_not_awaited()
         self.assertEqual(self.prompts, [])
-        for value in (True, 2, "1"):
+        for value in (True, 3, "1"):
             response, status = await self.request("help", identifier="bad-speech-version", speech_contract_version=value)
             self.assertEqual(status, 400, response)
             self.assertEqual(response["error"], "unsupported_speech_contract")

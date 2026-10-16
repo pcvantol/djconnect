@@ -119,6 +119,17 @@ async def main():
         from session_speech_model_lab import entry_from_stdin
         model_bundle = entry_from_stdin()
     entries = [slot.as_storage_fragment]
+    settings_peers = []
+    if os.environ.get('DJC_PROFILE_SETTINGS_PROBE'):
+        for suffix, kind, owner in (('111111111111', 'macos', 'profile-a'),
+                                     ('222222222222', 'ios', 'profile-a'),
+                                     ('333333333333', 'ios', 'profile-b')):
+            peer = entry('settings-peer-' + suffix, {'device_id': f'djconnect-{kind}-{suffix}',
+                'client_type': kind, 'pair_code': '23456' + suffix[0], 'profile_id': owner,
+                'music_backend': 'spotify_direct',
+                'music_account_id': 'fixture-account' if owner == 'profile-a' else 'fixture-other'})
+            settings_peers.append(peer.entry_id)
+            entries.append(peer.as_storage_fragment)
     if model_bundle:
         entries.append(model_bundle[0].as_storage_fragment)
     await ConfigEntryStore(hass).async_save({"entries": entries})
@@ -137,6 +148,22 @@ async def main():
     profile = storage.household.profiles["profile-a"]
     await storage.async_update_profile("profile-a", preferences=replace(profile.preferences, default_music_account_id="fixture-account"))
     await storage.async_upsert_device(identity["device_id"], "ios", linked_profile_id="profile-a")
+    if settings_peers:
+        await storage.async_create_profile('Other synthetic owner', profile_id='profile-b',
+                                          default_backend_id='spotify_direct')
+        await storage.async_upsert_music_account('fixture-other', 'spotify_direct', kind=MusicAccountKind.PERSONAL,
+            display_name='Other synthetic account', linked_profile_ids=frozenset({'profile-b'}),
+            provider_account_id='fixture-other-provider')
+        other = storage.household.profiles['profile-b']
+        await storage.async_update_profile('profile-b',
+            preferences=replace(other.preferences, default_music_account_id='fixture-other'))
+        for entry_id in settings_peers:
+            peer = hass.config_entries.async_get_entry(entry_id)
+            peer._async_set_state(hass, ConfigEntryState.LOADED, None)
+            peer_runtime = DJConnectRuntime(peer)
+            hass.data['djconnect'][entry_id] = peer_runtime
+            await storage.async_upsert_device(peer.data['device_id'], peer.data['client_type'],
+                                              linked_profile_id=peer.data['profile_id'])
     service = await async_initialize_persistence(hass)
     manager = SessionRuntimeManager(PersistentSessionRepository(service), HistoricalProjectionRepository(service))
     hass.data["djconnect"]["session_runtime_manager"] = manager
@@ -224,6 +251,11 @@ async def main():
             if os.environ.get("DJC_PROVIDER_GENDER_PROBE"):
                 from provider_voice_gender_lab import run
                 await run(hass, runtime, client, post, identity, output, model_bundle, headers)
+                return
+            if os.environ.get('DJC_PROFILE_SETTINGS_PROBE'):
+                from profile_session_settings_lab import run
+                await run(hass, runtime, client, post, identity, output, headers, manager, storage,
+                          peers=settings_peers)
                 return
             session_started_clock = time.monotonic()
             started = await post("/session/start", {**identity, "mood": "groove", "locale": "en"}, expected=201)

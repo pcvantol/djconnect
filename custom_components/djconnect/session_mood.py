@@ -40,6 +40,7 @@ async def async_handle_owner_setting(hass, data, *, headers=None, setting):
     )
     from .session_runtime import DJPersona, MoodRevisionConflictError, PresenceRevisionConflictError, PersonaRevisionConflictError
     from .presence_policy import POLICIES
+    from .persistence.dj_settings import SettingsCommitError
 
     assert setting in {"mood", "presence", "persona"}
     selected_key = f"selected_{setting}"
@@ -125,6 +126,10 @@ async def async_handle_owner_setting(hass, data, *, headers=None, setting):
     )
     if manager is None:
         return result, status
+    active_settings = manager.current_active(profile_id)
+    if active_settings is not None and active_settings.settings_contract_version == 2:
+        return error('settings_contract_upgrade_required', 426,
+                     settings_contract_version=2, settings_path='/api/djconnect/v1/profile/settings')
 
     def owner_is_current():
         """Synchronous final authority fence after lock acquisition, before commit."""
@@ -149,7 +154,11 @@ async def async_handle_owner_setting(hass, data, *, headers=None, setting):
             **{selected_attribute: DJPersona(data[selected_key]) if setting == "persona" else data[selected_key]},
             expected_revision=revision,
             authorize=owner_is_current,
+            legacy_user_choice=True,
         )
+    except SettingsCommitError:
+        return error('settings_contract_upgrade_required', 426,
+                     settings_contract_version=2, settings_path='/api/djconnect/v1/profile/settings')
     except PermissionError:
         return error("unauthorized", 401)
     except conflict_type as exc:

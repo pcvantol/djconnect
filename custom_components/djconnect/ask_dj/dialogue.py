@@ -572,7 +572,7 @@ def model_source(entry: dict | None) -> dict:
     }
 
 
-def style_projection(payload: dict, active=None, profile=None) -> dict:
+def style_projection(payload: dict, active=None, profile=None, *, settings=None) -> dict:
     from ..mood import mood_zone_for_value
 
     persona = str(payload.get("dj_persona") or "home_dj")
@@ -583,6 +583,8 @@ def style_projection(payload: dict, active=None, profile=None) -> dict:
     numeric = mood_zone_for_value(payload.get("mood"))
     zone = numeric.name if numeric else str(getattr(mood, "zone", "") or "groove")
     basis = "request_numeric" if numeric else "profile_or_default"
+    if settings is not None:
+        persona, zone, basis = settings.persona, settings.mood, 'confirmed_profile_defaults'
     if active is not None:
         persona, zone, basis = (
             str(active.dj_persona),
@@ -599,13 +601,16 @@ def style_projection(payload: dict, active=None, profile=None) -> dict:
         .split("-", 1)[0]
         .lower()
     )
-    return {
+    result = {
         "persona": persona,
         "mood": zone,
         "mood_basis": basis,
         "language": locale if locale in {"en", "nl", "de", "fr", "es"} else "en",
         "response_style": str(getattr(preferences, "response_style", "balanced")),
     }
+    if settings is not None:
+        result.pop('response_style')
+    return result
 
 
 def persona_answer_form(persona: str) -> str:

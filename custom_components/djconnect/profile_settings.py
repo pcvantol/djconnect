@@ -14,14 +14,17 @@ from .presence_policy import POLICIES
 from .persistence.dj_settings import SettingsCommitError, SettingsRevisionConflict
 
 PATH = '/api/djconnect/v1/profile/settings'
+CHANGE_EVENT = 'djconnect_profile_dj_settings_changed'
 IDENTITY_FIELDS = frozenset({'contract_version', 'device_id', 'client_type'})
 WRITE_FIELDS = IDENTITY_FIELDS | {'binding', 'operation_id', 'patch',
                                  'expected_defaults_revision', 'expected_session'}
+OPERATION_FIELDS = IDENTITY_FIELDS | {'binding', 'operation_id'}
 
 
-def validate_request(data, *, write=False):
+def validate_request(data, *, write=False, operation=False):
     """Closed schema; an arbitrary Profile ID or legacy init is not authority."""
-    if type(data) is not dict or set(data) != (WRITE_FIELDS if write else IDENTITY_FIELDS):
+    fields = WRITE_FIELDS if write else OPERATION_FIELDS if operation else IDENTITY_FIELDS
+    if type(data) is not dict or set(data) != fields:
         raise SettingsValidationError('invalid_settings_request')
     if type(data['contract_version']) is not int or data['contract_version'] != 2:
         raise SettingsValidationError('unsupported_contract_version')
@@ -55,6 +58,7 @@ class VoicePolicy:
     genders: tuple[str, ...]
     available: bool
     reason: str | None
+    labels: tuple[tuple[str, str], ...] = ()
 
     @classmethod
     def from_options(cls, options):
@@ -63,7 +67,8 @@ class VoicePolicy:
         return cls(str(voice.get('engine') or ''), str(options['revision']),
                    tuple((v['voice_id'], v.get('gender')) for v in options.get('voices', [])),
                    tuple(options.get('gender_selection', {}).get('values', [])),
-                   available, options.get('reason'))
+                   available, options.get('reason'),
+                   tuple((v['voice_id'], v.get('name') or v['voice_id']) for v in options.get('voices', [])))
 
     def validate(self, settings):
         # Explicit provider-default/no-preference is always a valid reset. Its
@@ -93,15 +98,17 @@ def allowed_values(policy):
     return {'persona': sorted(PERSONAS), 'mood': sorted(MOODS), 'presence': list(POLICIES),
             'voice': {'kinds': ['provider_default', 'provider_voice'],
                       'provider_id': policy.provider_id,
-                      'voices': [{'voice_id': voice, 'gender': gender} for voice, gender in policy.voices]},
+                      'voices': [{'voice_id': voice, 'name': dict(policy.labels).get(voice, voice),
+                                  'gender': gender} for voice, gender in policy.voices]},
             'gender': ['default', *policy.genders]}
 
 
-async def async_handle_settings(hass, data, *, headers=None, write=False):
+async def async_handle_settings(hass, data, *, headers=None, write=False, operation=False,
+                                validate_ingress=None):
     """Ordinary paired device only, including when there is no active Session."""
     from .api_handlers import _session_profile_context, _conversation_profile_fence
     from .profile_context import profile_storage
-    from .request_auth import request_token
+    from .request_auth import request_token, resolve_runtime, runtime_matches_device, authorize_runtime_device_request
     from .session_runtime import session_runtime_manager
     from .speech_processor import voice_options
     from .transport_delivery import register_delivery_admission
@@ -110,22 +117,46 @@ async def async_handle_settings(hass, data, *, headers=None, write=False):
         return {'success': False, 'error': code, **extra}, status
 
     try:
-        validate_request(data, write=write)
+        validate_request(data, write=write, operation=operation)
     except (ValueError, TypeError):
         return error('invalid_settings_request', 400)
     headers = headers or {}
     if not str(headers.get('Authorization', '')).startswith('Bearer '):
+        return error('unauthorized', 401)
+    original = resolve_runtime(hass, data['device_id'], headers)
+    entry = getattr(original, 'entry', None)
+    entry_generation = getattr(original, '_receiver_end_generation', 0)
+
+    def paired():
+        if (entry is None or hass.data.get('djconnect', {}).get(entry.entry_id) is not original
+                or hass.config_entries.async_get_entry(entry.entry_id) is not entry
+                or entry.disabled_by is not None
+                or getattr(entry.state, 'value', entry.state) != 'loaded'):
+            return False
+        conf = {**entry.data, **entry.options}
+        known = (getattr(original, 'device_status', {}).get('device_id')
+                 or getattr(original, 'pairing_device_id', '') or conf.get('device_id'))
+        return (conf.get('device_token') == request_token(headers)
+                and conf.get('device_id') == known == data['device_id']
+                and conf.get('client_type') == data['client_type']
+                and headers.get('X-DJConnect-Device-ID', data['device_id']) == data['device_id']
+                and getattr(original, '_receiver_end_generation', 0) == entry_generation
+                and runtime_matches_device(original, data['device_id'])
+                and authorize_runtime_device_request(original, headers, data['device_id'], data['client_type']))
+
+    if not paired():
         return error('unauthorized', 401)
     identity = {key: data[key] for key in IDENTITY_FIELDS}
     runtime, context, failure, status = await _session_profile_context(
         hass, dict(identity), headers=headers, user_id=None, source='profile_settings_v2')
     if failure is not None:
         return failure, status
+    if runtime is not original:
+        return error('unauthorized', 401)
     if context.profile.profile_type.value in {'guest', 'room', 'party'}:
         return error('owner_settings_not_allowed', 403)
     storage = profile_storage(hass)
     device = storage.household.devices.get(data['device_id'])
-    entry = getattr(runtime, 'entry', None)
     generation = getattr(device, 'binding_generation', '')
     if entry is None or not generation:
         return error('settings_binding_unavailable', 503)
@@ -137,10 +168,13 @@ async def async_handle_settings(hass, data, *, headers=None, write=False):
     policy = VoicePolicy.from_options(options)
 
     def authority():
+        if validate_ingress is not None:
+            validate_ingress()
         try:
             _conversation_profile_fence(hass, runtime, identity, headers, context)
             current = storage.household.devices.get(data['device_id'])
-            return (current is not None and current.binding_generation == generation
+            return (paired() and current is not None and current.binding_generation == generation
+                    and current.pairing_state.value == 'paired'
                     and hass.data.get('djconnect', {}).get('session_runtime_manager') is manager)
         except Exception:
             return False
@@ -150,6 +184,16 @@ async def async_handle_settings(hass, data, *, headers=None, write=False):
                                 or voice_options(hass, runtime.config)['revision'] == policy.revision)
 
     try:
+        if operation:
+            if data['binding'] != binding:
+                return error('settings_binding_changed', 409)
+            result = await manager.async_dj_settings_operation_result(
+                owner_profile_id=context.profile_id, operation_id=data['operation_id'], binding=binding,
+                now_ms=int(datetime.now(UTC).timestamp()*1000), authorize=authority)
+            _require_authority(authority)
+            register_delivery_admission(lambda: _require_authority(authority))
+            return {'success': True, 'contract_version': 2, **result,
+                    'as_of': datetime.now(UTC).isoformat(), 'cache_policy': 'private,no-store'}, 200
         if write:
             if data['binding'] != binding:
                 return error('settings_binding_changed', 409)
@@ -159,6 +203,13 @@ async def async_handle_settings(hass, data, *, headers=None, write=False):
                 expected_session=data['expected_session'], now_ms=int(datetime.now(UTC).timestamp()*1000),
                 authorize=commit_authority, validate_voice=policy.validate)
             snapshot = result['snapshot']
+            if not result['replayed']:
+                bus = getattr(hass, 'bus', None)
+                if bus is not None:
+                    try:
+                        bus.async_fire(CHANGE_EVENT, {'owner': hashlib.sha256(context.profile_id.encode()).hexdigest()})
+                    except Exception:
+                        result = {**result, 'delivery_pending': True}
         else:
             snapshot = await manager.async_read_dj_settings(owner_profile_id=context.profile_id,
                                                             authorize=authority)

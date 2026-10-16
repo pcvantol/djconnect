@@ -221,6 +221,7 @@ class HybridActionsView(HomeAssistantView):
         reader = None
         failure = None
         authenticated = False
+        remove_settings_listener = None
         try:
             auth_deadline = asyncio.get_running_loop().time() + AUTH_TIMEOUT
             await ws.send_json(
@@ -272,6 +273,8 @@ class HybridActionsView(HomeAssistantView):
                         "djconnect/read",
                         "djconnect/operation/execute",
                         "djconnect/operation/status",
+                        'djconnect/profile/settings/update',
+                        'djconnect/profile/settings/subscribe',
                     ],
                 }
             )
@@ -318,6 +321,7 @@ class HybridActionsView(HomeAssistantView):
                     overflow = True
 
             async def run_command(command):
+                nonlocal remove_settings_listener
                 rid = command["id"]
                 base = {"id": rid, "connection_id": connection_id, "type": "result"}
                 try:
@@ -335,6 +339,30 @@ class HybridActionsView(HomeAssistantView):
                         )
                     elif command["type"] == "djconnect/operation/status":
                         result, status = await manager.status(authority, data)
+                    elif command['type'] == 'djconnect/profile/settings/update':
+                        if set(data) != {'payload'}:
+                            raise OperationError('invalid_command', 400)
+                        from .profile_settings import async_handle_settings
+                        await authority.validate()
+                        result, status = await async_handle_settings(self.hass, authority.payload(data['payload']),
+                            headers=authority.headers, write=True, validate_ingress=authority.validate_now)
+                    elif command['type'] == 'djconnect/profile/settings/subscribe':
+                        if (set(data) != {'contract_version', 'enabled'}
+                                or type(data['contract_version']) is not int or data['contract_version'] != 2
+                                or type(data['enabled']) is not bool):
+                            raise OperationError('invalid_command', 400)
+                        await authority.validate()
+                        if remove_settings_listener is not None:
+                            remove_settings_listener()
+                            remove_settings_listener = None
+                        if data['enabled']:
+                            from .profile_settings import CHANGE_EVENT
+                            def changed(event):
+                                if event.data.get('owner') == authority.owner:
+                                    enqueue({'id': 0, 'connection_id': connection_id, 'type': 'event',
+                                             'event': 'profile/settings/changed', 'contract_version': 2})
+                            remove_settings_listener = self.hass.bus.async_listen(CHANGE_EVENT, changed)
+                        result, status = {'success': True, 'subscribed': data['enabled'], 'contract_version': 2}, 200
                     else:
                         raise OperationError("unsupported_command", 400)
                     await authority.validate()
@@ -424,6 +452,8 @@ class HybridActionsView(HomeAssistantView):
         except OperationError as exc:
             failure = exc.code
         finally:
+            if remove_settings_listener is not None:
+                remove_settings_listener()
             tasks = tuple(workers.values()) + tuple(t for t in (reader, writer) if t is not None)
             for task in tasks:
                 task.cancel()

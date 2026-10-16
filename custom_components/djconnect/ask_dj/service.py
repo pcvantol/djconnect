@@ -74,7 +74,7 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
     if not _identifier(client_id):
         raise SessionConversationError("client_message_id_required", 400)
     speech_version = payload.get("speech_contract_version")
-    if speech_version is not None and (type(speech_version) is not int or speech_version != 1):
+    if speech_version is not None and (type(speech_version) is not int or speech_version not in (1, 2)):
         raise SessionConversationError("unsupported_speech_contract", 400)
     context = _context(payload)
     text = str(payload.get("text") or payload.get("message") or "").strip()
@@ -105,11 +105,27 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
         def query():
             return query_service(hass, history_manager)
         active = await manager.async_get_active(profile_id)
+        shared_settings = None
+        settings_token = None
+        if manager._settings_repository is not None:
+            from ..domain.profile.dj_settings import DJSettings
+            def settings_read_authority():
+                if validate_immediate is not None:
+                    validate_immediate()
+                return True
+            snapshot = await manager.async_read_dj_settings(owner_profile_id=profile_id,
+                authorize=settings_read_authority)
+            active = manager.current_active(profile_id)
+            if snapshot['activated'] or (active is not None and active.settings_contract_version == 2):
+                shared_settings = DJSettings.from_dict(snapshot['defaults'])
+                settings_token = manager.dj_settings_fence_token(profile_id)
         # Style is captured once, including general-screen turns enriched by an
         # active Session. Never relabel or accept old prose after a live CAS.
         style_session = active.session_id if active else ""
         style_revision = active.persona_revision if active else None
         def validate_persona():
+            if settings_token is not None and manager.dj_settings_fence_token(profile_id) != settings_token:
+                raise SessionConversationError('conversation_context_changed')
             if style_session:
                 current = manager.current_active(profile_id)
                 if (current is None or current.session_id != style_session
@@ -238,7 +254,7 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
                 immediate()
 
         turn = DialogueTurn(frame, scope, thread, client_id, digest, generation, guard, history_manager,
-                            style=style_projection(payload, active, profile), session_id=session_id,
+                            style=style_projection(payload, active, profile, settings=shared_settings), session_id=session_id,
                             captured_playback_item_id=captured if track_bound and intent.intent == "current_artist_information" else "",
                             source_context=model_source(selected), dependencies=dependencies, fast_control=fast, reset_topic=reset_topic,
                             archiveable=persist_history)
@@ -300,7 +316,7 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
             new = saved is None
             async def persistence_guard():
                 # SessionRuntimeManager owns its short lock here; never reacquire it.
-                await guard(check_runtime=not bool(style_session))
+                await guard(check_runtime=not (bool(style_session) or settings_token is not None))
 
             async def finish():
                 nonlocal saved
@@ -339,10 +355,10 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
                         await history_manager.async_discard_session_exchange(scope, client_id, turn_record["turn_id"])
                     raise
                 return entries
-            if style_session:
+            if style_session or settings_token is not None:
                 ids = await manager.async_accept_conversation(owner_profile_id=profile_id, session_id=style_session,
                     playback_item_id=captured, track_bound=track_bound and not explicit_action,
-                    persona_revision=style_revision, commit=finish)
+                    persona_revision=style_revision, settings_token=settings_token, commit=finish)
             else:
                 ids = await async_complete_conversation_commit(finish)
         if not saved or not result.get("deduplicated"):
@@ -383,18 +399,20 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
         # An accepted private reference cannot be downgraded to that grant.
         # Negotiate the new adapter explicitly; text/semantic acceptance stays
         # the same and upgrade is never an invitation to resend the question.
+        required_speech_version = 2 if shared_settings is not None else 1
+        speech_negotiated = speech_version in (1, 2) and speech_version >= required_speech_version
         response["audio_delivery"] = ({"mode": "accepted_reference", "state": "deferred"}
-            if speech_version == 1 else {"mode": "accepted_reference",
+            if speech_negotiated else {"mode": "accepted_reference",
                 "state": "unavailable" if requested_audio else "not_requested",
                 "reason": "client_protocol_upgrade_required" if requested_audio else None,
-                "required_speech_contract_version": 1})
+                "required_speech_contract_version": required_speech_version})
         response["session_speech"] = remember(history_manager.dialogue, turn, result,
             turn_id=turn_record["turn_id"], session_id=style_session,
             persona_revision=style_revision, scope_revision=history_manager.scope_revision(scope),
             grant_revision=grant, profile_source=source_scope(profile),
             playback_item_id=captured if track_bound and not explicit_action else "",
             deduplicated=bool(result.get("deduplicated")),
-            autoplay_eligible=speech_version == 1 and requested_audio)
+            autoplay_eligible=speech_negotiated and requested_audio)
         if isinstance(response.get("assistant_message"), dict):
             live_assistant = {**response["assistant_message"], "session_speech": response["session_speech"],
                               "audio_delivery": response["audio_delivery"]}
