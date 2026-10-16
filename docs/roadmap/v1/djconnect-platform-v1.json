@@ -42652,7 +42652,7 @@
       "automatic_dispatch": false,
       "consumer_writes": false,
       "inventory_path": "docs/product/PROFILE_SESSION_SETTINGS_INVENTORY_V1.json",
-      "inventory_sha256": "98a836db9cd136f26bb2d0101519edde875637c2170f89bca56c21d41bfe7444",
+      "inventory_sha256": "f45e578f092d1fc37001087770abd3c0ed49803466cba0fdf8cab2c96acb5b1c",
       "runtime_checkpoint_contract_version": 3,
       "owner_addenda": [
         6220504359,
@@ -42675,15 +42675,23 @@
         "physical_device_preferences"
       ],
       "portability": "PARKED_NO_PICKUP",
-      "core_source_pin": "e8cc70ddffb4112b09babdda4d45140b98926ae5",
-      "source_PR": 1193,
-      "source_main_sha": "e8cc70ddffb4112b09babdda4d45140b98926ae5",
-      "reviewed_head": "6882a43e3e0e73cd1b918161b27f88d3697bcb4f",
+      "core_source_pin": "4491d31b7d599fa4ef25280c02528eab479994ea",
+      "source_PR": 1195,
+      "source_main_sha": "4491d31b7d599fa4ef25280c02528eab479994ea",
+      "reviewed_head": "3a9aaf326365f840343147c0a8e87e885065867e",
       "source_review": "PASS",
       "required_checks": "PASS",
       "protected_merge": true,
-      "archive_sha256": "57039b049de57ba7c01d61ac516d854d18e339645a5cc991ce2c727226a0bca1",
-      "formal_evidence_sha256": "b65789edc31b4c877d3f82df7c6b09742d04837921dbbeb4fd0301f465de88e9"
+      "archive_sha256": "f8e8061b3b3af007ee7d2ce95a8ade2dde7bc5367337d7ac8ee1aa44826a409f",
+      "formal_evidence_sha256": "b8cb9c41b6866d31850e858029457ad3ffbdf9d9dc789606adb10c70d9b61392",
+      "original_source_delivery": {
+        "core_source_pin": "e8cc70ddffb4112b09babdda4d45140b98926ae5",
+        "source_PR": 1193,
+        "source_main_sha": "e8cc70ddffb4112b09babdda4d45140b98926ae5",
+        "reviewed_head": "6882a43e3e0e73cd1b918161b27f88d3697bcb4f",
+        "archive_sha256": "57039b049de57ba7c01d61ac516d854d18e339645a5cc991ce2c727226a0bca1",
+        "formal_evidence_sha256": "b65789edc31b4c877d3f82df7c6b09742d04837921dbbeb4fd0301f465de88e9"
+      }
     }
   }
 }
