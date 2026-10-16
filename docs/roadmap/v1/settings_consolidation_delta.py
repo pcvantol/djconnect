@@ -1,4 +1,4 @@
-"""Maintenance14: one all-five settings scope, never a consumer dispatch."""
+"""Maintenance14: one shared settings scope with owner output addendum, never a consumer dispatch."""
 from copy import deepcopy
 import hashlib
 import json
@@ -44,11 +44,18 @@ def validate(plan, previous_validator):
           and receipt.get('ack') == 6218545503
           and receipt.get('base_sha') == '148bd5aee3110c1a1ab13e7c463a164c99d79b70'
           and receipt.get('branch') == 'codex/profile-session-settings-consolidation-v1', 'selection and admission')
-    check(receipt.get('parameters') == ['persona', 'voice', 'gender', 'mood', 'presence']
+    check(receipt.get('parameters') == ['persona', 'voice', 'gender', 'mood', 'presence', 'announcement_output']
           and receipt.get('last_explicit_choice_is_default') is True
           and receipt.get('atomic_active_and_default') is True
           and receipt.get('voice_scope') == 'profile_and_session'
-          and receipt.get('contract_version') == 2, 'all-five shared semantics')
+          and receipt.get('contract_version') == 3
+          and receipt.get('runtime_checkpoint_contract_version') == 2
+          and receipt.get('owner_addenda') == [6220504359, 6220590330, 6220625247, 6220695648,
+                                               6220756856, 6220784635, 6220817753]
+          and receipt.get('portability') == 'PARKED_NO_PICKUP'
+          and receipt.get('ha_only') == ['assist_pipeline', 'physical_ha_speaker', 'esp_administration']
+          and receipt.get('client_local') == ['autoplay_default_off', 'os_permissions', 'physical_device_preferences'],
+          'six shared semantics and owner scope boundaries')
     check(receipt.get('native') == 'OPEN_APPLE' and receipt.get('other_consumers') == 'OPEN_OWNING_LANES'
           and receipt.get('joint') == 'OPEN' and receipt.get('family_acceptance') == 'PARTIAL'
           and receipt.get('automatic_dispatch') is False and receipt.get('consumer_writes') is False,

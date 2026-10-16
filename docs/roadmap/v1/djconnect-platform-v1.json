@@ -39506,12 +39506,12 @@
       },
       {
         "id": "SETTINGS::CORE::DOCS",
-        "title": "All-five canonical contract and platform settings inventory",
+        "title": "Six-parameter canonical contract and platform settings inventory",
         "lane": "DJC-CORE",
         "repository": "pcvantol/djconnect",
         "status": "In progress",
         "assignment_status": "IN_PROGRESS",
-        "scope": "All-five canonical contract and platform settings inventory; allfive shared; no new owning writer or automatic dispatch",
+        "scope": "Six-parameter canonical contract and platform settings inventory; six shared parameters incl announcement_output; no new owning writer or automatic dispatch",
         "acceptance_boundary": "Core source, native/installed/audible/hardware and whole-family cleanup distinct; owning consumer evidence required",
         "contract_binding": "docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md",
         "source_ids": [
@@ -39528,7 +39528,7 @@
         "repository": "pcvantol/djconnect",
         "status": "In progress",
         "assignment_status": "IN_PROGRESS",
-        "scope": "Atomic roaming Profile defaults and effective Session producer; allfive shared; no new owning writer or automatic dispatch",
+        "scope": "Atomic roaming Profile defaults and effective Session producer; six shared parameters incl announcement_output; no new owning writer or automatic dispatch",
         "acceptance_boundary": "Core source, native/installed/audible/hardware and whole-family cleanup distinct; owning consumer evidence required",
         "contract_binding": "docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md",
         "source_ids": [
@@ -39558,7 +39558,7 @@
         "repository": "pcvantol/djconnect",
         "status": "In progress",
         "assignment_status": "IN_PROGRESS",
-        "scope": "Qualified legacy migration/removal and owning-lane reconciliation; allfive shared; no new owning writer or automatic dispatch",
+        "scope": "Qualified legacy migration/removal and owning-lane reconciliation; six shared parameters incl announcement_output; no new owning writer or automatic dispatch",
         "acceptance_boundary": "Core source, native/installed/audible/hardware and whole-family cleanup distinct; owning consumer evidence required",
         "contract_binding": "docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md",
         "source_ids": [
@@ -39612,7 +39612,7 @@
         "repository": "pcvantol/djconnect-app",
         "status": "Planned",
         "assignment_status": "NOT_ISSUED",
-        "scope": "One Jouw DJ editor and shared Session quick controls; allfive shared; no new owning writer or automatic dispatch",
+        "scope": "One Jouw DJ editor and shared Session quick controls; six shared parameters incl announcement_output; no new owning writer or automatic dispatch",
         "acceptance_boundary": "Core source, native/installed/audible/hardware and whole-family cleanup distinct; owning consumer evidence required",
         "contract_binding": "docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md",
         "source_ids": [
@@ -39636,7 +39636,7 @@
         "repository": "pcvantol/djconnect-pi",
         "status": "Planned",
         "assignment_status": "NOT_ISSUED",
-        "scope": "Pi allowed shared Session settings and legacy disposition; allfive shared; no new owning writer or automatic dispatch",
+        "scope": "Pi allowed shared Session settings and legacy disposition; six shared parameters incl announcement_output; no new owning writer or automatic dispatch",
         "acceptance_boundary": "Core source, native/installed/audible/hardware and whole-family cleanup distinct; owning consumer evidence required",
         "contract_binding": "docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md",
         "source_ids": [
@@ -39660,7 +39660,7 @@
         "repository": "pcvantol/djconnect-esp32",
         "status": "Planned",
         "assignment_status": "NOT_ISSUED",
-        "scope": "ESP32 Assist/voice/settings compatibility and legacy disposition; allfive shared; no new owning writer or automatic dispatch",
+        "scope": "ESP32 Assist/voice/settings compatibility and legacy disposition; six shared parameters incl announcement_output; no new owning writer or automatic dispatch",
         "acceptance_boundary": "Core source, native/installed/audible/hardware and whole-family cleanup distinct; owning consumer evidence required",
         "contract_binding": "docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md",
         "source_ids": [
@@ -39684,7 +39684,7 @@
         "repository": "pcvantol/djconnect-vibecast-receiver",
         "status": "Planned",
         "assignment_status": "NOT_ISSUED",
-        "scope": "Shared renderer allowed Session fields without Profile preferences; allfive shared; no new owning writer or automatic dispatch",
+        "scope": "Shared renderer allowed Session fields without Profile preferences; six shared parameters incl announcement_output; no new owning writer or automatic dispatch",
         "acceptance_boundary": "Core source, native/installed/audible/hardware and whole-family cleanup distinct; owning consumer evidence required",
         "contract_binding": "docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md",
         "source_ids": [
@@ -39703,12 +39703,12 @@
       },
       {
         "id": "SETTINGS::WEBSITE::COPY",
-        "title": "Five-parameter scope/help and obsolete settings copy audit",
+        "title": "Six-parameter scope/help and obsolete settings copy audit",
         "lane": "DJC-WEBSITE",
         "repository": "pcvantol/djconnect-website",
         "status": "Planned",
         "assignment_status": "NOT_ISSUED",
-        "scope": "Five-parameter scope/help and obsolete settings copy audit; allfive shared; no new owning writer or automatic dispatch",
+        "scope": "Six-parameter scope/help and obsolete settings copy audit; six shared parameters incl announcement_output; no new owning writer or automatic dispatch",
         "acceptance_boundary": "Core source, native/installed/audible/hardware and whole-family cleanup distinct; owning consumer evidence required",
         "contract_binding": "docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md",
         "source_ids": [
@@ -39732,7 +39732,7 @@
         "repository": "pcvantol/djconnect",
         "status": "Planned",
         "assignment_status": "NOT_ISSUED",
-        "scope": "Cross-device five-axis effects, persistence and cleanup acceptance; allfive shared; no new owning writer or automatic dispatch",
+        "scope": "Cross-device five-axis effects, persistence and cleanup acceptance; six shared parameters incl announcement_output; no new owning writer or automatic dispatch",
         "acceptance_boundary": "Core source, native/installed/audible/hardware and whole-family cleanup distinct; owning consumer evidence required",
         "contract_binding": "docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md",
         "source_ids": [
@@ -41760,11 +41760,11 @@
     "document_references": [
       {
         "path": "PRODUCT_ROADMAP.md",
-        "sha256": "4c24a839eedb0b73301ec921ac5fa964f1e27d1a6610a488c97a065a0a9b707a"
+        "sha256": "50551c78293af96fae56cb93abfe376582621352e81a281638f4cd2bf1440986"
       },
       {
         "path": "PRODUCT_BACKLOG.md",
-        "sha256": "c32d154dad403c0a2f558a546b12c42d4fb4421da5b68a6aec08a12c6708896c"
+        "sha256": "e9fe49db7d06410ce06249ac480b9d9b339b8a71e274033f2f10a254abf2616a"
       },
       {
         "path": "docs/product/DJ_PRESENCE_V1.md",
@@ -41772,7 +41772,7 @@
       },
       {
         "path": "DJ_SESSION_RUNTIME_CONTRACTS.md",
-        "sha256": "6ae7a05260bc2a997252dbb70c28917ac6b7fd25930263d7c0940df929b1ec92"
+        "sha256": "69e97a8832b0af41ad68cd18de982d1c4535ae853f8b710c15bde4e5d85e935b"
       },
       {
         "path": "docs/product/DJ_INTELLIGENCE_ARCHITECTURE.md",
@@ -41800,7 +41800,7 @@
       },
       {
         "path": "API_CONTRACT.md",
-        "sha256": "9ba32d3c50ae4d2219999de2cb760cf60934cc83a26a6c8021ffef85d8bff199"
+        "sha256": "f57561ae83272f3b955665c4e367da4a08cfc9885e07c512e9e69800d505d4b5"
       },
       {
         "path": "docs/product/NARRATIVE_ALBUM_CONTINUITY_V1.md",
@@ -42012,11 +42012,11 @@
       },
       {
         "path": "docs/product/SESSION_SPEECH_PERSONA_V1.md",
-        "sha256": "bd12ad8d4f78b4ce28b81ca2fb6873c37b62296c8b4daedbd9dddca5a4393341"
+        "sha256": "a342eda7b169f9da5f4296297aae796554dbf6bc2286c28820182e6f3b1d9bf2"
       },
       {
         "path": "docs/product/SESSION_SPEECH_DELIVERY_V1.md",
-        "sha256": "92822b5324a533e9b369d4011a331eb31b501345ba073130e10413d3537a5c0a"
+        "sha256": "271f0d0e9cbe142d7685a46bb9d898d39a9d6dc67c723abbe6123d31dca4c927"
       },
       {
         "path": "docs/verification/SESSION_SPEECH_PERSONA_SOURCE_READBACK_20261016.md",
@@ -42044,7 +42044,7 @@
       },
       {
         "path": "docs/product/PROVIDER_VOICE_GENDER_V1.md",
-        "sha256": "8199d420a869e0fec20605abacf21547ecf996a342516a44b0e421253e6f55cb"
+        "sha256": "716591762477e5b626d61e2f2e66f7984bf931cd138ef894478cb4a2449be7da"
       },
       {
         "path": "docs/verification/PROVIDER_VOICE_GENDER_SOURCE_20261016.md",
@@ -42076,7 +42076,11 @@
       },
       {
         "path": "docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md",
-        "sha256": "e56d259cf8e350b99ba9f0fb3b6d07aa5ee6cf7e4152b3fa08696c57b20f091d"
+        "sha256": "c2c11d86249d43b9da38ea019918c58861f2fa073054c3c7e5cf624ad33ed6f6"
+      },
+      {
+        "path": "docs/technical/SPEECH_RENDERING_CONTRACT.md",
+        "sha256": "cb39d32ecd4b4d11140a0d8e2e037bf6bca388dfe9c45d0b1b9a27b6a228d2e4"
       }
     ],
     "implementation_receipt": {
@@ -42624,12 +42628,13 @@
         "voice",
         "gender",
         "mood",
-        "presence"
+        "presence",
+        "announcement_output"
       ],
       "last_explicit_choice_is_default": true,
       "atomic_active_and_default": true,
       "voice_scope": "profile_and_session",
-      "contract_version": 2,
+      "contract_version": 3,
       "phase": "LOCAL_IMPLEMENTATION_AND_QUALIFICATION",
       "source_delivery": "UNPUBLISHED",
       "native": "OPEN_APPLE",
@@ -42639,7 +42644,29 @@
       "automatic_dispatch": false,
       "consumer_writes": false,
       "inventory_path": "docs/product/PROFILE_SESSION_SETTINGS_INVENTORY_V1.json",
-      "inventory_sha256": "78c60081747d8e419ad3d64cf64ad2054442c19d03a2398f30ede319e399e138"
+      "inventory_sha256": "0a68db7402cd6aa67940399bb2c66ca19ba4d68c408eb7ec12ca90b560726002",
+      "runtime_checkpoint_contract_version": 2,
+      "owner_addenda": [
+        6220504359,
+        6220590330,
+        6220625247,
+        6220695648,
+        6220756856,
+        6220784635,
+        6220817753
+      ],
+      "output_implementation": "DESIGN_RECONCILED_RUNTIME_PENDING",
+      "ha_only": [
+        "assist_pipeline",
+        "physical_ha_speaker",
+        "esp_administration"
+      ],
+      "client_local": [
+        "autoplay_default_off",
+        "os_permissions",
+        "physical_device_preferences"
+      ],
+      "portability": "PARKED_NO_PICKUP"
     }
   }
 }

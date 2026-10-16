@@ -10,7 +10,7 @@ Selected and freshly admitted speech/Persona implementation: DJC-SESSION-SPEECH-
 
 Selected passive Session projection: DJC-CORE-PASSIVE-SESSION-PROJECTION-V1-20261015; source PROTECTED_MERGED. Existing SURFACE::CORE::PROJECTION only; native rich adoption OPEN_APPLE, background SURFACE::APPLE::QUIET-TRANSPORT separately Planned, Watch NOT_QUALIFIED and joint OPEN. Original publication/source deadlines, explicit purpose grants and pure reads; no client writes, provider or automatic dispatch. Delivered v12 and all prior receipts preserved.
 
-Selected shared Profile/Session settings consolidation: DJC-PROFILE-SESSION-SETTINGS-CONSOLIDATION-V1-20261016; all five Persona/voice/gender/Mood/Presence, contract2, last explicit accepted choice becomes default, atomic active+default acceptance. Source UNPUBLISHED; Core producer and migration work only; Apple/other consumers/joint separately open, no automatic dispatch or whole-family completion. Delivered v13 preserved.
+Selected shared Profile/Session settings consolidation: DJC-PROFILE-SESSION-SETTINGS-CONSOLIDATION-V1-20261016; six shared Persona/voice/gender/Mood/Presence/announcement_output, contract3 design (runtime checkpoint2), last explicit accepted choice becomes default, atomic active+default acceptance. Source UNPUBLISHED; Core producer and migration work only; Apple/other consumers/joint separately open, no automatic dispatch or whole-family completion. Delivered v13 preserved.
 
 - `SLICE::APPLE::DJ-PRESENCE-CONTROL` — Planned; Accessible five-language native confirmation; reuse existing Apple writer
 - `CORRECTION::APPLE::DISCOVERY-ARTWORK-ACCEPTANCE` — Planned; Consume pinned producer; native visible attribution, expiry and clear acceptance remain Apple-owned, no new writer/admission
@@ -31,6 +31,6 @@ Selected shared Profile/Session settings consolidation: DJC-PROFILE-SESSION-SETT
 - `WEB::OWNER-SCANNER` — Planned; Paired owner scanner and explicit installation confirmation
 - `WEB::APP` — Planned; Isolated temporary guest shell discovery scanner leave home restore
 - `SPEECH::APPLE::ADOPTION` — Planned; Native shared speech, voice and autoplay adoption; existing owner selection6189231491 only
-- `SETTINGS::APPLE::EDITOR` — Planned; One Jouw DJ editor and shared Session quick controls; allfive shared; no new owning writer or automatic dispatch
+- `SETTINGS::APPLE::EDITOR` — Planned; One Jouw DJ editor and shared Session quick controls; six shared parameters incl announcement_output; no new owning writer or automatic dispatch
 
 Fresh owner/writer/resource admission is separate from functional prerequisites. Historical writer observations are not current leases.

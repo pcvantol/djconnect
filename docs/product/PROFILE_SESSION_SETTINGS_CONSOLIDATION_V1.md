@@ -7,6 +7,131 @@ Admission base `148bd5aee3110c1a1ab13e7c463a164c99d79b70`; same Core writer,
 branch `codex/profile-session-settings-consolidation-v1`. Earlier source and
 Finalization1191/1192, speech and provider-gender releases remain history.
 
+## Current owner addenda: shared output and strict setting boundaries
+
+Owner decisions [6220504359](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6220504359),
+[6220590330](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6220590330),
+[6220625247](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6220625247),
+[6220695648](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6220695648),
+[6220756856](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6220756856)
+and [6220784635](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6220784635)
+refine this same assignment. They add `announcement_output` to the original five
+shared parameters. The earlier local contract2 checkpoints below prove five
+parameters only; they are not six-parameter or protected consumer qualification.
+No reviewed final candidate is being extended. New output runtime work follows
+this design and requires new exact reviews.
+
+The next owner settings contract is **version3**, with the same existing owner
+HTTP/paired live routes, Profile/Session/operation owners and atomic acceptance.
+It adds one closed field `announcement_output`, default `client_device`, to
+both defaults and effective Session settings. This version is a design target,
+not an advertised or delivered runtime capability yet. Prepare-version2 remains
+its existing local shared-voice checkpoint; target-aware speech uses a separately
+negotiated prepare-version3. Delivered public version1 contracts are not silently
+reinterpreted. Local five-field contract2 producer pins and fixtures remain
+historical; consumers wait for the exact replacement producer/schema pin.
+
+| Profile output | Automatic delivery permission | Explicit valid Moment replay |
+| --- | --- | --- |
+| `client_device` | Relevant owner clients may play subject to each device's local autoplay | Local client |
+| `both` | Owner clients and the configured usable HA-speaker | Local / HA-speaker / both, only authorized usable targets |
+| `ha_speaker` | Configured usable HA-speaker | Local / HA-speaker / both; unavailable speaker never blocks local replay |
+| `text_only` | No announcement synthesis, assets or delivery | No speech/replay action or accessibility speech action |
+
+New Profiles use `client_device` even when a HA-speaker exists. No provider or
+speaker selection is inferred from the output. Preserve an unavailable saved
+mode and expose a closed reason plus separate target availability; do not rename
+it `text_only`, overwrite it, or silently reroute a speaker-only choice locally.
+No-target automatic delivery performs no synthesis. Local autoplay defaults OFF
+on each new Apple installation, preserves existing explicit local choices and
+never changes Profile output. Voice and gender remain saved in `text_only`, with
+reason `not_applicable_text_only`; leaving that mode does not mass-generate audio.
+The renderer removes speech controls immediately when output is `text_only`,
+while retaining text, artwork, links and ordinary OS VoiceOver support.
+
+Settings updates and source/provider changes fence pending work and old assets.
+Apply the authoritative output before cache lookup or TTS and again before
+asset acceptance, byte reads and speaker dispatch. Capture the same existing
+settings revision/generation guard; `audio_response:always`, stale clients,
+old snapshots and alternate endpoints cannot bypass `text_only`. Expiry and
+source rights remain those of the original contribution. Never rewrite an
+accepted Moment body to change its speech controls.
+
+A manual target selection is an explicit owner action for one qualified,
+still-valid Moment identity, not a Profile setting mutation, Session restart,
+playback transfer, broadcast-to-all or autoplay change. Target-aware prepare3
+uses the existing operation/effect recovery owner and an exact target-bound
+operation ID. A retry returns its outcome without repeating speaker dispatch.
+Report `accepted`/`queued`/`unknown`/`failed` separately; service acceptance does
+not prove audible playback. A successful local target and failed speaker target
+must not be collapsed into an overall played claim.
+
+Private POST speechassets cannot be handed to a speaker as anonymous legacy GET
+URLs. A speaker adapter must qualify a separate short-lived, bounded, revocable
+media-fetch grant inside the existing byte owner, scoped to accepted reference,
+owner/Profile, settings generation and chosen speaker target. Revalidate it on
+actual media fetch; never expose the grant or target entity to shared displays,
+Profile exports or generic diagnostics. Until that adapter and actual HA fetch
+are qualified, speaker-target delivery remains unavailable; do not claim it
+works from a mocked service call. No second synthesis engine or text archive.
+
+### Allowlists and migration boundaries
+
+The shared settings allowlist is exactly Persona, voice, gender, Mood, Presence
+and announcement output. Physical HA speaker target, Assist pipeline/provider
+configuration and every ESP firmware/provisioning/hardware setting remain
+HA-only. Deny them on Profile PATCH and omit them from Profile reads, live
+hints, snapshots, roaming caches and ordinary client exports. Expose only useful
+closed capability/health reasons, not pipeline selectors, entity IDs, credentials
+or ESP settings. Apple profile name/backend status are read-only. OS permission
+grants, volume/output routes, microphone, haptics and presentation remain local;
+joining a Profile must not overwrite them. Test allowlist denial on each boundary.
+
+Legacy per-entry announcement output is evidence requiring explicit conflict
+resolution, never last-online-device-wins. Do not auto-map factory `both` or an
+old client UserDefaults value to a human Profile choice. Initial migration
+review covers all six fields and uses the existing final on-loop admission
+fence. Version-bound storage migration assigns a factory `client_device` only
+where no canonical output existed; original accepted receipts remain immutable
+historical outcomes, not replay instructions. A version3 PATCH must not treat
+a pre-upgrade contract2 receipt as new version3 acceptance: return a typed
+contract-change result, allow authorized readback of the original receipt, and
+require reconciliation from a current snapshot before a new explicit operation.
+No blind retry, rewritten receipt or partial active/default save.
+
+The active VibeCast end-session checkbox is separately inventoried as an active
+legacy authority seam ([6220433459](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6220433459)),
+not a roaming Profile field and not assumed dead. Its proposed removal needs
+issuer/consumer/dependency qualification; owner Session-end remains intact.
+The portability decision [6220817753](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6220817753)
+is **parked**: retain existing chat/DNA import/export/clear controls and warnings;
+no integrated backup/restore implementation is admitted in this assignment.
+
+### Consumer labels and predetermined output acceptance
+
+| Language | client_device | both | ha_speaker | text_only |
+| --- | --- | --- | --- | --- |
+| en | My DJConnect devices | My DJConnect devices + HA speaker | HA speaker only | Text only (no speech) |
+| nl | Mijn DJConnect-apparaten | Mijn DJConnect-apparaten + HA-speaker | Alleen HA-speaker | Alleen tekst (geen spraak) |
+| de | Meine DJConnect-Geräte | Meine DJConnect-Geräte + HA-Lautsprecher | Nur HA-Lautsprecher | Nur Text (keine Sprachausgabe) |
+| fr | Mes appareils DJConnect | Mes appareils DJConnect + enceinte HA | Enceinte HA uniquement | Texte uniquement (sans voix) |
+| es | Mis dispositivos DJConnect | Mis dispositivos DJConnect + altavoz HA | Solo altavoz HA | Solo texto (sin voz) |
+
+Qualify six-field atomic defaults/session/restart and two-Profile isolation;
+legacy output conflicts; local autoplay ON/OFF on different protocol surfaces;
+configured/unavailable speaker; local replay in speaker-only mode; target-bound
+retry/cancellation and uncertain dispatch; `text_only` zero synthesis through
+all alternate routes, old assets and in-flight changes; renderer live removal,
+reconnect, expiry and end in portrait/landscape. HA-only payloads must never leak
+through settings read/write/events/cache or migration. Native UI, audible speaker
+and physical device outcomes need their own evidence. No six-field PASS yet.
+
+## Original five-parameter foundation and local checkpoint history
+
+The following original contract2 implementation notes and fixtures predate the
+output addendum. The current version3 delta above takes precedence where scope
+differs; their measured acceptance is retained without retroactive expansion.
+
 ## One model and five independent parameters
 
 Core owns one typed selection per installation/Profile and one confirmed

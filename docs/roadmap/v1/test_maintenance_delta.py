@@ -15,16 +15,20 @@ class SharedSettingsMaintenanceTests(unittest.TestCase):
     def setUp(self):
         self.p = load(ROOT / 'djconnect-platform-v1.json')
 
-    def test_all_five_scope_preserves_frozen_predecessor(self):
+    def test_six_parameter_scope_preserves_frozen_predecessor(self):
         self.assertEqual(validate(self.p), [])
         d = self.p['planning_maintenance']
         self.assertEqual(d['schema_version'], 'djconnect-federated-planning-delta/14')
         self.assertEqual(d['settings_consolidation_receipt']['parameters'],
-                         ['persona', 'voice', 'gender', 'mood', 'presence'])
-        self.assertIn('all five Persona/voice/gender/Mood/Presence', render(self.p)['README.md'])
+                         ['persona', 'voice', 'gender', 'mood', 'presence', 'announcement_output'])
+        self.assertIn('six shared Persona/voice/gender/Mood/Presence/announcement_output', render(self.p)['README.md'])
 
     def test_false_scope_authority_or_consumer_completion_rejected(self):
-        for key, value in (('parameters', ['persona']), ('voice_scope', 'device_local'),
+        for key, value in (('parameters', ['persona']),
+                           ('parameters', ['persona', 'voice', 'gender', 'mood', 'presence']),
+                           ('contract_version', 2), ('owner_addenda', []),
+                           ('ha_only', []), ('client_local', []), ('portability', 'IMPLEMENTING'),
+                           ('voice_scope', 'device_local'),
                            ('atomic_active_and_default', False), ('native', 'PASS'),
                            ('family_acceptance', 'COMPLETE'), ('automatic_dispatch', True),
                            ('consumer_writes', True), ('inventory_sha256', '0'*64)):

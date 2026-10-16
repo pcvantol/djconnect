@@ -43,7 +43,7 @@ class LegacySettingsMigrationTests(unittest.IsolatedAsyncioTestCase):
         from custom_components.djconnect.domain import ResponseStyle, VoiceStyle, MoodState
         profile = self.storage.household.profiles['profile-a']
         self.owner.entry.data.update(voice_profile='late_night', tts_voice='obsolete-voice',
-                                     stt_engine='obsolete-stt')
+                                     stt_engine='obsolete-stt', dj_response_prompt='old personal prompt')
         await self.storage.async_update_profile('profile-a', preferences=replace(profile.preferences,
             response_style=ResponseStyle.EXPRESSIVE, voice_style=VoiceStyle.ENERGY))
         household = self.storage.household
@@ -100,6 +100,7 @@ class LegacySettingsMigrationTests(unittest.IsolatedAsyncioTestCase):
         self.assertNotIn('voice_profile', self.owner.entry.data)
         self.assertNotIn('tts_voice', self.owner.entry.data)
         self.assertNotIn('stt_engine', self.owner.entry.data)
+        self.assertNotIn('dj_response_prompt', self.owner.entry.data)
         from custom_components.djconnect.domain.storage import household_to_storage, household_from_storage
         stored = household_to_storage(self.storage.household)
         profile = next(p for p in stored['household']['profiles'] if p['profile_id']=='profile-a')

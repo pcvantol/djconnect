@@ -1920,10 +1920,11 @@
           ]
         }
       ],
-      "acceptance": "STATIC_ONLY_NOT_SETTER_READER_EFFECT_PROOF",
-      "disposition": "INVESTIGATE",
+      "acceptance": "ACTUAL_RUNTIME_READER; CLIENT_ALLOWLIST_DENIAL_PENDING",
+      "disposition": "KEEP_HA_ONLY",
       "owning_lane": "DJC-CORE",
-      "migration_effect_tests": "PENDING"
+      "migration_effect_tests": "PENDING",
+      "current_reader": "pipeline._assist_context; voice_stt; speech_processor generic configured HA provider. Never a roaming setting."
     },
     {
       "identifier": "CONF_STT_ENGINE",
@@ -2094,10 +2095,11 @@
           ]
         }
       ],
-      "acceptance": "STATIC_ONLY_NOT_SETTER_READER_EFFECT_PROOF",
-      "disposition": "INVESTIGATE",
+      "acceptance": "REMOVED_WRITE_ONLY_CONFIG_DEFAULT; RUNTIME_USES_CONSTANT_PROMPT",
+      "disposition": "REMOVE",
       "owning_lane": "DJC-CORE",
-      "migration_effect_tests": "PENDING"
+      "migration_effect_tests": "tests/test_config_flow_helpers.py; tests/test_settings_legacy_migration.py",
+      "current_reader": "No stored prompt reader. DEFAULT_DJ_RESPONSE_PROMPT remains actual immutable prompt guidance; processor fixture config-pass-through is not reader/effect proof."
     },
     {
       "identifier": "CONF_VOICE_PROFILE",
@@ -2178,10 +2180,11 @@
           ]
         }
       ],
-      "acceptance": "STATIC_ONLY_NOT_SETTER_READER_EFFECT_PROOF",
-      "disposition": "INVESTIGATE",
+      "acceptance": "ACTUAL_ROUTING_READER; CLIENT_ALLOWLIST_DENIAL_PENDING",
+      "disposition": "KEEP_HA_ONLY",
       "owning_lane": "DJC-CORE",
-      "migration_effect_tests": "PENDING"
+      "migration_effect_tests": "PENDING",
+      "current_reader": "announcements.configured_announcement_speaker/async_apply_announcement_output physical target. Profile output policy is separate; target entity never a roaming setting."
     },
     {
       "identifier": "CONF_DJ_ANNOUNCEMENT_OUTPUT",
@@ -2210,10 +2213,11 @@
           ]
         }
       ],
-      "acceptance": "STATIC_ONLY_NOT_SETTER_READER_EFFECT_PROOF",
-      "disposition": "INVESTIGATE",
+      "acceptance": "OWNER6220590330_SCOPE_CORRECTION; SIX_FIELD_IMPLEMENTATION_PENDING",
+      "disposition": "REPLACE_MIGRATE",
       "owning_lane": "DJC-CORE",
-      "migration_effect_tests": "PENDING"
+      "migration_effect_tests": "PENDING",
+      "current_reader": "announcements.async_apply_announcement_output currently entry/payload; replace with accepted Profile/Session selection under contract3. Factory client_device; old per-device outputs require review."
     },
     {
       "identifier": "CONF_MAX_AUDIO_BYTES",
@@ -2453,6 +2457,24 @@
       "source": "custom_components/djconnect/session_presence.py",
       "disposition": "REUSE_LEDGER_INFLIGHT_OWNER_TYPED_SHARED_V2",
       "acceptance": "STATIC_ONLY_BEHAVIOR_PROOF_PENDING"
+    },
+    {
+      "identifier": "announcement_output",
+      "source": "owner6220590330/6220695648; announcements.py; API_CONTRACT.md",
+      "disposition": "REPLACE_MIGRATE",
+      "acceptance": "CONTRACT3_DESIGN_BEFORE_RUNTIME; NO SIX_FIELD_PASS"
+    },
+    {
+      "identifier": "vibecast_session_end_allowed",
+      "source": "owner observation6220433459; config_flow/api_handlers/session_runtime/http",
+      "disposition": "ACTIVE_LEGACY_AUTHORITY_REMOVAL_REQUIRES_DEPENDENCY_QUALIFICATION",
+      "acceptance": "NOT_ROAMING; NOT_ASSUMED_DEAD; OWNER_END_REMAINS"
+    },
+    {
+      "identifier": "integrated_profile_portability",
+      "source": "owner6220817753",
+      "disposition": "PARKED_NO_PICKUP",
+      "acceptance": "PRESERVE_EXISTING_CHAT_DNA_IO_CLEAR_WARNINGS"
     }
   ],
   "platform_lanes": [
@@ -2694,5 +2716,24 @@
       "disposition": "REPLACE_MIGRATE to read shared defaults and explicit atomic settings mutation; opening/join never writes defaults",
       "proof": "pinned source readback plus Core owner tests; not native/device execution"
     }
-  ]
+  ],
+  "shared_parameters": [
+    "persona",
+    "voice",
+    "gender",
+    "mood",
+    "presence",
+    "announcement_output"
+  ],
+  "owner_addenda": [
+    6220504359,
+    6220590330,
+    6220625247,
+    6220695648,
+    6220756856,
+    6220784635,
+    6220817753
+  ],
+  "current_design_contract_version": 3,
+  "current_runtime_checkpoint_contract_version": 2
 }

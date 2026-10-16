@@ -313,7 +313,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
         keys = {marker.key for marker in schema.schema}
 
         self.assertNotIn('dj_response_prompt_preset', keys)
-        self.assertNotIn(self.const.CONF_DJ_RESPONSE_PROMPT, keys)
+        self.assertNotIn('dj_response_prompt', keys)
         self.assertNotIn(self.const.CONF_VOICE_PROFILE, keys)
 
     def test_voice_defaults_do_not_create_retired_tone_setting(self) -> None:
@@ -343,14 +343,11 @@ class ConfigFlowHelperTest(unittest.TestCase):
     def test_voice_defaults_ignore_legacy_dj_response_prompt_input(self) -> None:
         defaults = self.config_flow._voice_defaults(
             {
-                self.const.CONF_DJ_RESPONSE_PROMPT: "Maak het kort en eigen.",
+                'dj_response_prompt': "Maak het kort en eigen.",
             }
         )
 
-        self.assertEqual(
-            defaults[self.const.CONF_DJ_RESPONSE_PROMPT],
-            self.const.DEFAULT_DJ_RESPONSE_PROMPT,
-        )
+        self.assertNotIn('dj_response_prompt', defaults)
 
     def test_default_dj_response_prompt_is_multiline_guidance(self) -> None:
         prompt = self.const.DEFAULT_DJ_RESPONSE_PROMPT
@@ -392,7 +389,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
         self.assertNotIn("show_advanced_options", keys)
         self.assertIn(self.const.CONF_FIRMWARE_CHANNEL, keys)
         self.assertNotIn('dj_response_prompt_preset', keys)
-        self.assertNotIn(self.const.CONF_DJ_RESPONSE_PROMPT, keys)
+        self.assertNotIn('dj_response_prompt', keys)
         self.assertNotIn(self.const.CONF_DJ_RESPONSE_ENABLED, keys)
 
     def test_firmware_channel_uses_labeled_selector(self) -> None:
@@ -446,7 +443,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
         data = self.config_flow._voice_defaults(
             {
                 self.const.CONF_TTS_LANGUAGE: "",
-                self.const.CONF_DJ_RESPONSE_PROMPT: "",
+                'dj_response_prompt': "",
                 self.const.CONF_MAX_AUDIO_BYTES: "not-an-int",
                 self.const.CONF_MIN_BATTERY_FOR_OTA: "55",
                 self.const.CONF_FIRMWARE_CHANNEL: "beta",
@@ -454,10 +451,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
         )
 
         self.assertNotIn(self.const.CONF_TTS_LANGUAGE, data)
-        self.assertEqual(
-            data[self.const.CONF_DJ_RESPONSE_PROMPT],
-            self.const.DEFAULT_DJ_RESPONSE_PROMPT,
-        )
+        self.assertNotIn('dj_response_prompt', data)
         self.assertEqual(data[self.const.CONF_MAX_AUDIO_BYTES], self.const.DEFAULT_MAX_AUDIO_BYTES)
         self.assertTrue(data[self.const.CONF_ALLOW_OTA_ON_BATTERY])
         self.assertEqual(data[self.const.CONF_MIN_BATTERY_FOR_OTA], 55)
@@ -2411,7 +2405,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
         self.assertIn(self.config_flow.OPTIONS_ACTION_FIELD, keys)
         self.assertNotIn(self.const.CONF_DJ_RESPONSE_ENABLED, keys)
         self.assertNotIn('dj_response_prompt_preset', keys)
-        self.assertNotIn(self.const.CONF_DJ_RESPONSE_PROMPT, keys)
+        self.assertNotIn('dj_response_prompt', keys)
         self.assertNotIn(self.const.CONF_SPOTIFY_SOURCE, keys)
         self.assertNotIn(self.const.CONF_LIKED_PROXY, keys)
         self.assertNotIn(self.const.CONF_LOCAL_URL, keys)
@@ -2881,10 +2875,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
         )
         self.assertEqual(result["data"][self.const.CONF_FIRMWARE_CHANNEL], "beta")
         self.assertEqual(result["data"][self.const.CONF_MAX_AUDIO_BYTES], 12345)
-        self.assertEqual(
-            result["data"][self.const.CONF_DJ_RESPONSE_PROMPT],
-            self.const.DEFAULT_DJ_RESPONSE_PROMPT,
-        )
+        self.assertNotIn('dj_response_prompt', result['data'])
 
     def test_options_flow_save_drops_firmware_channel_for_app_clients(self) -> None:
         entry = types.SimpleNamespace(

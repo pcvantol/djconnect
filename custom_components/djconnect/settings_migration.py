@@ -8,7 +8,7 @@ from .domain.profile import ResponseStyle, VoiceStyle
 
 TONES = frozenset({'classic_radio', 'late_night', 'energy', 'clean_host'})
 RETIRED_ENTRY_KEYS = frozenset({'voice_profile', 'stt_engine', 'tts_engine', 'tts_voice',
-                                'dj_response_prompt_preset'})
+                                'dj_response_prompt_preset', 'dj_response_prompt'})
 
 
 def _bound_entries(hass, household, owner):
