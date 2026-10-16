@@ -8,7 +8,7 @@ The original3October snapshot/audit/source pins and projections are immutable hi
 
 Selected and freshly admitted speech/Persona implementation: DJC-SESSION-SPEECH-PERSONA-VOICE-20261015; source PROTECTED_MERGED. Four bounded Core leaves reuse existing Voice/Speech/Audio Renderer architecture; Apple/native audible/joint acceptance remains Planned/open. Delivered artwork v11 and historical snapshots preserved; no new provider/model/cost route or consumer writer.
 
-Selected passive Session projection: DJC-CORE-PASSIVE-SESSION-PROJECTION-V1-20261015; source UNPUBLISHED. Existing SURFACE::CORE::PROJECTION only; native rich adoption OPEN_APPLE, background SURFACE::APPLE::QUIET-TRANSPORT separately Planned, Watch NOT_QUALIFIED and joint OPEN. Original publication/source deadlines, explicit purpose grants and pure reads; no client writes, provider or automatic dispatch. Delivered v12 and all prior receipts preserved.
+Selected passive Session projection: DJC-CORE-PASSIVE-SESSION-PROJECTION-V1-20261015; source PROTECTED_MERGED. Existing SURFACE::CORE::PROJECTION only; native rich adoption OPEN_APPLE, background SURFACE::APPLE::QUIET-TRANSPORT separately Planned, Watch NOT_QUALIFIED and joint OPEN. Original publication/source deadlines, explicit purpose grants and pure reads; no client writes, provider or automatic dispatch. Delivered v12 and all prior receipts preserved.
 
 - `PROJ::INTELLIGENCE::DJ-PRESENCE` — Planned: Independent presence, Mood and Persona; no new dispatch.
 - `SLICE::APPLE::DJ-PRESENCE-CONTROL` — Planned: Accessible five-language native confirmation; reuse existing Apple writer.
@@ -28,7 +28,6 @@ Selected passive Session projection: DJC-CORE-PASSIVE-SESSION-PROJECTION-V1-2026
 - `ENTRY::APPLE::NAVIGATION` — Planned: Read-only navigation, qualified selection outcomes, preserved scroll/search/draft.
 - `ENTRY::APPLE::LIFECYCLE` — Planned: Existing lifecycle qualification plus exact new producer contract; no local executor.
 - `HISTORY::APPLE::SUMMARY` — Planned: Owner summary same revision, honest missing values and five-language accessible labels.
-- `SURFACE::CORE::PROJECTION` — In progress: Connected real pairedHA positive and negative rights/lifecycle/expiry proof; native/background/Watch/joint separately open.
 - `SURFACE::APPLE::NAVIGATION` — Planned: Cold/warm auth, explicit Session/general composer, no mutation on open.
 - `SURFACE::APPLE::ADOPTION` — Planned: Qualified surface contract, legacy migration, Session identity, host/SDK/OS evidence.
 - `SURFACE::APPLE::QUIET-TRANSPORT` — Planned: Foreground/background/offline/real Activity or Widget push qualified separately; no alert bypass.

@@ -203,3 +203,7 @@ source publication; source and separate Finalization keep their exact gates.
 Core producer, native rich adoption, background, Watch, installed and physical
 joint acceptance are reported separately. No pass or delivered node is claimed
 by this design-first commit.
+
+## Protected Core producer delivery
+
+[Source PR #1191](https://github.com/pcvantol/djconnect/pull/1191), exact reviewed928bf16b, protected main`2cb87cb7dad30546ee1641b839d14a4f5d621f54`. [Actual source artifact/evidence readback](../verification/PASSIVE_SESSION_PROJECTION_SOURCE_READBACK_20261016.md). Producer qualification does not grant native/background/Watch/installed/hardware acceptance or expand source rights. Separate Finalization and existing consumer ownership remain required.

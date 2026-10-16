@@ -38207,8 +38207,8 @@
         "title": "Native surface rights/state projection",
         "lane": "DJC-CORE",
         "repository": "pcvantol/djconnect",
-        "status": "In progress",
-        "assignment_status": "IN_PROGRESS",
+        "status": "Completed",
+        "assignment_status": "CORE_DELIVERED",
         "scope": "Explicit owner/surface grants, published short contribution, independently bound metadata/cover, original expiry and pure read/live invalidation",
         "acceptance_boundary": "Connected real pairedHA positive and negative rights/lifecycle/expiry proof; native/background/Watch/joint separately open",
         "contract_binding": "docs/product/PASSIVE_SESSION_PROJECTION_V1.md",
@@ -41291,11 +41291,11 @@
     "document_references": [
       {
         "path": "PRODUCT_ROADMAP.md",
-        "sha256": "08829ad5562f4e2409cb1ead527983864513201c52563658d4ff6ecbc59b862b"
+        "sha256": "0184811045e344e38bd2d235ea54fdff7f69f1dfd38cd2dbe492b0f818b26339"
       },
       {
         "path": "PRODUCT_BACKLOG.md",
-        "sha256": "8232ecd1ffbaec3ee79c05356ec0eedfda2ffc2435da698f85f14c7336324144"
+        "sha256": "71a31584e75207c76ee50d25e1a9452e992cc5f6009c43689107e6bd30bdf2f5"
       },
       {
         "path": "docs/product/DJ_PRESENCE_V1.md",
@@ -41591,11 +41591,19 @@
       },
       {
         "path": "docs/product/PASSIVE_SESSION_PROJECTION_V1.md",
-        "sha256": "de04b361cbf278d97629dc74be19b064f750bbc128a3439fea2ec44e6ec7a575"
+        "sha256": "0f3b6657561401e9b9d3e5680ff0794ac47978c31a2f56d339e5129c13b68591"
       },
       {
         "path": "docs/verification/PASSIVE_SESSION_PROJECTION_SOURCE_20261016.md",
         "sha256": "02b7c65903667a42522272823c6711d9b6ffcd1c049c21efb64c5c1dfb3b0fa2"
+      },
+      {
+        "path": "docs/verification/PASSIVE_SESSION_PROJECTION_SOURCE_READBACK_20261016.md",
+        "sha256": "7a4aefd96d3880fe5b28763744ba6cc25c9a55eca506dab8b0c5fe9543e16527"
+      },
+      {
+        "path": "docs/history/prompts/2026-10-16-passive-session-projection-finalization.md",
+        "sha256": "6c57169ad3728f4a12597d7f034fb2a9600870e45cf37666407a3c932f4c2d82"
       }
     ],
     "implementation_receipt": {
@@ -42109,15 +42117,24 @@
       "material_commit": "d64b8a7a9a5262cfe367f0574cab580fc1237765",
       "previous_delta": "history/20261016/provider-gender-finalization-maintenance-v12.json",
       "previous_delta_sha256": "cfbcd126fe88aa4d6316173723103b5ff9891dee55d064ac835c3f779921e580",
-      "phase": "LOCAL_IMPLEMENTATION_AND_QUALIFICATION",
-      "source_delivery": "UNPUBLISHED",
+      "phase": "SOURCE_PROTECTED_MERGED",
+      "source_delivery": "PROTECTED_MERGED",
       "background_node": "SURFACE::APPLE::QUIET-TRANSPORT",
       "native": "OPEN_APPLE",
       "background": "PLANNED",
       "watch": "NOT_QUALIFIED",
       "joint": "OPEN",
       "consumer_writes": false,
-      "automatic_dispatch": false
+      "automatic_dispatch": false,
+      "source_pr": "https://github.com/pcvantol/djconnect/pull/1191",
+      "source_main_sha": "2cb87cb7dad30546ee1641b839d14a4f5d621f54",
+      "reviewed_head": "928bf16b8812447fbd53739f22484051909ae513",
+      "source_review": "PASS",
+      "required_checks": "PASS",
+      "protected_merge": true,
+      "archive_sha256": "c96a33605fd068af4255f426fe037fde6ee0cb99cbee75ffc29913fde6382c34",
+      "formal_evidence_sha256": "6433da8862a6d7ea3955b6350e0388cfe9b8923f50c2c599c49424ac44f3720b",
+      "definitive_apple_handoff": "https://github.com/pcvantol/djconnect-app/issues/87#issuecomment-6215025910"
     }
   }
 }
