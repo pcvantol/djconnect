@@ -281,7 +281,7 @@ async def async_create_dj_audio_url(
             state_guard = admission.guard
             def guard():
                 state_guard()
-                current_entity, current_voice = configured_processor(hass, conf, admission.locale,
+                current_entity, current_voice = configured_processor(hass, runtime.config, admission.locale,
                     admission.settings.gender.value,
                     selected_voice=selected.voice_id if selected.kind == 'provider_voice' else None)
                 if current_entity is not entity or current_voice != voice:

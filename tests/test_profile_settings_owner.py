@@ -237,24 +237,29 @@ class ProfileSettingsOwnerTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(status, 200, after)
         self.assertEqual(after['snapshot']['defaults']['persona'], 'festival_dj')
 
-    async def test_export_has_exact_defaults_and_restore_never_silently_drops_them(self):
+    async def test_parked_portability_retains_schema1_and_rejects_unpublished_schema2(self):
         from custom_components.djconnect.profile_export import (
             async_export_profile, async_export_household, async_import_profile, ProfileExportError)
         storage = self.hass.data['djconnect']['djconnect_profile_platform']
         before, _ = await self.read()
         accepted, _ = await self.choose(before, {'persona':'radio_dj', 'mood':'party'})
         exported = await async_export_profile(storage, 'profile-a')
-        self.assertEqual(exported['schema_version'], 2)
-        self.assertEqual(exported['profile_dj_defaults']['values'], accepted['snapshot']['defaults'])
+        self.assertEqual(exported['schema_version'], 1)
+        self.assertNotIn('profile_dj_defaults', exported)
         self.assertNotIn('operation_id', str(exported))
         self.assertNotIn('binding_generation', str(exported))
         self.assertNotIn('device_token', str(exported))
         state = storage.household
         with self.assertRaisesRegex(ProfileExportError, 'profile_settings_restore_required'):
-            await async_import_profile(storage, exported, reassign_id=True)
+            await async_import_profile(storage, {**exported, 'schema_version':2,
+                'profile_dj_defaults':accepted['snapshot']['defaults']}, reassign_id=True)
         self.assertEqual(storage.household, state)
         household = await async_export_household(storage)
-        self.assertEqual(household['profile_dj_defaults']['profile-a']['values'], accepted['snapshot']['defaults'])
+        self.assertEqual(household['schema_version'], 1)
+        self.assertNotIn('profile_dj_defaults', household)
+        after, status = await self.read()
+        self.assertEqual(status, 200, after)
+        self.assertEqual(after['snapshot']['defaults'], accepted['snapshot']['defaults'])
         private_export = await async_export_profile(storage, 'profile-a', include_personal_data=False)
         self.assertNotIn('profile_dj_defaults', private_export)
 
@@ -296,17 +301,18 @@ class ProfileSettingsOwnerTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(status, 401, result)
         self.assertNotIn('current', result)
 
-    async def test_storage_unavailability_cannot_export_false_identity_only_success(self):
+    async def test_unchanged_schema1_export_never_claims_canonical_defaults_backup(self):
         from custom_components.djconnect.profile_export import (
-            async_export_profile, async_export_household, ProfileExportError)
+            async_export_profile, async_export_household)
         storage = self.hass.data['djconnect']['djconnect_profile_platform']
         before, _ = await self.read()
         await self.choose(before, {'mood':'party'})
         await self.fixture.service.async_close()
         for exporter in (lambda: async_export_profile(storage, 'profile-a'),
                          lambda: async_export_household(storage)):
-            with self.assertRaisesRegex(ProfileExportError, 'settings_export_unavailable'):
-                await exporter()
+            exported = await exporter()
+            self.assertEqual(exported['schema_version'], 1)
+            self.assertNotIn('profile_dj_defaults', exported)
         redacted = await async_export_profile(storage, 'profile-a', include_personal_data=False)
         self.assertFalse(redacted['privacy']['personal_data_included'])
         self.assertNotIn('profile_dj_defaults', redacted)

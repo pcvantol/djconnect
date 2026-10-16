@@ -72,8 +72,14 @@ def capability():
         '3': {'processors': ['ha_configured'], 'settings_contract_version': 3,
               'settings_path': '/api/djconnect/v1/profile/settings',
               'caller_voice_override': False, 'intent': ['manual', 'automatic'],
-              'targets': {'local': True, 'ha_speaker': False, 'both': False},
-              'speaker_delivery': 'qualification_pending',
+              'targets': {'local': True, 'ha_speaker': True, 'both': True},
+              'speaker_delivery': 'existing_operation_journal',
+              'play_operation': 'session/speech/play',
+              'play_path': '/api/djconnect/v1/transport/operation',
+              'play_reference': 'live_moment_only',
+              'automatic_speaker': 'core_publication_only',
+              'speaker_media_maximum_seconds': 30,
+              'speaker_media_maximum_reads': 4,
               'text_only_all_speech_forbidden': True},
     }
     return result
@@ -494,7 +500,7 @@ async def async_handle_prepare(hass, data, *, headers=None, _speaker_operation=F
                         # No private POST asset is converted to an anonymous
                         # legacy URL. Speaker delivery needs its qualified grant.
                         return {'success': True, 'session_speech': unavailable(
-                            data['reference'], 'speaker_delivery_not_qualified')}, 200
+                            data['reference'], 'use_speech_play_operation')}, 200
                 policy = VoicePolicy.from_options(voice_options(hass, runtime.config))
                 availability = policy.selection_state(selected)
                 if not availability['available']:

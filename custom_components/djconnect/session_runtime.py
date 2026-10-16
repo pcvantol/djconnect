@@ -3533,6 +3533,7 @@ class DJSessionBroadcastEngine:
     speech_cleanup: Any = field(default=None, repr=False)
     speech_refresh: Any = field(default=None, repr=False)
     owner_speech_output: Any = field(default=None, repr=False)
+    owner_moment_speech_delivery: Any = field(default=None, repr=False)
     passive_grants: dict = field(default_factory=dict, repr=False)
     passive_observation: Any = field(default=None, repr=False)
     passive_state_observed: tuple = field(default_factory=lambda: (time.monotonic(), time.time()), repr=False)
@@ -3704,6 +3705,12 @@ class DJSessionBroadcastEngine:
             if playback_item_id:
                 projected["playback_item_id"] = playback_item_id
             self._publish(BroadcastEventType.DJ_MOMENT_PUBLISHED, {"dj_moment": projected})
+            if self.owner_moment_speech_delivery is not None:
+                try:
+                    self.owner_moment_speech_delivery(moment)
+                except Exception:
+                    # Optional audio delivery cannot undo the semantic commit.
+                    pass
 
     def publish_presentation(self, presentation: PresentationProjection) -> None:
         """Publish one immutable renderer-safe Presentation after composition."""

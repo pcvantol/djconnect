@@ -207,7 +207,7 @@ async def run(hass, runtime, client, post, identity, output, headers, manager, s
     assert len(calls) == 2
     restored_output, _ = await choose(text_only, {'announcement_output': 'client_device'})
     assert restored_output['snapshot']['defaults'] == changed['snapshot']['defaults']
-    restored_output, speaker_evidence = await speaker_probe(hass, runtime, client, identity, output, headers, manager, restored_output, choose, speech_request['reference'])
+    restored_output, speaker_evidence, speaker_sink = await speaker_probe(hass, runtime, client, identity, output, headers, manager, restored_output, choose, speech_request['reference'])
     rows.append(speaker_evidence)
     rows.append({'case': 'text_only_zero_synthesis_old_audio_denied_and_owner_controls_removed',
         'response': text_only, 'additional_synthesis_calls': 0, 'shared_settings_leak': False})
@@ -242,7 +242,8 @@ async def run(hass, runtime, client, post, identity, output, headers, manager, s
         from profile_session_settings_ws_lab import run as websocket_probe
         rows.append(await websocket_probe(hass, runtime, client, identity, output, peers))
         websocket = 'PASS_PAIRED_TLS_THREE_SURFACES_AND_PROFILE_ISOLATION'
-    assert len(calls) == 3  # Two local voice variants and one explicit speaker replay.
+    rows.append(await automatic_probe(hass, client, identity, manager, read, choose, post, speaker_sink, headers))
+    assert len(calls) == 4  # Two voice variants, explicit replay and one new automatic publication.
     assert source_hashes == {str(path.relative_to(root)): hashlib.sha256(path.read_bytes()).hexdigest() for path in source_files}
     result = {'result': 'PASS_CORE_PAIRED_HTTP_RUNTIME_SQLITE', 'as_of': datetime.now(UTC).isoformat(),
         'cases': rows, 'waveform_calls': len(calls),
@@ -325,7 +326,57 @@ async def speaker_probe(hass, runtime, client, identity, output, headers, manage
         return restored, {'case':'actual_HA_media_player_service_private_media_fetch_and_operation_retry',
             'queued':True, 'actual_media_fetches':len(received), 'bytes':received[0]['bytes'],
             'checksum':received[0]['checksum'], 'text_only_old_grant_status':404,
-            'native':'NOT_RUN', 'audible':'NOT_PROVEN', 'hardware':'NOT_RUN'}
+            'native':'NOT_RUN', 'audible':'NOT_PROVEN', 'hardware':'NOT_RUN'}, (received, fetched)
     finally:
         hass.config.internal_url = original_internal
         await site.stop()
+
+
+async def automatic_probe(hass, client, identity, manager, read, choose, post, sink, headers):
+    """A genuine new HA Session opening drives one automatic speaker effect."""
+    import asyncio
+    received, fetched = sink
+    count = len(received)
+    fetched.clear()
+    original_url = hass.config.internal_url
+    hass.config.internal_url = str(client.server.make_url('')).rstrip('/')
+    try:
+        before, status = await read()
+        assert status == 200 and before['snapshot']['session'] is None
+        await choose(before, {'announcement_output':'ha_speaker', 'presence':'balanced'})
+        response = await client.post('/api/djconnect/v1/session/start', json={**identity, 'locale':'en'},
+                                     headers={name.lower():value for name,value in headers.items()})
+        started = await response.json()
+        assert response.status == 201, started
+        session_id = started['session']['session_id']
+        try:
+            await asyncio.wait_for(fetched.wait(), 5)
+        except TimeoutError:
+            from custom_components.djconnect.hybrid_service import operations
+            print({'automatic_probe': 'no_fetch', 'moment_count': len(manager.current_active('profile-a').broadcast.state.dj_moments),
+                   'operation_outcomes': [(r['phase'],r.get('error')) for r in operations(hass).journal._state['records'].values()]}, flush=True)
+            raise
+        assert len(received) == count+1 and received[-1]['status'] == 200
+        active = manager.current_active('profile-a')
+        assert active.broadcast.state.dj_moments
+        for _ in range(3):
+            current, status = await read()
+            assert status == 200
+            response = await client.get('/api/djconnect/v1/session/active', params=identity,
+                                        headers=headers)
+            assert response.status == 200
+            await response.read()
+        local, _ = await choose(current, {'announcement_output':'client_device'})
+        await choose(local, {'announcement_output':'ha_speaker'})
+        await hass.async_block_till_done()
+        assert len(received) == count+1  # No catch-up on reads or output switches.
+        await post('/session/end', {**identity, 'session_id':session_id})
+        async with client.session.get(received[-1]['url']) as denied:
+            assert denied.status == 404
+        closed, _ = await read()
+        await choose(closed, {'announcement_output':'client_device'})
+        return {'case':'actual_new_session_publication_automatic_speaker_no_read_or_toggle_catchup',
+            'new_publications_delivered':1, 'read_or_toggle_deliveries':0,
+            'session_end_media_status':404, 'audible':'NOT_PROVEN', 'hardware':'NOT_RUN'}
+    finally:
+        hass.config.internal_url = original_url

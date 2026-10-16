@@ -40,10 +40,11 @@ class SharedSettingsSpeechTests(unittest.IsolatedAsyncioTestCase):
         before, status = await self.settings.async_handle_settings(self.hass,
             {**self.f.identity, 'contract_version': 3}, headers=self.f.headers)
         self.assertEqual(status, 200, before)
+        session = before['snapshot']['session']
         result, status = await self.settings.async_handle_settings(self.hass,
             {**self.f.identity, 'contract_version': 3, 'binding': before['binding'],
              'operation_id': operation(self.now, counter), 'expected_defaults_revision': before['snapshot']['defaults_revision'],
-             'expected_session': None,
+             'expected_session': {key:session[key] for key in ('session_id','generation','revision')} if session else None,
              'patch': {'voice': {'kind': 'provider_voice', 'provider_id': 'tts.fixture_cloud', 'voice_id': voice},
                        **(extra or {})}},
             headers=self.f.headers, write=True)
@@ -212,7 +213,7 @@ class SharedSettingsSpeechTests(unittest.IsolatedAsyncioTestCase):
             speaker, status = await self.speech.async_handle_prepare(self.hass,
                 {**payload, 'target':'ha_speaker'}, headers=self.f.headers)
             self.assertEqual(status, 200, speaker)
-            self.assertEqual(speaker['session_speech']['reason'], 'speaker_delivery_not_qualified')
+            self.assertEqual(speaker['session_speech']['reason'], 'use_speech_play_operation')
             self.assertEqual(len(calls), 1)
 
     async def test_legacy_generation_gate_cannot_bypass_text_only(self):
@@ -396,3 +397,117 @@ class SharedSettingsSpeechTests(unittest.IsolatedAsyncioTestCase):
                     patch.object(dj_response.time, 'monotonic', return_value=deadline+1):
                 self.assertIs(dj_response.get_private_tts_audio(self.hass, asset, 'profile-a'), item)
                 self.assertIsNone(dj_response.get_speaker_media(self.hass, asset, grant))
+
+    async def test_automatic_speaker_only_new_publication_no_client_replay_or_catchup(self):
+        from dataclasses import replace
+        from unittest.mock import AsyncMock, patch
+        from custom_components.djconnect import hybrid_service, speaker_delivery
+        from tests.test_transport_operation_journal import Store
+        stack, _, _, calls, _ = self.provider()
+        self.runtime.config['dj_announcement_speaker_entity_id'] = 'media_player.owned_speaker'
+        self.hass.states = SimpleNamespace(get=lambda _: SimpleNamespace(state='idle', attributes={'supported_features':512}))
+        tasks = []
+        release = asyncio.Event()
+        release.set()
+        def schedule(coroutine, name):
+            async def held():
+                await release.wait()
+                return await coroutine
+            task = asyncio.create_task(held())
+            tasks.append(task)
+            return task
+        self.hass.async_create_task = schedule
+        journal = hybrid_service.HybridOperations(self.hass, Store())
+        self.hass.data['djconnect']['hybrid_operation_manager'] = journal
+        dispatch = AsyncMock()
+        self.hass.services = SimpleNamespace(async_call=dispatch)
+        try:
+            with stack, patch.object(speaker_delivery, '_async_ha_base_url', new=AsyncMock(return_value='https://ha-owned.invalid')):
+                await self.choose('marin', extra={'announcement_output':'ha_speaker'})
+                session, original, _ = await self.f.selected_credit()
+                class WireHeaders(dict):
+                    # The real HA acceptance sends lowercase wire headers.
+                    # Lightweight units do not install aiohttp/multidict.
+                    def get(self, name, default=None):
+                        return super().get(name.lower(), default)
+                speaker_delivery.connect_automatic(self.hass, self.runtime, session,
+                    {**self.f.identity, 'locale':'en', 'mood':'groove'},
+                    WireHeaders({'authorization':self.f.headers['Authorization']}))
+                session.broadcast.publish_moment(original)
+                self.assertEqual(tasks, [])  # Attaching and old duplicate publications never catch up.
+                # Callback unit seam: clone a previously qualified immutable
+                # contribution; the actual HA test proves the full opening chain.
+                next_moment = replace(original, moment_id=original.moment_id+'-new')
+                session.broadcast.publish_moment(next_moment)
+                session.broadcast.publish_moment(next_moment)
+                await asyncio.gather(*tasks)
+                self.assertEqual((len(tasks), dispatch.await_count, len(calls)), (1, 1, 1))
+                authority = await hybrid_service.PairedAuthority.resolve(self.hass, self.f.identity, self.f.headers)
+                denied, status = await speaker_delivery.async_play(self.hass, authority,
+                    {**self.f.identity, 'contract_version':3, 'processor':'ha_configured', 'intent':'automatic',
+                     'target':'ha_speaker', 'reference': {'session_id':session.session_id, 'moment_id':next_moment.moment_id}})
+                self.assertEqual((status, denied['error']), (409, 'automatic_speech_requires_publication'))
+                pending = replace(original, moment_id=original.moment_id+'-pending')
+                release.clear()
+                session.broadcast.publish_moment(pending)
+                # Change before the scheduled job is admitted; no old audio.
+                await self.choose('marin', counter=2, extra={'announcement_output':'text_only'})
+                release.set()
+                await asyncio.gather(*tasks)
+                self.assertEqual(dispatch.await_count, 1)
+                await self.choose('marin', counter=3, extra={'announcement_output':'ha_speaker'})
+                self.assertEqual(len(tasks), 2)
+        finally:
+            await journal.close()
+
+    async def test_both_target_keeps_local_ready_when_speaker_becomes_unavailable(self):
+        from unittest.mock import AsyncMock
+        from custom_components.djconnect import hybrid_service, speaker_delivery
+        stack, _, _, calls, _ = self.provider()
+        self.runtime.config['dj_announcement_speaker_entity_id'] = 'media_player.owned_speaker'
+        self.hass.states = SimpleNamespace(get=lambda _: SimpleNamespace(state='idle', attributes={'supported_features':512}))
+        with stack:
+            await self.choose('marin', extra={'announcement_output':'both'})
+            session, moment, _ = await self.f.selected_credit()
+            self.hass.states.get = lambda _: None
+            dispatch = AsyncMock()
+            self.hass.services = SimpleNamespace(async_call=dispatch)
+            authority = await hybrid_service.PairedAuthority.resolve(self.hass, self.f.identity, self.f.headers)
+            result, status = await speaker_delivery.async_play(self.hass, authority,
+                {**self.f.identity, 'contract_version':3, 'processor':'ha_configured', 'intent':'manual',
+                 'target':'both', 'reference': {'session_id':session.session_id, 'moment_id':moment.moment_id}})
+            self.assertEqual(status, 200, result)
+            self.assertEqual(result['delivery'], {'ha_speaker':'unavailable',
+                'speaker_reason':'announcement_speaker_not_found', 'local':'ready', 'audible':'not_proven'})
+            self.assertIn('audio_reference', result['session_speech'])
+            self.assertEqual(len(calls), 1)
+            dispatch.assert_not_awaited()
+
+    async def test_uncertain_both_target_dispatch_preserves_local_result_and_never_retries_effect(self):
+        from unittest.mock import AsyncMock, patch
+        from custom_components.djconnect import hybrid_service, speaker_delivery
+        from tests.test_transport_operation_journal import Store, identifier
+        stack, _, _, calls, _ = self.provider()
+        self.runtime.config['dj_announcement_speaker_entity_id'] = 'media_player.owned_speaker'
+        self.hass.states = SimpleNamespace(get=lambda _: SimpleNamespace(state='idle', attributes={'supported_features':512}))
+        journal = hybrid_service.HybridOperations(self.hass, Store())
+        dispatch = AsyncMock(side_effect=TimeoutError('External sink acceptance unknown'))
+        self.hass.services = SimpleNamespace(async_call=dispatch)
+        try:
+            with stack, patch.object(speaker_delivery, '_async_ha_base_url', new=AsyncMock(return_value='https://ha-owned.invalid')):
+                await self.choose('marin', extra={'announcement_output':'both'})
+                session, moment, _ = await self.f.selected_credit()
+                authority = await hybrid_service.PairedAuthority.resolve(self.hass, self.f.identity, self.f.headers)
+                request = {'contract_version':1, 'operation_id':identifier(self.now),
+                    'operation_epoch':journal.journal.epoch, 'operation':'session/speech/play',
+                    'payload': {'contract_version':3, 'processor':'ha_configured', 'intent':'manual',
+                        'target':'both', 'reference': {'session_id':session.session_id, 'moment_id':moment.moment_id}}}
+                first, status = await journal.execute(authority, request, transport='http')
+                again, repeated_status = await journal.execute(authority, request, transport='websocket')
+                self.assertEqual((status, repeated_status), (503, 503), first)
+                self.assertEqual(first['delivery'], {'ha_speaker':'unknown', 'local':'ready', 'audible':'not_proven'})
+                self.assertIn('audio_reference', first['session_speech'])
+                self.assertEqual(again['operation_receipt']['phase'], 'unknown')
+                self.assertEqual((dispatch.await_count, len(calls)), (1, 1))
+        finally:
+            await journal.close()

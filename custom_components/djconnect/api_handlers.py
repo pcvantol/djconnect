@@ -274,6 +274,8 @@ async def async_handle_session_start_payload(
     except ActiveSessionExistsError:
         active = await session_runtime_manager(hass).async_get_active(context.profile_id)
         return {"success": False, "error": "active_session_exists", "active_session": active.as_dict() if active else None}, 409
+    from .speaker_delivery import connect_automatic
+    connect_automatic(hass, runtime, session, identity_payload(data), headers or {})
     await _async_generate_initial_session_moment(
         hass=hass,
         integration_runtime=runtime,
