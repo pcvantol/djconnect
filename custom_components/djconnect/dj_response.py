@@ -5,7 +5,7 @@ from __future__ import annotations
 import logging
 import secrets
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any
 
 from aiohttp import ClientTimeout
@@ -115,6 +115,7 @@ class TtsAudioItem:
     owner_profile_id: str | None = None
     admission: Any = None
     cache_key: tuple | None = None
+    speaker_grants: dict = field(default_factory=dict)
 
 
 def _store(hass: HomeAssistant) -> dict[str, TtsAudioItem]:
@@ -139,6 +140,18 @@ def get_tts_audio(hass: HomeAssistant, token: str) -> tuple[int, TtsAudioItem | 
     if item.expires_at <= time.time():
         store.pop(token, None)
         return 410, None
+    manager = hass.data.get(DOMAIN, {}).get('session_runtime_manager')
+    if item.admission is None and getattr(manager, '_settings_repository', None) is not None:
+        # Pre-upgrade anonymous slots carry no owner evidence. They cannot be
+        # promoted to the connected settings protocol or a new playback grant.
+        store.pop(token, None)
+        return 404, None
+    if item.admission is not None:
+        try:
+            item.admission()
+        except Exception:
+            store.pop(token, None)
+            return 404, None
     return 200, item
 
 
@@ -157,6 +170,43 @@ def get_private_tts_audio(hass, token, owner_profile_id):
     except Exception:
         _store(hass).pop(token, None)
         raise PermissionError("speech_audio_unavailable") from None
+    return item
+
+
+def grant_speaker_media(hass, asset_id, owner, guard):
+    """Short media-fetch capability in the existing byte owner; never a legacy URL."""
+    item = get_private_tts_audio(hass, asset_id, owner)
+    guard()
+    now = time.time()
+    monotonic = time.monotonic()
+    item.speaker_grants = {key: value for key, value in item.speaker_grants.items()
+                           if value['expires_at'] > now and value['deadline'] > monotonic and value['reads'] < 4}
+    if len(item.speaker_grants) >= 4:
+        raise ValueError('speech_capacity')
+    token = secrets.token_urlsafe(32)
+    item.speaker_grants[token] = {'expires_at': min(item.expires_at, now + 30),
+                                  'deadline': monotonic + 30, 'reads': 0, 'guard': guard}
+    return token
+
+
+def get_speaker_media(hass, asset_id, grant):
+    """Revalidate original source, settings, pairing and exact HA target per fetch."""
+    item = _store(hass).get(asset_id)
+    if item is None or item.owner_profile_id is None:
+        return None
+    admitted = item.speaker_grants.get(grant)
+    if admitted is None:
+        return None
+    try:
+        if (admitted['expires_at'] <= time.time() or admitted['deadline'] <= time.monotonic()
+                or admitted['reads'] >= 4):
+            raise PermissionError('speech_media_expired')
+        get_private_tts_audio(hass, asset_id, item.owner_profile_id)
+        admitted['guard']()
+    except Exception:
+        item.speaker_grants.pop(grant, None)
+        return None
+    admitted['reads'] += 1
     return item
 
 
@@ -184,6 +234,7 @@ def store_tts_audio(
     ttl_seconds: int = DEFAULT_DJ_RESPONSE_TTL_SECONDS,
     content_type: str = "audio/wav",
     extension: str = "wav",
+    admission=None,
 ) -> str:
     """Store playable audio bytes temporarily and return a random download token."""
     cleanup_tts_audio(hass)
@@ -193,6 +244,7 @@ def store_tts_audio(
         content_type=content_type,
         extension=extension,
         expires_at=time.time() + max(1, int(ttl_seconds)),
+        admission=admission,
     )
     return token
 
@@ -204,10 +256,41 @@ async def async_create_dj_audio_url(
 ) -> str | None:
     """Create a temporary absolute audio URL for the ESP, if HA TTS can produce it."""
     conf = runtime.config
-    if not conf.get(CONF_DJ_RESPONSE_ENABLED, DEFAULT_DJ_RESPONSE_ENABLED):
-        return None
+    admission = None
     try:
-        audio = await create_tts_audio(hass, text, conf)
+        from .announcement_policy import capture_announcement_admission
+        admission = await capture_announcement_admission(hass, runtime)
+        if admission is not None:
+            from .ask_dj.dialogue import current_turn
+            if current_turn.get() is not None:
+                # Accepted private dialogue uses its reference/paired byte path,
+                # never an anonymous legacy ESP URL or pre-commit synthesis.
+                return None
+            admission.guard()
+            if admission.settings.announcement_output == 'text_only':
+                return None
+            from .speech_processor import configured_processor, synthesize
+            selected = admission.settings.voice
+            entity, voice = configured_processor(hass, conf, admission.locale,
+                admission.settings.gender.value,
+                selected_voice=selected.voice_id if selected.kind == 'provider_voice' else None)
+            if selected.kind == 'provider_voice' and selected.provider_id != voice['engine']:
+                return None
+            state_guard = admission.guard
+            def guard():
+                state_guard()
+                current_entity, current_voice = configured_processor(hass, runtime.config, admission.locale,
+                    admission.settings.gender.value,
+                    selected_voice=selected.voice_id if selected.kind == 'provider_voice' else None)
+                if current_entity is not entity or current_voice != voice:
+                    raise PermissionError('announcement_provider_changed')
+            audio = await synthesize(entity, voice, text)
+            guard()
+        else:
+            if not conf.get(CONF_DJ_RESPONSE_ENABLED, DEFAULT_DJ_RESPONSE_ENABLED):
+                return None
+            guard = None
+            audio = await create_tts_audio(hass, text, conf)
     except UnsupportedTtsAudioError as exc:
         _LOGGER.debug(
             "DJConnect DJ response audio skipped; HA TTS returned unsupported ESP audio: %s",
@@ -227,9 +310,17 @@ async def async_create_dj_audio_url(
         ttl,
         content_type=audio.content_type,
         extension=audio.extension,
+        admission=guard,
     )
     base_url = await _async_ha_base_url(hass, conf)
+    if guard is not None:
+        try:
+            guard()
+        except Exception:
+            _store(hass).pop(token, None)
+            return None
     if not base_url:
+        _store(hass).pop(token, None)
         _LOGGER.warning("DJConnect cannot build HA URL for DJ response audio")
         return None
     return f"{base_url.rstrip('/')}{API_TTS_BASE}/{token}.{audio.extension}"
@@ -242,13 +333,27 @@ async def async_send_dj_response(
 ) -> dict[str, Any]:
     """Post DJ response text and optional WAV URL to the DJConnect device."""
     payload = {"text": text}
-    audio_url = await async_create_dj_audio_url(hass, runtime, text)
+    from .announcement_policy import capture_announcement_admission
+    admission = await capture_announcement_admission(hass, runtime)
+    if admission is not None:
+        from .announcements import async_apply_announcement_output
+        routed = await async_apply_announcement_output(hass, runtime, {'text': text},
+            payload={}, generate_audio=True)
+        audio_url = routed.get('audio_url')
+    else:
+        audio_url = await async_create_dj_audio_url(hass, runtime, text)
     if audio_url:
         payload["audio_url"] = audio_url
 
     local_url = await runtime.async_device_local_url(hass)
     if not local_url:
         raise RuntimeError("DJConnect device local_url is unknown")
+    if admission is not None:
+        try:
+            admission.guard()
+        except PermissionError:
+            audio_url = None
+            payload.pop('audio_url', None)
     url = local_url.rstrip("/") + "/api/device/dj_response"
     session = async_get_clientsession(hass)
     async with session.post(

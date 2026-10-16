@@ -37,6 +37,9 @@ from .persistence.sessions import (
     PersistentSessionRepository,
 )
 from .persistence.history import HistoricalProjectionRepository
+from .domain.profile.dj_settings import DJSettings, GenderPreference, VoiceSelection, SETTINGS_VERSION
+from .persistence.dj_settings import SessionSettingsContext, SettingsCommitError
+from .persistence.dj_settings import ProfileDJSettingsRepository
 from .presentation_composer import (
     PresentationComposer,
     PresentationCompositionOutcome,
@@ -3529,6 +3532,8 @@ class DJSessionBroadcastEngine:
     media_cleanup: Any = field(default=None, repr=False)
     speech_cleanup: Any = field(default=None, repr=False)
     speech_refresh: Any = field(default=None, repr=False)
+    owner_speech_output: Any = field(default=None, repr=False)
+    owner_moment_speech_delivery: Any = field(default=None, repr=False)
     passive_grants: dict = field(default_factory=dict, repr=False)
     passive_observation: Any = field(default=None, repr=False)
     passive_state_observed: tuple = field(default_factory=lambda: (time.monotonic(), time.time()), repr=False)
@@ -3700,6 +3705,12 @@ class DJSessionBroadcastEngine:
             if playback_item_id:
                 projected["playback_item_id"] = playback_item_id
             self._publish(BroadcastEventType.DJ_MOMENT_PUBLISHED, {"dj_moment": projected})
+            if self.owner_moment_speech_delivery is not None:
+                try:
+                    self.owner_moment_speech_delivery(moment)
+                except Exception:
+                    # Optional audio delivery cannot undo the semantic commit.
+                    pass
 
     def publish_presentation(self, presentation: PresentationProjection) -> None:
         """Publish one immutable renderer-safe Presentation after composition."""
@@ -4180,6 +4191,20 @@ class DJSessionRuntime:
     presence_ledger: PresenceLedger = field(default_factory=PresenceLedger)
     persona_revision: int = 0
     prepared_presentations: dict[str, Any] = field(default_factory=dict, repr=False, compare=False)
+    # Owner-only choices. Never add these to the shared Broadcast projection.
+    settings_generation: str = field(default_factory=lambda: uuid4().hex)
+    settings_revision: int = 0
+    settings_contract_version: int = 1
+    defaults_revision: int = 0
+    selected_voice: VoiceSelection = field(default_factory=VoiceSelection)
+    selected_gender: GenderPreference = GenderPreference.DEFAULT
+    selected_announcement_output: str = 'client_device'
+
+    def effective_dj_settings(self) -> DJSettings:
+        """Typed effective choices; an unknown legacy Mood is not invented."""
+        return DJSettings(persona=self.dj_persona.value, voice=self.selected_voice,
+                          gender=self.selected_gender, mood=self.selected_mood,
+                          presence=self.selected_presence, announcement_output=self.selected_announcement_output)
 
     def as_dict(self) -> dict[str, Any]:
         """Return the public, transport-neutral runtime representation."""
@@ -4292,7 +4317,7 @@ class DJSessionRuntime:
 class SessionRuntimeManager:
     """Own active DJ Session Runtimes for this Home Assistant instance."""
 
-    def __init__(self, persistent_sessions: PersistentSessionRepository | None = None, historical_projections: HistoricalProjectionRepository | None = None, monotonic_source: Callable[[], float] | None = None) -> None:
+    def __init__(self, persistent_sessions: PersistentSessionRepository | None = None, historical_projections: HistoricalProjectionRepository | None = None, monotonic_source: Callable[[], float] | None = None, *, settings_repository=None) -> None:
         self._active_by_profile: dict[str, DJSessionRuntime] = {}
         self._history_source_contexts: dict[str, dict[str, str]] = {}
         self._playback_progress_clocks: dict[str, PlaybackProgressClock] = {}
@@ -4303,6 +4328,152 @@ class SessionRuntimeManager:
         self._lock = asyncio.Lock()
         self._persistent_sessions = persistent_sessions
         self._historical_projections = historical_projections
+        self._settings_repository = settings_repository
+        self._settings_defaults_revisions: dict[str, int] = {}
+
+    def dj_settings_fence_token(self, owner_profile_id):
+        """RAM equality fence only; the repository remains the durable owner."""
+        active = self._active_by_profile.get(owner_profile_id)
+        return (self._settings_defaults_revisions.get(owner_profile_id),
+                (active.session_id, active.settings_generation, active.settings_revision) if active else None)
+
+    async def async_read_dj_settings(self, *, owner_profile_id, authorize):
+        """One locked owner snapshot, with no default or observation writes."""
+        if self._settings_repository is None:
+            raise SettingsCommitError('settings_unavailable')
+        async with self._lock:
+            active = self._active_by_profile.get(owner_profile_id)
+            snapshot = await self._settings_repository.async_read(
+                owner_profile_id, session_id=active.session_id if active else '', authorize=authorize)
+            if active is not None:
+                if snapshot['session'] is None:
+                    legacy_unknown = active.settings_contract_version == 1 and not active.selected_mood
+                    snapshot['session'] = {
+                        'session_id': active.session_id, 'generation': active.settings_generation,
+                        'settings': None if legacy_unknown else active.effective_dj_settings().as_dict(),
+                        'revision': active.settings_revision, 'defaults_revision': active.defaults_revision,
+                        'updated_at': active.started_at}
+                    if legacy_unknown:
+                        snapshot['session'].update(selection_required=True, selection_basis='legacy_mood_unknown')
+                elif (snapshot['session']['settings'] != active.effective_dj_settings().as_dict()
+                      or snapshot['session']['revision'] != active.settings_revision
+                      or snapshot['session']['generation'] != active.settings_generation):
+                    raise SettingsCommitError('runtime_settings_not_reconciled')
+            if not authorize():
+                raise PermissionError('unauthorized')
+            self._settings_defaults_revisions[owner_profile_id] = snapshot['defaults_revision']
+            return snapshot
+
+    async def async_dj_settings_operation_result(self, *, owner_profile_id, operation_id,
+                                                binding, now_ms, authorize):
+        if self._settings_repository is None:
+            raise SettingsCommitError('settings_unavailable')
+        async with self._lock:
+            return await self._settings_repository.async_operation_result(
+                owner_profile_id, operation_id=operation_id, binding=binding,
+                now_ms=now_ms, authorize=authorize)
+
+    async def async_accept_dj_settings(
+        self, *, owner_profile_id, operation_id, binding, patch,
+        expected_defaults_revision, expected_session, now_ms, authorize,
+        validate_voice, require_full_selection=False, migration_requires_review=None,
+    ):
+        """One acceptance under the existing lifecycle lock, then one RAM apply.
+
+        The owner adapter supplies exact paired authority and the existing HA
+        inventory validator. No provider lookup or secondary settings bus here.
+        Wiring/capability advertisement remains with the versioned adapter.
+        """
+        if self._settings_repository is None:
+            raise SettingsCommitError('settings_unavailable')
+        async with self._lock:
+            if not authorize():
+                raise PermissionError('unauthorized')
+            active = self._active_by_profile.get(owner_profile_id)
+            if active is None:
+                if expected_session is not None:
+                    raise SettingsCommitError('session_context_changed')
+                context = None
+            else:
+                if (type(expected_session) is not dict
+                        or set(expected_session) != {'session_id', 'generation', 'revision'}
+                        or expected_session['session_id'] != active.session_id
+                        or expected_session['generation'] != active.settings_generation):
+                    raise SettingsCommitError('session_context_changed')
+                if active.settings_contract_version == 1 and not active.selected_mood:
+                    if set(patch) != set(DJSettings().as_dict()):
+                        raise SettingsCommitError('settings_migration_choice_required')
+                    effective = None  # No invented previous Mood or summary interval.
+                    require_full_selection = True
+                else:
+                    effective = active.effective_dj_settings()
+                context = SessionSettingsContext(active.session_id, active.settings_generation,
+                                                 expected_session['revision'], effective)
+            # Pure closed validation precedes storage; actual voice validation
+            # runs inside acceptance after receipt lookup, on both defaults and
+            # effective choices (they may legitimately differ).
+            DJSettings().patched(patch)
+            result = await self._settings_repository.async_accept_user_choice(
+                owner_profile_id, operation_id=operation_id, binding=binding,
+                patch=patch, expected_defaults_revision=expected_defaults_revision,
+                now_ms=now_ms, session=context, authorize=authorize,
+                validate_choices=validate_voice if {'voice', 'gender', 'announcement_output'} & patch.keys() else None,
+                require_full_selection=(require_full_selection or (
+                    migration_requires_review is not None and migration_requires_review())),
+                initial_selection_guard=(None if migration_requires_review is None
+                                         else lambda: not migration_requires_review()))
+            # A replay is immutable outcome proof, never an instruction to roll
+            # a newer Runtime back to its earlier choices.
+            if active is None or result['replayed']:
+                if not result['replayed']:
+                    self._settings_defaults_revisions[owner_profile_id] = result['snapshot']['defaults_revision']
+                return result
+            self._settings_defaults_revisions[owner_profile_id] = result['snapshot']['defaults_revision']
+            accepted = result['snapshot']['session']
+            choices = DJSettings.from_dict(accepted['settings'])
+            changed_mood = choices.mood != active.selected_mood
+            changed_persona = choices.persona != active.dj_persona.value
+            changed_presence = choices.presence != active.selected_presence
+            updated = DJSessionRuntime(**{**active.__dict__,
+                'selected_mood': choices.mood, 'dj_persona': DJPersona(choices.persona),
+                'selected_presence': choices.presence, 'selected_voice': choices.voice,
+                'selected_gender': choices.gender,
+                'selected_announcement_output': choices.announcement_output,
+                'settings_revision': accepted['revision'],
+                'settings_contract_version': SETTINGS_VERSION,
+                'defaults_revision': result['snapshot']['defaults_revision'],
+                'mood_revision': active.mood_revision + changed_mood,
+                'persona_revision': active.persona_revision + changed_persona,
+                'presence_revision': active.presence_revision + changed_presence})
+            # Publish the complete accepted RAM state before any fallible event
+            # delivery. Existing budgets, Moments and playback remain intact.
+            self._active_by_profile[owner_profile_id] = updated
+            active.broadcast.state = DJBroadcastState(**{**active.broadcast.state.__dict__,
+                'selected_mood': choices.mood, 'mood_revision': updated.mood_revision,
+                'dj_persona': choices.persona, 'persona_revision': updated.persona_revision,
+                'selected_presence': choices.presence, 'presence_revision': updated.presence_revision})
+            active.presence_ledger.persona_revision = updated.persona_revision
+            if choices != effective:
+                active.prepared_presentations.clear()
+                if active.planner.discover_narrative_line is not None:
+                    active.planner.clear_discover_narrative()
+                opportunity = self._intra_track_opportunities.get(owner_profile_id)
+                if opportunity is not None:
+                    opportunity.pending_transition = None
+            if choices.presence == 'music_only':
+                active.published_album_context.close_lines()
+            try:
+                active.broadcast.update_forecast(updated)
+                for changed, event in ((changed_mood, BroadcastEventType.MOOD_CHANGED),
+                                       (changed_persona, BroadcastEventType.PERSONA_CHANGED),
+                                       (changed_presence, BroadcastEventType.PRESENCE_CHANGED)):
+                    if changed:
+                        active.broadcast._publish(event, {'session': active.broadcast.as_dict()['session']})
+            except Exception:
+                # Durable success is not a rejected save when a display fails.
+                _LOGGER.warning('Accepted DJ settings require transport readback')
+                return {**result, 'delivery_pending': True}
+            return result
 
     async def async_start(
         self,
@@ -4319,11 +4490,22 @@ class SessionRuntimeManager:
         allowed_capability_intents: frozenset[str] | None = None,
         history_enabled: bool = True,
         history_source_context: dict[str, str] | None = None,
+        inherit_settings: bool = False,
     ) -> DJSessionRuntime:
         """Create the one active Runtime allowed for a Profile."""
         async with self._lock:
             if owner_profile_id in self._active_by_profile:
                 raise ActiveSessionExistsError(owner_profile_id)
+            inherited = None
+            defaults_revision = 0
+            if self._settings_repository is not None:
+                defaults = await self._settings_repository.async_read(owner_profile_id, authorize=lambda: True)
+                self._settings_defaults_revisions[owner_profile_id] = defaults['defaults_revision']
+                if defaults['activated'] or inherit_settings:
+                    inherited = DJSettings.from_dict(defaults['defaults'])
+                    defaults_revision = defaults['defaults_revision']
+                    selected_mood = inherited.mood
+                    dj_persona = DJPersona(inherited.persona)
             now = _timestamp()
             session_id = f"session-{uuid4().hex}"
             start_configuration = _session_start_configuration(session_start_strategy)
@@ -4357,6 +4539,12 @@ class SessionRuntimeManager:
                 room=room,
                 selected_mood=selected_mood,
                 dj_persona=dj_persona,
+                settings_contract_version=SETTINGS_VERSION if inherited is not None else 1,
+                defaults_revision=defaults_revision,
+                selected_voice=inherited.voice if inherited else VoiceSelection(),
+                selected_gender=inherited.gender if inherited else GenderPreference.DEFAULT,
+                selected_announcement_output=inherited.announcement_output if inherited else 'client_device',
+                selected_presence=inherited.presence if inherited else DEFAULT_PRESENCE,
                 locale=_locale_family(locale),
                 music_backend=music_backend,
                 runtime_state=SessionRuntimeState.CREATING,
@@ -4385,6 +4573,9 @@ class SessionRuntimeManager:
                 ),
                 allowed_capability_intents=allowed_capability_intents,
             )
+            if inherited is not None:
+                creating.broadcast.state = DJBroadcastState(**{
+                    **creating.broadcast.state.__dict__, 'selected_presence': inherited.presence})
             creating.broadcast.update_runtime_state(SessionRuntimeState.ACTIVE)
             active = DJSessionRuntime(
                 **{
@@ -4408,6 +4599,11 @@ class SessionRuntimeManager:
                     raise
             active.presence_ledger.clock = elapsed_time_source or self._monotonic_source
             self._active_by_profile[owner_profile_id] = active
+            def owner_speech_output():
+                current = self._active_by_profile.get(owner_profile_id)
+                return (current.selected_announcement_output
+                        if current is not None and current.session_id == session_id else 'text_only')
+            active.broadcast.owner_speech_output = owner_speech_output
             self._history_source_contexts[session_id] = {
                 key: str((history_source_context or {}).get(key) or "")
                 for key in ("backend_id", "music_account_id", "provider_entry_id", "provider_account_id")
@@ -4673,6 +4869,7 @@ class SessionRuntimeManager:
             candidate_mood_revision = active.mood_revision
             candidate_presence_revision = active.presence_revision
             candidate_persona_revision = active.persona_revision
+            candidate_settings_revision = active.settings_revision
             strategy = active.session_start_strategy
             discover = active.discover_context
             memory = active.performance_memory
@@ -4706,6 +4903,7 @@ class SessionRuntimeManager:
                 or active.mood_revision != candidate_mood_revision
                 or active.presence_revision != candidate_presence_revision
                 or active.persona_revision != candidate_persona_revision
+                or active.settings_revision != candidate_settings_revision
                 or not active.allows_proactive()
                 or current is not opportunity or current.generation != generation
                 or not current.pending or current.blocked
@@ -4955,6 +5153,7 @@ class SessionRuntimeManager:
             started_presence_revision = prior.presence_revision if prior is not None else -1
             started_mood_revision = prior.mood_revision if prior is not None else -1
             started_persona_revision = prior.persona_revision if prior is not None else -1
+            started_settings_revision = prior.settings_revision if prior is not None else -1
             previous_media_identity = prior.last_accepted_media_identity if prior is not None else ""
             initial = prior is not None and not prior.last_accepted_media_identity
             active = self._accept_track_started_media(owner_profile_id, session_id, media_identity, allow_initial=allow_initial_facts)
@@ -4990,6 +5189,7 @@ class SessionRuntimeManager:
             if (active.presence_revision != started_presence_revision
                     or active.mood_revision != started_mood_revision
                     or active.persona_revision != started_persona_revision
+                    or active.settings_revision != started_settings_revision
                     or not active.allows_proactive()):
                 self._restore_track_started_media_locked(owner_profile_id, session_id, media_identity, previous_media_identity)
                 return None
@@ -5042,6 +5242,7 @@ class SessionRuntimeManager:
             planning_mood_revision = active.mood_revision
             planning_presence_revision = active.presence_revision
             planning_persona_revision = active.persona_revision
+            planning_settings_revision = active.settings_revision
             planning_input = working_planner.project_track_started_planning_input(
                 session_id=active.session_id,
                 upcoming_playback=upcoming_playback,
@@ -5091,6 +5292,7 @@ class SessionRuntimeManager:
             if (active.mood_revision != planning_mood_revision
                     or active.presence_revision != planning_presence_revision
                     or active.persona_revision != planning_persona_revision
+                    or active.settings_revision != planning_settings_revision
                     or not active.allows_proactive()):
                 self._restore_track_started_media_locked(
                     owner_profile_id, session_id, media_identity, previous_media_identity)
@@ -5190,6 +5392,7 @@ class SessionRuntimeManager:
             fallback_mood_revision = active.mood_revision
             fallback_presence_revision = active.presence_revision
             fallback_persona_revision = active.persona_revision
+            fallback_settings_revision = active.settings_revision
             decision = working_planner.evaluate_track_started(
                 session_start_strategy=active.session_start_strategy,
                 session_direction=active.session_direction,
@@ -5261,6 +5464,7 @@ class SessionRuntimeManager:
             if (active.mood_revision != fallback_mood_revision
                     or active.presence_revision != fallback_presence_revision
                     or active.persona_revision != fallback_persona_revision
+                    or active.settings_revision != fallback_settings_revision
                     or not active.allows_proactive()):
                 self._restore_track_started_media_locked(
                     owner_profile_id, session_id, media_identity, previous_media_identity)
@@ -5526,6 +5730,7 @@ class SessionRuntimeManager:
     async def async_update_presence(
         self, *, owner_profile_id: str, session_id: str, selected_presence: str,
         expected_revision: int | None = None, authorize: Callable[[], bool] | None = None,
+        legacy_user_choice: bool = False,
     ) -> DJSessionRuntime | None:
         """Commit only presence; preserve ledger and all independent Session state."""
         if selected_presence not in POLICIES:
@@ -5536,6 +5741,8 @@ class SessionRuntimeManager:
             active = self._active_by_profile.get(owner_profile_id)
             if active is None or active.session_id != session_id:
                 return None
+            if legacy_user_choice and active.settings_contract_version >= 2:
+                raise SettingsCommitError('settings_contract_upgrade_required')
             if expected_revision is not None and expected_revision != active.presence_revision:
                 raise PresenceRevisionConflictError(active)
             if selected_presence == active.selected_presence:
@@ -5558,6 +5765,7 @@ class SessionRuntimeManager:
     async def async_update_mood(
         self, *, owner_profile_id: str, session_id: str, selected_mood: str,
         expected_revision: int | None = None, authorize: Callable[[], bool] | None = None,
+        legacy_user_choice: bool = False,
     ) -> DJSessionRuntime | None:
         """Update dynamic Runtime Mood; prior Moment snapshots remain frozen."""
         async with self._lock:
@@ -5566,11 +5774,21 @@ class SessionRuntimeManager:
             active = self._active_by_profile.get(owner_profile_id)
             if active is None or active.session_id != session_id:
                 return None
+            if legacy_user_choice and active.settings_contract_version >= 2:
+                raise SettingsCommitError('settings_contract_upgrade_required')
             if expected_revision is not None and expected_revision != active.mood_revision:
                 raise MoodRevisionConflictError(active)
             if selected_mood == active.selected_mood:
                 return active
-            if self._historical_projections is not None:
+            settings_revision = active.settings_revision
+            if self._settings_repository is not None and active.settings_contract_version >= 2:
+                settings_revision = await self._settings_repository.async_accept_runtime_mood(
+                    owner_profile_id,
+                    session=SessionSettingsContext(active.session_id, active.settings_generation,
+                                                   active.settings_revision, active.effective_dj_settings()),
+                    selected_mood=selected_mood, defaults_revision=active.defaults_revision,
+                    authorize=authorize or (lambda: True))
+            elif self._historical_projections is not None:
                 await self._historical_projections.async_accept_mood(owner_profile_id, session_id, selected_mood, authorize=authorize)
             if (active.planner.discover_narrative_line is not None
                     and selected_mood != active.selected_mood):
@@ -5580,7 +5798,8 @@ class SessionRuntimeManager:
                 opportunity.pending_transition = None
             revision = active.mood_revision + 1
             active.broadcast.state = DJBroadcastState(**{**active.broadcast.state.__dict__, "selected_mood": selected_mood, "mood_revision": revision})
-            updated = DJSessionRuntime(**{**active.__dict__, "selected_mood": selected_mood, "mood_revision": revision})
+            updated = DJSessionRuntime(**{**active.__dict__, "selected_mood": selected_mood, "mood_revision": revision,
+                                         "settings_revision": settings_revision})
             self._active_by_profile[owner_profile_id] = updated
             active.broadcast.update_forecast(updated)
             active.broadcast._publish(BroadcastEventType.MOOD_CHANGED, {"session": active.broadcast.as_dict()["session"]})
@@ -5589,6 +5808,7 @@ class SessionRuntimeManager:
     async def async_update_persona(
         self, *, owner_profile_id: str, session_id: str, dj_persona: DJPersona,
         expected_revision: int | None = None, authorize: Callable[[], bool] | None = None,
+        legacy_user_choice: bool = False,
     ) -> DJSessionRuntime | None:
         """Change only future Moment behaviour for this active Runtime."""
         dj_persona = DJPersona(dj_persona)
@@ -5598,6 +5818,8 @@ class SessionRuntimeManager:
             active = self._active_by_profile.get(owner_profile_id)
             if active is None or active.session_id != session_id:
                 return None
+            if legacy_user_choice and active.settings_contract_version >= 2:
+                raise SettingsCommitError('settings_contract_upgrade_required')
             if expected_revision is not None and expected_revision != active.persona_revision:
                 raise PersonaRevisionConflictError(active)
             if dj_persona is active.dj_persona:
@@ -5628,10 +5850,17 @@ class SessionRuntimeManager:
         track_bound: bool,
         commit,
         persona_revision: int | None = None,
+        settings_token=None,
     ):
         """Serialize the brief accepted Store/reference commit against Runtime end."""
         async with self._lock:
             active = self._active_by_profile.get(owner_profile_id)
+            if settings_token is not None and self.dj_settings_fence_token(owner_profile_id) != settings_token:
+                raise ValueError('session_context_changed')
+            if not session_id and settings_token is not None:
+                if active is not None:
+                    raise ValueError('session_context_changed')
+                return await async_complete_conversation_commit(commit)
             if (
                 active is None
                 or active.session_id != session_id
@@ -6082,6 +6311,7 @@ def session_runtime_manager(hass: Any) -> SessionRuntimeManager:
         manager = SessionRuntimeManager(
             sessions,
             HistoricalProjectionRepository(persistence_service(hass)) if sessions is not None else None,
+            settings_repository=ProfileDJSettingsRepository(persistence_service(hass)) if sessions is not None else None,
         )
         domain_data["session_runtime_manager"] = manager
     return manager

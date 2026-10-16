@@ -42,6 +42,7 @@ class AnnouncementTests(unittest.TestCase):
 
     def _hass(self):
         return types.SimpleNamespace(
+            data={},
             states=FakeStates(
                 {
                     "media_player.voice_preview": FakeState(

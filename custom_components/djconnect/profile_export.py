@@ -28,6 +28,7 @@ PROFILE_EXPORT_FORMAT = "djconnect.profile.export"
 HOUSEHOLD_EXPORT_FORMAT = "djconnect.household.export"
 INTEGRATION_EXPORT_FORMAT = "djconnect.integration.export"
 SECRET_KEY_FRAGMENTS = (
+    "binding_generation",
     "token",
     "password",
     "secret",
@@ -117,7 +118,7 @@ async def async_export_integration(
         {
             "success": True,
             "format": INTEGRATION_EXPORT_FORMAT,
-            "schema_version": EXPORT_SCHEMA_VERSION,
+            "schema_version": household_export['schema_version'],
             "profile_platform": household_export,
             "non_secret_config": _redact_secrets(non_secret_config or {}),
             "excluded": {
@@ -143,9 +144,17 @@ async def async_import_profile(
 ) -> dict[str, Any]:
     """Import one Profile, rejecting unsafe secret-bearing envelopes."""
     _validate_no_secret_fields(envelope)
+    if envelope.get('schema_version') == 2:
+        raise ProfileExportError('profile_settings_restore_required')
     if envelope.get("format") != PROFILE_EXPORT_FORMAT or int(envelope.get("schema_version") or 0) != EXPORT_SCHEMA_VERSION:
         raise ProfileExportError("invalid profile export schema")
-    profile_data = envelope.get("profile")
+    profile_data = deepcopy(envelope.get("profile"))
+    if isinstance(profile_data, dict):
+        metadata = profile_data.get('metadata')
+        if metadata is not None and not isinstance(metadata, dict):
+            raise ProfileExportError('invalid profile metadata')
+        if metadata is not None:
+            metadata.pop('dj_settings_version', None)
     if not isinstance(profile_data, dict):
         raise ProfileExportError("profile export is missing profile")
     household = await manager.async_load()
@@ -167,7 +176,7 @@ async def async_import_profile(
     ]
     profiles.append(profile_data)
     storage["household"]["profiles"] = profiles
-    await manager.async_save(household_from_storage(storage))
+    await manager.async_save(household_from_storage(storage), replacing_profiles=(final_id,) if collision else ())
     return {
         "success": True,
         "imported": "profile",
@@ -185,13 +194,23 @@ async def async_import_household(
 ) -> dict[str, Any]:
     """Import a household or full integration export."""
     _validate_no_secret_fields(envelope)
+    if envelope.get('schema_version') == 2:
+        raise ProfileExportError('profile_settings_restore_required')
     household_payload = _household_payload_from_import(envelope)
     if household_payload is None:
         raise ProfileExportError("invalid household export schema")
+    for profile_data in household_payload.get('profiles', []):
+        if isinstance(profile_data, dict):
+            metadata = profile_data.get('metadata')
+            if metadata is not None and not isinstance(metadata, dict):
+                raise ProfileExportError('invalid profile metadata')
+            if metadata is not None:
+                metadata.pop('dj_settings_version', None)
     existing = await manager.async_load()
     if existing.profiles and not overwrite:
         raise ProfileExportError("household import would overwrite existing profiles")
-    await manager.async_save(household_from_storage({"household": household_payload}))
+    await manager.async_save(household_from_storage({"household": household_payload},
+        trusted_bindings=False), rotate_bindings=True, replacing_profiles=tuple(existing.profiles))
     return {
         "success": True,
         "imported": "household",

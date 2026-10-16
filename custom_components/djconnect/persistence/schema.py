@@ -24,9 +24,19 @@ MIGRATIONS = (
     Migration(4, "0004_historical_session_projections", "b745d401"),
     Migration(5, "0005_session_timeline_entries", "7d5e3142"),
     Migration(6, "0006_session_summary_acceptance", "aeb3dc41"),
+    Migration(7, "0007_profile_session_dj_settings", "9e6b4a31"),
+    Migration(8, "0008_profile_announcement_output", "32c0a4e7"),
 )
 CURRENT_SCHEMA_VERSION = MIGRATIONS[-1].version
 REQUIRED_TABLES = {
+    "djconnect_profile_dj_settings": {"owner_profile_id", "settings", "revision", "updated_at", "contract_version"},
+    "djconnect_session_dj_settings": {
+        "session_id", "owner_profile_id", "generation", "settings", "revision", "defaults_revision", "updated_at",
+    },
+    "djconnect_settings_operations": {
+        "operation_key", "owner_profile_id", "binding", "digest", "expires_ms", "receipt",
+    },
+    "djconnect_settings_clock": {"singleton", "high_water_ms"},
     "djconnect_session_summaries": {
         "session_id",
         "tracks",
@@ -197,6 +207,35 @@ def apply_migration(transaction: ProviderTransaction, version: int) -> None:
         )
         transaction.execute(
             "CREATE TABLE djconnect_session_acceptances (session_id TEXT NOT NULL REFERENCES djconnect_persistent_sessions(session_id) ON DELETE CASCADE,kind TEXT NOT NULL,reference_id TEXT NOT NULL,entry_id TEXT NOT NULL DEFAULT '',PRIMARY KEY(session_id,kind,reference_id))"
+        )
+    elif version == 7:
+        transaction.execute(
+            "CREATE TABLE djconnect_profile_dj_settings (owner_profile_id TEXT PRIMARY KEY,settings TEXT NOT NULL,revision INTEGER NOT NULL CHECK(revision>0),updated_at TEXT NOT NULL)"
+        )
+        transaction.execute(
+            "CREATE TABLE djconnect_session_dj_settings (session_id TEXT PRIMARY KEY REFERENCES djconnect_persistent_sessions(session_id) ON DELETE CASCADE,owner_profile_id TEXT NOT NULL,generation TEXT NOT NULL,settings TEXT NOT NULL,revision INTEGER NOT NULL CHECK(revision>0),defaults_revision INTEGER NOT NULL CHECK(defaults_revision>=0),updated_at TEXT NOT NULL)"
+        )
+        transaction.execute(
+            "CREATE TABLE djconnect_settings_operations (operation_key TEXT PRIMARY KEY,owner_profile_id TEXT NOT NULL,binding TEXT NOT NULL,digest TEXT NOT NULL,expires_ms INTEGER NOT NULL,receipt TEXT NOT NULL)"
+        )
+        transaction.execute(
+            "CREATE INDEX idx_settings_operations_owner_expiry ON djconnect_settings_operations(owner_profile_id,expires_ms)"
+        )
+        transaction.execute(
+            "CREATE TABLE djconnect_settings_clock (singleton INTEGER PRIMARY KEY CHECK(singleton=1),high_water_ms INTEGER NOT NULL CHECK(high_water_ms>=0))"
+        )
+        transaction.execute("INSERT INTO djconnect_settings_clock VALUES (1,0)")
+    elif version == 8:
+        # Preserve original receipts and acceptance revisions. Factory output
+        # for a new parameter is not evidence of an explicit six-field choice.
+        transaction.execute(
+            "ALTER TABLE djconnect_profile_dj_settings ADD COLUMN contract_version INTEGER NOT NULL DEFAULT 2"
+        )
+        transaction.execute(
+            "UPDATE djconnect_profile_dj_settings SET settings=json_insert(settings,'$.announcement_output','client_device')"
+        )
+        transaction.execute(
+            "UPDATE djconnect_session_dj_settings SET settings=json_insert(settings,'$.announcement_output','client_device')"
         )
     timestamp = datetime.now(UTC).isoformat()
     transaction.execute(

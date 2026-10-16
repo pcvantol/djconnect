@@ -19,7 +19,7 @@ from .transport_delivery import (
 )
 
 ACTION_OPERATIONS = frozenset(
-    {"command", "ask_dj/message", "track_insight", "session/mood", "session/presence", "session/persona"}
+    {"command", "ask_dj/message", "track_insight", "session/mood", "session/presence", "session/persona", "session/speech/play"}
 )
 HTTP_OPERATIONS = ACTION_OPERATIONS | {"session/start", "session/end"}
 READ_OPERATIONS = frozenset(
@@ -28,6 +28,8 @@ READ_OPERATIONS = frozenset(
         "session/broadcast/snapshot",
         "session/broadcast/recover",
         "session/forecast",
+        'profile/settings',
+        'profile/settings/operation',
     }
 )
 # No arbitrary HA service, device firmware, administrative or retired-client action.
@@ -102,6 +104,7 @@ class PairedAuthority:
         from .profile_context import async_resolve_device_bound_request_context
         from .session_conversation import async_history_grant_revision
         from .ask_dj.dialogue import source_scope
+        from .profile_context import profile_storage
 
         if (
             not isinstance(identity, dict)
@@ -123,6 +126,10 @@ class PairedAuthority:
                 hass, runtime, identity, request_source="hybrid_transport"
             )
             grant = await async_history_grant_revision(hass, context.profile_id)
+            mapped_device = profile_storage(hass).household.devices.get(identity['device_id'])
+            binding_generation = getattr(mapped_device, 'binding_generation', '')
+            if not re.fullmatch('[a-f0-9]{32}', binding_generation):
+                raise OperationError('profile_binding_unavailable', 503)
         except Exception:
             raise OperationError("profile_unavailable", 403) from None
         entry_id = runtime.entry.entry_id
@@ -137,6 +144,7 @@ class PairedAuthority:
                 "device": identity,
                 "entry": entry_id,
                 "generation": generation,
+                'profile_binding_generation': binding_generation,
                 "pairing": hashlib.sha256(
                     str(getattr(runtime, "device_token", "")).encode()
                 ).hexdigest(),
@@ -159,10 +167,12 @@ class PairedAuthority:
             except SessionConversationError as exc:
                 raise OperationError(exc.code, exc.status) from None
             current_manager = hass.data.get(DOMAIN, {}).get("session_runtime_manager")
+            current_device = profile_storage(hass).household.devices.get(identity['device_id'])
             if (
                 getattr(runtime, "_receiver_end_generation", 0) != generation
                 or (current_manager and current_manager.receiver_entry_generation(entry_id) != generation)
                 or history_grant_revision(hass, context.profile_id) != grant
+                or getattr(current_device, 'binding_generation', '') != binding_generation
             ):
                 raise OperationError("operation_context_changed", 403)
 
@@ -277,10 +287,18 @@ async def invoke(hass, authority, operation, payload):
         return await async_handle_owner_setting(
             hass, payload, headers=authority.headers, setting=operation.split("/")[1]
         )
+    if operation == 'session/speech/play':
+        from .speaker_delivery import async_play
+        return await async_play(hass, authority, payload)
     if operation == "session/forecast":
         from .session_forecast_transport import async_handle_forecast
 
         return await async_handle_forecast(hass, payload, headers=authority.headers)
+    if operation in {'profile/settings', 'profile/settings/operation'}:
+        from .profile_settings import async_handle_settings
+        return await async_handle_settings(hass, payload, headers=authority.headers,
+                                           operation=operation.endswith('/operation'),
+                                           validate_ingress=authority.validate_now)
     raise OperationError("unsupported_operation", 400)
 
 
@@ -307,7 +325,8 @@ class HybridOperations:
         self._closed = True
         if self._unsubscribe_stop is not None:
             remove, self._unsubscribe_stop = self._unsubscribe_stop, None
-            remove()
+            if _event is None:
+                remove()
         self._sweep_task.cancel()
         for task in self.tasks.values():
             task.cancel()

@@ -1,5 +1,18 @@
 # DJConnect API Contract
 
+## Current settings owner addenda — local contract3 implementation
+
+[Canonical delta](docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md) adds `announcement_output` to the five shared DJ choices under owner6220590330/6220695648. Six-field settings contract3 and target-aware speech prepare3 are implemented and locally advertised in the unpublished Core candidate; final exact reviews/protected delivery remain required. `text_only` forbids announcement synthesis and all replay; speaker-only still permits explicit local owner replay. Physical speaker/Assist pipeline/ESP administration stay HA-only; local autoplay defaults OFF and OS permissions remain local. Existing contract2 checkpoints below are historical five-field proof. Integrated chat/DNA portability is parked. Existing schema1 exports remain unchanged and do not back up the six shared defaults; the unpublished schema2 export prototype is removed. Native/installed/joint remain OPEN; no new consumer writer or WIP expansion.
+
+Before six-field activation, an existing Session with unknown Mood has `snapshot.session.settings: null`, `selection_required: true` and `selection_basis: legacy_mood_unknown`. Keep its identity/revision, show separate defaults only as proposals, and require all six explicit choices for activation. Ask DJ1/prepare1 preserve legacy behavior; prepare3 is typed unavailable until selection. Reads do not invent Mood or history coverage.
+
+
+## Selected Profile/Session settings consolidation — contract2
+
+[Canonical all-five contract](docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md), [settings inventory](docs/product/PROFILE_SESSION_SETTINGS_INVENTORY_V1.json), owner6214905647. Allfive Persona/voice/gender/Mood/Presence are Core-owned Profile defaults plus effective Session state; last explicit accepted field patch is automatically remembered and changes an active Session atomically. No device-local voice truth, global pipeline mutation, read effect, source-right expansion or consumer writer dispatch. New typed API/WS contract2 has its own revision/receipt/generation semantics; contract1 is not silently changed. Core implementation/fixtures remain in progress and unpublished; native/installed/hardware/joint and platform-wide legacy removal are not yet qualified.
+
+## Existing delivered contracts and historical context
+
 This document summarizes the client-facing DJConnect Home Assistant API contract.
 It is intentionally compact; `README.md` remains the full user/developer guide.
 
@@ -1401,6 +1414,15 @@ present on `assistant_message`, render the replay/play affordance for that exact
 assistant bubble; generated current-track answers such as `wat speelt er` can
 include both generated text metadata and a replayable TTS URL.
 
+### Legacy contract1 announcement routing — delivered compatibility only
+
+The following legacy wire example describes existing contract1 behavior only.
+It is not the selected contract3 implementation instruction. Follow the
+[current owner delta](docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md)
+for shared output, default client_device, explicit local replay in speaker modes,
+private targets and text_only fences. Windows is retired; no new Windows UI or
+adoption is authorized by these historical examples.
+
 DJ announcement audio routing is explicit. App clients may send or store
 `dj_announcement_output` as one of `client_device`, `both`, `ha_speaker` or
 `text_only`; the Home Assistant config/options flow owns the optional
@@ -1439,7 +1461,7 @@ autoplay/replay. For `text_only`, HA skips TTS entirely. Spotify Direct never
 pauses, resumes or changes Spotify volume for DJ announcements; the HA speaker
 plays separately from Spotify playback.
 
-Supported action kinds:
+### Supported action kinds
 
 - `album`: direct Play Now action for an album. The action includes
   backend-aware metadata, `title`, optional `subtitle`/artist and optional

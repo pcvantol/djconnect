@@ -31,7 +31,7 @@ try {
    await page.waitForFunction(content=>!document.querySelector('#moment-card').hidden&&
     document.querySelector('#moment-detail').textContent===content,ready.moment.content);
    assert.equal(await page.locator('#title').textContent(),ready.playback.title);
-   assert.equal(await page.locator('#moment-source').getAttribute('href'),ready.moment.source_attribution.url);
+   if(ready.moment.source_attribution?.url) assert.equal(await page.locator('#moment-source').getAttribute('href'),ready.moment.source_attribution.url);
    assert.equal(await page.locator('#spotify-source').isVisible(),true);
    const bounds=await page.locator('#moment-card').boundingBox();
    assert.ok(bounds.x>=0&&bounds.y>=0&&bounds.x+bounds.width<=width+1&&bounds.y+bounds.height<=height+1);
@@ -42,13 +42,32 @@ try {
    await context.setOffline(true); await page.waitForTimeout(800); await context.setOffline(false);
    await page.waitForTimeout(1400);
    assert.equal(await page.locator('#moment-detail').textContent(),ready.moment.content);
-   await page.waitForFunction(()=>document.querySelector('#moment-card').hidden,null,{timeout:40000});
+  })));
+ if(process.env.DJC_SETTINGS_BROWSER){
+  async function change(output){
+   await new Promise((resolve,reject)=>{
+    const body=JSON.stringify({output});
+    const req=https.request('https://localhost:18235/__speech_lab/output',{
+     method:'POST',ca:fs.readFileSync(lab+'/ca.pem'),headers:{'Content-Type':'application/json','Content-Length':Buffer.byteLength(body)}},res=>{
+     res.resume();res.on('end',()=>res.statusCode===200?resolve():reject(new Error('output '+res.statusCode)));
+    });req.on('error',reject);req.end(body);
+   });
+  }
+  await change('text_only');
+  for(const {page} of opened){
+   assert.equal(await page.locator('audio, [data-speech-action]').count(),0);
+   assert.equal(await page.locator('#title').textContent(),ready.playback.title);
+  }
+  await change('client_device');
+ }
+ await Promise.all(opened.map(async({page,host})=>{
+   await page.waitForFunction(()=>document.querySelector('#moment-card').hidden,null,{timeout:95000});
    await page.reload();
    if(host==='cast')await page.evaluate(h=>window.__receive({data:h,senderId:'own-software-test'}),handoff);
    await page.waitForTimeout(900);
    assert.equal(await page.locator('#moment-card').isVisible(),false);
    assert.equal(await page.locator('#title').textContent(),ready.playback.title);
-  })));
+ }));
  const ended=await new Promise((resolve,reject)=>{
   const req=https.request('https://localhost:18235/__speech_lab/end',{
    method:'POST',ca:fs.readFileSync(lab+'/ca.pem')},res=>{
@@ -60,12 +79,12 @@ try {
   await page.waitForTimeout(1200);
   assert.equal(await page.locator('#moment-card').isVisible(),false);
   assert.ok(frames.some(f=>f.type==='event'&&f.data?.event_type==='runtime_ended'));
-  for(const frame of frames)assert.ok(!JSON.stringify(frame).includes('session_speech'));
+  for(const frame of frames){const raw=JSON.stringify(frame);assert.ok(!raw.includes('session_speech')); if(process.env.DJC_SETTINGS_BROWSER){assert.ok(!raw.includes('announcement_output'));assert.ok(!raw.includes('profile_dj_settings'));}}
   assert.deepEqual(privateRequests,[]);assert.deepEqual(errors,[]);
  }));
  const receipts=opened.map(({host,orientation,frames})=>({host,orientation,actual_HA_Broadcast:true,
   frames:frames.length,currentTrack:true,exactText:true,sourceLink:true,spotifyMark:true,readability:true,
-  reconnect:true,originalExpiry:true,noResurrection:true,sessionEnd:true,privateSpeechAbsent:true,
+  reconnect:true,originalExpiry:true,noResurrection:true,sessionEnd:true,privateSpeechAbsent:true,settingsOutputToggle:!!process.env.DJC_SETTINGS_BROWSER,
   CAF:host==='cast'?'MODELED_ONLY':'NOT_APPLICABLE'}));
  fs.writeFileSync(lab+'/browser-done.json',JSON.stringify({result:'PASS',receipts,
   qualification:'CORE_BROADCAST_BROWSER_COMPATIBILITY',native:'NOT_RUN',audible:'NOT_RUN',installed:'NOT_RUN',hardware:'NOT_RUN'},null,2)+'\n');

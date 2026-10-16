@@ -10,23 +10,25 @@ Selected and freshly admitted speech/Persona implementation: DJC-SESSION-SPEECH-
 
 Selected passive Session projection: DJC-CORE-PASSIVE-SESSION-PROJECTION-V1-20261015; source PROTECTED_MERGED. Existing SURFACE::CORE::PROJECTION only; native rich adoption OPEN_APPLE, background SURFACE::APPLE::QUIET-TRANSPORT separately Planned, Watch NOT_QUALIFIED and joint OPEN. Original publication/source deadlines, explicit purpose grants and pure reads; no client writes, provider or automatic dispatch. Delivered v12 and all prior receipts preserved.
 
+Selected shared Profile/Session settings consolidation: DJC-PROFILE-SESSION-SETTINGS-CONSOLIDATION-V1-20261016; six shared Persona/voice/gender/Mood/Presence/announcement_output, implemented local contract3 (runtime checkpoint3, unpublished until protected delivery), last explicit accepted choice becomes default, atomic active+default acceptance. Source UNPUBLISHED; Core producer and migration work only; Apple/other consumers/joint separately open, no automatic dispatch or whole-family completion. Delivered v13 preserved.
+
 Authority: [DJC-DJ-PRESENCE-ROADMAP-DESIGN-V1-20261011](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6110375785).
 
 Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348fb6`; canonical frozen content `8179d34d9e91106bb1d15c77b734a3cb3b5ebcedae240860f76ece15f50dbef3`.
 
 | Local design source | SHA256 |
 |---|---|
-| [PRODUCT_ROADMAP.md](../../../PRODUCT_ROADMAP.md) | `0184811045e344e38bd2d235ea54fdff7f69f1dfd38cd2dbe492b0f818b26339` |
-| [PRODUCT_BACKLOG.md](../../../PRODUCT_BACKLOG.md) | `71a31584e75207c76ee50d25e1a9452e992cc5f6009c43689107e6bd30bdf2f5` |
+| [PRODUCT_ROADMAP.md](../../../PRODUCT_ROADMAP.md) | `a5b226f417b65a50deeb4121ba52dfdecb8504f91cb1be4edc6704c0947dafb8` |
+| [PRODUCT_BACKLOG.md](../../../PRODUCT_BACKLOG.md) | `9714fc324d4ded07a7e1f873c2caf2747058db4e8b115a16ab19595d25f61bb5` |
 | [docs/product/DJ_PRESENCE_V1.md](../../../docs/product/DJ_PRESENCE_V1.md) | `c97be3bcebbd4ca70d640cdf4fc0a9a4808451e986bc977e3173e19842a928c4` |
-| [DJ_SESSION_RUNTIME_CONTRACTS.md](../../../DJ_SESSION_RUNTIME_CONTRACTS.md) | `6ae7a05260bc2a997252dbb70c28917ac6b7fd25930263d7c0940df929b1ec92` |
+| [DJ_SESSION_RUNTIME_CONTRACTS.md](../../../DJ_SESSION_RUNTIME_CONTRACTS.md) | `69e97a8832b0af41ad68cd18de982d1c4535ae853f8b710c15bde4e5d85e935b` |
 | [docs/product/DJ_INTELLIGENCE_ARCHITECTURE.md](../../../docs/product/DJ_INTELLIGENCE_ARCHITECTURE.md) | `5345f4a3db6b2bfb97931d6acdde09439dc3dbae7a7d311107269922e08aef12` |
 | [docs/product/DJ_PRESENTATION_ARCHITECTURE.md](../../../docs/product/DJ_PRESENTATION_ARCHITECTURE.md) | `df56caa5685110bca26b8e819a1cecb67ab7f9f5608c51526c83d4c35cc5cdff` |
 | [docs/technical/PLATFORM_AMBIENT_EXPERIENCE.md](../../../docs/technical/PLATFORM_AMBIENT_EXPERIENCE.md) | `5dc485caa24c1e7a690f0a0aefef1c0b844bcaf1aea7ea52e3895aabcf7fbd8e` |
 | [docs/product/DJ_PRESENCE_CORE_POLICY_V1.md](../../../docs/product/DJ_PRESENCE_CORE_POLICY_V1.md) | `32ed8a6a47cc6f64fb07b9ef4df1cf8fb7e92c2368cd0c35c66ad31b76b64909` |
 | [docs/product/DJ_PRESENCE_OWNER_CONTRACT_V1.md](../../../docs/product/DJ_PRESENCE_OWNER_CONTRACT_V1.md) | `2580acda7c9e19020c030cb1b8cecd47ef87af0f43a643b90f37d7bd89ee65a3` |
 | [docs/product/DISCOVERY_ARTWORK_CONTINUITY_V1.md](../../../docs/product/DISCOVERY_ARTWORK_CONTINUITY_V1.md) | `66afc37ff6b71b0dacffe6e340ccde274bd3f0f7354155920ebd327fd822ed98` |
-| [API_CONTRACT.md](../../../API_CONTRACT.md) | `fdea00adbb0bf33bf4721a8df28d5bfbbba92f9f4057f1938082f4dfd4fe5707` |
+| [API_CONTRACT.md](../../../API_CONTRACT.md) | `6d35fe6c65c8e1b4961ba387f8bd956b64b99aef756ae5ca13321854c9c2ba03` |
 | [docs/product/NARRATIVE_ALBUM_CONTINUITY_V1.md](../../../docs/product/NARRATIVE_ALBUM_CONTINUITY_V1.md) | `179d45df97a9f4e260c90fdfa211563f6ed2789ec78a0e691f4d89784c4f5552` |
 | [docs/product/DJ_INTELLIGENCE_MATURITY.md](../../../docs/product/DJ_INTELLIGENCE_MATURITY.md) | `e546b04681d4278cadf790400c761f39f845cb95092d6cf09da6b31d04aa9c86` |
 | [docs/product/SHARED_PRODUCER_CONTINUITY_CONTRACT.md](../../../docs/product/SHARED_PRODUCER_CONTINUITY_CONTRACT.md) | `d06d2563b1de4fcfdff15bd76e0952e19f0970666b8ce5677db10cf6ee11a2ed` |
@@ -45,7 +47,7 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 | [docs/history/prompts/2026-10-12-ambient-fact-core-finalization.md](../../../docs/history/prompts/2026-10-12-ambient-fact-core-finalization.md) | `7391647babdf4eca2a287c7c8e654d3f98c0d04121367e030173c474bfde59a6` |
 | [docs/product/SESSION_ENTRY_LIFECYCLE_EXPERIENCE_V1.md](../../../docs/product/SESSION_ENTRY_LIFECYCLE_EXPERIENCE_V1.md) | `56e88a4630fcd807b0dc3135c3f01c1022e8659fcbd08e6101db0bcb8babf8a9` |
 | [docs/product/SESSION_HISTORY_SUMMARY_V1.md](../../../docs/product/SESSION_HISTORY_SUMMARY_V1.md) | `fed7b849ce5c5918507b22055575cd847728ae40c28e038a364c647e6fb193d9` |
-| [docs/product/APPLE_SESSION_NATIVE_SURFACES_V1.md](../../../docs/product/APPLE_SESSION_NATIVE_SURFACES_V1.md) | `ed08b85c7f39c1e06ef70ebdb59cec6f4fe35a2bf6d5c74abb89ec7087994b7f` |
+| [docs/product/APPLE_SESSION_NATIVE_SURFACES_V1.md](../../../docs/product/APPLE_SESSION_NATIVE_SURFACES_V1.md) | `2afc27951eb344e95df8825b2efcd08b970b7b74c3b81ac0dfae63826db93e0f` |
 | [docs/verification/SESSION_ENTRY_LIFECYCLE_HISTORY_DESIGN_V1_SOURCE_READBACK.md](../../../docs/verification/SESSION_ENTRY_LIFECYCLE_HISTORY_DESIGN_V1_SOURCE_READBACK.md) | `5f514a8d824402dea2c180a59fca30579d2dd95f410827323d01c4b6b940a241` |
 | [docs/history/prompts/2026-10-12-session-entry-lifecycle-history-design-finalization.md](../../../docs/history/prompts/2026-10-12-session-entry-lifecycle-history-design-finalization.md) | `89d915a21392089344fde1212c19bd0c5cc937242c7223cb786160b783b36328` |
 | [docs/product/SESSION_HISTORY_SUMMARY_ACCEPTANCE_V1.md](../../../docs/product/SESSION_HISTORY_SUMMARY_ACCEPTANCE_V1.md) | `2ca903977e3cd59888295a7081be577b93175b682a4d162b12159acaa78092a9` |
@@ -79,15 +81,15 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 | [docs/product/VIBECAST_WEB_ENTRY_DISTRIBUTION_V1.md](../../../docs/product/VIBECAST_WEB_ENTRY_DISTRIBUTION_V1.md) | `e996a4973e21e8cd895f0d6a7bdfee8cc972c1e780f0568bdfc8a5219026d68d` |
 | [docs/product/HYBRID_LOCAL_TRANSPORT_POLICY_V1.md](../../../docs/product/HYBRID_LOCAL_TRANSPORT_POLICY_V1.md) | `b7d62c93f26b4883c993f89f7a929c57ba6be8c082bb6ed7c220e60c5045aac6` |
 | [docs/verification/HYBRID_LOCAL_TRANSPORT_SOURCE_READBACK_20261015.md](../../../docs/verification/HYBRID_LOCAL_TRANSPORT_SOURCE_READBACK_20261015.md) | `4bb082dd358cc9594240868cb163133be0320729b2d5687a337bcba2b5feeda3` |
-| [docs/product/SESSION_SPEECH_PERSONA_V1.md](../../../docs/product/SESSION_SPEECH_PERSONA_V1.md) | `69ffd1d76ae0a2f679245e8e3123a074c400f9ebd84e2f93898ee7fd4ef271f5` |
-| [docs/product/SESSION_SPEECH_DELIVERY_V1.md](../../../docs/product/SESSION_SPEECH_DELIVERY_V1.md) | `efe2338c2339e6f14cc80c877d989d9954181cac8543d6ae165dd00c6a97c339` |
+| [docs/product/SESSION_SPEECH_PERSONA_V1.md](../../../docs/product/SESSION_SPEECH_PERSONA_V1.md) | `a342eda7b169f9da5f4296297aae796554dbf6bc2286c28820182e6f3b1d9bf2` |
+| [docs/product/SESSION_SPEECH_DELIVERY_V1.md](../../../docs/product/SESSION_SPEECH_DELIVERY_V1.md) | `271f0d0e9cbe142d7685a46bb9d898d39a9d6dc67c723abbe6123d31dca4c927` |
 | [docs/verification/SESSION_SPEECH_PERSONA_SOURCE_READBACK_20261016.md](../../../docs/verification/SESSION_SPEECH_PERSONA_SOURCE_READBACK_20261016.md) | `88d1f61b742c7b5e9258f7cd96ae35c691a3ea952ee98e345b8ffc9f1720dd38` |
 | [docs/history/prompts/2026-10-16-session-speech-persona-finalization.md](../../../docs/history/prompts/2026-10-16-session-speech-persona-finalization.md) | `08bfdd2e39d730e38d6a76b7cf8ffd8d1463781c59e52fa4aab8f3df0de16732` |
-| [docs/product/GENERIC_HA_TTS_V1.md](../../../docs/product/GENERIC_HA_TTS_V1.md) | `1f8085c3aa480cba889cb580a74d0e89e79a372882d8ca4dc63258995d1f1159` |
+| [docs/product/GENERIC_HA_TTS_V1.md](../../../docs/product/GENERIC_HA_TTS_V1.md) | `82cd101a752fcd160141ea23a6f2fee2ae877ac9a1e2f564a8a20bc723fdaab7` |
 | [docs/verification/GENERIC_HA_TTS_SOURCE_20261016.md](../../../docs/verification/GENERIC_HA_TTS_SOURCE_20261016.md) | `9b54d922da5945e771bdd16be922b7c2f0b04715368e0ece75616facec1f97e7` |
 | [docs/verification/GENERIC_HA_TTS_SOURCE_READBACK_20261016.md](../../../docs/verification/GENERIC_HA_TTS_SOURCE_READBACK_20261016.md) | `ab9c27e02320f17f063e75b6bf318d9b20eba72141e0f002c48506923c8f7059` |
 | [docs/history/prompts/2026-10-16-generic-ha-tts-finalization.md](../../../docs/history/prompts/2026-10-16-generic-ha-tts-finalization.md) | `487548baa5d99882bbec786dc36e79157635ba7c9e5753a913624016cf44fcb4` |
-| [docs/product/PROVIDER_VOICE_GENDER_V1.md](../../../docs/product/PROVIDER_VOICE_GENDER_V1.md) | `aadf89980707aa2998d24acf10f12d9890c92920f6d0627d01c937d6e8b67497` |
+| [docs/product/PROVIDER_VOICE_GENDER_V1.md](../../../docs/product/PROVIDER_VOICE_GENDER_V1.md) | `716591762477e5b626d61e2f2e66f7984bf931cd138ef894478cb4a2449be7da` |
 | [docs/verification/PROVIDER_VOICE_GENDER_SOURCE_20261016.md](../../../docs/verification/PROVIDER_VOICE_GENDER_SOURCE_20261016.md) | `ab02670e4c5b33433be036ac8165c9f123df238afa759c45a52c1951ddba41db` |
 | [docs/verification/PROVIDER_VOICE_GENDER_SOURCE_READBACK_20261016.md](../../../docs/verification/PROVIDER_VOICE_GENDER_SOURCE_READBACK_20261016.md) | `15062c222152e2fd58810f4d9f92b74225d2beecca7ee1c1d78382fc4309c9f8` |
 | [docs/history/prompts/2026-10-16-provider-voice-gender-finalization.md](../../../docs/history/prompts/2026-10-16-provider-voice-gender-finalization.md) | `ee784e85d90f928df38d43cd1bba17b2c912c60ff8c9d06d8d2f060f62ce822f` |
@@ -95,3 +97,5 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 | [docs/verification/PASSIVE_SESSION_PROJECTION_SOURCE_20261016.md](../../../docs/verification/PASSIVE_SESSION_PROJECTION_SOURCE_20261016.md) | `02b7c65903667a42522272823c6711d9b6ffcd1c049c21efb64c5c1dfb3b0fa2` |
 | [docs/verification/PASSIVE_SESSION_PROJECTION_SOURCE_READBACK_20261016.md](../../../docs/verification/PASSIVE_SESSION_PROJECTION_SOURCE_READBACK_20261016.md) | `7a4aefd96d3880fe5b28763744ba6cc25c9a55eca506dab8b0c5fe9543e16527` |
 | [docs/history/prompts/2026-10-16-passive-session-projection-finalization.md](../../../docs/history/prompts/2026-10-16-passive-session-projection-finalization.md) | `6c57169ad3728f4a12597d7f034fb2a9600870e45cf37666407a3c932f4c2d82` |
+| [docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md](../../../docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md) | `0693e3b04b6e7dfb5f7846d032c1f43ec3f67fb998bb7ca65bdabbc389fdfd9a` |
+| [docs/technical/SPEECH_RENDERING_CONTRACT.md](../../../docs/technical/SPEECH_RENDERING_CONTRACT.md) | `cb39d32ecd4b4d11140a0d8e2e037bf6bca388dfe9c45d0b1b9a27b6a228d2e4` |

@@ -284,9 +284,9 @@ class ConfigFlowHelperTest(unittest.TestCase):
         schema = asyncio.run(self.config_flow._voice_schema(hass, defaults))
         marker_defaults = {marker.key: marker.default for marker in schema.schema}
 
-        self.assertNotIn(self.const.CONF_STT_ENGINE, marker_defaults)
-        self.assertNotIn(self.const.CONF_TTS_ENGINE, marker_defaults)
-        self.assertNotIn(self.const.CONF_TTS_VOICE, marker_defaults)
+        self.assertNotIn('stt_engine', marker_defaults)
+        self.assertNotIn('tts_engine', marker_defaults)
+        self.assertNotIn('tts_voice', marker_defaults)
 
     def test_voice_schema_hides_tts_settings(self) -> None:
         hass = types.SimpleNamespace(states=None)
@@ -298,9 +298,9 @@ class ConfigFlowHelperTest(unittest.TestCase):
         )
         keys = {marker.key for marker in schema.schema}
 
-        self.assertNotIn(self.const.CONF_TTS_ENGINE, keys)
+        self.assertNotIn('tts_engine', keys)
         self.assertNotIn(self.const.CONF_TTS_LANGUAGE, keys)
-        self.assertNotIn(self.const.CONF_TTS_VOICE, keys)
+        self.assertNotIn('tts_voice', keys)
 
     def test_voice_schema_hides_dj_response_prompt_controls(self) -> None:
         hass = types.SimpleNamespace(states=None)
@@ -312,45 +312,42 @@ class ConfigFlowHelperTest(unittest.TestCase):
         )
         keys = {marker.key for marker in schema.schema}
 
-        self.assertNotIn(self.const.CONF_DJ_RESPONSE_PROMPT_PRESET, keys)
-        self.assertNotIn(self.const.CONF_DJ_RESPONSE_PROMPT, keys)
-        self.assertIn(self.const.CONF_VOICE_PROFILE, keys)
+        self.assertNotIn('dj_response_prompt_preset', keys)
+        self.assertNotIn('dj_response_prompt', keys)
+        self.assertNotIn(self.const.CONF_VOICE_PROFILE, keys)
 
-    def test_voice_defaults_store_supported_voice_profile(self) -> None:
+    def test_voice_defaults_do_not_create_retired_tone_setting(self) -> None:
         defaults = self.config_flow._voice_defaults(
             {
                 self.const.CONF_VOICE_PROFILE: self.const.VOICE_PROFILE_LATE_NIGHT,
             }
         )
 
-        self.assertEqual(
-            defaults[self.const.CONF_VOICE_PROFILE],
-            self.const.VOICE_PROFILE_LATE_NIGHT,
-        )
+        self.assertNotIn(self.const.CONF_VOICE_PROFILE, defaults)
 
-    def test_voice_defaults_fall_back_for_unknown_voice_profile(self) -> None:
+    def test_unknown_legacy_tone_is_not_silently_mapped_to_new_setting(self) -> None:
         defaults = self.config_flow._voice_defaults(
             {
                 self.const.CONF_VOICE_PROFILE: "celebrity_clone",
             }
         )
 
-        self.assertEqual(
-            defaults[self.const.CONF_VOICE_PROFILE],
-            self.const.DEFAULT_VOICE_PROFILE,
-        )
+        self.assertNotIn(self.const.CONF_VOICE_PROFILE, defaults)
+
+    def test_retired_tone_submissions_require_shared_settings_instead_of_silent_save(self):
+        for key in ('voice_profile', 'voice_style', 'response_style', 'profile_response_style'):
+            with self.subTest(key=key):
+                self.assertEqual(self.config_flow._voice_errors({key: 'energy'}),
+                                 {'base': 'shared_dj_settings_required'})
 
     def test_voice_defaults_ignore_legacy_dj_response_prompt_input(self) -> None:
         defaults = self.config_flow._voice_defaults(
             {
-                self.const.CONF_DJ_RESPONSE_PROMPT: "Maak het kort en eigen.",
+                'dj_response_prompt': "Maak het kort en eigen.",
             }
         )
 
-        self.assertEqual(
-            defaults[self.const.CONF_DJ_RESPONSE_PROMPT],
-            self.const.DEFAULT_DJ_RESPONSE_PROMPT,
-        )
+        self.assertNotIn('dj_response_prompt', defaults)
 
     def test_default_dj_response_prompt_is_multiline_guidance(self) -> None:
         prompt = self.const.DEFAULT_DJ_RESPONSE_PROMPT
@@ -383,16 +380,16 @@ class ConfigFlowHelperTest(unittest.TestCase):
         self.assertTrue(internal_only.isdisjoint(keys))
         self.assertNotIn("firmware_repo", keys)
         self.assertNotIn("firmware_device", keys)
-        self.assertNotIn(self.const.CONF_STT_ENGINE, keys)
-        self.assertNotIn(self.const.CONF_TTS_ENGINE, keys)
+        self.assertNotIn('stt_engine', keys)
+        self.assertNotIn('tts_engine', keys)
         self.assertNotIn(self.const.CONF_TTS_LANGUAGE, keys)
-        self.assertNotIn(self.const.CONF_TTS_VOICE, keys)
+        self.assertNotIn('tts_voice', keys)
         self.assertNotIn(self.const.CONF_SPOTIFY_SOURCE, keys)
         self.assertNotIn(self.const.CONF_LIKED_PROXY, keys)
         self.assertNotIn("show_advanced_options", keys)
         self.assertIn(self.const.CONF_FIRMWARE_CHANNEL, keys)
-        self.assertNotIn(self.const.CONF_DJ_RESPONSE_PROMPT_PRESET, keys)
-        self.assertNotIn(self.const.CONF_DJ_RESPONSE_PROMPT, keys)
+        self.assertNotIn('dj_response_prompt_preset', keys)
+        self.assertNotIn('dj_response_prompt', keys)
         self.assertNotIn(self.const.CONF_DJ_RESPONSE_ENABLED, keys)
 
     def test_firmware_channel_uses_labeled_selector(self) -> None:
@@ -446,7 +443,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
         data = self.config_flow._voice_defaults(
             {
                 self.const.CONF_TTS_LANGUAGE: "",
-                self.const.CONF_DJ_RESPONSE_PROMPT: "",
+                'dj_response_prompt': "",
                 self.const.CONF_MAX_AUDIO_BYTES: "not-an-int",
                 self.const.CONF_MIN_BATTERY_FOR_OTA: "55",
                 self.const.CONF_FIRMWARE_CHANNEL: "beta",
@@ -454,15 +451,16 @@ class ConfigFlowHelperTest(unittest.TestCase):
         )
 
         self.assertNotIn(self.const.CONF_TTS_LANGUAGE, data)
-        self.assertEqual(
-            data[self.const.CONF_DJ_RESPONSE_PROMPT],
-            self.const.DEFAULT_DJ_RESPONSE_PROMPT,
-        )
+        self.assertNotIn('dj_response_prompt', data)
         self.assertEqual(data[self.const.CONF_MAX_AUDIO_BYTES], self.const.DEFAULT_MAX_AUDIO_BYTES)
         self.assertTrue(data[self.const.CONF_ALLOW_OTA_ON_BATTERY])
         self.assertEqual(data[self.const.CONF_MIN_BATTERY_FOR_OTA], 55)
         self.assertEqual(data[self.const.CONF_FIRMWARE_CHANNEL], "beta")
-        self.assertTrue(data[self.const.CONF_DJ_RESPONSE_ENABLED])
+        self.assertNotIn(self.const.CONF_DJ_RESPONSE_ENABLED, data)
+        legacy = self.config_flow._voice_defaults({self.const.CONF_DJ_RESPONSE_ENABLED:False})
+        self.assertIs(legacy[self.const.CONF_DJ_RESPONSE_ENABLED], False)
+        self.assertEqual(self.config_flow._voice_errors({'dj_response_enabled':True}),
+                         {'base':'shared_dj_settings_required'})
         self.assertEqual(
             data[self.const.CONF_DJ_RESPONSE_TTL_SECONDS],
             self.const.DEFAULT_DJ_RESPONSE_TTL_SECONDS,
@@ -1972,7 +1970,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
         keys = {marker.key for marker in schema}
 
         self.assertIn(self.config_flow.OPTIONS_ACTION_FIELD, keys)
-        self.assertIn(self.const.CONF_VOICE_PROFILE, keys)
+        self.assertNotIn(self.const.CONF_VOICE_PROFILE, keys)
 
     def test_voice_schema_can_show_readonly_client_api_url(self) -> None:
         hass = types.SimpleNamespace(states=None, config=types.SimpleNamespace(language="nl-NL"))
@@ -2235,9 +2233,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
         }
 
         result = asyncio.run(
-            flow.async_step_voice(
-                {self.const.CONF_VOICE_PROFILE: self.const.VOICE_PROFILE_LATE_NIGHT}
-            )
+            flow.async_step_voice()
         )
 
         self.assertEqual(result["type"], "create_entry")
@@ -2246,29 +2242,13 @@ class ConfigFlowHelperTest(unittest.TestCase):
             result["data"][self.const.CONF_CLIENT_TYPE],
             self.const.CLIENT_TYPE_CONVERSATION_AGENT,
         )
-        self.assertEqual(
-            result["data"][self.const.CONF_VOICE_PROFILE],
-            self.const.VOICE_PROFILE_LATE_NIGHT,
-        )
+        self.assertNotIn(self.const.CONF_VOICE_PROFILE, result['data'])
         self.assertNotIn(self.const.CONF_DEVICE_TOKEN, result["data"])
         self.assertNotIn(self.const.CONF_LOCAL_URL, result["data"])
 
-    def test_voice_step_conversation_agent_setup_shows_only_voice_profile(self) -> None:
-        flow = self.config_flow.DJConnectConfigFlow()
-        flow.hass = types.SimpleNamespace(states=None)
-        flow._conversation_agent_only = True
-
-        form = asyncio.run(flow.async_step_voice())
-        keys = {marker.key for marker in form["data_schema"].schema}
-
-        self.assertIn(self.const.CONF_VOICE_PROFILE, keys)
-        self.assertNotIn(self.const.CONF_DJ_RESPONSE_PROMPT_PRESET, keys)
-        self.assertNotIn(self.const.CONF_DJ_RESPONSE_PROMPT, keys)
-        self.assertNotIn(self.const.CONF_DJ_RESPONSE_ENABLED, keys)
-        self.assertNotIn(self.const.CONF_ASSIST_PIPELINE_ID, keys)
-        self.assertNotIn(self.const.CONF_FIRMWARE_CHANNEL, keys)
-        self.assertNotIn(self.const.CONF_LOCAL_URL, keys)
-        self.assertNotIn("last_step", form)
+    def test_conversation_agent_voice_schema_has_no_retired_tone_controls(self) -> None:
+        schema = self.config_flow._conversation_agent_voice_schema(types.SimpleNamespace(), {})
+        self.assertEqual(schema.schema, {})
 
     def test_voice_step_hides_firmware_channel_for_app_clients(self) -> None:
         flow = self.config_flow.DJConnectConfigFlow()
@@ -2428,8 +2408,8 @@ class ConfigFlowHelperTest(unittest.TestCase):
         self.assertEqual(form["step_id"], "conversation_agent_init")
         self.assertIn(self.config_flow.OPTIONS_ACTION_FIELD, keys)
         self.assertNotIn(self.const.CONF_DJ_RESPONSE_ENABLED, keys)
-        self.assertNotIn(self.const.CONF_DJ_RESPONSE_PROMPT_PRESET, keys)
-        self.assertNotIn(self.const.CONF_DJ_RESPONSE_PROMPT, keys)
+        self.assertNotIn('dj_response_prompt_preset', keys)
+        self.assertNotIn('dj_response_prompt', keys)
         self.assertNotIn(self.const.CONF_SPOTIFY_SOURCE, keys)
         self.assertNotIn(self.const.CONF_LIKED_PROXY, keys)
         self.assertNotIn(self.const.CONF_LOCAL_URL, keys)
@@ -2455,7 +2435,6 @@ class ConfigFlowHelperTest(unittest.TestCase):
         result = asyncio.run(
             flow.async_step_conversation_agent_init(
                 {
-                    self.const.CONF_VOICE_PROFILE: self.const.VOICE_PROFILE_LATE_NIGHT,
                     self.const.CONF_ASSIST_PIPELINE_ID: "pipeline-2",
                     self.config_flow.OPTIONS_ACTION_FIELD:
                         self.config_flow.OPTIONS_ACTION_SAVE,
@@ -2465,10 +2444,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
 
         self.assertEqual(form["step_id"], "conversation_agent_init")
         self.assertEqual(result["type"], "create_entry")
-        self.assertEqual(
-            result["data"][self.const.CONF_VOICE_PROFILE],
-            self.const.VOICE_PROFILE_LATE_NIGHT,
-        )
+        self.assertNotIn(self.const.CONF_VOICE_PROFILE, result['data'])
         self.assertEqual(result["data"][self.const.CONF_ASSIST_PIPELINE_ID], "pipeline-2")
         self.assertNotIn(self.const.CONF_LOCAL_URL, result["data"])
 
@@ -2493,7 +2469,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
 
         self.assertEqual(form["step_id"], "init")
         self.assertIn(self.const.CONF_ASSIST_PIPELINE_ID, keys)
-        self.assertIn(self.const.CONF_VOICE_PROFILE, keys)
+        self.assertNotIn(self.const.CONF_VOICE_PROFILE, keys)
         self.assertIn(
             self.config_flow.OPTIONS_ACTION_CHANGE_MUSIC_BACKEND,
             form["data_schema"].schema[action_marker],
@@ -2903,10 +2879,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
         )
         self.assertEqual(result["data"][self.const.CONF_FIRMWARE_CHANNEL], "beta")
         self.assertEqual(result["data"][self.const.CONF_MAX_AUDIO_BYTES], 12345)
-        self.assertEqual(
-            result["data"][self.const.CONF_DJ_RESPONSE_PROMPT],
-            self.const.DEFAULT_DJ_RESPONSE_PROMPT,
-        )
+        self.assertNotIn('dj_response_prompt', result['data'])
 
     def test_options_flow_save_drops_firmware_channel_for_app_clients(self) -> None:
         entry = types.SimpleNamespace(
@@ -3121,6 +3094,17 @@ class ConfigFlowHelperTest(unittest.TestCase):
             calls,
         )
         self.assertEqual(entry.data[self.const.CONF_LOCAL_URL], "http://192.168.1.104:60955")
+
+
+    def test_ha_speaker_configuration_never_creates_a_competing_profile_output(self):
+        source = {'dj_announcement_speaker_entity_id':'media_player.owned_speaker',
+                  'dj_announcement_output':'both'}
+        defaults = self.config_flow._voice_defaults(source)
+        self.assertEqual(defaults['dj_announcement_speaker_entity_id'], 'media_player.owned_speaker')
+        self.assertNotIn('dj_announcement_output', defaults)
+        self.assertEqual(source['dj_announcement_output'], 'both')
+        self.assertEqual(self.config_flow._voice_errors({'dj_announcement_output':'both'}),
+                         {'base':'shared_dj_settings_required'})
 
 
 if __name__ == "__main__":

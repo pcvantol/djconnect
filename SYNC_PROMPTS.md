@@ -1,5 +1,18 @@
 # Passive Session projection — definitive protected producer pin
 
+## Current settings owner addenda — local contract3 implementation
+
+[Canonical delta](docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md) adds `announcement_output` to the five shared DJ choices under owner6220590330/6220695648. Six-field settings contract3 and target-aware speech prepare3 are implemented and locally advertised in the unpublished Core candidate; final exact reviews/protected delivery remain required. `text_only` forbids announcement synthesis and all replay; speaker-only still permits explicit local owner replay. Physical speaker/Assist pipeline/ESP administration stay HA-only; local autoplay defaults OFF and OS permissions remain local. Existing contract2 checkpoints below are historical five-field proof. Integrated chat/DNA portability is parked. Existing schema1 exports remain unchanged and do not back up the six shared defaults; the unpublished schema2 export prototype is removed. Native/installed/joint remain OPEN; no new consumer writer or WIP expansion.
+
+Before six-field activation, an existing Session with unknown Mood has `snapshot.session.settings: null`, `selection_required: true` and `selection_basis: legacy_mood_unknown`. Keep its identity/revision, show separate defaults only as proposals, and require all six explicit choices for activation. Ask DJ1/prepare1 preserve legacy behavior; prepare3 is typed unavailable until selection. Reads do not invent Mood or history coverage.
+
+
+## Selected Profile/Session settings consolidation — contract2
+
+[Canonical all-five contract](docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md), [settings inventory](docs/product/PROFILE_SESSION_SETTINGS_INVENTORY_V1.json), owner6214905647. Allfive Persona/voice/gender/Mood/Presence are Core-owned Profile defaults plus effective Session state; last explicit accepted field patch is automatically remembered and changes an active Session atomically. No device-local voice truth, global pipeline mutation, read effect, source-right expansion or consumer writer dispatch. New typed API/WS contract2 has its own revision/receipt/generation semantics; contract1 is not silently changed. Core implementation/fixtures remain in progress and unpublished; native/installed/hardware/joint and platform-wide legacy removal are not yet qualified.
+
+## Existing delivered contracts and historical context
+
 Source PR [#1191](https://github.com/pcvantol/djconnect/pull/1191) protected merged as `2cb87cb7dad30546ee1641b839d14a4f5d621f54`, exact independently reviewed and owner-authorized head `928bf16b8812447fbd53739f22484051909ae513` on base `9faffe533d4a117eb8ad362e73809d126bdcc9d7`. All32 checks PASS/5conditional skips; exact Owner Authorization38896651007 SUCCESS. No bypass. Complete candidate/main trees equal. Main CI38897018985 and formal38897377600 SUCCESS. Official archive171regular files, zero missing/extra/mismatch/symlink; actual raw/durable/coverage/main/PR bindings qualified. [Exact readback](docs/verification/PASSIVE_SESSION_PROJECTION_SOURCE_READBACK_20261016.md). Earlier source1189/Finalization1190 remains closed.
 
 Schema version1; source fixtures42381287 retain their measured identity, all171runtimefiles are identical to reviewed928 and merged2cb. Ordinary paired iOS/macOS owner routes only; explicit surface/OS/locked consent, original Session/generation/deadlines and ordering must be retained. HTTP no-store; no general response/cache reuse. Core invalidation hints are not autonomous background transport. Preserve standalone player fallback, neutral denied/expired fallback and original source/subject labels; no optimistic rich/native acceptance. Existing Apple writer owns implementation/adoption separately.
@@ -1346,7 +1359,13 @@ Requirements:
   temporary audio URLs.
 ```
 
-## DJ Announcement Output Sync
+## Legacy contract1 DJ Announcement Output Sync — compatibility only
+
+This historical snippet documents the delivered legacy contract1, not the
+selected contract3 or a new consumer assignment. The [current owner delta](docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md)
+supersedes its per-client output authority, defaultboth and replay restrictions.
+Preserve compatibility until own admission; do not start Windows UI/adoption
+(the Windows app is retired) or expose HA target entities in new shared settings.
 
 ```text
 Sync DJ announcement output behavior with the Home Assistant integration.

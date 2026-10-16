@@ -29,11 +29,9 @@ from .const import (
     CONF_DEVICE_LANGUAGE,
     CONF_DEVICE_NAME,
     CONF_DEVICE_TOKEN,
-    CONF_DJ_ANNOUNCEMENT_OUTPUT,
     CONF_DJ_ANNOUNCEMENT_SPEAKER,
     CONF_DJCONNECT_INSTALL_TOKEN,
     CONF_DJ_RESPONSE_ENABLED,
-    CONF_DJ_RESPONSE_PROMPT,
     CONF_DJ_RESPONSE_TTL_SECONDS,
     CONF_FIRMWARE_CHANNEL,
     CONF_HA_EXTERNAL_URL,
@@ -51,7 +49,6 @@ from .const import (
     CONF_SPOTIFY_REFRESH_TOKEN,
     CONF_SPOTIFY_SCOPES,
     CONF_SETUP_METHOD,
-    CONF_VOICE_PROFILE,
     CONF_WIFI_PASSWORD,
     CONF_WIFI_SSID,
     DEFAULT_ASSIST_PIPELINE_ID,
@@ -60,8 +57,6 @@ from .const import (
     DEFAULT_CLIENT_TYPE,
     DEFAULT_DEVICE_NAME,
     DEFAULT_DEVICE_LANGUAGE,
-    DEFAULT_DJ_RESPONSE_ENABLED,
-    DEFAULT_DJ_RESPONSE_PROMPT,
     DEFAULT_DJ_RESPONSE_TTL_SECONDS,
     DEFAULT_FIRMWARE_CHANNEL,
     DEFAULT_MAX_AUDIO_BYTES,
@@ -70,9 +65,6 @@ from .const import (
     DEFAULT_SETUP_METHOD,
     DEFAULT_SPOTIFY_MARKET,
     DEFAULT_SPOTIFY_SCOPES,
-    DEFAULT_VOICE_PROFILE,
-    DJ_ANNOUNCEMENT_BOTH,
-    DJ_ANNOUNCEMENT_CLIENT_DEVICE,
     FIRMWARE_CHANNELS,
     MUSIC_BACKEND_NAMES,
     MUSIC_BACKEND_LATER_MANUAL,
@@ -127,7 +119,6 @@ from .pairing_defaults import (
 )
 from .ha_urls import async_ha_local_url
 from .spotify_oauth import build_authorize_url, build_redirect_uri, create_code_verifier
-from .voice_profiles import normalize_voice_profile, voice_profile_options
 from .flow_labels import flow_label
 
 _LOGGER = logging.getLogger(__name__)
@@ -154,7 +145,6 @@ PROFILE_NEW = "new"
 CONF_PROFILE_NAME = "profile_name"
 CONF_PROFILE_TYPE = "profile_type"
 CONF_PROFILE_PRIVACY_MODE = "profile_privacy_mode"
-CONF_PROFILE_RESPONSE_STYLE = "profile_response_style"
 CONF_REQUIRE_PROFILE = "require_profile"
 BACKEND_LATER_MANUAL = MUSIC_BACKEND_LATER_MANUAL
 BLE_ACTION_FIELD = "ble_action"
@@ -206,11 +196,6 @@ PROFILE_PRIVACY_MODE_NAMES = {
     ProfilePrivacyMode.SHARED.value: "Shared",
     ProfilePrivacyMode.GUEST_SAFE.value: "Guest safe",
 }
-PROFILE_RESPONSE_STYLE_NAMES = {
-    ResponseStyle.CONCISE.value: "Concise",
-    ResponseStyle.BALANCED.value: "Balanced",
-    ResponseStyle.EXPRESSIVE.value: "Expressive",
-}
 CLIENT_TYPE_NAME_SUFFIXES = {
     CLIENT_TYPE_ESP32: "ESP32",
     "ios": "iOS",
@@ -223,10 +208,8 @@ CLIENT_TYPE_NAME_SUFFIXES = {
 VOICE_FORM_FIELDS = {
     "vibecast_session_end_allowed",
     CONF_ASSIST_PIPELINE_ID,
-    CONF_DJ_ANNOUNCEMENT_OUTPUT,
     CONF_DJ_ANNOUNCEMENT_SPEAKER,
     CONF_FIRMWARE_CHANNEL,
-    CONF_VOICE_PROFILE,
 }
 
 
@@ -617,10 +600,6 @@ def _profile_setup_schema(defaults: dict[str, Any] | None = None) -> dict[Any, A
             CONF_PROFILE_TYPE,
             default=defaults.get(CONF_PROFILE_TYPE, ProfileType.PERSONAL.value),
         ): selector.SelectSelector(selector.SelectSelectorConfig(options=list(PROFILE_TYPE_NAMES), mode="dropdown", translation_key="onboarding_profile_type")),
-        vol.Optional(
-            CONF_PROFILE_RESPONSE_STYLE,
-            default=defaults.get(CONF_PROFILE_RESPONSE_STYLE, ResponseStyle.BALANCED.value),
-        ): selector.SelectSelector(selector.SelectSelectorConfig(options=list(PROFILE_RESPONSE_STYLE_NAMES), mode="dropdown", translation_key="onboarding_response_style")),
         vol.Required(
             CONF_REQUIRE_PROFILE,
             default=defaults.get(CONF_REQUIRE_PROFILE, False),
@@ -783,9 +762,7 @@ async def _ensure_profile_platform_setup(
         if profile_type in {ProfileType.HOUSEHOLD, ProfileType.GUEST, ProfileType.KIDS}
         else ProfilePrivacyMode.NORMAL
     )
-    response_style = ResponseStyle(
-        str(profile_input.get(CONF_PROFILE_RESPONSE_STYLE) or ResponseStyle.BALANCED.value)
-    )
+    response_style = ResponseStyle.BALANCED
     account_id = ""
     profile = await manager.async_create_profile(
         str(profile_input.get(CONF_PROFILE_NAME) or "DJConnect Profile"),
@@ -1152,10 +1129,6 @@ def _base_voice_schema(
             or {"": flow_label(hass, "none")}
         ),
         vol.Optional(
-            CONF_VOICE_PROFILE,
-            default=normalize_voice_profile(defaults.get(CONF_VOICE_PROFILE)),
-        ): vol.In(voice_profile_options(_ha_language(hass))),
-        vol.Optional(
             CONF_ASSIST_PIPELINE_ID,
             default=defaults.get(CONF_ASSIST_PIPELINE_ID, ""),
         ): vol.In(assist_options),
@@ -1195,10 +1168,6 @@ async def _conversation_agent_options_schema(
     actions = _conversation_agent_options_actions(hass, defaults)
     schema: dict[Any, Any] = {
         vol.Optional(
-            CONF_VOICE_PROFILE,
-            default=normalize_voice_profile(defaults.get(CONF_VOICE_PROFILE)),
-        ): vol.In(voice_profile_options(_ha_language(hass))),
-        vol.Optional(
             CONF_ASSIST_PIPELINE_ID,
             default=defaults.get(CONF_ASSIST_PIPELINE_ID, ""),
         ): vol.In(
@@ -1229,14 +1198,7 @@ def _music_backend_switch_schema(hass: Any, defaults: dict[str, Any]) -> vol.Sch
 
 def _conversation_agent_voice_schema(hass: Any, defaults: dict[str, Any]) -> vol.Schema:
     """Build the compact setup schema used for Assist conversation agent entries."""
-    return vol.Schema(
-        {
-            vol.Optional(
-                CONF_VOICE_PROFILE,
-                default=normalize_voice_profile(defaults.get(CONF_VOICE_PROFILE)),
-            ): vol.In(voice_profile_options(_ha_language(hass))),
-        }
-    )
+    return vol.Schema({})
 
 
 def _central_api_schema(current: dict[str, Any], hass: Any = None) -> vol.Schema:
@@ -1316,26 +1278,17 @@ def _voice_defaults(
             DEFAULT_ASSIST_PIPELINE_ID,
             preserve_empty=preserve_empty,
         ),
-        CONF_DJ_RESPONSE_ENABLED: _bool(
-            source.get(CONF_DJ_RESPONSE_ENABLED),
-            DEFAULT_DJ_RESPONSE_ENABLED,
-        ),
+        # Preserve old evidence until explicit settings migration; never mint
+        # another hidden authority on new setup or after retirement.
+        **({CONF_DJ_RESPONSE_ENABLED:source[CONF_DJ_RESPONSE_ENABLED]}
+           if CONF_DJ_RESPONSE_ENABLED in source else {}),
         CONF_DJ_RESPONSE_TTL_SECONDS: _int(
             source.get(CONF_DJ_RESPONSE_TTL_SECONDS),
             DEFAULT_DJ_RESPONSE_TTL_SECONDS,
         ),
-        CONF_DJ_RESPONSE_PROMPT: DEFAULT_DJ_RESPONSE_PROMPT,
-        CONF_VOICE_PROFILE: normalize_voice_profile(
-            source.get(CONF_VOICE_PROFILE) or DEFAULT_VOICE_PROFILE
-        ),
         CONF_DJ_ANNOUNCEMENT_SPEAKER: str(
             source.get(CONF_DJ_ANNOUNCEMENT_SPEAKER) or ""
         ).strip(),
-        CONF_DJ_ANNOUNCEMENT_OUTPUT: (
-            str(source.get(CONF_DJ_ANNOUNCEMENT_OUTPUT) or DJ_ANNOUNCEMENT_BOTH).strip()
-            if str(source.get(CONF_DJ_ANNOUNCEMENT_SPEAKER) or "").strip()
-            else DJ_ANNOUNCEMENT_CLIENT_DEVICE
-        ),
         CONF_MAX_AUDIO_BYTES: _int(
             source.get(CONF_MAX_AUDIO_BYTES),
             DEFAULT_MAX_AUDIO_BYTES,
@@ -1376,9 +1329,8 @@ def _firmware_channel_default(value: Any) -> str:
 
 def _voice_errors(user_input: dict[str, Any]) -> dict[str, str]:
     """Validate required voice/options fields."""
-    profile = user_input.get(CONF_VOICE_PROFILE)
-    if profile is not None and normalize_voice_profile(profile) != profile:
-        return {CONF_VOICE_PROFILE: "invalid_voice_profile"}
+    if {'voice_profile', 'voice_style', 'response_style', 'profile_response_style', 'dj_announcement_output', 'dj_response_enabled'} & user_input.keys():
+        return {'base': 'shared_dj_settings_required'}
     return {}
 
 
@@ -2470,6 +2422,10 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         household = await _profile_storage(self.hass).async_load()
         errors: dict[str, str] = {}
         if user_input is not None:
+            if 'profile_response_style' in user_input:
+                return self.async_show_form(step_id='profile_setup',
+                    data_schema=vol.Schema(_profile_setup_schema(user_input)),
+                    errors={'base': 'shared_dj_settings_required'})
             selected = str(user_input.get(CONF_PROFILE_ID) or PROFILE_NEW)
             if selected != PROFILE_NEW:
                 return await self.async_step_profile_choice({CONF_PROFILE_ID: selected})
@@ -2484,12 +2440,6 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 try:
                     ProfileType(
                         str(user_input.get(CONF_PROFILE_TYPE) or ProfileType.PERSONAL.value)
-                    )
-                    ResponseStyle(
-                        str(
-                            user_input.get(CONF_PROFILE_RESPONSE_STYLE)
-                            or ResponseStyle.BALANCED.value
-                        )
                     )
                 except ValueError:
                     errors["base"] = "profile_setup_failed"
@@ -2666,6 +2616,8 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         user_input: dict[str, Any] | None = None,
     ) -> FlowResult:
         """Collect optional voice settings. Empty fields are allowed."""
+        if user_input is None and getattr(self, '_conversation_agent_only', False):
+            user_input = {}  # No empty tone-selection form after retirement.
         errors: dict[str, str] = {}
         if user_input is not None:
             errors = _voice_errors(user_input)

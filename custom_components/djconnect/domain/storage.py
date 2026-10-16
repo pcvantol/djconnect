@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import asyncio
+from contextlib import asynccontextmanager
 from dataclasses import replace
+import re
 from typing import Any
 import uuid
 
@@ -57,6 +59,8 @@ class ProfilePlatformStorage:
         self._loaded = False
         self._write_lock = asyncio.Lock()
         self._household = default_household()
+        self._committed_household = self._household
+        self._write_intent_revision = 0
         self.authority_revision = 0
 
     @property
@@ -68,50 +72,119 @@ class ProfilePlatformStorage:
         """Load Household state from Home Assistant Store."""
         if self._loaded:
             return self._household
-        loaded = await self._store.async_load() if self._store is not None else None
-        self._household = household_from_storage(loaded)
-        self.validate_household(self._household)
-        self._loaded = True
-        return self._household
-
-    async def async_save(self, household: Household | None = None) -> Household:
-        """Validate and persist Household state."""
-        if household is not None:
-            self._household = household
-        self.validate_household(self._household)
-        self._loaded = True
-        self._invalidate_session_images()
         async with self._write_lock:
-            if self._store is not None:
-                await self._store.async_save(household_to_storage(self._household))
+            if self._loaded:
+                return self._household
+            loaded = await self._store.async_load() if self._store is not None else None
+            staged = household_from_storage(loaded)
+            qualified = _with_device_binding_generations(staged, staged)
+            self.validate_household(qualified)
+            # Persist legacy missing epochs during bootstrap, never on a settings read.
+            if qualified != staged and self._store is not None:
+                await self._store.async_save(household_to_storage(qualified))
+            self._household = self._committed_household = qualified
+            self._loaded = True
+            return self._household
+
+    async def async_save(self, household: Household | None = None, *, rotate_bindings=False, replacing_profiles=()) -> Household:
+        """Validate and persist Household state."""
+        staged = household if household is not None else self._household
+        before = self._committed_household
+        self._write_intent_revision += 1
+        # Existing setters build immutable candidates before calling this method.
+        # Do not expose their candidate while storage is awaiting durable acceptance.
+        self._household = before
+        async with self._write_lock:
+            if self._committed_household != before:
+                raise ProfileStorageValidationError("profile_state_changed")
+            staged = _with_device_binding_generations(before, staged, force=rotate_bindings)
+            self.validate_household(staged)
+            async with self._settings_lifecycle_guard(before, staged, replacing_profiles):
+                if self._store is not None:
+                    save = asyncio.create_task(self._store.async_save(household_to_storage(staged)))
+                    while True:
+                        try:
+                            await asyncio.shield(save)
+                            break
+                        except asyncio.CancelledError:
+                            if save.cancelled():
+                                raise
+                            # Hold the owner lock through the definitive short file write.
+                            continue
+                self._household = self._committed_household = staged
+                self._loaded = True
+                self._invalidate_session_images()
         if self.hass is not None:
             from ..session_history_maintenance import schedule_history_maintenance
             schedule_history_maintenance(self.hass)
         return self._household
 
+    @asynccontextmanager
+    async def _settings_lifecycle_guard(self, before, staged, replacing_profiles=()):
+        """Serialize identity changes with existing Runtime/settings acceptance.
+
+        Profile lock → Runtime lock → provider lock. Settings SQL final fences
+        only read committed Profile state, never await this Profile write lock.
+        """
+        domain = self.hass.data.get('djconnect', {}) if self.hass is not None else {}
+        manager = domain.get('session_runtime_manager')
+        removed = set(before.profiles) - set(staged.profiles)
+        replaced = set(replacing_profiles)
+        added = set(staged.profiles) - set(before.profiles)
+        @asynccontextmanager
+        async def admitted():
+            if manager is not None and any(manager.current_active(owner) is not None
+                                           for owner in removed | replaced | added):
+                raise ProfileStorageValidationError('profile_has_active_session')
+            service = domain.get('persistence_service')
+            if service is not None and not service.readiness.ready and (added or replaced):
+                raise ProfileStorageValidationError('profile_settings_unavailable')
+            if service is not None and service.readiness.ready:
+                from ..persistence.dj_settings import ProfileDJSettingsRepository
+                repository = ProfileDJSettingsRepository(service)
+                for owner in replaced:
+                    snapshot = await repository.async_read(owner, authorize=lambda: True)
+                    if snapshot['activated']:
+                        raise ProfileStorageValidationError('profile_settings_restore_required')
+                # Erase before publishing a new identity. Failed JSON creation
+                # can only remove an orphan, never another live owner's state.
+                for owner in added:
+                    await repository.async_purge_owner(owner)
+            yield
+        if manager is not None:
+            async with manager._lock:
+                async with admitted():
+                    yield
+        else:
+            async with admitted():
+                yield
+
     async def async_commit_onboarding(self, before: Household, updated: Household) -> None:
         """Commit a staged onboarding update without exposing uncommitted state."""
+        intent_revision = self._write_intent_revision
+        updated = _with_device_binding_generations(before, updated)
         self.validate_household(updated)
         async with self._write_lock:
-            if self._household != before:
+            if self._household != before or self._write_intent_revision != intent_revision:
                 raise ProfileStorageValidationError("profile_state_changed")
-            if self._store is not None:
-                save = asyncio.create_task(self._store.async_save(household_to_storage(updated)))
-                try:
-                    await asyncio.shield(save)
-                except asyncio.CancelledError:
-                    # A file write may already be running. Finish it, restore the
-                    # latest committed state (including other Profile edits), then abort.
+            async with self._settings_lifecycle_guard(before, updated):
+                if self._store is not None:
+                    save = asyncio.create_task(self._store.async_save(household_to_storage(updated)))
                     try:
-                        await save
-                    finally:
-                        await asyncio.shield(self._store.async_save(household_to_storage(self._household)))
-                    raise
-                if self._household != before:
-                    await self._store.async_save(household_to_storage(self._household))
-                    raise ProfileStorageValidationError("profile_state_changed")
-            self._household = updated
-            self._invalidate_session_images()
+                        await asyncio.shield(save)
+                    except asyncio.CancelledError:
+                        # A file write may already be running. Finish it, restore the
+                        # latest committed state (including other Profile edits), then abort.
+                        try:
+                            await save
+                        finally:
+                            await asyncio.shield(self._store.async_save(household_to_storage(self._household)))
+                        raise
+                    if self._household != before or self._write_intent_revision != intent_revision:
+                        await self._store.async_save(household_to_storage(self._household))
+                        raise ProfileStorageValidationError("profile_state_changed")
+                self._household = self._committed_household = updated
+                self._invalidate_session_images()
 
     def _invalidate_session_images(self) -> None:
         """Latch private presentation withdrawal, including A→B→A changes."""
@@ -152,8 +225,12 @@ class ProfilePlatformStorage:
             raise ProfileStorageValidationError("profile display_name is required")
         if _duplicate_profile_name(household, name):
             raise ProfileStorageValidationError("profile display_name already exists")
+        if clean_identifier(profile_id) in household.profiles:
+            raise ProfileStorageValidationError('profile_id collision')
         profile = Profile(
             profile_id=clean_identifier(profile_id) or _new_id("profile"),
+            metadata=ProfileMetadata(dj_settings_version=(
+                2 if response_style == ResponseStyle.BALANCED and voice_style == VoiceStyle.DEFAULT else 1)),
             display_name=name,
             profile_type=profile_type,
             privacy_mode=privacy_mode,
@@ -203,6 +280,12 @@ class ProfilePlatformStorage:
             profile = replace(profile, privacy_mode=privacy_mode)
         if preferences is not None:
             profile = replace(profile, preferences=preferences)
+            if (preferences.response_style != ResponseStyle.BALANCED
+                    or preferences.voice_style != VoiceStyle.DEFAULT):
+                # Compatibility callers may still supply explicit legacy
+                # evidence. Preserve it for review; the marker is not authority
+                # to discard a newly supplied preference or activate SQL.
+                profile = replace(profile, metadata=replace(profile.metadata, dj_settings_version=1))
         self._household = replace(
             household,
             profiles={**household.profiles, profile.profile_id: profile},
@@ -296,7 +379,7 @@ class ProfilePlatformStorage:
             devices={**household.devices, device.device_id: device},
         )
         await self.async_save()
-        return device
+        return self._household.devices[device.device_id]
 
     async def async_unlink_device(self, device_id: str) -> Device:
         """Remove a Device -> Profile mapping."""
@@ -310,7 +393,7 @@ class ProfilePlatformStorage:
             devices={**household.devices, device.device_id: device},
         )
         await self.async_save()
-        return device
+        return self._household.devices[device.device_id]
 
     async def async_upsert_music_backend(
         self,
@@ -537,6 +620,29 @@ class ProfilePlatformStorage:
         return Store(hass, STORE_VERSION, STORE_KEY)
 
 
+def _with_device_binding_generations(before: Household, updated: Household, *, force=False) -> Household:
+    """Rotate persisted epochs only for identity, binding or permission changes."""
+    def policy(profile):
+        if profile is None:
+            return None
+        return (profile.profile_type, profile.state, profile.privacy_mode,
+                profile.entitlements, profile.capabilities, profile.capability_policy)
+
+    devices = {}
+    for key, device in updated.devices.items():
+        old = before.devices.get(key)
+        same = (old is not None and old.client_type == device.client_type
+                and old.linked_profile_id == device.linked_profile_id
+                and old.pairing_state == device.pairing_state
+                and policy(before.profiles.get(old.linked_profile_id))
+                == policy(updated.profiles.get(device.linked_profile_id)))
+        generation = old.binding_generation if same and not force else ''
+        if re.fullmatch(r'[a-f0-9]{32}', generation or '') is None:
+            generation = uuid.uuid4().hex
+        devices[key] = replace(device, binding_generation=generation)
+    return replace(updated, devices=devices)
+
+
 def _reassign_profile_devices(
     devices: dict[str, Device],
     profile_id: str,
@@ -647,7 +753,7 @@ def _mapping_field_name(mapping_type: str) -> str:
     return field_name
 
 
-def household_from_storage(data: Any) -> Household:
+def household_from_storage(data: Any, *, trusted_bindings=True) -> Household:
     """Deserialize Household state from explicit storage schema."""
     if not isinstance(data, dict):
         return default_household()
@@ -658,7 +764,7 @@ def household_from_storage(data: Any) -> Household:
         if isinstance(item, dict) and clean_identifier(item.get("profile_id"))
     }
     devices = {
-        item["device_id"]: _device_from_storage(item)
+        item["device_id"]: _device_from_storage(item, trusted_binding=trusted_bindings)
         for item in _object_list(household_data.get("devices"))
         if isinstance(item, dict) and clean_identifier(item.get("device_id"))
     }
@@ -778,7 +884,7 @@ def household_to_storage(household: Household) -> dict[str, Any]:
 
 def _profile_to_storage(profile: Profile) -> dict[str, Any]:
     prefs = profile.preferences
-    return {
+    result = {
         "profile_id": profile.profile_id,
         "display_name": profile.display_name,
         "profile_type": profile.profile_type.value,
@@ -798,6 +904,7 @@ def _profile_to_storage(profile: Profile) -> dict[str, Any]:
             "created_by": profile.metadata.created_by,
             "labels": sorted(profile.metadata.labels),
             "source": profile.metadata.source,
+            "dj_settings_version": profile.metadata.dj_settings_version,
         },
         "references": {
             "music_dna": {
@@ -844,10 +951,18 @@ def _profile_to_storage(profile: Profile) -> dict[str, Any]:
     }
 
 
+    if profile.metadata.dj_settings_version == 2:
+        result['preferences'].pop('response_style', None)
+        result['preferences'].pop('voice_style', None)
+    return result
+
+
 def _profile_from_storage(data: dict[str, Any]) -> Profile:
     prefs = data.get("preferences") or {}
     refs = data.get("references") or {}
     metadata = data.get("metadata") or {}
+    if type(metadata.get('dj_settings_version')) is int and metadata['dj_settings_version'] == 2:
+        prefs = {key: value for key, value in prefs.items() if key not in {'response_style', 'voice_style'}}
     mood = data.get("mood") or {}
     entitlements = data.get("entitlements") or {}
     capabilities = data.get("capabilities") or {}
@@ -880,6 +995,8 @@ def _profile_from_storage(data: dict[str, Any]) -> Profile:
             created_by=clean_identifier(metadata.get("created_by")),
             labels=frozenset(_list(metadata.get("labels"))),
             source=clean_identifier(metadata.get("source")) or "djconnect",
+            dj_settings_version=2 if type(metadata.get('dj_settings_version')) is int
+                and metadata['dj_settings_version'] == 2 else 1,
         ),
         music_dna=MusicDNAReference(
             key=clean_identifier((refs.get("music_dna") or {}).get("key")),
@@ -932,10 +1049,11 @@ def _device_to_storage(device: Device) -> dict[str, Any]:
         "last_seen": device.last_seen,
         "capabilities": device.capabilities.__dict__,
         "runtime": device.runtime.__dict__,
+        "binding_generation": device.binding_generation,
     }
 
 
-def _device_from_storage(data: dict[str, Any]) -> Device:
+def _device_from_storage(data: dict[str, Any], *, trusted_binding=True) -> Device:
     capabilities = data.get("capabilities") or {}
     runtime = data.get("runtime") or {}
     return Device(
@@ -953,6 +1071,9 @@ def _device_from_storage(data: dict[str, Any]) -> Device:
         ),
         last_seen=clean_identifier(data.get("last_seen")),
         runtime=DeviceRuntimeMetadata(**_known_kwargs(DeviceRuntimeMetadata, runtime)),
+        binding_generation=(data.get("binding_generation", "")
+                            if trusted_binding and re.fullmatch(r'[a-f0-9]{32}', str(data.get("binding_generation", "")))
+                            else ""),
     )
 
 

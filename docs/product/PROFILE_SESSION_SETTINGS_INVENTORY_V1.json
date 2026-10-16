@@ -1,0 +1,2843 @@
+{
+  "schema_version": "djconnect-settings-inventory/1",
+  "assignment": "DJC-PROFILE-SESSION-SETTINGS-CONSOLIDATION-V1-20261016",
+  "source_pin": "148bd5aee3110c1a1ab13e7c463a164c99d79b70",
+  "status": "IN_PROGRESS_STATIC_BASELINE_AND_CONNECTED_CORE_PATHS; not a completed platform cleanup",
+  "five_shared_parameters": [
+    "persona",
+    "voice",
+    "gender",
+    "mood",
+    "presence"
+  ],
+  "core_constant_settings": [
+    {
+      "identifier": "CONF_LAST_PUSH_STATUS",
+      "storage_key": "last_push_status",
+      "definition": {
+        "path": "custom_components/djconnect/const.py",
+        "line": 7
+      },
+      "static_references": [
+        {
+          "path": "custom_components/djconnect/__init__.py",
+          "lines": [
+            69,
+            1947
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/push.py",
+          "lines": [
+            24,
+            592,
+            594
+          ]
+        }
+      ],
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "KEEP_DERIVED",
+      "owning_lane": "DJC-CORE",
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "push._persist_push_status -> ConfigEntry -> __init__._restore_runtime; observed registration status, not a preference"
+    },
+    {
+      "identifier": "CONF_DEVICE_ID",
+      "storage_key": "device_id",
+      "definition": {
+        "path": "custom_components/djconnect/const.py",
+        "line": 65
+      },
+      "static_references": [
+        {
+          "path": "custom_components/djconnect/__init__.py",
+          "lines": [
+            62,
+            454,
+            851,
+            1006,
+            1743,
+            1966,
+            1967,
+            1968,
+            2196,
+            2208,
+            2231,
+            2338,
+            2339,
+            2348,
+            2441,
+            2466,
+            2496,
+            2545,
+            2546,
+            2555,
+            3057,
+            3067,
+            3134,
+            3186,
+            3396,
+            3397,
+            3416
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/ask_dj/__init__.py",
+          "lines": [
+            21,
+            8695
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/ask_dj_history.py",
+          "lines": [
+            13,
+            759
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/button.py",
+          "lines": [
+            23,
+            239
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/central_api.py",
+          "lines": [
+            15,
+            83,
+            290
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/client_retirement.py",
+          "lines": [
+            7,
+            23
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/config_flow.py",
+          "lines": [
+            28,
+            687,
+            750,
+            822,
+            1445,
+            1446,
+            1447,
+            1456,
+            1525,
+            1662,
+            1676,
+            1691,
+            2041,
+            2886,
+            2893,
+            3088,
+            3340
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/discovery.py",
+          "lines": [
+            16,
+            169,
+            225
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/discovery_selection.py",
+          "lines": [
+            8,
+            46
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/http.py",
+          "lines": [
+            72,
+            805,
+            1113,
+            2448,
+            4067,
+            4404
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/music_discovery.py",
+          "lines": [
+            12,
+            60,
+            84,
+            105,
+            169,
+            205,
+            215,
+            225,
+            238,
+            277,
+            299,
+            321,
+            328,
+            335,
+            344,
+            350,
+            356,
+            361,
+            376,
+            424,
+            580
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/music_dna.py",
+          "lines": [
+            16,
+            181,
+            182,
+            184,
+            1017,
+            1018,
+            1020
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/profile_backend.py",
+          "lines": [
+            8,
+            98
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/profile_context.py",
+          "lines": [
+            9,
+            137,
+            168
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/push.py",
+          "lines": [
+            23,
+            540,
+            549,
+            775
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/request_auth.py",
+          "lines": [
+            12,
+            93
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/tool_handlers.py",
+          "lines": [
+            9,
+            287,
+            288,
+            295,
+            302
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/vibecast.py",
+          "lines": [
+            16,
+            66,
+            99,
+            117,
+            160,
+            175,
+            200,
+            216,
+            817,
+            840
+          ]
+        }
+      ],
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "KEEP_DERIVED",
+      "owning_lane": "DJC-CORE",
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "pairing/discovery persistent identity -> request_auth.runtime_matches_device/Profile resolver -> device authorization"
+    },
+    {
+      "identifier": "CONF_DEVICE_NAME",
+      "storage_key": "device_name",
+      "definition": {
+        "path": "custom_components/djconnect/const.py",
+        "line": 66
+      },
+      "static_references": [
+        {
+          "path": "custom_components/djconnect/__init__.py",
+          "lines": [
+            64,
+            852
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/ask_dj/__init__.py",
+          "lines": [
+            22,
+            8697
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/ask_dj_history.py",
+          "lines": [
+            13,
+            760
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/config_flow.py",
+          "lines": [
+            30,
+            691,
+            692,
+            753,
+            827,
+            1526,
+            1692,
+            1693,
+            1695,
+            1696,
+            1888,
+            1926,
+            1964,
+            2150,
+            2178,
+            2630,
+            2661,
+            2888
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/conversation.py",
+          "lines": [
+            14,
+            43
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/device_info.py",
+          "lines": [
+            16,
+            49
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/discovery.py",
+          "lines": [
+            17,
+            188,
+            236
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/discovery_selection.py",
+          "lines": [
+            9,
+            47
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/http.py",
+          "lines": [
+            73,
+            2449
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/music_dna.py",
+          "lines": [
+            17,
+            193,
+            195,
+            196
+          ]
+        }
+      ],
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "KEEP_HA_ONLY",
+      "owning_lane": "DJC-CORE",
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "configflow/discovery entry metadata -> device_info.djconnect_device_name -> physical device/HA display label"
+    },
+    {
+      "identifier": "CONF_DEVICE_TOKEN",
+      "storage_key": "device_token",
+      "definition": {
+        "path": "custom_components/djconnect/const.py",
+        "line": 67
+      },
+      "static_references": [
+        {
+          "path": "custom_components/djconnect/__init__.py",
+          "lines": [
+            65,
+            1960,
+            1961,
+            3405,
+            3419
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/config_flow.py",
+          "lines": [
+            31,
+            1443,
+            1453,
+            1699,
+            1700,
+            2015,
+            3360
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/http.py",
+          "lines": [
+            74,
+            1114,
+            2444,
+            2446,
+            2451,
+            2457
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/repairs.py",
+          "lines": [
+            16,
+            78
+          ]
+        }
+      ],
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "KEEP_HA_ONLY",
+      "owning_lane": "DJC-CORE",
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "pair/re-pair persistent entry secret -> runtime authorization/device headers -> paired authority; no export/roaming"
+    },
+    {
+      "identifier": "CONF_DEVICE_LANGUAGE",
+      "storage_key": "device_language",
+      "definition": {
+        "path": "custom_components/djconnect/const.py",
+        "line": 68
+      },
+      "static_references": [
+        {
+          "path": "custom_components/djconnect/__init__.py",
+          "lines": [
+            63,
+            625
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/config_flow.py",
+          "lines": [
+            29,
+            1715
+          ]
+        }
+      ],
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "KEEP_HA_ONLY",
+      "owning_lane": "DJC-CORE",
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "ESP pairing entry -> runtime.device_language -> physical ESP language; no Apple language override"
+    },
+    {
+      "identifier": "CONF_CLIENT_TYPE",
+      "storage_key": "client_type",
+      "definition": {
+        "path": "custom_components/djconnect/const.py",
+        "line": 69
+      },
+      "static_references": [
+        {
+          "path": "custom_components/djconnect/__init__.py",
+          "lines": [
+            59,
+            631,
+            632,
+            830,
+            837,
+            840,
+            1758,
+            2197,
+            2207,
+            2230,
+            2336,
+            2346,
+            2387,
+            2406,
+            2422,
+            2440,
+            2465,
+            2495,
+            2523,
+            2543,
+            2553,
+            2571,
+            2587,
+            2605,
+            2621,
+            2639,
+            2657,
+            2674,
+            2691,
+            2708,
+            2724,
+            2741,
+            2759,
+            3058,
+            3068,
+            3133,
+            3187
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/announcements.py",
+          "lines": [
+            18,
+            83,
+            84,
+            135,
+            152,
+            182
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/api_handlers.py",
+          "lines": [
+            10,
+            1006,
+            1062,
+            1350,
+            1480,
+            1592,
+            1896,
+            3308
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/ask_dj/__init__.py",
+          "lines": [
+            20,
+            8696
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/ask_dj_history.py",
+          "lines": [
+            13,
+            601,
+            635
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/button.py",
+          "lines": [
+            22,
+            233
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/central_api.py",
+          "lines": [
+            13,
+            85,
+            302
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/client_retirement.py",
+          "lines": [
+            7,
+            21
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/config_flow.py",
+          "lines": [
+            27,
+            695,
+            696,
+            752,
+            826,
+            1163,
+            1527,
+            1604,
+            1605,
+            1608,
+            1647,
+            1648,
+            1678,
+            1698,
+            1877,
+            1878,
+            1880,
+            1887,
+            1901,
+            1919,
+            1925,
+            1963,
+            2000,
+            2007,
+            2014,
+            2145,
+            2155,
+            2685,
+            2710,
+            2738,
+            2805,
+            2810,
+            2887,
+            3094,
+            3217,
+            3385
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/device_info.py",
+          "lines": [
+            15,
+            64,
+            65
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/discovery.py",
+          "lines": [
+            15,
+            168,
+            227
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/discovery_selection.py",
+          "lines": [
+            7,
+            49
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/http.py",
+          "lines": [
+            71,
+            715,
+            806,
+            1115,
+            2428,
+            2450,
+            2632,
+            2645,
+            2686,
+            2715,
+            2746,
+            3508,
+            3551,
+            3962,
+            4007,
+            4052,
+            4069,
+            4227,
+            4229,
+            4405,
+            4530,
+            4586,
+            4593,
+            4635
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/music_discovery.py",
+          "lines": [
+            12,
+            59,
+            83,
+            104,
+            168,
+            204,
+            214,
+            224,
+            237,
+            276,
+            298,
+            327,
+            360,
+            369,
+            425,
+            579
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/music_dna.py",
+          "lines": [
+            15,
+            187,
+            188,
+            190,
+            346,
+            347,
+            834
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/profile_context.py",
+          "lines": [
+            9,
+            142
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/push.py",
+          "lines": [
+            22,
+            541,
+            551,
+            772
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/repairs.py",
+          "lines": [
+            15,
+            163,
+            175
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/request_auth.py",
+          "lines": [
+            11,
+            127,
+            146,
+            147
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/retired_provider.py",
+          "lines": [
+            12,
+            166,
+            347,
+            540
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/tool_handlers.py",
+          "lines": [
+            9,
+            285,
+            293,
+            301,
+            325
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/vibecast.py",
+          "lines": [
+            15,
+            76,
+            217,
+            815
+          ]
+        }
+      ],
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "KEEP_DERIVED",
+      "owning_lane": "DJC-CORE",
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "setup/pairing entry -> request_auth/capabilities/retirement -> runtime discrimination"
+    },
+    {
+      "identifier": "CONF_LOCAL_URL",
+      "storage_key": "local_url",
+      "definition": {
+        "path": "custom_components/djconnect/const.py",
+        "line": 70
+      },
+      "static_references": [
+        {
+          "path": "custom_components/djconnect/__init__.py",
+          "lines": [
+            70,
+            434,
+            1971
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/api_handlers.py",
+          "lines": [
+            10,
+            1060
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/config_flow.py",
+          "lines": [
+            41,
+            1142,
+            1296,
+            1448,
+            1449,
+            1459,
+            1651,
+            1652,
+            1713,
+            2161,
+            2180,
+            3297,
+            3313,
+            3342,
+            3350
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/discovery.py",
+          "lines": [
+            18,
+            178,
+            224
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/discovery_selection.py",
+          "lines": [
+            10,
+            50
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/http.py",
+          "lines": [
+            77,
+            1121
+          ]
+        }
+      ],
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "KEEP_HA_ONLY",
+      "owning_lane": "DJC-CORE",
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "device discovery/status or advanced override -> entry/runtime -> async_device_local_url -> physical device calls"
+    },
+    {
+      "identifier": "CONF_HA_EXTERNAL_URL",
+      "storage_key": "ha_external_url",
+      "definition": {
+        "path": "custom_components/djconnect/const.py",
+        "line": 71
+      },
+      "static_references": [
+        {
+          "path": "custom_components/djconnect/__init__.py",
+          "lines": [
+            67,
+            398,
+            2272
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/config_flow.py",
+          "lines": [
+            39,
+            940,
+            2020,
+            2283,
+            2287,
+            2289,
+            2291,
+            2303,
+            2334,
+            3203
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/http.py",
+          "lines": [
+            75,
+            2461
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/profile_backend.py",
+          "lines": [
+            16,
+            32
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/repairs.py",
+          "lines": [
+            17,
+            363
+          ]
+        }
+      ],
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "KEEP_HA_ONLY",
+      "owning_lane": "DJC-CORE",
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "HA/OAuth config entry -> OAuth callback/reauthorization -> registered redirect route"
+    },
+    {
+      "identifier": "CONF_PAIR_CODE",
+      "storage_key": "pair_code",
+      "definition": {
+        "path": "custom_components/djconnect/const.py",
+        "line": 72
+      },
+      "static_references": [
+        {
+          "path": "custom_components/djconnect/__init__.py",
+          "lines": [
+            73,
+            821,
+            850,
+            1969,
+            1970
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/config_flow.py",
+          "lines": [
+            47,
+            1444,
+            1633,
+            1635,
+            1642,
+            1690,
+            1915,
+            1922,
+            1962,
+            1986,
+            2013,
+            2060,
+            2141,
+            2177,
+            3296,
+            3299,
+            3301,
+            3312,
+            3339
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/discovery.py",
+          "lines": [
+            19,
+            333
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/discovery_selection.py",
+          "lines": [
+            11,
+            51
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/http.py",
+          "lines": [
+            81,
+            2456,
+            2547
+          ]
+        }
+      ],
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "KEEP_HA_ONLY",
+      "owning_lane": "DJC-CORE",
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "setup/re-pair -> entry -> pairing validation/recovery; never Profile preference"
+    },
+    {
+      "identifier": "CONF_PAIRING_URI",
+      "storage_key": "pairing_uri",
+      "definition": {
+        "path": "custom_components/djconnect/const.py",
+        "line": 73
+      },
+      "static_references": [
+        {
+          "path": "custom_components/djconnect/config_flow.py",
+          "lines": [
+            48,
+            1711,
+            1930,
+            1969,
+            2062
+          ]
+        }
+      ],
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "KEEP_DERIVED",
+      "owning_lane": "DJC-CORE",
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "_build_pairing_uri -> temporary pairing flow -> QR/deeplink presentation"
+    },
+    {
+      "identifier": "CONF_MUSIC_BACKEND",
+      "storage_key": "music_backend",
+      "definition": {
+        "path": "custom_components/djconnect/const.py",
+        "line": 74
+      },
+      "static_references": [
+        {
+          "path": "custom_components/djconnect/__init__.py",
+          "lines": [
+            71,
+            2250
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/ask_dj/__init__.py",
+          "lines": [
+            23,
+            9707
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/config_flow.py",
+          "lines": [
+            44,
+            294,
+            310,
+            602,
+            761,
+            1223,
+            1224,
+            1476,
+            2206,
+            2223,
+            2226,
+            2229,
+            2259,
+            2417,
+            2433,
+            2925,
+            2926,
+            2936,
+            2942,
+            2947,
+            2953,
+            2956,
+            2992,
+            3027,
+            3028,
+            3032,
+            3099
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/diagnostics.py",
+          "lines": [
+            8,
+            85,
+            86
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/http.py",
+          "lines": [
+            79,
+            2248
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/profile_backend.py",
+          "lines": [
+            10,
+            140,
+            218
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/repairs.py",
+          "lines": [
+            18,
+            173
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/retired_provider.py",
+          "lines": [
+            12,
+            121,
+            170,
+            258,
+            340,
+            549
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/use_cases.py",
+          "lines": [
+            14,
+            622
+          ]
+        }
+      ],
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "KEEP_HA_ONLY",
+      "owning_lane": "DJC-CORE",
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "backendflow/Profile binding -> backend entry -> profile_backend/use_cases -> provider routing; client readback only"
+    },
+    {
+      "identifier": "CONF_MUSIC_ASSISTANT_PLAYER",
+      "storage_key": "music_assistant_player",
+      "definition": {
+        "path": "custom_components/djconnect/const.py",
+        "line": 75
+      },
+      "static_references": [
+        {
+          "path": "custom_components/djconnect/__init__.py",
+          "lines": [
+            72,
+            399,
+            2252,
+            3279
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/config_flow.py",
+          "lines": [
+            43,
+            818,
+            849,
+            2251,
+            2254,
+            2256,
+            2260,
+            2974,
+            2983,
+            2985,
+            2988,
+            2993,
+            3016,
+            3134
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/profile_backend.py",
+          "lines": [
+            9,
+            33,
+            172
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/use_cases.py",
+          "lines": [
+            13,
+            344,
+            648,
+            728
+          ]
+        }
+      ],
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "KEEP_HA_ONLY",
+      "owning_lane": "DJC-CORE",
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "backendflow entry -> use_cases.player_entity_id -> actual backend playback/transfer; active reader retained"
+    },
+    {
+      "identifier": "CONF_MUSIC_BACKEND_REVISION",
+      "storage_key": "music_backend_revision",
+      "definition": {
+        "path": "custom_components/djconnect/const.py",
+        "line": 76
+      },
+      "static_references": [
+        {
+          "path": "custom_components/djconnect/config_flow.py",
+          "lines": [
+            45,
+            1404,
+            3033,
+            3038,
+            3070
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/http.py",
+          "lines": [
+            80,
+            2259
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/music_dna.py",
+          "lines": [
+            18,
+            1229
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/profile_backend.py",
+          "lines": [
+            11,
+            34
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/use_cases.py",
+          "lines": [
+            15,
+            689,
+            711
+          ]
+        }
+      ],
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "KEEP_DERIVED",
+      "owning_lane": "DJC-CORE",
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "_finish_backend_switch -> revision -> backend action/stale-request fences"
+    },
+    {
+      "identifier": "CONF_SETUP_METHOD",
+      "storage_key": "setup_method",
+      "definition": {
+        "path": "custom_components/djconnect/const.py",
+        "line": 77
+      },
+      "static_references": [
+        {
+          "path": "custom_components/djconnect/config_flow.py",
+          "lines": [
+            53,
+            1504,
+            1506,
+            1516,
+            1524,
+            1544
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/repairs.py",
+          "lines": [
+            19,
+            164
+          ]
+        }
+      ],
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "KEEP_HA_ONLY",
+      "owning_lane": "DJC-CORE",
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "initial configflow entry -> Repairs -> agent-only versus paired setup recovery"
+    },
+    {
+      "identifier": "CONF_BLE_ADDRESS",
+      "storage_key": "ble_address",
+      "definition": {
+        "path": "custom_components/djconnect/const.py",
+        "line": 78
+      },
+      "static_references": [
+        {
+          "path": "custom_components/djconnect/config_flow.py",
+          "lines": [
+            26,
+            540,
+            1568,
+            1572
+          ]
+        }
+      ],
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "KEEP_HA_ONLY",
+      "owning_lane": "DJC-CORE",
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "temporary BLE input -> provisioning call; no Profile persistence"
+    },
+    {
+      "identifier": "CONF_WIFI_SSID",
+      "storage_key": "wifi_ssid",
+      "definition": {
+        "path": "custom_components/djconnect/const.py",
+        "line": 79
+      },
+      "static_references": [
+        {
+          "path": "custom_components/djconnect/config_flow.py",
+          "lines": [
+            56,
+            541,
+            1569,
+            1574
+          ]
+        }
+      ],
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "KEEP_HA_ONLY",
+      "owning_lane": "DJC-CORE",
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "temporary BLE input -> _provision_ble_wifi_safe -> device provisioning; not roaming"
+    },
+    {
+      "identifier": "CONF_WIFI_PASSWORD",
+      "storage_key": "wifi_password",
+      "definition": {
+        "path": "custom_components/djconnect/const.py",
+        "line": 80
+      },
+      "static_references": [
+        {
+          "path": "custom_components/djconnect/config_flow.py",
+          "lines": [
+            55,
+            542,
+            1570
+          ]
+        }
+      ],
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "KEEP_HA_ONLY",
+      "owning_lane": "DJC-CORE",
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "temporary secret input -> provisioning -> device WiFi; no normal export/log"
+    },
+    {
+      "identifier": "CONF_API_BASE_URL",
+      "storage_key": "api_base_url",
+      "definition": {
+        "path": "custom_components/djconnect/const.py",
+        "line": 81
+      },
+      "static_references": [
+        {
+          "path": "custom_components/djconnect/__init__.py",
+          "lines": [
+            49,
+            3228,
+            3229
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/central_api.py",
+          "lines": [
+            12,
+            231,
+            280
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/config_flow.py",
+          "lines": [
+            24,
+            1248,
+            1249,
+            1266,
+            1268,
+            3146,
+            3152,
+            3153
+          ]
+        }
+      ],
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "KEEP_HA_ONLY",
+      "owning_lane": "DJC-CORE",
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "HA API flow/options -> central_api._api_base_url -> server-owned central route"
+    },
+    {
+      "identifier": "CONF_HA_INSTALL_ID",
+      "storage_key": "ha_install_id",
+      "definition": {
+        "path": "custom_components/djconnect/const.py",
+        "line": 82
+      },
+      "static_references": [
+        {
+          "path": "custom_components/djconnect/__init__.py",
+          "lines": [
+            68,
+            1788,
+            3230,
+            3231
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/central_api.py",
+          "lines": [
+            16,
+            45,
+            210,
+            211,
+            222,
+            232
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/config_flow.py",
+          "lines": [
+            40,
+            373,
+            1251,
+            3147,
+            3155,
+            3156
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/http.py",
+          "lines": [
+            76,
+            606,
+            610
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/hybrid_service.py",
+          "lines": [
+            321,
+            328
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/hybrid_transport.py",
+          "lines": [
+            34,
+            42,
+            45,
+            46,
+            69,
+            91
+          ]
+        }
+      ],
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "KEEP_DERIVED",
+      "owning_lane": "DJC-CORE",
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "ensure_ha_install_id -> options -> central identity/Hybrid installation binding"
+    },
+    {
+      "identifier": "CONF_DJCONNECT_INSTALL_TOKEN",
+      "storage_key": "djconnect_install_token",
+      "definition": {
+        "path": "custom_components/djconnect/const.py",
+        "line": 83
+      },
+      "static_references": [
+        {
+          "path": "custom_components/djconnect/__init__.py",
+          "lines": [
+            66,
+            1790
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/central_api.py",
+          "lines": [
+            14,
+            103,
+            198,
+            202,
+            233,
+            285
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/config_flow.py",
+          "lines": [
+            34,
+            1245,
+            1252,
+            1269,
+            1271,
+            3158,
+            3159,
+            3180
+          ]
+        }
+      ],
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "KEEP_HA_ONLY",
+      "owning_lane": "DJC-CORE",
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "authorized mint/rotation -> options secret -> central API authentication"
+    },
+    {
+      "identifier": "CONF_CENTRAL_API_BOOTSTRAP_PROOF",
+      "storage_key": "central_api_bootstrap_proof",
+      "definition": {
+        "path": "custom_components/djconnect/const.py",
+        "line": 84
+      },
+      "static_references": [
+        {
+          "path": "custom_components/djconnect/__init__.py",
+          "lines": [
+            60,
+            196,
+            1323,
+            1792,
+            1793,
+            2213
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/push.py",
+          "lines": [
+            21,
+            66,
+            784
+          ]
+        }
+      ],
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "KEEP_HA_ONLY",
+      "owning_lane": "DJC-CORE",
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "push registration/service input -> short-lived install bootstrap -> removal after use; transient secret"
+    },
+    {
+      "identifier": "CONF_CENTRAL_API_BOOTSTRAP_PROOF_EXPIRES_AT",
+      "storage_key": "central_api_bootstrap_proof_expires_at",
+      "definition": {
+        "path": "custom_components/djconnect/const.py",
+        "line": 85
+      },
+      "static_references": [
+        {
+          "path": "custom_components/djconnect/__init__.py",
+          "lines": [
+            61,
+            1324
+          ]
+        }
+      ],
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "KEEP_HA_ONLY",
+      "owning_lane": "DJC-CORE",
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "developer-service compatibility field and cleanup retained; no independently proven deciding expiry reader; not an expiry acceptance claim"
+    },
+    {
+      "identifier": "CONF_SPOTIFY_CLIENT_ID",
+      "storage_key": "spotify_client_id",
+      "definition": {
+        "path": "custom_components/djconnect/const.py",
+        "line": 87
+      },
+      "static_references": [
+        {
+          "path": "custom_components/djconnect/__init__.py",
+          "lines": [
+            74,
+            397,
+            583,
+            2263
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/config_flow.py",
+          "lines": [
+            49,
+            811,
+            939,
+            1397,
+            2282,
+            2285,
+            2312,
+            2333,
+            3201
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/http.py",
+          "lines": [
+            88,
+            1012,
+            4775,
+            4822
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/profile_backend.py",
+          "lines": [
+            13,
+            28,
+            164
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/repairs.py",
+          "lines": [
+            20,
+            96,
+            179,
+            360
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/spotify_backend.py",
+          "lines": [
+            19,
+            259
+          ]
+        }
+      ],
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "KEEP_HA_ONLY",
+      "owning_lane": "DJC-CORE",
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "OAuth config -> entry/account -> refresh/reauthorization; provider configuration"
+    },
+    {
+      "identifier": "CONF_SPOTIFY_REFRESH_TOKEN",
+      "storage_key": "spotify_refresh_token",
+      "definition": {
+        "path": "custom_components/djconnect/const.py",
+        "line": 88
+      },
+      "static_references": [
+        {
+          "path": "custom_components/djconnect/__init__.py",
+          "lines": [
+            76,
+            397,
+            405,
+            586,
+            615,
+            1958,
+            1959,
+            2255,
+            3279,
+            3477,
+            3479,
+            3558
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/config_flow.py",
+          "lines": [
+            51,
+            777,
+            1398,
+            2590,
+            2591
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/http.py",
+          "lines": [
+            90,
+            1013,
+            1072,
+            1075,
+            4776,
+            4823
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/profile_backend.py",
+          "lines": [
+            12,
+            29,
+            75,
+            168
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/repairs.py",
+          "lines": [
+            22,
+            107,
+            180,
+            254,
+            296
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/spotify_backend.py",
+          "lines": [
+            20,
+            376,
+            382,
+            2327,
+            2328,
+            2329
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/use_cases.py",
+          "lines": [
+            16,
+            667
+          ]
+        }
+      ],
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "KEEP_HA_ONLY",
+      "owning_lane": "DJC-CORE",
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "OAuth callback/rotation -> entry/account secret -> provider auth; never Profile export"
+    },
+    {
+      "identifier": "CONF_SPOTIFY_MARKET",
+      "storage_key": "spotify_market",
+      "definition": {
+        "path": "custom_components/djconnect/const.py",
+        "line": 89
+      },
+      "static_references": [
+        {
+          "path": "custom_components/djconnect/__init__.py",
+          "lines": [
+            75,
+            398,
+            592,
+            2282
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/config_flow.py",
+          "lines": [
+            50,
+            2335,
+            2336,
+            2362,
+            2593,
+            2594,
+            3250
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/http.py",
+          "lines": [
+            89,
+            1024,
+            4777,
+            4824
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/profile_backend.py",
+          "lines": [
+            14,
+            30
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/repairs.py",
+          "lines": [
+            21,
+            377
+          ]
+        }
+      ],
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "KEEP_HA_ONLY",
+      "owning_lane": "DJC-CORE",
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "HA provider/OAuth config -> entry -> provider credentials/search context; not content locale"
+    },
+    {
+      "identifier": "CONF_SPOTIFY_SCOPES",
+      "storage_key": "spotify_scopes",
+      "definition": {
+        "path": "custom_components/djconnect/const.py",
+        "line": 90
+      },
+      "static_references": [
+        {
+          "path": "custom_components/djconnect/__init__.py",
+          "lines": [
+            77,
+            398,
+            591,
+            2277
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/config_flow.py",
+          "lines": [
+            52,
+            2339,
+            2597,
+            2598
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/diagnostics.py",
+          "lines": [
+            10,
+            89
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/http.py",
+          "lines": [
+            91,
+            1016,
+            4778,
+            4825
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/profile_backend.py",
+          "lines": [
+            15,
+            31
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/repairs.py",
+          "lines": [
+            23,
+            120,
+            181
+          ]
+        }
+      ],
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "KEEP_DERIVED",
+      "owning_lane": "DJC-CORE",
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "OAuth grant -> entry -> Repairs/diagnostics capability qualification"
+    },
+    {
+      "identifier": "CONF_SPOTIFY_SOURCE",
+      "storage_key": "spotify_source",
+      "definition": {
+        "path": "custom_components/djconnect/const.py",
+        "line": 91
+      },
+      "static_references": [
+        {
+          "path": "custom_components/djconnect/spotify.py",
+          "lines": [
+            7,
+            27
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/spotify_backend.py",
+          "lines": [
+            21,
+            1391
+          ]
+        }
+      ],
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "REPLACE_MIGRATE",
+      "owning_lane": "DJC-CORE",
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "legacy HA-only output override, no normal UI writer -> spotify.play_from_intent/set_output and spotify_backend._ensure_playback_device/transfer; outside common-turn fallback. Active effect: retain until existing playback-zone/output owner migration is qualified; never classify dead or roam as DJ preference"
+    },
+    {
+      "identifier": "CONF_LIKED_PROXY",
+      "storage_key": "liked_proxy_playlist_uri",
+      "definition": {
+        "path": "custom_components/djconnect/const.py",
+        "line": 92
+      },
+      "static_references": [
+        {
+          "path": "custom_components/djconnect/spotify.py",
+          "lines": [
+            7,
+            120
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/spotify_backend.py",
+          "lines": [
+            18,
+            1225
+          ]
+        }
+      ],
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "KEEP_HA_ONLY",
+      "owning_lane": "DJC-CORE",
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "legacy provider config -> spotify._liked_proxy_media/spotify_backend.start_liked_proxy -> actual playlist playback; independent of DJ settings"
+    },
+    {
+      "identifier": "CONF_ASSIST_PIPELINE_ID",
+      "storage_key": "assist_pipeline_id",
+      "definition": {
+        "path": "custom_components/djconnect/const.py",
+        "line": 94
+      },
+      "static_references": [
+        {
+          "path": "custom_components/djconnect/__init__.py",
+          "lines": [
+            58,
+            855
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/assist_stt.py",
+          "lines": [
+            15,
+            186
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/config_flow.py",
+          "lines": [
+            25,
+            225,
+            1159,
+            1160,
+            1202,
+            1203,
+            1207,
+            1288,
+            1313,
+            1315,
+            2017,
+            2018
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/diagnostics.py",
+          "lines": [
+            9,
+            64
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/http.py",
+          "lines": [
+            70,
+            2458,
+            2459,
+            2468,
+            2652,
+            2778,
+            4290
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/pipeline.py",
+          "lines": [
+            10,
+            116,
+            148
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/tts.py",
+          "lines": [
+            13,
+            82,
+            293
+          ]
+        }
+      ],
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "KEEP_HA_ONLY",
+      "owning_lane": "DJC-CORE",
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "current_reader": "pipeline._assist_context; voice_stt; speech_processor generic configured HA provider. Never a roaming setting.",
+      "semantic_trace": "HA config/options -> pipeline/STT/TTS qualified provider selection; no client editor/roaming identifier"
+    },
+    {
+      "identifier": "CONF_STT_ENGINE",
+      "storage_key": "stt_engine",
+      "definition": {
+        "path": "custom_components/djconnect/const.py",
+        "line": 95
+      },
+      "static_references": [],
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "REMOVE",
+      "owning_lane": "DJC-CORE",
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "current_reader": "No active DJConnect constant reader; HA Assist pipeline fields with same string remain separately owned.",
+      "semantic_trace": "obsolete DJConnect option removed; same-spelled active HA pipeline fields are distinct and preserved"
+    },
+    {
+      "identifier": "CONF_TTS_ENGINE",
+      "storage_key": "tts_engine",
+      "definition": {
+        "path": "custom_components/djconnect/const.py",
+        "line": 96
+      },
+      "static_references": [],
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "REMOVE",
+      "owning_lane": "DJC-CORE",
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "current_reader": "No active DJConnect constant reader; HA Assist pipeline fields with same string remain separately owned.",
+      "semantic_trace": "obsolete DJConnect option removed; configured HA provider engine remains active and preserved"
+    },
+    {
+      "identifier": "CONF_TTS_LANGUAGE",
+      "storage_key": "tts_language",
+      "definition": {
+        "path": "custom_components/djconnect/const.py",
+        "line": 97
+      },
+      "static_references": [
+        {
+          "path": "custom_components/djconnect/http.py",
+          "lines": [
+            92,
+            1842,
+            1855
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/pipeline.py",
+          "lines": [
+            11,
+            118,
+            581
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/processor.py",
+          "lines": [
+            7,
+            623,
+            708,
+            760
+          ]
+        }
+      ],
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "REPLACE_MIGRATE",
+      "owning_lane": "DJC-CORE",
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "no new HA options writer; legacy pipeline._assist_context/_response_language, processor response text and http._play_now_response_conf fallback still read it. Retain isolated locale compatibility until content/ESP consumer locale adoption; not concrete voice authority"
+    },
+    {
+      "identifier": "CONF_TTS_VOICE",
+      "storage_key": "tts_voice",
+      "definition": {
+        "path": "custom_components/djconnect/const.py",
+        "line": 98
+      },
+      "static_references": [],
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "REMOVE",
+      "owning_lane": "DJC-CORE",
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "current_reader": "No active DJConnect constant reader; HA Assist pipeline fields with same string remain separately owned.",
+      "semantic_trace": "old option removed; concrete provider voice now uses qualified shared selection/inventory"
+    },
+    {
+      "identifier": "CONF_DJ_RESPONSE_ENABLED",
+      "storage_key": "dj_response_enabled",
+      "definition": {
+        "path": "custom_components/djconnect/const.py",
+        "line": 99
+      },
+      "static_references": [
+        {
+          "path": "custom_components/djconnect/config_flow.py",
+          "lines": [
+            35,
+            1319,
+            1320
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/dj_response.py",
+          "lines": [
+            17,
+            207
+          ]
+        }
+      ],
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "REPLACE_MIGRATE",
+      "owning_lane": "DJC-CORE",
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "old hidden setup/default writer retired; old false is explicit migration evidence; accepted settings3 ignores it and uses canonical output. Legacy without connected settings owner retains behavior until its consumer boundary retires"
+    },
+    {
+      "identifier": "CONF_DJ_RESPONSE_TTL_SECONDS",
+      "storage_key": "dj_response_ttl_seconds",
+      "definition": {
+        "path": "custom_components/djconnect/const.py",
+        "line": 100
+      },
+      "static_references": [
+        {
+          "path": "custom_components/djconnect/config_flow.py",
+          "lines": [
+            37,
+            1323,
+            1324
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/dj_response.py",
+          "lines": [
+            18,
+            223
+          ]
+        }
+      ],
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "KEEP_HA_ONLY",
+      "owning_lane": "DJC-CORE",
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "hidden resource-policy/default -> legacy byte-owner expiry; private speech retains original source deadlines"
+    },
+    {
+      "identifier": "CONF_DJ_RESPONSE_PROMPT_PRESET",
+      "storage_key": "dj_response_prompt_preset",
+      "definition": {
+        "path": "custom_components/djconnect/const.py",
+        "line": 101
+      },
+      "static_references": [],
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "REMOVE",
+      "owning_lane": "DJC-CORE",
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "current_reader": "No active DJConnect constant reader; HA Assist pipeline fields with same string remain separately owned.",
+      "semantic_trace": "no active stored-preset reader; legacy cleanup recognition only"
+    },
+    {
+      "identifier": "CONF_DJ_RESPONSE_PROMPT",
+      "storage_key": "dj_response_prompt",
+      "definition": {
+        "path": "custom_components/djconnect/const.py",
+        "line": 102
+      },
+      "static_references": [
+        {
+          "path": "custom_components/djconnect/config_flow.py",
+          "lines": [
+            36,
+            1327
+          ]
+        }
+      ],
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "REMOVE",
+      "owning_lane": "DJC-CORE",
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "current_reader": "No stored prompt reader. DEFAULT_DJ_RESPONSE_PROMPT remains actual immutable prompt guidance; processor fixture config-pass-through is not reader/effect proof.",
+      "semantic_trace": "stored prompt no longer read; immutable DEFAULT_DJ_RESPONSE_PROMPT remains runtime guidance"
+    },
+    {
+      "identifier": "CONF_VOICE_PROFILE",
+      "storage_key": "voice_profile",
+      "definition": {
+        "path": "custom_components/djconnect/const.py",
+        "line": 103
+      },
+      "static_references": [
+        {
+          "path": "custom_components/djconnect/config_flow.py",
+          "lines": [
+            54,
+            229,
+            1155,
+            1156,
+            1198,
+            1199,
+            1235,
+            1236,
+            1328,
+            1329,
+            1379,
+            1381
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/http.py",
+          "lines": [
+            93,
+            1831,
+            1834,
+            1839,
+            1841
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/voice_profiles.py",
+          "lines": [
+            7,
+            119,
+            131
+          ]
+        }
+      ],
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "REPLACE_MIGRATE",
+      "owning_lane": "DJC-CORE",
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "UI/default writers removed; assessment quarantines old tones without Persona inference. voice_profile_for_mood_or_config/http._play_now_response_conf remain legacy protocol adapters; accepted common AskDJ/Session/synthesis use typed selection; remove adapters only after owning consumers adopt"
+    },
+    {
+      "identifier": "CONF_DJ_ANNOUNCEMENT_SPEAKER",
+      "storage_key": "dj_announcement_speaker_entity_id",
+      "definition": {
+        "path": "custom_components/djconnect/const.py",
+        "line": 104
+      },
+      "static_references": [
+        {
+          "path": "custom_components/djconnect/announcements.py",
+          "lines": [
+            20,
+            130
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/config_flow.py",
+          "lines": [
+            33,
+            227,
+            1148,
+            1149,
+            1331,
+            1332,
+            1336,
+            1389,
+            1391
+          ]
+        }
+      ],
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "KEEP_HA_ONLY",
+      "owning_lane": "DJC-CORE",
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "current_reader": "announcements.configured_announcement_speaker/async_apply_announcement_output physical target. Profile output policy is separate; target entity never a roaming setting.",
+      "semantic_trace": "HA options -> configured_announcement_speaker/output_policy -> exact physical dispatch/health revision; no Profile export"
+    },
+    {
+      "identifier": "CONF_DJ_ANNOUNCEMENT_OUTPUT",
+      "storage_key": "dj_announcement_output",
+      "definition": {
+        "path": "custom_components/djconnect/const.py",
+        "line": 105
+      },
+      "static_references": [
+        {
+          "path": "custom_components/djconnect/announcements.py",
+          "lines": [
+            19,
+            121,
+            184,
+            185
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/config_flow.py",
+          "lines": [
+            32,
+            226,
+            1334,
+            1335
+          ]
+        }
+      ],
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "REPLACE_MIGRATE",
+      "owning_lane": "DJC-CORE",
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "current_reader": "announcements.async_apply_announcement_output currently entry/payload; replace with accepted Profile/Session selection under contract3. Factory client_device; old per-device outputs require review.",
+      "semantic_trace": "old entry/payload selection -> migration evidence; accepted Profile/Session announcement_output replaces authority, cleanup follows explicit acceptance"
+    },
+    {
+      "identifier": "CONF_MAX_AUDIO_BYTES",
+      "storage_key": "max_audio_bytes",
+      "definition": {
+        "path": "custom_components/djconnect/const.py",
+        "line": 118
+      },
+      "static_references": [
+        {
+          "path": "custom_components/djconnect/config_flow.py",
+          "lines": [
+            42,
+            1339,
+            1340
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/http.py",
+          "lines": [
+            78,
+            4271
+          ]
+        }
+      ],
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "KEEP_HA_ONLY",
+      "owning_lane": "DJC-CORE",
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "hidden resource default -> http._transcribe_voice_request -> upload/STT bounds"
+    },
+    {
+      "identifier": "CONF_FIRMWARE_REPO",
+      "storage_key": "firmware_repo",
+      "definition": {
+        "path": "custom_components/djconnect/const.py",
+        "line": 120
+      },
+      "static_references": [
+        {
+          "path": "custom_components/djconnect/github.py",
+          "lines": [
+            18,
+            77
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/update.py",
+          "lines": [
+            18,
+            274
+          ]
+        }
+      ],
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "KEEP_DERIVED",
+      "owning_lane": "DJC-CORE",
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "update._firmware_release_config supplies canonical internal repository -> github.fetch_latest_firmware_release; not user override authority"
+    },
+    {
+      "identifier": "CONF_FIRMWARE_DEVICE",
+      "storage_key": "firmware_device",
+      "definition": {
+        "path": "custom_components/djconnect/const.py",
+        "line": 121
+      },
+      "static_references": [
+        {
+          "path": "custom_components/djconnect/github.py",
+          "lines": [
+            17,
+            83
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/update.py",
+          "lines": [
+            17,
+            276
+          ]
+        }
+      ],
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "KEEP_DERIVED",
+      "owning_lane": "DJC-CORE",
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "_firmware_device_from_status -> internal release configuration -> manifest/asset selection; not manual preference"
+    },
+    {
+      "identifier": "CONF_FIRMWARE_CHANNEL",
+      "storage_key": "firmware_channel",
+      "definition": {
+        "path": "custom_components/djconnect/const.py",
+        "line": 122
+      },
+      "static_references": [
+        {
+          "path": "custom_components/djconnect/config_flow.py",
+          "lines": [
+            38,
+            228,
+            1166,
+            1167,
+            1348,
+            1349,
+            1368
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/github.py",
+          "lines": [
+            16,
+            82
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/update.py",
+          "lines": [
+            16,
+            275,
+            292
+          ]
+        }
+      ],
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "KEEP_HA_ONLY",
+      "owning_lane": "DJC-CORE",
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "ESP-only options stable/beta -> release selection; no Apple/Profile roaming"
+    },
+    {
+      "identifier": "CONF_ALLOW_OTA_ON_BATTERY",
+      "storage_key": "allow_ota_on_battery",
+      "definition": {
+        "path": "custom_components/djconnect/const.py",
+        "line": 123
+      },
+      "static_references": [
+        {
+          "path": "custom_components/djconnect/config_flow.py",
+          "lines": [
+            23,
+            1343
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/update.py",
+          "lines": [
+            15,
+            230
+          ]
+        }
+      ],
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "KEEP_HA_ONLY",
+      "owning_lane": "DJC-CORE",
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "hidden physical OTA policy -> update.async_install -> battery admission"
+    },
+    {
+      "identifier": "CONF_MIN_BATTERY_FOR_OTA",
+      "storage_key": "min_battery_for_ota",
+      "definition": {
+        "path": "custom_components/djconnect/const.py",
+        "line": 124
+      },
+      "static_references": [
+        {
+          "path": "custom_components/djconnect/config_flow.py",
+          "lines": [
+            46,
+            1344,
+            1345
+          ]
+        },
+        {
+          "path": "custom_components/djconnect/update.py",
+          "lines": [
+            19,
+            233
+          ]
+        }
+      ],
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "KEEP_HA_ONLY",
+      "owning_lane": "DJC-CORE",
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "hidden physical OTA policy -> update.async_install -> minimum battery admission"
+    }
+  ],
+  "additional_semantic_settings": [
+    {
+      "identifier": "ProfilePreferences.response_style",
+      "source": "custom_components/djconnect/domain/profile/models.py",
+      "disposition": "REPLACE_MIGRATE",
+      "acceptance": "SOURCE_TRACE_CLASSIFIED; changed Core boundaries qualified by owning tests/connected HA, unchanged compatibility metadata is not dynamic acceptance",
+      "semantic_trace": "domain.storage profile update/import -> legacy Store evidence -> settings_migration.assessment -> explicit six-field choice; activated retirement removes old public projection; never infer Persona",
+      "owning_lane": "DJC-CORE; dependent consumer removal remains owning-lane gated"
+    },
+    {
+      "identifier": "ProfilePreferences.voice_style",
+      "source": "custom_components/djconnect/domain/profile/models.py",
+      "disposition": "REPLACE_MIGRATE",
+      "acceptance": "SOURCE_TRACE_CLASSIFIED; changed Core boundaries qualified by owning tests/connected HA, unchanged compatibility metadata is not dynamic acceptance",
+      "semantic_trace": "domain.storage profile update/import -> legacy Store evidence -> settings_migration.assessment -> explicit six-field choice; activated retirement resets old tone; no accepted shared override",
+      "owning_lane": "DJC-CORE; dependent consumer removal remains owning-lane gated"
+    },
+    {
+      "identifier": "ProfilePreferences.language",
+      "source": "custom_components/djconnect/domain/profile/models.py",
+      "disposition": "KEEP_COMPATIBILITY_METADATA_PENDING_OWNING_CONSUMER_REMOVAL",
+      "acceptance": "SOURCE_TRACE_CLASSIFIED; changed Core boundaries qualified by owning tests/connected HA, unchanged compatibility metadata is not dynamic acceptance",
+      "semantic_trace": "domain.storage profile_from_dict/profile_to_dict retains schema1 language metadata; no Core speech/Session content-language effect established; actual content locale comes from qualified request/HA pipeline. Not a new language setting or completed platform removal",
+      "owning_lane": "DJC-CORE; dependent consumer removal remains owning-lane gated"
+    },
+    {
+      "identifier": "Profile.mood.value",
+      "source": "custom_components/djconnect/domain/profile/models.py",
+      "disposition": "REPLACE_MIGRATE",
+      "acceptance": "SOURCE_TRACE_CLASSIFIED; changed Core boundaries qualified by owning tests/connected HA, unchanged compatibility metadata is not dynamic acceptance",
+      "semantic_trace": "existing Profile numeric value -> bounded legacy migration evidence; common accepted AskDJ/runtime reads typed shared Mood; no numeric-to-Persona conversion",
+      "owning_lane": "DJC-CORE; dependent consumer removal remains owning-lane gated"
+    },
+    {
+      "identifier": "voice_preference",
+      "source": "custom_components/djconnect/session_speech.py",
+      "disposition": "REPLACE_MIGRATE",
+      "acceptance": "SOURCE_TRACE_CLASSIFIED; changed Core boundaries qualified by owning tests/connected HA, unchanged compatibility metadata is not dynamic acceptance",
+      "semantic_trace": "prepare1 legacy request until explicit acceptance; after acceptance typed426; prepare3 reads canonical gender; provider inventory validation and real HA synthesis",
+      "owning_lane": "DJC-CORE; dependent consumer removal remains owning-lane gated"
+    },
+    {
+      "identifier": "voice_id",
+      "source": "custom_components/djconnect/session_speech.py",
+      "disposition": "REPLACE_MIGRATE",
+      "acceptance": "SOURCE_TRACE_CLASSIFIED; changed Core boundaries qualified by owning tests/connected HA, unchanged compatibility metadata is not dynamic acceptance",
+      "semantic_trace": "legacy exact provider voice request -> qualified provider inventory; prepare3 rejects client override and uses accepted typed Profile/Session voice",
+      "owning_lane": "DJC-CORE; dependent consumer removal remains owning-lane gated"
+    },
+    {
+      "identifier": "selected_persona",
+      "source": "custom_components/djconnect/session_persona.py",
+      "disposition": "REPLACE_MIGRATE",
+      "acceptance": "SOURCE_TRACE_CLASSIFIED; changed Core boundaries qualified by owning tests/connected HA, unchanged compatibility metadata is not dynamic acceptance",
+      "semantic_trace": "profile_settings PATCH -> existing SQLite/default+Session transaction -> Runtime Persona -> future immutable Moments/common AskDJ; legacy mutation upgrade fence",
+      "owning_lane": "DJC-CORE; dependent consumer removal remains owning-lane gated"
+    },
+    {
+      "identifier": "selected_mood",
+      "source": "custom_components/djconnect/session_mood.py",
+      "disposition": "REPLACE_MIGRATE",
+      "acceptance": "SOURCE_TRACE_CLASSIFIED; changed Core boundaries qualified by owning tests/connected HA, unchanged compatibility metadata is not dynamic acceptance",
+      "semantic_trace": "profile_settings PATCH -> existing SQL summary interval+defaults/Session -> Runtime Planner/Mood; automatic evolution preserves remembered default; legacy unknown remains explicit",
+      "owning_lane": "DJC-CORE; dependent consumer removal remains owning-lane gated"
+    },
+    {
+      "identifier": "selected_presence",
+      "source": "custom_components/djconnect/session_presence.py",
+      "disposition": "REPLACE_MIGRATE",
+      "acceptance": "SOURCE_TRACE_CLASSIFIED; changed Core boundaries qualified by owning tests/connected HA, unchanged compatibility metadata is not dynamic acceptance",
+      "semantic_trace": "profile_settings PATCH -> same SQL+Runtime owner -> existing shared Presence ledger/inflight gates; no reset/catchup",
+      "owning_lane": "DJC-CORE; dependent consumer removal remains owning-lane gated"
+    },
+    {
+      "identifier": "announcement_output",
+      "source": "owner6220590330/6220695648; announcements.py; API_CONTRACT.md",
+      "disposition": "REPLACE_MIGRATE",
+      "acceptance": "SOURCE_TRACE_CLASSIFIED; changed Core boundaries qualified by owning tests/connected HA, unchanged compatibility metadata is not dynamic acceptance",
+      "semantic_trace": "six-field PATCH -> same SQL/Runtime -> new-publication callback/manual operation/asset admission; real HA mediafetch and text_only zero synthesis",
+      "owning_lane": "DJC-CORE; dependent consumer removal remains owning-lane gated"
+    },
+    {
+      "identifier": "vibecast_session_end_allowed",
+      "source": "owner observation6220433459; config_flow/api_handlers/session_runtime/http",
+      "disposition": "ACTIVE_LEGACY_AUTHORITY_REMOVAL_REQUIRES_DEPENDENCY_QUALIFICATION",
+      "acceptance": "NOT_ROAMING; NOT_ASSUMED_DEAD; OWNER_END_REMAINS"
+    },
+    {
+      "identifier": "integrated_profile_portability",
+      "source": "owner6220817753",
+      "disposition": "PARKED_NO_PICKUP",
+      "acceptance": "PRESERVE_EXISTING_CHAT_DNA_IO_CLEAR_WARNINGS"
+    }
+  ],
+  "platform_lanes": [
+    {
+      "lane": "DJC-CORE",
+      "repository": "pcvantol/djconnect",
+      "disposition": "ACTIVE_SCOPE_AND_SETTINGS_SURFACES_TO_VERIFY",
+      "source_mutation_owner": "existing lane writer only",
+      "acceptance": "NOT_QUALIFIED"
+    },
+    {
+      "lane": "DJC-APPLE",
+      "repository": "pcvantol/djconnect-app",
+      "disposition": "ACTIVE_SCOPE_AND_SETTINGS_SURFACES_TO_VERIFY",
+      "source_mutation_owner": "existing lane writer only",
+      "acceptance": "OPEN_OWNING_LANE_READER_EFFECT_AND_NATIVE_QUALIFICATION",
+      "verified_remote_main_pin": "be7e63609193561bfd37ee144ecbd8dad04d5609",
+      "source_scope": "remote committed main; other writer WIP not read or changed"
+    },
+    {
+      "lane": "DJC-ESP32",
+      "repository": "pcvantol/djconnect-esp32",
+      "disposition": "ACTIVE_SCOPE_AND_SETTINGS_SURFACES_TO_VERIFY",
+      "source_mutation_owner": "existing lane writer only",
+      "acceptance": "OPEN_OWNING_LANE_READER_EFFECT_AND_NATIVE_QUALIFICATION",
+      "verified_remote_main_pin": "b0405c15a0511cac9b7f32d9980aa9988c4c8c99",
+      "source_scope": "remote committed main; other writer WIP not read or changed"
+    },
+    {
+      "lane": "DJC-PI",
+      "repository": "pcvantol/djconnect-pi",
+      "disposition": "ACTIVE_SCOPE_AND_SETTINGS_SURFACES_TO_VERIFY",
+      "source_mutation_owner": "existing lane writer only",
+      "acceptance": "OPEN_OWNING_LANE_READER_EFFECT_AND_NATIVE_QUALIFICATION",
+      "verified_remote_main_pin": "91715554a227e9585aa55da8417f32f6de278b8e",
+      "source_scope": "remote committed main; other writer WIP not read or changed"
+    },
+    {
+      "lane": "DJC-WINDOWS",
+      "repository": "pcvantol/djconnect-windows",
+      "disposition": "RETIRED_LEGACY_ONLY_NO_NEW_PAIRING",
+      "source_mutation_owner": "existing lane writer only",
+      "acceptance": "RETIRED_NO_ADOPTION_OR_NEW_PAIRING",
+      "verified_remote_main_pin": "cea24d994ffc21591edb2e7bdf17f321ee1534f4",
+      "source_scope": "remote committed main; other writer WIP not read or changed"
+    },
+    {
+      "lane": "DJC-API",
+      "repository": "pcvantol/djconnect-api",
+      "disposition": "ACTIVE_SCOPE_AND_SETTINGS_SURFACES_TO_VERIFY",
+      "source_mutation_owner": "existing lane writer only",
+      "acceptance": "OPEN_OWNING_LANE_READER_EFFECT_AND_NATIVE_QUALIFICATION",
+      "verified_remote_main_pin": "3bb5f2b01401827e8a1072e1668fbb4a2223f26f",
+      "source_scope": "remote committed main; other writer WIP not read or changed"
+    },
+    {
+      "lane": "DJC-WEBSITE",
+      "repository": "pcvantol/djconnect-website",
+      "disposition": "ACTIVE_SCOPE_AND_SETTINGS_SURFACES_TO_VERIFY",
+      "source_mutation_owner": "existing lane writer only",
+      "acceptance": "OPEN_OWNING_LANE_READER_EFFECT_AND_NATIVE_QUALIFICATION",
+      "verified_remote_main_pin": "3133cb833c846395ac37dae804ba96848650bb7c",
+      "source_scope": "remote committed main; other writer WIP not read or changed"
+    },
+    {
+      "lane": "DJC-VIBECAST",
+      "repository": "pcvantol/djconnect-vibecast-receiver",
+      "disposition": "ACTIVE_SCOPE_AND_SETTINGS_SURFACES_TO_VERIFY",
+      "source_mutation_owner": "existing lane writer only",
+      "acceptance": "OPEN_OWNING_LANE_READER_EFFECT_AND_NATIVE_QUALIFICATION",
+      "verified_remote_main_pin": "b4dcff6210714d3504fcebcf07aaa6b15e0372a1",
+      "source_scope": "remote committed main; other writer WIP not read or changed"
+    },
+    {
+      "lane": "DJC-PICO",
+      "repository": "pcvantol/djconnect-pico",
+      "disposition": "ACTIVE_SCOPE_AND_SETTINGS_SURFACES_TO_VERIFY",
+      "source_mutation_owner": "existing lane writer only",
+      "acceptance": "OPEN_OWNING_LANE_READER_EFFECT_AND_NATIVE_QUALIFICATION",
+      "verified_remote_main_pin": "6daf1f291566dea52adef604a7186b43755d871e",
+      "source_scope": "remote committed main; other writer WIP not read or changed"
+    },
+    {
+      "lane": "DJC-DIST-FIRMWARE",
+      "repository": "pcvantol/djconnect-firmware",
+      "disposition": "ACTIVE_SCOPE_AND_SETTINGS_SURFACES_TO_VERIFY",
+      "source_mutation_owner": "existing lane writer only",
+      "acceptance": "OPEN_OWNING_LANE_READER_EFFECT_AND_NATIVE_QUALIFICATION",
+      "verified_remote_main_pin": "2b6a6936decff63d94c1ed3af53c46ba7888dfd6",
+      "source_scope": "remote committed main; other writer WIP not read or changed"
+    },
+    {
+      "lane": "DJC-DIST-APPLE",
+      "repository": "pcvantol/djconnect-app-releases",
+      "disposition": "ACTIVE_SCOPE_AND_SETTINGS_SURFACES_TO_VERIFY",
+      "source_mutation_owner": "existing lane writer only",
+      "acceptance": "OPEN_OWNING_LANE_READER_EFFECT_AND_NATIVE_QUALIFICATION",
+      "verified_remote_main_pin": "fdc80b93fa441d35bdd644197d3a2dd534da149a",
+      "source_scope": "remote committed main; other writer WIP not read or changed"
+    },
+    {
+      "lane": "DJC-DIST-PI",
+      "repository": "pcvantol/djconnect-pi-releases",
+      "disposition": "ACTIVE_SCOPE_AND_SETTINGS_SURFACES_TO_VERIFY",
+      "source_mutation_owner": "existing lane writer only",
+      "acceptance": "OPEN_OWNING_LANE_READER_EFFECT_AND_NATIVE_QUALIFICATION",
+      "verified_remote_main_pin": "849321f805f305b909ee901e5741b9d45b3da564",
+      "source_scope": "remote committed main; other writer WIP not read or changed"
+    }
+  ],
+  "completion_gate": "Every active exposed setting needs setter/canonical store/real reader/effect plus KEEP or qualified REPLACE-MIGRATE/REMOVE and owning-lane evidence; STATIC_ONLY rows cannot satisfy gate",
+  "current_local_source_pin": "b58644bcc843d191aa95c87ec2e14cc9c099454b",
+  "connected_core_paths": [
+    {
+      "parameter": "persona",
+      "disposition": "REPLACE_MIGRATE",
+      "owning_lane": "DJC-CORE",
+      "setter": "profile_settings.async_handle_settings / HTTP PATCH and paired TLS update",
+      "canonical_storage": "ProfileDJSettingsRepository on existing SQLite migrations7/8",
+      "reader": "SessionRuntimeManager.async_read_dj_settings / async_start",
+      "effect": "Common Ask DJ confirmed style and existing future Moment Persona",
+      "qualified_evidence": [
+        "tests/test_profile_dj_settings_runtime.py",
+        "tests/test_profile_settings_owner.py",
+        "tests/test_profile_settings_speech.py",
+        "scripts/verification/profile_session_settings_lab.py",
+        "scripts/verification/profile_session_settings_ws_lab.py"
+      ],
+      "scope": "CONNECTED_CORE_SOFTWARE; external provider waveform fixture; native/audible/installed OPEN"
+    },
+    {
+      "parameter": "voice",
+      "disposition": "REPLACE_MIGRATE",
+      "owning_lane": "DJC-CORE",
+      "setter": "profile_settings.async_handle_settings / HTTP PATCH and paired TLS update",
+      "canonical_storage": "ProfileDJSettingsRepository on existing SQLite migrations7/8",
+      "reader": "SessionRuntimeManager.async_read_dj_settings / async_start",
+      "effect": "Exact configured HA provider voice; settings/provider cache and audio guards",
+      "qualified_evidence": [
+        "tests/test_profile_dj_settings_runtime.py",
+        "tests/test_profile_settings_owner.py",
+        "tests/test_profile_settings_speech.py",
+        "scripts/verification/profile_session_settings_lab.py",
+        "scripts/verification/profile_session_settings_ws_lab.py"
+      ],
+      "scope": "CONNECTED_CORE_SOFTWARE; external provider waveform fixture; native/audible/installed OPEN"
+    },
+    {
+      "parameter": "gender",
+      "disposition": "REPLACE_MIGRATE",
+      "owning_lane": "DJC-CORE",
+      "setter": "profile_settings.async_handle_settings / HTTP PATCH and paired TLS update",
+      "canonical_storage": "ProfileDJSettingsRepository on existing SQLite migrations7/8",
+      "reader": "SessionRuntimeManager.async_read_dj_settings / async_start",
+      "effect": "Installed provider metadata combination validation and exact HA synthesis voice",
+      "qualified_evidence": [
+        "tests/test_profile_dj_settings_runtime.py",
+        "tests/test_profile_settings_owner.py",
+        "tests/test_profile_settings_speech.py",
+        "scripts/verification/profile_session_settings_lab.py",
+        "scripts/verification/profile_session_settings_ws_lab.py"
+      ],
+      "scope": "CONNECTED_CORE_SOFTWARE; external provider waveform fixture; native/audible/installed OPEN"
+    },
+    {
+      "parameter": "mood",
+      "disposition": "REPLACE_MIGRATE",
+      "owning_lane": "DJC-CORE",
+      "setter": "profile_settings.async_handle_settings / HTTP PATCH and paired TLS update",
+      "canonical_storage": "ProfileDJSettingsRepository on existing SQLite migrations7/8",
+      "reader": "SessionRuntimeManager.async_read_dj_settings / async_start",
+      "effect": "Runtime/Planner and durable summary interval, independent remembered default",
+      "qualified_evidence": [
+        "tests/test_profile_dj_settings_runtime.py",
+        "tests/test_profile_settings_owner.py",
+        "tests/test_profile_settings_speech.py",
+        "scripts/verification/profile_session_settings_lab.py",
+        "scripts/verification/profile_session_settings_ws_lab.py"
+      ],
+      "scope": "CONNECTED_CORE_SOFTWARE; external provider waveform fixture; native/audible/installed OPEN"
+    },
+    {
+      "parameter": "presence",
+      "disposition": "REPLACE_MIGRATE",
+      "owning_lane": "DJC-CORE",
+      "setter": "profile_settings.async_handle_settings / HTTP PATCH and paired TLS update",
+      "canonical_storage": "ProfileDJSettingsRepository on existing SQLite migrations7/8",
+      "reader": "SessionRuntimeManager.async_read_dj_settings / async_start",
+      "effect": "Existing shared policy/budgets/in-flight admission; no reset",
+      "qualified_evidence": [
+        "tests/test_profile_dj_settings_runtime.py",
+        "tests/test_profile_settings_owner.py",
+        "tests/test_profile_settings_speech.py",
+        "scripts/verification/profile_session_settings_lab.py",
+        "scripts/verification/profile_session_settings_ws_lab.py"
+      ],
+      "scope": "CONNECTED_CORE_SOFTWARE; external provider waveform fixture; native/audible/installed OPEN"
+    },
+    {
+      "parameter": "announcement_output",
+      "disposition": "REPLACE_MIGRATE",
+      "owning_lane": "DJC-CORE",
+      "setter": "profile_settings.async_handle_settings / HTTP PATCH and paired TLS update",
+      "canonical_storage": "ProfileDJSettingsRepository on existing SQLite migrations7/8",
+      "reader": "Existing publication callback / session_speech / announcement_policy / private byte owner",
+      "effect": "text_only zero synthesis/old bytes; target-bound manual replay; new-publication-only HA speaker through existing operation journal; no catch-up",
+      "qualified_evidence": [
+        "tests/test_profile_dj_settings_runtime.py",
+        "tests/test_profile_settings_owner.py",
+        "tests/test_profile_settings_speech.py",
+        "scripts/verification/profile_session_settings_lab.py",
+        "scripts/verification/profile_session_settings_ws_lab.py"
+      ],
+      "scope": "CONNECTED_CORE_SOFTWARE; external provider waveform fixture; native/audible/installed OPEN"
+    }
+  ],
+  "remaining_core_qualification": [
+    "Final exact independent technical/privacy and product/experience reviews after current review repairs and qualification",
+    "Protected source delivery, exact-main/artifact/formal readback and separate Finalization under current human merge/Finalization authorization",
+    "Native editor/adoption, consumer-dependent legacy adapter removal and joint acceptance remain owning-lane gates; no consumer WIP expanded"
+  ],
+  "consumer_source_findings": [
+    {
+      "lane": "DJC-APPLE",
+      "pin": "be7e63609193561bfd37ee144ecbd8dad04d5609",
+      "setting": "legacy numeric Ask DJ Mood",
+      "setter": "Sources/DJConnectUI/DJConnectAppModel.swift:825-831,1156-1161",
+      "store": "UserDefaults DJConnectAskDJMood plus app-group shared defaults",
+      "reader": "DJConnectAppModel.swift:1108-1109,1339-1340",
+      "effect": "request numeric mood and widget-label inputs; not shared Core Profile defaults",
+      "disposition": "REPLACE_MIGRATE through existing Apple writer; no last-online-device promotion; explicit Core choices only",
+      "proof": "pinned source readback; not native/device execution"
+    },
+    {
+      "lane": "DJC-APPLE",
+      "pin": "be7e63609193561bfd37ee144ecbd8dad04d5609",
+      "setting": "active Presence v1",
+      "setter": "Sources/DJConnectUI/DJConnectAppModel.swift:5005-5028",
+      "store": "Core Session presence revision; client desired/pending are gesture state",
+      "reader": "activeDJSession.confirmedPresence",
+      "effect": "updateSessionPresence expectedRevision and confirmed snapshot",
+      "disposition": "REPLACE_MIGRATE setter to shared v2 patch/default receipt; KEEP local pending gesture semantics",
+      "proof": "pinned source readback; not native/device execution"
+    },
+    {
+      "lane": "DJC-APPLE",
+      "pin": "be7e63609193561bfd37ee144ecbd8dad04d5609",
+      "setting": "new Session Mood initialization",
+      "setter": "Sources/DJConnectUI/DJConnectAppModel.swift:728,5105",
+      "store": "selectedSessionMood local initial groove; request start mood",
+      "reader": "DJConnectSessionStartRequest mood",
+      "effect": "v1 initialization; Core v2 inherited defaults already override stale local init",
+      "disposition": "REPLACE_MIGRATE to read shared defaults and explicit atomic settings mutation; opening/join never writes defaults",
+      "proof": "pinned source readback plus Core owner tests; not native/device execution"
+    }
+  ],
+  "shared_parameters": [
+    "persona",
+    "voice",
+    "gender",
+    "mood",
+    "presence",
+    "announcement_output"
+  ],
+  "owner_addenda": [
+    6220504359,
+    6220590330,
+    6220625247,
+    6220695648,
+    6220756856,
+    6220784635,
+    6220817753
+  ],
+  "current_design_contract_version": 3,
+  "current_runtime_checkpoint_contract_version": 3,
+  "portability_disposition": "PARKED_NO_PICKUP; schema1 exports retained; no shared-defaults backup; unpublished schema2 export retired; schema2 restore rejected without mutation",
+  "local_contract3_evidence": {
+    "producer_pin": "b58644bcc843d191aa95c87ec2e14cc9c099454b",
+    "path": "examples/client_contracts/profile_session_settings_v3/connected-ha-transport.json",
+    "source_hashes_verified": 158,
+    "soak_seconds": 120.9,
+    "owner_reads": 354,
+    "actual_tls_reconnects": 2,
+    "native": "OPEN",
+    "audible": "NOT_PROVEN",
+    "installed": "NOT_RUN",
+    "browser_path": "examples/client_contracts/profile_session_settings_v3/browser-compatibility.json",
+    "browser_views": 4
+  },
+  "semantic_inventory_review": {
+    "scope": "All46 Core constant rows classified by existing independent read-only reviewer and source readback; baseline static references preserved as history",
+    "not_claimed": "All-platform removal or physical acceptance; active legacy locale/tone/playback-output compatibility readers have explicit migration boundaries, not false dead-code status",
+    "open_active_legacy_keys": [
+      "voice_profile",
+      "tts_language",
+      "spotify_source"
+    ],
+    "changed_duplicate_authority": "dj_response_enabled migrated to explicit choice evidence; no accepted settings3 override"
+  }
+}

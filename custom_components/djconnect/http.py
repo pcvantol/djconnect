@@ -834,7 +834,7 @@ def _voice_header_payload(headers: Any, device_id: str, client_type: str | None)
     speech_version = headers.get("X-DJConnect-Speech-Contract-Version")
     if speech_version is not None:
         # Closed wire version; do not accept booleans, floats or coercible text.
-        payload["speech_contract_version"] = 1 if speech_version == "1" else 0
+        payload["speech_contract_version"] = int(speech_version) if speech_version in ("1", "2", "3") else 0
     return enrich_payload_with_mood_zone(payload)
 
 
@@ -2935,6 +2935,40 @@ class DJConnectSessionMoodView(_DJConnectSessionView):
         return self.json(result, status_code=status)
 
 
+class DJConnectProfileSettingsView(_DJConnectSessionView):
+    url = '/api/djconnect/v1/profile/settings'
+    name = 'api:djconnect:profile:settings'
+
+    async def get(self, request):
+        from .profile_settings import async_handle_settings
+        data = dict(request.query)
+        if data.get('contract_version') == '3':
+            data['contract_version'] = 3
+        result, status = await async_handle_settings(request.app['hass'], data, headers=request.headers)
+        return self.json(result, status_code=status)
+
+    async def patch(self, request):
+        from .profile_settings import async_handle_settings
+        data = await self._payload(request)
+        if data is None or request.query_string:
+            return self.json({'success': False, 'error': 'invalid_request'}, status_code=400)
+        result, status = await async_handle_settings(request.app['hass'], data, headers=request.headers, write=True)
+        return self.json(result, status_code=status)
+
+
+class DJConnectProfileSettingsOperationView(_DJConnectSessionView):
+    url = '/api/djconnect/v1/profile/settings/operation'
+    name = 'api:djconnect:profile:settings:operation'
+
+    async def post(self, request):
+        from .profile_settings import async_handle_settings
+        data = await self._payload(request)
+        if data is None or request.query_string:
+            return self.json({'success': False, 'error': 'invalid_request'}, status_code=400)
+        result, status = await async_handle_settings(request.app['hass'], data, headers=request.headers, operation=True)
+        return self.json(result, status_code=status)
+
+
 class DJConnectSpeechVoiceOptionsView(_DJConnectSessionView):
     url = "/api/djconnect/v1/speech/voice-options"
     name = "api:djconnect:speech:voice_options"
@@ -2960,6 +2994,20 @@ class DJConnectSpeechPrepareView(_DJConnectSessionView):
             return self.json({"success": False, "error": "invalid_request"}, status_code=400)
         result, status = await async_handle_prepare(request.app["hass"], data, headers=request.headers)
         return self.json(result, status_code=status)
+
+
+class DJConnectSpeechMediaView(_DJConnectSessionView):
+    url = '/api/djconnect/v1/speech/media/{asset_id}/{grant}'
+    name = 'api:djconnect:speech:media'
+
+    async def get(self, request, asset_id, grant):
+        from .dj_response import get_speaker_media
+        item = None if request.query_string else get_speaker_media(request.app['hass'], asset_id, grant)
+        headers = {'Cache-Control': 'no-store', 'Referrer-Policy': 'no-referrer',
+                   'X-Content-Type-Options': 'nosniff', 'Accept-Ranges': 'none'}
+        if item is None:
+            return web.Response(status=404, headers=headers)
+        return web.Response(body=item.data, content_type=item.content_type, headers=headers)
 
 
 class DJConnectSpeechAudioView(_DJConnectSessionView):
@@ -4600,7 +4648,7 @@ class DJConnectVoiceView(HomeAssistantView):
         if not _runtime_versions_compatible(runtime):
             return _runtime_version_mismatch_response(reply_view, runtime)
         if (request.headers.get("X-DJConnect-Speech-Contract-Version") is not None
-                and request.headers.get("X-DJConnect-Speech-Contract-Version") != "1"):
+                and request.headers.get("X-DJConnect-Speech-Contract-Version") not in ("1", "2", "3")):
             return _json_error(reply_view, "unsupported_speech_contract", 400)
         voice_owner = None
         if _is_ask_dj_voice_client(client_type) and _is_audio_upload(

@@ -1,5 +1,18 @@
 # Provider-qualified Session voice and gender
 
+## Current owner addenda — six shared settings design
+
+The [selected settings contract3 delta](PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md) adds announcement output to Persona/voice/gender/Mood/Presence. Settings3 and target-aware speech prepare3 are design targets, not yet delivered capabilities. Text-only blocks all announcement synthesis, replay and stale bytes; speaker-only still allows explicit local owner replay. Keep speaker target/Assist pipeline/ESP administration HA-only and local autoplay/permissions device-local. Existing five-field contract2 checkpoints and delivered contract1 evidence below keep their original measured scope. No new consumer writer, integrated portability pickup or native/installed acceptance.
+
+
+## Earlier contract2 successor checkpoint — five parameters
+
+[Owner decision6214905647](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6214905647) and the [canonical consolidation contract](PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md) supersede device-local voice/gender and Session-only default semantics for the selected contract2 successor. Persona, concrete voice, qualified gender, Mood and Presence roam per Profile/Session; each explicit accepted field choice automatically becomes its Profile default and applies now when a Session is active. Automatic Mood/provider fallback/reconnect does not change defaults. No global HA pipeline change or new source/provider rights.
+
+The delivered contract1 behavior and its source/PR evidence below remain historical/frozen; do not silently reinterpret version1 or infer installed/native adoption. The bounded old-consumer migration and removal gate is explicit in the successor. Core implementation is local/unpublished; Apple/other consumer changes remain owning-lane work, no WIP takeover or automatic dispatch.
+
+## Delivered contract1 and historical qualification
+
 Assignment: `DJC-CORE-PROVIDER-VOICE-GENDER-V1-20261016`.
 Direct owner follow-up after completed generic TTS PR1187/1188.
 Base: `f04fc578d11252f48324a22cb6f71039bdcc59d5`.

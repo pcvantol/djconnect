@@ -1,5 +1,10 @@
 # Speech Rendering Contract
 
+## Current owner addenda — six shared settings design
+
+The [selected settings contract3 delta](../product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md) adds announcement output to Persona/voice/gender/Mood/Presence. Settings3 and target-aware speech prepare3 are design targets, not yet delivered capabilities. Text-only blocks all announcement synthesis, replay and stale bytes; speaker-only still allows explicit local owner replay. Keep speaker target/Assist pipeline/ESP administration HA-only and local autoplay/permissions device-local. Existing five-field contract2 checkpoints and delivered contract1 evidence below keep their original measured scope. No new consumer writer, integrated portability pickup or native/installed acceptance.
+
+
 ## Status
 
 Canonical renderer-neutral architecture. This contract introduces no Renderer
