@@ -11,6 +11,17 @@ from custom_components.djconnect.profile_settings import (
 
 
 class SharedSettingsContractTests(unittest.TestCase):
+    def test_advertised_settings_version_is_accepted_by_owner_route(self):
+        from custom_components.djconnect.capability_contract import _contract_versions
+        from custom_components.djconnect.domain.profile.dj_settings import SETTINGS_VERSION
+
+        versions = _contract_versions()
+        self.assertEqual(versions['profile_session_settings'], SETTINGS_VERSION)
+        validate_request({**self.identity(),
+                          'contract_version': versions['profile_session_settings']})
+        # Speech's v1 envelope separately negotiates prepare contracts 1/2/3.
+        self.assertEqual(versions['session_speech'], 1)
+
     def identity(self):
         return {'contract_version': 3, 'device_id': 'djconnect-ios-84B1B418D81E', 'client_type': 'ios'}
 
