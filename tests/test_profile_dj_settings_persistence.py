@@ -322,3 +322,22 @@ class ProfileDJSettingsPersistenceTests(unittest.IsolatedAsyncioTestCase):
         replay = await self.choose({'mood':'party'}, context=self.context())
         self.assertTrue(replay['replayed'])
         self.assertEqual(replay['snapshot']['defaults_revision'], 1)
+
+    async def test_orphan_erasure_is_bounded_and_preserves_live_owner_defaults(self):
+        await self.choose({'mood':'party'})
+        for index in range(251):
+            await self.repo.async_accept_user_choice(f'orphan-{index}',
+                operation_id=operation(self.now), binding=self.binding,
+                patch={'persona':'club_dj'}, expected_defaults_revision=0,
+                now_ms=self.now, authorize=lambda: True)
+        await self.repo.async_purge_orphans({'owner'})
+        counts = await self.service.async_in_transaction(lambda tx: (
+            tx.fetchone('SELECT COUNT(*) FROM djconnect_profile_dj_settings')[0],
+            tx.fetchone('SELECT COUNT(*) FROM djconnect_settings_operations')[0]))
+        self.assertEqual(counts, (2, 2))
+        self.assertEqual((await self.read())['defaults']['mood'], 'party')
+        await self.repo.async_purge_orphans({'owner'})
+        counts = await self.service.async_in_transaction(lambda tx: (
+            tx.fetchone('SELECT COUNT(*) FROM djconnect_profile_dj_settings')[0],
+            tx.fetchone('SELECT COUNT(*) FROM djconnect_settings_operations')[0]))
+        self.assertEqual(counts, (1, 1))

@@ -27,6 +27,7 @@ class ProfileSettingsOwnerTests(unittest.IsolatedAsyncioTestCase):
         from custom_components.djconnect.persistence.dj_settings import ProfileDJSettingsRepository
         from custom_components.djconnect import profile_settings
         self.settings = profile_settings
+        self.hass.data['djconnect']['djconnect_profile_platform'].hass = self.hass
         self.fixture.manager._settings_repository = ProfileDJSettingsRepository(self.fixture.service)
         self.entry = SimpleNamespace(entry_id='owner-entry', data={**self.runtime.config,
             'device_token': self.runtime.device_token}, options={}, disabled_by=None,
@@ -179,3 +180,134 @@ class ProfileSettingsOwnerTests(unittest.IsolatedAsyncioTestCase):
                          {'available': False, 'reason': 'tts_provider_unavailable'})
         self.assertEqual(result['snapshot']['defaults_revision'], 0)
         self.assertEqual(result['snapshot']['defaults']['voice'], {'kind': 'provider_default'})
+
+    async def test_active_profile_delete_and_import_cannot_split_runtime_identity(self):
+        from custom_components.djconnect.domain.storage import ProfileStorageValidationError
+        from custom_components.djconnect.profile_export import async_export_profile, async_import_profile
+        storage = self.hass.data['djconnect']['djconnect_profile_platform']
+        await storage.async_create_profile('Other', profile_id='profile-b', default_backend_id='later_manual')
+        before, _ = await self.read()
+        await self.choose(before, {'mood': 'party'})
+        active = await self.fixture.manager.async_start(owner_profile_id='profile-a')
+        exported = await async_export_profile(storage, 'profile-a')
+        # Historical identity-only schema1 must also reject active replacement.
+        exported = {key: value for key, value in exported.items()
+                    if key not in {'profile_dj_defaults', 'settings_restore'}}
+        exported['schema_version'] = 1
+        with self.assertRaisesRegex(ProfileStorageValidationError, 'profile_has_active_session'):
+            await storage.async_delete_profile('profile-a', reassign_to_profile_id='profile-b')
+        with self.assertRaisesRegex(ProfileStorageValidationError, 'profile_has_active_session'):
+            await async_import_profile(storage, exported, overwrite=True)
+        self.assertIn('profile-a', storage.household.profiles)
+        self.assertIs(self.fixture.manager.current_active('profile-a'), active)
+        current, status = await self.read()
+        self.assertEqual(status, 200, current)
+        self.assertEqual(current['snapshot']['defaults']['mood'], 'party')
+
+    async def test_deleted_or_crash_orphan_preferences_cannot_resurrect_on_id_reuse(self):
+        from custom_components.djconnect.persistence.dj_settings import ProfileDJSettingsRepository
+        storage = self.hass.data['djconnect']['djconnect_profile_platform']
+        await storage.async_create_profile('Other', profile_id='profile-b', default_backend_id='later_manual')
+        before, _ = await self.read()
+        await self.choose(before, {'persona': 'club_dj', 'mood': 'party'})
+        await storage.async_delete_profile('profile-a', reassign_to_profile_id='profile-b')
+        repository = ProfileDJSettingsRepository(self.fixture.service)
+        erased = await repository.async_read('profile-a', authorize=lambda: True)
+        self.assertEqual(erased['defaults_revision'], 0)
+        # Simulate a crash leftover after identity deletion but before erasure.
+        await repository.async_accept_user_choice('profile-a', operation_id=operation(self.now, 7),
+            binding='a'*64, patch={'mood':'energy'}, expected_defaults_revision=0,
+            now_ms=self.now, authorize=lambda: True)
+        await storage.async_create_profile('Recreated', profile_id='profile-a', default_backend_id='later_manual')
+        fresh = await repository.async_read('profile-a', authorize=lambda: True)
+        self.assertEqual(fresh['defaults_revision'], 0)
+        self.assertEqual(fresh['defaults']['mood'], 'groove')
+        absent = await repository.async_operation_result('profile-a', operation_id=operation(self.now,7),
+            binding='a'*64, now_ms=self.now, authorize=lambda: True)
+        self.assertEqual(absent['phase'], 'not_accepted')
+
+    async def test_profile_id_collision_is_never_implicit_overwrite(self):
+        from custom_components.djconnect.domain.storage import ProfileStorageValidationError
+        storage = self.hass.data['djconnect']['djconnect_profile_platform']
+        before, _ = await self.read()
+        await self.choose(before, {'persona':'festival_dj'})
+        with self.assertRaisesRegex(ProfileStorageValidationError, 'profile_id collision'):
+            await storage.async_create_profile('Different', profile_id='profile-a', default_backend_id='later_manual')
+        after, status = await self.read()
+        self.assertEqual(status, 200, after)
+        self.assertEqual(after['snapshot']['defaults']['persona'], 'festival_dj')
+
+    async def test_export_has_exact_defaults_and_restore_never_silently_drops_them(self):
+        from custom_components.djconnect.profile_export import (
+            async_export_profile, async_export_household, async_import_profile, ProfileExportError)
+        storage = self.hass.data['djconnect']['djconnect_profile_platform']
+        before, _ = await self.read()
+        accepted, _ = await self.choose(before, {'persona':'radio_dj', 'mood':'party'})
+        exported = await async_export_profile(storage, 'profile-a')
+        self.assertEqual(exported['schema_version'], 2)
+        self.assertEqual(exported['profile_dj_defaults']['values'], accepted['snapshot']['defaults'])
+        self.assertNotIn('operation_id', str(exported))
+        self.assertNotIn('binding_generation', str(exported))
+        self.assertNotIn('device_token', str(exported))
+        state = storage.household
+        with self.assertRaisesRegex(ProfileExportError, 'profile_settings_restore_required'):
+            await async_import_profile(storage, exported, reassign_id=True)
+        self.assertEqual(storage.household, state)
+        household = await async_export_household(storage)
+        self.assertEqual(household['profile_dj_defaults']['profile-a']['values'], accepted['snapshot']['defaults'])
+        private_export = await async_export_profile(storage, 'profile-a', include_personal_data=False)
+        self.assertNotIn('profile_dj_defaults', private_export)
+
+    async def test_identity_only_import_cannot_keep_unrelated_existing_defaults(self):
+        from custom_components.djconnect.profile_export import async_export_profile, async_import_profile
+        from custom_components.djconnect.domain.storage import ProfileStorageValidationError
+        storage = self.hass.data['djconnect']['djconnect_profile_platform']
+        historical = await async_export_profile(storage, 'profile-a')
+        self.assertEqual(historical['schema_version'], 1)
+        before, _ = await self.read()
+        await self.choose(before, {'persona':'club_dj'})
+        with self.assertRaisesRegex(ProfileStorageValidationError, 'profile_settings_restore_required'):
+            await async_import_profile(storage, historical, overwrite=True)
+        after, status = await self.read()
+        self.assertEqual(status, 200, after)
+        self.assertEqual(after['snapshot']['defaults']['persona'], 'club_dj')
+
+    async def test_raised_ingress_revocation_during_conflict_is_closed_unauthorized(self):
+        before, _ = await self.read()
+        await self.choose(before, {'mood':'party'})
+        revoked = False
+        original = self.fixture.manager.async_accept_dj_settings
+        async def late_conflict(**kwargs):
+            nonlocal revoked
+            try:
+                return await original(**kwargs)
+            except self.settings.SettingsRevisionConflict:
+                revoked = True
+                raise
+        def ingress():
+            if revoked:
+                raise PermissionError('paired_lease_revoked')
+        with patch.object(self.fixture.manager, 'async_accept_dj_settings', late_conflict):
+            result, status = await self.settings.async_handle_settings(self.hass,
+                {**self.identity, 'contract_version':2, 'binding':before['binding'],
+                 'operation_id':operation(self.now,2), 'patch':{'persona':'club_dj'},
+                 'expected_defaults_revision':0, 'expected_session':None},
+                headers=self.headers, write=True, validate_ingress=ingress)
+        self.assertEqual(status, 401, result)
+        self.assertNotIn('current', result)
+
+    async def test_storage_unavailability_cannot_export_false_identity_only_success(self):
+        from custom_components.djconnect.profile_export import (
+            async_export_profile, async_export_household, ProfileExportError)
+        storage = self.hass.data['djconnect']['djconnect_profile_platform']
+        before, _ = await self.read()
+        await self.choose(before, {'mood':'party'})
+        await self.fixture.service.async_close()
+        for exporter in (lambda: async_export_profile(storage, 'profile-a'),
+                         lambda: async_export_household(storage)):
+            with self.assertRaisesRegex(ProfileExportError, 'settings_export_unavailable'):
+                await exporter()
+        redacted = await async_export_profile(storage, 'profile-a', include_personal_data=False)
+        self.assertFalse(redacted['privacy']['personal_data_included'])
+        self.assertNotIn('profile_dj_defaults', redacted)
+        await self.fixture.service.async_initialize()

@@ -6,6 +6,7 @@ import asyncio
 from dataclasses import replace
 from pathlib import Path
 import sys
+import tempfile
 import types
 import unittest
 
@@ -53,7 +54,17 @@ class ProfilePrivacyExportTest(unittest.TestCase):
     """Validate Phase 4 privacy and export/import behavior."""
 
     def setUp(self) -> None:
-        self.manager = ProfilePlatformStorage(store=MemoryStore())
+        from custom_components.djconnect.persistence.service import PersistenceService
+        from custom_components.djconnect.persistence.sqlite import SQLitePersistenceProvider
+        self.directory = tempfile.TemporaryDirectory()
+        self.service = PersistenceService(Path(self.directory.name)/'export.sqlite', SQLitePersistenceProvider())
+        asyncio.run(self.service.async_initialize())
+        hass = types.SimpleNamespace(data={'djconnect': {'persistence_service': self.service}})
+        self.manager = ProfilePlatformStorage(hass=hass, store=MemoryStore())
+
+    def tearDown(self) -> None:
+        asyncio.run(self.service.async_close())
+        self.directory.cleanup()
 
     def test_private_session_blocks_personal_persistence(self) -> None:
         profile = asyncio.run(self.manager.async_create_profile("Private Test"))

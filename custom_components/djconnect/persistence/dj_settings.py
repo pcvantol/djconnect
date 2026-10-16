@@ -293,3 +293,39 @@ class ProfileDJSettingsRepository(PersistenceRepository):
 
         return await self._async_in_transaction(
             accept, authorize=authorize, finalize_authorize=authorize)
+
+    async def async_purge_owner(self, owner):
+        """Erase deleted identity preferences and dedup; never reassign them."""
+        _identifier(owner)
+        def erase(tx):
+            for table in ('djconnect_profile_dj_settings', 'djconnect_session_dj_settings',
+                          'djconnect_settings_operations'):
+                tx.execute('DELETE FROM '+table+' WHERE owner_profile_id=?', (owner,))
+        await self._async_in_transaction(erase)
+
+    async def async_purge_orphans(self, valid_owners):
+        """Bound physical erasure after identity deletion/crash, not preference expiry."""
+        owners = tuple(_identifier(owner) for owner in sorted(set(valid_owners)))
+        condition = 'owner_profile_id NOT IN ('+','.join('?' for _ in owners)+')' if owners else '1'
+        def erase(tx):
+            for table in ('djconnect_profile_dj_settings', 'djconnect_session_dj_settings',
+                          'djconnect_settings_operations'):
+                tx.execute('DELETE FROM '+table+' WHERE owner_profile_id IN ('
+                           'SELECT DISTINCT owner_profile_id FROM '+table+' WHERE '+condition+' LIMIT 250)', owners)
+        await self._async_in_transaction(erase)
+
+    async def async_export_defaults(self, owners, *, authorize):
+        """One private owner snapshot; no effective Session, receipts or provider config."""
+        owners = tuple(_identifier(owner) for owner in sorted(set(owners)))
+        if not owners:
+            return {}
+        def read(tx):
+            rows = tx.fetchall('SELECT owner_profile_id,settings,revision,updated_at '
+                               'FROM djconnect_profile_dj_settings WHERE owner_profile_id IN ('
+                               + ','.join('?' for _ in owners)+')', owners)
+            return {row[0]: {'contract_version': 2,
+                            'values': DJSettings.from_dict(json.loads(row[1])).as_dict(),
+                            'defaults_revision': int(row[2]), 'as_of': str(row[3])}
+                    for row in rows}
+        return await self._async_in_transaction(read, authorize=authorize,
+                                                finalize_authorize=authorize)

@@ -3,6 +3,9 @@
 import asyncio
 from copy import deepcopy
 import unittest
+import tempfile
+from pathlib import Path
+from types import SimpleNamespace
 
 from tests.test_profile_storage import MemoryStore
 from custom_components.djconnect.domain.storage import (
@@ -34,10 +37,20 @@ class FaultStore(MemoryStore):
 class ProfileBindingGenerationTests(unittest.IsolatedAsyncioTestCase):
     async def asyncSetUp(self):
         self.store = FaultStore()
-        self.manager = ProfilePlatformStorage(store=self.store)
+        from custom_components.djconnect.persistence.service import PersistenceService
+        from custom_components.djconnect.persistence.sqlite import SQLitePersistenceProvider
+        self.directory = tempfile.TemporaryDirectory()
+        self.service = PersistenceService(Path(self.directory.name)/'binding.sqlite', SQLitePersistenceProvider())
+        await self.service.async_initialize()
+        hass = SimpleNamespace(data={'djconnect': {'persistence_service': self.service}})
+        self.manager = ProfilePlatformStorage(hass=hass, store=self.store)
         await self.manager.async_create_profile('A', profile_id='a')
         await self.manager.async_create_profile('B', profile_id='b')
         await self.manager.async_upsert_device('owner-device','ios',linked_profile_id='a')
+
+    async def asyncTearDown(self):
+        await self.service.async_close()
+        self.directory.cleanup()
 
     def generation(self):
         return self.manager.household.devices['owner-device'].binding_generation

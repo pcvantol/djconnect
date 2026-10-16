@@ -57,6 +57,25 @@ class UnsafeImportError(ProfileExportError):
     code = "unsafe_import"
 
 
+async def _async_export_dj_defaults(manager, household, owners):
+    """Compose canonical SQLite defaults, never copy a client or JSON preference."""
+    domain = manager.hass.data.get('djconnect', {}) if manager.hass is not None else {}
+    if not owners:
+        return {}  # Explicitly redacted export has no private defaults to read.
+    service = domain.get('persistence_service')
+    if service is None or not service.readiness.ready:
+        raise ProfileExportError('settings_export_unavailable')
+    from .persistence.dj_settings import ProfileDJSettingsRepository
+    repository = ProfileDJSettingsRepository(service)
+    def authorize():
+        return manager.household == household
+    runtime_manager = domain.get('session_runtime_manager')
+    if runtime_manager is not None:
+        async with runtime_manager._lock:
+            return await repository.async_export_defaults(owners, authorize=authorize)
+    return await repository.async_export_defaults(owners, authorize=authorize)
+
+
 async def async_export_profile(
     manager: ProfilePlatformStorage,
     profile_id: str,
@@ -75,11 +94,15 @@ async def async_export_profile(
     )
     include_personal = include_personal_data and policy.allow_profile_export
     profile_data = _redact_profile_data(profile_data, include_personal=include_personal)
+    defaults = await _async_export_dj_defaults(manager, household,
+        [profile.profile_id] if include_personal else [])
     return _redact_secrets(
         {
             "success": True,
             "format": PROFILE_EXPORT_FORMAT,
-            "schema_version": EXPORT_SCHEMA_VERSION,
+            "schema_version": 2 if defaults else EXPORT_SCHEMA_VERSION,
+            **({'profile_dj_defaults': defaults[profile.profile_id],
+                'settings_restore': 'owner_coordinated_contract2_restore_required'} if defaults else {}),
             "profile": profile_data,
             "privacy": {
                 "mode": policy.mode.value,
@@ -94,11 +117,16 @@ async def async_export_profile(
 async def async_export_household(manager: ProfilePlatformStorage) -> dict[str, Any]:
     """Export household Profile Platform metadata without secrets."""
     household = await manager.async_load()
+    defaults = await _async_export_dj_defaults(manager, household,
+        [profile.profile_id for profile in household.profiles.values()
+         if resolve_profile_privacy_policy(profile).allow_profile_export])
     return _redact_secrets(
         {
             "success": True,
             "format": HOUSEHOLD_EXPORT_FORMAT,
-            "schema_version": EXPORT_SCHEMA_VERSION,
+            "schema_version": 2 if defaults else EXPORT_SCHEMA_VERSION,
+            **({'profile_dj_defaults': defaults,
+                'settings_restore': 'owner_coordinated_contract2_restore_required'} if defaults else {}),
             "profile_storage_schema_version": PROFILE_STORAGE_SCHEMA_VERSION,
             "household": household_to_storage(household)["household"],
             "secret_policy": "secrets_excluded_by_default",
@@ -118,7 +146,7 @@ async def async_export_integration(
         {
             "success": True,
             "format": INTEGRATION_EXPORT_FORMAT,
-            "schema_version": EXPORT_SCHEMA_VERSION,
+            "schema_version": household_export['schema_version'],
             "profile_platform": household_export,
             "non_secret_config": _redact_secrets(non_secret_config or {}),
             "excluded": {
@@ -144,6 +172,8 @@ async def async_import_profile(
 ) -> dict[str, Any]:
     """Import one Profile, rejecting unsafe secret-bearing envelopes."""
     _validate_no_secret_fields(envelope)
+    if envelope.get('schema_version') == 2:
+        raise ProfileExportError('profile_settings_restore_required')
     if envelope.get("format") != PROFILE_EXPORT_FORMAT or int(envelope.get("schema_version") or 0) != EXPORT_SCHEMA_VERSION:
         raise ProfileExportError("invalid profile export schema")
     profile_data = envelope.get("profile")
@@ -168,7 +198,7 @@ async def async_import_profile(
     ]
     profiles.append(profile_data)
     storage["household"]["profiles"] = profiles
-    await manager.async_save(household_from_storage(storage))
+    await manager.async_save(household_from_storage(storage), replacing_profiles=(final_id,) if collision else ())
     return {
         "success": True,
         "imported": "profile",
@@ -186,6 +216,8 @@ async def async_import_household(
 ) -> dict[str, Any]:
     """Import a household or full integration export."""
     _validate_no_secret_fields(envelope)
+    if envelope.get('schema_version') == 2:
+        raise ProfileExportError('profile_settings_restore_required')
     household_payload = _household_payload_from_import(envelope)
     if household_payload is None:
         raise ProfileExportError("invalid household export schema")
@@ -193,7 +225,7 @@ async def async_import_household(
     if existing.profiles and not overwrite:
         raise ProfileExportError("household import would overwrite existing profiles")
     await manager.async_save(household_from_storage({"household": household_payload},
-        trusted_bindings=False), rotate_bindings=True)
+        trusted_bindings=False), rotate_bindings=True, replacing_profiles=tuple(existing.profiles))
     return {
         "success": True,
         "imported": "household",

@@ -2,7 +2,7 @@
   "schema_version": "djconnect-settings-inventory/1",
   "assignment": "DJC-PROFILE-SESSION-SETTINGS-CONSOLIDATION-V1-20261016",
   "source_pin": "148bd5aee3110c1a1ab13e7c463a164c99d79b70",
-  "status": "INITIAL_STATIC_INVENTORY_BEFORE_RUNTIME; no completed cleanup claim",
+  "status": "IN_PROGRESS_STATIC_BASELINE_AND_CONNECTED_CORE_PATHS; not a completed platform cleanup",
   "five_shared_parameters": [
     "persona",
     "voice",
@@ -2537,5 +2537,101 @@
       "acceptance": "NOT_QUALIFIED"
     }
   ],
-  "completion_gate": "Every active exposed setting needs setter/canonical store/real reader/effect plus KEEP or qualified REPLACE-MIGRATE/REMOVE and owning-lane evidence; STATIC_ONLY rows cannot satisfy gate"
+  "completion_gate": "Every active exposed setting needs setter/canonical store/real reader/effect plus KEEP or qualified REPLACE-MIGRATE/REMOVE and owning-lane evidence; STATIC_ONLY rows cannot satisfy gate",
+  "current_local_source_pin": "5ca58d3025b1e2fdcff90825c95f68ed24ba419c",
+  "connected_core_paths": [
+    {
+      "parameter": "persona",
+      "disposition": "REPLACE_MIGRATE",
+      "owning_lane": "DJC-CORE",
+      "setter": "profile_settings.async_handle_settings / HTTP PATCH and paired TLS update",
+      "canonical_storage": "ProfileDJSettingsRepository on existing SQLite migration7",
+      "reader": "SessionRuntimeManager.async_read_dj_settings / async_start",
+      "effect": "Common Ask DJ confirmed style and existing future Moment Persona",
+      "qualified_evidence": [
+        "tests/test_profile_dj_settings_runtime.py",
+        "tests/test_profile_settings_owner.py",
+        "tests/test_profile_settings_speech.py",
+        "scripts/verification/profile_session_settings_lab.py",
+        "scripts/verification/profile_session_settings_ws_lab.py"
+      ],
+      "scope": "CONNECTED_CORE_SOFTWARE; external provider waveform fixture; native/audible/installed OPEN"
+    },
+    {
+      "parameter": "voice",
+      "disposition": "REPLACE_MIGRATE",
+      "owning_lane": "DJC-CORE",
+      "setter": "profile_settings.async_handle_settings / HTTP PATCH and paired TLS update",
+      "canonical_storage": "ProfileDJSettingsRepository on existing SQLite migration7",
+      "reader": "SessionRuntimeManager.async_read_dj_settings / async_start",
+      "effect": "Exact configured HA provider voice; settings/provider cache and audio guards",
+      "qualified_evidence": [
+        "tests/test_profile_dj_settings_runtime.py",
+        "tests/test_profile_settings_owner.py",
+        "tests/test_profile_settings_speech.py",
+        "scripts/verification/profile_session_settings_lab.py",
+        "scripts/verification/profile_session_settings_ws_lab.py"
+      ],
+      "scope": "CONNECTED_CORE_SOFTWARE; external provider waveform fixture; native/audible/installed OPEN"
+    },
+    {
+      "parameter": "gender",
+      "disposition": "REPLACE_MIGRATE",
+      "owning_lane": "DJC-CORE",
+      "setter": "profile_settings.async_handle_settings / HTTP PATCH and paired TLS update",
+      "canonical_storage": "ProfileDJSettingsRepository on existing SQLite migration7",
+      "reader": "SessionRuntimeManager.async_read_dj_settings / async_start",
+      "effect": "Installed provider metadata combination validation and exact HA synthesis voice",
+      "qualified_evidence": [
+        "tests/test_profile_dj_settings_runtime.py",
+        "tests/test_profile_settings_owner.py",
+        "tests/test_profile_settings_speech.py",
+        "scripts/verification/profile_session_settings_lab.py",
+        "scripts/verification/profile_session_settings_ws_lab.py"
+      ],
+      "scope": "CONNECTED_CORE_SOFTWARE; external provider waveform fixture; native/audible/installed OPEN"
+    },
+    {
+      "parameter": "mood",
+      "disposition": "REPLACE_MIGRATE",
+      "owning_lane": "DJC-CORE",
+      "setter": "profile_settings.async_handle_settings / HTTP PATCH and paired TLS update",
+      "canonical_storage": "ProfileDJSettingsRepository on existing SQLite migration7",
+      "reader": "SessionRuntimeManager.async_read_dj_settings / async_start",
+      "effect": "Runtime/Planner and durable summary interval, independent remembered default",
+      "qualified_evidence": [
+        "tests/test_profile_dj_settings_runtime.py",
+        "tests/test_profile_settings_owner.py",
+        "tests/test_profile_settings_speech.py",
+        "scripts/verification/profile_session_settings_lab.py",
+        "scripts/verification/profile_session_settings_ws_lab.py"
+      ],
+      "scope": "CONNECTED_CORE_SOFTWARE; external provider waveform fixture; native/audible/installed OPEN"
+    },
+    {
+      "parameter": "presence",
+      "disposition": "REPLACE_MIGRATE",
+      "owning_lane": "DJC-CORE",
+      "setter": "profile_settings.async_handle_settings / HTTP PATCH and paired TLS update",
+      "canonical_storage": "ProfileDJSettingsRepository on existing SQLite migration7",
+      "reader": "SessionRuntimeManager.async_read_dj_settings / async_start",
+      "effect": "Existing shared policy/budgets/in-flight admission; no reset",
+      "qualified_evidence": [
+        "tests/test_profile_dj_settings_runtime.py",
+        "tests/test_profile_settings_owner.py",
+        "tests/test_profile_settings_speech.py",
+        "scripts/verification/profile_session_settings_lab.py",
+        "scripts/verification/profile_session_settings_ws_lab.py"
+      ],
+      "scope": "CONNECTED_CORE_SOFTWARE; external provider waveform fixture; native/audible/installed OPEN"
+    }
+  ],
+  "remaining_core_qualification": [
+    "Complete per-setting legacy setter/store/reader/effect disposition beyond initial static scan",
+    "Versioned export/import and deletion/retention integration for the new canonical defaults",
+    "Full failure/cancellation/restart and longer-duration acceptance on final exact candidate",
+    "Owning coverage/security and independent technical/privacy/experience review",
+    "Consumer contracts and private handoff without consumer WIP expansion",
+    "Protected source, exact artifact readback and separate Finalization"
+  ]
 }

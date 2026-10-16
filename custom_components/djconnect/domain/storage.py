@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+from contextlib import asynccontextmanager
 from dataclasses import replace
 import re
 from typing import Any
@@ -85,7 +86,7 @@ class ProfilePlatformStorage:
             self._loaded = True
             return self._household
 
-    async def async_save(self, household: Household | None = None, *, rotate_bindings=False) -> Household:
+    async def async_save(self, household: Household | None = None, *, rotate_bindings=False, replacing_profiles=()) -> Household:
         """Validate and persist Household state."""
         staged = household if household is not None else self._household
         before = self._committed_household
@@ -98,24 +99,63 @@ class ProfilePlatformStorage:
                 raise ProfileStorageValidationError("profile_state_changed")
             staged = _with_device_binding_generations(before, staged, force=rotate_bindings)
             self.validate_household(staged)
-            if self._store is not None:
-                save = asyncio.create_task(self._store.async_save(household_to_storage(staged)))
-                while True:
-                    try:
-                        await asyncio.shield(save)
-                        break
-                    except asyncio.CancelledError:
-                        if save.cancelled():
-                            raise
-                        # Hold the owner lock through the definitive short file write.
-                        continue
-            self._household = self._committed_household = staged
-            self._loaded = True
-            self._invalidate_session_images()
+            async with self._settings_lifecycle_guard(before, staged, replacing_profiles):
+                if self._store is not None:
+                    save = asyncio.create_task(self._store.async_save(household_to_storage(staged)))
+                    while True:
+                        try:
+                            await asyncio.shield(save)
+                            break
+                        except asyncio.CancelledError:
+                            if save.cancelled():
+                                raise
+                            # Hold the owner lock through the definitive short file write.
+                            continue
+                self._household = self._committed_household = staged
+                self._loaded = True
+                self._invalidate_session_images()
         if self.hass is not None:
             from ..session_history_maintenance import schedule_history_maintenance
             schedule_history_maintenance(self.hass)
         return self._household
+
+    @asynccontextmanager
+    async def _settings_lifecycle_guard(self, before, staged, replacing_profiles=()):
+        """Serialize identity changes with existing Runtime/settings acceptance.
+
+        Profile lock → Runtime lock → provider lock. Settings SQL final fences
+        only read committed Profile state, never await this Profile write lock.
+        """
+        domain = self.hass.data.get('djconnect', {}) if self.hass is not None else {}
+        manager = domain.get('session_runtime_manager')
+        removed = set(before.profiles) - set(staged.profiles)
+        replaced = set(replacing_profiles)
+        added = set(staged.profiles) - set(before.profiles)
+        @asynccontextmanager
+        async def admitted():
+            if manager is not None and any(manager.current_active(owner) is not None
+                                           for owner in removed | replaced | added):
+                raise ProfileStorageValidationError('profile_has_active_session')
+            service = domain.get('persistence_service')
+            if service is not None and service.readiness.ready:
+                from ..persistence.dj_settings import ProfileDJSettingsRepository
+                repository = ProfileDJSettingsRepository(service)
+                for owner in replaced:
+                    snapshot = await repository.async_read(owner, authorize=lambda: True)
+                    if snapshot['activated']:
+                        raise ProfileStorageValidationError('profile_settings_restore_required')
+                # Erase before publishing a new identity. Failed JSON creation
+                # can only remove an orphan, never another live owner's state.
+                for owner in added:
+                    await repository.async_purge_owner(owner)
+            yield
+        if manager is not None:
+            async with manager._lock:
+                async with admitted():
+                    yield
+        else:
+            async with admitted():
+                yield
 
     async def async_commit_onboarding(self, before: Household, updated: Household) -> None:
         """Commit a staged onboarding update without exposing uncommitted state."""
@@ -125,23 +165,24 @@ class ProfilePlatformStorage:
         async with self._write_lock:
             if self._household != before or self._write_intent_revision != intent_revision:
                 raise ProfileStorageValidationError("profile_state_changed")
-            if self._store is not None:
-                save = asyncio.create_task(self._store.async_save(household_to_storage(updated)))
-                try:
-                    await asyncio.shield(save)
-                except asyncio.CancelledError:
-                    # A file write may already be running. Finish it, restore the
-                    # latest committed state (including other Profile edits), then abort.
+            async with self._settings_lifecycle_guard(before, updated):
+                if self._store is not None:
+                    save = asyncio.create_task(self._store.async_save(household_to_storage(updated)))
                     try:
-                        await save
-                    finally:
-                        await asyncio.shield(self._store.async_save(household_to_storage(self._household)))
-                    raise
-                if self._household != before or self._write_intent_revision != intent_revision:
-                    await self._store.async_save(household_to_storage(self._household))
-                    raise ProfileStorageValidationError("profile_state_changed")
-            self._household = self._committed_household = updated
-            self._invalidate_session_images()
+                        await asyncio.shield(save)
+                    except asyncio.CancelledError:
+                        # A file write may already be running. Finish it, restore the
+                        # latest committed state (including other Profile edits), then abort.
+                        try:
+                            await save
+                        finally:
+                            await asyncio.shield(self._store.async_save(household_to_storage(self._household)))
+                        raise
+                    if self._household != before or self._write_intent_revision != intent_revision:
+                        await self._store.async_save(household_to_storage(self._household))
+                        raise ProfileStorageValidationError("profile_state_changed")
+                self._household = self._committed_household = updated
+                self._invalidate_session_images()
 
     def _invalidate_session_images(self) -> None:
         """Latch private presentation withdrawal, including A→B→A changes."""
@@ -182,6 +223,8 @@ class ProfilePlatformStorage:
             raise ProfileStorageValidationError("profile display_name is required")
         if _duplicate_profile_name(household, name):
             raise ProfileStorageValidationError("profile display_name already exists")
+        if clean_identifier(profile_id) in household.profiles:
+            raise ProfileStorageValidationError('profile_id collision')
         profile = Profile(
             profile_id=clean_identifier(profile_id) or _new_id("profile"),
             display_name=name,

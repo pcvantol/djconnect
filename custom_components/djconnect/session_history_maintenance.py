@@ -13,6 +13,14 @@ from .historical_projection_retention import HistoricalProjectionRetentionServic
 async def async_purge_profile_history(hass, profile_id: str) -> None:
     domain = getattr(hass, "data", {}).get("djconnect", {})
     if "persistence_service" in domain:
+        from .persistence.dj_settings import ProfileDJSettingsRepository
+        manager = domain.get('session_runtime_manager')
+        if manager is not None:
+            async with manager._lock:
+                await ProfileDJSettingsRepository(persistence_service(hass)).async_purge_owner(profile_id)
+                manager._settings_defaults_revisions.pop(profile_id, None)
+        else:
+            await ProfileDJSettingsRepository(persistence_service(hass)).async_purge_owner(profile_id)
         await HistoricalProjectionRepository(persistence_service(hass)).async_purge_profile_history(
             profile_id
         )
@@ -41,6 +49,14 @@ async def async_maintain_session_history(hass, *, now=None, revoked_entry_id: st
 
         household = await profile_storage(hass).async_load()
         valid = set(household.profiles)
+        from .persistence.dj_settings import ProfileDJSettingsRepository
+        # The Profile owner holds its write lock so a concurrent recreation
+        # cannot become visible between the valid-owner capture and SQL erasure.
+        storage = profile_storage(hass)
+        async with storage._write_lock:
+            async with storage._settings_lifecycle_guard(storage.household, storage.household):
+                await ProfileDJSettingsRepository(persistence_service(hass)).async_purge_orphans(
+                    set(storage.household.profiles))
         after = domain.get("session_history_maintenance_after", "")
         rows = await repository.async_playback_maintenance_records(after=after)
         remove = {}

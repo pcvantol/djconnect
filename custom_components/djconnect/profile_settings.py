@@ -168,9 +168,9 @@ async def async_handle_settings(hass, data, *, headers=None, write=False, operat
     policy = VoicePolicy.from_options(options)
 
     def authority():
-        if validate_ingress is not None:
-            validate_ingress()
         try:
+            if validate_ingress is not None:
+                validate_ingress()
             _conversation_profile_fence(hass, runtime, identity, headers, context)
             current = storage.household.devices.get(data['device_id'])
             return (paired() and current is not None and current.binding_generation == generation

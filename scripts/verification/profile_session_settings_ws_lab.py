@@ -3,6 +3,8 @@
 import asyncio
 from contextlib import AsyncExitStack
 import json
+import os
+import resource
 import ssl
 import time
 from uuid import UUID
@@ -38,7 +40,7 @@ async def run(hass, runtime, client, identity, output, peers):
     try:
         async with AsyncExitStack() as stack:
             sockets = []
-            for entry, peer in participants:
+            async def connect(entry, peer):
                 ws = await stack.enter_async_context(client.session.ws_connect(
                     'https://127.0.0.1:18239/api/djconnect/v1/actions/paired', ssl=False))
                 required = await ws.receive_json(timeout=3)
@@ -47,7 +49,9 @@ async def run(hass, runtime, client, identity, output, peers):
                     'audience': 'paired_owner_actions', **peer, 'device_token': entry.data['device_token']})
                 accepted = await ws.receive_json(timeout=3)
                 assert accepted['type'] == 'auth_ok', accepted
-                sockets.append(ws)
+                return ws
+            for entry, peer in participants:
+                sockets.append(await connect(entry, peer))
 
             async def command(index, kind, **fields):
                 requests[index] += 1
@@ -94,11 +98,53 @@ async def run(hass, runtime, client, identity, output, peers):
             other = await command(3, 'djconnect/read', operation='profile/settings', payload={'contract_version': 2})
             assert other['snapshot']['defaults_revision'] == 0
             assert other['snapshot']['defaults'] != expected
-            # A transport reconnect is an owner read, not a new default write.
+            # Actually close/re-authenticate the TLS connection. Reusing a
+            # socket for another read alone would not prove reconnect semantics.
+            await sockets[1].close()
+            sockets[1] = await connect(*participants[1])
             final = await command(1, 'djconnect/read', operation='profile/settings', payload={'contract_version': 2})
+            assert final['snapshot']['defaults'] == expected
+            assert final['snapshot']['defaults_revision'] == updated['snapshot']['defaults_revision']
+            seconds = min(120, max(0, int(os.environ.get('DJC_SETTINGS_SOAK_SECONDS', '0'))))
+            soak = {'state': 'NOT_RUN', 'requested_seconds': seconds}
+            if seconds:
+                from custom_components.djconnect.session_runtime import session_runtime_manager
+                manager = session_runtime_manager(hass)
+                persistence = manager._settings_repository._persistence
+                def counts(tx):
+                    return {name: tx.fetchone('SELECT COUNT(*) FROM '+name)[0] for name in (
+                        'djconnect_profile_dj_settings', 'djconnect_session_dj_settings',
+                        'djconnect_settings_operations', 'djconnect_settings_clock')}
+                before_counts = await persistence.async_in_transaction(counts)
+                started, reads, reconnects = time.monotonic(), 0, 1
+                while time.monotonic() - started < seconds:
+                    for index in (0, 1, 2):
+                        state = await command(index, 'djconnect/read', operation='profile/settings',
+                                              payload={'contract_version': 2})
+                        assert state['snapshot']['defaults'] == expected
+                        assert state['snapshot']['defaults_revision'] == final['snapshot']['defaults_revision']
+                        assert state['snapshot']['session'] is None
+                        reads += 1
+                    isolated = await command(3, 'djconnect/read', operation='profile/settings',
+                                             payload={'contract_version': 2})
+                    assert isolated['snapshot']['defaults_revision'] == 0
+                    assert isolated['snapshot']['session'] is None
+                    if reconnects == 1 and time.monotonic()-started >= seconds/2:
+                        await sockets[2].close()
+                        sockets[2] = await connect(*participants[2])
+                        reconnects += 1
+                    await asyncio.sleep(1)
+                after_counts = await persistence.async_in_transaction(counts)
+                assert before_counts == after_counts, (before_counts, after_counts)
+                soak = {'state': 'PASS_CORE_READS_RECONNECT_NO_MUTATION',
+                        'seconds': round(time.monotonic()-started, 3), 'owner_reads': reads,
+                        'actual_tls_reconnects': reconnects, 'row_counts_before': before_counts,
+                        'row_counts_after': after_counts,
+                        'process_max_rss_kib': resource.getrusage(resource.RUSAGE_SELF).ru_maxrss}
             return {'case': 'tls_websocket_all_five_no_session_cross_device_invalidation',
                     'matrix': matrix, 'final_revision': final['snapshot']['defaults_revision'],
-                    'other_profile_events': 0, 'native': 'NOT_RUN',
+                    'other_profile_events': 0, 'native': 'NOT_RUN', 'bounded_soak': soak,
+                    'reconnect': 'ACTUAL_TLS_CLOSE_PAIR_AUTH_READ_SAME_REVISION',
                     'pairing_scope': 'actual_HTTP_configured_slot_acceptance; explicit_HA_bootstrap_slot_selection; config_flow_UI_NOT_RUN'}
     finally:
         await site.stop()
