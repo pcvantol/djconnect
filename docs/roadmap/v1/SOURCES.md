@@ -97,4 +97,4 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 | [docs/verification/PASSIVE_SESSION_PROJECTION_SOURCE_20261016.md](../../../docs/verification/PASSIVE_SESSION_PROJECTION_SOURCE_20261016.md) | `02b7c65903667a42522272823c6711d9b6ffcd1c049c21efb64c5c1dfb3b0fa2` |
 | [docs/verification/PASSIVE_SESSION_PROJECTION_SOURCE_READBACK_20261016.md](../../../docs/verification/PASSIVE_SESSION_PROJECTION_SOURCE_READBACK_20261016.md) | `7a4aefd96d3880fe5b28763744ba6cc25c9a55eca506dab8b0c5fe9543e16527` |
 | [docs/history/prompts/2026-10-16-passive-session-projection-finalization.md](../../../docs/history/prompts/2026-10-16-passive-session-projection-finalization.md) | `6c57169ad3728f4a12597d7f034fb2a9600870e45cf37666407a3c932f4c2d82` |
-| [docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md](../../../docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md) | `d4e5a4689cacbf4fe3711d0cc2d350500ba11cfba58126d01e2775746bd5b216` |
+| [docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md](../../../docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md) | `e56d259cf8e350b99ba9f0fb3b6d07aa5ee6cf7e4152b3fa08696c57b20f091d` |

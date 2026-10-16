@@ -233,6 +233,16 @@ The isolated HA checkpoint includes all-five TLS propagation, source/voice
 fencing and a120-second read/reconnect soak with unchanged settings/receipt row
 counts. These protocol surfaces are not physical Apple acceptance.
 
+The local legacy-retirement checkpoint `f5d9e6c770f425cc367ec55101854f4d4bbb98d5` additionally
+qualifies real HA Profile Store/ConfigEntry evidence, rejected partial activation
+with unchanged SQL, full five-field acceptance and retryable retirement with
+unchanged binding/defaults. Its [transport fixture](../../examples/client_contracts/profile_session_settings_v2/connected-ha-legacy-migration.json)
+is separate from the earlier 120-second soak fixture. Eleven migration tests
+cover held Store writes, entry changes after SQL staging, immutable replay,
+factory creation and untrusted import markers. The full local suite ran 2120
+tests: 2113 passed and 7 existing tests skipped. These are local Core checkpoints,
+not a final candidate review, installed client or audible voice qualification.
+
 Profile deletion/recreation and identity-only replacement are locally connected.
 Export schema2 contains only qualified typed defaults; schema1 remains the
 historical identity-only format. Schema2 restore currently returns

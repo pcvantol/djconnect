@@ -42076,7 +42076,7 @@
       },
       {
         "path": "docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md",
-        "sha256": "d4e5a4689cacbf4fe3711d0cc2d350500ba11cfba58126d01e2775746bd5b216"
+        "sha256": "e56d259cf8e350b99ba9f0fb3b6d07aa5ee6cf7e4152b3fa08696c57b20f091d"
       }
     ],
     "implementation_receipt": {
@@ -42639,7 +42639,7 @@
       "automatic_dispatch": false,
       "consumer_writes": false,
       "inventory_path": "docs/product/PROFILE_SESSION_SETTINGS_INVENTORY_V1.json",
-      "inventory_sha256": "51951ef4f996feaf4ca7717126c7443562715099ab8bb188d81e4e8f43f6227e"
+      "inventory_sha256": "78c60081747d8e419ad3d64cf64ad2054442c19d03a2398f30ede319e399e138"
     }
   }
 }

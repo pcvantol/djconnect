@@ -2564,7 +2564,7 @@
     }
   ],
   "completion_gate": "Every active exposed setting needs setter/canonical store/real reader/effect plus KEEP or qualified REPLACE-MIGRATE/REMOVE and owning-lane evidence; STATIC_ONLY rows cannot satisfy gate",
-  "current_local_source_pin": "d1bd0a37ecbbfa3d60c27ee2c3f99a8bd0e6819a",
+  "current_local_source_pin": "f5d9e6c770f425cc367ec55101854f4d4bbb98d5",
   "connected_core_paths": [
     {
       "parameter": "persona",
