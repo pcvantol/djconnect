@@ -2,7 +2,7 @@
   "schema_version": "djconnect-settings-inventory/1",
   "assignment": "DJC-PROFILE-SESSION-SETTINGS-CONSOLIDATION-V1-20261016",
   "source_pin": "148bd5aee3110c1a1ab13e7c463a164c99d79b70",
-  "status": "IN_PROGRESS_STATIC_BASELINE_AND_CONNECTED_CORE_PATHS; not a completed platform cleanup",
+  "status": "CORE_SOURCE_DELIVERED; dependent platform migration/consumer/native/joint remain open",
   "five_shared_parameters": [
     "persona",
     "voice",
@@ -2758,9 +2758,9 @@
     }
   ],
   "remaining_core_qualification": [
-    "Final exact independent technical/privacy and product/experience reviews after current review repairs and qualification",
-    "Protected source delivery, exact-main/artifact/formal readback and separate Finalization under current human merge/Finalization authorization",
-    "Native editor/adoption, consumer-dependent legacy adapter removal and joint acceptance remain owning-lane gates; no consumer WIP expanded"
+    "Separate Finalization/protected exact-main readback and own workspace cleanup",
+    "Qualified installed HA-dev/prod readback is separate from source qualification",
+    "Consumer adoption, dependent legacy adapter removal and joint acceptance remain owning-lane gates"
   ],
   "consumer_source_findings": [
     {
@@ -2839,5 +2839,21 @@
       "spotify_source"
     ],
     "changed_duplicate_authority": "dj_response_enabled migrated to explicit choice evidence; no accepted settings3 override"
+  },
+  "protected_source_delivery": {
+    "PR": 1193,
+    "source_head": "6882a43e3e0e73cd1b918161b27f88d3697bcb4f",
+    "main_sha": "e8cc70ddffb4112b09babdda4d45140b98926ae5",
+    "candidate_merge_tree_equal": true,
+    "integration_files": 177,
+    "mismatches": 0,
+    "archive_sha256": "57039b049de57ba7c01d61ac516d854d18e339645a5cc991ce2c727226a0bca1",
+    "formal_sha256": "b65789edc31b4c877d3f82df7c6b09742d04837921dbbeb4fd0301f465de88e9",
+    "raw_canonical_digest": "1c02a0c1b059551dc2cb1502c1ac673fda1f4001cda6e1eb343b3c48157f0805",
+    "coverage_zip_sha256": "297fac734113ad0fe267153c1bc3ad74a93ee5e8d40bc82ed436fcd067346ba8",
+    "ci_run": "38955402196",
+    "formal_run": "38955894451",
+    "decision": "POST_MERGE_RELEASE_EVIDENCE_QUALIFIED",
+    "release": "https://github.com/pcvantol/djconnect/releases/tag/internal-ha-e8cc70ddffb4112b09babdda4d45140b98926ae5"
   }
 }

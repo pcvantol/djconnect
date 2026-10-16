@@ -1,5 +1,49 @@
 # DJConnect Roadmap Index
 
+## Current: Shared Profile/Session settings — separate Finalization
+
+#### Repository Status
+
+Source PR [#1193](https://github.com/pcvantol/djconnect/pull/1193) protected merged as `e8cc70ddffb4112b09babdda4d45140b98926ae5`, exact independently reviewed head `6882a43e3e0e73cd1b918161b27f88d3697bcb4f` on base `148bd5aee3110c1a1ab13e7c463a164c99d79b70`. All32 checks PASS and5 conditional skips; exact Owner Authorization [38955322761](https://github.com/pcvantol/djconnect/actions/runs/38955322761) SUCCESS. No bypass; complete candidate/main trees equal. Main CI38955402196 and formal 38955894451 SUCCESS. Official archive177regular files, zero missing/extra/mismatch/symlink; actual raw/durable/coverage/main/PR bindings qualified. [Exact readback](docs/verification/PROFILE_SESSION_SETTINGS_SOURCE_READBACK_20261016.md).
+
+#### Management Summary
+
+Core delivers all six shared choices: Persona, provider-bound voice, qualified gender, Mood, Presence and announcement output. Last explicit accepted choices update active Session and Profile defaults in one existing SQLite/Runtime acceptance. HA Assist pipeline, physical speaker and ESP administration stay HA-only; local autoplay defaults OFF and OS permissions stay local. Text-only blocks synthesis/replay, speaker-only permits explicit local replay, and automatic HA speaker delivery is new-publication-only. Legacy unknown Mood remains unknown until complete explicit selection; first confirmed Mood starts at commit without invented earlier coverage. Schema1 exports remain unchanged and integrated chat/DNA portability stays parked.
+
+2152 regression tests:2145 pass/7 existing skips;171 DAG/schema/negative/generation checks; Ruff, onboarding package and Bandit medium/high-zero pass. Actual isolated paired HA/HTTP/Runtime/SQLite and three TLS protocol surfaces match158 source/helper hashes, as do all177 source integration files. A120.9-second run makes354 owner reads/two TLS reconnects without changing SQL row counts or notifying another Profile. Both unchanged shared renderer builds pass portrait/landscape, exact current track/Moment/source link/readability, output changes, reconnect, original expiry and end. External music/waveform/speaker-sink boundaries are fixtures; CAF is modeled. The CI test timeout repair preserves every roadmap assertion and bounds execution at120s; no workflow or runner change.
+
+#### Roadmap Position
+
+Generation2 product development; maintenance14 marks only SETTINGS::CORE::DOCS and SETTINGS::CORE::PRODUCER Completed/CORE_DELIVERED. Core migration remains In progress and consumer/joint nodes Planned; family PARTIAL. Delivered predecessor1191/1192 and all frozen snapshots remain closed/preserved.
+
+#### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+1. **SETTINGS::APPLE::EDITOR — Planned/NOT_ISSUED.** Existing Apple owner; exact producer adoption/native proof required.
+2. **SETTINGS::PI::ADOPTION — Planned/NOT_ISSUED.** Existing Pi owner; no automatic pickup.
+3. **SETTINGS::ESP32::ADOPTION — Planned/NOT_ISSUED.** Existing ESP owner; preserve physical-device semantics.
+4. **SETTINGS::VIBECAST::COMPAT — Planned/NOT_ISSUED.** Consumer qualification remains separate from Core browser proof.
+5. **SETTINGS::JOINT::ACCEPTANCE — Planned/NOT_ISSUED.** Six-field cross-device effects and qualified legacy cleanup first.
+
+Projection from the current canonical DAG; owning admission, capacity and reprioritization still apply. No automatic consumer dispatch.
+
+#### Blocked Items
+
+Apple editor/adoption, Pi/ESP/website adoption, consumer-dependent legacy removal and joint acceptance remain Planned/open in their existing owning lanes. VibeCast browser compatibility does not prove receiver deployment or physical acceptance. No Swift/receiver writes, new consumer writer, model/provider/cost route, Pages/signing or hardware changes. Native, installed, audible and hardware outcomes are separate evidence boundaries.
+
+#### Deferred Items
+
+Qualified latest-main HA-dev/prod installation is authorized but waits for this Finalization delivery and actual archive/configuration/backup/readback. Both environments remain last verified on148bd5ae at preparation; no settings-installed PASS is claimed. Next Core selection requires this closure, WORKSPACE_READY and fresh owning-register admission.
+
+#### Repository State
+
+Repository State: `MERGED_UNRECONCILED` until this separate Finalization actually merges and exact main/artifact readback validates. MERGED_RECONCILED is conditional, not a predicted merge. [Immutable record](docs/history/prompts/2026-10-16-profile-session-settings-finalization.md). Current human authorization covers merges/Finalization; exact independent reviews and all applicable green checks remain mandatory.
+
+#### Workspace State
+
+Workspace State: `NOT_READY` until valid Finalization, synchronization and safe disposition of only our two own refs. Preserve unrelated VibeCast worktree/stash, Apple WIP, HA labs and recovery. Cleanup requires verified recovery bundles, exact full candidate/merge and aggregate-delta equality, no unpublished work and fresh remote-ref/main readback. The existing overnight follow-up belongs to this same sole writer and grants no second writer.
+
+## Historical operational context
+
 ## Current: Shared Profile/Session settings — local implementation
 
 ### Repository Status

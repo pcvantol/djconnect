@@ -73,6 +73,9 @@ class SharedSettingsMaintenanceTests(unittest.TestCase):
         p = copy.deepcopy(self.p)
         r = p['planning_maintenance']['settings_consolidation_receipt']
         r.update(phase='SOURCE_PROTECTED_MERGED', source_delivery='PROTECTED_MERGED')
+        # Remain a meaningful negative test once the canonical plan is merged:
+        # completion without its mandatory exact artifact binding must fail.
+        r.pop('archive_sha256', None)
         self.assertTrue(validate(p))
 
 

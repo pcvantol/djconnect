@@ -1,5 +1,17 @@
 # DJConnect Product Roadmap
 
+## Shared settings — Core producer source delivered
+
+Source PR [#1193](https://github.com/pcvantol/djconnect/pull/1193) protected merged as `e8cc70ddffb4112b09babdda4d45140b98926ae5`, exact independently reviewed head `6882a43e3e0e73cd1b918161b27f88d3697bcb4f` on base `148bd5aee3110c1a1ab13e7c463a164c99d79b70`. All32 checks PASS and5 conditional skips; exact Owner Authorization [38955322761](https://github.com/pcvantol/djconnect/actions/runs/38955322761) SUCCESS. No bypass; complete candidate/main trees equal. Main CI38955402196 and formal 38955894451 SUCCESS. Official archive177regular files, zero missing/extra/mismatch/symlink; actual raw/durable/coverage/main/PR bindings qualified. [Readback](docs/verification/PROFILE_SESSION_SETTINGS_SOURCE_READBACK_20261016.md).
+
+Core delivers all six shared choices: Persona, provider-bound voice, qualified gender, Mood, Presence and announcement output. Last explicit accepted choices update active Session and Profile defaults in one existing SQLite/Runtime acceptance. HA Assist pipeline, physical speaker and ESP administration stay HA-only; local autoplay defaults OFF and OS permissions stay local. Text-only blocks synthesis/replay, speaker-only permits explicit local replay, and automatic HA speaker delivery is new-publication-only. Legacy unknown Mood remains unknown until complete explicit selection; first confirmed Mood starts at commit without invented earlier coverage. Schema1 exports remain unchanged and integrated chat/DNA portability stays parked.
+
+Apple editor/adoption, Pi/ESP/website adoption, consumer-dependent legacy removal and joint acceptance remain Planned/open in their existing owning lanes. VibeCast browser compatibility does not prove receiver deployment or physical acceptance. No Swift/receiver writes, new consumer writer, model/provider/cost route, Pages/signing or hardware changes. Native, installed, audible and hardware outcomes are separate evidence boundaries.
+
+Maintenance14: only Core docs/producer Completed; migration In progress; consumer/joint Planned; family PARTIAL. Separate Finalization and qualified installation remain gated by actual readback.
+
+## Historical scope records
+
 ## Current consolidation scope addenda
 
 The same SETTINGS family now includes announcement output as a sixth roaming choice (owner6220590330/6220695648); [contract3 design](docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md) precedes its runtime changes. Keep physical speaker/Assist pipeline/ESP administration HA-only and client autoplay/OS permissions local. Local Core contract3/persistence8 and output/speech fences are implemented, with real paired HA speaker/manual/automatic media-fetch proof; inventory/final candidate qualification remains In progress, consumer nodes Planned and joint OPEN. The original five-field checkpoints below are historical partial proof. Chat/DNA integrated portability is parked, not a new pickup. No new writer or slice.

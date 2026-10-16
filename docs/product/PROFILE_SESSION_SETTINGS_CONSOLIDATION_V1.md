@@ -1,5 +1,11 @@
 # Profile and Session settings consolidation
 
+## Core producer protected delivery
+
+Source PR [#1193](https://github.com/pcvantol/djconnect/pull/1193) protected merged as `e8cc70ddffb4112b09babdda4d45140b98926ae5`, exact independently reviewed head `6882a43e3e0e73cd1b918161b27f88d3697bcb4f` on base `148bd5aee3110c1a1ab13e7c463a164c99d79b70`. All32 checks PASS and5 conditional skips; exact Owner Authorization [38955322761](https://github.com/pcvantol/djconnect/actions/runs/38955322761) SUCCESS. No bypass; complete candidate/main trees equal. Main CI38955402196 and formal 38955894451 SUCCESS. Official archive177regular files, zero missing/extra/mismatch/symlink; actual raw/durable/coverage/main/PR bindings qualified.
+
+[Exact source readback](../verification/PROFILE_SESSION_SETTINGS_SOURCE_READBACK_20261016.md). Earlier local checkpoints below remain historical software proof; their publication/review gates are closed for this source. Separate Finalization, consumer migration/native/audible/joint and actual installed acceptance remain distinct. Whole SETTINGS family is PARTIAL.
+
 Assignment `DJC-PROFILE-SESSION-SETTINGS-CONSOLIDATION-V1-20261016`.
 Owner decision [6214905647](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6214905647)
 supersedes assessment6209817556 for this successor. Design precedes runtime.
