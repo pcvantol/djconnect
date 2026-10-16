@@ -8,7 +8,7 @@ The original3October snapshot/audit/source pins and projections are immutable hi
 
 Selected and freshly admitted speech/Persona implementation: DJC-SESSION-SPEECH-PERSONA-VOICE-20261015; source PROTECTED_MERGED. Four bounded Core leaves reuse existing Voice/Speech/Audio Renderer architecture; Apple/native audible/joint acceptance remains Planned/open. Delivered artwork v11 and historical snapshots preserved; no new provider/model/cost route or consumer writer.
 
-Selected passive Session projection: DJC-CORE-PASSIVE-SESSION-PROJECTION-V1-20261015; source UNPUBLISHED. Existing SURFACE::CORE::PROJECTION only; native rich adoption OPEN_APPLE, background SURFACE::APPLE::QUIET-TRANSPORT separately Planned, Watch NOT_QUALIFIED and joint OPEN. Original publication/source deadlines, explicit purpose grants and pure reads; no client writes, provider or automatic dispatch. Delivered v12 and all prior receipts preserved.
+Selected passive Session projection: DJC-CORE-PASSIVE-SESSION-PROJECTION-V1-20261015; source PROTECTED_MERGED. Existing SURFACE::CORE::PROJECTION only; native rich adoption OPEN_APPLE, background SURFACE::APPLE::QUIET-TRANSPORT separately Planned, Watch NOT_QUALIFIED and joint OPEN. Original publication/source deadlines, explicit purpose grants and pure reads; no client writes, provider or automatic dispatch. Delivered v12 and all prior receipts preserved.
 
 Authority: [DJC-DJ-PRESENCE-ROADMAP-DESIGN-V1-20261011](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6110375785).
 
@@ -16,8 +16,8 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 
 | Local design source | SHA256 |
 |---|---|
-| [PRODUCT_ROADMAP.md](../../../PRODUCT_ROADMAP.md) | `08829ad5562f4e2409cb1ead527983864513201c52563658d4ff6ecbc59b862b` |
-| [PRODUCT_BACKLOG.md](../../../PRODUCT_BACKLOG.md) | `8232ecd1ffbaec3ee79c05356ec0eedfda2ffc2435da698f85f14c7336324144` |
+| [PRODUCT_ROADMAP.md](../../../PRODUCT_ROADMAP.md) | `0184811045e344e38bd2d235ea54fdff7f69f1dfd38cd2dbe492b0f818b26339` |
+| [PRODUCT_BACKLOG.md](../../../PRODUCT_BACKLOG.md) | `71a31584e75207c76ee50d25e1a9452e992cc5f6009c43689107e6bd30bdf2f5` |
 | [docs/product/DJ_PRESENCE_V1.md](../../../docs/product/DJ_PRESENCE_V1.md) | `c97be3bcebbd4ca70d640cdf4fc0a9a4808451e986bc977e3173e19842a928c4` |
 | [DJ_SESSION_RUNTIME_CONTRACTS.md](../../../DJ_SESSION_RUNTIME_CONTRACTS.md) | `6ae7a05260bc2a997252dbb70c28917ac6b7fd25930263d7c0940df929b1ec92` |
 | [docs/product/DJ_INTELLIGENCE_ARCHITECTURE.md](../../../docs/product/DJ_INTELLIGENCE_ARCHITECTURE.md) | `5345f4a3db6b2bfb97931d6acdde09439dc3dbae7a7d311107269922e08aef12` |
@@ -91,5 +91,7 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 | [docs/verification/PROVIDER_VOICE_GENDER_SOURCE_20261016.md](../../../docs/verification/PROVIDER_VOICE_GENDER_SOURCE_20261016.md) | `ab02670e4c5b33433be036ac8165c9f123df238afa759c45a52c1951ddba41db` |
 | [docs/verification/PROVIDER_VOICE_GENDER_SOURCE_READBACK_20261016.md](../../../docs/verification/PROVIDER_VOICE_GENDER_SOURCE_READBACK_20261016.md) | `15062c222152e2fd58810f4d9f92b74225d2beecca7ee1c1d78382fc4309c9f8` |
 | [docs/history/prompts/2026-10-16-provider-voice-gender-finalization.md](../../../docs/history/prompts/2026-10-16-provider-voice-gender-finalization.md) | `ee784e85d90f928df38d43cd1bba17b2c912c60ff8c9d06d8d2f060f62ce822f` |
-| [docs/product/PASSIVE_SESSION_PROJECTION_V1.md](../../../docs/product/PASSIVE_SESSION_PROJECTION_V1.md) | `de04b361cbf278d97629dc74be19b064f750bbc128a3439fea2ec44e6ec7a575` |
+| [docs/product/PASSIVE_SESSION_PROJECTION_V1.md](../../../docs/product/PASSIVE_SESSION_PROJECTION_V1.md) | `0f3b6657561401e9b9d3e5680ff0794ac47978c31a2f56d339e5129c13b68591` |
 | [docs/verification/PASSIVE_SESSION_PROJECTION_SOURCE_20261016.md](../../../docs/verification/PASSIVE_SESSION_PROJECTION_SOURCE_20261016.md) | `02b7c65903667a42522272823c6711d9b6ffcd1c049c21efb64c5c1dfb3b0fa2` |
+| [docs/verification/PASSIVE_SESSION_PROJECTION_SOURCE_READBACK_20261016.md](../../../docs/verification/PASSIVE_SESSION_PROJECTION_SOURCE_READBACK_20261016.md) | `7a4aefd96d3880fe5b28763744ba6cc25c9a55eca506dab8b0c5fe9543e16527` |
+| [docs/history/prompts/2026-10-16-passive-session-projection-finalization.md](../../../docs/history/prompts/2026-10-16-passive-session-projection-finalization.md) | `6c57169ad3728f4a12597d7f034fb2a9600870e45cf37666407a3c932f4c2d82` |

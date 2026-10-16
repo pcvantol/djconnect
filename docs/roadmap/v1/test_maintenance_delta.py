@@ -647,10 +647,22 @@ class PassiveSurfaceMaintenanceTests(unittest.TestCase):
         for key, value in (('native', 'PASS'), ('background', 'PASS'), ('watch', 'PASS'),
                            ('joint', 'PASS'), ('consumer_writes', True), ('automatic_dispatch', True),
                            ('owner_selection', 0), ('contract_commit', '0'*40),
-                           ('source_delivery', 'PROTECTED_MERGED')):
+                           ('source_delivery', 'UNPUBLISHED' if self.p['planning_maintenance']['passive_surface_receipt']['phase'] == 'SOURCE_PROTECTED_MERGED' else 'PROTECTED_MERGED')):
             with self.subTest(key=key):
                 p = copy.deepcopy(self.p)
                 p['planning_maintenance']['passive_surface_receipt'][key] = value
+                self.assertTrue(validate(p))
+
+    def test_delivered_source_requires_exact_protected_evidence(self):
+        receipt = self.p['planning_maintenance']['passive_surface_receipt']
+        if receipt['phase'] != 'SOURCE_PROTECTED_MERGED':
+            return
+        for key in ('source_main_sha', 'reviewed_head', 'source_review',
+                    'required_checks', 'protected_merge', 'archive_sha256',
+                    'formal_evidence_sha256'):
+            with self.subTest(key=key):
+                p = copy.deepcopy(self.p)
+                p['planning_maintenance']['passive_surface_receipt'].pop(key)
                 self.assertTrue(validate(p))
 
     def test_unrelated_history_edges_and_duplicate_or_completed_native_nodes_rejected(self):

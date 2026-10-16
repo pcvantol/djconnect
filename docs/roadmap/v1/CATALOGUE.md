@@ -8,7 +8,7 @@ The original3October snapshot/audit/source pins and projections are immutable hi
 
 Selected and freshly admitted speech/Persona implementation: DJC-SESSION-SPEECH-PERSONA-VOICE-20261015; source PROTECTED_MERGED. Four bounded Core leaves reuse existing Voice/Speech/Audio Renderer architecture; Apple/native audible/joint acceptance remains Planned/open. Delivered artwork v11 and historical snapshots preserved; no new provider/model/cost route or consumer writer.
 
-Selected passive Session projection: DJC-CORE-PASSIVE-SESSION-PROJECTION-V1-20261015; source UNPUBLISHED. Existing SURFACE::CORE::PROJECTION only; native rich adoption OPEN_APPLE, background SURFACE::APPLE::QUIET-TRANSPORT separately Planned, Watch NOT_QUALIFIED and joint OPEN. Original publication/source deadlines, explicit purpose grants and pure reads; no client writes, provider or automatic dispatch. Delivered v12 and all prior receipts preserved.
+Selected passive Session projection: DJC-CORE-PASSIVE-SESSION-PROJECTION-V1-20261015; source PROTECTED_MERGED. Existing SURFACE::CORE::PROJECTION only; native rich adoption OPEN_APPLE, background SURFACE::APPLE::QUIET-TRANSPORT separately Planned, Watch NOT_QUALIFIED and joint OPEN. Original publication/source deadlines, explicit purpose grants and pure reads; no client writes, provider or automatic dispatch. Delivered v12 and all prior receipts preserved.
 
 | Node | Owner | Status | Outcome |
 |---|---|---|---|
@@ -40,7 +40,7 @@ Selected passive Session projection: DJC-CORE-PASSIVE-SESSION-PROJECTION-V1-2026
 | `ENTRY::APPLE::LIFECYCLE` | DJC-APPLE | Planned | Native exact lifecycle invocation integration |
 | `HISTORY::CORE::SUMMARY` | DJC-CORE | Completed | Owner history summary aggregation contract |
 | `HISTORY::APPLE::SUMMARY` | DJC-APPLE | Planned | Native history list/header summary adoption |
-| `SURFACE::CORE::PROJECTION` | DJC-CORE | In progress | Native surface rights/state projection |
+| `SURFACE::CORE::PROJECTION` | DJC-CORE | Completed | Native surface rights/state projection |
 | `SURFACE::APPLE::NAVIGATION` | DJC-APPLE | Planned | Typed native Session navigation |
 | `SURFACE::APPLE::ADOPTION` | DJC-APPLE | Planned | Session widget/Activity/Island adoption |
 | `SURFACE::APPLE::QUIET-TRANSPORT` | DJC-APPLE | Planned | Quiet surface update transport qualification |

@@ -1,5 +1,13 @@
 # DJConnect Product Backlog
 
+## Passive Session projection — Core source delivered
+
+Source PR [#1191](https://github.com/pcvantol/djconnect/pull/1191) protected merged as `2cb87cb7dad30546ee1641b839d14a4f5d621f54`, exact independently reviewed and owner-authorized head `928bf16b8812447fbd53739f22484051909ae513` on base `9faffe533d4a117eb8ad362e73809d126bdcc9d7`. All32 checks PASS/5conditional skips; exact Owner Authorization38896651007 SUCCESS. No bypass. Complete candidate/main trees equal. Main CI38897018985 and formal38897377600 SUCCESS. Official archive171regular files, zero missing/extra/mismatch/symlink; actual raw/durable/coverage/main/PR bindings qualified. [Exact readback](docs/verification/PASSIVE_SESSION_PROJECTION_SOURCE_READBACK_20261016.md). Earlier source1189/Finalization1190 remains closed.
+
+Existing `SURFACE::CORE::PROJECTION` Completed/CORE_DELIVERED for producer only. Existing Apple adoption/background/Watch and joint remain separately Planned/open. Canonical JSON maintenance13 preserves historical12 and all unrelated delivered work; no duplicate family or consumer dispatch. Separate Finalization and qualified dev/prod update remain gated.
+
+## Historical scope records
+
 ## Selected passive Session projection — owning Core subset
 
 [Canonical contract](docs/product/PASSIVE_SESSION_PROJECTION_V1.md), existing
