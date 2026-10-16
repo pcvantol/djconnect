@@ -1,5 +1,16 @@
 # DJConnect Product Backlog
 
+## Generic HA TTS correction — local qualification
+
+`DJC-CORE-GENERIC-HA-TTS-V1-20261016` follows the owner's selected Assist
+pipeline for Session speech through HA's generic TTS interface, including OpenAI
+and Cloud where the accepted source permits that processing. Reuse
+`SPEECH::CORE::DELIVERY`; preserve completed1177/1186 receipts and passive queue.
+[Bounded contract](docs/product/GENERIC_HA_TTS_V1.md). No Piper-only provider
+gate, provider/default mutation, inferred gender, fallback or client-side source
+permission. Exact source/Finalization publication and real installed/native
+acceptance remain separate gates; this local correction does not claim them.
+
 ## Session speech/Persona — Core source delivered; separate Finalization
 
 Source PR [#1177](https://github.com/pcvantol/djconnect/pull/1177) protected merged as `3535c97c3b50e9a126d0f22fcc5ce50d81851499`, exact reviewed/owner-authorized `50cbae2665a7f7e25d4744136f64ba0e8f16def7` on base58205056.32checksPASS/5conditional skips; actual exact Owner Authorization38816161823 SUCCESS.169official archive files match Git with zero differences; durable/raw/coverage/main/PR bindings PASS. [Exact source readback](docs/verification/SESSION_SPEECH_PERSONA_SOURCE_READBACK_20261016.md). Earlier1184/1185,1181/1183 and1178/1179 stay closed.

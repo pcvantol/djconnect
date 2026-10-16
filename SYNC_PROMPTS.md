@@ -1,3 +1,46 @@
+# Generic configured HA TTS correction — local producer candidate
+
+`DJC-CORE-GENERIC-HA-TTS-V1-20261016`, same Core writer/base8757, unpublished
+correction after closed1177/1186. [Contract](docs/product/GENERIC_HA_TTS_V1.md),
+[qualification](docs/verification/GENERIC_HA_TTS_SOURCE_20261016.md),
+[actual paired HA/OpenAI fixtures](examples/client_contracts/session_speech/generic-ha-tts-real.http.json).
+Existing speech contract1 routes/auth/reference/deadlines remain; HA preparation
+uses exact selected Assist pipeline, provider, language and voice, accepts private
+WAV/MP3, and reports provider-default selection when no concrete voice is known.
+`voice_id`/`voice_name` may then be null; do not invent a voice/gender or reject
+otherwise valid bytes solely because a provider owns its default selection.
+New opaque `configuration_revision` is equality evidence, never event ordering.
+Missing old history provenance is not cloud permission. No Swift dispatch, WIP
+expansion or installed/native-audible PASS; Apple owns its decoding, paired byte
+renderer, Stop/autoplay and actual device acceptance. Exact reviewed producerpin
+and protected-main pin will be handed off through the existing Apple87 lane.
+
+The renewed candidate adds optional version1 `provider_status`/`notification`:
+configuration readiness is distinct from actual synthesis success/failure/unknown.
+Use safe inline recovery instructions in the DJ-session to check the selected HA
+Assist pipeline, provider access/connection, language and voice. Handle prepare
+unavailable and authorized audioJSON409, preserving original contribution locale.
+Keep text/session controls usable; retry only the same speech reference after
+backoff and fresh authority checks, never the original Ask DJ/playback request.
+No automatic synthesis retry or provider-health PASS inferred from configuration.
+The existing Apple writer received this explicit owner requirement and prepared
+a five-language component; integration/installed/audible acceptance remains open
+until the exact renewed producer pin and fixtures are adopted and tested.
+
+Owner additions: active-session Voice menu with runtime concrete voice choice
+and conditional provider-qualified gender. New optional `voice_id` on HA prepare
+must come from bounded current `voices`; never send native/provider-arbitrary IDs.
+`preference_context` keys the client-local choice by installation/Profile/Session/
+device and discards at Session end. No shared pipeline/default/Persona mutation.
+Current actual HA Voice interface contains ID/name only, so gender remains
+unavailable rather than guessed. Actual supported voice selection is independent.
+Also expose active-session Persona editing through the already delivered paired
+`/session/persona` CAS route: shared Session change/Broadcast/readback, not a
+Profile default write. These explicit instructions were sent to the existing
+Apple writer; controls/decoding/installed/audible proof remain Apple-owned/open.
+
+## Previous producer handoffs
+
 # Qualified direct-local HTTP/WS — protected Core producer
 
 ## Session speech/Persona — Core source delivered; separate Finalization

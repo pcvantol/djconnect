@@ -1,5 +1,17 @@
 # DJConnect Product Roadmap
 
+## Generic selected-pipeline HA TTS — bounded corrective increment
+
+`DJC-CORE-GENERIC-HA-TTS-V1-20261016` corrects the delivered Speech provider
+restriction under the same Core writer. Base8757ecd3, ACK6209937603,
+contract-first abd9c7e2, first material source b8a13caf. The
+[contract](docs/product/GENERIC_HA_TTS_V1.md) reuses the existing
+`SPEECH::CORE::DELIVERY` capability; no new family, planner, provider installation
+or passive-surface admission. Exact selected HA Assist pipeline/provider,
+language and voice, WAV/MP3, configuration/replay fences and independent source
+processing rights are under local qualification. Publication and installed/native
+acceptance are not inferred. Prior source1177/Finalization1186 stay closed.
+
 ## Session speech/Persona — Core source delivered; separate Finalization
 
 Source PR [#1177](https://github.com/pcvantol/djconnect/pull/1177) protected merged as `3535c97c3b50e9a126d0f22fcc5ce50d81851499`, exact reviewed/owner-authorized `50cbae2665a7f7e25d4744136f64ba0e8f16def7` on base58205056.32checksPASS/5conditional skips; actual exact Owner Authorization38816161823 SUCCESS.169official archive files match Git with zero differences; durable/raw/coverage/main/PR bindings PASS. [Exact source readback](docs/verification/SESSION_SPEECH_PERSONA_SOURCE_READBACK_20261016.md). Earlier1184/1185,1181/1183 and1178/1179 stay closed.

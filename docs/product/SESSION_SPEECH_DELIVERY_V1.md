@@ -42,9 +42,11 @@ archival promotion. Common Ask DJ uses `reference:{turn_id}` consistently on
 both screens, including responses with a durable message ID; no message-ID lookup
 is silently substituted and old history cannot mint a new ephemeral grant.
 Preparation selects `processor:local_on_device|ha_configured`
-and `voice_preference:default|male|female`; neither is a provider/voice identifier.
-No free text, provider
-URL, arbitrary voice/engine ID, model prompt or playback instruction. Resolve
+and `voice_preference:default|male|female`; neither is a provider identifier.
+For `ha_configured` only, optional `voice_id` selects one exact ID from the
+current bounded provider inventory returned by voice-options (max64); a removed
+or unknown ID is unavailable, without fallback. No free text, provider URL,
+arbitrary engine ID, model prompt or playback instruction. Resolve
 through existing dialogue/history/Runtime owners and original source rights.
 Live and historical replay have independently qualified admission; no whole
 history scan or archive backfill. Unknown/revoked/deleted references fail closed.
@@ -55,12 +57,19 @@ can consume only exact admitted segments and declared local processor. It must
 report effective voice/locale or explicit no-matching-voice. Core must not claim
 an Apple voice exists before the renderer's actual inventory/acceptance.
 
-For HA synthesis use only the currently configured Assist/HA TTS entity and
-voice, with its actual supported inventory. Default uses that exact voice; male
+For HA synthesis use only the Assist pipeline selected in the DJConnect
+configuration and its HA TTS provider, language and voice. Use HA's supported
+`async_get_pipeline(hass, selected_id)` selector, or its actual preferred pipeline
+when no explicit ID is configured; never select an arbitrary first pipeline.
+An explicitly selected missing pipeline is unavailable, without fallback.
+Providers implementing HA's supported TTS interface share the same adapter;
+there is no general Piper/provider-class allowlist. Default uses that exact voice; male
 or female requests are unavailable unless explicit qualified metadata matches
 that configured voice. A configured engine alone establishes neither local
 processing nor permission: qualify its processor identity and each source basis;
-unknown/cloud-unqualified processors return unavailable, without fallback.
+source bases not qualified for the configured processing route return unavailable,
+without fallback. See [generic HA TTS correction](GENERIC_HA_TTS_V1.md) for the
+source/processor matrix, provider-default semantics and audio checks.
 Local-on-device preparation returns renderer_pending, not synthesized audio;
 its concrete gender/voice selection and audible acceptance remain Apple-owned.
 There is no config-flow mutation, added provider or direct API. Do not infer
@@ -69,6 +78,33 @@ metadata, report that limitation. Local reading may remain available, but it
 does not enable an unsupported gender selector.
 Never silently switch to another voice/engine/cloud route. See [HA TTS voice
 contract](https://developers.home-assistant.io/docs/core/entity/tts/).
+
+## Functional runtime provider feedback
+
+Optional version1 `provider_status` and `notification` extend the existing
+private owner routes without changing speech/reference authority. Voice-options
+reports configuration readiness separately from `not_tested`, `succeeded` or
+`failed` synthesis. At most64 private RAM observations expire after300s and bind
+to exact entry/Profile, provider incarnation and configuration revision. Reads
+and cache hits do not refresh observations or synthesize; expiry means unknown.
+
+Prepare reports unavailable with a safe functional notice for missing pipeline,
+unavailable provider, unsupported language/voice, preparation failure or timeout.
+Private audio returns JSON409 only when the contribution is still authorized but
+its provider configuration changed; normal auth/source denials stay opaque.
+Notices preserve the original contribution language and never expose exceptions,
+credentials or source bodies. `notification` carries stable `code`, localized
+`title`/`message`, `actions`, `retryable`, `retry_after_seconds`,
+`preserve_text:true` and `repeat_original_request:false`.
+
+Apple displays this inline in the DJ-session, instructing the user to check the
+selected Assist pipeline and its HA TTS provider, language and voice, including
+provider access/connection when unavailable. Preserve readable text and controls.
+Explicit retry prepares that same reference only, respects current authority and
+backoff, and never repeats an Ask DJ/playback action. Refresh on foreground,
+reconnect, voice-settings open and preparation; handle runtime audio409 too.
+No automatic retry, monitor, APNs or shared provider-health feed. Apple rendering,
+localization/accessibility and audible acceptance remain separately qualified.
 
 ## Bounds, identity, authority and cancellation
 
@@ -92,8 +128,14 @@ No provider work, original Ask DJ execution or playback effect on replay.
 
 ## Renderer-local voice and autoplay
 
-Concrete playback and optional male/female preference belong to the client
-audio output; Persona belongs to the Session. Gender UI is conditional on the
+The active DJ-session exposes a localized Voice menu. Concrete voice choice
+and optional male/female preference are client-local settings keyed by HA
+installation, authorized user/Profile, session_id and device/install-ID.
+`preference_context` advertises this scope, runtime mutation and discard-on-end;
+`voices` exposes at most64 current supported IDs/names, gender null unless
+qualified. Explicit per-prepare choice never changes shared HA pipeline/defaults.
+Native local voice IDs are separate and cannot be submitted as HA voice IDs.
+Concrete playback belongs to the client audio output; Persona belongs to the Session. Gender UI is conditional on the
 configured server Assist pipeline/provider advertising qualified support. Query
 the private read-only voice-options route; absent/unsupported metadata hides the
 selector and presents provider default. A previously selected now-unsupported
@@ -148,16 +190,21 @@ private audio even without another request. Source/Profile changes latch
 invalidation through the existing Profile storage owner; a return to the original
 configuration does not revive old grants. Final unload clears scoped resources.
 
-HA synthesis currently qualifies only the actual existing Wyoming Piper entity
-on a literal private/loopback endpoint, matching configured locale and configured
-voice in its supported inventory. A generic Wyoming entity or engine name is
-insufficient. HA2026.10 Voice exposes ID/name, not gender; male/female requests on
+HA synthesis uses the exact selected provider's supported language and configured
+voice, including an advertised provider default when no explicit voice is set.
+Providers without a voice inventory can use their own default; Core reports that
+selection explicitly without inventing a voice name. HA2026.10 Voice exposes ID/name, not gender; male/female requests on
 this HA route return `voice_gender_unavailable`. No provider or pipeline fallback.
 A confirmed current-artist reply may use `spotify_owner_local_read_v1`: only
 the exact accepted owner-visible title/artist sentence, its original at-most60s
-read deadline and attribution, through this qualified household Piper route.
+read deadline and attribution, through an independently qualified local route.
+The existing actual installed household Wyoming Piper proof remains one such
+local source grant, not a general compatibility requirement for HA TTS providers.
 This is local authorized reading, not a model/cloud grant or playback control.
-No API/config change adds a new synthesizer. Other source/processor combinations
+No API/config change adds a new synthesizer. Qualified accepted dialogue,
+normalized CC0 and authored Runtime direction may use the configured HA provider,
+including OpenAI/Cloud. Only exact accepted speech segments are sent, without
+raw provider payload, hidden context or a new archive grant. Other source/processor combinations
 remain unavailable until independently qualified. Client male/female choice remains optional and provider-gated; native rendering
 also requires real matching voice-inventory/audible evidence.
 

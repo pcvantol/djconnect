@@ -613,6 +613,7 @@ def _message_from_response(
     request_payload: dict[str, Any],
     response: dict[str, Any],
 ) -> dict[str, Any]:
+    from .session_speech import accepted_processing_basis
     text = _clean_text(
         response.get("dj_text")
         or response.get("text")
@@ -626,6 +627,7 @@ def _message_from_response(
             "message_kind": _message_kind(response),
             "origin": _clean_text(response.get("origin")),
             "text": text,
+            "speech_processing_basis": accepted_processing_basis(response),
             "historical_matches": _compact_items(response.get("historical_matches")),
             "navigation_actions": _compact_items(response.get("navigation_actions")),
             "created_at": _now(),
