@@ -20,6 +20,13 @@ MAX_SEGMENTS = 8
 MAX_REFERENCES = 8
 
 
+def accepted_processing_basis(result):
+    """Server-established processing provenance, never inferred from history text."""
+    basis = result.get("speech_processing_basis") or result.get("model_processing_basis")
+    return basis if basis in {"qualified_dialogue_v1", "cc0_normalized_fields_v1",
+        "runtime_authored_direction_v1", "spotify_owner_local_read_v1"} else "accepted_local_reply"
+
+
 def capability():
     return {"available": True, "version": 1, "path": PATH, "method": "POST",
             "authentication": "paired_device_bearer", "owner_only": True,
@@ -138,7 +145,7 @@ def remember(state, turn, result, *, turn_id, session_id, persona_revision,
               "deadline": deadline, "admissions": admissions,
               "expires_at": datetime.fromtimestamp(time.time() + deadline - now, UTC).isoformat(),
               "attribution": deepcopy(attribution),
-              "processor_basis": result.get("speech_processing_basis") or result.get("model_processing_basis") or result.get("text_source") or "accepted_local_reply"}
+              "processor_basis": accepted_processing_basis(result)}
     record["disposals"] = []
     def expire():
         if frame.speech_references.get(turn_id) is record:
@@ -356,7 +363,8 @@ async def resolve_retained(hass, history, profile_id, reference):
     if entry["kind"] not in {"dj_moment", "conversation_dj"}:
         raise PermissionError("speech_reference_unqualified")
     descriptor = retained_projection(entry)
-    basis = entry.get("archive_basis") if entry["kind"] == "dj_moment" else "qualified_dialogue_v1"
+    basis = (entry.get("archive_basis") if entry["kind"] == "dj_moment"
+             else entry.get("speech_processing_basis") or "retained_owner_local_read_v1")
     expires = min(time.time() + TTL, datetime.fromisoformat(entry["retained_until"]).timestamp())
     if descriptor["manual_allowed"]:
         descriptor["expires_at"] = datetime.fromtimestamp(expires, UTC).isoformat()
@@ -451,11 +459,11 @@ async def prepare_ha(hass, runtime, owner, data, descriptor, admission):
 
     # CC0/direction support is admitted by its original owner below, not inferred
     # from a provider label. Private/catalog display is no cloud-processing grant.
-    if admission.processor_basis not in {"qualified_dialogue_v1", "cc0_normalized_fields_v1", "runtime_authored_direction_v1", "spotify_owner_local_read_v1"}:
+    if admission.processor_basis not in {"qualified_dialogue_v1", "cc0_normalized_fields_v1", "runtime_authored_direction_v1", "spotify_owner_local_read_v1", "retained_owner_local_read_v1"}:
         return unavailable(data["reference"], "source_processor_not_qualified")
     try:
         entity, voice = configured_processor(hass, runtime.config, descriptor["locale"], data["voice_preference"])
-        if (admission.processor_basis == "spotify_owner_local_read_v1"
+        if (admission.processor_basis in {"spotify_owner_local_read_v1", "retained_owner_local_read_v1"}
                 and voice.get("processing_scope") != "qualified_local"):
             return unavailable(data["reference"], "source_processor_not_qualified")
         key = (owner, descriptor["source_id"], descriptor["text_revision"],

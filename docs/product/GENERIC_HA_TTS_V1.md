@@ -52,6 +52,13 @@ source bases fail closed. This source restriction is not a general Piper-only
 provider gate. Original retention, withdrawal, attribution and owner permission
 remain authoritative. No caller-supplied source/processor grant is accepted.
 
+New accepted assistant history stores the bounded server-established
+`speech_processing_basis` alongside the existing message. The retained-entry
+projection carries that original provenance; it does not infer cloud permission
+from role, text, attribution or archive membership. Legacy absence retains only
+the prior qualified local-read possibility, never retroactive cloud permission.
+No body backfill, Store-version rewrite or new event/history engine is required.
+
 ## Qualification and delivery
 
 Test different provider classes, no-inventory default, exact voice/language,

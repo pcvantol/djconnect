@@ -217,6 +217,10 @@ async def main():
                 assert response.status == expected, (response.status, body)
                 assert response.headers["Cache-Control"] == "no-store"
                 return body
+            if os.environ.get("DJC_GENERIC_TTS_PROBE"):
+                from generic_ha_tts_lab import run
+                await run(hass, runtime, client, post, identity, output, model_bundle, headers)
+                return
             session_started_clock = time.monotonic()
             started = await post("/session/start", {**identity, "mood": "groove", "locale": "en"}, expected=201)
             sid = started["session"]["session_id"]

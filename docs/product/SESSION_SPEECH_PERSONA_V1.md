@@ -136,8 +136,8 @@ stays internal; owner/native delivery receives only its existing safe expiry.
 | Family / evidence | Bubble realization | Speech route and limits |
 | --- | --- | --- |
 | Current observed playback | Exact title/artist, observation not selection/listening claim; authored short announcement in existing track opportunity | Owner-local reading of already admitted exact presentation; no catalog/private payload to model/cloud TTS. |
-| Artist CC0 begin/formation | Existing normalized date/precision, four Persona forms and published-only variation | Exact admitted local speechtext; no biography lookup or new fact. |
-| Wikidata localized description | Exact qualified descriptor inside authored framing; never translate an absent language | Same descriptor/framing; qualified local renderer; no surrounding Wikipedia prose or images. |
+| Artist CC0 begin/formation | Existing normalized date/precision, four Persona forms and published-only variation | Exact admitted speechtext through the selected HA TTS provider or local renderer; no biography lookup or new fact. |
+| Wikidata localized description | Exact qualified descriptor inside authored framing; never translate an absent language | Same qualified CC0 descriptor/framing through configured HA TTS or local renderer; no surrounding Wikipedia prose or images. |
 | Album/edition catalog | Preserve exact album URI/edition/date precision, source link and Spotify mark | Current owner-local reading only; no implied historical/cloud processing right. Missing source/audience permission is explicit unavailable. |
 | Recording/work credits | Normalized contributor/role/opera title; distinct Persona sentence structures | Qualified CC0 fields and exact realized text only; supplementary reviews/ratings/annotations not admitted. |
 | Shared producer/album continuity | Existing previously published relationship proofs, current exact recording and both attribution links | Same qualified relation, shortest original deadline; never infer another connection or archive authority. |

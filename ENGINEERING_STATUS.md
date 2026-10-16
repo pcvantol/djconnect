@@ -1,6 +1,73 @@
 # DJConnect Engineering Status
 
-## Current: Session speech/Persona — separate Finalization
+## Current: Generic configured HA TTS correction
+
+#### Repository Status
+
+`DJC-CORE-GENERIC-HA-TTS-V1-20261016`, same sole Core writer. Fresh hostverify
+exit0/MATCH; synchronized base `8757ecd38a5fe31254a36aba5e0cbe5852edfa7e`.
+Predecessor Speech1177/Finalization1186 is MERGED_RECONCILED/WORKSPACE_READY,
+confirmed by [terminal6209434666](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6209434666).
+[Correction ACK6209937603](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6209937603),
+branch `codex/generic-ha-tts-v1`, contractabd9c7e2, materialb8a13caf.
+
+#### Management Summary
+
+Use the TTS provider, language and voice of the explicitly selected HA Assist
+pipeline through HA's generic interface. No general Piper-only gate, direct
+external API, provider/default mutation, arbitrary fallback or inferred gender.
+Source processing rights remain independent; unknown legacy history does not
+become cloud input. [Contract](docs/product/GENERIC_HA_TTS_V1.md),
+[actual local qualification](docs/verification/GENERIC_HA_TTS_SOURCE_20261016.md).
+
+#### Roadmap Position
+
+Bounded correction of existing `SPEECH::CORE::DELIVERY`, no new family or changes
+to delivered node/status receipts. Native/installed/audible/joint remain separate.
+Authoritative JSON document references and23views updated through existing route;
+historical snapshots, WEB and other completed deliveries preserved.
+
+#### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+1. **DJC-CORE-GENERIC-HA-TTS-V1-20261016 — local source qualification.** Exact reviews/publication next.
+2. **DJC-CORE-PASSIVE-SESSION-PROJECTION-V1-20261015 — selected queued.** Owner6199213014, not admitted or started.
+3. **DJC-VIBECAST-TV-BOOTSTRAP-CLOUDFLARE-V1-20261015 — separate receiver writer.** Own admission required.
+4. **Unfilled slot4 — no authorized eligible dispatch.**
+5. **Unfilled slot5 — no authorized eligible dispatch.**
+
+#### Blocked Items
+
+Current candidate requires its own exact source-publication/protected-delivery
+approval after exact independent reviews. Separate Finalization retains its own
+exact gate; prior source/Finalization grants are not reused. No installation
+before qualified protected delivery. HA-dev remains on the Mac; direct-local
+HTTP/WS source masking remains a separate open architecture boundary.
+
+#### Deferred Items
+
+No Swift/receiver/APNs/signing/network/workflow/runner changes, new provider
+installation or passive-surface implementation. Optional gender still requires
+provider metadata; native audible and hardware acceptance are not claimed.
+
+#### Repository State
+
+Base MERGED_RECONCILED; correction locally qualified and unpublished, no PR/main
+merge claimed.2017regressions/7existing skips,111owning/85%unit-only adapter
+coverage,162DAG,13bootstrap,11package, schema/generation/projection/Ruff/Bandit/
+hassfest. Real paired HA activeSession/OpenAI/privateMP3 in5languages and
+networkless localPiper regression pass with their explicit fixture boundaries.
+
+#### Workspace State
+
+One own correction branch, no second writer; unrelated VibeCast worktree, passive
+stash, Apple WIP and recovery retained. Source changes and restartable checkpoint
+are retained. Installed HA-dev/prod remain8757 until source+Finalization delivery
+and standing qualified-finalmain installation instruction. Night automation is
+paused; no cleanup or new assignment inferred.
+
+## Historical freeze-point records
+
+## Historical: Session speech/Persona — separate Finalization
 
 #### Repository Status
 

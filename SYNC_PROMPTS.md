@@ -1,3 +1,22 @@
+# Generic configured HA TTS correction — local producer candidate
+
+`DJC-CORE-GENERIC-HA-TTS-V1-20261016`, same Core writer/base8757, unpublished
+correction after closed1177/1186. [Contract](docs/product/GENERIC_HA_TTS_V1.md),
+[qualification](docs/verification/GENERIC_HA_TTS_SOURCE_20261016.md),
+[actual paired HA/OpenAI fixtures](examples/client_contracts/session_speech/generic-ha-tts-real.http.json).
+Existing speech contract1 routes/auth/reference/deadlines remain; HA preparation
+uses exact selected Assist pipeline, provider, language and voice, accepts private
+WAV/MP3, and reports provider-default selection when no concrete voice is known.
+`voice_id`/`voice_name` may then be null; do not invent a voice/gender or reject
+otherwise valid bytes solely because a provider owns its default selection.
+New opaque `configuration_revision` is equality evidence, never event ordering.
+Missing old history provenance is not cloud permission. No Swift dispatch, WIP
+expansion or installed/native-audible PASS; Apple owns its decoding, paired byte
+renderer, Stop/autoplay and actual device acceptance. Exact reviewed producerpin
+and protected-main pin will be handed off through the existing Apple87 lane.
+
+## Previous producer handoffs
+
 # Qualified direct-local HTTP/WS — protected Core producer
 
 ## Session speech/Persona — Core source delivered; separate Finalization

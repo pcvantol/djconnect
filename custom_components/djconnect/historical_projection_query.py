@@ -147,6 +147,9 @@ class HistoricalProjectionQueryService:
         entry["role"] = "user" if row["kind"] == "conversation_user" else "assistant"
         entry["input_type"] = message.get("session_turn", {}).get("input_type", "text")
         entry["effective_style"] = message.get("session_turn", {}).get("effective_style")
+        # Original acceptance owns this optional provenance. Legacy absence is
+        # not permission to send arbitrary archived text to a cloud processor.
+        entry["speech_processing_basis"] = message.get("speech_processing_basis")
         entry["context"] = message.get("session_turn", {}).get("context", {})
         for field in ("sources", "links", "historical_matches", "navigation_actions"):
             if isinstance(message.get(field), list):

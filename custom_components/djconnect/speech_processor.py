@@ -39,16 +39,30 @@ def _local_processing(entity, language, voice_id):
     return {"provider_version": programs[0].version, "voice_version": voice.version}
 
 
+def _selected_pipeline(hass, conf):
+    """Use HA's supported selector, including its real preferred/default rule."""
+    try:
+        from homeassistant.components.assist_pipeline.pipeline import async_get_pipeline
+        return async_get_pipeline(hass, str(conf.get("assist_pipeline_id") or "").strip() or None)
+    except Exception:
+        raise ProcessorUnavailable("processor_not_qualified") from None
+
+
 def configured_processor(hass, conf, locale, preference):
     """Resolve only the selected HA provider, language and voice, without I/O."""
     try:
         from homeassistant.components import tts
     except ImportError:
         raise ProcessorUnavailable("processor_not_qualified") from None
-    from .tts import _tts_pipeline_candidates, _first_attr
+    from .tts import _first_attr
 
-    pipelines = _tts_pipeline_candidates(hass, conf)
-    pipeline = pipelines[0] if pipelines else None
+    pipeline = _selected_pipeline(hass, conf)
+    selected_id = str(conf.get("assist_pipeline_id") or "").strip()
+    pipeline_id = str(_first_attr(pipeline, "id") or "")
+    if selected_id and selected_id != pipeline_id:
+        # The legacy helper returns alternatives too. Session speech must not
+        # silently use them when an explicitly selected pipeline is missing.
+        raise ProcessorUnavailable("processor_not_qualified")
     engine_id = str(_first_attr(pipeline, "tts_engine", "tts_engine_id") or "")
     language = str(_first_attr(pipeline, "tts_language", "language") or "")
     voice_id = str(_first_attr(pipeline, "tts_voice", "voice") or "")
@@ -86,6 +100,7 @@ def configured_processor(hass, conf, locale, preference):
         "subentry": getattr(subentry, "data", {}), "defaults": dict(defaults),
     }, sort_keys=True, default=str).encode()).hexdigest()[:24]
     return entity, {"processor": "ha_configured", "engine": engine_id,
+                    "pipeline_id": pipeline_id,
                     "provider": str(getattr(platform, "platform_name", "") or engine_id.split(".")[0]),
                     "voice_id": voice_id or None,
                     "voice_name": actual.name if actual else None,
@@ -154,9 +169,7 @@ def _valid_mp3(body):
 
 def voice_options(hass, conf):
     """Read current provider support; no synthesis, lookup, inferred gender or writes."""
-    from .tts import detect_tts_support
-    status = detect_tts_support(hass, conf)
-    locale = str(status.get("language") or "").replace("_", "-").split("-", 1)[0]
+    from .tts import _first_attr
     options = {"schema_version": 1, "authority": "configured_ha_assist_pipeline_provider",
                "preference_scope": "device_local", "default_preference": "default",
                "default_available": False, "supported_preferences": ["default"],
@@ -164,6 +177,8 @@ def voice_options(hass, conf):
                                     "reason": "provider_gender_metadata_unavailable"},
                "provider_voice": None, "cache_policy": "private,no-store"}
     try:
+        pipeline = _selected_pipeline(hass, conf)
+        locale = str(_first_attr(pipeline, "tts_language", "language") or "").replace("_", "-").split("-", 1)[0]
         _, voice = configured_processor(hass, conf, locale, "default")
     except ProcessorUnavailable as exc:
         options["state"] = "unavailable"

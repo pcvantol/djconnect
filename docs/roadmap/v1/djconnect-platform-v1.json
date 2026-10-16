@@ -41291,11 +41291,11 @@
     "document_references": [
       {
         "path": "PRODUCT_ROADMAP.md",
-        "sha256": "8bdf263230bcb4b572b723835642cab33df487bf6a446118f3525ed03386aca9"
+        "sha256": "0d0fe20b73aefb229b4aa7861867c05fcd8cdb03fc32c3d9961e2ec3765244e7"
       },
       {
         "path": "PRODUCT_BACKLOG.md",
-        "sha256": "95ab010d0548f099cc264305c3bd4efabff665ff2fd586a51b18a40fe9823390"
+        "sha256": "d7e0522980d3a394ec2e4da5c735d1f83799bc4a7e2a24c72bf8b358f42e3fe0"
       },
       {
         "path": "docs/product/DJ_PRESENCE_V1.md",
@@ -41543,11 +41543,11 @@
       },
       {
         "path": "docs/product/SESSION_SPEECH_PERSONA_V1.md",
-        "sha256": "e5854e479ad7cd76f1251300c068e8af47c2776719c7cbfb4f34f30adb11e80e"
+        "sha256": "7a94cc8719e3f76faf5a841a662f23c89d801476b1c4fc881746506257090140"
       },
       {
         "path": "docs/product/SESSION_SPEECH_DELIVERY_V1.md",
-        "sha256": "965a2f336102c12e56bb891fb003790c56c47132fa64719f7cef9e30cb119981"
+        "sha256": "4d547bffdff9a4cad3036f5fae42e0c2a8493f84f2b7b38c1f06f06757eeddaa"
       },
       {
         "path": "docs/verification/SESSION_SPEECH_PERSONA_SOURCE_READBACK_20261016.md",
@@ -41556,6 +41556,14 @@
       {
         "path": "docs/history/prompts/2026-10-16-session-speech-persona-finalization.md",
         "sha256": "08bfdd2e39d730e38d6a76b7cf8ffd8d1463781c59e52fa4aab8f3df0de16732"
+      },
+      {
+        "path": "docs/product/GENERIC_HA_TTS_V1.md",
+        "sha256": "dc76376f03adebffb5ba8664a7fd5fc8db3db6beacfc5d7e25580911c5bac18a"
+      },
+      {
+        "path": "docs/verification/GENERIC_HA_TTS_SOURCE_20261016.md",
+        "sha256": "4ae83f121110fbc2d6d6aecbe40c72632d024509f942abdc1cf2507a1d784326"
       }
     ],
     "implementation_receipt": {

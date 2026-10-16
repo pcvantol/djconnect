@@ -55,12 +55,19 @@ can consume only exact admitted segments and declared local processor. It must
 report effective voice/locale or explicit no-matching-voice. Core must not claim
 an Apple voice exists before the renderer's actual inventory/acceptance.
 
-For HA synthesis use only the currently configured Assist/HA TTS entity and
-voice, with its actual supported inventory. Default uses that exact voice; male
+For HA synthesis use only the Assist pipeline selected in the DJConnect
+configuration and its HA TTS provider, language and voice. Use HA's supported
+`async_get_pipeline(hass, selected_id)` selector, or its actual preferred pipeline
+when no explicit ID is configured; never select an arbitrary first pipeline.
+An explicitly selected missing pipeline is unavailable, without fallback.
+Providers implementing HA's supported TTS interface share the same adapter;
+there is no general Piper/provider-class allowlist. Default uses that exact voice; male
 or female requests are unavailable unless explicit qualified metadata matches
 that configured voice. A configured engine alone establishes neither local
 processing nor permission: qualify its processor identity and each source basis;
-unknown/cloud-unqualified processors return unavailable, without fallback.
+source bases not qualified for the configured processing route return unavailable,
+without fallback. See [generic HA TTS correction](GENERIC_HA_TTS_V1.md) for the
+source/processor matrix, provider-default semantics and audio checks.
 Local-on-device preparation returns renderer_pending, not synthesized audio;
 its concrete gender/voice selection and audible acceptance remain Apple-owned.
 There is no config-flow mutation, added provider or direct API. Do not infer
@@ -148,16 +155,21 @@ private audio even without another request. Source/Profile changes latch
 invalidation through the existing Profile storage owner; a return to the original
 configuration does not revive old grants. Final unload clears scoped resources.
 
-HA synthesis currently qualifies only the actual existing Wyoming Piper entity
-on a literal private/loopback endpoint, matching configured locale and configured
-voice in its supported inventory. A generic Wyoming entity or engine name is
-insufficient. HA2026.10 Voice exposes ID/name, not gender; male/female requests on
+HA synthesis uses the exact selected provider's supported language and configured
+voice, including an advertised provider default when no explicit voice is set.
+Providers without a voice inventory can use their own default; Core reports that
+selection explicitly without inventing a voice name. HA2026.10 Voice exposes ID/name, not gender; male/female requests on
 this HA route return `voice_gender_unavailable`. No provider or pipeline fallback.
 A confirmed current-artist reply may use `spotify_owner_local_read_v1`: only
 the exact accepted owner-visible title/artist sentence, its original at-most60s
-read deadline and attribution, through this qualified household Piper route.
+read deadline and attribution, through an independently qualified local route.
+The existing actual installed household Wyoming Piper proof remains one such
+local source grant, not a general compatibility requirement for HA TTS providers.
 This is local authorized reading, not a model/cloud grant or playback control.
-No API/config change adds a new synthesizer. Other source/processor combinations
+No API/config change adds a new synthesizer. Qualified accepted dialogue,
+normalized CC0 and authored Runtime direction may use the configured HA provider,
+including OpenAI/Cloud. Only exact accepted speech segments are sent, without
+raw provider payload, hidden context or a new archive grant. Other source/processor combinations
 remain unavailable until independently qualified. Client male/female choice remains optional and provider-gated; native rendering
 also requires real matching voice-inventory/audible evidence.
 
