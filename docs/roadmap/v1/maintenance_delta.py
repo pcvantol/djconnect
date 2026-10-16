@@ -84,6 +84,9 @@ def validate_delta(plan: dict[str, Any]) -> list[str]:
             errors.append("maintenance: " + reason)
 
     version = d.get("schema_version")
+    if version == "djconnect-federated-planning-delta/14":
+        from settings_consolidation_delta import validate
+        return validate(plan, validate_delta)
     if version == "djconnect-federated-planning-delta/13":
         from passive_surface_delta import validate
         return validate(plan, validate_delta)
@@ -1014,6 +1017,9 @@ def render_delta(p):
     if d.get("passive_surface_receipt"):
         r = d["passive_surface_receipt"]
         intro += f"Selected passive Session projection: {r['assignment_id']}; source {r['source_delivery']}. Existing SURFACE::CORE::PROJECTION only; native rich adoption OPEN_APPLE, background SURFACE::APPLE::QUIET-TRANSPORT separately Planned, Watch NOT_QUALIFIED and joint OPEN. Original publication/source deadlines, explicit purpose grants and pure reads; no client writes, provider or automatic dispatch. Delivered v12 and all prior receipts preserved.\n\n"
+    if d.get("settings_consolidation_receipt"):
+        r = d["settings_consolidation_receipt"]
+        intro += f"Selected shared Profile/Session settings consolidation: {r['assignment_id']}; all five Persona/voice/gender/Mood/Presence, contract2, last explicit accepted choice becomes default, atomic active+default acceptance. Source {r['source_delivery']}; Core producer and migration work only; Apple/other consumers/joint separately open, no automatic dispatch or whole-family completion. Delivered v13 preserved.\n\n"
     out = {}
     out["README.md"] = (
         "# Federated roadmap — versioned maintenance\n\n"

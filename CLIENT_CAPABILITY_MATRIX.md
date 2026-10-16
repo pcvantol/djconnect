@@ -1,5 +1,11 @@
 # DJConnect Client Capability Matrix
 
+## Selected Profile/Session settings consolidation — contract2
+
+[Canonical all-five contract](docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md), [settings inventory](docs/product/PROFILE_SESSION_SETTINGS_INVENTORY_V1.json), owner6214905647. Allfive Persona/voice/gender/Mood/Presence are Core-owned Profile defaults plus effective Session state; last explicit accepted field patch is automatically remembered and changes an active Session atomically. No device-local voice truth, global pipeline mutation, read effect, source-right expansion or consumer writer dispatch. New typed API/WS contract2 has its own revision/receipt/generation semantics; contract1 is not silently changed. Core implementation/fixtures remain in progress and unpublished; native/installed/hardware/joint and platform-wide legacy removal are not yet qualified.
+
+## Existing delivered contracts and historical context
+
 This document defines how platform capabilities map to DJConnect client classes.
 
 No client owns product features. Clients render or expose platform capabilities according to their strengths and constraints.

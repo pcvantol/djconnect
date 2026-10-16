@@ -1,5 +1,45 @@
 # DJConnect Generation 2 Management Summary
 
+## Current: Shared Profile/Session settings — local implementation
+
+### Repository Status
+
+Latest completed predecessor: source PR [#1191](https://github.com/pcvantol/djconnect/pull/1191) protected merged as `2cb87cb7dad30546ee1641b839d14a4f5d621f54`, separate Finalization PR [#1192](https://github.com/pcvantol/djconnect/pull/1192) protected merged as `148bd5aee3110c1a1ab13e7c463a164c99d79b70`. Exact artifacts171files0mismatch/raw/formal/coverage readback and both HA installations LOADED_VERIFIED; owncleanup complete. Repository State: `MERGED_RECONCILED` describes that closed predecessor; the new local settings candidate has no protected delivery or installed claim.
+
+### Management Summary
+
+Selected owner6214905647/ACK6218545503; same Core writer, base148bd5ae, branchcodex/profile-session-settings-consolidation-v1. Canonical allfive design67c6361f before materialfa8ca487. Atomic existing-SQLite repository and durable binding generations locally qualified; actual Runtime/HTTP/WS/speech integration, whole-platform migration inventory and realHA qualification remain work. No source publication or consumer writes.
+
+### Roadmap Position
+
+Generation2 product development, existing Profile/Session/Speech foundations. Maintenance14 preserves delivered13 and every previous receipt; allfive scope, automatic last-explicit-choice defaults and atomic live/default acceptance. Core-only preparation, consumers Planned/open and whole family PARTIAL.
+
+### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+1. **DJC-VIBECAST-TV-BOOTSTRAP-CLOUDFLARE-V1-20261015 — separate receiver lane.** Existing owner-selected scope, own admission/contract gates; no Core takeover.
+2. **Unfilled slot2 — no further eligible authorized selection.**
+3. **Unfilled slot3 — no further eligible authorized selection.**
+4. **Unfilled slot4 — no further eligible authorized selection.**
+5. **Unfilled slot5 — no further eligible authorized selection.**
+
+### Blocked Items
+
+Exact future source and separate Finalization publication require their own reviewed candidates/authorizations. Consumer source/native/hardware adoption belongs to existing owning lanes; local typed/model/SQLite tests are not product acceptance. Old contract1 migration/removal must have a concrete end gate.
+
+### Deferred Items
+
+No new provider/model/cost route, global Assist pipeline mutation, second Planner, private archive, Swift/receiver writes, new consumerwriter, unrelated installation or next slice. Timer stays paused. Standing qualified-finalmain dev/prod installation remains subject to real compatibility and backup/readback evidence.
+
+### Repository State
+
+Repository State: `MERGED_RECONCILED` for completed1191/1192 only. Settings source LOCAL/UNPUBLISHED, full scope and exact review/qualification pending; no silent extension of a reviewed candidate.
+
+### Workspace State
+
+Own single Core branch; unrelated receiver worktree, passive stash, Apple WIP, HA labs and recovery preserved. Previous WORKSPACE_READY admission was verified. Current implementation WIP is intentional and not cleanup material. No native/hardware or installed-settings PASS.
+
+## Historical operational context
+
 ## Current: Passive Session projection — separate Finalization
 
 ### Repository Status

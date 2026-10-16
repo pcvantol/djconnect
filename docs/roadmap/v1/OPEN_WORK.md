@@ -10,6 +10,8 @@ Selected and freshly admitted speech/Persona implementation: DJC-SESSION-SPEECH-
 
 Selected passive Session projection: DJC-CORE-PASSIVE-SESSION-PROJECTION-V1-20261015; source PROTECTED_MERGED. Existing SURFACE::CORE::PROJECTION only; native rich adoption OPEN_APPLE, background SURFACE::APPLE::QUIET-TRANSPORT separately Planned, Watch NOT_QUALIFIED and joint OPEN. Original publication/source deadlines, explicit purpose grants and pure reads; no client writes, provider or automatic dispatch. Delivered v12 and all prior receipts preserved.
 
+Selected shared Profile/Session settings consolidation: DJC-PROFILE-SESSION-SETTINGS-CONSOLIDATION-V1-20261016; all five Persona/voice/gender/Mood/Presence, contract2, last explicit accepted choice becomes default, atomic active+default acceptance. Source UNPUBLISHED; Core producer and migration work only; Apple/other consumers/joint separately open, no automatic dispatch or whole-family completion. Delivered v13 preserved.
+
 - `PROJ::INTELLIGENCE::DJ-PRESENCE` — Planned: Independent presence, Mood and Persona; no new dispatch.
 - `SLICE::APPLE::DJ-PRESENCE-CONTROL` — Planned: Accessible five-language native confirmation; reuse existing Apple writer.
 - `QUAL::VIBECAST::DJ-PRESENCE-COMPAT` — Planned: Core shared-renderer + receiver owner, both existing software builds.
@@ -64,5 +66,14 @@ Selected passive Session projection: DJC-CORE-PASSIVE-SESSION-PROJECTION-V1-2026
 - `WEB::JOINT` — Planned: Joint browser native media lifecycle physical five-language acceptance; exact source/consumer, visible/audible/physical and joint acceptance OPEN.
 - `SPEECH::APPLE::ADOPTION` — Planned: Core software, installed, native/audible and joint evidence independent; no consumer dispatch.
 - `SPEECH::JOINT::ACCEPTANCE` — Planned: Core software, installed, native/audible and joint evidence independent; no consumer dispatch.
+- `SETTINGS::CORE::DOCS` — In progress: Core source, native/installed/audible/hardware and whole-family cleanup distinct; owning consumer evidence required.
+- `SETTINGS::CORE::PRODUCER` — In progress: Core source, native/installed/audible/hardware and whole-family cleanup distinct; owning consumer evidence required.
+- `SETTINGS::CORE::MIGRATION` — In progress: Core source, native/installed/audible/hardware and whole-family cleanup distinct; owning consumer evidence required.
+- `SETTINGS::APPLE::EDITOR` — Planned: Core source, native/installed/audible/hardware and whole-family cleanup distinct; owning consumer evidence required.
+- `SETTINGS::PI::ADOPTION` — Planned: Core source, native/installed/audible/hardware and whole-family cleanup distinct; owning consumer evidence required.
+- `SETTINGS::ESP32::ADOPTION` — Planned: Core source, native/installed/audible/hardware and whole-family cleanup distinct; owning consumer evidence required.
+- `SETTINGS::VIBECAST::COMPAT` — Planned: Core source, native/installed/audible/hardware and whole-family cleanup distinct; owning consumer evidence required.
+- `SETTINGS::WEBSITE::COPY` — Planned: Core source, native/installed/audible/hardware and whole-family cleanup distinct; owning consumer evidence required.
+- `SETTINGS::JOINT::ACCEPTANCE` — Planned: Core source, native/installed/audible/hardware and whole-family cleanup distinct; owning consumer evidence required.
 
 Policy values/budgets/default and exact presence route/schema remain unqualified design details. No runtime/native/browser/installed/hardware PASS.

@@ -1,5 +1,13 @@
 # DJConnect Product Backlog
 
+## Selected all-five Profile/Session settings consolidation
+
+DJC-PROFILE-SESSION-SETTINGS-CONSOLIDATION-V1-20261016, owner6214905647, ACK6218545503. [Canonical design](docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md) and [source/effect inventory](docs/product/PROFILE_SESSION_SETTINGS_INVENTORY_V1.json). Core producer/consolidation in progress on actual base148bd5ae; contract67c6361f preceded first materialfa8ca487. Defaults and active Session share allfive Persona, provider-bound voice, qualified gender, Mood, Presence; accepted explicit field changes automatically become defaults. No defaultPersona-only reduction.
+
+Maintenance14 preserves delivered13 and adds unique linked Core docs/producer/migration, Apple editor, active host/website dispositions and joint acceptance. Consumer nodes stay Planned/NOT_ISSUED; no new writer/automatic dispatch. API/relay/distribution/experimental and retired Windows dispositions stay visible in the whole-platform inventory; an absent runtime surface needs source proof, not an assumed PASS. Legacy removal/native/hardware and whole family remain open. Earlier1191/1192/source/installed receipts are retained, not reopened.
+
+## Historical scope records
+
 ## Passive Session projection — Core source delivered
 
 Source PR [#1191](https://github.com/pcvantol/djconnect/pull/1191) protected merged as `2cb87cb7dad30546ee1641b839d14a4f5d621f54`, exact independently reviewed and owner-authorized head `928bf16b8812447fbd53739f22484051909ae513` on base `9faffe533d4a117eb8ad362e73809d126bdcc9d7`. All32 checks PASS/5conditional skips; exact Owner Authorization38896651007 SUCCESS. No bypass. Complete candidate/main trees equal. Main CI38897018985 and formal38897377600 SUCCESS. Official archive171regular files, zero missing/extra/mismatch/symlink; actual raw/durable/coverage/main/PR bindings qualified. [Exact readback](docs/verification/PASSIVE_SESSION_PROJECTION_SOURCE_READBACK_20261016.md). Earlier source1189/Finalization1190 remains closed.

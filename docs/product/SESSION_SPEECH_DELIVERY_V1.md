@@ -1,5 +1,13 @@
 # Session speech delivery and replay v1
 
+## Current successor scope — shared five-parameter settings
+
+[Owner decision6214905647](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6214905647) and the [canonical consolidation contract](PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md) supersede device-local voice/gender and Session-only default semantics for the selected contract2 successor. Persona, concrete voice, qualified gender, Mood and Presence roam per Profile/Session; each explicit accepted field choice automatically becomes its Profile default and applies now when a Session is active. Automatic Mood/provider fallback/reconnect does not change defaults. No global HA pipeline change or new source/provider rights.
+
+The delivered contract1 behavior and its source/PR evidence below remain historical/frozen; do not silently reinterpret version1 or infer installed/native adoption. The bounded old-consumer migration and removal gate is explicit in the successor. Core implementation is local/unpublished; Apple/other consumer changes remain owning-lane work, no WIP takeover or automatic dispatch.
+
+## Delivered contract1 and historical qualification
+
 Design-first companion to [Session narration/live Persona](SESSION_SPEECH_PERSONA_V1.md).
 One existing contribution and one accepted text; audio is a presentation resource,
 never a new DJMoment or conversation turn. Core source is protected delivered

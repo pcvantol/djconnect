@@ -37594,7 +37594,7 @@
     }
   ],
   "planning_maintenance": {
-    "schema_version": "djconnect-federated-planning-delta/13",
+    "schema_version": "djconnect-federated-planning-delta/14",
     "decision_id": "DJC-DJ-PRESENCE-ROADMAP-DESIGN-V1-20261011",
     "decision_url": "https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6110375785",
     "design_date": "2026-10-11",
@@ -39503,6 +39503,251 @@
             "mode": "AND"
           }
         ]
+      },
+      {
+        "id": "SETTINGS::CORE::DOCS",
+        "title": "All-five canonical contract and platform settings inventory",
+        "lane": "DJC-CORE",
+        "repository": "pcvantol/djconnect",
+        "status": "In progress",
+        "assignment_status": "IN_PROGRESS",
+        "scope": "All-five canonical contract and platform settings inventory; allfive shared; no new owning writer or automatic dispatch",
+        "acceptance_boundary": "Core source, native/installed/audible/hardware and whole-family cleanup distinct; owning consumer evidence required",
+        "contract_binding": "docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md",
+        "source_ids": [
+          "OWNER-PROFILE-SESSION-SETTINGS-20261016"
+        ],
+        "parent_reference": "PROJ::ROADMAP::P2-REFERENCE",
+        "family_reference": "Existing Profile, active DJ Session and generic configured HA speech",
+        "prerequisite_groups": []
+      },
+      {
+        "id": "SETTINGS::CORE::PRODUCER",
+        "title": "Atomic roaming Profile defaults and effective Session producer",
+        "lane": "DJC-CORE",
+        "repository": "pcvantol/djconnect",
+        "status": "In progress",
+        "assignment_status": "IN_PROGRESS",
+        "scope": "Atomic roaming Profile defaults and effective Session producer; allfive shared; no new owning writer or automatic dispatch",
+        "acceptance_boundary": "Core source, native/installed/audible/hardware and whole-family cleanup distinct; owning consumer evidence required",
+        "contract_binding": "docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md",
+        "source_ids": [
+          "OWNER-PROFILE-SESSION-SETTINGS-20261016"
+        ],
+        "parent_reference": "PROJ::ROADMAP::P2-REFERENCE",
+        "family_reference": "Existing Profile, active DJ Session and generic configured HA speech",
+        "prerequisite_groups": [
+          {
+            "edge_ids": [
+              "SETTINGS-1"
+            ],
+            "mode": "AND"
+          },
+          {
+            "edge_ids": [
+              "SETTINGS-2"
+            ],
+            "mode": "AND"
+          }
+        ]
+      },
+      {
+        "id": "SETTINGS::CORE::MIGRATION",
+        "title": "Qualified legacy migration/removal and owning-lane reconciliation",
+        "lane": "DJC-CORE",
+        "repository": "pcvantol/djconnect",
+        "status": "In progress",
+        "assignment_status": "IN_PROGRESS",
+        "scope": "Qualified legacy migration/removal and owning-lane reconciliation; allfive shared; no new owning writer or automatic dispatch",
+        "acceptance_boundary": "Core source, native/installed/audible/hardware and whole-family cleanup distinct; owning consumer evidence required",
+        "contract_binding": "docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md",
+        "source_ids": [
+          "OWNER-PROFILE-SESSION-SETTINGS-20261016"
+        ],
+        "parent_reference": "PROJ::ROADMAP::P2-REFERENCE",
+        "family_reference": "Existing Profile, active DJ Session and generic configured HA speech",
+        "prerequisite_groups": [
+          {
+            "edge_ids": [
+              "SETTINGS-3"
+            ],
+            "mode": "AND"
+          },
+          {
+            "edge_ids": [
+              "SETTINGS-5"
+            ],
+            "mode": "AND"
+          },
+          {
+            "edge_ids": [
+              "SETTINGS-7"
+            ],
+            "mode": "AND"
+          },
+          {
+            "edge_ids": [
+              "SETTINGS-9"
+            ],
+            "mode": "AND"
+          },
+          {
+            "edge_ids": [
+              "SETTINGS-11"
+            ],
+            "mode": "AND"
+          },
+          {
+            "edge_ids": [
+              "SETTINGS-13"
+            ],
+            "mode": "AND"
+          }
+        ]
+      },
+      {
+        "id": "SETTINGS::APPLE::EDITOR",
+        "title": "One Jouw DJ editor and shared Session quick controls",
+        "lane": "DJC-APPLE",
+        "repository": "pcvantol/djconnect-app",
+        "status": "Planned",
+        "assignment_status": "NOT_ISSUED",
+        "scope": "One Jouw DJ editor and shared Session quick controls; allfive shared; no new owning writer or automatic dispatch",
+        "acceptance_boundary": "Core source, native/installed/audible/hardware and whole-family cleanup distinct; owning consumer evidence required",
+        "contract_binding": "docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md",
+        "source_ids": [
+          "OWNER-PROFILE-SESSION-SETTINGS-20261016"
+        ],
+        "parent_reference": "PROJ::ROADMAP::P2-REFERENCE",
+        "family_reference": "Existing Profile, active DJ Session and generic configured HA speech",
+        "prerequisite_groups": [
+          {
+            "edge_ids": [
+              "SETTINGS-4"
+            ],
+            "mode": "AND"
+          }
+        ]
+      },
+      {
+        "id": "SETTINGS::PI::ADOPTION",
+        "title": "Pi allowed shared Session settings and legacy disposition",
+        "lane": "DJC-PI",
+        "repository": "pcvantol/djconnect-pi",
+        "status": "Planned",
+        "assignment_status": "NOT_ISSUED",
+        "scope": "Pi allowed shared Session settings and legacy disposition; allfive shared; no new owning writer or automatic dispatch",
+        "acceptance_boundary": "Core source, native/installed/audible/hardware and whole-family cleanup distinct; owning consumer evidence required",
+        "contract_binding": "docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md",
+        "source_ids": [
+          "OWNER-PROFILE-SESSION-SETTINGS-20261016"
+        ],
+        "parent_reference": "PROJ::ROADMAP::P2-REFERENCE",
+        "family_reference": "Existing Profile, active DJ Session and generic configured HA speech",
+        "prerequisite_groups": [
+          {
+            "edge_ids": [
+              "SETTINGS-6"
+            ],
+            "mode": "AND"
+          }
+        ]
+      },
+      {
+        "id": "SETTINGS::ESP32::ADOPTION",
+        "title": "ESP32 Assist/voice/settings compatibility and legacy disposition",
+        "lane": "DJC-ESP32",
+        "repository": "pcvantol/djconnect-esp32",
+        "status": "Planned",
+        "assignment_status": "NOT_ISSUED",
+        "scope": "ESP32 Assist/voice/settings compatibility and legacy disposition; allfive shared; no new owning writer or automatic dispatch",
+        "acceptance_boundary": "Core source, native/installed/audible/hardware and whole-family cleanup distinct; owning consumer evidence required",
+        "contract_binding": "docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md",
+        "source_ids": [
+          "OWNER-PROFILE-SESSION-SETTINGS-20261016"
+        ],
+        "parent_reference": "PROJ::ROADMAP::P2-REFERENCE",
+        "family_reference": "Existing Profile, active DJ Session and generic configured HA speech",
+        "prerequisite_groups": [
+          {
+            "edge_ids": [
+              "SETTINGS-8"
+            ],
+            "mode": "AND"
+          }
+        ]
+      },
+      {
+        "id": "SETTINGS::VIBECAST::COMPAT",
+        "title": "Shared renderer allowed Session fields without Profile preferences",
+        "lane": "DJC-VIBECAST",
+        "repository": "pcvantol/djconnect-vibecast-receiver",
+        "status": "Planned",
+        "assignment_status": "NOT_ISSUED",
+        "scope": "Shared renderer allowed Session fields without Profile preferences; allfive shared; no new owning writer or automatic dispatch",
+        "acceptance_boundary": "Core source, native/installed/audible/hardware and whole-family cleanup distinct; owning consumer evidence required",
+        "contract_binding": "docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md",
+        "source_ids": [
+          "OWNER-PROFILE-SESSION-SETTINGS-20261016"
+        ],
+        "parent_reference": "PROJ::ROADMAP::P2-REFERENCE",
+        "family_reference": "Existing Profile, active DJ Session and generic configured HA speech",
+        "prerequisite_groups": [
+          {
+            "edge_ids": [
+              "SETTINGS-10"
+            ],
+            "mode": "AND"
+          }
+        ]
+      },
+      {
+        "id": "SETTINGS::WEBSITE::COPY",
+        "title": "Five-parameter scope/help and obsolete settings copy audit",
+        "lane": "DJC-WEBSITE",
+        "repository": "pcvantol/djconnect-website",
+        "status": "Planned",
+        "assignment_status": "NOT_ISSUED",
+        "scope": "Five-parameter scope/help and obsolete settings copy audit; allfive shared; no new owning writer or automatic dispatch",
+        "acceptance_boundary": "Core source, native/installed/audible/hardware and whole-family cleanup distinct; owning consumer evidence required",
+        "contract_binding": "docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md",
+        "source_ids": [
+          "OWNER-PROFILE-SESSION-SETTINGS-20261016"
+        ],
+        "parent_reference": "PROJ::ROADMAP::P2-REFERENCE",
+        "family_reference": "Existing Profile, active DJ Session and generic configured HA speech",
+        "prerequisite_groups": [
+          {
+            "edge_ids": [
+              "SETTINGS-12"
+            ],
+            "mode": "AND"
+          }
+        ]
+      },
+      {
+        "id": "SETTINGS::JOINT::ACCEPTANCE",
+        "title": "Cross-device five-axis effects, persistence and cleanup acceptance",
+        "lane": "DJC-CORE",
+        "repository": "pcvantol/djconnect",
+        "status": "Planned",
+        "assignment_status": "NOT_ISSUED",
+        "scope": "Cross-device five-axis effects, persistence and cleanup acceptance; allfive shared; no new owning writer or automatic dispatch",
+        "acceptance_boundary": "Core source, native/installed/audible/hardware and whole-family cleanup distinct; owning consumer evidence required",
+        "contract_binding": "docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md",
+        "source_ids": [
+          "OWNER-PROFILE-SESSION-SETTINGS-20261016"
+        ],
+        "parent_reference": "PROJ::ROADMAP::P2-REFERENCE",
+        "family_reference": "Existing Profile, active DJ Session and generic configured HA speech",
+        "prerequisite_groups": [
+          {
+            "edge_ids": [
+              "SETTINGS-14"
+            ],
+            "mode": "AND"
+          }
+        ]
       }
     ],
     "edges": [
@@ -41286,16 +41531,240 @@
         "required_subset": "Exact accepted text, source/processor and owner lifecycle qualification",
         "contract_or_evidence": "docs/product/SESSION_SPEECH_DELIVERY_V1.md",
         "reason": "Bounded selected existing Speech/Persona producer and consumer dependency"
+      },
+      {
+        "id": "SETTINGS-1",
+        "producer": "SETTINGS::CORE::DOCS",
+        "consumer": "SETTINGS::CORE::PRODUCER",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "source_ids": [
+          "OWNER-PROFILE-SESSION-SETTINGS-20261016"
+        ],
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "completion",
+        "required_subset": "Exact allfive contract and owning acceptance; preparation may proceed without consumer dispatch",
+        "contract_or_evidence": "docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md",
+        "reason": "Existing Profile/Session consolidation; no full-family completion before migration and consumers"
+      },
+      {
+        "id": "SETTINGS-2",
+        "producer": "SPEECH::CORE::DELIVERY",
+        "consumer": "SETTINGS::CORE::PRODUCER",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "source_ids": [
+          "OWNER-PROFILE-SESSION-SETTINGS-20261016"
+        ],
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "completion",
+        "required_subset": "Exact allfive contract and owning acceptance; preparation may proceed without consumer dispatch",
+        "contract_or_evidence": "docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md",
+        "reason": "Existing Profile/Session consolidation; no full-family completion before migration and consumers"
+      },
+      {
+        "id": "SETTINGS-3",
+        "producer": "SETTINGS::CORE::PRODUCER",
+        "consumer": "SETTINGS::CORE::MIGRATION",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "source_ids": [
+          "OWNER-PROFILE-SESSION-SETTINGS-20261016"
+        ],
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "completion",
+        "required_subset": "Exact allfive contract and owning acceptance; preparation may proceed without consumer dispatch",
+        "contract_or_evidence": "docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md",
+        "reason": "Existing Profile/Session consolidation; no full-family completion before migration and consumers"
+      },
+      {
+        "id": "SETTINGS-4",
+        "producer": "SETTINGS::CORE::PRODUCER",
+        "consumer": "SETTINGS::APPLE::EDITOR",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "source_ids": [
+          "OWNER-PROFILE-SESSION-SETTINGS-20261016"
+        ],
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "completion",
+        "required_subset": "Exact allfive contract and owning acceptance; preparation may proceed without consumer dispatch",
+        "contract_or_evidence": "docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md",
+        "reason": "Existing Profile/Session consolidation; no full-family completion before migration and consumers"
+      },
+      {
+        "id": "SETTINGS-5",
+        "producer": "SETTINGS::APPLE::EDITOR",
+        "consumer": "SETTINGS::CORE::MIGRATION",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "source_ids": [
+          "OWNER-PROFILE-SESSION-SETTINGS-20261016"
+        ],
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "completion",
+        "required_subset": "Exact allfive contract and owning acceptance; preparation may proceed without consumer dispatch",
+        "contract_or_evidence": "docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md",
+        "reason": "Existing Profile/Session consolidation; no full-family completion before migration and consumers"
+      },
+      {
+        "id": "SETTINGS-6",
+        "producer": "SETTINGS::CORE::PRODUCER",
+        "consumer": "SETTINGS::PI::ADOPTION",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "source_ids": [
+          "OWNER-PROFILE-SESSION-SETTINGS-20261016"
+        ],
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "completion",
+        "required_subset": "Exact allfive contract and owning acceptance; preparation may proceed without consumer dispatch",
+        "contract_or_evidence": "docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md",
+        "reason": "Existing Profile/Session consolidation; no full-family completion before migration and consumers"
+      },
+      {
+        "id": "SETTINGS-7",
+        "producer": "SETTINGS::PI::ADOPTION",
+        "consumer": "SETTINGS::CORE::MIGRATION",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "source_ids": [
+          "OWNER-PROFILE-SESSION-SETTINGS-20261016"
+        ],
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "completion",
+        "required_subset": "Exact allfive contract and owning acceptance; preparation may proceed without consumer dispatch",
+        "contract_or_evidence": "docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md",
+        "reason": "Existing Profile/Session consolidation; no full-family completion before migration and consumers"
+      },
+      {
+        "id": "SETTINGS-8",
+        "producer": "SETTINGS::CORE::PRODUCER",
+        "consumer": "SETTINGS::ESP32::ADOPTION",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "source_ids": [
+          "OWNER-PROFILE-SESSION-SETTINGS-20261016"
+        ],
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "completion",
+        "required_subset": "Exact allfive contract and owning acceptance; preparation may proceed without consumer dispatch",
+        "contract_or_evidence": "docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md",
+        "reason": "Existing Profile/Session consolidation; no full-family completion before migration and consumers"
+      },
+      {
+        "id": "SETTINGS-9",
+        "producer": "SETTINGS::ESP32::ADOPTION",
+        "consumer": "SETTINGS::CORE::MIGRATION",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "source_ids": [
+          "OWNER-PROFILE-SESSION-SETTINGS-20261016"
+        ],
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "completion",
+        "required_subset": "Exact allfive contract and owning acceptance; preparation may proceed without consumer dispatch",
+        "contract_or_evidence": "docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md",
+        "reason": "Existing Profile/Session consolidation; no full-family completion before migration and consumers"
+      },
+      {
+        "id": "SETTINGS-10",
+        "producer": "SETTINGS::CORE::PRODUCER",
+        "consumer": "SETTINGS::VIBECAST::COMPAT",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "source_ids": [
+          "OWNER-PROFILE-SESSION-SETTINGS-20261016"
+        ],
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "completion",
+        "required_subset": "Exact allfive contract and owning acceptance; preparation may proceed without consumer dispatch",
+        "contract_or_evidence": "docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md",
+        "reason": "Existing Profile/Session consolidation; no full-family completion before migration and consumers"
+      },
+      {
+        "id": "SETTINGS-11",
+        "producer": "SETTINGS::VIBECAST::COMPAT",
+        "consumer": "SETTINGS::CORE::MIGRATION",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "source_ids": [
+          "OWNER-PROFILE-SESSION-SETTINGS-20261016"
+        ],
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "completion",
+        "required_subset": "Exact allfive contract and owning acceptance; preparation may proceed without consumer dispatch",
+        "contract_or_evidence": "docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md",
+        "reason": "Existing Profile/Session consolidation; no full-family completion before migration and consumers"
+      },
+      {
+        "id": "SETTINGS-12",
+        "producer": "SETTINGS::CORE::PRODUCER",
+        "consumer": "SETTINGS::WEBSITE::COPY",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "source_ids": [
+          "OWNER-PROFILE-SESSION-SETTINGS-20261016"
+        ],
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "completion",
+        "required_subset": "Exact allfive contract and owning acceptance; preparation may proceed without consumer dispatch",
+        "contract_or_evidence": "docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md",
+        "reason": "Existing Profile/Session consolidation; no full-family completion before migration and consumers"
+      },
+      {
+        "id": "SETTINGS-13",
+        "producer": "SETTINGS::WEBSITE::COPY",
+        "consumer": "SETTINGS::CORE::MIGRATION",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "source_ids": [
+          "OWNER-PROFILE-SESSION-SETTINGS-20261016"
+        ],
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "completion",
+        "required_subset": "Exact allfive contract and owning acceptance; preparation may proceed without consumer dispatch",
+        "contract_or_evidence": "docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md",
+        "reason": "Existing Profile/Session consolidation; no full-family completion before migration and consumers"
+      },
+      {
+        "id": "SETTINGS-14",
+        "producer": "SETTINGS::CORE::MIGRATION",
+        "consumer": "SETTINGS::JOINT::ACCEPTANCE",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "source_ids": [
+          "OWNER-PROFILE-SESSION-SETTINGS-20261016"
+        ],
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "completion",
+        "required_subset": "Exact allfive contract and owning acceptance; preparation may proceed without consumer dispatch",
+        "contract_or_evidence": "docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md",
+        "reason": "Existing Profile/Session consolidation; no full-family completion before migration and consumers"
       }
     ],
     "document_references": [
       {
         "path": "PRODUCT_ROADMAP.md",
-        "sha256": "0184811045e344e38bd2d235ea54fdff7f69f1dfd38cd2dbe492b0f818b26339"
+        "sha256": "4c24a839eedb0b73301ec921ac5fa964f1e27d1a6610a488c97a065a0a9b707a"
       },
       {
         "path": "PRODUCT_BACKLOG.md",
-        "sha256": "71a31584e75207c76ee50d25e1a9452e992cc5f6009c43689107e6bd30bdf2f5"
+        "sha256": "c32d154dad403c0a2f558a546b12c42d4fb4421da5b68a6aec08a12c6708896c"
       },
       {
         "path": "docs/product/DJ_PRESENCE_V1.md",
@@ -41331,7 +41800,7 @@
       },
       {
         "path": "API_CONTRACT.md",
-        "sha256": "fdea00adbb0bf33bf4721a8df28d5bfbbba92f9f4057f1938082f4dfd4fe5707"
+        "sha256": "9ba32d3c50ae4d2219999de2cb760cf60934cc83a26a6c8021ffef85d8bff199"
       },
       {
         "path": "docs/product/NARRATIVE_ALBUM_CONTINUITY_V1.md",
@@ -41407,7 +41876,7 @@
       },
       {
         "path": "docs/product/APPLE_SESSION_NATIVE_SURFACES_V1.md",
-        "sha256": "ed08b85c7f39c1e06ef70ebdb59cec6f4fe35a2bf6d5c74abb89ec7087994b7f"
+        "sha256": "2afc27951eb344e95df8825b2efcd08b970b7b74c3b81ac0dfae63826db93e0f"
       },
       {
         "path": "docs/verification/SESSION_ENTRY_LIFECYCLE_HISTORY_DESIGN_V1_SOURCE_READBACK.md",
@@ -41543,11 +42012,11 @@
       },
       {
         "path": "docs/product/SESSION_SPEECH_PERSONA_V1.md",
-        "sha256": "69ffd1d76ae0a2f679245e8e3123a074c400f9ebd84e2f93898ee7fd4ef271f5"
+        "sha256": "bd12ad8d4f78b4ce28b81ca2fb6873c37b62296c8b4daedbd9dddca5a4393341"
       },
       {
         "path": "docs/product/SESSION_SPEECH_DELIVERY_V1.md",
-        "sha256": "efe2338c2339e6f14cc80c877d989d9954181cac8543d6ae165dd00c6a97c339"
+        "sha256": "92822b5324a533e9b369d4011a331eb31b501345ba073130e10413d3537a5c0a"
       },
       {
         "path": "docs/verification/SESSION_SPEECH_PERSONA_SOURCE_READBACK_20261016.md",
@@ -41559,7 +42028,7 @@
       },
       {
         "path": "docs/product/GENERIC_HA_TTS_V1.md",
-        "sha256": "1f8085c3aa480cba889cb580a74d0e89e79a372882d8ca4dc63258995d1f1159"
+        "sha256": "82cd101a752fcd160141ea23a6f2fee2ae877ac9a1e2f564a8a20bc723fdaab7"
       },
       {
         "path": "docs/verification/GENERIC_HA_TTS_SOURCE_20261016.md",
@@ -41575,7 +42044,7 @@
       },
       {
         "path": "docs/product/PROVIDER_VOICE_GENDER_V1.md",
-        "sha256": "aadf89980707aa2998d24acf10f12d9890c92920f6d0627d01c937d6e8b67497"
+        "sha256": "8199d420a869e0fec20605abacf21547ecf996a342516a44b0e421253e6f55cb"
       },
       {
         "path": "docs/verification/PROVIDER_VOICE_GENDER_SOURCE_20261016.md",
@@ -41604,6 +42073,10 @@
       {
         "path": "docs/history/prompts/2026-10-16-passive-session-projection-finalization.md",
         "sha256": "6c57169ad3728f4a12597d7f034fb2a9600870e45cf37666407a3c932f4c2d82"
+      },
+      {
+        "path": "docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md",
+        "sha256": "4ca2a4f8837c91709ce4f83eff9a2774333c6405f7cc2e29eb2a9559b49e6883"
       }
     ],
     "implementation_receipt": {
@@ -42135,6 +42608,38 @@
       "archive_sha256": "c96a33605fd068af4255f426fe037fde6ee0cb99cbee75ffc29913fde6382c34",
       "formal_evidence_sha256": "6433da8862a6d7ea3955b6350e0388cfe9b8923f50c2c599c49424ac44f3720b",
       "definitive_apple_handoff": "https://github.com/pcvantol/djconnect-app/issues/87#issuecomment-6215025910"
+    },
+    "settings_consolidation_receipt": {
+      "assignment_id": "DJC-PROFILE-SESSION-SETTINGS-CONSOLIDATION-V1-20261016",
+      "owner_selection": 6214905647,
+      "ack": 6218545503,
+      "base_sha": "148bd5aee3110c1a1ab13e7c463a164c99d79b70",
+      "branch": "codex/profile-session-settings-consolidation-v1",
+      "contract_commit": "67c6361fbc746b2890a6879726d821aa846e7b58",
+      "material_commit": "fa8ca48777c8af056f2a3764979933cb0002c3a4",
+      "previous_delta": "history/20261016/passive-finalization-maintenance-v13.json",
+      "previous_delta_sha256": "4cbe2948fa3ffa8dcc6809f258a44142f81732c91926349003de9fb4b4cae873",
+      "parameters": [
+        "persona",
+        "voice",
+        "gender",
+        "mood",
+        "presence"
+      ],
+      "last_explicit_choice_is_default": true,
+      "atomic_active_and_default": true,
+      "voice_scope": "profile_and_session",
+      "contract_version": 2,
+      "phase": "LOCAL_IMPLEMENTATION_AND_QUALIFICATION",
+      "source_delivery": "UNPUBLISHED",
+      "native": "OPEN_APPLE",
+      "other_consumers": "OPEN_OWNING_LANES",
+      "joint": "OPEN",
+      "family_acceptance": "PARTIAL",
+      "automatic_dispatch": false,
+      "consumer_writes": false,
+      "inventory_path": "docs/product/PROFILE_SESSION_SETTINGS_INVENTORY_V1.json",
+      "inventory_sha256": "00bfc4b0b7648c840997467ddf6526b1fc5c4e8b9d51ae974c09afd40dbc08aa"
     }
   }
 }

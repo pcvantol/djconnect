@@ -11,10 +11,81 @@ from render_snapshot import render
 ROOT = Path(__file__).resolve().parent
 
 
+class SharedSettingsMaintenanceTests(unittest.TestCase):
+    def setUp(self):
+        self.p = load(ROOT / 'djconnect-platform-v1.json')
+
+    def test_all_five_scope_preserves_frozen_predecessor(self):
+        self.assertEqual(validate(self.p), [])
+        d = self.p['planning_maintenance']
+        self.assertEqual(d['schema_version'], 'djconnect-federated-planning-delta/14')
+        self.assertEqual(d['settings_consolidation_receipt']['parameters'],
+                         ['persona', 'voice', 'gender', 'mood', 'presence'])
+        self.assertIn('all five Persona/voice/gender/Mood/Presence', render(self.p)['README.md'])
+
+    def test_false_scope_authority_or_consumer_completion_rejected(self):
+        for key, value in (('parameters', ['persona']), ('voice_scope', 'device_local'),
+                           ('atomic_active_and_default', False), ('native', 'PASS'),
+                           ('family_acceptance', 'COMPLETE'), ('automatic_dispatch', True),
+                           ('consumer_writes', True), ('inventory_sha256', '0'*64)):
+            with self.subTest(key=key):
+                p = copy.deepcopy(self.p)
+                p['planning_maintenance']['settings_consolidation_receipt'][key] = value
+                self.assertTrue(validate(p))
+
+    def test_missing_unknown_duplicate_and_cyclic_edges_rejected(self):
+        for mode in ('missing', 'unknown', 'duplicate', 'cycle', 'soft'):
+            with self.subTest(mode=mode):
+                p = copy.deepcopy(self.p)
+                edges = p['planning_maintenance']['edges']
+                edge = next(e for e in edges if e['id'].startswith('SETTINGS-'))
+                if mode == 'missing':
+                    edges.remove(edge)
+                elif mode == 'unknown':
+                    edge['producer'] = 'SETTINGS::NONEXISTENT'
+                elif mode == 'duplicate':
+                    edges.append(copy.deepcopy(edge))
+                elif mode == 'soft':
+                    edge['hard_precedence'] = False
+                else:
+                    reverse = copy.deepcopy(edge)
+                    reverse.update(id='SETTINGS-CYCLE', producer=edge['consumer'], consumer=edge['producer'])
+                    edges.append(reverse)
+                errors = validate(p)
+                self.assertTrue(errors)
+                if mode == 'cycle':
+                    self.assertTrue(any('cyclic' in error for error in errors))
+
+    def test_historical_nodes_and_receipts_cannot_be_rewritten(self):
+        p = copy.deepcopy(self.p)
+        p['planning_maintenance']['passive_surface_receipt']['source_main_sha'] = '0'*40
+        self.assertTrue(validate(p))
+        p = copy.deepcopy(self.p)
+        node = next(n for n in p['planning_maintenance']['nodes'] if not n['id'].startswith('SETTINGS::'))
+        node['title'] = 'Rewritten historical delivery'
+        self.assertTrue(validate(p))
+
+    def test_source_completion_requires_exact_protected_evidence(self):
+        p = copy.deepcopy(self.p)
+        r = p['planning_maintenance']['settings_consolidation_receipt']
+        r.update(phase='SOURCE_PROTECTED_MERGED', source_delivery='PROTECTED_MERGED')
+        self.assertTrue(validate(p))
+
+
+def delivered_passive_plan():
+    import json
+    plan = load(ROOT / 'djconnect-platform-v1.json')
+    if plan['planning_maintenance']['schema_version'] == 'djconnect-federated-planning-delta/14':
+        refs = plan['planning_maintenance']['document_references']
+        plan['planning_maintenance'] = json.loads((ROOT / 'history/20261016/passive-finalization-maintenance-v13.json').read_text())
+        plan['planning_maintenance']['document_references'] = refs
+    return plan
+
+
 def delivered_speech_plan():
     """Earlier v12 invariants keep running against their exact preserved scope."""
     import json
-    plan = load(ROOT / 'djconnect-platform-v1.json')
+    plan = delivered_passive_plan()
     if plan['planning_maintenance']['schema_version'] == 'djconnect-federated-planning-delta/13':
         refs = plan['planning_maintenance']['document_references']
         plan['planning_maintenance'] = json.loads((ROOT / 'history/20261016/provider-gender-finalization-maintenance-v12.json').read_text())
@@ -632,7 +703,7 @@ class SessionArtworkMaintenanceTests(unittest.TestCase):
 
 class PassiveSurfaceMaintenanceTests(unittest.TestCase):
     def setUp(self):
-        self.p = load(ROOT / 'djconnect-platform-v1.json')
+        self.p = delivered_passive_plan()
 
     def test_v13_preserves_all_delivered_state_and_existing_background_node(self):
         self.assertEqual(self.p['planning_maintenance']['schema_version'], 'djconnect-federated-planning-delta/13')

@@ -10,14 +10,16 @@ Selected and freshly admitted speech/Persona implementation: DJC-SESSION-SPEECH-
 
 Selected passive Session projection: DJC-CORE-PASSIVE-SESSION-PROJECTION-V1-20261015; source PROTECTED_MERGED. Existing SURFACE::CORE::PROJECTION only; native rich adoption OPEN_APPLE, background SURFACE::APPLE::QUIET-TRANSPORT separately Planned, Watch NOT_QUALIFIED and joint OPEN. Original publication/source deadlines, explicit purpose grants and pure reads; no client writes, provider or automatic dispatch. Delivered v12 and all prior receipts preserved.
 
-- [DJC-CORE](lanes/DJC-CORE.md) — 54 bounded records; no new writer.
-- [DJC-APPLE](lanes/DJC-APPLE.md) — 19 bounded records; no new writer.
-- [DJC-ESP32](lanes/DJC-ESP32.md) — 0 bounded records; no new writer.
-- [DJC-PI](lanes/DJC-PI.md) — 0 bounded records; no new writer.
+Selected shared Profile/Session settings consolidation: DJC-PROFILE-SESSION-SETTINGS-CONSOLIDATION-V1-20261016; all five Persona/voice/gender/Mood/Presence, contract2, last explicit accepted choice becomes default, atomic active+default acceptance. Source UNPUBLISHED; Core producer and migration work only; Apple/other consumers/joint separately open, no automatic dispatch or whole-family completion. Delivered v13 preserved.
+
+- [DJC-CORE](lanes/DJC-CORE.md) — 58 bounded records; no new writer.
+- [DJC-APPLE](lanes/DJC-APPLE.md) — 20 bounded records; no new writer.
+- [DJC-ESP32](lanes/DJC-ESP32.md) — 1 bounded records; no new writer.
+- [DJC-PI](lanes/DJC-PI.md) — 1 bounded records; no new writer.
 - [DJC-WINDOWS](lanes/DJC-WINDOWS.md) — 0 bounded records; no new writer.
 - [DJC-API](lanes/DJC-API.md) — 1 bounded records; no new writer.
-- [DJC-WEBSITE](lanes/DJC-WEBSITE.md) — 0 bounded records; no new writer.
-- [DJC-VIBECAST](lanes/DJC-VIBECAST.md) — 4 bounded records; no new writer.
+- [DJC-WEBSITE](lanes/DJC-WEBSITE.md) — 1 bounded records; no new writer.
+- [DJC-VIBECAST](lanes/DJC-VIBECAST.md) — 5 bounded records; no new writer.
 - [DJC-PICO](lanes/DJC-PICO.md) — 0 bounded records; no new writer.
 - [DJC-DIST-FIRMWARE](lanes/DJC-DIST-FIRMWARE.md) — 0 bounded records; no new writer.
 - [DJC-DIST-APPLE](lanes/DJC-DIST-APPLE.md) — 0 bounded records; no new writer.
