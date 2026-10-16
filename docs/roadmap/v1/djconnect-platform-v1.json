@@ -39727,12 +39727,12 @@
       },
       {
         "id": "SETTINGS::JOINT::ACCEPTANCE",
-        "title": "Cross-device five-axis effects, persistence and cleanup acceptance",
+        "title": "Cross-device six-field effects, persistence and cleanup acceptance",
         "lane": "DJC-CORE",
         "repository": "pcvantol/djconnect",
         "status": "Planned",
         "assignment_status": "NOT_ISSUED",
-        "scope": "Cross-device five-axis effects, persistence and cleanup acceptance; six shared parameters incl announcement_output; no new owning writer or automatic dispatch",
+        "scope": "Cross-device six-field effects, persistence and cleanup acceptance; six shared parameters incl announcement_output; no new owning writer or automatic dispatch",
         "acceptance_boundary": "Core source, native/installed/audible/hardware and whole-family cleanup distinct; owning consumer evidence required",
         "contract_binding": "docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md",
         "source_ids": [
