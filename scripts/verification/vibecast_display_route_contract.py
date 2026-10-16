@@ -1,51 +1,16 @@
 """Offline ROUTE-1 review corpus, never live route or installation authority."""
 from __future__ import annotations
 
-import ipaddress
+import importlib.util
 import json
 from pathlib import Path
-import re
-from urllib.parse import urlsplit
 
-ENTRY_PATH = '/djconnect/vibecast/display'
-LABEL = re.compile(r'[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\Z')
-RESERVED = {'local', 'localhost', 'internal', 'invalid', 'test', 'example', 'lan', 'home', 'onion', 'arpa'}
-
-
-def _origin(value: object) -> str | None:
-    if not isinstance(value, str) or not value.isascii() or not 0 < len(value) <= 2048:
-        return None
-    if any(ord(c) <= 32 or ord(c) == 127 for c in value) or any(c in value for c in '%\\?#@'):
-        return None
-    try:
-        parsed = urlsplit(value)
-        host = parsed.hostname
-        if (parsed.scheme != 'https' or not host or parsed.port not in (None, 443)
-                or parsed.username is not None or parsed.password is not None):
-            return None
-    except ValueError:
-        return None
-    try:
-        ipaddress.ip_address(host)
-        return None
-    except ValueError:
-        pass
-    labels = host.split('.')
-    if (len(host) > 253 or len(labels) < 2 or any(not LABEL.fullmatch(x) for x in labels)
-            or labels[-1] in RESERVED or any(x.startswith('xn--') for x in labels)
-            or not re.fullmatch(r'[a-z]{2,63}', labels[-1])):
-        return None
-    canonical = 'https://' + host
-    return canonical if parsed.netloc == host else None
-
-
-def lexical_route_allowed(value: object, selected_origin: object) -> bool:
-    """Lexical comparison only; selected_origin must be separately authenticated."""
-    selected = _origin(selected_origin)
-    if selected is None or selected_origin != selected:
-        return False
-    origin = _origin(value)
-    return origin == selected and value == selected + ENTRY_PATH
+# Share production lexical policy; the Node WHATWG corpus remains independent.
+_spec = importlib.util.spec_from_file_location("display_origin_contract",
+    Path(__file__).resolve().parents[2] / "custom_components/djconnect/display_origin.py")
+_module = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(_module)
+lexical_route_allowed = _module.lexical_route_allowed
 
 
 def main() -> int:

@@ -102,6 +102,44 @@ assignment. Do not merge an incomplete product, mark this family completed,
 start another assignment or infer deployment authority from this checkpoint.
 There is no missing general human merge/Finalization/cleanup permission.
 
+## B implementation checkpoint: paired transitions, not full acceptance
+
+After exact `ae2adfe9` B-design GO, Core implemented a partial Runtime-owned
+authority/HTTP boundary. A remains unavailable. The optional
+[real HA transition probe](../../scripts/verification/verify_display_admission_http.py)
+runs in its own bounded networkless HA container with source mounted read-only,
+ephemeral local TLS trust, ordinary production pairing, actual Profile storage,
+Session Runtime and production HTTP views. External Spotify/knowledge I/O alone
+is explicitly fixtured. No owner admin credential substitutes for device auth.
+
+Measured chain: normal pairing persists the minted device token; existing
+Session start and native owner-context read work; a same-origin browser creates
+a claim; paired resolve/explicit consent/duplicate approval/one-time collection
+work; the dedicated display bearer cannot access owner context; renewal is
+idempotent and rejects skipped sequences; owner revoke removes only that display
+and leaves its Session active; real privacy A→B→A storage commits permanently
+withdraw the share; normal Session end removes remaining authority. The B
+transitions cause **zero provider calls**. Missing/foreign Origin is denied.
+
+The [real aiohttp adapter probe](../../scripts/verification/verify_display_http_adapter.py)
+separately passes six cases for duplicate/nested JSON keys, invalid/deep JSON,
+declared/chunked byte limits, TLS/query/duplicate-auth denial, current body release,
+revocation after awaited headers, and the closed nine-route list. It uses real
+HA/aiohttp dependencies, not a replacement response writer. These are adapter
+cases, not full end-to-end display acceptance.
+
+Independent partial technical/privacy review found two P2 races: capturing a
+replacement pairing after an awaited Profile resolve, and source/privacy ABA
+resurrection from current-field equality alone. Fixes capture the original
+admission before awaiting, bind the existing monotone Profile authority revision,
+and latch observed withdrawal. Targeted tests cover both findings. Final exact
+candidate review still follows the remaining implementation and qualification.
+
+These transition views are not yet registered/advertised by the product.
+Snapshot, bounded WSS, shared renderer/local-static browser acceptance, long-run
+resource qualification, A interoperability and native/physical acceptance remain
+open. This checkpoint neither completes the assignment nor authorizes its merge.
+
 ## Subsequent joint-owner input and Core disposition
 
 After this receipt's target1dcb367, the existing receiver owner acknowledged

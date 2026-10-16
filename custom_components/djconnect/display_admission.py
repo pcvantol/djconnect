@@ -97,6 +97,7 @@ class DisplayAdmissionState:
     def __init__(self, clock: Callable[[], float] = time.monotonic):
         self._clock = clock
         self.issuer_epoch = secrets.token_urlsafe(32)
+        self.selected_origin: str | None = None
         self._claims: dict[str, _Claim] = {}
         self._shares: dict[str, _Share] = {}
         self._displays: dict[str, _Display] = {}
@@ -219,7 +220,7 @@ class DisplayAdmissionState:
             raise DisplayAdmissionError("display_code_invalid", 400)
         mode = share.get("mode")
         lifetime = share.get("lifetime_seconds", 7200)
-        if mode not in {"create", "existing"} or (mode == "create" and
+        if not isinstance(mode, str) or mode not in {"create", "existing"} or (mode == "create" and
                 (share.get("consent") is not True or type(lifetime) is not int or not 120 <= lifetime <= 28800)):
             raise DisplayAdmissionError("display_code_invalid", 400)
         allowed = {"mode", "consent", "lifetime_seconds"} if mode == "create" else {"mode", "share_id", "share_generation"}
@@ -341,6 +342,12 @@ class DisplayAdmissionState:
             self._drop_share(share_id)
         else:
             display = self._displays.get(display_id)
+            if display is None:
+                claim = next((c for c in self._claims.values()
+                              if c.display_id == display_id and c.share_id == share_id), None)
+                if claim is not None:
+                    del self._claims[claim.claim_id]
+                    return
             if display is None or display.share_id != share_id:
                 raise DisplayAdmissionError("display_grant_invalid", 404)
             self._drop_display(display_id)

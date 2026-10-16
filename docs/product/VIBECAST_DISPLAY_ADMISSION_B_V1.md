@@ -7,9 +7,14 @@ Exact B-design `ae2adfe9e162a00d00715e26418656976b6f02a2` received independent
 technical/privacy and product/UX/privacy GO after the three concrete findings
 were fixed. Independent isolated Core B implementation may proceed while A is
 fully unavailable; no A crypto/profile value is a prerequisite for that work.
-Current first implementation is Runtime-owned in-memory authority/lifecycle
-state only. Public HTTP/WSS/renderer wiring and real HA acceptance are not yet
-delivered. Unit state/Runtime tests are not HA auth or product acceptance.
+Current partial implementation includes Runtime-owned in-memory authority,
+normal paired-owner fences, closed transitions and a bounded HTTP adapter.
+Its own isolated real HA HTTPS probe exercises ordinary pairing, Session start,
+claim/resolve/explicit approve/one-time collect/renew/revoke and Session end.
+Only external provider I/O is a fixture; the pairing, Profile storage, Runtime
+and HTTP chain are real. This is transition-boundary evidence, not complete B
+acceptance. Product registration/capability, snapshot, WSS and renderer wiring
+remain undelivered. Unit tests alone are not HA auth or product acceptance.
 This refines the [parent admission contract](VIBECAST_DISPLAY_ADMISSION_V1.md),
 not a second assignment. No endpoint or capability below exists merely because
 it is described here. A's unresolved trust/profile/wire remains a separate gate;
@@ -45,6 +50,14 @@ depend on permission to archive/read owner conversation history. Revalidate
 after every await and at the commit/release boundary. No stored plaintext owner
 bearer is needed in a display record. Revocation uses current loaded entries,
 pairing fingerprints, Profile/source bindings and Runtime generations.
+Capture the authenticated entry/token/generation before the first Profile await;
+never adopt a replacement pairing from an in-flight old request. Reuse the
+existing ProfilePlatformStorage `authority_revision` as the conservative monotone
+withdrawal fence. A committed Profile-store change invalidates old B authority,
+including A→B→A changes between reads; it requires fresh explicit admission.
+This does not change or end the active Session. Ordinary Runtime Mood/Persona/
+presence updates are not Profile-store commits. Once a validator observes loss
+of authority it stays invalid, even if current fields later revert.
 
 ## Fixed proposed bounds, subject to independent design/load review
 
@@ -274,6 +287,7 @@ provider hotlink, token query, asset persistence or automatic speech generation.
 ## Failure codes and real acceptance before delivery
 
 Machine codes: `display_contract_unsupported`, `display_origin_denied`,
+`display_external_url_unavailable`, `display_tls_required`,
 `display_capacity`, `display_claim_unavailable`, `display_code_invalid`,
 `display_rate_limited`, `display_context_changed`, `display_share_unavailable`,
 `display_grant_invalid`, `display_lease_expired`, `display_read_only`.
