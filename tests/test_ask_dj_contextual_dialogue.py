@@ -1485,7 +1485,7 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
                 cancelled.set()
                 raise
         voice = {'engine': 'tts.fixture', 'voice_id': 'actual', 'voice_name': 'Fixture',
-            'locale': 'en', 'gender': None}
+            'locale': 'en', 'gender': None, 'processing_scope': 'qualified_local'}
         request = {**self.identity, 'contract_version': 1,
             'reference': {'session_id': active.session_id, 'moment_id': moment.moment_id},
             'processor': 'ha_configured', 'voice_preference': 'default'}
@@ -1787,7 +1787,7 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
         body = [b"not audio"]
         async def external(*args):
             return "audio/wav", body[0]
-        entity = SimpleNamespace(async_get_tts_audio=external)
+        entity = SimpleNamespace(async_get_tts_audio=external, default_options={})
         voice = {"locale": "en", "voice_id": "fixture"}
         for value in (b"not audio", b"RIFF" + bytes(4) + b"WAVE", simple_tone_wav()[:-32]):
             body[0] = value

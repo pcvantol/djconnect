@@ -455,9 +455,13 @@ async def prepare_ha(hass, runtime, owner, data, descriptor, admission):
         return unavailable(data["reference"], "source_processor_not_qualified")
     try:
         entity, voice = configured_processor(hass, runtime.config, descriptor["locale"], data["voice_preference"])
+        if (admission.processor_basis == "spotify_owner_local_read_v1"
+                and voice.get("processing_scope") != "qualified_local"):
+            return unavailable(data["reference"], "source_processor_not_qualified")
         key = (owner, descriptor["source_id"], descriptor["text_revision"],
                descriptor["presentation_revision"], voice["engine"], voice["voice_id"], voice["locale"], id(entity),
-               voice.get("provider_version"), voice.get("voice_version"))
+               voice.get("provider_version"), voice.get("voice_version"),
+               voice.get("configuration_revision"))
         def qualified_admission():
             admission()
             current_entity, current_voice = configured_processor(hass, runtime.config, descriptor["locale"], data["voice_preference"])
