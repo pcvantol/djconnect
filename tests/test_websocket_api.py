@@ -180,6 +180,8 @@ class DJConnectWebsocketApiTest(unittest.TestCase):
         self.assertTrue(result["fallbacks"]["session_broadcast_transport"]["cursor"])
         self.assertFalse(result["fallbacks"]["session_broadcast_transport"]["flow_delta"])
         self.assertFalse(result["fallbacks"]["session_broadcast_transport"]["sequence"])
+        self.assertEqual(result["fallbacks"]["session_broadcast_transport"]["paired_display_admission"],
+            self.transport_capabilities.session_broadcast_transport_capabilities()["paired_display_admission"])
 
     def test_session_broadcast_subscription_sends_snapshot_then_incremental_events(self) -> None:
         calls = []

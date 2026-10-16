@@ -451,6 +451,23 @@ async def main():
             assert response.status == 200, ended
             assert not manager._display_admission._shares
             checks.append("ordinary_session_end_clears_all_share_authority")
+            # Generic support is not configured reachability or consent. Even
+            # without an external URL, discovery exposes no guessed endpoint;
+            # the ordinary paired context read gives the functional failure.
+            hass.config.external_url = None
+            response = await client.get("/api/djconnect/v1/capabilities")
+            capability_body = await response.json()
+            assert response.status == 200, capability_body
+            display_capability = capability_body["session_broadcast"]["paired_display_admission"]
+            assert display_capability["supported"] is True
+            assert display_capability["availability"] == "owner_context_required"
+            assert display_capability["rendezvous_a"] is False
+            assert "available" not in display_capability and "display_entry_url" not in display_capability
+            wire_examples.append({"transport": "HTTP", "method": "GET", "path": "/api/djconnect/v1/capabilities",
+                "status": response.status, "response_projection": {"session_broadcast": {
+                    "paired_display_admission": display_capability}}})
+            await post("owner/context", {}, owner=True, origin=None, expected=503)
+            checks.append("B_discovery_support_not_route_admission_A_or_missing_HTTPS_success")
             assert qualified_hashes == {str(path.relative_to(ROOT)): hashlib.sha256(path.read_bytes()).hexdigest()
                                         for path in paths}, "Source changed during acceptance; receipt is not qualified"
             fixture_path = os.environ.get("DJC_DISPLAY_FIXTURE_OUTPUT")

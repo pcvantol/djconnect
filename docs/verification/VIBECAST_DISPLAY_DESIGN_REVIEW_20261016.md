@@ -218,11 +218,34 @@ generation pass. Combined owning coverage across unit, actual HA and adapter
 execution is88% for the nine display modules, including100% delivery/shell and
 75% live transport. Counts are suite executions, not additive unique tests.
 
-Broader failure/capacity, capability advertisement and exact final reviews
-remain open. The browser test uses
+The subsequent additive B discovery declares support in the existing HTTP and
+HA-WebSocket capability projections, from the same descriptor. It deliberately
+requires an ordinary paired owner-context read, claims no concrete route,
+consent, admission or A availability and keeps missing external HTTPS as a
+functional error. Actual configured-route and maximum-load qualification and
+exact final reviews remain separate. The browser test uses
 end-to-end TLS to the isolated HA through an own
 fixed-target byte bridge; accepting its synthetic certificate is not public
 TLS/proxy-route qualification. No native, installed or physical PASS follows.
+
+### Independent B discovery completion
+
+The additive descriptor is now tested through both existing transport
+projections. A real isolated HA read with external URL removed still declares
+only protocol support; the paired owner-context read returns503
+`display_external_url_unavailable`, never a guessed route, consent or A success.
+The latest frozen-source70.556s run measures75frames/3renewals,256KiB peak
+projection reservation, two preauth slots, seven sampled HA tasks and RSS
+high-water+380KiB, with zero B provider calls. Actual wire capture contains26
+redacted examples, including the projected generic discovery descriptor and
+missing-HTTPS failure. The source/probe digest is recorded independently of
+fixture metadata; a fixture is not an operational credential or proof of A.
+
+Current full unittest execution passes2210 cases (seven existing skips); the
+39 owning transport/discovery cases and offline JSON/reference/generation
+checks pass. This supersedes only earlier counts for this subsequent delta.
+Independent B source review and broader A/joint/public/native gates retain
+their separate scope; no main merge or installation follows from discovery.
 
 ## Subsequent joint-owner input and Core disposition
 

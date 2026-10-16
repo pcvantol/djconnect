@@ -24,8 +24,8 @@ projection reservation, seven sampled HA tasks and292KiB RSS high-water increase
 Real preauth source-capacity denial/released slots and owner-effect denials pass.
 Both browsers clear offline, recover a fresh live snapshot and discard the
 originally expired Moment without clock rewriting. Combined owning coverage is
-88%, including real-HA and adapter execution. Capability advertisement, broader
-capacity/failure and exact final candidate reviews remain open. This is partial
+88%, including real-HA and adapter execution. Broader capacity/failure and exact
+final candidate reviews remain open. This is partial
 evidence, not complete B acceptance. Unit tests alone are not HA auth or product
 acceptance.
 This refines the [parent admission contract](VIBECAST_DISPLAY_ADMISSION_V1.md),
@@ -34,6 +34,21 @@ it is described here. A's unresolved trust/profile/wire remains a separate gate;
 this document neither authenticates A nor selects a crypto library or TV input.
 
 ## Authority and identity
+
+The existing HTTP transport-capability projection adds
+`session_broadcast.paired_display_admission` version1; HA WebSocket discovery
+uses `fallbacks.session_broadcast_transport.paired_display_admission` with the
+same value. `supported:true` declares
+the implemented B protocol, not configured external reachability, an active
+Session/share, consent, successful admission or A availability. The object has
+`availability:"owner_context_required"`, `owner_context_path`, `entry_path`,
+`requires_external_https:true`, owner/display authentication kinds,
+`read_only:true` and `rendezvous_a:false`. The paired client must read owner
+context and handle `display_external_url_unavailable`/current authority errors;
+it must not construct/guess a destination from discovery. No concrete HA URL,
+identity, credential or Session is exposed by capability discovery. Both
+transports serialize the same declarative source. This B-only discovery is
+independent of A and gives old consumers no new mandatory behavior.
 
 B runs only at the selected HA HTTPS origin after an explicit owner action.
 No A code, API state, redirect, QR, owner Broadcast token or invitation is B
