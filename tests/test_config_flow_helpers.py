@@ -456,7 +456,11 @@ class ConfigFlowHelperTest(unittest.TestCase):
         self.assertTrue(data[self.const.CONF_ALLOW_OTA_ON_BATTERY])
         self.assertEqual(data[self.const.CONF_MIN_BATTERY_FOR_OTA], 55)
         self.assertEqual(data[self.const.CONF_FIRMWARE_CHANNEL], "beta")
-        self.assertTrue(data[self.const.CONF_DJ_RESPONSE_ENABLED])
+        self.assertNotIn(self.const.CONF_DJ_RESPONSE_ENABLED, data)
+        legacy = self.config_flow._voice_defaults({self.const.CONF_DJ_RESPONSE_ENABLED:False})
+        self.assertIs(legacy[self.const.CONF_DJ_RESPONSE_ENABLED], False)
+        self.assertEqual(self.config_flow._voice_errors({'dj_response_enabled':True}),
+                         {'base':'shared_dj_settings_required'})
         self.assertEqual(
             data[self.const.CONF_DJ_RESPONSE_TTL_SECONDS],
             self.const.DEFAULT_DJ_RESPONSE_TTL_SECONDS,

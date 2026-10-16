@@ -57,7 +57,6 @@ from .const import (
     DEFAULT_CLIENT_TYPE,
     DEFAULT_DEVICE_NAME,
     DEFAULT_DEVICE_LANGUAGE,
-    DEFAULT_DJ_RESPONSE_ENABLED,
     DEFAULT_DJ_RESPONSE_TTL_SECONDS,
     DEFAULT_FIRMWARE_CHANNEL,
     DEFAULT_MAX_AUDIO_BYTES,
@@ -1279,10 +1278,10 @@ def _voice_defaults(
             DEFAULT_ASSIST_PIPELINE_ID,
             preserve_empty=preserve_empty,
         ),
-        CONF_DJ_RESPONSE_ENABLED: _bool(
-            source.get(CONF_DJ_RESPONSE_ENABLED),
-            DEFAULT_DJ_RESPONSE_ENABLED,
-        ),
+        # Preserve old evidence until explicit settings migration; never mint
+        # another hidden authority on new setup or after retirement.
+        **({CONF_DJ_RESPONSE_ENABLED:source[CONF_DJ_RESPONSE_ENABLED]}
+           if CONF_DJ_RESPONSE_ENABLED in source else {}),
         CONF_DJ_RESPONSE_TTL_SECONDS: _int(
             source.get(CONF_DJ_RESPONSE_TTL_SECONDS),
             DEFAULT_DJ_RESPONSE_TTL_SECONDS,
@@ -1330,7 +1329,7 @@ def _firmware_channel_default(value: Any) -> str:
 
 def _voice_errors(user_input: dict[str, Any]) -> dict[str, str]:
     """Validate required voice/options fields."""
-    if {'voice_profile', 'voice_style', 'response_style', 'profile_response_style', 'dj_announcement_output'} & user_input.keys():
+    if {'voice_profile', 'voice_style', 'response_style', 'profile_response_style', 'dj_announcement_output', 'dj_response_enabled'} & user_input.keys():
         return {'base': 'shared_dj_settings_required'}
     return {}
 

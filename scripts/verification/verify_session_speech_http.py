@@ -258,7 +258,7 @@ async def main():
             if os.environ.get('DJC_PROFILE_SETTINGS_PROBE'):
                 from profile_session_settings_lab import run
                 await run(hass, runtime, client, post, identity, output, headers, manager, storage,
-                          peers=settings_peers)
+                          peers=settings_peers, browser_serve=browser_serve)
                 return
             session_started_clock = time.monotonic()
             started = await post("/session/start", {**identity, "mood": "groove", "locale": "en"}, expected=201)

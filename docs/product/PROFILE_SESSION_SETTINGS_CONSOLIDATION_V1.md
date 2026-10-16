@@ -109,6 +109,15 @@ contract-change result, allow authorized readback of the original receipt, and
 require reconciliation from a current snapshot before a new explicit operation.
 No blind retry, rewritten receipt or partial active/default save.
 
+The old `dj_response_enabled=false` flag is also legacy output evidence, not
+a second global override of the accepted six-field policy. Preserve it pending
+explicit migration review; never infer a whole-Profile `text_only` choice from
+one old device flag. Once the owner accepts settings3, audio uses only the
+canonical output and cleanup may retire that obsolete flag. New setup/options
+must not mint the hidden flag again. The legacy route without a connected
+settings owner retains its historical behavior until its consumer boundary is
+retired; that boundary does not override settings3.
+
 The active VibeCast end-session checkbox is separately inventoried as an active
 legacy authority seam ([6220433459](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6220433459)),
 not a roaming Profile field and not assumed dead. Its proposed removal needs

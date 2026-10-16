@@ -229,6 +229,149 @@ class SharedSettingsSpeechTests(unittest.IsolatedAsyncioTestCase):
             legacy.assert_not_awaited()
             shared.assert_not_awaited()
 
+    async def test_old_disabled_flag_needs_explicit_review_then_cannot_override_shared_output(self):
+        from unittest.mock import AsyncMock, patch
+        from custom_components.djconnect import dj_response
+        from custom_components.djconnect.domain.profile.dj_settings import DJSettings
+        payload = await self.contribution()
+        self.runtime.config['dj_response_enabled'] = False
+        self.entry.data['dj_response_enabled'] = False
+        self.hass.config_entries.async_entries = lambda domain:[self.entry]
+        stack, _, _, calls, _ = self.provider()
+        with stack:
+            pending, status = await self.speech.async_handle_prepare(self.hass, payload, headers=self.f.headers)
+            self.assertEqual((status, pending['session_speech']['reason']), (200, 'settings_migration_choice_required'))
+            with patch.object(dj_response, '_async_ha_base_url', new=AsyncMock(return_value='https://ha-owned.invalid')):
+                self.assertIsNone(await dj_response.async_create_dj_audio_url(self.hass, self.runtime, 'Old disabled route'))
+                self.assertEqual(calls, [])
+                await self.choose('cedar', extra=DJSettings().as_dict())
+                url = await dj_response.async_create_dj_audio_url(self.hass, self.runtime, 'Explicitly enabled canonical output')
+                self.assertIsNotNone(url)
+                self.assertEqual(len(calls), 1)
+                self.assertEqual(self.runtime.config['dj_response_enabled'], False)  # No silent old-setting rewrite.
+
+    def legacy_disabled_evidence(self):
+        self.runtime.config['dj_response_enabled'] = False
+        self.entry.data['dj_response_enabled'] = False
+        self.hass.config_entries.async_entries = lambda domain: [self.entry]
+
+    async def test_prepare_one_cannot_bypass_pending_legacy_output_review(self):
+        payload = await self.contribution()
+        payload = {**{key: value for key, value in payload.items() if key not in ('intent', 'target')},
+                   'contract_version': 1, 'voice_preference': 'default'}
+        self.legacy_disabled_evidence()
+        stack, _, _, calls, _ = self.provider()
+        with stack:
+            result, status = await self.speech.async_handle_prepare(self.hass, payload, headers=self.f.headers)
+        self.assertEqual((status, result['session_speech']['reason']),
+                         (200, 'settings_migration_choice_required'))
+        self.assertEqual(calls, [])
+
+    async def test_factory_reads_and_old_prepare_do_not_activate_new_contract(self):
+        payload = await self.contribution()
+        old = {**{key: value for key, value in payload.items() if key not in ('intent', 'target')},
+               'contract_version': 1, 'voice_preference': 'default'}
+        stack, _, _, calls, _ = self.provider()
+        with stack:
+            for _ in range(2):
+                result, status = await self.settings.async_handle_settings(self.hass,
+                    {**self.f.identity, 'contract_version': 3}, headers=self.f.headers)
+                self.assertEqual(status, 200, result)
+                self.assertFalse(result['snapshot']['activated'])
+                self.assertEqual(result['snapshot']['defaults_revision'], 0)
+            prepared, status = await self.speech.async_handle_prepare(self.hass, old, headers=self.f.headers)
+            self.assertEqual(status, 200, prepared)
+            self.assertEqual(prepared['session_speech']['audio_state'], 'ready')
+            await self.choose('cedar')
+            denied, status = await self.speech.async_handle_prepare(self.hass, old, headers=self.f.headers)
+            self.assertEqual((status, denied['error']), (426, 'settings_contract_upgrade_required'))
+            self.assertEqual(len(calls), 1)
+
+    async def test_legacy_output_review_revokes_inflight_and_existing_private_audio(self):
+        payload = await self.contribution()
+        stack, entity, _, calls, _ = self.provider()
+        entered, release = asyncio.Event(), asyncio.Event()
+        synthesize = entity.async_get_tts_audio
+        async def held(*args):
+            entered.set()
+            await release.wait()
+            return await synthesize(*args)
+        with stack:
+            first, status = await self.speech.async_handle_prepare(self.hass, payload, headers=self.f.headers)
+            self.assertEqual(status, 200, first)
+            asset = first['session_speech']['audio_reference']['asset_id']
+            # A different authorized contribution ensures this is a real
+            # synthesis race, rather than a cache hit for the first asset.
+            answer, status = await self.f.request('What is a major chord?', identifier='legacy-race-source')
+            self.assertEqual(status, 200, answer)
+            entity.async_get_tts_audio = held
+            pending = asyncio.create_task(self.speech.async_handle_prepare(self.hass,
+                {**payload, 'reference': answer['session_speech']['reference']}, headers=self.f.headers))
+            await asyncio.wait_for(entered.wait(), 2)
+            self.legacy_disabled_evidence()
+            release.set()
+            result, status = await asyncio.wait_for(pending, 2)
+            self.assertEqual(status, 404, result)
+            item, status = await self.speech.async_handle_audio(self.hass,
+                {**self.f.identity, 'contract_version': 1, 'asset_id': asset}, headers=self.f.headers)
+            self.assertEqual(status, 404)
+            self.assertIsNone(item)
+            self.assertEqual(len(calls), 2)
+
+    async def test_legacy_url_admission_rechecks_new_output_evidence(self):
+        from unittest.mock import AsyncMock, patch
+        from custom_components.djconnect import dj_response
+        stack, entity, _, _, _ = self.provider()
+        entered, release = asyncio.Event(), asyncio.Event()
+        synthesize = entity.async_get_tts_audio
+        async def held(*args):
+            entered.set()
+            await release.wait()
+            return await synthesize(*args)
+        entity.async_get_tts_audio = held
+        with stack, patch.object(dj_response, '_async_ha_base_url',
+                                 new=AsyncMock(return_value='https://ha-owned.invalid')):
+            pending = asyncio.create_task(dj_response.async_create_dj_audio_url(
+                self.hass, self.runtime, 'A bounded legacy reply'))
+            await asyncio.wait_for(entered.wait(), 2)
+            self.legacy_disabled_evidence()
+            release.set()
+            self.assertIsNone(await asyncio.wait_for(pending, 2))
+
+    async def test_profile_tone_change_revokes_inflight_and_existing_private_audio(self):
+        from dataclasses import replace
+        from custom_components.djconnect.domain import ResponseStyle
+        from custom_components.djconnect.profile_context import profile_storage
+        payload = await self.contribution()
+        stack, entity, _, _, _ = self.provider()
+        entered, release = asyncio.Event(), asyncio.Event()
+        synthesize = entity.async_get_tts_audio
+        async def held(*args):
+            entered.set()
+            await release.wait()
+            return await synthesize(*args)
+        with stack:
+            first, status = await self.speech.async_handle_prepare(self.hass, payload, headers=self.f.headers)
+            self.assertEqual(status, 200, first)
+            asset = first['session_speech']['audio_reference']['asset_id']
+            answer, status = await self.f.request('What is a major chord?', identifier='profile-tone-race-source')
+            self.assertEqual(status, 200, answer)
+            entity.async_get_tts_audio = held
+            pending = asyncio.create_task(self.speech.async_handle_prepare(self.hass,
+                {**payload, 'reference': answer['session_speech']['reference']}, headers=self.f.headers))
+            await asyncio.wait_for(entered.wait(), 2)
+            storage = profile_storage(self.hass)
+            profile = storage.household.profiles['profile-a']
+            await storage.async_update_profile('profile-a', preferences=replace(
+                profile.preferences, response_style=ResponseStyle.EXPRESSIVE))
+            release.set()
+            result, status = await asyncio.wait_for(pending, 2)
+            self.assertEqual(status, 404, result)
+            item, status = await self.speech.async_handle_audio(self.hass,
+                {**self.f.identity, 'contract_version': 1, 'asset_id': asset}, headers=self.f.headers)
+            self.assertEqual(status, 404)
+            self.assertIsNone(item)
+
     async def test_legacy_device_url_uses_exact_shared_voice_and_later_revokes(self):
         from unittest.mock import AsyncMock, patch
         from custom_components.djconnect import dj_response

@@ -475,10 +475,18 @@ async def async_handle_prepare(hass, data, *, headers=None, _speaker_operation=F
         manager = session_runtime_manager(hass)
         selected = None
         settings_token = None
+        migration_acceptance = None
         if shared_settings or manager._settings_repository is not None:
             snapshot = await manager.async_read_dj_settings(owner_profile_id=context.profile_id,
                 authorize=lambda: _speech_settings_authority(hass, runtime, identity, headers, context))
             settings_token = manager.dj_settings_fence_token(context.profile_id)
+            from .settings_migration import assessment
+            from .profile_context import profile_storage
+            migration_acceptance = {key: snapshot[key] for key in ('activated', 'accepted_contract_version')}
+            if assessment(hass, profile_storage(hass).household, context.profile,
+                          **migration_acceptance)['requires_review']:
+                return {'success': True, 'session_speech': unavailable(
+                    data['reference'], 'settings_migration_choice_required')}, 200
             if not target_aware and (snapshot['activated'] or (
                     snapshot['session'] is not None and manager.current_active(context.profile_id).settings_contract_version >= 2)):
                 return {'success': False, 'error': 'settings_contract_upgrade_required',
@@ -523,6 +531,11 @@ async def async_handle_prepare(hass, data, *, headers=None, _speaker_operation=F
             _conversation_profile_fence(hass, runtime, identity, headers, context)
             if settings_token is not None and manager.dj_settings_fence_token(context.profile_id) != settings_token:
                 raise PermissionError('speech_settings_changed')
+            if migration_acceptance is not None and assessment(
+                    hass, profile_storage(hass).household,
+                    profile_storage(hass).household.profiles[context.profile_id],
+                    **migration_acceptance)['requires_review']:
+                raise PermissionError('settings_migration_choice_required')
             source_guard()
         guard.on_withdraw = source_guard.on_withdraw
         guard.processor_basis = source_guard.processor_basis

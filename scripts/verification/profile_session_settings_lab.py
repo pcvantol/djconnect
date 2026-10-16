@@ -14,7 +14,7 @@ from types import SimpleNamespace
 from uuid import UUID
 
 
-async def run(hass, runtime, client, post, identity, output, headers, manager, storage, *, peers=()):
+async def run(hass, runtime, client, post, identity, output, headers, manager, storage, *, peers=(), browser_serve=None):
     from homeassistant.components import tts
     from homeassistant.components.cloud.tts import CloudTTSEntity
     from homeassistant.components.assist_pipeline.pipeline import KEY_ASSIST_PIPELINE, async_get_pipeline
@@ -24,7 +24,9 @@ async def run(hass, runtime, client, post, identity, output, headers, manager, s
     root = Path(__file__).resolve().parents[2]
     source_files = [*sorted((root/'custom_components/djconnect').rglob('*.py')),
                     Path(__file__), Path(__file__).with_name('profile_session_settings_ws_lab.py'),
-                    Path(__file__).with_name('verify_session_speech_http.py')]
+                    Path(__file__).with_name('verify_session_speech_http.py'),
+                    Path(__file__).with_name('session_speech_browser_lab.py'),
+                    Path(__file__).with_name('session_speech_browser.mjs')]
     source_hashes = {str(path.relative_to(root)): hashlib.sha256(path.read_bytes()).hexdigest() for path in source_files}
 
     manager._settings_repository = ProfileDJSettingsRepository(persistence_service(hass))
@@ -243,6 +245,41 @@ async def run(hass, runtime, client, post, identity, output, headers, manager, s
         rows.append(await websocket_probe(hass, runtime, client, identity, output, peers))
         websocket = 'PASS_PAIRED_TLS_THREE_SURFACES_AND_PROFILE_ISOLATION'
     rows.append(await automatic_probe(hass, client, identity, manager, read, choose, post, speaker_sink, headers))
+    if browser_serve is not None:
+        import asyncio
+        before_browser_calls = len(calls)
+        created = await post('/session/start', {**identity, 'locale':'en'}, expected=201)
+        browser_session = manager.current_active('profile-a')
+        assert browser_session.session_id == created['session']['session_id']
+        # The initial direction may precede the first playback observation and
+        # is correctly ineligible once a current track exists. Wait for an
+        # actual naturally budgeted, track-bound published contribution rather
+        # than rewriting its identity, timestamp, placement or deadline.
+        browser_moment = None
+        for _ in range(650):
+            browser_session = manager.current_active('profile-a')
+            projection = browser_session.broadcast.as_dict(include_owner_only=False)
+            candidates = [m for m in projection['dj_moments']
+                          if m.get('playback_item_id') == projection['playback']['item_id']]
+            if candidates:
+                chosen_id = candidates[-1]['moment_id']
+                browser_moment = next(m for m in browser_session.broadcast.state.dj_moments
+                                      if m.moment_id == chosen_id)
+                break
+            await asyncio.sleep(.1)
+        assert browser_moment is not None, 'No naturally qualified current-track Moment for browser proof'
+        async def output_change(value):
+            before, status = await read()
+            assert status == 200
+            accepted, _ = await choose(before, {'announcement_output':value})
+            assert accepted['snapshot']['session']['settings']['announcement_output'] == value
+            assert len(calls) == before_browser_calls
+        async with browser_serve(client, identity, post, browser_session, browser_moment,
+                                 output_change=output_change):
+            assert len(calls) == before_browser_calls
+        rows.append({'case':'actual_settings3_shared_renderer_both_builds_portrait_landscape',
+                     'local_and_static':'PASS_BROWSER', 'mode_toggle_synthesis_calls':0,
+                     'native':'NOT_RUN', 'hardware':'NOT_RUN', 'CAF':'MODELED_ONLY'})
     assert len(calls) == 4  # Two voice variants, explicit replay and one new automatic publication.
     assert source_hashes == {str(path.relative_to(root)): hashlib.sha256(path.read_bytes()).hexdigest() for path in source_files}
     result = {'result': 'PASS_CORE_PAIRED_HTTP_RUNTIME_SQLITE', 'as_of': datetime.now(UTC).isoformat(),

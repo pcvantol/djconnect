@@ -8,7 +8,8 @@ from .domain.profile import ResponseStyle, VoiceStyle
 
 TONES = frozenset({'classic_radio', 'late_night', 'energy', 'clean_host'})
 RETIRED_ENTRY_KEYS = frozenset({'voice_profile', 'stt_engine', 'tts_engine', 'tts_voice',
-                                'dj_response_prompt_preset', 'dj_response_prompt', 'dj_announcement_output'})
+                                'dj_response_prompt_preset', 'dj_response_prompt', 'dj_announcement_output',
+                                'dj_response_enabled'})
 
 
 def _bound_entries(hass, household, owner):
@@ -59,6 +60,10 @@ def assessment(hass, household, profile, *, activated, accepted_contract_version
                       and config['dj_announcement_output'] in ANNOUNCEMENT_OUTPUTS})
     candidates.extend({'field': 'announcement_output', 'value': output,
                        'basis': 'legacy_entry_choice_provenance_unknown'} for output in outputs)
+    if any(config.get('dj_response_enabled') is False for _, config in
+           _bound_entries(hass, household, profile.profile_id)):
+        candidates.append({'field': 'legacy_announcement_enabled', 'value': False,
+                           'basis': 'legacy_device_scope_not_profile_output'})
     return {'version': 1, 'state': 'choice_required' if candidates else 'no_legacy_choice_evidence',
             'requires_review': bool(candidates), 'complete_selection_fields':
             ['persona', 'voice', 'gender', 'mood', 'presence', 'announcement_output'] if candidates else [],

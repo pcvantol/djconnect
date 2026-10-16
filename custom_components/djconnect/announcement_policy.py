@@ -67,6 +67,14 @@ async def capture_announcement_admission(hass, runtime):
     receiver_generation = getattr(runtime, '_receiver_end_generation', 0)
     pairing_token = getattr(runtime, 'device_token', None)
     token = None
+    migration_acceptance = None
+
+    def migration_current():
+        if migration_acceptance is None:
+            return True  # The first authorized read supplies this acceptance.
+        from .settings_migration import assessment
+        return not assessment(hass, storage.household, context.profile,
+                              **migration_acceptance)['requires_review']
 
     def current():
         entries = getattr(hass, 'config_entries', None)
@@ -82,9 +90,15 @@ async def capture_announcement_admission(hass, runtime):
                 and storage.household.profiles.get(context.profile_id) == context.profile
                 and storage.household.devices.get(context.device_id) == device
                 and (device is not None or storage.household.fallback == fallback)
-                and (token is None or manager.dj_settings_fence_token(context.profile_id) == token))
+                and (token is None or manager.dj_settings_fence_token(context.profile_id) == token)
+                and migration_current())
 
     snapshot = await manager.async_read_dj_settings(owner_profile_id=context.profile_id, authorize=current)
+    from .settings_migration import assessment
+    if assessment(hass, storage.household, context.profile, activated=snapshot['activated'],
+                  accepted_contract_version=snapshot['accepted_contract_version'])['requires_review']:
+        raise PermissionError('settings_migration_choice_required')
+    migration_acceptance = {key: snapshot[key] for key in ('activated', 'accepted_contract_version')}
     token = manager.dj_settings_fence_token(context.profile_id)
     selected = DJSettings.from_dict(snapshot['session']['settings'] if snapshot['session'] else snapshot['defaults'])
     def guard():

@@ -256,8 +256,6 @@ async def async_create_dj_audio_url(
 ) -> str | None:
     """Create a temporary absolute audio URL for the ESP, if HA TTS can produce it."""
     conf = runtime.config
-    if not conf.get(CONF_DJ_RESPONSE_ENABLED, DEFAULT_DJ_RESPONSE_ENABLED):
-        return None
     admission = None
     try:
         from .announcement_policy import capture_announcement_admission
@@ -289,6 +287,8 @@ async def async_create_dj_audio_url(
             audio = await synthesize(entity, voice, text)
             guard()
         else:
+            if not conf.get(CONF_DJ_RESPONSE_ENABLED, DEFAULT_DJ_RESPONSE_ENABLED):
+                return None
             guard = None
             audio = await create_tts_audio(hass, text, conf)
     except UnsupportedTtsAudioError as exc:

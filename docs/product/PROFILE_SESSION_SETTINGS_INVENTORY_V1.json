@@ -35,10 +35,11 @@
           ]
         }
       ],
-      "acceptance": "STATIC_ONLY_NOT_SETTER_READER_EFFECT_PROOF",
-      "disposition": "INVESTIGATE",
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "KEEP_DERIVED",
       "owning_lane": "DJC-CORE",
-      "migration_effect_tests": "PENDING"
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "push._persist_push_status -> ConfigEntry -> __init__._restore_runtime; observed registration status, not a preference"
     },
     {
       "identifier": "CONF_DEVICE_ID",
@@ -259,10 +260,11 @@
           ]
         }
       ],
-      "acceptance": "STATIC_ONLY_NOT_SETTER_READER_EFFECT_PROOF",
-      "disposition": "INVESTIGATE",
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "KEEP_DERIVED",
       "owning_lane": "DJC-CORE",
-      "migration_effect_tests": "PENDING"
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "pairing/discovery persistent identity -> request_auth.runtime_matches_device/Profile resolver -> device authorization"
     },
     {
       "identifier": "CONF_DEVICE_NAME",
@@ -362,10 +364,11 @@
           ]
         }
       ],
-      "acceptance": "STATIC_ONLY_NOT_SETTER_READER_EFFECT_PROOF",
-      "disposition": "INVESTIGATE",
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "KEEP_HA_ONLY",
       "owning_lane": "DJC-CORE",
-      "migration_effect_tests": "PENDING"
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "configflow/discovery entry metadata -> device_info.djconnect_device_name -> physical device/HA display label"
     },
     {
       "identifier": "CONF_DEVICE_TOKEN",
@@ -416,10 +419,11 @@
           ]
         }
       ],
-      "acceptance": "STATIC_ONLY_NOT_SETTER_READER_EFFECT_PROOF",
-      "disposition": "INVESTIGATE",
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "KEEP_HA_ONLY",
       "owning_lane": "DJC-CORE",
-      "migration_effect_tests": "PENDING"
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "pair/re-pair persistent entry secret -> runtime authorization/device headers -> paired authority; no export/roaming"
     },
     {
       "identifier": "CONF_DEVICE_LANGUAGE",
@@ -444,10 +448,11 @@
           ]
         }
       ],
-      "acceptance": "STATIC_ONLY_NOT_SETTER_READER_EFFECT_PROOF",
-      "disposition": "INVESTIGATE",
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "KEEP_HA_ONLY",
       "owning_lane": "DJC-CORE",
-      "migration_effect_tests": "PENDING"
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "ESP pairing entry -> runtime.device_language -> physical ESP language; no Apple language override"
     },
     {
       "identifier": "CONF_CLIENT_TYPE",
@@ -748,10 +753,11 @@
           ]
         }
       ],
-      "acceptance": "STATIC_ONLY_NOT_SETTER_READER_EFFECT_PROOF",
-      "disposition": "INVESTIGATE",
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "KEEP_DERIVED",
       "owning_lane": "DJC-CORE",
-      "migration_effect_tests": "PENDING"
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "setup/pairing entry -> request_auth/capabilities/retirement -> runtime discrimination"
     },
     {
       "identifier": "CONF_LOCAL_URL",
@@ -819,10 +825,11 @@
           ]
         }
       ],
-      "acceptance": "STATIC_ONLY_NOT_SETTER_READER_EFFECT_PROOF",
-      "disposition": "INVESTIGATE",
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "KEEP_HA_ONLY",
       "owning_lane": "DJC-CORE",
-      "migration_effect_tests": "PENDING"
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "device discovery/status or advanced override -> entry/runtime -> async_device_local_url -> physical device calls"
     },
     {
       "identifier": "CONF_HA_EXTERNAL_URL",
@@ -877,10 +884,11 @@
           ]
         }
       ],
-      "acceptance": "STATIC_ONLY_NOT_SETTER_READER_EFFECT_PROOF",
-      "disposition": "INVESTIGATE",
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "KEEP_HA_ONLY",
       "owning_lane": "DJC-CORE",
-      "migration_effect_tests": "PENDING"
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "HA/OAuth config entry -> OAuth callback/reauthorization -> registered redirect route"
     },
     {
       "identifier": "CONF_PAIR_CODE",
@@ -947,10 +955,11 @@
           ]
         }
       ],
-      "acceptance": "STATIC_ONLY_NOT_SETTER_READER_EFFECT_PROOF",
-      "disposition": "INVESTIGATE",
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "KEEP_HA_ONLY",
       "owning_lane": "DJC-CORE",
-      "migration_effect_tests": "PENDING"
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "setup/re-pair -> entry -> pairing validation/recovery; never Profile preference"
     },
     {
       "identifier": "CONF_PAIRING_URI",
@@ -971,10 +980,11 @@
           ]
         }
       ],
-      "acceptance": "STATIC_ONLY_NOT_SETTER_READER_EFFECT_PROOF",
-      "disposition": "INVESTIGATE",
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "KEEP_DERIVED",
       "owning_lane": "DJC-CORE",
-      "migration_effect_tests": "PENDING"
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "_build_pairing_uri -> temporary pairing flow -> QR/deeplink presentation"
     },
     {
       "identifier": "CONF_MUSIC_BACKEND",
@@ -1079,10 +1089,11 @@
           ]
         }
       ],
-      "acceptance": "STATIC_ONLY_NOT_SETTER_READER_EFFECT_PROOF",
-      "disposition": "INVESTIGATE",
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "KEEP_HA_ONLY",
       "owning_lane": "DJC-CORE",
-      "migration_effect_tests": "PENDING"
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "backendflow/Profile binding -> backend entry -> profile_backend/use_cases -> provider routing; client readback only"
     },
     {
       "identifier": "CONF_MUSIC_ASSISTANT_PLAYER",
@@ -1138,10 +1149,11 @@
           ]
         }
       ],
-      "acceptance": "STATIC_ONLY_NOT_SETTER_READER_EFFECT_PROOF",
-      "disposition": "INVESTIGATE",
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "KEEP_HA_ONLY",
       "owning_lane": "DJC-CORE",
-      "migration_effect_tests": "PENDING"
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "backendflow entry -> use_cases.player_entity_id -> actual backend playback/transfer; active reader retained"
     },
     {
       "identifier": "CONF_MUSIC_BACKEND_REVISION",
@@ -1191,10 +1203,11 @@
           ]
         }
       ],
-      "acceptance": "STATIC_ONLY_NOT_SETTER_READER_EFFECT_PROOF",
-      "disposition": "INVESTIGATE",
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "KEEP_DERIVED",
       "owning_lane": "DJC-CORE",
-      "migration_effect_tests": "PENDING"
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "_finish_backend_switch -> revision -> backend action/stale-request fences"
     },
     {
       "identifier": "CONF_SETUP_METHOD",
@@ -1223,10 +1236,11 @@
           ]
         }
       ],
-      "acceptance": "STATIC_ONLY_NOT_SETTER_READER_EFFECT_PROOF",
-      "disposition": "INVESTIGATE",
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "KEEP_HA_ONLY",
       "owning_lane": "DJC-CORE",
-      "migration_effect_tests": "PENDING"
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "initial configflow entry -> Repairs -> agent-only versus paired setup recovery"
     },
     {
       "identifier": "CONF_BLE_ADDRESS",
@@ -1246,10 +1260,11 @@
           ]
         }
       ],
-      "acceptance": "STATIC_ONLY_NOT_SETTER_READER_EFFECT_PROOF",
-      "disposition": "INVESTIGATE",
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "KEEP_HA_ONLY",
       "owning_lane": "DJC-CORE",
-      "migration_effect_tests": "PENDING"
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "temporary BLE input -> provisioning call; no Profile persistence"
     },
     {
       "identifier": "CONF_WIFI_SSID",
@@ -1269,10 +1284,11 @@
           ]
         }
       ],
-      "acceptance": "STATIC_ONLY_NOT_SETTER_READER_EFFECT_PROOF",
-      "disposition": "INVESTIGATE",
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "KEEP_HA_ONLY",
       "owning_lane": "DJC-CORE",
-      "migration_effect_tests": "PENDING"
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "temporary BLE input -> _provision_ble_wifi_safe -> device provisioning; not roaming"
     },
     {
       "identifier": "CONF_WIFI_PASSWORD",
@@ -1291,10 +1307,11 @@
           ]
         }
       ],
-      "acceptance": "STATIC_ONLY_NOT_SETTER_READER_EFFECT_PROOF",
-      "disposition": "INVESTIGATE",
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "KEEP_HA_ONLY",
       "owning_lane": "DJC-CORE",
-      "migration_effect_tests": "PENDING"
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "temporary secret input -> provisioning -> device WiFi; no normal export/log"
     },
     {
       "identifier": "CONF_API_BASE_URL",
@@ -1334,10 +1351,11 @@
           ]
         }
       ],
-      "acceptance": "STATIC_ONLY_NOT_SETTER_READER_EFFECT_PROOF",
-      "disposition": "INVESTIGATE",
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "KEEP_HA_ONLY",
       "owning_lane": "DJC-CORE",
-      "migration_effect_tests": "PENDING"
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "HA API flow/options -> central_api._api_base_url -> server-owned central route"
     },
     {
       "identifier": "CONF_HA_INSTALL_ID",
@@ -1405,10 +1423,11 @@
           ]
         }
       ],
-      "acceptance": "STATIC_ONLY_NOT_SETTER_READER_EFFECT_PROOF",
-      "disposition": "INVESTIGATE",
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "KEEP_DERIVED",
       "owning_lane": "DJC-CORE",
-      "migration_effect_tests": "PENDING"
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "ensure_ha_install_id -> options -> central identity/Hybrid installation binding"
     },
     {
       "identifier": "CONF_DJCONNECT_INSTALL_TOKEN",
@@ -1450,10 +1469,11 @@
           ]
         }
       ],
-      "acceptance": "STATIC_ONLY_NOT_SETTER_READER_EFFECT_PROOF",
-      "disposition": "INVESTIGATE",
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "KEEP_HA_ONLY",
       "owning_lane": "DJC-CORE",
-      "migration_effect_tests": "PENDING"
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "authorized mint/rotation -> options secret -> central API authentication"
     },
     {
       "identifier": "CONF_CENTRAL_API_BOOTSTRAP_PROOF",
@@ -1483,10 +1503,11 @@
           ]
         }
       ],
-      "acceptance": "STATIC_ONLY_NOT_SETTER_READER_EFFECT_PROOF",
-      "disposition": "INVESTIGATE",
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "KEEP_HA_ONLY",
       "owning_lane": "DJC-CORE",
-      "migration_effect_tests": "PENDING"
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "push registration/service input -> short-lived install bootstrap -> removal after use; transient secret"
     },
     {
       "identifier": "CONF_CENTRAL_API_BOOTSTRAP_PROOF_EXPIRES_AT",
@@ -1504,10 +1525,11 @@
           ]
         }
       ],
-      "acceptance": "STATIC_ONLY_NOT_SETTER_READER_EFFECT_PROOF",
-      "disposition": "INVESTIGATE",
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "KEEP_HA_ONLY",
       "owning_lane": "DJC-CORE",
-      "migration_effect_tests": "PENDING"
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "developer-service compatibility field and cleanup retained; no independently proven deciding expiry reader; not an expiry acceptance claim"
     },
     {
       "identifier": "CONF_SPOTIFY_CLIENT_ID",
@@ -1574,10 +1596,11 @@
           ]
         }
       ],
-      "acceptance": "STATIC_ONLY_NOT_SETTER_READER_EFFECT_PROOF",
-      "disposition": "INVESTIGATE",
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "KEEP_HA_ONLY",
       "owning_lane": "DJC-CORE",
-      "migration_effect_tests": "PENDING"
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "OAuth config -> entry/account -> refresh/reauthorization; provider configuration"
     },
     {
       "identifier": "CONF_SPOTIFY_REFRESH_TOKEN",
@@ -1663,10 +1686,11 @@
           ]
         }
       ],
-      "acceptance": "STATIC_ONLY_NOT_SETTER_READER_EFFECT_PROOF",
-      "disposition": "INVESTIGATE",
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "KEEP_HA_ONLY",
       "owning_lane": "DJC-CORE",
-      "migration_effect_tests": "PENDING"
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "OAuth callback/rotation -> entry/account secret -> provider auth; never Profile export"
     },
     {
       "identifier": "CONF_SPOTIFY_MARKET",
@@ -1721,10 +1745,11 @@
           ]
         }
       ],
-      "acceptance": "STATIC_ONLY_NOT_SETTER_READER_EFFECT_PROOF",
-      "disposition": "INVESTIGATE",
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "KEEP_HA_ONLY",
       "owning_lane": "DJC-CORE",
-      "migration_effect_tests": "PENDING"
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "HA provider/OAuth config -> entry -> provider credentials/search context; not content locale"
     },
     {
       "identifier": "CONF_SPOTIFY_SCOPES",
@@ -1784,10 +1809,11 @@
           ]
         }
       ],
-      "acceptance": "STATIC_ONLY_NOT_SETTER_READER_EFFECT_PROOF",
-      "disposition": "INVESTIGATE",
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "KEEP_DERIVED",
       "owning_lane": "DJC-CORE",
-      "migration_effect_tests": "PENDING"
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "OAuth grant -> entry -> Repairs/diagnostics capability qualification"
     },
     {
       "identifier": "CONF_SPOTIFY_SOURCE",
@@ -1812,10 +1838,11 @@
           ]
         }
       ],
-      "acceptance": "STATIC_ONLY_NOT_SETTER_READER_EFFECT_PROOF",
-      "disposition": "INVESTIGATE",
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "REPLACE_MIGRATE",
       "owning_lane": "DJC-CORE",
-      "migration_effect_tests": "PENDING"
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "legacy HA-only output override, no normal UI writer -> spotify.play_from_intent/set_output and spotify_backend._ensure_playback_device/transfer; outside common-turn fallback. Active effect: retain until existing playback-zone/output owner migration is qualified; never classify dead or roam as DJ preference"
     },
     {
       "identifier": "CONF_LIKED_PROXY",
@@ -1840,10 +1867,11 @@
           ]
         }
       ],
-      "acceptance": "STATIC_ONLY_NOT_SETTER_READER_EFFECT_PROOF",
-      "disposition": "INVESTIGATE",
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "KEEP_HA_ONLY",
       "owning_lane": "DJC-CORE",
-      "migration_effect_tests": "PENDING"
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "legacy provider config -> spotify._liked_proxy_media/spotify_backend.start_liked_proxy -> actual playlist playback; independent of DJ settings"
     },
     {
       "identifier": "CONF_ASSIST_PIPELINE_ID",
@@ -1920,11 +1948,12 @@
           ]
         }
       ],
-      "acceptance": "ACTUAL_RUNTIME_READER; CLIENT_ALLOWLIST_DENIAL_PENDING",
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
       "disposition": "KEEP_HA_ONLY",
       "owning_lane": "DJC-CORE",
-      "migration_effect_tests": "PENDING",
-      "current_reader": "pipeline._assist_context; voice_stt; speech_processor generic configured HA provider. Never a roaming setting."
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "current_reader": "pipeline._assist_context; voice_stt; speech_processor generic configured HA provider. Never a roaming setting.",
+      "semantic_trace": "HA config/options -> pipeline/STT/TTS qualified provider selection; no client editor/roaming identifier"
     },
     {
       "identifier": "CONF_STT_ENGINE",
@@ -1934,11 +1963,12 @@
         "line": 95
       },
       "static_references": [],
-      "acceptance": "REMOVED_UNUSED_CONSTANT_AND_UI; LEGACY_KEY_QUARANTINED_FOR_ACCEPTED_RETIREMENT",
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
       "disposition": "REMOVE",
       "owning_lane": "DJC-CORE",
-      "migration_effect_tests": "tests/test_settings_legacy_migration.py; tests/test_config_flow_helpers.py; tests/test_tts_helper.py",
-      "current_reader": "No active DJConnect constant reader; HA Assist pipeline fields with same string remain separately owned."
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "current_reader": "No active DJConnect constant reader; HA Assist pipeline fields with same string remain separately owned.",
+      "semantic_trace": "obsolete DJConnect option removed; same-spelled active HA pipeline fields are distinct and preserved"
     },
     {
       "identifier": "CONF_TTS_ENGINE",
@@ -1948,11 +1978,12 @@
         "line": 96
       },
       "static_references": [],
-      "acceptance": "REMOVED_UNUSED_CONSTANT_AND_UI; LEGACY_KEY_QUARANTINED_FOR_ACCEPTED_RETIREMENT",
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
       "disposition": "REMOVE",
       "owning_lane": "DJC-CORE",
-      "migration_effect_tests": "tests/test_settings_legacy_migration.py; tests/test_config_flow_helpers.py; tests/test_tts_helper.py",
-      "current_reader": "No active DJConnect constant reader; HA Assist pipeline fields with same string remain separately owned."
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "current_reader": "No active DJConnect constant reader; HA Assist pipeline fields with same string remain separately owned.",
+      "semantic_trace": "obsolete DJConnect option removed; configured HA provider engine remains active and preserved"
     },
     {
       "identifier": "CONF_TTS_LANGUAGE",
@@ -1988,10 +2019,11 @@
           ]
         }
       ],
-      "acceptance": "STATIC_ONLY_NOT_SETTER_READER_EFFECT_PROOF",
-      "disposition": "INVESTIGATE",
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "REPLACE_MIGRATE",
       "owning_lane": "DJC-CORE",
-      "migration_effect_tests": "PENDING"
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "no new HA options writer; legacy pipeline._assist_context/_response_language, processor response text and http._play_now_response_conf fallback still read it. Retain isolated locale compatibility until content/ESP consumer locale adoption; not concrete voice authority"
     },
     {
       "identifier": "CONF_TTS_VOICE",
@@ -2001,11 +2033,12 @@
         "line": 98
       },
       "static_references": [],
-      "acceptance": "REMOVED_UNUSED_CONSTANT_AND_UI; LEGACY_KEY_QUARANTINED_FOR_ACCEPTED_RETIREMENT",
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
       "disposition": "REMOVE",
       "owning_lane": "DJC-CORE",
-      "migration_effect_tests": "tests/test_settings_legacy_migration.py; tests/test_config_flow_helpers.py; tests/test_tts_helper.py",
-      "current_reader": "No active DJConnect constant reader; HA Assist pipeline fields with same string remain separately owned."
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "current_reader": "No active DJConnect constant reader; HA Assist pipeline fields with same string remain separately owned.",
+      "semantic_trace": "old option removed; concrete provider voice now uses qualified shared selection/inventory"
     },
     {
       "identifier": "CONF_DJ_RESPONSE_ENABLED",
@@ -2031,10 +2064,11 @@
           ]
         }
       ],
-      "acceptance": "STATIC_ONLY_NOT_SETTER_READER_EFFECT_PROOF",
-      "disposition": "INVESTIGATE",
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "REPLACE_MIGRATE",
       "owning_lane": "DJC-CORE",
-      "migration_effect_tests": "PENDING"
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "old hidden setup/default writer retired; old false is explicit migration evidence; accepted settings3 ignores it and uses canonical output. Legacy without connected settings owner retains behavior until its consumer boundary retires"
     },
     {
       "identifier": "CONF_DJ_RESPONSE_TTL_SECONDS",
@@ -2060,10 +2094,11 @@
           ]
         }
       ],
-      "acceptance": "STATIC_ONLY_NOT_SETTER_READER_EFFECT_PROOF",
-      "disposition": "INVESTIGATE",
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "KEEP_HA_ONLY",
       "owning_lane": "DJC-CORE",
-      "migration_effect_tests": "PENDING"
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "hidden resource-policy/default -> legacy byte-owner expiry; private speech retains original source deadlines"
     },
     {
       "identifier": "CONF_DJ_RESPONSE_PROMPT_PRESET",
@@ -2073,11 +2108,12 @@
         "line": 101
       },
       "static_references": [],
-      "acceptance": "REMOVED_UNUSED_CONSTANT_AND_UI; LEGACY_KEY_QUARANTINED_FOR_ACCEPTED_RETIREMENT",
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
       "disposition": "REMOVE",
       "owning_lane": "DJC-CORE",
-      "migration_effect_tests": "tests/test_settings_legacy_migration.py; tests/test_config_flow_helpers.py; tests/test_tts_helper.py",
-      "current_reader": "No active DJConnect constant reader; HA Assist pipeline fields with same string remain separately owned."
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "current_reader": "No active DJConnect constant reader; HA Assist pipeline fields with same string remain separately owned.",
+      "semantic_trace": "no active stored-preset reader; legacy cleanup recognition only"
     },
     {
       "identifier": "CONF_DJ_RESPONSE_PROMPT",
@@ -2095,11 +2131,12 @@
           ]
         }
       ],
-      "acceptance": "REMOVED_WRITE_ONLY_CONFIG_DEFAULT; RUNTIME_USES_CONSTANT_PROMPT",
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
       "disposition": "REMOVE",
       "owning_lane": "DJC-CORE",
-      "migration_effect_tests": "tests/test_config_flow_helpers.py; tests/test_settings_legacy_migration.py",
-      "current_reader": "No stored prompt reader. DEFAULT_DJ_RESPONSE_PROMPT remains actual immutable prompt guidance; processor fixture config-pass-through is not reader/effect proof."
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "current_reader": "No stored prompt reader. DEFAULT_DJ_RESPONSE_PROMPT remains actual immutable prompt guidance; processor fixture config-pass-through is not reader/effect proof.",
+      "semantic_trace": "stored prompt no longer read; immutable DEFAULT_DJ_RESPONSE_PROMPT remains runtime guidance"
     },
     {
       "identifier": "CONF_VOICE_PROFILE",
@@ -2145,10 +2182,11 @@
           ]
         }
       ],
-      "acceptance": "STATIC_ONLY_NOT_SETTER_READER_EFFECT_PROOF",
-      "disposition": "INVESTIGATE",
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "REPLACE_MIGRATE",
       "owning_lane": "DJC-CORE",
-      "migration_effect_tests": "PENDING"
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "UI/default writers removed; assessment quarantines old tones without Persona inference. voice_profile_for_mood_or_config/http._play_now_response_conf remain legacy protocol adapters; accepted common AskDJ/Session/synthesis use typed selection; remove adapters only after owning consumers adopt"
     },
     {
       "identifier": "CONF_DJ_ANNOUNCEMENT_SPEAKER",
@@ -2180,11 +2218,12 @@
           ]
         }
       ],
-      "acceptance": "ACTUAL_ROUTING_READER; CLIENT_ALLOWLIST_DENIAL_PENDING",
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
       "disposition": "KEEP_HA_ONLY",
       "owning_lane": "DJC-CORE",
-      "migration_effect_tests": "PENDING",
-      "current_reader": "announcements.configured_announcement_speaker/async_apply_announcement_output physical target. Profile output policy is separate; target entity never a roaming setting."
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "current_reader": "announcements.configured_announcement_speaker/async_apply_announcement_output physical target. Profile output policy is separate; target entity never a roaming setting.",
+      "semantic_trace": "HA options -> configured_announcement_speaker/output_policy -> exact physical dispatch/health revision; no Profile export"
     },
     {
       "identifier": "CONF_DJ_ANNOUNCEMENT_OUTPUT",
@@ -2213,11 +2252,12 @@
           ]
         }
       ],
-      "acceptance": "OWNER6220590330_SCOPE_CORRECTION; SIX_FIELD_IMPLEMENTATION_PENDING",
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
       "disposition": "REPLACE_MIGRATE",
       "owning_lane": "DJC-CORE",
-      "migration_effect_tests": "PENDING",
-      "current_reader": "announcements.async_apply_announcement_output currently entry/payload; replace with accepted Profile/Session selection under contract3. Factory client_device; old per-device outputs require review."
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "current_reader": "announcements.async_apply_announcement_output currently entry/payload; replace with accepted Profile/Session selection under contract3. Factory client_device; old per-device outputs require review.",
+      "semantic_trace": "old entry/payload selection -> migration evidence; accepted Profile/Session announcement_output replaces authority, cleanup follows explicit acceptance"
     },
     {
       "identifier": "CONF_MAX_AUDIO_BYTES",
@@ -2243,10 +2283,11 @@
           ]
         }
       ],
-      "acceptance": "STATIC_ONLY_NOT_SETTER_READER_EFFECT_PROOF",
-      "disposition": "INVESTIGATE",
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "KEEP_HA_ONLY",
       "owning_lane": "DJC-CORE",
-      "migration_effect_tests": "PENDING"
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "hidden resource default -> http._transcribe_voice_request -> upload/STT bounds"
     },
     {
       "identifier": "CONF_FIRMWARE_REPO",
@@ -2271,10 +2312,11 @@
           ]
         }
       ],
-      "acceptance": "STATIC_ONLY_NOT_SETTER_READER_EFFECT_PROOF",
-      "disposition": "INVESTIGATE",
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "KEEP_DERIVED",
       "owning_lane": "DJC-CORE",
-      "migration_effect_tests": "PENDING"
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "update._firmware_release_config supplies canonical internal repository -> github.fetch_latest_firmware_release; not user override authority"
     },
     {
       "identifier": "CONF_FIRMWARE_DEVICE",
@@ -2299,10 +2341,11 @@
           ]
         }
       ],
-      "acceptance": "STATIC_ONLY_NOT_SETTER_READER_EFFECT_PROOF",
-      "disposition": "INVESTIGATE",
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "KEEP_DERIVED",
       "owning_lane": "DJC-CORE",
-      "migration_effect_tests": "PENDING"
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "_firmware_device_from_status -> internal release configuration -> manifest/asset selection; not manual preference"
     },
     {
       "identifier": "CONF_FIRMWARE_CHANNEL",
@@ -2340,10 +2383,11 @@
           ]
         }
       ],
-      "acceptance": "STATIC_ONLY_NOT_SETTER_READER_EFFECT_PROOF",
-      "disposition": "INVESTIGATE",
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "KEEP_HA_ONLY",
       "owning_lane": "DJC-CORE",
-      "migration_effect_tests": "PENDING"
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "ESP-only options stable/beta -> release selection; no Apple/Profile roaming"
     },
     {
       "identifier": "CONF_ALLOW_OTA_ON_BATTERY",
@@ -2368,10 +2412,11 @@
           ]
         }
       ],
-      "acceptance": "STATIC_ONLY_NOT_SETTER_READER_EFFECT_PROOF",
-      "disposition": "INVESTIGATE",
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "KEEP_HA_ONLY",
       "owning_lane": "DJC-CORE",
-      "migration_effect_tests": "PENDING"
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "hidden physical OTA policy -> update.async_install -> battery admission"
     },
     {
       "identifier": "CONF_MIN_BATTERY_FOR_OTA",
@@ -2397,10 +2442,11 @@
           ]
         }
       ],
-      "acceptance": "STATIC_ONLY_NOT_SETTER_READER_EFFECT_PROOF",
-      "disposition": "INVESTIGATE",
+      "acceptance": "SOURCE_SETTER_STORAGE_READER_EFFECT_CLASSIFIED; not a new dynamic acceptance claim for unchanged HA/admin/physical routes",
+      "disposition": "KEEP_HA_ONLY",
       "owning_lane": "DJC-CORE",
-      "migration_effect_tests": "PENDING"
+      "migration_effect_tests": "Existing owning suites retained; six shared effects and changed migration boundaries have separate connected HA/test evidence",
+      "semantic_trace": "hidden physical OTA policy -> update.async_install -> minimum battery admission"
     }
   ],
   "additional_semantic_settings": [
@@ -2692,7 +2738,7 @@
     }
   ],
   "remaining_core_qualification": [
-    "Complete per-setting legacy setter/store/reader/effect disposition beyond initial static scan; reconcile old tone/numeric parameters without guessing Persona",
+    "Core46 source classifications complete; finish active-lane consumer dispositions and qualify isolated tone/locale/playback-output compatibility boundaries without guessing Persona",
     "Full failure/restart and final exact candidate acceptance; current targeted lifecycle/expiry/cancellation tests and intermediate HA duration probes are not total acceptance",
     "Owning coverage and final exact independent technical/privacy/experience reviews. Intermediate review findings fixed; Bandit medium/high zero on local source checkpoint",
     "Complete owning-lane semantic inventory and consumer adoption gates; early private Apple contract handoff exists but does not authorize its WIP expansion",
@@ -2763,5 +2809,15 @@
     "native": "OPEN",
     "audible": "NOT_PROVEN",
     "installed": "NOT_RUN"
+  },
+  "semantic_inventory_review": {
+    "scope": "All46 Core constant rows classified by existing independent read-only reviewer and source readback; baseline static references preserved as history",
+    "not_claimed": "All-platform removal or physical acceptance; active legacy locale/tone/playback-output compatibility readers have explicit migration boundaries, not false dead-code status",
+    "open_active_legacy_keys": [
+      "voice_profile",
+      "tts_language",
+      "spotify_source"
+    ],
+    "changed_duplicate_authority": "dj_response_enabled migrated to explicit choice evidence; no accepted settings3 override"
   }
 }
