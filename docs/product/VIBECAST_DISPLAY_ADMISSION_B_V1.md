@@ -347,3 +347,35 @@ bounded capacity/long runs. Test local/static shared renderer portrait/landscape
 facts/links/readability/expiry/end with genuinely admitted display credentials.
 External provider boundaries alone may be fixtures. Native Apple/TV, public
 TLS/proxy acceptance and A remain separately open until actually measured.
+
+## Eight-display bounded transport qualification — 17 October
+
+The [actual eight-viewer receipt](../../examples/client_contracts/vibecast_display_admission_v1/b-eight-viewer-qualification-v1.json)
+pins the networkless HA image and probe5528aa75; production integration bytes
+remain equal to producer3cb9cf12. Source/probe hashes were frozen throughout and
+independently reread after execution. Enable DJC_DISPLAY_MULTI_CLIENT=1 with
+DJC_DISPLAY_MULTI_SECONDS=70 in the existing real-HA probe. Default execution
+and the earlier26 HTTP/WSS fixture capture remain unchanged. No client identity,
+grant, key, URL secret or private payload is retained in this aggregate receipt.
+
+Ordinary pairing and a fresh Session create one explicitly consented share.
+Eight separately approved/collected display principals open eight real WSS
+connections. A ninth ordinary approval returns429/display_capacity while the
+original eight principals/connections survive. The probe drains frames and uses
+normal authorized Mood and renewal routes; it never injects Runtime events.
+
+Measured total70.191s including admission/end:626frames across eight viewers
+(79,79,78,78,78,78,78,78),24renewal commits and3confirmed Mood changes delivered
+to every viewer. Peak eight connections,256KiB projection reservation and one
+simultaneously observed projection; sampled34tasks include eight probe readers.
+Process RSS high-water152200→158332KiB (+6132KiB) includes test-client work and
+Session state, not a per-module memory guarantee. B requests made zero provider
+calls. Actual owner Session-end closes all eight sockets, releases every
+connection/projection/preauth reservation and denies every old grant snapshot.
+
+This is a single-share transport/lifecycle qualification. It does not exercise
+global64display/16preauth saturation, eight simultaneously blocked projections,
+slow-drain worst-case, public configured TLS/proxy or eight browser/native
+renderers. Existing actual Chromium/WebKit portrait/landscape evidence is
+separate. A, installed/native/hardware and whole-assignment acceptance remain
+open. The original single-viewer evidence is preserved, not relabelled.

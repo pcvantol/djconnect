@@ -321,3 +321,22 @@ undo A navigation/phishing. KEY-STATE and real App Attest/verifier/wire/native
 proof remain open. No source files, workflow, consumer or deployment changed.
 Exact review/checks for this reconciliation are required before publication;
 previous source qualification applies only to the unchanged B source tree.
+
+## 17 October — eight-client B transport acceptance
+
+Probe5528aa75 adds an opt-in bounded eight-display scenario to the same real
+HA chain, with source read-only, network none,768MiB/twoCPU and ephemeral tmpfs.
+No production code changed. The original captured26-example request/response
+corpus remains untouched; load calls are deliberately not exported into that
+bounded consumer fixture. After the existing privacy/end cases, a new actual
+Session approves eight distinct display principals and refuses the ninth.
+
+The committed aggregate receipt records70.191s total,626frames,24renewals and
+three normal confirmed Mood updates reflected by all eight readers. Actual end
+closes all sockets, releases transport accounting and denies all old grants.
+A source/probe digest over163files was checked before/after and independently
+reread after the container exited; no clocks or Core publication were mocked.
+51focused display/fixture tests also pass. Exact independent delta review and
+normal CI remain required before publishing this additional test evidence.
+This is not global64capacity, worst-case slow-client, public-route, native or
+hardware proof. Existing A technical gates and owner choice remain unchanged.
