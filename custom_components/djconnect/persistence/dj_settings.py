@@ -298,20 +298,30 @@ class ProfileDJSettingsRepository(PersistenceRepository):
         """Erase deleted identity preferences and dedup; never reassign them."""
         _identifier(owner)
         def erase(tx):
-            for table in ('djconnect_profile_dj_settings', 'djconnect_session_dj_settings',
-                          'djconnect_settings_operations'):
-                tx.execute('DELETE FROM '+table+' WHERE owner_profile_id=?', (owner,))
+            for statement in (
+                'DELETE FROM djconnect_profile_dj_settings WHERE owner_profile_id=?',
+                'DELETE FROM djconnect_session_dj_settings WHERE owner_profile_id=?',
+                'DELETE FROM djconnect_settings_operations WHERE owner_profile_id=?',
+            ):
+                tx.execute(statement, (owner,))
         await self._async_in_transaction(erase)
 
     async def async_purge_orphans(self, valid_owners):
         """Bound physical erasure after identity deletion/crash, not preference expiry."""
-        owners = tuple(_identifier(owner) for owner in sorted(set(valid_owners)))
-        condition = 'owner_profile_id NOT IN ('+','.join('?' for _ in owners)+')' if owners else '1'
+        owners = _json(sorted({_identifier(owner) for owner in valid_owners}))
         def erase(tx):
-            for table in ('djconnect_profile_dj_settings', 'djconnect_session_dj_settings',
-                          'djconnect_settings_operations'):
-                tx.execute('DELETE FROM '+table+' WHERE owner_profile_id IN ('
-                           'SELECT DISTINCT owner_profile_id FROM '+table+' WHERE '+condition+' LIMIT 250)', owners)
+            for statement in (
+                'DELETE FROM djconnect_profile_dj_settings WHERE owner_profile_id IN ('
+                'SELECT DISTINCT owner_profile_id FROM djconnect_profile_dj_settings WHERE '
+                'owner_profile_id NOT IN (SELECT value FROM json_each(?)) LIMIT 250)',
+                'DELETE FROM djconnect_session_dj_settings WHERE owner_profile_id IN ('
+                'SELECT DISTINCT owner_profile_id FROM djconnect_session_dj_settings WHERE '
+                'owner_profile_id NOT IN (SELECT value FROM json_each(?)) LIMIT 250)',
+                'DELETE FROM djconnect_settings_operations WHERE owner_profile_id IN ('
+                'SELECT DISTINCT owner_profile_id FROM djconnect_settings_operations WHERE '
+                'owner_profile_id NOT IN (SELECT value FROM json_each(?)) LIMIT 250)',
+            ):
+                tx.execute(statement, (owners,))
         await self._async_in_transaction(erase)
 
     async def async_export_defaults(self, owners, *, authorize):
@@ -321,8 +331,8 @@ class ProfileDJSettingsRepository(PersistenceRepository):
             return {}
         def read(tx):
             rows = tx.fetchall('SELECT owner_profile_id,settings,revision,updated_at '
-                               'FROM djconnect_profile_dj_settings WHERE owner_profile_id IN ('
-                               + ','.join('?' for _ in owners)+')', owners)
+                               'FROM djconnect_profile_dj_settings WHERE owner_profile_id IN '
+                               '(SELECT value FROM json_each(?))', (_json(owners),))
             return {row[0]: {'contract_version': 2,
                             'values': DJSettings.from_dict(json.loads(row[1])).as_dict(),
                             'defaults_revision': int(row[2]), 'as_of': str(row[3])}

@@ -103,6 +103,7 @@ async def run(hass, runtime, client, post, identity, output, headers, manager, s
     moment = published[0]
     original_content = moment.content
     original_persona = moment.presentation_intent.dj_persona.value
+    assert original_persona == chosen['persona']
     speech_request = {**identity, 'contract_version': 2, 'processor': 'ha_configured',
                       'reference': {'session_id': sid, 'moment_id': moment.moment_id}}
     first_speech = (await post('/speech/prepare', speech_request))['session_speech']
@@ -167,6 +168,20 @@ async def run(hass, runtime, client, post, identity, output, headers, manager, s
     successor = manager.current_active('profile-a')
     assert successor.session_id != sid
     assert successor.effective_dj_settings().as_dict() == changed['snapshot']['defaults']
+    assert not successor.broadcast.state.dj_moments, 'music_only must suppress new opening contributions'
+    successor_state, status = await read()
+    assert status == 200
+    raised, _ = await choose(successor_state, {'presence': 'balanced'})
+    successor = manager.current_active('profile-a')
+    assert successor.selected_presence == 'balanced'
+    assert not successor.broadcast.state.dj_moments, 'raising Presence must not replay a missed opening'
+    assert raised['snapshot']['defaults']['persona'] == 'club_dj'
+    assert raised['snapshot']['defaults']['mood'] == 'party'
+    rows.append({'case': 'published_opening_persona_then_inherited_off_and_no_catchup',
+                 'original_published_persona': original_persona,
+                 'successor_persona': successor.dj_persona.value,
+                 'successor_mood': successor.selected_mood,
+                 'music_only_openings': 0, 'raised_presence_catchup': 0})
     await playback_observation_manager(hass).async_stop('profile-a', successor.session_id)
     await post('/session/end', {**identity, 'session_id': successor.session_id})
     receipt = await post('/profile/settings/operation', {**identity, 'contract_version': 2,
