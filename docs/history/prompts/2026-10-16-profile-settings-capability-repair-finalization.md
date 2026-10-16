@@ -39,4 +39,3 @@ Repository State: `MERGED_UNRECONCILED` until this separate documentary Finaliza
 #### Workspace State
 
 Workspace State: `NOT_READY` until synchronization and safe own branch disposition. Preserve unrelated VibeCast worktree/stash, Apple WIP, HA labs and recovery. Own recovery bundles and exact tree/aggregate equality do not by themselves override any applicable cleanup gate. No next assignment is implied by the consumer horizon.
-
