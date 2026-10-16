@@ -64,6 +64,16 @@ and an explicit visible destination. Central service never fetches that URL
 ambiguous encodings, javascript/data schemes and mixed content. Destination
 confirmation belongs to the owner action, not to a central open redirect.
 
+The selected Core display-admission draft now proposes an explicit direct-
+navigation trust handoff: after the bootstrap authenticates and validates the
+initial selected HA entry, that HA/proxy is the trusted execution boundary.
+The route must answer direct200 without login/redirect hops; this is a measured
+configuration requirement, not a browser-JavaScript promise to intercept later
+HA/content/service-worker navigation. This corrects the earlier absolute
+enforcement implication and still requires joint design review before freeze.
+No arbitrary input/query redirects, credentials in URLs or unverified origins
+are permitted. See the [exact Core route decision](VIBECAST_DISPLAY_ADMISSION_V1.md#core-route-decision-explicit-trust-handoff-joint-review-still-open).
+
 A malicious central operator may substitute keys or state; comparison and
 cryptographic binding must be independently reviewed before claiming resistance
 to that attack. If the chosen protocol cannot authenticate the two displays,
@@ -131,7 +141,7 @@ No strong claim token is returned to the owner app for forwarding.
 | Owner app unpaired | Explain owner scanner needs pairing; guest join remains available separately |
 | Multiple owner installations | Explicit chooser and destination/session confirmation, no last-used silent approval |
 | Missing external URL | Owner configures valid existing remote-access path later; no hostname guessing |
-| TLS/DNS/reachability failure | Visible failed destination and retry/change installation; no cert bypass or HTTP fallback |
+| TLS/DNS/reachability failure | Before handoff report known failures; after navigation browser error UI may appear before HA loads. HA owns B recovery when loaded. No false connected state, cert bypass or HTTP fallback |
 | Wrong code/attempt limit | Rate-limit bounded claim, no global enumeration; regenerate claim after expiry |
 | Central outage | Existing connected sessions unaffected; new central bootstrap waits/retries visibly; explicit direct HA entry only when known and safe |
 | HA outage/restart | Stale display expires; reconnect revalidates; expired ephemeral grants need new admission |

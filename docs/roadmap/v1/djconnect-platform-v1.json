@@ -41992,7 +41992,7 @@
       },
       {
         "path": "docs/product/VIBECAST_ONBOARDING_GUEST_AUTHORITY_V1.md",
-        "sha256": "51a44b3072725c04bf11e9a103d6ecc74d5ff1dcba3d89cb7453ce7e744e916b"
+        "sha256": "d9e230d57e08b64d613ce491b31745083a896e7b125f8d7b9d706adf51c9ac27"
       },
       {
         "path": "docs/product/APPLE_VIBECAST_GUEST_MODE_V1.md",
@@ -42000,7 +42000,7 @@
       },
       {
         "path": "docs/product/VIBECAST_WEB_ENTRY_DISTRIBUTION_V1.md",
-        "sha256": "dfd598ed7f29e46138f3bc011fb5a4cb1b8d42cf120bbc885f25ac5b2d5627bd"
+        "sha256": "0f0cd6b9ee9ec6be7d4f7ea15c073101501beddc26ccf8c4b3101865c957e518"
       },
       {
         "path": "docs/product/HYBRID_LOCAL_TRANSPORT_POLICY_V1.md",
@@ -42092,11 +42092,11 @@
       },
       {
         "path": "docs/product/VIBECAST_DISPLAY_ADMISSION_V1.md",
-        "sha256": "82288fb7bf6529a592475214fa73d90c35531af4fdade7c21d643857b287f228"
+        "sha256": "ab0a4ff39ba9458c4b7b98bc5b91fc46d8901647e5d66d02450968c9ff4c8aaa"
       },
       {
         "path": "docs/verification/VIBECAST_DISPLAY_DESIGN_REVIEW_20261016.md",
-        "sha256": "ebc2ccfa4e4eca5272ea5aff8570889562b6b33b833fbf0a01b66b8c82eec049"
+        "sha256": "ae1cff51e7ca3c8b1f905fdb651dce7539403d261c25f17f328932a208f363a6"
       }
     ],
     "implementation_receipt": {

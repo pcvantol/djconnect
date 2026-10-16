@@ -102,6 +102,31 @@ assignment. Do not merge an incomplete product, mark this family completed,
 start another assignment or infer deployment authority from this checkpoint.
 There is no missing general human merge/Finalization/cleanup permission.
 
+## Subsequent joint-owner input and Core disposition
+
+After this receipt's target1dcb367, the existing receiver owner acknowledged
+direct navigation with an explicit selected-HA/proxy trust handoff as the
+compatible design direction. Core now records that choice in the canonical
+admission and both parent references. The direct200/no-login/no-redirect route
+remains a real configured-route acceptance requirement, not an enforceable
+promise about later top-level responses. Joint API/Apple/security/privacy/UX
+review still precedes freeze; no native/HA/physical qualification is inferred.
+
+API separately assessed full unchanged Magic Wormhole client-protocol transport
+in existing Worker/DO as technically feasible, but requiring a compatible
+bidirectional mailboxserver and a jointly reviewed application/wire revision.
+The Rust client library is not the server. Ciphertext retransmission on mailbox
+recovery must be distinguished from one-time destination acceptance. Router
+nameplate/mailbox/side are not identity proofs. This is feasibility only: exact
+stack audit scope, native/WASM interop, trusted-endpoint attempts and deadlines,
+OOB UX and owner binding remain open. No library/profile is selected.
+
+Core also recorded actual B gaps: old handoff returns a broader token (including
+audience signals), owner serialization is not the new display allowlist, no
+share/display principal is already delivered, and relay install ID is stored per
+config entry. These require explicit qualified issuer/authority/media and atomic
+lifecycle design, not assumed reuse. No runtime change accompanies this update.
+
 ## Primary basis
 
 - [HTML navigation](https://html.spec.whatwg.org/multipage/nav-history-apis.html#dom-location-replace)

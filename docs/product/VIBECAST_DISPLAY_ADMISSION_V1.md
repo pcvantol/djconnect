@@ -50,7 +50,7 @@ new login or credential forwarding to close this gap.
 | --- | --- | --- |
 | TRUST-1 | Independently authenticated TV trust-anchor bootstrap binding selected installation and approving paired host; enrollment, rotation, revocation, wrong-install and substitution vectors | OPEN; Core/API/Apple review requested |
 | TRUST-2 | A reviewed standard sender-authenticated envelope/profile and supported library versions, with independent browser/native crypto vectors and original-expiry binding | OPEN; no custom ECDH/KDF/AEAD composition |
-| ROUTE-1 | Adopt or correct the exact Core route/normalization corpus below; show actual redirect/reachability handling without central fetch | REVIEW_CANDIDATE |
+| ROUTE-1 | Exact raw route corpus plus explicit direct-navigation trust handoff; qualify selected HA/proxy direct200 and failure behavior | CORE_DIRECTION_SELECTED; JOINT_REVIEW_OPEN |
 | WIRE-1 | Apple/receiver comparison, cancellation, consume-loss and separate B-code states; exact interoperability acknowledgement | OPEN |
 
 A reviewed out-of-band protocol is an alternative only after its commitment,
@@ -125,18 +125,58 @@ The route-review corpus is deliberately narrow:
 - The received origin must exactly equal the paired selected installation's
   previously authenticated canonical origin. IDNA conversion is not inferred
   from a TV label. All Unicode and `xn--` A-label hosts are unsupported in this v1 review profile, including otherwise valid names. This explicit fail-closed restriction avoids silently mixing IDNA2003/2008/UTS46 behavior. Widening it requires one reviewed interoperable normalization profile and new positive/negative vectors.
-- No redirect parameter or redirect chain is authorized. Syntax validation does
-  not prove DNS/public reachability or absence of proxy redirects. These need
-  real browser/selected-HA tests. The Worker never resolves or fetches HA.
+- No redirect parameter, alternate input destination or arbitrary redirect chain
+  is authorized by A. Core selects direct top-level navigation with the explicit
+  trust handoff below. Syntax validation does not prove DNS/public reachability
+  or actual selected-HA/proxy direct200 behavior. The Worker never resolves or
+  fetches HA.
 - Live entry needs no-store, no-referrer, nosniff and a narrowly reviewed CSP;
   no third-party assets/analytics, credentials in URLs or persistent token cache.
 
 The [synthetic route corpus](../../examples/client_contracts/vibecast_display_admission_v1/route-cases.json)
 and independent Python/WHATWG-URL checks qualify this lexical decision only.
 They do not qualify TLS, DNS, navigation, trust, HA handlers or consumer adoption.
-IDNA/custom-port support and an enforceable browser redirect fence are review items,
-not silently implemented exceptions. `example.org` names are synthetic and are
-never fetched.
+IDNA/custom-port support remains outside this review profile. `example.org` names
+are synthetic and are never fetched. A new navigation enforcement guarantee is
+not silently inferred from passing these lexical checks.
+
+### Core route decision: explicit trust handoff, joint review still open
+
+The receiver owner reviewed exact `1dcb36732616798f59f4f9fcf3cb24581c393e77`
+and acknowledged direct top-level navigation as compatible with the existing
+web-first architecture. Core selects that design direction, subject to joint
+API/Apple/security/privacy/UX review before freeze. No iframe, native wrapper or
+new central HA proxy is selected.
+
+Before the initial navigation, the bootstrap must independently authenticate the
+selected paired installation and validate the original raw exact HTTPS entry
+URL, browser/transaction/generation and original expiry. It initiates only that
+destination, without a secret or credential in the URL/history/referrer. API
+ready state, TLS alone and a same-envelope key remain insufficient. TRUST-1/2
+must close before this direction can be implemented as secure A.
+
+**After the initial navigation, the authenticated selected HA and its configured
+reverse proxy form the trusted execution boundary.** Their HTTP/content routing,
+scripts and applicable service workers are not contained by the old bootstrap
+page. The HA entry is required and must be qualified to return direct200 without
+redirects, canonicalization or a login hop. This is a configuration/acceptance
+property, not a claim that bootstrap JavaScript intercepts a later changed
+response. That explicitly replaces this draft's earlier absolute browser-enforced
+no-redirect promise; the restriction on unverified input destinations is retained.
+
+A preliminary fetch cannot guarantee the response of a later navigation. Before
+handoff the bootstrap reports its own validation/expiry failures. After handoff
+it cannot reliably inspect cross-origin readiness or TLS/connection errors;
+browser error UI may appear before HA loads. The HA page owns its B status and
+recovery messages. Navigation initiation is never connected/admitted success.
+Current independent B approval, scoped grants and source/media rights remain
+mandatory. No user credentials or Session rights are obtained from navigation.
+
+Real browser/selected-HA/proxy tests must prove the supported direct200 route and
+document the unsupported redirect/login cases, including Refresh/meta/script/
+service-worker behavior and failures. They must not assert that normal top-level
+navigation blocks the redirect behavior already measured. Native/physical
+acceptance and the whole contract freeze remain open.
 
 ### Independent review and measured navigation limits
 
@@ -145,11 +185,11 @@ records the API/receiver findings and reproducible follow-up. Both validators
 passed40 lexical cases, but ordinary navigation followed an off-origin302 in
 Chromium/WebKit. A separate12-case framed-surface experiment blocked the tested
 off-origin navigations/top escape while still following same-origin path
-redirects. Neither a preflight fetch nor a sandbox automatically satisfies the
-current no-redirect requirement. A framed surface is **not selected**; actual
+redirects. Neither a preflight fetch nor a sandbox satisfies the earlier absolute
+no-redirect promise. A framed surface is **not selected**; actual
 HA/proxy framing, CSP/storage, accessibility and media compatibility are untested.
-The joint owners must select an enforceable architecture or explicitly review a
-different post-handoff HA/proxy trust boundary before ROUTE-1 freeze.
+The direct-navigation trust handoff above now states Core's design direction;
+joint design review and real selected-route qualification remain before freeze.
 
 The receiver also identified that a complete PAKE exchange/key confirmation is
 not specified by API94's current one-envelope submit/consume wire. Library name,
@@ -181,6 +221,31 @@ original deadline binding; media needs separate qualified source/audience rights
 No owner history, DNA, Ask DJ, private forecast media, settings or playback/
 queue/volume/end operation is available to a display. Missing Origin is not
 native authority; wildcard CORS/cookie reuse is forbidden.
+
+### B source qualification before schema freeze
+
+Source inspection at base1329 confirms that current `BroadcastAuthorizationScope`
+has only OWNER and there is no delivered share/display-grant identity. The old
+Broadcast token also permits audience signals, and owner serialization defaults
+to including owner-only data. Neither is a read-only display principal or an
+explicit shared allowlist. B must add the bounded Runtime-owned authority and
+source/audience-qualified projection; it must not reuse that credential at a TV.
+Existing private media endpoints and query-string Broadcast-token delivery are
+not templates for new display media/authentication.
+
+`central_api.ensure_ha_install_id` reads/persists the runtime's config-entry value.
+That helper alone does not prove one common installation identity across all
+paired entries. `hybrid_service.PairedAuthority` provides actual entry, pairing,
+Profile binding-generation and source/account/privacy fences. Reuse qualified
+authority checks, but do not silently promote the relay install ID to a global
+TV trust root, mutate existing pairing identities or couple B to private history
+consent. Issuer/entry/Runtime-epoch semantics need an explicit reviewed mapping.
+
+The parent contract's proposed120s claim/code and<=60s online lease remain
+unqualified starting bounds, distinct from the legacy300s handoff. An exact B
+schema must settle atomic approval/collection/revoke ownership, lock order,
+capacity/attempt budgets, absolute deadlines and lease refresh without extending
+an expired grant. This inventory is preparation, not delivered B runtime.
 
 ## Legacy end authority: inventory before retirement
 
