@@ -24,8 +24,9 @@ this design and requires new exact reviews.
 The next owner settings contract is **version3**, with the same existing owner
 HTTP/paired live routes, Profile/Session/operation owners and atomic acceptance.
 It adds one closed field `announcement_output`, default `client_device`, to
-both defaults and effective Session settings. This version is a design target,
-not an advertised or delivered runtime capability yet. Prepare-version2 remains
+both defaults and effective Session settings. This version is implemented in the
+local unpublished Core candidate; it is not merged, installed or consumer-qualified.
+Prepare-version2 remains
 its existing local shared-voice checkpoint; target-aware speech uses a separately
 negotiated prepare-version3. Delivered public version1 contracts are not silently
 reinterpreted. Local five-field contract2 producer pins and fixtures remain
@@ -65,6 +66,15 @@ operation ID. A retry returns its outcome without repeating speaker dispatch.
 Report `accepted`/`queued`/`unknown`/`failed` separately; service acceptance does
 not prove audible playback. A successful local target and failed speaker target
 must not be collapsed into an overall played claim.
+
+Automatic HA-speaker output is scheduled only from a newly committed live
+Moment publication, once by that Session's existing publication owner. Joining,
+reading, reconnecting or changing output never schedules older contributions.
+Use the existing bounded operation journal with a stable publication identity;
+clients cannot request automatic speaker effects through arbitrary operation IDs.
+Capture Session/settings/target admission at publication and recheck it before
+synthesis, dispatch and media fetch. A skipped or uncertain delivery is never
+retried as a new automatic operation. Local client autoplay remains independent.
 
 Private POST speechassets cannot be handed to a speaker as anonymous legacy GET
 URLs. A speaker adapter must qualify a separate short-lived, bounded, revocable
@@ -106,6 +116,12 @@ issuer/consumer/dependency qualification; owner Session-end remains intact.
 The portability decision [6220817753](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6220817753)
 is **parked**: retain existing chat/DNA import/export/clear controls and warnings;
 no integrated backup/restore implementation is admitted in this assignment.
+Existing schema1 Profile/household/integration export remains unchanged; it is
+not a backup of the new shared DJ defaults. The earlier unpublished local
+schema2-export prototype is superseded and removed from active output. A local
+schema2 input remains explicitly rejected with `profile_settings_restore_required`
+without mutation. Existing chat/DNA formats and controls remain intact. A
+defaults-bearing backup/restore needs its separately admitted portability slice.
 
 ### Consumer labels and predetermined output acceptance
 
@@ -125,6 +141,31 @@ all alternate routes, old assets and in-flight changes; renderer live removal,
 reconnect, expiry and end in portrait/landscape. HA-only payloads must never leak
 through settings read/write/events/cache or migration. Native UI, audible speaker
 and physical device outcomes need their own evidence. No six-field PASS yet.
+
+## Local six-field software checkpoint
+
+Source `187d2cd126c5db1a2791e1d47d80d803aafc5cc1` connects settings3,
+SQLite migration8 and target-aware speech3. [Pinned real HA fixtures](../../examples/client_contracts/profile_session_settings_v3/connected-ha-transport.json)
+keep original contract2 fixtures unchanged. Exact source/helper hashes match.
+
+Actual paired HTTP/three TLS protocol surfaces share all six values. The bounded
+120.049-second run made351 owner reads and two TLS reconnects with unchanged
+row counts; another Profile received zero change events. Actual generic HA
+Cloud inventory and synthesis choose the confirmed voice/gender without changing
+the global Assist pipeline. External waveforms and speaker sink remain fixtures.
+
+The existing HA media-player service fetched a private speaker grant exactly
+once for a manual replay despite a repeated operation. An actual new Session
+opening fetched once automatically, including lowercase HTTP authorization;
+reads and output switches caused zero catch-up. Text-only and Session end denied
+old grants with404. Queued, unavailable and unknown outcomes are distinct from
+local-ready and audible playback. A failed speaker target does not discard a
+still-authorized local result. No shared display receives settings or grants.
+
+These are local Core software checkpoints. Complete semantic inventory,
+renderer/consumer qualification, final exact independent reviews, protected
+source delivery, Finalization and any installed/native/audible acceptance remain
+open; the SETTINGS family is not Completed.
 
 ## Original five-parameter foundation and local checkpoint history
 
@@ -225,7 +266,8 @@ settings for that ID under the same locks. Existing hourly maintenance also remo
 orphaned rows in bounded batches: a crash between identity deletion and physical erasure cannot
 make old preferences visible if that ID is later reused.
 
-An export captures only typed defaults, not active Runtime settings, receipts,
+Historical contract2 prototype, superseded by the portability boundary above:
+an export captured only typed defaults, not active Runtime settings, receipts,
 binding epochs, provider credentials or provider configuration. Full personal export fails closed with `settings_export_unavailable` if canonical
 SQLite cannot be read; unavailability never becomes a successful identity-only
 export. Explicitly redacted export can omit the private read. The versioned
@@ -369,7 +411,9 @@ tests: 2113 passed and 7 existing tests skipped. These are local Core checkpoint
 not a final candidate review, installed client or audible voice qualification.
 
 Profile deletion/recreation and identity-only replacement are locally connected.
-Export schema2 contains only qualified typed defaults; schema1 remains the
+The superseded unpublished contract2 export prototype contained typed defaults;
+it is removed from active output under the parked portability decision. In that
+historical checkpoint, schema1 remained the
 historical identity-only format. Schema2 restore currently returns
 `profile_settings_restore_required` without mutation. Schema1 replacement of an
 activated Profile also rejects rather than silently retaining unrelated defaults.

@@ -49,7 +49,7 @@ def validate(plan, previous_validator):
           and receipt.get('atomic_active_and_default') is True
           and receipt.get('voice_scope') == 'profile_and_session'
           and receipt.get('contract_version') == 3
-          and receipt.get('runtime_checkpoint_contract_version') == 2
+          and receipt.get('runtime_checkpoint_contract_version') == 3
           and receipt.get('owner_addenda') == [6220504359, 6220590330, 6220625247, 6220695648,
                                                6220756856, 6220784635, 6220817753]
           and receipt.get('portability') == 'PARKED_NO_PICKUP'

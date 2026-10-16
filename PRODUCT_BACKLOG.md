@@ -2,10 +2,10 @@
 
 ## Current consolidation scope addenda
 
-The same SETTINGS family now includes announcement output as a sixth roaming choice (owner6220590330/6220695648); [contract3 design](docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md) precedes its runtime changes. Keep physical speaker/Assist pipeline/ESP administration HA-only and client autoplay/OS permissions local. Core six-field producer and output/speech fences remain In progress, consumer nodes Planned and joint OPEN. The original five-field checkpoints below are historical partial proof. Chat/DNA integrated portability is parked, not a new pickup. No new writer or slice.
+The same SETTINGS family now includes announcement output as a sixth roaming choice (owner6220590330/6220695648); [contract3 design](docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md) precedes its runtime changes. Keep physical speaker/Assist pipeline/ESP administration HA-only and client autoplay/OS permissions local. Local Core contract3/persistence8 and output/speech fences are implemented, with real paired HA speaker/manual/automatic media-fetch proof; inventory/final candidate qualification remains In progress, consumer nodes Planned and joint OPEN. The original five-field checkpoints below are historical partial proof. Chat/DNA integrated portability is parked, not a new pickup. No new writer or slice.
 
 
-## Selected all-five Profile/Session settings consolidation
+## Original five-parameter selection and admission
 
 DJC-PROFILE-SESSION-SETTINGS-CONSOLIDATION-V1-20261016, owner6214905647, ACK6218545503. [Canonical design](docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md) and [source/effect inventory](docs/product/PROFILE_SESSION_SETTINGS_INVENTORY_V1.json). Core producer/consolidation in progress on actual base148bd5ae; contract67c6361f preceded first materialfa8ca487. Defaults and active Session share allfive Persona, provider-bound voice, qualified gender, Mood, Presence; accepted explicit field changes automatically become defaults. No defaultPersona-only reduction.
 

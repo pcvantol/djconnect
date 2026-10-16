@@ -1,8 +1,8 @@
 # DJConnect API Contract
 
-## Current settings owner addenda — contract3 design target
+## Current settings owner addenda — local contract3 implementation
 
-[Canonical delta](docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md) adds `announcement_output` to the five shared DJ choices under owner6220590330/6220695648. Six-field settings contract3 and target-aware speech prepare3 require new source/tests/reviews; they are not yet runtime-advertised. `text_only` forbids announcement synthesis and all replay; speaker-only still permits explicit local owner replay. Physical speaker/Assist pipeline/ESP administration stay HA-only; local autoplay defaults OFF and OS permissions remain local. Existing contract2 checkpoints below are historical five-field proof. Integrated chat/DNA portability is parked, unchanged. Native/installed/joint remain OPEN; no new consumer writer or WIP expansion.
+[Canonical delta](docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md) adds `announcement_output` to the five shared DJ choices under owner6220590330/6220695648. Six-field settings contract3 and target-aware speech prepare3 are implemented and locally advertised in the unpublished Core candidate; final exact reviews/protected delivery remain required. `text_only` forbids announcement synthesis and all replay; speaker-only still permits explicit local owner replay. Physical speaker/Assist pipeline/ESP administration stay HA-only; local autoplay defaults OFF and OS permissions remain local. Existing contract2 checkpoints below are historical five-field proof. Integrated chat/DNA portability is parked. Existing schema1 exports remain unchanged and do not back up the six shared defaults; the unpublished schema2 export prototype is removed. Native/installed/joint remain OPEN; no new consumer writer or WIP expansion.
 
 
 ## Selected Profile/Session settings consolidation — contract2

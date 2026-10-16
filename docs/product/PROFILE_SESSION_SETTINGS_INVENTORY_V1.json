@@ -2586,14 +2586,14 @@
     }
   ],
   "completion_gate": "Every active exposed setting needs setter/canonical store/real reader/effect plus KEEP or qualified REPLACE-MIGRATE/REMOVE and owning-lane evidence; STATIC_ONLY rows cannot satisfy gate",
-  "current_local_source_pin": "f5d9e6c770f425cc367ec55101854f4d4bbb98d5",
+  "current_local_source_pin": "187d2cd126c5db1a2791e1d47d80d803aafc5cc1",
   "connected_core_paths": [
     {
       "parameter": "persona",
       "disposition": "REPLACE_MIGRATE",
       "owning_lane": "DJC-CORE",
       "setter": "profile_settings.async_handle_settings / HTTP PATCH and paired TLS update",
-      "canonical_storage": "ProfileDJSettingsRepository on existing SQLite migration7",
+      "canonical_storage": "ProfileDJSettingsRepository on existing SQLite migrations7/8",
       "reader": "SessionRuntimeManager.async_read_dj_settings / async_start",
       "effect": "Common Ask DJ confirmed style and existing future Moment Persona",
       "qualified_evidence": [
@@ -2610,7 +2610,7 @@
       "disposition": "REPLACE_MIGRATE",
       "owning_lane": "DJC-CORE",
       "setter": "profile_settings.async_handle_settings / HTTP PATCH and paired TLS update",
-      "canonical_storage": "ProfileDJSettingsRepository on existing SQLite migration7",
+      "canonical_storage": "ProfileDJSettingsRepository on existing SQLite migrations7/8",
       "reader": "SessionRuntimeManager.async_read_dj_settings / async_start",
       "effect": "Exact configured HA provider voice; settings/provider cache and audio guards",
       "qualified_evidence": [
@@ -2627,7 +2627,7 @@
       "disposition": "REPLACE_MIGRATE",
       "owning_lane": "DJC-CORE",
       "setter": "profile_settings.async_handle_settings / HTTP PATCH and paired TLS update",
-      "canonical_storage": "ProfileDJSettingsRepository on existing SQLite migration7",
+      "canonical_storage": "ProfileDJSettingsRepository on existing SQLite migrations7/8",
       "reader": "SessionRuntimeManager.async_read_dj_settings / async_start",
       "effect": "Installed provider metadata combination validation and exact HA synthesis voice",
       "qualified_evidence": [
@@ -2644,7 +2644,7 @@
       "disposition": "REPLACE_MIGRATE",
       "owning_lane": "DJC-CORE",
       "setter": "profile_settings.async_handle_settings / HTTP PATCH and paired TLS update",
-      "canonical_storage": "ProfileDJSettingsRepository on existing SQLite migration7",
+      "canonical_storage": "ProfileDJSettingsRepository on existing SQLite migrations7/8",
       "reader": "SessionRuntimeManager.async_read_dj_settings / async_start",
       "effect": "Runtime/Planner and durable summary interval, independent remembered default",
       "qualified_evidence": [
@@ -2661,9 +2661,26 @@
       "disposition": "REPLACE_MIGRATE",
       "owning_lane": "DJC-CORE",
       "setter": "profile_settings.async_handle_settings / HTTP PATCH and paired TLS update",
-      "canonical_storage": "ProfileDJSettingsRepository on existing SQLite migration7",
+      "canonical_storage": "ProfileDJSettingsRepository on existing SQLite migrations7/8",
       "reader": "SessionRuntimeManager.async_read_dj_settings / async_start",
       "effect": "Existing shared policy/budgets/in-flight admission; no reset",
+      "qualified_evidence": [
+        "tests/test_profile_dj_settings_runtime.py",
+        "tests/test_profile_settings_owner.py",
+        "tests/test_profile_settings_speech.py",
+        "scripts/verification/profile_session_settings_lab.py",
+        "scripts/verification/profile_session_settings_ws_lab.py"
+      ],
+      "scope": "CONNECTED_CORE_SOFTWARE; external provider waveform fixture; native/audible/installed OPEN"
+    },
+    {
+      "parameter": "announcement_output",
+      "disposition": "REPLACE_MIGRATE",
+      "owning_lane": "DJC-CORE",
+      "setter": "profile_settings.async_handle_settings / HTTP PATCH and paired TLS update",
+      "canonical_storage": "ProfileDJSettingsRepository on existing SQLite migrations7/8",
+      "reader": "Existing publication callback / session_speech / announcement_policy / private byte owner",
+      "effect": "text_only zero synthesis/old bytes; target-bound manual replay; new-publication-only HA speaker through existing operation journal; no catch-up",
       "qualified_evidence": [
         "tests/test_profile_dj_settings_runtime.py",
         "tests/test_profile_settings_owner.py",
@@ -2676,7 +2693,6 @@
   ],
   "remaining_core_qualification": [
     "Complete per-setting legacy setter/store/reader/effect disposition beyond initial static scan; reconcile old tone/numeric parameters without guessing Persona",
-    "Owner-coordinated schema2 defaults restore remains explicitly unavailable; qualify recoverable restore before enabling it. Deletion, orphan retention and redacted export are locally implemented/tested",
     "Full failure/restart and final exact candidate acceptance; current targeted lifecycle/expiry/cancellation tests and intermediate HA duration probes are not total acceptance",
     "Owning coverage and final exact independent technical/privacy/experience reviews. Intermediate review findings fixed; Bandit medium/high zero on local source checkpoint",
     "Complete owning-lane semantic inventory and consumer adoption gates; early private Apple contract handoff exists but does not authorize its WIP expansion",
@@ -2735,5 +2751,17 @@
     6220817753
   ],
   "current_design_contract_version": 3,
-  "current_runtime_checkpoint_contract_version": 2
+  "current_runtime_checkpoint_contract_version": 3,
+  "portability_disposition": "PARKED_NO_PICKUP; schema1 exports retained; no shared-defaults backup; unpublished schema2 export retired; schema2 restore rejected without mutation",
+  "local_contract3_evidence": {
+    "producer_pin": "187d2cd126c5db1a2791e1d47d80d803aafc5cc1",
+    "path": "examples/client_contracts/profile_session_settings_v3/connected-ha-transport.json",
+    "source_hashes_verified": 156,
+    "soak_seconds": 120.049,
+    "owner_reads": 351,
+    "actual_tls_reconnects": 2,
+    "native": "OPEN",
+    "audible": "NOT_PROVEN",
+    "installed": "NOT_RUN"
+  }
 }

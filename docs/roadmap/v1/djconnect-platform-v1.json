@@ -41760,11 +41760,11 @@
     "document_references": [
       {
         "path": "PRODUCT_ROADMAP.md",
-        "sha256": "50551c78293af96fae56cb93abfe376582621352e81a281638f4cd2bf1440986"
+        "sha256": "a5b226f417b65a50deeb4121ba52dfdecb8504f91cb1be4edc6704c0947dafb8"
       },
       {
         "path": "PRODUCT_BACKLOG.md",
-        "sha256": "e9fe49db7d06410ce06249ac480b9d9b339b8a71e274033f2f10a254abf2616a"
+        "sha256": "9714fc324d4ded07a7e1f873c2caf2747058db4e8b115a16ab19595d25f61bb5"
       },
       {
         "path": "docs/product/DJ_PRESENCE_V1.md",
@@ -41800,7 +41800,7 @@
       },
       {
         "path": "API_CONTRACT.md",
-        "sha256": "f57561ae83272f3b955665c4e367da4a08cfc9885e07c512e9e69800d505d4b5"
+        "sha256": "67b8b1d31cb2079cd51bc8358bfa326d1e033f390d96bba09e7d3d71d5e06339"
       },
       {
         "path": "docs/product/NARRATIVE_ALBUM_CONTINUITY_V1.md",
@@ -42076,7 +42076,7 @@
       },
       {
         "path": "docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md",
-        "sha256": "c2c11d86249d43b9da38ea019918c58861f2fa073054c3c7e5cf624ad33ed6f6"
+        "sha256": "da203d87af5d33aa53e53ae6045ebe6c3b35478a8d31f6b43c4a91d347f63f84"
       },
       {
         "path": "docs/technical/SPEECH_RENDERING_CONTRACT.md",
@@ -42644,8 +42644,8 @@
       "automatic_dispatch": false,
       "consumer_writes": false,
       "inventory_path": "docs/product/PROFILE_SESSION_SETTINGS_INVENTORY_V1.json",
-      "inventory_sha256": "0a68db7402cd6aa67940399bb2c66ca19ba4d68c408eb7ec12ca90b560726002",
-      "runtime_checkpoint_contract_version": 2,
+      "inventory_sha256": "1c7a2e79ab48ce0adf39bddb04f3f9f5a9dc4bd6e29b1ea5ab549cfbeed2cc45",
+      "runtime_checkpoint_contract_version": 3,
       "owner_addenda": [
         6220504359,
         6220590330,
@@ -42655,7 +42655,7 @@
         6220784635,
         6220817753
       ],
-      "output_implementation": "DESIGN_RECONCILED_RUNTIME_PENDING",
+      "output_implementation": "LOCAL_HA_CHAIN_QUALIFIED_NOT_INSTALLED",
       "ha_only": [
         "assist_pipeline",
         "physical_ha_speaker",
@@ -42666,7 +42666,8 @@
         "os_permissions",
         "physical_device_preferences"
       ],
-      "portability": "PARKED_NO_PICKUP"
+      "portability": "PARKED_NO_PICKUP",
+      "core_source_pin": "187d2cd126c5db1a2791e1d47d80d803aafc5cc1"
     }
   }
 }
