@@ -57,7 +57,7 @@ async def run(hass, runtime, client, post, identity, output, bundle, headers):
         options = await post("/speech/voice-options", {**identity, "contract_version": 1})
         repeated = await post("/speech/voice-options", {**identity, "contract_version": 1})
         assert options == repeated and len(calls) == before
-        assert options["speech_voice_options"]["gender_selection"]["voice_ids"] == targets
+        assert options["speech_voice_options"]["gender_selection"].get("voice_ids") == targets, options
         reply = await post("/ask_dj/message", {**identity,
             "client_message_id": "gender-real-" + locale,
             "text": "Explain briefly what an ostinato is in music.", "language": locale,
@@ -79,6 +79,11 @@ async def run(hass, runtime, client, post, identity, output, bundle, headers):
         assert audio.status == 200 and len(await audio.read()) == 834
         conflict = await post("/speech/prepare", {**request, "voice_id": targets["female"]})
         assert conflict["session_speech"]["reason"] == "no_matching_voice"
+        female = await post("/speech/prepare", {**request, "voice_preference": "female",
+                                               "voice_id": targets["female"]})
+        assert female["session_speech"]["effective_voice"]["voice_id"] == targets["female"]
+        assert female["session_speech"]["effective_voice"]["gender"] == "female"
+        assert len(calls) == before + 2
         # Same instance/voice/locale, but a changed inventory permission revokes old bytes.
         key = next(k for k in MAP_VOICE if k[0] == language and getattr(k[1], "value", k[1]) == "male")
         removed = MAP_VOICE.pop(key)
@@ -94,7 +99,7 @@ async def run(hass, runtime, client, post, identity, output, bundle, headers):
         await post("/session/end", {**identity, "session_id": sid})
         rows.append({"locale": locale, "options": options, "prepared": result,
                      "cache_single_synthesis": True, "metadata_withdrawal_audio_status": 409})
-    assert len(calls) == 5
+    assert len(calls) == 10
     assert async_get_pipeline(hass).id == previous.id
     receipt = {"scope": "real isolated HA/Cloud entity and ordinary paired Core; external waveform fixture",
                "native_audible": "NOT_RUN", "rows": rows, "waveform_calls": calls,

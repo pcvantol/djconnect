@@ -193,8 +193,9 @@ configuration does not revive old grants. Final unload clears scoped resources.
 HA synthesis uses the exact selected provider's supported language and configured
 voice, including an advertised provider default when no explicit voice is set.
 Providers without a voice inventory can use their own default; Core reports that
-selection explicitly without inventing a voice name. HA2026.10 Voice exposes ID/name, not gender; male/female requests on
-this HA route return `voice_gender_unavailable`. No provider or pipeline fallback.
+selection explicitly without inventing a voice name. HA2026.10 Voice exposes ID/name, not gender; provider-qualified metadata
+may add gender under [the bounded adapter contract](PROVIDER_VOICE_GENDER_V1.md).
+Without that metadata, male/female requests return `voice_gender_unavailable`. No provider or pipeline fallback.
 A confirmed current-artist reply may use `spotify_owner_local_read_v1`: only
 the exact accepted owner-visible title/artist sentence, its original at-most60s
 read deadline and attribution, through an independently qualified local route.
@@ -225,9 +226,11 @@ client_type/device_id and contract_version1. It reads the currently configured
 HA Assist pipeline/provider without synthesis, media/provider lookup, model,
 playback or Session/Profile mutation. `speech_voice_options` has an unordered
 equality `revision`, provider-default availability and optional `gender_selection`:
-`available`, actual `values`, and reason. Current HA/Piper metadata exposes only
-voice ID/name, so gender `available:false`, `values:[]`; the client hides that
-optional selector. No name/pitch-to-gender inference. A stored unsupported
+`available`, actual `values`, and reason. Providers with only voice ID/name advertise gender `available:false`,
+`values:[]`; the client hides that optional selector. Qualified Cloud/provider
+metadata advertises actual `values` and deterministic `voice_ids` targets.
+Inventory inspection is bounded to512 entries, projection to64; configured and
+qualified gender target voices take priority within that bound. No name/pitch-to-gender inference. A stored unsupported
 preference remains explicitly unavailable with an accessible Use provider
 default action (even while the gender selector is hidden); no
 silent gender fallback or Persona/Mood/Profile change. Re-read provider support

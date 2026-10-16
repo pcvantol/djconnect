@@ -2030,3 +2030,15 @@ Broadcast subscribe/recover commands are accepted. Authority is server-owned,
 with a 300-second connection lease and Profile/pairing revocation. No HA user
 credential is issued. See [the exact contract](docs/product/PAIRED_OWNER_LIVE_CONTRACT_V1.md)
 and [qualification evidence](docs/verification/paired-owner-live-auth-v1.md).
+
+### Provider-qualified Session voice/gender follow-up
+
+Existing paired `/speech/voice-options` and `/speech/prepare` version1 remain
+additive. See [Provider voice/gender](docs/product/PROVIDER_VOICE_GENDER_V1.md).
+`gender_selection.voice_ids` maps each advertised female/male value to its
+current deterministic target; unknown voice genders remain null. Prepare accepts
+existing `voice_preference` plus optional `voice_id`; if both are explicit they
+must match. Metadata/provider/locale/inventory changes invalidate revision and
+pending/cached bytes; no read performs synthesis. Re-read on menu open,
+foreground/reconnect and configuration invalidation. No new push subscription,
+client inference, pipeline write, silent fallback or original request replay.

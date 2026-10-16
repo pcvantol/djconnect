@@ -55,7 +55,7 @@ def preference_context():
             "runtime_mutable": True, "session_end": "discard"}
 
 
-def voice_inventory(entity, language):
+def voice_inventory(entity, language, *, configured_voice=None):
     """Only supported HA Voice metadata; bounded, no inferred gender."""
     from itertools import islice
     callback = getattr(entity, "async_get_supported_voices", None)
@@ -63,7 +63,7 @@ def voice_inventory(entity, language):
     cloud_genders = _cloud_voice_genders(entity, language)
     result = []
     seen = set()
-    for voice in islice(voices or [], 64):
+    for voice in islice(voices or [], 512):
         identifier = getattr(voice, "voice_id", None)
         name = getattr(voice, "name", None)
         if (not isinstance(identifier, str) or not 0 < len(identifier) <= 128
@@ -80,7 +80,12 @@ def voice_inventory(entity, language):
             mapped = cloud_genders.get(identifier)
             gender = mapped if gender is None or gender == mapped else None
         result.append({"voice_id": identifier, "name": name[:120], "gender": gender})
-    return result
+    # Some Cloud languages contain more than64 voices. Keep qualified gender
+    # targets and the configured voice visible without making caller IDs a way
+    # to bypass the advertised selection bound. Even iteration stays bounded.
+    priority = {configured_voice, *(cloud_genders or {})}
+    result.sort(key=lambda v: v["voice_id"] not in priority)
+    return result[:64]
 
 
 def _cloud_voice_genders(entity, language):
@@ -150,10 +155,10 @@ def configured_processor(hass, conf, locale, preference, *, selected_voice=None)
     if (language.replace("_", "-").split("-", 1)[0] != locale
             or language not in entity.supported_languages):
         raise ProcessorUnavailable("no_matching_locale")
-    voices = voice_inventory(entity, language)
     defaults = entity.default_options or {}
     if not voice_id:
         voice_id = str(defaults.get("voice") or "")
+    voices = voice_inventory(entity, language, configured_voice=voice_id)
     if selected_voice is not None:
         if not any(v["voice_id"] == selected_voice for v in voices):
             raise ProcessorUnavailable("no_matching_voice")
@@ -270,7 +275,7 @@ def voice_options(hass, conf):
         pipeline = _selected_pipeline(hass, conf)
         locale = str(_first_attr(pipeline, "tts_language", "language") or "").replace("_", "-").split("-", 1)[0]
         entity, voice = configured_processor(hass, conf, locale, "default")
-        inventory = voice_inventory(entity, voice["locale"])
+        inventory = voice_inventory(entity, voice["locale"], configured_voice=voice["voice_id"])
     except ProcessorUnavailable as exc:
         options["state"] = "unavailable"
         options["reason"] = str(exc)

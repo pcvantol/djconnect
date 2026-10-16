@@ -1,5 +1,36 @@
 # DJConnect Repository Status
 
+## Current: Provider-qualified Session voice/gender
+
+`DJC-CORE-PROVIDER-VOICE-GENDER-V1-20261016`, direct owner corrective request.
+Same sole writer, synchronized basef04fc578, branchcodex/provider-voice-gender-v1,
+ACK6213291374; fresh hostverify MATCH. Predecessor1187/1188 protected merged,
+exact artifacts/installed proof and safe own cleanup complete; no reopening.
+Contract155e5030 precedes first material1290b042. Current local implementation
+qualifies explicit provider gender metadata, including actual Cloud mapping,
+against the bounded current inventory. Unknown gender stays null. Concrete
+voice/gender conflicts fail; provider/metadata changes fence old and pending audio.
+No shared pipeline/Profile/Persona writes, new provider lookup or passive start.
+
+Local proof:2028 regressions (2021PASS/7existing skips),122owning,162DAG,
+13bootstrap/lifecycle, projection and packagecheck PASS; branch-aware unit
+coverage86%processor/89%feedback/87%combined. Actual isolated HA proof covers
+five languages, five existing model calls and ten external Cloud waveform
+fixtures with real pairing/Core/Cloud inventory/selection/private bytes/cache/
+withdrawal. [Contract](docs/product/PROVIDER_VOICE_GENDER_V1.md),
+[qualification](docs/verification/PROVIDER_VOICE_GENDER_SOURCE_20261016.md).
+
+Independent exact reviews and candidate-specific source publication remain
+pending. Source/PR/main delivery is not claimed. Separate Finalization retains
+its own publication gate. Installed HA-dev/prod remain predecessorf04fc578;
+standing install instruction applies only after qualified protected delivery.
+Native Voice menu, audible and joint acceptance remain Apple-owned/open.
+Passive SURFACE::CORE::PROJECTION remains queued, not admitted. Preserve Apple
+WIP, VibeCast worktree, passive stash, recovery and paused heartbeat.
+
+## Historical operational context
+
+
 ## Current: Generic HA TTS — separate Finalization
 
 ### Repository Status

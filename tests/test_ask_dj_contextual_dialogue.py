@@ -448,6 +448,7 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
     async def test_functional_tts_notices_are_five_language_and_never_source_or_auth_claims(self):
         from custom_components.djconnect.speech_feedback import notification
         reasons = ("processor_not_qualified", "tts_provider_unavailable", "no_matching_locale",
+                   "no_matching_voice", "voice_gender_unavailable",
                    "speech_preparation_failed", "speech_configuration_changed")
         for locale in ("en", "nl", "de", "fr", "es"):
             for reason in reasons:

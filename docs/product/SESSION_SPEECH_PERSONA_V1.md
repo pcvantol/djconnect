@@ -284,3 +284,7 @@ audible adoption, installed acceptance and joint product acceptance remain open.
 The [local qualification record](../verification/SESSION_SPEECH_PERSONA_LOCAL_QUALIFICATION_20261015.md)
 binds the exact runtime checkpoint, real model-route output, full family/locale
 receipts, browser/expiry proof and the separate open delivery/consumer gates.
+
+Provider-qualified runtime gender/voice behavior is specified in
+[Provider voice/gender](PROVIDER_VOICE_GENDER_V1.md). Cloud metadata support
+does not change Session Persona, shared pipeline defaults or device scope.
