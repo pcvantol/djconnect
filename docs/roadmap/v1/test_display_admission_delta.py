@@ -75,6 +75,16 @@ class DisplayAdmissionMaintenanceTests(unittest.TestCase):
         p["planning_maintenance"]["display_admission_receipt"].pop("b_source_go")
         self.assertTrue(validate(p))
 
+    def test_limited_owner_choice_does_not_close_technical_or_issuer_gates(self):
+        for key, value in [("independent_ha_owner_attestation", True),
+                           ("security_review", "GO"), ("key_state", "PASS"),
+                           ("wire", "FROZEN"), ("runtime_a", "IMPLEMENTED"),
+                           ("selection", "INDEPENDENT_HA_ISSUER")]:
+            with self.subTest(key=key):
+                p = deepcopy(self.plan)
+                p["planning_maintenance"]["display_admission_receipt"]["product_disposition"][key] = value
+                self.assertTrue(validate(p))
+
     def test_no_node_completion_or_unrelated_admission(self):
         for nid in ["WEB::TRUST", "WEB::DISPLAY", "WEB::OWNER-SCANNER", "SETTINGS::CORE::PRODUCER"]:
             p = deepcopy(self.plan)

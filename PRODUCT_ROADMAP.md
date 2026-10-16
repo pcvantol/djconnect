@@ -2,7 +2,7 @@
 
 ## Current: selected Core display-admission contract review
 
-DJC-CORE-VIBECAST-DISPLAY-ADMISSION-V1-20261016, owner6222775045/ACK6224062979, same Core writer on base1329ad1c. Existing `WEB::TRUST` and `WEB::DISPLAY` are In progress under maintenance15; no new family or consumer admission. [Canonical review](docs/product/VIBECAST_DISPLAY_ADMISSION_V1.md) precedes runtime. TRUST-1/2 and joint route/wire review remain open;40 synthetic cross-parser URL cases qualify lexical policy only. No source delivery, crypto/HA/E2E/native/TV PASS or deployment is claimed. Settings1193/1194 and repair1195/1196 remain closed; their consumer/migration/joint boundaries remain open.
+DJC-CORE-VIBECAST-DISPLAY-ADMISSION-V1-20261016, owner6222775045/ACK6224062979, same Core writer on base1329ad1c. Existing `WEB::TRUST` and `WEB::DISPLAY` remain In progress under maintenance15; no new family or consumer admission. [Canonical contract](docs/product/VIBECAST_DISPLAY_ADMISSION_V1.md): B source3cb9cf12/actual fixtures325aabc7 are independently software-qualified and published in draft1197, not merged or installed. Real isolated HA/browser evidence does not imply public-route/native/TV acceptance. The [owner disposition6226306251](https://github.com/pcvantol/djconnect-api/pull/94#issuecomment-6226306251) selects limited App-Attested address transfer with the stated copied-QR/wrong-scanner destination risk; no independent HA-owner/TV-owner attestation. Technical security review, finite key/counter policy and actual verifier/native/wire interoperability remain open. No A runtime GO, whole-assignment completion or deployment. Settings1193/1194 and repair1195/1196 remain closed; historical delivery records below are preserved.
 
 ## Historical scope records
 

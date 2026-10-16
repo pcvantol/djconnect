@@ -52,6 +52,15 @@ def validate(plan, previous_validator):
             'source_sha256': 'fd37dfb681d436214f330a37ddb02c1568ec10ed6e1e14c1b9197e7c494ab904',
             'public_TLS': 'NOT_QUALIFIED', 'native': 'OPEN', 'installed': 'NOT_DELIVERED'},
             'exact independently reviewed B-only source qualification')
+    if r.get('product_disposition') is not None:
+        check(r['product_disposition'] == {
+            'selection': 'LIMITED_APP_ATTESTED_REPORTED_ROUTE',
+            'receipt': 'https://github.com/pcvantol/djconnect-api/pull/94#issuecomment-6226306251',
+            'copied_qr_wrong_scanner_risk': 'ACCEPTED_FOR_ADDRESS_SHORTCUT',
+            'independent_ha_owner_attestation': False,
+            'security_review': 'OPEN', 'key_state': 'OPEN',
+            'wire': 'NOT_FROZEN', 'runtime_a': 'NOT_IMPLEMENTED'},
+            'limited product choice is not security, issuer, wire or A runtime qualification')
     nodes = d.get('nodes', [])
     by_id = {n['id']: n for n in nodes}
     previous_nodes = {n['id']: n for n in prior['nodes']}

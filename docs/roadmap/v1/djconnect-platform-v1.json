@@ -41760,11 +41760,11 @@
     "document_references": [
       {
         "path": "PRODUCT_ROADMAP.md",
-        "sha256": "bc18994a3a3edf9d9b36d3cfc372e1c9ff4d18e3a2be56ecf9777e6baadcb226"
+        "sha256": "e603953d2bd2108973b6e739507eca50852073b9c2f66654132e804929269b23"
       },
       {
         "path": "PRODUCT_BACKLOG.md",
-        "sha256": "1749aab6b057487c90976b7052351c7481a256eac9f41dda91914c54759bd75d"
+        "sha256": "93078661504f499faf51ae2986f3236e912cd31632c9c93d6ac6dc45d5508c98"
       },
       {
         "path": "docs/product/DJ_PRESENCE_V1.md",
@@ -42092,11 +42092,11 @@
       },
       {
         "path": "docs/product/VIBECAST_DISPLAY_ADMISSION_V1.md",
-        "sha256": "da7c84b8246972c4a45004552efbd19957423b15fd589866701395b595f76d37"
+        "sha256": "93c83be95770349620ca3eba48888d309fcce92dbd0ce2dce24f583315ebb154"
       },
       {
         "path": "docs/verification/VIBECAST_DISPLAY_DESIGN_REVIEW_20261016.md",
-        "sha256": "30b25eb481aabfcac96cdb1459900ad3d0a54d32cc110b6fd92c93de176cb4e6"
+        "sha256": "e80d2964a2cf32e89230c96dbd205b0c9b443d6adf9a29c480d41702c6b6790a"
       },
       {
         "path": "docs/product/VIBECAST_DISPLAY_ADMISSION_B_V1.md",
@@ -42740,6 +42740,16 @@
         "public_TLS": "NOT_QUALIFIED",
         "native": "OPEN",
         "installed": "NOT_DELIVERED"
+      },
+      "product_disposition": {
+        "selection": "LIMITED_APP_ATTESTED_REPORTED_ROUTE",
+        "receipt": "https://github.com/pcvantol/djconnect-api/pull/94#issuecomment-6226306251",
+        "copied_qr_wrong_scanner_risk": "ACCEPTED_FOR_ADDRESS_SHORTCUT",
+        "independent_ha_owner_attestation": false,
+        "security_review": "OPEN",
+        "key_state": "OPEN",
+        "wire": "NOT_FROZEN",
+        "runtime_a": "NOT_IMPLEMENTED"
       }
     }
   }

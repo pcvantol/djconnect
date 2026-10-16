@@ -46,7 +46,7 @@ attestation of an existing Apple/HA pairing. Core's ordinary device bearer and
 process-local history signing key are not public installation trust anchors.
 The owner app's trusted local pairing does not automatically transfer to a TV.
 
-**TRUST-1 is unresolved:** an adversary can copy a QR, encrypt to its public key,
+**TRUST-1 technical review remains open:** an adversary can copy a QR, encrypt to its public key,
 include its own installation/signing key and a valid-looking destination. A
 signature verified with a key supplied in that same untrusted envelope merely
 proves control of that key. TLS to an attacker-owned destination authenticates
@@ -62,7 +62,7 @@ new login or credential forwarding to close this gap.
 
 | Gate | Concrete required answer | Current state |
 | --- | --- | --- |
-| TRUST-1 | Explicit code-free trust guarantee and owner/security risk disposition: genuine paired-app route confirmation versus stronger independently verified HA issuer | OPEN; never call app assertion independent HA attestation |
+| TRUST-1 | Owner-selected limited genuine-app reported-route guarantee; independent review must preserve its stated copied-QR/wrong-scanner risk and reject stronger identity claims | OWNER_LIMITED_CLAIM_SELECTED; SECURITY_REVIEW_OPEN; no independent HA attestation |
 | TRUST-2 | App Attest candidate verifier, exact request/ciphertext digest/browser/generation/action/expiry binding, key/counter retention and real interoperability | OPEN; API KEY-STATE/Apple qualification unresolved |
 | ROUTE-1 | Exact raw route corpus plus explicit direct-navigation trust handoff; qualify selected HA/proxy direct200 and failure behavior | CORE_DIRECTION_SELECTED; JOINT_REVIEW_OPEN |
 | WIRE-1 | Code-free Apple/receiver handoff, cancellation, consume-loss and separate existing B-code states; exact interoperability acknowledgement | OPEN; no comparison/OOB UI |
@@ -93,13 +93,15 @@ Existing source chain:
   availability/key and consent. Neither its HA bearer nor APNs/install/bootstrap
   credential is sent to the rendezvous service or a display.
 
-For joint review, alternative (i) uses genuine app-instance App Attest and the
+The owner selected alternative (i), subject to technical qualification: genuine
+app-instance App Attest and the
 app's already paired HA response as the agreed destination source. This does
 **not** establish independent HA-owner/install attestation or that the scanner
 is the TV's intended owner. An otherwise legitimate paired scanner with a copied
-QR may submit its own valid destination first. Product/security disposition of
-that exact wrong-scanner/phishing race is still open; B does not authenticate A.
-Alternative (ii), if stronger independent HA-installation proof is mandatory,
+QR may submit its own valid destination first. The owner has accepted that
+specific risk for the limited address shortcut; independent technical/security
+review remains open. B does not authenticate A.
+The unselected stronger alternative (ii), if later required by a new decision,
 requires a genuinely trusted HA issuer/enrollment chain. No such browser/API-
 verifiable chain exists in current Core/APNs bootstrap. A same-envelope public
 key or the existing bootstrap-proof handler does not provide it. No new central
@@ -118,8 +120,36 @@ Before a new route confirmation, recheck current normal pairing, loaded entry,
 Profile/source rights and selected external configuration. Disclosure cannot be
 recalled after A has delivered a destination. No relay ready state promises
 instant HA revocation. B's current owner/share/Session gates remain independent.
-There is no missing generic human merge permission; technical/risk/interop gates
+There is no missing generic human merge permission; technical/security/interop gates
 are explicit and are not bypassed by the code-free product choice.
+
+### Limited A product disposition — owner choice resolved, technical gates remain
+
+The existing Apple owner conversation asked the concrete copied-active-QR risk
+question and received the direct human response “ga verder”, then read back the
+limited address-transfer interpretation. The owner subsequently replied
+“akkoord”. Core independently read that original exchange; it does not rely
+solely on another agent's claim of approval. The existing public
+[disposition receipt6226306251](https://github.com/pcvantol/djconnect-api/pull/94#issuecomment-6226306251)
+records the precise limited scope. This resolves the owner's choice of
+alternative(i); do not keep asking that same high-level product question.
+
+Accepted product boundary: a verified genuine DJConnect app instance reports
+that it checked and explicitly confirmed its own existing paired HA route.
+It does not prove the intended TV owner, independent HA ownership, physical TV
+presence or a permanent HA issuer identity. Another genuine paired scanner with
+a copied active QR can submit its own route first, including a misleading
+external destination. This is the specifically disclosed residual risk of A.
+The later six-digit HA admission protects B authority, not that earlier
+navigation or phishing risk. No stronger authenticity statement is permitted.
+
+This choice grants no crypto PASS, persistent central registry, new signing,
+account/enrollment change, contractfreeze, consumer implementation, installation
+or deployment. KEY-STATE finite retention/deletion/recovery/counter/crash ordering,
+exact App Attest/JWE/verifier/WIRE interoperability and independent
+security/privacy/UX review remain open with the existing API/Apple/receiver
+owners. Core source and the read-only B contract are unchanged. No A runtime GO
+or whole-assignment completion follows from the product disposition.
 
 ### Apple scanner interface review, 17 October — no new authority
 
@@ -149,8 +179,9 @@ commit does not promise remote recall. The original transaction/browser key,
 generation and expiry remain binding across every await. These interface and
 failure requirements refine WIRE-1 but do not close it. TRUST-1, KEY-STATE and
 actual native/browser/verifier interoperability remain open. A genuine different
-paired scanner can still win a copied QR with its own destination; the no-extra-
-code decision is not implicit acceptance of that risk.
+paired scanner can still win a copied QR with its own destination. The separate
+limited-claim disposition below records that specific accepted product risk;
+it does not infer acceptance merely from the no-extra-code UX decision.
 
 ## ROUTE-1 candidate: one exact external entry
 

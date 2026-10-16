@@ -304,3 +304,20 @@ older unpublished review state without promoting A/native/installed acceptance.
 Historical snapshots, graph nodes/edges and all production integration files
 remain unchanged. This is documentary/interface reconciliation only. Exact
 independent delta review and candidate CI are recorded before publication.
+
+## 17 October — independently read owner disposition, not security acceptance
+
+Core read API94 public disposition6226306251 and independently inspected the
+original Apple owner exchange: the concrete copied-QR/wrong-scanner question,
+human “ga verder”, explicit limited-claim readback, and later human “akkoord”.
+The owner choice of alternative(i) is resolved. It is not a statement of new
+owner wording, independent HA attestation, crypto qualification or overall GO.
+No repeated generic/product permission question is needed for this same scope.
+
+The parent contract, current roadmap/backlog and live maintenance receipt now
+distinguish OWNER_LIMITED_CLAIM_SELECTED from SECURITY_REVIEW_OPEN. A genuine
+other scanner may still win with its own route; separate B admission cannot
+undo A navigation/phishing. KEY-STATE and real App Attest/verifier/wire/native
+proof remain open. No source files, workflow, consumer or deployment changed.
+Exact review/checks for this reconciliation are required before publication;
+previous source qualification applies only to the unchanged B source tree.
