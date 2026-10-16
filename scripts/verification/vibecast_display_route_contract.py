@@ -32,13 +32,8 @@ def _origin(value: object) -> str | None:
         pass
     labels = host.split('.')
     if (len(host) > 253 or len(labels) < 2 or any(not LABEL.fullmatch(x) for x in labels)
-            or labels[-1] in RESERVED or not re.fullmatch(r'(?:[a-z]{2,63}|xn--[a-z0-9-]+)', labels[-1])):
-        return None
-    try:
-        # Corpus admission is ASCII-only; never turn received Unicode into a trusted origin.
-        if host.encode('ascii').decode('idna').encode('idna').decode('ascii') != host:
-            return None
-    except UnicodeError:
+            or labels[-1] in RESERVED or any(x.startswith('xn--') for x in labels)
+            or not re.fullmatch(r'[a-z]{2,63}', labels[-1])):
         return None
     canonical = 'https://' + host
     return canonical if parsed.netloc == host else None

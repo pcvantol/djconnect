@@ -11,7 +11,7 @@ function canonicalOrigin(value) {
     const labels = host.split('.');
     if (url.protocol !== 'https:' || url.username || url.password || url.port || host.length > 253 || labels.length < 2 || reserved.has(labels.at(-1))) return null;
     if (!labels.every(label => /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(label))) return null;
-    if (!/^(?:[a-z]{2,63}|xn--[a-z0-9-]+)$/.test(labels.at(-1))) return null;
+    if (labels.some(label => label.startsWith('xn--')) || !/^[a-z]{2,63}$/.test(labels.at(-1))) return null;
     const origin = 'https://' + host;
     const authority = value.slice('https://'.length).split('/')[0];
     return authority === host && url.origin === origin ? origin : null;

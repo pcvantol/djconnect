@@ -260,3 +260,11 @@ Security baseline: OWASP [authorization](https://cheatsheetseries.owasp.org/chea
 These are design inputs, not security certification. Crypto choice, origin-bound
 bootstrap, old-browser capability, retention/access logs, source licenses and
 exact denial/effect tests must be independently reviewed before implementation.
+
+## Selected Core display-admission review
+
+Owner6222775045 selects the existing Core writer for
+[DJC-CORE-VIBECAST-DISPLAY-ADMISSION-V1-20261016](VIBECAST_DISPLAY_ADMISSION_V1.md).
+That contract records the exact current trust-anchor gap, proposed external route,
+separate A/B states and controlled legacy-end inventory before runtime. It is
+NOT_FROZEN; it creates no live endpoint, consumer adoption or deployment.

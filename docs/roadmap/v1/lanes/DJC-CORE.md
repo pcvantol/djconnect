@@ -12,6 +12,8 @@ Selected passive Session projection: DJC-CORE-PASSIVE-SESSION-PROJECTION-V1-2026
 
 Selected shared Profile/Session settings consolidation: DJC-PROFILE-SESSION-SETTINGS-CONSOLIDATION-V1-20261016; six shared Persona/voice/gender/Mood/Presence/announcement_output, protected source delivered contract3 (Core producer only), last explicit accepted choice becomes default, atomic active+default acceptance. Source PROTECTED_MERGED; Core producer and migration work only; Apple/other consumers/joint separately open, no automatic dispatch or whole-family completion. Delivered v13 preserved.
 
+Selected Core display-admission review: DJC-CORE-VIBECAST-DISPLAY-ADMISSION-V1-20261016; existing WEB::TRUST and WEB::DISPLAY only. TRUST anchor OPEN_JOINT_REVIEW, wire NOT_FROZEN, runtime NOT_IMPLEMENTED; source UNPUBLISHED, native/TV/joint open. Original settings delivery and all prior receipts remain preserved; no consumer dispatch or deployment.
+
 - `PROJ::INTELLIGENCE::DJ-PRESENCE` — Planned; Independent presence, Mood and Persona; no new dispatch
 - `SLICE::CORE::DJ-PRESENCE-CONTRACT` — Completed; Pin numeric policy/default, capability/schema and producer fixtures
 - `SLICE::CORE::DJ-PRESENCE-POLICY` — Completed; All proactive paths; off/in-flight/no-catch-up/published-only accounting
@@ -47,8 +49,8 @@ Selected shared Profile/Session settings consolidation: DJC-PROFILE-SESSION-SETT
 - `MEDIA::JOINT::SESSION-ARTWORK` — Planned; Core and Apple subject/rights/expiry acceptance
 - `WEB::DOCS` — Completed; Whole web-first documentary design
 - `WEB::DISPOSITION` — Planned; Implement reviewed web-first legacy disposition
-- `WEB::TRUST` — Planned; Qualify browser-bound onboarding and guest trust contract
-- `WEB::DISPLAY` — Planned; Separate HA code and readonly display grant
+- `WEB::TRUST` — In progress; Qualify browser-bound onboarding and guest trust contract
+- `WEB::DISPLAY` — In progress; Separate HA code and readonly display grant
 - `WEB::SHARED` — Planned; Explicit shared Flow NowPlaying Forecast projection
 - `WEB::MEDIA` — Planned; Independent shared artwork and speech grants expiry attribution
 - `WEB::GUEST` — Planned; Invitation redemption guest principal and revocation

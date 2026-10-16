@@ -204,3 +204,11 @@ configuration or grant DNS rights. Google's [receiver core features](https://dev
 are a lifecycle/idle reference, not actual CAF acceptance. Apple [TN3179](https://developer.apple.com/documentation/technotes/tn3179-understanding-local-network-privacy)
 is the local permission reference; JS-rendered SDK details need rechecking in
 Apple implementation. No samples' movable action tags are adopted as CI policy.
+
+## Selected Core display-admission review
+
+Owner6222775045 selects the existing Core writer for
+[DJC-CORE-VIBECAST-DISPLAY-ADMISSION-V1-20261016](VIBECAST_DISPLAY_ADMISSION_V1.md).
+That contract records the exact current trust-anchor gap, proposed external route,
+separate A/B states and controlled legacy-end inventory before runtime. It is
+NOT_FROZEN; it creates no live endpoint, consumer adoption or deployment.

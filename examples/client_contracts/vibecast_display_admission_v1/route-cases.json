@@ -11,10 +11,10 @@
       "allowed": true
     },
     {
-      "id": "canonical-idna",
+      "id": "idna-alabel-unsupported",
       "entry_url": "https://xn--bcher-kva.example.org/djconnect/vibecast/display",
       "selected_origin": "https://xn--bcher-kva.example.org",
-      "allowed": true
+      "allowed": false
     },
     {
       "id": "http",
@@ -237,6 +237,13 @@
       "entry_url": "https://ha.example.org/djconnect/vibecast/display",
       "selected_origin": "https://ha.example.org/subpath",
       "allowed": false
+    },
+    {
+      "id": "idna-deviation-unsupported",
+      "entry_url": "https://xn--fa-hia.example.org/djconnect/vibecast/display",
+      "selected_origin": "https://xn--fa-hia.example.org",
+      "allowed": false
     }
-  ]
+  ],
+  "idna_policy": "DENY_UNICODE_AND_A_LABELS_V1_REVIEW"
 }

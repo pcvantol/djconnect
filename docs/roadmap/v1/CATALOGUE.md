@@ -12,6 +12,8 @@ Selected passive Session projection: DJC-CORE-PASSIVE-SESSION-PROJECTION-V1-2026
 
 Selected shared Profile/Session settings consolidation: DJC-PROFILE-SESSION-SETTINGS-CONSOLIDATION-V1-20261016; six shared Persona/voice/gender/Mood/Presence/announcement_output, protected source delivered contract3 (Core producer only), last explicit accepted choice becomes default, atomic active+default acceptance. Source PROTECTED_MERGED; Core producer and migration work only; Apple/other consumers/joint separately open, no automatic dispatch or whole-family completion. Delivered v13 preserved.
 
+Selected Core display-admission review: DJC-CORE-VIBECAST-DISPLAY-ADMISSION-V1-20261016; existing WEB::TRUST and WEB::DISPLAY only. TRUST anchor OPEN_JOINT_REVIEW, wire NOT_FROZEN, runtime NOT_IMPLEMENTED; source UNPUBLISHED, native/TV/joint open. Original settings delivery and all prior receipts remain preserved; no consumer dispatch or deployment.
+
 | Node | Owner | Status | Outcome |
 |---|---|---|---|
 | `PROJ::INTELLIGENCE::DJ-PRESENCE` | DJC-CORE | Planned | Adjustable DJ presence |
@@ -67,9 +69,9 @@ Selected shared Profile/Session settings consolidation: DJC-PROFILE-SESSION-SETT
 | `MEDIA::JOINT::SESSION-ARTWORK` | DJC-CORE | Planned | Core and Apple subject/rights/expiry acceptance |
 | `WEB::DOCS` | DJC-CORE | Completed | Whole web-first documentary design |
 | `WEB::DISPOSITION` | DJC-CORE | Planned | Implement reviewed web-first legacy disposition |
-| `WEB::TRUST` | DJC-CORE | Planned | Qualify browser-bound onboarding and guest trust contract |
+| `WEB::TRUST` | DJC-CORE | In progress | Qualify browser-bound onboarding and guest trust contract |
 | `WEB::BOOTSTRAP` | DJC-API | Planned | Temporary encrypted rendezvous service |
-| `WEB::DISPLAY` | DJC-CORE | Planned | Separate HA code and readonly display grant |
+| `WEB::DISPLAY` | DJC-CORE | In progress | Separate HA code and readonly display grant |
 | `WEB::OWNER-SCANNER` | DJC-APPLE | Planned | Paired owner scanner and explicit installation confirmation |
 | `WEB::SHARED` | DJC-CORE | Planned | Explicit shared Flow NowPlaying Forecast projection |
 | `WEB::MEDIA` | DJC-CORE | Planned | Independent shared artwork and speech grants expiry attribution |

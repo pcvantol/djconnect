@@ -12,14 +12,16 @@ Selected passive Session projection: DJC-CORE-PASSIVE-SESSION-PROJECTION-V1-2026
 
 Selected shared Profile/Session settings consolidation: DJC-PROFILE-SESSION-SETTINGS-CONSOLIDATION-V1-20261016; six shared Persona/voice/gender/Mood/Presence/announcement_output, protected source delivered contract3 (Core producer only), last explicit accepted choice becomes default, atomic active+default acceptance. Source PROTECTED_MERGED; Core producer and migration work only; Apple/other consumers/joint separately open, no automatic dispatch or whole-family completion. Delivered v13 preserved.
 
+Selected Core display-admission review: DJC-CORE-VIBECAST-DISPLAY-ADMISSION-V1-20261016; existing WEB::TRUST and WEB::DISPLAY only. TRUST anchor OPEN_JOINT_REVIEW, wire NOT_FROZEN, runtime NOT_IMPLEMENTED; source UNPUBLISHED, native/TV/joint open. Original settings delivery and all prior receipts remain preserved; no consumer dispatch or deployment.
+
 Authority: [DJC-DJ-PRESENCE-ROADMAP-DESIGN-V1-20261011](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6110375785).
 
 Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348fb6`; canonical frozen content `8179d34d9e91106bb1d15c77b734a3cb3b5ebcedae240860f76ece15f50dbef3`.
 
 | Local design source | SHA256 |
 |---|---|
-| [PRODUCT_ROADMAP.md](../../../PRODUCT_ROADMAP.md) | `88e403979acf7793701aa2f99533b23de78072cb27551c0842d815bb8b738935` |
-| [PRODUCT_BACKLOG.md](../../../PRODUCT_BACKLOG.md) | `c8eafff92fc1db8b5beed44362363f63d8790b052a77e0c0c6884f76d79b1633` |
+| [PRODUCT_ROADMAP.md](../../../PRODUCT_ROADMAP.md) | `bc18994a3a3edf9d9b36d3cfc372e1c9ff4d18e3a2be56ecf9777e6baadcb226` |
+| [PRODUCT_BACKLOG.md](../../../PRODUCT_BACKLOG.md) | `1749aab6b057487c90976b7052351c7481a256eac9f41dda91914c54759bd75d` |
 | [docs/product/DJ_PRESENCE_V1.md](../../../docs/product/DJ_PRESENCE_V1.md) | `c97be3bcebbd4ca70d640cdf4fc0a9a4808451e986bc977e3173e19842a928c4` |
 | [DJ_SESSION_RUNTIME_CONTRACTS.md](../../../DJ_SESSION_RUNTIME_CONTRACTS.md) | `69e97a8832b0af41ad68cd18de982d1c4535ae853f8b710c15bde4e5d85e935b` |
 | [docs/product/DJ_INTELLIGENCE_ARCHITECTURE.md](../../../docs/product/DJ_INTELLIGENCE_ARCHITECTURE.md) | `5345f4a3db6b2bfb97931d6acdde09439dc3dbae7a7d311107269922e08aef12` |
@@ -76,9 +78,9 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 | [docs/product/SESSION_MOMENT_ARTWORK_V1.md](../../../docs/product/SESSION_MOMENT_ARTWORK_V1.md) | `580e7022b2a1684117a16f7602ecd21cd1672988001825d3e869712bde2dda4a` |
 | [docs/product/SESSION_ARTWORK_DELIVERY_CONTRACT_V1.md](../../../docs/product/SESSION_ARTWORK_DELIVERY_CONTRACT_V1.md) | `a990c6ddee40279009b70e3d193d9fd2b7cc669cafccbb86fb2d6d3b460cf602` |
 | [docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md](../../../docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md) | `d3bee293d4e2f3253fcafa96427093631e6996a360ec66efe5c14b64082c66dc` |
-| [docs/product/VIBECAST_ONBOARDING_GUEST_AUTHORITY_V1.md](../../../docs/product/VIBECAST_ONBOARDING_GUEST_AUTHORITY_V1.md) | `da543d0ebf266dfb4ec8ab491e7214940c946a85b381c44802b68f7d6e1708b2` |
+| [docs/product/VIBECAST_ONBOARDING_GUEST_AUTHORITY_V1.md](../../../docs/product/VIBECAST_ONBOARDING_GUEST_AUTHORITY_V1.md) | `51a44b3072725c04bf11e9a103d6ecc74d5ff1dcba3d89cb7453ce7e744e916b` |
 | [docs/product/APPLE_VIBECAST_GUEST_MODE_V1.md](../../../docs/product/APPLE_VIBECAST_GUEST_MODE_V1.md) | `3141ad70b91b124937a9268a33b24fb19b9eb1e3fbe143d5c456848ca4b1c268` |
-| [docs/product/VIBECAST_WEB_ENTRY_DISTRIBUTION_V1.md](../../../docs/product/VIBECAST_WEB_ENTRY_DISTRIBUTION_V1.md) | `e996a4973e21e8cd895f0d6a7bdfee8cc972c1e780f0568bdfc8a5219026d68d` |
+| [docs/product/VIBECAST_WEB_ENTRY_DISTRIBUTION_V1.md](../../../docs/product/VIBECAST_WEB_ENTRY_DISTRIBUTION_V1.md) | `dfd598ed7f29e46138f3bc011fb5a4cb1b8d42cf120bbc885f25ac5b2d5627bd` |
 | [docs/product/HYBRID_LOCAL_TRANSPORT_POLICY_V1.md](../../../docs/product/HYBRID_LOCAL_TRANSPORT_POLICY_V1.md) | `b7d62c93f26b4883c993f89f7a929c57ba6be8c082bb6ed7c220e60c5045aac6` |
 | [docs/verification/HYBRID_LOCAL_TRANSPORT_SOURCE_READBACK_20261015.md](../../../docs/verification/HYBRID_LOCAL_TRANSPORT_SOURCE_READBACK_20261015.md) | `4bb082dd358cc9594240868cb163133be0320729b2d5687a337bcba2b5feeda3` |
 | [docs/product/SESSION_SPEECH_PERSONA_V1.md](../../../docs/product/SESSION_SPEECH_PERSONA_V1.md) | `a342eda7b169f9da5f4296297aae796554dbf6bc2286c28820182e6f3b1d9bf2` |
@@ -101,3 +103,4 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 | [docs/technical/SPEECH_RENDERING_CONTRACT.md](../../../docs/technical/SPEECH_RENDERING_CONTRACT.md) | `cb39d32ecd4b4d11140a0d8e2e037bf6bca388dfe9c45d0b1b9a27b6a228d2e4` |
 | [docs/verification/PROFILE_SESSION_SETTINGS_SOURCE_READBACK_20261016.md](../../../docs/verification/PROFILE_SESSION_SETTINGS_SOURCE_READBACK_20261016.md) | `344eac1436adc3b56108b4645ec51f262889a7f6d6b1d0c7aa890cc6355a9d8f` |
 | [docs/history/prompts/2026-10-16-profile-session-settings-finalization.md](../../../docs/history/prompts/2026-10-16-profile-session-settings-finalization.md) | `fd8f95f219e8293cc4133e1e7543209c66993fa3e636c52f83d189df640b013d` |
+| [docs/product/VIBECAST_DISPLAY_ADMISSION_V1.md](../../../docs/product/VIBECAST_DISPLAY_ADMISSION_V1.md) | `515a01569fb38ee4b7a190705d2343c133776e79a7e5d110e10e3d5fc861cd3d` |

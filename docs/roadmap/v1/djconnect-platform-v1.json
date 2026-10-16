@@ -37594,7 +37594,7 @@
     }
   ],
   "planning_maintenance": {
-    "schema_version": "djconnect-federated-planning-delta/14",
+    "schema_version": "djconnect-federated-planning-delta/15",
     "decision_id": "DJC-DJ-PRESENCE-ROADMAP-DESIGN-V1-20261011",
     "decision_url": "https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6110375785",
     "design_date": "2026-10-11",
@@ -38801,11 +38801,11 @@
         "title": "Qualify browser-bound onboarding and guest trust contract",
         "lane": "DJC-CORE",
         "repository": "pcvantol/djconnect",
-        "status": "Planned",
-        "assignment_status": "NOT_ISSUED",
+        "status": "In progress",
+        "assignment_status": "IN_PROGRESS",
         "scope": "Qualify browser-bound onboarding and guest trust contract",
         "acceptance_boundary": "Qualify browser-bound onboarding and guest trust contract; exact source/consumer, visible/audible/physical and joint acceptance OPEN",
-        "contract_binding": "docs/product/VIBECAST_ONBOARDING_GUEST_AUTHORITY_V1.md",
+        "contract_binding": "docs/product/VIBECAST_DISPLAY_ADMISSION_V1.md",
         "source_ids": [
           "OWNER-WEB-FIRST-1174"
         ],
@@ -38850,11 +38850,11 @@
         "title": "Separate HA code and readonly display grant",
         "lane": "DJC-CORE",
         "repository": "pcvantol/djconnect",
-        "status": "Planned",
-        "assignment_status": "NOT_ISSUED",
+        "status": "In progress",
+        "assignment_status": "IN_PROGRESS",
         "scope": "Separate HA code and readonly display grant",
         "acceptance_boundary": "Separate HA code and readonly display grant; exact source/consumer, visible/audible/physical and joint acceptance OPEN",
-        "contract_binding": "docs/product/VIBECAST_ONBOARDING_GUEST_AUTHORITY_V1.md",
+        "contract_binding": "docs/product/VIBECAST_DISPLAY_ADMISSION_V1.md",
         "source_ids": [
           "OWNER-WEB-FIRST-1174"
         ],
@@ -41760,11 +41760,11 @@
     "document_references": [
       {
         "path": "PRODUCT_ROADMAP.md",
-        "sha256": "88e403979acf7793701aa2f99533b23de78072cb27551c0842d815bb8b738935"
+        "sha256": "bc18994a3a3edf9d9b36d3cfc372e1c9ff4d18e3a2be56ecf9777e6baadcb226"
       },
       {
         "path": "PRODUCT_BACKLOG.md",
-        "sha256": "c8eafff92fc1db8b5beed44362363f63d8790b052a77e0c0c6884f76d79b1633"
+        "sha256": "1749aab6b057487c90976b7052351c7481a256eac9f41dda91914c54759bd75d"
       },
       {
         "path": "docs/product/DJ_PRESENCE_V1.md",
@@ -41992,7 +41992,7 @@
       },
       {
         "path": "docs/product/VIBECAST_ONBOARDING_GUEST_AUTHORITY_V1.md",
-        "sha256": "da543d0ebf266dfb4ec8ab491e7214940c946a85b381c44802b68f7d6e1708b2"
+        "sha256": "51a44b3072725c04bf11e9a103d6ecc74d5ff1dcba3d89cb7453ce7e744e916b"
       },
       {
         "path": "docs/product/APPLE_VIBECAST_GUEST_MODE_V1.md",
@@ -42000,7 +42000,7 @@
       },
       {
         "path": "docs/product/VIBECAST_WEB_ENTRY_DISTRIBUTION_V1.md",
-        "sha256": "e996a4973e21e8cd895f0d6a7bdfee8cc972c1e780f0568bdfc8a5219026d68d"
+        "sha256": "dfd598ed7f29e46138f3bc011fb5a4cb1b8d42cf120bbc885f25ac5b2d5627bd"
       },
       {
         "path": "docs/product/HYBRID_LOCAL_TRANSPORT_POLICY_V1.md",
@@ -42089,6 +42089,10 @@
       {
         "path": "docs/history/prompts/2026-10-16-profile-session-settings-finalization.md",
         "sha256": "fd8f95f219e8293cc4133e1e7543209c66993fa3e636c52f83d189df640b013d"
+      },
+      {
+        "path": "docs/product/VIBECAST_DISPLAY_ADMISSION_V1.md",
+        "sha256": "515a01569fb38ee4b7a190705d2343c133776e79a7e5d110e10e3d5fc861cd3d"
       }
     ],
     "implementation_receipt": {
@@ -42692,6 +42696,26 @@
         "archive_sha256": "57039b049de57ba7c01d61ac516d854d18e339645a5cc991ce2c727226a0bca1",
         "formal_evidence_sha256": "b65789edc31b4c877d3f82df7c6b09742d04837921dbbeb4fd0301f465de88e9"
       }
+    },
+    "display_admission_receipt": {
+      "assignment_id": "DJC-CORE-VIBECAST-DISPLAY-ADMISSION-V1-20261016",
+      "owner_selection": 6222775045,
+      "ack": 6224062979,
+      "base_sha": "1329ad1ce8bd066d65a08b3988261a44e2cac730",
+      "branch": "codex/vibecast-display-admission-v1",
+      "first_contract_commit": "275679322111fbda110bce2dad1f16da2932017e",
+      "previous_delta": "history/20261016/settings-capability-finalization-maintenance-v14.json",
+      "previous_delta_sha256": "57699566d3cfdec653e9c87d4416d706c0b1d2131ee58fc5911aba92718d017e",
+      "phase": "CONTRACT_REVIEW",
+      "source_delivery": "UNPUBLISHED",
+      "trust_anchor": "OPEN_JOINT_REVIEW",
+      "wire": "NOT_FROZEN",
+      "runtime": "NOT_IMPLEMENTED",
+      "native": "OPEN_APPLE",
+      "TV": "NOT_RUN",
+      "joint": "OPEN",
+      "consumer_writes": false,
+      "automatic_dispatch": false
     }
   }
 }

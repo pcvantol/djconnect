@@ -1,5 +1,45 @@
 # DJConnect Repository Status
 
+## Current: VibeCast Core display-admission — contract review
+
+#### Repository Status
+
+Predecessor Finalization PR [#1196](https://github.com/pcvantol/djconnect/pull/1196) protected merged as `1329ad1ce8bd066d65a08b3988261a44e2cac730`, after repair source PR [#1195](https://github.com/pcvantol/djconnect/pull/1195) merged as `4491d31b7d599fa4ef25280c02528eab479994ea`. Exact archive177files/zero mismatch and raw/formal/coverage bindings are qualified; source1193/Finalization1194 remain historical. [Reconciliation](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6223983758); [Apple handoff](https://github.com/pcvantol/djconnect-app/issues/87#issuecomment-6223987404). Repository State: `MERGED_RECONCILED` applies to that closed predecessor, not a delivery of the new local work.
+
+#### Management Summary
+
+DJC-CORE-VIBECAST-DISPLAY-ADMISSION-V1-20261016, owner6222775045/ACK6224062979; same Core writer, actual base1329ad1c and branchcodex/vibecast-display-admission-v1. First material contract commit275679322111fbda110bce2dad1f16da2932017e precedes HA runtime changes. [Canonical review](docs/product/VIBECAST_DISPLAY_ADMISSION_V1.md) records the missing browser trust-anchor, an explicit out-of-band proposal for joint review, exact candidate HTTPS entry, separate A/B states and legacy-end audit. Forty synthetic route cases pass independent Python/WHATWG checks; this is lexical proof only.
+
+#### Roadmap Position
+
+Maintenance15 preserves maintenance14 and every prior snapshot/receipt. Only existing WEB::TRUST and WEB::DISPLAY are In progress/IN_PROGRESS. No new family/node, consumer admission or runtime completion. Settings Core delivery remains closed and its migration/consumer/joint boundaries remain open.
+
+#### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+1. **Unfilled slot1 — No additional eligible selected Core assignment.** Current display-admission work remains active; no consumer dispatch.
+2. **Unfilled slot2 — No additional eligible selected Core assignment.** Current display-admission work remains active; no consumer dispatch.
+3. **Unfilled slot3 — No additional eligible selected Core assignment.** Current display-admission work remains active; no consumer dispatch.
+4. **Unfilled slot4 — No additional eligible selected Core assignment.** Current display-admission work remains active; no consumer dispatch.
+5. **Unfilled slot5 — No additional eligible selected Core assignment.** Current display-admission work remains active; no consumer dispatch.
+
+#### Blocked Items
+
+TRUST-1/2 needs an independently authenticated bootstrap, concrete interoperable profile/libraries/vectors and explicit revocation semantics. API94 cf85081c is still draft0.1.0; no existing push/bootstrap/install token may be repurposed. Joint route/wire/UX review is open. Native Apple->HA, physical TV, receiver integration and deployment have no PASS.
+
+#### Deferred Items
+
+No runtimecrypto/HA endpoint, Swift/receiver/API source write, new consumerwriter, Pages/API deployment or hardware action during this contract step. The selected implementation remains required after its design gates; a document or corpus is not its completion.
+
+#### Repository State
+
+Repository State: `MERGED_RECONCILED` for predecessor1196 only. New contract/corpus/DAG work is local and unpublished, NOT_FROZEN, not protected source delivery. It will require exact independent reviews and applicable normal checks. Current human autonomous merge/Finalization authority is preserved; no repeated generic authorization request is needed.
+
+#### Workspace State
+
+Workspace State: `NOT_READY` while this own assignment is active. Preserve the unrelated VibeCast waiting worktree/stash, Apple WIP, HA labs and recovery. There is no second Core writer or automatic next assignment.
+
+## Historical operational context
+
 ## Current: Shared settings capability3 repair — separate Finalization
 
 #### Repository Status

@@ -12,6 +12,8 @@ Selected passive Session projection: DJC-CORE-PASSIVE-SESSION-PROJECTION-V1-2026
 
 Selected shared Profile/Session settings consolidation: DJC-PROFILE-SESSION-SETTINGS-CONSOLIDATION-V1-20261016; six shared Persona/voice/gender/Mood/Presence/announcement_output, protected source delivered contract3 (Core producer only), last explicit accepted choice becomes default, atomic active+default acceptance. Source PROTECTED_MERGED; Core producer and migration work only; Apple/other consumers/joint separately open, no automatic dispatch or whole-family completion. Delivered v13 preserved.
 
+Selected Core display-admission review: DJC-CORE-VIBECAST-DISPLAY-ADMISSION-V1-20261016; existing WEB::TRUST and WEB::DISPLAY only. TRUST anchor OPEN_JOINT_REVIEW, wire NOT_FROZEN, runtime NOT_IMPLEMENTED; source UNPUBLISHED, native/TV/joint open. Original settings delivery and all prior receipts remain preserved; no consumer dispatch or deployment.
+
 - `PROJ::INTELLIGENCE::DJ-PRESENCE` — Planned: Independent presence, Mood and Persona; no new dispatch.
 - `SLICE::APPLE::DJ-PRESENCE-CONTROL` — Planned: Accessible five-language native confirmation; reuse existing Apple writer.
 - `QUAL::VIBECAST::DJ-PRESENCE-COMPAT` — Planned: Core shared-renderer + receiver owner, both existing software builds.
@@ -45,9 +47,9 @@ Selected shared Profile/Session settings consolidation: DJC-PROFILE-SESSION-SETT
 - `MEDIA::APPLE::SESSION-ARTWORK` — Planned: Shared native Session artwork presentation; separate Core/native/installed/joint evidence.
 - `MEDIA::JOINT::SESSION-ARTWORK` — Planned: Core and Apple subject/rights/expiry acceptance; separate Core/native/installed/joint evidence.
 - `WEB::DISPOSITION` — Planned: Implement reviewed web-first legacy disposition; exact source/consumer, visible/audible/physical and joint acceptance OPEN.
-- `WEB::TRUST` — Planned: Qualify browser-bound onboarding and guest trust contract; exact source/consumer, visible/audible/physical and joint acceptance OPEN.
+- `WEB::TRUST` — In progress: Qualify browser-bound onboarding and guest trust contract; exact source/consumer, visible/audible/physical and joint acceptance OPEN.
 - `WEB::BOOTSTRAP` — Planned: Temporary encrypted rendezvous service; exact source/consumer, visible/audible/physical and joint acceptance OPEN.
-- `WEB::DISPLAY` — Planned: Separate HA code and readonly display grant; exact source/consumer, visible/audible/physical and joint acceptance OPEN.
+- `WEB::DISPLAY` — In progress: Separate HA code and readonly display grant; exact source/consumer, visible/audible/physical and joint acceptance OPEN.
 - `WEB::OWNER-SCANNER` — Planned: Paired owner scanner and explicit installation confirmation; exact source/consumer, visible/audible/physical and joint acceptance OPEN.
 - `WEB::SHARED` — Planned: Explicit shared Flow NowPlaying Forecast projection; exact source/consumer, visible/audible/physical and joint acceptance OPEN.
 - `WEB::MEDIA` — Planned: Independent shared artwork and speech grants expiry attribution; exact source/consumer, visible/audible/physical and joint acceptance OPEN.

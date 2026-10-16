@@ -1,5 +1,11 @@
 # DJConnect Product Backlog
 
+## Current: selected Core display-admission contract review
+
+DJC-CORE-VIBECAST-DISPLAY-ADMISSION-V1-20261016, owner6222775045/ACK6224062979, same Core writer on base1329ad1c. Existing `WEB::TRUST` and `WEB::DISPLAY` are In progress under maintenance15; no new family or consumer admission. [Canonical review](docs/product/VIBECAST_DISPLAY_ADMISSION_V1.md) precedes runtime. TRUST-1/2 and joint route/wire review remain open;40 synthetic cross-parser URL cases qualify lexical policy only. No source delivery, crypto/HA/E2E/native/TV PASS or deployment is claimed. Settings1193/1194 and repair1195/1196 remain closed; their consumer/migration/joint boundaries remain open.
+
+## Historical scope records
+
 ## Shared settings — Core producer source delivered
 
 Source PR [#1193](https://github.com/pcvantol/djconnect/pull/1193) protected merged as `e8cc70ddffb4112b09babdda4d45140b98926ae5`, exact independently reviewed head `6882a43e3e0e73cd1b918161b27f88d3697bcb4f` on base `148bd5aee3110c1a1ab13e7c463a164c99d79b70`. All32 checks PASS and5 conditional skips; exact Owner Authorization [38955322761](https://github.com/pcvantol/djconnect/actions/runs/38955322761) SUCCESS. No bypass; complete candidate/main trees equal. Main CI38955402196 and formal 38955894451 SUCCESS. Official archive177regular files, zero missing/extra/mismatch/symlink; actual raw/durable/coverage/main/PR bindings qualified. [Readback](docs/verification/PROFILE_SESSION_SETTINGS_SOURCE_READBACK_20261016.md).

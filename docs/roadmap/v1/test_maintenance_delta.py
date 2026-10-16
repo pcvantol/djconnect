@@ -11,9 +11,19 @@ from render_snapshot import render
 ROOT = Path(__file__).resolve().parent
 
 
+def delivered_settings_plan():
+    import json
+    plan = load(ROOT / 'djconnect-platform-v1.json')
+    if plan['planning_maintenance']['schema_version'] == 'djconnect-federated-planning-delta/15':
+        refs = plan['planning_maintenance']['document_references']
+        plan['planning_maintenance'] = json.loads((ROOT / 'history/20261016/settings-capability-finalization-maintenance-v14.json').read_text())
+        plan['planning_maintenance']['document_references'] = refs
+    return plan
+
+
 class SharedSettingsMaintenanceTests(unittest.TestCase):
     def setUp(self):
-        self.p = load(ROOT / 'djconnect-platform-v1.json')
+        self.p = delivered_settings_plan()
 
     def test_six_parameter_scope_preserves_frozen_predecessor(self):
         self.assertEqual(validate(self.p), [])
@@ -89,7 +99,7 @@ class SharedSettingsMaintenanceTests(unittest.TestCase):
 
 def delivered_passive_plan():
     import json
-    plan = load(ROOT / 'djconnect-platform-v1.json')
+    plan = delivered_settings_plan()
     if plan['planning_maintenance']['schema_version'] == 'djconnect-federated-planning-delta/14':
         refs = plan['planning_maintenance']['document_references']
         plan['planning_maintenance'] = json.loads((ROOT / 'history/20261016/passive-finalization-maintenance-v13.json').read_text())
@@ -921,7 +931,8 @@ class WebFirstNegativeTests(unittest.TestCase):
 
 class WebDecisionTests(unittest.TestCase):
     def setUp(self):
-        self.p = load(ROOT / "djconnect-platform-v1.json")
+        # The earlier documentary decision did not select later Core producers.
+        self.p = delivered_settings_plan()
 
     def test_resolved_choices_are_not_runtime_or_other_lane_selection(self):
         from web_first_decisions_delta import RESOLVED, PUBLIC

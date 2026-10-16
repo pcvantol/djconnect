@@ -60,6 +60,45 @@ that a SAS protocol includes further machinery, not authorization to transplant
 ZRTP into this product. Code-host/app compromise remains a stated trust-root
 limit; it must not conceal a separately malicious-relay/key-substitution gap.
 
+## Concrete trust-bootstrap proposal for joint review
+
+Core proposes evaluating an **owner-generated out-of-band secret** with an
+established reviewed password-authenticated key exchange implementation. The
+already trusted owner app selects and validates its existing HA over ordinary
+pairing, then shows a fresh A-only secret; the user transfers that secret to the
+waiting TV. It is never present in the QR or rendezvous request. The resulting
+reviewed authenticated channel would bind exactly that app-confirmed destination,
+installation reference, browser transaction/generation and original expiry.
+This avoids inventing a central owner registry or trusting a sender-supplied key.
+
+This is a concrete candidate, **not a selected crypto suite or runtime GO**.
+Joint review must establish an interoperable maintained browser/native/library
+profile (including key confirmation and protected application transcript), secret
+entropy, strict active-attempt/transaction/global budgets, no offline guessing,
+original deadline, cancellation, and no replacement after a failed attempt.
+[RFC9382](https://www.rfc-editor.org/rfc/rfc9382.html) and
+[RFC9383](https://www.rfc-editor.org/rfc/rfc9383.html) are published Informational
+PAKE specifications to assess, not permission to implement their primitives
+ourselves or evidence of a qualified application profile. No fake encryption vectors or model-only PAKE success will count.
+
+Product review must assess the additional TV input against the requested scan/
+approve flow and distinguish A's owner-to-TV confirmation from B's separate
+TV-to-owner six-digit admission. This candidate cannot silently replace the
+existing comparison-only UX. If that extra independently trusted channel is
+rejected, a separately qualified enrollment/issuer trust root is required;
+there is no safe QR-only fallback that simply calls an untrusted key verified.
+
+Revocation needs an explicit reviewed limit: an already emitted encrypted
+A-destination may remain readable until its original short expiry and cannot be
+recalled after disclosure. Before issuing any new approval, Core rechecks current
+pairing/entry/Profile and selected route. Before navigation/admission, the chosen
+protocol must define how current revocation is checked or bound; the API cannot
+claim instant HA revocation from an offline signature. B independently rechecks
+the current paired owner/share/Session and confers no rights from stale A.
+API and Apple must approve or supply an equally concrete alternative before
+TRUST-1/2 is closed. No human publication permission is missing for this work;
+what is missing is a reviewed technical/UX contract and interoperable evidence.
+
 ## ROUTE-1 candidate: one exact external entry
 
 The proposed new HA page is **`/djconnect/vibecast/display`**, served from the
@@ -76,7 +115,7 @@ pairing, guessed hostname, HTTP downgrade or TLS bypass.
 
 The route-review corpus is deliberately narrow:
 
-- HTTPS, public canonical ASCII DNS/A-label hostname; default TLS port443 only.
+- HTTPS, public canonical non-IDNA ASCII DNS hostname; default TLS port443 only.
   Unsupported configured custom ports are reported explicitly, not rewritten.
 - Exact path `/djconnect/vibecast/display`; no trailing slash, query, fragment,
   userinfo, percent encoding, backslash, whitespace, IP literal, trailing dot or
@@ -85,7 +124,7 @@ The route-review corpus is deliberately narrow:
   origin before publication, rather than letting consumers repair received URLs.
 - The received origin must exactly equal the paired selected installation's
   previously authenticated canonical origin. IDNA conversion is not inferred
-  from a TV label. Both parsers must reject invalid A-labels and agree on bytes.
+  from a TV label. All Unicode and `xn--` A-label hosts are unsupported in this v1 review profile, including otherwise valid names. This explicit fail-closed restriction avoids silently mixing IDNA2003/2008/UTS46 behavior. Widening it requires one reviewed interoperable normalization profile and new positive/negative vectors.
 - No redirect parameter or redirect chain is authorized. Syntax validation does
   not prove DNS/public reachability or absence of proxy redirects. These need
   real browser/selected-HA tests. The Worker never resolves or fetches HA.
@@ -95,7 +134,7 @@ The route-review corpus is deliberately narrow:
 The [synthetic route corpus](../../examples/client_contracts/vibecast_display_admission_v1/route-cases.json)
 and independent Python/WHATWG-URL checks qualify this lexical decision only.
 They do not qualify TLS, DNS, navigation, trust, HA handlers or consumer adoption.
-Custom-port support and an enforceable browser redirect fence are review items,
+IDNA/custom-port support and an enforceable browser redirect fence are review items,
 not silently implemented exceptions. `example.org` names are synthetic and are
 never fetched.
 

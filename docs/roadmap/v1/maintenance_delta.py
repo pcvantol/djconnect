@@ -84,6 +84,9 @@ def validate_delta(plan: dict[str, Any]) -> list[str]:
             errors.append("maintenance: " + reason)
 
     version = d.get("schema_version")
+    if version == "djconnect-federated-planning-delta/15":
+        from display_admission_delta import validate
+        return validate(plan, validate_delta)
     if version == "djconnect-federated-planning-delta/14":
         from settings_consolidation_delta import validate
         return validate(plan, validate_delta)
@@ -1022,6 +1025,9 @@ def render_delta(p):
         state = ('protected source delivered contract3 (Core producer only)' if r['source_delivery'] == 'PROTECTED_MERGED'
                  else 'implemented local contract3 (runtime checkpoint3, unpublished until protected delivery)')
         intro += f"Selected shared Profile/Session settings consolidation: {r['assignment_id']}; six shared Persona/voice/gender/Mood/Presence/announcement_output, {state}, last explicit accepted choice becomes default, atomic active+default acceptance. Source {r['source_delivery']}; Core producer and migration work only; Apple/other consumers/joint separately open, no automatic dispatch or whole-family completion. Delivered v13 preserved.\n\n"
+    if d.get("display_admission_receipt"):
+        r = d["display_admission_receipt"]
+        intro += f"Selected Core display-admission review: {r['assignment_id']}; existing WEB::TRUST and WEB::DISPLAY only. TRUST anchor OPEN_JOINT_REVIEW, wire NOT_FROZEN, runtime NOT_IMPLEMENTED; source UNPUBLISHED, native/TV/joint open. Original settings delivery and all prior receipts remain preserved; no consumer dispatch or deployment.\n\n"
     out = {}
     out["README.md"] = (
         "# Federated roadmap — versioned maintenance\n\n"
