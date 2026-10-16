@@ -220,6 +220,19 @@ they are not labelled dead merely because no current HA form writes them.
 Unchanged administrative paths have source classification, not new physical
 acceptance. Platform-wide removal and joint acceptance remain dependency-gated.
 
+Latest qualified source `b58644bcc843d191aa95c87ec2e14cc9c099454b` has158
+exact source/helper hashes before/after the real HA run. Its120.9-second duration
+probe made354 owner reads and two actual TLS reconnects with unchanged SQL row
+counts and zero other-Profile events. All four browser paths pass on this same
+source. Ordinary legacy HTTP start without Mood, Ask DJ1, prepare1 and settings
+read remain valid before activation; the long help contribution is correctly
+processor-unqualified, not claimed synthesized. Owning tests separately prove
+available legacy synthesis and full selection's first real Mood interval.
+The full regression runs2152 tests:2145 pass, seven existing skips. The eight reported
+settings/speech owning modules have84.1–100% branch-aware coverage; Bandit medium/high findings
+are zero. These measured software results do not close native/audible/joint
+acceptance or replace final exact reviews and protected delivery.
+
 ## Original five-parameter foundation and local checkpoint history
 
 The following original contract2 implementation notes and fixtures predate the

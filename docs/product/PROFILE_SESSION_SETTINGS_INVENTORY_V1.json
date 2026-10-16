@@ -2652,7 +2652,7 @@
     }
   ],
   "completion_gate": "Every active exposed setting needs setter/canonical store/real reader/effect plus KEEP or qualified REPLACE-MIGRATE/REMOVE and owning-lane evidence; STATIC_ONLY rows cannot satisfy gate",
-  "current_local_source_pin": "187d2cd126c5db1a2791e1d47d80d803aafc5cc1",
+  "current_local_source_pin": "b58644bcc843d191aa95c87ec2e14cc9c099454b",
   "connected_core_paths": [
     {
       "parameter": "persona",
@@ -2818,15 +2818,17 @@
   "current_runtime_checkpoint_contract_version": 3,
   "portability_disposition": "PARKED_NO_PICKUP; schema1 exports retained; no shared-defaults backup; unpublished schema2 export retired; schema2 restore rejected without mutation",
   "local_contract3_evidence": {
-    "producer_pin": "187d2cd126c5db1a2791e1d47d80d803aafc5cc1",
+    "producer_pin": "b58644bcc843d191aa95c87ec2e14cc9c099454b",
     "path": "examples/client_contracts/profile_session_settings_v3/connected-ha-transport.json",
-    "source_hashes_verified": 156,
-    "soak_seconds": 120.049,
-    "owner_reads": 351,
+    "source_hashes_verified": 158,
+    "soak_seconds": 120.9,
+    "owner_reads": 354,
     "actual_tls_reconnects": 2,
     "native": "OPEN",
     "audible": "NOT_PROVEN",
-    "installed": "NOT_RUN"
+    "installed": "NOT_RUN",
+    "browser_path": "examples/client_contracts/profile_session_settings_v3/browser-compatibility.json",
+    "browser_views": 4
   },
   "semantic_inventory_review": {
     "scope": "All46 Core constant rows classified by existing independent read-only reviewer and source readback; baseline static references preserved as history",
