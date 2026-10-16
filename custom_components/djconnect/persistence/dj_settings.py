@@ -111,9 +111,42 @@ class ProfileDJSettingsRepository(PersistenceRepository):
 
         return await self._async_in_transaction(read, authorize=authorize)
 
+    async def async_operation_result(self, owner, *, operation_id, binding, now_ms, authorize):
+        """Read original acceptance, without reapplying or creating an operation."""
+        _identifier(owner)
+        if type(binding) is not str or re.fullmatch(r'[a-f0-9]{64}', binding) is None:
+            raise SettingsCommitError('invalid_settings_binding')
+        try:
+            created_ms = operation_created_ms(operation_id)
+        except OperationError as exc:
+            raise SettingsCommitError(exc.code) from None
+        if type(now_ms) is not int or now_ms < 0:
+            raise SettingsCommitError('invalid_settings_clock')
+        key = hashlib.sha256(_json([owner, operation_id]).encode()).hexdigest()
+
+        def read(tx):
+            clock = max(now_ms, tx.fetchone(
+                'SELECT high_water_ms FROM djconnect_settings_clock WHERE singleton=1')[0])
+            row = tx.fetchone('SELECT binding,expires_ms,receipt FROM djconnect_settings_operations WHERE operation_key=?',
+                              (key,))
+            if not authorize():
+                raise PermissionError('unauthorized')
+            if created_ms > clock + FUTURE_SKEW_MS:
+                raise SettingsCommitError('operation_clock_unqualified')
+            if row is not None:
+                if row[0] != binding:
+                    raise SettingsCommitError('operation_scope_changed')
+                return {'phase': 'accepted', 'receipt': json.loads(row[2])}
+            # Expired absence can never be interpreted as proof of rejection.
+            return {'phase': 'unknown' if created_ms + LIFETIME_MS <= clock else 'not_accepted',
+                    'operation_id': operation_id}
+
+        return await self._async_in_transaction(read, authorize=authorize)
+
     async def async_accept_user_choice(
         self, owner, *, operation_id, binding, patch, expected_defaults_revision,
         now_ms, session: SessionSettingsContext | None = None, authorize,
+        validate_choices=None,
     ):
         """Commit once; no HA API, Runtime mutation, synthesis or event publication."""
         _identifier(owner)
@@ -157,6 +190,8 @@ class ProfileDJSettingsRepository(PersistenceRepository):
                 raise SettingsRevisionConflict(current)
             defaults = DJSettings.from_dict(current['defaults'])
             selected = defaults.patched(patch)
+            if validate_choices is not None:
+                validate_choices(selected)
             live = None
             if session is not None:
                 lifecycle = tx.fetchone(
@@ -180,6 +215,8 @@ class ProfileDJSettingsRepository(PersistenceRepository):
                     if effective != session.effective:
                         raise SettingsCommitError('runtime_settings_not_reconciled')
                 next_effective = effective.patched(patch)
+                if validate_choices is not None:
+                    validate_choices(next_effective)
                 live = {'session_id': session.session_id, 'generation': session.generation,
                         'settings': next_effective.as_dict(),
                         'revision': live_revision + int(live_revision == 0 or next_effective != effective)}
@@ -214,5 +251,44 @@ class ProfileDJSettingsRepository(PersistenceRepository):
             if not authorize():
                 raise PermissionError('unauthorized')
             return result
+
+        return await self._async_in_transaction(accept, authorize=authorize)
+
+    async def async_accept_runtime_mood(self, owner, *, session, selected_mood,
+                                       defaults_revision, authorize):
+        """Automatic evolution shares acceptance but never remembers a default."""
+        from .summary import mood_tx
+        _identifier(owner)
+        _revision(defaults_revision)
+        next_settings = session.effective.patched({'mood': selected_mood})
+
+        def accept(tx):
+            lifecycle = tx.fetchone(
+                'SELECT owner_profile_id,lifecycle_status FROM djconnect_persistent_sessions WHERE session_id=?',
+                (session.session_id,))
+            if lifecycle != (owner, 'ACTIVE'):
+                raise SettingsCommitError('session_context_changed')
+            current = self._session(tx, owner, session.session_id)
+            if current is not None:
+                if (current['generation'] != session.generation
+                        or current['revision'] != session.expected_revision
+                        or current['settings'] != session.effective.as_dict()):
+                    raise SettingsCommitError('runtime_settings_not_reconciled')
+            elif session.expected_revision != 0:
+                raise SettingsCommitError('runtime_settings_not_reconciled')
+            changed = next_settings != session.effective
+            revision = session.expected_revision + int(changed)
+            if changed:
+                stamp = datetime.now(UTC).isoformat()
+                mood_tx(tx, session.session_id, selected_mood, stamp)
+                tx.execute('UPDATE djconnect_persistent_sessions SET history_revision=history_revision+1 WHERE session_id=?',
+                           (session.session_id,))
+                tx.execute(
+                    'INSERT INTO djconnect_session_dj_settings VALUES (?,?,?,?,?,?,?) ON CONFLICT(session_id) DO UPDATE SET settings=excluded.settings,revision=excluded.revision,updated_at=excluded.updated_at',
+                    (session.session_id, owner, session.generation, _json(next_settings.as_dict()),
+                     revision, defaults_revision, stamp))
+            if not authorize():
+                raise PermissionError('unauthorized')
+            return revision
 
         return await self._async_in_transaction(accept, authorize=authorize)
