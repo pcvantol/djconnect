@@ -82,6 +82,26 @@ outcomes, never resurrect a Runtime. Old Session-scoped operations cannot target
 a successor. A Session ending before commit rejects that stale intent; ending
 after a valid commit retains the accepted defaults and closes the old Runtime.
 
+### Durable authority generation
+
+An old pending operation must not gain authority merely because a device returns
+to its original Profile. The existing Device mapping therefore retains a server-
+owned `binding_generation`, persisted once for legacy mappings before Profile
+storage becomes ready. It rotates on device identity/type, linked Profile,
+pairing state or relevant Profile permission changes. Ordinary display-name and
+metadata changes preserve it. Restart preserves the committed generation;
+household import cannot supply one and rotates it. Exports omit this authority
+metadata. It is not a user preference, credential or new pairing mechanism.
+
+Existing Profile setters stage immutable candidates. Storage must expose only
+the latest committed Household while awaiting a write, reject a stale second
+candidate after another commit, and preserve old state on failure. Publication
+and media withdrawal follow definitive storage acceptance. Onboarding retains
+its separate existing cancellation/rollback contract. Settings authorization
+combines this durable mapping generation with the existing entry/pairing and
+Profile checks; it does not use the broad RAM authority revision as the settings
+concurrency token or regenerate persistent identity on every read.
+
 ## Versioned owner transport and synchronization
 
 New settings contract2 describes exactly these five values and their semantics;

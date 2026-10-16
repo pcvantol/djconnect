@@ -65,6 +65,8 @@ class Device:
     pairing_state: DevicePairingState = DevicePairingState.UNPAIRED
     last_seen: str = ""
     runtime: DeviceRuntimeMetadata = field(default_factory=DeviceRuntimeMetadata)
+    # Server-owned durable authorization epoch, not a user preference or token.
+    binding_generation: str = ""
 
     def __post_init__(self) -> None:
         """Validate required device identity."""

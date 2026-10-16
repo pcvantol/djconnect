@@ -28,6 +28,7 @@ PROFILE_EXPORT_FORMAT = "djconnect.profile.export"
 HOUSEHOLD_EXPORT_FORMAT = "djconnect.household.export"
 INTEGRATION_EXPORT_FORMAT = "djconnect.integration.export"
 SECRET_KEY_FRAGMENTS = (
+    "binding_generation",
     "token",
     "password",
     "secret",
@@ -191,7 +192,8 @@ async def async_import_household(
     existing = await manager.async_load()
     if existing.profiles and not overwrite:
         raise ProfileExportError("household import would overwrite existing profiles")
-    await manager.async_save(household_from_storage({"household": household_payload}))
+    await manager.async_save(household_from_storage({"household": household_payload},
+        trusted_bindings=False), rotate_bindings=True)
     return {
         "success": True,
         "imported": "household",
