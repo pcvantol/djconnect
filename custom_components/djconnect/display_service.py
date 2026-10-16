@@ -6,14 +6,15 @@ immediately before releasing any response, including after awaited preparation.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import datetime, timedelta, timezone
 import re
+import hashlib
 from typing import Callable
 
 from .display_admission import DisplayAdmissionError
 from .display_authority import resolve_display_owner
-from .display_origin import selected_ha_origin
+from .display_origin import selected_ha_origin, ENTRY_PATH
 
 _BROWSER = {"issuer_epoch", "claim_id", "claim_secret", "browser_generation", "browser_nonce"}
 _GRANT = {"issuer_epoch", "display_id"}
@@ -27,6 +28,7 @@ _SHAPES = {
     "collect": (_BROWSER, set()), "cancel": (_BROWSER, set()),
     "renew": (_GRANT | {"renew_sequence"}, set()),
     "leave": (_GRANT, set()),
+    "snapshot": (_GRANT, set()),
 }
 
 
@@ -34,6 +36,7 @@ _SHAPES = {
 class DisplayResult:
     payload: dict
     release: Callable[[], None]
+    complete: Callable[[], None] = lambda: None
 
 
 def _shape(action, payload):
@@ -95,6 +98,15 @@ class DisplayAdmissionService:
         if owner_action:
             _context, owner = await resolve_display_owner(self.hass, payload["identity"],
                 headers, self.manager, session_id=payload.get("session_id", ""))
+            original_owner = owner
+            origin_revoked = False
+            def origin_bound_owner():
+                nonlocal origin_revoked
+                origin_revoked = (origin_revoked or not original_owner.valid()
+                    or selected_ha_origin(self.hass) != selected)
+                return not origin_revoked
+            owner = replace(owner, stamp=hashlib.sha256((owner.stamp + selected).encode()).hexdigest(),
+                            current=origin_bound_owner)
         async with self.manager._lock:
             current = selected_ha_origin(self.hass)
             self._sync_origin(current)
@@ -105,6 +117,8 @@ class DisplayAdmissionService:
             args = {key: value for key, value in payload.items()
                     if key not in {"contract_version", "identity", "session_id"}}
             guard = owner.valid if owner else lambda: True
+            def complete():
+                return None
             if action == "owner/context":
                 active = self.manager.current_active(owner.profile_id)
                 active_id = active.session_id if active else None
@@ -113,6 +127,8 @@ class DisplayAdmissionService:
                     return owner.valid() and (now_active.session_id if now_active else None) == active_id
                 guard = context_current
                 result = {"session_id": active.session_id if active else None,
+                    "display_entry_url": selected + ENTRY_PATH,
+                    "route_trust": "paired_owner_response",
                     "issuer_epoch": state.issuer_epoch,
                     "limits": {"claim_seconds": 120, "lease_seconds": 60,
                                "share_seconds_default": 7200, "displays_per_share": 8}}
@@ -161,7 +177,26 @@ class DisplayAdmissionService:
                 if not isinstance(token, str) or not token.startswith("Bearer djcd_"):
                     raise DisplayAdmissionError("display_grant_invalid", 401)
                 args["token"] = token.removeprefix("Bearer ")
-                result = getattr(state, action)(**args) or {}
+                if action == "snapshot":
+                    from .display_projection import shared_snapshot, projection_release_guard
+                    from .display_delivery import display_live_hub
+                    display = state.authorize(**args)
+                    active = self.manager.current_active(display.owner.profile_id)
+                    if active is None:
+                        raise DisplayAdmissionError("display_grant_invalid", 401)
+                    complete = display_live_hub(self.manager).reserve_projection(display.display_id)
+                    try:
+                        snapshot = shared_snapshot(active, display, state)
+                    except BaseException:
+                        complete()
+                        raise
+                    result = {"snapshot": snapshot}
+                    content_current = projection_release_guard(active, display, state, snapshot)
+                    def guard():
+                        return (self.manager.current_active(display.owner.profile_id) is active
+                            and content_current())
+                else:
+                    result = getattr(state, action)(**args) or {}
                 if action == "renew":
                     display = state._displays[args["display_id"]]
                     def guard():
@@ -177,9 +212,14 @@ class DisplayAdmissionService:
                     result[key.removesuffix("_in") + "_at"] = (wall + timedelta(seconds=value)).isoformat()
 
             def release():
+                valid = guard()
                 self._origin(selected)
-                if state.issuer_epoch != epoch or not guard():
+                if state.issuer_epoch != epoch or not valid:
                     raise DisplayAdmissionError("display_context_changed", 403)
 
-            release()
-            return DisplayResult(result, release)
+            try:
+                release()
+            except BaseException:
+                complete()
+                raise
+            return DisplayResult(result, release, complete)

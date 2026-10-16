@@ -11,6 +11,17 @@ consumer/API input and follow-up experiments, not design approval or delivery.
 Existing exact checkpoint reviews and32 successful CI checks do not close the
 following runtime-design findings.
 
+**Subsequent owner disposition:** the initial PAKE/OOB/library investigation
+below is historical, superseded by owner decisions6224535256/6224654453. Current
+v1 A has **no additional TV/PAKE/OOB/comparison code**. API94 review0.2.0 exact
+e6464e86cd214bd55661f14f238706332a53bd40 proposes code-free App Attest over the
+paired app's chosen route. Independent HA-owner attestation is not supplied by
+that assertion. Wrong legitimate scanner/QR-copy risk disposition, linkable
+key/counter retention/deletion/crash ordering and real Apple/receiver interop
+remain explicit gates. See the [current canonical contract](../product/VIBECAST_DISPLAY_ADMISSION_V1.md).
+B remains independently implementable at an already trusted HA origin; there
+is no return to an A-only PAKE implementation dependency.
+
 ## Independent findings and disposition
 
 | Finding | Owner | Evidence and required disposition |
@@ -139,6 +150,79 @@ These transition views are not yet registered/advertised by the product.
 Snapshot, bounded WSS, shared renderer/local-static browser acceptance, long-run
 resource qualification, A interoperability and native/physical acceptance remain
 open. This checkpoint neither completes the assignment nor authorizes its merge.
+
+## B snapshot/live and shared-host follow-up (not final acceptance)
+
+The subsequent local implementation adds a closed shared projection, a dedicated
+display-token snapshot route, one bounded WSS writer per display and a thin B
+host over the maintained VibeCast renderer. It does not copy the owner response,
+private media grants, conversation/history, Planner state or owner controls.
+The public empty shell allocates no authority. The generic static build uses
+the same renderer/host source; no receiver deployment is implied.
+
+The isolated real-HA probe now exercises admitted snapshot/live delivery,
+ordinary Mood mutation through Broadcast, replacement socket generations and
+revocation. The extended real-aiohttp probe has eight cases and the closed list
+now contains ten transition routes, including snapshot. This supersedes only
+the earlier checkpoint's implementation inventory, not its original evidence.
+
+Independent partial review then found two further P2 resource/release gaps:
+source deadlines needed a last check after serialization, and blocked HTTP
+headers/body writes could retain the shared projection reservation. Both now
+have causal tests: numeric original source/publication deadlines are checked
+at release, and one five-second total prepare/body deadline closes the transport
+and releases reservations on failure or cancellation. This fix review is not a
+whole-candidate GO.
+
+A preliminary 70.4-second real-HA run measured 74 frames, three renewals, at most
+eight sampled HA tasks and a 544 KiB RSS increase. It predates those final fixes
+and therefore is not qualification of the current candidate. Repeat the bounded
+duration/resource proof on the frozen source, using the added peak counters.
+
+Follow-up acceptance now passes actual Chromium/WebKit admission and published
+Artist-Moment presentation in portrait/landscape, unchanged content/source link,
+viewport geometry and clearing at ordinary owner Session end. The loaded generic
+app is byte-identical to the static artifact and its manifest digest; no receiver
+deployment/adoption follows. Ordinary product route registration is connected;
+the real HA probe no longer registers parallel test-only B routes.
+
+Independent follow-up found and fixed three further P2 cases: a collect response
+arriving after the original claim deadline left its code permanently waiting;
+the WSS preauth budget did not cover upgrade/Runtime-lock waits; and an old-origin
+upgrade could clear newer-origin authority before rejection. Causal tests cover
+pending/consumed late collect, blocked upgrade/lock with released/reusable slots,
+and preservation of a new-origin epoch/share/usable grant. Ten real-dependency
+adapter cases and the targeted host race pass. Two additional actual-dependency
+shell cases cover TLS/Origin/query rejection and origin change during executor
+I/O, bringing the current adapter total to12. The fixdelta recheck found no
+further P1/P2; it is not a whole-candidate GO.
+
+The repeat duration/capacity run uses normal product registration and proves
+unchanged hashes for163 Python source/probe files throughout:70.466s,74frames,
+three online renewals,256KiB peak shared projection reservation, one peak
+projection, two peak preauth slots, seven sampled HA tasks and RSS high-water
+151320→151612KiB (+292KiB). B caused zero provider calls. Actual source-budget
+overflow rejects a third pending upgrade without evicting the two existing
+sockets; closing releases both slots. A real display bearer with copied paired
+device identity is denied Session-end, Mood, presence, playback and private
+Ask DJ owner routes. This is one-viewer duration evidence, not maximum-load proof.
+
+Both browsers additionally pass actual offline-clear/reconnect-to-fresh-snapshot
+and original publication expiry; no accelerated clock or injected Moment is
+used. Expected WebKit network-loss diagnostics are preserved only during the
+explicit offline/end phase; other browser errors remain failures.
+
+Current local suites:2206 unittest cases (seven pre-existing skips),172
+verification cases,63 targeted cases,177 DAG cases; Ruff and offline schema/
+generation pass. Combined owning coverage across unit, actual HA and adapter
+execution is88% for the nine display modules, including100% delivery/shell and
+75% live transport. Counts are suite executions, not additive unique tests.
+
+Broader failure/capacity, capability advertisement and exact final reviews
+remain open. The browser test uses
+end-to-end TLS to the isolated HA through an own
+fixed-target byte bridge; accepting its synthetic certificate is not public
+TLS/proxy-route qualification. No native, installed or physical PASS follows.
 
 ## Subsequent joint-owner input and Core disposition
 

@@ -1818,8 +1818,12 @@ def register_http_views(hass: HomeAssistant) -> None:
     if not hass.data[DOMAIN].get("http_registered"):
         from .paired_live import DJConnectPairedLiveView
         from .hybrid_transport import HybridActionsView, HybridContextView, HybridOperationView, HybridOperationStatusView, HybridRecoveryView
+        from .display_transport import transition_views
+        from .display_live import DisplayLiveView
+        from .display_shell import DisplayShellView
 
         for view in [
+            *transition_views(hass), DisplayLiveView(hass), DisplayShellView(hass),
             HybridActionsView(hass), HybridContextView(hass), HybridOperationView(hass),
             HybridOperationStatusView(hass), HybridRecoveryView(hass),
             DJConnectPairedLiveView(hass),

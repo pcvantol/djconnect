@@ -3548,6 +3548,7 @@ class DJSessionBroadcastEngine:
     _subscribers: dict[str, tuple[Callable[[dict[str, Any]], None], bool]] = field(
         default_factory=dict, init=False, repr=False
     )
+    _display_invalidators: dict[str, Callable[[], None]] = field(default_factory=dict, init=False, repr=False)
     _pending_subscriptions: dict[str, list[dict[str, Any]]] = field(
         default_factory=dict, init=False, repr=False
     )
@@ -3634,6 +3635,15 @@ class DJSessionBroadcastEngine:
         self._owner_subscription_entries.pop(subscription_id, None)
         self._revoked_subscriptions.discard(subscription_id)
         self._withdrawal_sent.discard(subscription_id)
+
+    def register_display_invalidation(self, key: str, callback: Callable[[], None]) -> None:
+        """Signal only dirtiness to an already admitted bounded display writer."""
+        if key not in self._display_invalidators and len(self._display_invalidators) >= 64:
+            raise ValueError("display_capacity")
+        self._display_invalidators[key] = callback
+
+    def unregister_display_invalidation(self, key: str) -> None:
+        self._display_invalidators.pop(key, None)
 
     @property
     def subscriber_count(self) -> int:
@@ -3733,6 +3743,7 @@ class DJSessionBroadcastEngine:
         self._publish(BroadcastEventType.RUNTIME_ENDED, {"session": state["session"]})
         self._publish(BroadcastEventType.BROADCAST_STOPPED, {"broadcast": state["broadcast"]})
         self._subscribers.clear()
+        self._display_invalidators.clear()
         self._pending_subscriptions.clear()
         self.replay_log = ()
         self.delivery_sequence = 0
@@ -3790,6 +3801,13 @@ class DJSessionBroadcastEngine:
                 callback(scoped_event)
             except Exception as exc:  # noqa: BLE001
                 _LOGGER.debug("DJConnect subscriber delivery failed: %s", exc.__class__.__name__)
+        # No payload retention, projection or task per event. Private owner
+        # events can only invalidate; each display rebuilds its own allowlist.
+        for callback in tuple(self._display_invalidators.values()):
+            try:
+                callback()
+            except Exception:
+                pass
 
     def _append_replay_entry(
         self, event_type: BroadcastEventType, payload: dict[str, Any], recovery_cursor: str

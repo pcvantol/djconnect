@@ -51,6 +51,9 @@ class DisplayServiceTests(unittest.IsolatedAsyncioTestCase):
     async def test_owner_context_absent_origin_requires_real_pairing_and_is_pure(self):
         result = await self.call("owner/context", origins=[])
         self.assertEqual(result.payload["session_id"], self.fixture.active.session_id)
+        self.assertEqual(result.payload["display_entry_url"], self.origin + "/djconnect/vibecast/display")
+        self.assertEqual(result.payload["route_trust"], "paired_owner_response")
+        self.assertNotIn("signature", result.payload)
         self.assertFalse(self.manager._display_admission._shares)
         with self.assertRaises(self.module.DisplayAdmissionError):
             await self.call("owner/context", origins=[], headers={})
@@ -142,3 +145,40 @@ class DisplayServiceTests(unittest.IsolatedAsyncioTestCase):
             approved.release()
         self.assertFalse(self.manager._display_admission._claims)
         self.assertEqual(len(self.manager._display_admission._shares), 1)
+
+    async def test_snapshot_is_closed_owner_private_free_and_does_not_renew_lease(self):
+        result = await self.admitted()
+        payload = result.payload
+        binding = {key: payload[key] for key in ("issuer_epoch", "display_id")}
+        headers = {"Authorization": "Bearer " + payload["grant_token"]}
+        state = self.manager._display_admission
+        deadline = state._displays[payload["display_id"]].lease_deadline
+        snapshot = await self.call("snapshot", binding, headers=headers)
+        snapshot.release()
+        data = snapshot.payload["snapshot"]
+        self.assertEqual(set(data["session_presentation"]) - {"mood", "persona", "presence"}, set())
+        self.assertEqual(data["session"]["session_id"], self.fixture.active.session_id)
+        self.assertEqual(state._displays[payload["display_id"]].lease_deadline, deadline)
+        import json
+        wire = json.dumps(data)
+        for field in ("profile_id", "account_id", "device_id", "planner", "session_flow", "session_direction",
+                      "voice", "history", "conversation", "up_next", "target_name", "artwork", "grant_token"):
+            self.assertNotIn('"' + field + '"', wire)
+        await self.manager.async_end(owner_profile_id="profile-a", session_id=self.fixture.active.session_id)
+        with self.assertRaises(self.module.DisplayAdmissionError):
+            snapshot.release()
+        snapshot.complete()
+
+    async def test_simultaneous_snapshot_reserves_before_projection_until_body_completes(self):
+        result = await self.admitted()
+        payload = result.payload
+        binding = {key: payload[key] for key in ("issuer_epoch", "display_id")}
+        headers = {"Authorization": "Bearer " + payload["grant_token"]}
+        first = await self.call("snapshot", binding, headers=headers)
+        with self.assertRaises(self.module.DisplayAdmissionError) as failure:
+            await self.call("snapshot", binding, headers=headers)
+        self.assertEqual(failure.exception.status, 429)
+        first.complete()
+        first.complete()
+        second = await self.call("snapshot", binding, headers=headers)
+        second.complete()

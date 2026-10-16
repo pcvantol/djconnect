@@ -8,13 +8,26 @@ technical/privacy and product/UX/privacy GO after the three concrete findings
 were fixed. Independent isolated Core B implementation may proceed while A is
 fully unavailable; no A crypto/profile value is a prerequisite for that work.
 Current partial implementation includes Runtime-owned in-memory authority,
-normal paired-owner fences, closed transitions and a bounded HTTP adapter.
+normal paired-owner fences, closed transitions, bounded HTTP/snapshot delivery,
+one WSS writer per display and a thin host over the maintained shared renderer.
 Its own isolated real HA HTTPS probe exercises ordinary pairing, Session start,
-claim/resolve/explicit approve/one-time collect/renew/revoke and Session end.
-Only external provider I/O is a fixture; the pairing, Profile storage, Runtime
-and HTTP chain are real. This is transition-boundary evidence, not complete B
-acceptance. Product registration/capability, snapshot, WSS and renderer wiring
-remain undelivered. Unit tests alone are not HA auth or product acceptance.
+claim/resolve/explicit approve/one-time collect/renew, snapshot/live, Mood update,
+socket replacement, revoke and Session end. Only external provider I/O is a
+fixture; the pairing, Profile storage, Runtime and HTTP/WSS chain are real.
+Chromium/WebKit exercise admission, current playback, an actual published Artist
+Moment with unchanged text/source link, portrait/landscape geometry and clearing
+at ordinary Session end. Their served app bytes match the separate static build
+and its manifest digest; this is not receiver deployment/adoption. Normal product
+registration is now connected and independently exercised by the real HA probe.
+A bounded70.466s single-viewer run measured74 frames, three renewals, a256KiB peak
+projection reservation, seven sampled HA tasks and292KiB RSS high-water increase.
+Real preauth source-capacity denial/released slots and owner-effect denials pass.
+Both browsers clear offline, recover a fresh live snapshot and discard the
+originally expired Moment without clock rewriting. Combined owning coverage is
+88%, including real-HA and adapter execution. Capability advertisement, broader
+capacity/failure and exact final candidate reviews remain open. This is partial
+evidence, not complete B acceptance. Unit tests alone are not HA auth or product
+acceptance.
 This refines the [parent admission contract](VIBECAST_DISPLAY_ADMISSION_V1.md),
 not a second assignment. No endpoint or capability below exists merely because
 it is described here. A's unresolved trust/profile/wire remains a separate gate;
@@ -125,7 +138,13 @@ acceptance; a mocked request dictionary does not prove this policy works.
 Owner requests include the existing paired `identity` object and required
 `session_id` where Session authority is used. No client-selected Profile/account.
 Context returns only the caller's actual active Session, `issuer_epoch`, limits,
-and optional current `share_id`, `share_generation`, `expires_at`. No capability
+and optional current `share_id`, `share_generation`, `expires_at`. It also returns
+`display_entry_url`, the canonical configured external origin plus the fixed
+entry path, and `route_trust:"paired_owner_response"`. This owner-only read is
+the existing paired-app source of the destination for code-free A; it is neither
+an independent HA-issuer attestation nor a QR/Session approval. No browser/QR
+supplies or overrides that URL. Missing unsupported external configuration is
+`display_external_url_unavailable`, with no HTTP/IP/Host fallback. No capability
 is advertised until handlers, source fences and real-chain tests are delivered.
 Snapshot body is exactly `{contract_version, issuer_epoch, display_id}`; its
 bearer remains in Authorization, never body/query. Context includes version and

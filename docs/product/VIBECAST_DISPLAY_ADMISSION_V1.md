@@ -16,8 +16,13 @@ for the selected implementation. The
 [onboarding authority](VIBECAST_ONBOARDING_GUEST_AUTHORITY_V1.md),
 [distribution ownership](VIBECAST_WEB_ENTRY_DISTRIBUTION_V1.md) and
 [Apple guest boundary](APPLE_VIBECAST_GUEST_MODE_V1.md) remain canonical parents.
-API94 revision `cf85081cbca28b66ddbcb8f0f61635fec55c510d`, document0.1.0-draft,
-proposed wire `djc-rendezvous/1`, is upstream **BLOCKED_CONTRACT_REVIEW**.
+API94 current review revision `e6464e86cd214bd55661f14f238706332a53bd40`,
+document0.2.0, is upstream **BLOCKED_CONTRACT_REVIEW**. The earlier0.1.0
+proposal is historical. Owner corrections
+[6224535256](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6224535256)
+and [6224654453](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6224654453)
+select code-free URL convenience A: **no additional TV secret, PAKE/OOB or
+comparison-code step**. Only the separate existing HA six digits admit B.
 No rendezvous algorithm, signing suite or TV trust root is frozen here.
 
 ## Existing chain and the missing trust boundary
@@ -51,56 +56,64 @@ new login or credential forwarding to close this gap.
 
 | Gate | Concrete required answer | Current state |
 | --- | --- | --- |
-| TRUST-1 | Independently authenticated TV trust-anchor bootstrap binding selected installation and approving paired host; enrollment, rotation, revocation, wrong-install and substitution vectors | OPEN; Core/API/Apple review requested |
-| TRUST-2 | A reviewed standard sender-authenticated envelope/profile and supported library versions, with independent browser/native crypto vectors and original-expiry binding | OPEN; no custom ECDH/KDF/AEAD composition |
+| TRUST-1 | Explicit code-free trust guarantee and owner/security risk disposition: genuine paired-app route confirmation versus stronger independently verified HA issuer | OPEN; never call app assertion independent HA attestation |
+| TRUST-2 | App Attest candidate verifier, exact request/ciphertext digest/browser/generation/action/expiry binding, key/counter retention and real interoperability | OPEN; API KEY-STATE/Apple qualification unresolved |
 | ROUTE-1 | Exact raw route corpus plus explicit direct-navigation trust handoff; qualify selected HA/proxy direct200 and failure behavior | CORE_DIRECTION_SELECTED; JOINT_REVIEW_OPEN |
-| WIRE-1 | Apple/receiver comparison, cancellation, consume-loss and separate B-code states; exact interoperability acknowledgement | OPEN |
+| WIRE-1 | Code-free Apple/receiver handoff, cancellation, consume-loss and separate existing B-code states; exact interoperability acknowledgement | OPEN; no comparison/OOB UI |
 
-A reviewed out-of-band protocol is an alternative only after its commitment,
-confirmation, entropy, retry/substitution bounds and implementation are specified.
-A home-grown short hash comparison is not that protocol. RFC6189 is evidence
-that a SAS protocol includes further machinery, not authorization to transplant
-ZRTP into this product. Code-host/app compromise remains a stated trust-root
-limit; it must not conceal a separately malicious-relay/key-substitution gap.
+## Current code-free trust proposal and actual reuse boundary
 
-## Concrete trust-bootstrap proposal for joint review
+The owner's code-free product decision supersedes the previous A-only PAKE/OOB
+proposal. Do not select a PAKE library, add TV input, add a comparison code or
+silently re-pair a phone as an implementation prerequisite. The TV opens the
+short URL; the already paired iPhone confirms its actual selected HA route;
+A transfers only that destination to the same browser transaction. B independently
+requires the existing HA-generated six digits, current owner consent and grants.
 
-Core proposes evaluating an **owner-generated out-of-band secret** with an
-established reviewed password-authenticated key exchange implementation. The
-already trusted owner app selects and validates its existing HA over ordinary
-pairing, then shows a fresh A-only secret; the user transfers that secret to the
-waiting TV. It is never present in the QR or rendezvous request. The resulting
-reviewed authenticated channel would bind exactly that app-confirmed destination,
-installation reference, browser transaction/generation and original expiry.
-This avoids inventing a central owner registry or trusting a sender-supplied key.
+Existing source chain:
 
-This is a concrete candidate, **not a selected crypto suite or runtime GO**.
-Joint review must establish an interoperable maintained browser/native/library
-profile (including key confirmation and protected application transcript), secret
-entropy, strict active-attempt/transaction/global budgets, no offline guessing,
-original deadline, cancellation, and no replacement after a failed attempt.
-[RFC9382](https://www.rfc-editor.org/rfc/rfc9382.html) and
-[RFC9383](https://www.rfc-editor.org/rfc/rfc9383.html) are published Informational
-PAKE specifications to assess, not permission to implement their primitives
-ourselves or evidence of a qualified application profile. No fake encryption vectors or model-only PAKE success will count.
+- `request_auth.resolve_runtime` and `authorize_runtime_device_request` validate
+  the normal HA-issued device bearer and actual config entry/client identity.
+- `profile_context.async_resolve_device_bound_request_context` resolves current
+  device-to-Profile binding; `display_authority.resolve_display_owner` captures
+  original pairing admission before awaits and rechecks current entry/generation,
+  source/account/privacy and monotone withdrawal. This is **HA-local authority**.
+- `display_origin.selected_ha_origin` uses supported HA `get_url` with external/
+  cloud HTTPS, standard-port and no-IP constraints; it never guesses from request
+  Host, QR, forwarded headers or browser input. The paired owner-context response
+  will expose only that canonical public entry, with a paired-response trust
+  label. It is not a public signature or independently verifiable HA receipt.
+- Apple owns existing pairing-token storage, selected installation, App Attest
+  availability/key and consent. Neither its HA bearer nor APNs/install/bootstrap
+  credential is sent to the rendezvous service or a display.
 
-Product review must assess the additional TV input against the requested scan/
-approve flow and distinguish A's owner-to-TV confirmation from B's separate
-TV-to-owner six-digit admission. This candidate cannot silently replace the
-existing comparison-only UX. If that extra independently trusted channel is
-rejected, a separately qualified enrollment/issuer trust root is required;
-there is no safe QR-only fallback that simply calls an untrusted key verified.
+For joint review, alternative (i) uses genuine app-instance App Attest and the
+app's already paired HA response as the agreed destination source. This does
+**not** establish independent HA-owner/install attestation or that the scanner
+is the TV's intended owner. An otherwise legitimate paired scanner with a copied
+QR may submit its own valid destination first. Product/security disposition of
+that exact wrong-scanner/phishing race is still open; B does not authenticate A.
+Alternative (ii), if stronger independent HA-installation proof is mandatory,
+requires a genuinely trusted HA issuer/enrollment chain. No such browser/API-
+verifiable chain exists in current Core/APNs bootstrap. A same-envelope public
+key or the existing bootstrap-proof handler does not provide it. No new central
+HA account/credential registry or custom crypto composition is authorized here.
 
-Revocation needs an explicit reviewed limit: an already emitted encrypted
-A-destination may remain readable until its original short expiry and cannot be
-recalled after disclosure. Before issuing any new approval, Core rechecks current
-pairing/entry/Profile and selected route. Before navigation/admission, the chosen
-protocol must define how current revocation is checked or bound; the API cannot
-claim instant HA revocation from an offline signature. B independently rechecks
-the current paired owner/share/Session and confers no rights from stale A.
-API and Apple must approve or supply an equally concrete alternative before
-TRUST-1/2 is closed. No human publication permission is missing for this work;
-what is missing is a reviewed technical/UX contract and interoperable evidence.
+API94 review0.2.0 proposes a request-bound submit challenge including exact
+ciphertext digest, browser transaction/generation, action and original expiry.
+App Attest key/public-key/counter state spans transactions and is linkable device
+information, not anonymous120-second relay state. Its retention, deletion,
+recovery, re-attestation cadence and counter-versus-transaction crash ordering
+are the concrete **KEY-STATE** gate. API owns verifier qualification and security
+state; Apple owns App ID/prefix/environment/isSupported/distribution policy and
+real assertions. Core neither chooses an unqualified verifier nor adds signing.
+
+Before a new route confirmation, recheck current normal pairing, loaded entry,
+Profile/source rights and selected external configuration. Disclosure cannot be
+recalled after A has delivered a destination. No relay ready state promises
+instant HA revocation. B's current owner/share/Session gates remain independent.
+There is no missing generic human merge permission; technical/risk/interop gates
+are explicit and are not bypassed by the code-free product choice.
 
 ## ROUTE-1 candidate: one exact external entry
 
@@ -151,9 +164,10 @@ web-first architecture. Core selects that design direction, subject to joint
 API/Apple/security/privacy/UX review before freeze. No iframe, native wrapper or
 new central HA proxy is selected.
 
-Before the initial navigation, the bootstrap must independently authenticate the
-selected paired installation and validate the original raw exact HTTPS entry
-URL, browser/transaction/generation and original expiry. It initiates only that
+Before initial navigation, the bootstrap must meet the explicitly selected
+code-free trust guarantee above and validate the original raw exact HTTPS entry
+URL, browser/transaction/generation and original expiry. No independent HA
+attestation is implied by a paired app-instance assertion. It initiates only that
 destination, without a secret or credential in the URL/history/referrer. API
 ready state, TLS alone and a same-envelope key remain insufficient. TRUST-1/2
 must close before this direction can be implemented as secure A.
@@ -194,22 +208,21 @@ HA/proxy framing, CSP/storage, accessibility and media compatibility are unteste
 The direct-navigation trust handoff above now states Core's design direction;
 joint design review and real selected-route qualification remain before freeze.
 
-The receiver also identified that a complete PAKE exchange/key confirmation is
-not specified by API94's current one-envelope submit/consume wire. Library name,
-API ready state and a child-ready message do not authenticate the selected owner.
-The same receipt lists the precise profile/wire/UX/revocation decisions required;
-TRUST-1/2 and WIRE-1 remain OPEN. No runtime/consumer work is authorized by a
-synthetic navigation result or by the draft's green checks alone.
+The earlier PAKE/mailbox investigation in the review receipt is historical and
+not the selected v1 path. API94 review0.2.0 now targets code-free App Attest with
+the concrete trust/key-state gaps above. TRUST-1/2 and WIRE-1 remain OPEN. No A
+runtime or consumer implementation is authorized by synthetic navigation results
+or draft green checks alone; independently reviewed B work remains separate.
 
 ## A and B are independent transactions
 
 | State/action | Authority and outcome | Failure/late result |
 | --- | --- | --- |
-| A waiting QR | Browser-only strong secret/key and immutable transaction/generation/deadline; API temporary ciphertext only | Cancel/rotate destroys old keys; no stale consume retry |
+| A waiting QR | Browser-only strong secret/key and immutable transaction/generation/deadline; temporary transaction ciphertext; separate App Attest key/counter state has an unresolved retention/recovery gate | Cancel/rotate destroys old browser keys; no stale consume retry; do not mislabel cross-transaction verifier state as anonymous120s state |
 | A owner chooses installation | Existing paired owner, explicit selected destination and reviewed TRUST-1 approval bound to exact browser/transcript | Wrong/unpaired installation denied; no credential export |
 | A consume | One original-deadline encrypted destination/context, once | Lost result starts fresh; no Session grant and no navigation before validation |
 | B HA entry | No private content; browser creates a new strong claim at selected HA | Missing route/TLS/browser capability fails visibly |
-| B six digits | Separate HA-generated six digits, independent of A comparison; paired current Session owner approves exact claim/share/generation | B expiry/attempt limit/cancel/end prevents approval |
+| B six digits | Separate HA-generated six digits, with no A comparison or extra TV code; paired current Session owner approves exact claim/share/generation | B expiry/attempt limit/cancel/end prevents approval |
 | B collect | Only browser's strong claim secret collects one scoped display grant | Code alone never collects, replays cannot replace a grant |
 | Display live/recover | Existing Runtime/Flow/Broadcast projection through a display principal; recheck current share/session/grant/generation/source rights after awaits | Revoke/end/restart/original expiry clears cached/decoded presentation; no resurrection |
 | Display leave | Close/revoke only this display | Never end DJ Session, close another display or stop music |

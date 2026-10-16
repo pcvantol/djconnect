@@ -6,6 +6,7 @@ or use of Host/forwarded headers as the selected installation's identity.
 from __future__ import annotations
 
 import json
+import asyncio
 
 from aiohttp import web
 from homeassistant.components.http import HomeAssistantView
@@ -16,6 +17,7 @@ from .display_service import DisplayAdmissionService
 SECURITY_HEADERS = {"Cache-Control": "no-store", "Referrer-Policy": "no-referrer",
                     "X-Content-Type-Options": "nosniff"}
 BODY_LIMIT = 4096
+SEND_TIMEOUT_SECONDS = 5
 
 
 def _object(pairs):
@@ -53,24 +55,52 @@ async def closed_body(request):
 class _FencedResponse(web.Response):
     def __init__(self, result):
         self._display_release = result.release
+        self._display_complete = result.complete
+        self._display_send_deadline = None
         raw = json.dumps(result.payload, ensure_ascii=False, allow_nan=False).encode()
         if len(raw) > 128 * 1024:
+            self._display_complete()
             raise DisplayAdmissionError("display_capacity", 503)
         super().__init__(body=raw, content_type="application/json", headers=SECURITY_HEADERS)
 
+    async def prepare(self, request):
+        self._display_send_deadline = asyncio.get_running_loop().time() + SEND_TIMEOUT_SECONDS
+        try:
+            async with asyncio.timeout_at(self._display_send_deadline):
+                self._display_release()
+                return await super().prepare(request)
+        except BaseException:
+            self.force_close()
+            if request.transport is not None:
+                request.transport.close()
+            self._body = None
+            self._display_complete()
+            raise
+
     async def write_eof(self, data=b""):
+        if self._eof_sent:
+            return
         # aiohttp may await prepare()/header drain after the handler returns.
         # Recheck immediately before body release; a stale successful HTTP status
         # must not release private claim/grant bytes. Close an already-started
         # response instead of writing an error into its successful JSON body.
         try:
-            self._display_release()
-        except DisplayAdmissionError:
+            try:
+                self._display_release()
+            except DisplayAdmissionError:
+                self.force_close()
+                if self._req is not None and self._req.transport is not None:
+                    self._req.transport.close()
+                return
+            async with asyncio.timeout_at(self._display_send_deadline or asyncio.get_running_loop().time() + SEND_TIMEOUT_SECONDS):
+                await super().write_eof(data)
+        except TimeoutError:
             self.force_close()
             if self._req is not None and self._req.transport is not None:
                 self._req.transport.close()
-            return
-        await super().write_eof(data)
+        finally:
+            self._body = None
+            self._display_complete()
 
 
 class DisplayTransitionView(HomeAssistantView):
@@ -82,6 +112,7 @@ class DisplayTransitionView(HomeAssistantView):
         self.name = "api:djconnect:display:" + action.replace("/", ":")
 
     async def post(self, request):
+        result = None
         try:
             if request.query_string:
                 raise DisplayAdmissionError("display_code_invalid", 400)
@@ -101,6 +132,8 @@ class DisplayTransitionView(HomeAssistantView):
             result.release()
             return _FencedResponse(result)
         except DisplayAdmissionError as error:
+            if result is not None:
+                result.complete()
             return web.json_response({"success": False, "contract_version": 1, "error": error.code},
                                      status=error.status, headers=SECURITY_HEADERS)
 
@@ -109,4 +142,4 @@ def transition_views(hass):
     """Closed list; no catch-all route accidentally accepts owner effects."""
     return [DisplayTransitionView(hass, action) for action in (
         "owner/context", "owner/resolve", "owner/approve", "owner/revoke",
-        "claim", "collect", "cancel", "renew", "leave")]
+        "claim", "collect", "cancel", "renew", "leave", "snapshot")]
