@@ -61,6 +61,40 @@ No body backfill, Store-version rewrite or new event/history engine is required.
 
 ## Qualification and delivery
 
+### Runtime provider feedback (owner addition, 2026-10-16)
+
+The existing private prepare, voice-options and audio routes expose optional
+`provider_status` and `notification` version1, with stable untranslated codes,
+severity, retryability, an allowlisted action and safe localized title/message
+in en/nl/de/fr/es. Configuration missing, configured provider unavailable,
+unsupported voice/language, synthesis failure/timeout and configuration changed
+are distinct functional outcomes. Never forward raw provider exceptions,
+credentials, URLs, prompts, accepted text or account details as an error.
+
+No provider work in status reads. Configuration readiness is not proof of
+successful synthesis: distinguish `not_tested`, `succeeded` and `failed`.
+An actual preparation failure/success has short, bounded, private in-memory
+status scoped to exact owner, entry and provider configuration; do not persist
+it to history/diagnostics or share across Profiles. A changed configuration
+does not inherit an old failure or old success. Failure expiry returns unknown,
+not a fabricated recovery. Reads do not extend the original observation.
+
+Recheck on every prepare, private byte read, voice-options read and after every
+synthesis await. If the authorized reference remains valid but the provider
+changes, return functional unavailable/409 feedback and discard old resources;
+permission/source withdrawal remains opaque401/403/404 without provider detail.
+No polling service, new event bus, push notification or automatic synthesis retry.
+
+Apple should display the returned functional notice inline with Listen/voice
+settings, preserve the accepted answer, and offer explicit Retry or Check Assist
+pipeline as appropriate. Retry uses the same reference and existing backoff;
+it never repeats the original question/playback action. Re-read on foreground,
+reconnect, opening voice settings and before preparation. Handle preparation
+errors and audio409 during use; do not rely on the pairing-time capability.
+Provider metadata/readiness alone must not show a successful speech health check.
+Native presentation/localization/adoption remains Apple-owned and unproven until
+its own implementation/tests; this Core increment contains no Swift writes.
+
 Test different provider classes, no-inventory default, exact voice/language,
 unavailable provider, WAV/MP3, malformed audio, configuration changes, concurrency,
 withdrawal and retry. Use real isolated HA, normal paired Core preparation and

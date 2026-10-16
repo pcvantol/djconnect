@@ -71,9 +71,10 @@ def configured_processor(hass, conf, locale, preference):
         entity = tts.get_engine_instance(hass, engine_id) if engine_id else None
     except (KeyError, ValueError, AttributeError):
         raise ProcessorUnavailable("processor_not_qualified") from None
-    if (entity is None or not getattr(entity, "available", True)
-            or not callable(getattr(entity, "async_get_tts_audio", None))):
+    if (entity is None or not callable(getattr(entity, "async_get_tts_audio", None))):
         raise ProcessorUnavailable("processor_not_qualified")
+    if not getattr(entity, "available", True):
+        raise ProcessorUnavailable("tts_provider_unavailable")
     if (language.replace("_", "-").split("-", 1)[0] != locale
             or language not in entity.supported_languages):
         raise ProcessorUnavailable("no_matching_locale")
@@ -183,6 +184,9 @@ def voice_options(hass, conf):
     except ProcessorUnavailable as exc:
         options["state"] = "unavailable"
         options["reason"] = str(exc)
+    except Exception:
+        options["state"] = "unavailable"
+        options["reason"] = "processor_not_qualified"
     else:
         options.update(state="available", reason=None, default_available=True, provider_voice=voice)
     # HA2026.10's supported Voice object exposes ID/name only. This qualified

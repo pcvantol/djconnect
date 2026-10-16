@@ -52,8 +52,8 @@ provider metadata; native audible and hardware acceptance are not claimed.
 #### Repository State
 
 Base MERGED_RECONCILED; correction locally qualified and unpublished, no PR/main
-merge claimed.2017regressions/7existing skips,111owning/85%unit-only adapter
-coverage,162DAG,13bootstrap,11package, schema/generation/projection/Ruff/Bandit/
+merge claimed.2023regressions/7existing skips,117owning; unit branch-aware
+coverage83%adapter/89%feedback/84%combined,162DAG,70selected bootstrap/package, schema/generation/projection/Ruff/Bandit/
 hassfest. Real paired HA activeSession/OpenAI/privateMP3 in5languages and
 networkless localPiper regression pass with their explicit fixture boundaries.
 

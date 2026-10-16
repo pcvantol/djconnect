@@ -18,7 +18,7 @@ permission remain independent. Old archived text is not new cloud permission:
 new accepted messages carry a bounded server-owned processing-basis marker.
 
 [Real transport fixture](../../examples/client_contracts/session_speech/generic-ha-tts-real.http.json)
-comes from HA2026.10.0 in one bounded isolated container. All145 integration
+comes from HA2026.10.0 in one bounded isolated container. All146 integration
 Python hashes match the candidate's actual files, zero differences. Actual
 OpenAI HA entity and configured `gpt-4o-mini-tts`, voiceMarin; existing authorized
 access entered only via stdin, no installed HA config mount/change. Five public
@@ -35,11 +35,11 @@ unsupported gender makes zero additional calls; unauthenticated audio is401.
 
 | Language | Actual MP3 bytes | Prepare/download/cache/deny sequence seconds |
 | --- | ---: | ---: |
-| en | 100992 | 1.342 |
-| nl | 115968 | 1.320 |
-| de | 126720 | 1.426 |
-| fr | 90624 | 1.809 |
-| es | 115200 | 1.832 |
+| en | 98688 | 1.334 |
+| nl | 118656 | 3.411 |
+| de | 137856 | 2.835 |
+| fr | 85632 | 1.450 |
+| es | 109824 | 2.233 |
 
 These are measured isolated software timings, not a latency promise or audible
 quality score. Five model requests and five syntheses completed. This table describes only the final active-Session fixture.
@@ -49,18 +49,37 @@ published and retained CC0 Moment/private audio, cache, provider inventory and
 withdrawal; external music-source/STT/Wyoming-waveform boundaries are explicit
 fixtures. It proves local-route preservation, not a human voice or cloud rights.
 
+## Runtime failure feedback and review fixes
+
+The same real HA transport fixture changes the isolated pipeline voice and
+observes authorized audioJSON409/no-store. Only the external SDK failure is an
+explicit synthetic boundary; Core preparation, safe notice, failed status,
+backoff and actual entity-unavailable handling remain real. No extra real TTS
+calls were made for failure injection. Five-language unit checks verify safe
+instructions; raw synthetic error text never enters the client response.
+
+Two independent P2 findings were fixed before renewed exact review: joined
+synthesis completion uses the existing owner-selected still-authorized waiter
+when the starting device is revoked; audio409 retains the original contribution
+locale even when HA uses another language. Both have connected regression tests.
+Failure observations are private/bounded/expiring; reads and cache hits do not
+renew health. Text remains usable, no automatic synthesis or question replay.
+
 ## Validation and claim limits
 
-Local regression:2017 tests,2010PASS/7existing skips. Owning dialogue/speech111
+Local regression:2023 tests,2016PASS/7existing skips. Owning dialogue/speech117
 testsPASS, including configured/default/no-inventory voice, missing pipeline,
 locale and provider, malformed WAV/MP3, option change during synthesis/replay,
 catalog cloud-denial, retained qualified versus legacy unknown provenance,
 capacity/cancellation/backoff, Session-end/Profile ABA and existing privacy.
-Unit-only `speech_processor.py` branch coverage85%; real HA/Piper execution is
+Unit-only branch-aware coverage: `speech_processor.py`83%,
+`speech_feedback.py`89%, combined84%; real HA/Piper execution is
 separate evidence, not falsely added to that coverage number. DAG162 tests,
-bootstrap/lifecycle13, onboarding-package11, schema/generation23views,
-projection, Ruff, Bandit, `git diff --check`, officialhassfest1valid/0invalid.
-No workflow/runner/consumer source changes or onboarding archive regeneration.
+bootstrap/lifecycle/onboarding selected suites70 (63PASS/7existing skips),
+schema/generation23views,
+projection, Ruff, the normal Medium/High Bandit gate, `git diff --check`, officialhassfest1valid/0invalid.
+Three pre-existing Low Bandit findings in untouched exception handlers remain;
+no new Medium/High finding. No workflow/runner/consumer source changes or onboarding archive regeneration.
 
 Exact technical/privacy and editorial/UX candidate reviews and protected
 publication retain their normal gates. This record claims local source and real

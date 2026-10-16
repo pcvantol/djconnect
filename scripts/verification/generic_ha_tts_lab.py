@@ -59,6 +59,7 @@ async def run(hass, runtime, client, post, identity, output, bundle, headers):
         "fr": ("fr-FR", "Explique en une courte phrase ce qu’est un ostinato en musique."),
         "es": ("es-ES", "Explica en una frase corta qué es un ostinato en música.")}
     rows = []
+    failure_fixture = None
     for locale, (language, question) in questions.items():
         update = asdict(selected)
         update.pop("id")
@@ -105,6 +106,43 @@ async def run(hass, runtime, client, post, identity, output, bundle, headers):
         unauthenticated = await client.post("/api/djconnect/v1/speech/audio",
             json={**identity, "contract_version": 1, "asset_id": asset})
         assert unauthenticated.status == 401
+        if locale == "es":
+            # Only the external provider's failure is a fixture. Actual HA
+            # pipeline/owner/prepare/byte/status handlers and fences stay real.
+            from openai import OpenAIError
+            await store.async_update_item(selected.id, {**update, "language": locale,
+                "tts_language": language, "tts_voice": "cedar"})
+            stale = await client.post("/api/djconnect/v1/speech/audio",
+                json={**identity, "contract_version": 1, "asset_id": asset}, headers=headers)
+            stale_body = await stale.json()
+            assert stale.status == 409
+            assert stale.content_type == "application/json" and stale.headers["Cache-Control"] == "no-store"
+            assert stale_body["notification"]["code"] == "tts_configuration_changed"
+            external_failures = []
+            def failure(**kwargs):
+                external_failures.append(True)
+                raise OpenAIError("SYNTHETIC_PROVIDER_FAILURE_DO_NOT_EXPOSE")
+            speech.create = failure
+            failed = await post("/speech/prepare", request)
+            assert failed["session_speech"]["notification"]["code"] == "tts_preparation_failed"
+            assert "SYNTHETIC_PROVIDER_FAILURE" not in json.dumps(failed)
+            failure_status = await post("/speech/voice-options", {**identity, "contract_version": 1})
+            state = failure_status["speech_voice_options"]["provider_status"]
+            assert state["synthesis_state"] == "failed"
+            assert state["notification"]["actions"][0] == "review_ha_tts_configuration"
+            blocked = await post("/speech/prepare", request)
+            assert blocked["session_speech"]["reason"] == "speech_retry_backoff"
+            assert external_failures == [True]
+            entity._attr_available = False
+            disconnected = await post("/speech/voice-options", {**identity, "contract_version": 1})
+            assert disconnected["speech_voice_options"]["notification"]["code"] == "tts_provider_unavailable"
+            entity._attr_available = True
+            speech.create = measured
+            failure_fixture = {"scope": "EXTERNAL_OPENAI_FAILURE_ONLY_IS_FIXTURE",
+                "configuration_change_audio": stale_body, "configuration_change_audio_status": stale.status,
+                "failed_prepare": failed, "provider_status": failure_status,
+                "provider_unavailable": disconnected, "external_failure_attempts": 1,
+                "no_automatic_retry_or_extra_model_tts_call": True}
         await post("/session/end", {**identity, "session_id": session_id})
         ended = await client.post("/api/djconnect/v1/speech/audio",
             json={**identity, "contract_version": 1, "asset_id": asset}, headers=headers)
@@ -128,6 +166,7 @@ async def run(hass, runtime, client, post, identity, output, bundle, headers):
     receipt = {"scope": "REAL_ISOLATED_HA_PAIRED_CORE_AND_ACTUAL_OPENAI_TTS_NOT_INSTALLED_OR_NATIVE_AUDIBLE",
                "ordinary_pairing": True, "selected_not_preferred": True, "rows": rows,
                "synthesis_calls": calls, "model_calls": len(bundle[2]), "withdrawal_status": gone.status,
+               "runtime_failure_fixture": failure_fixture,
                "no_playback_or_installed_config_change": True,
                "source_hashes": {str(p.relative_to(root)): hashlib.sha256(p.read_bytes()).hexdigest()
                    for p in (root / "custom_components/djconnect").rglob("*.py")}}

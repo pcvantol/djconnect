@@ -77,6 +77,33 @@ does not enable an unsupported gender selector.
 Never silently switch to another voice/engine/cloud route. See [HA TTS voice
 contract](https://developers.home-assistant.io/docs/core/entity/tts/).
 
+## Functional runtime provider feedback
+
+Optional version1 `provider_status` and `notification` extend the existing
+private owner routes without changing speech/reference authority. Voice-options
+reports configuration readiness separately from `not_tested`, `succeeded` or
+`failed` synthesis. At most64 private RAM observations expire after300s and bind
+to exact entry/Profile, provider incarnation and configuration revision. Reads
+and cache hits do not refresh observations or synthesize; expiry means unknown.
+
+Prepare reports unavailable with a safe functional notice for missing pipeline,
+unavailable provider, unsupported language/voice, preparation failure or timeout.
+Private audio returns JSON409 only when the contribution is still authorized but
+its provider configuration changed; normal auth/source denials stay opaque.
+Notices preserve the original contribution language and never expose exceptions,
+credentials or source bodies. `notification` carries stable `code`, localized
+`title`/`message`, `actions`, `retryable`, `retry_after_seconds`,
+`preserve_text:true` and `repeat_original_request:false`.
+
+Apple displays this inline in the DJ-session, instructing the user to check the
+selected Assist pipeline and its HA TTS provider, language and voice, including
+provider access/connection when unavailable. Preserve readable text and controls.
+Explicit retry prepares that same reference only, respects current authority and
+backoff, and never repeats an Ask DJ/playback action. Refresh on foreground,
+reconnect, voice-settings open and preparation; handle runtime audio409 too.
+No automatic retry, monitor, APNs or shared provider-health feed. Apple rendering,
+localization/accessibility and audible acceptance remain separately qualified.
+
 ## Bounds, identity, authority and cancellation
 
 At most one target per request, two concurrent syntheses per existing owner and

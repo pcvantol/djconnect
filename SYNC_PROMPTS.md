@@ -15,6 +15,18 @@ expansion or installed/native-audible PASS; Apple owns its decoding, paired byte
 renderer, Stop/autoplay and actual device acceptance. Exact reviewed producerpin
 and protected-main pin will be handed off through the existing Apple87 lane.
 
+The renewed candidate adds optional version1 `provider_status`/`notification`:
+configuration readiness is distinct from actual synthesis success/failure/unknown.
+Use safe inline recovery instructions in the DJ-session to check the selected HA
+Assist pipeline, provider access/connection, language and voice. Handle prepare
+unavailable and authorized audioJSON409, preserving original contribution locale.
+Keep text/session controls usable; retry only the same speech reference after
+backoff and fresh authority checks, never the original Ask DJ/playback request.
+No automatic synthesis retry or provider-health PASS inferred from configuration.
+The existing Apple writer received this explicit owner requirement and prepared
+a five-language component; integration/installed/audible acceptance remains open
+until the exact renewed producer pin and fixtures are adopted and tested.
+
 ## Previous producer handoffs
 
 # Qualified direct-local HTTP/WS — protected Core producer

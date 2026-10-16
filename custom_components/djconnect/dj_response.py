@@ -148,8 +148,12 @@ def get_private_tts_audio(hass, token, owner_profile_id):
     item = _store(hass).get(token)
     if item is None or item.owner_profile_id != owner_profile_id or item.admission is None:
         raise PermissionError("speech_audio_unavailable")
+    from .speech_feedback import SpeechProviderChanged
     try:
         item.admission()
+    except SpeechProviderChanged:
+        _store(hass).pop(token, None)
+        raise
     except Exception:
         _store(hass).pop(token, None)
         raise PermissionError("speech_audio_unavailable") from None
@@ -366,8 +370,12 @@ async def prepare_private_tts_audio(hass, *, owner_profile_id, cache_key, expire
                     accepted_admission()
                     audio = await synthesize()
                     validate = accepted_admission()
-                    return store_private_tts_audio(hass, audio, owner_profile_id=owner_profile_id,
+                    token = store_private_tts_audio(hass, audio, owner_profile_id=owner_profile_id,
                         admission=validate, cache_key=cache_key, expires_at=expires_at)
+                    observed = getattr(validate, "on_synthesized", None)
+                    if callable(observed):
+                        observed()
+                    return token
             except asyncio.CancelledError:
                 raise
             except Exception:

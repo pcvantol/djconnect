@@ -25,7 +25,7 @@
           "provider_voice": {
             "processor": "ha_configured",
             "engine": "tts.owned_actual_openai",
-            "pipeline_id": "01m51rsmanap6gygvhkxaywvt2",
+            "pipeline_id": "01m51yc7hvcv365qxeytx73kgq",
             "provider": "tts",
             "voice_id": "marin",
             "voice_name": "Marin",
@@ -33,12 +33,24 @@
             "locale": "en-US",
             "gender": null,
             "processing_scope": "configured_provider",
-            "configuration_revision": "ae6b080b3667c73a3ac7ab08"
+            "configuration_revision": "539caac7c3819c139035d899"
           },
           "cache_policy": "private,no-store",
           "state": "available",
           "reason": null,
-          "revision": "e90913e5bb0c2b784bad3b24"
+          "revision": "dfbe80e6761fa219fe6aac1c",
+          "provider_status": {
+            "schema_version": 1,
+            "configuration_state": "ready",
+            "synthesis_state": "not_tested",
+            "reason": null,
+            "observed_at": null,
+            "retry_after_seconds": 0,
+            "cache_policy": "private,no-store",
+            "notification": null,
+            "revision": "f991f2724607e54d411de368"
+          },
+          "notification": null
         }
       },
       "prepared": {
@@ -50,7 +62,7 @@
           },
           "source_kind": "accepted_ask_dj",
           "source_id": "turn-5fb1fdbedfd45944a9a49c02dac989f6",
-          "session_id": "session-02c9e11dbf6947bbb48af1e97fe5636f",
+          "session_id": "session-e1bbb65f04b34fc39d420c09cd656ce5",
           "text_revision": "e26dbf6aa65235d946f3472d",
           "presentation_revision": "e26dbf6aa65235d946f3472d",
           "persona": "home_dj",
@@ -72,14 +84,14 @@
             "ha_configured"
           ],
           "processor_qualification_required": true,
-          "expires_at": "2026-10-16T07:16:05.811292+00:00",
+          "expires_at": "2026-10-16T08:53:38.355033+00:00",
           "cache_policy": "private,no-store",
           "attribution": [],
           "audio_state": "ready",
           "effective_voice": {
             "processor": "ha_configured",
             "engine": "tts.owned_actual_openai",
-            "pipeline_id": "01m51rsmanap6gygvhkxaywvt2",
+            "pipeline_id": "01m51yc7hvcv365qxeytx73kgq",
             "provider": "tts",
             "voice_id": "marin",
             "voice_name": "Marin",
@@ -87,10 +99,10 @@
             "locale": "en-US",
             "gender": null,
             "processing_scope": "configured_provider",
-            "configuration_revision": "ae6b080b3667c73a3ac7ab08"
+            "configuration_revision": "539caac7c3819c139035d899"
           },
           "audio_reference": {
-            "asset_id": "wg_7hRngzZWN9Rv091VU1ID-q4keXI_m",
+            "asset_id": "c4HqUtgYh53fBJIjansEKWRPbZHFwgRP",
             "path": "/api/djconnect/v1/speech/audio",
             "method": "POST"
           }
@@ -98,9 +110,9 @@
       },
       "audio_status": 200,
       "content_type": "audio/mpeg",
-      "audio_bytes": 100992,
-      "audio_sha256": "2f9bcb6362a183779f41f180d555aecb263dc42fec01ad0f340bbca0bf5b79f2",
-      "latency_seconds": 1.342,
+      "audio_bytes": 98688,
+      "audio_sha256": "c8db6cb21d304b0e0048ff0e0f556ef129ad50917f19cf67953f339559d6ddaa",
+      "latency_seconds": 1.334,
       "cached_no_new_call": true,
       "gender_unavailable": true,
       "active_session_manual_speech_in_music_only": true,
@@ -109,7 +121,7 @@
     },
     {
       "locale": "nl",
-      "accepted_answer": "Een ostinato is een kort muzikaal patroon dat zich herhaaldelijk blijft voordoen, vaak in dezelfde partij.",
+      "accepted_answer": "Een ostinato is een kort muzikaal patroon dat steeds opnieuw wordt herhaald, vaak in dezelfde partij.",
       "voice_options": {
         "success": true,
         "speech_voice_options": {
@@ -129,7 +141,7 @@
           "provider_voice": {
             "processor": "ha_configured",
             "engine": "tts.owned_actual_openai",
-            "pipeline_id": "01m51rsmanap6gygvhkxaywvt2",
+            "pipeline_id": "01m51yc7hvcv365qxeytx73kgq",
             "provider": "tts",
             "voice_id": "marin",
             "voice_name": "Marin",
@@ -137,12 +149,24 @@
             "locale": "nl-NL",
             "gender": null,
             "processing_scope": "configured_provider",
-            "configuration_revision": "ae6b080b3667c73a3ac7ab08"
+            "configuration_revision": "539caac7c3819c139035d899"
           },
           "cache_policy": "private,no-store",
           "state": "available",
           "reason": null,
-          "revision": "8c636e6161c569c634f106e3"
+          "revision": "a7affbcb3700c5f4fe64dcb6",
+          "provider_status": {
+            "schema_version": 1,
+            "configuration_state": "ready",
+            "synthesis_state": "not_tested",
+            "reason": null,
+            "observed_at": null,
+            "retry_after_seconds": 0,
+            "cache_policy": "private,no-store",
+            "notification": null,
+            "revision": "f991f2724607e54d411de368"
+          },
+          "notification": null
         }
       },
       "prepared": {
@@ -154,9 +178,9 @@
           },
           "source_kind": "accepted_ask_dj",
           "source_id": "turn-abf2299f819551d093b71bc7e7fbe10a",
-          "session_id": "session-231e400ae807421db39c613f94bc9908",
-          "text_revision": "c27d8c2c026b20ae8a35d3b6",
-          "presentation_revision": "c27d8c2c026b20ae8a35d3b6",
+          "session_id": "session-4225cdad70b94fc0abc588614ec7b622",
+          "text_revision": "6a069a65896e2bc2923426cb",
+          "presentation_revision": "6a069a65896e2bc2923426cb",
           "persona": "home_dj",
           "persona_revision": 0,
           "locale": "nl",
@@ -164,7 +188,7 @@
             {
               "ordinal": 1,
               "speaker_role": "dj",
-              "text": "Een ostinato is een kort muzikaal patroon dat zich herhaaldelijk blijft voordoen, vaak in dezelfde partij."
+              "text": "Een ostinato is een kort muzikaal patroon dat steeds opnieuw wordt herhaald, vaak in dezelfde partij."
             }
           ],
           "state": "available",
@@ -176,14 +200,14 @@
             "ha_configured"
           ],
           "processor_qualification_required": true,
-          "expires_at": "2026-10-16T07:16:08.336501+00:00",
+          "expires_at": "2026-10-16T08:53:40.987319+00:00",
           "cache_policy": "private,no-store",
           "attribution": [],
           "audio_state": "ready",
           "effective_voice": {
             "processor": "ha_configured",
             "engine": "tts.owned_actual_openai",
-            "pipeline_id": "01m51rsmanap6gygvhkxaywvt2",
+            "pipeline_id": "01m51yc7hvcv365qxeytx73kgq",
             "provider": "tts",
             "voice_id": "marin",
             "voice_name": "Marin",
@@ -191,10 +215,10 @@
             "locale": "nl-NL",
             "gender": null,
             "processing_scope": "configured_provider",
-            "configuration_revision": "ae6b080b3667c73a3ac7ab08"
+            "configuration_revision": "539caac7c3819c139035d899"
           },
           "audio_reference": {
-            "asset_id": "0VX3g8qB5zxlqcUn5w-BkJFl6MCuAFpM",
+            "asset_id": "gyaq1pm4U0XWs0XUwHU9au7NLgRYvwvy",
             "path": "/api/djconnect/v1/speech/audio",
             "method": "POST"
           }
@@ -202,9 +226,9 @@
       },
       "audio_status": 200,
       "content_type": "audio/mpeg",
-      "audio_bytes": 115968,
-      "audio_sha256": "04d54865b857531d7ab279951efe2e84e4e44f73616180cf976a8f8c789f64d9",
-      "latency_seconds": 1.32,
+      "audio_bytes": 118656,
+      "audio_sha256": "43457caf35cca35e3b08003e283c11e62715e8912df98649a539a4700a0957ec",
+      "latency_seconds": 3.411,
       "cached_no_new_call": true,
       "gender_unavailable": true,
       "active_session_manual_speech_in_music_only": true,
@@ -213,7 +237,7 @@
     },
     {
       "locale": "de",
-      "accepted_answer": "Ein Ostinato ist ein kurzes musikalisches Muster, das wiederholt wird, oft durchgehend in derselben Stimme.",
+      "accepted_answer": "Ein Ostinato ist ein kurzes musikalisches Muster, das wiederholt wird, oft in derselben Stimme oder Instrumentalstimme.",
       "voice_options": {
         "success": true,
         "speech_voice_options": {
@@ -233,7 +257,7 @@
           "provider_voice": {
             "processor": "ha_configured",
             "engine": "tts.owned_actual_openai",
-            "pipeline_id": "01m51rsmanap6gygvhkxaywvt2",
+            "pipeline_id": "01m51yc7hvcv365qxeytx73kgq",
             "provider": "tts",
             "voice_id": "marin",
             "voice_name": "Marin",
@@ -241,12 +265,24 @@
             "locale": "de-DE",
             "gender": null,
             "processing_scope": "configured_provider",
-            "configuration_revision": "ae6b080b3667c73a3ac7ab08"
+            "configuration_revision": "539caac7c3819c139035d899"
           },
           "cache_policy": "private,no-store",
           "state": "available",
           "reason": null,
-          "revision": "16a614c485088228f93fb6dd"
+          "revision": "9b10d93e26ece3aabdfe1d9c",
+          "provider_status": {
+            "schema_version": 1,
+            "configuration_state": "ready",
+            "synthesis_state": "not_tested",
+            "reason": null,
+            "observed_at": null,
+            "retry_after_seconds": 0,
+            "cache_policy": "private,no-store",
+            "notification": null,
+            "revision": "f991f2724607e54d411de368"
+          },
+          "notification": null
         }
       },
       "prepared": {
@@ -258,9 +294,9 @@
           },
           "source_kind": "accepted_ask_dj",
           "source_id": "turn-9617f722390855f0bf4c739e2c428a78",
-          "session_id": "session-863722964d4c49ba9e98e3eb4fcdde0f",
-          "text_revision": "ea9f908cd19c86b752f954f2",
-          "presentation_revision": "ea9f908cd19c86b752f954f2",
+          "session_id": "session-342413c48f3c44edaa9ce772070dbaff",
+          "text_revision": "ec77bba925fd3e0bed89b732",
+          "presentation_revision": "ec77bba925fd3e0bed89b732",
           "persona": "home_dj",
           "persona_revision": 0,
           "locale": "de",
@@ -268,7 +304,7 @@
             {
               "ordinal": 1,
               "speaker_role": "dj",
-              "text": "Ein Ostinato ist ein kurzes musikalisches Muster, das wiederholt wird, oft durchgehend in derselben Stimme."
+              "text": "Ein Ostinato ist ein kurzes musikalisches Muster, das wiederholt wird, oft in derselben Stimme oder Instrumentalstimme."
             }
           ],
           "state": "available",
@@ -280,14 +316,14 @@
             "ha_configured"
           ],
           "processor_qualification_required": true,
-          "expires_at": "2026-10-16T07:16:11.066331+00:00",
+          "expires_at": "2026-10-16T08:53:45.727004+00:00",
           "cache_policy": "private,no-store",
           "attribution": [],
           "audio_state": "ready",
           "effective_voice": {
             "processor": "ha_configured",
             "engine": "tts.owned_actual_openai",
-            "pipeline_id": "01m51rsmanap6gygvhkxaywvt2",
+            "pipeline_id": "01m51yc7hvcv365qxeytx73kgq",
             "provider": "tts",
             "voice_id": "marin",
             "voice_name": "Marin",
@@ -295,10 +331,10 @@
             "locale": "de-DE",
             "gender": null,
             "processing_scope": "configured_provider",
-            "configuration_revision": "ae6b080b3667c73a3ac7ab08"
+            "configuration_revision": "539caac7c3819c139035d899"
           },
           "audio_reference": {
-            "asset_id": "jCNAydkzNwiF4EDjhlGuV1CzYo18Zf9S",
+            "asset_id": "ExVbuA1lkHcJd0BUq195hJz7wSrvk2U9",
             "path": "/api/djconnect/v1/speech/audio",
             "method": "POST"
           }
@@ -306,9 +342,9 @@
       },
       "audio_status": 200,
       "content_type": "audio/mpeg",
-      "audio_bytes": 126720,
-      "audio_sha256": "1998f62bc5bb1cf77714c835164fa6bbc97a3af348d387dddf25314a4b69759a",
-      "latency_seconds": 1.426,
+      "audio_bytes": 137856,
+      "audio_sha256": "b7a5999e76141950c6d16221f0e5f02fbee9fa4cdae017829116e26002c51753",
+      "latency_seconds": 2.835,
       "cached_no_new_call": true,
       "gender_unavailable": true,
       "active_session_manual_speech_in_music_only": true,
@@ -317,7 +353,7 @@
     },
     {
       "locale": "fr",
-      "accepted_answer": "Un ostinato est un motif musical bref qui se répète, souvent dans la même partie.",
+      "accepted_answer": "Un ostinato est un motif musical court qui se r\u00e9p\u00e8te, souvent dans la m\u00eame partie.",
       "voice_options": {
         "success": true,
         "speech_voice_options": {
@@ -337,7 +373,7 @@
           "provider_voice": {
             "processor": "ha_configured",
             "engine": "tts.owned_actual_openai",
-            "pipeline_id": "01m51rsmanap6gygvhkxaywvt2",
+            "pipeline_id": "01m51yc7hvcv365qxeytx73kgq",
             "provider": "tts",
             "voice_id": "marin",
             "voice_name": "Marin",
@@ -345,12 +381,24 @@
             "locale": "fr-FR",
             "gender": null,
             "processing_scope": "configured_provider",
-            "configuration_revision": "ae6b080b3667c73a3ac7ab08"
+            "configuration_revision": "539caac7c3819c139035d899"
           },
           "cache_policy": "private,no-store",
           "state": "available",
           "reason": null,
-          "revision": "5be1a4030540b2a0bc65940a"
+          "revision": "3474bd5a166bbbf24e03cca4",
+          "provider_status": {
+            "schema_version": 1,
+            "configuration_state": "ready",
+            "synthesis_state": "not_tested",
+            "reason": null,
+            "observed_at": null,
+            "retry_after_seconds": 0,
+            "cache_policy": "private,no-store",
+            "notification": null,
+            "revision": "f991f2724607e54d411de368"
+          },
+          "notification": null
         }
       },
       "prepared": {
@@ -362,9 +410,9 @@
           },
           "source_kind": "accepted_ask_dj",
           "source_id": "turn-159e516fc04950ebbb27c506d610e58c",
-          "session_id": "session-1c1cb2cfef774d9faff60cc23e33e367",
-          "text_revision": "e37477f019604d978fbb5670",
-          "presentation_revision": "e37477f019604d978fbb5670",
+          "session_id": "session-e1760e408644420dbc83fc921bcf24eb",
+          "text_revision": "3531cf3564deeea78f653ede",
+          "presentation_revision": "3531cf3564deeea78f653ede",
           "persona": "home_dj",
           "persona_revision": 0,
           "locale": "fr",
@@ -372,7 +420,7 @@
             {
               "ordinal": 1,
               "speaker_role": "dj",
-              "text": "Un ostinato est un motif musical bref qui se répète, souvent dans la même partie."
+              "text": "Un ostinato est un motif musical court qui se r\u00e9p\u00e8te, souvent dans la m\u00eame partie."
             }
           ],
           "state": "available",
@@ -384,14 +432,14 @@
             "ha_configured"
           ],
           "processor_qualification_required": true,
-          "expires_at": "2026-10-16T07:16:14.152808+00:00",
+          "expires_at": "2026-10-16T08:53:50.187796+00:00",
           "cache_policy": "private,no-store",
           "attribution": [],
           "audio_state": "ready",
           "effective_voice": {
             "processor": "ha_configured",
             "engine": "tts.owned_actual_openai",
-            "pipeline_id": "01m51rsmanap6gygvhkxaywvt2",
+            "pipeline_id": "01m51yc7hvcv365qxeytx73kgq",
             "provider": "tts",
             "voice_id": "marin",
             "voice_name": "Marin",
@@ -399,10 +447,10 @@
             "locale": "fr-FR",
             "gender": null,
             "processing_scope": "configured_provider",
-            "configuration_revision": "ae6b080b3667c73a3ac7ab08"
+            "configuration_revision": "539caac7c3819c139035d899"
           },
           "audio_reference": {
-            "asset_id": "W8Fjtat90lA5mjq2MvaCwNnHA5TBWkF4",
+            "asset_id": "oPF8Uhww3fxA9lbUMhRphUpG-nc2h0w1",
             "path": "/api/djconnect/v1/speech/audio",
             "method": "POST"
           }
@@ -410,9 +458,9 @@
       },
       "audio_status": 200,
       "content_type": "audio/mpeg",
-      "audio_bytes": 90624,
-      "audio_sha256": "b18065643bca637c237454407904b4866ce8cbec5e4fb36e2606b76144e112a5",
-      "latency_seconds": 1.809,
+      "audio_bytes": 85632,
+      "audio_sha256": "4c8e341ec15682c22f3c9189fd1e05f48eee8b7214c5858ccd97322e77c4e1ca",
+      "latency_seconds": 1.45,
       "cached_no_new_call": true,
       "gender_unavailable": true,
       "active_session_manual_speech_in_music_only": true,
@@ -421,7 +469,7 @@
     },
     {
       "locale": "es",
-      "accepted_answer": "Un ostinato es un motivo musical breve que se repite, a menudo en la misma parte de una pieza.",
+      "accepted_answer": "Un ostinato es un patr\u00f3n musical breve que se repite, a menudo en la misma parte de la obra.",
       "voice_options": {
         "success": true,
         "speech_voice_options": {
@@ -441,7 +489,7 @@
           "provider_voice": {
             "processor": "ha_configured",
             "engine": "tts.owned_actual_openai",
-            "pipeline_id": "01m51rsmanap6gygvhkxaywvt2",
+            "pipeline_id": "01m51yc7hvcv365qxeytx73kgq",
             "provider": "tts",
             "voice_id": "marin",
             "voice_name": "Marin",
@@ -449,12 +497,24 @@
             "locale": "es-ES",
             "gender": null,
             "processing_scope": "configured_provider",
-            "configuration_revision": "ae6b080b3667c73a3ac7ab08"
+            "configuration_revision": "539caac7c3819c139035d899"
           },
           "cache_policy": "private,no-store",
           "state": "available",
           "reason": null,
-          "revision": "86311626a6d6c4600caa71d8"
+          "revision": "1b8ce21c9d73c239bd49fa2f",
+          "provider_status": {
+            "schema_version": 1,
+            "configuration_state": "ready",
+            "synthesis_state": "not_tested",
+            "reason": null,
+            "observed_at": null,
+            "retry_after_seconds": 0,
+            "cache_policy": "private,no-store",
+            "notification": null,
+            "revision": "f991f2724607e54d411de368"
+          },
+          "notification": null
         }
       },
       "prepared": {
@@ -466,9 +526,9 @@
           },
           "source_kind": "accepted_ask_dj",
           "source_id": "turn-49bb0680b25156f4aaa49befa28b4a5d",
-          "session_id": "session-d63e74999de6461f922cef9573bbad74",
-          "text_revision": "3a68615962562dbba0de834f",
-          "presentation_revision": "3a68615962562dbba0de834f",
+          "session_id": "session-16d3a0dcd3954478b76839f367c4d302",
+          "text_revision": "9fb4d2955d8a1ad2d104fb6f",
+          "presentation_revision": "9fb4d2955d8a1ad2d104fb6f",
           "persona": "home_dj",
           "persona_revision": 0,
           "locale": "es",
@@ -476,7 +536,7 @@
             {
               "ordinal": 1,
               "speaker_role": "dj",
-              "text": "Un ostinato es un motivo musical breve que se repite, a menudo en la misma parte de una pieza."
+              "text": "Un ostinato es un patr\u00f3n musical breve que se repite, a menudo en la misma parte de la obra."
             }
           ],
           "state": "available",
@@ -488,14 +548,14 @@
             "ha_configured"
           ],
           "processor_qualification_required": true,
-          "expires_at": "2026-10-16T07:16:17.123438+00:00",
+          "expires_at": "2026-10-16T08:53:53.600739+00:00",
           "cache_policy": "private,no-store",
           "attribution": [],
           "audio_state": "ready",
           "effective_voice": {
             "processor": "ha_configured",
             "engine": "tts.owned_actual_openai",
-            "pipeline_id": "01m51rsmanap6gygvhkxaywvt2",
+            "pipeline_id": "01m51yc7hvcv365qxeytx73kgq",
             "provider": "tts",
             "voice_id": "marin",
             "voice_name": "Marin",
@@ -503,10 +563,10 @@
             "locale": "es-ES",
             "gender": null,
             "processing_scope": "configured_provider",
-            "configuration_revision": "ae6b080b3667c73a3ac7ab08"
+            "configuration_revision": "539caac7c3819c139035d899"
           },
           "audio_reference": {
-            "asset_id": "LE0Koc3ElEJLduakq6WpKzZ-BOS_bNP_",
+            "asset_id": "uJDcFUMf0wRWPWd-4j5pB3xlv53RsYze",
             "path": "/api/djconnect/v1/speech/audio",
             "method": "POST"
           }
@@ -514,9 +574,9 @@
       },
       "audio_status": 200,
       "content_type": "audio/mpeg",
-      "audio_bytes": 115200,
-      "audio_sha256": "58fb87207576407f1ed2708bf7603f4aedfd249d9e56ddc21ef7819d68464187",
-      "latency_seconds": 1.832,
+      "audio_bytes": 109824,
+      "audio_sha256": "61bdca12eb49d7b71f3b3e28b22834bccb953b376f2ff46dbdd126d6347f79cd",
+      "latency_seconds": 2.233,
       "cached_no_new_call": true,
       "gender_unavailable": true,
       "active_session_manual_speech_in_music_only": true,
@@ -535,34 +595,246 @@
     {
       "model": "gpt-4o-mini-tts",
       "voice": "marin",
-      "input_sha256": "c27d8c2c026b20ae8a35d3b6327f3eb0ccfc72a066134b4b0c37ce5df7e39c4f",
-      "input_characters": 106,
+      "input_sha256": "6a069a65896e2bc2923426cbec38266e55ad1c7029efad3941d7440a92117eea",
+      "input_characters": 101,
       "format": "mp3"
     },
     {
       "model": "gpt-4o-mini-tts",
       "voice": "marin",
-      "input_sha256": "ea9f908cd19c86b752f954f27d6d64a2c5823d40e452aac20959e00ad9f8259c",
-      "input_characters": 107,
+      "input_sha256": "ec77bba925fd3e0bed89b7325d1bbd9185187527c81eada5d932290b18ad755a",
+      "input_characters": 119,
       "format": "mp3"
     },
     {
       "model": "gpt-4o-mini-tts",
       "voice": "marin",
-      "input_sha256": "e37477f019604d978fbb567081d1d8347cef917443a299d25cab0f17bfd16ea6",
-      "input_characters": 81,
+      "input_sha256": "3531cf3564deeea78f653eded4f0f119bdf5efac998209f6a5cb0ad5ef51402a",
+      "input_characters": 82,
       "format": "mp3"
     },
     {
       "model": "gpt-4o-mini-tts",
       "voice": "marin",
-      "input_sha256": "3a68615962562dbba0de834f34a4254883036ff3d614d3e9358c32070b2bb8cf",
-      "input_characters": 94,
+      "input_sha256": "9fb4d2955d8a1ad2d104fb6f870a8f3dc2f7c43ff3b94e459e8777ec969c8f2b",
+      "input_characters": 92,
       "format": "mp3"
     }
   ],
   "model_calls": 5,
   "withdrawal_status": 404,
+  "runtime_failure_fixture": {
+    "scope": "EXTERNAL_OPENAI_FAILURE_ONLY_IS_FIXTURE",
+    "configuration_change_audio": {
+      "success": false,
+      "error": "speech_configuration_changed",
+      "notification": {
+        "schema_version": 1,
+        "code": "tts_configuration_changed",
+        "message_key": "speech.tts_configuration_changed",
+        "severity": "warning",
+        "presentation": "inline",
+        "locale": "es",
+        "title": "La configuraci\u00f3n de voz ha cambiado",
+        "message": "En Home Assistant, revisa el flujo de Assist elegido en DJConnect: proveedor TTS, idioma y voz. El texto sigue disponible.",
+        "actions": [
+          "review_ha_tts_configuration",
+          "retry_speech_preparation"
+        ],
+        "retryable": true,
+        "retry_after_seconds": 0,
+        "preserve_text": true,
+        "repeat_original_request": false
+      }
+    },
+    "configuration_change_audio_status": 409,
+    "failed_prepare": {
+      "success": true,
+      "session_speech": {
+        "schema_version": 1,
+        "reference": {
+          "turn_id": "turn-49bb0680b25156f4aaa49befa28b4a5d"
+        },
+        "state": "unavailable",
+        "reason": "speech_preparation_failed",
+        "manual_allowed": false,
+        "autoplay_eligible": false,
+        "segments": [],
+        "processors": [],
+        "cache_policy": "private,no-store",
+        "notification": {
+          "schema_version": 1,
+          "code": "tts_preparation_failed",
+          "message_key": "speech.tts_preparation_failed",
+          "severity": "warning",
+          "presentation": "inline",
+          "locale": "es",
+          "title": "No se ha podido preparar la voz",
+          "message": "En Home Assistant, revisa el flujo de Assist elegido en DJConnect: proveedor TTS, idioma y voz. El texto sigue disponible.",
+          "actions": [
+            "review_ha_tts_configuration",
+            "retry_speech_preparation"
+          ],
+          "retryable": true,
+          "retry_after_seconds": 60,
+          "preserve_text": true,
+          "repeat_original_request": false
+        }
+      }
+    },
+    "provider_status": {
+      "success": true,
+      "speech_voice_options": {
+        "schema_version": 1,
+        "authority": "configured_ha_assist_pipeline_provider",
+        "preference_scope": "device_local",
+        "default_preference": "default",
+        "default_available": true,
+        "supported_preferences": [
+          "default"
+        ],
+        "gender_selection": {
+          "available": false,
+          "values": [],
+          "reason": "provider_gender_metadata_unavailable"
+        },
+        "provider_voice": {
+          "processor": "ha_configured",
+          "engine": "tts.owned_actual_openai",
+          "pipeline_id": "01m51yc7hvcv365qxeytx73kgq",
+          "provider": "tts",
+          "voice_id": "cedar",
+          "voice_name": "Cedar",
+          "voice_selection": "configured",
+          "locale": "es-ES",
+          "gender": null,
+          "processing_scope": "configured_provider",
+          "configuration_revision": "539caac7c3819c139035d899"
+        },
+        "cache_policy": "private,no-store",
+        "state": "available",
+        "reason": null,
+        "revision": "63b8d6ae4128d0d6e3ec3664",
+        "provider_status": {
+          "schema_version": 1,
+          "configuration_state": "ready",
+          "synthesis_state": "failed",
+          "reason": "speech_preparation_failed",
+          "observed_at": "2026-10-16T08:48:55.825025+00:00",
+          "retry_after_seconds": 60,
+          "cache_policy": "private,no-store",
+          "notification": {
+            "schema_version": 1,
+            "code": "tts_preparation_failed",
+            "message_key": "speech.tts_preparation_failed",
+            "severity": "warning",
+            "presentation": "inline",
+            "locale": "en",
+            "title": "Speech could not be prepared",
+            "message": "In Home Assistant, check the Assist pipeline selected in DJConnect: its TTS provider, language and voice. The text remains available.",
+            "actions": [
+              "review_ha_tts_configuration",
+              "retry_speech_preparation"
+            ],
+            "retryable": true,
+            "retry_after_seconds": 60,
+            "preserve_text": true,
+            "repeat_original_request": false
+          },
+          "revision": "9715f2cee17e3790971c8e19"
+        },
+        "notification": {
+          "schema_version": 1,
+          "code": "tts_preparation_failed",
+          "message_key": "speech.tts_preparation_failed",
+          "severity": "warning",
+          "presentation": "inline",
+          "locale": "en",
+          "title": "Speech could not be prepared",
+          "message": "In Home Assistant, check the Assist pipeline selected in DJConnect: its TTS provider, language and voice. The text remains available.",
+          "actions": [
+            "review_ha_tts_configuration",
+            "retry_speech_preparation"
+          ],
+          "retryable": true,
+          "retry_after_seconds": 60,
+          "preserve_text": true,
+          "repeat_original_request": false
+        }
+      }
+    },
+    "provider_unavailable": {
+      "success": true,
+      "speech_voice_options": {
+        "schema_version": 1,
+        "authority": "configured_ha_assist_pipeline_provider",
+        "preference_scope": "device_local",
+        "default_preference": "default",
+        "default_available": false,
+        "supported_preferences": [
+          "default"
+        ],
+        "gender_selection": {
+          "available": false,
+          "values": [],
+          "reason": "provider_gender_metadata_unavailable"
+        },
+        "provider_voice": null,
+        "cache_policy": "private,no-store",
+        "state": "unavailable",
+        "reason": "tts_provider_unavailable",
+        "revision": "1ff25c44396b284281e3f468",
+        "provider_status": {
+          "schema_version": 1,
+          "configuration_state": "unavailable",
+          "synthesis_state": "not_tested",
+          "reason": "tts_provider_unavailable",
+          "observed_at": null,
+          "retry_after_seconds": 0,
+          "cache_policy": "private,no-store",
+          "notification": {
+            "schema_version": 1,
+            "code": "tts_provider_unavailable",
+            "message_key": "speech.tts_provider_unavailable",
+            "severity": "warning",
+            "presentation": "inline",
+            "locale": "en",
+            "title": "Speech provider unavailable",
+            "message": "In Home Assistant, check the Assist pipeline selected in DJConnect: its TTS provider, language and voice. The text remains available.",
+            "actions": [
+              "review_ha_tts_configuration",
+              "retry_speech_preparation"
+            ],
+            "retryable": true,
+            "retry_after_seconds": 0,
+            "preserve_text": true,
+            "repeat_original_request": false
+          },
+          "revision": "7718acf6daa88cdd3303ccde"
+        },
+        "notification": {
+          "schema_version": 1,
+          "code": "tts_provider_unavailable",
+          "message_key": "speech.tts_provider_unavailable",
+          "severity": "warning",
+          "presentation": "inline",
+          "locale": "en",
+          "title": "Speech provider unavailable",
+          "message": "In Home Assistant, check the Assist pipeline selected in DJConnect: its TTS provider, language and voice. The text remains available.",
+          "actions": [
+            "review_ha_tts_configuration",
+            "retry_speech_preparation"
+          ],
+          "retryable": true,
+          "retry_after_seconds": 0,
+          "preserve_text": true,
+          "repeat_original_request": false
+        }
+      }
+    },
+    "external_failure_attempts": 1,
+    "no_automatic_retry_or_extra_model_tts_call": true
+  },
   "no_playback_or_installed_config_change": true,
   "source_hashes": {
     "custom_components/djconnect/update.py": "d6a1ea30a3a33e04e8668dd6b11b6720d5b8f531b1160ac8771a16742179c7a5",
@@ -629,11 +901,11 @@
     "custom_components/djconnect/moment_navigation.py": "7c4d94c6d4ebe947abf083818a2264c28e9d2ae3b577b45c2009e72712412af6",
     "custom_components/djconnect/structural_invariant_validator.py": "5c16b015fe646e9da85f68f0c05bc79ab563c2feb56c7e6c1a409a139c546ae8",
     "custom_components/djconnect/context_expression.py": "bd9a381caa0bce1e39a5a324fb849be1c32b02c4b818b4f48fb493889316515a",
-    "custom_components/djconnect/http.py": "91a9fcb51e5a77a6f0ac7acd1c9bcd5fd9f5d9df7c6c38379001db885864c6c9",
+    "custom_components/djconnect/http.py": "ed6e2fbcaceafbe55b8f125618529a3e1f226b66d2b8128e8c65fdff909e4dd5",
     "custom_components/djconnect/hybrid_ingress_qualification.py": "8e220874b16e7bbb1162261a1e89607a2a6067dca3fa3c820d2cc52ee3232933",
     "custom_components/djconnect/dj_brain_capabilities.py": "c0f1e79f64c1d5d437aa0f114de1ef153037b32049e35428d656f1e01b8a52a9",
     "custom_components/djconnect/profile_export.py": "47975a364fd47395f839fc47b31fa0fec93e5f2d0604a164191a7876e1bcafc9",
-    "custom_components/djconnect/speech_processor.py": "10610b8ec22397c83cc8d225327238678893dae1300ae4d98761bcd7e7b9354e",
+    "custom_components/djconnect/speech_processor.py": "e4582660c5aa1248ff4fbac3775fe9b722f893978819d374e4bd8ebf55208218",
     "custom_components/djconnect/image_proxy.py": "77a855a75a02f8a8d643cfb9decfbb0c1ced33693cd8f70f91f01aa059296b53",
     "custom_components/djconnect/session_conversation.py": "06d62e1c264676d764ca1f54f4078a509f19a1006c3a3e90aa1f3397c6d6f981",
     "custom_components/djconnect/paired_live_contract.py": "fb4485b6acd9d548c17953edf64af4c4c4aa98c93cb325721acc033ff787f736",
@@ -652,20 +924,21 @@
     "custom_components/djconnect/transport_operations.py": "cf808dce680f958ee17876ce018a53b11b23c4f14d22cdeae61e2f13612b0e20",
     "custom_components/djconnect/forecast_imagery.py": "28c15f023ddc1df1c43a3997d8a551fc74ae08a473b494398165d226c9e2fd9c",
     "custom_components/djconnect/hybrid_service.py": "6bc8e2622cdcbddb23a2bd0e7d12d447c77c21738d599e5faef3a63850ac1679",
-    "custom_components/djconnect/dj_response.py": "b2778539b5fc35fba5e4ee1b20bfb3238600637332830e37863fb2b10888aab4",
+    "custom_components/djconnect/dj_response.py": "8d86ff96512d49603771704ac8afafb40d632d51f183df37b56331ece2db672a",
     "custom_components/djconnect/spotify.py": "0e84480b356a9ae6649657c3fbe9f557663c04c8d0aba82fcca7ab150a1201b7",
     "custom_components/djconnect/announcements.py": "d2701488be1a1f8d9d9e1b73c234bc87752f2468260e42f137c21640482da70e",
     "custom_components/djconnect/session_mood.py": "cc9da023e077412c5fb44df30ccbe75eeeaeff2cedeabeb21f3bf4757760bd13",
     "custom_components/djconnect/profile_backend.py": "4b19f7b37dac97573fd4dbccd3fe2973aeac236e5783a2d08ccdb360d38f3ad4",
     "custom_components/djconnect/ai_tools.py": "175ac20dc1ebdb535aaec839b6fc8e8fe012ac3c81e0f0f07e1856b692c9f0c8",
     "custom_components/djconnect/track_insight.py": "a333523f9bf299837dca2d95bebca940987c6dde4d06c4460fd701eb391eb4dc",
-    "custom_components/djconnect/session_speech.py": "b9b3899e432d026955096ba7c2f2879a423853473787e223245dcc9c1d4417d3",
+    "custom_components/djconnect/session_speech.py": "95be7f560edfcf64b1afb348d345f22a00a8841a71696909ec65aac9afe3e225",
     "custom_components/djconnect/historical_projection_retention.py": "29594182bc7e7fcbaf81fa65ddd70ea04b2f1129cec361b932ea67c3df841486",
     "custom_components/djconnect/discovery_selection.py": "09df528e850f3459c5f7b332c3d49efc22aef39a1a6835ac7ebbc10054e4645a",
     "custom_components/djconnect/const.py": "803bd0bf83eb3f9d120693d428afba9e2d72ca4a7315e78d03624165da28dd00",
     "custom_components/djconnect/ha_urls.py": "cfb435ee2f7f25450fc3f443703a3a466bffd0da103365b3163384797587d558",
     "custom_components/djconnect/playback_observation.py": "63ccc706edf892c670d3ddf80652fde63a15188e384372d4aaea768aac194d60",
     "custom_components/djconnect/config_flow.py": "e8b5c8eb23b049453ee48df0a904861053751dff1bc4d83d08a244f7281f55b3",
+    "custom_components/djconnect/speech_feedback.py": "f9f7512087dc1a37c197f9c1b374f4b6b9e19c249068a189cc97686fe992b9f0",
     "custom_components/djconnect/session_runtime.py": "54b2b5e4a8e4ad51334dd1d7c5d53fb55b6fbc0cd1d899b8a8082f21ea132f27",
     "custom_components/djconnect/spotify_backend.py": "395c918d6649902a772f552cdcff8574463942822b2e59e3e54371159eef45e3",
     "custom_components/djconnect/session_persona.py": "d07c30bd3b8b85b1b080a6db3e3aa6505fceeb37424c2663fd14cc3c783a41ef",

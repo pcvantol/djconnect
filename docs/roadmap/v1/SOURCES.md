@@ -78,8 +78,8 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 | [docs/product/HYBRID_LOCAL_TRANSPORT_POLICY_V1.md](../../../docs/product/HYBRID_LOCAL_TRANSPORT_POLICY_V1.md) | `b7d62c93f26b4883c993f89f7a929c57ba6be8c082bb6ed7c220e60c5045aac6` |
 | [docs/verification/HYBRID_LOCAL_TRANSPORT_SOURCE_READBACK_20261015.md](../../../docs/verification/HYBRID_LOCAL_TRANSPORT_SOURCE_READBACK_20261015.md) | `4bb082dd358cc9594240868cb163133be0320729b2d5687a337bcba2b5feeda3` |
 | [docs/product/SESSION_SPEECH_PERSONA_V1.md](../../../docs/product/SESSION_SPEECH_PERSONA_V1.md) | `7a94cc8719e3f76faf5a841a662f23c89d801476b1c4fc881746506257090140` |
-| [docs/product/SESSION_SPEECH_DELIVERY_V1.md](../../../docs/product/SESSION_SPEECH_DELIVERY_V1.md) | `4d547bffdff9a4cad3036f5fae42e0c2a8493f84f2b7b38c1f06f06757eeddaa` |
+| [docs/product/SESSION_SPEECH_DELIVERY_V1.md](../../../docs/product/SESSION_SPEECH_DELIVERY_V1.md) | `142616e9e44d9693118ecb4a8a76ec6c4e386527d3110869c364e0ad11138e1c` |
 | [docs/verification/SESSION_SPEECH_PERSONA_SOURCE_READBACK_20261016.md](../../../docs/verification/SESSION_SPEECH_PERSONA_SOURCE_READBACK_20261016.md) | `88d1f61b742c7b5e9258f7cd96ae35c691a3ea952ee98e345b8ffc9f1720dd38` |
 | [docs/history/prompts/2026-10-16-session-speech-persona-finalization.md](../../../docs/history/prompts/2026-10-16-session-speech-persona-finalization.md) | `08bfdd2e39d730e38d6a76b7cf8ffd8d1463781c59e52fa4aab8f3df0de16732` |
-| [docs/product/GENERIC_HA_TTS_V1.md](../../../docs/product/GENERIC_HA_TTS_V1.md) | `dc76376f03adebffb5ba8664a7fd5fc8db3db6beacfc5d7e25580911c5bac18a` |
-| [docs/verification/GENERIC_HA_TTS_SOURCE_20261016.md](../../../docs/verification/GENERIC_HA_TTS_SOURCE_20261016.md) | `4ae83f121110fbc2d6d6aecbe40c72632d024509f942abdc1cf2507a1d784326` |
+| [docs/product/GENERIC_HA_TTS_V1.md](../../../docs/product/GENERIC_HA_TTS_V1.md) | `7608cdf74a63e0d27a513868a7536c6e7e5bc64fbfb05eee4bec8a237b2c037d` |
+| [docs/verification/GENERIC_HA_TTS_SOURCE_20261016.md](../../../docs/verification/GENERIC_HA_TTS_SOURCE_20261016.md) | `56664ad7b3add53cc988f1d97ad5f5f8177b972b6c536ed11ff7619e4f6ceda2` |

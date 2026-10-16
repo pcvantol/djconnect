@@ -2972,6 +2972,8 @@ class DJConnectSpeechAudioView(_DJConnectSessionView):
         if data is None or request.query_string:
             return self.json({"success": False, "error": "invalid_request"}, status_code=400)
         item, status = await async_handle_audio(request.app["hass"], data, headers=request.headers)
+        if isinstance(item, dict):
+            return self.json(item, status_code=status)
         if item is None:
             return self.json({"success": False, "error": "speech_audio_unavailable"}, status_code=status)
         return web.Response(body=item.data, content_type=item.content_type, headers={

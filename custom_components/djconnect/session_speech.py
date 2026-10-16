@@ -34,6 +34,9 @@ def capability():
             "source_kinds": ["accepted_ask_dj", "published_dj_moment", "retained_dj_contribution"],
             "processors": ["local_on_device", "ha_configured"],
             "processor_qualification_required": True,
+            "provider_feedback": {"version": 1, "voice_options_path": "/api/djconnect/v1/speech/voice-options",
+                                  "audio_configuration_error_status": 409,
+                                  "languages": ["en", "nl", "de", "fr", "es"]},
             "gender_preference": {"optional": True, "authority": "configured_ha_assist_pipeline_provider",
                                   "options_path": "/api/djconnect/v1/speech/voice-options"}, "voice_selection": "renderer_owned_or_exact_configured",
             "autoplay_scope": "per_device_new_publication_only", "manual_after_never": True,
@@ -456,11 +459,22 @@ async def async_handle_prepare(hass, data, *, headers=None):
 async def prepare_ha(hass, runtime, owner, data, descriptor, admission):
     from .dj_response import prepare_private_tts_audio, get_private_tts_audio
     from .speech_processor import configured_processor, synthesize, ProcessorUnavailable
+    from .speech_feedback import SpeechProviderChanged, notification, record
+
+    def failed(reason):
+        result = unavailable(data["reference"], reason)
+        notice = notification(reason, descriptor["locale"], retry_after=60 if reason in {
+            "speech_retry_backoff", "speech_preparation_failed", "speech_preparation_timeout",
+            "unsupported_audio_type", "unsupported_audio_extent"} else 0)
+        if notice:
+            result["notification"] = notice
+        return result
 
     # CC0/direction support is admitted by its original owner below, not inferred
     # from a provider label. Private/catalog display is no cloud-processing grant.
     if admission.processor_basis not in {"qualified_dialogue_v1", "cc0_normalized_fields_v1", "runtime_authored_direction_v1", "spotify_owner_local_read_v1", "retained_owner_local_read_v1"}:
         return unavailable(data["reference"], "source_processor_not_qualified")
+    entity = voice = None
     try:
         entity, voice = configured_processor(hass, runtime.config, descriptor["locale"], data["voice_preference"])
         if (admission.processor_basis in {"spotify_owner_local_read_v1", "retained_owner_local_read_v1"}
@@ -472,10 +486,14 @@ async def prepare_ha(hass, runtime, owner, data, descriptor, admission):
                voice.get("configuration_revision"))
         def qualified_admission():
             admission()
-            current_entity, current_voice = configured_processor(hass, runtime.config, descriptor["locale"], data["voice_preference"])
+            try:
+                current_entity, current_voice = configured_processor(hass, runtime.config, descriptor["locale"], data["voice_preference"])
+            except ProcessorUnavailable as exc:
+                raise SpeechProviderChanged(str(exc), descriptor["locale"]) from None
             if current_entity is not entity or current_voice != voice:
-                raise PermissionError("speech_voice_changed")
+                raise SpeechProviderChanged("speech_configuration_changed", descriptor["locale"])
         qualified_admission.on_withdraw = admission.on_withdraw
+        qualified_admission.on_synthesized = lambda: record(hass, runtime, owner, voice, provider=entity)
         token = await prepare_private_tts_audio(hass, owner_profile_id=owner, cache_key=key,
             expires_at=datetime.fromisoformat(descriptor["expires_at"]).timestamp(), admission=qualified_admission,
             synthesize=lambda: synthesize(entity, voice, "".join(segment["text"] for segment in descriptor["segments"])))
@@ -484,13 +502,24 @@ async def prepare_ha(hass, runtime, owner, data, descriptor, admission):
                 "audio_state": "ready", "effective_voice": voice, "autoplay_eligible": False,
                 "audio_reference": {"asset_id": token, "path": "/api/djconnect/v1/speech/audio", "method": "POST"}}
     except PermissionError:
+        # Source/owner withdrawal stays opaque. A still-authorized contribution
+        # can explain a provider change, even if a joined job masked its reason.
+        admission()
+        if entity is not None:
+            try:
+                qualified_admission()
+            except SpeechProviderChanged as exc:
+                return failed(str(exc))
         raise
     except Exception as exc:
-        codes = {"processor_not_qualified", "no_matching_locale", "no_matching_voice", "voice_gender_unavailable",
+        codes = {"processor_not_qualified", "tts_provider_unavailable", "no_matching_locale", "no_matching_voice", "voice_gender_unavailable",
                  "unsupported_audio_extent", "unsupported_audio_type", "speech_retry_backoff", "speech_capacity"}
         reason = str(exc) if isinstance(exc, (ProcessorUnavailable, ValueError)) and str(exc) in codes else (
             "speech_preparation_timeout" if isinstance(exc, TimeoutError) else "speech_preparation_failed")
-        return unavailable(data["reference"], reason)
+        admission()
+        if voice is not None and reason in {"speech_preparation_failed", "speech_preparation_timeout", "unsupported_audio_type", "unsupported_audio_extent"}:
+            record(hass, runtime, owner, voice, provider=entity, reason=reason)
+        return failed(reason)
 
 
 async def async_handle_audio(hass, data, *, headers=None):
@@ -498,6 +527,7 @@ async def async_handle_audio(hass, data, *, headers=None):
     from .api_handlers import _session_profile_context, _conversation_profile_fence
     from .dj_response import get_private_tts_audio
     from .session_conversation import SessionConversationError
+    from .speech_feedback import SpeechProviderChanged, notification
     fields = {"contract_version", "device_id", "client_type", "asset_id"}
     if (not isinstance(data, dict) or set(data) != fields
         or type(data["contract_version"]) is not int or data["contract_version"] != 1
@@ -517,6 +547,9 @@ async def async_handle_audio(hass, data, *, headers=None):
         return item, 200
     except SessionConversationError as exc:
         return None, exc.status
+    except SpeechProviderChanged as exc:
+        return {"success": False, "error": "speech_configuration_changed",
+                "notification": notification(str(exc), exc.locale)}, 409
     except PermissionError:
         return None, 404
 
@@ -526,6 +559,7 @@ async def async_handle_voice_options(hass, data, *, headers=None):
     from .api_handlers import _session_profile_context, _conversation_profile_fence
     from .speech_processor import voice_options
     from .session_conversation import SessionConversationError
+    from .speech_feedback import status as provider_status
     fields = {"contract_version", "device_id", "client_type"}
     if (not isinstance(data, dict) or set(data) != fields
         or type(data["contract_version"]) is not int or data["contract_version"] != 1):
@@ -540,6 +574,11 @@ async def async_handle_voice_options(hass, data, *, headers=None):
         return error, status
     try:
         result = voice_options(hass, runtime.config)
+        result["provider_status"] = provider_status(hass, runtime, context.profile_id, result,
+            getattr(hass.config, "language", "en"))
+        result["notification"] = result["provider_status"]["notification"]
+        result["revision"] = hashlib.sha256(json.dumps(
+            {key: value for key, value in result.items() if key != "revision"}, sort_keys=True).encode()).hexdigest()[:24]
         _conversation_profile_fence(hass, runtime, identity, headers, context)
         return {"success": True, "speech_voice_options": result}, 200
     except SessionConversationError as exc:
