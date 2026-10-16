@@ -4506,6 +4506,7 @@ class SessionRuntimeManager:
             # Only a genuinely accepted backend observation starts this clock;
             # progress ticks, queue updates and snapshot reads never renew it.
             active.broadcast.passive_observation = (time.monotonic(), time.time(), projection)
+            active.broadcast.passive_state_observed = active.broadcast.passive_observation[:2]
             changed = active.broadcast.update_playback(projection)
             active.broadcast.forecast.accept_observation()
             active.broadcast.update_forecast(active)

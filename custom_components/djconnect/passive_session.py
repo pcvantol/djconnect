@@ -9,6 +9,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 import hashlib
 import json
+import math
 import re
 import secrets
 import time
@@ -88,7 +89,8 @@ def _music(broadcast, now):
     _, wall, original = observed
     current = broadcast.state.playback
     match = TRACK.fullmatch(original.source_url)
-    if (not match or current.item_id != original.item_id
+    if (not match or digest_identity('spotify:track:' + match[1]) != original.item_id
+            or current.item_id != original.item_id
             or current.state not in {'playing', 'paused'} or not original.title):
         return None
     return {'item_id': original.item_id, 'subject_uri': 'spotify:track:' + match[1],
@@ -99,13 +101,20 @@ def _music(broadcast, now):
             'usage_basis': 'spotify_temporary_passive_metadata'}
 
 
+def digest_identity(uri):
+    return hashlib.sha256(uri.encode()).hexdigest()[:24]
+
+
 def _covers(registry, owner, session_id, contribution, music, now):
     """Independent cover-only qualification; no private URL/grant reuse."""
     if registry is None or registry.closed:
         return []
     slots = []
     for key, asset in registry.assets.items():
+        captured = asset.get('captured_monotonic')
         if (key[:2] != (owner, session_id) or asset['historical']
+                or type(captured) not in (int, float) or not math.isfinite(captured)
+                or not captured <= now < captured + 120
                 or asset['deadline'] <= now or not asset['authority']()):
             continue
         scope = asset['delivery_scope']()

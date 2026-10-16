@@ -106,7 +106,9 @@ class PassiveProjectionTests(unittest.TestCase):
     def test_metadata_requires_exact_observed_spotify_identity(self):
         self.prepare()
         b = self.session.broadcast
-        observed = replace(b.state.playback, source_url='https://open.spotify.com/track/'+'A'*22)
+        observed = self.runtime.RendererSafePlaybackProjection.from_observation(
+            state='playing', media_identity='spotify:track:'+'A'*22, title='Observed track', artist='Observed artist')
+        b.state = replace(b.state, playback=observed)
         b.passive_observation = (100, time.time(), observed)
         frame = self.frame()
         self.assertEqual(frame['now_playing']['subject_uri'], 'spotify:track:'+'A'*22)
@@ -125,7 +127,7 @@ class PassiveProjectionTests(unittest.TestCase):
                'attribution': {'provider': 'Spotify', 'mark': 'spotify', 'url': 'https://open.spotify.com/album/'+'B'*22},
                'expires_at': passive.stamp(now+300), 'captured_at': passive.stamp(now),
                'media_revision': 'r1', 'alt_text': {'en': 'Cover'}, 'width': 64, 'height': 64}
-        asset = {'historical': False, 'deadline': 500, 'authority': lambda: True,
+        asset = {'historical': False, 'deadline': 500, 'captured_monotonic': 100, 'authority': lambda: True,
                  'delivery_scope': lambda: (True, False), 'asset_id': 'asset',
                  'projection': {'artwork': art}}
         registry = SimpleNamespace(closed=False, assets={('owner', self.session.session_id,
@@ -139,6 +141,25 @@ class PassiveProjectionTests(unittest.TestCase):
         self.assertNotEqual(first['revision'], second['revision'])
         self.assertNotIn('/session/media/', json.dumps(second))
         art['subject']['type'] = 'artist'
+        self.assertEqual(self.frame(registry=registry, owner='owner')['artwork'], [])
+        art['subject']['type'] = 'album'
+        # Fresh same-item observation + a backwards UTC clock must never renew
+        # the existing cover's120monotonic seconds or its image admission.
+        b = self.session.broadcast
+        observed = self.runtime.RendererSafePlaybackProjection.from_observation(
+            state='playing', media_identity='spotify:track:'+'A'*22, title='Observed track', artist='Observed artist')
+        b.state = replace(b.state, playback=observed)
+        b.passive_observation = (221, now-180, observed)
+        b.passive_state_observed = (221, now-180)
+        art['subject'].update(type='track', uri='spotify:track:'+'A'*22)
+        art['source_url'] = observed.source_url
+        art['attribution']['url'] = observed.source_url
+        registry.assets = {('owner', self.session.session_id, (('entry_id', 'entry'),)): asset}
+        with patch('time.time', return_value=now-180):
+            rolled = self.frame(221, registry=registry, owner='owner')
+            self.assertIsNotNone(rolled['now_playing'])
+            self.assertEqual(rolled['artwork'], [])
+        asset.pop('captured_monotonic')
         self.assertEqual(self.frame(registry=registry, owner='owner')['artwork'], [])
 
     def test_shared_receiver_gets_no_passive_hint_or_private_grant(self):

@@ -2,6 +2,7 @@
 import asyncio
 import hashlib
 import json
+import sys
 import time
 from pathlib import Path
 
@@ -57,13 +58,25 @@ async def run(*, hass, runtime, client, headers, identity, manager, storage, sid
                  'image_bytes_sha256': image_sha, 'image_http': 200})
     before = (len(calls), len(current.broadcast.state.dj_moments), current.presence_ledger.total_published,
               len(current.broadcast.replay_log), len(hass.data['djconnect']['session_images'].assets))
-    repeated = [await request('/read', read) for _ in range(20)]
+    preparations = []
+    def profile_calls(frame, event, _arg):
+        if (event == 'call' and frame.f_code.co_name in {'prepare', '_prepare', '_fetch'}
+                and frame.f_code.co_filename.endswith(('/session_artwork.py', '/forecast_imagery.py'))):
+            preparations.append(frame.f_code.co_name)
+    previous_profiler = sys.getprofile()
+    try:
+        sys.setprofile(profile_calls)
+        repeated = [await request('/read', read) for _ in range(20)]
+    finally:
+        sys.setprofile(previous_profiler)
     after = (len(calls), len(current.broadcast.state.dj_moments), current.presence_ledger.total_published,
              len(current.broadcast.replay_log), len(hass.data['djconnect']['session_images'].assets))
     assert before == after, (before, after)
+    assert preparations == [], preparations
     assert all(x['passive_session']['revision'] == frame['revision'] for x in repeated)
     assert all(x['passive_session']['contribution']['published_at'] == original.created_at for x in repeated)
     rows.append({'case': 'twenty_pure_reads', 'before': before, 'after': after,
+                 'actual_prepare_calls': len(preparations),
                  'same_revision_and_original_deadlines': True})
     await request('/read', {**read, 'grant_id': 'unknown'}, 403)
     await request('/read', {**read, 'surface': 'live_activity'}, 403)
@@ -183,10 +196,15 @@ async def run(*, hass, runtime, client, headers, identity, manager, storage, sid
     read['grant_id'] = authorized['grant_id']
     rows.append({'case': 'source_withdrawal_and_restore_no_revival', 'old_image_http': denied.status,
                  'old_grant_http': 403})
+    response = await client.post('/api/djconnect/v1/session/media/prepare', json={**identity,
+        'contract_version': 1, 'session_id': sid, 'targets': [{'entry_id': b_entry['entry_id']}]}, headers=headers)
+    assert response.status == 200
+    restored = await request('/read', read)
+    restored_art = restored['passive_session']['artwork'][0]
     # Real wall/monotonic expiry, no patched Core clocks. Observe longer than the
     # 120-second original passive window; provider polling remains stopped.
     expiry_before = len(calls)
-    until = current.broadcast.passive_observation[0] + 121
+    until = time.monotonic() + 121
     await asyncio.sleep(max(0, until - time.monotonic()))
     expired = await request('/read', read)
     assert expired['passive_session']['contribution'] is None
@@ -195,6 +213,22 @@ async def run(*, hass, runtime, client, headers, identity, manager, storage, sid
     assert len(calls) == expiry_before
     rows.append({'case': 'real_121_second_expiry', 'response': expired,
                  'provider_delta': len(calls)-expiry_before})
+    # A genuine fresh same-track observation can refresh current metadata, but
+    # cannot renew already prepared cover bytes. Owner cache lasts300s; the
+    # independent passive cover ceiling remains120s, including imageGET.
+    await manager.async_update_playback_projection(owner_profile_id='profile-a', session_id=sid,
+        state='paused', media_identity=observed_b.media_identity, title=observed_b.title,
+        artist=observed_b.artist, album=observed_b.album,
+        album_uri=observed_b.catalog.get('album_uri', ''), duration_ms=observed_b.duration_ms,
+        position_ms=observed_b.position_ms)
+    fresh_metadata = await request('/read', read)
+    assert fresh_metadata['passive_session']['now_playing']
+    assert fresh_metadata['passive_session']['artwork'] == []
+    expired_image = await client.get(restored_art['image_path'], params={**image_query,
+        'grant_id': read['grant_id']}, headers=headers)
+    assert expired_image.status == 404
+    rows.append({'case': 'fresh_same_track_does_not_renew_old_cover',
+                 'response': fresh_metadata, 'old_image_http': expired_image.status})
     async def race_read():
         response = await client.post(BASE+'/read', json=read, headers=headers)
         value = await response.json()
