@@ -340,3 +340,10 @@ reread after the container exited; no clocks or Core publication were mocked.
 normal CI remain required before publishing this additional test evidence.
 This is not global64capacity, worst-case slow-client, public-route, native or
 hardware proof. Existing A technical gates and owner choice remain unchanged.
+
+A separate real-HA default-mode regression also passes after the extension.
+With the long-run option off it exports the existing23 common wire cases;
+the retained26-example long-run corpus additionally contains three periodic
+renewal samples. Method/path/status/authentication and top-level request/response
+shapes match those common cases. The documentation distinguishes these modes;
+no new load fixture is silently substituted for the existing consumer corpus.

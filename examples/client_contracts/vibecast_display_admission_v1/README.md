@@ -58,5 +58,5 @@ start an Apple/receiver assignment or qualify a public HA route/native/TV.
 HA eight-transport test at probe5528aa75. It is not an HTTP fixture, native test
 or added live capability. It contains no usable credentials or authority IDs.
 The source digest includes the probe and is independently rechecked; integration
-bytes remain equal to producer3cb9cf12. Default26-example capture is preserved.
+bytes remain equal to producer3cb9cf12. The earlier26-example long-run capture is preserved.
 See the receipt's explicit no-claims and resource/reproduction boundaries.
