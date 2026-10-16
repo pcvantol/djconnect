@@ -23,6 +23,7 @@ def _platform_capabilities() -> dict[str, bool]:
         "hybrid_transport": True,
         "session_artwork": True,
         "session_speech": True,
+        "passive_session_surface": True,
     }
 
 
@@ -42,5 +43,6 @@ def _contract_versions() -> dict[str, int]:
         "hybrid_transport": 1,
         "session_artwork": 1,
         "session_speech": 1,
+        "passive_session_surface": 1,
         "session_history_summary": 1,
     }

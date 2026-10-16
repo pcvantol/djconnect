@@ -8,14 +8,16 @@ The original3October snapshot/audit/source pins and projections are immutable hi
 
 Selected and freshly admitted speech/Persona implementation: DJC-SESSION-SPEECH-PERSONA-VOICE-20261015; source PROTECTED_MERGED. Four bounded Core leaves reuse existing Voice/Speech/Audio Renderer architecture; Apple/native audible/joint acceptance remains Planned/open. Delivered artwork v11 and historical snapshots preserved; no new provider/model/cost route or consumer writer.
 
+Selected passive Session projection: DJC-CORE-PASSIVE-SESSION-PROJECTION-V1-20261015; source UNPUBLISHED. Existing SURFACE::CORE::PROJECTION only; native rich adoption OPEN_APPLE, background SURFACE::APPLE::QUIET-TRANSPORT separately Planned, Watch NOT_QUALIFIED and joint OPEN. Original publication/source deadlines, explicit purpose grants and pure reads; no client writes, provider or automatic dispatch. Delivered v12 and all prior receipts preserved.
+
 Authority: [DJC-DJ-PRESENCE-ROADMAP-DESIGN-V1-20261011](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6110375785).
 
 Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348fb6`; canonical frozen content `8179d34d9e91106bb1d15c77b734a3cb3b5ebcedae240860f76ece15f50dbef3`.
 
 | Local design source | SHA256 |
 |---|---|
-| [PRODUCT_ROADMAP.md](../../../PRODUCT_ROADMAP.md) | `922c2e2772a71afa469751b024775e269a709d1963064d7793dcbbc3e17c1a68` |
-| [PRODUCT_BACKLOG.md](../../../PRODUCT_BACKLOG.md) | `1d614ea4c168d6ec30f7a06c7bb2399215ea747edf94b4917832de95bb3446d7` |
+| [PRODUCT_ROADMAP.md](../../../PRODUCT_ROADMAP.md) | `08829ad5562f4e2409cb1ead527983864513201c52563658d4ff6ecbc59b862b` |
+| [PRODUCT_BACKLOG.md](../../../PRODUCT_BACKLOG.md) | `8232ecd1ffbaec3ee79c05356ec0eedfda2ffc2435da698f85f14c7336324144` |
 | [docs/product/DJ_PRESENCE_V1.md](../../../docs/product/DJ_PRESENCE_V1.md) | `c97be3bcebbd4ca70d640cdf4fc0a9a4808451e986bc977e3173e19842a928c4` |
 | [DJ_SESSION_RUNTIME_CONTRACTS.md](../../../DJ_SESSION_RUNTIME_CONTRACTS.md) | `6ae7a05260bc2a997252dbb70c28917ac6b7fd25930263d7c0940df929b1ec92` |
 | [docs/product/DJ_INTELLIGENCE_ARCHITECTURE.md](../../../docs/product/DJ_INTELLIGENCE_ARCHITECTURE.md) | `5345f4a3db6b2bfb97931d6acdde09439dc3dbae7a7d311107269922e08aef12` |
@@ -24,13 +26,13 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 | [docs/product/DJ_PRESENCE_CORE_POLICY_V1.md](../../../docs/product/DJ_PRESENCE_CORE_POLICY_V1.md) | `32ed8a6a47cc6f64fb07b9ef4df1cf8fb7e92c2368cd0c35c66ad31b76b64909` |
 | [docs/product/DJ_PRESENCE_OWNER_CONTRACT_V1.md](../../../docs/product/DJ_PRESENCE_OWNER_CONTRACT_V1.md) | `2580acda7c9e19020c030cb1b8cecd47ef87af0f43a643b90f37d7bd89ee65a3` |
 | [docs/product/DISCOVERY_ARTWORK_CONTINUITY_V1.md](../../../docs/product/DISCOVERY_ARTWORK_CONTINUITY_V1.md) | `66afc37ff6b71b0dacffe6e340ccde274bd3f0f7354155920ebd327fd822ed98` |
-| [API_CONTRACT.md](../../../API_CONTRACT.md) | `b83415585a10362eda7d69801c82350df0d0e57718297cd161efbd3173059429` |
+| [API_CONTRACT.md](../../../API_CONTRACT.md) | `fdea00adbb0bf33bf4721a8df28d5bfbbba92f9f4057f1938082f4dfd4fe5707` |
 | [docs/product/NARRATIVE_ALBUM_CONTINUITY_V1.md](../../../docs/product/NARRATIVE_ALBUM_CONTINUITY_V1.md) | `179d45df97a9f4e260c90fdfa211563f6ed2789ec78a0e691f4d89784c4f5552` |
 | [docs/product/DJ_INTELLIGENCE_MATURITY.md](../../../docs/product/DJ_INTELLIGENCE_MATURITY.md) | `e546b04681d4278cadf790400c761f39f845cb95092d6cf09da6b31d04aa9c86` |
 | [docs/product/SHARED_PRODUCER_CONTINUITY_CONTRACT.md](../../../docs/product/SHARED_PRODUCER_CONTINUITY_CONTRACT.md) | `d06d2563b1de4fcfdff15bd76e0952e19f0970666b8ce5677db10cf6ee11a2ed` |
 | [docs/product/DISCOVER_NARRATIVE_TRANSITION_CONTRACT.md](../../../docs/product/DISCOVER_NARRATIVE_TRANSITION_CONTRACT.md) | `a27c694d57bca4908d4a258c9a6e0aec1de95d3ee6ddd89a377e32bf6b9f8e32` |
 | [docs/product/EXPRESSIVE_CONTEXT_VARIATION_V1.md](../../../docs/product/EXPRESSIVE_CONTEXT_VARIATION_V1.md) | `01e6cbe92d1fc240b3b444e646cb5bdd809a242cf61b2044edc5fb26775f26c7` |
-| [docs/product/NATIVE_MOMENT_DELIVERY_CONTRACT.md](../../../docs/product/NATIVE_MOMENT_DELIVERY_CONTRACT.md) | `75286b63087b0dec98f42d2bbf9c9fd1d6d9f50cbc9c75a51154b3ddb9173af2` |
+| [docs/product/NATIVE_MOMENT_DELIVERY_CONTRACT.md](../../../docs/product/NATIVE_MOMENT_DELIVERY_CONTRACT.md) | `b7273907e2b2c50d163b4d056bbb8fa5c908299eb98f7af8120e037fbc6a7a64` |
 | [docs/technical/BROADCAST_TRANSPORT.md](../../../docs/technical/BROADCAST_TRANSPORT.md) | `9571ebd859d90f2190e8c8d6102d08477bf65d62ec3d145c328c13bef58b2e9f` |
 | [docs/verification/NARRATIVE_ALBUM_CONTINUITY_V1_ACCEPTANCE.md](../../../docs/verification/NARRATIVE_ALBUM_CONTINUITY_V1_ACCEPTANCE.md) | `c71d70e105a56b63a34d814f74ed51b2d59c084738a0350a3e1abb98c3358f3e` |
 | [docs/product/SESSION_FORECAST_V1.md](../../../docs/product/SESSION_FORECAST_V1.md) | `fa9ebfc5e90a893a1c1f8e0cf89660e8c506e4d79f12594b5ff092fb05b24a90` |
@@ -43,7 +45,7 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 | [docs/history/prompts/2026-10-12-ambient-fact-core-finalization.md](../../../docs/history/prompts/2026-10-12-ambient-fact-core-finalization.md) | `7391647babdf4eca2a287c7c8e654d3f98c0d04121367e030173c474bfde59a6` |
 | [docs/product/SESSION_ENTRY_LIFECYCLE_EXPERIENCE_V1.md](../../../docs/product/SESSION_ENTRY_LIFECYCLE_EXPERIENCE_V1.md) | `56e88a4630fcd807b0dc3135c3f01c1022e8659fcbd08e6101db0bcb8babf8a9` |
 | [docs/product/SESSION_HISTORY_SUMMARY_V1.md](../../../docs/product/SESSION_HISTORY_SUMMARY_V1.md) | `fed7b849ce5c5918507b22055575cd847728ae40c28e038a364c647e6fb193d9` |
-| [docs/product/APPLE_SESSION_NATIVE_SURFACES_V1.md](../../../docs/product/APPLE_SESSION_NATIVE_SURFACES_V1.md) | `6677b8f6ae1935fedb13f277711b08522b47a87ebf0b65b19ca958cdfb74615a` |
+| [docs/product/APPLE_SESSION_NATIVE_SURFACES_V1.md](../../../docs/product/APPLE_SESSION_NATIVE_SURFACES_V1.md) | `ed08b85c7f39c1e06ef70ebdb59cec6f4fe35a2bf6d5c74abb89ec7087994b7f` |
 | [docs/verification/SESSION_ENTRY_LIFECYCLE_HISTORY_DESIGN_V1_SOURCE_READBACK.md](../../../docs/verification/SESSION_ENTRY_LIFECYCLE_HISTORY_DESIGN_V1_SOURCE_READBACK.md) | `5f514a8d824402dea2c180a59fca30579d2dd95f410827323d01c4b6b940a241` |
 | [docs/history/prompts/2026-10-12-session-entry-lifecycle-history-design-finalization.md](../../../docs/history/prompts/2026-10-12-session-entry-lifecycle-history-design-finalization.md) | `89d915a21392089344fde1212c19bd0c5cc937242c7223cb786160b783b36328` |
 | [docs/product/SESSION_HISTORY_SUMMARY_ACCEPTANCE_V1.md](../../../docs/product/SESSION_HISTORY_SUMMARY_ACCEPTANCE_V1.md) | `2ca903977e3cd59888295a7081be577b93175b682a4d162b12159acaa78092a9` |
@@ -70,7 +72,7 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 | [docs/verification/HYBRID_TRANSPORT_V1_SOURCE_READBACK_20261015.md](../../../docs/verification/HYBRID_TRANSPORT_V1_SOURCE_READBACK_20261015.md) | `103d6b01196951e03379de984ac523a76f928f63e37a38055d8222ffea673000` |
 | [docs/history/prompts/2026-10-15-hybrid-transport-localization-finalization.md](../../../docs/history/prompts/2026-10-15-hybrid-transport-localization-finalization.md) | `cbdabdb5c5201df3b220c306a0d9ca16f1215a480c624c452cefc9a63efa20f6` |
 | [docs/product/SESSION_MOMENT_ARTWORK_V1.md](../../../docs/product/SESSION_MOMENT_ARTWORK_V1.md) | `580e7022b2a1684117a16f7602ecd21cd1672988001825d3e869712bde2dda4a` |
-| [docs/product/SESSION_ARTWORK_DELIVERY_CONTRACT_V1.md](../../../docs/product/SESSION_ARTWORK_DELIVERY_CONTRACT_V1.md) | `3e3da658daa128f5eae618740ba8e86a39766a661d559f86badfb20a6f9f8c09` |
+| [docs/product/SESSION_ARTWORK_DELIVERY_CONTRACT_V1.md](../../../docs/product/SESSION_ARTWORK_DELIVERY_CONTRACT_V1.md) | `a990c6ddee40279009b70e3d193d9fd2b7cc669cafccbb86fb2d6d3b460cf602` |
 | [docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md](../../../docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md) | `d3bee293d4e2f3253fcafa96427093631e6996a360ec66efe5c14b64082c66dc` |
 | [docs/product/VIBECAST_ONBOARDING_GUEST_AUTHORITY_V1.md](../../../docs/product/VIBECAST_ONBOARDING_GUEST_AUTHORITY_V1.md) | `da543d0ebf266dfb4ec8ab491e7214940c946a85b381c44802b68f7d6e1708b2` |
 | [docs/product/APPLE_VIBECAST_GUEST_MODE_V1.md](../../../docs/product/APPLE_VIBECAST_GUEST_MODE_V1.md) | `3141ad70b91b124937a9268a33b24fb19b9eb1e3fbe143d5c456848ca4b1c268` |
@@ -89,3 +91,5 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 | [docs/verification/PROVIDER_VOICE_GENDER_SOURCE_20261016.md](../../../docs/verification/PROVIDER_VOICE_GENDER_SOURCE_20261016.md) | `ab02670e4c5b33433be036ac8165c9f123df238afa759c45a52c1951ddba41db` |
 | [docs/verification/PROVIDER_VOICE_GENDER_SOURCE_READBACK_20261016.md](../../../docs/verification/PROVIDER_VOICE_GENDER_SOURCE_READBACK_20261016.md) | `15062c222152e2fd58810f4d9f92b74225d2beecca7ee1c1d78382fc4309c9f8` |
 | [docs/history/prompts/2026-10-16-provider-voice-gender-finalization.md](../../../docs/history/prompts/2026-10-16-provider-voice-gender-finalization.md) | `ee784e85d90f928df38d43cd1bba17b2c912c60ff8c9d06d8d2f060f62ce822f` |
+| [docs/product/PASSIVE_SESSION_PROJECTION_V1.md](../../../docs/product/PASSIVE_SESSION_PROJECTION_V1.md) | `de04b361cbf278d97629dc74be19b064f750bbc128a3439fea2ec44e6ec7a575` |
+| [docs/verification/PASSIVE_SESSION_PROJECTION_SOURCE_20261016.md](../../../docs/verification/PASSIVE_SESSION_PROJECTION_SOURCE_20261016.md) | `02b7c65903667a42522272823c6711d9b6ffcd1c049c21efb64c5c1dfb3b0fa2` |

@@ -1,5 +1,26 @@
 # DJConnect Product Roadmap
 
+## Selected passive Session projection — Core implementation in progress
+
+`DJC-CORE-PASSIVE-SESSION-PROJECTION-V1-20261015` reuses
+`SURFACE::CORE::PROJECTION`, owner6199213014, ACK6214264273, actual base
+`9faffe533d4a117eb8ad362e73809d126bdcc9d7`, branch
+`codex/passive-session-projection-v1`. [Contract](docs/product/PASSIVE_SESSION_PROJECTION_V1.md)
+commit9bc26e0c precedes first materiald64b8a7a/register6214391660.
+Prior source1189/Finalization1190 and their exact-main/artifact/owncleanup are
+complete; their dated freeze-point records below remain history.
+
+One connected owner-authorized producer, original publication/deadlines,
+independent metadata and cover rights, explicit transient surface consent and
+pure read/live invalidation. Existing Runtime/Planner/media owners retained.
+Maintenance13 preserves the complete prior12 snapshot and all delivered nodes,
+reuses the one Core node and existing dependent
+`SURFACE::APPLE::QUIET-TRANSPORT`; no duplicate background family. Native rich
+adoption, background, Watch and joint acceptance remain separately Planned/open.
+No Swift/provider/model/signing/relay work or source-delivery PASS claimed here.
+
+## Historical scope records
+
 ## Provider voice/gender correction — Core source delivered
 
 Source PR [#1189](https://github.com/pcvantol/djconnect/pull/1189) protected merged as `ff507c8999069791f3697d5cef2590dda43db243`, exact independently reviewed and separately owner-authorized repair head `5b1a5010a6c8258ff54e4fe7b2290cfc3ee8d9d6` on base `f04fc578d11252f48324a22cb6f71039bdcc59d5`. All32 checks PASS/5conditional skips, including successful TDE observe; exact Owner Authorization38888413369 SUCCESS. No bypass. Complete candidate/main trees equal. Main CI38888674687 and formal38889100161 SUCCESS. Official archive170regular files,0missing/extra/mismatch/symlink; raw/durable/coverage/main/PR bindings qualified. [Exact readback](docs/verification/PROVIDER_VOICE_GENDER_SOURCE_READBACK_20261016.md). Earlier1187/1188 stays closed.

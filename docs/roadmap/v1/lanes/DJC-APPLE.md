@@ -8,6 +8,8 @@ The original3October snapshot/audit/source pins and projections are immutable hi
 
 Selected and freshly admitted speech/Persona implementation: DJC-SESSION-SPEECH-PERSONA-VOICE-20261015; source PROTECTED_MERGED. Four bounded Core leaves reuse existing Voice/Speech/Audio Renderer architecture; Apple/native audible/joint acceptance remains Planned/open. Delivered artwork v11 and historical snapshots preserved; no new provider/model/cost route or consumer writer.
 
+Selected passive Session projection: DJC-CORE-PASSIVE-SESSION-PROJECTION-V1-20261015; source UNPUBLISHED. Existing SURFACE::CORE::PROJECTION only; native rich adoption OPEN_APPLE, background SURFACE::APPLE::QUIET-TRANSPORT separately Planned, Watch NOT_QUALIFIED and joint OPEN. Original publication/source deadlines, explicit purpose grants and pure reads; no client writes, provider or automatic dispatch. Delivered v12 and all prior receipts preserved.
+
 - `SLICE::APPLE::DJ-PRESENCE-CONTROL` — Planned; Accessible five-language native confirmation; reuse existing Apple writer
 - `CORRECTION::APPLE::DISCOVERY-ARTWORK-ACCEPTANCE` — Planned; Consume pinned producer; native visible attribution, expiry and clear acceptance remain Apple-owned, no new writer/admission
 - `RELATION::CONSUMERS::ALBUM-CONTINUITY-ACCEPTANCE` — Planned; One bounded Discover/Exploring relation; no full narrative stage promotion or new consumer admission

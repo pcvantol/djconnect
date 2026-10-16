@@ -3529,6 +3529,9 @@ class DJSessionBroadcastEngine:
     media_cleanup: Any = field(default=None, repr=False)
     speech_cleanup: Any = field(default=None, repr=False)
     speech_refresh: Any = field(default=None, repr=False)
+    passive_grants: dict = field(default_factory=dict, repr=False)
+    passive_observation: Any = field(default=None, repr=False)
+    passive_state_observed: tuple = field(default_factory=lambda: (time.monotonic(), time.time()), repr=False)
     _media_revision: str = field(default="", init=False, repr=False)
     pending_events: tuple[BroadcastEventType, ...] = ()
     replay_log_limit: int = 128
@@ -3729,12 +3732,16 @@ class DJSessionBroadcastEngine:
         self._owner_subscription_entries.clear()
         self._revoked_subscriptions.clear()
         self._withdrawal_sent.clear()
+        self.passive_grants.clear()
+        self.passive_observation = None
 
     def _publish(self, event_type: BroadcastEventType, payload: dict[str, Any]) -> None:
         """Deliver one incremental, renderer-safe event to active subscribers."""
         if self.speech_refresh is not None:
             self.speech_refresh()
         self.delivery_sequence += 1
+        if event_type is not BroadcastEventType.PLAYBACK_PROGRESS:
+            self.passive_state_observed = (time.monotonic(), time.time())
         opaque_cursor = secrets.token_urlsafe(32)
         payload = self._safe_delivery_payload(payload,
             new_publication=event_type is BroadcastEventType.DJ_MOMENT_PUBLISHED)
@@ -3980,6 +3987,11 @@ class DJSessionBroadcastEngine:
             result["session_flow"]["items"] = [item for item in result["session_flow"]["items"]
                                                if item.get("moment_id") not in excluded]
         result["native_delivery"] = native
+        result.pop("passive_surface", None)
+        if include_owner_only:
+            result["passive_surface"] = {"version": 1, "session_id": self.state.session_id,
+                                         "delivery_sequence": self.delivery_sequence,
+                                         "invalidation_only": True}
         result.pop("session_speech", None)
         if include_owner_only:
             from .session_speech import moment_projection
@@ -4491,6 +4503,10 @@ class SessionRuntimeManager:
                 active.broadcast.invalidate_current_delivery()
             if forecast_authority is not None:
                 active.broadcast.forecast.authority = forecast_authority
+            # Only a genuinely accepted backend observation starts this clock;
+            # progress ticks, queue updates and snapshot reads never renew it.
+            active.broadcast.passive_observation = (time.monotonic(), time.time(), projection)
+            active.broadcast.passive_state_observed = active.broadcast.passive_observation[:2]
             changed = active.broadcast.update_playback(projection)
             active.broadcast.forecast.accept_observation()
             active.broadcast.update_forecast(active)

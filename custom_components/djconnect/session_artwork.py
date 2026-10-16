@@ -221,7 +221,8 @@ async def _prepare(hass, runtime, context, *, session_id, target, complete_deadl
                 artwork['media_revision'] = revision
                 projection = {'schema_version': 1, 'session_id': session_id, **target,
                               'revision': revision, 'artwork': artwork}
-                asset = {'body': body, 'mime': mime, 'deadline': mono + TTL, 'authority': authority,
+                asset = {'body': body, 'mime': mime, 'deadline': mono + TTL,
+                         'captured_monotonic': mono, 'authority': authority,
                          'allowed': allowed, 'asset_id': asset_id, 'subject': uri, 'projection': projection,
                          'historical': historical, 'expected_source': dict(expected_source), 'delivery_scope': delivery_scope}
                 if not registry.commit(key, asset):

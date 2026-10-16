@@ -3,6 +3,24 @@
 This document summarizes the client-facing DJConnect Home Assistant API contract.
 It is intentionally compact; `README.md` remains the full user/developer guide.
 
+## Passive Session surface v1
+
+Additive `passive_session_surface` capability/contract1 describes explicit
+paired-owner surface consent (`POST /api/djconnect/v1/session/surface/authorize`)
+and the pure `/session/surface/read` query. Exact Session/device/surface grants
+are transient, not credentials or shared Profile preferences. Versioned short
+contribution, independent current metadata and cover permissions, original
+deadlines and generation/sequence binding follow the
+[canonical contract](docs/product/PASSIVE_SESSION_PROJECTION_V1.md).
+Image GET `/session/surface/image/{session_id}/{asset_id}` requires ordinary
+paired bearer plus matching grant/surface/version/device query fields; no
+private owner image URL or unscoped proxy token is a passive grant.
+HTTP responses are `no-store`; only explicitly authorized payload fields/bytes
+may enter the bounded current-surface cache. Existing owner Broadcast events
+carry an invalidation-only hint; reread current authorized content, never turn
+replay into a fresh publication. Shared VibeCast/notifications receive none.
+Native rich, background/ActivityKit, Watch and joint acceptance remain separate.
+
 ## Additive hybrid transport v1
 
 The [hybrid contract](docs/product/HYBRID_HTTP_WEBSOCKET_TRANSPORT_V1.md) and

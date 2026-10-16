@@ -3022,6 +3022,51 @@ class DJConnectForecastImageView(_DJConnectSessionView):
             "Cache-Control": "no-store", "Referrer-Policy": "no-referrer", "X-Content-Type-Options": "nosniff"})
 
 
+class DJConnectPassiveSurfaceAuthorizeView(_DJConnectSessionView):
+    url = "/api/djconnect/v1/session/surface/authorize"
+    name = "api:djconnect:session:surface:authorize"
+
+    async def post(self, request):
+        from .passive_session import handle
+        result, status = await handle(request.app["hass"], await self._payload(request),
+                                      headers=request.headers, authorize=True)
+        return self.json(result, status_code=status)
+
+
+class DJConnectPassiveSurfaceReadView(_DJConnectSessionView):
+    url = "/api/djconnect/v1/session/surface/read"
+    name = "api:djconnect:session:surface:read"
+
+    async def post(self, request):
+        from .passive_session import handle
+        result, status = await handle(request.app["hass"], await self._payload(request), headers=request.headers)
+        return self.json(result, status_code=status)
+
+
+class DJConnectPassiveSurfaceImageView(_DJConnectSessionView):
+    url = "/api/djconnect/v1/session/surface/image/{session_id}/{asset_id}"
+    name = "api:djconnect:session:surface:image"
+
+    async def get(self, request, session_id, asset_id):
+        from .passive_session import handle
+        payload = dict(request.query)
+        if len(payload) != len(request.query) or payload.get('contract_version') != '1':
+            return self.json({'success': False, 'error': 'invalid_request'}, status_code=400)
+        payload.update(contract_version=1, session_id=session_id)
+        result, status = await handle(request.app['hass'], payload, headers=request.headers)
+        if status != 200:
+            return self.json(result, status_code=status)
+        allowed = {a['asset_id'] for a in result['passive_session']['artwork']}
+        registry = request.app['hass'].data.get(DOMAIN, {}).get('session_images')
+        if registry is not None and asset_id in allowed:
+            for asset in registry.assets.values():
+                if asset['asset_id'] == asset_id and asset['authority']():
+                    return web.Response(body=asset['body'], content_type=asset['mime'], headers={
+                        'Cache-Control': 'no-store', 'Referrer-Policy': 'no-referrer',
+                        'X-Content-Type-Options': 'nosniff'})
+        return self.json({'success': False, 'error': 'surface_image_unavailable'}, status_code=404)
+
+
 class DJConnectSessionMediaPrepareView(_DJConnectSessionView):
     url = "/api/djconnect/v1/session/media/prepare"
     name = "api:djconnect:session:media:prepare"
@@ -3089,6 +3134,7 @@ class DJConnectTransportCapabilitiesView(HomeAssistantView):
         from .session_forecast import capability as forecast_capability
         from .session_artwork import capability as artwork_capability
         from .session_speech import capability as speech_capability
+        from .passive_session import capability as passive_capability
         return self.json(
             {
                 "success": True,
@@ -3103,6 +3149,7 @@ class DJConnectTransportCapabilitiesView(HomeAssistantView):
                 "active_session_presence": presence_capability(),
                 "session_forecast": forecast_capability(),
                 "session_artwork": artwork_capability(),
+                "passive_session_surface": passive_capability(),
                 "session_speech": speech_capability(),
                 "hybrid_transport": hybrid_transport_capability(),
             }

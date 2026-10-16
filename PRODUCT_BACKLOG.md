@@ -1,5 +1,26 @@
 # DJConnect Product Backlog
 
+## Selected passive Session projection — owning Core subset
+
+[Canonical contract](docs/product/PASSIVE_SESSION_PROJECTION_V1.md), existing
+`SURFACE::CORE::PROJECTION`, owner6199213014/ACK6214264273, design9bc26e0c and
+materiald64b8a7a on base9faffe533d4a117eb8ad362e73809d126bdcc9d7.
+Core implementation/qualification in progress; no published source/consumer
+acceptance claimed. Predecessor1189/1190 is closed and safely reconciled.
+
+Existing `SURFACE::APPLE::ADOPTION` owns native rich Session widgets/Activity/
+Island and migration aliases. Existing dependent
+`SURFACE::APPLE::QUIET-TRANSPORT` owns separately admitted background delivery:
+ActivityKit token family/rotation/environment/unregister, consent, exact
+Session/generation, update/end dedup/withdrawal/dismissal and permitted relay
+payload, separate WidgetKit refresh budget/OS latency. Watch remains unqualified;
+`SURFACE::PRODUCT::JOINT` waits for real selected native/transport proof. No new
+writer or automatic dispatch. Artist-photo passive caching is explicitly
+not_qualified, independently allowed metadata/covers are required positive proof.
+Native installed/locked/background passes cannot follow from Core fixtures.
+
+## Historical scope records
+
 ## Provider voice/gender correction — Core source delivered
 
 Source PR [#1189](https://github.com/pcvantol/djconnect/pull/1189) protected merged as `ff507c8999069791f3697d5cef2590dda43db243`, exact independently reviewed and separately owner-authorized repair head `5b1a5010a6c8258ff54e4fe7b2290cfc3ee8d9d6` on base `f04fc578d11252f48324a22cb6f71039bdcc59d5`. All32 checks PASS/5conditional skips, including successful TDE observe; exact Owner Authorization38888413369 SUCCESS. No bypass. Complete candidate/main trees equal. Main CI38888674687 and formal38889100161 SUCCESS. Official archive170regular files,0missing/extra/mismatch/symlink; raw/durable/coverage/main/PR bindings qualified. [Exact readback](docs/verification/PROVIDER_VOICE_GENDER_SOURCE_READBACK_20261016.md). Earlier1187/1188 stays closed.
