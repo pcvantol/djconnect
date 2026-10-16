@@ -58,6 +58,7 @@ def _text(broadcast, now):
         a = admissions.get(moment.moment_id, {})
         boundary = broadcast._moment_delivery_boundaries.get(moment.moment_id)
         if (not boundary or a.get('qualification') != 'qualified'
+                or not (a.get('current_display_allowed') or a.get('active_flow_display_allowed'))
                 or moment.presentation_intent.visibility.value == 'owner_only'
                 or moment.moment_type.value == 'silence' or not moment.content
                 or len(moment.content) > 640):
@@ -156,7 +157,8 @@ def projection(active, grant, *, registry=None, owner=''):
               'cache_policy': {'scope': 'current_surface_only', 'maximum_seconds': 120,
                                'renew_on_read': False, 'locked_display': grant.locked_display,
                                'os_pixel_erasure': 'best_effort_when_learned'},
-              'mood': {'value': active.selected_mood, 'revision': active.mood_revision},
+              'mood': {'value': active.selected_mood if active.selected_mood in
+                       {'chill', 'groove', 'energy', 'party'} else None, 'revision': active.mood_revision},
               'presence': active.selected_presence, 'persona': active.dj_persona.value,
               'navigation': {'kind': 'open_session', 'session_id': active.session_id}}
     if (not grant.authority() or active.runtime_state.value != 'active'

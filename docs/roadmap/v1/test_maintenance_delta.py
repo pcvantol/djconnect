@@ -11,6 +11,17 @@ from render_snapshot import render
 ROOT = Path(__file__).resolve().parent
 
 
+def delivered_speech_plan():
+    """Earlier v12 invariants keep running against their exact preserved scope."""
+    import json
+    plan = load(ROOT / 'djconnect-platform-v1.json')
+    if plan['planning_maintenance']['schema_version'] == 'djconnect-federated-planning-delta/13':
+        refs = plan['planning_maintenance']['document_references']
+        plan['planning_maintenance'] = json.loads((ROOT / 'history/20261016/provider-gender-finalization-maintenance-v12.json').read_text())
+        plan['planning_maintenance']['document_references'] = refs
+    return plan
+
+
 def delivered_artwork_plan():
     """Earlier stage invariants run on the preserved delivered v11 scope.
 
@@ -18,7 +29,7 @@ def delivered_artwork_plan():
     predecessor equality. Current canonical document references still apply.
     """
     import json
-    plan = load(ROOT / "djconnect-platform-v1.json")
+    plan = delivered_speech_plan()
     if plan["planning_maintenance"]["schema_version"] == "djconnect-federated-planning-delta/12":
         refs = plan["planning_maintenance"]["document_references"]
         plan["planning_maintenance"] = json.loads((ROOT / "history/20261015/artwork-finalization-maintenance-v11.json").read_text())
@@ -619,9 +630,48 @@ class SessionArtworkMaintenanceTests(unittest.TestCase):
         self.assertTrue(validate(p))
 
 
+class PassiveSurfaceMaintenanceTests(unittest.TestCase):
+    def setUp(self):
+        self.p = load(ROOT / 'djconnect-platform-v1.json')
+
+    def test_v13_preserves_all_delivered_state_and_existing_background_node(self):
+        self.assertEqual(self.p['planning_maintenance']['schema_version'], 'djconnect-federated-planning-delta/13')
+        self.assertEqual(validate(self.p), [])
+        d = self.p['planning_maintenance']
+        self.assertEqual(len([n for n in d['nodes'] if n['id'] == 'SURFACE::CORE::PROJECTION']), 1)
+        background = next(n for n in d['nodes'] if n['id'] == 'SURFACE::APPLE::QUIET-TRANSPORT')
+        self.assertEqual((background['status'], background['assignment_status']), ('Planned', 'NOT_ISSUED'))
+        self.assertIn('Selected passive Session projection', render(self.p)['README.md'])
+
+    def test_consumer_background_and_false_source_completion_rejected(self):
+        for key, value in (('native', 'PASS'), ('background', 'PASS'), ('watch', 'PASS'),
+                           ('joint', 'PASS'), ('consumer_writes', True), ('automatic_dispatch', True),
+                           ('owner_selection', 0), ('contract_commit', '0'*40),
+                           ('source_delivery', 'PROTECTED_MERGED')):
+            with self.subTest(key=key):
+                p = copy.deepcopy(self.p)
+                p['planning_maintenance']['passive_surface_receipt'][key] = value
+                self.assertTrue(validate(p))
+
+    def test_unrelated_history_edges_and_duplicate_or_completed_native_nodes_rejected(self):
+        for mode in ('speech', 'edge', 'duplicate', 'native'):
+            with self.subTest(mode=mode):
+                p = copy.deepcopy(self.p)
+                d = p['planning_maintenance']
+                if mode == 'speech':
+                    d['speech_persona_receipt']['base_sha'] = '0'*40
+                elif mode == 'edge':
+                    next(e for e in d['edges'] if e['id'] == 'ENTRY-ABC-7')['hard_precedence'] = False
+                elif mode == 'duplicate':
+                    d['nodes'].append(copy.deepcopy(next(n for n in d['nodes'] if n['id'] == 'SURFACE::CORE::PROJECTION')))
+                else:
+                    next(n for n in d['nodes'] if n['id'] == 'SURFACE::APPLE::ADOPTION')['status'] = 'Completed'
+                self.assertTrue(validate(p))
+
+
 class SpeechPersonaMaintenanceTests(unittest.TestCase):
     def setUp(self):
-        self.p = load(ROOT / "djconnect-platform-v1.json")
+        self.p = delivered_speech_plan()
 
     def test_live_v12_and_delivered_v11_are_valid_and_reference_only_consumer(self):
         self.assertEqual(self.p['planning_maintenance']['schema_version'], 'djconnect-federated-planning-delta/12')

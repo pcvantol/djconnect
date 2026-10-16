@@ -37594,7 +37594,7 @@
     }
   ],
   "planning_maintenance": {
-    "schema_version": "djconnect-federated-planning-delta/12",
+    "schema_version": "djconnect-federated-planning-delta/13",
     "decision_id": "DJC-DJ-PRESENCE-ROADMAP-DESIGN-V1-20261011",
     "decision_url": "https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6110375785",
     "design_date": "2026-10-11",
@@ -38207,11 +38207,11 @@
         "title": "Native surface rights/state projection",
         "lane": "DJC-CORE",
         "repository": "pcvantol/djconnect",
-        "status": "Planned",
-        "assignment_status": "NOT_ISSUED",
-        "scope": "Purpose-specific neutral/rich grant, subject/expiry/revision, no private cache inheritance",
-        "acceptance_boundary": "Purpose-specific neutral/rich grant, subject/expiry/revision, no private cache inheritance",
-        "contract_binding": "docs/product/APPLE_SESSION_NATIVE_SURFACES_V1.md",
+        "status": "In progress",
+        "assignment_status": "IN_PROGRESS",
+        "scope": "Explicit owner/surface grants, published short contribution, independently bound metadata/cover, original expiry and pure read/live invalidation",
+        "acceptance_boundary": "Connected real pairedHA positive and negative rights/lifecycle/expiry proof; native/background/Watch/joint separately open",
+        "contract_binding": "docs/product/PASSIVE_SESSION_PROJECTION_V1.md",
         "source_ids": [
           "OWNER-SESSION-ENTRY-ABC-20261012"
         ],
@@ -41291,11 +41291,11 @@
     "document_references": [
       {
         "path": "PRODUCT_ROADMAP.md",
-        "sha256": "922c2e2772a71afa469751b024775e269a709d1963064d7793dcbbc3e17c1a68"
+        "sha256": "08829ad5562f4e2409cb1ead527983864513201c52563658d4ff6ecbc59b862b"
       },
       {
         "path": "PRODUCT_BACKLOG.md",
-        "sha256": "1d614ea4c168d6ec30f7a06c7bb2399215ea747edf94b4917832de95bb3446d7"
+        "sha256": "8232ecd1ffbaec3ee79c05356ec0eedfda2ffc2435da698f85f14c7336324144"
       },
       {
         "path": "docs/product/DJ_PRESENCE_V1.md",
@@ -41331,7 +41331,7 @@
       },
       {
         "path": "API_CONTRACT.md",
-        "sha256": "b83415585a10362eda7d69801c82350df0d0e57718297cd161efbd3173059429"
+        "sha256": "fdea00adbb0bf33bf4721a8df28d5bfbbba92f9f4057f1938082f4dfd4fe5707"
       },
       {
         "path": "docs/product/NARRATIVE_ALBUM_CONTINUITY_V1.md",
@@ -42093,6 +42093,27 @@
         "implementation_in_this_slice": false,
         "new_publication_gates_preserved": true
       }
+    },
+    "passive_surface_receipt": {
+      "assignment_id": "DJC-CORE-PASSIVE-SESSION-PROJECTION-V1-20261015",
+      "owner_selection": 6199213014,
+      "base_sha": "9faffe533d4a117eb8ad362e73809d126bdcc9d7",
+      "branch": "codex/passive-session-projection-v1",
+      "ack": 6214264273,
+      "material_start": 6214391660,
+      "contract_commit": "9bc26e0caab15a83acf50b79be7236f723ee0404",
+      "material_commit": "d64b8a7a9a5262cfe367f0574cab580fc1237765",
+      "previous_delta": "history/20261016/provider-gender-finalization-maintenance-v12.json",
+      "previous_delta_sha256": "cfbcd126fe88aa4d6316173723103b5ff9891dee55d064ac835c3f779921e580",
+      "phase": "LOCAL_IMPLEMENTATION_AND_QUALIFICATION",
+      "source_delivery": "UNPUBLISHED",
+      "background_node": "SURFACE::APPLE::QUIET-TRANSPORT",
+      "native": "OPEN_APPLE",
+      "background": "PLANNED",
+      "watch": "NOT_QUALIFIED",
+      "joint": "OPEN",
+      "consumer_writes": false,
+      "automatic_dispatch": false
     }
   }
 }

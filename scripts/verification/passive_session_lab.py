@@ -21,7 +21,7 @@ async def run(*, hass, runtime, client, headers, identity, manager, storage, sid
     async def request(path, payload, expected=200, auth=headers):
         response = await client.post(BASE + path, json=payload, headers=auth)
         body = await response.json()
-        assert response.status == expected, (path, response.status, body)
+        assert response.status in (expected if isinstance(expected, tuple) else (expected,)), (path, response.status, body)
         assert response.headers.get('Cache-Control') == 'no-store'
         return body
 
@@ -69,13 +69,18 @@ async def run(*, hass, runtime, client, headers, identity, manager, storage, sid
     await request('/read', {**read, 'surface': 'live_activity'}, 403)
     await request('/read', {**read, 'profile_id': 'forged'}, 400)
     # Another normally paired device may share owner Session, never this grant.
-    pair = await client.post('/api/djconnect/v1/pair', json={**second_identity, 'pair_code': '234567'})
+    hass.data['djconnect']['runtime'] = hass.data['djconnect']['second-owner']
+    try:
+        pair = await client.post('/api/djconnect/v1/pair', json={**second_identity, 'pair_code': '234567'})
+    finally:
+        hass.data['djconnect']['runtime'] = runtime
     second = await pair.json()
-    assert pair.status == 200 and second['success']
+    assert pair.status == 200 and second['success'], (pair.status, second.get('error'))
     await request('/read', {**read, **second_identity}, 403,
         {'Authorization': 'Bearer '+second['device_token'], 'X-DJConnect-Device-ID': second_identity['device_id']})
-    # Pairing the second device changes Profile authority; old grants never revive.
-    await request('/read', read, 403)
+    # Pairing a pre-bound second device need not mutate Profile bindings.
+    # Its own token cannot use the first device's grant; the first remains valid.
+    await request('/read', read)
     authorized = await request('/authorize', consent)
     read['grant_id'] = authorized['grant_id']
     old_generation = authorized['passive_session']['generation']
@@ -87,6 +92,23 @@ async def run(*, hass, runtime, client, headers, identity, manager, storage, sid
     read['grant_id'] = authorized['grant_id']
     rows.append({'case': 'purpose_device_profile_ABA', 'denied_old_generation': True,
                  'new_generation_distinct': True})
+    # Explicit existing media preparation is an owning lifecycle/action boundary,
+    # separate from passive reads. New pixels do not republish the contribution.
+    response = await client.get('/api/djconnect/v1/session/history/'+sid, params=identity, headers=headers)
+    history = await response.json()
+    playback_entry = next(e for e in history['entries'] if e['kind'] == 'playback_observed')
+    prior_publications = len(current.broadcast.state.dj_moments)
+    prepared = await client.post('/api/djconnect/v1/session/media/prepare', json={**identity,
+        'contract_version': 1, 'session_id': sid, 'targets': [{'entry_id': playback_entry['entry_id']}]}, headers=headers)
+    assert prepared.status == 200
+    refreshed = await request('/read', read)
+    assert refreshed['passive_session']['contribution'] == frame['contribution']
+    assert len(current.broadcast.state.dj_moments) == prior_publications
+    assert refreshed['passive_session']['artwork']
+    assert refreshed['passive_session']['artwork'][0]['media_revision'] != art['media_revision']
+    rows.append({'case': 'same_publication_new_media_revision', 'response': refreshed,
+                 'semantic_publications_before': prior_publications,
+                 'semantic_publications_after': len(current.broadcast.state.dj_moments)})
     # Confirmed setting goes through the actual private owner API.
     response = await client.post('/api/djconnect/v1/session/mood', json={**identity,
         'contract_version': 1, 'session_id': sid, 'selected_mood': 'energy',
@@ -97,6 +119,24 @@ async def run(*, hass, runtime, client, headers, identity, manager, storage, sid
     assert changed['passive_session']['mood']['value'] == 'energy'
     assert changed['passive_session']['contribution'] == frame['contribution']
     rows.append({'case': 'mood_without_moment_rewrite', 'response': changed})
+    # External provider fixture returns B; actual observation acceptance owns
+    # the change. No ready passive payload or source identity is injected.
+    from custom_components.djconnect.spotify_backend import SpotifyBackend
+    selected[0] = 'D'
+    observed_b = await SpotifyBackend(hass, runtime).async_observe_current_playback()
+    await manager.async_update_playback_projection(owner_profile_id='profile-a', session_id=sid,
+        state='playing', media_identity=observed_b.media_identity, title=observed_b.title,
+        artist=observed_b.artist, album=observed_b.album,
+        album_uri=observed_b.catalog.get('album_uri', ''), duration_ms=observed_b.duration_ms,
+        position_ms=observed_b.position_ms)
+    different = await request('/read', read)
+    assert different['passive_session']['contribution'] == frame['contribution']
+    assert different['passive_session']['now_playing']['subject_uri'] == 'spotify:track:'+'D'*22
+    assert different['passive_session']['artwork'] == []  # No A pixels relabelled as B.
+    rows.append({'case': 'contribution_A_observed_B_independent', 'response': different})
+    activity = await request('/authorize', {**consent, 'surface': 'live_activity', 'locked_display': True})
+    assert activity['passive_session']['cache_policy']['locked_display'] is True
+    rows.append({'case': 'explicit_locked_activity_consent', 'response': activity})
     # Music-only uses existing Core policy; no extra publication or catch-up.
     current = manager._active_by_profile['profile-a']
     response = await client.post('/api/djconnect/v1/session/presence', json={**identity,
@@ -111,12 +151,38 @@ async def run(*, hass, runtime, client, headers, identity, manager, storage, sid
     current = manager._active_by_profile['profile-a']
     p = current.broadcast.state.playback
     await manager.async_update_playback_projection(owner_profile_id='profile-a', session_id=sid,
-        state='paused', media_identity='spotify:track:'+'A'*22,
+        state='paused', media_identity='spotify:track:'+'D'*22,
         title=p.title, artist=p.artist, album=p.album, duration_ms=p.duration_ms, position_ms=p.position_ms)
     paused = await request('/read', read)
     assert paused['passive_session']['state'] == 'active'
     assert paused['passive_session']['playback_state'] == 'paused'
     rows.append({'case': 'pause_not_end', 'response': paused})
+    response = await client.get('/api/djconnect/v1/session/history/'+sid, params=identity, headers=headers)
+    b_history = await response.json()
+    b_entry = next(e for e in b_history['entries'] if e['kind'] == 'playback_observed'
+                   and e['playback']['item_id'] == paused['passive_session']['now_playing']['item_id'])
+    response = await client.post('/api/djconnect/v1/session/media/prepare', json={**identity,
+        'contract_version': 1, 'session_id': sid, 'targets': [{'entry_id': b_entry['entry_id']}]}, headers=headers)
+    assert response.status == 200
+    before_withdrawal = await request('/read', read)
+    b_art = before_withdrawal['passive_session']['artwork'][0]
+    current_image_query = {**image_query, 'grant_id': read['grant_id']}
+    b_pixels = await client.get(b_art['image_path'], params=current_image_query, headers=headers)
+    assert b_pixels.status == 200
+    await b_pixels.read()
+    from custom_components.djconnect.domain.music_account import MusicAccountKind
+    await storage.async_upsert_music_account('fixture-account', 'spotify_direct', kind=MusicAccountKind.PERSONAL,
+        display_name='Fixture provider account', linked_profile_ids=frozenset(), provider_account_id='fixture-client')
+    denied = await client.get(b_art['image_path'], params=current_image_query, headers=headers)
+    assert denied.status in (401, 403, 404, 409)
+    await request('/read', read, (401, 403, 404, 409))
+    await storage.async_upsert_music_account('fixture-account', 'spotify_direct', kind=MusicAccountKind.PERSONAL,
+        display_name='Fixture provider account', linked_profile_ids=frozenset({'profile-a'}), provider_account_id='fixture-client')
+    await request('/read', read, 403)  # Restoration cannot revive an old generation.
+    authorized = await request('/authorize', consent)
+    read['grant_id'] = authorized['grant_id']
+    rows.append({'case': 'source_withdrawal_and_restore_no_revival', 'old_image_http': denied.status,
+                 'old_grant_http': 403})
     # Real wall/monotonic expiry, no patched Core clocks. Observe longer than the
     # 120-second original passive window; provider polling remains stopped.
     expiry_before = len(calls)
@@ -129,10 +195,20 @@ async def run(*, hass, runtime, client, headers, identity, manager, storage, sid
     assert len(calls) == expiry_before
     rows.append({'case': 'real_121_second_expiry', 'response': expired,
                  'provider_delta': len(calls)-expiry_before})
-    response = await client.post('/api/djconnect/v1/session/end', json={**identity, 'session_id': sid}, headers=headers)
+    async def race_read():
+        response = await client.post(BASE+'/read', json=read, headers=headers)
+        value = await response.json()
+        assert response.status in (200, 403, 404)
+        if response.status == 200:
+            assert value['passive_session']['session_id'] == sid
+        return response.status
+    end_task = client.post('/api/djconnect/v1/session/end', json={**identity, 'session_id': sid}, headers=headers)
+    raced = await asyncio.gather(*[race_read() for _ in range(20)], end_task)
+    response = raced[-1]
     assert response.status == 200
     await request('/read', read, 404)
-    rows.append({'case': 'end_no_runtime_revival', 'read_http': 404})
+    rows.append({'case': 'twenty_reads_end_race_no_runtime_revival', 'read_http_after_end': 404,
+                 'race_statuses': raced[:-1]})
     assert source_hashes == {str(p.relative_to(Path('/candidate'))): hashlib.sha256(p.read_bytes()).hexdigest()
         for p in Path('/candidate/custom_components/djconnect').rglob('*') if p.is_file() and '__pycache__' not in p.parts}
     (output/'passive-session.http.json').write_text(json.dumps({'contract_version': 1,

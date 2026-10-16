@@ -8,6 +8,8 @@ The original3October snapshot/audit/source pins and projections are immutable hi
 
 Selected and freshly admitted speech/Persona implementation: DJC-SESSION-SPEECH-PERSONA-VOICE-20261015; source PROTECTED_MERGED. Four bounded Core leaves reuse existing Voice/Speech/Audio Renderer architecture; Apple/native audible/joint acceptance remains Planned/open. Delivered artwork v11 and historical snapshots preserved; no new provider/model/cost route or consumer writer.
 
+Selected passive Session projection: DJC-CORE-PASSIVE-SESSION-PROJECTION-V1-20261015; source UNPUBLISHED. Existing SURFACE::CORE::PROJECTION only; native rich adoption OPEN_APPLE, background SURFACE::APPLE::QUIET-TRANSPORT separately Planned, Watch NOT_QUALIFIED and joint OPEN. Original publication/source deadlines, explicit purpose grants and pure reads; no client writes, provider or automatic dispatch. Delivered v12 and all prior receipts preserved.
+
 - `PROJ::INTELLIGENCE::DJ-PRESENCE` — Planned; Independent presence, Mood and Persona; no new dispatch
 - `SLICE::CORE::DJ-PRESENCE-CONTRACT` — Completed; Pin numeric policy/default, capability/schema and producer fixtures
 - `SLICE::CORE::DJ-PRESENCE-POLICY` — Completed; All proactive paths; off/in-flight/no-catch-up/published-only accounting
@@ -26,7 +28,7 @@ Selected and freshly admitted speech/Persona implementation: DJC-SESSION-SPEECH-
 - `ENTRY::CORE::ASK-LIFECYCLE` — Planned; Same Core intent route, clarification/cancel and closed-Session turn boundary
 - `ENTRY::CORE::PAUSE-RECOVERY` — Planned; Confirmed quiet playback/in-flight suppression, no resume backlog or invented auto-end
 - `HISTORY::CORE::SUMMARY` — Completed; Bounded atomic counts, Mood intervals/coverage, privacy/delete/migration, no N+1
-- `SURFACE::CORE::PROJECTION` — Planned; Purpose-specific neutral/rich grant, subject/expiry/revision, no private cache inheritance
+- `SURFACE::CORE::PROJECTION` — In progress; Explicit owner/surface grants, published short contribution, independently bound metadata/cover, original expiry and pure read/live invalidation
 - `SURFACE::PRODUCT::JOINT` — Planned; Exact producer/native/purpose/transport acceptance; installed/hardware separate
 - `CONTINUATION::CORE::POLICY` — Planned; Off until opt-in; category-only projection, quiet hours, bounded retries/dedup and revalidation
 - `CONTINUATION::PRODUCT::JOINT` — Planned; Exact Core policy and independently qualified native/transport receipts
