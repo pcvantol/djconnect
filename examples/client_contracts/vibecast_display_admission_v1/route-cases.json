@@ -1,0 +1,242 @@
+{
+  "contract": "djc-display-admission/1-route-review",
+  "status": "REVIEW_CANDIDATE_NOT_FROZEN",
+  "network_fetches": false,
+  "claim_boundary": "lexical_only_no_trust_TLS_DNS_redirect_or_HA_runtime",
+  "cases": [
+    {
+      "id": "canonical",
+      "entry_url": "https://ha.example.org/djconnect/vibecast/display",
+      "selected_origin": "https://ha.example.org",
+      "allowed": true
+    },
+    {
+      "id": "canonical-idna",
+      "entry_url": "https://xn--bcher-kva.example.org/djconnect/vibecast/display",
+      "selected_origin": "https://xn--bcher-kva.example.org",
+      "allowed": true
+    },
+    {
+      "id": "http",
+      "entry_url": "http://ha.example.org/djconnect/vibecast/display",
+      "selected_origin": "https://ha.example.org",
+      "allowed": false
+    },
+    {
+      "id": "userinfo",
+      "entry_url": "https://owner@ha.example.org/djconnect/vibecast/display",
+      "selected_origin": "https://ha.example.org",
+      "allowed": false
+    },
+    {
+      "id": "password",
+      "entry_url": "https://owner:secret@ha.example.org/djconnect/vibecast/display",
+      "selected_origin": "https://ha.example.org",
+      "allowed": false
+    },
+    {
+      "id": "explicit443",
+      "entry_url": "https://ha.example.org:443/djconnect/vibecast/display",
+      "selected_origin": "https://ha.example.org",
+      "allowed": false
+    },
+    {
+      "id": "customport",
+      "entry_url": "https://ha.example.org:8443/djconnect/vibecast/display",
+      "selected_origin": "https://ha.example.org",
+      "allowed": false
+    },
+    {
+      "id": "query",
+      "entry_url": "https://ha.example.org/djconnect/vibecast/display?next=https://attacker.example.org",
+      "selected_origin": "https://ha.example.org",
+      "allowed": false
+    },
+    {
+      "id": "fragment",
+      "entry_url": "https://ha.example.org/djconnect/vibecast/display#claim",
+      "selected_origin": "https://ha.example.org",
+      "allowed": false
+    },
+    {
+      "id": "trailing-slash",
+      "entry_url": "https://ha.example.org/djconnect/vibecast/display/",
+      "selected_origin": "https://ha.example.org",
+      "allowed": false
+    },
+    {
+      "id": "encoded-separator",
+      "entry_url": "https://ha.example.org/djconnect%2fvibecast/display",
+      "selected_origin": "https://ha.example.org",
+      "allowed": false
+    },
+    {
+      "id": "dot-segment",
+      "entry_url": "https://ha.example.org/djconnect/../djconnect/vibecast/display",
+      "selected_origin": "https://ha.example.org",
+      "allowed": false
+    },
+    {
+      "id": "encoded-dot",
+      "entry_url": "https://ha.example.org/djconnect/%2e%2e/djconnect/vibecast/display",
+      "selected_origin": "https://ha.example.org",
+      "allowed": false
+    },
+    {
+      "id": "backslash",
+      "entry_url": "https://ha.example.org\\@attacker.example.org/djconnect/vibecast/display",
+      "selected_origin": "https://ha.example.org",
+      "allowed": false
+    },
+    {
+      "id": "uppercase-host",
+      "entry_url": "https://HA.example.org/djconnect/vibecast/display",
+      "selected_origin": "https://ha.example.org",
+      "allowed": false
+    },
+    {
+      "id": "uppercase-scheme",
+      "entry_url": "HTTPS://ha.example.org/djconnect/vibecast/display",
+      "selected_origin": "https://ha.example.org",
+      "allowed": false
+    },
+    {
+      "id": "wrong-path",
+      "entry_url": "https://ha.example.org/djconnect/vibecast",
+      "selected_origin": "https://ha.example.org",
+      "allowed": false
+    },
+    {
+      "id": "suffix-spoof",
+      "entry_url": "https://ha.example.org.attacker.org/djconnect/vibecast/display",
+      "selected_origin": "https://ha.example.org",
+      "allowed": false
+    },
+    {
+      "id": "newline",
+      "entry_url": "https://ha.exa\nmple.org/djconnect/vibecast/display",
+      "selected_origin": "https://ha.example.org",
+      "allowed": false
+    },
+    {
+      "id": "space",
+      "entry_url": "https://ha.example.org/djconnect/vibecast/display ",
+      "selected_origin": "https://ha.example.org",
+      "allowed": false
+    },
+    {
+      "id": "tab",
+      "entry_url": "\thttps://ha.example.org/djconnect/vibecast/display",
+      "selected_origin": "https://ha.example.org",
+      "allowed": false
+    },
+    {
+      "id": "unicode-host",
+      "entry_url": "https://bücher.example.org/djconnect/vibecast/display",
+      "selected_origin": "https://ha.example.org",
+      "allowed": false
+    },
+    {
+      "id": "bad-alabel",
+      "entry_url": "https://xn--a.example.org/djconnect/vibecast/display",
+      "selected_origin": "https://ha.example.org",
+      "allowed": false
+    },
+    {
+      "id": "trailing-dot",
+      "entry_url": "https://ha.example.org./djconnect/vibecast/display",
+      "selected_origin": "https://ha.example.org",
+      "allowed": false
+    },
+    {
+      "id": "ipv4",
+      "entry_url": "https://127.0.0.1/djconnect/vibecast/display",
+      "selected_origin": "https://ha.example.org",
+      "allowed": false
+    },
+    {
+      "id": "ipv6",
+      "entry_url": "https://[::1]/djconnect/vibecast/display",
+      "selected_origin": "https://ha.example.org",
+      "allowed": false
+    },
+    {
+      "id": "integer-ip",
+      "entry_url": "https://2130706433/djconnect/vibecast/display",
+      "selected_origin": "https://ha.example.org",
+      "allowed": false
+    },
+    {
+      "id": "hex-ip",
+      "entry_url": "https://0x7f000001/djconnect/vibecast/display",
+      "selected_origin": "https://ha.example.org",
+      "allowed": false
+    },
+    {
+      "id": "octal-ip",
+      "entry_url": "https://0177.0.0.1/djconnect/vibecast/display",
+      "selected_origin": "https://ha.example.org",
+      "allowed": false
+    },
+    {
+      "id": "single-label",
+      "entry_url": "https://homeassistant/djconnect/vibecast/display",
+      "selected_origin": "https://ha.example.org",
+      "allowed": false
+    },
+    {
+      "id": "local-name",
+      "entry_url": "https://homeassistant.local/djconnect/vibecast/display",
+      "selected_origin": "https://ha.example.org",
+      "allowed": false
+    },
+    {
+      "id": "protocol-relative",
+      "entry_url": "//ha.example.org/djconnect/vibecast/display",
+      "selected_origin": "https://ha.example.org",
+      "allowed": false
+    },
+    {
+      "id": "empty",
+      "entry_url": "",
+      "selected_origin": "https://ha.example.org",
+      "allowed": false
+    },
+    {
+      "id": "data-scheme",
+      "entry_url": "data:text/html,unsafe",
+      "selected_origin": "https://ha.example.org",
+      "allowed": false
+    },
+    {
+      "id": "javascript-scheme",
+      "entry_url": "javascript:alert(1)",
+      "selected_origin": "https://ha.example.org",
+      "allowed": false
+    },
+    {
+      "id": "wrong-selected-installation",
+      "entry_url": "https://ha.example.org/djconnect/vibecast/display",
+      "selected_origin": "https://different.example.org",
+      "allowed": false
+    },
+    {
+      "id": "untrusted-selected-query",
+      "entry_url": "https://ha.example.org/djconnect/vibecast/display",
+      "selected_origin": "https://ha.example.org?bad",
+      "allowed": false
+    },
+    {
+      "id": "selected-noncanonical-port",
+      "entry_url": "https://ha.example.org/djconnect/vibecast/display",
+      "selected_origin": "https://ha.example.org:443",
+      "allowed": false
+    },
+    {
+      "id": "selected-not-origin",
+      "entry_url": "https://ha.example.org/djconnect/vibecast/display",
+      "selected_origin": "https://ha.example.org/subpath",
+      "allowed": false
+    }
+  ]
+}
