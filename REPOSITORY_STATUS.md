@@ -1,5 +1,45 @@
 # DJConnect Repository Status
 
+## Current: Provider voice/gender — separate Finalization
+
+### Repository Status
+
+Source PR [#1189](https://github.com/pcvantol/djconnect/pull/1189) protected merged as `ff507c8999069791f3697d5cef2590dda43db243`, exact independently reviewed and separately owner-authorized repair head `5b1a5010a6c8258ff54e4fe7b2290cfc3ee8d9d6` on base `f04fc578d11252f48324a22cb6f71039bdcc59d5`. All32 checks PASS/5conditional skips, including successful TDE observe; exact Owner Authorization38888413369 SUCCESS. No bypass. Complete candidate/main trees equal. Main CI38888674687 and formal38889100161 SUCCESS. Official archive170regular files,0missing/extra/mismatch/symlink; raw/durable/coverage/main/PR bindings qualified. [Exact readback](docs/verification/PROVIDER_VOICE_GENDER_SOURCE_READBACK_20261016.md). Earlier1187/1188 stays closed.
+
+### Management Summary
+
+Core now qualifies optional gender from explicit current provider metadata, including exact installed Cloud language/Gender mapping intersected with current inventory. No inferred gender. Both explicit gender/voice must match; default gender targets are exposed. Inventory bounded512 inspected/64projected; configured/qualified Cloud target voices retained. Cloud receives concrete voice, no deprecated gender parameter/Repair. Pure reads synthesize nothing; provider/metadata changes fence pending and cached audio. Generic no-gender providers keep concrete voice choice. No shared pipeline/Profile/Persona/Mood/playback mutation. Apple owns client-local installation/Profile/Session/device preference, menu reread and native/audible acceptance. No unsolicited provider-change push.
+
+### Roadmap Position
+
+Generation2 DJConnect Product Development; bounded correction of delivered SPEECH::CORE::DELIVERY, no new capability family, Planner, provider/cost route or source rights. Current canonical documents and machine-readable JSON references/generated views reconcile actual source evidence. All node/edge/state/selection receipts and historical snapshots are preserved. SURFACE::CORE::PROJECTION remains selected queued, not admitted.
+
+### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+1. **DJC-CORE-PASSIVE-SESSION-PROJECTION-V1-20261015 — selected queued successor.** Owner6199213014; `SURFACE::CORE::PROJECTION` Planned. Execution rationale: selected existing Core successor after valid current Finalization/cleanup and fresh host/writer/resource admission; reuse stash, no new writer. Not started here.
+2. **DJC-VIBECAST-TV-BOOTSTRAP-CLOUDFLARE-V1-20261015 — separate receiver writer.** Selected own-lane work. Execution rationale: proceeds only under its own admission/contract gates; Core neither takes over nor dispatches new consumer work.
+3. **Unfilled slot3 — no further eligible authorized selection.**
+4. **Unfilled slot4 — no further eligible authorized selection.**
+5. **Unfilled slot5 — no further eligible authorized selection.**
+
+### Blocked Items
+
+This separate documentary Finalization needs its own exact independent reviews, candidate-specific publication approval, required checks/protected merge and exact-main/artifact readback. Source5b1 approval cannot be reused. Four own source git-cherry '+' after squash require a new precise cleanup exception despite whole-tree/aggregate-delta equality. Native menu/visible/audible/joint acceptance remains Apple-owned/open. Source-masked direct local transport ingress remains separately unqualified; no network exception here.
+
+### Deferred Items
+
+No passive-surface implementation, roaming Profile implementation, Swift/receiver write, provider installation, workflow/runner/service/network/Pages/signing/hardware change or next slice. Actual Cloud account synthesis/audibility is not inferred from waveform fixtures. Timer remains paused. Preserve Apple WIP, VibeCast worktree, passive stash, HA-labs and recovery.
+
+### Repository State
+
+Repository State: `MERGED_UNRECONCILED` until this separate Finalization is actually protected merged and exact main/artifacts validated. Intended MERGED_RECONCILED is conditional, never a fabricated future merge. [Immutable record](docs/history/prompts/2026-10-16-provider-voice-gender-finalization.md) preserves the evidence and remaining gates.
+
+### Workspace State
+
+Workspace State: `NOT_READY` until valid Finalization, synchronization and safe disposition of only our two own refs. The four source git-cherry '+' commits are retained in a verified complete-history recoverybundle before any cleanup. Remote absence, exact candidate/merge trees and aggregate deltas, clean synchronized main and no unpublished work are required. All other WIP/recovery is preserved. Installed dev/prod remain precedingf04fc578, unchanged by source merge; standing qualified-finalmain update follows valid Finalization with backup/rollback/exact-files/loaded-runtime/identity readback. No native/hardware PASS.
+
+## Historical operational context
+
 ## Current: Provider-qualified Session voice/gender
 
 Latest completed predecessor: PR [#1188](https://github.com/pcvantol/djconnect/pull/1188)

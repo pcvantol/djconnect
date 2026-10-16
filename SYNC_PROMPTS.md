@@ -1,3 +1,11 @@
+# Provider voice/gender — definitive sourcepin
+
+Source PR [#1189](https://github.com/pcvantol/djconnect/pull/1189) protected merged as `ff507c8999069791f3697d5cef2590dda43db243`, exact independently reviewed and separately owner-authorized repair head `5b1a5010a6c8258ff54e4fe7b2290cfc3ee8d9d6` on base `f04fc578d11252f48324a22cb6f71039bdcc59d5`. All32 checks PASS/5conditional skips, including successful TDE observe; exact Owner Authorization38888413369 SUCCESS. No bypass. Complete candidate/main trees equal. Main CI38888674687 and formal38889100161 SUCCESS. Official archive170regular files,0missing/extra/mismatch/symlink; raw/durable/coverage/main/PR bindings qualified. [Exact readback](docs/verification/PROVIDER_VOICE_GENDER_SOURCE_READBACK_20261016.md). Earlier1187/1188 stays closed.
+
+Current options: voices[].gender female/male/null, gender_selection available/values/voice_ids/reason; prepare existing voice_preference plus optional voice_id must agree. Generic providers without metadata retain concrete voices, hide gender. Runtime metadata/provider changes invalidate pending/audio; handle409 with safe five-language help, preserve text/draft/scroll. Reread open/foreground/reconnect/configuration invalidation, no unsolicited push claimed. Preferences client-local installation/Profile/Session/device, explicit defaultreset, enddiscard. No sharedpipeline/Persona change or originalrequestreplay. Existing Apple writer received sourcepin; native visible/audible acceptance is theirs/open. Installed dev/prod f04 until qualified Finalization/main update.
+
+## Previous producer handoffs
+
 # Generic HA TTS — definitive source producerpin
 
 Source PR [#1187](https://github.com/pcvantol/djconnect/pull/1187) protected merged as `6ececb1b5327c5f3456dbb7d466b8763951cb61c`, exact independently reviewed and owner-authorized `082f7d7a13ecca397ecce53c2a5dac2c5e7a6dc7` on base8757ecd38a5fe31254a36aba5e0cbe5852edfa7e. 32sourcechecksPASS/5conditional skips, including actual TDE observe success. Exact Owner Authorization38879576073 SUCCESS; no bypass. Candidate/main complete trees are identical. Official mainCI38879834913 and formal38880247961 SUCCESS; 170 integration files byte-equal Git with0mismatches. [Exact source readback](docs/verification/GENERIC_HA_TTS_SOURCE_READBACK_20261016.md). Prior Speech1177/1186 and transport1184/1185 remain closed.

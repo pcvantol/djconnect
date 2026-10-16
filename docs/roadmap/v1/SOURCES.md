@@ -14,8 +14,8 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 
 | Local design source | SHA256 |
 |---|---|
-| [PRODUCT_ROADMAP.md](../../../PRODUCT_ROADMAP.md) | `e790edf6d42454e19c3fe7f335241436bbee4857b9f60ee26d77ca0d3f902085` |
-| [PRODUCT_BACKLOG.md](../../../PRODUCT_BACKLOG.md) | `4323eaf183ba1befb209c4149a751722ed063187961269d98153b50034c9b966` |
+| [PRODUCT_ROADMAP.md](../../../PRODUCT_ROADMAP.md) | `922c2e2772a71afa469751b024775e269a709d1963064d7793dcbbc3e17c1a68` |
+| [PRODUCT_BACKLOG.md](../../../PRODUCT_BACKLOG.md) | `1d614ea4c168d6ec30f7a06c7bb2399215ea747edf94b4917832de95bb3446d7` |
 | [docs/product/DJ_PRESENCE_V1.md](../../../docs/product/DJ_PRESENCE_V1.md) | `c97be3bcebbd4ca70d640cdf4fc0a9a4808451e986bc977e3173e19842a928c4` |
 | [DJ_SESSION_RUNTIME_CONTRACTS.md](../../../DJ_SESSION_RUNTIME_CONTRACTS.md) | `6ae7a05260bc2a997252dbb70c28917ac6b7fd25930263d7c0940df929b1ec92` |
 | [docs/product/DJ_INTELLIGENCE_ARCHITECTURE.md](../../../docs/product/DJ_INTELLIGENCE_ARCHITECTURE.md) | `5345f4a3db6b2bfb97931d6acdde09439dc3dbae7a7d311107269922e08aef12` |
@@ -87,3 +87,5 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 | [docs/history/prompts/2026-10-16-generic-ha-tts-finalization.md](../../../docs/history/prompts/2026-10-16-generic-ha-tts-finalization.md) | `487548baa5d99882bbec786dc36e79157635ba7c9e5753a913624016cf44fcb4` |
 | [docs/product/PROVIDER_VOICE_GENDER_V1.md](../../../docs/product/PROVIDER_VOICE_GENDER_V1.md) | `aadf89980707aa2998d24acf10f12d9890c92920f6d0627d01c937d6e8b67497` |
 | [docs/verification/PROVIDER_VOICE_GENDER_SOURCE_20261016.md](../../../docs/verification/PROVIDER_VOICE_GENDER_SOURCE_20261016.md) | `ab02670e4c5b33433be036ac8165c9f123df238afa759c45a52c1951ddba41db` |
+| [docs/verification/PROVIDER_VOICE_GENDER_SOURCE_READBACK_20261016.md](../../../docs/verification/PROVIDER_VOICE_GENDER_SOURCE_READBACK_20261016.md) | `15062c222152e2fd58810f4d9f92b74225d2beecca7ee1c1d78382fc4309c9f8` |
+| [docs/history/prompts/2026-10-16-provider-voice-gender-finalization.md](../../../docs/history/prompts/2026-10-16-provider-voice-gender-finalization.md) | `ee784e85d90f928df38d43cd1bba17b2c912c60ff8c9d06d8d2f060f62ce822f` |
