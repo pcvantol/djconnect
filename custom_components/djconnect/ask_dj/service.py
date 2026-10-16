@@ -321,7 +321,14 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
             async def finish():
                 nonlocal saved
                 if saved is None:
-                    saved = await history_manager.async_append_exchange(scope, payload, result,
+                    archival_result = result
+                    catalogue_caption = result.get("_catalogue_history_caption")
+                    if (result.get("text_source") == "qualified_catalog_result"
+                            and isinstance(catalogue_caption, str)):
+                        # Keep the existing count/query archive. Actual catalog
+                        # labels remain current-response display data only.
+                        archival_result = {**result, "text": catalogue_caption, "dj_text": catalogue_caption}
+                    saved = await history_manager.async_append_exchange(scope, payload, archival_result,
                         session_turn=turn_record, commit_guard=persistence_guard)
                 entries = []
                 try:
@@ -372,6 +379,7 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
                 frame.retry = {"text":text,"uncertain":turn.effect_started}
             result.pop("_dialogue_question", None)
             result.pop("_consume_pending", None)
+        catalogue_caption = result.pop("_catalogue_history_caption", None)
         if saved and not result.get("deduplicated"):
             # Preserve the existing live bubble contract without turning transient
             # artwork/audio/actions into an archival retention grant.
@@ -380,6 +388,8 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
                 "images", "links", "sources", "audio_url", "playback_actions", "confirmation_actions", "items",
                 "track_insight", "open_screen", "navigation_actions", "origin", "text_source", "is_generated_text",
                 "type", "action_outcome") if key in live_values}}
+            if catalogue_caption is not None and result.get("text_source") == "qualified_catalog_result":
+                live_message["text"] = result["text"]
             saved = {**saved, "assistant_message":live_message,
                      "messages":[saved["user_message"],live_message], "media_delivery_basis":"current_response_only"}
         response = {**result, **(saved or {"history_persisted": False}), "user_id": None,

@@ -528,9 +528,50 @@ def is_refinement(text: str) -> bool:
     )
 
 
+def result_list_requested(text: str) -> bool:
+    """An explicit request to name the frozen local choices, never an effect."""
+    value = " ".join(text.casefold().strip(" .?!:¿¡").split())
+    return value in {
+        "welke", "welke dan", "welke zijn dat", "welke nummers", "welke nummers zijn dat",
+        "welke titels", "wat zijn de titels", "noem de titels", "noem ze",
+        "which ones", "which tracks", "which titles", "what are the titles",
+        "what are the choices", "list the titles", "show the results",
+        "welche denn", "welche titel", "welche lieder", "wie heißen sie", "zeig die titel",
+        "lesquels", "lesquelles", "quels titres", "quelles chansons", "montre les titres",
+        "cuáles", "cuáles son", "qué títulos", "qué canciones", "muestra los títulos",
+    }
+
+
+def catalogue_result_text(items: list[dict], language: str, *, caption: str = "") -> str:
+    """Local display of actual result labels; no model or archive permission."""
+    if len(items) > MAX_ITEMS or encoded_size(items) > MAX_RESULT_BYTES:
+        raise DialogueError("conversation_context_too_large", 413)
+    introductions = {
+        "en": "These are the results:", "nl": "Dit zijn de gevonden resultaten:",
+        "de": "Das sind die gefundenen Ergebnisse:", "fr": "Voici les résultats trouvés :",
+        "es": "Estos son los resultados encontrados:",
+    }
+    unknown = {"en": "Title unavailable", "nl": "Titel niet beschikbaar",
+               "de": "Titel nicht verfügbar", "fr": "Titre indisponible", "es": "Título no disponible"}
+    language = language if language in introductions else "en"
+    lines = []
+    for index, item in enumerate(items, 1):
+        title = item.get("title") or item.get("name")
+        title = " ".join(title.split()) if isinstance(title, str) and title.strip() else unknown[language]
+        subtitle = item.get("subtitle") or item.get("artist") or item.get("artist_name")
+        subtitle = " ".join(subtitle.split()) if isinstance(subtitle, str) else ""
+        lines.append(f"{index}. {title}" + (f" — {subtitle}" if subtitle and subtitle != title else ""))
+    return "\n".join([caption or introductions[language], *lines])
+
+
 def requests_lookup(text: str) -> bool:
     """A read-only music search request, never an effect or media identity grant."""
-    return is_refinement(text) or bool(re.match(
+    availability = re.match(
+        r"^(?:wat heb je van|what do you have (?:by|from)|was hast du von|"
+        r"qu['’]est-ce que tu as de|qu['’]as-tu de|qu[eé] tienes de)\s+\S",
+        text.casefold().strip(" .?!¿¡"),
+    )
+    return bool(availability) or is_refinement(text) or bool(re.match(
         r"^(?:ik heb zin in|ik zou graag|i[’']?m in the mood for|i would like|"
         r"ich hätte gern|ich habe lust auf|j[’']ai envie de|je voudrais|"
         r"me apetece(?: escuchar)?|quisiera escuchar)\b",

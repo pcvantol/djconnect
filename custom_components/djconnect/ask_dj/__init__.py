@@ -1,5 +1,6 @@
 """Ask DJ backend support."""
 from __future__ import annotations
+from copy import deepcopy
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 import logging
@@ -137,6 +138,10 @@ async def async_handle_ask_dj(
                 "sources": [attribution] if isinstance(attribution, dict) else attribution,
                 "playback_actions": [], "intent": {"intent": "selected_contribution_quote"}}
     if turn is not None and not turn.resolving_output_request:
+        if confirmed_entry is None:
+            listed = await _dialogue_result_list_response(hass, payload, text)
+            if listed is not None:
+                return listed
         selected = await _dialogue_choice_response(hass, runtime, payload, text)
         if selected is not None:
             return selected
@@ -5248,7 +5253,7 @@ def _normalized_response_payload(
         "message": text,
         **text_generation_fields,
         **{key: result[key] for key in ("model_processing_basis", "knowledge_basis", "action_outcome", "analysis_basis",
-            "queue_observation", "queue_append", "session_forecast", "previous_observation", "_private_current_context", "playback_projection_receipt") if key in result},
+            "queue_observation", "queue_append", "session_forecast", "previous_observation", "_private_current_context", "_catalogue_history_caption", "playback_projection_receipt") if key in result},
         "images": images,
         "links": links,
         "sources": sources,
@@ -9897,11 +9902,68 @@ async def _realize_dialogue_plan(hass, runtime, payload, text, response, plan):
         "fr": ("morceau", "morceaux"), "es": ("canción", "canciones")}
     count = len(actions)
     caption = captions[language].format(count=count, unit=units[language][count != 1], query=plan["query"])
+    from .dialogue import catalogue_result_text
+    message = catalogue_result_text(actions, language, caption=caption) if actions else caption
     response.pop("model_processing_basis", None)
-    return {**response, "text": caption, "dj_text": caption, "text_source": "qualified_catalog_result",
+    return {**response, "text": message, "dj_text": message, "text_source": "qualified_catalog_result",
+            "_catalogue_history_caption": caption,
             "knowledge_basis": "qualified_provider_result_fields", "query_basis": "model_assisted_user_request",
             "is_generated_text": False, "items": actions, "playback_actions": actions,
             "sources": [{"source": "spotify_track_search", "title": "Spotify", "kind": "source"}]}
+
+
+async def _dialogue_result_list_response(hass, payload, text):
+    """Re-present frozen local results without extending or selecting the offer."""
+    from .dialogue import current_turn, result_list_requested, catalogue_result_text, DialogueError
+    turn = current_turn.get()
+    if turn is None or turn.reset_topic or turn.source_context or not result_list_requested(text):
+        return None
+    shown = turn.frame.result_set
+    language = turn.style.get("language", "en")
+    if shown is None:
+        labels = {
+            "en": "The earlier result list is no longer available. Ask for results again.",
+            "nl": "De eerdere keuzelijst is niet meer beschikbaar. Vraag de resultaten opnieuw op.",
+            "de": "Die frühere Ergebnisliste ist nicht mehr verfügbar. Frage erneut nach den Ergebnissen.",
+            "fr": "La liste précédente n’est plus disponible. Demande à nouveau les résultats.",
+            "es": "La lista anterior ya no está disponible. Vuelve a pedir los resultados.",
+        }
+        message = labels[language]
+        return {"success": True, "text": message, "dj_text": message, "action": "none",
+                "items": [], "playback_actions": [], "is_generated_text": False,
+                "text_source": "qualified_catalog_result", "_private_current_context": True,
+                "intent": {"category": "informational", "intent": "result_list_unavailable"}}
+    expected = (payload.get("conversation_context") or {}).get("result_set_id")
+    if expected and expected != shown["result_set_id"]:
+        raise DialogueError("choice_changed")
+    items = deepcopy(shown["items"])
+
+    def validate_offer():
+        if turn.history.dialogue.clock() >= shown["deadline"]:
+            raise DialogueError("choice_expired")
+        if (turn.frame.result_set is not shown or shown["generation"] != turn.generation
+                or shown["items"] != items):
+            raise DialogueError("choice_changed")
+        if shown.get("session_id"):
+            from ..session_runtime import session_runtime_manager
+            active = session_runtime_manager(hass).current_active(turn.scope.removeprefix("profile:"))
+            if active is None or active.session_id != shown["session_id"]:
+                raise DialogueError("choice_expired")
+
+    validate_offer.speech_deadline = shown["deadline"]
+    turn.delivery_validators.append(validate_offer)
+    await turn.guard()
+    validate_offer()
+    message = catalogue_result_text(items, language)
+    # No playback_actions: complete() must retain the exact set, original IDs,
+    # chosen item and deadline, rather than minting a fresh600s offer.
+    return {"success": True, "text": message, "dj_text": message, "action": "none",
+            "items": items, "playback_actions": [], "is_generated_text": False,
+            "text_source": "qualified_catalog_result", "_private_current_context": True,
+            "result_set": {"schema_version": 1, "result_set_id": shown["result_set_id"],
+                           "expires_in": max(0, shown["deadline"] - turn.history.dialogue.clock()),
+                           "items": deepcopy(items)},
+            "intent": {"category": "informational", "intent": "shown_result_list"}}
 
 
 async def _dialogue_choice_response(hass, runtime, payload, text, *, index=None):
