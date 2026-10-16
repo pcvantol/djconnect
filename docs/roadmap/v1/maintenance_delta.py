@@ -1027,7 +1027,7 @@ def render_delta(p):
         intro += f"Selected shared Profile/Session settings consolidation: {r['assignment_id']}; six shared Persona/voice/gender/Mood/Presence/announcement_output, {state}, last explicit accepted choice becomes default, atomic active+default acceptance. Source {r['source_delivery']}; Core producer and migration work only; Apple/other consumers/joint separately open, no automatic dispatch or whole-family completion. Delivered v13 preserved.\n\n"
     if d.get("display_admission_receipt"):
         r = d["display_admission_receipt"]
-        intro += f"Selected Core display-admission: {r['assignment_id']}; existing WEB::TRUST and WEB::DISPLAY only. TRUST anchor OPEN_JOINT_REVIEW, wire NOT_FROZEN, runtime {r['runtime']}; source UNPUBLISHED, native/TV/joint open. Independently reviewed B may be implemented/qualified in isolation while A stays unavailable; no runtime acceptance inferred. Original settings delivery and all prior receipts remain preserved; no consumer dispatch or deployment.\n\n"
+        intro += f"Selected Core display-admission: {r['assignment_id']}; existing WEB::TRUST and WEB::DISPLAY only. TRUST anchor OPEN_JOINT_REVIEW, wire NOT_FROZEN, runtime {r['runtime']}; source {r['source_delivery']}, native/TV/joint open. B-only software qualification does not close A or imply installed/native/public-route acceptance. Independently reviewed B may proceed in isolation while A stays unavailable. Original settings delivery and all prior receipts remain preserved; no consumer dispatch or deployment.\n\n"
     out = {}
     out["README.md"] = (
         "# Federated roadmap — versioned maintenance\n\n"

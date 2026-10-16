@@ -121,6 +121,37 @@ instant HA revocation. B's current owner/share/Session gates remain independent.
 There is no missing generic human merge permission; technical/risk/interop gates
 are explicit and are not bypassed by the code-free product choice.
 
+### Apple scanner interface review, 17 October — no new authority
+
+The existing Apple writer's [source/interface review](https://github.com/pcvantol/djconnect-api/pull/94#issuecomment-6226236839)
+reports a local documentary checkpoint6c21c15 atop1e8ecf2. Core did not fetch
+those Apple commits; public lookup of base1e8ecf2 returned422. This is an
+attributed consumer-owner report, not independently verified Apple Git blobs or
+native execution. Core neither adopts nor changes the other writer's WIP.
+
+| Boundary | Existing owner/source evidence | Scanner requirement and remaining proof |
+| --- | --- | --- |
+| Pairing and installation | Apple reports `DJConnectClient.pair`, `DJConnectPairingResponse.ha_remote_url`/`ha_install_id`, and `DJConnectAppModel.apply(pairingResponse:)`; one saved local/remote configuration and install ID | Show the actual configured installation explicitly. Do not invent a multi-install registry or silently pick a last-used installation. A future multi-install chooser needs its own existing authorized records. |
+| Current HA route | Core `request_auth.py`, `profile_context.py`, `display_authority.resolve_display_owner`, `display_origin.selected_ha_origin`, `display_service.py` owner/context | Check the authenticated Hybrid context installation against the expected saved install ID, then read the current paired owner/context. Cached pairing URL alone is not scan-time route authority. Core issuer_epoch is only a process fence, not the installation ID. |
+| In-flight change | Core captures pairing before Profile awaits and latches monotone withdrawal; Apple reports existing request/configuration checks | Scanner must add its own monotone flow invalidation for pairing/Profile/route ABA, cancellation, background, QR rotation and expiry. Recheck current owner context before release; changed route or epoch needs fresh explicit confirmation. A released address cannot be recalled. This is a consumer requirement, not an implemented native claim. |
+| Genuine app and platform | Apple's [isSupported documentation](https://developer.apple.com/documentation/devicecheck/dcappattestservice/issupported), independently read through the official documentation JSON on17October | App Attest is unavailable on Mac, including Catalyst and iOS/iPadOS apps running on Apple silicon. Supported iPhone/iPad still require runtime checks. No unsigned/borrowed-assertion fallback; use the existing paired-iPhone route or an existing non-A route. |
+
+The Apple owner reports no App Attest entitlement, implementation or real
+key/assertion vectors in this checkpoint. Its signed local development artifact
+is not a production App Attest qualification. App ID/prefix/environment must be
+verified from the actual future signed artifact; do not infer distribution
+identity from a Team ID or APNs entitlement. Development and production verifier
+domains remain separate. Core adds no signing or Apple implementation.
+
+A successful submit means **address sent**, never display connected. Lost submit
+is uncertain; lost one-time consume needs a fresh QR. Cancel after a possible
+commit does not promise remote recall. The original transaction/browser key,
+generation and expiry remain binding across every await. These interface and
+failure requirements refine WIRE-1 but do not close it. TRUST-1, KEY-STATE and
+actual native/browser/verifier interoperability remain open. A genuine different
+paired scanner can still win a copied QR with its own destination; the no-extra-
+code decision is not implicit acceptance of that risk.
+
 ## ROUTE-1 candidate: one exact external entry
 
 The candidate HA page is **`/djconnect/vibecast/display`**, served from the
@@ -133,8 +164,9 @@ real externally configured DNS/TLS/proxy route or an installed endpoint.
 The authoritative selected installation returns its configured external origin
 through an ordinary paired owner request. Never take that origin from a QR,
 provider, browser field, forwarded Host header or a last-used installation guess.
-An explicit chooser resolves multiple already paired installations; absence or
-unavailability of an external route produces a functional error, not a new
+The current Apple source report describes one configured installation; show it
+explicitly. If multiple authorized records are supported later, require an
+explicit chooser. Absence or unavailability of an external route produces a functional error, not a new
 pairing, guessed hostname, HTTP downgrade or TLS bypass.
 
 The route-review corpus is deliberately narrow:

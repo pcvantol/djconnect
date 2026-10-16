@@ -284,3 +284,23 @@ lifecycle design, not assumed reuse. No runtime change accompanies this update.
   [RustCrypto spake2 0.4.0](https://docs.rs/spake2/0.4.0/spake2/) and
   [Magic Wormhole client protocol](https://magic-wormhole.readthedocs.io/en/latest/client-protocol.html).
   These are review inputs, not qualification of a new composed protocol.
+
+## 17 October — Apple interface feedback and generated publication readback
+
+Core independently read the existing Apple scanner owner's review6226236839
+(API94) and the official Apple isSupported documentation JSON. The parent
+contract now distinguishes the reported single stored installation, current
+Hybrid/paired owner-context route check, consumer monotone invalidation, Mac
+unsupported behavior and address-sent versus B-admitted status. Apple local
+6c21c15/1e8ecf2 are attributed owner-reported checkpoints, not independently
+fetched source pins: public commit lookup returned422 and the unrelated local
+Apple checkout/WIP was preserved. No native implementation or A trust GO.
+
+A further Core readback found that the roadmap view generator still hardcoded
+source UNPUBLISHED even though the canonical JSON correctly recorded the already
+published draft B source. The maintenance generator now reads source_delivery
+from that receipt; a causal test checks current published-draft views and the
+older unpublished review state without promoting A/native/installed acceptance.
+Historical snapshots, graph nodes/edges and all production integration files
+remain unchanged. This is documentary/interface reconciliation only. Exact
+independent delta review and candidate CI are recorded before publication.

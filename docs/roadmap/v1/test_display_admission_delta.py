@@ -21,6 +21,22 @@ class DisplayAdmissionMaintenanceTests(unittest.TestCase):
         )
         self.assertIn("wire NOT_FROZEN, runtime B_SOFTWARE_QUALIFIED_NOT_INSTALLED", render(self.plan)["README.md"])
 
+    def test_generated_views_follow_receipt_publication_without_promoting_acceptance(self):
+        views = render(self.plan)
+        for name, body in views.items():
+            if "Selected Core display-admission:" in body:
+                with self.subTest(view=name):
+                    self.assertIn("source DRAFT_PR_PUBLISHED_NOT_MERGED", body)
+                    self.assertNotIn("source UNPUBLISHED", body)
+                    self.assertIn("native/TV/joint open", body)
+                    self.assertIn("does not close A", body)
+        p = deepcopy(self.plan)
+        receipt = p["planning_maintenance"]["display_admission_receipt"]
+        receipt.update(phase="CONTRACT_REVIEW", runtime="NOT_IMPLEMENTED",
+                       source_delivery="UNPUBLISHED")
+        self.assertEqual(validate(p), [])
+        self.assertIn("source UNPUBLISHED", render(p)["README.md"])
+
     def test_b_implementation_cannot_promote_a_or_replace_its_exact_design_review(self):
         for key, value in [("reviewed_sha", "0" * 40), ("scope", "A_AND_B"),
                            ("runtime_acceptance", "PASS")]:
