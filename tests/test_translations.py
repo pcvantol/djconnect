@@ -68,7 +68,6 @@ VOICE_OPTION_DATA_KEYS = {
     "local_url",
     "firmware_channel",
     "options_action",
-    "voice_profile",
 }
 
 ENTITY_TRANSLATION_KEYS = {

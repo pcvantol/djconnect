@@ -1,4 +1,9 @@
-"""DJConnect voice profile helpers."""
+"""Bounded pre-contract2 compatibility tone helpers.
+
+No HA setting editor uses these labels or writes new voice profiles. Remove
+remaining compatibility readers once the supported owning consumers adopt the
+shared contract; migrated Profiles never use these helpers as authority.
+"""
 from __future__ import annotations
 
 from typing import Any
@@ -20,39 +25,6 @@ from .mood import (
     mood_zone_for_value,
 )
 
-
-VOICE_PROFILE_LABELS: dict[str, dict[str, str]] = {
-    "en": {
-        VOICE_PROFILE_CLASSIC_RADIO: "Classic radio host",
-        VOICE_PROFILE_LATE_NIGHT: "Late-night radio",
-        VOICE_PROFILE_ENERGY: "Energy host",
-        VOICE_PROFILE_CLEAN_HOST: "Clean host",
-    },
-    "nl": {
-        VOICE_PROFILE_CLASSIC_RADIO: "Klassieke radiopresentator",
-        VOICE_PROFILE_LATE_NIGHT: "Late-night radiopresentator",
-        VOICE_PROFILE_ENERGY: "Energieke presentator",
-        VOICE_PROFILE_CLEAN_HOST: "Strakke presentator",
-    },
-    "de": {
-        VOICE_PROFILE_CLASSIC_RADIO: "Klassischer Radiomoderator",
-        VOICE_PROFILE_LATE_NIGHT: "Late-Night-Radio",
-        VOICE_PROFILE_ENERGY: "Energie-Moderator",
-        VOICE_PROFILE_CLEAN_HOST: "Klarer Moderator",
-    },
-    "fr": {
-        VOICE_PROFILE_CLASSIC_RADIO: "Animateur radio classique",
-        VOICE_PROFILE_LATE_NIGHT: "Radio de nuit",
-        VOICE_PROFILE_ENERGY: "Animateur énergique",
-        VOICE_PROFILE_CLEAN_HOST: "Animateur sobre",
-    },
-    "es": {
-        VOICE_PROFILE_CLASSIC_RADIO: "Presentador de radio clásico",
-        VOICE_PROFILE_LATE_NIGHT: "Radio nocturna",
-        VOICE_PROFILE_ENERGY: "Presentador enérgico",
-        VOICE_PROFILE_CLEAN_HOST: "Presentador claro",
-    },
-}
 
 VOICE_PROFILE_BY_MOOD_ZONE: dict[str, str] = {
     MOOD_ZONE_CHILL: VOICE_PROFILE_LATE_NIGHT,
@@ -119,20 +91,6 @@ def voice_profile_for_mood_or_config(conf: dict[str, Any], payload: dict[str, An
     return normalize_voice_profile(conf.get(CONF_VOICE_PROFILE))
 
 
-def voice_profile_options(language: str) -> dict[str, str]:
-    """Return localized config-flow option labels."""
-    lang = _language_key(language)
-    labels = VOICE_PROFILE_LABELS.get(lang) or VOICE_PROFILE_LABELS["en"]
-    return {profile: labels[profile] for profile in VOICE_PROFILES}
-
-
-def voice_profile_style_text(conf: dict[str, Any], language: str = "en") -> str:
-    """Return prompt guidance for the selected voice profile."""
-    profile = normalize_voice_profile(conf.get(CONF_VOICE_PROFILE))
-    lang = "nl" if str(language or "").lower().startswith("nl") else "en"
-    return _STYLE_TEXT[lang][profile]
-
-
 def voice_profile_style_text_for_payload(
     conf: dict[str, Any],
     payload: dict[str, Any] | None = None,
@@ -142,11 +100,3 @@ def voice_profile_style_text_for_payload(
     profile = voice_profile_for_mood_or_config(conf, payload)
     lang = "nl" if str(language or "").lower().startswith("nl") else "en"
     return _STYLE_TEXT[lang][profile]
-
-
-def _language_key(language: str) -> str:
-    value = str(language or "").lower()
-    for lang in ("nl", "de", "fr", "es"):
-        if value.startswith(lang):
-            return lang
-    return "en"

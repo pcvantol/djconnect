@@ -57,6 +57,8 @@ async def async_maintain_session_history(hass, *, now=None, revoked_entry_id: st
             async with storage._settings_lifecycle_guard(storage.household, storage.household):
                 await ProfileDJSettingsRepository(persistence_service(hass)).async_purge_orphans(
                     set(storage.household.profiles))
+        from .settings_migration import async_retire_activated
+        await async_retire_activated(hass, storage, ProfileDJSettingsRepository(persistence_service(hass)))
         after = domain.get("session_history_maintenance_after", "")
         rows = await repository.async_playback_maintenance_records(after=after)
         remove = {}

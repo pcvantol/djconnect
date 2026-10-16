@@ -111,6 +111,7 @@ async def async_handle_settings(hass, data, *, headers=None, write=False, operat
     from .request_auth import request_token, resolve_runtime, runtime_matches_device, authorize_runtime_device_request
     from .session_runtime import session_runtime_manager
     from .speech_processor import voice_options
+    from .settings_migration import assessment
     from .transport_delivery import register_delivery_admission
 
     def error(code, status, **extra):
@@ -197,11 +198,16 @@ async def async_handle_settings(hass, data, *, headers=None, write=False, operat
         if write:
             if data['binding'] != binding:
                 return error('settings_binding_changed', 409)
+            def migration_requires_review():
+                return assessment(hass, storage.household,
+                                  storage.household.profiles[context.profile_id],
+                                  activated=False)['requires_review']
             result = await manager.async_accept_dj_settings(
                 owner_profile_id=context.profile_id, operation_id=data['operation_id'], binding=binding,
                 patch=data['patch'], expected_defaults_revision=data['expected_defaults_revision'],
                 expected_session=data['expected_session'], now_ms=int(datetime.now(UTC).timestamp()*1000),
-                authorize=commit_authority, validate_voice=policy.validate)
+                authorize=commit_authority, validate_voice=policy.validate,
+                migration_requires_review=migration_requires_review)
             snapshot = result['snapshot']
             if not result['replayed']:
                 bus = getattr(hass, 'bus', None)
@@ -221,7 +227,11 @@ async def async_handle_settings(hass, data, *, headers=None, write=False, operat
         policy = VoicePolicy.from_options(voice_options(hass, runtime.config))
         register_delivery_admission(lambda: _require_authority(authority))
         return {'success': True, **result, 'contract_version': 2, 'binding': binding,
-                'scope': 'profile_and_active_session', 'allowed_values': allowed_values(policy),
+                'scope': 'profile_and_active_session',
+                'migration': assessment(hass, storage.household,
+                                        storage.household.profiles[context.profile_id],
+                                        activated=snapshot['activated']),
+                'allowed_values': allowed_values(policy),
                 'writable_fields': sorted(FIELDS), 'voice_revision': policy.revision,
                 'voice_availability': policy.selection_state(DJSettings.from_dict(
                     snapshot['session']['settings'] if snapshot['session'] else snapshot['defaults'])),
@@ -234,6 +244,12 @@ async def async_handle_settings(hass, data, *, headers=None, write=False, operat
     except PermissionError:
         return error('unauthorized', 401)
     except (SettingsValidationError, SettingsCommitError) as exc:
+        if str(exc) == 'settings_migration_choice_required':
+            if not authority():
+                return error('unauthorized', 401)
+            register_delivery_admission(lambda: _require_authority(authority))
+            return error(str(exc), 409, migration=assessment(hass, storage.household,
+                storage.household.profiles[context.profile_id], activated=False))
         return error(str(exc), 409)
     except RuntimeError:
         return error('settings_unavailable', 503)

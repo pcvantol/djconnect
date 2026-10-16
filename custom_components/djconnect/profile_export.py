@@ -176,7 +176,13 @@ async def async_import_profile(
         raise ProfileExportError('profile_settings_restore_required')
     if envelope.get("format") != PROFILE_EXPORT_FORMAT or int(envelope.get("schema_version") or 0) != EXPORT_SCHEMA_VERSION:
         raise ProfileExportError("invalid profile export schema")
-    profile_data = envelope.get("profile")
+    profile_data = deepcopy(envelope.get("profile"))
+    if isinstance(profile_data, dict):
+        metadata = profile_data.get('metadata')
+        if metadata is not None and not isinstance(metadata, dict):
+            raise ProfileExportError('invalid profile metadata')
+        if metadata is not None:
+            metadata.pop('dj_settings_version', None)
     if not isinstance(profile_data, dict):
         raise ProfileExportError("profile export is missing profile")
     household = await manager.async_load()
@@ -221,6 +227,13 @@ async def async_import_household(
     household_payload = _household_payload_from_import(envelope)
     if household_payload is None:
         raise ProfileExportError("invalid household export schema")
+    for profile_data in household_payload.get('profiles', []):
+        if isinstance(profile_data, dict):
+            metadata = profile_data.get('metadata')
+            if metadata is not None and not isinstance(metadata, dict):
+                raise ProfileExportError('invalid profile metadata')
+            if metadata is not None:
+                metadata.pop('dj_settings_version', None)
     existing = await manager.async_load()
     if existing.profiles and not overwrite:
         raise ProfileExportError("household import would overwrite existing profiles")

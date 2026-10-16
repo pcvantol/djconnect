@@ -39,6 +39,39 @@ Presence default. They carry factory provenance, never invented user history.
 Explicit same-value choice may establish provenance/default even when an
 automatic Session value already matches; exact duplicate operation does not.
 
+### Legacy choice review and retirement
+
+The owner read reports a bounded migration assessment before first activation.
+It inspects only the resolved Profile's non-default legacy response/voice tone,
+its old numeric Mood (without inferring a new default), and tone configuration
+of configured entries whose paired device is actually bound to this Profile.
+No device name, token, prompt, provider configuration or arbitrary entry value
+is exported by that assessment. Different old device tones are conflicting
+evidence, never a last-online-device preference or a Persona mapping.
+
+Where such evidence exists, the first contract2 acceptance requires an explicit
+complete five-field selection. A partial patch returns
+`settings_migration_choice_required`, changes nothing and supplies the review
+state. After activation ordinary per-field patches apply. A new Profile with
+no non-default legacy evidence can use ordinary patches immediately. Profile
+factory response/voice defaults are not proof of an earlier human choice.
+The assessment runs under Runtime admission and is revalidated on the HA loop
+after SQL staging. An intervening legacy-entry change rolls back a partial
+initial choice; an accepted receipt remains immutable recovery evidence.
+
+HA setup/options no longer offer the old voice-profile or response-style knobs
+and cannot create fresh copies of those settings. Existing unresolved values
+are retained for review. Only after canonical SQL activation may maintenance
+retire Profile tone fields and bound-entry tone configuration. The Profile
+retirement marker is schema metadata, not another settings authority; reads
+still resolve the canonical SQL revision. New factory Profiles omit the retired
+keys immediately without activating shared settings; explicit legacy inputs
+retain their evidence for review. A failed cleanup never undoes an
+accepted choice or reports the whole migration complete. Repeated cleanup,
+restart and schema1 import must not resurrect retired keys. Old tone readers
+remain isolated compatibility work until their actual consumers have a
+qualified replacement; the platform-wide migration node stays open.
+
 ## Durable acceptance and existing owners
 
 Reuse Profile authorization/storage ownership, the existing persistence service
@@ -287,6 +320,10 @@ explicit bounded transition: before Profile migration they retain documented
 legacy behavior; after a confirmed contract2 activation they reject conflicting
 legacy five-parameter writes with a typed upgrade requirement rather than
 silently changing contract1 semantics or maintaining a second authority.
+A client without the shared editor must show the typed upgrade requirement,
+preserve its confirmed selection and offer reopening a supported client followed
+by owner readback. It must not claim a new editor is already installed, reset
+choices, retry a legacy write blindly or reconstruct a Profile default.
 All actual setting application uses the shared existing Runtime owners. These
 adapters are not permission to declare platform cleanup complete: removal is
 required once all supported owning consumers have adopted contract2. No new

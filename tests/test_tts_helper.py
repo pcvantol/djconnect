@@ -2615,7 +2615,7 @@ class TtsHelperTest(unittest.TestCase):
                     object(),
                     "Daar gaan we.",
                     {
-                        self.const.CONF_TTS_ENGINE: "",
+                        'tts_engine': "",
                         self.const.CONF_TTS_LANGUAGE: "nl-NL",
                     },
                 )

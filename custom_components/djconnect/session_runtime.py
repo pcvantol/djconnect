@@ -4364,7 +4364,7 @@ class SessionRuntimeManager:
     async def async_accept_dj_settings(
         self, *, owner_profile_id, operation_id, binding, patch,
         expected_defaults_revision, expected_session, now_ms, authorize,
-        validate_voice,
+        validate_voice, require_full_selection=False, migration_requires_review=None,
     ):
         """One acceptance under the existing lifecycle lock, then one RAM apply.
 
@@ -4399,7 +4399,11 @@ class SessionRuntimeManager:
                 owner_profile_id, operation_id=operation_id, binding=binding,
                 patch=patch, expected_defaults_revision=expected_defaults_revision,
                 now_ms=now_ms, session=context, authorize=authorize,
-                validate_choices=validate_voice if {'voice', 'gender'} & patch.keys() else None)
+                validate_choices=validate_voice if {'voice', 'gender'} & patch.keys() else None,
+                require_full_selection=(require_full_selection or (
+                    migration_requires_review is not None and migration_requires_review())),
+                initial_selection_guard=(None if migration_requires_review is None
+                                         else lambda: not migration_requires_review()))
             # A replay is immutable outcome proof, never an instruction to roll
             # a newer Runtime back to its earlier choices.
             if active is None or result['replayed']:

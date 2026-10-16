@@ -196,7 +196,6 @@
           "firmware_channel": "Canal de firmware",
           "dj_announcement_speaker_entity_id": "Altavoz de Home Assistant para anuncios DJ",
           "options_action": "Acción",
-          "voice_profile": "Perfil de voz DJ",
           "vibecast_session_end_allowed": "Permitir que las pantallas VibeCast aprobadas finalicen la sesión"
         },
         "data_description": {
@@ -204,8 +203,7 @@
           "client_type": "Tipo de cliente DJConnect: app, dispositivo local o agente Assist.",
           "dj_announcement_speaker_entity_id": "Entidad media_player opcional para anuncios DJ hablados. Spotify Direct sigue reproduciendo; DJConnect reproduce la voz por separado en este altavoz.",
           "firmware_channel": "Elige stable para actualizaciones OTA normales o beta para probar firmware preliminar.",
-          "options_action": "Elige qué acción ejecutar.",
-          "voice_profile": "Elige el estilo de radio DJConnect de respaldo. Cuando un cliente envía mood, esa mood selecciona automáticamente el perfil de voz; la voz TTS de Home Assistant sigue determinando la voz de audio real."
+          "options_action": "Elige qué acción ejecutar."
         }
       },
       "spotify_reauth": {
@@ -291,14 +289,12 @@
           "profile_id": "Perfil",
           "profile_name": "Nombre del perfil",
           "profile_type": "Tipo de perfil",
-          "profile_response_style": "Estilo de respuesta",
           "require_profile": "Exigir un perfil seleccionado explícitamente"
         },
         "data_description": {
           "profile_id": "Los perfiles se comparten en esta instalación de Home Assistant. Elige un perfil existente o crea uno nuevo.",
           "profile_name": "Asigna un nombre único al perfil nuevo. Para usar el perfil de otro dispositivo, selecciónalo en la lista.",
           "profile_type": "Tipo de perfil",
-          "profile_response_style": "Estilo de respuesta",
           "require_profile": "Exigir un perfil seleccionado explícitamente"
         }
       }
@@ -326,12 +322,12 @@
       "music_assistant_unavailable": "Music Assistant no está instalado o configurado en Home Assistant.",
       "music_assistant_no_players": "No se encontraron reproductores de Music Assistant utilizables.",
       "music_assistant_player_missing": "El reproductor de Music Assistant seleccionado ya no existe.",
-      "invalid_voice_profile": "Elige un perfil de voz DJ compatible.",
       "profile_name_exists": "Este nombre ya está en uso. Elige el perfil existente en la lista o introduce otro nombre.",
       "profile_name_required": "Introduce un nombre de perfil.",
       "profile_unavailable": "Este perfil ha cambiado o ya no está disponible. Vuelve a elegirlo en la lista actualizada.",
       "profile_connection_unavailable": "La conexión musical existente no está disponible o es ambigua. Restablécela o elige otro perfil.",
-      "profile_setup_failed": "No se pudo guardar el perfil. Inténtalo de nuevo."
+      "profile_setup_failed": "No se pudo guardar el perfil. Inténtalo de nuevo.",
+      "shared_dj_settings_required": "Este formulario antiguo no ha guardado nada. Cambia tus preferencias de DJ en un cliente DJConnect compatible con los ajustes compartidos del perfil."
     },
     "abort": {
       "already_configured": "Este dispositivo DJConnect ya está configurado.",
@@ -353,7 +349,6 @@
           "music_backend": "Backend de música",
           "music_assistant_player": "Reproductor de Music Assistant",
           "dj_announcement_speaker_entity_id": "Altavoz de Home Assistant para anuncios DJ",
-          "voice_profile": "Perfil de voz DJ",
           "vibecast_session_end_allowed": "Permitir que las pantallas VibeCast aprobadas finalicen la sesión"
         },
         "data_description": {
@@ -364,24 +359,21 @@
           "firmware_channel": "Elige stable para actualizaciones OTA normales o beta para probar firmware preliminar.",
           "options_action": "Elige qué acción ejecutar.",
           "music_backend": "Backend de reproducción seleccionado.",
-          "music_assistant_player": "Reproductor de destino de Music Assistant configurado.",
-          "voice_profile": "Elige el estilo de radio DJConnect de respaldo. Cuando un cliente envía mood, esa mood selecciona automáticamente el perfil de voz; la voz TTS de Home Assistant sigue determinando la voz de audio real."
+          "music_assistant_player": "Reproductor de destino de Music Assistant configurado."
         }
       },
       "conversation_agent_init": {
         "title": "Opciones de DJConnect",
-        "description": "Gestiona acciones de DJConnect como cambiar el perfil de voz DJ, cambiar el backend de música o reautorizar Spotify. Spotify is a trademark of Spotify AB. DJConnect is not affiliated with, endorsed by, or sponsored by Spotify AB.",
+        "description": "Gestiona la canalización de Assist, el backend musical y la autorización de Spotify. Las preferencias de DJ usan los ajustes compartidos del perfil. Spotify is a trademark of Spotify AB. DJConnect is not affiliated with, endorsed by, or sponsored by Spotify AB.",
         "data": {
           "assist_pipeline_id": "Pipeline de Assist",
           "options_action": "Acción",
-          "music_backend": "Backend de música",
-          "voice_profile": "Perfil de voz DJ"
+          "music_backend": "Backend de música"
         },
         "data_description": {
           "assist_pipeline_id": "Pipeline Assist usado por DJConnect para reconocimiento de voz y anuncios DJ.",
           "options_action": "Elige qué acción ejecutar.",
-          "music_backend": "Backend de reproducción seleccionado.",
-          "voice_profile": "Elige el estilo de radio DJConnect de respaldo. Cuando un cliente envía mood, esa mood selecciona automáticamente el perfil de voz; la voz TTS de Home Assistant sigue determinando la voz de audio real."
+          "music_backend": "Backend de reproducción seleccionado."
         }
       },
       "music_backend": {
@@ -476,7 +468,7 @@
       "backend_switch_failed": "DJConnect no pudo cambiar el backend de música. Revisa el backend seleccionado e inténtalo de nuevo.",
       "profile_platform_failed": "No se pudo actualizar el perfil vinculado. Comprueba el emparejamiento del dispositivo e inténtalo de nuevo.",
       "profile_shared_backend_change": "Este perfil está vinculado a varios dispositivos. Vincula este dispositivo a su propio perfil antes de cambiar el backend de música.",
-      "invalid_voice_profile": "Elige un perfil de voz DJ compatible."
+      "shared_dj_settings_required": "Este formulario antiguo no ha guardado nada. Cambia tus preferencias de DJ en un cliente DJConnect compatible con los ajustes compartidos del perfil."
     },
     "abort": {
       "client_retired": "Este cliente ya no es compatible. Elige un cliente compatible."
@@ -712,13 +704,6 @@
         "household": "Hogar",
         "guest": "Invitado",
         "kids": "Niños"
-      }
-    },
-    "onboarding_response_style": {
-      "options": {
-        "concise": "Conciso",
-        "balanced": "Equilibrado",
-        "expressive": "Expresivo"
       }
     },
     "profile_platform_action": {

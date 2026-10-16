@@ -4,7 +4,7 @@ Only the external waveform and existing music provider boundaries are fixtures.
 No installed HA mounts, credentials, client writer or audible acceptance.
 """
 
-from dataclasses import asdict
+from dataclasses import asdict, replace
 from datetime import UTC, datetime
 import hashlib
 import json
@@ -84,6 +84,25 @@ async def run(hass, runtime, client, post, identity, output, headers, manager, s
     assert first['snapshot']['defaults_revision'] == 0 and first['snapshot']['session'] is None
     denied, status = await read({})
     assert status == 401 and 'snapshot' not in denied
+    # Real Profile Store + ConfigEntry evidence, real owner HTTP admission and
+    # SQLite rollback. This is not a mocked registration/query chain.
+    from custom_components.djconnect.domain import ResponseStyle, VoiceStyle
+    from custom_components.djconnect.settings_migration import async_retire_activated
+    profile = storage.household.profiles['profile-a']
+    await storage.async_update_profile('profile-a', preferences=replace(
+        profile.preferences, response_style=ResponseStyle.EXPRESSIVE, voice_style=VoiceStyle.ENERGY))
+    hass.config_entries.async_update_entry(runtime.entry,
+        data={**runtime.entry.data, 'voice_profile': 'late_night'})
+    first, status = await read()
+    assert status == 200 and first['migration']['requires_review']
+    rejected, _ = await choose(first, {'mood': 'chill'}, expected=409)
+    assert rejected['error'] == 'settings_migration_choice_required'
+    unchanged, status = await read()
+    assert status == 200 and unchanged['snapshot'] == first['snapshot']
+    await async_retire_activated(hass, storage, manager._settings_repository)
+    assert runtime.entry.data['voice_profile'] == 'late_night'
+    rows.append({'case': 'legacy_partial_activation_rejected_without_mapping',
+                 'response': rejected, 'unchanged_snapshot': unchanged['snapshot']})
     chosen = {'persona': 'radio_dj', 'voice': {'kind': 'provider_voice',
         'provider_id': entity.entity_id, 'voice_id': 'JennyNeural'}, 'gender': 'female',
         'mood': 'energy', 'presence': 'balanced'}
@@ -91,6 +110,14 @@ async def run(hass, runtime, client, post, identity, output, headers, manager, s
     assert accepted['snapshot']['defaults'] == chosen
     assert manager.current_active('profile-a') is None
     rows.append({'case': 'paired_no_session_all_five', 'response': accepted})
+    await async_retire_activated(hass, storage, manager._settings_repository)
+    assert 'voice_profile' not in runtime.entry.data
+    retired, status = await read()
+    assert status == 200 and not retired['migration']['legacy_cleanup_pending']
+    assert retired['binding'] == first['binding']
+    assert retired['snapshot'] == accepted['snapshot']
+    rows.append({'case': 'accepted_legacy_retirement_preserves_binding_and_defaults',
+                 'response': retired})
     started = await post('/session/start', {**identity, 'mood': 'chill', 'locale': 'en'}, expected=201)
     sid = started['session']['session_id']
     active = manager.current_active('profile-a')

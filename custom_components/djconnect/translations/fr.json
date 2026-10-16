@@ -196,7 +196,6 @@
           "firmware_channel": "Canal du firmware",
           "dj_announcement_speaker_entity_id": "Enceinte Home Assistant pour les annonces DJ",
           "options_action": "Action",
-          "voice_profile": "Profil vocal DJ",
           "vibecast_session_end_allowed": "Autoriser les écrans VibeCast approuvés à terminer la session"
         },
         "data_description": {
@@ -204,8 +203,7 @@
           "client_type": "Type de client DJConnect : app, appareil local ou agent Assist.",
           "dj_announcement_speaker_entity_id": "Entité media_player optionnelle pour les annonces DJ parlées. Spotify Direct continue la lecture ; DJConnect lit la voix séparément via cette enceinte.",
           "firmware_channel": "Choisis stable pour les mises à jour OTA normales ou beta pour tester un firmware de préversion.",
-          "options_action": "Choisis l’action à exécuter.",
-          "voice_profile": "Choisis le style radio DJConnect de secours. Quand un client envoie mood, cette mood choisit automatiquement le profil vocal ; la voix TTS Home Assistant détermine toujours la voix audio réelle."
+          "options_action": "Choisis l’action à exécuter."
         }
       },
       "spotify_reauth": {
@@ -291,14 +289,12 @@
           "profile_id": "Profil",
           "profile_name": "Nom du profil",
           "profile_type": "Type de profil",
-          "profile_response_style": "Style de réponse",
           "require_profile": "Exiger un profil explicitement choisi"
         },
         "data_description": {
           "profile_id": "Les profils sont partagés dans cette installation Home Assistant. Choisissez un profil existant ou créez-en un nouveau.",
           "profile_name": "Donnez un nom unique au nouveau profil. Pour utiliser le profil d’un autre appareil, sélectionnez-le dans la liste.",
           "profile_type": "Type de profil",
-          "profile_response_style": "Style de réponse",
           "require_profile": "Exiger un profil explicitement choisi"
         }
       }
@@ -326,12 +322,12 @@
       "music_assistant_unavailable": "Music Assistant n’est pas installé ou configuré dans Home Assistant.",
       "music_assistant_no_players": "Aucun lecteur Music Assistant utilisable n’a été trouvé.",
       "music_assistant_player_missing": "Le lecteur Music Assistant sélectionné n’existe plus.",
-      "invalid_voice_profile": "Choisis un profil vocal DJ pris en charge.",
       "profile_name_exists": "Ce nom est déjà utilisé. Sélectionnez le profil existant dans la liste ou saisissez un autre nom.",
       "profile_name_required": "Saisissez un nom de profil.",
       "profile_unavailable": "Ce profil a changé ou n’est plus disponible. Sélectionnez-le à nouveau dans la liste actualisée.",
       "profile_connection_unavailable": "La connexion musicale existante est indisponible ou ambiguë. Rétablissez-la ou choisissez un autre profil.",
-      "profile_setup_failed": "Le profil n’a pas pu être enregistré. Réessayez."
+      "profile_setup_failed": "Le profil n’a pas pu être enregistré. Réessayez.",
+      "shared_dj_settings_required": "Cet ancien formulaire n’a rien enregistré. Modifie tes préférences DJ dans un client DJConnect compatible avec les réglages partagés du profil."
     },
     "abort": {
       "already_configured": "Cet appareil DJConnect est déjà configuré.",
@@ -353,7 +349,6 @@
           "music_backend": "Backend musical",
           "music_assistant_player": "Lecteur Music Assistant",
           "dj_announcement_speaker_entity_id": "Enceinte Home Assistant pour les annonces DJ",
-          "voice_profile": "Profil vocal DJ",
           "vibecast_session_end_allowed": "Autoriser les écrans VibeCast approuvés à terminer la session"
         },
         "data_description": {
@@ -364,8 +359,7 @@
           "firmware_channel": "Choisis stable pour les mises à jour OTA normales ou beta pour tester un firmware de préversion.",
           "options_action": "Choisis l’action à exécuter.",
           "music_backend": "Backend de lecture sélectionné.",
-          "music_assistant_player": "Lecteur cible Music Assistant configuré.",
-          "voice_profile": "Choisis le style radio DJConnect de secours. Quand un client envoie mood, cette mood choisit automatiquement le profil vocal ; la voix TTS Home Assistant détermine toujours la voix audio réelle."
+          "music_assistant_player": "Lecteur cible Music Assistant configuré."
         }
       },
       "conversation_agent_init": {
@@ -374,14 +368,12 @@
         "data": {
           "assist_pipeline_id": "Pipeline Assist",
           "options_action": "Action",
-          "music_backend": "Backend musical",
-          "voice_profile": "Profil vocal DJ"
+          "music_backend": "Backend musical"
         },
         "data_description": {
           "assist_pipeline_id": "Pipeline Assist utilisée par DJConnect pour la reconnaissance vocale et les annonces DJ.",
           "options_action": "Choisis l’action à exécuter.",
-          "music_backend": "Backend de lecture sélectionné.",
-          "voice_profile": "Choisis le style radio DJConnect de secours. Quand un client envoie mood, cette mood choisit automatiquement le profil vocal ; la voix TTS Home Assistant détermine toujours la voix audio réelle."
+          "music_backend": "Backend de lecture sélectionné."
         }
       },
       "music_backend": {
@@ -476,7 +468,7 @@
       "backend_switch_failed": "DJConnect n’a pas pu changer de backend musical. Vérifie le backend sélectionné, puis réessaie.",
       "profile_platform_failed": "Le profil associé n’a pas pu être mis à jour. Vérifie l’association de l’appareil et réessaie.",
       "profile_shared_backend_change": "Ce profil est associé à plusieurs appareils. Associe cet appareil à son propre profil avant de changer de backend musical.",
-      "invalid_voice_profile": "Choisis un profil vocal DJ pris en charge."
+      "shared_dj_settings_required": "Cet ancien formulaire n’a rien enregistré. Modifie tes préférences DJ dans un client DJConnect compatible avec les réglages partagés du profil."
     },
     "abort": {
       "client_retired": "Ce client n’est plus pris en charge. Choisis un client pris en charge."
@@ -712,13 +704,6 @@
         "household": "Foyer",
         "guest": "Invité",
         "kids": "Enfants"
-      }
-    },
-    "onboarding_response_style": {
-      "options": {
-        "concise": "Concis",
-        "balanced": "Équilibré",
-        "expressive": "Expressif"
       }
     },
     "profile_platform_action": {

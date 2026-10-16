@@ -227,6 +227,8 @@ class ProfilePlatformStorage:
             raise ProfileStorageValidationError('profile_id collision')
         profile = Profile(
             profile_id=clean_identifier(profile_id) or _new_id("profile"),
+            metadata=ProfileMetadata(dj_settings_version=(
+                2 if response_style == ResponseStyle.BALANCED and voice_style == VoiceStyle.DEFAULT else 1)),
             display_name=name,
             profile_type=profile_type,
             privacy_mode=privacy_mode,
@@ -276,6 +278,12 @@ class ProfilePlatformStorage:
             profile = replace(profile, privacy_mode=privacy_mode)
         if preferences is not None:
             profile = replace(profile, preferences=preferences)
+            if (preferences.response_style != ResponseStyle.BALANCED
+                    or preferences.voice_style != VoiceStyle.DEFAULT):
+                # Compatibility callers may still supply explicit legacy
+                # evidence. Preserve it for review; the marker is not authority
+                # to discard a newly supplied preference or activate SQL.
+                profile = replace(profile, metadata=replace(profile.metadata, dj_settings_version=1))
         self._household = replace(
             household,
             profiles={**household.profiles, profile.profile_id: profile},
@@ -874,7 +882,7 @@ def household_to_storage(household: Household) -> dict[str, Any]:
 
 def _profile_to_storage(profile: Profile) -> dict[str, Any]:
     prefs = profile.preferences
-    return {
+    result = {
         "profile_id": profile.profile_id,
         "display_name": profile.display_name,
         "profile_type": profile.profile_type.value,
@@ -894,6 +902,7 @@ def _profile_to_storage(profile: Profile) -> dict[str, Any]:
             "created_by": profile.metadata.created_by,
             "labels": sorted(profile.metadata.labels),
             "source": profile.metadata.source,
+            "dj_settings_version": profile.metadata.dj_settings_version,
         },
         "references": {
             "music_dna": {
@@ -940,10 +949,18 @@ def _profile_to_storage(profile: Profile) -> dict[str, Any]:
     }
 
 
+    if profile.metadata.dj_settings_version == 2:
+        result['preferences'].pop('response_style', None)
+        result['preferences'].pop('voice_style', None)
+    return result
+
+
 def _profile_from_storage(data: dict[str, Any]) -> Profile:
     prefs = data.get("preferences") or {}
     refs = data.get("references") or {}
     metadata = data.get("metadata") or {}
+    if type(metadata.get('dj_settings_version')) is int and metadata['dj_settings_version'] == 2:
+        prefs = {key: value for key, value in prefs.items() if key not in {'response_style', 'voice_style'}}
     mood = data.get("mood") or {}
     entitlements = data.get("entitlements") or {}
     capabilities = data.get("capabilities") or {}
@@ -976,6 +993,8 @@ def _profile_from_storage(data: dict[str, Any]) -> Profile:
             created_by=clean_identifier(metadata.get("created_by")),
             labels=frozenset(_list(metadata.get("labels"))),
             source=clean_identifier(metadata.get("source")) or "djconnect",
+            dj_settings_version=2 if type(metadata.get('dj_settings_version')) is int
+                and metadata['dj_settings_version'] == 2 else 1,
         ),
         music_dna=MusicDNAReference(
             key=clean_identifier((refs.get("music_dna") or {}).get("key")),

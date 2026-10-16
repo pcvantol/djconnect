@@ -1933,10 +1933,11 @@
         "line": 95
       },
       "static_references": [],
-      "acceptance": "STATIC_ONLY_NOT_SETTER_READER_EFFECT_PROOF",
-      "disposition": "INVESTIGATE",
+      "acceptance": "REMOVED_UNUSED_CONSTANT_AND_UI; LEGACY_KEY_QUARANTINED_FOR_ACCEPTED_RETIREMENT",
+      "disposition": "REMOVE",
       "owning_lane": "DJC-CORE",
-      "migration_effect_tests": "PENDING"
+      "migration_effect_tests": "tests/test_settings_legacy_migration.py; tests/test_config_flow_helpers.py; tests/test_tts_helper.py",
+      "current_reader": "No active DJConnect constant reader; HA Assist pipeline fields with same string remain separately owned."
     },
     {
       "identifier": "CONF_TTS_ENGINE",
@@ -1946,10 +1947,11 @@
         "line": 96
       },
       "static_references": [],
-      "acceptance": "STATIC_ONLY_NOT_SETTER_READER_EFFECT_PROOF",
-      "disposition": "INVESTIGATE",
+      "acceptance": "REMOVED_UNUSED_CONSTANT_AND_UI; LEGACY_KEY_QUARANTINED_FOR_ACCEPTED_RETIREMENT",
+      "disposition": "REMOVE",
       "owning_lane": "DJC-CORE",
-      "migration_effect_tests": "PENDING"
+      "migration_effect_tests": "tests/test_settings_legacy_migration.py; tests/test_config_flow_helpers.py; tests/test_tts_helper.py",
+      "current_reader": "No active DJConnect constant reader; HA Assist pipeline fields with same string remain separately owned."
     },
     {
       "identifier": "CONF_TTS_LANGUAGE",
@@ -1998,10 +2000,11 @@
         "line": 98
       },
       "static_references": [],
-      "acceptance": "STATIC_ONLY_NOT_SETTER_READER_EFFECT_PROOF",
-      "disposition": "INVESTIGATE",
+      "acceptance": "REMOVED_UNUSED_CONSTANT_AND_UI; LEGACY_KEY_QUARANTINED_FOR_ACCEPTED_RETIREMENT",
+      "disposition": "REMOVE",
       "owning_lane": "DJC-CORE",
-      "migration_effect_tests": "PENDING"
+      "migration_effect_tests": "tests/test_settings_legacy_migration.py; tests/test_config_flow_helpers.py; tests/test_tts_helper.py",
+      "current_reader": "No active DJConnect constant reader; HA Assist pipeline fields with same string remain separately owned."
     },
     {
       "identifier": "CONF_DJ_RESPONSE_ENABLED",
@@ -2069,10 +2072,11 @@
         "line": 101
       },
       "static_references": [],
-      "acceptance": "STATIC_ONLY_NOT_SETTER_READER_EFFECT_PROOF",
-      "disposition": "INVESTIGATE",
+      "acceptance": "REMOVED_UNUSED_CONSTANT_AND_UI; LEGACY_KEY_QUARANTINED_FOR_ACCEPTED_RETIREMENT",
+      "disposition": "REMOVE",
       "owning_lane": "DJC-CORE",
-      "migration_effect_tests": "PENDING"
+      "migration_effect_tests": "tests/test_settings_legacy_migration.py; tests/test_config_flow_helpers.py; tests/test_tts_helper.py",
+      "current_reader": "No active DJConnect constant reader; HA Assist pipeline fields with same string remain separately owned."
     },
     {
       "identifier": "CONF_DJ_RESPONSE_PROMPT",

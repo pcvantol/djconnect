@@ -144,7 +144,7 @@ class ProfileDJSettingsRepository(PersistenceRepository):
     async def async_accept_user_choice(
         self, owner, *, operation_id, binding, patch, expected_defaults_revision,
         now_ms, session: SessionSettingsContext | None = None, authorize,
-        validate_choices=None,
+        validate_choices=None, require_full_selection=False, initial_selection_guard=None,
     ):
         """Commit once; no HA API, Runtime mutation, synthesis or event publication."""
         _identifier(owner)
@@ -165,7 +165,11 @@ class ProfileDJSettingsRepository(PersistenceRepository):
                               'expected_revision': session.expected_revision} if session else None}
         digest = hashlib.sha256(_json(intent).encode()).hexdigest()
 
+        initial_acceptance = False
+        complete_selection = set(patch) == {'persona', 'voice', 'gender', 'mood', 'presence'}
+
         def accept(tx):
+            nonlocal initial_acceptance
             high_water = tx.fetchone('SELECT high_water_ms FROM djconnect_settings_clock WHERE singleton=1')[0]
             clock = max(int(datetime.now(UTC).timestamp()*1000), now_ms, int(high_water))
             expires = created_ms + LIFETIME_MS
@@ -184,6 +188,9 @@ class ProfileDJSettingsRepository(PersistenceRepository):
             current = self._snapshot(tx, owner, session.session_id if session else '')
             if current['defaults_revision'] != expected_defaults_revision:
                 raise SettingsRevisionConflict(current)
+            initial_acceptance = not current['activated']
+            if initial_acceptance and require_full_selection and not complete_selection:
+                raise SettingsCommitError('settings_migration_choice_required')
             defaults = DJSettings.from_dict(current['defaults'])
             selected = defaults.patched(patch)
             if validate_choices is not None:
@@ -251,6 +258,11 @@ class ProfileDJSettingsRepository(PersistenceRepository):
                 return False
             if created_ms + LIFETIME_MS <= max(now_ms, int(datetime.now(UTC).timestamp()*1000)):
                 raise SettingsCommitError('operation_expired')
+            # This callback runs on the HA loop after staging, never in the SQL
+            # worker. A replay retains its original accepted migration decision.
+            if (initial_acceptance and not complete_selection
+                    and initial_selection_guard is not None and not initial_selection_guard()):
+                raise SettingsCommitError('settings_migration_choice_required')
             return True
 
         return await self._async_in_transaction(
