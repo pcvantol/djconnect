@@ -24,6 +24,7 @@ def _platform_capabilities() -> dict[str, bool]:
         "session_artwork": True,
         "session_speech": True,
         "passive_session_surface": True,
+        "profile_session_settings": True,
     }
 
 
@@ -45,4 +46,5 @@ def _contract_versions() -> dict[str, int]:
         "session_speech": 1,
         "passive_session_surface": 1,
         "session_history_summary": 1,
+        "profile_session_settings": 2,
     }

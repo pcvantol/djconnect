@@ -29,6 +29,12 @@ def accepted_processing_basis(result):
 
 def capability():
     return {"available": True, "version": 1, "path": PATH, "method": "POST",
+            "supported_prepare_versions": [1, 2],
+            "shared_profile_settings": {"version": 2, "prepare_version": 2,
+                "path": "/api/djconnect/v1/profile/settings",
+                "scope": "profile_and_active_session", "storage_owner": "core",
+                "voice_processor": "ha_configured", "caller_voice_override": False,
+                "activated_profile_requires_version": 2},
             "authentication": "paired_device_bearer", "owner_only": True,
             "supported_reference_kinds": ["turn_id", "moment_id", "entry_id"],
             "source_kinds": ["accepted_ask_dj", "published_dj_moment", "retained_dj_contribution"],

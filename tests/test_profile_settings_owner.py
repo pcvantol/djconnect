@@ -2,6 +2,8 @@
 
 from datetime import UTC, datetime
 import json
+import threading
+from unittest.mock import patch
 from types import SimpleNamespace
 import unittest
 
@@ -118,3 +120,36 @@ class ProfileSettingsOwnerTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(readback.status, 200)
         self.assertEqual(json.loads(readback.text)['phase'], 'accepted')
         self.assertEqual(readback.headers['Cache-Control'], 'no-store')
+
+    async def test_conflict_after_revocation_never_delivers_private_snapshot(self):
+        before, _ = await self.read()
+        await self.choose(before, {'mood': 'energy'})
+        manager = self.fixture.manager
+        original = manager.async_accept_dj_settings
+        async def revoked_conflict(**kwargs):
+            try:
+                return await original(**kwargs)
+            except self.settings.SettingsRevisionConflict:
+                self.entry.disabled_by = 'user'
+                raise
+        with patch.object(manager, 'async_accept_dj_settings', revoked_conflict):
+            rejected, status = await self.choose(before, {'persona': 'club_dj'}, counter=2)
+        self.assertEqual(status, 401, rejected)
+        self.assertNotIn('current', rejected)
+        self.assertNotIn('snapshot', rejected)
+
+    async def test_generic_provider_inventory_is_only_inspected_on_ha_loop(self):
+        from custom_components.djconnect import speech_processor
+        original = speech_processor.voice_options
+        loop_thread = threading.get_ident()
+        calls = []
+        def loop_bound_provider(*args, **kwargs):
+            self.assertEqual(threading.get_ident(), loop_thread)
+            calls.append(True)
+            return original(*args, **kwargs)
+        with patch.object(speech_processor, 'voice_options', loop_bound_provider):
+            before, status = await self.read()
+            self.assertEqual(status, 200, before)
+            accepted, status = await self.choose(before, {'voice': {'kind': 'provider_default'}})
+        self.assertEqual(status, 200, accepted)
+        self.assertGreaterEqual(len(calls), 3)

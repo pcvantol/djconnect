@@ -224,6 +224,9 @@ async def async_handle_settings(hass, data, *, headers=None, write=False, operat
                     snapshot['session']['settings'] if snapshot['session'] else snapshot['defaults'])),
                 'as_of': datetime.now(UTC).isoformat(), 'cache_policy': 'private,no-store'}, 200
     except SettingsRevisionConflict as exc:
+        if not authority():
+            return error('unauthorized', 401)
+        register_delivery_admission(lambda: _require_authority(authority))
         return error('settings_revision_conflict', 409, current=exc.current)
     except PermissionError:
         return error('unauthorized', 401)

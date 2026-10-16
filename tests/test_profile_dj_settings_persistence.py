@@ -150,16 +150,14 @@ class ProfileDJSettingsPersistenceTests(unittest.IsolatedAsyncioTestCase):
     async def test_cancel_during_definitive_acceptance_keeps_one_recoverable_commit(self):
         reached=threading.Event()
         release=threading.Event()
-        calls=0
-        def authorize():
-            nonlocal calls
-            calls+=1
-            if calls==2:
-                reached.set()
-                if not release.wait(5):
-                    raise AssertionError('test synchronization timeout')
-            return True
-        task=asyncio.create_task(self.choose({'persona':'festival_dj'},authorize=authorize))
+        def staged(settings):
+            reached.set()
+            if not release.wait(5):
+                raise AssertionError('test synchronization timeout')
+        task=asyncio.create_task(self.repo.async_accept_user_choice('owner',
+            operation_id=operation(self.now), binding=self.binding,
+            patch={'persona':'festival_dj'}, expected_defaults_revision=0,
+            now_ms=self.now, authorize=lambda: True, validate_choices=staged))
         self.assertTrue(await asyncio.to_thread(reached.wait,5))
         task.cancel()
         release.set()
@@ -196,3 +194,78 @@ class ProfileDJSettingsPersistenceTests(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(result['defaults'],DJSettings().as_dict())
         finally:
             await upgraded.async_close()
+
+    async def test_authority_is_loop_owned_and_last_staged_revocation_rolls_back(self):
+        loop = asyncio.get_running_loop()
+        loop_thread = threading.get_ident()
+        authorized = True
+        checks = []
+        def authority():
+            self.assertEqual(threading.get_ident(), loop_thread)
+            checks.append(True)
+            return authorized
+        def revoke():
+            nonlocal authorized
+            authorized = False
+        def staged(settings):
+            # Real SQL is staged in a worker; authority changes on HA's loop
+            # before the final admission. No HA API is called by this callback.
+            done = threading.Event()
+            def revoked():
+                revoke()
+                done.set()
+            loop.call_soon_threadsafe(revoked)
+            self.assertTrue(done.wait(5))
+        with self.assertRaises(PermissionError):
+            await self.repo.async_accept_user_choice('owner',
+                operation_id=operation(self.now), binding=self.binding,
+                patch={'mood':'party'}, expected_defaults_revision=0,
+                now_ms=self.now, session=self.context(), authorize=authority,
+                validate_choices=staged)
+        self.assertEqual(len(checks), 2)
+        self.assertEqual((await self.read())['defaults_revision'], 0)
+        self.assertIsNone((await self.read())['session'])
+
+    async def test_expiry_during_provider_lock_wait_or_sql_stage_never_commits(self):
+        clock = self.now
+        class Clock(datetime):
+            @classmethod
+            def now(cls, tz=None):
+                return datetime.fromtimestamp(clock/1000, UTC)
+        op = operation(self.now-299999)
+        provider = self.service._provider
+        with patch('custom_components.djconnect.persistence.dj_settings.datetime', Clock):
+            await provider._write_lock.acquire()
+            task = asyncio.create_task(self.choose({'mood':'party'}, op=op,
+                                                   context=self.context()))
+            await asyncio.sleep(0)
+            clock += 2
+            provider._write_lock.release()
+            with self.assertRaisesRegex(SettingsCommitError, 'operation_expired'):
+                await task
+            self.assertEqual((await self.read())['defaults_revision'], 0)
+            clock = self.now
+            def expire_staged(settings):
+                nonlocal clock
+                clock += 2
+            with self.assertRaisesRegex(SettingsCommitError, 'operation_expired'):
+                await self.repo.async_accept_user_choice('owner', operation_id=op,
+                    binding=self.binding, patch={'mood':'party'}, expected_defaults_revision=0,
+                    now_ms=self.now, session=self.context(), authorize=lambda: True,
+                    validate_choices=expire_staged)
+        self.assertEqual((await self.read())['defaults_revision'], 0)
+        self.assertIsNone((await self.read())['session'])
+        row = await self.service.async_in_transaction(lambda tx: tx.fetchone(
+            'SELECT mood_current FROM djconnect_session_summaries WHERE session_id=?', (self.sid,)))
+        self.assertEqual(row, ('chill',))
+
+    async def test_mood_acceptance_timestamp_uses_clock_after_lock_wait(self):
+        clock = self.now + 5000
+        class Clock(datetime):
+            @classmethod
+            def now(cls, tz=None):
+                return datetime.fromtimestamp(clock/1000, UTC)
+        with patch('custom_components.djconnect.persistence.dj_settings.datetime', Clock):
+            result = await self.choose({'mood':'party'}, context=self.context())
+        self.assertEqual(result['snapshot']['session']['updated_at'],
+                         datetime.fromtimestamp(clock/1000, UTC).isoformat())

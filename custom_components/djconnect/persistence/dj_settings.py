@@ -62,8 +62,8 @@ class ProfileDJSettingsRepository(PersistenceRepository):
     """Existing Profile domain owner backed by the existing persistence service.
 
     Runtime owns admission and holds its lifecycle lock through this commit and
-    projection. The synchronous authorize fence must be side-effect-free and
-    safe in the existing provider transaction callback, as well as on admission.
+    projection. Authorization runs on the HA event loop before staging and at the final
+    admission fence. SQL callbacks contain only immutable domain data.
     """
 
     @staticmethod
@@ -105,11 +105,10 @@ class ProfileDJSettingsRepository(PersistenceRepository):
 
         def read(tx):
             result = self._snapshot(tx, owner, session_id)
-            if not authorize():
-                raise PermissionError('unauthorized')
             return result
 
-        return await self._async_in_transaction(read, authorize=authorize)
+        return await self._async_in_transaction(
+            read, authorize=authorize, finalize_authorize=authorize)
 
     async def async_operation_result(self, owner, *, operation_id, binding, now_ms, authorize):
         """Read original acceptance, without reapplying or creating an operation."""
@@ -125,12 +124,10 @@ class ProfileDJSettingsRepository(PersistenceRepository):
         key = hashlib.sha256(_json([owner, operation_id]).encode()).hexdigest()
 
         def read(tx):
-            clock = max(now_ms, tx.fetchone(
+            clock = max(int(datetime.now(UTC).timestamp()*1000), now_ms, tx.fetchone(
                 'SELECT high_water_ms FROM djconnect_settings_clock WHERE singleton=1')[0])
             row = tx.fetchone('SELECT binding,expires_ms,receipt FROM djconnect_settings_operations WHERE operation_key=?',
                               (key,))
-            if not authorize():
-                raise PermissionError('unauthorized')
             if created_ms > clock + FUTURE_SKEW_MS:
                 raise SettingsCommitError('operation_clock_unqualified')
             if row is not None:
@@ -141,7 +138,8 @@ class ProfileDJSettingsRepository(PersistenceRepository):
             return {'phase': 'unknown' if created_ms + LIFETIME_MS <= clock else 'not_accepted',
                     'operation_id': operation_id}
 
-        return await self._async_in_transaction(read, authorize=authorize)
+        return await self._async_in_transaction(
+            read, authorize=authorize, finalize_authorize=authorize)
 
     async def async_accept_user_choice(
         self, owner, *, operation_id, binding, patch, expected_defaults_revision,
@@ -169,7 +167,7 @@ class ProfileDJSettingsRepository(PersistenceRepository):
 
         def accept(tx):
             high_water = tx.fetchone('SELECT high_water_ms FROM djconnect_settings_clock WHERE singleton=1')[0]
-            clock = max(now_ms, int(high_water))
+            clock = max(int(datetime.now(UTC).timestamp()*1000), now_ms, int(high_water))
             expires = created_ms + LIFETIME_MS
             if created_ms > clock + FUTURE_SKEW_MS:
                 raise SettingsCommitError('operation_clock_unqualified')
@@ -182,8 +180,6 @@ class ProfileDJSettingsRepository(PersistenceRepository):
                     raise SettingsCommitError('operation_scope_changed')
                 if existing[1] != digest:
                     raise SettingsCommitError('operation_payload_conflict')
-                if not authorize():
-                    raise PermissionError('unauthorized')
                 return {**json.loads(existing[2]), 'replayed': True}
             current = self._snapshot(tx, owner, session.session_id if session else '')
             if current['defaults_revision'] != expected_defaults_revision:
@@ -248,11 +244,17 @@ class ProfileDJSettingsRepository(PersistenceRepository):
             tx.execute('INSERT INTO djconnect_settings_operations VALUES (?,?,?,?,?,?)',
                        (key, owner, binding, digest, expires, _json(result)))
             tx.execute('UPDATE djconnect_settings_clock SET high_water_ms=? WHERE singleton=1', (clock,))
-            if not authorize():
-                raise PermissionError('unauthorized')
             return result
 
-        return await self._async_in_transaction(accept, authorize=authorize)
+        def final_admission():
+            if not authorize():
+                return False
+            if created_ms + LIFETIME_MS <= max(now_ms, int(datetime.now(UTC).timestamp()*1000)):
+                raise SettingsCommitError('operation_expired')
+            return True
+
+        return await self._async_in_transaction(
+            accept, authorize=authorize, finalize_authorize=final_admission)
 
     async def async_accept_runtime_mood(self, owner, *, session, selected_mood,
                                        defaults_revision, authorize):
@@ -287,8 +289,7 @@ class ProfileDJSettingsRepository(PersistenceRepository):
                     'INSERT INTO djconnect_session_dj_settings VALUES (?,?,?,?,?,?,?) ON CONFLICT(session_id) DO UPDATE SET settings=excluded.settings,revision=excluded.revision,updated_at=excluded.updated_at',
                     (session.session_id, owner, session.generation, _json(next_settings.as_dict()),
                      revision, defaults_revision, stamp))
-            if not authorize():
-                raise PermissionError('unauthorized')
             return revision
 
-        return await self._async_in_transaction(accept, authorize=authorize)
+        return await self._async_in_transaction(
+            accept, authorize=authorize, finalize_authorize=authorize)
