@@ -53,6 +53,7 @@ Composer, performer, producer and general biography remain distinct claims.
 | Pronoun or “that album” | Use the current permitted subject; if ambiguous, ask one targeted question. |
 | Volume/skip/pause between questions | Fast existing control; preserve relevant subject and a still-valid result set. |
 | Temporary “more acoustic / less gloomy” | Refine the musical request; no implicit durable preference, Mood setting, queue replacement or Session start. |
+| Named catalogue question → “which ones?” | Actual titles and artist subtitles in the live reply; original card order/IDs/expiry, no model/search/playback on the follow-up. Missing/expired list gets a useful five-language recovery instruction. |
 | Real lookup results → “the second” | Bind to the exact shown set and item, never a newly sorted or model-invented list. |
 | Result preview, selection, navigation | No playback, microphone, model or TTS side effect merely from viewing. |
 | Explicit valid Play / clear control | Authorized existing effect, concise response based on actual outcome. |

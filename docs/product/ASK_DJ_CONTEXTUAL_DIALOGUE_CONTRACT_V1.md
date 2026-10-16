@@ -627,3 +627,35 @@ Retained DJ answers use the existing owner entry/history dependency query;
 unknown old style/locale is not backfilled. This adds neither a second Session
 implementation nor extra conversation/summary/publication events. Native
 postacceptance audio-adapter adoption and actual listening remain open.
+
+## Corrective increment: named catalogue results (2026-10-17)
+
+User-reported defect: a catalogue question returned only the result count;
+“which ones?” then reached the prose agent with the same anonymous count. The
+agent must not invent titles or acquire catalogue processing rights to repair it.
+
+Named availability questions (“what do you have by …” and the five-language
+counterparts) enter the existing typed, read-only lookup operation. Core renders
+the actual accepted titles and artist subtitles into the current reply and live
+`assistant_message.text`, in precisely the existing card order. Empty lookups
+retain the truthful zero-result caption. Labels are display data, not new facts.
+
+A direct result-list follow-up uses the current owner's existing frozen set:
+maximum12items/16KiB, identical result/action IDs, selected action and original
+deadline. It performs no model call, lookup, selection or playback effect and
+cannot renew the offer. It returns `items` and the existing `result_set`, with
+empty `playback_actions`; explicit selection/Play remains the established route.
+A supplied mismatching set is409; expired/cleared/absent/other-thread lists give
+a localized unavailable response. Session-dependent sets revalidate the actual
+Session even when the follow-up omits its old context chip. Owner/source/clear
+and response delivery guards remain authoritative.
+
+The initial durable exchange keeps its original safe count/query caption.
+Catalogue labels are supplied only in the current transport reply; a local list
+follow-up is nonpersistent. Neither becomes a model-safe prose turn, a durable
+catalogue archive or a new cloud-TTS processing grant. No public VibeCast/push
+projection, Store migration, source capability or client implementation change.
+
+[Corrective qualification](../verification/ASK_DJ_RESULT_TITLES_CORRECTION_V1.md)
+distinguishes real isolated HA acceptance from external provider/model fixtures
+and from native/installed acceptance.

@@ -131,21 +131,28 @@ async def main():
     original_create = api.responses.create
 
     async def measured_create(**kwargs):
-        if os.environ.get("DJC_SAFETY_PROBE") == "current_artist":
+        if os.environ.get("DJC_SAFETY_PROBE") in {"current_artist", "choice_titles"}:
             parts = []
             for message in kwargs.get("input", []):
                 if isinstance(message, dict):
                     content = message.get("content", "")
                     parts.append(content if isinstance(content, str) else "".join(v.get("text", "") for v in content if isinstance(v, dict)))
             prompt = "\n".join(parts)
-            assert "Welke muziek bedoel je?" in prompt, "Current-artist questions must not call the agent"
+            if os.environ.get("DJC_SAFETY_PROBE") == "choice_titles":
+                assert '"requested_operation": "lookup"' in prompt, "Title follow-ups must not call an agent"
+                assert "Synthetic choice title" not in prompt
+                assert not kwargs.get("tools") and kwargs.get("store") is False
+            else:
+                assert "Welke muziek bedoel je?" in prompt, "Current-artist questions must not call the agent"
             assert "spotify:" not in prompt and "Above & Beyond" not in prompt
             # One external agent response fixture establishes a genuinely accepted old clarification.
             # It is not a live/model-quality call; actual paid model calls remain zero.
             from openai.types.responses import (Response, ResponseOutputMessage, ResponseOutputText,
                 ResponseOutputItemAddedEvent, ResponseTextDeltaEvent, ResponseOutputItemDoneEvent, ResponseCompletedEvent)
-            agent_boundary_fixtures.append({"case":"artist-old-clarification-seed","boundary":"external OpenAI response only","paid_model_call":False})
-            text = "Welk nummer of welke artiest wil je horen?"
+            agent_boundary_fixtures.append({"case":os.environ.get("DJC_SAFETY_PROBE"),"boundary":"external OpenAI response only","paid_model_call":False})
+            text = ('{"intent":"lookup","query":"Within Temptation"}'
+                    if os.environ.get("DJC_SAFETY_PROBE") == "choice_titles"
+                    else "Welk nummer of welke artiest wil je horen?")
             item = ResponseOutputMessage(id="msg_synthetic_clarification",role="assistant",status="completed",type="message",
                 content=[ResponseOutputText(annotations=[],text=text,type="output_text",logprobs=[])])
             completed = Response.model_construct(id="resp_synthetic_clarification",created_at=0,model=model,object="response",
@@ -404,6 +411,10 @@ async def main():
                 )
             )
         ]
+
+        if os.environ.get("DJC_SAFETY_PROBE") == "choice_titles":
+            tracks = [{**tracks[0], "id": str(i) * 22, "uri": "spotify:track:" + str(i) * 22,
+                       "name": f"Synthetic choice title {i}"} for i in range(1, 7)]
 
         async def provider(
             self,
@@ -679,6 +690,60 @@ async def main():
                         flush=True,
                     )
                     return body
+
+                if os.environ.get("DJC_SAFETY_PROBE") == "choice_titles":
+                    before_hashes = hashes()
+                    examples = (("en", "What do you have by Within Temptation?", "Which ones?"),
+                                ("nl", "Wat heb je van Within Temptation?", "Welke dan?"),
+                                ("de", "Was hast du von Within Temptation?", "Welche Titel?"),
+                                ("fr", "Qu'est-ce que tu as de Within Temptation?", "Quels titres?"),
+                                ("es", "¿Qué tienes de Within Temptation?", "¿Cuáles son?"))
+                    for phase in ("standalone", "session"):
+                        if phase == "session":
+                            await call("session/start", {"mood":"groove", "dj_persona":"home_dj", "language":"nl"},
+                                       label="titles-session-start", expected=201)
+                        context = ({"session_id": (await manager.async_get_active("profile-a")).session_id}
+                                   if phase == "session" else None)
+                        for language, question, followup in examples:
+                            identifier = f"titles-{phase}-{language}"
+                            initial = await ask(question, identifier+"-lookup", context, language=language)
+                            assert len(initial["items"]) == 6, initial
+                            for i in range(1, 7):
+                                assert f"Synthetic choice title {i}" in initial["text"]
+                                assert f"Synthetic choice title {i}" in initial["assistant_message"]["text"]
+                            offered = history.dialogue.owners["profile:profile-a"]["default"].result_set
+                            deadline = offered["deadline"]
+                            counts = (len(agent_boundary_fixtures), len([c for c in provider_calls if urlparse(c["path"]).path == "/search"]))
+                            listed = await ask(followup, identifier+"-list", context, language=language)
+                            assert listed["items"] == initial["items"]
+                            assert listed["result_set"]["result_set_id"] == initial["result_set"]["result_set_id"]
+                            assert history.dialogue.owners["profile:profile-a"]["default"].result_set is offered
+                            assert offered["deadline"] == deadline
+                            assert not listed.get("playback_actions") and listed.get("history_persisted") is False
+                            for i in range(1, 7):
+                                assert f"Synthetic choice title {i}" in listed["text"]
+                            assert counts == (len(agent_boundary_fixtures), len([c for c in provider_calls if urlparse(c["path"]).path == "/search"]))
+                            assert "Synthetic choice title" not in json.dumps(await durable_history())
+                    active = await manager.async_get_active("profile-a")
+                    await call("session/end", {"session_id":active.session_id}, label="titles-session-end")
+                    denied = await call("ask_dj/message", {"text":"Which ones?", "language":"en", "audio_response":"never",
+                                        "client_message_id":"titles-ended-list"}, label="titles-ended-list", expected=409)
+                    assert "Synthetic choice title" not in json.dumps(denied)
+                    assert not model_receipts
+                    assert not [c for c in provider_calls if c["method"] in {"POST", "PUT", "DELETE"}]
+                    assert hashes() == before_hashes
+                    Path("/lab/choice-titles.json").write_text(json.dumps({
+                        "qualification":"ISOLATED_REAL_HA_PAIRED_CATALOG_TITLES", "cases":10,
+                        "source_hashes":before_hashes, "pairing":"ordinary_device_token_minted_persisted",
+                        "core_transports":receipts, "provider_calls":provider_calls,
+                        "agent_provider_fixtures":agent_boundary_fixtures, "paid_model_calls":0,
+                        "followup_model_calls":0, "followup_search_calls":0, "playback_mutations":0,
+                        "fixture_boundary":"external OpenAI response and music provider only",
+                        "installed":"NOT_RUN", "native":"NOT_RUN"}, ensure_ascii=False, indent=2)+"\n")
+                    await async_shutdown_persistence(h)
+                    await h.async_stop(force=True)
+                    await api.close()
+                    return
 
                 if os.environ.get("DJC_SAFETY_PROBE") == "ha_service":
                     assert native_runtime and native_runtime.device_token is None

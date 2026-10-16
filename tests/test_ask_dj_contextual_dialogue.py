@@ -934,6 +934,128 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
         self.assertNotIn("url", unsafe[0])
         self.assertEqual(links, [])
 
+    async def test_shown_result_titles_followup_is_local_private_and_preserves_offer(self):
+        for language, question in (("nl", "Welke dan?"), ("en", "Which ones?"),
+                                   ("de", "Welche denn?"), ("fr", "Lesquels ?"),
+                                   ("es", "¿Cuáles?")):
+            with self.subTest(language=language):
+                actions = [{"kind": "track", "title": f"Catalog title {i}",
+                            "subtitle": "Within Temptation", "uri": "spotify:track:" + str(i) * 22}
+                           for i in range(1, 7)]
+                async def offered(*args, **kwargs):
+                    return {"success": True, "text": "Six results", "playback_actions": deepcopy(actions)}
+                with patch.object(self.handlers.http_helpers, "async_handle_ask_dj", offered):
+                    offered_result, status = await self.request("Find tracks", identifier="offer-" + language,
+                                                                 language=language)
+                self.assertEqual(status, 200, offered_result)
+                frame = self.history.dialogue.owners["profile:profile-a"]["default"]
+                original = frame.result_set
+                deadline = original["deadline"]
+                before = await self.history.async_history("profile:profile-a")
+                self.reply = "There are six choices available."
+                with patch.object(self.core, "run_music_command", side_effect=AssertionError("No command for listing")):
+                    result, status = await self.request(question, identifier="list-" + language, language=language)
+                self.assertEqual(status, 200, result)
+                for item in actions:
+                    self.assertIn(item["title"], result["text"])
+                self.assertEqual([item["title"] for item in result["items"]],
+                                 [item["title"] for item in actions])
+                self.assertEqual(result["result_set"]["result_set_id"], original["result_set_id"])
+                self.assertIs(frame.result_set, original)
+                self.assertEqual(frame.result_set["deadline"], deadline)
+                self.assertFalse(result["history_persisted"])
+                after = await self.history.async_history("profile:profile-a")
+                for value in (before, after):
+                    value.pop("server_time", None)
+                self.assertEqual(after, before)
+                self.assertEqual(self.prompts, [])
+                chosen, status = await self.request("the second", identifier="choose-" + language, language=language)
+                self.assertEqual(status, 200, chosen)
+                self.assertEqual(chosen["selected_action_id"], original["items"][1]["action_id"])
+                self.assertEqual(self.effects, [])
+
+    async def test_artist_availability_questions_are_readonly_and_list_real_lookup_titles(self):
+        from custom_components.djconnect.domain.profile import ProfilePreferences
+        await self.handlers.profile_storage(self.hass).async_update_profile("profile-a",
+            preferences=ProfilePreferences(default_backend_id="source-spotify"))
+        self.runtime.config["music_backend"] = "spotify_direct"
+        for language, question in (("nl", "Wat heb je van Within Temptation?"),
+                                   ("en", "What do you have by Within Temptation?"),
+                                   ("de", "Was hast du von Within Temptation?"),
+                                   ("fr", "Qu'est-ce que tu as de Within Temptation ?"),
+                                   ("es", "¿Qué tienes de Within Temptation?")):
+            with self.subTest(language=language):
+                self.reply = '{"intent":"lookup","query":"Within Temptation"}'
+                tracks = [{"name": f"Actual lookup title {i}", "artist": "Within Temptation",
+                           "uri": "spotify:track:" + str(i) * 22} for i in range(1, 7)]
+                calls = []
+                async def search(*args, **kwargs):
+                    calls.append(args[2])
+                    return {"success": True, "tracks": deepcopy(tracks)}
+                with patch.object(self.core, "_spotify_track_search", search):
+                    result, status = await self.request(question, identifier="artist-query-" + language,
+                                                        language=language)
+                self.assertEqual(status, 200, result)
+                self.assertEqual(calls, ["Within Temptation"])
+                for item in tracks:
+                    self.assertIn(item["name"], result["text"])
+                self.assertEqual(result["conversation"]["history_scope"], "profile")
+                archived = await self.history.async_history("profile:profile-a")
+                self.assertNotIn("Actual lookup title", json.dumps(archived))
+                self.assertIn("Actual lookup title 1", result["assistant_message"]["text"])
+                self.assertNotIn("_catalogue_history_caption", json.dumps(result))
+                self.assertEqual(result["conversation"]["metrics"]["lookup_calls"], 1)
+                self.assertNotIn("Actual lookup title", json.dumps(self.prompts))
+                self.assertEqual(self.effects, [])
+
+    async def test_shown_result_list_never_revives_expired_cleared_or_other_thread_cards(self):
+        from unittest.mock import Mock
+        for mode in ("expiry", "clear", "thread", "wrong_set"):
+            with self.subTest(mode=mode):
+                async def offer(*args, **kwargs):
+                    return {"success": True, "text": "One result", "playback_actions": [{
+                        "kind": "track", "title": "Source-limited title", "uri": "spotify:track:" + "1" * 22}]}
+                with patch.object(self.handlers.http_helpers, "async_handle_ask_dj", offer):
+                    offered, status = await self.request("Find tracks", identifier="stale-offer-" + mode)
+                self.assertEqual(status, 200, offered)
+                frame = self.history.dialogue.owners["profile:profile-a"]["default"]
+                shown = frame.result_set
+                context = {"thread_id": "other"} if mode == "thread" else {
+                    "result_set_id": "choices-other"} if mode == "wrong_set" else None
+                if mode == "clear":
+                    await self.history.async_clear("profile:profile-a")
+                clock = patch.object(self.history.dialogue, "clock", Mock(return_value=shown["deadline"])) if mode == "expiry" else nullcontext()
+                with clock:
+                    result, status = await self.request("Which ones?", identifier="stale-list-" + mode,
+                                                        context=context)
+                self.assertEqual(status, 409 if mode == "wrong_set" else 200, result)
+                self.assertNotIn("Source-limited title", json.dumps(result))
+                if mode != "wrong_set":
+                    self.assertEqual(result["intent"]["intent"], "result_list_unavailable")
+                self.assertEqual(self.prompts, [])
+                self.assertEqual(self.effects, [])
+
+    async def test_session_end_denies_catalogue_list_even_without_stale_session_chip(self):
+        session = await self.fixture.manager.async_start(owner_profile_id="profile-a", locale="en",
+            selected_mood="groove", music_backend="spotify_direct")
+        async def offer(*args, **kwargs):
+            return {"success": True, "text": "One result", "playback_actions": [{
+                "kind": "track", "title": "Session-bound title", "uri": "spotify:track:" + "2" * 22}]}
+        with patch.object(self.handlers.http_helpers, "async_handle_ask_dj", offer):
+            offered, status = await self.request("Find tracks", identifier="session-list-offer",
+                context={"session_id": session.session_id})
+        self.assertEqual(status, 200, offered)
+        shown, status = await self.request("Which ones?", identifier="session-list-live",
+            context={"session_id": session.session_id})
+        self.assertEqual(status, 200, shown)
+        self.assertIn("Session-bound title", shown["text"])
+        await self.fixture.manager.async_end(owner_profile_id="profile-a", session_id=session.session_id)
+        denied, status = await self.request("Which ones?", identifier="session-list-ended")
+        self.assertEqual(status, 409, denied)
+        self.assertNotIn("Session-bound title", json.dumps(denied))
+        self.assertEqual(self.prompts, [])
+        self.assertEqual(self.effects, [])
+
     async def test_selected_catalog_artist_is_identified_locally_without_model_grant(self):
         for i, artist in enumerate(("Synthetic Artist", "Artist A & Artist B")):
             async def offer(*args, **kwargs):
@@ -1122,7 +1244,7 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
             recovered, status = await self.request("Rather quieter live jazz", identifier="missing-model-caption")
             self.assertEqual(status, 200, recovered)
             self.assertIn("result_set", recovered)
-            self.assertEqual(recovered["text"], "Found 1 track for quiet live jazz.")
+            self.assertEqual(recovered["text"], "Found 1 track for quiet live jazz.\n1. Synthetic Live — Synthetic performer")
             self.assertNotIn('"intent":', recovered["text"])
 
     async def test_analysis_discussion_does_not_open_a_screen_and_explicit_navigation_does(self):
