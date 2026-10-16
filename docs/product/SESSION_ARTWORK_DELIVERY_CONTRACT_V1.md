@@ -120,3 +120,24 @@ fresh original source/retention check. Failure and late completions preserve
 these invariants. Fixtures and final producerpin will be handed to existing
 Apple#87 without initiating or expanding its WIP. Native visible adoption and
 joint acceptance remain OPEN until Apple supplies actual proof.
+
+
+## Independent passive cover qualification
+
+[Passive Session projection v1](PASSIVE_SESSION_PROJECTION_V1.md) adds a separate
+explicit paired-owner surface grant. This private owner contract remains
+`no-store`; its image URL, prepared resource or historical permission is never
+an OS/App Group/Activity grant. The passive read independently qualifies only
+exact covers/metadata, original source/capture and display deadlines, all links/
+marks and cache/locked-display consent. Artist photographs remain unqualified
+for passive OS retention; do not copy Forecast/Discovery/private art grants.
+
+The same RAM media owner retains original `captured_monotonic` alongside its
+existing immutable deadline. Passive cover validity requires both original
+monotonic capture+120seconds and original UTC/source/presentation limits; a
+backwards wallclock, fresh same-track observation or new consent cannot renew
+old pixels. Legacy RAM assets without that proof are unavailable to passive
+reads. No additional pixel store, downloader, source/provider or history cache.
+Existing observation/explicit owner preparation does the work; passive read and
+image GET never prepare, fetch or renew. Native rich/background/Watch adoption
+and physical acceptance remain separately owned/open.

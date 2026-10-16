@@ -1,5 +1,88 @@
 # DJConnect Verification Prompt Index
 
+## Current: Passive Session projection — local implementation and qualification
+
+### Repository Status
+
+Latest completed predecessor: PR [#1190](https://github.com/pcvantol/djconnect/pull/1190)
+protected merged as `9faffe533d4a117eb8ad362e73809d126bdcc9d7`, separately
+reviewed/authorized Finalization of source PR [#1189](https://github.com/pcvantol/djconnect/pull/1189)
+`ff507c8999069791f3697d5cef2590dda43db243`. Both exact trees/artifacts/required
+checks qualified; prior bounded owncleanup complete. Repository State:
+`MERGED_RECONCILED` describes that closed predecessor; the current local passive
+candidate has no protected delivery or Finalization claim. Historical dated
+records below retain their original freeze-point evidence.
+
+### Management Summary
+
+`DJC-CORE-PASSIVE-SESSION-PROJECTION-V1-20261015`, owner6199213014,
+ACK6214264273, actual base9faffe533d4a117eb8ad362e73809d126bdcc9d7,
+same sole Core writer, branchcodex/passive-session-projection-v1. Contract
+9bc26e0c precedes materiald64b8a7a/register6214391660. Local source2f709983
+and monotonic reviewfix42381287 connect explicit ordinary-owner passive grants,
+pure Session reads/bytes and existing owner Broadcast invalidation. Original
+published text/source identity is retained, current music and covers separately
+qualified; no private content export, provider/planner or consumer write.
+Thirteen actual isolated HA cases pass on171 exact sourcefiles, including real
+121secondexpiry and20end-races. Full2043tests2036PASS/7existing skips; source
+owning unit66%, realHA85%, honest union92% branch-aware. One independent early
+P2 fixed: wallclockrollback cannot renew the original monotonic cover limit.
+[Canonical design](docs/product/PASSIVE_SESSION_PROJECTION_V1.md) and
+[actual fixtures](examples/client_contracts/passive_session_v1/README.md).
+Exact final reviews and remaining qualification/checkpoint are in progress.
+
+### Roadmap Position
+
+Generation2 DJConnect Product Development, bounded existing Native Surface
+Integration node SURFACE::CORE::PROJECTION In progress. Maintenance13 preserves
+actual delivered12 snapshot, all Speech/WEB/artwork/history receipts and
+historical snapshots. Existing SURFACE::APPLE::QUIET-TRANSPORT remains the
+separate dependent background package. No duplicate family or consumer dispatch.
+Native rich/locked/background/Watch/joint acceptance remains separately open.
+
+### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+1. **DJC-VIBECAST-TV-BOOTSTRAP-CLOUDFLARE-V1-20261015 — separate receiver lane.** Existing owner-selected queued scope from the canonical backlog/DAG; own admission/contract gates, not a Core takeover or consumer dispatch.
+2. **Unfilled slot2 — no further eligible authorized selection.**
+3. **Unfilled slot3 — no further eligible authorized selection.**
+4. **Unfilled slot4 — no further eligible authorized selection.**
+5. **Unfilled slot5 — no further eligible authorized selection.**
+
+### Blocked Items
+
+Current exact source publication and separate Finalization need their own
+candidate-bound owner grants after independent exact reviews; older grants
+apply only to earlier SHAs. No source PR/push/main or installed passive PASS.
+Artist-photo passive OS caching remains explicitly not_qualified; independently
+allowed short copy/metadata/covers have positive proof. Native/gallery/background/
+Watch/joint acceptance remains Apple-owned or separately admitted, not a Core
+source blocker. Early Apple87 contract/fixture handoff6214566763 is provisional.
+
+### Deferred Items
+
+No Swift/receiver writes, new provider/model/cost route, Planner, private archive,
+ActivityKit/APNs/signing/relay deployment, Watch work or second product slice.
+Standalone player navigation survives Session-only widget-kind migration.
+Timer stays paused. Existing qualified-main dev/prod installation authority
+applies after protected source and Finalization, with backup/rollback/readback.
+
+### Repository State
+
+Repository State: `MERGED_RECONCILED` for completed1190/main9faffe53.
+Current passive source is local/unpublished; its final exact reviews and
+protected delivery remain outstanding. Source merge will enter the normal
+MERGED_UNRECONCILED phase until its own separate Finalization.
+
+### Workspace State
+
+Current worktree is exclusively owned by this same Core writer, after valid
+WORKSPACE_READY admission. Own local passive branch/WIP is preserved; earlier
+voice/gender refs removed only after exact approved equality/recovery proof.
+Unrelated VibeCast worktree, passive stash, Apple WIP and all recovery remain.
+New source is not installed; native/hardware acceptance not inferred.
+
+## Historical operational context
+
 ## Current: Provider voice/gender — separate Finalization
 
 ### Repository Status

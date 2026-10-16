@@ -32,7 +32,7 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 | [docs/product/SHARED_PRODUCER_CONTINUITY_CONTRACT.md](../../../docs/product/SHARED_PRODUCER_CONTINUITY_CONTRACT.md) | `d06d2563b1de4fcfdff15bd76e0952e19f0970666b8ce5677db10cf6ee11a2ed` |
 | [docs/product/DISCOVER_NARRATIVE_TRANSITION_CONTRACT.md](../../../docs/product/DISCOVER_NARRATIVE_TRANSITION_CONTRACT.md) | `a27c694d57bca4908d4a258c9a6e0aec1de95d3ee6ddd89a377e32bf6b9f8e32` |
 | [docs/product/EXPRESSIVE_CONTEXT_VARIATION_V1.md](../../../docs/product/EXPRESSIVE_CONTEXT_VARIATION_V1.md) | `01e6cbe92d1fc240b3b444e646cb5bdd809a242cf61b2044edc5fb26775f26c7` |
-| [docs/product/NATIVE_MOMENT_DELIVERY_CONTRACT.md](../../../docs/product/NATIVE_MOMENT_DELIVERY_CONTRACT.md) | `75286b63087b0dec98f42d2bbf9c9fd1d6d9f50cbc9c75a51154b3ddb9173af2` |
+| [docs/product/NATIVE_MOMENT_DELIVERY_CONTRACT.md](../../../docs/product/NATIVE_MOMENT_DELIVERY_CONTRACT.md) | `b7273907e2b2c50d163b4d056bbb8fa5c908299eb98f7af8120e037fbc6a7a64` |
 | [docs/technical/BROADCAST_TRANSPORT.md](../../../docs/technical/BROADCAST_TRANSPORT.md) | `9571ebd859d90f2190e8c8d6102d08477bf65d62ec3d145c328c13bef58b2e9f` |
 | [docs/verification/NARRATIVE_ALBUM_CONTINUITY_V1_ACCEPTANCE.md](../../../docs/verification/NARRATIVE_ALBUM_CONTINUITY_V1_ACCEPTANCE.md) | `c71d70e105a56b63a34d814f74ed51b2d59c084738a0350a3e1abb98c3358f3e` |
 | [docs/product/SESSION_FORECAST_V1.md](../../../docs/product/SESSION_FORECAST_V1.md) | `fa9ebfc5e90a893a1c1f8e0cf89660e8c506e4d79f12594b5ff092fb05b24a90` |
@@ -72,7 +72,7 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 | [docs/verification/HYBRID_TRANSPORT_V1_SOURCE_READBACK_20261015.md](../../../docs/verification/HYBRID_TRANSPORT_V1_SOURCE_READBACK_20261015.md) | `103d6b01196951e03379de984ac523a76f928f63e37a38055d8222ffea673000` |
 | [docs/history/prompts/2026-10-15-hybrid-transport-localization-finalization.md](../../../docs/history/prompts/2026-10-15-hybrid-transport-localization-finalization.md) | `cbdabdb5c5201df3b220c306a0d9ca16f1215a480c624c452cefc9a63efa20f6` |
 | [docs/product/SESSION_MOMENT_ARTWORK_V1.md](../../../docs/product/SESSION_MOMENT_ARTWORK_V1.md) | `580e7022b2a1684117a16f7602ecd21cd1672988001825d3e869712bde2dda4a` |
-| [docs/product/SESSION_ARTWORK_DELIVERY_CONTRACT_V1.md](../../../docs/product/SESSION_ARTWORK_DELIVERY_CONTRACT_V1.md) | `3e3da658daa128f5eae618740ba8e86a39766a661d559f86badfb20a6f9f8c09` |
+| [docs/product/SESSION_ARTWORK_DELIVERY_CONTRACT_V1.md](../../../docs/product/SESSION_ARTWORK_DELIVERY_CONTRACT_V1.md) | `a990c6ddee40279009b70e3d193d9fd2b7cc669cafccbb86fb2d6d3b460cf602` |
 | [docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md](../../../docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md) | `d3bee293d4e2f3253fcafa96427093631e6996a360ec66efe5c14b64082c66dc` |
 | [docs/product/VIBECAST_ONBOARDING_GUEST_AUTHORITY_V1.md](../../../docs/product/VIBECAST_ONBOARDING_GUEST_AUTHORITY_V1.md) | `da543d0ebf266dfb4ec8ab491e7214940c946a85b381c44802b68f7d6e1708b2` |
 | [docs/product/APPLE_VIBECAST_GUEST_MODE_V1.md](../../../docs/product/APPLE_VIBECAST_GUEST_MODE_V1.md) | `3141ad70b91b124937a9268a33b24fb19b9eb1e3fbe143d5c456848ca4b1c268` |
@@ -92,3 +92,4 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 | [docs/verification/PROVIDER_VOICE_GENDER_SOURCE_READBACK_20261016.md](../../../docs/verification/PROVIDER_VOICE_GENDER_SOURCE_READBACK_20261016.md) | `15062c222152e2fd58810f4d9f92b74225d2beecca7ee1c1d78382fc4309c9f8` |
 | [docs/history/prompts/2026-10-16-provider-voice-gender-finalization.md](../../../docs/history/prompts/2026-10-16-provider-voice-gender-finalization.md) | `ee784e85d90f928df38d43cd1bba17b2c912c60ff8c9d06d8d2f060f62ce822f` |
 | [docs/product/PASSIVE_SESSION_PROJECTION_V1.md](../../../docs/product/PASSIVE_SESSION_PROJECTION_V1.md) | `de04b361cbf278d97629dc74be19b064f750bbc128a3439fea2ec44e6ec7a575` |
+| [docs/verification/PASSIVE_SESSION_PROJECTION_SOURCE_20261016.md](../../../docs/verification/PASSIVE_SESSION_PROJECTION_SOURCE_20261016.md) | `02b7c65903667a42522272823c6711d9b6ffcd1c049c21efb64c5c1dfb3b0fa2` |

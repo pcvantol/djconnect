@@ -41355,7 +41355,7 @@
       },
       {
         "path": "docs/product/NATIVE_MOMENT_DELIVERY_CONTRACT.md",
-        "sha256": "75286b63087b0dec98f42d2bbf9c9fd1d6d9f50cbc9c75a51154b3ddb9173af2"
+        "sha256": "b7273907e2b2c50d163b4d056bbb8fa5c908299eb98f7af8120e037fbc6a7a64"
       },
       {
         "path": "docs/technical/BROADCAST_TRANSPORT.md",
@@ -41515,7 +41515,7 @@
       },
       {
         "path": "docs/product/SESSION_ARTWORK_DELIVERY_CONTRACT_V1.md",
-        "sha256": "3e3da658daa128f5eae618740ba8e86a39766a661d559f86badfb20a6f9f8c09"
+        "sha256": "a990c6ddee40279009b70e3d193d9fd2b7cc669cafccbb86fb2d6d3b460cf602"
       },
       {
         "path": "docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md",
@@ -41592,6 +41592,10 @@
       {
         "path": "docs/product/PASSIVE_SESSION_PROJECTION_V1.md",
         "sha256": "de04b361cbf278d97629dc74be19b064f750bbc128a3439fea2ec44e6ec7a575"
+      },
+      {
+        "path": "docs/verification/PASSIVE_SESSION_PROJECTION_SOURCE_20261016.md",
+        "sha256": "02b7c65903667a42522272823c6711d9b6ffcd1c049c21efb64c5c1dfb3b0fa2"
       }
     ],
     "implementation_receipt": {

@@ -40,3 +40,23 @@ suspended/terminated/offline modes, ActivityKit/WidgetKit background delivery,
 Watch replication and joint hardware acceptance. No Swift or consumer assignment
 is authorized by this fixture. Existing SURFACE::APPLE::QUIET-TRANSPORT remains
 an independently admitted background package.
+
+
+## Current qualified local fixture
+
+`paired-ha.42381287.http.json` supersedes the early eight-case fixture for
+adoption. It binds all171 integrationfiles to exact local source
+**42381287d4260c3a2f238b18a23fdf6962999048**, including the reviewed monotonic
+cover fix. Thirteen actual ordinary-paired HA cases pass: positive qualified
+copy/metadata/cover,20pure reads with zero profiled preparation calls, wrong
+purpose/device/grant, ProfileABA, new mediarevision with unchanged publication,
+Mood without rewrite, contributionA/currentB, explicit locked consent,
+music-only, pause, sourcewithdrawal/restoration without revival, real121second
+expiry, a fresh same-track observation with rejected old coverGET404, and20
+reads racing end followed by404. External provider/CDN only are fixtures.
+
+A separate unit counterexample uses backwards UTC plus fresh same-track
+observation; original monotonic capture still denies the old cover. Real
+HA branch-aware coverage of passive_session.py is85%; unit66% is reported
+separately. Actual proof does not qualify native/background/Watch/hardware.
+Final reviewed/merged SHA and artifact pins remain to be delivered.

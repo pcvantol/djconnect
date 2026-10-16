@@ -178,6 +178,27 @@ class PassiveProjectionTests(unittest.TestCase):
             b.update_playback_progress(replace(b.state.playback, position_ms=1234))
         self.assertIs(b.passive_observation, original)
 
+    def test_four_personas_five_languages_preserve_exact_published_copy_and_sources(self):
+        for persona in self.runtime.DJPersona:
+            for locale in ('en', 'nl', 'de', 'fr', 'es'):
+                with self.subTest(persona=persona, locale=locale):
+                    moments = self.run_sequence(persona, locale=locale, count=1)
+                    self.grant = passive.SurfaceGrant('grant', 'binding', 'generation', 'entry',
+                        'widget', False, lambda: True)
+                    self.session.broadcast.passive_state_observed = (100, time.time())
+                    copy = self.frame()['contribution']
+                    self.assertIsNotNone(copy)
+                    self.assertEqual(copy['text'], moments[-1].content)
+                    self.assertEqual(copy['persona'], persona.value)
+                    self.assertEqual(copy['source_attribution'], dict(moments[-1].source_attribution))
+
+    def test_exact_observed_uri_hash_is_required_for_passive_metadata(self):
+        self.prepare()
+        b = self.session.broadcast
+        wrong = replace(b.state.playback, source_url='https://open.spotify.com/track/'+'Z'*22)
+        b.passive_observation = (100, time.time(), wrong)
+        self.assertIsNone(self.frame()['now_playing'])
+
 
 class PassiveRequestValidationTests(unittest.IsolatedAsyncioTestCase):
     async def test_unknown_purpose_or_fields_or_no_bearer_rejected_before_resolution(self):

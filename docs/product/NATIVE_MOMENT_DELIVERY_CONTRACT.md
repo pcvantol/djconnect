@@ -225,3 +225,18 @@ renew it. It is current-only, never retained-in-Flow or an archived body. Shared
 visual compatibility adds no private speech field. Exact owner-local reading
 has separate processor qualification; no cloud/model grant follows. Planner
 Silence and higher-priority Direction/qualified facts remain authoritative.
+
+
+## Passive purpose is a separate grant
+
+The [passive Session contract](PASSIVE_SESSION_PROJECTION_V1.md) reuses
+original actual-publication boundaries and source qualification, but native
+current/active-Flow admission alone grants no OS/widget/locked/cache rights.
+Only the separately enumerated complete short CC0-fact/authored-direction
+subset can be passively admitted under explicit ordinary-owner surface consent.
+Overlong or private content is omitted, never rewritten or locally summarized.
+Current music and contribution retain separate subject identities/expiry.
+Existing owner Broadcast provides invalidation-only surface hints; shared
+receivers get no private grant. Source/semantic Moment identity, counting,
+Persona, Presence and Planner remain unchanged. Native rich, background, Watch
+and joint acceptance are separate; owner no-store/history rights stay intact.

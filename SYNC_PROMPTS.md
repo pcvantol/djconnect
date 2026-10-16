@@ -3269,3 +3269,23 @@ No producer implementation or cross-device acceptance is asserted by this note.
 
 
 Current selected implementation: [Passive Session projection v1](docs/product/PASSIVE_SESSION_PROJECTION_V1.md). Admission base9faffe533d4a117eb8ad362e73809d126bdcc9d7, same Core writer, branchcodex/passive-session-projection-v1; ACK6214264273. This reconciles only the preserved38-line relevant design delta; the original stash/recovery remains. Source, native rich, background, Watch and joint acceptance stay separate.
+
+
+## Passive Session early contract handoff — 2026-10-16
+
+Selected existing SURFACE::CORE::PROJECTION, ACK6214264273, base9faffe53,
+contract9bc26e0c before materiald64b8a7a/register6214391660. Provisional exact
+contract/schema/actual fixture handoff delivered to existing Apple87 in
+comment6214566763 and directly to the existing writer; no new Apple assignment
+or voice/gender-WIP expansion. Local2f709983 was unpublished; its earlier
+actual8case fixture independently binds d64b8a7a/171files, not arbitrary current
+source. Final reviewed producer/main/artifact pins must replace provisional pins.
+
+Independent early technical review found one monotonic-cover-expiry P2; local
+42381287 retains actual original monotonic capture, denies legacy proofless RAM
+assets and tests UTC rollback/fresh same-track observation. Expanded actual HA
+proof and owning coverage are being requalified; no final exact review or
+protected delivery claimed. Four Personas/five-language exact-copy assertions
+preserve original text/source attribution. Native widgets/Activity/Island,
+background SURFACE::APPLE::QUIET-TRANSPORT, Watch and joint remain open; grant
+rights never inherit private owner, VibeCast or ordinary APNs permissions.
