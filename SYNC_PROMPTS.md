@@ -3254,3 +3254,18 @@ five-language inline HA-configuration help and explicit default reset, preservin
 text/draft/scroll and avoiding automatic replay. Verify per-installation/Profile/
 Session/device isolation, gender/voice conflict, provider swap during synthesis,
 reconnect and late audio409, end/discard. No Swift writes or new Apple assignment.
+
+
+## Apple Session surfaces consolidation follow-up — 2026-10-15
+
+See docs/product/APPLE_SESSION_NATIVE_SURFACES_V1.md, “Apple Session surfaces
+consolidation request”. New user request replaces the legacy independent widget
+experience with one active-Session system: artwork/current DJ Moment, plus
+track/artist/album in larger surfaces. Apple neutral lifecycle consolidation can
+proceed, but rich passive content remains blocked on the separately qualified
+Core surface projection/cache rights and ActivityKit background update boundary.
+Existing native_delivery and Session media no-store grants are not export rights.
+No producer implementation or cross-device acceptance is asserted by this note.
+
+
+Current selected implementation: [Passive Session projection v1](docs/product/PASSIVE_SESSION_PROJECTION_V1.md). Admission base9faffe533d4a117eb8ad362e73809d126bdcc9d7, same Core writer, branchcodex/passive-session-projection-v1; ACK6214264273. This reconciles only the preserved38-line relevant design delta; the original stash/recovery remains. Source, native rich, background, Watch and joint acceptance stay separate.

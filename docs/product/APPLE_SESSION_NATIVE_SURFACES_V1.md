@@ -283,3 +283,32 @@ adds an exact, temporary owner read through the existing full detail service.
 This is one bounded connected correction; full interactive/narrative maturity,
 native adoption, entry/lifecycle and joint acceptance remain independently Planned/open.
 No model/provider lookup occurs merely by rendering a navigation offer.
+
+
+## Apple Session surfaces consolidation request — 2026-10-15
+
+User explicitly supersedes the legacy KEEP disposition for the Apple widget
+experiences: one Session-only system across widgets, Live Activity and Dynamic
+Island. Artwork and the current DJ Moment are primary; larger surfaces also show
+track, artist and album. A newly admitted contribution updates the same surface,
+without creating a second activity. No active Session means no active Activity;
+configured widgets remain neutral and open the app. Existing widget kinds need
+migration compatibility, not independent data stores or intelligence.
+
+This request does not qualify the proposed passive-surface projection. Existing
+native_delivery v1 and Session media no-store owner-display grants do not permit
+App Group / WidgetKit / ActivityKit snapshot retention. Core producer work must
+supply purpose-scoped passive display and image-cache rights, subject/generation
+binding, immutable expiry, attribution, revocation/end semantics, and separately
+qualify ActivityKit updates while the app is suspended (general APNs registration
+is insufficient). Until the producer is qualified, Apple can consolidate neutral
+status/navigation and retire legacy rich caches, but must not export owner-only
+Moment/media payloads or claim real-time/background acceptance. Do not extend
+source deadlines on local repaint or infer Session end from playback pause.
+
+This is a user-requested design refinement and an explicit producer dependency,
+not assignment, producer delivery, permission to alter the current Core writer,
+or an installed/hardware acceptance receipt.
+
+
+Current selected implementation: [Passive Session projection v1](PASSIVE_SESSION_PROJECTION_V1.md). Admission base9faffe533d4a117eb8ad362e73809d126bdcc9d7, same Core writer, branchcodex/passive-session-projection-v1; ACK6214264273. This reconciles only the preserved38-line relevant design delta; the original stash/recovery remains. Source, native rich, background, Watch and joint acceptance stay separate.
