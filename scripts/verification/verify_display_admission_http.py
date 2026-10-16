@@ -1,6 +1,6 @@
 """Own real HA HTTPS pairing/B transition/snapshot chain, external provider fixtures.
 
-No live/renderer, public TLS, rendezvous A, installed or native PASS.
+Basic live is exercised; no public TLS, rendezvous A, installed or native PASS.
 Run networkless in the existing HA image with source read-only and /lab tmpfs.
 """
 from __future__ import annotations
@@ -22,6 +22,7 @@ import time
 import resource
 import hashlib
 import signal
+import base64
 
 from aiohttp import ClientSession, TCPConnector, WSMsgType, web
 from aiohttp.test_utils import TestClient, TestServer
@@ -50,6 +51,42 @@ from custom_components.djconnect.persistence.sessions import PersistentSessionRe
 from custom_components.djconnect.session_facts import SessionFactsResolver  # noqa: E402
 from custom_components.djconnect.session_runtime import SessionRuntimeManager  # noqa: E402
 from custom_components.djconnect.spotify_backend import SpotifyBackend  # noqa: E402
+
+
+def public_transport_fixture(examples):
+    """Only synthetic-lab wire data; replace every credential/nonce/claim ID.
+
+    Replacements depend solely on ordinal position, never hash a real secret.
+    Preserve equality/shape for consumers, but no fixture can authenticate.
+    """
+    opaque = {"grant_token", "claim_secret", "browser_nonce", "connection_nonce",
+              "issuer_epoch", "claim_id", "browser_generation", "display_id", "share_id"}
+    replacements, originals = {}, set()
+    def clean(value, key=""):
+        if key not in opaque and any(term in key.lower() for term in (
+                "token", "secret", "password", "proof", "authorization", "raw_audio", "prompt", "history", "memory")):
+            raise AssertionError("Unexpected private field in public fixture")
+        if isinstance(value, dict):
+            return {name: clean(item, name) for name, item in value.items()}
+        if isinstance(value, list):
+            return [clean(item) for item in value]
+        if key in opaque and isinstance(value, str):
+            originals.add(value)
+            if value not in replacements:
+                fake = base64.urlsafe_b64encode(hashlib.sha256(
+                    ("public noncredential fixture " + str(len(replacements))).encode()).digest()).decode().rstrip("=")
+                replacements[value] = ("djcd_" if value.startswith("djcd_") else "") + fake
+            return replacements[value]
+        if key == "code":
+            return "000000" if value != "000000" else "999999"
+        return value
+    result = {"fixture_version": 1, "scope": "actual_isolated_HA_B_transport",
+        "credentials": "replaced_nonfunctional_examples_not_replayable", "A": "unavailable",
+        "examples": clean(examples)}
+    encoded = json.dumps(result, ensure_ascii=False, indent=2) + "\n"
+    assert len(encoded.encode()) <= 1024 * 1024
+    assert not any(secret in encoded for secret in originals), "Credential redaction failed"
+    return encoded
 
 
 def local_tls(directory):
@@ -186,6 +223,7 @@ async def main():
     server = TestServer(hass.http.app, scheme="https", host="0.0.0.0" if browser_port else "127.0.0.1", port=browser_port)
     await server.start_server(ssl=server_ssl)
     checks = []
+    wire_examples = []
     try:
         if browser_port:
             finished = asyncio.Event()
@@ -229,6 +267,12 @@ async def main():
                 result = await response.json()
                 assert response.status == expected, (action, response.status, result)
                 assert response.headers["Cache-Control"] == "no-store"
+                assert len(wire_examples) < 64
+                wire_examples.append({"transport": "HTTP", "method": "POST",
+                    "path": "/api/djconnect/v1/display/" + action,
+                    "authentication": "ordinary_paired_owner" if owner else "dedicated_display" if headers else "none",
+                    "origin": origin, "request": payload, "status": response.status,
+                    "cache_control": response.headers["Cache-Control"], "response": result})
                 return result
 
             response = await client.post("/api/djconnect/v1/session/start", headers=owner_headers,
@@ -312,6 +356,8 @@ async def main():
             await live.send_json(auth_frame)
             first_live = await live.receive_json(timeout=5)
             assert first_live["type"] == "snapshot" and first_live["snapshot"]["session_id"] == sid
+            wire_examples.append({"transport": "WSS", "path": "/api/djconnect/v1/display/live",
+                "authentication": "dedicated_display_first_frame", "frame": first_live})
             # Existing owner mutation/Broadcast publication, no direct injection
             # of an accepted Moment or display event into the Core chain.
             response = await client.post("/api/djconnect/v1/session/mood", headers=owner_headers,
@@ -407,6 +453,9 @@ async def main():
             checks.append("ordinary_session_end_clears_all_share_authority")
             assert qualified_hashes == {str(path.relative_to(ROOT)): hashlib.sha256(path.read_bytes()).hexdigest()
                                         for path in paths}, "Source changed during acceptance; receipt is not qualified"
+            fixture_path = os.environ.get("DJC_DISPLAY_FIXTURE_OUTPUT")
+            if fixture_path:
+                Path(fixture_path).write_text(public_transport_fixture(wire_examples))
             print(json.dumps({"qualification": "REAL_ISOLATED_HA_HTTPS_DISPLAY_TRANSITIONS_SNAPSHOT_BASIC_LIVE",
                 "checks": checks, "provider_calls_during_B": 0,
                 "duration": duration_receipt,

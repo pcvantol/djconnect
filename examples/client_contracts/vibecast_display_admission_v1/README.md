@@ -1,7 +1,9 @@
 # Display admission — contract-review corpus
 
 Assignment `DJC-CORE-VIBECAST-DISPLAY-ADMISSION-V1-20261016`.
-Status **REVIEW_CANDIDATE_NOT_FROZEN**; no live endpoint or crypto vector.
+Status **A_REVIEW_CANDIDATE_NOT_FROZEN**. The lexical corpus is not a crypto
+vector or live route proof. B has the independently reviewed implementation
+checkpoint described below; no A freeze or complete product delivery follows.
 
 [Canonical Core review](../../../docs/product/VIBECAST_DISPLAY_ADMISSION_V1.md)
 records the missing TRUST-1 anchor and independently required HA phase B.
@@ -20,3 +22,29 @@ python3 -m unittest tests.test_vibecast_display_route_contract
 The proposed HTTPS443/canonical-origin/exact-path policy remains subject to
 Core/API/Apple/receiver review. Unsupported IDNA names/custom ports and redirect handling
 are explicit review boundaries. A passing corpus is not protocol freeze.
+
+## Actual B transport examples
+
+`b-transport-actual-ha-v1.json` contains HTTP request/response and WSS snapshot
+examples captured from the real isolated HA probe, using normal production
+registration, ordinary device pairing, actual Profile storage and Session
+Runtime. Only external providers are fixtures. Producer code pin:
+`951da5d0d7943aa672d60b93f5dfe1d32489b93c`; consumer adoption remains separate.
+
+All grant/claim secrets, nonces, issuer/browser/display/share opaque values and
+six-digit codes are replaced with nonfunctional examples. Replacements preserve
+cross-response equality and field shapes; they are derived from ordinal fixture
+position, never from the original credential. Requests contain authentication
+**kind**, never actual Authorization headers. Other IDs/timestamps belong only
+to the synthetic ended lab Session, not a real user installation. Unexpected
+private fields fail capture closed. These examples cannot be replayed as auth.
+
+The captured owner context's `display_entry_url` and
+`route_trust:"paired_owner_response"` provide the current existing-pairing route
+source for the A discussion. They are not App Attest, independently trusted HA
+issuer evidence, intended-TV-owner proof or a grant to enter the Session.
+
+Consumer tests should cover pending/approved/consumed/expired claims, stale
+binding/generation, source/Session withdrawal, missing external HTTPS config,
+all denied owner capabilities and original deadlines. These examples do not
+start an Apple/receiver assignment or qualify a public HA route/native/TV.
