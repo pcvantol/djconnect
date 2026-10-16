@@ -1,5 +1,7 @@
 """Transport-independent platform capability advertisement, never an access grant."""
 
+from .domain.profile.dj_settings import SETTINGS_VERSION
+
 
 def _platform_capabilities() -> dict[str, bool]:
     """Return platform capability flags that are independent of transport."""
@@ -46,5 +48,5 @@ def _contract_versions() -> dict[str, int]:
         "session_speech": 1,
         "passive_session_surface": 1,
         "session_history_summary": 1,
-        "profile_session_settings": 2,
+        "profile_session_settings": SETTINGS_VERSION,
     }
