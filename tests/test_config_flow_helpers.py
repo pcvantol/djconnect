@@ -3092,5 +3092,16 @@ class ConfigFlowHelperTest(unittest.TestCase):
         self.assertEqual(entry.data[self.const.CONF_LOCAL_URL], "http://192.168.1.104:60955")
 
 
+    def test_ha_speaker_configuration_never_creates_a_competing_profile_output(self):
+        source = {'dj_announcement_speaker_entity_id':'media_player.owned_speaker',
+                  'dj_announcement_output':'both'}
+        defaults = self.config_flow._voice_defaults(source)
+        self.assertEqual(defaults['dj_announcement_speaker_entity_id'], 'media_player.owned_speaker')
+        self.assertNotIn('dj_announcement_output', defaults)
+        self.assertEqual(source['dj_announcement_output'], 'both')
+        self.assertEqual(self.config_flow._voice_errors({'dj_announcement_output':'both'}),
+                         {'base':'shared_dj_settings_required'})
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -1,4 +1,4 @@
-"""Contract2 owner settings boundary; one five-axis Runtime/Store acceptance."""
+"""Contract3 owner settings boundary; one six-axis Runtime/Store acceptance."""
 
 from __future__ import annotations
 
@@ -8,7 +8,8 @@ import hashlib
 import json
 
 from .domain.profile.dj_settings import (
-    DJSettings, FIELDS, MOODS, PERSONAS, SettingsValidationError, validate_voice_combination,
+    ANNOUNCEMENT_OUTPUTS, DJSettings, FIELDS, MOODS, PERSONAS, SETTINGS_VERSION,
+    SettingsValidationError, validate_voice_combination,
 )
 from .presence_policy import POLICIES
 from .persistence.dj_settings import SettingsCommitError, SettingsRevisionConflict
@@ -26,7 +27,7 @@ def validate_request(data, *, write=False, operation=False):
     fields = WRITE_FIELDS if write else OPERATION_FIELDS if operation else IDENTITY_FIELDS
     if type(data) is not dict or set(data) != fields:
         raise SettingsValidationError('invalid_settings_request')
-    if type(data['contract_version']) is not int or data['contract_version'] != 2:
+    if type(data['contract_version']) is not int or data['contract_version'] != SETTINGS_VERSION:
         raise SettingsValidationError('unsupported_contract_version')
     if data['client_type'] not in {'ios', 'macos', 'watchos', 'raspberry_pi', 'esp32'}:
         raise SettingsValidationError('unsupported_settings_client')
@@ -96,6 +97,7 @@ def binding_digest(*, entry_id, device_id, profile_id, generation, token):
 
 def allowed_values(policy):
     return {'persona': sorted(PERSONAS), 'mood': sorted(MOODS), 'presence': list(POLICIES),
+            'announcement_output': sorted(ANNOUNCEMENT_OUTPUTS),
             'voice': {'kinds': ['provider_default', 'provider_voice'],
                       'provider_id': policy.provider_id,
                       'voices': [{'voice_id': voice, 'name': dict(policy.labels).get(voice, voice),
@@ -112,6 +114,7 @@ async def async_handle_settings(hass, data, *, headers=None, write=False, operat
     from .session_runtime import session_runtime_manager
     from .speech_processor import voice_options
     from .settings_migration import assessment
+    from .announcement_policy import output_policy
     from .transport_delivery import register_delivery_admission
 
     def error(code, status, **extra):
@@ -119,6 +122,10 @@ async def async_handle_settings(hass, data, *, headers=None, write=False, operat
 
     try:
         validate_request(data, write=write, operation=operation)
+    except SettingsValidationError as exc:
+        if str(exc) == 'unsupported_contract_version':
+            return error('settings_contract_upgrade_required', 426, settings_contract_version=SETTINGS_VERSION)
+        return error('invalid_settings_request', 400)
     except (ValueError, TypeError):
         return error('invalid_settings_request', 400)
     headers = headers or {}
@@ -149,7 +156,7 @@ async def async_handle_settings(hass, data, *, headers=None, write=False, operat
         return error('unauthorized', 401)
     identity = {key: data[key] for key in IDENTITY_FIELDS}
     runtime, context, failure, status = await _session_profile_context(
-        hass, dict(identity), headers=headers, user_id=None, source='profile_settings_v2')
+        hass, dict(identity), headers=headers, user_id=None, source='profile_settings_v3')
     if failure is not None:
         return failure, status
     if runtime is not original:
@@ -167,6 +174,7 @@ async def async_handle_settings(hass, data, *, headers=None, write=False, operat
     manager = session_runtime_manager(hass)
     options = voice_options(hass, runtime.config)
     policy = VoicePolicy.from_options(options)
+    delivery_policy = output_policy(hass, runtime)
 
     def authority():
         try:
@@ -181,8 +189,21 @@ async def async_handle_settings(hass, data, *, headers=None, write=False, operat
             return False
 
     def commit_authority():
-        return authority() and (not write or not ({'voice', 'gender'} & data['patch'].keys())
-                                or voice_options(hass, runtime.config)['revision'] == policy.revision)
+        if not authority():
+            return False
+        if write and (
+                ({'voice', 'gender'} & data['patch'].keys()
+                 and voice_options(hass, runtime.config)['revision'] != policy.revision)
+                or ('announcement_output' in data['patch']
+                    and output_policy(hass, runtime).revision != delivery_policy.revision)):
+            raise SettingsCommitError('settings_configuration_changed')
+        return True
+
+    def validate_selection(settings):
+        if {'voice', 'gender'} & data['patch'].keys():
+            policy.validate(settings)
+        if 'announcement_output' in data['patch']:
+            delivery_policy.validate(settings)
 
     try:
         if operation:
@@ -193,7 +214,7 @@ async def async_handle_settings(hass, data, *, headers=None, write=False, operat
                 now_ms=int(datetime.now(UTC).timestamp()*1000), authorize=authority)
             _require_authority(authority)
             register_delivery_admission(lambda: _require_authority(authority))
-            return {'success': True, 'contract_version': 2, **result,
+            return {'success': True, 'contract_version': SETTINGS_VERSION, **result,
                     'as_of': datetime.now(UTC).isoformat(), 'cache_policy': 'private,no-store'}, 200
         if write:
             if data['binding'] != binding:
@@ -206,7 +227,7 @@ async def async_handle_settings(hass, data, *, headers=None, write=False, operat
                 owner_profile_id=context.profile_id, operation_id=data['operation_id'], binding=binding,
                 patch=data['patch'], expected_defaults_revision=data['expected_defaults_revision'],
                 expected_session=data['expected_session'], now_ms=int(datetime.now(UTC).timestamp()*1000),
-                authorize=commit_authority, validate_voice=policy.validate,
+                authorize=commit_authority, validate_voice=validate_selection,
                 migration_requires_review=migration_requires_review)
             snapshot = result['snapshot']
             if not result['replayed']:
@@ -226,11 +247,14 @@ async def async_handle_settings(hass, data, *, headers=None, write=False, operat
         # Project current availability without replacing the retained choice.
         policy = VoicePolicy.from_options(voice_options(hass, runtime.config))
         register_delivery_admission(lambda: _require_authority(authority))
-        return {'success': True, **result, 'contract_version': 2, 'binding': binding,
+        return {'success': True, **result, 'contract_version': SETTINGS_VERSION, 'binding': binding,
                 'scope': 'profile_and_active_session',
                 'migration': assessment(hass, storage.household,
                                         storage.household.profiles[context.profile_id],
-                                        activated=snapshot['activated']),
+                                        activated=snapshot['activated'],
+                                        accepted_contract_version=snapshot['accepted_contract_version']),
+                'announcement_output': output_policy(hass, runtime).projection(
+                    (snapshot['session']['settings'] if snapshot['session'] else snapshot['defaults'])['announcement_output']),
                 'allowed_values': allowed_values(policy),
                 'writable_fields': sorted(FIELDS), 'voice_revision': policy.revision,
                 'voice_availability': policy.selection_state(DJSettings.from_dict(

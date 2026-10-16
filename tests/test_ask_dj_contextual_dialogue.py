@@ -1381,7 +1381,7 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
         async def transcribe(*args):
             transcripts.append(True)
             return "help"
-        for index, version in enumerate(("1", None, "true", "01", "2", "", "1.0")):
+        for index, version in enumerate(("1", "2", "3", None, "true", "01", "4", "", "1.0")):
             with self.subTest(version=version):
                 headers = {**self.headers, "X-DJConnect-Device-ID": self.identity["device_id"],
                     "X-DJConnect-Client-Type": "ios", "Content-Type": "audio/wav",
@@ -1394,7 +1394,7 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
                     response = await http.DJConnectVoiceView(self.hass).post(request)
                 result = json.loads(response.text)
                 self.assertEqual(response.headers["Cache-Control"], "no-store")
-                if version not in (None, "1"):
+                if version not in (None, "1", "2", "3"):
                     self.assertEqual(response.status, 400, result)
                     self.assertEqual(result["error"], "unsupported_speech_contract")
                     self.assertEqual((len(reads), len(transcripts)), before)
@@ -1402,7 +1402,7 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
                 self.assertEqual(response.status, 200, result)
                 self.assertEqual(result["transcript"], "help")
                 self.assertTrue(result["session_speech"]["manual_allowed"])
-                if version == "1":
+                if version in ("1", "2", "3"):
                     self.assertEqual(result["audio_delivery"]["state"], "deferred")
                     self.assertTrue(result["session_speech"]["autoplay_eligible"])
                 else:
@@ -2229,7 +2229,7 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
                 self.assertFalse(response["session_speech"]["autoplay_eligible"])
             forbidden.assert_not_awaited()
         self.assertEqual(self.prompts, [])
-        for value in (True, 3, "1"):
+        for value in (True, 4, "1"):
             response, status = await self.request("help", identifier="bad-speech-version", speech_contract_version=value)
             self.assertEqual(status, 400, response)
             self.assertEqual(response["error"], "unsupported_speech_contract")

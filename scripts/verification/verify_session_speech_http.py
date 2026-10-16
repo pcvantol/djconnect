@@ -229,6 +229,9 @@ async def main():
         from session_speech_model_lab import install
         model_entity_id = await install(hass, model_bundle[0], model_bundle[1])
     fixture_server, synthesis_calls = await processor_fixture(hass, model_entity_id)
+    if os.environ.get('DJC_PROFILE_SETTINGS_PROBE'):
+        from homeassistant.components import media_player
+        await media_player.async_setup(hass, {})
     try:
         async with TestClient(TestServer(hass.http.app)) as client:
             response = await client.post("/api/djconnect/v1/pair", json={**identity, "pair_code": "123456"})

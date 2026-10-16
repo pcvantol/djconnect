@@ -66,25 +66,25 @@ async def run(hass, runtime, client, identity, output, peers):
                     return item['result']
 
             for index in range(len(sockets)):
-                await command(index, 'djconnect/profile/settings/subscribe', contract_version=2, enabled=True)
+                await command(index, 'djconnect/profile/settings/subscribe', contract_version=3, enabled=True)
             expected = None
             changes = ({'persona': 'festival_dj'}, {'mood': 'energy'}, {'presence': 'balanced'},
-                       {'voice': {'kind': 'provider_default'}}, {'gender': 'female'})
+                       {'voice': {'kind': 'provider_default'}}, {'gender': 'female'}, {'announcement_output': 'text_only'})
             matrix = []
             for counter, patch in enumerate(changes, 1):
-                before = await command(0, 'djconnect/read', operation='profile/settings', payload={'contract_version': 2})
+                before = await command(0, 'djconnect/read', operation='profile/settings', payload={'contract_version': 3})
                 assert before['snapshot']['session'] is None
                 now = int(time.time()*1000)
                 op = str(UUID(int=(now << 80) | (7 << 76) | (2 << 62) | (100+counter)))
                 updated = await command(0, 'djconnect/profile/settings/update', payload={
-                    'contract_version': 2, 'binding': before['binding'], 'operation_id': op, 'patch': patch,
+                    'contract_version': 3, 'binding': before['binding'], 'operation_id': op, 'patch': patch,
                     'expected_defaults_revision': before['snapshot']['defaults_revision'], 'expected_session': None})
                 expected = updated['snapshot']['defaults']
                 for index in (1, 2):
                     event = await sockets[index].receive_json(timeout=3)
                     assert event.get('event') == 'profile/settings/changed', event
                     assert not any(key in json.dumps(event) for key in ('profile_id', 'defaults', 'voice_id', 'gender'))
-                    state = await command(index, 'djconnect/read', operation='profile/settings', payload={'contract_version': 2})
+                    state = await command(index, 'djconnect/read', operation='profile/settings', payload={'contract_version': 3})
                     assert state['snapshot']['defaults'] == expected
                     assert state['snapshot']['defaults_revision'] == updated['snapshot']['defaults_revision']
                 matrix.append({'patch': patch, 'confirmed_revision': updated['snapshot']['defaults_revision'],
@@ -95,14 +95,14 @@ async def run(hass, runtime, client, identity, output, peers):
                 pass
             else:
                 raise AssertionError(('other Profile received private invalidation', unsolicited))
-            other = await command(3, 'djconnect/read', operation='profile/settings', payload={'contract_version': 2})
+            other = await command(3, 'djconnect/read', operation='profile/settings', payload={'contract_version': 3})
             assert other['snapshot']['defaults_revision'] == 0
             assert other['snapshot']['defaults'] != expected
             # Actually close/re-authenticate the TLS connection. Reusing a
             # socket for another read alone would not prove reconnect semantics.
             await sockets[1].close()
             sockets[1] = await connect(*participants[1])
-            final = await command(1, 'djconnect/read', operation='profile/settings', payload={'contract_version': 2})
+            final = await command(1, 'djconnect/read', operation='profile/settings', payload={'contract_version': 3})
             assert final['snapshot']['defaults'] == expected
             assert final['snapshot']['defaults_revision'] == updated['snapshot']['defaults_revision']
             seconds = min(120, max(0, int(os.environ.get('DJC_SETTINGS_SOAK_SECONDS', '0'))))
@@ -120,13 +120,13 @@ async def run(hass, runtime, client, identity, output, peers):
                 while time.monotonic() - started < seconds:
                     for index in (0, 1, 2):
                         state = await command(index, 'djconnect/read', operation='profile/settings',
-                                              payload={'contract_version': 2})
+                                              payload={'contract_version': 3})
                         assert state['snapshot']['defaults'] == expected
                         assert state['snapshot']['defaults_revision'] == final['snapshot']['defaults_revision']
                         assert state['snapshot']['session'] is None
                         reads += 1
                     isolated = await command(3, 'djconnect/read', operation='profile/settings',
-                                             payload={'contract_version': 2})
+                                             payload={'contract_version': 3})
                     assert isolated['snapshot']['defaults_revision'] == 0
                     assert isolated['snapshot']['session'] is None
                     if reconnects == 1 and time.monotonic()-started >= seconds/2:

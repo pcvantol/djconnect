@@ -8,7 +8,7 @@ import hashlib
 import json
 import re
 
-from ..domain.profile.dj_settings import DJSettings, SettingsValidationError
+from ..domain.profile.dj_settings import DJSettings, FIELDS, SETTINGS_VERSION, SettingsValidationError
 from ..transport_operations import (
     FUTURE_SKEW_MS, LIFETIME_MS, MAX_OWNER_RECORDS, MAX_RECORDS,
     OperationError, operation_created_ms,
@@ -69,12 +69,12 @@ class ProfileDJSettingsRepository(PersistenceRepository):
     @staticmethod
     def _defaults(tx, owner):
         row = tx.fetchone(
-            'SELECT settings,revision,updated_at FROM djconnect_profile_dj_settings WHERE owner_profile_id=?',
+            'SELECT settings,revision,updated_at,contract_version FROM djconnect_profile_dj_settings WHERE owner_profile_id=?',
             (owner,),
         )
         if row is None:
-            return DJSettings(), 0, ''
-        return DJSettings.from_dict(json.loads(row[0])), int(row[1]), str(row[2])
+            return DJSettings(), 0, '', SETTINGS_VERSION
+        return DJSettings.from_dict(json.loads(row[0])), int(row[1]), str(row[2]), int(row[3])
 
     @staticmethod
     def _session(tx, owner, session_id):
@@ -92,10 +92,12 @@ class ProfileDJSettingsRepository(PersistenceRepository):
 
     @classmethod
     def _snapshot(cls, tx, owner, session_id=''):
-        defaults, revision, updated_at = cls._defaults(tx, owner)
-        return {'contract_version': 2, 'defaults': defaults.as_dict(),
+        defaults, revision, updated_at, accepted_version = cls._defaults(tx, owner)
+        return {'contract_version': SETTINGS_VERSION, 'defaults': defaults.as_dict(),
                 'defaults_revision': revision, 'updated_at': updated_at,
                 'activated': revision > 0,
+                'output_choice_confirmed': revision > 0 and accepted_version == SETTINGS_VERSION,
+                'accepted_contract_version': accepted_version if revision else None,
                 'session': cls._session(tx, owner, session_id) if session_id else None}
 
     async def async_read(self, owner, *, session_id='', authorize):
@@ -166,7 +168,7 @@ class ProfileDJSettingsRepository(PersistenceRepository):
         digest = hashlib.sha256(_json(intent).encode()).hexdigest()
 
         initial_acceptance = False
-        complete_selection = set(patch) == {'persona', 'voice', 'gender', 'mood', 'presence'}
+        complete_selection = set(patch) == FIELDS
 
         def accept(tx):
             nonlocal initial_acceptance
@@ -184,12 +186,16 @@ class ProfileDJSettingsRepository(PersistenceRepository):
                     raise SettingsCommitError('operation_scope_changed')
                 if existing[1] != digest:
                     raise SettingsCommitError('operation_payload_conflict')
-                return {**json.loads(existing[2]), 'replayed': True}
+                receipt = json.loads(existing[2])
+                if receipt['snapshot']['contract_version'] != SETTINGS_VERSION:
+                    raise SettingsCommitError('operation_contract_changed')
+                return {**receipt, 'replayed': True}
             current = self._snapshot(tx, owner, session.session_id if session else '')
             if current['defaults_revision'] != expected_defaults_revision:
                 raise SettingsRevisionConflict(current)
-            initial_acceptance = not current['activated']
-            if initial_acceptance and require_full_selection and not complete_selection:
+            initial_acceptance = not current['activated'] or not current['output_choice_confirmed']
+            if (initial_acceptance and not complete_selection
+                    and (require_full_selection or current['defaults_revision'] > 0)):
                 raise SettingsCommitError('settings_migration_choice_required')
             defaults = DJSettings.from_dict(current['defaults'])
             selected = defaults.patched(patch)
@@ -222,7 +228,7 @@ class ProfileDJSettingsRepository(PersistenceRepository):
                     validate_choices(next_effective)
                 live = {'session_id': session.session_id, 'generation': session.generation,
                         'settings': next_effective.as_dict(),
-                        'revision': live_revision + int(live_revision == 0 or next_effective != effective)}
+                        'revision': live_revision + int(initial_acceptance or live_revision == 0 or next_effective != effective)}
                 if next_effective.mood != effective.mood:
                     from .summary import mood_tx
                     stamp = datetime.fromtimestamp(clock / 1000, UTC).isoformat()
@@ -234,12 +240,12 @@ class ProfileDJSettingsRepository(PersistenceRepository):
             owned = tx.fetchone('SELECT COUNT(*) FROM djconnect_settings_operations WHERE owner_profile_id=?', (owner,))[0]
             if total >= MAX_RECORDS or owned >= MAX_OWNER_RECORDS:
                 raise SettingsCommitError('settings_operation_capacity')
-            revision = current['defaults_revision'] + int(not current['activated'] or selected != defaults)
+            revision = current['defaults_revision'] + int(initial_acceptance or selected != defaults)
             stamp = datetime.fromtimestamp(clock / 1000, UTC).isoformat()
             tx.execute(
-                'INSERT INTO djconnect_profile_dj_settings VALUES (?,?,?,?) ON CONFLICT(owner_profile_id) DO UPDATE SET settings=excluded.settings,revision=excluded.revision,updated_at=excluded.updated_at',
+                'INSERT INTO djconnect_profile_dj_settings (owner_profile_id,settings,revision,updated_at,contract_version) VALUES (?,?,?,?,?) ON CONFLICT(owner_profile_id) DO UPDATE SET settings=excluded.settings,revision=excluded.revision,updated_at=excluded.updated_at,contract_version=excluded.contract_version',
                 (owner, _json(selected.as_dict()), revision,
-                 stamp if revision != current['defaults_revision'] else current['updated_at']),
+                 stamp if revision != current['defaults_revision'] else current['updated_at'], SETTINGS_VERSION),
             )
             if live is not None:
                 tx.execute(
@@ -342,10 +348,11 @@ class ProfileDJSettingsRepository(PersistenceRepository):
         if not owners:
             return {}
         def read(tx):
-            rows = tx.fetchall('SELECT owner_profile_id,settings,revision,updated_at '
+            rows = tx.fetchall('SELECT owner_profile_id,settings,revision,updated_at,contract_version '
                                'FROM djconnect_profile_dj_settings WHERE owner_profile_id IN '
                                '(SELECT value FROM json_each(?))', (_json(owners),))
-            return {row[0]: {'contract_version': 2,
+            return {row[0]: {'contract_version': SETTINGS_VERSION,
+                            'accepted_contract_version': int(row[4]),
                             'values': DJSettings.from_dict(json.loads(row[1])).as_dict(),
                             'defaults_revision': int(row[2]), 'as_of': str(row[3])}
                     for row in rows}

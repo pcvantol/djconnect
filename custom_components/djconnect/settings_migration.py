@@ -8,7 +8,7 @@ from .domain.profile import ResponseStyle, VoiceStyle
 
 TONES = frozenset({'classic_radio', 'late_night', 'energy', 'clean_host'})
 RETIRED_ENTRY_KEYS = frozenset({'voice_profile', 'stt_engine', 'tts_engine', 'tts_voice',
-                                'dj_response_prompt_preset', 'dj_response_prompt'})
+                                'dj_response_prompt_preset', 'dj_response_prompt', 'dj_announcement_output'})
 
 
 def _bound_entries(hass, household, owner):
@@ -30,13 +30,16 @@ def _bound_entries(hass, household, owner):
             yield entry, config
 
 
-def assessment(hass, household, profile, *, activated):
+def assessment(hass, household, profile, *, activated, accepted_contract_version=None):
     """Only known enums and a bounded numeric value; no name/secret/prompt export."""
-    if activated:
+    if activated and accepted_contract_version in (None, 3):
         return {'version': 1, 'state': 'accepted_shared_settings', 'requires_review': False,
                 'legacy_cleanup_pending': profile.metadata.dj_settings_version != 2 or any(
                     RETIRED_ENTRY_KEYS & config.keys() for _, config in _bound_entries(hass, household, profile.profile_id))}
     candidates = []
+    if accepted_contract_version == 2:
+        candidates.append({'field': 'settings_contract', 'value': 2,
+                           'basis': 'explicit_six_field_review_required'})
     if profile.preferences.response_style != ResponseStyle.BALANCED:
         candidates.append({'field': 'response_style', 'value': profile.preferences.response_style.value,
                            'basis': 'legacy_profile_tone_not_persona'})
@@ -50,9 +53,15 @@ def assessment(hass, household, profile, *, activated):
                     if type(config.get('voice_profile')) is str and config['voice_profile'] in TONES})
     candidates.extend({'field': 'voice_profile', 'value': tone,
                        'basis': 'legacy_bound_entry_tone_not_persona'} for tone in tones)
+    from .domain.profile.dj_settings import ANNOUNCEMENT_OUTPUTS
+    outputs = sorted({config['dj_announcement_output'] for _, config in _bound_entries(hass, household, profile.profile_id)
+                      if type(config.get('dj_announcement_output')) is str
+                      and config['dj_announcement_output'] in ANNOUNCEMENT_OUTPUTS})
+    candidates.extend({'field': 'announcement_output', 'value': output,
+                       'basis': 'legacy_entry_choice_provenance_unknown'} for output in outputs)
     return {'version': 1, 'state': 'choice_required' if candidates else 'no_legacy_choice_evidence',
             'requires_review': bool(candidates), 'complete_selection_fields':
-            ['persona', 'voice', 'gender', 'mood', 'presence'] if candidates else [],
+            ['persona', 'voice', 'gender', 'mood', 'presence', 'announcement_output'] if candidates else [],
             'candidates': candidates, 'conflicting_entry_tones': len(tones) > 1,
             'automatic_persona_mapping': False}
 
@@ -68,6 +77,8 @@ async def async_retire_activated(hass, storage, repository):
                                                        authorize=lambda: storage.household == household)
     expected_household = household
     for owner in defaults:
+        if defaults[owner]['accepted_contract_version'] != 3:
+            continue  # An old five-field receipt cannot retire output evidence.
         if storage.household != expected_household:
             return  # Another owner mutation won; retry from a new snapshot.
         profile = storage.household.profiles.get(owner)

@@ -29,7 +29,6 @@ from .const import (
     CONF_DEVICE_LANGUAGE,
     CONF_DEVICE_NAME,
     CONF_DEVICE_TOKEN,
-    CONF_DJ_ANNOUNCEMENT_OUTPUT,
     CONF_DJ_ANNOUNCEMENT_SPEAKER,
     CONF_DJCONNECT_INSTALL_TOKEN,
     CONF_DJ_RESPONSE_ENABLED,
@@ -67,8 +66,6 @@ from .const import (
     DEFAULT_SETUP_METHOD,
     DEFAULT_SPOTIFY_MARKET,
     DEFAULT_SPOTIFY_SCOPES,
-    DJ_ANNOUNCEMENT_BOTH,
-    DJ_ANNOUNCEMENT_CLIENT_DEVICE,
     FIRMWARE_CHANNELS,
     MUSIC_BACKEND_NAMES,
     MUSIC_BACKEND_LATER_MANUAL,
@@ -212,7 +209,6 @@ CLIENT_TYPE_NAME_SUFFIXES = {
 VOICE_FORM_FIELDS = {
     "vibecast_session_end_allowed",
     CONF_ASSIST_PIPELINE_ID,
-    CONF_DJ_ANNOUNCEMENT_OUTPUT,
     CONF_DJ_ANNOUNCEMENT_SPEAKER,
     CONF_FIRMWARE_CHANNEL,
 }
@@ -1294,11 +1290,6 @@ def _voice_defaults(
         CONF_DJ_ANNOUNCEMENT_SPEAKER: str(
             source.get(CONF_DJ_ANNOUNCEMENT_SPEAKER) or ""
         ).strip(),
-        CONF_DJ_ANNOUNCEMENT_OUTPUT: (
-            str(source.get(CONF_DJ_ANNOUNCEMENT_OUTPUT) or DJ_ANNOUNCEMENT_BOTH).strip()
-            if str(source.get(CONF_DJ_ANNOUNCEMENT_SPEAKER) or "").strip()
-            else DJ_ANNOUNCEMENT_CLIENT_DEVICE
-        ),
         CONF_MAX_AUDIO_BYTES: _int(
             source.get(CONF_MAX_AUDIO_BYTES),
             DEFAULT_MAX_AUDIO_BYTES,
@@ -1339,7 +1330,7 @@ def _firmware_channel_default(value: Any) -> str:
 
 def _voice_errors(user_input: dict[str, Any]) -> dict[str, str]:
     """Validate required voice/options fields."""
-    if {'voice_profile', 'voice_style', 'response_style', 'profile_response_style'} & user_input.keys():
+    if {'voice_profile', 'voice_style', 'response_style', 'profile_response_style', 'dj_announcement_output'} & user_input.keys():
         return {'base': 'shared_dj_settings_required'}
     return {}
 

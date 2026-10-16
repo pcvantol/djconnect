@@ -25,10 +25,11 @@ MIGRATIONS = (
     Migration(5, "0005_session_timeline_entries", "7d5e3142"),
     Migration(6, "0006_session_summary_acceptance", "aeb3dc41"),
     Migration(7, "0007_profile_session_dj_settings", "9e6b4a31"),
+    Migration(8, "0008_profile_announcement_output", "32c0a4e7"),
 )
 CURRENT_SCHEMA_VERSION = MIGRATIONS[-1].version
 REQUIRED_TABLES = {
-    "djconnect_profile_dj_settings": {"owner_profile_id", "settings", "revision", "updated_at"},
+    "djconnect_profile_dj_settings": {"owner_profile_id", "settings", "revision", "updated_at", "contract_version"},
     "djconnect_session_dj_settings": {
         "session_id", "owner_profile_id", "generation", "settings", "revision", "defaults_revision", "updated_at",
     },
@@ -224,6 +225,18 @@ def apply_migration(transaction: ProviderTransaction, version: int) -> None:
             "CREATE TABLE djconnect_settings_clock (singleton INTEGER PRIMARY KEY CHECK(singleton=1),high_water_ms INTEGER NOT NULL CHECK(high_water_ms>=0))"
         )
         transaction.execute("INSERT INTO djconnect_settings_clock VALUES (1,0)")
+    elif version == 8:
+        # Preserve original receipts and acceptance revisions. Factory output
+        # for a new parameter is not evidence of an explicit six-field choice.
+        transaction.execute(
+            "ALTER TABLE djconnect_profile_dj_settings ADD COLUMN contract_version INTEGER NOT NULL DEFAULT 2"
+        )
+        transaction.execute(
+            "UPDATE djconnect_profile_dj_settings SET settings=json_insert(settings,'$.announcement_output','client_device')"
+        )
+        transaction.execute(
+            "UPDATE djconnect_session_dj_settings SET settings=json_insert(settings,'$.announcement_output','client_device')"
+        )
     timestamp = datetime.now(UTC).isoformat()
     transaction.execute(
         "INSERT OR REPLACE INTO djconnect_schema_metadata "

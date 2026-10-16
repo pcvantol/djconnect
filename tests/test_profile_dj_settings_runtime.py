@@ -179,7 +179,7 @@ class ProfileSettingsRuntimeTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(accepted['snapshot']['session']['settings']['mood'], 'party')
 
     async def test_successor_inherits_all_five_without_initialization_write(self):
-        values = {'mood': 'energy', 'persona': 'festival_dj', 'presence': 'music_only',
+        values = {'announcement_output': 'client_device', 'mood': 'energy', 'persona': 'festival_dj', 'presence': 'music_only',
                   'voice': {'kind': 'provider_voice', 'provider_id': 'tts.test', 'voice_id': 'v1'},
                   'gender': 'female'}
         await self.choose(values)

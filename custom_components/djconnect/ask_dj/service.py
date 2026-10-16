@@ -74,7 +74,7 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
     if not _identifier(client_id):
         raise SessionConversationError("client_message_id_required", 400)
     speech_version = payload.get("speech_contract_version")
-    if speech_version is not None and (type(speech_version) is not int or speech_version not in (1, 2)):
+    if speech_version is not None and (type(speech_version) is not int or speech_version not in (1, 2, 3)):
         raise SessionConversationError("unsupported_speech_contract", 400)
     context = _context(payload)
     text = str(payload.get("text") or payload.get("message") or "").strip()
@@ -116,7 +116,7 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
             snapshot = await manager.async_read_dj_settings(owner_profile_id=profile_id,
                 authorize=settings_read_authority)
             active = manager.current_active(profile_id)
-            if snapshot['activated'] or (active is not None and active.settings_contract_version == 2):
+            if snapshot['activated'] or (active is not None and active.settings_contract_version >= 2):
                 shared_settings = DJSettings.from_dict(snapshot['defaults'])
                 settings_token = manager.dj_settings_fence_token(profile_id)
         # Style is captured once, including general-screen turns enriched by an
@@ -399,8 +399,10 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
         # An accepted private reference cannot be downgraded to that grant.
         # Negotiate the new adapter explicitly; text/semantic acceptance stays
         # the same and upgrade is never an invitation to resend the question.
-        required_speech_version = 2 if shared_settings is not None else 1
-        speech_negotiated = speech_version in (1, 2) and speech_version >= required_speech_version
+        required_speech_version = 3 if shared_settings is not None else 1
+        speech_negotiated = speech_version in (1, 2, 3) and speech_version >= required_speech_version
+        speech_output = (active.selected_announcement_output if active is not None
+                         else shared_settings.announcement_output if shared_settings is not None else 'client_device')
         response["audio_delivery"] = ({"mode": "accepted_reference", "state": "deferred"}
             if speech_negotiated else {"mode": "accepted_reference",
                 "state": "unavailable" if requested_audio else "not_requested",
@@ -412,7 +414,11 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
             grant_revision=grant, profile_source=source_scope(profile),
             playback_item_id=captured if track_bound and not explicit_action else "",
             deduplicated=bool(result.get("deduplicated")),
-            autoplay_eligible=speech_negotiated and requested_audio)
+            autoplay_eligible=speech_negotiated and requested_audio,
+            announcement_output=speech_output)
+        if speech_output == 'text_only':
+            response['audio_delivery'] = {'mode': 'accepted_reference', 'state': 'not_applicable',
+                                          'reason': 'announcement_text_only'}
         if isinstance(response.get("assistant_message"), dict):
             live_assistant = {**response["assistant_message"], "session_speech": response["session_speech"],
                               "audio_delivery": response["audio_delivery"]}

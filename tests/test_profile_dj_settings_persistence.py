@@ -341,3 +341,78 @@ class ProfileDJSettingsPersistenceTests(unittest.IsolatedAsyncioTestCase):
             tx.fetchone('SELECT COUNT(*) FROM djconnect_profile_dj_settings')[0],
             tx.fetchone('SELECT COUNT(*) FROM djconnect_settings_operations')[0]))
         self.assertEqual(counts, (1, 1))
+
+    async def test_output_is_atomic_shared_state_and_same_operation_never_reapplies(self):
+        before = DJSettings(persona='club_dj', mood='party')
+        accepted = await self.choose({'announcement_output': 'text_only'}, context=self.context(effective=before))
+        values = accepted['snapshot']['session']['settings']
+        self.assertEqual(values['announcement_output'], 'text_only')
+        self.assertEqual((values['persona'], values['mood']), ('club_dj', 'party'))
+        self.assertEqual(accepted['snapshot']['defaults']['announcement_output'], 'text_only')
+        self.assertTrue(accepted['snapshot']['output_choice_confirmed'])
+        replay = await self.choose({'announcement_output': 'text_only'}, context=self.context(effective=before))
+        self.assertTrue(replay['replayed'])
+        self.assertEqual(replay['snapshot'], accepted['snapshot'])
+        await self.service.async_close()
+        await self.service.async_initialize()
+        self.assertEqual((await self.read())['session']['settings'], values)
+
+    async def test_schema7_upgrade_preserves_original_choices_and_immutable_receipt(self):
+        import hashlib
+        import json
+        path = Path(self.directory.name)/'old-v7.sqlite'
+        provider = SQLitePersistenceProvider()
+        await provider.async_open(str(path))
+        for version in range(1, 8):
+            await provider.async_run_transaction(lambda tx, v=version: apply_migration(tx, v))
+        old_values = {k: v for k, v in DJSettings(persona='festival_dj', mood='party').as_dict().items()
+                      if k != 'announcement_output'}
+        op = operation(self.now)
+        def compact(value):
+            return json.dumps(value, sort_keys=True, separators=(',', ':'), ensure_ascii=False)
+        key = hashlib.sha256(compact(['owner', op]).encode()).hexdigest()
+        digest = hashlib.sha256(compact({'patch': {'mood':'party'},
+            'expected_defaults_revision': 4, 'session': None}).encode()).hexdigest()
+        original_receipt = compact({'operation_id': op, 'accepted': True, 'replayed': False,
+            'snapshot': {'contract_version': 2, 'defaults': old_values,
+                         'defaults_revision': 5, 'activated': True, 'session': None}})
+        def seed(tx):
+            tx.execute('INSERT INTO djconnect_profile_dj_settings VALUES (?,?,?,?)',
+                       ('owner', compact(old_values), 5, 'old-checkpoint'))
+            tx.execute('INSERT INTO djconnect_settings_operations VALUES (?,?,?,?,?,?)',
+                       (key, 'owner', self.binding, digest, self.now+300000, original_receipt))
+        await provider.async_run_transaction(seed)
+        await provider.async_close()
+        upgraded = PersistenceService(path, SQLitePersistenceProvider())
+        await upgraded.async_initialize()
+        try:
+            repo = ProfileDJSettingsRepository(upgraded)
+            snapshot = await repo.async_read('owner', authorize=lambda: True)
+            self.assertEqual(snapshot['defaults'], {**old_values, 'announcement_output':'client_device'})
+            self.assertEqual(snapshot['defaults_revision'], 5)
+            self.assertTrue(snapshot['activated'])
+            self.assertFalse(snapshot['output_choice_confirmed'])
+            self.assertEqual(snapshot['accepted_contract_version'], 2)
+            with self.assertRaisesRegex(SettingsCommitError, 'operation_contract_changed'):
+                await repo.async_accept_user_choice('owner', operation_id=op, binding=self.binding,
+                    patch={'mood':'party'}, expected_defaults_revision=4,
+                    now_ms=self.now, authorize=lambda: True)
+            with self.assertRaisesRegex(SettingsCommitError, 'settings_migration_choice_required'):
+                await repo.async_accept_user_choice('owner', operation_id=operation(self.now, 2), binding=self.binding,
+                    patch={'announcement_output':'text_only'}, expected_defaults_revision=5,
+                    now_ms=self.now, authorize=lambda: True)
+            receipt = await repo.async_operation_result('owner', operation_id=op,
+                binding=self.binding, now_ms=self.now, authorize=lambda: True)
+            self.assertEqual(receipt['receipt']['snapshot']['contract_version'], 2)
+            raw = await upgraded.async_in_transaction(lambda tx: tx.fetchone(
+                'SELECT receipt FROM djconnect_settings_operations WHERE operation_key=?', (key,)))
+            self.assertEqual(raw[0], original_receipt)
+            choice = {**old_values, 'announcement_output':'text_only'}
+            accepted = await repo.async_accept_user_choice('owner', operation_id=operation(self.now, 2),
+                binding=self.binding, patch=choice, expected_defaults_revision=5,
+                now_ms=self.now, authorize=lambda: True)
+            self.assertEqual(accepted['snapshot']['defaults'], choice)
+            self.assertTrue(accepted['snapshot']['output_choice_confirmed'])
+            self.assertEqual(accepted['snapshot']['defaults_revision'], 6)
+        finally:
+            await upgraded.async_close()

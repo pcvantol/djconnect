@@ -58,7 +58,7 @@ async def run(hass, runtime, client, post, identity, output, headers, manager, s
 
     async def read(auth=headers):
         response = await client.get('/api/djconnect/v1/profile/settings', params={
-            **identity, 'contract_version': '2'}, headers=auth)
+            **identity, 'contract_version': '3'}, headers=auth)
         body = await response.json()
         assert response.headers['Cache-Control'] == 'no-store'
         return body, response.status
@@ -69,7 +69,7 @@ async def run(hass, runtime, client, post, identity, output, headers, manager, s
         now = int(time.time()*1000)
         operation = str(UUID(int=(now << 80) | (7 << 76) | (2 << 62) | counter))
         session = before['snapshot']['session']
-        request = {**identity, 'contract_version': 2, 'binding': before['binding'],
+        request = {**identity, 'contract_version': 3, 'binding': before['binding'],
             'operation_id': operation, 'patch': patch,
             'expected_defaults_revision': before['snapshot']['defaults_revision'],
             'expected_session': {k: session[k] for k in ('session_id', 'generation', 'revision')} if session else None}
@@ -105,7 +105,7 @@ async def run(hass, runtime, client, post, identity, output, headers, manager, s
                  'response': rejected, 'unchanged_snapshot': unchanged['snapshot']})
     chosen = {'persona': 'radio_dj', 'voice': {'kind': 'provider_voice',
         'provider_id': entity.entity_id, 'voice_id': 'JennyNeural'}, 'gender': 'female',
-        'mood': 'energy', 'presence': 'balanced'}
+        'mood': 'energy', 'presence': 'balanced', 'announcement_output': 'client_device'}
     accepted, request = await choose(first, chosen)
     assert accepted['snapshot']['defaults'] == chosen
     assert manager.current_active('profile-a') is None
@@ -131,7 +131,8 @@ async def run(hass, runtime, client, post, identity, output, headers, manager, s
     original_content = moment.content
     original_persona = moment.presentation_intent.dj_persona.value
     assert original_persona == chosen['persona']
-    speech_request = {**identity, 'contract_version': 2, 'processor': 'ha_configured',
+    speech_request = {**identity, 'contract_version': 3, 'processor': 'ha_configured',
+                      'intent': 'manual', 'target': 'local',
                       'reference': {'session_id': sid, 'moment_id': moment.moment_id}}
     first_speech = (await post('/speech/prepare', speech_request))['session_speech']
     assert first_speech['audio_state'] == 'ready', first_speech
@@ -190,6 +191,26 @@ async def run(hass, runtime, client, post, identity, output, headers, manager, s
     assert withdrawn['snapshot']['defaults']['voice']['voice_id'] == 'GuyNeural'
     rows.append({'case': 'automatic_mood_default_preserved_and_provider_withdrawal', 'response': withdrawn})
     await store.async_update_item(pipeline.id, update)
+    text_only, _ = await choose(withdrawn, {'announcement_output': 'text_only'})
+    blocked = (await post('/speech/prepare', speech_request))['session_speech']
+    assert blocked['reason'] == 'announcement_text_only' and not blocked['manual_allowed']
+    from custom_components.djconnect.dj_response import async_create_dj_audio_url
+    assert await async_create_dj_audio_url(hass, runtime, 'Bounded legacy device reply') is None
+    await post('/speech/audio', {**identity, 'contract_version': 1,
+        'asset_id': second_speech['audio_reference']['asset_id']}, expected=404)
+    owner_projection = manager.current_active('profile-a').broadcast.as_dict()
+    assert owner_projection['session_speech']['moments']
+    assert all(not entry['manual_allowed'] for entry in owner_projection['session_speech']['moments'])
+    shared_projection = manager.current_active('profile-a').broadcast.as_dict(include_owner_only=False)
+    assert 'session_speech' not in shared_projection
+    assert 'announcement_output' not in json.dumps(shared_projection)
+    assert len(calls) == 2
+    restored_output, _ = await choose(text_only, {'announcement_output': 'client_device'})
+    assert restored_output['snapshot']['defaults'] == changed['snapshot']['defaults']
+    restored_output, speaker_evidence = await speaker_probe(hass, runtime, client, identity, output, headers, manager, restored_output, choose, speech_request['reference'])
+    rows.append(speaker_evidence)
+    rows.append({'case': 'text_only_zero_synthesis_old_audio_denied_and_owner_controls_removed',
+        'response': text_only, 'additional_synthesis_calls': 0, 'shared_settings_leak': False})
     await post('/session/end', {**identity, 'session_id': sid})
     await post('/session/start', {**identity, 'locale': 'en'}, expected=201)
     successor = manager.current_active('profile-a')
@@ -211,7 +232,7 @@ async def run(hass, runtime, client, post, identity, output, headers, manager, s
                  'music_only_openings': 0, 'raised_presence_catchup': 0})
     await playback_observation_manager(hass).async_stop('profile-a', successor.session_id)
     await post('/session/end', {**identity, 'session_id': successor.session_id})
-    receipt = await post('/profile/settings/operation', {**identity, 'contract_version': 2,
+    receipt = await post('/profile/settings/operation', {**identity, 'contract_version': 3,
         'binding': request['binding'], 'operation_id': changed_request['operation_id']})
     assert receipt['phase'] == 'accepted'
     assert receipt['receipt']['snapshot'] == changed['snapshot']
@@ -221,7 +242,7 @@ async def run(hass, runtime, client, post, identity, output, headers, manager, s
         from profile_session_settings_ws_lab import run as websocket_probe
         rows.append(await websocket_probe(hass, runtime, client, identity, output, peers))
         websocket = 'PASS_PAIRED_TLS_THREE_SURFACES_AND_PROFILE_ISOLATION'
-    assert len(calls) == 2
+    assert len(calls) == 3  # Two local voice variants and one explicit speaker replay.
     assert source_hashes == {str(path.relative_to(root)): hashlib.sha256(path.read_bytes()).hexdigest() for path in source_files}
     result = {'result': 'PASS_CORE_PAIRED_HTTP_RUNTIME_SQLITE', 'as_of': datetime.now(UTC).isoformat(),
         'cases': rows, 'waveform_calls': len(calls),
@@ -231,3 +252,80 @@ async def run(hass, runtime, client, post, identity, output, headers, manager, s
                        'websocket': websocket, 'native': 'OPEN', 'installed': 'NOT_RUN'}}
     (output/'profile-settings-http.json').write_text(json.dumps(result, indent=2)+'\n')
     print('PROFILE_SETTINGS_PAIRED_HTTP_PASS', flush=True)
+
+
+async def speaker_probe(hass, runtime, client, identity, output, headers, manager, current, choose, reference):
+    """Actual HA media-player service + anonymous constrained media fetch.
+
+    Only the external speaker sink is a fixture; no audible/hardware claim.
+    """
+    import asyncio
+    import ssl
+    from aiohttp import web
+    from homeassistant.components import media_player
+    from homeassistant.components.media_player import MediaPlayerEntity, MediaPlayerEntityFeature, MediaPlayerState
+    from custom_components.djconnect import hybrid_service
+    from uuid import UUID
+
+    received = []
+    fetched = asyncio.Event()
+    class OwnedSpeaker(MediaPlayerEntity):
+        _attr_name = 'Own bounded test speaker'
+        _attr_unique_id = 'djc-settings-owned-speaker'
+        _attr_supported_features = MediaPlayerEntityFeature.PLAY_MEDIA
+        _attr_state = MediaPlayerState.IDLE
+        async def async_play_media(self, media_type, media_id, **kwargs):
+            async with client.session.get(media_id) as response:
+                data = await response.read()
+                received.append({'status': response.status, 'bytes': len(data),
+                    'checksum': hashlib.sha256(data).hexdigest(), 'url': media_id,
+                    'cache': response.headers.get('Cache-Control')})
+            fetched.set()
+    speaker = OwnedSpeaker()
+    speaker.entity_id = 'media_player.djc_settings_owned'
+    await hass.data[media_player.DATA_COMPONENT].async_add_entities([speaker])
+    hass.config_entries.async_update_entry(runtime.entry, data={**runtime.entry.data,
+        'dj_announcement_speaker_entity_id':speaker.entity_id})
+    original_internal = hass.config.internal_url
+    hass.config.internal_url = str(client.server.make_url('')).rstrip('/')
+    tls = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+    tls.load_cert_chain(output/'server.pem', output/'server-key.pem')
+    site = web.TCPSite(client.server.runner, '127.0.0.1', 18238, ssl_context=tls)
+    await site.start()
+    try:
+        chosen, _ = await choose(current, {'announcement_output':'ha_speaker'})
+        journal = hybrid_service.operations(hass)
+        created = int(time.time()*1000)
+        operation_id = str(UUID(int=(created << 80) | (7 << 76) | (2 << 62) | 901))
+        envelope = {'identity':identity, 'contract_version':1,
+            'operation_id':operation_id, 'operation_epoch':journal.journal.epoch,
+            'operation':'session/speech/play', 'payload': {'contract_version':3,
+                'processor':'ha_configured', 'intent':'manual', 'target':'ha_speaker', 'reference':reference}}
+        async def execute():
+            response = await client.session.post('https://127.0.0.1:18238/api/djconnect/v1/transport/operation',
+                json=envelope, headers=headers, ssl=False)
+            body = await response.json()
+            assert response.status == 200, (response.status, body)
+            return body
+        first = await execute()
+        await asyncio.wait_for(fetched.wait(), 3)
+        replay = await execute()
+        assert first['delivery']['ha_speaker'] == 'queued'
+        assert first['delivery']['audible'] == 'not_proven'
+        assert replay['operation_receipt']['phase'] == 'confirmed'
+        assert len(received) == 1 and received[0]['status'] == 200 and received[0]['bytes'] > 0, received
+        assert received[0]['cache'] == 'no-store'
+        assert 'audio_reference' not in first['session_speech']
+        assert received[0]['url'] not in json.dumps(first)
+        # Revocation takes effect on the actual bearer-free speaker fetch route.
+        off, _ = await choose(chosen, {'announcement_output':'text_only'})
+        async with client.session.get(received[0]['url']) as denied:
+            assert denied.status == 404
+        restored, _ = await choose(off, {'announcement_output':'client_device'})
+        return restored, {'case':'actual_HA_media_player_service_private_media_fetch_and_operation_retry',
+            'queued':True, 'actual_media_fetches':len(received), 'bytes':received[0]['bytes'],
+            'checksum':received[0]['checksum'], 'text_only_old_grant_status':404,
+            'native':'NOT_RUN', 'audible':'NOT_PROVEN', 'hardware':'NOT_RUN'}
+    finally:
+        hass.config.internal_url = original_internal
+        await site.stop()

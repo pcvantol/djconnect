@@ -8,8 +8,9 @@ from enum import StrEnum
 from ...presence_policy import DEFAULT as DEFAULT_PRESENCE, POLICIES
 
 
-SETTINGS_VERSION = 2
-FIELDS = frozenset({'persona', 'voice', 'gender', 'mood', 'presence'})
+SETTINGS_VERSION = 3
+FIELDS = frozenset({'persona', 'voice', 'gender', 'mood', 'presence', 'announcement_output'})
+ANNOUNCEMENT_OUTPUTS = frozenset({'client_device', 'both', 'ha_speaker', 'text_only'})
 PERSONAS = frozenset({'home_dj', 'radio_dj', 'club_dj', 'festival_dj'})
 MOODS = frozenset({'chill', 'groove', 'energy', 'party'})
 
@@ -67,13 +68,14 @@ class VoiceSelection:
 
 @dataclass(frozen=True)
 class DJSettings:
-    """The five orthogonal values shared by defaults and an effective Session."""
+    """The six orthogonal values shared by defaults and an effective Session."""
 
     persona: str = 'home_dj'
     voice: VoiceSelection = VoiceSelection()
     gender: GenderPreference = GenderPreference.DEFAULT
     mood: str = 'groove'
     presence: str = DEFAULT_PRESENCE
+    announcement_output: str = 'client_device'
 
     def __post_init__(self):
         if type(self.persona) is not str or self.persona not in PERSONAS:
@@ -82,6 +84,8 @@ class DJSettings:
             raise SettingsValidationError('invalid_mood')
         if type(self.presence) is not str or self.presence not in POLICIES:
             raise SettingsValidationError('invalid_presence')
+        if type(self.announcement_output) is not str or self.announcement_output not in ANNOUNCEMENT_OUTPUTS:
+            raise SettingsValidationError('invalid_announcement_output')
         if not isinstance(self.voice, VoiceSelection):
             raise SettingsValidationError('invalid_voice')
         if not isinstance(self.gender, GenderPreference):
@@ -89,7 +93,8 @@ class DJSettings:
 
     def as_dict(self):
         return {'persona': self.persona, 'voice': self.voice.as_dict(),
-                'gender': self.gender.value, 'mood': self.mood, 'presence': self.presence}
+                'gender': self.gender.value, 'mood': self.mood, 'presence': self.presence,
+                'announcement_output': self.announcement_output}
 
     def patched(self, patch):
         if type(patch) is not dict or not patch or set(patch) - FIELDS:

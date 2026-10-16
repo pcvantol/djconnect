@@ -19,7 +19,7 @@ from .transport_delivery import (
 )
 
 ACTION_OPERATIONS = frozenset(
-    {"command", "ask_dj/message", "track_insight", "session/mood", "session/presence", "session/persona"}
+    {"command", "ask_dj/message", "track_insight", "session/mood", "session/presence", "session/persona", "session/speech/play"}
 )
 HTTP_OPERATIONS = ACTION_OPERATIONS | {"session/start", "session/end"}
 READ_OPERATIONS = frozenset(
@@ -287,6 +287,9 @@ async def invoke(hass, authority, operation, payload):
         return await async_handle_owner_setting(
             hass, payload, headers=authority.headers, setting=operation.split("/")[1]
         )
+    if operation == 'session/speech/play':
+        from .speaker_delivery import async_play
+        return await async_play(hass, authority, payload)
     if operation == "session/forecast":
         from .session_forecast_transport import async_handle_forecast
 

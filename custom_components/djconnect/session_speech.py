@@ -29,12 +29,12 @@ def accepted_processing_basis(result):
 
 def capability():
     result = {"available": True, "version": 1, "path": PATH, "method": "POST",
-            "supported_prepare_versions": [1, 2],
-            "shared_profile_settings": {"version": 2, "prepare_version": 2,
+            "supported_prepare_versions": [1, 2, 3],
+            "shared_profile_settings": {"version": 3, "prepare_version": 3,
                 "path": "/api/djconnect/v1/profile/settings",
                 "scope": "profile_and_active_session", "storage_owner": "core",
                 "voice_processor": "ha_configured", "caller_voice_override": False,
-                "activated_profile_requires_version": 2},
+                "activated_profile_requires_version": 3},
             "authentication": "paired_device_bearer", "owner_only": True,
             "supported_reference_kinds": ["turn_id", "moment_id", "entry_id"],
             "source_kinds": ["accepted_ask_dj", "published_dj_moment", "retained_dj_contribution"],
@@ -69,6 +69,12 @@ def capability():
               'voice_preference_context': {'scope': 'profile_and_active_session',
                   'storage_owner': 'core', 'runtime_mutable': True,
                   'session_end': 'retain_profile_defaults'}},
+        '3': {'processors': ['ha_configured'], 'settings_contract_version': 3,
+              'settings_path': '/api/djconnect/v1/profile/settings',
+              'caller_voice_override': False, 'intent': ['manual', 'automatic'],
+              'targets': {'local': True, 'ha_speaker': False, 'both': False},
+              'speaker_delivery': 'qualification_pending',
+              'text_only_all_speech_forbidden': True},
     }
     return result
 
@@ -113,13 +119,16 @@ def projection(record, *, autoplay=False):
 
 
 def remember(state, turn, result, *, turn_id, session_id, persona_revision,
-             scope_revision, grant_revision, profile_source, playback_item_id="", deduplicated=False, autoplay_eligible=False):
+             scope_revision, grant_revision, profile_source, playback_item_id="", deduplicated=False,
+             autoplay_eligible=False, announcement_output='client_device'):
     """Attach an immutable reference only after the common semantic commit.
 
     Exactly eight bounded replies per already bounded frame, original five-minute
     deadlines. Deleting a frame deletes its references. A saved/deduplicated turn
     never opens a new grant or renews the first one.
     """
+    if announcement_output == 'text_only':
+        return unavailable({'turn_id': turn_id}, 'announcement_text_only')
     frame = turn.frame
     now = state.clock()
     for key, item in list(frame.speech_references.items()):
@@ -305,6 +314,9 @@ def _contribution_descriptor(reference, *, text, locale, persona, persona_revisi
 def moment_projection(broadcast, moment, *, autoplay=False, admission=None):
     """Pure owner speech admission over already published immutable content."""
     reference = {"session_id": broadcast.state.session_id, "moment_id": moment.moment_id}
+    output = getattr(broadcast, 'owner_speech_output', None)
+    if callable(output) and output() == 'text_only':
+        return unavailable(reference, 'announcement_text_only')
     if admission is None:
         admission = next((a for a in broadcast.native_delivery()["admissions"]
                           if a["moment_id"] == moment.moment_id), None)
@@ -407,7 +419,7 @@ async def resolve_retained(hass, history, profile_id, reference):
     return descriptor, guard
 
 
-async def async_handle_prepare(hass, data, *, headers=None):
+async def async_handle_prepare(hass, data, *, headers=None, _speaker_operation=False):
     from .api_handlers import _session_profile_context, _conversation_profile_fence
     from .ask_dj.dialogue import source_scope
     from .http import _history_manager
@@ -417,8 +429,12 @@ async def async_handle_prepare(hass, data, *, headers=None):
     from .transport_delivery import register_delivery_admission
     from .session_history_projection import HistoryQueryError
 
-    shared_settings = type(data) is dict and type(data.get('contract_version')) is int and data['contract_version'] == 2
+    version = data.get('contract_version') if type(data) is dict else None
+    target_aware = type(version) is int and version == 3
+    shared_settings = type(version) is int and version in (2, 3)
     fields = {"contract_version", "device_id", "client_type", "reference", "processor"}
+    if target_aware:
+        fields.update({'intent', 'target'})
     if not shared_settings:
         fields.add('voice_preference')
     if (not isinstance(data, dict) or not fields <= set(data) or set(data) - fields - {"voice_id"}
@@ -426,7 +442,9 @@ async def async_handle_prepare(hass, data, *, headers=None):
         or ("voice_id" in data and (data.get("processor") != "ha_configured"
             or not isinstance(data["voice_id"], str) or not 0 < len(data["voice_id"]) <= 128
             or data["voice_id"] != data["voice_id"].strip() or not data["voice_id"].isprintable()))
-        or type(data["contract_version"]) is not int or data["contract_version"] not in (1, 2)
+        or type(data["contract_version"]) is not int or data["contract_version"] not in (1, 2, 3)
+        or (target_aware and (data['intent'] not in ('manual', 'automatic')
+                             or data['target'] not in ('local', 'ha_speaker', 'both')))
         or data["processor"] not in ("local_on_device", "ha_configured")
         or (not shared_settings and data["voice_preference"] not in ("default", "male", "female"))
         or not isinstance(data["reference"], dict)
@@ -454,12 +472,29 @@ async def async_handle_prepare(hass, data, *, headers=None):
         if shared_settings or manager._settings_repository is not None:
             snapshot = await manager.async_read_dj_settings(owner_profile_id=context.profile_id,
                 authorize=lambda: _speech_settings_authority(hass, runtime, identity, headers, context))
-            if not shared_settings and (snapshot['activated'] or (
-                    snapshot['session'] is not None and manager.current_active(context.profile_id).settings_contract_version == 2)):
+            settings_token = manager.dj_settings_fence_token(context.profile_id)
+            if not target_aware and (snapshot['activated'] or (
+                    snapshot['session'] is not None and manager.current_active(context.profile_id).settings_contract_version >= 2)):
                 return {'success': False, 'error': 'settings_contract_upgrade_required',
-                        'settings_contract_version': 2}, 426
+                        'settings_contract_version': 3}, 426
             if shared_settings:
                 selected = DJSettings.from_dict(snapshot['session']['settings'] if snapshot['session'] else snapshot['defaults'])
+                if selected.announcement_output == 'text_only':
+                    return {'success': True, 'session_speech': unavailable(data['reference'], 'announcement_text_only')}, 200
+                if target_aware:
+                    allowed = ({'client_device': {'local'}, 'both': {'local', 'ha_speaker', 'both'},
+                                'ha_speaker': {'ha_speaker'}} if data['intent'] == 'automatic' else
+                               {'client_device': {'local'}, 'both': {'local', 'ha_speaker', 'both'},
+                                'ha_speaker': {'local', 'ha_speaker', 'both'}})
+                    if data['target'] not in allowed[selected.announcement_output]:
+                        return {'success': True, 'session_speech': unavailable(
+                            data['reference'], 'automatic_target_not_allowed' if data['intent'] == 'automatic'
+                            else 'speech_target_not_allowed')}, 200
+                    if data['target'] != 'local' and not _speaker_operation:
+                        # No private POST asset is converted to an anonymous
+                        # legacy URL. Speaker delivery needs its qualified grant.
+                        return {'success': True, 'session_speech': unavailable(
+                            data['reference'], 'speaker_delivery_not_qualified')}, 200
                 policy = VoicePolicy.from_options(voice_options(hass, runtime.config))
                 availability = policy.selection_state(selected)
                 if not availability['available']:
@@ -467,7 +502,6 @@ async def async_handle_prepare(hass, data, *, headers=None):
                 data = {**data, 'voice_preference': selected.gender.value}
                 if selected.voice.kind == 'provider_voice':
                     data['voice_id'] = selected.voice.voice_id
-                settings_token = manager.dj_settings_fence_token(context.profile_id)
         if not context.privacy_policy.allow_personal_read or not resolve_profile_privacy_policy(context.profile, {}).allow_personal_read:
             raise PermissionError("speech_not_allowed")
         history = _history_manager(hass, runtime)
@@ -481,7 +515,7 @@ async def async_handle_prepare(hass, data, *, headers=None):
                 context.profile_id, reference, profile_source=source_scope(context.profile))
         def guard():
             _conversation_profile_fence(hass, runtime, identity, headers, context)
-            if shared_settings and manager.dj_settings_fence_token(context.profile_id) != settings_token:
+            if settings_token is not None and manager.dj_settings_fence_token(context.profile_id) != settings_token:
                 raise PermissionError('speech_settings_changed')
             source_guard()
         guard.on_withdraw = source_guard.on_withdraw
@@ -491,7 +525,7 @@ async def async_handle_prepare(hass, data, *, headers=None):
         if not descriptor["manual_allowed"]:
             return {"success": True, "session_speech": descriptor}, 200
         if shared_settings:
-            descriptor = {**descriptor, 'settings_contract_version': 2,
+            descriptor = {**descriptor, 'settings_contract_version': snapshot['contract_version'],
                           'settings_revision': settings_token}
         if data["processor"] == "ha_configured":
             descriptor = await prepare_ha(hass, runtime, context.profile_id, data,
@@ -569,7 +603,7 @@ async def prepare_ha(hass, runtime, owner, data, descriptor, admission, *, expec
                descriptor["presentation_revision"], voice["engine"], voice["voice_id"], voice["locale"], id(entity),
                voice.get("provider_version"), voice.get("voice_version"),
                voice.get("configuration_revision"))
-        if descriptor.get('settings_contract_version') == 2:
+        if descriptor.get('settings_contract_version') in (2, 3):
             key += (json.dumps(descriptor['settings_revision'], separators=(',', ':')),)
         def qualified_admission():
             admission()

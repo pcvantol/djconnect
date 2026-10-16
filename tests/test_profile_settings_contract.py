@@ -1,4 +1,4 @@
-"""Version2 closed wire shape and generic provider metadata adaptation."""
+"""Version3 closed wire shape and generic provider metadata adaptation."""
 
 import copy
 import unittest
@@ -12,7 +12,7 @@ from custom_components.djconnect.profile_settings import (
 
 class SharedSettingsContractTests(unittest.TestCase):
     def identity(self):
-        return {'contract_version': 2, 'device_id': 'djconnect-ios-84B1B418D81E', 'client_type': 'ios'}
+        return {'contract_version': 3, 'device_id': 'djconnect-ios-84B1B418D81E', 'client_type': 'ios'}
 
     def policy(self):
         return VoicePolicy.from_options({'revision': 'r1', 'state': 'available',

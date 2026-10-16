@@ -41,12 +41,12 @@ class ProfileSettingsOwnerTests(unittest.IsolatedAsyncioTestCase):
 
     async def read(self, **fields):
         return await self.settings.async_handle_settings(self.hass,
-            {**self.identity, 'contract_version': 2, **fields}, headers=self.headers)
+            {**self.identity, 'contract_version': 3, **fields}, headers=self.headers)
 
     async def choose(self, before, values, *, counter=1):
         session = before['snapshot']['session']
         expected = {key: session[key] for key in ('session_id', 'generation', 'revision')} if session else None
-        return await self.settings.async_handle_settings(self.hass, {**self.identity, 'contract_version': 2,
+        return await self.settings.async_handle_settings(self.hass, {**self.identity, 'contract_version': 3,
             'binding': before['binding'], 'patch': values, 'operation_id': operation(self.now, counter),
             'expected_defaults_revision': before['snapshot']['defaults_revision'],
             'expected_session': expected}, headers=self.headers, write=True)
@@ -105,14 +105,14 @@ class ProfileSettingsOwnerTests(unittest.IsolatedAsyncioTestCase):
     async def test_http_views_use_same_owner_and_preserve_no_store_and_receipt_readback(self):
         http = self.fixture.http
         request = SimpleNamespace(app={'hass': self.hass}, headers=self.headers,
-                                  query={**self.identity, 'contract_version': '2'})
+                                  query={**self.identity, 'contract_version': '3'})
         response = await http.DJConnectProfileSettingsView(self.hass).get(request)
         self.assertEqual(response.status, 200)
         self.assertEqual(response.headers['Cache-Control'], 'no-store')
         before = json.loads(response.text)
         accepted, status = await self.choose(before, {'mood': 'energy'})
         self.assertEqual(status, 200, accepted)
-        payload = {**self.identity, 'contract_version': 2, 'binding': before['binding'],
+        payload = {**self.identity, 'contract_version': 3, 'binding': before['binding'],
                    'operation_id': operation(self.now)}
         async def body():
             return payload
@@ -289,7 +289,7 @@ class ProfileSettingsOwnerTests(unittest.IsolatedAsyncioTestCase):
                 raise PermissionError('paired_lease_revoked')
         with patch.object(self.fixture.manager, 'async_accept_dj_settings', late_conflict):
             result, status = await self.settings.async_handle_settings(self.hass,
-                {**self.identity, 'contract_version':2, 'binding':before['binding'],
+                {**self.identity, 'contract_version':3, 'binding':before['binding'],
                  'operation_id':operation(self.now,2), 'patch':{'persona':'club_dj'},
                  'expected_defaults_revision':0, 'expected_session':None},
                 headers=self.headers, write=True, validate_ingress=ingress)
@@ -311,3 +311,75 @@ class ProfileSettingsOwnerTests(unittest.IsolatedAsyncioTestCase):
         self.assertFalse(redacted['privacy']['personal_data_included'])
         self.assertNotIn('profile_dj_defaults', redacted)
         await self.fixture.service.async_initialize()
+
+    async def test_output_defaults_live_session_and_next_session_use_one_choice(self):
+        before, _ = await self.read()
+        chosen, status = await self.choose(before, {'announcement_output':'text_only'})
+        self.assertEqual(status, 200, chosen)
+        self.assertIsNone(self.fixture.manager.current_active('profile-a'))
+        active = await self.fixture.manager.async_start(owner_profile_id='profile-a')
+        self.assertEqual(active.selected_announcement_output, 'text_only')
+        before_live, _ = await self.read()
+        moments = tuple(active.broadcast.state.dj_moments)
+        chosen, status = await self.choose(before_live, {'announcement_output':'client_device'}, counter=2)
+        self.assertEqual(status, 200, chosen)
+        self.assertEqual(chosen['snapshot']['session']['settings']['announcement_output'], 'client_device')
+        self.assertEqual(chosen['snapshot']['defaults']['announcement_output'], 'client_device')
+        self.assertEqual(tuple(active.broadcast.state.dj_moments), moments)
+        for field in ('persona', 'voice', 'gender', 'mood', 'presence'):
+            self.assertEqual(chosen['snapshot']['defaults'][field], before_live['snapshot']['defaults'][field])
+
+    async def test_speaker_mode_requires_usable_ha_target_and_retains_unavailable_selection(self):
+        before, _ = await self.read()
+        rejected, status = await self.choose(before, {'announcement_output':'ha_speaker'})
+        self.assertEqual((status, rejected['error']), (409, 'announcement_speaker_unavailable'))
+        self.runtime.config['dj_announcement_speaker_entity_id'] = 'media_player.private_target'
+        state = SimpleNamespace(state='idle', attributes={'supported_features':512})
+        self.hass.states = SimpleNamespace(get=lambda name: state if name=='media_player.private_target' else None)
+        accepted, status = await self.choose(before, {'announcement_output':'ha_speaker'}, counter=2)
+        self.assertEqual(status, 200, accepted)
+        self.assertTrue(accepted['announcement_output']['speaker_available'])
+        state.state = 'unavailable'
+        retained, status = await self.read()
+        self.assertEqual(status, 200, retained)
+        self.assertEqual(retained['snapshot'], accepted['snapshot'])
+        self.assertEqual(retained['announcement_output']['selected'], 'ha_speaker')
+        self.assertFalse(retained['announcement_output']['speaker_available'])
+        self.assertNotIn('media_player.private_target', json.dumps(retained))
+        self.assertNotIn('speaker_entity_id', json.dumps(retained))
+
+    async def test_ha_only_admin_values_are_denied_by_shared_settings_allowlist(self):
+        before, _ = await self.read()
+        for count, key in enumerate(('assist_pipeline_id', 'dj_announcement_speaker_entity_id',
+                                     'firmware_channel', 'screen_brightness', 'wake_word_enabled'), 1):
+            rejected, status = await self.choose(before, {key:'forbidden'}, counter=count)
+            self.assertEqual(status, 400, rejected)
+            self.assertNotIn('snapshot', rejected)
+        after, _ = await self.read()
+        self.assertEqual(after['snapshot'], before['snapshot'])
+        self.assertEqual(after['writable_fields'],
+                         sorted(['persona','voice','gender','mood','presence','announcement_output']))
+
+    async def test_changed_speaker_after_staging_is_configuration_conflict_not_auth_failure(self):
+        self.runtime.config['dj_announcement_speaker_entity_id'] = 'media_player.private_target'
+        state = SimpleNamespace(state='idle', attributes={'supported_features':512})
+        self.hass.states = SimpleNamespace(get=lambda name: state)
+        before, _ = await self.read()
+        repo = self.fixture.manager._settings_repository
+        run = repo._async_in_transaction
+        async def change_before_commit(operation, **kwargs):
+            final = kwargs['finalize_authorize']
+            def changed():
+                state.state = 'unavailable'
+                return final()
+            return await run(operation, **{**kwargs, 'finalize_authorize':changed})
+        with patch.object(repo, '_async_in_transaction', new=change_before_commit):
+            rejected, status = await self.choose(before, {'announcement_output':'both'})
+        self.assertEqual((status, rejected['error']), (409, 'settings_configuration_changed'))
+        self.assertEqual((await self.read())[0]['snapshot'], before['snapshot'])
+
+    async def test_old_settings_contract_requires_explicit_upgrade_without_writing(self):
+        rejected, status = await self.read(contract_version=2)
+        self.assertEqual((status, rejected['error']), (426, 'settings_contract_upgrade_required'))
+        self.assertEqual(rejected['settings_contract_version'], 3)
+        self.assertFalse((await self.read())[0]['snapshot']['activated'])

@@ -348,7 +348,7 @@ class HybridActionsView(HomeAssistantView):
                             headers=authority.headers, write=True, validate_ingress=authority.validate_now)
                     elif command['type'] == 'djconnect/profile/settings/subscribe':
                         if (set(data) != {'contract_version', 'enabled'}
-                                or type(data['contract_version']) is not int or data['contract_version'] != 2
+                                or type(data['contract_version']) is not int or data['contract_version'] != 3
                                 or type(data['enabled']) is not bool):
                             raise OperationError('invalid_command', 400)
                         await authority.validate()
@@ -360,9 +360,9 @@ class HybridActionsView(HomeAssistantView):
                             def changed(event):
                                 if event.data.get('owner') == authority.owner:
                                     enqueue({'id': 0, 'connection_id': connection_id, 'type': 'event',
-                                             'event': 'profile/settings/changed', 'contract_version': 2})
+                                             'event': 'profile/settings/changed', 'contract_version': 3})
                             remove_settings_listener = self.hass.bus.async_listen(CHANGE_EVENT, changed)
-                        result, status = {'success': True, 'subscribed': data['enabled'], 'contract_version': 2}, 200
+                        result, status = {'success': True, 'subscribed': data['enabled'], 'contract_version': 3}, 200
                     else:
                         raise OperationError("unsupported_command", 400)
                     await authority.validate()

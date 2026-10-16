@@ -13,7 +13,8 @@ class ProfileDJSettingsModelTests(unittest.TestCase):
     def test_roundtrip_preserves_provider_bound_choice_and_all_five_axes(self):
         value = {'persona': 'festival_dj', 'voice': {'kind': 'provider_voice',
                  'provider_id': 'qualified-provider', 'voice_id': 'voice-7'},
-                 'gender': 'female', 'mood': 'chill', 'presence': 'music_only'}
+                 'gender': 'female', 'mood': 'chill', 'presence': 'music_only',
+                 'announcement_output': 'client_device'}
         choice = DJSettings.from_dict(value)
         self.assertEqual(choice.as_dict(), value)
         restored = DJSettings.from_dict(choice.as_dict())

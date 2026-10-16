@@ -38,10 +38,10 @@ class SharedSettingsSpeechTests(unittest.IsolatedAsyncioTestCase):
 
     async def choose(self, voice, *, counter=1, extra=None):
         before, status = await self.settings.async_handle_settings(self.hass,
-            {**self.f.identity, 'contract_version': 2}, headers=self.f.headers)
+            {**self.f.identity, 'contract_version': 3}, headers=self.f.headers)
         self.assertEqual(status, 200, before)
         result, status = await self.settings.async_handle_settings(self.hass,
-            {**self.f.identity, 'contract_version': 2, 'binding': before['binding'],
+            {**self.f.identity, 'contract_version': 3, 'binding': before['binding'],
              'operation_id': operation(self.now, counter), 'expected_defaults_revision': before['snapshot']['defaults_revision'],
              'expected_session': None,
              'patch': {'voice': {'kind': 'provider_voice', 'provider_id': 'tts.fixture_cloud', 'voice_id': voice},
@@ -53,7 +53,8 @@ class SharedSettingsSpeechTests(unittest.IsolatedAsyncioTestCase):
     async def contribution(self):
         answer, status = await self.f.request('What is an ostinato?', identifier='shared-voice-source')
         self.assertEqual(status, 200, answer)
-        return {**self.f.identity, 'contract_version': 2, 'processor': 'ha_configured',
+        return {**self.f.identity, 'contract_version': 3, 'processor': 'ha_configured',
+                'intent': 'manual', 'target': 'local',
                 'reference': answer['session_speech']['reference']}
 
     def provider(self):
@@ -70,12 +71,13 @@ class SharedSettingsSpeechTests(unittest.IsolatedAsyncioTestCase):
             result, status = await self.speech.async_handle_prepare(self.hass, payload, headers=self.f.headers)
             self.assertEqual(status, 200, result)
             self.assertEqual(result['session_speech']['effective_voice']['voice_id'], 'cedar')
-            self.assertEqual(result['session_speech']['settings_contract_version'], 2)
+            self.assertEqual(result['session_speech']['settings_contract_version'], 3)
             self.assertEqual(calls[-1][2]['voice'], 'cedar')
             self.assertEqual(pipeline.tts_voice, 'marin')
             self.assertEqual(entity.default_options['voice'], 'marin')
             old, status = await self.speech.async_handle_prepare(self.hass,
-                {**payload, 'contract_version': 1, 'voice_preference': 'default'}, headers=self.f.headers)
+                {**{k:v for k,v in payload.items() if k not in ('intent','target')},
+                 'contract_version': 1, 'voice_preference': 'default'}, headers=self.f.headers)
             self.assertEqual((status, old['error']), (426, 'settings_contract_upgrade_required'))
             self.assertEqual(len(calls), 1)
 
@@ -84,7 +86,7 @@ class SharedSettingsSpeechTests(unittest.IsolatedAsyncioTestCase):
         with stack:
             await self.choose('cedar', extra={'persona': 'festival_dj', 'mood': 'party'})
             answer, status = await self.f.request('What is an ostinato?', identifier='shared-style',
-                mood=0, dj_persona='club_dj', speech_contract_version=2, audio_response='always')
+                mood=0, dj_persona='club_dj', speech_contract_version=3, audio_response='always')
             self.assertEqual(status, 200, answer)
             style = answer['conversation']['style']
             self.assertEqual((style['persona'], style['mood'], style['mood_basis']),
@@ -141,3 +143,256 @@ class SharedSettingsSpeechTests(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(snapshot['defaults']['voice']['voice_id'], 'cedar')
             self.assertEqual(snapshot['defaults_revision'], 2)
             self.assertEqual(len(calls), 1)
+
+    async def test_text_only_preserves_voice_but_prevents_synthesis_and_replay_assets(self):
+        payload = await self.contribution()
+        stack, _, _, calls, _ = self.provider()
+        with stack:
+            await self.choose('marin')
+            first, status = await self.speech.async_handle_prepare(self.hass, payload, headers=self.f.headers)
+            self.assertEqual(status, 200, first)
+            asset = first['session_speech']['audio_reference']['asset_id']
+            chosen = await self.choose('marin', counter=2, extra={'announcement_output':'text_only'})
+            self.assertEqual(chosen['snapshot']['defaults']['voice']['voice_id'], 'marin')
+            self.assertEqual(chosen['announcement_output']['voice_applicability'], 'not_applicable_text_only')
+            denied, status = await self.speech.async_handle_prepare(self.hass, payload, headers=self.f.headers)
+            self.assertEqual(status, 200, denied)
+            self.assertEqual(denied['session_speech']['reason'], 'announcement_text_only')
+            self.assertFalse(denied['session_speech']['manual_allowed'])
+            item, status = await self.speech.async_handle_audio(self.hass,
+                {**self.f.identity, 'contract_version':1, 'asset_id':asset}, headers=self.f.headers)
+            self.assertEqual(status, 404)
+            self.assertIsNone(item)
+            self.assertEqual(len(calls), 1)
+            answer, status = await self.f.request('What is a major chord?', identifier='text-only-source',
+                speech_contract_version=3, audio_response='always')
+            self.assertEqual(status, 200, answer)
+            self.assertFalse(answer['session_speech']['manual_allowed'])
+            self.assertEqual(answer['session_speech']['reason'], 'announcement_text_only')
+            self.assertEqual(answer['audio_delivery']['state'], 'not_applicable')
+            self.assertEqual(len(calls), 1)
+
+    async def test_output_change_during_synthesis_discards_pending_audio(self):
+        payload = await self.contribution()
+        stack, entity, _, calls, _ = self.provider()
+        entered, release = asyncio.Event(), asyncio.Event()
+        synthesize = entity.async_get_tts_audio
+        async def held(*args):
+            entered.set()
+            await release.wait()
+            return await synthesize(*args)
+        entity.async_get_tts_audio = held
+        with stack:
+            await self.choose('marin')
+            pending = asyncio.create_task(self.speech.async_handle_prepare(self.hass, payload, headers=self.f.headers))
+            await asyncio.wait_for(entered.wait(), 2)
+            await self.choose('marin', counter=2, extra={'announcement_output':'text_only'})
+            release.set()
+            result, status = await asyncio.wait_for(pending, 2)
+            self.assertEqual(status, 404, result)
+            self.assertNotIn('audio_reference', result)
+            self.assertEqual(len(calls), 1)
+            self.assertEqual(len(self.f.prompts), 1)
+
+    async def test_speaker_only_manual_local_is_allowed_but_never_silent_target_fallback(self):
+        payload = await self.contribution()
+        stack, _, _, calls, _ = self.provider()
+        self.runtime.config['dj_announcement_speaker_entity_id'] = 'media_player.owned_speaker'
+        self.hass.states = SimpleNamespace(get=lambda entity_id: SimpleNamespace(
+            state='idle', attributes={'supported_features':512}) if entity_id=='media_player.owned_speaker' else None)
+        with stack:
+            await self.choose('marin', extra={'announcement_output':'ha_speaker'})
+            local, status = await self.speech.async_handle_prepare(self.hass, payload, headers=self.f.headers)
+            self.assertEqual(status, 200, local)
+            self.assertEqual(local['session_speech']['audio_state'], 'ready')
+            auto, status = await self.speech.async_handle_prepare(self.hass,
+                {**payload, 'intent':'automatic'}, headers=self.f.headers)
+            self.assertEqual(status, 200, auto)
+            self.assertEqual(auto['session_speech']['reason'], 'automatic_target_not_allowed')
+            speaker, status = await self.speech.async_handle_prepare(self.hass,
+                {**payload, 'target':'ha_speaker'}, headers=self.f.headers)
+            self.assertEqual(status, 200, speaker)
+            self.assertEqual(speaker['session_speech']['reason'], 'speaker_delivery_not_qualified')
+            self.assertEqual(len(calls), 1)
+
+    async def test_legacy_generation_gate_cannot_bypass_text_only(self):
+        from unittest.mock import AsyncMock, patch
+        from custom_components.djconnect import dj_response, speech_processor
+        stack, _, _, _, _ = self.provider()
+        with stack:
+            await self.choose('marin', extra={'announcement_output':'text_only'})
+            with patch.object(dj_response, 'create_tts_audio', new=AsyncMock()) as legacy, \
+                    patch.object(speech_processor, 'synthesize', new=AsyncMock()) as shared:
+                result = await dj_response.async_create_dj_audio_url(self.hass, self.runtime, 'An old device reply')
+            self.assertIsNone(result)
+            legacy.assert_not_awaited()
+            shared.assert_not_awaited()
+
+    async def test_legacy_device_url_uses_exact_shared_voice_and_later_revokes(self):
+        from unittest.mock import AsyncMock, patch
+        from custom_components.djconnect import dj_response
+        stack, _, _, calls, _ = self.provider()
+        with stack:
+            await self.choose('cedar')
+            with patch.object(dj_response, '_async_ha_base_url', new=AsyncMock(return_value='https://ha-owned.invalid')):
+                url = await dj_response.async_create_dj_audio_url(self.hass, self.runtime, 'A bounded device reply')
+            self.assertIsNotNone(url)
+            self.assertEqual(calls[-1][2]['voice'], 'cedar')
+            token = url.rsplit('/', 1)[-1].split('.')[0]
+            self.assertEqual(dj_response.get_tts_audio(self.hass, token)[0], 200)
+            await self.choose('cedar', counter=2, extra={'announcement_output':'text_only'})
+            self.assertEqual(dj_response.get_tts_audio(self.hass, token), (404, None))
+            self.assertEqual(len(calls), 1)
+
+    async def test_roaming_output_overrides_legacy_payload_and_removes_stale_response_audio(self):
+        from unittest.mock import AsyncMock
+        from custom_components.djconnect.announcements import async_apply_announcement_output
+        stack, _, _, _, _ = self.provider()
+        retained = {'role':'assistant', 'text':'Unchanged accepted text', 'audio_url':'https://old.invalid/audio.mp3'}
+        with stack:
+            await self.choose('marin', extra={'announcement_output':'text_only'})
+            response = {'text':'Unchanged accepted text', 'audio_url':'https://old.invalid/audio.mp3',
+                        'assistant_message':retained, 'messages':[retained]}
+            factory = AsyncMock(return_value='https://must-not-be-used.invalid/audio.mp3')
+            result = await async_apply_announcement_output(self.hass, self.runtime, response,
+                payload={'dj_announcement_output':'both'}, generate_audio=True, audio_url_factory=factory)
+            factory.assert_not_awaited()
+            self.assertEqual(result['announcement']['output'], 'text_only')
+            self.assertNotIn('audio_url', result)
+            self.assertNotIn('audio_url', result['assistant_message'])
+            self.assertNotIn('audio_url', result['messages'][0])
+            self.assertEqual(result['messages'][0]['text'], retained['text'])
+            self.assertIn('audio_url', retained)  # A read projection never rewrites history.
+
+    async def test_unscoped_pre_upgrade_asset_cannot_bypass_connected_profile_policy(self):
+        from custom_components.djconnect import dj_response
+        token = dj_response.store_tts_audio(self.hass, b'legacy-fixture', content_type='audio/mpeg', extension='mp3')
+        self.assertEqual(dj_response.get_tts_audio(self.hass, token), (404, None))
+
+    async def test_legacy_audio_withdraws_on_loaded_entry_token_and_generation_changes(self):
+        from unittest.mock import AsyncMock, patch
+        from custom_components.djconnect import dj_response
+        stack, _, _, _, _ = self.provider()
+        with stack:
+            await self.choose('cedar')
+            for change in ('unload', 'remove', 'token', 'generation'):
+                with self.subTest(change=change):
+                    with patch.object(dj_response, '_async_ha_base_url', new=AsyncMock(return_value='https://ha-owned.invalid')):
+                        url = await dj_response.async_create_dj_audio_url(self.hass, self.runtime, 'An accepted device reply')
+                    token = url.rsplit('/', 1)[-1].split('.')[0]
+                    self.assertEqual(dj_response.get_tts_audio(self.hass, token)[0], 200)
+                    old_data = dict(self.entry.data)
+                    if change == 'unload':
+                        self.entry.state = 'not_loaded'
+                    elif change == 'remove':
+                        self.hass.data['djconnect'].pop(self.entry.entry_id)
+                    elif change == 'token':
+                        self.entry.data['device_token'] = 'synthetic-rotated'
+                        self.runtime.device_token = 'synthetic-rotated'
+                    else:
+                        self.runtime._receiver_end_generation = 1
+                    self.assertEqual(dj_response.get_tts_audio(self.hass, token), (404, None))
+                    self.entry.state = 'loaded'
+                    self.hass.data['djconnect'][self.entry.entry_id] = self.runtime
+                    self.entry.data = old_data
+                    self.runtime.device_token = old_data['device_token']
+                    self.runtime._receiver_end_generation = 0
+
+    async def test_pending_legacy_synthesis_drops_bytes_after_entry_unload(self):
+        from unittest.mock import AsyncMock, patch
+        from custom_components.djconnect import dj_response
+        stack, entity, _, calls, _ = self.provider()
+        original = entity.async_get_tts_audio
+        async def unloaded(*args):
+            result = await original(*args)
+            self.entry.state = 'not_loaded'
+            return result
+        entity.async_get_tts_audio = unloaded
+        with stack:
+            await self.choose('cedar')
+            with patch.object(dj_response, '_async_ha_base_url', new=AsyncMock(return_value='https://ha-owned.invalid')):
+                self.assertIsNone(await dj_response.async_create_dj_audio_url(self.hass, self.runtime, 'Bounded reply'))
+            self.assertEqual(len(calls), 1)
+            self.assertFalse(self.hass.data['djconnect'].get('tts_audio'))
+
+    async def test_target_change_during_generation_never_dispatches_old_or_new_speaker(self):
+        from unittest.mock import AsyncMock, patch
+        from custom_components.djconnect import announcements
+        stack, _, _, _, _ = self.provider()
+        with stack, patch.object(announcements, 'validate_announcement_speaker', return_value=None):
+            self.runtime.config['dj_announcement_speaker_entity_id'] = 'media_player.original'
+            await self.choose('cedar', extra={'announcement_output':'both'})
+            async def changing(*args):
+                self.runtime.config['dj_announcement_speaker_entity_id'] = 'media_player.replacement'
+                return 'https://ha-owned.invalid/audio.mp3'
+            dispatch = AsyncMock()
+            self.hass.services = SimpleNamespace(async_call=dispatch)
+            result = await announcements.async_apply_announcement_output(self.hass, self.runtime,
+                {'text':'Bounded announcement'}, payload={}, generate_audio=True, audio_url_factory=changing)
+            dispatch.assert_not_awaited()
+            self.assertNotIn('audio_url', result)
+            self.assertIn('announcement_settings_changed', result['announcement']['warnings'])
+
+    async def test_speaker_replay_uses_existing_operation_owner_and_revocable_bounded_media_grant(self):
+        from unittest.mock import AsyncMock, patch
+        from custom_components.djconnect import dj_response, hybrid_service, speaker_delivery
+        from tests.test_transport_operation_journal import Store, identifier
+        stack, _, _, calls, _ = self.provider()
+        self.runtime.config['dj_announcement_speaker_entity_id'] = 'media_player.owned_speaker'
+        self.hass.states = SimpleNamespace(get=lambda _: SimpleNamespace(state='idle', attributes={'supported_features':512}))
+        with stack:
+            await self.choose('marin', extra={'announcement_output':'ha_speaker'})
+            session, moment, _ = await self.f.selected_credit()
+            authority = await hybrid_service.PairedAuthority.resolve(self.hass, self.f.identity, self.f.headers)
+            store = Store()
+            operations = hybrid_service.HybridOperations(self.hass, store)
+            request = {'contract_version':1, 'operation_id':identifier(self.now),
+                'operation_epoch':operations.journal.epoch, 'operation':'session/speech/play',
+                'payload': {'contract_version':3, 'processor':'ha_configured', 'intent':'manual',
+                            'target':'ha_speaker', 'reference': {'session_id':session.session_id, 'moment_id':moment.moment_id}}}
+            sent = []
+            async def deliver(*args, **kwargs):
+                sent.append(args[2]['media_content_id'])
+            self.hass.services = SimpleNamespace(async_call=deliver)
+            try:
+                with patch.object(speaker_delivery, '_async_ha_base_url', new=AsyncMock(return_value='https://ha-owned.invalid')):
+                    first, status = await operations.execute(authority, request, transport='http')
+                    repeated, repeated_status = await operations.execute(authority, request, transport='websocket')
+                self.assertEqual((status, repeated_status), (200, 200), first)
+                self.assertEqual(first['delivery']['ha_speaker'], 'queued')
+                self.assertNotIn('audio_reference', first['session_speech'])
+                self.assertEqual(repeated['operation_receipt']['phase'], 'confirmed')
+                self.assertEqual((len(sent), len(calls)), (1, 1))
+                asset, grant = sent[0].rsplit('/', 2)[-2:]
+                self.assertEqual(dj_response.get_tts_audio(self.hass, asset), (404, None))
+                self.assertIsNone(dj_response.get_speaker_media(self.hass, asset, 'wrong'))
+                for _ in range(4):
+                    self.assertIsNotNone(dj_response.get_speaker_media(self.hass, asset, grant))
+                self.assertIsNone(dj_response.get_speaker_media(self.hass, asset, grant))
+                self.assertNotIn(grant, str(store.data))
+                item = dj_response.get_private_tts_audio(self.hass, asset, 'profile-a')
+                fresh = dj_response.grant_speaker_media(self.hass, asset, 'profile-a', item.admission)
+                await self.f.fixture.manager.async_end(owner_profile_id='profile-a', session_id=session.session_id)
+                self.assertIsNone(dj_response.get_speaker_media(self.hass, asset, fresh))
+            finally:
+                await operations.close()
+
+    async def test_speaker_media_deadline_survives_wall_clock_rollback(self):
+        from unittest.mock import patch
+        import time
+        from custom_components.djconnect import dj_response
+        payload = await self.contribution()
+        stack, _, _, _, _ = self.provider()
+        with stack:
+            await self.choose('marin')
+            prepared, status = await self.speech.async_handle_prepare(self.hass, payload, headers=self.f.headers)
+            self.assertEqual(status, 200, prepared)
+            asset = prepared['session_speech']['audio_reference']['asset_id']
+            item = dj_response.get_private_tts_audio(self.hass, asset, 'profile-a')
+            grant = dj_response.grant_speaker_media(self.hass, asset, 'profile-a', item.admission)
+            deadline = item.speaker_grants[grant]['deadline']
+            wall = time.time()
+            with patch.object(dj_response.time, 'time', return_value=wall-60), \
+                    patch.object(dj_response.time, 'monotonic', return_value=deadline+1):
+                self.assertIs(dj_response.get_private_tts_audio(self.hass, asset, 'profile-a'), item)
+                self.assertIsNone(dj_response.get_speaker_media(self.hass, asset, grant))

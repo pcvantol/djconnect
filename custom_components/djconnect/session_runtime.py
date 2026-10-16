@@ -37,7 +37,7 @@ from .persistence.sessions import (
     PersistentSessionRepository,
 )
 from .persistence.history import HistoricalProjectionRepository
-from .domain.profile.dj_settings import DJSettings, GenderPreference, VoiceSelection
+from .domain.profile.dj_settings import DJSettings, GenderPreference, VoiceSelection, SETTINGS_VERSION
 from .persistence.dj_settings import SessionSettingsContext, SettingsCommitError
 from .persistence.dj_settings import ProfileDJSettingsRepository
 from .presentation_composer import (
@@ -3532,6 +3532,7 @@ class DJSessionBroadcastEngine:
     media_cleanup: Any = field(default=None, repr=False)
     speech_cleanup: Any = field(default=None, repr=False)
     speech_refresh: Any = field(default=None, repr=False)
+    owner_speech_output: Any = field(default=None, repr=False)
     passive_grants: dict = field(default_factory=dict, repr=False)
     passive_observation: Any = field(default=None, repr=False)
     passive_state_observed: tuple = field(default_factory=lambda: (time.monotonic(), time.time()), repr=False)
@@ -4190,12 +4191,13 @@ class DJSessionRuntime:
     defaults_revision: int = 0
     selected_voice: VoiceSelection = field(default_factory=VoiceSelection)
     selected_gender: GenderPreference = GenderPreference.DEFAULT
+    selected_announcement_output: str = 'client_device'
 
     def effective_dj_settings(self) -> DJSettings:
         """Typed effective choices; an unknown legacy Mood is not invented."""
         return DJSettings(persona=self.dj_persona.value, voice=self.selected_voice,
                           gender=self.selected_gender, mood=self.selected_mood,
-                          presence=self.selected_presence)
+                          presence=self.selected_presence, announcement_output=self.selected_announcement_output)
 
     def as_dict(self) -> dict[str, Any]:
         """Return the public, transport-neutral runtime representation."""
@@ -4399,7 +4401,7 @@ class SessionRuntimeManager:
                 owner_profile_id, operation_id=operation_id, binding=binding,
                 patch=patch, expected_defaults_revision=expected_defaults_revision,
                 now_ms=now_ms, session=context, authorize=authorize,
-                validate_choices=validate_voice if {'voice', 'gender'} & patch.keys() else None,
+                validate_choices=validate_voice if {'voice', 'gender', 'announcement_output'} & patch.keys() else None,
                 require_full_selection=(require_full_selection or (
                     migration_requires_review is not None and migration_requires_review())),
                 initial_selection_guard=(None if migration_requires_review is None
@@ -4420,8 +4422,9 @@ class SessionRuntimeManager:
                 'selected_mood': choices.mood, 'dj_persona': DJPersona(choices.persona),
                 'selected_presence': choices.presence, 'selected_voice': choices.voice,
                 'selected_gender': choices.gender,
+                'selected_announcement_output': choices.announcement_output,
                 'settings_revision': accepted['revision'],
-                'settings_contract_version': 2,
+                'settings_contract_version': SETTINGS_VERSION,
                 'defaults_revision': result['snapshot']['defaults_revision'],
                 'mood_revision': active.mood_revision + changed_mood,
                 'persona_revision': active.persona_revision + changed_persona,
@@ -4520,10 +4523,11 @@ class SessionRuntimeManager:
                 room=room,
                 selected_mood=selected_mood,
                 dj_persona=dj_persona,
-                settings_contract_version=2 if inherited is not None else 1,
+                settings_contract_version=SETTINGS_VERSION if inherited is not None else 1,
                 defaults_revision=defaults_revision,
                 selected_voice=inherited.voice if inherited else VoiceSelection(),
                 selected_gender=inherited.gender if inherited else GenderPreference.DEFAULT,
+                selected_announcement_output=inherited.announcement_output if inherited else 'client_device',
                 selected_presence=inherited.presence if inherited else DEFAULT_PRESENCE,
                 locale=_locale_family(locale),
                 music_backend=music_backend,
@@ -4579,6 +4583,11 @@ class SessionRuntimeManager:
                     raise
             active.presence_ledger.clock = elapsed_time_source or self._monotonic_source
             self._active_by_profile[owner_profile_id] = active
+            def owner_speech_output():
+                current = self._active_by_profile.get(owner_profile_id)
+                return (current.selected_announcement_output
+                        if current is not None and current.session_id == session_id else 'text_only')
+            active.broadcast.owner_speech_output = owner_speech_output
             self._history_source_contexts[session_id] = {
                 key: str((history_source_context or {}).get(key) or "")
                 for key in ("backend_id", "music_account_id", "provider_entry_id", "provider_account_id")
@@ -5716,7 +5725,7 @@ class SessionRuntimeManager:
             active = self._active_by_profile.get(owner_profile_id)
             if active is None or active.session_id != session_id:
                 return None
-            if legacy_user_choice and active.settings_contract_version == 2:
+            if legacy_user_choice and active.settings_contract_version >= 2:
                 raise SettingsCommitError('settings_contract_upgrade_required')
             if expected_revision is not None and expected_revision != active.presence_revision:
                 raise PresenceRevisionConflictError(active)
@@ -5749,14 +5758,14 @@ class SessionRuntimeManager:
             active = self._active_by_profile.get(owner_profile_id)
             if active is None or active.session_id != session_id:
                 return None
-            if legacy_user_choice and active.settings_contract_version == 2:
+            if legacy_user_choice and active.settings_contract_version >= 2:
                 raise SettingsCommitError('settings_contract_upgrade_required')
             if expected_revision is not None and expected_revision != active.mood_revision:
                 raise MoodRevisionConflictError(active)
             if selected_mood == active.selected_mood:
                 return active
             settings_revision = active.settings_revision
-            if self._settings_repository is not None and active.settings_contract_version == 2:
+            if self._settings_repository is not None and active.settings_contract_version >= 2:
                 settings_revision = await self._settings_repository.async_accept_runtime_mood(
                     owner_profile_id,
                     session=SessionSettingsContext(active.session_id, active.settings_generation,
@@ -5793,7 +5802,7 @@ class SessionRuntimeManager:
             active = self._active_by_profile.get(owner_profile_id)
             if active is None or active.session_id != session_id:
                 return None
-            if legacy_user_choice and active.settings_contract_version == 2:
+            if legacy_user_choice and active.settings_contract_version >= 2:
                 raise SettingsCommitError('settings_contract_upgrade_required')
             if expected_revision is not None and expected_revision != active.persona_revision:
                 raise PersonaRevisionConflictError(active)
