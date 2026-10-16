@@ -333,12 +333,17 @@ class SummaryTest(unittest.IsolatedAsyncioTestCase):
         connection = sqlite3.connect(self.path)
         connection.execute("DROP TABLE djconnect_session_acceptances")
         connection.execute("DROP TABLE djconnect_session_summaries")
-        connection.execute("DELETE FROM djconnect_schema_migrations WHERE schema_version=6")
+        # Reconstruct an actual v5 store, not v5 metadata over newer tables.
+        for table in ('djconnect_profile_dj_settings', 'djconnect_session_dj_settings',
+                      'djconnect_settings_operations', 'djconnect_settings_clock'):
+            connection.execute(f'DROP TABLE {table}')
+        connection.execute("DELETE FROM djconnect_schema_migrations WHERE schema_version>=6")
         connection.execute("UPDATE djconnect_schema_metadata SET schema_version=5")
         connection.commit()
         connection.close()
         await self.service.async_initialize()
-        self.assertEqual(self.service.readiness.schema_version, 6)
+        from custom_components.djconnect.persistence.schema import CURRENT_SCHEMA_VERSION
+        self.assertEqual(self.service.readiness.schema_version, CURRENT_SCHEMA_VERSION)
         old = await self.record()
         for metric in ("tracks_observed", "moments_published", "mood"):
             self.assertIsNone(old["summary"][metric]["value"])
