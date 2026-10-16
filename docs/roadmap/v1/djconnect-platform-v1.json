@@ -41291,11 +41291,11 @@
     "document_references": [
       {
         "path": "PRODUCT_ROADMAP.md",
-        "sha256": "0d0fe20b73aefb229b4aa7861867c05fcd8cdb03fc32c3d9961e2ec3765244e7"
+        "sha256": "0578ce285147b2c6cccbbfe4b8309372a47bf9f5e3fffbf38c57c4e9f81a5a67"
       },
       {
         "path": "PRODUCT_BACKLOG.md",
-        "sha256": "d7e0522980d3a394ec2e4da5c735d1f83799bc4a7e2a24c72bf8b358f42e3fe0"
+        "sha256": "2e3e1d629d64ec2ecbca1ab108b0a0f891fed2d6265e986e07f918704ed8bfc7"
       },
       {
         "path": "docs/product/DJ_PRESENCE_V1.md",
@@ -41564,6 +41564,14 @@
       {
         "path": "docs/verification/GENERIC_HA_TTS_SOURCE_20261016.md",
         "sha256": "9b54d922da5945e771bdd16be922b7c2f0b04715368e0ece75616facec1f97e7"
+      },
+      {
+        "path": "docs/verification/GENERIC_HA_TTS_SOURCE_READBACK_20261016.md",
+        "sha256": "ab9c27e02320f17f063e75b6bf318d9b20eba72141e0f002c48506923c8f7059"
+      },
+      {
+        "path": "docs/history/prompts/2026-10-16-generic-ha-tts-finalization.md",
+        "sha256": "487548baa5d99882bbec786dc36e79157635ba7c9e5753a913624016cf44fcb4"
       }
     ],
     "implementation_receipt": {

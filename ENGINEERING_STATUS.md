@@ -1,5 +1,45 @@
 # DJConnect Engineering Status
 
+## Current: Generic HA TTS — separate Finalization
+
+#### Repository Status
+
+Source PR [#1187](https://github.com/pcvantol/djconnect/pull/1187) protected merged as `6ececb1b5327c5f3456dbb7d466b8763951cb61c`, exact independently reviewed and owner-authorized `082f7d7a13ecca397ecce53c2a5dac2c5e7a6dc7` on base8757ecd38a5fe31254a36aba5e0cbe5852edfa7e. 32sourcechecksPASS/5conditional skips, including actual TDE observe success. Exact Owner Authorization38879576073 SUCCESS; no bypass. Candidate/main complete trees are identical. Official mainCI38879834913 and formal38880247961 SUCCESS; 170 integration files byte-equal Git with0mismatches. [Exact source readback](docs/verification/GENERIC_HA_TTS_SOURCE_READBACK_20261016.md). Prior Speech1177/1186 and transport1184/1185 remain closed.
+
+#### Management Summary
+
+Generic HA Session speech uses the chosen Assist pipeline/provider and actual language/voice inventory. Optional explicit voice choice is bounded and per-request; Apple owns preferences scoped to installation/Profile/Session/device and the active Voice menu. Gender remains unavailable without qualified metadata; no name/pitch inference. Safe five-language runtime failure notices preserve text and permit only reference-bound speech retry. Shared live Persona uses its existing CAS/readback/Broadcast route, separate from voice/Mood/Presence. Existing source-processing rights, expiry, cache, joined-waiter and owner fences remain. No pipeline/default write, direct provider API, provider fallback or original Ask DJ/playback replay.
+
+#### Roadmap Position
+
+Bounded corrective delivery reuses existing SPEECH::CORE::DELIVERY. No new family or change to immutable delivered node/status receipts. Canonical JSON document references and generated views record actual correction evidence; all historical snapshots, WEB nodes/edges/receipts and selected SURFACE::CORE::PROJECTION remain intact. Core source qualification is separate from native menu/adoption, installed, audible/hardware and joint acceptance.
+
+#### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+1. **DJC-CORE-PASSIVE-SESSION-PROJECTION-V1-20261015 — selected queued successor.** Owner6199213014; reuse existing stash/pickup only after valid current Finalization/cleanup and fresh sole-writer admission. Not admitted or implemented here.
+2. **DJC-VIBECAST-TV-BOOTSTRAP-CLOUDFLARE-V1-20261015 — separate receiver writer.** Own admission and producer/consumer contract gates; no Core takeover.
+3. **Unfilled slot3 — no further eligible authorized selection.**
+4. **Unfilled slot4 — no further eligible authorized selection.**
+5. **Unfilled slot5 — no further eligible authorized selection.**
+
+#### Blocked Items
+
+This separate documentary Finalization requires its own exact reviews, publication authorization, checks/protected merge and exact-main/artifact readback. Source082 approval is not reused. Own five source git-cherry '+' commits after squash require an exact bounded cleanup exception despite full candidate/mergetree and aggregate-delta equality. No installation before valid Finalization/qualified finalmain. Native adoption/audible acceptance is Apple-owned/open; source-masked direct local ingress remains separately unqualified.
+
+#### Deferred Items
+
+No next production slice, Swift/receiver writes, provider installation, workflow/runner/service/network/Pages/signing/hardware changes. Roaming Profile settings6209817556 remain product assessment/direction, not a selected implementation. Preserve Apple WIP, VibeCast worktree, passive stash, HA-labs and recovery. The stopped Core heartbeat stays paused.
+
+#### Repository State
+
+Repository State: `MERGED_RECONCILED` is intended only after this separate Finalization is actually protected merged and its exact main/artifacts are verified. Until then source1187 remains MERGED_UNRECONCILED. This candidate invents no future merge SHA or Finalization delivery. [Immutable record](docs/history/prompts/2026-10-16-generic-ha-tts-finalization.md) preserves source evidence and remaining gates.
+
+#### Workspace State
+
+Workspace State: `NOT_READY` until actual synchronization, qualified Finalization and safe disposition of only our two refs. Source082 has five git-cherry '+' after squash, preserved with verified complete-history bundle; normal cleanup is blocked until the precise exception is granted and all safety proofs pass. All unrelated WIP/resources remain. Installed HA-dev/prod still8757, unchanged; standing qualified-finalmain installation instruction applies after full delivery with backup/rollback/exact-files/runtime/pairing/Profile readback. No native/hardware PASS.
+
+## Historical operational context
+
 ## Current: Generic configured HA TTS correction
 
 #### Repository Status
