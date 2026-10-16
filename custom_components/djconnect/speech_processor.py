@@ -55,14 +55,15 @@ def preference_context():
             "runtime_mutable": True, "session_end": "discard"}
 
 
-def voice_inventory(entity, language):
+def voice_inventory(entity, language, *, configured_voice=None):
     """Only supported HA Voice metadata; bounded, no inferred gender."""
     from itertools import islice
     callback = getattr(entity, "async_get_supported_voices", None)
     voices = callback(language) if callable(callback) else []
+    cloud_genders = _cloud_voice_genders(entity, language)
     result = []
     seen = set()
-    for voice in islice(voices or [], 64):
+    for voice in islice(voices or [], 512):
         identifier = getattr(voice, "voice_id", None)
         name = getattr(voice, "name", None)
         if (not isinstance(identifier, str) or not 0 < len(identifier) <= 128
@@ -71,8 +72,56 @@ def voice_inventory(entity, language):
                 or not name.isprintable()):
             continue
         seen.add(identifier)
-        result.append({"voice_id": identifier, "name": name[:120], "gender": None})
+        explicit = getattr(voice, "gender", None)
+        explicit = getattr(explicit, "value", explicit)
+        gender = explicit if explicit in ("female", "male") else None
+        if cloud_genders is not None:
+            # Only exact provider metadata; never derive gender from a name.
+            mapped = cloud_genders.get(identifier)
+            gender = mapped if gender is None or gender == mapped else None
+        result.append({"voice_id": identifier, "name": name[:120], "gender": gender})
+    # Some Cloud languages contain more than64 voices. Keep qualified gender
+    # targets and the configured voice visible without making caller IDs a way
+    # to bypass the advertised selection bound. Even iteration stays bounded.
+    priority = {configured_voice, *(cloud_genders or {})}
+    result.sort(key=lambda v: v["voice_id"] not in priority)
+    return result[:64]
+
+
+def _cloud_voice_genders(entity, language):
+    """Installed Cloud metadata, intersected by the caller with live inventory.
+
+    None means another provider or unavailable metadata. Do not copy catalogues
+    or invoke the deprecated Cloud gender request option (which creates Repairs).
+    """
+    if type(entity).__module__ != "homeassistant.components.cloud.tts":
+        return None
+    try:
+        from homeassistant.components.cloud.tts import CloudTTSEntity, CloudProvider
+        from hass_nabucasa.voice import MAP_VOICE
+    except ImportError:
+        return None
+    if type(entity) not in (CloudTTSEntity, CloudProvider) or not isinstance(MAP_VOICE, dict):
+        return None
+    result = {}
+    for key, identifier in MAP_VOICE.items():
+        if not isinstance(key, tuple) or len(key) != 2:
+            continue
+        locale, gender = key
+        value = getattr(gender, "value", gender)
+        if locale == language and value in ("female", "male") and isinstance(identifier, str):
+            result[identifier] = value
     return result
+
+
+def _gender_targets(inventory, configured_voice):
+    """Stable, advertised targets; prefer the already configured matching voice."""
+    targets = {}
+    for gender in ("female", "male"):
+        identifiers = sorted(v["voice_id"] for v in inventory if v["gender"] == gender)
+        if identifiers:
+            targets[gender] = configured_voice if configured_voice in identifiers else identifiers[0]
+    return targets
 
 
 def configured_processor(hass, conf, locale, preference, *, selected_voice=None):
@@ -106,22 +155,29 @@ def configured_processor(hass, conf, locale, preference, *, selected_voice=None)
     if (language.replace("_", "-").split("-", 1)[0] != locale
             or language not in entity.supported_languages):
         raise ProcessorUnavailable("no_matching_locale")
-    voices = entity.async_get_supported_voices(language) or []
     defaults = entity.default_options or {}
     if not voice_id:
         voice_id = str(defaults.get("voice") or "")
+    voices = voice_inventory(entity, language, configured_voice=voice_id)
     if selected_voice is not None:
-        if not any(v["voice_id"] == selected_voice for v in voice_inventory(entity, language)):
+        if not any(v["voice_id"] == selected_voice for v in voices):
             raise ProcessorUnavailable("no_matching_voice")
         voice_id = selected_voice
-    actual = next((v for v in voices if v.voice_id == voice_id), None)
+    if preference != "default":
+        targets = _gender_targets(voices, voice_id)
+        if preference not in targets:
+            raise ProcessorUnavailable("voice_gender_unavailable")
+        if selected_voice is not None:
+            if not any(v["voice_id"] == selected_voice and v["gender"] == preference for v in voices):
+                raise ProcessorUnavailable("no_matching_voice")
+        else:
+            voice_id = targets[preference]
+    actual = next((v for v in voices if v["voice_id"] == voice_id), None)
     if voice_id and actual is None and (explicit_voice or voices):
         raise ProcessorUnavailable("no_matching_voice")
     if voices and not voice_id:
         # An inventory is not permission to pick its first voice.
         raise ProcessorUnavailable("no_matching_voice")
-    if preference != "default":
-        raise ProcessorUnavailable("voice_gender_unavailable")
     local = _local_processing(entity, language, voice_id)
     # Opaque equality evidence: never expose entry data, prompts or secrets.
     entry = getattr(entity, "entry", None)
@@ -132,14 +188,15 @@ def configured_processor(hass, conf, locale, preference, *, selected_voice=None)
         "entry_modified": str(getattr(entry or platform_entry, "modified_at", "")),
         "subentry": getattr(subentry, "data", {}), "defaults": dict(defaults),
         "pipeline_voice": configured_voice,
+        "voice_inventory": voices,
     }, sort_keys=True, default=str).encode()).hexdigest()[:24]
     return entity, {"processor": "ha_configured", "engine": engine_id,
                     "pipeline_id": pipeline_id,
                     "provider": str(getattr(platform, "platform_name", "") or engine_id.split(".")[0]),
                     "voice_id": voice_id or None,
-                    "voice_name": actual.name if actual else None,
-                    "voice_selection": "session_device_preference" if selected_voice is not None else ("configured" if explicit_voice else "provider_default"),
-                    "locale": language, "gender": None,
+                    "voice_name": actual["name"] if actual else None,
+                    "voice_selection": "session_device_preference" if selected_voice is not None or preference != "default" else ("configured" if explicit_voice else "provider_default"),
+                    "locale": language, "gender": actual["gender"] if actual else None,
                     "processing_scope": "qualified_local" if local else "configured_provider",
                     "configuration_revision": revision, **(local or {})}
 
@@ -151,6 +208,8 @@ async def synthesize(entity, voice, text):
     options = dict(entity.default_options or {})
     if voice["voice_id"]:
         options["voice"] = voice["voice_id"]
+        if _cloud_voice_genders(entity, voice["locale"]) is not None:
+            options.pop("gender", None)
     mime, body = await entity.async_get_tts_audio(text, voice["locale"], options)
     if not isinstance(body, bytes) or not 0 < len(body) <= 2 * 1024 * 1024:
         raise ProcessorUnavailable("unsupported_audio_extent")
@@ -216,7 +275,7 @@ def voice_options(hass, conf):
         pipeline = _selected_pipeline(hass, conf)
         locale = str(_first_attr(pipeline, "tts_language", "language") or "").replace("_", "-").split("-", 1)[0]
         entity, voice = configured_processor(hass, conf, locale, "default")
-        inventory = voice_inventory(entity, voice["locale"])
+        inventory = voice_inventory(entity, voice["locale"], configured_voice=voice["voice_id"])
     except ProcessorUnavailable as exc:
         options["state"] = "unavailable"
         options["reason"] = str(exc)
@@ -226,8 +285,11 @@ def voice_options(hass, conf):
     else:
         options.update(state="available", reason=None, default_available=True, provider_voice=voice,
                        voices=inventory, voice_selection={"available": bool(inventory), "maximum_voices": 64})
-    # HA2026.10's supported Voice object exposes ID/name only. This qualified
-    # adapter has no gender values to advertise, regardless of voice name/pitch.
+        targets = _gender_targets(inventory, voice["voice_id"])
+        if targets:
+            options["gender_selection"] = {"available": True, "values": list(targets),
+                "voice_ids": targets, "reason": None}
+            options["supported_preferences"] += list(targets)
     import hashlib
     import json
     options["revision"] = hashlib.sha256(json.dumps(options, sort_keys=True).encode()).hexdigest()[:24]

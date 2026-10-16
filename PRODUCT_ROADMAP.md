@@ -1,5 +1,17 @@
 # DJConnect Product Roadmap
 
+## Provider voice/gender — current bounded corrective increment
+
+`DJC-CORE-PROVIDER-VOICE-GENDER-V1-20261016`, direct owner request; same Core
+writer on basef04fc578. ACK6213291374; contract155e5030, first material1290b042.
+[Contract](docs/product/PROVIDER_VOICE_GENDER_V1.md) reuses delivered
+`SPEECH::CORE::DELIVERY`; no new capability family. Qualified Cloud/current
+provider metadata enables optional gender, resolves to current voice IDs and
+invalidates stale audio. Unknown metadata keeps concrete voice choice without
+inventing gender. Local qualification/review in progress; no new merge, install
+or native/audible PASS. Passive projection remains queued and unstarted.
+
+
 ## Generic HA TTS correction — Core source delivered
 
 Source PR [#1187](https://github.com/pcvantol/djconnect/pull/1187) protected merged as `6ececb1b5327c5f3456dbb7d466b8763951cb61c`, exact independently reviewed and owner-authorized `082f7d7a13ecca397ecce53c2a5dac2c5e7a6dc7` on base8757ecd38a5fe31254a36aba5e0cbe5852edfa7e. 32sourcechecksPASS/5conditional skips, including actual TDE observe success. Exact Owner Authorization38879576073 SUCCESS; no bypass. Candidate/main complete trees are identical. Official mainCI38879834913 and formal38880247961 SUCCESS; 170 integration files byte-equal Git with0mismatches. [Exact source readback](docs/verification/GENERIC_HA_TTS_SOURCE_READBACK_20261016.md). Prior Speech1177/1186 and transport1184/1185 remain closed.

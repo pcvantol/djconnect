@@ -1,5 +1,24 @@
 # DJConnect Verification Prompt Index
 
+## Current: Provider-qualified Session voice/gender — documentary CI repair
+
+Latest completed predecessor: PR [#1188](https://github.com/pcvantol/djconnect/pull/1188)
+protected merged as `f04fc578d11252f48324a22cb6f71039bdcc59d5`.
+Repository State: `MERGED_RECONCILED` describes that completed predecessor,
+not the unmerged current voice/gender correction. Source PR
+[#1189](https://github.com/pcvantol/djconnect/pull/1189) exists for earlier
+headc91cf4ee; CI found missing current predecessor references in the rolling
+records. This local documentary repair restores those references without changing
+runtime, tests, workflows or the qualified transportfixture. It requires new
+exact review/publication authorization; the c91cf4ee grant is not reused.
+
+Assignment DJC-CORE-PROVIDER-VOICE-GENDER-V1-20261016; same Core writer.
+Contract155e5030, material1290b042, ACK6213291374; source branch
+`codex/provider-voice-gender-v1`. Native/installed/audible remain separate; no
+passive-surface start. Separate Finalization follows protected source delivery.
+
+## Historical operational context
+
 ## Current: Generic HA TTS — separate Finalization
 
 ### Repository Status

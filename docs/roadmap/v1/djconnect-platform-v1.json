@@ -41291,11 +41291,11 @@
     "document_references": [
       {
         "path": "PRODUCT_ROADMAP.md",
-        "sha256": "0578ce285147b2c6cccbbfe4b8309372a47bf9f5e3fffbf38c57c4e9f81a5a67"
+        "sha256": "e790edf6d42454e19c3fe7f335241436bbee4857b9f60ee26d77ca0d3f902085"
       },
       {
         "path": "PRODUCT_BACKLOG.md",
-        "sha256": "2e3e1d629d64ec2ecbca1ab108b0a0f891fed2d6265e986e07f918704ed8bfc7"
+        "sha256": "4323eaf183ba1befb209c4149a751722ed063187961269d98153b50034c9b966"
       },
       {
         "path": "docs/product/DJ_PRESENCE_V1.md",
@@ -41331,7 +41331,7 @@
       },
       {
         "path": "API_CONTRACT.md",
-        "sha256": "f284c67ae2ed82c8df29efd62408da1e0bfc75efdad4bde9640e0e5bf529a214"
+        "sha256": "b83415585a10362eda7d69801c82350df0d0e57718297cd161efbd3173059429"
       },
       {
         "path": "docs/product/NARRATIVE_ALBUM_CONTINUITY_V1.md",
@@ -41543,11 +41543,11 @@
       },
       {
         "path": "docs/product/SESSION_SPEECH_PERSONA_V1.md",
-        "sha256": "b1311efd9043f1a584d6c970814c6f58f295ef2c9375fb3d865b0b80ba766f7e"
+        "sha256": "69ffd1d76ae0a2f679245e8e3123a074c400f9ebd84e2f93898ee7fd4ef271f5"
       },
       {
         "path": "docs/product/SESSION_SPEECH_DELIVERY_V1.md",
-        "sha256": "26c7dd3c62874ea7c00d1cca41768e3411177aa50ae7becf7dda29a2ebf128a2"
+        "sha256": "efe2338c2339e6f14cc80c877d989d9954181cac8543d6ae165dd00c6a97c339"
       },
       {
         "path": "docs/verification/SESSION_SPEECH_PERSONA_SOURCE_READBACK_20261016.md",
@@ -41559,7 +41559,7 @@
       },
       {
         "path": "docs/product/GENERIC_HA_TTS_V1.md",
-        "sha256": "652ad261bfb6ca5fb6366330c2d15172872d4ff045b71b26466253b241cfcd73"
+        "sha256": "1f8085c3aa480cba889cb580a74d0e89e79a372882d8ca4dc63258995d1f1159"
       },
       {
         "path": "docs/verification/GENERIC_HA_TTS_SOURCE_20261016.md",
@@ -41572,6 +41572,14 @@
       {
         "path": "docs/history/prompts/2026-10-16-generic-ha-tts-finalization.md",
         "sha256": "487548baa5d99882bbec786dc36e79157635ba7c9e5753a913624016cf44fcb4"
+      },
+      {
+        "path": "docs/product/PROVIDER_VOICE_GENDER_V1.md",
+        "sha256": "aadf89980707aa2998d24acf10f12d9890c92920f6d0627d01c937d6e8b67497"
+      },
+      {
+        "path": "docs/verification/PROVIDER_VOICE_GENDER_SOURCE_20261016.md",
+        "sha256": "ab02670e4c5b33433be036ac8165c9f123df238afa759c45a52c1951ddba41db"
       }
     ],
     "implementation_receipt": {

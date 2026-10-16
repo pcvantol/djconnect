@@ -3233,3 +3233,16 @@ recording and anonymous Persona announcement. Domain/root and app exception are 
 final reaction/rocket and technical implementation choices remain OPEN.
 This handoff does not reopen artwork/transport/Forecast producers or authorize
 Swift/source/runtime changes, deployments, DNS, signing or automatic follow-up.
+
+## Core provider voice/gender follow-up — Apple existing writer
+
+`DJC-CORE-PROVIDER-VOICE-GENDER-V1-20261016`; contract
+`docs/product/PROVIDER_VOICE_GENDER_V1.md`, same version1 owner routes. Native
+Voice menu rereads live `voices`/`gender_selection` and their equality revision;
+show only qualified values, use `voice_ids` targets, retain unknown gender null.
+Switching provider removes unsupported choices on the next read; no unsolicited
+push or immediate native adoption is claimed. Stored invalid preference gets
+five-language inline HA-configuration help and explicit default reset, preserving
+text/draft/scroll and avoiding automatic replay. Verify per-installation/Profile/
+Session/device isolation, gender/voice conflict, provider swap during synthesis,
+reconnect and late audio409, end/discard. No Swift writes or new Apple assignment.

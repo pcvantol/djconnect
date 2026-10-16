@@ -17,8 +17,8 @@ Use the pipeline's exact supported language and configured voice. If no voice
 is configured, use the provider's advertised default; a provider without a voice
 inventory may use its own default, explicitly reported as provider-selected.
 An explicit unavailable voice or unsupported locale returns unavailable. The
-HA voice interface supplies ID/name, not a qualified gender: male/female stays
-unavailable unless a future explicit metadata contract qualifies it. Voice names
+HA voice interface supplies ID/name, not a qualified gender: male/female requires the explicit metadata qualification in
+[Provider voice/gender](PROVIDER_VOICE_GENDER_V1.md). Voice names
 and Persona are never gender evidence. Read-only voice options do no synthesis.
 
 The loaded entity, provider/configuration revision, exact language and voice
@@ -79,13 +79,13 @@ await and at byte read; selected voice and configuration fence participate in
 cache identity. A change applies to next/pending/explicit replay; it never
 rewrites accepted text or replays the original Ask DJ/playback operation.
 
-Gender values require explicit metadata from a supported provider interface.
-Actual installed HA2026.10 `Voice` exposes only `voice_id` and `name`; that is
-not gender evidence. Current adapter therefore advertises no gender choices;
-name, pitch, Persona, inferred provider catalogue and native inventory never
-fabricate support. The UI must hide the unsupported selector while concrete
-supported voice choice remains usable. No direct provider API/lookup or new
-provider-specific gender catalogue is introduced by this conditional contract.
+Gender values require explicit provider metadata; the generic HA Voice ID/name
+alone is insufficient. [Provider voice/gender](PROVIDER_VOICE_GENDER_V1.md)
+qualifies the installed Cloud language/Gender mapping against its current
+inventory, plus explicit gender metadata on a provider Voice when present.
+Unmapped voices retain null. No catalogue copy, name/pitch inference or direct
+provider lookup. Gender resolves to concrete voice IDs; Cloud's deprecated gender
+request parameter is omitted. Changes invalidate options revision and old audio.
 
 Menu opening, preference editing and refresh synthesize nothing. Fetch current
 options on open/foreground/reconnect and before explicit preparation. Preserve
