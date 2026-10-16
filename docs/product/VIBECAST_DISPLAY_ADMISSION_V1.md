@@ -138,6 +138,26 @@ IDNA/custom-port support and an enforceable browser redirect fence are review it
 not silently implemented exceptions. `example.org` names are synthetic and are
 never fetched.
 
+### Independent review and measured navigation limits
+
+The [16 October design-review receipt](../verification/VIBECAST_DISPLAY_DESIGN_REVIEW_20261016.md)
+records the API/receiver findings and reproducible follow-up. Both validators
+passed40 lexical cases, but ordinary navigation followed an off-origin302 in
+Chromium/WebKit. A separate12-case framed-surface experiment blocked the tested
+off-origin navigations/top escape while still following same-origin path
+redirects. Neither a preflight fetch nor a sandbox automatically satisfies the
+current no-redirect requirement. A framed surface is **not selected**; actual
+HA/proxy framing, CSP/storage, accessibility and media compatibility are untested.
+The joint owners must select an enforceable architecture or explicitly review a
+different post-handoff HA/proxy trust boundary before ROUTE-1 freeze.
+
+The receiver also identified that a complete PAKE exchange/key confirmation is
+not specified by API94's current one-envelope submit/consume wire. Library name,
+API ready state and a child-ready message do not authenticate the selected owner.
+The same receipt lists the precise profile/wire/UX/revocation decisions required;
+TRUST-1/2 and WIRE-1 remain OPEN. No runtime/consumer work is authorized by a
+synthetic navigation result or by the draft's green checks alone.
+
 ## A and B are independent transactions
 
 | State/action | Authority and outcome | Failure/late result |
