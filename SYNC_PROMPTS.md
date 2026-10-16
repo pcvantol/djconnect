@@ -1,43 +1,8 @@
-# Generic configured HA TTS correction — local producer candidate
+# Generic HA TTS — definitive source producerpin
 
-`DJC-CORE-GENERIC-HA-TTS-V1-20261016`, same Core writer/base8757, unpublished
-correction after closed1177/1186. [Contract](docs/product/GENERIC_HA_TTS_V1.md),
-[qualification](docs/verification/GENERIC_HA_TTS_SOURCE_20261016.md),
-[actual paired HA/OpenAI fixtures](examples/client_contracts/session_speech/generic-ha-tts-real.http.json).
-Existing speech contract1 routes/auth/reference/deadlines remain; HA preparation
-uses exact selected Assist pipeline, provider, language and voice, accepts private
-WAV/MP3, and reports provider-default selection when no concrete voice is known.
-`voice_id`/`voice_name` may then be null; do not invent a voice/gender or reject
-otherwise valid bytes solely because a provider owns its default selection.
-New opaque `configuration_revision` is equality evidence, never event ordering.
-Missing old history provenance is not cloud permission. No Swift dispatch, WIP
-expansion or installed/native-audible PASS; Apple owns its decoding, paired byte
-renderer, Stop/autoplay and actual device acceptance. Exact reviewed producerpin
-and protected-main pin will be handed off through the existing Apple87 lane.
+Source PR [#1187](https://github.com/pcvantol/djconnect/pull/1187) protected merged as `6ececb1b5327c5f3456dbb7d466b8763951cb61c`, exact independently reviewed and owner-authorized `082f7d7a13ecca397ecce53c2a5dac2c5e7a6dc7` on base8757ecd38a5fe31254a36aba5e0cbe5852edfa7e. 32sourcechecksPASS/5conditional skips, including actual TDE observe success. Exact Owner Authorization38879576073 SUCCESS; no bypass. Candidate/main complete trees are identical. Official mainCI38879834913 and formal38880247961 SUCCESS; 170 integration files byte-equal Git with0mismatches. [Exact source readback](docs/verification/GENERIC_HA_TTS_SOURCE_READBACK_20261016.md). Prior Speech1177/1186 and transport1184/1185 remain closed.
 
-The renewed candidate adds optional version1 `provider_status`/`notification`:
-configuration readiness is distinct from actual synthesis success/failure/unknown.
-Use safe inline recovery instructions in the DJ-session to check the selected HA
-Assist pipeline, provider access/connection, language and voice. Handle prepare
-unavailable and authorized audioJSON409, preserving original contribution locale.
-Keep text/session controls usable; retry only the same speech reference after
-backoff and fresh authority checks, never the original Ask DJ/playback request.
-No automatic synthesis retry or provider-health PASS inferred from configuration.
-The existing Apple writer received this explicit owner requirement and prepared
-a five-language component; integration/installed/audible acceptance remains open
-until the exact renewed producer pin and fixtures are adopted and tested.
-
-Owner additions: active-session Voice menu with runtime concrete voice choice
-and conditional provider-qualified gender. New optional `voice_id` on HA prepare
-must come from bounded current `voices`; never send native/provider-arbitrary IDs.
-`preference_context` keys the client-local choice by installation/Profile/Session/
-device and discards at Session end. No shared pipeline/default/Persona mutation.
-Current actual HA Voice interface contains ID/name only, so gender remains
-unavailable rather than guessed. Actual supported voice selection is independent.
-Also expose active-session Persona editing through the already delivered paired
-`/session/persona` CAS route: shared Session change/Broadcast/readback, not a
-Profile default write. These explicit instructions were sent to the existing
-Apple writer; controls/decoding/installed/audible proof remain Apple-owned/open.
+Active Session Voice menu: voices(max64) + voice_selection + preference_context(owner_session_device) on private voice-options; optional inventory-bound voice_id on HA prepare. No shared pipeline/default write. Gender remains unavailable without qualified provider metadata. Client keys local preference by installation/Profile/session/device, resets at end; no original Ask DJ/playback retry. Preserve safe five-language prepare/audio409 recovery notices and unknown/success/failure distinction. Persona uses existing shared Session CAS/readback/Broadcast; Profile default is separate. Existing Apple writer owns actual decoding/native controls/accessibility/audible acceptance, not Core. Installed8757 unchanged until qualified finalmain after separate Finalization.
 
 ## Previous producer handoffs
 

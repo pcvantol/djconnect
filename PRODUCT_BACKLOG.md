@@ -1,5 +1,13 @@
 # DJConnect Product Backlog
 
+## Generic HA TTS correction — Core source delivered
+
+Source PR [#1187](https://github.com/pcvantol/djconnect/pull/1187) protected merged as `6ececb1b5327c5f3456dbb7d466b8763951cb61c`, exact independently reviewed and owner-authorized `082f7d7a13ecca397ecce53c2a5dac2c5e7a6dc7` on base8757ecd38a5fe31254a36aba5e0cbe5852edfa7e. 32sourcechecksPASS/5conditional skips, including actual TDE observe success. Exact Owner Authorization38879576073 SUCCESS; no bypass. Candidate/main complete trees are identical. Official mainCI38879834913 and formal38880247961 SUCCESS; 170 integration files byte-equal Git with0mismatches. [Exact source readback](docs/verification/GENERIC_HA_TTS_SOURCE_READBACK_20261016.md). Prior Speech1177/1186 and transport1184/1185 remain closed.
+
+Existing SPEECH::CORE::DELIVERY reused; source rights, private speech and live Persona preserved. Active Voice menu, Session/device preference isolation and native adoption remain Apple-owned/open. Gender is conditional on qualified metadata and unavailable on the actual current HA Voice interface. Separate Finalization and installed dev/prod qualification remain gated; no passive successor admission or new productfamily.
+
+## Historical scope records
+
 ## Generic HA TTS correction — local qualification
 
 `DJC-CORE-GENERIC-HA-TTS-V1-20261016` follows the owner's selected Assist

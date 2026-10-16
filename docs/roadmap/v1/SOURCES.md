@@ -14,8 +14,8 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 
 | Local design source | SHA256 |
 |---|---|
-| [PRODUCT_ROADMAP.md](../../../PRODUCT_ROADMAP.md) | `0d0fe20b73aefb229b4aa7861867c05fcd8cdb03fc32c3d9961e2ec3765244e7` |
-| [PRODUCT_BACKLOG.md](../../../PRODUCT_BACKLOG.md) | `d7e0522980d3a394ec2e4da5c735d1f83799bc4a7e2a24c72bf8b358f42e3fe0` |
+| [PRODUCT_ROADMAP.md](../../../PRODUCT_ROADMAP.md) | `0578ce285147b2c6cccbbfe4b8309372a47bf9f5e3fffbf38c57c4e9f81a5a67` |
+| [PRODUCT_BACKLOG.md](../../../PRODUCT_BACKLOG.md) | `2e3e1d629d64ec2ecbca1ab108b0a0f891fed2d6265e986e07f918704ed8bfc7` |
 | [docs/product/DJ_PRESENCE_V1.md](../../../docs/product/DJ_PRESENCE_V1.md) | `c97be3bcebbd4ca70d640cdf4fc0a9a4808451e986bc977e3173e19842a928c4` |
 | [DJ_SESSION_RUNTIME_CONTRACTS.md](../../../DJ_SESSION_RUNTIME_CONTRACTS.md) | `6ae7a05260bc2a997252dbb70c28917ac6b7fd25930263d7c0940df929b1ec92` |
 | [docs/product/DJ_INTELLIGENCE_ARCHITECTURE.md](../../../docs/product/DJ_INTELLIGENCE_ARCHITECTURE.md) | `5345f4a3db6b2bfb97931d6acdde09439dc3dbae7a7d311107269922e08aef12` |
@@ -83,3 +83,5 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 | [docs/history/prompts/2026-10-16-session-speech-persona-finalization.md](../../../docs/history/prompts/2026-10-16-session-speech-persona-finalization.md) | `08bfdd2e39d730e38d6a76b7cf8ffd8d1463781c59e52fa4aab8f3df0de16732` |
 | [docs/product/GENERIC_HA_TTS_V1.md](../../../docs/product/GENERIC_HA_TTS_V1.md) | `652ad261bfb6ca5fb6366330c2d15172872d4ff045b71b26466253b241cfcd73` |
 | [docs/verification/GENERIC_HA_TTS_SOURCE_20261016.md](../../../docs/verification/GENERIC_HA_TTS_SOURCE_20261016.md) | `9b54d922da5945e771bdd16be922b7c2f0b04715368e0ece75616facec1f97e7` |
+| [docs/verification/GENERIC_HA_TTS_SOURCE_READBACK_20261016.md](../../../docs/verification/GENERIC_HA_TTS_SOURCE_READBACK_20261016.md) | `ab9c27e02320f17f063e75b6bf318d9b20eba72141e0f002c48506923c8f7059` |
+| [docs/history/prompts/2026-10-16-generic-ha-tts-finalization.md](../../../docs/history/prompts/2026-10-16-generic-ha-tts-finalization.md) | `487548baa5d99882bbec786dc36e79157635ba7c9e5753a913624016cf44fcb4` |
