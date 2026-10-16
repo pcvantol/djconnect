@@ -2464,81 +2464,103 @@
       "repository": "pcvantol/djconnect-app",
       "disposition": "ACTIVE_SCOPE_AND_SETTINGS_SURFACES_TO_VERIFY",
       "source_mutation_owner": "existing lane writer only",
-      "acceptance": "NOT_QUALIFIED"
+      "acceptance": "OPEN_OWNING_LANE_READER_EFFECT_AND_NATIVE_QUALIFICATION",
+      "verified_remote_main_pin": "be7e63609193561bfd37ee144ecbd8dad04d5609",
+      "source_scope": "remote committed main; other writer WIP not read or changed"
     },
     {
       "lane": "DJC-ESP32",
       "repository": "pcvantol/djconnect-esp32",
       "disposition": "ACTIVE_SCOPE_AND_SETTINGS_SURFACES_TO_VERIFY",
       "source_mutation_owner": "existing lane writer only",
-      "acceptance": "NOT_QUALIFIED"
+      "acceptance": "OPEN_OWNING_LANE_READER_EFFECT_AND_NATIVE_QUALIFICATION",
+      "verified_remote_main_pin": "b0405c15a0511cac9b7f32d9980aa9988c4c8c99",
+      "source_scope": "remote committed main; other writer WIP not read or changed"
     },
     {
       "lane": "DJC-PI",
       "repository": "pcvantol/djconnect-pi",
       "disposition": "ACTIVE_SCOPE_AND_SETTINGS_SURFACES_TO_VERIFY",
       "source_mutation_owner": "existing lane writer only",
-      "acceptance": "NOT_QUALIFIED"
+      "acceptance": "OPEN_OWNING_LANE_READER_EFFECT_AND_NATIVE_QUALIFICATION",
+      "verified_remote_main_pin": "91715554a227e9585aa55da8417f32f6de278b8e",
+      "source_scope": "remote committed main; other writer WIP not read or changed"
     },
     {
       "lane": "DJC-WINDOWS",
       "repository": "pcvantol/djconnect-windows",
       "disposition": "RETIRED_LEGACY_ONLY_NO_NEW_PAIRING",
       "source_mutation_owner": "existing lane writer only",
-      "acceptance": "NOT_QUALIFIED"
+      "acceptance": "RETIRED_NO_ADOPTION_OR_NEW_PAIRING",
+      "verified_remote_main_pin": "cea24d994ffc21591edb2e7bdf17f321ee1534f4",
+      "source_scope": "remote committed main; other writer WIP not read or changed"
     },
     {
       "lane": "DJC-API",
       "repository": "pcvantol/djconnect-api",
       "disposition": "ACTIVE_SCOPE_AND_SETTINGS_SURFACES_TO_VERIFY",
       "source_mutation_owner": "existing lane writer only",
-      "acceptance": "NOT_QUALIFIED"
+      "acceptance": "OPEN_OWNING_LANE_READER_EFFECT_AND_NATIVE_QUALIFICATION",
+      "verified_remote_main_pin": "3bb5f2b01401827e8a1072e1668fbb4a2223f26f",
+      "source_scope": "remote committed main; other writer WIP not read or changed"
     },
     {
       "lane": "DJC-WEBSITE",
       "repository": "pcvantol/djconnect-website",
       "disposition": "ACTIVE_SCOPE_AND_SETTINGS_SURFACES_TO_VERIFY",
       "source_mutation_owner": "existing lane writer only",
-      "acceptance": "NOT_QUALIFIED"
+      "acceptance": "OPEN_OWNING_LANE_READER_EFFECT_AND_NATIVE_QUALIFICATION",
+      "verified_remote_main_pin": "3133cb833c846395ac37dae804ba96848650bb7c",
+      "source_scope": "remote committed main; other writer WIP not read or changed"
     },
     {
       "lane": "DJC-VIBECAST",
       "repository": "pcvantol/djconnect-vibecast-receiver",
       "disposition": "ACTIVE_SCOPE_AND_SETTINGS_SURFACES_TO_VERIFY",
       "source_mutation_owner": "existing lane writer only",
-      "acceptance": "NOT_QUALIFIED"
+      "acceptance": "OPEN_OWNING_LANE_READER_EFFECT_AND_NATIVE_QUALIFICATION",
+      "verified_remote_main_pin": "b4dcff6210714d3504fcebcf07aaa6b15e0372a1",
+      "source_scope": "remote committed main; other writer WIP not read or changed"
     },
     {
       "lane": "DJC-PICO",
       "repository": "pcvantol/djconnect-pico",
       "disposition": "ACTIVE_SCOPE_AND_SETTINGS_SURFACES_TO_VERIFY",
       "source_mutation_owner": "existing lane writer only",
-      "acceptance": "NOT_QUALIFIED"
+      "acceptance": "OPEN_OWNING_LANE_READER_EFFECT_AND_NATIVE_QUALIFICATION",
+      "verified_remote_main_pin": "6daf1f291566dea52adef604a7186b43755d871e",
+      "source_scope": "remote committed main; other writer WIP not read or changed"
     },
     {
       "lane": "DJC-DIST-FIRMWARE",
       "repository": "pcvantol/djconnect-firmware",
       "disposition": "ACTIVE_SCOPE_AND_SETTINGS_SURFACES_TO_VERIFY",
       "source_mutation_owner": "existing lane writer only",
-      "acceptance": "NOT_QUALIFIED"
+      "acceptance": "OPEN_OWNING_LANE_READER_EFFECT_AND_NATIVE_QUALIFICATION",
+      "verified_remote_main_pin": "2b6a6936decff63d94c1ed3af53c46ba7888dfd6",
+      "source_scope": "remote committed main; other writer WIP not read or changed"
     },
     {
       "lane": "DJC-DIST-APPLE",
       "repository": "pcvantol/djconnect-app-releases",
       "disposition": "ACTIVE_SCOPE_AND_SETTINGS_SURFACES_TO_VERIFY",
       "source_mutation_owner": "existing lane writer only",
-      "acceptance": "NOT_QUALIFIED"
+      "acceptance": "OPEN_OWNING_LANE_READER_EFFECT_AND_NATIVE_QUALIFICATION",
+      "verified_remote_main_pin": "fdc80b93fa441d35bdd644197d3a2dd534da149a",
+      "source_scope": "remote committed main; other writer WIP not read or changed"
     },
     {
       "lane": "DJC-DIST-PI",
       "repository": "pcvantol/djconnect-pi-releases",
       "disposition": "ACTIVE_SCOPE_AND_SETTINGS_SURFACES_TO_VERIFY",
       "source_mutation_owner": "existing lane writer only",
-      "acceptance": "NOT_QUALIFIED"
+      "acceptance": "OPEN_OWNING_LANE_READER_EFFECT_AND_NATIVE_QUALIFICATION",
+      "verified_remote_main_pin": "849321f805f305b909ee901e5741b9d45b3da564",
+      "source_scope": "remote committed main; other writer WIP not read or changed"
     }
   ],
   "completion_gate": "Every active exposed setting needs setter/canonical store/real reader/effect plus KEEP or qualified REPLACE-MIGRATE/REMOVE and owning-lane evidence; STATIC_ONLY rows cannot satisfy gate",
-  "current_local_source_pin": "5ca58d3025b1e2fdcff90825c95f68ed24ba419c",
+  "current_local_source_pin": "d1bd0a37ecbbfa3d60c27ee2c3f99a8bd0e6819a",
   "connected_core_paths": [
     {
       "parameter": "persona",
@@ -2627,11 +2649,46 @@
     }
   ],
   "remaining_core_qualification": [
-    "Complete per-setting legacy setter/store/reader/effect disposition beyond initial static scan",
-    "Versioned export/import and deletion/retention integration for the new canonical defaults",
-    "Full failure/cancellation/restart and longer-duration acceptance on final exact candidate",
-    "Owning coverage/security and independent technical/privacy/experience review",
-    "Consumer contracts and private handoff without consumer WIP expansion",
-    "Protected source, exact artifact readback and separate Finalization"
+    "Complete per-setting legacy setter/store/reader/effect disposition beyond initial static scan; reconcile old tone/numeric parameters without guessing Persona",
+    "Owner-coordinated schema2 defaults restore remains explicitly unavailable; qualify recoverable restore before enabling it. Deletion, orphan retention and redacted export are locally implemented/tested",
+    "Full failure/restart and final exact candidate acceptance; current targeted lifecycle/expiry/cancellation tests and intermediate HA duration probes are not total acceptance",
+    "Owning coverage and final exact independent technical/privacy/experience reviews. Intermediate review findings fixed; Bandit medium/high zero on local source checkpoint",
+    "Complete owning-lane semantic inventory and consumer adoption gates; early private Apple contract handoff exists but does not authorize its WIP expansion",
+    "Protected source publication, exact-main/artifact readback and separate Finalization; no source publication grant yet"
+  ],
+  "consumer_source_findings": [
+    {
+      "lane": "DJC-APPLE",
+      "pin": "be7e63609193561bfd37ee144ecbd8dad04d5609",
+      "setting": "legacy numeric Ask DJ Mood",
+      "setter": "Sources/DJConnectUI/DJConnectAppModel.swift:825-831,1156-1161",
+      "store": "UserDefaults DJConnectAskDJMood plus app-group shared defaults",
+      "reader": "DJConnectAppModel.swift:1108-1109,1339-1340",
+      "effect": "request numeric mood and widget-label inputs; not shared Core Profile defaults",
+      "disposition": "REPLACE_MIGRATE through existing Apple writer; no last-online-device promotion; explicit Core choices only",
+      "proof": "pinned source readback; not native/device execution"
+    },
+    {
+      "lane": "DJC-APPLE",
+      "pin": "be7e63609193561bfd37ee144ecbd8dad04d5609",
+      "setting": "active Presence v1",
+      "setter": "Sources/DJConnectUI/DJConnectAppModel.swift:5005-5028",
+      "store": "Core Session presence revision; client desired/pending are gesture state",
+      "reader": "activeDJSession.confirmedPresence",
+      "effect": "updateSessionPresence expectedRevision and confirmed snapshot",
+      "disposition": "REPLACE_MIGRATE setter to shared v2 patch/default receipt; KEEP local pending gesture semantics",
+      "proof": "pinned source readback; not native/device execution"
+    },
+    {
+      "lane": "DJC-APPLE",
+      "pin": "be7e63609193561bfd37ee144ecbd8dad04d5609",
+      "setting": "new Session Mood initialization",
+      "setter": "Sources/DJConnectUI/DJConnectAppModel.swift:728,5105",
+      "store": "selectedSessionMood local initial groove; request start mood",
+      "reader": "DJConnectSessionStartRequest mood",
+      "effect": "v1 initialization; Core v2 inherited defaults already override stale local init",
+      "disposition": "REPLACE_MIGRATE to read shared defaults and explicit atomic settings mutation; opening/join never writes defaults",
+      "proof": "pinned source readback plus Core owner tests; not native/device execution"
+    }
   ]
 }

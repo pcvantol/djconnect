@@ -71,3 +71,17 @@ class SharedSettingsContractTests(unittest.TestCase):
         for key in kwargs:
             changed = {**kwargs, key: kwargs[key] + 'other'}
             self.assertNotEqual(original, binding_digest(**changed))
+
+    def test_speech_discovery_separates_legacy_local_and_shared_prepare_semantics(self):
+        from custom_components.djconnect.session_speech import capability
+        discovered = capability()
+        self.assertEqual(discovered['version'], 1)
+        self.assertEqual(discovered['legacy_voice_option_prepare_versions'], [1])
+        versions = discovered['prepare_contracts']
+        self.assertEqual(versions['1']['voice_preference_context']['storage_owner'], 'client')
+        shared = versions['2']
+        self.assertEqual(shared['processors'], ['ha_configured'])
+        self.assertFalse(shared['caller_voice_override'])
+        self.assertEqual(shared['voice_preference_context']['storage_owner'], 'core')
+        self.assertEqual(shared['voice_preference_context']['session_end'], 'retain_profile_defaults')
+        self.assertEqual(shared['settings_contract_version'], 2)

@@ -209,6 +209,12 @@ Owner-coordinated defaults restoration and complete legacy disposition remain
 open deliverables, along with final exact candidate reviews and protected
 source delivery. This section does not declare family closure.
 
+Speech discovery keeps its original version1 envelope and explicitly scopes
+legacy local voice options to prepare-version1. A per-prepare-version descriptor
+is authoritative: version2 has only `ha_configured`, Core-owned shared selections,
+no caller voice override and retained Profile defaults after Session end. The
+presence of old top-level voice keys never grants version2 local authority.
+
 New settings contract2 describes exactly these five values and their semantics;
 do not relabel the old voice/device contract1 as roaming. Ordinary existing
 paired-device auth resolves the bound Profile; caller profile_id grants nothing.

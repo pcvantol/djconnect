@@ -28,7 +28,7 @@ def accepted_processing_basis(result):
 
 
 def capability():
-    return {"available": True, "version": 1, "path": PATH, "method": "POST",
+    result = {"available": True, "version": 1, "path": PATH, "method": "POST",
             "supported_prepare_versions": [1, 2],
             "shared_profile_settings": {"version": 2, "prepare_version": 2,
                 "path": "/api/djconnect/v1/profile/settings",
@@ -55,6 +55,22 @@ def capability():
             "history_mints_reference": False, "maximum_seconds": TTL,
             "maximum_text_characters": MAX_TEXT, "maximum_segments": MAX_SEGMENTS,
             "cache_policy": "private,no-store"}
+    # Keep the published v1 envelope intact, but make those old local options
+    # unambiguously version1-only. Consumers negotiating prepare2 must use its
+    # descriptor; old top-level fields never grant a shared-settings override.
+    result['legacy_voice_option_prepare_versions'] = [1]
+    result['prepare_contracts'] = {
+        '1': {key: result[key] for key in (
+            'processors', 'voice_preference_context', 'session_voice_selection',
+            'gender_preference', 'voice_selection')},
+        '2': {'processors': ['ha_configured'], 'settings_contract_version': 2,
+              'settings_path': '/api/djconnect/v1/profile/settings',
+              'caller_voice_override': False,
+              'voice_preference_context': {'scope': 'profile_and_active_session',
+                  'storage_owner': 'core', 'runtime_mutable': True,
+                  'session_end': 'retain_profile_defaults'}},
+    }
+    return result
 
 
 def unavailable(reference, reason):
