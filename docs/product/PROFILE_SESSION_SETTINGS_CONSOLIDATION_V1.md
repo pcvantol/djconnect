@@ -606,3 +606,13 @@ joint acceptance. Source/fixture, native, installed, audible and hardware claims
 stay separate. Core producer delivery is not completion of the whole family.
 Normal exact-candidate protected publication, independent technical/privacy and
 product/UX reviews, actual artifact readback and separate Finalization apply.
+
+## Subsequent receiver-authority retirement — 17 October 2026
+
+The dated source inventory and delivered six-field settings receipt remain
+unchanged. The separately qualified
+[receiver end-authority retirement](VIBECAST_RECEIVER_END_AUTHORITY_RETIREMENT_V1.md)
+supersedes the old `vibecast_session_end_allowed` dependency row: it is removed
+from configuration/save/defaults and grants no authority. Owner Session end
+remains available through its ordinary authenticated route. Other consumer
+migrations and joint six-field acceptance remain open.

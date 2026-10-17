@@ -1,5 +1,17 @@
 # Passive Session projection — definitive protected producer pin
 
+## Bounded receiver end-authority retirement — current-main delivery
+
+[Current contract](docs/product/VIBECAST_RECEIVER_END_AUTHORITY_RETIREMENT_V1.md)
+and [current qualification](docs/verification/VIBECAST_END_RETIREMENT_QUALIFICATION_20261017.md).
+The obsolete HA setting, grant issuance/storage and generated-renderer control
+are removed independently from the unpublished personal-DJ branch, on base
+`0adaef7d`. Old control requests return410 without reading Session state;
+ordinary paired owner end and unload fences remain. Exact protected delivery
+and installed readback are still pending at this source freeze. Consumer import
+must use the eventual exact producer pin, not the unqualified narration branch.
+The broader VibeCast topic and other lane gates remain OPEN.
+
 ## Integral Core/Apple/API/VibeCast reconciliation — 17 October 2026
 
 Canonical bounded readback: [open-work audit](docs/governance/DJC_PLATFORM_OPEN_WORK_20261017.md).

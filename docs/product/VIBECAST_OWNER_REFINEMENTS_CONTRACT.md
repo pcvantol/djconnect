@@ -109,21 +109,15 @@ artist and proxied artwork plus hashed current-item binding enter Broadcast.
 The renderer hides Up next after end, track mismatch or missing data. It does
 not fetch Spotify, reorder or mutate playback.
 
-## End from an approved screen
+## Retired: end from an approved screen
 
-HA options default `vibecast_session_end_allowed=false`. Explicit owner opt-in
-plus the ordinary authenticated handoff approval may issue a separate
-high-entropy end-only grant for that exact Profile/Session. Collection uses the
-existing browser claim secret and no-store/no-referrer route. The grant stays
-in browser memory, never URL/storage/snapshot/logs; legacy Broadcast-only
-connections retain their existing read-only authority.
-
-`POST /api/djconnect/v1/session/broadcast/control/end` accepts only that grant
-and exact Session. It is single-use, expires after one hour, is revoked at end
-and owner-entry unload/reload (including non-Spotify Sessions) and carries no other command/owner access. The end endpoint also checks that the approving entry is still loaded with its opt-in enabled. A loaded owner Runtime captures an ephemeral entry generation; unload advances it atomically with revocation, so an in-flight old handoff cannot issue fresh authority during cancellation or after reload. The X
-appears only when a grant was delivered. Backend confirmation or terminal
-Broadcast moves the screen to idle. Failure remains visible; local success is
-not simulated. New handoff is required after authority expires/revokes.
+The earlier opt-in end-grant implementation is historical. The
+[receiver end-authority retirement](VIBECAST_RECEIVER_END_AUTHORITY_RETIREMENT_V1.md)
+removes its configuration, issuance, handoff field, Runtime mutation and renderer
+control. The old endpoint returns410 without touching a Session; normal paired
+owner end and generic entry/unload fences remain. This local correction does not
+rewrite the earlier physical receipt or claim receiver/native/installed delivery.
+New shared screens are readonly; closing a screen does not end its Session.
 
 ## Rendering and languages
 

@@ -1,5 +1,13 @@
 # DJConnect Platform Evolution Backlog
 
+## Existing bounded VibeCast receiver end-authority correction — 17 October 2026
+
+The [retirement contract](docs/product/VIBECAST_RECEIVER_END_AUTHORITY_RETIREMENT_V1.md)
+removes the remaining shared-screen Session-end setting, grants and renderer
+control. Existing owner end and entry-lifetime fences remain. This standalone
+correction is qualified independently on current main; broad personal-DJ
+quality, receiver import/native/physical and other lane gates stay open.
+
 ## Integral open-work reconciliation — 17 October 2026
 
 Use the [dated evidence and owner/test/dependency inventory](docs/governance/DJC_PLATFORM_OPEN_WORK_20261017.md)

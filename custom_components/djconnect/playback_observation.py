@@ -129,9 +129,6 @@ class PlaybackObservationManager:
         if observed is None or (session_id and observed.session_id != session_id):
             return
         self._spotify_sessions.pop(owner_profile_id, None)
-        await session_runtime_manager(self._hass).async_revoke_receiver_end_grants(
-            owner_profile_id=owner_profile_id, session_id=observed.session_id
-        )
         await session_runtime_manager(self._hass).async_invalidate_intra_track_opportunity(
             owner_profile_id=owner_profile_id, session_id=observed.session_id
         )

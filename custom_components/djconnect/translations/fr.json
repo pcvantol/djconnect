@@ -195,8 +195,7 @@
           "local_url": "Adresse du client",
           "firmware_channel": "Canal du firmware",
           "dj_announcement_speaker_entity_id": "Enceinte Home Assistant pour les annonces DJ",
-          "options_action": "Action",
-          "vibecast_session_end_allowed": "Autoriser les écrans VibeCast approuvés à terminer la session"
+          "options_action": "Action"
         },
         "data_description": {
           "assist_pipeline_id": "Pipeline Assist utilisé par les appareils DJConnect pour la reconnaissance vocale et l’audio des annonces DJ.",
@@ -348,8 +347,7 @@
           "options_action": "Action",
           "music_backend": "Backend musical",
           "music_assistant_player": "Lecteur Music Assistant",
-          "dj_announcement_speaker_entity_id": "Enceinte Home Assistant pour les annonces DJ",
-          "vibecast_session_end_allowed": "Autoriser les écrans VibeCast approuvés à terminer la session"
+          "dj_announcement_speaker_entity_id": "Enceinte Home Assistant pour les annonces DJ"
         },
         "data_description": {
           "assist_pipeline_id": "Pipeline Assist utilisé par les appareils DJConnect pour la reconnaissance vocale et l’audio des annonces DJ.",
