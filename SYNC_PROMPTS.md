@@ -1,5 +1,37 @@
 # Passive Session projection — definitive protected producer pin
 
+## Integral Core/Apple/API/VibeCast reconciliation — 17 October 2026
+
+Canonical bounded readback: [open-work audit](docs/governance/DJC_PLATFORM_OPEN_WORK_20261017.md).
+Same existing writers; no consumer WIP takeover or automatic new assignment.
+
+- Core dev/prod: 177 integration files equal observed main `cc9b49fe`; Mood/Presence v1
+  and settings v3 advertised. Local personal-DJ correction `e2456029` is not published
+  or installed; factual/Persona/Mood/all-family quality remains NO_GO.
+- Artwork1164: Apple image GET identity fix is reported; one Moment still lacks
+  qualified identity. Retained art/replay awaits qualified producer delivery
+  and exact native readback. Do not substitute current playback art.
+- Speech: preview implementation/fixtures and native Apple processor-override
+  entitlement review remain Core-owned. Shared Profile defaults/`text_only` retain
+  authority; native OS voice/pitch/autoplay remain device-only. Real heard target
+  and retained replay acceptance are separate.
+- LAN/WS: source policy and HTTP success do not prove qualified direct ingress
+  or real paired native WS/recovery. No TLS/origin/forwarding relaxation.
+- Passive surfaces: owner-selected automatic OS/Session behavior needs explicit
+  Core consent/capability/background assessment; current v1 still has 120s source
+  bounds and background_delivery=false. No bearer sharing, TTL extension or new
+  client poller. Apple owns automatic startup/dismissal and actual OS pixels.
+- API #94 `cd88e8d` / profile 0.4 draft: path and App Attest core progress does not close
+  complete CMS/revocation/storage/races/runtime freeze. Existing captures and
+  browser consumer ACK stay valid; no repeat generic capture request.
+- Core B #1197 remains draft/conflicted; receiver Pages/Cast is delivered separately
+  from rendezvous/Apple-HA/physical TV. End-authority retirement `e2456029` is local;
+  receiver removes old imported handler only at proper producer/import admission.
+- Apple owns Watch Flow main view/cards, production-push/native/audio and measured
+  performance/crash/memory/physical acceptance. No green claim from iPhone or
+  fixture tests. Pi/ESP/website/distribution consumer gates remain their owners'.
+
+
 ## Current shared settings3 / target-aware speech3 producer
 
 Protected source main `e8cc70ddffb4112b09babdda4d45140b98926ae5`, PR [#1193](https://github.com/pcvantol/djconnect/pull/1193). [Exact source readback](docs/verification/PROFILE_SESSION_SETTINGS_SOURCE_READBACK_20261016.md). Six-field producer/capabilities are delivered in Core; earlier local-candidate/design checkpoints below are historical. Consumer adoption, complete legacy removal, Finalization and actual installed/native/audible/joint outcomes remain separately qualified.

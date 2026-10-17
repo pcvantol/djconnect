@@ -1,5 +1,14 @@
 # DJConnect Roadmap Index
 
+## Latest integral lane evidence — 17 October 2026
+
+[Open-work audit](docs/governance/DJC_PLATFORM_OPEN_WORK_20261017.md) and its
+[machine-readable register](docs/governance/djconnect-open-work-20261017.json)
+record actual source/installed/native/test boundaries, owners and dependencies.
+This is a dated observation overlay over existing roadmap/DAG IDs, not a new
+queue selection or a replacement product roadmap.
+
+
 ## Current: Shared Profile/Session settings — separate Finalization
 
 #### Repository Status

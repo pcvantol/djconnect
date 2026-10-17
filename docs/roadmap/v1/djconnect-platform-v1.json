@@ -41760,7 +41760,7 @@
     "document_references": [
       {
         "path": "PRODUCT_ROADMAP.md",
-        "sha256": "88e403979acf7793701aa2f99533b23de78072cb27551c0842d815bb8b738935"
+        "sha256": "91ba37a756f8576b2fc8aab7088d88961ee30b60a2fe8148ed80932a5b7605ef"
       },
       {
         "path": "PRODUCT_BACKLOG.md",
@@ -42089,6 +42089,10 @@
       {
         "path": "docs/history/prompts/2026-10-16-profile-session-settings-finalization.md",
         "sha256": "fd8f95f219e8293cc4133e1e7543209c66993fa3e636c52f83d189df640b013d"
+      },
+      {
+        "path": "docs/governance/DJC_PLATFORM_OPEN_WORK_20261017.md",
+        "sha256": "4316ec47c6883e96c36c7ead0d6d0f41406678d8c349a4e9f1d0b0bd2c6c1f25"
       }
     ],
     "implementation_receipt": {

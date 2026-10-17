@@ -1,5 +1,15 @@
 # DJConnect Platform Evolution Backlog
 
+## Integral open-work reconciliation — 17 October 2026
+
+Use the [dated evidence and owner/test/dependency inventory](docs/governance/DJC_PLATFORM_OPEN_WORK_20261017.md)
+for the current cross-lane correction. All 61 unfinished maintenance gates remain
+in the living DAG; no product-family closure or consumer dispatch is inferred.
+Core1165's producer advertisement now has fresh installed/public readback;
+artwork1164, real narration, TTS/preview, LAN/WS, passive/background, production
+push, physical Watch, native UX and soak acceptance remain explicitly scoped.
+
+
 **Owner:** Platform Evolution
 **Status:** Canonical future-evolution backlog
 
