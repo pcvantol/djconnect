@@ -1,7 +1,7 @@
 # Ask DJ named results corrective qualification
 
-Status: local qualified candidate; protected source delivery, Finalization and
-installed/native readback are not yet claimed.
+Status: source protected merged via #1198 on `0c91b53062927c38cd268e7627153755fd21a877`;
+separate documentary Finalization in progress. Installed/native are not claimed.
 
 ## Admission and defect
 
@@ -44,9 +44,10 @@ transport/routing/privacy correctness, not live model quality or a real artist
 catalogue inventory. No paid model calls occur in this probe.
 
 Owning before/after logs and full synthetic transport/source-hash receipts are
-retained locally under the owned ignored recovery checkpoint. Additional full
-regression/security, exact independent review and protected delivery evidence
-must be attached to the exact source candidate before completion.
+retained locally under the owned ignored recovery checkpoint. At the initial
+source freeze, full regression/security, exact independent review and protected
+delivery were still pending. Their completed evidence is recorded below; this
+historical qualification point does not describe the current delivery status.
 
 ## Consumer behavior and remaining acceptance
 
@@ -56,3 +57,24 @@ clients must not reconstruct archived titles or extend source expiry. User
 history remains compatible. No Swift/receiver changes are made here.
 Native display, installed HA-dev/prod, hardware and joint acceptance remain
 separate. No completion is inferred from this software-only qualification.
+
+## Exact source delivery and independent review
+
+Technical/privacy and product/UX/privacy reviews both GO on exact candidate
+`20bf47abc7a1b7c5212411176503e2d854afd658`, without P1/P2 findings. Technical
+review independently matched all154recorded source/helper hashes. Full regression
+with the pinned test dependencies:2,157tests PASS/7existing skips. The first host
+Python run lacked PyYAML for one existing test; no product failure was suppressed.
+172DAGtests and schema/generation PASS; changed executable product coverage63/66.
+All32PRchecks PASS/5conditional skips, exact Owner Authorization38983652555.
+
+Source main `0c91b53062927c38cd268e7627153755fd21a877`; complete candidate/merge trees equal.
+CI38983825863/formal38984212725 SUCCESS; official archive
+177regular files, zero mismatches or unsafe entries.
+Archive SHA256 `f2aaf363331332337d6dcdc4ddfb86d5c5e0f4113e217f6d232ebb775afe2ed9`; formal SHA256
+`920250e654945e29ac9a05f5a63c17dec0e9af42e981fee8f2fb01d2f3c0ad1b`. Raw/durable evidence digest, PR/main,
+coverage ZIP and embedded commit marker independently validated.
+
+This reactive correction leaves Golden proactive Planner/Moment behavior unchanged;
+the existing advisory Golden Smoke check passes. Native rendering, real artist
+catalogue/model quality and installed live acceptance remain separate.

@@ -1,5 +1,48 @@
 # DJConnect Engineering Status
 
+## Current: Ask DJ catalogue-title correction — separate Finalization
+
+Source [#1198](https://github.com/pcvantol/djconnect/pull/1198) protected merged
+as `0c91b53062927c38cd268e7627153755fd21a877`, exact reviewed candidate
+`20bf47abc7a1b7c5212411176503e2d854afd658`, base1329ad1c.
+Both independent technical/privacy and product/UX/privacy reviews GO;32checks
+PASS/5conditional skips; exact Owner Authorization38983652555 SUCCESS. No bypass.
+
+Ask DJ now shows actual catalogue titles and artist labels in the live response.
+“Which ones?” uses the same bounded choices/order/IDs/deadline, without another
+model call, search or playback mutation. Initial history keeps the safe count/query
+caption; transient labels gain no model/archive permission. One existing shared
+Ask DJ implementation; no client schema, new source or persistent store.
+
+2,157regressions PASS/7existing skips;126owning tests;172DAG tests, schema and
+generation, Ruff/onboarding-package checks PASS. Ten real isolated paired HA
+lookup/list pairs over five languages and standalone/Session context, with only
+external OpenAI/Spotify fixtures:0paid model/0follow-up model/0follow-up search/
+0playback effects. Session-end, clear, original expiry and owner/thread isolation
+are qualified. Changed executable product lines63/66 covered; dialogue91%,
+service90%, existing large Ask DJ module80%. Advisory Golden Smoke PASS; this
+reactive catalogue correction does not change proactive Planner/Moment scenarios.
+
+Exact source-main CI38983825863 and formal dispatch38984212725 PASS.
+Official archive177regular files/0mismatches; complete candidate/main tree,
+PR/main/raw/durable/coverage bindings verified. Archive SHA256
+`f2aaf363331332337d6dcdc4ddfb86d5c5e0f4113e217f6d232ebb775afe2ed9`; formal SHA256
+`920250e654945e29ac9a05f5a63c17dec0e9af42e981fee8f2fb01d2f3c0ad1b`.
+[Qualification](docs/verification/ASK_DJ_RESULT_TITLES_CORRECTION_V1.md).
+
+This is a bounded corrective increment in the existing Ask DJ family, no new
+roadmap node/family or next-product pickup. Existing settings and all historical
+snapshots remain preserved. Display-admission draft1197 stays unchanged at
+6e560061 and externally contract-gated; its WIP is not taken over. No Swift or
+receiver writes. Native/installed/hardware/joint claims remain separate; existing
+authorized HA-dev/prod updates require exact final-main artifacts and live readback.
+
+Repository State: `MERGED_UNRECONCILED` until this separate documentary
+Finalization protected merges and its exact-main/artifactreadback qualifies.
+Workspace State: `NOT_READY` until safe disposition of only this correction's
+branches/worktree, with verified recovery and preservation of display-admission
+and other WIP. No complete workspace claim or new lane assignment is implied.
+
 ## Current: Shared settings capability3 repair — separate Finalization
 
 #### Repository Status
