@@ -910,8 +910,9 @@ _EVENT_ACTIONS = (
                r"lanzó|lanzaron|lanzad[oa]s?|lanzamientos?|publicaci(?:ón|ones)|edici(?:ón|ones)|publicó|publicad[oa]s?|salió|salieron|fecha de lanzamiento)\b", re.I),
     re.compile(r"\b(?:recorded|recordings?|opnam|opnamen|opnames|opname|opgenomen|aufnahmen?|aufgenommen|nahm(?:en)?\b[^.!?]{0,40}\bauf|"
                r"enregistré(?:e|es|s)?|enregistra|enregistrements?|grabó|grabaron|grabad[oa]s?|grabaci(?:ón|ones))\b", re.I),
-    re.compile(r"\b(?:produced|produces|produceerde(?:n)?|geproduceerd|produzierte(?:n)?|produziert|"
-               r"produit(?:e|es|s)?|produisit|produjo|produjeron|producid[oa]s?)\b", re.I),
+    re.compile(r"\b(?:produced|produces|productions?|produceerde(?:n)?|geproduceerd|producties?|"
+               r"produzierte(?:n)?|produziert|produktionen?|produktion|produit(?:e|es|s)?|produisit|"
+               r"produjo|produjeron|producid[oa]s?|producci(?:ón|ones))\b", re.I),
 )
 # Closed guards for observed role/activity swaps, not a general semantic parser.
 # The same family across languages permits faithful translation, not a new role.

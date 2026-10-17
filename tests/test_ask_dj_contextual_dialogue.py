@@ -1060,6 +1060,34 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
             check={'text':answer,'kind':'relationship','evidence_ids':[span['id']],'quote':span['text']}
             self.assertTrue(research.supported(json.dumps({'supported':True,'claim_checks':[check]}),answer,context),answer)
 
+    def test_nominal_producer_credit_requires_actual_production_also_for_atomic_split_and_prefix(self):
+        from custom_components.djconnect.ask_dj import public_research as research
+        def context(activity):
+            source=research._source('Wikipedia','Brian Eno','https://en.wikipedia.org/wiki/Brian_Eno',
+                'With Robert Fripp, Brian Eno '+activity+' No Pussyfooting.','en',source_anchors=['No Pussyfooting']).model_data()
+            return {'public_music_research':{'schema_version':2,'sources':[source]}},source['evidence_spans'][0]
+        answers=('No Pussyfooting is an Eno production.',
+                 'No Pussyfooting is een productie van Eno.',
+                 'No Pussyfooting ist eine Produktion von Eno.',
+                 "No Pussyfooting est une production d’Eno.",
+                 'No Pussyfooting es una producción de Eno.')
+        for answer in answers:
+            for activity,expected in (('recorded',False),('produced',True)):
+                evidence,span=context(activity)
+                checks=[{'text':answer,'kind':'relationship','evidence_ids':[span['id']],'quote':span['text']}]
+                data={'supported':True,'claim_checks':checks}
+                self.assertEqual(research.supported(json.dumps(data),answer,evidence),expected,(answer,activity))
+                tail=' This invented the whole genre.'
+                prefix={**data,'supported':False,'unsupported_claims':[tail.strip()],
+                    'supported_prefix':answer,'prefix_supported':True,'prefix_answers_question':True}
+                self.assertEqual(research.qualified_prefix(json.dumps(prefix),answer+tail,evidence),
+                    answer if expected else None,(answer,activity,'prefix'))
+        evidence,span=context('recorded')
+        answer=answers[0]
+        checks=[{'text':text,'kind':'relationship','evidence_ids':[span['id']],'quote':span['text']}
+                for text in ('No Pussy','footing is an Eno pro','duction.')]
+        self.assertFalse(research.supported(json.dumps({'supported':True,'claim_checks':checks}),answer,evidence))
+
     def test_recording_year_never_becomes_release_year_even_when_assessor_accepts(self):
         from custom_components.djconnect.ask_dj import public_research as research
         quote = 'With Robert Fripp he recorded No Pussyfooting in 1973.'
