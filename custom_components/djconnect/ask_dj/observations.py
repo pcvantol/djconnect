@@ -221,27 +221,7 @@ async def current_artist_read(hass, runtime, selected=None):
         "fr": "C’est {artist}.", "es": "Es {artist}.",
     }
 
-    def subject(playback):
-        if (not isinstance(playback, dict)
-            or any(playback.get(k) for k in ("cached", "stale", "withdrawn"))
-            or playback.get("state") in {"idle", "unavailable", "unknown", "off"}):
-            return None
-        expiry = playback.get("valid_until") or playback.get("expires_at")
-        if expiry:
-            try:
-                deadline = datetime.fromisoformat(expiry)
-                if deadline.tzinfo is None or deadline.astimezone(UTC) <= datetime.now(UTC):
-                    return None
-            except (TypeError, ValueError):
-                return None
-        identity = playback.get("uri") or playback.get("track_uri") or playback.get("item_id")
-        artist = playback.get("artist") or playback.get("artist_name")
-        title = playback.get("title") or playback.get("track_name") or playback.get("name")
-        if not all(isinstance(v, str) and v.strip() for v in (identity, artist, title)):
-            return None
-        if len(identity) > 2048 or len(artist) > 512 or len(title) > 512:
-            return None
-        return (identity, artist, title)
+    subject = _identified_playback
 
     async def fresh():
         if turn:
@@ -316,3 +296,131 @@ async def current_artist_read(hass, runtime, selected=None):
             "images": [], "links": [dict(source) for source in sources if source.get("url")], "sources": sources,
             "playback_actions": [], "_private_current_context": True,
             "speech_processing_basis": "spotify_owner_local_read_v1" if answer and target else "accepted_local_reply"}
+
+
+def _identified_playback(playback):
+    if (not isinstance(playback, dict)
+        or any(playback.get(k) for k in ("cached", "stale", "withdrawn"))
+        or playback.get("state") in {"idle", "unavailable", "unknown", "off"}):
+        return None
+    expiry = playback.get("valid_until") or playback.get("expires_at")
+    if expiry:
+        try:
+            deadline = datetime.fromisoformat(expiry)
+            if deadline.tzinfo is None or deadline.astimezone(UTC) <= datetime.now(UTC):
+                return None
+        except (TypeError, ValueError):
+            return None
+    identity = playback.get("uri") or playback.get("track_uri") or playback.get("item_id")
+    artist = playback.get("artist") or playback.get("artist_name")
+    title = playback.get("title") or playback.get("track_name") or playback.get("name")
+    if not all(isinstance(v, str) and v.strip() for v in (identity, artist, title)):
+        return None
+    if len(identity) > 2048 or len(artist) > 512 or len(title) > 512:
+        return None
+    return (identity, artist, title)
+
+
+def release_question(text):
+    value=text.casefold().strip().lstrip("¿")
+    subject=re.search(r"\b(?:dit|dat|die|deze|huidig|huidige|this|current|dieser|dieses|aktuell(?:e|er|es|en)?|actuel|actuelle|cette|ce|esta|este|actual)\s+(?:nummer|track|song|opname|uitgave|album|recording|release|titel|lied|aufnahme|ausgabe|morceau|chanson|enregistrement|édition|canción|tema|grabación|edición)\b",value)
+    when=re.search(r"\b(?:wanneer|when|wann|quand|cuándo)\b",value)
+    released=re.search(r"\b(?:uitgekomen|verschenen|uitgebracht|released|release|erschienen|veröffentlicht|sorti|sortie|publié|publiée|salió|publicado|publicada|lanzó|lanzado)\b",value)
+    year=re.search(r"\b(?:jaar|year|jahr|année|año)\b",value)
+    return bool(subject and (year or (when and released)))
+
+
+async def release_read(hass,runtime,selected=None):
+    """Read exact edition metadata locally; no catalog-to-model or archive grant."""
+    from . import run_music_command
+    from ..spotify_backend import SpotifyBackendError
+    from ..use_cases import MusicBackendCapabilityError
+    from datetime import date
+    import asyncio
+    import hashlib
+    turn=current_turn.get()
+    locale=language()
+    copy={
+        'en':('The album edition containing {title} lists {date} as its release date.', 'I recognize {title}, but no reliable release date is available for that edition.', 'I cannot reliably identify the recording from the authorized music context.'),
+        'nl':('De albumuitgave met {title} vermeldt {date} als releasedatum.', 'Ik herken {title}, maar heb geen betrouwbare releasedatum van die uitgave.', 'Ik kan de opname niet betrouwbaar vaststellen uit de beschikbare muziekcontext.'),
+        'de':('Die Albumausgabe mit {title} nennt {date} als Veröffentlichungsdatum.', 'Ich erkenne {title}, aber für diese Ausgabe ist kein verlässliches Veröffentlichungsdatum verfügbar.', 'Ich kann die Aufnahme im verfügbaren Musikkontext nicht zuverlässig bestimmen.'),
+        'fr':('L’édition de l’album contenant {title} indique {date} comme date de sortie.', 'Je reconnais {title}, mais je ne dispose pas de date de sortie fiable pour cette édition.', 'Je ne peux pas identifier cette version de façon fiable dans le contexte musical disponible.'),
+        'es':('La edición del álbum que contiene {title} indica {date} como fecha de lanzamiento.', 'Reconozco {title}, pero no dispongo de una fecha de lanzamiento fiable para esa edición.', 'No puedo identificar con fiabilidad la grabación en el contexto musical disponible.'),
+    }
+    def release(metadata):
+        value=metadata.get('release_date')
+        precision=metadata.get('release_date_precision')
+        if not isinstance(value,str) or len(value)>10:
+            return None
+        try:
+            if precision=='day' and re.fullmatch(r"\d{4}-\d{2}-\d{2}",value):
+                date.fromisoformat(value)
+            elif precision=='month' and re.fullmatch(r"\d{4}-\d{2}",value):
+                date.fromisoformat(value+'-01')
+            elif precision=='year' and re.fullmatch(r"\d{4}",value):
+                date.fromisoformat(value+'-01-01')
+            else:
+                return None
+        except ValueError:
+            return None
+        return value
+    async def fresh():
+        if turn:
+            await turn.guard()
+            now=turn.history.dialogue.clock()
+            turn.speech_deadline=min(turn.speech_deadline or now+60,now+60)
+        try:
+            result=await asyncio.wait_for(run_music_command(hass,runtime,'status'),5)
+        except (SpotifyBackendError,MusicBackendCapabilityError,OSError,TimeoutError):
+            return {}
+        if turn:
+            await turn.guard()
+        return result.get('playback') or {} if isinstance(result,dict) and result.get('success') is not False else {}
+    metadata=dict((selected or {}).get('playback') or {})
+    # Historical playback projects a bounded item hash and a source link, not
+    # the original catalog object. Recover only the exact canonical URI whose
+    # hash equals that accepted identity; names never establish identity.
+    match=re.fullmatch(r'https://open\.spotify\.com/track/([A-Za-z0-9]{22})',str(metadata.get('source_url') or ''))
+    if not metadata.get('uri') and metadata.get('provider')=='Spotify' and match:
+        uri='spotify:track:'+match[1]
+        if metadata.get('item_id')==hashlib.sha256(uri.encode()).hexdigest()[:24]:
+            metadata['uri']=uri
+    used_current=False
+    target=_identified_playback(metadata)
+    selected_identity=target[0] if target else None
+    if selected is None:
+        used_current=True
+        metadata=await fresh()
+        target=_identified_playback(metadata)
+        if (target and turn and turn.captured_playback_item_id
+            and hashlib.sha256(target[0].encode()).hexdigest()[:24]!=turn.captured_playback_item_id):
+            raise DialogueError('playback_context_changed',409)
+    elif target and release(metadata) is None:
+        observed=await fresh()
+        if _identified_playback(observed) and _identified_playback(observed)[0]==selected_identity:
+            metadata=observed
+            used_current=True
+    value=release(metadata) if target else None
+    if target and used_current:
+        confirmed=await fresh()
+        if _identified_playback(confirmed)!=target or release(confirmed)!=value:
+            if selected is None:
+                raise DialogueError('playback_context_changed',409)
+            value=None
+    # A historical/selected recording remains selected when current playback differs.
+    known=target is not None
+    text=(copy[locale][0].format(title=target[2],date=value) if known and value
+          else copy[locale][1].format(title=target[2]) if known else copy[locale][2])
+    sources=[]
+    if known and re.fullmatch(r'spotify:track:[A-Za-z0-9]{22}',target[0]):
+        sources=[{'source':'spotify_playback_context','title':'Spotify','kind':'source',
+                  'url':'https://open.spotify.com/track/'+target[0].rsplit(':',1)[-1]}]
+    if turn:
+        await turn.guard()
+    return {'success':True,'text':text,'dj_text':text,'action':'none','images':[],
+            'sources':sources,'links':[dict(source) for source in sources],'playback_actions':[],
+            'intent':{'category':'informational','intent':'current_release_information'},
+            'release_observation':{'state':'known' if value else 'unknown','release_date':value,
+                                   'precision':metadata.get('release_date_precision') if value else None,
+                                   'basis':'album_edition','original_release_verified':False},
+            '_private_current_context':True,'speech_processing_basis':'accepted_local_reply'}

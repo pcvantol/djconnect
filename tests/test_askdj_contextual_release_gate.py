@@ -119,8 +119,24 @@ class ContextualReleaseGateTest(unittest.TestCase):
             materialize_case(unbound)
 
     def test_all_literal_core_routes_and_owner_bindings_are_accounted_for(self):
-        from tools.verification.askdj_release_inventory import validate
-        proof=validate()
-        self.assertEqual(proof['literal_core_routes'],46)
+        inventory=load('djc_release_inventory','tools/verification/askdj_release_inventory.py')
+        proof=inventory.validate()
+        self.assertEqual(proof['literal_core_routes'],47)
         self.assertEqual(proof['executable_help_cases'],60)
-        self.assertEqual(proof['conversation_families'],21)
+        self.assertEqual(proof['conversation_families'],22)
+
+    def test_empty_and_anonymous_full_or_local_receipts_never_pass(self):
+        matrix=load('djc_release_matrix','tools/verification/run_askdj_release_matrix.py')
+        self.assertFalse(matrix.validate_local_report('previous',{}))
+        forged={'core_transports':[{'case':'one','status':200,'expected_status':200}],
+                'model_calls':[{'case_id':'one','model':'gpt-6-luna','completed':True}],
+                'mixed_chains':[{}]*3,'style_cases':[{}]*20}
+        self.assertEqual(matrix.redacted_full_report(forged)['status'],'FAIL')
+
+    def test_publication_is_serialized_and_existing_assets_are_not_overwritten(self):
+        workflow=(ROOT/'.github/workflows/home-assistant-release-artifact.yml').read_text()
+        self.assertIn('group: ha-release-${{ github.event.workflow_run.head_sha }}',workflow)
+        self.assertNotIn('--clobber',workflow)
+        self.assertIn('gh release download',workflow)
+        self.assertIn('--sort=name --mtime=@0',workflow)
+        self.assertIn('gzip -n',workflow)

@@ -5,6 +5,10 @@ on:
     workflows: [Validate Home Assistant custom integration]
     types: [completed]
 
+concurrency:
+  group: ha-release-${{ github.event.workflow_run.head_sha }}
+  cancel-in-progress: false
+
 permissions:
   contents: write
 
@@ -31,7 +35,7 @@ jobs:
       - name: Package the exact integration artifact
         run: |
           set -euo pipefail
-          tar -C custom_components -czf djconnect-home-assistant-integration.tar.gz djconnect
+          tar -C custom_components --sort=name --mtime=@0 --owner=0 --group=0 --numeric-owner -cf - djconnect | gzip -n > djconnect-home-assistant-integration.tar.gz
           sha256sum djconnect-home-assistant-integration.tar.gz | awk '{print $1}' > djconnect-home-assistant-integration.sha256
       - id: release
         name: Publish immutable release asset
@@ -44,7 +48,16 @@ jobs:
           asset="djconnect-home-assistant-integration-${CANDIDATE_SHA}.tar.gz"
           mv djconnect-home-assistant-integration.tar.gz "$asset"
           gh release view "$tag" >/dev/null 2>&1 || gh release create "$tag" --target "$CANDIDATE_SHA" --title "DJConnect Home Assistant artifact ${CANDIDATE_SHA}" --prerelease --notes "Immutable internal deployment artifact."
-          gh release upload "$tag" "$asset" --clobber
+          test "$(gh release view "$tag" --json targetCommitish --jq .targetCommitish)" = "$CANDIDATE_SHA"
+          mkdir -p immutable-readback
+          if gh release view "$tag" --json assets --jq '.assets[].name' | grep -Fx "$asset"; then
+            gh release download "$tag" --pattern "$asset" --dir immutable-readback
+            test "$(sha256sum "immutable-readback/$asset" | awk '{print $1}')" = "$(cat djconnect-home-assistant-integration.sha256)"
+          else
+            gh release upload "$tag" "$asset"
+            gh release download "$tag" --pattern "$asset" --dir immutable-readback
+            test "$(sha256sum "immutable-readback/$asset" | awk '{print $1}')" = "$(cat djconnect-home-assistant-integration.sha256)"
+          fi
           printf 'asset=%s\n' "$asset" >> "$GITHUB_OUTPUT"
           printf 'artifact_id=release-asset:%s:%s:%s\n' "$GITHUB_REPOSITORY" "$tag" "$asset" >> "$GITHUB_OUTPUT"
           printf 'artifact_url=https://github.com/%s/releases/download/%s/%s\n' "$GITHUB_REPOSITORY" "$tag" "$asset" >> "$GITHUB_OUTPUT"

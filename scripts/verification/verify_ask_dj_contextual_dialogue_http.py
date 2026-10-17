@@ -163,7 +163,7 @@ async def main():
                 yield ResponseOutputItemDoneEvent.model_construct(type="response.output_item.done",sequence_number=2,output_index=0,item=item)
                 yield ResponseCompletedEvent.model_construct(type="response.completed",sequence_number=3,response=completed)
             return fixture_stream()
-        assert os.environ.get("DJC_SAFETY_PROBE") not in {"previous", "output"}, "Safety probes must not call a model"
+        assert os.environ.get("DJC_SAFETY_PROBE") not in {"previous", "output", "release_context"}, "Safety probes must not call a model"
         inputs = json.dumps(kwargs.get("input", []), ensure_ascii=False)
         assert not any(
             value in inputs
@@ -392,7 +392,7 @@ async def main():
             h.data["djconnect"][native_owner.entry_id] = native_runtime
             await storage.async_upsert_device("djconnect-conversation-agent", "conversation_agent", linked_profile_id="profile-a")
             _register_developer_services(h, native_owner, native_runtime)
-        receipts, provider_calls = [], []
+        receipts, provider_calls, mutations = [], [], []
         state = {
             "index": 0,
             "playing": True,
@@ -426,6 +426,8 @@ async def main():
             )
         ]
 
+        if os.environ.get("DJC_SAFETY_PROBE") == "release_context":
+            tracks[0]["album"].update(release_date="2008-05-06",release_date_precision="day")
         if os.environ.get("DJC_SAFETY_PROBE") == "choice_titles":
             tracks = [{**tracks[0], "id": str(i) * 22, "uri": "spotify:track:" + str(i) * 22,
                        "name": f"Synthetic choice title {i}"} for i in range(1, 7)]
@@ -442,6 +444,8 @@ async def main():
         ):
             provider_calls.append({"method": method, "path": path,
                                    **({"body": json} if method in {"POST", "PUT", "DELETE"} else {})})
+            if method in {"POST", "PUT", "DELETE"}:
+                mutations.append({"method":method,"path":path})
             if state.get("provider_unavailable"):
                 raise ConnectionError("Explicit external provider outage fixture")
             parsed = urlparse(path)
@@ -865,7 +869,7 @@ async def main():
                             "X-DJConnect-Conversation-Scope": "profile", "X-DJConnect-Client-Message-ID": identifier,
                         })
                         body = await response.json()
-                        receipts.append({"case":identifier,"path":"voice","status":response.status,"body":body})
+                        receipts.append({"case":identifier,"path":"voice","status":response.status,"expected_status":200,"cache_control":response.headers.get("Cache-Control"),"body":body})
                         assert response.status == 200, (identifier,response.status,body.get("error"))
                         assert body["transcript"] == voice_text
                         return body
@@ -1012,7 +1016,7 @@ async def main():
                         "client_message_id": "output-offline", "audio_response": "never"}, label="output-offline", expected=409)
                     assert len([c for c in provider_calls if c["method"] == "PUT" and c["path"].startswith("/me/player/play")]) == len(plays)
                     assert not model_receipts
-                    Path("/lab/output-safety-fixed.json").write_text(json.dumps({"qualification": "REAL_PAIRED_OUTPUT_SELECTION_TRANSFER_EXACT_TARGET",
+                    Path("/lab/output-safety-fixed.json").write_text(json.dumps({"qualification": "REAL_PAIRED_OUTPUT_SELECTION_TRANSFER_EXACT_TARGET", "pairing":"ordinary_device_token_minted_persisted",
                         "source_hashes": hashes(), "pairing": "ordinary_device_token_minted_persisted", "core_transports": receipts,
                         "provider_calls": provider_calls, "model_calls": model_receipts, "installed": "NOT_RUN"}, ensure_ascii=False, indent=2) + "\n")
                     await async_shutdown_persistence(h)
@@ -1107,6 +1111,45 @@ async def main():
                     await call(
                         "session/end", {"session_id": active.session_id}, label=label + "-end"
                     )
+
+                if os.environ.get("DJC_SAFETY_PROBE") == "release_context":
+                    active,moment,_=await start("release-context")
+                    from custom_components.djconnect.session_conversation import query_service
+                    page=await query_service(h,history).async_timeline_page("profile-a",active.session_id)
+                    entry=next(e for e in page["entries"] if e.get("kind")=="playback_observed")
+                    selection={"session_id":active.session_id,"selected_entry":{
+                        "session_id":active.session_id,"entry_id":entry["entry_id"]}}
+                    examples=[("nl","Wanneer is dit nummer uitgekomen?"),
+                              ("nl","Wanneer is huidig nummer uitgekomen"),
+                              ("nl","Wanneer is het huidige nummer uitgekomen?"),
+                              ("en","When was the current song released?"),
+                              ("de","Wann wurde dieser Titel veröffentlicht?"),
+                              ("fr","Quand est sortie cette chanson ?"),
+                              ("es","¿Cuándo salió esta canción?")]
+                    for i,(language,text) in enumerate(examples):
+                        for mode,context in (("current",None),("selected",selection)):
+                            answer=await ask(text,f"release-{i}-{mode}",context,language=language)
+                            assert "Synthetic studio recording" in answer["text"]
+                            assert answer["release_observation"]=={
+                                "state":"known","release_date":"2008-05-06","precision":"day",
+                                "basis":"album_edition","original_release_verified":False}
+                            assert answer["conversation"]["metrics"]["agent_calls"]==0
+                            assert not answer["history_persisted"]
+                    state["index"]=1
+                    answer=await ask("Wanneer is dit nummer uitgekomen?","release-selected-other-current",selection,language="nl")
+                    assert "Synthetic studio recording" in answer["text"] and "Synthetic live recording" not in answer["text"]
+                    assert answer["release_observation"]["state"]=="unknown"
+                    await end(active,"release-context")
+                    assert not mutations and not model_receipts
+                    Path("/lab/release-context.json").write_text(json.dumps({
+                        "qualification":"CORE_PAIRED_CURRENT_SELECTED_RELEASE_METADATA_ZERO_MODEL",
+                        "source_hashes":hashes(),"pairing":"ordinary_device_token_minted_persisted",
+                        "core_transports":receipts,"model_calls":model_receipts,
+                        "provider_calls":provider_calls,"effects":mutations},indent=2)+"\n")
+                    await async_shutdown_persistence(h)
+                    await h.async_stop(force=True)
+                    await api.close()
+                    return
 
                 if os.environ.get("DJC_SAFETY_PROBE") == "contextual_golden":
                     from scripts.verification.askdj_contextual_golden import run

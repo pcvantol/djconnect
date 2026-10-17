@@ -60,4 +60,4 @@ class UniversalReceiverBrowserE2ETest(unittest.TestCase):
         release_workflow = RELEASE_WORKFLOW_PATH.read_text(encoding="utf-8")
         self.assertNotIn("developer-overlay", receiver)
         self.assertNotIn("read-only-observability", receiver)
-        self.assertIn("tar -C custom_components -czf", release_workflow)
+        self.assertIn("tar -C custom_components --sort=name --mtime=@0", release_workflow)

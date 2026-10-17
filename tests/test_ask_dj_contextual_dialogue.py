@@ -3609,6 +3609,76 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(len(calls), len(cases)+1)
         self.assertEqual(self.prompts, [])
 
+    async def test_release_question_uses_current_or_selected_metadata_locally(self):
+        session=await self.fixture.observed_session()
+        from custom_components.djconnect.session_conversation import query_service
+        page=await query_service(self.hass,self.history).async_timeline_page('profile-a',session.session_id)
+        observed=next(e for e in page['entries'] if e['kind']=='playback_observed')
+        context={'session_id':session.session_id,'selected_entry':{'session_id':session.session_id,'entry_id':observed['entry_id']}}
+        metadata={'uri':'spotify:track:0123456789abcdefghijkL','title':'One','artist':'Metallica',
+                  'release_date':'1988-08-25','release_date_precision':'day'}
+        reads=[]
+        async def status(*args,**kwargs):
+            self.assertEqual(args[2],'status')
+            reads.append('status')
+            return {'success':True,'playback':dict(metadata)}
+        questions=[('nl','Wanneer is dit nummer uitgekomen?'),('nl','Wanneer is huidig nummer uitgekomen'),
+                   ('nl','Wanneer is het huidige nummer uitgekomen?'),('en','When was the current song released?'),
+                   ('de','Wann wurde dieser Titel veröffentlicht?'),('fr','Quand est sortie cette chanson ?'),
+                   ('es','¿Cuándo salió esta canción?')]
+        with patch.object(self.core,'run_music_command',status):
+            for i,(locale,text) in enumerate(questions):
+                for mode,selection in [('current',None),('selected',context)]:
+                    answer,code=await self.request(text,identifier=f'release-{i}-{mode}',context=selection,language=locale)
+                    self.assertEqual(code,200,answer)
+                    self.assertIn('One',answer['text'])
+                    self.assertIn('1988-08-25',answer['text'],(i,mode,observed.get('playback'),answer.get('release_observation')))
+                    self.assertEqual(answer['release_observation']['basis'],'album_edition')
+                    self.assertFalse(answer['release_observation']['original_release_verified'])
+                    self.assertFalse(answer['history_persisted'])
+                    self.assertEqual(answer['conversation']['metrics']['agent_calls'],0)
+            metadata.update(uri='spotify:track:'+'B'*22,title='A different recording',release_date='2001-01-01')
+            answer,code=await self.request('Wanneer is dit nummer uitgekomen?',identifier='release-selected-old',context=context,language='nl')
+            self.assertEqual(code,200,answer)
+            self.assertIn('One',answer['text'])
+            self.assertNotIn('A different recording',answer['text'])
+            self.assertNotIn('2001',answer['text'])
+            self.assertEqual(answer['release_observation']['state'],'unknown')
+        self.assertTrue(reads)
+        self.assertEqual(self.prompts,[])
+        self.assertEqual(self.effects,[])
+
+    async def test_release_precision_missing_metadata_and_track_race_never_guess(self):
+        metadata={'uri':'spotify:track:'+'A'*22,'title':'Synthetic A','artist':'Synthetic performer',
+                  'release_date':'2008','release_date_precision':'year'}
+        async def status(*args,**kwargs):
+            return {'success':True,'playback':dict(metadata)}
+        with patch.object(self.core,'run_music_command',status):
+            for i,(value,precision,expected) in enumerate([('2008','year','known'),('2008-05','month','known'),
+                                                         ('2008-02-31','day','unknown'),('2008-05-06',None,'unknown')]):
+                metadata.update(release_date=value,release_date_precision=precision)
+                answer,code=await self.request('When was the current song released?',identifier=f'release-precision-{i}')
+                self.assertEqual(code,200,answer)
+                self.assertEqual(answer['release_observation']['state'],expected)
+                self.assertEqual(answer['release_observation']['release_date'],value if expected=='known' else None)
+            metadata.clear()
+            answer,code=await self.request('Wanneer is huidig nummer uitgekomen',identifier='release-missing',language='nl')
+            self.assertEqual(code,200,answer)
+            self.assertEqual(answer['release_observation']['state'],'unknown')
+            self.assertNotIn('Synthetic A',answer['text'])
+        reads=0
+        async def changed(*args,**kwargs):
+            nonlocal reads
+            reads+=1
+            return {'success':True,'playback':{'uri':'spotify:track:'+str(reads)*22,'title':'Synthetic '+str(reads),
+                    'artist':'Synthetic performer','release_date':'2008','release_date_precision':'year'}}
+        with patch.object(self.core,'run_music_command',changed):
+            answer,code=await self.request('When was the current song released?',identifier='release-track-race')
+            self.assertEqual(code,409,answer)
+            self.assertNotIn('assistant_message',answer)
+        self.assertEqual(self.prompts,[])
+        self.assertEqual(self.effects,[])
+
     async def test_previous_question_uses_actual_accepted_owner_observations_without_effects(self):
         session, moment, _ = await self.selected_credit()
         await self.fixture.manager.async_update_playback_projection(owner_profile_id="profile-a", session_id=session.session_id,

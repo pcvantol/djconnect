@@ -26,6 +26,10 @@
     "session_forecast_information": {
       "file": "tests/test_ask_dj_contextual_dialogue.py",
       "method": "test_quarter_hour_uses_existing_projection_and_queue_without_model_or_mutation"
+    },
+    "current_release_information": {
+      "file": "tests/test_ask_dj_contextual_dialogue.py",
+      "method": "test_release_question_uses_current_or_selected_metadata_locally"
     }
   },
   "families": [
@@ -651,6 +655,29 @@
       ],
       "real_ha_profile": "full_golden",
       "fixture_boundary": "owning tests have explicit provider/agent fixtures; real HA profiles separately named"
+    },
+    {
+      "id": "ASKDJ-FLOW-current-selected-release",
+      "steps": [
+        {
+          "question": "Wanneer is dit nummer uitgekomen?",
+          "expected_answer": "Herken exacte actuele/gekozen opname; rapporteer gedateerde albumuitgave met precisie, geen verzonnen eerste release",
+          "model_policy": "zero"
+        },
+        {
+          "question": "En wanneer is deze uitgave verschenen?",
+          "expected_answer": "Behoud expliciete gekozen uitgave; bij trackwisseling geen stille hertargeting; onbekende datum noemt de bekende opname",
+          "model_policy": "zero"
+        }
+      ],
+      "owning_tests": [
+        {
+          "file": "tests/test_ask_dj_contextual_dialogue.py",
+          "method": "test_release_question_uses_current_or_selected_metadata_locally"
+        }
+      ],
+      "real_ha_profile": "release_context",
+      "fixture_boundary": "external playback only; Core owner/selection/status route real"
     }
   ],
   "evidence_boundaries": [

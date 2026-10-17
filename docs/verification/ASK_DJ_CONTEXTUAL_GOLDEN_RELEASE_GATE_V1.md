@@ -126,3 +126,17 @@ remain denied. Its precise existing route is `track_versions_search`, not the
 old unexecuted catalog expectation `track_title_choices`. Explicit fixtures and
 single-/multiword regression checks qualify this correction separately from
 paid dialogue quality. The original Peter context regression remains open.
+
+### Current/selected recording release-date regression
+
+User screenshot: “Wanneer is dit nummer uitgekomen?” with a selected observed
+playback contribution must identify that recording. Add a local read-only route:
+selected accepted playback identity wins; otherwise capture fresh authorized
+playback. Use provider-qualified date/precision for the exact album edition,
+not an invented first-release date. If the selected recording lacks retained
+date metadata, current metadata may supplement it only after exact media-URI
+match and a second stable read. A changed track cannot silently retarget it.
+Unknown date still names the known selected recording; unavailable playback is
+an honest recovery. No catalog data goes to a model or durable dialogue archive.
+The five-language route has zero model/playback effects, uses existing status
+reads and owner/Session/source fences, and adds no provider or persistent store.

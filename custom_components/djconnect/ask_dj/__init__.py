@@ -123,6 +123,9 @@ async def async_handle_ask_dj(
         await turn.guard()
         turn.source_context = source
     from .observations import current_artist_question, current_artist_read
+    from .observations import release_question, release_read
+    if action_request is None and release_question(text):
+        return await release_read(hass,runtime,confirmed_entry)
     if action_request is None and confirmed_entry is not None and current_artist_question(text):
         return await current_artist_read(hass, runtime, confirmed_entry)
     if action_request is not None:
@@ -1514,6 +1517,9 @@ def classify_ask_dj(text: str) -> AskDjIntent:
     normalized = _normalize(text)
     nonexecuting = _nonexecuting_speech_act(normalized)
     from .observations import forecast_question, previous_question, current_artist_question
+    from .observations import release_question
+    if release_question(normalized):
+        return AskDjIntent("informational", "current_release_information")
     if current_artist_question(normalized):
         return AskDjIntent("informational", "current_artist_information")
     if forecast_question(normalized) and not _execution_request(normalized):

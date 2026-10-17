@@ -191,7 +191,7 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
             dependencies.append(live)
         captured = active.broadcast.state.playback.item_id if active else ""
         # Only genuinely current-playback questions bind to a playback item.
-        track_bound = not target and not live and (intent.intent in {"current_track_reference", "current_artist_information", "track_insight", "dj_announcement"}
+        track_bound = not target and not live and (intent.intent in {"current_track_reference", "current_artist_information", "current_release_information", "track_insight", "dj_announcement"}
             or (references_topic(text) and not frame.messages and not frame.subjects and not frame.result_set))
         playback_fence_session = session_id or (
             active.session_id if active and track_bound and intent.intent == "current_artist_information" else ""
