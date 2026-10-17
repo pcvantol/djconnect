@@ -100,6 +100,27 @@ snippet. If an attempted lookup yields no qualified source, answer with a locali
 a concise useful limitation or clarification, never an invented concert/credit.
 No source/model error should mutate playback or reset the user's selected topic.
 
+### Executable chronology refinement
+
+The observed collaboration1973/first-solo-albums1974 failure requires more than
+an unqualified checker boolean. In that same second call, every explicit year
+in the retained answer requires bounded `temporal_claims`: an exact answer
+sentence, event anchor, year, admitted content-hash source ID and unchanged
+complete source sentence. Core checks original spans, source identity, matching
+year and event anchor; first/solo qualifiers cannot borrow another event's year.
+For work chronology, the anchor must be an exact name retained from source
+emphasis markup in the same fetched excerpt; a model-authored label such as
+“debut studio album” is insufficient. The existing Wikipedia request retains
+limited HTML for this purpose, then strips markup before expression. Missing or
+malformed name markup withholds that date rather than guessing a work identity.
+No additional source request or new license grant follows from the markup.
+The supported prefix is subject to the same checks. Five-language relative-year
+references such as “that same year” are withheld until an executable antecedent
+binding exists; a model's resolved year alone is insufficient. No extra call,
+public response field, source grant or persistent evidence database is added.
+This is a conservative temporal boundary, not a general semantic proof: the
+existing factual assessment and independent real-answer review remain required.
+
 ### Bounded unsupported-tail recovery
 
 A supported answer must not be replaced by a total source-unavailable message

@@ -139,9 +139,9 @@ class ContextualReleaseGateTest(unittest.TestCase):
         self.assertEqual(proof['literal_core_routes'],47)
         self.assertEqual(proof['executable_help_cases'],60)
         self.assertEqual(proof['conversation_families'],34)
-        self.assertEqual(proof['conversation_steps'],100)
-        self.assertEqual(proof['reported_issues'],23)
-        self.assertEqual(len(proof['open_core_findings']),4)
+        self.assertEqual(proof['conversation_steps'],101)
+        self.assertEqual(proof['reported_issues'],24)
+        self.assertEqual(len(proof['open_core_findings']),5)
         self.assertEqual(proof['proactive_golden_cases'],560)
 
     def test_reported_issue_without_family_or_open_disposition_cannot_pass_release(self):

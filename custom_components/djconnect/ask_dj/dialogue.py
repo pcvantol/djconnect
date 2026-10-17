@@ -668,16 +668,16 @@ def style_projection(payload: dict, active=None, profile=None, *, settings=None)
     return result
 
 
-def persona_answer_form(persona: str) -> str:
+def persona_answer_form(persona: str, *, include_identity=True) -> str:
     """One authored Persona instruction owner for dialogue and qualified insight."""
     from ..narration_style import host_identity
     forms = {
-        "home_dj": "As a thoughtful conversation with one person, illuminate one concrete source example and connect it to this question. Let the useful detail unfold naturally; do not append a setting, invitation, analogy or career recital.",
-        "radio_dj": "Connect two explicitly related source facts into a short development. Make the documented connection clear without inferring an influence, consequence, reputation or sound. Prefer a concrete work, collaboration or activity over a list of achievements.",
-        "club_dj": "Give one sharp concrete distinction or source example. Use economical phrasing and stop as soon as the answer lands; omit biography lists, soft introductions and hype. A precise answer need not be a database definition.",
-        "festival_dj": "Bring a documented concrete development to life through varied conversational rhythm and a welcoming voice. Keep the relevant detail central, without a compulsory joke, closing reflection, imagined place, event or audience. Do not fill an extra sentence just to sound lively.",
+        "home_dj": "Unfold one concrete admitted example with this one listener. Weave any needed identity into that example instead of a separate definition; let the useful detail itself carry the warmth and curiosity.",
+        "radio_dj": "Lead with a documented connection or development, then connect the relevant admitted facts into a compact arc. Weave identification into the telling when needed; the connection, not a biography list, is the point.",
+        "club_dj": "Choose one sharp distinction or concrete example, put it first, and stop when it lands. Let precision and economical phrasing carry the character; omit the separate definition and decorative closing line when unnecessary.",
+        "festival_dj": "Bring a concrete documented development to the listener through lively conversational turns. Let the order, emphasis and rhythm of those facts carry the welcoming character, without a compulsory joke or added reflection.",
     }
-    return host_identity(persona) + " " + forms.get(persona, forms["home_dj"])
+    return (host_identity(persona) + " " if include_identity else "") + forms.get(persona, forms["home_dj"])
 
 
 def model_prompt(text: str, payload: dict, source: dict | None = None) -> str:
@@ -735,11 +735,8 @@ def model_prompt(text: str, payload: dict, source: dict | None = None) -> str:
     else:
         instructions += narration_rules + " "
         instructions += (
-            "Make this a useful, connected conversation, not an encyclopedia entry or a recital of a CV. "
-            "Choose the few facts that answer this question and tell them naturally in the host's voice. "
-            "Do not default to nationality, job list, timeline and a generic closing line. Pick one useful angle and develop it. "
-            "Warmth and a small dry aside may colour the telling; never force a joke or invent personal intent. "
-            "Mood changes pace and energy within the same Persona, not facts or authority. "
+            "Let the Persona determine the order and connection of admitted facts, not a factual summary followed by an aside. "
+            "Mood changes the rhythm and emphasis of that same voice, never facts or authority. "
             "Do not recite a source's name in the answer as a substitute for telling the story; Core adds source links. "
             "Translate English source prose into the selected language through your own natural phrasing, not a literal dump. "
             "Keep proper names and work titles original. Translate ordinary genre/activity descriptions. "
@@ -757,9 +754,10 @@ def model_prompt(text: str, payload: dict, source: dict | None = None) -> str:
                 "The English activity recording must not become an occupation such as recording director, opnameleider or recording engineer. "
                 "Preserve mix versus remix, past versus present membership, and separate performers from other credited members. "
                 "Do not invent an exclusive membership count when an additional member is credited. "
-                "For a general person question, identify them as needed, then centre a named work, collaboration or concrete activity actually present in the admitted excerpt when available. "
-                "Do not merely repeat job/genre labels when the source offers such a concrete example. Connections between examples must be explicitly supported; do not infer why a career or genre became important. "
-                "Birth dates and career timelines are optional; omit details that are not needed or not fully supported. "
+                "For a general person question, centre a named work, collaboration or concrete activity actually present in the admitted excerpt when available. "
+                "Identification can be woven into that example; a separate nationality/job/genre definition is optional. Connections between examples must be explicitly supported. "
+                "Use absolute years only when needed and tied to the exact event in a source sentence. Omit relative-year phrases such as that same year, next year or a year later; their antecedents are not qualified. "
+                "Every stated year needs an exact source_anchors work name in its own sentence. Without such a source-marked name, retain useful supported non-date facts instead of adding chronology. "
                 "Combine relevant sources, but retain conflicts and current concert uncertainty. A source lookup proves only its actual content. "
                 "If only part is supported, answer that part with a concise limitation; no guess to complete the story. "
                 "Use enough connected prose for the question, with the selected Persona's rhythm rather than an arbitrary sentence quota. "
@@ -773,12 +771,10 @@ def model_prompt(text: str, payload: dict, source: dict | None = None) -> str:
             "Return the answer directly as natural prose. No query object, fixed greeting, setting name, compulsory invitation or tagline. "
             "Ask one focused clarification only for a genuine ambiguity."
         )
-        instructions += " Core-owned response shape: " + persona_answer_form(style["persona"])
+        instructions += " Core-owned response shape: " + persona_answer_form(style["persona"], include_identity=False)
         instructions += (
             " For a simple who-is question, use that shape instead of summarizing the whole source introduction. "
             "For an explicit detailed explanation develop enough detail to answer it. "
-            "An aside may express your own current curiosity or enjoyment of the admitted connection, "
-            "but must not describe an artist's taste, intention, working method, audience response or unmeasured sound. "
             "Do not upgrade chronology into first fame or the beginning of a career, or an association into a causal success story. Membership of a band does not establish where a career began. "
         )
     instructions += "\nData:\n"

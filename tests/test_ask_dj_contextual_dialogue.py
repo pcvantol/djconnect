@@ -670,8 +670,107 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
         from custom_components.djconnect.ask_dj.public_research import supported
         self.assertTrue(supported('{"supported":true}'))
         for value in ('{"supported":false,"supported":true}', '{"supported":1}',
-                      '{"supported":true,"text":"extra"}', ' ' * 1200 + '{"supported":true}'):
+                      '{"supported":true,"text":"extra"}', ' ' * 9000 + '{"supported":true}'):
             self.assertFalse(supported(value), value[:80])
+
+    def test_public_research_temporal_receipts_bind_actual_year_and_event_in_five_languages(self):
+        from custom_components.djconnect.ask_dj import public_research as research
+        source_id = 'a' * 64
+        source = ("Brian Eno is an English musician. With Robert Fripp he recorded No Pussyfooting in 1973. "
+                  "In 1974 Eno released his first solo albums Here Come the Warm Jets and Taking Tiger Mountain.")
+        context = {'public_music_research': {'resolved_public_subject': 'Brian Eno',
+            'sources': [{'content_hash': source_id, 'untrusted_excerpt': source,
+                         'source_anchors': ['No Pussyfooting', 'Here Come the Warm Jets', 'Taking Tiger Mountain']}]}}
+        quote = source.split('. ')[-1]
+        answers = (
+            "Eno released his first solo albums in 1974.",
+            "Eno bracht zijn eerste soloalbums uit in 1974.",
+            "Eno veröffentlichte seine ersten Soloalben im Jahr 1974.",
+            "Eno a sorti ses premiers albums solo en 1974.",
+            "Eno publicó sus primeros álbumes como solista en 1974.",
+        )
+        for answer in answers:
+            answer = answer[:-1] + ' (Here Come the Warm Jets).'
+            proof = {'claim': answer, 'event_anchor': 'Here Come the Warm Jets', 'year': '1974', 'source_id': source_id, 'quote': quote}
+            good = {'supported': True, 'unsupported_claims': [], 'temporal_claims': [proof]}
+            with self.subTest(answer=answer):
+                self.assertTrue(research.supported(json.dumps(good), answer, context))
+                self.assertFalse(research.supported('{"supported":true}', answer, context))
+                wrong = answer.replace('1974', '1973')
+                self.assertFalse(research.supported(json.dumps({**good, 'temporal_claims': [
+                    {**proof, 'claim': wrong, 'year': '1973', 'quote': 'With Robert Fripp he recorded No Pussyfooting in 1973.'}
+                ]}), wrong, context))
+                for broken in ({**proof, 'source_id': 'b' * 64}, {**proof, 'quote': quote.replace('1974','1973')},
+                               {**proof, 'event_anchor': 'Eno'}, {**proof, 'year': '1973'}):
+                    self.assertFalse(research.supported(json.dumps({**good, 'temporal_claims': [broken]}), answer, context))
+                unbound = answer + ' No Pussyfooting appeared in 1973.'
+                self.assertFalse(research.supported(json.dumps(good), unbound, context))
+        for relative in ('that same year', 'datzelfde jaar', 'im selben Jahr', 'cette même année', 'ese mismo año'):
+            self.assertFalse(research.supported('{"supported":true}', 'Eno: ' + relative + '.', context))
+        wrong = 'Eno released his first solo album No Pussyfooting in 1973.'
+        self.assertFalse(research.supported(json.dumps({'supported': True, 'temporal_claims': [{
+            'claim': wrong, 'event_anchor': 'No Pussyfooting', 'year': '1973', 'source_id': source_id,
+            'quote': 'With Robert Fripp he recorded No Pussyfooting in 1973.'}]}), wrong, context))
+        wrong = 'Eno released his first solo album No Pussyfooting in 1974.'
+        for anchor in ('first solo album', 'solo', 'album', 'released', 'first', 'debut studio album'):
+            self.assertFalse(research.supported(json.dumps({'supported': True, 'temporal_claims': [{
+                'claim': wrong, 'event_anchor': anchor, 'year': '1974', 'source_id': source_id, 'quote': quote}]}), wrong, context))
+        for wrong in ('Eno bracht het soloalbum No Pussyfooting uit in 1973.',
+                      'Eno veröffentlichte das Soloalbum No Pussyfooting im Jahr 1973.'):
+            self.assertFalse(research.supported(json.dumps({'supported': True, 'temporal_claims': [{
+                'claim': wrong, 'event_anchor': 'No Pussyfooting', 'year': '1973', 'source_id': source_id,
+                'quote': 'With Robert Fripp he recorded No Pussyfooting in 1973.'}]}), wrong, context))
+        prefix = 'Eno recorded No Pussyfooting in 1973.'
+        tail = 'Eno released his first solo album that same year.'
+        proof = {'claim': prefix, 'event_anchor': 'No Pussyfooting', 'year': '1973', 'source_id': source_id,
+                 'quote': 'With Robert Fripp he recorded No Pussyfooting in 1973.'}
+        body = {'supported': False, 'unsupported_claims': [tail], 'supported_prefix': prefix,
+                'prefix_supported': True, 'prefix_answers_question': True, 'temporal_claims': [proof]}
+        self.assertEqual(research.qualified_prefix(json.dumps(body), prefix + ' ' + tail, context), prefix)
+        body['temporal_claims'] = []
+        self.assertIsNone(research.qualified_prefix(json.dumps(body), prefix + ' ' + tail, context))
+
+    def test_public_research_source_marked_names_are_not_model_authored_event_labels(self):
+        from custom_components.djconnect.ask_dj import public_research as research
+        parser = research.PageText()
+        parser.feed('<p>Eno released his debut studio album <i>Here Come the Warm Jets</i> in 1974.</p>'
+                    '<script><i>Forbidden name</i></script><p><i>Unclosed name</em></p>')
+        self.assertEqual(parser.source_anchors, ['Here Come the Warm Jets'])
+        source = research._source('Wikipedia', 'Brian Eno', 'https://en.wikipedia.org/wiki/Brian_Eno',
+                                 parser.text(), 'en', source_anchors=parser.source_anchors)
+        actual = source.model_data()
+        self.assertNotIn('source_anchors', source.metadata())
+        wrong = 'Eno released his debut studio album No Pussyfooting in 1974.'
+        proof = {'claim': wrong, 'event_anchor': 'debut studio album', 'year': '1974',
+                 'source_id': actual['content_hash'], 'quote': parser.text().split('\n')[0]}
+        context = {'public_music_research': {'resolved_public_subject': 'Brian Eno', 'sources': [actual]}}
+        self.assertFalse(research.supported(json.dumps({'supported': True, 'temporal_claims': [proof]}), wrong, context))
+        right = wrong.replace('No Pussyfooting', 'Here Come the Warm Jets')
+        proof.update(claim=right, event_anchor='Here Come the Warm Jets')
+        self.assertTrue(research.supported(json.dumps({'supported': True, 'temporal_claims': [proof]}), right, context))
+        without = {**actual, 'source_anchors': []}
+        self.assertFalse(research.supported(json.dumps({'supported': True, 'temporal_claims': [proof]}), right,
+            {'public_music_research': {'sources': [without]}}))
+
+    async def test_public_research_wrong_same_year_never_reaches_history_or_speech(self):
+        source = ("Brian Eno is an English musician. With Robert Fripp he recorded No Pussyfooting in 1973. "
+                  "In 1974 Eno released his first solo albums Here Come the Warm Jets and Taking Tiger Mountain.")
+        wrong = "Eno recorded No Pussyfooting in 1973. Eno released his first solo album that same year."
+        async def agent(hass, data, **kwargs):
+            projection = json.loads(data['text'].split('\nData:\n', 1)[1])
+            self.prompts.append(projection)
+            answer = '{"supported":true}' if 'evidence' in projection else wrong
+            return {'response': {'speech': {'plain': {'speech': answer}}}}
+        with self.research_http(title='Brian Eno', text=source), patch.object(self.pipeline, '_call_conversation_process_transport', agent):
+            result, status = await self.request('Who is Brian Eno?', identifier='wrong-temporal-relationship')
+        self.assertEqual(status, 200, result)
+        self.assertEqual(result['knowledge_basis'], 'public_research_unqualified')
+        self.assertNotIn('same year', result['text'])
+        self.assertFalse(result.get('links'))
+        self.assertEqual(result['conversation']['metrics']['agent_calls'], 2)
+        stored = await self.history.async_history('profile:profile-a')
+        self.assertNotIn('same year', json.dumps(stored))
+        self.assertEqual(self.effects, [])
 
     async def test_public_research_unrelated_homonym_with_music_mention_is_rejected(self):
         from custom_components.djconnect.ask_dj import public_research
@@ -696,7 +795,8 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
         async def guard(): pass
         calls = []
         async def request(fetch, url, **kwargs):
-            calls.append(url); fetch.requests += 1
+            calls.append(url)
+            fetch.requests += 1
             if url.endswith("robots.txt"):
                 return 200, "User-agent: *\nAllow: /", url
             if "duckduckgo.com/html/" in url:
@@ -729,7 +829,8 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
         response.content = response
         class Session:
             def get(self, url, **kwargs):
-                calls.append((url, kwargs)); return response
+                calls.append((url, kwargs))
+                return response
         real_request = self.web_patch.temp_original
         fetch = research.PublicFetch(guard)
         fetch.session = Session()
@@ -769,7 +870,8 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
         from custom_components.djconnect.ask_dj import public_research as research
         from urllib.parse import urlsplit
         async def english_only(fetch, url, **kwargs):
-            self.web_calls.append(url); fetch.requests += 1
+            self.web_calls.append(url)
+            fetch.requests += 1
             if urlsplit(url).hostname == "en.wikipedia.org":
                 return 200, json.dumps({"query": {"pages": [{"title":"Brian Eno",
                     "extract":"Brian Eno is an English musician and record producer.",

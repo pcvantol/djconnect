@@ -2941,15 +2941,16 @@ async def _informational_assist_response(
         # unchecked answer. No excerpts are copied into history or transport.
         accepted = False
         if turn.agent_calls < 2:
+            grounding_context = {"public_music_research": turn.public_research,
+                                 "qualified_context": turn.source_context}
             checked = await _call_dialogue_agent(hass, {**data, "text": public_research.assessment_prompt(
-                message, {"public_music_research": turn.public_research,
-                          "qualified_context": turn.source_context}, language, text)})
+                message, grounding_context, language, text)})
             await turn.guard()
             check_response = (checked or {}).get("response") or {}
             assessment = _speech_from_response(check_response)
-            accepted = not check_response.get("error") and public_research.supported(assessment)
+            accepted = not check_response.get("error") and public_research.supported(assessment, message, grounding_context)
             if not accepted and not check_response.get("error"):
-                prefix = public_research.qualified_prefix(assessment, message)
+                prefix = public_research.qualified_prefix(assessment, message, grounding_context)
                 if prefix is not None and answer_language_format_issue(prefix, turn.style) is None:
                     message = prefix
                     response.update(text=message, dj_text=message,

@@ -42152,11 +42152,11 @@
       },
       {
         "path": "docs/verification/CORE_LANE_REQUIREMENT_RECONCILIATION_20261017.md",
-        "sha256": "8a5303b34f66eb38a7aa5299d0c833c21742e7a9762684fc73cbc36a9111086c"
+        "sha256": "9119d1e5a683b979590bafe40d85601ff5477d78948a3cf90ce145a7f5398b8e"
       },
       {
         "path": "docs/product/ASK_DJ_PUBLIC_MUSIC_RESEARCH_V1.md",
-        "sha256": "26b882bad971f04f6d916618347d1d81b7d1b55a311545873753999e2da47a2d"
+        "sha256": "23c616fdaf705128d71932dc4515e0b616fb046578a1d5a9e1350eebc01884e9"
       },
       {
         "path": "docs/product/DJ_MOMENT_MOOD_PROSODY_V1.md",
@@ -42172,7 +42172,7 @@
       },
       {
         "path": "docs/verification/ASK_DJ_CONTEXTUAL_GOLDEN_RELEASE_GATE_V1.md",
-        "sha256": "b1dcde44be3ee1628f007046bb2a75816f455f4e1b83d4df8bccdaf7fe32530c"
+        "sha256": "0975d7e90ee6944eba4ea12a58adfb673ed10f6de4fc504ec0d57ade00cc984e"
       }
     ],
     "implementation_receipt": {

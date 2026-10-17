@@ -2216,7 +2216,7 @@
       "steps": [
         {
           "question": "Wie is Brian Eno? Antwoord noemt eerste album1973, bron1974",
-          "expected_answer": "Tegenstrijdig jaar mag nooit als volledig ondersteund doorgaan; blokkeer de release zolang dit echte modelgeval niet gekwalificeerd is.",
+          "expected_answer": "Een onjuist/ongedekt jaar of relatieve-jaarverwijzing wordt ook bij supported:true tegengehouden. Juiste absolute jaren vereisen gebeurtenisgebonden originele bronquotes. Echte modelkwaliteit blijft open tot afzonderlijk bewijs.",
           "model_policy": "two",
           "id": "ASKDJ-REGRESSION-research-grounding-boundary-step-1",
           "owning_tests": [
@@ -2227,6 +2227,18 @@
             {
               "file": "tests/test_ask_dj_contextual_dialogue.py",
               "method": "test_public_research_keeps_only_exact_independently_supported_prefix"
+            },
+            {
+              "file": "tests/test_ask_dj_contextual_dialogue.py",
+              "method": "test_public_research_temporal_receipts_bind_actual_year_and_event_in_five_languages"
+            },
+            {
+              "file": "tests/test_ask_dj_contextual_dialogue.py",
+              "method": "test_public_research_wrong_same_year_never_reaches_history_or_speech"
+            },
+            {
+              "file": "tests/test_ask_dj_contextual_dialogue.py",
+              "method": "test_public_research_source_marked_names_are_not_model_authored_event_labels"
             }
           ],
           "acceptance_status": "open_real_quality",
@@ -2249,6 +2261,20 @@
           ],
           "acceptance_status": "owner_contract",
           "proof_boundary": "Named owning contract execution; live provider/model/native quality requires separate evidence."
+        },
+        {
+          "id": "ASKDJ-REGRESSION-research-grounding-boundary-step-3",
+          "question": "Wie is Brian Eno? De bijdrage noemt zijn rol achter de schermen in rock/pop en gebruikt de samenwerking met Fripp als bewijs.",
+          "expected_answer": "De bron bewijst gezamenlijk opnemen, niet automatisch producerrol of genre van dat album. Geen publicatie van die onbewezen verbinding, ook niet via een supported-prefixmarker. Expliciete huidige DJ-waardering blijft apart van een feitelijke bijzin.",
+          "model_policy": "two",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_contextual_dialogue.py",
+              "method": "test_public_research_keeps_only_exact_independently_supported_prefix"
+            }
+          ],
+          "acceptance_status": "open_real_quality",
+          "proof_boundary": "Existing owning test proves exact prefix/provenance boundaries only. The fixed eight-cell paid sample and independent editorial review reproduced this semantic failure; full real-answer qualification remains open."
         }
       ],
       "owning_tests": [
@@ -2259,6 +2285,18 @@
         {
           "file": "tests/test_ask_dj_contextual_dialogue.py",
           "method": "test_public_research_keeps_only_exact_independently_supported_prefix"
+        },
+        {
+          "file": "tests/test_ask_dj_contextual_dialogue.py",
+          "method": "test_public_research_temporal_receipts_bind_actual_year_and_event_in_five_languages"
+        },
+        {
+          "file": "tests/test_ask_dj_contextual_dialogue.py",
+          "method": "test_public_research_wrong_same_year_never_reaches_history_or_speech"
+        },
+        {
+          "file": "tests/test_ask_dj_contextual_dialogue.py",
+          "method": "test_public_research_source_marked_names_are_not_model_authored_event_labels"
         }
       ],
       "fixture_boundary": "Actual Core interpretation/effect/storage owners; only external provider and agent I/O are fixtures. Native/installed/paid evidence remains separate."
@@ -2480,6 +2518,12 @@
       "family_id": "ASKDJ-REGRESSION-truthful-playback-answer",
       "finding": "Eerste ingediende artiesttrack werd ook bij andere geaccepteerde shuffle-readback als afspelend benoemd.",
       "core_qualification": "locally_covered"
+    },
+    {
+      "id": "ASKDJ-ISSUE-unsupported-source-relationship",
+      "family_id": "ASKDJ-REGRESSION-research-grounding-boundary",
+      "finding": "Een geaccepteerde prefix verbindt samen opnemen met een producer-/genrecontext die de bron niet bewijst. Ook brongebonden relaties in behouden prefixes moeten zelfstandig kwalificeren.",
+      "core_qualification": "open"
     }
   ],
   "regression_suite_files": [

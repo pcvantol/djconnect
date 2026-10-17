@@ -49,12 +49,12 @@ the entire lane, narrative maturity stage or consumer family complete.
 
 ## Current audit and verification disposition
 
-The current code has passed2,240host regression tests (seven existing skips).
-The20new playback/output causal regressions also pass in the pinned isolated
-HA image with provider/agent I/O fixtures. Earlier155owning tests in isolated
+Local checkpoint9203d5ac passed2,247host regression tests (seven existing skips)
+and409Ask DJ owning tests in the pinned isolated HA image, including21new
+playback/output causal regressions with explicit provider/agent I/O fixtures. Earlier155owning tests in isolated
 HA and25localization/Flow-label tests remain separately scoped evidence. Inventory validation binds 47 literal Core intents, 112 single-turn
 cases (including 60 executable help examples), 34 conversation families with
-100 steps, and 560 deterministic proactive subcases. These are distinct coverage
+101 steps, and 560 deterministic proactive subcases. These are distinct coverage
 claims. Inventory membership is not proof of every real model response or of
 all-family published narration. The changed runtime modules pass Ruff; the
 updated HTTP harness compiles.
@@ -109,15 +109,14 @@ outcome; all media kinds preserve their resolution across a single-use speaker
 choice. Missing/restricted/stale outputs never fall back to active/first output.
 Output-local404and uncertain5xx/timeouts preserve global backend-health evidence.
 
-The permanent Golden issue register accounts for23findings across34families
-and100steps. Inventory coverage and local fixture regressions are distinct from
-paid-model, isolated-HA, native and installed proof. Four explicit Core
-qualification findings remain blocking; source delivery and installation of
+The permanent Golden issue register accounts for24findings across34families
+and101steps. Inventory coverage and local fixture regressions are distinct from
+paid-model, isolated-HA, native and installed proof. Five reported Core findings across four qualification areas remain blocking; source delivery and installation of
 these local corrections are still pending. No wider completion is asserted.
 
-Step-level evidence is explicit: every one of the100required steps has named
-owning bindings. Nine real-quality steps remain open and block release; this is
-not a claim of100accepted live question/answer outcomes. Six additional
+Step-level evidence is explicit: every one of the101required steps has named
+owning bindings. Ten real-quality steps remain open and block release; this is
+not a claim of101accepted live question/answer outcomes. Six additional
 operational chain tests cover actual lookup/refinement/selection/control/play,
 positive album-period filtering plus known-empty replacement, morning
 No/new-proposal/Yes/sleep, recommendations then exact play, and typed controls.
@@ -127,5 +126,13 @@ success without a second dispatch. Old unqualified-history negatives remain.
 An additional permanent shuffle regression requires the selected name/artwork
 to follow the actually observed admitted track, rather than the first URI in
 an artist collection. The earlier stale-unrelated-track negative remains.
-The current register has23findings,34families and100required steps; nine
-real-quality steps and four Core qualifications remain release-blocking.
+The current register has24findings,34families and101required steps; ten
+real-quality steps and five open Core findings remain release-blocking.
+
+The fixed eight-cell follow-up after the chronology/prompt correction consumed16
+real calls with unchanged source bytes. One answer qualified fully, four retained
+a prefix and three fell back. Independent editorial review remains NO_GO and
+found an unsupported producer/genre relationship within one accepted prefix; the
+new issue and required step remain explicitly open in the same Golden matrix.
+The bounded chronology guard separately passes158contextual tests and scoped
+technical review; that does not qualify arbitrary factual relationships or style.
