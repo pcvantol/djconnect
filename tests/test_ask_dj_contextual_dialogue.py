@@ -1797,6 +1797,57 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual("".join(p["text"] for p in historical["session_speech"]["segments"]), moment.content)
         self.assertFalse(historical["session_speech"]["autoplay_eligible"])
 
+    async def test_all_spoken_type_boundaries_use_one_configured_prepare_replay_and_retained_route(self):
+        from dataclasses import replace
+        from custom_components.djconnect import session_speech
+        from custom_components.djconnect.session_runtime import DJMomentType
+        session, moment, retained = await self.selected_credit()
+        reference = {"session_id": session.session_id, "moment_id": moment.moment_id}
+        payload = {**self.identity, "contract_version": 1, "reference": reference,
+                   "processor": "ha_configured", "voice_preference": "default"}
+        stack, entity, pipeline, calls, processor = self.generic_tts()
+        original = session.broadcast.state
+        assets = set()
+        # This is a common-boundary type fixture over one real published Moment.
+        # It does not claim generation/semantic publication of all seven families.
+        with stack:
+            try:
+                for kind in DJMomentType:
+                    with self.subTest(case="tts-type-" + kind.value):
+                        session.broadcast.state = replace(original, dj_moments=tuple(
+                            replace(m, moment_type=kind) if m.moment_id == moment.moment_id else m
+                            for m in original.dj_moments))
+                        result, status = await session_speech.async_handle_prepare(self.hass, payload, headers=self.headers)
+                        if kind is DJMomentType.SILENCE:
+                            self.assertEqual(status, 404, result)
+                            continue
+                        self.assertEqual(status, 200, result)
+                        descriptor = result["session_speech"]
+                        self.assertEqual(descriptor["audio_state"], "ready")
+                        self.assertEqual("".join(p["text"] for p in descriptor["segments"]), moment.content)
+                        self.assertEqual(descriptor["attribution"], [dict(moment.source_attribution)])
+                        self.assertEqual(descriptor["effective_voice"]["engine"], pipeline.tts_engine)
+                        asset = descriptor["audio_reference"]["asset_id"]
+                        assets.add(asset)
+                        for replay in range(2):
+                            audio, status = await session_speech.async_handle_audio(self.hass,
+                                {**self.identity, "contract_version": 1, "asset_id": asset}, headers=self.headers)
+                            self.assertEqual(status, 200)
+                            self.assertTrue(processor._valid_mp3(audio.data))
+                self.assertEqual(len(calls), 1)  # Same immutable text/voice, no type-specific generator.
+                self.assertEqual(len(assets), 1)
+                self.assertEqual(calls[0][0], moment.content)
+                self.assertEqual(self.prompts, [])
+            finally:
+                session.broadcast.state = original
+            await self.fixture.manager.async_end(owner_profile_id="profile-a", session_id=session.session_id)
+            result, status = await session_speech.async_handle_prepare(self.hass,
+                {**payload, "reference": retained}, headers=self.headers)
+            self.assertEqual(status, 200, result)
+            self.assertEqual(result["session_speech"]["audio_state"], "ready")
+            self.assertEqual(calls[-1][0], moment.content)
+            self.assertEqual(self.prompts, [])
+
     async def test_retained_moment_speech_bytes_and_pending_work_withdraw_on_purge(self):
         from types import SimpleNamespace
         from custom_components.djconnect import session_speech, speech_processor

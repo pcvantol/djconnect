@@ -4,18 +4,25 @@ Status: In progress; no release, installed, native or audible acceptance.
 
 ### Consolidation status
 
-The unqualified media/memory announcement prompt and its independent
-current-track model generator are removed in this local repair. Existing
-command executors keep their accepted request/playback answer; they cannot
-start another proactive model announcer. The existing pipeline function is
-reused as the one qualified narration owner with bounded generation/assessment
-and original source/owner fences. It accepts legacy command caller shape only
-to return that caller's accepted answer, with no model or publication side
-effect. Ordinary Ask DJ dialogue remains the shared contextual dialogue owner.
-No status-read generation, independent history append or last-Ask-DJ mutation
-is restored. Obsolete tests of the removed unrestricted prompt were retired;
-qualified-source, exact-fact, guarded transport, publication and non-generation
-tests replace that behavior. Test count changes are not added coverage claims.
+The unqualified media/memory announcement prompt, its independent current-track
+model generator, all three command-generator calls and the compatibility wrapper
+are removed. Accepted playback/control/current-track answers are returned directly
+by their existing command executors. The free `dj_announcement` model-intent field is ignored by command realization;
+parser speech is no longer an alternative expression output. The unused old default/preset prompt constants and their obsolete test are also removed.
+The earlier settings-consolidation inventory remains the byte-pinned delivery
+record of that earlier slice. Its old immutable-prompt-reader statement is
+superseded by this restoration; only obsolete stored-key migration remains.
+The dead announcement-context, response-Mood
+and unused media helpers are removed too. There is no legacy/Session switch.
+
+`pipeline.realize_session_narration` retains the existing HA Conversation transport
+as the sole qualified Session expression entry, with required typed brief and
+admission fence, bounded generation/assessment and original source/owner fences.
+Ordinary Ask DJ remains the shared contextual dialogue owner. No status-read
+proactive generation, independent history append or last-Ask-DJ mutation is restored.
+Command tests now exercise actual accepted replies rather than injecting fictitious
+old-generator responses. Qualified-source, exact-fact, guarded transport and
+publication tests cover the replacement. Test count changes are not added coverage.
 
 Literal TTS is a subsequent rendering of the accepted text, not another LLM
 rewrite. All spoken Moment types and retained answers use the configured
@@ -112,7 +119,12 @@ provider preparation, exact spoken text, attribution, replay and revocation.
 The common-boundary regression varies all eight types over a real qualified
 publication and verifies seven speech admissions and zero Silence admissions;
 this is not a claim of eight generated end-to-end scenarios or audible Apple
-acceptance. Native buttons, actual playback and HA speaker delivery require
+acceptance. The paired HA owning suite additionally runs the same seven spoken
+type boundaries through configured-provider preparation, exact accepted text and
+attribution, repeated private audio reads, one immutable-text cache, and retained
+Moment replay after Session end; Silence is refused before provider synthesis.
+Only the external TTS entity and type variation are fixtures. This verifies the
+shared speech chain, not actual provider output or all seven generators. Native buttons, actual playback and HA speaker delivery require
 their own connected qualification.
 
 This additive contract records the owner's 17 October 2026 direction: DJConnect
@@ -127,12 +139,13 @@ they do not qualify this restoration.
 The owner explicitly requires inspection and reuse of the former dynamic DJ
 announcement route before building enrichment. Initial source inspection found:
 
-- `pipeline.generate_dj_response_with_assist` already combines HA conversation
-  invocation, Mood instructions, compatibility tone, opt-in compact personal
-  context, generated-text checks, media-mismatch checks and a local fallback.
-- `ask_dj._current_track_generated_announcement` already realizes a short
-  current-track announcement through the HA conversation route.
-- Both currently decline model processing inside an owner dialogue turn because
+- The retired general announcement helper combined HA Conversation invocation,
+  Mood instructions, compatibility tone, opt-in compact personal context,
+  generated-text checks, media-mismatch checks and a local fallback. Its transport
+  is now retained by `pipeline.realize_session_narration` with typed admission.
+- A separate current-track announcement helper also called HA Conversation;
+  that duplicate generator and its caller have now been removed.
+- Both previously declined model processing inside an owner dialogue turn because
   catalog display permission is not a model-processing grant. Do not remove that
   guard to regain expressive output.
 - `voice_profiles` is a legacy compatibility owner. Its Mood-to-voice-profile
@@ -151,7 +164,7 @@ evidence, not a passed live-model or installed-product qualification.
 
 ### Lessons from the existing announcement implementation
 
-Inspected `pipeline.generate_dj_response_with_assist`, its shared conversation
+Inspected the retired general helper before refactoring, its shared conversation
 transport and result helpers, the three processor callers, the current-track
 announcement helper, `mood`, `voice_profiles`, the default prompt constants,
 the persona Markdown resource and their existing pipeline tests.
@@ -167,15 +180,15 @@ the persona Markdown resource and their existing pipeline tests.
 | Source-priority prose in the prompt | Prefer grounded detail to invented trivia | A source name in a prompt is not a lookup result or processing permission |
 | Output generation metadata | Distinguish generated output from local fallback in qualification receipts | Record bounded reason/timing, not raw prompts, full private context or provider errors |
 
-The previous general helper has both an NL and an English prompt branch; the
-current-track helper constructs a Dutch instruction regardless of requested
-language. Mood hints also contain Dutch text in the non-NL branch. Five-language
-coverage therefore cannot be inherited from these helpers without qualification.
+Before retirement, the general helper had NL and English prompt branches; the
+current-track helper constructed a Dutch instruction regardless of requested
+language. Mood hints also contained Dutch text in the non-NL branch. Five-language
+coverage cannot be inherited from those retired helpers without qualification.
 
 The Markdown persona resource demonstrates the desired warmth, dry humour and
-spoken rhythm, but `generate_dj_response_with_assist` actually reads
-`DEFAULT_DJ_RESPONSE_PROMPT` from `const`, not that Markdown file. Do not claim
-editing the resource changes the live route. Its example also implies newness
+spoken rhythm, but the retired generator read immutable prompt constants from
+`const`, not that Markdown file. Those unused constants are now removed as well.
+Editing the resource was never a change to the live route. Its example also implies newness
 without evidence; reuse the tone, not that factual implication.
 
 The old result checks reject empty output, certain internal/device errors and
@@ -304,7 +317,7 @@ client/speaker playback and joint product acceptance remain separate claims.
 ## Initial connected implementation boundary
 
 The current local repair connects the selected qualified-fact path to the
-existing `pipeline.generate_dj_response_with_assist` owner. It separates locked
+existing `pipeline.realize_session_narration` owner. It separates locked
 Planner/Knowledge preparation, unlocked HA generation, and guarded locked
 persistence/publication. Supported symbolic families include credits, composers,
 artist birth/formation/description, exact catalog edition, qualified artist-genre

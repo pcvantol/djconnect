@@ -207,36 +207,6 @@ VOICE_PROFILES = [
     VOICE_PROFILE_ENERGY,
     VOICE_PROFILE_CLEAN_HOST,
 ]
-DJ_RESPONSE_PROMPT_PRESET_NEUTRAL = "neutral_business"
-DJ_RESPONSE_PROMPT_PRESET_WARM = "warm_personal"
-DJ_RESPONSE_PROMPT_PRESET_HUMOR = "humorous_witty"
-DJ_RESPONSE_PROMPT_PRESET_CUSTOM = "custom"
-DJ_RESPONSE_PROMPT_PRESETS = [
-    DJ_RESPONSE_PROMPT_PRESET_NEUTRAL,
-    DJ_RESPONSE_PROMPT_PRESET_WARM,
-    DJ_RESPONSE_PROMPT_PRESET_HUMOR,
-    DJ_RESPONSE_PROMPT_PRESET_CUSTOM,
-]
-DJ_RESPONSE_PROMPT_TEXTS = {
-    DJ_RESPONSE_PROMPT_PRESET_NEUTRAL: (
-        "Noem de artiest, het album en het nummer.\n"
-        "Houd de aankondiging kort, duidelijk en zakelijk.\n"
-        "Gebruik geen grapjes of overdreven enthousiasme."
-    ),
-    DJ_RESPONSE_PROMPT_PRESET_WARM: (
-        "Noem de artiest, het album en het nummer.\n"
-        "Geef een leuk feitje over de artiest.\n"
-        "Klink warm en persoonlijk."
-    ),
-    DJ_RESPONSE_PROMPT_PRESET_HUMOR: (
-        "Noem de artiest, het album en het nummer.\n"
-        "Maak de aankondiging luchtig, humoristisch en gevat.\n"
-        "Gebruik maximaal een korte grap en blijf vriendelijk."
-    ),
-}
-DEFAULT_DJ_RESPONSE_PROMPT = DJ_RESPONSE_PROMPT_TEXTS[
-    DJ_RESPONSE_PROMPT_PRESET_WARM
-]
 SPOTIFY_SCOPES = [
     "user-read-playback-state",
     "user-modify-playback-state",

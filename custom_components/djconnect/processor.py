@@ -10,11 +10,9 @@ from .const import (
 from .pipeline import (
     _fallback_search_intent,
     correct_stt_text_with_assist,
-    generate_dj_response_with_assist,
     process_text_with_assist,
 )
 from .music_dna import prompt_context_text
-from .mood import enrich_payload_with_mood_zone
 from .music_intent import parse_spoken_music_request
 from .spotify import play_from_intent
 from .spotify_backend import SpotifyBackendError
@@ -98,17 +96,9 @@ async def process_text_command(
     playback = None
     if play:
         playback = await play_from_intent(hass, runtime, intent, conf)
-    response_media = _with_mood_context(_dj_response_media(intent, playback), memory_payload, runtime)
+    response_media = _dj_response_media(intent, playback)
     fallback_dj_text = _dj_response_text(intent, playback, conf, media=response_media)
-    dj_response_debug: dict[str, Any] = {}
-    dj_text = await generate_dj_response_with_assist(
-        hass,
-        media=response_media,
-        fallback_text=fallback_dj_text,
-        conf=conf,
-        memory_context=_announcement_context(hass, runtime, memory_context),
-        debug=dj_response_debug,
-    )
+    dj_text = fallback_dj_text
     result = {
         "text": corrected_text,
         "stt_text": user_text,
@@ -116,12 +106,13 @@ async def process_text_command(
         "intent": intent,
         "playback": playback,
         "dj_text": dj_text,
-        **_dj_text_generation_metadata(dj_response_debug),
+        "text_source": "fallback",
+        "is_generated_text": False,
     }
     runtime.update(
         last_intent=intent,
         last_dj_text=dj_text,
-        last_dj_response_debug=dj_response_debug,
+        last_dj_response_debug={"fallback_used": True, "block_reason": "command_answer"},
         last_playback=playback,
         last_error=None,
     )
@@ -172,7 +163,6 @@ def _deterministic_playback_intent(text: str) -> dict[str, Any]:
         "playlist": None,
         "query": query,
         "spotify_search_query": query,
-        "dj_announcement": "Daar gaan we. Ik zet hem voor je klaar.",
     }
 
 
@@ -209,29 +199,6 @@ async def _process_text_with_optional_memory(
             return _fallback_search_intent(corrected_text)
     except Exception:
         return _fallback_search_intent(corrected_text)
-
-
-def _with_mood_context(
-    media: dict[str, Any],
-    memory_payload: dict[str, Any] | None,
-    runtime: Any,
-) -> dict[str, Any]:
-    """Attach request or latest status mood to DJ announcement media."""
-    payload: dict[str, Any] = dict(memory_payload or {})
-    if payload.get("mood") is None:
-        status = getattr(runtime, "device_status", None)
-        if isinstance(status, dict):
-            payload["mood"] = status.get("mood")
-    enriched = enrich_payload_with_mood_zone(payload)
-    merged = dict(media)
-    if enriched.get("mood_zone") is not None:
-        merged["mood"] = enriched["mood"]
-        merged["mood_zone"] = enriched["mood_zone"]
-        merged["mood_zone_prompt"] = enriched.get("mood_zone_prompt")
-    for key in ("language", "locale", "device_language"):
-        if enriched.get(key):
-            merged[key] = enriched[key]
-    return merged
 
 
 async def _record_ask_dj_memory(
@@ -275,21 +242,11 @@ async def _process_playback_control_request(
         "action": control["action"],
         "query": corrected_text,
         "spotify_search_query": "",
-        "dj_announcement": "",
     }
     runtime.update(last_intent=intent)
     playback = await _execute_playback_control(hass, runtime, control)
-    media = _with_mood_context(_playback_control_media(playback, intent), memory_payload, runtime)
     fallback_dj_text = _playback_control_response_text(control, playback, conf)
-    dj_response_debug: dict[str, Any] = {}
-    dj_text = await generate_dj_response_with_assist(
-        hass,
-        media=media,
-        fallback_text=fallback_dj_text,
-        conf=conf,
-        memory_context=_announcement_context(hass, runtime),
-        debug=dj_response_debug,
-    )
+    dj_text = fallback_dj_text
     result = {
         "text": corrected_text,
         "stt_text": user_text,
@@ -297,12 +254,13 @@ async def _process_playback_control_request(
         "intent": intent,
         "playback": playback,
         "dj_text": dj_text,
-        **_dj_text_generation_metadata(dj_response_debug),
+        "text_source": "fallback",
+        "is_generated_text": False,
     }
     runtime.update(
         last_intent=intent,
         last_dj_text=dj_text,
-        last_dj_response_debug=dj_response_debug,
+        last_dj_response_debug={"fallback_used": True, "block_reason": "command_answer"},
         last_playback=playback,
         last_error=None,
     )
@@ -409,21 +367,11 @@ async def _process_current_track_question(
         "type": "current_track",
         "query": corrected_text,
         "spotify_search_query": "",
-        "dj_announcement": "",
     }
     runtime.update(last_intent=intent)
     playback = await _lookup_current_playback(hass, runtime)
-    media = _with_mood_context(_current_playback_media(playback), memory_payload, runtime)
     fallback_dj_text = _current_track_response_text(playback, conf)
-    dj_response_debug: dict[str, Any] = {}
-    dj_text = await generate_dj_response_with_assist(
-        hass,
-        media=media or intent,
-        fallback_text=fallback_dj_text,
-        conf=conf,
-        memory_context=_announcement_context(hass, runtime),
-        debug=dj_response_debug,
-    )
+    dj_text = fallback_dj_text
     result = {
         "text": corrected_text,
         "stt_text": user_text,
@@ -431,33 +379,17 @@ async def _process_current_track_question(
         "intent": intent,
         "playback": playback,
         "dj_text": dj_text,
-        **_dj_text_generation_metadata(dj_response_debug),
+        "text_source": "fallback",
+        "is_generated_text": False,
     }
     runtime.update(
         last_intent=intent,
         last_dj_text=dj_text,
-        last_dj_response_debug=dj_response_debug,
+        last_dj_response_debug={"fallback_used": True, "block_reason": "command_answer"},
         last_playback=playback,
         last_error=None,
     )
     return result
-
-
-def _announcement_context(
-    hass: HomeAssistant,
-    runtime,
-    memory_context: str | None = None,
-) -> str:
-    """Return compact context for personal DJ announcement intros."""
-    return str(memory_context or "").strip()
-
-
-def _dj_text_generation_metadata(debug: dict[str, Any]) -> dict[str, Any]:
-    generated = debug.get("fallback_used") is False
-    return {
-        "text_source": "generated" if generated else "fallback",
-        "is_generated_text": generated,
-    }
 
 
 async def _lookup_current_playback(
@@ -601,20 +533,6 @@ def _playback_control_request(text: str) -> dict[str, Any] | None:
     return None
 
 
-def _playback_control_media(
-    playback: dict[str, Any] | None,
-    intent: dict[str, Any],
-) -> dict[str, Any]:
-    media = {"type": "playback_control", "action": intent.get("action")}
-    if isinstance(playback, dict):
-        media.update(_current_playback_media(playback))
-        media["type"] = "playback_control"
-        media["action"] = intent.get("action")
-        if playback.get("requested_volume_percent") is not None:
-            media["requested_volume_percent"] = playback.get("requested_volume_percent")
-    return media
-
-
 def _playback_control_response_text(
     control: dict[str, Any],
     playback: dict[str, Any] | None,
@@ -670,35 +588,6 @@ def _playback_volume(playback: Any, runtime: Any) -> int | None:
         except (TypeError, ValueError):
             continue
     return None
-
-
-def _current_playback_media(playback: dict[str, Any] | None) -> dict[str, Any]:
-    if not isinstance(playback, dict) or not playback.get("has_playback"):
-        return {"type": "current_track", "has_playback": False}
-    media: dict[str, Any] = {
-        "type": "current_track",
-        "has_playback": True,
-        "is_playing": playback.get("is_playing"),
-    }
-    for key in (
-        "track_name",
-        "title",
-        "artist",
-        "artist_name",
-        "album_name",
-        "album",
-        "uri",
-        "media_image_url",
-        "album_image_url",
-    ):
-        value = playback.get(key)
-        if value not in (None, "", [], {}):
-            media[key] = value
-    if media.get("track_name") and not media.get("title"):
-        media["title"] = media["track_name"]
-    if media.get("title") and not media.get("track_name"):
-        media["track_name"] = media["title"]
-    return media
 
 
 def _current_track_response_text(
@@ -777,9 +666,6 @@ def _dj_response_text(
     if playlist:
         return _playlist_response(playlist, is_nl=is_nl)
 
-    announcement = str(intent.get("dj_announcement") or "").strip()
-    if announcement and not _is_generic_announcement(announcement):
-        return announcement
     return "Daar gaan we. Ik zet hem voor je klaar." if is_nl else "Here we go. I'll start it for you."
 
 
@@ -961,16 +847,3 @@ def _first_text(source: dict[str, Any], *keys: str) -> str:
         if value:
             return value
     return ""
-
-
-def _is_generic_announcement(value: str) -> bool:
-    normalized = " ".join(value.lower().split())
-    return normalized in {
-        "daar gaan we.",
-        "daar gaan we",
-        "daar gaan we. ik zet hem voor je klaar.",
-        "ik zet hem voor je klaar.",
-        "here we go.",
-        "here we go",
-        "here we go. i'll start it for you.",
-    }

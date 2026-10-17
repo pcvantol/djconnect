@@ -304,7 +304,7 @@ class PersonalDJNarrationTest(unittest.TestCase):
         hass=types.SimpleNamespace(services=Services())
         debug={}
         with patch.object(pipeline,'_assist_context',return_value={'agent_id':'scoped-agent','language':'nl'}):
-            result=asyncio.run(pipeline.generate_dj_response_with_assist(hass,media={},
+            result=asyncio.run(pipeline.realize_session_narration(hass,
                 fallback_text=brief.seed,conf={},narration=brief,admission=lambda:None,debug=debug))
         self.assertEqual(result,text,(debug,len(calls)))
         self.assertEqual(len(calls),2)
@@ -339,8 +339,8 @@ class PersonalDJNarrationTest(unittest.TestCase):
             self_test=self
             debug={}
             with self.subTest(failure=failure),patch.object(pipeline,'_assist_context',side_effect=lambda *args:selected[0]):
-                result=asyncio.run(pipeline.generate_dj_response_with_assist(types.SimpleNamespace(services=Services()),
-                    media={},fallback_text=brief.seed,conf={},narration=brief,admission=lambda:None,debug=debug))
+                result=asyncio.run(pipeline.realize_session_narration(types.SimpleNamespace(services=Services()),
+                    fallback_text=brief.seed,conf={},narration=brief,admission=lambda:None,debug=debug))
                 self.assertEqual(result,brief.seed)
                 self.assertTrue(debug['fallback_used'])
                 self.assertLessEqual(len(calls),2)

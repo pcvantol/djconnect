@@ -94,6 +94,7 @@ async def main():
     model = access.get("model") or "gpt-4o-mini"
     max_tokens = access.get("max_tokens", 700)
     assert type(max_tokens) is int and 1 <= max_tokens <= 3000
+    tts_settings = access.get("tts_settings")
     del access
     model_receipts = []
     agent_boundary_fixtures = []
@@ -297,6 +298,14 @@ async def main():
                 }
             ],
         )
+        if os.environ.get("DJC_SAFETY_PROBE") == "literal_tts":
+            assert type(tts_settings) is dict and set(tts_settings) <= {"chat_model", "tts_speed"}
+            assert isinstance(tts_settings.get("chat_model"), str)
+            agent_entry = configured_entry("own-model-entry", "openai_conversation",
+                {"api_key": "UNUSED_OWN_LAB_PLACEHOLDER_NOT_SENT"},
+                [{"subentry_id": v.subentry_id, "subentry_type": v.subentry_type, "title": v.title, "data": dict(v.data)} for v in agent_entry.subentries.values()] + [{
+                    "subentry_id": "own-tts-subentry", "subentry_type": "tts",
+                    "title": "Owned literal speech", "data": tts_settings}])
         native_owner = configured_entry("native-service-entry", "djconnect", {
             "device_id": "djconnect-conversation-agent", "client_type": "conversation_agent",
             "profile_id": "profile-a", "music_backend": "spotify_direct", "music_account_id": "source-account",
@@ -336,6 +345,19 @@ async def main():
             STORAGE_VERSION_MINOR,
         )
 
+        tts_entity_id = None
+        if os.environ.get("DJC_SAFETY_PROBE") == "literal_tts":
+            from homeassistant.setup import async_setup_component
+            from homeassistant.components import tts
+            assert await async_setup_component(h, "tts", {})
+            assert await tts.async_setup_entry(h, agent_entry)
+            await h.async_block_till_done()
+            tts_entity_id = next(e.entity_id for e in registry.entities.values()
+                if e.config_entry_id == agent_entry.entry_id and e.config_subentry_id == "own-tts-subentry"
+                and e.domain == "tts")
+            from homeassistant.components.openai_conversation.tts import OpenAITTSEntity
+            assert type(tts.get_engine_instance(h, tts_entity_id)) is OpenAITTSEntity
+
         settings = {
             "id": "own-dialogue-pipeline",
             "name": "Owned Ask DJ",
@@ -344,9 +366,9 @@ async def main():
             "conversation_language": "en",
             "stt_engine": None,
             "stt_language": None,
-            "tts_engine": None,
-            "tts_language": None,
-            "tts_voice": None,
+            "tts_engine": tts_entity_id,
+            "tts_language": "en-US" if tts_entity_id else None,
+            "tts_voice": "marin" if tts_entity_id else None,
             "wake_word_entity": None,
             "wake_word_id": None,
         }
@@ -1120,6 +1142,54 @@ async def main():
                     await call(
                         "session/end", {"session_id": active.session_id}, label=label + "-end"
                     )
+
+                if os.environ.get("DJC_SAFETY_PROBE") == "literal_tts":
+                    active, moment, _ = await start("literal-tts")
+                    from custom_components.djconnect.playback_observation import playback_observation_manager
+                    await playback_observation_manager(h).async_stop("profile-a", active.session_id)
+                    from homeassistant.components import tts
+                    from custom_components.djconnect import speech_processor
+                    entity = tts.get_engine_instance(h, tts_entity_id)
+                    synthesis = []
+                    original_synthesis = entity.async_get_tts_audio
+                    async def measured_synthesis(text, language, options):
+                        synthesis.append({"text_sha256": hashlib.sha256(text.encode()).hexdigest(),
+                            "locale": language, "voice": options.get("voice"), "attempted": True})
+                        return await original_synthesis(text, language, options)
+                    data = {"contract_version": 1, "reference": {"session_id": active.session_id,
+                        "moment_id": moment.moment_id}, "processor": "ha_configured", "voice_preference": "default"}
+                    with patch.object(entity, "async_get_tts_audio", measured_synthesis):
+                        first = await call("speech/prepare", data, label="literal-tts-prepare")
+                        descriptor = first["session_speech"]
+                        assert descriptor["audio_state"] == "ready", descriptor.get("reason")
+                        assert "".join(v["text"] for v in descriptor["segments"]) == moment.content
+                        asset = descriptor["audio_reference"]["asset_id"]
+                        second = await call("speech/prepare", data, label="literal-tts-repeat")
+                        assert second["session_speech"]["audio_reference"]["asset_id"] == asset
+                        audio_receipts = []
+                        for attempt in range(2):
+                            response = await client.post("/api/djconnect/v1/speech/audio", headers=headers,
+                                json={**identity, "contract_version": 1, "asset_id": asset})
+                            audio = await response.read()
+                            assert response.status == 200 and response.headers.get("Cache-Control") == "no-store"
+                            assert speech_processor._valid_mp3(audio)
+                            audio_receipts.append({"status":response.status,"bytes":len(audio),
+                                "sha256":hashlib.sha256(audio).hexdigest(),"content_type":response.content_type})
+                        assert len(synthesis) == 1 and audio_receipts[0] == audio_receipts[1]
+                    result = {"qualification":"ISOLATED_REAL_HA_PAIRED_OPENAI_LITERAL_TTS",
+                        "status":"PASS", "source_hashes_before": initial_source_hashes, "source_hashes": hashes(),
+                        "source_unchanged": initial_source_hashes == hashes(), "pairing":"ordinary_device_token_minted_persisted",
+                        "tts_model":tts_settings["chat_model"],"synthesis":synthesis,"audio_reads":audio_receipts,
+                        "core_transports":receipts,"model_calls":model_receipts,"paid_model_calls":len(model_receipts),
+                        "paid_tts_attempts":len(synthesis),"native":"NOT_RUN","installed":"NOT_RUN","audible":"NOT_RUN"}
+                    if not result['source_unchanged']:
+                        result['status'] = 'FAIL_SOURCE_CHANGED'
+                    await end(active, "literal-tts")
+                    Path("/lab/literal-tts.json").write_text(json.dumps(result,ensure_ascii=False,indent=2)+"\n")
+                    await async_shutdown_persistence(h)
+                    await h.async_stop(force=True)
+                    await api.close()
+                    return
 
                 if os.environ.get("DJC_SAFETY_PROBE") == "narration_golden":
                     active,moment,_=await start("narration")

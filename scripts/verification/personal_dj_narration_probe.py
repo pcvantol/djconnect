@@ -4,7 +4,7 @@ import json
 
 
 async def run(hass, runtime, manager, active):
-    from custom_components.djconnect.pipeline import generate_dj_response_with_assist
+    from custom_components.djconnect.pipeline import realize_session_narration
     from custom_components.djconnect.narration_brief import qualify
     from custom_components.djconnect.moment_expression import realize
     from custom_components.djconnect.session_facts import catalog_facts
@@ -41,7 +41,7 @@ async def run(hass, runtime, manager, active):
                 brief=qualify(selected,locale=locale,persona=persona,mood=mood,seed=seed)
                 debug={}
                 began=asyncio.get_running_loop().time()
-                text=await generate_dj_response_with_assist(hass,media={},fallback_text=seed,
+                text=await realize_session_narration(hass,fallback_text=seed,
                     conf=runtime.config,narration=brief,admission=guard,debug=debug)
                 return {'id':identifier,'persona':persona,'mood':mood,'language':locale,'family':family,
                     'status':'PASS' if not debug.get('fallback_used',True) and text!=seed else 'FAIL',

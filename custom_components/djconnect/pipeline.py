@@ -397,30 +397,12 @@ def _stt_correction_prompt(user_text: str, language: str) -> str:
     )
 
 
-async def generate_dj_response_with_assist(
-    hass: HomeAssistant, *, media: dict[str, Any], fallback_text: str,
-    conf: dict[str, Any], memory_context: str | None = None,
-    debug: dict[str, Any] | None = None, narration=None, admission=None,
-) -> str:
-    """One qualified expression owner; unqualified commands keep their accepted answer.
+async def realize_session_narration(hass, *, narration, admission, fallback_text, conf, debug=None):
+    """Realize one qualified Session brief over the existing HA transport.
 
-    Media labels or compact memory alone are not a model-processing grant.
-    Command responses do not create an independent proactive announcement.
-    """
-    if narration is None:
-        if debug is not None:
-            debug.update(fallback_used=True, block_reason="qualified_narration_required")
-        return fallback_text
-    return await _qualified_dj_response_with_assist(
-        hass, narration=narration, admission=admission, fallback_text=fallback_text,
-        conf=conf, debug=debug)
-
-
-async def _qualified_dj_response_with_assist(hass, *, narration, admission, fallback_text, conf, debug):
-    """Reuse the announcement transport with a minimal qualified fact grant.
-
-    Two bounded calls: realization and separate semantic assessment. Neither
-    output nor raw prompt enters legacy announcement diagnostics/history.
+    Two bounded calls: realization and independent semantic assessment.
+    Accepted command replies never enter this route. Neither output nor raw
+    prompt enters announcement diagnostics or an independent history.
     """
     import asyncio
     from .narration_brief import NarrationBrief, NarratedText, candidate, assessed
@@ -469,32 +451,9 @@ async def _qualified_dj_response_with_assist(hass, *, narration, admission, fall
         return fallback_text
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 def _looks_like_invalid_agent_id_error(exc: Exception) -> bool:
     message = str(exc).lower()
     return "invalid agent id" in message or "invalid agent_id" in message
-
-
-
-
-def _normalize_media_match_text(value: str) -> str:
-    normalized = str(value or "").lower()
-    normalized = normalized.replace("&", " and ")
-    normalized = re.sub(r"[^a-z0-9]+", " ", normalized)
-    return re.sub(r"\s+", " ", normalized).strip()
 
 
 def _intent_from_assist_response(response: dict[str, Any], user_text: str) -> dict[str, Any]:
@@ -518,11 +477,7 @@ def _intent_from_assist_response(response: dict[str, Any], user_text: str) -> di
         "playlist": data.get("playlist"),
         "query": data.get("query") or user_text,
         "spotify_search_query": data.get("spotify_search_query") or data.get("query") or user_text,
-        "dj_announcement": data.get("dj_announcement")
-        or (_speech_from_response(conversation_response) if has_djconnect_data else ""),
     }
-    if not intent["dj_announcement"]:
-        intent["dj_announcement"] = "Daar gaan we. Ik zet hem voor je klaar."
     if _should_prefer_local_intent(intent, local_intent, has_djconnect_data):
         _LOGGER.debug(
             "DJConnect local intent parser overrode Assist intent user_text=%r assist=%s local=%s",
@@ -531,8 +486,6 @@ def _intent_from_assist_response(response: dict[str, Any], user_text: str) -> di
             _intent_debug_summary(local_intent),
         )
         local_intent["assist_intent"] = intent
-        if _announcement_matches_local_intent(intent.get("dj_announcement"), local_intent):
-            local_intent["dj_announcement"] = intent["dj_announcement"]
         return local_intent
     return intent
 
@@ -549,7 +502,6 @@ def _fallback_search_intent(user_text: str) -> dict[str, Any]:
         "playlist": None,
         "query": user_text,
         "spotify_search_query": user_text,
-        "dj_announcement": "Daar gaan we. Ik zet hem voor je klaar.",
     }
 
 
@@ -567,7 +519,6 @@ def _local_music_intent(user_text: str) -> dict[str, Any]:
         "playlist": parsed.get("playlist"),
         "query": query,
         "spotify_search_query": query,
-        "dj_announcement": "Daar gaan we. Ik zet hem voor je klaar.",
     }
 
 
@@ -602,17 +553,6 @@ def _should_prefer_local_intent(
 
 def _normalized_intent_value(value: Any) -> str:
     return " ".join(str(value or "").strip().lower().split())
-
-
-def _announcement_matches_local_intent(announcement: Any, local_intent: dict[str, Any]) -> bool:
-    text = _normalize_media_match_text(str(announcement or ""))
-    if not text:
-        return False
-    for key in ("artist", "title", "playlist"):
-        value = _normalize_media_match_text(str(local_intent.get(key) or ""))
-        if value and value not in text:
-            return False
-    return any(local_intent.get(key) for key in ("artist", "title", "playlist"))
 
 
 def _intent_debug_summary(intent: dict[str, Any]) -> dict[str, Any]:
@@ -692,43 +632,6 @@ def _stt_correction_block_reason(original: str, corrected: str) -> str | None:
         "spotify:playlist:",
         "{",
         "}",
-    )
-    for fragment in blocked_fragments:
-        if fragment in normalized:
-            return fragment
-    return None
-
-
-def _is_usable_dj_response(value: str) -> bool:
-    """Return whether Assist produced displayable DJ response text."""
-    return _dj_response_block_reason(value) is None
-
-
-def _dj_response_block_reason(value: str) -> str | None:
-    """Return why generated DJ response text should not be displayed."""
-    text = str(value or "").strip()
-    if not text:
-        return "empty"
-    normalized = " ".join(text.lower().split())
-    if _looks_like_device_lookup_error(normalized):
-        return "device lookup error"
-    blocked_fragments = (
-        "geen apparaat vinden",
-        "kan geen apparaat",
-        "can't find",
-        "cannot find",
-        "no device",
-        "home assistant devices",
-        "djconnect muziekopdracht",
-        "djconnect music request",
-        "spotify:artist:",
-        "spotify:track:",
-        "spotify:album:",
-        "spotify:playlist:",
-        "{'type'",
-        '"type"',
-        "'uri'",
-        '"uri"',
     )
     for fragment in blocked_fragments:
         if fragment in normalized:

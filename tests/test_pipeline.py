@@ -34,11 +34,11 @@ class AssistPipelineTest(unittest.TestCase):
             async def async_call(self,*args,**kwargs):
                 raise AssertionError('Unqualified command response must not call a model')
         debug = {}
-        text = asyncio.run(self.pipeline.generate_dj_response_with_assist(
-            types.SimpleNamespace(services=Services()), media={'artist':'Private catalog artist'},
-            fallback_text='Accepted command answer.', conf={}, memory_context='Private memory',debug=debug))
+        text = asyncio.run(self.pipeline.realize_session_narration(
+            types.SimpleNamespace(services=Services()), narration={'artist':'Private catalog artist'}, admission=lambda:None,
+            fallback_text='Accepted command answer.', conf={}, debug=debug))
         self.assertEqual(text,'Accepted command answer.')
-        self.assertEqual(debug['block_reason'],'qualified_narration_required')
+        self.assertEqual(debug['block_reason'],'narration_unavailable')
         self.assertNotIn('prompt',debug)
         self.assertNotIn('Private',str(debug))
 
@@ -64,7 +64,7 @@ class AssistPipelineTest(unittest.TestCase):
         self.assertEqual(intent["type"], "track")
         self.assertEqual(intent["artist"], "Pearl Jam")
         self.assertEqual(intent["spotify_search_query"], "Pearl Jam Black")
-        self.assertEqual(intent["dj_announcement"], "Pearl Jam staat klaar.")
+        self.assertNotIn("dj_announcement", intent)
 
     def test_djconnect_assist_prompt_focuses_on_command_parsing(self) -> None:
         prompt = self.pipeline._djconnect_assist_prompt(
@@ -205,14 +205,6 @@ class AssistPipelineTest(unittest.TestCase):
         self.assertNotIn("agent_id", calls[0])
 
 
-
-
-
-
-
-
-
-
     def test_voice_profile_mapping_follows_all_mood_zones(self) -> None:
         voice_profiles = importlib.import_module("custom_components.djconnect.voice_profiles")
 
@@ -242,17 +234,7 @@ class AssistPipelineTest(unittest.TestCase):
 
 
 
-
-
-
-    def test_ordinary_artist_dj_response_is_usable(self) -> None:
-        self.assertTrue(
-            self.pipeline._is_usable_dj_response(
-                "Nirvana gaat erin, rauw en recht uit de speakers."
-            )
-        )
-
-    def test_intent_from_djconnect_data_uses_speech_as_dj_response(self) -> None:
+    def test_intent_parser_does_not_promote_agent_speech_to_dj_response(self) -> None:
         intent = self.pipeline._intent_from_assist_response(
             {
                 "response": {
@@ -267,7 +249,7 @@ class AssistPipelineTest(unittest.TestCase):
         self.assertEqual(intent["type"], "artist")
         self.assertEqual(intent["artist"], "Pearl Jam")
         self.assertEqual(intent["spotify_search_query"], "Pearl Jam")
-        self.assertEqual(intent["dj_announcement"], "Ik zet Pearl Jam voor je klaar.")
+        self.assertNotIn("dj_announcement", intent)
 
     def test_local_artist_request_overrides_stale_assist_artist(self) -> None:
         intent = self.pipeline._intent_from_assist_response(
@@ -294,7 +276,7 @@ class AssistPipelineTest(unittest.TestCase):
         self.assertEqual(intent["type"], "artist")
         self.assertEqual(intent["artist"], "Nirvana")
         self.assertEqual(intent["spotify_search_query"], "Nirvana")
-        self.assertEqual(intent["dj_announcement"], "Daar gaan we. Ik zet hem voor je klaar.")
+        self.assertNotIn("dj_announcement", intent)
         self.assertEqual(intent["assist_intent"]["artist"], "Red Hot Chili Peppers")
 
     def test_local_artist_request_overrides_stale_assist_track(self) -> None:
@@ -342,7 +324,7 @@ class AssistPipelineTest(unittest.TestCase):
         self.assertEqual(intent["type"], "artist")
         self.assertEqual(intent["artist"], "Pearl Jam")
         self.assertEqual(intent["spotify_search_query"], "Pearl Jam")
-        self.assertEqual(intent["dj_announcement"], "Daar gaan we. Ik zet hem voor je klaar.")
+        self.assertNotIn("dj_announcement", intent)
 
     def test_intent_from_assist_response_raises_clear_error(self) -> None:
         with self.assertRaisesRegex(RuntimeError, "Niet begrepen"):
@@ -380,7 +362,7 @@ class AssistPipelineTest(unittest.TestCase):
         self.assertEqual(intent["title"], "Black")
         self.assertEqual(intent["artist"], "Pearl Jam")
         self.assertEqual(intent["spotify_search_query"], "Black Pearl Jam")
-        self.assertEqual(intent["dj_announcement"], "Daar gaan we. Ik zet hem voor je klaar.")
+        self.assertNotIn("dj_announcement", intent)
 
     def test_assist_prompt_area_lookup_error_falls_back_to_search_intent(self) -> None:
         intent = self.pipeline._intent_from_assist_response(

@@ -1322,10 +1322,10 @@ def _connect_session_narration(hass, runtime, context, session, identity, header
         return current
 
     async def realize(brief, guard):
-        from .pipeline import generate_dj_response_with_assist
+        from .pipeline import realize_session_narration
         authorize()
-        text = await generate_dj_response_with_assist(
-            hass, media={}, fallback_text=brief.seed, conf=runtime.config,
+        text = await realize_session_narration(
+            hass,  fallback_text=brief.seed, conf=runtime.config,
             narration=brief, admission=guard)
         authorize()
         return text
