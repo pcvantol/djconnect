@@ -12,6 +12,8 @@ Selected passive Session projection: DJC-CORE-PASSIVE-SESSION-PROJECTION-V1-2026
 
 Selected shared Profile/Session settings consolidation: DJC-PROFILE-SESSION-SETTINGS-CONSOLIDATION-V1-20261016; six shared Persona/voice/gender/Mood/Presence/announcement_output, protected source delivered contract3 (Core producer only), last explicit accepted choice becomes default, atomic active+default acceptance. Source PROTECTED_MERGED; Core producer and migration work only; Apple/other consumers/joint separately open, no automatic dispatch or whole-family completion. Delivered v13 preserved.
 
+Current personal-DJ corrective work: LOCAL / UNPUBLISHED; historical SPEECH::CORE::REALIZATION delivery remains preserved, while CORRECTION::CORE::PERSONAL-DJ-EXPERIENCE remains In progress. All-family narrative and actual publication Golden, Track Insight, native, installed and audible acceptance are not established by earlier metadata/type fixtures. See `docs/verification/CORE_LANE_REQUIREMENT_RECONCILIATION_20261017.md`. No consumer dispatch or new writer.
+
 - `PROJ::INTELLIGENCE::DJ-PRESENCE` — Planned: Independent presence, Mood and Persona; no new dispatch.
 - `SLICE::APPLE::DJ-PRESENCE-CONTROL` — Planned: Accessible five-language native confirmation; reuse existing Apple writer.
 - `QUAL::VIBECAST::DJ-PRESENCE-COMPAT` — Planned: Core shared-renderer + receiver owner, both existing software builds.
@@ -73,5 +75,6 @@ Selected shared Profile/Session settings consolidation: DJC-PROFILE-SESSION-SETT
 - `SETTINGS::VIBECAST::COMPAT` — Planned: Core source, native/installed/audible/hardware and whole-family cleanup distinct; owning consumer evidence required.
 - `SETTINGS::WEBSITE::COPY` — Planned: Core source, native/installed/audible/hardware and whole-family cleanup distinct; owning consumer evidence required.
 - `SETTINGS::JOINT::ACCEPTANCE` — Planned: Core source, native/installed/audible/hardware and whole-family cleanup distinct; owning consumer evidence required.
+- `CORRECTION::CORE::PERSONAL-DJ-EXPERIENCE` — In progress: Historical Speech realization is not current all-family acceptance. No consumer dispatch..
 
 Policy values/budgets/default and exact presence route/schema remain unqualified design details. No runtime/native/browser/installed/hardware PASS.

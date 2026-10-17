@@ -11,6 +11,23 @@ from render_snapshot import render
 ROOT = Path(__file__).resolve().parent
 
 
+class ExperienceReconciliationTests(unittest.TestCase):
+    def test_current_correction_preserves_historical_delivery_and_stays_open(self):
+        plan = load(ROOT / 'djconnect-platform-v1.json')
+        self.assertEqual(validate(plan), [])
+        delta = plan['planning_maintenance']
+        prior = load(ROOT / 'history/20261017/settings-finalization-maintenance-v14.json')
+        self.assertEqual(next(n for n in delta['nodes'] if n['id'] == 'SPEECH::CORE::REALIZATION'),
+                         next(n for n in prior['nodes'] if n['id'] == 'SPEECH::CORE::REALIZATION'))
+        self.assertIn('LOCAL / UNPUBLISHED', render(plan)['lanes/DJC-CORE.md'])
+        for field, value in (('overall_acceptance', 'PASS'), ('source_delivery', 'PROTECTED_MERGED'),
+                             ('native', 'PASS'), ('installed', 'PASS'), ('audible', 'PASS'),
+                             ('automatic_dispatch', True), ('previous_delta_sha256', '0' * 64)):
+            changed = copy.deepcopy(plan)
+            changed['planning_maintenance']['experience_reconciliation_receipt'][field] = value
+            self.assertTrue(validate(changed), field)
+
+
 class SharedSettingsMaintenanceTests(unittest.TestCase):
     def setUp(self):
         self.p = load(ROOT / 'djconnect-platform-v1.json')
@@ -18,7 +35,7 @@ class SharedSettingsMaintenanceTests(unittest.TestCase):
     def test_six_parameter_scope_preserves_frozen_predecessor(self):
         self.assertEqual(validate(self.p), [])
         d = self.p['planning_maintenance']
-        self.assertEqual(d['schema_version'], 'djconnect-federated-planning-delta/14')
+        self.assertEqual(d['schema_version'], 'djconnect-federated-planning-delta/15')
         self.assertEqual(d['settings_consolidation_receipt']['parameters'],
                          ['persona', 'voice', 'gender', 'mood', 'presence', 'announcement_output'])
         self.assertIn('six shared Persona/voice/gender/Mood/Presence/announcement_output', render(self.p)['README.md'])
@@ -90,6 +107,10 @@ class SharedSettingsMaintenanceTests(unittest.TestCase):
 def delivered_passive_plan():
     import json
     plan = load(ROOT / 'djconnect-platform-v1.json')
+    if plan['planning_maintenance']['schema_version'] == 'djconnect-federated-planning-delta/15':
+        refs = plan['planning_maintenance']['document_references']
+        plan['planning_maintenance'] = json.loads((ROOT / 'history/20261017/settings-finalization-maintenance-v14.json').read_text())
+        plan['planning_maintenance']['document_references'] = refs
     if plan['planning_maintenance']['schema_version'] == 'djconnect-federated-planning-delta/14':
         refs = plan['planning_maintenance']['document_references']
         plan['planning_maintenance'] = json.loads((ROOT / 'history/20261016/passive-finalization-maintenance-v13.json').read_text())

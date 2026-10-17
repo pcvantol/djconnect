@@ -1,5 +1,13 @@
 # Session speech delivery and replay v1
 
+## Local successor — audible Mood expression
+
+[DJMoment Mood prosody v1](DJ_MOMENT_MOOD_PROSODY_V1.md) adds immutable accepted
+Mood to spoken Moment/history descriptors and qualifies per-request provider
+intonation separately from literal TTS availability. This is local work, not
+installed/native or audible acceptance. Unknown historical Mood is not backfilled;
+unsupported providers retain literal speech without claiming expressive control.
+
 ## Current owner addenda — six shared settings design
 
 The [selected settings contract3 delta](PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md) adds announcement output to Persona/voice/gender/Mood/Presence. Settings3 and target-aware speech prepare3 are design targets, not yet delivered capabilities. Text-only blocks all announcement synthesis, replay and stale bytes; speaker-only still allows explicit local owner replay. Keep speaker target/Assist pipeline/ESP administration HA-only and local autoplay/permissions device-local. Existing five-field contract2 checkpoints and delivered contract1 evidence below keep their original measured scope. No new consumer writer, integrated portability pickup or native/installed acceptance.

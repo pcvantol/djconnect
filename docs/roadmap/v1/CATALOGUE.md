@@ -12,6 +12,8 @@ Selected passive Session projection: DJC-CORE-PASSIVE-SESSION-PROJECTION-V1-2026
 
 Selected shared Profile/Session settings consolidation: DJC-PROFILE-SESSION-SETTINGS-CONSOLIDATION-V1-20261016; six shared Persona/voice/gender/Mood/Presence/announcement_output, protected source delivered contract3 (Core producer only), last explicit accepted choice becomes default, atomic active+default acceptance. Source PROTECTED_MERGED; Core producer and migration work only; Apple/other consumers/joint separately open, no automatic dispatch or whole-family completion. Delivered v13 preserved.
 
+Current personal-DJ corrective work: LOCAL / UNPUBLISHED; historical SPEECH::CORE::REALIZATION delivery remains preserved, while CORRECTION::CORE::PERSONAL-DJ-EXPERIENCE remains In progress. All-family narrative and actual publication Golden, Track Insight, native, installed and audible acceptance are not established by earlier metadata/type fixtures. See `docs/verification/CORE_LANE_REQUIREMENT_RECONCILIATION_20261017.md`. No consumer dispatch or new writer.
+
 | Node | Owner | Status | Outcome |
 |---|---|---|---|
 | `PROJ::INTELLIGENCE::DJ-PRESENCE` | DJC-CORE | Planned | Adjustable DJ presence |
@@ -101,3 +103,4 @@ Selected shared Profile/Session settings consolidation: DJC-PROFILE-SESSION-SETT
 | `SETTINGS::VIBECAST::COMPAT` | DJC-VIBECAST | Planned | Shared renderer allowed Session fields without Profile preferences |
 | `SETTINGS::WEBSITE::COPY` | DJC-WEBSITE | Planned | Six-parameter scope/help and obsolete settings copy audit |
 | `SETTINGS::JOINT::ACCEPTANCE` | DJC-CORE | Planned | Cross-device six-field effects, persistence and cleanup acceptance |
+| `CORRECTION::CORE::PERSONAL-DJ-EXPERIENCE` | DJC-CORE | In progress | Personal DJ restoration: current corrective acceptance remains open |

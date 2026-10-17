@@ -12,7 +12,9 @@ Selected passive Session projection: DJC-CORE-PASSIVE-SESSION-PROJECTION-V1-2026
 
 Selected shared Profile/Session settings consolidation: DJC-PROFILE-SESSION-SETTINGS-CONSOLIDATION-V1-20261016; six shared Persona/voice/gender/Mood/Presence/announcement_output, protected source delivered contract3 (Core producer only), last explicit accepted choice becomes default, atomic active+default acceptance. Source PROTECTED_MERGED; Core producer and migration work only; Apple/other consumers/joint separately open, no automatic dispatch or whole-family completion. Delivered v13 preserved.
 
-- [DJC-CORE](lanes/DJC-CORE.md) — 58 bounded records; no new writer.
+Current personal-DJ corrective work: LOCAL / UNPUBLISHED; historical SPEECH::CORE::REALIZATION delivery remains preserved, while CORRECTION::CORE::PERSONAL-DJ-EXPERIENCE remains In progress. All-family narrative and actual publication Golden, Track Insight, native, installed and audible acceptance are not established by earlier metadata/type fixtures. See `docs/verification/CORE_LANE_REQUIREMENT_RECONCILIATION_20261017.md`. No consumer dispatch or new writer.
+
+- [DJC-CORE](lanes/DJC-CORE.md) — 59 bounded records; no new writer.
 - [DJC-APPLE](lanes/DJC-APPLE.md) — 20 bounded records; no new writer.
 - [DJC-ESP32](lanes/DJC-ESP32.md) — 1 bounded records; no new writer.
 - [DJC-PI](lanes/DJC-PI.md) — 1 bounded records; no new writer.

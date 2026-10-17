@@ -84,6 +84,9 @@ def validate_delta(plan: dict[str, Any]) -> list[str]:
             errors.append("maintenance: " + reason)
 
     version = d.get("schema_version")
+    if version == "djconnect-federated-planning-delta/15":
+        from experience_reconciliation_delta import validate
+        return validate(plan, validate_delta)
     if version == "djconnect-federated-planning-delta/14":
         from settings_consolidation_delta import validate
         return validate(plan, validate_delta)
@@ -1022,6 +1025,14 @@ def render_delta(p):
         state = ('protected source delivered contract3 (Core producer only)' if r['source_delivery'] == 'PROTECTED_MERGED'
                  else 'implemented local contract3 (runtime checkpoint3, unpublished until protected delivery)')
         intro += f"Selected shared Profile/Session settings consolidation: {r['assignment_id']}; six shared Persona/voice/gender/Mood/Presence/announcement_output, {state}, last explicit accepted choice becomes default, atomic active+default acceptance. Source {r['source_delivery']}; Core producer and migration work only; Apple/other consumers/joint separately open, no automatic dispatch or whole-family completion. Delivered v13 preserved.\n\n"
+    if d.get("experience_reconciliation_receipt"):
+        intro += ("Current personal-DJ corrective work: LOCAL / UNPUBLISHED; "
+                  "historical SPEECH::CORE::REALIZATION delivery remains preserved, "
+                  "while CORRECTION::CORE::PERSONAL-DJ-EXPERIENCE remains In progress. "
+                  "All-family narrative and actual publication Golden, Track Insight, native, installed "
+                  "and audible acceptance are not established by earlier metadata/type fixtures. "
+                  "See `docs/verification/CORE_LANE_REQUIREMENT_RECONCILIATION_20261017.md`. "
+                  "No consumer dispatch or new writer.\n\n")
     out = {}
     out["README.md"] = (
         "# Federated roadmap — versioned maintenance\n\n"

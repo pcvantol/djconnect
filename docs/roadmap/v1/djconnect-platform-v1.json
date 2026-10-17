@@ -37594,7 +37594,7 @@
     }
   ],
   "planning_maintenance": {
-    "schema_version": "djconnect-federated-planning-delta/14",
+    "schema_version": "djconnect-federated-planning-delta/15",
     "decision_id": "DJC-DJ-PRESENCE-ROADMAP-DESIGN-V1-20261011",
     "decision_url": "https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6110375785",
     "design_date": "2026-10-11",
@@ -39748,6 +39748,30 @@
             "mode": "AND"
           }
         ]
+      },
+      {
+        "id": "CORRECTION::CORE::PERSONAL-DJ-EXPERIENCE",
+        "title": "Personal DJ restoration: current corrective acceptance remains open",
+        "lane": "DJC-CORE",
+        "repository": "pcvantol/djconnect",
+        "status": "In progress",
+        "assignment_status": "LOCAL_IMPLEMENTATION_AND_QUALIFICATION",
+        "scope": "Existing personal DJ restoration; source, native, installed and audible outcomes separate",
+        "acceptance_boundary": "Historical Speech realization is not current all-family acceptance. No consumer dispatch.",
+        "contract_binding": "docs/verification/CORE_LANE_REQUIREMENT_RECONCILIATION_20261017.md",
+        "source_ids": [
+          "OWNER-SESSION-SPEECH-PERSONA-VOICE-20261015"
+        ],
+        "parent_reference": "SPEECH::CORE::REALIZATION",
+        "family_reference": "Existing Speech and contextual Ask DJ; corrective work only",
+        "prerequisite_groups": [
+          {
+            "edge_ids": [
+              "EXPERIENCE-CORRECTION-1"
+            ],
+            "mode": "AND"
+          }
+        ]
       }
     ],
     "edges": [
@@ -41755,16 +41779,48 @@
         "required_subset": "Exact allfive contract and owning acceptance; preparation may proceed without consumer dispatch",
         "contract_or_evidence": "docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md",
         "reason": "Existing Profile/Session consolidation; no full-family completion before migration and consumers"
+      },
+      {
+        "id": "EXPERIENCE-CORRECTION-1",
+        "producer": "SPEECH::CORE::REALIZATION",
+        "consumer": "CORRECTION::CORE::PERSONAL-DJ-EXPERIENCE",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "source_ids": [
+          "OWNER-SESSION-SPEECH-PERSONA-VOICE-20261015"
+        ],
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "completion",
+        "required_subset": "Current actual publication, quality, retention and speech proof; historical delivery remains preserved",
+        "contract_or_evidence": "docs/verification/CORE_LANE_REQUIREMENT_RECONCILIATION_20261017.md",
+        "reason": "Corrective acceptance under the existing family, not a duplicate family or new writer"
+      },
+      {
+        "id": "EXPERIENCE-CORRECTION-2",
+        "producer": "CORRECTION::CORE::PERSONAL-DJ-EXPERIENCE",
+        "consumer": "SPEECH::JOINT::ACCEPTANCE",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "source_ids": [
+          "OWNER-SESSION-SPEECH-PERSONA-VOICE-20261015"
+        ],
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "completion",
+        "required_subset": "Current actual publication, quality, retention and speech proof; historical delivery remains preserved",
+        "contract_or_evidence": "docs/verification/CORE_LANE_REQUIREMENT_RECONCILIATION_20261017.md",
+        "reason": "Corrective acceptance under the existing family, not a duplicate family or new writer"
       }
     ],
     "document_references": [
       {
         "path": "PRODUCT_ROADMAP.md",
-        "sha256": "812abe719dc18f8c98044815feda09ff187db8ae2073f319f9c3dc10784a0612"
+        "sha256": "1b1e03ee1e150a2abe631884bf4917f35df5585a25cbe684f765df20cf2c90f8"
       },
       {
         "path": "PRODUCT_BACKLOG.md",
-        "sha256": "157557b324ded6621e98bee0bcfb42c540dcc8aa71955b7629aa3ae7d9e94d7c"
+        "sha256": "8b234976d289e6adbbb5c4ce39ba10032c0446747c0191c7a7d3a39c4f817dd9"
       },
       {
         "path": "docs/product/DJ_PRESENCE_V1.md",
@@ -41808,7 +41864,7 @@
       },
       {
         "path": "docs/product/DJ_INTELLIGENCE_MATURITY.md",
-        "sha256": "e546b04681d4278cadf790400c761f39f845cb95092d6cf09da6b31d04aa9c86"
+        "sha256": "d74bd11b57afda561c21bc3df0cd829c5a2ae0b3baf6e8138a89e91d1c5b8241"
       },
       {
         "path": "docs/product/SHARED_PRODUCER_CONTINUITY_CONTRACT.md",
@@ -41904,7 +41960,7 @@
       },
       {
         "path": "docs/product/ASK_DJ_CONTEXTUAL_DIALOGUE_CONTRACT_V1.md",
-        "sha256": "c6b0cee7e00e3cd0a750cb6a858edd3415decb7834fb7c88d63f421c66513818"
+        "sha256": "846a69222a090aba3d1ad5ad958fc976f8275beb0b546019f20deb7e113aabd9"
       },
       {
         "path": "docs/product/MOMENT_TRACK_INSIGHT_DRILLDOWN_V1.md",
@@ -41928,7 +41984,7 @@
       },
       {
         "path": "docs/product/KNOWLEDGE_SOURCE_ARCHITECTURE.md",
-        "sha256": "8846dff1f9c18bfb6aa9817b9a1d46f4bcbad0ceb79fd5b695d6bbb71cbfa55d"
+        "sha256": "35a9bf6760100ed4c0d6766a4c0ada4df2d506f3008f0dd98617844be97cf235"
       },
       {
         "path": "docs/verification/ASK_DJ_CONTEXTUAL_DIALOGUE_V1_SOURCE_READBACK.md",
@@ -42016,7 +42072,7 @@
       },
       {
         "path": "docs/product/SESSION_SPEECH_DELIVERY_V1.md",
-        "sha256": "48148b19ca457dc0f940646e5d0c19f3252ca6aa24bb5ad0ec5f15fe5a70d240"
+        "sha256": "4e6cade400ba73e7a6a893bf4964d9837738bead451cfa70c4c679e20a8ef44a"
       },
       {
         "path": "docs/verification/SESSION_SPEECH_PERSONA_SOURCE_READBACK_20261016.md",
@@ -42093,6 +42149,22 @@
       {
         "path": "docs/product/PERSONAL_DJ_NARRATION_RESTORATION_V1.md",
         "sha256": "8d816cba394de041154df90fe0b46767248f17e1411dad0e86126b36ba7e1d4a"
+      },
+      {
+        "path": "docs/verification/CORE_LANE_REQUIREMENT_RECONCILIATION_20261017.md",
+        "sha256": "923228397acd56a8b227781d513f7b58b4ff4dd8db4c9980a8bdcf6fbba4488c"
+      },
+      {
+        "path": "docs/product/ASK_DJ_PUBLIC_MUSIC_RESEARCH_V1.md",
+        "sha256": "26b882bad971f04f6d916618347d1d81b7d1b55a311545873753999e2da47a2d"
+      },
+      {
+        "path": "docs/product/DJ_MOMENT_MOOD_PROSODY_V1.md",
+        "sha256": "6144b95a829a9a92bc4225bb599885efdf69dad0b5e17184542637bb4741a0fa"
+      },
+      {
+        "path": "docs/product/SESSION_VOICE_PREVIEW_V1.md",
+        "sha256": "6565beb361fcefb1650e1c9841c09cd6567192903e3089aa254796ce811394b8"
       }
     ],
     "implementation_receipt": {
@@ -42696,6 +42768,64 @@
         "archive_sha256": "57039b049de57ba7c01d61ac516d854d18e339645a5cc991ce2c727226a0bca1",
         "formal_evidence_sha256": "b65789edc31b4c877d3f82df7c6b09742d04837921dbbeb4fd0301f465de88e9"
       }
+    },
+    "experience_reconciliation_receipt": {
+      "schema_version": "djconnect-experience-reconciliation/1",
+      "scope": "existing personal DJ corrective work; no new writer or automatic dispatch",
+      "base_sha": "cc9b49fe9ca5312dd3bf962b3bac319aa25b3f15",
+      "branch": "codex/askdj-contextual-golden-release-v1",
+      "previous_delta": "history/20261017/settings-finalization-maintenance-v14.json",
+      "previous_delta_sha256": "e4e6993c34f7f404fac823f43f3d96c569c529028db2cac59edf0fd1c5d40d7a",
+      "source_delivery": "UNPUBLISHED",
+      "overall_acceptance": "OPEN",
+      "native": "OPEN_APPLE",
+      "installed": "NOT_RUN",
+      "audible": "NOT_RUN",
+      "consumer_writes": false,
+      "automatic_dispatch": false,
+      "audit": "docs/verification/CORE_LANE_REQUIREMENT_RECONCILIATION_20261017.md",
+      "components": [
+        {
+          "id": "legacy-announcement",
+          "status": "LOCAL_SCOPED_REVIEWED",
+          "contract": "docs/product/PERSONAL_DJ_NARRATION_RESTORATION_V1.md"
+        },
+        {
+          "id": "durable-flow-retention",
+          "status": "LOCAL_IMPLEMENTED_REQUIRES_FULL_ACCEPTANCE",
+          "contract": "docs/product/PERSONAL_DJ_NARRATION_RESTORATION_V1.md"
+        },
+        {
+          "id": "public-music-research",
+          "status": "LOCAL_QUALIFICATION_IN_PROGRESS",
+          "contract": "docs/product/ASK_DJ_PUBLIC_MUSIC_RESEARCH_V1.md"
+        },
+        {
+          "id": "tts-mood-prosody",
+          "status": "LOCAL_TECHNICAL_QUALIFIED_AUDIBLE_OPEN",
+          "contract": "docs/product/DJ_MOMENT_MOOD_PROSODY_V1.md"
+        },
+        {
+          "id": "all-family-narration",
+          "status": "OPEN_IMPLEMENTATION_AND_EDITORIAL",
+          "contract": "docs/product/PERSONAL_DJ_NARRATION_RESTORATION_V1.md"
+        },
+        {
+          "id": "published-narration-golden",
+          "status": "OPEN_REQUIRED_RELEASE_GATE",
+          "contract": "docs/product/PERSONAL_DJ_NARRATION_RESTORATION_V1.md"
+        },
+        {
+          "id": "track-insight",
+          "status": "OPEN_SOURCE_QUALIFICATION",
+          "contract": "docs/product/ASK_DJ_CONTEXTUAL_DIALOGUE_CONTRACT_V1.md"
+        },
+        {
+          "id": "voice-preview",
+          "status": "OPEN_IMPLEMENTATION",
+          "contract": "docs/product/SESSION_VOICE_PREVIEW_V1.md"
+        }
+      ]
     }
   }
 }

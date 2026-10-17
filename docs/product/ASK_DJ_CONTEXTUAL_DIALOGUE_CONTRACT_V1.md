@@ -659,3 +659,16 @@ projection, Store migration, source capability or client implementation change.
 [Corrective qualification](../verification/ASK_DJ_RESULT_TITLES_CORRECTION_V1.md)
 distinguishes real isolated HA acceptance from external provider/model fixtures
 and from native/installed acceptance.
+
+## Public music research refinement, 17 October 2026
+
+[Public music research v1](ASK_DJ_PUBLIC_MUSIC_RESEARCH_V1.md) replaces reliance on
+general model recollection for an explicit researchable music question with
+actual bounded Wikipedia retrieval and optional public web sources. Both screens
+use this same owner exchange. Partial-name questions retain a uniquely matching
+qualified selected subject; unrelated explicit questions do not inherit it.
+General model knowledge is never a substitute for a failed attempted lookup.
+Source qualification/answer assessment share the existing two-call budget;
+source metadata is retained with the accepted answer, raw webpages/excerpts are
+not. Existing direct controls, help and observation answers gain no web calls.
+Local implementation/qualification remains distinct from main, native or install.
