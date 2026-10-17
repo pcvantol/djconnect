@@ -99,6 +99,7 @@ async def main():
     del access
     model_receipts = []
     public_source_corpus = {}
+    public_generation_spans = {}
     def capture_public_sources(value):
         if isinstance(value, dict):
             for nested in value.values():
@@ -113,10 +114,17 @@ async def main():
                 return
             research = projection.get("public_music_research") or projection.get("evidence", {}).get("public_music_research", {})
             for source in research.get("sources", []):
+                if 'untrusted_excerpt' not in source:
+                    assert isinstance(source.get('evidence_spans'), list)
+                    public_generation_spans.setdefault(source['content_hash'], []).extend(source['evidence_spans'])
+                    continue
                 excerpt = source.get("untrusted_excerpt", "")
                 fingerprint = hashlib.sha256(excerpt.encode()).hexdigest()
                 assert fingerprint == source.get("content_hash") and len(excerpt) <= 1800
                 public_source_corpus[fingerprint] = source
+                from custom_components.djconnect.ask_dj.public_research import evidence_spans
+                actual = evidence_spans(source)
+                assert all(span in actual for span in public_generation_spans.get(fingerprint, [])), 'generation source span changed'
 
     agent_boundary_fixtures = []
     failures = []
@@ -1156,7 +1164,7 @@ async def main():
                     assert len([c for c in provider_calls if c["method"] == "PUT" and c["path"].startswith("/me/player/play")]) == len(plays)
                     assert not model_receipts
                     Path("/lab/output-safety-fixed.json").write_text(json.dumps({"qualification": "REAL_PAIRED_OUTPUT_SELECTION_TRANSFER_EXACT_TARGET", "pairing":"ordinary_device_token_minted_persisted",
-                        "source_hashes": hashes(), "pairing": "ordinary_device_token_minted_persisted", "core_transports": receipts,
+                        "source_hashes": hashes(), "core_transports": receipts,
                         "provider_calls": provider_calls, "model_calls": model_receipts, "paid_model_calls":len(model_receipts), "installed": "NOT_RUN"}, ensure_ascii=False, indent=2) + "\n")
                     await async_shutdown_persistence(h)
                     await h.async_stop(force=True)
@@ -1379,7 +1387,8 @@ async def main():
                     for _ in range(8):
                         live_frame=await asyncio.wait_for(ws.receive_json(),5)
                         if live_frame.get("data",{}).get("event_type")=="dj_moment_published":
-                            received=live_frame["data"]["payload"];break
+                            received=live_frame["data"]["payload"]
+                            break
                     assert received and received["dj_moment"]["type"]=="silence"
                     assert received["dj_moment"]["moment_id"]==silence.moment_id
                     assert received["native_delivery"]["current_silence_moment_id"]==silence.moment_id

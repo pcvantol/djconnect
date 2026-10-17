@@ -153,3 +153,241 @@ class PublishedFlowCompletionTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(withdrawn['entry']['order'], by_id[moments[1].moment_id]['order'])
         self.assertIsNone(withdrawn['entry']['text'])
         self.assertFalse(withdrawn['entry']['speech_available'])
+
+    async def test_actual_published_credit_recommendation_survives_reopen_without_fake_play(self):
+        from dataclasses import replace
+        from custom_components.djconnect import session_facts, session_speech
+        from custom_components.djconnect.pipeline import realize_session_narration
+        from custom_components.djconnect.narration_brief import qualify
+        session = await self.manager.async_start(owner_profile_id='profile-a', locale='nl', selected_mood='groove',
+            session_start_strategy=self.r.SessionStartStrategy.DISCOVER)
+        calls = []
+        async def transport(hass, data, **kwargs):
+            import json
+            calls.append(data['text'])
+            reply = ({'supported':True,'language_ok':True,'style_ok':True} if 'Review this proposed' in data['text']
+                else {'text':'Zullen we {previous_track} nog eens opzoeken? {producer} staat daar én bij {current_track} als producer vermeld.'})
+            return {'response':{'speech':{'plain':{'speech':json.dumps(reply)}}}}
+        async def model(brief, guard):
+            return await realize_session_narration(self.hass, fallback_text=brief.seed,
+                conf={}, narration=brief, admission=guard)
+        session_ids, moments, facts, catalogs = session.session_id, [], [], []
+        for number in (0, 1):
+            catalog, _ = source('birth', number)
+            fact = session_facts.recording_facts(catalog, {
+                'id': f'00000000-0000-0000-0000-{number+1:012}', 'title':catalog['title'],
+                'artist-credit':[{'artist':{'name':catalog['artist']}}],
+                'relations':[{'target-type':'artist','type':'producer','artist':{
+                    'name':'Qualified producer','id':'00000000-0000-0000-0000-000000000009'}}]})[0]
+            facts.append(fact)
+            catalogs.append(catalog)
+            self.clock[0] += 300
+            await self.manager.async_update_playback_projection(owner_profile_id='profile-a', session_id=session_ids,
+                state='playing', media_identity=catalog['uri'], title=catalog['title'], artist=catalog['artist'],
+                album=catalog['album_name'], duration_ms=600000, position_ms=0)
+            async def provider():
+                return {'_qualified_facts':(fact,)}
+            if number:
+                self.manager.connect_narration('profile-a', session_ids, model, lambda:None)
+            with patch('custom_components.djconnect.pipeline._call_conversation_process_transport', transport), patch(
+                    'custom_components.djconnect.pipeline._assist_context', return_value={'agent_id':'fixture-agent','language':'nl'}):
+                if number:
+                    import sqlite3
+                    from custom_components.djconnect.persistence.service import PersistenceError
+                    await self.fixture.service.async_in_transaction(lambda tx: tx.execute(
+                        "CREATE TRIGGER reject_recommendation BEFORE INSERT ON djconnect_session_entries WHEN NEW.kind='dj_moment' AND json_extract(NEW.body,'$.moment_type')='recommendation' BEGIN SELECT RAISE(ABORT,'injected recommendation refusal'); END"))
+                    with self.assertRaises((PersistenceError, sqlite3.IntegrityError, RuntimeError)):
+                        await self.manager.async_process_track_started(owner_profile_id='profile-a', session_id=session_ids,
+                            media_identity=catalog['uri'], insight_provider=provider, require_current_playback=True, allow_initial_facts=True)
+                    before_retry=await self.fixture.repo.async_session_record(session_ids)
+                    self.assertEqual(before_retry['summary']['moments_published']['value'],1)
+                    self.assertEqual(session.published_recording_context.used_relations,set())
+                    await self.fixture.service.async_in_transaction(lambda tx: tx.execute('DROP TRIGGER reject_recommendation'))
+                moment = await self.manager.async_process_track_started(owner_profile_id='profile-a', session_id=session_ids,
+                    media_identity=catalog['uri'], insight_provider=provider, require_current_playback=True, allow_initial_facts=True)
+            self.assertIsNotNone(moment)
+            moments.append(moment)
+        recommendation = moments[1]
+        self.assertEqual(recommendation.moment_type.value, 'recommendation')
+        proof = recommendation.source_fact
+        self.assertIs(type(proof), session_facts.ProducerRecommendationFact)
+        self.assertEqual(proof.previous_moment_id, moments[0].moment_id)
+        self.assertEqual(proof.recommended_media_identity, catalogs[0]['uri'])
+        self.assertEqual(proof.media_identity, catalogs[1]['uri'])
+        self.assertEqual(len(calls), 4)
+        self.assertEqual(qualify(proof, locale='nl', persona='home_dj', mood='groove', seed=recommendation.content).family(), 'producer_recommendation')
+        self.assertEqual(recommendation.actions, ())
+        self.assertIsNone(recommendation.artwork_url)
+        self.assertTrue(session_speech.moment_projection(session.broadcast, recommendation)['manual_allowed'])
+        admission = next(a for a in session.broadcast.native_delivery()['admissions'] if a['moment_id']==recommendation.moment_id)
+        self.assertEqual(admission['qualification'], 'qualified')
+        for invalid in (replace(proof, previous_moment_id=''), replace(proof, producer_id='00000000-0000-0000-0000-000000000099'),
+                        replace(proof, previous_evidence=replace(proof.previous_evidence, observed_at=time.monotonic()-1801))):
+            self.assertFalse(invalid.eligible(invalid.media_identity, time.monotonic()))
+        # Same normalized relation cannot become a second Track or Recommendation.
+        self.assertIsNone(session.published_recording_context.candidate((facts[1],), catalogs[1]['uri'], time.monotonic()))
+        unpublished = session_facts.PublishedRecordingContext()
+        for catalog in catalogs:
+            unpublished.observe(catalog['uri'], time.monotonic())
+        unpublished.commit(facts[0], time.monotonic())  # Facts alone have no publication-ID.
+        relation = unpublished.candidate((facts[1],), catalogs[1]['uri'], time.monotonic())
+        self.assertIsNone(session_facts.producer_recommendation(relation, '', time.monotonic()))
+        consumed = session_facts.PublishedRecordingContext()
+        consumed.consume(proof, time.monotonic()+1801, semantic_accepted=True)
+        self.assertIn(proof.relation_key, consumed.used_relations)
+        self.assertEqual(consumed.credits, {})
+        self.assertEqual(consumed.published_moment_ids, {})
+        await self.manager.async_end(owner_profile_id='profile-a', session_id=session_ids)
+        await self.fixture.service.async_close()
+        await self.fixture.service.async_initialize()
+        page = await self.fixture.queries.async_timeline_page('profile-a', session_ids)
+        retained = next(e for e in page['entries'] if e.get('moment_id')==recommendation.moment_id)
+        self.assertEqual(retained['text'], recommendation.content)
+        self.assertTrue(retained['session_speech']['manual_allowed'])
+
+    async def test_retained_album_and_artist_artwork_resolve_original_subject_with_current_owner_rights(self):
+        import json
+        from dataclasses import replace
+        from pathlib import Path
+        from types import SimpleNamespace
+        from custom_components.djconnect import session_artwork
+        from custom_components.djconnect.domain.music_account import MusicAccountKind
+        from custom_components.djconnect.profile_context import profile_storage
+        from custom_components.djconnect.session_conversation import async_metadata_archive_admission
+        self.runtime = self.hass.data['djconnect']['owner-entry']
+        storage = profile_storage(self.hass)
+        await storage.async_upsert_music_account('source-account', 'source-spotify', kind=MusicAccountKind.PERSONAL,
+            display_name='Synthetic source', linked_profile_ids=frozenset({'profile-a'}), provider_account_id='fixture-owner')
+        profile = storage.household.profiles['profile-a']
+        await storage.async_update_profile('profile-a', preferences=replace(profile.preferences,
+            default_backend_id='source-spotify', default_music_account_id='source-account'))
+        owner_entry = SimpleNamespace(entry_id='owner-entry', data={**self.runtime.config, 'device_token':self.runtime.device_token, 'profile_backend_entry_id':'source-entry', 'profile_id':'profile-a', 'music_account_id':'source-account'},
+            options={}, disabled_by=None, state=SimpleNamespace(value='loaded'))
+        self.runtime.entry = owner_entry
+        source_entry = self.hass.config_entries.async_entries('djconnect')[0]
+        source_entry.disabled_by=None
+        source_entry.state=SimpleNamespace(value='loaded')
+        source_entry.data.update(profile_id='profile-a', music_backend='source-spotify')
+        provider = SimpleNamespace(entry=source_entry, config=dict(source_entry.data))
+        self.hass.data['djconnect']['source-entry'] = provider
+        self.hass.config_entries.async_get_entry = lambda eid: {'owner-entry':owner_entry,'source-entry':source_entry}.get(eid)
+        self.hass.async_create_task = __import__('asyncio').create_task
+        import asyncio
+        import sys
+        from custom_components.djconnect.image_proxy import ManagedSessionImages
+        self.hass.loop = asyncio.get_running_loop()
+        self.hass.bus = SimpleNamespace(async_listen_once=lambda *args:None)
+        with patch.dict(sys.modules, {'homeassistant.const':SimpleNamespace(EVENT_HOMEASSISTANT_STOP='homeassistant_stop')}):
+            self.hass.data['djconnect']['session_images'] = ManagedSessionImages(self.hass)
+
+        binding = {'backend_id':'source-spotify','music_account_id':'source-account',
+                   'provider_entry_id':'source-entry','provider_account_id':'fixture-owner'}
+        session = await self.manager.async_start(owner_profile_id='profile-a', locale='nl', selected_mood='groove',
+            history_source_context=binding)
+        async def realize(brief, guard):
+            guard()
+            return brief.seed
+        async def archive(captured):
+            return await async_metadata_archive_admission(self.hass, 'profile-a', captured, lambda:None)
+        self.manager.connect_narration('profile-a', session.session_id, realize, lambda:None, archive_admission=archive)
+        moments=[]
+        for number, family in enumerate(('edition','description')):
+            catalog, fact = source(family, number)
+            if family == 'description':
+                fact=replace(fact, artwork_subject_uri='spotify:artist:'+'Z'*22)
+            self.clock[0]+=300
+            await self.manager.async_update_playback_projection(owner_profile_id='profile-a', session_id=session.session_id,
+                state='playing',media_identity=catalog['uri'],title=catalog['title'],artist=catalog['artist'],
+                duration_ms=600000,position_ms=0)
+            async def provider_fact(): return {'_qualified_facts':(fact,)}
+            moments.append(await self.manager.async_process_track_started(owner_profile_id='profile-a',session_id=session.session_id,
+                media_identity=catalog['uri'],insight_provider=provider_fact,require_current_playback=True,allow_initial_facts=True))
+        await self.manager.async_end(owner_profile_id='profile-a',session_id=session.session_id)
+        await self.fixture.service.async_close()
+        await self.fixture.service.async_initialize()
+        page=await self.fixture.queries.async_timeline_page('profile-a',session.session_id)
+        before=await self.fixture.repo.async_session_record(session.session_id)
+        entries=[next(e for e in page['entries'] if e.get('moment_id')==m.moment_id) for m in moments]
+        pixels=Path('examples/client_contracts/session_artwork_v1/assets/cover.png').read_bytes()
+        fetched=[]
+        async def fetch(hass, backend, uri, *,guard,expected_album_uri=''):
+            await guard()
+            fetched.append(uri)
+            return pixels,'image/png','https://open.spotify.com/'+uri.split(':')[1]+'/'+uri.split(':')[2],'',160,160,'Original subject'
+        context=SimpleNamespace(profile_id='profile-a')
+        with patch.object(session_artwork,'_fetch',fetch):
+            for entry in entries:
+                ready=await session_artwork.prepare(self.hass,self.runtime,context,
+                    session_id=session.session_id,target={'entry_id':entry['entry_id']})
+                self.assertEqual(ready['artwork']['state'],'ready',ready)
+                self.assertTrue(ready['artwork']['historical_display_allowed'])
+                self.assertFalse(ready['artwork']['current_display_allowed'])
+                asset=ready['artwork']['url'].rsplit('/',1)[-1]
+                self.assertEqual(await session_artwork.image(self.hass,context,session.session_id,asset,runtime=self.runtime),
+                    (pixels,'image/png'))
+            self.assertEqual(fetched,['spotify:album:'+str(1).zfill(22),'spotify:artist:'+'Z'*22])
+        after=await self.fixture.repo.async_session_record(session.session_id)
+        self.assertEqual(after['revision'],before['revision'])
+        self.assertIsNone(self.manager.current_active('profile-a'))
+        for entry in entries:
+            row=await self.fixture.queries._repository.async_entry_record('profile-a',session.session_id,entry['entry_id'])
+            retained=json.loads(row['body'])
+            self.assertNotIn('url',retained['session_media_reference'])
+        await self.fixture.repo.async_withdraw_source_entry('source-entry')
+        self.assertIsNone(await session_artwork.image(self.hass,context,session.session_id,asset,runtime=self.runtime))
+
+    async def test_current_insight_reuses_unpublished_exact_credit_without_new_lookup_or_audio_claims(self):
+        import json
+        from types import SimpleNamespace
+        from custom_components.djconnect import session_facts, track_insight
+        self.runtime = self.hass.data['djconnect']['owner-entry']
+        self.hass.services=SimpleNamespace(async_call=lambda *args,**kwargs:None)
+        session=await self.manager.async_start(owner_profile_id='profile-a',locale='en',selected_mood='groove',
+            session_start_strategy=self.r.SessionStartStrategy.DISCOVER)
+        catalog, artist=source('description',0)
+        credit=session_facts.recording_facts(catalog, {'id':'00000000-0000-0000-0000-000000000011',
+            'title':catalog['title'],'artist-credit':[{'artist':{'name':catalog['artist']}}],
+            'relations':[{'target-type':'artist','type':'producer',
+                'artist':{'name':'Qualified producer','id':'00000000-0000-0000-0000-000000000009'}}]})[0]
+        await self.manager.async_update_playback_projection(owner_profile_id='profile-a',session_id=session.session_id,
+            state='playing',media_identity=catalog['uri'],title=catalog['title'],artist=catalog['artist'],duration_ms=600000,position_ms=0)
+        async def facts(): return {'_qualified_facts':(artist,credit)}
+        published=await self.manager.async_process_track_started(owner_profile_id='profile-a',session_id=session.session_id,
+            media_identity=catalog['uri'],insight_provider=facts,require_current_playback=True,allow_initial_facts=True)
+        self.assertEqual(published.moment_type.value,'artist')
+        calls,lookups=[],[]
+        async def status(*args,**kwargs):
+            lookups.append(True)
+            return {'provider':'spotify_direct','playback':{'uri':catalog['uri'],'title':catalog['title'],
+                'artist':catalog['artist'],'genres':['ambient'],'is_playing':True}}
+        async def agent(hass,data,**kwargs):
+            calls.append(data['text'])
+            result=({'supported':True,'language_ok':True,'style_ok':True} if data['text'].startswith('Review every claim') else
+                    {'summary':'A person behind this recording.','full_text':'Qualified producer is credited as producer on this recording.', 'listening_cues':[]})
+            return {'response':{'speech':{'plain':{'speech':json.dumps(result)}}}}
+        with patch.object(track_insight,'run_music_command',status), patch('custom_components.djconnect.pipeline._call_conversation_process_transport',agent), patch.object(
+                track_insight,'_assist_context',return_value={'agent_id':'fixture-agent','language':'en'}):
+            result=await track_insight.TrackInsightService().async_analyze(self.hass,self.runtime,{'language':'en'},
+                source='http',owner_profile_id='profile-a',commit_guard=lambda:None)
+        self.assertEqual(len(lookups),1)
+        self.assertEqual(len(calls),2)
+        self.assertEqual(result['analysis']['source_attribution']['provider'],'MusicBrainz')
+        self.assertIn('Qualified producer',result['analysis']['verified_context'])
+        self.assertEqual(result['analysis']['full_text'],'Qualified producer is credited as producer on this recording.')
+        self.assertFalse(result['analysis']['measured_audio'])
+        self.assertIsNone(result['analysis']['energy'])
+        self.assertEqual(session.broadcast.state.dj_moments,(published,))
+        self.assertNotIn(published.content,calls[0])
+        # New source context is never inferred from an old cached presentation.
+        self.runtime.track_insight_rate_limit={}
+        async def ended(hass,data,**kwargs):
+            await self.manager.async_end(owner_profile_id='profile-a',session_id=session.session_id)
+            return await agent(hass,data,**kwargs)
+        with patch.object(track_insight,'run_music_command',status), patch('custom_components.djconnect.pipeline._call_conversation_process_transport',ended), patch.object(
+                track_insight,'_assist_context',return_value={'agent_id':'fixture-agent','language':'en'}):
+            from custom_components.djconnect.track_insight_target import TrackInsightError
+            with self.assertRaises(TrackInsightError) as denied:
+                await track_insight.TrackInsightService().async_analyze(self.hass,self.runtime,{'language':'en','force_refresh':True},
+                    source='http',owner_profile_id='profile-a',commit_guard=lambda:None)
+        self.assertEqual(len(calls),3)
+        self.assertEqual(denied.exception.code, 'track_insight_context_changed')

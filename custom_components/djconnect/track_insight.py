@@ -348,7 +348,7 @@ class TrackInsightService:
             profile = profile_storage(hass).household.profiles.get(owner_profile_id)
             style = style_projection(payload,active,profile)
             request = replace(request, source="moment_detail", locale=style["language"], mood=None,
-                mood_zone=style["mood"], presentation_style=style["persona"]+":"+style["response_style"],
+                mood_zone=style["mood"], presentation_style=style["persona"]+":"+style.get("response_style", "balanced"),
                 qualified_context=target.model_context)
             track = dict(target.track)
             track["_detail_context"] = hashlib.sha256(json.dumps(target.model_context,sort_keys=True).encode()).hexdigest()
@@ -361,7 +361,24 @@ class TrackInsightService:
             guarded()
         else:
             track = await self._resolve_track(hass, runtime, request)
-            if turn is not None or commit_guard is not None or request.source == "session_moment":
+            from .track_insight_target import current_knowledge_context
+            current_knowledge = (current_knowledge_context(hass, owner_profile_id, track)
+                if request.source != 'session_moment' and not (request.title or request.artist) else None)
+            if current_knowledge is not None:
+                model, source_guard, fingerprint, active = current_knowledge
+                profile = profile_storage(hass).household.profiles.get(owner_profile_id)
+                style = style_projection(payload, active, profile)
+                def guarded_current():
+                    source_guard()
+                    if commit_guard is not None:
+                        commit_guard()
+                request = replace(request, locale=style['language'], mood=None, mood_zone=style['mood'],
+                    presentation_style=style['persona']+':'+style.get('response_style','balanced'),
+                    qualified_context=model, commit_guard=guarded_current)
+                track['_detail_context'] = fingerprint
+                track['_owner_scope'] = owner_profile_id
+                track['_presentation_variant'] = request.presentation_style+':'+str(request.mood_zone or '')
+            elif turn is not None or commit_guard is not None or request.source == "session_moment":
                 # A display/catalog grant cannot authorize model ingestion.
                 request = replace(request,qualified_context={},commit_guard=commit_guard)
                 track["_detail_context"] = "unmeasured-owner-v1"

@@ -65,6 +65,7 @@ class ExpressiveDJPersonaTest(unittest.TestCase):
                 ),
             )
             manager._active_by_profile["owner"] = session
+            session.planner.configuration = replace(session.planner.configuration, recommendation_preference="balanced")
             receipts, snapshots, originals = [], [], []
             for number in range(count):
                 catalog, recording = self.source_pair(number)

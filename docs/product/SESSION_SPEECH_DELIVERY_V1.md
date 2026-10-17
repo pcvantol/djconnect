@@ -374,3 +374,18 @@ Optional presentation refinements in the unpublished candidate:
   Resource disappearance must not clear an otherwise valid device pairing.
 - Provider-supported gender gating also applies to local preparation. An actual
   native gender voice alone cannot authorize a server-unsupported preference.
+
+
+## Historical replay voice authority — owner refinement17October
+
+A retained DJMoment/accepted DJ answer uses the same configured-provider prepare,
+private byte and explicit speaker-operation routes as a live contribution. Resolve
+voice and gender from the CURRENT active Session's confirmed shared settings;
+without an active Session use the Profile's confirmed stored defaults. Never
+restore an ended Session merely for replay or silently choose its old voice.
+Keep the original immutable text, attribution, accepted Persona/Mood and locale;
+current voice selection does not rewrite the earlier contribution. Current output,
+text_only, provider/voice availability and source/retention authority apply.
+Settings/provider/lifecycle change revokes prepared audio and requires a new
+explicit preparation. Historical replay is manual, not delayed autoplay or a
+playback-control action. Core proof does not establish Apple buttons or audibility.

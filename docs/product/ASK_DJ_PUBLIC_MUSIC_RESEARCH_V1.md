@@ -3,13 +3,18 @@
 Status: local implementation and qualification in progress; not released. The directed contract was committed before runtime changes in `05d021a164f1ac8d212ee61d686cdf5535bb4dc4`.
 
 Internal research projection2 addresses literal excerpt sentences by bounded
-source-hash/span IDs. The existing generation call proposes ordered text segments
-with those IDs and fact/relationship/present-DJ-appreciation categories. The
-second existing call independently checks the whole text, including connections
-between sentences, and supplies complete ordered receipts for the accepted text
-or unchanged supported prefix. A category or an existing ID is not semantic
-proof. Missing, duplicated, foreign or incomplete receipts fail closed. There is
-no third repair call and no public response/Flow field for the internal plan.
+source-hash/span IDs. Refinement after checkpoint309dd90b: the generation call
+writes only natural prose from one unchanged source representation, without its
+own claim categories or evidence bookkeeping. The existing second call independently
+checks the whole text, every factual clause and relationship, and supplies complete
+ordered claim receipts for the accepted text or unchanged supported prefix.
+A category or an existing ID is not semantic proof. Missing, duplicated, foreign
+or incomplete receipts fail closed. The generator sees no duplicated excerpt;
+the assessor uses the original evidence and no generator plan. Invalid generation
+never spends a format-repair call in place of assessment. No third call, action
+permission, source renewal, public response field or Flow field is introduced.
+This bounded refinement has independent architectural/editorial agreement;
+quality remains unqualified until the fixed real matrix is independently accepted.
 
 Separate same-year events cannot establish a sequence; currently unbound
 relative-year/succession phrases are refused. Exact source-marked work names and
@@ -193,3 +198,16 @@ DuckDuckGo HTML discovery worked, but several discovered websites denied fetchin
 no successful real extra-webpage evidence is claimed for those runs. Positive
 HTML/page/robots behavior is separately exercised at the external HTTP fixture
 boundary. No native, installed, audible or overall narrative acceptance follows.
+
+### Person-episode focus refinement
+
+The latest fixed natural-prose probe still fails quality (one full, four prefixes,
+three fallbacks). An independently reviewed follow-up narrows only explicit
+who-is person introductions: choose one unchanged source passage naming an actual
+work/activity, retain necessary adjacent context and identity as background, and
+ask for an inkijk through that concrete episode. No invented significance or
+inferred career arc. Other question families retain their complete required evidence.
+Original full sources, IDs, hash and expiry remain at independent assessment.
+A referenced source-marked work also requires a cited span actually containing
+that work; a valid identity-span ID cannot support an unrelated album reference.
+This local check is conservative named-work coverage, not general semantic proof.

@@ -41816,7 +41816,7 @@
     "document_references": [
       {
         "path": "PRODUCT_ROADMAP.md",
-        "sha256": "e1b9e0120abf3965da6a4f43be04266d4c76d5d1af448970993d00fae22349e5"
+        "sha256": "6ccf30d044f3b86199e8f15981f5823bdf0ef6cf3e258efb9571680e74f28809"
       },
       {
         "path": "PRODUCT_BACKLOG.md",
@@ -41960,7 +41960,7 @@
       },
       {
         "path": "docs/product/ASK_DJ_CONTEXTUAL_DIALOGUE_CONTRACT_V1.md",
-        "sha256": "f9925f3675d4231bf8ef96e7588a7deec4725b54825afbb601b7eb6bdc3662f3"
+        "sha256": "cbd05ed9df62f14ffd04fe88fb1a895c626dbb7b4da40b17c40c473b146e6dd4"
       },
       {
         "path": "docs/product/MOMENT_TRACK_INSIGHT_DRILLDOWN_V1.md",
@@ -42040,7 +42040,7 @@
       },
       {
         "path": "docs/product/SESSION_ARTWORK_DELIVERY_CONTRACT_V1.md",
-        "sha256": "a990c6ddee40279009b70e3d193d9fd2b7cc669cafccbb86fb2d6d3b460cf602"
+        "sha256": "a65d238cbee59b26d5c1405b14c1235cb3523a06ad3cd868133403e0034427ca"
       },
       {
         "path": "docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md",
@@ -42072,7 +42072,7 @@
       },
       {
         "path": "docs/product/SESSION_SPEECH_DELIVERY_V1.md",
-        "sha256": "4e6cade400ba73e7a6a893bf4964d9837738bead451cfa70c4c679e20a8ef44a"
+        "sha256": "0ddc1db8d1d2cbecf617dbfc5cf09206a80daf1c25a3a6fbdba54a3b5bf11104"
       },
       {
         "path": "docs/verification/SESSION_SPEECH_PERSONA_SOURCE_READBACK_20261016.md",
@@ -42148,15 +42148,15 @@
       },
       {
         "path": "docs/product/PERSONAL_DJ_NARRATION_RESTORATION_V1.md",
-        "sha256": "45fc105e89e7277ddfd4e71dce68388c2f452730929bb545a934fac84ba6f3b3"
+        "sha256": "92341a95ad10f7848abaaf9e94d502e641bdf47c21d60d79d7fb116c1f6388cb"
       },
       {
         "path": "docs/verification/CORE_LANE_REQUIREMENT_RECONCILIATION_20261017.md",
-        "sha256": "cc6b3925386f6ef2ab16a2ee78bda2371bd1208dd1f02208a0b14048bc8f557f"
+        "sha256": "ea7a004c3fc6111e55856809020b2d93affcf9ca2c7e34f49c686dc52304a8b0"
       },
       {
         "path": "docs/product/ASK_DJ_PUBLIC_MUSIC_RESEARCH_V1.md",
-        "sha256": "c04e26f6ae1e268d2477c2ac452ff2172beaf687a92081d66546e5efbd936365"
+        "sha256": "d20a9f532c71e8dd3e3cd51a1c91555373446ce754eed4a91a6132a3ec364dd5"
       },
       {
         "path": "docs/product/DJ_MOMENT_MOOD_PROSODY_V1.md",
@@ -42172,7 +42172,7 @@
       },
       {
         "path": "docs/verification/ASK_DJ_CONTEXTUAL_GOLDEN_RELEASE_GATE_V1.md",
-        "sha256": "5183102b9a0b4f107f56c5e6387826dbdf23b6e1c6fce70d1caa806b39466fe6"
+        "sha256": "960fb2cadc18a1c39c17b20640a46197c198004a628b34116685377af64fecc3"
       }
     ],
     "implementation_receipt": {
@@ -42800,7 +42800,7 @@
         },
         {
           "id": "durable-flow-retention",
-          "status": "LOCAL_PARTIAL_PRODUCER_REOPEN_MEASURED",
+          "status": "LOCAL_ALL7_PRODUCER_REOPEN_WITH_EXTERNAL_FIXTURES",
           "contract": "docs/product/PERSONAL_DJ_NARRATION_RESTORATION_V1.md"
         },
         {
@@ -42825,7 +42825,7 @@
         },
         {
           "id": "track-insight",
-          "status": "LOCAL_ASSESSMENT_SOURCE_QUALIFICATION_OPEN",
+          "status": "LOCAL_CURRENT_QUALIFIED_CREDIT_CONNECTED_SOURCE_MEASUREMENT_OPEN",
           "contract": "docs/product/ASK_DJ_CONTEXTUAL_DIALOGUE_CONTRACT_V1.md"
         },
         {
@@ -42835,19 +42835,42 @@
         }
       ],
       "current_corrective_checkpoint": {
-        "actual_runtime_expression": "observed playback, Core direction, pending qualified genre transition; external expression fixtures",
-        "flow_reopen": "270 entries, six pages, five actual source-family texts,260Silences, withdrawal identity preserved",
+        "actual_runtime_expression": "all seven type families through actual production, semantic SQLite, end/reopen and manual speech; external source/expression fixtures",
+        "flow_reopen": "270 ordered entries across six pages plus separate genuine published-credit Recommendation, runtime Session/Transition reopen, original album/artist art and current Session/Profile replay voice",
         "timeline_transactions_page10_and50": [
           7,
           7
         ],
-        "retained_entry_body_bytes": 44093,
-        "golden_reported_issues": 26,
+        "retained_entry_body_bytes": 44676,
+        "golden_reported_issues": 27,
         "golden_families": 35,
-        "golden_required_steps": 106,
-        "real_quality": "NO_GO; latest fixed8cell sample3full supported answers and5fallbacks; no release/install",
-        "reference": "docs/verification/CORE_LANE_REQUIREMENT_RECONCILIATION_20261017.md"
-      }
+        "golden_required_steps": 111,
+        "real_quality": "NO_GO; latest fixed8cell sample16attempts,3full supported answers,1supported prefix,4fallbacks; no release/install",
+        "reference": "docs/verification/CORE_LANE_REQUIREMENT_RECONCILIATION_20261017.md",
+        "current_insight": "same source owner current qualified CC0 credit, independent of published Moment selection, same two-call assessment, no acoustic measurements",
+        "rollback_retry": "definitive precommit SQLite failure restores only rolled-back playback reservation; semantic accepted relation remains consumed",
+        "host_tests": 2262,
+        "existing_host_skips": 7,
+        "targeted_owner_tests": 107,
+        "scoped_technical_review": "GO_DELTA_ONLY_NO_RELEASE_QUALITY_GO"
+      },
+      "historical_corrective_checkpoints": [
+        {
+          "checkpoint_sha": "309dd90b3dbb9191c2d3b95be2f4312e8c844c76",
+          "actual_runtime_expression": "observed playback, Core direction, pending qualified genre transition; external expression fixtures",
+          "flow_reopen": "270 entries, six pages, five actual source-family texts,260Silences, withdrawal identity preserved",
+          "timeline_transactions_page10_and50": [
+            7,
+            7
+          ],
+          "retained_entry_body_bytes": 44093,
+          "golden_reported_issues": 26,
+          "golden_families": 35,
+          "golden_required_steps": 106,
+          "real_quality": "NO_GO; latest fixed8cell sample3full supported answers and5fallbacks; no release/install",
+          "reference": "docs/verification/CORE_LANE_REQUIREMENT_RECONCILIATION_20261017.md"
+        }
+      ]
     }
   }
 }

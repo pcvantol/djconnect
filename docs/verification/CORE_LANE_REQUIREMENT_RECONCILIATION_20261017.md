@@ -67,8 +67,7 @@ only their bounded outcomes, not credentials or host/install metadata.
 The historical probe `paid-1792230391834290000` used16model calls and one
 captured Wikipedia source, with unchanged source bytes during that run. Its
 technical classifier accepted source-grounding; independent editorial review
-**did not accept factual or narrative quality**. This is not the latest probe;
-the current14attempt,three-full/five-fallback NO_GO is recorded below.
+**did not accept factual or narrative quality**. This is not the latest probe; subsequent fixed samples remain NO_GO and are distinguished below.
 That historical review found unsupported reputation/first-fame and sonic descriptions in two
 answers, and too little consistent Mood differentiation. Do not rerun paid
 probes merely until a green sample appears. Correct the shared realization and
@@ -111,14 +110,14 @@ outcome; all media kinds preserve their resolution across a single-use speaker
 choice. Missing/restricted/stale outputs never fall back to active/first output.
 Output-local404and uncertain5xx/timeouts preserve global backend-health evidence.
 
-The permanent Golden issue register accounts for26findings across35families
-and106steps. Inventory coverage and local fixture regressions are distinct from
+The current Golden issue register accounts for27findings across35families
+and111steps. Inventory coverage and local fixture regressions are distinct from
 paid-model, isolated-HA, native and installed proof. Five reported Core findings across four qualification areas remain blocking; source delivery and installation of
 these local corrections are still pending. No wider completion is asserted.
 
-Step-level evidence is explicit: every one of the106required steps has named
+Step-level evidence is explicit: every one of the111required steps has named
 owning bindings. Eleven real-quality steps remain open and block release; this is
-not a claim of106accepted live question/answer outcomes. Six additional
+not a claim of111accepted live question/answer outcomes. Six additional
 operational chain tests cover actual lookup/refinement/selection/control/play,
 positive album-period filtering plus known-empty replacement, morning
 No/new-proposal/Yes/sleep, recommendations then exact play, and typed controls.
@@ -128,7 +127,7 @@ success without a second dispatch. Old unqualified-history negatives remain.
 An additional permanent shuffle regression requires the selected name/artwork
 to follow the actually observed admitted track, rather than the first URI in
 an artist collection. The earlier stale-unrelated-track negative remains.
-The current register has26findings,35families and106required steps; eleven
+The current register has27findings,35families and111required steps; eleven
 real-quality steps and five open Core findings remain release-blocking.
 
 The fixed eight-cell follow-up after the chronology/prompt correction consumed16
@@ -139,7 +138,7 @@ new issue and required step remain explicitly open in the same Golden matrix.
 The bounded chronology guard separately passes158contextual tests and scoped
 technical review; that does not qualify arbitrary factual relationships or style.
 
-## Integral restoration checkpoint — typed expression and durable Flow
+## Historical checkpoint309dd90b — typed expression and durable Flow
 
 The same writer implemented final SQLite admission for every non-Silence Moment
 and a postcommit expiry check: pre-admission failure rolls back body and count;
@@ -167,8 +166,48 @@ chain is real. This is not an actual seven-family paid/native narrative proof.
 Four predeclared correction samples were retained, each after a concrete prompt
 or evidence-contract change. They used respectively16,12,12and14paid attempts
 (maximum16per sample), unchanged candidate bytes within each sample and the same
-admitted source corpus. The latest has three full supported answers and five
-fallbacks. No sample closes the eight-cell quality gate. The invalid-plan, role,
+admitted source corpus. These are the historical integral-claims-style,
+integral-planned-style, integral-planned-fresh-evidence and integral-unified-output
+runs of17October2026. The last of those had three full supported answers and five
+fallbacks; the later samples are recorded in the next section. No sample closes the eight-cell quality gate. The invalid-plan, role,
 relationship and source-order failures remain visible; do not install or publish
 these bytes as a completed personal-DJ experience. Native, preview/override,
 source, Finalization, installed and audible gates remain separate and open.
+
+
+## Current retained-experience and source-qualification delta
+
+All seven spoken type families now have actual Runtime/Planner/Knowledge/Moment
+production, semantic SQLite acceptance, end/reopen and manual-speech contracts
+with explicit external source/expression fixtures. The narrow Recommendation
+requires two original producer credits and a genuine earlier published Moment;
+unpublished knowledge does not seed that recommendation. Precommit SQLite failure
+now releases only its rolled-back playback reservation so a retry can succeed.
+A committed relation remains consumed if delivery subsequently fails or expires.
+
+Historical album and artist artwork resolves the original exact subject/account
+binding after storage reopen, with fresh temporary owner-only pixels and current
+withdrawal checks. Old missing identities remain unavailable. Replay preserves
+original text/Mood and uses active Session voice/gender/output, otherwise confirmed
+Profile defaults; changed settings revoke old audio and text_only synthesizes
+nothing. These reads create no Runtime or history revision. Explicit current
+Insight can use fresh qualified current recording credits even when the Planner
+published another fact, through the existing two-call assessment/cache guard.
+No acoustic measurement, native rendering or audible result is invented.
+
+The current registry has27findings,35families and111steps. Eleven real-quality
+steps and five Core findings remain blocking. The next two predeclared source
+samples after309dd90b used16attempts each: one full/four prefixes/three fallbacks,
+then three full/one prefix/four fallbacks. The complete source hash remained
+unchanged within each sample. Independent review still finds unsupported
+relations and insufficient Persona/Mood distinction; two incomplete assessments
+have no proven failure cause. These runs remain evidence of a failed gate, not
+release readiness. Preview/override, protected source/Finalization, installed,
+native and audible gates remain open. No next lane starts from this checkpoint.
+
+
+The current full host regression run executes2,262tests with seven existing skips
+and zero failures/errors; the separate retained-artwork/speech/Insight/Golden owner
+selection executes107tests with zero failures/errors. Independent technical/privacy
+review gives scoped GO for this delta, including all four actual SQLite rollback
+routes, and does not qualify real prose, native/audio or release readiness.

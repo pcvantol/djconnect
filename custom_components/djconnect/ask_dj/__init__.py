@@ -2891,18 +2891,6 @@ async def _informational_assist_response(
         return {"success": True, "text": message, "dj_text": message, "images": []}
     from .dialogue import parse_model_reply, requests_lookup, answer_language_format_issue
     format_issue = None
-    proposed_claims = []
-    if fetched_sources and not requests_lookup(text):
-        grounding_context = {"public_music_research": turn.public_research,
-                             "qualified_context": turn.source_context}
-        planned = public_research.planned_answer(message, grounding_context)
-        if planned is None:
-            message = public_research.unavailable_answer(turn.style.get("language", "en"))
-            return {"success": True, "text": message, "dj_text": message, "images": [],
-                    "text_source": "core", "is_generated_text": False,
-                    "knowledge_basis": "public_research_unqualified",
-                    "public_research_status": research_state}
-        message, proposed_claims = planned
 
     def parse_reply(reply):
         nonlocal format_issue
@@ -2926,6 +2914,10 @@ async def _informational_assist_response(
         message, plan = parse_reply(message)
     except DialogueError as exc:
         if exc.code != "conversation_model_response_invalid" or not turn:
+            raise
+        if fetched_sources:
+            # Research reserves call two for independent evidence review.
+            # Invalid generation cannot buy a repair in its place or archive.
             raise
         # One read-only format retry through the same qualified agent/call budget.
         # Never send the invalid output back as context or repeat a provider effect.
@@ -2956,7 +2948,7 @@ async def _informational_assist_response(
             grounding_context = {"public_music_research": turn.public_research,
                                  "qualified_context": turn.source_context}
             checked = await _call_dialogue_agent(hass, {**data, "text": public_research.assessment_prompt(
-                message, grounding_context, language, text, proposed_claims)})
+                message, grounding_context, language, text)})
             await turn.guard()
             check_response = (checked or {}).get("response") or {}
             assessment = _speech_from_response(check_response)

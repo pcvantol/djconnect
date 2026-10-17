@@ -2425,6 +2425,76 @@
           ],
           "acceptance_status": "owner_contract",
           "proof_boundary": "Real existing Runtime/Planner/Knowledge/Moment/SQLite/query owners; external expression responses and source boundaries are fixtures. Actual paid style, native/installed/audio acceptance remain separate."
+        },
+        {
+          "id": "ASKDJ-REGRESSION-durable-runtime-expression-step-5",
+          "question": "Een producercredit is werkelijk gepubliceerd; de huidige opname deelt dezelfde exacte producer.",
+          "expected_answer": "Optionele Recommendation via dezelfde twee calls, semantische commit, Flow/speech en heropening; geen playbackclaim, geleende cover of ongepubliceerde bron.",
+          "model_policy": "external_expression_fixture_two_call_owner_contract",
+          "owning_tests": [
+            {
+              "file": "tests/test_personal_dj_flow_completion.py",
+              "method": "test_actual_published_credit_recommendation_survives_reopen_without_fake_play"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Real existing Runtime/Planner/Knowledge/Moment/SQLite/query owners; external expression responses and source boundaries are fixtures. Actual paid style, native/installed/audio acceptance remain separate."
+        },
+        {
+          "id": "ASKDJ-REGRESSION-durable-runtime-expression-step-6",
+          "question": "Open album- en artiestbeelden bij DJMoments in een eerdere sessie.",
+          "expected_answer": "Exacte oorspronkelijke onderwerpidentiteit, actuele bronrechten en tijdelijke pixels; geen Runtime/revisionwijziging; sourcewithdrawal weigert pixels.",
+          "model_policy": "external_expression_fixture_two_call_owner_contract",
+          "owning_tests": [
+            {
+              "file": "tests/test_personal_dj_flow_completion.py",
+              "method": "test_retained_album_and_artist_artwork_resolve_original_subject_with_current_owner_rights"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Real existing Runtime/Planner/Knowledge/Moment/SQLite/query owners; external expression responses and source boundaries are fixtures. Actual paid style, native/installed/audio acceptance remain separate."
+        },
+        {
+          "id": "ASKDJ-REGRESSION-durable-runtime-expression-step-7",
+          "question": "Speel een historische DJ-bijdrage met en zonder actieve sessie.",
+          "expected_answer": "Actuele sessiestem, anders profielstem; oorspronkelijke tekst/Mood; gewijzigde keuze trekt oude audio in en text_only veroorzaakt nul synthese.",
+          "model_policy": "external_expression_fixture_two_call_owner_contract",
+          "owning_tests": [
+            {
+              "file": "tests/test_profile_settings_speech.py",
+              "method": "test_retained_moment_replay_uses_current_session_voice_then_profile_defaults"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Real existing Runtime/Planner/Knowledge/Moment/SQLite/query owners; external expression responses and source boundaries are fixtures. Actual paid style, native/installed/audio acceptance remain separate."
+        },
+        {
+          "id": "ASKDJ-REGRESSION-durable-runtime-expression-step-8",
+          "question": "Vraag Track Insight voor de huidige opname wanneer de Planner een artiestbijdrage toonde maar een geldige opnamecredit beschikbaar is.",
+          "expected_answer": "De bestaande echte broncontext gaat via dezelfde onafhankelijke beoordeling; geen nieuwe lookup, Moment of verzonnen klankwaarden; end tijdens generatie weigert commit/cache.",
+          "model_policy": "external_expression_fixture_two_call_owner_contract",
+          "owning_tests": [
+            {
+              "file": "tests/test_personal_dj_flow_completion.py",
+              "method": "test_current_insight_reuses_unpublished_exact_credit_without_new_lookup_or_audio_claims"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Real existing Runtime/Planner/Knowledge/Moment/SQLite/query owners; external expression responses and source boundaries are fixtures. Actual paid style, native/installed/audio acceptance remain separate."
+        },
+        {
+          "id": "ASKDJ-REGRESSION-durable-runtime-expression-step-9",
+          "question": "Laat de werkelijke SQLite-transactie vóór commit falen in gewone coordinator-, legacy-, Silence- en fallbackroutes.",
+          "expected_answer": "Geen geaccepteerde bijdrage/teller, alleen de gereserveerde identiteit terugzetten; na opslagherstel dezelfde observatie eenmaal publiceren en daarna dedupliceren.",
+          "model_policy": "external_expression_fixture_two_call_owner_contract",
+          "owning_tests": [
+            {
+              "file": "tests/test_personal_dj_runtime_expression.py",
+              "method": "test_sql_rollback_keeps_every_track_started_commit_route_retryable"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Real existing Runtime/Planner/Knowledge/Moment/SQLite/query owners; external expression responses and source boundaries are fixtures. Actual paid style, native/installed/audio acceptance remain separate."
         }
       ],
       "owning_tests": [
@@ -2443,6 +2513,26 @@
         {
           "file": "tests/test_personal_dj_flow_completion.py",
           "method": "test_actual_source_families_and_silence_survive_reopen_and_search_beyond250"
+        },
+        {
+          "file": "tests/test_personal_dj_flow_completion.py",
+          "method": "test_actual_published_credit_recommendation_survives_reopen_without_fake_play"
+        },
+        {
+          "file": "tests/test_personal_dj_flow_completion.py",
+          "method": "test_retained_album_and_artist_artwork_resolve_original_subject_with_current_owner_rights"
+        },
+        {
+          "file": "tests/test_profile_settings_speech.py",
+          "method": "test_retained_moment_replay_uses_current_session_voice_then_profile_defaults"
+        },
+        {
+          "file": "tests/test_personal_dj_flow_completion.py",
+          "method": "test_current_insight_reuses_unpublished_exact_credit_without_new_lookup_or_audio_claims"
+        },
+        {
+          "file": "tests/test_personal_dj_runtime_expression.py",
+          "method": "test_sql_rollback_keeps_every_track_started_commit_route_retryable"
         }
       ],
       "fixture_boundary": "Real existing Runtime/Planner/Knowledge/Moment/SQLite/query owners; external expression responses and source boundaries are fixtures. Actual paid style, native/installed/audio acceptance remain separate."
@@ -2629,6 +2719,12 @@
       "id": "ASKDJ-ISSUE-transition-expression-memory",
       "family_id": "ASKDJ-REGRESSION-durable-runtime-expression",
       "finding": "Overname van de working engine na publicatie wist het net gecommitteerde Transition-frame.",
+      "core_qualification": "locally_covered"
+    },
+    {
+      "id": "ASKDJ-ISSUE-sql-rollback-track-reservation",
+      "family_id": "ASKDJ-REGRESSION-durable-runtime-expression",
+      "finding": "Mislukte definitief teruggerolde Momentopslag liet de track-startreservering staan en blokkeerde een geldige herhaling zonder enige publicatie.",
       "core_qualification": "locally_covered"
     }
   ],

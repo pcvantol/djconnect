@@ -28,10 +28,9 @@ def _research_assessment_fixture(projection, *, retained=None):
 
 
 def _research_generation_fixture(projection, answer):
-    if not projection.get('public_music_research', {}).get('sources'):
-        return answer
-    checked = _research_assessment_fixture({'evidence': {'public_music_research': projection['public_music_research']}, 'answer': answer})
-    return json.dumps({'segments': checked['claim_checks']})
+    # The provider proposes prose; only the independent second reply carries
+    # receipts, so the generator cannot preselect its own factual classification.
+    return answer
 
 
 class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
@@ -721,11 +720,37 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
         self.assertIn('not a producer credit', prompt)
         self.assertIn('factual modifier', prompt)
         self.assertNotIn('evidence_spans', source.metadata())
-        self.assertEqual(research.planned_answer(json.dumps({'segments': checks}), context), (answer, checks))
-        for invalid in (answer, json.dumps({'segments': checks, 'text': answer}),
-                        json.dumps({'segments': [{**checks[0], 'evidence_ids': ['invented:1']}]}),
-                        '{"segments":[],"segments":[]}'):
-            self.assertIsNone(research.planned_answer(invalid, context))
+        self.assertNotIn('untrusted_generation_plan', prompt)
+        # Source bytes/IDs are unchanged for review; the actual generator sees
+        # the original excerpt once and no generator bookkeeping contract.
+        from types import SimpleNamespace
+        turn = SimpleNamespace(style={'persona':'home_dj', 'mood':'chill', 'language':'en'},
+            frame=None, public_research=context['public_music_research'], source_context={}, prompt_bytes=0)
+        token = self.dialogue.current_turn.set(turn)
+        try:
+            generation = self.dialogue.model_prompt('Who is Brian Eno?', {})
+        finally:
+            self.dialogue.current_turn.reset(token)
+        data = json.loads(generation.split('\nData:\n', 1)[1])
+        self.assertNotIn('untrusted_excerpt', data['public_music_research']['sources'][0])
+        self.assertEqual(data['public_music_research']['sources'][0]['evidence_spans'], source.model_data()['evidence_spans'])
+        self.assertEqual(context['public_music_research']['sources'][0]['evidence_spans'], source.model_data()['evidence_spans'])
+        self.assertEqual(generation.count('With Robert Fripp he recorded No Pussyfooting.'), 1)
+        focused_source = {**source.model_data(), 'source_anchors':['No Pussyfooting']}
+        projection = {**context['public_music_research'], 'sources':[focused_source]}
+        focused = research.generation_projection(projection, 'Who is Brian Eno?')
+        self.assertEqual(focused['episode_focus']['passage_ids'], [ids[0], ids[1]])
+        self.assertEqual(projection['sources'][0], focused_source)
+        for question in ('When was No Pussyfooting released?', 'Who produced No Pussyfooting?', 'Who are the members of Roxy Music?'):
+            self.assertNotIn('episode_focus', research.generation_projection(projection, question))
+
+        # The actual failed prefix named an album while citing identity-only
+        # source spans. Valid IDs alone cannot qualify that work connection.
+        marked = {**context, 'public_music_research': {**context['public_music_research'],
+            'sources': [{**source.model_data(), 'source_anchors':['No Pussyfooting']}]}}
+        wrong = [{**checks[0], 'evidence_ids':[ids[0]]}, checks[1]]
+        self.assertFalse(research.supported(json.dumps({**good, 'claim_checks': wrong}), answer, marked))
+        self.assertTrue(research.supported(json.dumps(good), answer, marked))
         for bridge in ('After his period in the band, Eno recorded No Pussyfooting.',
                        'Na zijn periode in de band maakte Eno No Pussyfooting.',
                        'Danach nahm Eno No Pussyfooting auf.',
@@ -1064,8 +1089,10 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
         self.assertIn("An understated, sharp host", header)
         self.assertIn("Unhurried, intimate and spacious", header)
         self.assertNotIn("narration", data)
-        self.assertIn("untrusted_excerpt", data["public_music_research"]["sources"][0])
-        self.assertNotIn(data["public_music_research"]["sources"][0]["untrusted_excerpt"], header)
+        self.assertTrue(data["public_music_research"]["sources"][0]["evidence_spans"])
+        self.assertNotIn("untrusted_excerpt", data["public_music_research"]["sources"][0])
+        for span in data["public_music_research"]["sources"][0]["evidence_spans"]:
+            self.assertNotIn(span["text"], header)
 
     def research_http(self, *, title="Peter Luts", text="Peter Luts is a Belgian music producer and composer."):
         from custom_components.djconnect.ask_dj import public_research
@@ -1690,7 +1717,7 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(self.prompts, [])
             self.assertEqual(self.effects, [])
 
-    async def test_invalid_prose_gets_one_bounded_repair_before_acceptance(self):
+    async def test_invalid_research_prose_reserves_assessment_and_has_no_archive_commit(self):
         answers = ["Il travaille dans l'ambient music. Il crée des paysages sonores.",
                    "Il travaille dans la musique ambient. Il crée des paysages sonores."]
         async def agent(hass, data, **kwargs):
@@ -1698,15 +1725,15 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
             return {"response": {"speech": {"plain": {"speech": answers.pop(0)}}}}
         with patch.object(self.pipeline, "_call_conversation_process_transport", agent):
             result, status = await self.request("Qui est Brian Eno ?", language="fr", dj_persona="radio_dj")
-        self.assertEqual(status, 200, result)
-        self.assertEqual(result["conversation"]["metrics"]["agent_calls"], 1)
-        self.assertNotIn("ambient music", result["text"])
+        self.assertEqual(status, 502, result)
+        self.assertEqual(result["error"], "conversation_model_response_invalid")
+        self.assertEqual(len(self.prompts), 1)
         stored = await self.history.async_history("profile:profile-a")
         self.assertNotIn("ambient music", json.dumps(stored))
-        self.assertEqual(len(stored["messages"]), 2)
+        self.assertEqual(stored["messages"], [])
         self.assertEqual(self.effects, [])
 
-    async def test_known_prose_issues_repair_without_archiving_invalid_answer(self):
+    async def test_known_prose_issues_reject_without_archiving_invalid_answer(self):
         for language, question, bad, good in (
             ("de", "Wer ist Brian Eno?", "Brians Enos Ansatz nutzt Kontraste.", "Der Ansatz von Brian Eno nutzt Kontraste."),
             ("nl", "Wie is Brian Eno?", "Hij maakt vaak geurige, lagen van geluid.", "Brian Eno gebruikt gelaagde klanken."),
@@ -1716,12 +1743,11 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
                 return {"response": {"speech": {"plain": {"speech": answers.pop(0)}}}}
             with patch.object(self.pipeline, "_call_conversation_process_transport", agent):
                 result, status = await self.request(question, identifier="repair-" + language, language=language, dj_persona="club_dj")
-            self.assertEqual(status, 200, result)
-            # An invalid source-plan envelope fails before a second model call;
+            self.assertEqual(status, 502, result)
+            # Invalid research prose fails before a second model call;
             # a repair must never substitute for independent assessment.
-            self.assertEqual(result["knowledge_basis"], "public_research_unqualified")
-            self.assertNotEqual(result["text"], good)
-            self.assertEqual(result["conversation"]["metrics"]["agent_calls"], 1)
+            self.assertEqual(result["error"], "conversation_model_response_invalid")
+            self.assertEqual(answers, [good])
             self.assertNotIn(bad, json.dumps(await self.history.async_history("profile:profile-a"), ensure_ascii=False))
         self.assertEqual(self.effects, [])
 
@@ -1730,7 +1756,7 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
         result, status = await self.request("Qui est Brian Eno ?", language="fr", dj_persona="radio_dj")
         self.assertEqual(status, 502, result)
         self.assertEqual(result["error"], "conversation_model_response_invalid")
-        self.assertEqual(len(self.prompts), 2)
+        self.assertEqual(len(self.prompts), 1)
         self.assertEqual((await self.history.async_history("profile:profile-a"))["messages"], [])
         self.assertEqual(self.effects, [])
 
@@ -2343,9 +2369,9 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
             raise AssertionError("A biography request grants no catalog lookup")
         with patch.object(self.pipeline, "_call_conversation_process_transport", agent), patch.object(self.core, "_spotify_track_search", search):
             result, status = await self.request("Who is Miles Davis?", identifier="answer-not-query")
-        self.assertEqual(status, 200, result)
-        self.assertEqual(result["knowledge_basis"], "public_research_unqualified")
-        self.assertNotIn("trumpeter", result["text"])
+        self.assertEqual(status, 502, result)
+        self.assertEqual(result["error"], "conversation_model_response_invalid")
+        self.assertEqual((await self.history.async_history("profile:profile-a"))["messages"], [])
         self.assertNotIn("result_set", result)
         self.assertEqual(len(calls), 1)
 

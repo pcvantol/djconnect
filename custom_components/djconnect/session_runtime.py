@@ -21,7 +21,7 @@ from .session_forecast import ForecastProjection
 from .forecast_imagery import ForecastArtwork
 from .presence_policy import DEFAULT as DEFAULT_PRESENCE, POLICIES, PresenceLedger
 from .session_facts import (
-    QualifiedSessionFact, SharedProducerFact, PublishedRecordingContext,
+    QualifiedSessionFact, SharedProducerFact, ProducerRecommendationFact, producer_recommendation, PublishedRecordingContext,
     AlbumContinuityFact, PublishedAlbumContext,
 )
 from .moment_expression import realize as realize_fact_expression
@@ -1745,9 +1745,12 @@ class DJSessionPlanner:
             if remaining_seconds < read_seconds + 5:
                 continue
             moment_type = {"track_context": DJMomentType.TRACK, "album_story": DJMomentType.ALBUM,
-                           "artist_story": DJMomentType.ARTIST, "genre_story": DJMomentType.GENRE}[fact.intent]
-            score = {DJMomentType.TRACK: 30, DJMomentType.ALBUM: 20, DJMomentType.ARTIST: 10, DJMomentType.GENRE: 5}[moment_type]
+                           "artist_story": DJMomentType.ARTIST, "genre_story": DJMomentType.GENRE, "recommendation": DJMomentType.RECOMMENDATION}[fact.intent]
+            score = {DJMomentType.TRACK: 30, DJMomentType.ALBUM: 20, DJMomentType.ARTIST: 10, DJMomentType.GENRE: 5, DJMomentType.RECOMMENDATION: 10}[moment_type]
             reasons = ["current_scope"]
+            if isinstance(fact, ProducerRecommendationFact):
+                score += 150
+                reasons.append("published_credit_revisit")
             if isinstance(fact, SharedProducerFact):
                 score += 100
                 reasons.append("shared_producer")
@@ -1755,10 +1758,10 @@ class DJSessionPlanner:
                 score += 100
                 reasons.append("published_album_continuity")
             if session_start_strategy is SessionStartStrategy.DISCOVER or session_direction is SessionDirectionType.EXPLORING:
-                score += {DJMomentType.TRACK: 0, DJMomentType.ALBUM: 20, DJMomentType.ARTIST: 40, DJMomentType.GENRE: 0}[moment_type]
+                score += {DJMomentType.TRACK: 0, DJMomentType.ALBUM: 20, DJMomentType.ARTIST: 40, DJMomentType.GENRE: 0, DJMomentType.RECOMMENDATION: 0}[moment_type]
                 reasons.append("exploration")
             if session_direction is SessionDirectionType.DEEPENING:
-                score += {DJMomentType.TRACK: 20, DJMomentType.ALBUM: 10, DJMomentType.ARTIST: 0, DJMomentType.GENRE: 0}[moment_type]
+                score += {DJMomentType.TRACK: 20, DJMomentType.ALBUM: 10, DJMomentType.ARTIST: 0, DJMomentType.GENRE: 0, DJMomentType.RECOMMENDATION: 0}[moment_type]
                 reasons.append("deepening")
             if moment_type is DJMomentType.ALBUM:
                 if selected_mood in {"chill", "focus", "deep"}:
@@ -2260,7 +2263,7 @@ class DJMomentEngine:
             return self.create_silence(session_id=session_id, selected_mood=selected_mood, persona=persona, locale=locale, reason="unqualified_or_duplicate_fact")
         summary, content = realization.summary, realization.content
         self._track_keys.add(key)
-        moment_type = {"artist_story": DJMomentType.ARTIST, "album_story": DJMomentType.ALBUM, "genre_story": DJMomentType.GENRE}.get(fact.intent, DJMomentType.TRACK)
+        moment_type = {"artist_story": DJMomentType.ARTIST, "album_story": DJMomentType.ALBUM, "genre_story": DJMomentType.GENRE, "recommendation": DJMomentType.RECOMMENDATION}.get(fact.intent, DJMomentType.TRACK)
         identifier = f"moment-{uuid4().hex}"
         from .moment_navigation import CAPABILITY, LABELS
         insight_actions = ()
@@ -5003,6 +5006,12 @@ class SessionRuntimeManager:
             relation = active.published_recording_context.candidate(facts, opportunity.media_identity, time.monotonic())
             if relation is not None:
                 facts = (relation, *facts)
+                if active.planner.configuration.recommendation_preference == 'prefer':
+                    previous = relation.previous_evidence.media_identity
+                    recommendation = producer_recommendation(relation,
+                        active.published_recording_context.published_moment_ids.get(previous, ''), time.monotonic())
+                    if recommendation is not None:
+                        facts = (recommendation, *facts)
             album_relation = active.published_album_context.candidate(facts, opportunity.media_identity, time.monotonic())
             if album_relation is not None:
                 facts = (album_relation, *facts)
@@ -5169,7 +5178,7 @@ class SessionRuntimeManager:
             active.publish_moment(moment, commit_expression=False)
             if not any(published.moment_id == moment.moment_id for published in active.broadcast.state.dj_moments):
                 return None
-            active.published_recording_context.commit(fact, time.monotonic())
+            active.published_recording_context.commit(fact, time.monotonic(), moment.moment_id)
             if (active.session_start_strategy is SessionStartStrategy.DISCOVER
                     and active.session_direction.direction is SessionDirectionType.EXPLORING):
                 active.published_album_context.commit(fact, time.monotonic())
@@ -5422,7 +5431,17 @@ class SessionRuntimeManager:
                     discover_context=active.discover_context,
                 )
         if prepared_fact is not None:
-            return await self._realize_qualified_current_fact(prepared_fact)
+            from .persistence.service import PersistenceError
+            try:
+                return await self._realize_qualified_current_fact(prepared_fact)
+            except PersistenceError:
+                # The provider reports definitive rollback on this failure.
+                # Keep the qualified opportunity retryable; a prefetch/start
+                # reservation is not a published semantic acceptance.
+                await self.async_restore_track_started_media(owner_profile_id=owner_profile_id,
+                    session_id=session_id, media_identity=media_identity,
+                    previous_media_identity=previous_media_identity)
+                raise
         _LOGGER.debug("DJConnect Planning Runtime Coordinator lifecycle entered")
         try:
             coordinated = await working_coordinator.async_coordinate_track_started(
@@ -5475,7 +5494,7 @@ class SessionRuntimeManager:
                 self._restore_track_started_media_locked(
                     owner_profile_id, session_id, media_identity, previous_media_identity)
                 return None
-            if coordinated is not None and not await self._async_persist_moment(active, coordinated):
+            if coordinated is not None and not await self._async_persist_track_started_moment(active, coordinated, media_identity, previous_media_identity):
                 return None
             retained_horizon = active.planner.horizon
             active.planner.__dict__.clear()
@@ -5558,9 +5577,14 @@ class SessionRuntimeManager:
                 self._restore_track_started_media_locked(owner_profile_id, session_id, media_identity, previous_media_identity)
                 return None
             working_planner = copy.deepcopy(active.planner)
-            active, legacy_moment = await self._apply_legacy_initial_track_started_decision(
-                owner_profile_id, active, planner=working_planner
-            )
+            from .persistence.service import PersistenceError
+            try:
+                active, legacy_moment = await self._apply_legacy_initial_track_started_decision(
+                    owner_profile_id, active, planner=working_planner)
+            except PersistenceError:
+                self._restore_track_started_media_locked(owner_profile_id,
+                    session_id, media_identity, previous_media_identity)
+                raise
             if legacy_moment is not None:
                 if active.planner.discover_narrative_line is not None:
                     active.planner.clear_discover_narrative()
@@ -5582,16 +5606,18 @@ class SessionRuntimeManager:
                 record_track_available=False,
             )
             if decision.decision_type is PlannerDecisionType.SILENCE:
-                self._commit_planner_candidate(active, working_planner)
-                moment = active.moment_engine.create_silence(
+                working_moments = copy.deepcopy(active.moment_engine)
+                moment = working_moments.create_silence(
                     session_id=active.session_id,
                     selected_mood=active.selected_mood,
                     persona=active.dj_persona,
                     locale=active.locale,
                     reason=decision.reason,
                 )
-                if not await self._async_persist_moment(active, moment):
+                if not await self._async_persist_track_started_moment(active, moment, media_identity, previous_media_identity):
                     return None
+                self._commit_planner_candidate(active, working_planner)
+                active.moment_engine.__dict__.update(working_moments.__dict__)
                 active.publish_moment(moment)
                 active = self._record_performance_memory(owner_profile_id, active)
                 await self._publish_discover_transition(
@@ -5656,7 +5682,7 @@ class SessionRuntimeManager:
                 locale=active.locale,
                 insight=knowledge.as_insight(),
             )
-            if not await self._async_persist_moment(active, moment):
+            if not await self._async_persist_track_started_moment(active, moment, media_identity, previous_media_identity):
                 return None
             self._commit_planner_candidate(active, working_planner)
             active.knowledge_engine.__dict__.update(working_knowledge_engine.__dict__)
@@ -6372,6 +6398,16 @@ class SessionRuntimeManager:
             narration_acceptance=RuntimeNarrationAcceptance(moment, str(text), frame, active.locale, guard),
             generation_metadata=(*moment.generation_metadata, ('realization', 'qualified_runtime_narration_v1')))
 
+    async def _async_persist_track_started_moment(self, active, moment, media_identity, previous_media_identity):
+        """Persist under manager lock; release reservation only on definitive rollback."""
+        from .persistence.service import PersistenceError
+        try:
+            return await self._async_persist_moment(active, moment)
+        except PersistenceError:
+            self._restore_track_started_media_locked(active.owner_profile_id,
+                active.session_id, media_identity, previous_media_identity)
+            raise
+
     async def _async_persist_moment(self, active: DJSessionRuntime, moment: DJMoment, *, final_authorize=None) -> bool:
         """Explicit historical field qualification before actual live publication."""
         if moment.session_id != active.session_id:
@@ -6511,16 +6547,24 @@ class SessionRuntimeManager:
                 entry["body"]["dialogue_subjects"] = normalized_subjects(source)
                 # The creative presentation is not new factual evidence.
                 entry["body"]["qualified_fact_text"] = source.copy_for(active.locale)[1]
-                from .session_artwork import subject_for_fact
-                subject = subject_for_fact(source)
-                if subject:
-                    entry["body"]["session_media_reference"] = {
-                        "version": 1, "subject_uri": subject,
-                        "album_uri": getattr(source, "artwork_album_uri", ""),
-                        "source_context": dict(self._history_source_contexts.get(active.session_id, {}))}
             elif basis == 'owner_metadata_narration_v1':
                 entry['body'].update(provider='Spotify',
                     source_context=dict(self._history_source_contexts[active.session_id]))
+            # Retain only exact original subject IDs and the source binding for
+            # explicit future image preparation, independent of body license.
+            from .session_artwork import subject_for_fact
+            subject = subject_for_fact(source)
+            if subject is None and moment.observed_playback is not None:
+                observed_url = moment.observed_playback.source_url
+                match = re.fullmatch(r'https://open\.spotify\.com/track/([A-Za-z0-9]{22})', observed_url)
+                subject = 'spotify:track:'+match[1] if match else None
+            captured_source = self._history_source_contexts.get(active.session_id, {})
+            if subject and all(isinstance(captured_source.get(key), str) and captured_source[key]
+                    for key in ('backend_id','music_account_id','provider_entry_id','provider_account_id')):
+                entry['body']['session_media_reference'] = {
+                    'version':1, 'subject_uri':subject,
+                    'album_uri':getattr(source,'artwork_album_uri','') if ':track:' in subject else '',
+                    'source_context':dict(captured_source)}
 
         if entry is None:
             # Retention of source content is separate from retention of the
@@ -6545,6 +6589,8 @@ class SessionRuntimeManager:
                 return False
             raise
         if accepted:
+            if source is not None:
+                active.published_recording_context.consume(source, time.monotonic(), semantic_accepted=True)
             # The SQLite commit is semantic acceptance; resuming the event loop
             # may be delayed. Keep that acceptance, but never deliver expired
             # evidence or advance published-only expression memory.

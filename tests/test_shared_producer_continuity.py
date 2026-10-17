@@ -55,6 +55,7 @@ class SharedProducerContinuityTest(unittest.TestCase):
             session = replace(session, session_direction=replace(session.session_direction,
                 direction=self.runtime.SessionDirectionType.EXPLORING))
             manager._active_by_profile["owner"] = session
+            session.planner.configuration = replace(session.planner.configuration, recommendation_preference="balanced")
             snapshots, moments = [], []
             for number in (0, 1):
                 if number and restart:

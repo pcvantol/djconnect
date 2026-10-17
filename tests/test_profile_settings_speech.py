@@ -717,3 +717,48 @@ class SharedSettingsSpeechTests(unittest.IsolatedAsyncioTestCase):
                 self.assertEqual((dispatch.await_count, len(calls)), (1, 1))
         finally:
             await journal.close()
+
+    async def test_retained_moment_replay_uses_current_session_voice_then_profile_defaults(self):
+        manager = self.f.fixture.manager
+        old, moment, reference = await self.f.selected_credit()
+        original_text, original_mood = moment.content, moment.presentation_intent.source_session_mood
+        await manager.async_end(owner_profile_id='profile-a', session_id=old.session_id)
+        await self.f.fixture.service.async_close()
+        await self.f.fixture.service.async_initialize()
+        payload = {**self.f.identity, 'contract_version':3, 'processor':'ha_configured',
+                   'intent':'manual', 'target':'local', 'reference':reference}
+        stack, _, _, calls, _ = self.provider()
+        with stack:
+            await self.choose('cedar', counter=1)
+            first, status = await self.speech.async_handle_prepare(self.hass,payload,headers=self.f.headers)
+            self.assertEqual(status,200,first)
+            descriptor=first['session_speech']
+            self.assertEqual(descriptor['effective_voice']['voice_id'],'cedar')
+            self.assertEqual(descriptor['source_kind'],'retained_dj_contribution')
+            self.assertIsNone(manager.current_active('profile-a'))
+            first_asset=descriptor['audio_reference']['asset_id']
+            current=await manager.async_start(owner_profile_id='profile-a', locale='en')
+            await self.choose('marin',counter=2,extra={'mood':'party'})
+            second,status=await self.speech.async_handle_prepare(self.hass,payload,headers=self.f.headers)
+            self.assertEqual(status,200,second)
+            descriptor=second['session_speech']
+            self.assertEqual(descriptor['effective_voice']['voice_id'],'marin')
+            self.assertEqual(descriptor['mood'],original_mood)
+            self.assertEqual(''.join(s['text'] for s in descriptor['segments']),original_text)
+            self.assertFalse(descriptor['autoplay_eligible'])
+            old_asset,status=await self.speech.async_handle_audio(self.hass,
+                {**self.f.identity,'contract_version':1,'asset_id':first_asset},headers=self.f.headers)
+            self.assertEqual(status,404)
+            self.assertIsNone(old_asset)
+            await manager.async_end(owner_profile_id='profile-a',session_id=current.session_id)
+            third,status=await self.speech.async_handle_prepare(self.hass,payload,headers=self.f.headers)
+            self.assertEqual(status,200,third)
+            self.assertEqual(third['session_speech']['effective_voice']['voice_id'],'marin')
+            self.assertIsNone(manager.current_active('profile-a'))
+            self.assertTrue(all(call[0]==original_text for call in calls))
+            await self.choose('marin',counter=3,extra={'announcement_output':'text_only'})
+            count=len(calls)
+            denied,status=await self.speech.async_handle_prepare(self.hass,payload,headers=self.f.headers)
+            self.assertEqual(status,200,denied)
+            self.assertEqual(denied['session_speech']['reason'],'announcement_text_only')
+            self.assertEqual(len(calls),count)

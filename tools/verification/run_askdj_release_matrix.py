@@ -26,7 +26,7 @@ TEST_PATTERNS = (
     'test_dj_moment_golden_matrix.py', 'test_expressive_dj_persona.py', 'test_expressive_context_variation.py', 'test_silence_live_delivery.py', 'test_native_moment_delivery.py', 'test_session_presence.py', 'test_active_session_mood.py', 'test_session_persona.py',
     'test_personal_dj_narration*.py',
     'test_personal_dj_runtime_expression.py', 'test_personal_dj_flow_completion.py',
-    'test_track_insight.py',
+    'test_track_insight.py', 'test_profile_settings_speech.py', 'test_session_artwork.py',
 )
 PROFILES = {
     'current_artist': ('current-artist.json', 240),

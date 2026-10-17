@@ -257,6 +257,52 @@ def shared_producer_fact(current: RecordingCreditEvidence, previous: RecordingCr
     return None
 
 
+@dataclass(frozen=True)
+class ProducerRecommendationFact(SharedProducerFact):
+    """One optional revisit, based on an actually published earlier credit."""
+    previous_moment_id: str = ''
+
+    @property
+    def recommended_media_identity(self):
+        return self.previous_evidence.media_identity if self.previous_evidence else ''
+
+    def eligible(self, media_identity, now):
+        current, previous = self.recording_evidence, self.previous_evidence
+        if (self.key != 'producer_recommendation' or self.intent != 'recommendation'
+                or not re.fullmatch(r'moment-[0-9a-f]{32}', self.previous_moment_id)
+                or current is None or previous is None):
+            return False
+        producer = next((p for p in current.producers if p.contributor_id == self.producer_id), None)
+        if producer is None or (self.summaries, self.contents) != _recommendation_copy(current, previous, producer):
+            return False
+        titles, bodies = _shared_copy(current, previous, producer)
+        proof = replace(self, key='shared_producer', intent='track_context', summaries=titles, contents=bodies)
+        return SharedProducerFact.eligible(proof, media_identity, now)
+
+
+def _recommendation_copy(current, previous, producer):
+    titles = ('A connection to revisit', 'Een verbinding om te hernemen', 'Eine Verbindung zum Wiederentdecken',
+              'Un lien à retrouver', 'Una conexión para retomar')
+    bodies = (
+        f'If you want to explore this connection, I suggest revisiting {previous.title}: {producer.name} is credited as producer there and on {current.title}.',
+        f'Als je deze verbinding wilt verkennen, stel ik voor om {previous.title} nog eens op te zoeken: {producer.name} staat daar en bij {current.title} als producer vermeld.',
+        f'Wenn du diese Verbindung erkunden möchtest, schlage ich vor, {previous.title} wieder aufzusuchen: {producer.name} ist dort und bei {current.title} als Produzent genannt.',
+        f'Pour explorer ce lien, je te propose de retrouver {previous.title} : {producer.name} y est crédité à la production, comme sur {current.title}.',
+        f'Si quieres explorar esta conexión, te propongo volver a {previous.title}: {producer.name} figura como productor allí y en {current.title}.')
+    return tuple(zip(LANGUAGES, titles)), tuple(zip(LANGUAGES, bodies))
+
+
+def producer_recommendation(relation, previous_moment_id, now):
+    if type(relation) is not SharedProducerFact or not relation.eligible(relation.media_identity, now):
+        return None
+    producer = next(p for p in relation.recording_evidence.producers if p.contributor_id == relation.producer_id)
+    titles, bodies = _recommendation_copy(relation.recording_evidence, relation.previous_evidence, producer)
+    fact = ProducerRecommendationFact(**{**relation.__dict__, 'key':'producer_recommendation',
+        'intent':'recommendation', 'summaries':titles, 'contents':bodies,
+        'artwork_subject_uri':'', 'artwork_album_uri':'', 'previous_moment_id':previous_moment_id})
+    return fact if fact.eligible(fact.media_identity, now) else None
+
+
 @dataclass
 class PublishedRecordingContext:
     """One Runtime's three observed tracks and published-only credit proofs."""
@@ -264,6 +310,7 @@ class PublishedRecordingContext:
     credits: dict[str, RecordingCreditEvidence] = field(default_factory=dict)
     used_relations: set[tuple[str, str, str]] = field(default_factory=set)
     connected_tracks: set[str] = field(default_factory=set)
+    published_moment_ids: dict[str, str] = field(default_factory=dict)
 
     def observe(self, media_identity: str, now: float) -> None:
         if media_identity in self.observed_tracks:
@@ -272,15 +319,23 @@ class PublishedRecordingContext:
         self.observed_tracks[:] = self.observed_tracks[-3:]
         self.credits = {key: value for key, value in self.credits.items()
                         if key in self.observed_tracks and value.eligible(now)}
+        self.published_moment_ids = {key: value for key, value in self.published_moment_ids.items() if key in self.credits}
 
-    def commit(self, fact: QualifiedSessionFact, now: float) -> None:
+    def commit(self, fact: QualifiedSessionFact, now: float, moment_id: str = '') -> None:
         evidence = fact.recording_evidence
         if (fact.key in {"recording_credits", "shared_producer"} and fact.eligible(fact.media_identity, now)
                 and evidence and evidence.eligible(now) and evidence.media_identity == fact.media_identity
                 and evidence.source_url == fact.source_url and evidence.observed_at == fact.observed_at
                 and fact.media_identity in self.observed_tracks):
             self.credits[fact.media_identity] = evidence
-        if isinstance(fact, SharedProducerFact) and fact.eligible(fact.media_identity, now):
+            if re.fullmatch(r'moment-[0-9a-f]{32}', moment_id):
+                self.published_moment_ids[fact.media_identity] = moment_id
+        self.consume(fact, now)
+
+    def consume(self, fact, now, *, semantic_accepted=False):
+        # Semantic acceptance consumes a relation even when delivery is later
+        # suppressed, without seeding a claim that its credit was discussed.
+        if isinstance(fact, SharedProducerFact) and (semantic_accepted or fact.eligible(fact.media_identity, now)):
             self.used_relations.add(fact.relation_key)
             self.connected_tracks.add(fact.media_identity)
 
@@ -310,6 +365,7 @@ class PublishedRecordingContext:
         self.credits.clear()
         self.used_relations.clear()
         self.connected_tracks.clear()
+        self.published_moment_ids.clear()
 
 
 ALBUM_CONTINUITY_FORMS = {
@@ -399,6 +455,7 @@ class PublishedAlbumContext:
     albums: dict[str, QualifiedSessionFact] = field(default_factory=dict)
     used_relations: set[tuple[str, str, str]] = field(default_factory=set)
     connected_tracks: set[str] = field(default_factory=set)
+    published_moment_ids: dict[str, str] = field(default_factory=dict)
 
     def observe(self, media_identity: str, now: float) -> None:
         if media_identity in self.observed_tracks:

@@ -7,7 +7,7 @@ private context, fact extraction from prose or generic opener/footer chassis.
 from __future__ import annotations
 
 from .session_facts import (
-    QualifiedSessionFact, SharedProducerFact, DisplayFactCore,
+    QualifiedSessionFact, SharedProducerFact, ProducerRecommendationFact, DisplayFactCore,
     AlbumContinuityFact, album_continuity_copy,
 )
 from .context_expression import (
@@ -497,6 +497,8 @@ def realize(
         if not framed.endswith(original):
             return None
         return dict(summaries)[lang], framed[:-len(original)] + current[1]
+    if type(fact) is ProducerRecommendationFact:
+        return fact.copy_for(locale)
     syntax = form % 4
     callback = isinstance(fact, SharedProducerFact)
     if callback:

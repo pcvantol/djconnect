@@ -27,10 +27,23 @@ class RuntimeExpressionTest(unittest.IsolatedAsyncioTestCase):
     async def asyncTearDown(self):
         await self.fixture.asyncTearDown()
 
-    async def produce(self, persona, *, hold=None):
+    async def history_authority(self):
+        from custom_components.djconnect.domain.music_account import MusicAccountKind
+        from custom_components.djconnect.session_conversation import async_metadata_archive_admission
+        storage = self.hass.data['djconnect']['djconnect_profile_platform']
+        await storage.async_upsert_music_account('source-account','source-spotify', kind=MusicAccountKind.PERSONAL,
+            display_name='Synthetic source', linked_profile_ids=frozenset({'profile-a'}),provider_account_id='fixture-owner')
+        binding={'backend_id':'source-spotify','music_account_id':'source-account',
+                 'provider_entry_id':'source-entry','provider_account_id':'fixture-owner'}
+        async def archive(captured):
+            return await async_metadata_archive_admission(self.hass,'profile-a',captured,lambda:None)
+        return binding, archive
+
+    async def produce(self, persona, *, hold=None, retained=False):
         from custom_components.djconnect import pipeline
+        binding, archive = await self.history_authority() if retained else ({},None)
         session = await self.manager.async_start(owner_profile_id='profile-a', locale='nl',
-            selected_mood='groove', dj_persona=persona, music_backend='spotify_direct')
+            selected_mood='groove', dj_persona=persona, music_backend='spotify_direct', history_source_context=binding)
         calls, briefs = [], []
         async def transport(domain, service, data, **kwargs):
             calls.append(data['text'])
@@ -48,7 +61,7 @@ class RuntimeExpressionTest(unittest.IsolatedAsyncioTestCase):
             briefs.append(brief)
             return await pipeline.realize_session_narration(self.hass, narration=brief,
                 admission=guard, fallback_text=brief.seed, conf=self.runtime.config)
-        self.manager.connect_narration('profile-a', session.session_id, realize, lambda: None)
+        self.manager.connect_narration('profile-a', session.session_id, realize, lambda: None, archive_admission=archive)
         async def knowledge():
             return {'track': {'title': 'Local exact title', 'artist': 'Local exact artist'},
                 'analysis': {'summary': 'Unmeasured', 'full_text': 'No qualified audio analysis.',
@@ -70,7 +83,7 @@ class RuntimeExpressionTest(unittest.IsolatedAsyncioTestCase):
         for persona, kind in ((self.r.DJPersona.HOME_DJ, 'observed_playback'),
                               (self.r.DJPersona.FESTIVAL_DJ, 'session_direction')):
             with self.subTest(kind=kind):
-                session, moment, calls, briefs = await self.produce(persona)
+                session, moment, calls, briefs = await self.produce(persona, retained=True)
                 self.assertIsNotNone(moment)
                 self.assertEqual(len(calls), 2)
                 self.assertEqual([b.kind for b in briefs], [kind])
@@ -95,6 +108,13 @@ class RuntimeExpressionTest(unittest.IsolatedAsyncioTestCase):
                         playback_item_id=session.broadcast.state.playback.item_id, playing=True,
                         now=__import__('time').monotonic())['qualification'], 'unqualified')
                 await self.manager.async_end(owner_profile_id='profile-a', session_id=session.session_id)
+                await self.fixture.service.async_close()
+                await self.fixture.service.async_initialize()
+                page=await self.fixture.queries.async_timeline_page('profile-a',session.session_id)
+                entry=next(e for e in page['entries'] if e.get('moment_id')==moment.moment_id)
+                self.assertEqual(entry['text'],moment.content)
+                self.assertTrue(entry['session_speech']['manual_allowed'])
+
 
     async def test_end_during_runtime_generation_does_not_block_end_or_publish(self):
         hold = asyncio.Event(), asyncio.Event()
@@ -113,11 +133,16 @@ class RuntimeExpressionTest(unittest.IsolatedAsyncioTestCase):
     async def test_actual_pending_genre_transition_keeps_one_published_expression_frame(self):
         import time
         from custom_components.djconnect.narration_brief import NarratedText, admitted_runtime_text, recent_frames
+        binding, archive = await self.history_authority()
         clock = [time.monotonic()]
         self.manager._monotonic_source = lambda: clock[0]
         with patch('time.monotonic', lambda: clock[0]):
             active = await self.manager.async_start(owner_profile_id='profile-a', selected_mood='groove', locale='nl',
-                session_start_strategy=self.r.SessionStartStrategy.DISCOVER, elapsed_time_source=lambda: clock[0])
+                session_start_strategy=self.r.SessionStartStrategy.DISCOVER, elapsed_time_source=lambda: clock[0], history_source_context=binding)
+            async def fallback(brief,guard):
+                guard()
+                return brief.seed
+            self.manager.connect_narration('profile-a', active.session_id, fallback, lambda:None, archive_admission=archive)
             for number, title in ((1, 'Baseline'), (2, 'Earlier title'), (3, 'Current title')):
                 active = await self.manager.async_get_active('profile-a')
                 media = 'spotify:track:'+str(number).zfill(22)
@@ -145,7 +170,7 @@ class RuntimeExpressionTest(unittest.IsolatedAsyncioTestCase):
                 await release.wait()
                 guard()
                 return NarratedText(brief.render(frame), frame)
-            self.manager.connect_narration('profile-a', active.session_id, model, lambda: None)
+            self.manager.connect_narration('profile-a', active.session_id, model, lambda: None, archive_admission=archive)
             clock[0] += 45
             await self.manager.async_update_playback_projection(owner_profile_id='profile-a', session_id=active.session_id,
                 state='playing', media_identity=media, title='Current title', artist='Local artist', duration_ms=600000, position_ms=45000)
@@ -167,3 +192,67 @@ class RuntimeExpressionTest(unittest.IsolatedAsyncioTestCase):
             self.assertIsNone(await self.manager.async_maybe_publish_intra_track_moment(owner_profile_id='profile-a',
                 session_id=active.session_id, media_identity=media))
             self.assertEqual(current.moment_engine._expression_moment_ids.count(moment.moment_id), 1)
+
+            await self.manager.async_end(owner_profile_id='profile-a',session_id=active.session_id)
+            await self.fixture.service.async_close()
+            await self.fixture.service.async_initialize()
+            page=await self.fixture.queries.async_timeline_page('profile-a',active.session_id)
+            entry=next(e for e in page['entries'] if e.get('moment_id')==moment.moment_id)
+            self.assertEqual(entry['text'],moment.content)
+            self.assertTrue(entry['session_speech']['manual_allowed'])
+
+
+    async def test_sql_rollback_keeps_every_track_started_commit_route_retryable(self):
+        from contextlib import ExitStack
+        from custom_components.djconnect.persistence.service import PersistenceError
+        async def knowledge():
+            return {'track': {'title': 'Exact title', 'artist': 'Exact artist'},
+                'analysis': {'summary': 'Unmeasured', 'full_text': 'No measured audio.',
+                             'basis': 'unmeasured_metadata_only_v1'}}
+        async def no_legacy(owner, active, **kwargs):
+            return active, None
+        for route in ('coordinator', 'legacy_silence', 'fallback_silence', 'fallback_track'):
+            with self.subTest(route=route):
+                active = await self.manager.async_start(owner_profile_id='profile-a',
+                    locale='nl', selected_mood='groove',music_backend='spotify_direct')
+                sid = active.session_id
+                async def fallback_expression(brief, guard):
+                    guard()
+                    return brief.seed
+                self.manager.connect_narration('profile-a',sid,fallback_expression,lambda:None)
+                for marker in ('A', 'B'):
+                    uri = 'spotify:track:'+marker*22
+                    await self.manager.async_update_playback_projection(owner_profile_id='profile-a',
+                        session_id=sid, state='playing', media_identity=uri, title='Exact title',
+                        artist='Exact artist', duration_ms=600000, position_ms=0)
+                    if marker == 'A':
+                        await self.manager.async_process_track_started(owner_profile_id='profile-a',session_id=sid,
+                            media_identity=uri,insight_provider=knowledge,require_current_playback=True)
+                with ExitStack() as stack:
+                    if route != 'coordinator':
+                        stack.enter_context(patch.object(self.r.PlanningRuntimeCoordinator,
+                            'async_coordinate_track_started', return_value=None))
+                    if route.startswith('fallback_'):
+                        stack.enter_context(patch.object(self.manager,'_apply_legacy_initial_track_started_decision',no_legacy))
+                    if route.endswith('silence'):
+                        stack.enter_context(patch.object(self.r.DJSessionPlanner,'evaluate_track_started',
+                            return_value=self.r.PlannerDecision(self.r.PlannerDecisionType.SILENCE,'fixture silence')))
+                    await self.fixture.service.async_in_transaction(lambda tx:tx.execute(
+                        "CREATE TRIGGER reject_started BEFORE INSERT ON djconnect_session_entries WHEN NEW.kind IN ('dj_moment','dj_silence','dj_publication') BEGIN SELECT RAISE(ABORT,'injected source refusal'); END"))
+                    with self.assertRaises(PersistenceError):
+                        await self.manager.async_process_track_started(owner_profile_id='profile-a',session_id=sid,
+                            media_identity=uri,insight_provider=knowledge,require_current_playback=True)
+                    current = self.manager.current_active('profile-a')
+                    self.assertEqual(current.last_accepted_media_identity,'spotify:track:'+'A'*22)
+                    self.assertEqual(current.broadcast.state.dj_moments,())
+                    row=await self.fixture.repo.async_session_record(sid)
+                    self.assertEqual(row['summary']['moments_published']['value'],0)
+                    await self.fixture.service.async_in_transaction(lambda tx:tx.execute('DROP TRIGGER reject_started'))
+                    retried=await self.manager.async_process_track_started(owner_profile_id='profile-a',session_id=sid,
+                        media_identity=uri,insight_provider=knowledge,require_current_playback=True)
+                    self.assertIsNotNone(retried)
+                    self.assertEqual(retried.moment_type.value,'silence' if route.endswith('silence') else 'track')
+                    self.assertIsNone(await self.manager.async_process_track_started(owner_profile_id='profile-a',session_id=sid,
+                        media_identity=uri,insight_provider=knowledge,require_current_playback=True))
+                    self.assertEqual(len(self.manager.current_active('profile-a').broadcast.state.dj_moments),1)
+                await self.manager.async_end(owner_profile_id='profile-a',session_id=sid)

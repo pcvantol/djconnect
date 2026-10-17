@@ -72,7 +72,7 @@ model fallback/retries beyond the existing two-attempt Core bound are forbidden.
 
 The [machine-readable matrix](fixtures/askdj_golden_release_matrix_v1.json)
 reuses all112 existing [single-turn Q/A contracts](../../examples/ask_dj_e2e_cases.json)
-and names35 conversation families/106 observable steps. These are not106new
+and names35 conversation families/111 observable steps. These are not111new
 independently executed HTTP tests: exact execution classes remain explicit in
 the matrix. The owning test suites supply interpretation/transaction fixtures;
 the existing paired HA probes supply actual HTTP/runtime/storage boundaries;
@@ -176,7 +176,7 @@ exhaustively bound: adding a test without a release binding fails inventory
 validation. Release execution must prove those exact methods ran successfully;
 source existence, a named scenario or an anonymous green report is insufficient.
 
-The current register contains26findings. It includes Within Temptation titles,
+The current register contains27findings. It includes Within Temptation titles,
 Peter Luts selected context, current/previous-track questions, truthful Nirvana
 voice/text execution, unrelated/prefix/fuzzy artist rejection, exact artist
 credits, frozen track/album/playlist identity through speaker choice, stale
@@ -201,9 +201,9 @@ failed effects retain the normal two-attempt limit. No failed effect, caller
 flag or model assertion grants the extra attempt. Provider/agent fixtures in
 these regressions are explicit; they do not prove live Spotify or heard audio.
 
-Step-level evidence is explicit: every one of the106required steps has named
+Step-level evidence is explicit: every one of the111required steps has named
 owning bindings. Eleven real-quality steps remain open and block release; this is
-not a claim of106accepted live question/answer outcomes. Six additional
+not a claim of111accepted live question/answer outcomes. Six additional
 operational chain tests cover actual lookup/refinement/selection/control/play,
 positive album-period filtering plus known-empty replacement, morning
 No/new-proposal/Yes/sleep, recommendations then exact play, and typed controls.
@@ -213,7 +213,7 @@ success without a second dispatch. Old unqualified-history negatives remain.
 An additional permanent shuffle regression requires the selected name/artwork
 to follow the actually observed admitted track, rather than the first URI in
 an artist collection. The earlier stale-unrelated-track negative remains.
-The current register has26findings,35families and106required steps; eleven
+The current register has27findings,35families and111required steps; eleven
 real-quality steps and five open Core findings remain release-blocking.
 
 ### Predeclared research/narration correction sample
@@ -246,6 +246,20 @@ generation, pending genre-transition style-memory/concurrency, and270entry
 publication/reopening/search/withdrawal. Null-body search and overwritten
 Transition memory are permanent corrected findings. Role narrowing and unsupported
 inter-event succession receive a dedicated still-open real-quality step. Current
-inventory:26findings,35families,106steps; eleven quality steps and five Core
-findings remain release-blocking. The latest predeclared eight-cell real sample
-has three full supported answers and five fallbacks, so no narrative GO.
+inventory:27findings,35families,111steps; eleven quality steps and five Core
+findings remain release-blocking. The checkpoint309dd90b eight-cell real sample had three full supported answers and five fallbacks, so no narrative GO.
+
+
+The subsequent natural-prose sample used16attempts and produced one full answer,
+four supported prefixes and three fallbacks. After exact work-anchor binding and
+single-episode projection, the next predeclared sample used16attempts and produced
+three full answers, one supported prefix and four fallbacks. Both retained the
+same source hash and remain NO_GO: unsupported relationships and weak Persona/Mood
+differentiation persist. Incomplete assessment receipts do not establish their
+cause. No retry-until-green, model substitution or relaxed acceptance occurred.
+
+The durable-runtime family additionally binds actual published-credit
+Recommendation, retained original album/artist art, replay with current Session
+or Profile voice, and exact current qualified-credit Insight. A new permanent
+SQLite rollback/reservation issue accounts for the27th finding. These are owning
+contracts with external source/expression/audio fixtures, not paid/native proof.

@@ -9,10 +9,10 @@ Public research must independently account for every retained sentence and its
 actual excerpt, including roles and cross-sentence relationships. A present DJ
 appreciation is allowed, but cannot exempt an attached historical or sonic claim.
 Internal evidence receipts are bounded and never become public Flow metadata.
-The generation call proposes ordered text segments with actual excerpt IDs;
-Core verifies their structure and complete coverage before the separate review.
-The review receives that proposal as untrusted data and audits all assertions,
-not just the generator's categories. No extra call repairs an unassessed story.
+The generation call tells the story directly from one unchanged literal source
+representation. The separate review independently accounts for every sentence
+and factual relationship through actual excerpt IDs; no generator plan or
+category exempts an assertion. No extra call repairs an unassessed story.
 Persona chooses the narrative focus/order; Mood changes its pace. A supported
 prefix or local fallback does not qualify a successful full narrative sample.
 
@@ -393,6 +393,49 @@ Track and Genre plus260Silences and five accepted playback observations. All270
 entries survive six timeline pages; source withdrawal preserves identity/order
 and removes text/replay. The10and50entry reads each use seven storage transactions;
 entry bodies total44,093bytes. Source and expression replies are fixtures; actual
-Planner/Knowledge/Moment/storage/query owners execute. Recommendation provenance,
-remaining legacy fallback ingress, all-family paid prose, native and audible
+Planner/Knowledge/Moment/storage/query owners execute. This is the earlier checkpoint309dd90b subset; the narrow Recommendation and remaining actual type-family reopen tests below extend it. Remaining legacy fallback ingress, all-family paid prose, native and audible
 acceptance are still open. Do not promote this subset to complete Flow maturity.
+
+### Qualified existing Recommendation ingress refinement
+
+The legacy related-tracks/listening-cues strings do not establish a recommendable
+recording or a source relationship. They remain ineligible for native publication.
+Within the existing Discover/Exploring Planner and its configured recommendation
+preference, a genuine previously published CC0 producer credit can instead support
+one bounded suggestion: revisit that exact earlier recording, because the current
+recording has the same exact producer credit. This is optional exploration, not a
+sonic similarity, preference inference, playback effect or future queue promise.
+
+Retain both original RecordingCreditEvidence objects, the original source URLs,
+media identities, producer identity and expiry. Reuse the actual published-only
+RecordingContext and its once-per-relation/track limit; a fetched but unpublished
+credit cannot seed the suggestion. The new typed fact is one candidate in the
+existing Planner, not a second engine or discovery fetch. The same expression,
+semantic storage, Flow, source withdrawal and speech owners apply. No fake Play
+or Save action is advertised without an existing exact executable contract.
+Local five-language fallback remains factual; its presence is not style acceptance.
+
+
+### Retained experience and current qualification refinement
+
+The current external-fixture contracts now exercise actual Artist, Album, Track,
+Genre, Recommendation, Transition and Session production, semantic storage,
+end/reopen and manual speech eligibility. This is stronger than relabelling one
+seed across seven types; it remains distinct from paid prose, native rendering
+and audible acceptance. A real precommit SQLite failure is retried after restoring
+only the definitively rolled-back playback reservation. A successful semantic
+commit still consumes its relation even if later delivery becomes stale.
+
+Retained album/artist art uses compact exact original subject and account binding
+under the admitted private history basis; fetches are fresh, temporary and
+owner-only. Missing old bindings stay unavailable. Retained speech preserves the
+accepted original text/Mood but resolves active Session voice/gender/output, or
+confirmed Profile defaults without a Session. Settings/provider changes revoke
+old assets and text_only performs zero synthesis. No historical read restores a
+Runtime, changes revisions or creates observations.
+
+Explicit current Track Insight can consume already-qualified fresh current CC0
+recording credits even if the Planner published a different fact. It reuses the
+existing source/owner, two-call independent assessment and guarded cache; no new
+provider lookup or invented acoustic measurements. The final all-family narrative
+and published quality gates remain open.

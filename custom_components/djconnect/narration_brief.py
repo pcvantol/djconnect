@@ -11,7 +11,7 @@ import time
 import base64
 
 from .narration_style import instructions
-from .session_facts import QualifiedSessionFact, DisplayFactCore, SharedProducerFact, AlbumContinuityFact
+from .session_facts import QualifiedSessionFact, DisplayFactCore, SharedProducerFact, AlbumContinuityFact, ProducerRecommendationFact
 from .moment_expression import joined
 from .context_expression import human_date
 
@@ -46,6 +46,7 @@ class NarrationBrief:
 
     def narrative_focus(self):
         return {
+            'producer_recommendation':'Offer the earlier exact recording as optional exploration through the proven shared producer credit. Do not say playback started, the listener liked it, or the two recordings sound alike.',
             'shared_producer':'A callback to the producer actually named in an earlier published contribution, now credited on a different current recording.',
             'album_continuity':'A different track is now observed on exactly the same album edition as the earlier published album contribution.',
             'recording_credits':'Bring the exact people behind this recording into view through their distinct credited roles; do not infer an influence on the sound.',
@@ -106,7 +107,7 @@ class NarrationBrief:
 
 def qualify(fact, *, locale, persona, mood, seed):
     """Keep the source-qualified bindings local; project only Core-owned schema."""
-    if (type(fact) not in {QualifiedSessionFact, SharedProducerFact, AlbumContinuityFact}
+    if (type(fact) not in {QualifiedSessionFact, SharedProducerFact, AlbumContinuityFact, ProducerRecommendationFact}
             or not fact.eligible(fact.media_identity, time.monotonic())
             or not isinstance(seed, str) or not seed.strip() or len(seed) > 1200):
         return None
@@ -117,7 +118,7 @@ def qualify(fact, *, locale, persona, mood, seed):
         return None
     core = fact.display_core
     bindings = {}
-    if type(fact) is SharedProducerFact:
+    if type(fact) in {SharedProducerFact, ProducerRecommendationFact}:
         credit = next((c for c in fact.recording_evidence.producers if c.contributor_id == fact.producer_id), None)
         if credit is None:
             return None
@@ -125,6 +126,9 @@ def qualify(fact, *, locale, persona, mood, seed):
                     "{previous_track}": fact.previous_evidence.title}
         reference = "{producer} is credited as producer on both {current_track} and {previous_track}. The earlier published contribution named this producer on the previous recording."
         semantics = "A previously published exact shared-producer relationship, not musical influence or an assertion about how the recordings sound."
+        if type(fact) is ProducerRecommendationFact:
+            reference += ' You propose revisiting {previous_track} as optional exploration of that shared credit; no action has started it.'
+            semantics += ' Retain this suggestion, not a DJ selection, promised next track, playback change or inferred taste.'
     elif type(core) is DisplayFactCore and core.validates(fact):
         if core.kind == "artist_begin":
             date = human_date(core.date, core.precision, locale)

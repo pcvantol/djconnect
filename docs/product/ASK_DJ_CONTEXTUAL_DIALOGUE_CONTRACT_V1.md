@@ -693,3 +693,17 @@ editions only, reports missing dates, keeps the original expiry and creates a
 new selection set. A known-empty refinement replaces the old offer; old taps
 cannot revive it. Session/source/Profile/clear fences remain unchanged. A
 historical caption without a current qualified offer grants no subject or dates.
+
+
+### Current Track Insight qualification refinement
+
+An explicit current Track Insight request may reuse exact current CC0 recording
+credits/work-composer facts already held by the existing Session Knowledge owner,
+even when the Planner published an Artist contribution instead. A publication is
+not required to make a fresh qualified public fact usable by this explicit read.
+No new fetch, catalog/model processing grant, historical reconstruction or fake
+Moment/navigation reference is created. Bind exact current media identity,
+owner/history grant, opportunity generation, source expiry and confirmed settings
+before the same two-call analysis/assessment owner; recheck before cache/response.
+A missing or conflicting exact recording proof stays unmeasured. Credit context
+and labelled interpretation are useful data, but not acoustic measurements.
