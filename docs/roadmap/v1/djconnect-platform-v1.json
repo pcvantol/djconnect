@@ -42093,6 +42093,10 @@
       {
         "path": "docs/governance/DJC_PLATFORM_OPEN_WORK_20261017.md",
         "sha256": "4316ec47c6883e96c36c7ead0d6d0f41406678d8c349a4e9f1d0b0bd2c6c1f25"
+      },
+      {
+        "path": "docs/history/prompts/2026-10-17-integral-open-work-audit-finalization.md",
+        "sha256": "038d885b93a9f08d3d4a1782ef3f74f4a9f7b53c041b261420dede3bd48bbaee"
       }
     ],
     "implementation_receipt": {
