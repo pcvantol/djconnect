@@ -79,7 +79,7 @@ Uncertain provider readback retains the chosen name and does not claim start.
 Catalog text is not implicitly model input or permanent archive content; the
 missing rich catalog-conversation archive remains explicitly release-blocking.
 
-Current Golden inventory:43reports,36families,129steps; eight Core findings and
+Prior75bad1dd Golden inventory:43reports,36families,129steps; eight Core findings and
 14real-quality steps remain open. Existing failed real-model samples remain
 immutable NO_GO. Purely present DJ appreciation is now explicitly distinguished
 from invented taste/history/artist psychology, consistently for generation and

@@ -74,7 +74,7 @@ validator also passes on these same raw model and HTTP receipts. Report SHA256:
 `e97629b8223f365dde80b4866c02ab7371be8a620d15db206d1b674956f5aa6c`. Prior50/50 remains historical and does
 not qualify the changed Python bytes. No automatic paid retry is allowed.
 
-Golden inventory:45reports,36families,135steps;10Core findings and17quality
+Golden inventory:45reports,36families,135steps;9Core findings and17quality
 steps currently OPEN. Existing factual/narrative/retention and consumer findings
 remain release blockers. Source qualification is not native, installed or
 audible acceptance.

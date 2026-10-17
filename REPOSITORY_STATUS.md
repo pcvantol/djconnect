@@ -21,10 +21,10 @@ Volbeat alternative → playable album offer → explicit follow-up → full alb
 context. Dispatch remains distinct from observed playback; an uncertain reply
 still names the chosen album. Five-language owner/fixture and isolated real-HA
 proof do not prove natural Spotify progression or a native/installed fix.
-Golden retains43reports,36families and129steps. Eight Core findings and14
+Golden now tracks45reports,36families and135steps. Nine Core findings and17
 real-quality steps remain open, including rich catalog-conversation retention;
 no narrative or release GO is inferred from fixture green. A semantic-read repair now covers free wording/typos through the same qualified
-HA agent; its final paid five-language qualification passes50/50 real questions.
+HA agent; its final paid five-language qualification passes55/55 real questions.
 [Semantic proof and boundaries](docs/verification/ASK_DJ_SEMANTIC_READS_20261017.md). The central release
 evidence collector also has a bounded local >300-file pagination correction.
 

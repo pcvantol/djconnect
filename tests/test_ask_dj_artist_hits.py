@@ -309,4 +309,3 @@ class ArtistHitsTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(code, 409, denied)
         self.assertEqual(denied["error"], "choice_expired")
         self.assertEqual((len(self.calls), len(self.f.prompts)), before)
-

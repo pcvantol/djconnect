@@ -79,6 +79,6 @@ not factual biography, warm Persona/Mood narration, audible TTS, native UI,
 installed dev/prod or natural Spotify progression acceptance. The trial also
 exposes mixed-language stored Forecast prose when Session locale and request
 language differ; that separate output-locale finding and its Golden quality
-step remain open. The current inventory includes43 issues,36 families and129
+step remain open. At that frozen point the inventory included43 issues,36 families and129
 steps, with8 Core findings and14 real-quality steps remaining after successful
 semantic qualification. Rich catalog-conversation retention remains open.
