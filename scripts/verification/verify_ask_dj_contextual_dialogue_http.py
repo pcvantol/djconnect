@@ -972,7 +972,7 @@ async def main():
                     Path("/lab/previous-safety-fixed.json").write_text(json.dumps({
                         "qualification": "CORE_PAIRED_INFORMATIONAL_PREVIOUS_NO_EFFECT",
                         "source_hashes": hashes(), "pairing": "ordinary_device_token_minted_persisted",
-                        "request": "wat was vorige nummer", "response": result,
+                        "request": "wat was vorige nummer", "response": result, "core_transports": receipts,
                         "registered_ha_service": service_receipts,
                         "effects": mutations, "model_calls": model_receipts, "paid_model_calls":len(model_receipts), "safe_failures": failures,
                         "provider_boundary": "explicit_external_fixture", "installed": "NOT_RUN",

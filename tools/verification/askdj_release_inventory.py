@@ -8,7 +8,21 @@ ROOT = Path(__file__).resolve().parents[2]
 MATRIX = Path('docs/verification/fixtures/askdj_golden_release_matrix_v1.json')
 
 
+def validate_moment_matrix(root=ROOT):
+    matrix=json.loads((root/'docs/verification/fixtures/dj_moment_persona_mood_golden_v1.json').read_text())
+    expected={(p,m,l) for p in ('home_dj','radio_dj','club_dj','festival_dj')
+              for m in ('chill','groove','energy','party') for l in ('en','nl','de','fr','es')}
+    rows=matrix.get('cells',[])
+    if (matrix.get('schema_version')!=1 or len(rows)!=80
+        or len({r['id'] for r in rows})!=80
+        or {(r['persona'],r['mood'],r['language']) for r in rows}!=expected
+        or set(matrix.get('families',{}))!={'track','birth','formation','description','edition','genre'}):
+        raise ValueError('incomplete_proactive_persona_mood_matrix')
+    return {r['id']+'-'+family for r in rows for family in (*matrix['families'],'music-only')}
+
+
 def validate(root=ROOT):
+    proactive_cases=validate_moment_matrix(root)
     raw = (root/MATRIX).read_bytes()
     matrix = json.loads(raw)
     base_raw = (root/matrix['existing_single_turn_cases']).read_bytes()
@@ -56,7 +70,7 @@ def validate(root=ROOT):
                  if isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef))}
         if binding['method'] not in methods:
             raise ValueError('missing_bound_test:'+binding['method'])
-    return {'status':'PASS','literal_core_routes':len(names),'single_turn_cases':len(base),'executable_help_cases':len(help_rows),
+    return {'proactive_golden_cases':len(proactive_cases),'status':'PASS','literal_core_routes':len(names),'single_turn_cases':len(base),'executable_help_cases':len(help_rows),
             'conversation_families':len(families),'conversation_steps':sum(len(f['steps']) for f in families),
             'matrix_sha256':hashlib.sha256(raw).hexdigest(),
             'single_turn_sha256':hashlib.sha256(base_raw).hexdigest()}

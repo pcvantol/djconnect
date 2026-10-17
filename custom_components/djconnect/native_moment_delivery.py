@@ -66,6 +66,18 @@ def admission(moment: Any, boundary: MomentDeliveryBoundary | None, *,
         deadline = boundary.published_monotonic + duration
     except (TypeError, ValueError, OverflowError):
         return result
+    if moment.moment_type.value == 'silence':
+        # Non-interruption is an explicit control signal, never a fact/audio card.
+        if (moment.content or moment.artwork_url or moment.actions or moment.source_references
+            or moment.source_attribution or moment.knowledge_intent.intent_type.value != 'silence'):
+            return result
+        result['qualification'] = 'intentional_silence'
+        result['display_expires_at'] = boundary.utc_at(deadline)
+        result['active_flow_display_allowed'] = bool(
+            playing and moment.moment_id in flow_ids and boundary.playback_item_id
+            and boundary.playback_item_id == playback_item_id
+            and boundary.published_monotonic <= now < deadline)
+        return result
     source = getattr(moment, 'source_fact', None)
     history_allowed = False
     if isinstance(source, QualifiedSessionFact):
@@ -163,7 +175,7 @@ def admission(moment: Any, boundary: MomentDeliveryBoundary | None, *,
 def withdrawn_native_delivery(session_id: str) -> dict[str, Any]:
     """Complete terminal denial for one transport authority, never a grant."""
     result = {"schema_version": 1, "session_id": session_id,
-              "current_moment_id": None, "active_flow_moment_ids": [],
+              "current_moment_id": None, "current_silence_moment_id": None, "active_flow_moment_ids": [],
               "admissions": [], "revocation_scope": "subscription"}
     result['revision'] = hashlib.sha256(json.dumps(result, sort_keys=True).encode()).hexdigest()[:24]
     return result

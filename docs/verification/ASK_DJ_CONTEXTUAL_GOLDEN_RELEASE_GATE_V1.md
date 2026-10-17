@@ -140,3 +140,26 @@ Unknown date still names the known selected recording; unavailable playback is
 an honest recovery. No catalog data goes to a model or durable dialogue archive.
 The five-language route has zero model/playback effects, uses existing status
 reads and owner/Session/source fences, and adds no provider or persistent store.
+
+
+### Proactive Persona × Mood Golden matrix
+
+The [canonical proactive matrix](fixtures/dj_moment_persona_mood_golden_v1.json)
+contains all four Personas × four active Moods × five languages (80 cells).
+Each cell executes seven named subcases: Track credits/shared-producer continuity,
+Artist birth, group formation, permitted description, Album edition, Genre and
+music-only suppression: **560 mandatory executable subcases**. The release gate
+checks actual per-subcase receipts, not only test discovery or matrix presence.
+
+The existing Runtime/Planner/Knowledge/Moment/Flow/Broadcast chain publishes the
+contributions. External providers are source-shaped fixtures. Expected facts,
+precise localized dates, original source URLs and licenses, distinct Persona
+forms, selected Mood, immutable identities and publication-ledger equality are
+asserted. Silence is excluded from the non-Silence publication total. Music-only
+must publish nothing and consume neither publication nor expression memory.
+Existing Mood/Persona ordering and presence/race suites also run in this gate.
+
+These proactive forms use the existing approved deterministic realization;
+therefore their model budget is zero. Paid Ask DJ tests remain a separate
+required layer. This is no native, visual, installed or audible acceptance and
+the [Silence live contract](../product/SILENCE_LIVE_DELIVERY_V1.md) separately defines the additive control signal; client UX adoption is not implied.

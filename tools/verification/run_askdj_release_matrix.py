@@ -16,13 +16,14 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0,str(Path(__file__).resolve().parent))
 from run_askdj_contextual_release_gate import IMAGE, validate_report  # noqa: E402
-from askdj_release_inventory import validate as validate_inventory  # noqa: E402
+from askdj_release_inventory import validate as validate_inventory, validate_moment_matrix  # noqa: E402
 
 # Existing owning interpretation/authorization/transport suites. These use explicit
 # agent/provider fixtures; their PASS is not paid-model or physical acceptance.
 TEST_PATTERNS = (
     'test_ask_dj*.py', 'test_askdj_contextual_release_gate.py', 'test_voice_intents.py', 'test_http_voice_helpers.py',
     'test_music_dna*.py', 'test_session_conversation*.py',
+    'test_dj_moment_golden_matrix.py', 'test_silence_live_delivery.py', 'test_native_moment_delivery.py', 'test_session_presence.py', 'test_active_session_mood.py', 'test_session_persona.py',
 )
 PROFILES = {
     'current_artist': ('current-artist.json', 240),
@@ -93,7 +94,7 @@ def validate_local_report(mode, raw):
     for row in rows:
         if not isinstance(row.get('path'),str) or not isinstance(row.get('request'),dict) or not isinstance(row.get('body'),dict):
             return False
-        expected=409 if row['case'] in {'artist-end-race','output-offline','titles-ended-list'} else (201 if row['path']=='session/start' else 200)
+        expected=403 if row['case']=='artist-other-profile' else (409 if row['case'] in {'artist-end-race','output-offline','titles-ended-list'} else (201 if row['path']=='session/start' else 200))
         if (type(row.get('status')) is not int or type(row.get('expected_status')) is not int
             or row['status']!=expected or row['expected_status']!=expected or row.get('cache_control')!='no-store'):
             return False
@@ -219,6 +220,10 @@ def run(candidate, output):
         outcomes={c['id']:c['status'] for p in result['profiles'] for c in p.get('case_outcomes',[])}
         if any(outcomes.get(case['id'])!='PASS' for case in qa):
             result['findings']=['missing_or_failed_single_turn_question_answer'];save();return 1
+        proactive=validate_moment_matrix()
+        if any(outcomes.get(case)!='PASS' for case in proactive):
+            result['findings']=['missing_or_failed_proactive_persona_mood_case'];save();return 1
+        result['executed_proactive_cases']=len(proactive)
         result['executed_single_turn_cases']=len(qa)
         result['executed_help_cases']=sum(c['id'].startswith('help_prompt_') for c in qa)
         save()

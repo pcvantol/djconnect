@@ -124,6 +124,7 @@ class ContextualReleaseGateTest(unittest.TestCase):
         self.assertEqual(proof['literal_core_routes'],47)
         self.assertEqual(proof['executable_help_cases'],60)
         self.assertEqual(proof['conversation_families'],22)
+        self.assertEqual(proof['proactive_golden_cases'],560)
 
     def test_empty_and_anonymous_full_or_local_receipts_never_pass(self):
         matrix=load('djc_release_matrix','tools/verification/run_askdj_release_matrix.py')
@@ -140,3 +141,22 @@ class ContextualReleaseGateTest(unittest.TestCase):
         self.assertIn('gh release download',workflow)
         self.assertIn('--sort=name --mtime=@0',workflow)
         self.assertIn('gzip -n',workflow)
+
+    def test_known_owner_denial_is_expected_but_missing_status_never_passes(self):
+        matrix=load('djc_release_matrix','tools/verification/run_askdj_release_matrix.py')
+        ids=['artist-old-clarification-seed','artist-selected-earlier','artist-state-invariant',
+             'artist-pending-proposal','artist-not-confirmation','artist-provider-unavailable','artist-end-race','artist-other-profile']
+        rows=[]
+        for case in ids:
+            status=403 if case=='artist-other-profile' else 409 if case=='artist-end-race' else 200
+            rows.append({'case':case,'path':'ask_dj/message','request':{},'body':{'error':'denied'} if status>=400 else {'success':True},
+                         'status':status,'expected_status':status,'cache_control':'no-store'})
+        raw={'qualification':'ISOLATED_REAL_HA_TEXT_STT_CURRENT_ARTIST_ZERO_EFFECTS',
+             'source_hashes':matrix.expected_source_hashes(),'pairing':'ordinary_device_token_minted_persisted',
+             'core_transports':rows,'model_calls':[],'paid_model_calls':0}
+        self.assertTrue(matrix.validate_local_report('current_artist',raw))
+        missing=deepcopy(raw);missing['core_transports'][0].pop('status')
+        missing['core_transports'][0].pop('expected_status')
+        self.assertFalse(matrix.validate_local_report('current_artist',missing))
+        unexpected=deepcopy(raw);unexpected['core_transports'][0].update(status=403,expected_status=403,body={'error':'denied'})
+        self.assertFalse(matrix.validate_local_report('current_artist',unexpected))

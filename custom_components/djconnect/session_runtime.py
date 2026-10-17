@@ -3700,11 +3700,11 @@ class DJSessionBroadcastEngine:
         if playback_item_id:
             self._moment_playback_item_ids[moment.moment_id] = playback_item_id
         self.state = DJBroadcastState(**{**self.state.__dict__, "dj_moments": (*self.state.dj_moments, moment)})
+        projected = moment.as_dict()
+        if playback_item_id:
+            projected["playback_item_id"] = playback_item_id
+        self._publish(BroadcastEventType.DJ_MOMENT_PUBLISHED, {"dj_moment": projected})
         if moment.moment_type is not DJMomentType.SILENCE:
-            projected = moment.as_dict()
-            if playback_item_id:
-                projected["playback_item_id"] = playback_item_id
-            self._publish(BroadcastEventType.DJ_MOMENT_PUBLISHED, {"dj_moment": projected})
             if self.owner_moment_speech_delivery is not None:
                 try:
                     self.owner_moment_speech_delivery(moment)
@@ -3952,11 +3952,9 @@ class DJSessionBroadcastEngine:
             playing=self.state.playback.state == "playing", now=time.monotonic())
             for moment in self.state.dj_moments
             if self.state.runtime_state is SessionRuntimeState.ACTIVE
-            and moment.moment_type is not DJMomentType.SILENCE
             and (include_owner_only or moment.presentation_intent.visibility is not DJMomentVisibility.OWNER_ONLY)]
         latest = next((moment.moment_id for moment in reversed(self.state.dj_moments)
-                       if moment.moment_type is not DJMomentType.SILENCE
-                       and self._moment_playback_item_ids.get(moment.moment_id) == self.state.playback.item_id), None)
+                       if self._moment_playback_item_ids.get(moment.moment_id) == self.state.playback.item_id), None)
         current = next((entry["moment_id"] for entry in entries
                         if entry["moment_id"] == latest and entry["current_display_allowed"]
                         and latest not in self._invalidated_current_moment_ids), None)
@@ -3965,6 +3963,10 @@ class DJSessionBroadcastEngine:
             entry["current_display_allowed"] = entry["moment_id"] == current
         result = {"schema_version": 1, "session_id": self.state.session_id,
                   "current_moment_id": current,
+                  "current_silence_moment_id": next((entry["moment_id"] for entry in entries
+                      if entry["moment_id"] == latest and entry["qualification"] == "intentional_silence"
+                      and entry["active_flow_display_allowed"]
+                      and latest not in self._invalidated_current_moment_ids), None),
                   "active_flow_moment_ids": [entry["moment_id"] for entry in entries
                                              if entry["active_flow_display_allowed"]],
                   "admissions": entries, "revocation_scope": "session"}
