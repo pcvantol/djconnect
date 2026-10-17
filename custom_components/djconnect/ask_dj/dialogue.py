@@ -756,16 +756,14 @@ def model_prompt(text: str, payload: dict, source: dict | None = None) -> str:
             "Write only natural connected prose, not JSON, bullets, metadata or markdown emphasis. "
             "No unasked playback suggestion, fixed greeting or obligatory closing invitation. "
         )
-        if projection['public_music_research'].get('episode_focus'):
+        if projection['public_music_research'].get('editorial_focus'):
             instructions += (
-                " The person_introduction contract defines the content to realize: introduce the bound person through the literal primary_passage. "
-                "reference_context is only for resolving names and antecedents, not a second list of facts to state. "
-                "Each factual answer sentence must be supported by a realizable_span_id; reference_only_span_ids cannot supply independent biography. "
+                " editorial_focus suggests a concrete documented episode for this person introduction; all original source spans remain factual evidence. "
+                "Give enough independently supported identification to answer who the person is, and let a relevant concrete detail make the introduction worthwhile. "
+                "There is no compulsory opening order, joke or linking conclusion. A job in a biography does not prove that job on the episode's work. "
                 "The bound page name does not prove who a pronoun means; if the complete reference context is ambiguous, state that limitation. "
-                "Presentation order proves no chronology or causal connection. Answer the actual question through that episode. "
-                "Identity is background for pronouns, not an opening definition or a second biography paragraph. "
-                "Don't explain the artist's importance, versatility or significance, and don't append a conclusion about their practice. "
-                "Keep the episode's actual facts and any necessary qualifications; add no links to other activities."
+                "Presentation order proves no chronology or causal connection. Keep independent facts in separate sentences when no passage proves a connection. "
+                "Avoid a CV recital or invented significance. Let Persona shape the telling and Mood its rhythm; neither adds musical facts."
             )
     else:
         instructions += narration_rules + " "

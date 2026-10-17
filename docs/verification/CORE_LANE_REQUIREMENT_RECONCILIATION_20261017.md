@@ -1,9 +1,18 @@
 # Core lane requirement reconciliation — 17 October 2026
 
 Status: active corrective work, not a completion report. Current source base
-`cc9b49fe9ca5312dd3bf962b3bac319aa25b3f15`; existing branch
+`6a3adbc8e66ab380dfea1726ca34728097d0c684`; main integration
+`244fad8d8488aa2b5e34d182ef15860dbaa7ee2e`; existing branch
 `codex/askdj-contextual-golden-release-v1`. Frozen VibeCast1197 and other
 consumer work are preserved. This audit grants no new assignment or writer.
+
+The bounded receiver end-authority predecessor is separately delivered through
+source1202/Finalization1203 and installed on dev/prod; it does not close the
+personal-DJ restoration. Current atomic-quote refinement and full-corpus
+editorial focus supersede episode-only admission. Golden inventory now retains
+34 reported issues,35 families and113steps; six Core findings and twelve real
+quality steps remain open pending actual assessment. Earlier dated counts below
+remain historical evidence. No fresh narrative or release GO is claimed.
 
 The owner requested a requirement/function review before closure. A historical
 merged leaf stays historical delivery; local fixes, a green fixture or an

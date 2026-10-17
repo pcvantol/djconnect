@@ -13,7 +13,11 @@ The generation call tells the story directly from one unchanged literal source
 representation. The separate review independently accounts for every sentence
 and factual relationship through actual excerpt IDs; no generator plan or
 category exempts an assertion. No extra call repairs an unassessed story.
-Persona chooses the narrative focus/order; Mood changes its pace. A supported
+The superseding factual-corpus/editorial-focus refinement in
+[public research](ASK_DJ_PUBLIC_MUSIC_RESEARCH_V1.md) permits independently
+proved identification alongside a documented episode; it removes the prior
+episode-only factual allowlist. Exact atomic quote/coverage checks and separate
+semantic quality gates apply. Persona chooses the narrative focus/order; Mood changes its pace. A supported
 prefix or local fallback does not qualify a successful full narrative sample.
 
 All non-Silence publication entrances use the same final SQLite admission fence

@@ -60,7 +60,8 @@ class ContextualReleaseGateTest(unittest.TestCase):
             (lambda r: r['sources'][0].update(subject={'kind': 'person', 'name': 'Someone Else'}), 'qualified_biography_source_missing'),
             (lambda r: r.update(playback_actions=[{'command': 'play'}]), 'unexpected_action'),
         ):
-            response = self.response(); change(response)
+            response = self.response()
+            change(response)
             self.assertIn(expected, GOLDEN.check_response(row, response, selection))
 
     def report(self):
@@ -85,7 +86,8 @@ class ContextualReleaseGateTest(unittest.TestCase):
             lambda r: r['usage'][0].update(model='fixture'),
             lambda r: r['usage'][0].update(input_tokens=None),
         ):
-            changed = deepcopy(good); mutate(changed)
+            changed = deepcopy(good)
+            mutate(changed)
             self.assertFalse(RUNNER.validate_report(changed, 'a'*40))
 
     def test_release_publication_waits_and_formal_job_cannot_race_tag(self):
@@ -129,7 +131,8 @@ class ContextualReleaseGateTest(unittest.TestCase):
         seed=next(r for r in help_rows if r['id'].startswith('help_prompt_seed_mix'))
         self.assertEqual(materialize_case(seed)['request']['text'],
                          'Maak een mix op basis van Radiohead, Massive Attack en Bon Iver')
-        unbound=deepcopy(seed);unbound.pop('fixture_bindings')
+        unbound=deepcopy(seed)
+        unbound.pop('fixture_bindings')
         with self.assertRaises(ValueError):
             materialize_case(unbound)
 
@@ -139,9 +142,9 @@ class ContextualReleaseGateTest(unittest.TestCase):
         self.assertEqual(proof['literal_core_routes'],47)
         self.assertEqual(proof['executable_help_cases'],60)
         self.assertEqual(proof['conversation_families'],35)
-        self.assertEqual(proof['conversation_steps'],112)
-        self.assertEqual(proof['reported_issues'],33)
-        self.assertEqual(len(proof['open_core_findings']),5)
+        self.assertEqual(proof['conversation_steps'],113)
+        self.assertEqual(proof['reported_issues'],34)
+        self.assertEqual(len(proof['open_core_findings']),6)
         self.assertEqual(proof['proactive_golden_cases'],560)
 
     def test_reported_issue_without_family_or_open_disposition_cannot_pass_release(self):
@@ -206,10 +209,12 @@ class ContextualReleaseGateTest(unittest.TestCase):
              'source_hashes':matrix.expected_source_hashes(),'pairing':'ordinary_device_token_minted_persisted',
              'core_transports':rows,'model_calls':[],'paid_model_calls':0}
         self.assertTrue(matrix.validate_local_report('current_artist',raw))
-        missing=deepcopy(raw);missing['core_transports'][0].pop('status')
+        missing=deepcopy(raw)
+        missing['core_transports'][0].pop('status')
         missing['core_transports'][0].pop('expected_status')
         self.assertFalse(matrix.validate_local_report('current_artist',missing))
-        unexpected=deepcopy(raw);unexpected['core_transports'][0].update(status=403,expected_status=403,body={'error':'denied'})
+        unexpected=deepcopy(raw)
+        unexpected['core_transports'][0].update(status=403,expected_status=403,body={'error':'denied'})
         self.assertFalse(matrix.validate_local_report('current_artist',unexpected))
 
     def test_prosody_gate_requires_all_moods_languages_and_real_paired_audio_receipt(self):

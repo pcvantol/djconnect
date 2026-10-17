@@ -116,6 +116,9 @@ async def main():
                 return
             research = projection.get("public_music_research") or projection.get("evidence", {}).get("public_music_research", {})
             if research and 'public_music_research' in projection:
+                expected = os.environ.get('DJC_EXPECTED_RESEARCH_CORPUS')
+                if expected:
+                    assert {s['content_hash'] for s in research.get('sources', [])} == {expected}, 'fixed source changed before paid generation'
                 from custom_components.djconnect.ask_dj.dialogue import current_turn
                 turn = current_turn.get()
                 public_generation_projections.append({'case_id':turn.client_id if turn else None,
@@ -123,24 +126,19 @@ async def main():
                     'secondary_telling_action':'Core-owned telling action:' in value.split('\nData:\n',1)[0],
                     'required_inkijk':'inkijk' in value.split('\nData:\n',1)[0],
                     'trusted_instructions_sha256':hashlib.sha256(value.split('\nData:\n',1)[0].encode()).hexdigest(),
-                    'episode_focus':research.get('episode_focus'),
-                    'person_introduction':research.get('person_introduction'),
-                    'source_spans':{source['content_hash']:[span['id'] for span in source.get('evidence_spans',
-                        [source['primary_passage'],*source.get('reference_context',source.get('background_spans',[]))] if 'primary_passage' in source else [])]
+                    'editorial_focus':research.get('editorial_focus'),
+                    'source_spans':{source['content_hash']:[span['id'] for span in source['evidence_spans']]
                         for source in research.get('sources',[])}})
             elif research and 'evidence' in projection:
                 from custom_components.djconnect.ask_dj.dialogue import current_turn
                 turn = current_turn.get()
                 public_assessment_projections.append({'case_id':turn.client_id if turn else None,
-                    'person_introduction':research.get('person_introduction'),
+                    'editorial_focus':research.get('editorial_focus'),
                     'assessed_answer':projection.get('answer'),
                     'source_ids':[source['content_hash'] for source in research.get('sources',[])]})
             for source in research.get("sources", []):
                 if 'untrusted_excerpt' not in source:
-                    spans = source.get('evidence_spans')
-                    if spans is None:
-                        assert isinstance(source.get('primary_passage'),dict) and isinstance(source.get('reference_context',source.get('background_spans')),list)
-                        spans=[source['primary_passage'],*source.get('reference_context',source.get('background_spans',[]))]
+                    spans = source['evidence_spans']
                     assert isinstance(spans,list) and len({span['id'] for span in spans})==len(spans)
                     public_generation_spans.setdefault(source['content_hash'], []).extend(spans)
                     continue

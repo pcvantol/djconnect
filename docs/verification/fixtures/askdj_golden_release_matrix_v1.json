@@ -1401,11 +1401,11 @@
             },
             {
               "file": "tests/test_ask_dj_contextual_dialogue.py",
-              "method": "test_person_intro_brief_keeps_reference_context_but_restricts_realizable_claims"
+              "method": "test_person_intro_focus_preserves_complete_factual_corpus_and_identification"
             },
             {
               "file": "tests/test_ask_dj_contextual_dialogue.py",
-              "method": "test_person_intro_owner_never_archives_background_or_wrong_pronoun_claims"
+              "method": "test_person_intro_owner_accepts_proved_identification_and_withholds_wrong_participant"
             }
           ],
           "acceptance_status": "open_real_quality",
@@ -1433,11 +1433,11 @@
         },
         {
           "file": "tests/test_ask_dj_contextual_dialogue.py",
-          "method": "test_person_intro_brief_keeps_reference_context_but_restricts_realizable_claims"
+          "method": "test_person_intro_focus_preserves_complete_factual_corpus_and_identification"
         },
         {
           "file": "tests/test_ask_dj_contextual_dialogue.py",
-          "method": "test_person_intro_owner_never_archives_background_or_wrong_pronoun_claims"
+          "method": "test_person_intro_owner_accepts_proved_identification_and_withholds_wrong_participant"
         }
       ],
       "real_ha_profile": "full_golden",
@@ -2262,11 +2262,11 @@
             },
             {
               "file": "tests/test_ask_dj_contextual_dialogue.py",
-              "method": "test_person_intro_brief_keeps_reference_context_but_restricts_realizable_claims"
+              "method": "test_person_intro_focus_preserves_complete_factual_corpus_and_identification"
             },
             {
               "file": "tests/test_ask_dj_contextual_dialogue.py",
-              "method": "test_person_intro_owner_never_archives_background_or_wrong_pronoun_claims"
+              "method": "test_person_intro_owner_accepts_proved_identification_and_withholds_wrong_participant"
             },
             {
               "file": "tests/test_ask_dj_contextual_dialogue.py",
@@ -2274,7 +2274,7 @@
             },
             {
               "file": "tests/test_ask_dj_contextual_dialogue.py",
-              "method": "test_reference_only_intro_job_cannot_be_laundered_through_episode_id"
+              "method": "test_intro_role_does_not_become_credit_on_a_different_work"
             }
           ],
           "acceptance_status": "open_real_quality",
@@ -2333,6 +2333,28 @@
           ],
           "acceptance_status": "open_real_quality",
           "proof_boundary": "Causal owner/storage rejection fixture passes; real model factual/relationship/sequence and editorial qualification remains required."
+        },
+        {
+          "id": "ASKDJ-REGRESSION-research-grounding-boundary-step-5",
+          "question": "Wie is Brian Eno? — feiten, redactionele episodefocus en atomaire bronpassages",
+          "expected_answer": "Bewezen identiteit en concrete opname mogen samen een volledig antwoord geven. Elk tekstdeel heeft exacte brondekking; losse producer-/genreachtergrond wordt geen werkcredit of klankclaim. Opnemen wordt ook zonder jaartal geen uitbrengen. Geen weggelaten bijzin of prefixbypass.",
+          "model_policy": "two",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_contextual_dialogue.py",
+              "method": "test_atomic_receipts_cover_every_character_quote_and_actual_clause"
+            },
+            {
+              "file": "tests/test_ask_dj_contextual_dialogue.py",
+              "method": "test_one_sentence_cannot_join_separate_true_role_or_genre_into_work_relation"
+            },
+            {
+              "file": "tests/test_ask_dj_contextual_dialogue.py",
+              "method": "test_activity_without_year_is_not_a_release_or_a_producer_credit_in_five_languages"
+            }
+          ],
+          "acceptance_status": "open_real_quality",
+          "proof_boundary": "Exact quote/coverage/activity/observed-role guards are deterministic owner tests. Semantic completeness and the fixed eight-cell Persona/Mood answer quality remain independent release gates; fixtures are not real model quality."
         }
       ],
       "owning_tests": [
@@ -2370,11 +2392,11 @@
         },
         {
           "file": "tests/test_ask_dj_contextual_dialogue.py",
-          "method": "test_person_intro_brief_keeps_reference_context_but_restricts_realizable_claims"
+          "method": "test_person_intro_focus_preserves_complete_factual_corpus_and_identification"
         },
         {
           "file": "tests/test_ask_dj_contextual_dialogue.py",
-          "method": "test_person_intro_owner_never_archives_background_or_wrong_pronoun_claims"
+          "method": "test_person_intro_owner_accepts_proved_identification_and_withholds_wrong_participant"
         },
         {
           "file": "tests/test_ask_dj_contextual_dialogue.py",
@@ -2382,7 +2404,19 @@
         },
         {
           "file": "tests/test_ask_dj_contextual_dialogue.py",
-          "method": "test_reference_only_intro_job_cannot_be_laundered_through_episode_id"
+          "method": "test_intro_role_does_not_become_credit_on_a_different_work"
+        },
+        {
+          "file": "tests/test_ask_dj_contextual_dialogue.py",
+          "method": "test_atomic_receipts_cover_every_character_quote_and_actual_clause"
+        },
+        {
+          "file": "tests/test_ask_dj_contextual_dialogue.py",
+          "method": "test_one_sentence_cannot_join_separate_true_role_or_genre_into_work_relation"
+        },
+        {
+          "file": "tests/test_ask_dj_contextual_dialogue.py",
+          "method": "test_activity_without_year_is_not_a_release_or_a_producer_credit_in_five_languages"
         }
       ],
       "fixture_boundary": "Actual Core interpretation/effect/storage owners; only external provider and agent I/O are fixtures. Native/installed/paid evidence remains separate."
@@ -2858,8 +2892,14 @@
     {
       "id": "ASKDJ-ISSUE-reference-only-job-laundering",
       "family_id": "ASKDJ-REGRESSION-research-grounding-boundary",
-      "finding": "Een reference-only beroep werd als antwoordinhoud met alleen episode-ID geaccepteerd. De drie waargenomen beroepsfamilies vereisen nu letterlijke episodebasis; algemene rol/persoonssemantiek blijft onafhankelijke kwalificatie.",
+      "finding": "Een opgehaald achtergrondberoep werd met alleen een opnamepassage als nieuwe werkrelatie toegelaten. De oude episode-only feitenallowlist is bewust herzien: volledige corpus, adviesfocus en exacte atomaire bronpassages met gesloten rol-/activiteitsguards; algemene semantiek blijft onafhankelijke kwalificatie.",
       "core_qualification": "locally_covered"
+    },
+    {
+      "id": "ASKDJ-ISSUE-atomic-quote-coverage",
+      "family_id": "ASKDJ-REGRESSION-research-grounding-boundary",
+      "finding": "De bestaande tweede beoordeling bond alleen complete zinnen aan losse bron-IDlijsten; een weggelaten deelclaim of unie van ware achtergrond- en werkfeiten kon groen lijken. Exacte geordende tekstdekking en één letterlijke passage per feitelijke/relatieclaim zijn nu verplicht.",
+      "core_qualification": "open"
     }
   ],
   "regression_suite_files": [

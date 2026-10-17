@@ -313,3 +313,55 @@ same-year quote; the converse transfer is refused too. Three observed job famili
 basis, not reference-only biography. These are conservative guards for executed
 failures, not complete semantic or occupation extraction. Independent full-context
 role/participant review and real editorial qualification remain mandatory.
+
+### Superseding refinement: factual corpus and editorial focus
+
+The fixed eight-cell `085c0fbe` probe remains editorial NO_GO. Its two nominally
+supported full answers do not establish a quality pass. Independent technical
+and editorial design review found that the episode-only admissibility rule
+above conflated factual permission with a preferred storytelling shape. This
+section deliberately supersedes that rule; earlier receipts remain historical.
+
+For an explicit person introduction, keep the entire original admitted source
+corpus, deadlines, hashes and span IDs. An optional `editorial_focus` points to a
+concrete documented episode and identity context. It is an expression hint, not
+an additional factual grant, a source filter or a required opening order. Both
+calls have the same factual corpus. A fetched occupation may identify the person;
+it does not establish that occupation's role on a different work.
+
+The existing independent second call returns bounded atomic claim checks. Each
+check has exactly `text`, `kind`, `evidence_ids` and `quote`. In original order,
+the unchanged nonempty segments cover every retained answer character apart
+from inter-segment whitespace; no omitted clause, rewritten text or suffix is
+admitted. A factual/relational segment has exactly one admitted literal span ID
+and its complete unchanged quote. Context elsewhere can resolve antecedents,
+but cannot turn separate facts into a new relationship. Pure present DJ
+appreciation has no evidence IDs and an empty quote; mixing facts with warmth
+still needs factual evidence. Split a genuinely independent compound fact only
+at a real clause boundary. A connected participant/work/role/genre assertion
+must remain one relationship check supported by one passage.
+
+Core verifies exact coverage, bounded closed schemas, IDs/quotes and named-work
+binding. Closed guards for observed recording/release and occupational-role
+swaps apply even when no year is spoken, and across factual segments of a whole
+sentence containing a work. The existing absolute-year/event and unbound
+chronology guards remain. The same checks run on an attested unchanged prefix;
+prefixes and fallbacks never qualify a full narrative success. Exact receipts
+are executable bounds, not a general semantic parser or proof that the model
+noticed every implication. Independent semantic and editorial assessment stays
+mandatory. No third call, new source retrieval, archived research body, second
+Ask DJ implementation or locally rewritten user answer is introduced.
+
+Before one new fixed-corpus paid probe: causally test true occupation plus joint
+recording without a producer credit, background genre without a work genre,
+activity swaps without dates, omitted/unsupported clauses, wrong antecedents,
+correct independent background identification, complete coverage and prefix
+bypasses. Keep all old failed samples and original source corpus unchanged.
+The eight predeclared samples must each give a useful complete introduction,
+faithful relationships and natural connected prose. Independently assess Persona
+through focus/order/rhythm and compare Chill/Party within each Persona for actual
+pace/emphasis differences. A brief definition is allowed; a repeated definition
+with a cosmetic aside is insufficient. Assess initial prose blind to cell labels,
+then compare pairs. Full answers, retained prefixes and fallbacks remain separate.
+
+Reference for evaluation discipline: [OpenAI evaluation best practices](https://developers.openai.com/api/docs/guides/evaluation-best-practices).
