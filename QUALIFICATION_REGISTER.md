@@ -15,6 +15,16 @@ Release Readiness-relevant capabilities. Historical Generation 1 work, closed
 governance/migration work and completed capabilities with no remaining current
 qualification item are intentionally absent.
 
+## Subsequent bounded Core correction
+
+VibeCast receiver end-authority removal is source-delivered in PR
+[#1202](https://github.com/pcvantol/djconnect/pull/1202),
+`5f36abd23a95dea0aeb8bdb9d22a9bccf28a1a4b`, with
+[exact artifact evidence](docs/verification/VIBECAST_END_RETIREMENT_SOURCE_READBACK_20261017.md).
+The obsolete setting/grants/control are retired; this is not closure of the
+broader VibeCast topic or narration correction. Consumer import and installed
+readback remain separate. The dated audit below retains its original capture.
+
 ## Current qualification records
 
 | Capability | Assessment status | Qualification summary | Remaining qualification items | Disposition | Future assessment owner | Assessment trigger |
