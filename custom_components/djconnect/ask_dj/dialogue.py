@@ -30,6 +30,9 @@ IDLE_SECONDS = 1200
 CHOICE_SECONDS = 600
 MAX_OWNERS = 32
 MAX_THREADS = 4
+MAX_READ_REPLAYS = 4
+MAX_READ_REPLAY_BYTES = 4 * MAX_RESULT_BYTES
+MAX_READ_RECEIPTS = 256
 
 
 class DialogueError(ValueError):
@@ -122,8 +125,11 @@ class DialogueFrame:
     chosen_action_id: str = ""
     archiveable: bool = True
     inflight: dict[str, tuple[str, asyncio.Future, bool]] = field(default_factory=dict)
+    catalogue_replays: dict[str, tuple[str, asyncio.Future | None, bool, int, float]] = field(default_factory=dict)
 
     def reset(self, generation: str) -> None:
+        if self.generation != generation:
+            self.catalogue_replays.clear()
         self.generation = generation
         self.messages.clear()
         self.local_turns.clear()
@@ -291,6 +297,9 @@ class DialogueState:
         frame.touched = now
         if frame.result_set and now >= frame.result_set["deadline"]:
             frame.result_set = None
+        for identifier, row in list(frame.catalogue_replays.items()):
+            if row[1] is not None and now >= row[4]:
+                frame.catalogue_replays[identifier] = (row[0], None, row[2], 0, row[4])
         if frame.pending and now >= frame.pending["deadline"]:
             frame.pending = None
         return frame
@@ -307,11 +316,15 @@ class DialogueState:
                 frame.clear_speech()
 
     def reserve(self, frame, identifier, digest, fast):
-        previous = frame.inflight.get(identifier)
+        previous = frame.inflight.get(identifier) or frame.catalogue_replays.get(identifier)
         if previous:
             if previous[0] != digest:
                 raise DialogueError("client_message_conflict")
+            if previous[1] is None:
+                raise DialogueError("choice_expired")
             return previous[1], False
+        if not fast and len(frame.catalogue_replays) >= MAX_READ_RECEIPTS:
+            raise DialogueError("conversation_capacity", 503)
         if len(frame.inflight) >= 4 or (
             not fast and any(not v[2] for v in frame.inflight.values())
         ):
@@ -319,6 +332,25 @@ class DialogueState:
         future = asyncio.get_running_loop().create_future()
         frame.inflight[identifier] = (digest, future, fast)
         return future, True
+
+    def remember_catalogue_read(self, turn, response, future):
+        """Bounded RAM-only retry of the original offer and its admission/deadline."""
+        frame = turn.frame
+        if (turn.effect_started or response.get("text_source") != "qualified_catalog_result"
+                or not frame.result_set or not response.get("result_set", {}).get("result_set_id")):
+            return
+        size = encoded_size(response)
+        bodies = [(identifier, row) for identifier, row in frame.catalogue_replays.items() if row[1] is not None]
+        while bodies and (len(bodies) >= MAX_READ_REPLAYS
+                or sum(row[3] for _, row in bodies) + size > MAX_READ_REPLAY_BYTES):
+            identifier, row = bodies.pop(0)
+            # Discard the private body, retaining only opaque conflict/expiry
+            # evidence. A body eviction must never authorize a fresh lookup.
+            frame.catalogue_replays[identifier] = (row[0], None, row[2], 0, row[4])
+        frame.catalogue_replays[turn.client_id] = (
+            turn.digest, future if size <= MAX_READ_REPLAY_BYTES else None,
+            turn.fast_control, size if size <= MAX_READ_REPLAY_BYTES else 0,
+            frame.result_set["deadline"])
 
     def complete(self, turn: DialogueTurn, result: dict) -> None:
         frame = turn.frame

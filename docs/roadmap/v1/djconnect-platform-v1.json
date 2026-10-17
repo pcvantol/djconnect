@@ -41960,7 +41960,7 @@
       },
       {
         "path": "docs/product/ASK_DJ_CONTEXTUAL_DIALOGUE_CONTRACT_V1.md",
-        "sha256": "8a0b6e4207f716162d47a05a3b889dfbe6e8c3ae8dea118aeadee85874d1f2cb"
+        "sha256": "b0626e86857ad0dda317896da34091132347dce54762362bbdc0bd457a1727fb"
       },
       {
         "path": "docs/product/MOMENT_TRACK_INSIGHT_DRILLDOWN_V1.md",
@@ -42152,7 +42152,7 @@
       },
       {
         "path": "docs/verification/CORE_LANE_REQUIREMENT_RECONCILIATION_20261017.md",
-        "sha256": "f59e1cb0249a0a33506b3e5e0598b14a4a60a4388a6ea17776efb28ea241444b"
+        "sha256": "19ee558e6540c06734293d379664d3d2a72a0147240ecf2da2ae7b0d0cbd1710"
       },
       {
         "path": "docs/product/ASK_DJ_PUBLIC_MUSIC_RESEARCH_V1.md",
@@ -42180,7 +42180,7 @@
       },
       {
         "path": "docs/governance/DJC_PLATFORM_OPEN_WORK_20261017.md",
-        "sha256": "f0346b63c9f79221c7d0f834885b352c862e3b8258138610434a323bc09a696b"
+        "sha256": "8d2a573b12b2af36867fd11fe5e9a240c1118ceb12742fa6a826176a54d12cae"
       },
       {
         "path": "docs/history/prompts/2026-10-17-integral-open-work-audit-finalization.md",
@@ -42200,7 +42200,7 @@
       },
       {
         "path": "docs/verification/CORE_BRANCH_CONSOLIDATION_20261017.md",
-        "sha256": "a82d758d145d3ed12b9d345aca792af011a883fd7b4504c8eca350f361827f1b"
+        "sha256": "4fa392b24694c4b59c50e9e9d7169bf3c24d384caa34e52bb9cca4f748bfa327"
       },
       {
         "path": "docs/product/VIBECAST_DISPLAY_ADMISSION_V1.md",
@@ -42220,7 +42220,11 @@
       },
       {
         "path": "docs/verification/ASK_DJ_SEMANTIC_READS_20261017.md",
-        "sha256": "532ae891b9d4654709ed23a2a55e52df1c54362aeb6c23c9ccbeb3429d5f4110"
+        "sha256": "83a43048e7e5356c4953d25a4c9ab273814d22226afee4bceb0d50cdf70ff946"
+      },
+      {
+        "path": "docs/verification/ASK_DJ_ARTIST_HITS_20261017.md",
+        "sha256": "b8ac8e6ddc47503078e592aa71702c3481a118fba3554e9a4ffc66277cc3daf0"
       }
     ],
     "implementation_receipt": {

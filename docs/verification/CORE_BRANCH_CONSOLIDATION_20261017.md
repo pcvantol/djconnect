@@ -1,5 +1,13 @@
 # Core branch consolidation — 17 October2026
 
+Current follow-up: named-artist catalog and retry guards pass55/55 actual
+model questions (57paid calls,0effects,174source/probe hashes unchanged). Golden now has45reports,
+36families and135steps, with9Core and17quality findings open. Reported short
+artist/zangers submit failures and the dry Son Mieux formation bubble are
+explicitly registered; original failed-card cause and richer narration remain
+open. [Current evidence and boundaries](ASK_DJ_ARTIST_HITS_20261017.md).
+
+
 Owner requests one PR containing all changes from the three existing Core
 branches, and correction of every actual merge blocker before merging. This
 is the existing sole Core writer and a consolidation of existing work, not

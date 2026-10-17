@@ -583,6 +583,10 @@ async def main():
 
         if os.environ.get("DJC_SAFETY_PROBE") in {"release_context", "semantic_reads"}:
             tracks[0]["album"].update(release_date="2008-05-06",release_date_precision="day")
+        named_artist = {'id':'r'*22, 'uri':'spotify:artist:'+'r'*22, 'name':'Armin van Buuren'}
+        named_tracks = [{**track, 'id':c*22, 'uri':'spotify:track:'+c*22,
+                         'artists':[dict(named_artist)], 'name':f'Synthetic named recording {i+1}'}
+                        for i,(c,track) in enumerate(zip(('d','e','f'),tracks,strict=True))]
         if os.environ.get("DJC_SAFETY_PROBE") == "choice_titles":
             tracks = [{**tracks[0], "id": str(i) * 22, "uri": "spotify:track:" + str(i) * 22,
                        "name": f"Synthetic choice title {i}"} for i in range(1, 7)]
@@ -605,6 +609,11 @@ async def main():
                 raise ConnectionError("Explicit external provider outage fixture")
             parsed = urlparse(path)
             query = parse_qs(parsed.query)
+            if state.get('named_artist_fixture'):
+                if parsed.path == '/search' and query.get('type') == ['artist']:
+                    return {'artists':{'items':[dict(named_artist)]}}
+                if parsed.path == '/search' and query.get('type') == ['track']:
+                    return {'tracks':{'items':named_tracks}}
             if method in {"POST", "PUT", "DELETE"}:
                 if parsed.path == "/me/player/play":
                     if state.get("no_active_output"):
@@ -650,7 +659,7 @@ async def main():
                 if state.get("no_current_item"):
                     return {}
                 return {
-                    "item": tracks[state["index"]],
+                    "item": named_tracks[0] if state.get('named_artist_fixture') else tracks[state["index"]],
                     "is_playing": state["playing"],
                     "progress_ms": state["position_ms"]
                     + (

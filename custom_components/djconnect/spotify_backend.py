@@ -1865,6 +1865,7 @@ def _normalize_search_item(item: dict[str, Any], spotify_type: str, query: str) 
         "track_name": "" if spotify_type == "artist" else name,
         "artist": artist_name,
         "artist_name": artist_name,
+        "artist_ids": [str(artist.get("id") or "") for artist in artists if isinstance(artist, dict) and artist.get("id")],
         "album_name": album.get("name") or "",
         "context_uri": album.get("uri") or "",
         "image_url": image_url,

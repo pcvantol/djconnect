@@ -1,6 +1,6 @@
 # DJConnect integral open-work reconciliation — 17 October 2026
 
-Current combined local checkpoint: 43 reported issues, 36 families, 129 steps; 8 Core findings and 14 real-quality steps OPEN; merge NOT_QUALIFIED. No installation or audible claim. The dated observations below remain historical.
+Current combined local checkpoint: 45 reported issues, 36 families, 135 steps; 9 Core findings and 17 real-quality steps OPEN; merge NOT_QUALIFIED. No installation or audible claim. The dated observations below remain historical.
 
 Direct owner request; existing Core writer, [register #1101](https://github.com/pcvantol/djconnect/issues/1101). This dated evidence overlay does not start a product slice, dispatch another writer or replace the living DAG.
 

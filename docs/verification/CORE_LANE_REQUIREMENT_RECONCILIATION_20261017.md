@@ -1,5 +1,13 @@
 # Core lane requirement reconciliation — 17 October 2026
 
+Current follow-up: named-artist catalog and retry guards pass55/55 actual
+model questions (57paid calls,0effects,174source/probe hashes unchanged). Golden now has45reports,
+36families and135steps, with9Core and17quality findings open. Reported short
+artist/zangers submit failures and the dry Son Mieux formation bubble are
+explicitly registered; original failed-card cause and richer narration remain
+open. [Current evidence and boundaries](ASK_DJ_ARTIST_HITS_20261017.md).
+
+
 Status: active corrective work, not a completion report. Current source base
 `6a3adbc8e66ab380dfea1726ca34728097d0c684`; main integration
 `244fad8d8488aa2b5e34d182ef15860dbaa7ee2e`; existing branch

@@ -70,6 +70,22 @@ class SemanticReadTests(unittest.IsolatedAsyncioTestCase):
             with self.subTest(raw=raw[:100]):
                 self.assertIsNone(parse_plan(raw))
 
+    async def test_reported_short_artist_and_singers_questions_read_context_without_claiming_vocal_roles(self):
+        async def source(hass, runtime, command, *args, **kwargs):
+            self.assertEqual(command, "status")
+            return {"success": True, "playback": {"uri": "spotify:track:" + "N" * 22,
+                "artist": "Actual credited artists", "title": "Actual recording"}}
+        for index, question in enumerate(("wie is de artiest", "wie zijn de zangers")):
+            with self.agent({"read": "artist", "reference": "current", "exclude_current": False}), patch.object(
+                self.f.core, "run_music_command", source
+            ):
+                answer, code = await self.f.request(question, language="nl", identifier="short-artist-" + str(index))
+            self.assertEqual(code, 200, answer)
+            self.assertIn("Actual credited artists", answer["text"])
+            self.assertIn("Actual recording", answer["text"])
+            self.assertNotIn("zangers", answer["text"])
+            self.assertEqual(self.f.effects, [])
+
     def agent(self, plan, *, inspect=None):
         async def response(hass, data, **kwargs):
             projection = json.loads(data["text"].split("\nData:\n", 1)[1])
@@ -163,7 +179,7 @@ class SemanticReadTests(unittest.IsolatedAsyncioTestCase):
         from custom_components.djconnect.ask_dj.public_research import explicit_public_subject, safe_subject
         from collections import Counter
         rows = cases()
-        self.assertEqual(Counter(c["language"] for c in rows), dict.fromkeys(("en", "nl", "de", "fr", "es"), 10))
+        self.assertEqual(Counter(c["language"] for c in rows), dict.fromkeys(("en", "nl", "de", "fr", "es"), 11))
         for case in rows:
             self.assertEqual(self.f.core.classify_ask_dj(case["question"]).intent, "ask_music_info", case)
             self.assertFalse(requests_lookup(case["question"]), case)

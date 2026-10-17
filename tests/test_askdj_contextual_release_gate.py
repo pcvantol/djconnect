@@ -19,23 +19,34 @@ RUNNER = load('contextual_gate', 'tools/verification/run_askdj_contextual_releas
 class ContextualReleaseGateTest(unittest.TestCase):
     def test_semantic_release_gate_requires_every_real_model_case_and_source_binding(self):
         matrix = load('semantic_release_matrix', 'tools/verification/run_askdj_release_matrix.py')
-        from scripts.verification.askdj_semantic_read_golden import cases, manifest_digest
+        from scripts.verification.askdj_semantic_read_golden import cases, manifest_digest, expected_plan
         expected = cases()
         good = {'status': 'PASS', 'qualification': 'REAL_HA_SEMANTIC_CONTEXT_READS',
                 'source_hashes': matrix.expected_source_hashes(), 'source_unchanged': True,
                 'pairing': 'ordinary_device_token_minted_persisted', 'manifest_sha256': manifest_digest(),
                 'effects': [], 'paid_model_calls': len(expected), 'setup_paid_model_calls': 0,
                 'cases': [{**c, 'status': 'PASS', 'findings': [], 'metrics': {'agent_calls': 1}} for c in expected],
-                'model_calls': [{'case_id': c['id'], 'attempted': True, 'completed': True, 'generated_text': __import__('json').dumps({'read': c['read']})} for c in expected],
+                'model_calls': [{'case_id': c['id'], 'attempted': True, 'completed': True, 'generated_text': __import__('json').dumps(expected_plan(c))} for c in expected],
                 'core_transports': [{'case': c['id'], 'status': 200, 'expected_status': 200,
                                      'path': 'ask_dj/message', 'cache_control': 'no-store',
-                                     'body': {'interpretation_basis': 'ha_semantic_read_v1'}} for c in expected]}
+                                     'body': {'interpretation_basis': 'ha_semantic_read_v1',
+                                              'playback_actions': [{'uri': 'spotify:track:' + char * 22,
+                                                  'title': 'Synthetic named recording ' + str(i + 2),
+                                                  'action_id': 'frozen-' + char} for i, char in enumerate(('e', 'f'))]
+                                              if c['read'] == 'artist_tracks' else []}} for c in expected]}
         self.assertTrue(matrix.validate_semantic_report(good))
         for change in (
             lambda r: r['cases'].pop(),
             lambda r: r['model_calls'][0].update(attempted=False),
             lambda r: r['model_calls'][0].update(completed=False),
             lambda r: r['model_calls'][0].update(generated_text='{}'),
+            lambda r: r['model_calls'][0].update(generated_text=__import__('json').dumps(
+                {**expected_plan(expected[0]), 'exclude_current': 0})),
+            lambda r: r['model_calls'][0].update(generated_text='{"read":"play",' +
+                __import__('json').dumps(expected_plan(expected[0]))[1:]),
+            lambda r: r['model_calls'][-1].update(generated_text=__import__('json').dumps(
+                {**expected_plan(expected[-1]), 'exclude_current': False})),
+            lambda r: r['core_transports'][-1]['body']['playback_actions'][0].update(uri='spotify:track:' + 'x' * 22),
             lambda r: r['cases'][0]['metrics'].update(agent_calls=0),
             lambda r: r.update(effects=[{'method': 'PUT'}]),
             lambda r: r.update(source_hashes={}),
@@ -170,9 +181,9 @@ class ContextualReleaseGateTest(unittest.TestCase):
         self.assertEqual(proof['literal_core_routes'],48)
         self.assertEqual(proof['executable_help_cases'],60)
         self.assertEqual(proof['conversation_families'],36)
-        self.assertEqual(proof['conversation_steps'],129)
-        self.assertEqual(proof['reported_issues'],43)
-        self.assertEqual(len(proof['open_core_findings']),8)
+        self.assertEqual(proof['conversation_steps'],135)
+        self.assertEqual(proof['reported_issues'],45)
+        self.assertEqual(len(proof['open_core_findings']),9)
         self.assertEqual(proof['proactive_golden_cases'],560)
 
     def test_reported_issue_without_family_or_open_disposition_cannot_pass_release(self):

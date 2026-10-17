@@ -93,6 +93,26 @@ Relevant source withdrawal removes derived model snippets and response visibilit
 
 ### Semantic interpretation of contextual reads
 
+The named-artist catalog repair also admits a closed `artist_tracks` read. A
+named reference carries only a bounded public `artist` string plus the existing
+read/reference/exclude_current fields; contextual current/selected references
+carry no name. The configured HA agent interprets free wording and typos, never
+proposes recording facts, provider IDs or playback. Core resolves the proposed
+name through the existing artist-profile read and then the existing track-search
+read. Only actual recordings credited to that canonical artist ID qualify.
+This is a bounded Spotify catalog sample, not a chart ranking or a claim that
+all hits were found. An explicit more/other request omits the freshly observed
+current recording. Missing/unsupported/provider-failed reads return functional
+music guidance, never a false history-storage explanation or guessed titles.
+Existing frozen result/action IDs own a later explicit Play action; listing has
+no playback/output mutation. Catalog fields remain local display data under
+their existing retention and model-processing boundary.
+
+The17October Armin report separately exposes Apple's generic error label. An
+unavailable-history label is not evidence that the failing operation was a
+history request. Root-cause attribution requires an actual transport/acceptance
+receipt; this producer repair does not retrospectively claim that evidence.
+
 Literal recognition is a fast path, not the supported vocabulary. An otherwise
 unresolved contextual question may use one call to the same qualified HA agent
 to interpret typos and free wording in any supported language. Its closed read
@@ -742,3 +762,13 @@ owner/history grant, opportunity generation, source expiry and confirmed setting
 before the same two-call analysis/assessment owner; recheck before cache/response.
 A missing or conflicting exact recording proof stays unmeasured. Credit context
 and labelled interpretation are useful data, but not acoustic measurements.
+
+
+Private catalog offer retries retain only a bounded operational response receipt
+inside the existing DialogueFrame (maximum4responses/64KiB, no durable body).
+Body eviction leaves an opaque digest/expiry receipt; maximum256receipts then
+refuses new non-control admissions rather than repeating an old request.
+Message-ID/digest and original admission/deadline remain authoritative. Reusing
+a request cannot mint a new offer or silently refresh expired choices. Clear
+and rights-generation changes discard replay bodies. This limited transport
+retry support does not close rich catalog-conversation archival retention.

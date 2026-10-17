@@ -130,8 +130,15 @@ def expected_source_hashes():
 
 
 def validate_semantic_report(raw):
-    from scripts.verification.askdj_semantic_read_golden import cases, manifest_digest
+    from scripts.verification.askdj_semantic_read_golden import cases, manifest_digest, expected_plan
     expected = cases()
+    def unique_object(pairs):
+        result = {}
+        for key, value in pairs:
+            if key in result:
+                raise ValueError('duplicate_plan_key')
+            result[key] = value
+        return result
     if (not isinstance(raw, dict) or raw.get('status') != 'PASS'
             or raw.get('qualification') != 'REAL_HA_SEMANTIC_CONTEXT_READS'
             or raw.get('source_hashes') != expected_source_hashes()
@@ -158,11 +165,22 @@ def validate_semantic_report(raw):
 ):
             return False
         try:
-            plan = json.loads(attempts[0].get('generated_text', ''))
-        except (ValueError, TypeError):
+            generated = attempts[0].get('generated_text')
+            if not isinstance(generated, str) or len(generated.encode('utf-8', errors='replace')) > 2048:
+                return False
+            plan = json.loads(generated, object_pairs_hook=unique_object)
+        except (ValueError, TypeError, RecursionError):
             return False
-        if not isinstance(plan, dict) or plan.get('read') != case['read']:
+        wanted = expected_plan(case)
+        if (not isinstance(plan, dict) or set(plan) != set(wanted)
+                or any(type(plan[key]) is not type(value) or plan[key] != value for key, value in wanted.items())):
             return False
+        if case['read'] == 'artist_tracks':
+            actions = http[0].get('body', {}).get('playback_actions', [])
+            if ([a.get('uri') for a in actions] != ['spotify:track:' + c * 22 for c in ('e', 'f')]
+                    or [a.get('title') for a in actions] != ['Synthetic named recording 2', 'Synthetic named recording 3']
+                    or any(not a.get('action_id') for a in actions)):
+                return False
     setup = [c for c in calls if c.get('case_id') == 'semantic-start']
     if len(setup) != raw['setup_paid_model_calls'] or any(c.get('completed') is not True for c in setup):
         return False

@@ -277,12 +277,7 @@ async def current_artist_read(hass, runtime, selected=None, *, require_recording
         if target:
             answer = identified[locale].format(artist=target[1], title=target[2])
         elif not require_recording:
-            roles = {"artist", "performer"}
-            if selected.get("moment_type") == "artist" and selected.get("archive_basis") == "cc0_normalized_fields_v1":
-                # Existing qualified Artist facts carry Person/Group entity types.
-                roles.update({"Person", "Group"})
-            artists = [s.get("name") for s in selected.get("dialogue_subjects", [])
-                       if s.get("role") in roles and isinstance(s.get("name"), str)]
+            artists = selected_artist_names(selected)
             if len(artists) == 1:
                 answer = artist_only[locale].format(artist=artists[0][:512])
     else:
@@ -316,6 +311,16 @@ async def current_artist_read(hass, runtime, selected=None, *, require_recording
             "images": [], "links": [dict(source) for source in sources if source.get("url")], "sources": sources,
             "playback_actions": [], "_private_current_context": True,
             "speech_processing_basis": "spotify_owner_local_read_v1" if answer and target else "accepted_local_reply"}
+
+
+def selected_artist_names(selected):
+    """Share the existing limited performer admission; composers are not performers."""
+    roles = {"artist", "performer"}
+    if selected.get("moment_type") == "artist" and selected.get("archive_basis") == "cc0_normalized_fields_v1":
+        roles.update({"Person", "Group"})
+    return list(dict.fromkeys(s["name"] for s in selected.get("dialogue_subjects", [])
+                             if isinstance(s, dict) and s.get("role") in roles
+                             and isinstance(s.get("name"), str) and s["name"].strip()))
 
 
 def _identified_playback(playback):

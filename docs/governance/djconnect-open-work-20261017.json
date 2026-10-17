@@ -1860,14 +1860,17 @@
     "source_delivery": "LOCAL_COMBINED_DRAFT_PREPARATION",
     "remaining_gates_preserved": true,
     "current_local_state": "LOCAL_COMBINED_DRAFT_PREPARATION",
-    "reported_issues": 43,
+    "reported_issues": 45,
     "conversation_families": 36,
-    "conversation_steps": 129,
-    "open_core_findings": 8,
-    "open_quality_steps": 14,
+    "conversation_steps": 135,
+    "open_core_findings": 9,
+    "open_quality_steps": 17,
     "merge_readiness": "NOT_QUALIFIED",
     "installed": "NOT_RUN",
     "audible": "NOT_RUN",
-    "semantic_interpretation": "REAL_HA_MODEL_50_CASES_PASS_52_PAID_ATTEMPTS_ZERO_EFFECTS"
+    "semantic_interpretation": "CURRENT55_PASS_57_PAID_ATTEMPTS_ZERO_EFFECTS; PRIOR53_OF55_FAIL_RETAINED",
+    "artist_hits_receipt": "docs/verification/ASK_DJ_ARTIST_HITS_20261017.md",
+    "failed_card_original_cause": "UNKNOWN",
+    "son_mieux_narrative": "OPEN_REPRODUCED_INSTALLED"
   }
 }

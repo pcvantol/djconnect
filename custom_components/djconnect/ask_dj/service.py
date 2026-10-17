@@ -464,6 +464,7 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
         # RAM-only admission travels with this bounded in-flight future. Each
         # waiter rechecks the original evidence with its own caller authority.
         future.set_result((deepcopy(response), joined_admission))
+        history_manager.dialogue.remember_catalogue_read(turn, response, future)
         return response
     except (SessionConversationError, DialogueError) as exc:
         if turn is not None and turn.effect_started and frame.generation == turn.generation:

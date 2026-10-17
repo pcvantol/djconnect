@@ -1,5 +1,13 @@
 # DJConnect Repository Status
 
+Current follow-up: named-artist catalog and retry guards pass55/55 actual
+model questions (57paid calls,0effects,174source/probe hashes unchanged). Golden now has45reports,
+36families and135steps, with9Core and17quality findings open. Reported short
+artist/zangers submit failures and the dry Son Mieux formation bubble are
+explicitly registered; original failed-card cause and richer narration remain
+open. [Current evidence and boundaries](docs/verification/ASK_DJ_ARTIST_HITS_20261017.md).
+
+
 ## Current: combined Core recovery PR preparation — 17 October 2026
 
 Existing sole Core writer combines the Ask DJ correction, VibeCast glass and

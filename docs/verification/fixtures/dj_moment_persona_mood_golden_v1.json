@@ -526,6 +526,26 @@
         "A generic opening, changed word order or Mood metadata alone does not establish narrative acceptance"
       ],
       "qualification": "Editorial expectation recorded; runtime correction and acceptance NOT delivered"
+    },
+    {
+      "id": "DJM-EDITORIAL-SON-MIEUX-FORMATION-NL",
+      "status": "OPEN_REPRODUCED_INSTALLED",
+      "evidence": "Owner screenshot, current HA-dev177files equalmain6a3adbc8,2026-10-17",
+      "language": "nl",
+      "input": {
+        "family": "formation",
+        "artist": "Son Mieux",
+        "formation_year": "2015",
+        "source": "MusicBrainz"
+      },
+      "rejected_complete_response": "Son Mieux begon in 2015 als groep.",
+      "acceptance": [
+        "A warm personal flowing DJ story with recognizable selected Persona and Mood",
+        "Use richer independently checked music-source context including Wikipedia where available, with actual attribution",
+        "Do not invent a biography from a single formation date or count source/Persona/Mood metadata as narrative acceptance",
+        "Translation and narration through the configured qualified HA agent; approved published body retained and available for TTS"
+      ],
+      "qualification": "Narrative correction, richer public-source support and actual editorial review remain OPEN; no new runtime PASS"
     }
   ],
   "integration_regressions": [

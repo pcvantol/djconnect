@@ -123,6 +123,128 @@
           ],
           "acceptance_status": "owner_contract",
           "proof_boundary": "Named owning contract execution; live provider/model/native quality requires separate evidence."
+        },
+        {
+          "id": "ASKDJ-FLOW-artist-hits-real-titles",
+          "question": "welke hits heeft armin van buuren nog meer",
+          "expected_answer": "Echte canoniek gecrediteerde Spotify-nummers met titels en bevroren afspeelacties; catalogusselectie, geen verzonnen hitranglijst en geen muziekstart.",
+          "model_policy": "model_or_local_lookup",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_artist_hits.py",
+              "method": "test_armin_hits_question_returns_actual_other_titles_and_no_playback"
+            },
+            {
+              "file": "tests/test_ask_dj_artist_hits.py",
+              "method": "test_free_artist_wording_and_typos_in_five_languages_use_one_agent_then_real_rows"
+            },
+            {
+              "file": "tests/test_ask_dj_artist_hits.py",
+              "method": "test_named_artist_plan_is_closed_and_cannot_supply_a_uri_or_private_query"
+            },
+            {
+              "file": "tests/test_ask_dj_artist_hits.py",
+              "method": "test_catalog_outage_is_music_unavailable_without_history_error_or_current_fallback"
+            },
+            {
+              "file": "tests/test_ask_dj_artist_hits.py",
+              "method": "test_clear_during_catalog_read_denies_late_result_without_playback"
+            },
+            {
+              "file": "tests/test_ask_dj_artist_hits.py",
+              "method": "test_current_without_session_rejects_track_change_during_catalog_read"
+            },
+            {
+              "file": "tests/test_ask_dj_artist_hits.py",
+              "method": "test_original_expiry_cannot_be_renewed_during_catalog_read"
+            },
+            {
+              "file": "tests/test_ask_dj_artist_hits.py",
+              "method": "test_selected_recording_is_omitted_instead_of_different_current_track"
+            },
+            {
+              "file": "tests/test_ask_dj_artist_hits.py",
+              "method": "test_qualified_selected_group_has_artist_identity_but_never_a_recording_title"
+            },
+            {
+              "file": "tests/test_ask_dj_artist_hits.py",
+              "method": "test_named_catalog_survives_independent_current_status_outage"
+            },
+            {
+              "file": "tests/test_ask_dj_artist_hits.py",
+              "method": "test_wrong_canonical_artist_never_uses_current_as_fallback"
+            },
+            {
+              "file": "tests/test_ask_dj_artist_hits.py",
+              "method": "test_duplicate_question_reuses_frozen_result_without_provider_or_agent_retry"
+            },
+            {
+              "file": "tests/test_ask_dj_artist_hits.py",
+              "method": "test_account_withdrawal_during_catalog_read_denies_late_result"
+            },
+            {
+              "file": "tests/test_ask_dj_artist_hits.py",
+              "method": "test_retry_of_expired_or_displaced_offer_never_renews_or_refetches"
+            },
+            {
+              "file": "tests/test_ask_dj_artist_hits.py",
+              "method": "test_frozen_first_offer_starts_only_after_explicit_play_and_duplicate_never_repeats_effect"
+            },
+            {
+              "file": "tests/test_ask_dj_artist_hits.py",
+              "method": "test_operational_replays_are_bounded_and_history_clear_discards_private_bodies"
+            },
+            {
+              "file": "tests/test_ask_dj_artist_hits.py",
+              "method": "test_evicted_private_body_leaves_opaque_receipt_without_agent_or_provider_retry"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual Core owner with external agent/provider fixtures; paid interpretation, installed and native acceptance remain separate."
+        },
+        {
+          "id": "ASKDJ-FLOW-artist-hits-free-wording",
+          "question": "wat voor andere hists heeft armin van buren eigelijk",
+          "expected_answer": "Vrije formulering en typefouten in alle vijf talen gaan via één HA-agentinterpretatie naar echte Core catalogusreads.",
+          "model_policy": "model_or_local_lookup",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_artist_hits.py",
+              "method": "test_free_artist_wording_and_typos_in_five_languages_use_one_agent_then_real_rows"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual Core owner with external agent/provider fixtures; paid interpretation, installed and native acceptance remain separate."
+        },
+        {
+          "id": "ASKDJ-FLOW-artist-hits-original-context",
+          "question": "wat heeft deze artiest nog aan andere nummmers?",
+          "expected_answer": "Geselecteerde opname A blijft A bij huidige B; artiest-only context is geen opnametitel; verlopen of gewisselde context en ingetrokken toegang leveren geen late keuzes op.",
+          "model_policy": "model_or_local_lookup",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_artist_hits.py",
+              "method": "test_clear_during_catalog_read_denies_late_result_without_playback"
+            },
+            {
+              "file": "tests/test_ask_dj_artist_hits.py",
+              "method": "test_current_without_session_rejects_track_change_during_catalog_read"
+            },
+            {
+              "file": "tests/test_ask_dj_artist_hits.py",
+              "method": "test_original_expiry_cannot_be_renewed_during_catalog_read"
+            },
+            {
+              "file": "tests/test_ask_dj_artist_hits.py",
+              "method": "test_selected_recording_is_omitted_instead_of_different_current_track"
+            },
+            {
+              "file": "tests/test_ask_dj_artist_hits.py",
+              "method": "test_qualified_selected_group_has_artist_identity_but_never_a_recording_title"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual Core owner with external agent/provider fixtures; paid interpretation, installed and native acceptance remain separate."
         }
       ],
       "owning_tests": [
@@ -1598,6 +1720,28 @@
           ],
           "acceptance_status": "open_real_quality",
           "proof_boundary": "Named owning contract execution; live provider/model/native quality requires separate evidence."
+        },
+        {
+          "id": "ASKDJ-FLOW-son-mieux-rich-story",
+          "question": "Automatische artiestbijdrage bij Son Mieux",
+          "expected_answer": "Een persoonlijk, gevarieerd verhaal passend bij Persona en Mood, met inhoud uit gecontroleerde rijke muziekbronnen en correcte bronvermelding; alleen Son Mieux begon in 2015 als groep is onvoldoende.",
+          "model_policy": "real_model_editorial_review",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_contextual_dialogue.py",
+              "method": "test_general_trivia_survives_track_change_and_no_backend"
+            },
+            {
+              "file": "tests/test_ask_dj_contextual_dialogue.py",
+              "method": "test_person_intro_focus_preserves_complete_factual_corpus_and_identification"
+            },
+            {
+              "file": "tests/test_ask_dj_contextual_dialogue.py",
+              "method": "test_person_intro_owner_accepts_proved_identification_and_withholds_wrong_participant"
+            }
+          ],
+          "acceptance_status": "open_real_quality",
+          "proof_boundary": "Owner screenshot is a reproduced installed editorial failure. Existing runtime matrix qualifies source/lifecycle only; factual one-liners, templates, metadata and fixture success do not qualify richer narrative output."
         }
       ],
       "owning_tests": [
@@ -3027,6 +3171,34 @@
           ],
           "acceptance_status": "owner_contract",
           "proof_boundary": "Real common Core owner and selected playback reference; external readplan fixture, plus corresponding real-model held-out inputs in semantic_reads."
+        },
+        {
+          "id": "ASKDJ-FLOW-failed-submit-artist",
+          "question": "wie is de artiest",
+          "expected_answer": "Gebruik actuele bevoegde muziekcontext. Een vraag-/transportfout mag niet generiek als onbeschikbare sessiegeschiedenis worden getoond; bevestig performercredit zonder ongefundeerde zangrol.",
+          "model_policy": "model_or_local_lookup",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_semantic_reads.py",
+              "method": "test_reported_short_artist_and_singers_questions_read_context_without_claiming_vocal_roles"
+            }
+          ],
+          "acceptance_status": "open_real_quality",
+          "proof_boundary": "Core ownerfixture covers contextual read only. Installed dev history HTTP200 includes artist question and wrong clarification. Original failed-card HTTP/decode cause UNKNOWN; Apple five-language error mapping and native acceptance OPEN."
+        },
+        {
+          "id": "ASKDJ-FLOW-failed-submit-singers",
+          "question": "wie zijn de zangers",
+          "expected_answer": "Gebruik actuele bevoegde muziekcontext. Een vraag-/transportfout mag niet generiek als onbeschikbare sessiegeschiedenis worden getoond; bevestig performercredit zonder ongefundeerde zangrol.",
+          "model_policy": "model_or_local_lookup",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_semantic_reads.py",
+              "method": "test_reported_short_artist_and_singers_questions_read_context_without_claiming_vocal_roles"
+            }
+          ],
+          "acceptance_status": "open_real_quality",
+          "proof_boundary": "Core ownerfixture covers contextual read only. Installed dev history HTTP200 includes artist question and wrong clarification. Original failed-card HTTP/decode cause UNKNOWN; Apple five-language error mapping and native acceptance OPEN."
         }
       ],
       "owning_tests": [
@@ -3366,6 +3538,19 @@
       "family_id": "ASKDJ-FLOW-semantic-context-reads",
       "finding": "De semantische recording-route mag een geselecteerde artiest zonder opnamemetadata niet als opname-identificatie presenteren.",
       "core_qualification": "locally_covered"
+    },
+    {
+      "id": "ASKDJ-ISSUE-named-artist-hits",
+      "family_id": "ASKDJ-FLOW-search-choice-play",
+      "finding": "Armin-vraag gaf geen echte artiesttitels; bronherstel met canonieke creditIDs, geselecteerde/huidige context en oorspronkelijke geldigheid wordt afzonderlijk gekwalificeerd. De screenshotfoutmelding is hiermee niet verklaard.",
+      "core_qualification": "locally_covered"
+    },
+    {
+      "id": "ASKDJ-ISSUE-submit-misreported-as-history",
+      "family_id": "ASKDJ-FLOW-semantic-context-reads",
+      "finding": "Armin en korte artiest-/zangvragen tonen een generieke geschiedenisfout. Actuele gekoppelde devgeschiedenis is HTTP200; artiestvraag is opgeslagen met onterechte verduidelijking. Originele failed-submitoorzaak onbekend; Apple error-mapping apart open.",
+      "core_qualification": "open",
+      "consumer_followup": "existing Apple writer; no replay/clear/pairing as diagnosis"
     }
   ],
   "regression_suite_files": [
@@ -3375,7 +3560,8 @@
     "tests/test_personal_dj_runtime_expression.py",
     "tests/test_ask_dj_album_tracks.py",
     "tests/test_ask_dj_current_artist_words.py",
-    "tests/test_ask_dj_semantic_reads.py"
+    "tests/test_ask_dj_semantic_reads.py",
+    "tests/test_ask_dj_artist_hits.py"
   ],
   "issue_policy": {
     "new_findings": "Add a named failing reproduction and semantic expected answer in the same corrective candidate; preserve it after the fix.",

@@ -6,6 +6,13 @@ The configured qualified HA agent interprets otherwise unresolved contextual
 questions; literal recognition remains a zero-call fast path. The model chooses
 a closed read operation, not music facts, provider identifiers or commands.
 
+## Current follow-up
+
+The following50-case result belongs to the earlier frozen75bad1dd/38ca877c
+Python snapshot. The current [artist catalog/failed-card repair](ASK_DJ_ARTIST_HITS_20261017.md)
+changes runtime/probe bytes and requires its separate55-case report. The old
+result is not current-source qualification. Installed dev remains main6a3adbc8.
+
 ## Qualification boundaries
 
 `semantic_reads` is a mandatory paid profile in the existing release matrix.
