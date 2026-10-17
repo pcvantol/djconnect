@@ -176,9 +176,22 @@ async def main():
             )
         )
         assert not kwargs.get("tools") and kwargs.get("store") is False
-        stream = await original_create(**kwargs)
+        golden = os.environ.get("DJC_SAFETY_PROBE") in {"contextual_golden", "full_golden"}
         receipt = {"input_bytes": len(inputs.encode()), "model": model, "streaming": True}
-        model_receipts.append(receipt)
+        if golden:
+            from scripts.verification.askdj_contextual_golden import ACTIVE_CASE, MAX_MODEL_CALLS
+            from custom_components.djconnect.ask_dj.dialogue import current_turn
+            owner_turn = current_turn.get()
+            case_id = ACTIVE_CASE.get() or (owner_turn.client_id if owner_turn else None)
+            budget = MAX_MODEL_CALLS if os.environ.get("DJC_SAFETY_PROBE") == "contextual_golden" else 128
+            if len(model_receipts) >= budget or case_id is None:
+                raise RuntimeError("golden_model_call_budget_or_case_invalid")
+            # Reserve BEFORE I/O: even a timeout/cancellation may have spent credits.
+            receipt.update(case_id=case_id, attempted=True, completed=False)
+            model_receipts.append(receipt)
+        stream = await original_create(**kwargs)
+        if not golden:
+            model_receipts.append(receipt)
         if model_gate is not None:
             model_gate["entered"].set()
             await model_gate["release"].wait()
@@ -189,6 +202,7 @@ async def main():
                     if event.type == "response.completed":
                         response = event.response
                         receipt.update(
+                            completed=True,
                             input_tokens=response.usage.input_tokens if response.usage else None,
                             output_tokens=response.usage.output_tokens if response.usage else None,
                             generated_text=response.output_text,
@@ -395,7 +409,7 @@ async def main():
                 "artists": [
                     {
                         "id": "a" * 22,
-                        "name": "Synthetic performer",
+                        "name": "Peter Luts" if os.environ.get("DJC_SAFETY_PROBE") == "contextual_golden" else "Synthetic performer",
                         "uri": "spotify:artist:" + "a" * 22,
                     }
                 ],
@@ -560,7 +574,7 @@ async def main():
                                     {
                                         "target-type": "artist",
                                         "type": "composer",
-                                        "artist": {"name": "Brian Eno"},
+                                        "artist": {"name": "Peter Luts" if os.environ.get("DJC_SAFETY_PROBE") == "contextual_golden" else "Brian Eno"},
                                     }
                                 ],
                             },
@@ -628,6 +642,9 @@ async def main():
 
                 async def call(path, data, *, label, expected=200):
                     began = asyncio.get_running_loop().time()
+                    if os.environ.get("DJC_SAFETY_PROBE") == "full_golden":
+                        from scripts.verification.askdj_contextual_golden import ACTIVE_CASE
+                        ACTIVE_CASE.set(data.get("client_message_id") or label)
                     response = await client.post(
                         "/api/djconnect/v1/" + path, headers=headers, json={**identity, **data}
                     )
@@ -638,6 +655,7 @@ async def main():
                             "path": path,
                             "request": data,
                             "status": response.status,
+                            "expected_status": expected,
                             "cache_control": response.headers.get("Cache-Control"),
                             "latency_ms": round((asyncio.get_running_loop().time() - began) * 1000),
                             "body": body,
@@ -684,7 +702,7 @@ async def main():
                                 .get("metrics", {})
                                 .get("agent_calls"),
                                 "intent": body.get("intent"),
-                                "text": body.get("text", "")[:450],
+                                "text": "[redacted]" if os.environ.get("DJC_SAFETY_PROBE") in {"contextual_golden", "full_golden"} else body.get("text", "")[:450],
                             }
                         ),
                         flush=True,
@@ -1090,6 +1108,26 @@ async def main():
                         "session/end", {"session_id": active.session_id}, label=label + "-end"
                     )
 
+                if os.environ.get("DJC_SAFETY_PROBE") == "contextual_golden":
+                    from scripts.verification.askdj_contextual_golden import run
+                    async def playback_reference(active):
+                        from custom_components.djconnect.session_conversation import query_service
+                        page = await query_service(h, history).async_timeline_page("profile-a", active.session_id)
+                        entry = next(e for e in page["entries"] if e.get("kind") == "playback_observed")
+                        return {"session_id": active.session_id, "entry_id": entry["entry_id"]}
+                    report = await run(ask=ask, call=call, start=start, end=end,
+                                       playback_reference=playback_reference,
+                                       mutations=mutations, model_receipts=model_receipts)
+                    report["source_hashes"] = hashes()
+                    Path(os.environ.get("DJC_OUTPUT", "/lab/golden-contextual.json")).write_text(
+                        json.dumps(report, indent=2) + "\n")
+                    await async_shutdown_persistence(h)
+                    await h.async_stop(force=True)
+                    await api.close()
+                    if report["status"] != "PASS":
+                        raise RuntimeError("contextual_golden_failed")
+                    return
+
                 active, moment, target = await start("baseline-archive")
                 # Query the actual existing owner repository projection without mocking its acceptances.
                 from custom_components.djconnect.session_conversation import query_service
@@ -1339,6 +1377,9 @@ async def main():
                 h.data["djconnect"]["stt_handler"] = speech_provider
 
                 async def voice(identifier, expected=200):
+                    if os.environ.get("DJC_SAFETY_PROBE") == "full_golden":
+                        from scripts.verification.askdj_contextual_golden import ACTIVE_CASE
+                        ACTIVE_CASE.set(identifier)
                     response = await client.post("/api/djconnect/v1/voice", data=wav_bytes, headers={
                         **headers, "Content-Type": "audio/wav", "X-DJConnect-Language": "en",
                         "X-DJConnect-Conversation-Scope": "profile",
@@ -1347,8 +1388,8 @@ async def main():
                     body = await response.json()
                     assert response.status == expected, (identifier, response.status, body.get("error"))
                     assert response.headers.get("Cache-Control") == "no-store"
-                    receipts.append({"case": identifier, "path": "voice", "request": {"input": "synthetic_wav"},
-                        "status": response.status, "cache_control": response.headers.get("Cache-Control"), "body": body})
+                    receipts.append({"case": identifier, "path": "voice", "request": {"input": "synthetic_wav", "client_message_id": identifier},
+                        "expected_status": expected, "status": response.status, "cache_control": response.headers.get("Cache-Control"), "body": body})
                     return body
 
                 voiced = await voice("voice-identity")

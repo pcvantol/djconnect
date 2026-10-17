@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 import json
+import re
+from copy import deepcopy
 from pathlib import Path
 from typing import Any
 
@@ -49,6 +51,26 @@ def load_cases(path: str | Path) -> list[dict[str, Any]]:
     if duplicates:
         raise ValueError(f"Duplicate Ask DJ E2E case ids: {', '.join(duplicates)}")
     return cases
+
+
+
+def materialize_case(case: dict) -> dict:
+    """Keep generic help copy; execute every placeholder with explicit test data."""
+    result = deepcopy(case)
+    offsets = {}
+    bindings = result.get("fixture_bindings") or {}
+    def substitute(match):
+        key = match[1]
+        index = offsets.get(key, 0)
+        values = bindings.get(key)
+        if not isinstance(values, list) or index >= len(values) or not isinstance(values[index], str) or not values[index].strip():
+            raise ValueError("Unbound help placeholder: " + key)
+        offsets[key] = index + 1
+        return values[index]
+    result["request"]["text"] = re.sub(r"\[([^]\[]+)\]", substitute, result["request"]["text"])
+    if any(offsets.get(key, 0) != len(values) for key, values in bindings.items()):
+        raise ValueError("Unused help fixture binding")
+    return result
 
 
 def validate_case_result(

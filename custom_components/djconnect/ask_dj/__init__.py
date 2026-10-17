@@ -3877,7 +3877,7 @@ def _clean_track_versions_query(value: str) -> str:
         flags=re.IGNORECASE,
     )
     cleaned = re.sub(r"\s+", " ", cleaned).strip(" ?.!'\"“”‘’")
-    return cleaned if len(_track_versions_required_words(cleaned)) >= 2 else ""
+    return cleaned if _track_versions_required_words(cleaned) else ""
 
 
 async def _track_versions_search_response(

@@ -376,6 +376,8 @@ class AskDjTest(unittest.TestCase):
 
         requests = [
             ("Geef me 10 uitvoeringen van Nothing else matters door verschillende artiesten", "Nothing else matters"),
+            ("Geef me 10 uitvoeringen van Hallelujah door verschillende artiesten", "Hallelujah"),
+            ("Find versions of One", "One"),
             ('Zoek versies van "Nothing else matters"', "Nothing else matters"),
             ('Toon covers van "Nothing else matters"', "Nothing else matters"),
             ('Heb je live versies van "Nothing else matters"', "Nothing else matters"),

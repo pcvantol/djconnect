@@ -222,3 +222,11 @@ continues to define qualification layers and metric-promotion conditions.
 - [Developer Experience Roadmap](../product/DEVELOPER_EXPERIENCE_ROADMAP.md)
 - [Canonical Engineering Prompt Template](../governance/PROMPT_TEMPLATE.md)
 - [Prompt Initialization](../../PROMPT_INITIALIZATION.md)
+
+## Reactive Ask DJ contextual family
+
+The explicitly requested [Ask DJ contextual release gate](ASK_DJ_CONTEXTUAL_GOLDEN_RELEASE_GATE_V1.md)
+adds `ASKDJ-GOLDEN-001` for observable selected-person dialogue, with language
+variants. It uses the existing isolated paired HA/Core/Conversation harness and
+real bounded paid model calls. It is distinct from the six deterministic
+Session Intelligence scenarios and does not change their advisory profiles.

@@ -25,7 +25,7 @@ class PostMergeWorkflowContractTest(unittest.TestCase):
 
     def test_qualified_main_evidence_is_published_append_only_and_read_back(self) -> None:
         workflow = (ROOT / ".github/workflows/post-merge-release-evidence.yml").read_text()
-        dispatch = (ROOT / ".github/workflows/post-merge-release-evidence-dispatch.yml").read_text()
+        dispatch = (ROOT / ".github/workflows/home-assistant-release-artifact.yml").read_text()
 
         self.assertIn("contents: write", workflow)
         self.assertIn("contents: write", dispatch)
