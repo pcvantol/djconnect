@@ -48,6 +48,9 @@ authorization, merged delivery, Finalization or installed proof.
 
 ## Current combined correction and qualification boundary
 
+This is the pre-publication candidate snapshot. Any later draft readback belongs
+to the PR; draft publication does not change the open merge/product gates.
+
 The personal-DJ preserved maintenance15 is exact against the committed
 premerge repair `e3d7b55f5c67019a306cc4a4b3a31b2028304c9c`, while display15
 is exact against `6e560061cbee3bed86c50fc0deee7d74b9bfee9b`. These are distinct
@@ -136,4 +139,5 @@ summary is40reports/120steps. The owning repair tests execute actual common-owne
 negative research/recommendation requests and actual five-language album actions.
 No constant comparison alone qualifies those response paths. The paired HA
 profile now also checks all five localized album offers. These additions require
-new final source hashes and candidate review; prior b7 source GO is scoped history.
+new final source hashes and candidate review. The earlier b7 technical review was scoped
+GO; its independent product review was NO_GO with the three findings above.
