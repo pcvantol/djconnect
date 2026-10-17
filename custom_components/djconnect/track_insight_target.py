@@ -201,6 +201,7 @@ async def resolve_target(
         {
             "archive_basis": "cc0_normalized_fields_v1",
             "text": moment.content,
+            "qualified_fact_text": fact.copy_for(active.locale)[1],
             "source_attribution": dict(moment.source_attribution),
             "dialogue_subjects": normalized_subjects(fact),
         }

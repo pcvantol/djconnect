@@ -199,6 +199,16 @@ protected merge/artifact readback and separate Finalization retain their gates.
 
 ## Owner addition: proactive Track Insight navigation
 
+Qualified detail now takes its evidence from the original normalized fact, never
+from an already creative Moment narration. Generated summary/full_text/optional
+listening interpretations require bounded structure and independent content,
+language and style assessment through the same guarded HA Conversation owner,
+maximum two calls. Revalidate the original source/owner and configured pipeline
+around both calls and before cache/response acceptance. Failed assessment keeps
+only the qualified factual context; rejected raw prose is not cached or exposed.
+Credits are useful context, not measured genre/energy/instrumentation. The
+recording-analysis source gap remains explicit until real evidence qualifies it.
+
 The owner-approved [Moment → Track Insight drilldown](MOMENT_TRACK_INSIGHT_DRILLDOWN_V1.md)
 is part of this same assignment. Its directed contract precedes its runtime
 changes. One target resolver and existing TrackInsightService serve explicit

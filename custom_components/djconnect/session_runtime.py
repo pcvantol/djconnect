@@ -469,6 +469,7 @@ class DJMoment:
     source_fact: QualifiedSessionFact | None = field(default=None, repr=False)
     observed_playback: ObservedPlaybackNarration | None = field(default=None, repr=False)
     genre_transition: GenreTransitionNarration | None = field(default=None, repr=False)
+    narration_acceptance: Any = field(default=None, repr=False, compare=False)
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -4811,11 +4812,44 @@ class SessionRuntimeManager:
         self, *, owner_profile_id: str, session_id: str, media_identity: str
     ) -> DJMoment | None:
         """Realize one later Moment only from fresh observed current playback."""
+        # A qualified pending relation is prepared under the same owner lock,
+        # enriched outside it, then revalidated before the ordinary commit.
+        async with self._lock:
+            active = self._active_by_profile.get(owner_profile_id)
+            opportunity = self._intra_track_opportunities.get(owner_profile_id)
+            prepared_transition = (self._prepare_pending_transition(active, opportunity)
+                if active is not None and active.session_id == session_id and opportunity is not None
+                and opportunity.session_id == session_id and opportunity.media_identity == media_identity
+                and not opportunity.pending else None)
+            if prepared_transition is not None:
+                pending = opportunity.pending_transition
+                opportunity.pending = True
+        if prepared_transition is not None:
+            engine, transition = prepared_transition
+            try:
+                original = transition
+                transition = await self._async_enrich_runtime_moment(active, transition)
+                engine.moments = tuple(transition if m is original else m for m in engine.moments)
+                async with self._lock:
+                    if (self._active_by_profile.get(owner_profile_id) is not active
+                            or self._intra_track_opportunities.get(owner_profile_id) is not opportunity
+                            or opportunity.pending_transition is not pending
+                            or self._prepare_pending_transition(active, opportunity) is None):
+                        return None
+                    return await self._commit_pending_transition(owner_profile_id, active, opportunity, engine, transition)
+            except PermissionError:
+                return None
+            finally:
+                async with self._lock:
+                    if self._intra_track_opportunities.get(owner_profile_id) is opportunity:
+                        opportunity.pending = False
         prepared_fact = None
         async with self._lock:
             active = self._active_by_profile.get(owner_profile_id)
             opportunity = self._intra_track_opportunities.get(owner_profile_id)
             if active is None or active.session_id != session_id or opportunity is None:
+                return None
+            if opportunity.pending:
                 return None
             if opportunity.pending_transition is not None and self._monotonic_source() > opportunity.pending_transition[-1]:
                 opportunity.pending_transition = None
@@ -4901,6 +4935,9 @@ class SessionRuntimeManager:
                 selected_mood=mood, persona=persona, locale=locale,
                 insight=knowledge.as_insight(),
             )
+            original = moment
+            moment = await self._async_enrich_runtime_moment(active, moment)
+            working_moments.moments = tuple(moment if m is original else m for m in working_moments.moments)
         except asyncio.CancelledError:
             async with self._lock:
                 current = self._intra_track_opportunities.get(owner_profile_id)
@@ -5404,10 +5441,19 @@ class SessionRuntimeManager:
                 planning_input=planning_input,
                 allowed_intents=active.allowed_capability_intents,
             )
+            if coordinated is not None:
+                original = coordinated
+                coordinated = await self._async_enrich_runtime_moment(active, coordinated)
+                working_moment_engine.moments = tuple(coordinated if m is original else m
+                    for m in working_moment_engine.moments)
         except asyncio.CancelledError:
             await self.async_restore_track_started_media(owner_profile_id=owner_profile_id,
                 session_id=session_id, media_identity=media_identity, previous_media_identity=previous_media_identity)
             raise
+        except PermissionError:
+            await self.async_restore_track_started_media(owner_profile_id=owner_profile_id,
+                session_id=session_id, media_identity=media_identity, previous_media_identity=previous_media_identity)
+            return None
         except Exception as exc:  # noqa: BLE001
             _LOGGER.debug("DJConnect Planning Runtime Coordinator failed: %s", exc.__class__.__name__)
             working_coordinator._fallback("planning_lifecycle_failed")
@@ -5728,8 +5774,8 @@ class SessionRuntimeManager:
             self._monotonic_source() + 90)
         return await self._publish_pending_transition(owner_profile_id, active, opportunity)
 
-    async def _publish_pending_transition(self, owner_profile_id: str, active: DJSessionRuntime,
-                                    opportunity: IntraTrackOpportunity) -> DJMoment | None:
+    def _prepare_pending_transition(self, active: DJSessionRuntime,
+                                    opportunity: IntraTrackOpportunity):
         pending = opportunity.pending_transition
         if pending is None:
             return None
@@ -5767,11 +5813,21 @@ class SessionRuntimeManager:
                 or playback.duration_ms - opportunity.last_observed_position_ms <
                     (transition.presentation_intent.maximum_duration_seconds + 5) * 1000):
             return None
+        return working_engine, transition
+
+    async def _publish_pending_transition(self, owner_profile_id: str, active: DJSessionRuntime,
+                                    opportunity: IntraTrackOpportunity) -> DJMoment | None:
+        prepared = self._prepare_pending_transition(active, opportunity)
+        if prepared is None:
+            return None
+        return await self._commit_pending_transition(owner_profile_id, active, opportunity, *prepared)
+
+    async def _commit_pending_transition(self, owner_profile_id, active, opportunity, working_engine, transition):
         if not await self._async_persist_moment(active, transition):
             return None
         opportunity.pending_transition = None
-        active.publish_moment(transition)
         active.moment_engine.__dict__.update(working_engine.__dict__)
+        active.publish_moment(transition)
         self._record_performance_memory(owner_profile_id, active)
         return transition
 
@@ -6275,6 +6331,47 @@ class SessionRuntimeManager:
             profile_id = authorization[0]
         return await self.async_end(owner_profile_id=profile_id, session_id=session_id)
 
+    async def _async_enrich_runtime_moment(self, active, moment):
+        """Optional expression outside the manager lock, using the same HA owner."""
+        from .narration_brief import (qualify_runtime_moment, NarratedText,
+            RuntimeNarrationAcceptance, candidate, recent_frames, remember_frame)
+        registration = self._narration_providers.get(active.owner_profile_id)
+        if registration is None or registration[0] != active.session_id:
+            return moment
+        brief = qualify_runtime_moment(moment, locale=active.locale)
+        if brief is None:
+            return moment
+        authority = registration[3]() if registration[3] is not None else registration[2]
+        opportunity = self._intra_track_opportunities.get(active.owner_profile_id)
+        generation = opportunity.generation if opportunity is not None else None
+        def guard():
+            authority()
+            if (self._narration_providers.get(active.owner_profile_id) is not registration
+                    or self._active_by_profile.get(active.owner_profile_id) is not active
+                    or not active.allows_proactive() or not brief.current()
+                    or (opportunity is not None and (
+                        self._intra_track_opportunities.get(active.owner_profile_id) is not opportunity
+                        or opportunity.generation != generation or opportunity.blocked))):
+                raise PermissionError('narration_context_changed')
+        guard()
+        brief = replace(brief, recent_frames=recent_frames(active.moment_engine._expression_forms))
+        text = await registration[1](brief, guard)
+        guard()
+        if type(text) is not NarratedText or not 20 <= len(text) <= 700 or text == moment.content:
+            return moment
+        frame = candidate(brief, json.dumps({'text': text.frame}))
+        if frame is None or brief.render(frame) != str(text):
+            return moment
+        intent = _presentation_intent(active.selected_mood, active.dj_persona,
+            reading_characters=len(moment.summary)+len(text), minimum_duration_seconds=1)
+        proof = moment.observed_playback or (moment.genre_transition.current if moment.genre_transition else None)
+        if proof is not None and time.monotonic()+intent.maximum_duration_seconds+2 >= proof.observed_at+30:
+            return moment
+        return replace(moment, content=str(text), presentation_intent=intent,
+            expression_form=remember_frame(moment.expression_form, frame),
+            narration_acceptance=RuntimeNarrationAcceptance(moment, str(text), frame, active.locale, guard),
+            generation_metadata=(*moment.generation_metadata, ('realization', 'qualified_runtime_narration_v1')))
+
     async def _async_persist_moment(self, active: DJSessionRuntime, moment: DJMoment, *, final_authorize=None) -> bool:
         """Explicit historical field qualification before actual live publication."""
         if moment.session_id != active.session_id:
@@ -6304,6 +6401,13 @@ class SessionRuntimeManager:
 
         def admission_is_current():
             # Runs on the event loop after provider-lock waiting, never in SQLite's worker.
+            from .narration_brief import RuntimeNarrationAcceptance
+            receipt = moment.narration_acceptance
+            if type(receipt) is RuntimeNarrationAcceptance:
+                try:
+                    receipt.validate()
+                except PermissionError:
+                    return False
             if final_authorize is not None:
                 try:
                     final_authorize()
@@ -6435,12 +6539,26 @@ class SessionRuntimeManager:
             accepted = await self._historical_projections.async_accept_moment(
                 active.owner_profile_id, active.session_id, moment.moment_id, entry,
                 authorize=admission_is_current,
-                **({"finalize_authorize": admission_is_current} if final_authorize is not None or archive_guard is not None else {}))
+                finalize_authorize=admission_is_current)
         except PermissionError:
             if not admission_is_current():
                 return False
             raise
         if accepted:
+            # The SQLite commit is semantic acceptance; resuming the event loop
+            # may be delayed. Keep that acceptance, but never deliver expired
+            # evidence or advance published-only expression memory.
+            if not admission_is_current():
+                if opportunity is not None:
+                    opportunity.spent = True
+                    if source is not None:
+                        opportunity.used_fact_keys.add(source.key)
+                    opportunity.fact_count += 1
+                    opportunity.last_fact_position_ms = opportunity.last_observed_position_ms
+                    opportunity.last_fact_read_seconds = moment.presentation_intent.maximum_duration_seconds
+                active.presence_ledger.commit(active.broadcast.state.playback.item_id,
+                    moment.presentation_intent.maximum_duration_seconds)
+                return False
             active.prepared_presentations.clear()
             active.prepared_presentations[moment.moment_id] = prepared
         return accepted

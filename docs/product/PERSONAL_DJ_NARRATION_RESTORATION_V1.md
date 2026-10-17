@@ -2,6 +2,44 @@
 
 Status: In progress; no release, installed, native or audible acceptance.
 
+### Executable completion refinement (17 October)
+
+The remaining restoration uses the existing owners and two-call ceilings.
+Public research must independently account for every retained sentence and its
+actual excerpt, including roles and cross-sentence relationships. A present DJ
+appreciation is allowed, but cannot exempt an attached historical or sonic claim.
+Internal evidence receipts are bounded and never become public Flow metadata.
+The generation call proposes ordered text segments with actual excerpt IDs;
+Core verifies their structure and complete coverage before the separate review.
+The review receives that proposal as untrusted data and audits all assertions,
+not just the generator's categories. No extra call repairs an unassessed story.
+Persona chooses the narrative focus/order; Mood changes its pace. A supported
+prefix or local fallback does not qualify a successful full narrative sample.
+
+All non-Silence publication entrances use the same final SQLite admission fence
+and a postcommit delivery check. An invalid precommit admission rolls back text
+and summary together. Expiry after a valid commit retains that acceptance once,
+consumes its opportunity, and suppresses stale live delivery/style memory.
+Prove real production families, pagination beyond250 scanned entries, reopening,
+withdrawal and whole-Session retention; a relabelled seed is only boundary proof.
+
+Track Insight must assess generated credit context and interpretation before
+caching or returning it. Reuse its existing HA Conversation transport with at
+most two calls, the original owner/source guard and no playback or new source
+lookup. A missing qualified recording-analysis source remains explicitly
+unmeasured; metadata or a successful model call cannot manufacture audio metrics.
+
+Ordinary observed playback and Runtime direction require symbolic adapters to
+that same expression owner. Their catalog values stay local. Capture the original
+immutable Moment, source proof, owner/settings and opportunity generation before
+awaiting outside the manager lock; independently assess the frame, bind locally,
+recompute read fit and revalidate before semantic commit. Native admission may
+accept an enriched playback/genre relation only with an internal typed receipt
+binding that exact original proof, accepted frame and text; a public metadata
+flag or arbitrary replacement string cannot authorize it. Unqualified legacy
+recommendation context remains a separate evidence gap, not permission to invent
+provenance or store a forbidden provider body.
+
 ### Consolidation status
 
 The unqualified media/memory announcement prompt, its independent current-track
@@ -338,3 +376,23 @@ fallback experience and installed/native/audio behaviour still require connected
 qualification and any necessary fixes. The existing common dialogue/Track Insight
 prompt now also consumes the shared host-identity instructions. No completion,
 paid Golden quality PASS or all-family integration is implied by fixture tests.
+
+### Current connected restoration evidence
+
+Ordinary observed playback and Core direction now have symbolic runtime briefs;
+pending qualified GenreTransition has a prepare/enrich/commit path outside the
+manager lock. Exact internal receipts permit its accepted creative text while
+retaining the original native source checks. Post-binding text remains bounded
+to700characters and must fit the source/read window. Concurrent pending attempts
+are refused; end during generation can acquire the lock and prevents publication.
+A published Transition retains exactly one new expression frame/ID. These are
+external-expression-fixture contracts, not real-model narrative acceptance.
+
+Real source-family publication/reopen acceptance currently covers Artist, Album,
+Track and Genre plus260Silences and five accepted playback observations. All270
+entries survive six timeline pages; source withdrawal preserves identity/order
+and removes text/replay. The10and50entry reads each use seven storage transactions;
+entry bodies total44,093bytes. Source and expression replies are fixtures; actual
+Planner/Knowledge/Moment/storage/query owners execute. Recommendation provenance,
+remaining legacy fallback ingress, all-family paid prose, native and audible
+acceptance are still open. Do not promote this subset to complete Flow maturity.

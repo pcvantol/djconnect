@@ -411,7 +411,9 @@ class HistoricalProjectionQueryService:
         for row in rows[:250]:
             last = row["order"]
             entry = await self._project_entry(owner, row)
-            marks = text_highlights(entry.get("text", ""), query) if entry else []
+            # Silence/withdrawn publication receipts have an explicit null body.
+            # They occupy a stable place in Flow but cannot match a text query.
+            marks = text_highlights(entry.get("text") or "", query) if entry else []
             if marks:
                 matches.append({**entry, "highlights": marks})
             if len(matches) >= limit:

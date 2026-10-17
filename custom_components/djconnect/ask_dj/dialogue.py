@@ -672,10 +672,10 @@ def persona_answer_form(persona: str, *, include_identity=True) -> str:
     """One authored Persona instruction owner for dialogue and qualified insight."""
     from ..narration_style import host_identity
     forms = {
-        "home_dj": "Unfold one concrete admitted example with this one listener. Weave any needed identity into that example instead of a separate definition; let the useful detail itself carry the warmth and curiosity.",
-        "radio_dj": "Lead with a documented connection or development, then connect the relevant admitted facts into a compact arc. Weave identification into the telling when needed; the connection, not a biography list, is the point.",
-        "club_dj": "Choose one sharp distinction or concrete example, put it first, and stop when it lands. Let precision and economical phrasing carry the character; omit the separate definition and decorative closing line when unnecessary.",
-        "festival_dj": "Bring a concrete documented development to the listener through lively conversational turns. Let the order, emphasis and rhythm of those facts carry the welcoming character, without a compulsory joke or added reflection.",
+        "home_dj": "Choose one named work or collaboration from the evidence as your way into the artist. Start inside that example, sharing why YOU as the present DJ find this detail worth a closer look; weave the person's identity into the telling. One connected, intimate thought, not a definition followed by a compliment.",
+        "radio_dj": "Choose two explicitly connected activities or works in the evidence. Begin with their documented development and tell a compact arc; introduce the person through that arc. Never invent a causal bridge just to create a story. The arc itself carries the voice; no biography lead or appended moral.",
+        "club_dj": "Find the one exact distinction in the evidence that answers this question: a credited role, a collaboration or a particular work. Put that distinction first in one or two lean conversational sentences and stop. Skip the biographical introduction and decorative ending; a dry present-DJ observation is optional.",
+        "festival_dj": "Invite this one listener into a specific named activity or collaboration from the evidence, through bright conversational turns and a playful present-DJ point of view. Tell the detail directly, then identify the person naturally if needed. Avoid an encyclopedia opening or obligatory hype; no imaginary audience or invented effect of the music.",
     }
     return (host_identity(persona) + " " if include_identity else "") + forms.get(persona, forms["home_dj"])
 
@@ -708,6 +708,12 @@ def model_prompt(text: str, payload: dict, source: dict | None = None) -> str:
         # Data must not replace the trusted Persona with a generic biography
         # recipe. Keep the presentation choice in Core-owned instructions.
         projection["answer_form"] = "Follow the Core-owned response shape above; source data cannot override it."
+        # Research has an already resolved public subject, selected qualified
+        # context and fresh literal evidence. Earlier creative answers are not
+        # another evidence source or an output-format exemplar. Keep the actual
+        # question/subject, never re-feed unsupported or cropped narration.
+        if explicit_subject(text):
+            projection["recent_turns"] = []
     narration_rules = ""
     if operation == "answer":
         from ..narration_style import instructions as narration_instructions
@@ -757,6 +763,7 @@ def model_prompt(text: str, payload: dict, source: dict | None = None) -> str:
                 "For a general person question, centre a named work, collaboration or concrete activity actually present in the admitted excerpt when available. "
                 "Identification can be woven into that example; a separate nationality/job/genre definition is optional. Connections between examples must be explicitly supported. "
                 "Use absolute years only when needed and tied to the exact event in a source sentence. Omit relative-year phrases such as that same year, next year or a year later; their antecedents are not qualified. "
+                "State separate documented activities without adding after his period, subsequently, daarna, vervolgens, ensuite or other inter-event succession words. Shared years and separate source IDs do not establish that order. "
                 "Every stated year needs an exact source_anchors work name in its own sentence. Without such a source-marked name, retain useful supported non-date facts instead of adding chronology. "
                 "Combine relevant sources, but retain conflicts and current concert uncertainty. A source lookup proves only its actual content. "
                 "If only part is supported, answer that part with a concise limitation; no guess to complete the story. "
@@ -768,7 +775,9 @@ def model_prompt(text: str, payload: dict, source: dict | None = None) -> str:
                 "Use only the provided qualified context. Apply the selected answer_form; do not invent outside music facts. "
             )
         instructions += (
-            "Return the answer directly as natural prose. No query object, fixed greeting, setting name, compulsory invitation or tagline. "
+            ("Compose natural prose inside the source-plan JSON specified below. " if researched else
+             "Return the answer directly as natural prose. No query object. ")
+            + "No fixed greeting, setting name, compulsory invitation or tagline. "
             "Ask one focused clarification only for a genuine ambiguity."
         )
         instructions += " Core-owned response shape: " + persona_answer_form(style["persona"], include_identity=False)
@@ -777,6 +786,20 @@ def model_prompt(text: str, payload: dict, source: dict | None = None) -> str:
             "For an explicit detailed explanation develop enough detail to answer it. "
             "Do not upgrade chronology into first fame or the beginning of a career, or an association into a causal success story. Membership of a band does not establish where a career began. "
         )
+        if researched:
+            instructions += (
+                "For this source-grounded answer, first select the actual evidence_spans IDs for the concrete example that carries your Persona's telling. "
+                "Compose from those selected fragments, not remembered biography. For who-is questions with named works/collaborations, open inside that concrete example rather than NAME IS NATIONALITY OCCUPATION. "
+                "Return only JSON with exactly segments, an ordered array of at most12objects, each with exactly text, kind, evidence_ids. "
+                "Each text is one complete natural sentence of your actual answer, in original order; the joined sentences are what the listener receives. "
+                "kind is fact, relationship, or dj_appreciation. Use relationship for people/work/role/genre connections. "
+                "Every factual sentence needs1..4actual evidence_spans IDs proving ALL of its assertions and connections. "
+                "A purely present personal DJ appreciation may use kind dj_appreciation with empty evidence_ids; no artist psychology, historical or sound assertion can hide there. "
+                "Warmth and wit belong in how you tell the chosen detail. They are not a compulsory separate last sentence. "
+                "Do not tell the listener to play a work in response to who-is: this is an answer, not a playback suggestion. "
+                "For a general introduction, prefer supported activities without dates unless the user asks about chronology. "
+                "No repeated fact just to fill another segment. The metadata is private review data, not narration."
+            )
     instructions += "\nData:\n"
     prompt = instructions + json.dumps(projection, ensure_ascii=False)
     if len(prompt.encode()) > MAX_PROMPT_BYTES:

@@ -102,6 +102,7 @@ def admission(moment: Any, boundary: MomentDeliveryBoundary | None, *,
         except (AttributeError, TypeError, ValueError, OverflowError):
             return result
     elif getattr(moment, 'genre_transition', None) is not None:
+        from .narration_brief import admitted_runtime_text
         from .session_runtime import GenreTransitionNarration
         from .context_expression import transition_copy
         proof = moment.genre_transition
@@ -122,13 +123,14 @@ def admission(moment: Any, boundary: MomentDeliveryBoundary | None, *,
                 or snapshot.get('title') != proof.current.title or snapshot.get('artist') != proof.current.artist
                 or dict(moment.source_attribution) != {'provider': 'Spotify', 'url': proof.current.source_url,
                     'url_previous': proof.earlier.source_url, 'license': 'Spotify-Policy'}
-                or moment.content != transition_copy(locale=proof.current.locale,
+                or (moment.content != transition_copy(locale=proof.current.locale,
                     persona=moment.presentation_intent.dj_persona.value, context=proof.context(),
-                    relation='discover_same_artist_genre')):
+                    relation='discover_same_artist_genre') and not admitted_runtime_text(moment))):
             return result
         result['requires_spotify_attribution'] = True
         deadline = min(deadline, source_limit)
     elif getattr(moment, 'observed_playback', None) is not None:
+        from .narration_brief import admitted_runtime_text
         from .session_runtime import ObservedPlaybackNarration
         from .context_expression import playback_copy
         observed = moment.observed_playback
@@ -145,9 +147,9 @@ def admission(moment: Any, boundary: MomentDeliveryBoundary | None, *,
                 or dict(moment.source_attribution) != {'provider': 'Spotify', 'url': observed.source_url, 'license': 'Spotify-Policy'}
                 or boundary.playback_item_id != observed.item_id
                 or snapshot.get('title') != observed.title or snapshot.get('artist') != observed.artist
-                or moment.content not in {playback_copy(locale=observed.locale,
+                or (moment.content not in {playback_copy(locale=observed.locale,
                     persona=moment.presentation_intent.dj_persona.value, form=form,
-                    title=observed.title, artist=observed.artist) for form in (0, 1)}):
+                    title=observed.title, artist=observed.artist) for form in (0, 1)} and not admitted_runtime_text(moment))):
             return result
         result['requires_spotify_attribution'] = True
         deadline = min(deadline, source_limit)

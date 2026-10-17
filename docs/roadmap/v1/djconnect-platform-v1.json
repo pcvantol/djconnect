@@ -41816,7 +41816,7 @@
     "document_references": [
       {
         "path": "PRODUCT_ROADMAP.md",
-        "sha256": "cd9c41d3a3df45be81dad9c91992f96b2f07c75e1eee1355a41a38732b11a1e1"
+        "sha256": "e1b9e0120abf3965da6a4f43be04266d4c76d5d1af448970993d00fae22349e5"
       },
       {
         "path": "PRODUCT_BACKLOG.md",
@@ -41960,7 +41960,7 @@
       },
       {
         "path": "docs/product/ASK_DJ_CONTEXTUAL_DIALOGUE_CONTRACT_V1.md",
-        "sha256": "6916a864bfa7851cccdb038c35e0d008c47cde94d7d7e4803012db89c7fe1c1f"
+        "sha256": "f9925f3675d4231bf8ef96e7588a7deec4725b54825afbb601b7eb6bdc3662f3"
       },
       {
         "path": "docs/product/MOMENT_TRACK_INSIGHT_DRILLDOWN_V1.md",
@@ -42148,15 +42148,15 @@
       },
       {
         "path": "docs/product/PERSONAL_DJ_NARRATION_RESTORATION_V1.md",
-        "sha256": "8d816cba394de041154df90fe0b46767248f17e1411dad0e86126b36ba7e1d4a"
+        "sha256": "45fc105e89e7277ddfd4e71dce68388c2f452730929bb545a934fac84ba6f3b3"
       },
       {
         "path": "docs/verification/CORE_LANE_REQUIREMENT_RECONCILIATION_20261017.md",
-        "sha256": "9119d1e5a683b979590bafe40d85601ff5477d78948a3cf90ce145a7f5398b8e"
+        "sha256": "cc6b3925386f6ef2ab16a2ee78bda2371bd1208dd1f02208a0b14048bc8f557f"
       },
       {
         "path": "docs/product/ASK_DJ_PUBLIC_MUSIC_RESEARCH_V1.md",
-        "sha256": "23c616fdaf705128d71932dc4515e0b616fb046578a1d5a9e1350eebc01884e9"
+        "sha256": "c04e26f6ae1e268d2477c2ac452ff2172beaf687a92081d66546e5efbd936365"
       },
       {
         "path": "docs/product/DJ_MOMENT_MOOD_PROSODY_V1.md",
@@ -42172,7 +42172,7 @@
       },
       {
         "path": "docs/verification/ASK_DJ_CONTEXTUAL_GOLDEN_RELEASE_GATE_V1.md",
-        "sha256": "0975d7e90ee6944eba4ea12a58adfb673ed10f6de4fc504ec0d57ade00cc984e"
+        "sha256": "5183102b9a0b4f107f56c5e6387826dbdf23b6e1c6fce70d1caa806b39466fe6"
       }
     ],
     "implementation_receipt": {
@@ -42800,7 +42800,7 @@
         },
         {
           "id": "durable-flow-retention",
-          "status": "LOCAL_IMPLEMENTED_REQUIRES_FULL_ACCEPTANCE",
+          "status": "LOCAL_PARTIAL_PRODUCER_REOPEN_MEASURED",
           "contract": "docs/product/PERSONAL_DJ_NARRATION_RESTORATION_V1.md"
         },
         {
@@ -42815,7 +42815,7 @@
         },
         {
           "id": "all-family-narration",
-          "status": "OPEN_IMPLEMENTATION_AND_EDITORIAL",
+          "status": "LOCAL_TYPED_RUNTIME_ADAPTERS_EDITORIAL_OPEN",
           "contract": "docs/product/PERSONAL_DJ_NARRATION_RESTORATION_V1.md"
         },
         {
@@ -42825,7 +42825,7 @@
         },
         {
           "id": "track-insight",
-          "status": "OPEN_SOURCE_QUALIFICATION",
+          "status": "LOCAL_ASSESSMENT_SOURCE_QUALIFICATION_OPEN",
           "contract": "docs/product/ASK_DJ_CONTEXTUAL_DIALOGUE_CONTRACT_V1.md"
         },
         {
@@ -42833,7 +42833,21 @@
           "status": "OPEN_IMPLEMENTATION",
           "contract": "docs/product/SESSION_VOICE_PREVIEW_V1.md"
         }
-      ]
+      ],
+      "current_corrective_checkpoint": {
+        "actual_runtime_expression": "observed playback, Core direction, pending qualified genre transition; external expression fixtures",
+        "flow_reopen": "270 entries, six pages, five actual source-family texts,260Silences, withdrawal identity preserved",
+        "timeline_transactions_page10_and50": [
+          7,
+          7
+        ],
+        "retained_entry_body_bytes": 44093,
+        "golden_reported_issues": 26,
+        "golden_families": 35,
+        "golden_required_steps": 106,
+        "real_quality": "NO_GO; latest fixed8cell sample3full supported answers and5fallbacks; no release/install",
+        "reference": "docs/verification/CORE_LANE_REQUIREMENT_RECONCILIATION_20261017.md"
+      }
     }
   }
 }

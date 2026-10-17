@@ -50,7 +50,7 @@ user-facing roadmap progress; the current Product Initiative is recorded in
 The existing corrective increment also retains every reported Ask DJ defect in
 the [permanent Golden issue register](docs/verification/fixtures/askdj_golden_release_matrix_v1.json).
 Exact music identity, single-use speaker continuation, output-local failures and
-truthful dispatch/readback are executable requirements. An open qualification
+truthful dispatch/readback are executable requirements. Ordinary playback/direction and pending genre transitions now have local typed expression adapters; complete-source Flow pagination/reopening and null-body search have causal tests. Recommendation provenance and full real narration quality remain open. An open qualification
 finding blocks release; a listed case or green metadata never closes it.
 
 

@@ -3,7 +3,7 @@
 The existing corrective increment also retains every reported Ask DJ defect in
 the [permanent Golden issue register](docs/verification/fixtures/askdj_golden_release_matrix_v1.json).
 Exact music identity, single-use speaker continuation, output-local failures and
-truthful dispatch/readback are executable requirements. An open qualification
+truthful dispatch/readback are executable requirements. Ordinary playback/direction and pending genre transitions now have local typed expression adapters; complete-source Flow pagination/reopening and null-body search have causal tests. Recommendation provenance and full real narration quality remain open. An open qualification
 finding blocks release; a listed case or green metadata never closes it.
 
 Personal DJ corrective acceptance (17 October 2026): **in progress**, not released. [Narration/complete Flow restoration](docs/product/PERSONAL_DJ_NARRATION_RESTORATION_V1.md) joins qualified expressive narration, durable published Flow including Silence, Session-scoped rolling retention, and configured-provider TTS/replay. Earlier delivery records remain historical; natural text quality, actual all-type transport, installed/native/audible acceptance remain open. No new product family or Stage4 completion.

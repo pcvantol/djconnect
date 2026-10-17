@@ -1,6 +1,5 @@
 """Real Store/SQLite race fences; only HA model replies are explicit fixtures."""
 import asyncio
-from pathlib import Path
 import json
 import threading
 import unittest
@@ -211,3 +210,61 @@ class NarrationAuthorityTest(unittest.IsolatedAsyncioTestCase):
 
     async def test_committed_but_insufficient_remaining_read_time_is_not_delivered(self):
         await self.slow_committed_delivery(20,60000)
+
+    async def test_plain_fact_without_model_guard_has_final_admission_and_postcommit_fence(self):
+        # Real Planner/Knowledge/Moment candidate, real SQLite stage+commit;
+        # deliberately no narration provider/final_authorize argument.
+        opportunity = self.manager._intra_track_opportunities['profile-a']
+        opportunity.qualified_facts = (self.fact,)
+        prepared = self.manager._prepare_qualified_current_fact('profile-a', self.session, opportunity)
+        self.assertIsNotNone(prepared)
+        moment = prepared[5]
+        opportunity.pending = False
+        provider = self.fixture.service._provider
+        original = provider._async_guarded_transaction
+        clock = [self.manager._monotonic_source()]
+        self.manager._monotonic_source = lambda: clock[0]
+        opportunity.last_observed_monotonic = clock[0]
+        loop = asyncio.get_running_loop()
+        staged, release = asyncio.Event(), threading.Event()
+        async def held(operation, final_authorize):
+            def stage(tx):
+                result = operation(tx)
+                loop.call_soon_threadsafe(staged.set)
+                if not release.wait(3):
+                    raise RuntimeError('test_stage_timeout')
+                return result
+            return await original(stage, final_authorize)
+        with patch.object(provider, '_async_guarded_transaction', held):
+            task = asyncio.create_task(self.manager._async_persist_moment(self.session, moment))
+            try:
+                await asyncio.wait_for(staged.wait(), 2)
+                clock[0] += 31
+            finally:
+                release.set()
+            self.assertFalse(await task)
+        await self.assert_not_accepted()
+        self.assertFalse(opportunity.spent)
+        # Same still-unaccepted identity can now retry under fresh observation.
+        opportunity.last_observed_monotonic = clock[0]
+        committed, resume = asyncio.Event(), asyncio.Event()
+        async def delayed_commit(operation, final_authorize):
+            result = await original(operation, final_authorize)
+            committed.set()
+            await resume.wait()
+            return result
+        with patch.object(provider, '_async_guarded_transaction', delayed_commit):
+            task = asyncio.create_task(self.manager._async_persist_moment(self.session, moment))
+            try:
+                await asyncio.wait_for(committed.wait(), 2)
+                clock[0] += 31
+            finally:
+                resume.set()
+            self.assertFalse(await task)
+        record = await self.fixture.repo.async_session_record(self.session.session_id)
+        self.assertEqual(record['summary']['moments_published']['value'], 1)
+        self.assertTrue(opportunity.spent)
+        self.assertEqual(self.session.presence_ledger.total_published, 1)
+        self.assertEqual(self.session.broadcast.state.dj_moments, ())
+        self.assertEqual(self.session.prepared_presentations, {})
+        self.assertEqual(self.session.moment_engine._expression_forms, ())

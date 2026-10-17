@@ -2275,6 +2275,20 @@
           ],
           "acceptance_status": "open_real_quality",
           "proof_boundary": "Existing owning test proves exact prefix/provenance boundaries only. The fixed eight-cell paid sample and independent editorial review reproduced this semantic failure; full real-answer qualification remains open."
+        },
+        {
+          "id": "ASKDJ-REGRESSION-research-grounding-boundary-step-4",
+          "question": "Wie is deze muzikant? — opnameactiviteit, producerrol en ongedateerde gebeurtenisvolgorde",
+          "expected_answer": "Geen opnameleider/engineer-beroep uit recording, geen producer-/genrerelatie uit samen opnemen en geen onbewezen daarna-verbinding; afwijzing bereikt Flow/TTS niet.",
+          "model_policy": "same_two_call_generation_and_independent_grounding",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_contextual_dialogue.py",
+              "method": "test_public_research_rejects_unsupported_answer_without_false_sources"
+            }
+          ],
+          "acceptance_status": "open_real_quality",
+          "proof_boundary": "Causal owner/storage rejection fixture passes; real model factual/relationship/sequence and editorial qualification remains required."
         }
       ],
       "owning_tests": [
@@ -2352,6 +2366,86 @@
         }
       ],
       "fixture_boundary": "Actual Core interpretation/effect/storage owners; only external provider and agent I/O are fixtures. Native/installed/paid evidence remains separate."
+    },
+    {
+      "id": "ASKDJ-REGRESSION-durable-runtime-expression",
+      "steps": [
+        {
+          "id": "ASKDJ-REGRESSION-durable-runtime-expression-step-1",
+          "question": "Gewone playback en bevestigde sessierichting vertellen via dezelfde expressie-eigenaar.",
+          "expected_answer": "Twee beoordeelde calls; catalogwaarden blijven lokaal, exacte geaccepteerde tekst naar Flow/TTS en geen publiek receiptveld.",
+          "model_policy": "external_expression_fixture_two_call_owner_contract",
+          "owning_tests": [
+            {
+              "file": "tests/test_personal_dj_runtime_expression.py",
+              "method": "test_actual_playback_and_direction_get_assessed_text_without_catalog_model_input"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Real existing Runtime/Planner/Knowledge/Moment/SQLite/query owners; external expression responses and source boundaries are fixtures. Actual paid style, native/installed/audio acceptance remain separate."
+        },
+        {
+          "id": "ASKDJ-REGRESSION-durable-runtime-expression-step-2",
+          "question": "Beëindig een sessie tijdens de verhalende generatie.",
+          "expected_answer": "End wacht niet op model; geen late tekst, teller of stijlgeheugen na beëindiging.",
+          "model_policy": "external_expression_fixture_two_call_owner_contract",
+          "owning_tests": [
+            {
+              "file": "tests/test_personal_dj_runtime_expression.py",
+              "method": "test_end_during_runtime_generation_does_not_block_end_or_publish"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Real existing Runtime/Planner/Knowledge/Moment/SQLite/query owners; external expression responses and source boundaries are fixtures. Actual paid style, native/installed/audio acceptance remain separate."
+        },
+        {
+          "id": "ASKDJ-REGRESSION-durable-runtime-expression-step-3",
+          "question": "Publiceer een echte wachtende genre-naar-trackovergang en herhaal dezelfde gelegenheid.",
+          "expected_answer": "Eén semantische commit en precies één gepubliceerd expression-frame/ID; herhaling voegt niets toe.",
+          "model_policy": "external_expression_fixture_two_call_owner_contract",
+          "owning_tests": [
+            {
+              "file": "tests/test_personal_dj_runtime_expression.py",
+              "method": "test_actual_pending_genre_transition_keeps_one_published_expression_frame"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Real existing Runtime/Planner/Knowledge/Moment/SQLite/query owners; external expression responses and source boundaries are fixtures. Actual paid style, native/installed/audio acceptance remain separate."
+        },
+        {
+          "id": "ASKDJ-REGRESSION-durable-runtime-expression-step-4",
+          "question": "Heropen echte bronfamilies en Silence; blader/zoek voorbij250entries en trek de bron in.",
+          "expected_answer": "Alle270entries in volgorde, vijf geaccepteerde gesproken bijdragen exact bewaard; Silence/null crasht zoeken niet; intrekking bewaart receiptidentiteit en weigert replay.",
+          "model_policy": "external_expression_fixture_two_call_owner_contract",
+          "owning_tests": [
+            {
+              "file": "tests/test_personal_dj_flow_completion.py",
+              "method": "test_actual_source_families_and_silence_survive_reopen_and_search_beyond250"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Real existing Runtime/Planner/Knowledge/Moment/SQLite/query owners; external expression responses and source boundaries are fixtures. Actual paid style, native/installed/audio acceptance remain separate."
+        }
+      ],
+      "owning_tests": [
+        {
+          "file": "tests/test_personal_dj_runtime_expression.py",
+          "method": "test_actual_playback_and_direction_get_assessed_text_without_catalog_model_input"
+        },
+        {
+          "file": "tests/test_personal_dj_runtime_expression.py",
+          "method": "test_end_during_runtime_generation_does_not_block_end_or_publish"
+        },
+        {
+          "file": "tests/test_personal_dj_runtime_expression.py",
+          "method": "test_actual_pending_genre_transition_keeps_one_published_expression_frame"
+        },
+        {
+          "file": "tests/test_personal_dj_flow_completion.py",
+          "method": "test_actual_source_families_and_silence_survive_reopen_and_search_beyond250"
+        }
+      ],
+      "fixture_boundary": "Real existing Runtime/Planner/Knowledge/Moment/SQLite/query owners; external expression responses and source boundaries are fixtures. Actual paid style, native/installed/audio acceptance remain separate."
     }
   ],
   "evidence_boundaries": [
@@ -2524,11 +2618,25 @@
       "family_id": "ASKDJ-REGRESSION-research-grounding-boundary",
       "finding": "Een geaccepteerde prefix verbindt samen opnemen met een producer-/genrecontext die de bron niet bewijst. Ook brongebonden relaties in behouden prefixes moeten zelfstandig kwalificeren.",
       "core_qualification": "open"
+    },
+    {
+      "id": "ASKDJ-ISSUE-silence-search-null",
+      "family_id": "ASKDJ-REGRESSION-durable-runtime-expression",
+      "finding": "Een gepubliceerde Silence/withdrawn-body met text:null liet de echte historische tekstzoekroute crashen.",
+      "core_qualification": "locally_covered"
+    },
+    {
+      "id": "ASKDJ-ISSUE-transition-expression-memory",
+      "family_id": "ASKDJ-REGRESSION-durable-runtime-expression",
+      "finding": "Overname van de working engine na publicatie wist het net gecommitteerde Transition-frame.",
+      "core_qualification": "locally_covered"
     }
   ],
   "regression_suite_files": [
     "tests/test_ask_dj_playback_request_truth.py",
-    "tests/test_ask_dj_golden_conversation_chains.py"
+    "tests/test_ask_dj_golden_conversation_chains.py",
+    "tests/test_personal_dj_flow_completion.py",
+    "tests/test_personal_dj_runtime_expression.py"
   ],
   "issue_policy": {
     "new_findings": "Add a named failing reproduction and semantic expected answer in the same corrective candidate; preserve it after the fix.",

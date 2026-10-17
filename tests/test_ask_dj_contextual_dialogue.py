@@ -17,6 +17,23 @@ from unittest.mock import patch
 from tests import test_session_conversation_history as fixture_defs
 
 
+def _research_assessment_fixture(projection, *, retained=None):
+    """External reviewer reply fixture; Core still validates IDs and full coverage."""
+    from custom_components.djconnect.ask_dj.public_research import _sentences, evidence_spans
+    evidence = projection['evidence']['public_music_research']
+    ids = [span['id'] for source in evidence['sources'] for span in evidence_spans(source)]
+    return {'supported': True, 'claim_checks': [
+        {'text': sentence, 'kind': 'fact', 'evidence_ids': ids[:1]}
+        for sentence in _sentences(retained or projection['answer'])]}
+
+
+def _research_generation_fixture(projection, answer):
+    if not projection.get('public_music_research', {}).get('sources'):
+        return answer
+    checked = _research_assessment_fixture({'evidence': {'public_music_research': projection['public_music_research']}, 'answer': answer})
+    return json.dumps({'segments': checked['claim_checks']})
+
+
 class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
     async def test_mood_prosody_preserves_literal_text_voice_and_provider_settings(self):
         import sys
@@ -673,6 +690,49 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
                       '{"supported":true,"text":"extra"}', ' ' * 9000 + '{"supported":true}'):
             self.assertFalse(supported(value), value[:80])
 
+    def test_research_claim_receipts_cover_entire_retained_text_and_actual_source_spans(self):
+        from custom_components.djconnect.ask_dj import public_research as research
+        source = research._source('Wikipedia', 'Brian Eno', 'https://en.wikipedia.org/wiki/Brian_Eno',
+            'Brian Eno is an English musician. With Robert Fripp he recorded No Pussyfooting.', 'en')
+        context = {'public_music_research': research.research_projection('Brian Eno', [source], 'qualified')}
+        answer = 'Eno recorded No Pussyfooting with Fripp. A lovely place for me to begin.'
+        ids = [s['id'] for s in source.model_data()['evidence_spans']]
+        checks = [{'text': 'Eno recorded No Pussyfooting with Fripp.', 'kind': 'relationship', 'evidence_ids': [ids[1]]},
+                  {'text': 'A lovely place for me to begin.', 'kind': 'dj_appreciation', 'evidence_ids': []}]
+        good = {'supported': True, 'claim_checks': checks}
+        self.assertTrue(research.supported(json.dumps(good), answer, context))
+        for bad in ([], checks[:1], checks[::-1],
+                    [{**checks[0], 'evidence_ids': []}, checks[1]],
+                    [{**checks[0], 'evidence_ids': ['invented:1']}, checks[1]],
+                    [{**checks[0], 'evidence_ids': [ids[1], ids[1]]}, checks[1]],
+                    [checks[0], {**checks[1], 'evidence_ids': [ids[0]]}]):
+            self.assertFalse(research.supported(json.dumps({**good, 'claim_checks': bad}), answer, context))
+        self.assertFalse(research.supported('{"supported":true}', answer, context))
+        # Prefix acceptance is subject to the same complete accounting, never
+        # a boolean exception to relationship qualification.
+        tail = 'Therefore that album proves his pop producer role.'
+        prefix = checks[0]['text']
+        response = {'supported': False, 'unsupported_claims': [tail], 'supported_prefix': prefix,
+                    'prefix_supported': True, 'prefix_answers_question': True, 'claim_checks': checks[:1]}
+        self.assertEqual(research.qualified_prefix(json.dumps(response), prefix+' '+tail, context), prefix)
+        response['claim_checks'] = []
+        self.assertIsNone(research.qualified_prefix(json.dumps(response), prefix+' '+tail, context))
+        prompt = research.assessment_prompt(answer, context, 'en', 'Who is Brian Eno?')
+        self.assertIn('not a producer credit', prompt)
+        self.assertIn('factual modifier', prompt)
+        self.assertNotIn('evidence_spans', source.metadata())
+        self.assertEqual(research.planned_answer(json.dumps({'segments': checks}), context), (answer, checks))
+        for invalid in (answer, json.dumps({'segments': checks, 'text': answer}),
+                        json.dumps({'segments': [{**checks[0], 'evidence_ids': ['invented:1']}]}),
+                        '{"segments":[],"segments":[]}'):
+            self.assertIsNone(research.planned_answer(invalid, context))
+        for bridge in ('After his period in the band, Eno recorded No Pussyfooting.',
+                       'Na zijn periode in de band maakte Eno No Pussyfooting.',
+                       'Danach nahm Eno No Pussyfooting auf.',
+                       'Ensuite Eno a enregistré No Pussyfooting.',
+                       'Después Eno grabó No Pussyfooting.'):
+            self.assertFalse(research.temporal_evidence_ok(bridge, {}, context))
+
     def test_public_research_temporal_receipts_bind_actual_year_and_event_in_five_languages(self):
         from custom_components.djconnect.ask_dj import public_research as research
         source_id = 'a' * 64
@@ -759,7 +819,7 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
         async def agent(hass, data, **kwargs):
             projection = json.loads(data['text'].split('\nData:\n', 1)[1])
             self.prompts.append(projection)
-            answer = '{"supported":true}' if 'evidence' in projection else wrong
+            answer = '{"supported":true}' if 'evidence' in projection else _research_generation_fixture(projection, wrong)
             return {'response': {'speech': {'plain': {'speech': answer}}}}
         with self.research_http(title='Brian Eno', text=source), patch.object(self.pipeline, '_call_conversation_process_transport', agent):
             result, status = await self.request('Who is Brian Eno?', identifier='wrong-temporal-relationship')
@@ -922,8 +982,9 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
         async def agent(hass, data, **kwargs):
             body = json.loads(data["text"].split("\nData:\n", 1)[1])
             reply = (json.dumps({"supported":False, "unsupported_claims":[tail],
-                      "supported_prefix":prefix, "prefix_supported":True, "prefix_answers_question":True})
-                     if "evidence" in body else candidate)
+                      "supported_prefix":prefix, "prefix_supported":True, "prefix_answers_question":True,
+                      "claim_checks": _research_assessment_fixture(body, retained=prefix)["claim_checks"]})
+                     if "evidence" in body else _research_generation_fixture(body, candidate))
             return {"response":{"speech":{"plain":{"speech":reply}}}}
         with patch.object(self.pipeline, "_call_conversation_process_transport", agent):
             result, status = await self.request("Who is Brian Eno?", identifier="supported-prefix")
@@ -990,10 +1051,10 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
             header, payload = data["text"].split("\nData:\n", 1)
             projection = json.loads(payload)
             if "evidence" in projection:
-                answer = '{"supported":true}'
+                answer = json.dumps(_research_assessment_fixture(projection))
             else:
                 captured.append((header, projection))
-                answer = "Brian Eno is a musician."
+                answer = _research_generation_fixture(projection, "Brian Eno is a musician.")
             return {"response":{"speech":{"plain":{"speech":answer}}}}
         with patch.object(self.pipeline, "_call_conversation_process_transport", agent):
             result, status = await self.request("Who is Brian Eno?", identifier="trusted-expression",
@@ -1022,7 +1083,7 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
         async def agent(hass, data, **kwargs):
             projection = json.loads(data["text"].split("\nData:\n", 1)[1])
             self.prompts.append(projection)
-            answer = json.dumps({"supported": accepted}) if "evidence" in projection else self.reply
+            answer = json.dumps(_research_assessment_fixture(projection) if accepted else {"supported": False}) if "evidence" in projection else _research_generation_fixture(projection, self.reply)
             return {"response": {"speech": {"plain": {"speech": answer}}}}
         return patch.object(self.pipeline, "_call_conversation_process_transport", agent)
 
@@ -1041,14 +1102,21 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(result["conversation"]["metrics"]["agent_calls"], 2)
 
     async def test_public_research_rejects_unsupported_answer_without_false_sources(self):
-        self.reply = "Peter Luts invented every synthesizer."
-        with self.research_http(), self.grounding_agent(accepted=False):
-            result, status = await self.request("Who is Peter Luts?", identifier="unsupported")
-        self.assertEqual(status, 200, result)
-        self.assertEqual(result["knowledge_basis"], "public_research_unqualified")
-        self.assertNotIn("invented", result["text"])
-        self.assertFalse(result.get("links"))
-        self.assertEqual(result["conversation"]["metrics"]["agent_calls"], 2)
+        for index, answer in enumerate((
+            'Peter Luts invented every synthesizer.',
+            'Recording music makes Peter Luts a recording engineer.',
+            'Samen opnemen bewijst dat Peter Luts de producer van dit album was.',
+            'Na zijn periode in de band maakte Peter Luts die plaat.',
+        )):
+            self.reply = answer
+            with self.research_http(), self.grounding_agent(accepted=False):
+                result, status = await self.request('Who is Peter Luts?', identifier='unsupported-'+str(index))
+            self.assertEqual(status, 200, result)
+            self.assertEqual(result['knowledge_basis'], 'public_research_unqualified')
+            self.assertNotEqual(result['text'], answer)
+            self.assertFalse(result.get('links'))
+            self.assertEqual(result['conversation']['metrics']['agent_calls'], 2)
+            self.assertNotIn(answer, json.dumps(await self.history.async_history('profile:profile-a')))
 
     async def test_public_research_missing_pages_does_not_claim_fetched_evidence(self):
         from custom_components.djconnect.ask_dj import public_research
@@ -1138,9 +1206,9 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
         async def agent(hass, data, **kwargs):
             projection = json.loads(data["text"].split("\nData:\n", 1)[1])
             if "evidence" in projection:
-                return {"response": {"speech": {"plain": {"speech": '{"supported":true}'}}}}
+                return {"response": {"speech": {"plain": {"speech": json.dumps(_research_assessment_fixture(json.loads(data['text'].split('\nData:\n', 1)[1])))}}}}
             self.prompts.append(projection)
-            return {"response": {"speech": {"plain": {"speech": self.reply}}}}
+            return {"response": {"speech": {"plain": {"speech": _research_generation_fixture(json.loads(data["text"].split("\nData:\n", 1)[1]), self.reply)}}}}
 
         self.agent_patch = patch.object(
             self.pipeline, "_call_conversation_process_transport", agent
@@ -1269,11 +1337,11 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
         entered, release = asyncio.Event(), asyncio.Event()
         async def delayed(hass, data, **kwargs):
             if '"evidence":' in data["text"]:
-                return {"response": {"speech": {"plain": {"speech": '{"supported":true}'}}}}
+                return {"response": {"speech": {"plain": {"speech": json.dumps(_research_assessment_fixture(json.loads(data['text'].split('\nData:\n', 1)[1])))}}}}
             self.prompts.append(json.loads(data["text"].split("\nData:\n", 1)[1]))
             entered.set()
             await release.wait()
-            return {"response": {"speech": {"plain": {"speech": self.reply}}}}
+            return {"response": {"speech": {"plain": {"speech": _research_generation_fixture(json.loads(data["text"].split("\nData:\n", 1)[1]), self.reply)}}}}
         with patch.object(self.pipeline, "_call_conversation_process_transport", delayed):
             first = asyncio.create_task(self.native_request("Who is Brian Eno?", "native-first"))
             await entered.wait()
@@ -1330,7 +1398,7 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
         entered, release = asyncio.Event(), asyncio.Event()
         async def delayed(hass, data, **kwargs):
             if '"evidence":' in data["text"]:
-                return {"response": {"speech": {"plain": {"speech": '{"supported":true}'}}}}
+                return {"response": {"speech": {"plain": {"speech": json.dumps(_research_assessment_fixture(json.loads(data['text'].split('\nData:\n', 1)[1])))}}}}
             self.prompts.append(data["text"])
             entered.set()
             await release.wait()
@@ -1631,7 +1699,7 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
         with patch.object(self.pipeline, "_call_conversation_process_transport", agent):
             result, status = await self.request("Qui est Brian Eno ?", language="fr", dj_persona="radio_dj")
         self.assertEqual(status, 200, result)
-        self.assertEqual(result["conversation"]["metrics"]["agent_calls"], 2)
+        self.assertEqual(result["conversation"]["metrics"]["agent_calls"], 1)
         self.assertNotIn("ambient music", result["text"])
         stored = await self.history.async_history("profile:profile-a")
         self.assertNotIn("ambient music", json.dumps(stored))
@@ -1649,11 +1717,11 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
             with patch.object(self.pipeline, "_call_conversation_process_transport", agent):
                 result, status = await self.request(question, identifier="repair-" + language, language=language, dj_persona="club_dj")
             self.assertEqual(status, 200, result)
-            # A format repair spends the remaining call: an unassessed repaired
-            # biography is not published and cannot buy a third model call.
+            # An invalid source-plan envelope fails before a second model call;
+            # a repair must never substitute for independent assessment.
             self.assertEqual(result["knowledge_basis"], "public_research_unqualified")
             self.assertNotEqual(result["text"], good)
-            self.assertEqual(result["conversation"]["metrics"]["agent_calls"], 2)
+            self.assertEqual(result["conversation"]["metrics"]["agent_calls"], 1)
             self.assertNotIn(bad, json.dumps(await self.history.async_history("profile:profile-a"), ensure_ascii=False))
         self.assertEqual(self.effects, [])
 
@@ -2279,7 +2347,7 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(result["knowledge_basis"], "public_research_unqualified")
         self.assertNotIn("trumpeter", result["text"])
         self.assertNotIn("result_set", result)
-        self.assertEqual(len(calls), 2)
+        self.assertEqual(len(calls), 1)
 
     async def test_published_moment_speech_keeps_original_persona_and_owner_only_autoplay(self):
         from custom_components.djconnect import session_speech
@@ -3646,6 +3714,9 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
             prompts.append(data["text"])
             self.assertNotIn("Synthetic performer", data["text"])
             self.assertNotIn("spotify:", data["text"])
+            if 'Review every claim' in data['text']:
+                return {'response': {'speech': {'plain': {'speech': json.dumps(
+                    {'supported': True, 'language_ok': True, 'style_ok': True})}}}}
             return {
                 "response": {
                     "speech": {
@@ -3667,7 +3738,7 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(status, 200, first)
             second, status = await self.detail(action["reference"])
             self.assertEqual(status, 200, second)
-        self.assertEqual(len(prompts), 1)
+        self.assertEqual(len(prompts), 2)
         self.assertFalse(first["cache"]["hit"])
         self.assertTrue(second["cache"]["hit"])
         for result in (first, second):
@@ -3676,7 +3747,7 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
             self.assertFalse(result["track"]["is_playing"])
             self.assertIsNone(result["track"]["progress_ms"])
             self.assertIsNone(result["analysis"]["energy"])
-            self.assertEqual(result["analysis"]["verified_context"], moment.content)
+            self.assertEqual(result["analysis"]["verified_context"], moment.source_fact.copy_for(session.locale)[1])
             self.assertNotIn("_owner_scope", result["track"])
         self.assertEqual(len(session.broadcast.state.dj_moments), before)
 

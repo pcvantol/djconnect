@@ -24,7 +24,7 @@ advertised capability do not establish current end-user acceptance.
 | Persona × Mood × Presence independence | Existing Core policy delivered; current prose restoration open | Presence controls the existing shared budget. Mood/Persona metadata alone does not prove distinct language or heard expression. Music-only must stay proactively silent. |
 | All spoken types use configured HA TTS | Shared boundary locally qualified | Seven types over one real admitted publication prove the shared prepare/replay/history boundary, not seven independently generated stories. Silence performs no TTS. |
 | Mood in TTS intonation | Local technical qualification; listening/native open | Four Moods × five languages,21real HA syntheses, identical text/voice per language, pinned source and audio-file checks. Audio hashes/duration are integrity evidence only. |
-| Golden help/non-LLM/conversation coverage | Connected, exact final run required | 112single-turn contracts,60executable help prompts,34conversation families,560deterministic proactive subcases. Missing cells or anonymous evidence fail closed. |
+| Golden help/non-LLM/conversation coverage | Connected, exact final run required | 112single-turn contracts,60executable help prompts,35conversation families,560deterministic proactive subcases. Missing cells or anonymous evidence fail closed. |
 | Actual multi-family narrated publication gate | **Open** | Direct expression pilots and type variants cannot prove real Planner → Knowledge → Moment → storage → Flow publication. Add/fix the mandatory connected quality gate before claiming this requirement complete. |
 | Track Insight musical content | **Open source qualification** | Unmeasured playback metadata is not musical analysis. Qualify the actual source/recording route without invented sonic values; report partial/unavailable explicitly. |
 | Native Apple voice menu, buttons, local audio and discovery | Apple-owned, open until actual native evidence | Existing consumer lane and pinned contracts; no Swift writes or native PASS from Core/browser/audio generation. |
@@ -49,12 +49,12 @@ the entire lane, narrative maturity stage or consumer family complete.
 
 ## Current audit and verification disposition
 
-Local checkpoint9203d5ac passed2,247host regression tests (seven existing skips)
+Historical checkpoint9203d5ac ran2,247host regression tests (seven existing skips)
 and409Ask DJ owning tests in the pinned isolated HA image, including21new
 playback/output causal regressions with explicit provider/agent I/O fixtures. Earlier155owning tests in isolated
 HA and25localization/Flow-label tests remain separately scoped evidence. Inventory validation binds 47 literal Core intents, 112 single-turn
-cases (including 60 executable help examples), 34 conversation families with
-101 steps, and 560 deterministic proactive subcases. These are distinct coverage
+cases (including 60 executable help examples), 23reported issues,34 conversation families with
+100 steps, and 560 deterministic proactive subcases. These are distinct coverage
 claims. Inventory membership is not proof of every real model response or of
 all-family published narration. The changed runtime modules pass Ruff; the
 updated HTTP harness compiles.
@@ -64,10 +64,12 @@ roadmap and backlog honest: no newly unqualified closure was found. The private
 operational proof receipts remain outside the repository; this note contains
 only their bounded outcomes, not credentials or host/install metadata.
 
-The latest eight-answer real research style probe used 16 model calls and one
-captured Wikipedia source, with unchanged source bytes during the run. Technical
-source-grounding passed; editorial review **did not accept narrative quality**.
-It found unsupported reputation/first-fame and sonic descriptions in two
+The historical probe `paid-1792230391834290000` used16model calls and one
+captured Wikipedia source, with unchanged source bytes during that run. Its
+technical classifier accepted source-grounding; independent editorial review
+**did not accept factual or narrative quality**. This is not the latest probe;
+the current14attempt,three-full/five-fallback NO_GO is recorded below.
+That historical review found unsupported reputation/first-fame and sonic descriptions in two
 answers, and too little consistent Mood differentiation. Do not rerun paid
 probes merely until a green sample appears. Correct the shared realization and
 its acceptance criteria before requiring fresh exact-candidate evidence.
@@ -109,14 +111,14 @@ outcome; all media kinds preserve their resolution across a single-use speaker
 choice. Missing/restricted/stale outputs never fall back to active/first output.
 Output-local404and uncertain5xx/timeouts preserve global backend-health evidence.
 
-The permanent Golden issue register accounts for24findings across34families
-and101steps. Inventory coverage and local fixture regressions are distinct from
+The permanent Golden issue register accounts for26findings across35families
+and106steps. Inventory coverage and local fixture regressions are distinct from
 paid-model, isolated-HA, native and installed proof. Five reported Core findings across four qualification areas remain blocking; source delivery and installation of
 these local corrections are still pending. No wider completion is asserted.
 
-Step-level evidence is explicit: every one of the101required steps has named
-owning bindings. Ten real-quality steps remain open and block release; this is
-not a claim of101accepted live question/answer outcomes. Six additional
+Step-level evidence is explicit: every one of the106required steps has named
+owning bindings. Eleven real-quality steps remain open and block release; this is
+not a claim of106accepted live question/answer outcomes. Six additional
 operational chain tests cover actual lookup/refinement/selection/control/play,
 positive album-period filtering plus known-empty replacement, morning
 No/new-proposal/Yes/sleep, recommendations then exact play, and typed controls.
@@ -126,7 +128,7 @@ success without a second dispatch. Old unqualified-history negatives remain.
 An additional permanent shuffle regression requires the selected name/artwork
 to follow the actually observed admitted track, rather than the first URI in
 an artist collection. The earlier stale-unrelated-track negative remains.
-The current register has24findings,34families and101required steps; ten
+The current register has26findings,35families and106required steps; eleven
 real-quality steps and five open Core findings remain release-blocking.
 
 The fixed eight-cell follow-up after the chronology/prompt correction consumed16
@@ -136,3 +138,37 @@ found an unsupported producer/genre relationship within one accepted prefix; the
 new issue and required step remain explicitly open in the same Golden matrix.
 The bounded chronology guard separately passes158contextual tests and scoped
 technical review; that does not qualify arbitrary factual relationships or style.
+
+## Integral restoration checkpoint — typed expression and durable Flow
+
+The same writer implemented final SQLite admission for every non-Silence Moment
+and a postcommit expiry check: pre-admission failure rolls back body and count;
+a valid semantic commit survives delayed delivery without stale Broadcast.
+Track Insight independently assesses generated text against the original fact
+through at most two guarded calls; rejected prose is not returned or cached.
+
+Ordinary playback and Core direction now use symbolic briefs over the same
+expression owner; pending qualified genre transitions prepare and enrich outside
+the manager lock. Internal receipts bind the original proof, frame and accepted
+text for native admission. End during generation and concurrent transition
+attempts produce no duplicate or late acceptance. A found Transition style-memory
+overwrite is corrected and permanently tested. Legacy fallback ingresses and
+Recommendation still require their complete qualification; no all-type closure.
+
+Actual Artist/Album/Track/Genre production and260Silences survive end and SQLite
+reopen:270ordered entries across six pages, five original texts, search match
+after250scanned rows and withdrawal preserving entry identity/order while
+removing text/replay. This found and fixed the real null-body search crash.
+The10-entry and50-entry timeline reads each use seven storage transactions;
+retained entry bodies total44,093bytes and reads leave the history revision
+unchanged. Sources/expression are external fixtures; the production/storage/query
+chain is real. This is not an actual seven-family paid/native narrative proof.
+
+Four predeclared correction samples were retained, each after a concrete prompt
+or evidence-contract change. They used respectively16,12,12and14paid attempts
+(maximum16per sample), unchanged candidate bytes within each sample and the same
+admitted source corpus. The latest has three full supported answers and five
+fallbacks. No sample closes the eight-cell quality gate. The invalid-plan, role,
+relationship and source-order failures remain visible; do not install or publish
+these bytes as a completed personal-DJ experience. Native, preview/override,
+source, Finalization, installed and audible gates remain separate and open.

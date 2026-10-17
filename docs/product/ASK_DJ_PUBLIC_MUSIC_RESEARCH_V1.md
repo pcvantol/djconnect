@@ -1,6 +1,29 @@
 # Ask DJ public music research v1
 
 Status: local implementation and qualification in progress; not released. The directed contract was committed before runtime changes in `05d021a164f1ac8d212ee61d686cdf5535bb4dc4`.
+
+Internal research projection2 addresses literal excerpt sentences by bounded
+source-hash/span IDs. The existing generation call proposes ordered text segments
+with those IDs and fact/relationship/present-DJ-appreciation categories. The
+second existing call independently checks the whole text, including connections
+between sentences, and supplies complete ordered receipts for the accepted text
+or unchanged supported prefix. A category or an existing ID is not semantic
+proof. Missing, duplicated, foreign or incomplete receipts fail closed. There is
+no third repair call and no public response/Flow field for the internal plan.
+
+Separate same-year events cannot establish a sequence; currently unbound
+relative-year/succession phrases are refused. Exact source-marked work names and
+original quotations continue to bind explicit years. Recording does not imply an
+engineer occupation; collaboration does not prove a producer or genre relation.
+An explicitly present narrator appreciation is allowed, while a factual modifier
+within it still needs evidence. Standalone named-subject research uses the fresh
+admitted evidence rather than earlier creative answers as format examples;
+genuine contextual follow-ups retain the bounded conversation and subject.
+
+Current real eight-cell correction samples remain below full narrative
+acceptance. They expose invalid plans, incomplete assessments, narrowed roles,
+unsupported links and insufficient Mood distinction; neither a safe fallback nor
+a supported prefix closes the quality gate. No release or installed PASS.
 Owner instruction,17October2026: explicit general music questions require actual
 Wikipedia research and intelligent combination of existing qualified music facts
 with other relevant public sources. Public DuckDuckGo search/webfetch is authorized

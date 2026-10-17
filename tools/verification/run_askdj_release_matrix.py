@@ -25,6 +25,8 @@ TEST_PATTERNS = (
     'test_music_dna*.py', 'test_session_conversation*.py',
     'test_dj_moment_golden_matrix.py', 'test_expressive_dj_persona.py', 'test_expressive_context_variation.py', 'test_silence_live_delivery.py', 'test_native_moment_delivery.py', 'test_session_presence.py', 'test_active_session_mood.py', 'test_session_persona.py',
     'test_personal_dj_narration*.py',
+    'test_personal_dj_runtime_expression.py', 'test_personal_dj_flow_completion.py',
+    'test_track_insight.py',
 )
 PROFILES = {
     'current_artist': ('current-artist.json', 240),
@@ -264,7 +266,8 @@ def run(candidate, output):
     with TemporaryDirectory(prefix='djc-release-matrix-') as tmp:
         temp = Path(tmp)
         for i, pattern in enumerate(TEST_PATTERNS):
-            directory=temp/('unit'+str(i));directory.mkdir()
+            directory=temp/('unit'+str(i))
+            directory.mkdir()
             code = owned_run([IMAGE, '/candidate/tools/verification/run_askdj_owner_contracts.py', pattern, '/lab/owner-contracts.json'],
                              payload={},directory=directory,seconds=240,network='none')
             proof=directory/'owner-contracts.json'
@@ -280,14 +283,20 @@ def run(candidate, output):
         executed=[name for p in result['profiles'] for name in p.get('executed',[])]
         if any(not any(name.startswith(Path(b['file']).stem+'.') and name.endswith('.'+b['method'])
                        for name in executed) for b in bindings):
-            result['findings']=['named_owning_binding_not_executed'];save();return 1
+            result['findings']=['named_owning_binding_not_executed']
+            save()
+            return 1
         qa=json.loads((ROOT/'examples/ask_dj_e2e_cases.json').read_text())
         outcomes={c['id']:c['status'] for p in result['profiles'] for c in p.get('case_outcomes',[])}
         if any(outcomes.get(case['id'])!='PASS' for case in qa):
-            result['findings']=['missing_or_failed_single_turn_question_answer'];save();return 1
+            result['findings']=['missing_or_failed_single_turn_question_answer']
+            save()
+            return 1
         proactive=validate_moment_matrix()
         if any(outcomes.get(case)!='PASS' for case in proactive):
-            result['findings']=['missing_or_failed_proactive_persona_mood_case'];save();return 1
+            result['findings']=['missing_or_failed_proactive_persona_mood_case']
+            save()
+            return 1
         result['executed_proactive_cases']=len(proactive)
         result['executed_single_turn_cases']=len(qa)
         result['executed_help_cases']=sum(c['id'].startswith('help_prompt_') for c in qa)
@@ -295,20 +304,26 @@ def run(candidate, output):
         if blockers := release_blockers(inventory):
             # Do not spend model credits rerunning a known rejected candidate.
             result['findings']=['open_core_qualification:'+item for item in blockers]
-            save();return 1
+            save()
+            return 1
         save()
         for mode, (filename, limit) in PROFILES.items():
-            directory=temp/mode;directory.mkdir()
+            directory=temp/mode
+            directory.mkdir()
             paid=mode in {'full_golden','contextual_golden','mood_prosody'}
             key=os.environ.get('DJCONNECT_GOLDEN_OPENAI_API_KEY','') if paid else 'unused-networkless-probe'
             if not key or len(key)>8192:
-                result['profiles'].append({'id':mode,'status':'FAIL','findings':['credential_missing']});save();return 1
+                result['profiles'].append({'id':mode,'status':'FAIL','findings':['credential_missing']})
+                save()
+                return 1
             flags = ['-e','DJC_SAFETY_PROBE='+mode]
             payload = {'api_key':key,'model':'gpt-6-luna','max_tokens':700}
             if mode == 'mood_prosody':
                 tts_model = os.environ.get('DJCONNECT_GOLDEN_TTS_MODEL', 'gpt-4o-mini-tts')
                 if tts_model != 'gpt-4o-mini-tts':
-                    result['profiles'].append({'id':mode,'status':'FAIL','findings':['qualified_tts_model_configuration_missing']});save();return 1
+                    result['profiles'].append({'id':mode,'status':'FAIL','findings':['qualified_tts_model_configuration_missing']})
+                    save()
+                    return 1
                 payload['tts_settings'] = {'chat_model': tts_model}
                 flags = ['-e','DJC_SAFETY_PROBE=literal_tts','-e','DJC_MOOD_PROSODY=1',
                          '-e','DJC_PROSODY_FIVE_LANGUAGES=1']
@@ -342,10 +357,13 @@ def run(candidate, output):
                          'kind':'real_paired_ha_zero_paid_model'}
                 if code:
                     row['status']='FAIL'
-            result['profiles'].append(row);save()
+            result['profiles'].append(row)
+            save()
             if row['status']!='PASS':
                 return 1
-        result['status']='PASS';save();return 0
+        result['status']='PASS'
+        save()
+        return 0
 
 
 def main():

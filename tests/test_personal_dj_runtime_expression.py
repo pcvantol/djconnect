@@ -1,0 +1,169 @@
+"""Real ordinary producers through the common two-call expression owner."""
+import asyncio
+from dataclasses import replace
+import json
+from types import SimpleNamespace
+import unittest
+from unittest.mock import patch
+
+from tests import test_session_conversation_history as fixtures
+
+
+class RuntimeExpressionTest(unittest.IsolatedAsyncioTestCase):
+    @classmethod
+    def setUpClass(cls):
+        fixtures.SessionConversationHistoryTest.setUpClass()
+
+    @classmethod
+    def tearDownClass(cls):
+        fixtures.SessionConversationHistoryTest.tearDownClass()
+
+    async def asyncSetUp(self):
+        self.fixture = fixtures.SessionConversationHistoryTest()
+        await self.fixture.asyncSetUp()
+        self.hass, self.runtime, _, _, _ = await self.fixture.transport_fixture()
+        self.r, self.manager = self.fixture.runtime, self.fixture.manager
+
+    async def asyncTearDown(self):
+        await self.fixture.asyncTearDown()
+
+    async def produce(self, persona, *, hold=None):
+        from custom_components.djconnect import pipeline
+        session = await self.manager.async_start(owner_profile_id='profile-a', locale='nl',
+            selected_mood='groove', dj_persona=persona, music_backend='spotify_direct')
+        calls, briefs = [], []
+        async def transport(domain, service, data, **kwargs):
+            calls.append(data['text'])
+            if hold is not None and len(calls) == 1:
+                hold[0].set()
+                await hold[1].wait()
+            text = (json.dumps({'text': '{track} van {artist} speelt nu. Ik schuif even aan.'})
+                    if len(calls) == 1 and briefs[-1].kind == 'observed_playback' else
+                    json.dumps({'text': 'Ik houd het hier in beweging, lekker met je mee.'})
+                    if len(calls) == 1 else
+                    json.dumps({'supported': True, 'language_ok': True, 'style_ok': True}))
+            return {'response': {'speech': {'plain': {'speech': text}}}}
+        self.hass.services = SimpleNamespace(async_call=transport)
+        async def realize(brief, guard):
+            briefs.append(brief)
+            return await pipeline.realize_session_narration(self.hass, narration=brief,
+                admission=guard, fallback_text=brief.seed, conf=self.runtime.config)
+        self.manager.connect_narration('profile-a', session.session_id, realize, lambda: None)
+        async def knowledge():
+            return {'track': {'title': 'Local exact title', 'artist': 'Local exact artist'},
+                'analysis': {'summary': 'Unmeasured', 'full_text': 'No qualified audio analysis.',
+                             'basis': 'unmeasured_metadata_only_v1'}}
+        with patch.object(pipeline, '_assist_context', return_value={'agent_id': 'fixture-agent', 'language': 'nl'}):
+            for marker in ('A', 'B'):
+                session = await self.manager.async_get_active('profile-a')
+                media = 'spotify:track:'+marker*22
+                await self.manager.async_update_playback_projection(owner_profile_id='profile-a', session_id=session.session_id,
+                    state='playing', media_identity=media, title='Local exact title', artist='Local exact artist',
+                    duration_ms=600000, position_ms=0)
+                result = await self.manager.async_process_track_started(owner_profile_id='profile-a', session_id=session.session_id,
+                    media_identity=media, insight_provider=knowledge, require_current_playback=True)
+        return session, result, calls, briefs
+
+    async def test_actual_playback_and_direction_get_assessed_text_without_catalog_model_input(self):
+        from custom_components.djconnect import session_speech
+        from custom_components.djconnect.narration_brief import admitted_runtime_text
+        for persona, kind in ((self.r.DJPersona.HOME_DJ, 'observed_playback'),
+                              (self.r.DJPersona.FESTIVAL_DJ, 'session_direction')):
+            with self.subTest(kind=kind):
+                session, moment, calls, briefs = await self.produce(persona)
+                self.assertIsNotNone(moment)
+                self.assertEqual(len(calls), 2)
+                self.assertEqual([b.kind for b in briefs], [kind])
+                self.assertTrue(admitted_runtime_text(moment))
+                self.assertNotIn('Local exact title', '\n'.join(calls))
+                self.assertNotIn('Local exact artist', '\n'.join(calls))
+                self.assertEqual(dict(moment.generation_metadata)['realization'], 'qualified_runtime_narration_v1')
+                self.assertEqual(session.broadcast.state.dj_moments[-1].content, moment.content)
+                self.assertEqual(''.join(s['text'] for s in session_speech.moment_projection(session.broadcast, moment)['segments']), moment.content)
+                self.assertNotIn('narration_acceptance', moment.as_dict())
+                self.assertFalse(admitted_runtime_text(replace(moment, content=moment.content+' Invented extra.')))
+                if kind == 'observed_playback':
+                    self.assertIn('Local exact title', moment.content)
+                    admission = next(a for a in session.broadcast.native_delivery()['admissions'] if a['moment_id'] == moment.moment_id)
+                    self.assertEqual(admission['qualification'], 'qualified')
+                    # A metadata flag alone never qualifies a replacement body.
+                    tampered = replace(moment, narration_acceptance=None)
+                    from custom_components.djconnect.native_moment_delivery import admission as admit
+                    self.assertEqual(admit(tampered, session.broadcast._moment_delivery_boundaries[moment.moment_id],
+                        session_id=session.session_id, active=True,
+                        flow_ids={i.moment_id for i in session.planner.output.session_flow.items},
+                        playback_item_id=session.broadcast.state.playback.item_id, playing=True,
+                        now=__import__('time').monotonic())['qualification'], 'unqualified')
+                await self.manager.async_end(owner_profile_id='profile-a', session_id=session.session_id)
+
+    async def test_end_during_runtime_generation_does_not_block_end_or_publish(self):
+        hold = asyncio.Event(), asyncio.Event()
+        task = asyncio.create_task(self.produce(self.r.DJPersona.HOME_DJ, hold=hold))
+        await asyncio.wait_for(hold[0].wait(), 2)
+        active = await self.manager.async_get_active('profile-a')
+        await asyncio.wait_for(self.manager.async_end(owner_profile_id='profile-a', session_id=active.session_id), 2)
+        hold[1].set()
+        _, moment, calls, _ = await task
+        self.assertIsNone(moment)
+        self.assertEqual(len(calls), 1)
+        self.assertEqual(active.broadcast.state.dj_moments, ())
+        row = await self.fixture.repo.async_session_record(active.session_id)
+        self.assertEqual(row['summary']['moments_published']['value'], 0)
+
+    async def test_actual_pending_genre_transition_keeps_one_published_expression_frame(self):
+        import time
+        from custom_components.djconnect.narration_brief import NarratedText, admitted_runtime_text, recent_frames
+        clock = [time.monotonic()]
+        self.manager._monotonic_source = lambda: clock[0]
+        with patch('time.monotonic', lambda: clock[0]):
+            active = await self.manager.async_start(owner_profile_id='profile-a', selected_mood='groove', locale='nl',
+                session_start_strategy=self.r.SessionStartStrategy.DISCOVER, elapsed_time_source=lambda: clock[0])
+            for number, title in ((1, 'Baseline'), (2, 'Earlier title'), (3, 'Current title')):
+                active = await self.manager.async_get_active('profile-a')
+                media = 'spotify:track:'+str(number).zfill(22)
+                await self.manager.async_update_playback_projection(owner_profile_id='profile-a', session_id=active.session_id,
+                    state='playing', media_identity=media, title=title, artist='Local artist', duration_ms=600000, position_ms=0)
+                async def status():
+                    return {'track': {'title': title, 'artist': 'Local artist', 'genres': ['ambient'], 'backend': 'spotify_direct'},
+                        'analysis': {'summary': 'Unmeasured', 'full_text': 'No measured audio.', 'basis': 'unmeasured_metadata_only_v1'},
+                        '_session_narrative_evidence': {'source': 'spotify_playback_status', 'backend': 'spotify_direct',
+                            'media_identity': media, 'title': title, 'artist': 'Local artist', 'artist_ids': ['Z'*22],
+                            'genres': ['ambient'], 'is_playing': True, 'genre_source_expires_at': clock[0]+1800}}
+                await self.manager.async_process_track_started(owner_profile_id='profile-a', session_id=active.session_id,
+                    media_identity=media, insight_provider=status, require_current_playback=True)
+                if number < 3:
+                    clock[0] += 90
+            active = await self.manager.async_get_active('profile-a')
+            self.assertIsNotNone(self.manager._intra_track_opportunities['profile-a'].pending_transition)
+            before = active.moment_engine._expression_moment_ids
+            frame = '{source_track} bracht {artist} al langs {genre}; nu speelt {target_track}.'
+            entered, release = asyncio.Event(), asyncio.Event()
+            async def model(brief, guard):
+                self.assertEqual(brief.kind, 'genre_transition')
+                self.assertNotIn('Current title', brief.prompt())
+                entered.set()
+                await release.wait()
+                guard()
+                return NarratedText(brief.render(frame), frame)
+            self.manager.connect_narration('profile-a', active.session_id, model, lambda: None)
+            clock[0] += 45
+            await self.manager.async_update_playback_projection(owner_profile_id='profile-a', session_id=active.session_id,
+                state='playing', media_identity=media, title='Current title', artist='Local artist', duration_ms=600000, position_ms=45000)
+            task = asyncio.create_task(self.manager.async_maybe_publish_intra_track_moment(owner_profile_id='profile-a',
+                session_id=active.session_id, media_identity=media))
+            await entered.wait()
+            self.assertIsNone(await self.manager.async_maybe_publish_intra_track_moment(owner_profile_id='profile-a',
+                session_id=active.session_id, media_identity=media))
+            self.assertEqual(active.moment_engine._expression_moment_ids, before)
+            release.set()
+            moment = await task
+            self.assertIsNotNone(moment)
+            self.assertEqual(moment.moment_type.value, 'transition')
+            self.assertTrue(admitted_runtime_text(moment))
+            current = await self.manager.async_get_active('profile-a')
+            self.assertEqual(current.moment_engine._expression_moment_ids, (*before, moment.moment_id)[-6:])
+            self.assertEqual(recent_frames(current.moment_engine._expression_forms)[-1], frame)
+            self.assertEqual(sum(m.moment_id == moment.moment_id for m in current.broadcast.state.dj_moments), 1)
+            self.assertIsNone(await self.manager.async_maybe_publish_intra_track_moment(owner_profile_id='profile-a',
+                session_id=active.session_id, media_identity=media))
+            self.assertEqual(current.moment_engine._expression_moment_ids.count(moment.moment_id), 1)

@@ -138,9 +138,9 @@ class ContextualReleaseGateTest(unittest.TestCase):
         proof=inventory.validate()
         self.assertEqual(proof['literal_core_routes'],47)
         self.assertEqual(proof['executable_help_cases'],60)
-        self.assertEqual(proof['conversation_families'],34)
-        self.assertEqual(proof['conversation_steps'],101)
-        self.assertEqual(proof['reported_issues'],24)
+        self.assertEqual(proof['conversation_families'],35)
+        self.assertEqual(proof['conversation_steps'],106)
+        self.assertEqual(proof['reported_issues'],26)
         self.assertEqual(len(proof['open_core_findings']),5)
         self.assertEqual(proof['proactive_golden_cases'],560)
 

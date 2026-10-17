@@ -404,11 +404,11 @@ async def realize_session_narration(hass, *, narration, admission, fallback_text
     prompt enters announcement diagnostics or an independent history.
     """
     import asyncio
-    from .narration_brief import NarrationBrief, NarratedText, candidate, assessed
+    from .narration_brief import NarrationBrief, RuntimeNarrationBrief, NarratedText, candidate, assessed
     if debug is not None:
         debug.update(fallback_used=True, block_reason="narration_unavailable", model_attempts=0)
     from .playback_request import PlaybackRequestBrief
-    if type(narration) not in {NarrationBrief, PlaybackRequestBrief} or not callable(admission):
+    if type(narration) not in {NarrationBrief, RuntimeNarrationBrief, PlaybackRequestBrief} or not callable(admission):
         return fallback_text
     context = None
 
