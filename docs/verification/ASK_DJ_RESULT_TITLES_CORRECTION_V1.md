@@ -44,9 +44,10 @@ transport/routing/privacy correctness, not live model quality or a real artist
 catalogue inventory. No paid model calls occur in this probe.
 
 Owning before/after logs and full synthetic transport/source-hash receipts are
-retained locally under the owned ignored recovery checkpoint. Additional full
-regression/security, exact independent review and protected delivery evidence
-must be attached to the exact source candidate before completion.
+retained locally under the owned ignored recovery checkpoint. At the initial
+source freeze, full regression/security, exact independent review and protected
+delivery were still pending. Their completed evidence is recorded below; this
+historical qualification point does not describe the current delivery status.
 
 ## Consumer behavior and remaining acceptance
 
