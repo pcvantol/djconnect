@@ -12,7 +12,13 @@ Selected passive Session projection: DJC-CORE-PASSIVE-SESSION-PROJECTION-V1-2026
 
 Selected shared Profile/Session settings consolidation: DJC-PROFILE-SESSION-SETTINGS-CONSOLIDATION-V1-20261016; six shared Persona/voice/gender/Mood/Presence/announcement_output, protected source delivered contract3 (Core producer only), last explicit accepted choice becomes default, atomic active+default acceptance. Source PROTECTED_MERGED; Core producer and migration work only; Apple/other consumers/joint separately open, no automatic dispatch or whole-family completion. Delivered v13 preserved.
 
+Current maintenance16 combines both preserved maintenance15 inputs in the existing Core draft1197. Original input refs and premerge repair refs are separately pinned; both histories remain immutable. Source LOCAL_COMBINED_DRAFT_PREPARATION, overall OPEN, merge NOT_QUALIFIED, native OPEN, installed/audible NOT_RUN. No second writer, consumer writes or automatic dispatch. See `docs/verification/CORE_BRANCH_CONSOLIDATION_20261017.md`.
+
 Current personal-DJ corrective work: LOCAL / UNPUBLISHED; historical SPEECH::CORE::REALIZATION delivery remains preserved, while CORRECTION::CORE::PERSONAL-DJ-EXPERIENCE remains In progress. All-family narrative and actual publication Golden, Track Insight, native, installed and audible acceptance are not established by earlier metadata/type fixtures. See `docs/verification/CORE_LANE_REQUIREMENT_RECONCILIATION_20261017.md`. No consumer dispatch or new writer.
+
+Selected Core display-admission: DJC-CORE-VIBECAST-DISPLAY-ADMISSION-V1-20261016; existing WEB::TRUST and WEB::DISPLAY only. TRUST anchor OPEN_JOINT_REVIEW, wire NOT_FROZEN, runtime B_SOFTWARE_QUALIFIED_NOT_INSTALLED; source DRAFT_PR_PUBLISHED_NOT_MERGED, native/TV/joint open. B-only software qualification does not close A or imply installed/native/public-route acceptance. Independently reviewed B may proceed in isolation while A stays unavailable. Original settings delivery and all prior receipts remain preserved; no consumer dispatch or deployment.
+
+A product choice: LIMITED_APP_ATTESTED_REPORTED_ROUTE selected with the stated copied-QR/wrong-scanner destination risk. Independent HA-owner attestation is not claimed; SECURITY_REVIEW/KEY-STATE open, WIRE not frozen and A runtime not implemented. This is no completion, consumer dispatch or deployment.
 
 Authority: [DJC-DJ-PRESENCE-ROADMAP-DESIGN-V1-20261011](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6110375785).
 
@@ -20,8 +26,8 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 
 | Local design source | SHA256 |
 |---|---|
-| [PRODUCT_ROADMAP.md](../../../PRODUCT_ROADMAP.md) | `0463fbcc087367e7f6e19aba36410a8d01ab0e29fa090e029dc62be9f3e8eeca` |
-| [PRODUCT_BACKLOG.md](../../../PRODUCT_BACKLOG.md) | `8b234976d289e6adbbb5c4ce39ba10032c0446747c0191c7a7d3a39c4f817dd9` |
+| [PRODUCT_ROADMAP.md](../../../PRODUCT_ROADMAP.md) | `383f9ca33823b8bcc952ef62b5772115b3b70060163b800d138338953c1faa02` |
+| [PRODUCT_BACKLOG.md](../../../PRODUCT_BACKLOG.md) | `bf3b09f00e13900062fa306f4fd0e4d2a9616d5ee973798feddf901246e83594` |
 | [docs/product/DJ_PRESENCE_V1.md](../../../docs/product/DJ_PRESENCE_V1.md) | `c97be3bcebbd4ca70d640cdf4fc0a9a4808451e986bc977e3173e19842a928c4` |
 | [DJ_SESSION_RUNTIME_CONTRACTS.md](../../../DJ_SESSION_RUNTIME_CONTRACTS.md) | `69e97a8832b0af41ad68cd18de982d1c4535ae853f8b710c15bde4e5d85e935b` |
 | [docs/product/DJ_INTELLIGENCE_ARCHITECTURE.md](../../../docs/product/DJ_INTELLIGENCE_ARCHITECTURE.md) | `5345f4a3db6b2bfb97931d6acdde09439dc3dbae7a7d311107269922e08aef12` |
@@ -78,9 +84,9 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 | [docs/product/SESSION_MOMENT_ARTWORK_V1.md](../../../docs/product/SESSION_MOMENT_ARTWORK_V1.md) | `580e7022b2a1684117a16f7602ecd21cd1672988001825d3e869712bde2dda4a` |
 | [docs/product/SESSION_ARTWORK_DELIVERY_CONTRACT_V1.md](../../../docs/product/SESSION_ARTWORK_DELIVERY_CONTRACT_V1.md) | `a65d238cbee59b26d5c1405b14c1235cb3523a06ad3cd868133403e0034427ca` |
 | [docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md](../../../docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md) | `d3bee293d4e2f3253fcafa96427093631e6996a360ec66efe5c14b64082c66dc` |
-| [docs/product/VIBECAST_ONBOARDING_GUEST_AUTHORITY_V1.md](../../../docs/product/VIBECAST_ONBOARDING_GUEST_AUTHORITY_V1.md) | `da543d0ebf266dfb4ec8ab491e7214940c946a85b381c44802b68f7d6e1708b2` |
+| [docs/product/VIBECAST_ONBOARDING_GUEST_AUTHORITY_V1.md](../../../docs/product/VIBECAST_ONBOARDING_GUEST_AUTHORITY_V1.md) | `d9e230d57e08b64d613ce491b31745083a896e7b125f8d7b9d706adf51c9ac27` |
 | [docs/product/APPLE_VIBECAST_GUEST_MODE_V1.md](../../../docs/product/APPLE_VIBECAST_GUEST_MODE_V1.md) | `3141ad70b91b124937a9268a33b24fb19b9eb1e3fbe143d5c456848ca4b1c268` |
-| [docs/product/VIBECAST_WEB_ENTRY_DISTRIBUTION_V1.md](../../../docs/product/VIBECAST_WEB_ENTRY_DISTRIBUTION_V1.md) | `e996a4973e21e8cd895f0d6a7bdfee8cc972c1e780f0568bdfc8a5219026d68d` |
+| [docs/product/VIBECAST_WEB_ENTRY_DISTRIBUTION_V1.md](../../../docs/product/VIBECAST_WEB_ENTRY_DISTRIBUTION_V1.md) | `0f0cd6b9ee9ec6be7d4f7ea15c073101501beddc26ccf8c4b3101865c957e518` |
 | [docs/product/HYBRID_LOCAL_TRANSPORT_POLICY_V1.md](../../../docs/product/HYBRID_LOCAL_TRANSPORT_POLICY_V1.md) | `b7d62c93f26b4883c993f89f7a929c57ba6be8c082bb6ed7c220e60c5045aac6` |
 | [docs/verification/HYBRID_LOCAL_TRANSPORT_SOURCE_READBACK_20261015.md](../../../docs/verification/HYBRID_LOCAL_TRANSPORT_SOURCE_READBACK_20261015.md) | `4bb082dd358cc9594240868cb163133be0320729b2d5687a337bcba2b5feeda3` |
 | [docs/product/SESSION_SPEECH_PERSONA_V1.md](../../../docs/product/SESSION_SPEECH_PERSONA_V1.md) | `a342eda7b169f9da5f4296297aae796554dbf6bc2286c28820182e6f3b1d9bf2` |
@@ -104,16 +110,20 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 | [docs/verification/PROFILE_SESSION_SETTINGS_SOURCE_READBACK_20261016.md](../../../docs/verification/PROFILE_SESSION_SETTINGS_SOURCE_READBACK_20261016.md) | `344eac1436adc3b56108b4645ec51f262889a7f6d6b1d0c7aa890cc6355a9d8f` |
 | [docs/history/prompts/2026-10-16-profile-session-settings-finalization.md](../../../docs/history/prompts/2026-10-16-profile-session-settings-finalization.md) | `fd8f95f219e8293cc4133e1e7543209c66993fa3e636c52f83d189df640b013d` |
 | [docs/product/PERSONAL_DJ_NARRATION_RESTORATION_V1.md](../../../docs/product/PERSONAL_DJ_NARRATION_RESTORATION_V1.md) | `f177f6fb1c77c9eba6b6047301b6e7be03816739443e9dc22b6c368748144784` |
-| [docs/verification/CORE_LANE_REQUIREMENT_RECONCILIATION_20261017.md](../../../docs/verification/CORE_LANE_REQUIREMENT_RECONCILIATION_20261017.md) | `7d0367d0ef927c2c70c82ad94b551b586fbf6845c479619994342446c45a18ef` |
+| [docs/verification/CORE_LANE_REQUIREMENT_RECONCILIATION_20261017.md](../../../docs/verification/CORE_LANE_REQUIREMENT_RECONCILIATION_20261017.md) | `d07032fa0683cb175f5ff41cabf33c93facb010f0ee334e2072b06a92d599561` |
 | [docs/product/ASK_DJ_PUBLIC_MUSIC_RESEARCH_V1.md](../../../docs/product/ASK_DJ_PUBLIC_MUSIC_RESEARCH_V1.md) | `0487c93b0f8e7c8cdb77c1b52c72bdbc860762f3fb563d07255a9c7efcbf6b26` |
 | [docs/product/DJ_MOMENT_MOOD_PROSODY_V1.md](../../../docs/product/DJ_MOMENT_MOOD_PROSODY_V1.md) | `6144b95a829a9a92bc4225bb599885efdf69dad0b5e17184542637bb4741a0fa` |
 | [docs/product/SESSION_VOICE_PREVIEW_V1.md](../../../docs/product/SESSION_VOICE_PREVIEW_V1.md) | `6565beb361fcefb1650e1c9841c09cd6567192903e3089aa254796ce811394b8` |
 | [docs/product/ASK_DJ_PLAYBACK_REQUEST_TRUTH_V1.md](../../../docs/product/ASK_DJ_PLAYBACK_REQUEST_TRUTH_V1.md) | `a9ee9dc3689c5f1b11746068e4e2f79d54cdc68af2265b02e468631c2fc5c158` |
 | [docs/verification/ASK_DJ_CONTEXTUAL_GOLDEN_RELEASE_GATE_V1.md](../../../docs/verification/ASK_DJ_CONTEXTUAL_GOLDEN_RELEASE_GATE_V1.md) | `b0d68c3bace61c219d122d79adbaed70fa133549ea5b9d38715093c5961058ca` |
 | [docs/product/VIBECAST_RECEIVER_END_AUTHORITY_RETIREMENT_V1.md](../../../docs/product/VIBECAST_RECEIVER_END_AUTHORITY_RETIREMENT_V1.md) | `c014f140421d129abcc9b890bd1bd94fc0f19ebfcad3b3da6d03d413911f8b6e` |
-| [docs/governance/DJC_PLATFORM_OPEN_WORK_20261017.md](../../../docs/governance/DJC_PLATFORM_OPEN_WORK_20261017.md) | `251b6725d6ca8a27a3d9071c2739c24b8156122b0ddd5bc7fb59ebed8137dc71` |
+| [docs/governance/DJC_PLATFORM_OPEN_WORK_20261017.md](../../../docs/governance/DJC_PLATFORM_OPEN_WORK_20261017.md) | `b73eace1db3b096760d7fd674c701a08aba027569bbd7543c54a00439101d574` |
 | [docs/history/prompts/2026-10-17-integral-open-work-audit-finalization.md](../../../docs/history/prompts/2026-10-17-integral-open-work-audit-finalization.md) | `038d885b93a9f08d3d4a1782ef3f74f4a9f7b53c041b261420dede3bd48bbaee` |
 | [docs/verification/VIBECAST_END_RETIREMENT_QUALIFICATION_20261017.md](../../../docs/verification/VIBECAST_END_RETIREMENT_QUALIFICATION_20261017.md) | `97b1ccbc4485cb91f011fd4a8a0e0d200b809b1cf56d25e06471e7d3b5f71bcd` |
 | [docs/verification/VIBECAST_END_RETIREMENT_SOURCE_READBACK_20261017.md](../../../docs/verification/VIBECAST_END_RETIREMENT_SOURCE_READBACK_20261017.md) | `ccc5771889755f1b96fd4ba7942bff0ec7c237b2afb6948efe943182ef8c6588` |
 | [docs/history/prompts/2026-10-17-vibecast-end-retirement-finalization.md](../../../docs/history/prompts/2026-10-17-vibecast-end-retirement-finalization.md) | `2211ef1683fda434ab5ade8cca98d4f39fa3dd8cec38f084fdc456b6d14a4dae` |
-| [docs/verification/CORE_BRANCH_CONSOLIDATION_20261017.md](../../../docs/verification/CORE_BRANCH_CONSOLIDATION_20261017.md) | `fb30679c004ecb0dcaee6e95832f4a8431900c0e7e83d6d021fb7200ee9389e5` |
+| [docs/verification/CORE_BRANCH_CONSOLIDATION_20261017.md](../../../docs/verification/CORE_BRANCH_CONSOLIDATION_20261017.md) | `f2aef0e884befacb44cd14e3c29231417b53a689a68a233101e31357cb9f5479` |
+| [docs/product/VIBECAST_DISPLAY_ADMISSION_V1.md](../../../docs/product/VIBECAST_DISPLAY_ADMISSION_V1.md) | `9777b1cd9399c6b98e36a2c590cd214bb29c0456c492ded60d1d0d2a2fae846f` |
+| [docs/verification/VIBECAST_DISPLAY_DESIGN_REVIEW_20261016.md](../../../docs/verification/VIBECAST_DISPLAY_DESIGN_REVIEW_20261016.md) | `c28874b93440bce70a72dc436e0822d0f5b3fcfa58bcc27120ac26025cb75a9d` |
+| [docs/product/VIBECAST_DISPLAY_ADMISSION_B_V1.md](../../../docs/product/VIBECAST_DISPLAY_ADMISSION_B_V1.md) | `f555656ada0078d35654303a5137a618abb152ec251a41df5725351fdf291549` |
+| [docs/product/ASK_DJ_ALBUM_TRACKS_V1.md](../../../docs/product/ASK_DJ_ALBUM_TRACKS_V1.md) | `05f2ad10314d5f87e06cc8c17ea544363a1c71e743871de88c67b04d2b8606e6` |

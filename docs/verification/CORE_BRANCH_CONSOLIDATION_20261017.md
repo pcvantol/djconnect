@@ -45,3 +45,83 @@ paid narration experiment0full/3prefix/5fallback remains unchanged and NO_GO.
 Fresh host qualification MATCH/exit0 and main equals origin/main. Full combined
 qualification and independent candidate reviews are pending; this is not merge
 authorization, merged delivery, Finalization or installed proof.
+
+## Current combined correction and qualification boundary
+
+The personal-DJ preserved maintenance15 is exact against the committed
+premerge repair `e3d7b55f5c67019a306cc4a4b3a31b2028304c9c`, while display15
+is exact against `6e560061cbee3bed86c50fc0deee7d74b9bfee9b`. These are distinct
+from the three initial owner inputs above. Both historical hashes are pinned
+in the compositor; updating a self-declared receipt cannot replace history.
+
+Integration found and repaired stale generated display HTML that still carried
+retired end-authority. The maintained generator now produces local/Cast/display
+without that code; committed local/display are byte-equal and regression bound.
+No new grant, receiver end effect or security/Pages acceptance is introduced.
+
+Reported album regressions remain in the existing Ask DJ owner and album
+Golden family. Exact selected/current edition listing, playable alternative,
+explicit confirmation and named prior album selection all use producer-frozen
+identities. Spotify album playback sends `context_uri`, never a single-track
+`uris` request. Explicit new media type cannot be overwritten by an old offer.
+Uncertain provider readback retains the chosen name and does not claim start.
+Catalog text is not implicitly model input or permanent archive content; the
+missing rich catalog-conversation archive remains explicitly release-blocking.
+
+Current Golden inventory:39reports,35families,119steps; seven Core findings and
+13real-quality steps remain open. Existing failed real-model samples remain
+immutable NO_GO. Purely present DJ appreciation is now explicitly distinguished
+from invented taste/history/artist psychology, consistently for generation and
+atomic review. This prompt correction still requires a fresh fixed real-output
+trial and independent editorial assessment; no quality PASS follows from it.
+
+The central release-evidence collector is repaired in this same combined
+candidate because its300-file truncation can reject this joint PR and the Apple
+consumer's369-file merge. Its actual inline JavaScript has369-file pagination,
+metadata mismatch/duplicate/empty-page/cap negatives and unchanged downstream
+fail-closed provenance comparison. No checks, signing, runner or release gate
+is disabled. Primary pagination contract:
+[GitHub commit API](https://docs.github.com/en/rest/commits/commits#get-a-commit).
+
+Measured local qualification is recorded in the restartable private evidence;
+current full-suite rerun and exact candidate reviews determine source readiness.
+The actual networkless HA album probe passed five-language reads and one exact
+album dispatch with safe duplicate denial. It uses external provider fixtures,
+zero model calls; natural track transition, actual Spotify queue, native UI,
+installed dev/prod and audible output remain unproven by that probe.
+
+## Exact current-artist wording report
+
+“Wie is de artiest van huidig nummer” previously missed the closed current-artist
+recognizer, despite qualified fresh playback. The exact shared-route causal
+regression is RED before and GREEN after the bounded5-language identification
+grammar. It uses the existing current_artist_read owner and makes zero model
+calls or music effects; no biography/source research is inferred. The report
+permanently joins the current/previous Golden family.
+
+Fresh read-only HA-dev manifest4.0.0-rc.1 has177/177 integration files exactly
+matching current main6a3adbc8; it does not yet contain this local correction.
+Do not tell the owner an installed fix is delivered on the basis of local tests.
+
+## Qualification checkpoint before candidate freeze
+
+The combined host regression runs2378tests with7existing skips and zero
+failures/errors;185DAG tests and23generated views pass. One additional causal
+regression then verifies that an unconfirmed album reply cannot borrow the
+currently playing recording/album label; the131-test album/current-wording/HTTP
+owning rerun passes. A final complete suite is required after that last change.
+Ruff and configured Bandit report zero Medium/High. The scanner's one false
+positive treated natural-language “select a suffix … from” as SQL; replacing
+“select” with “choose” preserves the prompt meaning without suppression.
+
+The paired real HA album/current-artist probe passes15actual HTTP requests with
+zero model calls, ordinary persisted device pairing and no external network.
+It verifies both exact new user wordings, five-language current reads and one
+frozen album context dispatch; duplicate private dispatch is denied without a
+second effect. Updated source hashes are required again after the final reply
+wording correction. No natural Spotify progression or native sound is claimed.
+
+Both installed environments were read back independently:177/177 integration
+files exactly match main6a3adbc8, manifest4.0.0-rc.1. These local repairs remain
+uninstalled. Existing human installation authorization is retained; qualified
+source/release delivery and configuration readiness still precede any update.

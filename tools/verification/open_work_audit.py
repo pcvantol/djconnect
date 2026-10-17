@@ -176,6 +176,7 @@ def validate(data: dict, plan: dict) -> list[str]:
 def render(data: dict) -> str:
     """One readable view from the evidence register, without duplicating roadmap authority."""
     github = data['github_open']
+    combined = data.get('combined_branch_status_reconciliation', {})
     count = Counter(r['kind'] for r in github)
     proofs = {r['id']: r for r in data['proofs']}
     dev_count = len(proofs['installed-dev']['files'])
@@ -184,6 +185,12 @@ def render(data: dict) -> str:
     quality = proofs['local-real-model-quality']
     out = [
         '# DJConnect integral open-work reconciliation — 17 October 2026\n\n',
+        ("Current combined local checkpoint: "
+         f"{combined['reported_issues']} reported issues, {combined['conversation_families']} families, "
+         f"{combined['conversation_steps']} steps; {combined['open_core_findings']} Core findings and "
+         f"{combined['open_quality_steps']} real-quality steps OPEN; merge {combined['merge_readiness']}. "
+         "No installation or audible claim. The dated observations below remain historical.\n\n"
+         if combined.get('current_local_state') else ''),
         'Direct owner request; existing Core writer, [register #1101](https://github.com/pcvantol/djconnect/issues/1101). '
         'This dated evidence overlay does not start a product slice, dispatch another writer or replace the living DAG.\n\n',
         f"Observed {data['observed_at']}; Core main `{data['core_main_observed']}`. "

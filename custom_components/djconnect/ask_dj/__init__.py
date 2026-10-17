@@ -123,6 +123,9 @@ async def async_handle_ask_dj(
         await turn.guard()
         turn.source_context = source
     from .observations import current_artist_question, current_artist_read
+    from .album_tracks import album_tracks_question, album_tracks_read
+    if action_request is None and album_tracks_question(text):
+        return await album_tracks_read(hass, runtime, text, confirmed_entry)
     from .observations import release_question, release_read
     if action_request is None and release_question(text):
         return await release_read(hass,runtime,confirmed_entry)
@@ -1524,6 +1527,12 @@ def classify_ask_dj(text: str) -> AskDjIntent:
     nonexecuting = _nonexecuting_speech_act(normalized)
     from .observations import forecast_question, previous_question, current_artist_question
     from .observations import release_question
+    from .album_tracks import album_tracks_question
+    if album_tracks_question(normalized):
+        return AskDjIntent("informational", "album_tracks_information")
+    from .dialogue import affirmed_play_reference
+    if affirmed_play_reference(normalized):
+        return AskDjIntent("hybrid", "play_music", "play_music", play=True)
     if release_question(normalized):
         return AskDjIntent("informational", "current_release_information")
     if current_artist_question(normalized):
@@ -1581,6 +1590,9 @@ def _nonexecuting_speech_act(text: str) -> bool:
 def _execution_request(text: str) -> bool:
     if _nonexecuting_speech_act(text):
         return False
+    from .dialogue import affirmed_play_reference
+    if affirmed_play_reference(text):
+        return True
     from ..music_intent import listening_request_target
     if listening_request_target(text):
         return True
@@ -4502,6 +4514,7 @@ def _artist_album_playback_action(
     image_url = str(album.get("image_url") or album.get("album_image_url") or "").strip()
     action = {"id": uri, "title": str(album.get("name") or album.get("title") or "Album").strip(), "subtitle": f"{artist} · {release_date[:4]}" if release_date[:4] else artist, "uri": uri, "context_uri": uri, "kind": "album", "label": "Play Now", "button_label": "Play Now", "action_style": "play_now", "reason": f"Album van {artist}."}
     action["release_date"] = release_date
+    action["artist"] = artist
     if image_url:
         action["image_url"] = register_image_proxy_url(hass, image_url) if image_url.startswith(("http://", "https://")) else image_url
     return action
@@ -7329,6 +7342,9 @@ def _interleave_playback_actions(
 
 
 def _artist_item_list_request(text: str) -> dict[str, Any]:
+    from .album_choices import other_album_request
+    if request := other_album_request(text):
+        return request
     album_choice_patterns = (
         r"^\s*(?:speel|draai|zet)\s+(?:eens\s+|even\s+|graag\s+)?(?:een\s+)?album\s+van\s+(.+?)\s*\??\s*$",
         r"^\s*(?:speel|draai|zet)\s+(?:eens\s+|even\s+|graag\s+)?(?:een\s+)?(?:ander|andere)\s+album\s+van\s+(.+?)\s*\??\s*$",
@@ -7528,6 +7544,9 @@ async def _artist_item_list_response(
     count_value = request.get("count")
     count = None if count_value is None and item_type == "album" else _bounded_item_count(count_value, default=5)
     if item_type == "album":
+        if request.get("exclude_current"):
+            from .album_choices import other_album_response
+            return await other_album_response(hass, runtime, artist)
         discography = await _spotify_artist_albums(hass, runtime, artist)
         if discography:
             return _artist_albums_response(hass, discography, limit=count)
@@ -10113,6 +10132,9 @@ async def _dialogue_choice_response(hass, runtime, payload, text, *, index=None)
         return None
     value = payload.get("choice_action")
     chosen = choice_index(text) if index is None else index
+    if chosen is None and value is None and turn.frame.result_set:
+        from .dialogue import offered_media_index
+        chosen = offered_media_index(text, turn.frame.result_set["items"])
     version_match = re.fullmatch(r"(?:(?:de|die|the|la|le|el|speel|play|joue|spiel|pon)\s+)*(live|acoustic|akoestische|akustische|acoustique|acústica)(?:\s*(?:versie|version|versión|one))?", text.casefold().strip(" .!?"))
     play_reference = play_selected(text) and not (
         _is_current_album_play_request(text) and turn.frame.result_set is None)

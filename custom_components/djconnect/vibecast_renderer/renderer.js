@@ -1,7 +1,8 @@
 (() => {
   const params = new URLSearchParams(window.location.search);
   const staticHost = window.DJC_VIBECAST_MODE === "cast";
-  let haOrigin = "", sessionId = staticHost ? null : params.get("session_id"), broadcastToken = staticHost ? null : params.get("broadcast_token");
+  const displayHost = window.DJC_VIBECAST_MODE === "display";
+  let haOrigin = "", sessionId = staticHost || displayHost ? null : params.get("session_id"), broadcastToken = staticHost || displayHost ? null : params.get("broadcast_token");
   const endpoint = path => haOrigin + path;
   const asset = value => haOrigin && String(value || "").startsWith("/") ? haOrigin + value : value;
   const read = (value, path) => path.reduce((current,key) => current && current[key],value);
@@ -66,7 +67,9 @@
     if (stamped && created > now + 10000) return null;
     const rawDuration = Number(read(item,["presentation_intent","maximum_duration_seconds"]));
     const seconds = Number.isFinite(rawDuration) && rawDuration > 0 ? Math.min(90, rawDuration) : 25;
-    const expiry = (stamped ? created : firstSeen.get(key)) + seconds*1000;
+    const explicitExpiry = Date.parse(item.display_expires_at || "");
+    const expiry = Math.min((stamped ? created : firstSeen.get(key)) + seconds*1000,
+      Number.isFinite(explicitExpiry) ? explicitExpiry : Infinity);
     return now < expiry ? {key, created:stamped ? created : firstSeen.get(key), expiry, summary,
       detail:String(item.content || "").slice(0,1200), attribution:item.source_attribution, type:item.type || "", itemId:item.playback_item_id || "", stamped} : null;
   }
@@ -323,6 +326,7 @@
   e("mood").textContent=text.ambient;
   if (sessionId && broadcastToken) connect(); else e("state").textContent=text.unavailable;
   window.addEventListener("djconnect-handoff",({detail}) => {
+    if (displayHost) return;
     if (!(detail && detail.session_id) || !(detail && detail.broadcast_token)) return;
     stopHost();
     haOrigin=detail.ha_url || ""; sessionId=detail.session_id; broadcastToken=detail.broadcast_token;
@@ -341,4 +345,14 @@
   }
   window.addEventListener("djconnect-host-stop",stopHost);
   window.addEventListener("beforeunload",stopHost);
+  if (displayHost) {
+    window.addEventListener("djconnect-display-clear",stopHost);
+    window.addEventListener("djconnect-display-snapshot",({detail}) => {
+      if (!detail || detail.contract_version !== 1 || !detail.session || detail.session.runtime_state !== "active") return;
+      const labels=detail.session_presentation || {};
+      sessionId=detail.session.session_id; ended=false; snapshotAccepted=true;
+      apply({...detail,session:{...detail.session,selected_mood:labels.mood,dj_persona:labels.persona,selected_presence:labels.presence}});
+      e("state").textContent=text.live;
+    });
+  }
 })()

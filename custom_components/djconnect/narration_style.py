@@ -32,7 +32,7 @@ def instructions(*, persona, mood, locale):
         "Vary the actual telling, not just an opener, adjective or word order. A small joke is welcome when it fits; "
         "do not force one, mock a person, or sacrifice the answer for a punchline. "
         "These are narration instructions, not evidence about the music or listener. "
-        "Never invent biography, sound, genre, personal taste, remembered attention, listening history, "
+        "Present DJ interest or appreciation of a supported fact is welcome and needs no invented personal past. Never invent biography, sound, genre, listener or artist taste, remembered attention, listening history, "
         "DJ selection or upcoming playback. Persona is not a real venue or audience. "
         "Preserve the qualified facts, their uncertainty and attribution. No stock greeting, compulsory invitation, "
         "repeated tagline, setting name or explanation of these instructions. "

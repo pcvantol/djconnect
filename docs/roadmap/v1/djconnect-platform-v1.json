@@ -37594,7 +37594,7 @@
     }
   ],
   "planning_maintenance": {
-    "schema_version": "djconnect-federated-planning-delta/15",
+    "schema_version": "djconnect-federated-planning-delta/16",
     "decision_id": "DJC-DJ-PRESENCE-ROADMAP-DESIGN-V1-20261011",
     "decision_url": "https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6110375785",
     "design_date": "2026-10-11",
@@ -38801,11 +38801,11 @@
         "title": "Qualify browser-bound onboarding and guest trust contract",
         "lane": "DJC-CORE",
         "repository": "pcvantol/djconnect",
-        "status": "Planned",
-        "assignment_status": "NOT_ISSUED",
+        "status": "In progress",
+        "assignment_status": "IN_PROGRESS",
         "scope": "Qualify browser-bound onboarding and guest trust contract",
         "acceptance_boundary": "Qualify browser-bound onboarding and guest trust contract; exact source/consumer, visible/audible/physical and joint acceptance OPEN",
-        "contract_binding": "docs/product/VIBECAST_ONBOARDING_GUEST_AUTHORITY_V1.md",
+        "contract_binding": "docs/product/VIBECAST_DISPLAY_ADMISSION_V1.md",
         "source_ids": [
           "OWNER-WEB-FIRST-1174"
         ],
@@ -38850,11 +38850,11 @@
         "title": "Separate HA code and readonly display grant",
         "lane": "DJC-CORE",
         "repository": "pcvantol/djconnect",
-        "status": "Planned",
-        "assignment_status": "NOT_ISSUED",
+        "status": "In progress",
+        "assignment_status": "IN_PROGRESS",
         "scope": "Separate HA code and readonly display grant",
         "acceptance_boundary": "Separate HA code and readonly display grant; exact source/consumer, visible/audible/physical and joint acceptance OPEN",
-        "contract_binding": "docs/product/VIBECAST_ONBOARDING_GUEST_AUTHORITY_V1.md",
+        "contract_binding": "docs/product/VIBECAST_DISPLAY_ADMISSION_V1.md",
         "source_ids": [
           "OWNER-WEB-FIRST-1174"
         ],
@@ -41816,11 +41816,11 @@
     "document_references": [
       {
         "path": "PRODUCT_ROADMAP.md",
-        "sha256": "0463fbcc087367e7f6e19aba36410a8d01ab0e29fa090e029dc62be9f3e8eeca"
+        "sha256": "383f9ca33823b8bcc952ef62b5772115b3b70060163b800d138338953c1faa02"
       },
       {
         "path": "PRODUCT_BACKLOG.md",
-        "sha256": "8b234976d289e6adbbb5c4ce39ba10032c0446747c0191c7a7d3a39c4f817dd9"
+        "sha256": "bf3b09f00e13900062fa306f4fd0e4d2a9616d5ee973798feddf901246e83594"
       },
       {
         "path": "docs/product/DJ_PRESENCE_V1.md",
@@ -42048,7 +42048,7 @@
       },
       {
         "path": "docs/product/VIBECAST_ONBOARDING_GUEST_AUTHORITY_V1.md",
-        "sha256": "da543d0ebf266dfb4ec8ab491e7214940c946a85b381c44802b68f7d6e1708b2"
+        "sha256": "d9e230d57e08b64d613ce491b31745083a896e7b125f8d7b9d706adf51c9ac27"
       },
       {
         "path": "docs/product/APPLE_VIBECAST_GUEST_MODE_V1.md",
@@ -42056,7 +42056,7 @@
       },
       {
         "path": "docs/product/VIBECAST_WEB_ENTRY_DISTRIBUTION_V1.md",
-        "sha256": "e996a4973e21e8cd895f0d6a7bdfee8cc972c1e780f0568bdfc8a5219026d68d"
+        "sha256": "0f0cd6b9ee9ec6be7d4f7ea15c073101501beddc26ccf8c4b3101865c957e518"
       },
       {
         "path": "docs/product/HYBRID_LOCAL_TRANSPORT_POLICY_V1.md",
@@ -42152,7 +42152,7 @@
       },
       {
         "path": "docs/verification/CORE_LANE_REQUIREMENT_RECONCILIATION_20261017.md",
-        "sha256": "7d0367d0ef927c2c70c82ad94b551b586fbf6845c479619994342446c45a18ef"
+        "sha256": "d07032fa0683cb175f5ff41cabf33c93facb010f0ee334e2072b06a92d599561"
       },
       {
         "path": "docs/product/ASK_DJ_PUBLIC_MUSIC_RESEARCH_V1.md",
@@ -42180,7 +42180,7 @@
       },
       {
         "path": "docs/governance/DJC_PLATFORM_OPEN_WORK_20261017.md",
-        "sha256": "251b6725d6ca8a27a3d9071c2739c24b8156122b0ddd5bc7fb59ebed8137dc71"
+        "sha256": "b73eace1db3b096760d7fd674c701a08aba027569bbd7543c54a00439101d574"
       },
       {
         "path": "docs/history/prompts/2026-10-17-integral-open-work-audit-finalization.md",
@@ -42200,7 +42200,23 @@
       },
       {
         "path": "docs/verification/CORE_BRANCH_CONSOLIDATION_20261017.md",
-        "sha256": "fb30679c004ecb0dcaee6e95832f4a8431900c0e7e83d6d021fb7200ee9389e5"
+        "sha256": "f2aef0e884befacb44cd14e3c29231417b53a689a68a233101e31357cb9f5479"
+      },
+      {
+        "path": "docs/product/VIBECAST_DISPLAY_ADMISSION_V1.md",
+        "sha256": "9777b1cd9399c6b98e36a2c590cd214bb29c0456c492ded60d1d0d2a2fae846f"
+      },
+      {
+        "path": "docs/verification/VIBECAST_DISPLAY_DESIGN_REVIEW_20261016.md",
+        "sha256": "c28874b93440bce70a72dc436e0822d0f5b3fcfa58bcc27120ac26025cb75a9d"
+      },
+      {
+        "path": "docs/product/VIBECAST_DISPLAY_ADMISSION_B_V1.md",
+        "sha256": "f555656ada0078d35654303a5137a618abb152ec251a41df5725351fdf291549"
+      },
+      {
+        "path": "docs/product/ASK_DJ_ALBUM_TRACKS_V1.md",
+        "sha256": "05f2ad10314d5f87e06cc8c17ea544363a1c71e743871de88c67b04d2b8606e6"
       }
     ],
     "implementation_receipt": {
@@ -42932,6 +42948,86 @@
         }
       ],
       "current_inventory_sha256": "f45e578f092d1fc37001087770abd3c0ed49803466cba0fdf8cab2c96acb5b1c"
+    },
+    "display_admission_receipt": {
+      "assignment_id": "DJC-CORE-VIBECAST-DISPLAY-ADMISSION-V1-20261016",
+      "owner_selection": 6222775045,
+      "ack": 6224062979,
+      "base_sha": "1329ad1ce8bd066d65a08b3988261a44e2cac730",
+      "branch": "codex/vibecast-display-admission-v1",
+      "first_contract_commit": "275679322111fbda110bce2dad1f16da2932017e",
+      "previous_delta": "history/20261016/settings-capability-finalization-maintenance-v14.json",
+      "previous_delta_sha256": "57699566d3cfdec653e9c87d4416d706c0b1d2131ee58fc5911aba92718d017e",
+      "phase": "B_CORE_SOURCE_GO_A_CONTRACT_GATED",
+      "source_delivery": "DRAFT_PR_PUBLISHED_NOT_MERGED",
+      "trust_anchor": "OPEN_JOINT_REVIEW",
+      "wire": "NOT_FROZEN",
+      "runtime": "B_SOFTWARE_QUALIFIED_NOT_INSTALLED",
+      "native": "OPEN_APPLE",
+      "TV": "NOT_RUN",
+      "joint": "OPEN",
+      "consumer_writes": false,
+      "automatic_dispatch": false,
+      "b_design_go": {
+        "reviewed_sha": "ae2adfe9e162a00d00715e26418656976b6f02a2",
+        "scope": "ISOLATED_B_ONLY_A_UNAVAILABLE",
+        "runtime_acceptance": "NOT_RUN"
+      },
+      "b_source_go": {
+        "reviewed_sha": "325aabc7205f1f18928bc2c809817956d91609f8",
+        "producer_sha": "3cb9cf129f31d419e8b2027e4dc1ba08fafdb9d8",
+        "scope": "B_CORE_ONLY_A_UNAVAILABLE",
+        "technical_privacy": "GO",
+        "product_ux_privacy": "GO",
+        "source_files": 163,
+        "source_sha256": "fd37dfb681d436214f330a37ddb02c1568ec10ed6e1e14c1b9197e7c494ab904",
+        "public_TLS": "NOT_QUALIFIED",
+        "native": "OPEN",
+        "installed": "NOT_DELIVERED"
+      },
+      "product_disposition": {
+        "selection": "LIMITED_APP_ATTESTED_REPORTED_ROUTE",
+        "receipt": "https://github.com/pcvantol/djconnect-api/pull/94#issuecomment-6226306251",
+        "copied_qr_wrong_scanner_risk": "ACCEPTED_FOR_ADDRESS_SHORTCUT",
+        "independent_ha_owner_attestation": false,
+        "security_review": "OPEN",
+        "key_state": "OPEN",
+        "wire": "NOT_FROZEN",
+        "runtime_a": "NOT_IMPLEMENTED"
+      }
+    },
+    "branch_consolidation_receipt": {
+      "schema_version": "djconnect-core-branch-consolidation/1",
+      "source_delivery": "LOCAL_COMBINED_DRAFT_PREPARATION",
+      "overall_acceptance": "OPEN",
+      "original_main": "6a3adbc8e66ab380dfea1726ca34728097d0c684",
+      "original_heads": {
+        "ask_dj": "dae30074947b1cc3b105016ae14c99e0008c3870",
+        "waiting": "4b3a805975fbd6876c037b273ecbcced2f9af5b2",
+        "display": "6e560061cbee3bed86c50fc0deee7d74b9bfee9b"
+      },
+      "preserved_inputs": [
+        {
+          "path": "history/20261017/personal-dj-before-consolidation-maintenance-v15.json",
+          "sha256": "0c4a190d700b7de36b10986f3c00a2269f4646130e14c43d7c82f16cfbca2efc"
+        },
+        {
+          "path": "history/20261017/display-before-consolidation-maintenance-v15.json",
+          "sha256": "f3a77f4dd736fd8433d6f0c3b7374d1d118d094fe0fcc76d20aae7c95cee26c8"
+        }
+      ],
+      "existing_pr": 1197,
+      "sole_writer": true,
+      "consumer_writes": false,
+      "automatic_dispatch": false,
+      "merge_readiness": "NOT_QUALIFIED",
+      "native": "OPEN",
+      "installed": "NOT_RUN",
+      "audible": "NOT_RUN",
+      "premerge_heads": {
+        "ask_dj": "e3d7b55f5c67019a306cc4a4b3a31b2028304c9c",
+        "display": "6e560061cbee3bed86c50fc0deee7d74b9bfee9b"
+      }
     }
   }
 }

@@ -40,7 +40,7 @@ class SharedSettingsMaintenanceTests(unittest.TestCase):
     def test_six_parameter_scope_preserves_frozen_predecessor(self):
         self.assertEqual(validate(self.p), [])
         d = self.p['planning_maintenance']
-        self.assertEqual(d['schema_version'], 'djconnect-federated-planning-delta/15')
+        self.assertEqual(d['schema_version'], 'djconnect-federated-planning-delta/16')
         self.assertEqual(d['settings_consolidation_receipt']['parameters'],
                          ['persona', 'voice', 'gender', 'mood', 'presence', 'announcement_output'])
         self.assertIn('six shared Persona/voice/gender/Mood/Presence/announcement_output', render(self.p)['README.md'])
@@ -109,10 +109,20 @@ class SharedSettingsMaintenanceTests(unittest.TestCase):
         self.assertTrue(any('source evidence' in error for error in validate(p)))
 
 
+def delivered_settings_plan():
+    """Earlier settings/decision invariants retain their unchanged historical scope."""
+    import json
+    plan = load(ROOT / 'djconnect-platform-v1.json')
+    refs = plan['planning_maintenance']['document_references']
+    plan['planning_maintenance'] = json.loads((ROOT / 'history/20261017/settings-finalization-maintenance-v14.json').read_text())
+    plan['planning_maintenance']['document_references'] = refs
+    return plan
+
+
 def delivered_passive_plan():
     import json
     plan = load(ROOT / 'djconnect-platform-v1.json')
-    if plan['planning_maintenance']['schema_version'] == 'djconnect-federated-planning-delta/15':
+    if plan['planning_maintenance']['schema_version'] in {'djconnect-federated-planning-delta/15','djconnect-federated-planning-delta/16'}:
         refs = plan['planning_maintenance']['document_references']
         plan['planning_maintenance'] = json.loads((ROOT / 'history/20261017/settings-finalization-maintenance-v14.json').read_text())
         plan['planning_maintenance']['document_references'] = refs
@@ -947,7 +957,7 @@ class WebFirstNegativeTests(unittest.TestCase):
 
 class WebDecisionTests(unittest.TestCase):
     def setUp(self):
-        self.p = load(ROOT / "djconnect-platform-v1.json")
+        self.p = delivered_settings_plan()
 
     def test_resolved_choices_are_not_runtime_or_other_lane_selection(self):
         from web_first_decisions_delta import RESOLVED, PUBLIC

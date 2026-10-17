@@ -1708,11 +1708,15 @@ async def _recommendation_play_success_response(
     except Exception:
         pass
     if not confirmed:
-        fallback_dj_text = {
-            "en": "Playback requested; it is not yet confirmed.", "nl": "Afspelen aangevraagd; het is nog niet bevestigd.",
-            "de": "Wiedergabe angefordert; noch nicht bestätigt.", "fr": "Lecture demandée ; pas encore confirmée.",
-            "es": "Reproducción solicitada; aún no confirmada."
-        }[(turn.style.get("language") if turn else None) or "en"]
+        # Keep the producer-frozen kind/title even when a provider readback lags.
+        # An album context is not the currently observed first recording.
+        from .playback_request import _copy
+        named = dict(recommendation)
+        if kind == "album":
+            named["album_name"] = ""
+        named["track_name"] = recommendation.get("title") or recommendation.get("name") or named.get("title")
+        receipt = {"selection": {"kind": kind, "media": named}, "observed_match": confirmed}
+        _, fallback_dj_text = _copy(receipt, (turn.style.get("language") if turn else None) or "en")
     dj_text = fallback_dj_text
     dj_response_debug["fallback_used"] = True
     dj_response_debug["reason"] = "catalog_model_processing_not_qualified"

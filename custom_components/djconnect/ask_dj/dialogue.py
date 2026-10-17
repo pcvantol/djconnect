@@ -494,11 +494,54 @@ def choice_index(text: str) -> int | None:
     return None
 
 
+def offered_media_index(text: str, items: list[dict]) -> int | None:
+    """An exact named shown title keeps its original media kind and identity."""
+    if not explicit_play(text):
+        return None
+    from ..music_intent import parse_spoken_music_request
+    import unicodedata
+    parsed = parse_spoken_music_request(text)
+    def key(value):
+        return ''.join(c for c in unicodedata.normalize('NFKD', str(value)).casefold() if c.isalnum())
+    title = key(parsed.get('title') or '')
+    artist = key(parsed.get('artist') or '')
+    if not title or not artist:
+        return None
+    typed = re.match(
+        r"^(?:speel|draai|play|put on|spiel(?:e)?|joue|mets|reproduce|pon)\s+"
+        r"(?:(?:het|de|een|the|a|an|das|ein|le|la|un|une|el)\s+)?"
+        r"(album|plaat|record|nummer|track|song|lied|titel|morceau|chanson|canción|tema)\b",
+        text.casefold().strip())
+    explicit_kind = ('album' if typed[1] in {'album', 'plaat', 'record'} else 'track') if typed else None
+    matches = [i for i, item in enumerate(items)
+               if item.get('kind') in {'album', 'track'}
+               and (explicit_kind is None or item.get('kind') == explicit_kind)
+               and key(item.get('title') or '') == title
+               and key(item.get('artist') or item.get('artist_name') or '') == artist]
+    if len(matches) > 1:
+        raise DialogueError('choice_ambiguous')
+    return matches[0] if matches else None
+
+
+def affirmed_play_reference(text: str) -> bool:
+    """Explicit desire to play the shown item; plain yes is never a grant."""
+    value = " ".join(text.casefold().strip(" .!?¿¡").split())
+    return bool(re.fullmatch(
+        r"(?:(?:ja|yes|oui|sí|si),?\s+)?(?:"
+        r"(?:die|dat|dit) wil ik (?:graag )?afspelen|"
+        r"ik wil (?:die|dat|dit) (?:graag )?afspelen|"
+        r"i (?:want|would like) to play (?:that|this|it)|"
+        r"(?:das|dieses) m[öo]chte ich (?:gern )?(?:abspielen|h[öo]ren)|"
+        r"je (?:veux|voudrais) (?:[ée]couter|jouer) (?:cet album|celui-là|[çc]a)|"
+        r"quiero (?:reproducir|escuchar) (?:ese|este|eso)(?: álbum)?"
+        r")", value))
+
+
 def explicit_play(text: str) -> bool:
     from . import _nonexecuting_speech_act
     if _nonexecuting_speech_act(text):
         return False
-    return bool(
+    return affirmed_play_reference(text) or bool(
         re.match(
             r"^(?:speel|draai|play|put on|spiel(?:e)?|joue|mets|reproduce(?:lo)?|reprodúcelo|pon(?:lo)?)\b",
             text.casefold().strip(),
@@ -516,7 +559,7 @@ def play_selected(text: str) -> bool:
     """An explicit local play reference, never a new free-text media identity."""
     value = text.casefold().strip(" .!?")
     return explicit_play(value) and (
-        references_topic(value)
+        affirmed_play_reference(value) or references_topic(value)
         or value
         in {
             "speel af",

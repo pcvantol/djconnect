@@ -184,6 +184,15 @@ async def previous_read(hass, runtime):
 def current_artist_question(text: str) -> bool:
     """Closed identification intent at the common text/STT interpretation boundary."""
     value = " ".join(text.casefold().strip().strip("¿¡?.! ").split())
+    current_artist_patterns = (
+        r"wie is (?:de )?(?:artiest|zanger|band) (?:van|bij) (?:het )?(?:huidige?|nu spelende|dit|dat) (?:nummer|liedje|track)",
+        r"who is (?:the )?(?:artist|singer|band) (?:of|on|for) (?:the )?(?:current|currently playing|this|that) (?:song|track)",
+        r"wer ist (?:der |die )?(?:künstler|sänger|band) (?:des |vom |von dem )?(?:aktuellen|jetzigen|dieses) (?:liedes|titels|songs|lied|titel|song)",
+        r"qui est l['’](?:artiste|interprète) (?:du|de ce) (?:morceau|titre|chanson)(?: actuel| actuelle)?",
+        r"quién es (?:el|la) (?:artista|cantante) de (?:la|el) (?:canción|tema) actual",
+    )
+    if any(re.fullmatch(pattern, value) for pattern in current_artist_patterns):
+        return True
     return value in {
         "welke artiest is dit", "welke band is dit", "wie is dit", "wie hoor ik nu",
         "wie zingt dit", "who is this", "which artist is this", "who is this artist",

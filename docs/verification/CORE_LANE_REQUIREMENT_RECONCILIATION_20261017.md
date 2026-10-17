@@ -3,14 +3,14 @@
 Status: active corrective work, not a completion report. Current source base
 `6a3adbc8e66ab380dfea1726ca34728097d0c684`; main integration
 `244fad8d8488aa2b5e34d182ef15860dbaa7ee2e`; existing branch
-`codex/askdj-contextual-golden-release-v1`. Frozen VibeCast1197 and other
+`codex/askdj-contextual-golden-release-v1`. VibeCast1197 is the existing joint draft target; original input refs and other
 consumer work are preserved. This audit grants no new assignment or writer.
 
 The bounded receiver end-authority predecessor is separately delivered through
 source1202/Finalization1203 and installed on dev/prod; it does not close the
 personal-DJ restoration. Current atomic-quote refinement and full-corpus
 editorial focus supersede episode-only admission. Golden inventory now retains
-35 reported issues,35 families and114steps; six Core findings and twelve real
+40 reported issues,35 families and120steps; seven Core findings and thirteen real
 quality steps remain open pending actual assessment. Earlier dated counts below
 remain historical evidence. No fresh narrative or release GO is claimed.
 
@@ -337,3 +337,34 @@ The compatibility endpoint returns410/no-store without reading a Session.
 Paired owner end and generic entry/unload/recovery fences remain. This bounded
 local correction leaves broader narration, consumer, protected delivery and
 installed gates open. No other lane's source is changed.
+
+## Combined PR album and collector correction checkpoint
+
+The original three branches are combined locally; maintenance16 composes both
+preserved15 streams. Personal-DJ input is the exact premerge `e3d7b55f5c67019a306cc4a4b3a31b2028304c9c`
+repair checkpoint, display input remains `6e560061cbee3bed86c50fc0deee7d74b9bfee9b`.
+Original `dae30074` remains recoverable independently; neither historic JSON is
+rewritten to current source hashes. Current references belong to maintenance16.
+
+Album reports permanently join the existing album family. The read lists
+actual titles for the exact current/selected edition in five languages, without
+model or playback effects; limits/errors/expiry/source/Session fences remain.
+Alternative Volbeat offers are real frozen album actions. Explicit desired
+playback and an exactly named previous offer preserve the album context; an
+explicit track/album type wins over an old same-name offer. No lookup or inferred
+URI is reconstructed from model prose. Private catalog lists remain outside
+permanent Flow until their independent source-bound archival path qualifies;
+this is an explicit open requirement, not a success claim.
+
+The unchanged recommendation style remains on confirmed playback. An
+unconfirmed provider result still names the exact frozen media and says only
+that playback was requested. This protects truthful UX while retaining the
+current narration-quality gate. Native music play controls are separate from
+TTS replay controls.
+
+The central post-merge collector locally reads all commit-file pages, pins the
+same SHA/parents, rejects duplicate/incomplete pages and fails closed at the
+3000-file API boundary. Actual inline Node369-file execution plus the unchanged
+reconciler accepts the full set and rejects the old300subset. Apple receives
+no replacement producer pin until protected delivery; their independent source
+merge is not misrepresented as formal Finalization PASS.

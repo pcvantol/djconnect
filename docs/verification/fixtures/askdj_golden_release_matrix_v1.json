@@ -30,6 +30,10 @@
     "current_release_information": {
       "file": "tests/test_ask_dj_contextual_dialogue.py",
       "method": "test_release_question_uses_current_or_selected_metadata_locally"
+    },
+    "album_tracks_information": {
+      "file": "tests/test_ask_dj_album_tracks.py",
+      "method": "test_current_album_other_tracks_in_five_languages_are_informational_and_not_promoted_to_model_or_archive"
     }
   },
   "families": [
@@ -241,6 +245,76 @@
           ],
           "acceptance_status": "owner_contract",
           "proof_boundary": "Named owning contract execution; live provider/model/native quality requires separate evidence."
+        },
+        {
+          "id": "ASKDJ-FLOW-albums-versions-playlists-step-4",
+          "question": "Welke nummers staan er nog meer op dit album?",
+          "expected_answer": "Werkelijke overige nummers van exact die albumuitgave; huidige opname weggelaten; geen playback of modelaanroep.",
+          "model_policy": "zero",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_album_tracks.py",
+              "method": "test_current_album_other_tracks_in_five_languages_are_informational_and_not_promoted_to_model_or_archive"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual Core route with external provider fixtures; retained rich catalogue conversation remains open; native/installed/provider playback not inferred."
+        },
+        {
+          "id": "ASKDJ-FLOW-albums-versions-playlists-step-5",
+          "question": "Heb je een ander album van Volbeat?",
+          "expected_answer": "Eén werkelijk ander catalogusalbum met album-URI, artwork waar beschikbaar en afspeelactie; nul playback vooraf.",
+          "model_policy": "zero",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_album_tracks.py",
+              "method": "test_other_album_offer_followup_starts_full_album_context_without_new_search"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual Core route with external provider fixtures; retained rich catalogue conversation remains open; native/installed/provider playback not inferred."
+        },
+        {
+          "id": "ASKDJ-FLOW-albums-versions-playlists-step-6",
+          "question": "Ja, die wil ik afspelen.",
+          "expected_answer": "Precies het eerder aangeboden album als volledige Spotify-albumcontext; geen nieuwe lookup, geen losse track.",
+          "model_policy": "zero",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_album_tracks.py",
+              "method": "test_other_album_offer_followup_starts_full_album_context_without_new_search"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual Core route with external provider fixtures; retained rich catalogue conversation remains open; native/installed/provider playback not inferred."
+        },
+        {
+          "id": "ASKDJ-FLOW-albums-versions-playlists-step-7",
+          "question": "Speel Beyond Hell Above Heaven van Volbeat af",
+          "expected_answer": "De genoemde eerdere albumkeuze behoudt album-kind, ook zonder het woord album; context_uri in provider-PUT, geen uris met één track.",
+          "model_policy": "zero",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_album_tracks.py",
+              "method": "test_named_album_followup_keeps_album_kind_even_without_word_album"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual Core route with external provider fixtures; retained rich catalogue conversation remains open; native/installed/provider playback not inferred."
+        },
+        {
+          "id": "ASKDJ-FLOW-albums-versions-playlists-step-8",
+          "question": "Lees dezelfde albumtracklijst terug uit een eerdere sessie",
+          "expected_answer": "Exacte geaccepteerde catalogustekst/items met actuele captured-source/ownerrechten en retentie; geen modelhergebruik. Nog niet gekwalificeerd.",
+          "model_policy": "zero",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_album_tracks.py",
+              "method": "test_current_album_other_tracks_in_five_languages_are_informational_and_not_promoted_to_model_or_archive"
+            }
+          ],
+          "acceptance_status": "open_real_quality",
+          "proof_boundary": "Actual Core route with external provider fixtures; retained rich catalogue conversation remains open; native/installed/provider playback not inferred."
         }
       ],
       "owning_tests": [
@@ -255,9 +329,65 @@
         {
           "file": "tests/test_ask_dj_golden_conversation_chains.py",
           "method": "test_period_empty_result_replaces_old_offer_and_cannot_revive_old_album"
+        },
+        {
+          "file": "tests/test_ask_dj_album_tracks.py",
+          "method": "test_current_album_other_tracks_in_five_languages_are_informational_and_not_promoted_to_model_or_archive"
+        },
+        {
+          "file": "tests/test_ask_dj_album_tracks.py",
+          "method": "test_other_album_offer_followup_starts_full_album_context_without_new_search"
+        },
+        {
+          "file": "tests/test_ask_dj_album_tracks.py",
+          "method": "test_named_album_followup_keeps_album_kind_even_without_word_album"
+        },
+        {
+          "file": "tests/test_ask_dj_album_tracks.py",
+          "method": "test_provider_failure_is_unknown_not_empty_and_does_not_start_playback"
+        },
+        {
+          "file": "tests/test_ask_dj_album_tracks.py",
+          "method": "test_album_change_during_catalog_lookup_never_delivers_the_other_edition"
+        },
+        {
+          "file": "tests/test_ask_dj_album_tracks.py",
+          "method": "test_large_album_is_explicitly_partial_and_has_no_per_track_fetch"
+        },
+        {
+          "file": "tests/test_ask_dj_album_tracks.py",
+          "method": "test_explicit_album_request_dispatches_context_not_one_recording"
+        },
+        {
+          "file": "tests/test_ask_dj_album_tracks.py",
+          "method": "test_five_language_other_album_and_explicit_confirmation_grammar"
+        },
+        {
+          "file": "tests/test_ask_dj_album_tracks.py",
+          "method": "test_confirmation_without_catalog_offer_cannot_start_any_music"
+        },
+        {
+          "file": "tests/test_ask_dj_album_tracks.py",
+          "method": "test_catalogue_read_preserves_original_expiry_across_await"
+        },
+        {
+          "file": "tests/test_ask_dj_album_tracks.py",
+          "method": "test_catalogue_unknown_stale_and_empty_are_distinct"
+        },
+        {
+          "file": "tests/test_ask_dj_album_tracks.py",
+          "method": "test_explicit_media_kind_wins_over_equal_named_frozen_offer"
+        },
+        {
+          "file": "tests/test_ask_dj_album_tracks.py",
+          "method": "test_selected_historical_recording_is_not_replaced_by_current_album"
+        },
+        {
+          "file": "tests/test_ask_dj_album_tracks.py",
+          "method": "test_unconfirmed_album_reply_names_request_without_borrowing_current_recording"
         }
       ],
-      "real_ha_profile": null,
+      "real_ha_profile": "album_context",
       "fixture_boundary": "owning tests have explicit provider/agent fixtures; real HA profiles separately named"
     },
     {
@@ -308,6 +438,20 @@
           ],
           "acceptance_status": "owner_contract",
           "proof_boundary": "Named owning contract execution; live provider/model/native quality requires separate evidence."
+        },
+        {
+          "id": "ASKDJ-FLOW-current-previous-explicit-current-artist-words",
+          "question": "Wie is de artiest van huidig nummer",
+          "expected_answer": "Huidige geautoriseerde artiest én opname, zonder LLM of playbackeffect; onbekend alleen als de actuele context werkelijk ontbreekt.",
+          "model_policy": "zero",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_current_artist_words.py",
+              "method": "test_explicit_current_artist_uses_fresh_music_context_in_all_five_languages"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Exact wording and five-language current metadata fixture; real paired HA album_context profile; installed/native acceptance separate."
         }
       ],
       "owning_tests": [
@@ -326,6 +470,10 @@
         {
           "file": "tests/test_ask_dj.py",
           "method": "test_current_artist_info_question_uses_fresh_playback_artist"
+        },
+        {
+          "file": "tests/test_ask_dj_current_artist_words.py",
+          "method": "test_explicit_current_artist_uses_fresh_music_context_in_all_five_languages"
         }
       ],
       "real_ha_profile": "previous",
@@ -2972,13 +3120,45 @@
       "family_id": "ASKDJ-REGRESSION-research-grounding-boundary",
       "finding": "De gebruiker ziet een melding over ontbrekende betrouwbare broninformatie terwijl Wikipedia wel gefetcht is. Ongeldige beoordelingsopmaak en onschuldige randspaties blokkeerden bruikbare tekst; echte unsupported claims en model-reviewfalen moeten onderscheiden blijven.",
       "core_qualification": "locally_covered"
+    },
+    {
+      "id": "ASKDJ-ISSUE-current-album-tracks",
+      "family_id": "ASKDJ-FLOW-albums-versions-playlists",
+      "finding": "Welke nummers staan er nog meer op dit album gaf geen tracklijst van de huidige uitgave.",
+      "core_qualification": "locally_covered"
+    },
+    {
+      "id": "ASKDJ-ISSUE-volbeat-album-offer-reference",
+      "family_id": "ASKDJ-FLOW-albums-versions-playlists",
+      "finding": "Ander Volbeat-album verscheen zonder muziekactie; expliciet Ja die wil ik afspelen werkte niet.",
+      "core_qualification": "locally_covered"
+    },
+    {
+      "id": "ASKDJ-ISSUE-volbeat-album-versus-single-track",
+      "family_id": "ASKDJ-FLOW-albums-versions-playlists",
+      "finding": "Een eerdere genoemde albumkeuze mocht niet als losse opname worden gestart; bewijs volledige context-PUT en outputcontinuation vereist.",
+      "core_qualification": "locally_covered"
+    },
+    {
+      "id": "ASKDJ-ISSUE-catalogue-conversation-retention",
+      "family_id": "ASKDJ-FLOW-albums-versions-playlists",
+      "finding": "Rijke albumtracklijst is nu alleen huidige private response; duurzame tekst/items met bronintrekking/retentie ontbreken nog.",
+      "core_qualification": "open"
+    },
+    {
+      "id": "ASKDJ-ISSUE-current-artist-explicit-words",
+      "family_id": "ASKDJ-FLOW-current-previous",
+      "finding": "De gesloten herkenning miste Wie is de artiest van huidig nummer en stuurde dat naar de algemene route ondanks beschikbare playback.",
+      "core_qualification": "locally_covered"
     }
   ],
   "regression_suite_files": [
     "tests/test_ask_dj_playback_request_truth.py",
     "tests/test_ask_dj_golden_conversation_chains.py",
     "tests/test_personal_dj_flow_completion.py",
-    "tests/test_personal_dj_runtime_expression.py"
+    "tests/test_personal_dj_runtime_expression.py",
+    "tests/test_ask_dj_album_tracks.py",
+    "tests/test_ask_dj_current_artist_words.py"
   ],
   "issue_policy": {
     "new_findings": "Add a named failing reproduction and semantic expected answer in the same corrective candidate; preserve it after the fix.",

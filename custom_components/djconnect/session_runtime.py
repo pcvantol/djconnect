@@ -17,6 +17,7 @@ from typing import Any, Awaitable, Callable
 from uuid import uuid4
 
 from .const import API_IMAGE_PROXY_BASE, DOMAIN
+from .display_admission import DisplayAdmissionState
 from .session_forecast import ForecastProjection
 from .forecast_imagery import ForecastArtwork
 from .presence_policy import DEFAULT as DEFAULT_PRESENCE, POLICIES, PresenceLedger
@@ -3551,6 +3552,7 @@ class DJSessionBroadcastEngine:
     _subscribers: dict[str, tuple[Callable[[dict[str, Any]], None], bool]] = field(
         default_factory=dict, init=False, repr=False
     )
+    _display_invalidators: dict[str, Callable[[], None]] = field(default_factory=dict, init=False, repr=False)
     _pending_subscriptions: dict[str, list[dict[str, Any]]] = field(
         default_factory=dict, init=False, repr=False
     )
@@ -3637,6 +3639,15 @@ class DJSessionBroadcastEngine:
         self._owner_subscription_entries.pop(subscription_id, None)
         self._revoked_subscriptions.discard(subscription_id)
         self._withdrawal_sent.discard(subscription_id)
+
+    def register_display_invalidation(self, key: str, callback: Callable[[], None]) -> None:
+        """Signal only dirtiness to an already admitted bounded display writer."""
+        if key not in self._display_invalidators and len(self._display_invalidators) >= 64:
+            raise ValueError("display_capacity")
+        self._display_invalidators[key] = callback
+
+    def unregister_display_invalidation(self, key: str) -> None:
+        self._display_invalidators.pop(key, None)
 
     @property
     def subscriber_count(self) -> int:
@@ -3736,6 +3747,7 @@ class DJSessionBroadcastEngine:
         self._publish(BroadcastEventType.RUNTIME_ENDED, {"session": state["session"]})
         self._publish(BroadcastEventType.BROADCAST_STOPPED, {"broadcast": state["broadcast"]})
         self._subscribers.clear()
+        self._display_invalidators.clear()
         self._pending_subscriptions.clear()
         self.replay_log = ()
         self.delivery_sequence = 0
@@ -3793,6 +3805,13 @@ class DJSessionBroadcastEngine:
                 callback(scoped_event)
             except Exception as exc:  # noqa: BLE001
                 _LOGGER.debug("DJConnect subscriber delivery failed: %s", exc.__class__.__name__)
+        # No payload retention, projection or task per event. Private owner
+        # events can only invalidate; each display rebuilds its own allowlist.
+        for callback in tuple(self._display_invalidators.values()):
+            try:
+                callback()
+            except Exception:
+                pass
 
     def _append_replay_entry(
         self, event_type: BroadcastEventType, payload: dict[str, Any], recovery_cursor: str
@@ -4331,6 +4350,9 @@ class SessionRuntimeManager:
         self._receiver_entry_generations: dict[str, int] = {}
         self._monotonic_source = monotonic_source or (lambda: time.monotonic())
         self._lock = asyncio.Lock()
+        # B state shares this manager's semantic commit lock; no second planner
+        # or authority registry. No public route/capability is enabled here.
+        self._display_admission = DisplayAdmissionState(self._monotonic_source)
         self._persistent_sessions = persistent_sessions
         self._historical_projections = historical_projections
         self._settings_repository = settings_repository
@@ -6317,6 +6339,7 @@ class SessionRuntimeManager:
         """Fence unloaded paired-entry subscriptions without ending the Session."""
         async with self._lock:
             self._receiver_entry_generations[entry_id] = self.receiver_entry_generation(entry_id) + 1
+            self._display_admission.revoke_entry(entry_id)
             for active in self._active_by_profile.values():
                 active.broadcast.revoke_owner_entry_subscriptions(entry_id)
 
@@ -6360,6 +6383,11 @@ class SessionRuntimeManager:
             expression_form=remember_frame(moment.expression_form, frame),
             narration_acceptance=RuntimeNarrationAcceptance(moment, str(text), frame, active.locale, guard),
             generation_metadata=(*moment.generation_metadata, ('realization', 'qualified_runtime_narration_v1')))
+
+    async def async_clear_display_admission(self) -> None:
+        """Forget pending B claims on last unload; never end owner Sessions."""
+        async with self._lock:
+            self._display_admission.clear()
 
     async def _async_persist_track_started_moment(self, active, moment, media_identity, previous_media_identity):
         """Persist under manager lock; release reservation only on definitive rollback."""
@@ -6590,6 +6618,7 @@ class SessionRuntimeManager:
                     owner_profile_id,active.session_id,PERSISTENT_SESSION_ENDED,
                     historical_projections=self._historical_projections,
                 )
+            self._display_admission.revoke_session(active.session_id)
             self._playback_progress_clocks.pop(owner_profile_id, None)
             self._intra_track_opportunities.pop(owner_profile_id, None)
             active.published_recording_context.clear()

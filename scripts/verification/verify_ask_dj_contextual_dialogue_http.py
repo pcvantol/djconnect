@@ -264,7 +264,7 @@ async def main():
                 yield ResponseOutputItemDoneEvent.model_construct(type="response.output_item.done",sequence_number=2,output_index=0,item=item)
                 yield ResponseCompletedEvent.model_construct(type="response.completed",sequence_number=3,response=completed)
             return fixture_stream()
-        assert os.environ.get("DJC_SAFETY_PROBE") not in {"previous", "output", "release_context", "silence_signal", "vibecast_end_retired"}, "Safety probes must not call a model"
+        assert os.environ.get("DJC_SAFETY_PROBE") not in {"previous", "output", "release_context", "album_context", "silence_signal", "vibecast_end_retired"}, "Safety probes must not call a model"
         if os.environ.get("DJC_SAFETY_PROBE") == "public_research":
             capture_public_sources(kwargs.get("input", []))
         inputs = json.dumps(kwargs.get("input", []), ensure_ascii=False)
@@ -573,6 +573,11 @@ async def main():
             )
         ]
 
+        if os.environ.get("DJC_SAFETY_PROBE") == "album_context":
+            for recording in tracks:
+                recording['album'].update(uri='spotify:album:'+'b'*22)
+                recording['artists'][0]['name']='Volbeat'
+
         if os.environ.get("DJC_SAFETY_PROBE") == "release_context":
             tracks[0]["album"].update(release_date="2008-05-06",release_date_precision="day")
         if os.environ.get("DJC_SAFETY_PROBE") == "choice_titles":
@@ -621,6 +626,17 @@ async def main():
                     state["output_id"] = json["device_ids"][0]
                     state["no_active_output"] = False
                 return {}
+            if os.environ.get('DJC_SAFETY_PROBE') == 'album_context':
+                if parsed.path == '/albums/'+'b'*22:
+                    return dict(tracks[0]['album'])
+                if parsed.path == '/albums/'+'b'*22+'/tracks':
+                    return {'items':tracks,'total':len(tracks),'next':None}
+                if parsed.path == '/artists/'+'a'*22+'/albums':
+                    return {'items':[{'id':'c'*22,'uri':'spotify:album:'+'c'*22,
+                        'name':'Beyond Hell/Above Heaven','release_date':'2010','images':[],
+                        'artists':[dict(tracks[0]['artists'][0])],'total_tracks':13}]}
+                if parsed.path == '/search' and query.get('type') == ['artist']:
+                    return {'artists':{'items':[dict(tracks[0]['artists'][0])]}}
             if parsed.path == "/me/player":
                 if os.environ.get("DJC_SAFETY_PROBE") == "current_artist" and state.get("read_gate"):
                     from custom_components.djconnect.ask_dj.dialogue import current_turn
@@ -1615,6 +1631,56 @@ async def main():
                         "core_transports":receipts,"model_calls":[],"paid_model_calls":0,
                         "live_cases":["paired_auth","live_silence","dedup","reconnect_original_expiry","no_speech_budget","session_end"],
                         "native":"NOT_RUN","installed":"NOT_RUN"},indent=2)+"\n")
+                    await async_shutdown_persistence(h)
+                    await h.async_stop(force=True)
+                    await api.close()
+                    return
+
+                if os.environ.get("DJC_SAFETY_PROBE") == "album_context":
+                    active,moment,_=await start('album-context')
+                    for i,(locale,question) in enumerate((
+                        ('nl','Wie is de artiest van huidig nummer'),
+                        ('en','Who is the artist of the current song?'),
+                        ('de','Wer ist der Künstler des aktuellen Liedes?'),
+                        ('fr','Qui est l’artiste du morceau actuel ?'),
+                        ('es','¿Quién es el artista de la canción actual?'),
+                    )):
+                        answer=await ask(question,'album-current-artist-'+str(i),language=locale)
+                        assert answer['intent']['intent']=='current_artist_information'
+                        assert 'Volbeat' in answer['text'] and tracks[0]['name'] in answer['text']
+                        assert not answer['playback_actions'] and not answer['history_persisted']
+                    for i,(locale,question) in enumerate((
+                        ('nl','Welke nummers staan er nog meer op dit album?'),
+                        ('en','What other songs are on this album?'),
+                        ('de','Welche anderen Lieder sind auf diesem Album?'),
+                        ('fr','Quels autres morceaux sont sur cet album ?'),
+                        ('es','¿Qué otras canciones hay en este álbum?'),
+                    )):
+                        answer=await ask(question,'album-tracks-'+str(i),language=locale)
+                        assert [item['title'] for item in answer['items']]==[t['name'] for t in tracks[1:]]
+                        assert not answer['playback_actions'] and not answer['history_persisted']
+                        assert answer['album_track_observation']['state']=='complete'
+                    assert not mutations and not model_receipts
+                    offer=await ask('Heb je een ander album van Volbeat?','album-offer',language='nl')
+                    action=offer['playback_actions'][0]
+                    assert action['kind']=='album' and action['context_uri']=='spotify:album:'+'c'*22
+                    assert not mutations
+                    played=await ask('Ja, die wil ik afspelen.','album-play',language='nl')
+                    assert 'Beyond Hell/Above Heaven' in played['text']
+                    dispatched=[r for r in provider_calls if r['method']=='PUT' and r['path'].split('?')[0]=='/me/player/play']
+                    assert len(dispatched)==1 and dispatched[0]['body']=={'context_uri':action['context_uri']}
+                    await call('ask_dj/message',{'text':'Ja, die wil ik afspelen.',
+                        'client_message_id':'album-play','language':'nl','audio_response':'never'},label='album-play-duplicate',expected=409)
+                    assert len([r for r in provider_calls if r['method']=='PUT'])==1
+                    assert not model_receipts
+                    await end(active,'album-context')
+                    Path('/lab/album-context.json').write_text(json.dumps({
+                        'qualification':'CORE_PAIRED_ALBUM_TRACKS_AND_FROZEN_ALBUM_PLAY',
+                        'source_hashes':hashes(),'pairing':'ordinary_device_token_minted_persisted',
+                        'core_transports':receipts,'model_calls':model_receipts,'paid_model_calls':0,
+                        'provider_calls':provider_calls,'effects':mutations,
+                        'retained_catalogue_conversation':'OPEN','native':'NOT_RUN','installed':'NOT_RUN',
+                        'natural_album_transition':'NOT_RUN_PROVIDER_FIXTURE'},indent=2)+'\n')
                     await async_shutdown_persistence(h)
                     await h.async_stop(force=True)
                     await api.close()

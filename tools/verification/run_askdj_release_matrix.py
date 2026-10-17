@@ -34,6 +34,7 @@ PROFILES = {
     'output': ('output-safety-fixed.json', 240),
     'choice_titles': ('choice-titles.json', 240),
     'release_context': ('release-context.json', 240),
+    'album_context': ('album-context.json', 240),
     'silence_signal': ('silence-signal.json', 240),
     'mood_prosody': ('literal-tts.json', 600),
     'full_golden': ('dialogue.json', 1500),
@@ -129,6 +130,7 @@ def expected_source_hashes():
 def validate_local_report(mode, raw):
     qualification={
         'release_context':'CORE_PAIRED_CURRENT_SELECTED_RELEASE_METADATA_ZERO_MODEL',
+        'album_context':'CORE_PAIRED_ALBUM_TRACKS_AND_FROZEN_ALBUM_PLAY',
         'silence_signal':'CORE_PAIRED_SILENCE_LIVE_RECONNECT_ZERO_MODEL',
         'previous':'CORE_PAIRED_INFORMATIONAL_PREVIOUS_NO_EFFECT',
         'output':'REAL_PAIRED_OUTPUT_SELECTION_TRANSFER_EXACT_TARGET',
@@ -136,6 +138,7 @@ def validate_local_report(mode, raw):
         'choice_titles':'ISOLATED_REAL_HA_PAIRED_CATALOG_TITLES',
     }
     required={
+        'album_context':{f'album-tracks-{i}' for i in range(5)}|{'album-offer','album-play','album-play-duplicate'}|{f'album-current-artist-{i}' for i in range(5)},
         'release_context':{f'release-{i}-{mode}' for i in range(7) for mode in ('current','selected')}|{'release-selected-other-current'},
         'previous':{'baseline-previous-question'},
         'silence_signal':{'silence-start','silence-snapshot','silence-end'},
@@ -163,7 +166,7 @@ def validate_local_report(mode, raw):
     for row in rows:
         if not isinstance(row.get('path'),str) or not isinstance(row.get('request'),dict) or not isinstance(row.get('body'),dict):
             return False
-        expected=403 if row['case']=='artist-other-profile' else (409 if row['case'] in {'artist-end-race','output-offline','titles-ended-list'} else (201 if row['path']=='session/start' else 200))
+        expected=403 if row['case']=='artist-other-profile' else (409 if row['case'] in {'artist-end-race','output-offline','titles-ended-list','album-play-duplicate'} else (201 if row['path']=='session/start' else 200))
         if (type(row.get('status')) is not int or type(row.get('expected_status')) is not int
             or row['status']!=expected or row['expected_status']!=expected or row.get('cache_control')!='no-store'):
             return False

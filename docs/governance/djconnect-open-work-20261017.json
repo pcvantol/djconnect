@@ -543,7 +543,7 @@
     {
       "id": "WEB::TRUST",
       "lane": "DJC-CORE",
-      "status": "Planned",
+      "status": "In progress",
       "title": "Qualify browser-bound onboarding and guest trust contract",
       "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
     },
@@ -557,7 +557,7 @@
     {
       "id": "WEB::DISPLAY",
       "lane": "DJC-CORE",
-      "status": "Planned",
+      "status": "In progress",
       "title": "Separate HA code and readonly display grant",
       "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
     },
@@ -1841,5 +1841,32 @@
       "evidence": "https://github.com/pcvantol/djconnect/issues/1165#issuecomment-6234851603",
       "state": "closed"
     }
-  ]
+  ],
+  "combined_branch_status_reconciliation": {
+    "date": "2026-10-17",
+    "scope": "CURRENT_DAG_STATUS_ONLY_NOT_PRODUCT_OR_INSTALLED_ACCEPTANCE",
+    "changes": [
+      {
+        "id": "WEB::TRUST",
+        "original_captured_status": "Planned",
+        "combined_local_status": "In progress"
+      },
+      {
+        "id": "WEB::DISPLAY",
+        "original_captured_status": "Planned",
+        "combined_local_status": "In progress"
+      }
+    ],
+    "source_delivery": "LOCAL_COMBINED_DRAFT_PREPARATION",
+    "remaining_gates_preserved": true,
+    "current_local_state": "LOCAL_COMBINED_DRAFT_PREPARATION",
+    "reported_issues": 40,
+    "conversation_families": 35,
+    "conversation_steps": 120,
+    "open_core_findings": 7,
+    "open_quality_steps": 13,
+    "merge_readiness": "NOT_QUALIFIED",
+    "installed": "NOT_RUN",
+    "audible": "NOT_RUN"
+  }
 }

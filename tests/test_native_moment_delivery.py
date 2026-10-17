@@ -294,7 +294,6 @@ class NativeMomentDeliveryTest(unittest.TestCase):
         self.assertEqual(self.session.broadcast.delivery_sequence, sequence)
 
     def test_entry_unload_revokes_live_pending_and_recovery_streams_without_ending_session(self):
-        import importlib
         import types
         handlers=self.load_owner_handlers()
         self.run_sequence(self.runtime.DJPersona.HOME_DJ, count=1)
@@ -351,7 +350,6 @@ class NativeMomentDeliveryTest(unittest.TestCase):
             asyncio.run(scenario())
 
     def test_session_end_during_initial_transport_setup_withdraws_snapshot_authority(self):
-        import importlib
         import types
         handlers=self.load_owner_handlers()
         self.run_sequence(self.runtime.DJPersona.HOME_DJ, count=1)

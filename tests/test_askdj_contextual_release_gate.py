@@ -139,12 +139,12 @@ class ContextualReleaseGateTest(unittest.TestCase):
     def test_all_literal_core_routes_and_owner_bindings_are_accounted_for(self):
         inventory=load('djc_release_inventory','tools/verification/askdj_release_inventory.py')
         proof=inventory.validate()
-        self.assertEqual(proof['literal_core_routes'],47)
+        self.assertEqual(proof['literal_core_routes'],48)
         self.assertEqual(proof['executable_help_cases'],60)
         self.assertEqual(proof['conversation_families'],35)
-        self.assertEqual(proof['conversation_steps'],114)
-        self.assertEqual(proof['reported_issues'],35)
-        self.assertEqual(len(proof['open_core_findings']),6)
+        self.assertEqual(proof['conversation_steps'],120)
+        self.assertEqual(proof['reported_issues'],40)
+        self.assertEqual(len(proof['open_core_findings']),7)
         self.assertEqual(proof['proactive_golden_cases'],560)
 
     def test_reported_issue_without_family_or_open_disposition_cannot_pass_release(self):

@@ -148,6 +148,8 @@ async def handle_spotify_command(
             "result": {"tracks": tracks, "items": tracks},
             "count": len(tracks),
         }
+    if normalized == "album_tracks":
+        return {"success": True, **await backend.album_tracks(value)}
     if normalized == "search_albums":
         albums = await backend.search_albums(
             _search_query(value),
@@ -829,6 +831,59 @@ class SpotifyBackend:
             selected=tracks[0] if tracks else {},
         )
         return tracks
+
+    async def album_tracks(self, target: Any) -> dict[str, Any]:
+        """Exact edition catalog snapshot; at most50items and three GETs, no search."""
+        target = target if isinstance(target, dict) else {}
+        album_uri = target.get('album_uri')
+        track_uri = target.get('track_uri')
+        market = str(self.conf.get('spotify_market') or DEFAULT_SPOTIFY_MARKET)
+        params = urlencode({'market': market})
+        if not album_uri and isinstance(track_uri, str) and re.fullmatch(r'spotify:track:[A-Za-z0-9]{22}', track_uri):
+            recording = await self._request('GET', '/tracks/'+track_uri.rsplit(':',1)[-1]+'?'+params)
+            if (not isinstance(recording,dict) or recording.get('uri') != track_uri
+                    or recording.get('id') != track_uri.rsplit(':',1)[-1]):
+                raise SpotifyBackendError('Album recording identity unavailable')
+            album_uri = (recording.get('album') or {}).get('uri')
+        if not isinstance(album_uri, str) or not re.fullmatch(r'spotify:album:[A-Za-z0-9]{22}', album_uri):
+            raise SpotifyBackendError('Exact album identity required')
+        identifier = album_uri.rsplit(':',1)[-1]
+        album = await self._request('GET', '/albums/'+identifier+'?'+params)
+        if (not isinstance(album,dict) or album.get('id') != identifier
+                or album.get('uri') != album_uri or not isinstance(album.get('name'),str)
+                or not album['name'].strip()):
+            raise SpotifyBackendError('Album catalog identity mismatch')
+        page = await self._request('GET', '/albums/'+identifier+'/tracks?'+params+'&limit=50&offset=0')
+        if not isinstance(page,dict) or not isinstance(page.get('items'),list):
+            raise SpotifyBackendError('Album track page unavailable')
+        total = page.get('total')
+        if type(total) is not int or total < len(page['items']) or total < 0:
+            raise SpotifyBackendError('Album track coverage unavailable')
+        rows = []
+        for position, item in enumerate(page['items'][:50]):
+            if not isinstance(item,dict):
+                continue
+            uri, name = item.get('uri'), item.get('name')
+            if (not isinstance(uri,str) or not re.fullmatch(r'spotify:track:[A-Za-z0-9]{22}',uri)
+                    or item.get('id') != uri.rsplit(':',1)[-1]
+                    or not isinstance(name,str) or not name.strip() or item.get('is_local') is True):
+                continue
+            item_album = item.get('album')
+            if isinstance(item_album,dict) and item_album.get('uri') not in (None,album_uri):
+                continue
+            disc, number = item.get('disc_number'), item.get('track_number')
+            artist = ', '.join(a['name'][:160] for a in (item.get('artists') or [])[:8]
+                               if isinstance(a,dict) and isinstance(a.get('name'),str))
+            rows.append({'id': identifier+':'+str(position), 'kind':'track', 'uri':uri,
+                         'title':name[:200], 'artist':artist[:512],
+                         'disc_number':disc if type(disc) is int and disc > 0 else None,
+                         'track_number':number if type(number) is int and number > 0 else None})
+        if not rows and (page['items'] or total > 0):
+            raise SpotifyBackendError('Album track titles unavailable')
+        complete = len(rows) == total and len(rows) == len(page['items']) and not page.get('next')
+        return {'album_uri':album_uri,'album_name':album['name'][:300],
+                'album_image_url':_best_image_url(album.get('images') or []),
+                'items':rows,'total':total,'state':'complete' if complete else 'partial'}
 
     async def search_albums(self, query: str, *, limit: int = 10) -> list[dict[str, Any]]:
         """Search Spotify albums and return normalized playable items."""

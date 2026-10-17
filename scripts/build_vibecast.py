@@ -45,6 +45,8 @@ def render(root: Path, host: str) -> str:
     text = (source / "template.html").read_text()
     text = text.replace("@@STYLE@@", (source / "style.css").read_text())
     renderer = (source / "renderer.js").read_text()
+    if host == "display":
+        renderer = 'window.DJC_VIBECAST_MODE = "display";\n' + renderer
     if host == "cast":
         renderer = 'window.DJC_VIBECAST_MODE = "cast";\n' + renderer
         text = text.replace(
@@ -87,6 +89,23 @@ def build(root: Path, output: Path, *, source_revision: str) -> dict:
         "promotion": "explicit receiver-owner import; no automatic deployment",
     }
     output.mkdir(parents=True, exist_ok=True)
+    (output / "manifest.json").write_text(json.dumps(manifest, sort_keys=True, indent=2) + "\n")
+    return manifest
+
+
+def build_display(root: Path, output: Path, *, source_revision: str) -> dict:
+    """Separate B app artifact; legacy local/CAF 1.1 manifest stays compatible."""
+    if re.fullmatch(r"[0-9a-f]{40}", source_revision) is None:
+        raise ValueError("invalid_source_revision")
+    source = root / "custom_components/djconnect/vibecast_renderer"
+    output.mkdir(parents=True, exist_ok=True)
+    page = render(root, "display").encode()
+    (output / "index.html").write_bytes(page)
+    manifest = {"schema_version": 1, "display_contract_version": 1, "source_revision": source_revision,
+        "sources": {name: digest((source / name).read_bytes()) for name in (
+            "template.html", "style.css", "renderer.js", "display-host.js")},
+        "files": {"index.html": digest(page)}, "private_runtime_data_in_build": False,
+        "transport": "selected-ha-same-origin-display-b-v1", "legacy_cast_contract": "unchanged-1.1"}
     (output / "manifest.json").write_text(json.dumps(manifest, sort_keys=True, indent=2) + "\n")
     return manifest
 
@@ -173,6 +192,8 @@ def main():
     parser.add_argument("--revision")
     parser.add_argument("--check-local", action="store_true")
     parser.add_argument("--write-local", action="store_true")
+    parser.add_argument("--display-output", type=Path)
+    parser.add_argument("--write-display", action="store_true")
     parser.add_argument("--verify-existing", action="store_true")
     parser.add_argument("--expected-manifest-sha256")
     args = parser.parse_args()
@@ -194,6 +215,10 @@ def main():
         or subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, text=True).strip()
     )
     build(root, args.output, source_revision=revision)
+    if args.display_output:
+        build_display(root, args.display_output, source_revision=revision)
+    if args.write_display:
+        (root / "custom_components/djconnect/vibecast_display.html").write_text(render(root, "display"))
     local = root / "custom_components/djconnect/vibecast.html"
     if args.write_local:
         local.write_text(render(root, "local"))
