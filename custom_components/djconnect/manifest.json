@@ -3,6 +3,7 @@
   "name": "DJConnect",
   "after_dependencies": [
     "cloud",
+    "openai_conversation",
     "wyoming"
   ],
   "bluetooth": [
