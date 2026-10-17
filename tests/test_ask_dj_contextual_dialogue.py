@@ -1474,12 +1474,14 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
             self.assertIn(name, evidence)
         self.assertLessEqual(len(evidence), 1800)
 
-    async def test_public_research_unrecognized_question_clarifies_without_model_or_web(self):
+    async def test_public_research_unrecognized_question_only_interprets_without_web_or_factual_answer(self):
         result, status = await self.request("Why did Radiohead change their sound?", identifier="unknown-public-shape")
         self.assertEqual(status, 200, result)
         self.assertEqual(result["knowledge_basis"], "public_subject_required")
         self.assertEqual(self.web_calls, [])
-        self.assertEqual(self.prompts, [])
+        self.assertEqual(len(self.prompts), 1)
+        self.assertEqual(set(self.prompts[0]), {"question", "language", "available"})
+        self.assertEqual(result["conversation"]["metrics"]["agent_calls"], 1)
 
     async def test_public_research_keeps_only_exact_independently_supported_prefix(self):
         prefix = "Brian Eno is an English musician and producer."
@@ -4038,8 +4040,8 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
                 context={"selected_entry": {"session_id": "gone", "entry_id": "gone"}},
             )
             self.assertEqual(status, 200, result)
-            self.assertEqual(self.prompts[-1]["context"], {})
-            self.assertEqual(self.prompts[-1]["recent_turns"], [])
+            self.assertEqual(self.prompts[-1].get("context", {}), {})
+            self.assertEqual(self.prompts[-1].get("recent_turns", []), [])
             self.assertNotIn("selected_entry", result["conversation"]["context"])
 
     async def test_selected_choice_survives_control_then_play_in_five_languages(self):
@@ -4618,15 +4620,12 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
                         self.assertEqual(status, 200, result)
                         self.assertEqual(result["previous_observation"]["state"], "unknown")
                         self.assertFalse(result["history_persisted"])
-                    elif i == len(cases) - 1:
-                        # The eligible public research question really reaches
-                        # the hostile external model; effect authority still rejects it.
+                    else:
+                        # Unknown wording now reaches read-only semantic interpretation;
+                        # the public question reaches research. Neither call gains
+                        # effect authority when a hostile provider tries a tool.
                         self.assertEqual(status, 403, result)
                         self.assertEqual(result["error"], "playback_effect_not_authorized")
-                    else:
-                        self.assertEqual(status, 200, result)
-                        self.assertEqual(result["knowledge_basis"], "public_subject_required")
-                        self.assertEqual(result["conversation"]["metrics"]["agent_calls"], 0)
         self.assertEqual(sent, [])
         stored = await self.history.async_history("profile:profile-a")
         self.assertEqual(stored["messages"], [])

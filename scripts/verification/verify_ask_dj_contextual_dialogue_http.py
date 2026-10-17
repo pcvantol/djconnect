@@ -82,6 +82,7 @@ def hashes():
     files.append(Path(__file__))
     files.append(ROOT / 'scripts/verification/personal_dj_narration_probe.py')
     files.append(ROOT / 'tools/verification/askdj_research_outcomes.py')
+    files.append(ROOT / 'scripts/verification/askdj_semantic_read_golden.py')
     return {
         str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(files)
     }
@@ -281,7 +282,7 @@ async def main():
         assert not kwargs.get("tools") and kwargs.get("store") is False
         if os.environ.get("DJC_SAFETY_PROBE") == "narration_golden":
             assert not any(value in inputs for value in ("Wednesday Morning", "1964", "Synthetic artist", "Synthetic recording")), "catalog or private value leaked into a narration model call"
-        golden = os.environ.get("DJC_SAFETY_PROBE") in {"contextual_golden", "full_golden", "narration_golden", "public_research"}
+        golden = os.environ.get("DJC_SAFETY_PROBE") in {"contextual_golden", "full_golden", "narration_golden", "public_research", "semantic_reads"}
         receipt = {"input_bytes": len(inputs.encode()), "model": model, "streaming": True,
                    "maximum_output_tokens":kwargs.get("max_output_tokens")}
         if golden:
@@ -291,9 +292,11 @@ async def main():
             case_id = ACTIVE_CASE.get() or (owner_turn.client_id if owner_turn else None)
             if case_id is None and os.environ.get("DJC_SAFETY_PROBE") == "narration_golden":
                 case_id = "proactive-owner-publication"
+            from scripts.verification.askdj_semantic_read_golden import cases as semantic_cases
             budget = (16 if os.environ.get("DJC_SAFETY_PROBE") == "public_research" and os.environ.get("DJC_PUBLIC_STYLE_MATRIX") == "1" else
                       10 if os.environ.get("DJC_SAFETY_PROBE") == "public_research" else
                       MAX_MODEL_CALLS if os.environ.get("DJC_SAFETY_PROBE") == "contextual_golden" else
+                      len(semantic_cases()) + 2 if os.environ.get("DJC_SAFETY_PROBE") == "semantic_reads" else
                       64 if os.environ.get("DJC_SAFETY_PROBE") == "narration_golden" else 128)
             if len(model_receipts) >= budget or case_id is None:
                 raise RuntimeError("golden_model_call_budget_or_case_invalid")
@@ -573,12 +576,12 @@ async def main():
             )
         ]
 
-        if os.environ.get("DJC_SAFETY_PROBE") == "album_context":
+        if os.environ.get("DJC_SAFETY_PROBE") in {"album_context", "semantic_reads"}:
             for recording in tracks:
                 recording['album'].update(uri='spotify:album:'+'b'*22)
                 recording['artists'][0]['name']='Volbeat'
 
-        if os.environ.get("DJC_SAFETY_PROBE") == "release_context":
+        if os.environ.get("DJC_SAFETY_PROBE") in {"release_context", "semantic_reads"}:
             tracks[0]["album"].update(release_date="2008-05-06",release_date_precision="day")
         if os.environ.get("DJC_SAFETY_PROBE") == "choice_titles":
             tracks = [{**tracks[0], "id": str(i) * 22, "uri": "spotify:track:" + str(i) * 22,
@@ -626,7 +629,7 @@ async def main():
                     state["output_id"] = json["device_ids"][0]
                     state["no_active_output"] = False
                 return {}
-            if os.environ.get('DJC_SAFETY_PROBE') == 'album_context':
+            if os.environ.get('DJC_SAFETY_PROBE') in {'album_context', 'semantic_reads'}:
                 if parsed.path == '/albums/'+'b'*22:
                     return dict(tracks[0]['album'])
                 if parsed.path == '/albums/'+'b'*22+'/tracks':
@@ -809,7 +812,7 @@ async def main():
 
                 async def call(path, data, *, label, expected=200):
                     began = asyncio.get_running_loop().time()
-                    if os.environ.get("DJC_SAFETY_PROBE") == "full_golden":
+                    if os.environ.get("DJC_SAFETY_PROBE") in {"full_golden", "semantic_reads"}:
                         from scripts.verification.askdj_contextual_golden import ACTIVE_CASE
                         ACTIVE_CASE.set(data.get("client_message_id") or label)
                     response = await client.post(
@@ -1631,6 +1634,26 @@ async def main():
                         "core_transports":receipts,"model_calls":[],"paid_model_calls":0,
                         "live_cases":["paired_auth","live_silence","dedup","reconnect_original_expiry","no_speech_budget","session_end"],
                         "native":"NOT_RUN","installed":"NOT_RUN"},indent=2)+"\n")
+                    await async_shutdown_persistence(h)
+                    await h.async_stop(force=True)
+                    await api.close()
+                    return
+
+                if os.environ.get("DJC_SAFETY_PROBE") == "semantic_reads":
+                    from scripts.verification.askdj_semantic_read_golden import run
+                    async def selected_reference(active):
+                        from custom_components.djconnect.session_conversation import query_service
+                        page = await query_service(h, history).async_timeline_page("profile-a", active.session_id)
+                        entry = next(e for e in page["entries"] if e["kind"] == "playback_observed")
+                        return {"session_id": active.session_id, "entry_id": entry["entry_id"]}
+                    report = await run(hass=h, ask=ask, call=call, start=start, end=end,
+                        selected_reference=selected_reference, state=state, tracks=tracks,
+                        model_receipts=model_receipts, mutations=mutations)
+                    report.update(source_hashes=initial_source_hashes, source_unchanged=hashes() == initial_source_hashes,
+                        pairing="ordinary_device_token_minted_persisted", core_transports=receipts,
+                        provider_calls=provider_calls, effects=mutations)
+                    Path('/lab/semantic-reads.json').write_text(jsonlib(report) + "\n")
+                    assert report["status"] == "PASS", [r["id"] for r in report["cases"] if r["status"] != "PASS"]
                     await async_shutdown_persistence(h)
                     await h.async_stop(force=True)
                     await api.close()

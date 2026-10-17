@@ -155,6 +155,7 @@ class DialogueTurn:
     session_id: str = ""
     captured_playback_item_id: str = ""
     source_context: dict = field(default_factory=dict)
+    selected_read_context: dict | None = None  # Local reference only; never model input.
     dependencies: list[dict] = field(default_factory=list)
     public_research: dict = field(default_factory=dict)
     agent_calls: int = 0

@@ -517,6 +517,24 @@
           ],
           "acceptance_status": "owner_contract",
           "proof_boundary": "Named owning contract execution; live provider/model/native quality requires separate evidence."
+        },
+        {
+          "id": "ASKDJ-FLOW-queue-forecast-output-locale",
+          "question": "Een sessie met Engelse locale; vraag de DJ-vooruitblik in het Nederlands, Duits, Frans of Spaans.",
+          "expected_answer": "De volledige antwoordtekst gebruikt de effectieve vraagtaal; geen Engelse bewaarde samenvatting met een gelokaliseerd wachtrijslot.",
+          "model_policy": "existing_private_forecast_projection_no_catalog_export",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_contextual_dialogue.py",
+              "method": "test_quarter_hour_uses_existing_projection_and_queue_without_model_or_mutation"
+            },
+            {
+              "file": "tests/test_ask_dj_contextual_dialogue.py",
+              "method": "test_queue_states_and_repeated_case_sensitive_items_survive_shared_response"
+            }
+          ],
+          "acceptance_status": "open_real_quality",
+          "proof_boundary": "The real semantic read trial exposes mixed-language stored Forecast prose; routing PASS is not localized answer-quality acceptance."
         }
       ],
       "owning_tests": [
@@ -2890,6 +2908,178 @@
         }
       ],
       "fixture_boundary": "Real existing Runtime/Planner/Knowledge/Moment/SQLite/query owners; external expression responses and source boundaries are fixtures. Actual paid style, native/installed/audio acceptance remain separate."
+    },
+    {
+      "id": "ASKDJ-FLOW-semantic-context-reads",
+      "steps": [
+        {
+          "id": "ASKDJ-FLOW-semantic-context-reads-step-1",
+          "question": "Vrije formulering en typefouten in vijf talen",
+          "expected_answer": "LLM interpreteert; Core leest echte artiest en opname, geen catalogus in modelinput.",
+          "model_policy": "qualified_ha_agent_read_plan_only",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_semantic_reads.py",
+              "method": "test_unlisted_typo_is_interpreted_then_answered_from_fresh_provider"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Shared owner/actual local reads; external model response fixture only. Paid five-language free-wording qualification is a separate mandatory semantic_reads release profile."
+        },
+        {
+          "id": "ASKDJ-FLOW-semantic-context-reads-step-2",
+          "question": "Model stelt extra velden, URI, playback of dubbele JSON-key voor",
+          "expected_answer": "Gesloten schema weigert zonder uitvoering of reparatiecall.",
+          "model_policy": "qualified_ha_agent_read_plan_only",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_semantic_reads.py",
+              "method": "test_plan_is_closed_duplicate_safe_and_never_an_effect"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Shared owner/actual local reads; external model response fixture only. Paid five-language free-wording qualification is a separate mandatory semantic_reads release profile."
+        },
+        {
+          "id": "ASKDJ-FLOW-semantic-context-reads-step-3",
+          "question": "Geselecteerde bijdrage A, terwijl B speelt",
+          "expected_answer": "A blijft aangewezen; geen stille fallback naar B.",
+          "model_policy": "qualified_ha_agent_read_plan_only",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_semantic_reads.py",
+              "method": "test_selected_recording_survives_unrecognized_wording_and_does_not_use_current"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Shared owner/actual local reads; external model response fixture only. Paid five-language free-wording qualification is a separate mandatory semantic_reads release profile."
+        },
+        {
+          "id": "ASKDJ-FLOW-semantic-context-reads-step-4",
+          "question": "Model verwijst naar niet geselecteerde context of verzint play intent",
+          "expected_answer": "Verduidelijking zonder effect of tweede call.",
+          "model_policy": "qualified_ha_agent_read_plan_only",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_semantic_reads.py",
+              "method": "test_invalid_effect_or_missing_selection_never_dispatches_or_retries"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Shared owner/actual local reads; external model response fixture only. Paid five-language free-wording qualification is a separate mandatory semantic_reads release profile."
+        },
+        {
+          "id": "ASKDJ-FLOW-semantic-context-reads-step-5",
+          "question": "Wis gesprek terwijl interpretatie loopt",
+          "expected_answer": "Geen laat antwoord of provideractie.",
+          "model_policy": "qualified_ha_agent_read_plan_only",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_semantic_reads.py",
+              "method": "test_clear_during_interpretation_rejects_before_read"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Shared owner/actual local reads; external model response fixture only. Paid five-language free-wording qualification is a separate mandatory semantic_reads release profile."
+        },
+        {
+          "id": "ASKDJ-FLOW-semantic-context-reads-step-6",
+          "question": "Beëindig sessie terwijl interpretatie loopt",
+          "expected_answer": "Geen herbinding of laat antwoord uit vervangende context.",
+          "model_policy": "qualified_ha_agent_read_plan_only",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_semantic_reads.py",
+              "method": "test_session_end_during_interpretation_cannot_rebind_to_new_context"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Shared owner/actual local reads; external model response fixture only. Paid five-language free-wording qualification is a separate mandatory semantic_reads release profile."
+        },
+        {
+          "id": "ASKDJ-FLOW-semantic-context-reads-artist-only-recording",
+          "question": "Vraag met vrije formulering naar de opnametitel bij een geselecteerde artiestbijdrage zonder gekwalificeerde opnamemetadata.",
+          "expected_answer": "Titel-onbekend in de effectieve taal; behoud de selectie, noem geen artiestnaam alsof dat de opnametitel is en val niet terug op huidige playback.",
+          "model_policy": "qualified_ha_agent_read_plan_only",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_semantic_reads.py",
+              "method": "test_recording_question_on_artist_only_selection_never_claims_artist_is_a_title"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Real shared owner and published qualified Artist moment; external interpretation response fixture, no fabricated current recording."
+        },
+        {
+          "id": "ASKDJ-FLOW-semantic-context-reads-false-name-slot",
+          "question": "Who is the person doing the vocals right now? plus equivalent questions in all five languages, including a selected recording.",
+          "expected_answer": "Do not mistake the question clause for an independent public person name: interpret its actual contextual meaning, retain the selection and return real performer metadata.",
+          "model_policy": "qualified_ha_agent_read_plan_only",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_semantic_reads.py",
+              "method": "test_question_clause_captured_as_name_does_not_block_semantic_interpretation"
+            },
+            {
+              "file": "tests/test_ask_dj_semantic_reads.py",
+              "method": "test_unqualified_name_capture_keeps_selected_recording"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Real common Core owner and selected playback reference; external readplan fixture, plus corresponding real-model held-out inputs in semantic_reads."
+        }
+      ],
+      "owning_tests": [
+        {
+          "file": "tests/test_ask_dj_semantic_reads.py",
+          "method": "test_unlisted_typo_is_interpreted_then_answered_from_fresh_provider"
+        },
+        {
+          "file": "tests/test_ask_dj_semantic_reads.py",
+          "method": "test_plan_is_closed_duplicate_safe_and_never_an_effect"
+        },
+        {
+          "file": "tests/test_ask_dj_semantic_reads.py",
+          "method": "test_selected_recording_survives_unrecognized_wording_and_does_not_use_current"
+        },
+        {
+          "file": "tests/test_ask_dj_semantic_reads.py",
+          "method": "test_invalid_effect_or_missing_selection_never_dispatches_or_retries"
+        },
+        {
+          "file": "tests/test_ask_dj_semantic_reads.py",
+          "method": "test_clear_during_interpretation_rejects_before_read"
+        },
+        {
+          "file": "tests/test_ask_dj_semantic_reads.py",
+          "method": "test_session_end_during_interpretation_cannot_rebind_to_new_context"
+        },
+        {
+          "file": "tests/test_ask_dj_semantic_reads.py",
+          "method": "test_golden_case_vocabulary_never_becomes_runtime_recognition"
+        },
+        {
+          "file": "tests/test_ask_dj_semantic_reads.py",
+          "method": "test_inherited_cc0_subject_does_not_override_semantic_current_artist"
+        },
+        {
+          "file": "tests/test_ask_dj_semantic_reads.py",
+          "method": "test_no_session_to_new_session_during_forecast_interpretation_is_rejected"
+        },
+        {
+          "file": "tests/test_ask_dj_semantic_reads.py",
+          "method": "test_recording_question_on_artist_only_selection_never_claims_artist_is_a_title"
+        },
+        {
+          "file": "tests/test_ask_dj_semantic_reads.py",
+          "method": "test_question_clause_captured_as_name_does_not_block_semantic_interpretation"
+        },
+        {
+          "file": "tests/test_ask_dj_semantic_reads.py",
+          "method": "test_unqualified_name_capture_keeps_selected_recording"
+        }
+      ],
+      "fixture_boundary": "External model responses only for owner contracts; semantic_reads runs 45 held-out inputs through actual HA/qualified model and provider I/O fixtures."
     }
   ],
   "evidence_boundaries": [
@@ -3158,6 +3348,24 @@
       "family_id": "ASKDJ-FLOW-current-previous",
       "finding": "De gesloten herkenning miste Wie is de artiest van huidig nummer en stuurde dat naar de algemene route ondanks beschikbare playback.",
       "core_qualification": "locally_covered"
+    },
+    {
+      "id": "ASKDJ-ISSUE-static-wording-only",
+      "family_id": "ASKDJ-FLOW-semantic-context-reads",
+      "finding": "Een eindige lijst vaste formuleringen is onvoldoende: typefouten en vrije formulering moeten semantisch via de ingestelde HA-agent naar echte contextreads worden vertaald.",
+      "core_qualification": "locally_covered"
+    },
+    {
+      "id": "ASKDJ-ISSUE-forecast-mixed-output-locale",
+      "family_id": "ASKDJ-FLOW-queue-forecast",
+      "finding": "Bij een Engelse sessielocale en een anders-talige Ask DJ-vraag blijft de opgeslagen Forecast-samenvatting Engels terwijl de wachtrijzin wel vertaald is. Afzonderlijk output-localeherstel nodig; semantische interpretatie kwalificeert dat niet.",
+      "core_qualification": "open"
+    },
+    {
+      "id": "ASKDJ-ISSUE-recording-from-artist-only-context",
+      "family_id": "ASKDJ-FLOW-semantic-context-reads",
+      "finding": "De semantische recording-route mag een geselecteerde artiest zonder opnamemetadata niet als opname-identificatie presenteren.",
+      "core_qualification": "locally_covered"
     }
   ],
   "regression_suite_files": [
@@ -3166,7 +3374,8 @@
     "tests/test_personal_dj_flow_completion.py",
     "tests/test_personal_dj_runtime_expression.py",
     "tests/test_ask_dj_album_tracks.py",
-    "tests/test_ask_dj_current_artist_words.py"
+    "tests/test_ask_dj_current_artist_words.py",
+    "tests/test_ask_dj_semantic_reads.py"
   ],
   "issue_policy": {
     "new_findings": "Add a named failing reproduction and semantic expected answer in the same corrective candidate; preserve it after the fix.",

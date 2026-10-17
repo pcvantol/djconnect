@@ -91,6 +91,41 @@ Relevant source withdrawal removes derived model snippets and response visibilit
 
 ## Typed model/data-rights boundary
 
+### Semantic interpretation of contextual reads
+
+Literal recognition is a fast path, not the supported vocabulary. An otherwise
+unresolved contextual question may use one call to the same qualified HA agent
+to interpret typos and free wording in any supported language. Its closed read
+plan selects artist/recording identification, edition date, album tracks, queue,
+Forecast, previous recording or an alternative album. Core resolves identities
+through the existing read owners; the model receives only the current question,
+locale and context-availability booleans, never catalog text, URI, history,
+Profile data or HA state. A selected contribution is retained while this meaning
+is unresolved. Explicit independent named topics still detach from that chip.
+
+When a qualified public subject was only inherited, the first existing
+research-generation call may instead return this same closed readplan. It
+receives only the already-permitted qualified public evidence plus the minimal
+availability flags. Actual factual prose still requires its independent second
+assessment; no third call or unassessed factual answer is introduced. Missing
+public evidence cannot block a genuinely local contextual read.
+
+The plan has no playback, command, output, settings or arbitrary argument slot.
+It cannot grant an effect, infer a public artist name, answer from model memory,
+or initiate a second research chain. Invalid/ambiguous output asks for
+clarification without a repair call. Existing private/injection/gibberish
+exclusions precede interpretation. One interpretation plus local read stays
+within the existing two-call budget. Existing factual research keeps its own
+generation/assessment budget and source qualification.
+
+Capture Session/item state before interpretation and revalidate it before the
+chosen current-context read, response delivery and Listen. Selected references
+keep their owner/source/expiry guards and cannot silently fall back to current
+playback. Golden qualification must include genuine held-out paraphrases and
+typos in all five languages using the real HA model path, separately from
+deterministic plan validation and read-owner tests. A mocked plan is no evidence
+that a language model understands new wording.
+
 Core builds a single bounded data projection: current user question, approved
 recent turns, qualified subject/credit facts, actual anonymous tool outcome/count,
 style, and optional supported Session context. Maximum serialized Core input

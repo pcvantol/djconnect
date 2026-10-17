@@ -71,8 +71,8 @@ Uncertain provider readback retains the chosen name and does not claim start.
 Catalog text is not implicitly model input or permanent archive content; the
 missing rich catalog-conversation archive remains explicitly release-blocking.
 
-Current Golden inventory:40reports,35families,120steps; seven Core findings and
-13real-quality steps remain open. Existing failed real-model samples remain
+Current Golden inventory:43reports,36families,129steps; eight Core findings and
+14real-quality steps remain open. Existing failed real-model samples remain
 immutable NO_GO. Purely present DJ appreciation is now explicitly distinguished
 from invented taste/history/artist psychology, consistently for generation and
 atomic review. This prompt correction still requires a fresh fixed real-output
@@ -141,3 +141,12 @@ No constant comparison alone qualifies those response paths. The paired HA
 profile now also checks all five localized album offers. These additions require
 new final source hashes and candidate review. The earlier b7 technical review was scoped
 GO; its independent product review was NO_GO with the three findings above.
+
+## Semantic free-wording correction before publication
+
+The latest owner correction requires genuine semantic interpretation rather than
+more literal phrases. The same qualified HA agent now proposes closed readplans;
+Core resolves actual music context and preserves effect/source boundaries.
+[Qualification and retained failed probes](ASK_DJ_SEMANTIC_READS_20261017.md).
+The earlier40-report/120-step summary above is a pre-semantic snapshot; it is not
+the current Golden census. The joint draft remains unmerged and uninstalled.

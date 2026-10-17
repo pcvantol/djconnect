@@ -2837,12 +2837,26 @@ async def _informational_assist_response(
     turn = current_turn.get()
     fetched_sources = []
     research_state = {}
+    semantic_scope = None
+    from . import semantic_reads
     if turn and not requests_lookup(text):
         subject, qualified_music, ambiguous = public_research.subject_for_question(text, turn)
+        named_subject = public_research.explicit_public_subject(text)
+        implicit_subject = not named_subject or not public_research.safe_subject(named_subject)
+        if implicit_subject and semantic_reads.admissible_question(text):
+            semantic_scope = semantic_reads.capture_scope(hass, turn)
         if ambiguous:
+            if semantic_scope is not None:
+                semantic = await semantic_reads.read_response(hass, runtime, text, payload, scope=semantic_scope)
+                if semantic is not None:
+                    return semantic
             message = public_research.unavailable_answer(turn.style.get("language", "en"), ambiguous=True)
             return {"success": True, "text": message, "dj_text": message, "images": []}
         if not subject and turn.source_context.get("basis") != "runtime_authored_direction_v1":
+            from .semantic_reads import read_response
+            semantic = await read_response(hass, runtime, text, payload)
+            if semantic is not None:
+                return semantic
             # An unrecognized public question is not authority to answer from
             # unchecked recollection. Clarify in the same owner before any I/O.
             message = public_research.unavailable_answer(turn.style.get("language", "en"),
@@ -2858,6 +2872,10 @@ async def _informational_assist_response(
                                      if s.get("name", "").casefold() == public_research.safe_subject(subject).casefold()))
             turn.public_research = public_research.research_projection(subject, fetched_sources, research_state, question=text)
             if not fetched_sources:
+                if semantic_scope is not None:
+                    semantic = await semantic_reads.read_response(hass, runtime, text, payload, scope=semantic_scope)
+                    if semantic is not None:
+                        return semantic
                 message = public_research.unavailable_answer(turn.style.get("language", "en"))
                 return {"success": True, "text": message, "dj_text": message, "images": [],
                         "text_source": "core", "is_generated_text": False,
@@ -2872,6 +2890,8 @@ async def _informational_assist_response(
         output_devices,
         getattr(runtime, "config", {}) or {},
     )
+    if semantic_scope is not None:
+        prompt = semantic_reads.augment_answer_prompt(prompt, semantic_scope)
     try:
         assist_context = _assist_context(hass, getattr(runtime, "config", {}) or {})
         language = payload.get("language") or assist_context.get("language") or DEFAULT_TTS_LANGUAGE
@@ -2901,6 +2921,15 @@ async def _informational_assist_response(
     if not message:
         message = _fallback_info_text(text, memory_context, playback_context)
         return {"success": True, "text": message, "dj_text": message, "images": []}
+    if semantic_scope is not None:
+        plan = semantic_reads.parse_plan(message)
+        if plan is not None:
+            semantic = await semantic_reads.execute_plan(hass, runtime, text, plan, semantic_scope)
+            if semantic is not None:
+                return semantic
+            message = public_research.unavailable_answer(turn.style.get("language", "en"), ambiguous=True)
+            return {"success": True, "text": message, "dj_text": message, "images": [],
+                    "text_source": "core", "is_generated_text": False}
     from .dialogue import parse_model_reply, requests_lookup, answer_language_format_issue
     format_issue = None
 

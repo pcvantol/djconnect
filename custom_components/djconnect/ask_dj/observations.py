@@ -18,6 +18,15 @@ COPY = {
 }
 
 
+RECORDING_UNAVAILABLE = {
+    "en": "I cannot reliably identify the recording from the authorized music context.",
+    "nl": "Ik kan de opname niet betrouwbaar vaststellen uit de beschikbare muziekcontext.",
+    "de": "Ich kann die Aufnahme im verfügbaren Musikkontext nicht zuverlässig bestimmen.",
+    "fr": "Je ne peux pas identifier cette version de façon fiable dans le contexte musical disponible.",
+    "es": "No puedo identificar con fiabilidad la grabación en el contexto musical disponible.",
+}
+
+
 def forecast_question(text):
     value = text.casefold().strip()
     return bool(re.search(r"\b(?:kwartier|komende vijftien|volgende 15|next (?:fifteen|15) minutes|quarter hour|nächsten (?:fünfzehn|15) minuten|viertelstunde|prochain (?:quart d'heure|quart d’heure)|prochaines (?:quinze|15) minutes|próximos (?:quince|15) minutos|próximo cuarto de hora)\b", value)
@@ -203,7 +212,7 @@ def current_artist_question(text: str) -> bool:
     }
 
 
-async def current_artist_read(hass, runtime, selected=None):
+async def current_artist_read(hass, runtime, selected=None, *, require_recording=False):
     """Present qualified metadata locally; never treat catalog rights as model rights."""
     import asyncio
     import hashlib
@@ -220,6 +229,8 @@ async def current_artist_read(hass, runtime, selected=None):
         "fr": "Je ne peux pas identifier l’artiste de manière fiable dans le contexte musical disponible.",
         "es": "No puedo identificar con fiabilidad al artista en el contexto musical disponible.",
     }
+    if require_recording:
+        unavailable = RECORDING_UNAVAILABLE
     identified = {
         "en": "This is {artist}, with {title}.", "nl": "Dit is {artist}, met {title}.",
         "de": "Das ist {artist} mit {title}.", "fr": "C’est {artist}, avec {title}.",
@@ -265,7 +276,7 @@ async def current_artist_read(hass, runtime, selected=None):
         target = subject(selected.get("playback"))
         if target:
             answer = identified[locale].format(artist=target[1], title=target[2])
-        else:
+        elif not require_recording:
             roles = {"artist", "performer"}
             if selected.get("moment_type") == "artist" and selected.get("archive_basis") == "cc0_normalized_fields_v1":
                 # Existing qualified Artist facts carry Person/Group entity types.

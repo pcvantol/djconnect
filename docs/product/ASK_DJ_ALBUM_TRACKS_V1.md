@@ -10,7 +10,11 @@ standalone and Session text/STT routes; no second dialogue implementation.
 
 Recognize an actual containment/list question about this/current/selected album
 in all five languages. Shared words alone do not qualify: similarity, inspiration
-and other research questions remain with their existing owners. Route the list before the generic result-list and information/model paths. An exact
+and other research questions remain with their existing owners. Literal
+recognition is only the fast path: otherwise the shared qualified HA agent can
+propose this existing read through semantic interpretation of typos and free
+wording. That model proposes no catalog values or playback authority. Route
+known list requests before the generic result-list and information/model paths. An exact
 authorized selected contribution wins over current playback. Without selection,
 read fresh playback and pin its canonical recording and album identities; after
 the catalog await recheck those same identities before acceptance. No cached
@@ -28,7 +32,9 @@ only strict canonical22-character album/track IDs, the configured account and
 market, and the existing token/retry transport. Fetch exact album metadata and
 its first bounded50-track page; if only a selected canonical recording survives,
 resolve that recording’s own album first. Never follow a provider-supplied next
-URL or search by album title. No playback/output/queue mutation or model call.
+URL or search by album title. The read itself has no playback/output/queue
+mutation or model call; semantic interpretation, when needed, happens first
+within the shared turn's existing budget.
 No per-track lookup, complete timeline scan, extra persistence or provider body
 archive. Provider failure, unknown target and a known empty page are distinct.
 

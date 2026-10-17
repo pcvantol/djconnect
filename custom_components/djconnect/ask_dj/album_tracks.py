@@ -104,14 +104,14 @@ def _target(metadata):
     return {"track_uri": recording, **({"album_uri": album} if album else {})}
 
 
-async def album_tracks_read(hass, runtime, text, selected=None):
+async def album_tracks_read(hass, runtime, text, selected=None, *, exclude_current=None):
     from . import run_music_command, _images_from_context
     from ..spotify_backend import SpotifyBackendError
     from ..use_cases import MusicBackendCapabilityError
 
     turn = current_turn.get()
     copy = COPY[language()]
-    other = bool(
+    other = exclude_current if exclude_current is not None else bool(
         re.search(
             r"\b(?:nog meer|andere|other|more|anderen|andere|autres|otras|otros|más)\b",
             text.casefold(),

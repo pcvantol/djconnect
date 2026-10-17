@@ -142,7 +142,7 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
                 persist_history = False
         target, live = context.get("selected_entry"), context.get("selected_moment")
         # Explicit subjects come from the current question. A stale chip cannot block them.
-        from .public_research import explicit_public_subject
+        from .public_research import explicit_public_subject, safe_subject
         new_subject = explicit_public_subject(text)
         from .dialogue import requests_lookup, is_refinement
         independent_search = requests_lookup(text) and not is_refinement(text) and not references_topic(text)
@@ -159,8 +159,14 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
             _, references_selected_subject, ambiguous_selected_subject = resolve_partial_name(
                 new_subject, model_source(selected_preview).get("subjects", []))
             references_selected_subject = references_selected_subject or ambiguous_selected_subject
+        if (new_subject and not safe_subject(new_subject) and not references_selected_subject
+                and selected_preview is not None):
+            # A broad question grammar can capture a clause instead of a name.
+            # It is not an independent public topic or authority to drop a chip.
+            new_subject = None
         detached = bool((target or live) and not references_selected_subject
-                        and (new_subject or not references_topic(text)) and not explicit_quote(text))
+                        and (new_subject or (not references_topic(text) and intent.intent != "ask_music_info"))
+                        and not explicit_quote(text))
         reset_topic = detached or bool(new_subject and not references_selected_subject) or independent_search
         if detached:
             target = live = None
@@ -274,7 +280,8 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
         turn = DialogueTurn(frame, scope, thread, client_id, digest, generation, guard, history_manager,
                             style=style_projection(payload, active, profile, settings=shared_settings), session_id=session_id,
                             captured_playback_item_id=captured if track_bound and intent.intent in {"current_artist_information", "current_release_information", "album_tracks_information"} else "",
-                            source_context=model_source(selected), dependencies=dependencies, fast_control=fast, reset_topic=reset_topic,
+                            source_context=model_source(selected), selected_read_context=selected,
+                            dependencies=dependencies, fast_control=fast, reset_topic=reset_topic,
                             archiveable=persist_history)
         accepted_offer = None
         async def joined_admission(*, owner, immediate):

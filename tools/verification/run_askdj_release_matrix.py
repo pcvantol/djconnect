@@ -35,6 +35,7 @@ PROFILES = {
     'choice_titles': ('choice-titles.json', 240),
     'release_context': ('release-context.json', 240),
     'album_context': ('album-context.json', 240),
+    'semantic_reads': ('semantic-reads.json', 900),
     'silence_signal': ('silence-signal.json', 240),
     'mood_prosody': ('literal-tts.json', 600),
     'full_golden': ('dialogue.json', 1500),
@@ -124,7 +125,49 @@ def expected_source_hashes():
     files.append(ROOT/'scripts/verification/verify_ask_dj_contextual_dialogue_http.py')
     files.append(ROOT/'scripts/verification/personal_dj_narration_probe.py')
     files.append(ROOT/'tools/verification/askdj_research_outcomes.py')
+    files.append(ROOT/'scripts/verification/askdj_semantic_read_golden.py')
     return {str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for p in files}
+
+
+def validate_semantic_report(raw):
+    from scripts.verification.askdj_semantic_read_golden import cases, manifest_digest
+    expected = cases()
+    if (not isinstance(raw, dict) or raw.get('status') != 'PASS'
+            or raw.get('qualification') != 'REAL_HA_SEMANTIC_CONTEXT_READS'
+            or raw.get('source_hashes') != expected_source_hashes()
+            or raw.get('source_unchanged') is not True
+            or raw.get('pairing') != 'ordinary_device_token_minted_persisted'
+            or raw.get('manifest_sha256') != manifest_digest()
+            or raw.get('effects') != []
+            or type(raw.get('setup_paid_model_calls')) is not int
+            or not 0 <= raw['setup_paid_model_calls'] <= 2
+            or raw.get('paid_model_calls') != len(expected) + raw['setup_paid_model_calls']):
+        return False
+    rows, calls, transports = raw.get('cases', []), raw.get('model_calls', []), raw.get('core_transports', [])
+    if len(rows) != len(expected) or len(calls) != len(expected) + raw['setup_paid_model_calls']:
+        return False
+    for case, row in zip(expected, rows, strict=True):
+        if (any(row.get(k) != v for k, v in case.items()) or row.get('status') != 'PASS'
+                or row.get('findings') != [] or row.get('metrics', {}).get('agent_calls') != 1):
+            return False
+        attempts = [c for c in calls if c.get('case_id') == case['id']]
+        http = [t for t in transports if t.get('case') == case['id']]
+        if (len(attempts) != 1 or attempts[0].get('attempted') is not True
+                or attempts[0].get('completed') is not True or len(http) != 1
+                or http[0].get('status') != 200 or http[0].get('path') != 'ask_dj/message'
+):
+            return False
+        try:
+            plan = json.loads(attempts[0].get('generated_text', ''))
+        except (ValueError, TypeError):
+            return False
+        if not isinstance(plan, dict) or plan.get('read') != case['read']:
+            return False
+    setup = [c for c in calls if c.get('case_id') == 'semantic-start']
+    if len(setup) != raw['setup_paid_model_calls'] or any(c.get('completed') is not True for c in setup):
+        return False
+    return all(r.get('status') == r.get('expected_status') and r.get('cache_control') == 'no-store'
+               for r in transports)
 
 
 def validate_local_report(mode, raw):
@@ -313,7 +356,7 @@ def run(candidate, output):
         for mode, (filename, limit) in PROFILES.items():
             directory=temp/mode
             directory.mkdir()
-            paid=mode in {'full_golden','contextual_golden','mood_prosody'}
+            paid=mode in {'full_golden','contextual_golden','mood_prosody','semantic_reads'}
             key=os.environ.get('DJCONNECT_GOLDEN_OPENAI_API_KEY','') if paid else 'unused-networkless-probe'
             if not key or len(key)>8192:
                 result['profiles'].append({'id':mode,'status':'FAIL','findings':['credential_missing']})
@@ -350,6 +393,10 @@ def run(candidate, output):
                     raw['candidate_sha']=candidate
                     row={k:raw.get(k) for k in ('cases','manifest_sha256','paid_model_calls','usage')}
                     row.update(id=mode,status='PASS' if validate_report(raw,candidate) else 'FAIL')
+                elif mode=='semantic_reads':
+                    row={'id':mode,'status':'PASS' if validate_semantic_report(raw) else 'FAIL',
+                         'paid_attempts':raw.get('paid_model_calls'), 'kind':'real_paired_ha_semantic_interpretation',
+                         'native':'NOT_RUN','installed':'NOT_RUN'}
                 else:
                     calls=raw.get('model_calls',[])
                     paid_calls=raw.get('paid_model_calls',len(calls))

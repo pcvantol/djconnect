@@ -1860,13 +1860,14 @@
     "source_delivery": "LOCAL_COMBINED_DRAFT_PREPARATION",
     "remaining_gates_preserved": true,
     "current_local_state": "LOCAL_COMBINED_DRAFT_PREPARATION",
-    "reported_issues": 40,
-    "conversation_families": 35,
-    "conversation_steps": 120,
-    "open_core_findings": 7,
-    "open_quality_steps": 13,
+    "reported_issues": 43,
+    "conversation_families": 36,
+    "conversation_steps": 129,
+    "open_core_findings": 8,
+    "open_quality_steps": 14,
     "merge_readiness": "NOT_QUALIFIED",
     "installed": "NOT_RUN",
-    "audible": "NOT_RUN"
+    "audible": "NOT_RUN",
+    "semantic_interpretation": "REAL_HA_MODEL_50_CASES_PASS_52_PAID_ATTEMPTS_ZERO_EFFECTS"
   }
 }
