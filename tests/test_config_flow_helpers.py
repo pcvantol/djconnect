@@ -2830,17 +2830,17 @@ class ConfigFlowHelperTest(unittest.TestCase):
         self.assertEqual(result["type"], "form")
         self.assertEqual(result["errors"]["base"], "oauth_setup_failed")
 
-    def test_vibecast_end_consent_options_roundtrip_and_default(self) -> None:
-        entry = types.SimpleNamespace(data={self.const.CONF_CLIENT_TYPE: self.const.CLIENT_TYPE_IOS}, options={})
+    def test_retired_vibecast_end_option_is_neither_exposed_nor_saved(self) -> None:
+        key = "vibecast_session_end_allowed"
         for allowed in [True, False]:
+            entry = types.SimpleNamespace(data={self.const.CONF_CLIENT_TYPE: self.const.CLIENT_TYPE_IOS}, options={key:allowed})
             flow = self.config_flow.DJConnectOptionsFlow(entry)
             flow.hass = types.SimpleNamespace(config=types.SimpleNamespace(language="en"))
-            result = asyncio.run(flow.async_step_init({self.config_flow.OPTIONS_ACTION_FIELD: self.config_flow.OPTIONS_ACTION_SAVE,
-                                                      "vibecast_session_end_allowed": allowed}))
+            result = asyncio.run(flow.async_step_init({self.config_flow.OPTIONS_ACTION_FIELD:self.config_flow.OPTIONS_ACTION_SAVE,key:allowed}))
             self.assertEqual(result["type"], "create_entry")
-            self.assertIs(result["data"]["vibecast_session_end_allowed"], allowed)
-            entry.options = result["data"]
-        self.assertIs(self.config_flow._voice_defaults({})["vibecast_session_end_allowed"], False)
+            self.assertNotIn(key,result["data"])
+            self.assertNotIn(key,self.config_flow._voice_defaults({key:allowed}))
+            self.assertNotIn(key,self.config_flow.VOICE_FORM_FIELDS)
 
     def test_options_flow_save_preserves_hidden_device_values(self) -> None:
         entry = types.SimpleNamespace(

@@ -195,8 +195,7 @@
           "local_url": "Client adres",
           "firmware_channel": "Firmwarekanaal",
           "dj_announcement_speaker_entity_id": "Home Assistant speaker voor DJ-aankondigingen",
-          "options_action": "Actie",
-          "vibecast_session_end_allowed": "Goedgekeurde VibeCast-schermen mogen de sessie beëindigen"
+          "options_action": "Actie"
         },
         "data_description": {
           "assist_pipeline_id": "Assist pipeline die DJConnect apparaten gebruiken voor spraakherkenning en DJ aankondiging audio.",
@@ -348,8 +347,7 @@
           "dj_announcement_speaker_entity_id": "Home Assistant speaker voor DJ-aankondigingen",
           "options_action": "Actie",
           "music_backend": "Muziekbackend",
-          "music_assistant_player": "Music Assistant player",
-          "vibecast_session_end_allowed": "Goedgekeurde VibeCast-schermen mogen de sessie beëindigen"
+          "music_assistant_player": "Music Assistant player"
         },
         "data_description": {
           "assist_pipeline_id": "Assist pipeline die DJConnect apparaten gebruiken voor spraakherkenning en DJ aankondiging audio.",

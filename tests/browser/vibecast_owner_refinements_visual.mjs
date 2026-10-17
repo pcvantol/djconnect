@@ -7,7 +7,7 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {chromium} from 'playwright';
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../..');
-const output=path.join(root,'artifacts/verification/vibecast-multimoment/owner-refinements-facts-browser');
+const output=process.env.DJC_BROWSER_OUTPUT || path.join(root,'artifacts/verification/vibecast-multimoment/owner-refinements-facts-browser');
 fs.mkdirSync(output,{recursive:true});
 const input=path.join(output,'runtime.json');
 execFileSync('python3',[path.join(root,'scripts/verification/capture_vibecast_owner_refinements.py'),input]);
@@ -18,13 +18,7 @@ let endRequests=0;
 const server=http.createServer((req,res)=>{
   res.setHeader('Cache-Control','no-store');
   if(req.url.startsWith('/api/djconnect/v1/image_proxy/')) {res.setHeader('Content-Type','image/svg+xml');res.end(cover);return;}
-  if(req.url.endsWith('/control/end')) {
-    let body='';req.on('data',d=>body+=d);req.on('end',()=>{
-      const data=JSON.parse(body);assert.equal(data.end_grant,'software-end-grant');assert.equal(data.session_id,evidence.before.session.session_id);
-      endRequests++;res.setHeader('Content-Type','application/json');res.statusCode=endRequests===1?503:200;
-      res.end(JSON.stringify(endRequests===1?{success:false}:{success:true,state:'ended'}));
-    });return;
-  }
+  if(req.url.endsWith('/control/end')) {endRequests++;res.statusCode=410;res.end();return;}
   res.setHeader('Content-Type','text/html');res.end(html);
 });
 await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
@@ -73,7 +67,7 @@ try {
     assert.equal(await page.locator('#moment-source').textContent(),moment.source_attribution.provider);
     assert.equal(await page.locator('#spotify-source').isVisible(),true);
     assert.equal(await page.locator('#up-next').isVisible(),true);
-    assert.equal(await page.locator('#end-session').isVisible(),true);
+    assert.equal(await page.locator('#end-session').count(),0);
     const boxes=await page.evaluate(()=>Object.fromEntries(['artwork','title','artist','album','moment-card','up-next','progress'].map(id=>{const r=document.getElementById(id).getBoundingClientRect();return [id,{x:r.x,y:r.y,w:r.width,h:r.height}]})));
     const intersects=(a,b)=>a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y;
     for(const id of ['artwork','title','artist','album','up-next','progress']) assert.equal(intersects(boxes['moment-card'],boxes[id]),false,`${name} card overlaps ${id}`);
@@ -91,10 +85,8 @@ try {
     await page.evaluate(()=>{window.__now+=2100;});
     await page.waitForTimeout(1100); // No Broadcast event: the ordinary clock tick must hide expired queue data.
     assert.equal(await page.locator('#up-next').isVisible(),false);
-    await page.locator('#end-session').click();await page.waitForTimeout(100);
-    assert.match(await page.locator('#state').textContent(),/niet gelukt/);
-    assert.equal(await page.locator('#title').textContent(),'Test recording');
-    await page.locator('#end-session').click();await page.waitForTimeout(100);
+    assert.equal(endRequests,0);
+    await page.evaluate(()=>window.__deliver({type:'event',data:{event_type:'runtime_ended',payload:{}}}));
     assert.equal(await page.locator('#title').textContent(),'Wachten op een sessie');
     assert.equal(await page.locator('#up-next').isVisible(),false);
     await page.screenshot({path:path.join(output,'portrait-server-confirmed-idle.png')});
@@ -102,6 +94,6 @@ try {
   assert.deepEqual(errors,[]);
   await page.close();await context.close();
  }
- fs.writeFileSync(path.join(output,'acceptance.json'),JSON.stringify({simulator:true,source:evidence.source,receipts,checks:{four_independent_facts:true,portrait_landscape_no_overlap:true,source_attribution:true,up_next:true,end_error_no_false_idle:true,server_confirmed_end:true,quiet_queue_expiry:true,same_title_fade_out:true}},null,2));
+ fs.writeFileSync(path.join(output,'acceptance.json'),JSON.stringify({simulator:true,source:evidence.source,receipts,checks:{four_independent_facts:true,portrait_landscape_no_overlap:true,source_attribution:true,up_next:true,no_receiver_end_control:true,no_receiver_end_requests:true,owner_runtime_end_projection:true,quiet_queue_expiry:true,same_title_fade_out:true}},null,2));
  console.log(`Owner-refinements software browser acceptance PASS: ${output}`);
 } finally {await browser.close();await new Promise(resolve=>server.close(resolve));}

@@ -318,3 +318,13 @@ verbs and nouns in all five languages, including the independently reproduced
 existing skips); scoped actual-source/receipt checks never confer full semantic
 or personal-DJ quality. The earlier all-family, typed-introduction and retained
 parity proof receipts remain separate and preserved.
+
+## VibeCast end-authority correction
+
+The newly reported legacy checkbox is removed together with its grant issuer,
+Runtime grant state, handoff field and renderer control under the
+[retirement contract](../product/VIBECAST_RECEIVER_END_AUTHORITY_RETIREMENT_V1.md).
+The compatibility endpoint returns410/no-store without reading a Session.
+Paired owner end and generic entry/unload/recovery fences remain. This bounded
+local correction leaves broader narration, consumer, protected delivery and
+installed gates open. No other lane's source is changed.

@@ -1,7 +1,7 @@
 (() => {
   const params = new URLSearchParams(window.location.search);
   const staticHost = window.DJC_VIBECAST_MODE === "cast";
-  let haOrigin = "", sessionId = staticHost ? null : params.get("session_id"), broadcastToken = staticHost ? null : params.get("broadcast_token"), endGrant=null;
+  let haOrigin = "", sessionId = staticHost ? null : params.get("session_id"), broadcastToken = staticHost ? null : params.get("broadcast_token");
   const endpoint = path => haOrigin + path;
   const asset = value => haOrigin && String(value || "").startsWith("/") ? haOrigin + value : value;
   const read = (value, path) => path.reduce((current,key) => current && current[key],value);
@@ -27,7 +27,6 @@
   let placementCount=0, lastPlacedKey="";
   let playbackItem = "", current = null, previous = null, lastShownAt = -Infinity, lastArtwork = "", lastSequence = 0, snapshotSequence = 0, fieldSequences = {};
   const firstSeen = new Map();
-  const endLabels={en:["End session","Could not end the session"],nl:["Sessie beëindigen","Sessie beëindigen is niet gelukt"],de:["Session beenden","Session konnte nicht beendet werden"],fr:["Terminer la session","Impossible de terminer la session"],es:["Finalizar sesión","No se pudo finalizar la sesión"]};
   const previousSourceLabels={en:"MusicBrainz · earlier recording",nl:"MusicBrainz · eerdere opname",de:"MusicBrainz · frühere Aufnahme",fr:"MusicBrainz · enregistrement précédent",es:"MusicBrainz · grabación anterior"};
   const nextLabels={en:"Up next",nl:"Hierna",de:"Als Nächstes",fr:"À suivre",es:"A continuación"};
   function updateClock() {
@@ -204,9 +203,6 @@
   }
   function render(animate=false) {
     useLanguage(); updateClock();
-    e("end-session").hidden=!endGrant || ended;
-    e("end-session").setAttribute("aria-label",(endLabels[root.lang] || endLabels.en)[0]);
-    e("state").hidden=!!endGrant && !ended;
     const p = playback(), mood = read(projection,["session","selected_mood"]);
     document.body.classList.toggle("idle",!p.title);
     e("mood").textContent = mood || text.ambient;
@@ -254,7 +250,7 @@
     if (ordered && sequence <= snapshotSequence) return;
     if (ordered) lastSequence = Math.max(lastSequence,sequence);
     if (frame.event_type === "runtime_ended" || frame.event_type === "broadcast_stopped") {
-      snapshotAccepted=false; reportStatus("ended","runtime_end"); ended=true; broadcastToken=null; endGrant=null; apply({}); e("state").textContent=text.idle; if (socket) socket.close(); return;
+      snapshotAccepted=false; reportStatus("ended","runtime_end"); ended=true; broadcastToken=null; apply({}); e("state").textContent=text.idle; if (socket) socket.close(); return;
     }
     for (const key of ["session","playback","planner","session_flow","audience","broadcast"])
       if (p[key] && (!ordered || sequence > (fieldSequences[key] || snapshotSequence))) {
@@ -309,7 +305,7 @@
           apply(f.snapshot);
         }
         else if (f.type === "event") event(f.data);
-        else if (f.type === "error") { snapshotAccepted=false; reportStatus("error","access_rejected"); ended=true; broadcastToken=null; endGrant=null; apply({}); e("state").textContent=text.unavailable; if (socket) socket.close(); }
+        else if (f.type === "error") { snapshotAccepted=false; reportStatus("error","access_rejected"); ended=true; broadcastToken=null; apply({}); e("state").textContent=text.unavailable; if (socket) socket.close(); }
       } catch (_) { /* Ignore malformed receiver frames. */ }
     };
     active.onclose=() => {
@@ -319,20 +315,6 @@
     };
     active.onerror=() => active.close();
   }
-  e("end-session").addEventListener("click",async()=>{
-    if (!endGrant || ended) return;
-    e("end-session").disabled=true;
-    const requestedSession=sessionId, requestedGrant=endGrant;
-    try {
-      const response=await window.fetch(endpoint("/api/djconnect/v1/session/broadcast/control/end"),{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({session_id:sessionId,end_grant:endGrant}),cache:"no-store",credentials:"omit"});
-      const result=await response.json();
-      if (sessionId !== requestedSession || endGrant !== requestedGrant) return;
-      if (!response.ok || result.success !== true || result.state !== "ended") throw new Error("end_failed");
-      // Server-confirmed end also covers loss of the terminal WebSocket frame.
-      event({session_id:sessionId,event_type:"runtime_ended",payload:{}});
-    } catch (_) { if (sessionId !== requestedSession || endGrant !== requestedGrant) return; e("state").hidden=false; e("state").textContent=(endLabels[root.lang] || endLabels.en)[1]; }
-    finally { if (sessionId === requestedSession) e("end-session").disabled=false; }
-  });
   updateClock();
   e("state").textContent=text.idle;
   e("title").textContent=text.waiting;
@@ -341,7 +323,7 @@
   window.addEventListener("djconnect-handoff",({detail}) => {
     if (!(detail && detail.session_id) || !(detail && detail.broadcast_token)) return;
     stopHost();
-    haOrigin=detail.ha_url || ""; sessionId=detail.session_id; broadcastToken=detail.broadcast_token; endGrant=detail.end_grant || null;
+    haOrigin=detail.ha_url || ""; sessionId=detail.session_id; broadcastToken=detail.broadcast_token;
     statusGeneration=detail.status_generation === undefined ? null : detail.status_generation;
     snapshotAccepted=false; ended=false; projection={}; playbackItem=""; lastShownAt=-Infinity;
     lastSequence=0; snapshotSequence=0; fieldSequences={}; clearCards(); render(false);
@@ -349,7 +331,7 @@
   });
   function stopHost() {
     reportStatus("stopped","host_stop"); snapshotAccepted=false; statusGeneration=null;
-    ended=true; broadcastToken=null; endGrant=null;
+    ended=true; broadcastToken=null;
     if (reconnectTimer) window.clearTimeout(reconnectTimer); reconnectTimer=undefined;
     const old=socket; socket=null; if (old) old.close();
     firstSeen.clear(); placementCount=0; lastPlacedKey=""; lastShownAt=-Infinity;

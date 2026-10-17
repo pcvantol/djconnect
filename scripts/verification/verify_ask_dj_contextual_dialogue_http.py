@@ -221,7 +221,7 @@ async def main():
                 yield ResponseOutputItemDoneEvent.model_construct(type="response.output_item.done",sequence_number=2,output_index=0,item=item)
                 yield ResponseCompletedEvent.model_construct(type="response.completed",sequence_number=3,response=completed)
             return fixture_stream()
-        assert os.environ.get("DJC_SAFETY_PROBE") not in {"previous", "output", "release_context", "silence_signal"}, "Safety probes must not call a model"
+        assert os.environ.get("DJC_SAFETY_PROBE") not in {"previous", "output", "release_context", "silence_signal", "vibecast_end_retired"}, "Safety probes must not call a model"
         if os.environ.get("DJC_SAFETY_PROBE") == "public_research":
             capture_public_sources(kwargs.get("input", []))
         inputs = json.dumps(kwargs.get("input", []), ensure_ascii=False)
@@ -816,6 +816,55 @@ async def main():
                         flush=True,
                     )
                     return body
+
+                if os.environ.get("DJC_SAFETY_PROBE") == "vibecast_end_retired":
+                    # An old stored opt-in must never reconstitute screen authority.
+                    runtime.config["vibecast_session_end_allowed"] = True
+                    started = await call("session/start", {"mood":"groove", "dj_persona":"home_dj", "language":"nl"},
+                                         label="retired-end-owner-start", expected=201)
+                    active = await manager.async_get_active("profile-a")
+                    assert active is not None and active.session_id == started["session"]["session_id"]
+                    async def snapshot():
+                        response = await client.get("/api/djconnect/v1/session/broadcast/" + active.session_id,
+                                                    headers=headers, params=identity)
+                        assert response.status == 200 and response.headers.get("Cache-Control") == "no-store"
+                        return await response.json()
+                    before = await snapshot()
+                    claim = await call("session/broadcast/handoff/claim", {}, label="retired-end-claim")
+                    await call("session/broadcast/handoff/approve", {"session_id":active.session_id, "code":claim["code"]}, label="retired-end-approve")
+                    collected = await call("session/broadcast/handoff/collect", {"claim_id":claim["claim_id"], "claim_secret":claim["claim_secret"]}, label="retired-end-collect")
+                    assert collected.get("broadcast_token") and "end_grant" not in collected
+                    assert not hasattr(manager, "async_issue_receiver_end_grant") and not hasattr(manager, "_end_grants")
+                    attempts = []
+                    for name, raw in (("stale-grant", {"session_id":active.session_id, "end_grant":"old-opaque-authority"}),
+                                      ("read-token", {"session_id":active.session_id, "end_grant":collected["broadcast_token"]}),
+                                      ("missing", {}), ("other-session", {"session_id":"unknown", "end_grant":"old"})):
+                        response = await client.post("/api/djconnect/v1/session/broadcast/control/end", json=raw)
+                        body = await response.json()
+                        assert response.status == 410 and response.headers.get("Cache-Control") == "no-store"
+                        assert body == {"success":False, "error":"vibecast_end_control_retired"}
+                        attempts.append({"case":name, "status":response.status, "error":body["error"]})
+                    response = await client.post("/api/djconnect/v1/session/broadcast/control/end", data="not json")
+                    assert response.status == 410 and response.headers.get("Cache-Control") == "no-store"
+                    assert await manager.async_get_active("profile-a") is active
+                    after = await snapshot()
+                    assert before == after
+                    await call("session/end", {"session_id":active.session_id}, label="retired-end-normal-owner-end")
+                    assert await manager.async_get_active("profile-a") is None
+                    assert not model_receipts and not mutations
+                    Path("/lab/vibecast-end-retired.json").write_text(json.dumps({
+                        "qualification":"REAL_PAIRED_VIBECAST_END_RETIRED_OWNER_END_PRESERVED", "pairing":"ordinary_device_token_minted_persisted",
+                        "source_hashes":hashes(), "source_unchanged":initial_source_hashes == hashes(),
+                        "stale_saved_opt_in":True, "handoff_has_end_grant":False,
+                        "denied_end_attempts":attempts, "malformed_request_status":response.status,
+                        "broadcast_unchanged":before == after, "owner_end":True,
+                        "paid_model_calls":len(model_receipts), "playback_mutations":len(mutations),
+                        "installed":"NOT_RUN", "native":"NOT_RUN"
+                    }, ensure_ascii=False, indent=2) + "\n")
+                    await async_shutdown_persistence(h)
+                    await h.async_stop(force=True)
+                    await api.close()
+                    return
 
                 if os.environ.get("DJC_SAFETY_PROBE") == "public_research":
                     answers = []

@@ -2066,39 +2066,40 @@ class TtsHelperTest(unittest.TestCase):
         logs = "\n".join(captured.output)
         self.assertEqual(logs.count("no runtime matched bearer token"), 1)
 
-    def test_unload_invalidates_inflight_handoff_during_observer_stop_and_after_reload(self) -> None:
+    def test_unload_fences_entry_before_observer_stop_without_ending_session(self) -> None:
         from custom_components.djconnect.session_runtime import SessionRuntimeManager
         async def scenario():
             const=self.const
-            entry=types.SimpleNamespace(entry_id="end-owner-entry", data={const.CONF_CLIENT_TYPE: const.CLIENT_TYPE_IOS}, options={"vibecast_session_end_allowed":True})
+            entry=types.SimpleNamespace(entry_id="end-owner-entry",data={const.CONF_CLIENT_TYPE:const.CLIENT_TYPE_IOS},options={"vibecast_session_end_allowed":True})
             runtime=self.integration.DJConnectRuntime(entry)
             manager=SessionRuntimeManager()
             session=await manager.async_start(owner_profile_id="owner",music_backend="spotify_direct")
-            stopped=asyncio.Event()
-            finish=asyncio.Event()
+            before=manager.receiver_entry_generation(entry.entry_id)
+            stopped,finish=asyncio.Event(),asyncio.Event()
             class Observer:
-                async def async_stop_runtime(inner, unloading_runtime):
-                    stopped.set()
-                    await finish.wait()
+                async def async_stop_runtime(inner,unloading_runtime):stopped.set();await finish.wait()
             class Entries:
-                async def async_unload_platforms(inner, unloaded_entry, platforms): return True
+                async def async_unload_platforms(inner,unloaded_entry,platforms):return True
             hass=types.SimpleNamespace(config_entries=Entries(),data={const.DOMAIN:{entry.entry_id:runtime,"runtime":runtime,"session_runtime_manager":manager,"playback_observation_manager":Observer()}})
-            original=await manager.async_issue_receiver_end_grant(owner_profile_id="owner",session_id=session.session_id,entry_id=entry.entry_id,entry_generation=runtime._receiver_end_generation)
             unloading=asyncio.create_task(self.integration.async_unload_entry(hass,entry))
             await stopped.wait()
-            # The owner Runtime is still in hass.data while cancellation awaits.
             self.assertIs(hass.data[const.DOMAIN][entry.entry_id],runtime)
-            late=await manager.async_issue_receiver_end_grant(owner_profile_id="owner",session_id=session.session_id,entry_id=entry.entry_id,entry_generation=runtime._receiver_end_generation)
-            self.assertEqual(late,"")
-            finish.set()
-            self.assertTrue(await unloading)
-            self.assertIsNone(await manager.async_end_with_receiver_grant(session_id=session.session_id,grant=original))
-            replacement=self.integration.DJConnectRuntime(entry)
-            replacement._receiver_end_generation=manager.receiver_entry_generation(entry.entry_id)
-            hass.data[const.DOMAIN][entry.entry_id]=replacement
-            self.assertEqual(await manager.async_issue_receiver_end_grant(owner_profile_id="owner",session_id=session.session_id,entry_id=entry.entry_id,entry_generation=runtime._receiver_end_generation),"")
-            self.assertTrue(await manager.async_issue_receiver_end_grant(owner_profile_id="owner",session_id=session.session_id,entry_id=entry.entry_id,entry_generation=replacement._receiver_end_generation))
+            self.assertEqual(manager.receiver_entry_generation(entry.entry_id),before+1)
+            self.assertIs(await manager.async_get_active("owner"),session)
+            self.assertFalse(hasattr(manager,"async_issue_receiver_end_grant"))
+            finish.set();self.assertTrue(await unloading)
+            self.assertIs(await manager.async_get_active("owner"),session)
         asyncio.run(scenario())
+
+    def test_retired_vibecast_end_route_never_reads_request_or_changes_runtime(self) -> None:
+        from unittest.mock import patch
+        def response(body,**kwargs):return body,kwargs
+        # Any use of request data/HA authority would fail on this sentinel.
+        with patch.object(self.http.web,"json_response",response,create=True):
+            body,meta=asyncio.run(self.http.DJConnectSessionBroadcastEndControlView(object()).post(object()))
+        self.assertEqual(meta["status"],410)
+        self.assertEqual(body,{"success":False,"error":"vibecast_end_control_retired"})
+        self.assertEqual(meta["headers"]["Cache-Control"],"no-store")
 
     def test_backend_options_reload_preserves_memory_and_history(self) -> None:
         const = self.const

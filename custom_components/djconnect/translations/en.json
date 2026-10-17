@@ -195,8 +195,7 @@
           "local_url": "Client address",
           "firmware_channel": "Firmware channel",
           "dj_announcement_speaker_entity_id": "Home Assistant speaker for DJ announcements",
-          "options_action": "Action",
-          "vibecast_session_end_allowed": "Allow approved VibeCast screens to end the session"
+          "options_action": "Action"
         },
         "data_description": {
           "assist_pipeline_id": "Assist pipeline used by DJConnect devices for speech recognition and DJ announcement audio.",
@@ -348,8 +347,7 @@
           "options_action": "Action",
           "music_backend": "Music backend",
           "music_assistant_player": "Music Assistant player",
-          "dj_announcement_speaker_entity_id": "Home Assistant speaker for DJ announcements",
-          "vibecast_session_end_allowed": "Allow approved VibeCast screens to end the session"
+          "dj_announcement_speaker_entity_id": "Home Assistant speaker for DJ announcements"
         },
         "data_description": {
           "assist_pipeline_id": "Assist pipeline used by DJConnect devices for speech recognition and DJ announcement audio.",

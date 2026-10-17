@@ -6,6 +6,11 @@ Exact music identity, single-use speaker continuation, output-local failures and
 truthful dispatch/readback are executable requirements. Ordinary playback/direction and pending genre transitions now have local typed expression adapters; complete-source Flow pagination/reopening and null-body search have causal tests. A narrow Recommendation now reuses two genuine published producer credits; all seven type families have actual production/storage/reopen contracts with external source/expression fixtures. Historical album/artist art resolves the original subject, manual local/speaker replay uses current Session/Profile voice, and current Insight reuses fresh qualified credits. Full real narration quality, preview/native and installed proof remain open. An open qualification
 finding blocks release; a listed case or green metadata never closes it.
 
+The reported obsolete VibeCast Session-end setting is also retired locally,
+including grant issuance and screen mutation. The old route denies without
+Session effects; paired owner end remains. [Retirement contract](docs/product/VIBECAST_RECEIVER_END_AUTHORITY_RETIREMENT_V1.md);
+receiver import and installed delivery are not claimed.
+
 Personal DJ corrective acceptance (17 October 2026): **in progress**, not released. [Narration/complete Flow restoration](docs/product/PERSONAL_DJ_NARRATION_RESTORATION_V1.md) joins qualified expressive narration, durable published Flow including Silence, Session-scoped rolling retention, and configured-provider TTS/replay. Earlier delivery records remain historical; natural text quality, actual all-type transport, installed/native/audible acceptance remain open. No new product family or Stage4 completion.
 
 Requirement-by-requirement [lane reconciliation](docs/verification/CORE_LANE_REQUIREMENT_RECONCILIATION_20261017.md) now drives the bounded correction under the existing Speech family. Public music research and Mood prosody are local implementation/qualification; all-family narrative, actual published-narration Golden and Track Insight remain open. Historical delivered leaves are preserved; no metadata-only completion or native/installed/audio claim.

@@ -53,6 +53,11 @@ Exact music identity, single-use speaker continuation, output-local failures and
 truthful dispatch/readback are executable requirements. Ordinary playback/direction and pending genre transitions now have local typed expression adapters; complete-source Flow pagination/reopening and null-body search have causal tests. A narrow Recommendation now reuses two genuine published producer credits; all seven type families have actual production/storage/reopen contracts with external source/expression fixtures. Historical album/artist art resolves the original subject, manual local/speaker replay uses current Session/Profile voice, and current Insight reuses fresh qualified credits. Full real narration quality, preview/native and installed proof remain open. An open qualification
 finding blocks release; a listed case or green metadata never closes it.
 
+The reported obsolete VibeCast Session-end setting is also retired locally,
+including grant issuance and screen mutation. The old route denies without
+Session effects; paired owner end remains. [Retirement contract](docs/product/VIBECAST_RECEIVER_END_AUTHORITY_RETIREMENT_V1.md);
+receiver import and installed delivery are not claimed.
+
 
 ## Engineering Platform operational updates
 

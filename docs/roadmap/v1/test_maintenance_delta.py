@@ -20,9 +20,14 @@ class ExperienceReconciliationTests(unittest.TestCase):
         self.assertEqual(next(n for n in delta['nodes'] if n['id'] == 'SPEECH::CORE::REALIZATION'),
                          next(n for n in prior['nodes'] if n['id'] == 'SPEECH::CORE::REALIZATION'))
         self.assertIn('LOCAL / UNPUBLISHED', render(plan)['lanes/DJC-CORE.md'])
+        self.assertEqual(delta['settings_consolidation_receipt'], prior['settings_consolidation_receipt'])
+        inventory = ROOT.parents[2] / delta['settings_consolidation_receipt']['inventory_path']
+        self.assertEqual(delta['experience_reconciliation_receipt']['current_inventory_sha256'],
+                         hashlib.sha256(inventory.read_bytes()).hexdigest())
         for field, value in (('overall_acceptance', 'PASS'), ('source_delivery', 'PROTECTED_MERGED'),
                              ('native', 'PASS'), ('installed', 'PASS'), ('audible', 'PASS'),
-                             ('automatic_dispatch', True), ('previous_delta_sha256', '0' * 64)):
+                             ('automatic_dispatch', True), ('previous_delta_sha256', '0' * 64),
+                             ('current_inventory_sha256', '0' * 64)):
             changed = copy.deepcopy(plan)
             changed['planning_maintenance']['experience_reconciliation_receipt'][field] = value
             self.assertTrue(validate(changed), field)

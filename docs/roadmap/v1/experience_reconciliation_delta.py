@@ -60,5 +60,10 @@ def validate(plan, previous_validator):
     stripped['document_references'] = current_references
     previous = deepcopy(plan)
     previous['planning_maintenance'] = stripped
+    # The frozen delivery receipt retains its original inventory hash. The
+    # current correction owns a separate hash for the now-evolved inventory;
+    # validate those actual bytes through the existing settings validator.
+    previous['planning_maintenance']['settings_consolidation_receipt']['inventory_sha256'] = (
+        receipt.get('current_inventory_sha256'))
     errors.extend(previous_validator(previous))
     return errors

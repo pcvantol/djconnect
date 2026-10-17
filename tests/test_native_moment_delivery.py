@@ -314,7 +314,7 @@ class NativeMomentDeliveryTest(unittest.TestCase):
             other_id=await manager.async_register_pending_subscription(owner_profile_id='owner',session_id=session.session_id,callback=other.append,authorization_entry_id='entry-b')
             await manager.async_activate_subscription(owner_profile_id='owner',session_id=session.session_id,subscription_id=other_id)
             before=second['snapshot']['native_delivery']['admissions'][0]['source_expires_at']
-            await manager.async_revoke_receiver_end_grants_for_entry('entry-a')
+            await manager.async_invalidate_receiver_entry('entry-a')
             await pending_activate()
             for frames in (live,pending,recovered):
                 self.assertEqual(len(frames),1)

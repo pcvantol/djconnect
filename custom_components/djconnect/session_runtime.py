@@ -4328,7 +4328,6 @@ class SessionRuntimeManager:
         self._history_source_contexts: dict[str, dict[str, str]] = {}
         self._playback_progress_clocks: dict[str, PlaybackProgressClock] = {}
         self._intra_track_opportunities: dict[str, IntraTrackOpportunity] = {}
-        self._end_grants: dict[str, tuple[str, str, float, str]] = {}
         self._receiver_entry_generations: dict[str, int] = {}
         self._monotonic_source = monotonic_source or (lambda: time.monotonic())
         self._lock = asyncio.Lock()
@@ -6314,48 +6313,12 @@ class SessionRuntimeManager:
         """Return the ephemeral entry epoch captured by a loaded owner Runtime."""
         return self._receiver_entry_generations.get(entry_id, 0)
 
-    async def async_issue_receiver_end_grant(self, *, owner_profile_id: str, session_id: str, entry_id: str, entry_generation: int = 0) -> str:
-        """Issue a separate end-only credential after explicit owner consent."""
-        async with self._lock:
-            active = self._active_by_profile.get(owner_profile_id)
-            if active is None or active.session_id != session_id or not entry_id:
-                return ""
-            if entry_generation != self.receiver_entry_generation(entry_id):
-                return ""
-            now = self._monotonic_source()
-            self._end_grants = {key: value for key, value in self._end_grants.items() if value[2] > now}
-            if len(self._end_grants) >= 64:
-                return ""
-            grant = secrets.token_urlsafe(32)
-            self._end_grants[grant] = (owner_profile_id, session_id, now + 3600, entry_id)
-            return grant
-
-    async def async_revoke_receiver_end_grants(self, *, owner_profile_id: str, session_id: str) -> None:
-        """Revoke temporary end authority when its observer unloads/reloads."""
-        async with self._lock:
-            self._end_grants = {key: value for key, value in self._end_grants.items()
-                                if value[:2] != (owner_profile_id, session_id)}
-
-    async def async_revoke_receiver_end_grants_for_entry(self, entry_id: str) -> None:
-        """Revoke owner-entry authority even when no playback observer exists."""
+    async def async_invalidate_receiver_entry(self, entry_id: str) -> None:
+        """Fence unloaded paired-entry subscriptions without ending the Session."""
         async with self._lock:
             self._receiver_entry_generations[entry_id] = self.receiver_entry_generation(entry_id) + 1
-            self._end_grants = {key: value for key, value in self._end_grants.items() if value[3] != entry_id}
             for active in self._active_by_profile.values():
                 active.broadcast.revoke_owner_entry_subscriptions(entry_id)
-
-    async def async_end_with_receiver_grant(self, *, session_id: str, grant: str, authorized_entry_ids: frozenset[str] | None = None) -> DJSessionRuntime | None:
-        """Consume one exact-session end grant; Broadcast credentials cannot end."""
-        async with self._lock:
-            authorization = self._end_grants.get(grant)
-            if authorization is None or authorization[1] != session_id or authorization[2] <= self._monotonic_source():
-                return None
-            if authorized_entry_ids is not None and authorization[3] not in authorized_entry_ids:
-                del self._end_grants[grant]
-                return None
-            del self._end_grants[grant]
-            profile_id = authorization[0]
-        return await self.async_end(owner_profile_id=profile_id, session_id=session_id)
 
     async def _async_enrich_runtime_moment(self, active, moment):
         """Optional expression outside the manager lock, using the same HA owner."""
@@ -6657,7 +6620,6 @@ class SessionRuntimeManager:
             self._narration_providers.pop(owner_profile_id, None)
             self._active_by_profile.pop(owner_profile_id, None)
             self._history_source_contexts.pop(session_id, None)
-            self._end_grants = {key: value for key, value in self._end_grants.items() if value[1] != active.session_id}
             return ended
 
 
