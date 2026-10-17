@@ -14,6 +14,24 @@ class NativeMomentDeliveryTest(unittest.TestCase):
     tearDownClass = source_tests.ExpressiveDJPersonaTest.__dict__["tearDownClass"]
     source_pair = source_tests.ExpressiveDJPersonaTest.source_pair
     run_sequence = source_tests.ExpressiveDJPersonaTest.run_sequence
+    @staticmethod
+    def load_owner_handlers():
+        # This owning suite also runs in a fresh CI process. The Runtime
+        # fixture intentionally installs a minimal const module; HTTP owners
+        # must import their real constants without depending on another suite.
+        import importlib
+        import sys
+        import types
+        from pathlib import Path
+        from tests.test_http_voice_helpers import install_http_stubs
+        install_http_stubs()
+        name='custom_components.djconnect.const'
+        canonical=types.ModuleType(name)
+        path=Path(__file__).resolve().parents[1]/'custom_components/djconnect/const.py'
+        exec(compile(path.read_bytes(),str(path),'exec'),canonical.__dict__)
+        with patch.dict(sys.modules,{name:canonical}):
+            return importlib.import_module('custom_components.djconnect.api_handlers')
+
     def test_native_current_and_flow_admission_preserve_two_sources(self):
         moments = self.run_sequence(self.runtime.DJPersona.HOME_DJ, count=2)
         with patch('time.monotonic', lambda: 400.0):
@@ -240,9 +258,7 @@ class NativeMomentDeliveryTest(unittest.TestCase):
     def test_entry_unload_revokes_live_pending_and_recovery_streams_without_ending_session(self):
         import importlib
         import types
-        from tests.test_http_voice_helpers import install_http_stubs
-        install_http_stubs()
-        handlers=importlib.import_module('custom_components.djconnect.api_handlers')
+        handlers=self.load_owner_handlers()
         self.run_sequence(self.runtime.DJPersona.HOME_DJ, count=1)
         manager, session=self.manager,self.session
         integration=[types.SimpleNamespace(entry=types.SimpleNamespace(entry_id='entry-a'),_receiver_end_generation=0)]
@@ -299,9 +315,7 @@ class NativeMomentDeliveryTest(unittest.TestCase):
     def test_session_end_during_initial_transport_setup_withdraws_snapshot_authority(self):
         import importlib
         import types
-        from tests.test_http_voice_helpers import install_http_stubs
-        install_http_stubs()
-        handlers=importlib.import_module('custom_components.djconnect.api_handlers')
+        handlers=self.load_owner_handlers()
         self.run_sequence(self.runtime.DJPersona.HOME_DJ, count=1)
         async def bound(*a,**k):return types.SimpleNamespace(profile_id='owner')
         async def scenario():
