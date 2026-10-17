@@ -1,0 +1,1838 @@
+{
+  "schema_version": "djconnect-open-work-audit/1",
+  "observed_at": "2026-10-17T13:54:01.609247+00:00",
+  "owner_register": "https://github.com/pcvantol/djconnect/issues/1101",
+  "ack": "https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6234678240",
+  "automatic_dispatch": false,
+  "consumer_writes": false,
+  "core_main_observed": "cc9b49fe9ca5312dd3bf962b3bac319aa25b3f15",
+  "core_local_correction": {
+    "commit": "e24560291531d7472a3da85573af643431228369",
+    "published": false,
+    "installed": false,
+    "overall_quality": "NO_GO",
+    "host_tests": 2272,
+    "existing_skips": 7,
+    "golden_issues": 33,
+    "golden_families": 35,
+    "golden_steps": 112,
+    "open_quality_steps": 11,
+    "open_core_findings": 5,
+    "open_findings": [
+      {
+        "id": "ASKDJ-ISSUE-research-unsupported-fact",
+        "finding": "Echte modelproef accepteert onjuist albumjaar"
+      },
+      {
+        "id": "ASKDJ-ISSUE-generic-persona-mood",
+        "finding": "Echte achtcellige proef blijft definitie-eerst met aangeplakte waardering en onvoldoende Persona/Mood-verschil. Getypeerde episode-inhoud wordt apart begrensd; metadata of fixturebewijs kwalificeert geen warme gevarieerde tekst."
+      },
+      {
+        "id": "ASKDJ-ISSUE-track-insight-data",
+        "finding": "Geen verzonnen analyse; werkelijke recording/sourcekwalificatie ontbreekt nog"
+      },
+      {
+        "id": "ASKDJ-ISSUE-published-flow-retention",
+        "finding": "Gepubliceerde bijdragen blijvend terugleesbaar binnen retentie en rechten"
+      },
+      {
+        "id": "ASKDJ-ISSUE-unsupported-source-relationship",
+        "finding": "Een geaccepteerde prefix verbindt samen opnemen met een producer-/genrecontext die de bron niet bewijst. Ook brongebonden relaties in behouden prefixes moeten zelfstandig kwalificeren."
+      }
+    ]
+  },
+  "repositories": [
+    {
+      "name": "djconnect-api",
+      "product_active": true,
+      "disposition": "OWNING_LANE"
+    },
+    {
+      "name": "djconnect",
+      "product_active": true,
+      "disposition": "OWNING_LANE"
+    },
+    {
+      "name": "djconnect-vibecast-receiver",
+      "product_active": true,
+      "disposition": "OWNING_LANE"
+    },
+    {
+      "name": "djconnect-pi",
+      "product_active": true,
+      "disposition": "OWNING_LANE"
+    },
+    {
+      "name": "djconnect-windows",
+      "product_active": false,
+      "disposition": "RETIRED_NO_NEW_CLIENT_WORK"
+    },
+    {
+      "name": "djconnect-esp32",
+      "product_active": true,
+      "disposition": "OWNING_LANE"
+    },
+    {
+      "name": "djconnect-app",
+      "product_active": true,
+      "disposition": "OWNING_LANE"
+    },
+    {
+      "name": "djconnect-website",
+      "product_active": true,
+      "disposition": "OWNING_LANE"
+    },
+    {
+      "name": "djconnect-app-releases",
+      "product_active": true,
+      "disposition": "OWNING_LANE"
+    },
+    {
+      "name": "djconnect-pi-releases",
+      "product_active": true,
+      "disposition": "OWNING_LANE"
+    },
+    {
+      "name": "djconnect-firmware",
+      "product_active": true,
+      "disposition": "OWNING_LANE"
+    },
+    {
+      "name": "djconnect-pico",
+      "product_active": true,
+      "disposition": "OWNING_LANE"
+    },
+    {
+      "name": "djconnect-sha-enforcement-reproducer",
+      "product_active": false,
+      "disposition": "ENGINEERING_REPRODUCER_ONLY"
+    }
+  ],
+  "github_open": [
+    {
+      "repo": "djconnect-api",
+      "number": 95,
+      "title": "chore(deps-dev): bump the npm-dependencies group with 3 updates",
+      "url": "https://github.com/pcvantol/djconnect-api/pull/95",
+      "kind": "pull_request",
+      "state": "open",
+      "disposition": "OPEN_REQUIRES_OWNING_EVIDENCE"
+    },
+    {
+      "repo": "djconnect-api",
+      "number": 94,
+      "title": "test: VibeCast contract and reviewed local workerd path candidate",
+      "url": "https://github.com/pcvantol/djconnect-api/pull/94",
+      "kind": "pull_request",
+      "state": "open",
+      "disposition": "OPEN_REQUIRES_OWNING_EVIDENCE"
+    },
+    {
+      "repo": "djconnect-api",
+      "number": 90,
+      "title": "DJC-API — owning planning register — DJC-PLATFORM-ROADMAP-DAG-LANES-V1-20261003",
+      "url": "https://github.com/pcvantol/djconnect-api/issues/90",
+      "kind": "issue",
+      "state": "open",
+      "disposition": "OPEN_REQUIRES_OWNING_EVIDENCE"
+    },
+    {
+      "repo": "djconnect",
+      "number": 1197,
+      "title": "VibeCast display admission: paired B runtime and code-free A contract",
+      "url": "https://github.com/pcvantol/djconnect/pull/1197",
+      "kind": "pull_request",
+      "state": "open",
+      "disposition": "OPEN_REQUIRES_OWNING_EVIDENCE"
+    },
+    {
+      "repo": "djconnect",
+      "number": 1182,
+      "title": "chore(deps): bump the github-actions group with 6 updates",
+      "url": "https://github.com/pcvantol/djconnect/pull/1182",
+      "kind": "pull_request",
+      "state": "open",
+      "disposition": "OPEN_REQUIRES_OWNING_EVIDENCE"
+    },
+    {
+      "repo": "djconnect",
+      "number": 1180,
+      "title": "chore(deps): bump ruff from 0.16.9 to 0.17.0 in the python-dependencies group",
+      "url": "https://github.com/pcvantol/djconnect/pull/1180",
+      "kind": "pull_request",
+      "state": "open",
+      "disposition": "OPEN_REQUIRES_OWNING_EVIDENCE"
+    },
+    {
+      "repo": "djconnect",
+      "number": 1165,
+      "title": "Running Core does not advertise active_session_mood v1; Apple mood switching stays disabled",
+      "url": "https://github.com/pcvantol/djconnect/issues/1165",
+      "kind": "issue",
+      "state": "open",
+      "disposition": "OPEN_REQUIRES_OWNING_EVIDENCE"
+    },
+    {
+      "repo": "djconnect",
+      "number": 1164,
+      "title": "Session history: producer-owned artwork missing from playback and DJ contribution cards",
+      "url": "https://github.com/pcvantol/djconnect/issues/1164",
+      "kind": "issue",
+      "state": "open",
+      "disposition": "OPEN_REQUIRES_OWNING_EVIDENCE"
+    },
+    {
+      "repo": "djconnect",
+      "number": 1101,
+      "title": "DJC-PLATFORM-ROADMAP-DAG-LANES-V1-20261003 — portfolio and protected-planning continuation",
+      "url": "https://github.com/pcvantol/djconnect/issues/1101",
+      "kind": "issue",
+      "state": "open",
+      "disposition": "OPEN_REQUIRES_OWNING_EVIDENCE"
+    },
+    {
+      "repo": "djconnect-vibecast-receiver",
+      "number": 16,
+      "title": "VibeCast.tv slice 1 — web bootstrap, isolated build and Cloudflare CI/CD",
+      "url": "https://github.com/pcvantol/djconnect-vibecast-receiver/issues/16",
+      "kind": "issue",
+      "state": "open",
+      "disposition": "OPEN_REQUIRES_OWNING_EVIDENCE"
+    },
+    {
+      "repo": "djconnect-vibecast-receiver",
+      "number": 10,
+      "title": "DJC-VIBECAST — owning planning register — DJC-PLATFORM-ROADMAP-DAG-LANES-V1-20261003",
+      "url": "https://github.com/pcvantol/djconnect-vibecast-receiver/issues/10",
+      "kind": "issue",
+      "state": "open",
+      "disposition": "OPEN_REQUIRES_OWNING_EVIDENCE"
+    },
+    {
+      "repo": "djconnect-pi",
+      "number": 107,
+      "title": "chore(deps): bump the github-actions group with 5 updates",
+      "url": "https://github.com/pcvantol/djconnect-pi/pull/107",
+      "kind": "pull_request",
+      "state": "open",
+      "disposition": "OPEN_REQUIRES_OWNING_EVIDENCE"
+    },
+    {
+      "repo": "djconnect-pi",
+      "number": 106,
+      "title": "chore(deps): bump pyside6 from 6.11.2 to 6.12.0 in the python-dependencies group",
+      "url": "https://github.com/pcvantol/djconnect-pi/pull/106",
+      "kind": "pull_request",
+      "state": "open",
+      "disposition": "OPEN_REQUIRES_OWNING_EVIDENCE"
+    },
+    {
+      "repo": "djconnect-pi",
+      "number": 104,
+      "title": "DJC-PI — owning planning register — DJC-PLATFORM-ROADMAP-DAG-LANES-V1-20261003",
+      "url": "https://github.com/pcvantol/djconnect-pi/issues/104",
+      "kind": "issue",
+      "state": "open",
+      "disposition": "OPEN_REQUIRES_OWNING_EVIDENCE"
+    },
+    {
+      "repo": "djconnect-windows",
+      "number": 76,
+      "title": "DJC-WINDOWS — owning planning register — DJC-PLATFORM-ROADMAP-DAG-LANES-V1-20261003",
+      "url": "https://github.com/pcvantol/djconnect-windows/issues/76",
+      "kind": "issue",
+      "state": "open",
+      "disposition": "HISTORICAL_REGISTER_ONLY"
+    },
+    {
+      "repo": "djconnect-esp32",
+      "number": 58,
+      "title": "DJC-ESP32 — owning planning register — DJC-PLATFORM-ROADMAP-DAG-LANES-V1-20261003",
+      "url": "https://github.com/pcvantol/djconnect-esp32/issues/58",
+      "kind": "issue",
+      "state": "open",
+      "disposition": "OPEN_REQUIRES_OWNING_EVIDENCE"
+    },
+    {
+      "repo": "djconnect-app",
+      "number": 87,
+      "title": "DJC-APPLE — owning planning register — DJC-PLATFORM-ROADMAP-DAG-LANES-V1-20261003",
+      "url": "https://github.com/pcvantol/djconnect-app/issues/87",
+      "kind": "issue",
+      "state": "open",
+      "disposition": "OPEN_REQUIRES_OWNING_EVIDENCE"
+    },
+    {
+      "repo": "djconnect-website",
+      "number": 59,
+      "title": "DJC-WEBSITE — owning planning register — DJC-PLATFORM-ROADMAP-DAG-LANES-V1-20261003",
+      "url": "https://github.com/pcvantol/djconnect-website/issues/59",
+      "kind": "issue",
+      "state": "open",
+      "disposition": "OPEN_REQUIRES_OWNING_EVIDENCE"
+    },
+    {
+      "repo": "djconnect-app-releases",
+      "number": 25,
+      "title": "DJC-DIST-APPLE — owning planning register — DJC-PLATFORM-ROADMAP-DAG-LANES-V1-20261003",
+      "url": "https://github.com/pcvantol/djconnect-app-releases/issues/25",
+      "kind": "issue",
+      "state": "open",
+      "disposition": "OPEN_REQUIRES_OWNING_EVIDENCE"
+    },
+    {
+      "repo": "djconnect-pi-releases",
+      "number": 24,
+      "title": "DJC-DIST-PI — owning planning register — DJC-PLATFORM-ROADMAP-DAG-LANES-V1-20261003",
+      "url": "https://github.com/pcvantol/djconnect-pi-releases/issues/24",
+      "kind": "issue",
+      "state": "open",
+      "disposition": "OPEN_REQUIRES_OWNING_EVIDENCE"
+    },
+    {
+      "repo": "djconnect-firmware",
+      "number": 24,
+      "title": "DJC-DIST-FIRMWARE — owning planning register — DJC-PLATFORM-ROADMAP-DAG-LANES-V1-20261003",
+      "url": "https://github.com/pcvantol/djconnect-firmware/issues/24",
+      "kind": "issue",
+      "state": "open",
+      "disposition": "OPEN_REQUIRES_OWNING_EVIDENCE"
+    },
+    {
+      "repo": "djconnect-pico",
+      "number": 6,
+      "title": "DJC-PICO — owning planning register — DJC-PLATFORM-ROADMAP-DAG-LANES-V1-20261003",
+      "url": "https://github.com/pcvantol/djconnect-pico/issues/6",
+      "kind": "issue",
+      "state": "open",
+      "disposition": "OPEN_REQUIRES_OWNING_EVIDENCE"
+    }
+  ],
+  "dag_open": [
+    {
+      "id": "PROJ::INTELLIGENCE::DJ-PRESENCE",
+      "lane": "DJC-CORE",
+      "status": "Planned",
+      "title": "Adjustable DJ presence",
+      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+    },
+    {
+      "id": "SLICE::APPLE::DJ-PRESENCE-CONTROL",
+      "lane": "DJC-APPLE",
+      "status": "Planned",
+      "title": "Native iPhone/iPad/Mac presence slider",
+      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+    },
+    {
+      "id": "QUAL::VIBECAST::DJ-PRESENCE-COMPAT",
+      "lane": "DJC-VIBECAST",
+      "status": "Planned",
+      "title": "Local/static presence compatibility",
+      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+    },
+    {
+      "id": "QUAL::PRODUCT::DJ-PRESENCE-V1",
+      "lane": "DJC-CORE",
+      "status": "Planned",
+      "title": "Joint presence v1 acceptance",
+      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+    },
+    {
+      "id": "CORRECTION::APPLE::DISCOVERY-ARTWORK-ACCEPTANCE",
+      "lane": "DJC-APPLE",
+      "status": "Planned",
+      "title": "Native Discovery artwork and lifecycle readback",
+      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+    },
+    {
+      "id": "RELATION::CONSUMERS::ALBUM-CONTINUITY-ACCEPTANCE",
+      "lane": "DJC-APPLE",
+      "status": "Planned",
+      "title": "Separate native and joint album continuity acceptance",
+      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+    },
+    {
+      "id": "FORECAST::APPLE::VIEW",
+      "lane": "DJC-APPLE",
+      "status": "Planned",
+      "title": "Native Flow | Forecast with qualified imagery",
+      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+    },
+    {
+      "id": "FORECAST::PRODUCT::JOINT",
+      "lane": "DJC-CORE",
+      "status": "Planned",
+      "title": "Joint Forecast product acceptance",
+      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+    },
+    {
+      "id": "FORECAST::VIBECAST::VISIBLE",
+      "lane": "DJC-VIBECAST",
+      "status": "Planned",
+      "title": "Visible ambient Forecast composition/adoption",
+      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+    },
+    {
+      "id": "FORECAST::CORE::UPCOMING",
+      "lane": "DJC-CORE",
+      "status": "Planned",
+      "title": "Optional qualified upcoming media and artist anchors",
+      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+    },
+    {
+      "id": "AMBIENT::APPLE::JOIN",
+      "lane": "DJC-APPLE",
+      "status": "Planned",
+      "title": "Verify Session-only proactive content and retained Ask DJ history",
+      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+    },
+    {
+      "id": "AMBIENT::PRODUCT::JOINT",
+      "lane": "DJC-CORE",
+      "status": "Planned",
+      "title": "Joint ambient convergence acceptance",
+      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+    },
+    {
+      "id": "ENTRY::CORE::LIFECYCLE",
+      "lane": "DJC-CORE",
+      "status": "Planned",
+      "title": "Core entry/readiness and exact lifecycle operations",
+      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+    },
+    {
+      "id": "ENTRY::CORE::ASK-LIFECYCLE",
+      "lane": "DJC-CORE",
+      "status": "Planned",
+      "title": "Common text/voice lifecycle semantics",
+      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+    },
+    {
+      "id": "ENTRY::CORE::PAUSE-RECOVERY",
+      "lane": "DJC-CORE",
+      "status": "Planned",
+      "title": "Pause and observation recovery policy",
+      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+    },
+    {
+      "id": "ENTRY::APPLE::NAVIGATION",
+      "lane": "DJC-APPLE",
+      "status": "Planned",
+      "title": "Native preparation/music selection and return",
+      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+    },
+    {
+      "id": "ENTRY::APPLE::LIFECYCLE",
+      "lane": "DJC-APPLE",
+      "status": "Planned",
+      "title": "Native exact lifecycle invocation integration",
+      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+    },
+    {
+      "id": "HISTORY::APPLE::SUMMARY",
+      "lane": "DJC-APPLE",
+      "status": "Planned",
+      "title": "Native history list/header summary adoption",
+      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+    },
+    {
+      "id": "SURFACE::APPLE::NAVIGATION",
+      "lane": "DJC-APPLE",
+      "status": "Planned",
+      "title": "Typed native Session navigation",
+      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+    },
+    {
+      "id": "SURFACE::APPLE::ADOPTION",
+      "lane": "DJC-APPLE",
+      "status": "Planned",
+      "title": "Session widget/Activity/Island adoption",
+      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+    },
+    {
+      "id": "SURFACE::APPLE::QUIET-TRANSPORT",
+      "lane": "DJC-APPLE",
+      "status": "Planned",
+      "title": "Quiet surface update transport qualification",
+      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+    },
+    {
+      "id": "SURFACE::PRODUCT::JOINT",
+      "lane": "DJC-CORE",
+      "status": "Planned",
+      "title": "Joint selected native surface acceptance",
+      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+    },
+    {
+      "id": "CONTINUATION::CORE::POLICY",
+      "lane": "DJC-CORE",
+      "status": "Planned",
+      "title": "Independent opportunity/consent policy",
+      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+    },
+    {
+      "id": "CONTINUATION::APPLE::ALERT-TRANSPORT",
+      "lane": "DJC-APPLE",
+      "status": "Planned",
+      "title": "Continuation invitation native transport",
+      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+    },
+    {
+      "id": "CONTINUATION::PRODUCT::JOINT",
+      "lane": "DJC-CORE",
+      "status": "Planned",
+      "title": "Joint Continuation invitation acceptance",
+      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+    },
+    {
+      "id": "CONVERSATION::APPLE::SHARED-ADOPTION",
+      "lane": "DJC-APPLE",
+      "status": "Planned",
+      "title": "One native Ask DJ controller with optional Session context",
+      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+    },
+    {
+      "id": "INSIGHT::APPLE::MOMENT-DRILLDOWN",
+      "lane": "DJC-APPLE",
+      "status": "Planned",
+      "title": "Native pinned Track Insight and return to the same Flow/draft",
+      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+    },
+    {
+      "id": "CONVERSATION::PRODUCT::JOINT",
+      "lane": "DJC-CORE",
+      "status": "Planned",
+      "title": "Shared dialogue and exact Moment detail joint acceptance",
+      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+    },
+    {
+      "id": "TRANSPORT::APPLE::HYBRID",
+      "lane": "DJC-APPLE",
+      "status": "Planned",
+      "title": "Existing Apple route coordinator adopts qualified producer contract",
+      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+    },
+    {
+      "id": "TRANSPORT::JOINT::HYBRID",
+      "lane": "DJC-CORE",
+      "status": "Planned",
+      "title": "Native LAN external and recovery acceptance across supported Apple devices",
+      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+    },
+    {
+      "id": "MEDIA::APPLE::SESSION-ARTWORK",
+      "lane": "DJC-APPLE",
+      "status": "Planned",
+      "title": "Shared native Session artwork presentation",
+      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+    },
+    {
+      "id": "MEDIA::JOINT::SESSION-ARTWORK",
+      "lane": "DJC-CORE",
+      "status": "Planned",
+      "title": "Core and Apple subject/rights/expiry acceptance",
+      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+    },
+    {
+      "id": "WEB::DISPOSITION",
+      "lane": "DJC-CORE",
+      "status": "Planned",
+      "title": "Implement reviewed web-first legacy disposition",
+      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+    },
+    {
+      "id": "WEB::TRUST",
+      "lane": "DJC-CORE",
+      "status": "Planned",
+      "title": "Qualify browser-bound onboarding and guest trust contract",
+      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+    },
+    {
+      "id": "WEB::BOOTSTRAP",
+      "lane": "DJC-API",
+      "status": "Planned",
+      "title": "Temporary encrypted rendezvous service",
+      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+    },
+    {
+      "id": "WEB::DISPLAY",
+      "lane": "DJC-CORE",
+      "status": "Planned",
+      "title": "Separate HA code and readonly display grant",
+      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+    },
+    {
+      "id": "WEB::OWNER-SCANNER",
+      "lane": "DJC-APPLE",
+      "status": "Planned",
+      "title": "Paired owner scanner and explicit installation confirmation",
+      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+    },
+    {
+      "id": "WEB::SHARED",
+      "lane": "DJC-CORE",
+      "status": "Planned",
+      "title": "Explicit shared Flow NowPlaying Forecast projection",
+      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+    },
+    {
+      "id": "WEB::MEDIA",
+      "lane": "DJC-CORE",
+      "status": "Planned",
+      "title": "Independent shared artwork and speech grants expiry attribution",
+      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+    },
+    {
+      "id": "WEB::GUEST",
+      "lane": "DJC-CORE",
+      "status": "Planned",
+      "title": "Invitation redemption guest principal and revocation",
+      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+    },
+    {
+      "id": "WEB::BROWSER",
+      "lane": "DJC-VIBECAST",
+      "status": "Planned",
+      "title": "One responsive web UI and accountless browser join",
+      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+    },
+    {
+      "id": "WEB::DISTRIBUTION",
+      "lane": "DJC-VIBECAST",
+      "status": "Planned",
+      "title": "Receiver public bootstrap selected; serviceadapter conditionally selected; full E2E separately gated",
+      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+    },
+    {
+      "id": "WEB::DISCOVERY",
+      "lane": "DJC-CORE",
+      "status": "Planned",
+      "title": "Admission-scoped HA local discovery announcement",
+      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+    },
+    {
+      "id": "WEB::APP",
+      "lane": "DJC-APPLE",
+      "status": "Planned",
+      "title": "Isolated temporary guest shell discovery scanner leave home restore",
+      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+    },
+    {
+      "id": "WEB::REACTIONS",
+      "lane": "DJC-CORE",
+      "status": "Planned",
+      "title": "Five subject-bound ephemeral reactions and bounded sparkle",
+      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+    },
+    {
+      "id": "WEB::AGGREGATE",
+      "lane": "DJC-CORE",
+      "status": "Planned",
+      "title": "Temporary audience aggregation and host lock budget policy",
+      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+    },
+    {
+      "id": "WEB::INFLUENCE",
+      "lane": "DJC-CORE",
+      "status": "Planned",
+      "title": "Bounded DJ-led Mood direction influence and owner confirmation",
+      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+    },
+    {
+      "id": "WEB::CHAT",
+      "lane": "DJC-CORE",
+      "status": "Planned",
+      "title": "Guest Ask DJ isolated thread safe dispatch and spend budgets",
+      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+    },
+    {
+      "id": "WEB::REQUEST",
+      "lane": "DJC-CORE",
+      "status": "Planned",
+      "title": "Exact recording clarification and guest proposal dialogue",
+      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+    },
+    {
+      "id": "WEB::EFFECT-POLICY",
+      "lane": "DJC-CORE",
+      "status": "Planned",
+      "title": "DJ request consideration fairness and uncertain-effect policy",
+      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+    },
+    {
+      "id": "WEB::ENQUEUE",
+      "lane": "DJC-CORE",
+      "status": "Planned",
+      "title": "Real enqueue reconciliation and observed-recording Persona announcement",
+      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+    },
+    {
+      "id": "WEB::JOINT",
+      "lane": "DJC-CORE",
+      "status": "Planned",
+      "title": "Joint browser native media lifecycle physical five-language acceptance",
+      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+    },
+    {
+      "id": "SPEECH::APPLE::ADOPTION",
+      "lane": "DJC-APPLE",
+      "status": "Planned",
+      "title": "Native shared speech, voice and autoplay adoption",
+      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+    },
+    {
+      "id": "SPEECH::JOINT::ACCEPTANCE",
+      "lane": "DJC-CORE",
+      "status": "Planned",
+      "title": "Visible and audible shared product qualification",
+      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+    },
+    {
+      "id": "SETTINGS::CORE::MIGRATION",
+      "lane": "DJC-CORE",
+      "status": "In progress",
+      "title": "Qualified legacy migration/removal and owning-lane reconciliation",
+      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+    },
+    {
+      "id": "SETTINGS::APPLE::EDITOR",
+      "lane": "DJC-APPLE",
+      "status": "Planned",
+      "title": "One Jouw DJ editor and shared Session quick controls",
+      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+    },
+    {
+      "id": "SETTINGS::PI::ADOPTION",
+      "lane": "DJC-PI",
+      "status": "Planned",
+      "title": "Pi allowed shared Session settings and legacy disposition",
+      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+    },
+    {
+      "id": "SETTINGS::ESP32::ADOPTION",
+      "lane": "DJC-ESP32",
+      "status": "Planned",
+      "title": "ESP32 Assist/voice/settings compatibility and legacy disposition",
+      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+    },
+    {
+      "id": "SETTINGS::VIBECAST::COMPAT",
+      "lane": "DJC-VIBECAST",
+      "status": "Planned",
+      "title": "Shared renderer allowed Session fields without Profile preferences",
+      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+    },
+    {
+      "id": "SETTINGS::WEBSITE::COPY",
+      "lane": "DJC-WEBSITE",
+      "status": "Planned",
+      "title": "Six-parameter scope/help and obsolete settings copy audit",
+      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+    },
+    {
+      "id": "SETTINGS::JOINT::ACCEPTANCE",
+      "lane": "DJC-CORE",
+      "status": "Planned",
+      "title": "Cross-device six-field effects, persistence and cleanup acceptance",
+      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+    }
+  ],
+  "proofs": [
+    {
+      "id": "local-corrective-regressions",
+      "kind": "local_tests",
+      "status": "PASS",
+      "commit": "e24560291531d7472a3da85573af643431228369",
+      "count": 2272,
+      "skips": 7,
+      "claim": "producer_software_only"
+    },
+    {
+      "id": "local-real-model-quality",
+      "kind": "model_run",
+      "status": "FAIL",
+      "commit": "085c0fbe382580bfc718f29822d9c6073f8d5580",
+      "count": 16,
+      "claim": "editorial_NO_GO_not_retried",
+      "open_quality_steps": 11,
+      "open_core_findings": 5
+    },
+    {
+      "id": "installed-dev",
+      "kind": "installed_manifest",
+      "status": "PASS",
+      "commit": "cc9b49fe9ca5312dd3bf962b3bac319aa25b3f15",
+      "expected_files": 177,
+      "actual_files": 177,
+      "changed_or_missing": 0,
+      "extra_files": 0,
+      "capabilities": {
+        "active_session_mood": true,
+        "active_session_presence": true
+      },
+      "settings_version": 3,
+      "claim": "exact_integration_files_and_public_advertisement_not_functional_native_acceptance",
+      "files": {
+        "AGENTS.md": "8fb8891e3a2cca055067fbbacafe6c189f38bc00c514a6bf6984639a182a70cf",
+        "__init__.py": "5d3fd9cfa82b8adb1830f77c42554df0d9fb1141f3c170d925cbf4c68e90a9ad",
+        "ai_tools.py": "175ac20dc1ebdb535aaec839b6fc8e8fe012ac3c81e0f0f07e1856b692c9f0c8",
+        "announcement_policy.py": "046b5362490e6d581177fe9456473613e164e10fc9baf4739a5b516b8c95bea7",
+        "announcements.py": "4e34b4b46395f8922482ea6d685867dfa69fb43560e4291c88721849acc192c9",
+        "api_handlers.py": "c5e5631cf26a7c8db5a0e172263b864ebca8afb33710a23b7f77705734f8fe63",
+        "ask_dj/__init__.py": "2ea4e0b689a352ddcfbeb3cc0200f5145f3047d0997f8cd99a6220545d194836",
+        "ask_dj/actions.py": "8e42edc5bf0a3a3ef73c99273c5860d1f3ebad42dd8897cf8d2877239a25b053",
+        "ask_dj/dialogue.py": "fc934391a6a81f4d8bc10b522f06988b5dcc6a9256a81f1246851b49f3275485",
+        "ask_dj/intents.py": "545c7cf45bc5a66719d66bed5ef2633a4e01343645080af733a11869f1c01032",
+        "ask_dj/observations.py": "411594af13069c0fb1a612899e9f51452b052e3a7fd95577f7fd39ddf5da77c2",
+        "ask_dj/profile.py": "88843b457ff8374199c650f37ffe8274b2edcb88ab4f7cc6aee1595f6d349530",
+        "ask_dj/recent_history.py": "bdaafde32b1fd64627e7a026497449adf827d70ddf32203b8661dde9965494ed",
+        "ask_dj/responses.py": "66364a9e6cc0de37581adfbee882413a83f5cd5ef01f84fddf6bc4fff3c9df92",
+        "ask_dj/service.py": "f1c11205bd3f851e4adb41ca0e16327332f30f3e6575b0d267909be949168bf8",
+        "ask_dj_history.py": "b0f2e40e32bf502f0504f1bbd77bf3ada219e84b06a6879111af25a48d3e9110",
+        "assist_stt.py": "609b5a7ec4c40eda3d87a84d9391256bd930c1dd1c80a5171b03df79c68aa6e5",
+        "ble.py": "2223ccb7fb718e51501e72042588d6920619d05d6b9b83b4a6452edbdf7e389d",
+        "brand/icon.png": "07a1d66ce9d7cd8139e4f228302f13c8df02d56ea55c65cd5a9325dfb995e5c7",
+        "brand/icon@2x.png": "d0ce54c6a24abd1e5139b435c4b9c1428944ed47721c58a93ad2427dc864048b",
+        "brand/logo.png": "d0ce54c6a24abd1e5139b435c4b9c1428944ed47721c58a93ad2427dc864048b",
+        "broadcast_handoff.py": "f6c6e828154e28285e3c364bc0193a34632d972f009baa29e0f25a4b918622d4",
+        "button.py": "aa1c3290c4369d99ecf6fc88f865e65e02d438d7e3b0a399621a5791062ba9bc",
+        "capability_contract.py": "86a6bce829d7f1e3f9db44eb9e0c0ffa14b6d4037749592b03a15140001d9d13",
+        "central_api.py": "78cd4645d9fd1979bbc33e500c525bffc23ae45deaeef02b129adb418674b9e6",
+        "ci_qualification_report.py": "a45c358669fea9cfb57a601a109443c722e10d91b067eacbb550a11cd264229b",
+        "client_identity.py": "31543e0cf3ed7aa8322af24d0835c0fecf77974db0d8a07c7908d9deff7588cd",
+        "client_retirement.py": "42bb54178f5c1655e600b21a6ccc954811d37e2a1f91f5318f7b97da6d69bca3",
+        "config_flow.py": "710a780dc8df953d8afaf4646f331c8efb4d28ce3faa8f9189ae353f1d06285f",
+        "const.py": "42f20bbc461a11e10c4e297334161d7aeec8b1d09e62b634d745ba1480d84573",
+        "context_expression.py": "bd9a381caa0bce1e39a5a324fb849be1c32b02c4b818b4f48fb493889316515a",
+        "conversation.py": "38596f8e30d890210fd7ef546770f05c43e05f7387c74bff82868bd3fa93ce19",
+        "credit_provenance.py": "297a4f07ecd232868eba0204debe77617c2c02ad65c0a5d4e03bfdb8c52166c6",
+        "developer_session_bootstrap.py": "f9c7a2ffabf5da01387c0db04487a97a111f5d0d9f99e700a914e765b0033918",
+        "developer_session_capture.py": "266f34021a64cee3f22887e7703f34d380bba91eafc9dab45ec02ca2a52b5afc",
+        "developer_session_scenario_driver.py": "8b959c58b6a61ddcbe0788c46a5ab3ce9e34e69a548b19ef3e9e3da20f405b03",
+        "device_info.py": "e57853ec0dadda4c3fde90c1cd7ed1c4a20e7962611cd1a3d2bd4b3c0273ce50",
+        "diagnostics.py": "8320ce2da0693e250763d99ace802ce8042988cdd26e5fa38eef606f7c45ddb0",
+        "discovery.py": "64a2212da414bf7bc48f43e88b52d9f4584c3395105edada1cb513fce07552e5",
+        "discovery_artwork.py": "042253c840f5d5032b2cfd97cd3b90d77075d343f86b39851072ae9a176cf585",
+        "discovery_selection.py": "09df528e850f3459c5f7b332c3d49efc22aef39a1a6835ac7ebbc10054e4645a",
+        "dj.py": "2c7a11d596a72907d66aee361ecd4bc5e5e8a9d6fb592aece046db79aeabc772",
+        "dj_brain_capabilities.py": "c0f1e79f64c1d5d437aa0f114de1ef153037b32049e35428d656f1e01b8a52a9",
+        "dj_response.py": "0afb2325159604558915c2c151888d830ef5f1e5c0806a1fa66d0943559768a7",
+        "domain/__init__.py": "104de8336815898807e43ff381c27e7ed22d47d62ce4855adc7446eb26d67902",
+        "domain/backend/__init__.py": "6bd3c1290d8f7dd8302ca4245f96d32f78a017212e4c933a6718754a199b9b35",
+        "domain/backend/models.py": "a521deaff497130fe275de653f672e7e0829c4baec3e798b245db0f1b8c72fe3",
+        "domain/device/__init__.py": "8f09bb106225d83aa46a756a83d22d20c3b3c1e8421281cbc86ca6579fd5c4d3",
+        "domain/device/models.py": "8f5f63a6194348bcc90405dceb73baa1fb6444a82092d9b203a1c8858c69d9a5",
+        "domain/errors.py": "d9766fd1d4e50dda60104676f16f8f6fb3ea89d64f65b9db001fc8d8b77f76cf",
+        "domain/household/__init__.py": "69b3b15d5ffa55dafbce133cb21a531044fbf0569385d2fda8f2289d77e028b4",
+        "domain/household/models.py": "582f1fa7cb9ae69b542483ae9a52f89db5fca6e669da8f0b40d72d0e48ecf4f5",
+        "domain/models/__init__.py": "b6614a01d7cfd05988d1545d834acf2a45314138c49d0c7e903be06cb4eef2eb",
+        "domain/models/identity.py": "249ac762374e5cbce7c907e4ff3333e89d7eaa5d648bb1b7777175beb2ae27ef",
+        "domain/music_account/__init__.py": "36ad7ec36df88b1d51c173af9e0ade1ee382368120f8cc04759dcd164292f785",
+        "domain/music_account/models.py": "eefc64ac272cd7cbf17ac4af8ec08213184d90e224280aab5a63f8a9ab2487d0",
+        "domain/playback_zone/__init__.py": "f5fa81c0bc682dd7f806108fb6bc012609dc94a0199d3784f8c92669879a0e4c",
+        "domain/playback_zone/models.py": "05738f7064e3dbcd03651bcf9a679bd92d64cc848307b5a30aa520ee92ab99b3",
+        "domain/profile/__init__.py": "7fe995f871fc42981932bc7083dd4833204102b8a6b41e2d382948ecc263e29c",
+        "domain/profile/dj_settings.py": "1c8393429d3edd0d37df9714417672d1fff40186e8665adf7dca2c4b6413d4be",
+        "domain/profile/models.py": "dbb245e46aaa06ed81ac2b7749b6f6b70ec764e970d5b365e2741bae8c359423",
+        "domain/resolver/__init__.py": "f2a44fb57c5aba95ae343c1f60e4468bb33b1bdb4eea134fe5fc9f0e6d184268",
+        "domain/resolver/profile_resolver.py": "a13f58d7d965157ac0db2c31767a7460d60d6d8df9b34fb3b2f29357b8aa8167",
+        "domain/storage.py": "bdca709c9b67d9514790bb40ae3f0926696dcbee95c8f81ff9aca78a5aa908a4",
+        "entity_ids.py": "2de2482c841bb4a1cd86af04730963ef7d9915a3ff26df86d8101731df6ff0f2",
+        "flow_labels.py": "687a3cace4d413737346ed0738aeb3c1dd076552145e1417957f30ba01c3f3d7",
+        "forecast_expression.py": "e733cd995259e0f4c4b613bd03b83f786e122b5abeafa4ca6db3270278581d1d",
+        "forecast_imagery.py": "28c15f023ddc1df1c43a3997d8a551fc74ae08a473b494398165d226c9e2fd9c",
+        "github.py": "90c01724de4de8f2e1bb9603a922ef0a1cb95376465dc0310e8d752c3c65d459",
+        "golden_qualification.py": "e7e7eca3ab4c5ea6c52bc0ae2e6c82c664d81940041ebc6bb327fcde74119561",
+        "ha_urls.py": "cfb435ee2f7f25450fc3f443703a3a466bffd0da103365b3163384797587d558",
+        "historical_projection_query.py": "2481a6e49cfee54bec496046e06a8868178cf2ad37cecebf5cbb48c307fb05a1",
+        "historical_projection_retention.py": "29594182bc7e7fcbaf81fa65ddd70ea04b2f1129cec361b932ea67c3df841486",
+        "http.py": "2da54c578bbd602ea133a052383419c2c131b689f71d729d7c91c6caee8efbe6",
+        "hybrid_contract.py": "dcb16fd97e020a7103c0daafd35e0224feec2c77e331cc3e4fb993509420b105",
+        "hybrid_ingress_qualification.py": "8e220874b16e7bbb1162261a1e89607a2a6067dca3fa3c820d2cc52ee3232933",
+        "hybrid_local_policy.py": "711c4efc1d9a90bc92c02cb6c06af7c83a4b289cc3c9f34b675a156f099d864a",
+        "hybrid_service.py": "28dd7dab191e6619b15e2e9d12a02688c87f5c7ce2f67be4118a6f53efb74cd3",
+        "hybrid_transport.py": "635692511a36e955ec72a6c524d51d38140c14e50bb44d33bc9b6d7bab5ea48a",
+        "icon.png": "2e39030507fe218c70e3885dec5c29f464b88d12c66d93935fdac861fd795c2f",
+        "icon@2x.png": "058def399acd93b3d298e4a0a9869eec0ef67307d483db049a02e902f596b5f1",
+        "image_proxy.py": "77a855a75a02f8a8d643cfb9decfbb0c1ced33693cd8f70f91f01aa059296b53",
+        "logo.png": "ff9007c335731b2c35b66961abfed09c80ce3da91032a9e947dbde94ffe8360b",
+        "manifest.json": "8c1039938997fb5cc659f82941f21346249310b90ecf164795a1ea1baa4d5c62",
+        "moment_expression.py": "5ef7c3769ef046a989eff70812ed639c7203bf5b88c9d020bbc2827a94464929",
+        "moment_navigation.py": "7c4d94c6d4ebe947abf083818a2264c28e9d2ae3b577b45c2009e72712412af6",
+        "mood.py": "84aefec705178fe6b32f601771d6280e5eb788f161c8cff1fd106a061d792e8c",
+        "music_discovery.py": "c29433a74e0eb4a6cf216db1a6b057e0a24d67e13f57db74a0972c4b1ac39535",
+        "music_dna.py": "2fdb38693e1de8876aaf5ba16e5ddd62feb888133377a60922f8d9457de77bfe",
+        "music_intent.py": "1ae3c524e6f36d6ac80fd9145c1df0d811236c06c8af8226acbcc52747385af7",
+        "native_moment_delivery.py": "cef1af45da5352e7fe6b08d7cccd4ff2466419d4a89616e47101e7620fb7ae28",
+        "number.py": "57dd84220fbb1903708c9c4a0f850d699919aabbe4300dcce252fb0f205e3e7b",
+        "paired_live.py": "b4f2796aab724309b31e750b8991031527921916f295a488c3f36a69a8dd17b6",
+        "paired_live_contract.py": "fb4485b6acd9d548c17953edf64af4c4c4aa98c93cb325721acc033ff787f736",
+        "pairing_defaults.py": "d65b049671f2c594edadfeed12a8a5b0da4d1c3a4f33aaa77b0a7e35aae243b7",
+        "passive_session.py": "d4417b1ead5a6b22f69a02d9a324dc315b1d8297d0006430c6962709d246b0e5",
+        "persistence/README.md": "c305e30879e4a3006a72fcf44487408ec7afba4caff509503d2b603c6ecf927f",
+        "persistence/__init__.py": "8dc97e8769e396ad480a8a5db345974f63b7ff334020980a3d15921e898c8b97",
+        "persistence/bootstrap.py": "e53a745c435a27232435a8957a0c20a6694882b92b1802794387066bfc0a6ed3",
+        "persistence/dj_settings.py": "26e30d177de1f112d723179235409336b939f72344cc2b3b0f6c33a83613a46e",
+        "persistence/history.py": "e28853529d8d55c1c7c6611a988f8a7cdadc730349046f1136516af2f067038e",
+        "persistence/ownership.py": "167eaa9ffb4ac5705987ac77e1e261d4741123787fd193192a4a65429bedc8e0",
+        "persistence/provider.py": "c0ea99393eafb1d31f5dc643164a55db763f8522cd5d93f5d19dd42984b2c201",
+        "persistence/reconciliation.py": "75d9dd20de1652f0a731870cb8d7885687c1dd04861b1250a3364e7715462c3e",
+        "persistence/schema.py": "fe1c57e47370c958b031c93b3a31069e1e11397a5099e636820e4c9e222cf429",
+        "persistence/service.py": "12c359933a1a1fac9452a596db59ac9a3b93151137de22c5554da8d27db422fc",
+        "persistence/sessions.py": "19e5f68577911da193e8d1a2508930621cf68db229668d24c5a7d15919a21df5",
+        "persistence/sqlite.py": "d162322a3e859644cb883eb5a26d5722d810e36567b57bd86d27440bf1e56d6c",
+        "persistence/summary.py": "f97711ebd2366e33d4164dd541cf6b2526f2d7cb0e26c0c13dcbc33b0e1125db",
+        "pipeline.py": "36ff6bf121bbc293714805f60bc7951c8341fb68cb14de4e6027d2af6040d237",
+        "playback_observation.py": "63ccc706edf892c670d3ddf80652fde63a15188e384372d4aaea768aac194d60",
+        "presence_policy.py": "dc31404f519979e14c1735cd23c3b82fd3b2ce1b9f14d6cf0d3ff25506d86672",
+        "presentation_composer.py": "bc16ebcf1c9e2fd2d53d8c7ba488b2e174771501d08030589af972baff5355a5",
+        "processor.py": "649b4867d996ec66f4af2dddd3edcb5ac2bae16de89759ad83f79f5955ed83c6",
+        "profile_backend.py": "4b19f7b37dac97573fd4dbccd3fe2973aeac236e5783a2d08ccdb360d38f3ad4",
+        "profile_context.py": "b65b5bc6159b10b4f8c864c5af4a2bdaeda34449eb8e839e0f253db302a58320",
+        "profile_export.py": "69146e56bfef2bc0983a9499acaa0ff54fa9c9664010d1e75e1c2acae10a316d",
+        "profile_privacy.py": "80a539a327c8d6c4650e0936ea0440800d0b0d8c71aff6c073520f343db77d88",
+        "profile_settings.py": "8d7387ad09a1b5302c20d03156413fb6c5031ca870622c7db824c57629c6f500",
+        "prompts/dj_persona.md": "dc9047cbadf58a7d5a89e5555ea93f5ef427c5b0ad79f3018ca57e02c9f61b1a",
+        "push.py": "69e5fd796adec720297498210080a11666d2ecf7e0a233abcc14c6a8ce3ffd4c",
+        "repairs.py": "8da089025d61e2031fc38af7a670938b3b6129cc0e1b554adc3e174daae2688b",
+        "request_auth.py": "f7fab1417869e350bcfd28e23bc48d6de34d53c22550c952f8e1490a0574c031",
+        "retired_provider.py": "f3de992cecc510365cafab54b04566b356a421cc4dc39a47758d1e86362dc788",
+        "select.py": "a65541b0aeaf29f37127fea0756a8ac8bef99f5307fcc36b21b61c237f0ce46a",
+        "sensor.py": "c4367a31d848f4a901bda036451082c931e296353a5db2521a2ed7a91da34fc8",
+        "services.yaml": "1518c18418619ba8f50e2c7f1ed6ae8b4b5b4384f9dad165765365ea63b7ea8e",
+        "session_artwork.py": "f6a805e51bc4250aa862105de6930647fd8023ed49f440484a7b2c7ee4af6c40",
+        "session_conversation.py": "06d62e1c264676d764ca1f54f4078a509f19a1006c3a3e90aa1f3397c6d6f981",
+        "session_facts.py": "5c5c698de1221c4d95190493ecef124577922a9c22ab23eaef60fd6e12f34518",
+        "session_forecast.py": "d57c7d6bb0abcfb7d881c395c3f2ee1615051908bbdfcc3b4ae80799d5f919f3",
+        "session_forecast_transport.py": "0b0a6ac26356a56319354dacb77b9a0e8ea1a5736745614223b6100afcc3b15d",
+        "session_history_maintenance.py": "accacfe711f7c97468b498fea1a773224f0a69fa1483c8a6404bd108656f1c33",
+        "session_history_projection.py": "db82379512a4f560939df5740c2581622a90b55cfff55b0a78540bf9842ee0d8",
+        "session_mood.py": "4780c512d3e59e3e2a501b129d470f75bd734f0929c5540667939efadec2a910",
+        "session_persona.py": "d07c30bd3b8b85b1b080a6db3e3aa6505fceeb37424c2663fd14cc3c783a41ef",
+        "session_presence.py": "8c7687c42ce931ad8abbda0a4f2323a074e472f8913cb93aab1c1f45d39e313f",
+        "session_runtime.py": "a6f0097af18901bcc365d7bd17a382c8de961da23119b916ef792ee5bfa9ebba",
+        "session_speech.py": "c00b42e95e08a0fc6f832c1948dd34a85c307a088d44e0c2252c56c1a2d49887",
+        "settings_migration.py": "1398a7e8c34adebf7e33b8fb5c9d339ef18d4e516ba8ca5f2504c034626e9d9a",
+        "speaker_delivery.py": "c1b2bb265684a41f179542839d42f8c0eff3045e229602f65e1564e32979dafb",
+        "speech_feedback.py": "d5ced0209a34324cc98adab1bfee5663cfce9e45c720b673ef06ef41b95df671",
+        "speech_processor.py": "7325ffb9a6e201d01452a17a2fa30da096e4d2ee7452f5e6a223b14d7e6a0048",
+        "spotify.py": "0e84480b356a9ae6649657c3fbe9f557663c04c8d0aba82fcca7ab150a1201b7",
+        "spotify_backend.py": "395c918d6649902a772f552cdcff8574463942822b2e59e3e54371159eef45e3",
+        "spotify_oauth.py": "e072ea0673dfd589abd09622813db5c2a29321f9906a49285695a1d792dc7d70",
+        "strings.json": "c5fcf7facadaa04f931d919398def7476c9e7a07e1140d6b6d61f4228e2a0c93",
+        "structural_invariant_validator.py": "5c16b015fe646e9da85f68f0c05bc79ab563c2feb56c7e6c1a409a139c546ae8",
+        "switch.py": "4dbc76dcf13427c4b945e86cf20ac499e6be11f226232d1bde78eba0f7d6fc9d",
+        "tool_handlers.py": "6d4a452ed7fc446aa27660a1348c35e74dd6159e1d309cb1c722bb16c28e046c",
+        "tool_registry.py": "ef94acfa61b20c24af1ad1a6d31140140a6469d020cc2a3baa981492f6154c7a",
+        "track_insight.py": "a333523f9bf299837dca2d95bebca940987c6dde4d06c4460fd701eb391eb4dc",
+        "track_insight_target.py": "6ab907bb71a34f4ad95a2a82111dae6b3173101e11980393af4f0f627711e770",
+        "translations/de.json": "4218f01b58d0ce879e035ec8fab2e5572e4b2800ad1b7bab1f76199633c28a5e",
+        "translations/en.json": "1d4ff6b4f28462daaea16d9dd10eb30244dee1d61003e11a2e7cd75a9a9913cb",
+        "translations/es.json": "8f06a5b575602149d139fc1642634d18dcf3626aa6d569729e52a910801ecb49",
+        "translations/fr.json": "8138855a88bceea6c35584b31275c48b533c7eccb8a98dcb97bcf908ba2d6340",
+        "translations/nl.json": "863490d9d5ae69bef7cf5163552d52da888b8a00570210633bcd2809ffd0617f",
+        "transport_capabilities.py": "908b8f2e6f175f2822d6f0f0b354a26f4bc4b1ef4f7017fab807db2eb3c3bca2",
+        "transport_delivery.py": "70b45afe6e25f960973affd39ae6d77e8a695db41df8919e749ca6885aedd8af",
+        "transport_operations.py": "cf808dce680f958ee17876ce018a53b11b23c4f14d22cdeae61e2f13612b0e20",
+        "tts.py": "1d5154ae501174fcc43c287c97de6429b15f743cd2fac0ce7ccaf2a83215f7c7",
+        "universal_receiver.html": "6e515bf57db98790e4caeac725cb40a2723cb0960e97cce0709682756d215a6c",
+        "universal_receiver_browser_e2e.py": "d781dc3334cfc5d50b80217912cfed3aeaf21a2e2205f053446fb5feece3d68d",
+        "update.py": "d6a1ea30a3a33e04e8668dd6b11b6720d5b8f531b1160ac8771a16742179c7a5",
+        "use_cases.py": "9303bd8d611e374227e20332bb9c46ebc1de5caaaf95efa0bf0758c33b291b0a",
+        "verification_clock.py": "7d2383659ea419abf747bbd5e2f3cd382e9e13d1ae5946d331fd3d9412bacf0e",
+        "vibecast.html": "d72acde5b311e69eebd30ae3a4c47a658f263555da3feed9c709ba426564f4c8",
+        "vibecast.py": "afe141de6ab48c43bbc54ca745d8a7fb4d4a78326b6907f96825d1f81b743ed6",
+        "vibecast_renderer/cast-host.js": "b3b15f607735918f83d130b6afffb460f6d7a808e3c69228ece9b947816be52b",
+        "vibecast_renderer/local-host.js": "d13b693b8c983db1e171f9a5373301bd7359f7f3de555819dc2931c08d317a0e",
+        "vibecast_renderer/renderer.js": "f0455cbe8b294e55d9add12c9c1fff86578a0f7b8c403314fb7ce2a041c4d60c",
+        "vibecast_renderer/style.css": "6f32448f84e06e5d2bb4241503af9247843b834f506f9f564402f8072d5b925e",
+        "vibecast_renderer/template.html": "698eb9bc06fa5e14618f178996a612d10c514f1559026da12a32919e34c87ed6",
+        "voice_profiles.py": "5aba9ae572b92c783686d9ccac3af3b97c2689ca98c10f086ba7ae4cdb2696c9",
+        "wav_util.py": "06841ae5e471e20b2c234c2214eebb14dc764bf3a59acd9cd4767fdef3cc7c45",
+        "websocket_api.py": "734fb8f8f7afe5573050a0224a17cb1b9e2040d9c506dcf3a4830b54cb01d73f"
+      },
+      "contract_versions": {
+        "active_session_mood": 1,
+        "active_session_presence": 1
+      },
+      "surface_versions": {
+        "active_session_mood": 1,
+        "active_session_presence": 1
+      }
+    },
+    {
+      "id": "installed-prod",
+      "kind": "installed_manifest",
+      "status": "PASS",
+      "commit": "cc9b49fe9ca5312dd3bf962b3bac319aa25b3f15",
+      "expected_files": 177,
+      "actual_files": 177,
+      "changed_or_missing": 0,
+      "extra_files": 0,
+      "capabilities": {
+        "active_session_mood": true,
+        "active_session_presence": true
+      },
+      "settings_version": 3,
+      "claim": "exact_integration_files_and_public_advertisement_not_functional_native_acceptance",
+      "files": {
+        "processor.py": "649b4867d996ec66f4af2dddd3edcb5ac2bae16de89759ad83f79f5955ed83c6",
+        "session_conversation.py": "06d62e1c264676d764ca1f54f4078a509f19a1006c3a3e90aa1f3397c6d6f981",
+        "central_api.py": "78cd4645d9fd1979bbc33e500c525bffc23ae45deaeef02b129adb418674b9e6",
+        "session_facts.py": "5c5c698de1221c4d95190493ecef124577922a9c22ab23eaef60fd6e12f34518",
+        "dj.py": "2c7a11d596a72907d66aee361ecd4bc5e5e8a9d6fb592aece046db79aeabc772",
+        "prompts/dj_persona.md": "dc9047cbadf58a7d5a89e5555ea93f5ef427c5b0ad79f3018ca57e02c9f61b1a",
+        "wav_util.py": "06841ae5e471e20b2c234c2214eebb14dc764bf3a59acd9cd4767fdef3cc7c45",
+        "session_persona.py": "d07c30bd3b8b85b1b080a6db3e3aa6505fceeb37424c2663fd14cc3c783a41ef",
+        "transport_capabilities.py": "908b8f2e6f175f2822d6f0f0b354a26f4bc4b1ef4f7017fab807db2eb3c3bca2",
+        "tts.py": "1d5154ae501174fcc43c287c97de6429b15f743cd2fac0ce7ccaf2a83215f7c7",
+        "track_insight.py": "a333523f9bf299837dca2d95bebca940987c6dde4d06c4460fd701eb391eb4dc",
+        "spotify_backend.py": "395c918d6649902a772f552cdcff8574463942822b2e59e3e54371159eef45e3",
+        "spotify.py": "0e84480b356a9ae6649657c3fbe9f557663c04c8d0aba82fcca7ab150a1201b7",
+        "paired_live_contract.py": "fb4485b6acd9d548c17953edf64af4c4c4aa98c93cb325721acc033ff787f736",
+        "profile_backend.py": "4b19f7b37dac97573fd4dbccd3fe2973aeac236e5783a2d08ccdb360d38f3ad4",
+        "config_flow.py": "710a780dc8df953d8afaf4646f331c8efb4d28ce3faa8f9189ae353f1d06285f",
+        "http.py": "2da54c578bbd602ea133a052383419c2c131b689f71d729d7c91c6caee8efbe6",
+        "retired_provider.py": "f3de992cecc510365cafab54b04566b356a421cc4dc39a47758d1e86362dc788",
+        "push.py": "69e5fd796adec720297498210080a11666d2ecf7e0a233abcc14c6a8ce3ffd4c",
+        "profile_context.py": "b65b5bc6159b10b4f8c864c5af4a2bdaeda34449eb8e839e0f253db302a58320",
+        "switch.py": "4dbc76dcf13427c4b945e86cf20ac499e6be11f226232d1bde78eba0f7d6fc9d",
+        "credit_provenance.py": "297a4f07ecd232868eba0204debe77617c2c02ad65c0a5d4e03bfdb8c52166c6",
+        "assist_stt.py": "609b5a7ec4c40eda3d87a84d9391256bd930c1dd1c80a5171b03df79c68aa6e5",
+        "services.yaml": "1518c18418619ba8f50e2c7f1ed6ae8b4b5b4384f9dad165765365ea63b7ea8e",
+        "session_history_projection.py": "db82379512a4f560939df5740c2581622a90b55cfff55b0a78540bf9842ee0d8",
+        "moment_expression.py": "5ef7c3769ef046a989eff70812ed639c7203bf5b88c9d020bbc2827a94464929",
+        "moment_navigation.py": "7c4d94c6d4ebe947abf083818a2264c28e9d2ae3b577b45c2009e72712412af6",
+        "profile_export.py": "69146e56bfef2bc0983a9499acaa0ff54fa9c9664010d1e75e1c2acae10a316d",
+        "diagnostics.py": "8320ce2da0693e250763d99ace802ce8042988cdd26e5fa38eef606f7c45ddb0",
+        "manifest.json": "8c1039938997fb5cc659f82941f21346249310b90ecf164795a1ea1baa4d5c62",
+        "hybrid_transport.py": "635692511a36e955ec72a6c524d51d38140c14e50bb44d33bc9b6d7bab5ea48a",
+        "music_intent.py": "1ae3c524e6f36d6ac80fd9145c1df0d811236c06c8af8226acbcc52747385af7",
+        "websocket_api.py": "734fb8f8f7afe5573050a0224a17cb1b9e2040d9c506dcf3a4830b54cb01d73f",
+        "update.py": "d6a1ea30a3a33e04e8668dd6b11b6720d5b8f531b1160ac8771a16742179c7a5",
+        "sensor.py": "c4367a31d848f4a901bda036451082c931e296353a5db2521a2ed7a91da34fc8",
+        "tool_registry.py": "ef94acfa61b20c24af1ad1a6d31140140a6469d020cc2a3baa981492f6154c7a",
+        "profile_privacy.py": "80a539a327c8d6c4650e0936ea0440800d0b0d8c71aff6c073520f343db77d88",
+        "ci_qualification_report.py": "a45c358669fea9cfb57a601a109443c722e10d91b067eacbb550a11cd264229b",
+        "developer_session_bootstrap.py": "f9c7a2ffabf5da01387c0db04487a97a111f5d0d9f99e700a914e765b0033918",
+        "speaker_delivery.py": "c1b2bb265684a41f179542839d42f8c0eff3045e229602f65e1564e32979dafb",
+        "icon@2x.png": "058def399acd93b3d298e4a0a9869eec0ef67307d483db049a02e902f596b5f1",
+        "__init__.py": "5d3fd9cfa82b8adb1830f77c42554df0d9fb1141f3c170d925cbf4c68e90a9ad",
+        "context_expression.py": "bd9a381caa0bce1e39a5a324fb849be1c32b02c4b818b4f48fb493889316515a",
+        "hybrid_local_policy.py": "711c4efc1d9a90bc92c02cb6c06af7c83a4b289cc3c9f34b675a156f099d864a",
+        "select.py": "a65541b0aeaf29f37127fea0756a8ac8bef99f5307fcc36b21b61c237f0ce46a",
+        "AGENTS.md": "8fb8891e3a2cca055067fbbacafe6c189f38bc00c514a6bf6984639a182a70cf",
+        "music_discovery.py": "c29433a74e0eb4a6cf216db1a6b057e0a24d67e13f57db74a0972c4b1ac39535",
+        "session_forecast_transport.py": "0b0a6ac26356a56319354dacb77b9a0e8ea1a5736745614223b6100afcc3b15d",
+        "forecast_imagery.py": "28c15f023ddc1df1c43a3997d8a551fc74ae08a473b494398165d226c9e2fd9c",
+        "presence_policy.py": "dc31404f519979e14c1735cd23c3b82fd3b2ce1b9f14d6cf0d3ff25506d86672",
+        "passive_session.py": "d4417b1ead5a6b22f69a02d9a324dc315b1d8297d0006430c6962709d246b0e5",
+        "image_proxy.py": "77a855a75a02f8a8d643cfb9decfbb0c1ced33693cd8f70f91f01aa059296b53",
+        "client_retirement.py": "42bb54178f5c1655e600b21a6ccc954811d37e2a1f91f5318f7b97da6d69bca3",
+        "spotify_oauth.py": "e072ea0673dfd589abd09622813db5c2a29321f9906a49285695a1d792dc7d70",
+        "pairing_defaults.py": "d65b049671f2c594edadfeed12a8a5b0da4d1c3a4f33aaa77b0a7e35aae243b7",
+        "historical_projection_retention.py": "29594182bc7e7fcbaf81fa65ddd70ea04b2f1129cec361b932ea67c3df841486",
+        "transport_delivery.py": "70b45afe6e25f960973affd39ae6d77e8a695db41df8919e749ca6885aedd8af",
+        "ask_dj_history.py": "b0f2e40e32bf502f0504f1bbd77bf3ada219e84b06a6879111af25a48d3e9110",
+        "hybrid_ingress_qualification.py": "8e220874b16e7bbb1162261a1e89607a2a6067dca3fa3c820d2cc52ee3232933",
+        "number.py": "57dd84220fbb1903708c9c4a0f850d699919aabbe4300dcce252fb0f205e3e7b",
+        "api_handlers.py": "c5e5631cf26a7c8db5a0e172263b864ebca8afb33710a23b7f77705734f8fe63",
+        "use_cases.py": "9303bd8d611e374227e20332bb9c46ebc1de5caaaf95efa0bf0758c33b291b0a",
+        "vibecast.py": "afe141de6ab48c43bbc54ca745d8a7fb4d4a78326b6907f96825d1f81b743ed6",
+        "session_mood.py": "4780c512d3e59e3e2a501b129d470f75bd734f0929c5540667939efadec2a910",
+        "session_artwork.py": "f6a805e51bc4250aa862105de6930647fd8023ed49f440484a7b2c7ee4af6c40",
+        "ai_tools.py": "175ac20dc1ebdb535aaec839b6fc8e8fe012ac3c81e0f0f07e1856b692c9f0c8",
+        "verification_clock.py": "7d2383659ea419abf747bbd5e2f3cd382e9e13d1ae5946d331fd3d9412bacf0e",
+        "discovery.py": "64a2212da414bf7bc48f43e88b52d9f4584c3395105edada1cb513fce07552e5",
+        "tool_handlers.py": "6d4a452ed7fc446aa27660a1348c35e74dd6159e1d309cb1c722bb16c28e046c",
+        "track_insight_target.py": "6ab907bb71a34f4ad95a2a82111dae6b3173101e11980393af4f0f627711e770",
+        "vibecast.html": "d72acde5b311e69eebd30ae3a4c47a658f263555da3feed9c709ba426564f4c8",
+        "paired_live.py": "b4f2796aab724309b31e750b8991031527921916f295a488c3f36a69a8dd17b6",
+        "settings_migration.py": "1398a7e8c34adebf7e33b8fb5c9d339ef18d4e516ba8ca5f2504c034626e9d9a",
+        "historical_projection_query.py": "2481a6e49cfee54bec496046e06a8868178cf2ad37cecebf5cbb48c307fb05a1",
+        "capability_contract.py": "86a6bce829d7f1e3f9db44eb9e0c0ffa14b6d4037749592b03a15140001d9d13",
+        "session_presence.py": "8c7687c42ce931ad8abbda0a4f2323a074e472f8913cb93aab1c1f45d39e313f",
+        "speech_processor.py": "7325ffb9a6e201d01452a17a2fa30da096e4d2ee7452f5e6a223b14d7e6a0048",
+        "transport_operations.py": "cf808dce680f958ee17876ce018a53b11b23c4f14d22cdeae61e2f13612b0e20",
+        "vibecast_renderer/style.css": "6f32448f84e06e5d2bb4241503af9247843b834f506f9f564402f8072d5b925e",
+        "vibecast_renderer/cast-host.js": "b3b15f607735918f83d130b6afffb460f6d7a808e3c69228ece9b947816be52b",
+        "vibecast_renderer/renderer.js": "f0455cbe8b294e55d9add12c9c1fff86578a0f7b8c403314fb7ce2a041c4d60c",
+        "vibecast_renderer/local-host.js": "d13b693b8c983db1e171f9a5373301bd7359f7f3de555819dc2931c08d317a0e",
+        "vibecast_renderer/template.html": "698eb9bc06fa5e14618f178996a612d10c514f1559026da12a32919e34c87ed6",
+        "button.py": "aa1c3290c4369d99ecf6fc88f865e65e02d438d7e3b0a399621a5791062ba9bc",
+        "mood.py": "84aefec705178fe6b32f601771d6280e5eb788f161c8cff1fd106a061d792e8c",
+        "ask_dj/actions.py": "8e42edc5bf0a3a3ef73c99273c5860d1f3ebad42dd8897cf8d2877239a25b053",
+        "ask_dj/profile.py": "88843b457ff8374199c650f37ffe8274b2edcb88ab4f7cc6aee1595f6d349530",
+        "ask_dj/observations.py": "411594af13069c0fb1a612899e9f51452b052e3a7fd95577f7fd39ddf5da77c2",
+        "ask_dj/__init__.py": "2ea4e0b689a352ddcfbeb3cc0200f5145f3047d0997f8cd99a6220545d194836",
+        "ask_dj/intents.py": "545c7cf45bc5a66719d66bed5ef2633a4e01343645080af733a11869f1c01032",
+        "ask_dj/responses.py": "66364a9e6cc0de37581adfbee882413a83f5cd5ef01f84fddf6bc4fff3c9df92",
+        "ask_dj/dialogue.py": "fc934391a6a81f4d8bc10b522f06988b5dcc6a9256a81f1246851b49f3275485",
+        "ask_dj/recent_history.py": "bdaafde32b1fd64627e7a026497449adf827d70ddf32203b8661dde9965494ed",
+        "ask_dj/service.py": "f1c11205bd3f851e4adb41ca0e16327332f30f3e6575b0d267909be949168bf8",
+        "strings.json": "c5fcf7facadaa04f931d919398def7476c9e7a07e1140d6b6d61f4228e2a0c93",
+        "flow_labels.py": "687a3cace4d413737346ed0738aeb3c1dd076552145e1417957f30ba01c3f3d7",
+        "device_info.py": "e57853ec0dadda4c3fde90c1cd7ed1c4a20e7962611cd1a3d2bd4b3c0273ce50",
+        "speech_feedback.py": "d5ced0209a34324cc98adab1bfee5663cfce9e45c720b673ef06ef41b95df671",
+        "hybrid_contract.py": "dcb16fd97e020a7103c0daafd35e0224feec2c77e331cc3e4fb993509420b105",
+        "conversation.py": "38596f8e30d890210fd7ef546770f05c43e05f7387c74bff82868bd3fa93ce19",
+        "structural_invariant_validator.py": "5c16b015fe646e9da85f68f0c05bc79ab563c2feb56c7e6c1a409a139c546ae8",
+        "playback_observation.py": "63ccc706edf892c670d3ddf80652fde63a15188e384372d4aaea768aac194d60",
+        "forecast_expression.py": "e733cd995259e0f4c4b613bd03b83f786e122b5abeafa4ca6db3270278581d1d",
+        "session_forecast.py": "d57c7d6bb0abcfb7d881c395c3f2ee1615051908bbdfcc3b4ae80799d5f919f3",
+        "brand/icon@2x.png": "d0ce54c6a24abd1e5139b435c4b9c1428944ed47721c58a93ad2427dc864048b",
+        "brand/logo.png": "d0ce54c6a24abd1e5139b435c4b9c1428944ed47721c58a93ad2427dc864048b",
+        "brand/icon.png": "07a1d66ce9d7cd8139e4f228302f13c8df02d56ea55c65cd5a9325dfb995e5c7",
+        "domain/playback_zone/__init__.py": "f5fa81c0bc682dd7f806108fb6bc012609dc94a0199d3784f8c92669879a0e4c",
+        "domain/playback_zone/models.py": "05738f7064e3dbcd03651bcf9a679bd92d64cc848307b5a30aa520ee92ab99b3",
+        "domain/music_account/__init__.py": "36ad7ec36df88b1d51c173af9e0ade1ee382368120f8cc04759dcd164292f785",
+        "domain/music_account/models.py": "eefc64ac272cd7cbf17ac4af8ec08213184d90e224280aab5a63f8a9ab2487d0",
+        "domain/profile/dj_settings.py": "1c8393429d3edd0d37df9714417672d1fff40186e8665adf7dca2c4b6413d4be",
+        "domain/profile/__init__.py": "7fe995f871fc42981932bc7083dd4833204102b8a6b41e2d382948ecc263e29c",
+        "domain/profile/models.py": "dbb245e46aaa06ed81ac2b7749b6f6b70ec764e970d5b365e2741bae8c359423",
+        "domain/errors.py": "d9766fd1d4e50dda60104676f16f8f6fb3ea89d64f65b9db001fc8d8b77f76cf",
+        "domain/__init__.py": "104de8336815898807e43ff381c27e7ed22d47d62ce4855adc7446eb26d67902",
+        "domain/storage.py": "bdca709c9b67d9514790bb40ae3f0926696dcbee95c8f81ff9aca78a5aa908a4",
+        "domain/models/__init__.py": "b6614a01d7cfd05988d1545d834acf2a45314138c49d0c7e903be06cb4eef2eb",
+        "domain/models/identity.py": "249ac762374e5cbce7c907e4ff3333e89d7eaa5d648bb1b7777175beb2ae27ef",
+        "domain/device/__init__.py": "8f09bb106225d83aa46a756a83d22d20c3b3c1e8421281cbc86ca6579fd5c4d3",
+        "domain/device/models.py": "8f5f63a6194348bcc90405dceb73baa1fb6444a82092d9b203a1c8858c69d9a5",
+        "domain/backend/__init__.py": "6bd3c1290d8f7dd8302ca4245f96d32f78a017212e4c933a6718754a199b9b35",
+        "domain/backend/models.py": "a521deaff497130fe275de653f672e7e0829c4baec3e798b245db0f1b8c72fe3",
+        "domain/household/__init__.py": "69b3b15d5ffa55dafbce133cb21a531044fbf0569385d2fda8f2289d77e028b4",
+        "domain/household/models.py": "582f1fa7cb9ae69b542483ae9a52f89db5fca6e669da8f0b40d72d0e48ecf4f5",
+        "domain/resolver/__init__.py": "f2a44fb57c5aba95ae343c1f60e4468bb33b1bdb4eea134fe5fc9f0e6d184268",
+        "domain/resolver/profile_resolver.py": "a13f58d7d965157ac0db2c31767a7460d60d6d8df9b34fb3b2f29357b8aa8167",
+        "dj_brain_capabilities.py": "c0f1e79f64c1d5d437aa0f114de1ef153037b32049e35428d656f1e01b8a52a9",
+        "repairs.py": "8da089025d61e2031fc38af7a670938b3b6129cc0e1b554adc3e174daae2688b",
+        "announcement_policy.py": "046b5362490e6d581177fe9456473613e164e10fc9baf4739a5b516b8c95bea7",
+        "profile_settings.py": "8d7387ad09a1b5302c20d03156413fb6c5031ca870622c7db824c57629c6f500",
+        "broadcast_handoff.py": "f6c6e828154e28285e3c364bc0193a34632d972f009baa29e0f25a4b918622d4",
+        "logo.png": "ff9007c335731b2c35b66961abfed09c80ce3da91032a9e947dbde94ffe8360b",
+        "session_history_maintenance.py": "accacfe711f7c97468b498fea1a773224f0a69fa1483c8a6404bd108656f1c33",
+        "universal_receiver_browser_e2e.py": "d781dc3334cfc5d50b80217912cfed3aeaf21a2e2205f053446fb5feece3d68d",
+        "ble.py": "2223ccb7fb718e51501e72042588d6920619d05d6b9b83b4a6452edbdf7e389d",
+        "music_dna.py": "2fdb38693e1de8876aaf5ba16e5ddd62feb888133377a60922f8d9457de77bfe",
+        "translations/de.json": "4218f01b58d0ce879e035ec8fab2e5572e4b2800ad1b7bab1f76199633c28a5e",
+        "translations/fr.json": "8138855a88bceea6c35584b31275c48b533c7eccb8a98dcb97bcf908ba2d6340",
+        "translations/en.json": "1d4ff6b4f28462daaea16d9dd10eb30244dee1d61003e11a2e7cd75a9a9913cb",
+        "translations/nl.json": "863490d9d5ae69bef7cf5163552d52da888b8a00570210633bcd2809ffd0617f",
+        "translations/es.json": "8f06a5b575602149d139fc1642634d18dcf3626aa6d569729e52a910801ecb49",
+        "dj_response.py": "0afb2325159604558915c2c151888d830ef5f1e5c0806a1fa66d0943559768a7",
+        "developer_session_scenario_driver.py": "8b959c58b6a61ddcbe0788c46a5ab3ce9e34e69a548b19ef3e9e3da20f405b03",
+        "session_speech.py": "c00b42e95e08a0fc6f832c1948dd34a85c307a088d44e0c2252c56c1a2d49887",
+        "hybrid_service.py": "28dd7dab191e6619b15e2e9d12a02688c87f5c7ce2f67be4118a6f53efb74cd3",
+        "golden_qualification.py": "e7e7eca3ab4c5ea6c52bc0ae2e6c82c664d81940041ebc6bb327fcde74119561",
+        "github.py": "90c01724de4de8f2e1bb9603a922ef0a1cb95376465dc0310e8d752c3c65d459",
+        "ha_urls.py": "cfb435ee2f7f25450fc3f443703a3a466bffd0da103365b3163384797587d558",
+        "developer_session_capture.py": "266f34021a64cee3f22887e7703f34d380bba91eafc9dab45ec02ca2a52b5afc",
+        "discovery_selection.py": "09df528e850f3459c5f7b332c3d49efc22aef39a1a6835ac7ebbc10054e4645a",
+        "session_runtime.py": "a6f0097af18901bcc365d7bd17a382c8de961da23119b916ef792ee5bfa9ebba",
+        "request_auth.py": "f7fab1417869e350bcfd28e23bc48d6de34d53c22550c952f8e1490a0574c031",
+        "presentation_composer.py": "bc16ebcf1c9e2fd2d53d8c7ba488b2e174771501d08030589af972baff5355a5",
+        "client_identity.py": "31543e0cf3ed7aa8322af24d0835c0fecf77974db0d8a07c7908d9deff7588cd",
+        "voice_profiles.py": "5aba9ae572b92c783686d9ccac3af3b97c2689ca98c10f086ba7ae4cdb2696c9",
+        "pipeline.py": "36ff6bf121bbc293714805f60bc7951c8341fb68cb14de4e6027d2af6040d237",
+        "entity_ids.py": "2de2482c841bb4a1cd86af04730963ef7d9915a3ff26df86d8101731df6ff0f2",
+        "const.py": "42f20bbc461a11e10c4e297334161d7aeec8b1d09e62b634d745ba1480d84573",
+        "announcements.py": "4e34b4b46395f8922482ea6d685867dfa69fb43560e4291c88721849acc192c9",
+        "discovery_artwork.py": "042253c840f5d5032b2cfd97cd3b90d77075d343f86b39851072ae9a176cf585",
+        "native_moment_delivery.py": "cef1af45da5352e7fe6b08d7cccd4ff2466419d4a89616e47101e7620fb7ae28",
+        "universal_receiver.html": "6e515bf57db98790e4caeac725cb40a2723cb0960e97cce0709682756d215a6c",
+        "icon.png": "2e39030507fe218c70e3885dec5c29f464b88d12c66d93935fdac861fd795c2f",
+        "persistence/bootstrap.py": "e53a745c435a27232435a8957a0c20a6694882b92b1802794387066bfc0a6ed3",
+        "persistence/provider.py": "c0ea99393eafb1d31f5dc643164a55db763f8522cd5d93f5d19dd42984b2c201",
+        "persistence/dj_settings.py": "26e30d177de1f112d723179235409336b939f72344cc2b3b0f6c33a83613a46e",
+        "persistence/sessions.py": "19e5f68577911da193e8d1a2508930621cf68db229668d24c5a7d15919a21df5",
+        "persistence/__init__.py": "8dc97e8769e396ad480a8a5db345974f63b7ff334020980a3d15921e898c8b97",
+        "persistence/schema.py": "fe1c57e47370c958b031c93b3a31069e1e11397a5099e636820e4c9e222cf429",
+        "persistence/reconciliation.py": "75d9dd20de1652f0a731870cb8d7885687c1dd04861b1250a3364e7715462c3e",
+        "persistence/ownership.py": "167eaa9ffb4ac5705987ac77e1e261d4741123787fd193192a4a65429bedc8e0",
+        "persistence/README.md": "c305e30879e4a3006a72fcf44487408ec7afba4caff509503d2b603c6ecf927f",
+        "persistence/summary.py": "f97711ebd2366e33d4164dd541cf6b2526f2d7cb0e26c0c13dcbc33b0e1125db",
+        "persistence/sqlite.py": "d162322a3e859644cb883eb5a26d5722d810e36567b57bd86d27440bf1e56d6c",
+        "persistence/history.py": "e28853529d8d55c1c7c6611a988f8a7cdadc730349046f1136516af2f067038e",
+        "persistence/service.py": "12c359933a1a1fac9452a596db59ac9a3b93151137de22c5554da8d27db422fc"
+      },
+      "contract_versions": {
+        "active_session_mood": 1,
+        "active_session_presence": 1
+      },
+      "surface_versions": {
+        "active_session_mood": 1,
+        "active_session_presence": 1
+      }
+    },
+    {
+      "id": "external-dev-advertisement",
+      "kind": "public_http",
+      "status": "PASS",
+      "commit": "cc9b49fe9ca5312dd3bf962b3bac319aa25b3f15",
+      "http_status": 200,
+      "tls_verified": true,
+      "mood_available": true,
+      "presence_available": true,
+      "claim": "configured_external_dev_endpoint_only",
+      "mood_version": 1,
+      "presence_version": 1
+    },
+    {
+      "id": "apple-bounded-native-readback",
+      "kind": "owner_lane_report",
+      "status": "PARTIAL",
+      "url": "https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6233702160",
+      "claim": "iPad_paired_internal_external_three_art_pixels_settings_read_only_reported_by_Apple"
+    },
+    {
+      "id": "api-attest-core",
+      "kind": "owner_lane_report",
+      "status": "PARTIAL",
+      "commit": "cd88e8db9778794cdf99d0042eabd16f347f1644",
+      "url": "https://github.com/pcvantol/djconnect-api/pull/94",
+      "claim": "93_private44_public_core_cases_40_regressions_CI_green_no_complete_verifier_or_runtime"
+    },
+    {
+      "id": "receiver-published-and-ack",
+      "kind": "owner_lane_report",
+      "status": "PARTIAL",
+      "url": "https://github.com/pcvantol/djconnect-vibecast-receiver/issues/16#issuecomment-6234570018",
+      "claim": "Pages_Cast_HTTPS_and_frozen_index_hashes_not_rendezvous_or_physical_TV"
+    }
+  ],
+  "items": [
+    {
+      "id": "quality",
+      "topic": "ask_dj",
+      "owners": [
+        "DJC-CORE"
+      ],
+      "priority": "P1",
+      "status": "OPEN",
+      "summary": "Five Core findings and eleven real-quality Golden steps remain release-blocking; actual factual and Persona/Mood prose is not qualified by metadata or bounded source guards. Peter Luts, current-track and Nirvana/output causality remain permanent regressions.",
+      "next_action": "Fix the shared factual/expressive realization against the existing fixed cases; qualify actual published stories across all families. Do not retry paid runs until green or reset the corpus.",
+      "required_tests": [
+        "Actual question/answer and follow-up chains across all help flows",
+        "Independent source/claim and recognizable Persona x Mood assessment",
+        "Failed generation, pending speaker, wrong artist, retry and no-effect informational paths"
+      ],
+      "dag_refs": [
+        "CONVERSATION::PRODUCT::JOINT"
+      ],
+      "depends_on": [],
+      "proof_ids": [
+        "local-corrective-regressions",
+        "local-real-model-quality"
+      ],
+      "closure_scope": null,
+      "product_acceptance": "OPEN"
+    },
+    {
+      "id": "delivery",
+      "topic": "source_delivery",
+      "owners": [
+        "DJC-CORE"
+      ],
+      "priority": "P1",
+      "status": "OPEN",
+      "summary": "Corrective source e2456029 remains local and uninstalled; protected source, exact artifacts/main, separate Finalization and installed readback are still required.",
+      "next_action": "After real gates pass, deliver the same writer candidate through normal protected source and Finalization, then authorized dev/prod readback. No WIP install.",
+      "required_tests": [
+        "Exact candidate independent reviews/security/owning/Golden",
+        "Exact source-tree/artifact/readback plus targeted deployed smoke"
+      ],
+      "dag_refs": [
+        "SPEECH::JOINT::ACCEPTANCE"
+      ],
+      "depends_on": [
+        "quality"
+      ],
+      "proof_ids": [
+        "installed-dev",
+        "installed-prod"
+      ],
+      "closure_scope": null,
+      "product_acceptance": "OPEN"
+    },
+    {
+      "id": "flow",
+      "topic": "flow_history",
+      "owners": [
+        "DJC-CORE",
+        "DJC-APPLE"
+      ],
+      "priority": "P1",
+      "status": "OPEN",
+      "summary": "All seven types, Silence identity, rollback/dedup and retained flow/art/replay have bounded local producer tests. Those are not seven independently generated accepted narratives or native retained-flow acceptance.",
+      "next_action": "Keep the actual all-family publication/reopen and rights/90-day rolling-retention tests separate from editorial and native acceptance.",
+      "required_tests": [
+        "Actual Planner/Knowledge/Moment -> semantic transaction -> end/reopen -> owner timeline",
+        "Stable order/paging/search and withheld/revoked source states",
+        "Read-only history cannot restore Runtime, mutate playback or synthesize on read"
+      ],
+      "dag_refs": [
+        "CONVERSATION::APPLE::SHARED-ADOPTION"
+      ],
+      "depends_on": [
+        "delivery"
+      ],
+      "proof_ids": [
+        "local-corrective-regressions"
+      ],
+      "closure_scope": null,
+      "product_acceptance": "OPEN"
+    },
+    {
+      "id": "art",
+      "topic": "album_artist_art",
+      "owners": [
+        "DJC-CORE",
+        "DJC-APPLE"
+      ],
+      "priority": "P1",
+      "status": "OPEN",
+      "summary": "Apple reported an image-GET identity-query fix and 3/3 live pixels. One DJMoment still returns insufficient_identity. Local retained album/artist re-resolution is not deployed. Core issue1164 remains open.",
+      "next_action": "Qualify the exact missing Moment subject/account lineage; never borrow current art. Deploy qualified retained producer and test the same original-subject pictures in active/history/search/anchor views.",
+      "required_tests": [
+        "Track/album/artist subject binding and actual private image bytes after reopen",
+        "Missing/expired/withdrawn rights, provider account/Profile changes and old entries",
+        "Normal iPhone/iPad/Mac bubble GETs carry required device identity; native visible art"
+      ],
+      "dag_refs": [
+        "MEDIA::APPLE::SESSION-ARTWORK",
+        "MEDIA::JOINT::SESSION-ARTWORK"
+      ],
+      "depends_on": [
+        "delivery"
+      ],
+      "proof_ids": [
+        "apple-bounded-native-readback"
+      ],
+      "closure_scope": "producer_and_native_history_art",
+      "product_acceptance": "OPEN"
+    },
+    {
+      "id": "insight",
+      "topic": "track_insight",
+      "owners": [
+        "DJC-CORE",
+        "DJC-APPLE"
+      ],
+      "priority": "P1",
+      "status": "OPEN",
+      "summary": "Track Insight still has an open source-qualification finding. Local current-recording credit lookup and guarded prose are not deployed or proof of musical analysis.",
+      "next_action": "Qualify the exact recording/source route and distinguish known credit facts from unavailable acoustic analysis; require visible native exact-subject data.",
+      "required_tests": [
+        "Current and selected historical recording identities and account/rights binding",
+        "Qualified source facts vs partial/unavailable, no invented sonic values",
+        "Real owner API and native card/art readback; current playback must not replace historical subject"
+      ],
+      "dag_refs": [
+        "CONVERSATION::PRODUCT::JOINT"
+      ],
+      "depends_on": [
+        "delivery"
+      ],
+      "proof_ids": [
+        "local-corrective-regressions"
+      ],
+      "closure_scope": null,
+      "product_acceptance": "OPEN"
+    },
+    {
+      "id": "tts",
+      "topic": "tts",
+      "owners": [
+        "DJC-CORE",
+        "DJC-APPLE"
+      ],
+      "priority": "P1",
+      "status": "OPEN",
+      "summary": "Generic selected Assist-provider speech is delivered; local correction adds retained manual local/HA-speaker replay and Mood prosody. Audible target/autoplay/retained/native acceptance is not complete. Native Apple processor override impact is open.",
+      "next_action": "Finish native local_on_device allow/deny/revision/source/expiry assessment and exact fixture handoff; qualify each allowed output and actual audible result without changing Profile defaults.",
+      "required_tests": [
+        "Every non-Silence type; Silence/text_only zero synthesis or output",
+        "Current active Session voice else confirmed Profile default for authorized historical replay",
+        "Provider changes/failures, gender/voice availability, cancellation, source revoke, end/retry/dedup",
+        "Local, HA speaker and both targets; manual vs new-publication autoplay; audible Mood"
+      ],
+      "dag_refs": [
+        "SPEECH::APPLE::ADOPTION",
+        "SPEECH::JOINT::ACCEPTANCE"
+      ],
+      "depends_on": [
+        "delivery"
+      ],
+      "proof_ids": [
+        "local-corrective-regressions"
+      ],
+      "closure_scope": null,
+      "product_acceptance": "OPEN"
+    },
+    {
+      "id": "preview",
+      "topic": "voice_preview",
+      "owners": [
+        "DJC-CORE",
+        "DJC-APPLE"
+      ],
+      "priority": "P1",
+      "status": "OPEN",
+      "summary": "Neutral selected-voice preview has a canonical design, but Core implementation and fixtures remain missing. Apple must not invent an endpoint.",
+      "next_action": "Implement the bounded authorized preview with existing speech/settings owners before consumer adoption.",
+      "required_tests": [
+        "Fixed neutral text and selected voice/gender/output",
+        "No fake Moment/chat turn, arbitrary text, model call or semantic publication",
+        "text_only zero effects; original scope/expiry and cancellation/target gates"
+      ],
+      "dag_refs": [
+        "SPEECH::JOINT::ACCEPTANCE"
+      ],
+      "depends_on": [],
+      "proof_ids": [],
+      "closure_scope": null,
+      "product_acceptance": "OPEN"
+    },
+    {
+      "id": "settings",
+      "topic": "profile_settings",
+      "owners": [
+        "DJC-CORE",
+        "DJC-APPLE",
+        "DJC-PI",
+        "DJC-ESP32"
+      ],
+      "priority": "P1",
+      "status": "OPEN",
+      "summary": "Settings3 producer is delivered and present in dev/prod. Apple reported independent startup-read fix and real iPad six-field read. Two-device/restart/reassignment acceptance and other consumers remain open.",
+      "next_action": "Complete six-field cross-device defaults/current Session/revision/conflict/restart matrix. Keep local autoplay/OS voice/pitch and physical target administration out of roaming defaults.",
+      "required_tests": [
+        "Persona/voice/gender/Mood/Presence/announcement_output atomic active+default",
+        "Two Profiles/devices, reassignment, lost response/conflict, reload/restart and revoked access",
+        "No startup dependency on AskDJ history; old mutation paths denied where upgrade required"
+      ],
+      "dag_refs": [
+        "SETTINGS::CORE::MIGRATION",
+        "SETTINGS::APPLE::EDITOR",
+        "SETTINGS::JOINT::ACCEPTANCE"
+      ],
+      "depends_on": [],
+      "proof_ids": [
+        "installed-dev",
+        "installed-prod",
+        "apple-bounded-native-readback"
+      ],
+      "closure_scope": null,
+      "product_acceptance": "OPEN"
+    },
+    {
+      "id": "advertisement",
+      "topic": "mood_presence_advertisement",
+      "owners": [
+        "DJC-CORE",
+        "DJC-APPLE"
+      ],
+      "priority": "P1",
+      "status": "RESOLVED_SCOPED",
+      "summary": "The original missing Mood/Presence advertisement is now absent as a defect: both installed177-file trees match main, public flags/version1 are present, and configured external dev HTTPS returns them. This closes only the reported producer-advertisement gap.",
+      "next_action": "Record scoped closure of Core1165; keep native controls and joint settings acceptance in their owning open rows.",
+      "required_tests": [
+        "Exact installed source identity, booleans and typed versioned payload",
+        "Local and configured external-dev capability readback without Session writes"
+      ],
+      "dag_refs": [
+        "SETTINGS::APPLE::EDITOR"
+      ],
+      "depends_on": [],
+      "proof_ids": [
+        "installed-dev",
+        "installed-prod",
+        "external-dev-advertisement"
+      ],
+      "closure_scope": "producer_advertisement_only",
+      "product_acceptance": "NOT_CLAIMED"
+    },
+    {
+      "id": "lan",
+      "topic": "lan_websocket",
+      "owners": [
+        "DJC-CORE",
+        "DJC-APPLE"
+      ],
+      "priority": "P1",
+      "status": "OPEN",
+      "summary": "Public policy permits only qualified direct plaintext ingress; a capability is not an installed route qualification. Apple reported a tokenless direct preflight426 and no real paired LAN WebSocket PASS. HTTP art/status success is not WS success.",
+      "next_action": "Qualify configured HA-dev/prod direct ingress and native paired WS with the ordinary device identity. Keep TLS validation and no forwarded/plaintext bypass.",
+      "required_tests": [
+        "Actual pairing -> context -> paired WS -> snapshot/events/recovery",
+        "Internal/external route changes, suspension/resume, URL changes, exact operation reconciliation",
+        "Wrong origin/subnet/forwarding/Profile/lease, cancel and connection cleanup"
+      ],
+      "dag_refs": [
+        "TRANSPORT::APPLE::HYBRID",
+        "TRANSPORT::JOINT::HYBRID"
+      ],
+      "depends_on": [],
+      "proof_ids": [
+        "installed-dev",
+        "installed-prod",
+        "apple-bounded-native-readback"
+      ],
+      "closure_scope": null,
+      "product_acceptance": "OPEN"
+    },
+    {
+      "id": "api",
+      "topic": "vibecast_api",
+      "owners": [
+        "DJC-API"
+      ],
+      "priority": "P1",
+      "status": "OPEN",
+      "summary": "API94 cd88e8d is draft/profile0.4 NOT_FROZEN. Narrow path and App Attest core tests plus finite encrypted receipt policy progressed. Complete CMS/revocation/storage/crash/composed verifier qualification is still open. Existing consumer ACK and delivered Apple diagnostic capture remain valid.",
+      "next_action": "Finish the composed verifier and finite receipt/revocation implementation, independent security/privacy review, actual wire/DO lifecycle and protected frozen producer delivery.",
+      "required_tests": [
+        "CMS/path/revocation and genuine binding/assertion/counter negatives",
+        "Receipt expiry/rotation/revoke, persistence/restart/corruption and race cases",
+        "Real wire/one-use/cancel/recovery and DO service storage boundaries"
+      ],
+      "dag_refs": [
+        "WEB::BOOTSTRAP",
+        "WEB::TRUST"
+      ],
+      "depends_on": [],
+      "proof_ids": [
+        "api-attest-core"
+      ],
+      "closure_scope": null,
+      "product_acceptance": "OPEN"
+    },
+    {
+      "id": "vibecast",
+      "topic": "vibecast",
+      "owners": [
+        "DJC-CORE",
+        "DJC-API",
+        "DJC-APPLE",
+        "DJC-VIBECAST"
+      ],
+      "priority": "P1",
+      "status": "OPEN",
+      "summary": "CoreB1197 is draft/conflicted, local waiting-screen work is unmerged, receiver bootstrap/Pages/Cast is delivered but rendezvous and physical TV acceptance are open. Local e245 retirement removes receiver Session-end authority; receiver still needs the proper import.",
+      "next_action": "Keep A/B authority separate; integrate against current main, resolve legitimate conflicts, qualify B owner races, then freeze/adopt the producer and remove the old imported end handler.",
+      "required_tests": [
+        "Pairing and Profile/Session binding, expiry/revoke/unload/end/cancellation races",
+        "No end button, no grant issuance/acceptance, legacy endpoint410 without Session effects",
+        "Browser native JWE/scanner -> existing HA pairing/B -> TV end-to-end and real TV rendering"
+      ],
+      "dag_refs": [
+        "WEB::TRUST",
+        "WEB::DISPLAY",
+        "WEB::BROWSER",
+        "WEB::JOINT"
+      ],
+      "depends_on": [
+        "api"
+      ],
+      "proof_ids": [
+        "receiver-published-and-ack",
+        "local-corrective-regressions"
+      ],
+      "closure_scope": null,
+      "product_acceptance": "OPEN"
+    },
+    {
+      "id": "ui",
+      "topic": "ui_ux",
+      "owners": [
+        "DJC-APPLE",
+        "DJC-CORE"
+      ],
+      "priority": "P1",
+      "status": "OPEN",
+      "summary": "Apple has many recent installed private builds, but canonical checkout metadata is older and is not the current build identity. The reported tagline, composer/output/Bluetooth/demo fixes require exact owning source/build evidence. Source delivery/native acceptance cannot be inferred from screenshots.",
+      "next_action": "Use the existing Apple writer matrix for exact build/device outcomes; qualify gesture/scroll/focus, artwork, source links and state transitions. Do not overwrite its WIP or repeat solved startup requests.",
+      "required_tests": [
+        "Five languages, VoiceOver/DynamicType/ReduceMotion and layout boundaries",
+        "Composer focus/scroll/keyboard and output selection/recovery",
+        "No old art, stale labels, fake playback acknowledgements or extra surface pop-out"
+      ],
+      "dag_refs": [
+        "ENTRY::APPLE::NAVIGATION",
+        "ENTRY::APPLE::LIFECYCLE"
+      ],
+      "depends_on": [],
+      "proof_ids": [
+        "apple-bounded-native-readback"
+      ],
+      "closure_scope": null,
+      "product_acceptance": "OPEN"
+    },
+    {
+      "id": "performance",
+      "topic": "performance",
+      "owners": [
+        "DJC-CORE",
+        "DJC-APPLE"
+      ],
+      "priority": "P1",
+      "status": "OPEN",
+      "summary": "Local producer history tests report270ordered entries/six pages and seven transactions for10/50page sizes; this is bounded fixture behavior, not long-running production/native responsiveness.",
+      "next_action": "Measure representative long-session/history/WS/art/TTS workloads and native timelines. Refactor only a measured causal hotspot within its existing owner.",
+      "required_tests": [
+        "Query counts and no N+1 timeline fetches",
+        "Bounded response/asset/cache/queue sizes and concurrent readers",
+        "Native scroll/launch/resume latency, event bursts and background CPU"
+      ],
+      "dag_refs": [
+        "TRANSPORT::JOINT::HYBRID"
+      ],
+      "depends_on": [],
+      "proof_ids": [],
+      "closure_scope": null,
+      "product_acceptance": "OPEN"
+    },
+    {
+      "id": "crash",
+      "topic": "crash_memory",
+      "owners": [
+        "DJC-CORE",
+        "DJC-APPLE",
+        "DJC-API"
+      ],
+      "priority": "P1",
+      "status": "OPEN",
+      "summary": "No complete current native soak/crash/RSS qualification is retained in this audit. An older Core unittest process was still running after two hours; it is a finding, not a PASS or permission to kill another writer.",
+      "next_action": "Reconcile the hung process/log with its owner, then bound test lifetimes and measure cancellation/reload/stream/asset cleanup and real native RSS over repeated cycles.",
+      "required_tests": [
+        "Session/end/unload/restart and cancelled producer/consumer tasks",
+        "WS reconnect storms, observer/listener/cache cleanup and retained asset bounds",
+        "Native memory growth/crash reports and API storage crash recovery"
+      ],
+      "dag_refs": [
+        "TRANSPORT::JOINT::HYBRID",
+        "SPEECH::JOINT::ACCEPTANCE"
+      ],
+      "depends_on": [],
+      "proof_ids": [],
+      "closure_scope": null,
+      "product_acceptance": "OPEN"
+    },
+    {
+      "id": "surface_transport",
+      "topic": "surface_transport",
+      "owners": [
+        "DJC-CORE"
+      ],
+      "priority": "P1",
+      "status": "OPEN",
+      "summary": "Installed passive v1 still advertises explicit_consent_required=true, max cache120s, background_delivery=false and watch_replication=false. The newer owner-selected automatic OS/Session policy needs an explicit Core contract/capability assessment; no background bearer or poller is qualified.",
+      "next_action": "Reconcile automatic OS/Session authorization within existing surface owners, original source/art deadlines and background transport. Do not silently extend grants/TTL or infer background delivery from a removed menu.",
+      "required_tests": [
+        "OS disable, Profile/install/Session changes and revoke without blind authorize replay",
+        "Fresh real observations/Moments/art beyond120s without sliding old deadlines",
+        "Qualified background wake/update/invalidation and privacy-visible content limits"
+      ],
+      "dag_refs": [
+        "SURFACE::APPLE::QUIET-TRANSPORT",
+        "SURFACE::PRODUCT::JOINT"
+      ],
+      "depends_on": [],
+      "proof_ids": [
+        "installed-dev",
+        "installed-prod"
+      ],
+      "closure_scope": null,
+      "product_acceptance": "OPEN"
+    },
+    {
+      "id": "surfaces",
+      "topic": "widgets_activity_island",
+      "owners": [
+        "DJC-CORE",
+        "DJC-APPLE"
+      ],
+      "priority": "P1",
+      "status": "OPEN",
+      "summary": "Apple is implementing automatic widget/Activity preparation in existing WIP. Latest reported real iPad foreground cache now fills, but no DJ contribution/cover was returned in that sample. Native Activity pixels, sustained background freshness and Island remain unqualified.",
+      "next_action": "Finish automatic startup/Session/OS lifecycle and actual OS pixels independently of foreground cache preparation; no per-Session pop-out or hidden polling workaround.",
+      "required_tests": [
+        "Configured widgets and real Live Activity/Island start/update/end",
+        "App end vs user dismissal, reboot/re-pair/Profile switch and OS permission changes",
+        "120s expiry, source withdrawal, locked surfaces and no stale/rich content leakage"
+      ],
+      "dag_refs": [
+        "SURFACE::APPLE::ADOPTION",
+        "SURFACE::PRODUCT::JOINT"
+      ],
+      "depends_on": [
+        "surface_transport"
+      ],
+      "proof_ids": [
+        "apple-bounded-native-readback"
+      ],
+      "closure_scope": null,
+      "product_acceptance": "OPEN"
+    },
+    {
+      "id": "push",
+      "topic": "production_push",
+      "owners": [
+        "DJC-API",
+        "DJC-CORE",
+        "DJC-APPLE"
+      ],
+      "priority": "P1",
+      "status": "OPEN",
+      "summary": "Production push end-to-end is not newly qualified. APNs debug/registration/source/CI success cannot establish production entitlement, provider acceptance, delivery, wake, owner sync and rendered state. Rendezvous verifier evidence is a separate topic.",
+      "next_action": "Existing owning lanes must trace a qualified production build/device through per-install registration/provider receipt to owner resync and visible result, preserving denied/expired/revoked behavior.",
+      "required_tests": [
+        "Production entitlement/environment/topic and per-install djci proof boundaries",
+        "Expiry/revoke/offline/dedup/retry/provider rejection and registration rotation",
+        "Real delivery/wake/owner-read/visible result; no private Flow bodies in push"
+      ],
+      "dag_refs": [
+        "SLICE::APPLE::PUSH-ACCEPTANCE"
+      ],
+      "depends_on": [],
+      "proof_ids": [],
+      "closure_scope": null,
+      "product_acceptance": "OPEN"
+    },
+    {
+      "id": "watch",
+      "topic": "watch_flow",
+      "owners": [
+        "DJC-APPLE",
+        "DJC-CORE"
+      ],
+      "priority": "P1",
+      "status": "OPEN",
+      "summary": "Watch main DJ-session Flow-card view remains open. Apple reports a typed foreground iPhone proxy with real watch identity, not passive mirroring; this is not a completed Flow UI or audible Watch acceptance.",
+      "next_action": "Implement and qualify the existing Watch companion scope in its existing writer, consuming ordinary owner Flow/settings and explicit supported speech entitlement.",
+      "required_tests": [
+        "Real paired Watch + iPhone tunnel, unavailable phone and foreground limits",
+        "Moment-first main view/cards, current vs historic ownership and privacy",
+        "Watch navigation, input, audio/interruption and installed physical display"
+      ],
+      "dag_refs": [
+        "PROJ::ROADMAP::WATCH",
+        "QUAL::APPLE::WATCH-HOST"
+      ],
+      "depends_on": [],
+      "proof_ids": [],
+      "closure_scope": null,
+      "product_acceptance": "OPEN"
+    },
+    {
+      "id": "maintenance",
+      "topic": "maintenance",
+      "owners": [
+        "DJC-CORE",
+        "DJC-API",
+        "DJC-PI"
+      ],
+      "priority": "P1",
+      "status": "OPEN",
+      "summary": "Five dependency PRs were open in the initial readback: Core1180 buildFAIL;1182 owner-authorizationFAIL; API95green but separate from active94; Pi106/107no checks/blocked. Two additional feature-draft PRs1197/94 make seven open PRs in total. Neither draft is ready for delivery.",
+      "next_action": "Each existing owning lane handles its specific exact-head dependency checks and normal protected delivery; no workflow/runner bypass or unsolicited toolchain change in this audit.",
+      "required_tests": [
+        "Exact candidate PR/base and required checks",
+        "Inspect actual failing logs and retain old qualified dependency pins",
+        "Merged/remote absence/bundle/equivalence before any cleanup"
+      ],
+      "dag_refs": [],
+      "depends_on": [],
+      "proof_ids": [],
+      "closure_scope": null,
+      "product_acceptance": "OPEN"
+    }
+  ],
+  "cleanup": {
+    "scope": "registered worktrees/local refs in eight checked-out active repositories; linked lane checkouts preserved",
+    "deleted_branches": [],
+    "deleted_worktrees": [],
+    "preserved": [
+      {
+        "repo": "djconnect",
+        "branch": "codex/askdj-contextual-golden-release-v1",
+        "head": "e24560291531d7472a3da85573af643431228369",
+        "reason": "PRESERVE_ACTIVE_OR_UNPUBLISHED",
+        "checked_out": true,
+        "unpublished_or_active": true
+      },
+      {
+        "repo": "djconnect",
+        "branch": "codex/vibecast-display-admission-v1",
+        "head": "6e560061cbee3bed86c50fc0deee7d74b9bfee9b",
+        "reason": "PRESERVE_ACTIVE_OR_UNPUBLISHED",
+        "checked_out": true,
+        "unpublished_or_active": true
+      },
+      {
+        "repo": "djconnect",
+        "branch": "codex/vibecast-waiting-glass-v1",
+        "head": "4b3a805975fbd6876c037b273ecbcced2f9af5b2",
+        "reason": "PRESERVE_ACTIVE_OR_UNPUBLISHED",
+        "checked_out": true,
+        "unpublished_or_active": true
+      },
+      {
+        "repo": "djconnect-app",
+        "branch": "codex/apple-moment-first-session",
+        "head": "2fc7fdf173d9ddb9c309e5837f1c7a449e170be9",
+        "reason": "PRESERVE_ACTIVE_OR_UNPUBLISHED",
+        "checked_out": true,
+        "unpublished_or_active": true
+      },
+      {
+        "repo": "djconnect-api",
+        "branch": "codex/vibecast-rendezvous-v1-contract",
+        "head": "8b158eaefd4d5676e5f079873d39076201446eda",
+        "reason": "PRESERVE_ACTIVE_OR_UNPUBLISHED",
+        "checked_out": true,
+        "unpublished_or_active": true
+      }
+    ],
+    "authority": "no deletion of active, dirty, locked, ambiguous or unpublished work"
+  },
+  "source_manifest": {
+    "path": "core-source-manifest-cc9b49fe.json",
+    "sha256": "780022ac088d59f5ac46fde6846e151de40c0e1c5fd3cdfda5dbb23550080eb4"
+  },
+  "lane_updates": [
+    {
+      "repo": "djconnect",
+      "issue": 1164,
+      "url": "https://github.com/pcvantol/djconnect/issues/1164#issuecomment-6234854524"
+    },
+    {
+      "repo": "djconnect",
+      "issue": 1101,
+      "url": "https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6234854788"
+    },
+    {
+      "repo": "djconnect-app",
+      "issue": 87,
+      "url": "https://github.com/pcvantol/djconnect-app/issues/87#issuecomment-6234855061"
+    },
+    {
+      "repo": "djconnect-api",
+      "issue": 90,
+      "url": "https://github.com/pcvantol/djconnect-api/issues/90#issuecomment-6234855269"
+    },
+    {
+      "repo": "djconnect-vibecast-receiver",
+      "issue": 16,
+      "url": "https://github.com/pcvantol/djconnect-vibecast-receiver/issues/16#issuecomment-6234855446"
+    }
+  ],
+  "closed_in_audit": [
+    {
+      "repo": "djconnect",
+      "number": 1165,
+      "scope": "producer_advertisement_only",
+      "evidence": "https://github.com/pcvantol/djconnect/issues/1165#issuecomment-6234851603",
+      "state": "closed"
+    }
+  ]
+}
