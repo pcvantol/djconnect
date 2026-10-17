@@ -7,7 +7,7 @@ from pathlib import Path
 import types
 import unittest
 
-from tests.ask_dj_e2e_contract import AskDjE2ETrace, load_cases, validate_case_result
+from tests.ask_dj_e2e_contract import AskDjE2ETrace, load_cases, materialize_case, validate_case_result
 from tests.ask_dj_operational_fixture import ask_operational
 from tests.test_ask_dj import FakeMemory, make_runtime
 from tests.test_http_voice_helpers import install_http_stubs
@@ -98,9 +98,6 @@ class AskDjE2EContractTest(unittest.TestCase):
     def test_ask_dj_contract_cases(self) -> None:
         failures: list[str] = []
         for case in self.cases:
-            request_text = str(case.get("request", {}).get("text") or "")
-            if case.get("id", "").startswith("help_prompt_") and "[" in request_text:
-                continue
             with self.subTest(case=case["id"]):
                 response, trace = self._run_case(case)
                 errors = validate_case_result(case, response, trace)
@@ -110,6 +107,7 @@ class AskDjE2EContractTest(unittest.TestCase):
             self.fail("\n".join(failures))
 
     def _run_case(self, case: dict) -> tuple[dict, AskDjE2ETrace]:
+        case = materialize_case(case)
         runtime = make_runtime()
         runtime.last_playback = {
             **runtime.last_playback,

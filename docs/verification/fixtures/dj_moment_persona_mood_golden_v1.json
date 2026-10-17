@@ -1,0 +1,570 @@
+{
+  "schema_version": 1,
+  "suite": "dj_moment_persona_mood_golden_v1",
+  "execution": "actual_runtime_planner_knowledge_moment_flow_broadcast_provider_fixtures_no_llm",
+  "cells": [
+    {
+      "id": "DJM-GOLDEN-home_dj-chill-en",
+      "persona": "home_dj",
+      "mood": "chill",
+      "language": "en"
+    },
+    {
+      "id": "DJM-GOLDEN-home_dj-chill-nl",
+      "persona": "home_dj",
+      "mood": "chill",
+      "language": "nl"
+    },
+    {
+      "id": "DJM-GOLDEN-home_dj-chill-de",
+      "persona": "home_dj",
+      "mood": "chill",
+      "language": "de"
+    },
+    {
+      "id": "DJM-GOLDEN-home_dj-chill-fr",
+      "persona": "home_dj",
+      "mood": "chill",
+      "language": "fr"
+    },
+    {
+      "id": "DJM-GOLDEN-home_dj-chill-es",
+      "persona": "home_dj",
+      "mood": "chill",
+      "language": "es"
+    },
+    {
+      "id": "DJM-GOLDEN-home_dj-groove-en",
+      "persona": "home_dj",
+      "mood": "groove",
+      "language": "en"
+    },
+    {
+      "id": "DJM-GOLDEN-home_dj-groove-nl",
+      "persona": "home_dj",
+      "mood": "groove",
+      "language": "nl"
+    },
+    {
+      "id": "DJM-GOLDEN-home_dj-groove-de",
+      "persona": "home_dj",
+      "mood": "groove",
+      "language": "de"
+    },
+    {
+      "id": "DJM-GOLDEN-home_dj-groove-fr",
+      "persona": "home_dj",
+      "mood": "groove",
+      "language": "fr"
+    },
+    {
+      "id": "DJM-GOLDEN-home_dj-groove-es",
+      "persona": "home_dj",
+      "mood": "groove",
+      "language": "es"
+    },
+    {
+      "id": "DJM-GOLDEN-home_dj-energy-en",
+      "persona": "home_dj",
+      "mood": "energy",
+      "language": "en"
+    },
+    {
+      "id": "DJM-GOLDEN-home_dj-energy-nl",
+      "persona": "home_dj",
+      "mood": "energy",
+      "language": "nl"
+    },
+    {
+      "id": "DJM-GOLDEN-home_dj-energy-de",
+      "persona": "home_dj",
+      "mood": "energy",
+      "language": "de"
+    },
+    {
+      "id": "DJM-GOLDEN-home_dj-energy-fr",
+      "persona": "home_dj",
+      "mood": "energy",
+      "language": "fr"
+    },
+    {
+      "id": "DJM-GOLDEN-home_dj-energy-es",
+      "persona": "home_dj",
+      "mood": "energy",
+      "language": "es"
+    },
+    {
+      "id": "DJM-GOLDEN-home_dj-party-en",
+      "persona": "home_dj",
+      "mood": "party",
+      "language": "en"
+    },
+    {
+      "id": "DJM-GOLDEN-home_dj-party-nl",
+      "persona": "home_dj",
+      "mood": "party",
+      "language": "nl"
+    },
+    {
+      "id": "DJM-GOLDEN-home_dj-party-de",
+      "persona": "home_dj",
+      "mood": "party",
+      "language": "de"
+    },
+    {
+      "id": "DJM-GOLDEN-home_dj-party-fr",
+      "persona": "home_dj",
+      "mood": "party",
+      "language": "fr"
+    },
+    {
+      "id": "DJM-GOLDEN-home_dj-party-es",
+      "persona": "home_dj",
+      "mood": "party",
+      "language": "es"
+    },
+    {
+      "id": "DJM-GOLDEN-radio_dj-chill-en",
+      "persona": "radio_dj",
+      "mood": "chill",
+      "language": "en"
+    },
+    {
+      "id": "DJM-GOLDEN-radio_dj-chill-nl",
+      "persona": "radio_dj",
+      "mood": "chill",
+      "language": "nl"
+    },
+    {
+      "id": "DJM-GOLDEN-radio_dj-chill-de",
+      "persona": "radio_dj",
+      "mood": "chill",
+      "language": "de"
+    },
+    {
+      "id": "DJM-GOLDEN-radio_dj-chill-fr",
+      "persona": "radio_dj",
+      "mood": "chill",
+      "language": "fr"
+    },
+    {
+      "id": "DJM-GOLDEN-radio_dj-chill-es",
+      "persona": "radio_dj",
+      "mood": "chill",
+      "language": "es"
+    },
+    {
+      "id": "DJM-GOLDEN-radio_dj-groove-en",
+      "persona": "radio_dj",
+      "mood": "groove",
+      "language": "en"
+    },
+    {
+      "id": "DJM-GOLDEN-radio_dj-groove-nl",
+      "persona": "radio_dj",
+      "mood": "groove",
+      "language": "nl"
+    },
+    {
+      "id": "DJM-GOLDEN-radio_dj-groove-de",
+      "persona": "radio_dj",
+      "mood": "groove",
+      "language": "de"
+    },
+    {
+      "id": "DJM-GOLDEN-radio_dj-groove-fr",
+      "persona": "radio_dj",
+      "mood": "groove",
+      "language": "fr"
+    },
+    {
+      "id": "DJM-GOLDEN-radio_dj-groove-es",
+      "persona": "radio_dj",
+      "mood": "groove",
+      "language": "es"
+    },
+    {
+      "id": "DJM-GOLDEN-radio_dj-energy-en",
+      "persona": "radio_dj",
+      "mood": "energy",
+      "language": "en"
+    },
+    {
+      "id": "DJM-GOLDEN-radio_dj-energy-nl",
+      "persona": "radio_dj",
+      "mood": "energy",
+      "language": "nl"
+    },
+    {
+      "id": "DJM-GOLDEN-radio_dj-energy-de",
+      "persona": "radio_dj",
+      "mood": "energy",
+      "language": "de"
+    },
+    {
+      "id": "DJM-GOLDEN-radio_dj-energy-fr",
+      "persona": "radio_dj",
+      "mood": "energy",
+      "language": "fr"
+    },
+    {
+      "id": "DJM-GOLDEN-radio_dj-energy-es",
+      "persona": "radio_dj",
+      "mood": "energy",
+      "language": "es"
+    },
+    {
+      "id": "DJM-GOLDEN-radio_dj-party-en",
+      "persona": "radio_dj",
+      "mood": "party",
+      "language": "en"
+    },
+    {
+      "id": "DJM-GOLDEN-radio_dj-party-nl",
+      "persona": "radio_dj",
+      "mood": "party",
+      "language": "nl"
+    },
+    {
+      "id": "DJM-GOLDEN-radio_dj-party-de",
+      "persona": "radio_dj",
+      "mood": "party",
+      "language": "de"
+    },
+    {
+      "id": "DJM-GOLDEN-radio_dj-party-fr",
+      "persona": "radio_dj",
+      "mood": "party",
+      "language": "fr"
+    },
+    {
+      "id": "DJM-GOLDEN-radio_dj-party-es",
+      "persona": "radio_dj",
+      "mood": "party",
+      "language": "es"
+    },
+    {
+      "id": "DJM-GOLDEN-club_dj-chill-en",
+      "persona": "club_dj",
+      "mood": "chill",
+      "language": "en"
+    },
+    {
+      "id": "DJM-GOLDEN-club_dj-chill-nl",
+      "persona": "club_dj",
+      "mood": "chill",
+      "language": "nl"
+    },
+    {
+      "id": "DJM-GOLDEN-club_dj-chill-de",
+      "persona": "club_dj",
+      "mood": "chill",
+      "language": "de"
+    },
+    {
+      "id": "DJM-GOLDEN-club_dj-chill-fr",
+      "persona": "club_dj",
+      "mood": "chill",
+      "language": "fr"
+    },
+    {
+      "id": "DJM-GOLDEN-club_dj-chill-es",
+      "persona": "club_dj",
+      "mood": "chill",
+      "language": "es"
+    },
+    {
+      "id": "DJM-GOLDEN-club_dj-groove-en",
+      "persona": "club_dj",
+      "mood": "groove",
+      "language": "en"
+    },
+    {
+      "id": "DJM-GOLDEN-club_dj-groove-nl",
+      "persona": "club_dj",
+      "mood": "groove",
+      "language": "nl"
+    },
+    {
+      "id": "DJM-GOLDEN-club_dj-groove-de",
+      "persona": "club_dj",
+      "mood": "groove",
+      "language": "de"
+    },
+    {
+      "id": "DJM-GOLDEN-club_dj-groove-fr",
+      "persona": "club_dj",
+      "mood": "groove",
+      "language": "fr"
+    },
+    {
+      "id": "DJM-GOLDEN-club_dj-groove-es",
+      "persona": "club_dj",
+      "mood": "groove",
+      "language": "es"
+    },
+    {
+      "id": "DJM-GOLDEN-club_dj-energy-en",
+      "persona": "club_dj",
+      "mood": "energy",
+      "language": "en"
+    },
+    {
+      "id": "DJM-GOLDEN-club_dj-energy-nl",
+      "persona": "club_dj",
+      "mood": "energy",
+      "language": "nl"
+    },
+    {
+      "id": "DJM-GOLDEN-club_dj-energy-de",
+      "persona": "club_dj",
+      "mood": "energy",
+      "language": "de"
+    },
+    {
+      "id": "DJM-GOLDEN-club_dj-energy-fr",
+      "persona": "club_dj",
+      "mood": "energy",
+      "language": "fr"
+    },
+    {
+      "id": "DJM-GOLDEN-club_dj-energy-es",
+      "persona": "club_dj",
+      "mood": "energy",
+      "language": "es"
+    },
+    {
+      "id": "DJM-GOLDEN-club_dj-party-en",
+      "persona": "club_dj",
+      "mood": "party",
+      "language": "en"
+    },
+    {
+      "id": "DJM-GOLDEN-club_dj-party-nl",
+      "persona": "club_dj",
+      "mood": "party",
+      "language": "nl"
+    },
+    {
+      "id": "DJM-GOLDEN-club_dj-party-de",
+      "persona": "club_dj",
+      "mood": "party",
+      "language": "de"
+    },
+    {
+      "id": "DJM-GOLDEN-club_dj-party-fr",
+      "persona": "club_dj",
+      "mood": "party",
+      "language": "fr"
+    },
+    {
+      "id": "DJM-GOLDEN-club_dj-party-es",
+      "persona": "club_dj",
+      "mood": "party",
+      "language": "es"
+    },
+    {
+      "id": "DJM-GOLDEN-festival_dj-chill-en",
+      "persona": "festival_dj",
+      "mood": "chill",
+      "language": "en"
+    },
+    {
+      "id": "DJM-GOLDEN-festival_dj-chill-nl",
+      "persona": "festival_dj",
+      "mood": "chill",
+      "language": "nl"
+    },
+    {
+      "id": "DJM-GOLDEN-festival_dj-chill-de",
+      "persona": "festival_dj",
+      "mood": "chill",
+      "language": "de"
+    },
+    {
+      "id": "DJM-GOLDEN-festival_dj-chill-fr",
+      "persona": "festival_dj",
+      "mood": "chill",
+      "language": "fr"
+    },
+    {
+      "id": "DJM-GOLDEN-festival_dj-chill-es",
+      "persona": "festival_dj",
+      "mood": "chill",
+      "language": "es"
+    },
+    {
+      "id": "DJM-GOLDEN-festival_dj-groove-en",
+      "persona": "festival_dj",
+      "mood": "groove",
+      "language": "en"
+    },
+    {
+      "id": "DJM-GOLDEN-festival_dj-groove-nl",
+      "persona": "festival_dj",
+      "mood": "groove",
+      "language": "nl"
+    },
+    {
+      "id": "DJM-GOLDEN-festival_dj-groove-de",
+      "persona": "festival_dj",
+      "mood": "groove",
+      "language": "de"
+    },
+    {
+      "id": "DJM-GOLDEN-festival_dj-groove-fr",
+      "persona": "festival_dj",
+      "mood": "groove",
+      "language": "fr"
+    },
+    {
+      "id": "DJM-GOLDEN-festival_dj-groove-es",
+      "persona": "festival_dj",
+      "mood": "groove",
+      "language": "es"
+    },
+    {
+      "id": "DJM-GOLDEN-festival_dj-energy-en",
+      "persona": "festival_dj",
+      "mood": "energy",
+      "language": "en"
+    },
+    {
+      "id": "DJM-GOLDEN-festival_dj-energy-nl",
+      "persona": "festival_dj",
+      "mood": "energy",
+      "language": "nl"
+    },
+    {
+      "id": "DJM-GOLDEN-festival_dj-energy-de",
+      "persona": "festival_dj",
+      "mood": "energy",
+      "language": "de"
+    },
+    {
+      "id": "DJM-GOLDEN-festival_dj-energy-fr",
+      "persona": "festival_dj",
+      "mood": "energy",
+      "language": "fr"
+    },
+    {
+      "id": "DJM-GOLDEN-festival_dj-energy-es",
+      "persona": "festival_dj",
+      "mood": "energy",
+      "language": "es"
+    },
+    {
+      "id": "DJM-GOLDEN-festival_dj-party-en",
+      "persona": "festival_dj",
+      "mood": "party",
+      "language": "en"
+    },
+    {
+      "id": "DJM-GOLDEN-festival_dj-party-nl",
+      "persona": "festival_dj",
+      "mood": "party",
+      "language": "nl"
+    },
+    {
+      "id": "DJM-GOLDEN-festival_dj-party-de",
+      "persona": "festival_dj",
+      "mood": "party",
+      "language": "de"
+    },
+    {
+      "id": "DJM-GOLDEN-festival_dj-party-fr",
+      "persona": "festival_dj",
+      "mood": "party",
+      "language": "fr"
+    },
+    {
+      "id": "DJM-GOLDEN-festival_dj-party-es",
+      "persona": "festival_dj",
+      "mood": "party",
+      "language": "es"
+    }
+  ],
+  "families": {
+    "track": "Published exact producer credits plus later shared-producer connection; same source IDs and both links",
+    "birth": "Qualified artist birth date with exact localized precision",
+    "formation": "Qualified group formation date, no person/group substitution",
+    "description": "Exact permitted localized description, no unauthorized rewrite",
+    "edition": "Qualified album edition date; no claim of original recording release",
+    "genre": "Source-backed genre context selected by existing Planner"
+  },
+  "expected": {
+    "mood": "Each published presentation_intent retains selected mood; no forced text variation unsupported by product",
+    "persona": "Same fact core, four distinct approved persona expressions per mood and locale",
+    "publication": "Unique immutable moments present in Flow and Broadcast; presence ledger equals semantic publications",
+    "silence": "music_only: zero proactive Moments, zero ledger spend, zero committed expression forms"
+  },
+  "boundaries": {
+    "model_calls": 0,
+    "native_installed_hardware": "NOT_RUN"
+  },
+  "editorial_regressions": [
+    {
+      "id": "DJM-EDITORIAL-ALBUM-WEDNESDAY-MORNING-NL",
+      "status": "OPEN_REPRODUCED_INSTALLED",
+      "evidence": "Owner-provided screenshot 2026-10-17; same clinical album-edition template confirmed in installed realizer",
+      "language": "nl",
+      "persona": "home_dj",
+      "mood": "energy",
+      "input": {
+        "family": "edition",
+        "album_title": "Wednesday Morning, 3 A.M.",
+        "release_date": "1964-10-19",
+        "release_date_precision": "day",
+        "source": "Spotify",
+        "basis": "album_edition_metadata"
+      },
+      "rejected_complete_response": "Bij deze uitgave van Wednesday Morning, 3 A.M. staat 19 oktober 1964 in de Spotify-catalogus.",
+      "acceptance": [
+        "Recognizable natural personal DJ narration, consistent with the selected Persona and Mood",
+        "Preserve exact edition subject, date precision and Spotify attribution",
+        "Do not imply original recording release, invented anecdote, listening experience or DJ playback choice",
+        "A generic opening, changed word order or Mood metadata alone does not establish narrative acceptance"
+      ],
+      "qualification": "Editorial expectation recorded; runtime correction and acceptance NOT delivered"
+    },
+    {
+      "id": "DJM-EDITORIAL-SON-MIEUX-FORMATION-NL",
+      "status": "OPEN_REPRODUCED_INSTALLED",
+      "evidence": "Owner screenshot, current HA-dev177files equalmain6a3adbc8,2026-10-17",
+      "language": "nl",
+      "input": {
+        "family": "formation",
+        "artist": "Son Mieux",
+        "formation_year": "2015",
+        "source": "MusicBrainz"
+      },
+      "rejected_complete_response": "Son Mieux begon in 2015 als groep.",
+      "acceptance": [
+        "A warm personal flowing DJ story with recognizable selected Persona and Mood",
+        "Use richer independently checked music-source context including Wikipedia where available, with actual attribution",
+        "Do not invent a biography from a single formation date or count source/Persona/Mood metadata as narrative acceptance",
+        "Translation and narration through the configured qualified HA agent; approved published body retained and available for TTS"
+      ],
+      "qualification": "Narrative correction, richer public-source support and actual editorial review remain OPEN; no new runtime PASS"
+    }
+  ],
+  "integration_regressions": [
+    {
+      "id": "TRACK-INSIGHT-REGULAR-PAIRED-CURRENT",
+      "status": "OPEN_REPRODUCED_INSTALLED",
+      "evidence": "Owner screenshot and ordinary iPhone paired HA-dev POST reproduced 2026-10-17; HTTP200, unmeasured_metadata_only_v1, verified_context empty,0listening_cues,0production_notes",
+      "route": "POST /api/djconnect/v1/track_insight",
+      "request_shape": "Ordinary current Track Insight screen, explicit title/artist/album and normal paired authorization; no selected Moment chip",
+      "required_positive_fixture": "Known exact current recording with permitted qualified public source facts, independent of an already published Moment",
+      "acceptance": [
+        "Ordinary authorized route resolves permitted source context instead of discarding analysis solely because an owner commit_guard exists",
+        "Meaningful source-grounded explanation and explicitly interpreted listening cues when facts are qualified",
+        "Keep owner/source/lifecycle commit guards and model source restrictions",
+        "No fabricated measured energy, instrumentation or confidence values",
+        "Source-poor or unavailable input produces an explicit honest limitation, not invented analysis",
+        "Verify ordinary HTTP and paired live route, stable cache, explicit Moment drilldown and current-track changes"
+      ],
+      "qualification": "Reproduced defect; source correction and exact positive/negative runtime acceptance remain OPEN"
+    }
+  ]
+}

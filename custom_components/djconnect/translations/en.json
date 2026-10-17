@@ -1769,6 +1769,16 @@
           "description": "Clear all personal state references without deleting the Profile."
         }
       }
+    },
+    "session_history_retention": {
+      "name": "Session history retention",
+      "description": "Administrator-only global rolling retention for completed DJ sessions. Omit the value to read the policy. Increasing it never restores deleted content.",
+      "fields": {
+        "retention_days": {
+          "name": "Retention in days",
+          "description": "Keep completed or interrupted sessions for this many days after they end. Active sessions remain intact. Applies to all Profiles on this installation."
+        }
+      }
     }
   }
 }

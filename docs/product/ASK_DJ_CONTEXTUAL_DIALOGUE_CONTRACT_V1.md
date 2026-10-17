@@ -91,6 +91,61 @@ Relevant source withdrawal removes derived model snippets and response visibilit
 
 ## Typed model/data-rights boundary
 
+### Semantic interpretation of contextual reads
+
+The named-artist catalog repair also admits a closed `artist_tracks` read. A
+named reference carries only a bounded public `artist` string plus the existing
+read/reference/exclude_current fields; contextual current/selected references
+carry no name. The configured HA agent interprets free wording and typos, never
+proposes recording facts, provider IDs or playback. Core resolves the proposed
+name through the existing artist-profile read and then the existing track-search
+read. Only actual recordings credited to that canonical artist ID qualify.
+This is a bounded Spotify catalog sample, not a chart ranking or a claim that
+all hits were found. An explicit more/other request omits the freshly observed
+current recording. Missing/unsupported/provider-failed reads return functional
+music guidance, never a false history-storage explanation or guessed titles.
+Existing frozen result/action IDs own a later explicit Play action; listing has
+no playback/output mutation. Catalog fields remain local display data under
+their existing retention and model-processing boundary.
+
+The17October Armin report separately exposes Apple's generic error label. An
+unavailable-history label is not evidence that the failing operation was a
+history request. Root-cause attribution requires an actual transport/acceptance
+receipt; this producer repair does not retrospectively claim that evidence.
+
+Literal recognition is a fast path, not the supported vocabulary. An otherwise
+unresolved contextual question may use one call to the same qualified HA agent
+to interpret typos and free wording in any supported language. Its closed read
+plan selects artist/recording identification, edition date, album tracks, queue,
+Forecast, previous recording or an alternative album. Core resolves identities
+through the existing read owners; the model receives only the current question,
+locale and context-availability booleans, never catalog text, URI, history,
+Profile data or HA state. A selected contribution is retained while this meaning
+is unresolved. Explicit independent named topics still detach from that chip.
+
+When a qualified public subject was only inherited, the first existing
+research-generation call may instead return this same closed readplan. It
+receives only the already-permitted qualified public evidence plus the minimal
+availability flags. Actual factual prose still requires its independent second
+assessment; no third call or unassessed factual answer is introduced. Missing
+public evidence cannot block a genuinely local contextual read.
+
+The plan has no playback, command, output, settings or arbitrary argument slot.
+It cannot grant an effect, infer a public artist name, answer from model memory,
+or initiate a second research chain. Invalid/ambiguous output asks for
+clarification without a repair call. Existing private/injection/gibberish
+exclusions precede interpretation. One interpretation plus local read stays
+within the existing two-call budget. Existing factual research keeps its own
+generation/assessment budget and source qualification.
+
+Capture Session/item state before interpretation and revalidate it before the
+chosen current-context read, response delivery and Listen. Selected references
+keep their owner/source/expiry guards and cannot silently fall back to current
+playback. Golden qualification must include genuine held-out paraphrases and
+typos in all five languages using the real HA model path, separately from
+deterministic plan validation and read-owner tests. A mocked plan is no evidence
+that a language model understands new wording.
+
 Core builds a single bounded data projection: current user question, approved
 recent turns, qualified subject/credit facts, actual anonymous tool outcome/count,
 style, and optional supported Session context. Maximum serialized Core input
@@ -198,6 +253,16 @@ and installed/hardware/joint acceptance remain open. Exact source publication,
 protected merge/artifact readback and separate Finalization retain their gates.
 
 ## Owner addition: proactive Track Insight navigation
+
+Qualified detail now takes its evidence from the original normalized fact, never
+from an already creative Moment narration. Generated summary/full_text/optional
+listening interpretations require bounded structure and independent content,
+language and style assessment through the same guarded HA Conversation owner,
+maximum two calls. Revalidate the original source/owner and configured pipeline
+around both calls and before cache/response acceptance. Failed assessment keeps
+only the qualified factual context; rejected raw prose is not cached or exposed.
+Credits are useful context, not measured genre/energy/instrumentation. The
+recording-analysis source gap remains explicit until real evidence qualifies it.
 
 The owner-approved [Moment → Track Insight drilldown](MOMENT_TRACK_INSIGHT_DRILLDOWN_V1.md)
 is part of this same assignment. Its directed contract precedes its runtime
@@ -659,3 +724,51 @@ projection, Store migration, source capability or client implementation change.
 [Corrective qualification](../verification/ASK_DJ_RESULT_TITLES_CORRECTION_V1.md)
 distinguishes real isolated HA acceptance from external provider/model fixtures
 and from native/installed acceptance.
+
+## Public music research refinement, 17 October 2026
+
+[Public music research v1](ASK_DJ_PUBLIC_MUSIC_RESEARCH_V1.md) replaces reliance on
+general model recollection for an explicit researchable music question with
+actual bounded Wikipedia retrieval and optional public web sources. Both screens
+use this same owner exchange. Partial-name questions retain a uniquely matching
+qualified selected subject; unrelated explicit questions do not inherit it.
+General model knowledge is never a substitute for a failed attempted lookup.
+Source qualification/answer assessment share the existing two-call budget;
+source metadata is retained with the accepted answer, raw webpages/excerpts are
+not. Existing direct controls, help and observation answers gain no web calls.
+Local implementation/qualification remains distinct from main, native or install.
+
+## Bounded local date refinement
+
+A strict inclusive year-range follow-up may refine the current owner/thread's
+already admitted album result set without model input or another provider read.
+Use the provider's structured release_date, never parse rendered subtitles or
+old history as evidence. The response explicitly covers the shown catalog
+editions only, reports missing dates, keeps the original expiry and creates a
+new selection set. A known-empty refinement replaces the old offer; old taps
+cannot revive it. Session/source/Profile/clear fences remain unchanged. A
+historical caption without a current qualified offer grants no subject or dates.
+
+
+### Current Track Insight qualification refinement
+
+An explicit current Track Insight request may reuse exact current CC0 recording
+credits/work-composer facts already held by the existing Session Knowledge owner,
+even when the Planner published an Artist contribution instead. A publication is
+not required to make a fresh qualified public fact usable by this explicit read.
+No new fetch, catalog/model processing grant, historical reconstruction or fake
+Moment/navigation reference is created. Bind exact current media identity,
+owner/history grant, opportunity generation, source expiry and confirmed settings
+before the same two-call analysis/assessment owner; recheck before cache/response.
+A missing or conflicting exact recording proof stays unmeasured. Credit context
+and labelled interpretation are useful data, but not acoustic measurements.
+
+
+Private catalog offer retries retain only a bounded operational response receipt
+inside the existing DialogueFrame (maximum4responses/64KiB, no durable body).
+Body eviction leaves an opaque digest/expiry receipt; maximum256receipts then
+refuses new non-control admissions rather than repeating an old request.
+Message-ID/digest and original admission/deadline remain authoritative. Reusing
+a request cannot mint a new offer or silently refresh expired choices. Clear
+and rights-generation changes discard replay bodies. This limited transport
+retry support does not close rich catalog-conversation archival retention.

@@ -116,3 +116,14 @@ transport integration; all other renderer behavior remains renderer-owned.
 - [Session Intelligence E2E Verification Architecture](SESSION_INTELLIGENCE_E2E_ARCHITECTURE.md)
 - [Presentation Verification Architecture](PRESENTATION_VERIFICATION_ARCHITECTURE.md)
 - [Session Intelligence Qualification Policy](SESSION_INTELLIGENCE_QUALIFICATION_POLICY.md)
+
+## Reactive paid release qualification
+
+[Ask DJ contextual Golden v1](ASK_DJ_CONTEXTUAL_GOLDEN_RELEASE_GATE_V1.md) reuses
+the existing ordinary pairing/HTTP/Conversation lab for reactive dialogue. Its
+paid release gate is blocking and SHA-bound; the SI foundation above remains
+deterministic and advisory. The integration artifact publisher awaits it before
+creating `internal-ha-{SHA}`. Formal evidence runs as a dependent job in the same publication workflow,
+retaining the original CI event SHA even when main advances. The former parallel
+dispatch is removed so it cannot create that tag before qualification.
+Manual version-tag checks cannot retroactively prevent tag creation.

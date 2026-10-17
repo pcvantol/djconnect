@@ -1,4 +1,4 @@
-"""One exact live Moment replay through existing operation and private byte owners."""
+"""Exact live/retained DJMoment replay through existing operation and byte owners."""
 from contextvars import ContextVar
 import hashlib
 from uuid import UUID
@@ -66,8 +66,11 @@ def connect_automatic(hass, runtime, session, identity, headers):
 
 async def async_play(hass, authority, payload):
     # No arbitrary text, entity, URL or retained/private conversation playback.
+    # Historical DJMoments use an exact owner entry, and only a deliberate replay.
     reference = payload.get('reference') if type(payload) is dict else None
-    if (type(reference) is not dict or set(reference) != {'session_id', 'moment_id'}
+    if (type(reference) is not dict or set(reference) not in (
+            {'session_id', 'moment_id'}, {'session_id', 'entry_id'})
+            or ('entry_id' in reference and payload.get('intent') != 'manual')
             or type(payload.get('target')) is not str or payload['target'] not in {'ha_speaker', 'both'}
             or payload.get('contract_version') != 3):
         return {'success': False, 'error': 'invalid_request'}, 400

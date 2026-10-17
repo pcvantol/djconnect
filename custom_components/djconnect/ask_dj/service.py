@@ -10,7 +10,7 @@ from uuid import NAMESPACE_URL, uuid5
 
 from .dialogue import (
     DialogueError, DialogueTurn, current_turn, model_source, references_topic,
-    style_projection, explicit_quote, explicit_subject,
+    style_projection, explicit_quote,
     request_effect_grants,
     source_scope,
 )
@@ -64,6 +64,7 @@ async def _live_reference(manager, profile, target):
     from .dialogue import normalized_subjects
     return {"text": moment.content, "moment_type": moment.moment_type.value, "archive_basis": "cc0_normalized_fields_v1",
             "source_attribution": dict(moment.source_attribution),
+            "qualified_fact_text": source.copy_for(active.locale)[1],
             "dialogue_subjects": normalized_subjects(source)}
 
 
@@ -141,11 +142,32 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
                 persist_history = False
         target, live = context.get("selected_entry"), context.get("selected_moment")
         # Explicit subjects come from the current question. A stale chip cannot block them.
-        new_subject = explicit_subject(text)
+        from .public_research import explicit_public_subject, safe_subject
+        new_subject = explicit_public_subject(text)
         from .dialogue import requests_lookup, is_refinement
         independent_search = requests_lookup(text) and not is_refinement(text) and not references_topic(text)
-        detached = bool((target or live) and (new_subject or not references_topic(text)) and not explicit_quote(text))
-        reset_topic = detached or bool(new_subject) or independent_search
+        selected_preview = None
+        references_selected_subject = False
+        if new_subject and (target or live):
+            try:
+                selected_preview = ((await query().async_open_entry(profile_id, target["session_id"], target["entry_id"]))["entry"]
+                    if target else await _live_reference(manager, profile_id, live))
+            except (PermissionError, SessionConversationError):
+                # An independent explicit topic must not be held hostage by an expired chip.
+                selected_preview = None
+            from .public_research import resolve_partial_name
+            _, references_selected_subject, ambiguous_selected_subject = resolve_partial_name(
+                new_subject, model_source(selected_preview).get("subjects", []))
+            references_selected_subject = references_selected_subject or ambiguous_selected_subject
+        if (new_subject and not safe_subject(new_subject) and not references_selected_subject
+                and selected_preview is not None):
+            # A broad question grammar can capture a clause instead of a name.
+            # It is not an independent public topic or authority to drop a chip.
+            new_subject = None
+        detached = bool((target or live) and not references_selected_subject
+                        and (new_subject or (not references_topic(text) and intent.intent != "ask_music_info"))
+                        and not explicit_quote(text))
+        reset_topic = detached or bool(new_subject and not references_selected_subject) or independent_search
         if detached:
             target = live = None
             context = {k: v for k, v in context.items() if k not in {"selected_entry", "selected_moment"}}
@@ -168,12 +190,14 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
             from ..transport_delivery import register_delivery_admission
             register_delivery_admission(lambda: admission(owner=validate_owner, immediate=validate_immediate))
             return result
-        if intent.intent == "current_artist_information":
+        if intent.intent in {"current_artist_information", "current_release_information", "album_tracks_information"}:
             # Even a subsequently rejected read is not consent to retry older music.
             frame.retry = None
-        selected = (await query().async_open_entry(profile_id, target["session_id"], target["entry_id"]))["entry"] if target else None
-        if live:
-            selected = await _live_reference(manager, profile_id, live)
+        selected = selected_preview if references_selected_subject else None
+        if selected is None:
+            selected = (await query().async_open_entry(profile_id, target["session_id"], target["entry_id"]))["entry"] if target else None
+            if live:
+                selected = await _live_reference(manager, profile_id, live)
         dependencies = [target] if target else []
         # A previous subject is used only while its source and Session are still valid.
         for dependency in ([] if reset_topic else frame.dependencies):
@@ -191,10 +215,10 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
             dependencies.append(live)
         captured = active.broadcast.state.playback.item_id if active else ""
         # Only genuinely current-playback questions bind to a playback item.
-        track_bound = not target and not live and (intent.intent in {"current_track_reference", "current_artist_information", "track_insight", "dj_announcement"}
+        track_bound = not target and not live and (intent.intent in {"current_track_reference", "current_artist_information", "current_release_information", "album_tracks_information", "track_insight", "dj_announcement"}
             or (references_topic(text) and not frame.messages and not frame.subjects and not frame.result_set))
         playback_fence_session = session_id or (
-            active.session_id if active and track_bound and intent.intent == "current_artist_information" else ""
+            active.session_id if active and track_bound and intent.intent in {"current_artist_information", "current_release_information", "album_tracks_information"} else ""
         )
         implicit = None
         if session_id:
@@ -255,8 +279,9 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
 
         turn = DialogueTurn(frame, scope, thread, client_id, digest, generation, guard, history_manager,
                             style=style_projection(payload, active, profile, settings=shared_settings), session_id=session_id,
-                            captured_playback_item_id=captured if track_bound and intent.intent == "current_artist_information" else "",
-                            source_context=model_source(selected), dependencies=dependencies, fast_control=fast, reset_topic=reset_topic,
+                            captured_playback_item_id=captured if track_bound and intent.intent in {"current_artist_information", "current_release_information", "album_tracks_information"} else "",
+                            source_context=model_source(selected), selected_read_context=selected,
+                            dependencies=dependencies, fast_control=fast, reset_topic=reset_topic,
                             archiveable=persist_history)
         accepted_offer = None
         async def joined_admission(*, owner, immediate):
@@ -439,6 +464,7 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
         # RAM-only admission travels with this bounded in-flight future. Each
         # waiter rechecks the original evidence with its own caller authority.
         future.set_result((deepcopy(response), joined_admission))
+        history_manager.dialogue.remember_catalogue_read(turn, response, future)
         return response
     except (SessionConversationError, DialogueError) as exc:
         if turn is not None and turn.effect_started and frame.generation == turn.generation:

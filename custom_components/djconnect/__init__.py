@@ -1818,8 +1818,12 @@ def register_http_views(hass: HomeAssistant) -> None:
     if not hass.data[DOMAIN].get("http_registered"):
         from .paired_live import DJConnectPairedLiveView
         from .hybrid_transport import HybridActionsView, HybridContextView, HybridOperationView, HybridOperationStatusView, HybridRecoveryView
+        from .display_transport import transition_views
+        from .display_live import DisplayLiveView
+        from .display_shell import DisplayShellView
 
         for view in [
+            *transition_views(hass), DisplayLiveView(hass), DisplayShellView(hass),
             HybridActionsView(hass), HybridContextView(hass), HybridOperationView(hass),
             HybridOperationStatusView(hass), HybridRecoveryView(hass),
             DJConnectPairedLiveView(hass),
@@ -2068,6 +2072,23 @@ def _register_developer_services(
     runtime: DJConnectRuntime,
 ) -> None:
     """Register Home Assistant developer actions for parser, TTS and provisioning."""
+
+    async def handle_session_history_retention(call: ServiceCall) -> dict[str, Any]:
+        from .persistence import persistence_service
+        from .persistence.history import HistoricalProjectionRepository
+        user_id = getattr(call.context, 'user_id', None)
+        user = await hass.auth.async_get_user(user_id) if user_id else None
+        def authorize():
+            return bool(user is not None and user.is_admin and user.is_active)
+        if not authorize():
+            raise PermissionError('admin_authorization_required')
+        repository = HistoricalProjectionRepository(persistence_service(hass))
+        if 'retention_days' in call.data:
+            await repository.async_set_retention_days(call.data['retention_days'], authorize=authorize)
+        days, revision = await repository.async_retention_policy()
+        return {'retention_days': days, 'revision': revision,
+                'scope': 'ha_installation', 'clock': 'session_terminal_timestamp',
+                'cleanup': 'existing_bounded_history_maintenance'}
 
     async def handle_test_parse(call: ServiceCall) -> dict[str, Any] | None:
         text = _service_text(call, DEFAULT_TEST_COMMAND, "command_text")
@@ -2941,6 +2962,7 @@ def _register_developer_services(
         )
 
     service_handlers = {
+        "session_history_retention": (handle_session_history_retention, "only"),
         "test_parse": (handle_test_parse, "optional"),
         "test_tts": (handle_test_tts, "optional"),
         "test_command": (handle_test_command, "optional"),
@@ -3366,6 +3388,8 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         if runtime and runtime.entry.entry_id == entry.entry_id:
             hass.data[DOMAIN].pop("runtime", None)
         if not _has_runtime_entries(hass):
+            if session_manager is not None:
+                await session_manager.async_clear_display_admission()
             images = hass.data[DOMAIN].pop("session_images", None)
             if images is not None:
                 images.close()

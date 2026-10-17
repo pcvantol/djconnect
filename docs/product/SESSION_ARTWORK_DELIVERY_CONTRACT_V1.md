@@ -141,3 +141,24 @@ reads. No additional pixel store, downloader, source/provider or history cache.
 Existing observation/explicit owner preparation does the work; passive read and
 image GET never prepare, fetch or renew. Native rich/background/Watch adoption
 and physical acceptance remain separately owned/open.
+
+
+## Retained Flow parity refinement — owner instruction17October
+
+Read-only historical Sessions retain the same semantic richness as active Flow.
+An admitted DJMoment with an exact original artist/album/recording identity and
+captured source/account binding retains that compact media reference alongside
+its accepted body. This applies to qualified CC0 contributions and temporary
+owner-metadata narration alike. No CDN URL, artwork bytes or provider payload is
+archived. The existing explicit entry-target media preparation resolves that
+original subject again, with current provider permission and temporary no-store
+pixels. It does not substitute current playback, search a historical name, change
+history revisions or restore Runtime. Native UI remains consumer-owned.
+
+A genre fact with one exact source artist resolves artist art; an exact album
+edition/callback resolves that album. A typed revisit Recommendation targets its
+earlier recommended recording, never the currently playing recording's cover.
+Unqualified or identity-poor historical entries stay explicitly unavailable.
+Old rows lacking an original subject/account binding receive no guessed backfill.
+Source withdrawal, reassignment, Profile privacy, Session deletion/retention and
+expiry invalidate pending and prepared image grants before bytes can be read.

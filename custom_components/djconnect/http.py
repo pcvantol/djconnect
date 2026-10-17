@@ -109,7 +109,6 @@ from .central_api import ensure_ha_install_id
 from .dj_response import async_create_dj_audio_url, async_send_dj_response_best_effort, get_tts_audio
 from .ha_urls import async_ha_url_payload
 from .mood import enrich_payload_with_mood_zone, mood_play_now_suffix
-from .pipeline import generate_dj_response_with_assist as generate_dj_response_with_assist
 from .push import (
     async_bootstrap as async_bootstrap_push,
     async_register as async_register_push,
@@ -1709,11 +1708,15 @@ async def _recommendation_play_success_response(
     except Exception:
         pass
     if not confirmed:
-        fallback_dj_text = {
-            "en": "Playback requested; it is not yet confirmed.", "nl": "Afspelen aangevraagd; het is nog niet bevestigd.",
-            "de": "Wiedergabe angefordert; noch nicht bestätigt.", "fr": "Lecture demandée ; pas encore confirmée.",
-            "es": "Reproducción solicitada; aún no confirmada."
-        }[(turn.style.get("language") if turn else None) or "en"]
+        # Keep the producer-frozen kind/title even when a provider readback lags.
+        # An album context is not the currently observed first recording.
+        from .playback_request import _copy
+        named = dict(recommendation)
+        if kind == "album":
+            named["album_name"] = ""
+        named["track_name"] = recommendation.get("title") or recommendation.get("name") or named.get("title")
+        receipt = {"selection": {"kind": kind, "media": named}, "observed_match": confirmed}
+        _, fallback_dj_text = _copy(receipt, (turn.style.get("language") if turn else None) or "en")
     dj_text = fallback_dj_text
     dj_response_debug["fallback_used"] = True
     dj_response_debug["reason"] = "catalog_model_processing_not_qualified"
@@ -1914,6 +1917,11 @@ async def _handle_ask_dj_play_recommendation_on_output(
         if isinstance(transfer, dict) and transfer.get("success") is False:
             return transfer
     except SpotifyBackendError as exc:
+        from .spotify_backend import SpotifyOutputError
+        if isinstance(exc, SpotifyOutputError):
+            from .playback_request import failure
+            from .ask_dj import _response_language
+            return failure(exc.code, _response_language(runtime, request_payload), uncertain=exc.uncertain)
         return {
             "success": False,
             "error": "output_selection_failed",
@@ -1957,16 +1965,48 @@ async def _handle_ask_dj_play_request_on_output(
             "error": "missing_playback_request",
             "message": "Ik weet niet welk muziekverzoek ik moet starten.",
         }
+    frozen = ask_request.get("_frozen_playback_selection")
+    if frozen is not None:
+        from .ask_dj.dialogue import current_turn, DialogueError
+        # A direct/unmatched HTTP value is never a new media authority.
+        turn = current_turn.get()
+        if turn is None or not turn.resolving_output_request:
+            raise DialogueError("conversation_authority_required", 403)
+        await turn.guard()
     try:
         transfer = await run_music_command(hass, runtime, "set_output", output_id, play=False)
         if isinstance(transfer, dict) and transfer.get("success") is False:
             return transfer
     except SpotifyBackendError as exc:
+        from .spotify_backend import SpotifyOutputError
+        if isinstance(exc, SpotifyOutputError):
+            from .playback_request import failure
+            from .ask_dj import _response_language
+            return failure(exc.code, _response_language(runtime, request_payload), uncertain=exc.uncertain)
         return {
             "success": False,
             "error": "output_selection_failed",
             "message": _safe_backend_error_message(exc),
         }
+    if frozen is not None:
+        await turn.guard()
+        try:
+            if frozen.get("uris"):
+                played = await run_music_command(hass, runtime, "play_uris", frozen["uris"])
+            elif frozen.get("context_uri"):
+                played = await run_music_command(hass, runtime, "play", frozen["context_uri"])
+            else:
+                raise DialogueError("choice_unavailable")
+        except SpotifyBackendError as exc:
+            from .playback_request import failure
+            return failure("playback_failed", turn.style.get("language", "en"),
+                           uncertain=exc.http_status is None or exc.http_status >= 500)
+        await turn.guard()
+        if played.get("success") is not True:
+            return played
+        from .playback_request import outcome, response
+        receipt = outcome(frozen, played.get("playback") or {})
+        return {**played, **await response(hass, runtime, receipt)}
     ask_payload = {
         key: value
         for key, value in {

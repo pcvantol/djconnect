@@ -31,7 +31,7 @@ from ..dj_response import async_create_dj_audio_url
 from ..music_dna import prompt_context_text as prompt_context_text
 from ..mood import (
     enrich_payload_with_mood_zone,
-    mood_context_text,
+    mood_context_text as mood_context_text,
     mood_zone_for_value,
 )
 from ..music_intent import parse_spoken_music_request
@@ -47,7 +47,7 @@ from ..track_insight import (
     is_track_insight_request,
     track_insight_error_response,
 )
-from ..voice_profiles import voice_profile_for_mood_or_config, voice_profile_style_text_for_payload
+from ..voice_profiles import voice_profile_for_mood_or_config, voice_profile_style_text_for_payload as voice_profile_style_text_for_payload
 from .responses import image_proxy_target as image_proxy_target, register_image_proxy_url
 
 _LOGGER = logging.getLogger(__name__)
@@ -123,6 +123,12 @@ async def async_handle_ask_dj(
         await turn.guard()
         turn.source_context = source
     from .observations import current_artist_question, current_artist_read
+    from .album_tracks import album_tracks_question, album_tracks_read
+    if action_request is None and album_tracks_question(text):
+        return await album_tracks_read(hass, runtime, text, confirmed_entry)
+    from .observations import release_question, release_read
+    if action_request is None and release_question(text):
+        return await release_read(hass,runtime,confirmed_entry)
     if action_request is None and confirmed_entry is not None and current_artist_question(text):
         return await current_artist_read(hass, runtime, confirmed_entry)
     if action_request is not None:
@@ -139,6 +145,9 @@ async def async_handle_ask_dj(
                 "playback_actions": [], "intent": {"intent": "selected_contribution_quote"}}
     if turn is not None and not turn.resolving_output_request:
         if confirmed_entry is None:
+            refined = await _dialogue_album_period_response(hass, payload, text)
+            if refined is not None:
+                return refined
             listed = await _dialogue_result_list_response(hass, payload, text)
             if listed is not None:
                 return listed
@@ -1222,6 +1231,9 @@ def _simple_control_intent(normalized: str) -> AskDjIntent | None:
 def _has_clear_playback_action(normalized: str) -> bool:
     if _nonexecuting_speech_act(normalized):
         return False
+    from ..music_intent import listening_request_target
+    if listening_request_target(normalized):
+        return True
     if _simple_control_intent(normalized) is not None:
         return True
     if _is_playback_mode_status_question(normalized):
@@ -1514,6 +1526,15 @@ def classify_ask_dj(text: str) -> AskDjIntent:
     normalized = _normalize(text)
     nonexecuting = _nonexecuting_speech_act(normalized)
     from .observations import forecast_question, previous_question, current_artist_question
+    from .observations import release_question
+    from .album_tracks import album_tracks_question
+    if album_tracks_question(normalized):
+        return AskDjIntent("informational", "album_tracks_information")
+    from .dialogue import affirmed_play_reference
+    if affirmed_play_reference(normalized):
+        return AskDjIntent("hybrid", "play_music", "play_music", play=True)
+    if release_question(normalized):
+        return AskDjIntent("informational", "current_release_information")
     if current_artist_question(normalized):
         return AskDjIntent("informational", "current_artist_information")
     if forecast_question(normalized) and not _execution_request(normalized):
@@ -1529,6 +1550,9 @@ def classify_ask_dj(text: str) -> AskDjIntent:
     favorite_target = _current_track_favorite_target(normalized)
     if favorite_target is not None and not nonexecuting:
         return AskDjIntent("action", "playback_control", "set_current_track_favorite", favorite_target)
+    from ..music_intent import listening_request_target
+    if not nonexecuting and listening_request_target(text):
+        return AskDjIntent("hybrid", "play_music", "play_music", play=True)
     for predicate, intent in _ASK_DJ_INTENT_RULES:
         if predicate(normalized, text):
             resolved = intent(normalized) if callable(intent) else intent
@@ -1557,13 +1581,21 @@ def _nonexecuting_speech_act(text: str) -> bool:
         return True
     if re.match(r"^(?:if|suppose|imagine|als|stel|wenn|falls|si|disons|explain|leg uit|erkl[aä]r\w*|explique\w*|explica\w*|citeer|quote|zitier\w*|citer|cita)\b", value):
         return True
+    if re.match(r"^(?:speel|draai|play|spiel(?:e)?|joue|reproduce)\b.+\s(?:niet|nooit|not|never|nicht|pas)\s*[.!?]*$", value):
+        return True
     return bool(re.match(r"^(?:(?:please|alsjeblieft|bitte|s'il te plaît|por favor)\s+)?(?:do not|don't|never|niet|geen|no|ne\s+\w+\s+pas|nicht|kein\w*)\b", value)
-                or re.search(r"\b(?:speel|draai|zet|play|start|pause|skip|joue\w*|reproduz\w*|spiel\w*)\s+(?:(?:dit|dat|deze|die|het|this|that|it|das|le|la|el|af)\s+)*(?:niet|geen|not|never|nicht|keine?|pas|no)\b", value))
+                or re.search(r"\b(?:speel|draai|zet|play|start|pause|skip|joue\w*|reproduz\w*|spiel\w*)\s+(?:(?:dit|dat|deze|die|het|this|that|it|das|le|la|el|af)\s+)*(?:niet|geen|not|never|nicht|keine?|pas)\b", value))
 
 
 def _execution_request(text: str) -> bool:
     if _nonexecuting_speech_act(text):
         return False
+    from .dialogue import affirmed_play_reference
+    if affirmed_play_reference(text):
+        return True
+    from ..music_intent import listening_request_target
+    if listening_request_target(text):
+        return True
     value = text.casefold().strip(" .!?")
     value = re.sub(r"^(?:ok(?:ay)?|goed|alright|bon|vale|bien|gut),?\s+", "", value)
     if _simple_control_intent(value) is not None:
@@ -1796,6 +1828,8 @@ async def _handle_hybrid(
     classification: AskDjIntent,
     payload: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
+    if not classification.play:
+        return await _deferred_playback_request_response(hass, runtime, text)
     try:
         result = await run_text_command(
             hass,
@@ -1804,6 +1838,9 @@ async def _handle_hybrid(
             play=classification.play,
             correct_stt=_is_voice_input(payload or {}),
         )
+        if result.get("playback_outcome"):
+            from ..playback_request import response as playback_response
+            return {**result, **await playback_response(hass,runtime,result["playback_outcome"])}
         canonical_text = _canonical_playback_confirmation(result)
         if canonical_text and _should_use_canonical_playback_confirmation(result, canonical_text):
             result = {**result, "text": canonical_text, "dj_text": canonical_text}
@@ -1817,6 +1854,7 @@ async def _handle_hybrid(
                 text,
                 payload or {},
                 classification,
+                selection=getattr(exc, "playback_selection", None),
             )
             if speaker_response:
                 return speaker_response
@@ -1845,9 +1883,10 @@ async def _playback_output_selection_response(
     text: str,
     payload: dict[str, Any],
     classification: AskDjIntent,
+    *, selection=None,
 ) -> dict[str, Any]:
     devices = await _available_output_devices(hass, runtime)
-    actions = _output_device_play_request_actions(devices, text, payload)
+    actions = _output_device_play_request_actions(devices, text, payload, selection=selection)
     if not actions:
         return {}
     message = "Ik weet nog niet op welke speaker ik dit moet afspelen. Kies een speaker, dan start ik je verzoek meteen."
@@ -2793,6 +2832,56 @@ async def _informational_assist_response(
             "images": [],
         }
 
+    from .dialogue import current_turn, requests_lookup
+    from . import public_research
+    turn = current_turn.get()
+    fetched_sources = []
+    research_state = {}
+    semantic_scope = None
+    from . import semantic_reads
+    if turn and not requests_lookup(text):
+        subject, qualified_music, ambiguous = public_research.subject_for_question(text, turn)
+        named_subject = public_research.explicit_public_subject(text)
+        implicit_subject = not named_subject or not public_research.safe_subject(named_subject)
+        if implicit_subject and semantic_reads.admissible_question(text):
+            semantic_scope = semantic_reads.capture_scope(hass, turn)
+        if ambiguous:
+            if semantic_scope is not None:
+                semantic = await semantic_reads.read_response(hass, runtime, text, payload, scope=semantic_scope)
+                if semantic is not None:
+                    return semantic
+            message = public_research.unavailable_answer(turn.style.get("language", "en"), ambiguous=True)
+            return {"success": True, "text": message, "dj_text": message, "images": []}
+        if not subject and turn.source_context.get("basis") != "runtime_authored_direction_v1":
+            from .semantic_reads import read_response
+            semantic = await read_response(hass, runtime, text, payload)
+            if semantic is not None:
+                return semantic
+            # An unrecognized public question is not authority to answer from
+            # unchecked recollection. Clarify in the same owner before any I/O.
+            message = public_research.unavailable_answer(turn.style.get("language", "en"),
+                ambiguous=bool(public_research.MUSIC.search(text)))
+            return {"success": True, "text": message, "dj_text": message, "images": [],
+                    "text_source": "core", "is_generated_text": False,
+                    "knowledge_basis": "public_subject_required"}
+        if subject:
+            fetched_sources, research_state = await public_research.research(
+                subject, text, turn.style.get("language", "en"), turn.guard,
+                qualified_music=qualified_music,
+                expected_roles=tuple(s.get("role") for s in turn.source_context.get("subjects", [])
+                                     if s.get("name", "").casefold() == public_research.safe_subject(subject).casefold()))
+            turn.public_research = public_research.research_projection(subject, fetched_sources, research_state, question=text)
+            if not fetched_sources:
+                if semantic_scope is not None:
+                    semantic = await semantic_reads.read_response(hass, runtime, text, payload, scope=semantic_scope)
+                    if semantic is not None:
+                        return semantic
+                message = public_research.unavailable_answer(turn.style.get("language", "en"))
+                return {"success": True, "text": message, "dj_text": message, "images": [],
+                        "text_source": "core", "is_generated_text": False,
+                        "knowledge_basis": "public_research_unavailable",
+                        "public_research_status": research_state}
+
     prompt = _informational_prompt(
         text,
         payload,
@@ -2801,6 +2890,8 @@ async def _informational_assist_response(
         output_devices,
         getattr(runtime, "config", {}) or {},
     )
+    if semantic_scope is not None:
+        prompt = semantic_reads.augment_answer_prompt(prompt, semantic_scope)
     try:
         assist_context = _assist_context(hass, getattr(runtime, "config", {}) or {})
         language = payload.get("language") or assist_context.get("language") or DEFAULT_TTS_LANGUAGE
@@ -2830,12 +2921,23 @@ async def _informational_assist_response(
     if not message:
         message = _fallback_info_text(text, memory_context, playback_context)
         return {"success": True, "text": message, "dj_text": message, "images": []}
+    if semantic_scope is not None:
+        plan = semantic_reads.parse_plan(message)
+        if plan is not None:
+            semantic = await semantic_reads.execute_plan(hass, runtime, text, plan, semantic_scope)
+            if semantic is not None:
+                return semantic
+            message = public_research.unavailable_answer(turn.style.get("language", "en"), ambiguous=True)
+            return {"success": True, "text": message, "dj_text": message, "images": [],
+                    "text_source": "core", "is_generated_text": False}
     from .dialogue import parse_model_reply, requests_lookup, answer_language_format_issue
     format_issue = None
 
     def parse_reply(reply):
         nonlocal format_issue
         answer, operation = parse_model_reply(reply)
+        if fetched_sources and not operation:
+            answer = public_research.without_duplicate_source_footer(answer, fetched_sources)
         if turn and requests_lookup(text) and (
             operation.get("intent") not in {"lookup", "refine"} or not operation.get("query")
         ):
@@ -2855,6 +2957,10 @@ async def _informational_assist_response(
         message, plan = parse_reply(message)
     except DialogueError as exc:
         if exc.code != "conversation_model_response_invalid" or not turn:
+            raise
+        if fetched_sources:
+            # Research reserves call two for independent evidence review.
+            # Invalid generation cannot buy a repair in its place or archive.
             raise
         # One read-only format retry through the same qualified agent/call budget.
         # Never send the invalid output back as context or repeat a provider effect.
@@ -2876,6 +2982,46 @@ async def _informational_assist_response(
                 "knowledge_basis": "source_context_plus_general_knowledge" if turn and turn.source_context else "general_model_knowledge"}
     if turn and turn.source_context.get("attribution"):
         response["sources"] = [{**turn.source_context["attribution"], "kind": "source", "claim_scope": "qualified_credit_only"}]
+    if fetched_sources and not plan:
+        # Generation and grounding share the existing two-call turn budget. A
+        # format repair cannot silently buy a third model call or publish an
+        # unchecked answer. No excerpts are copied into history or transport.
+        accepted = False
+        answer_state = 'assessment_unavailable'
+        if turn.agent_calls < 2:
+            grounding_context = {"public_music_research": turn.public_research,
+                                 "qualified_context": turn.source_context}
+            checked = await _call_dialogue_agent(hass, {**data, "text": public_research.assessment_prompt(
+                message, grounding_context, language, text)})
+            await turn.guard()
+            check_response = (checked or {}).get("response") or {}
+            assessment = _speech_from_response(check_response)
+            accepted = not check_response.get("error") and public_research.supported(assessment, message, grounding_context)
+            if not check_response.get("error"):
+                answer_state = ('full_answer_supported' if accepted
+                                else public_research.assessment_failure_reason(assessment))
+            if not accepted and not check_response.get("error"):
+                prefix = public_research.qualified_prefix(assessment, message, grounding_context)
+                if prefix is not None and answer_language_format_issue(prefix, turn.style) is None:
+                    message = prefix
+                    response.update(text=message, dj_text=message,
+                                    research_answer_qualification='supported_prefix_v1')
+                    accepted = True
+                    answer_state = 'supported_prefix'
+        if not accepted:
+            message = public_research.unavailable_answer(turn.style.get("language", "en"), answer_unverified=True)
+            response.update(text=message, dj_text=message, knowledge_basis="public_research_unqualified",
+                            text_source="core", is_generated_text=False)
+        else:
+            response["knowledge_basis"] = "fetched_public_music_research_v1"
+            actual_sources = [source.metadata() for source in fetched_sources]
+            response["sources"] = response.get("sources", []) + actual_sources
+            response["links"] = [{"kind": "source", "title": source.get("title", source.get("provider", "Source")),
+                                  "url": source["url"], "source": source.get("provider", "Source")}
+                                 for source in response["sources"] if source.get("url")]
+        research_state = {**research_state, 'answer_state': answer_state}
+    if research_state:
+        response["public_research_status"] = research_state
     if plan:
         return await _realize_dialogue_plan(hass, runtime, payload, text, response, plan)
     return response
@@ -3515,12 +3661,9 @@ async def _current_track_reference_response(
             "playback_actions": [],
             "sources": [{"source": "spotify_playback_context", "title": "Spotify playback context", "kind": "source"}],
         }
-    text, generated = await _current_track_generated_announcement(
-        hass,
-        runtime,
-        payload,
-        playback_context,
-    )
+    # Canonical Ask DJ owns generated dialogue. A low-level current-track
+    # reference has no separate model announcer or proactive publication path.
+    text, generated = "", False
     if not text:
         if title and artist and album:
             text = f"Er speelt nu {title} van {artist}, op het album {album}."
@@ -3566,56 +3709,6 @@ async def _current_track_reference_response(
     }
 
 
-async def _current_track_generated_announcement(
-    hass: HomeAssistant,
-    runtime: Any,
-    payload: dict[str, Any],
-    playback_context: dict[str, Any],
-) -> tuple[str, bool]:
-    from .dialogue import current_turn
-    if current_turn.get() is not None:
-        # Catalog display rights do not qualify an external model prompt.
-        return "", False
-    title = _playback_text(playback_context, "track_name", "title", "name")
-    artist = _playback_text(playback_context, "artist", "artist_name")
-    album = _playback_text(playback_context, "album_name", "album")
-    if not title and not artist:
-        return "", False
-    mood_line = mood_context_text(payload)
-    voice_profile_style = voice_profile_style_text_for_payload(
-        getattr(runtime, "config", {}) or {},
-        payload,
-        language=payload.get("language") or DEFAULT_TTS_LANGUAGE,
-    )
-    prompt = (
-        "Je bent DJConnect Ask DJ. Geef antwoord op de vraag 'wat speelt er?' "
-        "als een korte Nederlandse DJ-aankondiging. "
-        "Noem de track en artiest correct, verzin geen feiten, geen markdown, maximaal twee zinnen.\n"
-        f"{voice_profile_style}\n"
-        f"Track: {title or 'onbekend'}\n"
-        f"Artiest: {artist or 'onbekend'}\n"
-        f"Album: {album or 'onbekend'}\n"
-        f"Mood: {mood_line}\n"
-    )
-    try:
-        assist_context = _assist_context(hass, getattr(runtime, "config", {}) or {})
-        language = assist_context.get("language") or payload.get("language") or DEFAULT_TTS_LANGUAGE
-        data = {"text": prompt, "language": language}
-        if assist_context.get("agent_id"):
-            data["agent_id"] = assist_context["agent_id"]
-        result = await call_conversation_process_with_agent_retry(hass, data)
-        message = _speech_from_response((result or {}).get("response") or {})
-    except Exception as exc:  # noqa: BLE001
-        _LOGGER.debug("DJConnect current track generated announcement unavailable: %s", exc)
-        message = ""
-    message = str(message or "").strip()
-    if (
-        not message
-        or _looks_like_prompt_or_sandbox_attack(message)
-        or _looks_like_internal_prompt_leak(message)
-    ):
-        return "", False
-    return message, True
 
 
 def _favorite_current_track_action(
@@ -3877,7 +3970,7 @@ def _clean_track_versions_query(value: str) -> str:
         flags=re.IGNORECASE,
     )
     cleaned = re.sub(r"\s+", " ", cleaned).strip(" ?.!'\"“”‘’")
-    return cleaned if len(_track_versions_required_words(cleaned)) >= 2 else ""
+    return cleaned if _track_versions_required_words(cleaned) else ""
 
 
 async def _track_versions_search_response(
@@ -4449,6 +4542,8 @@ def _artist_album_playback_action(
     release_date = str(album.get("release_date") or "").strip()
     image_url = str(album.get("image_url") or album.get("album_image_url") or "").strip()
     action = {"id": uri, "title": str(album.get("name") or album.get("title") or "Album").strip(), "subtitle": f"{artist} · {release_date[:4]}" if release_date[:4] else artist, "uri": uri, "context_uri": uri, "kind": "album", "label": "Play Now", "button_label": "Play Now", "action_style": "play_now", "reason": f"Album van {artist}."}
+    action["release_date"] = release_date
+    action["artist"] = artist
     if image_url:
         action["image_url"] = register_image_proxy_url(hass, image_url) if image_url.startswith(("http://", "https://")) else image_url
     return action
@@ -4586,6 +4681,7 @@ def _artist_from_album_question(text: str) -> str:
     patterns = (
         r"^\s*(?:geef|toon|laat\s+zien|show|give)\s+(?:me|mij)?\s*(?:de\s+)?albums\s+van\s+(.+?)\s*\??\s*$",
         r"^\s*welke\s+albums\s+(?:heeft|hebben)\s+(.+?)\s+(?:allemaal\s+)?(?:uitgebracht|gemaakt|released)\s*\??\s*$",
+        r"^\s*welke\s+albums\s+(?:heeft|hebben)\s+(.+?)\s*\??\s*$",
         r"^\s*wat\s+(?:heeft|hebben)\s+(.+?)\s+(?:allemaal\s+)?(?:uitgebracht|gereleased|released)\s*\??\s*$",
         r"^\s*welke\s+albums\s+bracht\s+(.+?)\s+uit\s*\??\s*$",
         r"^\s*welke\s+albums\s+zijn\s+er\s+van\s+(.+?)\s*\??\s*$",
@@ -5252,8 +5348,8 @@ def _normalized_response_payload(
         "dj_text": text,
         "message": text,
         **text_generation_fields,
-        **{key: result[key] for key in ("model_processing_basis", "knowledge_basis", "action_outcome", "analysis_basis",
-            "queue_observation", "queue_append", "session_forecast", "previous_observation", "_private_current_context", "_catalogue_history_caption", "playback_projection_receipt") if key in result},
+        **{key: result[key] for key in ("model_processing_basis", "knowledge_basis", "public_research_status", "research_answer_qualification", "action_outcome", "analysis_basis",
+            "queue_observation", "queue_append", "session_forecast", "previous_observation", "_private_current_context", "_catalogue_history_caption", "playback_projection_receipt", "playback_outcome") if key in result},
         "images": images,
         "links": links,
         "sources": sources,
@@ -5288,6 +5384,8 @@ def _normalized_response_payload(
             "origin": str(result.get("origin") or ""),
             "text": text,
             **text_generation_fields,
+            **({"research_answer_qualification": result["research_answer_qualification"]}
+               if result.get("research_answer_qualification") in {"supported_prefix_v1"} else {}),
             "images": images,
             "links": links,
             "sources": sources,
@@ -6036,6 +6134,8 @@ def _is_slang_track_info_request(text: str) -> bool:
 
 def _is_playlist_search_request(normalized: str) -> bool:
     if "playlist" not in normalized and "afspeellijst" not in normalized:
+        return False
+    if re.match(r"^(?:speel|start|zet|play|put on)\s+(?:mijn\s+|my\s+)?(?:playlist|afspeellijst)\s+(?!(?:voor|for|een|a)\b)\S", normalized):
         return False
     if (
         any(phrase in normalized for phrase in ("voor me", "voor mij", "for me"))
@@ -7271,6 +7371,9 @@ def _interleave_playback_actions(
 
 
 def _artist_item_list_request(text: str) -> dict[str, Any]:
+    from .album_choices import other_album_request
+    if request := other_album_request(text):
+        return request
     album_choice_patterns = (
         r"^\s*(?:speel|draai|zet)\s+(?:eens\s+|even\s+|graag\s+)?(?:een\s+)?album\s+van\s+(.+?)\s*\??\s*$",
         r"^\s*(?:speel|draai|zet)\s+(?:eens\s+|even\s+|graag\s+)?(?:een\s+)?(?:ander|andere)\s+album\s+van\s+(.+?)\s*\??\s*$",
@@ -7470,6 +7573,9 @@ async def _artist_item_list_response(
     count_value = request.get("count")
     count = None if count_value is None and item_type == "album" else _bounded_item_count(count_value, default=5)
     if item_type == "album":
+        if request.get("exclude_current"):
+            from .album_choices import other_album_response
+            return await other_album_response(hass, runtime, artist)
         discography = await _spotify_artist_albums(hass, runtime, artist)
         if discography:
             return _artist_albums_response(hass, discography, limit=count)
@@ -8635,9 +8741,14 @@ def _sources_from_context(result: dict[str, Any], links: list[dict[str, Any]]) -
         if isinstance(item, dict):
             provider = str(item.get("provider") or item.get("source") or item.get("title") or "source")[:128]
             source = {"source": provider, "title": str(item.get("title") or provider)[:256], "kind": "source"}
-            for key in ("provider", "license", "claim_scope"):
+            for key in ("provider", "license", "claim_scope", "language", "fetched_at", "expires_at", "content_hash", "wikidata_id"):
                 if isinstance(item.get(key), str):
                     source[key] = item[key][:128]
+            revision_url = item.get("revision_url")
+            if item.get("claim_scope") == "fetched_public_music_reference":
+                from .public_research import public_url
+                if isinstance(revision_url, str) and public_url(revision_url):
+                    source["revision_url"] = revision_url
             url = item.get("url")
             if isinstance(url, str) and len(url) <= 2048:
                 try:
@@ -9237,6 +9348,8 @@ def _output_device_play_request_actions(
     devices: list[dict[str, Any]],
     text: str,
     payload: dict[str, Any],
+    *,
+    selection: dict[str, Any] | None = None,
 ) -> list[dict[str, Any]]:
     actions: list[dict[str, Any]] = []
     seen: set[str] = set()
@@ -9255,6 +9368,10 @@ def _output_device_play_request_actions(
         }.items()
         if value not in ("", None)
     }
+    # Only a producer resolution may supply this state. Caller payloads are
+    # never media authority, even when incorporated into a server-owned offer.
+    if isinstance(selection, dict):
+        request_payload["_frozen_playback_selection"] = deepcopy(selection)
     for device in devices:
         if not isinstance(device, dict):
             continue
@@ -9912,6 +10029,77 @@ async def _realize_dialogue_plan(hass, runtime, payload, text, response, plan):
             "sources": [{"source": "spotify_track_search", "title": "Spotify", "kind": "source"}]}
 
 
+async def _dialogue_album_period_response(hass, payload, text):
+    """Refine a live bounded album offer using structured catalog dates only."""
+    from .dialogue import current_turn, catalogue_result_text, DialogueError
+    turn = current_turn.get()
+    match = re.fullmatch(r"(?:alleen tussen|only between|nur zwischen|seulement entre|solo entre)\s+(\d{4})\s+(?:en|and|und|et|y)\s+(\d{4})[.!?]*", text.strip(), re.I)
+    if turn is None or not match or turn.source_context or turn.reset_topic:
+        return None
+    shown = turn.frame.result_set
+    if shown is None:
+        # Neither old captions nor a cleared/expired offer qualify the subject.
+        language = turn.style.get('language','en')
+        labels = {
+            'en':'Please request an album list first; the earlier selection is no longer available.',
+            'nl':'Vraag eerst een albumlijst op; de eerdere selectie is niet meer beschikbaar.',
+            'de':'Frage zuerst nach einer Albumliste; die frühere Auswahl ist nicht mehr verfügbar.',
+            'fr':'Demande d’abord une liste d’albums ; la sélection précédente n’est plus disponible.',
+            'es':'Pide primero una lista de álbumes; la selección anterior ya no está disponible.',
+        }
+        return {'success':True,'text':labels[language],'dj_text':labels[language],'action':'none','items':[],'playback_actions':[],
+                'knowledge_basis':'public_subject_required','is_generated_text':False,
+                'intent':{'category':'informational','intent':'ask_music_info'}}
+    if turn.history.dialogue.clock() >= shown['deadline']:
+        raise DialogueError('choice_expired')
+    expected = (payload.get('conversation_context') or {}).get('result_set_id')
+    if expected and expected != shown['result_set_id']:
+        raise DialogueError('choice_changed')
+    start, end = map(int,match.groups())
+    if start > end or not shown['items'] or any(a.get('kind')!='album' for a in shown['items']):
+        return None
+    await turn.guard()
+    missing = sum(not re.match(r'^\d{4}(?:-|$)',str(a.get('release_date') or '')) for a in shown['items'])
+    selected = [deepcopy(a) for a in shown['items'] if re.match(r'^\d{4}(?:-|$)',str(a.get('release_date') or ''))
+                and start <= int(a['release_date'][:4]) <= end]
+    original_items = deepcopy(shown['items'])
+    def validate_offer_evidence():
+        if turn.history.dialogue.clock() >= shown['deadline']:
+            raise DialogueError('choice_expired')
+        if shown['generation'] != turn.generation:
+            raise DialogueError('choice_changed')
+        if shown.get('session_id'):
+            from ..session_runtime import session_runtime_manager
+            active = session_runtime_manager(hass).current_active(turn.scope.removeprefix('profile:'))
+            if active is None or active.session_id != shown['session_id']:
+                raise DialogueError('choice_expired')
+    def validate_offer():
+        validate_offer_evidence()
+        if turn.frame.result_set is not shown or shown['items'] != original_items:
+            raise DialogueError('choice_changed')
+    validate_offer_evidence.speech_deadline = shown['deadline']
+    turn.delivery_validators.append(validate_offer_evidence)
+    turn.effect_validators.append(validate_offer)
+    turn.replacement_result_deadline = shown['deadline']
+    turn.clear_result_set = not selected
+    language = turn.style.get('language','en')
+    labels = {
+        'en':'Of the shown catalog editions, these are dated {start}–{end}. Missing dates: {missing}.',
+        'nl':'Van de getoonde catalogusuitgaven vallen deze in {start}–{end}. Ontbrekende datums: {missing}.',
+        'de':'Von den angezeigten Katalogausgaben stammen diese aus {start}–{end}. Fehlende Daten: {missing}.',
+        'fr':'Parmi les éditions affichées, celles-ci datent de {start}–{end}. Dates manquantes : {missing}.',
+        'es':'De las ediciones mostradas, estas datan de {start}–{end}. Fechas ausentes: {missing}.',
+    }
+    caption=labels[language].format(start=start,end=end,missing=missing)
+    message = catalogue_result_text(selected,language,caption=caption)
+    return {'success':True,'text':message,'dj_text':message,
+            'action':'none','items':selected,'playback_actions':selected,'images':[],
+            'text_source':'qualified_catalog_result','is_generated_text':False,'_private_current_context':True,
+            'filtering_coverage':{'basis':'shown_catalog_editions','input_items':len(shown['items']),
+                                  'missing_date':missing,'matched':len(selected)},
+            'intent':{'category':'informational','intent':'shown_result_list'}}
+
+
 async def _dialogue_result_list_response(hass, payload, text):
     """Re-present frozen local results without extending or selecting the offer."""
     from .dialogue import current_turn, result_list_requested, catalogue_result_text, DialogueError
@@ -9973,6 +10161,9 @@ async def _dialogue_choice_response(hass, runtime, payload, text, *, index=None)
         return None
     value = payload.get("choice_action")
     chosen = choice_index(text) if index is None else index
+    if chosen is None and value is None and turn.frame.result_set:
+        from .dialogue import offered_media_index
+        chosen = offered_media_index(text, turn.frame.result_set["items"])
     version_match = re.fullmatch(r"(?:(?:de|die|the|la|le|el|speel|play|joue|spiel|pon)\s+)*(live|acoustic|akoestische|akustische|acoustique|acústica)(?:\s*(?:versie|version|versión|one))?", text.casefold().strip(" .!?"))
     play_reference = play_selected(text) and not (
         _is_current_album_play_request(text) and turn.frame.result_set is None)
@@ -10018,7 +10209,7 @@ async def _dialogue_choice_response(hass, runtime, payload, text, *, index=None)
     shown = turn.frame.result_set
     if shown is None and activate_reference:
         raise DialogueError("choice_expired")
-    if shown is None and play_reference:
+    if shown is None and play_reference and value is None:
         labels = {"en":"Which shown result should I play? Please search or choose a result first.",
                   "nl":"Welk getoond resultaat wil je afspelen? Zoek of kies eerst een resultaat.",
                   "de":"Welches angezeigte Ergebnis soll ich abspielen? Suche oder wähle zuerst ein Ergebnis.",
@@ -10123,6 +10314,9 @@ async def _activate_dialogue_output(hass, runtime, payload, action, turn, *, pla
         await turn.guard()
         return {**result, "selected_action_id": action["action_id"]}
     if play and compound == "ask_dj_play_request_on_output":
+        shown = turn.frame.result_set
+        if shown.get("play_request_attempted"):
+            raise DialogueError("choice_expired")
         original = (action.get("value") or {}).get("request") or {}
         original_text = str(original.get("text") or "")
         from .dialogue import request_effect_grants
@@ -10130,8 +10324,13 @@ async def _activate_dialogue_output(hass, runtime, payload, action, turn, *, pla
         if not grants or any(g.families != frozenset({"play"}) for g in grants):
             raise DialogueError("invalid_choice_action", 400)
         turn.play_output_id = action["device_id"]
-        turn.effect_grants = (output_grant, *(EffectGrant(g.families, g.origin, g.media, action["device_id"]) for g in grants))
+        frozen = original.get("_frozen_playback_selection")
+        exact_media = tuple(frozen.get("uris") or ([frozen['context_uri']] if frozen.get('context_uri') else [])) if isinstance(frozen,dict) else ()
+        turn.effect_grants = (output_grant, *(EffectGrant(g.families, g.origin, exact_media or g.media, action["device_id"]) for g in grants))
         from ..http import _handle_ask_dj_play_request_on_output
+        # Single-use output continuation. A new client message ID must not
+        # repeat a prior dispatch (including an uncertain provider outcome).
+        shown["play_request_attempted"] = True
         turn.resolving_output_request = True
         try:
             result = await _handle_ask_dj_play_request_on_output(hass, runtime, action["value"], payload)

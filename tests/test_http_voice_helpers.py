@@ -4144,11 +4144,9 @@ class VoiceHttpHelperTest(unittest.TestCase):
         original = self.http.run_music_command
         original_dj_response = self.http.async_send_dj_response_best_effort
         original_create_audio = self.http.async_create_dj_audio_url
-        original_generate = self.http.generate_dj_response_with_assist
         self.http.run_music_command = command_handler
         self.http.async_send_dj_response_best_effort = dj_response
         self.http.async_create_dj_audio_url = create_audio
-        self.http.generate_dj_response_with_assist = generate_dj_response
         try:
             response = self.response_envelope(
                 asyncio.run(self.http.DJConnectCommandView(None).post(Request()))
@@ -4157,7 +4155,6 @@ class VoiceHttpHelperTest(unittest.TestCase):
             self.http.run_music_command = original
             self.http.async_send_dj_response_best_effort = original_dj_response
             self.http.async_create_dj_audio_url = original_create_audio
-            self.http.generate_dj_response_with_assist = original_generate
 
         self.assertEqual(response["status_code"], 200)
         self.assertTrue(response["payload"]["success"])
@@ -4277,10 +4274,8 @@ class VoiceHttpHelperTest(unittest.TestCase):
 
         original = self.http.run_music_command
         original_create_audio = self.http.async_create_dj_audio_url
-        original_generate = self.http.generate_dj_response_with_assist
         self.http.run_music_command = command_handler
         self.http.async_create_dj_audio_url = create_audio
-        self.http.generate_dj_response_with_assist = generate_dj_response
         try:
             response = self.response_envelope(
                 asyncio.run(self.http.DJConnectCommandView(None).post(Request()))
@@ -4288,7 +4283,6 @@ class VoiceHttpHelperTest(unittest.TestCase):
         finally:
             self.http.run_music_command = original
             self.http.async_create_dj_audio_url = original_create_audio
-            self.http.generate_dj_response_with_assist = original_generate
 
         self.assertEqual(response["status_code"], 200)
         self.assertIn("Dream On van Scala & Kolacny Brothers", response["payload"]["dj_text"])
@@ -4372,16 +4366,13 @@ class VoiceHttpHelperTest(unittest.TestCase):
         asyncio.run(offer())
 
         original = self.http.run_music_command
-        original_generate = self.http.generate_dj_response_with_assist
         self.http.run_music_command = command_handler
-        self.http.generate_dj_response_with_assist = generate_dj_response
         try:
             response = self.response_envelope(
                 asyncio.run(self.http.DJConnectCommandView(None).post(Request()))
             )
         finally:
             self.http.run_music_command = original
-            self.http.generate_dj_response_with_assist = original_generate
 
         self.assertEqual(response["status_code"], 200)
         self.assertIn("Gestart:", response["payload"]["dj_text"])

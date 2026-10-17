@@ -1,5 +1,23 @@
 # DJConnect Generation 2 Management Summary
 
+## Current: combined Core recovery PR preparation — 17 October 2026
+
+Existing sole Core writer combines the Ask DJ correction, VibeCast glass and
+existing display-admission work in draft PR1197. All three original refs and
+seven initial repair files are recoverable; main retirement1202/1203 remains
+preserved. No protected merge, new release or dev/prod install of these bytes.
+[Exact inputs, integration and gates](docs/verification/CORE_BRANCH_CONSOLIDATION_20261017.md).
+
+Current album repairs cover the reported album track-list question and
+Volbeat alternative → playable album offer → explicit follow-up → full album
+context. Dispatch remains distinct from observed playback; an uncertain reply
+still names the chosen album. Five-language owner/fixture and isolated real-HA
+proof do not prove natural Spotify progression or a native/installed fix.
+Golden retains40reports,35families and120steps. Seven Core findings and13
+real-quality steps remain open, including rich catalog-conversation retention;
+no narrative or release GO is inferred from fixture green. The central release
+evidence collector also has a bounded local >300-file pagination correction.
+
 ## Current: VibeCast receiver end-authority retirement — separate Finalization
 
 Source PR [#1202](https://github.com/pcvantol/djconnect/pull/1202) protected merged as

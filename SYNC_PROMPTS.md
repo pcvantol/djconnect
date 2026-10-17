@@ -1,6 +1,37 @@
 # Passive Session projection — definitive protected producer pin
 
-## Protected receiver end-authority producer correction
+## Selected voice-preview addition — design only, not a delivered capability
+
+The human-requested Preview action is recorded in
+[configured voice preview v1](docs/product/SESSION_VOICE_PREVIEW_V1.md).
+Use the existing Speech/Settings producer and paired operation owner: fixed
+five-language neutral text, current confirmed HA voice/gender and output;
+text_only is a hard zero-synthesis/effect deny. No fake bubble, arbitrary caller
+text, silent provider/system-voice fallback or new consumer writer. The proposed
+`speech/preview` operation and fixtures are not yet implemented/advertised.
+Apple must wait for the exact qualified wire contract/pin; native/audible proof
+and Core source delivery remain independent. Existing autoplay/UI work stays
+with the existing Apple writer.
+
+## Personal DJ restoration — configured-provider speech clarification (local WIP)
+
+Owner clarification2026-10-17: literal speech of an already accepted,
+owner-authorized contribution or answer uses the user's configured supported HA
+TTS provider, including OpenAI, Piper or Nabu Casa. Source locality alone must
+not block this synthesis. No pipeline/provider fallback, arbitrary caller text,
+new LLM narration grant or widened history/shared-screen rights. Apply equally
+to live Moment references and retained previous-Session references. Preserve
+settings3/text_only, exact immutable text, original attribution, owner/source
+withdrawal, runtime provider/voice changes and private short audio grants.
+Current Apple40218 reports actual iPhone playback/replay of CC0 current and
+previous-session entries; Spotify/OpenAI producer qualification and physical
+audibility remain separate. This is not a final producer/installed pin.
+
+## Current resume: delivered predecessor and open personal-DJ correction
+
+Final main `6a3adbc8e66ab380dfea1726ca34728097d0c684` includes source PR #1202 and separate Finalization #1203. Exact-artifact installation/readback on HA-dev and HA-prod is complete for that bounded retirement. The personal-DJ branch now integrates this main; its narration and broader quality findings remain local and NO_GO. The source-freeze sections below preserve historical boundaries and are superseded by this current predecessor readback.
+
+## Protected receiver end-authority producer correction (source-freeze record)
 
 PR [#1202](https://github.com/pcvantol/djconnect/pull/1202), source main
 `5f36abd23a95dea0aeb8bdb9d22a9bccf28a1a4b`, is delivered and

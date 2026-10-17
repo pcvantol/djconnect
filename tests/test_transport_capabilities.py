@@ -57,3 +57,20 @@ class TransportCapabilitiesTest(unittest.TestCase):
         self.assertEqual(contract["commands"], [
             "djconnect/session/broadcast/subscribe", "djconnect/session/broadcast/recover"
         ])
+
+    def test_display_discovery_declares_support_without_fabricating_route_or_consent(self) -> None:
+        view = types.SimpleNamespace(json=lambda payload: payload)
+        result = asyncio.run(http.DJConnectTransportCapabilitiesView.get(view, object()))
+        contract = result["session_broadcast"]["paired_display_admission"]
+        self.assertTrue(contract["supported"])
+        self.assertEqual(contract["version"], 1)
+        self.assertEqual(contract["availability"], "owner_context_required")
+        self.assertEqual(contract["owner_context_path"], "/api/djconnect/v1/display/owner/context")
+        self.assertEqual(contract["entry_path"], "/djconnect/vibecast/display")
+        self.assertTrue(contract["requires_external_https"])
+        self.assertTrue(contract["read_only"])
+        self.assertFalse(contract["rendezvous_a"])
+        self.assertEqual(contract["owner_authentication"], "paired_device_bearer")
+        self.assertEqual(contract["display_authentication"], "dedicated_display_bearer")
+        for private in ("available", "display_entry_url", "session_id", "share_id", "grant_token", "issuer_epoch"):
+            self.assertNotIn(private, contract)

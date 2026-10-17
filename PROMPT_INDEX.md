@@ -1,5 +1,33 @@
 # DJConnect Verification Prompt Index
 
+Current follow-up: named-artist catalog and retry guards pass55/55 actual
+model questions (57paid calls,0effects,174source/probe hashes unchanged). Golden now has45reports,
+36families and135steps, with9Core and17quality findings open. Reported short
+artist/zangers submit failures and the dry Son Mieux formation bubble are
+explicitly registered; original failed-card cause and richer narration remain
+open. [Current evidence and boundaries](docs/verification/ASK_DJ_ARTIST_HITS_20261017.md).
+
+
+## Current: combined Core recovery PR preparation — 17 October 2026
+
+Existing sole Core writer combines the Ask DJ correction, VibeCast glass and
+existing display-admission work in draft PR1197. All three original refs and
+seven initial repair files are recoverable; main retirement1202/1203 remains
+preserved. No protected merge, new release or dev/prod install of these bytes.
+[Exact inputs, integration and gates](docs/verification/CORE_BRANCH_CONSOLIDATION_20261017.md).
+
+Current album repairs cover the reported album track-list question and
+Volbeat alternative → playable album offer → explicit follow-up → full album
+context. Dispatch remains distinct from observed playback; an uncertain reply
+still names the chosen album. Five-language owner/fixture and isolated real-HA
+proof do not prove natural Spotify progression or a native/installed fix.
+Golden retains43reports,36families and129steps. Eight Core findings and14
+real-quality steps remain open, including rich catalog-conversation retention;
+no narrative or release GO is inferred from fixture green. A semantic-read repair now covers free wording/typos through the same qualified
+HA agent; its final paid five-language qualification passes50/50 real questions.
+[Semantic proof and boundaries](docs/verification/ASK_DJ_SEMANTIC_READS_20261017.md). The central release
+evidence collector also has a bounded local >300-file pagination correction.
+
 ## Current: VibeCast receiver end-authority retirement — separate Finalization
 
 Source PR [#1202](https://github.com/pcvantol/djconnect/pull/1202) protected merged as

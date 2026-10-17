@@ -1,5 +1,17 @@
 # DJConnect Product Roadmap
 
+The existing corrective increment also retains every reported Ask DJ defect in
+the [permanent Golden issue register](docs/verification/fixtures/askdj_golden_release_matrix_v1.json).
+Exact music identity, single-use speaker continuation, output-local failures and
+truthful dispatch/readback are executable requirements. Ordinary playback/direction and pending genre transitions now have local typed expression adapters; complete-source Flow pagination/reopening and null-body search have causal tests. A narrow Recommendation now reuses two genuine published producer credits; all seven type families have actual production/storage/reopen contracts with external source/expression fixtures. Historical album/artist art resolves the original subject, manual local/speaker replay uses current Session/Profile voice, and current Insight reuses fresh qualified credits. Full real narration quality, preview/native and installed proof remain open. An open qualification
+finding blocks release; a listed case or green metadata never closes it.
+
+The bounded VibeCast Session-end retirement is delivered separately through source PR #1202 and Finalization #1203 on main `6a3adbc8`. Its qualified contract supersedes the dated inventory; it does not close this broader personal-DJ correction.
+
+Personal DJ corrective acceptance (17 October 2026): **in progress**, not released. [Narration/complete Flow restoration](docs/product/PERSONAL_DJ_NARRATION_RESTORATION_V1.md) joins qualified expressive narration, durable published Flow including Silence, Session-scoped rolling retention, and configured-provider TTS/replay. Earlier delivery records remain historical; natural text quality, actual all-type transport, installed/native/audible acceptance remain open. No new product family or Stage4 completion.
+
+Requirement-by-requirement [lane reconciliation](docs/verification/CORE_LANE_REQUIREMENT_RECONCILIATION_20261017.md) now drives the bounded correction under the existing Speech family. Public music research and Mood prosody are local implementation/qualification; all-family narrative, actual published-narration Golden and Track Insight remain open. Historical delivered leaves are preserved; no metadata-only completion or native/installed/audio claim.
+
 ## Bounded VibeCast receiver end-authority correction — 17 October 2026
 
 The [retirement contract](docs/product/VIBECAST_RECEIVER_END_AUTHORITY_RETIREMENT_V1.md)
@@ -13,10 +25,15 @@ quality, receiver import/native/physical and other lane gates stay open.
 The [integral open-work audit](docs/governance/DJC_PLATFORM_OPEN_WORK_20261017.md)
 separates current producer, local unpublished, installed, native/audio and
 production evidence across all thirteen DJConnect repositories. It retains all
-61 explicit unfinished maintenance gates; historical null-status inventory rows
+62 explicit unfinished maintenance gates; historical null-status inventory rows
 are not new assignments. Existing writers and product selections remain intact.
 The machine-readable register and regular unittest negatives prevent scoped
 capability closure or local tests from being reported as whole-product delivery.
+
+
+## Current: selected Core display-admission contract review
+
+DJC-CORE-VIBECAST-DISPLAY-ADMISSION-V1-20261016, owner6222775045/ACK6224062979, same Core writer on base1329ad1c. Existing `WEB::TRUST` and `WEB::DISPLAY` remain In progress under maintenance15; no new family or consumer admission. [Canonical contract](docs/product/VIBECAST_DISPLAY_ADMISSION_V1.md): B source3cb9cf12/actual fixtures325aabc7 are independently software-qualified and published in draft1197, not merged or installed. Real isolated HA/browser evidence does not imply public-route/native/TV acceptance. The [owner disposition6226306251](https://github.com/pcvantol/djconnect-api/pull/94#issuecomment-6226306251) selects limited App-Attested address transfer with the stated copied-QR/wrong-scanner destination risk; no independent HA-owner/TV-owner attestation. Technical security review, finite key/counter policy and actual verifier/native/wire interoperability remain open. No A runtime GO, whole-assignment completion or deployment. Settings1193/1194 and repair1195/1196 remain closed; historical delivery records below are preserved.
 
 
 ## Shared settings — Core producer source delivered

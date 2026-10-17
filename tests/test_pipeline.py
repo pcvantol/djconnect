@@ -29,6 +29,19 @@ class AssistPipelineTest(unittest.TestCase):
         install_pipeline_stubs()
         cls.pipeline = importlib.import_module("custom_components.djconnect.pipeline")
 
+    def test_unqualified_media_or_memory_cannot_start_an_independent_announcer(self):
+        class Services:
+            async def async_call(self,*args,**kwargs):
+                raise AssertionError('Unqualified command response must not call a model')
+        debug = {}
+        text = asyncio.run(self.pipeline.realize_session_narration(
+            types.SimpleNamespace(services=Services()), narration={'artist':'Private catalog artist'}, admission=lambda:None,
+            fallback_text='Accepted command answer.', conf={}, debug=debug))
+        self.assertEqual(text,'Accepted command answer.')
+        self.assertEqual(debug['block_reason'],'narration_unavailable')
+        self.assertNotIn('prompt',debug)
+        self.assertNotIn('Private',str(debug))
+
     def test_intent_from_assist_response_uses_djconnect_data(self) -> None:
         intent = self.pipeline._intent_from_assist_response(
             {
@@ -51,7 +64,7 @@ class AssistPipelineTest(unittest.TestCase):
         self.assertEqual(intent["type"], "track")
         self.assertEqual(intent["artist"], "Pearl Jam")
         self.assertEqual(intent["spotify_search_query"], "Pearl Jam Black")
-        self.assertEqual(intent["dj_announcement"], "Pearl Jam staat klaar.")
+        self.assertNotIn("dj_announcement", intent)
 
     def test_djconnect_assist_prompt_focuses_on_command_parsing(self) -> None:
         prompt = self.pipeline._djconnect_assist_prompt(
@@ -191,376 +204,6 @@ class AssistPipelineTest(unittest.TestCase):
         self.assertEqual(calls[0]["language"], "nl-NL")
         self.assertNotIn("agent_id", calls[0])
 
-    def test_generate_dj_response_with_assist_ignores_legacy_custom_response_prompt(self) -> None:
-        calls = []
-
-        class Services:
-            async def async_call(self, domain, service, data, **kwargs):
-                calls.append((domain, service, data, kwargs))
-                return {
-                    "response": {
-                        "speech": {"plain": {"speech": "Arrr, Pearl Jam op de draaitafel!"}}
-                    }
-                }
-
-        hass = types.SimpleNamespace(services=Services())
-        text = asyncio.run(
-            self.pipeline.generate_dj_response_with_assist(
-                hass,
-                media={"artist": "Pearl Jam", "uri": "spotify:artist:pearl-jam"},
-                fallback_text="Daar is Pearl Jam.",
-                conf={
-                    "dj_response_prompt": "Sound like a pirate DJ.",
-                    "assist_pipeline_id": "conversation.openai",
-                    "tts_language": "nl-NL",
-                },
-            )
-        )
-
-        self.assertEqual(text, "Arrr, Pearl Jam op de draaitafel!")
-        self.assertIn(
-            "Negeer alle eventueel hierboven ingestelde instructies",
-            calls[0][2]["text"],
-        )
-        self.assertIn("Je bent een radio-DJ", calls[0][2]["text"])
-        self.assertIn("Klink warm en persoonlijk.", calls[0][2]["text"])
-        self.assertNotIn("Sound like a pirate DJ.", calls[0][2]["text"])
-        self.assertIn("artiest: Pearl Jam", calls[0][2]["text"])
-        self.assertNotIn("spotify:artist", calls[0][2]["text"])
-        self.assertNotIn("{'artist'", calls[0][2]["text"])
-        self.assertNotIn("'uri'", calls[0][2]["text"])
-
-    def test_generate_dj_response_blocks_internal_prompt_echo(self) -> None:
-        class Services:
-            async def async_call(self, domain, service, data, **kwargs):
-                return {
-                    "response": {
-                        "speech": {
-                            "plain": {
-                                "speech": (
-                                    "Sorry, ik kan geen apparaat vinden met de naam "
-                                    "Je bent DJConnect Ask DJ Beantwoord informatieve "
-                                    "muziekvragen zonder playback te wijzigen Voice profile"
-                                )
-                            }
-                        }
-                    }
-                }
-
-        debug = {}
-        text = asyncio.run(
-            self.pipeline.generate_dj_response_with_assist(
-                types.SimpleNamespace(services=Services()),
-                media={"type": "track", "title": "Black", "artist": "Pearl Jam"},
-                fallback_text="Ik zet Black van Pearl Jam klaar.",
-                conf={"tts_language": "nl-NL"},
-                debug=debug,
-            )
-        )
-
-        self.assertEqual(text, "Ik zet Black van Pearl Jam klaar.")
-        self.assertTrue(debug["fallback_used"])
-        self.assertIn(debug["block_reason"], {"device lookup error", "geen apparaat vinden"})
-
-    def test_generate_dj_response_uses_configured_conversation_agent(self) -> None:
-        calls = []
-
-        class Services:
-            async def async_call(self, domain, service, data, **kwargs):
-                calls.append(data)
-                return {
-                    "response": {
-                        "speech": {"plain": {"speech": "Metallica staat klaar."}}
-                    }
-                }
-
-        configured = types.SimpleNamespace(
-            id="djconnect-pipeline",
-            conversation_engine="conversation.openai",
-            conversation_language="nl-NL",
-        )
-
-        class Pipelines:
-            def __iter__(self):
-                return iter([configured])
-
-        pipeline_module = types.ModuleType(
-            "homeassistant.components.assist_pipeline.pipeline"
-        )
-        pipeline_module.async_get_pipelines = lambda hass: Pipelines()
-        original_pipeline_module = sys.modules.get(
-            "homeassistant.components.assist_pipeline.pipeline"
-        )
-        sys.modules["homeassistant.components.assist_pipeline.pipeline"] = pipeline_module
-
-        hass = types.SimpleNamespace(services=Services())
-        try:
-            text = asyncio.run(
-                self.pipeline.generate_dj_response_with_assist(
-                    hass,
-                    media={
-                        "type": "artist",
-                        "artist": "Metallica",
-                        "artist_name": "Metallica",
-                    },
-                    fallback_text="Daar is Metallica.",
-                    conf={
-                        "assist_pipeline_id": "djconnect-pipeline",
-                        "tts_language": "nl-NL",
-                    },
-                )
-            )
-        finally:
-            if original_pipeline_module is None:
-                sys.modules.pop("homeassistant.components.assist_pipeline.pipeline", None)
-            else:
-                sys.modules[
-                    "homeassistant.components.assist_pipeline.pipeline"
-                ] = original_pipeline_module
-
-        self.assertEqual(text, "Metallica staat klaar.")
-        self.assertEqual(calls[0]["pipeline_id"], "djconnect-pipeline")
-        self.assertEqual(calls[0]["agent_id"], "conversation.openai")
-        self.assertEqual(calls[0]["text"].count("artiest: Metallica"), 1)
-
-    def test_generate_dj_response_rejects_wrong_resolved_artist(self) -> None:
-        class Services:
-            async def async_call(self, domain, service, data, **kwargs):
-                return {
-                    "response": {
-                        "speech": {
-                            "plain": {
-                                "speech": (
-                                    "En we zijn terug met AC/DC van Back in Black, "
-                                    "You Shook Me All Night Long."
-                                )
-                            }
-                        }
-                    }
-                }
-
-        debug = {}
-        hass = types.SimpleNamespace(services=Services())
-        text = asyncio.run(
-            self.pipeline.generate_dj_response_with_assist(
-                hass,
-                media={
-                    "type": "artist",
-                    "artist": "Metallica",
-                    "artist_name": "Metallica",
-                },
-                fallback_text="Daar is Metallica.",
-                conf={"tts_language": "nl-NL"},
-                debug=debug,
-            )
-        )
-
-        self.assertEqual(text, "Daar is Metallica.")
-        self.assertTrue(debug["fallback_used"])
-        self.assertEqual(debug["block_reason"], "generated response missing resolved artist")
-
-    def test_dj_response_assist_prompt_is_debug_logged(self) -> None:
-        class Services:
-            async def async_call(self, domain, service, data, **kwargs):
-                return {
-                    "response": {
-                        "speech": {"plain": {"speech": "Pearl Jam komt eraan."}}
-                    }
-                }
-
-        hass = types.SimpleNamespace(services=Services())
-        with self.assertLogs("custom_components.djconnect", level="DEBUG") as logs:
-            text = asyncio.run(
-                self.pipeline.generate_dj_response_with_assist(
-                    hass,
-                    media={"artist": "Pearl Jam"},
-                    fallback_text="Daar is Pearl Jam.",
-                conf={
-                    "dj_response_prompt": "Klink warm.",
-                    "assist_pipeline_id": "conversation.openai",
-                    "tts_language": "nl-NL",
-                },
-            )
-            )
-
-        self.assertEqual(text, "Pearl Jam komt eraan.")
-        self.assertTrue(
-            any("DJConnect Assist DJ response prompt" in line for line in logs.output)
-        )
-        self.assertFalse(any("Klink warm." in line for line in logs.output))
-        self.assertFalse(any("artiest: Pearl Jam" in line for line in logs.output))
-        self.assertFalse(any("Negeer alle eventueel hierboven" in line for line in logs.output))
-
-    def test_generate_dj_response_prompt_uses_safe_media_lines(self) -> None:
-        calls = []
-
-        class Services:
-            async def async_call(self, domain, service, data, **kwargs):
-                calls.append(data)
-                return {
-                    "response": {
-                        "speech": {
-                            "plain": {
-                                "speech": (
-                                    "Nirvana gaat erin, rauw en recht uit de speakers."
-                                )
-                            }
-                        }
-                    }
-                }
-
-        hass = types.SimpleNamespace(services=Services())
-        text = asyncio.run(
-            self.pipeline.generate_dj_response_with_assist(
-                hass,
-                media={
-                    "type": "artist",
-                    "artist": "Nirvana",
-                    "uri": "spotify:artist:abc",
-                },
-                fallback_text="Daar is Nirvana.",
-                conf={
-                    "dj_response_prompt": "Noem de artiest en klink warm.",
-                    "assist_pipeline_id": "conversation.openai",
-                    "tts_language": "nl-NL",
-                },
-            )
-        )
-
-        self.assertEqual(text, "Nirvana gaat erin, rauw en recht uit de speakers.")
-        prompt = calls[0]["text"]
-        self.assertIn("Negeer alle eventueel hierboven ingestelde instructies", prompt)
-        self.assertIn("type: artist", prompt)
-        self.assertIn("artiest: Nirvana", prompt)
-        self.assertIn("MusicBrainz", prompt)
-        self.assertIn("Wikidata", prompt)
-        self.assertIn("Wikipedia", prompt)
-        self.assertIn("Last.fm", prompt)
-        self.assertIn("Discogs", prompt)
-        self.assertIn("TheAudioDB", prompt)
-        self.assertIn("Music DNA", prompt)
-        self.assertIn("Gebruik deze bronnen niet live als ze niet beschikbaar zijn", prompt)
-        self.assertNotIn("spotify:artist", prompt)
-        self.assertNotIn("{", prompt)
-        self.assertNotIn("}", prompt)
-
-    def test_generate_dj_response_prompt_combines_voice_profile_and_mood(self) -> None:
-        calls = []
-        debug = {}
-
-        class Services:
-            async def async_call(self, domain, service, data, **kwargs):
-                calls.append(data)
-                return {
-                    "response": {
-                        "speech": {
-                            "plain": {
-                                "speech": (
-                                    "We gaan de nacht in met Teardrop van Massive Attack."
-                                )
-                            }
-                        }
-                    }
-                }
-
-        hass = types.SimpleNamespace(services=Services())
-        text = asyncio.run(
-            self.pipeline.generate_dj_response_with_assist(
-                hass,
-                media={
-                    "type": "track",
-                    "artist": "Massive Attack",
-                    "title": "Teardrop",
-                    "mood": 15,
-                    "mood_zone": "chill",
-                    "mood_zone_prompt": "rustig en mellow",
-                },
-                fallback_text="Massive Attack staat klaar.",
-                conf={
-                    "tts_language": "nl-NL",
-                    "voice_profile": "late_night",
-                },
-                debug=debug,
-            )
-        )
-
-        self.assertEqual(text, "We gaan de nacht in met Teardrop van Massive Attack.")
-        prompt = calls[0]["text"]
-        self.assertIn("Voice profile: klink als late-night radio", prompt)
-        self.assertIn("Pas de DJ-aankondiging automatisch aan op mood=15", prompt)
-        self.assertEqual(debug["voice_profile"], "late_night")
-        self.assertTrue(debug["voice_profile_style_applied"])
-        self.assertTrue(debug["mood_style_applied"])
-
-    def test_generate_dj_response_uses_client_language_before_tts_language(self) -> None:
-        calls = []
-
-        class Services:
-            async def async_call(self, domain, service, data, **kwargs):
-                calls.append(data)
-                return {
-                    "response": {
-                        "speech": {
-                            "plain": {"speech": "Teardrop by Massive Attack is ready."}
-                        }
-                    }
-                }
-
-        hass = types.SimpleNamespace(services=Services())
-        text = asyncio.run(
-            self.pipeline.generate_dj_response_with_assist(
-                hass,
-                media={
-                    "type": "track",
-                    "artist": "Massive Attack",
-                    "title": "Teardrop",
-                    "language": "en-US",
-                },
-                fallback_text="Massive Attack staat klaar.",
-                conf={
-                    "tts_language": "nl-NL",
-                    "voice_profile": "classic_radio",
-                },
-            )
-        )
-
-        self.assertEqual(text, "Teardrop by Massive Attack is ready.")
-        self.assertEqual(calls[0]["language"], "en-US")
-        self.assertIn("Voice profile: sound like a recognizable radio host", calls[0]["text"])
-        self.assertNotIn("Negeer alle eventueel hierboven", calls[0]["text"])
-
-    def test_generate_dj_response_prefers_mood_voice_profile_over_config(self) -> None:
-        calls = []
-        debug = {}
-
-        class Services:
-            async def async_call(self, domain, service, data, **kwargs):
-                calls.append(data)
-                return {"response": {"speech": {"plain": {"speech": "Daar gaan we met Strong van London Grammar."}}}}
-
-        hass = types.SimpleNamespace(services=Services())
-        text = asyncio.run(
-            self.pipeline.generate_dj_response_with_assist(
-                hass,
-                media={
-                    "type": "track",
-                    "artist": "London Grammar",
-                    "title": "Strong",
-                    "mood": 70,
-                },
-                fallback_text="Strong staat klaar.",
-                conf={
-                    "tts_language": "nl-NL",
-                    "voice_profile": "late_night",
-                },
-                debug=debug,
-            )
-        )
-
-        self.assertEqual(text, "Daar gaan we met Strong van London Grammar.")
-        self.assertIn("Voice profile: klink als een energieke radiohost", calls[0]["text"])
-        self.assertNotIn("Voice profile: klink als late-night radio", calls[0]["text"])
-        self.assertEqual(debug["voice_profile"], "energy")
 
     def test_voice_profile_mapping_follows_all_mood_zones(self) -> None:
         voice_profiles = importlib.import_module("custom_components.djconnect.voice_profiles")
@@ -589,247 +232,9 @@ class AssistPipelineTest(unittest.TestCase):
             "clean_host",
         )
 
-    def test_generate_dj_response_orders_answer_before_fact(self) -> None:
-        class Services:
-            async def async_call(self, domain, service, data, **kwargs):
-                return {
-                    "response": {
-                        "speech": {
-                            "plain": {
-                                "speech": (
-                                    "Wist je dat Michael Jackson bekend staat als de King of Pop en Bad uit 1987 komt? "
-                                    "Geniet van de muziek!"
-                                )
-                            }
-                        }
-                    }
-                }
 
-        hass = types.SimpleNamespace(services=Services())
-        fallback = "Je luistert naar Michael Jackson met hun album Bad. Hier is het eerste nummer op het album, Bad."
 
-        result = asyncio.run(
-            self.pipeline.generate_dj_response_with_assist(
-                hass,
-                media={
-                    "type": "album",
-                    "artist": "Michael Jackson",
-                    "album_name": "Bad",
-                    "track_name": "Bad",
-                },
-                fallback_text=fallback,
-                conf={"tts_language": "nl"},
-            )
-        )
-
-        self.assertTrue(result.startswith(fallback))
-        self.assertIn("Wist je dat Michael Jackson", result)
-        self.assertLess(result.index("Je luistert naar"), result.index("Wist je dat"))
-
-    def test_generate_dj_response_prompt_allows_personal_intro_from_memory_and_weather(self) -> None:
-        calls = []
-
-        class Services:
-            async def async_call(self, domain, service, data, **kwargs):
-                calls.append(data)
-                return {
-                    "response": {
-                        "speech": {
-                            "plain": {
-                                "speech": (
-                                    "Fijn dat je er weer bent. Nirvana slingert de dag aan."
-                                )
-                            }
-                        }
-                    }
-                }
-
-        hass = types.SimpleNamespace(services=Services())
-        text = asyncio.run(
-            self.pipeline.generate_dj_response_with_assist(
-                hass,
-                media={"type": "artist", "artist": "Nirvana"},
-                fallback_text="Daar is Nirvana.",
-                conf={
-                    "assist_pipeline_id": "conversation.openai",
-                    "tts_language": "nl-NL",
-                },
-                memory_context=(
-                    "Luistertijdcontext: zaterdag, ochtend, weekend, 10:00"
-                ),
-            )
-        )
-
-        self.assertEqual(text, "Fijn dat je er weer bent. Nirvana slingert de dag aan.")
-        prompt = calls[0]["text"]
-        self.assertIn("persoonlijke openingszin", prompt)
-        self.assertIn("Fijn dat je er weer bent", prompt)
-        self.assertNotIn("Home Assistant entity state", prompt)
-        self.assertNotIn("Buitentemperatuur", prompt)
-        self.assertIn("zeg niet dat er memory of Music DNA context bestaat", prompt)
-
-    def test_generate_dj_response_ignores_assist_device_lookup_error(self) -> None:
-        class Services:
-            async def async_call(self, domain, service, data, **kwargs):
-                return {
-                    "response": {
-                        "response_type": "error",
-                        "speech": {
-                            "plain": {
-                                "speech": (
-                                    "Sorry, ik kan geen apparaat vinden met de naam "
-                                    "twee zinnen klink als warme radio-DJ Example Artist "
-                                    "{'type': 'artist', 'uri': 'spotify:artist:abc'}"
-                                )
-                            }
-                        },
-                    }
-                }
-
-        hass = types.SimpleNamespace(services=Services())
-        debug = {}
-        text = asyncio.run(
-            self.pipeline.generate_dj_response_with_assist(
-                hass,
-                media={"artist": "Example Artist", "uri": "spotify:artist:abc"},
-                fallback_text="Daar is Example Artist. Blijf erbij.",
-                conf={
-                    "dj_response_prompt": "twee zinnen klink als radio DJ",
-                    "assist_pipeline_id": "conversation.openai",
-                    "tts_language": "nl-NL",
-                },
-                debug=debug,
-            )
-        )
-
-        self.assertEqual(text, "Daar is Example Artist. Blijf erbij.")
-        self.assertNotIn("geen apparaat", text)
-        self.assertNotIn("spotify:artist", text)
-        self.assertTrue(debug["fallback_used"])
-        self.assertIn("spotify:artist", debug["generated_text"])
-        self.assertIsNotNone(debug["block_reason"])
-
-    def test_generate_dj_response_blocks_prompt_leak_device_lookup_error(self) -> None:
-        class Services:
-            async def async_call(self, domain, service, data, **kwargs):
-                return {
-                    "response": {
-                        "speech": {
-                            "plain": {
-                                "speech": (
-                                    "Sorry, ik kan Noem de artiest en het nummer "
-                                    "Geef een leuk feitje over de artiest Klink warm "
-                                    "en persoonlijk Media type artist artiest Red Hot "
-                                    "Chili Peppers niet vinden"
-                                )
-                            }
-                        }
-                    }
-                }
-
-        hass = types.SimpleNamespace(services=Services())
-        debug = {}
-        text = asyncio.run(
-            self.pipeline.generate_dj_response_with_assist(
-                hass,
-                media={"type": "artist", "artist": "Red Hot Chili Peppers"},
-                fallback_text="Daar is Red Hot Chili Peppers.",
-                conf={
-                    "assist_pipeline_id": "conversation.openai",
-                    "tts_language": "nl-NL",
-                },
-                debug=debug,
-            )
-        )
-
-        self.assertEqual(text, "Daar is Red Hot Chili Peppers.")
-        self.assertNotIn("Noem de artiest", text)
-        self.assertNotIn("niet vinden", text)
-        self.assertTrue(debug["fallback_used"])
-        self.assertEqual(debug["block_reason"], "device lookup error")
-        self.assertIn("Noem de artiest", debug["prompt"])
-        self.assertIn("Red Hot Chili Peppers", debug["generated_text"])
-
-    def test_generate_dj_response_uses_default_conversation_agent(self) -> None:
-        calls = []
-
-        class Services:
-            async def async_call(self, domain, service, data, **kwargs):
-                calls.append(data)
-                return {
-                    "response": {
-                        "speech": {
-                            "plain": {
-                                "speech": "Nirvana, rauw en recht uit Seattle, komt eraan."
-                            }
-                        }
-                    }
-                }
-
-        preferred = types.SimpleNamespace(
-            id="preferred-pipeline",
-            conversation_engine="conversation.openai",
-            conversation_language="nl-NL",
-        )
-
-        class Pipelines:
-            def async_get_preferred_pipeline(self):
-                return preferred
-
-            def __iter__(self):
-                return iter([preferred])
-
-        pipeline_module = types.ModuleType(
-            "homeassistant.components.assist_pipeline.pipeline"
-        )
-        pipeline_module.async_get_pipelines = lambda hass: Pipelines()
-        original_pipeline_module = sys.modules.get(
-            "homeassistant.components.assist_pipeline.pipeline"
-        )
-        sys.modules["homeassistant.components.assist_pipeline.pipeline"] = pipeline_module
-
-        hass = types.SimpleNamespace(services=Services())
-        debug = {}
-        try:
-            with self.assertLogs("custom_components.djconnect", level="DEBUG") as logs:
-                text = asyncio.run(
-                    self.pipeline.generate_dj_response_with_assist(
-                        hass,
-                        media={"type": "artist", "artist": "Nirvana"},
-                        fallback_text="Daar is Nirvana.",
-                        conf={
-                            "dj_response_prompt": "Noem de artiest en het nummer.",
-                            "tts_language": "nl-NL",
-                        },
-                        debug=debug,
-                    )
-                )
-        finally:
-            if original_pipeline_module is None:
-                sys.modules.pop("homeassistant.components.assist_pipeline.pipeline", None)
-            else:
-                sys.modules[
-                    "homeassistant.components.assist_pipeline.pipeline"
-                ] = original_pipeline_module
-
-        self.assertEqual(text, "Nirvana, rauw en recht uit Seattle, komt eraan.")
-        self.assertEqual(calls[0]["language"], "nl-NL")
-        self.assertEqual(calls[0]["agent_id"], "conversation.openai")
-        self.assertFalse(debug["fallback_used"])
-        self.assertIsNone(debug["block_reason"])
-        self.assertTrue(any("DJ response prompt" in line for line in logs.output))
-        self.assertTrue(
-            any("agent_id=conversation.openai" in line for line in logs.output)
-        )
-
-    def test_ordinary_artist_dj_response_is_usable(self) -> None:
-        self.assertTrue(
-            self.pipeline._is_usable_dj_response(
-                "Nirvana gaat erin, rauw en recht uit de speakers."
-            )
-        )
-
-    def test_intent_from_djconnect_data_uses_speech_as_dj_response(self) -> None:
+    def test_intent_parser_does_not_promote_agent_speech_to_dj_response(self) -> None:
         intent = self.pipeline._intent_from_assist_response(
             {
                 "response": {
@@ -844,7 +249,7 @@ class AssistPipelineTest(unittest.TestCase):
         self.assertEqual(intent["type"], "artist")
         self.assertEqual(intent["artist"], "Pearl Jam")
         self.assertEqual(intent["spotify_search_query"], "Pearl Jam")
-        self.assertEqual(intent["dj_announcement"], "Ik zet Pearl Jam voor je klaar.")
+        self.assertNotIn("dj_announcement", intent)
 
     def test_local_artist_request_overrides_stale_assist_artist(self) -> None:
         intent = self.pipeline._intent_from_assist_response(
@@ -871,7 +276,7 @@ class AssistPipelineTest(unittest.TestCase):
         self.assertEqual(intent["type"], "artist")
         self.assertEqual(intent["artist"], "Nirvana")
         self.assertEqual(intent["spotify_search_query"], "Nirvana")
-        self.assertEqual(intent["dj_announcement"], "Daar gaan we. Ik zet hem voor je klaar.")
+        self.assertNotIn("dj_announcement", intent)
         self.assertEqual(intent["assist_intent"]["artist"], "Red Hot Chili Peppers")
 
     def test_local_artist_request_overrides_stale_assist_track(self) -> None:
@@ -919,7 +324,7 @@ class AssistPipelineTest(unittest.TestCase):
         self.assertEqual(intent["type"], "artist")
         self.assertEqual(intent["artist"], "Pearl Jam")
         self.assertEqual(intent["spotify_search_query"], "Pearl Jam")
-        self.assertEqual(intent["dj_announcement"], "Daar gaan we. Ik zet hem voor je klaar.")
+        self.assertNotIn("dj_announcement", intent)
 
     def test_intent_from_assist_response_raises_clear_error(self) -> None:
         with self.assertRaisesRegex(RuntimeError, "Niet begrepen"):
@@ -957,7 +362,7 @@ class AssistPipelineTest(unittest.TestCase):
         self.assertEqual(intent["title"], "Black")
         self.assertEqual(intent["artist"], "Pearl Jam")
         self.assertEqual(intent["spotify_search_query"], "Black Pearl Jam")
-        self.assertEqual(intent["dj_announcement"], "Daar gaan we. Ik zet hem voor je klaar.")
+        self.assertNotIn("dj_announcement", intent)
 
     def test_assist_prompt_area_lookup_error_falls_back_to_search_intent(self) -> None:
         intent = self.pipeline._intent_from_assist_response(

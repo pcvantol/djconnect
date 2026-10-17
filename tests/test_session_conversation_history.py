@@ -57,6 +57,148 @@ class SessionConversationHistoryTest(unittest.IsolatedAsyncioTestCase):
         await self.service.async_close()
         self.tmp.cleanup()
 
+    async def test_silence_persists_once_without_text_audio_or_spoken_summary_increment(self):
+        session = await self.manager.async_start(owner_profile_id='profile-a', locale='nl')
+        moment = session.moment_engine.create_silence(session_id=session.session_id,
+            selected_mood=session.selected_mood, persona=session.dj_persona,
+            locale=session.locale, reason='private_internal_reason')
+        before = await self.repo.async_session_record(session.session_id)
+        for _ in range(2):
+            self.assertTrue(await self.manager._async_persist_moment(session, moment))
+            session.publish_moment(moment)
+        after = await self.repo.async_session_record(session.session_id)
+        self.assertEqual(before['summary']['moments_published']['value'],
+                         after['summary']['moments_published']['value'])
+        await self.manager.async_end(owner_profile_id='profile-a', session_id=session.session_id)
+        await self.service.async_close()
+        await self.service.async_initialize()
+        page = await self.queries.async_timeline_page('profile-a', session.session_id)
+        events = [e for e in page['entries'] if e['kind'] == 'dj_silence']
+        self.assertEqual(len(events), 1)
+        self.assertEqual(events[0]['moment_id'], moment.moment_id)
+        self.assertEqual(events[0]['content_state'], 'silence')
+        self.assertIsNone(events[0]['text'])
+        self.assertFalse(events[0]['speech_available'])
+        self.assertNotIn('private_internal_reason', str(events))
+
+    async def test_unarchivable_publication_preserves_ordered_receipt_without_source_body(self):
+        from dataclasses import replace
+        session = await self.manager.async_start(owner_profile_id='profile-a', locale='nl')
+        seed = session.moment_engine.create_silence(session_id=session.session_id,
+            selected_mood=session.selected_mood, persona=session.dj_persona,
+            locale=session.locale, reason='test_seed')
+        # Acceptance/storage boundary case: no fabricated source grant.
+        moment = replace(seed, moment_type=self.runtime.DJMomentType.ALBUM,
+            content='Unqualified external body', source_attribution=(('provider', 'External'),))
+        self.assertTrue(await self.manager._async_persist_moment(session, moment))
+        self.assertFalse(await self.manager._async_persist_moment(session, moment))
+        session.publish_moment(moment)
+        record = await self.repo.async_session_record(session.session_id)
+        self.assertEqual(record['summary']['moments_published']['value'], 1)
+        page = await self.queries.async_timeline_page('profile-a', session.session_id)
+        entries = [e for e in page['entries'] if e['kind'] == 'dj_publication']
+        self.assertEqual(len(entries), 1)
+        self.assertEqual(entries[0]['moment_id'], moment.moment_id)
+        self.assertEqual(entries[0]['content_state'], 'unavailable')
+        self.assertFalse(entries[0]['speech_available'])
+        self.assertNotIn('Unqualified external body', str(page))
+
+    async def test_catalog_narration_keeps_exact_text_then_withdraws_to_same_receipt(self):
+        from tests.context_variation_fixtures import source
+        from custom_components.djconnect.session_conversation import query_service
+        hass, runtime, history, identity, headers = await self.transport_fixture()
+        from custom_components.djconnect.domain.music_account import MusicAccountKind
+        await hass.data['djconnect']['djconnect_profile_platform'].async_upsert_music_account(
+            'source-account','source-spotify',kind=MusicAccountKind.PERSONAL,
+            display_name='Synthetic source account',provider_account_id='fixture-provider-owner',
+            linked_profile_ids=frozenset({'profile-a'}))
+        account = hass.data['djconnect']['djconnect_profile_platform'].household.music_accounts['source-account']
+        captured = {'backend_id':'source-spotify','music_account_id':'source-account',
+                    'provider_entry_id':'source-entry','provider_account_id':account.provider_account_id}
+        session = await self.manager.async_start(owner_profile_id='profile-a',locale='nl',
+            selected_mood='energy',music_backend='spotify_direct',history_source_context=captured,
+            allowed_capability_intents=frozenset({'album_story'}))
+        from custom_components.djconnect.session_conversation import async_metadata_archive_admission
+        async def realize(brief,guard):
+            guard()
+            return brief.seed
+        async def archive(captured):
+            return await async_metadata_archive_admission(hass,'profile-a',captured,lambda:None)
+        self.manager.connect_narration('profile-a',session.session_id,realize,lambda:None,
+                                      archive_admission=archive)
+        catalog, fact = source('edition',0)
+        await self.manager.async_update_playback_projection(owner_profile_id='profile-a',session_id=session.session_id,
+            state='playing',media_identity=catalog['uri'],title=catalog['title'],artist=catalog['artist'],
+            album=catalog['album_name'],duration_ms=300000,position_ms=0)
+        async def provide():
+            return {'_qualified_facts':(fact,)}
+        moment = await self.manager.async_process_track_started(owner_profile_id='profile-a',session_id=session.session_id,
+            media_identity=catalog['uri'],insight_provider=provide,require_current_playback=True,allow_initial_facts=True)
+        self.assertIsNotNone(moment)
+        await self.manager.async_end(owner_profile_id='profile-a',session_id=session.session_id)
+        await self.service.async_close()
+        await self.service.async_initialize()
+        query = query_service(hass,history)
+        page = await query.async_timeline_page('profile-a',session.session_id)
+        stored = next(e for e in page['entries'] if e.get('moment_id') == moment.moment_id)
+        self.assertEqual(stored['text'],moment.content)
+        self.assertEqual(stored['archive_basis'],'owner_metadata_narration_v1')
+        self.assertNotIn('source_context',stored)
+        self.assertTrue(stored['session_speech']['manual_allowed'])
+        await self.repo.async_withdraw_source_entry('source-entry')
+        page = await query.async_timeline_page('profile-a',session.session_id)
+        receipt = next(e for e in page['entries'] if e.get('moment_id') == moment.moment_id)
+        self.assertEqual(receipt['entry_id'],stored['entry_id'])
+        self.assertEqual(receipt['order'],stored['order'])
+        self.assertIsNone(receipt['text'])
+        self.assertEqual(receipt['unavailable_reason'],'source_withdrawn')
+        self.assertNotIn(moment.content,str(page))
+
+    async def test_metadata_archive_source_withdrawal_after_sql_stage_rolls_back_body_and_count(self):
+        import asyncio
+        import threading
+        from unittest.mock import patch
+        from custom_components.djconnect.session_conversation import async_metadata_archive_admission
+        hass, runtime, history, identity, headers = await self.transport_fixture()
+        session = await self.observed_session()
+        account = hass.data['djconnect']['djconnect_profile_platform'].household.music_accounts['source-account']
+        captured = {'backend_id':'source-spotify','music_account_id':'source-account',
+                    'provider_entry_id':'source-entry','provider_account_id':account.provider_account_id}
+        guard = await async_metadata_archive_admission(hass,'profile-a',captured,lambda:None)
+        self.assertIsNotNone(guard)
+        provider = self.service._provider
+        original = provider._async_guarded_transaction
+        staged = asyncio.Event()
+        release = threading.Event()
+        loop = asyncio.get_running_loop()
+        async def held(operation,finalize_authorize):
+            def stage(tx):
+                result = operation(tx)
+                loop.call_soon_threadsafe(staged.set)
+                if not release.wait(3):
+                    raise RuntimeError('sql_test_timeout')
+                return result
+            return await original(stage,finalize_authorize)
+        def authorize():
+            guard()
+            return True
+        entry = {'kind':'dj_moment','reference_id':'race','body':{
+            'archive_basis':'owner_metadata_narration_v1','moment_id':'race','moment_type':'album',
+            'text':'Text must never commit after withdrawal','provider':'Spotify','source_context':captured}}
+        with patch.object(provider,'_async_guarded_transaction',held):
+            pending = asyncio.create_task(self.repo.async_accept_moment('profile-a',session.session_id,
+                'race',entry,authorize=authorize,finalize_authorize=authorize))
+            try:
+                await asyncio.wait_for(staged.wait(),2)
+                hass.config_entries.async_entries('djconnect')[0].disabled_by = 'user'
+            finally:
+                release.set()
+            with self.assertRaises(PermissionError):
+                await asyncio.wait_for(pending,3)
+        rows = await self.repo.async_entry_records('profile-a',session.session_id)
+        self.assertFalse(any(r['reference_id']=='race' for r in rows))
+        self.assertEqual((await self.repo.async_session_record(session.session_id))['summary']['moments_published']['value'],0)
+
     async def test_tail_window_discovers_new_entries_beyond_first_page(self):
         session = await self.observed_session()
         for i in range(25):
@@ -1271,6 +1413,7 @@ class SessionConversationHistoryTest(unittest.IsolatedAsyncioTestCase):
         body = json.loads(result.text)
         self.assertEqual(result.status, 200, body)
         self.assertEqual(result.headers["Cache-Control"], "no-store")
+        self.assertIn("conversation", body, body)
         self.assertEqual(body["conversation"]["input_type"], "voice")
         self.assertEqual(body["transcript"], "Vertel over deze bijdrage")
         self.assertEqual(body["recognized_text"], body["transcript"])

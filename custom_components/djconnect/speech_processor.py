@@ -201,11 +201,46 @@ def configured_processor(hass, conf, locale, preference, *, selected_voice=None)
                     "configuration_revision": revision, **(local or {})}
 
 
+MOOD_DELIVERY = {
+    "chill": "Use a relaxed, gentle, unhurried delivery, soft emphasis and comfortable pauses. Stay warmly engaged, not sleepy or whispered.",
+    "groove": "Use a warm, easy conversational rhythm, lightly buoyant phrasing and natural melodic emphasis.",
+    "energy": "Use lively, confident delivery with crisp articulation, animated pitch contours and forward momentum. Do not shout.",
+    "party": "Sound celebratory, playful and excited: animated pitch contours, bright emphatic accents and buoyant rhythmic phrasing. Keep clear natural speech; do not shout.",
+}
+
+
+def mood_prosody(entity, mood=None):
+    """Qualify actual HA per-request instructions; speed is not expression."""
+    available = False
+    try:
+        from homeassistant.components.openai_conversation.tts import OpenAITTSEntity
+        available = (type(entity) is OpenAITTSEntity
+                     and entity.subentry.data.get("chat_model") == "gpt-4o-mini-tts"
+                     and isinstance(entity.subentry.data.get("prompt", ""), str)
+                     and len(entity.subentry.data.get("prompt", "")) <= 4000)
+    except (ImportError, AttributeError):
+        pass
+    return {"version": 1, "available": available,
+            "moods": list(MOOD_DELIVERY) if available else [],
+            "mood": mood if mood in MOOD_DELIVERY else None,
+            "state": "applied" if available and mood in MOOD_DELIVERY else "unavailable",
+            "reason": (None if available and mood in MOOD_DELIVERY else
+                       "accepted_mood_unknown" if available else "provider_prosody_not_qualified")}
+
+
 async def synthesize(entity, voice, text):
     """Call the exact already configured HA entity once, with the admitted text."""
     from .tts import _audio_type, TtsAudio
 
     options = dict(entity.default_options or {})
+    expression = voice.get("mood_prosody") or {}
+    qualified = mood_prosody(entity, expression.get("mood"))
+    if qualified["state"] == "applied":
+        original = entity.subentry.data.get("prompt", "")
+        options["prompt"] = original + "\n\nDJConnect vocal delivery: " + MOOD_DELIVERY[qualified["mood"]] + (
+            " Speak the supplied text verbatim in its original language. These instructions concern vocal intonation only."
+            " Do not add or remove words, laughter, sound effects or facts. Preserve the selected voice."
+        )
     if voice["voice_id"]:
         options["voice"] = voice["voice_id"]
         if _cloud_voice_genders(entity, voice["locale"]) is not None:
@@ -285,6 +320,7 @@ def voice_options(hass, conf):
     else:
         options.update(state="available", reason=None, default_available=True, provider_voice=voice,
                        voices=inventory, voice_selection={"available": bool(inventory), "maximum_voices": 64})
+        options["mood_prosody"] = mood_prosody(entity)
         targets = _gender_targets(inventory, voice["voice_id"])
         if targets:
             options["gender_selection"] = {"available": True, "values": list(targets),

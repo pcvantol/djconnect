@@ -12,6 +12,14 @@ Selected passive Session projection: DJC-CORE-PASSIVE-SESSION-PROJECTION-V1-2026
 
 Selected shared Profile/Session settings consolidation: DJC-PROFILE-SESSION-SETTINGS-CONSOLIDATION-V1-20261016; six shared Persona/voice/gender/Mood/Presence/announcement_output, protected source delivered contract3 (Core producer only), last explicit accepted choice becomes default, atomic active+default acceptance. Source PROTECTED_MERGED; Core producer and migration work only; Apple/other consumers/joint separately open, no automatic dispatch or whole-family completion. Delivered v13 preserved.
 
+Current maintenance16 combines both preserved maintenance15 inputs in the existing Core draft1197. Original input refs and premerge repair refs are separately pinned; both histories remain immutable. Source LOCAL_COMBINED_DRAFT_PREPARATION, overall OPEN, merge NOT_QUALIFIED, native OPEN, installed/audible NOT_RUN. No second writer, consumer writes or automatic dispatch. See `docs/verification/CORE_BRANCH_CONSOLIDATION_20261017.md`.
+
+Current personal-DJ corrective work: LOCAL / UNPUBLISHED; historical SPEECH::CORE::REALIZATION delivery remains preserved, while CORRECTION::CORE::PERSONAL-DJ-EXPERIENCE remains In progress. All-family narrative and actual publication Golden, Track Insight, native, installed and audible acceptance are not established by earlier metadata/type fixtures. See `docs/verification/CORE_LANE_REQUIREMENT_RECONCILIATION_20261017.md`. No consumer dispatch or new writer.
+
+Selected Core display-admission: DJC-CORE-VIBECAST-DISPLAY-ADMISSION-V1-20261016; existing WEB::TRUST and WEB::DISPLAY only. TRUST anchor OPEN_JOINT_REVIEW, wire NOT_FROZEN, runtime B_SOFTWARE_QUALIFIED_NOT_INSTALLED; source DRAFT_PR_PUBLISHED_NOT_MERGED, native/TV/joint open. B-only software qualification does not close A or imply installed/native/public-route acceptance. Independently reviewed B may proceed in isolation while A stays unavailable. Original settings delivery and all prior receipts remain preserved; no consumer dispatch or deployment.
+
+A product choice: LIMITED_APP_ATTESTED_REPORTED_ROUTE selected with the stated copied-QR/wrong-scanner destination risk. Independent HA-owner attestation is not claimed; SECURITY_REVIEW/KEY-STATE open, WIRE not frozen and A runtime not implemented. This is no completion, consumer dispatch or deployment.
+
 - `PROJ::INTELLIGENCE::DJ-PRESENCE` — Planned: Independent presence, Mood and Persona; no new dispatch.
 - `SLICE::APPLE::DJ-PRESENCE-CONTROL` — Planned: Accessible five-language native confirmation; reuse existing Apple writer.
 - `QUAL::VIBECAST::DJ-PRESENCE-COMPAT` — Planned: Core shared-renderer + receiver owner, both existing software builds.
@@ -45,9 +53,9 @@ Selected shared Profile/Session settings consolidation: DJC-PROFILE-SESSION-SETT
 - `MEDIA::APPLE::SESSION-ARTWORK` — Planned: Shared native Session artwork presentation; separate Core/native/installed/joint evidence.
 - `MEDIA::JOINT::SESSION-ARTWORK` — Planned: Core and Apple subject/rights/expiry acceptance; separate Core/native/installed/joint evidence.
 - `WEB::DISPOSITION` — Planned: Implement reviewed web-first legacy disposition; exact source/consumer, visible/audible/physical and joint acceptance OPEN.
-- `WEB::TRUST` — Planned: Qualify browser-bound onboarding and guest trust contract; exact source/consumer, visible/audible/physical and joint acceptance OPEN.
+- `WEB::TRUST` — In progress: Qualify browser-bound onboarding and guest trust contract; exact source/consumer, visible/audible/physical and joint acceptance OPEN.
 - `WEB::BOOTSTRAP` — Planned: Temporary encrypted rendezvous service; exact source/consumer, visible/audible/physical and joint acceptance OPEN.
-- `WEB::DISPLAY` — Planned: Separate HA code and readonly display grant; exact source/consumer, visible/audible/physical and joint acceptance OPEN.
+- `WEB::DISPLAY` — In progress: Separate HA code and readonly display grant; exact source/consumer, visible/audible/physical and joint acceptance OPEN.
 - `WEB::OWNER-SCANNER` — Planned: Paired owner scanner and explicit installation confirmation; exact source/consumer, visible/audible/physical and joint acceptance OPEN.
 - `WEB::SHARED` — Planned: Explicit shared Flow NowPlaying Forecast projection; exact source/consumer, visible/audible/physical and joint acceptance OPEN.
 - `WEB::MEDIA` — Planned: Independent shared artwork and speech grants expiry attribution; exact source/consumer, visible/audible/physical and joint acceptance OPEN.
@@ -73,5 +81,6 @@ Selected shared Profile/Session settings consolidation: DJC-PROFILE-SESSION-SETT
 - `SETTINGS::VIBECAST::COMPAT` — Planned: Core source, native/installed/audible/hardware and whole-family cleanup distinct; owning consumer evidence required.
 - `SETTINGS::WEBSITE::COPY` — Planned: Core source, native/installed/audible/hardware and whole-family cleanup distinct; owning consumer evidence required.
 - `SETTINGS::JOINT::ACCEPTANCE` — Planned: Core source, native/installed/audible/hardware and whole-family cleanup distinct; owning consumer evidence required.
+- `CORRECTION::CORE::PERSONAL-DJ-EXPERIENCE` — In progress: Historical Speech realization is not current all-family acceptance. No consumer dispatch..
 
 Policy values/budgets/default and exact presence route/schema remain unqualified design details. No runtime/native/browser/installed/hardware PASS.
