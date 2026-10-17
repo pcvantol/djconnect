@@ -42105,6 +42105,14 @@
       {
         "path": "docs/verification/VIBECAST_END_RETIREMENT_QUALIFICATION_20261017.md",
         "sha256": "97b1ccbc4485cb91f011fd4a8a0e0d200b809b1cf56d25e06471e7d3b5f71bcd"
+      },
+      {
+        "path": "docs/verification/VIBECAST_END_RETIREMENT_SOURCE_READBACK_20261017.md",
+        "sha256": "ccc5771889755f1b96fd4ba7942bff0ec7c237b2afb6948efe943182ef8c6588"
+      },
+      {
+        "path": "docs/history/prompts/2026-10-17-vibecast-end-retirement-finalization.md",
+        "sha256": "2211ef1683fda434ab5ade8cca98d4f39fa3dd8cec38f084fdc456b6d14a4dae"
       }
     ],
     "implementation_receipt": {

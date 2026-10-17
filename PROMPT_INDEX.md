@@ -1,5 +1,87 @@
 # DJConnect Verification Prompt Index
 
+## Current: VibeCast receiver end-authority retirement — separate Finalization
+
+Source PR [#1202](https://github.com/pcvantol/djconnect/pull/1202) protected merged as
+`5f36abd23a95dea0aeb8bdb9d22a9bccf28a1a4b`, exact independently reviewed
+candidate `7d4f6ea85dd92aa3799d560146b98bca969305c4`, base `0adaef7d`.
+Technical/privacy and product/UX/privacy reviews GO. Ordinary required checks
+and exact Owner Authorization39042642149 pass; no protection bypass.
+Complete candidate/merge trees are equal. No consumer, workflow, runner,
+provider/model, Profile or storage-schema change.
+
+The obsolete HA checkbox is removed from the form/save/defaults and five
+language catalogs. Receiver grant issuance/storage/handoff field and generated
+renderer control are removed. The old control endpoint is an unconditional
+no-store/no-referrer410 that never parses a request or reads a Session.
+Paired owner end and generic unload/generation/subscription fences remain.
+[Contract](docs/product/VIBECAST_RECEIVER_END_AUTHORITY_RETIREMENT_V1.md).
+The dated settings census and historical delivery hashes are unchanged; only
+its old legacy-row disposition is superseded by this current contract.
+
+2,182 host tests run with seven existing skips and zero failures/errors;
+172 verification-framework and172 DAG tests, schema/87 document hashes/23
+views,11 onboarding-package tests/freshness, Ruff and Bandit0Medium/High pass.
+13Node contracts and8browsercaptures cover four independent fact/source cases
+over Track/Album/Artist in two orientations. Networkless real HA2026.10.0
+normal pairing/start/handoff/Broadcast verifies five retired-control denials,
+unchanged Session/Broadcast and successful owner end;154 source hashes match,
+zero modelcalls/provider mutations. No physical/native/audible claim.
+
+Source main CI39042782231 and formal39043031576 succeeded. Actual
+177-file official archive matches Git with zero differences; raw/durable/
+coverage/PR/main bindings validate.
+[Exact source readback](docs/verification/VIBECAST_END_RETIREMENT_SOURCE_READBACK_20261017.md).
+
+### Qualification and remaining owner feedback
+
+This closes only the scoped Core end-authority defect after protected
+Finalization and installed readback. Receiver repository import/cached-screen
+refresh remains that owner's acceptance. VibeCast rendezvous/API/TV is still
+open. The unpublished personal-DJ correctione2456029 remains uninstalled and
+NO_GO: five named quality findings and11real-quality Golden steps remain.
+Factual/Persona/Mood prose, all-family retained Flow/art/TTS, voice preview,
+Track Insight, Profile-consumer settings, measured performance/crash/RSS,
+production push, Watch main Flow and automatic OS surfaces are not closed.
+The actual iPad's correct LAN URL still returns426/transport_security_required;
+qualified direct ingress/real pairedWS/recovery remain owning Core/Apple work.
+The [dated20-topic/61-gate audit](docs/governance/DJC_PLATFORM_OPEN_WORK_20261017.md)
+remains historical evidence, not rewritten as a platformwide PASS.
+
+### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+1. **SETTINGS::APPLE::EDITOR — Planned.** Existing Apple owner; native editor/adoption acceptance remains open.
+2. **SETTINGS::PI::ADOPTION — Planned.** Existing Pi owner; no automatic pickup.
+3. **SETTINGS::ESP32::ADOPTION — Planned.** Existing ESP owner; physical-device acceptance remains separate.
+4. **SETTINGS::VIBECAST::COMPAT — Planned.** Existing receiver/Core owners; qualified imported producer required.
+5. **SETTINGS::JOINT::ACCEPTANCE — Planned.** Cross-device/restart and consumer-dependent legacy migration first.
+
+### Blocked Items
+
+Existing named source/quality/native/physical and deployment/resource gates
+remain bounded by their own evidence. No new selection or consumer dispatch.
+
+### Deferred Items
+
+Unselected work remains deferred; no new provider/model, workflow/runner,
+signing, hardware or generic repair is introduced by this reconciliation.
+
+### Cleanup and lifecycle
+
+Only this delivery's own source and Finalization refs/worktree may be removed
+after verified merges, remote absence, clean main, exact patch equivalence and
+recovery bundles. Other Core/Apple/API/receiver WIP remains intact.
+Authorized dev/prod integration update follows exact final-main/artifact and
+fresh config/resource admission; no installation is claimed by this document.
+
+Repository State: `MERGED_UNRECONCILED` until this separate documentary
+Finalization protected merges and exact-main/artifact readback qualifies.
+Workspace State: `NOT_READY` for a new product pickup; retained existing WIP is
+not abandoned. Successful own cleanup makes this delivery's canonical checkout
+ready to resume the already selected work only.
+
+## Historical operational context
+
 ## Current: Integral open-work audit — separate Finalization
 
 Source PR [#1200](https://github.com/pcvantol/djconnect/pull/1200) protected merged

@@ -1,5 +1,15 @@
 # Passive Session projection — definitive protected producer pin
 
+## Protected receiver end-authority producer correction
+
+PR [#1202](https://github.com/pcvantol/djconnect/pull/1202), source main
+`5f36abd23a95dea0aeb8bdb9d22a9bccf28a1a4b`, is delivered and
+[exact-artifact qualified](docs/verification/VIBECAST_END_RETIREMENT_SOURCE_READBACK_20261017.md).
+No end grants/settings/control remain; cached requests return410. Normal paired
+owner end remains. Receiver import belongs to the existing receiver owner;
+use this qualified producer lineage. Separate Finalization and live install
+follow; no consumer or broad VibeCast/narration acceptance is claimed.
+
 ## Bounded receiver end-authority retirement — current-main delivery
 
 [Current contract](docs/product/VIBECAST_RECEIVER_END_AUTHORITY_RETIREMENT_V1.md)
