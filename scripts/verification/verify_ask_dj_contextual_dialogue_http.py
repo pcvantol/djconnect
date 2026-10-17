@@ -163,7 +163,7 @@ async def main():
                 yield ResponseOutputItemDoneEvent.model_construct(type="response.output_item.done",sequence_number=2,output_index=0,item=item)
                 yield ResponseCompletedEvent.model_construct(type="response.completed",sequence_number=3,response=completed)
             return fixture_stream()
-        assert os.environ.get("DJC_SAFETY_PROBE") not in {"previous", "output", "release_context"}, "Safety probes must not call a model"
+        assert os.environ.get("DJC_SAFETY_PROBE") not in {"previous", "output", "release_context", "silence_signal"}, "Safety probes must not call a model"
         inputs = json.dumps(kwargs.get("input", []), ensure_ascii=False)
         assert not any(
             value in inputs
@@ -890,6 +890,9 @@ async def main():
                                 assert body.get("user_message",{}).get("client_message_id",identifier)==identifier
                         # Same transport retry must not create a mutating or model outcome.
                         replay = await ask("welke artiest is dit", f"artist-{phase}-0-text", language="nl")
+                        # The transport attempt has its own receipt ID; the
+                        # actual Core client_message_id remains identical.
+                        receipts[-1]["case"]=f"artist-{phase}-0-text-retry"
                         assert "Above & Beyond" in replay["text"]
                     # A qualified previous playback is selected through the real owner history query.
                     active = await manager.async_get_active("profile-a")
@@ -1111,6 +1114,65 @@ async def main():
                     await call(
                         "session/end", {"session_id": active.session_id}, label=label + "-end"
                     )
+
+                if os.environ.get("DJC_SAFETY_PROBE") == "silence_signal":
+                    active,content,_=await start("silence")
+                    from custom_components.djconnect.paired_live_contract import PAIRED_LIVE_PATH
+                    async def connect():
+                        ws=await client.ws_connect(PAIRED_LIVE_PATH)
+                        assert (await ws.receive_json())["type"]=="auth_required"
+                        await ws.send_json({"type":"auth","protocol_version":1,
+                            "device_id":identity["device_id"],"client_type":identity["client_type"],
+                            "device_token":paired["device_token"]})
+                        assert (await ws.receive_json())["type"]=="auth_ok"
+                        await ws.send_json({"id":1,"type":"djconnect/session/broadcast/subscribe","session_id":active.session_id})
+                        response=await ws.receive_json()
+                        assert response["success"]
+                        return ws,response["result"]["snapshot"]
+                    ws,before=await connect()
+                    ledger=active.presence_ledger.total_published
+                    silence=active.moment_engine.create_silence(session_id=active.session_id,
+                        selected_mood=active.selected_mood,persona=active.dj_persona,locale=active.locale,reason="planned_silence")
+                    active.publish_moment(silence)
+                    sequence=active.broadcast.delivery_sequence
+                    active.publish_moment(silence)
+                    assert active.broadcast.delivery_sequence==sequence
+                    received=None
+                    for _ in range(8):
+                        live_frame=await asyncio.wait_for(ws.receive_json(),5)
+                        if live_frame.get("data",{}).get("event_type")=="dj_moment_published":
+                            received=live_frame["data"]["payload"];break
+                    assert received and received["dj_moment"]["type"]=="silence"
+                    assert received["dj_moment"]["moment_id"]==silence.moment_id
+                    assert received["native_delivery"]["current_silence_moment_id"]==silence.moment_id
+                    assert received["native_delivery"]["current_moment_id"] is None
+                    assert silence.moment_id not in json.dumps(received["session_speech"])
+                    assert active.presence_ledger.total_published==ledger
+                    expiry=next(a["display_expires_at"] for a in received["native_delivery"]["admissions"] if a["moment_id"]==silence.moment_id)
+                    await ws.close()
+                    resumed,reconnected=await connect()
+                    assert reconnected["native_delivery"]["current_silence_moment_id"]==silence.moment_id
+                    assert next(a["display_expires_at"] for a in reconnected["native_delivery"]["admissions"] if a["moment_id"]==silence.moment_id)==expiry
+                    response=await client.get("/api/djconnect/v1/session/broadcast/"+active.session_id,headers=headers,params=identity)
+                    body=await response.json()
+                    assert response.status==200 and response.headers.get("Cache-Control")=="no-store"
+                    assert body["snapshot"]["native_delivery"]["current_silence_moment_id"]==silence.moment_id
+                    receipts.append({"case":"silence-snapshot","path":"session/broadcast","request":{},"body":body,
+                                     "status":200,"expected_status":200,"cache_control":"no-store"})
+                    await end(active,"silence")
+                    assert active.broadcast.as_dict()["native_delivery"]["current_silence_moment_id"] is None
+                    await resumed.close()
+                    assert not mutations and not model_receipts
+                    Path("/lab/silence-signal.json").write_text(json.dumps({
+                        "qualification":"CORE_PAIRED_SILENCE_LIVE_RECONNECT_ZERO_MODEL",
+                        "source_hashes":hashes(),"pairing":"ordinary_device_token_minted_persisted",
+                        "core_transports":receipts,"model_calls":[],"paid_model_calls":0,
+                        "live_cases":["paired_auth","live_silence","dedup","reconnect_original_expiry","no_speech_budget","session_end"],
+                        "native":"NOT_RUN","installed":"NOT_RUN"},indent=2)+"\n")
+                    await async_shutdown_persistence(h)
+                    await h.async_stop(force=True)
+                    await api.close()
+                    return
 
                 if os.environ.get("DJC_SAFETY_PROBE") == "release_context":
                     active,moment,_=await start("release-context")

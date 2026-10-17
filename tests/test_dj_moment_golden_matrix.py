@@ -3,6 +3,8 @@
 Provider boundaries are synthetic; no LLM or native/installed claim.
 """
 import json
+import re
+from copy import deepcopy
 from pathlib import Path
 import unittest
 from unittest.mock import patch
@@ -79,6 +81,34 @@ class DJMomentGoldenMatrixTest(unittest.TestCase):
                 first_forms.setdefault((cell['mood'],cell['language']),[]).append(rows[0]['content'])
         self.assertTrue(all(len(set(forms))==4 for forms in first_forms.values()))
 
+    def assert_family_meaning(self,row,family,locale,catalog,source):
+        content=row['content']
+        subject=catalog['album_name'] if family=='edition' else catalog['artist']
+        self.assertIn(subject,content)
+        markers={
+            'birth':{'en':r'born|birth|world','nl':r'geboren|geboorte|ter wereld','de':r'geboren|geburt|zur welt','fr':r'naissance|né|naît|monde|voit le jour','es':r'nació|nacimiento|mundo'},
+            'formation':{'en':r'formed|formation|group','nl':r'opgericht|oprichting|groep','de':r'gegründet|gruppe','fr':r'groupe|formation|formé|se forme','es':r'grupo|formación|constituyó|se formó'},
+            'edition':{'en':r'edition','nl':r'uitgave','de':r'ausgabe','fr':r'édition','es':r'edición'},
+            'genre':{'en':r'artist|links|lists|places','nl':r'artiest','de':r'künstler','fr':r'artiste','es':r'artista'},
+        }
+        if family in markers:
+            self.assertRegex(content.casefold(),markers[family][locale])
+        if family=='genre':
+            expected=source['track']['genres'][0]
+            self.assertIn(catalog['title'],content)
+            self.assertRegex(content.casefold(),r'\b'+re.escape(expected)+r'\b')
+            self.assertIn('Spotify',content)
+            self.assertEqual(row['generation_metadata']['genre'],expected)
+            self.assertEqual(row['generation_metadata']['track_title'],catalog['title'])
+            self.assertEqual(row['generation_metadata']['artist'],catalog['artist'])
+            artist_id=source['_session_narrative_evidence']['artist_ids'][0]
+            self.assertEqual(row['source_attribution']['url'],'https://open.spotify.com/artist/'+artist_id)
+        elif family=='description':
+            self.assertIn(source.copy_for(locale)[1],content)
+            self.assertIn('Wikidata',content)
+        if family!='genre':
+            self.assertEqual(row['source_attribution']['url'],source.source_url)
+
     def test_artist_album_genre_persona_mood_five_languages(self):
         dates={'en':'4 March 1960','nl':'4 maart 1960','de':'4. März 1960','fr':'4 mars 1960','es':'4 de marzo de 1960'}
         original=self.runtime.SessionRuntimeManager.async_start
@@ -94,6 +124,12 @@ class DJMomentGoldenMatrixTest(unittest.TestCase):
                     self.assertEqual(len(rows),2)
                     self.assert_publication(fixture,rows,cell)
                     for i,row in enumerate(rows):
+                        if family=='genre':
+                            number=int(row['generation_metadata']['track_title'].rsplit(' ',1)[1])-1
+                            catalog,source=fixture.source(family,number)
+                        else:
+                            catalog,source=fixture.source(family,i)
+                        self.assert_family_meaning(row,family,cell['language'],catalog,source)
                         if family in ('birth','formation','edition'):
                             self.assertIn(dates[cell['language']],row['content'])
                         elif family=='description':
@@ -117,3 +153,22 @@ class DJMomentGoldenMatrixTest(unittest.TestCase):
                 self.assertEqual(fixture.session.presence_ledger.total_published,0)
                 self.assertEqual(fixture.session.broadcast.state.dj_moments,())
                 self.assertEqual(fixture.session.moment_engine._expression_forms,())
+
+    def test_content_oracle_rejects_wrong_subject_fact_type_genre_and_language(self):
+        fixture=context_tests.ExpressiveContextVariationTest()
+        for family in ('birth','formation','edition','genre'):
+            rows=fixture.run_sequence(family,self.runtime.DJPersona.HOME_DJ,'nl')
+            row=next(r for r in rows if r and r['type']==('genre' if family=='genre' else 'album' if family=='edition' else 'artist'))
+            index=int(row['generation_metadata']['track_title'].rsplit(' ',1)[1])-1 if family=='genre' else 0
+            catalog,source=fixture.source(family,index)
+            self.assert_family_meaning(row,family,'nl',catalog,source)
+            subject=catalog['album_name'] if family=='edition' else catalog['artist']
+            wrong=deepcopy(row);wrong['content']=row['content'].replace(subject,'Wrong subject')
+            with self.assertRaises(AssertionError):self.assert_family_meaning(wrong,family,'nl',catalog,source)
+            wrong=deepcopy(row);wrong['content']=subject+' 4 maart 1960 Spotify'
+            with self.assertRaises(AssertionError):self.assert_family_meaning(wrong,family,'nl',catalog,source)
+            if family=='genre':
+                wrong=deepcopy(row);wrong['content']=row['content'].replace(source['track']['genres'][0],'invented-genre')
+                with self.assertRaises(AssertionError):self.assert_family_meaning(wrong,family,'nl',catalog,source)
+                wrong=deepcopy(row);wrong['content']='Spotify links '+subject+' with '+source['track']['genres'][0]+'. '+catalog['title']
+                with self.assertRaises(AssertionError):self.assert_family_meaning(wrong,family,'nl',catalog,source)

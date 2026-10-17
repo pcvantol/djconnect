@@ -80,8 +80,9 @@ paused/Presence-Off, five languages/four Personas, voice, clear/owner races,
 deduplication, exact Track Insight, lookup/refinement/selection/play.
 `contextual_golden` adds the20named-person regression cases.
 
-All profiles are blocking. Five networkless real-HA probes cover current artist,
-previous track, output selection, title listing and release dates. Their agent-boundary seed
+All profiles are blocking. Six networkless real-HA probes cover current artist,
+previous track, output selection, title listing, release dates and explicit Silence
+live events through ordinary paired authentication, WebSocket and reconnect. Their agent-boundary seed
 fixtures are counted separately from zero paid calls. No genuine provider,
 STT/TTS, native app or physical playback acceptance is inferred.
 

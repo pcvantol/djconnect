@@ -23,7 +23,7 @@ from askdj_release_inventory import validate as validate_inventory, validate_mom
 TEST_PATTERNS = (
     'test_ask_dj*.py', 'test_askdj_contextual_release_gate.py', 'test_voice_intents.py', 'test_http_voice_helpers.py',
     'test_music_dna*.py', 'test_session_conversation*.py',
-    'test_dj_moment_golden_matrix.py', 'test_silence_live_delivery.py', 'test_native_moment_delivery.py', 'test_session_presence.py', 'test_active_session_mood.py', 'test_session_persona.py',
+    'test_dj_moment_golden_matrix.py', 'test_expressive_dj_persona.py', 'test_expressive_context_variation.py', 'test_silence_live_delivery.py', 'test_native_moment_delivery.py', 'test_session_presence.py', 'test_active_session_mood.py', 'test_session_persona.py',
 )
 PROFILES = {
     'current_artist': ('current-artist.json', 240),
@@ -31,6 +31,7 @@ PROFILES = {
     'output': ('output-safety-fixed.json', 240),
     'choice_titles': ('choice-titles.json', 240),
     'release_context': ('release-context.json', 240),
+    'silence_signal': ('silence-signal.json', 240),
     'full_golden': ('dialogue.json', 1500),
     'contextual_golden': ('golden-contextual.json', 600),
 }
@@ -64,6 +65,7 @@ def expected_source_hashes():
 def validate_local_report(mode, raw):
     qualification={
         'release_context':'CORE_PAIRED_CURRENT_SELECTED_RELEASE_METADATA_ZERO_MODEL',
+        'silence_signal':'CORE_PAIRED_SILENCE_LIVE_RECONNECT_ZERO_MODEL',
         'previous':'CORE_PAIRED_INFORMATIONAL_PREVIOUS_NO_EFFECT',
         'output':'REAL_PAIRED_OUTPUT_SELECTION_TRANSFER_EXACT_TARGET',
         'current_artist':'ISOLATED_REAL_HA_TEXT_STT_CURRENT_ARTIST_ZERO_EFFECTS',
@@ -72,6 +74,7 @@ def validate_local_report(mode, raw):
     required={
         'release_context':{f'release-{i}-{mode}' for i in range(7) for mode in ('current','selected')}|{'release-selected-other-current'},
         'previous':{'baseline-previous-question'},
+        'silence_signal':{'silence-start','silence-snapshot','silence-end'},
         'output':{'output-offer','output-select','output-activate','output-track-offer',
                   'output-needs-choice','output-compound-play','output-offline'},
         'current_artist':{'artist-old-clarification-seed','artist-selected-earlier',
@@ -84,6 +87,8 @@ def validate_local_report(mode, raw):
     if not isinstance(raw,dict) or raw.get('qualification')!=qualification.get(mode):
         return False
     if raw.get('source_hashes')!=expected_source_hashes() or raw.get('pairing')!='ordinary_device_token_minted_persisted':
+        return False
+    if mode=='silence_signal' and set(raw.get('live_cases',[]))!={'paired_auth','live_silence','dedup','reconnect_original_expiry','no_speech_budget','session_end'}:
         return False
     rows=raw.get('core_transports')
     if not isinstance(rows,list) or not all(isinstance(r,dict) for r in rows):
