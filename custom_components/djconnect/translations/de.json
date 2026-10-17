@@ -195,8 +195,7 @@
           "local_url": "Client-Adresse",
           "firmware_channel": "Firmware-Kanal",
           "dj_announcement_speaker_entity_id": "Home Assistant-Lautsprecher für DJ-Ansagen",
-          "options_action": "Aktion",
-          "vibecast_session_end_allowed": "Genehmigte VibeCast-Bildschirme dürfen die Session beenden"
+          "options_action": "Aktion"
         },
         "data_description": {
           "assist_pipeline_id": "Assist-Pipeline, die DJConnect-Geräte für Spracherkennung und DJ-Ansageaudio verwenden.",
@@ -348,8 +347,7 @@
           "options_action": "Aktion",
           "music_backend": "Musik-Backend",
           "music_assistant_player": "Music Assistant-Player",
-          "dj_announcement_speaker_entity_id": "Home Assistant-Lautsprecher für DJ-Ansagen",
-          "vibecast_session_end_allowed": "Genehmigte VibeCast-Bildschirme dürfen die Session beenden"
+          "dj_announcement_speaker_entity_id": "Home Assistant-Lautsprecher für DJ-Ansagen"
         },
         "data_description": {
           "assist_pipeline_id": "Assist-Pipeline, die DJConnect-Geräte für Spracherkennung und DJ-Ansageaudio verwenden.",

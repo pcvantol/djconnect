@@ -435,44 +435,14 @@ class SessionFactsTest(unittest.TestCase):
 
         asyncio.run(scenario())
 
-    def test_non_spotify_entry_unload_and_opt_out_revoke_end_authority(self):
+    def test_entry_invalidation_advances_epoch_without_ending_non_spotify_session(self):
         async def scenario():
             manager = self.runtime.SessionRuntimeManager()
-            session = await manager.async_start(
-                owner_profile_id="owner", music_backend="music_assistant"
-            )
-            grant = await manager.async_issue_receiver_end_grant(
-                owner_profile_id="owner", session_id=session.session_id, entry_id="owner-entry"
-            )
-            await manager.async_revoke_receiver_end_grants_for_entry("owner-entry")
-            self.assertIsNone(
-                await manager.async_end_with_receiver_grant(
-                    session_id=session.session_id,
-                    grant=grant,
-                    authorized_entry_ids=frozenset({"owner-entry"}),
-                )
-            )
-            grant = await manager.async_issue_receiver_end_grant(
-                owner_profile_id="owner",
-                session_id=session.session_id,
-                entry_id="owner-entry",
-                entry_generation=manager.receiver_entry_generation("owner-entry"),
-            )
-            self.assertIsNone(
-                await manager.async_end_with_receiver_grant(
-                    session_id=session.session_id, grant=grant, authorized_entry_ids=frozenset()
-                )
-            )
-            self.assertIsNotNone(await manager.async_get_active("owner"))
-            # Re-enabling cannot restore consumed/revoked authority.
-            self.assertIsNone(
-                await manager.async_end_with_receiver_grant(
-                    session_id=session.session_id,
-                    grant=grant,
-                    authorized_entry_ids=frozenset({"owner-entry"}),
-                )
-            )
-
+            session = await manager.async_start(owner_profile_id="owner", music_backend="music_assistant")
+            before = manager.receiver_entry_generation("owner-entry")
+            await manager.async_invalidate_receiver_entry("owner-entry")
+            self.assertEqual(manager.receiver_entry_generation("owner-entry"), before + 1)
+            self.assertIs(await manager.async_get_active("owner"), session)
         asyncio.run(scenario())
 
     def test_ephemeral_source_cards_are_not_persisted_as_historical_text(self):
@@ -528,53 +498,14 @@ class SessionFactsTest(unittest.TestCase):
 
             asyncio.run(scenario())
 
-    def test_end_grant_is_session_scoped_expiring_revocable_and_not_broadcast_token(self):
+    def test_receiver_end_authority_is_absent_and_owner_can_still_end(self):
         async def scenario():
-            now = [100.0]
-            manager = self.runtime.SessionRuntimeManager(monotonic_source=lambda: now[0])
+            manager = self.runtime.SessionRuntimeManager()
             session = await manager.async_start(owner_profile_id="owner")
-            self.assertIsNone(
-                await manager.async_end_with_receiver_grant(
-                    session_id=session.session_id, grant=session.broadcast.broadcast_token
-                )
-            )
-            grant = await manager.async_issue_receiver_end_grant(
-                owner_profile_id="owner", session_id=session.session_id, entry_id="entry-owner"
-            )
-            self.assertIsNone(
-                await manager.async_end_with_receiver_grant(
-                    session_id="another-session", grant=grant
-                )
-            )
-            now[0] += 3601
-            self.assertIsNone(
-                await manager.async_end_with_receiver_grant(
-                    session_id=session.session_id, grant=grant
-                )
-            )
-            grant = await manager.async_issue_receiver_end_grant(
-                owner_profile_id="owner", session_id=session.session_id, entry_id="entry-owner"
-            )
-            await manager.async_revoke_receiver_end_grants(
-                owner_profile_id="owner", session_id=session.session_id
-            )
-            self.assertIsNone(
-                await manager.async_end_with_receiver_grant(
-                    session_id=session.session_id, grant=grant
-                )
-            )
-            grant = await manager.async_issue_receiver_end_grant(
-                owner_profile_id="owner", session_id=session.session_id, entry_id="entry-owner"
-            )
-            ended = await manager.async_end_with_receiver_grant(
-                session_id=session.session_id, grant=grant
-            )
+            for name in ("async_issue_receiver_end_grant", "async_end_with_receiver_grant", "_end_grants"):
+                self.assertFalse(hasattr(manager, name), name)
+            self.assertIs(await manager.async_get_active("owner"), session)
+            ended = await manager.async_end(owner_profile_id="owner",session_id=session.session_id)
             self.assertEqual(ended.runtime_state.value, "ended")
-            self.assertIsNone(
-                await manager.async_end_with_receiver_grant(
-                    session_id=session.session_id, grant=grant
-                )
-            )
             self.assertIsNone(await manager.async_get_active("owner"))
-
         asyncio.run(scenario())

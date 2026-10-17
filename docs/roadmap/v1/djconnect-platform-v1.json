@@ -41760,7 +41760,7 @@
     "document_references": [
       {
         "path": "PRODUCT_ROADMAP.md",
-        "sha256": "91ba37a756f8576b2fc8aab7088d88961ee30b60a2fe8148ed80932a5b7605ef"
+        "sha256": "3c95da7e2bec8dd0c0e90c3017ce4c7a90d075004d33dd67b1cfd0b90fa39db4"
       },
       {
         "path": "PRODUCT_BACKLOG.md",
@@ -42076,7 +42076,7 @@
       },
       {
         "path": "docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md",
-        "sha256": "687f1a7c471261c03d18245beb5b82aa837c5ef17d897a170f352f56ef0e5531"
+        "sha256": "66e3884fca1327aed15dc9d362a2d4361fb65b94b8f5a47b8a88bcf082f2d5ad"
       },
       {
         "path": "docs/technical/SPEECH_RENDERING_CONTRACT.md",
@@ -42097,6 +42097,14 @@
       {
         "path": "docs/history/prompts/2026-10-17-integral-open-work-audit-finalization.md",
         "sha256": "038d885b93a9f08d3d4a1782ef3f74f4a9f7b53c041b261420dede3bd48bbaee"
+      },
+      {
+        "path": "docs/product/VIBECAST_RECEIVER_END_AUTHORITY_RETIREMENT_V1.md",
+        "sha256": "c014f140421d129abcc9b890bd1bd94fc0f19ebfcad3b3da6d03d413911f8b6e"
+      },
+      {
+        "path": "docs/verification/VIBECAST_END_RETIREMENT_QUALIFICATION_20261017.md",
+        "sha256": "97b1ccbc4485cb91f011fd4a8a0e0d200b809b1cf56d25e06471e7d3b5f71bcd"
       }
     ],
     "implementation_receipt": {

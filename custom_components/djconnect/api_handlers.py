@@ -728,22 +728,11 @@ async def async_handle_session_broadcast_handoff_approve_payload(
         return _error_payload("active_session_not_found"), 404
     from .broadcast_handoff import broadcast_handoff_manager
 
-    # The normal paired owner approval alone remains a read-only handoff.
-    # This opt-in is saved through HA options, never inferred from a receiver.
-    runtime, _context, error, _status = await _session_profile_context(
-        hass, data, headers=headers, user_id=user_id, source="session_broadcast_end_consent"
-    )
-    end_grant = ""
-    if error is None and getattr(runtime, "config", {}).get("vibecast_session_end_allowed") is True:
-        end_grant = await manager.async_issue_receiver_end_grant(owner_profile_id=profile_id, session_id=session_id,
-            entry_id=str(getattr(getattr(runtime, "entry", None), "entry_id", "") or ""),
-            entry_generation=getattr(runtime, "_receiver_end_generation", 0))
     approved = await broadcast_handoff_manager(hass).approve(
         code,
         owner_profile_id=profile_id,
         session_id=session_id,
         broadcast_token=str(contract["broadcast_token"]),
-        end_grant=end_grant,
     )
     if not approved:
         return _error_payload("handoff_code_unavailable"), 404

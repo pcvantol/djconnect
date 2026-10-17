@@ -65,6 +65,7 @@ class BroadcastHandoffManagerTest(unittest.TestCase):
         self.assertEqual(state, "approved")
         self.assertEqual(result["session_id"], "session-1")
         self.assertEqual(result["broadcast_token"], "runtime-token")
+        self.assertNotIn("end_grant", result)
         self.assertEqual(asyncio.run(self.manager.collect(claim_id, secret)), ("not_found", None))
 
     def test_expiry_and_per_source_limit_fail_closed(self) -> None:
