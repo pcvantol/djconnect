@@ -101,6 +101,7 @@ async def main():
     public_source_corpus = {}
     public_generation_spans = {}
     public_generation_projections = []
+    public_assessment_projections = []
     def capture_public_sources(value):
         if isinstance(value, dict):
             for nested in value.values():
@@ -127,6 +128,13 @@ async def main():
                     'source_spans':{source['content_hash']:[span['id'] for span in source.get('evidence_spans',
                         [source['primary_passage'],*source.get('reference_context',source.get('background_spans',[]))] if 'primary_passage' in source else [])]
                         for source in research.get('sources',[])}})
+            elif research and 'evidence' in projection:
+                from custom_components.djconnect.ask_dj.dialogue import current_turn
+                turn = current_turn.get()
+                public_assessment_projections.append({'case_id':turn.client_id if turn else None,
+                    'person_introduction':research.get('person_introduction'),
+                    'assessed_answer':projection.get('answer'),
+                    'source_ids':[source['content_hash'] for source in research.get('sources',[])]})
             for source in research.get("sources", []):
                 if 'untrusted_excerpt' not in source:
                     spans = source.get('evidence_spans')
@@ -878,6 +886,7 @@ async def main():
                             if r["answer_qualification"] == "supported_prefix"],
                         "source_corpus": list(public_source_corpus.values()), "failed": research_failures,
                         "generation_projections":public_generation_projections,
+                        "assessment_projections":public_assessment_projections,
                         "configured_maximum_tokens":max_tokens,
                         "answers": answers, "paid_model_calls": len(model_receipts),
                         "model_calls": model_receipts, "core_transports": receipts,
