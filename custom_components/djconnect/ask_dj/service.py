@@ -168,7 +168,7 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
             from ..transport_delivery import register_delivery_admission
             register_delivery_admission(lambda: admission(owner=validate_owner, immediate=validate_immediate))
             return result
-        if intent.intent == "current_artist_information":
+        if intent.intent in {"current_artist_information", "current_release_information"}:
             # Even a subsequently rejected read is not consent to retry older music.
             frame.retry = None
         selected = (await query().async_open_entry(profile_id, target["session_id"], target["entry_id"]))["entry"] if target else None
@@ -194,7 +194,7 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
         track_bound = not target and not live and (intent.intent in {"current_track_reference", "current_artist_information", "current_release_information", "track_insight", "dj_announcement"}
             or (references_topic(text) and not frame.messages and not frame.subjects and not frame.result_set))
         playback_fence_session = session_id or (
-            active.session_id if active and track_bound and intent.intent == "current_artist_information" else ""
+            active.session_id if active and track_bound and intent.intent in {"current_artist_information", "current_release_information"} else ""
         )
         implicit = None
         if session_id:
@@ -255,7 +255,7 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
 
         turn = DialogueTurn(frame, scope, thread, client_id, digest, generation, guard, history_manager,
                             style=style_projection(payload, active, profile, settings=shared_settings), session_id=session_id,
-                            captured_playback_item_id=captured if track_bound and intent.intent == "current_artist_information" else "",
+                            captured_playback_item_id=captured if track_bound and intent.intent in {"current_artist_information", "current_release_information"} else "",
                             source_context=model_source(selected), dependencies=dependencies, fast_control=fast, reset_topic=reset_topic,
                             archiveable=persist_history)
         accepted_offer = None

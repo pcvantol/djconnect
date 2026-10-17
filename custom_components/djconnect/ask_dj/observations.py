@@ -340,6 +340,26 @@ async def release_read(hass,runtime,selected=None):
     import hashlib
     turn=current_turn.get()
     locale=language()
+    deadline=turn.history.dialogue.clock()+60 if turn else None
+    def validate_deadline():
+        if turn and turn.history.dialogue.clock()>=deadline:
+            raise DialogueError('playback_observation_expired',409)
+    if turn:
+        turn.speech_deadline=min(turn.speech_deadline or deadline,deadline)
+        turn.delivery_validators.append(validate_deadline)
+        if selected is None:
+            from ..session_runtime import session_runtime_manager
+            manager=session_runtime_manager(hass)
+            owner=turn.scope.removeprefix('profile:')
+            active=manager.current_active(owner)
+            if active:
+                session_id,item_id=active.session_id,active.broadcast.state.playback.item_id
+                def validate_current():
+                    current=manager.current_active(owner)
+                    if (current is None or current.session_id!=session_id
+                        or current.broadcast.state.playback.item_id!=item_id):
+                        raise DialogueError('session_context_changed',409)
+                turn.delivery_validators.append(validate_current)
     copy={
         'en':('The album edition containing {title} lists {date} as its release date.', 'I recognize {title}, but no reliable release date is available for that edition.', 'I cannot reliably identify the recording from the authorized music context.'),
         'nl':('De albumuitgave met {title} vermeldt {date} als releasedatum.', 'Ik herken {title}, maar heb geen betrouwbare releasedatum van die uitgave.', 'Ik kan de opname niet betrouwbaar vaststellen uit de beschikbare muziekcontext.'),
@@ -365,17 +385,32 @@ async def release_read(hass,runtime,selected=None):
             return None
         return value
     async def fresh():
+        nonlocal deadline
         if turn:
             await turn.guard()
             now=turn.history.dialogue.clock()
-            turn.speech_deadline=min(turn.speech_deadline or now+60,now+60)
+            deadline=min(deadline,now+60)
+            turn.speech_deadline=min(turn.speech_deadline or deadline,deadline)
         try:
             result=await asyncio.wait_for(run_music_command(hass,runtime,'status'),5)
         except (SpotifyBackendError,MusicBackendCapabilityError,OSError,TimeoutError):
             return {}
         if turn:
             await turn.guard()
-        return result.get('playback') or {} if isinstance(result,dict) and result.get('success') is not False else {}
+        playback=result.get('playback') or {} if isinstance(result,dict) and result.get('success') is not False else {}
+        if turn and isinstance(playback,dict):
+            stamp=playback.get('valid_until') or playback.get('expires_at')
+            if stamp:
+                try:
+                    expiry=datetime.fromisoformat(stamp)
+                    if expiry.tzinfo is None:
+                        raise ValueError('naive_expiry')
+                    deadline=min(deadline,turn.history.dialogue.clock()+(expiry.astimezone(UTC)-datetime.now(UTC)).total_seconds())
+                except (TypeError,ValueError):
+                    raise DialogueError('playback_observation_expired',409) from None
+                turn.speech_deadline=min(turn.speech_deadline or deadline,deadline)
+            validate_deadline()
+        return playback
     metadata=dict((selected or {}).get('playback') or {})
     # Historical playback projects a bounded item hash and a source link, not
     # the original catalog object. Recover only the exact canonical URI whose
@@ -417,6 +452,7 @@ async def release_read(hass,runtime,selected=None):
                   'url':'https://open.spotify.com/track/'+target[0].rsplit(':',1)[-1]}]
     if turn:
         await turn.guard()
+        validate_deadline()
     return {'success':True,'text':text,'dj_text':text,'action':'none','images':[],
             'sources':sources,'links':[dict(source) for source in sources],'playback_actions':[],
             'intent':{'category':'informational','intent':'current_release_information'},

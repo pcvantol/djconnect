@@ -90,9 +90,19 @@ def validate_local_report(mode, raw):
     ids=[r.get('case') for r in rows]
     if len(ids)!=len(set(ids)) or not required[mode].issubset(ids):
         return False
-    if any(r.get('status')!=r.get('expected_status') or r.get('cache_control')!='no-store' for r in rows):
-        return False
-    if raw.get('model_calls',[]) or raw.get('paid_model_calls',0)!=0:
+    for row in rows:
+        if not isinstance(row.get('path'),str) or not isinstance(row.get('request'),dict) or not isinstance(row.get('body'),dict):
+            return False
+        expected=409 if row['case'] in {'artist-end-race','output-offline','titles-ended-list'} else (201 if row['path']=='session/start' else 200)
+        if (type(row.get('status')) is not int or type(row.get('expected_status')) is not int
+            or row['status']!=expected or row['expected_status']!=expected or row.get('cache_control')!='no-store'):
+            return False
+        if expected>=400:
+            if not isinstance(row['body'].get('error'),str) or not row['body']['error']:
+                return False
+        elif row['body'].get('success') is not True:
+            return False
+    if not isinstance(raw.get('model_calls'),list) or raw['model_calls'] or type(raw.get('paid_model_calls')) is not int or raw['paid_model_calls']!=0:
         return False
     return True
 

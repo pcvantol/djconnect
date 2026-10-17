@@ -71,7 +71,7 @@ model fallback/retries beyond the existing two-attempt Core bound are forbidden.
 
 The [machine-readable matrix](fixtures/askdj_golden_release_matrix_v1.json)
 reuses all112 existing [single-turn Q/A contracts](../../examples/ask_dj_e2e_cases.json)
-and names21 conversation families/70 observable steps. These are not70new
+and names22 conversation families/72 observable steps. These are not72new
 independently executed HTTP tests: exact execution classes remain explicit in
 the matrix. The owning test suites supply interpretation/transaction fixtures;
 the existing paired HA probes supply actual HTTP/runtime/storage boundaries;
@@ -80,13 +80,13 @@ paused/Presence-Off, five languages/four Personas, voice, clear/owner races,
 deduplication, exact Track Insight, lookup/refinement/selection/play.
 `contextual_golden` adds the20named-person regression cases.
 
-All profiles are blocking. Four networkless real-HA probes cover current artist,
-previous track, output selection and title listing. Their agent-boundary seed
+All profiles are blocking. Five networkless real-HA probes cover current artist,
+previous track, output selection, title listing and release dates. Their agent-boundary seed
 fixtures are counted separately from zero paid calls. No genuine provider,
 STT/TTS, native app or physical playback acceptance is inferred.
 
 The source-of-truth route inventory is extracted from literal `AskDjIntent`
-constructors. All46current names must be covered by the existing Q/A contracts
+constructors. All47current names must be covered by the existing Q/A contracts
 or a named owning test. New unmapped names fail validation. Conversations and
 non-LLM functions remain required even when the real model provider is offline.
 

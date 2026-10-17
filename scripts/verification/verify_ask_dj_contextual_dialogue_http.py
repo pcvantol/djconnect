@@ -561,7 +561,7 @@ async def main():
             recording = {
                 "id": "11111111-1111-1111-1111-111111111111",
                 "title": tracks[state["index"]]["name"],
-                "artist-credit": [{"artist": {"name": "Synthetic performer"}}],
+                "artist-credit": [{"artist": {"name": tracks[state["index"]]["artists"][0]["name"]}}],
             }
             if path.startswith("isrc/"):
                 return {"recordings": [recording]}
@@ -669,7 +669,7 @@ async def main():
                         Path("/lab/failure.json").write_text(json.dumps({
                             "qualification": "FAIL", "case": label, "status": response.status,
                             "source_hashes": hashes(), "core_transports": receipts,
-                            "model_calls": model_receipts, "safe_failures": failures,
+                            "model_calls": model_receipts, "paid_model_calls":len(model_receipts), "safe_failures": failures,
                         }, ensure_ascii=False, indent=2) + "\n")
                         print(jsonlib({"case": label, "status": response.status, "error": body.get("error")}), flush=True)
                     assert response.headers.get("Cache-Control") == "no-store", label
@@ -758,7 +758,7 @@ async def main():
                         "qualification":"ISOLATED_REAL_HA_PAIRED_CATALOG_TITLES", "cases":10,
                         "source_hashes":before_hashes, "pairing":"ordinary_device_token_minted_persisted",
                         "core_transports":receipts, "provider_calls":provider_calls,
-                        "agent_provider_fixtures":agent_boundary_fixtures, "paid_model_calls":0,
+                        "agent_provider_fixtures":agent_boundary_fixtures, "paid_model_calls":0,"model_calls":[],
                         "followup_model_calls":0, "followup_search_calls":0, "playback_mutations":0,
                         "fixture_boundary":"external OpenAI response and music provider only",
                         "installed":"NOT_RUN", "native":"NOT_RUN"}, ensure_ascii=False, indent=2)+"\n")
@@ -839,7 +839,7 @@ async def main():
                         "source_hashes": hashes(), "authority": "loaded_registered_entry_and_canonical_server_profile_binding",
                         "native_device_token": None, "ha_user_credentials_issued": 0,
                         "service_transports": service_receipts, "http_transports": receipts,
-                        "provider_calls": provider_calls, "model_calls": model_receipts,
+                        "provider_calls": provider_calls, "model_calls": model_receipts, "paid_model_calls":len(model_receipts),
                         "safe_failures": failures, "installed": "NOT_RUN", "native_apple": "NOT_RUN",
                     }, ensure_ascii=False, indent=2)+"\n")
                     await async_shutdown_persistence(h)
@@ -869,7 +869,7 @@ async def main():
                             "X-DJConnect-Conversation-Scope": "profile", "X-DJConnect-Client-Message-ID": identifier,
                         })
                         body = await response.json()
-                        receipts.append({"case":identifier,"path":"voice","status":response.status,"expected_status":200,"cache_control":response.headers.get("Cache-Control"),"body":body})
+                        receipts.append({"case":identifier,"path":"voice","request":{"input":"synthetic_wav","client_message_id":identifier},"status":response.status,"expected_status":200,"cache_control":response.headers.get("Cache-Control"),"body":body})
                         assert response.status == 200, (identifier,response.status,body.get("error"))
                         assert body["transcript"] == voice_text
                         return body
@@ -941,7 +941,7 @@ async def main():
                     Path("/lab/current-artist.json").write_text(json.dumps({
                         "qualification":"ISOLATED_REAL_HA_TEXT_STT_CURRENT_ARTIST_ZERO_EFFECTS",
                         "source_hashes":hashes(),"pairing":"ordinary_device_token_minted_persisted",
-                        "core_transports":receipts,"provider_calls":provider_calls,"model_calls":model_receipts,
+                        "core_transports":receipts,"provider_calls":provider_calls,"model_calls":model_receipts,"paid_model_calls":len(model_receipts),
                         "agent_provider_fixtures":agent_boundary_fixtures,
                         "published_moments":moment_receipt,"effects":mutations,"installed":"NOT_RUN",
                         "provider_boundary":"external music and speech fixtures only",
@@ -974,7 +974,7 @@ async def main():
                         "source_hashes": hashes(), "pairing": "ordinary_device_token_minted_persisted",
                         "request": "wat was vorige nummer", "response": result,
                         "registered_ha_service": service_receipts,
-                        "effects": mutations, "model_calls": model_receipts, "safe_failures": failures,
+                        "effects": mutations, "model_calls": model_receipts, "paid_model_calls":len(model_receipts), "safe_failures": failures,
                         "provider_boundary": "explicit_external_fixture", "installed": "NOT_RUN",
                     }, ensure_ascii=False, indent=2) + "\n")
                     await async_shutdown_persistence(h)
@@ -1018,7 +1018,7 @@ async def main():
                     assert not model_receipts
                     Path("/lab/output-safety-fixed.json").write_text(json.dumps({"qualification": "REAL_PAIRED_OUTPUT_SELECTION_TRANSFER_EXACT_TARGET", "pairing":"ordinary_device_token_minted_persisted",
                         "source_hashes": hashes(), "pairing": "ordinary_device_token_minted_persisted", "core_transports": receipts,
-                        "provider_calls": provider_calls, "model_calls": model_receipts, "installed": "NOT_RUN"}, ensure_ascii=False, indent=2) + "\n")
+                        "provider_calls": provider_calls, "model_calls": model_receipts, "paid_model_calls":len(model_receipts), "installed": "NOT_RUN"}, ensure_ascii=False, indent=2) + "\n")
                     await async_shutdown_persistence(h)
                     await h.async_stop(force=True)
                     await api.close()
@@ -1144,7 +1144,7 @@ async def main():
                     Path("/lab/release-context.json").write_text(json.dumps({
                         "qualification":"CORE_PAIRED_CURRENT_SELECTED_RELEASE_METADATA_ZERO_MODEL",
                         "source_hashes":hashes(),"pairing":"ordinary_device_token_minted_persisted",
-                        "core_transports":receipts,"model_calls":model_receipts,
+                        "core_transports":receipts,"model_calls":model_receipts,"paid_model_calls":len(model_receipts),
                         "provider_calls":provider_calls,"effects":mutations},indent=2)+"\n")
                     await async_shutdown_persistence(h)
                     await h.async_stop(force=True)
@@ -1513,7 +1513,7 @@ async def main():
             "core_transports": receipts,
             "provider_boundary": "explicit_fixture_only",
             "provider_calls": provider_calls,
-            "model_calls": model_receipts,
+            "model_calls": model_receipts, "paid_model_calls":len(model_receipts),
             "source_hashes": hashes(),
             "ha_dev_mutations": 0,
             "mixed_chains": chains,
