@@ -952,6 +952,65 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
         body['temporal_claims'] = []
         self.assertIsNone(research.qualified_prefix(json.dumps(body), prefix + ' ' + tail, context))
 
+    def test_reference_only_intro_job_cannot_be_laundered_through_episode_id(self):
+        from custom_components.djconnect.ask_dj import public_research as research
+        source = research._source('Wikipedia','Brian Eno','https://en.wikipedia.org/wiki/Brian_Eno',
+            'Brian Eno is an English musician, record producer and artist. '
+            'With guitarist Robert Fripp, he recorded No Pussyfooting.',
+            'en',source_anchors=['No Pussyfooting'])
+        projection = research.research_projection('Brian Eno',[source],'qualified',question='Who is Brian Eno?')
+        ids = projection['person_introduction']['realizable_span_ids']
+        for role in ('musician','muzikant','Musiker','musicien','músico',
+                     'producer','producent','Produzent','producteur','productor',
+                     'artist','kunstenaar','Künstler','artiste','artista'):
+            answer = f'Brian Eno is the {role} who recorded No Pussyfooting with Robert Fripp.'
+            data = {'supported':True,'claim_checks':[{'text':answer,'kind':'relationship','evidence_ids':ids}]}
+            self.assertFalse(research.supported(json.dumps(data),answer,{'public_music_research':projection}),role)
+        # A role literally inside the realizable passage is a different contract.
+        qualified = research._source('Wikipedia','Brian Eno','https://en.wikipedia.org/wiki/Brian_Eno',
+            'Brian Eno is an English musician. The musician Brian Eno recorded No Pussyfooting with Robert Fripp.',
+            'en',source_anchors=['No Pussyfooting'])
+        projection = research.research_projection('Brian Eno',[qualified],'qualified',question='Who is Brian Eno?')
+        answer = 'Musician Brian Eno recorded No Pussyfooting with Robert Fripp.'
+        data = {'supported':True,'claim_checks':[{'text':answer,'kind':'relationship',
+            'evidence_ids':projection['person_introduction']['realizable_span_ids']}]}
+        self.assertTrue(research.supported(json.dumps(data),answer,{'public_music_research':projection}))
+
+    def test_recording_year_never_becomes_release_year_even_when_assessor_accepts(self):
+        from custom_components.djconnect.ask_dj import public_research as research
+        quote = 'With Robert Fripp he recorded No Pussyfooting in 1973.'
+        source = research._source('Wikipedia','Brian Eno','https://en.wikipedia.org/wiki/Brian_Eno',
+            quote,'en',source_anchors=['No Pussyfooting']).model_data()
+        context = {'public_music_research':{'schema_version':2,'sources':[source]}}
+        wrong = ('Eno released No Pussyfooting in 1973.',
+                 'Eno bracht No Pussyfooting uit in 1973.',
+                 'No Pussyfooting werd uitgebracht in 1973.',
+                 'Eno veröffentlichte No Pussyfooting im Jahr 1973.',
+                 'Eno a sorti No Pussyfooting en 1973.',
+                 'Eno lanzó No Pussyfooting en 1973.',
+                 "Eno's 1973 release No Pussyfooting was with Robert Fripp.",
+                 'De uitgave No Pussyfooting uit 1973 was met Robert Fripp.',
+                 'Die Veröffentlichung No Pussyfooting von 1973 war mit Robert Fripp.',
+                 'La sortie de No Pussyfooting en 1973 était avec Robert Fripp.',
+                 'El lanzamiento de No Pussyfooting de 1973 fue con Robert Fripp.')
+        for answer in wrong:
+            receipt = {'claim':answer,'event_anchor':'No Pussyfooting','year':'1973',
+                'source_id':source['content_hash'],'quote':quote}
+            data = {'supported':True,'temporal_claims':[receipt],'claim_checks':[{
+                'text':answer,'kind':'relationship','evidence_ids':[source['evidence_spans'][0]['id']]}]}
+            self.assertFalse(research.supported(json.dumps(data),answer,context),answer)
+            released = research._source('Wikipedia','Brian Eno',source['url'],
+                quote.replace('recorded','released'),'en',source_anchors=['No Pussyfooting']).model_data()
+            self.assertTrue(research.supported(json.dumps({**data,'temporal_claims':[
+                {**receipt,'source_id':released['content_hash'],'quote':released['untrusted_excerpt']}],
+                'claim_checks':[{'text':answer,'kind':'relationship','evidence_ids':[released['evidence_spans'][0]['id']]}]}),answer,
+                {'public_music_research':{'schema_version':2,'sources':[released]}}),answer)
+        recorded = 'Eno recorded No Pussyfooting in 1973.'
+        self.assertFalse(research.temporal_evidence_ok(recorded,{'temporal_claims':[{
+            'claim':recorded,'event_anchor':'No Pussyfooting','year':'1973',
+            'source_id':released['content_hash'],'quote':released['untrusted_excerpt']}]},
+            {'public_music_research':{'sources':[released]}}))
+
     def test_temporal_title_parentheses_are_answer_display_only_and_unambiguous(self):
         from custom_components.djconnect.ask_dj import public_research as research
         source = research._source('Wikipedia','Brian Eno','https://en.wikipedia.org/wiki/Brian_Eno',

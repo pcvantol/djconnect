@@ -140,7 +140,7 @@ class ContextualReleaseGateTest(unittest.TestCase):
         self.assertEqual(proof['executable_help_cases'],60)
         self.assertEqual(proof['conversation_families'],35)
         self.assertEqual(proof['conversation_steps'],112)
-        self.assertEqual(proof['reported_issues'],31)
+        self.assertEqual(proof['reported_issues'],33)
         self.assertEqual(len(proof['open_core_findings']),5)
         self.assertEqual(proof['proactive_golden_cases'],560)
 

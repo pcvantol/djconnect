@@ -2267,6 +2267,14 @@
             {
               "file": "tests/test_ask_dj_contextual_dialogue.py",
               "method": "test_person_intro_owner_never_archives_background_or_wrong_pronoun_claims"
+            },
+            {
+              "file": "tests/test_ask_dj_contextual_dialogue.py",
+              "method": "test_recording_year_never_becomes_release_year_even_when_assessor_accepts"
+            },
+            {
+              "file": "tests/test_ask_dj_contextual_dialogue.py",
+              "method": "test_reference_only_intro_job_cannot_be_laundered_through_episode_id"
             }
           ],
           "acceptance_status": "open_real_quality",
@@ -2367,6 +2375,14 @@
         {
           "file": "tests/test_ask_dj_contextual_dialogue.py",
           "method": "test_person_intro_owner_never_archives_background_or_wrong_pronoun_claims"
+        },
+        {
+          "file": "tests/test_ask_dj_contextual_dialogue.py",
+          "method": "test_recording_year_never_becomes_release_year_even_when_assessor_accepts"
+        },
+        {
+          "file": "tests/test_ask_dj_contextual_dialogue.py",
+          "method": "test_reference_only_intro_job_cannot_be_laundered_through_episode_id"
         }
       ],
       "fixture_boundary": "Actual Core interpretation/effect/storage owners; only external provider and agent I/O are fixtures. Native/installed/paid evidence remains separate."
@@ -2831,6 +2847,18 @@
       "id": "ASKDJ-ISSUE-research-title-parentheses-binding",
       "family_id": "ASKDJ-REGRESSION-research-grounding-boundary",
       "finding": "Een canoniek bronanker met enkele buitenste ASCIIhaakjes kon niet binden aan dezelfde titel zonder die haakjes in het antwoord. Alleen ondubbelzinnige antwoordpresentatie is toegestaan; bronanker, quote, datum, werk en evidence-IDs blijven exact.",
+      "core_qualification": "locally_covered"
+    },
+    {
+      "id": "ASKDJ-ISSUE-recording-release-event-swap",
+      "family_id": "ASKDJ-REGRESSION-research-grounding-boundary",
+      "finding": "Echte typedproef accepteerde uitgebracht1973 met bewijs voor opgenomen1973. Correct werk/jaar bewijst niet de gebeurtenis; release en recording krijgen afzonderlijke gesloten woordfamilieguards.",
+      "core_qualification": "locally_covered"
+    },
+    {
+      "id": "ASKDJ-ISSUE-reference-only-job-laundering",
+      "family_id": "ASKDJ-REGRESSION-research-grounding-boundary",
+      "finding": "Een reference-only beroep werd als antwoordinhoud met alleen episode-ID geaccepteerd. De drie waargenomen beroepsfamilies vereisen nu letterlijke episodebasis; algemene rol/persoonssemantiek blijft onafhankelijke kwalificatie.",
       "core_qualification": "locally_covered"
     }
   ],

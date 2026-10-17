@@ -919,6 +919,22 @@ _EVENT_QUALIFIERS = (
     re.compile(r"\b(?:first|debut|debuut|eerste|eerst|erst(?:e[rsnm]?)|premiers?|premières?|primero|primer|primera)\b", re.I),
     re.compile(r"\b(?:solo(?:[- ]?(?:albums?|alben|platen?|debuts?|debuut|debüt))?|solistas?)\b", re.I),
 )
+_EVENT_ACTIONS = (
+    re.compile(r"\b(?:releases?|released|issued|published|came out|release date|uitgebracht|verschenen|releasedatum|uitgave[n]?|uitgaves|"
+               r"bracht(?:en)?\b[^.!?]{0,40}\buit|kwam(?:en)?\b[^.!?]{0,40}\buit|"
+               r"veröffentlicht(?:e|en)?|veröffentlichung(?:en)?|ausgabe[n]?|erschien(?:en)?|herausgebracht|erscheinungsdatum|"
+               r"sorti(?:e|es|s)?|sorties?|parutions?|publications?|paru(?:e|es|s)?|publié(?:e|es|s)?|date de sortie|"
+               r"lanzó|lanzaron|lanzad[oa]s?|lanzamientos?|publicaci(?:ón|ones)|edici(?:ón|ones)|publicó|publicad[oa]s?|salió|salieron|fecha de lanzamiento)\b", re.I),
+    re.compile(r"\b(?:recorded|recordings?|opnam|opnamen|opnames|opname|opgenomen|aufnahmen?|aufgenommen|nahm(?:en)?\b[^.!?]{0,40}\bauf|"
+               r"enregistré(?:e|es|s)?|enregistra|enregistrements?|grabó|grabaron|grabad[oa]s?|grabaci(?:ón|ones))\b", re.I),
+)
+# Closed guards for the observed reference-only role leak; this is not a general
+# occupation extractor. An activity such as recording grants none of these jobs.
+_INTRODUCTION_ROLES = tuple(re.compile(pattern, re.I) for pattern in (
+    r"\b(?:musicians?|muzikant(?:en)?|musiker(?:in(?:nen)?)?|musicien(?:ne)?s?|músic[oa]s?)\b",
+    r"\b(?:producers?|producent(?:en)?|produzent(?:in(?:nen)?)?(?:en)?|producteur(?:s)?|productrice(?:s)?|productor(?:a)?(?:es|s)?)\b",
+    r"\b(?:artists?|kunstena(?:ar|ars)|künstler(?:in(?:nen)?)?|artistes?|artistas?)\b",
+))
 
 
 def _sentences(text):
@@ -975,6 +991,9 @@ def claim_evidence_ok(answer, data, context):
         if not realizable:
             return False
         admitted = {key:value for key,value in admitted.items() if key in realizable}
+        episode_text = ' '.join(admitted.values())
+        if any(role.search(answer) and not role.search(episode_text) for role in _INTRODUCTION_ROLES):
+            return False
     anchors = {anchor for source in sources if isinstance(source, dict)
                for anchor in source.get('source_anchors', []) if isinstance(anchor, str) and anchor.strip()}
     def mentions(text, anchor):
@@ -1045,6 +1064,7 @@ def temporal_evidence_ok(answer, data, context):
                 or quote[-1] not in '.!?' or set(_YEAR.findall(quote)) != {year}
                 or not _answer_mentions_anchor(sentence, anchor, anchors)
                 or not re.search(r'(?<!\w)' + re.escape(anchor) + r'(?!\w)', quote, re.I)
+                or any(pattern.search(sentence) and not pattern.search(quote) for pattern in _EVENT_ACTIONS)
                 or any(pattern.search(sentence) and not pattern.search(quote) for pattern in _EVENT_QUALIFIERS)):
             return False
         accepted.append((sentence, year))

@@ -274,7 +274,7 @@ sample does not change the default700-token formal gate or installed HA settings
 capacity-policy refinement and exact release qualification remain separate.
 
 
-The current inventory extends to31findings,35families,112steps, including manual
+The earlier single-host inventory extended to31findings,35families,112steps, including manual
 retained-speaker replay and the pronoun-chain focus bypass. The fixed historical
 assessment comparison (16calls,0generation), focus/capacity HA sample (16calls)
 and predeclared same-candidate Luna/Sol comparison (32calls) are diagnostic
@@ -302,3 +302,20 @@ actor/activity/biography checks. Its new causal tests are permanently bound to
 the existing style/grounding families. They prove admission and storage boundaries,
 not real-answer quality. A fresh fixed eight-cell sample must attest this exact
 brief in generation and assessment before any broader quality claim.
+
+### Typed episode result and event/role regressions
+
+Exact candidate085c0fbe completed16calls in the one predeclared fixed sample.
+All eight generation/assessment briefs matched, with the same original corpus
+and one host instruction. It produced two technically full answers, one prefix
+and five fallbacks. Independent review is NO_GO and also rejects the nominal
+full answers: recorded1973 does not prove released1973; a reference-only job
+does not become permitted episode content through an episode ID. No automatic
+rerun or retrospective rewriting of that receipt.
+
+Both actual accepted errors have permanent negative regressions. Bounded lexical
+guards distinguish explicit recording/release events in five languages and the
+three observed reference-only job families. They are not a general fact/occupation
+extractor and do not replace independent participant/meaning review. The current
+registry has33findings,35families,112steps; eleven quality steps and five Core
+findings remain open. Historical artwork/replay parity does not close these gates.

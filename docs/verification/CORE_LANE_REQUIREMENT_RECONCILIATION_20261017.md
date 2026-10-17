@@ -248,7 +248,7 @@ No live model change, source publication, Finalization or installation occurred.
 
 ## Historical Flow parity and bounded receipt corrections
 
-The current registry contains31findings,35families and112steps; the eleven
+The earlier single-host registry contained31findings,35families and112steps; the eleven
 real-quality steps and five Core findings remain open. Historical original
 album/artist identities, account-bound fresh artwork and original text are
 preserved across storage reopen. Manual retained DJMoment local/speaker replay
@@ -292,8 +292,29 @@ Tampered scope/hash, reference-only claim IDs and all-appreciation responses fai
 closed. No rewrite, fact extractor, third call or route is introduced. The existing
 generic Persona/Mood finding remains open pending actual prose/editorial proof.
 
-The typed person-introduction refinement passes2,269host regression tests with
+The checkpoint38b2f055 typed person-introduction refinement passed2,269host regression tests with
 seven existing skips and no failures/errors. Independent technical/privacy review
 ran all164contextual tests and gives scoped GO for the content boundary, not
 for semantic pronoun resolution or narrative quality. Both remain subject to
 the complete original evidence and the next exact, predeclared real sample.
+
+## Latest typed-episode quality result
+
+On085c0fbe all16calls completed, with eight matching generation/assessment
+briefs and the unchanged source corpus. The technical report counted2full,
+1prefix,5fallbacks; independent editorial review rejects the nominally full
+outputs too. Recorded versus released is an actual unsupported event claim;
+reference-only musician/producer/artist is a separate content-admission leak.
+Both receive permanent negative tests and bounded guards, without claiming
+general semantic completeness. The current registry has33findings across35
+families/112steps; five Core findings and eleven real-quality steps stay open.
+No further paid rerun, publication, Finalization, installation or next lane is
+claimed. Historical original-art and current-voice manual replay remain implemented
+and separately qualified; native and physical playback remain consumer/joint.
+
+The final bounded event/role correction includes explicit recording/release
+verbs and nouns in all five languages, including the independently reproduced
+1973release/uitgave leak. Its host regression suite has2,271tests (seven
+existing skips); scoped actual-source/receipt checks never confer full semantic
+or personal-DJ quality. The earlier all-family, typed-introduction and retained
+parity proof receipts remain separate and preserved.

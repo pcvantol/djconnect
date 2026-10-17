@@ -301,3 +301,15 @@ quotes to that episode. No local pronoun replacement or semantic fact extractor;
 uncertainty produces the existing qualified limitation. Other question families,
 multiple-source/conflict handling and all source/date/privacy boundaries remain
 unchanged. No fixed answer, third call, extra model or second Ask DJ route.
+
+### Observed event/role fidelity failures
+
+The typed085c0fbe sample remains NO_GO: all16calls completed and matched the
+brief/corpus, but even a nominally full answer changed recording into release.
+A named work and matching year do not prove that event. Closed five-language
+recording/release verb and noun families must occur in both answer and its original
+same-year quote; the converse transfer is refused too. Three observed job families
+(musician, producer, artist) in a typed introduction also require literal episode
+basis, not reference-only biography. These are conservative guards for executed
+failures, not complete semantic or occupation extraction. Independent full-context
+role/participant review and real editorial qualification remain mandatory.
