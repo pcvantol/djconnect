@@ -118,6 +118,10 @@ async def main():
                 from custom_components.djconnect.ask_dj.dialogue import current_turn
                 turn = current_turn.get()
                 public_generation_projections.append({'case_id':turn.client_id if turn else None,
+                    'host_identity_instruction_count':value.split('\nData:\n',1)[0].count('Host identity:'),
+                    'secondary_telling_action':'Core-owned telling action:' in value.split('\nData:\n',1)[0],
+                    'required_inkijk':'inkijk' in value.split('\nData:\n',1)[0],
+                    'trusted_instructions_sha256':hashlib.sha256(value.split('\nData:\n',1)[0].encode()).hexdigest(),
                     'episode_focus':research.get('episode_focus'),
                     'source_spans':{source['content_hash']:[span['id'] for span in source.get('evidence_spans',
                         [source['primary_passage'],*source['background_spans']] if 'primary_passage' in source else [])]
