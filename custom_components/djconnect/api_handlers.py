@@ -1143,6 +1143,13 @@ def _unexpected_backend_error_result(
     exc: Exception,
 ) -> tuple[dict[str, Any], int]:
     """Map expected and unexpected backend exceptions to legacy responses."""
+    from .spotify_backend import SpotifyOutputError
+    if isinstance(exc, SpotifyOutputError):
+        from .playback_request import failure
+        from .ask_dj import _response_language
+        # This target failure provides no new global backend-health evidence.
+        result = failure(exc.code, _response_language(runtime, data), uncertain=exc.uncertain)
+        return _backend_error_result(runtime, data, command, normalized_command, result, 200)
     if _looks_like_backend_capability_error(exc):
         runtime.update(last_error=_safe_backend_error_message(exc))
         result = _unsupported_backend_capability_payload(hass, runtime, exc)
@@ -1421,7 +1428,7 @@ async def async_handle_ask_dj_message_payload(
         identity[CONF_CLIENT_TYPE] = client_type
         if not authorize_runtime_device_request(runtime, headers, identity.get("device_id"), client_type):
             return _error_payload("unauthorized"), 401
-    payload = dict(data)
+    payload = {key: value for key, value in data.items() if key != "_frozen_playback_selection"}
     payload.update({key: value for key, value in identity.items() if value is not None})
     payload = enrich_payload_with_mood_zone(payload)
     _debug_ask_dj_request("message", runtime, payload, user_id=user_id)

@@ -902,8 +902,8 @@ class SpotifyBackendTest(unittest.TestCase):
                         200,
                         {
                             "tracks": [
-                                {"uri": "spotify:track:sun-and-moon"},
-                                {"uri": "spotify:track:thing-called-love"},
+                                {"uri": "spotify:track:sun-and-moon", "artists":[{"id":"artist-id"}]},
+                                {"uri": "spotify:track:thing-called-love", "artists":[{"id":"artist-id"}]},
                             ]
                         },
                     )
@@ -987,7 +987,7 @@ class SpotifyBackendTest(unittest.TestCase):
                         },
                     )
                 if method == "GET" and "/artists/paul-van-dyk/top-tracks?" in url:
-                    return Response(200, {"tracks": [{"uri": "spotify:track:for-an-angel"}]})
+                    return Response(200, {"tracks": [{"uri": "spotify:track:for-an-angel", "artists":[{"id":"paul-van-dyk"}]}]})
                 return Response(204)
 
         entry = types.SimpleNamespace(

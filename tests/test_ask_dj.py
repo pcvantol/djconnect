@@ -280,7 +280,8 @@ class AskDjTest(unittest.TestCase):
         self.assertTrue(result["success"])
         self.assertEqual(calls, ["status"])
         self.assertEqual(result["intent"]["category"], "informational")
-        self.assertIn("Omdat dit goed aansluit", result["text"])
+        self.assertIn("niet genoeg betrouwbare broninformatie", result["text"])
+        self.assertNotIn("Omdat dit goed aansluit", result["text"])
         self.assertEqual(result["music_dna_key"], "user:user-1")
         self.assertEqual(result["images"], [])
 
@@ -1779,7 +1780,7 @@ class AskDjTest(unittest.TestCase):
         self.assertEqual(result["action"], "none")
         self.assertNotIn("hardstyle artiest", result["dj_text"])
 
-    def test_period_correction_merges_with_previous_album_question(self) -> None:
+    def test_period_correction_never_promotes_unqualified_old_history_to_model_evidence(self) -> None:
         runtime = make_runtime()
         runtime.ask_dj_history = FakeAskDJHistory(
             [
@@ -1818,13 +1819,11 @@ class AskDjTest(unittest.TestCase):
         finally:
             self.ask_dj.run_music_command = original_command
 
-        self.assertIn(
-            "Welke albums heeft Prince uitgebracht? alleen tussen 1980 en 1990",
-            seen["prompt"],
-        )
+        self.assertNotIn("prompt", seen)
         self.assertEqual(seen.get("commands", []), [])
         self.assertEqual(result["intent"]["intent"], "ask_music_info")
-        self.assertIn("Prince", result["dj_text"])
+        self.assertNotIn("Prince", result["dj_text"])
+        self.assertEqual(result["knowledge_basis"], "public_subject_required")
 
     def test_watch_mood_zone_reaches_informational_prompt(self) -> None:
         runtime = make_runtime()
@@ -1855,6 +1854,8 @@ class AskDjTest(unittest.TestCase):
                         "mood": 70,
                     },
                     user_id="user-1",
+                    confirmed_entry={"archive_basis":"runtime_authored_direction_v1",
+                                     "text":"An exploration direction, not a chosen next track.", "source_attribution":{}},
                 )
             )
         finally:
@@ -1862,7 +1863,7 @@ class AskDjTest(unittest.TestCase):
 
         self.assertIn('"mood": "energy"', seen["prompt"])
         self.assertIn('"mood_basis": "request_numeric"', seen["prompt"])
-        self.assertEqual(seen["commands"], ["status"])
+        self.assertEqual(seen.get("commands", []), ["status"])
         self.assertEqual(result["intent"]["category"], "informational")
 
     def test_real_playback_prompt_stays_playback_intent(self) -> None:

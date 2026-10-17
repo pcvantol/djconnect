@@ -672,3 +672,14 @@ Source qualification/answer assessment share the existing two-call budget;
 source metadata is retained with the accepted answer, raw webpages/excerpts are
 not. Existing direct controls, help and observation answers gain no web calls.
 Local implementation/qualification remains distinct from main, native or install.
+
+## Bounded local date refinement
+
+A strict inclusive year-range follow-up may refine the current owner/thread's
+already admitted album result set without model input or another provider read.
+Use the provider's structured release_date, never parse rendered subtitles or
+old history as evidence. The response explicitly covers the shown catalog
+editions only, reports missing dates, keeps the original expiry and creates a
+new selection set. A known-empty refinement replaces the old offer; old taps
+cannot revive it. Session/source/Profile/clear fences remain unchanged. A
+historical caption without a current qualified offer grants no subject or dates.

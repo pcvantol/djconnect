@@ -16,7 +16,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0,str(Path(__file__).resolve().parent))
 from run_askdj_contextual_release_gate import IMAGE, validate_report  # noqa: E402
-from askdj_release_inventory import validate as validate_inventory, validate_moment_matrix  # noqa: E402
+from askdj_release_inventory import validate as validate_inventory, validate_moment_matrix, required_bindings, release_blockers  # noqa: E402
 
 # Existing owning interpretation/authorization/transport suites. These use explicit
 # agent/provider fixtures; their PASS is not paid-model or physical acceptance.
@@ -33,9 +33,68 @@ PROFILES = {
     'choice_titles': ('choice-titles.json', 240),
     'release_context': ('release-context.json', 240),
     'silence_signal': ('silence-signal.json', 240),
+    'mood_prosody': ('literal-tts.json', 600),
     'full_golden': ('dialogue.json', 1500),
     'contextual_golden': ('golden-contextual.json', 600),
 }
+
+
+def validate_prosody_report(raw, directory):
+    """Technical audio gate, never a substitute for audible quality review."""
+    if (not isinstance(raw, dict)
+            or raw.get('qualification') != 'ISOLATED_REAL_HA_PAIRED_OPENAI_LITERAL_TTS'
+            or raw.get('pairing') != 'ordinary_device_token_minted_persisted'
+            or raw.get('tts_model') != 'gpt-4o-mini-tts'
+            or raw.get('source_hashes') != expected_source_hashes()
+            or raw.get('source_hashes_before') != expected_source_hashes()):
+        return False
+    transports = raw.get('core_transports', [])
+    required = {'literal-tts-start': ('session/start', 201),
+                'literal-tts-prepare': ('speech/prepare', 200),
+                'literal-tts-repeat': ('speech/prepare', 200),
+                'literal-tts-end': ('session/end', 200)}
+    if not isinstance(transports, list) or not all(isinstance(r, dict) for r in transports):
+        return False
+    for case, (path, status) in required.items():
+        matches = [r for r in transports if r.get('case') == case]
+        if len(matches) != 1 or any(matches[0].get(k) != v for k, v in
+                                    (('path', path), ('status', status), ('expected_status', status))):
+            return False
+    audio = raw.get('audio_reads', [])
+    synthesis = raw.get('synthesis', [])
+    if (not isinstance(audio, list) or len(audio) != 2 or audio[0] != audio[1]
+            or not isinstance(audio[0], dict) or audio[0].get('status') != 200
+            or audio[0].get('content_type') != 'audio/mpeg'
+            or type(audio[0].get('bytes')) is not int or audio[0]['bytes'] < 100
+            or not re.fullmatch('[0-9a-f]{64}', audio[0].get('sha256', ''))
+            or len(synthesis) != 1 or synthesis[0].get('attempted') is not True
+            or not re.fullmatch('[0-9a-f]{64}', synthesis[0].get('text_sha256', ''))):
+        return False
+    rows = raw.get('mood_prosody', [])
+    expected = {(language, mood) for language in ('en', 'nl', 'de', 'fr', 'es')
+                for mood in ('chill', 'groove', 'energy', 'party')}
+    if (not isinstance(rows, list) or not all(isinstance(r, dict) for r in rows)
+            or raw.get('status') != 'PASS' or raw.get('source_unchanged') is not True
+            or raw.get('paid_tts_attempts') != 21 or len(rows) != 20
+            or {(r.get('language'), r.get('mood')) for r in rows} != expected
+            or not raw.get('core_transports') or len(raw.get('audio_reads', [])) != 2):
+        return False
+    for language in ('en', 'nl', 'de', 'fr', 'es'):
+        group = [r for r in rows if r['language'] == language]
+        if (len({r.get('text_sha256') for r in group}) != 1
+                or len({r.get('voice') for r in group}) != 1
+                or any(not r.get('voice') or type(r.get('bytes')) is not int or r['bytes'] <= 0
+                       or not re.fullmatch('[0-9a-f]{64}', r.get('sha256', ''))
+                       or not re.fullmatch('[0-9a-f]{64}', r.get('text_sha256', ''))
+                       or str(r.get('locale', '')).split('-')[0] != language for r in group)):
+            return False
+    for row in rows:
+        path = Path(directory) / f"prosody-{row['language']}-{row['mood']}.mp3"
+        if not path.is_file() or path.stat().st_size != row['bytes'] or path.stat().st_size > 2 * 1024 * 1024:
+            return False
+        if hashlib.sha256(path.read_bytes()).hexdigest() != row['sha256']:
+            return False
+    return True
 
 
 def owned_run(args, *, payload, directory, seconds, network):
@@ -60,6 +119,8 @@ def owned_run(args, *, payload, directory, seconds, network):
 def expected_source_hashes():
     files=list((ROOT/'custom_components/djconnect').rglob('*.py'))
     files.append(ROOT/'scripts/verification/verify_ask_dj_contextual_dialogue_http.py')
+    files.append(ROOT/'scripts/verification/personal_dj_narration_probe.py')
+    files.append(ROOT/'tools/verification/askdj_research_outcomes.py')
     return {str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for p in files}
 
 
@@ -215,9 +276,7 @@ def run(candidate, output):
                 return 1
         # Named bindings must actually execute, not merely exist in source.
         inventory=json.loads((ROOT/'docs/verification/fixtures/askdj_golden_release_matrix_v1.json').read_text())
-        bindings=list(inventory['additional_route_contracts'].values())
-        for family in inventory['families']:
-            bindings.extend(family['owning_tests'])
+        bindings=required_bindings(inventory)
         executed=[name for p in result['profiles'] for name in p.get('executed',[])]
         if any(not any(name.startswith(Path(b['file']).stem+'.') and name.endswith('.'+b['method'])
                        for name in executed) for b in bindings):
@@ -232,23 +291,42 @@ def run(candidate, output):
         result['executed_proactive_cases']=len(proactive)
         result['executed_single_turn_cases']=len(qa)
         result['executed_help_cases']=sum(c['id'].startswith('help_prompt_') for c in qa)
+        result['reported_issues']=len(inventory['reported_issues'])
+        if blockers := release_blockers(inventory):
+            # Do not spend model credits rerunning a known rejected candidate.
+            result['findings']=['open_core_qualification:'+item for item in blockers]
+            save();return 1
         save()
         for mode, (filename, limit) in PROFILES.items():
             directory=temp/mode;directory.mkdir()
-            paid=mode in {'full_golden','contextual_golden'}
+            paid=mode in {'full_golden','contextual_golden','mood_prosody'}
             key=os.environ.get('DJCONNECT_GOLDEN_OPENAI_API_KEY','') if paid else 'unused-networkless-probe'
             if not key or len(key)>8192:
                 result['profiles'].append({'id':mode,'status':'FAIL','findings':['credential_missing']});save();return 1
-            code=owned_run(['-e','DJC_SAFETY_PROBE='+mode, IMAGE,
+            flags = ['-e','DJC_SAFETY_PROBE='+mode]
+            payload = {'api_key':key,'model':'gpt-6-luna','max_tokens':700}
+            if mode == 'mood_prosody':
+                tts_model = os.environ.get('DJCONNECT_GOLDEN_TTS_MODEL', 'gpt-4o-mini-tts')
+                if tts_model != 'gpt-4o-mini-tts':
+                    result['profiles'].append({'id':mode,'status':'FAIL','findings':['qualified_tts_model_configuration_missing']});save();return 1
+                payload['tts_settings'] = {'chat_model': tts_model}
+                flags = ['-e','DJC_SAFETY_PROBE=literal_tts','-e','DJC_MOOD_PROSODY=1',
+                         '-e','DJC_PROSODY_FIVE_LANGUAGES=1']
+            code=owned_run([*flags, IMAGE,
                             '/candidate/scripts/verification/verify_ask_dj_contextual_dialogue_http.py'],
-                           payload={'api_key':key,'model':'gpt-6-luna','max_tokens':700},
+                           payload=payload,
                            directory=directory,seconds=limit,network='bridge' if paid else 'none')
             path=directory/filename
             if not path.is_file() or path.stat().st_size>8*1024*1024:
                 row={'id':mode,'status':'FAIL','findings':['receipt_missing_or_oversized']}
             else:
                 raw=json.loads(path.read_text())
-                if mode=='full_golden':
+                if mode=='mood_prosody':
+                    row={'id':mode,'status':'PASS' if validate_prosody_report(raw, directory) else 'FAIL',
+                         'paid_tts_attempts':raw.get('paid_tts_attempts'),
+                         'kind':'real_paired_ha_and_provider_prosody', 'audible_acceptance':'NOT_RUN',
+                         'mood_prosody':raw.get('mood_prosody', [])}
+                elif mode=='full_golden':
                     row={'id':mode,**redacted_full_report(raw)}
                 elif mode=='contextual_golden':
                     raw['candidate_sha']=candidate

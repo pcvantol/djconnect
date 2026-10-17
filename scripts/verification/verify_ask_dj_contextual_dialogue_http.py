@@ -81,6 +81,7 @@ def hashes():
     files = list((ROOT / "custom_components/djconnect").rglob("*.py"))
     files.append(Path(__file__))
     files.append(ROOT / 'scripts/verification/personal_dj_narration_probe.py')
+    files.append(ROOT / 'tools/verification/askdj_research_outcomes.py')
     return {
         str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(files)
     }
@@ -97,6 +98,26 @@ async def main():
     tts_settings = access.get("tts_settings")
     del access
     model_receipts = []
+    public_source_corpus = {}
+    def capture_public_sources(value):
+        if isinstance(value, dict):
+            for nested in value.values():
+                capture_public_sources(nested)
+        elif isinstance(value, (tuple, list)):
+            for nested in value:
+                capture_public_sources(nested)
+        elif isinstance(value, str) and "\nData:\n" in value:
+            try:
+                projection = json.loads(value.split("\nData:\n", 1)[1])
+            except ValueError:
+                return
+            research = projection.get("public_music_research") or projection.get("evidence", {}).get("public_music_research", {})
+            for source in research.get("sources", []):
+                excerpt = source.get("untrusted_excerpt", "")
+                fingerprint = hashlib.sha256(excerpt.encode()).hexdigest()
+                assert fingerprint == source.get("content_hash") and len(excerpt) <= 1800
+                public_source_corpus[fingerprint] = source
+
     agent_boundary_fixtures = []
     failures = []
     model_gate = None
@@ -167,6 +188,8 @@ async def main():
                 yield ResponseCompletedEvent.model_construct(type="response.completed",sequence_number=3,response=completed)
             return fixture_stream()
         assert os.environ.get("DJC_SAFETY_PROBE") not in {"previous", "output", "release_context", "silence_signal"}, "Safety probes must not call a model"
+        if os.environ.get("DJC_SAFETY_PROBE") == "public_research":
+            capture_public_sources(kwargs.get("input", []))
         inputs = json.dumps(kwargs.get("input", []), ensure_ascii=False)
         assert not any(
             value in inputs
@@ -181,7 +204,7 @@ async def main():
         assert not kwargs.get("tools") and kwargs.get("store") is False
         if os.environ.get("DJC_SAFETY_PROBE") == "narration_golden":
             assert not any(value in inputs for value in ("Wednesday Morning", "1964", "Synthetic artist", "Synthetic recording")), "catalog or private value leaked into a narration model call"
-        golden = os.environ.get("DJC_SAFETY_PROBE") in {"contextual_golden", "full_golden", "narration_golden"}
+        golden = os.environ.get("DJC_SAFETY_PROBE") in {"contextual_golden", "full_golden", "narration_golden", "public_research"}
         receipt = {"input_bytes": len(inputs.encode()), "model": model, "streaming": True}
         if golden:
             from scripts.verification.askdj_contextual_golden import ACTIVE_CASE, MAX_MODEL_CALLS
@@ -190,7 +213,10 @@ async def main():
             case_id = ACTIVE_CASE.get() or (owner_turn.client_id if owner_turn else None)
             if case_id is None and os.environ.get("DJC_SAFETY_PROBE") == "narration_golden":
                 case_id = "proactive-owner-publication"
-            budget = MAX_MODEL_CALLS if os.environ.get("DJC_SAFETY_PROBE") == "contextual_golden" else (64 if os.environ.get("DJC_SAFETY_PROBE") == "narration_golden" else 128)
+            budget = (16 if os.environ.get("DJC_SAFETY_PROBE") == "public_research" and os.environ.get("DJC_PUBLIC_STYLE_MATRIX") == "1" else
+                      10 if os.environ.get("DJC_SAFETY_PROBE") == "public_research" else
+                      MAX_MODEL_CALLS if os.environ.get("DJC_SAFETY_PROBE") == "contextual_golden" else
+                      64 if os.environ.get("DJC_SAFETY_PROBE") == "narration_golden" else 128)
             if len(model_receipts) >= budget or case_id is None:
                 raise RuntimeError("golden_model_call_budget_or_case_invalid")
             # Reserve BEFORE I/O: even a timeout/cancellation may have spent credits.
@@ -372,9 +398,15 @@ async def main():
             "wake_word_entity": None,
             "wake_word_id": None,
         }
+        lab_pipelines = [settings]
+        if os.environ.get("DJC_PROSODY_FIVE_LANGUAGES") == "1":
+            lab_pipelines += [{**settings, "id": "own-prosody-" + language,
+                               "language": language, "tts_language": locale}
+                              for language, locale in (("nl", "nl-NL"), ("de", "de-DE"),
+                                                       ("fr", "fr-FR"), ("es", "es-ES"))]
         await PipelineStore(
             h, STORAGE_VERSION, STORAGE_KEY, minor_version=STORAGE_VERSION_MINOR
-        ).async_save({"items": [settings], "preferred_item": settings["id"]})
+        ).async_save({"items": lab_pipelines, "preferred_item": settings["id"]})
         await async_setup_pipeline_store(h)
         runtime = DJConnectRuntime(owner, device_token=secrets.token_urlsafe(32))
         runtime.device_status.update(device_id=device, client_type="ios")
@@ -740,6 +772,82 @@ async def main():
                         flush=True,
                     )
                     return body
+
+                if os.environ.get("DJC_SAFETY_PROBE") == "public_research":
+                    answers = []
+                    research_failures = []
+                    from custom_components.djconnect.ask_dj import public_research
+                    original_research_http = public_research.PublicFetch.request
+                    english_only = os.environ.get("DJC_ENGLISH_REFERENCE_ONLY") == "1"
+                    if english_only:
+                        async def english_reference(fetch, url, **kwargs):
+                            if (".wikipedia.org/" in url and "https://en.wikipedia.org/" not in url) or "duckduckgo.com/" in url:
+                                await fetch.guard()
+                                fetch.requests += 1
+                                return 404, "", url
+                            return await original_research_http(fetch, url, **kwargs)
+                        public_research.PublicFetch.request = english_reference
+                    style_matrix = os.environ.get("DJC_PUBLIC_STYLE_MATRIX") == "1"
+                    public_cases = (
+                        ("public-peter-nl", "Wie is Peter Luts?", "nl"),
+                        ("public-eno-en", "Tell me about Brian Eno", "en"),
+                        ("public-ostinato-de", "Was ist ein Ostinato?", "de"),
+                        ("public-coldplay-fr", "Qui sont les membres de Coldplay ?", "fr"),
+                        ("public-nevermind-es", "Háblame de Nevermind", "es"),
+                    )
+                    personas = ("home_dj", "radio_dj", "club_dj", "festival_dj", "home_dj")
+                    moods = (40, 70, 10, 95, 70)
+                    if style_matrix:
+                        settings = [(persona, mood) for persona in ("home_dj", "radio_dj", "club_dj", "festival_dj") for mood in (10, 95)]
+                        public_cases = tuple((f"style-{persona}-{mood}", "Wie is Brian Eno?", "nl") for persona, mood in settings)
+                        personas, moods = zip(*settings)
+                    sys.path.insert(0, str(ROOT / "tools/verification"))
+                    from askdj_research_outcomes import classify_answer
+                    for case_index, (identifier, question, locale) in enumerate(public_cases):
+                        body = await ask(question, identifier,
+                                         context={"thread_id": "public-research"}, language=locale,
+                                         dj_persona=personas[case_index], mood=moods[case_index])
+                        Path("/lab/public-research-progress.json").write_text(jsonlib({
+                            "status": "IN_PROGRESS", "case": identifier, "knowledge_basis": body.get("knowledge_basis"),
+                            "model_calls": model_receipts, "research_status": body.get("public_research_status"),
+                            "source_unchanged": hashes() == initial_source_hashes}) + "\n")
+                        wiki = [v for v in body.get("sources", []) if v.get("provider") == "Wikipedia"]
+                        good = (body.get("knowledge_basis") == "fetched_public_music_research_v1"
+                                and bool(wiki and wiki[0].get("revision_url"))
+                                and body["conversation"]["metrics"]["agent_calls"] == 2)
+                        if not good:
+                            research_failures.append(identifier)
+                        assert "untrusted_excerpt" not in json.dumps(body)
+                        if english_only and good:
+                            assert all(source.get("language") == "en" for source in wiki)
+                        answers.append({"id": identifier, "question": question, "locale": locale,
+                                        "answer": body["text"], "sources": body["sources"],
+                                        "style": body["conversation"]["style"],
+                                        "status": "PASS" if good else "FAIL",
+                                        "metrics": body["conversation"]["metrics"],
+                                        "answer_qualification": classify_answer(body),
+                                        "recovery_marker": body.get("research_answer_qualification"),
+                                        "full_answer_accepted": good and not body.get("research_answer_qualification"),
+                                        "editorial_acceptance": "NOT_RUN"})
+                    assert not mutations, mutations
+                    assert public_source_corpus, "missing_actual_public_source_corpus"
+                    if style_matrix:
+                        assert len(public_source_corpus) == 1, "style-comparison-requires-the-same-source"
+                    Path("/lab/public-research.json").write_text(jsonlib({
+                        "status": "FAIL" if research_failures else "PASS", "scope": "real isolated HA pairing/shared Ask DJ/Wikipedia/scoped OpenAI",
+                        "english_only_source_fixture": english_only, "style_matrix": style_matrix,
+                        "qualification": "TECHNICAL_SOURCE_GROUNDING_ONLY",
+                        "editorial_acceptance": "NOT_RUN",
+                        "supported_prefix_cases": [r["id"] for r in answers
+                            if r["answer_qualification"] == "supported_prefix"],
+                        "source_corpus": list(public_source_corpus.values()), "failed": research_failures,
+                        "answers": answers, "paid_model_calls": len(model_receipts),
+                        "model_calls": model_receipts, "core_transports": receipts,
+                        "source_hashes": initial_source_hashes, "source_unchanged": hashes() == initial_source_hashes,
+                        "native": "NOT_RUN", "installed": "NOT_RUN", "audible": "NOT_RUN",
+                    }) + "\n")
+                    assert not research_failures, research_failures
+                    return
 
                 if os.environ.get("DJC_SAFETY_PROBE") == "choice_titles":
                     before_hashes = hashes()
@@ -1176,12 +1284,43 @@ async def main():
                             audio_receipts.append({"status":response.status,"bytes":len(audio),
                                 "sha256":hashlib.sha256(audio).hexdigest(),"content_type":response.content_type})
                         assert len(synthesis) == 1 and audio_receipts[0] == audio_receipts[1]
+                    prosody_receipts = []
+                    if os.environ.get("DJC_MOOD_PROSODY") == "1":
+                        # Real configured HA provider comparison, distinct from
+                        # paired bubble proof above and from listening acceptance.
+                        _, selected_voice = speech_processor.configured_processor(h, settings, "en", "default")
+                        samples = {
+                            "en": "Welcome back. The music has room to breathe, and I am here to keep you company. Let's enjoy the next part together.",
+                            "nl": "Fijn dat je er bent. De muziek krijgt de ruimte, en ik houd je gezelschap. Laten we samen van het volgende stukje genieten.",
+                            "de": "Schön, dass du da bist. Die Musik bekommt Raum, und ich begleite dich. Genießen wir gemeinsam den nächsten Teil.",
+                            "fr": "Content de te retrouver. La musique a de la place pour respirer, et je suis là pour te tenir compagnie. Profitons ensemble de la suite.",
+                            "es": "Qué gusto tenerte aquí. La música tiene espacio para respirar y yo estoy aquí para acompañarte. Disfrutemos juntos de lo que sigue.",
+                        }
+                        if os.environ.get("DJC_PROSODY_FIVE_LANGUAGES") != "1":
+                            samples = {"en": samples["en"]}
+                        for locale, sample in samples.items():
+                            _, selected_voice = speech_processor.configured_processor(h,
+                                {"assist_pipeline_id": "own-dialogue-pipeline" if locale == "en" else "own-prosody-" + locale},
+                                locale, "default")
+                            for mood in ("chill", "groove", "energy", "party"):
+                                expression = speech_processor.mood_prosody(entity, mood)
+                                assert expression["state"] == "applied"
+                                audio = await speech_processor.synthesize(entity,
+                                    {**selected_voice, "mood_prosody": expression}, sample)
+                                Path(f"/lab/prosody-{locale}-{mood}.mp3").write_bytes(audio.data)
+                                prosody_receipts.append({"mood": mood, "bytes": len(audio.data),
+                                    "sha256": hashlib.sha256(audio.data).hexdigest(),
+                                    "text_sha256": hashlib.sha256(sample.encode()).hexdigest(),
+                                    "voice": selected_voice["voice_id"], "locale": selected_voice["locale"],
+                                    "language": locale, "audible_acceptance": "NOT_RUN"})
                     result = {"qualification":"ISOLATED_REAL_HA_PAIRED_OPENAI_LITERAL_TTS",
                         "status":"PASS", "source_hashes_before": initial_source_hashes, "source_hashes": hashes(),
                         "source_unchanged": initial_source_hashes == hashes(), "pairing":"ordinary_device_token_minted_persisted",
                         "tts_model":tts_settings["chat_model"],"synthesis":synthesis,"audio_reads":audio_receipts,
                         "core_transports":receipts,"model_calls":model_receipts,"paid_model_calls":len(model_receipts),
-                        "paid_tts_attempts":len(synthesis),"native":"NOT_RUN","installed":"NOT_RUN","audible":"NOT_RUN"}
+                        "paid_tts_attempts":len(synthesis) + len(prosody_receipts),
+                        "mood_prosody": prosody_receipts,
+                        "native":"NOT_RUN","installed":"NOT_RUN","audible":"NOT_RUN"}
                     if not result['source_unchanged']:
                         result['status'] = 'FAIL_SOURCE_CHANGED'
                     await end(active, "literal-tts")

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+from copy import deepcopy
 import hashlib
 import time
 import logging
@@ -47,6 +48,19 @@ _LOGGER = logging.getLogger(__name__)
 
 class SpotifyBackendError(RuntimeError):
     """Raised when the configured Spotify backend cannot serve a command."""
+
+    def __init__(self, message: str, *, http_status: int | None = None):
+        super().__init__(message)
+        self.http_status = http_status
+
+
+class SpotifyOutputError(SpotifyBackendError):
+    """An output-local rejection/uncertain transfer, not a global outage."""
+
+    def __init__(self, code: str, *, uncertain: bool = False):
+        super().__init__(code)
+        self.code = code
+        self.uncertain = uncertain
 
 
 class SpotifyReauthRequiredError(SpotifyBackendError):
@@ -195,20 +209,22 @@ async def _spotify_playback_command(
     backend: "SpotifyBackend", command: str, value: Any, play: bool | None, original_command: str
 ) -> dict[str, Any]:
     """Dispatch state-changing Spotify commands and return their latest state."""
+    selection = None
+    selected_output = None
     no_value = {"pause": backend.pause, "next": backend.next, "previous": backend.previous,
                 "start_liked_proxy": backend.start_liked_proxy}
     if command in no_value:
         await no_value[command]()
     elif command == "play":
-        await backend.play(value)
+        selection = await backend.play(value)
     elif command == "play_context_at":
         await backend.play_context_at(value)
     elif command == "seek_relative":
         await backend.seek_relative(value)
     elif command == "start_playlist":
-        await backend.start_playlist(str(value or ""))
+        selection = await backend.start_playlist(str(value or ""))
     elif command == "play_artist_top_tracks":
-        await backend.play_artist_top_tracks(_search_query(value))
+        selection = await backend.play_artist_top_tracks(_search_query(value))
     elif command == "play_uris":
         await backend.play_uris(_track_uris(value))
     elif command == "set_shuffle":
@@ -216,7 +232,7 @@ async def _spotify_playback_command(
     elif command == "set_repeat":
         await backend.set_repeat(str(value or ""))
     elif command == "set_output":
-        await backend.set_output(str(value or ""), play=bool(play))
+        selected_output = await backend.set_output(str(value or ""), play=bool(play))
     elif command == "set_volume":
         await backend.set_volume(value)
     elif command == "save_current_track":
@@ -225,7 +241,21 @@ async def _spotify_playback_command(
         return {"success": True, "playback": await backend.set_current_track_favorite(value)}
     else:
         raise ValueError(f"Unsupported DJConnect command: {original_command}")
-    return {"success": True, "playback": await backend.playback_state()}
+    try:
+        observed = await backend.playback_state()
+    except SpotifyBackendError:
+        if selection is None and selected_output is None:
+            raise
+        observed = {}  # Successful dispatch is not undone by a failed readback.
+    response = {"success": True, "playback": observed}
+    if selected_output is not None:
+        actual_output = (observed.get("device") or {}).get("id") or observed.get("device_id")
+        response["action_outcome"] = {"state": "dispatched", "readback_confirmed": actual_output == selected_output,
+                                      "selected_output_id": selected_output, "retry_automatically": False}
+    if selection:
+        from .playback_request import outcome
+        response["playback_outcome"] = outcome(selection, observed)
+    return response
 
 
 def _recommendation_genres(names: list[str], occupied_seed_count: int) -> list[str]:
@@ -470,7 +500,7 @@ class SpotifyBackend:
                 if resp.status < 200 or resp.status >= 300:
                     text = await resp.text()
                     raise SpotifyBackendError(
-                        f"Spotify API failed HTTP {resp.status}: {_spotify_error_message(text)}"
+                        f"Spotify API failed HTTP {resp.status}: {_spotify_error_message(text)}", http_status=resp.status
                     )
                 return {}
             try:
@@ -479,7 +509,7 @@ class SpotifyBackend:
                 body = {"message": await resp.text()}
             if resp.status < 200 or resp.status >= 300:
                 raise SpotifyBackendError(
-                    f"Spotify API failed HTTP {resp.status}: {_spotify_error_message(body)}"
+                    f"Spotify API failed HTTP {resp.status}: {_spotify_error_message(body)}", http_status=resp.status
                 )
             return body or {}
 
@@ -668,14 +698,14 @@ class SpotifyBackend:
             playback["is_liked"] = bool(data[0])
             playback["favorite_status"] = bool(data[0])
 
-    async def devices(self) -> list[dict[str, Any]]:
+    async def devices(self, *, fresh: bool = False) -> list[dict[str, Any]]:
         async def load():
             data = await self._request("GET", "/me/player/devices")
             return [_normalize_device(device) for device in data.get("devices", [])]
 
         from .ask_dj.dialogue import current_turn
         turn = current_turn.get()
-        current = await load() if turn is not None else await self._cached("devices", load)
+        current = await load() if fresh or turn is not None else await self._cached("devices", load)
         if turn is not None:
             await turn.guard()
         devices = _merge_known_spotify_devices(self.runtime, current)
@@ -1081,8 +1111,11 @@ class SpotifyBackend:
             data = await self._request("GET", f"/search?{params}")
             artist = _first_search_item(data, "artist")
             if artist:
-                return artist
-        raise SpotifyBackendError(f"Spotify search found no artist for: {query}")
+                expected = _normalize_artist_alias_key(candidate)
+                actual = _normalize_artist_alias_key(str(artist.get("name") or ""))
+                if actual and actual == expected:
+                    return artist
+        raise SpotifyBackendError(f"Spotify search found no matching artist for: {query}")
 
     async def _recently_played(self, *, limit: int = 50) -> list[dict[str, Any]]:
         limit = min(50, max(1, int(limit)))
@@ -1149,18 +1182,31 @@ class SpotifyBackend:
     async def pause(self) -> None:
         await self._request("PUT", "/me/player/pause", expected_empty=True)
 
-    async def play(self, value: Any = None) -> None:
+    async def play(self, value: Any = None) -> dict | None:
         body = None
         if value:
             value = await self._playable_value(value)
             body = {"uris": [str(value)]} if str(value).startswith("spotify:track:") else {"context_uri": str(value)}
+        selection = None
+        if value:
+            selected = deepcopy(getattr(self.runtime, "last_resolved_media", None) or {})
+            selected = selected if selected.get("uri") == str(value) else {"uri": str(value)}
+            selection = {"kind": str(value).split(":")[1], "media": selected,
+                         "uris": [str(value)] if str(value).startswith("spotify:track:") else [],
+                         "context_uri": str(value) if not str(value).startswith("spotify:track:") else None}
         try:
             await self._request("PUT", "/me/player/play", json=body, expected_empty=True)
         except SpotifyBackendError as exc:
             if not _looks_like_no_active_device(exc):
                 raise
-            await self._ensure_playback_device(play=False)
+            try:
+                await self._ensure_playback_device(play=False)
+            except SpotifyBackendError as denied:
+                if selection is not None:
+                    denied.playback_selection = selection
+                raise
             await self._request("PUT", "/me/player/play", json=body, expected_empty=True)
+        return selection
 
     async def play_context_at(self, value: Any) -> None:
         if not isinstance(value, dict):
@@ -1227,22 +1273,31 @@ class SpotifyBackend:
             raise SpotifyBackendError("DJConnect Liked Proxy playlist URI is not configured")
         await self.start_playlist(playlist)
 
-    async def start_playlist(self, playlist_uri: str) -> None:
+    async def start_playlist(self, playlist_uri: str) -> dict:
         uri = playlist_uri.strip()
         if not uri:
             raise ValueError("Provide a playlist URI")
         if not uri.startswith("spotify:playlist:"):
             uri = await self._search_uri(uri, "playlist")
+        selected = deepcopy(getattr(self.runtime, "last_resolved_media", None) or {})
+        selected = selected if selected.get("uri") == uri else {"uri": uri}
         body = {"context_uri": uri}
+        selection = {"kind": "playlist", "media": selected, "uris": [], "context_uri": uri}
         try:
             await self._request("PUT", "/me/player/play", json=body, expected_empty=True)
         except SpotifyBackendError as exc:
             if not _looks_like_no_active_device(exc):
                 raise
-            await self._ensure_playback_device(play=False)
+            try:
+                await self._ensure_playback_device(play=False)
+            except SpotifyBackendError as denied:
+                denied.playback_selection = selection
+                raise
             await self._request("PUT", "/me/player/play", json=body, expected_empty=True)
 
-    async def play_artist_top_tracks(self, query: str, *, limit: int = 10) -> None:
+        return selection
+
+    async def play_artist_top_tracks(self, query: str, *, limit: int = 10) -> dict:
         """Resolve an artist and start playback with that artist's popular tracks."""
         artist = await self._search_artist(query)
         artist_id = str(artist.get("id") or _spotify_id_from_uri(artist.get("uri"))).strip()
@@ -1254,6 +1309,10 @@ class SpotifyBackend:
         tracks = data.get("tracks") if isinstance(data, dict) else []
         if not isinstance(tracks, list):
             tracks = []
+        tracks = [track for track in tracks if isinstance(track, dict)
+                  and str(track.get("uri") or "").startswith("spotify:track:")
+                  and any(isinstance(credit, dict) and credit.get("id") == artist_id
+                          for credit in track.get("artists", []))]
         uris = [
             str(track.get("uri") or "").strip()
             for track in tracks[: max(1, min(20, int(limit)))]
@@ -1269,6 +1328,9 @@ class SpotifyBackend:
             data={"artists": {"total": 1, "items": [artist]}},
             selected=selected,
         )
+        selection = {"kind": "artist_tracks", "artist": selected,
+                     "media": _normalize_search_item(tracks[0], "track", query),
+                     "uris": uris, "context_uri": None}
         try:
             await self._request(
                 "PUT",
@@ -1279,13 +1341,19 @@ class SpotifyBackend:
         except SpotifyBackendError as exc:
             if not _looks_like_no_active_device(exc):
                 raise
-            await self._ensure_playback_device(play=False)
+            try:
+                await self._ensure_playback_device(play=False)
+            except SpotifyBackendError as denied:
+                denied.playback_selection = selection
+                raise
             await self._request(
                 "PUT",
                 "/me/player/play",
                 json={"uris": uris},
                 expected_empty=True,
             )
+
+        return selection
 
     async def play_uris(self, uris: list[str]) -> None:
         """Start playback with explicit Spotify track URIs."""
@@ -1419,28 +1487,33 @@ class SpotifyBackend:
             expected_empty=True,
         )
 
-    async def set_output(self, device_id: str, *, play: bool = False) -> None:
+    async def set_output(self, device_id: str, *, play: bool = False) -> str:
         if not device_id:
             raise ValueError("Provide an output device id")
-        devices = await self.devices()
-        from .ask_dj.dialogue import current_turn
-        if current_turn.get() is not None:
-            devices = [d for d in devices if d.get("id") == device_id and not d.get("cached") and not d.get("is_restricted")]
-            if not devices:
-                raise SpotifyBackendError("Selected output is unavailable")
-        selected = _select_spotify_device(devices, device_id)
-        device_id = str(selected.get("id") or device_id).strip()
-        if not device_id:
-            raise ValueError("Provide an output device id")
-        await self._transfer_playback(device_id, play=play)
+        # An explicit selection never falls back to an active/first device.
+        # Revalidate all manual and dialogue routes against a fresh inventory.
+        devices = await self.devices(fresh=True)
+        live = [d for d in devices if d.get("id") and not d.get("cached") and not d.get("is_restricted")]
+        matches = [d for d in live if d.get("id") == device_id]
+        if len(matches) != 1:
+            raise SpotifyOutputError("output_unavailable")
+        resolved_id = str(matches[0]["id"])
+        await self._transfer_playback(resolved_id, play=play)
+        return resolved_id
 
     async def _transfer_playback(self, device_id: str, *, play: bool = False) -> None:
-        await self._request(
-            "PUT",
-            "/me/player",
-            json={"device_ids": [device_id], "play": play},
-            expected_empty=True,
-        )
+        try:
+            await self._request(
+                "PUT", "/me/player", json={"device_ids": [device_id], "play": play}, expected_empty=True,
+            )
+        except SpotifyBackendError as exc:
+            if exc.http_status == 404:
+                raise SpotifyOutputError("output_unavailable") from exc
+            if exc.http_status is not None and exc.http_status >= 500:
+                raise SpotifyOutputError("output_transfer_failed", uncertain=True) from exc
+            raise
+        except (asyncio.TimeoutError, OSError) as exc:
+            raise SpotifyOutputError("output_transfer_failed", uncertain=True) from exc
 
     async def set_volume(self, value: Any) -> None:
         try:
@@ -1909,6 +1982,7 @@ def _normalize_device(device: dict[str, Any]) -> dict[str, Any]:
         "name": device.get("name") or "",
         "type": device.get("type") or "",
         "active": bool(device.get("is_active")),
+        "is_restricted": bool(device.get("is_restricted")),
         "supports_volume": not bool(device.get("is_restricted")),
         "volume_percent": device.get("volume_percent"),
     }
@@ -2064,6 +2138,7 @@ def _compact_spotify_device(device: dict[str, Any]) -> dict[str, Any]:
         "type",
         "active",
         "is_active",
+        "is_restricted",
         "supports_volume",
         "volume_percent",
         "cached",

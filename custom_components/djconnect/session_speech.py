@@ -289,7 +289,7 @@ async def resolve_dialogue(hass, history, profile_id, reference, *, profile_sour
 
 
 def _contribution_descriptor(reference, *, text, locale, persona, persona_revision,
-                             expires_at, source_kind, attribution, autoplay=False):
+                             expires_at, source_kind, attribution, autoplay=False, mood=None):
     if not isinstance(locale, str) or locale not in {"en", "nl", "de", "fr", "es"}:
         return unavailable(reference, "original_locale_unknown")
     try:
@@ -305,13 +305,14 @@ def _contribution_descriptor(reference, *, text, locale, persona, persona_revisi
     if segments is None:
         return unavailable(reference, "unsupported_text_extent")
     revision = hashlib.sha256(text.encode()).hexdigest()[:24]
+    mood = mood if mood in {"chill", "groove", "energy", "party"} else None
     presentation = hashlib.sha256(json.dumps([reference, revision, locale, persona,
-        persona_revision, attribution], sort_keys=True).encode()).hexdigest()[:24]
+        persona_revision, attribution, mood], sort_keys=True).encode()).hexdigest()[:24]
     return {"schema_version": 1, "reference": reference, "source_kind": source_kind,
             "source_id": reference.get("moment_id") or reference.get("entry_id"),
             "session_id": reference["session_id"], "text_revision": revision,
             "presentation_revision": presentation, "persona": persona,
-            "persona_revision": persona_revision, "locale": locale, "segments": segments,
+            "persona_revision": persona_revision, "mood": mood, "locale": locale, "segments": segments,
             "style_basis": "accepted_contribution" if persona is not None else "legacy_unknown",
             "state": "available", "reason": None, "manual_allowed": True,
             "autoplay_eligible": autoplay, "processors": ["local_on_device", "ha_configured"],
@@ -344,6 +345,7 @@ def moment_projection(broadcast, moment, *, autoplay=False, admission=None):
         return unavailable(reference, "original_source_expired")
     return _contribution_descriptor(reference, text=moment.content, locale=broadcast.state.locale,
         persona=moment.presentation_intent.dj_persona.value, persona_revision=boundary.persona_revision,
+        mood=moment.presentation_intent.source_session_mood,
         expires_at=expiry, source_kind="published_dj_moment",
         attribution=[dict(moment.source_attribution)] if moment.source_attribution else [], autoplay=autoplay)
 
@@ -386,6 +388,7 @@ def retained_projection(entry):
     if entry["kind"] == "dj_moment" and entry.get("archive_basis") in {
             "cc0_normalized_fields_v1", "runtime_authored_direction_v1", "owner_metadata_narration_v1"}:
         style = {"language": entry.get("locale"), "persona": entry.get("persona"),
+                 "mood": entry.get("mood"),
                  "persona_revision": entry.get("persona_revision")}
         attribution = [entry["source_attribution"]] if entry.get("source_attribution") else []
     elif entry["kind"] == "conversation_dj" and entry.get("role") == "assistant":
@@ -397,6 +400,7 @@ def retained_projection(entry):
         return unavailable(reference, "original_source_unqualified")
     return _contribution_descriptor(reference, text=entry.get("text"), locale=style.get("language"),
         persona=style.get("persona"), persona_revision=style.get("persona_revision"),
+        mood=style.get("mood"),
         expires_at=entry["retained_until"], source_kind="retained_dj_contribution", attribution=attribution)
 
 
@@ -597,7 +601,7 @@ def _speech_settings_authority(hass, runtime, identity, headers, context):
 
 async def prepare_ha(hass, runtime, owner, data, descriptor, admission, *, expected_provider=None):
     from .dj_response import prepare_private_tts_audio, get_private_tts_audio
-    from .speech_processor import configured_processor, synthesize, ProcessorUnavailable
+    from .speech_processor import configured_processor, synthesize, mood_prosody, ProcessorUnavailable
     from .speech_feedback import SpeechProviderChanged, notification, record
 
     def failed(reason):
@@ -627,10 +631,11 @@ async def prepare_ha(hass, runtime, owner, data, descriptor, admission, *, expec
     entity = voice = None
     try:
         entity, voice = resolve_processor()
+        expression = mood_prosody(entity, descriptor.get("mood"))
         key = (owner, descriptor["source_id"], descriptor["text_revision"],
                descriptor["presentation_revision"], voice["engine"], voice["voice_id"], voice["locale"], id(entity),
                voice.get("provider_version"), voice.get("voice_version"),
-               voice.get("configuration_revision"))
+               voice.get("configuration_revision"), json.dumps(expression, sort_keys=True))
         if descriptor.get('settings_contract_version') in (2, 3):
             key += (json.dumps(descriptor['settings_revision'], separators=(',', ':')),)
         def qualified_admission():
@@ -639,16 +644,19 @@ async def prepare_ha(hass, runtime, owner, data, descriptor, admission, *, expec
                 current_entity, current_voice = resolve_processor()
             except ProcessorUnavailable as exc:
                 raise SpeechProviderChanged(str(exc), descriptor["locale"]) from None
-            if current_entity is not entity or current_voice != voice:
+            if (current_entity is not entity or current_voice != voice
+                    or mood_prosody(current_entity, descriptor.get("mood")) != expression):
                 raise SpeechProviderChanged("speech_configuration_changed", descriptor["locale"])
         qualified_admission.on_withdraw = admission.on_withdraw
         qualified_admission.on_synthesized = lambda: record(hass, runtime, owner, voice, provider=entity)
         token = await prepare_private_tts_audio(hass, owner_profile_id=owner, cache_key=key,
             expires_at=datetime.fromisoformat(descriptor["expires_at"]).timestamp(), admission=qualified_admission,
-            synthesize=lambda: synthesize(entity, voice, "".join(segment["text"] for segment in descriptor["segments"])))
+            synthesize=lambda: synthesize(entity,
+                {**voice, "mood_prosody": expression} if expression["state"] == "applied" else voice,
+                "".join(segment["text"] for segment in descriptor["segments"])))
         asset = get_private_tts_audio(hass, token, owner)
         return {**descriptor, "expires_at": datetime.fromtimestamp(asset.expires_at, UTC).isoformat(),
-                "audio_state": "ready", "effective_voice": voice, "autoplay_eligible": False,
+                "audio_state": "ready", "effective_voice": voice, "mood_prosody": expression, "autoplay_eligible": False,
                 "audio_reference": {"asset_id": token, "path": "/api/djconnect/v1/speech/audio", "method": "POST"}}
     except PermissionError:
         # Source/owner withdrawal stays opaque. A still-authorized contribution

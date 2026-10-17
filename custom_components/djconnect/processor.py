@@ -13,7 +13,7 @@ from .pipeline import (
     process_text_with_assist,
 )
 from .music_dna import prompt_context_text
-from .music_intent import parse_spoken_music_request
+from .music_intent import parse_spoken_music_request, listening_request_target
 from .spotify import play_from_intent
 from .spotify_backend import SpotifyBackendError
 from .use_cases import run_music_command
@@ -29,9 +29,12 @@ async def process_text_command(
     user_id: str | None = None,
 ) -> dict[str, Any]:
     conf = runtime.config
+    from .ask_dj.dialogue import current_turn
+    shared_request = current_turn.get() is not None
+    explicit_music = bool(listening_request_target(user_text) or str(user_text).casefold().startswith(("speel ", "draai ", "play ", "put on ")))
     corrected_text = (
         await correct_stt_text_with_assist(hass, user_text, conf)
-        if correct_stt
+        if correct_stt and not (shared_request and explicit_music)
         else user_text
     )
     runtime.update(
@@ -92,6 +95,8 @@ async def process_text_command(
         intent = {key: value for key, value in intent.items() if key in permitted and (value is None or isinstance(value, str))}
         if any("spotify:" in str(value) or "http" in str(value) for value in intent.values()):
             raise DialogueError("unqualified_model_action", 403)
+    if current_turn.get() is not None and explicit_music:
+        intent = _request_bound_music_intent(user_text, intent)
     runtime.update(last_intent=intent)
     playback = None
     if play:
@@ -100,6 +105,7 @@ async def process_text_command(
     fallback_dj_text = _dj_response_text(intent, playback, conf, media=response_media)
     dj_text = fallback_dj_text
     result = {
+        **({"playback_outcome":playback["playback_outcome"]} if isinstance(playback,dict) and playback.get("playback_outcome") else {}),
         "text": corrected_text,
         "stt_text": user_text,
         "corrected_text": corrected_text if corrected_text != user_text else None,
@@ -145,6 +151,30 @@ async def _memory_context_for_assist(
     return prompt_context_text(context)
 
 
+
+def _request_bound_music_intent(text, proposed):
+    """The interpreter may pick a kind, never replace the user's music subject."""
+    parsed = parse_spoken_music_request(text)
+    if not parsed.get("query"):
+        return proposed
+    kind = str(proposed.get("type") or parsed["type"]).lower()
+    if kind not in {"artist", "track", "album", "playlist", "search", "music"}:
+        kind = parsed["type"]
+    if parsed["type"] != "artist":
+        kind = parsed["type"]
+    result = {"intent": "play_music", "type": kind, "query": parsed["query"],
+              "spotify_search_query": parsed["query"]}
+    for key in ("title", "album", "playlist", "artist"):
+        if parsed.get(key) and (key != "artist" or kind == "artist" or parsed["type"] != "artist"):
+            result[key] = parsed[key]
+    if parsed["type"] == "artist":
+        # A bare name can be a song or artist. Retain the proposed kind, but its
+        # query/label comes from the current request, never an earlier track.
+        key = {"track":"title", "album":"album", "playlist":"playlist"}.get(kind)
+        if key:
+            result[key] = parsed["query"]
+    return result
+
 def _deterministic_playback_intent(text: str) -> dict[str, Any]:
     """Use the local parser for clear artist playback requests to avoid stale Assist context."""
     parsed = parse_spoken_music_request(text)
@@ -168,6 +198,8 @@ def _deterministic_playback_intent(text: str) -> dict[str, Any]:
 
 def _is_clear_artist_play_request(text: str, artist: str) -> bool:
     normalized = " ".join(str(text or "").strip().lower().split())
+    if listening_request_target(text):
+        return True
     if not normalized.startswith(("speel ", "start ", "draai ", "zet ", "play ", "put on ")):
         return False
     artist_normalized = " ".join(str(artist or "").strip().lower().split())

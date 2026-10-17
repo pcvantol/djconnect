@@ -17,6 +17,21 @@ RUNNER = load('contextual_gate', 'tools/verification/run_askdj_contextual_releas
 
 
 class ContextualReleaseGateTest(unittest.TestCase):
+    def test_research_outcomes_never_promote_prefix_fallback_or_denial_to_full(self):
+        classifier = load('research_outcomes', 'tools/verification/askdj_research_outcomes.py')
+        full = {'success': True, 'text': 'A useful answer.', 'sources': [{'provider': 'Wikipedia'}],
+                'knowledge_basis': 'fetched_public_music_research_v1'}
+        self.assertEqual(classifier.classify_answer(full), 'full_answer_supported')
+        self.assertEqual(classifier.classify_answer({**full,
+            'research_answer_qualification': 'supported_prefix_v1'}), 'supported_prefix')
+        self.assertEqual(classifier.classify_answer({**full,
+            'knowledge_basis': 'public_research_unqualified'}), 'core_fallback')
+        self.assertEqual(classifier.classify_answer({**full, 'error': 'access_revoked'}), 'denied')
+        self.assertEqual(classifier.classify_answer(full, http_status=403), 'denied')
+        for changed in ({**full, 'sources': []}, {**full, 'text': ''},
+                        {**full, 'research_answer_qualification': 'future_unknown'}, {}):
+            self.assertEqual(classifier.classify_answer(changed), 'unqualified')
+
     def test_five_languages_unique_full_manifest(self):
         rows = GOLDEN.cases()
         self.assertEqual(len(rows), 20)
@@ -123,8 +138,44 @@ class ContextualReleaseGateTest(unittest.TestCase):
         proof=inventory.validate()
         self.assertEqual(proof['literal_core_routes'],47)
         self.assertEqual(proof['executable_help_cases'],60)
-        self.assertEqual(proof['conversation_families'],22)
+        self.assertEqual(proof['conversation_families'],34)
+        self.assertEqual(proof['conversation_steps'],100)
+        self.assertEqual(proof['reported_issues'],23)
+        self.assertEqual(len(proof['open_core_findings']),4)
         self.assertEqual(proof['proactive_golden_cases'],560)
+
+    def test_reported_issue_without_family_or_open_disposition_cannot_pass_release(self):
+        import json
+        inventory=load('issue_inventory','tools/verification/askdj_release_inventory.py')
+        matrix=json.loads((ROOT/'docs/verification/fixtures/askdj_golden_release_matrix_v1.json').read_text())
+        self.assertIn('ASKDJ-ISSUE-research-unsupported-fact',inventory.release_blockers(matrix))
+        for change in ('missing','duplicate','unbound','invalid','step_unbound','step_duplicate','step_unknown'):
+            changed=deepcopy(matrix)
+            if change=='missing':
+                changed.pop('reported_issues')
+            elif change=='duplicate':
+                changed['reported_issues'].append(changed['reported_issues'][0])
+            elif change=='unbound':
+                changed['reported_issues'][0]['family_id']='unexecuted_invented_family'
+            elif change=='step_unbound':
+                changed['families'][0]['steps'][0]['owning_tests']=[]
+            elif change=='step_duplicate':
+                changed['families'][0]['steps'][1]['id']=changed['families'][0]['steps'][0]['id']
+            elif change=='step_unknown':
+                changed['families'][0]['steps'][0]['acceptance_status']='PASS_WITHOUT_EXECUTION'
+            else:
+                changed['reported_issues'][0]['core_qualification']='PASS_WITHOUT_EXECUTION'
+            with self.subTest(change=change),self.assertRaises(ValueError):
+                inventory.release_blockers(changed)
+        # The actual Nirvana causal regressions must be release bindings, not
+        # merely helper/test functions discoverable in a separate local suite.
+        bindings=inventory.required_bindings(matrix)
+        required={
+            'test_voice_request_and_speaker_choice_keep_exact_artist_and_never_resume_old_queue',
+            'test_track_choice_is_producer_frozen_despite_injected_selection_and_changed_search',
+            'test_compound_speaker_timeout_is_uncertain_and_single_use_without_music_start',
+        }
+        self.assertTrue(required <= {row['method'] for row in bindings})
 
     def test_empty_and_anonymous_full_or_local_receipts_never_pass(self):
         matrix=load('djc_release_matrix','tools/verification/run_askdj_release_matrix.py')
@@ -160,3 +211,43 @@ class ContextualReleaseGateTest(unittest.TestCase):
         self.assertFalse(matrix.validate_local_report('current_artist',missing))
         unexpected=deepcopy(raw);unexpected['core_transports'][0].update(status=403,expected_status=403,body={'error':'denied'})
         self.assertFalse(matrix.validate_local_report('current_artist',unexpected))
+
+    def test_prosody_gate_requires_all_moods_languages_and_real_paired_audio_receipt(self):
+        import hashlib
+        from tempfile import TemporaryDirectory
+        matrix = load('prosody_matrix', 'tools/verification/run_askdj_release_matrix.py')
+        rows = [{'language': language, 'locale': language + '-XX', 'mood': mood, 'voice': 'marin',
+                 'bytes': 1000, 'text_sha256': hashlib.sha256(language.encode()).hexdigest(),
+                 'sha256': hashlib.sha256(bytes(1000)).hexdigest()}
+                for language in ('en', 'nl', 'de', 'fr', 'es')
+                for mood in ('chill', 'groove', 'energy', 'party')]
+        transports = [{'case': case, 'path': path, 'status': status, 'expected_status': status}
+                      for case, path, status in (
+                          ('literal-tts-start', 'session/start', 201),
+                          ('literal-tts-prepare', 'speech/prepare', 200),
+                          ('literal-tts-repeat', 'speech/prepare', 200),
+                          ('literal-tts-end', 'session/end', 200))]
+        audio = {'status': 200, 'bytes': 1000, 'content_type': 'audio/mpeg', 'sha256': 'a' * 64}
+        raw = {'qualification': 'ISOLATED_REAL_HA_PAIRED_OPENAI_LITERAL_TTS',
+               'pairing': 'ordinary_device_token_minted_persisted', 'tts_model': 'gpt-4o-mini-tts',
+               'source_hashes': matrix.expected_source_hashes(),
+               'source_hashes_before': matrix.expected_source_hashes(),
+               'status': 'PASS', 'source_unchanged': True, 'paid_tts_attempts': 21,
+               'mood_prosody': rows, 'core_transports': transports, 'audio_reads': [audio, audio],
+               'synthesis': [{'attempted': True, 'text_sha256': 'b' * 64}]}
+        with TemporaryDirectory() as directory:
+            for r in rows:
+                (Path(directory) / f"prosody-{r['language']}-{r['mood']}.mp3").write_bytes(bytes(1000))
+            self.assertTrue(matrix.validate_prosody_report(raw, directory))
+            for changed in (
+                {**raw, 'mood_prosody': rows[:-1]}, {**raw, 'paid_tts_attempts': 0},
+                {**raw, 'source_unchanged': False}, {**raw, 'source_hashes': {}},
+                {**raw, 'audio_reads': []}, {**raw, 'core_transports': [{}]},
+                {**raw, 'mood_prosody': [{**r, 'voice': r['mood']} for r in rows]},
+                {**raw, 'mood_prosody': [{**r, 'text_sha256': r['mood']} for r in rows]},
+                {'status': 'PASS', 'source_unchanged': True, 'paid_tts_attempts': 21,
+                 'mood_prosody': rows, 'core_transports': [{}], 'audio_reads': [{}, {}]},
+            ):
+                self.assertFalse(matrix.validate_prosody_report(changed, directory))
+            (Path(directory) / 'prosody-en-party.mp3').write_bytes(b'corrupted')
+            self.assertFalse(matrix.validate_prosody_report(raw, directory))

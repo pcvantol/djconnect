@@ -41816,7 +41816,7 @@
     "document_references": [
       {
         "path": "PRODUCT_ROADMAP.md",
-        "sha256": "1b1e03ee1e150a2abe631884bf4917f35df5585a25cbe684f765df20cf2c90f8"
+        "sha256": "cd9c41d3a3df45be81dad9c91992f96b2f07c75e1eee1355a41a38732b11a1e1"
       },
       {
         "path": "PRODUCT_BACKLOG.md",
@@ -41960,7 +41960,7 @@
       },
       {
         "path": "docs/product/ASK_DJ_CONTEXTUAL_DIALOGUE_CONTRACT_V1.md",
-        "sha256": "846a69222a090aba3d1ad5ad958fc976f8275beb0b546019f20deb7e113aabd9"
+        "sha256": "6916a864bfa7851cccdb038c35e0d008c47cde94d7d7e4803012db89c7fe1c1f"
       },
       {
         "path": "docs/product/MOMENT_TRACK_INSIGHT_DRILLDOWN_V1.md",
@@ -42152,7 +42152,7 @@
       },
       {
         "path": "docs/verification/CORE_LANE_REQUIREMENT_RECONCILIATION_20261017.md",
-        "sha256": "923228397acd56a8b227781d513f7b58b4ff4dd8db4c9980a8bdcf6fbba4488c"
+        "sha256": "8a5303b34f66eb38a7aa5299d0c833c21742e7a9762684fc73cbc36a9111086c"
       },
       {
         "path": "docs/product/ASK_DJ_PUBLIC_MUSIC_RESEARCH_V1.md",
@@ -42165,6 +42165,14 @@
       {
         "path": "docs/product/SESSION_VOICE_PREVIEW_V1.md",
         "sha256": "6565beb361fcefb1650e1c9841c09cd6567192903e3089aa254796ce811394b8"
+      },
+      {
+        "path": "docs/product/ASK_DJ_PLAYBACK_REQUEST_TRUTH_V1.md",
+        "sha256": "a9ee9dc3689c5f1b11746068e4e2f79d54cdc68af2265b02e468631c2fc5c158"
+      },
+      {
+        "path": "docs/verification/ASK_DJ_CONTEXTUAL_GOLDEN_RELEASE_GATE_V1.md",
+        "sha256": "b1dcde44be3ee1628f007046bb2a75816f455f4e1b83d4df8bccdaf7fe32530c"
       }
     ],
     "implementation_receipt": {

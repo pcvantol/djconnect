@@ -27,7 +27,8 @@ case, transport failure, lost selected context, missing factual source evidence,
 forbidden mutation, timeout or malformed receipt are failures, never skips.
 The exact Git candidate SHA, case manifest digest, model, usage and result IDs
 bind every redacted receipt. No model judge or exact prose matching is used.
-A request can consume at most two existing Core model attempts; the paid probe
+A request normally consumes at most two existing Core model attempts; the
+accepted-playback expression exception is bounded below; the paid probe
 has an independent hard request cap. Retry a failed CI job explicitly; no
 automatic model retry loop or fallback model.
 
@@ -71,7 +72,7 @@ model fallback/retries beyond the existing two-attempt Core bound are forbidden.
 
 The [machine-readable matrix](fixtures/askdj_golden_release_matrix_v1.json)
 reuses all112 existing [single-turn Q/A contracts](../../examples/ask_dj_e2e_cases.json)
-and names22 conversation families/72 observable steps. These are not72new
+and names34 conversation families/100 observable steps. These are not100new
 independently executed HTTP tests: exact execution classes remain explicit in
 the matrix. The owning test suites supply interpretation/transaction fixtures;
 the existing paired HA probes supply actual HTTP/runtime/storage boundaries;
@@ -164,3 +165,52 @@ These proactive forms use the existing approved deterministic realization;
 therefore their model budget is zero. Paid Ask DJ tests remain a separate
 required layer. This is no native, visual, installed or audible acceptance and
 the [Silence live contract](../product/SILENCE_LIVE_DELIVERY_V1.md) separately defines the additive control signal; client UX adoption is not implied.
+
+## Permanent reported-issue regressions
+
+Every newly found Ask DJ defect is added to `reported_issues` in the existing
+machine-readable matrix in the same corrective candidate as its reproduction
+and fix. Each entry names a Q/A family with explicit semantic expectations and
+executed owning-test bindings. The dedicated playback regression file is
+exhaustively bound: adding a test without a release binding fails inventory
+validation. Release execution must prove those exact methods ran successfully;
+source existence, a named scenario or an anonymous green report is insufficient.
+
+The current register contains23findings. It includes Within Temptation titles,
+Peter Luts selected context, current/previous-track questions, truthful Nirvana
+voice/text execution, unrelated/prefix/fuzzy artist rejection, exact artist
+credits, frozen track/album/playlist identity through speaker choice, stale
+readback/artwork, duplicate taps, payload injection, model/STT subject changes,
+and manual/compound output404/5xx/timeout without global backend disablement.
+The existing information/control, source/privacy, history and TTS families are
+retained. All seven spoken types and Silence retain their existing boundaries.
+
+Four Core qualification findings remain explicitly open: real research
+fact-grounding (including the observed1973/1974contradiction), recognizable
+Persona/Mood prose, Track Insight source qualification, and complete retained
+Flow lifecycle. They block release before further paid profiles. Inventory PASS
+means the cases are accounted for; it does not close these product findings or
+claim native, installed or audible acceptance. Native Apple receipt/UI/audio
+checks remain Apple-owned.
+
+The playback contract permits a maximum of three existing model attempts only
+after actual accepted exact-target dispatch: one interpretation plus the shared
+two-call expression/assessment boundary. Reads, pre-effect interpretation and
+failed effects retain the normal two-attempt limit. No failed effect, caller
+flag or model assertion grants the extra attempt. Provider/agent fixtures in
+these regressions are explicit; they do not prove live Spotify or heard audio.
+
+Step-level evidence is explicit: every one of the100required steps has named
+owning bindings. Nine real-quality steps remain open and block release; this is
+not a claim of100accepted live question/answer outcomes. Six additional
+operational chain tests cover actual lookup/refinement/selection/control/play,
+positive album-period filtering plus known-empty replacement, morning
+No/new-proposal/Yes/sleep, recommendations then exact play, and typed controls.
+The existing retry test now checks both same-ID dedup and another Retry after
+success without a second dispatch. Old unqualified-history negatives remain.
+
+An additional permanent shuffle regression requires the selected name/artwork
+to follow the actually observed admitted track, rather than the first URI in
+an artist collection. The earlier stale-unrelated-track negative remains.
+The current register has23findings,34families and100required steps; nine
+real-quality steps and four Core qualifications remain release-blocking.

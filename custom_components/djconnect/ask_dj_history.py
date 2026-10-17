@@ -628,6 +628,8 @@ def _message_from_response(
             "origin": _clean_text(response.get("origin")),
             "text": text,
             "speech_processing_basis": accepted_processing_basis(response),
+            "research_answer_qualification": ("supported_prefix_v1"
+                if response.get("research_answer_qualification") == "supported_prefix_v1" else None),
             "historical_matches": _compact_items(response.get("historical_matches")),
             "navigation_actions": _compact_items(response.get("navigation_actions")),
             "created_at": _now(),

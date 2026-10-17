@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import logging
-import re
 from typing import Any
 
 from homeassistant.core import HomeAssistant
@@ -61,13 +60,12 @@ async def correct_stt_text_with_assist(
             assist_context.get("agent_id"),
             assist_context.get("pipeline_id"),
         )
-        result = await hass.services.async_call(
-            "conversation",
-            "process",
-            data,
-            blocking=True,
-            return_response=True,
-        )
+        from .ask_dj.dialogue import current_turn
+        if current_turn.get() is not None:
+            result = await call_conversation_process_with_agent_retry(hass, data)
+        else:
+            result = await hass.services.async_call("conversation", "process", data,
+                blocking=True, return_response=True)
         response = (result or {}).get("response") or {}
         corrected = _speech_from_response(response)
         block_reason = _stt_correction_block_reason(original, corrected)
@@ -277,7 +275,8 @@ async def call_conversation_process_with_agent_retry(hass, data, *, debug=None, 
         model_guard()
     if len(str(data.get("text") or "").encode()) > MAX_PROMPT_BYTES:
         raise DialogueError("conversation_context_too_large", 413)
-    if turn is not None and turn.agent_calls >= 2:
+    limit = 3 if turn is not None and turn.accepted_playback_narration and turn.effect_started else 2
+    if turn is not None and turn.agent_calls >= limit:
         raise DialogueError("conversation_call_budget", 503)
     if turn is not None:
         turn.prompt_bytes = max(turn.prompt_bytes, len(str(data.get("text") or "").encode()))
@@ -401,14 +400,15 @@ async def realize_session_narration(hass, *, narration, admission, fallback_text
     """Realize one qualified Session brief over the existing HA transport.
 
     Two bounded calls: realization and independent semantic assessment.
-    Accepted command replies never enter this route. Neither output nor raw
+    Typed accepted-playback briefs may use this same owner. Neither output nor raw
     prompt enters announcement diagnostics or an independent history.
     """
     import asyncio
     from .narration_brief import NarrationBrief, NarratedText, candidate, assessed
     if debug is not None:
         debug.update(fallback_used=True, block_reason="narration_unavailable", model_attempts=0)
-    if type(narration) is not NarrationBrief or not callable(admission):
+    from .playback_request import PlaybackRequestBrief
+    if type(narration) not in {NarrationBrief, PlaybackRequestBrief} or not callable(admission):
         return fallback_text
     context = None
 

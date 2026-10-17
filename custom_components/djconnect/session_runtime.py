@@ -6400,6 +6400,7 @@ class SessionRuntimeManager:
                              "text":moment.content,"summary":moment.summary,
                              "source_attribution":dict(moment.source_attribution),"archive_basis":basis,
                              "persona":moment.presentation_intent.dj_persona.value,
+                             "mood":moment.presentation_intent.source_session_mood,
                              "persona_revision":active.persona_revision,"locale":active.locale}}
             if basis == "cc0_normalized_fields_v1":
                 from .ask_dj.dialogue import normalized_subjects

@@ -47,7 +47,12 @@ async def play_from_intent(
         command,
         value,
     )
-    resolved_media = _fresh_resolved_media(runtime, media_content_id)
+    if not isinstance(response, dict) or response.get("success") is not True:
+        from .spotify_backend import SpotifyBackendError
+        message = response.get("message") if isinstance(response, dict) else None
+        raise SpotifyBackendError(str(message or "Playback request was not accepted"))
+    outcome = response.get("playback_outcome")
+    resolved_media = ((outcome or {}).get("selection") or {}).get("media") or _fresh_resolved_media(runtime, media_content_id)
 
     return {
         "played": True,
@@ -56,6 +61,7 @@ async def play_from_intent(
         "media_content_type": media_content_type,
         "resolved_media": resolved_media,
         "device_response": response,
+        **({"playback_outcome": outcome} if outcome else {}),
     }
 
 

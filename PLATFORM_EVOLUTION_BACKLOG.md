@@ -47,6 +47,13 @@ user-facing roadmap progress; the current Product Initiative is recorded in
 | Windows client retirement — Core subset (`DJC-CORE-WINDOWS-CLIENT-RETIREMENT-V1-20261011`) | P1 | Completed | [Core assignment6106139356](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6106139356); [legacy disposition and acceptance](docs/product/WINDOWS_CLIENT_RETIREMENT_V1.md) | Remove active Core client ingress, preserve shared Profile/account/history and qualify retained consumers. [Protected source PR #1144](https://github.com/pcvantol/djconnect/pull/1144), exact-main package and software qualification PASS; [own Finalization](docs/history/prompts/2026-10-11-windows-client-retirement-finalization.md) binds final delivery/cleanup. Installed acceptance not claimed; parent infrastructure remains open. |
 | Windows product removal and dedicated infrastructure retirement (`DJC-WINDOWS-RETIREMENT-V1-20261008`) | P1 | Planned | [owner decision6066406727](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6066406727); owning [Windows #76](https://github.com/pcvantol/djconnect-windows/issues/76) admission and exact resource/effect scope | Parent remains open. Core product subset is tracked above; repository, runner, CI, website and distribution retirement need their own inventory and authority. Preserve native Apple/shared distribution and historical evidence. |
 
+The existing corrective increment also retains every reported Ask DJ defect in
+the [permanent Golden issue register](docs/verification/fixtures/askdj_golden_release_matrix_v1.json).
+Exact music identity, single-use speaker continuation, output-local failures and
+truthful dispatch/readback are executable requirements. An open qualification
+finding blocks release; a listed case or green metadata never closes it.
+
+
 ## Engineering Platform operational updates
 
 The 1.x/2.0 entries below preserve historical DJConnect-hosted EP planning.

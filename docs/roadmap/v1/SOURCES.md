@@ -20,7 +20,7 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 
 | Local design source | SHA256 |
 |---|---|
-| [PRODUCT_ROADMAP.md](../../../PRODUCT_ROADMAP.md) | `1b1e03ee1e150a2abe631884bf4917f35df5585a25cbe684f765df20cf2c90f8` |
+| [PRODUCT_ROADMAP.md](../../../PRODUCT_ROADMAP.md) | `cd9c41d3a3df45be81dad9c91992f96b2f07c75e1eee1355a41a38732b11a1e1` |
 | [PRODUCT_BACKLOG.md](../../../PRODUCT_BACKLOG.md) | `8b234976d289e6adbbb5c4ce39ba10032c0446747c0191c7a7d3a39c4f817dd9` |
 | [docs/product/DJ_PRESENCE_V1.md](../../../docs/product/DJ_PRESENCE_V1.md) | `c97be3bcebbd4ca70d640cdf4fc0a9a4808451e986bc977e3173e19842a928c4` |
 | [DJ_SESSION_RUNTIME_CONTRACTS.md](../../../DJ_SESSION_RUNTIME_CONTRACTS.md) | `69e97a8832b0af41ad68cd18de982d1c4535ae853f8b710c15bde4e5d85e935b` |
@@ -56,7 +56,7 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 | [docs/verification/SESSION_HISTORY_SUMMARY_V1_SOURCE_READBACK.md](../../../docs/verification/SESSION_HISTORY_SUMMARY_V1_SOURCE_READBACK.md) | `5a65bd4853a878c2d6e8a50603fd6b5fb4d1e41225853d94097d010e38faadf4` |
 | [docs/history/prompts/2026-10-13-session-history-summary-finalization.md](../../../docs/history/prompts/2026-10-13-session-history-summary-finalization.md) | `b3d248b51a46e9e4b74439f2331b888ec5e70a80d348ec598601ca8447bada0c` |
 | [docs/product/ASK_DJ_CONVERSATIONAL_EXPERIENCE_V1.md](../../../docs/product/ASK_DJ_CONVERSATIONAL_EXPERIENCE_V1.md) | `0d8374899bf95a69b894a7c968d8209592c88f9992a966f05c2a26e735b00799` |
-| [docs/product/ASK_DJ_CONTEXTUAL_DIALOGUE_CONTRACT_V1.md](../../../docs/product/ASK_DJ_CONTEXTUAL_DIALOGUE_CONTRACT_V1.md) | `846a69222a090aba3d1ad5ad958fc976f8275beb0b546019f20deb7e113aabd9` |
+| [docs/product/ASK_DJ_CONTEXTUAL_DIALOGUE_CONTRACT_V1.md](../../../docs/product/ASK_DJ_CONTEXTUAL_DIALOGUE_CONTRACT_V1.md) | `6916a864bfa7851cccdb038c35e0d008c47cde94d7d7e4803012db89c7fe1c1f` |
 | [docs/product/MOMENT_TRACK_INSIGHT_DRILLDOWN_V1.md](../../../docs/product/MOMENT_TRACK_INSIGHT_DRILLDOWN_V1.md) | `6057cd78740abff3a9a6a8c0d6f34f4218a89e10f11ad18a516933e38476cb77` |
 | [DJCONNECT_STORAGE_ARCHITECTURE.md](../../../DJCONNECT_STORAGE_ARCHITECTURE.md) | `40fd31bd4ff256821ec30e2d0430fe7af5ef615fa6e125969cfebbc66d035da5` |
 | [docs/technical/HTTP_API.md](../../../docs/technical/HTTP_API.md) | `3cfa19c673c42065c5a3a0ff78e9657271c66563ef9097f555962106acfa3489` |
@@ -104,7 +104,9 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 | [docs/verification/PROFILE_SESSION_SETTINGS_SOURCE_READBACK_20261016.md](../../../docs/verification/PROFILE_SESSION_SETTINGS_SOURCE_READBACK_20261016.md) | `344eac1436adc3b56108b4645ec51f262889a7f6d6b1d0c7aa890cc6355a9d8f` |
 | [docs/history/prompts/2026-10-16-profile-session-settings-finalization.md](../../../docs/history/prompts/2026-10-16-profile-session-settings-finalization.md) | `fd8f95f219e8293cc4133e1e7543209c66993fa3e636c52f83d189df640b013d` |
 | [docs/product/PERSONAL_DJ_NARRATION_RESTORATION_V1.md](../../../docs/product/PERSONAL_DJ_NARRATION_RESTORATION_V1.md) | `8d816cba394de041154df90fe0b46767248f17e1411dad0e86126b36ba7e1d4a` |
-| [docs/verification/CORE_LANE_REQUIREMENT_RECONCILIATION_20261017.md](../../../docs/verification/CORE_LANE_REQUIREMENT_RECONCILIATION_20261017.md) | `923228397acd56a8b227781d513f7b58b4ff4dd8db4c9980a8bdcf6fbba4488c` |
+| [docs/verification/CORE_LANE_REQUIREMENT_RECONCILIATION_20261017.md](../../../docs/verification/CORE_LANE_REQUIREMENT_RECONCILIATION_20261017.md) | `8a5303b34f66eb38a7aa5299d0c833c21742e7a9762684fc73cbc36a9111086c` |
 | [docs/product/ASK_DJ_PUBLIC_MUSIC_RESEARCH_V1.md](../../../docs/product/ASK_DJ_PUBLIC_MUSIC_RESEARCH_V1.md) | `26b882bad971f04f6d916618347d1d81b7d1b55a311545873753999e2da47a2d` |
 | [docs/product/DJ_MOMENT_MOOD_PROSODY_V1.md](../../../docs/product/DJ_MOMENT_MOOD_PROSODY_V1.md) | `6144b95a829a9a92bc4225bb599885efdf69dad0b5e17184542637bb4741a0fa` |
 | [docs/product/SESSION_VOICE_PREVIEW_V1.md](../../../docs/product/SESSION_VOICE_PREVIEW_V1.md) | `6565beb361fcefb1650e1c9841c09cd6567192903e3089aa254796ce811394b8` |
+| [docs/product/ASK_DJ_PLAYBACK_REQUEST_TRUTH_V1.md](../../../docs/product/ASK_DJ_PLAYBACK_REQUEST_TRUTH_V1.md) | `a9ee9dc3689c5f1b11746068e4e2f79d54cdc68af2265b02e468631c2fc5c158` |
+| [docs/verification/ASK_DJ_CONTEXTUAL_GOLDEN_RELEASE_GATE_V1.md](../../../docs/verification/ASK_DJ_CONTEXTUAL_GOLDEN_RELEASE_GATE_V1.md) | `b1dcde44be3ee1628f007046bb2a75816f455f4e1b83d4df8bccdaf7fe32530c` |

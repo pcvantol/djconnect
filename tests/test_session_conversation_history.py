@@ -1413,6 +1413,7 @@ class SessionConversationHistoryTest(unittest.IsolatedAsyncioTestCase):
         body = json.loads(result.text)
         self.assertEqual(result.status, 200, body)
         self.assertEqual(result.headers["Cache-Control"], "no-store")
+        self.assertIn("conversation", body, body)
         self.assertEqual(body["conversation"]["input_type"], "voice")
         self.assertEqual(body["transcript"], "Vertel over deze bijdrage")
         self.assertEqual(body["recognized_text"], body["transcript"])
