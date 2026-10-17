@@ -28,7 +28,10 @@ def accepted_processing_basis(result):
 
 
 def capability():
+    from .session_runtime import DJMomentType
     result = {"available": True, "version": 1, "path": PATH, "method": "POST",
+            "supported_moment_types": [kind.value for kind in DJMomentType if kind is not DJMomentType.SILENCE],
+            "excluded_moment_types": [DJMomentType.SILENCE.value],
             "supported_prepare_versions": [1, 2, 3],
             "shared_profile_settings": {"version": 3, "prepare_version": 3,
                 "path": "/api/djconnect/v1/profile/settings",
@@ -320,6 +323,9 @@ def _contribution_descriptor(reference, *, text, locale, persona, persona_revisi
 def moment_projection(broadcast, moment, *, autoplay=False, admission=None):
     """Pure owner speech admission over already published immutable content."""
     reference = {"session_id": broadcast.state.session_id, "moment_id": moment.moment_id}
+    from .session_runtime import DJMomentType
+    if moment.moment_type is DJMomentType.SILENCE:
+        return unavailable(reference, "silence_has_no_speech")
     output = getattr(broadcast, 'owner_speech_output', None)
     if callable(output) and output() == 'text_only':
         return unavailable(reference, 'announcement_text_only')
@@ -378,7 +384,7 @@ def retained_projection(entry):
     """Pure owner-entry speech state; no resources or new read-time deadline."""
     reference = {"session_id": entry["session_id"], "entry_id": entry["entry_id"]}
     if entry["kind"] == "dj_moment" and entry.get("archive_basis") in {
-            "cc0_normalized_fields_v1", "runtime_authored_direction_v1"}:
+            "cc0_normalized_fields_v1", "runtime_authored_direction_v1", "owner_metadata_narration_v1"}:
         style = {"language": entry.get("locale"), "persona": entry.get("persona"),
                  "persona_revision": entry.get("persona_revision")}
         attribution = [entry["source_attribution"]] if entry.get("source_attribution") else []
@@ -411,6 +417,8 @@ async def resolve_retained(hass, history, profile_id, reference):
     descriptor = retained_projection(entry)
     basis = (entry.get("archive_basis") if entry["kind"] == "dj_moment"
              else entry.get("speech_processing_basis") or "retained_owner_local_read_v1")
+    if basis == 'owner_metadata_narration_v1':
+        basis = 'spotify_owner_local_read_v1'
     expires = min(time.time() + TTL, datetime.fromisoformat(entry["retained_until"]).timestamp())
     if descriptor["manual_allowed"]:
         descriptor["expires_at"] = datetime.fromtimestamp(expires, UTC).isoformat()
@@ -601,9 +609,10 @@ async def prepare_ha(hass, runtime, owner, data, descriptor, admission, *, expec
             result["notification"] = notice
         return result
 
-    # CC0/direction support is admitted by its original owner below, not inferred
-    # from a provider label. Private/catalog display is no cloud-processing grant.
-    if admission.processor_basis not in {"qualified_dialogue_v1", "cc0_normalized_fields_v1", "runtime_authored_direction_v1", "spotify_owner_local_read_v1", "retained_owner_local_read_v1"}:
+    # Exact accepted-text synthesis is owner-authorized through the configured
+    # HA provider, independently of a provider's locality. This admits no new
+    # model context, arbitrary text or source/history rights.
+    if admission.processor_basis not in {"qualified_dialogue_v1", "cc0_normalized_fields_v1", "runtime_authored_direction_v1", "spotify_owner_local_read_v1", "retained_owner_local_read_v1", "accepted_local_reply"}:
         return unavailable(data["reference"], "source_processor_not_qualified")
     def resolve_processor():
         if "voice_id" in data:
@@ -618,9 +627,6 @@ async def prepare_ha(hass, runtime, owner, data, descriptor, admission, *, expec
     entity = voice = None
     try:
         entity, voice = resolve_processor()
-        if (admission.processor_basis in {"spotify_owner_local_read_v1", "retained_owner_local_read_v1"}
-                and voice.get("processing_scope") != "qualified_local"):
-            return unavailable(data["reference"], "source_processor_not_qualified")
         key = (owner, descriptor["source_id"], descriptor["text_revision"],
                descriptor["presentation_revision"], voice["engine"], voice["voice_id"], voice["locale"], id(entity),
                voice.get("provider_version"), voice.get("voice_version"),

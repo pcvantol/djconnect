@@ -211,10 +211,17 @@ may add gender under [the bounded adapter contract](PROVIDER_VOICE_GENDER_V1.md)
 Without that metadata, male/female requests return `voice_gender_unavailable`. No provider or pipeline fallback.
 A confirmed current-artist reply may use `spotify_owner_local_read_v1`: only
 the exact accepted owner-visible title/artist sentence, its original at-most60s
-read deadline and attribution, through an independently qualified local route.
-The existing actual installed household Wyoming Piper proof remains one such
-local source grant, not a general compatibility requirement for HA TTS providers.
-This is local authorized reading, not a model/cloud grant or playback control.
+read deadline and attribution. Owner clarification2026-10-17 permits literal
+synthesis through any supported configured HA TTS provider, including local
+Piper, OpenAI and Nabu Casa. The historical basis name remains compatible;
+`local_read` must no longer impose provider locality. The same clarification
+applies to `retained_owner_local_read_v1` for already accepted owner-visible
+answers and previous-Session replay. This is exact-text TTS authorization, not
+a new LLM-narration, catalog lookup, arbitrary caller-text or playback-control
+grant. Source/owner visibility and validity must still succeed on every read.
+`accepted_local_reply` also permits literal TTS of an existing accepted Core
+reply reference. The caller cannot supply text or mint that reference. This
+does not re-enable a legacy model announcer or modify the accepted answer.
 No API/config change adds a new synthesizer. Qualified accepted dialogue,
 normalized CC0 and authored Runtime direction may use the configured HA provider,
 including OpenAI/Cloud. Only exact accepted speech segments are sent, without
@@ -231,6 +238,22 @@ identity plus asset reference; the old bearer-free ESP audio route cannot read
 these resources. Stop/cancellation/withdrawal cannot create late deliverable bytes.
 Neither these early connected routes nor a nonempty WAV qualifies complete Moment
 family adoption, actual Apple voice quality, autoplay or joint acceptance.
+
+### Provider default without voice inventory
+
+[Captured producer fixture](../verification/fixtures/ha_tts_provider_default_voice_v1.json)
+uses an external generic HA TTS entity fixture; it is not installed/native proof.
+
+`effective_voice.voice_selection: "provider_default"` is a valid selection.
+Both `voice_id` and `voice_name` may be JSON null; `gender` may also be null.
+Consumers must not require a nonempty voice ID to play or replay accepted audio,
+and must not invent a voice ID. Core passes no voice override when none is
+configured. Bind the request/resource to `engine`, `pipeline_id`, `locale`,
+`configuration_revision`, provider identity and the original text/presentation
+revision; a nullable voice ID remains part of that identity. Core re-resolves
+and compares the provider selection before releasing prepared bytes. This is
+compatible with the existing speech3 envelope; native nullable decoding and
+actual provider playback remain consumer qualification.
 
 ## Optional gender-setting readback (owner clarification)
 

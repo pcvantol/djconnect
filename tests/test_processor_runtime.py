@@ -698,7 +698,7 @@ class ProcessorRuntimeTest(unittest.TestCase):
 
         self.assertEqual(result["dj_text"], "Generated for Nirvana")
 
-    def test_dj_response_does_not_use_unresolved_pipeline_id_as_agent_id(self) -> None:
+    def test_unqualified_response_does_not_call_an_unresolved_pipeline(self) -> None:
         calls = []
 
         class Services:
@@ -720,11 +720,10 @@ class ProcessorRuntimeTest(unittest.TestCase):
             )
         )
 
-        self.assertEqual(result, "Daar gaan we met Song van Artist.")
-        self.assertEqual(len(calls), 1)
-        self.assertNotIn("agent_id", calls[0])
+        self.assertEqual(result, "Ik speel Song nu af.")
+        self.assertEqual(calls, [])
 
-    def test_dj_response_retries_without_invalid_agent_id(self) -> None:
+    def test_unqualified_response_never_retries_an_invalid_agent(self) -> None:
         calls = []
 
         class Services:
@@ -757,10 +756,9 @@ class ProcessorRuntimeTest(unittest.TestCase):
         finally:
             self.pipeline._assist_context = original_context
 
-        self.assertEqual(result, "Daar gaan we met Song van Artist.")
-        self.assertEqual(calls[0]["agent_id"], "bad-agent")
-        self.assertNotIn("agent_id", calls[1])
-        self.assertTrue(debug["agent_retry_without_agent_id"])
+        self.assertEqual(result, "Ik speel Song nu af.")
+        self.assertEqual(calls, [])
+        self.assertEqual(debug["block_reason"], "qualified_narration_required")
 
     def test_current_track_question_reads_status_without_playback_action(self) -> None:
         calls = []

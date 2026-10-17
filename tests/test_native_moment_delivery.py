@@ -14,6 +14,44 @@ class NativeMomentDeliveryTest(unittest.TestCase):
     tearDownClass = source_tests.ExpressiveDJPersonaTest.__dict__["tearDownClass"]
     source_pair = source_tests.ExpressiveDJPersonaTest.source_pair
     run_sequence = source_tests.ExpressiveDJPersonaTest.run_sequence
+
+    def test_speech_admits_every_non_silence_type_without_rewriting_accepted_text(self):
+        from custom_components.djconnect import session_speech
+        moment = self.run_sequence(self.runtime.DJPersona.HOME_DJ, count=1)[0]
+        # This checks the common speech boundary, not each type's generation.
+        # Reuse real qualified publication/expiry and vary only the type.
+        with patch('time.monotonic', lambda: 400.0):
+            for kind in self.runtime.DJMomentType:
+                with self.subTest(kind=kind.value):
+                    typed = replace(moment, moment_type=kind)
+                    descriptor = session_speech.moment_projection(self.session.broadcast, typed, autoplay=True)
+                    if kind is self.runtime.DJMomentType.SILENCE:
+                        self.assertFalse(descriptor['manual_allowed'])
+                        self.assertFalse(descriptor['autoplay_eligible'])
+                        self.assertEqual(descriptor['reason'], 'silence_has_no_speech')
+                        self.assertEqual(descriptor['segments'], [])
+                    else:
+                        self.assertTrue(descriptor['manual_allowed'], descriptor)
+                        self.assertTrue(descriptor['autoplay_eligible'])
+                        self.assertEqual(''.join(s['text'] for s in descriptor['segments']), moment.content)
+                        self.assertEqual(descriptor['attribution'], [dict(moment.source_attribution)])
+            advertised = session_speech.capability()
+            self.assertEqual(set(advertised['supported_moment_types']),
+                {kind.value for kind in self.runtime.DJMomentType if kind is not self.runtime.DJMomentType.SILENCE})
+            self.assertEqual(advertised['excluded_moment_types'], ['silence'])
+
+    def test_silence_never_attempts_delivery_or_provider_admission(self):
+        from custom_components.djconnect import session_speech
+        from types import SimpleNamespace
+        def forbidden():
+            self.fail('Silence must not resolve delivery or speech settings')
+        broadcast = SimpleNamespace(state=SimpleNamespace(session_id='session'), native_delivery=forbidden,
+            owner_speech_output=forbidden)
+        moment = SimpleNamespace(moment_id='silence', moment_type=self.runtime.DJMomentType.SILENCE,
+            content='Diagnostic reason must never become spoken text')
+        descriptor = session_speech.moment_projection(broadcast, moment, autoplay=True)
+        self.assertFalse(descriptor['manual_allowed'])
+        self.assertFalse(descriptor['autoplay_eligible'])
     @staticmethod
     def load_owner_handlers():
         # This owning suite also runs in a fresh CI process. The Runtime

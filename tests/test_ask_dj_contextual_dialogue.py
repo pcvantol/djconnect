@@ -247,6 +247,26 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
                     processor.configured_processor(self.hass, {}, "en", preference)
             self.assertIsNone(voice["gender"])
 
+    async def test_provider_default_without_voice_id_prepares_private_exact_reply_audio(self):
+        from custom_components.djconnect import session_speech
+        answer, _ = await self.request('What is an ostinato?',identifier='null-default-voice')
+        stack, entity, pipeline, calls, processor = self.generic_tts(voice_id='',inventory=False)
+        entity.default_options = {}
+        with stack:
+            prepared, status = await session_speech.async_handle_prepare(self.hass,{
+                **self.identity,'contract_version':1,'reference':answer['session_speech']['reference'],
+                'processor':'ha_configured','voice_preference':'default'},headers=self.headers)
+            self.assertEqual(status,200,prepared)
+            speech = prepared['session_speech']
+            self.assertEqual(speech['audio_state'],'ready')
+            self.assertEqual(speech['effective_voice']['voice_selection'],'provider_default')
+            self.assertIsNone(speech['effective_voice']['voice_id'])
+            self.assertIsNone(speech['effective_voice']['voice_name'])
+            self.assertEqual(calls[-1][2],{})
+            from tests.speech_capture import capture
+            capture('provider-default-no-inventory', {'response':prepared,
+                'scope':'Real owner reference/private prepare; external TTS entity fixture; no native or audible claim'})
+
     async def test_generic_ha_provider_missing_pipeline_voice_locale_and_entity_never_fallback(self):
         stack, entity, pipeline, calls, processor = self.generic_tts()
         with stack:
@@ -313,7 +333,7 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(denied["session_speech"]["notification"]["code"], "tts_configuration_changed")
             self.assertEqual(len(self.prompts), 1)
 
-    async def test_cloud_provider_does_not_bypass_catalog_local_only_source_grant(self):
+    async def test_configured_cloud_provider_speaks_exact_authorized_catalog_reply(self):
         from custom_components.djconnect import session_speech
         answer, _ = await self.request("What is an ostinato?", identifier="generic-catalog")
         payload = {**self.identity, "contract_version": 1, "reference": answer["session_speech"]["reference"],
@@ -328,12 +348,12 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
                 guard.processor_basis = "spotify_owner_local_read_v1"
                 return descriptor, guard
             with patch.object(session_speech, "resolve_dialogue", catalog):
-                denied, status = await session_speech.async_handle_prepare(self.hass, payload, headers=self.headers)
-                self.assertEqual(status, 200, denied)
-                self.assertEqual(denied["session_speech"]["reason"], "source_processor_not_qualified")
-                self.assertEqual(calls, [])
+                prepared, status = await session_speech.async_handle_prepare(self.hass, payload, headers=self.headers)
+                self.assertEqual(status, 200, prepared)
+                self.assertEqual(prepared["session_speech"]["audio_state"], "ready")
+                self.assertEqual(len(calls), 1)
 
-    async def test_retained_dialogue_keeps_original_processing_basis_and_legacy_is_not_cloud_permission(self):
+    async def test_retained_dialogue_and_authorized_legacy_reply_use_configured_provider(self):
         from custom_components.djconnect import session_speech
         from custom_components.djconnect.session_conversation import query_service
         session = await self.fixture.manager.async_start(owner_profile_id="profile-a", locale="en", selected_mood="groove")
@@ -353,7 +373,7 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
         self.assertIsNone(legacy["speech_processing_basis"])
         stack, entity, pipeline, calls, processor = self.generic_tts()
         with stack:
-            for entry, expected in ((qualified, "ready"), (legacy, "unavailable")):
+            for entry, expected in ((qualified, "ready"), (legacy, "ready")):
                 result, status = await session_speech.async_handle_prepare(self.hass, {
                     **self.identity, "contract_version": 1,
                     "reference": {"session_id": session.session_id, "entry_id": entry["entry_id"]},
@@ -361,7 +381,7 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
                 self.assertEqual(status, 200, result)
                 speech = result["session_speech"]
                 self.assertEqual(speech.get("audio_state", speech["state"]), expected)
-            self.assertEqual(len(calls), 1)
+            self.assertEqual(len(calls), 2)
 
     async def test_generic_provider_rejects_id3_only_truncated_and_mime_only_mp3(self):
         stack, entity, pipeline, calls, processor = self.generic_tts()
@@ -2228,15 +2248,25 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
                 synthesize.assert_not_called()
         help_reply, status = await self.request("help", identifier="unqualified-source-processor")
         self.assertEqual(status, 200, help_reply)
-        with patch.object(speech_processor, "configured_processor") as configured:
-            denied, status = await session_speech.async_handle_prepare(self.hass,
+        stack, entity, pipeline, calls, processor = self.generic_tts()
+        with stack:
+            prepared, status = await session_speech.async_handle_prepare(self.hass,
                 {**payload, "reference": help_reply["session_speech"]["reference"]}, headers=self.headers)
-            self.assertEqual(status, 200, denied)
-            self.assertEqual(denied["session_speech"]["reason"], "source_processor_not_qualified")
-            self.assertEqual(denied["session_speech"]["processors"], [])
+            self.assertEqual(status, 200, prepared)
+            self.assertEqual(prepared["session_speech"]["audio_state"], "ready")
+            self.assertEqual(len(calls),1)
+        original = session_speech.resolve_dialogue
+        async def unknown(*args,**kwargs):
+            descriptor, guard = await original(*args,**kwargs)
+            guard.processor_basis = 'unqualified_external_source'
+            return descriptor, guard
+        with patch.object(session_speech,'resolve_dialogue',unknown), patch.object(speech_processor,'configured_processor') as configured:
+            denied, status = await session_speech.async_handle_prepare(self.hass,
+                {**payload,'reference':help_reply['session_speech']['reference']},headers=self.headers)
+            self.assertEqual(denied['session_speech']['reason'],'source_processor_not_qualified')
             configured.assert_not_called()
         self.assertEqual(len(self.prompts), before)
-        self.assertFalse(self.hass.data["djconnect"].get("tts_audio"))
+        self.assertTrue(self.hass.data["djconnect"].get("tts_audio"))
 
     async def test_manual_speech_after_never_reuses_accepted_text_without_model_or_history_write(self):
         from custom_components.djconnect.session_speech import async_handle_prepare

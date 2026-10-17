@@ -3521,12 +3521,9 @@ async def _current_track_reference_response(
             "playback_actions": [],
             "sources": [{"source": "spotify_playback_context", "title": "Spotify playback context", "kind": "source"}],
         }
-    text, generated = await _current_track_generated_announcement(
-        hass,
-        runtime,
-        payload,
-        playback_context,
-    )
+    # Canonical Ask DJ owns generated dialogue. A low-level current-track
+    # reference has no separate model announcer or proactive publication path.
+    text, generated = "", False
     if not text:
         if title and artist and album:
             text = f"Er speelt nu {title} van {artist}, op het album {album}."
@@ -3572,56 +3569,6 @@ async def _current_track_reference_response(
     }
 
 
-async def _current_track_generated_announcement(
-    hass: HomeAssistant,
-    runtime: Any,
-    payload: dict[str, Any],
-    playback_context: dict[str, Any],
-) -> tuple[str, bool]:
-    from .dialogue import current_turn
-    if current_turn.get() is not None:
-        # Catalog display rights do not qualify an external model prompt.
-        return "", False
-    title = _playback_text(playback_context, "track_name", "title", "name")
-    artist = _playback_text(playback_context, "artist", "artist_name")
-    album = _playback_text(playback_context, "album_name", "album")
-    if not title and not artist:
-        return "", False
-    mood_line = mood_context_text(payload)
-    voice_profile_style = voice_profile_style_text_for_payload(
-        getattr(runtime, "config", {}) or {},
-        payload,
-        language=payload.get("language") or DEFAULT_TTS_LANGUAGE,
-    )
-    prompt = (
-        "Je bent DJConnect Ask DJ. Geef antwoord op de vraag 'wat speelt er?' "
-        "als een korte Nederlandse DJ-aankondiging. "
-        "Noem de track en artiest correct, verzin geen feiten, geen markdown, maximaal twee zinnen.\n"
-        f"{voice_profile_style}\n"
-        f"Track: {title or 'onbekend'}\n"
-        f"Artiest: {artist or 'onbekend'}\n"
-        f"Album: {album or 'onbekend'}\n"
-        f"Mood: {mood_line}\n"
-    )
-    try:
-        assist_context = _assist_context(hass, getattr(runtime, "config", {}) or {})
-        language = assist_context.get("language") or payload.get("language") or DEFAULT_TTS_LANGUAGE
-        data = {"text": prompt, "language": language}
-        if assist_context.get("agent_id"):
-            data["agent_id"] = assist_context["agent_id"]
-        result = await call_conversation_process_with_agent_retry(hass, data)
-        message = _speech_from_response((result or {}).get("response") or {})
-    except Exception as exc:  # noqa: BLE001
-        _LOGGER.debug("DJConnect current track generated announcement unavailable: %s", exc)
-        message = ""
-    message = str(message or "").strip()
-    if (
-        not message
-        or _looks_like_prompt_or_sandbox_attack(message)
-        or _looks_like_internal_prompt_leak(message)
-    ):
-        return "", False
-    return message, True
 
 
 def _favorite_current_track_action(

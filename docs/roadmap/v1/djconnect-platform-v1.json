@@ -41760,11 +41760,11 @@
     "document_references": [
       {
         "path": "PRODUCT_ROADMAP.md",
-        "sha256": "88e403979acf7793701aa2f99533b23de78072cb27551c0842d815bb8b738935"
+        "sha256": "812abe719dc18f8c98044815feda09ff187db8ae2073f319f9c3dc10784a0612"
       },
       {
         "path": "PRODUCT_BACKLOG.md",
-        "sha256": "c8eafff92fc1db8b5beed44362363f63d8790b052a77e0c0c6884f76d79b1633"
+        "sha256": "157557b324ded6621e98bee0bcfb42c540dcc8aa71955b7629aa3ae7d9e94d7c"
       },
       {
         "path": "docs/product/DJ_PRESENCE_V1.md",
@@ -42016,7 +42016,7 @@
       },
       {
         "path": "docs/product/SESSION_SPEECH_DELIVERY_V1.md",
-        "sha256": "271f0d0e9cbe142d7685a46bb9d898d39a9d6dc67c723abbe6123d31dca4c927"
+        "sha256": "48148b19ca457dc0f940646e5d0c19f3252ca6aa24bb5ad0ec5f15fe5a70d240"
       },
       {
         "path": "docs/verification/SESSION_SPEECH_PERSONA_SOURCE_READBACK_20261016.md",
@@ -42089,6 +42089,10 @@
       {
         "path": "docs/history/prompts/2026-10-16-profile-session-settings-finalization.md",
         "sha256": "fd8f95f219e8293cc4133e1e7543209c66993fa3e636c52f83d189df640b013d"
+      },
+      {
+        "path": "docs/product/PERSONAL_DJ_NARRATION_RESTORATION_V1.md",
+        "sha256": "d11d5cdd597cd6981ed2f4dbfccce5e870bf971b4fb93bfa0167d6d56d976c05"
       }
     ],
     "implementation_receipt": {

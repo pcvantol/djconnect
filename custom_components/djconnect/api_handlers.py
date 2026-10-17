@@ -276,6 +276,7 @@ async def async_handle_session_start_payload(
         return {"success": False, "error": "active_session_exists", "active_session": active.as_dict() if active else None}, 409
     from .speaker_delivery import connect_automatic
     connect_automatic(hass, runtime, session, identity_payload(data), headers or {})
+    _connect_session_narration(hass, runtime, context, session, identity_payload(data), headers or {})
     await _async_generate_initial_session_moment(
         hass=hass,
         integration_runtime=runtime,
@@ -1268,6 +1269,74 @@ def _is_current_track_question_text(value: str) -> bool:
         "current song",
         "current track",
     }
+
+
+def _connect_session_narration(hass, runtime, context, session, identity, headers):
+    """Reuse the HA announcement owner; retain only ordinary device authority."""
+    identity = {key: identity.get(key) for key in ("device_id", "client_type")}
+    headers = {name: value for name in ("Authorization", "X-DJConnect-Device-ID")
+               if (value := headers.get(name)) is not None}
+    # Broad HA/service credentials are not a substitute for an owner device grant.
+    if not identity.get("device_id") or not headers.get("Authorization"):
+        return
+    from .ask_dj.dialogue import source_scope
+    scope = source_scope(context.profile)
+    storage = profile_storage(hass)
+    device = storage.household.devices.get(identity["device_id"])
+    binding = getattr(device, "binding_generation", None)
+
+    def authorize():
+        try:
+            if profile_storage(hass) is not storage:
+                raise PermissionError("narration_authority_changed")
+            _conversation_profile_fence(hass, runtime, identity, headers, context)
+            current = storage.resolver().resolve_bound_device(identity["device_id"])
+            current_device = storage.household.devices.get(identity["device_id"])
+            if (source_scope(current) != scope
+                    or getattr(current_device, "binding_generation", None) != binding):
+                raise PermissionError("narration_owner_changed")
+        except Exception:
+            raise PermissionError("narration_owner_changed") from None
+
+    def capture_authority():
+        # Revisions/latch fence one pending operation, not all future legitimate
+        # operations after the owner deliberately changes their Assist provider.
+        authorize()
+        from .pipeline import _assist_context
+        revision = storage.authority_revision
+        selected_pipeline = _assist_context(hass, runtime.config)
+        entry = getattr(runtime, "entry", None)
+        entry_revision = getattr(entry, "modified_at", None)
+        revoked = False
+        def current():
+            nonlocal revoked
+            try:
+                if (revoked or storage.authority_revision != revision
+                        or getattr(entry, "modified_at", None) != entry_revision
+                        or _assist_context(hass, runtime.config) != selected_pipeline):
+                    raise PermissionError("narration_authority_changed")
+                authorize()
+            except Exception:
+                revoked = True
+                raise PermissionError("narration_owner_changed") from None
+        return current
+
+    async def realize(brief, guard):
+        from .pipeline import generate_dj_response_with_assist
+        authorize()
+        text = await generate_dj_response_with_assist(
+            hass, media={}, fallback_text=brief.seed, conf=runtime.config,
+            narration=brief, admission=guard)
+        authorize()
+        return text
+
+    async def archive_admission(captured):
+        from .session_conversation import async_metadata_archive_admission
+        return await async_metadata_archive_admission(hass, context.profile_id, captured, authorize)
+
+    session_runtime_manager(hass).connect_narration(
+        context.profile_id, session.session_id, realize, authorize,
+        capture_authority=capture_authority, archive_admission=archive_admission)
 
 
 def _conversation_profile_fence(hass, runtime, identity, headers, context, *, _ha_service_runtime=None):

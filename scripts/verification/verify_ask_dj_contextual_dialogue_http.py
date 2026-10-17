@@ -80,6 +80,7 @@ def configured_entry(identifier, domain, data, subentries=None):
 def hashes():
     files = list((ROOT / "custom_components/djconnect").rglob("*.py"))
     files.append(Path(__file__))
+    files.append(ROOT / 'scripts/verification/personal_dj_narration_probe.py')
     return {
         str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(files)
     }
@@ -87,6 +88,7 @@ def hashes():
 
 async def main():
     lab_started = time.monotonic()
+    initial_source_hashes = hashes()
     access = json.load(sys.stdin)
     api = AsyncOpenAI(api_key=access["api_key"], timeout=25, max_retries=0)
     model = access.get("model") or "gpt-4o-mini"
@@ -176,14 +178,18 @@ async def main():
             )
         )
         assert not kwargs.get("tools") and kwargs.get("store") is False
-        golden = os.environ.get("DJC_SAFETY_PROBE") in {"contextual_golden", "full_golden"}
+        if os.environ.get("DJC_SAFETY_PROBE") == "narration_golden":
+            assert not any(value in inputs for value in ("Wednesday Morning", "1964", "Synthetic artist", "Synthetic recording")), "catalog or private value leaked into a narration model call"
+        golden = os.environ.get("DJC_SAFETY_PROBE") in {"contextual_golden", "full_golden", "narration_golden"}
         receipt = {"input_bytes": len(inputs.encode()), "model": model, "streaming": True}
         if golden:
             from scripts.verification.askdj_contextual_golden import ACTIVE_CASE, MAX_MODEL_CALLS
             from custom_components.djconnect.ask_dj.dialogue import current_turn
             owner_turn = current_turn.get()
             case_id = ACTIVE_CASE.get() or (owner_turn.client_id if owner_turn else None)
-            budget = MAX_MODEL_CALLS if os.environ.get("DJC_SAFETY_PROBE") == "contextual_golden" else 128
+            if case_id is None and os.environ.get("DJC_SAFETY_PROBE") == "narration_golden":
+                case_id = "proactive-owner-publication"
+            budget = MAX_MODEL_CALLS if os.environ.get("DJC_SAFETY_PROBE") == "contextual_golden" else (64 if os.environ.get("DJC_SAFETY_PROBE") == "narration_golden" else 128)
             if len(model_receipts) >= budget or case_id is None:
                 raise RuntimeError("golden_model_call_budget_or_case_invalid")
             # Reserve BEFORE I/O: even a timeout/cancellation may have spent credits.
@@ -1114,6 +1120,29 @@ async def main():
                     await call(
                         "session/end", {"session_id": active.session_id}, label=label + "-end"
                     )
+
+                if os.environ.get("DJC_SAFETY_PROBE") == "narration_golden":
+                    active,moment,_=await start("narration")
+                    from custom_components.djconnect.playback_observation import playback_observation_manager
+                    await playback_observation_manager(h).async_stop("profile-a",active.session_id)
+                    from scripts.verification.personal_dj_narration_probe import run as run_narration
+                    result=await run_narration(h,runtime,manager,active)
+                    result.update(source_hashes=hashes(),source_hashes_before=initial_source_hashes,
+                        source_unchanged=initial_source_hashes == hashes(),pairing="ordinary_device_token_minted_persisted",
+                        actual_published={'moment_id':moment.moment_id,'text':moment.content,
+                            'realization':dict(moment.generation_metadata).get('realization'),
+                            'flow':any(i.moment_id==moment.moment_id for i in active.planner.output.session_flow.items),
+                            'broadcast':any(m.moment_id==moment.moment_id for m in active.broadcast.state.dj_moments)},
+                        model_calls=model_receipts,paid_model_calls=len(model_receipts),
+                        core_transports=receipts,native="NOT_RUN",installed="NOT_RUN",audible="NOT_RUN")
+                    if not result['source_unchanged']:
+                        result['status'] = 'FAIL_SOURCE_CHANGED'
+                    await end(active,"narration")
+                    Path("/lab/narration-pilot.json").write_text(json.dumps(result,ensure_ascii=False,indent=2)+"\n")
+                    await async_shutdown_persistence(h)
+                    await h.async_stop(force=True)
+                    await api.close()
+                    return
 
                 if os.environ.get("DJC_SAFETY_PROBE") == "silence_signal":
                     active,content,_=await start("silence")

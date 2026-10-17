@@ -109,7 +109,6 @@ from .central_api import ensure_ha_install_id
 from .dj_response import async_create_dj_audio_url, async_send_dj_response_best_effort, get_tts_audio
 from .ha_urls import async_ha_url_payload
 from .mood import enrich_payload_with_mood_zone, mood_play_now_suffix
-from .pipeline import generate_dj_response_with_assist as generate_dj_response_with_assist
 from .push import (
     async_bootstrap as async_bootstrap_push,
     async_register as async_register_push,

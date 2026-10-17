@@ -1771,6 +1771,16 @@
           "description": "Wis alle persoonlijke gegevensverwijzingen zonder het profiel te verwijderen."
         }
       }
+    },
+    "session_history_retention": {
+      "name": "Bewaartermijn sessiegeschiedenis",
+      "description": "Globale bewaartermijn voor afgeronde DJ-sessies, alleen voor beheerders. Laat de waarde leeg om de instelling te lezen. Verlengen herstelt geen verwijderde inhoud.",
+      "fields": {
+        "retention_days": {
+          "name": "Bewaartermijn in dagen",
+          "description": "Bewaar afgeronde of onderbroken sessies zoveel dagen na afloop. Actieve sessies blijven intact. Geldt voor alle profielen op deze installatie."
+        }
+      }
     }
   }
 }

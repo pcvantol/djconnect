@@ -608,7 +608,7 @@ def model_source(entry: dict | None) -> dict:
     return {
         "basis": "cc0_normalized_fields_v1",
         "subjects": entry.get("dialogue_subjects", [])[:4],
-        "qualified_excerpt": str(entry.get("text") or "")[:2000],
+        "qualified_excerpt": str(entry.get("qualified_fact_text") or entry.get("text") or "")[:2000],
         "attribution": {k: attribution[k] for k in ("provider", "url", "license")},
     }
 
@@ -656,13 +656,14 @@ def style_projection(payload: dict, active=None, profile=None, *, settings=None)
 
 def persona_answer_form(persona: str) -> str:
     """One authored Persona instruction owner for dialogue and qualified insight."""
+    from ..narration_style import host_identity
     forms = {
         "home_dj": "Use calm, plainspoken context in one or two connected sentences, as a thoughtful conversation. Prefer the concrete answer over a CV or metaphor. Never append a setting, invitation or analogy as an ending.",
         "radio_dj": "Use exactly two short connected sentences: factual identification or answer, then one concrete musical meaning or consequence. Clear fact-to-meaning radio phrasing; avoid a list of achievements.",
         "club_dj": "Use one direct compact sentence, normally at most 30 words. Give one precise answer or musical contrast; omit biography lists, soft introductions and hype.",
         "festival_dj": "Use exactly three short warm sentences with lively changes of rhythm. Bring the relevant musical fact forward and develop it through concrete detail rather than a CV. No imagined place, invitation, listening image, metaphor ending, exclamations or event. Aim for at most 65 words.",
     }
-    return forms.get(persona, forms["home_dj"])
+    return host_identity(persona) + " " + forms.get(persona, forms["home_dj"])
 
 
 def model_prompt(text: str, payload: dict, source: dict | None = None) -> str:
@@ -687,6 +688,10 @@ def model_prompt(text: str, payload: dict, source: dict | None = None) -> str:
         if frame and not turn.reset_topic and frame.result_set
         else {},
     }
+    if operation == "answer":
+        from ..narration_style import instructions as narration_instructions
+        projection["narration"] = narration_instructions(
+            persona=style["persona"], mood=style["mood"], locale=style["language"])
     language_name = {"en": "English", "nl": "Dutch", "de": "German", "fr": "French", "es": "Spanish"}[style["language"]]
     language_rule = f"Answer this turn only in {language_name} ({style['language']}). Earlier turns in another language do not change the current answer language. "
     grammar_rule = (

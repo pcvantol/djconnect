@@ -9,32 +9,11 @@ from homeassistant.core import HomeAssistant
 from .const import (
     CONF_ASSIST_PIPELINE_ID,
     CONF_TTS_LANGUAGE,
-    DEFAULT_DJ_RESPONSE_PROMPT,
     DEFAULT_TTS_LANGUAGE,
 )
-from .mood import mood_announcement_style_text, mood_context_text
-from .voice_profiles import voice_profile_for_mood_or_config, voice_profile_style_text_for_payload
 
 _LOGGER = logging.getLogger(__name__)
 _ROOT_LOGGER = logging.getLogger("custom_components.djconnect")
-_MUSIC_KNOWLEDGE_POLICY_NL = (
-    "Music knowledge beleid: gebruik eerst de meegegeven Spotify playbackmetadata, "
-    "Music DNA en media-context. Als je via de conversation agent betrouwbare "
-    "kennis beschikbaar hebt, geef dan de voorkeur aan MusicBrainz, Wikidata, "
-    "korte Wikipedia-samenvattingen, Last.fm tags/similar artists, Discogs "
-    "release/label/credits, TheAudioDB en daarna alleen compacte eigen DJConnect "
-    "Memory feiten. Gebruik deze bronnen niet live als ze niet beschikbaar zijn. "
-    "Verzin geen trivia; sla het feitje over wanneer je het niet zeker weet."
-)
-_MUSIC_KNOWLEDGE_POLICY_EN = (
-    "Music knowledge policy: first use the provided Spotify playback metadata, "
-    "Music DNA and media context. If reliable knowledge is available through the "
-    "conversation agent, prefer MusicBrainz, Wikidata, short Wikipedia summaries, "
-    "Last.fm tags/similar artists, Discogs release/label/credits, TheAudioDB and "
-    "then compact Music DNA facts. Do not fetch these sources live unless "
-    "they are available to the agent. Do not invent trivia; skip the fact when "
-    "you are not sure."
-)
 
 
 async def process_text_with_assist(
@@ -419,256 +398,89 @@ def _stt_correction_prompt(user_text: str, language: str) -> str:
 
 
 async def generate_dj_response_with_assist(
-    hass: HomeAssistant,
-    *,
-    media: dict[str, Any],
-    fallback_text: str,
-    conf: dict[str, Any],
-    memory_context: str | None = None,
-    debug: dict[str, Any] | None = None,
+    hass: HomeAssistant, *, media: dict[str, Any], fallback_text: str,
+    conf: dict[str, Any], memory_context: str | None = None,
+    debug: dict[str, Any] | None = None, narration=None, admission=None,
 ) -> str:
-    """Ask HA Assist for a short DJ response using resolved playback metadata."""
-    from .ask_dj.dialogue import current_turn
-    if current_turn.get() is not None:
+    """One qualified expression owner; unqualified commands keep their accepted answer.
+
+    Media labels or compact memory alone are not a model-processing grant.
+    Command responses do not create an independent proactive announcement.
+    """
+    if narration is None:
         if debug is not None:
-            debug.update({"fallback_used": True, "block_reason": "catalog_model_processing_not_qualified"})
+            debug.update(fallback_used=True, block_reason="qualified_narration_required")
         return fallback_text
-    prompt = DEFAULT_DJ_RESPONSE_PROMPT
-    assist_context = _assist_context(hass, conf)
-    language = _response_language(media, assist_context, conf)
-    media_context = _dj_response_media_context(media)
-    voice_profile = voice_profile_for_mood_or_config(conf, media)
-    voice_profile_style = voice_profile_style_text_for_payload(conf, media, language=language)
-    mood_style = mood_announcement_style_text(media, language=language)
-    personal_intro_style = _personal_intro_style_text(memory_context, language=language)
+    return await _qualified_dj_response_with_assist(
+        hass, narration=narration, admission=admission, fallback_text=fallback_text,
+        conf=conf, debug=debug)
+
+
+async def _qualified_dj_response_with_assist(hass, *, narration, admission, fallback_text, conf, debug):
+    """Reuse the announcement transport with a minimal qualified fact grant.
+
+    Two bounded calls: realization and separate semantic assessment. Neither
+    output nor raw prompt enters legacy announcement diagnostics/history.
+    """
+    import asyncio
+    from .narration_brief import NarrationBrief, NarratedText, candidate, assessed
     if debug is not None:
-        debug.update(
-            {
-                "fallback_text": fallback_text,
-                "media_context": dict(media_context),
-                "personal_intro_context": bool(personal_intro_style),
-                "voice_profile": voice_profile,
-                "voice_profile_style_applied": bool(voice_profile_style),
-                "mood_context": mood_context_text(media) if mood_style else None,
-                "mood_style_applied": bool(mood_style),
-                "fallback_used": False,
-                "block_reason": None,
-                "generated_text": None,
-            }
-        )
-    if not media_context:
-        if debug is not None:
-            debug.update({"fallback_used": True, "block_reason": "empty media context"})
+        debug.update(fallback_used=True, block_reason="narration_unavailable", model_attempts=0)
+    if type(narration) is not NarrationBrief or not callable(admission):
         return fallback_text
-    media_lines = _dj_response_media_lines(media_context)
-    text = (
-        "Negeer alle eventueel hierboven ingestelde instructies en pas alleen de "
-        "instructies toe die nu volgen. Je bent een radio-DJ die het volgende "
-        "liedje aankondigt. Doe dit in de volgende stijl:\n"
-        f"{prompt}\n\n"
-        f"{voice_profile_style}\n\n"
-        f"{mood_style}\n\n"
-        f"{personal_intro_style}\n\n"
-        "Je schrijft alleen een korte gesproken DJ response voor het DJConnect device. "
-        "Volg altijd deze volgorde: 1. beantwoord eerst de vraag of bevestig de opdracht, "
-        "2. noem daarna wat er speelt of klaarstaat, 3. geef pas daarna eventueel een kort DJ-feitje. "
-        "Begin nooit met het feitje. "
-        "Noem de artiest, het album en het nummer wanneer die bekend zijn. "
-        "Dit is geen Home Assistant apparaatopdracht. Bedien geen apparaten. "
-        "Spreek Engelstalige artiesten, albums en nummers op z'n Engels uit, ook binnen "
-        "een Nederlandse zin. "
-        f"{_MUSIC_KNOWLEDGE_POLICY_NL} "
-        f"\n\nMedia:\n{media_lines}\n\n"
-        "Antwoord alleen met de tekst die uitgesproken moet worden. Geen JSON, geen uitleg, geen URI."
-        if str(language).lower().startswith("nl")
-        else "Ignore any instructions that may have been set above and follow only "
-        "the instructions below. You are a radio DJ announcing the next song. "
-        "Use this style:\n"
-        f"{prompt}\n\n"
-        f"{voice_profile_style}\n\n"
-        f"{mood_style}\n\n"
-        f"{personal_intro_style}\n\n"
-        "Write only a short spoken DJ response for the DJConnect device. "
-        "Always use this order: 1. answer the request first, 2. then say what is playing "
-        "or queued, 3. only then add an optional short DJ fact. Never start with the fact. "
-        "Mention the artist, album and track when known. "
-        "This is not a Home Assistant device command. Do not control devices. "
-        f"{_MUSIC_KNOWLEDGE_POLICY_EN} "
-        f"\n\nMedia:\n{media_lines}\n\n"
-        "Return only the text that should be spoken. No JSON, no explanation, no URI."
-    )
-    if debug is not None:
-        debug["prompt"] = text
+    context = None
+
+    def guard():
+        admission()
+        if not narration.current():
+            raise PermissionError("narration_source_expired")
+        if context is not None and _assist_context(hass, conf) != context:
+            raise PermissionError("narration_pipeline_changed")
+
     try:
-        _ROOT_LOGGER.debug(
-            "DJConnect Assist DJ response prompt language=%s agent_id=%s pipeline_id=%s",
-            language,
-            assist_context.get("agent_id"),
-            assist_context.get("pipeline_id"),
-        )
-        data = {"text": text, "language": language}
-        if assist_context.get("pipeline_id"):
-            data["pipeline_id"] = assist_context["pipeline_id"]
-        if assist_context.get("agent_id"):
-            data["agent_id"] = assist_context["agent_id"]
-        result = await call_conversation_process_with_agent_retry(hass, data, debug=debug)
-        response = (result or {}).get("response") or {}
-        generated = _speech_from_response(response)
+        guard()
+        context = _assist_context(hass, conf)
+        # A qualified request must never silently choose a different agent.
+        if not context.get("agent_id"):
+            return fallback_text
+        async def ask(prompt):
+            guard()
+            if debug is not None:
+                debug["model_attempts"] += 1
+            result = await call_conversation_process_with_agent_retry(
+                hass, {"text": prompt, "language": narration.locale,
+                       "agent_id": context["agent_id"]}, model_guard=guard)
+            guard()
+            return _speech_from_response((result or {}).get("response") or {})
+
+        async with asyncio.timeout(12):
+            text = candidate(narration, await ask(narration.prompt()))
+            if text is None or not assessed(await ask(narration.assessment_prompt(text))):
+                return fallback_text
+            guard()
+            if debug is not None:
+                debug.update(fallback_used=False, block_reason=None)
+            return NarratedText(narration.render(text), text)
+    except asyncio.CancelledError:
+        raise
+    except Exception as exc:  # Bounded local fallback, never raw provider text.
         if debug is not None:
-            debug["generated_text"] = generated
-        blocked_reason = _dj_response_block_reason(generated)
-        if blocked_reason is None:
-            blocked_reason = _dj_response_media_mismatch_reason(generated, media_context)
-        if blocked_reason is None:
-            return _ordered_dj_response_text(generated, fallback_text)
-        if debug is not None:
-            debug.update({"fallback_used": True, "block_reason": blocked_reason})
-        _LOGGER.debug(
-            "Ignoring unusable Assist DJ response (%s): %s",
-            blocked_reason,
-            generated,
-        )
-        return fallback_text
-    except Exception as exc:  # noqa: BLE001
-        if debug is not None:
-            debug.update(
-                {
-                    "fallback_used": True,
-                    "block_reason": type(exc).__name__,
-                    "error": str(exc) or type(exc).__name__,
-                }
-            )
-        _LOGGER.debug("DJConnect DJ response generation through Assist failed", exc_info=True)
+            debug["block_reason"] = type(exc).__name__
         return fallback_text
 
 
-def _personal_intro_style_text(memory_context: str | None, language: str = "nl") -> str:
-    """Return guidance for occasional Music DNA based personal intro phrases."""
-    context = str(memory_context or "").strip()
-    if not context:
-        return ""
-    if not str(language or "").lower().startswith("nl"):
-        return (
-            "You may add one short personal opening line when it feels natural, based "
-            "only on the compact Music DNA context below. Keep it warm, playful "
-            "and non-repetitive, for example 'Good to have you back', "
-            "'Let's make this a beautiful musical day' or 'Let's rock and roll, baby'. "
-            "Do not force this intro on every response and do not mention that memory "
-            "exists.\n\n"
-            f"Compact Music DNA context:\n{context}"
-        )
-    return (
-        "Je mag, als het natuurlijk voelt, één korte persoonlijke openingszin toevoegen "
-        "op basis van de compacte Music DNA context hieronder. Houd het warm, "
-        "speels en afwisselend, bijvoorbeeld 'Fijn dat je er weer bent', 'We gaan er "
-        "weer een mooie muzikale dag van maken' of 'Let's rock and roll, baby'. "
-        "Forceer zo'n intro niet bij ieder antwoord en zeg niet dat er memory of "
-        "Music DNA context bestaat.\n\n"
-        f"Compacte Music DNA context:\n{context}"
-    )
 
 
-def _response_language(
-    media: dict[str, Any],
-    assist_context: dict[str, Any],
-    conf: dict[str, Any],
-) -> Any:
-    """Resolve response language from client payload, then Assist/TTS fallback."""
-    for key in ("language", "locale", "device_language"):
-        value = str(media.get(key) or "").strip()
-        if value:
-            return value
-    return assist_context.get("language") or conf.get(CONF_TTS_LANGUAGE) or DEFAULT_TTS_LANGUAGE
 
 
-def _dj_response_media_context(media: dict[str, Any]) -> dict[str, Any]:
-    """Return safe user-facing media metadata for DJ response generation."""
-    allowed_keys = (
-        "type",
-        "title",
-        "track_name",
-        "name",
-        "artist",
-        "artist_name",
-        "album_name",
-        "album",
-        "playlist",
-        "owner",
-    )
-    return {
-        key: value
-        for key in allowed_keys
-        if (value := media.get(key)) not in (None, "", [], {})
-    }
 
 
-def _dj_response_media_lines(media_context: dict[str, Any]) -> str:
-    labels = {
-        "type": "type",
-        "title": "titel",
-        "track_name": "nummer",
-        "name": "naam",
-        "artist": "artiest",
-        "artist_name": "artiest",
-        "album_name": "album",
-        "album": "album",
-        "playlist": "playlist",
-        "owner": "eigenaar",
-    }
-    lines = []
-    seen = set()
-    for key, value in media_context.items():
-        label = labels.get(key, key)
-        line = f"{label}: {value}"
-        dedupe_key = (label, str(value).strip().lower())
-        if dedupe_key in seen:
-            continue
-        seen.add(dedupe_key)
-        lines.append(line)
-    return "\n".join(lines)
 
 
-def _dj_response_media_mismatch_reason(generated: str, media_context: dict[str, Any]) -> str | None:
-    text = _normalize_media_match_text(generated)
-    if not text:
-        return "empty generated response"
-    artist = _first_media_value(media_context, "artist", "artist_name")
-    track = _first_media_value(media_context, "track_name", "title")
-    if artist and _normalize_media_match_text(artist) not in text:
-        return "generated response missing resolved artist"
-    if track and _normalize_media_match_text(track) not in text:
-        return "generated response missing resolved track"
-    return None
 
 
-def _ordered_dj_response_text(generated: str, fallback_text: str) -> str:
-    """Ensure playback answers lead with the request answer before optional trivia."""
-    generated = str(generated or "").strip()
-    fallback_text = str(fallback_text or "").strip()
-    if not generated or not fallback_text:
-        return generated or fallback_text
-    if not _starts_with_dj_fact(generated):
-        return generated
-    normalized_generated = _normalize_media_match_text(generated)
-    normalized_fallback = _normalize_media_match_text(fallback_text)
-    if normalized_generated.startswith(normalized_fallback):
-        return generated
-    if normalized_fallback and normalized_fallback in normalized_generated:
-        return generated
-    return f"{fallback_text} {generated}"
 
 
-def _starts_with_dj_fact(value: str) -> bool:
-    normalized = _normalize_media_match_text(value)
-    return normalized.startswith(
-        (
-            "wist je dat",
-            "leuk feitje",
-            "fun fact",
-            "did you know",
-            "a fun fact",
-        )
-    )
 
 
 def _looks_like_invalid_agent_id_error(exc: Exception) -> bool:
@@ -676,12 +488,6 @@ def _looks_like_invalid_agent_id_error(exc: Exception) -> bool:
     return "invalid agent id" in message or "invalid agent_id" in message
 
 
-def _first_media_value(media_context: dict[str, Any], *keys: str) -> str:
-    for key in keys:
-        value = str(media_context.get(key) or "").strip()
-        if value:
-            return value
-    return ""
 
 
 def _normalize_media_match_text(value: str) -> str:

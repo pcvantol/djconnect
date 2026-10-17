@@ -1771,6 +1771,16 @@
           "description": "Löscht alle persönlichen Datenverweise, ohne das Profil zu entfernen."
         }
       }
+    },
+    "session_history_retention": {
+      "name": "Aufbewahrung des Sitzungsverlaufs",
+      "description": "Globale Aufbewahrungsfrist für abgeschlossene DJ-Sitzungen, nur für Administratoren. Ohne Wert wird die Einstellung gelesen. Eine Verlängerung stellt gelöschte Inhalte nicht wieder her.",
+      "fields": {
+        "retention_days": {
+          "name": "Aufbewahrung in Tagen",
+          "description": "Abgeschlossene oder unterbrochene Sitzungen werden so viele Tage nach ihrem Ende aufbewahrt. Aktive Sitzungen bleiben erhalten. Gilt für alle Profile dieser Installation."
+        }
+      }
     }
   }
 }

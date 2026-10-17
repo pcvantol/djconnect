@@ -10,7 +10,7 @@ import logging
 import re
 import secrets
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import UTC, datetime
 from enum import StrEnum
 from typing import Any, Awaitable, Callable
@@ -4332,6 +4332,13 @@ class SessionRuntimeManager:
         self._historical_projections = historical_projections
         self._settings_repository = settings_repository
         self._settings_defaults_revisions: dict[str, int] = {}
+        self._narration_providers: dict[str, tuple[str, Callable, Callable, Callable | None]] = {}
+
+    def connect_narration(self, owner_profile_id, session_id, provider, authorize, *, capture_authority=None, archive_admission=None):
+        """One existing expression provider per active owner, no new scheduler."""
+        active = self._active_by_profile.get(owner_profile_id)
+        if active is not None and active.session_id == session_id:
+            self._narration_providers[owner_profile_id] = (session_id, provider, authorize, capture_authority, archive_admission)
 
     def dj_settings_fence_token(self, owner_profile_id):
         """RAM equality fence only; the repository remains the durable owner."""
@@ -4804,6 +4811,7 @@ class SessionRuntimeManager:
         self, *, owner_profile_id: str, session_id: str, media_identity: str
     ) -> DJMoment | None:
         """Realize one later Moment only from fresh observed current playback."""
+        prepared_fact = None
         async with self._lock:
             active = self._active_by_profile.get(owner_profile_id)
             opportunity = self._intra_track_opportunities.get(owner_profile_id)
@@ -4834,49 +4842,54 @@ class SessionRuntimeManager:
                                 _qualified_fact_spacing_seconds(active.selected_mood, active.dj_persona, active.session_direction.direction),
                                 opportunity.last_fact_read_seconds - 5) * 1000)):
                     return None
-                return await self._publish_qualified_current_fact(owner_profile_id, active, opportunity)
-            if (
-                opportunity.session_id != session_id
-                or opportunity.media_identity != media_identity
-                or opportunity.item_id != playback.item_id
-                or opportunity.blocked or opportunity.spent or opportunity.pending
-                or opportunity.first_moment_type is None
-                or not opportunity.safe_insight
-                or playback.state != "playing"
-                or position is None or duration is None
-                or opportunity.first_moment_position_ms is None
-                or self._monotonic_source() - opportunity.last_observed_monotonic > 30
-                or self._monotonic_source() < opportunity.resume_ready_at
-            ):
-                return None
-            intent = active.planner.select_intra_track_intent(
-                first_type=opportunity.first_moment_type,
-                first_position_ms=opportunity.first_moment_position_ms,
-                first_read_seconds=opportunity.first_read_seconds,
-                observed_position_ms=position,
-                duration_ms=duration,
-                safe_insight=opportunity.safe_insight,
-                performance_memory=active.performance_memory,
-                allowed_intents=active.allowed_capability_intents,
-            )
-            if intent is None:
-                return None
-            opportunity.pending = True
-            generation = opportunity.generation
-            safe_insight = copy.deepcopy(opportunity.safe_insight)
-            working_knowledge = copy.deepcopy(active.knowledge_engine)
-            working_moments = copy.deepcopy(active.moment_engine)
-            direction = active.session_direction
-            mood = active.selected_mood
-            candidate_mood_revision = active.mood_revision
-            candidate_presence_revision = active.presence_revision
-            candidate_persona_revision = active.persona_revision
-            candidate_settings_revision = active.settings_revision
-            strategy = active.session_start_strategy
-            discover = active.discover_context
-            memory = active.performance_memory
-            persona = active.dj_persona
-            locale = active.locale
+                prepared_fact = self._prepare_qualified_current_fact(owner_profile_id, active, opportunity)
+                if prepared_fact is None:
+                    return None
+            else:
+                if (
+                    opportunity.session_id != session_id
+                    or opportunity.media_identity != media_identity
+                    or opportunity.item_id != playback.item_id
+                    or opportunity.blocked or opportunity.spent or opportunity.pending
+                    or opportunity.first_moment_type is None
+                    or not opportunity.safe_insight
+                    or playback.state != "playing"
+                    or position is None or duration is None
+                    or opportunity.first_moment_position_ms is None
+                    or self._monotonic_source() - opportunity.last_observed_monotonic > 30
+                    or self._monotonic_source() < opportunity.resume_ready_at
+                ):
+                    return None
+                intent = active.planner.select_intra_track_intent(
+                    first_type=opportunity.first_moment_type,
+                    first_position_ms=opportunity.first_moment_position_ms,
+                    first_read_seconds=opportunity.first_read_seconds,
+                    observed_position_ms=position,
+                    duration_ms=duration,
+                    safe_insight=opportunity.safe_insight,
+                    performance_memory=active.performance_memory,
+                    allowed_intents=active.allowed_capability_intents,
+                )
+                if intent is None:
+                    return None
+                opportunity.pending = True
+                generation = opportunity.generation
+                safe_insight = copy.deepcopy(opportunity.safe_insight)
+                working_knowledge = copy.deepcopy(active.knowledge_engine)
+                working_moments = copy.deepcopy(active.moment_engine)
+                direction = active.session_direction
+                mood = active.selected_mood
+                candidate_mood_revision = active.mood_revision
+                candidate_presence_revision = active.presence_revision
+                candidate_persona_revision = active.persona_revision
+                candidate_settings_revision = active.settings_revision
+                strategy = active.session_start_strategy
+                discover = active.discover_context
+                memory = active.performance_memory
+                persona = active.dj_persona
+                locale = active.locale
+        if prepared_fact is not None:
+            return await self._realize_qualified_current_fact(prepared_fact)
         try:
             knowledge = await working_knowledge.async_assemble_track_context(
                 intent=intent, raw_insight=safe_insight, session_direction=direction,
@@ -4936,11 +4949,11 @@ class SessionRuntimeManager:
             self._record_performance_memory(owner_profile_id, active)
             return moment
 
-    async def _publish_qualified_current_fact(self, owner_profile_id: str, active: DJSessionRuntime,
-                                        opportunity: IntraTrackOpportunity) -> DJMoment | None:
+    def _prepare_qualified_current_fact(self, owner_profile_id: str, active: DJSessionRuntime,
+                                        opportunity: IntraTrackOpportunity):
         """Run the canonical Planner→Knowledge→Moment→Flow→Broadcast chain."""
         playback = active.broadcast.state.playback
-        if (playback.state != "playing" or opportunity.blocked
+        if (playback.state != "playing" or opportunity.blocked or opportunity.pending
                 or opportunity.last_observed_position_ms is None or playback.duration_ms is None
                 or opportunity.session_id != active.session_id or opportunity.item_id != playback.item_id
                 or self._monotonic_source() - opportunity.last_observed_monotonic > 30):
@@ -4989,38 +5002,149 @@ class SessionRuntimeManager:
         )
         if moment.moment_type is DJMomentType.SILENCE:
             return None
-        playback = active.broadcast.state.playback
-        if (playback.state != "playing" or opportunity.blocked
-                or opportunity.last_observed_position_ms is None or playback.duration_ms is None
-                or self._monotonic_source() - opportunity.last_observed_monotonic > 30
-                or playback.duration_ms - opportunity.last_observed_position_ms < (moment.presentation_intent.maximum_duration_seconds + 5) * 1000):
+        opportunity.pending = True
+        return (owner_profile_id, active, opportunity, opportunity.generation,
+                working_moments, moment, fact, active.moment_engine.moments)
+
+    async def _realize_qualified_current_fact(self, prepared):
+        """Realize outside the manager lock; revalidate every captured owner at commit."""
+        owner_profile_id, active, opportunity, generation, working_moments, moment, fact, original_moments = prepared
+        provider = self._narration_providers.get(owner_profile_id)
+        try:
+            owner_guard = provider[3]() if provider is not None and provider[3] is not None else (provider[2] if provider else None)
+        except Exception:
+            async with self._lock:
+                if self._intra_track_opportunities.get(owner_profile_id) is opportunity and opportunity.generation == generation:
+                    opportunity.pending = False
             return None
-        if not await self._async_persist_moment(active, moment):
+
+        def guard(*, require_pending=True):
+            if provider is not None:
+                try:
+                    if (provider[0] != active.session_id
+                            or self._narration_providers.get(owner_profile_id) is not provider):
+                        raise PermissionError("narration_owner_changed")
+                    owner_guard()
+                except Exception:
+                    raise PermissionError("narration_owner_changed") from None
+            current = self._active_by_profile.get(owner_profile_id)
+            if (current is not active or not active.allows_proactive()
+                    or self._intra_track_opportunities.get(owner_profile_id) is not opportunity
+                    or opportunity.generation != generation or (require_pending and not opportunity.pending)
+                    or opportunity.blocked or not fact.eligible(opportunity.media_identity, time.monotonic())
+                    or active.moment_engine.moments != original_moments
+                    or active.broadcast.state.playback.state != "playing"
+                    or active.broadcast.state.playback.item_id != opportunity.item_id
+                    or not 0 <= self._monotonic_source() - opportunity.last_observed_monotonic <= 30):
+                raise PermissionError("narration_context_changed")
+
+        try:
+            guard()
+            if provider is not None and provider[0] == active.session_id:
+                from .narration_brief import qualify, recent_frames, remember_frame
+                brief = qualify(fact, locale=active.locale, persona=active.dj_persona.value,
+                                mood=active.selected_mood, seed=moment.content)
+                if brief is not None:
+                    # Existing bounded published-only memory carries value-free
+                    # model frames, never catalog values or another text archive.
+                    remembered = set(active.moment_engine._expression_moment_ids[-6:])
+                    brief = replace(brief, recent_frames=recent_frames(active.moment_engine._expression_forms))
+                    text = await provider[1](brief, guard)
+                    guard()
+                    if isinstance(text, str) and text != moment.content:
+                        # Provider is the existing qualified HA announcement owner.
+                        # Recompute fit before the one immutable semantic commit.
+                        if (20 <= len(text) <= 700
+                                and text not in {m.content for m in active.broadcast.state.dj_moments
+                                                if m.moment_id in remembered}):
+                            frame = getattr(text, "frame", None)
+                            enriched = replace(moment, content=str(text),
+                                expression_form=remember_frame(moment.expression_form, frame) if isinstance(frame,str) else moment.expression_form,
+                                presentation_intent=_presentation_intent(active.selected_mood, active.dj_persona,
+                                    reading_characters=len(moment.summary)+len(text), minimum_duration_seconds=40),
+                                generation_metadata=(*moment.generation_metadata, ("realization", "qualified_ha_narration_v1")))
+                            working_moments.moments = tuple(enriched if m is moment else m for m in working_moments.moments)
+                            moment = enriched
+            guard()
+        except asyncio.CancelledError:
+            async with self._lock:
+                if self._intra_track_opportunities.get(owner_profile_id) is opportunity and opportunity.generation == generation:
+                    opportunity.pending = False
+            raise
+        except PermissionError:
+            async with self._lock:
+                if self._intra_track_opportunities.get(owner_profile_id) is opportunity and opportunity.generation == generation:
+                    opportunity.pending = False
             return None
-        # A durable semantic commit consumes this opportunity once, even if
-        # transport subsequently fails. Continuity seeds still require actual Flow.
-        if self._historical_projections is not None:
-            active.moment_engine.__dict__.update(working_moments.__dict__)
-            opportunity.used_fact_keys.add(fact.key)
-            opportunity.fact_count += 1
-            opportunity.last_fact_position_ms = opportunity.last_observed_position_ms
-            opportunity.last_fact_read_seconds = moment.presentation_intent.maximum_duration_seconds
-        active.publish_moment(moment, commit_expression=False)
-        if not any(published.moment_id == moment.moment_id for published in active.broadcast.state.dj_moments):
-            return None
-        active.published_recording_context.commit(fact, time.monotonic())
-        if (active.session_start_strategy is SessionStartStrategy.DISCOVER
-                and active.session_direction.direction is SessionDirectionType.EXPLORING):
-            active.published_album_context.commit(fact, time.monotonic())
-        if self._historical_projections is None:
-            active.moment_engine.__dict__.update(working_moments.__dict__)
-            opportunity.used_fact_keys.add(fact.key)
-            opportunity.fact_count += 1
-            opportunity.last_fact_position_ms = opportunity.last_observed_position_ms
-            opportunity.last_fact_read_seconds = moment.presentation_intent.maximum_duration_seconds
-        active.moment_engine.commit_expression(moment, active.planner.output.session_flow)
-        self._record_performance_memory(owner_profile_id, active)
-        return moment
+        except Exception as exc:
+            # Provider failure keeps the original approved local realization.
+            _LOGGER.debug("DJConnect qualified narration unavailable: %s", type(exc).__name__)
+        async with self._lock:
+            try:
+                guard()
+            except PermissionError:
+                if self._intra_track_opportunities.get(owner_profile_id) is opportunity and opportunity.generation == generation:
+                    opportunity.pending = False
+                return None
+            opportunity.pending = False
+            playback = active.broadcast.state.playback
+            age = max(0, self._monotonic_source() - opportunity.last_observed_monotonic)
+            position = max(playback.position_ms or 0,
+                           (opportunity.last_observed_position_ms or 0) + int(age * 1000))
+            if (playback.state != "playing" or opportunity.blocked
+                    or opportunity.last_observed_position_ms is None or playback.duration_ms is None
+                    or self._monotonic_source() - opportunity.last_observed_monotonic > 30
+                    or playback.duration_ms - position < (moment.presentation_intent.maximum_duration_seconds + 5) * 1000):
+                return None
+            if not await self._async_persist_moment(active, moment, final_authorize=lambda:guard(require_pending=False)):
+                return None
+            # A durable semantic commit consumes this opportunity once, even if
+            # transport subsequently fails. Continuity seeds still require actual Flow.
+            if self._historical_projections is not None:
+                active.moment_engine.__dict__.update(working_moments.__dict__)
+                opportunity.used_fact_keys.add(fact.key)
+                opportunity.fact_count += 1
+                opportunity.last_fact_position_ms = opportunity.last_observed_position_ms
+                opportunity.last_fact_read_seconds = moment.presentation_intent.maximum_duration_seconds
+            # Revocation after semantic admission cannot erase that commit, but
+            # must still prevent live delivery and style-memory advancement.
+            try:
+                if provider is not None:
+                    owner_guard()
+                if not fact.eligible(opportunity.media_identity, time.monotonic()):
+                    raise PermissionError("narration_source_expired")
+                latest = active.broadcast.state.playback
+                age = self._monotonic_source() - opportunity.last_observed_monotonic
+                position = max(latest.position_ms or 0,
+                    (opportunity.last_observed_position_ms or 0) + int(max(0,age)*1000))
+                if (self._active_by_profile.get(owner_profile_id) is not active
+                        or self._intra_track_opportunities.get(owner_profile_id) is not opportunity
+                        or opportunity.generation != generation or opportunity.blocked
+                        or latest.state != "playing" or latest.item_id != opportunity.item_id
+                        or not 0 <= age <= 30 or latest.duration_ms is None
+                        or latest.duration_ms-position < (moment.presentation_intent.maximum_duration_seconds+5)*1000):
+                    raise PermissionError("narration_delivery_changed")
+            except Exception:
+                active.prepared_presentations.pop(moment.moment_id, None)
+                if self._historical_projections is not None:
+                    active.presence_ledger.commit(opportunity.item_id, moment.presentation_intent.maximum_duration_seconds)
+                return None
+            active.publish_moment(moment, commit_expression=False)
+            if not any(published.moment_id == moment.moment_id for published in active.broadcast.state.dj_moments):
+                return None
+            active.published_recording_context.commit(fact, time.monotonic())
+            if (active.session_start_strategy is SessionStartStrategy.DISCOVER
+                    and active.session_direction.direction is SessionDirectionType.EXPLORING):
+                active.published_album_context.commit(fact, time.monotonic())
+            if self._historical_projections is None:
+                active.moment_engine.__dict__.update(working_moments.__dict__)
+                opportunity.used_fact_keys.add(fact.key)
+                opportunity.fact_count += 1
+                opportunity.last_fact_position_ms = opportunity.last_observed_position_ms
+                opportunity.last_fact_read_seconds = moment.presentation_intent.maximum_duration_seconds
+            active.moment_engine.commit_expression(moment, active.planner.output.session_flow)
+            self._record_performance_memory(owner_profile_id, active)
+            return moment
 
     async def async_advance_playback_progress(
         self, *, owner_profile_id: str, session_id: str
@@ -5148,6 +5272,7 @@ class SessionRuntimeManager:
         allow_initial_facts: bool = False,
     ) -> DJMoment | None:
         """Orchestrate Planner → Knowledge → Moment → Flow → Broadcast."""
+        prepared_fact = None
         async with self._lock:
             prior = self._active_by_profile.get(owner_profile_id)
             if prior is not None and prior.session_id == session_id and not prior.allows_proactive():
@@ -5212,50 +5337,55 @@ class SessionRuntimeManager:
                 opportunity.qualified_facts = tuple(fact for fact in facts[:6] if type(fact) is QualifiedSessionFact
                                                     and fact.eligible(media_identity, time.monotonic()))
                 if opportunity.qualified_facts:
-                    return await self._publish_qualified_current_fact(owner_profile_id, active, opportunity)
-            if initial and allow_initial_facts:
-                # Initial metadata establishes the old baseline unless a new
-                # qualified source fact exists; never manufacture an intro.
-                return None
-            raw_insight = dict(raw_insight)
-            # A provider cannot supply its own Runtime acceptance proof. Only
-            # the actual observed playing projection can open this fallback.
-            raw_insight.pop("_observed_playback", None)
-            track = raw_insight.get("track") or {}
-            analysis = raw_insight.get("analysis") or {}
-            playback = active.broadcast.state.playback
-            if (require_current_playback and opportunity is not None
-                    and analysis.get("basis") == "unmeasured_metadata_only_v1"
-                    and playback.state == "playing"
-                    and playback.item_id == hashlib.sha256(media_identity.encode()).hexdigest()[:24]
-                    and track.get("title") == playback.title and track.get("artist") == playback.artist):
-                proof = ObservedPlaybackNarration(playback.item_id, playback.title, playback.artist,
-                    playback.source_url, opportunity.last_observed_monotonic, active.locale,
-                    raw_insight["_qualified_genre_fact"].source_url.rsplit("/", 1)[-1] if "_qualified_genre_fact" in raw_insight else "",
-                    raw_insight["_qualified_genre_fact"].display_core.subject if "_qualified_genre_fact" in raw_insight else "")
-                if proof.eligible(self._monotonic_source()):
-                    raw_insight["_observed_playback"] = proof
-            working_planner = copy.deepcopy(active.planner)
-            working_knowledge_engine = copy.deepcopy(active.knowledge_engine)
-            working_moment_engine = copy.deepcopy(active.moment_engine)
-            working_coordinator = copy.deepcopy(active.planning_coordinator)
-            if active.session_start_strategy is SessionStartStrategy.DISCOVER:
-                working_planner.note_discover_track_started()
-            planning_mood_revision = active.mood_revision
-            planning_presence_revision = active.presence_revision
-            planning_persona_revision = active.persona_revision
-            planning_settings_revision = active.settings_revision
-            planning_input = working_planner.project_track_started_planning_input(
-                session_id=active.session_id,
-                upcoming_playback=upcoming_playback,
-                session_start_strategy=active.session_start_strategy,
-                session_direction=active.session_direction,
-                selected_mood=active.selected_mood,
-                persona=active.dj_persona,
-                knowledge_hints=_planner_knowledge_hints(raw_insight),
-                performance_memory=active.performance_memory,
-                discover_context=active.discover_context,
-            )
+                    prepared_fact = self._prepare_qualified_current_fact(owner_profile_id, active, opportunity)
+                    if prepared_fact is None:
+                        return None
+            if prepared_fact is None:
+                if initial and allow_initial_facts:
+                    # Initial metadata establishes the old baseline unless a new
+                    # qualified source fact exists; never manufacture an intro.
+                    return None
+                raw_insight = dict(raw_insight)
+                # A provider cannot supply its own Runtime acceptance proof. Only
+                # the actual observed playing projection can open this fallback.
+                raw_insight.pop("_observed_playback", None)
+                track = raw_insight.get("track") or {}
+                analysis = raw_insight.get("analysis") or {}
+                playback = active.broadcast.state.playback
+                if (require_current_playback and opportunity is not None
+                        and analysis.get("basis") == "unmeasured_metadata_only_v1"
+                        and playback.state == "playing"
+                        and playback.item_id == hashlib.sha256(media_identity.encode()).hexdigest()[:24]
+                        and track.get("title") == playback.title and track.get("artist") == playback.artist):
+                    proof = ObservedPlaybackNarration(playback.item_id, playback.title, playback.artist,
+                        playback.source_url, opportunity.last_observed_monotonic, active.locale,
+                        raw_insight["_qualified_genre_fact"].source_url.rsplit("/", 1)[-1] if "_qualified_genre_fact" in raw_insight else "",
+                        raw_insight["_qualified_genre_fact"].display_core.subject if "_qualified_genre_fact" in raw_insight else "")
+                    if proof.eligible(self._monotonic_source()):
+                        raw_insight["_observed_playback"] = proof
+                working_planner = copy.deepcopy(active.planner)
+                working_knowledge_engine = copy.deepcopy(active.knowledge_engine)
+                working_moment_engine = copy.deepcopy(active.moment_engine)
+                working_coordinator = copy.deepcopy(active.planning_coordinator)
+                if active.session_start_strategy is SessionStartStrategy.DISCOVER:
+                    working_planner.note_discover_track_started()
+                planning_mood_revision = active.mood_revision
+                planning_presence_revision = active.presence_revision
+                planning_persona_revision = active.persona_revision
+                planning_settings_revision = active.settings_revision
+                planning_input = working_planner.project_track_started_planning_input(
+                    session_id=active.session_id,
+                    upcoming_playback=upcoming_playback,
+                    session_start_strategy=active.session_start_strategy,
+                    session_direction=active.session_direction,
+                    selected_mood=active.selected_mood,
+                    persona=active.dj_persona,
+                    knowledge_hints=_planner_knowledge_hints(raw_insight),
+                    performance_memory=active.performance_memory,
+                    discover_context=active.discover_context,
+                )
+        if prepared_fact is not None:
+            return await self._realize_qualified_current_fact(prepared_fact)
         _LOGGER.debug("DJConnect Planning Runtime Coordinator lifecycle entered")
         try:
             coordinated = await working_coordinator.async_coordinate_track_started(
@@ -6145,21 +6275,45 @@ class SessionRuntimeManager:
             profile_id = authorization[0]
         return await self.async_end(owner_profile_id=profile_id, session_id=session_id)
 
-    async def _async_persist_moment(self, active: DJSessionRuntime, moment: DJMoment) -> bool:
+    async def _async_persist_moment(self, active: DJSessionRuntime, moment: DJMoment, *, final_authorize=None) -> bool:
         """Explicit historical field qualification before actual live publication."""
         if moment.session_id != active.session_id:
             return False
+        if final_authorize is not None:
+            try:
+                final_authorize()
+            except PermissionError:
+                return False
         if self._historical_projections is None:
             return True
         if moment.moment_type is not DJMomentType.SILENCE and not active.allows_proactive():
             return False
         if moment.moment_type is DJMomentType.SILENCE:
+            await self._historical_projections.async_append_entries(
+                active.owner_profile_id, active.session_id, [{
+                    "kind": "dj_silence", "reference_id": moment.moment_id,
+                    "occurred_at": moment.created_at,
+                    "body": {"moment_id": moment.moment_id, "moment_type": "silence",
+                             "content_state": "silence", "locale": active.locale,
+                             "persona": moment.presentation_intent.dj_persona.value},
+                }], authorize=lambda: self._active_by_profile.get(active.owner_profile_id) is active)
             return True
+        archive_guard = None
         opportunity = self._intra_track_opportunities.get(active.owner_profile_id)
         generation = opportunity.generation if opportunity is not None else None
 
         def admission_is_current():
             # Runs on the event loop after provider-lock waiting, never in SQLite's worker.
+            if final_authorize is not None:
+                try:
+                    final_authorize()
+                except PermissionError:
+                    return False
+            if archive_guard is not None:
+                try:
+                    archive_guard()
+                except PermissionError:
+                    return False
             if self._active_by_profile.get(active.owner_profile_id) is not active or not active.allows_proactive():
                 return False
             source = getattr(moment, "source_fact", None)
@@ -6217,6 +6371,27 @@ class SessionRuntimeManager:
             and metadata.get("validated") == "true"
         ):
             basis = "runtime_authored_direction_v1"
+        if not basis:
+            captured = self._history_source_contexts.get(active.session_id, {})
+            metadata_source = (
+                isinstance(source, QualifiedSessionFact) and source.provider == 'Spotify'
+                and source.key in {'album_release','genre_context','album_continuity'}
+                and source.eligible(source.media_identity, time.monotonic()))
+            observed_source = (moment.observed_playback is not None
+                and moment.observed_playback.eligible(self._monotonic_source()))
+            transition_source = (moment.genre_transition is not None
+                and moment.genre_transition.eligible(self._monotonic_source()))
+            if ((metadata_source or observed_source or transition_source)
+                    and all(isinstance(captured.get(k),str) and captured[k]
+                            for k in ('backend_id','music_account_id','provider_entry_id','provider_account_id'))):
+                registration = self._narration_providers.get(active.owner_profile_id)
+                if registration is not None and registration[0] == active.session_id and registration[4] is not None:
+                    try:
+                        archive_guard = await registration[4](captured)
+                    except PermissionError:
+                        archive_guard = None
+                    if archive_guard is not None:
+                        basis = 'owner_metadata_narration_v1'
         entry = None
         if basis:
             entry = {"kind":"dj_moment", "reference_id":moment.moment_id,
@@ -6229,6 +6404,8 @@ class SessionRuntimeManager:
             if basis == "cc0_normalized_fields_v1":
                 from .ask_dj.dialogue import normalized_subjects
                 entry["body"]["dialogue_subjects"] = normalized_subjects(source)
+                # The creative presentation is not new factual evidence.
+                entry["body"]["qualified_fact_text"] = source.copy_for(active.locale)[1]
                 from .session_artwork import subject_for_fact
                 subject = subject_for_fact(source)
                 if subject:
@@ -6236,11 +6413,28 @@ class SessionRuntimeManager:
                         "version": 1, "subject_uri": subject,
                         "album_uri": getattr(source, "artwork_album_uri", ""),
                         "source_context": dict(self._history_source_contexts.get(active.session_id, {}))}
+            elif basis == 'owner_metadata_narration_v1':
+                entry['body'].update(provider='Spotify',
+                    source_context=dict(self._history_source_contexts[active.session_id]))
+
+        if entry is None:
+            # Retention of source content is separate from retention of the
+            # Core-owned fact that this immutable publication occurred.
+            entry = {"kind": "dj_publication", "reference_id": moment.moment_id,
+                     "occurred_at": moment.created_at,
+                     "body": {"moment_id": moment.moment_id,
+                              "moment_type": moment.moment_type.value,
+                              "content_state": "unavailable",
+                              "unavailable_reason": "source_retention_not_qualified",
+                              "persona": moment.presentation_intent.dj_persona.value,
+                              "persona_revision": active.persona_revision,
+                              "locale": active.locale}}
 
         try:
             accepted = await self._historical_projections.async_accept_moment(
                 active.owner_profile_id, active.session_id, moment.moment_id, entry,
-                authorize=admission_is_current)
+                authorize=admission_is_current,
+                **({"finalize_authorize": admission_is_current} if final_authorize is not None or archive_guard is not None else {}))
         except PermissionError:
             if not admission_is_current():
                 return False
@@ -6295,6 +6489,7 @@ class SessionRuntimeManager:
             if active.broadcast.media_cleanup is not None:
                 active.broadcast.media_cleanup()
             active.broadcast.close()
+            self._narration_providers.pop(owner_profile_id, None)
             self._active_by_profile.pop(owner_profile_id, None)
             self._history_source_contexts.pop(session_id, None)
             self._end_grants = {key: value for key, value in self._end_grants.items() if value[1] != active.session_id}

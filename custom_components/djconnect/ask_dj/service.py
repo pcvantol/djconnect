@@ -64,6 +64,7 @@ async def _live_reference(manager, profile, target):
     from .dialogue import normalized_subjects
     return {"text": moment.content, "moment_type": moment.moment_type.value, "archive_basis": "cc0_normalized_fields_v1",
             "source_attribution": dict(moment.source_attribution),
+            "qualified_fact_text": source.copy_for(active.locale)[1],
             "dialogue_subjects": normalized_subjects(source)}
 
 

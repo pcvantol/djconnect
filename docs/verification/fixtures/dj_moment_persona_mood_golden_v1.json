@@ -501,5 +501,50 @@
   "boundaries": {
     "model_calls": 0,
     "native_installed_hardware": "NOT_RUN"
-  }
+  },
+  "editorial_regressions": [
+    {
+      "id": "DJM-EDITORIAL-ALBUM-WEDNESDAY-MORNING-NL",
+      "status": "OPEN_REPRODUCED_INSTALLED",
+      "evidence": "Owner-provided screenshot 2026-10-17; same clinical album-edition template confirmed in installed realizer",
+      "language": "nl",
+      "persona": "home_dj",
+      "mood": "energy",
+      "input": {
+        "family": "edition",
+        "album_title": "Wednesday Morning, 3 A.M.",
+        "release_date": "1964-10-19",
+        "release_date_precision": "day",
+        "source": "Spotify",
+        "basis": "album_edition_metadata"
+      },
+      "rejected_complete_response": "Bij deze uitgave van Wednesday Morning, 3 A.M. staat 19 oktober 1964 in de Spotify-catalogus.",
+      "acceptance": [
+        "Recognizable natural personal DJ narration, consistent with the selected Persona and Mood",
+        "Preserve exact edition subject, date precision and Spotify attribution",
+        "Do not imply original recording release, invented anecdote, listening experience or DJ playback choice",
+        "A generic opening, changed word order or Mood metadata alone does not establish narrative acceptance"
+      ],
+      "qualification": "Editorial expectation recorded; runtime correction and acceptance NOT delivered"
+    }
+  ],
+  "integration_regressions": [
+    {
+      "id": "TRACK-INSIGHT-REGULAR-PAIRED-CURRENT",
+      "status": "OPEN_REPRODUCED_INSTALLED",
+      "evidence": "Owner screenshot and ordinary iPhone paired HA-dev POST reproduced 2026-10-17; HTTP200, unmeasured_metadata_only_v1, verified_context empty,0listening_cues,0production_notes",
+      "route": "POST /api/djconnect/v1/track_insight",
+      "request_shape": "Ordinary current Track Insight screen, explicit title/artist/album and normal paired authorization; no selected Moment chip",
+      "required_positive_fixture": "Known exact current recording with permitted qualified public source facts, independent of an already published Moment",
+      "acceptance": [
+        "Ordinary authorized route resolves permitted source context instead of discarding analysis solely because an owner commit_guard exists",
+        "Meaningful source-grounded explanation and explicitly interpreted listening cues when facts are qualified",
+        "Keep owner/source/lifecycle commit guards and model source restrictions",
+        "No fabricated measured energy, instrumentation or confidence values",
+        "Source-poor or unavailable input produces an explicit honest limitation, not invented analysis",
+        "Verify ordinary HTTP and paired live route, stable cache, explicit Moment drilldown and current-track changes"
+      ],
+      "qualification": "Reproduced defect; source correction and exact positive/negative runtime acceptance remain OPEN"
+    }
+  ]
 }

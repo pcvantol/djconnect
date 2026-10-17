@@ -1,5 +1,19 @@
 # Passive Session projection — definitive protected producer pin
 
+## Personal DJ restoration — configured-provider speech clarification (local WIP)
+
+Owner clarification2026-10-17: literal speech of an already accepted,
+owner-authorized contribution or answer uses the user's configured supported HA
+TTS provider, including OpenAI, Piper or Nabu Casa. Source locality alone must
+not block this synthesis. No pipeline/provider fallback, arbitrary caller text,
+new LLM narration grant or widened history/shared-screen rights. Apply equally
+to live Moment references and retained previous-Session references. Preserve
+settings3/text_only, exact immutable text, original attribution, owner/source
+withdrawal, runtime provider/voice changes and private short audio grants.
+Current Apple40218 reports actual iPhone playback/replay of CC0 current and
+previous-session entries; Spotify/OpenAI producer qualification and physical
+audibility remain separate. This is not a final producer/installed pin.
+
 ## Current shared settings3 / target-aware speech3 producer
 
 Protected source main `e8cc70ddffb4112b09babdda4d45140b98926ae5`, PR [#1193](https://github.com/pcvantol/djconnect/pull/1193). [Exact source readback](docs/verification/PROFILE_SESSION_SETTINGS_SOURCE_READBACK_20261016.md). Six-field producer/capabilities are delivered in Core; earlier local-candidate/design checkpoints below are historical. Consumer adoption, complete legacy removal, Finalization and actual installed/native/audible/joint outcomes remain separately qualified.
