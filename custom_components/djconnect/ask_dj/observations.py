@@ -384,6 +384,20 @@ async def release_read(hass,runtime,selected=None):
         except ValueError:
             return None
         return value
+    def bind_expiry(playback):
+        nonlocal deadline
+        if turn and isinstance(playback,dict):
+            stamp=playback.get('valid_until') or playback.get('expires_at')
+            if stamp:
+                try:
+                    expiry=datetime.fromisoformat(stamp)
+                    if expiry.tzinfo is None:
+                        raise ValueError('naive_expiry')
+                    deadline=min(deadline,turn.history.dialogue.clock()+(expiry.astimezone(UTC)-datetime.now(UTC)).total_seconds())
+                except (TypeError,ValueError):
+                    raise DialogueError('playback_observation_expired',409) from None
+                turn.speech_deadline=min(turn.speech_deadline or deadline,deadline)
+            validate_deadline()
     async def fresh():
         nonlocal deadline
         if turn:
@@ -398,20 +412,10 @@ async def release_read(hass,runtime,selected=None):
         if turn:
             await turn.guard()
         playback=result.get('playback') or {} if isinstance(result,dict) and result.get('success') is not False else {}
-        if turn and isinstance(playback,dict):
-            stamp=playback.get('valid_until') or playback.get('expires_at')
-            if stamp:
-                try:
-                    expiry=datetime.fromisoformat(stamp)
-                    if expiry.tzinfo is None:
-                        raise ValueError('naive_expiry')
-                    deadline=min(deadline,turn.history.dialogue.clock()+(expiry.astimezone(UTC)-datetime.now(UTC)).total_seconds())
-                except (TypeError,ValueError):
-                    raise DialogueError('playback_observation_expired',409) from None
-                turn.speech_deadline=min(turn.speech_deadline or deadline,deadline)
-            validate_deadline()
+        bind_expiry(playback)
         return playback
     metadata=dict((selected or {}).get('playback') or {})
+    bind_expiry(metadata)
     # Historical playback projects a bounded item hash and a source link, not
     # the original catalog object. Recover only the exact canonical URI whose
     # hash equals that accepted identity; names never establish identity.

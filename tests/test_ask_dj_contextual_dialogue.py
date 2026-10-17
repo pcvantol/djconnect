@@ -3609,6 +3609,32 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(len(calls), len(cases)+1)
         self.assertEqual(self.prompts, [])
 
+    async def test_selected_release_keeps_original_expiry_for_delivery_and_listen(self):
+        from types import SimpleNamespace
+        from datetime import datetime, UTC, timedelta
+        from custom_components.djconnect.ask_dj import observations
+        from custom_components.djconnect.ask_dj.dialogue import current_turn, DialogueError
+        now=[100.0]
+        async def guard():
+            return None
+        turn=SimpleNamespace(style={'language':'nl'}, history=SimpleNamespace(dialogue=SimpleNamespace(clock=lambda:now[0])),
+                             speech_deadline=None,delivery_validators=[],guard=guard)
+        token=current_turn.set(turn)
+        try:
+            playback={'uri':'spotify:track:'+'A'*22,'title':'Known selected recording','artist':'Synthetic performer',
+                      'release_date':'2008','release_date_precision':'year',
+                      'valid_until':(datetime.now(UTC)+timedelta(seconds=2)).isoformat()}
+            with patch.object(self.core,'run_music_command',side_effect=AssertionError('No fresh lookup for qualified selected metadata')):
+                answer=await observations.release_read(self.hass,{},selected={'playback':playback})
+            self.assertEqual(answer['release_observation']['state'],'known')
+            self.assertLessEqual(turn.speech_deadline,102.0)
+            now[0]=103.0
+            with self.assertRaises(DialogueError):
+                for validator in turn.delivery_validators:
+                    validator()
+        finally:
+            current_turn.reset(token)
+
     async def test_release_question_uses_current_or_selected_metadata_locally(self):
         session=await self.fixture.observed_session()
         from custom_components.djconnect.session_conversation import query_service
