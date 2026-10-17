@@ -123,15 +123,16 @@ async def main():
                     'required_inkijk':'inkijk' in value.split('\nData:\n',1)[0],
                     'trusted_instructions_sha256':hashlib.sha256(value.split('\nData:\n',1)[0].encode()).hexdigest(),
                     'episode_focus':research.get('episode_focus'),
+                    'person_introduction':research.get('person_introduction'),
                     'source_spans':{source['content_hash']:[span['id'] for span in source.get('evidence_spans',
-                        [source['primary_passage'],*source['background_spans']] if 'primary_passage' in source else [])]
+                        [source['primary_passage'],*source.get('reference_context',source.get('background_spans',[]))] if 'primary_passage' in source else [])]
                         for source in research.get('sources',[])}})
             for source in research.get("sources", []):
                 if 'untrusted_excerpt' not in source:
                     spans = source.get('evidence_spans')
                     if spans is None:
-                        assert isinstance(source.get('primary_passage'),dict) and isinstance(source.get('background_spans'),list)
-                        spans=[source['primary_passage'],*source['background_spans']]
+                        assert isinstance(source.get('primary_passage'),dict) and isinstance(source.get('reference_context',source.get('background_spans')),list)
+                        spans=[source['primary_passage'],*source.get('reference_context',source.get('background_spans',[]))]
                     assert isinstance(spans,list) and len({span['id'] for span in spans})==len(spans)
                     public_generation_spans.setdefault(source['content_hash'], []).extend(spans)
                     continue

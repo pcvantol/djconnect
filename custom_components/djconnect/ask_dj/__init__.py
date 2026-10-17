@@ -2844,7 +2844,7 @@ async def _informational_assist_response(
                 qualified_music=qualified_music,
                 expected_roles=tuple(s.get("role") for s in turn.source_context.get("subjects", [])
                                      if s.get("name", "").casefold() == public_research.safe_subject(subject).casefold()))
-            turn.public_research = public_research.research_projection(subject, fetched_sources, research_state)
+            turn.public_research = public_research.research_projection(subject, fetched_sources, research_state, question=text)
             if not fetched_sources:
                 message = public_research.unavailable_answer(turn.style.get("language", "en"))
                 return {"success": True, "text": message, "dj_text": message, "images": [],

@@ -758,8 +758,11 @@ def model_prompt(text: str, payload: dict, source: dict | None = None) -> str:
         )
         if projection['public_music_research'].get('episode_focus'):
             instructions += (
-                " The primary_passage is the main documented substance; background_spans only resolve identities and antecedents. "
-                "Their presentation order proves no chronology or causal connection. Answer the actual question through that episode. "
+                " The person_introduction contract defines the content to realize: introduce the bound person through the literal primary_passage. "
+                "reference_context is only for resolving names and antecedents, not a second list of facts to state. "
+                "Each factual answer sentence must be supported by a realizable_span_id; reference_only_span_ids cannot supply independent biography. "
+                "The bound page name does not prove who a pronoun means; if the complete reference context is ambiguous, state that limitation. "
+                "Presentation order proves no chronology or causal connection. Answer the actual question through that episode. "
                 "Identity is background for pronouns, not an opening definition or a second biography paragraph. "
                 "Don't explain the artist's importance, versatility or significance, and don't append a conclusion about their practice. "
                 "Keep the episode's actual facts and any necessary qualifications; add no links to other activities."

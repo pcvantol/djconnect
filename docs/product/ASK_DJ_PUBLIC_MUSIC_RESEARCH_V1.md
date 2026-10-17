@@ -38,10 +38,10 @@ The reviewed40d1bea9 retirement/TTS checkpoint does not review these new bytes.
 
 ## Existing owners and gap
 
-Both screens continue through the same `ask_dj.service.async_exchange` and normal
+Before this corrective implementation, both screens continued through the same `ask_dj.service.async_exchange` and normal
 owner routes. General musical discussion currently reaches the existing static,
 scoped HA Conversation agent with optional CC0 facts and bounded dialogue state;
-there is no actual Wikipedia reader. A model's recollection or a source name in
+there was no actual Wikipedia reader. A model's recollection or a source name in
 its prompt is not fetched evidence. Source research belongs before expression,
 with the same turn/owner/Session/clear/settings guards before and after awaits.
 
@@ -273,3 +273,31 @@ and Mood instructions. Evidence focus selects literal substance and necessary
 background, without a second Persona task, career arc, personal justification,
 required invitation or repeated inkijk phrasing. This removes an executed prompt
 contradiction; new real-answer/editorial quality evidence remains required.
+
+### Typed person-introduction content boundary
+
+The fixed candidate3a7a776e sample completed16calls with one host instruction
+in all eight actual inputs and unchanged original source hash. Three complete
+answers and five supported prefixes passed technical grounding; independent
+editorial review remains NO_GO. All drafts began with a background occupation
+definition and most attached a generic example or unsupported sonic interpretation.
+Do not repeat that paid sample without a concrete content correction.
+
+For the already bounded single-Wikipedia who-is introduction with a source-marked
+work episode, Core now supplies person_introduction v1: verified subject/page/hash
+identity, one realizable episode span and reference-only IDs for the complete
+original prefix. Generation receives the literal primary passage and complete
+reference_context without rewriting or dropping pronoun antecedents. The identity
+binding supplies a name, not a job/nationality or proof of who every pronoun means.
+Every factual answer sentence needs episode evidence; reference-only biography
+cannot become independent answer content. Present DJ appreciation remains free
+form, but an appreciation-only answer does not fulfill the episode contract.
+
+The existing independent second call sees the entire original corpus and the
+same Core content boundary. It must reject ambiguous actors, wrong activities,
+background-only claims and inferred succession. Local receipt validation permits
+only exact realizable IDs, rejects tampered scopes/hashes and restricts year
+quotes to that episode. No local pronoun replacement or semantic fact extractor;
+uncertainty produces the existing qualified limitation. Other question families,
+multiple-source/conflict handling and all source/date/privacy boundaries remain
+unchanged. No fixed answer, third call, extra model or second Ask DJ route.

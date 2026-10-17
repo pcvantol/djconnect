@@ -26,7 +26,7 @@ Qualification is fail-closed: missing credentials, zero model calls, a missing
 case, transport failure, lost selected context, missing factual source evidence,
 forbidden mutation, timeout or malformed receipt are failures, never skips.
 The exact Git candidate SHA, case manifest digest, model, usage and result IDs
-bind every redacted receipt. No model judge or exact prose matching is used.
+bind every redacted receipt. The release receipt does not substitute an automatic style judge or exact prose matching for independent review. Core retains its separate second-call source assessment.
 A request normally consumes at most two existing Core model attempts; the
 accepted-playback expression exception is bounded below; the paid probe
 has an independent hard request cap. Retry a failed CI job explicitly; no
@@ -285,3 +285,20 @@ permanent causal regressions and bounded fixes before assessment/anchor matching
 These do not weaken all-sentence or source/quote/date evidence and do not turn
 the unchanged model samples into narrative acceptance.
 The default formal gate/model and installed configuration remain unchanged.
+
+### Single-host correction result and next bounded content cause
+
+The predeclared candidate3a7a776e eight-cell Luna sample used16completed calls,
+one unchanged source corpus and one host/no secondary telling instruction in
+every actual input. Technical source grounding passed with three full answers
+and five supported prefixes, zero fallbacks. Independent narrative acceptance
+is NO_GO: all drafts still begin with a background definition, and Persona/Mood
+mostly becomes a generic example or unsupported sound claim. Earlier red runs
+remain red; no model substitution, automatic retry or installed change.
+
+The next change is a typed person-episode content boundary in the existing two
+calls, with original full reference context, exact realizable IDs and independent
+actor/activity/biography checks. Its new causal tests are permanently bound to
+the existing style/grounding families. They prove admission and storage boundaries,
+not real-answer quality. A fresh fixed eight-cell sample must attest this exact
+brief in generation and assessment before any broader quality claim.

@@ -265,7 +265,7 @@ year and qualifiers stay exact. These technical repairs do not reclassify earlie
 failed model samples or establish personal narration, native/audible, source
 delivery or installed acceptance.
 
-The current unchanged-code host regression executes2,267tests (seven existing
+The retained-parity checkpointfed63762 host regression executed2,267tests (seven existing
 skips), with zero failures/errors. The scoped host selection executes240tests;
 227owning tests also pass in the pinned, networkless HA image (162contextual,
 30shared-speech,35artwork). All changed runtime/harness modules pass Ruff.
@@ -273,3 +273,27 @@ Independent technical review gives scoped GO for footer/body consistency and
 exact title-display binding. Editorial review accepts the bounded history
 contract and removal of contradictory research Persona instructions; new real
 prose quality still requires its predeclared exact-candidate sample.
+
+## Single-host real result and typed content refinement
+
+Exact candidate3a7a776e completed all16calls in the fixed eight-cell Luna sample;
+one host instruction and unchanged source corpus were observed for every input.
+Three full answers and five supported prefixes qualify technical grounding only.
+Independent review remains NO_GO: all drafts start with a definition and Mood
+mostly adds unsupported sound language. This is a completed failed quality
+probe, not a running task, model winner or release readiness.
+
+The current bounded content refinement applies only to the existing single-source
+who-is episode projection. Full original prefix remains reference_context; only
+the exact episode may provide factual answer content. Names/page identity do not
+automatically resolve pronouns. Independent assessment keeps the original corpus
+and rejects ambiguous actors, wrong activity and background-only biography.
+Tampered scope/hash, reference-only claim IDs and all-appreciation responses fail
+closed. No rewrite, fact extractor, third call or route is introduced. The existing
+generic Persona/Mood finding remains open pending actual prose/editorial proof.
+
+The typed person-introduction refinement passes2,269host regression tests with
+seven existing skips and no failures/errors. Independent technical/privacy review
+ran all164contextual tests and gives scoped GO for the content boundary, not
+for semantic pronoun resolution or narrative quality. Both remain subject to
+the complete original evidence and the next exact, predeclared real sample.

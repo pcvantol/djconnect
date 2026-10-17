@@ -1398,6 +1398,14 @@
             {
               "file": "tests/test_ask_dj_contextual_dialogue.py",
               "method": "test_general_trivia_survives_track_change_and_no_backend"
+            },
+            {
+              "file": "tests/test_ask_dj_contextual_dialogue.py",
+              "method": "test_person_intro_brief_keeps_reference_context_but_restricts_realizable_claims"
+            },
+            {
+              "file": "tests/test_ask_dj_contextual_dialogue.py",
+              "method": "test_person_intro_owner_never_archives_background_or_wrong_pronoun_claims"
             }
           ],
           "acceptance_status": "open_real_quality",
@@ -1422,6 +1430,14 @@
         {
           "file": "tests/test_ask_dj_contextual_dialogue.py",
           "method": "test_general_trivia_survives_track_change_and_no_backend"
+        },
+        {
+          "file": "tests/test_ask_dj_contextual_dialogue.py",
+          "method": "test_person_intro_brief_keeps_reference_context_but_restricts_realizable_claims"
+        },
+        {
+          "file": "tests/test_ask_dj_contextual_dialogue.py",
+          "method": "test_person_intro_owner_never_archives_background_or_wrong_pronoun_claims"
         }
       ],
       "real_ha_profile": "full_golden",
@@ -2243,6 +2259,14 @@
             {
               "file": "tests/test_ask_dj_contextual_dialogue.py",
               "method": "test_temporal_title_parentheses_are_answer_display_only_and_unambiguous"
+            },
+            {
+              "file": "tests/test_ask_dj_contextual_dialogue.py",
+              "method": "test_person_intro_brief_keeps_reference_context_but_restricts_realizable_claims"
+            },
+            {
+              "file": "tests/test_ask_dj_contextual_dialogue.py",
+              "method": "test_person_intro_owner_never_archives_background_or_wrong_pronoun_claims"
             }
           ],
           "acceptance_status": "open_real_quality",
@@ -2335,6 +2359,14 @@
         {
           "file": "tests/test_ask_dj_contextual_dialogue.py",
           "method": "test_temporal_title_parentheses_are_answer_display_only_and_unambiguous"
+        },
+        {
+          "file": "tests/test_ask_dj_contextual_dialogue.py",
+          "method": "test_person_intro_brief_keeps_reference_context_but_restricts_realizable_claims"
+        },
+        {
+          "file": "tests/test_ask_dj_contextual_dialogue.py",
+          "method": "test_person_intro_owner_never_archives_background_or_wrong_pronoun_claims"
         }
       ],
       "fixture_boundary": "Actual Core interpretation/effect/storage owners; only external provider and agent I/O are fixtures. Native/installed/paid evidence remains separate."
@@ -2702,7 +2734,7 @@
     {
       "id": "ASKDJ-ISSUE-generic-persona-mood",
       "family_id": "ASKDJ-FLOW-style-lifecycle",
-      "finding": "Alleen stylemetadata bewijst geen warme gevarieerde Persona/Mood-tekst",
+      "finding": "Echte achtcellige proef blijft definitie-eerst met aangeplakte waardering en onvoldoende Persona/Mood-verschil. Getypeerde episode-inhoud wordt apart begrensd; metadata of fixturebewijs kwalificeert geen warme gevarieerde tekst.",
       "core_qualification": "open"
     },
     {

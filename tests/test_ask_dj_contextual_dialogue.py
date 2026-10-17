@@ -801,7 +801,7 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
             'resolved_public_subject':'Brian Eno','sources':[chained]},'Wie is Brian Eno?')
         self.assertEqual(chained_focus['episode_focus']['passage_ids'],[complete[3]['id']])
         self.assertEqual(chained_focus['sources'][0]['primary_passage'],complete[3])
-        self.assertEqual(chained_focus['sources'][0]['background_spans'],complete[:3])
+        self.assertEqual(chained_focus['sources'][0]['reference_context'],complete[:3])
         self.assertNotIn('evidence_spans',chained_focus['sources'][0])
         self.assertEqual(list(chained_focus['sources'][0])[0],'primary_passage')
         self.assertEqual(research.evidence_spans(chained),complete)
@@ -821,6 +821,79 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
                        'Ensuite Eno a enregistré No Pussyfooting.',
                        'Después Eno grabó No Pussyfooting.'):
             self.assertFalse(research.temporal_evidence_ok(bridge, {}, context))
+
+    def test_person_intro_brief_keeps_reference_context_but_restricts_realizable_claims(self):
+        from custom_components.djconnect.ask_dj import public_research as research
+        source = research._source('Wikipedia','Brian Eno','https://en.wikipedia.org/wiki/Brian_Eno',
+            'Brian Eno is an English musician born in 1948. He joined Roxy Music. He left the band. '
+            'With guitarist Robert Fripp, he recorded No Pussyfooting in 1973.',
+            'en',source_anchors=['No Pussyfooting'])
+        projection = research.research_projection('Brian Eno',[source],'qualified',question='Who is Brian Eno?')
+        brief = projection['person_introduction']
+        spans = source.model_data()['evidence_spans']
+        self.assertEqual(brief['realizable_span_ids'],[spans[-1]['id']])
+        self.assertEqual(brief['reference_only_span_ids'],[s['id'] for s in spans[:-1]])
+        generation = research.generation_projection(projection,'Who is Brian Eno?')
+        self.assertEqual(generation['sources'][0]['reference_context'],spans[:-1])
+        self.assertEqual(projection['sources'][0],source.model_data())
+        answer = 'Brian Eno recorded No Pussyfooting with Robert Fripp in 1973.'
+        receipt = {'claim':answer,'event_anchor':'No Pussyfooting','year':'1973',
+            'source_id':source.model_data()['content_hash'],'quote':spans[-1]['text']}
+        good = {'supported':True,'claim_checks':[{'text':answer,'kind':'relationship','evidence_ids':[spans[-1]['id']]}],
+            'temporal_claims':[receipt]}
+        context = {'public_music_research':projection}
+        self.assertTrue(research.supported(json.dumps(good),answer,context))
+        background = 'Brian Eno is an English musician born in 1948.'
+        bad = {'supported':True,'claim_checks':[{'text':background,'kind':'fact','evidence_ids':[spans[0]['id']]}]}
+        self.assertFalse(research.supported(json.dumps(bad),background,context))
+        appreciation = 'I enjoy taking a closer look.'
+        self.assertFalse(research.supported(json.dumps({'supported':True,'claim_checks':[
+            {'text':appreciation,'kind':'dj_appreciation','evidence_ids':[]}]}),appreciation,context))
+        for key,value in (('realizable_span_ids',[spans[0]['id']]),('reference_only_span_ids',[]),
+                          ('identity_binding',{**brief['identity_binding'],'source_id':'f'*64})):
+            changed = deepcopy(context)
+            changed['public_music_research']['person_introduction'][key] = value
+            self.assertFalse(research.supported(json.dumps(good),answer,changed))
+        prompt = research.assessment_prompt(answer,context,'en','Who is Brian Eno?')
+        self.assertIn('page name alone does not bind',prompt)
+        self.assertIn('background-only job/nationality/genre',prompt)
+        self.assertNotIn('person_introduction',research.research_projection('Brian Eno',[source],'qualified',question='When was No Pussyfooting released?'))
+
+    async def test_person_intro_owner_never_archives_background_or_wrong_pronoun_claims(self):
+        source = ('Brian Eno is an English musician. He met Robert Fripp. '
+            'With guitarist Robert Fripp, he recorded <i>No Pussyfooting</i>.')
+        body = 'Brian Eno recorded No Pussyfooting with Robert Fripp.'
+        self.reply = body
+        mode = 'good'
+        prompts = []
+        async def agent(hass,data,**kwargs):
+            projection = json.loads(data['text'].split('\nData:\n',1)[1])
+            prompts.append(projection)
+            if 'evidence' not in projection:
+                answer = self.reply
+            elif mode == 'wrong_actor':
+                answer = json.dumps({'supported':False,'unsupported_claims':[self.reply]})
+            else:
+                research = projection['evidence']['public_music_research']
+                ids = research['person_introduction']['realizable_span_ids'] if mode == 'good' else research['person_introduction']['reference_only_span_ids'][:1]
+                answer = json.dumps({'supported':True,'claim_checks':[{
+                    'text':projection['answer'],'kind':'relationship','evidence_ids':ids}]})
+            return {'response':{'speech':{'plain':{'speech':answer}}}}
+        with self.research_http(title='Brian Eno',text=source), patch.object(self.pipeline,'_call_conversation_process_transport',agent):
+            accepted,status = await self.request('Who is Brian Eno?',identifier='typed-episode')
+            self.assertEqual(status,200,accepted)
+            self.assertEqual(accepted['text'],body)
+            self.assertEqual(accepted['knowledge_basis'],'fetched_public_music_research_v1')
+            self.assertEqual(accepted['conversation']['metrics']['agent_calls'],2)
+            self.assertEqual(prompts[0]['public_music_research']['person_introduction'],
+                prompts[1]['evidence']['public_music_research']['person_introduction'])
+            for mode,self.reply in (('background','Brian Eno is an English musician.'),
+                                   ('wrong_actor','Robert Fripp recorded No Pussyfooting alone.')):
+                denied,status = await self.request('Who is Brian Eno?',identifier='typed-'+mode)
+                self.assertEqual(status,200,denied)
+                self.assertEqual(denied['knowledge_basis'],'public_research_unqualified')
+                self.assertNotEqual(denied['text'],self.reply)
+                self.assertNotIn(self.reply,json.dumps((await self.history.async_history('profile:profile-a'))['messages']))
 
     def test_public_research_temporal_receipts_bind_actual_year_and_event_in_five_languages(self):
         from custom_components.djconnect.ask_dj import public_research as research
