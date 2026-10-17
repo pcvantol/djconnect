@@ -2077,7 +2077,9 @@ class TtsHelperTest(unittest.TestCase):
             before=manager.receiver_entry_generation(entry.entry_id)
             stopped,finish=asyncio.Event(),asyncio.Event()
             class Observer:
-                async def async_stop_runtime(inner,unloading_runtime):stopped.set();await finish.wait()
+                async def async_stop_runtime(inner,unloading_runtime):
+                    stopped.set()
+                    await finish.wait()
             class Entries:
                 async def async_unload_platforms(inner,unloaded_entry,platforms):return True
             hass=types.SimpleNamespace(config_entries=Entries(),data={const.DOMAIN:{entry.entry_id:runtime,"runtime":runtime,"session_runtime_manager":manager,"playback_observation_manager":Observer()}})
@@ -2087,7 +2089,8 @@ class TtsHelperTest(unittest.TestCase):
             self.assertEqual(manager.receiver_entry_generation(entry.entry_id),before+1)
             self.assertIs(await manager.async_get_active("owner"),session)
             self.assertFalse(hasattr(manager,"async_issue_receiver_end_grant"))
-            finish.set();self.assertTrue(await unloading)
+            finish.set()
+            self.assertTrue(await unloading)
             self.assertIs(await manager.async_get_active("owner"),session)
         asyncio.run(scenario())
 
@@ -2100,6 +2103,7 @@ class TtsHelperTest(unittest.TestCase):
         self.assertEqual(meta["status"],410)
         self.assertEqual(body,{"success":False,"error":"vibecast_end_control_retired"})
         self.assertEqual(meta["headers"]["Cache-Control"],"no-store")
+        self.assertEqual(meta["headers"]["Referrer-Policy"],"no-referrer")
 
     def test_backend_options_reload_preserves_memory_and_history(self) -> None:
         const = self.const

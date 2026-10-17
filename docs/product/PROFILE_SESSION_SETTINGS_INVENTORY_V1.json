@@ -2532,9 +2532,9 @@
     },
     {
       "identifier": "vibecast_session_end_allowed",
-      "source": "owner17October2026; docs/product/VIBECAST_RECEIVER_END_AUTHORITY_RETIREMENT_V1.md",
-      "disposition": "LOCAL_RETIRED_NO_RECEIVER_END_AUTHORITY",
-      "acceptance": "STALE_OPT_IN_INERT; OLD_ROUTE_410_NO_EFFECTS; OWNER_END_AND_ENTRY_FENCES_PRESERVED; SOURCE_AND_INSTALLED_DELIVERY_PENDING"
+      "source": "owner observation6220433459; config_flow/api_handlers/session_runtime/http",
+      "disposition": "ACTIVE_LEGACY_AUTHORITY_REMOVAL_REQUIRES_DEPENDENCY_QUALIFICATION",
+      "acceptance": "NOT_ROAMING; NOT_ASSUMED_DEAD; OWNER_END_REMAINS"
     },
     {
       "identifier": "integrated_profile_portability",

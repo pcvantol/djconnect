@@ -6,14 +6,30 @@ Exact music identity, single-use speaker continuation, output-local failures and
 truthful dispatch/readback are executable requirements. Ordinary playback/direction and pending genre transitions now have local typed expression adapters; complete-source Flow pagination/reopening and null-body search have causal tests. A narrow Recommendation now reuses two genuine published producer credits; all seven type families have actual production/storage/reopen contracts with external source/expression fixtures. Historical album/artist art resolves the original subject, manual local/speaker replay uses current Session/Profile voice, and current Insight reuses fresh qualified credits. Full real narration quality, preview/native and installed proof remain open. An open qualification
 finding blocks release; a listed case or green metadata never closes it.
 
-The reported obsolete VibeCast Session-end setting is also retired locally,
-including grant issuance and screen mutation. The old route denies without
-Session effects; paired owner end remains. [Retirement contract](docs/product/VIBECAST_RECEIVER_END_AUTHORITY_RETIREMENT_V1.md);
-receiver import and installed delivery are not claimed.
+The bounded VibeCast Session-end retirement is delivered separately through source PR #1202 and Finalization #1203 on main `6a3adbc8`. Its qualified contract supersedes the dated inventory; it does not close this broader personal-DJ correction.
 
 Personal DJ corrective acceptance (17 October 2026): **in progress**, not released. [Narration/complete Flow restoration](docs/product/PERSONAL_DJ_NARRATION_RESTORATION_V1.md) joins qualified expressive narration, durable published Flow including Silence, Session-scoped rolling retention, and configured-provider TTS/replay. Earlier delivery records remain historical; natural text quality, actual all-type transport, installed/native/audible acceptance remain open. No new product family or Stage4 completion.
 
 Requirement-by-requirement [lane reconciliation](docs/verification/CORE_LANE_REQUIREMENT_RECONCILIATION_20261017.md) now drives the bounded correction under the existing Speech family. Public music research and Mood prosody are local implementation/qualification; all-family narrative, actual published-narration Golden and Track Insight remain open. Historical delivered leaves are preserved; no metadata-only completion or native/installed/audio claim.
+
+## Bounded VibeCast receiver end-authority correction — 17 October 2026
+
+The [retirement contract](docs/product/VIBECAST_RECEIVER_END_AUTHORITY_RETIREMENT_V1.md)
+removes the remaining shared-screen Session-end setting, grants and renderer
+control. Existing owner end and entry-lifetime fences remain. This standalone
+correction is qualified independently on current main; broad personal-DJ
+quality, receiver import/native/physical and other lane gates stay open.
+
+## Current cross-lane readback — 17 October 2026
+
+The [integral open-work audit](docs/governance/DJC_PLATFORM_OPEN_WORK_20261017.md)
+separates current producer, local unpublished, installed, native/audio and
+production evidence across all thirteen DJConnect repositories. It retains all
+62 explicit unfinished maintenance gates; historical null-status inventory rows
+are not new assignments. Existing writers and product selections remain intact.
+The machine-readable register and regular unittest negatives prevent scoped
+capability closure or local tests from being reported as whole-product delivery.
+
 
 ## Shared settings — Core producer source delivered
 

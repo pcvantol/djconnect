@@ -3,7 +3,7 @@
 The [web-first experience](VIBECAST_WEB_FIRST_EXPERIENCE_V1.md) makes the shared
 screen readonly. The owner's 17 October 2026 report of the remaining HA checkbox
 requires retiring its entire end-authority path in the current Core correction.
-This is local implementation and qualification, not a delivered/installed claim.
+This is the bounded current-main delivery of an already selected correction; no delivered/installed claim until exact candidate gates pass.
 
 ## Behavior and compatibility
 
@@ -60,7 +60,7 @@ The source, exact independent review, protected delivery, Finalization and
 installed readback remain part of the existing corrective assignment. Broader
 personal narrative quality remains open and is not closed by this retirement.
 
-Local qualification result: 255 targeted tests, 2,272 host regression tests with
+Historical local qualification on e2456029 (not current-main delivery evidence):255 targeted tests,2,272 host regression tests with
 seven existing skips, 173 DAG tests, reproducible local/static renderer build,
 and eight portrait/landscape browser captures passed. The paired HA probe passed
 all five obsolete end-request variants and preserved normal owner end, with zero
@@ -68,3 +68,16 @@ model calls or playback mutations. Independent technical/privacy and product/UX
 reviews gave scoped GO; the added current-inventory hash keeps the historical
 settings-delivery receipt byte-equivalent. These results do not grant broader
 narrative quality, release, installed, native or physical-screen acceptance.
+
+## Current-main delivery boundary
+
+The standalone correction is based on0adaef7d and contains only this retirement.
+The original Profile settings inventory remains a dated148bd5ae source census
+with its historical delivery hash unchanged. Its earlier
+ACTIVE_LEGACY_AUTHORITY_REMOVAL_REQUIRES_DEPENDENCY_QUALIFICATION disposition
+for `vibecast_session_end_allowed` is superseded by this contract and the current
+source/tests. This is not a roaming setting or remaining receiver end authority.
+No other inventory disposition, DAG node/status or historical receipt changes.
+
+Current tests and exact candidate pins are recorded in the separate [delivery qualification](../verification/VIBECAST_END_RETIREMENT_QUALIFICATION_20261017.md); historical e245 results above are not reused as current PASS.
+The broad personal-DJ quality NO_GO and other consumer gates remain open.
