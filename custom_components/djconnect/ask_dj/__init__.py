@@ -2946,6 +2946,7 @@ async def _informational_assist_response(
         # format repair cannot silently buy a third model call or publish an
         # unchecked answer. No excerpts are copied into history or transport.
         accepted = False
+        answer_state = 'assessment_unavailable'
         if turn.agent_calls < 2:
             grounding_context = {"public_music_research": turn.public_research,
                                  "qualified_context": turn.source_context}
@@ -2955,6 +2956,9 @@ async def _informational_assist_response(
             check_response = (checked or {}).get("response") or {}
             assessment = _speech_from_response(check_response)
             accepted = not check_response.get("error") and public_research.supported(assessment, message, grounding_context)
+            if not check_response.get("error"):
+                answer_state = ('full_answer_supported' if accepted
+                                else public_research.assessment_failure_reason(assessment))
             if not accepted and not check_response.get("error"):
                 prefix = public_research.qualified_prefix(assessment, message, grounding_context)
                 if prefix is not None and answer_language_format_issue(prefix, turn.style) is None:
@@ -2962,8 +2966,9 @@ async def _informational_assist_response(
                     response.update(text=message, dj_text=message,
                                     research_answer_qualification='supported_prefix_v1')
                     accepted = True
+                    answer_state = 'supported_prefix'
         if not accepted:
-            message = public_research.unavailable_answer(turn.style.get("language", "en"))
+            message = public_research.unavailable_answer(turn.style.get("language", "en"), answer_unverified=True)
             response.update(text=message, dj_text=message, knowledge_basis="public_research_unqualified",
                             text_source="core", is_generated_text=False)
         else:
@@ -2973,6 +2978,7 @@ async def _informational_assist_response(
             response["links"] = [{"kind": "source", "title": source.get("title", source.get("provider", "Source")),
                                   "url": source["url"], "source": source.get("provider", "Source")}
                                  for source in response["sources"] if source.get("url")]
+        research_state = {**research_state, 'answer_state': answer_state}
     if research_state:
         response["public_research_status"] = research_state
     if plan:

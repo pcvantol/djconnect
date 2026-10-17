@@ -920,6 +920,7 @@ _ASSERTION_ROLES = tuple(re.compile(pattern, re.I) for pattern in (
     r"\b(?:musicians?|muzikant(?:en)?|musiker(?:in(?:nen)?)?|musicien(?:ne)?s?|músic[oa]s?)\b",
     r"\b(?:producers?|producent(?:en)?|produzent(?:in(?:nen)?)?(?:en)?|producteur(?:s)?|productrice(?:s)?|productor(?:a)?(?:es|s)?)\b",
     r"\b(?:artists?|kunstena(?:ar|ars)|künstler(?:in(?:nen)?)?|artistes?|artistas?)\b",
+    r"\b(?:visual artists?|beeldend(?:e)? kunstenaar(?:s)?|bildend(?:e[rsnm]?)? künstler(?:in(?:nen)?)?|artistes? (?:visuels?|plasticien(?:ne)?s?)|artistas? (?:visuales|visual|plástic[oa]s?))\b",
 ))
 # Observed background-to-work genre leaks, not a genre taxonomy or a sonic model.
 _WORK_MODIFIERS = (
@@ -993,11 +994,15 @@ def claim_evidence_ok(answer, data, context):
     for check in checks:
         if (not isinstance(check, dict) or set(check) != {'text', 'kind', 'evidence_ids', 'quote'}
                 or not isinstance(check['text'], str) or not 1 <= len(check['text']) <= 1200
-                or check['text'] != check['text'].strip() or not isinstance(check['quote'], str)
+                or not isinstance(check['quote'], str)
                 or not isinstance(check['kind'], str)
                 or check['kind'] not in {'fact', 'relationship', 'dj_appreciation'}):
             return False
-        text = check['text']
+        # Only formatting owned by the assessor is canonicalized. The original
+        # answer and literal source quotes are never stripped or rewritten.
+        text = check['text'].strip(' \t\r\n')
+        if not text:
+            return False
         while cursor < len(answer) and answer[cursor].isspace():
             cursor += 1
         if not answer.startswith(text, cursor):
@@ -1095,10 +1100,10 @@ def temporal_evidence_ok(answer, data, context):
     return all((sentence, year) in accepted for sentence in _sentences(answer) for year in _YEAR.findall(sentence))
 
 
-def supported(response, answer="", context=None):
-    if not isinstance(response, str) or len(response.encode()) > 8192:
-        return False
-
+def _assessment_object(response):
+    """One bounded strict parser; malformed review is never source unavailability."""
+    if not isinstance(response, str) or len(response) > 8192:
+        return None
     def unique_pairs(pairs):
         result = {}
         for key, value in pairs:
@@ -1108,8 +1113,37 @@ def supported(response, answer="", context=None):
         return result
 
     try:
+        if len(response.encode()) > 8192:
+            return None
         data = json.loads(response, object_pairs_hook=unique_pairs)
-    except (ValueError, TypeError):
+    except (ValueError, TypeError, UnicodeError):
+        return None
+    return data if type(data) is dict else None
+
+
+def assessment_failure_reason(response):
+    """Safe coarse reason only, never a diagnosis that source facts are false."""
+    data = _assessment_object(response)
+    allowed = {'supported', 'unsupported_claims', 'claim_checks', 'temporal_claims',
+               'supported_prefix', 'prefix_supported', 'prefix_answers_question'}
+    prefix = {'supported_prefix', 'prefix_supported', 'prefix_answers_question'}
+    if (data is None or set(data) - allowed or type(data.get('supported')) is not bool
+            or (set(data) & prefix and not prefix <= set(data))
+            or not isinstance(data.get('unsupported_claims', []), list)
+            or len(data.get('unsupported_claims', [])) > 3
+            or not all(isinstance(c, str) and 0 < len(c) <= 500 for c in data.get('unsupported_claims', []))
+            or (data['supported'] is True and data.get('unsupported_claims', []) != [])
+            or (prefix <= set(data) and (
+                not isinstance(data['supported_prefix'], str)
+                or type(data['prefix_supported']) is not bool
+                or type(data['prefix_answers_question']) is not bool))):
+        return 'assessment_format_invalid'
+    return 'claims_unverified'
+
+
+def supported(response, answer="", context=None):
+    data = _assessment_object(response)
+    if data is None:
         return False
     return (
         type(data) is dict
@@ -1123,18 +1157,10 @@ def supported(response, answer="", context=None):
 
 def qualified_prefix(response, original, context=None):
     """No new model text: only an independently attested complete original prefix."""
-    if not isinstance(response, str) or len(response.encode()) > 8192 or not isinstance(original, str):
+    if not isinstance(original, str):
         return None
-    def unique_pairs(pairs):
-        values = {}
-        for key, value in pairs:
-            if key in values:
-                raise ValueError('duplicate_assessment_field')
-            values[key] = value
-        return values
-    try:
-        body = json.loads(response, object_pairs_hook=unique_pairs)
-    except (ValueError, TypeError):
+    body = _assessment_object(response)
+    if body is None:
         return None
     required = {'supported', 'unsupported_claims', 'supported_prefix', 'prefix_supported', 'prefix_answers_question'}
     if (type(body) is not dict or set(body) - {'temporal_claims', 'claim_checks'} != required or body['supported'] is not False
@@ -1157,7 +1183,15 @@ def qualified_prefix(response, original, context=None):
     return prefix
 
 
-def unavailable_answer(language, *, ambiguous=False):
+def unavailable_answer(language, *, ambiguous=False, answer_unverified=False):
+    if answer_unverified:
+        return {
+            'en': 'I found information, but I couldn’t verify this answer well enough. Please try your question again.',
+            'nl': 'Ik heb informatie gevonden, maar ik kon dit antwoord nog niet goed genoeg controleren. Probeer je vraag opnieuw.',
+            'de': 'Ich habe Informationen gefunden, konnte diese Antwort aber nicht ausreichend prüfen. Bitte versuche deine Frage erneut.',
+            'fr': 'J’ai trouvé des informations, mais je n’ai pas pu vérifier suffisamment cette réponse. Essaie de poser ta question à nouveau.',
+            'es': 'Encontré información, pero no pude verificar esta respuesta lo suficiente. Vuelve a hacer tu pregunta.',
+        }.get(language, 'I found information, but I couldn’t verify this answer well enough. Please try your question again.')
     messages = {
         "en": (
             "Which musician or album do you mean?",

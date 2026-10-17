@@ -365,3 +365,58 @@ with a cosmetic aside is insufficient. Assess initial prose blind to cell labels
 then compare pairs. Full answers, retained prefixes and fallbacks remain separate.
 
 Reference for evaluation discipline: [OpenAI evaluation best practices](https://developers.openai.com/api/docs/guides/evaluation-best-practices).
+
+### Review-format recovery and truthful limitation messages
+
+Owner questions after the fixed sixteen-call `dae30074` probe exposed two
+independent failures: harmless ASCII whitespace around an assessor's atomic text
+segment discarded a useful unchanged prefix, while a source's generic `artist`
+was sometimes narrowed to `visual artist`. Repairing the former must not admit
+the latter. All eight original model drafts, actual replies and NO_GO remain
+unchanged; offline receipt replay is diagnostic evidence, not a new live PASS.
+
+Normalize only outer ASCII space/tab/CR/LF on internal claim-check `text` before
+matching the original candidate. Exact ordered coverage still allows only the
+original inter-segment whitespace. Do not normalize answer text, supported-prefix
+text, quotes, IDs, internal whitespace, Unicode controls, unsupported-claim spans
+or JSON syntax. A literal source quote remains byte-exact. Every existing
+semantic/work/year/role guard runs after this narrowly bounded normalization;
+unknown/omitted/overlapping claims still deny. Keep a closed five-language guard
+for the observed visual-artist specialization, with explicit positive evidence
+required. No general occupational inference or extra source authority.
+
+A successfully fetched source and a failed answer review are distinct outcomes.
+A compatible optional `public_research_status.answer_state` reports
+`full_answer_supported`, `supported_prefix`, `assessment_format_invalid`,
+`claims_unverified` or `assessment_unavailable`. The existing `knowledge_basis`
+and prefix marker retain their meanings. Failed assessment never projects
+unaccepted draft text or falsely attributes it to a source. Reopened history
+keeps the actual accepted answer or localized functional limitation, not a raw
+model draft or evidence body.
+
+When sources were fetched but review fails, use a localized answer-check
+limitation instead of claiming source information was unavailable. Missing-source
+and ambiguous-subject messages remain distinct. Product copy gives a useful retry
+instruction without internal JSON/schema details. Malformed JSON, duplicate keys,
+unknown fields, contradictory flags, false quotes and unresolved claims still
+fail closed. Reuse one bounded duplicate-key-rejecting parser; no JSON repair,
+third model call, alternate model, playback effect or automatic retry.
+
+Causal acceptance includes all five languages, useful unchanged prefixes with
+receipt padding, altered internal words/quotes, split relationship attacks,
+visual-role narrowing, malformed assessment, genuine unsupported claim, unavailable
+sources, history/TTS identity and no extra calls. Final narrative quality and
+fresh paid/native/installed acceptance remain separate open gates.
+
+### Local acceptance of review-format recovery
+
+The review-format refinement passes189 owning/gate tests and an isolated real
+HA50-request acceptance: ordinary pairing, standalone plus actual Session routes,
+five languages, supported full answer, supported prefix, malformed assessment,
+unverified claims and unsupported visual-artist narrowing. Actual owner history
+and speech resolution retain exactly the accepted text. The external research
+and agent boundaries are explicit fixtures;100 fixture assessment/generation
+calls, zero paid calls and zero playback mutations. This is transport/storage/
+qualification-mechanism evidence, not a new assessment of generated prose.
+The earlier fixed eight-cell paid experiment remains0full/3prefix/5fallback and
+editorial NO_GO; its original drafts and receipts are unchanged.

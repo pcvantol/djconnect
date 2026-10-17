@@ -2359,6 +2359,40 @@
           ],
           "acceptance_status": "open_real_quality",
           "proof_boundary": "Exact quote/coverage/activity/observed-role guards are deterministic owner tests. Semantic completeness and the fixed eight-cell Persona/Mood answer quality remain independent release gates; fixtures are not real model quality."
+        },
+        {
+          "id": "ASKDJ-REGRESSION-research-grounding-boundary-step-6",
+          "question": "Er zijn bronnen en een bruikbaar modelantwoord: blokkeert interne bewijsopmaak dit ten onrechte?",
+          "expected_answer": "Alleen ASCIIrandspaties in interne claimsegmenten mogen worden genormaliseerd. Dezelfde exacte oorspronkelijke tekst of beoordeeld prefix bereikt response/historie/TTS; quotes en woordinhoud blijven exact. Geen visuele beroepsvernauwing, JSONreparatie of extra modelcall. Bij mislukte beoordeling meldt Core niet dat bronnen ontbreken.",
+          "model_policy": "external_assessment_reply_fixture_existing_two_call_owner",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_contextual_dialogue.py",
+              "method": "test_ascii_receipt_padding_preserves_original_words_and_exact_quote"
+            },
+            {
+              "file": "tests/test_ask_dj_contextual_dialogue.py",
+              "method": "test_padded_prefix_receipt_cannot_rewrite_or_cross_unsupported_text"
+            },
+            {
+              "file": "tests/test_ask_dj_contextual_dialogue.py",
+              "method": "test_visual_artist_narrowing_requires_explicit_evidence_in_five_languages"
+            },
+            {
+              "file": "tests/test_ask_dj_contextual_dialogue.py",
+              "method": "test_assessment_format_failure_is_distinct_from_unverified_claims"
+            },
+            {
+              "file": "tests/test_ask_dj_contextual_dialogue.py",
+              "method": "test_review_failure_copy_truthfully_distinguishes_fetched_sources_in_five_languages"
+            },
+            {
+              "file": "tests/test_ask_dj_contextual_dialogue.py",
+              "method": "test_padded_assessment_keeps_exact_full_or_prefix_history_and_speech"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual owner response/history/speech reference and pure assessment checks; only external source/agent responses are fixtures. Previous sixteen-call output is preserved unchanged; offline diagnostic replay is not a fresh paid quality PASS."
         }
       ],
       "owning_tests": [
@@ -2425,6 +2459,30 @@
         {
           "file": "tests/test_ask_dj_contextual_dialogue.py",
           "method": "test_nominal_producer_credit_requires_actual_production_also_for_atomic_split_and_prefix"
+        },
+        {
+          "file": "tests/test_ask_dj_contextual_dialogue.py",
+          "method": "test_ascii_receipt_padding_preserves_original_words_and_exact_quote"
+        },
+        {
+          "file": "tests/test_ask_dj_contextual_dialogue.py",
+          "method": "test_padded_prefix_receipt_cannot_rewrite_or_cross_unsupported_text"
+        },
+        {
+          "file": "tests/test_ask_dj_contextual_dialogue.py",
+          "method": "test_visual_artist_narrowing_requires_explicit_evidence_in_five_languages"
+        },
+        {
+          "file": "tests/test_ask_dj_contextual_dialogue.py",
+          "method": "test_assessment_format_failure_is_distinct_from_unverified_claims"
+        },
+        {
+          "file": "tests/test_ask_dj_contextual_dialogue.py",
+          "method": "test_review_failure_copy_truthfully_distinguishes_fetched_sources_in_five_languages"
+        },
+        {
+          "file": "tests/test_ask_dj_contextual_dialogue.py",
+          "method": "test_padded_assessment_keeps_exact_full_or_prefix_history_and_speech"
         }
       ],
       "fixture_boundary": "Actual Core interpretation/effect/storage owners; only external provider and agent I/O are fixtures. Native/installed/paid evidence remains separate."
@@ -2908,6 +2966,12 @@
       "family_id": "ASKDJ-REGRESSION-research-grounding-boundary",
       "finding": "De bestaande tweede beoordeling bond alleen complete zinnen aan losse bron-IDlijsten; een weggelaten deelclaim of unie van ware achtergrond- en werkfeiten kon groen lijken. Exacte geordende tekstdekking en één letterlijke passage per feitelijke/relatieclaim zijn nu verplicht.",
       "core_qualification": "open"
+    },
+    {
+      "id": "ASKDJ-ISSUE-misleading-review-fallback",
+      "family_id": "ASKDJ-REGRESSION-research-grounding-boundary",
+      "finding": "De gebruiker ziet een melding over ontbrekende betrouwbare broninformatie terwijl Wikipedia wel gefetcht is. Ongeldige beoordelingsopmaak en onschuldige randspaties blokkeerden bruikbare tekst; echte unsupported claims en model-reviewfalen moeten onderscheiden blijven.",
+      "core_qualification": "locally_covered"
     }
   ],
   "regression_suite_files": [

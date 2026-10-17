@@ -185,16 +185,60 @@ async def main():
         provider_logger.handlers = [observer]
         provider_logger.propagate = False
     original_create = api.responses.create
+    review_bodies = {
+        'en': 'Brian Eno is an English musician and artist.',
+        'nl': 'Brian Eno is een Engelse muzikant en kunstenaar.',
+        'de': 'Brian Eno ist ein englischer Musiker und Künstler.',
+        'fr': 'Brian Eno est un musicien anglais et un artiste.',
+        'es': 'Brian Eno es un músico inglés y artista.',
+    }
+    review_tails = {
+        'en': 'He invented every instrument.', 'nl': 'Hij heeft ieder instrument uitgevonden.',
+        'de': 'Er hat jedes Instrument erfunden.', 'fr': 'Il a inventé tous les instruments.',
+        'es': 'Inventó todos los instrumentos.',
+    }
+    review_narrowed = {
+        'en': 'Brian Eno is a visual artist.', 'nl': 'Brian Eno is een beeldend kunstenaar.',
+        'de': 'Brian Eno ist ein bildender Künstler.', 'fr': 'Brian Eno est un artiste plasticien.',
+        'es': 'Brian Eno es un artista plástico.',
+    }
 
     async def measured_create(**kwargs):
-        if os.environ.get("DJC_SAFETY_PROBE") in {"current_artist", "choice_titles"}:
+        if os.environ.get("DJC_SAFETY_PROBE") in {"current_artist", "choice_titles", "review_recovery"}:
             parts = []
             for message in kwargs.get("input", []):
                 if isinstance(message, dict):
                     content = message.get("content", "")
                     parts.append(content if isinstance(content, str) else "".join(v.get("text", "") for v in content if isinstance(v, dict)))
             prompt = "\n".join(parts)
-            if os.environ.get("DJC_SAFETY_PROBE") == "choice_titles":
+            if os.environ.get("DJC_SAFETY_PROBE") == 'review_recovery':
+                from custom_components.djconnect.ask_dj.dialogue import current_turn
+                turn = current_turn.get()
+                assert turn is not None and turn.client_id.startswith('rr-')
+                _, phase, scenario, language = turn.client_id.split('-')
+                assert phase in {'standalone', 'session'}
+                assert scenario in {'full', 'prefix', 'format', 'claims', 'narrow'}
+                projection = json.loads(prompt.split('\nData:\n', 1)[1])
+                assert not kwargs.get('tools') and kwargs.get('store') is False
+                if 'evidence' not in projection:
+                    fixture_text = review_narrowed[language] if scenario == 'narrow' else review_bodies[language]
+                    if scenario == 'prefix':
+                        fixture_text += ' ' + review_tails[language]
+                elif scenario == 'format':
+                    fixture_text = '{"supported":true,]}'
+                elif scenario == 'claims':
+                    fixture_text = json.dumps({'supported': False, 'unsupported_claims': [projection['answer']]})
+                else:
+                    source = projection['evidence']['public_music_research']['sources'][0]
+                    span = source['evidence_spans'][0]
+                    text = review_bodies[language] if scenario == 'prefix' else projection['answer']
+                    assessment = {'supported': True, 'claim_checks': [{
+                        'text': ' \t' + text + '\n', 'kind': 'fact', 'evidence_ids': [span['id']], 'quote': span['text']}]}
+                    if scenario == 'prefix':
+                        assessment.update(supported=False, unsupported_claims=[review_tails[language]],
+                            supported_prefix=text, prefix_supported=True, prefix_answers_question=True)
+                    fixture_text = json.dumps(assessment)
+            elif os.environ.get("DJC_SAFETY_PROBE") == "choice_titles":
                 assert '"requested_operation": "lookup"' in prompt, "Title follow-ups must not call an agent"
                 assert "Synthetic choice title" not in prompt
                 assert not kwargs.get("tools") and kwargs.get("store") is False
@@ -206,7 +250,8 @@ async def main():
             from openai.types.responses import (Response, ResponseOutputMessage, ResponseOutputText,
                 ResponseOutputItemAddedEvent, ResponseTextDeltaEvent, ResponseOutputItemDoneEvent, ResponseCompletedEvent)
             agent_boundary_fixtures.append({"case":os.environ.get("DJC_SAFETY_PROBE"),"boundary":"external OpenAI response only","paid_model_call":False})
-            text = ('{"intent":"lookup","query":"Within Temptation"}'
+            text = (fixture_text if os.environ.get('DJC_SAFETY_PROBE') == 'review_recovery' else
+                    '{"intent":"lookup","query":"Within Temptation"}'
                     if os.environ.get("DJC_SAFETY_PROBE") == "choice_titles"
                     else "Welk nummer of welke artiest wil je horen?")
             item = ResponseOutputMessage(id="msg_synthetic_clarification",role="assistant",status="completed",type="message",
@@ -815,50 +860,68 @@ async def main():
                     )
                     return body
 
-                if os.environ.get("DJC_SAFETY_PROBE") == "vibecast_end_retired":
-                    # An old stored opt-in must never reconstitute screen authority.
-                    runtime.config["vibecast_session_end_allowed"] = True
-                    started = await call("session/start", {"mood":"groove", "dj_persona":"home_dj", "language":"nl"},
-                                         label="retired-end-owner-start", expected=201)
-                    active = await manager.async_get_active("profile-a")
-                    assert active is not None and active.session_id == started["session"]["session_id"]
-                    async def snapshot():
-                        response = await client.get("/api/djconnect/v1/session/broadcast/" + active.session_id,
-                                                    headers=headers, params=identity)
-                        assert response.status == 200 and response.headers.get("Cache-Control") == "no-store"
-                        return await response.json()
-                    before = await snapshot()
-                    claim = await call("session/broadcast/handoff/claim", {}, label="retired-end-claim")
-                    await call("session/broadcast/handoff/approve", {"session_id":active.session_id, "code":claim["code"]}, label="retired-end-approve")
-                    collected = await call("session/broadcast/handoff/collect", {"claim_id":claim["claim_id"], "claim_secret":claim["claim_secret"]}, label="retired-end-collect")
-                    assert collected.get("broadcast_token") and "end_grant" not in collected
-                    assert not hasattr(manager, "async_issue_receiver_end_grant") and not hasattr(manager, "_end_grants")
-                    attempts = []
-                    for name, raw in (("stale-grant", {"session_id":active.session_id, "end_grant":"old-opaque-authority"}),
-                                      ("read-token", {"session_id":active.session_id, "end_grant":collected["broadcast_token"]}),
-                                      ("missing", {}), ("other-session", {"session_id":"unknown", "end_grant":"old"})):
-                        response = await client.post("/api/djconnect/v1/session/broadcast/control/end", json=raw)
-                        body = await response.json()
-                        assert response.status == 410 and response.headers.get("Cache-Control") == "no-store"
-                        assert body == {"success":False, "error":"vibecast_end_control_retired"}
-                        attempts.append({"case":name, "status":response.status, "error":body["error"]})
-                    response = await client.post("/api/djconnect/v1/session/broadcast/control/end", data="not json")
-                    assert response.status == 410 and response.headers.get("Cache-Control") == "no-store"
-                    assert await manager.async_get_active("profile-a") is active
-                    after = await snapshot()
-                    assert before == after
-                    await call("session/end", {"session_id":active.session_id}, label="retired-end-normal-owner-end")
-                    assert await manager.async_get_active("profile-a") is None
+                if os.environ.get('DJC_SAFETY_PROBE') == 'review_recovery':
+                    from custom_components.djconnect.ask_dj import public_research
+                    from custom_components.djconnect.ask_dj.dialogue import source_scope
+                    from custom_components.djconnect.session_speech import resolve_dialogue
+                    async def source_fixture(fetch, url, **kwargs):
+                        await fetch.guard()
+                        fetch.requests += 1
+                        if 'https://en.wikipedia.org/w/api.php?' in url:
+                            return 200, json.dumps({'query':{'pages':[{
+                                'title':'Brian Eno', 'extract':'<p>Brian Eno is an English musician and artist.</p>',
+                                'pageprops':{'wikibase-shortdesc':'English musician'},
+                                'revisions':[{'revid':123456}]}]}}), url
+                        return 404, '', url
+                    rows=[]
+                    with patch.object(public_research.PublicFetch, 'request', source_fixture):
+                        for phase in ('standalone','session'):
+                            context=None
+                            if phase=='session':
+                                started=await call('session/start',{'mood':'groove','dj_persona':'home_dj','language':'en'},
+                                    label='review-recovery-session-start',expected=201)
+                                context={'session_id':started['session']['session_id']}
+                            for language in review_bodies:
+                                for scenario in ('full','prefix','format','claims','narrow'):
+                                    identifier='rr-'+phase+'-'+scenario+'-'+language
+                                    body=await ask('Who is Brian Eno?',identifier,context=context,language=language)
+                                    assert body['conversation']['metrics']['agent_calls']==2
+                                    expected_state={'full':'full_answer_supported','prefix':'supported_prefix',
+                                        'format':'assessment_format_invalid','claims':'claims_unverified',
+                                        'narrow':'claims_unverified'}[scenario]
+                                    assert body['public_research_status']['answer_state']==expected_state
+                                    assert body['public_research_status']['wikipedia']=='fetched'
+                                    if scenario in {'full','prefix'}:
+                                        assert body['text']==review_bodies[language]
+                                        assert body['knowledge_basis']=='fetched_public_music_research_v1'
+                                        if scenario=='prefix':
+                                            assert body['research_answer_qualification']=='supported_prefix_v1'
+                                        profile=h.data['djconnect']['djconnect_profile_platform'].household.profiles['profile-a']
+                                        descriptor,_=await resolve_dialogue(h,history,'profile-a',
+                                            body['session_speech']['reference'],profile_source=source_scope(profile))
+                                        assert ''.join(segment['text'] for segment in descriptor['segments'])==body['text']
+                                    else:
+                                        assert body['text']==public_research.unavailable_answer(language,answer_unverified=True)
+                                        assert body['knowledge_basis']=='public_research_unqualified'
+                                        assert not body.get('sources')
+                                    saved=await durable_history()
+                                    assert saved['messages'][-1]['text']==body['text']==body['assistant_message']['text']
+                                    assert 'claim_checks' not in json.dumps(body)
+                                    assert not body.get('playback_actions')
+                                    rows.append({'case':identifier,'phase':phase,'language':language,
+                                        'scenario':scenario,'answer_state':expected_state,'history_and_speech_identity':True})
+                            if phase=='session':
+                                await call('session/end',context,label='review-recovery-session-end')
+                    assert len(rows)==50 and len(agent_boundary_fixtures)==100
                     assert not model_receipts and not mutations
-                    Path("/lab/vibecast-end-retired.json").write_text(json.dumps({
-                        "qualification":"REAL_PAIRED_VIBECAST_END_RETIRED_OWNER_END_PRESERVED", "pairing":"ordinary_device_token_minted_persisted",
-                        "source_hashes":hashes(), "source_unchanged":initial_source_hashes == hashes(),
-                        "stale_saved_opt_in":True, "handoff_has_end_grant":False,
-                        "denied_end_attempts":attempts, "malformed_request_status":response.status,
-                        "broadcast_unchanged":before == after, "owner_end":True,
-                        "paid_model_calls":len(model_receipts), "playback_mutations":len(mutations),
-                        "installed":"NOT_RUN", "native":"NOT_RUN"
-                    }, ensure_ascii=False, indent=2) + "\n")
+                    assert hashes()==initial_source_hashes
+                    Path('/lab/review-recovery.json').write_text(jsonlib({
+                        'qualification':'REAL_PAIRED_HA_REVIEW_RECOVERY_EXTERNAL_AGENT_AND_SOURCE_FIXTURES',
+                        'source_unchanged':True,'source_hashes':initial_source_hashes,
+                        'pairing':'ordinary_device_token_minted_persisted','cases':rows,
+                        'agent_boundary_fixture_calls':len(agent_boundary_fixtures),'paid_model_calls':0,
+                        'playback_mutations':0,'core_transports':receipts,'narrative_quality':'NOT_RUN',
+                        'installed':'NOT_RUN','native':'NOT_RUN','audible':'NOT_RUN'})+'\n')
                     await async_shutdown_persistence(h)
                     await h.async_stop(force=True)
                     await api.close()

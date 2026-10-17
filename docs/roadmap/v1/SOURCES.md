@@ -104,8 +104,8 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 | [docs/verification/PROFILE_SESSION_SETTINGS_SOURCE_READBACK_20261016.md](../../../docs/verification/PROFILE_SESSION_SETTINGS_SOURCE_READBACK_20261016.md) | `344eac1436adc3b56108b4645ec51f262889a7f6d6b1d0c7aa890cc6355a9d8f` |
 | [docs/history/prompts/2026-10-16-profile-session-settings-finalization.md](../../../docs/history/prompts/2026-10-16-profile-session-settings-finalization.md) | `fd8f95f219e8293cc4133e1e7543209c66993fa3e636c52f83d189df640b013d` |
 | [docs/product/PERSONAL_DJ_NARRATION_RESTORATION_V1.md](../../../docs/product/PERSONAL_DJ_NARRATION_RESTORATION_V1.md) | `f177f6fb1c77c9eba6b6047301b6e7be03816739443e9dc22b6c368748144784` |
-| [docs/verification/CORE_LANE_REQUIREMENT_RECONCILIATION_20261017.md](../../../docs/verification/CORE_LANE_REQUIREMENT_RECONCILIATION_20261017.md) | `c719d60523e930ceeae95dda722360d35409e1312e3e6963f3ccf2d7b64637ae` |
-| [docs/product/ASK_DJ_PUBLIC_MUSIC_RESEARCH_V1.md](../../../docs/product/ASK_DJ_PUBLIC_MUSIC_RESEARCH_V1.md) | `86f1bae62154ef44e191996583baa8c66de97da6cedb147c99bcf2676ab97540` |
+| [docs/verification/CORE_LANE_REQUIREMENT_RECONCILIATION_20261017.md](../../../docs/verification/CORE_LANE_REQUIREMENT_RECONCILIATION_20261017.md) | `7d0367d0ef927c2c70c82ad94b551b586fbf6845c479619994342446c45a18ef` |
+| [docs/product/ASK_DJ_PUBLIC_MUSIC_RESEARCH_V1.md](../../../docs/product/ASK_DJ_PUBLIC_MUSIC_RESEARCH_V1.md) | `0487c93b0f8e7c8cdb77c1b52c72bdbc860762f3fb563d07255a9c7efcbf6b26` |
 | [docs/product/DJ_MOMENT_MOOD_PROSODY_V1.md](../../../docs/product/DJ_MOMENT_MOOD_PROSODY_V1.md) | `6144b95a829a9a92bc4225bb599885efdf69dad0b5e17184542637bb4741a0fa` |
 | [docs/product/SESSION_VOICE_PREVIEW_V1.md](../../../docs/product/SESSION_VOICE_PREVIEW_V1.md) | `6565beb361fcefb1650e1c9841c09cd6567192903e3089aa254796ce811394b8` |
 | [docs/product/ASK_DJ_PLAYBACK_REQUEST_TRUTH_V1.md](../../../docs/product/ASK_DJ_PLAYBACK_REQUEST_TRUTH_V1.md) | `a9ee9dc3689c5f1b11746068e4e2f79d54cdc68af2265b02e468631c2fc5c158` |
@@ -116,3 +116,4 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 | [docs/verification/VIBECAST_END_RETIREMENT_QUALIFICATION_20261017.md](../../../docs/verification/VIBECAST_END_RETIREMENT_QUALIFICATION_20261017.md) | `97b1ccbc4485cb91f011fd4a8a0e0d200b809b1cf56d25e06471e7d3b5f71bcd` |
 | [docs/verification/VIBECAST_END_RETIREMENT_SOURCE_READBACK_20261017.md](../../../docs/verification/VIBECAST_END_RETIREMENT_SOURCE_READBACK_20261017.md) | `ccc5771889755f1b96fd4ba7942bff0ec7c237b2afb6948efe943182ef8c6588` |
 | [docs/history/prompts/2026-10-17-vibecast-end-retirement-finalization.md](../../../docs/history/prompts/2026-10-17-vibecast-end-retirement-finalization.md) | `2211ef1683fda434ab5ade8cca98d4f39fa3dd8cec38f084fdc456b6d14a4dae` |
+| [docs/verification/CORE_BRANCH_CONSOLIDATION_20261017.md](../../../docs/verification/CORE_BRANCH_CONSOLIDATION_20261017.md) | `fb30679c004ecb0dcaee6e95832f4a8431900c0e7e83d6d021fb7200ee9389e5` |

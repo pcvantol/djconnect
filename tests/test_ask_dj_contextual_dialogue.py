@@ -1088,6 +1088,147 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
                 for text in ('No Pussy','footing is an Eno pro','duction.')]
         self.assertFalse(research.supported(json.dumps({'supported':True,'claim_checks':checks}),answer,evidence))
 
+    def test_ascii_receipt_padding_preserves_original_words_and_exact_quote(self):
+        from custom_components.djconnect.ask_dj import public_research as research
+        source=research._source('Wikipedia','Brian Eno','https://en.wikipedia.org/wiki/Brian_Eno',
+            'Brian Eno is an English musician.','en').model_data()
+        context={'public_music_research':{'schema_version':2,'sources':[source]}}
+        span=source['evidence_spans'][0]
+        answer=span['text']
+        check={'text':' \t'+answer+'\r\n','kind':'fact','evidence_ids':[span['id']],'quote':answer}
+        self.assertTrue(research.supported(json.dumps({'supported':True,'claim_checks':[check]}),answer,context))
+        for bad in ({**check,'quote':' '+answer}, {**check,'quote':answer+' '},
+                    {**check,'text':answer.replace('English ','')},
+                    {**check,'text':answer.replace(' is ','  is ')},
+                    {**check,'text':'\u00a0'+answer}, {**check,'text':'\u200b'+answer},
+                    {**check,'text':' \t\n'}, {**check,'evidence_ids':['invented']}):
+            self.assertFalse(research.supported(json.dumps({'supported':True,'claim_checks':[bad]}),answer,context),bad)
+
+    def test_padded_prefix_receipt_cannot_rewrite_or_cross_unsupported_text(self):
+        from custom_components.djconnect.ask_dj import public_research as research
+        source=research._source('Wikipedia','Brian Eno','https://en.wikipedia.org/wiki/Brian_Eno',
+            'Brian Eno is an English musician.','en').model_data()
+        context={'public_music_research':{'schema_version':2,'sources':[source]}}
+        prefix=source['untrusted_excerpt']
+        tail='He invented every instrument.'
+        original=prefix+' '+tail
+        checks=[{'text':' '+prefix+'\n','kind':'fact','evidence_ids':[source['evidence_spans'][0]['id']],'quote':prefix}]
+        data={'supported':False,'unsupported_claims':[tail],'supported_prefix':prefix,
+              'prefix_supported':True,'prefix_answers_question':True,'claim_checks':checks}
+        self.assertEqual(research.qualified_prefix(json.dumps(data),original,context),prefix)
+        for change in ({**data,'supported_prefix':' '+prefix},
+                       {**data,'supported_prefix':prefix.replace('English ','')},
+                       {**data,'claim_checks':[{**checks[0],'text':prefix+' '+tail}]},
+                       {**data,'claim_checks':[{**checks[0],'quote':' '+prefix}]}):
+            self.assertIsNone(research.qualified_prefix(json.dumps(change),original,context))
+
+    def test_visual_artist_narrowing_requires_explicit_evidence_in_five_languages(self):
+        from custom_components.djconnect.ask_dj import public_research as research
+        answers=('Brian Eno is a visual artist.', 'Brian Eno is een beeldend kunstenaar.',
+                 'Brian Eno ist ein bildender Künstler.', 'Brian Eno est un artiste plasticien.',
+                 'Brian Eno es un artista plástico.')
+        for actual,expected in (('artist',False),('visual artist',True)):
+            source=research._source('Wikipedia','Brian Eno','https://en.wikipedia.org/wiki/Brian_Eno',
+                'Brian Eno is an '+actual+'.','en').model_data()
+            context={'public_music_research':{'schema_version':2,'sources':[source]}}
+            for answer in answers:
+                check={'text':' '+answer+' ','kind':'fact','evidence_ids':[source['evidence_spans'][0]['id']],
+                       'quote':source['untrusted_excerpt']}
+                self.assertEqual(research.supported(json.dumps({'supported':True,'claim_checks':[check]}),answer,context),expected,(actual,answer))
+        # The general term remains valid; known identity must not be withheld to
+        # enforce a storytelling shape or manufacture a narrower occupation.
+        answer='Brian Eno is an artist.'
+        source=research._source('Wikipedia','Brian Eno','https://en.wikipedia.org/wiki/Brian_Eno',answer,'en').model_data()
+        self.assertTrue(research.supported(json.dumps({'supported':True,'claim_checks':[
+            {'text':answer,'kind':'fact','evidence_ids':[source['evidence_spans'][0]['id']],'quote':answer}]}),answer,
+            {'public_music_research':{'schema_version':2,'sources':[source]}}))
+
+    def test_assessment_format_failure_is_distinct_from_unverified_claims(self):
+        from custom_components.djconnect.ask_dj import public_research as research
+        valid={'supported':False,'unsupported_claims':['An unproved claim.']}
+        self.assertEqual(research.assessment_failure_reason(json.dumps(valid)),'claims_unverified')
+        invalid=(None, '[]', '{"supported":true,]}', '{"supported":true,"supported":false}',
+                 json.dumps({**valid,'unknown':True}),json.dumps({'supported':'false'}),
+                 json.dumps({**valid,'unsupported_claims':{}}),
+                 json.dumps({**valid,'unsupported_claims':['x']*4}),
+                 json.dumps({'supported':True,'unsupported_claims':['x']}),
+                 json.dumps({**valid,'supported_prefix':'incomplete'}),
+                 '{"supported":true,"x":"'+('x'*8200)+'"}', '\ud800')
+        for response in invalid:
+            self.assertEqual(research.assessment_failure_reason(response),'assessment_format_invalid')
+            self.assertFalse(research.supported(response))
+            self.assertIsNone(research.qualified_prefix(response,'An unchanged original answer.'))
+
+    async def test_review_failure_copy_truthfully_distinguishes_fetched_sources_in_five_languages(self):
+        from custom_components.djconnect.ask_dj import public_research as research
+        mode='format'
+        answers={'en':'Brian Eno is a musician.','nl':'Brian Eno is een muzikant.',
+                 'de':'Brian Eno ist ein Musiker.','fr':'Brian Eno est un musicien.',
+                 'es':'Brian Eno es un músico.'}
+        async def agent(hass,data,**kwargs):
+            projection=json.loads(data['text'].split('\nData:\n',1)[1])
+            if 'evidence' not in projection:
+                answer=answers[projection['style']['language']]
+            else:
+                answer=('{"supported":true,]}' if mode=='format' else
+                        json.dumps({'supported':False,'unsupported_claims':[projection['answer']]}))
+            return {'response':{'speech':{'plain':{'speech':answer}}}}
+        with self.research_http(title='Brian Eno',text='Brian Eno is an English musician.'), patch.object(self.pipeline,'_call_conversation_process_transport',agent):
+            for language in answers:
+                for mode in ('format','claims'):
+                    result,status=await self.request('Who is Brian Eno?',identifier='review-'+mode+'-'+language,language=language)
+                    self.assertEqual(status,200,result)
+                    self.assertEqual(result['knowledge_basis'],'public_research_unqualified')
+                    self.assertEqual(result['public_research_status']['wikipedia'],'fetched')
+                    self.assertEqual(result['public_research_status']['answer_state'],
+                        'assessment_format_invalid' if mode=='format' else 'claims_unverified')
+                    expected=research.unavailable_answer(language,answer_unverified=True)
+                    self.assertEqual(result['text'],expected)
+                    self.assertEqual(result['assistant_message']['text'],expected)
+                    self.assertNotEqual(expected,research.unavailable_answer(language))
+                    self.assertEqual(result['conversation']['metrics']['agent_calls'],2)
+                    self.assertFalse(result.get('sources'))
+                    self.assertFalse(result.get('playback_actions'))
+                    stored=await self.history.async_history('profile:profile-a')
+                    self.assertEqual(stored['messages'][-1]['text'],expected)
+                    self.assertNotIn('claim_checks',json.dumps(result))
+
+    async def test_padded_assessment_keeps_exact_full_or_prefix_history_and_speech(self):
+        from custom_components.djconnect import session_speech
+        from custom_components.djconnect.ask_dj.dialogue import source_scope
+        body='Brian Eno is an English musician.'
+        tail='He invented every instrument.'
+        mode='full'
+        async def agent(hass,data,**kwargs):
+            projection=json.loads(data['text'].split('\nData:\n',1)[1])
+            if 'evidence' not in projection:
+                answer=body if mode=='full' else body+' '+tail
+            else:
+                assessment=_research_assessment_fixture(projection,retained=body)
+                assessment['claim_checks'][0]['text']=' \n'+body+'\t'
+                if mode=='prefix':
+                    assessment.update(supported=False,unsupported_claims=[tail],supported_prefix=body,
+                                      prefix_supported=True,prefix_answers_question=True)
+                answer=json.dumps(assessment)
+            return {'response':{'speech':{'plain':{'speech':answer}}}}
+        with self.research_http(title='Brian Eno',text=body), patch.object(self.pipeline,'_call_conversation_process_transport',agent):
+            for mode in ('full','prefix'):
+                result,status=await self.request('Who is Brian Eno?',identifier='padded-actual-owner-'+mode)
+                self.assertEqual(status,200,result)
+                self.assertEqual(result['text'],body)
+                self.assertEqual(result['knowledge_basis'],'fetched_public_music_research_v1')
+                self.assertEqual(result['public_research_status']['answer_state'],
+                    'full_answer_supported' if mode=='full' else 'supported_prefix')
+                self.assertEqual(result['conversation']['metrics']['agent_calls'],2)
+                self.assertEqual(result['assistant_message']['text'],body)
+                profile=self.hass.data['djconnect']['djconnect_profile_platform'].household.profiles['profile-a']
+                descriptor,_=await session_speech.resolve_dialogue(self.hass,self.history,'profile-a',
+                    result['session_speech']['reference'],profile_source=source_scope(profile))
+                self.assertEqual(''.join(v['text'] for v in descriptor['segments']),body)
+                stored=await self.history.async_history('profile:profile-a')
+                self.assertEqual(stored['messages'][-1]['text'],body)
+                self.assertNotIn(tail,json.dumps(stored['messages'][-1]))
+
     def test_recording_year_never_becomes_release_year_even_when_assessor_accepts(self):
         from custom_components.djconnect.ask_dj import public_research as research
         quote = 'With Robert Fripp he recorded No Pussyfooting in 1973.'
