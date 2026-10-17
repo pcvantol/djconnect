@@ -2239,6 +2239,10 @@
             {
               "file": "tests/test_ask_dj_contextual_dialogue.py",
               "method": "test_public_research_source_marked_names_are_not_model_authored_event_labels"
+            },
+            {
+              "file": "tests/test_ask_dj_contextual_dialogue.py",
+              "method": "test_temporal_title_parentheses_are_answer_display_only_and_unambiguous"
             }
           ],
           "acceptance_status": "open_real_quality",
@@ -2246,7 +2250,7 @@
         },
         {
           "question": "Onderbouwde eerste zin gevolgd door verzonnen trivia",
-          "expected_answer": "Alleen exact onafhankelijk ondersteunde originele prefix met marker, anders functionele fallback; nooit valse bronclaim.",
+          "expected_answer": "Alleen exact onafhankelijk ondersteunde originele prefix met marker, anders functionele fallback; nooit valse bronclaim. Alleen exacte losse slotbronregels van werkelijk gefetchte bronnen worden vóór dezelfde onafhankelijke beoordeling gededupliceerd; inlineclaims, onbekende URLs en twijfelachtige markup blijven inhoud.",
           "model_policy": "two",
           "id": "ASKDJ-REGRESSION-research-grounding-boundary-step-2",
           "owning_tests": [
@@ -2257,6 +2261,14 @@
             {
               "file": "tests/test_ask_dj_contextual_dialogue.py",
               "method": "test_public_research_keeps_only_exact_independently_supported_prefix"
+            },
+            {
+              "file": "tests/test_ask_dj_contextual_dialogue.py",
+              "method": "test_research_footer_dedup_preserves_uncertain_or_inline_content"
+            },
+            {
+              "file": "tests/test_ask_dj_contextual_dialogue.py",
+              "method": "test_research_assessment_history_and_speech_share_footer_deduplicated_body"
             }
           ],
           "acceptance_status": "owner_contract",
@@ -2311,6 +2323,18 @@
         {
           "file": "tests/test_ask_dj_contextual_dialogue.py",
           "method": "test_public_research_source_marked_names_are_not_model_authored_event_labels"
+        },
+        {
+          "file": "tests/test_ask_dj_contextual_dialogue.py",
+          "method": "test_research_footer_dedup_preserves_uncertain_or_inline_content"
+        },
+        {
+          "file": "tests/test_ask_dj_contextual_dialogue.py",
+          "method": "test_research_assessment_history_and_speech_share_footer_deduplicated_body"
+        },
+        {
+          "file": "tests/test_ask_dj_contextual_dialogue.py",
+          "method": "test_temporal_title_parentheses_are_answer_display_only_and_unambiguous"
         }
       ],
       "fixture_boundary": "Actual Core interpretation/effect/storage owners; only external provider and agent I/O are fixtures. Native/installed/paid evidence remains separate."
@@ -2495,6 +2519,24 @@
           ],
           "acceptance_status": "owner_contract",
           "proof_boundary": "Real existing Runtime/Planner/Knowledge/Moment/SQLite/query owners; external expression responses and source boundaries are fixtures. Actual paid style, native/installed/audio acceptance remain separate."
+        },
+        {
+          "id": "ASKDJ-REGRESSION-durable-runtime-expression-step-10",
+          "question": "Speel een opgeslagen DJMoment handmatig naar de geconfigureerde HA-speaker, met huidige sessiestem of profielstem.",
+          "expected_answer": "End/reopen zonder Runtime-herstel, exacte tekst en actuele stem, één journaldispatch; oude mediagrants ingetrokken; onafhankelijkeCC0rechten behouden; automatische historie en gesprekken geweigerd, text_only nul extra effecten.",
+          "model_policy": "external_provider_fixture_actual_core_storage_and_operation_journal",
+          "owning_tests": [
+            {
+              "file": "tests/test_profile_settings_speech.py",
+              "method": "test_retained_dj_moment_speaker_replay_uses_current_voice_and_operation_dedup"
+            },
+            {
+              "file": "tests/test_profile_settings_speech.py",
+              "method": "test_retained_speaker_rejects_automatic_and_conversation_before_synthesis"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Real existing Runtime/Planner/Knowledge/Moment/SQLite/query owners; external expression responses and source boundaries are fixtures. Actual paid style, native/installed/audio acceptance remain separate."
         }
       ],
       "owning_tests": [
@@ -2533,6 +2575,14 @@
         {
           "file": "tests/test_personal_dj_runtime_expression.py",
           "method": "test_sql_rollback_keeps_every_track_started_commit_route_retryable"
+        },
+        {
+          "file": "tests/test_profile_settings_speech.py",
+          "method": "test_retained_dj_moment_speaker_replay_uses_current_voice_and_operation_dedup"
+        },
+        {
+          "file": "tests/test_profile_settings_speech.py",
+          "method": "test_retained_speaker_rejects_automatic_and_conversation_before_synthesis"
         }
       ],
       "fixture_boundary": "Real existing Runtime/Planner/Knowledge/Moment/SQLite/query owners; external expression responses and source boundaries are fixtures. Actual paid style, native/installed/audio acceptance remain separate."
@@ -2725,6 +2775,30 @@
       "id": "ASKDJ-ISSUE-sql-rollback-track-reservation",
       "family_id": "ASKDJ-REGRESSION-durable-runtime-expression",
       "finding": "Mislukte definitief teruggerolde Momentopslag liet de track-startreservering staan en blokkeerde een geldige herhaling zonder enige publicatie.",
+      "core_qualification": "locally_covered"
+    },
+    {
+      "id": "ASKDJ-ISSUE-retained-speaker-replay",
+      "family_id": "ASKDJ-REGRESSION-durable-runtime-expression",
+      "finding": "HA-speakerreplay accepteerde alleen liveMoments hoewel handmatige historie dezelfde rijkdom moet bieden.",
+      "core_qualification": "locally_covered"
+    },
+    {
+      "id": "ASKDJ-ISSUE-research-episode-focus-bypassed",
+      "family_id": "ASKDJ-REGRESSION-research-grounding-boundary",
+      "finding": "Een voorafgaande voornaamwoordketen viel stil terug naar volledige biografie waardoor beoogde episodefocus niet werd getest.",
+      "core_qualification": "locally_covered"
+    },
+    {
+      "id": "ASKDJ-ISSUE-research-source-footer-receipts",
+      "family_id": "ASKDJ-REGRESSION-research-grounding-boundary",
+      "finding": "Een dubbele losse bronlink werd als extra antwoordzin behandeld; ontbrekende claimreceipt veroorzaakte fallback ondanks ondersteunde hoofdtekst. Alleen exacte bronfooterpresentatie wordt vóór assessment verwijderd, met dezelfde definitieve body voor historie en TTS.",
+      "core_qualification": "locally_covered"
+    },
+    {
+      "id": "ASKDJ-ISSUE-research-title-parentheses-binding",
+      "family_id": "ASKDJ-REGRESSION-research-grounding-boundary",
+      "finding": "Een canoniek bronanker met enkele buitenste ASCIIhaakjes kon niet binden aan dezelfde titel zonder die haakjes in het antwoord. Alleen ondubbelzinnige antwoordpresentatie is toegestaan; bronanker, quote, datum, werk en evidence-IDs blijven exact.",
       "core_qualification": "locally_covered"
     }
   ],

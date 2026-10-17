@@ -2895,6 +2895,8 @@ async def _informational_assist_response(
     def parse_reply(reply):
         nonlocal format_issue
         answer, operation = parse_model_reply(reply)
+        if fetched_sources and not operation:
+            answer = public_research.without_duplicate_source_footer(answer, fetched_sources)
         if turn and requests_lookup(text) and (
             operation.get("intent") not in {"lookup", "refine"} or not operation.get("query")
         ):

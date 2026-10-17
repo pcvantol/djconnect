@@ -211,3 +211,65 @@ Original full sources, IDs, hash and expiry remain at independent assessment.
 A referenced source-marked work also requires a cited span actually containing
 that work; a valid identity-span ID cannot support an unrelated album reference.
 This local check is conservative named-work coverage, not general semantic proof.
+
+
+### Focus and assessment-capacity correction evidence
+
+A biography episode beginning with a connective can depend on a preceding
+pronoun chain. Generation projection now retains the complete earlier literal
+context and marks the actual first work episode as focus; later works are not
+added. Earlier context is background, not an invitation to list credentials.
+The complete corpus, source hash/IDs and independent assessment are unchanged.
+A real failing sample had silently retained the whole biography at that guard;
+the causal regression now covers that exact antecedent shape.
+
+An assessment-only diagnostic kept eight historical generated answers and one
+frozen source corpus fixed. Sixteen calls compared700and2100maximum output
+tokens: four versus eight completed assessments, with four versus zero explicit
+max_output_tokens cutoffs. Both budgets accepted only three complete answers.
+This proves a capacity problem, not story quality; no new generation, Core
+publication, installed configuration or release acceptance occurred.
+
+
+For a focused person introduction, generation now receives the unchanged literal
+`primary_passage` before separate `background_spans`, each sentence once. This
+is presentation hierarchy, not new chronology or causality. Independent review
+still receives the complete original corpus. The assessment explicitly allows
+ordinary equivalent paraphrases of documented technique while requiring separate
+evidence for sound, intent, influence and causal consequences. The fixed
+Luna/Sol comparison remains NO_GO; no installed model selection changed.
+
+### Duplicate source footer before independent assessment
+
+Core already returns qualified source links separately. Before format/evidence
+assessment, remove only complete trailing standalone lines exactly equal to an
+actually fetched source URL/revision URL or Markdown link with that exact URL
+and exact provider/title label. No URL normalization, host-only admission or
+caller-provided links. Inline claims/links, changed URLs, labels containing other
+claims, source-only replies, mid-body links and uncertain markup remain intact.
+Assessment, retained prefix, response, history and speech all consume this same
+final body; source metadata, original excerpts, attribution and date bindings
+remain unchanged. This avoids duplicate-presentation receipt failures, without
+an extra call, semantic rewrite or weaker grounding criterion.
+
+### Exact work-title presentation
+
+Temporal receipts retain the exact original source-marked event anchor. The
+answer alone may omit a single outer ASCII parenthesis pair around that title
+when the unchanged nonempty inner title is unambiguous among admitted anchors.
+Nested parentheses, whitespace rewriting, other brackets, spelling normalization
+and aliases do not qualify. Source quotes still contain the exact canonical
+anchor, original year and qualifiers. The named-work span check applies the same
+answer variant, so an identity-only span cannot support that recording.
+
+### One researched narration instruction owner
+
+Independent editorial diagnosis identified conflicting duplicate Persona actions:
+Radio required two activities/a development arc while episode focus allowed one;
+Home required an explanation of personal interest while appended significance
+was forbidden; Festival required an invitation while obligatory invitations were
+forbidden. The researched branch now uses only the shared narration_style host
+and Mood instructions. Evidence focus selects literal substance and necessary
+background, without a second Persona task, career arc, personal justification,
+required invitation or repeated inkijk phrasing. This removes an executed prompt
+contradiction; new real-answer/editorial quality evidence remains required.

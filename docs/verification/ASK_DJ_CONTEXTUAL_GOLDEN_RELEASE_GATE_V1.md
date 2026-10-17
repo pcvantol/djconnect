@@ -176,7 +176,7 @@ exhaustively bound: adding a test without a release binding fails inventory
 validation. Release execution must prove those exact methods ran successfully;
 source existence, a named scenario or an anonymous green report is insufficient.
 
-The current register contains27findings. It includes Within Temptation titles,
+The historical pre-parity register contained27findings. It includes Within Temptation titles,
 Peter Luts selected context, current/previous-track questions, truthful Nirvana
 voice/text execution, unrelated/prefix/fuzzy artist rejection, exact artist
 credits, frozen track/album/playlist identity through speaker choice, stale
@@ -213,7 +213,7 @@ success without a second dispatch. Old unqualified-history negatives remain.
 An additional permanent shuffle regression requires the selected name/artwork
 to follow the actually observed admitted track, rather than the first URI in
 an artist collection. The earlier stale-unrelated-track negative remains.
-The current register has27findings,35families and111required steps; eleven
+The historical pre-parity register had27findings,35families and111required steps; eleven
 real-quality steps and five open Core findings remain release-blocking.
 
 ### Predeclared research/narration correction sample
@@ -245,7 +245,7 @@ playback and direction through one assessed expression owner, end during
 generation, pending genre-transition style-memory/concurrency, and270entry
 publication/reopening/search/withdrawal. Null-body search and overwritten
 Transition memory are permanent corrected findings. Role narrowing and unsupported
-inter-event succession receive a dedicated still-open real-quality step. Current
+inter-event succession receive a dedicated still-open real-quality step. Historical pre-parity
 inventory:27findings,35families,111steps; eleven quality steps and five Core
 findings remain release-blocking. The checkpoint309dd90b eight-cell real sample had three full supported answers and five fallbacks, so no narrative GO.
 
@@ -263,3 +263,25 @@ Recommendation, retained original album/artist art, replay with current Session
 or Profile voice, and exact current qualified-credit Insight. A new permanent
 SQLite rollback/reservation issue accounts for the27th finding. These are owning
 contracts with external source/expression/audio fixtures, not paid/native proof.
+
+
+The next bounded eight-cell correction sample must prove that episode_focus
+actually reaches generation, with unchanged original evidence spans for review.
+It uses the same Luna/HA route and criteria, maximum16attempts, with the isolated
+configured agent budget2100for both calls after the fixed-text capacity diagnosis.
+Per-call terminal event, cutoff reason, tokens and duration are retained. This
+sample does not change the default700-token formal gate or installed HA settings;
+capacity-policy refinement and exact release qualification remain separate.
+
+
+The current inventory extends to31findings,35families,112steps, including manual
+retained-speaker replay and the pronoun-chain focus bypass. The fixed historical
+assessment comparison (16calls,0generation), focus/capacity HA sample (16calls)
+and predeclared same-candidate Luna/Sol comparison (32calls) are diagnostic
+qualification records. The last comparison remains NO_GO for both models;
+all calls completed but 2/3full answers respectively are not eight full quality
+outcomes. Source-link receipt coverage and single-outer-parenthesis title display now have
+permanent causal regressions and bounded fixes before assessment/anchor matching.
+These do not weaken all-sentence or source/quote/date evidence and do not turn
+the unchanged model samples into narrative acceptance.
+The default formal gate/model and installed configuration remain unchanged.

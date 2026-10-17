@@ -389,3 +389,23 @@ text_only, provider/voice availability and source/retention authority apply.
 Settings/provider/lifecycle change revokes prepared audio and requires a new
 explicit preparation. Historical replay is manual, not delayed autoplay or a
 playback-control action. Core proof does not establish Apple buttons or audibility.
+
+
+### Explicit retained DJMoment speaker replay
+
+An optional `retained_speaker_replay` capability version1 extends the existing
+`session/speech/play` operation and prepare3 reference shape with `entry_id` for
+an admitted retained `dj_moment`. Its intent is manual only. The original v3 live
+Moment operation remains unchanged; automatic publication still requires an
+actual current live Moment and never catches up history. A retained conversation
+turn or arbitrary caller text cannot use this extension.
+
+Resolve the retained entry through the existing private history/query owner,
+then use the effective active-Session voice/gender/output or confirmed Profile
+defaults. Exact original text/Mood/attribution remain unchanged. No Runtime is
+restored. Speaker/both targets retain the existing operation journal, once-only
+dispatch, configured exact target, short media grant and per-target outcomes.
+text_only denies all synthesis/effects. Reassignment, source/retention withdrawal,
+settings/lifecycle/provider/target change or expiry revokes pending and old grants.
+A queued speaker result is not audible proof. No new direct URL or public audio
+route is introduced; the existing qualified speaker grant is reused.

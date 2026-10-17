@@ -689,6 +689,53 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
                       '{"supported":true,"text":"extra"}', ' ' * 9000 + '{"supported":true}'):
             self.assertFalse(supported(value), value[:80])
 
+    def test_research_footer_dedup_preserves_uncertain_or_inline_content(self):
+        from custom_components.djconnect.ask_dj import public_research as research
+        url = 'https://en.wikipedia.org/wiki/Brian_Eno'
+        revision = 'https://en.wikipedia.org/w/index.php?oldid=123'
+        source = research._source('Wikipedia', 'Brian Eno', url,
+            'Brian Eno is an English musician.', 'en', revision_url=revision)
+        clean = research.without_duplicate_source_footer
+        body = 'Brian Eno is an English musician.'
+        for footer in (url, revision, f'[Wikipedia]({url})', f'[Brian Eno]({revision})',
+                       url+'\n\n'+f'[Wikipedia]({revision})'):
+            self.assertEqual(clean(body+'\n\n'+footer, [source]), body)
+        for answer in (
+            body+' '+url,
+            'He invented every synthesizer. '+url,
+            body+'\nhttps://en.wikipedia.org/wiki/Brian_Enoo',
+            body+'\n'+url+'?changed=1', body+'\n'+url+'#changed',
+            body+f'\n[He invented every synthesizer]({url})',
+            body+'\nBron: '+url, url+'\n'+body,
+            body+'\n```\n'+url+'\n```', body+'\n<!--\n'+url+'\n-->',
+            body+'\n    '+url, body+'\n'+url+'\nMore prose.\n'+revision,
+            url, url+'\n'+revision, body+'\n\n',
+        ):
+            self.assertEqual(clean(answer, [source]), answer, answer)
+        self.assertEqual(clean(body+'\n'+url, [source.metadata()]), body+'\n'+url)
+        self.assertEqual(source.metadata()['revision_url'], revision)
+
+    async def test_research_assessment_history_and_speech_share_footer_deduplicated_body(self):
+        body = 'Brian Eno is an English musician.'
+        self.reply = body+'\n\n[Wikipedia](https://en.wikipedia.org/wiki/Brian_Eno)'
+        with self.research_http(title='Brian Eno', text=body), self.grounding_agent():
+            result, status = await self.request('Who is Brian Eno?', identifier='source-footer')
+        self.assertEqual(status, 200, result)
+        self.assertEqual(result['knowledge_basis'], 'fetched_public_music_research_v1')
+        self.assertEqual(result['conversation']['metrics']['agent_calls'], 2)
+        self.assertEqual(result['text'], body)
+        self.assertEqual(result['assistant_message']['text'], body)
+        self.assertEqual(self.prompts[1]['answer'], body)
+        self.assertEqual(result['links'][0]['url'], 'https://en.wikipedia.org/wiki/Brian_Eno')
+        messages = (await self.history.async_history('profile:profile-a'))['messages']
+        self.assertEqual(messages[-1]['text'], body)
+        from custom_components.djconnect.session_speech import resolve_dialogue
+        from custom_components.djconnect.ask_dj.dialogue import source_scope
+        profile = self.hass.data['djconnect']['djconnect_profile_platform'].household.profiles['profile-a']
+        descriptor, _ = await resolve_dialogue(self.hass, self.history, 'profile-a',
+            result['session_speech']['reference'], profile_source=source_scope(profile))
+        self.assertEqual(''.join(segment['text'] for segment in descriptor['segments']), body)
+
     def test_research_claim_receipts_cover_entire_retained_text_and_actual_source_spans(self):
         from custom_components.djconnect.ask_dj import public_research as research
         source = research._source('Wikipedia', 'Brian Eno', 'https://en.wikipedia.org/wiki/Brian_Eno',
@@ -719,6 +766,8 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
         prompt = research.assessment_prompt(answer, context, 'en', 'Who is Brian Eno?')
         self.assertIn('not a producer credit', prompt)
         self.assertIn('factual modifier', prompt)
+        self.assertIn('equivalent paraphrases',prompt)
+        self.assertIn('no claimed sound, effect, intention',prompt)
         self.assertNotIn('evidence_spans', source.metadata())
         self.assertNotIn('untrusted_generation_plan', prompt)
         # Source bytes/IDs are unchanged for review; the actual generator sees
@@ -739,8 +788,23 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
         focused_source = {**source.model_data(), 'source_anchors':['No Pussyfooting']}
         projection = {**context['public_music_research'], 'sources':[focused_source]}
         focused = research.generation_projection(projection, 'Who is Brian Eno?')
-        self.assertEqual(focused['episode_focus']['passage_ids'], [ids[0], ids[1]])
+        self.assertEqual(focused['episode_focus']['passage_ids'], [ids[1]])
+        self.assertEqual(focused['episode_focus']['context_span_ids'], [ids[0]])
         self.assertEqual(projection['sources'][0], focused_source)
+        # The actual biography has a chain of pronouns before its first work.
+        # Keep that complete context and still activate the intended focus.
+        chained = {**focused_source, 'untrusted_excerpt': 'Brian Eno is an English musician. He was born in Suffolk. He joined Roxy Music. With Robert Fripp, he recorded No Pussyfooting. Later he released Other Work.',
+            'source_anchors':['No Pussyfooting','Other Work']}
+        chained.pop('evidence_spans',None)
+        complete = research.evidence_spans(chained)
+        chained_focus = research.generation_projection({'schema_version':2,
+            'resolved_public_subject':'Brian Eno','sources':[chained]},'Wie is Brian Eno?')
+        self.assertEqual(chained_focus['episode_focus']['passage_ids'],[complete[3]['id']])
+        self.assertEqual(chained_focus['sources'][0]['primary_passage'],complete[3])
+        self.assertEqual(chained_focus['sources'][0]['background_spans'],complete[:3])
+        self.assertNotIn('evidence_spans',chained_focus['sources'][0])
+        self.assertEqual(list(chained_focus['sources'][0])[0],'primary_passage')
+        self.assertEqual(research.evidence_spans(chained),complete)
         for question in ('When was No Pussyfooting released?', 'Who produced No Pussyfooting?', 'Who are the members of Roxy Music?'):
             self.assertNotIn('episode_focus', research.generation_projection(projection, question))
 
@@ -814,6 +878,37 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(research.qualified_prefix(json.dumps(body), prefix + ' ' + tail, context), prefix)
         body['temporal_claims'] = []
         self.assertIsNone(research.qualified_prefix(json.dumps(body), prefix + ' ' + tail, context))
+
+    def test_temporal_title_parentheses_are_answer_display_only_and_unambiguous(self):
+        from custom_components.djconnect.ask_dj import public_research as research
+        source = research._source('Wikipedia','Brian Eno','https://en.wikipedia.org/wiki/Brian_Eno',
+            'Brian Eno is an English musician. With Robert Fripp he recorded (No Pussyfooting) in 1973.',
+            'en',source_anchors=['(No Pussyfooting)'])
+        original = source.model_data()
+        context = {'public_music_research': {'schema_version':2,'sources':[original]}}
+        answer = 'Eno recorded No Pussyfooting with Fripp in 1973.'
+        quote = research._sentences(source.text)[1]
+        receipt = {'claim':answer,'event_anchor':'(No Pussyfooting)','year':'1973',
+            'source_id':original['content_hash'],'quote':quote}
+        checks = [{'text':answer,'kind':'relationship','evidence_ids':[original['evidence_spans'][1]['id']]}]
+        data = {'supported':True,'temporal_claims':[receipt],'claim_checks':checks}
+        self.assertTrue(research.supported(json.dumps(data), answer, context))
+        # A bare answer still needs the actual work span, not the identity span.
+        wrong_checks = [{**checks[0], 'evidence_ids':[original['evidence_spans'][0]['id']]}]
+        self.assertFalse(research.supported(json.dumps({**data,'claim_checks':wrong_checks}),answer,context))
+        for bad in ({**receipt,'event_anchor':'No Pussyfooting'},
+                    {**receipt,'quote':quote.replace('(No Pussyfooting)','No Pussyfooting')},
+                    {**receipt,'year':'1974'}):
+            self.assertFalse(research.temporal_evidence_ok(answer, {'temporal_claims':[bad]},context))
+        for wrong in (answer.replace('1973','1974'), answer.replace('No Pussyfooting','Other Work')):
+            self.assertFalse(research.temporal_evidence_ok(wrong, {'temporal_claims':[{**receipt,'claim':wrong}]},context))
+        for ambiguous in ('No Pussyfooting','NO PUSSYFOOTING'):
+            changed = {'public_music_research': {'sources':[{**original,
+                'source_anchors':['(No Pussyfooting)',ambiguous]}]}}
+            self.assertFalse(research.temporal_evidence_ok(answer, {'temporal_claims':[receipt]},changed))
+        for original_anchor in ('((No Pussyfooting))','[No Pussyfooting]','( No Pussyfooting )'):
+            self.assertFalse(research._answer_mentions_anchor(answer,original_anchor,[original_anchor]))
+        self.assertEqual(source.model_data(),original)
 
     def test_public_research_source_marked_names_are_not_model_authored_event_labels(self):
         from custom_components.djconnect.ask_dj import public_research as research
@@ -1088,6 +1183,12 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
         header, data = captured[0]
         self.assertIn("An understated, sharp host", header)
         self.assertIn("Unhurried, intimate and spacious", header)
+        self.assertEqual(header.count('Host identity:'), 1)
+        self.assertNotIn('Core-owned telling action:', header)
+        self.assertNotIn('inkijk', header)
+        self.assertNotIn('two explicitly connected activities', header)
+        self.assertNotIn('sharing why YOU', header)
+        self.assertNotIn('Invite this one listener', header)
         self.assertNotIn("narration", data)
         self.assertTrue(data["public_music_research"]["sources"][0]["evidence_spans"])
         self.assertNotIn("untrusted_excerpt", data["public_music_research"]["sources"][0])

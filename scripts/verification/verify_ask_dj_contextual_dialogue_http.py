@@ -100,6 +100,7 @@ async def main():
     model_receipts = []
     public_source_corpus = {}
     public_generation_spans = {}
+    public_generation_projections = []
     def capture_public_sources(value):
         if isinstance(value, dict):
             for nested in value.values():
@@ -113,10 +114,22 @@ async def main():
             except ValueError:
                 return
             research = projection.get("public_music_research") or projection.get("evidence", {}).get("public_music_research", {})
+            if research and 'public_music_research' in projection:
+                from custom_components.djconnect.ask_dj.dialogue import current_turn
+                turn = current_turn.get()
+                public_generation_projections.append({'case_id':turn.client_id if turn else None,
+                    'episode_focus':research.get('episode_focus'),
+                    'source_spans':{source['content_hash']:[span['id'] for span in source.get('evidence_spans',
+                        [source['primary_passage'],*source['background_spans']] if 'primary_passage' in source else [])]
+                        for source in research.get('sources',[])}})
             for source in research.get("sources", []):
                 if 'untrusted_excerpt' not in source:
-                    assert isinstance(source.get('evidence_spans'), list)
-                    public_generation_spans.setdefault(source['content_hash'], []).extend(source['evidence_spans'])
+                    spans = source.get('evidence_spans')
+                    if spans is None:
+                        assert isinstance(source.get('primary_passage'),dict) and isinstance(source.get('background_spans'),list)
+                        spans=[source['primary_passage'],*source['background_spans']]
+                    assert isinstance(spans,list) and len({span['id'] for span in spans})==len(spans)
+                    public_generation_spans.setdefault(source['content_hash'], []).extend(spans)
                     continue
                 excerpt = source.get("untrusted_excerpt", "")
                 fingerprint = hashlib.sha256(excerpt.encode()).hexdigest()
@@ -213,7 +226,8 @@ async def main():
         if os.environ.get("DJC_SAFETY_PROBE") == "narration_golden":
             assert not any(value in inputs for value in ("Wednesday Morning", "1964", "Synthetic artist", "Synthetic recording")), "catalog or private value leaked into a narration model call"
         golden = os.environ.get("DJC_SAFETY_PROBE") in {"contextual_golden", "full_golden", "narration_golden", "public_research"}
-        receipt = {"input_bytes": len(inputs.encode()), "model": model, "streaming": True}
+        receipt = {"input_bytes": len(inputs.encode()), "model": model, "streaming": True,
+                   "maximum_output_tokens":kwargs.get("max_output_tokens")}
         if golden:
             from scripts.verification.askdj_contextual_golden import ACTIVE_CASE, MAX_MODEL_CALLS
             from custom_components.djconnect.ask_dj.dialogue import current_turn
@@ -230,7 +244,12 @@ async def main():
             # Reserve BEFORE I/O: even a timeout/cancellation may have spent credits.
             receipt.update(case_id=case_id, attempted=True, completed=False)
             model_receipts.append(receipt)
-        stream = await original_create(**kwargs)
+        began = time.monotonic()
+        try:
+            stream = await original_create(**kwargs)
+        except BaseException as exc:
+            receipt.update(duration_seconds=round(time.monotonic()-began,3),failure_type=type(exc).__name__)
+            raise
         if not golden:
             model_receipts.append(receipt)
         if model_gate is not None:
@@ -240,16 +259,20 @@ async def main():
         async def observed_stream():
             try:
                 async for event in stream:
-                    if event.type == "response.completed":
+                    if event.type in {"response.completed", "response.incomplete", "response.failed"}:
                         response = event.response
                         receipt.update(
-                            completed=True,
+                            completed=event.type == "response.completed",
+                            terminal_event=event.type,
+                            incomplete_reason=response.incomplete_details.reason if response.incomplete_details else None,
                             input_tokens=response.usage.input_tokens if response.usage else None,
                             output_tokens=response.usage.output_tokens if response.usage else None,
                             generated_text=response.output_text,
                         )
                     yield event
             finally:
+                receipt['duration_seconds']=round(time.monotonic()-began,3)
+                receipt.setdefault('terminal_event','stream_closed_without_terminal')
                 await stream.close()
 
         return observed_stream()
@@ -849,6 +872,8 @@ async def main():
                         "supported_prefix_cases": [r["id"] for r in answers
                             if r["answer_qualification"] == "supported_prefix"],
                         "source_corpus": list(public_source_corpus.values()), "failed": research_failures,
+                        "generation_projections":public_generation_projections,
+                        "configured_maximum_tokens":max_tokens,
                         "answers": answers, "paid_model_calls": len(model_receipts),
                         "model_calls": model_receipts, "core_transports": receipts,
                         "source_hashes": initial_source_hashes, "source_unchanged": hashes() == initial_source_hashes,

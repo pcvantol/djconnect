@@ -80,6 +80,11 @@ def capability():
               'play_operation': 'session/speech/play',
               'play_path': '/api/djconnect/v1/transport/operation',
               'play_reference': 'live_moment_only',
+              'retained_speaker_replay': {'available': True, 'version': 1,
+                  'operation': 'session/speech/play', 'reference_kind': 'entry_id',
+                  'entry_kinds': ['dj_moment'], 'intent': 'manual',
+                  'voice_settings': 'active_session_else_confirmed_profile',
+                  'automatic_history_playback': False},
               'automatic_speaker': 'core_publication_only',
               'speaker_media_maximum_seconds': 30,
               'speaker_media_maximum_reads': 4,
@@ -404,7 +409,7 @@ def retained_projection(entry):
         expires_at=entry["retained_until"], source_kind="retained_dj_contribution", attribution=attribution)
 
 
-async def resolve_retained(hass, history, profile_id, reference):
+async def resolve_retained(hass, history, profile_id, reference, *, moment_only=False):
     from .session_conversation import (query_service, async_history_grant_revision, history_grant_revision)
     from .persistence import persistence_service
     from .dj_response import PrivateSpeechSource, invalidate_private_speech_sources
@@ -416,7 +421,7 @@ async def resolve_retained(hass, history, profile_id, reference):
     revision = await history.async_scope_revision("profile:" + profile_id)
     opened = await query_service(hass, history).async_open_entry(profile_id, reference["session_id"], reference["entry_id"])
     entry = opened["entry"]
-    if entry["kind"] not in {"dj_moment", "conversation_dj"}:
+    if entry["kind"] not in {"dj_moment", "conversation_dj"} or (moment_only and entry["kind"] != "dj_moment"):
         raise PermissionError("speech_reference_unqualified")
     descriptor = retained_projection(entry)
     basis = (entry.get("archive_basis") if entry["kind"] == "dj_moment"
@@ -538,7 +543,8 @@ async def async_handle_prepare(hass, data, *, headers=None, _speaker_operation=F
         if "moment_id" in reference:
             descriptor, source_guard = await resolve_moment(hass, context.profile_id, reference)
         elif "entry_id" in reference:
-            descriptor, source_guard = await resolve_retained(hass, history, context.profile_id, reference)
+            descriptor, source_guard = await resolve_retained(hass, history, context.profile_id,
+                reference, moment_only=_speaker_operation)
         else:
             descriptor, source_guard = await resolve_dialogue(hass, history,
                 context.profile_id, reference, profile_source=source_scope(context.profile))

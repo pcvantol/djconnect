@@ -110,7 +110,7 @@ outcome; all media kinds preserve their resolution across a single-use speaker
 choice. Missing/restricted/stale outputs never fall back to active/first output.
 Output-local404and uncertain5xx/timeouts preserve global backend-health evidence.
 
-The current Golden issue register accounts for27findings across35families
+The historical pre-parity Golden issue register accounted for27findings across35families
 and111steps. Inventory coverage and local fixture regressions are distinct from
 paid-model, isolated-HA, native and installed proof. Five reported Core findings across four qualification areas remain blocking; source delivery and installation of
 these local corrections are still pending. No wider completion is asserted.
@@ -127,7 +127,7 @@ success without a second dispatch. Old unqualified-history negatives remain.
 An additional permanent shuffle regression requires the selected name/artwork
 to follow the actually observed admitted track, rather than the first URI in
 an artist collection. The earlier stale-unrelated-track negative remains.
-The current register has27findings,35families and111required steps; eleven
+The historical pre-parity register had27findings,35families and111required steps; eleven
 real-quality steps and five open Core findings remain release-blocking.
 
 The fixed eight-cell follow-up after the chronology/prompt correction consumed16
@@ -195,7 +195,7 @@ Insight can use fresh qualified current recording credits even when the Planner
 published another fact, through the existing two-call assessment/cache guard.
 No acoustic measurement, native rendering or audible result is invented.
 
-The current registry has27findings,35families and111steps. Eleven real-quality
+The historical pre-parity registry had27findings,35families and111steps. Eleven real-quality
 steps and five Core findings remain blocking. The next two predeclared source
 samples after309dd90b used16attempts each: one full/four prefixes/three fallbacks,
 then three full/one prefix/four fallbacks. The complete source hash remained
@@ -206,8 +206,70 @@ release readiness. Preview/override, protected source/Finalization, installed,
 native and audible gates remain open. No next lane starts from this checkpoint.
 
 
-The current full host regression run executes2,262tests with seven existing skips
+The checkpoint5090e209 full host regression run executed2,262tests with seven existing skips
 and zero failures/errors; the separate retained-artwork/speech/Insight/Golden owner
 selection executes107tests with zero failures/errors. Independent technical/privacy
 review gives scoped GO for this delta, including all four actual SQLite rollback
 routes, and does not qualify real prose, native/audio or release readiness.
+
+
+## Retained speaker parity and current model diagnostics
+
+Local checkpoint5090e209 preserves the earlier2262-test/seven-skip regression
+and109networkless tests in the pinned HA image (27personal-DJ,28speech,35artwork,
+19Insight). New manual retained-DJMoment speaker replay reuses the operation
+journal/private assets: original text/Mood, active Session voice or Profile default,
+once-only dispatch, old-grant withdrawal and text_only suppression. Automatic
+history and retained conversations are refused. All30speech tests and scoped
+technical/privacy review pass; this is not audible/native/installed acceptance.
+Independent CC0 text keeps its own retention basis after Spotify withdrawal;
+previous media grants are revoked, rather than inventing a ban on that text.
+
+The intermediate retained-speaker inventory had29findings,35families and112steps; eleven real-quality
+steps and five Core findings remain open. Both the speaker-history omission and
+the silent episode-focus bypass have permanent causal bindings.
+
+A fixed historical-text diagnostic compared eight unchanged outputs at700versus
+2100assessment tokens (sixteen calls,zero generation). Four versus eight
+assessments completed; full supported answers stayed at three. A subsequent
+actual HA focus/capacity sample used16calls, two full/four prefixes/two fallbacks.
+Its episodefocus was present in all eight generator inputs; all calls completed.
+Independent review still rejects the overall experience and finds inconsistent
+paraphrase judgments. No model rerun was counted as delivery.
+
+After one source-hierarchy correction, a predeclared same-candidate head-to-head
+used16calls per model with identical source hash and criteria. Luna produced two
+full/four prefixes/two fallbacks; Sol three full/two prefixes/three fallbacks.
+All32calls completed and all16generator projections had focus. Neither receives
+a qualityGO or establishes a model winner. Three Sol fallbacks are source-link
+receipt coverage failures; another typography/anchor issue remains separately
+bounded. The remaining definition/template/Mood problems are still product work.
+No live model change, source publication, Finalization or installation occurred.
+
+## Historical Flow parity and bounded receipt corrections
+
+The current registry contains31findings,35families and112steps; the eleven
+real-quality steps and five Core findings remain open. Historical original
+album/artist identities, account-bound fresh artwork and original text are
+preserved across storage reopen. Manual retained DJMoment local/speaker replay
+uses the active Session voice/gender/output or confirmed Profile defaults.
+No old Runtime is restored; text_only, current source authority and expiry
+still apply. Missing old identity receives no guessed image backfill.
+
+Two independently diagnosed research receipt defects now have permanent
+positive/negative regressions: duplicate exact fetched-source footers are removed
+before independent assessment; one unambiguous outer ASCII parenthesis pair may
+be absent only in an answer's work-title presentation. Assessment/history/speech
+share one final body. Original source bytes/IDs, canonical anchor, source quote,
+year and qualifiers stay exact. These technical repairs do not reclassify earlier
+failed model samples or establish personal narration, native/audible, source
+delivery or installed acceptance.
+
+The current unchanged-code host regression executes2,267tests (seven existing
+skips), with zero failures/errors. The scoped host selection executes240tests;
+227owning tests also pass in the pinned, networkless HA image (162contextual,
+30shared-speech,35artwork). All changed runtime/harness modules pass Ruff.
+Independent technical review gives scoped GO for footer/body consistency and
+exact title-display binding. Editorial review accepts the bounded history
+contract and removal of contradictory research Persona instructions; new real
+prose quality still requires its predeclared exact-candidate sample.

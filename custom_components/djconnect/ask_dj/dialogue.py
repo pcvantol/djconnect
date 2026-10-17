@@ -756,11 +756,10 @@ def model_prompt(text: str, payload: dict, source: dict | None = None) -> str:
             "Write only natural connected prose, not JSON, bullets, metadata or markdown emphasis. "
             "No unasked playback suggestion, fixed greeting or obligatory closing invitation. "
         )
-        instructions += "Core-owned telling action: " + persona_answer_form(style["persona"], include_identity=False)
         if projection['public_music_research'].get('episode_focus'):
             instructions += (
-                " The episode_focus identifies the ONE documented episode to tell through. "
-                "Give this listener an inkijk into that concrete episode, in your Persona and Mood rhythm. "
+                " The primary_passage is the main documented substance; background_spans only resolve identities and antecedents. "
+                "Their presentation order proves no chronology or causal connection. Answer the actual question through that episode. "
                 "Identity is background for pronouns, not an opening definition or a second biography paragraph. "
                 "Don't explain the artist's importance, versatility or significance, and don't append a conclusion about their practice. "
                 "Keep the episode's actual facts and any necessary qualifications; add no links to other activities."

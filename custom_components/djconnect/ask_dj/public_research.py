@@ -309,6 +309,37 @@ class PublicSource:
         return result
 
 
+def without_duplicate_source_footer(answer, sources):
+    """Remove only standalone fetched-source footers, before evidence review.
+
+    Core already projects these exact citations separately. Inline prose, caller
+    URLs and uncertain Markdown remain answer content and must be assessed.
+    Never turn a source-only response into an empty answer.
+    """
+    allowed = set()
+    for source in sources:
+        if not isinstance(source, PublicSource):
+            continue
+        for url in (source.url, source.revision_url):
+            if not url:
+                continue
+            allowed.add(url)
+            for label in (source.provider, source.title):
+                if label and not any(c in label for c in "[]\n\r"):
+                    allowed.add(f"[{label}]({url})")
+    lines = answer.splitlines()
+    end = len(lines)
+    removed_source = False
+    while end and (not lines[end - 1].strip() or lines[end - 1] in allowed):
+        removed_source |= lines[end - 1] in allowed
+        end -= 1
+    # Preserve fenced/hidden Markdown rather than interpreting its structure.
+    if (not removed_source or end == 0 or any(line in allowed for line in lines[:end])
+            or any(token in answer for token in ("```", "~~~", "<!--", "-->"))):
+        return answer
+    return "\n".join(lines[:end]).rstrip()
+
+
 def _source(provider, title, url, text, language, *, revision_url="", entity_id="", current=False, source_anchors=()):
     if not text or not public_url(url):
         return None
@@ -789,14 +820,17 @@ def generation_projection(research, question):
     index = spans.index(episode)
     preceding = spans[index-1:index] if re.match(
         r'^(?:he|she|they|his|her|their|this|that|it|also|with|after|before)\b', episode['text'], re.I) else []
-    selected = [*preceding, episode]
-    if index > 1 and preceding and not any(re.search(r'\b'+re.escape(part)+r'\b', preceding[0]['text'])
-        for part in research.get('resolved_public_subject', '').split()):
-        # Cannot assert that a small cut retains an earlier pronoun's subject.
-        return result
-    result['sources'][0]['evidence_spans'] = [span for span in spans
-        if span is spans[0] or span in selected]
-    result['episode_focus'] = {'passage_ids':[span['id'] for span in selected],
+    # Preserve the entire earlier context when the episode has a pronoun or
+    # connective. A single preceding "He" may itself need an antecedent; do
+    # not silently abandon the focus or rewrite the literal source sentence.
+    selected = spans[:index+1] if preceding else [episode]
+    background = [span for span in spans if (span is spans[0] or span in selected) and span is not episode]
+    metadata = {key:value for key,value in result['sources'][0].items() if key != 'evidence_spans'}
+    # Primary information comes before identity background. Keep each literal
+    # sentence exactly once; this presentation ordering proves no chronology.
+    result['sources'][0] = {'primary_passage':episode, 'background_spans':background, **metadata}
+    result['episode_focus'] = {'passage_ids':[episode['id']],
+                              'context_span_ids':[span['id'] for span in selected if span is not episode],
                               'identity_background_ids':[spans[0]['id']]}
     return result
 
@@ -809,6 +843,8 @@ def assessment_prompt(answer, context, language, question=""):
         "supported_prefix MUST be an exact unchanged contiguous prefix of the original answer, ending with a complete sentence, containing at least one useful directly supported answer. "
         "Attest prefix_supported only after checking every remaining claim against evidence, and prefix_answers_question only if it still answers the actual question. "
         "Never rewrite, add words, select a suffix or return a truncated sentence. Omit all prefix fields if no such prefix qualifies. "
+        "Ordinary equivalent paraphrases of an explicit technique are supported: recording using named tape loops may describe those loops as ingredients or building blocks of that recording. "
+        "That equivalence adds no claimed sound, effect, intention, influence, origin, chronology, genre or causal consequence. Reject those additional claims unless explicitly evidenced; do not reject only for an everyday metaphor with the same meaning. "
         "True only if every externally checkable factual assertion in "
         "the answer responds to the user's actual music question and follows from the fetched excerpts or exact qualified music credit context. Faithful paraphrases and ordinary translations are allowed; do not reject a faithful summary merely for different wording. Correctly distinguish composer, "
         "producer, band member and performer. Counts and exclusivity must agree: four performing musicians plus an additional credited member are not four total members. Do not infer identity from a same-name result. Conflicts and current concert "
@@ -824,7 +860,8 @@ def assessment_prompt(answer, context, language, question=""):
         "Audit chronology separately: a collaboration, band departure and first solo release are different events. "
         "Never transfer a nearby event's date. Relative years such as that same year have no executable antecedent binding and must be unsupported. "
         "For each explicit year in the accepted answer or supported prefix, also return temporal_claims, an array of at most8objects, "
-        "each with exactly claim (unchanged complete answer sentence), event_anchor (one exact original source_anchors work name present in both sentences), "
+        "each with exactly claim (unchanged complete answer sentence), event_anchor (one exact original source_anchors work name present in the quote and answer), "
+        "Only in the answer, a single outer ASCII-parenthesis pair around that work name may be omitted when unambiguous; keep event_anchor itself exact. "
         "year (four-digit string), source_id (the admitted source content_hash) and quote (unchanged complete source sentence containing only that year). "
         "Generic event labels, the subject name or invented work names are not source anchors. Missing source-marked names cannot qualify a date. "
         "Use one entry for each year occurrence. First and solo qualifiers must be supported by that same quote, not another sentence. "
@@ -876,6 +913,23 @@ def evidence_spans(source):
             for i, sentence in enumerate(_sentences(excerpt)[:24])]
 
 
+def _answer_mentions_anchor(text, anchor, anchors):
+    """Exact work matching, with only an unambiguous outer-parenthesis display."""
+    def mentions(value):
+        return re.search(r'(?<!\w)' + re.escape(value) + r'(?!\w)', text, re.I) is not None
+    if mentions(anchor):
+        return True
+    if (not anchor.startswith('(') or not anchor.endswith(')')
+            or not anchor[1:-1] or any(c in anchor[1:-1] for c in '()')
+            or anchor[1:-1] != anchor[1:-1].strip()):
+        return False
+    inner = anchor[1:-1]
+    if any(other != anchor and other.casefold() in {inner.casefold(), anchor.casefold()}
+           for other in anchors):
+        return False
+    return mentions(inner)
+
+
 def claim_evidence_ok(answer, data, context):
     research = context.get('public_music_research', {}) if isinstance(context, dict) else {}
     if research.get('schema_version') != 2:
@@ -907,7 +961,7 @@ def claim_evidence_ok(answer, data, context):
             return False
         # A real identity-span ID cannot prove an unrelated named work. This
         # closes exact source-anchor misbindings, not arbitrary semantic claims.
-        if any(mentions(sentence, anchor) and not any(mentions(admitted[i], anchor) for i in ids)
+        if any(_answer_mentions_anchor(sentence, anchor, anchors) and not any(mentions(admitted[i], anchor) for i in ids)
                for anchor in anchors):
             return False
     return True
@@ -932,6 +986,8 @@ def temporal_evidence_ok(answer, data, context):
     sources = {source.get('content_hash'): source
                for source in research['sources'] if isinstance(source, dict)
                and isinstance(source.get('content_hash'), str) and isinstance(source.get('untrusted_excerpt'), str)}
+    anchors = {anchor for source in sources.values() for anchor in source.get('source_anchors', [])
+               if isinstance(anchor, str) and anchor.strip()}
     accepted = []
     for claim in claims:
         if (not isinstance(claim, dict) or set(claim) != {'claim', 'event_anchor', 'year', 'source_id', 'quote'}
@@ -945,7 +1001,7 @@ def temporal_evidence_ok(answer, data, context):
                 or anchor not in source.get('source_anchors', [])
                 or sentence not in _sentences(answer) or quote not in _sentences(excerpt)
                 or quote[-1] not in '.!?' or set(_YEAR.findall(quote)) != {year}
-                or not re.search(r'(?<!\w)' + re.escape(anchor) + r'(?!\w)', sentence, re.I)
+                or not _answer_mentions_anchor(sentence, anchor, anchors)
                 or not re.search(r'(?<!\w)' + re.escape(anchor) + r'(?!\w)', quote, re.I)
                 or any(pattern.search(sentence) and not pattern.search(quote) for pattern in _EVENT_QUALIFIERS)):
             return False
