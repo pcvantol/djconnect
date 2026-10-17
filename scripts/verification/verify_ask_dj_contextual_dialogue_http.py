@@ -1661,9 +1661,17 @@ async def main():
                         assert not answer['playback_actions'] and not answer['history_persisted']
                         assert answer['album_track_observation']['state']=='complete'
                     assert not mutations and not model_receipts
-                    offer=await ask('Heb je een ander album van Volbeat?','album-offer',language='nl')
-                    action=offer['playback_actions'][0]
-                    assert action['kind']=='album' and action['context_uri']=='spotify:album:'+'c'*22
+                    for locale,question,label in (
+                        ('nl','Heb je een ander album van Volbeat?','Afspelen'),
+                        ('en','Do you have another album by Volbeat?','Play'),
+                        ('de','Hast du ein anderes Album von Volbeat?','Abspielen'),
+                        ('fr','As-tu un autre album de Volbeat ?','Lire'),
+                        ('es','¿Tienes otro álbum de Volbeat?','Reproducir'),
+                    ):
+                        offer=await ask(question,'album-offer' if locale=='nl' else 'album-offer-'+locale,language=locale)
+                        action=offer['playback_actions'][0]
+                        assert action['kind']=='album' and action['context_uri']=='spotify:album:'+'c'*22
+                        assert action['label']==action['button_label']==label
                     assert not mutations
                     played=await ask('Ja, die wil ik afspelen.','album-play',language='nl')
                     assert 'Beyond Hell/Above Heaven' in played['text']

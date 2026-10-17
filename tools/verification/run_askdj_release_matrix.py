@@ -138,7 +138,7 @@ def validate_local_report(mode, raw):
         'choice_titles':'ISOLATED_REAL_HA_PAIRED_CATALOG_TITLES',
     }
     required={
-        'album_context':{f'album-tracks-{i}' for i in range(5)}|{'album-offer','album-play','album-play-duplicate'}|{f'album-current-artist-{i}' for i in range(5)},
+        'album_context':{f'album-tracks-{i}' for i in range(5)}|{'album-offer','album-play','album-play-duplicate'}|{f'album-current-artist-{i}' for i in range(5)}|{'album-offer-'+locale for locale in ('en','de','fr','es')},
         'release_context':{f'release-{i}-{mode}' for i in range(7) for mode in ('current','selected')}|{'release-selected-other-current'},
         'previous':{'baseline-previous-question'},
         'silence_signal':{'silence-start','silence-snapshot','silence-end'},

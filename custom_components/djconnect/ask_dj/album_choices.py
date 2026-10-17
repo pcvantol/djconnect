@@ -87,6 +87,15 @@ async def other_album_response(hass, runtime, artist):
             "Ahora no encuentro otro álbum reproducible de {artist}.",
         ),
     }
+    if action:
+        label, reason = {
+            "en": ("Play", "Album by {artist}."),
+            "nl": ("Afspelen", "Album van {artist}."),
+            "de": ("Abspielen", "Album von {artist}."),
+            "fr": ("Lire", "Album de {artist}."),
+            "es": ("Reproducir", "Álbum de {artist}."),
+        }[locale]
+        action.update(label=label, button_label=label, reason=reason.format(artist=artist))
     caption = copy[locale][0 if actions else 1].format(artist=artist)
     message = catalogue_result_text(actions, locale, caption=caption) if actions else caption
     return {

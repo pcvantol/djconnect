@@ -385,6 +385,14 @@
         {
           "file": "tests/test_ask_dj_album_tracks.py",
           "method": "test_unconfirmed_album_reply_names_request_without_borrowing_current_recording"
+        },
+        {
+          "file": "tests/test_ask_dj_album_tracks.py",
+          "method": "test_other_album_action_copy_matches_real_five_language_responses"
+        },
+        {
+          "file": "tests/test_ask_dj_album_tracks.py",
+          "method": "test_album_containment_does_not_capture_similar_or_inspiration_questions"
         }
       ],
       "real_ha_profile": "album_context",

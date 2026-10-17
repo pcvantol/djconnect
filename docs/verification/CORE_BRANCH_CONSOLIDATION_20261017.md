@@ -68,7 +68,7 @@ Uncertain provider readback retains the chosen name and does not claim start.
 Catalog text is not implicitly model input or permanent archive content; the
 missing rich catalog-conversation archive remains explicitly release-blocking.
 
-Current Golden inventory:39reports,35families,119steps; seven Core findings and
+Current Golden inventory:40reports,35families,120steps; seven Core findings and
 13real-quality steps remain open. Existing failed real-model samples remain
 immutable NO_GO. Purely present DJ appreciation is now explicitly distinguished
 from invented taste/history/artist psychology, consistently for generation and
@@ -125,3 +125,15 @@ Both installed environments were read back independently:177/177 integration
 files exactly match main6a3adbc8, manifest4.0.0-rc.1. These local repairs remain
 uninstalled. Existing human installation authorization is retained; qualified
 source/release delivery and configuration readiness still precede any update.
+
+## Independent review repair above b7f30351
+
+Three independent product P2 findings are corrected before any publication:
+list recognition now requires real album containment/enumeration, so similarity
+or inspiration questions remain with their existing routes; alternative-album
+button labels and reasons use all five request locales; the current inventory
+summary is40reports/120steps. The owning repair tests execute actual common-owner
+negative research/recommendation requests and actual five-language album actions.
+No constant comparison alone qualifies those response paths. The paired HA
+profile now also checks all five localized album offers. These additions require
+new final source hashes and candidate review; prior b7 source GO is scoped history.

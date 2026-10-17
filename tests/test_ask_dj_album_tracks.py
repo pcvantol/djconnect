@@ -541,3 +541,50 @@ class AlbumTracksTests(unittest.IsolatedAsyncioTestCase):
         self.assertNotIn("Current recording", result["text"])
         self.assertIn("nog niet bevestigd", result["text"])
         self.assertFalse(result["action_outcome"]["readback_confirmed"])
+
+    async def test_other_album_action_copy_matches_real_five_language_responses(self):
+        self.current_album.update(uri="spotify:album:" + "Z" * 22, id="Z" * 22)
+        for i, (locale, question, label, reason) in enumerate(
+            (
+                ("nl", "Heb je een ander album van Volbeat?", "Afspelen", "Album van Volbeat."),
+                ("en", "Do you have another album by Volbeat?", "Play", "Album by Volbeat."),
+                ("de", "Hast du ein anderes Album von Volbeat?", "Abspielen", "Album von Volbeat."),
+                ("fr", "As-tu un autre album de Volbeat ?", "Lire", "Album de Volbeat."),
+                ("es", "¿Tienes otro álbum de Volbeat?", "Reproducir", "Álbum de Volbeat."),
+            )
+        ):
+            answer, code = await self.f.request(
+                question, identifier="localized-album-offer-" + str(i), language=locale
+            )
+            self.assertEqual(code, 200, answer)
+            action = answer["playback_actions"][0]
+            self.assertEqual(
+                (action["label"], action["button_label"], action["reason"]), (label, label, reason)
+            )
+            self.assertEqual(action["context_uri"], self.album["uri"])
+            self.assertEqual(action["kind"], "album")
+        self.assertEqual(self.writes, [])
+        self.assertEqual(self.f.prompts, [])
+
+    async def test_album_containment_does_not_capture_similar_or_inspiration_questions(self):
+        for i, question in enumerate(
+            (
+                "What songs are similar to this album?",
+                "Welke nummers lijken op dit album?",
+                "What songs inspired this album?",
+                "Quels morceaux ressemblent à cet album ?",
+                "Welche Lieder sind ähnlich wie dieses Album?",
+                "¿Qué canciones inspiraron este álbum?",
+            )
+        ):
+            answer, code = await self.f.request(
+                question, identifier="not-album-containment-" + str(i)
+            )
+            self.assertEqual(code, 200, answer)
+            self.assertNotEqual(
+                (answer.get("intent") or {}).get("intent"), "album_tracks_information", question
+            )
+        self.assertFalse(
+            any(path.endswith("/tracks") and "/albums/" in path for _, path in self.calls)
+        )
+        self.assertEqual(self.writes, [])

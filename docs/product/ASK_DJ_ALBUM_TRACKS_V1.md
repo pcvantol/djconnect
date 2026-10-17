@@ -8,8 +8,9 @@ standalone and Session text/STT routes; no second dialogue implementation.
 
 ## Selection and authority
 
-Recognize a track-list question about this/current/selected album in all five
-languages before the generic result-list and information/model paths. An exact
+Recognize an actual containment/list question about this/current/selected album
+in all five languages. Shared words alone do not qualify: similarity, inspiration
+and other research questions remain with their existing owners. Route the list before the generic result-list and information/model paths. An exact
 authorized selected contribution wins over current playback. Without selection,
 read fresh playback and pin its canonical recording and album identities; after
 the catalog await recheck those same identities before acceptance. No cached

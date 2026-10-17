@@ -58,21 +58,21 @@ COPY = {
 
 
 def album_tracks_question(text):
-    value = text.casefold().strip().lstrip("¿")
-    return bool(
-        re.match(
-            r"^(?:welk\w*|wat|toon|geef|laat|what|which|list|show|welch\w*|zeige|liste|quel\w*|montre|qu[eé]|cu[aá]l\w*|muestra)\b",
-            value,
-        )
-        and re.search(
-            r"\b(?:nummers|liedjes|tracks|songs|tracklist|tracklijst|titel|lieder|titres|morceaux|chansons|canciones|temas)\b",
-            value,
-        )
-        and re.search(
-            r"\b(?:dit|dat|deze|huidige|this|that|current|diesem|dieses|dieser|aktuellen|cet|ce|este|ese|actual)\s+[aá]lbum\b",
-            value,
-        )
+    value = " ".join(text.casefold().strip(" ¿¡?.!").split())
+    patterns = (
+        r"(?:welke|wat voor) (?:andere |overige )?(?:nummers|liedjes|tracks) (?:(?:staan|zitten)(?: er)?(?: nog meer)? (?:op|in)|bevat|heeft) (?:dit|dat|het huidige|deze) album",
+        r"(?:what|which) (?:other |more )?(?:songs|tracks) (?:are|appear)(?: there)? (?:on|in) (?:this|that|the current) album",
+        r"what are (?:the |all the )?(?:songs|tracks) on (?:this|that|the current) album",
+        r"welche (?:anderen |weiteren )?(?:lieder|titel|tracks) sind auf (?:diesem|dem aktuellen) album",
+        r"quels (?:autres )?(?:morceaux|titres) sont (?:sur|dans) (?:cet|ce) album",
+        r"qué (?:otras )?(?:canciones|temas) hay en (?:este|ese) álbum",
+        r"(?:toon|geef|laat zien|list|show|zeige|liste|montre|muestra) "
+        r"(?:(?:de|the|all|all the|die|alle|les|las|los) )?"
+        r"(?:nummers|liedjes|tracks|songs|tracklist|tracklijst|titel|lieder|titres|morceaux|chansons|canciones|temas) "
+        r"(?:van|op|from|on|of|auf|von|de|sur|en|del) "
+        r"(?:dit|dat|deze|huidige|this|that|current|diesem|dieses|dieser|aktuellen|cet|ce|este|ese|actual) [aá]lbum",
     )
+    return any(re.fullmatch(pattern, value) for pattern in patterns)
 
 
 def _target(metadata):
