@@ -33,20 +33,23 @@ speech, including HA speaker delivery. Current voice/output settings continue to
 govern deliberate replay. No new endpoint, Moment type or consumer work dispatch.
 Implementation, exact qualification and installed producer pin remain pending.
 
-## Selected voice-preview addition — local producer, protected delivery pending
+## Configured voice preview — delivered development producer; functional acceptance open
 
 The human-requested Preview action is recorded in
 [configured voice preview v1](docs/product/SESSION_VOICE_PREVIEW_V1.md).
 Use the existing Speech/Settings producer and paired operation owner: fixed
 five-language neutral text, current confirmed HA voice/gender and output;
 text_only is a hard zero-synthesis/effect deny. No fake bubble, arbitrary caller
-text, silent provider/system-voice fallback or new consumer writer. The proposed
-`speech/preview` operation is now implemented locally, including actual paired
-owner fixtures and `session_speech.voice_preview` discovery. The private HA-dev
-build predates it; no installed or protected producerpin is claimed.
-Apple must wait for the exact qualified wire contract/pin; native/audible proof
-and Core source delivery remain independent. Existing autoplay/UI work stays
-with the existing Apple writer.
+text, silent provider/system-voice fallback or new consumer writer.
+Protected source PR #1197 and Finalization #1204 include `speech/preview`.
+Exact HA-dev development build `e71daff1e36c7e0284ffa1f42b1a1ada47b50aa1`
+contains the producer and actually advertises Preview1/confirmed Settings3.
+The [qualified pin, current wire/error fixtures and installed discovery](docs/verification/VOICE_PREVIEW_PRODUCER_READBACK_20261018.md)
+replace the former instruction to wait for an uninstalled local producer.
+Existing Apple owns guarded Preview/Stop adoption; actual configured-provider,
+native controls and physical listening remain OPEN. Source delivery does not
+close those functional requirements or the other twelve Core/nineteen Golden
+quality gates. No private task message or consumer write follows from this record.
 
 ## Personal DJ restoration — configured-provider speech clarification (local WIP)
 

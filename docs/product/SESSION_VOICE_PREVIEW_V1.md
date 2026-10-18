@@ -1,12 +1,16 @@
 # Configured voice preview v1
 
-Status: implemented locally in the existing combined corrective branch; paired
-owner fixtures and independent qualification in progress. Protected producerpin,
-installed/native controls and actual configured-provider/listening acceptance
-remain pending. This is not a released capability.
-Existing Core writer and existing Speech/Settings family only. Human selection
-was verified in the existing Apple task on17October2026; the consumer proposal
-does not itself create a producer capability. No bubble, turn or fake Moment.
+Status: source delivered through protected [PR #1197](https://github.com/pcvantol/djconnect/pull/1197)
+and separate [Finalization #1204](https://github.com/pcvantol/djconnect/pull/1204).
+HA-dev has the exact verified development build
+`e71daff1e36c7e0284ffa1f42b1a1ada47b50aa1`, including this producer;
+its actual discovery advertises Preview1 and confirmed Settings3. This corrects
+the earlier local/uninstalled checkpoint. It does **not** close configured real
+provider, native Preview/Stop or physical listening acceptance, and is not an
+official release or HA-prod rollout. See the
+[current producer and installed readback](../verification/VOICE_PREVIEW_PRODUCER_READBACK_20261018.md).
+Existing Core writer and existing Speech/Settings family only. No bubble, turn
+or fake Moment. A source merge alone never completes a functional requirement.
 
 ## Purpose and authority
 
@@ -25,10 +29,14 @@ The server resolves the current effective six-field settings at execution.
 Unactivated or migration-ambiguous settings require the existing review; no
 implicit activation or guessed defaults merely to produce an example.
 
-The source advertises `session_speech.voice_preview`; the installed private
-development build predates this implementation. Consumers must wait for the
-qualified producerpin and its actual installed capability. Apple must not guess
-an endpoint or replay an unrelated bubble.
+The installed development producer advertises `session_speech.voice_preview`
+with `available:true`, `version:1` and `settings_contract_version:3`.
+Use the exact qualified development pin and wire fixtures in the readback above.
+Existing consumers can integrate this versioned contract behind actual discovery
+and confirmed settings; absence, an unknown version or a typed runtime failure
+must remain unavailable. Do not guess an endpoint, replay an unrelated bubble or
+infer real synthesis/audibility from discovery. Native adoption remains with its
+existing owner.
 
 ## Fixed text and output
 
@@ -111,6 +119,6 @@ in-flight settings/target changes, provider withdrawal on queued result and byte
 reads, duplicate/socket cancellation, partial/unknown speaker dispatch, original
 monotonic expiry, sample reuse and failed-provider backoff. External provider and
 speaker I/O are explicitly fixtures. The original rejected narrative corpus and
-the eleven Core/seventeen real-quality gates remain unchanged.
+the twelve Core/nineteen actual-quality gates remain OPEN.
 
 Wire examples: [actual owner-route fixtures](../../examples/client_contracts/voice_preview_v1/README.md).
