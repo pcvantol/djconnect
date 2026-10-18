@@ -43,9 +43,14 @@ Main workflow
 subsequently completed SUCCESS, including tests, security, HACS, hassfest and
 exact-main coverage. The uploaded `ha-cobertura-coverage` artifact digest is
 `sha256:02c1aca159b247cccc5401d4a70dee38dfb84742358e820427a3ba6875353a44`.
-The automatic blocking contextual release gate is separate and was still
-running at this documentary freeze. No official packaging, durable release
-evidence, deployment or runtime sound is inferred from source CI.
+The automatic blocking contextual release gate is separate.
+[39120680824](https://github.com/pcvantol/djconnect/actions/runs/39120680824)
+subsequently failed at its first deterministic `test_ask_dj*.py` container
+profile, with zero tests executed and no underlying cause in its bounded report.
+The paid-model phase was not reached. This execution/diagnostic gate remains
+open separately from the twelve Core and nineteen actual-quality findings;
+it is not a new measured storytelling rejection. No official packaging, durable
+release evidence, deployment or runtime sound is inferred from source CI.
 
 ## Remaining functional and acceptance work
 
@@ -103,3 +108,11 @@ Recommended next prompt: resume the existing Core corrective checkpoint after
 Finalization/resource admission; obtain real richer-source, published Persona/Mood
 and all-family retained/audio acceptance, then the selected archive-deletion
 producer. Do not select a new capability or treat this summary as dispatch.
+
+The first Finalization candidate exposed stale current-document pins in the
+roadmap validation. Its correction refreshes only the three approved current
+reference hashes and regenerates the existing SOURCES view. Historical receipts,
+original DAG nodes/edges, consumer states and open acceptance are unchanged;
+no validator/check was weakened. The dated UNPUBLISHED correction receipt is
+retained as its original qualification snapshot, not promoted to whole-family
+source/product completion by this source-incorporation readback.
