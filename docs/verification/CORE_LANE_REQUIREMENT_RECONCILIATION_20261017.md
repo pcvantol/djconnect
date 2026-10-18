@@ -1,12 +1,20 @@
 # Core lane requirement reconciliation — 17 October 2026
 
-Current follow-up: named-artist catalog and retry guards pass55/55 actual
-model questions (57paid calls,0effects,174source/probe hashes unchanged). Golden now has45reports,
-36families and135steps, with9Core and17quality findings open. Reported short
-artist/zangers submit failures and the dry Son Mieux formation bubble are
-explicitly registered; original failed-card cause and richer narration remain
-open. [Current evidence and boundaries](ASK_DJ_ARTIST_HITS_20261017.md).
+Current follow-up — 18 October: the privately installed HA-dev candidate includes
+researched narration, four Presence levels and the shared local/HA speech
+preparation. Its exact artifact is `3a89473e2c9b…`, not a protected release.
+The newer producer-recording and Forecast-language repairs remain local.
+Golden currently binds **49 reports,36 families,139 steps**; **eleven Core findings
+and17 actual-quality steps remain OPEN**. Historical trial8 produced one individually accepted producer story; the
+latest fixed trial9 has no editorial GO. Neither qualifies a Persona/Mood matrix
+or all-family publication. Both concrete credit-scope defects now have causal
+regressions; broad quality remains OPEN.
+[Current qualification and remaining gates](PUBLIC_ARTIST_NARRATION_20261017.md#current-repair-and-evidence-boundary--18-october).
 
+
+
+Current physical history/widget intakes remain OPEN; their owner contracts and
+Golden scheduling correction are recorded in [18October readback](ACTIVE_SESSION_HISTORY_PASSIVE_READBACK_20261018.md).
 
 Status: active corrective work, not a completion report. Current source base
 `6a3adbc8e66ab380dfea1726ca34728097d0c684`; main integration
@@ -17,7 +25,7 @@ consumer work are preserved. This audit grants no new assignment or writer.
 The bounded receiver end-authority predecessor is separately delivered through
 source1202/Finalization1203 and installed on dev/prod; it does not close the
 personal-DJ restoration. Current atomic-quote refinement and full-corpus
-editorial focus supersede episode-only admission. Golden inventory now retains
+editorial focus supersede episode-only admission. That earlier freeze retained
 43 reported issues,36 families and129steps; eight Core findings and fourteen real
 quality steps remain open pending actual assessment. Earlier dated counts below
 remain historical evidence. No fresh narrative or release GO is claimed.
@@ -46,7 +54,7 @@ advertised capability do not establish current end-user acceptance.
 | Track Insight musical content | **Open source qualification** | Unmeasured playback metadata is not musical analysis. Qualify the actual source/recording route without invented sonic values; report partial/unavailable explicitly. |
 | Native Apple voice menu, buttons, local audio and discovery | Apple-owned, open until actual native evidence | Existing consumer lane and pinned contracts; no Swift writes or native PASS from Core/browser/audio generation. |
 | HA speaker and physical audibility | Separate open proof | Validated provider audio does not prove speaker delivery or sound heard on a device. |
-| Native per-device speech override | **Open Core impact review / Apple-owned implementation** | Register owner handoff [6231306172](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6231306172): exact allow/deny, source/revision/expiry, retained/live lifecycle and absolute text_only suppression; local OS voices never become HA settings. No new writer or consumer start. Record a minimal versioned delta or NO_CORE_SOURCE_CHANGE_REQUIRED only after inspection. |
+| Native per-device speech override | Core prepare3 implemented and scoped-reviewed; private dev candidate includes that producer, Apple native acceptance OPEN | Register owner handoff [6231306172](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6231306172): exact allow/deny, source/revision/expiry, retained/live lifecycle and absolute text_only suppression; local OS voices never become HA settings. No new writer or consumer start. Versioned local-source/fixture freeze is historical to the installed private candidate; latest combined source needs its own protected pin. |
 | Selected neutral voice preview | **Open implementation** | [Canonical design](../product/SESSION_VOICE_PREVIEW_V1.md), existing Speech/Settings owners; fixed text, selected voice/output, no fake bubble/turn or arbitrary text, text_only zero effects. Exact contract/fixtures/pin needed before Apple adoption. |
 | Protected source, artifacts, Finalization, dev/prod installs | Not done for these local bytes | Exact candidate review/checks and normal protected delivery; exact main/artifact readback; separate reconciliation; install dev then prod and read back actual files/runtime. |
 
@@ -376,3 +384,33 @@ same SHA/parents, rejects duplicate/incomplete pages and fails closed at the
 reconciler accepts the full set and rejects the old300subset. Apple receives
 no replacement producer pin until protected delivery; their independent source
 merge is not misrepresented as formal Finalization PASS.
+
+
+## Additional owner-authorized Apple intake — 18 October2026
+
+These requests came to the existing Core writer through the existing Apple
+writer with concrete owner approval; no consumer WIP or second writer is taken
+over. They remain open alongside the current narration correction.
+
+- Direct local hybrid transport: the actual dev configuration mount is verified
+  and its operator ingress qualification file is absent. That is the first
+  sufficient426cause. Previously described Docker source-NAT topology is not
+  fresh source-preservation proof; do not mint a qualification snapshot or
+  allow a gateway to disguise a direct client. Actual peer/interface/origin and
+  proxy-exclusion qualification, then paired context/WS/action acceptance, remain
+  required. No service or network change was performed for this diagnosis.
+- Passive widget: Apple observed a fresh active cache with playback metadata but
+  no cover or contribution. The local candidate now admits sealed researched
+  narration with actual citations under the unchanged owner/display/640char/120s
+  fences; installed acceptance is separate. Current cover still requires an
+  independently prepared, exact-subject registry asset. Trace the real producer
+  ingress and qualify cover preparation. Do not extend expired client caches,
+  renew evidence on read or claim background delivery from the current contract.
+- Settings-change Moment: the owner requests one durable narrative confirmation
+  after an actual confirmed Mood/Persona/Presence change, including shared
+  ProfileDJSettings writes. Design the atomic settings/semantic acceptance and
+  idempotent broadcast first. No-op, denial, conflict and uncertain writes must
+  not create optimistic/duplicate entries. Use the confirmed Session language and
+  host, describe actual effect without music promises, and keep music_only speech
+  suppression. Existing Flow, end/reopen and other-device readers must agree.
+  This is accepted intake, not an implemented or installed feature.

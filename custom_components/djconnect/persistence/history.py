@@ -712,6 +712,7 @@ class HistoricalProjectionRepository(PersistenceRepository):
             if body.get("archive_basis") not in {
                 "cc0_normalized_fields_v1",
                 "runtime_authored_direction_v1",
+                "public_artist_narration_v1",
             }:
                 continue
             tx.execute(
@@ -727,6 +728,7 @@ class HistoricalProjectionRepository(PersistenceRepository):
                         {
                             "archive_basis": body["archive_basis"],
                             "source_attribution": body.get("source_attribution", {}),
+                            **({"sources":body["sources"]} if body.get("archive_basis") == "public_artist_narration_v1" else {}),
                         },
                         sort_keys=True,
                     ),

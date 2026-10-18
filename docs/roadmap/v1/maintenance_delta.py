@@ -1035,14 +1035,16 @@ def render_delta(p):
         intro += ("Current maintenance16 combines both preserved maintenance15 inputs in the existing Core draft1197. "
                   "Original input refs and premerge repair refs are separately pinned; both histories remain immutable. "
                   "Source LOCAL_COMBINED_DRAFT_PREPARATION, overall OPEN, merge NOT_QUALIFIED, native OPEN, "
-                  "installed/audible NOT_RUN. No second writer, consumer writes or automatic dispatch. "
+                  "The immutable composition receipt predates the private HA-dev candidate3a89473e; "
+                  "later local producer/Forecast repairs are not installed. Audible/native acceptance remains OPEN. "
+                  "No second writer, consumer writes or automatic dispatch. "
                   "See `docs/verification/CORE_BRANCH_CONSOLIDATION_20261017.md`.\n\n")
     if d.get("experience_reconciliation_receipt"):
         intro += ("Current personal-DJ corrective work: LOCAL / UNPUBLISHED; "
                   "historical SPEECH::CORE::REALIZATION delivery remains preserved, "
                   "while CORRECTION::CORE::PERSONAL-DJ-EXPERIENCE remains In progress. "
-                  "All-family narrative and actual publication Golden, Track Insight, native, installed "
-                  "and audible acceptance are not established by earlier metadata/type fixtures. "
+                  "All-family narrative and actual publication Golden, Track Insight, native and audible "
+                  "acceptance are not established by earlier metadata/type fixtures or the private development install. "
                   "See `docs/verification/CORE_LANE_REQUIREMENT_RECONCILIATION_20261017.md`. "
                   "No consumer dispatch or new writer.\n\n")
     if d.get("display_admission_receipt"):

@@ -436,6 +436,11 @@ async def realize_session_narration(hass, *, narration, admission, fallback_text
             return _speech_from_response((result or {}).get("response") or {})
 
         async with asyncio.timeout(12):
+            from .public_artist_narration import can_research, realize
+            if can_research(narration):
+                # Source retrieval and both calls share this original timeout.
+                # Failure does not buy another two-call symbolic attempt.
+                return await realize(narration, ask=ask, admission=guard, debug=debug) or fallback_text
             text = candidate(narration, await ask(narration.prompt()))
             if text is None or not assessed(await ask(narration.assessment_prompt(text))):
                 return fallback_text

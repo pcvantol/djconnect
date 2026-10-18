@@ -3407,3 +3407,97 @@ protected delivery claimed. Four Personas/five-language exact-copy assertions
 preserve original text/source attribution. Native widgets/Activity/Island,
 background SURFACE::APPLE::QUIET-TRANSPORT, Watch and joint remain open; grant
 rights never inherit private owner, VibeCast or ordinary APNs permissions.
+# Current Presence correction: four choices / policy2 — 18 October2026
+
+Existing Core writer, owner-requested amendment to the open shared-settings work.
+[Authoritative design](docs/product/DJ_PRESENCE_FOUR_LEVELS_V2.md) precedes code.
+Canonical values: `music_only`, `occasional`, `balanced`, `presenter`; legacy
+`talkative` maps server-side to `presenter` for defaults and active state.
+Min interval/per-track/per600s ceilings: music_only0/0/0,
+occasional180/1/2, balanced90/2/4, presenter45/4/8. Shared ledger and source/read
+fences remain authoritative; no Apple timing or local remapping.
+
+Discovery becomes `active_session_presence` capability2 with exactly four values;
+add `transport_contract_version:1` for the unchanged legacy six-field POST shape.
+Profile settings contract3 remains primary and serves the same four choices.
+Storage migration10 normalizes current defaults/ACTIVE settings without rewriting
+historical receipts. Locked live migration invalidates pending work once while
+preserving ledger, playback and Flow. Apple keeps historical decode compatibility
+and updates the strict capability check only against this explicit contract.
+Contract fixture now local: examples/client_contracts/session_presence_v2/capability.json
+and measured Runtime trace. Actual shared trace counts0/2/4/8; source-qualified
+four-level tests plus full2473-test regression PASS (seven existing skips),
+static/security PASS, scoped independent Presence review GO. Fixed45s/61s
+mechanism probes explicitly select Presenter; ordinary default remains Balanced.
+Producer source pin and installed status remain pending protected delivery,
+NOT_INSTALLED. Broader narrative quality remains OPEN/NO_GO: current actual-model
+trial could not start because Docker metadata is read-only; no paid answer or
+native/audible acceptance claimed.
+
+## Selected owner correction: settings-aware local device speech — 18 October
+
+Explicit owner consent was relayed by the existing Apple writer for the narrow
+Core Speech/Settings blocker. [Design](docs/product/SESSION_ON_DEVICE_SPEECH_SETTINGS_V1.md)
+precedes code. Reuse prepare2/3 with local_on_device, exact original references
+and closed source admission; activated settings still require target-aware3.
+No caller voice/text/rate/pitch or Profile/pipeline writes. Local preparation
+must not inspect HA voice availability or synthesize HA audio. text_only is
+zero effects; automatic local is only client_device/both plus separate device
+autoplay/original-publication eligibility. Manual local replay follows existing
+output policy, including ha_speaker. Speaker/both requests retain separate journal
+operations; no double local server/native synthesis. All original Settings,
+source/Persona revisions, withdrawal/expiry and final-delivery fences remain.
+Apple40316/811 Swift-test evidence is consumer source evidence only, not installed
+or audible contribution acceptance. Frozen Core fixtures/source pin pending
+qualification; no deployment or new TTS scope authorized by this correction.
+
+Local qualification readback: prepare2/3 discovery now includes local_on_device;
+source grant is renderer_pending/effective_voice:null, without HA provider lookup
+or audio asset. Eleven new tests and48 focused owner tests PASS; combined2484
+regressions PASS with seven existing skips; static/security PASS and scoped
+independent technical/privacy GO. Actual synthetic wire fixtures (24 output/intent/
+target cases plus live/retained/expired/withdrawn/settings-race) are frozen under
+examples/client_contracts/session_speech_local_settings_v1. The adjacent source
+manifest provides the exact local contract pin. NOT_INSTALLED, no native/audible
+acceptance, no new rollout authority; broader narrative NO_GO remains separate.
+
+
+## Core current correction readback — 18 October
+
+Same sole writer, same combined draft1197. Private HA-dev candidate3a89473e
+contains the prior current WIP, including researched narration, Presence v2 and
+shared local/HA speech preparation. It is not a protected release or native,
+audible, screen-admission or narrative-quality GO. Main/prod are unchanged.
+The immutable211-file consumer freeze identifies that earlier source; new
+current source must not reuse its exact qualification or installed identity.
+
+Current local repairs: original-recording/name evidence prevents a producer
+story about another album from substituting for the selected recording;
+Forecast sections follow the Ask DJ question language without changing Session
+state or renewing deadlines. Independent scoped technical GO; Golden47/36/137,
+nine Core findings and17 actual-quality steps remain open. Trial8 has one
+jointly accepted individual producer story from two cells/six calls, without
+matrix/all-family acceptance. Latest source has no new paid qualification.
+No consumer writes or new assignment are dispatched by this readback. Exact
+current requirements: `docs/verification/CORE_LANE_REQUIREMENT_RECONCILIATION_20261017.md`.
+
+
+The fixed producer follow-up9 subsequently ran two cells/six actual attempts:
+one assessment timed out, one text passed technical admission, and both drafts
+received independent editorial NO_GO. The accepted text's generic band-level
+credit now has its own causal Runtime/SQLite regression and conservative
+explicit-current-recording output condition. It does not change input routing
+or replace the semantic review. French song/title and other normal five-language
+variants have positive source-ID tests. No further paid retry is planned in this
+bounded correction; current-source all-family quality remains NO_GO.
+
+
+Current physical history/widget intake is documented in
+`docs/verification/ACTIVE_SESSION_HISTORY_PASSIVE_READBACK_20261018.md`.
+Current same-owner active history list/detail/tail200; original404 reference is
+not captured and staysOPEN. Passive widget/live grants are independent;120s
+snapshot expiry is not Session-grant expiry. Actual later widget denial/current
+cover and native cache remainOPEN. No policy/retention bypass or production/
+Apple action. Golden49/36/139;11Core/17qualityOPEN. Every named owner file is
+now scheduled before provider work; actual method execution still mandatory.
+Renderer runs separately with hostNode and no provider credentials; noHAclaim.

@@ -648,15 +648,15 @@
           "owning_tests": [
             {
               "file": "tests/test_ask_dj_contextual_dialogue.py",
-              "method": "test_quarter_hour_uses_existing_projection_and_queue_without_model_or_mutation"
+              "method": "test_forecast_answer_uses_question_language_without_mutating_session_projection"
             },
             {
-              "file": "tests/test_ask_dj_contextual_dialogue.py",
-              "method": "test_queue_states_and_repeated_case_sensitive_items_survive_shared_response"
+              "file": "tests/test_session_forecast.py",
+              "method": "test_localized_reads_preserve_original_deadlines_and_cannot_revive_expired_or_withdrawn_context"
             }
           ],
-          "acceptance_status": "open_real_quality",
-          "proof_boundary": "The real semantic read trial exposes mixed-language stored Forecast prose; routing PASS is not localized answer-quality acceptance."
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Causal shared-owner response in all five question languages with immutable default Session projection, original revision/deadline/source fences and zero Planner/model/provider work. Native rendering and live-provider observations remain separate."
         }
       ],
       "owning_tests": [
@@ -667,6 +667,14 @@
         {
           "file": "tests/test_ask_dj_contextual_dialogue.py",
           "method": "test_queue_states_and_repeated_case_sensitive_items_survive_shared_response"
+        },
+        {
+          "file": "tests/test_ask_dj_contextual_dialogue.py",
+          "method": "test_forecast_answer_uses_question_language_without_mutating_session_projection"
+        },
+        {
+          "file": "tests/test_session_forecast.py",
+          "method": "test_localized_reads_preserve_original_deadlines_and_cannot_revive_expired_or_withdrawn_context"
         }
       ],
       "real_ha_profile": null,
@@ -1604,6 +1612,34 @@
           ],
           "acceptance_status": "owner_contract",
           "proof_boundary": "Named owning contract execution; live provider/model/native quality requires separate evidence."
+        },
+        {
+          "id": "ASKDJ-FLOW-active-history-reference",
+          "question": "Open mijn actieve sessie-Flow en het laatste venster opnieuw.",
+          "expected_answer": "De juiste eigenaar en bestaande ACTIVE-referentie krijgen pagina en tail; onbekende/verwijderde geschiedenis blijft neutraal 404, verkeerd profiel403.",
+          "model_policy": "no_model_owner_read_only",
+          "owning_tests": [
+            {
+              "file": "tests/test_session_conversation_history.py",
+              "method": "test_paired_active_history_pages_and_tail_keep_owner_and_clear_fences"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Physical iPhone history404 original reference not captured; installed current same-owner list/detail/tail200 and240inspected active timeline requests200 do not identify the original failure."
+        },
+        {
+          "id": "ASKDJ-FLOW-passive-surface-isolation",
+          "question": "Toon de huidige hoes en laatste toegestane DJ-bijdrage op widget en Live Activity.",
+          "expected_answer": "Elke surface heeft een eigen grant; stale gegevens worden gewist zonder readrenewal. Het uitschakelen van Live Activity wist widgettoelating niet. Alleen een echte nieuwe observatie kan verse gegevens geven.",
+          "model_policy": "no_model_owner_read_only",
+          "owning_tests": [
+            {
+              "file": "tests/test_passive_session.py",
+              "method": "test_surface_isolation_and_stale_snapshot_do_not_renew_or_remove_grants"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual native widget cache absent; original later typed denial not captured. Owning grant/lifecycle test uses explicit external source-authority fixture, no native/artwork delivery or installed PASS."
         }
       ],
       "owning_tests": [
@@ -1614,6 +1650,14 @@
         {
           "file": "tests/test_ask_dj_contextual_dialogue.py",
           "method": "test_shown_result_list_never_revives_expired_cleared_or_other_thread_cards"
+        },
+        {
+          "file": "tests/test_session_conversation_history.py",
+          "method": "test_paired_active_history_pages_and_tail_keep_owner_and_clear_fences"
+        },
+        {
+          "file": "tests/test_passive_session.py",
+          "method": "test_surface_isolation_and_stale_snapshot_do_not_renew_or_remove_grants"
         }
       ],
       "real_ha_profile": "full_golden",
@@ -1709,13 +1753,45 @@
         },
         {
           "question": "Wat maakt zijn ambient-aanpak bijzonder?",
-          "expected_answer": "Zelfde onderwerp; active/paused/standalone en Presence-Off; geen proactieve mutaties",
+          "expected_answer": "Zelfde onderwerp; active/paused/standalone en Presence-Off; geen proactieve mutaties; vier server-side Presence-keuzes en talkative→presenter migratie met behouden historie/budgetten",
           "model_policy": "one_or_two",
           "id": "ASKDJ-FLOW-style-lifecycle-step-2",
           "owning_tests": [
             {
               "file": "tests/test_ask_dj_contextual_dialogue.py",
               "method": "test_general_trivia_survives_track_change_and_no_backend"
+            },
+            {
+              "file": "tests/test_presence_four_levels.py",
+              "method": "test_current_capability_fixture_and_profile_allow_exact_four"
+            },
+            {
+              "file": "tests/test_presence_four_levels.py",
+              "method": "test_only_exact_legacy_alias_is_accepted_without_touching_other_axes"
+            },
+            {
+              "file": "tests/test_presence_four_levels.py",
+              "method": "test_old_debits_remain_binding_after_alias_and_rate_recalibration"
+            },
+            {
+              "file": "tests/test_presence_four_levels.py",
+              "method": "test_rolling_caps_and_minimum_intervals_are_ceilings_including_boundary"
+            },
+            {
+              "file": "tests/test_presence_four_levels.py",
+              "method": "test_live_migration_once_preserves_debits_flow_and_acceptance_revisions"
+            },
+            {
+              "file": "tests/test_presence_four_levels.py",
+              "method": "test_migrated_revision_fences_inflight_provider_without_spending"
+            },
+            {
+              "file": "tests/test_presence_four_levels.py",
+              "method": "test_unauthorized_write_does_not_migrate_and_old_cas_requires_readback"
+            },
+            {
+              "file": "tests/test_presence_four_levels.py",
+              "method": "test_real_v9_upgrade_reopen_preserves_completed_rows_receipts_and_revisions"
             }
           ],
           "acceptance_status": "open_real_quality",
@@ -1738,10 +1814,354 @@
             {
               "file": "tests/test_ask_dj_contextual_dialogue.py",
               "method": "test_person_intro_owner_accepts_proved_identification_and_withholds_wrong_participant"
+            },
+            {
+              "file": "tests/test_vibecast_renderer.py",
+              "method": "test_researched_story_renders_all_revision_license_citations_or_declines_card"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_complete_publication_reopen_sources_speech_and_selected_subject"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_wrong_entity_no_entity_and_rejected_style_never_admit_rich_prose"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_rejected_style_uses_original_once_without_extra_model_attempt"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_absent_reciprocal_identity_does_not_fetch_or_admit_research"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_settings_change_during_fetch_rejects_original_and_researched_candidate"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_cancellation_during_fetch_has_no_commit_or_extra_attempt"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_owner_revocation_after_real_sql_stage_rolls_back_researched_text"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_long_complete_story_is_omitted_on_passive_surface_not_truncated"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_track_change_during_fetch_cannot_publish_or_consume_opportunity"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_forged_changed_text_sources_style_identity_and_expiry_fail_native"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_source_metadata_expiry_and_no_raw_research_in_accepted_receipt"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_public_fetch_wrong_same_name_qid_is_not_replaced_by_web"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_musical_group_identity_accepts_five_language_descriptions_not_generic_group"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_episode_focus_binds_original_spans_and_full_review_offers_no_prefix"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_markdown_bubble_is_not_admitted_or_sent_to_an_extra_model_review"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_wikipedia_excerpt_has_complete_sentences_without_heading_year_contamination"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_recording_credit_needs_own_subject_qualification_not_artist_seed_promotion"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_documented_interaction_wins_over_first_catalog_work_without_new_fact_authority"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_catalog_resolver_and_public_research_share_actual_provider_rate_and_backoff"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_malformed_researched_original_fails_closed"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_rate_backoff_arriving_during_public_guard_prevents_dispatch"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_rate_received_public_503_blocks_catalog_while_response_guard_waits"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_rate_received_public_503_keeps_backoff_after_owner_revocation"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_rate_waiting_public_guard_cannot_be_overtaken_by_catalog_dispatch"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_story_without_named_artist_is_not_admitted_for_contextless_tts"
             }
           ],
           "acceptance_status": "open_real_quality",
-          "proof_boundary": "Owner screenshot is a reproduced installed editorial failure. Existing runtime matrix qualifies source/lifecycle only; factual one-liners, templates, metadata and fixture success do not qualify richer narrative output."
+          "proof_boundary": "Owner screenshot remains an installed editorial failure. Connected Runtime/strict source review/SQLite reopen/native/speech admission tests use explicit external model/source fixtures. Actual same-source Persona/Mood pilot and independent quality review remain required; no installed or audible acceptance."
+        },
+        {
+          "id": "ASKDJ-FLOW-producer-rich-story",
+          "question": "Automatisch trackverhaal: Leo Abrahams en Editors als producers gecrediteerd bij deze opname",
+          "expected_answer": "Bruikbare persoonlijke vertelling volgens bevestigde Persona/Mood, met correcte rolverdeling en rijkere aantoonbaar aan de gecrediteerde persoon/opname gebonden bronnen. Een vriendelijke aanhef bij kale credits is onvoldoende.",
+          "model_policy": "real_model_editorial_review",
+          "owning_tests": [
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_absent_reciprocal_identity_does_not_fetch_or_admit_research"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_cancellation_during_fetch_has_no_commit_or_extra_attempt"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_catalog_resolver_and_public_research_share_actual_provider_rate_and_backoff"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_complete_publication_reopen_sources_speech_and_selected_subject"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_documented_interaction_wins_over_first_catalog_work_without_new_fact_authority"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_episode_focus_binds_original_spans_and_full_review_offers_no_prefix"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_exact_source_title_emphasis_is_normalized_before_complete_assessment_and_commit"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_focus_assessment_rejects_missing_credit_exclusivity_role_transfer_and_wrong_biography"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_focused_producer_story_keeps_all_original_credits_in_retained_context"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_forged_changed_text_sources_style_identity_and_expiry_fail_native"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_group_producer_is_not_forced_into_person_identity"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_instrument_and_producer_credit_both_survive_actual_connected_publication"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_long_complete_story_is_omitted_on_passive_surface_not_truncated"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_malformed_researched_original_fails_closed"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_markdown_bubble_is_not_admitted_or_sent_to_an_extra_model_review"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_missing_selected_producer_is_rejected_before_review"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_model_cannot_silently_reclassify_another_recording_role"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_musical_group_identity_accepts_five_language_descriptions_not_generic_group"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_original_paragraph_keeps_quote_and_initial_contiguous_through_actual_publication"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_original_paragraph_provenance_rejects_omitted_reordered_overlapping_or_changed_ranges"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_other_credit_roles_are_preserved_but_ambiguous_producer_ids_cannot_research"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_owner_revocation_after_real_sql_stage_rolls_back_researched_text"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_paragraph_context_cannot_transfer_another_works_activity_or_genre"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_partial_or_conflicting_producer_credit_cannot_research"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_producer_cancellation_keeps_original_opportunity_unconsumed"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_producer_expiry_after_draft_prevents_review_and_publication"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_producer_lookup_and_wikipedia_share_original_request_cap"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_producer_owner_revocation_after_sql_keeps_no_partial_flow"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_producer_research_cannot_invent_recording_sound_influence"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_producer_track_actual_commit_reopen_and_speech_keep_roles_sources_and_identity"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_producer_wrong_wikipedia_entity_cannot_inherit_credit_acceptance"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_public_fetch_wrong_same_name_qid_is_not_replaced_by_web"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_rate_backoff_arriving_during_public_guard_prevents_dispatch"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_rate_received_public_503_blocks_catalog_while_response_guard_waits"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_rate_received_public_503_keeps_backoff_after_owner_revocation"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_rate_waiting_public_guard_cannot_be_overtaken_by_catalog_dispatch"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_recording_credit_needs_own_subject_qualification_not_artist_seed_promotion"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_recording_scope_is_typed_not_a_json_biography_or_activity_exemption"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_rejected_style_uses_original_once_without_extra_model_attempt"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_review_deduplication_requires_complete_literal_corpus_not_only_selected_24_spans"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_settings_change_during_fetch_rejects_original_and_researched_candidate"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_source_metadata_expiry_and_no_raw_research_in_accepted_receipt"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_story_without_named_artist_is_not_admitted_for_contextless_tts"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_title_normalization_never_strips_unknown_nested_unbalanced_or_link_emphasis"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_track_change_during_fetch_cannot_publish_or_consume_opportunity"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_track_change_during_producer_research_prevents_publication"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_wikipedia_excerpt_has_complete_sentences_without_heading_year_contamination"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_wrong_entity_no_entity_and_rejected_style_never_admit_rich_prose"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_wrong_reciprocal_producer_id_does_not_promote_recording_credit"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_wrong_same_name_producer_cannot_fetch_wikipedia_or_try_other_contributor"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_id_review_preserves_exact_evidence_and_coverage_without_model_quote_echo"
+            }
+          ],
+          "acceptance_status": "open_real_quality",
+          "proof_boundary": "Original recording/all-credit roles, exact producer identity, source rate/backoff, original article paragraph provenance, complete assessment, Runtime/SQLite reopen/speech and expiry/revocation have explicit source/model fixtures. Schema3 paragraph IDs require unchanged original boundaries/ranges, never excerpt-adjacency. Real writing quality, publication, installed/native/audible acceptance remain OPEN; prior failed proposals stay failed."
+        },
+        {
+          "id": "ASKDJ-FLOW-producer-current-recording-binding",
+          "question": "Vertel over de producer van deze opname; de biografie noemt ook een ander album.",
+          "expected_answer": "Verbind de exact genoemde producer aan de huidige opname met een eigen oorspronkelijke creditbron; een producerrol op een ander werk of een naam die slechts een prefix is levert geen opnamebinding. Een algemeen bandcredit of los hier is geen expliciete verwijzing naar deze/huidige opname in de gesproken claim.",
+          "model_policy": "existing_two_call_research_with_independent_scope_review",
+          "owning_tests": [
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_other_work_producer_credit_cannot_replace_current_recording_proof"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_current_recording_proof_uses_original_source_id_across_five_languages"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_extended_other_person_name_is_not_the_resolved_producer"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_band_level_credit_is_not_a_current_recording_connection"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Causal actual Runtime/SQLite regressions and five-language source-ID/name/current-reference checks; external model/source fixtures. Real producer trials8/9 remain historical for their exact earlier source; trial9 has no editorial GO and does not qualify broad Persona/Mood/native/audible quality."
         }
       ],
       "owning_tests": [
@@ -2828,7 +3248,7 @@
         },
         {
           "question": "Replay alle gesproken typen, Silence uitgezonderd",
-          "expected_answer": "Dezelfde geaccepteerde letterlijke bijdrage en geselecteerde provider; Silence heeft nul TTS.",
+          "expected_answer": "Dezelfde geaccepteerde letterlijke bijdrage en geselecteerde provider; Silence heeft nul TTS.; lokale device-processor met Settings3 zonder HA-stemafhankelijkheid, alle output-/bron-/revisiegrenzen behouden",
           "model_policy": "zero_new_dialogue_calls",
           "id": "ASKDJ-REGRESSION-speech-functional-failure-step-2",
           "owning_tests": [
@@ -2839,6 +3259,50 @@
             {
               "file": "tests/test_ask_dj_contextual_dialogue.py",
               "method": "test_all_spoken_type_boundaries_use_one_configured_prepare_replay_and_retained_route"
+            },
+            {
+              "file": "tests/test_local_settings_speech.py",
+              "method": "test_local_grant_ignores_unavailable_ha_voice_preserves_exact_source_and_no_writes"
+            },
+            {
+              "file": "tests/test_local_settings_speech.py",
+              "method": "test_output_intent_target_matrix_has_no_synthesis_or_speaker_effect"
+            },
+            {
+              "file": "tests/test_local_settings_speech.py",
+              "method": "test_no_client_text_voice_gender_rate_pitch_or_unknown_processor_overrides"
+            },
+            {
+              "file": "tests/test_local_settings_speech.py",
+              "method": "test_prepare1_and2_cannot_bypass_activated_settings"
+            },
+            {
+              "file": "tests/test_local_settings_speech.py",
+              "method": "test_live_and_retained_grants_keep_original_text_and_style_then_end_withdraws_live"
+            },
+            {
+              "file": "tests/test_local_settings_speech.py",
+              "method": "test_delayed_delivery_is_withdrawn_on_any_shared_setting_change"
+            },
+            {
+              "file": "tests/test_local_settings_speech.py",
+              "method": "test_local_source_expiry_and_withdrawal_invalidate_delayed_grant"
+            },
+            {
+              "file": "tests/test_local_settings_speech.py",
+              "method": "test_unknown_source_processing_basis_fails_closed_without_text"
+            },
+            {
+              "file": "tests/test_local_settings_speech.py",
+              "method": "test_settings_change_while_resolving_source_never_delivers_old_grant"
+            },
+            {
+              "file": "tests/test_local_settings_speech.py",
+              "method": "test_expired_source_is_denied_and_native_processor_cannot_enter_speaker_operation"
+            },
+            {
+              "file": "tests/test_local_settings_speech.py",
+              "method": "test_capability_explicitly_scopes_native_voice_and_preserves_ha_owner"
             }
           ],
           "acceptance_status": "owner_contract",
@@ -3530,8 +3994,8 @@
     {
       "id": "ASKDJ-ISSUE-forecast-mixed-output-locale",
       "family_id": "ASKDJ-FLOW-queue-forecast",
-      "finding": "Bij een Engelse sessielocale en een anders-talige Ask DJ-vraag blijft de opgeslagen Forecast-samenvatting Engels terwijl de wachtrijzin wel vertaald is. Afzonderlijk output-localeherstel nodig; semantische interpretatie kwalificeert dat niet.",
-      "core_qualification": "open"
+      "finding": "Causaal hersteld: oorspronkelijke geaccepteerde Forecast-betekenis verschijnt in de effectieve vraagtaal zonder opgeslagen sessielocale, revisie, bron of deadline te wijzigen; geïnstalleerde nieuwe delta/native apart.",
+      "core_qualification": "locally_covered"
     },
     {
       "id": "ASKDJ-ISSUE-recording-from-artist-only-context",
@@ -3551,6 +4015,30 @@
       "finding": "Armin en korte artiest-/zangvragen tonen een generieke geschiedenisfout. Actuele gekoppelde devgeschiedenis is HTTP200; artiestvraag is opgeslagen met onterechte verduidelijking. Originele failed-submitoorzaak onbekend; Apple error-mapping apart open.",
       "core_qualification": "open",
       "consumer_followup": "existing Apple writer; no replay/clear/pairing as diagnosis"
+    },
+    {
+      "id": "ASKDJ-ISSUE-producer-story-too-shallow",
+      "family_id": "ASKDJ-FLOW-style-lifecycle",
+      "finding": "Trackverhaal over Leo Abrahams/Editors blijft een kale producentencredit met vriendelijke aanhef en te beperkte bronnen; Artist-only onderzoek herstelt dit niet.",
+      "core_qualification": "open"
+    },
+    {
+      "id": "ASKDJ-ISSUE-producer-current-recording-binding",
+      "family_id": "ASKDJ-FLOW-style-lifecycle",
+      "finding": "Echte producerproef8 verwisselt de huidige opnamebinding met een correct producercredit op een ander album. Causaal herstel eist eigen oorspronkelijke recording-creditbron per claim en volledige persoonsnaamgrenzen. Proef9 verbreedde de credit tot een algemene bandrelatie; een conservatieve vijf-taal outputguard vereist daarnaast een expliciete huidige-opnameverwijzing, zonder semantische review te vervangen.",
+      "core_qualification": "locally_covered"
+    },
+    {
+      "id": "ASKDJ-ISSUE-active-history-reference",
+      "family_id": "ASKDJ-FLOW-history-private",
+      "finding": "Physical iPhone history404 original reference not captured; installed current same-owner list/detail/tail200 and240inspected active timeline requests200 do not identify the original failure.",
+      "core_qualification": "open"
+    },
+    {
+      "id": "ASKDJ-ISSUE-passive-surface-isolation",
+      "family_id": "ASKDJ-FLOW-history-private",
+      "finding": "Actual native widget cache absent; original later typed denial not captured. Owning grant/lifecycle test uses explicit external source-authority fixture, no native/artwork delivery or installed PASS.",
+      "core_qualification": "open"
     }
   ],
   "regression_suite_files": [

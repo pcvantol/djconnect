@@ -80,7 +80,19 @@ def admission(moment: Any, boundary: MomentDeliveryBoundary | None, *,
         return result
     source = getattr(moment, 'source_fact', None)
     history_allowed = False
-    if isinstance(source, QualifiedSessionFact):
+    from .public_artist_narration import ResearchMomentAcceptance, admitted
+    if type(getattr(moment, 'narration_acceptance', None)) is ResearchMomentAcceptance:
+        receipt = moment.narration_acceptance
+        source_limit = receipt.accepted.expires_at
+        result['source_expires_at'] = boundary.utc_at(source_limit)
+        if not admitted(moment, now):
+            result['qualification'] = 'expired' if now >= source_limit else 'unqualified'
+            return result
+        if hashlib.sha256(source.media_identity.encode()).hexdigest()[:24] != boundary.playback_item_id:
+            return result
+        history_allowed = True
+        deadline = min(deadline, source_limit)
+    elif isinstance(source, QualifiedSessionFact):
         try:
             source_limit = source_deadline(source)
             result['source_expires_at'] = boundary.utc_at(source_limit)

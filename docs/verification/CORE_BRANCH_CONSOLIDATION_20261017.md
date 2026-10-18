@@ -1,12 +1,20 @@
 # Core branch consolidation — 17 October2026
 
-Current follow-up: named-artist catalog and retry guards pass55/55 actual
-model questions (57paid calls,0effects,174source/probe hashes unchanged). Golden now has45reports,
-36families and135steps, with9Core and17quality findings open. Reported short
-artist/zangers submit failures and the dry Son Mieux formation bubble are
-explicitly registered; original failed-card cause and richer narration remain
-open. [Current evidence and boundaries](ASK_DJ_ARTIST_HITS_20261017.md).
+Current follow-up — 18 October: the privately installed HA-dev candidate includes
+researched narration, four Presence levels and the shared local/HA speech
+preparation. Its exact artifact is `3a89473e2c9b…`, not a protected release.
+The newer producer-recording and Forecast-language repairs remain local.
+Golden currently binds **49 reports,36 families,139 steps**; **eleven Core findings
+and17 actual-quality steps remain OPEN**. Historical trial8 produced one individually accepted producer story; the
+latest fixed trial9 has no editorial GO. Neither qualifies a Persona/Mood matrix
+or all-family publication. Both concrete credit-scope defects now have causal
+regressions; broad quality remains OPEN.
+[Current qualification and remaining gates](PUBLIC_ARTIST_NARRATION_20261017.md#current-repair-and-evidence-boundary--18-october).
 
+
+
+Current physical history/widget intakes remain OPEN; their owner contracts and
+Golden scheduling correction are recorded in [18October readback](ACTIVE_SESSION_HISTORY_PASSIVE_READBACK_20261018.md).
 
 Owner requests one PR containing all changes from the three existing Core
 branches, and correction of every actual merge blocker before merging. This
@@ -158,3 +166,24 @@ Core resolves actual music context and preserves effect/source boundaries.
 [Qualification and retained failed probes](ASK_DJ_SEMANTIC_READS_20261017.md).
 The earlier40-report/120-step summary above is a pre-semantic snapshot; it is not
 the current Golden census. The joint draft remains unmerged and uninstalled.
+
+## Local owner amendment — four-level Presence
+
+The existing writer implemented the18October owner correction; no new assignment
+or consumer writer. See `docs/product/DJ_PRESENCE_FOUR_LEVELS_V2.md` for exact
+mapping, dosage and capability2/transport1/Profile3 boundaries. Full combined
+2473-test regression PASS (seven existing skips), static/security PASS and scoped
+independent Presence source GO. WIP remains uncommitted/uninstalled abovef65;
+this does not close the wider narrative findings. The current real producer
+pilot could not start because Docker metadata is read-only; actual model/text,
+installed/native/audible and protected-delivery gates remain OPEN.
+
+## Local owner amendment — device-native speech admission
+
+Existing Speech/Settings owner now admits local_on_device under shared prepare2/3
+while activated Settings still require3. See
+`docs/product/SESSION_ON_DEVICE_SPEECH_SETTINGS_V1.md` and exact consumer fixtures.
+Full combined2484 tests PASS/seven existing skips;48 focused owner tests PASS;
+static/security PASS; independent scoped technical/privacy GO. The frozen local
+source manifest is an integration-preparation pin only. No protected source,
+installed/native/audible or broader narrative-quality acceptance is inferred.

@@ -42,6 +42,51 @@ class VibeCastRendererTest(unittest.TestCase):
         self.assertIn("/api/djconnect/v1/session/broadcast/ws/", page)
         self.assertNotIn("/api/djconnect/v1/vibecast", page)
 
+    def test_researched_story_renders_all_revision_license_citations_or_declines_card(self):
+        node = shutil.which('node')
+        self.assertIsNotNone(node)
+        citations = [
+            {'provider':'Wikipedia','title':'Nora Vale','language':lang,'license':'CC-BY-SA-4.0',
+             'url':f'https://{lang}.wikipedia.org/wiki/Nora_Vale',
+             'revision_url':f'https://{lang}.wikipedia.org/w/index.php?oldid={revision}'}
+            for lang,revision in (('nl',111),('en',222))]
+        citations.append({'provider':'MusicBrainz','title':'Nora Vale','language':'nl','license':'CC0-1.0',
+            'url':'https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000001','revision_url':''})
+        script = textwrap.dedent(f'''
+            import assert from 'node:assert/strict'; import fs from 'node:fs'; import vm from 'node:vm';
+            const source=fs.readFileSync({json.dumps(str(PAGE))},'utf8').match(/<script>([\\s\\S]*?)<\\/script>/)[1];
+            const run=(citations)=>{{
+              const make=()=>({{textContent:'',hidden:false,children:[],setAttribute:()=>{{}},removeAttribute:()=>{{}},addEventListener:()=>{{}},
+                replaceChildren(){{this.children=[]}},appendChild(child){{this.children.push(child)}}}});
+              const elements=new Map();
+              for(const id of ['spotify-source','moment-source','moment-research-sources','clock','end-session','up-next','next-art','next-label','next-title','next-artist','state','artwork-card','artwork','mood','title','artist','moment','progress','album','time']) elements.set(id,make());
+              const sockets=[];class WS{{constructor(){{sockets.push(this)}}close(){{}}}}
+              const context={{URL,URLSearchParams,JSON,Math,Number,Array,Object,String,encodeURIComponent,navigator:{{language:'nl'}},
+                document:{{createElement:make,body:{{classList:{{toggle:()=>{{}}}}}},documentElement:{{style:{{setProperty:()=>{{}}}}}},
+                  querySelector:()=>null,getElementById:id=>elements.get(id)}},
+                window:{{location:{{protocol:'https:',host:'receiver.test',search:'?session_id=s&broadcast_token=t'}},setTimeout:()=>1,addEventListener:()=>{{}}}},WebSocket:WS}};
+              vm.runInNewContext(source,context);
+              sockets[0].onmessage({{data:JSON.stringify({{type:'snapshot',snapshot:{{playback:{{item_id:'item'}},
+                dj_moments:[{{moment_id:'story',summary:'One supported story.',content:'Detail from the second edition.',playback_item_id:'item',sources:citations}}]}}}})}});
+              return elements;
+            }};
+            const citations={json.dumps(citations)};
+            const elements=run(citations), links=elements.get('moment-research-sources').children;
+            assert.equal(links.length,3);
+            assert.deepEqual(links.map(a=>a.href),citations.map(s=>s.revision_url || s.url));
+            assert(links[0].textContent.includes('CC-BY-SA-4.0'));
+            assert(links[1].textContent.includes('(en)'));
+            assert(links[2].textContent.includes('CC0-1.0'));
+            assert.equal(elements.get('moment-research-sources').hidden,false);
+            const invalid=run([{{...citations[0],revision_url:'https://unrelated.test/w/index.php?oldid=111'}}]);
+            assert.equal(invalid.get('moment').textContent,'');
+            assert.equal(invalid.get('moment-research-sources').children.length,0);
+            const wrongCC0=run([{{...citations[2],revision_url:'https://unrelated.test/'}}]);
+            assert.equal(wrongCC0.get('moment').textContent,'');
+        ''')
+        result = subprocess.run([node,'--input-type=module','--eval',script],capture_output=True,text=True)
+        self.assertEqual(result.returncode,0,result.stderr)
+
     def test_renderer_applies_snapshot_and_runtime_end_without_persistence(self) -> None:
         node = shutil.which("node")
         if node is None:

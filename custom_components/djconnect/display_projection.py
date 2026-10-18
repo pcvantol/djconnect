@@ -36,6 +36,9 @@ def projection_release_guard(active, authority, state, snapshot):
         deadlines.append(boundary.published_monotonic + moment.presentation_intent.maximum_duration_seconds)
         if isinstance(moment.source_fact, QualifiedSessionFact):
             deadlines.append(source_deadline(moment.source_fact))
+        from .public_artist_narration import ResearchMomentAcceptance
+        if type(moment.narration_acceptance) is ResearchMomentAcceptance:
+            deadlines.append(moment.narration_acceptance.accepted.expires_at)
         if moment.observed_playback is not None:
             deadlines.append(moment.observed_playback.observed_at + 30)
         if moment.genre_transition is not None:
@@ -123,6 +126,13 @@ def shared_snapshot(active, authority, state, *, now=None, wall=None):
             "presentation_intent": {"source_session_mood": presentation.source_session_mood,
                 "dj_persona": _label(presentation.dj_persona), "visual_theme": presentation.visual_theme,
                 "maximum_duration_seconds": presentation.maximum_duration_seconds}}
+        from .public_artist_narration import sources_for
+        sources = sources_for(moment)
+        if sources:
+            # Only public citation fields; no excerpts, evidence spans, proof,
+            # retrieval/owner metadata or model context cross this audience.
+            item['sources'] = [{key:s[key] for key in (
+                'provider','title','url','language','license','revision_url')} for s in sources]
         moments.append(item)
     # Display is a current surface, never an archive/catch-up history. Selecting
     # complete items does not truncate immutable facts or required source links.

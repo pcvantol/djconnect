@@ -39,7 +39,7 @@ async def async_handle_owner_setting(hass, data, *, headers=None, setting):
         runtime_matches_device,
     )
     from .session_runtime import DJPersona, MoodRevisionConflictError, PresenceRevisionConflictError, PersonaRevisionConflictError
-    from .presence_policy import POLICIES
+    from .presence_policy import POLICIES, canonical_presence
     from .persistence.dj_settings import SettingsCommitError
 
     assert setting in {"mood", "presence", "persona"}
@@ -65,6 +65,11 @@ async def async_handle_owner_setting(hass, data, *, headers=None, setting):
         return error("invalid_request", 400)
     if type(data["contract_version"]) is not int or data["contract_version"] != VERSION:
         return error("unsupported_contract_version", 400)
+    if setting == "presence":
+        try:
+            data = {**data, selected_key: canonical_presence(data[selected_key])}
+        except ValueError:
+            return error("invalid_selected_presence", 400)
     if type(data[selected_key]) is not str or data[selected_key] not in values:
         return error(f"invalid_selected_{setting}", 400)
     revision = data[expected_key]

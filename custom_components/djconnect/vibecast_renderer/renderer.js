@@ -54,8 +54,21 @@
   function keyFor(item) {
     return String(item.moment_id || `${item.playback_item_id || ""}|${item.type || ""}|${item.created_at || ""}|${item.summary || item.content || item.title || ""}`);
   }
+  function qualifiedCitations(citations) {
+    if (!Array.isArray(citations) || citations.length < 1 || citations.length > 3) return null;
+    const valid=citations.every(s => s && typeof s.title === "string" && s.title.length <= 240 && (
+        s.provider === "Wikipedia" && s.license === "CC-BY-SA-4.0" &&
+          /^https:\/\/(?:en|nl|de|fr|es)\.wikipedia\.org\/wiki\/[^\s?#]+$/.test(s.url) &&
+          /^https:\/\/(?:en|nl|de|fr|es)\.wikipedia\.org\/w\/index\.php\?oldid=[0-9]+$/.test(s.revision_url) &&
+          new URL(s.url).origin === new URL(s.revision_url).origin ||
+        s.provider === "MusicBrainz" && s.license === "CC0-1.0" && !s.revision_url && /^https:\/\/musicbrainz\.org\/artist\/[0-9a-f-]{36}$/.test(s.url) ||
+        s.provider === "Wikidata" && s.license === "CC0-1.0" && !s.revision_url && /^https:\/\/www\.wikidata\.org\/wiki\/Q[1-9][0-9]*$/.test(s.url)));
+    return valid ? citations : null;
+  }
   function cardFor(item) {
     if (!item || typeof item !== "object" || item.type === "silence") return null;
+    const citations=item.sources === undefined ? [] : qualifiedCitations(item.sources);
+    if (!citations) return null;
     const summary = String(item.summary || item.content || item.title || "").slice(0,1200);
     if (!summary) return null;
     const key = keyFor(item), now = Date.now();
@@ -71,7 +84,7 @@
     const expiry = Math.min((stamped ? created : firstSeen.get(key)) + seconds*1000,
       Number.isFinite(explicitExpiry) ? explicitExpiry : Infinity);
     return now < expiry ? {key, created:stamped ? created : firstSeen.get(key), expiry, summary,
-      detail:String(item.content || "").slice(0,1200), attribution:item.source_attribution, type:item.type || "", itemId:item.playback_item_id || "", stamped} : null;
+      detail:String(item.content || "").slice(0,1200), attribution:item.source_attribution, sources:citations, type:item.type || "", itemId:item.playback_item_id || "", stamped} : null;
   }
   function eligibleCards() {
     const p = playback(), items = Array.isArray(projection.dj_moments) ? projection.dj_moments : [];
@@ -94,6 +107,8 @@
     if (detail) detail.textContent = "";
     if (kind) kind.textContent = "";
     e("moment").textContent = "";
+    const researchSources=e("moment-research-sources");
+    if (researchSources) { researchSources.replaceChildren(); researchSources.hidden=true; }
   }
   function scheduleCardExpiry() {
     clearTimer("expiry");
@@ -144,6 +159,23 @@
     e("moment-source").hidden=!safeSource;
     e("moment-source").textContent=safeSource ? source.provider : "";
     if (safeSource) e("moment-source").href=source.url; else e("moment-source").removeAttribute("href");
+    const researchSources=e("moment-research-sources");
+    if (researchSources) {
+      researchSources.replaceChildren();
+      const citations=Array.isArray(card.sources) && card.sources.length <= 3 ? card.sources : [];
+      const valid=citations.length > 0;
+      researchSources.hidden=!valid;
+      if (valid) {
+        e("moment-source").hidden=true;
+        for (const citation of citations) {
+          const link=document.createElement("a");
+          link.textContent=`${citation.title} · ${citation.provider}${citation.language ? ` (${citation.language})` : ""} · ${citation.license}`;
+          link.href=citation.revision_url || citation.url;
+          link.target="_blank"; link.rel="noopener noreferrer";
+          researchSources.appendChild(link);
+        }
+      }
+    }
     const previousSource=e("moment-source-previous");
     if (previousSource) {
       const safePrevious=safeSource && source.provider === "MusicBrainz" && /^https:\/\/musicbrainz\.org\/recording\/[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/.test(String(source.url_previous || "")) && source.url_previous !== source.url;

@@ -91,7 +91,9 @@ class SharedSettingsContractTests(unittest.TestCase):
         versions = discovered['prepare_contracts']
         self.assertEqual(versions['1']['voice_preference_context']['storage_owner'], 'client')
         shared = versions['2']
-        self.assertEqual(shared['processors'], ['ha_configured'])
+        self.assertEqual(shared['processors'], ['local_on_device', 'ha_configured'])
+        self.assertEqual(shared['local_on_device']['voice_settings_scope'], 'device_local')
+        self.assertFalse(shared['local_on_device']['ha_voice_availability_required'])
         self.assertFalse(shared['caller_voice_override'])
         self.assertEqual(shared['voice_preference_context']['storage_owner'], 'core')
         self.assertEqual(shared['voice_preference_context']['session_end'], 'retain_profile_defaults')

@@ -377,8 +377,8 @@ class NativeMomentDeliveryTest(unittest.TestCase):
         moments=self.run_sequence(self.runtime.DJPersona.HOME_DJ,count=1)
         unknown=replace(moments[0],moment_id='derived-unqualified',source_fact=None,source_attribution=(),
             source_references=('session_flow',),moment_type=self.runtime.DJMomentType.TRANSITION)
-        self.runtime_clock[0] += 45
-        with patch('time.monotonic',lambda:145.0):
+        self.runtime_clock[0] += 90
+        with patch('time.monotonic',lambda:190.0):
             self.session.publish_moment(unknown)
             native=self.session.broadcast.as_dict()['native_delivery']
         entry=next(a for a in native['admissions'] if a['moment_id']==unknown.moment_id)

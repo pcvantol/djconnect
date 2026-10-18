@@ -57,6 +57,8 @@ progress { width:100%; height:.35rem; accent-color:var(--accent) }
 .spotify-source[hidden],.moment-source[hidden] { display:none }
 .spotify-source img { width:120px; height:auto }
 .moment-source { display:block; margin-top:.8rem; color:#ddd9ec; font-size:clamp(.9rem,1.5vw,1.15rem); text-decoration:underline }
+.moment-research-sources[hidden] { display:none }
+.moment-research-sources a { display:block; margin-top:.4rem; color:#ddd9ec; font-size:clamp(.8rem,1.2vw,1rem) }
 /* Owner refinements: fixed safe regions, artwork-led atmosphere and readable controls. */
 main { height:100vh; height:100dvh; min-height:0; padding:clamp(1.5rem,4vw,4rem); gap:1.5rem }
 header { align-items:center; min-height:4rem }

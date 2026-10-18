@@ -2007,6 +2007,47 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
                     if change not in {"end", "forecast"}:
                         await self.fixture.manager.async_end(owner_profile_id="profile-a", session_id=session.session_id)
 
+    async def test_forecast_answer_uses_question_language_without_mutating_session_projection(self):
+        from custom_components.djconnect.ask_dj import observations
+        manager = self.fixture.manager
+        session = await manager.async_start(owner_profile_id="profile-a", locale="en", selected_mood="groove")
+        await manager.async_update_playback_projection(owner_profile_id="profile-a", session_id=session.session_id,
+            state="playing", media_identity="spotify:track:" + "F" * 22,
+            title="Confirmed recording", artist="Confirmed performer", album="Confirmed edition")
+        original = await manager.async_forecast_snapshot(owner_profile_id="profile-a", session_id=session.session_id)
+        queue_calls = []
+
+        async def external_queue_fixture(*args):
+            queue_calls.append(observations.language())
+            return {"success":True, "text":"Queue observation fixture."}
+
+        for locale, question, prefix in (
+                ("nl", "Toon de vooruitblik", "Nu speelt:"),
+                ("de", "Zeige den Ausblick", "Jetzt spielt:"),
+                ("fr", "Montre l’aperçu", "En ce moment :"),
+                ("es", "Muestra el avance", "Ahora suena:"),
+                ("en", "Show the session forecast", "Now playing:")):
+            with self.subTest(locale=locale), patch.object(observations, "queue_read", external_queue_fixture):
+                # The existing owning read is selected directly; language/style,
+                # ordinary owner checks and actual Store/SQLite response persist.
+                async def owner():
+                    return None
+                from custom_components.djconnect.ask_dj import service
+                async def delegate(*args):
+                    return await observations.forecast_read(self.hass, self.runtime)
+                result = await service.async_exchange(self.hass, self.runtime,
+                    {"text":question, "language":locale, "client_message_id":"forecast-language-"+locale},
+                    profile_id="profile-a", history_manager=self.history, delegate=delegate,
+                    validate_owner=owner, persist_history=False)
+                forecast = result["session_forecast"]
+                self.assertTrue(forecast["sections"][0]["text"].startswith(prefix), forecast)
+                self.assertIn(forecast["summary"], result["text"])
+                for key in ("revision", "issued_at", "valid_until", "current_anchor"):
+                    self.assertEqual(forecast[key], original[key])
+                self.assertEqual(await manager.async_forecast_snapshot(
+                    owner_profile_id="profile-a", session_id=session.session_id), original)
+        self.assertEqual(queue_calls, ["nl", "de", "fr", "es", "en"])
+
     async def test_joined_play_returns_same_replacement_output_offer(self):
         from custom_components.djconnect import http
         async def catalog(*args, **kwargs):
@@ -4940,6 +4981,8 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
     async def test_quarter_hour_uses_existing_projection_and_queue_without_model_or_mutation(self):
         session, _moment, _ = await self.selected_credit()
         projection = await self.fixture.manager.async_forecast_snapshot(owner_profile_id="profile-a", session_id=session.session_id)
+        localized = await self.fixture.manager.async_forecast_snapshot(
+            owner_profile_id="profile-a", session_id=session.session_id, locale="nl")
         calls = []
         async def queue(h, r, command, *args, **kwargs):
             self.assertEqual(command, "queue")
@@ -4948,7 +4991,9 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
         with patch.object(self.core, "run_music_command", queue):
             response, status = await self.request("wat komt er komend kwartier aan?", identifier="quarter-hour", language="nl")
         self.assertEqual(status, 200, response)
-        self.assertEqual(response["session_forecast"], projection)
+        self.assertEqual(response["session_forecast"], localized)
+        self.assertEqual(await self.fixture.manager.async_forecast_snapshot(
+            owner_profile_id="profile-a", session_id=session.session_id), projection)
         self.assertEqual(response["queue_observation"]["state"], "present")
         self.assertEqual(response["items"][0]["title"], "Queued C")
         self.assertFalse(response["history_persisted"])

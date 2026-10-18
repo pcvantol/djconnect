@@ -250,6 +250,42 @@ class SessionConversationHistoryTest(unittest.IsolatedAsyncioTestCase):
                 "profile-a", session.session_id, window="anchor", anchor_entry_id="missing"
             )
 
+    async def test_paired_active_history_pages_and_tail_keep_owner_and_clear_fences(self):
+        hass, _runtime, _history, identity, headers = await self.transport_fixture()
+        session = await self.manager.async_start(owner_profile_id="profile-a", locale="nl")
+        await self.manager.async_update_playback_projection(
+            owner_profile_id="profile-a", session_id=session.session_id, state="playing",
+            media_identity="spotify:track:" + "A" * 22, title="Synthetic current recording",
+            artist="Synthetic performer", duration_ms=120000, position_ms=1000)
+        request = {**identity, "profile_id": "profile-a", "session_id": session.session_id,
+                   "limit": "20"}
+        revision = (await self.repo.async_session_record(session.session_id))["revision"]
+        for window in (None, "tail"):
+            payload = {**request, **({"window": window} if window else {})}
+            page, status = await self.handlers.async_handle_session_history_payload(
+                hass, payload, operation="timeline", headers=headers)
+            self.assertEqual(status, 200, page)
+            self.assertEqual(page["session"]["session_id"], session.session_id)
+            self.assertEqual(page["session"]["lifecycle_status"], "ACTIVE")
+            self.assertFalse(page["session"]["read_only"])
+            self.assertTrue(all(e["session_id"] == session.session_id for e in page["entries"]))
+        self.assertEqual((await self.repo.async_session_record(session.session_id))["revision"], revision)
+        missing, status = await self.handlers.async_handle_session_history_payload(
+            hass, {**request, "session_id": "session-synthetic-missing"},
+            operation="timeline", headers=headers)
+        self.assertEqual(status, 404, missing)
+        self.assertEqual(missing["error"], "history_unavailable")
+        wrong_owner, status = await self.handlers.async_handle_session_history_payload(
+            hass, {**request, "profile_id": "profile-other"}, operation="timeline", headers=headers)
+        self.assertEqual(status, 403, wrong_owner)
+        self.assertNotIn("entries", wrong_owner)
+        await self.repo.async_purge_profile_history("profile-a")
+        disabled, status = await self.handlers.async_handle_session_history_payload(
+            hass, request, operation="timeline", headers=headers)
+        self.assertEqual(status, 404, disabled)
+        self.assertEqual(disabled, missing)
+        self.assertEqual((await self.repo.async_session_record(session.session_id))["lifecycle_status"], "ACTIVE")
+
     async def test_full_normalization_cross_character_utf16_highlights(self):
         from custom_components.djconnect.session_history_projection import text_highlights
 

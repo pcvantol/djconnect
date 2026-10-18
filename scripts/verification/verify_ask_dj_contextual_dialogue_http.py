@@ -116,13 +116,14 @@ async def main():
             except ValueError:
                 return
             research = projection.get("public_music_research") or projection.get("evidence", {}).get("public_music_research", {})
+            from scripts.verification.askdj_contextual_golden import ACTIVE_CASE
             if research and 'public_music_research' in projection:
                 expected = os.environ.get('DJC_EXPECTED_RESEARCH_CORPUS')
                 if expected:
                     assert {s['content_hash'] for s in research.get('sources', [])} == {expected}, 'fixed source changed before paid generation'
                 from custom_components.djconnect.ask_dj.dialogue import current_turn
                 turn = current_turn.get()
-                public_generation_projections.append({'case_id':turn.client_id if turn else None,
+                public_generation_projections.append({'case_id':turn.client_id if turn else ACTIVE_CASE.get(),
                     'host_identity_instruction_count':value.split('\nData:\n',1)[0].count('Host identity:'),
                     'secondary_telling_action':'Core-owned telling action:' in value.split('\nData:\n',1)[0],
                     'required_inkijk':'inkijk' in value.split('\nData:\n',1)[0],
@@ -133,7 +134,7 @@ async def main():
             elif research and 'evidence' in projection:
                 from custom_components.djconnect.ask_dj.dialogue import current_turn
                 turn = current_turn.get()
-                public_assessment_projections.append({'case_id':turn.client_id if turn else None,
+                public_assessment_projections.append({'case_id':turn.client_id if turn else ACTIVE_CASE.get(),
                     'editorial_focus':research.get('editorial_focus'),
                     'assessed_answer':projection.get('answer'),
                     'source_ids':[source['content_hash'] for source in research.get('sources',[])]})
@@ -297,6 +298,8 @@ async def main():
                       10 if os.environ.get("DJC_SAFETY_PROBE") == "public_research" else
                       MAX_MODEL_CALLS if os.environ.get("DJC_SAFETY_PROBE") == "contextual_golden" else
                       len(semantic_cases()) + 2 if os.environ.get("DJC_SAFETY_PROBE") == "semantic_reads" else
+                      6 if os.environ.get("DJC_SAFETY_PROBE") == "narration_golden" and os.environ.get("DJC_RESEARCHED_PRODUCER") == "1" else
+                      18 if os.environ.get("DJC_SAFETY_PROBE") == "narration_golden" and os.environ.get("DJC_RESEARCHED_ARTIST") == "1" else
                       64 if os.environ.get("DJC_SAFETY_PROBE") == "narration_golden" else 128)
             if len(model_receipts) >= budget or case_id is None:
                 raise RuntimeError("golden_model_call_budget_or_case_invalid")
@@ -1570,14 +1573,34 @@ async def main():
                     from custom_components.djconnect.playback_observation import playback_observation_manager
                     await playback_observation_manager(h).async_stop("profile-a",active.session_id)
                     from scripts.verification.personal_dj_narration_probe import run as run_narration
-                    result=await run_narration(h,runtime,manager,active)
+                    try:
+                        result=await run_narration(h,runtime,manager,active)
+                    except BaseException as exc:
+                        # Preserve actual attempts even when public identity
+                        # preparation fails before the expression rows exist.
+                        Path('/lab/narration-pilot.json').write_text(json.dumps({
+                            'status':'FAIL_PREPARATION_OR_EXECUTION',
+                            'failure_type':type(exc).__name__,
+                            'public_http_status':getattr(exc,'public_http_status',None)
+                                if type(getattr(exc,'public_http_status',None)) is int else None,
+                            'scope':'ISOLATED_EXPRESSION_DIAGNOSTIC_NOT_RELEASE',
+                            'source_hashes':hashes(),'source_hashes_before':initial_source_hashes,
+                            'source_unchanged':initial_source_hashes == hashes(),
+                            'model_calls':model_receipts,'paid_model_calls':len(model_receipts),
+                            'core_transports':receipts,'cases':[],
+                            'native':'NOT_RUN','installed':'NOT_RUN','audible':'NOT_RUN'
+                        },ensure_ascii=False,indent=2)+'\n')
+                        raise
                     result.update(source_hashes=hashes(),source_hashes_before=initial_source_hashes,
                         source_unchanged=initial_source_hashes == hashes(),pairing="ordinary_device_token_minted_persisted",
-                        actual_published={'moment_id':moment.moment_id,'text':moment.content,
+                        setup_actual_published={'scope':'setup_credit_not_researched_Son_Mieux_story',
+                            'moment_id':moment.moment_id,'text':moment.content,
                             'realization':dict(moment.generation_metadata).get('realization'),
                             'flow':any(i.moment_id==moment.moment_id for i in active.planner.output.session_flow.items),
                             'broadcast':any(m.moment_id==moment.moment_id for m in active.broadcast.state.dj_moments)},
                         model_calls=model_receipts,paid_model_calls=len(model_receipts),
+                        generation_projections=public_generation_projections,
+                        assessment_projections=public_assessment_projections,
                         core_transports=receipts,native="NOT_RUN",installed="NOT_RUN",audible="NOT_RUN")
                     if not result['source_unchanged']:
                         result['status'] = 'FAIL_SOURCE_CHANGED'

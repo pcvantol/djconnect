@@ -1,5 +1,10 @@
 # DJ presence Core policy v1 — admission and calibration
 
+Current correction: [four-choice policy2](DJ_PRESENCE_FOUR_LEVELS_V2.md)
+supersedes the five-mode calibration below. Its implementation/qualification is
+in progress in the existing Core writer; the original delivery trace stays
+historical, not a policy2 or installed PASS.
+
 Assignment: `DJC-CORE-DJ-PRESENCE-V1-20261011`. Source base:
 `9cdee0602b2ff0db99c433f2a3f2eb6d5ba8fe4e`; sole existing Core writer;
 branch `codex/dj-presence-v1`. Design: [DJ_PRESENCE_V1](DJ_PRESENCE_V1.md).

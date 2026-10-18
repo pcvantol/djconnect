@@ -139,6 +139,8 @@ class RuntimeExpressionTest(unittest.IsolatedAsyncioTestCase):
         with patch('time.monotonic', lambda: clock[0]):
             active = await self.manager.async_start(owner_profile_id='profile-a', selected_mood='groove', locale='nl',
                 session_start_strategy=self.r.SessionStartStrategy.DISCOVER, elapsed_time_source=lambda: clock[0], history_source_context=binding)
+            active = await self.manager.async_update_presence(owner_profile_id='profile-a',
+                session_id=active.session_id, selected_presence='presenter')
             async def fallback(brief,guard):
                 guard()
                 return brief.seed
@@ -176,7 +178,7 @@ class RuntimeExpressionTest(unittest.IsolatedAsyncioTestCase):
                 state='playing', media_identity=media, title='Current title', artist='Local artist', duration_ms=600000, position_ms=45000)
             task = asyncio.create_task(self.manager.async_maybe_publish_intra_track_moment(owner_profile_id='profile-a',
                 session_id=active.session_id, media_identity=media))
-            await entered.wait()
+            await asyncio.wait_for(entered.wait(), 2)
             self.assertIsNone(await self.manager.async_maybe_publish_intra_track_moment(owner_profile_id='profile-a',
                 session_id=active.session_id, media_identity=media))
             self.assertEqual(active.moment_engine._expression_moment_ids, before)

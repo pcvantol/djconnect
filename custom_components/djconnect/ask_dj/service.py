@@ -52,6 +52,15 @@ async def _live_reference(manager, profile, target):
         raise SessionConversationError("moment_context_unavailable", 404)
     source = moment.source_fact
     metadata = dict(moment.generation_metadata)
+    from ..public_artist_narration import ResearchMomentAcceptance, admitted, BASIS, sources_for
+    if type(moment.narration_acceptance) is ResearchMomentAcceptance:
+        if not admitted(moment):
+            raise SessionConversationError("moment_context_unqualified", 403)
+        from .dialogue import normalized_subjects
+        return {"text":moment.content,"moment_type":moment.moment_type.value,"archive_basis":BASIS,
+            "source_attribution":dict(moment.source_attribution),"sources":sources_for(moment),
+            "qualified_fact_attribution":{"provider":source.provider,"url":source.source_url,"license":source.license},
+            "qualified_fact_text":source.copy_for(active.locale)[1],"dialogue_subjects":normalized_subjects(source)}
     if (source is None and not moment.source_attribution and moment.source_references == ("session_direction",)
         and moment.moment_type.value == "session" and metadata.get("context_source") == "session_direction"
         and metadata.get("validated") == "true"):

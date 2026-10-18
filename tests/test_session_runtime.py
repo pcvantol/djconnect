@@ -91,7 +91,8 @@ class SessionRuntimeManagerTest(unittest.TestCase):
             clock = [100.0]
             manager._test_presence_clock = clock
             manager._monotonic_source = lambda: clock[0]
-            current = await manager.async_get_active(owner_profile_id)
+            current = await manager.async_update_presence(owner_profile_id=owner_profile_id,
+                session_id=session_id, selected_presence="presenter")
             current.presence_ledger.clock = manager._monotonic_source
             current.planner.elapsed_time_source = manager._monotonic_source
             async def empty():

@@ -328,6 +328,158 @@ justify archiving prohibited catalog bodies.
 
 ## Required ingress inventory
 
+### Superseding refinement: researched public Artist narration
+
+The reported Son Mieux card (a formation year presented as an artist story)
+demonstrates insufficient input, as well as insufficient writing. For an
+already selected, eligible Artist Moment, the existing HA expression owner may
+reuse the existing bounded public research adapter before its two model calls.
+This refines the single-CC0-fact restriction above for this family only. It does
+not select another opportunity, add a scheduler, revive the legacy announcer,
+or authorize an unchecked biography from model memory.
+
+Admission requires the original normalized MusicBrainz/Wikidata artist and a
+reciprocal MusicBrainz–Wikidata binding established by the existing resolver.
+Wikipedia must report that exact Wikidata entity, a musical identity, and a
+revision. A matching name alone is insufficient. Localized and English editions
+may combine only for that identity. The original normalized CC0 fact and these
+fetched, revision-bound references form the evidence package. Arbitrary web
+pages lack this identity proof and do not enter proactive narration; the
+existing explicit Ask DJ web route retains its own admission. This is not a
+claim that every family or all web research is restored.
+
+The purpose is a useful, connected artist story, not mandatory repetition of a
+formation date. Persona controls the telling; Mood changes rhythm and emphasis.
+Faithful translation uses the same evidence. Do not invent sound, causality,
+artist psychology, listener taste, selection or future playback. The existing
+strict atomic evidence/chronology checks and a separate style verdict must
+accept the complete first draft. No prefix promotion or third-call repair for
+this producer. Research plus both calls share the original bounded expression
+timeout and all original opportunity/settings/owner/source fences.
+
+One sealed, typed acceptance binds the original Moment/fact, complete text,
+language, Persona/Mood, actual source metadata/revisions and original validity.
+Raw excerpts and model receipts are transient inputs and are discarded after
+qualification. They do not become style memory or Flow content. A changed text,
+subject, source, style or Moment cannot inherit acceptance. No new source or
+model work occurs on read, reconnect or speech replay.
+
+Processing and presentation are explicit: the normalized seed retains CC0;
+Wikipedia references and generated adaptation retain actual CC-BY-SA attribution,
+revision and license, never a CC0 label inherited from the seed. Owner/native
+presentation and durable Flow store the accepted text with those citations under
+`public_artist_narration_v1`. The same exact text is eligible for configured HA
+TTS/manual replay under the existing qualified public dialogue processor basis;
+voice settings still resolve at replay time. Shared display preserves every
+required citation. Passive presentation keeps its existing 640-character
+omission boundary. History opt-out, clear,
+90-day rolling retention and access revocation remain authoritative. The selected
+Moment context exposes original normalized identity/facts, never creative prose
+as new factual evidence. Artwork remains bound to the original media subject.
+
+No source, wrong identity, malformed evidence/style review, cancellation or an
+expired window retains only the still-valid original candidate or Silence.
+That technical fallback does not satisfy personal-story acceptance. Completion
+requires actual Runtime → Flow/storage/native/speech qualification and blind
+review of complete, same-evidence Persona/Mood outputs, including rejected first
+drafts. The installed Son Mieux finding remains OPEN until that proof exists.
+
+### Same-owner refinement: the artist behind a recording's producer credit
+
+The reported Leo Abrahams/Editors card also fails the narrative requirement.
+A friendly introduction to an isolated credit is not a researched Track story.
+Within the same selected recording-credit opportunity, the existing researched
+expression owner may introduce one exactly credited musical person or group.
+This does not promote a recording fact into the performer's Artist identity.
+
+Admission requires the original eligible recording evidence, matching media,
+recording ID, source URL and timestamp. This refinement requires a complete
+producer field with a unique typed contributor ID for each name and no
+restricted or conflicting producer identity. The actual reported source also
+contains instrument credits: preserve those original normalized roles, without
+promoting their names into producer identities or researching them as such.
+Choose one producer contributor before
+lookup; failure must not try the other names. Its exact MusicBrainz artist ID,
+name and Person/Group type must lead to one Wikidata identity whose reciprocal
+P434 is exactly that ID. Wikipedia must match that identity and type. A group
+such as Editors must not be assumed to be a person, or to have made this
+recording merely because it is the performing artist.
+
+The original recording credit establishes only its named recording roles.
+Additional checked artist context belongs only to the selected contributor.
+It cannot prove the recording's sound, a production method, influence, shared
+credits on other works or an artistic cause. The complete generated text must
+name the selected producer and bind their credit to this recording; it may focus
+on that one contributor without reciting all credits. The complete original
+credit fact, all roles/IDs and normalized source context remain unchanged in
+the receipt, archive and selected-subject context. Omission is not denial: no
+exclusive or complete-credits claim is allowed. Every other person actually
+mentioned keeps their exact role. Require an explicit `recording_focus_preserved`
+assessment as well as the same independent atomic
+evidence, chronology, language and style checks. No prefix recovery is allowed.
+
+The narration need not open with a credit caption. The existing generation
+owner may order the current credit and one documented biographical episode to
+suit the same Persona/Mood. A general collaborator list is not that episode;
+do not force an early biography list into an editorial-focus instruction. The
+full admitted corpus remains available to choose a concrete activity. Neither
+editorial appeal nor a plausible sensory inference overrides factual assessment.
+Each factual clause still requires one exact admitted source span. Legacy
+schema2 sentence-fragment IDs retain their meaning; adjacency in a selected
+excerpt grants no combined passage proof. Proactive public narration may use
+schema3 `original_paragraphs_v1`: select complete original normalized article
+paragraphs before excerpt construction, preserving their original character
+ranges and document digest. Each new paragraph ID addresses one unchanged
+contiguous source range, not concatenated selected fragments. Missing, reordered,
+overlapping or inconsistent ranges fail closed. No source-boundary repair may
+silently promote an earlier failed proposal. A paragraph does not itself prove
+causality, actor identity, role or chronology: independent complete-text semantic
+assessment and the original temporal/work bindings remain mandatory.
+Existing closed work/activity/genre fences must also hold against a smaller
+exact source sentence containing that work, both per segment and in the final
+whole-answer anti-splitting check. Other sentences in the paragraph cannot
+provide the missing role or genre. This is a conservative observed-mismatch
+guard, not a general semantic proof or permission to infer new relationships.
+The assessment model may receive each span once instead of also receiving a
+duplicate excerpt only when the spans cover every original non-whitespace
+character in order. Otherwise retain the complete excerpt as context. The local
+validator always checks the complete original source projection.
+
+For schema3 paragraph assessment only, `source_id_review_v1` may identify the
+one admitted evidence ID without echoing the entire paragraph for every claim.
+Selecting the ID explicitly attests that its exact passage supports that claim.
+Core resolves that ID to its unchanged literal quote before applying the same
+complete atomic/semantic/work/chronology validation. Unknown IDs, multiple IDs,
+unexpected fields and incomplete coverage fail closed. This is a bounded review
+wire format, not a new fact, text rewrite, prefix recovery or extra model call.
+Legacy schema2 quote-bearing reviews retain their original contract. Relative
+chronology without an executable ordering proof remains disallowed; the writer
+must state facts without such connectors rather than inventing their order.
+
+Plain-text presentation may remove one balanced emphasis pair around an exact
+admitted work-title anchor before the complete assessment. No lexical word is
+removed or added. Links, nested/unbalanced markup and unknown titles remain
+ineligible. The fully normalized text is then assessed, sealed, retained and
+spoken unchanged; there is no post-assessment cleanup or partial-text promotion.
+
+The original typed recording scope may admit ordinary nouns such as recording
+and production when normalized role labels contain no such word. This is not
+a biography-to-recording or action/date equivalence: only the exact original
+credit quote and still-eligible internal fact grant this scope. A JSON flag,
+client/model dictionary, unrelated biography quote, changed credit or expired
+fact cannot. Recording/production verbs and working-method claims retain their
+ordinary independent evidence requirement. The proof stays local, outside the
+serialized model context.
+
+Contributor lookup and Wikipedia retrieval share a single PublicFetch request/
+byte budget, the original12-second expression deadline and two model calls.
+Lookup does not refresh the original recording evidence or opportunity window.
+The sealed acceptance also binds the selected contributor ID, type and QID.
+Track publication, exact original artwork, all citations, Flow/reopen and TTS
+reuse the same guarded owners as researched Artist narration. Replay does no
+research. No producer or all-family quality acceptance follows from this design;
+the reported finding stays OPEN until connected and real-output proof exists.
+
 | Family | Existing owner / restoration obligation |
 | --- | --- |
 | Track credits, Artist, Album, Genre, qualified callbacks | `moment_expression` and `context_expression`: integrate qualified enrichment and meaningful Mood shading; preserve facts and rights |

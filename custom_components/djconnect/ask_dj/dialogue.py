@@ -682,13 +682,14 @@ def model_source(entry: dict | None) -> dict:
             "basis": "runtime_authored_direction_v1",
             "direction_excerpt": str(entry.get("text") or "")[:2000],
         }
-    attribution = entry.get("source_attribution") or {}
+    researched = entry.get("archive_basis") == "public_artist_narration_v1"
+    attribution = (entry.get("qualified_fact_attribution") if researched else entry.get("source_attribution")) or {}
     if not isinstance(attribution, dict):
         return {}
     host = urlparse(str(attribution.get("url") or "")).hostname
     provider = attribution.get("provider")
     if (
-        entry.get("archive_basis") != "cc0_normalized_fields_v1"
+        entry.get("archive_basis") not in {"cc0_normalized_fields_v1", "public_artist_narration_v1"}
         or attribution.get("license") != "CC0-1.0"
         or host not in {"musicbrainz.org", "www.wikidata.org", "wikidata.org"}
         or provider not in {"MusicBrainz", "Wikidata"}
@@ -748,7 +749,7 @@ def persona_answer_form(persona: str, *, include_identity=True) -> str:
     """One authored Persona instruction owner for dialogue and qualified insight."""
     from ..narration_style import host_identity
     forms = {
-        "home_dj": "Choose one named work or collaboration from the evidence as your way into the artist. Start inside that example, sharing why YOU as the present DJ find this detail worth a closer look; weave the person's identity into the telling. One connected, intimate thought, not a definition followed by a compliment.",
+        "home_dj": "Choose one named work or collaboration from the evidence as your way into the artist. Start inside that example; let personal curiosity show through the chosen angle and conversational wording, without announcing your DJ role or explaining your appreciation. Weave the person's identity into one connected, intimate thought, not a definition followed by a compliment.",
         "radio_dj": "Choose two explicitly connected activities or works in the evidence. Begin with their documented development and tell a compact arc; introduce the person through that arc. Never invent a causal bridge just to create a story. The arc itself carries the voice; no biography lead or appended moral.",
         "club_dj": "Find the one exact distinction in the evidence that answers this question: a credited role, a collaboration or a particular work. Put that distinction first in one or two lean conversational sentences and stop. Skip the biographical introduction and decorative ending; a dry present-DJ observation is optional.",
         "festival_dj": "Invite this one listener into a specific named activity or collaboration from the evidence, through bright conversational turns and a playful present-DJ point of view. Tell the detail directly, then identify the person naturally if needed. Avoid an encyclopedia opening or obligatory hype; no imaginary audience or invented effect of the music.",

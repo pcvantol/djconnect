@@ -135,6 +135,7 @@ def project_entry(row: dict) -> dict | None:
             "cc0_normalized_fields_v1",
             "runtime_authored_direction_v1",
             "owner_metadata_narration_v1",
+            "public_artist_narration_v1",
         }:
             return None
         result.update({k: v for k, v in body.items() if k not in {"session_media_reference", "source_context"}})

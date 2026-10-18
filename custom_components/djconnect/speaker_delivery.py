@@ -72,6 +72,7 @@ async def async_play(hass, authority, payload):
             {'session_id', 'moment_id'}, {'session_id', 'entry_id'})
             or ('entry_id' in reference and payload.get('intent') != 'manual')
             or type(payload.get('target')) is not str or payload['target'] not in {'ha_speaker', 'both'}
+            or payload.get('processor') != 'ha_configured'
             or payload.get('contract_version') != 3):
         return {'success': False, 'error': 'invalid_request'}, 400
     automatic = _automatic_publication.get()

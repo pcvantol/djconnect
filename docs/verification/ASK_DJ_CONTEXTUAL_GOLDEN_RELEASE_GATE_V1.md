@@ -319,3 +319,21 @@ three observed reference-only job families. They are not a general fact/occupati
 extractor and do not replace independent participant/meaning review. The current
 registry has33findings,35families,112steps; eleven quality steps and five Core
 findings remain open. Historical artwork/replay parity does not close these gates.
+
+
+## Named owner scheduling and renderer execution
+
+The current release runner rejects a named owner file absent from its scheduled
+patterns before any container/model work. Every required method must still
+appear in actual executed receipts; inventory membership alone does not pass.
+Forecast, passive-surface grants, four-level Presence, local speech preparation
+and real renderer tests are explicitly scheduled. Current intake counts and
+unresolved cases are owned by the current matrix, not historical totals above.
+
+The pinned HA runtime remains unchanged. Renderer tests need Node and run as a
+separate host Python/Node deterministic profile with provider credentials
+excluded. Missing Node, failure or skips fail closed. The workflow checks Node
+before paid access. Host receipts must identify their runtime/network boundary
+and never claim real HA/native qualification. All application/protocol profiles
+continue in the pinned network-isolated HA container. No known open issue,
+actual model quality, installed, audible or physical gate is weakened.

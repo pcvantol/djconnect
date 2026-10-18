@@ -72,6 +72,19 @@ class ProfileDJSettingsPersistenceTests(unittest.IsolatedAsyncioTestCase):
         await self.service.async_initialize()
         self.assertEqual((await self.read())['defaults'], snapshot['defaults'])
 
+    async def test_legacy_alias_acceptance_is_canonical_but_replay_digest_remains_exact(self):
+        first = await self.choose({'presence': 'talkative'}, context=self.context())
+        self.assertEqual(first['snapshot']['defaults']['presence'], 'presenter')
+        self.assertEqual(first['snapshot']['session']['settings']['presence'], 'presenter')
+        replay = await self.choose({'presence': 'talkative'}, context=self.context())
+        self.assertTrue(replay['replayed'])
+        self.assertEqual(replay['snapshot'], first['snapshot'])
+        with self.assertRaisesRegex(SettingsCommitError, 'operation_payload_conflict'):
+            await self.choose({'presence': 'presenter'}, context=self.context())
+        await self.service.async_close()
+        await self.service.async_initialize()
+        self.assertEqual((await self.read())['defaults']['presence'], 'presenter')
+
     async def test_read_without_preferences_is_pure_and_no_session_edit_starts_nothing(self):
         before = await self.read()
         self.assertFalse(before['activated'])

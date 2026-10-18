@@ -40,6 +40,8 @@ jobs:
           git merge-base --is-ancestor "$CANDIDATE_SHA" refs/remotes/origin/main
       - name: Validate current route and conversation inventory
         run: python3 tools/verification/askdj_release_inventory.py
+      - name: Verify renderer runtime before paid access
+        run: node --version
       - name: Run real paired HA and real bounded model calls
         env:
           DJCONNECT_GOLDEN_OPENAI_API_KEY: ${{ secrets.DJCONNECT_GOLDEN_OPENAI_API_KEY }}

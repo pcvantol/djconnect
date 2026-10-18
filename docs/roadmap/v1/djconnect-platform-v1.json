@@ -41828,7 +41828,7 @@
       },
       {
         "path": "DJ_SESSION_RUNTIME_CONTRACTS.md",
-        "sha256": "69e97a8832b0af41ad68cd18de982d1c4535ae853f8b710c15bde4e5d85e935b"
+        "sha256": "637b4b0018be25405d21cf9a2c873f1e36534bfe14d3d54fc42b5d78f3ccc0ac"
       },
       {
         "path": "docs/product/DJ_INTELLIGENCE_ARCHITECTURE.md",
@@ -41844,11 +41844,11 @@
       },
       {
         "path": "docs/product/DJ_PRESENCE_CORE_POLICY_V1.md",
-        "sha256": "32ed8a6a47cc6f64fb07b9ef4df1cf8fb7e92c2368cd0c35c66ad31b76b64909"
+        "sha256": "8d8a0871538d18df4a273c583836b29a4e45f3cb5f95ed663f8bde21977fde7e"
       },
       {
         "path": "docs/product/DJ_PRESENCE_OWNER_CONTRACT_V1.md",
-        "sha256": "2580acda7c9e19020c030cb1b8cecd47ef87af0f43a643b90f37d7bd89ee65a3"
+        "sha256": "be132d88b24f54659f4ab64e8381b4d2e3a45e3fdd874ce37ab6cf5e515bcc9c"
       },
       {
         "path": "docs/product/DISCOVERY_ARTWORK_CONTINUITY_V1.md",
@@ -41892,7 +41892,7 @@
       },
       {
         "path": "docs/product/SESSION_FORECAST_V1.md",
-        "sha256": "fa9ebfc5e90a893a1c1f8e0cf89660e8c506e4d79f12594b5ff092fb05b24a90"
+        "sha256": "fa959a90cd6636735d9885768641a5be3be08425622e4af050b1d4ce4ae4ed8a"
       },
       {
         "path": "docs/technical/SESSION_DIRECTION_PROJECTION_ARCHITECTURE.md",
@@ -41980,7 +41980,7 @@
       },
       {
         "path": "docs/product/EXPRESSIVE_DJ_PERSONA_CONTRACT.md",
-        "sha256": "39e010daf6a3e1b5109a5e407cdefa15b3d77c448eeb367992585c5123ad5764"
+        "sha256": "04531c8c51c3a29014681445acce8cac34138b7a2506458d7126a7832272a10a"
       },
       {
         "path": "docs/product/KNOWLEDGE_SOURCE_ARCHITECTURE.md",
@@ -42072,7 +42072,7 @@
       },
       {
         "path": "docs/product/SESSION_SPEECH_DELIVERY_V1.md",
-        "sha256": "143f91b038edb47c58fe4586850ec842fb5caf7b5a310f35e8be4873ee82a141"
+        "sha256": "3684f697946eea3bc348bad90390b3407c1154cb26c7d8ab50951dff93e0a131"
       },
       {
         "path": "docs/verification/SESSION_SPEECH_PERSONA_SOURCE_READBACK_20261016.md",
@@ -42132,7 +42132,7 @@
       },
       {
         "path": "docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md",
-        "sha256": "66e3884fca1327aed15dc9d362a2d4361fb65b94b8f5a47b8a88bcf082f2d5ad"
+        "sha256": "3bbe5b3c80bb7cc4c5695e80c15e0341e838dbce9971570dd7473f8b50283436"
       },
       {
         "path": "docs/technical/SPEECH_RENDERING_CONTRACT.md",
@@ -42148,11 +42148,11 @@
       },
       {
         "path": "docs/product/PERSONAL_DJ_NARRATION_RESTORATION_V1.md",
-        "sha256": "f177f6fb1c77c9eba6b6047301b6e7be03816739443e9dc22b6c368748144784"
+        "sha256": "792f4a4e471917bdd119f0c0be8ed12a8969d6bdb13011e226ae1a34175c7a6b"
       },
       {
         "path": "docs/verification/CORE_LANE_REQUIREMENT_RECONCILIATION_20261017.md",
-        "sha256": "19ee558e6540c06734293d379664d3d2a72a0147240ecf2da2ae7b0d0cbd1710"
+        "sha256": "2a162b37d576f4135d92edb31042461b2e270e82cab0ca613c83dee09dd2c5cd"
       },
       {
         "path": "docs/product/ASK_DJ_PUBLIC_MUSIC_RESEARCH_V1.md",
@@ -42172,7 +42172,7 @@
       },
       {
         "path": "docs/verification/ASK_DJ_CONTEXTUAL_GOLDEN_RELEASE_GATE_V1.md",
-        "sha256": "b0d68c3bace61c219d122d79adbaed70fa133549ea5b9d38715093c5961058ca"
+        "sha256": "09bed57461d3f00aadcd1b19370dc6698e3f8a2e0b28e695b74dfaf903e72ea3"
       },
       {
         "path": "docs/product/VIBECAST_RECEIVER_END_AUTHORITY_RETIREMENT_V1.md",
@@ -42180,7 +42180,7 @@
       },
       {
         "path": "docs/governance/DJC_PLATFORM_OPEN_WORK_20261017.md",
-        "sha256": "8d2a573b12b2af36867fd11fe5e9a240c1118ceb12742fa6a826176a54d12cae"
+        "sha256": "2a63f9e214222cc4484693aab656f9466f4a5aab4675a42d24eda863955e26ed"
       },
       {
         "path": "docs/history/prompts/2026-10-17-integral-open-work-audit-finalization.md",
@@ -42200,7 +42200,7 @@
       },
       {
         "path": "docs/verification/CORE_BRANCH_CONSOLIDATION_20261017.md",
-        "sha256": "9662e05fbc191b5893c427ecf5b90e624fa61b97196b84daf0cb49efd3936798"
+        "sha256": "4e603f3830b7fd02c4eb020a644f43c0f8a266aad7f6da2a4dba683bb488c962"
       },
       {
         "path": "docs/product/VIBECAST_DISPLAY_ADMISSION_V1.md",
@@ -42225,6 +42225,22 @@
       {
         "path": "docs/verification/ASK_DJ_ARTIST_HITS_20261017.md",
         "sha256": "f500cc5ed691125d97384c4c32af7c3ad43e0334fd72fb567a3e2119db34fcc5"
+      },
+      {
+        "path": "docs/verification/PUBLIC_ARTIST_NARRATION_20261017.md",
+        "sha256": "da929cac8b88345a3567b0d0da5b1ba2e445ea68c4a531db93133fa8438db306"
+      },
+      {
+        "path": "docs/product/DJ_PRESENCE_FOUR_LEVELS_V2.md",
+        "sha256": "c2a8f97f60683e0a87fcbdbf80ec1bba73cc65b1978d6951e801f0341453d127"
+      },
+      {
+        "path": "docs/product/SESSION_ON_DEVICE_SPEECH_SETTINGS_V1.md",
+        "sha256": "5535adf154f2acb2880513e03442771df13b176d42a130810f3b78c4b2087c45"
+      },
+      {
+        "path": "docs/verification/ACTIVE_SESSION_HISTORY_PASSIVE_READBACK_20261018.md",
+        "sha256": "7f8cf573d80935ea01172e163bc2f48c21e086ae7c69803d78c62c50f121f8d3"
       }
     ],
     "implementation_receipt": {

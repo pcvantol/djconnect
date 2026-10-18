@@ -162,6 +162,7 @@ class QualifiedSessionFact:
     artwork_subject_uri: str = ""
     artwork_album_uri: str = ""
     source_expires_at: float | None = None
+    public_artist_qid: str = ""
 
     def copy_for(self, locale: str) -> tuple[str, str] | None:
         lang = locale[:2].lower()
@@ -604,7 +605,6 @@ class SessionFactsResolver:
     def __init__(self, hass: Any) -> None:
         self.hass = hass
         self.lock = asyncio.Lock()
-        self.last_request = 0.0
         self.backoff_until = 0.0
 
     async def _get(
@@ -614,8 +614,9 @@ class SessionFactsResolver:
             now = time.monotonic()
             if now < self.backoff_until:
                 return {}
-            await asyncio.sleep(max(0, 1.1 - (now - self.last_request)))
-            self.last_request = time.monotonic()
+            from . import musicbrainz_rate
+            if not wikidata and not await musicbrainz_rate.admit():
+                return {}
             url = (
                 "https://www.wikidata.org/w/api.php"
                 if wikidata
@@ -635,6 +636,8 @@ class SessionFactsResolver:
                 ) as response:
                     if response.status in {429, 503}:
                         retry = response.headers.get("Retry-After", "60")
+                        if not wikidata:
+                            musicbrainz_rate.defer(retry)
                         self.backoff_until = time.monotonic() + max(
                             60, min(3600, int(retry) if retry.isdigit() else 60)
                         )
@@ -748,9 +751,14 @@ class SessionFactsResolver:
                                 if c.get("rank") != "deprecated"
                             }
                             if ids == {artist_id}:
+                                # Reciprocal public identity, not a name match.
+                                # Only this resolved binding may admit subsequent
+                                # Wikipedia context for a proactive Artist story.
+                                facts = [replace(f, public_artist_qid=qid)
+                                         if f.key == "artist_begin" else f for f in facts]
                                 fact = description_fact(catalog, entity, qid)
                                 if fact:
-                                    facts.append(fact)
+                                    facts.append(replace(fact, public_artist_qid=qid))
         return tuple(facts[:6])
 
 

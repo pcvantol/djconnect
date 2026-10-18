@@ -116,7 +116,8 @@ async def forecast_read(hass, runtime):
     active = await manager.async_get_active(owner)
     forecast = None
     if active:
-        forecast = await manager.async_forecast_snapshot(owner_profile_id=owner, session_id=active.session_id)
+        forecast = await manager.async_forecast_snapshot(owner_profile_id=owner, session_id=active.session_id,
+                                                        locale=language())
         def validate_session():
             current = manager.current_active(owner)
             if current is None or current.session_id != active.session_id:
@@ -125,7 +126,8 @@ async def forecast_read(hass, runtime):
         turn.delivery_validators.append(validate_session)
     response = await queue_read(hass, runtime)
     if active:
-        fresh = await manager.async_forecast_snapshot(owner_profile_id=owner, session_id=active.session_id)
+        fresh = await manager.async_forecast_snapshot(owner_profile_id=owner, session_id=active.session_id,
+                                                     locale=language())
         if fresh and forecast and fresh.get("revision") != forecast.get("revision"):
             raise DialogueError("session_context_changed")
         forecast = fresh

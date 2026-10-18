@@ -3,11 +3,13 @@ from __future__ import annotations
 
 import argparse
 from collections import Counter
+from fnmatch import fnmatchcase
 import hashlib
 import json
 import os
 from pathlib import Path
 import re
+import shutil
 import subprocess
 import sys
 from tempfile import TemporaryDirectory
@@ -27,7 +29,42 @@ TEST_PATTERNS = (
     'test_personal_dj_narration*.py',
     'test_personal_dj_runtime_expression.py', 'test_personal_dj_flow_completion.py',
     'test_track_insight.py', 'test_profile_settings_speech.py', 'test_session_artwork.py',
+    'test_session_forecast.py', 'test_passive_session.py',
+    'test_local_settings_speech.py', 'test_presence_four_levels.py', 'test_vibecast_renderer.py',
 )
+
+
+def validate_owner_pattern_coverage(matrix, patterns=TEST_PATTERNS):
+    """Every named Golden owner must be scheduled before container/model work."""
+    missing = sorted({binding['file'] for binding in required_bindings(matrix)
+                      if not any(fnmatchcase(Path(binding['file']).name, pattern)
+                                 for pattern in patterns)})
+    if missing:
+        raise ValueError('required_owning_file_not_scheduled:' + ','.join(missing))
+
+
+def host_renderer_run(directory, *, seconds=240):
+    """The renderer needs Node; this is a host fixture proof, never real HA.
+
+    Keep paid/provider credentials out of the host test process. The pinned HA
+    image remains unchanged and all actual application/protocol profiles still
+    execute there. Missing Node fails closed instead of skipping named tests.
+    """
+    if shutil.which('node') is None:
+        return 127
+    env = {key: os.environ[key] for key in ('PATH', 'TMPDIR', 'TMP', 'TEMP', 'HOME',
+        'SYSTEMROOT', 'LANG', 'LC_ALL') if key in os.environ}
+    env.update(PYTHONPATH=str(ROOT), PYTHONDONTWRITEBYTECODE='1')
+    args = [sys.executable, str(ROOT/'tools/verification/run_askdj_owner_contracts.py'),
+            'test_vibecast_renderer.py', str(directory/'owner-contracts.json')]
+    try:
+        with (directory/'private.log').open('w') as log:
+            return subprocess.run(args, cwd=ROOT, env=env, stdout=log,
+                stderr=subprocess.STDOUT, timeout=seconds, check=False).returncode
+    except subprocess.TimeoutExpired:
+        return 124
+
+
 PROFILES = {
     'current_artist': ('current-artist.json', 240),
     'previous': ('previous-safety-fixed.json', 240),
@@ -327,22 +364,36 @@ def run(candidate, output):
     def save():
         output.write_text(json.dumps(result, indent=2)+'\n')
     save()
+    inventory=json.loads((ROOT/'docs/verification/fixtures/askdj_golden_release_matrix_v1.json').read_text())
+    try:
+        validate_owner_pattern_coverage(inventory)
+    except ValueError as exc:
+        result['findings']=[str(exc)]
+        save()
+        return 1
     with TemporaryDirectory(prefix='djc-release-matrix-') as tmp:
         temp = Path(tmp)
         for i, pattern in enumerate(TEST_PATTERNS):
             directory=temp/('unit'+str(i))
             directory.mkdir()
-            code = owned_run([IMAGE, '/candidate/tools/verification/run_askdj_owner_contracts.py', pattern, '/lab/owner-contracts.json'],
-                             payload={},directory=directory,seconds=240,network='none')
+            renderer = pattern == 'test_vibecast_renderer.py'
+            code = (host_renderer_run(directory) if renderer else owned_run(
+                [IMAGE, '/candidate/tools/verification/run_askdj_owner_contracts.py', pattern, '/lab/owner-contracts.json'],
+                payload={},directory=directory,seconds=240,network='none'))
             proof=directory/'owner-contracts.json'
             unit=json.loads(proof.read_text()) if proof.is_file() else {'status':'FAIL','tests_run':0}
+            if renderer:
+                unit['network']='host_available_not_used_by_renderer_fixtures'
+                unit['execution_runtime']='host_python_node'
+                unit['ha_runtime']='NOT_CLAIMED'
+            else:
+                unit['execution_runtime']='pinned_ha_container'
             result['profiles'].append({'id': pattern, 'kind': 'deterministic_owner_contract',
                                        **unit, 'status': 'PASS' if code == 0 and unit.get('status')=='PASS' else 'FAIL'})
             save()
             if code or unit.get("status")!="PASS":
                 return 1
         # Named bindings must actually execute, not merely exist in source.
-        inventory=json.loads((ROOT/'docs/verification/fixtures/askdj_golden_release_matrix_v1.json').read_text())
         bindings=required_bindings(inventory)
         executed=[name for p in result['profiles'] for name in p.get('executed',[])]
         if any(not any(name.startswith(Path(b['file']).stem+'.') and name.endswith('.'+b['method'])

@@ -41,7 +41,7 @@ def _contract_versions() -> dict[str, int]:
         "session_flow_text_search": 1,
         "active_session_mood": 1,
         "active_session_persona": 1,
-        "active_session_presence": 1,
+        "active_session_presence": 2,
         "session_forecast": 1,
         "hybrid_transport": 1,
         "session_artwork": 1,

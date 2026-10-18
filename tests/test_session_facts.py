@@ -175,6 +175,8 @@ class SessionFactsTest(unittest.TestCase):
 
         resolver = Resolver(object())
         facts = asyncio.run(resolver.resolve(catalog))
+        self.assertEqual({f.public_artist_qid for f in facts
+                          if f.key in {'artist_begin','artist_description'}}, {'Q1'})
         self.assertEqual(
             {f.key for f in facts},
             {
@@ -194,6 +196,7 @@ class SessionFactsTest(unittest.TestCase):
             dict(next(f for f in facts if f.key == "work_composers").contents)["nl"],
         )
         resolver.reciprocal = "00000000-0000-0000-0000-000000000004"
+        self.assertTrue(all(not f.public_artist_qid for f in asyncio.run(resolver.resolve(catalog))))
         self.assertNotIn(
             "artist_description", {f.key for f in asyncio.run(resolver.resolve(catalog))}
         )

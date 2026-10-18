@@ -1,5 +1,16 @@
 # Session speech delivery and replay v1
 
+## Current correction: native device speech with shared Settings
+
+[Settings-aware device speech](SESSION_ON_DEVICE_SPEECH_SETTINGS_V1.md)
+adds an explicit local_on_device preparation attempt under the existing shared
+prepare2/3 shapes. Activated settings still require3; text_only and all original
+owner/source/revision/deadline fences remain. HA provider availability belongs
+only to the ha_configured leg. Native voice/gender/rate/pitch are device-local
+presentation choices, not a Profile or pipeline override. Existing historical
+ha_configured-only checkpoints below keep their original scope. Exact local
+freeze and qualification follow; this text is not an installed producer pin.
+
 ## Local successor — audible Mood expression
 
 [DJMoment Mood prosody v1](DJ_MOMENT_MOOD_PROSODY_V1.md) adds immutable accepted

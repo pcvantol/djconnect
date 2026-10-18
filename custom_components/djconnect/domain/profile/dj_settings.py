@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass, replace
 from enum import StrEnum
 
-from ...presence_policy import DEFAULT as DEFAULT_PRESENCE, POLICIES
+from ...presence_policy import DEFAULT as DEFAULT_PRESENCE, canonical_presence
 
 
 SETTINGS_VERSION = 3
@@ -82,8 +82,10 @@ class DJSettings:
             raise SettingsValidationError('invalid_persona')
         if type(self.mood) is not str or self.mood not in MOODS:
             raise SettingsValidationError('invalid_mood')
-        if type(self.presence) is not str or self.presence not in POLICIES:
-            raise SettingsValidationError('invalid_presence')
+        try:
+            object.__setattr__(self, 'presence', canonical_presence(self.presence))
+        except ValueError:
+            raise SettingsValidationError('invalid_presence') from None
         if type(self.announcement_output) is not str or self.announcement_output not in ANNOUNCEMENT_OUTPUTS:
             raise SettingsValidationError('invalid_announcement_output')
         if not isinstance(self.voice, VoiceSelection):

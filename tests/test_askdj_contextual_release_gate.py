@@ -181,10 +181,42 @@ class ContextualReleaseGateTest(unittest.TestCase):
         self.assertEqual(proof['literal_core_routes'],48)
         self.assertEqual(proof['executable_help_cases'],60)
         self.assertEqual(proof['conversation_families'],36)
-        self.assertEqual(proof['conversation_steps'],135)
-        self.assertEqual(proof['reported_issues'],45)
-        self.assertEqual(len(proof['open_core_findings']),9)
+        self.assertEqual(proof['conversation_steps'],139)
+        self.assertEqual(proof['reported_issues'],49)
+        self.assertEqual(len(proof['open_core_findings']),11)
         self.assertEqual(proof['proactive_golden_cases'],560)
+
+    def test_every_golden_owning_file_is_scheduled_before_provider_work(self):
+        import json
+        runner=load('owner_schedule_matrix','tools/verification/run_askdj_release_matrix.py')
+        matrix=json.loads((ROOT/'docs/verification/fixtures/askdj_golden_release_matrix_v1.json').read_text())
+        runner.validate_owner_pattern_coverage(matrix)
+        for file in ('test_session_forecast.py','test_passive_session.py'):
+            with self.subTest(file=file),self.assertRaisesRegex(ValueError,'required_owning_file_not_scheduled'):
+                runner.validate_owner_pattern_coverage(matrix,
+                    tuple(pattern for pattern in runner.TEST_PATTERNS if pattern!=file))
+
+    def test_renderer_owner_requires_node_and_never_inherits_paid_credentials(self):
+        from tempfile import TemporaryDirectory
+        from unittest.mock import patch
+        from types import SimpleNamespace
+        runner=load('host_renderer_matrix','tools/verification/run_askdj_release_matrix.py')
+        with TemporaryDirectory() as folder:
+            directory=Path(folder)
+            with patch.object(runner.shutil,'which',return_value=None), \
+                    patch.object(runner.subprocess,'run') as process:
+                self.assertEqual(runner.host_renderer_run(directory),127)
+                process.assert_not_called()
+            with patch.dict(runner.os.environ,{'DJCONNECT_GOLDEN_OPENAI_API_KEY':'synthetic-private-key',
+                    'OPENAI_API_KEY':'synthetic-private-key','HA_TOKEN':'synthetic-private-token'}), \
+                    patch.object(runner.shutil,'which',return_value='/synthetic/node'), \
+                    patch.object(runner.subprocess,'run',return_value=SimpleNamespace(returncode=0)) as process:
+                self.assertEqual(runner.host_renderer_run(directory),0)
+                env=process.call_args.kwargs['env']
+                for name in ('DJCONNECT_GOLDEN_OPENAI_API_KEY','OPENAI_API_KEY','HA_TOKEN'):
+                    self.assertNotIn(name,env)
+                self.assertNotIn('synthetic-private',str(process.call_args))
+                self.assertEqual(env['PYTHONPATH'],str(ROOT))
 
     def test_reported_issue_without_family_or_open_disposition_cannot_pass_release(self):
         import json

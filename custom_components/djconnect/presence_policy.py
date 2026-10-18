@@ -11,10 +11,20 @@ DEFAULT = "balanced"
 POLICIES = {
     "music_only": (0, 0, 0),
     "occasional": (180, 1, 2),
-    "balanced": (35, 3, 6),
-    "talkative": (35, 4, 10),
-    "presenter": (35, 6, 16),
+    "balanced": (90, 2, 4),
+    "presenter": (45, 4, 8),
 }
+
+
+def canonical_presence(value: str) -> str:
+    """Decode the one retired value without adding a selectable fifth choice."""
+    if type(value) is not str:
+        raise ValueError("invalid_presence")
+    if value == "talkative":
+        return "presenter"
+    if value not in POLICIES:
+        raise ValueError("invalid_presence")
+    return value
 
 
 @dataclass
@@ -38,7 +48,7 @@ class PresenceLedger:
     def reason(self, mode: str, track_id: str) -> str:
         now = self.clock()
         self.publications = tuple(t for t in self.publications if now - t < 600)
-        gap, track_cap, window_cap = POLICIES[mode]
+        gap, track_cap, window_cap = POLICIES[canonical_presence(mode)]
         if not track_cap:
             return "presence_music_only"
         if self.last_at is not None and now - self.last_at < max(gap, self.last_read_seconds - 5):

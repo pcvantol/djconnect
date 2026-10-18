@@ -1,19 +1,29 @@
 # DJConnect Repository Status
 
-Current follow-up: named-artist catalog and retry guards pass55/55 actual
-model questions (57paid calls,0effects,174source/probe hashes unchanged). Golden now has45reports,
-36families and135steps, with9Core and17quality findings open. Reported short
-artist/zangers submit failures and the dry Son Mieux formation bubble are
-explicitly registered; original failed-card cause and richer narration remain
-open. [Current evidence and boundaries](docs/verification/ASK_DJ_ARTIST_HITS_20261017.md).
+Current follow-up — 18 October: the privately installed HA-dev candidate includes
+researched narration, four Presence levels and the shared local/HA speech
+preparation. Its exact artifact is `3a89473e2c9b…`, not a protected release.
+The newer producer-recording and Forecast-language repairs remain local.
+Golden currently binds **49 reports,36 families,139 steps**; **eleven Core findings
+and17 actual-quality steps remain OPEN**. Historical trial8 produced one individually accepted producer story; the
+latest fixed trial9 has no editorial GO. Neither qualifies a Persona/Mood matrix
+or all-family publication. Both concrete credit-scope defects now have causal
+regressions; broad quality remains OPEN.
+[Current qualification and remaining gates](docs/verification/PUBLIC_ARTIST_NARRATION_20261017.md#current-repair-and-evidence-boundary--18-october).
 
+
+
+Current physical history/widget intakes remain OPEN; their owner contracts and
+Golden scheduling correction are recorded in [18October readback](docs/verification/ACTIVE_SESSION_HISTORY_PASSIVE_READBACK_20261018.md).
 
 ## Current: combined Core recovery PR preparation — 17 October 2026
 
 Existing sole Core writer combines the Ask DJ correction, VibeCast glass and
 existing display-admission work in draft PR1197. All three original refs and
 seven initial repair files are recoverable; main retirement1202/1203 remains
-preserved. No protected merge, new release or dev/prod install of these bytes.
+preserved. No protected merge or new release. A private all-WIP candidate was installed
+on HA-dev; the subsequent producer/Forecast repairs are not installed. HA-prod
+remains on protected main.
 [Exact inputs, integration and gates](docs/verification/CORE_BRANCH_CONSOLIDATION_20261017.md).
 
 Current album repairs cover the reported album track-list question and
@@ -21,7 +31,7 @@ Volbeat alternative → playable album offer → explicit follow-up → full alb
 context. Dispatch remains distinct from observed playback; an uncertain reply
 still names the chosen album. Five-language owner/fixture and isolated real-HA
 proof do not prove natural Spotify progression or a native/installed fix.
-Golden now tracks45reports,36families and135steps. Nine Core findings and17
+The earlier committed Golden tracked45reports,36families and135steps. Nine Core findings and17
 real-quality steps remain open, including rich catalog-conversation retention;
 no narrative or release GO is inferred from fixture green. A semantic-read repair now covers free wording/typos through the same qualified
 HA agent; its final paid five-language qualification passes55/55 real questions.

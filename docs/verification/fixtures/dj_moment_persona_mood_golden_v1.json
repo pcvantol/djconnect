@@ -546,6 +546,27 @@
         "Translation and narration through the configured qualified HA agent; approved published body retained and available for TTS"
       ],
       "qualification": "Narrative correction, richer public-source support and actual editorial review remain OPEN; no new runtime PASS"
+    },
+    {
+      "id": "DJM-EDITORIAL-PRODUCER-LEO-EDITORS-NL",
+      "status": "OPEN_OWNER_SCREENSHOT",
+      "language": "nl",
+      "input": {
+        "family": "recording_credits",
+        "contributors": [
+          "Leo Abrahams",
+          "Editors"
+        ],
+        "role": "producer",
+        "source": "MusicBrainz"
+      },
+      "rejected_complete_response": "Ook even aandacht voor Leo Abrahams en Editors: als producers gecrediteerd bij deze opname.",
+      "acceptance": [
+        "A useful connected personal-DJ telling with recognizable confirmed Persona/Mood, not polite framing of a raw role list",
+        "Preserve exact recording credits and qualify every extra biographical/musical relationship against richer checked sources for the correct people/work",
+        "Do not infer the recording from album art or promote one same-name artist into the credit; actual sources, retained Flow and TTS must accompany accepted text"
+      ],
+      "qualification": "OPEN; current researched Artist implementation does not restore the producer/recording family."
     }
   ],
   "integration_regressions": [
