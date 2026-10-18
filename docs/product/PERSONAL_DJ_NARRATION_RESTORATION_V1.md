@@ -2,6 +2,56 @@
 
 Status: In progress; no release, installed, native or audible acceptance.
 
+### Album-story correction — 18 October
+
+The actual HA-dev Symphonic Tales publication exposed a missing family: the
+researched expression owner covered artists and recording producers, whereas
+albums still offered only an exact Spotify edition date to a symbolic writer.
+A differently worded date is not narrative acceptance.
+
+Reuse that same research/expression/whole-answer assessment owner for albums.
+Resolve the observed single Spotify artist through an exact MusicBrainz URL
+relation, matching public artist and reciprocal Wikidata identity. Select one
+unambiguous public MusicBrainz release group with that artist ID and exact
+album title. Search rank, a title substring, a sequel or a same-name performer
+cannot establish that binding. Catalogue identifiers and edition dates stay
+out of model prompts; only independently resolved public CC0 names/relations
+and fetched, revision-bound Wikipedia passages enter generation.
+
+An artist article may supply an album story when an original work-marked
+passage specifically covers that exact album. A biography or discography
+listing alone is insufficient. Require an independently assessed substantive
+album claim and complete unchanged answer coverage; never transfer an artist's
+general genre or another release's facts to the album. The public work is not
+proof of this Spotify edition's first-release date. Retain actual citations,
+accepted text and public fact scope using the existing research receipt, Flow,
+art and speech owners. No lookup or rewriting on history read/replay.
+
+Retrieval and the two existing HA model calls share the original twelve-second
+expression budget. Failure buys no symbolic retry. For the new identity-bound
+single-artist route, with the production expression owner connected, an
+unqualified date-only album seed is suppressed for that track opportunity,
+without publishing/counting it or spending another model attempt on the same
+album fact. Other qualified families remain eligible. Legacy/unbound and
+multi-artist edition facts retain their previous narrow metadata behavior;
+they do not gain researched or narrative-quality acceptance from this change.
+Exact source, model quality, installed publication and audible acceptance must
+be reported separately.
+
+The conservative work/activity check additionally recognizes a named album
+immediately followed in the same original paragraph by an explicit album
+antecedent (for example, the source's own "The album"). Only the internally
+typed, exact album identity may use that scope. An intervening named work or a
+generic JSON scope flag cannot transfer another album's activity. Literal
+paragraph IDs, complete semantic assessment and whole-answer coverage remain
+mandatory; a fact-versus-relationship label is not itself semantic proof.
+
+The selected [one-time Session welcome](SESSION_OPENING_MOMENT_V1.md) also uses
+this expression owner. Its original confirmed Mood/Persona/Presence are retained
+with one immutable contribution. Music-only permits the informative card while
+denying automatic client/speaker speech. This does not qualify broader musical
+storytelling or repair unqualified historical catalogue bodies by itself.
+
 ### Executable completion refinement (17 October)
 
 The remaining restoration uses the existing owners and two-call ceilings.

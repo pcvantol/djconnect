@@ -57,6 +57,35 @@ class SessionConversationHistoryTest(unittest.IsolatedAsyncioTestCase):
         await self.service.async_close()
         self.tmp.cleanup()
 
+    async def test_four_retention_bases_and_silent_receipts_match_pinned_consumer_fixture(self):
+        import json
+        import hashlib
+        from tools.verification.session_history_basis_fixture import build_connected, FIXTURE, ROOT
+        original = ROOT/'examples/client_contracts/session_conversation_history/retention-bases-v1.json'
+        self.assertEqual(hashlib.sha256(original.read_bytes()).hexdigest(),
+            '600e6c68e26b798ddb5dd73daf8b801464d8647ca68764766e37297f13ce3916')
+        produced = await build_connected(self.service)
+        self.assertEqual(produced,json.loads((ROOT/FIXTURE).read_text()))
+        self.assertEqual(produced['tail_window']['schema_version'],2)
+        self.assertEqual(produced['tail_window']['window_limit'],20)
+        entries = produced['tail_window']['entries']
+        self.assertEqual([e['order'] for e in entries],list(range(1,7)))
+        self.assertEqual({e.get('archive_basis') for e in entries[:4]},
+            {'cc0_normalized_fields_v1','runtime_authored_direction_v1',
+             'owner_metadata_narration_v1','public_artist_narration_v1'})
+        self.assertTrue(all(e['session_speech']['manual_allowed'] for e in entries[:4]))
+        for entry in entries[4:]:
+            self.assertIsNone(entry['text'])
+            self.assertIs(entry['speech_available'],False)
+            self.assertNotIn('session_speech',entry)
+            self.assertNotIn('source_attribution',entry)
+        withdrawn = produced['withdrawn_same_identity']
+        self.assertEqual(withdrawn['entry_id'],entries[2]['entry_id'])
+        self.assertEqual(withdrawn['order'],entries[2]['order'])
+        self.assertIsNone(withdrawn['text'])
+        self.assertTrue(all(produced['refused_rows'].values()))
+        self.assertNotIn('MUST_NOT_ESCAPE',json.dumps(produced))
+
     async def test_silence_persists_once_without_text_audio_or_spoken_summary_increment(self):
         session = await self.manager.async_start(owner_profile_id='profile-a', locale='nl')
         moment = session.moment_engine.create_silence(session_id=session.session_id,
@@ -312,6 +341,130 @@ class SessionConversationHistoryTest(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(body["capabilities"]["session_flow_text_search"])
         self.assertEqual(body["contract_versions"]["session_conversation_history"], 1)
         self.assertEqual(body["contract_versions"]["session_flow_text_search"], 1)
+        self.assertEqual(body["contract_versions"]["session_history_entries"], 2)
+
+    async def history_version_fixture(self):
+        import json
+        from tools.verification.session_history_basis_fixture import build
+        hass, _runtime, _history, identity, headers = await self.transport_fixture()
+        session = await self.manager.async_start(owner_profile_id='profile-a', locale='nl')
+        entries = build()['tail_window']['entries']
+        await self.repo.async_append_entries('profile-a', session.session_id, [
+            {'kind':entry['kind'], 'reference_id':entry['moment_id'],
+             'body':{**{k:v for k,v in entry.items() if k not in {
+                 'entry_id','session_id','order','kind','occurred_at','retained_until',
+                 'historical_view_only','current_display_allowed','session_speech'}},
+                 **({'source_context':{'backend_id':'source-spotify',
+                    'music_account_id':'source-account','provider_entry_id':'source-entry',
+                    'provider_account_id':''}} if index==2 else {})}}
+            for index,entry in enumerate(entries)], authorize=lambda:True)
+        page = await self.queries.async_timeline_page('profile-a', session.session_id)
+        request = {**identity,'session_id':session.session_id,'limit':20}
+        self.assertEqual(len(page['entries']),6)
+        self.assertEqual(page['entries'][2]['archive_basis'],'owner_metadata_narration_v1')
+        self.assertNotIn('MUST_NOT_ESCAPE',json.dumps(page))
+        return hass, headers, request, page
+
+    async def test_paired_version_two_preserves_all_bases_receipts_and_queries_without_writes(self):
+        hass, headers, request, raw = await self.history_version_fixture()
+        entry_id = raw['entries'][3]['entry_id']
+        revision = (await self.repo.async_session_record(request['session_id']))['revision']
+        cases = [('list',{'include_active':True},'sessions'),
+                 ('timeline',{},'entries'),('timeline',{'window':'tail'},'entries'),
+                 ('timeline',{'window':'anchor','anchor_entry_id':entry_id},'entries'),
+                 ('search',{'q':'synthetic'},'matches'),
+                 ('open',{'action':{'kind':'open_session','session_id':request['session_id'],
+                                  'entry_id':entry_id}},'entry')]
+        for operation, extra, key in cases:
+            with self.subTest(operation=operation,extra=extra):
+                page, status = await self.handlers.async_handle_session_history_payload(
+                    hass,{**request,**extra,'history_contract_version':2},
+                    operation=operation,headers=headers)
+                self.assertEqual(status,200,page)
+                self.assertEqual(page['schema_version'],2)
+                self.assertEqual(page['history_contract_version'],2)
+                self.assertIn(key,page)
+                old, status = await self.handlers.async_handle_session_history_payload(
+                    hass,{**request,**extra},operation=operation,headers=headers)
+                self.assertEqual(status,200 if operation=='list' else 409,old)
+                if status==409:
+                    from custom_components.djconnect.history_entry_contract import upgrade_error
+                    self.assertEqual(old,upgrade_error())
+        same = await self.queries.async_timeline_page('profile-a',request['session_id'])
+        self.assertEqual(same['entries'],raw['entries'])
+        self.assertEqual((await self.repo.async_session_record(request['session_id']))['revision'],revision)
+        # New representation does not supersede a source withdrawal or privacy fence.
+        hass.data['djconnect']['spotify_reauth_issue_throttle']={'source-entry':1}
+        withdrawn, status = await self.handlers.async_handle_session_history_payload(
+            hass,{**request,'history_contract_version':2},operation='timeline',headers=headers)
+        self.assertEqual(status,200,withdrawn)
+        self.assertEqual(withdrawn['entries'][2]['entry_id'],raw['entries'][2]['entry_id'])
+        self.assertEqual(withdrawn['entries'][2]['kind'],'dj_publication')
+        self.assertIsNone(withdrawn['entries'][2]['text'])
+        denied, status = await self.handlers.async_handle_session_history_payload(
+            hass,{**request,'profile_id':'other','history_contract_version':2},
+            operation='timeline',headers=headers)
+        self.assertEqual(status,403,denied)
+        self.assertNotIn('entries',denied)
+        await self.repo.async_purge_profile_history('profile-a')
+        denied, status = await self.handlers.async_handle_session_history_payload(
+            hass,{**request,'history_contract_version':2},operation='timeline',headers=headers)
+        self.assertEqual(status,404,denied)
+        self.assertNotIn('entries',denied)
+
+    async def test_history_representation_cursors_cannot_cross_versions(self):
+        hass, headers, request, _page = await self.history_version_fixture()
+        # The first two rows use the original kinds/bases, so both v1 and v2
+        # can issue a truthful cursor; no relabelled content or hidden rows.
+        for operation, extra in [('timeline',{}),('search',{'q':'synthetic'})]:
+            for version in (1,2):
+                first, status = await self.handlers.async_handle_session_history_payload(
+                    hass,{**request,**extra,'limit':1,'history_contract_version':version},
+                    operation=operation,headers=headers)
+                self.assertEqual(status,200,first)
+                self.assertTrue(first['next_cursor'])
+                again, status = await self.handlers.async_handle_session_history_payload(
+                    hass,{**request,**extra,'limit':1,'cursor':first['next_cursor'],
+                          'history_contract_version':version},operation=operation,headers=headers)
+                self.assertEqual(status,200,again)
+                crossed, status = await self.handlers.async_handle_session_history_payload(
+                    hass,{**request,**extra,'limit':1,'cursor':first['next_cursor'],
+                          'history_contract_version':3-version},operation=operation,headers=headers)
+                self.assertEqual(status,409,crossed)
+                self.assertEqual(crossed['error'],'invalid_history_cursor')
+        # Also bind session-list cursors, even though their rows have no new kind.
+        await self.sessions.async_create('profile-a',session_id='second-list-session')
+        for version in (1,2):
+            first,status = await self.handlers.async_handle_session_history_payload(
+                hass,{**request,'limit':1,'include_active':True,'history_contract_version':version},
+                operation='list',headers=headers)
+            self.assertEqual(status,200,first)
+            self.assertTrue(first['next_cursor'])
+            crossed,status = await self.handlers.async_handle_session_history_payload(
+                hass,{**request,'limit':1,'include_active':True,'cursor':first['next_cursor'],
+                      'history_contract_version':3-version},operation='list',headers=headers)
+            self.assertEqual(status,409,crossed)
+        from custom_components.djconnect.history_entry_contract import version_context
+        self.assertEqual(version_context.get(),1)
+
+    async def test_history_invalid_version_is_bounded_and_lossless_legacy_still_reads(self):
+        hass, headers, request, _page = await self.history_version_fixture()
+        for value in (True,False,0,3,'02','3',[],{}):
+            with self.subTest(version=value):
+                result,status = await self.handlers.async_handle_session_history_payload(
+                    hass,{**request,'history_contract_version':value},operation='timeline',headers=headers)
+                self.assertEqual(status,400,result)
+                self.assertEqual(result['error'],'unsupported_history_contract_version')
+        for value in (None,1,'1'):
+            payload = {**request,'limit':2}
+            if value is not None:
+                payload['history_contract_version']=value
+            page,status = await self.handlers.async_handle_session_history_payload(
+                hass,payload,operation='timeline',headers=headers)
+            self.assertEqual(status,200,page)
+            self.assertEqual(page['schema_version'],1)
+            self.assertNotIn('history_contract_version',page)
+            self.assertEqual([e['order'] for e in page['entries']],[1,2])
 
     async def test_revoked_source_withdraws_match_and_copied_answer(self):
         from custom_components.djconnect.domain.music_account import MusicAccountKind

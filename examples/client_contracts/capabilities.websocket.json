@@ -102,7 +102,8 @@
     "session_speech": 1,
     "passive_session_surface": 1,
     "session_history_summary": 1,
-    "profile_session_settings": 3
+    "profile_session_settings": 3,
+    "session_history_entries": 2
   },
   "transports": {
     "http": true,

@@ -21,6 +21,7 @@ from .display_admission import DisplayAdmissionState
 from .session_forecast import ForecastProjection
 from .forecast_imagery import ForecastArtwork
 from .presence_policy import DEFAULT as DEFAULT_PRESENCE, PresenceLedger, canonical_presence
+from .session_opening import COPY as OPENING_COPY, SessionOpeningContext, opening_context
 from .session_facts import (
     QualifiedSessionFact, SharedProducerFact, ProducerRecommendationFact, producer_recommendation, PublishedRecordingContext,
     AlbumContinuityFact, PublishedAlbumContext,
@@ -471,6 +472,7 @@ class DJMoment:
     observed_playback: ObservedPlaybackNarration | None = field(default=None, repr=False)
     genre_transition: GenreTransitionNarration | None = field(default=None, repr=False)
     narration_acceptance: Any = field(default=None, repr=False, compare=False)
+    session_opening: SessionOpeningContext | None = field(default=None, repr=False)
 
     def as_dict(self) -> dict[str, Any]:
         from .public_artist_narration import sources_for
@@ -4229,6 +4231,7 @@ class DJSessionRuntime:
     selected_voice: VoiceSelection = field(default_factory=VoiceSelection)
     selected_gender: GenderPreference = GenderPreference.DEFAULT
     selected_announcement_output: str = 'client_device'
+    opening_context: SessionOpeningContext | None = field(default=None, repr=False)
 
     def effective_dj_settings(self) -> DJSettings:
         """Typed effective choices; an unknown legacy Mood is not invented."""
@@ -4290,9 +4293,17 @@ class DJSessionRuntime:
 
     def allows_proactive(self) -> bool:
         """One authoritative shared admission across all proactive Moment families."""
-        return (self.publication_context_is_current()
+        return (not getattr(self.broadcast, 'opening_pending', False)
+                and self.publication_context_is_current()
                 and self.presence_ledger.admits(self.broadcast.state.selected_presence,
                                                self.broadcast.state.playback.item_id))
+
+    def allows_moment(self, moment) -> bool:
+        """Only the genuine one-time welcome is informative at Music-only."""
+        opening = opening_context(moment)
+        if opening is not None and opening == self.opening_context:
+            return self.publication_context_is_current()
+        return self.allows_proactive()
 
     def compose_moment(self, moment: DJMoment):
         """Prepare deterministic presentation before a durable semantic acceptance."""
@@ -4303,8 +4314,8 @@ class DJSessionRuntime:
         return self.presentation_composer.compose_with_diagnostics(
             moment=moment,
             context=PresentationContext(
-                session_mood=self.selected_mood,
-                dj_persona=self.dj_persona.value,
+                session_mood=moment.presentation_intent.source_session_mood if opening_context(moment) else self.selected_mood,
+                dj_persona=moment.presentation_intent.dj_persona.value if opening_context(moment) else self.dj_persona.value,
                 session_direction=direction,
                 session_energy=moment.presentation_intent.energy_level,
                 presentation_style=moment.presentation_intent.delivery_style,
@@ -4325,13 +4336,14 @@ class DJSessionRuntime:
         if moment.session_id != self.session_id or any(
                 previous.moment_id == moment.moment_id for previous in self.broadcast.state.dj_moments):
             return
-        if moment.moment_type is not DJMomentType.SILENCE and not self.allows_proactive():
+        if moment.moment_type is not DJMomentType.SILENCE and not self.allows_moment(moment):
             return
         composition = self.prepared_presentations.pop(moment.moment_id, None)
         accepted_semantic_commit = composition is not None
         if composition is None:
             composition = self.compose_moment(moment)
-        if accepted_semantic_commit and moment.moment_type is not DJMomentType.SILENCE:
+        if (accepted_semantic_commit and moment.moment_type is not DJMomentType.SILENCE
+                and self.selected_presence != 'music_only'):
             self.presence_ledger.commit(self.broadcast.state.playback.item_id, moment.presentation_intent.maximum_duration_seconds)
         self.presentation_diagnostics.record(composition.outcomes)
         self.broadcast.prepare_moment_delivery(moment)
@@ -4363,6 +4375,8 @@ class SessionRuntimeManager:
         self._settings_repository = settings_repository
         self._settings_defaults_revisions: dict[str, int] = {}
         self._narration_providers: dict[str, tuple[str, Callable, Callable, Callable | None]] = {}
+        self._opening_tasks: dict[str, asyncio.Task] = {}
+        self._opening_prepared: dict[str, tuple[DJMoment, DJMoment]] = {}
 
     def _migrate_legacy_presence_locked(self, owner_profile_id):
         """Canonicalize a retired live value once under the lifecycle lock.
@@ -4651,6 +4665,9 @@ class SessionRuntimeManager:
                     **creating.__dict__,
                     "runtime_state": SessionRuntimeState.ACTIVE,
                     "started_at": _timestamp(),
+                    "opening_context": SessionOpeningContext(session_id, selected_mood,
+                        dj_persona.value, inherited.presence if inherited else DEFAULT_PRESENCE,
+                        _locale_family(locale)),
                 }
             )
             if self._persistent_sessions is not None:
@@ -4678,6 +4695,79 @@ class SessionRuntimeManager:
                 for key in ("backend_id", "music_account_id", "provider_entry_id", "provider_account_id")
             }
             return active
+
+    async def async_open_session(self, *, owner_profile_id: str, session_id: str):
+        """One start-bound welcome; all awaits and generation stay outside the lock."""
+        from .persistence.service import PersistenceError
+        async with self._lock:
+            active = self._active_by_profile.get(owner_profile_id)
+            if (active is None or active.session_id != session_id
+                    or active.opening_context is None or not active.opening_context.qualified()):
+                return None
+            task = self._opening_tasks.get(session_id)
+            if task is None:
+                active.broadcast.opening_pending = True
+                task = asyncio.create_task(self._async_open_session(active))
+                self._opening_tasks[session_id] = task
+        try:
+            return await asyncio.shield(task)
+        except PersistenceError:
+            # Retrying storage reuses the exact prepared body, never a new model
+            # opportunity. SQL semantic acceptance still deduplicates an uncertain
+            # committed result, and a completed suppressed result is not retried.
+            async with self._lock:
+                if self._opening_tasks.get(session_id) is task:
+                    self._opening_tasks.pop(session_id, None)
+            raise
+
+    async def _async_open_session(self, original):
+        context = original.opening_context
+        content = context.seed()
+        metadata = {'context_source': 'session_direction', 'validated': 'true',
+                    'direction': original.session_direction.direction.value, **context.metadata()}
+        moment = DJMoment(
+            moment_id='moment-'+hashlib.sha256((original.session_id+'/opening').encode()).hexdigest()[:32],
+            session_id=original.session_id, created_at=original.started_at,
+            moment_type=DJMomentType.SESSION,
+            knowledge_intent=KnowledgeIntent(KnowledgeIntentType.SESSION_DIRECTION,
+                'Welcome the listener and explain the confirmed starting Session choices.'),
+            presentation_intent=_presentation_intent(context.mood, DJPersona(context.persona),
+                reading_characters=len(content)),
+            title=OPENING_COPY[context.locale][0],
+            summary='', content=content, artwork_url=None, actions=(),
+            source_references=('session_direction',), generation_metadata=tuple(metadata.items()),
+            visual_only=context.presence == 'music_only', session_opening=context)
+        seed = moment
+        try:
+            prepared = self._opening_prepared.get(original.session_id)
+            if prepared is not None:
+                seed, moment = prepared
+            else:
+                try:
+                    moment = await self._async_enrich_runtime_moment(original, moment)
+                except PermissionError:
+                    # Never publish stale generated prose. The fallback still
+                    # needs current owner/privacy/lifecycle admission below.
+                    pass
+            async with self._lock:
+                active = self._active_by_profile.get(original.owner_profile_id)
+                if active is None or active.session_id != original.session_id:
+                    return None
+                if moment.narration_acceptance is not None:
+                    try:
+                        moment.narration_acceptance.validate()
+                    except PermissionError:
+                        moment = seed
+                registration = self._narration_providers.get(active.owner_profile_id)
+                authorize = registration[2] if registration and registration[0] == active.session_id else None
+                self._opening_prepared[original.session_id] = (seed, moment)
+                if not await self._async_persist_moment(active, moment, final_authorize=authorize):
+                    return None
+                active.moment_engine.moments = (*active.moment_engine.moments, moment)
+                active.publish_moment(moment)
+                return moment
+        finally:
+            original.broadcast.opening_pending = False
 
     async def async_update_playback_projection(
         self,
@@ -5197,6 +5287,13 @@ class SessionRuntimeManager:
                     opportunity.pending = False
                 return None
             opportunity.pending = False
+            if provider is not None and fact.key == 'album_release' and fact.album_artist_id:
+                from .public_artist_narration import ResearchMomentAcceptance, admitted
+                if type(moment.narration_acceptance) is not ResearchMomentAcceptance or not admitted(moment):
+                    # A date alone is not an Album story. Decline this fact once
+                    # without a publication/count or paid retry on every tick.
+                    opportunity.used_fact_keys.add(fact.key)
+                    return None
             playback = active.broadcast.state.playback
             age = max(0, self._monotonic_source() - opportunity.last_observed_monotonic)
             position = max(playback.position_ms or 0,
@@ -6405,7 +6502,7 @@ class SessionRuntimeManager:
             authority()
             if (self._narration_providers.get(active.owner_profile_id) is not registration
                     or self._active_by_profile.get(active.owner_profile_id) is not active
-                    or not active.allows_proactive() or not brief.current()
+                    or not active.allows_moment(moment) or not brief.current()
                     or (opportunity is not None and (
                         self._intra_track_opportunities.get(active.owner_profile_id) is not opportunity
                         or opportunity.generation != generation or opportunity.blocked))):
@@ -6419,7 +6516,8 @@ class SessionRuntimeManager:
         frame = candidate(brief, json.dumps({'text': text.frame}))
         if frame is None or brief.render(frame) != str(text):
             return moment
-        intent = _presentation_intent(active.selected_mood, active.dj_persona,
+        intent = _presentation_intent(moment.presentation_intent.source_session_mood,
+            moment.presentation_intent.dj_persona,
             reading_characters=len(moment.summary)+len(text), minimum_duration_seconds=1)
         proof = moment.observed_playback or (moment.genre_transition.current if moment.genre_transition else None)
         if proof is not None and time.monotonic()+intent.maximum_duration_seconds+2 >= proof.observed_at+30:
@@ -6448,6 +6546,10 @@ class SessionRuntimeManager:
         """Explicit historical field qualification before actual live publication."""
         if moment.session_id != active.session_id:
             return False
+        if moment.session_opening is not None:
+            from .session_opening import admitted_opening
+            if opening_context(moment) != active.opening_context or not admitted_opening(moment):
+                return False
         if final_authorize is not None:
             try:
                 final_authorize()
@@ -6455,7 +6557,7 @@ class SessionRuntimeManager:
                 return False
         if self._historical_projections is None:
             return True
-        if moment.moment_type is not DJMomentType.SILENCE and not active.allows_proactive():
+        if moment.moment_type is not DJMomentType.SILENCE and not active.allows_moment(moment):
             return False
         if moment.moment_type is DJMomentType.SILENCE:
             await self._historical_projections.async_append_entries(
@@ -6493,7 +6595,7 @@ class SessionRuntimeManager:
                     archive_guard()
                 except PermissionError:
                     return False
-            if self._active_by_profile.get(active.owner_profile_id) is not active or not active.allows_proactive():
+            if self._active_by_profile.get(active.owner_profile_id) is not active or not active.allows_moment(moment):
                 return False
             source = getattr(moment, "source_fact", None)
             if source is not None and not source.eligible(source.media_identity, time.monotonic()):
@@ -6586,6 +6688,8 @@ class SessionRuntimeManager:
                              "persona":moment.presentation_intent.dj_persona.value,
                              "mood":moment.presentation_intent.source_session_mood,
                              "persona_revision":active.persona_revision,"locale":active.locale}}
+            if opening_context(moment) is not None:
+                entry['body']['generation_metadata'] = dict(moment.generation_metadata)
             if basis in {"cc0_normalized_fields_v1", BASIS}:
                 from .ask_dj.dialogue import normalized_subjects
                 entry["body"]["dialogue_subjects"] = normalized_subjects(source)
@@ -6593,8 +6697,7 @@ class SessionRuntimeManager:
                 entry["body"]["qualified_fact_text"] = source.copy_for(active.locale)[1]
                 if basis == BASIS:
                     entry["body"].update(sources=sources_for(moment),
-                        qualified_fact_attribution={"provider":source.provider,
-                            "url":source.source_url,"license":source.license})
+                        **moment.narration_acceptance.accepted.qualified_fact())
             elif basis == 'owner_metadata_narration_v1':
                 entry['body'].update(provider='Spotify',
                     source_context=dict(self._history_source_contexts[active.session_id]))
@@ -6676,6 +6779,8 @@ class SessionRuntimeManager:
                     historical_projections=self._historical_projections,
                 )
             self._display_admission.revoke_session(active.session_id)
+            self._opening_tasks.pop(active.session_id, None)
+            self._opening_prepared.pop(active.session_id, None)
             self._playback_progress_clocks.pop(owner_profile_id, None)
             self._intra_track_opportunities.pop(owner_profile_id, None)
             active.published_recording_context.clear()

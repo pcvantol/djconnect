@@ -56,11 +56,9 @@ async def _live_reference(manager, profile, target):
     if type(moment.narration_acceptance) is ResearchMomentAcceptance:
         if not admitted(moment):
             raise SessionConversationError("moment_context_unqualified", 403)
-        from .dialogue import normalized_subjects
         return {"text":moment.content,"moment_type":moment.moment_type.value,"archive_basis":BASIS,
             "source_attribution":dict(moment.source_attribution),"sources":sources_for(moment),
-            "qualified_fact_attribution":{"provider":source.provider,"url":source.source_url,"license":source.license},
-            "qualified_fact_text":source.copy_for(active.locale)[1],"dialogue_subjects":normalized_subjects(source)}
+            **moment.narration_acceptance.accepted.qualified_fact()}
     if (source is None and not moment.source_attribution and moment.source_references == ("session_direction",)
         and moment.moment_type.value == "session" and metadata.get("context_source") == "session_direction"
         and metadata.get("validated") == "true"):

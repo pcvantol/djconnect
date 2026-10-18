@@ -1,5 +1,33 @@
 # Core branch consolidation — 17 October2026
 
+18October current corrective checkpoint: Golden57reports/36families/151steps,
+12Core findings and19actual-quality steps OPEN. Album trial6 generated eight
+real proposals, all independently editorial NO_GO; its one technically accepted
+original→new mistranslation is now a causal regression. Seventeen album owner
+tests and independent scoped source review PASS; no new actual quality GO.
+The installed HA-dev artifact is now **778610708c2a…**, a minimal five-file
+history-entry-v2 correction on the previous3a894…base; it includes no newer
+album/opening narration. Exact199containerfiles and paired v1/v2 reads match. Apple reports installed2
+iPad lifecycle/read/reopen and MacBook read/reopen PASS. Full Core host2557
+testsPASS/seven existing skips; no actual narrative quality or release GO.
+Protected release, HA-prod, the original404 and broader native/audio gates remain
+separate. [History evidence](HISTORY_ENTRY_COMPATIBILITY_20261018.md),
+[album evidence](ALBUM_NARRATION_20261018.md).
+
+Earlier checkpoints below are historical, not the current aggregate inventory.
+
+18October album follow-up: actual HA-dev date-only Symphonic Tales publications
+expose missing album research. The same expression owner now resolves an exact
+public album/artist and assesses the full story. Golden55/36/150 retains12Core
+and19actual-quality gates OPEN; trial1 has zero accepted publications and no
+editorial GO. [Current evidence](ALBUM_NARRATION_20261018.md).
+
+18October Session welcome follow-up: the same writer adds one retained opening
+from confirmed starting choices, including Music-only with no automatic speech.
+Golden54/36/148 keeps12Core and18actual-quality gates OPEN. Existing findings
+are not closed by the eight new owner tests or scoped technical review.
+[Exact scope and evidence boundary](SESSION_OPENING_20261018.md).
+
 18October named-artist follow-up: directed exact-artist lookup and confirmed
 five-language failure text repair the observed Nirvana/Pearl Jam query failures.
 Golden53reports/36families/146steps; original two replies bind distinct turns.

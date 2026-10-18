@@ -1,5 +1,38 @@
 # Passive Session projection — definitive protected producer pin
 
+18October urgent owner-history compatibility: the canonical Session history
+contract now names all four retained bases and source-free publication/Silence
+rows. The immutable original sample is retention-bases-v1.json; the actual
+SQLite/query-envelope replacement is examples/client_contracts/session_conversation_history/retention-bases-v2.json
+(window_limit20; SHA256 da5d8674dc49adb1cc0fabcca51d4f8b730d31f1179462160d1f68aa97e19b14).
+Closed Apple40331 decoders reject actual200 pages containing owner metadata;
+local producer negotiation adds contract_versions.session_history_entries2 and
+explicit history_contract_version2 on list/detail/tail/anchor/search/open.
+Omitted1 preserves truthful compatible pages; unrepresentable rows return409
+history_contract_upgrade_required without content or fabricated source labels.
+Cursors cannot cross versions.46 owning tests and independent source review
+PASS. Apple separately reports baseline physical iPad read/reopen/lifecycle
+PASS. Joint installedv2, other native targets and original404 remain OPEN.
+No consumer writer, new pairing or install is authorized by this contract note.
+
+18October Core album follow-up: no consumer work or new wire shape. Existing
+researched Moment receipt/source list now covers exact single-artist album
+research; failed bound-album expression does not publish its date seed.
+Story quality and installed/native/audible acceptance remain open.
+See docs/verification/ALBUM_NARRATION_20261018.md.
+
+## Selected one-time Session welcome — producer work in progress
+
+[Session opening v1](docs/product/SESSION_OPENING_MOMENT_V1.md) reuses the
+existing `session` Moment and normal retained Flow. Existing generation metadata
+identifies `purpose: session_opening` and the captured start Mood/Persona/Presence;
+the same metadata accompanies retained text. Clients render the accepted text,
+not a locally synthesized welcome. Reconnect and historical reads never generate
+or autoplay it. Music-only permits this informative card but denies automatic
+speech, including HA speaker delivery. Current voice/output settings continue to
+govern deliberate replay. No new endpoint, Moment type or consumer work dispatch.
+Implementation, exact qualification and installed producer pin remain pending.
+
 ## Selected voice-preview addition — local producer, protected delivery pending
 
 The human-requested Preview action is recorded in
@@ -3503,3 +3536,11 @@ cover and native cache remainOPEN. No policy/retention bypass or production/
 Apple action. Golden49/36/139;11Core/17qualityOPEN. Every named owner file is
 now scheduled before provider work; actual method execution still mandatory.
 Renderer runs separately with hostNode and no provider credentials; noHAclaim.
+
+18October installed compatibility follow-up: minimal history-only HA-dev
+artifact778610708c2aaf0bc97c4db88f1d125c9458c62d43d610d9081c3f1f0b8fa33b
+is installed and capability2/paired owner reads are verified. This derivative
+changes five files on the prior private3a894…base; no newer album/opening work.
+Current whole-source candidate and fixture pins remain distinct from installed
+module hashes. Joint native2 is separate; no production or merge promotion.
+See docs/verification/HISTORY_ENTRY_COMPATIBILITY_20261018.md.

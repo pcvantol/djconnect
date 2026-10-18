@@ -4,6 +4,183 @@ import json
 import os
 
 
+async def run_albums(hass, runtime, manager, identity, headers, model_receipts):
+    """Fixed eight real HA expressions and publications for the reported album.
+
+    Retrieve one real public corpus then pin it unchanged for fair comparison.
+    Production fresh-retrieval latency is a separate trial. Only current playback
+    and household are synthetic. No installed/client/audible claim.
+    """
+    from pathlib import Path
+    from dataclasses import asdict
+    import hashlib
+    from unittest.mock import patch
+    from custom_components.djconnect.api_handlers import _connect_session_narration, _conversation_profile_fence
+    from custom_components.djconnect.profile_context import async_resolve_device_bound_request_context
+    from custom_components.djconnect.session_facts import catalog_facts
+    from custom_components.djconnect.session_conversation import query_service
+    from custom_components.djconnect.pipeline import realize_session_narration
+    from custom_components.djconnect.session_runtime import DJPersona
+    from scripts.verification.askdj_contextual_golden import ACTIVE_CASE
+
+    rows = []
+    catalog = {'uri':'spotify:track:'+'1'*22, 'title':'We Are - Symphonic Version',
+        'artist':'HAEVN', 'artist_ids':['65Tmt9uAPTYGl1ZhsOeEJ6'],
+        'album_name':'Symphonic Tales', 'album_uri':'spotify:album:3VSIVHxafHRMSs2SQB9nju',
+        'release_date':'2020-04-03','release_date_precision':'day'}
+    context = await async_resolve_device_bound_request_context(hass, runtime, identity,
+        request_source='isolated-album-narration-diagnostic')
+    from custom_components.djconnect import album_narration
+    from custom_components.djconnect.ask_dj import public_research as research
+    fact = catalog_facts(catalog)[0]
+    async def guard():
+        _conversation_profile_fence(hass,runtime,identity,headers,context)
+    async with research.PublicFetch(guard) as fetch:
+        public = await album_narration.public_identity(fetch,fact)
+        assert public is not None, 'album_public_identity_unavailable'
+        sources,state = await research.research(public[5],
+            'Tell a documented story specifically about the album '+public[2]+' by '+public[5]+'.',
+            'nl',guard,qualified_music=True,expected_roles=(public[6],),expected_entity_id=public[4],
+            allow_web=False,fetch=fetch,original_paragraphs=True)
+        assert sources, 'album_public_references_unavailable'
+        source_requests = fetch.requests
+    package = {'public_identity':public,'sources':[s.model_data() for s in sources],
+        'public_source_records':[asdict(s) for s in sources],
+        'local_source_fixture':asdict(fact),'actual_source_requests':source_requests}
+    package_hash = hashlib.sha256(json.dumps(package,sort_keys=True).encode()).hexdigest()
+    Path('/lab/album-public-evidence.json').write_text(json.dumps(package,ensure_ascii=False,indent=2)+'\n')
+    async def pinned_identity(owned, selected):
+        await owned.guard()
+        assert selected == fact
+        return public
+    async def pinned_sources(subject,question,locale,owned_guard,**kwargs):
+        await owned_guard()
+        assert subject == public[5] and kwargs['expected_entity_id'] == public[4]
+        assert kwargs['allow_web'] is False
+        return list(sources), state
+    with patch.object(album_narration,'public_identity',pinned_identity), patch.object(research,'research',pinned_sources):
+        for persona in ('home_dj','radio_dj','club_dj','festival_dj'):
+            for mood in ('chill','party'):
+                case = 'public-album-'+persona+'-'+mood+'-nl'
+                token = ACTIVE_CASE.set(case)
+                before = len(model_receipts)
+                active = None
+                debug = {}
+                try:
+                    active = await manager.async_start(owner_profile_id='profile-a',locale='nl',
+                        selected_mood=mood,dj_persona=DJPersona(persona),music_backend='spotify_direct',
+                        allowed_capability_intents=frozenset({'album_story'}))
+                    _connect_session_narration(hass,runtime,context,active,identity,headers)
+                    registration = manager._narration_providers['profile-a']
+                    async def expression(brief, guard):
+                        return await realize_session_narration(hass,narration=brief,admission=guard,
+                            fallback_text=brief.seed,conf=runtime.config,debug=debug)
+                    manager.connect_narration('profile-a',active.session_id,expression,registration[2],
+                        capture_authority=registration[3],archive_admission=registration[4])
+                    await manager.async_update_playback_projection(owner_profile_id='profile-a',session_id=active.session_id,
+                        state='playing',media_identity=catalog['uri'],title=catalog['title'],artist=catalog['artist'],
+                        duration_ms=600000,position_ms=0)
+                    async def insight():
+                        return {'_qualified_facts':(fact,)}
+                    moment = await manager.async_process_track_started(owner_profile_id='profile-a',session_id=active.session_id,
+                        insight_provider=insight,media_identity=catalog['uri'],require_current_playback=True,allow_initial_facts=True)
+                    active = manager.current_active('profile-a')
+                    text = moment.content if moment else None
+                    if moment:
+                        assert moment.moment_type.value == 'album'
+                        assert moment in active.broadcast.state.dj_moments
+                    await manager.async_end(owner_profile_id='profile-a',session_id=active.session_id)
+                    page = await query_service(hass,runtime.ask_dj_history).async_timeline_page('profile-a',active.session_id)
+                    saved = [e for e in page['entries'] if moment and e.get('moment_id') == moment.moment_id]
+                    assert not moment or (len(saved) == 1 and saved[0]['text'] == text)
+                    rows.append({'id':case,'persona':persona,'mood':mood,'language':'nl',
+                        'status':'PASS' if moment else 'FAIL','actually_published_text':text,
+                        'reopened_text':saved[0]['text'] if saved else None,'debug':debug,
+                        'sources':moment.as_dict().get('sources',[]) if moment else [],
+                        'model_attempts':len(model_receipts)-before,
+                        'playback_boundary':'SYNTHETIC','editorial':'PENDING'})
+                finally:
+                    ACTIVE_CASE.reset(token)
+                    if manager.current_active('profile-a') is not None:
+                        await manager.async_end(owner_profile_id='profile-a',session_id=active.session_id)
+                    Path('/lab/album-partial.json').write_text(json.dumps(rows,ensure_ascii=False,indent=2)+'\n')
+    return {'scope':'FIXED_EIGHT_DUTCH_ALBUM_PERSONA_MOOD_ONE_REAL_PUBLIC_CORPUS_AND_HA_EXPRESSION',
+        'cases':rows, 'status':'PASS' if len(rows)==8 and all(r['status']=='PASS' for r in rows) else 'FAIL',
+        'public_evidence_sha256':package_hash,'actual_source_requests':source_requests,
+        'maximum_paid_attempts':16,'editorial':'PENDING','native':'NOT_RUN','audible':'NOT_RUN'}
+
+
+async def run_openings(hass, runtime, manager, call, model_receipts):
+    """Eight fixed actual paired starts; real prose, synthetic household/output.
+
+    This is a bounded first-draft sample, not the complete language/style matrix.
+    Store the exact published and reopened text, including an honest fallback.
+    """
+    from datetime import UTC, datetime
+    from uuid import UUID
+    from pathlib import Path
+    from custom_components.djconnect.domain.profile.dj_settings import DJSettings
+    from custom_components.djconnect.session_conversation import query_service
+    from custom_components.djconnect.playback_observation import playback_observation_manager
+    from custom_components.djconnect.persistence import persistence_service
+    from custom_components.djconnect.persistence.dj_settings import ProfileDJSettingsRepository
+
+    personas = ('home_dj', 'radio_dj', 'club_dj', 'festival_dj')
+    rows = []
+    repository = manager._settings_repository
+    if repository is None:
+        # The older diagnostic fixture predates Profile settings. Reuse the
+        # actual production settings owner in this fresh isolated household.
+        repository = ProfileDJSettingsRepository(persistence_service(hass))
+        manager._settings_repository = repository
+    for index, (persona, mood) in enumerate((p, m) for p in personas for m in ('chill', 'party')):
+        # Hold language and Presence fixed for a real within-Persona Mood
+        # comparison. Structural five-language/four-Presence coverage is separate.
+        locale, presence = 'nl', 'balanced'
+        case = 'opening-'+persona+'-'+mood+'-'+locale+'-'+presence
+        now = int(datetime.now(UTC).timestamp()*1000)
+        op = str(UUID(int=(now << 80) | (7 << 76) | (2 << 62) | (index+1)))
+        defaults = await repository.async_read('profile-a', authorize=lambda: True)
+        await repository.async_accept_user_choice('profile-a', operation_id=op, binding='a'*64,
+            patch=DJSettings(persona=persona, mood=mood, presence=presence).as_dict(),
+            expected_defaults_revision=defaults['defaults_revision'], now_ms=now, authorize=lambda: True)
+        before = len(model_receipts)
+        began = asyncio.get_running_loop().time()
+        active = None
+        try:
+            result = await call('session/start', {'language':locale}, label=case, expected=201)
+            active = manager.current_active('profile-a')
+            assert active and active.session_id == result['session']['session_id']
+            await playback_observation_manager(hass).async_stop('profile-a', active.session_id)
+            moment = next(m for m in active.broadcast.state.dj_moments
+                          if dict(m.generation_metadata).get('purpose') == 'session_opening')
+            assert (active.selected_mood, active.dj_persona.value, active.selected_presence) == (mood, persona, presence)
+            assert active.broadcast.state.dj_moments[0] is moment
+            assert await manager.async_open_session(owner_profile_id='profile-a', session_id=active.session_id) is moment
+            assert not moment.actions
+            await call('session/end', {'session_id':active.session_id}, label=case+'-end', expected=200)
+            page = await query_service(hass, runtime.ask_dj_history).async_timeline_page('profile-a', active.session_id)
+            saved = [e for e in page['entries'] if e.get('moment_id') == moment.moment_id]
+            assert len(saved) == 1 and saved[0]['text'] == moment.content
+            attempts = len(model_receipts)-before
+            assert attempts <= 2
+            generated = dict(moment.generation_metadata).get('realization') == 'qualified_runtime_narration_v1'
+            rows.append({'id':case, 'language':locale, 'persona':persona, 'mood':mood, 'presence':presence,
+                'status':'PASS' if generated else 'FAIL', 'generated':generated,
+                'actually_published_text':moment.content, 'reopened_text':saved[0]['text'],
+                'model_attempts':attempts, 'seconds':round(asyncio.get_running_loop().time()-began, 3),
+                'native':'NOT_RUN', 'audible':'NOT_RUN', 'editorial':'PENDING'})
+        finally:
+            current = manager.current_active('profile-a')
+            if current is not None:
+                await playback_observation_manager(hass).async_stop('profile-a', current.session_id)
+                await manager.async_end(owner_profile_id='profile-a', session_id=current.session_id)
+            Path('/lab/opening-partial.json').write_text(json.dumps(rows, ensure_ascii=False, indent=2)+'\n')
+    return {'scope':'FIXED_EIGHT_DUTCH_PERSONA_MOOD_PAIRED_OPENINGS_BALANCED_NOT_FULL_QUALITY_MATRIX',
+            'status':'PASS' if all(r['generated'] for r in rows) else 'FAIL', 'cases':rows,
+            'maximum_paid_attempts':16, 'native':'NOT_RUN', 'audible':'NOT_RUN', 'editorial':'PENDING'}
+
+
 async def run(hass, runtime, manager, active):
     if os.environ.get('DJC_RESEARCHED_PRODUCER') == '1':
         return await run_researched_producer(hass, runtime, manager, active)

@@ -1,5 +1,16 @@
 # Ask DJ contextual Golden release gate v1
 
+18October album follow-up: actual HA-dev date-only Symphonic Tales publications
+expose missing album research. The same expression owner now resolves an exact
+public album/artist and assesses the full story. Golden55/36/150 retains12Core
+and19actual-quality gates OPEN; trial1 has zero accepted publications and no
+editorial GO. [Current evidence](ALBUM_NARRATION_20261018.md).
+
+Latest18October Session welcome extension:54reports/36families/148steps.
+The explicitly scheduled opening owner covers320 start combinations and the
+separate real-welcome quality step remains open. Twelve Core and eighteen
+actual-quality gates remain OPEN. [Qualification](SESSION_OPENING_20261018.md).
+
 Latest 18October artist/root-locale extension:53reports/36families/146steps;
 the Spotify owner is explicitly scheduled. Twelve Core and seventeen actual
 quality gates stay OPEN. [Causal qualification](ASK_DJ_NAMED_ARTIST_FAILURE_20261018.md).

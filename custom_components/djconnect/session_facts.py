@@ -163,6 +163,9 @@ class QualifiedSessionFact:
     artwork_album_uri: str = ""
     source_expires_at: float | None = None
     public_artist_qid: str = ""
+    # Local lookup bindings, never public facts or model-processing authority.
+    album_artist: str = ""
+    album_artist_id: str = ""
 
     def copy_for(self, locale: str) -> tuple[str, str] | None:
         lang = locale[:2].lower()
@@ -579,8 +582,7 @@ def catalog_facts(catalog: dict[str, Any]) -> list[QualifiedSessionFact]:
     released = qualified_date(catalog.get("release_date"), catalog.get("release_date_precision"))
     if not album or not released or not re.fullmatch(r"spotify:album:[A-Za-z0-9]{22}", album_uri):
         return []
-    return [
-        _fact(
+    fact = _fact(
             "album_release",
             catalog,
             "album_story",
@@ -596,7 +598,12 @@ def catalog_facts(catalog: dict[str, Any]) -> list[QualifiedSessionFact]:
             "https://open.spotify.com/album/" + album_uri.split(":")[-1],
             DisplayFactCore("album_release", album, date=released, precision=str(catalog.get("release_date_precision"))),
         )
-    ]
+    ids = catalog.get('artist_ids')
+    if (isinstance(ids, (list, tuple)) and len(ids) == 1
+            and isinstance(ids[0], str) and re.fullmatch(r'[A-Za-z0-9]{22}', ids[0])
+            and label(catalog.get('artist'), 160)):
+        fact = replace(fact, album_artist=label(catalog['artist'], 160), album_artist_id=ids[0])
+    return [fact]
 
 
 class SessionFactsResolver:

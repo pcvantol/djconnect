@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "djconnect.session-conversation-history.v1",
-  "title": "Owner Session conversation/history projection v1",
+  "$id": "djconnect.session-conversation-history.v1-v2",
+  "title": "Owner Session conversation/history projection, negotiated entries v1/v2",
   "$defs": {
     "session": {
       "type": "object",
@@ -63,11 +63,16 @@
             "playback_observed",
             "dj_moment",
             "conversation_user",
-            "conversation_dj"
+            "conversation_dj",
+            "dj_publication",
+            "dj_silence"
           ]
         },
         "text": {
-          "type": "string"
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "occurred_at": {
           "type": "string",
@@ -94,6 +99,23 @@
         },
         "current_display_allowed": {
           "const": false
+        },
+        "archive_basis": {
+          "enum": [
+            "cc0_normalized_fields_v1",
+            "runtime_authored_direction_v1",
+            "owner_metadata_narration_v1",
+            "public_artist_narration_v1"
+          ]
+        },
+        "content_state": {
+          "enum": [
+            "unavailable",
+            "silence"
+          ]
+        },
+        "speech_available": {
+          "type": "boolean"
         }
       }
     },
@@ -186,6 +208,56 @@
           }
         }
       ]
+    },
+    "history_contract_version": {
+      "type": "integer",
+      "enum": [
+        1,
+        2
+      ],
+      "default": 1
+    },
+    "legacy_entry": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/entry"
+        },
+        {
+          "properties": {
+            "kind": {
+              "enum": [
+                "playback_observed",
+                "dj_moment",
+                "conversation_user",
+                "conversation_dj"
+              ]
+            }
+          },
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "dj_moment"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "required": [
+              "archive_basis"
+            ],
+            "properties": {
+              "archive_basis": {
+                "enum": [
+                  "cc0_normalized_fields_v1",
+                  "runtime_authored_direction_v1"
+                ]
+              }
+            }
+          }
+        }
+      ]
     }
   },
   "oneOf": [
@@ -201,13 +273,20 @@
           "const": true
         },
         "schema_version": {
-          "const": 1
+          "type": "integer",
+          "enum": [
+            1,
+            2
+          ]
         },
         "sessions": {
           "type": "array",
           "items": {
             "$ref": "#/$defs/session"
           }
+        },
+        "history_contract_version": {
+          "const": 2
         }
       }
     },
@@ -224,7 +303,11 @@
           "const": true
         },
         "schema_version": {
-          "const": 1
+          "type": "integer",
+          "enum": [
+            1,
+            2
+          ]
         },
         "session": {
           "$ref": "#/$defs/session"
@@ -234,6 +317,9 @@
           "items": {
             "$ref": "#/$defs/entry"
           }
+        },
+        "history_contract_version": {
+          "const": 2
         }
       }
     },
@@ -249,13 +335,20 @@
           "const": true
         },
         "schema_version": {
-          "const": 1
+          "type": "integer",
+          "enum": [
+            1,
+            2
+          ]
         },
         "matches": {
           "type": "array",
           "items": {
             "$ref": "#/$defs/entry"
           }
+        },
+        "history_contract_version": {
+          "const": 2
         }
       }
     },
@@ -319,7 +412,11 @@
           "const": true
         },
         "schema_version": {
-          "const": 1
+          "type": "integer",
+          "enum": [
+            1,
+            2
+          ]
         },
         "session": {
           "$ref": "#/$defs/session"
@@ -332,6 +429,9 @@
         },
         "navigation_only": {
           "const": true
+        },
+        "history_contract_version": {
+          "const": 2
         }
       }
     },
@@ -390,6 +490,64 @@
                 "type": "string"
               }
             }
+          }
+        }
+      }
+    }
+  ],
+  "allOf": [
+    {
+      "if": {
+        "required": [
+          "schema_version"
+        ],
+        "properties": {
+          "schema_version": {
+            "const": 1
+          }
+        }
+      },
+      "then": {
+        "not": {
+          "required": [
+            "history_contract_version"
+          ]
+        },
+        "properties": {
+          "entries": {
+            "items": {
+              "$ref": "#/$defs/legacy_entry"
+            }
+          },
+          "matches": {
+            "items": {
+              "$ref": "#/$defs/legacy_entry"
+            }
+          },
+          "entry": {
+            "$ref": "#/$defs/legacy_entry"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "required": [
+          "schema_version"
+        ],
+        "properties": {
+          "schema_version": {
+            "const": 2
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "history_contract_version"
+        ],
+        "properties": {
+          "history_contract_version": {
+            "const": 2
           }
         }
       }

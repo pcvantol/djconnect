@@ -1690,6 +1690,32 @@
           ],
           "acceptance_status": "owner_contract",
           "proof_boundary": "Actual native widget cache absent; original later typed denial not captured. Owning grant/lifecycle test uses explicit external source-authority fixture, no native/artwork delivery or installed PASS."
+        },
+        {
+          "id": "ASKDJ-FLOW-history-entry-negotiation",
+          "question": "Heropen een sessie met onderzochte/metadata-bijdragen, een intrekkingsbewijs en Silence vanuit een oude en een nieuwe client.",
+          "expected_answer": "Opt-in2 behoudt alle toegelaten tekst, bronvermelding en stabiele volgorde. Compatibele oude pagina’s blijven schema1; een onrepresenteerbare pagina geeft expliciet upgrade-required zonder vervalste provenance, gedeeltelijke Flow of pairingreset. Cursors kruisen nooit versies; source/privacy gelden nog.",
+          "model_policy": "no_model_no_playback_read_only_history",
+          "owning_tests": [
+            {
+              "file": "tests/test_session_conversation_history.py",
+              "method": "test_four_retention_bases_and_silent_receipts_match_pinned_consumer_fixture"
+            },
+            {
+              "file": "tests/test_session_conversation_history.py",
+              "method": "test_paired_version_two_preserves_all_bases_receipts_and_queries_without_writes"
+            },
+            {
+              "file": "tests/test_session_conversation_history.py",
+              "method": "test_history_representation_cursors_cannot_cross_versions"
+            },
+            {
+              "file": "tests/test_session_conversation_history.py",
+              "method": "test_history_invalid_version_is_bounded_and_lossless_legacy_still_reads"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual paired handler/SQLite/query and immutable consumer fixture; native Apple acceptance and coordinated installed version2 remain separate. Original reported HTTP404 is not closed."
         }
       ],
       "owning_tests": [
@@ -2236,6 +2262,154 @@
           ],
           "acceptance_status": "owner_contract",
           "proof_boundary": "Causal actual Runtime/SQLite regressions and five-language source-ID/name/current-reference checks; external model/source fixtures. Real producer trials8/9 remain historical for their exact earlier source; trial9 has no editorial GO and does not qualify broad Persona/Mood/native/audible quality."
+        },
+        {
+          "id": "ASKDJ-FLOW-session-opening-owner",
+          "question": "Start een nieuwe sessie met bevestigde Mood, Persona en aanwezigheid; herhaal start, herverbind en lees later terug.",
+          "expected_answer": "Precies één duurzame persoonlijke opening met de oorspronkelijke drie keuzes en hun betekenis; opslagretry gebruikt hetzelfde voorbereide antwoord; geen automatische spraak bij Alleen muziek.",
+          "model_policy": "existing_two_call_runtime_expression_or_honest_local_fallback",
+          "owning_tests": [
+            {
+              "file": "tests/test_session_opening.py",
+              "method": "test_all_start_choices_are_confirmed_localized_retained_and_reopened_once"
+            },
+            {
+              "file": "tests/test_session_opening.py",
+              "method": "test_concurrent_start_and_retries_use_one_expression_outside_lock"
+            },
+            {
+              "file": "tests/test_session_opening.py",
+              "method": "test_inflight_setting_change_keeps_start_snapshot_and_disallows_automatic_speech"
+            },
+            {
+              "file": "tests/test_session_opening.py",
+              "method": "test_music_only_has_manual_replay_but_no_automatic_client_or_speaker_work"
+            },
+            {
+              "file": "tests/test_session_opening.py",
+              "method": "test_end_and_owner_revocation_during_generation_never_publish"
+            },
+            {
+              "file": "tests/test_session_opening.py",
+              "method": "test_real_sql_failure_cannot_leave_a_live_only_welcome"
+            },
+            {
+              "file": "tests/test_session_opening.py",
+              "method": "test_history_opt_out_does_not_store_welcome_and_tampering_is_denied"
+            },
+            {
+              "file": "tests/test_session_opening.py",
+              "method": "test_settings_changed_before_opening_cannot_replace_original_persona"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "320 five-language/Mood/Persona/Presence combinations through actual settings/Runtime/SQLite; generated text, source rights and audio boundaries remain explicit. No native/audible qualification."
+        },
+        {
+          "id": "ASKDJ-FLOW-session-opening-real-quality",
+          "question": "Laat je gekozen DJ je persoonlijk welkom heten met de echte startinstellingen, zonder een instellingenlijst of playbackclaim.",
+          "expected_answer": "Echte gegenereerde welkomsantwoorden met herkenbare Persona/Mood, correcte aanwezigheid, natuurlijke uitleg en luisterwens; onafhankelijk beoordeeld.",
+          "model_policy": "real_paid_model_with_independent_editorial_review",
+          "owning_tests": [
+            {
+              "file": "tests/test_session_opening.py",
+              "method": "test_concurrent_start_and_retries_use_one_expression_outside_lock"
+            }
+          ],
+          "acceptance_status": "open_real_quality",
+          "proof_boundary": "Owner fixtures do not establish generated storytelling quality; fixed actual-text trial and independent review required."
+        },
+        {
+          "id": "ASKDJ-FLOW-album-researched-owner",
+          "question": "Symphonic Tales speelt; publiceer een albumverhaal in plaats van alleen de Spotify-uitgavedatum.",
+          "expected_answer": "Exact publieke artiestidentiteit en uniek album; daadwerkelijk opgehaalde Wikipedia-albumpassage, volledige beoordeling, dezelfde tekst in Flow/historie/replay. Afgewezen verhaal publiceert geen datumkaart en veroorzaakt geen tick-retries.",
+          "model_policy": "existing_two_call_research_with_independent_scope_review",
+          "owning_tests": [
+            {
+              "file": "tests/test_personal_dj_narration_album.py",
+              "method": "test_album_story_actual_publication_reopen_context_and_replay_keep_public_scope"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_album.py",
+              "method": "test_ambiguous_wrong_subject_and_sequel_decline_before_any_model_call"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_album.py",
+              "method": "test_rejected_album_story_never_publishes_date_fallback_or_retries_tick"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_album.py",
+              "method": "test_missing_album_focus_is_not_repaired_with_more_model_calls"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_album.py",
+              "method": "test_track_change_during_generation_cannot_publish_album_or_seed"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_album.py",
+              "method": "test_mutated_album_receipts_and_source_bindings_fail_closed"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_album.py",
+              "method": "test_catalogue_binding_does_not_admit_missing_multiartist_or_private_query"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_album.py",
+              "method": "test_factual_review_label_does_not_reject_exact_album_evidence"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_album.py",
+              "method": "test_original_album_antecedent_is_bound_without_exporting_a_scope_flag"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_album.py",
+              "method": "test_other_album_activity_is_not_borrowed_from_the_same_paragraph"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_album.py",
+              "method": "test_present_interest_can_name_album_but_does_not_exempt_sonic_modifier"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_album.py",
+              "method": "test_competing_work_in_original_antecedent_blocks_even_split_claims"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_album.py",
+              "method": "test_original_compositions_never_become_new_material_in_five_languages"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_album.py",
+              "method": "test_new_material_summary_cannot_hide_as_present_appreciation"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_album.py",
+              "method": "test_split_novelty_checks_cannot_evade_complete_sentence_evidence"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_album.py",
+              "method": "test_novelty_of_another_work_in_same_paragraph_never_transfers"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_album.py",
+              "method": "test_pronoun_only_novelty_recap_keeps_selected_album_scope"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual Runtime/SQLite/native admission and speech scope with explicit source/model fixtures; no real writing, installed or audible PASS."
+        },
+        {
+          "id": "ASKDJ-FLOW-album-researched-quality",
+          "question": "Laat de ingestelde DJ een inhoudelijk albumverhaal vertellen bij Symphonic Tales; vergelijk dezelfde broninhoud in Chill en Party.",
+          "expected_answer": "Werkelijke, onderbouwde persoonlijke teksten met herkenbare Persona en Mood, geen catalogusdatum, generieke artiestbio of afsluitende slogan.",
+          "model_policy": "real_paid_model_with_independent_editorial_review",
+          "owning_tests": [
+            {
+              "file": "tests/test_personal_dj_narration_album.py",
+              "method": "test_album_story_actual_publication_reopen_context_and_replay_keep_public_scope"
+            }
+          ],
+          "acceptance_status": "open_real_quality",
+          "proof_boundary": "Fixed eight actual Dutch public-source/HA-model publications and independent editorial assessment; installed/native/audible evidence remains separate."
         }
       ],
       "owning_tests": [
@@ -4280,6 +4454,30 @@
       "id": "ASKDJ-ISSUE-artist-top-one-search",
       "family_id": "ASKDJ-REGRESSION-explicit-listening-wish",
       "finding": "Live broad top-one Nirvana/Pearl Jam lookup returned related wrong artists; exact guard stopped dispatch. Field-qualified phrase lookup plus bounded exact-name candidates repairs the source route without weakening identity. Live playback remains unattempted.",
+      "core_qualification": "locally_covered"
+    },
+    {
+      "id": "ASKDJ-ISSUE-session-opening",
+      "family_id": "ASKDJ-FLOW-style-lifecycle",
+      "finding": "De eerste bijdrage benoemde alleen een abstract voornemen. De nieuwe server-owned opening verwelkomt de luisteraar met vastgelegde start-Mood/Persona/Presence; echte vertelkwaliteit en client/spraakacceptatie blijven apart open.",
+      "core_qualification": "locally_covered"
+    },
+    {
+      "id": "ASKDJ-ISSUE-symphonic-tales-date-only",
+      "family_id": "ASKDJ-FLOW-style-lifecycle",
+      "finding": "Actual HA-dev published/persisted only the Spotify edition date as Albumverhaal for Symphonic Tales and Symphonic Tales II. Artist/producer enrichment did not include album stories. The new exact-identity album research owner, complete assessment and no-date-fallback regression are source-local; actual narrative and installed acceptance remain open.",
+      "core_qualification": "locally_covered"
+    },
+    {
+      "id": "ASKDJ-ISSUE-history-closed-decoder",
+      "family_id": "ASKDJ-FLOW-history-private",
+      "finding": "Actual HTTP200 mixed retained pages failed closed Apple40331 decoding on new bases/kinds. Minimal history-only artifact778610708c2a installed on HA-dev; Core paired v1/v2 proof and Apple physical iPad40334 lifecycle/read/reopen plus MacBook read/reopen PASS. Original404, old/offline clients, audible and general history richness remain separate.",
+      "core_qualification": "qualified"
+    },
+    {
+      "id": "ASKDJ-ISSUE-original-not-new-compositions",
+      "family_id": "ASKDJ-FLOW-style-lifecycle",
+      "finding": "Actual trial6 allowed original compositions to become new compositions in an album recap. Conservative five-language evidence check now rejects unsupported novelty even under present-appreciation labels; actual Runtime publication/count regression and truthful positive-source case are source-local. No actual narrative GO.",
       "core_qualification": "locally_covered"
     }
   ],

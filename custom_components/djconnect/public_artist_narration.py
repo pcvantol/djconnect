@@ -60,8 +60,9 @@ def producer_subject(fact):
 
 def can_research(brief):
     from .narration_brief import NarrationBrief
+    from .album_narration import lookup_subject
     return bool(type(brief) is NarrationBrief and brief.current()
-                and (eligible_subject(brief) or producer_subject(brief.fact)))
+                and (eligible_subject(brief) or producer_subject(brief.fact) or lookup_subject(brief.fact)))
 
 
 async def producer_identity(fetch, credit):
@@ -96,6 +97,9 @@ async def producer_identity(fetch, credit):
 
 
 def _identity_matches(fact, identity):
+    if type(identity) is tuple and identity and identity[0] == 'album':
+        from .album_narration import matches
+        return matches(fact, identity)
     if type(identity) is not tuple or len(identity) != 5:
         return False
     if identity[0] == 'producer':
@@ -140,6 +144,16 @@ class AcceptedArtistNarration:
         source = self.sources()[0]
         return {k: source[k] for k in ("provider", "url", "license", "revision_url")}
 
+    def qualified_fact(self):
+        if self.subject_identity[0] == 'album':
+            from .album_narration import public_fact
+            return public_fact(self.subject_identity)
+        from .ask_dj.dialogue import normalized_subjects
+        return {'qualified_fact_text': self.fact.copy_for(self.locale)[1],
+            'qualified_fact_attribution': {'provider':self.fact.provider,
+                'url':self.fact.source_url,'license':self.fact.license},
+            'dialogue_subjects': normalized_subjects(self.fact)}
+
 
 @dataclass(frozen=True)
 class ResearchMomentAcceptance:
@@ -160,7 +174,7 @@ def bind(original, text):
     if (type(text) is not ResearchedArtistText
             or not text.accepted.valid(time.monotonic())
             or original.source_fact != text.accepted.fact
-            or original.moment_type.value != ('track' if text.accepted.subject_identity[0] == 'producer' else 'artist')
+            or original.moment_type.value != {'producer':'track','artist':'artist','album':'album'}.get(text.accepted.subject_identity[0])
             or original.presentation_intent.dj_persona.value != text.accepted.persona
             or original.presentation_intent.source_session_mood != text.accepted.mood):
         return None
@@ -306,8 +320,10 @@ async def realize(brief, *, ask, admission, debug=None):
 
     if not can_research(brief):
         return None
+    from .album_narration import lookup_subject, public_identity, public_fact, album_focus, substantive_album_claim
+    album = lookup_subject(brief.fact)
     subject = eligible_subject(brief)
-    credit = None if subject else producer_subject(brief.fact)
+    credit = None if subject or album else producer_subject(brief.fact)
 
     async def guard():
         admission()
@@ -319,7 +335,19 @@ async def realize(brief, *, ask, admission, debug=None):
     if credit:
         question = "Tell a short story about one exact credited producer of this recording."
     core = brief.fact.display_core
-    if credit:
+    if album:
+        async with research.PublicFetch(guard) as fetch:
+            identity = await public_identity(fetch, brief.fact)
+            if identity is None:
+                if debug is not None:
+                    debug['block_reason'] = 'album_public_identity_unavailable'
+                return None
+            subject, qid, roles = identity[2], identity[4], (identity[6],)
+            question = 'Tell a documented story specifically about the album ' + subject + ' by ' + identity[5] + '.'
+            sources, _ = await research.research(identity[5], question, brief.locale, guard,
+                qualified_music=True, expected_roles=roles, expected_entity_id=qid,
+                allow_web=False, fetch=fetch, original_paragraphs=True)
+    elif credit:
         async with research.PublicFetch(guard) as fetch:
             identity = await producer_identity(fetch, credit)
             if identity is None:
@@ -352,8 +380,10 @@ async def realize(brief, *, ask, admission, debug=None):
     stamp = datetime.now(UTC).isoformat()
     # This is the exact original normalized CC0 statement, not a rendered frame
     # or Spotify payload. The artist/QID was already reciprocally qualified.
-    seed = research.PublicSource(brief.fact.provider, subject, brief.fact.source_url,
-        brief.fact.copy_for(brief.locale)[1], brief.locale, stamp,
+    public = public_fact(identity) if album else None
+    seed = research.PublicSource('MusicBrainz' if album else brief.fact.provider, subject,
+        public['qualified_fact_attribution']['url'] if album else brief.fact.source_url,
+        public['qualified_fact_text'] if album else brief.fact.copy_for(brief.locale)[1], brief.locale, stamp,
         datetime.fromtimestamp(time.time()+expiry-now, UTC).isoformat(), "CC0-1.0",
         entity_id=qid)
     sources = (*sources, seed)
@@ -361,7 +391,7 @@ async def realize(brief, *, ask, admission, debug=None):
     # A producer's general collaborator list is often the first biographical
     # span, but is not the episode requested here. Let the same generation
     # owner choose the episode from the full admitted corpus instead.
-    focus = None if credit else episode_focus(projection)
+    focus = None if credit or album else episode_focus(projection)
     if focus:
         projection['editorial_focus'] = focus
     if credit:
@@ -369,6 +399,15 @@ async def realize(brief, *, ask, admission, debug=None):
             'original_credit':seed.text,'required_roles':core.roles,'selected_contributor':subject,
             'public_identity':{'musicbrainz_id':identity[1],'type':identity[3],'wikidata_id':qid},
             'boundary':'Artist references describe only this contributor. They do not prove this recording sound, production method or influence.'}
+    album_spans = album_focus(projection, subject) if album else ()
+    if album:
+        if not album_spans:
+            if debug is not None:
+                debug['block_reason'] = 'album_documented_passage_unavailable'
+            return None
+        projection['editorial_focus'] = {'kind':'documented_album_story', 'album':subject,
+            'artist':identity[5], 'episode_span_ids':album_spans,
+            'authority':'telling_focus_only_full_original_context_remains_evidence'}
     style = instructions(persona=brief.persona, mood=brief.mood, locale=brief.locale)
     prompt = style + (
         " Tell one useful connected artist story using ONLY the admitted public evidence. "
@@ -405,9 +444,20 @@ async def realize(brief, *, ask, admission, debug=None):
            "Use two sentences so recording credit and the separate biographical episode keep their scopes clear. "
            "In the credit clause refer explicitly to this/current recording, song or track in the requested language, "
            "so it remains clear without the card. A band-level credit or bare here does not establish that scope. " if credit else "")
+        + ("For this Album contribution, make the named album the heart of the story. Include at least "
+           "one substantive documented album detail from its work-marked original paragraph, such as "
+           "an actual recording activity, participants or the compositions involved. Name the album and "
+           "artist naturally. Do not substitute a general artist biography, discography listing, release "
+           "date or subjective praise. A public release group is not proof of this Spotify edition's "
+           "original release, measured sound or current playback version. Never import facts from a "
+           "similarly named work or sequel. Persona shapes viewpoint and order, Mood changes the spoken "
+           "cadence rather than just adding an adjective or a closing slogan. " if album else "")
         +
         "Core-owned telling action: " + persona_answer_form(brief.persona, include_identity=False)
         + "\nData:\n" + json.dumps({"public_music_research":research.generation_projection(projection, question)}, ensure_ascii=False))
+    if album:
+        from .album_narration import expression_prompt
+        prompt = expression_prompt(style, projection)
     draft = (await ask(prompt)).strip()
     text = plain_work_titles(draft,projection)
     if debug is not None and text != draft:
@@ -415,16 +465,22 @@ async def realize(brief, *, ask, admission, debug=None):
     if (not 30 <= len(text) <= 700 or answer_language_format_issue(text,
             {"language":brief.locale, "persona":brief.persona, "mood":brief.mood}, [subject])
             or not _mentions_subject(text, subject)
+            or (album and not _mentions_subject(text, identity[5]))
             or re.search(r"https?://|spotify:|[{}]|<[^>]+>|```|(?:^|\s)\*{1,2}[^*\n]+\*{1,2}(?:\s|[.,!?;:]|$)", text, re.I)):
         if debug is not None:
             debug['block_reason'] = 'research_answer_format_invalid'
         return None
     context = {"public_music_research":projection, "qualified_context":{}}
+    if album:
+        from .album_narration import AlbumResearchContext
+        context = AlbumResearchContext(context, fact=brief.fact, identity=identity, album_spans=album_spans)
     if credit:
         context['required_recording_roles'] = core.roles
         context = research.RecordingResearchContext(context,fact=brief.fact,locale=brief.locale)
     id_review=projection['schema_version']==3
-    assessment_prompt = research.assessment_prompt(text, complete_review_projection(context), brief.locale, question,
+    # Keep typed scope when preparing the review as well as in final admission.
+    review_context = complete_review_projection(context)
+    assessment_prompt = research.assessment_prompt(text, review_context, brief.locale, question,
         allow_prefix=False,quote_by_id=id_review)
     # One review checks both source grounding and style, within the same two-call
     # expression budget. The strict factual validator still sees its own schema.
@@ -440,6 +496,11 @@ async def realize(brief, *, ask, admission, debug=None):
            "and cite the original normalized recording-credit source. A producer credit on another work "
            "in Wikipedia cannot supply this claim. A general credit with the band or a bare here is not "
            "an explicit reference to this/current recording; mark recording_focus_preserved false. " if credit else "")
+        + (" Also return album_focus_preserved:boolean. True ONLY if the exact named album and artist "
+           "remain the focus and at least one concrete documented album activity, participant or composition "
+           "is faithfully conveyed. A date, listing, generic biography or praise alone is false. "
+           "Check every album-specific relationship against its original work paragraph; no facts from "
+           "a sequel, similarly named work, general artist sound or other recording. " if album else "")
         + style + "\nData:\n", 1)
     review = _object(await ask(assessment_prompt))
     if id_review:
@@ -459,6 +520,11 @@ async def realize(brief, *, ask, admission, debug=None):
     if credit and not _has_recording_credit_evidence(review, seed, subject):
         if debug is not None:
             debug['block_reason'] = 'research_recording_credit_evidence_missing'
+        return None
+    if album and (review.pop('album_focus_preserved', None) is not True
+                  or not substantive_album_claim(review, album_spans, subject, text)):
+        if debug is not None:
+            debug['block_reason'] = 'research_album_focus_unverified'
         return None
     if not research.supported(json.dumps(review), text, context):
         if debug is not None:

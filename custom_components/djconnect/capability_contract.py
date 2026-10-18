@@ -36,6 +36,7 @@ def _contract_versions() -> dict[str, int]:
         "profile_context": 1,
         "client_contract_fixtures": 1,
         "session_conversation_history": 1,
+        "session_history_entries": 2,
         "ask_dj_contextual_dialogue": 1,
         "moment_track_insight_navigation": 1,
         "session_flow_text_search": 1,

@@ -269,7 +269,7 @@ async def main():
                 yield ResponseCompletedEvent.model_construct(type="response.completed",sequence_number=3,response=completed)
             return fixture_stream()
         assert os.environ.get("DJC_SAFETY_PROBE") not in {"previous", "output", "release_context", "album_context", "silence_signal", "vibecast_end_retired"}, "Safety probes must not call a model"
-        if os.environ.get("DJC_SAFETY_PROBE") == "public_research":
+        if os.environ.get("DJC_SAFETY_PROBE") in {"public_research", "album_golden"}:
             capture_public_sources(kwargs.get("input", []))
         inputs = json.dumps(kwargs.get("input", []), ensure_ascii=False)
         assert not any(
@@ -285,7 +285,7 @@ async def main():
         assert not kwargs.get("tools") and kwargs.get("store") is False
         if os.environ.get("DJC_SAFETY_PROBE") == "narration_golden":
             assert not any(value in inputs for value in ("Wednesday Morning", "1964", "Synthetic artist", "Synthetic recording")), "catalog or private value leaked into a narration model call"
-        golden = os.environ.get("DJC_SAFETY_PROBE") in {"contextual_golden", "full_golden", "narration_golden", "public_research", "semantic_reads"}
+        golden = os.environ.get("DJC_SAFETY_PROBE") in {"contextual_golden", "full_golden", "narration_golden", "public_research", "semantic_reads", "opening_golden", "album_golden"}
         receipt = {"input_bytes": len(inputs.encode()), "model": model, "streaming": True,
                    "maximum_output_tokens":kwargs.get("max_output_tokens")}
         if golden:
@@ -293,10 +293,11 @@ async def main():
             from custom_components.djconnect.ask_dj.dialogue import current_turn
             owner_turn = current_turn.get()
             case_id = ACTIVE_CASE.get() or (owner_turn.client_id if owner_turn else None)
-            if case_id is None and os.environ.get("DJC_SAFETY_PROBE") == "narration_golden":
+            if case_id is None and os.environ.get("DJC_SAFETY_PROBE") in {"narration_golden", "opening_golden", "album_golden"}:
                 case_id = "proactive-owner-publication"
             from scripts.verification.askdj_semantic_read_golden import cases as semantic_cases
-            budget = (16 if os.environ.get("DJC_SAFETY_PROBE") == "public_research" and os.environ.get("DJC_PUBLIC_STYLE_MATRIX") == "1" else
+            budget = (16 if os.environ.get("DJC_SAFETY_PROBE") in {"opening_golden", "album_golden"} else
+                      16 if os.environ.get("DJC_SAFETY_PROBE") == "public_research" and os.environ.get("DJC_PUBLIC_STYLE_MATRIX") == "1" else
                       10 if os.environ.get("DJC_SAFETY_PROBE") == "public_research" else
                       MAX_MODEL_CALLS if os.environ.get("DJC_SAFETY_PROBE") == "contextual_golden" else
                       len(semantic_cases()) + 2 if os.environ.get("DJC_SAFETY_PROBE") == "semantic_reads" else
@@ -1418,11 +1419,12 @@ async def main():
                     # Honour the real balanced presence interval after any opening contribution.
                     # Re-observation uses the normal coordinator; no ledger reset or Core mocking.
                     ledger = active.presence_ledger
+                    from custom_components.djconnect.presence_policy import POLICIES
                     remaining = (
                         max(
                             0,
                             (ledger.last_at or 0)
-                            + max(35, ledger.last_read_seconds - 5)
+                            + max(POLICIES[active.selected_presence][0], ledger.last_read_seconds - 5)
                             - ledger.clock(),
                         )
                         + 1
@@ -1565,6 +1567,47 @@ async def main():
                         result['status'] = 'FAIL_SOURCE_CHANGED'
                     await end(active, "literal-tts")
                     Path("/lab/literal-tts.json").write_text(json.dumps(result,ensure_ascii=False,indent=2)+"\n")
+                    await async_shutdown_persistence(h)
+                    await h.async_stop(force=True)
+                    await api.close()
+                    return
+
+                if os.environ.get("DJC_SAFETY_PROBE") == "album_golden":
+                    from scripts.verification.personal_dj_narration_probe import run_albums
+                    try:
+                        result = await run_albums(h,runtime,manager,identity,headers,model_receipts)
+                    except BaseException as exc:
+                        partial = Path('/lab/album-partial.json')
+                        result = {'status':'FAIL_PREPARATION_OR_EXECUTION','failure_type':type(exc).__name__,
+                            'cases':json.loads(partial.read_text()) if partial.exists() else []}
+                    result.update(source_hashes=hashes(),source_hashes_before=initial_source_hashes,
+                        source_unchanged=initial_source_hashes==hashes(),model_calls=model_receipts,
+                        paid_model_calls=len(model_receipts),core_transports=receipts,
+                        generation_projections=public_generation_projections,
+                        assessment_projections=public_assessment_projections,
+                        native='NOT_RUN',installed='NOT_RUN',audible='NOT_RUN')
+                    Path('/lab/narration-pilot.json').write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n')
+                    assert len(model_receipts)<=16
+                    await async_shutdown_persistence(h)
+                    await h.async_stop(force=True)
+                    await api.close()
+                    return
+
+                if os.environ.get("DJC_SAFETY_PROBE") == "opening_golden":
+                    from scripts.verification.personal_dj_narration_probe import run_openings
+                    try:
+                        result = await run_openings(h, runtime, manager, call, model_receipts)
+                    except BaseException as exc:
+                        partial = Path('/lab/opening-partial.json')
+                        result = {'status':'FAIL_PREPARATION_OR_EXECUTION', 'failure_type':type(exc).__name__,
+                                  'cases':json.loads(partial.read_text()) if partial.exists() else []}
+                    result.update(source_hashes=hashes(), source_hashes_before=initial_source_hashes,
+                        source_unchanged=initial_source_hashes == hashes(),
+                        pairing='ordinary_device_token_minted_persisted', model_calls=model_receipts,
+                        paid_model_calls=len(model_receipts), core_transports=receipts,
+                        native='NOT_RUN', installed='NOT_RUN', audible='NOT_RUN')
+                    Path('/lab/narration-pilot.json').write_text(json.dumps(result, ensure_ascii=False, indent=2)+'\n')
+                    assert len(model_receipts) <= 16
                     await async_shutdown_persistence(h)
                     await h.async_stop(force=True)
                     await api.close()

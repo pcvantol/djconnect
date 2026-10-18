@@ -1,4 +1,95 @@
 # Session conversation and history — retained foundation and shared dialogue correction
+
+## Corrective retained-entry compatibility — 18 October 2026
+
+The current private producer also emits the four retention bases and two
+source-free entry kinds below. Their omission from this consumer contract and
+closed schema1 decoders caused an actual HTTP200 timeline to fail as a whole
+on Apple40331. A successful server response is not successful client decoding.
+The original separately reported HTTP404 remains a different open finding.
+
+Every row retains the existing identity/order/timestamps, owner-only authority,
+`historical_view_only:true` and `current_display_allowed:false`. Core revalidates
+Profile/privacy, history grant, source ownership and rolling Session retention
+before returning it. Consumer parsing does not grant access or upgrade a source.
+
+| `kind` / `archive_basis` | Meaning and client boundary |
+| --- | --- |
+| `dj_moment` / `cc0_normalized_fields_v1` | Already admitted normalized CC0 facts; preserve accepted text and attribution. |
+| `dj_moment` / `runtime_authored_direction_v1` | Core-authored Session direction/opening; no external fact authority or automatic playback. |
+| `dj_moment` / `owner_metadata_narration_v1` | Bounded owner-private accepted metadata narration. Preserve text/attribution; Core's captured account/provider/entry check runs on every read. Never infer CC0, model-processing or shared-screen permission. Internal `source_context` and `session_media_reference` do not escape. |
+| `dj_moment` / `public_artist_narration_v1` | Completely assessed researched expression, including the locally extended album family. Preserve exact accepted prose and `sources[]`/revision/license attribution. The creative text is not factual evidence for another answer. No client regeneration or inference of source roles. |
+| `dj_publication` / absent | Stable publication receipt after an unqualified/withdrawn body. `content_state:"unavailable"`, typed `unavailable_reason`, `text:null`, `speech_available:false`. No body reconstruction, source/artwork reuse, replay or autoplay. |
+| `dj_silence` / absent | Durable intentional silence, `moment_type:"silence"`, `content_state:"silence"`, `text:null`, `speech_available:false`. Keep identity/order; presentation may be subtle. No speech or invented filler. |
+
+Optional `session_speech` and `session_media` remain separately validated
+server descriptors. A stored text or recognized basis alone is no ready audio
+asset or image grant. Replay uses the existing prepare owner and current active
+Session voice, otherwise current Profile defaults; text_only/provider/source
+withdrawal and expiry may refuse it. Never autoplay historical rows. Shared or
+passive surface permissions do not follow from an owner history response.
+
+After source withdrawal, an admitted metadata row projects as `dj_publication`
+with the SAME `entry_id`/order and no retained body; no history rewrite or source
+renewal occurs. Never label a metadata/researched body CC0 or Core direction to
+make an older decoder accept it. Unknown/unqualified bases remain denied by
+Core. A future unknown presentation shape must not silently become readable
+content, speech or an executable action through a consumer fallback.
+
+The original, immutable consumer sample is
+[retention-bases-v1.json](../../examples/client_contracts/session_conversation_history/retention-bases-v1.json).
+It contains one actual Core-projected mixed page, same-identity withdrawal and
+refused unknown/expired/revoked/shared rows. Source inputs are synthetic
+already-admitted rows; it is not generator, source-admission, installed, native
+or audible evidence. `source_pins` bind the actual projection/speech modules;
+the owning Core test preserves its original digest. Its manually assembled
+tail envelope omitted `window_limit`; do not relax the consumer's real envelope
+validation to accept that omission. The replacement
+[retention-bases-v2.json](../../examples/client_contracts/session_conversation_history/retention-bases-v2.json)
+uses the actual SQLite repository and query tail envelope, including
+`window_limit:20`, plus negotiated schema2 and the truthful legacy409. Its
+deterministic clock also covers summary projection. The owning test regenerates
+and compares that complete fixture, not a hand-authored response substitute.
+
+### Explicit retained-entry representation version2
+
+The corrective representation uses `history_contract_version:2`, accepted as a
+GET query/POST-open integer (GET strings `"1"`/`"2"` also accepted). Omitted
+means1; booleans, other values and unsupported versions fail400 with
+`unsupported_history_contract_version`. Discovery adds
+`contract_versions.session_history_entries:2`; the existing
+`session_conversation_history:1` and `session_flow_text_search:1` stay unchanged.
+The version applies to list/timeline/tail/anchor/search/open; it is not a new
+history, owner, retention or speech contract.
+
+Version2 returns `schema_version:2`, `history_contract_version:2`, the exact
+qualified rows above and all original identities, order, attribution and state.
+Version1 keeps schema1 and its original four kinds/two bases unchanged. If the
+requested page/entry/matches cannot be represented losslessly in1, return
+HTTP409 `history_contract_upgrade_required`,
+`required_history_contract_version:2`, `supported_history_contract_versions:[1,2]`,
+without partial entries or source content. This is not HTTP404 or pairing/token
+failure; do not clear pairing, clear history or retry forever. Old pages that
+fit1 remain readable. No caller may change an unavailable row into another
+retention basis. Query cursors are bound to this representation version as well
+as the existing owner/revision/source/retention scope; they cannot cross versions.
+
+This is the smallest truthful compatibility correction. **Older closed clients
+cannot display newly typed rows until updated**, and may show their generic
+error for the explicit upgrade requirement. Do not claim an offline iPhone or
+Watch works because a newer client decodes. A compatibility notice disguised
+as an actual DJ direction or conversation would manufacture provenance; no
+such relabeling, hidden row loss or privacy bypass is permitted. Actual old/new
+native acceptance and coordinated deployment remain separate gates.
+
+Current source qualification:46 owning tests PASS, including paired list,
+detail/tail/anchor/search/open, both cross-version cursor directions, compatible
+legacy pages, invalid versions, source withdrawal and privacy denial. An
+independent technical review reproduced46 PASS with no remaining scoped P1/P2.
+This is no installed producer pin. The existing Apple writer separately reports
+real iPad read/reopen and stop/start/archive read acceptance of its baseline
+decoder fix; neither that report nor local Core tests close the older HTTP404.
+
 ## Selected single-pipeline dialogue correction
 
 Assignment `DJC-CORE-ASKDJ-CONTEXTUAL-DIALOGUE-V1-20261013` fixes the generic-versus-Session dialogue/acceptance split while retaining this delivered history/search foundation.
@@ -363,3 +454,12 @@ preparation are defined in [Session artwork delivery v1](SESSION_ARTWORK_DELIVER
 It does not widen semantic text archival rights, native current-display admission,
 shared-screen access or existing pure history-query semantics. Implementation
 and qualification are owned by the admitted Session Moment artwork slice.
+
+## Private installed compatibility follow-up
+
+The minimal history-only derivative has now been installed and qualified on
+HA-dev, separately from the full local source candidate. Capability2 and paired
+v1/v2 protocol reads are verified; source/worktree fixture hashes must not be
+misrepresented as that installed derivative's module hashes. Exact scope and
+[installation evidence](../verification/HISTORY_ENTRY_COMPATIBILITY_20261018.md)
+retain the private-development, original404 and native/audio boundaries.

@@ -245,6 +245,8 @@ class HistoricalProjectionQueryService:
             "retention_revision": retention_revision,
             "retention_epoch": fence[0],
         }
+        from .history_entry_contract import cursor_scope
+        scope = cursor_scope(scope)
         after = self._history_cursor.decode(cursor, scope) if cursor else None
         if after is not None and not isinstance(after, list):
             raise HistoryQueryError("invalid_history_cursor")

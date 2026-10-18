@@ -346,6 +346,11 @@ def moment_projection(broadcast, moment, *, autoplay=False, admission=None):
     from .session_runtime import DJMomentType
     if moment.moment_type is DJMomentType.SILENCE:
         return unavailable(reference, "silence_has_no_speech")
+    from .session_opening import opening_context
+    opening = opening_context(moment)
+    if (broadcast.state.selected_presence == 'music_only'
+            or (opening is not None and opening.presence == 'music_only')):
+        autoplay = False
     output = getattr(broadcast, 'owner_speech_output', None)
     if callable(output) and output() == 'text_only':
         return unavailable(reference, 'announcement_text_only')
@@ -394,8 +399,8 @@ async def resolve_moment(hass, profile_id, reference):
         expires_at=datetime.fromisoformat(descriptor["expires_at"]).timestamp(), session_id=active.session_id)
     source = moment.source_fact
     from .public_artist_narration import ResearchMomentAcceptance
-    guard.processor_basis = ("spotify_owner_local_read_v1" if (source is not None and source.provider == "Spotify") or moment.observed_playback is not None or moment.genre_transition is not None
-        else "qualified_dialogue_v1" if type(moment.narration_acceptance) is ResearchMomentAcceptance
+    guard.processor_basis = ("qualified_dialogue_v1" if type(moment.narration_acceptance) is ResearchMomentAcceptance
+        else "spotify_owner_local_read_v1" if (source is not None and source.provider == "Spotify") or moment.observed_playback is not None or moment.genre_transition is not None
         else "cc0_normalized_fields_v1" if source is not None else "runtime_authored_direction_v1")
     broadcast.speech_cleanup = lambda: invalidate_private_speech_sources(hass, session_id=active.session_id)
     broadcast.speech_refresh = lambda: collect_private_speech_sources(hass, session_id=active.session_id)

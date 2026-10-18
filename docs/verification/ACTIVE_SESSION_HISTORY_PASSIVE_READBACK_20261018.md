@@ -80,3 +80,11 @@ in the pinned network-isolated HA container. Host renderer receipts explicitly
 state that host network is available but unused by fixtures and make no HA
 runtime claim. The real renderer profile also passes with Python site-packages
 disabled. This is deterministic fixture execution, not installed/native proof.
+
+## Later distinct HTTP200 decoder correction
+
+The later actual200 mixed-entry decoder failure has a concrete producer/consumer
+cause and a minimal coordinated private HA-dev repair. See
+[entry compatibility](HISTORY_ENTRY_COMPATIBILITY_20261018.md). It does not close
+the original five404 reports or widget finding above. Current Golden inventory
+is57reports/36families/151steps, with12Core and19actual-quality gates open.

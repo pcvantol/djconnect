@@ -987,6 +987,7 @@ def assessment_prompt(answer, context, language, question="", *, allow_prefix=Tr
         "text is one unchanged nonempty atomic answer segment. Cover ALL retained text in order, including every modifier/connector and punctuation; only whitespace between segments may be omitted. "
         "Use only the retained prefix if offered. A segment cannot cross a sentence boundary. Split independent claims at real clause boundaries, never split a connected relationship to hide its unsupported link. "
         "A relationship must be evidenced by that passage, not a union of independently true facts. Use full original context to resolve antecedents; the page name alone does not bind he/she/they to its subject. "
+        "Original compositions establishes authorship, not new or newly written material. Audit recaps and pronoun-only sentences against the SAME work's evidence; another work's new material cannot qualify them. "
         "In schema3 an original_paragraphs_v1 span is one literal original contiguous paragraph, not a reconstructed sentence. Its original range and document digest establish continuity only, never semantic causality or actor binding. "
         "Use relationship whenever a segment connects people, works, roles or genres. Independently check that connection, not just its separate nouns. "
         "dj_appreciation is ONLY for purely present narrator appreciation with no factual modifier, historical/sonic assertion or artist psychology. "
@@ -1038,10 +1039,22 @@ _ASSERTION_ROLES = tuple(re.compile(pattern, re.I) for pattern in (
     r"\b(?:artists?|kunstena(?:ar|ars)|künstler(?:in(?:nen)?)?|artistes?|artistas?)\b",
     r"\b(?:visual artists?|beeldend(?:e)? kunstenaar(?:s)?|bildend(?:e[rsnm]?)? künstler(?:in(?:nen)?)?|artistes? (?:visuels?|plasticien(?:ne)?s?)|artistas? (?:visuales|visual|plástic[oa]s?))\b",
 ))
-# Observed background-to-work genre leaks, not a genre taxonomy or a sonic model.
+# "Original" establishes authorship, not whether material was new. This is a
+# conservative evidence check for an observed accepted mistranslation, not an
+# intent recognizer or a replacement for the independent semantic assessment.
+_MATERIAL_NOVELTY = re.compile(
+    r"\b(?:new\s+(?:compositions?|songs?|tracks?|pieces|material)|"
+    r"nieuw(?:e)?\s+(?:composities?|nummers?|liedjes?|stukken|materiaal)|"
+    r"neu(?:e[rsnm]?)?\s+(?:kompositionen?|lieder|stücke|material)|"
+    r"nouv(?:elles?|eaux?)\s+(?:compositions?|chansons?|morceaux)|"
+    r"nouveau\s+matériel|(?:compositions?|chansons?)\s+nouvelles?|"
+    r"nuev[oa]s?\s+(?:composiciones?|canciones?|temas?|material)|"
+    r"(?:composiciones?|canciones?|temas?)\s+nuev[oa]s?)\b", re.I)
+# Observed modifiers must bind this work, not another sentence in its paragraph.
 _WORK_MODIFIERS = (
     re.compile(r"\bambient\b", re.I),
     re.compile(r"\b(?:experimental|experimente(?:el|le)|experimentell(?:e[rsnm]?)?|expérimental(?:e|es|s)?|experimentales)\b", re.I),
+    _MATERIAL_NOVELTY,
 )
 
 
@@ -1152,6 +1165,8 @@ def claim_evidence_ok(answer, data, context):
             # Paragraph context cannot move another sentence's activity or
             # genre onto this work, including when model segments split its name.
             scope=[part for part in _sentences(quote) if mentions(part,anchor)]
+            from ..album_narration import album_pronoun_scope
+            scope.extend(album_pronoun_scope(context, anchor, quote))
         return any(mentions(part,anchor) and _assertions_fit(sentence,part,
                    recording_credit=_recording_credit_quote(context,part))
                    and not any(pattern.search(sentence) and not pattern.search(part)
@@ -1197,7 +1212,7 @@ def claim_evidence_ok(answer, data, context):
         if not isinstance(ids, list) or not all(isinstance(i, str) for i in ids):
             return False
         if check['kind'] == 'dj_appreciation':
-            if ids or check['quote']:
+            if ids or check['quote'] or _MATERIAL_NOVELTY.search(text):
                 return False
         else:
             if len(ids) != 1 or ids[0] not in admitted or check['quote'] != admitted[ids[0]]:
@@ -1206,9 +1221,19 @@ def claim_evidence_ok(answer, data, context):
             if not _assertions_fit(text, check['quote'],
                     recording_credit=_recording_credit_quote(context,check['quote'])):
                 return False
+            if _MATERIAL_NOVELTY.search(text) and not _MATERIAL_NOVELTY.search(check['quote']):
+                return False
         checked_ranges.append((cursor - len(text), cursor, check))
         for anchor in anchors:
             if _answer_mentions_anchor(text, anchor, anchors):
+                from ..album_narration import AlbumResearchContext
+                if (check['kind'] == 'dj_appreciation' and type(context) is AlbumResearchContext
+                        and anchor == context.identity[2]):
+                    # Present interest may name its album. This is not fact
+                    # authority: final whole-sentence work/activity/modifier
+                    # checks below still require the real album source, and
+                    # the independent assessor checks every factual modifier.
+                    continue
                 if not ids or not mentions(check['quote'], anchor):
                     return False
                 # A role modifier elsewhere in the SAME answer sentence cannot
@@ -1220,6 +1245,22 @@ def claim_evidence_ok(answer, data, context):
     # Splitting a name or verb between adjacent segments must not evade the
     # whole-sentence work/role/activity bound. Quotes remain original data.
     for start, finish, sentence in sentence_ranges:
+        if _MATERIAL_NOVELTY.search(sentence):
+            # Atomic segments may split the adjective from its noun. The full
+            # unchanged sentence still needs an actually novelty-bearing source.
+            if not any(start <= first and last <= finish and check['evidence_ids']
+                       and _MATERIAL_NOVELTY.search(check['quote'])
+                       for first, last, check in checked_ranges):
+                return False
+            from ..album_narration import AlbumResearchContext
+            if type(context) is AlbumResearchContext:
+                # A pronoun-only recap is still about this selected album.
+                # Another work's "new" sentence in the same paragraph cannot
+                # become its evidence merely by omitting the target's name.
+                if not any(start <= first and last <= finish and check['evidence_ids']
+                           and work_scope_fits(sentence,check,context.identity[2])
+                           for first, last, check in checked_ranges):
+                    return False
         for anchor in anchors:
             if _answer_mentions_anchor(sentence, anchor, anchors):
                 candidates = [check for first, last, check in checked_ranges

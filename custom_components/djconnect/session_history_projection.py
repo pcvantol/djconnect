@@ -156,13 +156,14 @@ def project_entry(row: dict) -> dict | None:
 
 
 def revision_scope(owner: str, session: dict, mode: str, query: str = "") -> dict:
-    return {
+    from .history_entry_contract import cursor_scope
+    return cursor_scope({
         "profile_id": owner,
         "session_id": session["session_id"],
         "revision": session["revision"],
         "mode": mode,
         "query": query,
-    }
+    })
 
 
 def checked_limit(value: int) -> int:

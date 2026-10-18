@@ -165,6 +165,11 @@ def admission(moment: Any, boundary: MomentDeliveryBoundary | None, *,
             return result
         result['requires_spotify_attribution'] = True
         deadline = min(deadline, source_limit)
+    elif getattr(moment, 'session_opening', None) is not None:
+        from .session_opening import admitted_opening
+        if not admitted_opening(moment):
+            return result
+        history_allowed = True
     elif (not moment.source_attribution
           and moment.source_references == ('session_direction',)
           and moment.moment_type.value == 'session'

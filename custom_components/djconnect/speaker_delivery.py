@@ -25,6 +25,9 @@ def connect_automatic(hass, runtime, session, identity, headers):
     def publication(moment):
         current = manager.current_active(session.owner_profile_id)
         if (current is None or current.session_id != session.session_id
+                or current.selected_presence == 'music_only'
+                or (getattr(moment, 'session_opening', None) is not None
+                    and moment.session_opening.presence == 'music_only')
                 or current.selected_announcement_output not in {'ha_speaker', 'both'}):
             return
         captured = manager.dj_settings_fence_token(session.owner_profile_id)

@@ -174,8 +174,13 @@ async def async_handle_session_history_payload(
     from .session_history_projection import HistoryQueryError
     from .historical_projection_query import HistoricalProjectionAccessDenied
     from .persistence.service import PersistenceError
+    from .history_entry_contract import (request_version, represent, version_context,
+                                          HistoryEntryUpgradeRequired, upgrade_error)
 
+    version_token = None
     try:
+        entry_version = request_version(data.get('history_contract_version'))
+        version_token = version_context.set(entry_version)
         query = query_service(hass, _history_manager(hass, runtime))
         limit = data.get("limit", 20)
         if isinstance(limit, str) and limit.isascii() and limit.isdigit():
@@ -233,13 +238,18 @@ async def async_handle_session_history_payload(
             return _error_payload("history_unavailable"), 403
         if not current.privacy_policy.allow_personal_read or not resolve_profile_privacy_policy(current.profile, {}).allow_personal_read:
             return _error_payload("history_not_allowed"), 403
-        return result, 200
+        return represent(result, entry_version), 200
+    except HistoryEntryUpgradeRequired:
+        return upgrade_error(), 409
     except HistoricalProjectionAccessDenied:
         return _error_payload("history_unavailable"), 404
     except HistoryQueryError as exc:
         return _error_payload(str(exc)), 409 if "cursor" in str(exc) else 400
     except (PersistenceError, RuntimeError):
         return _error_payload("history_unavailable"), 503
+    finally:
+        if version_token is not None:
+            version_context.reset(version_token)
 async def async_handle_session_start_payload(
     hass: Any, data: dict[str, Any], *, headers: Any | None = None, user_id: str | None = None
 ) -> tuple[dict[str, Any], int]:
@@ -307,8 +317,10 @@ async def async_handle_session_start_payload(
 async def _async_generate_initial_session_moment(
     *, hass: Any, integration_runtime: Any, owner_profile_id: str, session: Any
 ) -> None:
-    """Use the established Track Insight pipeline through the Runtime trigger."""
-    await session_runtime_manager(hass).async_process_track_started(
+    """Publish one welcome before using the established Track Insight trigger."""
+    manager = session_runtime_manager(hass)
+    await manager.async_open_session(owner_profile_id=owner_profile_id, session_id=session.session_id)
+    await manager.async_process_track_started(
         owner_profile_id=owner_profile_id,
         session_id=session.session_id,
         insight_provider=_session_track_insight_provider(

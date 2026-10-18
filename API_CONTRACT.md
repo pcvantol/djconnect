@@ -1,5 +1,16 @@
 # DJConnect API Contract
 
+## Retained history consumer correction — local compatibility remains open
+
+Owner timeline entries include four qualified retention bases and the
+source-free `dj_publication`/`dj_silence` forms. The exact table, privacy/source
+boundaries and generated mixed-page fixture are in
+[Session conversation/history](docs/product/SESSION_CONVERSATION_HISTORY_CONTRACT.md#corrective-retained-entry-compatibility--18-october-2026).
+Apple40331's closed decoder rejects a mixed HTTP200 page; this is not a server
+history-not-found response. Current client adoption and backward-compatible
+producer negotiation/projection are separate outstanding gates. Do not relabel
+source text or claim old/offline clients work merely because the new client decodes.
+
 ## Configured voice preview — local producer delta, not installed
 
 The existing paired operation owner locally accepts `speech/preview` with only
