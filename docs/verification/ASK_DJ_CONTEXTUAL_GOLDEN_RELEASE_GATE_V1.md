@@ -1,5 +1,9 @@
 # Ask DJ contextual Golden release gate v1
 
+Latest 18October artist/root-locale extension:53reports/36families/146steps;
+the Spotify owner is explicitly scheduled. Twelve Core and seventeen actual
+quality gates stay OPEN. [Causal qualification](ASK_DJ_NAMED_ARTIST_FAILURE_20261018.md).
+
 18October catalogue follow-up: three steps cover the single playable Metallica
 list, literal prepare1/Settings3/private bytes and safe speech failure/backoff.
 Current51reports/36families/143steps; twelve Core and seventeen actual-quality

@@ -32,6 +32,7 @@ TEST_PATTERNS = (
     'test_session_forecast.py', 'test_passive_session.py',
     'test_local_settings_speech.py', 'test_presence_four_levels.py', 'test_vibecast_renderer.py',
     'test_voice_preview.py',
+    'test_spotify_backend.py',
 )
 
 

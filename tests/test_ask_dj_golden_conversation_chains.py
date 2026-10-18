@@ -66,6 +66,96 @@ class GoldenConversationChains(unittest.IsolatedAsyncioTestCase):
     async def asyncTearDown(self):
         await self.f.asyncTearDown()
 
+    async def test_playback_failure_uses_confirmed_request_language_and_deduplicates_original_turn(self):
+        from custom_components.djconnect.spotify_backend import SpotifyBackendError
+        f = self.f
+        f.runtime.device_language = lambda: "en"
+        prefixes = {"en": "I understood", "nl": "Ik heb", "de": "Ich habe",
+                    "fr": "J’ai", "es": "He entendido"}
+        calls = []
+        async def fail(hass, runtime, text, **kwargs):
+            calls.append(text)
+            raise SpotifyBackendError("Spotify search found no matching artist for: nirvana")
+        for language, prefix in prefixes.items():
+            with self.subTest(language=language), patch.object(f.core, "run_text_command", fail):
+                first, status = await f.request("Ik wil nirvana horen", identifier="failure-locale-" + language,
+                                                language=language)
+                self.assertEqual(status, 200, first)
+                self.assertTrue(first["text"].startswith(prefix), first["text"])
+                self.assertEqual(first["assistant_message"]["text"], first["text"])
+                repeated, status = await f.request("Ik wil nirvana horen", identifier="failure-locale-" + language,
+                                                   language=language)
+                self.assertEqual(status, 200, repeated)
+                self.assertEqual(repeated["assistant_message"]["id"], first["assistant_message"]["id"])
+                self.assertEqual(repeated["text"], first["text"])
+        self.assertEqual(len(calls), 5)
+        history = await f.history.async_history("profile:profile-a")
+        self.assertEqual(len([m for m in history["messages"] if m["role"] == "assistant"]), 5)
+        self.assertEqual(f.prompts, [])
+
+    async def test_named_artist_wishes_use_real_spotify_owner_and_one_dispatch_per_turn(self):
+        from urllib.parse import parse_qs, urlsplit
+        from unittest.mock import AsyncMock
+        from custom_components.djconnect import spotify_backend
+        f = self.f
+        calls, effects = [], []
+        selected = {"artist": "Nirvana", "id": "A" * 22, "track": "B" * 22}
+        class Response:
+            status = 200
+            def __init__(self, body): self.body = body
+            async def __aenter__(self): return self
+            async def __aexit__(self, *args): return None
+            async def json(self, **kwargs): return self.body
+            async def text(self): return ""
+        class Session:
+            def request(self, method, url, **kwargs):
+                path = urlsplit(url).path.removeprefix("/v1")
+                query = parse_qs(urlsplit(url).query)
+                calls.append((method, path))
+                artist = {"id": selected["id"], "name": selected["artist"],
+                          "uri": "spotify:artist:" + selected["id"]}
+                track = {"id": selected["track"], "name": "Selected recording",
+                         "uri": "spotify:track:" + selected["track"], "type": "track",
+                         "duration_ms": 200000, "artists": [artist],
+                         "album": {"id": "Z" * 22, "name": "Selected album", "images": []}}
+                if method == "GET":
+                    if path == "/search":
+                        return Response({"artists": {"items": [artist] if query["q"] == [
+                            'artist:"' + selected["artist"].lower() + '"'] else [{"name": "Wrong artist"}]}})
+                    if path.endswith("/top-tracks"):
+                        return Response({"tracks": [track]})
+                    if path == "/me/player/devices":
+                        return Response({"devices": [{"id": "output-a", "name": "Selected output",
+                                                      "type": "Speaker", "is_active": True}]})
+                    if path == "/me/player":
+                        return Response({"is_playing": True, "item": track, "progress_ms": 0,
+                                         "device": {"id": "output-a", "name": "Selected output", "is_active": True}})
+                    if path == "/artists":
+                        return Response({"artists": []})
+                    if path == "/me/tracks/contains":
+                        return Response([False])
+                if (method, path) == ("PUT", "/me/player/play"):
+                    effects.append(kwargs["json"])
+                    return Response({})
+                raise AssertionError("Unexpected provider I/O: " + method + " " + path)
+        with patch.object(spotify_backend, "async_get_clientsession", return_value=Session()), \
+             patch.object(spotify_backend.SpotifyBackend, "_access_token", new=AsyncMock(return_value="SYNTHETIC_TEST_ACCESS")):
+            for i, name in enumerate(("Nirvana", "Pearl Jam")):
+                selected.update(artist=name, id=("A" if i == 0 else "C") * 22,
+                                track=("B" if i == 0 else "D") * 22)
+                answer, status = await f.request("Ik wil " + name.lower() + " horen",
+                    identifier="actual-owner-wish-" + str(i), language="nl")
+                self.assertEqual(status, 200, answer)
+                self.assertNotIn("playback_failed", str(answer))
+                repeated, status = await f.request("Ik wil " + name.lower() + " horen",
+                    identifier="actual-owner-wish-" + str(i), language="nl")
+                self.assertEqual(status, 200, repeated)
+                self.assertEqual(answer["assistant_message"]["id"], repeated["assistant_message"]["id"])
+        self.assertEqual(effects, [{"uris": ["spotify:track:" + "B" * 22]},
+                                   {"uris": ["spotify:track:" + "D" * 22]}])
+        history = await f.history.async_history("profile:profile-a")
+        self.assertEqual(len([m for m in history["messages"] if m["role"] == "assistant"]), 2)
+
     def catalogue_provider(self, *, empty=False):
         """Only external Spotify reads are fixtures; ordinary Ask DJ owns delivery."""
         calls = []

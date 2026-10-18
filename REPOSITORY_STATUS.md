@@ -1,5 +1,10 @@
 # DJConnect Repository Status
 
+18October named-artist follow-up: directed exact-artist lookup and confirmed
+five-language failure text repair the observed Nirvana/Pearl Jam query failures.
+Golden53reports/36families/146steps; original two replies bind distinct turns.
+No installed playback repair is claimed. [Cause and tests](docs/verification/ASK_DJ_NAMED_ARTIST_FAILURE_20261018.md).
+
 18October catalogue follow-up: artist/genre options now publish one short intro
 and one playable collection. Golden51reports/36families/143steps; twelve Core
 and seventeen actual-quality findings remain OPEN, including the original

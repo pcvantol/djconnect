@@ -920,9 +920,12 @@ class SpotifyBackend:
             raise SpotifyBackendError("Provide a Spotify search query")
         spotify_type = _spotify_search_type(media_type)
         market = str(self.conf.get("spotify_market") or DEFAULT_SPOTIFY_MARKET)
-        params = urlencode({"q": query, "type": spotify_type, "limit": 1, "market": market})
-        data = await self._request("GET", f"/search?{params}")
-        item = _first_search_item(data, spotify_type)
+        if spotify_type == "artist":
+            item, data = await self._search_artist_result(query)
+        else:
+            params = urlencode({"q": query, "type": spotify_type, "limit": 1, "market": market})
+            data = await self._request("GET", f"/search?{params}")
+            item = _first_search_item(data, spotify_type)
         if not item:
             raise SpotifyBackendError(f"Spotify search found no {spotify_type} for: {query}")
         resolved = _normalize_search_item(item, spotify_type, query)
@@ -1160,16 +1163,32 @@ class SpotifyBackend:
         return await self._cached(f"artist_profile:{query.lower()}", load, ttl=LISTENING_PROFILE_CACHE_TTL_SECONDS)
 
     async def _search_artist(self, query: str) -> dict[str, Any]:
+        artist, _ = await self._search_artist_result(query)
+        return artist
+
+    async def _search_artist_result(self, query: str) -> tuple[dict[str, Any], dict[str, Any]]:
+        """Constrain a named artist query, then independently qualify its results.
+
+        Broad top-one relevance can return a related but different artist. A
+        field-qualified phrase and at most ten candidates preserve exact artist
+        identity without trusting rank or increasing the existing alias budget.
+        """
         market = str(self.conf.get("spotify_market") or DEFAULT_SPOTIFY_MARKET)
         for candidate in _artist_search_queries(query):
-            params = urlencode({"q": candidate, "type": "artist", "limit": 1, "market": market})
+            phrase = " ".join(candidate.replace('"', ' ').split())
+            if not phrase:
+                continue
+            params = urlencode({"q": f'artist:"{phrase}"', "type": "artist", "limit": 10, "market": market})
             data = await self._request("GET", f"/search?{params}")
-            artist = _first_search_item(data, "artist")
-            if artist:
-                expected = _normalize_artist_alias_key(candidate)
+            section = data.get("artists") if isinstance(data, dict) else None
+            items = section.get("items") if isinstance(section, dict) else None
+            expected = _normalize_artist_alias_key(candidate)
+            for artist in items[:10] if isinstance(items, list) else []:
+                if not isinstance(artist, dict):
+                    continue
                 actual = _normalize_artist_alias_key(str(artist.get("name") or ""))
                 if actual and actual == expected:
-                    return artist
+                    return artist, data
         raise SpotifyBackendError(f"Spotify search found no matching artist for: {query}")
 
     async def _recently_played(self, *, limit: int = 50) -> list[dict[str, Any]]:
@@ -1475,9 +1494,12 @@ class SpotifyBackend:
     async def _search_uri(self, query: str, media_type: str) -> str:
         spotify_type = _spotify_search_type(media_type)
         market = str(self.conf.get("spotify_market") or DEFAULT_SPOTIFY_MARKET)
-        params = urlencode({"q": query, "type": spotify_type, "limit": 1, "market": market})
-        data = await self._request("GET", f"/search?{params}")
-        item = _first_search_item(data, spotify_type)
+        if spotify_type == "artist":
+            item, data = await self._search_artist_result(query)
+        else:
+            params = urlencode({"q": query, "type": spotify_type, "limit": 1, "market": market})
+            data = await self._request("GET", f"/search?{params}")
+            item = _first_search_item(data, spotify_type)
         uri = str(item.get("uri") or "").strip()
         if not uri:
             self.runtime.last_spotify_search = _spotify_search_debug(

@@ -8298,6 +8298,18 @@ class AskDjTest(unittest.TestCase):
         self.assertIn("Ik heb je muziekverzoek begrepen", result["text"])
         self.assertNotIn("I understood", result["text"])
 
+    def test_explicit_failure_locale_wins_over_question_words_and_runtime_language(self):
+        runtime = make_runtime()
+        runtime.device_language = lambda: "en"
+        prefixes = {"en": "I understood", "nl": "Ik heb", "de": "Ich habe",
+                    "fr": "J’ai", "es": "He entendido"}
+        for key in ("language", "locale"):
+            for language, prefix in prefixes.items():
+                with self.subTest(key=key, language=language):
+                    text = self.ask_dj._playback_failed_text(runtime, "speel Nirvana",
+                        {key: language + "-XX"})
+                    self.assertTrue(text.startswith(prefix), text)
+
     def test_ask_dj_http_rejects_unknown_client_type(self) -> None:
         runtime = make_runtime()
         hass = types.SimpleNamespace(data={self.const.DOMAIN: {"runtime": runtime}})

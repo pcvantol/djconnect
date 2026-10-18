@@ -96,3 +96,19 @@ are action-local, preserve existing global backend-health evidence, provide
 five-language functional guidance and prohibit automatic retry. Dispatch and
 matching target readback remain separate `action_outcome` evidence. A selected
 speaker, successful204 or unchanged older track never claims confirmed music.
+
+
+## Named artist and failure-language correction — 18October2026
+
+The shared Spotify owner uses a quoted artist-field query and at most ten
+candidates, independently requiring the requested normalized artist identity.
+This applies to artist top-track resolution and named-artist media/URI lookups;
+related artists and tribute acts never substitute for an explicit requested name.
+Natural-language parsing remains in the existing shared command owner. The
+backend's catalogue-query field is not authority to start an unrelated result
+from an unparsed sentence. Original selected-artist credits fence the track list.
+
+Common Ask DJ failure text follows its confirmed turn language; raw calls use
+valid explicit requestlocale before legacy defaults. These are repairs to
+existing identity/localization requirements, not a new wire/action contract.
+[Original cause and qualification](../verification/ASK_DJ_NAMED_ARTIST_FAILURE_20261018.md).

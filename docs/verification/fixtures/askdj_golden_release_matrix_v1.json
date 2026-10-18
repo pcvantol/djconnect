@@ -2399,6 +2399,68 @@
           ],
           "acceptance_status": "owner_contract",
           "proof_boundary": "Named owning contract execution; live provider/model/native quality requires separate evidence."
+        },
+        {
+          "question": "Ik wil nirvana horen — Nederlandstalig verzoek, Engelstalige runtime-default, zoekfout",
+          "expected_answer": "Foutantwoord volgt bevestigde requestlocale in alle vijf talen. Dezelfde request-ID levert dezelfde assistantentry en geen tweede uitvoering op.",
+          "model_policy": "zero_new_dialogue_calls",
+          "id": "ASKDJ-REGRESSION-explicit-listening-wish-step-3",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_golden_conversation_chains.py",
+              "method": "test_playback_failure_uses_confirmed_request_language_and_deduplicates_original_turn"
+            },
+            {
+              "file": "tests/test_ask_dj.py",
+              "method": "test_explicit_failure_locale_wins_over_question_words_and_runtime_language"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual common paired handler and Spotify adapter/dispatch guard; external HTTP I/O fixtures. Live HA-dev GET queries separately prove source matching; no live playback, native audibility or installed repair claim."
+        },
+        {
+          "question": "Ik wil Nirvana horen; daarna Ik wil Pearl Jam horen",
+          "expected_answer": "Gerichte artist-phrase-zoekopdracht; exacte naam uit maximaal tien kandidaten, juiste artistcredit en één dispatch per afzonderlijke turn. Geen verwante artiest of tribute.",
+          "model_policy": "zero_new_dialogue_calls",
+          "id": "ASKDJ-REGRESSION-explicit-listening-wish-step-4",
+          "owning_tests": [
+            {
+              "file": "tests/test_spotify_backend.py",
+              "method": "test_named_artist_search_qualifies_all_candidates_and_all_artist_entrypoints"
+            },
+            {
+              "file": "tests/test_spotify_backend.py",
+              "method": "test_named_artist_top_tracks_dispatch_only_the_qualified_artist_credit"
+            },
+            {
+              "file": "tests/test_ask_dj_golden_conversation_chains.py",
+              "method": "test_named_artist_wishes_use_real_spotify_owner_and_one_dispatch_per_turn"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual common paired handler and Spotify adapter/dispatch guard; external HTTP I/O fixtures. Live HA-dev GET queries separately prove source matching; no live playback, native audibility or installed repair claim."
+        },
+        {
+          "question": "Artiest ontbreekt of Spotify geeft401/403/429",
+          "expected_answer": "Geen verkeerde artistfallback, top-trackcall of nieuwe dispatch; providerfout blijft onderscheidbaar. Een onverklaarde ruwe zin is geen artistidentiteit.",
+          "model_policy": "zero_new_dialogue_calls",
+          "id": "ASKDJ-REGRESSION-explicit-listening-wish-step-5",
+          "owning_tests": [
+            {
+              "file": "tests/test_spotify_backend.py",
+              "method": "test_named_artist_lookup_never_accepts_tribute_or_unrelated_result"
+            },
+            {
+              "file": "tests/test_spotify_backend.py",
+              "method": "test_named_artist_lookup_propagates_provider_failures_without_dispatch_or_retry"
+            },
+            {
+              "file": "tests/test_spotify_backend.py",
+              "method": "test_unparsed_sentence_does_not_become_an_unrelated_artist_identity"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual common paired handler and Spotify adapter/dispatch guard; external HTTP I/O fixtures. Live HA-dev GET queries separately prove source matching; no live playback, native audibility or installed repair claim."
         }
       ],
       "owning_tests": [
@@ -4207,6 +4269,18 @@
       "family_id": "ASKDJ-FLOW-search-choice-play",
       "finding": "Original iPhone speech reports Mislukt. Exact intro prepare1/Settings3/private bytes and fixture failure/backoff covered; original native typed failure stage and installed acceptance still missing.",
       "core_qualification": "open"
+    },
+    {
+      "id": "ASKDJ-ISSUE-nirvana-fallback-locale",
+      "family_id": "ASKDJ-REGRESSION-explicit-listening-wish",
+      "finding": "09:12/09:13 Dutch accepted turns received an English failure because fallback ignored requestlocale. Five-language and dedup owner tests now bind the confirmed language.",
+      "core_qualification": "locally_covered"
+    },
+    {
+      "id": "ASKDJ-ISSUE-artist-top-one-search",
+      "family_id": "ASKDJ-REGRESSION-explicit-listening-wish",
+      "finding": "Live broad top-one Nirvana/Pearl Jam lookup returned related wrong artists; exact guard stopped dispatch. Field-qualified phrase lookup plus bounded exact-name candidates repairs the source route without weakening identity. Live playback remains unattempted.",
+      "core_qualification": "locally_covered"
     }
   ],
   "regression_suite_files": [

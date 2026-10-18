@@ -42168,11 +42168,11 @@
       },
       {
         "path": "docs/product/ASK_DJ_PLAYBACK_REQUEST_TRUTH_V1.md",
-        "sha256": "a9ee9dc3689c5f1b11746068e4e2f79d54cdc68af2265b02e468631c2fc5c158"
+        "sha256": "01005eb8ec55e996a9c18723dea9aae1c3eb8d43b2b8c9a5fea07a73be26b36f"
       },
       {
         "path": "docs/verification/ASK_DJ_CONTEXTUAL_GOLDEN_RELEASE_GATE_V1.md",
-        "sha256": "e9b7015724be00328418cde32f8a8323c738454b380187c8b869eebbcaf06290"
+        "sha256": "f1e9e2758aad9e64278e2d47c65d016251a9ca9b6e300b2096fc7df682b24e66"
       },
       {
         "path": "docs/product/VIBECAST_RECEIVER_END_AUTHORITY_RETIREMENT_V1.md",
@@ -42200,7 +42200,7 @@
       },
       {
         "path": "docs/verification/CORE_BRANCH_CONSOLIDATION_20261017.md",
-        "sha256": "da423ea3af05ff54d2f107c1c48704026a6b221d205a9a32b9e16faec93b482a"
+        "sha256": "5da0795d88810b92f9384a18073cabc12211cc929ad0ec07832a89d050ae4b27"
       },
       {
         "path": "docs/product/VIBECAST_DISPLAY_ADMISSION_V1.md",

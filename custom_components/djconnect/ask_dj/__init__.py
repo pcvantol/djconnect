@@ -1858,7 +1858,7 @@ async def _handle_hybrid(
             )
             if speaker_response:
                 return speaker_response
-        dj_text = _playback_failed_text(runtime, text)
+        dj_text = _playback_failed_text(runtime, text, payload)
         updater = getattr(runtime, "update", None)
         if callable(updater):
             updater(last_error=str(exc), last_dj_text=dj_text)
@@ -9402,15 +9402,29 @@ def _output_device_play_request_actions(
     return actions
 
 
-def _playback_failed_text(runtime: Any, text: str = "") -> str:
-    normalized = _normalize(text)
-    if _looks_dutch(normalized):
-        return "Ik heb je muziekverzoek begrepen, maar Spotify kon het nu niet starten."
-    language_getter = getattr(runtime, "device_language", None)
-    language = str(language_getter() or "").lower() if callable(language_getter) else ""
-    if language.startswith("en"):
-        return "I understood your music request, but Spotify could not start it right now."
-    return "Ik heb je muziekverzoek begrepen, maar Spotify kon het nu niet starten."
+def _playback_failed_text(runtime: Any, text: str = "", payload: dict[str, Any] | None = None) -> str:
+    """The confirmed conversation/request language also owns failure replies."""
+    from .dialogue import current_turn
+    turn = current_turn.get()
+    payload = payload if isinstance(payload, dict) else {}
+    has_locale = any(str(payload.get(key) or "").lower().replace("_", "-").split("-", 1)[0]
+                     in {"en", "nl", "de", "fr", "es"}
+                     for key in ("language", "locale", "device_language"))
+    if turn is not None:
+        language = turn.style["language"]
+    elif has_locale:
+        language = _response_language(runtime, payload)
+    elif _looks_dutch(_normalize(text)):
+        language = "nl"
+    else:
+        language = _response_language(runtime)
+    return {
+        "en": "I understood your music request, but Spotify could not start it right now.",
+        "nl": "Ik heb je muziekverzoek begrepen, maar Spotify kon het nu niet starten.",
+        "de": "Ich habe deinen Musikwunsch verstanden, aber Spotify konnte ihn gerade nicht starten.",
+        "fr": "J’ai compris ta demande musicale, mais Spotify n’a pas pu lancer la lecture pour le moment.",
+        "es": "He entendido tu petición musical, pero Spotify no ha podido iniciar la reproducción ahora.",
+    }[language]
 
 
 def _is_help_request(normalized: str) -> bool:
