@@ -1,5 +1,91 @@
 # DJConnect Repository Status
 
+## Current: passive contribution v2 correction — separate Finalization,18October2026
+
+### Repository Status
+
+[Source PR #1205](https://github.com/pcvantol/djconnect/pull/1205) incorporated the
+exact independently reviewed candidate `de05710e103de8d09e381c38b5aa819c44aec10a`
+through protected squash. Source-main and candidate complete-tree equality,
+exact-current Owner Authorization39126672796 and live CI are recorded in the
+[bounded source readback](docs/verification/PASSIVE_PROJECTION_V2_SOURCE_READBACK_20261018.md).
+This dedicated Finalization reconciles source incorporation only.
+
+### Management Summary
+
+Legacy v1 passive consumers retain their two original provenance bases. Explicit
+v2 grants preserve qualified complete researched text and all source attribution;
+Silence blocks older cards. Playback/artwork omissions have independent typed
+reasons and original UTC/monotonic deadlines. Same Runtime/Planner/publication
+owner, no extra model/source work on reads, no relay permission inferred.
+
+Golden inventory57 reports/36families/154steps;12Core findings and19actual-quality
+gates stay OPEN. Host2576 tests passed with7 conditional skips;25 owning tests
+passed in pinned HA and6 connected ordinary-paired HTTP cases passed with matching
+203product/two-harness begin/end hashes. Exact reviewed source fixtures are not
+real-model writing, native widgets, installed v2, audible or background evidence.
+
+### Roadmap Position
+
+Generation2, Product Development, Phase1/Platform Qualification. Existing Core
+personal-DJ/passive corrective continuation; no new family, writer or assignment.
+Preserve historical v1/source-consolidation receipts. Core source progress does
+not close Apple adoption, quiet transport, Watch or joint surface acceptance.
+
+### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+Source: current SETTINGS nodes/prerequisites in the
+[canonical living DAG](docs/roadmap/v1/djconnect-platform-v1.json) and
+[product backlog](PRODUCT_BACKLOG.md). This existing horizon is unchanged;
+Planned/NOT_ISSUED entries are not dispatched by this documentary correction.
+
+1. **SETTINGS::APPLE::EDITOR — Planned.** Existing producer delivered; native adoption remains its owning gate.
+2. **SETTINGS::PI::ADOPTION — Planned.** Same producer prerequisite; preserve Pi ownership.
+3. **SETTINGS::ESP32::ADOPTION — Planned.** Same producer prerequisite plus physical voice/settings evidence.
+4. **SETTINGS::VIBECAST::COMPAT — Planned.** Qualified renderer import and screen admission remain separate.
+5. **SETTINGS::JOINT::ACCEPTANCE — Planned.** Migration and consumer acceptance precede cross-device closure.
+
+### Blocked Items
+
+SURFACE::APPLE::ADOPTION needs exact v2 decoder/layout/attribution and physical
+cache receipts. SURFACE::APPLE::QUIET-TRANSPORT needs the API-owned distinct token
+purpose, operation receipts and source relay policy before network activation;
+background_delivery remains false. The
+[reviewable proposal](docs/product/PASSIVE_QUIET_TRANSPORT_V1_DRAFT.md) names the
+precise gate and consumer work safe before it. No invented endpoint or alert
+policy relaxation. Native/relay ownership and deployment/signing remain separate.
+
+All existing narrative/Persona/Mood, all-family retention/art/replay, Track
+Insight, original native speech/history, LAN/WS, VibeCast, performance/crash/RSS,
+production push and Watch findings remain in their named lanes. Single/bulk
+archive deletion remains selected contract work, not implemented closure.
+
+### Deferred Items
+
+Unselected work remains deferred. No consumer source takeover, new provider,
+production service change, private message or future assignment is introduced.
+
+### Repository State
+
+The source merge is MERGED_UNRECONCILED until this separate Finalization is
+protected merged and exact-main read back. Resulting MERGED_RECONCILED covers
+this source correction only. Release/native/background/product gates stay OPEN.
+
+### Workspace State
+
+WORKSPACE_READY is not claimed for a new capability. Canonical main is reconciled
+separately from retained own squash refs and their recovery bundles. Source
+retention is not unpublished content. Apple WIP, native/profiling evidence and
+HA data are preserved. Specifically authorized compiler-cache cleanup first stopped
+while its guard detected an active Apple build. After that build ended, only the
+approved closed caches were removed; all2575 preserved product/log/test files
+matched their before/after hashes. WIP, native evidence and recovery stayed intact.
+
+HA-dev's verified development build is exact prior main e71daff1, including newer
+Album/Welcome/Preview source and preserved history. Passive v2 is not installed.
+This updates earlier stale dev-state prose without claiming the remaining
+storytelling/audible acceptance. HA-prod unchanged; no qualified release inferred.
+
 ## Current: combined Core source consolidation — separate Finalization, 18 October 2026
 
 ### Repository Status

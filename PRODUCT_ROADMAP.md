@@ -1,5 +1,23 @@
 # DJConnect Product Roadmap
 
+## Current: passive projection v2 source correction —18October2026
+
+[Source1205](https://github.com/pcvantol/djconnect/pull/1205) protected merged as
+`28153891d3fb49a9447047a94e14313dbab94b0b`, from reviewed/owner-authorized
+`de05710e103de8d09e381c38b5aa819c44aec10a`; complete trees equal. Same existing
+Core correction/SURFACE::CORE::PROJECTION owner. V1 provenance compatibility,
+explicit grant-bound v2 researched copy, Silence barrier and independent missing
+music/artwork reasons are source progress. [Readback](docs/verification/PASSIVE_PROJECTION_V2_SOURCE_READBACK_20261018.md).
+
+Apple v2 decoder/layout/attribution, physical cache receipt, distinct API quiet
+registration and relay-purpose qualification remain OPEN in the existing owning
+nodes. The quiet proposal activates no route or background capability. No new
+consumer dispatch, family, provider, source takeover or hardware work. Existing
+57reports/154steps retain12Core and19actual-quality findings. Historical source
+receipts and the unchanged SETTINGS horizon are preserved. Separate Finalization
+reconciles only this source delivery; HA-dev remains the verified e71development
+build, HA-prod unchanged, and v2 is not claimed installed or audible.
+
 ## Current source readback —18October2026
 
 Combined Core source is protected merged through
