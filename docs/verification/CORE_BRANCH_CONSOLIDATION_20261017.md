@@ -1,5 +1,10 @@
 # Core branch consolidation — 17 October2026
 
+18October catalogue follow-up: artist/genre options now publish one short intro
+and one playable collection. Golden51reports/36families/143steps; twelve Core
+and seventeen actual-quality findings remain OPEN, including the original
+Metallica phone-speech failure. [Repair and evidence boundary](ASK_DJ_PLAYABLE_OPTIONS_20261018.md).
+
 Current follow-up — 18 October: the privately installed HA-dev candidate includes
 researched narration, four Presence levels and the shared local/HA speech
 preparation. Its exact artifact is `3a89473e2c9b…`, not a protected release.

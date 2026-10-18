@@ -7278,19 +7278,36 @@ async def _genre_media_options_response(
     album_actions = _album_search_playback_actions(hass, albums, limit=10)
     playlist_actions = _playlist_search_playback_actions(hass, playlists, limit=10)
     actions = _interleave_playback_actions(album_actions, playlist_actions, limit=10)
-    if actions:
-        lines = [
-            f"{index}. {action.get('title') or 'Spotify resultaat'}"
-            + (f" - {action.get('subtitle')}" if action.get("subtitle") else "")
-            for index, action in enumerate(actions, start=1)
-        ]
-        message = (
-            f"Ik vond deze albums en playlists voor {genre}.\n"
-            + "\n".join(lines)
-            + "\n\nTik op Play Now om er eentje direct te starten."
-        )
-    else:
-        message = f"Ik vond nu geen speelbare albums of playlists voor {genre}."
+    return _media_options_response(runtime, genre, actions)
+
+
+def _media_options_response(
+    runtime: Any, query: str, actions: list[dict[str, Any]],
+) -> dict[str, Any]:
+    """One playable collection; its title/art/type belong to the action cards.
+
+    Do not also emit a text list and informational items for those same cards.
+    The accepted intro is the exact replay text; no caller text or new model
+    invocation is needed to present already qualified catalogue choices.
+    """
+    from .dialogue import current_turn
+    turn = current_turn.get()
+    language = turn.style["language"] if turn is not None else _response_language(runtime)
+    introductions = {
+        "en": "I've found albums and playlists for {query}. Choose where we start.",
+        "nl": "Ik heb albums en playlists voor {query} gevonden. Kies waar we mee beginnen.",
+        "de": "Ich habe Alben und Playlists für {query} gefunden. Such aus, womit wir beginnen.",
+        "fr": "J'ai trouvé des albums et playlists pour {query}. Choisis par où on commence.",
+        "es": "He encontrado álbumes y listas para {query}. Elige por dónde empezamos.",
+    }
+    empty = {
+        "en": "I couldn't find playable albums or playlists for {query} just now.",
+        "nl": "Ik vond nu geen speelbare albums of playlists voor {query}.",
+        "de": "Ich habe gerade keine abspielbaren Alben oder Playlists für {query} gefunden.",
+        "fr": "Je n'ai pas trouvé d'albums ou de playlists à écouter pour {query} pour le moment.",
+        "es": "Ahora no he encontrado álbumes ni listas que pueda reproducir para {query}.",
+    }
+    message = (introductions if actions else empty)[language].format(query=query)
     return {
         "success": True,
         "text": message,
@@ -7298,7 +7315,7 @@ async def _genre_media_options_response(
         "action": "none",
         "images": [],
         "playback_actions": actions,
-        "items": actions,
+        "items": [],
         "sources": [
             {"source": "spotify_album_search", "title": "Spotify album search", "kind": "source"},
             {"source": "spotify_playlist_search", "title": "Spotify playlist search", "kind": "source"},
@@ -7318,32 +7335,7 @@ async def _artist_album_playlist_options_response(
     album_actions = _album_search_playback_actions(hass, albums, limit=10)
     playlist_actions = _playlist_search_playback_actions(hass, playlists, limit=10)
     actions = _interleave_playback_actions(album_actions, playlist_actions, limit=10)
-    if actions:
-        lines = [
-            f"{index}. {action.get('title') or 'Spotify resultaat'}"
-            + (f" - {action.get('subtitle')}" if action.get("subtitle") else "")
-            for index, action in enumerate(actions, start=1)
-        ]
-        message = (
-            f"Ik vond deze albums en playlists van {artist}.\n"
-            + "\n".join(lines)
-            + "\n\nTik op Play Now om er eentje direct te starten."
-        )
-    else:
-        message = f"Ik vond nu geen speelbare albums of playlists voor {artist}."
-    return {
-        "success": True,
-        "text": message,
-        "dj_text": message,
-        "action": "none",
-        "images": [],
-        "playback_actions": actions,
-        "items": actions,
-        "sources": [
-            {"source": "spotify_album_search", "title": "Spotify album search", "kind": "source"},
-            {"source": "spotify_playlist_search", "title": "Spotify playlist search", "kind": "source"},
-        ],
-    }
+    return _media_options_response(runtime, artist, actions)
 
 
 def _interleave_playback_actions(

@@ -1,10 +1,16 @@
 # Ask DJ contextual Golden release gate v1
 
+18October catalogue follow-up: three steps cover the single playable Metallica
+list, literal prepare1/Settings3/private bytes and safe speech failure/backoff.
+Current51reports/36families/143steps; twelve Core and seventeen actual-quality
+gates remain OPEN, including the original native speech failure.
+[Qualification and remaining gate](ASK_DJ_PLAYABLE_OPTIONS_20261018.md).
+
 The six CI URL-classification findings in the source fixtures/qualification
 harness are repaired by exact URL-component matching; no scanning exception.
 [Causal qualification and proof boundary](SOURCE_FIXTURE_URL_QUALIFICATION_20261018.md).
 
-18October Preview extension: existing speech family step140 now binds all18
+Earlier 18October Preview extension (historical count): speech family step140 binds all18
 configured voice-preview owner tests.49reports/36families/140steps;11Core and17
 actual-quality gates remain OPEN. Provider/speaker fixtures and true private
 byte ownership do not qualify installed/native/audible voice preview.

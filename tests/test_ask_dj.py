@@ -2981,9 +2981,10 @@ class AskDjTest(unittest.TestCase):
             ["album", "playlist", "album", "playlist"],
         )
         self.assertTrue(all(action["label"] == "Play Now" for action in result["playback_actions"]))
-        self.assertEqual(result["items"], result["playback_actions"])
+        self.assertEqual(result["items"], [])
         self.assertEqual(result["images"], [])
         self.assertIn("albums en playlists voor hardcore", result["dj_text"])
+        self.assertNotIn("1.", result["dj_text"])
         self.assertIn("spotify_album_search", {source["source"] for source in result["sources"]})
         self.assertIn("spotify_playlist_search", {source["source"] for source in result["sources"]})
 
@@ -3058,9 +3059,10 @@ class AskDjTest(unittest.TestCase):
             ["album", "playlist", "album", "playlist"],
         )
         self.assertTrue(all(action["label"] == "Play Now" for action in result["playback_actions"]))
-        self.assertEqual(result["items"], result["playback_actions"])
+        self.assertEqual(result["items"], [])
         self.assertEqual(result["images"], [])
-        self.assertIn("albums en playlists van scala", result["dj_text"])
+        self.assertIn("albums en playlists voor scala", result["dj_text"])
+        self.assertNotIn("1.", result["dj_text"])
         self.assertNotIn("Brainpower", result["dj_text"])
 
     def test_artist_play_request_does_not_become_genre_options(self) -> None:

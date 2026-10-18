@@ -66,6 +66,181 @@ class GoldenConversationChains(unittest.IsolatedAsyncioTestCase):
     async def asyncTearDown(self):
         await self.f.asyncTearDown()
 
+    def catalogue_provider(self, *, empty=False):
+        """Only external Spotify reads are fixtures; ordinary Ask DJ owns delivery."""
+        calls = []
+        albums = [{"uri": "spotify:album:" + char * 22, "title": f"Album {i}",
+                   "artist": "Metallica", "album_image_url": f"https://img.example/album-{i}.jpg"}
+                  for i, char in enumerate("ABCDE", 1)]
+        playlists = [{"uri": "spotify:playlist:" + char * 22, "title": f"Playlist {i}",
+                      "owner": "Catalogue curator", "image_url": f"https://img.example/playlist-{i}.jpg"}
+                     for i, char in enumerate("FGHIJ", 1)]
+
+        async def provider(hass, runtime, command, value=None, **kwargs):
+            calls.append(command)
+            if command == "status":
+                return {"success": True, "playback": {}}
+            if command == "search_albums":
+                return {"success": True, "albums": [] if empty else albums}
+            if command == "search_playlists":
+                return {"success": True, "playlists": [] if empty else playlists}
+            raise AssertionError("Offering a catalogue must not start music: " + command)
+        return provider, calls
+
+    async def test_metallica_options_are_one_playable_list_with_short_intro_in_five_languages(self):
+        f = self.f
+        for language in ("en", "nl", "de", "fr", "es"):
+            with self.subTest(language=language):
+                provider, calls = self.catalogue_provider()
+                with patch.object(f.core, "run_music_command", provider):
+                    answer, status = await f.request("Speel iets van Metallica.",
+                        identifier="metallica-list-" + language, language=language)
+                self.assertEqual(status, 200, answer)
+                self.assertEqual(answer["items"], [])
+                self.assertEqual(answer["assistant_message"]["items"], [])
+                self.assertEqual(answer["text"], answer["assistant_message"]["text"])
+                self.assertLess(len(answer["text"]), 240)
+                self.assertNotIn("1.", answer["text"])
+                actions = answer["playback_actions"]
+                self.assertEqual(len(actions), 10)
+                self.assertEqual({a["kind"] for a in actions}, {"album", "playlist"})
+                self.assertEqual(len({a["uri"] for a in actions}), 10)
+                self.assertTrue(all(a["label"] == "Play Now" and a["image_url"].startswith(
+                    "/api/djconnect/v1/image_proxy/") for a in actions))
+                self.assertEqual(answer["result_set"]["items"], actions)
+                self.assertEqual(answer["assistant_message"]["playback_actions"], actions)
+                for action in actions:
+                    self.assertNotIn(action["title"], answer["text"])
+                self.assertEqual(calls, ["status", "search_albums", "search_playlists"])
+        self.assertEqual(f.prompts, [])
+
+    async def test_catalogue_options_speak_exact_intro_and_serve_private_audio_without_repeating_search(self):
+        from custom_components.djconnect import session_speech
+        f = self.f
+        provider, catalogue_calls = self.catalogue_provider()
+        with patch.object(f.core, "run_music_command", provider):
+            answer, status = await f.request("Speel iets van Metallica.",
+                identifier="metallica-speech", audio_response="always", speech_contract_version=1)
+        self.assertEqual(status, 200, answer)
+        self.assertEqual(answer["items"], [])
+        stack, entity, pipeline, synthesis_calls, processor = f.generic_tts()
+        with stack:
+            payload = {**f.identity, "contract_version": 1,
+                       "reference": answer["session_speech"]["reference"],
+                       "processor": "ha_configured", "voice_preference": "default"}
+            prepared, status = await session_speech.async_handle_prepare(f.hass, payload, headers=f.headers)
+            self.assertEqual(status, 200, prepared)
+            speech = prepared["session_speech"]
+            self.assertEqual(speech["audio_state"], "ready")
+            self.assertEqual("".join(s["text"] for s in speech["segments"]), answer["text"])
+            self.assertEqual(synthesis_calls[0][0], answer["text"])
+            repeated, _ = await session_speech.async_handle_prepare(f.hass, payload, headers=f.headers)
+            self.assertEqual(repeated["session_speech"]["audio_reference"], speech["audio_reference"])
+            asset_payload = {**f.identity, "contract_version": 1,
+                             "asset_id": speech["audio_reference"]["asset_id"]}
+            audio, status = await session_speech.async_handle_audio(f.hass, asset_payload, headers=f.headers)
+            self.assertEqual((status, audio.content_type), (200, "audio/mpeg"))
+            self.assertTrue(processor._valid_mp3(audio.data))
+            self.assertEqual(len(synthesis_calls), 1)
+        self.assertEqual(catalogue_calls, ["status", "search_albums", "search_playlists"])
+        self.assertEqual(f.prompts, [])
+
+    async def test_catalogue_speech_provider_failure_preserves_playable_choices_and_safe_notice(self):
+        from custom_components.djconnect import session_speech
+        f = self.f
+        provider, catalogue_calls = self.catalogue_provider()
+        with patch.object(f.core, "run_music_command", provider):
+            answer, _ = await f.request("Speel iets van Metallica.", identifier="metallica-tts-failure")
+        stack, entity, pipeline, synthesis_calls, processor = f.generic_tts()
+        attempts = []
+        async def failed(*args):
+            attempts.append(True)
+            raise RuntimeError("PRIVATE_PROVIDER_EXCEPTION")
+        entity.async_get_tts_audio = failed
+        payload = {**f.identity, "contract_version": 1,
+                   "reference": answer["session_speech"]["reference"],
+                   "processor": "ha_configured", "voice_preference": "default"}
+        with stack:
+            for index in range(2):
+                prepared, status = await session_speech.async_handle_prepare(f.hass, payload, headers=f.headers)
+                self.assertEqual(status, 200, prepared)
+                self.assertEqual(prepared["session_speech"]["state"], "unavailable")
+                self.assertEqual(prepared["session_speech"]["notification"]["code"],
+                    "tts_preparation_failed")
+                self.assertEqual(prepared["session_speech"]["reason"],
+                    "speech_preparation_failed" if index == 0 else "speech_retry_backoff")
+                self.assertNotIn("PRIVATE_PROVIDER_EXCEPTION", str(prepared))
+        self.assertEqual(attempts, [True])
+        self.assertEqual(len(answer["playback_actions"]), 10)
+        self.assertEqual(catalogue_calls, ["status", "search_albums", "search_playlists"])
+
+    async def test_empty_and_populated_options_keep_one_collection_and_localized_intro(self):
+        f = self.f
+        texts = set()
+        for language in ("en", "nl", "de", "fr", "es"):
+            for empty in (False, True):
+                with self.subTest(language=language, empty=empty):
+                    provider, calls = self.catalogue_provider(empty=empty)
+                    with patch.object(f.core, "run_music_command", provider):
+                        answer, status = await f.request("Speel iets van Metallica.",
+                            identifier=f"options-{language}-{empty}", language=language)
+                    self.assertEqual(status, 200, answer)
+                    self.assertEqual(answer["items"], [])
+                    self.assertEqual(len(answer["playback_actions"]), 0 if empty else 10)
+                    self.assertIn("metallica", answer["text"].lower())
+                    self.assertNotIn("Album 1", answer["text"])
+                    self.assertEqual(calls, ["status", "search_albums", "search_playlists"])
+                    if not empty:
+                        texts.add(answer["text"])
+        self.assertEqual(len(texts), 5)
+        self.assertEqual(f.prompts, [])
+
+    async def test_catalogue_intro_shared_settings_speech3_keeps_identity_and_current_voice(self):
+        from datetime import UTC, datetime
+        from custom_components.djconnect import profile_settings, session_speech
+        from custom_components.djconnect.persistence.dj_settings import ProfileDJSettingsRepository
+        from tests.test_profile_dj_settings_persistence import operation
+        f = self.f
+        f.fixture.manager._settings_repository = ProfileDJSettingsRepository(f.fixture.service)
+        stack, entity, pipeline, synthesis_calls, processor = f.generic_tts()
+        with stack:
+            before, status = await profile_settings.async_handle_settings(f.hass,
+                {**f.identity, "contract_version": 3}, headers=f.headers)
+            self.assertEqual(status, 200, before)
+            accepted, status = await profile_settings.async_handle_settings(f.hass,
+                {**f.identity, "contract_version": 3, "binding": before["binding"],
+                 "operation_id": operation(int(datetime.now(UTC).timestamp() * 1000)),
+                 "expected_defaults_revision": before["snapshot"]["defaults_revision"],
+                 "expected_session": None, "patch": {"announcement_output": "client_device",
+                     "voice": {"kind": "provider_voice", "provider_id": pipeline.tts_engine,
+                               "voice_id": "marin"}}}, headers=f.headers, write=True)
+            self.assertEqual(status, 200, accepted)
+            provider, catalogue_calls = self.catalogue_provider()
+            with patch.object(f.core, "run_music_command", provider):
+                answer, status = await f.request("Speel iets van Metallica.",
+                    identifier="metallica-settings3", speech_contract_version=3)
+            self.assertEqual(status, 200, answer)
+            payload = {**f.identity, "contract_version": 3,
+                       "reference": answer["session_speech"]["reference"],
+                       "processor": "ha_configured", "intent": "manual", "target": "local"}
+            prepared, status = await session_speech.async_handle_prepare(f.hass, payload, headers=f.headers)
+            self.assertEqual(status, 200, prepared)
+            speech = prepared["session_speech"]
+            self.assertEqual(speech["audio_state"], "ready")
+            self.assertEqual(speech["effective_voice"]["voice_id"], "marin")
+            self.assertEqual(speech["effective_voice"]["engine"], pipeline.tts_engine)
+            for key in ("reference", "text_revision", "presentation_revision", "persona",
+                        "persona_revision", "locale", "attribution"):
+                self.assertEqual(speech[key], answer["session_speech"][key], key)
+            self.assertEqual(synthesis_calls[0][0], answer["text"])
+            self.assertEqual(answer["items"], [])
+            self.assertEqual(len(answer["playback_actions"]), 10)
+            after, _ = await profile_settings.async_handle_settings(f.hass,
+                {**f.identity, "contract_version": 3}, headers=f.headers)
+            self.assertEqual(after["snapshot"], accepted["snapshot"])
+        self.assertEqual(catalogue_calls, ["status", "search_albums", "search_playlists"])
+        self.assertEqual(f.prompts, [])
+
     async def test_current_prince_album_period_refinement_keeps_real_titles_and_original_expiry(
         self,
     ):

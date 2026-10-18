@@ -1,5 +1,10 @@
 # DJConnect Repository Status
 
+18October catalogue follow-up: artist/genre options now publish one short intro
+and one playable collection. Golden51reports/36families/143steps; twelve Core
+and seventeen actual-quality findings remain OPEN, including the original
+Metallica phone-speech failure. [Repair and evidence boundary](docs/verification/ASK_DJ_PLAYABLE_OPTIONS_20261018.md).
+
 18October speech follow-up: the existing configured voice-preview design now has
 a local paired producer, five-language literals and owner fixtures. Golden adds
 its route as step140; protected delivery, installed/provider/native/listening

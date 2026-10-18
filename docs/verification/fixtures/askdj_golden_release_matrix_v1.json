@@ -245,6 +245,56 @@
           ],
           "acceptance_status": "owner_contract",
           "proof_boundary": "Actual Core owner with external agent/provider fixtures; paid interpretation, installed and native acceptance remain separate."
+        },
+        {
+          "question": "Speel iets van Metallica.",
+          "expected_answer": "Eén korte gelokaliseerde intro en één lijst playback_actions met tien album-/playlistkaarten, art, type en play. Geen titelopsomming of dubbele items.",
+          "model_policy": "zero_new_dialogue_calls",
+          "id": "ASKDJ-FLOW-search-choice-play-step-10",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_golden_conversation_chains.py",
+              "method": "test_metallica_options_are_one_playable_list_with_short_intro_in_five_languages"
+            },
+            {
+              "file": "tests/test_ask_dj_golden_conversation_chains.py",
+              "method": "test_empty_and_populated_options_keep_one_collection_and_localized_intro"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual common paired handler, reference/Settings/SQLite/private bytes; external Spotify and TTS fixtures. Original installed/native/audible acceptance remains separate."
+        },
+        {
+          "question": "Lees het antwoord met Metallica-keuzes voor.",
+          "expected_answer": "Exact geaccepteerde intro via prepare1 én Settings3/prepare3 en privé-audio; behoud referentie/revisies/provider/stem. Geen extra zoekopdracht of dialoog.",
+          "model_policy": "zero_new_dialogue_calls",
+          "id": "ASKDJ-FLOW-search-choice-play-step-11",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_golden_conversation_chains.py",
+              "method": "test_catalogue_options_speak_exact_intro_and_serve_private_audio_without_repeating_search"
+            },
+            {
+              "file": "tests/test_ask_dj_golden_conversation_chains.py",
+              "method": "test_catalogue_intro_shared_settings_speech3_keeps_identity_and_current_voice"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual common paired handler, reference/Settings/SQLite/private bytes; external Spotify and TTS fixtures. Original installed/native/audible acceptance remains separate."
+        },
+        {
+          "question": "Spraakprovider faalt bij de keuzelijst; luister opnieuw.",
+          "expected_answer": "Veilige functionele melding/backoff; tien afspeelbare keuzes blijven intact. Deze providerfixture verklaart de oorspronkelijke iPhonefout nog niet.",
+          "model_policy": "zero_new_dialogue_calls",
+          "id": "ASKDJ-FLOW-search-choice-play-step-12",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_golden_conversation_chains.py",
+              "method": "test_catalogue_speech_provider_failure_preserves_playable_choices_and_safe_notice"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual common paired handler, reference/Settings/SQLite/private bytes; external Spotify and TTS fixtures. Original installed/native/audible acceptance remains separate."
         }
       ],
       "owning_tests": [
@@ -4144,6 +4194,18 @@
       "id": "ASKDJ-ISSUE-passive-surface-isolation",
       "family_id": "ASKDJ-FLOW-history-private",
       "finding": "Actual native widget cache absent; original later typed denial not captured. Owning grant/lifecycle test uses explicit external source-authority fixture, no native/artwork delivery or installed PASS.",
+      "core_qualification": "open"
+    },
+    {
+      "id": "ASKDJ-ISSUE-metallica-triplicate-catalogue",
+      "family_id": "ASKDJ-FLOW-search-choice-play",
+      "finding": "Metallica options repeat ten results in text, informational items and playable actions. Core now publishes only intro and playback_actions; old archived/client payloads are not rewritten.",
+      "core_qualification": "locally_covered"
+    },
+    {
+      "id": "ASKDJ-ISSUE-metallica-native-tts",
+      "family_id": "ASKDJ-FLOW-search-choice-play",
+      "finding": "Original iPhone speech reports Mislukt. Exact intro prepare1/Settings3/private bytes and fixture failure/backoff covered; original native typed failure stage and installed acceptance still missing.",
       "core_qualification": "open"
     }
   ],

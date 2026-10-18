@@ -197,9 +197,9 @@ class ContextualReleaseGateTest(unittest.TestCase):
         self.assertEqual(proof['literal_core_routes'],48)
         self.assertEqual(proof['executable_help_cases'],60)
         self.assertEqual(proof['conversation_families'],36)
-        self.assertEqual(proof['conversation_steps'],140)
-        self.assertEqual(proof['reported_issues'],49)
-        self.assertEqual(len(proof['open_core_findings']),11)
+        self.assertEqual(proof['conversation_steps'],143)
+        self.assertEqual(proof['reported_issues'],51)
+        self.assertEqual(len(proof['open_core_findings']),12)
         self.assertEqual(proof['proactive_golden_cases'],560)
 
     def test_every_golden_owning_file_is_scheduled_before_provider_work(self):
