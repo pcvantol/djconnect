@@ -40,10 +40,12 @@ with MATCH before this documentary Finalization. It changed no host settings.
 
 Main workflow
 [39120276316](https://github.com/pcvantol/djconnect/actions/runs/39120276316)
-was still running at initial source readback. Its final outcome and the
-blocking contextual release gate require actual subsequent readback. A green
-source PR does not establish official packaging, durable release evidence,
-deployment or runtime sound.
+subsequently completed SUCCESS, including tests, security, HACS, hassfest and
+exact-main coverage. The uploaded `ha-cobertura-coverage` artifact digest is
+`sha256:02c1aca159b247cccc5401d4a70dee38dfb84742358e820427a3ba6875353a44`.
+The automatic blocking contextual release gate is separate and was still
+running at this documentary freeze. No official packaging, durable release
+evidence, deployment or runtime sound is inferred from source CI.
 
 ## Remaining functional and acceptance work
 
