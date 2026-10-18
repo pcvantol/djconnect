@@ -1,5 +1,103 @@
 # DJConnect Verification Prompt Index
 
+## Current: combined Core source consolidation — separate Finalization, 18 October 2026
+
+### Repository Status
+
+PR [#1197](https://github.com/pcvantol/djconnect/pull/1197) protected merged as
+`c98cbf3e3114afb8b8212e18224a337b12af3e27` on 18 October 2026.
+Exact candidate `a5840acdffa99a8c1180d90b714c3c0fb9d983c2` and merge have the
+same complete Git tree `4cafd105617f7bdbff6019efe7b89ed338293966`.
+All 32 source checks succeeded; five conditional jobs skipped. Exact
+[Owner Authorization](https://github.com/pcvantol/djconnect/actions/runs/39120244691)
+passed after the current human merge instruction. Main was fast-forwarded and
+verified clean against origin; no protection bypass or release-gate weakening.
+[Source evidence and remaining gates](docs/verification/CORE_CONSOLIDATION_SOURCE_READBACK_20261018.md).
+
+### Management Summary
+
+All prepared Core source from the Ask DJ correction, VibeCast display admission
+and waiting/glass branches is incorporated. Common Ask DJ context, full-album
+dispatch, truthful playback replies, research/narration, retained Flow/Silence,
+settings-aware speech, four Presence levels, welcome and history representation
+repairs are source progress. Single/bulk archive deletion are contracts only.
+The scoped source merge does not complete the personal-DJ product acceptance.
+
+Current Golden inventory is 57 reports, 36 families, 151 conversation steps;
+12 Core findings and 19 actual-quality steps remain OPEN. The current full host
+regression completed 2,567 tests with seven existing skips; 103 narration-owner tests
+passed in the pinned clean HA image with network disabled and zero paid calls.
+Earlier 28-profile/1,086-test proof remains bound to 85d73, not this candidate.
+Actual eight-cell album publication quality is NO_GO. A separate diagnostic had
+six useful proposals out of eight but no product source admission/publication.
+
+### Roadmap Position
+
+Generation 2, Product Development, Phase 1/Platform Qualification; existing
+Personal DJ corrective acceptance under Speech/Settings and the selected
+VibeCast Core assignment. This Finalization reconciles delivered source only.
+No new capability, consumer dispatch or whole-family completion is selected.
+
+### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+Source: current SETTINGS nodes and prerequisites in
+[canonical living DAG](docs/roadmap/v1/djconnect-platform-v1.json), with
+[product backlog](PRODUCT_BACKLOG.md) and
+[settings contract](docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md).
+These nodes remain Planned/NOT_ISSUED; this projection is not dispatch authority.
+It excludes the merged source-consolidation increment and preserves existing
+consumer ownership. Open work inside the current Core correction stays current,
+rather than becoming an invented next assignment.
+
+1. **SETTINGS::APPLE::EDITOR — Planned.** One Jouw DJ editor and Session controls. Dependency: delivered `SETTINGS::CORE::PRODUCER`, then native adoption. Execution Rationale: first remaining consumer in the current settings scope.
+2. **SETTINGS::PI::ADOPTION — Planned.** Allowed shared settings and legacy disposition. Dependency: the same Core producer and Pi acceptance. Execution Rationale: next named consumer; existing Pi ownership remains intact.
+3. **SETTINGS::ESP32::ADOPTION — Planned.** Assist/voice/settings compatibility. Dependency: the same producer and physical ESP evidence. Execution Rationale: retain the selected hardware consumer after Pi, with no inferred hardware PASS.
+4. **SETTINGS::VIBECAST::COMPAT — Planned.** Allowed Session fields in the shared renderer. Dependency: the same producer, qualified receiver import and screen admission. Execution Rationale: close existing consumer compatibility before joint acceptance.
+5. **SETTINGS::JOINT::ACCEPTANCE — Planned.** Cross-device six-field effects, persistence and cleanup. Dependency: `SETTINGS::CORE::MIGRATION` and consumer evidence. Execution Rationale: joint acceptance follows the owning migration and consumer gates.
+
+### Blocked Items
+
+Real source-grounded storytelling and recognizable Persona/Mood, full retained
+Flow/art/replay, Track Insight, original native speech and historic/active read
+findings remain open in the 57-report Golden register. Rich album retrieval
+admitted zero rich web references in 11 actual HTTP requests; the paid product
+pilot is blocked before credits. No repeated failed pilot is relabelled PASS.
+Single/bulk archive deletion still needs Core producer/fixtures/capabilities.
+VibeCast trust/HA destination/screen, LAN/WS, Watch/OS surfaces, production push,
+performance/crash/RSS and actual native/audible acceptance retain their owners.
+Qualified release artifact and fresh installation admission remain separate.
+
+### Deferred Items
+
+Unselected roadmap work stays deferred. No new model/provider, signing,
+consumer source, hardware/service change or following assignment is introduced.
+
+### Repository State
+
+Repository State: `MERGED_RECONCILED` is the resulting source-consolidation
+state only after this separate documentary Finalization protected merges and
+its exact-main readback succeeds. Until then the source is MERGED_UNRECONCILED.
+Product/release acceptance remains OPEN independently. Main CI and HACS are recorded only when
+actually concluded in the linked source readback; no official artifact PASS
+is inferred from a source merge.
+
+### Workspace State
+
+Workspace State: `NOT_READY` for a new capability. Canonical main is clean and
+synchronized at source readback. Original source refs/worktrees are preserved:
+`git cherry` reports `+` after squash, so the normal deletion exception does not
+admit cleanup. Remote source branches are absent and all three source inputs
+are contained in the combined candidate, with a verified recovery bundle.
+There is no unpublished source delta to merge from those refs. Apple WIP,
+profiling data, HA storage and acceptance evidence remain untouched. The latest
+narration/opening/Preview source is not claimed installed on HA-dev; the minimal
+history-v2 derivative remains the last verified dev artifact. HA-prod is unchanged.
+
+## Historical operational context
+
+Earlier dated checkpoints below are historical snapshots, superseded by the
+current section where they describe current merge, inventory or installed state.
+
 18October speech follow-up: the existing configured voice-preview design now has
 a local paired producer, five-language literals and owner fixtures. Golden adds
 its route as step140; protected delivery, installed/provider/native/listening

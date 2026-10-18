@@ -235,3 +235,12 @@ Full combined2484 tests PASS/seven existing skips;48 focused owner tests PASS;
 static/security PASS; independent scoped technical/privacy GO. The frozen local
 source manifest is an integration-preparation pin only. No protected source,
 installed/native/audible or broader narrative-quality acceptance is inferred.
+
+## Protected source delivery —18October2026
+
+The dated draft/local checkpoints above are preserved. All prepared Core work
+is now incorporated through PR [#1197](https://github.com/pcvantol/djconnect/pull/1197),
+merge `c98cbf3e3114afb8b8212e18224a337b12af3e27`, exact candidate `a5840acdffa99a8c1180d90b714c3c0fb9d983c2`.
+See [current source readback](CORE_CONSOLIDATION_SOURCE_READBACK_20261018.md)
+for exact checks and unchanged quality/release/install boundaries. No historical
+fixture, failed model sample or original evidence hash is rewritten.
