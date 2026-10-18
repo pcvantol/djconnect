@@ -43,6 +43,7 @@ from homeassistant.helpers import device_registry, entity_registry, area_registr
 # ruff: noqa: E402
 ROOT = Path(os.environ.get("DJC_SOURCE_ROOT", "/candidate"))
 sys.path.insert(0, str(ROOT))
+from scripts.verification.source_fixture_urls import exclude_non_english_fixture, fixture_host, wikipedia_api_fixture
 from custom_components.djconnect import DJConnectRuntime, register_http_views, _register_developer_services
 from custom_components.djconnect.ask_dj_history import AskDJHistoryManager
 from custom_components.djconnect.domain.backend import BackendProvider
@@ -83,6 +84,7 @@ def hashes():
     files.append(ROOT / 'scripts/verification/personal_dj_narration_probe.py')
     files.append(ROOT / 'tools/verification/askdj_research_outcomes.py')
     files.append(ROOT / 'scripts/verification/askdj_semantic_read_golden.py')
+    files.append(ROOT / 'scripts/verification/source_fixture_urls.py')
     return {
         str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(files)
     }
@@ -898,7 +900,7 @@ async def main():
                     async def source_fixture(fetch, url, **kwargs):
                         await fetch.guard()
                         fetch.requests += 1
-                        if 'https://en.wikipedia.org/w/api.php?' in url:
+                        if fixture_host(url) == 'en.wikipedia.org' and wikipedia_api_fixture(url):
                             return 200, json.dumps({'query':{'pages':[{
                                 'title':'Brian Eno', 'extract':'<p>Brian Eno is an English musician and artist.</p>',
                                 'pageprops':{'wikibase-shortdesc':'English musician'},
@@ -966,7 +968,7 @@ async def main():
                     english_only = os.environ.get("DJC_ENGLISH_REFERENCE_ONLY") == "1"
                     if english_only:
                         async def english_reference(fetch, url, **kwargs):
-                            if (".wikipedia.org/" in url and "https://en.wikipedia.org/" not in url) or "duckduckgo.com/" in url:
+                            if exclude_non_english_fixture(url):
                                 await fetch.guard()
                                 fetch.requests += 1
                                 return 404, "", url

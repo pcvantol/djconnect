@@ -15,6 +15,9 @@ from unittest.mock import patch
 
 from tests import test_session_conversation_history as fixtures
 from tests.context_variation_fixtures import source
+from scripts.verification.source_fixture_urls import (
+    fixture_host, fixture_location, wikipedia_api_fixture, WIKIPEDIA_HOSTS,
+)
 
 
 class PublicArtistNarrationTest(unittest.IsolatedAsyncioTestCase):
@@ -73,14 +76,17 @@ class PublicArtistNarrationTest(unittest.IsolatedAsyncioTestCase):
         fetch.requests += 1
         self.fetch_owners.append(fetch)
         self.urls.append(url)
+        host = fixture_host(url)
         if self.producer_mode:
-            if 'musicbrainz.org/ws/2/' in url:
+            if host == 'musicbrainz.org' and fixture_location(url).path.startswith('/ws/2/'):
                 return 200,json.dumps({'id':self.selected_credit.contributor_id,
                     'name':self.actor_name_override or self.selected_credit.name,'type':self.actor_type,
                     'relations':[{'type':'wikidata','url':{'resource':'https://www.wikidata.org/wiki/Q1'}}]}),url
-            if 'www.wikidata.org/' in url:
+            if host == 'www.wikidata.org':
                 return 200,json.dumps({'entities':{'Q1':{'id':'Q1','claims':{'P434':[{
                     'mainsnak':{'datavalue':{'value':self.reciprocal_id_override or self.selected_credit.contributor_id}}}]}}}}),url
+            if not wikipedia_api_fixture(url):
+                return 404, '', url
             page = {'title':self.selected_credit.name,'pageprops':{'wikibase_item':self.fetch_qid,
                 'wikibase-shortdesc':'music group' if self.actor_type=='Group' else 'musician'},
                 'revisions':[{'revid':1234}], 'extract':f'<p>{self.selected_credit.name} is a '
@@ -91,10 +97,12 @@ class PublicArtistNarrationTest(unittest.IsolatedAsyncioTestCase):
             if self.after_fetch:
                 await self.after_fetch()
             return 200,json.dumps({'query':{'pages':[page]}}),url
+        if not wikipedia_api_fixture(url):
+            return 404, '', url
         page = {'title':'Nora Vale 1', 'pageprops':{'wikibase_item':self.fetch_qid,
             'wikibase-shortdesc':'music group'}, 'revisions':[{'revid':1234}],
             'extract':'<p>Nora Vale 1 is a music group.</p><p>The group recorded <i>Paper Lanterns</i> with Ada Reed.</p>'}
-        if self.second_only and 'https://nl.wikipedia.org/' in url:
+        if self.second_only and host == 'nl.wikipedia.org':
             page['extract'] = '<p>Nora Vale 1 is a music group.</p>'
         if self.after_fetch:
             await self.after_fetch()
@@ -164,7 +172,7 @@ class PublicArtistNarrationTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(moment.content, self.answer, self.debug)
         self.assertTrue(narration.admitted(moment))
         self.assertEqual(len(self.calls), 2)
-        self.assertFalse(any('duckduckgo' in u for u in self.urls))
+        self.assertFalse(any(fixture_host(u) in {'duckduckgo.com', 'html.duckduckgo.com'} for u in self.urls))
         for prompt in self.calls:
             self.assertNotIn(self.catalog['uri'], prompt)
             self.assertNotIn(self.catalog['album_name'], prompt)
@@ -354,7 +362,39 @@ class PublicArtistNarrationTest(unittest.IsolatedAsyncioTestCase):
                 qualified_music=True,expected_entity_id='Q999',allow_web=False)
         self.assertEqual(sources, [])
         self.assertTrue(self.urls)
-        self.assertTrue(all('wikipedia.org' in u for u in self.urls))
+        self.assertTrue(all(fixture_host(u) in WIKIPEDIA_HOSTS for u in self.urls))
+
+    async def test_source_fixture_rejects_hostnames_hidden_in_paths_queries_or_userinfo(self):
+        async def guard():
+            pass
+        for url in ('https://unrelated.invalid/https://nl.wikipedia.org/w/api.php',
+                    'https://unrelated.invalid/?source=https://www.wikidata.org/wiki/Q1',
+                    'https://nl.wikipedia.org@unrelated.invalid/w/api.php',
+                    'https://nl.wikipedia.org.unrelated.invalid/w/api.php',
+                    'http://nl.wikipedia.org/w/api.php',
+                    'https://nl.wikipedia.org:444/w/api.php'):
+            with self.subTest(url=url):
+                boundary = types.SimpleNamespace(guard=guard, requests=0)
+                status, body, _ = await self.fetch(boundary, url)
+                self.assertEqual((status, body), (404, ''))
+
+    def test_source_fixture_classification_keeps_five_exact_hosts_and_english_probe_filter(self):
+        from scripts.verification.source_fixture_urls import exclude_non_english_fixture
+        for locale in ('en', 'nl', 'de', 'fr', 'es'):
+            url = f'https://{locale}.wikipedia.org/w/api.php?action=query'
+            self.assertTrue(wikipedia_api_fixture(url))
+            self.assertEqual(exclude_non_english_fixture(url), locale != 'en')
+        for url in ('https://duckduckgo.com/html/?q=music',
+                    'https://html.duckduckgo.com/html/?q=music'):
+            self.assertTrue(exclude_non_english_fixture(url))
+            self.assertFalse(wikipedia_api_fixture(url))
+        for url in ('https://unrelated.invalid/?next=https://en.wikipedia.org/w/api.php',
+                    'https://en.wikipedia.org@unrelated.invalid/w/api.php',
+                    'https://en.wikipedia.org.unrelated.invalid/w/api.php',
+                    'http://en.wikipedia.org/w/api.php',
+                    'https://en.wikipedia.org:bad/w/api.php',
+                    'https://en.wikipedia.org:444/w/api.php'):
+            self.assertFalse(wikipedia_api_fixture(url))
 
     async def test_musical_group_identity_accepts_five_language_descriptions_not_generic_group(self):
         async def guard():

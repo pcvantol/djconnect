@@ -50,11 +50,27 @@ class ContextualReleaseGateTest(unittest.TestCase):
             lambda r: r['cases'][0]['metrics'].update(agent_calls=0),
             lambda r: r.update(effects=[{'method': 'PUT'}]),
             lambda r: r.update(source_hashes={}),
+            lambda r: r['source_hashes'].pop('scripts/verification/source_fixture_urls.py'),
             lambda r: r.update(manifest_sha256='wrong'),
         ):
             broken = deepcopy(good)
             change(broken)
             self.assertFalse(matrix.validate_semantic_report(broken))
+
+    def test_source_fixture_classifier_is_pinned_by_actual_harness_and_release_hashes(self):
+        import ast
+        import hashlib
+        matrix = load('fixture_hash_release_matrix', 'tools/verification/run_askdj_release_matrix.py')
+        harness = ROOT/'scripts/verification/verify_ask_dj_contextual_dialogue_http.py'
+        tree = ast.parse(harness.read_text())
+        actual_function = next(node for node in tree.body if isinstance(node, ast.FunctionDef)
+                               and node.name == 'hashes')
+        namespace = {'ROOT': ROOT, 'Path': Path, 'hashlib': hashlib, '__file__': str(harness)}
+        exec(compile(ast.Module(body=[actual_function], type_ignores=[]), str(harness), 'exec'), namespace)
+        actual = namespace['hashes']()
+        self.assertEqual(actual, matrix.expected_source_hashes())
+        helper = 'scripts/verification/source_fixture_urls.py'
+        self.assertEqual(actual[helper], hashlib.sha256((ROOT/helper).read_bytes()).hexdigest())
 
     def test_research_outcomes_never_promote_prefix_fallback_or_denial_to_full(self):
         classifier = load('research_outcomes', 'tools/verification/askdj_research_outcomes.py')

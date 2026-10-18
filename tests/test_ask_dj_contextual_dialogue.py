@@ -15,6 +15,9 @@ import unittest
 from unittest.mock import patch
 
 from tests import test_session_conversation_history as fixture_defs
+from scripts.verification.source_fixture_urls import (
+    fixture_host, wikipedia_api_fixture, WIKIPEDIA_HOSTS,
+)
 
 
 def _quoted_fixture_checks(checks, context):
@@ -1589,7 +1592,7 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
             self.web_calls.append(url)
             boundary.requests += 1
             await boundary.guard()
-            if "wikipedia.org/w/api.php" in url:
+            if wikipedia_api_fixture(url):
                 return 200, json.dumps({"query": {"pages": [{"title": title, "extract": text,
                     "pageprops": {}, "revisions": [{"revid": 123456}]}]}}), url
             return 200, "User-agent: *\nDisallow: /", url
@@ -1643,7 +1646,7 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
         with patch.object(public_research.PublicFetch, "request", unavailable):
             result, status = await self.request("Who is Brian Eno?", identifier="source-unavailable")
         self.assertEqual(status, 200, result)
-        self.assertTrue(any("wikipedia.org" in url for url in self.web_calls))
+        self.assertTrue(any(fixture_host(url) in WIKIPEDIA_HOSTS for url in self.web_calls))
         self.assertEqual(result["public_research_status"]["state"], "unavailable")
         self.assertNotEqual(result["knowledge_basis"], "fetched_public_music_research_v1")
         self.assertFalse(result.get("links"))
@@ -1701,7 +1704,7 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
             self.web_calls.append(url)
             fetch.requests += 1
             from urllib.parse import parse_qs, urlsplit
-            if "wikipedia.org/w/api.php" in url:
+            if wikipedia_api_fixture(url):
                 title = parse_qs(urlsplit(url).query).get("titles", [""])[0]
                 return 200, json.dumps({"query": {"pages": [{"title": title,
                     "extract": title + " is a musician. Synthetic music-reference identity fixture, not real-world evidence.",

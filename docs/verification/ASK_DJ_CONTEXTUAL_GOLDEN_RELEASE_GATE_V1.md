@@ -1,5 +1,9 @@
 # Ask DJ contextual Golden release gate v1
 
+The six CI URL-classification findings in the source fixtures/qualification
+harness are repaired by exact URL-component matching; no scanning exception.
+[Causal qualification and proof boundary](SOURCE_FIXTURE_URL_QUALIFICATION_20261018.md).
+
 18October Preview extension: existing speech family step140 now binds all18
 configured voice-preview owner tests.49reports/36families/140steps;11Core and17
 actual-quality gates remain OPEN. Provider/speaker fixtures and true private

@@ -164,6 +164,7 @@ def expected_source_hashes():
     files.append(ROOT/'scripts/verification/personal_dj_narration_probe.py')
     files.append(ROOT/'tools/verification/askdj_research_outcomes.py')
     files.append(ROOT/'scripts/verification/askdj_semantic_read_golden.py')
+    files.append(ROOT/'scripts/verification/source_fixture_urls.py')
     return {str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for p in files}
 
 

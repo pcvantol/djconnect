@@ -1918,6 +1918,18 @@
             {
               "file": "tests/test_personal_dj_narration_public_artist.py",
               "method": "test_story_without_named_artist_is_not_admitted_for_contextless_tts"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_source_fixture_rejects_hostnames_hidden_in_paths_queries_or_userinfo"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_source_fixture_classification_keeps_five_exact_hosts_and_english_probe_filter"
+            },
+            {
+              "file": "tests/test_askdj_contextual_release_gate.py",
+              "method": "test_source_fixture_classifier_is_pinned_by_actual_harness_and_release_hashes"
             }
           ],
           "acceptance_status": "open_real_quality",
@@ -2132,6 +2144,18 @@
             {
               "file": "tests/test_personal_dj_narration_public_artist.py",
               "method": "test_id_review_preserves_exact_evidence_and_coverage_without_model_quote_echo"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_source_fixture_rejects_hostnames_hidden_in_paths_queries_or_userinfo"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_source_fixture_classification_keeps_five_exact_hosts_and_english_probe_filter"
+            },
+            {
+              "file": "tests/test_askdj_contextual_release_gate.py",
+              "method": "test_source_fixture_classifier_is_pinned_by_actual_harness_and_release_hashes"
             }
           ],
           "acceptance_status": "open_real_quality",
