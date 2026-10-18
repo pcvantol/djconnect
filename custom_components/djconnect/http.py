@@ -3141,6 +3141,10 @@ class DJConnectPassiveSurfaceImageView(_DJConnectSessionView):
         if len(payload) != len(request.query) or payload.get('contract_version') != '1':
             return self.json({'success': False, 'error': 'invalid_request'}, status_code=400)
         payload.update(contract_version=1, session_id=session_id)
+        if 'projection_version' in payload:
+            if payload['projection_version'] not in ('1', '2'):
+                return self.json({'success': False, 'error': 'invalid_request'}, status_code=400)
+            payload['projection_version'] = int(payload['projection_version'])
         result, status = await handle(request.app['hass'], payload, headers=request.headers)
         if status != 200:
             return self.json(result, status_code=status)

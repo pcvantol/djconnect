@@ -1,5 +1,12 @@
 # Ask DJ contextual Golden release gate v1
 
+18October passive correction adds three owner-read scenarios: explicit v1/v2
+negotiation for complete researched narration, Silence as an older-copy barrier,
+and independent playback/artwork omission reasons. Inventory57reports,36families,
+154steps; twelve Core findings and nineteen actual-quality gates remain OPEN.
+Native widget/Activity and quiet-background delivery are not closed by these
+contracts. [Qualification](PASSIVE_SESSION_PROJECTION_V2_20261018.md).
+
 18October album follow-up: actual HA-dev date-only Symphonic Tales publications
 expose missing album research. The same expression owner now resolves an exact
 public album/artist and assesses the full story. Golden55/36/150 retains12Core

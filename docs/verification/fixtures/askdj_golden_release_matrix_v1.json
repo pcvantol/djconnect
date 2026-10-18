@@ -1716,6 +1716,52 @@
           ],
           "acceptance_status": "owner_contract",
           "proof_boundary": "Actual paired handler/SQLite/query and immutable consumer fixture; native Apple acceptance and coordinated installed version2 remain separate. Original reported HTTP404 is not closed."
+        },
+        {
+          "id": "ASKDJ-FLOW-passive-versioned-narration",
+          "question": "Toon dezelfde onderzochte DJ-bijdrage op widget en Live Activity vanuit een oude en een nieuwe client.",
+          "expected_answer": "V1 houdt zijn oorspronkelijke provenancewoorden; expliciet onderhandeld v2 bewaart de volledige toegelaten tekst, alle bronnen en attributie. Grant en imageGET blijven aan dezelfde versie gebonden.",
+          "model_policy": "no_model_owner_read_only",
+          "owning_tests": [
+            {
+              "file": "tests/test_passive_session.py",
+              "method": "test_projection_version_is_explicit_grant_bound_and_widget_needs_no_lock_consent"
+            },
+            {
+              "file": "tests/test_passive_session.py",
+              "method": "test_v1_never_emits_new_basis_while_v2_preserves_complete_sources_and_pure_reads"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Real Runtime/acceptance with external source/model fixtures; separate ordinary-paired HA HTTP profile in scripts/verification/passive_public_v2_lab.py. Native, installed, voice and quiet-background acceptance remain separate."
+        },
+        {
+          "id": "ASKDJ-FLOW-passive-silence-barrier",
+          "question": "Laat de widget opnieuw lezen nadat de DJ bewust stil is gebleven.",
+          "expected_answer": "Silence onderdrukt iedere oudere bijdrage, ook na zijn eigen deadline; verse muziekmetadata mag afzonderlijk zichtbaar blijven. Geen extra modelaanroep, bronlookup of nieuwe publicatie.",
+          "model_policy": "no_model_owner_read_only",
+          "owning_tests": [
+            {
+              "file": "tests/test_passive_session.py",
+              "method": "test_silence_never_resurrects_an_older_passive_contribution"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Real Runtime/acceptance with external source/model fixtures; separate ordinary-paired HA HTTP profile in scripts/verification/passive_public_v2_lab.py. Native, installed, voice and quiet-background acceptance remain separate."
+        },
+        {
+          "id": "ASKDJ-FLOW-passive-independent-omission",
+          "question": "Waarom toont mijn widget wel een geldige sessie maar geen nummer, bijdrage of hoes?",
+          "expected_answer": "V2 benoemt afzonderlijk ontbrekende observatie, gewijzigde identiteit, bronkwalificatie, onvoorbereid artwork en oorspronkelijke expiratie. Transportfouten blijven fouten; geen verzonnen verse lege snapshot.",
+          "model_policy": "no_model_owner_read_only",
+          "owning_tests": [
+            {
+              "file": "tests/test_passive_session.py",
+              "method": "test_v2_independent_empty_playback_artwork_and_freshness_reasons"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Real Runtime/acceptance with external source/model fixtures; separate ordinary-paired HA HTTP profile in scripts/verification/passive_public_v2_lab.py. Native, installed, voice and quiet-background acceptance remain separate."
         }
       ],
       "owning_tests": [
@@ -4469,7 +4515,7 @@
     {
       "id": "ASKDJ-ISSUE-passive-surface-isolation",
       "family_id": "ASKDJ-FLOW-history-private",
-      "finding": "Actual native widget cache absent; original later typed denial not captured. Owning grant/lifecycle test uses explicit external source-authority fixture, no native/artwork delivery or installed PASS.",
+      "finding": "Actual native widget cache absent; original later typed denial not captured. Owning grant/lifecycle test uses explicit external source-authority fixture, no native/artwork delivery or installed PASS. Consumer40336/40337 additionally found legacy provenance incompatibility and valid empty playback/contribution/artwork; version negotiation, independent omission reasons and Silence barrier now have explicit owning regressions. Native adoption and quiet transport remain open.",
       "core_qualification": "open"
     },
     {
