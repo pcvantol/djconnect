@@ -104,6 +104,7 @@ class PersistentSessionLifecycleTest(unittest.TestCase):
         self.assertEqual(projection.historical_session_id, duplicate.historical_session_id)
 
     def test_historical_moment_projection_is_owner_scoped_and_idempotent(self) -> None:
+        asyncio.run(self.sessions.async_create("profile-a", session_id="session-a"))
         history = HistoricalProjectionRepository(self.service)
         first = asyncio.run(history.async_project_moment(session_id="session-a", moment_id="moment-a", owner_profile_id="profile-a", moment_type="track", rendered_text="Safe text", presentation_metadata="{}", ordering=0, created_at="2026-01-01T00:00:00+00:00"))
         duplicate = asyncio.run(history.async_project_moment(session_id="session-a", moment_id="moment-a", owner_profile_id="profile-a", moment_type="track", rendered_text="changed", presentation_metadata="{}", ordering=0, created_at="2026-01-01T00:00:00+00:00"))

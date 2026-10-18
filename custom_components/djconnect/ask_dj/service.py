@@ -250,6 +250,7 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
             persist_history = False
         payload = {**payload, "private_session": not persist_history}
         generation = frame.generation
+        read_context_revision = frame.read_context_revision
 
         async def guard(*, check_runtime=True, owner=validate_owner, immediate=validate_immediate):
             await owner()
@@ -279,7 +280,8 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
                     track_bound and not explicit_action and current.broadcast.state.playback.item_id != captured):
                     raise SessionConversationError("session_context_changed")
             validate_persona()
-            if frame.generation != generation:
+            if (frame.generation != generation
+                    or frame.read_context_revision != read_context_revision):
                 raise SessionConversationError("conversation_context_changed")
             if immediate is not None:
                 immediate()
@@ -371,7 +373,7 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
                              "occurred_at": saved[role]["created_at"]}
                             for kind, role in (("conversation_user", "user_message"), ("conversation_dj", "assistant_message"))])
                     await validate_owner()
-                    expected = str(saved.get("history_trimmed_count", 0))+":"+str(saved.get("clear_revision", 0)) if new else scope_revision
+                    expected = history_manager.scope_revision_for_receipt(scope, saved) if new else scope_revision
                     if await history_manager.async_scope_revision(scope) != expected:
                         raise SessionConversationError("conversation_history_changed")
                     for dependency in saved["assistant_message"].get("historical_entry_references", []):
@@ -474,14 +476,16 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
         history_manager.dialogue.remember_catalogue_read(turn, response, future)
         return response
     except (SessionConversationError, DialogueError) as exc:
-        if turn is not None and turn.effect_started and frame.generation == turn.generation:
+        if (turn is not None and turn.effect_started and frame.generation == turn.generation
+                and frame.read_context_revision == turn.read_context_revision):
             frame.retry = {"text":text,"uncertain":True}
         if reserved and future and not future.done():
             future.set_exception(exc)
             future.exception()  # observed by the owner too, without unhandled-future noise
         raise SessionConversationError(exc.code, exc.status) from exc
     except BaseException as exc:
-        if turn is not None and turn.effect_started and frame.generation == turn.generation:
+        if (turn is not None and turn.effect_started and frame.generation == turn.generation
+                and frame.read_context_revision == turn.read_context_revision):
             frame.retry = {"text": text, "uncertain": True}
         if reserved and future and not future.done():
             future.set_exception(exc)

@@ -76,6 +76,9 @@ class SessionConversationHistoryTest(unittest.IsolatedAsyncioTestCase):
         original = ROOT/'examples/client_contracts/session_conversation_history/retention-bases-v1.json'
         self.assertEqual(hashlib.sha256(original.read_bytes()).hexdigest(),
             '600e6c68e26b798ddb5dd73daf8b801464d8647ca68764766e37297f13ce3916')
+        frozen_v2 = ROOT/'examples/client_contracts/session_conversation_history/retention-bases-v2.json'
+        self.assertEqual(hashlib.sha256(frozen_v2.read_bytes()).hexdigest(),
+            'da5d8674dc49adb1cc0fabcca51d4f8b730d31f1179462160d1f68aa97e19b14')
         produced = await build_connected(self.service)
         self.assertEqual(produced,json.loads((ROOT/FIXTURE).read_text()))
         self.assertEqual(produced['tail_window']['schema_version'],2)

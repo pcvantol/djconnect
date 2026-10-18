@@ -486,8 +486,11 @@ identity, `Cache-Control:no-store` / `Referrer-Policy:no-referrer` on all outcom
 
 Only an explicit confirmed user action sends this request. The resolved paired
 Profile is authoritative; a supplied Profile hint never chooses another owner.
-`expected_revision` is the opaque Session header revision already returned by
-history list/detail; do not parse or reconstruct it. `operation_id` is a new UUIDv7
+`expected_revision` is the exact opaque `session.revision` from a fresh existing
+authorized **detail** read before confirmation, negotiating history-entry2 when
+required. The list currently returns an integer SQL sync revision; it is not the
+delete compare-and-swap token. Do not convert that integer, parse or reconstruct
+the opaque detail revision. A changed detail requires a new confirmation. `operation_id` is a new UUIDv7
 for this deliberate operation, not a chat ID. Reuse the existing bounded operation
 journal clock: five-minute lifetime and30-second future skew; no automatic
 renewal or retry. The receipt binds the resolved owner and exact paired-device/
@@ -636,3 +639,19 @@ conflicting operations; Store/SQLite/journal failure and unknown outcomes;
 concurrent pending writes/read/prepare; durable restart and every reopen path.
 No personal Session is deleted for qualification. Exact producer fixtures and pin
 are pending; client UI tests do not establish producer or installed completion.
+
+
+### Erasure safety foundation — source qualification, not producer completion
+
+The [18October safety foundation](../verification/ARCHIVED_SESSION_ERASURE_SAFETY_20261018.md)
+adds targeted Store pruning, pending-context/retry withdrawal and durable-header
+checks for delayed projection writers. Client clear revision still advances when
+stored exchanges disappear; a separate validated internal counter preserves the
+privacy revision of independent accepted live speech. Normal/full clear remains
+a privacy withdrawal. Unknown Store acknowledgements block stale history access
+until the same Store owner reloads and reapplies the erasure.
+
+These are internal prerequisites. Single/bulk endpoints, the durable cross-owner
+operation coordinator, snapshot admission and all producer-completion gates
+remain **OPEN**. Neither deletion capability is advertised. A protected merge of
+this foundation cannot close the manual deletion function or consumer acceptance.

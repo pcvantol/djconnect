@@ -663,10 +663,15 @@ class HistoricalProjectionRepository(PersistenceRepository):
     ) -> HistoricalSessionProjection | None:
         """Existing aggregate/header and accepted qualified projections, one transaction."""
         policy = tx.fetchone(
-            "SELECT history_enabled FROM djconnect_persistent_sessions WHERE session_id=?",
+            "SELECT history_enabled,owner_profile_id,lifecycle_status "
+            "FROM djconnect_persistent_sessions WHERE session_id=?",
             (session.session_id,),
         )
-        if policy is not None and not policy[0]:
+        # A delayed Runtime must not recreate an erased Session's legacy
+        # projection. The durable header, owner and terminal state authorize it.
+        if (policy is None or not policy[0] or policy[1] != session.owner_profile_id
+                or policy[2] not in {"ENDED", "INTERRUPTED"}
+                or policy[2] != session.lifecycle_status):
             return None
         retention = tx.fetchone("SELECT retention_days FROM djconnect_session_retention WHERE singleton=1")[0]
         terminal = session.ended_at or session.interrupted_at or session.created_at
@@ -740,7 +745,7 @@ class HistoricalProjectionRepository(PersistenceRepository):
 
     async def async_project_session(
         self, session: PersistentSession
-    ) -> HistoricalSessionProjection:
+    ) -> HistoricalSessionProjection | None:
         return await self._async_in_transaction(lambda tx: self._project_terminal_tx(tx, session))
 
     async def async_project_moment(
@@ -755,11 +760,16 @@ class HistoricalProjectionRepository(PersistenceRepository):
         ordering: int,
         created_at: str,
         visibility: str = "owner",
-    ) -> str:
+    ) -> str | None:
         """Persist one already-canonical renderer-safe Moment projection once."""
         identifier = f"historical-moment-{uuid4().hex}"
 
-        def write(tx: PersistenceTransaction) -> str:
+        def write(tx: PersistenceTransaction) -> str | None:
+            header = tx.fetchone(
+                "SELECT owner_profile_id,history_enabled FROM djconnect_persistent_sessions "
+                "WHERE session_id=?", (session_id,))
+            if header is None or header[0] != owner_profile_id or not header[1]:
+                return None
             existing = tx.fetchone(
                 "SELECT historical_moment_id FROM djconnect_historical_moments "
                 "WHERE originating_session_id=? AND originating_moment_id=?",

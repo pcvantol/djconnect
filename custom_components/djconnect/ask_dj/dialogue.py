@@ -126,10 +126,13 @@ class DialogueFrame:
     archiveable: bool = True
     inflight: dict[str, tuple[str, asyncio.Future, bool]] = field(default_factory=dict)
     catalogue_replays: dict[str, tuple[str, asyncio.Future | None, bool, int, float]] = field(default_factory=dict)
+    read_context_revision: int = 0
+    read_admission_closed: bool = False
 
     def reset(self, generation: str) -> None:
         if self.generation != generation:
             self.catalogue_replays.clear()
+            self.read_admission_closed = False
         self.generation = generation
         self.messages.clear()
         self.local_turns.clear()
@@ -181,6 +184,10 @@ class DialogueTurn:
     clear_result_set: bool = False
     resolving_output_request: bool = False
     play_output_id: str = ""
+    read_context_revision: int = field(init=False)
+
+    def __post_init__(self):
+        self.read_context_revision = self.frame.read_context_revision
 
     def require_effect(self, family, *, media=(), output_id=""):
         for grant in self.effect_grants:
@@ -195,7 +202,8 @@ class DialogueTurn:
 
     async def guard(self) -> None:
         await self.validate()
-        if self.frame.generation != self.generation:
+        if (self.frame.generation != self.generation
+                or self.frame.read_context_revision != self.read_context_revision):
             raise DialogueError("conversation_context_changed")
         for validate in self.effect_validators:
             validate()
@@ -315,7 +323,40 @@ class DialogueState:
             for frame in threads.values():
                 frame.clear_speech()
 
+    def forget_archived_sessions(self, scope: str, session_ids: frozenset[str]) -> None:
+        """Withdraw erased read context, preserving unrelated accepted audio.
+
+        Opaque request digests/deadlines survive body eviction, so erasure cannot
+        turn an old retry into a fresh catalogue lookup or playback mutation.
+        """
+        for frame in self.owners.get(scope, {}).values():
+            frame.read_context_revision += 1
+            frame.messages.clear()
+            frame.local_turns.clear()
+            frame.subjects.clear()
+            frame.dependencies.clear()
+            frame.retry = frame.result_set = frame.pending = None
+            frame.chosen_action_id = ""
+            for identifier, row in list(frame.catalogue_replays.items()):
+                frame.catalogue_replays[identifier] = (row[0], None, row[2], 0, row[4])
+            for identifier, row in frame.inflight.items():
+                if identifier not in frame.catalogue_replays and len(frame.catalogue_replays) >= MAX_READ_RECEIPTS:
+                    # Do not evict dedup proof to admit a new effect. This frame
+                    # remains closed until its existing lifecycle replaces it.
+                    frame.read_admission_closed = True
+                    continue
+                frame.catalogue_replays[identifier] = (
+                    row[0], None, row[2], 0, frame.touched + IDLE_SECONDS)
+            for record in list(frame.speech_references.values()):
+                if (record.get("session_id") in session_ids
+                        or any(ref.get("session_id") in session_ids
+                               for ref in record.get("dependencies", []))):
+                    record["dispose"]()
+
     def reserve(self, frame, identifier, digest, fast):
+        tombstone = frame.catalogue_replays.get(identifier)
+        if tombstone is not None and tombstone[1] is None:
+            raise DialogueError("choice_expired" if tombstone[0] == digest else "client_message_conflict")
         previous = frame.inflight.get(identifier) or frame.catalogue_replays.get(identifier)
         if previous:
             if previous[0] != digest:
@@ -323,6 +364,8 @@ class DialogueState:
             if previous[1] is None:
                 raise DialogueError("choice_expired")
             return previous[1], False
+        if frame.read_admission_closed:
+            raise DialogueError("conversation_capacity", 503)
         if not fast and len(frame.catalogue_replays) >= MAX_READ_RECEIPTS:
             raise DialogueError("conversation_capacity", 503)
         if len(frame.inflight) >= 4 or (
@@ -354,7 +397,9 @@ class DialogueState:
 
     def complete(self, turn: DialogueTurn, result: dict) -> None:
         frame = turn.frame
-        if frame.generation != turn.generation or not result.get("success"):
+        if (frame.generation != turn.generation
+                or frame.read_context_revision != turn.read_context_revision
+                or not result.get("success")):
             return
         if turn.reset_topic:
             frame.reset(turn.generation)

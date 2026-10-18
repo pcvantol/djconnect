@@ -46,6 +46,57 @@ def _research_generation_fixture(projection, answer):
 
 
 class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
+    async def test_targeted_archive_erasure_preserves_independent_live_speech_and_new_asks(self):
+        from custom_components.djconnect import session_speech
+        from custom_components.djconnect.ask_dj.dialogue import source_scope
+        old, moment, reference = await self.selected_credit()
+        await self.fixture.manager.async_end(owner_profile_id='profile-a', session_id=old.session_id)
+        live = await self.fixture.manager.async_start(owner_profile_id='profile-a', locale='en')
+        independent, status = await self.request('What is an ostinato?', identifier='independent-live',
+            context={'session_id': live.session_id})
+        self.assertEqual(status, 200, independent)
+        dependent, status = await self.request('Who is Brian Eno?', identifier='dependent-old',
+            context={'session_id': live.session_id, 'selected_entry': reference})
+        self.assertEqual(status, 200, dependent)
+        before_revision = self.history.scope_revision('profile:profile-a')
+        removed = await self.history.async_forget_archived_sessions('profile-a', frozenset({old.session_id}))
+        self.assertGreater(removed, 0)
+        self.assertEqual(self.history.scope_revision('profile:profile-a'), before_revision)
+        from custom_components.djconnect.profile_context import profile_storage
+        profile = profile_storage(self.hass).resolver().resolve_bound_device(self.identity['device_id'])
+        descriptor, guard = await session_speech.resolve_dialogue(self.hass, self.history, 'profile-a',
+            independent['session_speech']['reference'], profile_source=source_scope(profile))
+        guard()
+        self.assertEqual(''.join(segment['text'] for segment in descriptor['segments']), independent['text'])
+        with self.assertRaises(PermissionError):
+            await session_speech.resolve_dialogue(self.hass, self.history, 'profile-a',
+                dependent['session_speech']['reference'], profile_source=source_scope(profile))
+        accepted, status = await self.request('What is a crescendo?', identifier='new-after-erasure',
+            context={'session_id': live.session_id})
+        self.assertEqual(status, 200, accepted)
+        self.assertTrue(accepted['success'])
+        self.assertIs(self.fixture.manager.current_active('profile-a'), live)
+        self.assertEqual(self.effects, [])
+
+    async def test_retained_speech_source_has_session_bound_targeted_withdrawal(self):
+        from custom_components.djconnect import session_speech
+        from custom_components.djconnect.dj_response import invalidate_private_speech_sources
+        old, moment, reference = await self.selected_credit()
+        await self.fixture.manager.async_end(owner_profile_id='profile-a', session_id=old.session_id)
+        descriptor, guard = await session_speech.resolve_retained(self.hass, self.history, 'profile-a', reference)
+        self.assertEqual(guard.session_id, old.session_id)
+        withdrawn = []
+        guard.on_withdraw(lambda: withdrawn.append('old'))
+        before = self.hass.data['djconnect']['tts_audio_authority_revision']
+        invalidate_private_speech_sources(self.hass, session_id='unrelated')
+        guard()
+        self.assertEqual(withdrawn, [])
+        invalidate_private_speech_sources(self.hass, session_id=old.session_id)
+        self.assertEqual(withdrawn, ['old'])
+        self.assertEqual(self.hass.data['djconnect']['tts_audio_authority_revision'], before)
+        with self.assertRaises(PermissionError):
+            guard()
+
     async def test_mood_prosody_preserves_literal_text_voice_and_provider_settings(self):
         import sys
         from types import ModuleType
