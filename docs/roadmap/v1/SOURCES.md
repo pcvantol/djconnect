@@ -36,7 +36,7 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 | [docs/product/DJ_PRESENCE_CORE_POLICY_V1.md](../../../docs/product/DJ_PRESENCE_CORE_POLICY_V1.md) | `8d8a0871538d18df4a273c583836b29a4e45f3cb5f95ed663f8bde21977fde7e` |
 | [docs/product/DJ_PRESENCE_OWNER_CONTRACT_V1.md](../../../docs/product/DJ_PRESENCE_OWNER_CONTRACT_V1.md) | `be132d88b24f54659f4ab64e8381b4d2e3a45e3fdd874ce37ab6cf5e515bcc9c` |
 | [docs/product/DISCOVERY_ARTWORK_CONTINUITY_V1.md](../../../docs/product/DISCOVERY_ARTWORK_CONTINUITY_V1.md) | `66afc37ff6b71b0dacffe6e340ccde274bd3f0f7354155920ebd327fd822ed98` |
-| [API_CONTRACT.md](../../../API_CONTRACT.md) | `275c911ddcecc478453349b2000db50cbd067b1f549bda78995a4cc3abbfc4b2` |
+| [API_CONTRACT.md](../../../API_CONTRACT.md) | `48625708e3a8b7bc1da1f1053201864b2348b0f7b264e9b6bfe0b80fc3ece31a` |
 | [docs/product/NARRATIVE_ALBUM_CONTINUITY_V1.md](../../../docs/product/NARRATIVE_ALBUM_CONTINUITY_V1.md) | `179d45df97a9f4e260c90fdfa211563f6ed2789ec78a0e691f4d89784c4f5552` |
 | [docs/product/DJ_INTELLIGENCE_MATURITY.md](../../../docs/product/DJ_INTELLIGENCE_MATURITY.md) | `d74bd11b57afda561c21bc3df0cd829c5a2ae0b3baf6e8138a89e91d1c5b8241` |
 | [docs/product/SHARED_PRODUCER_CONTINUITY_CONTRACT.md](../../../docs/product/SHARED_PRODUCER_CONTINUITY_CONTRACT.md) | `d06d2563b1de4fcfdff15bd76e0952e19f0970666b8ce5677db10cf6ee11a2ed` |
@@ -101,7 +101,7 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 | [docs/verification/PROVIDER_VOICE_GENDER_SOURCE_20261016.md](../../../docs/verification/PROVIDER_VOICE_GENDER_SOURCE_20261016.md) | `ab02670e4c5b33433be036ac8165c9f123df238afa759c45a52c1951ddba41db` |
 | [docs/verification/PROVIDER_VOICE_GENDER_SOURCE_READBACK_20261016.md](../../../docs/verification/PROVIDER_VOICE_GENDER_SOURCE_READBACK_20261016.md) | `15062c222152e2fd58810f4d9f92b74225d2beecca7ee1c1d78382fc4309c9f8` |
 | [docs/history/prompts/2026-10-16-provider-voice-gender-finalization.md](../../../docs/history/prompts/2026-10-16-provider-voice-gender-finalization.md) | `ee784e85d90f928df38d43cd1bba17b2c912c60ff8c9d06d8d2f060f62ce822f` |
-| [docs/product/PASSIVE_SESSION_PROJECTION_V1.md](../../../docs/product/PASSIVE_SESSION_PROJECTION_V1.md) | `0f3b6657561401e9b9d3e5680ff0794ac47978c31a2f56d339e5129c13b68591` |
+| [docs/product/PASSIVE_SESSION_PROJECTION_V1.md](../../../docs/product/PASSIVE_SESSION_PROJECTION_V1.md) | `b3ad2fcb5d42ef72a6d6c71c976627ee371fe7ee9e574fcf9af8db1f6d4e5829` |
 | [docs/verification/PASSIVE_SESSION_PROJECTION_SOURCE_20261016.md](../../../docs/verification/PASSIVE_SESSION_PROJECTION_SOURCE_20261016.md) | `02b7c65903667a42522272823c6711d9b6ffcd1c049c21efb64c5c1dfb3b0fa2` |
 | [docs/verification/PASSIVE_SESSION_PROJECTION_SOURCE_READBACK_20261016.md](../../../docs/verification/PASSIVE_SESSION_PROJECTION_SOURCE_READBACK_20261016.md) | `7a4aefd96d3880fe5b28763744ba6cc25c9a55eca506dab8b0c5fe9543e16527` |
 | [docs/history/prompts/2026-10-16-passive-session-projection-finalization.md](../../../docs/history/prompts/2026-10-16-passive-session-projection-finalization.md) | `6c57169ad3728f4a12597d7f034fb2a9600870e45cf37666407a3c932f4c2d82` |
@@ -115,7 +115,7 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 | [docs/product/DJ_MOMENT_MOOD_PROSODY_V1.md](../../../docs/product/DJ_MOMENT_MOOD_PROSODY_V1.md) | `6144b95a829a9a92bc4225bb599885efdf69dad0b5e17184542637bb4741a0fa` |
 | [docs/product/SESSION_VOICE_PREVIEW_V1.md](../../../docs/product/SESSION_VOICE_PREVIEW_V1.md) | `78398680e844f9c3235863b3e7c41bbf832d07b9dd8e6c9819d23847a314d24a` |
 | [docs/product/ASK_DJ_PLAYBACK_REQUEST_TRUTH_V1.md](../../../docs/product/ASK_DJ_PLAYBACK_REQUEST_TRUTH_V1.md) | `01005eb8ec55e996a9c18723dea9aae1c3eb8d43b2b8c9a5fea07a73be26b36f` |
-| [docs/verification/ASK_DJ_CONTEXTUAL_GOLDEN_RELEASE_GATE_V1.md](../../../docs/verification/ASK_DJ_CONTEXTUAL_GOLDEN_RELEASE_GATE_V1.md) | `f78803d3e233c5014332c0a97f981400effac4b0e7eae8ce99516b50e694434a` |
+| [docs/verification/ASK_DJ_CONTEXTUAL_GOLDEN_RELEASE_GATE_V1.md](../../../docs/verification/ASK_DJ_CONTEXTUAL_GOLDEN_RELEASE_GATE_V1.md) | `2f140634e04300d5bd0e04a194e5b0c54ed3a22bcedbffe83b933a2dc7184cf8` |
 | [docs/product/VIBECAST_RECEIVER_END_AUTHORITY_RETIREMENT_V1.md](../../../docs/product/VIBECAST_RECEIVER_END_AUTHORITY_RETIREMENT_V1.md) | `c014f140421d129abcc9b890bd1bd94fc0f19ebfcad3b3da6d03d413911f8b6e` |
 | [docs/governance/DJC_PLATFORM_OPEN_WORK_20261017.md](../../../docs/governance/DJC_PLATFORM_OPEN_WORK_20261017.md) | `06cc36df67c9c85d866efc2c8a23d3121ed5fd2d8379ff65944786ad88ef73d8` |
 | [docs/history/prompts/2026-10-17-integral-open-work-audit-finalization.md](../../../docs/history/prompts/2026-10-17-integral-open-work-audit-finalization.md) | `038d885b93a9f08d3d4a1782ef3f74f4a9f7b53c041b261420dede3bd48bbaee` |

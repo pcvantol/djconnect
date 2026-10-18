@@ -164,6 +164,9 @@ async def main():
     source_hashes = {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest()
                      for p in (ROOT/'custom_components/djconnect').rglob('*')
                      if p.is_file() and '__pycache__' not in p.parts}
+    passive_v2_harness_hashes = {name: hashlib.sha256((ROOT/name).read_bytes()).hexdigest()
+        for name in ('scripts/verification/verify_session_artwork_http.py',
+                     'scripts/verification/passive_public_v2_lab.py')}
     calls = []
     selected = ['A']
     image_mode = ['ok']
@@ -258,6 +261,9 @@ async def main():
     hass.data[aiohttp_client.DATA_CLIENTSESSION][cache_key] = Network()
     SpotifyBackend._request = provider
     SessionFactsResolver._get = source_get
+    if os.environ.get('DJC_PASSIVE_V2_PROBE') == '1':
+        from passive_public_v2_lab import configure_external_fixtures
+        configure_external_fixtures(calls)
     cases = {}
     async with TestClient(TestServer(hass.http.app)) as client:
         pair = await client.post('/api/djconnect/v1/pair', json={**identity, 'pair_code': '123456'})
@@ -321,6 +327,10 @@ async def main():
         for _ in range(24):
             active = await manager.async_get_active('profile-a')
             moments = [m for m in active.broadcast.state.dj_moments if getattr(m,'source_fact',None)]
+            if os.environ.get('DJC_PASSIVE_V2_PROBE') == '1':
+                from passive_public_v2_lab import ANSWER
+                if any(m.content == ANSWER for m in moments):
+                    break
             for candidate in moments:
                 if candidate.source_fact.intent=='album_story' and 'album_story' not in cases:
                     art = await post('/session/media/prepare',{**identity,'contract_version':1,'session_id':sid,
@@ -334,8 +344,21 @@ async def main():
             await asyncio.sleep(4)
             observed = playback_observation_manager(hass)._spotify_sessions['profile-a']
             await playback_observation_manager(hass)._async_poll_spotify(observed)
-        assert 'album_story' in cases
+        assert 'album_story' in cases or os.environ.get('DJC_PASSIVE_V2_PROBE') == '1', [
+            (m.moment_type.value, m.knowledge_intent) for m in active.broadcast.state.dj_moments]
         assert any(m.source_fact.intent == 'artist_story' for m in moments), [m.moment_type.value for m in moments]
+        if os.environ.get('DJC_PASSIVE_V2_PROBE') == '1':
+            from passive_public_v2_lab import run
+            await run(hass=hass, runtime=runtime, client=client, headers=headers,
+                      identity=identity, manager=manager, storage=storage, sid=sid,
+                      calls=calls, output=directory, source_hashes=source_hashes,
+                      harness_hashes=passive_v2_harness_hashes)
+            hass.data[aiohttp_client.DATA_CLIENTSESSION][cache_key] = provider_session
+            await image_client.close()
+            await provider_session.close()
+            await async_shutdown_persistence(hass)
+            await hass.async_stop()
+            return
         if os.environ.get('DJC_PASSIVE_PROBE') == '1':
             from passive_session_lab import run
             await run(hass=hass, runtime=runtime, client=client, headers=headers,

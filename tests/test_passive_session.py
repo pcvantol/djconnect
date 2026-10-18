@@ -2,7 +2,10 @@
 import asyncio
 from copy import deepcopy
 from dataclasses import replace
+import hashlib
 import json
+from pathlib import Path
+import tempfile
 import time
 from types import SimpleNamespace
 import unittest
@@ -84,6 +87,16 @@ class PassiveProjectionTests(unittest.TestCase):
         b.state = replace(b.state, dj_moments=(replace(moments[-1], content='X' * 641),))
         self.assertIsNone(self.frame()['contribution'])
 
+    def test_silence_never_resurrects_an_older_passive_contribution(self):
+        self.prepare()
+        with patch('time.monotonic', return_value=110):
+            silence = self.session.moment_engine.create_silence(
+                session_id=self.session.session_id, selected_mood=self.session.selected_mood,
+                persona=self.session.dj_persona, locale='nl', reason='planned_silence')
+            self.session.publish_moment(silence)
+        self.assertIsNone(self.frame(111)['contribution'])
+        self.assertIsNone(self.frame(210)['contribution'])
+
     def test_denied_grant_never_reveals_text_music_or_art(self):
         self.prepare()
         self.grant = replace(self.grant, authority=lambda: False)
@@ -115,6 +128,36 @@ class PassiveProjectionTests(unittest.TestCase):
         self.assertEqual(frame['now_playing']['track'], observed.title)
         b.state = replace(b.state, playback=replace(b.state.playback, item_id='other'))
         self.assertIsNone(self.frame()['now_playing'])
+
+    def test_v2_independent_empty_playback_artwork_and_freshness_reasons(self):
+        self.prepare()
+        self.grant = replace(self.grant, projection_version=2)
+        b = self.session.broadcast
+        b.passive_observation = None
+        frame = self.frame()
+        self.assertEqual(frame['contribution_status'], {'state': 'available', 'reason': 'qualified'})
+        self.assertEqual(frame['now_playing_status']['reason'], 'no_observation')
+        self.assertEqual(frame['artwork_status']['reason'], 'not_prepared')
+        observed = self.runtime.RendererSafePlaybackProjection.from_observation(
+            state='playing', media_identity='spotify:track:'+'A'*22, title='Observed track', artist='Observed artist')
+        b.state = replace(b.state, playback=observed)
+        b.passive_observation = (100, time.time(), observed)
+        self.assertEqual(self.frame()['now_playing_status'], {'state': 'available', 'reason': 'qualified'})
+        b.state = replace(b.state, playback=replace(observed, item_id='different'))
+        self.assertEqual(self.frame()['now_playing_status']['reason'], 'subject_changed')
+        b.state = replace(b.state, playback=replace(observed, state='idle'))
+        self.assertEqual(self.frame()['now_playing_status']['reason'], 'playback_inactive')
+        b.passive_observation = (0, time.time(), observed)
+        self.assertEqual(self.frame(121)['now_playing_status']['reason'], 'original_deadline_expired')
+        b.passive_observation = (100, time.time(), replace(observed, source_url='https://example.invalid/'))
+        self.assertEqual(self.frame()['now_playing_status']['reason'], 'source_not_qualified')
+        for name in ('contribution_status', 'now_playing_status', 'artwork_status'):
+            self.assertEqual(self.frame(221)[name], {'state': 'stale', 'reason': 'original_snapshot_expired'})
+        self.grant = replace(self.grant, authority=lambda: False)
+        for name in ('contribution_status', 'now_playing_status', 'artwork_status'):
+            self.assertEqual(self.frame()[name], {'state': 'withdrawn', 'reason': 'authority_withdrawn'})
+        self.grant = replace(self.grant, projection_version=1, authority=lambda: True)
+        self.assertFalse(any(name.endswith('_status') for name in self.frame() if name != 'playback_state'))
         b.passive_observation = (100, time.time(), replace(observed, source_url='https://example.invalid/track'))
         self.assertIsNone(self.frame()['now_playing'])
 
@@ -214,6 +257,29 @@ class PassiveRequestValidationTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(status, 401)
 
 
+class PassiveEvidenceIdentityTests(unittest.TestCase):
+    def test_ha_report_rejects_changed_product_and_executing_harness_bytes(self):
+        from scripts.verification.passive_public_v2_lab import verify_source_identity
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            product = root/'custom_components/djconnect/fixture.py'
+            harness = root/'scripts/verification/fixture.py'
+            for path in (product, harness):
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text('original')
+            original = hashlib.sha256(b'original').hexdigest()
+            sources = {str(product.relative_to(root)): original}
+            scripts = {str(harness.relative_to(root)): original}
+            verify_source_identity(root, sources, scripts)
+            product.write_text('changed')
+            with self.assertRaisesRegex(AssertionError, 'product_source_changed'):
+                verify_source_identity(root, sources, scripts)
+            product.write_text('original')
+            harness.write_text('changed')
+            with self.assertRaisesRegex(AssertionError, 'qualification_harness_changed'):
+                verify_source_identity(root, sources, scripts)
+
+
 class PassiveOwnerGrantTests(unittest.IsolatedAsyncioTestCase):
     @classmethod
     def setUpClass(cls):
@@ -277,3 +343,157 @@ class PassiveOwnerGrantTests(unittest.IsolatedAsyncioTestCase):
                 self.assertEqual(denied['error'], 'surface_grant_invalid')
         finally:
             await fixture.asyncTearDown()
+
+    async def test_projection_version_is_explicit_grant_bound_and_widget_needs_no_lock_consent(self):
+        fixture = self.fixtures.SessionConversationHistoryTest()
+        await fixture.asyncSetUp()
+        try:
+            hass, runtime, _, identity, headers = await fixture.transport_fixture()
+            runtime.entry = SimpleNamespace(entry_id='owner-entry', data=runtime.config, options={})
+            session = await fixture.manager.async_start(owner_profile_id='profile-a', locale='nl')
+            base = {**identity, 'contract_version': 1, 'session_id': session.session_id, 'surface': 'widget'}
+            consent = {**base, 'enabled': True, 'os_snapshot_cache': True, 'locked_display': False}
+            with patch('custom_components.djconnect.forecast_imagery.artist_authority', return_value=lambda: True):
+                legacy, code = await passive.handle(hass, consent, headers=headers, authorize=True)
+                self.assertEqual(code, 200)
+                self.assertEqual(legacy['passive_session']['schema_version'], 1)
+                modern, code = await passive.handle(hass, {**consent, 'projection_version': 2},
+                                                    headers=headers, authorize=True)
+                self.assertEqual(code, 200)
+                self.assertEqual(modern['passive_session']['schema_version'], 2)
+                self.assertNotEqual(modern['passive_session']['generation'], legacy['passive_session']['generation'])
+                read = {**base, 'grant_id': modern['grant_id']}
+                for version in (None, 1):
+                    request = read if version is None else {**read, 'projection_version': version}
+                    denied, code = await passive.handle(hass, request, headers=headers)
+                    self.assertEqual((code, denied['error']), (403, 'surface_grant_invalid'))
+                valid, code = await passive.handle(hass, {**read, 'projection_version': 2}, headers=headers)
+                self.assertEqual(code, 200)
+                self.assertEqual(valid['passive_session']['cache_policy']['locked_display'], False)
+                for version in (True, '2', 0, 3):
+                    _, code = await passive.handle(hass, {**read, 'projection_version': version}, headers=headers)
+                    self.assertEqual(code, 400)
+                _, code = await passive.handle(hass, {**consent, 'surface': 'live_activity',
+                    'projection_version': 2}, headers=headers, authorize=True)
+                self.assertEqual(code, 403)
+        finally:
+            await fixture.asyncTearDown()
+
+
+class ResearchedPassiveProjectionTests(unittest.IsolatedAsyncioTestCase):
+    """Actual Runtime/public-source acceptance; external research/model fixtures."""
+    @classmethod
+    def setUpClass(cls):
+        from tests.test_personal_dj_narration_public_artist import PublicArtistNarrationTest
+        cls.story_type = PublicArtistNarrationTest
+        cls.story_type.setUpClass()
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.story_type.tearDownClass()
+
+    async def asyncSetUp(self):
+        self.story = self.story_type()
+        await self.story.asyncSetUp()
+
+    async def asyncTearDown(self):
+        await self.story.asyncTearDown()
+
+    def frame(self, version=2):
+        grant = passive.SurfaceGrant('grant', 'binding', 'generation', 'entry',
+            'widget', False, lambda: self.story.authorized, version)
+        return passive.projection(self.story.session, grant)
+
+    async def test_v1_never_emits_new_basis_while_v2_preserves_complete_sources_and_pure_reads(self):
+        moment = await self.story.publish()
+        self.assertIsNotNone(moment, self.story.debug)
+        legacy = self.frame(1)
+        self.assertIsNone(legacy['contribution'])
+        self.assertEqual(legacy['schema_version'], 1)
+        self.assertNotIn('contribution_status', legacy)
+        before = (len(self.story.calls), len(self.story.urls), self.story.session.presence_ledger.total_published,
+                  self.story.session.broadcast.delivery_sequence)
+        modern = self.frame()
+        self.assertEqual(modern['contribution_status'], {'state': 'available', 'reason': 'qualified'})
+        copy = modern['contribution']
+        self.assertEqual(copy['text'], moment.content)
+        self.assertEqual(copy['usage_basis'], 'public_artist_narration_v1')
+        self.assertEqual(copy['sources'], moment.as_dict()['sources'])
+        self.assertEqual(copy['expression_license']['id'], 'CC-BY-SA-4.0')
+        self.assertTrue(copy['expression_license']['attribution_required'])
+        self.assertFalse(copy['rights']['external_relay'])
+        for _ in range(20):
+            again = self.frame()
+            self.assertEqual(again['contribution'], copy)
+            self.assertEqual(again['revision'], modern['revision'])
+        after = (len(self.story.calls), len(self.story.urls), self.story.session.presence_ledger.total_published,
+                 self.story.session.broadcast.delivery_sequence)
+        self.assertEqual(before, after)
+        for forbidden in ('untrusted_excerpt', 'claim_checks', 'owner_profile_id', 'device_token', 'grant_id'):
+            self.assertNotIn(forbidden, json.dumps(modern))
+
+    async def test_forged_public_copy_and_withdrawn_authority_never_enter_passive_cache(self):
+        moment = await self.story.publish()
+        broadcast = self.story.session.broadcast
+        broadcast.state = replace(broadcast.state, dj_moments=(replace(moment, content=moment.content+' Invented.'),))
+        result = self.frame()
+        self.assertIsNone(result['contribution'])
+        self.assertEqual(result['contribution_status']['reason'], 'source_not_qualified')
+        self.story.authorized = False
+        denied = self.frame()
+        self.assertEqual(denied['state'], 'withdrawn')
+        self.assertNotIn('contribution', denied)
+        self.assertEqual(denied['contribution_status']['reason'], 'authority_withdrawn')
+
+    async def test_each_source_needs_its_own_passive_purpose_and_complete_attribution(self):
+        from custom_components.djconnect.passive_contribution import researched_sources
+        moment = await self.story.publish()
+        sources = moment.as_dict()['sources']
+        self.assertEqual(researched_sources(moment, time.monotonic()), sources)
+        # Policy-unit negatives over source metadata; original publication and
+        # its cryptographic acceptance are independently exercised above.
+        for index, field, value in (
+                (0, 'license', 'public_page_short_reference'),
+                (0, 'revision_url', ''),
+                (0, 'revision_url', 'https://evil.example/w/index.php?oldid=1234'),
+                (0, 'revision_url', 'https://nl.wikipedia.org/w/index.php?oldid=0'),
+                (0, 'revision_url', 'https://nl.wikipedia.org/w/index.php?oldid=1234&title=Another'),
+                (0, 'url', 'https://nl.wikipedia.org/wiki/Another'),
+                (0, 'language', ''),
+                (0, 'untrusted_excerpt', 'Never cache provider prose'),
+                (0, 'expires_at', '2000-01-01T00:00:00+00:00'),
+                (0, 'expires_at', '2099-01-01T00:00:00'),
+                (2, 'provider', 'Public Web'),
+                (2, 'license', 'Unknown'),
+                (2, 'url', 'https://musicbrainz.org/artist/'+'-'*36)):
+            with self.subTest(field=field, value=value):
+                altered = deepcopy(sources)
+                altered[index][field] = value
+                with patch('custom_components.djconnect.public_artist_narration.sources_for', return_value=altered):
+                    self.assertIsNone(researched_sources(moment, time.monotonic()))
+
+    async def test_oversized_copy_has_typed_omission_without_rewriting_the_publication(self):
+        self.story.answer = self.story.answer.split('. ', 1)[0]+'. Zo kijk ik graag '+('heel rustig, '*44)+'nog even mee.'
+        moment = await self.story.publish()
+        self.assertIsNotNone(moment)
+        self.assertGreater(len(moment.content), 640)
+        result = self.frame()
+        self.assertIsNone(result['contribution'])
+        self.assertEqual(result['contribution_status']['reason'], 'copy_too_long')
+        self.assertEqual(self.story.session.broadcast.state.dj_moments[-1].content, moment.content)
+
+    async def test_original_deadline_and_music_only_have_explicit_nonrenewing_omission(self):
+        moment = await self.story.publish()
+        original = self.frame()['contribution']
+        self.assertIsNotNone(original)
+        b = self.story.session.broadcast
+        boundary = b._moment_delivery_boundaries[moment.moment_id]
+        with patch('time.monotonic', return_value=boundary.published_monotonic+100), \
+                patch('time.time', return_value=time.time()+100):
+            expired = self.frame()
+        self.assertIsNone(expired['contribution'])
+        self.assertEqual(expired['contribution_status']['reason'], 'original_deadline_expired')
+        b.state = replace(b.state, selected_presence='music_only')
+        quiet = self.frame()
+        self.assertIsNone(quiet['contribution'])
+        self.assertEqual(quiet['contribution_status']['reason'], 'presence_music_only')

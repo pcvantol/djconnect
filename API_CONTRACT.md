@@ -2132,3 +2132,23 @@ preserved; advertise `session_history_bulk_delete`/version1 only after producer
 qualification. Exact wire, snapshot concurrency, receipts and failures: selected
 bulk-deletion addendum in
 [`SESSION_CONVERSATION_HISTORY_CONTRACT.md`](docs/product/SESSION_CONVERSATION_HISTORY_CONTRACT.md).
+
+## Passive contribution correction —18October2026
+
+The [selected canonical addendum](docs/product/PASSIVE_SESSION_PROJECTION_V1.md#selected-correction-explicit-projection-negotiation-18october2026)
+keeps surface transport1 and legacy projection1 unchanged in vocabulary.
+Explicit projection2 is selected on authorize/read/image and bound to its grant;
+only it adds independently purpose-qualified researched narration, complete
+source/license attribution and closed omission reasons. Native/history rights
+are insufficient; generic web, private text and external-relay copy stay denied.
+Silence never revives the older card. Widgetlockedfalse is valid; Activitytrue
+remains required. Original short deadlines/read purity are unchanged.
+
+The user also selects best-effort existing-APNs integration: category-only wake
+and pure reread for widgets, distinct activity token/topic for ongoing Activity
+update/end, no push-to-start. Smallest missing API dependency is qualified
+registration/rotation/revoke/update/end for the exact install/recipient/purpose/
+Session/generation/environment/topic/expiry tuple and explicit relay content
+permission. No client credentials or rich content in hints; no lease from push.
+Background capability remains false until connected Core/API/Apple delivery and
+source-purpose gates pass. Existing writers only; no consumer/relay code adopted.
