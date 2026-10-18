@@ -1,6 +1,6 @@
 # Ask DJ contextual Golden release gate v1
 
-18October Preview extension: existing speech family step140 now binds all17
+18October Preview extension: existing speech family step140 now binds all18
 configured voice-preview owner tests.49reports/36families/140steps;11Core and17
 actual-quality gates remain OPEN. Provider/speaker fixtures and true private
 byte ownership do not qualify installed/native/audible voice preview.

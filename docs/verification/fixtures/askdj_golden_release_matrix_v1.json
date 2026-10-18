@@ -3381,6 +3381,10 @@
             {
               "file": "tests/test_voice_preview.py",
               "method": "test_new_session_during_synthesis_rejects_original_no_session_sample"
+            },
+            {
+              "file": "tests/test_voice_preview.py",
+              "method": "test_provider_change_during_durable_send_admission_prevents_synthesis"
             }
           ],
           "acceptance_status": "owner_contract",

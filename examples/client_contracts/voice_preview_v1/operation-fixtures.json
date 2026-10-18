@@ -4,8 +4,8 @@
     "test_active_session_identity_and_history_are_preserved_then_end_revokes_preview/1": {
       "request": {
         "contract_version": 1,
-        "operation_id": "01a14ce0-ee55-7000-8000-000000000065",
-        "operation_epoch": "afc4cc6da55c70d75e2a8e556a82772e",
+        "operation_id": "01a14ce6-89d2-7000-8000-000000000065",
+        "operation_epoch": "6c712d54afea7cefba9f09a56503ed1b",
         "operation": "speech/preview",
         "payload": {
           "contract_version": 1,
@@ -16,7 +16,7 @@
         "success": true,
         "voice_preview": {
           "schema_version": 1,
-          "preview_id": "01a14ce0-ee55-7000-8000-000000000065",
+          "preview_id": "01a14ce6-89d2-7000-8000-000000000065",
           "text": "This is a short example of your selected DJ voice.",
           "locale": "en",
           "state": "available",
@@ -24,12 +24,12 @@
           "settings_revision": [
             1,
             [
-              "session-46489813fa6e47b58ad252482cf247c5",
-              "81154e380c554fdc8fb8f41af7818c2b",
+              "session-a45cf74ca9f14a7aaa4ce5a6d60547a4",
+              "2b865d7aecfc4422ba6e6486397b0e89",
               1
             ]
           ],
-          "expires_at": "2026-10-18T02:41:31.944548+00:00",
+          "expires_at": "2026-10-18T02:47:39.429433+00:00",
           "cache_policy": "private,no-store",
           "audio_state": "ready",
           "effective_voice": {
@@ -46,7 +46,7 @@
             "configuration_revision": "1051129b10dd10f2d1e1a263"
           },
           "audio_reference": {
-            "asset_id": "NmB0wjjnD1SZD19OZ6qmu_IELwZNa7t2",
+            "asset_id": "c1siiws7f5eqvQ2UxY0-Cyp5U0pDNRZe",
             "path": "/api/djconnect/v1/speech/audio",
             "method": "POST"
           }
@@ -58,10 +58,10 @@
         },
         "operation_receipt": {
           "contract_version": 1,
-          "operation_id": "01a14ce0-ee55-7000-8000-000000000065",
-          "operation_epoch": "afc4cc6da55c70d75e2a8e556a82772e",
+          "operation_id": "01a14ce6-89d2-7000-8000-000000000065",
+          "operation_epoch": "6c712d54afea7cefba9f09a56503ed1b",
           "phase": "confirmed",
-          "expires_at_ms": 1792291471925,
+          "expires_at_ms": 1792291839410,
           "result_available": false,
           "response_status": 200,
           "error": null
@@ -72,8 +72,8 @@
     "test_all_outputs_share_one_audio_owner_and_keep_separate_delivery_outcomes/1": {
       "request": {
         "contract_version": 1,
-        "operation_id": "01a14ce0-ee76-7000-8000-000000000065",
-        "operation_epoch": "b4335ee4dd22d9c3ce72438103f7b659",
+        "operation_id": "01a14ce6-89f3-7000-8000-000000000065",
+        "operation_epoch": "f396136fc2e5ba2f42af9e96a4ff95a7",
         "operation": "speech/preview",
         "payload": {
           "contract_version": 1,
@@ -84,7 +84,7 @@
         "success": true,
         "voice_preview": {
           "schema_version": 1,
-          "preview_id": "01a14ce0-ee76-7000-8000-000000000065",
+          "preview_id": "01a14ce6-89f3-7000-8000-000000000065",
           "text": "This is a short example of your selected DJ voice.",
           "locale": "en",
           "state": "available",
@@ -93,7 +93,7 @@
             1,
             null
           ],
-          "expires_at": "2026-10-18T02:41:31.963042+00:00",
+          "expires_at": "2026-10-18T02:47:39.448515+00:00",
           "cache_policy": "private,no-store",
           "audio_state": "ready",
           "effective_voice": {
@@ -110,7 +110,7 @@
             "configuration_revision": "1051129b10dd10f2d1e1a263"
           },
           "audio_reference": {
-            "asset_id": "wvqdFjbjLkjnypcCdWzgN3bXVk5pqw4o",
+            "asset_id": "F2VGZmTJYyWXjWXRQhLJlLvkhQdehrjN",
             "path": "/api/djconnect/v1/speech/audio",
             "method": "POST"
           }
@@ -122,10 +122,10 @@
         },
         "operation_receipt": {
           "contract_version": 1,
-          "operation_id": "01a14ce0-ee76-7000-8000-000000000065",
-          "operation_epoch": "b4335ee4dd22d9c3ce72438103f7b659",
+          "operation_id": "01a14ce6-89f3-7000-8000-000000000065",
+          "operation_epoch": "f396136fc2e5ba2f42af9e96a4ff95a7",
           "phase": "confirmed",
-          "expires_at_ms": 1792291471958,
+          "expires_at_ms": 1792291839443,
           "result_available": false,
           "response_status": 200,
           "error": null
@@ -136,8 +136,8 @@
     "test_all_outputs_share_one_audio_owner_and_keep_separate_delivery_outcomes/2": {
       "request": {
         "contract_version": 1,
-        "operation_id": "01a14ce0-ee76-7000-8000-000000000066",
-        "operation_epoch": "b4335ee4dd22d9c3ce72438103f7b659",
+        "operation_id": "01a14ce6-89f3-7000-8000-000000000066",
+        "operation_epoch": "f396136fc2e5ba2f42af9e96a4ff95a7",
         "operation": "speech/preview",
         "payload": {
           "contract_version": 1,
@@ -148,7 +148,7 @@
         "success": true,
         "voice_preview": {
           "schema_version": 1,
-          "preview_id": "01a14ce0-ee76-7000-8000-000000000066",
+          "preview_id": "01a14ce6-89f3-7000-8000-000000000066",
           "text": "This is a short example of your selected DJ voice.",
           "locale": "en",
           "state": "available",
@@ -157,7 +157,7 @@
             2,
             null
           ],
-          "expires_at": "2026-10-18T02:41:31.967503+00:00",
+          "expires_at": "2026-10-18T02:47:39.453557+00:00",
           "cache_policy": "private,no-store",
           "audio_state": "ready",
           "effective_voice": {
@@ -181,10 +181,10 @@
         },
         "operation_receipt": {
           "contract_version": 1,
-          "operation_id": "01a14ce0-ee76-7000-8000-000000000066",
-          "operation_epoch": "b4335ee4dd22d9c3ce72438103f7b659",
+          "operation_id": "01a14ce6-89f3-7000-8000-000000000066",
+          "operation_epoch": "f396136fc2e5ba2f42af9e96a4ff95a7",
           "phase": "confirmed",
-          "expires_at_ms": 1792291471958,
+          "expires_at_ms": 1792291839443,
           "result_available": false,
           "response_status": 200,
           "error": null
@@ -195,8 +195,8 @@
     "test_all_outputs_share_one_audio_owner_and_keep_separate_delivery_outcomes/3": {
       "request": {
         "contract_version": 1,
-        "operation_id": "01a14ce0-ee76-7000-8000-000000000067",
-        "operation_epoch": "b4335ee4dd22d9c3ce72438103f7b659",
+        "operation_id": "01a14ce6-89f3-7000-8000-000000000067",
+        "operation_epoch": "f396136fc2e5ba2f42af9e96a4ff95a7",
         "operation": "speech/preview",
         "payload": {
           "contract_version": 1,
@@ -207,7 +207,7 @@
         "success": true,
         "voice_preview": {
           "schema_version": 1,
-          "preview_id": "01a14ce0-ee76-7000-8000-000000000067",
+          "preview_id": "01a14ce6-89f3-7000-8000-000000000067",
           "text": "This is a short example of your selected DJ voice.",
           "locale": "en",
           "state": "available",
@@ -216,7 +216,7 @@
             3,
             null
           ],
-          "expires_at": "2026-10-18T02:41:31.972813+00:00",
+          "expires_at": "2026-10-18T02:47:39.459290+00:00",
           "cache_policy": "private,no-store",
           "audio_state": "ready",
           "effective_voice": {
@@ -233,7 +233,7 @@
             "configuration_revision": "1051129b10dd10f2d1e1a263"
           },
           "audio_reference": {
-            "asset_id": "NoEY_65J3-r9zedHeiEYgGc1HZ4eRFav",
+            "asset_id": "9leXFCD4ec1mVlN9xP5PusL4cYuLZ2vA",
             "path": "/api/djconnect/v1/speech/audio",
             "method": "POST"
           }
@@ -245,10 +245,10 @@
         },
         "operation_receipt": {
           "contract_version": 1,
-          "operation_id": "01a14ce0-ee76-7000-8000-000000000067",
-          "operation_epoch": "b4335ee4dd22d9c3ce72438103f7b659",
+          "operation_id": "01a14ce6-89f3-7000-8000-000000000067",
+          "operation_epoch": "f396136fc2e5ba2f42af9e96a4ff95a7",
           "phase": "confirmed",
-          "expires_at_ms": 1792291471958,
+          "expires_at_ms": 1792291839443,
           "result_available": false,
           "response_status": 200,
           "error": null
@@ -259,8 +259,8 @@
     "test_both_partial_failure_keeps_client_audio_and_unknown_dispatch_is_not_repeated/1": {
       "request": {
         "contract_version": 1,
-        "operation_id": "01a14ce0-ee91-7000-8000-000000000065",
-        "operation_epoch": "662e49ff3e909fdb2d910d1f056b05ef",
+        "operation_id": "01a14ce6-8a10-7000-8000-000000000065",
+        "operation_epoch": "ff5a5ca9a2f239723c8bcd7ca3bde5b3",
         "operation": "speech/preview",
         "payload": {
           "contract_version": 1,
@@ -271,7 +271,7 @@
         "success": true,
         "voice_preview": {
           "schema_version": 1,
-          "preview_id": "01a14ce0-ee91-7000-8000-000000000065",
+          "preview_id": "01a14ce6-8a10-7000-8000-000000000065",
           "text": "This is a short example of your selected DJ voice.",
           "locale": "en",
           "state": "available",
@@ -280,7 +280,7 @@
             1,
             null
           ],
-          "expires_at": "2026-10-18T02:41:31.989429+00:00",
+          "expires_at": "2026-10-18T02:47:39.476594+00:00",
           "cache_policy": "private,no-store",
           "audio_state": "ready",
           "effective_voice": {
@@ -297,7 +297,7 @@
             "configuration_revision": "1051129b10dd10f2d1e1a263"
           },
           "audio_reference": {
-            "asset_id": "gSY9Uflqkwtd4h3dSt5L7x-MWGRi9MQK",
+            "asset_id": "GeJdB5qm1voYQ4M3Yv-iYkPIBQGxvZpz",
             "path": "/api/djconnect/v1/speech/audio",
             "method": "POST"
           }
@@ -310,10 +310,10 @@
         },
         "operation_receipt": {
           "contract_version": 1,
-          "operation_id": "01a14ce0-ee91-7000-8000-000000000065",
-          "operation_epoch": "662e49ff3e909fdb2d910d1f056b05ef",
+          "operation_id": "01a14ce6-8a10-7000-8000-000000000065",
+          "operation_epoch": "ff5a5ca9a2f239723c8bcd7ca3bde5b3",
           "phase": "confirmed",
-          "expires_at_ms": 1792291471985,
+          "expires_at_ms": 1792291839472,
           "result_available": false,
           "response_status": 200,
           "error": null
@@ -324,8 +324,8 @@
     "test_both_partial_failure_keeps_client_audio_and_unknown_dispatch_is_not_repeated/2": {
       "request": {
         "contract_version": 1,
-        "operation_id": "01a14ce0-ee91-7000-8000-000000000066",
-        "operation_epoch": "662e49ff3e909fdb2d910d1f056b05ef",
+        "operation_id": "01a14ce6-8a10-7000-8000-000000000066",
+        "operation_epoch": "ff5a5ca9a2f239723c8bcd7ca3bde5b3",
         "operation": "speech/preview",
         "payload": {
           "contract_version": 1,
@@ -336,10 +336,10 @@
         "success": false,
         "operation_receipt": {
           "contract_version": 1,
-          "operation_id": "01a14ce0-ee91-7000-8000-000000000066",
-          "operation_epoch": "662e49ff3e909fdb2d910d1f056b05ef",
+          "operation_id": "01a14ce6-8a10-7000-8000-000000000066",
+          "operation_epoch": "ff5a5ca9a2f239723c8bcd7ca3bde5b3",
           "phase": "unknown",
-          "expires_at_ms": 1792291471985,
+          "expires_at_ms": 1792291839472,
           "result_available": false,
           "response_status": 503,
           "error": "speaker_delivery_unknown"
@@ -352,8 +352,8 @@
     "test_closed_preview_payload_rejects_text_voice_target_locale_and_reference_overrides/1": {
       "request": {
         "contract_version": 1,
-        "operation_id": "01a14ce0-eeae-7000-8000-000000000065",
-        "operation_epoch": "8f0d043c970f000322c9ae3395ad8f45",
+        "operation_id": "01a14ce6-8a2f-7000-8000-000000000065",
+        "operation_epoch": "cc6e78b0d48babc4d8ee075e839786a3",
         "operation": "speech/preview",
         "payload": {
           "contract_version": 1,
@@ -366,10 +366,10 @@
         "error": "invalid_request",
         "operation_receipt": {
           "contract_version": 1,
-          "operation_id": "01a14ce0-eeae-7000-8000-000000000065",
-          "operation_epoch": "8f0d043c970f000322c9ae3395ad8f45",
+          "operation_id": "01a14ce6-8a2f-7000-8000-000000000065",
+          "operation_epoch": "cc6e78b0d48babc4d8ee075e839786a3",
           "phase": "unknown",
-          "expires_at_ms": 1792291472014,
+          "expires_at_ms": 1792291839503,
           "result_available": false,
           "response_status": 400,
           "error": "invalid_request"
@@ -380,8 +380,8 @@
     "test_closed_preview_payload_rejects_text_voice_target_locale_and_reference_overrides/2": {
       "request": {
         "contract_version": 1,
-        "operation_id": "01a14ce0-eeae-7000-8000-000000000066",
-        "operation_epoch": "8f0d043c970f000322c9ae3395ad8f45",
+        "operation_id": "01a14ce6-8a2f-7000-8000-000000000066",
+        "operation_epoch": "cc6e78b0d48babc4d8ee075e839786a3",
         "operation": "speech/preview",
         "payload": {
           "contract_version": 1,
@@ -394,10 +394,10 @@
         "error": "invalid_request",
         "operation_receipt": {
           "contract_version": 1,
-          "operation_id": "01a14ce0-eeae-7000-8000-000000000066",
-          "operation_epoch": "8f0d043c970f000322c9ae3395ad8f45",
+          "operation_id": "01a14ce6-8a2f-7000-8000-000000000066",
+          "operation_epoch": "cc6e78b0d48babc4d8ee075e839786a3",
           "phase": "unknown",
-          "expires_at_ms": 1792291472014,
+          "expires_at_ms": 1792291839503,
           "result_available": false,
           "response_status": 400,
           "error": "invalid_request"
@@ -408,8 +408,8 @@
     "test_closed_preview_payload_rejects_text_voice_target_locale_and_reference_overrides/3": {
       "request": {
         "contract_version": 1,
-        "operation_id": "01a14ce0-eeae-7000-8000-000000000067",
-        "operation_epoch": "8f0d043c970f000322c9ae3395ad8f45",
+        "operation_id": "01a14ce6-8a2f-7000-8000-000000000067",
+        "operation_epoch": "cc6e78b0d48babc4d8ee075e839786a3",
         "operation": "speech/preview",
         "payload": {
           "contract_version": 1,
@@ -422,10 +422,10 @@
         "error": "invalid_request",
         "operation_receipt": {
           "contract_version": 1,
-          "operation_id": "01a14ce0-eeae-7000-8000-000000000067",
-          "operation_epoch": "8f0d043c970f000322c9ae3395ad8f45",
+          "operation_id": "01a14ce6-8a2f-7000-8000-000000000067",
+          "operation_epoch": "cc6e78b0d48babc4d8ee075e839786a3",
           "phase": "unknown",
-          "expires_at_ms": 1792291472014,
+          "expires_at_ms": 1792291839503,
           "result_available": false,
           "response_status": 400,
           "error": "invalid_request"
@@ -436,8 +436,8 @@
     "test_closed_preview_payload_rejects_text_voice_target_locale_and_reference_overrides/4": {
       "request": {
         "contract_version": 1,
-        "operation_id": "01a14ce0-eeae-7000-8000-000000000068",
-        "operation_epoch": "8f0d043c970f000322c9ae3395ad8f45",
+        "operation_id": "01a14ce6-8a2f-7000-8000-000000000068",
+        "operation_epoch": "cc6e78b0d48babc4d8ee075e839786a3",
         "operation": "speech/preview",
         "payload": {
           "contract_version": 1,
@@ -452,10 +452,10 @@
         "error": "invalid_request",
         "operation_receipt": {
           "contract_version": 1,
-          "operation_id": "01a14ce0-eeae-7000-8000-000000000068",
-          "operation_epoch": "8f0d043c970f000322c9ae3395ad8f45",
+          "operation_id": "01a14ce6-8a2f-7000-8000-000000000068",
+          "operation_epoch": "cc6e78b0d48babc4d8ee075e839786a3",
           "phase": "unknown",
-          "expires_at_ms": 1792291472014,
+          "expires_at_ms": 1792291839503,
           "result_available": false,
           "response_status": 400,
           "error": "invalid_request"
@@ -466,8 +466,8 @@
     "test_closed_preview_payload_rejects_text_voice_target_locale_and_reference_overrides/5": {
       "request": {
         "contract_version": 1,
-        "operation_id": "01a14ce0-eeae-7000-8000-000000000069",
-        "operation_epoch": "8f0d043c970f000322c9ae3395ad8f45",
+        "operation_id": "01a14ce6-8a2f-7000-8000-000000000069",
+        "operation_epoch": "cc6e78b0d48babc4d8ee075e839786a3",
         "operation": "speech/preview",
         "payload": {
           "contract_version": 1,
@@ -479,10 +479,10 @@
         "error": "invalid_request",
         "operation_receipt": {
           "contract_version": 1,
-          "operation_id": "01a14ce0-eeae-7000-8000-000000000069",
-          "operation_epoch": "8f0d043c970f000322c9ae3395ad8f45",
+          "operation_id": "01a14ce6-8a2f-7000-8000-000000000069",
+          "operation_epoch": "cc6e78b0d48babc4d8ee075e839786a3",
           "phase": "unknown",
-          "expires_at_ms": 1792291472014,
+          "expires_at_ms": 1792291839503,
           "result_available": false,
           "response_status": 400,
           "error": "invalid_request"
@@ -493,8 +493,8 @@
     "test_closed_preview_payload_rejects_text_voice_target_locale_and_reference_overrides/6": {
       "request": {
         "contract_version": 1,
-        "operation_id": "01a14ce0-eeae-7000-8000-00000000006a",
-        "operation_epoch": "8f0d043c970f000322c9ae3395ad8f45",
+        "operation_id": "01a14ce6-8a2f-7000-8000-00000000006a",
+        "operation_epoch": "cc6e78b0d48babc4d8ee075e839786a3",
         "operation": "speech/preview",
         "payload": {
           "contract_version": true,
@@ -506,10 +506,10 @@
         "error": "invalid_request",
         "operation_receipt": {
           "contract_version": 1,
-          "operation_id": "01a14ce0-eeae-7000-8000-00000000006a",
-          "operation_epoch": "8f0d043c970f000322c9ae3395ad8f45",
+          "operation_id": "01a14ce6-8a2f-7000-8000-00000000006a",
+          "operation_epoch": "cc6e78b0d48babc4d8ee075e839786a3",
           "phase": "unknown",
-          "expires_at_ms": 1792291472014,
+          "expires_at_ms": 1792291839503,
           "result_available": false,
           "response_status": 400,
           "error": "invalid_request"
@@ -520,8 +520,8 @@
     "test_duplicate_and_socket_cancel_never_resynthesize_or_dispatch_speaker_twice/1": {
       "request": {
         "contract_version": 1,
-        "operation_id": "01a14ce0-eec0-7000-8000-000000000065",
-        "operation_epoch": "7c88c6f76e3c9341831624679104c767",
+        "operation_id": "01a14ce6-8a41-7000-8000-000000000065",
+        "operation_epoch": "a52c4bad57c69094ec03b30763ad42e6",
         "operation": "speech/preview",
         "payload": {
           "contract_version": 1,
@@ -532,10 +532,10 @@
         "success": true,
         "operation_receipt": {
           "contract_version": 1,
-          "operation_id": "01a14ce0-eec0-7000-8000-000000000065",
-          "operation_epoch": "7c88c6f76e3c9341831624679104c767",
+          "operation_id": "01a14ce6-8a41-7000-8000-000000000065",
+          "operation_epoch": "a52c4bad57c69094ec03b30763ad42e6",
           "phase": "confirmed",
-          "expires_at_ms": 1792291472032,
+          "expires_at_ms": 1792291839521,
           "result_available": false,
           "response_status": 200,
           "error": null
@@ -547,8 +547,8 @@
     "test_new_press_reuses_original_sample_deadline_and_provider_failure_backoff/1": {
       "request": {
         "contract_version": 1,
-        "operation_id": "01a14ce0-eed0-7000-8000-000000000065",
-        "operation_epoch": "45d0cfeabe6430805c4efdeafc015687",
+        "operation_id": "01a14ce6-8a53-7000-8000-000000000065",
+        "operation_epoch": "ae6dce6123bbde7f5dbd1a11f40ae531",
         "operation": "speech/preview",
         "payload": {
           "contract_version": 1,
@@ -559,7 +559,7 @@
         "success": true,
         "voice_preview": {
           "schema_version": 1,
-          "preview_id": "01a14ce0-eed0-7000-8000-000000000065",
+          "preview_id": "01a14ce6-8a53-7000-8000-000000000065",
           "text": "This is a short example of your selected DJ voice.",
           "locale": "en",
           "state": "available",
@@ -568,7 +568,7 @@
             1,
             null
           ],
-          "expires_at": "2026-10-18T02:41:32.052787+00:00",
+          "expires_at": "2026-10-18T02:47:39.543493+00:00",
           "cache_policy": "private,no-store",
           "audio_state": "ready",
           "effective_voice": {
@@ -585,7 +585,7 @@
             "configuration_revision": "1051129b10dd10f2d1e1a263"
           },
           "audio_reference": {
-            "asset_id": "i3qxHdJWL1LGSmL27TixK-wtWmjf90m5",
+            "asset_id": "HCjuLI0XLejMY2Q6HHkcbYZMRPhPeBBh",
             "path": "/api/djconnect/v1/speech/audio",
             "method": "POST"
           }
@@ -597,10 +597,10 @@
         },
         "operation_receipt": {
           "contract_version": 1,
-          "operation_id": "01a14ce0-eed0-7000-8000-000000000065",
-          "operation_epoch": "45d0cfeabe6430805c4efdeafc015687",
+          "operation_id": "01a14ce6-8a53-7000-8000-000000000065",
+          "operation_epoch": "ae6dce6123bbde7f5dbd1a11f40ae531",
           "phase": "confirmed",
-          "expires_at_ms": 1792291472048,
+          "expires_at_ms": 1792291839539,
           "result_available": false,
           "response_status": 200,
           "error": null
@@ -611,8 +611,8 @@
     "test_new_press_reuses_original_sample_deadline_and_provider_failure_backoff/2": {
       "request": {
         "contract_version": 1,
-        "operation_id": "01a14ce0-eed0-7000-8000-000000000066",
-        "operation_epoch": "45d0cfeabe6430805c4efdeafc015687",
+        "operation_id": "01a14ce6-8a53-7000-8000-000000000066",
+        "operation_epoch": "ae6dce6123bbde7f5dbd1a11f40ae531",
         "operation": "speech/preview",
         "payload": {
           "contract_version": 1,
@@ -623,7 +623,7 @@
         "success": true,
         "voice_preview": {
           "schema_version": 1,
-          "preview_id": "01a14ce0-eed0-7000-8000-000000000066",
+          "preview_id": "01a14ce6-8a53-7000-8000-000000000066",
           "text": "This is a short example of your selected DJ voice.",
           "locale": "en",
           "state": "available",
@@ -632,7 +632,7 @@
             1,
             null
           ],
-          "expires_at": "2026-10-18T02:41:32.052787+00:00",
+          "expires_at": "2026-10-18T02:47:39.543493+00:00",
           "cache_policy": "private,no-store",
           "audio_state": "ready",
           "effective_voice": {
@@ -649,7 +649,7 @@
             "configuration_revision": "1051129b10dd10f2d1e1a263"
           },
           "audio_reference": {
-            "asset_id": "i3qxHdJWL1LGSmL27TixK-wtWmjf90m5",
+            "asset_id": "HCjuLI0XLejMY2Q6HHkcbYZMRPhPeBBh",
             "path": "/api/djconnect/v1/speech/audio",
             "method": "POST"
           }
@@ -661,10 +661,10 @@
         },
         "operation_receipt": {
           "contract_version": 1,
-          "operation_id": "01a14ce0-eed0-7000-8000-000000000066",
-          "operation_epoch": "45d0cfeabe6430805c4efdeafc015687",
+          "operation_id": "01a14ce6-8a53-7000-8000-000000000066",
+          "operation_epoch": "ae6dce6123bbde7f5dbd1a11f40ae531",
           "phase": "confirmed",
-          "expires_at_ms": 1792291472048,
+          "expires_at_ms": 1792291839539,
           "result_available": false,
           "response_status": 200,
           "error": null
@@ -675,8 +675,8 @@
     "test_new_press_reuses_original_sample_deadline_and_provider_failure_backoff/3": {
       "request": {
         "contract_version": 1,
-        "operation_id": "01a14ce0-eed0-7000-8000-000000000067",
-        "operation_epoch": "45d0cfeabe6430805c4efdeafc015687",
+        "operation_id": "01a14ce6-8a53-7000-8000-000000000067",
+        "operation_epoch": "ae6dce6123bbde7f5dbd1a11f40ae531",
         "operation": "speech/preview",
         "payload": {
           "contract_version": 1,
@@ -688,7 +688,7 @@
         "error": "speech_preparation_failed",
         "voice_preview": {
           "schema_version": 1,
-          "preview_id": "01a14ce0-eed0-7000-8000-000000000067",
+          "preview_id": "01a14ce6-8a53-7000-8000-000000000067",
           "state": "unavailable",
           "reason": "speech_preparation_failed",
           "locale": "en"
@@ -713,10 +713,10 @@
         },
         "operation_receipt": {
           "contract_version": 1,
-          "operation_id": "01a14ce0-eed0-7000-8000-000000000067",
-          "operation_epoch": "45d0cfeabe6430805c4efdeafc015687",
+          "operation_id": "01a14ce6-8a53-7000-8000-000000000067",
+          "operation_epoch": "ae6dce6123bbde7f5dbd1a11f40ae531",
           "phase": "unknown",
-          "expires_at_ms": 1792291472048,
+          "expires_at_ms": 1792291839539,
           "result_available": false,
           "response_status": 409,
           "error": "speech_preparation_failed"
@@ -727,8 +727,8 @@
     "test_new_press_reuses_original_sample_deadline_and_provider_failure_backoff/4": {
       "request": {
         "contract_version": 1,
-        "operation_id": "01a14ce0-eed0-7000-8000-000000000068",
-        "operation_epoch": "45d0cfeabe6430805c4efdeafc015687",
+        "operation_id": "01a14ce6-8a53-7000-8000-000000000068",
+        "operation_epoch": "ae6dce6123bbde7f5dbd1a11f40ae531",
         "operation": "speech/preview",
         "payload": {
           "contract_version": 1,
@@ -740,7 +740,7 @@
         "error": "speech_retry_backoff",
         "voice_preview": {
           "schema_version": 1,
-          "preview_id": "01a14ce0-eed0-7000-8000-000000000068",
+          "preview_id": "01a14ce6-8a53-7000-8000-000000000068",
           "state": "unavailable",
           "reason": "speech_retry_backoff",
           "locale": "en"
@@ -765,10 +765,10 @@
         },
         "operation_receipt": {
           "contract_version": 1,
-          "operation_id": "01a14ce0-eed0-7000-8000-000000000068",
-          "operation_epoch": "45d0cfeabe6430805c4efdeafc015687",
+          "operation_id": "01a14ce6-8a53-7000-8000-000000000068",
+          "operation_epoch": "ae6dce6123bbde7f5dbd1a11f40ae531",
           "phase": "unknown",
-          "expires_at_ms": 1792291472048,
+          "expires_at_ms": 1792291839539,
           "result_available": false,
           "response_status": 409,
           "error": "speech_retry_backoff"
@@ -779,8 +779,8 @@
     "test_new_session_during_synthesis_rejects_original_no_session_sample/1": {
       "request": {
         "contract_version": 1,
-        "operation_id": "01a14ce0-eee8-7000-8000-000000000065",
-        "operation_epoch": "b914f177be30e6b249474a2f8996be90",
+        "operation_id": "01a14ce6-8a6c-7000-8000-000000000065",
+        "operation_epoch": "a539b655c6ab99c2ff991dabbdd28adb",
         "operation": "speech/preview",
         "payload": {
           "contract_version": 1,
@@ -792,10 +792,10 @@
         "error": "voice_preview_withdrawn",
         "operation_receipt": {
           "contract_version": 1,
-          "operation_id": "01a14ce0-eee8-7000-8000-000000000065",
-          "operation_epoch": "b914f177be30e6b249474a2f8996be90",
+          "operation_id": "01a14ce6-8a6c-7000-8000-000000000065",
+          "operation_epoch": "a539b655c6ab99c2ff991dabbdd28adb",
           "phase": "unknown",
-          "expires_at_ms": 1792291472072,
+          "expires_at_ms": 1792291839564,
           "result_available": false,
           "response_status": 409,
           "error": "voice_preview_withdrawn"
@@ -806,8 +806,8 @@
     "test_old_bytes_denied_after_provider_change_and_text_only/1": {
       "request": {
         "contract_version": 1,
-        "operation_id": "01a14ce0-eeff-7000-8000-000000000065",
-        "operation_epoch": "c93fbb2e7cfbc28d06eada80ed68f460",
+        "operation_id": "01a14ce6-8a85-7000-8000-000000000065",
+        "operation_epoch": "915f58a0453d3e22de52e087b5332843",
         "operation": "speech/preview",
         "payload": {
           "contract_version": 1,
@@ -818,7 +818,7 @@
         "success": true,
         "voice_preview": {
           "schema_version": 1,
-          "preview_id": "01a14ce0-eeff-7000-8000-000000000065",
+          "preview_id": "01a14ce6-8a85-7000-8000-000000000065",
           "text": "This is a short example of your selected DJ voice.",
           "locale": "en",
           "state": "available",
@@ -827,7 +827,7 @@
             1,
             null
           ],
-          "expires_at": "2026-10-18T02:41:32.099844+00:00",
+          "expires_at": "2026-10-18T02:47:39.592883+00:00",
           "cache_policy": "private,no-store",
           "audio_state": "ready",
           "effective_voice": {
@@ -844,7 +844,7 @@
             "configuration_revision": "1051129b10dd10f2d1e1a263"
           },
           "audio_reference": {
-            "asset_id": "xD_theB09wyq1ypxVSxNNhPORLRrjgZW",
+            "asset_id": "z7nC5QP5qWaV-exhsbDvqqWdHMnvvScL",
             "path": "/api/djconnect/v1/speech/audio",
             "method": "POST"
           }
@@ -856,10 +856,10 @@
         },
         "operation_receipt": {
           "contract_version": 1,
-          "operation_id": "01a14ce0-eeff-7000-8000-000000000065",
-          "operation_epoch": "c93fbb2e7cfbc28d06eada80ed68f460",
+          "operation_id": "01a14ce6-8a85-7000-8000-000000000065",
+          "operation_epoch": "915f58a0453d3e22de52e087b5332843",
           "phase": "confirmed",
-          "expires_at_ms": 1792291472095,
+          "expires_at_ms": 1792291839589,
           "result_available": false,
           "response_status": 200,
           "error": null
@@ -870,8 +870,8 @@
     "test_old_bytes_denied_after_provider_change_and_text_only/2": {
       "request": {
         "contract_version": 1,
-        "operation_id": "01a14ce0-eeff-7000-8000-000000000066",
-        "operation_epoch": "c93fbb2e7cfbc28d06eada80ed68f460",
+        "operation_id": "01a14ce6-8a85-7000-8000-000000000066",
+        "operation_epoch": "915f58a0453d3e22de52e087b5332843",
         "operation": "speech/preview",
         "payload": {
           "contract_version": 1,
@@ -882,7 +882,7 @@
         "success": true,
         "voice_preview": {
           "schema_version": 1,
-          "preview_id": "01a14ce0-eeff-7000-8000-000000000066",
+          "preview_id": "01a14ce6-8a85-7000-8000-000000000066",
           "text": "This is a short example of your selected DJ voice.",
           "locale": "en",
           "state": "available",
@@ -891,7 +891,7 @@
             1,
             null
           ],
-          "expires_at": "2026-10-18T02:41:32.102608+00:00",
+          "expires_at": "2026-10-18T02:47:39.596159+00:00",
           "cache_policy": "private,no-store",
           "audio_state": "ready",
           "effective_voice": {
@@ -908,7 +908,7 @@
             "configuration_revision": "fa21b8eff1f5bfd8259f0271"
           },
           "audio_reference": {
-            "asset_id": "h6AdYvCy4rwHrsoFmuMFImt7uSe2i8v7",
+            "asset_id": "2zSg4nVm4VsN0Jm_ny7ronZ3mVt4noYN",
             "path": "/api/djconnect/v1/speech/audio",
             "method": "POST"
           }
@@ -920,10 +920,10 @@
         },
         "operation_receipt": {
           "contract_version": 1,
-          "operation_id": "01a14ce0-eeff-7000-8000-000000000066",
-          "operation_epoch": "c93fbb2e7cfbc28d06eada80ed68f460",
+          "operation_id": "01a14ce6-8a85-7000-8000-000000000066",
+          "operation_epoch": "915f58a0453d3e22de52e087b5332843",
           "phase": "confirmed",
-          "expires_at_ms": 1792291472095,
+          "expires_at_ms": 1792291839589,
           "result_available": false,
           "response_status": 200,
           "error": null
@@ -934,8 +934,8 @@
     "test_original_monotonic_expiry_survives_clock_rollback/1": {
       "request": {
         "contract_version": 1,
-        "operation_id": "01a14ce0-ef14-7000-8000-000000000065",
-        "operation_epoch": "1e3a3bf0a272d4982c8246546e64408d",
+        "operation_id": "01a14ce6-8a9a-7000-8000-000000000065",
+        "operation_epoch": "5ac6e61e13e54c124f960ccfa1886cb1",
         "operation": "speech/preview",
         "payload": {
           "contract_version": 1,
@@ -946,7 +946,7 @@
         "success": true,
         "voice_preview": {
           "schema_version": 1,
-          "preview_id": "01a14ce0-ef14-7000-8000-000000000065",
+          "preview_id": "01a14ce6-8a9a-7000-8000-000000000065",
           "text": "This is a short example of your selected DJ voice.",
           "locale": "en",
           "state": "available",
@@ -955,7 +955,7 @@
             1,
             null
           ],
-          "expires_at": "2026-10-18T02:41:32.119923+00:00",
+          "expires_at": "2026-10-18T02:47:39.614257+00:00",
           "cache_policy": "private,no-store",
           "audio_state": "ready",
           "effective_voice": {
@@ -972,7 +972,7 @@
             "configuration_revision": "1051129b10dd10f2d1e1a263"
           },
           "audio_reference": {
-            "asset_id": "ybls7wQ2ZhAr_DTB_My2-r95qnS65iqp",
+            "asset_id": "Qocw9kCvcsuyk4HItQE0Iw94a2FPV4hX",
             "path": "/api/djconnect/v1/speech/audio",
             "method": "POST"
           }
@@ -984,10 +984,10 @@
         },
         "operation_receipt": {
           "contract_version": 1,
-          "operation_id": "01a14ce0-ef14-7000-8000-000000000065",
-          "operation_epoch": "1e3a3bf0a272d4982c8246546e64408d",
+          "operation_id": "01a14ce6-8a9a-7000-8000-000000000065",
+          "operation_epoch": "5ac6e61e13e54c124f960ccfa1886cb1",
           "phase": "confirmed",
-          "expires_at_ms": 1792291472116,
+          "expires_at_ms": 1792291839610,
           "result_available": false,
           "response_status": 200,
           "error": null
@@ -998,8 +998,8 @@
     "test_preview_without_session_is_literal_five_language_and_has_no_domain_writes/1": {
       "request": {
         "contract_version": 1,
-        "operation_id": "01a14ce0-ef32-7000-8000-000000000065",
-        "operation_epoch": "3c11ed7c5ba66a5acecd68252d4a9f77",
+        "operation_id": "01a14ce6-8aba-7000-8000-000000000065",
+        "operation_epoch": "b0e381d750c51466bdcfe4c2306cdd13",
         "operation": "speech/preview",
         "payload": {
           "contract_version": 1,
@@ -1010,7 +1010,7 @@
         "success": true,
         "voice_preview": {
           "schema_version": 1,
-          "preview_id": "01a14ce0-ef32-7000-8000-000000000065",
+          "preview_id": "01a14ce6-8aba-7000-8000-000000000065",
           "text": "This is a short example of your selected DJ voice.",
           "locale": "en",
           "state": "available",
@@ -1019,7 +1019,7 @@
             1,
             null
           ],
-          "expires_at": "2026-10-18T02:41:32.150903+00:00",
+          "expires_at": "2026-10-18T02:47:39.646446+00:00",
           "cache_policy": "private,no-store",
           "audio_state": "ready",
           "effective_voice": {
@@ -1036,7 +1036,7 @@
             "configuration_revision": "1051129b10dd10f2d1e1a263"
           },
           "audio_reference": {
-            "asset_id": "1MVt0s5G8BioVroUm4SnOngQHoAx30w0",
+            "asset_id": "rLmqAvjHjLC3ZS59ZW4QznseXP1-Mlv0",
             "path": "/api/djconnect/v1/speech/audio",
             "method": "POST"
           }
@@ -1048,10 +1048,10 @@
         },
         "operation_receipt": {
           "contract_version": 1,
-          "operation_id": "01a14ce0-ef32-7000-8000-000000000065",
-          "operation_epoch": "3c11ed7c5ba66a5acecd68252d4a9f77",
+          "operation_id": "01a14ce6-8aba-7000-8000-000000000065",
+          "operation_epoch": "b0e381d750c51466bdcfe4c2306cdd13",
           "phase": "confirmed",
-          "expires_at_ms": 1792291472146,
+          "expires_at_ms": 1792291839642,
           "result_available": false,
           "response_status": 200,
           "error": null
@@ -1062,8 +1062,8 @@
     "test_preview_without_session_is_literal_five_language_and_has_no_domain_writes/2": {
       "request": {
         "contract_version": 1,
-        "operation_id": "01a14ce0-ef32-7000-8000-000000000066",
-        "operation_epoch": "3c11ed7c5ba66a5acecd68252d4a9f77",
+        "operation_id": "01a14ce6-8aba-7000-8000-000000000066",
+        "operation_epoch": "b0e381d750c51466bdcfe4c2306cdd13",
         "operation": "speech/preview",
         "payload": {
           "contract_version": 1,
@@ -1074,7 +1074,7 @@
         "success": true,
         "voice_preview": {
           "schema_version": 1,
-          "preview_id": "01a14ce0-ef32-7000-8000-000000000066",
+          "preview_id": "01a14ce6-8aba-7000-8000-000000000066",
           "text": "Dit is een kort voorbeeld van je gekozen DJ-stem.",
           "locale": "nl",
           "state": "available",
@@ -1083,7 +1083,7 @@
             1,
             null
           ],
-          "expires_at": "2026-10-18T02:41:32.153667+00:00",
+          "expires_at": "2026-10-18T02:47:39.649735+00:00",
           "cache_policy": "private,no-store",
           "audio_state": "ready",
           "effective_voice": {
@@ -1100,7 +1100,7 @@
             "configuration_revision": "1051129b10dd10f2d1e1a263"
           },
           "audio_reference": {
-            "asset_id": "1mBM5d7UbhAxIws39tsSuBV-mGz80cmT",
+            "asset_id": "XHpwfpeWoM4ePuIzb6TzYrnILYLEbZ21",
             "path": "/api/djconnect/v1/speech/audio",
             "method": "POST"
           }
@@ -1112,10 +1112,10 @@
         },
         "operation_receipt": {
           "contract_version": 1,
-          "operation_id": "01a14ce0-ef32-7000-8000-000000000066",
-          "operation_epoch": "3c11ed7c5ba66a5acecd68252d4a9f77",
+          "operation_id": "01a14ce6-8aba-7000-8000-000000000066",
+          "operation_epoch": "b0e381d750c51466bdcfe4c2306cdd13",
           "phase": "confirmed",
-          "expires_at_ms": 1792291472146,
+          "expires_at_ms": 1792291839642,
           "result_available": false,
           "response_status": 200,
           "error": null
@@ -1126,8 +1126,8 @@
     "test_preview_without_session_is_literal_five_language_and_has_no_domain_writes/3": {
       "request": {
         "contract_version": 1,
-        "operation_id": "01a14ce0-ef32-7000-8000-000000000067",
-        "operation_epoch": "3c11ed7c5ba66a5acecd68252d4a9f77",
+        "operation_id": "01a14ce6-8aba-7000-8000-000000000067",
+        "operation_epoch": "b0e381d750c51466bdcfe4c2306cdd13",
         "operation": "speech/preview",
         "payload": {
           "contract_version": 1,
@@ -1138,7 +1138,7 @@
         "success": true,
         "voice_preview": {
           "schema_version": 1,
-          "preview_id": "01a14ce0-ef32-7000-8000-000000000067",
+          "preview_id": "01a14ce6-8aba-7000-8000-000000000067",
           "text": "Dies ist ein kurzes Beispiel deiner gewählten DJ-Stimme.",
           "locale": "de",
           "state": "available",
@@ -1147,7 +1147,7 @@
             1,
             null
           ],
-          "expires_at": "2026-10-18T02:41:32.156471+00:00",
+          "expires_at": "2026-10-18T02:47:39.653087+00:00",
           "cache_policy": "private,no-store",
           "audio_state": "ready",
           "effective_voice": {
@@ -1164,7 +1164,7 @@
             "configuration_revision": "1051129b10dd10f2d1e1a263"
           },
           "audio_reference": {
-            "asset_id": "RGy2KqKZ07ZBUEzUEa2RxSFdNT0rPxGc",
+            "asset_id": "8Bmjo83qKhw4T0-NUKq9OOnMXsdF-HCK",
             "path": "/api/djconnect/v1/speech/audio",
             "method": "POST"
           }
@@ -1176,10 +1176,10 @@
         },
         "operation_receipt": {
           "contract_version": 1,
-          "operation_id": "01a14ce0-ef32-7000-8000-000000000067",
-          "operation_epoch": "3c11ed7c5ba66a5acecd68252d4a9f77",
+          "operation_id": "01a14ce6-8aba-7000-8000-000000000067",
+          "operation_epoch": "b0e381d750c51466bdcfe4c2306cdd13",
           "phase": "confirmed",
-          "expires_at_ms": 1792291472146,
+          "expires_at_ms": 1792291839642,
           "result_available": false,
           "response_status": 200,
           "error": null
@@ -1190,8 +1190,8 @@
     "test_preview_without_session_is_literal_five_language_and_has_no_domain_writes/4": {
       "request": {
         "contract_version": 1,
-        "operation_id": "01a14ce0-ef32-7000-8000-000000000068",
-        "operation_epoch": "3c11ed7c5ba66a5acecd68252d4a9f77",
+        "operation_id": "01a14ce6-8aba-7000-8000-000000000068",
+        "operation_epoch": "b0e381d750c51466bdcfe4c2306cdd13",
         "operation": "speech/preview",
         "payload": {
           "contract_version": 1,
@@ -1202,7 +1202,7 @@
         "success": true,
         "voice_preview": {
           "schema_version": 1,
-          "preview_id": "01a14ce0-ef32-7000-8000-000000000068",
+          "preview_id": "01a14ce6-8aba-7000-8000-000000000068",
           "text": "Voici un court exemple de la voix DJ que tu as choisie.",
           "locale": "fr",
           "state": "available",
@@ -1211,7 +1211,7 @@
             1,
             null
           ],
-          "expires_at": "2026-10-18T02:41:32.159281+00:00",
+          "expires_at": "2026-10-18T02:47:39.656691+00:00",
           "cache_policy": "private,no-store",
           "audio_state": "ready",
           "effective_voice": {
@@ -1228,7 +1228,7 @@
             "configuration_revision": "1051129b10dd10f2d1e1a263"
           },
           "audio_reference": {
-            "asset_id": "rAvLiw6IBmTIscza5hjGGB-gwrsw4q8i",
+            "asset_id": "I9QGtnsN6P2mFWAXlf-MlR8tfVOX7XMA",
             "path": "/api/djconnect/v1/speech/audio",
             "method": "POST"
           }
@@ -1240,10 +1240,10 @@
         },
         "operation_receipt": {
           "contract_version": 1,
-          "operation_id": "01a14ce0-ef32-7000-8000-000000000068",
-          "operation_epoch": "3c11ed7c5ba66a5acecd68252d4a9f77",
+          "operation_id": "01a14ce6-8aba-7000-8000-000000000068",
+          "operation_epoch": "b0e381d750c51466bdcfe4c2306cdd13",
           "phase": "confirmed",
-          "expires_at_ms": 1792291472146,
+          "expires_at_ms": 1792291839642,
           "result_available": false,
           "response_status": 200,
           "error": null
@@ -1254,8 +1254,8 @@
     "test_preview_without_session_is_literal_five_language_and_has_no_domain_writes/5": {
       "request": {
         "contract_version": 1,
-        "operation_id": "01a14ce0-ef32-7000-8000-000000000069",
-        "operation_epoch": "3c11ed7c5ba66a5acecd68252d4a9f77",
+        "operation_id": "01a14ce6-8aba-7000-8000-000000000069",
+        "operation_epoch": "b0e381d750c51466bdcfe4c2306cdd13",
         "operation": "speech/preview",
         "payload": {
           "contract_version": 1,
@@ -1266,7 +1266,7 @@
         "success": true,
         "voice_preview": {
           "schema_version": 1,
-          "preview_id": "01a14ce0-ef32-7000-8000-000000000069",
+          "preview_id": "01a14ce6-8aba-7000-8000-000000000069",
           "text": "Este es un breve ejemplo de la voz de DJ que has elegido.",
           "locale": "es",
           "state": "available",
@@ -1275,7 +1275,7 @@
             1,
             null
           ],
-          "expires_at": "2026-10-18T02:41:32.162211+00:00",
+          "expires_at": "2026-10-18T02:47:39.660011+00:00",
           "cache_policy": "private,no-store",
           "audio_state": "ready",
           "effective_voice": {
@@ -1292,7 +1292,7 @@
             "configuration_revision": "1051129b10dd10f2d1e1a263"
           },
           "audio_reference": {
-            "asset_id": "p5775NyIpI_7hG0hHyx8Hr2Ha638ZGPq",
+            "asset_id": "akud6CmW5RGTmwHGlUUo1Kg91k63i7X7",
             "path": "/api/djconnect/v1/speech/audio",
             "method": "POST"
           }
@@ -1304,10 +1304,10 @@
         },
         "operation_receipt": {
           "contract_version": 1,
-          "operation_id": "01a14ce0-ef32-7000-8000-000000000069",
-          "operation_epoch": "3c11ed7c5ba66a5acecd68252d4a9f77",
+          "operation_id": "01a14ce6-8aba-7000-8000-000000000069",
+          "operation_epoch": "b0e381d750c51466bdcfe4c2306cdd13",
           "phase": "confirmed",
-          "expires_at_ms": 1792291472146,
+          "expires_at_ms": 1792291839642,
           "result_available": false,
           "response_status": 200,
           "error": null
@@ -1318,8 +1318,8 @@
     "test_provider_and_gender_selection_are_qualified_without_locale_fallback/1": {
       "request": {
         "contract_version": 1,
-        "operation_id": "01a14ce0-ef4f-7000-8000-000000000065",
-        "operation_epoch": "30dcf94467d832c295af996d09ac98ca",
+        "operation_id": "01a14ce6-8ad9-7000-8000-000000000065",
+        "operation_epoch": "d2477941a3d1ccc3d2d050a24eb7315d",
         "operation": "speech/preview",
         "payload": {
           "contract_version": 1,
@@ -1330,7 +1330,7 @@
         "success": true,
         "voice_preview": {
           "schema_version": 1,
-          "preview_id": "01a14ce0-ef4f-7000-8000-000000000065",
+          "preview_id": "01a14ce6-8ad9-7000-8000-000000000065",
           "text": "This is a short example of your selected DJ voice.",
           "locale": "en",
           "state": "available",
@@ -1339,7 +1339,7 @@
             1,
             null
           ],
-          "expires_at": "2026-10-18T02:41:32.179155+00:00",
+          "expires_at": "2026-10-18T02:47:39.677168+00:00",
           "cache_policy": "private,no-store",
           "audio_state": "ready",
           "effective_voice": {
@@ -1356,7 +1356,7 @@
             "configuration_revision": "bde76ffd06bf34ff6f59fe69"
           },
           "audio_reference": {
-            "asset_id": "V6jDQFv2KK0k6ZTY6wuGSYmx2_TqzGah",
+            "asset_id": "1wO0_6Ib4KTAFs0vrtfVB_KuRwwzNRfo",
             "path": "/api/djconnect/v1/speech/audio",
             "method": "POST"
           }
@@ -1368,10 +1368,10 @@
         },
         "operation_receipt": {
           "contract_version": 1,
-          "operation_id": "01a14ce0-ef4f-7000-8000-000000000065",
-          "operation_epoch": "30dcf94467d832c295af996d09ac98ca",
+          "operation_id": "01a14ce6-8ad9-7000-8000-000000000065",
+          "operation_epoch": "d2477941a3d1ccc3d2d050a24eb7315d",
           "phase": "confirmed",
-          "expires_at_ms": 1792291472175,
+          "expires_at_ms": 1792291839673,
           "result_available": false,
           "response_status": 200,
           "error": null
@@ -1382,8 +1382,8 @@
     "test_provider_and_gender_selection_are_qualified_without_locale_fallback/2": {
       "request": {
         "contract_version": 1,
-        "operation_id": "01a14ce0-ef4f-7000-8000-000000000066",
-        "operation_epoch": "30dcf94467d832c295af996d09ac98ca",
+        "operation_id": "01a14ce6-8ad9-7000-8000-000000000066",
+        "operation_epoch": "d2477941a3d1ccc3d2d050a24eb7315d",
         "operation": "speech/preview",
         "payload": {
           "contract_version": 1,
@@ -1395,7 +1395,7 @@
         "error": "no_matching_locale",
         "voice_preview": {
           "schema_version": 1,
-          "preview_id": "01a14ce0-ef4f-7000-8000-000000000066",
+          "preview_id": "01a14ce6-8ad9-7000-8000-000000000066",
           "state": "unavailable",
           "reason": "no_matching_locale",
           "locale": "fr"
@@ -1420,10 +1420,10 @@
         },
         "operation_receipt": {
           "contract_version": 1,
-          "operation_id": "01a14ce0-ef4f-7000-8000-000000000066",
-          "operation_epoch": "30dcf94467d832c295af996d09ac98ca",
+          "operation_id": "01a14ce6-8ad9-7000-8000-000000000066",
+          "operation_epoch": "d2477941a3d1ccc3d2d050a24eb7315d",
           "phase": "unknown",
-          "expires_at_ms": 1792291472175,
+          "expires_at_ms": 1792291839673,
           "result_available": false,
           "response_status": 409,
           "error": "no_matching_locale"
@@ -1434,8 +1434,8 @@
     "test_provider_and_gender_selection_are_qualified_without_locale_fallback/3": {
       "request": {
         "contract_version": 1,
-        "operation_id": "01a14ce0-ef4f-7000-8000-000000000067",
-        "operation_epoch": "30dcf94467d832c295af996d09ac98ca",
+        "operation_id": "01a14ce6-8ad9-7000-8000-000000000067",
+        "operation_epoch": "d2477941a3d1ccc3d2d050a24eb7315d",
         "operation": "speech/preview",
         "payload": {
           "contract_version": 1,
@@ -1465,10 +1465,10 @@
         },
         "operation_receipt": {
           "contract_version": 1,
-          "operation_id": "01a14ce0-ef4f-7000-8000-000000000067",
-          "operation_epoch": "30dcf94467d832c295af996d09ac98ca",
+          "operation_id": "01a14ce6-8ad9-7000-8000-000000000067",
+          "operation_epoch": "d2477941a3d1ccc3d2d050a24eb7315d",
           "phase": "unknown",
-          "expires_at_ms": 1792291472175,
+          "expires_at_ms": 1792291839673,
           "result_available": false,
           "response_status": 409,
           "error": "tts_provider_unavailable"
@@ -1476,11 +1476,56 @@
       },
       "status": 409
     },
+    "test_provider_change_during_durable_send_admission_prevents_synthesis/1": {
+      "request": {
+        "contract_version": 1,
+        "operation_id": "01a14ce6-8aee-7000-8000-000000000065",
+        "operation_epoch": "15f26ea7ab6b48222cd66bcf90fffb06",
+        "operation": "speech/preview",
+        "payload": {
+          "contract_version": 1,
+          "language": "en"
+        }
+      },
+      "response": {
+        "success": false,
+        "error": "speech_configuration_changed",
+        "notification": {
+          "schema_version": 1,
+          "code": "tts_configuration_changed",
+          "message_key": "speech.tts_configuration_changed",
+          "severity": "warning",
+          "presentation": "inline",
+          "locale": "en",
+          "title": "Speech settings changed",
+          "message": "In Home Assistant, check the Assist pipeline selected in DJConnect: its TTS provider, language and voice. The text remains available.",
+          "actions": [
+            "review_ha_tts_configuration",
+            "retry_speech_preparation"
+          ],
+          "retryable": true,
+          "retry_after_seconds": 0,
+          "preserve_text": true,
+          "repeat_original_request": false
+        },
+        "operation_receipt": {
+          "contract_version": 1,
+          "operation_id": "01a14ce6-8aee-7000-8000-000000000065",
+          "operation_epoch": "15f26ea7ab6b48222cd66bcf90fffb06",
+          "phase": "unknown",
+          "expires_at_ms": 1792291839694,
+          "result_available": false,
+          "response_status": 409,
+          "error": "speech_configuration_changed"
+        }
+      },
+      "status": 409
+    },
     "test_queued_result_revalidates_provider_before_semantic_delivery/1": {
       "request": {
         "contract_version": 1,
-        "operation_id": "01a14ce0-ef61-7000-8000-000000000065",
-        "operation_epoch": "2abb0d20062685123155a584e3ee9d51",
+        "operation_id": "01a14ce6-8b00-7000-8000-000000000065",
+        "operation_epoch": "8d8540bfbb4184fc7e0e20fa56480026",
         "operation": "speech/preview",
         "payload": {
           "contract_version": 1,
@@ -1491,7 +1536,7 @@
         "success": true,
         "voice_preview": {
           "schema_version": 1,
-          "preview_id": "01a14ce0-ef61-7000-8000-000000000065",
+          "preview_id": "01a14ce6-8b00-7000-8000-000000000065",
           "text": "This is a short example of your selected DJ voice.",
           "locale": "en",
           "state": "available",
@@ -1500,7 +1545,7 @@
             1,
             null
           ],
-          "expires_at": "2026-10-18T02:41:32.197652+00:00",
+          "expires_at": "2026-10-18T02:47:39.719076+00:00",
           "cache_policy": "private,no-store",
           "audio_state": "ready",
           "effective_voice": {
@@ -1517,7 +1562,7 @@
             "configuration_revision": "1051129b10dd10f2d1e1a263"
           },
           "audio_reference": {
-            "asset_id": "CS2GbqP8os2HugHH5kF1OdU4O8Xb7fGx",
+            "asset_id": "SNlwCbRxYOG8Qwi5nkm3xXS70Le1Pk5w",
             "path": "/api/djconnect/v1/speech/audio",
             "method": "POST"
           }
@@ -1529,10 +1574,10 @@
         },
         "operation_receipt": {
           "contract_version": 1,
-          "operation_id": "01a14ce0-ef61-7000-8000-000000000065",
-          "operation_epoch": "2abb0d20062685123155a584e3ee9d51",
+          "operation_id": "01a14ce6-8b00-7000-8000-000000000065",
+          "operation_epoch": "8d8540bfbb4184fc7e0e20fa56480026",
           "phase": "confirmed",
-          "expires_at_ms": 1792291472193,
+          "expires_at_ms": 1792291839712,
           "result_available": false,
           "response_status": 200,
           "error": null
@@ -1543,8 +1588,8 @@
     "test_settings_change_during_synthesis_never_returns_or_sends_old_audio/1": {
       "request": {
         "contract_version": 1,
-        "operation_id": "01a14ce0-ef71-7000-8000-000000000065",
-        "operation_epoch": "71e8257ce9f720a92e50a351a08ac245",
+        "operation_id": "01a14ce6-8b16-7000-8000-000000000065",
+        "operation_epoch": "f6ecca2007d65c89999ba6d4d9914d11",
         "operation": "speech/preview",
         "payload": {
           "contract_version": 1,
@@ -1556,10 +1601,10 @@
         "error": "voice_preview_withdrawn",
         "operation_receipt": {
           "contract_version": 1,
-          "operation_id": "01a14ce0-ef71-7000-8000-000000000065",
-          "operation_epoch": "71e8257ce9f720a92e50a351a08ac245",
+          "operation_id": "01a14ce6-8b16-7000-8000-000000000065",
+          "operation_epoch": "f6ecca2007d65c89999ba6d4d9914d11",
           "phase": "unknown",
-          "expires_at_ms": 1792291472209,
+          "expires_at_ms": 1792291839734,
           "result_available": false,
           "response_status": 409,
           "error": "voice_preview_withdrawn"
@@ -1570,8 +1615,8 @@
     "test_target_change_while_resolving_media_url_has_zero_speaker_dispatch/1": {
       "request": {
         "contract_version": 1,
-        "operation_id": "01a14ce0-ef82-7000-8000-000000000065",
-        "operation_epoch": "cdc4235799d7927808cce9dd81f8dfae",
+        "operation_id": "01a14ce6-8b29-7000-8000-000000000065",
+        "operation_epoch": "4771efec539293df5179a80932e48a4e",
         "operation": "speech/preview",
         "payload": {
           "contract_version": 1,
@@ -1583,10 +1628,10 @@
         "error": "voice_preview_withdrawn",
         "operation_receipt": {
           "contract_version": 1,
-          "operation_id": "01a14ce0-ef82-7000-8000-000000000065",
-          "operation_epoch": "cdc4235799d7927808cce9dd81f8dfae",
+          "operation_id": "01a14ce6-8b29-7000-8000-000000000065",
+          "operation_epoch": "4771efec539293df5179a80932e48a4e",
           "phase": "unknown",
-          "expires_at_ms": 1792291472226,
+          "expires_at_ms": 1792291839753,
           "result_available": false,
           "response_status": 409,
           "error": "voice_preview_withdrawn"
@@ -1597,8 +1642,8 @@
     "test_text_only_and_unconfirmed_settings_have_zero_provider_or_speaker_effects/1": {
       "request": {
         "contract_version": 1,
-        "operation_id": "01a14ce0-ef92-7000-8000-000000000065",
-        "operation_epoch": "45146d9af4725a93adcf64d4a3551e0f",
+        "operation_id": "01a14ce6-8b3a-7000-8000-000000000065",
+        "operation_epoch": "e268104f4aa16934fdd0637f410b648d",
         "operation": "speech/preview",
         "payload": {
           "contract_version": 1,
@@ -1610,10 +1655,10 @@
         "error": "settings_migration_choice_required",
         "operation_receipt": {
           "contract_version": 1,
-          "operation_id": "01a14ce0-ef92-7000-8000-000000000065",
-          "operation_epoch": "45146d9af4725a93adcf64d4a3551e0f",
+          "operation_id": "01a14ce6-8b3a-7000-8000-000000000065",
+          "operation_epoch": "e268104f4aa16934fdd0637f410b648d",
           "phase": "unknown",
-          "expires_at_ms": 1792291472242,
+          "expires_at_ms": 1792291839770,
           "result_available": false,
           "response_status": 409,
           "error": "settings_migration_choice_required"
@@ -1624,8 +1669,8 @@
     "test_text_only_and_unconfirmed_settings_have_zero_provider_or_speaker_effects/2": {
       "request": {
         "contract_version": 1,
-        "operation_id": "01a14ce0-ef92-7000-8000-000000000066",
-        "operation_epoch": "45146d9af4725a93adcf64d4a3551e0f",
+        "operation_id": "01a14ce6-8b3a-7000-8000-000000000066",
+        "operation_epoch": "e268104f4aa16934fdd0637f410b648d",
         "operation": "speech/preview",
         "payload": {
           "contract_version": 1,
@@ -1637,10 +1682,10 @@
         "error": "announcement_text_only",
         "operation_receipt": {
           "contract_version": 1,
-          "operation_id": "01a14ce0-ef92-7000-8000-000000000066",
-          "operation_epoch": "45146d9af4725a93adcf64d4a3551e0f",
+          "operation_id": "01a14ce6-8b3a-7000-8000-000000000066",
+          "operation_epoch": "e268104f4aa16934fdd0637f410b648d",
           "phase": "unknown",
-          "expires_at_ms": 1792291472242,
+          "expires_at_ms": 1792291839770,
           "result_available": false,
           "response_status": 409,
           "error": "announcement_text_only"

@@ -404,3 +404,21 @@ class VoicePreviewTests(unittest.IsolatedAsyncioTestCase):
             self.assertFalse(self.hass.data['djconnect'].get('tts_audio'))
             self.assertEqual(self.f.fixture.manager.current_active('profile-a').session_id, session.session_id)
             self.assertEqual((len(calls), self.sent), (1, []))
+
+    async def test_provider_change_during_durable_send_admission_prevents_synthesis(self):
+        stack, entity, _, calls, _ = self.provider()
+        save = self.store.async_save
+        changed = []
+        async def switch_after_save(value):
+            await save(value)
+            if not changed and any(r['phase'] == 'sent_unknown' for r in value['records'].values()):
+                changed.append(True)
+                entity.subentry.data['tts_speed'] = 1.1
+        self.store.async_save = switch_after_save
+        with stack:
+            await self.choose('marin')
+            result, status = await self.execute()
+            self.assertEqual((status, result.get('error')), (409, 'speech_configuration_changed'), result)
+            self.assertEqual(changed, [True])
+            self.assertEqual((calls, self.sent), ([], []))
+            self.assertFalse(self.hass.data['djconnect'].get('tts_audio'))

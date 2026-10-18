@@ -24,5 +24,5 @@ intent. A subsequent deliberate press may reuse the existing authorized sample
 without extending its expiry. `text_only` blocks new and previously prepared
 audio. `queued`/synthetic bytes do not prove audible playback.
 
-The seventeen fixture tests are a source/owner contract proof. Configured real HA
+The eighteen fixture tests are a source/owner contract proof. Configured real HA
 synthesis, installed/native presentation and physical listening remain OPEN.

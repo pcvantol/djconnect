@@ -72,7 +72,7 @@ async def async_preview(hass, authority, payload):
     from .session_speech import prepare_ha, exact_segments
     from .settings_migration import assessment
     from .speech_processor import voice_options
-    from .speech_feedback import notification
+    from .speech_feedback import notification, SpeechProviderChanged
     from .transport_delivery import register_delivery_admission
 
     def failed(reason, status=409, **extra):
@@ -139,6 +139,8 @@ async def async_preview(hass, authority, payload):
                     or assessment(hass, storage.household, storage.household.profiles[profile],
                                   **acceptance)['requires_review']):
                 raise PermissionError('voice_preview_withdrawn')
+            if voice_options(hass, authority.runtime.config)['revision'] != policy.revision:
+                raise SpeechProviderChanged('speech_configuration_changed', payload['language'])
         lease = _Lease(guard, min(time.time()+MAX_SECONDS, operation_expiry_ms/1000))
         lease.processor_basis = 'core_owned_voice_preview_v1'
         lease()
@@ -179,6 +181,10 @@ async def async_preview(hass, authority, payload):
         from .speaker_delivery import deliver_prepared
         return await deliver_prepared(hass, authority, prepared, target=target,
             original=original, source_guard=lease, result_key='voice_preview')
+    except SpeechProviderChanged as exc:
+        if lease is not None:
+            lease.dispose()
+        return failed(str(exc))
     except SettingsCommitError:
         if lease is not None:
             lease.dispose()
