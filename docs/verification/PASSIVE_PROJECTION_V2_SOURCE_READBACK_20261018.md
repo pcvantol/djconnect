@@ -76,9 +76,12 @@ subject to their own admission, not this documentation.
 
 Local Workspace Cleanup disposition: no WIP, products, test evidence, HA storage
 or recovery bundles deleted. The specifically authorized closed compiler-cache
-cleanup stopped before deletion because its guard found an active Apple build.
-The refreshed canonical hostverify package4.5.3 subsequently returned MATCH/exit0;
-that is independent from the cleanup guard. No build was interrupted.
+cleanup first stopped before deletion because its guard found an active Apple
+build. After that build ended, the unchanged approved plan removed only the
+closed compiler/index caches. All2575 retained product/log/test files had equal
+before/after hashes. Detailed space/readback is retained in the private cleanup
+receipt; no WIP, app, test proof or recovery bundle was removed. Refreshed canonical
+hostverify package4.5.3 returned MATCH/exit0 independently. No build was interrupted.
 
 Retained own source refs: `codex/askdj-contextual-golden-release-v1`,
 `codex/core-consolidation-finalization-20261018`,

@@ -17,3 +17,7 @@ See [source readback](../../verification/PASSIVE_PROJECTION_V2_SOURCE_READBACK_2
 No consumer/API source, production install, hardware, private task message or
 new selection is authorized or claimed by this history record. Earlier Prompt
 History, source receipts and recovery/native evidence remain immutable.
+
+The approved closed-cache scope was executed only after the active Apple build
+ended; all2575 retained product/log/test files matched before/after hashes. No
+source, WIP or recovery cleanup was inferred from that permission.

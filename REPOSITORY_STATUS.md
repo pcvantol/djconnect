@@ -76,8 +76,10 @@ this source correction only. Release/native/background/product gates stay OPEN.
 WORKSPACE_READY is not claimed for a new capability. Canonical main is reconciled
 separately from retained own squash refs and their recovery bundles. Source
 retention is not unpublished content. Apple WIP, native/profiling evidence and
-HA data are preserved. Specifically authorized compiler-cache cleanup did not run
-while its guard detected an active Apple build; no files were deleted.
+HA data are preserved. Specifically authorized compiler-cache cleanup first stopped
+while its guard detected an active Apple build. After that build ended, only the
+approved closed caches were removed; all2575 preserved product/log/test files
+matched their before/after hashes. WIP, native evidence and recovery stayed intact.
 
 HA-dev's verified development build is exact prior main e71daff1, including newer
 Album/Welcome/Preview source and preserved history. Passive v2 is not installed.
