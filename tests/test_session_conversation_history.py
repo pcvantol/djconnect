@@ -20,6 +20,17 @@ from custom_components.djconnect.persistence.history import HistoricalProjection
 from custom_components.djconnect.historical_projection_query import HistoricalProjectionQueryService  # noqa: E402
 
 
+def _basis_fixture():
+    # Load the repo-owned helper by path: HA dependencies may own `tools`.
+    # Do not shadow or mutate that installed package or sys.path.
+    import importlib.util
+    path = Path(__file__).resolve().parents[1] / 'tools/verification/session_history_basis_fixture.py'
+    spec = importlib.util.spec_from_file_location('djc_history_basis_fixture',path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
 class SessionConversationHistoryTest(unittest.IsolatedAsyncioTestCase):
     @classmethod
     def setUpClass(cls):
@@ -60,7 +71,8 @@ class SessionConversationHistoryTest(unittest.IsolatedAsyncioTestCase):
     async def test_four_retention_bases_and_silent_receipts_match_pinned_consumer_fixture(self):
         import json
         import hashlib
-        from tools.verification.session_history_basis_fixture import build_connected, FIXTURE, ROOT
+        fixture = _basis_fixture()
+        build_connected, FIXTURE, ROOT = fixture.build_connected, fixture.FIXTURE, fixture.ROOT
         original = ROOT/'examples/client_contracts/session_conversation_history/retention-bases-v1.json'
         self.assertEqual(hashlib.sha256(original.read_bytes()).hexdigest(),
             '600e6c68e26b798ddb5dd73daf8b801464d8647ca68764766e37297f13ce3916')
@@ -345,7 +357,7 @@ class SessionConversationHistoryTest(unittest.IsolatedAsyncioTestCase):
 
     async def history_version_fixture(self):
         import json
-        from tools.verification.session_history_basis_fixture import build
+        build = _basis_fixture().build
         hass, _runtime, _history, identity, headers = await self.transport_fixture()
         session = await self.manager.async_start(owner_profile_id='profile-a', locale='nl')
         entries = build()['tail_window']['entries']
