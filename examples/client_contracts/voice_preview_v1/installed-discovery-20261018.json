@@ -1,0 +1,36 @@
+{
+  "proof_boundary": "Actual HA-dev public discovery and 202/202 installed development-source byte readback; not actual synthesis, native or audible acceptance.",
+  "installed_source_sha": "e71daff1e36c7e0284ffa1f42b1a1ada47b50aa1",
+  "artifact_sha256": "6e5f651a3bb3861d43c8601573d3e1c124537e6d8479dad797ed175e4291bcc4",
+  "official_release": false,
+  "installed_files_verified": 202,
+  "mismatches": 0,
+  "preview_module_sha256": "217c3595dbd573a8fac762567accfbf93af566a0c8038d8af133649fbfeeb44e",
+  "source_main_preview_byte_equal": "3f88898a4f74e84c76abe68476f0a598821d0583",
+  "session_speech": {
+    "voice_preview": {
+      "available": true,
+      "version": 1,
+      "operation": "speech/preview",
+      "path": "/api/djconnect/v1/transport/operation",
+      "method": "POST",
+      "language_families": [
+        "en",
+        "nl",
+        "de",
+        "fr",
+        "es"
+      ],
+      "processor": "ha_configured",
+      "settings_contract_version": 3,
+      "requires_confirmed_settings": true,
+      "caller_text_or_voice_override": false,
+      "maximum_seconds": 120,
+      "session_required": false,
+      "history_publication": false,
+      "output_authority": "confirmed_profile_or_active_session",
+      "duplicate": "original_operation_receipt_no_new_audio_or_dispatch",
+      "cache_policy": "private,no-store"
+    }
+  }
+}

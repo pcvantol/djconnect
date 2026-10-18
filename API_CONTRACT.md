@@ -11,9 +11,9 @@ history-not-found response. Current client adoption and backward-compatible
 producer negotiation/projection are separate outstanding gates. Do not relabel
 source text or claim old/offline clients work merely because the new client decodes.
 
-## Configured voice preview — local producer delta, not installed
+## Configured voice preview — qualified development producer and installed discovery
 
-The existing paired operation owner locally accepts `speech/preview` with only
+The existing paired operation owner accepts `speech/preview` with only
 `{"contract_version":1,"language":"nl"}` as its payload. Discovery is
 `session_speech.voice_preview`. It uses confirmed Profile/active-Session Settings3,
 fixed five-language neutral comparison text and the selected HA voice/gender and
@@ -26,9 +26,13 @@ Duplicates read the original operation receipt without repeating synthesis or
 speaker delivery. A new deliberate press may reuse a valid sample without
 renewing expiry; text_only withdraws old samples and denies new ones. The actual
 contract/fixtures and unqualified provider/native/listening boundaries are in
-[Configured voice preview](docs/product/SESSION_VOICE_PREVIEW_V1.md). The currently
-installed private HA-dev build predates this producer. No protected pin or
-consumer rollout is implied by this source delta.
+[Configured voice preview](docs/product/SESSION_VOICE_PREVIEW_V1.md) and
+[exact readback](docs/verification/VOICE_PREVIEW_PRODUCER_READBACK_20261018.md).
+Protected source PR #1197 and Finalization #1204 are delivered; exact HA-dev
+build `e71daff1e36c7e0284ffa1f42b1a1ada47b50aa1` includes this producer and
+actually advertises Preview1/Settings3. Existing consumers use this development
+pin and versioned discovery; real configured-provider, native and audible
+acceptance remain OPEN. This is not an official release or production rollout.
 
 ## Current shared settings3 / target-aware speech3 producer
 
