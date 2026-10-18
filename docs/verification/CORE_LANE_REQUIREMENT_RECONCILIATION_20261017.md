@@ -4,7 +4,7 @@ Current follow-up — 18 October: the privately installed HA-dev candidate inclu
 researched narration, four Presence levels and the shared local/HA speech
 preparation. Its exact artifact is `3a89473e2c9b…`, not a protected release.
 The newer producer-recording and Forecast-language repairs remain local.
-Golden currently binds **49 reports,36 families,139 steps**; **eleven Core findings
+Golden currently binds **49 reports,36 families,140 steps**; **eleven Core findings
 and17 actual-quality steps remain OPEN**. Historical trial8 produced one individually accepted producer story; the
 latest fixed trial9 has no editorial GO. Neither qualifies a Persona/Mood matrix
 or all-family publication. Both concrete credit-scope defects now have causal
@@ -55,7 +55,7 @@ advertised capability do not establish current end-user acceptance.
 | Native Apple voice menu, buttons, local audio and discovery | Apple-owned, open until actual native evidence | Existing consumer lane and pinned contracts; no Swift writes or native PASS from Core/browser/audio generation. |
 | HA speaker and physical audibility | Separate open proof | Validated provider audio does not prove speaker delivery or sound heard on a device. |
 | Native per-device speech override | Core prepare3 implemented and scoped-reviewed; private dev candidate includes that producer, Apple native acceptance OPEN | Register owner handoff [6231306172](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6231306172): exact allow/deny, source/revision/expiry, retained/live lifecycle and absolute text_only suppression; local OS voices never become HA settings. No new writer or consumer start. Versioned local-source/fixture freeze is historical to the installed private candidate; latest combined source needs its own protected pin. |
-| Selected neutral voice preview | **Open implementation** | [Canonical design](../product/SESSION_VOICE_PREVIEW_V1.md), existing Speech/Settings owners; fixed text, selected voice/output, no fake bubble/turn or arbitrary text, text_only zero effects. Exact contract/fixtures/pin needed before Apple adoption. |
+| Selected neutral voice preview | Core local implementation/owner fixtures; protected pin and actual provider/native acceptance **OPEN** | [Canonical contract](../product/SESSION_VOICE_PREVIEW_V1.md), existing Speech/Settings owners; literal five-language text, confirmed voice/output, no fake bubble/turn, text_only zero effects. Same operation/private-byte/speaker owners; real synthesis/listening and native Preview/Stop remain separate. |
 | Protected source, artifacts, Finalization, dev/prod installs | Not done for these local bytes | Exact candidate review/checks and normal protected delivery; exact main/artifact readback; separate reconciliation; install dev then prod and read back actual files/runtime. |
 
 ## DAG disposition

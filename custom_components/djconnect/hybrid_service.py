@@ -19,7 +19,7 @@ from .transport_delivery import (
 )
 
 ACTION_OPERATIONS = frozenset(
-    {"command", "ask_dj/message", "track_insight", "session/mood", "session/presence", "session/persona", "session/speech/play"}
+    {"command", "ask_dj/message", "track_insight", "session/mood", "session/presence", "session/persona", "session/speech/play", "speech/preview"}
 )
 HTTP_OPERATIONS = ACTION_OPERATIONS | {"session/start", "session/end"}
 READ_OPERATIONS = frozenset(
@@ -290,6 +290,9 @@ async def invoke(hass, authority, operation, payload):
     if operation == 'session/speech/play':
         from .speaker_delivery import async_play
         return await async_play(hass, authority, payload)
+    if operation == 'speech/preview':
+        from .voice_preview import async_preview
+        return await async_preview(hass, authority, payload)
     if operation == "session/forecast":
         from .session_forecast_transport import async_handle_forecast
 
@@ -513,6 +516,17 @@ class HybridOperations:
             scope.clear()
             _current_operation.reset(token)
             self.journal.release(key)
+
+
+def current_operation_identity(authority):
+    """Read this already-reserved operation; never mint a second intent or lease."""
+    scope = _current_operation.get()
+    if not scope or scope[2] is not authority:
+        raise OperationError('operation_context_changed', 409)
+    manager, key, _ = scope
+    validate_transport_effect_now()
+    record = manager.journal._state['records'][key]
+    return record['operation_id'], record['expires_ms']
 
 
 async def guard_transport_effect():

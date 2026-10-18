@@ -1384,8 +1384,8 @@
       ],
       "priority": "P1",
       "status": "OPEN",
-      "summary": "Neutral selected-voice preview has a canonical design, but Core implementation and fixtures remain missing. Apple must not invent an endpoint.",
-      "next_action": "Implement the bounded authorized preview with existing speech/settings owners before consumer adoption.",
+      "summary": "Configured voice preview is implemented locally with paired Settings/operation/private-byte owners and actual five-language owner fixtures; protected producerpin, real provider, native and listening acceptance remain open.",
+      "next_action": "Qualify the exact combined candidate and original provider outputs, then supply protected/installed pin before existing Apple Preview/Stop adoption. No new writer or automatic dispatch.",
       "required_tests": [
         "Fixed neutral text and selected voice/gender/output",
         "No fake Moment/chat turn, arbitrary text, model call or semantic publication",
@@ -1862,7 +1862,7 @@
     "current_local_state": "LOCAL_REPAIRS_AFTER_PRIVATE_DEV_CANDIDATE",
     "reported_issues": 49,
     "conversation_families": 36,
-    "conversation_steps": 139,
+    "conversation_steps": 140,
     "open_core_findings": 11,
     "open_quality_steps": 17,
     "merge_readiness": "NOT_QUALIFIED",
@@ -1879,6 +1879,7 @@
     "producer_trial9": "TWO_REAL_CELLS_SIX_ATTEMPTS_ONE_TECHNICAL_ACCEPT_ZERO_EDITORIAL_GO;ORIGINALS_IMMUTABLE",
     "active_history_404": "OPEN_ORIGINAL_REF_NOT_CAPTURED;CURRENT_PAIRED_READS200;OWNER_CLEAR_FENCES_QUALIFIED",
     "widget_missing_cache": "OPEN_ORIGINAL_DENIAL_NOT_CAPTURED;SEPARATE_PURPOSE_GRANTS_AND_NO_READ_RENEWAL_QUALIFIED",
-    "golden_execution": "ALL_NAMED_OWNER_FILES_SCHEDULED;ACTUAL_EXECUTION_CHECK_RETAINED;NODE_RENDERER_SEPARATE_HOST_FIXTURE"
+    "golden_execution": "ALL_NAMED_OWNER_FILES_SCHEDULED;ACTUAL_EXECUTION_CHECK_RETAINED;NODE_RENDERER_SEPARATE_HOST_FIXTURE",
+    "voice_preview": "LOCAL_PAIRED_OWNER_IMPLEMENTED;PROTECTED_REAL_PROVIDER_NATIVE_AUDIBLE_OPEN"
   }
 }

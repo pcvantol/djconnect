@@ -1,6 +1,6 @@
 # Passive Session projection — definitive protected producer pin
 
-## Selected voice-preview addition — design only, not a delivered capability
+## Selected voice-preview addition — local producer, protected delivery pending
 
 The human-requested Preview action is recorded in
 [configured voice preview v1](docs/product/SESSION_VOICE_PREVIEW_V1.md).
@@ -8,7 +8,9 @@ Use the existing Speech/Settings producer and paired operation owner: fixed
 five-language neutral text, current confirmed HA voice/gender and output;
 text_only is a hard zero-synthesis/effect deny. No fake bubble, arbitrary caller
 text, silent provider/system-voice fallback or new consumer writer. The proposed
-`speech/preview` operation and fixtures are not yet implemented/advertised.
+`speech/preview` operation is now implemented locally, including actual paired
+owner fixtures and `session_speech.voice_preview` discovery. The private HA-dev
+build predates it; no installed or protected producerpin is claimed.
 Apple must wait for the exact qualified wire contract/pin; native/audible proof
 and Core source delivery remain independent. Existing autoplay/UI work stays
 with the existing Apple writer.

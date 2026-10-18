@@ -1,5 +1,24 @@
 # DJConnect API Contract
 
+## Configured voice preview — local producer delta, not installed
+
+The existing paired operation owner locally accepts `speech/preview` with only
+`{"contract_version":1,"language":"nl"}` as its payload. Discovery is
+`session_speech.voice_preview`. It uses confirmed Profile/active-Session Settings3,
+fixed five-language neutral comparison text and the selected HA voice/gender and
+output. No caller text/target/provider override, fake Moment or history change.
+Private audio uses the existing authenticated POST byte route and original
+maximum120-second expiry. The same bounded speaker-media owner supplies separate
+ready/queued/unavailable/unknown outcomes; no audible success is inferred.
+
+Duplicates read the original operation receipt without repeating synthesis or
+speaker delivery. A new deliberate press may reuse a valid sample without
+renewing expiry; text_only withdraws old samples and denies new ones. The actual
+contract/fixtures and unqualified provider/native/listening boundaries are in
+[Configured voice preview](docs/product/SESSION_VOICE_PREVIEW_V1.md). The currently
+installed private HA-dev build predates this producer. No protected pin or
+consumer rollout is implied by this source delta.
+
 ## Current shared settings3 / target-aware speech3 producer
 
 Protected source main `e8cc70ddffb4112b09babdda4d45140b98926ae5`, PR [#1193](https://github.com/pcvantol/djconnect/pull/1193). [Exact source readback](docs/verification/PROFILE_SESSION_SETTINGS_SOURCE_READBACK_20261016.md). Six-field producer/capabilities are delivered in Core; earlier local-candidate/design checkpoints below are historical. Consumer adoption, complete legacy removal, Finalization and actual installed/native/audible/joint outcomes remain separately qualified.

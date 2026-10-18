@@ -1,10 +1,15 @@
 # DJConnect Repository Status
 
+18October speech follow-up: the existing configured voice-preview design now has
+a local paired producer, five-language literals and owner fixtures. Golden adds
+its route as step140; protected delivery, installed/provider/native/listening
+acceptance remain OPEN. No narrative-quality gate is closed by this addition.
+
 Current follow-up — 18 October: the privately installed HA-dev candidate includes
 researched narration, four Presence levels and the shared local/HA speech
 preparation. Its exact artifact is `3a89473e2c9b…`, not a protected release.
 The newer producer-recording and Forecast-language repairs remain local.
-Golden currently binds **49 reports,36 families,139 steps**; **eleven Core findings
+Golden currently binds **49 reports,36 families,140 steps**; **eleven Core findings
 and17 actual-quality steps remain OPEN**. Historical trial8 produced one individually accepted producer story; the
 latest fixed trial9 has no editorial GO. Neither qualifies a Persona/Mood matrix
 or all-family publication. Both concrete credit-scope defects now have causal

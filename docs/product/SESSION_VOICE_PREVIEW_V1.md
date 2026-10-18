@@ -1,6 +1,9 @@
 # Configured voice preview v1
 
-Status: directed design; implementation and exact producer fixtures pending.
+Status: implemented locally in the existing combined corrective branch; paired
+owner fixtures and independent qualification in progress. Protected producerpin,
+installed/native controls and actual configured-provider/listening acceptance
+remain pending. This is not a released capability.
 Existing Core writer and existing Speech/Settings family only. Human selection
 was verified in the existing Apple task on17October2026; the consumer proposal
 does not itself create a producer capability. No bubble, turn or fake Moment.
@@ -22,8 +25,10 @@ The server resolves the current effective six-field settings at execution.
 Unactivated or migration-ambiguous settings require the existing review; no
 implicit activation or guessed defaults merely to produce an example.
 
-The operation is unavailable until its actual capability and exact source pin
-are supplied. Apple must not guess an endpoint or replay an unrelated bubble.
+The source advertises `session_speech.voice_preview`; the installed private
+development build predates this implementation. Consumers must wait for the
+qualified producerpin and its actual installed capability. Apple must not guess
+an endpoint or replay an unrelated bubble.
 
 ## Fixed text and output
 
@@ -36,7 +41,9 @@ are supplied. Apple must not guess an endpoint or replay an unrelated bubble.
 | es | Este es un breve ejemplo de la voz de DJ que has elegido. |
 
 Speak literally; no LLM, personal facts, retrospective speech or playback claim.
-Use neutral vocal delivery for comparing voices, not an invented Moment Mood.
+No Moment Mood or Persona instruction is applied to this neutral comparison
+text. Provider-default delivery and actual audible neutrality still require
+configured-provider/listening acceptance; fixture audio does not prove them.
 Provider/language/voice availability must be qualified normally. No provider or
 system-voice fallback and no global HA configuration changes.
 
@@ -51,9 +58,14 @@ voice overrides remain client-owned and do not modify this HA-provider example.
 
 Reuse the bounded private audio owner: original maximum120second expiry,
 at most2MiB per asset and existing per-owner/global slot/job limits. A duplicate
-operation joins or reads its original result; it cannot refresh expiry or dispatch
-the speaker twice. A new deliberate press is a new operation, subject to existing
-capacity/backoff. Retain only bounded operation metadata, never raw audio on disk.
+operation reads the existing operation receipt: pending202 or the original final
+outcome, without a repeated rich response body. It cannot refresh expiry or
+dispatch the speaker twice. This reuses the existing operation contract rather
+than adding a response journal. After lost delivery the client reads that receipt;
+it must not silently create a second intent. A new deliberate press is a new
+operation, subject to existing capacity/backoff, and may reuse an authorized
+sample with its original expiry. Retain only bounded operation metadata, never
+raw audio on disk.
 
 Capture owner/pairing/Profile authority, exact settings revision/generation,
 selected pipeline/provider/voice configuration and output/speaker target before
@@ -84,3 +96,21 @@ duplicate/cancel/retry, provider/settings/owner/source/target races, original
 expiry, both-target partial failure, zero-effects text_only, bounded resources,
 independent technical/privacy and UX review, actual wire fixtures and producerpin.
 Native, installed and physical audible results remain separate.
+
+## Implementation and current proof
+
+`voice_preview.py` owns only the fixed preview selection and short RAM lease.
+It reuses `HybridOperations`, confirmed Settings3, configured `prepare_ha`,
+private audio POST reads and the shared `speaker_delivery.deliver_prepared`.
+No additional HTTP route, model, source fetch, preference store or scheduler.
+No operation can supply text, provider, voice, gender, speaker or bubble reference.
+
+The owning suite executes five language texts, no-Session and active-Session
+reads, all outputs, text-only and unconfirmed denial, gender/language checks,
+in-flight settings/target changes, provider withdrawal on queued result and byte
+reads, duplicate/socket cancellation, partial/unknown speaker dispatch, original
+monotonic expiry, sample reuse and failed-provider backoff. External provider and
+speaker I/O are explicitly fixtures. The original rejected narrative corpus and
+the eleven Core/seventeen real-quality gates remain unchanged.
+
+Wire examples: [actual owner-route fixtures](../../examples/client_contracts/voice_preview_v1/README.md).

@@ -3307,6 +3307,84 @@
           ],
           "acceptance_status": "owner_contract",
           "proof_boundary": "Named owning contract execution; live provider/model/native quality requires separate evidence."
+        },
+        {
+          "id": "ASKDJ-REGRESSION-speech-functional-failure-step-3",
+          "question": "Laat de gekozen DJ-stem horen zonder DJ-vraag of actieve sessie; ook tijdens stem-, output- en sessiewijzigingen.",
+          "expected_answer": "Vaste gelokaliseerde neutrale voorbeeldzin met bevestigde HA-stem/gender en output; geen Moment, historie- of playbackwijziging. Tekst-only, ambiguë settings, gewijzigde eigenaar/provider/target en oorspronkelijke expiry weigeren; dubbele operatie zendt niet opnieuw.",
+          "model_policy": "zero_dialogue_calls_external_tts_speaker_fixtures_actual_paired_operation_and_byte_owners",
+          "owning_tests": [
+            {
+              "file": "tests/test_voice_preview.py",
+              "method": "test_preview_without_session_is_literal_five_language_and_has_no_domain_writes"
+            },
+            {
+              "file": "tests/test_voice_preview.py",
+              "method": "test_text_only_and_unconfirmed_settings_have_zero_provider_or_speaker_effects"
+            },
+            {
+              "file": "tests/test_voice_preview.py",
+              "method": "test_closed_preview_payload_rejects_text_voice_target_locale_and_reference_overrides"
+            },
+            {
+              "file": "tests/test_voice_preview.py",
+              "method": "test_duplicate_and_socket_cancel_never_resynthesize_or_dispatch_speaker_twice"
+            },
+            {
+              "file": "tests/test_voice_preview.py",
+              "method": "test_settings_change_during_synthesis_never_returns_or_sends_old_audio"
+            },
+            {
+              "file": "tests/test_voice_preview.py",
+              "method": "test_all_outputs_share_one_audio_owner_and_keep_separate_delivery_outcomes"
+            },
+            {
+              "file": "tests/test_voice_preview.py",
+              "method": "test_both_partial_failure_keeps_client_audio_and_unknown_dispatch_is_not_repeated"
+            },
+            {
+              "file": "tests/test_voice_preview.py",
+              "method": "test_new_press_reuses_original_sample_deadline_and_provider_failure_backoff"
+            },
+            {
+              "file": "tests/test_voice_preview.py",
+              "method": "test_old_bytes_denied_after_provider_change_and_text_only"
+            },
+            {
+              "file": "tests/test_voice_preview.py",
+              "method": "test_original_monotonic_expiry_survives_clock_rollback"
+            },
+            {
+              "file": "tests/test_voice_preview.py",
+              "method": "test_active_session_identity_and_history_are_preserved_then_end_revokes_preview"
+            },
+            {
+              "file": "tests/test_voice_preview.py",
+              "method": "test_target_change_while_resolving_media_url_has_zero_speaker_dispatch"
+            },
+            {
+              "file": "tests/test_voice_preview.py",
+              "method": "test_provider_and_gender_selection_are_qualified_without_locale_fallback"
+            },
+            {
+              "file": "tests/test_voice_preview.py",
+              "method": "test_queued_result_revalidates_provider_before_semantic_delivery"
+            },
+            {
+              "file": "tests/test_voice_preview.py",
+              "method": "test_capability_exposes_only_existing_owner_operation_and_fixed_languages"
+            },
+            {
+              "file": "tests/test_voice_preview.py",
+              "method": "test_pairing_revocation_during_synthesis_discards_bytes_and_preserves_single_intent"
+            },
+            {
+              "file": "tests/test_voice_preview.py",
+              "method": "test_new_session_during_synthesis_rejects_original_no_session_sample"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual paired Core/Settings/journal/private-byte owners; TTS and speaker I/O fixtures. Live configured HA synthesis, native controls and audible voice sample remain separate open gates."
         }
       ],
       "owning_tests": [

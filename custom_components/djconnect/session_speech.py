@@ -21,6 +21,7 @@ MAX_REFERENCES = 8
 LITERAL_PROCESSING_BASES = frozenset({
     "qualified_dialogue_v1", "cc0_normalized_fields_v1", "runtime_authored_direction_v1",
     "spotify_owner_local_read_v1", "retained_owner_local_read_v1", "accepted_local_reply",
+    "core_owned_voice_preview_v1",
 })
 
 
@@ -101,6 +102,8 @@ def capability():
             'effective_voice_authority': 'native_renderer',
             'original_publication_and_device_autoplay_required': True,
         }
+    from .voice_preview import capability as voice_preview_capability
+    result['voice_preview'] = voice_preview_capability()
     return result
 
 

@@ -181,7 +181,7 @@ class ContextualReleaseGateTest(unittest.TestCase):
         self.assertEqual(proof['literal_core_routes'],48)
         self.assertEqual(proof['executable_help_cases'],60)
         self.assertEqual(proof['conversation_families'],36)
-        self.assertEqual(proof['conversation_steps'],139)
+        self.assertEqual(proof['conversation_steps'],140)
         self.assertEqual(proof['reported_issues'],49)
         self.assertEqual(len(proof['open_core_findings']),11)
         self.assertEqual(proof['proactive_golden_cases'],560)
@@ -191,7 +191,7 @@ class ContextualReleaseGateTest(unittest.TestCase):
         runner=load('owner_schedule_matrix','tools/verification/run_askdj_release_matrix.py')
         matrix=json.loads((ROOT/'docs/verification/fixtures/askdj_golden_release_matrix_v1.json').read_text())
         runner.validate_owner_pattern_coverage(matrix)
-        for file in ('test_session_forecast.py','test_passive_session.py'):
+        for file in ('test_session_forecast.py','test_passive_session.py','test_voice_preview.py'):
             with self.subTest(file=file),self.assertRaisesRegex(ValueError,'required_owning_file_not_scheduled'):
                 runner.validate_owner_pattern_coverage(matrix,
                     tuple(pattern for pattern in runner.TEST_PATTERNS if pattern!=file))

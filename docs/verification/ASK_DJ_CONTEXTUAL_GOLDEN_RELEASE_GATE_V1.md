@@ -1,5 +1,10 @@
 # Ask DJ contextual Golden release gate v1
 
+18October Preview extension: existing speech family step140 now binds all17
+configured voice-preview owner tests.49reports/36families/140steps;11Core and17
+actual-quality gates remain OPEN. Provider/speaker fixtures and true private
+byte ownership do not qualify installed/native/audible voice preview.
+
 User-selected corrective verification increment, 2026-10-17. Base
 `cc9b49fe9ca5312dd3bf962b3bac319aa25b3f15`; isolated same-writer branch
 `codex/askdj-contextual-golden-release-v1`. Existing VibeCast candidate is preserved.

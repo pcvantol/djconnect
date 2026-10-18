@@ -65,6 +65,14 @@
       "key": "image_token",
       "value": "replace-with-token-from-image-proxy-url",
       "type": "string"
+    },
+    {
+      "key": "operation_epoch",
+      "value": "replace-with-current-transport-context-epoch"
+    },
+    {
+      "key": "operation_id",
+      "value": "replace-with-deliberate-uuidv7"
     }
   ],
   "auth": {
@@ -1220,6 +1228,82 @@
               ]
             },
             "description": "Fetches a proxied image URL returned in Ask DJ images[]."
+          }
+        },
+        {
+          "name": "Configured voice preview - operation context",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{device_token}}"
+              },
+              {
+                "key": "X-DJConnect-Device-ID",
+                "value": "{{device_id}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identity\": {\n    \"device_id\": \"{{device_id}}\",\n    \"client_type\": \"{{client_type}}\"\n  },\n  \"contract_version\": 1\n}"
+            },
+            "url": {
+              "raw": "{{ha_base_url}}/api/djconnect/v1/transport/context",
+              "host": [
+                "{{ha_base_url}}"
+              ],
+              "path": [
+                "api",
+                "djconnect",
+                "v1",
+                "transport",
+                "context"
+              ]
+            },
+            "description": "Existing paired TLS/qualified direct-LAN transport only. Read current operation_epoch and advertised operations; requires supported Apple paired identity. No preview is started."
+          }
+        },
+        {
+          "name": "Configured voice preview - explicit operation",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{device_token}}"
+              },
+              {
+                "key": "X-DJConnect-Device-ID",
+                "value": "{{device_id}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identity\": {\n    \"device_id\": \"{{device_id}}\",\n    \"client_type\": \"{{client_type}}\"\n  },\n  \"contract_version\": 1,\n  \"operation_id\": \"{{operation_id}}\",\n  \"operation_epoch\": \"{{operation_epoch}}\",\n  \"operation\": \"speech/preview\",\n  \"payload\": {\n    \"contract_version\": 1,\n    \"language\": \"nl\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{ha_base_url}}/api/djconnect/v1/transport/operation",
+              "host": [
+                "{{ha_base_url}}"
+              ],
+              "path": [
+                "api",
+                "djconnect",
+                "v1",
+                "transport",
+                "operation"
+              ]
+            },
+            "description": "LOCAL PRODUCER ONLY; await qualified installed capability voice_preview. One deliberate UUIDv7 per press; retry the same ID only to read its original receipt, never silently create a new intent. Payload admits no text/voice/target override. Confirmed Settings3 output and exact HA provider determine literal sample delivery. text_only denies; queued is not audible proof."
           }
         }
       ]
