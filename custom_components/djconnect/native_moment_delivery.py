@@ -66,9 +66,33 @@ def admission(moment: Any, boundary: MomentDeliveryBoundary | None, *,
         deadline = boundary.published_monotonic + duration
     except (TypeError, ValueError, OverflowError):
         return result
+    if moment.moment_type.value == 'silence':
+        # Non-interruption is an explicit control signal, never a fact/audio card.
+        if (moment.content or moment.artwork_url or moment.actions or moment.source_references
+            or moment.source_attribution or moment.knowledge_intent.intent_type.value != 'silence'):
+            return result
+        result['qualification'] = 'intentional_silence'
+        result['display_expires_at'] = boundary.utc_at(deadline)
+        result['active_flow_display_allowed'] = bool(
+            playing and moment.moment_id in flow_ids and boundary.playback_item_id
+            and boundary.playback_item_id == playback_item_id
+            and boundary.published_monotonic <= now < deadline)
+        return result
     source = getattr(moment, 'source_fact', None)
     history_allowed = False
-    if isinstance(source, QualifiedSessionFact):
+    from .public_artist_narration import ResearchMomentAcceptance, admitted
+    if type(getattr(moment, 'narration_acceptance', None)) is ResearchMomentAcceptance:
+        receipt = moment.narration_acceptance
+        source_limit = receipt.accepted.expires_at
+        result['source_expires_at'] = boundary.utc_at(source_limit)
+        if not admitted(moment, now):
+            result['qualification'] = 'expired' if now >= source_limit else 'unqualified'
+            return result
+        if hashlib.sha256(source.media_identity.encode()).hexdigest()[:24] != boundary.playback_item_id:
+            return result
+        history_allowed = True
+        deadline = min(deadline, source_limit)
+    elif isinstance(source, QualifiedSessionFact):
         try:
             source_limit = source_deadline(source)
             result['source_expires_at'] = boundary.utc_at(source_limit)
@@ -90,6 +114,7 @@ def admission(moment: Any, boundary: MomentDeliveryBoundary | None, *,
         except (AttributeError, TypeError, ValueError, OverflowError):
             return result
     elif getattr(moment, 'genre_transition', None) is not None:
+        from .narration_brief import admitted_runtime_text
         from .session_runtime import GenreTransitionNarration
         from .context_expression import transition_copy
         proof = moment.genre_transition
@@ -110,13 +135,14 @@ def admission(moment: Any, boundary: MomentDeliveryBoundary | None, *,
                 or snapshot.get('title') != proof.current.title or snapshot.get('artist') != proof.current.artist
                 or dict(moment.source_attribution) != {'provider': 'Spotify', 'url': proof.current.source_url,
                     'url_previous': proof.earlier.source_url, 'license': 'Spotify-Policy'}
-                or moment.content != transition_copy(locale=proof.current.locale,
+                or (moment.content != transition_copy(locale=proof.current.locale,
                     persona=moment.presentation_intent.dj_persona.value, context=proof.context(),
-                    relation='discover_same_artist_genre')):
+                    relation='discover_same_artist_genre') and not admitted_runtime_text(moment))):
             return result
         result['requires_spotify_attribution'] = True
         deadline = min(deadline, source_limit)
     elif getattr(moment, 'observed_playback', None) is not None:
+        from .narration_brief import admitted_runtime_text
         from .session_runtime import ObservedPlaybackNarration
         from .context_expression import playback_copy
         observed = moment.observed_playback
@@ -133,12 +159,17 @@ def admission(moment: Any, boundary: MomentDeliveryBoundary | None, *,
                 or dict(moment.source_attribution) != {'provider': 'Spotify', 'url': observed.source_url, 'license': 'Spotify-Policy'}
                 or boundary.playback_item_id != observed.item_id
                 or snapshot.get('title') != observed.title or snapshot.get('artist') != observed.artist
-                or moment.content not in {playback_copy(locale=observed.locale,
+                or (moment.content not in {playback_copy(locale=observed.locale,
                     persona=moment.presentation_intent.dj_persona.value, form=form,
-                    title=observed.title, artist=observed.artist) for form in (0, 1)}):
+                    title=observed.title, artist=observed.artist) for form in (0, 1)} and not admitted_runtime_text(moment))):
             return result
         result['requires_spotify_attribution'] = True
         deadline = min(deadline, source_limit)
+    elif getattr(moment, 'session_opening', None) is not None:
+        from .session_opening import admitted_opening
+        if not admitted_opening(moment):
+            return result
+        history_allowed = True
     elif (not moment.source_attribution
           and moment.source_references == ('session_direction',)
           and moment.moment_type.value == 'session'
@@ -163,7 +194,7 @@ def admission(moment: Any, boundary: MomentDeliveryBoundary | None, *,
 def withdrawn_native_delivery(session_id: str) -> dict[str, Any]:
     """Complete terminal denial for one transport authority, never a grant."""
     result = {"schema_version": 1, "session_id": session_id,
-              "current_moment_id": None, "active_flow_moment_ids": [],
+              "current_moment_id": None, "current_silence_moment_id": None, "active_flow_moment_ids": [],
               "admissions": [], "revocation_scope": "subscription"}
     result['revision'] = hashlib.sha256(json.dumps(result, sort_keys=True).encode()).hexdigest()[:24]
     return result

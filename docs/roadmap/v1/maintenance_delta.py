@@ -84,6 +84,15 @@ def validate_delta(plan: dict[str, Any]) -> list[str]:
             errors.append("maintenance: " + reason)
 
     version = d.get("schema_version")
+    if version == "djconnect-federated-planning-delta/16":
+        from branch_consolidation_delta import validate
+        return validate(plan, validate_delta)
+    if version == "djconnect-federated-planning-delta/15":
+        if "experience_reconciliation_receipt" in d:
+            from experience_reconciliation_delta import validate
+            return validate(plan, validate_delta)
+        from display_admission_delta import validate
+        return validate(plan, validate_delta)
     if version == "djconnect-federated-planning-delta/14":
         from settings_consolidation_delta import validate
         return validate(plan, validate_delta)
@@ -1022,6 +1031,27 @@ def render_delta(p):
         state = ('protected source delivered contract3 (Core producer only)' if r['source_delivery'] == 'PROTECTED_MERGED'
                  else 'implemented local contract3 (runtime checkpoint3, unpublished until protected delivery)')
         intro += f"Selected shared Profile/Session settings consolidation: {r['assignment_id']}; six shared Persona/voice/gender/Mood/Presence/announcement_output, {state}, last explicit accepted choice becomes default, atomic active+default acceptance. Source {r['source_delivery']}; Core producer and migration work only; Apple/other consumers/joint separately open, no automatic dispatch or whole-family completion. Delivered v13 preserved.\n\n"
+    if d.get("branch_consolidation_receipt"):
+        intro += ("Current maintenance16 combines both preserved maintenance15 inputs in the existing Core draft1197. "
+                  "Original input refs and premerge repair refs are separately pinned; both histories remain immutable. "
+                  "Source LOCAL_COMBINED_DRAFT_PREPARATION, overall OPEN, merge NOT_QUALIFIED, native OPEN, "
+                  "The immutable composition receipt predates the private HA-dev candidate3a89473e; "
+                  "later local producer/Forecast repairs are not installed. Audible/native acceptance remains OPEN. "
+                  "No second writer, consumer writes or automatic dispatch. "
+                  "See `docs/verification/CORE_BRANCH_CONSOLIDATION_20261017.md`.\n\n")
+    if d.get("experience_reconciliation_receipt"):
+        intro += ("Current personal-DJ corrective work: LOCAL / UNPUBLISHED; "
+                  "historical SPEECH::CORE::REALIZATION delivery remains preserved, "
+                  "while CORRECTION::CORE::PERSONAL-DJ-EXPERIENCE remains In progress. "
+                  "All-family narrative and actual publication Golden, Track Insight, native and audible "
+                  "acceptance are not established by earlier metadata/type fixtures or the private development install. "
+                  "See `docs/verification/CORE_LANE_REQUIREMENT_RECONCILIATION_20261017.md`. "
+                  "No consumer dispatch or new writer.\n\n")
+    if d.get("display_admission_receipt"):
+        r = d["display_admission_receipt"]
+        intro += f"Selected Core display-admission: {r['assignment_id']}; existing WEB::TRUST and WEB::DISPLAY only. TRUST anchor OPEN_JOINT_REVIEW, wire NOT_FROZEN, runtime {r['runtime']}; source {r['source_delivery']}, native/TV/joint open. B-only software qualification does not close A or imply installed/native/public-route acceptance. Independently reviewed B may proceed in isolation while A stays unavailable. Original settings delivery and all prior receipts remain preserved; no consumer dispatch or deployment.\n\n"
+    if d.get("display_admission_receipt", {}).get("product_disposition"):
+        intro += "A product choice: LIMITED_APP_ATTESTED_REPORTED_ROUTE selected with the stated copied-QR/wrong-scanner destination risk. Independent HA-owner attestation is not claimed; SECURITY_REVIEW/KEY-STATE open, WIRE not frozen and A runtime not implemented. This is no completion, consumer dispatch or deployment.\n\n"
     out = {}
     out["README.md"] = (
         "# Federated roadmap — versioned maintenance\n\n"

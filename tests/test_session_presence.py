@@ -61,7 +61,7 @@ class SessionPresenceTest(unittest.TestCase):
         active = await manager.async_get_active('owner')
         return receipts, active, manager
 
-    def test_same_rich_trace_five_actual_publication_counts(self):
+    def test_same_rich_trace_four_actual_publication_counts(self):
         async def scenario():
             from custom_components.djconnect.presence_policy import POLICIES
             rows = {}
@@ -70,8 +70,8 @@ class SessionPresenceTest(unittest.TestCase):
                 rows[mode] = receipts
                 self.assertEqual(len(receipts), active.presence_ledger.total_published)
                 self.assertEqual(len(receipts), len(active.broadcast.state.dj_moments))
-                self.assertTrue(all(len(active.presence_ledger.publications) <= 16 for _ in [0]))
-            self.assertEqual([len(v) for v in rows.values()], [0, 2, 6, 10, 13], rows)
+                self.assertTrue(all(len(active.presence_ledger.publications) <= 8 for _ in [0]))
+            self.assertEqual([len(v) for v in rows.values()], [0, 2, 4, 8], rows)
         asyncio.run(scenario())
 
     def test_cas_noop_and_no_budget_reset_or_old_content_change(self):
@@ -160,7 +160,7 @@ class PresenceCandidateRaceTest(mood_tests.ActiveSessionMoodRuntimeTest):
     revision_field = "presence_revision"
 
     async def _aba(self, manager, session):
-        for mode in ('music_only', 'balanced'):
+        for mode in ('music_only', 'presenter'):
             await manager.async_update_presence(owner_profile_id=session.owner_profile_id,
                 session_id=session.session_id, selected_presence=mode)
 
@@ -269,7 +269,7 @@ class PresenceLedgerRetentionTest(unittest.TestCase):
         from custom_components.djconnect.presence_policy import PresenceLedger
         now = [0.0]
         ledger = PresenceLedger(clock=lambda:now[0])
-        for _ in range(6):
+        for _ in range(4):
             self.assertTrue(ledger.admits('presenter','old-track'))
             ledger.commit('old-track',40)
             now[0] += 60

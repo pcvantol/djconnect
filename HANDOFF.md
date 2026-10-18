@@ -1,5 +1,11 @@
 # DJConnect Home Assistant Integration Handoff
 
+18October configured voice-preview follow-up remains in the existing combined
+correction: local paired producer/fixtures implemented, protected/install/native
+and real provider/listening gates OPEN. No dependency or runtime image changed;
+the exact1c3703c9 CI dependency/security audit passed. Upgrades are intentionally
+excluded from this bounded correction to preserve its pinned qualification.
+
 ## Current: album continuity Core source delivered — separate Finalization
 
 `DJC-CORE-NARRATIVE-ALBUM-CONTINUITY-V1-20261012`: [source #1154](https://github.com/pcvantol/djconnect/pull/1154)

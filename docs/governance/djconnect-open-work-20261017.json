@@ -543,7 +543,7 @@
     {
       "id": "WEB::TRUST",
       "lane": "DJC-CORE",
-      "status": "Planned",
+      "status": "In progress",
       "title": "Qualify browser-bound onboarding and guest trust contract",
       "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
     },
@@ -557,7 +557,7 @@
     {
       "id": "WEB::DISPLAY",
       "lane": "DJC-CORE",
-      "status": "Planned",
+      "status": "In progress",
       "title": "Separate HA code and readonly display grant",
       "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
     },
@@ -735,6 +735,13 @@
       "status": "Planned",
       "title": "Cross-device six-field effects, persistence and cleanup acceptance",
       "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+    },
+    {
+      "id": "CORRECTION::CORE::PERSONAL-DJ-EXPERIENCE",
+      "lane": "DJC-CORE",
+      "status": "In progress",
+      "title": "Personal DJ restoration: current corrective acceptance remains open",
+      "disposition": "EXISTING_CORRECTION_RETAINED_NOT_NEW_DISPATCH"
     }
   ],
   "proofs": [
@@ -1377,8 +1384,8 @@
       ],
       "priority": "P1",
       "status": "OPEN",
-      "summary": "Neutral selected-voice preview has a canonical design, but Core implementation and fixtures remain missing. Apple must not invent an endpoint.",
-      "next_action": "Implement the bounded authorized preview with existing speech/settings owners before consumer adoption.",
+      "summary": "Configured voice preview is implemented locally with paired Settings/operation/private-byte owners and actual five-language owner fixtures; protected producerpin, real provider, native and listening acceptance remain open.",
+      "next_action": "Qualify the exact combined candidate and original provider outputs, then supply protected/installed pin before existing Apple Preview/Stop adoption. No new writer or automatic dispatch.",
       "required_tests": [
         "Fixed neutral text and selected voice/gender/output",
         "No fake Moment/chat turn, arbitrary text, model call or semantic publication",
@@ -1834,5 +1841,46 @@
       "evidence": "https://github.com/pcvantol/djconnect/issues/1165#issuecomment-6234851603",
       "state": "closed"
     }
-  ]
+  ],
+  "combined_branch_status_reconciliation": {
+    "date": "2026-10-18",
+    "scope": "CURRENT_DAG_STATUS_ONLY_NOT_PRODUCT_OR_INSTALLED_ACCEPTANCE",
+    "changes": [
+      {
+        "id": "WEB::TRUST",
+        "original_captured_status": "Planned",
+        "combined_local_status": "In progress"
+      },
+      {
+        "id": "WEB::DISPLAY",
+        "original_captured_status": "Planned",
+        "combined_local_status": "In progress"
+      }
+    ],
+    "source_delivery": "LOCAL_COMBINED_DRAFT_PREPARATION",
+    "remaining_gates_preserved": true,
+    "current_local_state": "LOCAL_REPAIRS_AFTER_PRIVATE_DEV_CANDIDATE",
+    "reported_issues": 49,
+    "conversation_families": 36,
+    "conversation_steps": 140,
+    "open_core_findings": 11,
+    "open_quality_steps": 17,
+    "merge_readiness": "NOT_QUALIFIED",
+    "installed": "PRIVATE_DEV_3a89473e_PRECEDES_LATEST_REPAIRS;PROD_UNCHANGED",
+    "audible": "NOT_RUN",
+    "semantic_interpretation": "HISTORICAL55_PASS_57_PAID_ATTEMPTS_ZERO_EFFECTS_NOT_CURRENT_SOURCE_PROOF",
+    "artist_hits_receipt": "docs/verification/ASK_DJ_ARTIST_HITS_20261017.md",
+    "failed_card_original_cause": "UNKNOWN",
+    "son_mieux_narrative": "OPEN_REPRODUCED_INSTALLED",
+    "producer_trial8": "TWO_REAL_CELLS_SIX_CALLS_ONE_JOINT_INDIVIDUAL_GO;BROAD_QUALITY_OPEN",
+    "producer_recording_binding": "LOCAL_CAUSAL_RED_GREEN_SOURCE_ID_FULL_NAME_EXPLICIT_CURRENT_REFERENCE;SCOPED_TECHNICAL_GO",
+    "forecast_output_locale": "LOCAL_FIVE_LANGUAGE_RED_GREEN_PURE_READ_TECHNICAL_GO",
+    "current_source_paid_qualification": "NOT_RUN",
+    "producer_trial9": "TWO_REAL_CELLS_SIX_ATTEMPTS_ONE_TECHNICAL_ACCEPT_ZERO_EDITORIAL_GO;ORIGINALS_IMMUTABLE",
+    "active_history_404": "OPEN_ORIGINAL_REF_NOT_CAPTURED;CURRENT_PAIRED_READS200;OWNER_CLEAR_FENCES_QUALIFIED",
+    "widget_missing_cache": "OPEN_ORIGINAL_DENIAL_NOT_CAPTURED;SEPARATE_PURPOSE_GRANTS_AND_NO_READ_RENEWAL_QUALIFIED",
+    "golden_execution": "ALL_NAMED_OWNER_FILES_SCHEDULED;ACTUAL_EXECUTION_CHECK_RETAINED;NODE_RENDERER_SEPARATE_HOST_FIXTURE",
+    "voice_preview": "LOCAL_PAIRED_OWNER_IMPLEMENTED;PROTECTED_REAL_PROVIDER_NATIVE_AUDIBLE_OPEN",
+    "ci_url_fixture_security": "SIX_SCANNER_FINDINGS_FIXED_BY_EXACT_URL_COMPONENTS;CAUSAL_HOST_SPOOF_NEGATIVES;HELPER_SOURCE_HASH_BOUND;EXACT_CI_RECHECK_REQUIRED"
+  }
 }

@@ -1769,6 +1769,16 @@
           "description": "Efface toutes les références de données personnelles sans supprimer le profil."
         }
       }
+    },
+    "session_history_retention": {
+      "name": "Conservation de l’historique des sessions",
+      "description": "Durée globale de conservation des sessions DJ terminées, réservée aux administrateurs. Sans valeur, affiche le réglage. Une prolongation ne restaure aucun contenu supprimé.",
+      "fields": {
+        "retention_days": {
+          "name": "Conservation en jours",
+          "description": "Conserve les sessions terminées ou interrompues pendant ce nombre de jours après leur fin. Les sessions actives restent intactes. S’applique à tous les profils de cette installation."
+        }
+      }
     }
   }
 }

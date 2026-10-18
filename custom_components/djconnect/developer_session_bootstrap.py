@@ -67,6 +67,10 @@ async def async_handle_developer_session_bootstrap(
                 "scenario_id": scenario,
             }
         if clock is not None:
+            # SI002 is a fixed61s mechanical scenario, not a default-cadence
+            # qualification. Explicit Presenter preserves its interval premise.
+            session = await manager.async_update_presence(owner_profile_id=profile_id,
+                session_id=session.session_id, selected_presence="presenter")
             _verification_clocks(hass)[scenario] = (session.session_id, clock)
         return _bootstrap_result(session, "ready", scenario)
 

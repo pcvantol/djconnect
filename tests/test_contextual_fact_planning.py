@@ -49,7 +49,7 @@ class ContextualFactPlanningTest(unittest.TestCase):
         return album, recording, artist
 
     def run_session(self, facts, *, discover=False, mood="neutral", positions=(0,), duration=300000,
-                    persona=None, allowed=None, direction=None, durations=None, locale="nl", presence="balanced"):
+                    persona=None, allowed=None, direction=None, durations=None, locale="nl", presence="presenter"):
         async def scenario():
             now = [100.0]
             manager = self.runtime.SessionRuntimeManager(monotonic_source=lambda: now[0])

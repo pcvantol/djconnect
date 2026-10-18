@@ -83,6 +83,34 @@ class SessionForecastTests(unittest.TestCase):
                 await manager.async_forecast_snapshot(owner_profile_id='owner',session_id=active.session_id,authorize=lambda:False)
         asyncio.run(scenario())
 
+    def test_localized_reads_preserve_original_deadlines_and_cannot_revive_expired_or_withdrawn_context(self):
+        from unittest.mock import patch
+        async def scenario():
+            manager, active = await self.start('en')
+            projection = active.broadcast.forecast
+            before = copy.deepcopy((projection.__dict__, active.planner.__dict__,
+                                    active.presence_ledger.__dict__, active.broadcast.delivery_sequence))
+            with patch.object(active.planner, 'forecast_semantics', side_effect=AssertionError('read replanned')):
+                for locale in ('nl','de','fr','es','en'):
+                    localized = await manager.async_forecast_snapshot(
+                        owner_profile_id='owner', session_id=active.session_id, locale=locale)
+                    self.assertEqual(localized['state'], 'ready')
+                    self.assertEqual(localized['revision'], projection.revision)
+                    self.assertEqual(localized['valid_until'], projection.value['valid_until'])
+            self.assertEqual(before, (projection.__dict__, active.planner.__dict__,
+                active.presence_ledger.__dict__, active.broadcast.delivery_sequence))
+            projection.clock = lambda: projection.deadline
+            expired = await manager.async_forecast_snapshot(
+                owner_profile_id='owner',session_id=active.session_id,locale='fr')
+            self.assertEqual((expired['state'],expired['summary'],expired['sections']),('expired','',[]))
+            self.assertEqual(expired['revision'],projection.revision)
+            projection.withdraw()
+            withdrawn = await manager.async_forecast_snapshot(
+                owner_profile_id='owner',session_id=active.session_id,locale='nl')
+            self.assertEqual((withdrawn['state'],withdrawn['summary'],withdrawn['sections']),('withdrawn','',[]))
+            self.assertEqual(projection._semantic,{})
+        asyncio.run(scenario())
+
     def test_direction_moment_uses_four_authored_personas_without_forecast_media_anchors(self):
         r = self.runtime
         for locale in ('en', 'nl', 'de', 'fr', 'es'):

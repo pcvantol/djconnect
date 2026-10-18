@@ -14,6 +14,18 @@ def session_broadcast_transport_capabilities() -> dict[str, Any]:
     while Runtime and Broadcast behaviour remain independent of discovery.
     """
     return {
+        "paired_display_admission": {
+            "supported": True,
+            "version": 1,
+            "availability": "owner_context_required",
+            "owner_context_path": "/api/djconnect/v1/display/owner/context",
+            "entry_path": "/djconnect/vibecast/display",
+            "requires_external_https": True,
+            "owner_authentication": "paired_device_bearer",
+            "display_authentication": "dedicated_display_bearer",
+            "read_only": True,
+            "rendezvous_a": False,
+        },
         "paired_owner_websocket": paired_live_capability(),
         "http_snapshot": {
             "available": True,

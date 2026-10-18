@@ -1,5 +1,35 @@
 # DJConnect API Contract
 
+## Retained history consumer correction — local compatibility remains open
+
+Owner timeline entries include four qualified retention bases and the
+source-free `dj_publication`/`dj_silence` forms. The exact table, privacy/source
+boundaries and generated mixed-page fixture are in
+[Session conversation/history](docs/product/SESSION_CONVERSATION_HISTORY_CONTRACT.md#corrective-retained-entry-compatibility--18-october-2026).
+Apple40331's closed decoder rejects a mixed HTTP200 page; this is not a server
+history-not-found response. Current client adoption and backward-compatible
+producer negotiation/projection are separate outstanding gates. Do not relabel
+source text or claim old/offline clients work merely because the new client decodes.
+
+## Configured voice preview — local producer delta, not installed
+
+The existing paired operation owner locally accepts `speech/preview` with only
+`{"contract_version":1,"language":"nl"}` as its payload. Discovery is
+`session_speech.voice_preview`. It uses confirmed Profile/active-Session Settings3,
+fixed five-language neutral comparison text and the selected HA voice/gender and
+output. No caller text/target/provider override, fake Moment or history change.
+Private audio uses the existing authenticated POST byte route and original
+maximum120-second expiry. The same bounded speaker-media owner supplies separate
+ready/queued/unavailable/unknown outcomes; no audible success is inferred.
+
+Duplicates read the original operation receipt without repeating synthesis or
+speaker delivery. A new deliberate press may reuse a valid sample without
+renewing expiry; text_only withdraws old samples and denies new ones. The actual
+contract/fixtures and unqualified provider/native/listening boundaries are in
+[Configured voice preview](docs/product/SESSION_VOICE_PREVIEW_V1.md). The currently
+installed private HA-dev build predates this producer. No protected pin or
+consumer rollout is implied by this source delta.
+
 ## Current shared settings3 / target-aware speech3 producer
 
 Protected source main `e8cc70ddffb4112b09babdda4d45140b98926ae5`, PR [#1193](https://github.com/pcvantol/djconnect/pull/1193). [Exact source readback](docs/verification/PROFILE_SESSION_SETTINGS_SOURCE_READBACK_20261016.md). Six-field producer/capabilities are delivered in Core; earlier local-candidate/design checkpoints below are historical. Consumer adoption, complete legacy removal, Finalization and actual installed/native/audible/joint outcomes remain separately qualified.
@@ -2088,3 +2118,17 @@ must match. Metadata/provider/locale/inventory changes invalidate revision and
 pending/cached bytes; no read performs synthesis. Re-read on menu open,
 foreground/reconnect and configuration invalidation. No new push subscription,
 client inference, pipeline write, silent fallback or original request replay.
+
+Owner-requested manual archived-Session erasure is selected in the canonical
+[Session history contract](docs/product/SESSION_CONVERSATION_HISTORY_CONTRACT.md#selected-manual-deletion-of-an-archived-session--18-october2026).
+The additive session_history_delete1 operation is not yet implemented or
+advertised; it does not change the installed entry-version2 read contract.
+
+Selected bulk archived-Session delete1 is design-only: paired owner GET
+`/api/djconnect/v1/session/history/delete_snapshot` prepares the full terminal set,
+then confirmed POST `/api/djconnect/v1/session/history/delete_all` binds that
+snapshot and UUIDv7. No client loop or Profile clear. Active/newer Sessions are
+preserved; advertise `session_history_bulk_delete`/version1 only after producer
+qualification. Exact wire, snapshot concurrency, receipts and failures: selected
+bulk-deletion addendum in
+[`SESSION_CONVERSATION_HISTORY_CONTRACT.md`](docs/product/SESSION_CONVERSATION_HISTORY_CONTRACT.md).

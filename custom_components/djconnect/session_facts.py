@@ -162,6 +162,10 @@ class QualifiedSessionFact:
     artwork_subject_uri: str = ""
     artwork_album_uri: str = ""
     source_expires_at: float | None = None
+    public_artist_qid: str = ""
+    # Local lookup bindings, never public facts or model-processing authority.
+    album_artist: str = ""
+    album_artist_id: str = ""
 
     def copy_for(self, locale: str) -> tuple[str, str] | None:
         lang = locale[:2].lower()
@@ -257,6 +261,52 @@ def shared_producer_fact(current: RecordingCreditEvidence, previous: RecordingCr
     return None
 
 
+@dataclass(frozen=True)
+class ProducerRecommendationFact(SharedProducerFact):
+    """One optional revisit, based on an actually published earlier credit."""
+    previous_moment_id: str = ''
+
+    @property
+    def recommended_media_identity(self):
+        return self.previous_evidence.media_identity if self.previous_evidence else ''
+
+    def eligible(self, media_identity, now):
+        current, previous = self.recording_evidence, self.previous_evidence
+        if (self.key != 'producer_recommendation' or self.intent != 'recommendation'
+                or not re.fullmatch(r'moment-[0-9a-f]{32}', self.previous_moment_id)
+                or current is None or previous is None):
+            return False
+        producer = next((p for p in current.producers if p.contributor_id == self.producer_id), None)
+        if producer is None or (self.summaries, self.contents) != _recommendation_copy(current, previous, producer):
+            return False
+        titles, bodies = _shared_copy(current, previous, producer)
+        proof = replace(self, key='shared_producer', intent='track_context', summaries=titles, contents=bodies)
+        return SharedProducerFact.eligible(proof, media_identity, now)
+
+
+def _recommendation_copy(current, previous, producer):
+    titles = ('A connection to revisit', 'Een verbinding om te hernemen', 'Eine Verbindung zum Wiederentdecken',
+              'Un lien à retrouver', 'Una conexión para retomar')
+    bodies = (
+        f'If you want to explore this connection, I suggest revisiting {previous.title}: {producer.name} is credited as producer there and on {current.title}.',
+        f'Als je deze verbinding wilt verkennen, stel ik voor om {previous.title} nog eens op te zoeken: {producer.name} staat daar en bij {current.title} als producer vermeld.',
+        f'Wenn du diese Verbindung erkunden möchtest, schlage ich vor, {previous.title} wieder aufzusuchen: {producer.name} ist dort und bei {current.title} als Produzent genannt.',
+        f'Pour explorer ce lien, je te propose de retrouver {previous.title} : {producer.name} y est crédité à la production, comme sur {current.title}.',
+        f'Si quieres explorar esta conexión, te propongo volver a {previous.title}: {producer.name} figura como productor allí y en {current.title}.')
+    return tuple(zip(LANGUAGES, titles)), tuple(zip(LANGUAGES, bodies))
+
+
+def producer_recommendation(relation, previous_moment_id, now):
+    if type(relation) is not SharedProducerFact or not relation.eligible(relation.media_identity, now):
+        return None
+    producer = next(p for p in relation.recording_evidence.producers if p.contributor_id == relation.producer_id)
+    titles, bodies = _recommendation_copy(relation.recording_evidence, relation.previous_evidence, producer)
+    fact = ProducerRecommendationFact(**{**relation.__dict__, 'key':'producer_recommendation',
+        'intent':'recommendation', 'summaries':titles, 'contents':bodies,
+        'artwork_subject_uri':'', 'artwork_album_uri':'', 'previous_moment_id':previous_moment_id})
+    return fact if fact.eligible(fact.media_identity, now) else None
+
+
 @dataclass
 class PublishedRecordingContext:
     """One Runtime's three observed tracks and published-only credit proofs."""
@@ -264,6 +314,7 @@ class PublishedRecordingContext:
     credits: dict[str, RecordingCreditEvidence] = field(default_factory=dict)
     used_relations: set[tuple[str, str, str]] = field(default_factory=set)
     connected_tracks: set[str] = field(default_factory=set)
+    published_moment_ids: dict[str, str] = field(default_factory=dict)
 
     def observe(self, media_identity: str, now: float) -> None:
         if media_identity in self.observed_tracks:
@@ -272,15 +323,23 @@ class PublishedRecordingContext:
         self.observed_tracks[:] = self.observed_tracks[-3:]
         self.credits = {key: value for key, value in self.credits.items()
                         if key in self.observed_tracks and value.eligible(now)}
+        self.published_moment_ids = {key: value for key, value in self.published_moment_ids.items() if key in self.credits}
 
-    def commit(self, fact: QualifiedSessionFact, now: float) -> None:
+    def commit(self, fact: QualifiedSessionFact, now: float, moment_id: str = '') -> None:
         evidence = fact.recording_evidence
         if (fact.key in {"recording_credits", "shared_producer"} and fact.eligible(fact.media_identity, now)
                 and evidence and evidence.eligible(now) and evidence.media_identity == fact.media_identity
                 and evidence.source_url == fact.source_url and evidence.observed_at == fact.observed_at
                 and fact.media_identity in self.observed_tracks):
             self.credits[fact.media_identity] = evidence
-        if isinstance(fact, SharedProducerFact) and fact.eligible(fact.media_identity, now):
+            if re.fullmatch(r'moment-[0-9a-f]{32}', moment_id):
+                self.published_moment_ids[fact.media_identity] = moment_id
+        self.consume(fact, now)
+
+    def consume(self, fact, now, *, semantic_accepted=False):
+        # Semantic acceptance consumes a relation even when delivery is later
+        # suppressed, without seeding a claim that its credit was discussed.
+        if isinstance(fact, SharedProducerFact) and (semantic_accepted or fact.eligible(fact.media_identity, now)):
             self.used_relations.add(fact.relation_key)
             self.connected_tracks.add(fact.media_identity)
 
@@ -310,6 +369,7 @@ class PublishedRecordingContext:
         self.credits.clear()
         self.used_relations.clear()
         self.connected_tracks.clear()
+        self.published_moment_ids.clear()
 
 
 ALBUM_CONTINUITY_FORMS = {
@@ -399,6 +459,7 @@ class PublishedAlbumContext:
     albums: dict[str, QualifiedSessionFact] = field(default_factory=dict)
     used_relations: set[tuple[str, str, str]] = field(default_factory=set)
     connected_tracks: set[str] = field(default_factory=set)
+    published_moment_ids: dict[str, str] = field(default_factory=dict)
 
     def observe(self, media_identity: str, now: float) -> None:
         if media_identity in self.observed_tracks:
@@ -521,8 +582,7 @@ def catalog_facts(catalog: dict[str, Any]) -> list[QualifiedSessionFact]:
     released = qualified_date(catalog.get("release_date"), catalog.get("release_date_precision"))
     if not album or not released or not re.fullmatch(r"spotify:album:[A-Za-z0-9]{22}", album_uri):
         return []
-    return [
-        _fact(
+    fact = _fact(
             "album_release",
             catalog,
             "album_story",
@@ -538,7 +598,12 @@ def catalog_facts(catalog: dict[str, Any]) -> list[QualifiedSessionFact]:
             "https://open.spotify.com/album/" + album_uri.split(":")[-1],
             DisplayFactCore("album_release", album, date=released, precision=str(catalog.get("release_date_precision"))),
         )
-    ]
+    ids = catalog.get('artist_ids')
+    if (isinstance(ids, (list, tuple)) and len(ids) == 1
+            and isinstance(ids[0], str) and re.fullmatch(r'[A-Za-z0-9]{22}', ids[0])
+            and label(catalog.get('artist'), 160)):
+        fact = replace(fact, album_artist=label(catalog['artist'], 160), album_artist_id=ids[0])
+    return [fact]
 
 
 class SessionFactsResolver:
@@ -547,7 +612,6 @@ class SessionFactsResolver:
     def __init__(self, hass: Any) -> None:
         self.hass = hass
         self.lock = asyncio.Lock()
-        self.last_request = 0.0
         self.backoff_until = 0.0
 
     async def _get(
@@ -557,8 +621,9 @@ class SessionFactsResolver:
             now = time.monotonic()
             if now < self.backoff_until:
                 return {}
-            await asyncio.sleep(max(0, 1.1 - (now - self.last_request)))
-            self.last_request = time.monotonic()
+            from . import musicbrainz_rate
+            if not wikidata and not await musicbrainz_rate.admit():
+                return {}
             url = (
                 "https://www.wikidata.org/w/api.php"
                 if wikidata
@@ -578,6 +643,8 @@ class SessionFactsResolver:
                 ) as response:
                     if response.status in {429, 503}:
                         retry = response.headers.get("Retry-After", "60")
+                        if not wikidata:
+                            musicbrainz_rate.defer(retry)
                         self.backoff_until = time.monotonic() + max(
                             60, min(3600, int(retry) if retry.isdigit() else 60)
                         )
@@ -691,9 +758,14 @@ class SessionFactsResolver:
                                 if c.get("rank") != "deprecated"
                             }
                             if ids == {artist_id}:
+                                # Reciprocal public identity, not a name match.
+                                # Only this resolved binding may admit subsequent
+                                # Wikipedia context for a proactive Artist story.
+                                facts = [replace(f, public_artist_qid=qid)
+                                         if f.key == "artist_begin" else f for f in facts]
                                 fact = description_fact(catalog, entity, qid)
                                 if fact:
-                                    facts.append(fact)
+                                    facts.append(replace(fact, public_artist_qid=qid))
         return tuple(facts[:6])
 
 

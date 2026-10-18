@@ -36,19 +36,21 @@ class HistoricalProjectionRetentionService:
         policy: HistoricalRetentionPolicy | None = None,
     ) -> None:
         self._repository = repository
-        self._policy = policy or HistoricalRetentionPolicy()
+        self._policy = policy
 
     async def async_cleanup(self, *, now: datetime | None = None) -> HistoricalCleanupStatistics:
         started = monotonic()
         current = now or datetime.now(UTC)
-        cutoff = (current - timedelta(days=self._policy.retention_days)).isoformat()
+        days, _ = await self._repository.async_retention_policy()
+        policy = self._policy or HistoricalRetentionPolicy(retention_days=days)
+        cutoff = (current - timedelta(days=policy.retention_days)).isoformat()
         (
             sessions,
             moments,
             orphans,
             eligible_sessions,
         ) = await self._repository.async_cleanup_expired(
-            cutoff=cutoff, batch_size=self._policy.batch_size, entry_deadline=current.isoformat()
+            cutoff=cutoff, batch_size=policy.batch_size, entry_deadline=current.isoformat()
         )
         return HistoricalCleanupStatistics(
             0,

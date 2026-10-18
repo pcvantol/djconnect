@@ -1,5 +1,16 @@
 # Profile and Session settings consolidation
 
+## Current correction: native device speech with shared Settings
+
+[Settings-aware device speech](SESSION_ON_DEVICE_SPEECH_SETTINGS_V1.md)
+adds an explicit local_on_device preparation attempt under the existing shared
+prepare2/3 shapes. Activated settings still require3; text_only and all original
+owner/source/revision/deadline fences remain. HA provider availability belongs
+only to the ha_configured leg. Native voice/gender/rate/pitch are device-local
+presentation choices, not a Profile or pipeline override. Existing historical
+ha_configured-only checkpoints below keep their original scope. Exact local
+freeze and qualification follow; this text is not an installed producer pin.
+
 ## Core producer protected delivery
 
 Source PR [#1193](https://github.com/pcvantol/djconnect/pull/1193) protected merged as `e8cc70ddffb4112b09babdda4d45140b98926ae5`, exact independently reviewed head `6882a43e3e0e73cd1b918161b27f88d3697bcb4f` on base `148bd5aee3110c1a1ab13e7c463a164c99d79b70`. All32 checks PASS and5 conditional skips; exact Owner Authorization [38955322761](https://github.com/pcvantol/djconnect/actions/runs/38955322761) SUCCESS. No bypass; complete candidate/main trees equal. Main CI38955402196 and formal 38955894451 SUCCESS. Official archive177regular files, zero missing/extra/mismatch/symlink; actual raw/durable/coverage/main/PR bindings qualified.

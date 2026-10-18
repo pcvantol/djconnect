@@ -42,6 +42,71 @@ class VibeCastRendererTest(unittest.TestCase):
         self.assertIn("/api/djconnect/v1/session/broadcast/ws/", page)
         self.assertNotIn("/api/djconnect/v1/vibecast", page)
 
+    def test_researched_story_renders_all_revision_license_citations_or_declines_card(self):
+        node = shutil.which('node')
+        self.assertIsNotNone(node)
+        citations = [
+            {'provider':'Wikipedia','title':'Nora Vale','language':lang,'license':'CC-BY-SA-4.0',
+             'url':f'https://{lang}.wikipedia.org/wiki/Nora_Vale',
+             'revision_url':f'https://{lang}.wikipedia.org/w/index.php?oldid={revision}'}
+            for lang,revision in (('nl',111),('en',222))]
+        citations.append({'provider':'MusicBrainz','title':'Nora Vale','language':'nl','license':'CC0-1.0',
+            'url':'https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000001','revision_url':''})
+        script = textwrap.dedent(f'''
+            import assert from 'node:assert/strict'; import fs from 'node:fs'; import vm from 'node:vm';
+            const source=fs.readFileSync({json.dumps(str(PAGE))},'utf8').match(/<script>([\\s\\S]*?)<\\/script>/)[1];
+            const run=(citations)=>{{
+              const make=()=>({{textContent:'',hidden:false,children:[],setAttribute:()=>{{}},removeAttribute:()=>{{}},addEventListener:()=>{{}},
+                replaceChildren(){{this.children=[]}},appendChild(child){{this.children.push(child)}}}});
+              const elements=new Map();
+              for(const id of ['spotify-source','moment-source','moment-research-sources','clock','end-session','up-next','next-art','next-label','next-title','next-artist','state','artwork-card','artwork','mood','title','artist','moment','progress','album','time']) elements.set(id,make());
+              const sockets=[];class WS{{constructor(){{sockets.push(this)}}close(){{}}}}
+              const context={{URL,URLSearchParams,JSON,Math,Number,Array,Object,String,encodeURIComponent,navigator:{{language:'nl'}},
+                document:{{createElement:make,body:{{classList:{{toggle:()=>{{}}}}}},documentElement:{{style:{{setProperty:()=>{{}}}}}},
+                  querySelector:()=>null,getElementById:id=>elements.get(id)}},
+                window:{{location:{{protocol:'https:',host:'receiver.test',search:'?session_id=s&broadcast_token=t'}},setTimeout:()=>1,addEventListener:()=>{{}}}},WebSocket:WS}};
+              vm.runInNewContext(source,context);
+              sockets[0].onmessage({{data:JSON.stringify({{type:'snapshot',snapshot:{{playback:{{item_id:'item'}},
+                dj_moments:[{{moment_id:'story',summary:'One supported story.',content:'Detail from the second edition.',playback_item_id:'item',sources:citations}}]}}}})}});
+              return elements;
+            }};
+            const citations={json.dumps(citations)};
+            const elements=run(citations), links=elements.get('moment-research-sources').children;
+            assert.equal(links.length,3);
+            assert.deepEqual(links.map(a=>a.href),citations.map(s=>s.revision_url || s.url));
+            assert(links[0].textContent.includes('CC-BY-SA-4.0'));
+            assert(links[1].textContent.includes('(en)'));
+            assert(links[2].textContent.includes('CC0-1.0'));
+            assert.equal(elements.get('moment-research-sources').hidden,false);
+            const invalid=run([{{...citations[0],revision_url:'https://unrelated.test/w/index.php?oldid=111'}}]);
+            assert.equal(invalid.get('moment').textContent,'');
+            assert.equal(invalid.get('moment-research-sources').children.length,0);
+            const wrongCC0=run([{{...citations[2],revision_url:'https://unrelated.test/'}}]);
+            assert.equal(wrongCC0.get('moment').textContent,'');
+            const album={{...citations[2],title:'Paper Windows',
+              url:'https://musicbrainz.org/release-group/00000000-0000-0000-0000-000000000002'}};
+            assert.equal(run([album]).get('moment-research-sources').children.length,1);
+            const web={{provider:'Public web',title:'A director account',language:'en',
+              license:'public_page_short_reference',usage_basis:'public_page_short_reference',
+              url:'https://director.example.test/recording-story',revision_url:'',wikidata_id:'',
+              attributed_author:'Robin Vale',author_status:'publication_byline_not_independent_identity',
+              work_reference:{{title:'Paper Windows',artist:'Nora Vale',url:album.url}}}};
+            const actual=run([citations[0],web,album]);
+            assert.equal(actual.get('moment-research-sources').children.length,3);
+            const credit=actual.get('moment-research-sources').children[1];
+            assert(credit.textContent.includes('Robin Vale'));
+            assert(!credit.textContent.includes('public_page_short_reference'));
+            for(const invalidWeb of [{{...web,url:'https://127.0.0.1/private'}},
+                {{...web,url:'https://receiver.local/private'}},{{...web,url:'javascript:alert(1)'}},
+                {{...web,url:'https://user:pass@director.example.test/'}},
+                {{...web,revision_url:citations[0].revision_url}},{{...web,license:'CC0-1.0'}},
+                {{...web,attributed_author:''}},{{...web,usage_basis:undefined}}]){{
+              assert.equal(run([invalidWeb]).get('moment').textContent,'');
+            }}
+        ''')
+        result = subprocess.run([node,'--input-type=module','--eval',script],capture_output=True,text=True)
+        self.assertEqual(result.returncode,0,result.stderr)
+
     def test_renderer_applies_snapshot_and_runtime_end_without_persistence(self) -> None:
         node = shutil.which("node")
         if node is None:
@@ -50,11 +115,12 @@ class VibeCastRendererTest(unittest.TestCase):
             import assert from "node:assert/strict"; import fs from "node:fs"; import vm from "node:vm";
             const page = fs.readFileSync({json.dumps(str(PAGE))}, "utf8"); const script = page.match(/<script>([\\s\\S]*?)<\\/script>/)[1];
             const make = () => ({{textContent:"",hidden:false,src:"",alt:"",max:0,value:0,setAttribute:()=>{{}},removeAttribute:()=>{{}},addEventListener:()=>{{}}}}), elements = new Map();
-            for (const id of ["spotify-source","moment-source","clock","end-session","up-next","next-art","next-label","next-title","next-artist","state","artwork","mood","title","artist","moment","progress","album","time"]) elements.set(id, make());
+            for (const id of ["spotify-source","moment-source","clock","end-session","up-next","next-art","next-label","next-title","next-artist","state","artwork-card","artwork","mood","title","artist","moment","progress","album","time"]) elements.set(id, make());
             const styles = new Map(), sockets = []; class WS {{ constructor(url) {{ this.url=url; sockets.push(this); }} close() {{ if(this.onclose) this.onclose(); }} }}
             const context = {{ URLSearchParams,JSON,Math,Number,Array,Object,String,encodeURIComponent,navigator:{{language:"nl-NL"}},document:{{body:{{classList:{{toggle:()=>{{}}}}}},documentElement:{{style:{{setProperty:(k,v)=>styles.set(k,v)}}}},querySelector:()=>null,getElementById:id=>elements.get(id)}},window:{{location:{{protocol:"https:",host:"receiver.test",search:"?session_id=session-1&broadcast_token=token-1"}},setTimeout:()=>1,addEventListener:()=>{{}}}},WebSocket:WS }};
             vm.runInNewContext(script, context); assert.equal(sockets[0].url,"wss://receiver.test/api/djconnect/v1/session/broadcast/ws/session-1?broadcast_token=token-1"); sockets[0].onopen();
             sockets[0].onmessage({{data:JSON.stringify({{type:"snapshot",snapshot:{{session:{{selected_mood:"energy"}},playback:{{item_id:"track-1",title:"Track One",artist:"Artist One",album:"Album One",artwork_url:"/cover",duration_ms:180000,position_ms:61000}},dj_moments:[{{title:"Artist Story",summary:"A bright story.",playback_item_id:"track-1"}}]}}}})}});
+            assert.equal(elements.get("artwork-card").hidden,false);
             assert.equal(elements.get("state").textContent,"Live"); assert.equal(elements.get("title").textContent,"Track One"); assert.equal(elements.get("moment").textContent,"A bright story."); assert.equal(elements.get("progress").value,61000);
             sockets[0].onmessage({{data:JSON.stringify({{type:"event",data:{{event_type:"playback_changed",payload:{{playback:{{item_id:"track-2",title:"Track Two"}}}}}}}})}});
             assert.equal(elements.get("title").textContent,"Track Two"); assert.equal(elements.get("moment").textContent,"");
@@ -76,7 +142,7 @@ class VibeCastRendererTest(unittest.TestCase):
             const page = fs.readFileSync({json.dumps(str(PAGE))}, "utf8");
             const script = page.match(/<script>([\\s\\S]*?)<\\/script>/)[1];
             const make=()=>({{textContent:"",hidden:false,src:"",alt:"",max:0,value:0,setAttribute:()=>{{}},removeAttribute:()=>{{}},addEventListener:()=>{{}}}}), elements=new Map();
-            for(const id of ["spotify-source","moment-source","clock","end-session","up-next","next-art","next-label","next-title","next-artist","state","artwork","mood","title","artist","moment","progress","album","time"]) elements.set(id,make());
+            for(const id of ["spotify-source","moment-source","clock","end-session","up-next","next-art","next-label","next-title","next-artist","state","artwork-card","artwork","mood","title","artist","moment","progress","album","time"]) elements.set(id,make());
             const styles=new Map(),sockets=[],timers=[];
             class WS {{constructor(url){{this.url=url;sockets.push(this)}}close(){{if(this.onclose)this.onclose()}}}}
             const window={{location:{{protocol:"https:",host:"receiver.test",search:"?session_id=s&broadcast_token=t"}},
@@ -95,6 +161,7 @@ class VibeCastRendererTest(unittest.TestCase):
             assert.equal(elements.get("state").textContent,"No active session");
             assert.equal(elements.get("title").textContent,"Waiting for a session");
             assert.equal(elements.get("artwork").hidden,true);
+            assert.equal(elements.get("artwork-card").hidden,true);
             assert.equal(elements.get("progress").hidden,true);
             assert.equal(styles.get("--art"),"none");
             assert.equal(timers.length,0);
@@ -111,8 +178,8 @@ class VibeCastRendererTest(unittest.TestCase):
             const page = fs.readFileSync({json.dumps(str(PAGE))}, "utf8");
             const scripts = [...page.matchAll(/<script>([\\s\\S]*?)<\\/script>/g)].map(match => match[1]);
             assert.equal(scripts.length, 2);
-            const make = () => ({{textContent:"",hidden:false,src:"",alt:"",max:0,value:0,setAttribute:()=>{{}},removeAttribute:()=>{{}},addEventListener:()=>{{}},append(...children){{this.children=children;}}}});
-            const elements = new Map(); for(const id of ["spotify-source","moment-source","clock","end-session","up-next","next-art","next-label","next-title","next-artist","state","artwork","mood","title","artist","moment","progress","album","time","handoff"]) elements.set(id,make());
+            const make = () => ({{textContent:"",hidden:false,src:"",alt:"",max:0,value:0,setAttribute:()=>{{}},removeAttribute:()=>{{}},addEventListener:()=>{{}},append(...children){{this.children=[...(this.children || []),...children];}}}});
+            const elements = new Map(); for(const id of ["spotify-source","moment-source","clock","end-session","up-next","next-art","next-label","next-title","next-artist","state","artwork-card","artwork","mood","title","artist","moment","progress","album","time","handoff"]) elements.set(id,make());
             const listeners = new Map(), timers = [], calls = [], sockets = [];
             class WS {{ constructor(url) {{ this.url=url; sockets.push(this); }} close() {{}} }}
             class Event {{ constructor(type, options) {{ this.type=type; this.detail=options.detail; }} }}
@@ -129,8 +196,15 @@ class VibeCastRendererTest(unittest.TestCase):
                     querySelector:()=>null,getElementById:id=>elements.get(id),createElement:()=>make()}},window,WebSocket:WS,CustomEvent:Event}};
             vm.runInNewContext(scripts[0],context); vm.runInNewContext(scripts[1],context);
             for(let i=0;i<12;i++) await Promise.resolve();
-            assert.equal(elements.get("handoff").children[1].textContent,"123456");
-            assert.match(elements.get("handoff").children[0].textContent,/Gib diesen Code/);
+            const handoff = elements.get("handoff").children;
+            assert.match(handoff[0].textContent,/Zeige deine DJ-Session/);
+            assert.equal(handoff[1].children.length,3);
+            assert.match(handoff[1].children[0].children[0].textContent,/Starte eine DJ-Session/);
+            assert.match(handoff[1].children[1].children[1].textContent,/VibeCast-Symbol/);
+            assert.match(handoff[1].children[1].children[0].innerHTML,/<svg/);
+            assert.match(handoff[1].children[2].children[0].textContent,/Code in der App/);
+            assert.equal(handoff[3].textContent,"123456");
+            assert.equal(handoff.length,4); // Instructions and code; no redundant installation reminder.
             assert.equal(context.document.documentElement.lang,"de");
             assert.equal(elements.get("title").textContent,"Warten auf eine Session");
             assert.equal(calls.length,2); assert.equal(timers.length,1);

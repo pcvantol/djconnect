@@ -48,13 +48,16 @@ class SharedProducerContinuityTest(unittest.TestCase):
             now = [100.0]
             manager = self.runtime.SessionRuntimeManager(monotonic_source=lambda: now[0])
             async def start():
-                return await manager.async_start(owner_profile_id="owner", locale=locale, dj_persona=persona or self.runtime.DJPersona.HOME_DJ,
+                created = await manager.async_start(owner_profile_id="owner", locale=locale, dj_persona=persona or self.runtime.DJPersona.HOME_DJ,
                     music_backend="spotify_direct", session_start_strategy=self.runtime.SessionStartStrategy.DISCOVER
                     if discover else self.runtime.SessionStartStrategy.MANUAL)
+                return await manager.async_update_presence(owner_profile_id="owner",
+                    session_id=created.session_id, selected_presence="presenter")
             session = await start()
             session = replace(session, session_direction=replace(session.session_direction,
                 direction=self.runtime.SessionDirectionType.EXPLORING))
             manager._active_by_profile["owner"] = session
+            session.planner.configuration = replace(session.planner.configuration, recommendation_preference="balanced")
             snapshots, moments = [], []
             for number in (0, 1):
                 if number and restart:

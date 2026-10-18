@@ -62,6 +62,12 @@ pause/seek/item/source/reconnect/end controls remain. No extra cards or audio.
 
 ## Existing AI route and source/channel qualification
 
+The later `PERSONAL_DJ_NARRATION_RESTORATION_V1.md` supersedes this original
+deterministic-only slice where it explicitly qualifies model expression. Its
+researched public Artist refinement owns the closed identity, evidence,
+processing, attribution, history and speech contract. This historical table
+does not grant general rewriting of catalog payloads or arbitrary web sources.
+
 Inspection: `TrackInsightAnalyzer` uses HA Assist context and
 `call_conversation_process_with_agent_retry`, with strict JSON normalization
 and deterministic fallback. It is the existing configured provider route;

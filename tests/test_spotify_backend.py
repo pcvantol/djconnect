@@ -63,6 +63,92 @@ class SpotifyBackendTest(unittest.TestCase):
         self.issues.clear()
         install_backend_stubs.deleted.clear()
 
+    def test_named_artist_search_qualifies_all_candidates_and_all_artist_entrypoints(self):
+        from urllib.parse import parse_qs, urlsplit
+        for query, name in (("nirvana", "Nirvana"), ("pearl jam", "Pearl Jam")):
+            for route in ("_search_artist", "search_media", "_search_uri"):
+                with self.subTest(query=query, route=route):
+                    backend = self.backend.SpotifyBackend(object(), types.SimpleNamespace(config={}))
+                    calls = []
+                    wanted = {"id": "A" * 22, "name": name, "uri": "spotify:artist:" + "A" * 22}
+                    async def request(method, path, **kwargs):
+                        calls.append((method, path))
+                        params = parse_qs(urlsplit(path).query)
+                        # Causal provider boundary: broad top-one search returns an
+                        # unrelated result, just as the reported live requests did.
+                        if params["q"] != [f'artist:"{query}"']:
+                            return {"artists": {"items": [{"name": "Unrelated artist"}]}}
+                        return {"artists": {"items": [{"name": "Unrelated artist"}, wanted]}}
+                    backend._request = request
+                    args = (query,) if route == "_search_artist" else (query, "artist")
+                    result = asyncio.run(getattr(backend, route)(*args))
+                    self.assertEqual(result if route == "_search_uri" else result["uri"], wanted["uri"])
+                    self.assertEqual(len(calls), 1)
+                    self.assertEqual(calls[0][0], "GET")
+                    self.assertEqual(parse_qs(urlsplit(calls[0][1]).query)["limit"], ["10"])
+
+    def test_named_artist_lookup_never_accepts_tribute_or_unrelated_result(self):
+        backend = self.backend.SpotifyBackend(object(), types.SimpleNamespace(config={}))
+        calls = []
+        async def request(method, path, **kwargs):
+            calls.append((method, path))
+            return {"artists": {"items": [{"name": "Nirvana Tribute", "id": "B" * 22},
+                                           {"name": "Guns N' Roses", "id": "C" * 22}]}}
+        backend._request = request
+        with self.assertRaises(self.backend.SpotifyBackendError):
+            asyncio.run(backend.play_artist_top_tracks("nirvana"))
+        self.assertEqual(len(calls), 1)
+        self.assertTrue(calls[0][1].startswith("/search?"))
+        self.assertEqual(calls[0][0], "GET")
+
+    def test_named_artist_top_tracks_dispatch_only_the_qualified_artist_credit(self):
+        backend = self.backend.SpotifyBackend(object(), types.SimpleNamespace(config={}))
+        calls = []
+        artist_id, track_id = "A" * 22, "B" * 22
+        async def request(method, path, **kwargs):
+            calls.append((method, path, kwargs.get("json")))
+            if path.startswith("/search?"):
+                return {"artists": {"items": [{"name": "Nirvana", "id": artist_id,
+                                               "uri": "spotify:artist:" + artist_id}]}}
+            if path.startswith(f"/artists/{artist_id}/top-tracks?"):
+                return {"tracks": [
+                    {"name": "Unrelated", "uri": "spotify:track:" + "C" * 22,
+                     "artists": [{"id": "D" * 22}]},
+                    {"name": "Qualified track", "uri": "spotify:track:" + track_id,
+                     "artists": [{"id": artist_id, "name": "Nirvana"}]}]}
+            self.assertEqual((method, path), ("PUT", "/me/player/play"))
+            return {}
+        backend._request = request
+        selection = asyncio.run(backend.play_artist_top_tracks("nirvana"))
+        self.assertEqual(selection["artist"]["name"], "Nirvana")
+        self.assertEqual(calls[-1][2], {"uris": ["spotify:track:" + track_id]})
+        self.assertEqual(len(calls), 3)
+
+    def test_named_artist_lookup_propagates_provider_failures_without_dispatch_or_retry(self):
+        for status in (401, 403, 429):
+            with self.subTest(status=status):
+                backend = self.backend.SpotifyBackend(object(), types.SimpleNamespace(config={}))
+                calls = []
+                error = self.backend.SpotifyBackendError("Provider failure", http_status=status)
+                async def request(method, path, **kwargs):
+                    calls.append((method, path))
+                    raise error
+                backend._request = request
+                with self.assertRaises(self.backend.SpotifyBackendError) as captured:
+                    asyncio.run(backend.play_artist_top_tracks("nirvana"))
+                self.assertIs(captured.exception, error)
+                self.assertEqual(captured.exception.http_status, status)
+                self.assertEqual(len(calls), 1)
+
+    def test_unparsed_sentence_does_not_become_an_unrelated_artist_identity(self):
+        backend = self.backend.SpotifyBackend(object(), types.SimpleNamespace(config={}))
+        async def request(method, path, **kwargs):
+            self.assertEqual(method, "GET")
+            return {"artists": {"items": [{"name": "Pearl Jam", "id": "A" * 22}]}}
+        backend._request = request
+        with self.assertRaises(self.backend.SpotifyBackendError):
+            asyncio.run(backend._search_uri("ik wil pearl jam starten", "music"))
+
     def test_session_next_item_requires_current_identity_uses_only_first_and_expires(self) -> None:
         runtime=types.SimpleNamespace(config={},backend_cache={})
         backend=self.backend.SpotifyBackend(object(),runtime)
@@ -828,10 +914,13 @@ class SpotifyBackendTest(unittest.TestCase):
         session = Session()
         backend.session = session
 
-        asyncio.run(backend.play({"query": "ik wil pearl jam starten", "type": "music"}))
+        # Natural-language requests are parsed by the shared command owner.
+        # This backend boundary receives a resolved media query, not authority
+        # to select any artist returned for an unparsed sentence.
+        asyncio.run(backend.play({"query": "Pearl Jam", "type": "music"}))
 
         self.assertIn("/search?", session.calls[0]["url"])
-        self.assertIn("q=ik+wil+pearl+jam+starten", session.calls[0]["url"])
+        self.assertIn("q=artist%3A%22Pearl+Jam%22", session.calls[0]["url"])
         self.assertIn("type=artist", session.calls[0]["url"])
         self.assertEqual(session.calls[0]["method"], "GET")
         self.assertEqual(session.calls[1]["method"], "PUT")
@@ -842,7 +931,7 @@ class SpotifyBackendTest(unittest.TestCase):
         self.assertEqual(runtime.last_resolved_media["title"], "")
         self.assertEqual(runtime.last_resolved_media["artist"], "Pearl Jam")
         self.assertEqual(runtime.last_resolved_media["uri"], "spotify:artist:pearl-jam")
-        self.assertEqual(runtime.last_spotify_search["query"], "ik wil pearl jam starten")
+        self.assertEqual(runtime.last_spotify_search["query"], "Pearl Jam")
         self.assertEqual(runtime.last_spotify_search["type"], "artist")
         self.assertEqual(runtime.last_spotify_search["returned"], 1)
         self.assertEqual(
@@ -902,8 +991,8 @@ class SpotifyBackendTest(unittest.TestCase):
                         200,
                         {
                             "tracks": [
-                                {"uri": "spotify:track:sun-and-moon"},
-                                {"uri": "spotify:track:thing-called-love"},
+                                {"uri": "spotify:track:sun-and-moon", "artists":[{"id":"artist-id"}]},
+                                {"uri": "spotify:track:thing-called-love", "artists":[{"id":"artist-id"}]},
                             ]
                         },
                     )
@@ -987,7 +1076,7 @@ class SpotifyBackendTest(unittest.TestCase):
                         },
                     )
                 if method == "GET" and "/artists/paul-van-dyk/top-tracks?" in url:
-                    return Response(200, {"tracks": [{"uri": "spotify:track:for-an-angel"}]})
+                    return Response(200, {"tracks": [{"uri": "spotify:track:for-an-angel", "artists":[{"id":"paul-van-dyk"}]}]})
                 return Response(204)
 
         entry = types.SimpleNamespace(
@@ -1014,7 +1103,7 @@ class SpotifyBackendTest(unittest.TestCase):
 
         asyncio.run(backend.play_artist_top_tracks("paul van dijk"))
 
-        self.assertIn("q=Paul+van+Dyk", session.calls[0]["url"])
+        self.assertIn("q=artist%3A%22Paul+van+Dyk%22", session.calls[0]["url"])
         self.assertIn("/artists/paul-van-dyk/top-tracks?", session.calls[1]["url"])
         self.assertEqual(session.calls[2]["json"], {"uris": ["spotify:track:for-an-angel"]})
         self.assertEqual(runtime.last_resolved_media["name"], "Paul van Dyk")
@@ -1112,7 +1201,7 @@ class SpotifyBackendTest(unittest.TestCase):
         result = asyncio.run(backend.artist_albums("Radiohead"))
 
         self.assertIn("/search?", session.urls[0])
-        self.assertIn("q=Radiohead", session.urls[0])
+        self.assertIn("q=artist%3A%22Radiohead%22", session.urls[0])
         self.assertIn("/artists/radiohead/albums?", session.urls[1])
         self.assertEqual(result["artist"], "Radiohead")
         self.assertEqual([album["name"] for album in result["albums"]], ["The Bends", "OK Computer"])

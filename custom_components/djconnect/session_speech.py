@@ -18,6 +18,11 @@ MAX_TEXT = 4000
 MAX_SEGMENT = 1200
 MAX_SEGMENTS = 8
 MAX_REFERENCES = 8
+LITERAL_PROCESSING_BASES = frozenset({
+    "qualified_dialogue_v1", "cc0_normalized_fields_v1", "runtime_authored_direction_v1",
+    "spotify_owner_local_read_v1", "retained_owner_local_read_v1", "accepted_local_reply",
+    "core_owned_voice_preview_v1",
+})
 
 
 def accepted_processing_basis(result):
@@ -28,7 +33,10 @@ def accepted_processing_basis(result):
 
 
 def capability():
+    from .session_runtime import DJMomentType
     result = {"available": True, "version": 1, "path": PATH, "method": "POST",
+            "supported_moment_types": [kind.value for kind in DJMomentType if kind is not DJMomentType.SILENCE],
+            "excluded_moment_types": [DJMomentType.SILENCE.value],
             "supported_prepare_versions": [1, 2, 3],
             "shared_profile_settings": {"version": 3, "prepare_version": 3,
                 "path": "/api/djconnect/v1/profile/settings",
@@ -63,13 +71,13 @@ def capability():
         '1': {key: result[key] for key in (
             'processors', 'voice_preference_context', 'session_voice_selection',
             'gender_preference', 'voice_selection')},
-        '2': {'processors': ['ha_configured'], 'settings_contract_version': 2,
+        '2': {'processors': ['local_on_device', 'ha_configured'], 'settings_contract_version': 2,
               'settings_path': '/api/djconnect/v1/profile/settings',
               'caller_voice_override': False,
               'voice_preference_context': {'scope': 'profile_and_active_session',
                   'storage_owner': 'core', 'runtime_mutable': True,
                   'session_end': 'retain_profile_defaults'}},
-        '3': {'processors': ['ha_configured'], 'settings_contract_version': 3,
+        '3': {'processors': ['local_on_device', 'ha_configured'], 'settings_contract_version': 3,
               'settings_path': '/api/djconnect/v1/profile/settings',
               'caller_voice_override': False, 'intent': ['manual', 'automatic'],
               'targets': {'local': True, 'ha_speaker': True, 'both': True},
@@ -77,11 +85,25 @@ def capability():
               'play_operation': 'session/speech/play',
               'play_path': '/api/djconnect/v1/transport/operation',
               'play_reference': 'live_moment_only',
+              'retained_speaker_replay': {'available': True, 'version': 1,
+                  'operation': 'session/speech/play', 'reference_kind': 'entry_id',
+                  'entry_kinds': ['dj_moment'], 'intent': 'manual',
+                  'voice_settings': 'active_session_else_confirmed_profile',
+                  'automatic_history_playback': False},
               'automatic_speaker': 'core_publication_only',
               'speaker_media_maximum_seconds': 30,
               'speaker_media_maximum_reads': 4,
               'text_only_all_speech_forbidden': True},
     }
+    for version in ('2', '3'):
+        result['prepare_contracts'][version]['local_on_device'] = {
+            'target': 'local', 'voice_settings_scope': 'device_local',
+            'ha_voice_availability_required': False, 'audio_state': 'renderer_pending',
+            'effective_voice_authority': 'native_renderer',
+            'original_publication_and_device_autoplay_required': True,
+        }
+    from .voice_preview import capability as voice_preview_capability
+    result['voice_preview'] = voice_preview_capability()
     return result
 
 
@@ -286,7 +308,7 @@ async def resolve_dialogue(hass, history, profile_id, reference, *, profile_sour
 
 
 def _contribution_descriptor(reference, *, text, locale, persona, persona_revision,
-                             expires_at, source_kind, attribution, autoplay=False):
+                             expires_at, source_kind, attribution, autoplay=False, mood=None):
     if not isinstance(locale, str) or locale not in {"en", "nl", "de", "fr", "es"}:
         return unavailable(reference, "original_locale_unknown")
     try:
@@ -302,13 +324,14 @@ def _contribution_descriptor(reference, *, text, locale, persona, persona_revisi
     if segments is None:
         return unavailable(reference, "unsupported_text_extent")
     revision = hashlib.sha256(text.encode()).hexdigest()[:24]
+    mood = mood if mood in {"chill", "groove", "energy", "party"} else None
     presentation = hashlib.sha256(json.dumps([reference, revision, locale, persona,
-        persona_revision, attribution], sort_keys=True).encode()).hexdigest()[:24]
+        persona_revision, attribution, mood], sort_keys=True).encode()).hexdigest()[:24]
     return {"schema_version": 1, "reference": reference, "source_kind": source_kind,
             "source_id": reference.get("moment_id") or reference.get("entry_id"),
             "session_id": reference["session_id"], "text_revision": revision,
             "presentation_revision": presentation, "persona": persona,
-            "persona_revision": persona_revision, "locale": locale, "segments": segments,
+            "persona_revision": persona_revision, "mood": mood, "locale": locale, "segments": segments,
             "style_basis": "accepted_contribution" if persona is not None else "legacy_unknown",
             "state": "available", "reason": None, "manual_allowed": True,
             "autoplay_eligible": autoplay, "processors": ["local_on_device", "ha_configured"],
@@ -320,6 +343,14 @@ def _contribution_descriptor(reference, *, text, locale, persona, persona_revisi
 def moment_projection(broadcast, moment, *, autoplay=False, admission=None):
     """Pure owner speech admission over already published immutable content."""
     reference = {"session_id": broadcast.state.session_id, "moment_id": moment.moment_id}
+    from .session_runtime import DJMomentType
+    if moment.moment_type is DJMomentType.SILENCE:
+        return unavailable(reference, "silence_has_no_speech")
+    from .session_opening import opening_context
+    opening = opening_context(moment)
+    if (broadcast.state.selected_presence == 'music_only'
+            or (opening is not None and opening.presence == 'music_only')):
+        autoplay = False
     output = getattr(broadcast, 'owner_speech_output', None)
     if callable(output) and output() == 'text_only':
         return unavailable(reference, 'announcement_text_only')
@@ -338,8 +369,9 @@ def moment_projection(broadcast, moment, *, autoplay=False, admission=None):
         return unavailable(reference, "original_source_expired")
     return _contribution_descriptor(reference, text=moment.content, locale=broadcast.state.locale,
         persona=moment.presentation_intent.dj_persona.value, persona_revision=boundary.persona_revision,
+        mood=moment.presentation_intent.source_session_mood,
         expires_at=expiry, source_kind="published_dj_moment",
-        attribution=[dict(moment.source_attribution)] if moment.source_attribution else [], autoplay=autoplay)
+        attribution=moment.as_dict().get('sources') or ([dict(moment.source_attribution)] if moment.source_attribution else []), autoplay=autoplay)
 
 
 async def resolve_moment(hass, profile_id, reference):
@@ -366,7 +398,9 @@ async def resolve_moment(hass, profile_id, reference):
     guard = PrivateSpeechSource(hass, validate,
         expires_at=datetime.fromisoformat(descriptor["expires_at"]).timestamp(), session_id=active.session_id)
     source = moment.source_fact
-    guard.processor_basis = ("spotify_owner_local_read_v1" if (source is not None and source.provider == "Spotify") or moment.observed_playback is not None or moment.genre_transition is not None
+    from .public_artist_narration import ResearchMomentAcceptance
+    guard.processor_basis = ("qualified_dialogue_v1" if type(moment.narration_acceptance) is ResearchMomentAcceptance
+        else "spotify_owner_local_read_v1" if (source is not None and source.provider == "Spotify") or moment.observed_playback is not None or moment.genre_transition is not None
         else "cc0_normalized_fields_v1" if source is not None else "runtime_authored_direction_v1")
     broadcast.speech_cleanup = lambda: invalidate_private_speech_sources(hass, session_id=active.session_id)
     broadcast.speech_refresh = lambda: collect_private_speech_sources(hass, session_id=active.session_id)
@@ -378,10 +412,11 @@ def retained_projection(entry):
     """Pure owner-entry speech state; no resources or new read-time deadline."""
     reference = {"session_id": entry["session_id"], "entry_id": entry["entry_id"]}
     if entry["kind"] == "dj_moment" and entry.get("archive_basis") in {
-            "cc0_normalized_fields_v1", "runtime_authored_direction_v1"}:
+            "cc0_normalized_fields_v1", "runtime_authored_direction_v1", "owner_metadata_narration_v1", "public_artist_narration_v1"}:
         style = {"language": entry.get("locale"), "persona": entry.get("persona"),
+                 "mood": entry.get("mood"),
                  "persona_revision": entry.get("persona_revision")}
-        attribution = [entry["source_attribution"]] if entry.get("source_attribution") else []
+        attribution = entry.get('sources') or ([entry["source_attribution"]] if entry.get("source_attribution") else [])
     elif entry["kind"] == "conversation_dj" and entry.get("role") == "assistant":
         style = entry.get("effective_style") or {}
         if not isinstance(style, dict):
@@ -391,10 +426,11 @@ def retained_projection(entry):
         return unavailable(reference, "original_source_unqualified")
     return _contribution_descriptor(reference, text=entry.get("text"), locale=style.get("language"),
         persona=style.get("persona"), persona_revision=style.get("persona_revision"),
+        mood=style.get("mood"),
         expires_at=entry["retained_until"], source_kind="retained_dj_contribution", attribution=attribution)
 
 
-async def resolve_retained(hass, history, profile_id, reference):
+async def resolve_retained(hass, history, profile_id, reference, *, moment_only=False):
     from .session_conversation import (query_service, async_history_grant_revision, history_grant_revision)
     from .persistence import persistence_service
     from .dj_response import PrivateSpeechSource, invalidate_private_speech_sources
@@ -406,11 +442,15 @@ async def resolve_retained(hass, history, profile_id, reference):
     revision = await history.async_scope_revision("profile:" + profile_id)
     opened = await query_service(hass, history).async_open_entry(profile_id, reference["session_id"], reference["entry_id"])
     entry = opened["entry"]
-    if entry["kind"] not in {"dj_moment", "conversation_dj"}:
+    if entry["kind"] not in {"dj_moment", "conversation_dj"} or (moment_only and entry["kind"] != "dj_moment"):
         raise PermissionError("speech_reference_unqualified")
     descriptor = retained_projection(entry)
     basis = (entry.get("archive_basis") if entry["kind"] == "dj_moment"
              else entry.get("speech_processing_basis") or "retained_owner_local_read_v1")
+    if basis == 'owner_metadata_narration_v1':
+        basis = 'spotify_owner_local_read_v1'
+    elif basis == 'public_artist_narration_v1':
+        basis = 'qualified_dialogue_v1'
     expires = min(time.time() + TTL, datetime.fromisoformat(entry["retained_until"]).timestamp())
     if descriptor["manual_allowed"]:
         descriptor["expires_at"] = datetime.fromtimestamp(expires, UTC).isoformat()
@@ -444,7 +484,7 @@ async def async_handle_prepare(hass, data, *, headers=None, _speaker_operation=F
     if not shared_settings:
         fields.add('voice_preference')
     if (not isinstance(data, dict) or not fields <= set(data) or set(data) - fields - {"voice_id"}
-        or (shared_settings and ('voice_id' in data or data.get('processor') != 'ha_configured'))
+        or (shared_settings and 'voice_id' in data)
         or ("voice_id" in data and (data.get("processor") != "ha_configured"
             or not isinstance(data["voice_id"], str) or not 0 < len(data["voice_id"]) <= 128
             or data["voice_id"] != data["voice_id"].strip() or not data["voice_id"].isprintable()))
@@ -512,13 +552,14 @@ async def async_handle_prepare(hass, data, *, headers=None, _speaker_operation=F
                         # legacy URL. Speaker delivery needs its qualified grant.
                         return {'success': True, 'session_speech': unavailable(
                             data['reference'], 'use_speech_play_operation')}, 200
-                policy = VoicePolicy.from_options(voice_options(hass, runtime.config))
-                availability = policy.selection_state(selected)
-                if not availability['available']:
-                    return {'success': True, 'session_speech': unavailable(data['reference'], availability['reason'])}, 200
-                data = {**data, 'voice_preference': selected.gender.value}
-                if selected.voice.kind == 'provider_voice':
-                    data['voice_id'] = selected.voice.voice_id
+                if data['processor'] == 'ha_configured':
+                    policy = VoicePolicy.from_options(voice_options(hass, runtime.config))
+                    availability = policy.selection_state(selected)
+                    if not availability['available']:
+                        return {'success': True, 'session_speech': unavailable(data['reference'], availability['reason'])}, 200
+                    data = {**data, 'voice_preference': selected.gender.value}
+                    if selected.voice.kind == 'provider_voice':
+                        data['voice_id'] = selected.voice.voice_id
         if not context.privacy_policy.allow_personal_read or not resolve_profile_privacy_policy(context.profile, {}).allow_personal_read:
             raise PermissionError("speech_not_allowed")
         history = _history_manager(hass, runtime)
@@ -526,12 +567,21 @@ async def async_handle_prepare(hass, data, *, headers=None, _speaker_operation=F
         if "moment_id" in reference:
             descriptor, source_guard = await resolve_moment(hass, context.profile_id, reference)
         elif "entry_id" in reference:
-            descriptor, source_guard = await resolve_retained(hass, history, context.profile_id, reference)
+            descriptor, source_guard = await resolve_retained(hass, history, context.profile_id,
+                reference, moment_only=_speaker_operation)
         else:
             descriptor, source_guard = await resolve_dialogue(hass, history,
                 context.profile_id, reference, profile_source=source_scope(context.profile))
+        grant_deadline = None
+        if descriptor['manual_allowed']:
+            try:
+                grant_deadline = datetime.fromisoformat(descriptor['expires_at']).timestamp()
+            except (KeyError, TypeError, ValueError):
+                raise PermissionError('speech_reference_unavailable') from None
         def guard():
             _conversation_profile_fence(hass, runtime, identity, headers, context)
+            if grant_deadline is not None and time.time() >= grant_deadline:
+                raise PermissionError('speech_reference_expired')
             if settings_token is not None and manager.dj_settings_fence_token(context.profile_id) != settings_token:
                 raise PermissionError('speech_settings_changed')
             if migration_acceptance is not None and assessment(
@@ -556,9 +606,16 @@ async def async_handle_prepare(hass, data, *, headers=None, _speaker_operation=F
                                               and selected.voice.kind == 'provider_voice' else None))
             guard()
         else:
-            from .speech_processor import voice_options
-            allowed = voice_options(hass, runtime.config)["gender_selection"]["values"]
-            if data["voice_preference"] != "default" and data["voice_preference"] not in allowed:
+            if (guard.processor_basis not in LITERAL_PROCESSING_BASES
+                    or 'local_on_device' not in descriptor.get('processors', ())):
+                descriptor = unavailable(data['reference'], 'source_processor_not_qualified')
+            elif shared_settings:
+                # Exact text admission only. The native renderer qualifies its
+                # actual OS voice; saved HA voice availability is independent.
+                descriptor.update(processor='local_on_device', audio_state='renderer_pending',
+                                  effective_voice=None, autoplay_eligible=False)
+            elif (data['voice_preference'] != 'default' and data['voice_preference'] not in
+                    voice_options(hass, runtime.config)['gender_selection']['values']):
                 descriptor = unavailable(data["reference"], "voice_gender_unavailable")
             else:
                 descriptor.update(audio_state="renderer_pending", effective_voice=None,
@@ -589,7 +646,7 @@ def _speech_settings_authority(hass, runtime, identity, headers, context):
 
 async def prepare_ha(hass, runtime, owner, data, descriptor, admission, *, expected_provider=None):
     from .dj_response import prepare_private_tts_audio, get_private_tts_audio
-    from .speech_processor import configured_processor, synthesize, ProcessorUnavailable
+    from .speech_processor import configured_processor, synthesize, mood_prosody, ProcessorUnavailable
     from .speech_feedback import SpeechProviderChanged, notification, record
 
     def failed(reason):
@@ -601,9 +658,10 @@ async def prepare_ha(hass, runtime, owner, data, descriptor, admission, *, expec
             result["notification"] = notice
         return result
 
-    # CC0/direction support is admitted by its original owner below, not inferred
-    # from a provider label. Private/catalog display is no cloud-processing grant.
-    if admission.processor_basis not in {"qualified_dialogue_v1", "cc0_normalized_fields_v1", "runtime_authored_direction_v1", "spotify_owner_local_read_v1", "retained_owner_local_read_v1"}:
+    # Exact accepted-text synthesis is owner-authorized through the configured
+    # HA provider, independently of a provider's locality. This admits no new
+    # model context, arbitrary text or source/history rights.
+    if admission.processor_basis not in LITERAL_PROCESSING_BASES:
         return unavailable(data["reference"], "source_processor_not_qualified")
     def resolve_processor():
         if "voice_id" in data:
@@ -618,13 +676,11 @@ async def prepare_ha(hass, runtime, owner, data, descriptor, admission, *, expec
     entity = voice = None
     try:
         entity, voice = resolve_processor()
-        if (admission.processor_basis in {"spotify_owner_local_read_v1", "retained_owner_local_read_v1"}
-                and voice.get("processing_scope") != "qualified_local"):
-            return unavailable(data["reference"], "source_processor_not_qualified")
+        expression = mood_prosody(entity, descriptor.get("mood"))
         key = (owner, descriptor["source_id"], descriptor["text_revision"],
                descriptor["presentation_revision"], voice["engine"], voice["voice_id"], voice["locale"], id(entity),
                voice.get("provider_version"), voice.get("voice_version"),
-               voice.get("configuration_revision"))
+               voice.get("configuration_revision"), json.dumps(expression, sort_keys=True))
         if descriptor.get('settings_contract_version') in (2, 3):
             key += (json.dumps(descriptor['settings_revision'], separators=(',', ':')),)
         def qualified_admission():
@@ -633,16 +689,19 @@ async def prepare_ha(hass, runtime, owner, data, descriptor, admission, *, expec
                 current_entity, current_voice = resolve_processor()
             except ProcessorUnavailable as exc:
                 raise SpeechProviderChanged(str(exc), descriptor["locale"]) from None
-            if current_entity is not entity or current_voice != voice:
+            if (current_entity is not entity or current_voice != voice
+                    or mood_prosody(current_entity, descriptor.get("mood")) != expression):
                 raise SpeechProviderChanged("speech_configuration_changed", descriptor["locale"])
         qualified_admission.on_withdraw = admission.on_withdraw
         qualified_admission.on_synthesized = lambda: record(hass, runtime, owner, voice, provider=entity)
         token = await prepare_private_tts_audio(hass, owner_profile_id=owner, cache_key=key,
             expires_at=datetime.fromisoformat(descriptor["expires_at"]).timestamp(), admission=qualified_admission,
-            synthesize=lambda: synthesize(entity, voice, "".join(segment["text"] for segment in descriptor["segments"])))
+            synthesize=lambda: synthesize(entity,
+                {**voice, "mood_prosody": expression} if expression["state"] == "applied" else voice,
+                "".join(segment["text"] for segment in descriptor["segments"])))
         asset = get_private_tts_audio(hass, token, owner)
         return {**descriptor, "expires_at": datetime.fromtimestamp(asset.expires_at, UTC).isoformat(),
-                "audio_state": "ready", "effective_voice": voice, "autoplay_eligible": False,
+                "audio_state": "ready", "effective_voice": voice, "mood_prosody": expression, "autoplay_eligible": False,
                 "audio_reference": {"asset_id": token, "path": "/api/djconnect/v1/speech/audio", "method": "POST"}}
     except PermissionError:
         # Source/owner withdrawal stays opaque. A still-authorized contribution

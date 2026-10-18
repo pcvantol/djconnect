@@ -370,6 +370,7 @@ def _capability_fallbacks(commands: list[str]) -> dict[str, dict[str, Any]]:
             "missing_behavior": "hide_negative_feedback_controls",
         },
         "session_broadcast_transport": {
+            "paired_display_admission": session_broadcast["paired_display_admission"],
             "available": features["session_broadcast_transport"],
             "preferred_transport": "websocket" if features["session_broadcast_transport"] else "http",
             "http_snapshot_path": session_broadcast["http_snapshot"]["path"],

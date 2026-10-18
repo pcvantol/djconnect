@@ -1,4 +1,95 @@
 # Session conversation and history — retained foundation and shared dialogue correction
+
+## Corrective retained-entry compatibility — 18 October 2026
+
+The current private producer also emits the four retention bases and two
+source-free entry kinds below. Their omission from this consumer contract and
+closed schema1 decoders caused an actual HTTP200 timeline to fail as a whole
+on Apple40331. A successful server response is not successful client decoding.
+The original separately reported HTTP404 remains a different open finding.
+
+Every row retains the existing identity/order/timestamps, owner-only authority,
+`historical_view_only:true` and `current_display_allowed:false`. Core revalidates
+Profile/privacy, history grant, source ownership and rolling Session retention
+before returning it. Consumer parsing does not grant access or upgrade a source.
+
+| `kind` / `archive_basis` | Meaning and client boundary |
+| --- | --- |
+| `dj_moment` / `cc0_normalized_fields_v1` | Already admitted normalized CC0 facts; preserve accepted text and attribution. |
+| `dj_moment` / `runtime_authored_direction_v1` | Core-authored Session direction/opening; no external fact authority or automatic playback. |
+| `dj_moment` / `owner_metadata_narration_v1` | Bounded owner-private accepted metadata narration. Preserve text/attribution; Core's captured account/provider/entry check runs on every read. Never infer CC0, model-processing or shared-screen permission. Internal `source_context` and `session_media_reference` do not escape. |
+| `dj_moment` / `public_artist_narration_v1` | Completely assessed researched expression, including the locally extended album family. Preserve exact accepted prose and `sources[]`/revision/license attribution. The creative text is not factual evidence for another answer. No client regeneration or inference of source roles. |
+| `dj_publication` / absent | Stable publication receipt after an unqualified/withdrawn body. `content_state:"unavailable"`, typed `unavailable_reason`, `text:null`, `speech_available:false`. No body reconstruction, source/artwork reuse, replay or autoplay. |
+| `dj_silence` / absent | Durable intentional silence, `moment_type:"silence"`, `content_state:"silence"`, `text:null`, `speech_available:false`. Keep identity/order; presentation may be subtle. No speech or invented filler. |
+
+Optional `session_speech` and `session_media` remain separately validated
+server descriptors. A stored text or recognized basis alone is no ready audio
+asset or image grant. Replay uses the existing prepare owner and current active
+Session voice, otherwise current Profile defaults; text_only/provider/source
+withdrawal and expiry may refuse it. Never autoplay historical rows. Shared or
+passive surface permissions do not follow from an owner history response.
+
+After source withdrawal, an admitted metadata row projects as `dj_publication`
+with the SAME `entry_id`/order and no retained body; no history rewrite or source
+renewal occurs. Never label a metadata/researched body CC0 or Core direction to
+make an older decoder accept it. Unknown/unqualified bases remain denied by
+Core. A future unknown presentation shape must not silently become readable
+content, speech or an executable action through a consumer fallback.
+
+The original, immutable consumer sample is
+[retention-bases-v1.json](../../examples/client_contracts/session_conversation_history/retention-bases-v1.json).
+It contains one actual Core-projected mixed page, same-identity withdrawal and
+refused unknown/expired/revoked/shared rows. Source inputs are synthetic
+already-admitted rows; it is not generator, source-admission, installed, native
+or audible evidence. `source_pins` bind the actual projection/speech modules;
+the owning Core test preserves its original digest. Its manually assembled
+tail envelope omitted `window_limit`; do not relax the consumer's real envelope
+validation to accept that omission. The replacement
+[retention-bases-v2.json](../../examples/client_contracts/session_conversation_history/retention-bases-v2.json)
+uses the actual SQLite repository and query tail envelope, including
+`window_limit:20`, plus negotiated schema2 and the truthful legacy409. Its
+deterministic clock also covers summary projection. The owning test regenerates
+and compares that complete fixture, not a hand-authored response substitute.
+
+### Explicit retained-entry representation version2
+
+The corrective representation uses `history_contract_version:2`, accepted as a
+GET query/POST-open integer (GET strings `"1"`/`"2"` also accepted). Omitted
+means1; booleans, other values and unsupported versions fail400 with
+`unsupported_history_contract_version`. Discovery adds
+`contract_versions.session_history_entries:2`; the existing
+`session_conversation_history:1` and `session_flow_text_search:1` stay unchanged.
+The version applies to list/timeline/tail/anchor/search/open; it is not a new
+history, owner, retention or speech contract.
+
+Version2 returns `schema_version:2`, `history_contract_version:2`, the exact
+qualified rows above and all original identities, order, attribution and state.
+Version1 keeps schema1 and its original four kinds/two bases unchanged. If the
+requested page/entry/matches cannot be represented losslessly in1, return
+HTTP409 `history_contract_upgrade_required`,
+`required_history_contract_version:2`, `supported_history_contract_versions:[1,2]`,
+without partial entries or source content. This is not HTTP404 or pairing/token
+failure; do not clear pairing, clear history or retry forever. Old pages that
+fit1 remain readable. No caller may change an unavailable row into another
+retention basis. Query cursors are bound to this representation version as well
+as the existing owner/revision/source/retention scope; they cannot cross versions.
+
+This is the smallest truthful compatibility correction. **Older closed clients
+cannot display newly typed rows until updated**, and may show their generic
+error for the explicit upgrade requirement. Do not claim an offline iPhone or
+Watch works because a newer client decodes. A compatibility notice disguised
+as an actual DJ direction or conversation would manufacture provenance; no
+such relabeling, hidden row loss or privacy bypass is permitted. Actual old/new
+native acceptance and coordinated deployment remain separate gates.
+
+Current source qualification:46 owning tests PASS, including paired list,
+detail/tail/anchor/search/open, both cross-version cursor directions, compatible
+legacy pages, invalid versions, source withdrawal and privacy denial. An
+independent technical review reproduced46 PASS with no remaining scoped P1/P2.
+This is no installed producer pin. The existing Apple writer separately reports
+real iPad read/reopen and stop/start/archive read acceptance of its baseline
+decoder fix; neither that report nor local Core tests close the older HTTP404.
+
 ## Selected single-pipeline dialogue correction
 
 Assignment `DJC-CORE-ASKDJ-CONTEXTUAL-DIALOGUE-V1-20261013` fixes the generic-versus-Session dialogue/acceptance split while retaining this delivered history/search foundation.
@@ -363,3 +454,185 @@ preparation are defined in [Session artwork delivery v1](SESSION_ARTWORK_DELIVER
 It does not widen semantic text archival rights, native current-display admission,
 shared-screen access or existing pure history-query semantics. Implementation
 and qualification are owned by the admitted Session Moment artwork slice.
+
+## Private installed compatibility follow-up
+
+The minimal history-only derivative has now been installed and qualified on
+HA-dev, separately from the full local source candidate. Capability2 and paired
+v1/v2 protocol reads are verified; source/worktree fixture hashes must not be
+misrepresented as that installed derivative's module hashes. Exact scope and
+[installation evidence](../verification/HISTORY_ENTRY_COMPATIBILITY_20261018.md)
+retain the private-development, original404 and native/audio boundaries.
+
+## Selected manual deletion of an archived Session — 18 October2026
+
+Direct owner request, verified in the existing Apple task: allow a confirmed
+manual deletion of one earlier Session from the user's Profile. Core owns durable
+erasure; Apple owns its red trash action, confirmation and localized rendering.
+This additive wire decision is selected design, **not an installed capability**.
+The existing history-entry representation2 and rolling retention remain separate.
+
+Discovery: `capabilities.session_history_delete:true` plus
+`contract_versions.session_history_delete:1`. No advertisement until the complete
+producer operation is implemented and qualified. Absent/unknown capability means
+no destructive action. No client-invented endpoint or automatic mutation replay.
+
+`POST /api/djconnect/v1/session/history/delete`, existing paired device bearer and
+identity, `Cache-Control:no-store` / `Referrer-Policy:no-referrer` on all outcomes:
+
+```json
+{"device_id":"<paired device>","client_type":"ios","session_id":"<earlier Session>","expected_revision":"<exact session.revision>","operation_id":"<new UUIDv7>","confirmed":true}
+```
+
+Only an explicit confirmed user action sends this request. The resolved paired
+Profile is authoritative; a supplied Profile hint never chooses another owner.
+`expected_revision` is the opaque Session header revision already returned by
+history list/detail; do not parse or reconstruct it. `operation_id` is a new UUIDv7
+for this deliberate operation, not a chat ID. Reuse the existing bounded operation
+journal clock: five-minute lifetime and30-second future skew; no automatic
+renewal or retry. The receipt binds the resolved owner and exact paired-device/
+connection authority as well as the target/revision. The owner must still authorize any
+reply, including replay of a completed receipt.
+
+Success200 is returned only after durable erasure and grant fencing:
+
+```json
+{"success":true,"schema_version":1,"operation_id":"<same UUID>","owner_profile_id":"<resolved Profile>","deleted_session_id":"<exact target>","deleted":true}
+```
+
+The client verifies operation, target and resolved owner against its captured
+request/connection epoch before removing that Session and returning to history.
+Then refresh through existing reads. Do not clear pairing, all Profile history,
+Music DNA, preferences or another Session. No playback, speaker or Session-start/
+stop action belongs to deletion. Already delivered external audio cannot be
+recalled by a history response; clients stop their own deleted-source replay.
+
+| HTTP / `error` | Contract |
+| --- | --- |
+|400 `invalid_history_delete_request` | Missing/malformed target, UUID, revision or `confirmed:true`. No mutation. |
+|401/403 | Existing pairing/Profile/privacy authorization errors; no personal target content. |
+|404 `history_unavailable` | Unknown or other-owner target, including an independently deleted Session; no existence leak. |
+|409 `session_not_archived` | OPENING/ACTIVE or actual active Runtime target; never end it implicitly. |
+|409 `history_revision_conflict` | Target revision changed before durable commit. Refresh and require a fresh confirmation. |
+|409 `history_delete_operation_conflict` | An existing operation ID is reused with different target/revision or device-binding inputs within the same owner. Cross-owner lookup remains404. No second effect. |
+|503 `history_unavailable` | Definitive pre-commit storage failure, no successful erasure receipt. |
+|503 `history_delete_outcome_unknown` | Completion is not yet proven. Do not claim deletion or automatically resend. Read-only refresh is allowed. |
+
+Only ENDED/INTERRUPTED Sessions are eligible; the persistent and actual Runtime
+lifecycle are checked under the existing owners at commit. Recording opt-out
+must not prevent explicit erasure of one's already retained data. Within the existing journal lifetime, exact repeated
+completed operation inputs return the same bounded durable receipt after fresh
+owner authorization, without another deletion; they never recreate a Session.
+The client never automatically retries this mutation after reconnect, timeout,
+Profile switch or stale callback. A deliberate retry still needs user confirmation.
+
+Erase the target's persistent Session, summary, Moment/observation/conversation
+projections and corresponding Profile conversation data through existing owners.
+Do not purge another Session or the Profile. Pending source/model/history writes
+cannot recreate its content. Before success, revoke/fence all target history media,
+speech/audio/cache/navigation grants, including in-flight prepare/read callbacks.
+List/detail/tail/anchor/search/open/deep-link and old cursors must not recover the
+erased target. Existing literal query authorization remains mandatory. No raw
+prompts, text, images or audio are kept in the bounded operation receipt.
+
+Qualification must use synthetic owner records and the actual storage/paired
+handler boundaries: owner/cross-owner, all terminal/active states, stale revision,
+duplicate/conflicting operation, concurrent acceptance/prepare/read/delete,
+storage failure/unknown outcome, restart durability and all reopen paths. No real
+personal Session deletion is authorized as a test by this contract. Producer
+fixtures and exact qualified source/installed pin follow before consumer live GO.
+
+## Selected bulk deletion of earlier Sessions — 18 October2026
+
+The additional direct owner request is one confirmed operation that removes all
+earlier Sessions from the resolved Profile, independent of the currently loaded
+page, search filter or client. It is not a client loop over single deletion and
+not Profile clear. This is selected contract design; no capability is advertised
+until the producer, fixtures and connected qualification exist.
+
+Discovery is `capabilities.session_history_bulk_delete:true` and
+`contract_versions.session_history_bulk_delete:1`. Missing/unknown version hides
+the action. Single Session deletion remains a separate capability.
+
+Immediately before showing confirmation, the paired client issues an owner-only
+`GET /api/djconnect/v1/session/history/delete_snapshot`. This performs no deletion,
+Session lifecycle or playback action. It returns:
+
+```json
+{"success":true,"schema_version":1,"owner_profile_id":"<resolved Profile>","snapshot_id":"<opaque server token>","target_count":12,"created_at":"<server UTC>","expires_at":"<server UTC>"}
+```
+
+The token binds the paired owner/device authority and the complete server-owned
+set of retained ENDED/INTERRUPTED Sessions, with each exact internal/public
+revision, at this preparation instant. No client IDs, filter, loaded list or
+client clock defines that set. It expires after five minutes; a server restart or
+changed device/owner authority invalidates it. Confirmation identifies the count
+and this captured set. Sessions ending after preparation are deliberately outside
+the confirmation and remain retained, even if they end before the user confirms.
+The current ACTIVE/OPENING Session and another Profile are always outside it.
+Zero targets permits a no-op informational result; do not offer a destructive
+confirmation or issue the mutation. A refreshed snapshot requires new consent.
+
+After explicit confirmation only:
+
+`POST /api/djconnect/v1/session/history/delete_all`
+
+```json
+{"device_id":"<paired device>","client_type":"ios","snapshot_id":"<exact prepared token>","operation_id":"<new UUIDv7>","confirmed":true}
+```
+
+Use the same five-minute/30-second-skew journal and fresh authorization as single
+delete. Bind operation receipt to owner, device/connection authority and exact
+snapshot membership/digest; never re-resolve a newer set under the old consent.
+At commit, validate every captured target's original revision and terminal and
+actual Runtime state under the existing owners. A new terminal Session outside
+the set does not conflict and is never added. A changed/withdrawn/already erased
+captured target, stale token or privacy/source revision changes fail409
+`history_delete_snapshot_conflict` before any target erasure. Refresh read-only
+and ask for a new explicit confirmation; never replay the POST automatically.
+
+Success200 only after the entire captured set is durably erased and fenced:
+
+```json
+{"success":true,"schema_version":1,"operation_id":"<same UUIDv7>","owner_profile_id":"<resolved Profile>","snapshot_id":"<same token>","deleted":true,"deleted_session_count":12}
+```
+
+Client admission checks owner, operation, snapshot, schema, exact captured count
+and its connection/confirmation epoch. A valid receipt invalidates all local
+archive projections, cursors, archive navigation and historical media/speech
+leases and fences outstanding archive reads/prepares. Reload remaining archives
+through normal owner reads; a Session completed after the snapshot reappears from
+the server. An open archive returns to that refreshed list. Conservative archive
+projection invalidation is not deletion of those newly completed Sessions. The
+active Session's live Flow, current settings and live speech grants are separate
+and remain intact. No oversized client-provided list or response list is needed
+to revoke the captured archive view safely.
+
+The producer erases only captured Sessions and their corresponding persistent
+summaries, Moments, observations, conversation projections and Profile Store
+turns. Reuse existing single-delete owners/fences as one server transaction, not
+per-target commits that can partially succeed. Fence queued writers, history
+media/audio, dependent references and retained replay before success. Preserve
+non-target Sessions, Profile preferences, Music DNA, pairing, speakers and
+playback. A conversation in a surviving Session that depends on a deleted target
+loses that dependency's readable body/replay through the existing dependency
+validator; never retain an orphan quotation. No original source text/audio goes
+in snapshots or operation receipts.
+
+Errors reuse single-delete authorization/no-store rules:400
+`invalid_history_delete_request`;404 `history_unavailable` for unknown or
+other-owner snapshot without disclosure;409 `history_delete_snapshot_conflict`;
+409 `history_delete_operation_conflict` for altered same-owner operation inputs;
+503 `history_unavailable` for proven precommit failure;503
+`history_delete_outcome_unknown` for unproven completion. No partial success,
+automatic replay/renewal or optimistic UI deletion. Only an exact completed
+receipt may return idempotent success within its journal lifetime after fresh
+owner authorization, without new erasure.
+
+Connected qualification uses synthetic data: unloaded/filtered/page-boundary
+archives; terminal snapshot and concurrent new completion; active/other-owner
+isolation; target revision change; token expiry/restart/device change; duplicate/
+conflicting operations; Store/SQLite/journal failure and unknown outcomes;
+concurrent pending writes/read/prepare; durable restart and every reopen path.
+No personal Session is deleted for qualification. Exact producer fixtures and pin
+are pending; client UI tests do not establish producer or installed completion.

@@ -349,15 +349,6 @@ class ConfigFlowHelperTest(unittest.TestCase):
 
         self.assertNotIn('dj_response_prompt', defaults)
 
-    def test_default_dj_response_prompt_is_multiline_guidance(self) -> None:
-        prompt = self.const.DEFAULT_DJ_RESPONSE_PROMPT
-
-        self.assertNotIn("Gebruik deze DJ response prompt", prompt)
-        self.assertNotIn("stijl-/inhoudsinstructie", prompt)
-        self.assertIn("Noem de artiest, het album en het nummer.", prompt)
-        self.assertIn("Geef een leuk feitje over de artiest.", prompt)
-        self.assertIn("Klink warm en persoonlijk.", prompt)
-        self.assertEqual(prompt.count("\n"), 2)
 
     def test_voice_schema_hides_internal_compatibility_and_ota_fields(self) -> None:
         hass = types.SimpleNamespace(states=None)

@@ -91,7 +91,7 @@ async def async_maintain_session_history(hass, *, now=None, revoked_entry_id: st
 
         await manager.async_prune_session_history(
             valid,
-            cutoff=(current - timedelta(days=90)).isoformat(),
+            cutoff=(current - timedelta(days=(await repository.async_retention_policy())[0])).isoformat(),
             dependency_validator=retained_dependency,
         )
 

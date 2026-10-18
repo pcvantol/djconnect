@@ -14,6 +14,62 @@ class NativeMomentDeliveryTest(unittest.TestCase):
     tearDownClass = source_tests.ExpressiveDJPersonaTest.__dict__["tearDownClass"]
     source_pair = source_tests.ExpressiveDJPersonaTest.source_pair
     run_sequence = source_tests.ExpressiveDJPersonaTest.run_sequence
+
+    def test_speech_admits_every_non_silence_type_without_rewriting_accepted_text(self):
+        from custom_components.djconnect import session_speech
+        moment = self.run_sequence(self.runtime.DJPersona.HOME_DJ, count=1)[0]
+        # This checks the common speech boundary, not each type's generation.
+        # Reuse real qualified publication/expiry and vary only the type.
+        with patch('time.monotonic', lambda: 400.0):
+            for kind in self.runtime.DJMomentType:
+                with self.subTest(kind=kind.value):
+                    typed = replace(moment, moment_type=kind)
+                    descriptor = session_speech.moment_projection(self.session.broadcast, typed, autoplay=True)
+                    if kind is self.runtime.DJMomentType.SILENCE:
+                        self.assertFalse(descriptor['manual_allowed'])
+                        self.assertFalse(descriptor['autoplay_eligible'])
+                        self.assertEqual(descriptor['reason'], 'silence_has_no_speech')
+                        self.assertEqual(descriptor['segments'], [])
+                    else:
+                        self.assertTrue(descriptor['manual_allowed'], descriptor)
+                        self.assertTrue(descriptor['autoplay_eligible'])
+                        self.assertEqual(''.join(s['text'] for s in descriptor['segments']), moment.content)
+                        self.assertEqual(descriptor['attribution'], [dict(moment.source_attribution)])
+            advertised = session_speech.capability()
+            self.assertEqual(set(advertised['supported_moment_types']),
+                {kind.value for kind in self.runtime.DJMomentType if kind is not self.runtime.DJMomentType.SILENCE})
+            self.assertEqual(advertised['excluded_moment_types'], ['silence'])
+
+    def test_silence_never_attempts_delivery_or_provider_admission(self):
+        from custom_components.djconnect import session_speech
+        from types import SimpleNamespace
+        def forbidden():
+            self.fail('Silence must not resolve delivery or speech settings')
+        broadcast = SimpleNamespace(state=SimpleNamespace(session_id='session'), native_delivery=forbidden,
+            owner_speech_output=forbidden)
+        moment = SimpleNamespace(moment_id='silence', moment_type=self.runtime.DJMomentType.SILENCE,
+            content='Diagnostic reason must never become spoken text')
+        descriptor = session_speech.moment_projection(broadcast, moment, autoplay=True)
+        self.assertFalse(descriptor['manual_allowed'])
+        self.assertFalse(descriptor['autoplay_eligible'])
+    @staticmethod
+    def load_owner_handlers():
+        # This owning suite also runs in a fresh CI process. The Runtime
+        # fixture intentionally installs a minimal const module; HTTP owners
+        # must import their real constants without depending on another suite.
+        import importlib
+        import sys
+        import types
+        from pathlib import Path
+        from tests.test_http_voice_helpers import install_http_stubs
+        install_http_stubs()
+        name='custom_components.djconnect.const'
+        canonical=types.ModuleType(name)
+        path=Path(__file__).resolve().parents[1]/'custom_components/djconnect/const.py'
+        exec(compile(path.read_bytes(),str(path),'exec'),canonical.__dict__)
+        with patch.dict(sys.modules,{name:canonical}):
+            return importlib.import_module('custom_components.djconnect.api_handlers')
+
     def test_native_current_and_flow_admission_preserve_two_sources(self):
         moments = self.run_sequence(self.runtime.DJPersona.HOME_DJ, count=2)
         with patch('time.monotonic', lambda: 400.0):
@@ -238,11 +294,8 @@ class NativeMomentDeliveryTest(unittest.TestCase):
         self.assertEqual(self.session.broadcast.delivery_sequence, sequence)
 
     def test_entry_unload_revokes_live_pending_and_recovery_streams_without_ending_session(self):
-        import importlib
         import types
-        from tests.test_http_voice_helpers import install_http_stubs
-        install_http_stubs()
-        handlers=importlib.import_module('custom_components.djconnect.api_handlers')
+        handlers=self.load_owner_handlers()
         self.run_sequence(self.runtime.DJPersona.HOME_DJ, count=1)
         manager, session=self.manager,self.session
         integration=[types.SimpleNamespace(entry=types.SimpleNamespace(entry_id='entry-a'),_receiver_end_generation=0)]
@@ -297,11 +350,8 @@ class NativeMomentDeliveryTest(unittest.TestCase):
             asyncio.run(scenario())
 
     def test_session_end_during_initial_transport_setup_withdraws_snapshot_authority(self):
-        import importlib
         import types
-        from tests.test_http_voice_helpers import install_http_stubs
-        install_http_stubs()
-        handlers=importlib.import_module('custom_components.djconnect.api_handlers')
+        handlers=self.load_owner_handlers()
         self.run_sequence(self.runtime.DJPersona.HOME_DJ, count=1)
         async def bound(*a,**k):return types.SimpleNamespace(profile_id='owner')
         async def scenario():
@@ -327,8 +377,8 @@ class NativeMomentDeliveryTest(unittest.TestCase):
         moments=self.run_sequence(self.runtime.DJPersona.HOME_DJ,count=1)
         unknown=replace(moments[0],moment_id='derived-unqualified',source_fact=None,source_attribution=(),
             source_references=('session_flow',),moment_type=self.runtime.DJMomentType.TRANSITION)
-        self.runtime_clock[0] += 45
-        with patch('time.monotonic',lambda:145.0):
+        self.runtime_clock[0] += 90
+        with patch('time.monotonic',lambda:190.0):
             self.session.publish_moment(unknown)
             native=self.session.broadcast.as_dict()['native_delivery']
         entry=next(a for a in native['admissions'] if a['moment_id']==unknown.moment_id)

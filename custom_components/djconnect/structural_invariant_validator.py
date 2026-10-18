@@ -348,8 +348,8 @@ def validate_si_golden_003(capture: SIGolden003SessionCapture) -> StructuralVali
     require(
         "SI003-BROADCAST",
         capture.broadcast_contains_realized_moment
-        and not any(item.event_type == "dj_moment_published" for item in capture.broadcast_publications),
-        "Silence retained in Broadcast projection without narrative publication",
+        and sum(item.event_type == "dj_moment_published" for item in capture.broadcast_publications) == 1,
+        "One explicit Silence publication, without fabricated narrative content",
         repr(capture.broadcast_publications),
         "broadcast_publications",
     )

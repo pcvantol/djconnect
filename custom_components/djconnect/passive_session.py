@@ -65,9 +65,13 @@ def _text(broadcast, now):
                 or len(moment.content) > 640):
             continue
         fact = moment.source_fact
-        cc0 = fact is not None and fact.provider in {'MusicBrainz', 'Wikidata'} and fact.license == 'CC0-1.0'
+        from .public_artist_narration import ResearchMomentAcceptance, admitted, sources_for
+        researched = type(moment.narration_acceptance) is ResearchMomentAcceptance
+        if researched and not admitted(moment, now):
+            continue
+        cc0 = not researched and fact is not None and fact.provider in {'MusicBrainz', 'Wikidata'} and fact.license == 'CC0-1.0'
         authored = fact is None and moment.source_references == ('session_direction',)
-        if not (cc0 or authored):
+        if not (cc0 or authored or researched):
             continue
         # Native qualification is one input, not the passive purpose licence.
         deadline = datetime.fromisoformat(a['display_expires_at']).timestamp()
@@ -77,7 +81,9 @@ def _text(broadcast, now):
         return {'moment_id': moment.moment_id, 'published_at': boundary.published_at,
                 'text': moment.content, 'persona': moment.presentation_intent.dj_persona.value,
                 'source_attribution': dict(moment.source_attribution),
-                'usage_basis': 'cc0_facts_authored_expression' if cc0 else 'runtime_authored_direction',
+                **({'sources':sources_for(moment)} if researched else {}),
+                'usage_basis': ('public_artist_narration_v1' if researched else
+                    'cc0_facts_authored_expression' if cc0 else 'runtime_authored_direction'),
                 'expires_at': stamp(deadline)}
     return None
 

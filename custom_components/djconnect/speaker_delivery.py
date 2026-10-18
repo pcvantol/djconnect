@@ -1,4 +1,4 @@
-"""One exact live Moment replay through existing operation and private byte owners."""
+"""Exact live/retained DJMoment replay through existing operation and byte owners."""
 from contextvars import ContextVar
 import hashlib
 from uuid import UUID
@@ -25,6 +25,9 @@ def connect_automatic(hass, runtime, session, identity, headers):
     def publication(moment):
         current = manager.current_active(session.owner_profile_id)
         if (current is None or current.session_id != session.session_id
+                or current.selected_presence == 'music_only'
+                or (getattr(moment, 'session_opening', None) is not None
+                    and moment.session_opening.presence == 'music_only')
                 or current.selected_announcement_output not in {'ha_speaker', 'both'}):
             return
         captured = manager.dj_settings_fence_token(session.owner_profile_id)
@@ -66,9 +69,13 @@ def connect_automatic(hass, runtime, session, identity, headers):
 
 async def async_play(hass, authority, payload):
     # No arbitrary text, entity, URL or retained/private conversation playback.
+    # Historical DJMoments use an exact owner entry, and only a deliberate replay.
     reference = payload.get('reference') if type(payload) is dict else None
-    if (type(reference) is not dict or set(reference) != {'session_id', 'moment_id'}
+    if (type(reference) is not dict or set(reference) not in (
+            {'session_id', 'moment_id'}, {'session_id', 'entry_id'})
+            or ('entry_id' in reference and payload.get('intent') != 'manual')
             or type(payload.get('target')) is not str or payload['target'] not in {'ha_speaker', 'both'}
+            or payload.get('processor') != 'ha_configured'
             or payload.get('contract_version') != 3):
         return {'success': False, 'error': 'invalid_request'}, 400
     automatic = _automatic_publication.get()
@@ -80,33 +87,44 @@ async def async_play(hass, authority, payload):
     original = output_policy(hass, runtime)
     if not original.speaker_available and payload['target'] != 'both':
         return {'success': False, 'error': 'announcement_speaker_unavailable'}, 409
-    speaker = configured_announcement_speaker(runtime)
     result, status = await async_handle_prepare(hass, payload, headers=authority.headers,
                                                _speaker_operation=True)
     descriptor = result.get('session_speech', {})
     if status != 200 or descriptor.get('audio_state') != 'ready':
         return result, status
-    owner = authority.context.profile_id
-    asset_id = descriptor['audio_reference']['asset_id']
-    asset = get_private_tts_audio(hass, asset_id, owner)
-    if not original.speaker_available:
-        return {'success': True, 'session_speech': descriptor,
-                'delivery': {'ha_speaker':'unavailable', 'speaker_reason':original.reason,
-                             'local':'ready', 'audible':'not_proven'}}, 200
-
     def guard():
         if payload.get('intent') == 'automatic':
             automatic[1]()
         authority.validate_now()
+        if output_policy(hass, runtime).revision != original.revision:
+            raise PermissionError('announcement_target_changed')
+    return await deliver_prepared(hass, authority, descriptor, target=payload['target'],
+                                  original=original, source_guard=guard)
+
+
+async def deliver_prepared(hass, authority, descriptor, *, target, original,
+                           source_guard, result_key='session_speech'):
+    """One existing bounded media owner for Moment replay and literal previews."""
+    runtime = authority.runtime
+    owner = authority.context.profile_id
+    speaker = configured_announcement_speaker(runtime)
+    asset_id = descriptor['audio_reference']['asset_id']
+    asset = get_private_tts_audio(hass, asset_id, owner)
+    def guard():
+        source_guard()
         asset.admission()
         if output_policy(hass, runtime).revision != original.revision:
             raise PermissionError('announcement_target_changed')
     guard()
+    if not original.speaker_available:
+        return {'success': True, result_key: descriptor,
+                'delivery': {'ha_speaker':'unavailable', 'speaker_reason':original.reason,
+                             'local':'ready', 'audible':'not_proven'}}, 200
     base_url = await _async_ha_base_url(hass, runtime.config)
     if not base_url:
         guard()
-        if payload['target'] == 'both':
-            return {'success': True, 'session_speech': descriptor,
+        if target == 'both':
+            return {'success': True, result_key: descriptor,
                     'delivery': {'ha_speaker': 'unavailable',
                                  'speaker_reason': 'speech_media_url_unavailable',
                                  'local': 'ready', 'audible': 'not_proven'}}, 200
@@ -130,14 +148,14 @@ async def async_play(hass, authority, payload):
             # retries from dispatching again; never report failed as safe-to-retry.
             asset.speaker_grants.pop(grant, None)
             failed = {'success': False, 'error': 'speaker_delivery_unknown',
-                    'delivery': {'ha_speaker': 'unknown', 'local':'ready' if payload['target']=='both'
+                    'delivery': {'ha_speaker': 'unknown', 'local':'ready' if target=='both'
                                  else 'not_requested', 'audible': 'not_proven'}}
-            if payload['target'] == 'both':
-                failed['session_speech'] = descriptor
+            if target == 'both':
+                failed[result_key] = descriptor
             return failed, 503
     projected = dict(descriptor)
-    if payload['target'] != 'both':
+    if target != 'both':
         projected.pop('audio_reference', None)
-    return {'success': True, 'session_speech': projected,
-            'delivery': {'ha_speaker': 'queued', 'local': 'ready' if payload['target'] == 'both'
+    return {'success': True, result_key: projected,
+            'delivery': {'ha_speaker': 'queued', 'local': 'ready' if target == 'both'
                          else 'not_requested', 'audible': 'not_proven'}}, 200

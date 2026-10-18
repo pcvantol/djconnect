@@ -116,6 +116,14 @@ to qualify. An insecure browser gets an explicit unsupported state, not old cryp
 | Shared semantics | Authorized NowPlaying/Flow/Forecast/Moments, guest QR/reactions when implemented/qualified | Same meaning/rights through common renderer, no Cast-specific Flow/Forecast/guest backend |
 | Stop/recovery | Browser close only ends that connection/view; share/session controls remain owner-only | Host adapter has sender, receiver-app, idle and handoff lifecycle that needs explicit adaptation |
 
+For the selected Core display-admission draft, ordinary-browser navigation has an
+explicit [HA/proxy trust handoff](VIBECAST_DISPLAY_ADMISSION_V1.md#core-route-decision-explicit-trust-handoff-joint-review-still-open).
+Only the independently authenticated initial raw entry is initiated; selected HA
+must return direct200. Bootstrap cannot promise interception of later HTTP/
+content/service-worker redirects or reliable cross-origin readiness/error UI.
+Joint review and real configured-route acceptance remain open; no iframe or
+new deployment is selected. Navigation itself grants no display authority.
+
 Existing receiver URL must keep serving its Cast entry, never redirect to the QR
 start page. Browser route must not load CAF as a requirement. Cast hardware and
 AppID acceptance cannot block independent bootstrap source/build/CD delivery.
@@ -204,3 +212,11 @@ configuration or grant DNS rights. Google's [receiver core features](https://dev
 are a lifecycle/idle reference, not actual CAF acceptance. Apple [TN3179](https://developer.apple.com/documentation/technotes/tn3179-understanding-local-network-privacy)
 is the local permission reference; JS-rendered SDK details need rechecking in
 Apple implementation. No samples' movable action tags are adopted as CI policy.
+
+## Selected Core display-admission review
+
+Owner6222775045 selects the existing Core writer for
+[DJC-CORE-VIBECAST-DISPLAY-ADMISSION-V1-20261016](VIBECAST_DISPLAY_ADMISSION_V1.md).
+That contract records the exact current trust-anchor gap, proposed external route,
+separate A/B states and controlled legacy-end inventory before runtime. It is
+NOT_FROZEN; it creates no live endpoint, consumer adoption or deployment.

@@ -1,5 +1,86 @@
 # DJConnect Repository Status
 
+18October current corrective checkpoint: Golden57reports/36families/151steps,
+12Core findings and19actual-quality steps OPEN. Album trial6 generated eight
+real proposals, all independently editorial NO_GO; its one technically accepted
+original→new mistranslation is now a causal regression. Seventeen album owner
+tests and independent scoped source review PASS; no new actual quality GO.
+The installed HA-dev artifact is now **778610708c2a…**, a minimal five-file
+history-entry-v2 correction on the previous3a894…base; it includes no newer
+album/opening narration. Exact199containerfiles and paired v1/v2 reads match. Apple reports installed2
+iPad lifecycle/read/reopen and MacBook read/reopen PASS. Full Core host2557
+testsPASS/seven existing skips; no actual narrative quality or release GO.
+Protected release, HA-prod, the original404 and broader native/audio gates remain
+separate. [History evidence](docs/verification/HISTORY_ENTRY_COMPATIBILITY_20261018.md),
+[album evidence](docs/verification/ALBUM_NARRATION_20261018.md).
+
+Earlier checkpoints below are historical, not the current aggregate inventory.
+
+18October album follow-up: actual HA-dev date-only Symphonic Tales publications
+expose missing album research. The same expression owner now resolves an exact
+public album/artist and assesses the full story. Golden55/36/150 retains12Core
+and19actual-quality gates OPEN; trial1 has zero accepted publications and no
+editorial GO. [Current evidence](docs/verification/ALBUM_NARRATION_20261018.md).
+
+18October Session welcome follow-up: one server-owned opening captures the
+confirmed start Mood/Persona/Presence, persists once and denies automatic speech
+at Music-only. Eight owning tests cover320 start combinations, storage retry and
+lifecycle/settings races. Golden54/36/148 retains12Core and18actual-quality gates
+OPEN. [Current evidence](docs/verification/SESSION_OPENING_20261018.md).
+
+18October named-artist follow-up: directed exact-artist lookup and confirmed
+five-language failure text repair the observed Nirvana/Pearl Jam query failures.
+Golden53reports/36families/146steps; original two replies bind distinct turns.
+No installed playback repair is claimed. [Cause and tests](docs/verification/ASK_DJ_NAMED_ARTIST_FAILURE_20261018.md).
+
+18October catalogue follow-up: artist/genre options now publish one short intro
+and one playable collection. Golden51reports/36families/143steps; twelve Core
+and seventeen actual-quality findings remain OPEN, including the original
+Metallica phone-speech failure. [Repair and evidence boundary](docs/verification/ASK_DJ_PLAYABLE_OPTIONS_20261018.md).
+
+18October speech follow-up: the existing configured voice-preview design now has
+a local paired producer, five-language literals and owner fixtures. Golden adds
+its route as step140; protected delivery, installed/provider/native/listening
+acceptance remain OPEN. No narrative-quality gate is closed by this addition.
+
+Current follow-up — 18 October: the privately installed HA-dev candidate includes
+researched narration, four Presence levels and the shared local/HA speech
+preparation. Its exact artifact is `3a89473e2c9b…`, not a protected release.
+The newer producer-recording and Forecast-language repairs remain local.
+Golden currently binds **49 reports,36 families,140 steps**; **eleven Core findings
+and17 actual-quality steps remain OPEN**. Historical trial8 produced one individually accepted producer story; the
+latest fixed trial9 has no editorial GO. Neither qualifies a Persona/Mood matrix
+or all-family publication. Both concrete credit-scope defects now have causal
+regressions; broad quality remains OPEN.
+[Current qualification and remaining gates](docs/verification/PUBLIC_ARTIST_NARRATION_20261017.md#current-repair-and-evidence-boundary--18-october).
+
+
+
+Current physical history/widget intakes remain OPEN; their owner contracts and
+Golden scheduling correction are recorded in [18October readback](docs/verification/ACTIVE_SESSION_HISTORY_PASSIVE_READBACK_20261018.md).
+
+## Current: combined Core recovery PR preparation — 17 October 2026
+
+Existing sole Core writer combines the Ask DJ correction, VibeCast glass and
+existing display-admission work in draft PR1197. All three original refs and
+seven initial repair files are recoverable; main retirement1202/1203 remains
+preserved. No protected merge or new release. A private all-WIP candidate was installed
+on HA-dev; the subsequent producer/Forecast repairs are not installed. HA-prod
+remains on protected main.
+[Exact inputs, integration and gates](docs/verification/CORE_BRANCH_CONSOLIDATION_20261017.md).
+
+Current album repairs cover the reported album track-list question and
+Volbeat alternative → playable album offer → explicit follow-up → full album
+context. Dispatch remains distinct from observed playback; an uncertain reply
+still names the chosen album. Five-language owner/fixture and isolated real-HA
+proof do not prove natural Spotify progression or a native/installed fix.
+The earlier committed Golden tracked45reports,36families and135steps. Nine Core findings and17
+real-quality steps remain open, including rich catalog-conversation retention;
+no narrative or release GO is inferred from fixture green. A semantic-read repair now covers free wording/typos through the same qualified
+HA agent; its final paid five-language qualification passes55/55 real questions.
+[Semantic proof and boundaries](docs/verification/ASK_DJ_SEMANTIC_READS_20261017.md). The central release
+evidence collector also has a bounded local >300-file pagination correction.
+
 ## Current: VibeCast receiver end-authority retirement — separate Finalization
 
 Source PR [#1202](https://github.com/pcvantol/djconnect/pull/1202) protected merged as

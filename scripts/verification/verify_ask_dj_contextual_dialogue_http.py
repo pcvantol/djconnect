@@ -43,6 +43,7 @@ from homeassistant.helpers import device_registry, entity_registry, area_registr
 # ruff: noqa: E402
 ROOT = Path(os.environ.get("DJC_SOURCE_ROOT", "/candidate"))
 sys.path.insert(0, str(ROOT))
+from scripts.verification.source_fixture_urls import exclude_non_english_fixture, fixture_host, wikipedia_api_fixture
 from custom_components.djconnect import DJConnectRuntime, register_http_views, _register_developer_services
 from custom_components.djconnect.ask_dj_history import AskDJHistoryManager
 from custom_components.djconnect.domain.backend import BackendProvider
@@ -80,6 +81,10 @@ def configured_entry(identifier, domain, data, subentries=None):
 def hashes():
     files = list((ROOT / "custom_components/djconnect").rglob("*.py"))
     files.append(Path(__file__))
+    files.append(ROOT / 'scripts/verification/personal_dj_narration_probe.py')
+    files.append(ROOT / 'tools/verification/askdj_research_outcomes.py')
+    files.append(ROOT / 'scripts/verification/askdj_semantic_read_golden.py')
+    files.append(ROOT / 'scripts/verification/source_fixture_urls.py')
     return {
         str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(files)
     }
@@ -93,8 +98,62 @@ async def main():
     model = access.get("model") or "gpt-4o-mini"
     max_tokens = access.get("max_tokens", 700)
     assert type(max_tokens) is int and 1 <= max_tokens <= 3000
+    tts_settings = access.get("tts_settings")
     del access
     model_receipts = []
+    public_source_corpus = {}
+    public_generation_spans = {}
+    public_generation_projections = []
+    public_assessment_projections = []
+    def capture_public_sources(value):
+        if isinstance(value, dict):
+            for nested in value.values():
+                capture_public_sources(nested)
+        elif isinstance(value, (tuple, list)):
+            for nested in value:
+                capture_public_sources(nested)
+        elif isinstance(value, str) and "\nData:\n" in value:
+            try:
+                projection = json.loads(value.split("\nData:\n", 1)[1])
+            except ValueError:
+                return
+            research = projection.get("public_music_research") or projection.get("evidence", {}).get("public_music_research", {})
+            from scripts.verification.askdj_contextual_golden import ACTIVE_CASE
+            if research and 'public_music_research' in projection:
+                expected = os.environ.get('DJC_EXPECTED_RESEARCH_CORPUS')
+                if expected:
+                    assert {s['content_hash'] for s in research.get('sources', [])} == {expected}, 'fixed source changed before paid generation'
+                from custom_components.djconnect.ask_dj.dialogue import current_turn
+                turn = current_turn.get()
+                public_generation_projections.append({'case_id':turn.client_id if turn else ACTIVE_CASE.get(),
+                    'host_identity_instruction_count':value.split('\nData:\n',1)[0].count('Host identity:'),
+                    'secondary_telling_action':'Core-owned telling action:' in value.split('\nData:\n',1)[0],
+                    'required_inkijk':'inkijk' in value.split('\nData:\n',1)[0],
+                    'trusted_instructions_sha256':hashlib.sha256(value.split('\nData:\n',1)[0].encode()).hexdigest(),
+                    'editorial_focus':research.get('editorial_focus'),
+                    'source_spans':{source['content_hash']:[span['id'] for span in source['evidence_spans']]
+                        for source in research.get('sources',[])}})
+            elif research and 'evidence' in projection:
+                from custom_components.djconnect.ask_dj.dialogue import current_turn
+                turn = current_turn.get()
+                public_assessment_projections.append({'case_id':turn.client_id if turn else ACTIVE_CASE.get(),
+                    'editorial_focus':research.get('editorial_focus'),
+                    'assessed_answer':projection.get('answer'),
+                    'source_ids':[source['content_hash'] for source in research.get('sources',[])]})
+            for source in research.get("sources", []):
+                if 'untrusted_excerpt' not in source:
+                    spans = source['evidence_spans']
+                    assert isinstance(spans,list) and len({span['id'] for span in spans})==len(spans)
+                    public_generation_spans.setdefault(source['content_hash'], []).extend(spans)
+                    continue
+                excerpt = source.get("untrusted_excerpt", "")
+                fingerprint = hashlib.sha256(excerpt.encode()).hexdigest()
+                assert fingerprint == source.get("content_hash") and len(excerpt) <= 1800
+                public_source_corpus[fingerprint] = source
+                from custom_components.djconnect.ask_dj.public_research import evidence_spans
+                actual = evidence_spans(source)
+                assert all(span in actual for span in public_generation_spans.get(fingerprint, [])), 'generation source span changed'
+
     agent_boundary_fixtures = []
     failures = []
     model_gate = None
@@ -130,16 +189,60 @@ async def main():
         provider_logger.handlers = [observer]
         provider_logger.propagate = False
     original_create = api.responses.create
+    review_bodies = {
+        'en': 'Brian Eno is an English musician and artist.',
+        'nl': 'Brian Eno is een Engelse muzikant en kunstenaar.',
+        'de': 'Brian Eno ist ein englischer Musiker und Künstler.',
+        'fr': 'Brian Eno est un musicien anglais et un artiste.',
+        'es': 'Brian Eno es un músico inglés y artista.',
+    }
+    review_tails = {
+        'en': 'He invented every instrument.', 'nl': 'Hij heeft ieder instrument uitgevonden.',
+        'de': 'Er hat jedes Instrument erfunden.', 'fr': 'Il a inventé tous les instruments.',
+        'es': 'Inventó todos los instrumentos.',
+    }
+    review_narrowed = {
+        'en': 'Brian Eno is a visual artist.', 'nl': 'Brian Eno is een beeldend kunstenaar.',
+        'de': 'Brian Eno ist ein bildender Künstler.', 'fr': 'Brian Eno est un artiste plasticien.',
+        'es': 'Brian Eno es un artista plástico.',
+    }
 
     async def measured_create(**kwargs):
-        if os.environ.get("DJC_SAFETY_PROBE") in {"current_artist", "choice_titles"}:
+        if os.environ.get("DJC_SAFETY_PROBE") in {"current_artist", "choice_titles", "review_recovery"}:
             parts = []
             for message in kwargs.get("input", []):
                 if isinstance(message, dict):
                     content = message.get("content", "")
                     parts.append(content if isinstance(content, str) else "".join(v.get("text", "") for v in content if isinstance(v, dict)))
             prompt = "\n".join(parts)
-            if os.environ.get("DJC_SAFETY_PROBE") == "choice_titles":
+            if os.environ.get("DJC_SAFETY_PROBE") == 'review_recovery':
+                from custom_components.djconnect.ask_dj.dialogue import current_turn
+                turn = current_turn.get()
+                assert turn is not None and turn.client_id.startswith('rr-')
+                _, phase, scenario, language = turn.client_id.split('-')
+                assert phase in {'standalone', 'session'}
+                assert scenario in {'full', 'prefix', 'format', 'claims', 'narrow'}
+                projection = json.loads(prompt.split('\nData:\n', 1)[1])
+                assert not kwargs.get('tools') and kwargs.get('store') is False
+                if 'evidence' not in projection:
+                    fixture_text = review_narrowed[language] if scenario == 'narrow' else review_bodies[language]
+                    if scenario == 'prefix':
+                        fixture_text += ' ' + review_tails[language]
+                elif scenario == 'format':
+                    fixture_text = '{"supported":true,]}'
+                elif scenario == 'claims':
+                    fixture_text = json.dumps({'supported': False, 'unsupported_claims': [projection['answer']]})
+                else:
+                    source = projection['evidence']['public_music_research']['sources'][0]
+                    span = source['evidence_spans'][0]
+                    text = review_bodies[language] if scenario == 'prefix' else projection['answer']
+                    assessment = {'supported': True, 'claim_checks': [{
+                        'text': ' \t' + text + '\n', 'kind': 'fact', 'evidence_ids': [span['id']], 'quote': span['text']}]}
+                    if scenario == 'prefix':
+                        assessment.update(supported=False, unsupported_claims=[review_tails[language]],
+                            supported_prefix=text, prefix_supported=True, prefix_answers_question=True)
+                    fixture_text = json.dumps(assessment)
+            elif os.environ.get("DJC_SAFETY_PROBE") == "choice_titles":
                 assert '"requested_operation": "lookup"' in prompt, "Title follow-ups must not call an agent"
                 assert "Synthetic choice title" not in prompt
                 assert not kwargs.get("tools") and kwargs.get("store") is False
@@ -151,7 +254,8 @@ async def main():
             from openai.types.responses import (Response, ResponseOutputMessage, ResponseOutputText,
                 ResponseOutputItemAddedEvent, ResponseTextDeltaEvent, ResponseOutputItemDoneEvent, ResponseCompletedEvent)
             agent_boundary_fixtures.append({"case":os.environ.get("DJC_SAFETY_PROBE"),"boundary":"external OpenAI response only","paid_model_call":False})
-            text = ('{"intent":"lookup","query":"Within Temptation"}'
+            text = (fixture_text if os.environ.get('DJC_SAFETY_PROBE') == 'review_recovery' else
+                    '{"intent":"lookup","query":"Within Temptation"}'
                     if os.environ.get("DJC_SAFETY_PROBE") == "choice_titles"
                     else "Welk nummer of welke artiest wil je horen?")
             item = ResponseOutputMessage(id="msg_synthetic_clarification",role="assistant",status="completed",type="message",
@@ -164,7 +268,9 @@ async def main():
                 yield ResponseOutputItemDoneEvent.model_construct(type="response.output_item.done",sequence_number=2,output_index=0,item=item)
                 yield ResponseCompletedEvent.model_construct(type="response.completed",sequence_number=3,response=completed)
             return fixture_stream()
-        assert os.environ.get("DJC_SAFETY_PROBE") not in {"previous", "output", "vibecast_end_retired"}, "Safety probes must not call a model"
+        assert os.environ.get("DJC_SAFETY_PROBE") not in {"previous", "output", "release_context", "album_context", "silence_signal", "vibecast_end_retired"}, "Safety probes must not call a model"
+        if os.environ.get("DJC_SAFETY_PROBE") in {"public_research", "album_golden"}:
+            capture_public_sources(kwargs.get("input", []))
         inputs = json.dumps(kwargs.get("input", []), ensure_ascii=False)
         assert not any(
             value in inputs
@@ -177,9 +283,40 @@ async def main():
             )
         )
         assert not kwargs.get("tools") and kwargs.get("store") is False
-        stream = await original_create(**kwargs)
-        receipt = {"input_bytes": len(inputs.encode()), "model": model, "streaming": True}
-        model_receipts.append(receipt)
+        if os.environ.get("DJC_SAFETY_PROBE") == "narration_golden":
+            assert not any(value in inputs for value in ("Wednesday Morning", "1964", "Synthetic artist", "Synthetic recording")), "catalog or private value leaked into a narration model call"
+        golden = os.environ.get("DJC_SAFETY_PROBE") in {"contextual_golden", "full_golden", "narration_golden", "public_research", "semantic_reads", "opening_golden", "album_golden"}
+        receipt = {"input_bytes": len(inputs.encode()), "model": model, "streaming": True,
+                   "maximum_output_tokens":kwargs.get("max_output_tokens")}
+        if golden:
+            from scripts.verification.askdj_contextual_golden import ACTIVE_CASE, MAX_MODEL_CALLS
+            from custom_components.djconnect.ask_dj.dialogue import current_turn
+            owner_turn = current_turn.get()
+            case_id = ACTIVE_CASE.get() or (owner_turn.client_id if owner_turn else None)
+            if case_id is None and os.environ.get("DJC_SAFETY_PROBE") in {"narration_golden", "opening_golden", "album_golden"}:
+                case_id = "proactive-owner-publication"
+            from scripts.verification.askdj_semantic_read_golden import cases as semantic_cases
+            budget = (16 if os.environ.get("DJC_SAFETY_PROBE") in {"opening_golden", "album_golden"} else
+                      16 if os.environ.get("DJC_SAFETY_PROBE") == "public_research" and os.environ.get("DJC_PUBLIC_STYLE_MATRIX") == "1" else
+                      10 if os.environ.get("DJC_SAFETY_PROBE") == "public_research" else
+                      MAX_MODEL_CALLS if os.environ.get("DJC_SAFETY_PROBE") == "contextual_golden" else
+                      len(semantic_cases()) + 2 if os.environ.get("DJC_SAFETY_PROBE") == "semantic_reads" else
+                      6 if os.environ.get("DJC_SAFETY_PROBE") == "narration_golden" and os.environ.get("DJC_RESEARCHED_PRODUCER") == "1" else
+                      18 if os.environ.get("DJC_SAFETY_PROBE") == "narration_golden" and os.environ.get("DJC_RESEARCHED_ARTIST") == "1" else
+                      64 if os.environ.get("DJC_SAFETY_PROBE") == "narration_golden" else 128)
+            if len(model_receipts) >= budget or case_id is None:
+                raise RuntimeError("golden_model_call_budget_or_case_invalid")
+            # Reserve BEFORE I/O: even a timeout/cancellation may have spent credits.
+            receipt.update(case_id=case_id, attempted=True, completed=False)
+            model_receipts.append(receipt)
+        began = time.monotonic()
+        try:
+            stream = await original_create(**kwargs)
+        except BaseException as exc:
+            receipt.update(duration_seconds=round(time.monotonic()-began,3),failure_type=type(exc).__name__)
+            raise
+        if not golden:
+            model_receipts.append(receipt)
         if model_gate is not None:
             model_gate["entered"].set()
             await model_gate["release"].wait()
@@ -187,15 +324,20 @@ async def main():
         async def observed_stream():
             try:
                 async for event in stream:
-                    if event.type == "response.completed":
+                    if event.type in {"response.completed", "response.incomplete", "response.failed"}:
                         response = event.response
                         receipt.update(
+                            completed=event.type == "response.completed",
+                            terminal_event=event.type,
+                            incomplete_reason=response.incomplete_details.reason if response.incomplete_details else None,
                             input_tokens=response.usage.input_tokens if response.usage else None,
                             output_tokens=response.usage.output_tokens if response.usage else None,
                             generated_text=response.output_text,
                         )
                     yield event
             finally:
+                receipt['duration_seconds']=round(time.monotonic()-began,3)
+                receipt.setdefault('terminal_event','stream_closed_without_terminal')
                 await stream.close()
 
         return observed_stream()
@@ -278,6 +420,14 @@ async def main():
                 }
             ],
         )
+        if os.environ.get("DJC_SAFETY_PROBE") == "literal_tts":
+            assert type(tts_settings) is dict and set(tts_settings) <= {"chat_model", "tts_speed"}
+            assert isinstance(tts_settings.get("chat_model"), str)
+            agent_entry = configured_entry("own-model-entry", "openai_conversation",
+                {"api_key": "UNUSED_OWN_LAB_PLACEHOLDER_NOT_SENT"},
+                [{"subentry_id": v.subentry_id, "subentry_type": v.subentry_type, "title": v.title, "data": dict(v.data)} for v in agent_entry.subentries.values()] + [{
+                    "subentry_id": "own-tts-subentry", "subentry_type": "tts",
+                    "title": "Owned literal speech", "data": tts_settings}])
         native_owner = configured_entry("native-service-entry", "djconnect", {
             "device_id": "djconnect-conversation-agent", "client_type": "conversation_agent",
             "profile_id": "profile-a", "music_backend": "spotify_direct", "music_account_id": "source-account",
@@ -317,6 +467,19 @@ async def main():
             STORAGE_VERSION_MINOR,
         )
 
+        tts_entity_id = None
+        if os.environ.get("DJC_SAFETY_PROBE") == "literal_tts":
+            from homeassistant.setup import async_setup_component
+            from homeassistant.components import tts
+            assert await async_setup_component(h, "tts", {})
+            assert await tts.async_setup_entry(h, agent_entry)
+            await h.async_block_till_done()
+            tts_entity_id = next(e.entity_id for e in registry.entities.values()
+                if e.config_entry_id == agent_entry.entry_id and e.config_subentry_id == "own-tts-subentry"
+                and e.domain == "tts")
+            from homeassistant.components.openai_conversation.tts import OpenAITTSEntity
+            assert type(tts.get_engine_instance(h, tts_entity_id)) is OpenAITTSEntity
+
         settings = {
             "id": "own-dialogue-pipeline",
             "name": "Owned Ask DJ",
@@ -325,15 +488,21 @@ async def main():
             "conversation_language": "en",
             "stt_engine": None,
             "stt_language": None,
-            "tts_engine": None,
-            "tts_language": None,
-            "tts_voice": None,
+            "tts_engine": tts_entity_id,
+            "tts_language": "en-US" if tts_entity_id else None,
+            "tts_voice": "marin" if tts_entity_id else None,
             "wake_word_entity": None,
             "wake_word_id": None,
         }
+        lab_pipelines = [settings]
+        if os.environ.get("DJC_PROSODY_FIVE_LANGUAGES") == "1":
+            lab_pipelines += [{**settings, "id": "own-prosody-" + language,
+                               "language": language, "tts_language": locale}
+                              for language, locale in (("nl", "nl-NL"), ("de", "de-DE"),
+                                                       ("fr", "fr-FR"), ("es", "es-ES"))]
         await PipelineStore(
             h, STORAGE_VERSION, STORAGE_KEY, minor_version=STORAGE_VERSION_MINOR
-        ).async_save({"items": [settings], "preferred_item": settings["id"]})
+        ).async_save({"items": lab_pipelines, "preferred_item": settings["id"]})
         await async_setup_pipeline_store(h)
         runtime = DJConnectRuntime(owner, device_token=secrets.token_urlsafe(32))
         runtime.device_status.update(device_id=device, client_type="ios")
@@ -379,7 +548,7 @@ async def main():
             h.data["djconnect"][native_owner.entry_id] = native_runtime
             await storage.async_upsert_device("djconnect-conversation-agent", "conversation_agent", linked_profile_id="profile-a")
             _register_developer_services(h, native_owner, native_runtime)
-        receipts, provider_calls = [], []
+        receipts, provider_calls, mutations = [], [], []
         state = {
             "index": 0,
             "playing": True,
@@ -396,7 +565,7 @@ async def main():
                 "artists": [
                     {
                         "id": "a" * 22,
-                        "name": "Synthetic performer",
+                        "name": "Peter Luts" if os.environ.get("DJC_SAFETY_PROBE") == "contextual_golden" else "Synthetic performer",
                         "uri": "spotify:artist:" + "a" * 22,
                     }
                 ],
@@ -413,6 +582,17 @@ async def main():
             )
         ]
 
+        if os.environ.get("DJC_SAFETY_PROBE") in {"album_context", "semantic_reads"}:
+            for recording in tracks:
+                recording['album'].update(uri='spotify:album:'+'b'*22)
+                recording['artists'][0]['name']='Volbeat'
+
+        if os.environ.get("DJC_SAFETY_PROBE") in {"release_context", "semantic_reads"}:
+            tracks[0]["album"].update(release_date="2008-05-06",release_date_precision="day")
+        named_artist = {'id':'r'*22, 'uri':'spotify:artist:'+'r'*22, 'name':'Armin van Buuren'}
+        named_tracks = [{**track, 'id':c*22, 'uri':'spotify:track:'+c*22,
+                         'artists':[dict(named_artist)], 'name':f'Synthetic named recording {i+1}'}
+                        for i,(c,track) in enumerate(zip(('d','e','f'),tracks,strict=True))]
         if os.environ.get("DJC_SAFETY_PROBE") == "choice_titles":
             tracks = [{**tracks[0], "id": str(i) * 22, "uri": "spotify:track:" + str(i) * 22,
                        "name": f"Synthetic choice title {i}"} for i in range(1, 7)]
@@ -429,10 +609,17 @@ async def main():
         ):
             provider_calls.append({"method": method, "path": path,
                                    **({"body": json} if method in {"POST", "PUT", "DELETE"} else {})})
+            if method in {"POST", "PUT", "DELETE"}:
+                mutations.append({"method":method,"path":path})
             if state.get("provider_unavailable"):
                 raise ConnectionError("Explicit external provider outage fixture")
             parsed = urlparse(path)
             query = parse_qs(parsed.query)
+            if state.get('named_artist_fixture'):
+                if parsed.path == '/search' and query.get('type') == ['artist']:
+                    return {'artists':{'items':[dict(named_artist)]}}
+                if parsed.path == '/search' and query.get('type') == ['track']:
+                    return {'tracks':{'items':named_tracks}}
             if method in {"POST", "PUT", "DELETE"}:
                 if parsed.path == "/me/player/play":
                     if state.get("no_active_output"):
@@ -457,6 +644,17 @@ async def main():
                     state["output_id"] = json["device_ids"][0]
                     state["no_active_output"] = False
                 return {}
+            if os.environ.get('DJC_SAFETY_PROBE') in {'album_context', 'semantic_reads'}:
+                if parsed.path == '/albums/'+'b'*22:
+                    return dict(tracks[0]['album'])
+                if parsed.path == '/albums/'+'b'*22+'/tracks':
+                    return {'items':tracks,'total':len(tracks),'next':None}
+                if parsed.path == '/artists/'+'a'*22+'/albums':
+                    return {'items':[{'id':'c'*22,'uri':'spotify:album:'+'c'*22,
+                        'name':'Beyond Hell/Above Heaven','release_date':'2010','images':[],
+                        'artists':[dict(tracks[0]['artists'][0])],'total_tracks':13}]}
+                if parsed.path == '/search' and query.get('type') == ['artist']:
+                    return {'artists':{'items':[dict(tracks[0]['artists'][0])]}}
             if parsed.path == "/me/player":
                 if os.environ.get("DJC_SAFETY_PROBE") == "current_artist" and state.get("read_gate"):
                     from custom_components.djconnect.ask_dj.dialogue import current_turn
@@ -467,7 +665,7 @@ async def main():
                 if state.get("no_current_item"):
                     return {}
                 return {
-                    "item": tracks[state["index"]],
+                    "item": named_tracks[0] if state.get('named_artist_fixture') else tracks[state["index"]],
                     "is_playing": state["playing"],
                     "progress_ms": state["position_ms"]
                     + (
@@ -544,7 +742,7 @@ async def main():
             recording = {
                 "id": "11111111-1111-1111-1111-111111111111",
                 "title": tracks[state["index"]]["name"],
-                "artist-credit": [{"artist": {"name": "Synthetic performer"}}],
+                "artist-credit": [{"artist": {"name": tracks[state["index"]]["artists"][0]["name"]}}],
             }
             if path.startswith("isrc/"):
                 return {"recordings": [recording]}
@@ -561,7 +759,7 @@ async def main():
                                     {
                                         "target-type": "artist",
                                         "type": "composer",
-                                        "artist": {"name": "Brian Eno"},
+                                        "artist": {"name": "Peter Luts" if os.environ.get("DJC_SAFETY_PROBE") == "contextual_golden" else "Brian Eno"},
                                     }
                                 ],
                             },
@@ -629,6 +827,9 @@ async def main():
 
                 async def call(path, data, *, label, expected=200):
                     began = asyncio.get_running_loop().time()
+                    if os.environ.get("DJC_SAFETY_PROBE") in {"full_golden", "semantic_reads"}:
+                        from scripts.verification.askdj_contextual_golden import ACTIVE_CASE
+                        ACTIVE_CASE.set(data.get("client_message_id") or label)
                     response = await client.post(
                         "/api/djconnect/v1/" + path, headers=headers, json={**identity, **data}
                     )
@@ -639,6 +840,7 @@ async def main():
                             "path": path,
                             "request": data,
                             "status": response.status,
+                            "expected_status": expected,
                             "cache_control": response.headers.get("Cache-Control"),
                             "latency_ms": round((asyncio.get_running_loop().time() - began) * 1000),
                             "body": body,
@@ -648,7 +850,7 @@ async def main():
                         Path("/lab/failure.json").write_text(json.dumps({
                             "qualification": "FAIL", "case": label, "status": response.status,
                             "source_hashes": hashes(), "core_transports": receipts,
-                            "model_calls": model_receipts, "safe_failures": failures,
+                            "model_calls": model_receipts, "paid_model_calls":len(model_receipts), "safe_failures": failures,
                         }, ensure_ascii=False, indent=2) + "\n")
                         print(jsonlib({"case": label, "status": response.status, "error": body.get("error")}), flush=True)
                     assert response.headers.get("Cache-Control") == "no-store", label
@@ -685,12 +887,158 @@ async def main():
                                 .get("metrics", {})
                                 .get("agent_calls"),
                                 "intent": body.get("intent"),
-                                "text": body.get("text", "")[:450],
+                                "text": "[redacted]" if os.environ.get("DJC_SAFETY_PROBE") in {"contextual_golden", "full_golden"} else body.get("text", "")[:450],
                             }
                         ),
                         flush=True,
                     )
                     return body
+
+                if os.environ.get('DJC_SAFETY_PROBE') == 'review_recovery':
+                    from custom_components.djconnect.ask_dj import public_research
+                    from custom_components.djconnect.ask_dj.dialogue import source_scope
+                    from custom_components.djconnect.session_speech import resolve_dialogue
+                    async def source_fixture(fetch, url, **kwargs):
+                        await fetch.guard()
+                        fetch.requests += 1
+                        if fixture_host(url) == 'en.wikipedia.org' and wikipedia_api_fixture(url):
+                            return 200, json.dumps({'query':{'pages':[{
+                                'title':'Brian Eno', 'extract':'<p>Brian Eno is an English musician and artist.</p>',
+                                'pageprops':{'wikibase-shortdesc':'English musician'},
+                                'revisions':[{'revid':123456}]}]}}), url
+                        return 404, '', url
+                    rows=[]
+                    with patch.object(public_research.PublicFetch, 'request', source_fixture):
+                        for phase in ('standalone','session'):
+                            context=None
+                            if phase=='session':
+                                started=await call('session/start',{'mood':'groove','dj_persona':'home_dj','language':'en'},
+                                    label='review-recovery-session-start',expected=201)
+                                context={'session_id':started['session']['session_id']}
+                            for language in review_bodies:
+                                for scenario in ('full','prefix','format','claims','narrow'):
+                                    identifier='rr-'+phase+'-'+scenario+'-'+language
+                                    body=await ask('Who is Brian Eno?',identifier,context=context,language=language)
+                                    assert body['conversation']['metrics']['agent_calls']==2
+                                    expected_state={'full':'full_answer_supported','prefix':'supported_prefix',
+                                        'format':'assessment_format_invalid','claims':'claims_unverified',
+                                        'narrow':'claims_unverified'}[scenario]
+                                    assert body['public_research_status']['answer_state']==expected_state
+                                    assert body['public_research_status']['wikipedia']=='fetched'
+                                    if scenario in {'full','prefix'}:
+                                        assert body['text']==review_bodies[language]
+                                        assert body['knowledge_basis']=='fetched_public_music_research_v1'
+                                        if scenario=='prefix':
+                                            assert body['research_answer_qualification']=='supported_prefix_v1'
+                                        profile=h.data['djconnect']['djconnect_profile_platform'].household.profiles['profile-a']
+                                        descriptor,_=await resolve_dialogue(h,history,'profile-a',
+                                            body['session_speech']['reference'],profile_source=source_scope(profile))
+                                        assert ''.join(segment['text'] for segment in descriptor['segments'])==body['text']
+                                    else:
+                                        assert body['text']==public_research.unavailable_answer(language,answer_unverified=True)
+                                        assert body['knowledge_basis']=='public_research_unqualified'
+                                        assert not body.get('sources')
+                                    saved=await durable_history()
+                                    assert saved['messages'][-1]['text']==body['text']==body['assistant_message']['text']
+                                    assert 'claim_checks' not in json.dumps(body)
+                                    assert not body.get('playback_actions')
+                                    rows.append({'case':identifier,'phase':phase,'language':language,
+                                        'scenario':scenario,'answer_state':expected_state,'history_and_speech_identity':True})
+                            if phase=='session':
+                                await call('session/end',context,label='review-recovery-session-end')
+                    assert len(rows)==50 and len(agent_boundary_fixtures)==100
+                    assert not model_receipts and not mutations
+                    assert hashes()==initial_source_hashes
+                    Path('/lab/review-recovery.json').write_text(jsonlib({
+                        'qualification':'REAL_PAIRED_HA_REVIEW_RECOVERY_EXTERNAL_AGENT_AND_SOURCE_FIXTURES',
+                        'source_unchanged':True,'source_hashes':initial_source_hashes,
+                        'pairing':'ordinary_device_token_minted_persisted','cases':rows,
+                        'agent_boundary_fixture_calls':len(agent_boundary_fixtures),'paid_model_calls':0,
+                        'playback_mutations':0,'core_transports':receipts,'narrative_quality':'NOT_RUN',
+                        'installed':'NOT_RUN','native':'NOT_RUN','audible':'NOT_RUN'})+'\n')
+                    await async_shutdown_persistence(h)
+                    await h.async_stop(force=True)
+                    await api.close()
+                    return
+
+                if os.environ.get("DJC_SAFETY_PROBE") == "public_research":
+                    answers = []
+                    research_failures = []
+                    from custom_components.djconnect.ask_dj import public_research
+                    original_research_http = public_research.PublicFetch.request
+                    english_only = os.environ.get("DJC_ENGLISH_REFERENCE_ONLY") == "1"
+                    if english_only:
+                        async def english_reference(fetch, url, **kwargs):
+                            if exclude_non_english_fixture(url):
+                                await fetch.guard()
+                                fetch.requests += 1
+                                return 404, "", url
+                            return await original_research_http(fetch, url, **kwargs)
+                        public_research.PublicFetch.request = english_reference
+                    style_matrix = os.environ.get("DJC_PUBLIC_STYLE_MATRIX") == "1"
+                    public_cases = (
+                        ("public-peter-nl", "Wie is Peter Luts?", "nl"),
+                        ("public-eno-en", "Tell me about Brian Eno", "en"),
+                        ("public-ostinato-de", "Was ist ein Ostinato?", "de"),
+                        ("public-coldplay-fr", "Qui sont les membres de Coldplay ?", "fr"),
+                        ("public-nevermind-es", "Háblame de Nevermind", "es"),
+                    )
+                    personas = ("home_dj", "radio_dj", "club_dj", "festival_dj", "home_dj")
+                    moods = (40, 70, 10, 95, 70)
+                    if style_matrix:
+                        settings = [(persona, mood) for persona in ("home_dj", "radio_dj", "club_dj", "festival_dj") for mood in (10, 95)]
+                        public_cases = tuple((f"style-{persona}-{mood}", "Wie is Brian Eno?", "nl") for persona, mood in settings)
+                        personas, moods = zip(*settings)
+                    sys.path.insert(0, str(ROOT / "tools/verification"))
+                    from askdj_research_outcomes import classify_answer
+                    for case_index, (identifier, question, locale) in enumerate(public_cases):
+                        body = await ask(question, identifier,
+                                         context={"thread_id": "public-research"}, language=locale,
+                                         dj_persona=personas[case_index], mood=moods[case_index])
+                        Path("/lab/public-research-progress.json").write_text(jsonlib({
+                            "status": "IN_PROGRESS", "case": identifier, "knowledge_basis": body.get("knowledge_basis"),
+                            "model_calls": model_receipts, "research_status": body.get("public_research_status"),
+                            "source_unchanged": hashes() == initial_source_hashes}) + "\n")
+                        wiki = [v for v in body.get("sources", []) if v.get("provider") == "Wikipedia"]
+                        good = (body.get("knowledge_basis") == "fetched_public_music_research_v1"
+                                and bool(wiki and wiki[0].get("revision_url"))
+                                and body["conversation"]["metrics"]["agent_calls"] == 2)
+                        if not good:
+                            research_failures.append(identifier)
+                        assert "untrusted_excerpt" not in json.dumps(body)
+                        if english_only and good:
+                            assert all(source.get("language") == "en" for source in wiki)
+                        answers.append({"id": identifier, "question": question, "locale": locale,
+                                        "answer": body["text"], "sources": body["sources"],
+                                        "style": body["conversation"]["style"],
+                                        "status": "PASS" if good else "FAIL",
+                                        "metrics": body["conversation"]["metrics"],
+                                        "answer_qualification": classify_answer(body),
+                                        "recovery_marker": body.get("research_answer_qualification"),
+                                        "full_answer_accepted": good and not body.get("research_answer_qualification"),
+                                        "editorial_acceptance": "NOT_RUN"})
+                    assert not mutations, mutations
+                    assert public_source_corpus, "missing_actual_public_source_corpus"
+                    if style_matrix:
+                        assert len(public_source_corpus) == 1, "style-comparison-requires-the-same-source"
+                    Path("/lab/public-research.json").write_text(jsonlib({
+                        "status": "FAIL" if research_failures else "PASS", "scope": "real isolated HA pairing/shared Ask DJ/Wikipedia/scoped OpenAI",
+                        "english_only_source_fixture": english_only, "style_matrix": style_matrix,
+                        "qualification": "TECHNICAL_SOURCE_GROUNDING_ONLY",
+                        "editorial_acceptance": "NOT_RUN",
+                        "supported_prefix_cases": [r["id"] for r in answers
+                            if r["answer_qualification"] == "supported_prefix"],
+                        "source_corpus": list(public_source_corpus.values()), "failed": research_failures,
+                        "generation_projections":public_generation_projections,
+                        "assessment_projections":public_assessment_projections,
+                        "configured_maximum_tokens":max_tokens,
+                        "answers": answers, "paid_model_calls": len(model_receipts),
+                        "model_calls": model_receipts, "core_transports": receipts,
+                        "source_hashes": initial_source_hashes, "source_unchanged": hashes() == initial_source_hashes,
+                        "native": "NOT_RUN", "installed": "NOT_RUN", "audible": "NOT_RUN",
+                    }) + "\n")
+                    assert not research_failures, research_failures
+                    return
 
                 if os.environ.get("DJC_SAFETY_PROBE") == "choice_titles":
                     before_hashes = hashes()
@@ -737,7 +1085,7 @@ async def main():
                         "qualification":"ISOLATED_REAL_HA_PAIRED_CATALOG_TITLES", "cases":10,
                         "source_hashes":before_hashes, "pairing":"ordinary_device_token_minted_persisted",
                         "core_transports":receipts, "provider_calls":provider_calls,
-                        "agent_provider_fixtures":agent_boundary_fixtures, "paid_model_calls":0,
+                        "agent_provider_fixtures":agent_boundary_fixtures, "paid_model_calls":0,"model_calls":[],
                         "followup_model_calls":0, "followup_search_calls":0, "playback_mutations":0,
                         "fixture_boundary":"external OpenAI response and music provider only",
                         "installed":"NOT_RUN", "native":"NOT_RUN"}, ensure_ascii=False, indent=2)+"\n")
@@ -818,7 +1166,7 @@ async def main():
                         "source_hashes": hashes(), "authority": "loaded_registered_entry_and_canonical_server_profile_binding",
                         "native_device_token": None, "ha_user_credentials_issued": 0,
                         "service_transports": service_receipts, "http_transports": receipts,
-                        "provider_calls": provider_calls, "model_calls": model_receipts,
+                        "provider_calls": provider_calls, "model_calls": model_receipts, "paid_model_calls":len(model_receipts),
                         "safe_failures": failures, "installed": "NOT_RUN", "native_apple": "NOT_RUN",
                     }, ensure_ascii=False, indent=2)+"\n")
                     await async_shutdown_persistence(h)
@@ -848,7 +1196,7 @@ async def main():
                             "X-DJConnect-Conversation-Scope": "profile", "X-DJConnect-Client-Message-ID": identifier,
                         })
                         body = await response.json()
-                        receipts.append({"case":identifier,"path":"voice","status":response.status,"body":body})
+                        receipts.append({"case":identifier,"path":"voice","request":{"input":"synthetic_wav","client_message_id":identifier},"status":response.status,"expected_status":200,"cache_control":response.headers.get("Cache-Control"),"body":body})
                         assert response.status == 200, (identifier,response.status,body.get("error"))
                         assert body["transcript"] == voice_text
                         return body
@@ -869,6 +1217,9 @@ async def main():
                                 assert body.get("user_message",{}).get("client_message_id",identifier)==identifier
                         # Same transport retry must not create a mutating or model outcome.
                         replay = await ask("welke artiest is dit", f"artist-{phase}-0-text", language="nl")
+                        # The transport attempt has its own receipt ID; the
+                        # actual Core client_message_id remains identical.
+                        receipts[-1]["case"]=f"artist-{phase}-0-text-retry"
                         assert "Above & Beyond" in replay["text"]
                     # A qualified previous playback is selected through the real owner history query.
                     active = await manager.async_get_active("profile-a")
@@ -920,7 +1271,7 @@ async def main():
                     Path("/lab/current-artist.json").write_text(json.dumps({
                         "qualification":"ISOLATED_REAL_HA_TEXT_STT_CURRENT_ARTIST_ZERO_EFFECTS",
                         "source_hashes":hashes(),"pairing":"ordinary_device_token_minted_persisted",
-                        "core_transports":receipts,"provider_calls":provider_calls,"model_calls":model_receipts,
+                        "core_transports":receipts,"provider_calls":provider_calls,"model_calls":model_receipts,"paid_model_calls":len(model_receipts),
                         "agent_provider_fixtures":agent_boundary_fixtures,
                         "published_moments":moment_receipt,"effects":mutations,"installed":"NOT_RUN",
                         "provider_boundary":"external music and speech fixtures only",
@@ -1001,9 +1352,9 @@ async def main():
                     Path("/lab/previous-safety-fixed.json").write_text(json.dumps({
                         "qualification": "CORE_PAIRED_INFORMATIONAL_PREVIOUS_NO_EFFECT",
                         "source_hashes": hashes(), "pairing": "ordinary_device_token_minted_persisted",
-                        "request": "wat was vorige nummer", "response": result,
+                        "request": "wat was vorige nummer", "response": result, "core_transports": receipts,
                         "registered_ha_service": service_receipts,
-                        "effects": mutations, "model_calls": model_receipts, "safe_failures": failures,
+                        "effects": mutations, "model_calls": model_receipts, "paid_model_calls":len(model_receipts), "safe_failures": failures,
                         "provider_boundary": "explicit_external_fixture", "installed": "NOT_RUN",
                     }, ensure_ascii=False, indent=2) + "\n")
                     await async_shutdown_persistence(h)
@@ -1045,9 +1396,9 @@ async def main():
                         "client_message_id": "output-offline", "audio_response": "never"}, label="output-offline", expected=409)
                     assert len([c for c in provider_calls if c["method"] == "PUT" and c["path"].startswith("/me/player/play")]) == len(plays)
                     assert not model_receipts
-                    Path("/lab/output-safety-fixed.json").write_text(json.dumps({"qualification": "REAL_PAIRED_OUTPUT_SELECTION_TRANSFER_EXACT_TARGET",
-                        "source_hashes": hashes(), "pairing": "ordinary_device_token_minted_persisted", "core_transports": receipts,
-                        "provider_calls": provider_calls, "model_calls": model_receipts, "installed": "NOT_RUN"}, ensure_ascii=False, indent=2) + "\n")
+                    Path("/lab/output-safety-fixed.json").write_text(json.dumps({"qualification": "REAL_PAIRED_OUTPUT_SELECTION_TRANSFER_EXACT_TARGET", "pairing":"ordinary_device_token_minted_persisted",
+                        "source_hashes": hashes(), "core_transports": receipts,
+                        "provider_calls": provider_calls, "model_calls": model_receipts, "paid_model_calls":len(model_receipts), "installed": "NOT_RUN"}, ensure_ascii=False, indent=2) + "\n")
                     await async_shutdown_persistence(h)
                     await h.async_stop(force=True)
                     await api.close()
@@ -1068,11 +1419,12 @@ async def main():
                     # Honour the real balanced presence interval after any opening contribution.
                     # Re-observation uses the normal coordinator; no ledger reset or Core mocking.
                     ledger = active.presence_ledger
+                    from custom_components.djconnect.presence_policy import POLICIES
                     remaining = (
                         max(
                             0,
                             (ledger.last_at or 0)
-                            + max(35, ledger.last_read_seconds - 5)
+                            + max(POLICIES[active.selected_presence][0], ledger.last_read_seconds - 5)
                             - ledger.clock(),
                         )
                         + 1
@@ -1140,6 +1492,366 @@ async def main():
                     await call(
                         "session/end", {"session_id": active.session_id}, label=label + "-end"
                     )
+
+                if os.environ.get("DJC_SAFETY_PROBE") == "literal_tts":
+                    active, moment, _ = await start("literal-tts")
+                    from custom_components.djconnect.playback_observation import playback_observation_manager
+                    await playback_observation_manager(h).async_stop("profile-a", active.session_id)
+                    from homeassistant.components import tts
+                    from custom_components.djconnect import speech_processor
+                    entity = tts.get_engine_instance(h, tts_entity_id)
+                    synthesis = []
+                    original_synthesis = entity.async_get_tts_audio
+                    async def measured_synthesis(text, language, options):
+                        synthesis.append({"text_sha256": hashlib.sha256(text.encode()).hexdigest(),
+                            "locale": language, "voice": options.get("voice"), "attempted": True})
+                        return await original_synthesis(text, language, options)
+                    data = {"contract_version": 1, "reference": {"session_id": active.session_id,
+                        "moment_id": moment.moment_id}, "processor": "ha_configured", "voice_preference": "default"}
+                    with patch.object(entity, "async_get_tts_audio", measured_synthesis):
+                        first = await call("speech/prepare", data, label="literal-tts-prepare")
+                        descriptor = first["session_speech"]
+                        assert descriptor["audio_state"] == "ready", descriptor.get("reason")
+                        assert "".join(v["text"] for v in descriptor["segments"]) == moment.content
+                        asset = descriptor["audio_reference"]["asset_id"]
+                        second = await call("speech/prepare", data, label="literal-tts-repeat")
+                        assert second["session_speech"]["audio_reference"]["asset_id"] == asset
+                        audio_receipts = []
+                        for attempt in range(2):
+                            response = await client.post("/api/djconnect/v1/speech/audio", headers=headers,
+                                json={**identity, "contract_version": 1, "asset_id": asset})
+                            audio = await response.read()
+                            assert response.status == 200 and response.headers.get("Cache-Control") == "no-store"
+                            assert speech_processor._valid_mp3(audio)
+                            audio_receipts.append({"status":response.status,"bytes":len(audio),
+                                "sha256":hashlib.sha256(audio).hexdigest(),"content_type":response.content_type})
+                        assert len(synthesis) == 1 and audio_receipts[0] == audio_receipts[1]
+                    prosody_receipts = []
+                    if os.environ.get("DJC_MOOD_PROSODY") == "1":
+                        # Real configured HA provider comparison, distinct from
+                        # paired bubble proof above and from listening acceptance.
+                        _, selected_voice = speech_processor.configured_processor(h, settings, "en", "default")
+                        samples = {
+                            "en": "Welcome back. The music has room to breathe, and I am here to keep you company. Let's enjoy the next part together.",
+                            "nl": "Fijn dat je er bent. De muziek krijgt de ruimte, en ik houd je gezelschap. Laten we samen van het volgende stukje genieten.",
+                            "de": "Schön, dass du da bist. Die Musik bekommt Raum, und ich begleite dich. Genießen wir gemeinsam den nächsten Teil.",
+                            "fr": "Content de te retrouver. La musique a de la place pour respirer, et je suis là pour te tenir compagnie. Profitons ensemble de la suite.",
+                            "es": "Qué gusto tenerte aquí. La música tiene espacio para respirar y yo estoy aquí para acompañarte. Disfrutemos juntos de lo que sigue.",
+                        }
+                        if os.environ.get("DJC_PROSODY_FIVE_LANGUAGES") != "1":
+                            samples = {"en": samples["en"]}
+                        for locale, sample in samples.items():
+                            _, selected_voice = speech_processor.configured_processor(h,
+                                {"assist_pipeline_id": "own-dialogue-pipeline" if locale == "en" else "own-prosody-" + locale},
+                                locale, "default")
+                            for mood in ("chill", "groove", "energy", "party"):
+                                expression = speech_processor.mood_prosody(entity, mood)
+                                assert expression["state"] == "applied"
+                                audio = await speech_processor.synthesize(entity,
+                                    {**selected_voice, "mood_prosody": expression}, sample)
+                                Path(f"/lab/prosody-{locale}-{mood}.mp3").write_bytes(audio.data)
+                                prosody_receipts.append({"mood": mood, "bytes": len(audio.data),
+                                    "sha256": hashlib.sha256(audio.data).hexdigest(),
+                                    "text_sha256": hashlib.sha256(sample.encode()).hexdigest(),
+                                    "voice": selected_voice["voice_id"], "locale": selected_voice["locale"],
+                                    "language": locale, "audible_acceptance": "NOT_RUN"})
+                    result = {"qualification":"ISOLATED_REAL_HA_PAIRED_OPENAI_LITERAL_TTS",
+                        "status":"PASS", "source_hashes_before": initial_source_hashes, "source_hashes": hashes(),
+                        "source_unchanged": initial_source_hashes == hashes(), "pairing":"ordinary_device_token_minted_persisted",
+                        "tts_model":tts_settings["chat_model"],"synthesis":synthesis,"audio_reads":audio_receipts,
+                        "core_transports":receipts,"model_calls":model_receipts,"paid_model_calls":len(model_receipts),
+                        "paid_tts_attempts":len(synthesis) + len(prosody_receipts),
+                        "mood_prosody": prosody_receipts,
+                        "native":"NOT_RUN","installed":"NOT_RUN","audible":"NOT_RUN"}
+                    if not result['source_unchanged']:
+                        result['status'] = 'FAIL_SOURCE_CHANGED'
+                    await end(active, "literal-tts")
+                    Path("/lab/literal-tts.json").write_text(json.dumps(result,ensure_ascii=False,indent=2)+"\n")
+                    await async_shutdown_persistence(h)
+                    await h.async_stop(force=True)
+                    await api.close()
+                    return
+
+                if os.environ.get("DJC_SAFETY_PROBE") == "album_golden":
+                    from scripts.verification.personal_dj_narration_probe import run_albums
+                    try:
+                        result = await run_albums(h,runtime,manager,identity,headers,model_receipts)
+                    except BaseException as exc:
+                        partial = Path('/lab/album-partial.json')
+                        result = {'status':'FAIL_PREPARATION_OR_EXECUTION','failure_type':type(exc).__name__,
+                            'cases':json.loads(partial.read_text()) if partial.exists() else []}
+                    result.update(source_hashes=hashes(),source_hashes_before=initial_source_hashes,
+                        source_unchanged=initial_source_hashes==hashes(),model_calls=model_receipts,
+                        paid_model_calls=len(model_receipts),core_transports=receipts,
+                        generation_projections=public_generation_projections,
+                        assessment_projections=public_assessment_projections,
+                        native='NOT_RUN',installed='NOT_RUN',audible='NOT_RUN')
+                    Path('/lab/narration-pilot.json').write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n')
+                    assert len(model_receipts)<=16
+                    await async_shutdown_persistence(h)
+                    await h.async_stop(force=True)
+                    await api.close()
+                    return
+
+                if os.environ.get("DJC_SAFETY_PROBE") == "opening_golden":
+                    from scripts.verification.personal_dj_narration_probe import run_openings
+                    try:
+                        result = await run_openings(h, runtime, manager, call, model_receipts)
+                    except BaseException as exc:
+                        partial = Path('/lab/opening-partial.json')
+                        result = {'status':'FAIL_PREPARATION_OR_EXECUTION', 'failure_type':type(exc).__name__,
+                                  'cases':json.loads(partial.read_text()) if partial.exists() else []}
+                    result.update(source_hashes=hashes(), source_hashes_before=initial_source_hashes,
+                        source_unchanged=initial_source_hashes == hashes(),
+                        pairing='ordinary_device_token_minted_persisted', model_calls=model_receipts,
+                        paid_model_calls=len(model_receipts), core_transports=receipts,
+                        native='NOT_RUN', installed='NOT_RUN', audible='NOT_RUN')
+                    Path('/lab/narration-pilot.json').write_text(json.dumps(result, ensure_ascii=False, indent=2)+'\n')
+                    assert len(model_receipts) <= 16
+                    await async_shutdown_persistence(h)
+                    await h.async_stop(force=True)
+                    await api.close()
+                    return
+
+                if os.environ.get("DJC_SAFETY_PROBE") == "narration_golden":
+                    active,moment,_=await start("narration")
+                    from custom_components.djconnect.playback_observation import playback_observation_manager
+                    await playback_observation_manager(h).async_stop("profile-a",active.session_id)
+                    from scripts.verification.personal_dj_narration_probe import run as run_narration
+                    try:
+                        result=await run_narration(h,runtime,manager,active)
+                    except BaseException as exc:
+                        # Preserve actual attempts even when public identity
+                        # preparation fails before the expression rows exist.
+                        Path('/lab/narration-pilot.json').write_text(json.dumps({
+                            'status':'FAIL_PREPARATION_OR_EXECUTION',
+                            'failure_type':type(exc).__name__,
+                            'public_http_status':getattr(exc,'public_http_status',None)
+                                if type(getattr(exc,'public_http_status',None)) is int else None,
+                            'scope':'ISOLATED_EXPRESSION_DIAGNOSTIC_NOT_RELEASE',
+                            'source_hashes':hashes(),'source_hashes_before':initial_source_hashes,
+                            'source_unchanged':initial_source_hashes == hashes(),
+                            'model_calls':model_receipts,'paid_model_calls':len(model_receipts),
+                            'core_transports':receipts,'cases':[],
+                            'native':'NOT_RUN','installed':'NOT_RUN','audible':'NOT_RUN'
+                        },ensure_ascii=False,indent=2)+'\n')
+                        raise
+                    result.update(source_hashes=hashes(),source_hashes_before=initial_source_hashes,
+                        source_unchanged=initial_source_hashes == hashes(),pairing="ordinary_device_token_minted_persisted",
+                        setup_actual_published={'scope':'setup_credit_not_researched_Son_Mieux_story',
+                            'moment_id':moment.moment_id,'text':moment.content,
+                            'realization':dict(moment.generation_metadata).get('realization'),
+                            'flow':any(i.moment_id==moment.moment_id for i in active.planner.output.session_flow.items),
+                            'broadcast':any(m.moment_id==moment.moment_id for m in active.broadcast.state.dj_moments)},
+                        model_calls=model_receipts,paid_model_calls=len(model_receipts),
+                        generation_projections=public_generation_projections,
+                        assessment_projections=public_assessment_projections,
+                        core_transports=receipts,native="NOT_RUN",installed="NOT_RUN",audible="NOT_RUN")
+                    if not result['source_unchanged']:
+                        result['status'] = 'FAIL_SOURCE_CHANGED'
+                    await end(active,"narration")
+                    Path("/lab/narration-pilot.json").write_text(json.dumps(result,ensure_ascii=False,indent=2)+"\n")
+                    await async_shutdown_persistence(h)
+                    await h.async_stop(force=True)
+                    await api.close()
+                    return
+
+                if os.environ.get("DJC_SAFETY_PROBE") == "silence_signal":
+                    active,content,_=await start("silence")
+                    from custom_components.djconnect.paired_live_contract import PAIRED_LIVE_PATH
+                    async def connect():
+                        ws=await client.ws_connect(PAIRED_LIVE_PATH)
+                        assert (await ws.receive_json())["type"]=="auth_required"
+                        await ws.send_json({"type":"auth","protocol_version":1,
+                            "device_id":identity["device_id"],"client_type":identity["client_type"],
+                            "device_token":paired["device_token"]})
+                        assert (await ws.receive_json())["type"]=="auth_ok"
+                        await ws.send_json({"id":1,"type":"djconnect/session/broadcast/subscribe","session_id":active.session_id})
+                        response=await ws.receive_json()
+                        assert response["success"]
+                        return ws,response["result"]["snapshot"]
+                    ws,before=await connect()
+                    ledger=active.presence_ledger.total_published
+                    silence=active.moment_engine.create_silence(session_id=active.session_id,
+                        selected_mood=active.selected_mood,persona=active.dj_persona,locale=active.locale,reason="planned_silence")
+                    active.publish_moment(silence)
+                    sequence=active.broadcast.delivery_sequence
+                    active.publish_moment(silence)
+                    assert active.broadcast.delivery_sequence==sequence
+                    received=None
+                    for _ in range(8):
+                        live_frame=await asyncio.wait_for(ws.receive_json(),5)
+                        if live_frame.get("data",{}).get("event_type")=="dj_moment_published":
+                            received=live_frame["data"]["payload"]
+                            break
+                    assert received and received["dj_moment"]["type"]=="silence"
+                    assert received["dj_moment"]["moment_id"]==silence.moment_id
+                    assert received["native_delivery"]["current_silence_moment_id"]==silence.moment_id
+                    assert received["native_delivery"]["current_moment_id"] is None
+                    assert silence.moment_id not in json.dumps(received["session_speech"])
+                    assert active.presence_ledger.total_published==ledger
+                    expiry=next(a["display_expires_at"] for a in received["native_delivery"]["admissions"] if a["moment_id"]==silence.moment_id)
+                    await ws.close()
+                    resumed,reconnected=await connect()
+                    assert reconnected["native_delivery"]["current_silence_moment_id"]==silence.moment_id
+                    assert next(a["display_expires_at"] for a in reconnected["native_delivery"]["admissions"] if a["moment_id"]==silence.moment_id)==expiry
+                    response=await client.get("/api/djconnect/v1/session/broadcast/"+active.session_id,headers=headers,params=identity)
+                    body=await response.json()
+                    assert response.status==200 and response.headers.get("Cache-Control")=="no-store"
+                    assert body["snapshot"]["native_delivery"]["current_silence_moment_id"]==silence.moment_id
+                    receipts.append({"case":"silence-snapshot","path":"session/broadcast","request":{},"body":body,
+                                     "status":200,"expected_status":200,"cache_control":"no-store"})
+                    await end(active,"silence")
+                    assert active.broadcast.as_dict()["native_delivery"]["current_silence_moment_id"] is None
+                    await resumed.close()
+                    assert not mutations and not model_receipts
+                    Path("/lab/silence-signal.json").write_text(json.dumps({
+                        "qualification":"CORE_PAIRED_SILENCE_LIVE_RECONNECT_ZERO_MODEL",
+                        "source_hashes":hashes(),"pairing":"ordinary_device_token_minted_persisted",
+                        "core_transports":receipts,"model_calls":[],"paid_model_calls":0,
+                        "live_cases":["paired_auth","live_silence","dedup","reconnect_original_expiry","no_speech_budget","session_end"],
+                        "native":"NOT_RUN","installed":"NOT_RUN"},indent=2)+"\n")
+                    await async_shutdown_persistence(h)
+                    await h.async_stop(force=True)
+                    await api.close()
+                    return
+
+                if os.environ.get("DJC_SAFETY_PROBE") == "semantic_reads":
+                    from scripts.verification.askdj_semantic_read_golden import run
+                    async def selected_reference(active):
+                        from custom_components.djconnect.session_conversation import query_service
+                        page = await query_service(h, history).async_timeline_page("profile-a", active.session_id)
+                        entry = next(e for e in page["entries"] if e["kind"] == "playback_observed")
+                        return {"session_id": active.session_id, "entry_id": entry["entry_id"]}
+                    report = await run(hass=h, ask=ask, call=call, start=start, end=end,
+                        selected_reference=selected_reference, state=state, tracks=tracks,
+                        model_receipts=model_receipts, mutations=mutations)
+                    report.update(source_hashes=initial_source_hashes, source_unchanged=hashes() == initial_source_hashes,
+                        pairing="ordinary_device_token_minted_persisted", core_transports=receipts,
+                        provider_calls=provider_calls, effects=mutations)
+                    Path('/lab/semantic-reads.json').write_text(jsonlib(report) + "\n")
+                    assert report["status"] == "PASS", [r["id"] for r in report["cases"] if r["status"] != "PASS"]
+                    await async_shutdown_persistence(h)
+                    await h.async_stop(force=True)
+                    await api.close()
+                    return
+
+                if os.environ.get("DJC_SAFETY_PROBE") == "album_context":
+                    active,moment,_=await start('album-context')
+                    for i,(locale,question) in enumerate((
+                        ('nl','Wie is de artiest van huidig nummer'),
+                        ('en','Who is the artist of the current song?'),
+                        ('de','Wer ist der Künstler des aktuellen Liedes?'),
+                        ('fr','Qui est l’artiste du morceau actuel ?'),
+                        ('es','¿Quién es el artista de la canción actual?'),
+                    )):
+                        answer=await ask(question,'album-current-artist-'+str(i),language=locale)
+                        assert answer['intent']['intent']=='current_artist_information'
+                        assert 'Volbeat' in answer['text'] and tracks[0]['name'] in answer['text']
+                        assert not answer['playback_actions'] and not answer['history_persisted']
+                    for i,(locale,question) in enumerate((
+                        ('nl','Welke nummers staan er nog meer op dit album?'),
+                        ('en','What other songs are on this album?'),
+                        ('de','Welche anderen Lieder sind auf diesem Album?'),
+                        ('fr','Quels autres morceaux sont sur cet album ?'),
+                        ('es','¿Qué otras canciones hay en este álbum?'),
+                    )):
+                        answer=await ask(question,'album-tracks-'+str(i),language=locale)
+                        assert [item['title'] for item in answer['items']]==[t['name'] for t in tracks[1:]]
+                        assert not answer['playback_actions'] and not answer['history_persisted']
+                        assert answer['album_track_observation']['state']=='complete'
+                    assert not mutations and not model_receipts
+                    for locale,question,label in (
+                        ('nl','Heb je een ander album van Volbeat?','Afspelen'),
+                        ('en','Do you have another album by Volbeat?','Play'),
+                        ('de','Hast du ein anderes Album von Volbeat?','Abspielen'),
+                        ('fr','As-tu un autre album de Volbeat ?','Lire'),
+                        ('es','¿Tienes otro álbum de Volbeat?','Reproducir'),
+                    ):
+                        offer=await ask(question,'album-offer' if locale=='nl' else 'album-offer-'+locale,language=locale)
+                        action=offer['playback_actions'][0]
+                        assert action['kind']=='album' and action['context_uri']=='spotify:album:'+'c'*22
+                        assert action['label']==action['button_label']==label
+                    assert not mutations
+                    played=await ask('Ja, die wil ik afspelen.','album-play',language='nl')
+                    assert 'Beyond Hell/Above Heaven' in played['text']
+                    dispatched=[r for r in provider_calls if r['method']=='PUT' and r['path'].split('?')[0]=='/me/player/play']
+                    assert len(dispatched)==1 and dispatched[0]['body']=={'context_uri':action['context_uri']}
+                    await call('ask_dj/message',{'text':'Ja, die wil ik afspelen.',
+                        'client_message_id':'album-play','language':'nl','audio_response':'never'},label='album-play-duplicate',expected=409)
+                    assert len([r for r in provider_calls if r['method']=='PUT'])==1
+                    assert not model_receipts
+                    await end(active,'album-context')
+                    Path('/lab/album-context.json').write_text(json.dumps({
+                        'qualification':'CORE_PAIRED_ALBUM_TRACKS_AND_FROZEN_ALBUM_PLAY',
+                        'source_hashes':hashes(),'pairing':'ordinary_device_token_minted_persisted',
+                        'core_transports':receipts,'model_calls':model_receipts,'paid_model_calls':0,
+                        'provider_calls':provider_calls,'effects':mutations,
+                        'retained_catalogue_conversation':'OPEN','native':'NOT_RUN','installed':'NOT_RUN',
+                        'natural_album_transition':'NOT_RUN_PROVIDER_FIXTURE'},indent=2)+'\n')
+                    await async_shutdown_persistence(h)
+                    await h.async_stop(force=True)
+                    await api.close()
+                    return
+
+                if os.environ.get("DJC_SAFETY_PROBE") == "release_context":
+                    active,moment,_=await start("release-context")
+                    from custom_components.djconnect.session_conversation import query_service
+                    page=await query_service(h,history).async_timeline_page("profile-a",active.session_id)
+                    entry=next(e for e in page["entries"] if e.get("kind")=="playback_observed")
+                    selection={"session_id":active.session_id,"selected_entry":{
+                        "session_id":active.session_id,"entry_id":entry["entry_id"]}}
+                    examples=[("nl","Wanneer is dit nummer uitgekomen?"),
+                              ("nl","Wanneer is huidig nummer uitgekomen"),
+                              ("nl","Wanneer is het huidige nummer uitgekomen?"),
+                              ("en","When was the current song released?"),
+                              ("de","Wann wurde dieser Titel veröffentlicht?"),
+                              ("fr","Quand est sortie cette chanson ?"),
+                              ("es","¿Cuándo salió esta canción?")]
+                    for i,(language,text) in enumerate(examples):
+                        for mode,context in (("current",None),("selected",selection)):
+                            answer=await ask(text,f"release-{i}-{mode}",context,language=language)
+                            assert "Synthetic studio recording" in answer["text"]
+                            assert answer["release_observation"]=={
+                                "state":"known","release_date":"2008-05-06","precision":"day",
+                                "basis":"album_edition","original_release_verified":False}
+                            assert answer["conversation"]["metrics"]["agent_calls"]==0
+                            assert not answer["history_persisted"]
+                    state["index"]=1
+                    answer=await ask("Wanneer is dit nummer uitgekomen?","release-selected-other-current",selection,language="nl")
+                    assert "Synthetic studio recording" in answer["text"] and "Synthetic live recording" not in answer["text"]
+                    assert answer["release_observation"]["state"]=="unknown"
+                    await end(active,"release-context")
+                    assert not mutations and not model_receipts
+                    Path("/lab/release-context.json").write_text(json.dumps({
+                        "qualification":"CORE_PAIRED_CURRENT_SELECTED_RELEASE_METADATA_ZERO_MODEL",
+                        "source_hashes":hashes(),"pairing":"ordinary_device_token_minted_persisted",
+                        "core_transports":receipts,"model_calls":model_receipts,"paid_model_calls":len(model_receipts),
+                        "provider_calls":provider_calls,"effects":mutations},indent=2)+"\n")
+                    await async_shutdown_persistence(h)
+                    await h.async_stop(force=True)
+                    await api.close()
+                    return
+
+                if os.environ.get("DJC_SAFETY_PROBE") == "contextual_golden":
+                    from scripts.verification.askdj_contextual_golden import run
+                    async def playback_reference(active):
+                        from custom_components.djconnect.session_conversation import query_service
+                        page = await query_service(h, history).async_timeline_page("profile-a", active.session_id)
+                        entry = next(e for e in page["entries"] if e.get("kind") == "playback_observed")
+                        return {"session_id": active.session_id, "entry_id": entry["entry_id"]}
+                    report = await run(ask=ask, call=call, start=start, end=end,
+                                       playback_reference=playback_reference,
+                                       mutations=mutations, model_receipts=model_receipts)
+                    report["source_hashes"] = hashes()
+                    Path(os.environ.get("DJC_OUTPUT", "/lab/golden-contextual.json")).write_text(
+                        json.dumps(report, indent=2) + "\n")
+                    await async_shutdown_persistence(h)
+                    await h.async_stop(force=True)
+                    await api.close()
+                    if report["status"] != "PASS":
+                        raise RuntimeError("contextual_golden_failed")
+                    return
 
                 active, moment, target = await start("baseline-archive")
                 # Query the actual existing owner repository projection without mocking its acceptances.
@@ -1390,6 +2102,9 @@ async def main():
                 h.data["djconnect"]["stt_handler"] = speech_provider
 
                 async def voice(identifier, expected=200):
+                    if os.environ.get("DJC_SAFETY_PROBE") == "full_golden":
+                        from scripts.verification.askdj_contextual_golden import ACTIVE_CASE
+                        ACTIVE_CASE.set(identifier)
                     response = await client.post("/api/djconnect/v1/voice", data=wav_bytes, headers={
                         **headers, "Content-Type": "audio/wav", "X-DJConnect-Language": "en",
                         "X-DJConnect-Conversation-Scope": "profile",
@@ -1398,8 +2113,8 @@ async def main():
                     body = await response.json()
                     assert response.status == expected, (identifier, response.status, body.get("error"))
                     assert response.headers.get("Cache-Control") == "no-store"
-                    receipts.append({"case": identifier, "path": "voice", "request": {"input": "synthetic_wav"},
-                        "status": response.status, "cache_control": response.headers.get("Cache-Control"), "body": body})
+                    receipts.append({"case": identifier, "path": "voice", "request": {"input": "synthetic_wav", "client_message_id": identifier},
+                        "expected_status": expected, "status": response.status, "cache_control": response.headers.get("Cache-Control"), "body": body})
                     return body
 
                 voiced = await voice("voice-identity")
@@ -1480,7 +2195,7 @@ async def main():
             "core_transports": receipts,
             "provider_boundary": "explicit_fixture_only",
             "provider_calls": provider_calls,
-            "model_calls": model_receipts,
+            "model_calls": model_receipts, "paid_model_calls":len(model_receipts),
             "source_hashes": hashes(),
             "ha_dev_mutations": 0,
             "mixed_chains": chains,

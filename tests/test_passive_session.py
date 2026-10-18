@@ -212,3 +212,68 @@ class PassiveRequestValidationTests(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(status, 400)
         _, status = await passive.handle(SimpleNamespace(), data)
         self.assertEqual(status, 401)
+
+
+class PassiveOwnerGrantTests(unittest.IsolatedAsyncioTestCase):
+    @classmethod
+    def setUpClass(cls):
+        from tests import test_session_conversation_history as fixtures
+        cls.fixtures = fixtures
+        fixtures.SessionConversationHistoryTest.setUpClass()
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.fixtures.SessionConversationHistoryTest.tearDownClass()
+
+    async def test_surface_isolation_and_stale_snapshot_do_not_renew_or_remove_grants(self):
+        fixture = self.fixtures.SessionConversationHistoryTest()
+        await fixture.asyncSetUp()
+        try:
+            hass, runtime, _history, identity, headers = await fixture.transport_fixture()
+            runtime.entry = SimpleNamespace(entry_id='owner-entry', data=runtime.config, options={})
+            session = await fixture.manager.async_start(owner_profile_id='profile-a', locale='nl')
+            base = {**identity, 'contract_version': 1, 'session_id': session.session_id}
+            # Public source qualification is an explicit external boundary fixture;
+            # actual pairing/Profile/Session/privacy and grant handling execute.
+            with patch('custom_components.djconnect.forecast_imagery.artist_authority',
+                       return_value=lambda: True):
+                widget, status = await passive.handle(hass, {**base, 'surface': 'widget',
+                    'enabled': True, 'os_snapshot_cache': True, 'locked_display': True},
+                    headers=headers, authorize=True)
+                self.assertEqual(status, 200, widget)
+                live, status = await passive.handle(hass, {**base, 'surface': 'live_activity',
+                    'enabled': True, 'os_snapshot_cache': True, 'locked_display': True},
+                    headers=headers, authorize=True)
+                self.assertEqual(status, 200, live)
+                self.assertNotEqual(widget['grant_id'], live['grant_id'])
+                await passive.handle(hass, {**base, 'surface': 'live_activity',
+                    'enabled': False, 'os_snapshot_cache': True, 'locked_display': True},
+                    headers=headers, authorize=True)
+                read = {**base, 'surface': 'widget', 'grant_id': widget['grant_id']}
+                before = session.broadcast.passive_state_observed
+                with patch('time.monotonic', return_value=before[0] + 121), \
+                        patch('time.time', return_value=before[1] + 121):
+                    stale, status = await passive.handle(hass, read, headers=headers)
+                self.assertEqual(status, 200, stale)
+                self.assertEqual(stale['passive_session']['state'], 'stale')
+                self.assertEqual(stale['passive_session']['expires_at'], widget['passive_session']['expires_at'])
+                self.assertEqual(session.broadcast.passive_state_observed, before)
+                self.assertIsNone(stale['passive_session']['now_playing'])
+                self.assertIsNone(stale['passive_session']['contribution'])
+                self.assertEqual(stale['passive_session']['artwork'], [])
+                # Only a new accepted playback observation admits fresh metadata.
+                await fixture.manager.async_update_playback_projection(owner_profile_id='profile-a',
+                    session_id=session.session_id, state='playing', media_identity='spotify:track:'+'B'*22,
+                    title='New observed recording', artist='Synthetic performer',
+                    duration_ms=120000, position_ms=0)
+                fresh, status = await passive.handle(hass, read, headers=headers)
+                self.assertEqual(status, 200, fresh)
+                self.assertEqual(fresh['grant_id'], widget['grant_id'])
+                self.assertEqual(fresh['passive_session']['binding_id'], widget['passive_session']['binding_id'])
+                self.assertEqual(fresh['passive_session']['now_playing']['track'], 'New observed recording')
+                denied, status = await passive.handle(hass, {**base, 'surface': 'live_activity',
+                    'grant_id': live['grant_id']}, headers=headers)
+                self.assertEqual(status, 403, denied)
+                self.assertEqual(denied['error'], 'surface_grant_invalid')
+        finally:
+            await fixture.asyncTearDown()

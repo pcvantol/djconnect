@@ -12,6 +12,14 @@ Selected passive Session projection: DJC-CORE-PASSIVE-SESSION-PROJECTION-V1-2026
 
 Selected shared Profile/Session settings consolidation: DJC-PROFILE-SESSION-SETTINGS-CONSOLIDATION-V1-20261016; six shared Persona/voice/gender/Mood/Presence/announcement_output, protected source delivered contract3 (Core producer only), last explicit accepted choice becomes default, atomic active+default acceptance. Source PROTECTED_MERGED; Core producer and migration work only; Apple/other consumers/joint separately open, no automatic dispatch or whole-family completion. Delivered v13 preserved.
 
+Current maintenance16 combines both preserved maintenance15 inputs in the existing Core draft1197. Original input refs and premerge repair refs are separately pinned; both histories remain immutable. Source LOCAL_COMBINED_DRAFT_PREPARATION, overall OPEN, merge NOT_QUALIFIED, native OPEN, The immutable composition receipt predates the private HA-dev candidate3a89473e; later local producer/Forecast repairs are not installed. Audible/native acceptance remains OPEN. No second writer, consumer writes or automatic dispatch. See `docs/verification/CORE_BRANCH_CONSOLIDATION_20261017.md`.
+
+Current personal-DJ corrective work: LOCAL / UNPUBLISHED; historical SPEECH::CORE::REALIZATION delivery remains preserved, while CORRECTION::CORE::PERSONAL-DJ-EXPERIENCE remains In progress. All-family narrative and actual publication Golden, Track Insight, native and audible acceptance are not established by earlier metadata/type fixtures or the private development install. See `docs/verification/CORE_LANE_REQUIREMENT_RECONCILIATION_20261017.md`. No consumer dispatch or new writer.
+
+Selected Core display-admission: DJC-CORE-VIBECAST-DISPLAY-ADMISSION-V1-20261016; existing WEB::TRUST and WEB::DISPLAY only. TRUST anchor OPEN_JOINT_REVIEW, wire NOT_FROZEN, runtime B_SOFTWARE_QUALIFIED_NOT_INSTALLED; source DRAFT_PR_PUBLISHED_NOT_MERGED, native/TV/joint open. B-only software qualification does not close A or imply installed/native/public-route acceptance. Independently reviewed B may proceed in isolation while A stays unavailable. Original settings delivery and all prior receipts remain preserved; no consumer dispatch or deployment.
+
+A product choice: LIMITED_APP_ATTESTED_REPORTED_ROUTE selected with the stated copied-QR/wrong-scanner destination risk. Independent HA-owner attestation is not claimed; SECURITY_REVIEW/KEY-STATE open, WIRE not frozen and A runtime not implemented. This is no completion, consumer dispatch or deployment.
+
 - `PROJ::INTELLIGENCE::DJ-PRESENCE` — Planned; Independent presence, Mood and Persona; no new dispatch
 - `SLICE::CORE::DJ-PRESENCE-CONTRACT` — Completed; Pin numeric policy/default, capability/schema and producer fixtures
 - `SLICE::CORE::DJ-PRESENCE-POLICY` — Completed; All proactive paths; off/in-flight/no-catch-up/published-only accounting
@@ -47,8 +55,8 @@ Selected shared Profile/Session settings consolidation: DJC-PROFILE-SESSION-SETT
 - `MEDIA::JOINT::SESSION-ARTWORK` — Planned; Core and Apple subject/rights/expiry acceptance
 - `WEB::DOCS` — Completed; Whole web-first documentary design
 - `WEB::DISPOSITION` — Planned; Implement reviewed web-first legacy disposition
-- `WEB::TRUST` — Planned; Qualify browser-bound onboarding and guest trust contract
-- `WEB::DISPLAY` — Planned; Separate HA code and readonly display grant
+- `WEB::TRUST` — In progress; Qualify browser-bound onboarding and guest trust contract
+- `WEB::DISPLAY` — In progress; Separate HA code and readonly display grant
 - `WEB::SHARED` — Planned; Explicit shared Flow NowPlaying Forecast projection
 - `WEB::MEDIA` — Planned; Independent shared artwork and speech grants expiry attribution
 - `WEB::GUEST` — Planned; Invitation redemption guest principal and revocation
@@ -70,5 +78,6 @@ Selected shared Profile/Session settings consolidation: DJC-PROFILE-SESSION-SETT
 - `SETTINGS::CORE::PRODUCER` — Completed; Atomic roaming Profile defaults and effective Session producer; six shared parameters incl announcement_output; no new owning writer or automatic dispatch
 - `SETTINGS::CORE::MIGRATION` — In progress; Qualified legacy migration/removal and owning-lane reconciliation; six shared parameters incl announcement_output; no new owning writer or automatic dispatch
 - `SETTINGS::JOINT::ACCEPTANCE` — Planned; Cross-device six-field effects, persistence and cleanup acceptance; six shared parameters incl announcement_output; no new owning writer or automatic dispatch
+- `CORRECTION::CORE::PERSONAL-DJ-EXPERIENCE` — In progress; Existing personal DJ restoration; source, native, installed and audible outcomes separate
 
 Fresh owner/writer/resource admission is separate from functional prerequisites. Historical writer observations are not current leases.

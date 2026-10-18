@@ -270,6 +270,7 @@ class SpotifyIntentTest(unittest.TestCase):
                 },
             }
             return {
+                "success": True,
                 "playback": {
                     "type": "artist",
                     "artist": "Guns N' Roses",
@@ -318,6 +319,7 @@ class SpotifyIntentTest(unittest.TestCase):
                 },
             }
             return {
+                "success": True,
                 "playback": {
                     "artist": "Above & Beyond",
                     "artist_name": "Above & Beyond",
@@ -352,6 +354,7 @@ class SpotifyIntentTest(unittest.TestCase):
                 "selected": {},
             }
             return {
+                "success": True,
                 "playback": {
                     "type": "artist",
                     "artist": "Red Hot Chili Peppers",

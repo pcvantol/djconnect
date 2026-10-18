@@ -79,6 +79,30 @@ _ALBUM_QUERY_PATTERNS = (
 )
 
 
+
+def listening_request_target(text: str) -> str:
+    """An explicit positive listening request, not a question about music."""
+    value = str(text or "").strip().strip(".!?")
+    patterns = (
+        r"ik\s+wil\s+(?:graag\s+|wel\s+)?(.+?)\s+(?:horen|beluisteren|luisteren)",
+        r"i\s+(?:want|would\s+like)\s+to\s+(?:hear|listen\s+to)\s+(.+)",
+        r"ich\s+(?:möchte|will)\s+(.+?)\s+hören",
+        r"je\s+(?:veux|voudrais)\s+écouter\s+(.+)",
+        r"(?:yo\s+)?quiero\s+escuchar\s+(.+)",
+    )
+    for pattern in patterns:
+        match = re.fullmatch(pattern, value, re.I)
+        if match:
+            target = re.sub(r"^(?:iets van|something by|something from|some by)\s+", "", match[1].strip(), flags=re.I)
+            explicit_kind = re.match(r"^(?:(?:the|het|de|my|mijn)\s+)?(?:album|playlist|afspeellijst|track|song|nummer)\b", target, re.I)
+            if not explicit_kind and re.search(r"\b(?:muziek|music|musik|musique|música|iets|something|etwas|quelque|algo)\b", target, re.I):
+                return ""
+            if (0 < len(target) <= 160
+                    and not re.search(r"[\n\r{}<>]|https?://|spotify:", target, re.I)
+                    and not re.search(r"\b(?:niet|nooit|not|never|nicht|nichts|pas|jamais|no|nunca|about|over|über|sobre)\b", target, re.I)):
+                return target
+    return ""
+
 def parse_spoken_music_request(text: str) -> dict[str, str | None]:
     """Parse a spoken DJConnect music request into a Spotify search target."""
     query = clean_music_query(text)
@@ -109,6 +133,8 @@ def parse_spoken_music_request(text: str) -> dict[str, str | None]:
     if track:
         title, artist = track
         return _parsed_request("track", _query_with_artist(title, artist), title=title, artist=artist)
+    if (target := listening_request_target(text)):
+        return parse_spoken_music_request("play " + target)
     artist = extract_artist_query(query)
     return _parsed_request("artist", artist, artist=artist)
 

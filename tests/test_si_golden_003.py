@@ -95,8 +95,8 @@ class SIGolden003Test(unittest.TestCase):
             any(entry.moment_id == capture.realized_moment.moment_id for entry in capture.session_flow)
         )
         self.assertTrue(capture.broadcast_contains_realized_moment)
-        self.assertFalse(
-            any(entry.event_type == "dj_moment_published" for entry in capture.broadcast_publications)
+        self.assertEqual(
+            sum(entry.event_type == "dj_moment_published" for entry in capture.broadcast_publications),1
         )
 
     def test_immutable_capture_passes_structural_validation(self) -> None:

@@ -177,6 +177,9 @@ class PlaybackObservationTest(unittest.TestCase):
             session = await manager.async_start(
                 owner_profile_id="profile-a", music_backend="spotify_direct", locale="nl"
             )
+            # This short-slot mechanism probe explicitly selects Presenter.
+            session = await manager.async_update_presence(owner_profile_id=session.owner_profile_id,
+                session_id=session.session_id, selected_presence="presenter")
             def observed(uri, position):
                 return types.SimpleNamespace(
                     is_playing=True, state="playing", media_identity=uri,
@@ -228,6 +231,9 @@ class PlaybackObservationTest(unittest.TestCase):
             session = await manager.async_start(
                 owner_profile_id="profile-a", music_backend="spotify_direct", locale="nl"
             )
+            # This short-slot mechanism probe explicitly selects Presenter.
+            session = await manager.async_update_presence(owner_profile_id=session.owner_profile_id,
+                session_id=session.session_id, selected_presence="presenter")
             runtime = object()
             def observed(uri, position):
                 return types.SimpleNamespace(
@@ -372,6 +378,9 @@ class PlaybackObservationTest(unittest.TestCase):
             session = await self.manager.async_start(
                 owner_profile_id="profile-a", music_backend="spotify_direct"
             )
+            # This short-slot mechanism probe explicitly selects Presenter.
+            session = await self.manager.async_update_presence(owner_profile_id=session.owner_profile_id,
+                session_id=session.session_id, selected_presence="presenter")
             self.spotify.SpotifyBackend.responses = [
                 self._observation("spotify:track:a"),
                 self._observation("spotify:track:b"),
@@ -418,6 +427,9 @@ class PlaybackObservationTest(unittest.TestCase):
                 music_backend="spotify_direct",
                 session_start_strategy=self.runtime.SessionStartStrategy.DISCOVER,
             )
+            # This short-slot mechanism probe explicitly selects Presenter.
+            session = await self.manager.async_update_presence(owner_profile_id=session.owner_profile_id,
+                session_id=session.session_id, selected_presence="presenter")
             self.spotify.SpotifyBackend.responses = [
                 self._observation("spotify:track:a"),
                 self._observation("spotify:track:b"),
@@ -473,6 +485,9 @@ class PlaybackObservationTest(unittest.TestCase):
             session = await self.manager.async_start(
                 owner_profile_id="profile-a", music_backend="spotify_direct"
             )
+            # This short-slot mechanism probe explicitly selects Presenter.
+            session = await self.manager.async_update_presence(owner_profile_id=session.owner_profile_id,
+                session_id=session.session_id, selected_presence="presenter")
             self.spotify.SpotifyBackend.responses = [
                 self._observation("spotify:track:a"),
                 self._observation("spotify:track:b"),

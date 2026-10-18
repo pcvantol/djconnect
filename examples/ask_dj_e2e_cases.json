@@ -1280,6 +1280,11 @@
       "intent_category": "hybrid",
       "action": "play_music",
       "required_process_text": true
+    },
+    "fixture_bindings": {
+      "artiest": [
+        "Nirvana"
+      ]
     }
   },
   {
@@ -1294,6 +1299,11 @@
       "intent_category": "hybrid",
       "action": "play_music",
       "required_process_text": true
+    },
+    "fixture_bindings": {
+      "nummer": [
+        "Zombie"
+      ]
     }
   },
   {
@@ -1308,6 +1318,14 @@
       "intent_category": "hybrid",
       "action": "play_music",
       "required_process_text": true
+    },
+    "fixture_bindings": {
+      "artiest": [
+        "Metallica"
+      ],
+      "nummer": [
+        "One"
+      ]
     }
   },
   {
@@ -1322,6 +1340,11 @@
       "intent_category": "hybrid",
       "action": "play_music",
       "required_process_text": true
+    },
+    "fixture_bindings": {
+      "nummer": [
+        "Nothing Else Matters"
+      ]
     }
   },
   {
@@ -1374,6 +1397,11 @@
         "artist_albums"
       ],
       "forbid_spotify_mutations": true
+    },
+    "fixture_bindings": {
+      "artiest": [
+        "Radiohead"
+      ]
     }
   },
   {
@@ -1395,6 +1423,11 @@
         "artist_albums"
       ],
       "forbid_spotify_mutations": true
+    },
+    "fixture_bindings": {
+      "artiest": [
+        "Nirvana"
+      ]
     }
   },
   {
@@ -1412,6 +1445,11 @@
         "search_tracks"
       ],
       "forbid_spotify_mutations": true
+    },
+    "fixture_bindings": {
+      "artiest": [
+        "Scooter"
+      ]
     }
   },
   {
@@ -1429,6 +1467,11 @@
         "search_tracks"
       ],
       "forbid_spotify_mutations": true
+    },
+    "fixture_bindings": {
+      "artiest": [
+        "Radiohead"
+      ]
     }
   },
   {
@@ -1439,13 +1482,21 @@
     },
     "expect": {
       "success": true,
-      "intent": "track_title_choices",
+      "intent": "track_versions_search",
       "intent_category": "informational",
       "allowed_music_commands": [
         "status",
         "search_tracks"
       ],
-      "forbid_spotify_mutations": true
+      "forbid_spotify_mutations": true,
+      "contains_all": [
+        "Hallelujah"
+      ]
+    },
+    "fixture_bindings": {
+      "nummer": [
+        "Hallelujah"
+      ]
     }
   },
   {
@@ -1485,6 +1536,11 @@
         "listening_profile"
       ],
       "forbid_spotify_mutations": true
+    },
+    "fixture_bindings": {
+      "artiest": [
+        "The xx"
+      ]
     }
   },
   {
@@ -1519,6 +1575,11 @@
         "search_playlists"
       ],
       "forbid_spotify_mutations": true
+    },
+    "fixture_bindings": {
+      "genre": [
+        "jazz"
+      ]
     }
   },
   {
@@ -1553,6 +1614,11 @@
         "search_tracks"
       ],
       "forbid_spotify_mutations": true
+    },
+    "fixture_bindings": {
+      "artiest": [
+        "Scala & Kolacny Brothers"
+      ]
     }
   },
   {
@@ -1570,6 +1636,13 @@
         "artist_recommendations"
       ],
       "forbid_spotify_mutations": true
+    },
+    "fixture_bindings": {
+      "artiest": [
+        "Radiohead",
+        "Massive Attack",
+        "Bon Iver"
+      ]
     }
   },
   {

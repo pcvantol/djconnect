@@ -28,6 +28,9 @@ class PlaybackNarrationTests(unittest.TestCase):
         manager = r.SessionRuntimeManager()
         active = await manager.async_start(owner_profile_id='owner', selected_mood='groove',
             locale=locale, dj_persona=persona or r.DJPersona.HOME_DJ)
+        # This short-slot mechanism probe explicitly selects Presenter.
+        active = await manager.async_update_presence(owner_profile_id=active.owner_profile_id,
+            session_id=active.session_id, selected_presence="presenter")
         async def insight():
             return {'track': {'title': 'Wrong recording' if mismatch else 'Actual recording',
                               'artist': 'Actual artist', 'album': 'Actual edition'},
@@ -263,6 +266,9 @@ class PlaybackNarrationTests(unittest.TestCase):
             active = await manager.async_start(owner_profile_id='owner', selected_mood='groove',
                 locale='en', session_start_strategy=r.SessionStartStrategy.DISCOVER,
                 elapsed_time_source=lambda: clock[0])
+            # This short-slot mechanism probe explicitly selects Presenter.
+            active = await manager.async_update_presence(owner_profile_id=active.owner_profile_id,
+                session_id=active.session_id, selected_presence="presenter")
             moments = []
             for number, title in ((1, 'Baseline'), (2, 'First Light'), (3, 'Second Light')):
                 media = 'spotify:track:'+str(number).zfill(22)

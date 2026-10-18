@@ -247,7 +247,9 @@ class SummaryTest(unittest.IsolatedAsyncioTestCase):
         provider._run_transaction = counted
         page = await self.query.async_session_page("owner", limit=20)
         self.assertEqual(len(page["sessions"]), 20)
-        self.assertEqual(len(counts), 4)
+        # Two fixed singleton-policy reads fence changes while the page is
+        # built; still no per-row timeline or policy requests.
+        self.assertEqual(len(counts), 6)
         self.assertFalse(any("djconnect_session_entries" in q for q in counts))
         self.assertEqual(len({s["summary"]["as_of"] for s in page["sessions"]}), 1)
 
@@ -335,7 +337,8 @@ class SummaryTest(unittest.IsolatedAsyncioTestCase):
         connection.execute("DROP TABLE djconnect_session_summaries")
         # Reconstruct an actual v5 store, not v5 metadata over newer tables.
         for table in ('djconnect_profile_dj_settings', 'djconnect_session_dj_settings',
-                      'djconnect_settings_operations', 'djconnect_settings_clock'):
+                      'djconnect_settings_operations', 'djconnect_settings_clock',
+                      'djconnect_session_retention'):
             connection.execute(f'DROP TABLE {table}')
         connection.execute("DELETE FROM djconnect_schema_migrations WHERE schema_version>=6")
         connection.execute("UPDATE djconnect_schema_metadata SET schema_version=5")

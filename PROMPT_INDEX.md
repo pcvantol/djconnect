@@ -1,5 +1,48 @@
 # DJConnect Verification Prompt Index
 
+18October speech follow-up: the existing configured voice-preview design now has
+a local paired producer, five-language literals and owner fixtures. Golden adds
+its route as step140; protected delivery, installed/provider/native/listening
+acceptance remain OPEN. No narrative-quality gate is closed by this addition.
+
+Current follow-up — 18 October: the privately installed HA-dev candidate includes
+researched narration, four Presence levels and the shared local/HA speech
+preparation. Its exact artifact is `3a89473e2c9b…`, not a protected release.
+The newer producer-recording and Forecast-language repairs remain local.
+Golden currently binds **49 reports,36 families,140 steps**; **eleven Core findings
+and17 actual-quality steps remain OPEN**. Historical trial8 produced one individually accepted producer story; the
+latest fixed trial9 has no editorial GO. Neither qualifies a Persona/Mood matrix
+or all-family publication. Both concrete credit-scope defects now have causal
+regressions; broad quality remains OPEN.
+[Current qualification and remaining gates](docs/verification/PUBLIC_ARTIST_NARRATION_20261017.md#current-repair-and-evidence-boundary--18-october).
+
+
+
+Current physical history/widget intakes remain OPEN; their owner contracts and
+Golden scheduling correction are recorded in [18October readback](docs/verification/ACTIVE_SESSION_HISTORY_PASSIVE_READBACK_20261018.md).
+
+## Current: combined Core recovery PR preparation — 17 October 2026
+
+Existing sole Core writer combines the Ask DJ correction, VibeCast glass and
+existing display-admission work in draft PR1197. All three original refs and
+seven initial repair files are recoverable; main retirement1202/1203 remains
+preserved. No protected merge or new release. A private all-WIP candidate was installed
+on HA-dev; the subsequent producer/Forecast repairs are not installed. HA-prod
+remains on protected main.
+[Exact inputs, integration and gates](docs/verification/CORE_BRANCH_CONSOLIDATION_20261017.md).
+
+Current album repairs cover the reported album track-list question and
+Volbeat alternative → playable album offer → explicit follow-up → full album
+context. Dispatch remains distinct from observed playback; an uncertain reply
+still names the chosen album. Five-language owner/fixture and isolated real-HA
+proof do not prove natural Spotify progression or a native/installed fix.
+An earlier committed Golden retained43reports,36families and129steps. Eight Core findings and14
+real-quality steps remain open, including rich catalog-conversation retention;
+no narrative or release GO is inferred from fixture green. A semantic-read repair now covers free wording/typos through the same qualified
+HA agent; its final paid five-language qualification passes50/50 real questions.
+[Semantic proof and boundaries](docs/verification/ASK_DJ_SEMANTIC_READS_20261017.md). The central release
+evidence collector also has a bounded local >300-file pagination correction.
+
 ## Current: VibeCast receiver end-authority retirement — separate Finalization
 
 Source PR [#1202](https://github.com/pcvantol/djconnect/pull/1202) protected merged as

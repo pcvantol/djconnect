@@ -158,3 +158,21 @@ The real paired baseline on ba84d2ac reproduces one unintended play request
 from 'wat was vorige nummer'; this is source proof, not installed root cause.
 Both independent reviewers approved the directed contract refinement; new
 source, real conversation and native/installed acceptance remain pending.
+
+
+## Artist/genre album and playlist options — 18October2026 correction
+
+The existing artist/genre options route publishes one short localized intro and
+one playable collection in `playback_actions`. Titles, subtitle/curator, proxied
+artwork, media kind and the existing exact action/result-set identity belong to
+those cards. `items` is empty for this route: it must not duplicate the playable
+collection as informational rows. The intro does not enumerate all card titles.
+The existing `result_set.items` remains selection metadata, not another visible
+collection. Other informational/recent-history routes retain their own contracts.
+
+The same accepted intro is the literal speech source through the existing
+reference/prepare/private-audio path, including Settings3's confirmed voice.
+Preparing speech never re-runs catalogue lookup or a playback request. Original
+source expiry, source/owner/settings fences, text-only and provider-error notices
+remain unchanged. This is no richer archive right or native/audible acceptance.
+[Qualification and the still-open original iPhone speech failure](../verification/ASK_DJ_PLAYABLE_OPTIONS_20261018.md).
