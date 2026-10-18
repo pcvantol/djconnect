@@ -35,14 +35,12 @@ async def run_albums(hass, runtime, manager, identity, headers, model_receipts):
     fact = catalog_facts(catalog)[0]
     async def guard():
         _conversation_profile_fence(hass,runtime,identity,headers,context)
-    async with research.PublicFetch(guard) as fetch:
+    async with asyncio.timeout(12), research.AlbumPublicFetch(guard) as fetch:
         public = await album_narration.public_identity(fetch,fact)
         assert public is not None, 'album_public_identity_unavailable'
-        sources,state = await research.research(public[5],
-            'Tell a documented story specifically about the album '+public[2]+' by '+public[5]+'.',
-            'nl',guard,qualified_music=True,expected_roles=(public[6],),expected_entity_id=public[4],
-            allow_web=False,fetch=fetch,original_paragraphs=True)
+        sources = await album_narration.public_references(fetch, public, guard)
         assert sources, 'album_public_references_unavailable'
+        assert any(type(s) is album_narration.AlbumWebSource for s in sources), 'album_rich_web_reference_unavailable_no_paid_run'
         source_requests = fetch.requests
     package = {'public_identity':public,'sources':[s.model_data() for s in sources],
         'public_source_records':[asdict(s) for s in sources],
@@ -53,12 +51,11 @@ async def run_albums(hass, runtime, manager, identity, headers, model_receipts):
         await owned.guard()
         assert selected == fact
         return public
-    async def pinned_sources(subject,question,locale,owned_guard,**kwargs):
+    async def pinned_sources(owned, selected_identity, owned_guard):
         await owned_guard()
-        assert subject == public[5] and kwargs['expected_entity_id'] == public[4]
-        assert kwargs['allow_web'] is False
-        return list(sources), state
-    with patch.object(album_narration,'public_identity',pinned_identity), patch.object(research,'research',pinned_sources):
+        assert selected_identity == public and owned.guard is owned_guard
+        return list(sources)
+    with patch.object(album_narration,'public_identity',pinned_identity), patch.object(album_narration,'public_references',pinned_sources):
         for persona in ('home_dj','radio_dj','club_dj','festival_dj'):
             for mood in ('chill','party'):
                 case = 'public-album-'+persona+'-'+mood+'-nl'

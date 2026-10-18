@@ -336,7 +336,7 @@ async def realize(brief, *, ask, admission, debug=None):
         question = "Tell a short story about one exact credited producer of this recording."
     core = brief.fact.display_core
     if album:
-        async with research.PublicFetch(guard) as fetch:
+        async with research.AlbumPublicFetch(guard) as fetch:
             identity = await public_identity(fetch, brief.fact)
             if identity is None:
                 if debug is not None:
@@ -344,9 +344,8 @@ async def realize(brief, *, ask, admission, debug=None):
                 return None
             subject, qid, roles = identity[2], identity[4], (identity[6],)
             question = 'Tell a documented story specifically about the album ' + subject + ' by ' + identity[5] + '.'
-            sources, _ = await research.research(identity[5], question, brief.locale, guard,
-                qualified_music=True, expected_roles=roles, expected_entity_id=qid,
-                allow_web=False, fetch=fetch, original_paragraphs=True)
+            from .album_narration import public_references
+            sources = await public_references(fetch, identity, guard)
     elif credit:
         async with research.PublicFetch(guard) as fetch:
             identity = await producer_identity(fetch, credit)
@@ -364,10 +363,15 @@ async def realize(brief, *, ask, admission, debug=None):
         identity = ('artist',brief.fact.source_url,subject,roles[0] if roles else 'Artist',qid)
         sources, _ = await research.research(subject, question, brief.locale, guard,
             qualified_music=True, expected_roles=roles, expected_entity_id=qid, allow_web=False,original_paragraphs=True)
-    # Web pages do not have the reciprocal entity proof required by this producer.
-    if (not sources or len(sources) > 2 or any(type(s) is not research.PublicSource
-            or s.provider != "Wikipedia" or s.entity_id != qid
-            or s.license != "CC-BY-SA-4.0" or not s.revision_url for s in sources)):
+    from .album_narration import AlbumWebSource
+    def qualified_source(source):
+        if (album and type(source) is AlbumWebSource and source.album_identity == identity
+                and source.license == 'public_page_short_reference' and not source.entity_id
+                and not source.revision_url and source.attributed_author):
+            return True
+        return (type(source) is research.PublicSource and source.provider == 'Wikipedia'
+                and source.entity_id == qid and source.license == 'CC-BY-SA-4.0' and source.revision_url)
+    if not sources or len(sources) > 2 or any(not qualified_source(s) for s in sources):
         if debug is not None:
             debug['block_reason'] = 'research_identity_or_source_unavailable'
         return None

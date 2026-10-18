@@ -83,6 +83,26 @@ class VibeCastRendererTest(unittest.TestCase):
             assert.equal(invalid.get('moment-research-sources').children.length,0);
             const wrongCC0=run([{{...citations[2],revision_url:'https://unrelated.test/'}}]);
             assert.equal(wrongCC0.get('moment').textContent,'');
+            const album={{...citations[2],title:'Paper Windows',
+              url:'https://musicbrainz.org/release-group/00000000-0000-0000-0000-000000000002'}};
+            assert.equal(run([album]).get('moment-research-sources').children.length,1);
+            const web={{provider:'Public web',title:'A director account',language:'en',
+              license:'public_page_short_reference',usage_basis:'public_page_short_reference',
+              url:'https://director.example.test/recording-story',revision_url:'',wikidata_id:'',
+              attributed_author:'Robin Vale',author_status:'publication_byline_not_independent_identity',
+              work_reference:{{title:'Paper Windows',artist:'Nora Vale',url:album.url}}}};
+            const actual=run([citations[0],web,album]);
+            assert.equal(actual.get('moment-research-sources').children.length,3);
+            const credit=actual.get('moment-research-sources').children[1];
+            assert(credit.textContent.includes('Robin Vale'));
+            assert(!credit.textContent.includes('public_page_short_reference'));
+            for(const invalidWeb of [{{...web,url:'https://127.0.0.1/private'}},
+                {{...web,url:'https://receiver.local/private'}},{{...web,url:'javascript:alert(1)'}},
+                {{...web,url:'https://user:pass@director.example.test/'}},
+                {{...web,revision_url:citations[0].revision_url}},{{...web,license:'CC0-1.0'}},
+                {{...web,attributed_author:''}},{{...web,usage_basis:undefined}}]){{
+              assert.equal(run([invalidWeb]).get('moment').textContent,'');
+            }}
         ''')
         result = subprocess.run([node,'--input-type=module','--eval',script],capture_output=True,text=True)
         self.assertEqual(result.returncode,0,result.stderr)

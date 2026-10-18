@@ -127,6 +127,9 @@ class PublicResolver:
 
 
 class PublicFetch:
+    maximum_requests = MAX_REQUESTS
+    html_maximum = MAX_BYTES
+
     def __init__(self, guard):
         self.guard, self.requests, self.session = guard, 0, None
 
@@ -152,7 +155,7 @@ class PublicFetch:
             )
         for redirect in range(3):
             await self.guard()
-            if self.requests >= MAX_REQUESTS:
+            if self.requests >= self.maximum_requests:
                 raise ResearchUnavailable("public_research_budget")
             musicbrainz = urlsplit(url).hostname == 'musicbrainz.org'
             if musicbrainz:
@@ -181,10 +184,11 @@ class PublicFetch:
                         return response.status, "", url
                     if response.content_type not in {"application/json", "text/html", "text/plain"}:
                         raise ResearchUnavailable("public_research_content_type")
+                    limit = self.html_maximum if maximum == MAX_BYTES and response.content_type == 'text/html' else maximum
                     content = bytearray()
                     async for chunk in response.content.iter_chunked(8192):
                         content.extend(chunk)
-                        if len(content) > maximum:
+                        if len(content) > limit:
                             raise ResearchUnavailable("public_research_response_size")
                     await self.guard()
                     return response.status, content.decode("utf-8", errors="replace"), url
@@ -205,6 +209,12 @@ class PublicFetch:
         return rules.can_fetch(USER_AGENT, url)
 
 
+class AlbumPublicFetch(PublicFetch):
+    """Internal Album owner profile; never selected by request/model data."""
+    maximum_requests = 12
+    html_maximum = 512 * 1024
+
+
 class PageText(HTMLParser):
     def __init__(self, *, omit_headings=False):
         super().__init__(convert_charrefs=True)
@@ -212,8 +222,15 @@ class PageText(HTMLParser):
         self.language = "unknown"
         self.omit_headings, self.heading_depth = omit_headings, 0
         self.emphasis_tags, self.emphasis_parts, self.source_anchors = [], [], []
+        self.author = ''
 
     def handle_starttag(self, tag, attrs):
+        if tag == 'meta':
+            values = dict(attrs)
+            if str(values.get('name', '')).casefold() == 'author':
+                candidate = ' '.join(str(values.get('content', '')).split())
+                if 2 <= len(candidate) <= 120 and not UNSAFE_QUERY.search(candidate):
+                    self.author = candidate
         if self.omit_headings and tag in {'h1','h2','h3','h4','h5','h6'}:
             self.heading_depth += 1
         if tag == "html":
@@ -554,7 +571,7 @@ async def wikipedia(fetch, subject, question, locale, *, expected_roles=(), expe
     return None
 
 
-async def web_references(fetch, subject, question, locale):
+async def web_references(fetch, subject, question, locale, *, album=None):
     """Best-effort discovery, then actual public pages; no snippet-only evidence."""
     # Never export the full conversational question or its incidental private context.
     topic = (
@@ -564,7 +581,10 @@ async def web_references(fetch, subject, question, locale):
         if re.search(r"member|bandlid|bandleden|membre|miembro|mitglied", question, re.I)
         else "music biography discography"
     )
-    search = "https://html.duckduckgo.com/html/?" + urlencode({"q": subject + " official " + topic})
+    query = subject + ' official ' + topic
+    if album is not None:
+        query = subject + ' "' + album[2] + '" recording interview behind the scenes'
+    search = "https://html.duckduckgo.com/html/?" + urlencode({"q": query})
     if not await fetch.robots(search):
         return []
     status, body, _ = await fetch.request(search)
@@ -574,7 +594,7 @@ async def web_references(fetch, subject, question, locale):
     parser.feed(body)
     sources, origins = [], set()
     for href in parser.links[:24]:
-        if fetch.requests >= MAX_REQUESTS - 1:
+        if fetch.requests >= fetch.maximum_requests - 1:
             break
         href = urljoin(search, href)
         parsed = urlsplit(href)
@@ -606,17 +626,21 @@ async def web_references(fetch, subject, question, locale):
             word in text.casefold() for word in subject.casefold().split() if len(word) > 2
         ):
             continue
-        result = _source(
-            "Public web",
-            parsed.hostname,
-            final_url,
-            excerpt(text, question, 600),
-            page.language,
-            current=bool(re.search(r"concert|tour|live|optreden|tournée|gira", question, re.I)),
-        )
+        if album is not None:
+            from ..album_narration import web_source
+            result = web_source(page, final_url, album, question)
+        else:
+            result = _source(
+                "Public web",
+                parsed.hostname,
+                final_url,
+                excerpt(text, question, 600),
+                page.language,
+                current=bool(re.search(r"concert|tour|live|optreden|tournée|gira", question, re.I)),
+            )
         if result:
             sources.append(result)
-        if len(sources) >= 2 or fetch.requests >= MAX_REQUESTS:
+        if len(sources) >= (1 if album is not None else 2) or fetch.requests >= fetch.maximum_requests:
             break
     return sources
 

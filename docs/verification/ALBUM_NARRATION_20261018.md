@@ -140,3 +140,71 @@ reviewer's split/other-work/anaphora reproductions now PASS, scoped source GO.
 The final current host regression passes2557tests, seven existing skips, with
 Ruff PASS and zero Bandit Medium/High findings. This does not reverse any actual
 editorial NO_GO or prove corrected model output, native storytelling or audio.
+
+## Rich-source iteration and remaining gate
+
+A separate actual writing-feasibility pilot fetched a director's public account
+and obtained eight real HA-model proposals: six independently editorial-useful,
+two refused. The strongest account describes the director running on socks
+between takes. This proves useful source material can change the writing; it is
+not product source admission or full Persona/Mood quality. Report SHA256
+`6804ef617f9c7a7ed601fc86ce68b96b01d67206288da1bdebe97c1ff653b650`;
+blind-text SHA256
+`6bdb1df3af910765c02d0ec77ed224c80187c3dde262118c69a305b7274fa644`.
+No such diagnostic text was installed or published into the user's Session.
+
+The same Album expression/research owner now locally attempts one English
+Wikipedia reference plus at most one actually fetched public web reference.
+DDG receives only the independently resolved public artist and exact album name.
+The internal Album HTTP profile is12requests/512KiBHTML/128KiBJSON, with the
+same total12second expression deadline. The default research profile remains
+8requests/128KiB. All DNS/redirect/robots/admission/size fences are reused.
+The retained web citation describes an attributed publication byline and public
+short-reference usage basis; no counterfeit QID, CC0 or Wikipedia revision.
+Original page/excerpts/prompts remain outside Flow. Accepted paraphrase/source
+metadata use the same sealed acceptance, owner retention and retained speech.
+
+Independent review found two P2s in the first attempt: a page-wide title marker
+could qualify an earlier sequel, and a disappeared italic marker could leave
+another work inside an inherited article scope. Both original counterexamples
+and an unmarked other work in the same paragraph are now refused. There is no
+new document/cross-sentence claimguard exception. Each eligible web evidence
+paragraph needs its own exact locally quoted work and artist; a selected concrete
+episode sentence supplies that same explicit relationship. This narrow grammar
+is a limitation, not coverage of all public references. In particular, the actual
+director's distant first-person episode remains outside product admission.
+
+Twenty-seven album/web tests pass, including actual Runtime publication→SQLite
+reopen→retained-speech preparation with explicit external source/model fixtures,
+sequel/artist/byline/other-work/robots/snippet failure boundaries and actual shared
+fetch byte/request limits. Independent technical re-review reproduces the three
+original refusals and gives scoped source GO only. It does not qualify real
+writing, native, installed, audible or release acceptance.
+
+The shared renderer also had an independent defect: it allowed MusicBrainz
+artist citations but refused release-group citations, silently dropping a valid
+researched album card. Both generated hosts now use the common corrected
+renderer, with all three truthful citations, public URL checks and an author
+label for a usage basis instead of exposing a machine token as a license.
+
+One actual generic retrieval then resolved this album's public identity and used
+11boundedHTTP requests. It admitted Wikipedia but **zero rich web references**.
+It had no API key, no model call, no publication, no installed/household state and
+no hardware effect. Private receipt: `album-web-source-only-20261018/source-only.json`.
+The real richer-source-to-publication/Persona-Mood gate therefore stays OPEN.
+The paid eight-cell product pilot now refuses before spending credits when this
+new rich-source prerequisite is absent. No repeat of the unchanged date/count
+trial and no claim that the current HAEVN card is repaired on HA-dev.
+
+Final local validation for this delta:2567host tests completed successfully with
+seven existing skips;103narration-owner tests PASS in the pinned clean HA image,
+network disabled and0paid attempts. Product/tests Ruff PASS; Bandit has zero
+Medium/High findings and no errors. Repository-wide Ruff additionally observes
+nine pre-existing findings in unchanged verification tooling; no whole-repository
+lint PASS is claimed. Generated23DAGviews validate included-snapshot-only.
+Independent source and documentation reviews give scoped Draft-update GO only.
+The actual retrieval-only receipt SHA256 is
+`b56e80a4e371fd207bd52873ee204b248fe69b4a5b3c9f997ea4c79fd173c24c`.
+A second bounded diagnostic confirmed the first fetched candidate was an authorless
+tag archive; it likewise made0model calls and admitted0rich web references. The
+source-aware paid pilot has not been rerun. No merge, release or install follows.

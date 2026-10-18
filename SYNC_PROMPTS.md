@@ -3544,3 +3544,38 @@ changes five files on the prior private3a894…base; no newer album/opening work
 Current whole-source candidate and fixture pins remain distinct from installed
 module hashes. Joint native2 is separate; no production or merge promotion.
 See docs/verification/HISTORY_ENTRY_COMPATIBILITY_20261018.md.
+
+Selected owner-requested manual earlier-Session deletion: the canonical wire
+contract is now in docs/product/SESSION_CONVERSATION_HISTORY_CONTRACT.md#selected-manual-deletion-of-an-archived-session--18-october2026.
+Capability session_history_delete / contract1; POST session/history/delete with
+existing identity, session_id, opaque expected_revision, UUIDv7 operation_id (existing five-minute journal) and
+confirmed:true.200 echoes operation_id, resolved owner_profile_id and exact
+deleted_session_id/deleted:true only after durable owner erasure and target grant
+fencing. Active targets409; no cross-owner information or automatic mutation
+replay. Producer is not implemented/advertised/installed yet; Apple can prepare
+its capability-gated UI/DTO/confirmation without guessing a producer pin. Use
+synthetic qualification only, no actual personal erasure.
+
+### Apple alignment: selected bulk history deletion1 — design only
+
+Canonical owner decision: `session_history_bulk_delete` capability/version1;
+GET `session/history/delete_snapshot` captures all terminal owner Sessions before
+confirmation, independent of loaded/filter rows. POST `session/history/delete_all`
+accepts snapshot_id, new UUIDv7, confirmed:true and paired identity. Exact owner/
+operation/snapshot/count acknowledgement invalidates archive projections/leases
+and fences outstanding reads; reread preserves active and after-snapshot Sessions.
+No client loop, Profile clear, automatic POST replay or personal-data deletion as
+a test. Producer and fixtures pending; no advertisement or installed GO. Full
+wire/concurrency/errors in the canonical Session Conversation History contract.
+
+### Album web-source alignment — local, not installed
+
+Existing researched Moment basis may additionally carry one `Public web` source
+with `usage_basis:public_page_short_reference`, an original publication byline
+(`attributed_author` / `author_status:publication_byline_not_independent_identity`),
+empty `wikidata_id`/`revision_url`, original document hash and exact public
+`work_reference` (title/artist/MusicBrainz release-group URL). This usage basis is
+not a copyright license; show source/author, not the machine token as a license.
+No new replay/source authority or raw excerpt in Flow; unsupported consumers
+remain gated. Technical fixture/review only; actual rich-web publication, native
+rendering and installed narration remain open. See Album verification.

@@ -645,3 +645,49 @@ recording credits even if the Planner published a different fact. It reuses the
 existing source/owner, two-call independent assessment and guarded cache; no new
 provider lookup or invented acoustic measurements. The final all-family narrative
 and published quality gates remain open.
+
+### Bounded public Album-reference refinement — 18 October2026
+
+The real primary-reference writing trial produced six useful proposals out of
+eight; it does not qualify product admission or publication. Generalize retrieval
+through the same research/expression owner, without an album/artist URL table.
+Keep exact reciprocal artist/release-group identity. One English revision-bound
+Wikipedia reference and at most one actually fetched public web reference may
+combine with the original CC0 public identity, within three sources. The same
+LLM translates into the captured five-language Persona/Mood; no English-only UI.
+
+For this Album owner only, use at most12 HTTP requests and512KiB for HTML while
+JSON remains128KiB. Other research retains its existing8-request/128KiB profile.
+This explicitly accounts for the four identity requests, Wikipedia, DDG robots/
+discovery and candidate page robots/fetch within one guarded owner and the
+existing total12-second expression deadline. No recursive crawl, client-configured
+limits, model-authored URL, extra model call, timer or unbounded retry.
+
+DDG discovers concrete pages using only independently resolved public artist and
+exact album title; snippets are never evidence. Admission requires each original evidence
+paragraph identifying that exact quoted album and artist, not a
+prefix/sequel or general biography. Preserve original paragraph ranges/hash and
+independently assess every album/film/recording relationship against the actual
+article context. A page's byline is attributed publication information, not
+independent verification of the author's occupation. First-person material with
+no concrete original byline cannot enter this family. Never turn a film director
+into an audio producer or the source author's experience into the DJ's memory.
+
+Reuse the explicit Ask DJ public short-reference processing policy and existing
+owner retention for a short accepted paraphrase and truthful source metadata.
+`public_page_short_reference` is a usage basis, never a copyright license or CC0/
+Wikipedia identity. Do not manufacture QID or revision URL. Keep original page,
+excerpts and prompts transient; the90-day Session cap does not renew original
+live/publication/audio/source grants. The same sealed acceptance must survive
+Moment publication, exact Flow reopen, selected scope and retained replay. Native
+and shared renderers must recognize the actual source metadata before delivery;
+no text-only citation stripping or false source aliases.
+
+Connected tests, fixed actual responses and independent quality review remain
+mandatory. Until those pass, no new Album-source or installed/voice quality GO.
+
+Independent source review found that page-wide work markers and inherited article
+scope could borrow a sequel or an unmarked other project. The bounded web family
+therefore requires its exact quoted work and artist in each evidence paragraph;
+no document-wide antecedent exemption. The director writing pilot does not meet
+that narrower product admission and remains a diagnostic, not product evidence.

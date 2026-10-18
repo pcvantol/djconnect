@@ -219,9 +219,25 @@ progress { height:.7rem; border-radius:1rem; overflow:hidden }
           /^https:\/\/(?:en|nl|de|fr|es)\.wikipedia\.org\/wiki\/[^\s?#]+$/.test(s.url) &&
           /^https:\/\/(?:en|nl|de|fr|es)\.wikipedia\.org\/w\/index\.php\?oldid=[0-9]+$/.test(s.revision_url) &&
           new URL(s.url).origin === new URL(s.revision_url).origin ||
-        s.provider === "MusicBrainz" && s.license === "CC0-1.0" && !s.revision_url && /^https:\/\/musicbrainz\.org\/artist\/[0-9a-f-]{36}$/.test(s.url) ||
+        s.provider === "MusicBrainz" && s.license === "CC0-1.0" && !s.revision_url && /^https:\/\/musicbrainz\.org\/(?:artist|release-group)\/[0-9a-f-]{36}$/.test(s.url) ||
+        s.provider === "Public web" && s.usage_basis === "public_page_short_reference" &&
+          s.license === "public_page_short_reference" && !s.revision_url && !s.wikidata_id &&
+          s.author_status === "publication_byline_not_independent_identity" &&
+          typeof s.attributed_author === "string" && s.attributed_author.length > 1 &&
+          s.work_reference && typeof s.work_reference.title === "string" &&
+          typeof s.work_reference.artist === "string" &&
+          /^https:\/\/musicbrainz\.org\/release-group\/[0-9a-f-]{36}$/.test(s.work_reference.url) &&
+          publicCitationURL(s.url) ||
         s.provider === "Wikidata" && s.license === "CC0-1.0" && !s.revision_url && /^https:\/\/www\.wikidata\.org\/wiki\/Q[1-9][0-9]*$/.test(s.url)));
     return valid ? citations : null;
+  }
+  function publicCitationURL(value) {
+    try {
+      const url = new URL(value), host = url.hostname;
+      return url.protocol === "https:" && !url.username && !url.password &&
+        (!url.port || url.port === "443") && host.includes(".") &&
+        !/^(?:[0-9.]+|\[.*\])$/.test(host) && !/\.(?:local|localhost|internal)$/.test(host);
+    } catch { return false; }
   }
   function cardFor(item) {
     if (!item || typeof item !== "object" || item.type === "silence") return null;
@@ -327,7 +343,7 @@ progress { height:.7rem; border-radius:1rem; overflow:hidden }
         e("moment-source").hidden=true;
         for (const citation of citations) {
           const link=document.createElement("a");
-          link.textContent=`${citation.title} · ${citation.provider}${citation.language ? ` (${citation.language})` : ""} · ${citation.license}`;
+          link.textContent=`${citation.title} · ${citation.provider}${citation.language ? ` (${citation.language})` : ""}${citation.usage_basis ? ` · ${citation.attributed_author}` : ` · ${citation.license}`}`;
           link.href=citation.revision_url || citation.url;
           link.target="_blank"; link.rel="noopener noreferrer";
           researchSources.appendChild(link);

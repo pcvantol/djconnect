@@ -4,11 +4,112 @@ Catalogue fields select a public reference locally. They are never model
 evidence. No new generation, storage, opportunity, fetch budget or agent.
 """
 import json
+import hashlib
 import re
 import time
+from dataclasses import dataclass
 from urllib.parse import urlencode
 
 from .session_facts import DisplayFactCore, MBID, QualifiedSessionFact, match_name
+from .ask_dj.public_research import PublicSource
+
+
+def _names(text):
+    """Literal work markers only; no model-created entity or fuzzy title."""
+    pattern = r'''(?<!\w)(?:“([^”\n]{4,160})”|‘([^’\n]{4,160})’|"([^"\n]{4,160})"|'([^'\n]{4,160})')(?!\w)'''
+    return {next(value for value in match.groups() if value) for match in re.finditer(pattern, text)}
+
+
+def _mentions(text, name):
+    return re.search(r'(?<!\w)' + re.escape(name) + r'(?!\w)', text, re.I) is not None
+
+
+@dataclass(frozen=True)
+class AlbumWebSource(PublicSource):
+    album_identity: tuple[str, ...] = ()
+    attributed_author: str = ''
+
+    def metadata(self):
+        return {**super().metadata(), 'usage_basis':'public_page_short_reference',
+            'original_document_hash':hashlib.sha256(self.original_text.encode()).hexdigest(),
+            'attributed_author':self.attributed_author,
+            'author_status':'publication_byline_not_independent_identity',
+            'work_reference':{'title':self.album_identity[2], 'artist':self.album_identity[5],
+                'url':'https://musicbrainz.org/release-group/' + self.album_identity[1]}}
+
+
+def web_source(page, url, identity, question):
+    """One attributed public reference, with literal work/paragraph witnesses.
+
+    A discovery hit is not a primary-author or work assertion. No quoted sequel
+    or passage under another marked work inherits this article's album scope.
+    Independent full-answer assessment remains mandatory.
+    """
+    from .ask_dj.public_research import _source, _sentences
+    title, artist = identity[2], identity[5]
+    text = page.text()
+    paragraphs = list(re.finditer(r'[^\n]+', text))
+    marked = set(page.source_anchors) | _names(text)
+    if not page.author:
+        return None
+    candidates = [p for p in paragraphs if _mentions(p[0], artist)
+                  and title in _names(p[0])
+                  and not any(_mentions(p[0], name) for name in marked if name != title
+                              and name not in {artist, page.author})]
+    if not candidates:
+        return None
+    witness = candidates[0]
+    # Every evidence paragraph supplies its own exact work/artist reference.
+    # No inheritance across an arbitrary paragraph, even if another work lost
+    # quotation/italics markup. A distant article lead cannot grant that scope.
+    eligible = candidates
+    # Prefer a concrete first-person action/constraint to another statistics
+    # paragraph. This is telling selection, never factual or scope authority.
+    episode = re.compile(r'\b(?:I|we)\s+(?:(?:could|would|had to|was only able to)\s+)?'
+                         r'(?:ran|run|walked|asked|called|invited|recorded)\b', re.I)
+    def telling(paragraph):
+        return any(title in _names(sentence) and _mentions(sentence, artist) and episode.search(sentence)
+                   for sentence in _sentences(paragraph))
+    if not any(telling(p[0]) for p in eligible):
+        return None
+    ranked = sorted(eligible, key=lambda p:(-telling(p[0]), p.start()))
+    chosen, size = [witness], len(witness[0])
+    if size > 1800:
+        return None
+    for paragraph in ranked:
+        if paragraph in chosen or size + len(paragraph[0]) + 1 > 1800 or len(chosen) >= 6:
+            continue
+        chosen.append(paragraph)
+        size += len(paragraph[0]) + 1
+    chosen.sort(key=lambda p:p.start())
+    value = _source('Public web', title + ' — ' + artist, url,
+        '\n'.join(p[0] for p in chosen), page.language,
+        source_anchors=tuple(sorted(name for name in marked if any(_mentions(p[0], name) for p in chosen))),
+        original_text=text, paragraph_ranges=tuple((p.start(),p.end()) for p in chosen))
+    if value is None:
+        return None
+    return AlbumWebSource(**value.__dict__, album_identity=identity,
+        attributed_author=page.author)
+
+
+async def public_references(fetch, identity, guard):
+    """One Wikipedia edition plus at most one actual web page, same owner."""
+    from .ask_dj import public_research as research
+    question = 'Tell a documented recording story about ' + identity[2] + ' by ' + identity[5] + '.'
+    sources = []
+    try:
+        source = await research.wikipedia(fetch, identity[5], question, 'en',
+            expected_roles=(identity[6],), expected_entity_id=identity[4], original_paragraphs=True)
+        if source:
+            sources.append(source)
+    except (research.ResearchUnavailable, TimeoutError, OSError):
+        pass
+    try:
+        sources.extend(await research.web_references(fetch, identity[5], question, 'en', album=identity))
+    except (research.ResearchUnavailable, TimeoutError, OSError):
+        pass
+    await guard()
+    return sources
 
 
 def lookup_subject(fact):
@@ -123,11 +224,10 @@ def album_focus(projection, title):
     from .ask_dj.public_research import evidence_spans
     candidates = []
     for source in projection['sources']:
-        if (source.get('provider') != 'Wikipedia'
-                or title not in source.get('source_anchors', [])):
+        if title not in source.get('source_anchors', []):
             continue
         for span in evidence_spans(source):
-            if re.search(r'(?<!\w)' + re.escape(title) + r'(?!\w)', span['text']):
+            if source.get('provider') == 'Public web' or re.search(r'(?<!\w)' + re.escape(title) + r'(?!\w)', span['text']):
                 candidates.append(span['id'])
     return tuple(candidates)
 
@@ -197,7 +297,11 @@ def expression_prompt(style, projection):
         'One unhurried connected sentence may suit Chill; Party can make a brisk conversational '
         'turn. Do not pad a complete thought to meet a sentence count. The audience is one '
         'person, not a crowd. No invented shared memory, sound, motive, effect, selection, '
-        'future playback or causal/historical bridge. Original compositions do not mean new '
+        'future playback or causal/historical bridge. A web byline is attributed publication '
+        'information, not independently verified occupation. First-person experiences belong '
+        'to that source author, never to you. Keep film direction, camera work and music '
+        'recording/production distinct. Attribute such an account naturally to its author. '
+        'Original compositions do not mean new '
         'compositions or that earlier songs were not their own work. Do not borrow an artist’s '
         'general background to explain this album. No biography, date report, statistics list, '
         'markdown, source footer, compulsory invitation or closing compliment. '

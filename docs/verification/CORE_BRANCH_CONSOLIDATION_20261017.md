@@ -1,5 +1,15 @@
 # Core branch consolidation — 17 October2026
 
+18October latest local delta: one bounded attributed Album web reference may join
+Wikipedia/CC0 through the existing owner. Independent27album/web tests and
+scoped re-review PASS; real generic retrieval admits zero rich web references
+(11requests,0modelcalls), so real narrative/publication quality remains OPEN.
+The separate8proposal writing diagnostic has6editorial-useful samples but is not
+product admission. Shared renderer release-group citation loss repaired locally.
+Single/bulk archived-Session deletion now has selected canonical contracts only;
+producer/fixtures/installed mutation remain pending. No personal data deleted.
+[Album proof](ALBUM_NARRATION_20261018.md).
+
 18October current corrective checkpoint: Golden57reports/36families/151steps,
 12Core findings and19actual-quality steps OPEN. Album trial6 generated eight
 real proposals, all independently editorial NO_GO; its one technically accepted

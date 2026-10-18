@@ -2118,3 +2118,17 @@ must match. Metadata/provider/locale/inventory changes invalidate revision and
 pending/cached bytes; no read performs synthesis. Re-read on menu open,
 foreground/reconnect and configuration invalidation. No new push subscription,
 client inference, pipeline write, silent fallback or original request replay.
+
+Owner-requested manual archived-Session erasure is selected in the canonical
+[Session history contract](docs/product/SESSION_CONVERSATION_HISTORY_CONTRACT.md#selected-manual-deletion-of-an-archived-session--18-october2026).
+The additive session_history_delete1 operation is not yet implemented or
+advertised; it does not change the installed entry-version2 read contract.
+
+Selected bulk archived-Session delete1 is design-only: paired owner GET
+`/api/djconnect/v1/session/history/delete_snapshot` prepares the full terminal set,
+then confirmed POST `/api/djconnect/v1/session/history/delete_all` binds that
+snapshot and UUIDv7. No client loop or Profile clear. Active/newer Sessions are
+preserved; advertise `session_history_bulk_delete`/version1 only after producer
+qualification. Exact wire, snapshot concurrency, receipts and failures: selected
+bulk-deletion addendum in
+[`SESSION_CONVERSATION_HISTORY_CONTRACT.md`](docs/product/SESSION_CONVERSATION_HISTORY_CONTRACT.md).

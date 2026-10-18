@@ -2322,7 +2322,7 @@
         {
           "id": "ASKDJ-FLOW-album-researched-owner",
           "question": "Symphonic Tales speelt; publiceer een albumverhaal in plaats van alleen de Spotify-uitgavedatum.",
-          "expected_answer": "Exact publieke artiestidentiteit en uniek album; daadwerkelijk opgehaalde Wikipedia-albumpassage, volledige beoordeling, dezelfde tekst in Flow/historie/replay. Afgewezen verhaal publiceert geen datumkaart en veroorzaakt geen tick-retries.",
+          "expected_answer": "Exact publieke artiestidentiteit en uniek album; daadwerkelijk opgehaalde Wikipedia-albumpassage, volledige beoordeling, dezelfde tekst in Flow/historie/replay. Afgewezen verhaal publiceert geen datumkaart en veroorzaakt geen tick-retries. Aanvullende webbron met oorspronkelijk auteur en exacte albumscope; sequel/andere-work/rawsnippet wordt geen verhaalbewijs, bronvermelding en replay blijven behouden.",
           "model_policy": "existing_two_call_research_with_independent_scope_review",
           "owning_tests": [
             {
@@ -2392,6 +2392,46 @@
             {
               "file": "tests/test_personal_dj_narration_album.py",
               "method": "test_pronoun_only_novelty_recap_keeps_selected_album_scope"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_album_web.py",
+              "method": "test_actual_owner_publish_reopen_and_retained_speech_keep_attributed_web_source"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_album_web.py",
+              "method": "test_missing_byline_is_not_author_evidence"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_album_web.py",
+              "method": "test_other_artist_does_not_supply_album_evidence"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_album_web.py",
+              "method": "test_quoted_sequel_is_not_a_prefix_match"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_album_web.py",
+              "method": "test_another_marked_work_withdraws_document_antecedent"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_album_web.py",
+              "method": "test_robots_refusal_does_not_supply_snippet_evidence"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_album_web.py",
+              "method": "test_failed_actual_page_does_not_supply_snippet_evidence"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_album_web.py",
+              "method": "test_unmarked_sequel_cannot_borrow_a_later_target_marker"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_album_web.py",
+              "method": "test_album_budget_is_internal_and_other_research_keeps_original_limits"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_album_web.py",
+              "method": "test_actual_shared_fetch_preserves_json_robots_caps_and_stops_at_album_budget"
             }
           ],
           "acceptance_status": "owner_contract",
@@ -4489,7 +4529,8 @@
     "tests/test_ask_dj_album_tracks.py",
     "tests/test_ask_dj_current_artist_words.py",
     "tests/test_ask_dj_semantic_reads.py",
-    "tests/test_ask_dj_artist_hits.py"
+    "tests/test_ask_dj_artist_hits.py",
+    "tests/test_personal_dj_narration_album_web.py"
   ],
   "issue_policy": {
     "new_findings": "Add a named failing reproduction and semantic expected answer in the same corrective candidate; preserve it after the fix.",

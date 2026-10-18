@@ -105,6 +105,8 @@ class AlbumNarrationTest(unittest.IsolatedAsyncioTestCase):
             data = {'query':{'pages':[{'title':'Nora Vale 1', 'extract':paragraph,
                 'pageprops':{'wikibase_item':'Q2' if self.mode == 'wrong-wiki' else 'Q1',
                              'wikibase-shortdesc':'music group'}, 'revisions':[{'revid':1234}]}]}}
+        elif location.hostname == 'html.duckduckgo.com':
+            return 404, '', url
         else:
             raise AssertionError('unexpected destination')
         return 200, json.dumps(data), url
