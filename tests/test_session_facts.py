@@ -107,8 +107,42 @@ class SessionFactsTest(unittest.TestCase):
             facts = asyncio.run(resolver.resolve(self.catalog()))
             self.assertEqual([f.key for f in facts], ["album_release"])
 
+    def test_work_composer_identity_requires_exact_recording_work_and_unrestricted_actor_ids(self):
+        from copy import deepcopy
+        from custom_components.djconnect.public_artist_narration import composer_subject
+        catalog=self.catalog()
+        actor={'id':'00000000-0000-0000-0000-000000000020','name':'Different composer'}
+        credit={'type':'composer','target-type':'artist','artist':actor}
+        recording={'id':'00000000-0000-0000-0000-000000000001','title':catalog['title'],
+            'artist-credit':[{'artist':{'name':catalog['artist']}}],
+            'relations':[{'type':'performance','target-type':'work','work':{
+                'id':'00000000-0000-0000-0000-000000000010','relations':[credit]}}]}
+        fact=self.facts.work_facts(catalog,recording)[0]
+        self.assertEqual(composer_subject(fact).name,'Different composer')
+        self.assertEqual(fact.work_evidence.work_id,recording['relations'][0]['work']['id'])
+        for mutation in ('missing_actor_id','restricted_role','wrong_recording','wrong_performer','conflicting_actor_id'):
+            changed=deepcopy(recording)
+            relation=changed['relations'][0]['work']['relations'][0]
+            if mutation=='missing_actor_id':
+                relation['artist'].pop('id')
+            if mutation=='restricted_role':
+                relation['attributes']=['additional']
+            if mutation=='wrong_recording':
+                changed['title']='Another recording'
+            if mutation=='wrong_performer':
+                changed['artist-credit'][0]['artist']['name']='Another performer'
+            if mutation=='conflicting_actor_id':
+                changed['relations'][0]['work']['relations'].append({**deepcopy(relation),
+                    'artist':{**actor,'name':'Another person'}})
+            candidate=self.facts.work_facts(catalog,changed)[0]
+            self.assertIsNone(candidate.work_evidence,mutation)
+            self.assertIsNone(composer_subject(candidate),mutation)
+        multiple=deepcopy(recording)
+        multiple['relations'].append(deepcopy(multiple['relations'][0]))
+        self.assertEqual(self.facts.work_facts(catalog,multiple),[])
+
     def test_positive_resolver_chain_roles_composers_and_reciprocal_artist_identity(self):
-        catalog = self.catalog()
+        catalog = {**self.catalog(), 'artist_ids':['Z'*22]}
         recording_id = "00000000-0000-0000-0000-000000000001"
         artist_id = "00000000-0000-0000-0000-000000000002"
         work_id = "00000000-0000-0000-0000-000000000003"
@@ -140,7 +174,8 @@ class SessionFactsTest(unittest.TestCase):
             "type": "Person",
             "life-span": {"begin": "1960-01-02"},
             "relations": [
-                {"type": "wikidata", "url": {"resource": "https://www.wikidata.org/wiki/Q1"}}
+                {"type": "wikidata", "url": {"resource": "https://www.wikidata.org/wiki/Q1"}},
+                {"type":"free streaming","url":{"resource":"https://open.spotify.com/artist/"+"Z"*22}}
             ],
         }
 
@@ -157,6 +192,7 @@ class SessionFactsTest(unittest.TestCase):
                 return {
                     "entities": {
                         "Q1": {
+                            "id":"Q1",
                             "descriptions": {
                                 lang: {"value": "Description " + lang}
                                 for lang in self.facts.LANGUAGES
@@ -175,6 +211,10 @@ class SessionFactsTest(unittest.TestCase):
 
         resolver = Resolver(object())
         facts = asyncio.run(resolver.resolve(catalog))
+        self.assertEqual({f.artwork_artist_identity.wikidata_id for f in facts
+                          if f.key in {'artist_begin','artist_description','recording_credits','work_composers'}}, {'Q1'})
+        self.assertEqual({f.artwork_subject_uri for f in facts
+                          if f.key in {'artist_begin','artist_description'}}, {'spotify:artist:'+'Z'*22})
         self.assertEqual({f.public_artist_qid for f in facts
                           if f.key in {'artist_begin','artist_description'}}, {'Q1'})
         self.assertEqual(
@@ -195,6 +235,12 @@ class SessionFactsTest(unittest.TestCase):
             "Test composer",
             dict(next(f for f in facts if f.key == "work_composers").contents)["nl"],
         )
+        # Editorial same-band identity does not require an image/Spotify URL.
+        person['relations'] = [r for r in person['relations'] if r['type'] == 'wikidata']
+        without_image = asyncio.run(resolver.resolve(catalog))
+        self.assertTrue(all(f.artwork_artist_identity is None for f in without_image))
+        self.assertEqual({f.public_artist_qid for f in without_image
+                          if f.key in {'artist_begin','recording_credits','work_composers'}}, {'Q1'})
         resolver.reciprocal = "00000000-0000-0000-0000-000000000004"
         self.assertTrue(all(not f.public_artist_qid for f in asyncio.run(resolver.resolve(catalog))))
         self.assertNotIn(

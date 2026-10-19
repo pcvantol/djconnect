@@ -53,7 +53,7 @@ def parse_plan(raw):
         artist = safe_subject(value["artist"])
         if not artist or not admissible_question(artist):
             return None
-    if read in {"artist", "recording", "release", "album_tracks", "other_album", "artist_tracks"}:
+    if read in {"artist", "artist_story", "recording", "release", "album_tracks", "other_album", "artist_tracks"}:
         if reference not in ({"current", "selected", "named"} if read == "artist_tracks" else {"current", "selected"}):
             return None
     elif read in {"queue", "forecast", "previous_track", "none"}:
@@ -78,16 +78,20 @@ def prompt(text, language, *, selected, active):
         "Interpret the user's music question semantically, including typos, colloquial language, "
         "missing accents and paraphrases. This is a read-only route proposal, NOT an answer or command. "
         "Return exactly one JSON object with read, reference, exclude_current; add artist only for artist_tracks/named. "
-        "read is one of artist (identify performer), recording (identify title), release (edition release date), "
+        "read is one of artist (only identify performer), artist_story (explain the contextual artist, "
+        "biography, background, tell me about this artist), recording (identify title), release (edition release date), "
         "album_tracks (enumerate tracks contained on this album), other_album (another album by the contextual artist), "
         "artist_tracks (offer real catalog songs or hits by a performer, without starting music), "
         "queue (reported upcoming music), forecast (DJ-session preview), previous_track, none. "
-        "reference is current or selected for artist/recording/release/album_tracks/other_album/artist_tracks; "
+        "reference is current or selected for artist/artist_story/recording/release/album_tracks/other_album/artist_tracks; "
         "artist_tracks also allows named as described below. Other reads use none. "
         "If a contribution is selected, a deictic question refers to it unless "
         "the user explicitly asks about music playing now. If selected is unavailable do not invent it. "
         "Current playback can be read even without an active DJ session. "
         "The listener need not name the performer or record: Core resolves an implicit musical reference. "
+        "A request to tell more about the artist behind the selected/current music is artist_story, "
+        "even when the question supplies no artist name or factual detail. Core fetches that identity "
+        "and sources after validating your plan. Do not use none merely because you cannot yet name the artist. "
         "Offering a different album by the contextual performer is other_album, a read-only offer, "
         "not a request to start playback. Use current when no contribution is selected. "
         "For artist_tracks a performer explicitly named in the question uses reference named and artist containing "
@@ -97,6 +101,7 @@ def prompt(text, language, *, selected, active):
         "excludes the contextual recording, including when the performer is explicitly named. Use false only when "
         "the listener explicitly asks to include the current recording or requests an inclusive full list. "
         "For album_tracks use true for remaining/other tracks, false for the full list. All other reads use false. "
+        "A request to hear about the contextual artist is artist_story, never merely artist identification. "
         "Album similarity, biography, producers, concerts and general research are NOT album track lists. "
         "For ambiguity, non-music, an independent named research subject, instructions, quotations, or any "
         "request to change playback/settings, choose none/none/false. The bounded artist field above is the only name exception. "
@@ -188,7 +193,10 @@ async def execute_plan(hass, runtime, text, plan, scope):
     await turn.guard()
     turn.frame.retry = None
     from .observations import current_artist_read, release_read, queue_read, forecast_read, previous_read
-    if plan.read == "artist_tracks":
+    if plan.read == "artist_story":
+        from .artist_story import response
+        answer = await response(hass, runtime, text, selected)
+    elif plan.read == "artist_tracks":
         from .artist_tracks import artist_tracks_read
         answer = await artist_tracks_read(hass, runtime, plan, selected)
     elif plan.read in {"artist", "recording"}:

@@ -39,6 +39,7 @@ class PersonalDJNarrationTest(unittest.TestCase):
     def setUpClass(cls):
         cls.runtime, cls.previous_const = _load_runtime_module()
         cls.briefs = importlib.import_module('custom_components.djconnect.narration_brief')
+        cls.load_pipeline()
 
     @classmethod
     def tearDownClass(cls):
@@ -46,7 +47,7 @@ class PersonalDJNarrationTest(unittest.TestCase):
         if cls.previous_const is not None:
             sys.modules['custom_components.djconnect.const'] = cls.previous_const
 
-    async def setup_runtime(self, *, presence='presenter', family='birth', history=None):
+    async def setup_runtime(self, *, presence='presenter', family='edition', history=None):
         manager = self.runtime.SessionRuntimeManager(historical_projections=history)
         session = await manager.async_start(owner_profile_id='narration-owner', selected_mood='energy',
             dj_persona=self.runtime.DJPersona.HOME_DJ, locale='nl', music_backend='spotify_direct',
@@ -68,6 +69,10 @@ class PersonalDJNarrationTest(unittest.TestCase):
         return manager, session, fact, run
 
     def frame(self, brief):
+        # Generic symbolic transport/race tests use an edition with no public
+        # artist binding. Researched artist publication has its own sealed tests.
+        if brief.fact.key == 'album_release':
+            return f'{brief.anchors[0]}: deze uitgave staat vermeld met {brief.anchors[1]}. Een kleine voetnoot om even bij stil te staan.'
         return f'{brief.anchors[0]} werd geboren op {brief.anchors[1]}. Zo krijgt de naam even een gezicht; de muziek mag zo weer verder vertellen.'
 
     def text(self, brief):
@@ -291,7 +296,7 @@ class PersonalDJNarrationTest(unittest.TestCase):
 
     def test_existing_ha_transport_runs_realization_and_assessment_without_raw_debug(self):
         pipeline=self.load_pipeline()
-        _,fact=source('birth',0)
+        _,fact=source('edition',0)
         brief=self.briefs.qualify(fact,locale='nl',persona='home_dj',mood='energy',seed=fact.copy_for('nl')[1])
         frame=self.frame(brief)
         text=self.text(brief)
@@ -317,7 +322,7 @@ class PersonalDJNarrationTest(unittest.TestCase):
 
     def test_existing_ha_transport_rejects_bad_candidate_or_assessment(self):
         pipeline=self.load_pipeline()
-        _,fact=source('birth',0)
+        _,fact=source('edition',0)
         brief=self.briefs.qualify(fact,locale='nl',persona='home_dj',mood='energy',seed=fact.copy_for('nl')[1])
         for failure in ('wrong_anchor','unsupported','wrong_language','too_flat','provider_failure','pipeline_changed'):
             calls=[]

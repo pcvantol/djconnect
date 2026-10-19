@@ -1,3 +1,27 @@
+# Session artist-photo v2 — local draft; protected producer pin pending
+
+Owner-requested non-Spotify band/live imagery reuses the existing private
+Session-media owner. [Contract2](docs/product/SESSION_ARTIST_PHOTO_V2.md),
+[source-fixture payloads](examples/client_contracts/session_artist_photo_v2.json),
+[evidence](docs/verification/SESSION_ARTIST_PHOTO_V2_20261019.md).
+Explicit `contract_version:2` at the same prepare endpoint; version1 remains
+Spotify-only. Select exact primary-performing artist for qualified credit
+Moments; preserve that identity and original source binding in retained Flow.
+Commons fallback is only for missing Spotify image, with exact public subject,
+validated image bytes and full photographer/credit/license/file-page attribution.
+Do not display a Spotify badge as the photo's license/author attribution.
+Actual intrinsic dimensions and `upscale_allowed:false` prevent stretching a
+small historical image into a high-resolution hero. Keep music Play separate.
+
+The current Apple strict version1/Spotify validator cannot render Commons.
+Apple owns explicit v2 adoption, credit/licence presentation and real native
+qualification. Samples are local synthetic-boundary producer fixtures with
+`qualified:false` and `PENDING_QUALIFIED_PIN`, not a published producerpin,
+consumer-start authority, release, installed or native acceptance. No Apple
+source/writer is taken over; no private Session media reaches shared VibeCast.
+The actual isolated HA public adapter obtained a licensed Nirvana stage photo;
+that is separate from live paired Session/client delivery and visual acceptance.
+
 # Core #1212 protected source — no consumer dispatch
 
 [Device speech1](docs/product/DEVICE_SPEECH_CAPABILITIES_V1.md) adds actual

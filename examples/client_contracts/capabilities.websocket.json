@@ -84,7 +84,8 @@
     "session_artwork": true,
     "session_speech": true,
     "passive_session_surface": true,
-    "profile_session_settings": true
+    "profile_session_settings": true,
+    "ask_dj_examples": true
   },
   "contract_versions": {
     "profile_context": 1,
@@ -103,7 +104,8 @@
     "passive_session_surface": 1,
     "session_history_summary": 1,
     "profile_session_settings": 3,
-    "session_history_entries": 2
+    "session_history_entries": 2,
+    "ask_dj_examples": 1
   },
   "transports": {
     "http": true,
@@ -158,5 +160,17 @@
     "cross_origin_redirects": "forbidden",
     "browser_origin": "same_https_origin_only",
     "native_adoption": "separate_consumer_qualification"
+  },
+  "ask_dj_examples": {
+    "schema_version": 1,
+    "qualified": false,
+    "catalogue_id": "ask_dj_examples_v1",
+    "revision": 1,
+    "sha256": "dfaa98a1659ef5673037da26f98136314b314beea8afe8e31af4ffd5bd6ac4e7",
+    "projection": "pinned_local_mirror",
+    "network_per_render": false,
+    "model_calls_per_render": false,
+    "execution": "existing_ask_dj_message",
+    "availability": "current_qualified_context_required"
   }
 }

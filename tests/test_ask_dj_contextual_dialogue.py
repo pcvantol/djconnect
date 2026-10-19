@@ -4710,6 +4710,13 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
                         self.assertEqual(status, 200, result)
                         self.assertEqual(result["previous_observation"]["state"], "unknown")
                         self.assertFalse(result["history_persisted"])
+                    elif i == 2:
+                        # An explicit native negative imperative now stops before
+                        # the hostile agent, rather than requiring a denied tool.
+                        self.assertEqual(status, 200, result)
+                        self.assertEqual(result['conversation']['metrics']['agent_calls'],0)
+                        self.assertEqual(result['action'],'none')
+                        self.assertFalse(result.get('playback_actions'))
                     else:
                         # Unknown wording now reaches read-only semantic interpretation;
                         # the public question reaches research. Neither call gains

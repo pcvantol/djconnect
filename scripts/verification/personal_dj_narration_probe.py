@@ -179,6 +179,8 @@ async def run_openings(hass, runtime, manager, call, model_receipts):
 
 
 async def run(hass, runtime, manager, active):
+    if os.environ.get('DJC_RESEARCHED_COMPOSER') == '1':
+        return await run_researched_contributor(hass,runtime,manager,active,kind='composer')
     if os.environ.get('DJC_RESEARCHED_PRODUCER') == '1':
         return await run_researched_producer(hass, runtime, manager, active)
     if os.environ.get('DJC_RESEARCHED_ARTIST') == '1':
@@ -323,6 +325,10 @@ async def run_researched_artist(hass, runtime, manager, active):
 
 
 async def run_researched_producer(hass, runtime, manager, active):
+    return await run_researched_contributor(hass,runtime,manager,active,kind='producer')
+
+
+async def run_researched_contributor(hass, runtime, manager, active, *, kind):
     """Two real expressions over the reported credit pair's public recording.
 
     Fresh source identity is genuinely retrieved, then pinned for comparison.
@@ -333,7 +339,7 @@ async def run_researched_producer(hass, runtime, manager, active):
     from unittest.mock import patch
     from custom_components.djconnect.ask_dj import public_research as research
     from custom_components.djconnect import public_artist_narration as narration
-    from custom_components.djconnect.session_facts import recording_facts, match_name
+    from custom_components.djconnect.session_facts import recording_facts, work_facts, match_name
     from custom_components.djconnect.narration_brief import qualify
     from custom_components.djconnect.pipeline import realize_session_narration
     from scripts.verification.askdj_contextual_golden import ACTIVE_CASE
@@ -347,8 +353,24 @@ async def run_researched_producer(hass, runtime, manager, active):
         admission()
     recording_id = '852ee1bd-5d68-4421-8375-68ac317bffb3'
     async with research.PublicFetch(guard) as fetch:
+        if kind=='composer':
+            # Public release chosen for this lab sample, not inferred from the
+            # owner's screenshot or a live Session. Exactly one named recording.
+            release_id='23b0745b-bedd-337c-8ce2-6db4dc0f1ca2'
+            status,body,_=await fetch.request('https://musicbrainz.org/ws/2/release/'+release_id
+                +'?fmt=json&inc=recordings+artist-credits')
+            if status!=200:
+                error=RuntimeError('composer_release_source_unavailable')
+                error.public_http_status=status
+                raise error
+            release=json.loads(body)
+            assert release.get('id')==release_id
+            candidates=[t.get('recording',{}) for m in release.get('media',[]) for t in m.get('tracks',[])
+                if ''.join(c for c in t.get('recording',{}).get('title','').casefold() if c.isalnum())=='heartshapedbox']
+            assert len(candidates)==1,'composer_sample_recording_ambiguous'
+            recording_id=candidates[0]['id']
         status, body, _ = await fetch.request('https://musicbrainz.org/ws/2/recording/'+recording_id
-            +'?fmt=json&inc=artist-rels+artist-credits')
+            +'?fmt=json&inc=artist-rels+artist-credits'+('+work-rels+work-level-rels' if kind=='composer' else ''))
         if status != 200:
             error = RuntimeError('producer_recording_source_unavailable')
             error.public_http_status = status
@@ -356,14 +378,16 @@ async def run_researched_producer(hass, runtime, manager, active):
         recording = json.loads(body)
         artist = ', '.join(c.get('artist',{}).get('name','') for c in recording.get('artist-credit',[])
             if isinstance(c,dict))
-        assert recording.get('id') == recording_id and match_name(artist) == match_name('Editors')
+        assert recording.get('id') == recording_id and match_name(artist) == match_name('Nirvana' if kind=='composer' else 'Editors')
         catalog = {'uri':'spotify:track:'+'P'*22,'title':recording['title'],'artist':artist}
-        fact = recording_facts(catalog,recording)[0]
-        credit = narration.producer_subject(fact)
+        fact = (work_facts if kind=='composer' else recording_facts)(catalog,recording)[0]
+        credit = (narration.composer_subject if kind=='composer' else narration.producer_subject)(fact)
         assert credit is not None, 'recording_roles_not_qualified'
-        identity = await narration.producer_identity(fetch,credit)
+        if kind=='composer':
+            assert credit.name=='Kurt Cobain'
+        identity = await (narration.composer_identity if kind=='composer' else narration.producer_identity)(fetch,credit)
         assert identity is not None, 'reciprocal_producer_identity_unavailable'
-        sources,state = await research.research(credit.name,'Introduce the credited producer through a documented activity',
+        sources,state = await research.research(credit.name,'Introduce the credited '+kind+' through a documented musical activity',
             'nl',guard,qualified_music=True,expected_roles=(identity[3],),expected_entity_id=identity[4],
             allow_web=False,fetch=fetch,original_paragraphs=True)
         assert sources, 'producer_public_references_unavailable'
@@ -382,9 +406,9 @@ async def run_researched_producer(hass, runtime, manager, active):
         assert selected == credit
         return identity
     rows=[]
-    with patch.object(research,'research',pinned), patch.object(narration,'producer_identity',pinned_identity):
+    with patch.object(research,'research',pinned), patch.object(narration,kind+'_identity',pinned_identity):
         for mood in ('chill','party'):
-            identifier='public-producer-home_dj-'+mood+'-nl'
+            identifier='public-'+kind+'-home_dj-'+mood+'-nl'
             token=ACTIVE_CASE.set(identifier)
             try:
                 seed=fact.copy_for('nl')[1]
@@ -400,7 +424,7 @@ async def run_researched_producer(hass, runtime, manager, active):
                     'actual_published':'NOT_RUN_EXPRESSION_PILOT_ONLY'})
             finally:
                 ACTIVE_CASE.reset(token)
-    return {'scope':'PAID_HA_RESEARCHED_PRODUCER_EXPRESSION_2_CELLS_NOT_PUBLICATION_OR_RELEASE',
+    return {'scope':'PAID_HA_RESEARCHED_'+kind.upper()+'_EXPRESSION_2_CELLS_NOT_PUBLICATION_OR_RELEASE',
         'cases':rows,'public_evidence_package':package,'public_evidence_sha256':package_hash,
         'status':'PASS' if all(row['status']=='PASS' for row in rows) else 'FAIL',
         'editorial_acceptance':'NOT_RUN','all_family_qualification':'NOT_RUN'}

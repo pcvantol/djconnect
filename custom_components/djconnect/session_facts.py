@@ -123,6 +123,34 @@ class RecordingCreditEvidence:
                     and len({p.contributor_id for p in self.producers}) == len(self.producers))
 
 
+@dataclass(frozen=True)
+class ComposerCredit:
+    contributor_id: str
+    name: str
+
+    def eligible(self):
+        return bool(MBID.fullmatch(self.contributor_id) and label(self.name,160))
+
+
+@dataclass(frozen=True)
+class WorkComposerEvidence:
+    """Exact recording → underlying work → typed composer, never a producer."""
+    recording_id: str
+    work_id: str
+    media_identity: str
+    composers: tuple[ComposerCredit, ...]
+    source_url: str
+    observed_at: float
+
+    def eligible(self, now):
+        return bool(MBID.fullmatch(self.recording_id) and MBID.fullmatch(self.work_id)
+            and re.fullmatch(r'spotify:track:[A-Za-z0-9]{22}',self.media_identity)
+            and self.source_url=='https://musicbrainz.org/work/'+self.work_id
+            and 0 <= now-self.observed_at <= 1800 and self.composers
+            and all(type(c) is ComposerCredit and c.eligible() for c in self.composers)
+            and len({c.contributor_id for c in self.composers})==len(self.composers))
+
+
 def label(value: Any, limit: int = 320) -> str:
     text = str(value or "").strip()
     return text if 0 < len(text) <= limit and not any(ord(c) < 32 for c in text) else ""
@@ -142,6 +170,20 @@ def qualified_date(value: Any, precision: Any) -> str:
     except ValueError:
         return ""
     return text
+
+
+@dataclass(frozen=True)
+class ArtistImageIdentity:
+    """Qualified primary-performer context, not a claim about other credits."""
+    spotify_uri: str
+    wikidata_id: str
+    name: str
+    musicbrainz_id: str
+
+    def eligible(self):
+        return bool(re.fullmatch(r'spotify:artist:[A-Za-z0-9]{22}',self.spotify_uri)
+            and re.fullmatch(r'Q[1-9][0-9]*',self.wikidata_id)
+            and MBID.fullmatch(self.musicbrainz_id) and label(self.name,160))
 
 
 @dataclass(frozen=True)
@@ -166,6 +208,8 @@ class QualifiedSessionFact:
     # Local lookup bindings, never public facts or model-processing authority.
     album_artist: str = ""
     album_artist_id: str = ""
+    work_evidence: WorkComposerEvidence | None = None
+    artwork_artist_identity: ArtistImageIdentity | None = None
 
     def copy_for(self, locale: str) -> tuple[str, str] | None:
         lang = locale[:2].lower()
@@ -757,15 +801,20 @@ class SessionFactsResolver:
                                 for c in entity.get("claims", {}).get("P434", [])
                                 if c.get("rank") != "deprecated"
                             }
-                            if ids == {artist_id}:
+                            if entity.get("id") == qid and ids == {artist_id}:
                                 # Reciprocal public identity, not a name match.
                                 # Only this resolved binding may admit subsequent
                                 # Wikipedia context for a proactive Artist story.
                                 facts = [replace(f, public_artist_qid=qid)
-                                         if f.key == "artist_begin" else f for f in facts]
-                                fact = description_fact(catalog, entity, qid)
+                                         if f.key in {"artist_begin","recording_credits","work_composers"} else f for f in facts]
+                                fact = description_fact(catalog, entity, qid, person=person)
                                 if fact:
                                     facts.append(replace(fact, public_artist_qid=qid))
+                                image_identity = qualified_artist_image_identity(catalog,person,entity,qid)
+                                if image_identity is not None:
+                                    facts = [replace(f,artwork_artist_identity=image_identity)
+                                             if f.key in {'artist_begin','artist_description','recording_credits','work_composers'}
+                                             else f for f in facts]
         return tuple(facts[:6])
 
 
@@ -885,18 +934,45 @@ def artist_facts(catalog: dict[str, Any], person: dict[str, Any]) -> list[Qualif
         )
     ]
 
+    uri = _artist_spotify_uri(catalog, person)
+    return [replace(f, artwork_subject_uri=uri) for f in facts] if uri else facts
+
+
+def _artist_spotify_uri(catalog, person):
+    """Reuse an explicit provider cross-reference; never search by name."""
     artist_ids = catalog.get("artist_ids") or []
     links = {r.get("url", {}).get("resource") for r in person.get("relations", [])
-             if isinstance(r, dict) and r.get("type") == "streaming"}
-    exact = [i for i in artist_ids if isinstance(i, str) and re.fullmatch(r"[A-Za-z0-9]{22}", i)
-             and "https://open.spotify.com/artist/" + i in links]
-    if len(set(exact)) == 1:
-        facts = [replace(f, artwork_subject_uri="spotify:artist:" + exact[0]) for f in facts]
-    return facts
+             if isinstance(r, dict) and r.get("type") in {"streaming", "free streaming"}
+             and not r.get("ended")}
+    exact = {i for i in artist_ids if isinstance(i, str) and re.fullmatch(r"[A-Za-z0-9]{22}", i)
+             and "https://open.spotify.com/artist/" + i in links}
+    return "spotify:artist:" + next(iter(exact)) if len(exact) == 1 else ""
+
+
+
+def qualified_artist_image_identity(catalog,person,entity,qid):
+    """Exact provider artist cross-reference plus reciprocal public identity."""
+    if not all(isinstance(v,dict) for v in (catalog,person,entity)):
+        return None
+    uri=_artist_spotify_uri(catalog,person)
+    reciprocal={c.get('mainsnak',{}).get('datavalue',{}).get('value')
+                for c in entity.get('claims',{}).get('P434',[]) if isinstance(c,dict) and c.get('rank')!='deprecated'}
+    provider={c.get('mainsnak',{}).get('datavalue',{}).get('value')
+                for c in entity.get('claims',{}).get('P1902',[]) if isinstance(c,dict) and c.get('rank')!='deprecated'}
+    qids={m[1] for r in person.get('relations',[]) if isinstance(r,dict) and r.get('type')=='wikidata'
+          and (m:=re.fullmatch(r'https?://www\.wikidata\.org/wiki/(Q[1-9][0-9]*)',str(r.get('url',{}).get('resource') or '')))}
+    value=ArtistImageIdentity(uri,str(qid),label(person.get('name'),160),str(person.get('id') or ''))
+    if (not value.eligible() or entity.get('id')!=qid or qids!={qid}
+            or reciprocal!={value.musicbrainz_id} or person.get('type') not in {'Person','Group'}
+            or match_name(person.get('name'))!=match_name(catalog.get('artist'))
+            or (provider and provider!={uri.rsplit(':',1)[-1]})):
+        return None
+    return value
 
 
 def description_fact(
-    catalog: dict[str, Any], entity: dict[str, Any], qid: str
+    catalog: dict[str, Any], entity: dict[str, Any], qid: str,
+    *, person: dict[str, Any] | None = None,
 ) -> QualifiedSessionFact | None:
     descriptions = entity.get("descriptions", {})
     texts = [label(descriptions.get(lang, {}).get("value"), 400) for lang in LANGUAGES]
@@ -922,6 +998,10 @@ def description_fact(
         identifier = next(iter(source_ids))
         if isinstance(identifier, str) and re.fullmatch(r"[A-Za-z0-9]{22}", identifier):
             fact = replace(fact, artwork_subject_uri="spotify:artist:" + identifier)
+    elif not source_ids and isinstance(person, dict):
+        identity=qualified_artist_image_identity(catalog,person,entity,qid)
+        if identity is not None:
+            fact=replace(fact,artwork_subject_uri=identity.spotify_uri)
     return fact
 
 
@@ -953,8 +1033,7 @@ def work_facts(catalog: dict[str, Any], recording: dict[str, Any]) -> list[Quali
     if not composers or len(composers) > 8:
         return []
     names = ", ".join(composers)
-    return [
-        _fact(
+    fact = _fact(
             "work_composers",
             catalog,
             "track_context",
@@ -976,7 +1055,27 @@ def work_facts(catalog: dict[str, Any], recording: dict[str, Any]) -> list[Quali
             "https://musicbrainz.org/work/" + work_id,
             DisplayFactCore("work_composers", roles=(("composer",tuple(composers)),)),
         )
-    ]
+    credits=[]
+    for relation in work.get('relations',[]):
+        if not isinstance(relation,dict) or relation.get('target-type')!='artist' or relation.get('type')!='composer':
+            continue
+        actor=relation.get('artist') or {}
+        credit=ComposerCredit(str(actor.get('id') or ''),label(actor.get('name'),160))
+        if (not credit.eligible() or not isinstance(relation.get('attributes',[]),list)
+                or relation.get('attributes') or relation.get('attribute-values')
+                or relation.get('ended')):
+            return [fact]  # Display evidence survives; no identity/research authority.
+        credits.append(credit)
+    proof=WorkComposerEvidence(str(recording.get('id') or ''),work_id,fact.media_identity,
+        tuple(credits),fact.source_url,fact.observed_at)
+    recording_names=[c.get('artist',{}).get('name') for c in recording.get('artist-credit',[])
+                     if isinstance(c,dict) and isinstance(c.get('artist'),dict)]
+    if (proof.eligible(fact.observed_at)
+            and tuple(c.name for c in credits)==tuple(composers)
+            and match_name(recording.get('title'))==match_name(catalog.get('title'))
+            and match_name(', '.join(str(n) for n in recording_names))==match_name(catalog.get('artist'))):
+        fact=replace(fact,work_evidence=proof)
+    return [fact]
 
 
 def session_facts_resolver(hass: Any) -> SessionFactsResolver:

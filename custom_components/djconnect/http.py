@@ -1730,6 +1730,37 @@ async def _recommendation_play_success_response(
     dj_text = fallback_dj_text
     dj_response_debug["fallback_used"] = True
     dj_response_debug["reason"] = "catalog_model_processing_not_qualified"
+    narration = {}
+    receipt = result.get("playback_outcome") if isinstance(result, dict) else None
+    # The backend already issued the accepted-selection receipt. Preserve it
+    # through Play Now / frozen conversational choices instead of replacing an
+    # album with whichever first track happens to be visible in the readback.
+    if (isinstance(receipt, dict) and receipt.get("schema_version") == 1
+            and receipt.get("state") in {"observed", "dispatched"}
+            and isinstance(receipt.get("selection"), dict)):
+        from copy import deepcopy
+        from .playback_request import response as playback_response
+        receipt = deepcopy(receipt)
+        selection = receipt["selection"]
+        selected = selection.get("media") or {}
+        target = recommendation.get("uri") or recommendation.get("context_uri")
+        if target and selected.get("uri") == target:
+            selected = dict(selected)
+            selected.update({key: recommendation[key] for key in
+                ("artist", "artist_name", "image_url", "album_image_url", "media_image_url")
+                if recommendation.get(key)})
+            if recommendation.get("title"):
+                selected["title"] = recommendation["title"]
+                selected["track_name"] = recommendation["title"]
+            if kind in {"album", "playlist"}:
+                selected.pop("album_name", None)
+                selected.pop("album", None)
+            selection["media"] = selected
+            receipt.update(observed_match=confirmed, state="observed" if confirmed else "dispatched")
+            narration = await playback_response(hass, runtime, receipt)
+            dj_text = narration["text"]
+            dj_response_debug["fallback_used"] = not narration["is_generated_text"]
+            dj_response_debug["reason"] = "accepted_playback_request"
     generated_text = dj_response_debug.get("fallback_used") is False
     text_source = "generated" if generated_text else "fallback"
     audio_url = None if request_payload.get("audio_response") == "never" else await async_create_dj_audio_url(hass, runtime, dj_text)
@@ -1771,15 +1802,16 @@ async def _recommendation_play_success_response(
             "audio_url": audio_url,
             "playback_actions": [],
             "items": [],
-            "images": [],
+            "images": narration.get("images", []),
             "links": [],
-            "sources": [],
+            "sources": narration.get("sources", []),
         },
         "recommendation": {
             key: recommendation.get(key)
             for key in ("uri", "uris", "context_uri", "offset_uri", "kind", "title", "subtitle", "reason")
             if recommendation.get(key)
         },
+        **{key: narration[key] for key in ("playback_outcome", "resolved_media", "media", "images", "sources", "model_processing_basis") if key in narration},
         **music_backend_metadata(hass, runtime),
     }
 
@@ -3247,6 +3279,7 @@ class DJConnectTransportCapabilitiesView(HomeAssistantView):
     async def get(self, request):
         from .capability_contract import _platform_capabilities, _contract_versions
         from .hybrid_contract import hybrid_transport_capability
+        from .ask_dj.example_catalogue import capability as examples_capability
         from .session_mood import capability as mood_capability
         from .session_persona import capability as persona_capability
         from .session_presence import capability as presence_capability
@@ -3263,6 +3296,7 @@ class DJConnectTransportCapabilitiesView(HomeAssistantView):
                 "contract_versions": _contract_versions(),
                 "transports": {"http": True, "websocket": True},
                 "session_broadcast": session_broadcast_transport_capabilities(),
+                "ask_dj_examples": examples_capability(),
                 "active_session_mood": mood_capability(),
                 "active_session_persona": persona_capability(),
                 "active_session_presence": presence_capability(),

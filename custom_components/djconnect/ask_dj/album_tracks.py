@@ -56,6 +56,32 @@ COPY = {
     ),
 }
 
+PLAY_LABELS = {
+    'en': ('Play album', 'Play'), 'nl': ('Speel album', 'Afspelen'),
+    'de': ('Album abspielen', 'Abspielen'), 'fr': ('Lire l’album', 'Lire'),
+    'es': ('Reproducir álbum', 'Reproducir'),
+}
+
+
+def playable_rows(hass, catalog, tracks, locale):
+    """One exact edition header and its tracks, using the existing choice owner."""
+    from .responses import register_image_proxy_url
+
+    image = catalog.get('album_image_url') or ''
+    image = register_image_proxy_url(hass, image) if image.startswith(('https://', 'http://')) else ''
+    album_label, track_label = PLAY_LABELS[locale]
+    album = {'id': catalog['album_uri'], 'uri': catalog['album_uri'],
+        'context_uri': catalog['album_uri'], 'kind': 'album', 'title': catalog['album_name'],
+        'artist': catalog.get('album_artist') or '', 'subtitle': catalog.get('album_artist') or '',
+        'label': album_label, 'button_label': album_label, 'action_style': 'play_now',
+        'image_url': image}
+    rows = [album]
+    for track in tracks:
+        rows.append({**track, 'kind': 'track', 'id': track.get('id') or track['uri'],
+            'subtitle': track.get('artist') or '', 'image_url': image,
+            'label': track_label, 'button_label': track_label, 'action_style': 'play_now'})
+    return rows
+
 
 def album_tracks_question(text):
     value = " ".join(text.casefold().strip(" ¿¡?.!").split())
@@ -63,8 +89,8 @@ def album_tracks_question(text):
         r"(?:welke|wat voor) (?:andere |overige )?(?:nummers|liedjes|tracks) (?:(?:staan|zitten)(?: er)?(?: nog meer)? (?:op|in)|bevat|heeft) (?:dit|dat|het huidige|deze) album",
         r"(?:what|which) (?:other |more )?(?:songs|tracks) (?:are|appear)(?: there)? (?:on|in) (?:this|that|the current) album",
         r"what are (?:the |all the )?(?:songs|tracks) on (?:this|that|the current) album",
-        r"welche (?:anderen |weiteren )?(?:lieder|titel|tracks) sind auf (?:diesem|dem aktuellen) album",
-        r"quels (?:autres )?(?:morceaux|titres) sont (?:sur|dans) (?:cet|ce) album",
+        r"welche (?:anderen |weiteren )?(?:lieder|titel|tracks|songs) sind auf (?:diesem|dem aktuellen) album",
+        r"quels (?:autres )?(?:morceaux|titres) (?:sont|figurent) (?:sur|dans) (?:cet|ce) album",
         r"qué (?:otras )?(?:canciones|temas) hay en (?:este|ese) álbum",
         r"(?:toon|geef|laat zien|list|show|zeige|liste|montre|muestra) "
         r"(?:(?:de|the|all|all the|die|alle|les|las|los) )?"
@@ -105,7 +131,7 @@ def _target(metadata):
 
 
 async def album_tracks_read(hass, runtime, text, selected=None, *, exclude_current=None):
-    from . import run_music_command, _images_from_context
+    from . import run_music_command
     from ..spotify_backend import SpotifyBackendError
     from ..use_cases import MusicBackendCapabilityError
 
@@ -193,7 +219,7 @@ async def album_tracks_read(hass, runtime, text, selected=None, *, exclude_curre
         "as_of": now.isoformat(),
         "valid_until": (now + timedelta(seconds=60)).isoformat(),
     }
-    message, items, sources, images = copy[3], [], [], []
+    message, items, sources = copy[3], [], []
     try:
         metadata = (selected.get("playback") or {}) if selected is not None else await fresh()
         bind_expiry(metadata)
@@ -238,9 +264,6 @@ async def album_tracks_read(hass, runtime, text, selected=None, *, exclude_curre
                 returned_count=len(items),
             )
             message = copy[0 if other else 1].format(album=catalog["album_name"])
-            message += "\n" + "\n".join(
-                "• " + i["title"] + (" — " + i["artist"] if i.get("artist") else "") for i in items
-            )
             if state == "partial":
                 message += "\n" + copy[2]
             elif state == "known_empty":
@@ -253,9 +276,7 @@ async def album_tracks_read(hass, runtime, text, selected=None, *, exclude_curre
                     "url": "https://open.spotify.com/album/" + album.rsplit(":", 1)[-1],
                 }
             ]
-            images = _images_from_context(
-                hass, {}, {"album_image_url": catalog.get("album_image_url")}
-            )
+            items = playable_rows(hass, catalog, items, language())
     except MusicBackendCapabilityError:
         observation["state"], message = "unsupported", copy[5]
     except (SpotifyBackendError, ConnectionError, OSError, TimeoutError):
@@ -271,10 +292,13 @@ async def album_tracks_read(hass, runtime, text, selected=None, *, exclude_curre
         "action": "none",
         "intent": {"category": "informational", "intent": "album_tracks_information"},
         "items": items,
-        "playback_actions": [],
+        "playback_actions": items,
         "sources": sources,
         "links": sources,
-        "images": images,
+        "images": [],
+        "text_source": "qualified_catalog_result",
+        "is_generated_text": False,
+        "_album_track_choices": bool(items),
         "album_track_observation": observation,
         "_private_current_context": True,
         "speech_processing_basis": "accepted_local_reply",

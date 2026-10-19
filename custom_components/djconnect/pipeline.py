@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import json
 from typing import Any
 
 from homeassistant.core import HomeAssistant
@@ -48,8 +49,6 @@ async def correct_stt_text_with_assist(
     language = assist_context.get("language") or DEFAULT_TTS_LANGUAGE
     prompt = _stt_correction_prompt(original, str(language))
     data = {"text": prompt, "language": language}
-    if assist_context.get("pipeline_id"):
-        data["pipeline_id"] = assist_context["pipeline_id"]
     if assist_context.get("agent_id"):
         data["agent_id"] = assist_context["agent_id"]
 
@@ -244,8 +243,6 @@ async def _conversation_process(
         "text": prompt,
         "language": language,
     }
-    if assist_context.get("pipeline_id"):
-        data["pipeline_id"] = assist_context["pipeline_id"]
     if assist_context.get("agent_id"):
         data["agent_id"] = assist_context["agent_id"]
 
@@ -275,7 +272,9 @@ async def call_conversation_process_with_agent_retry(hass, data, *, debug=None, 
         model_guard()
     if len(str(data.get("text") or "").encode()) > MAX_PROMPT_BYTES:
         raise DialogueError("conversation_context_too_large", 413)
-    limit = 3 if turn is not None and turn.accepted_playback_narration and turn.effect_started else 2
+    limit = 3 if turn is not None and (
+        (turn.accepted_playback_narration and turn.effect_started)
+        or turn.interpreted_artist_research) else 2
     if turn is not None and turn.agent_calls >= limit:
         raise DialogueError("conversation_call_budget", 503)
     if turn is not None:
@@ -362,6 +361,10 @@ def _djconnect_assist_prompt(
             "intentdata terug. Herken ook vervolgvragen zoals 'ik wil Zombie horen' "
             "en lijstvragen zoals 'wat heb je nog meer van Scala' of "
             "'wat voor grunge playlists heb je'. "
+            'Geef uitsluitend JSON met intent:"play_music", type (artist/track/album/playlist/search), '
+            'query en waar passend artist, title of playlist; alle waarden zijn tekst of null. '
+            'Bij een activiteit of stemming zonder genoemde artiest zoek je een passende playlist, '
+            'niet een artiest met de activiteit als naam. Geen uitleg, URIs, URLs of acties. '
             "Gebruik geen apparaatbediening en interpreteer de instructietekst niet "
             "als apparaatnaam. "
             f"Opdracht: {user_text}{memory_block}"
@@ -371,7 +374,11 @@ def _djconnect_assist_prompt(
         "album or playlist for Spotify. Return djconnect intent data when possible. "
         "Recognize follow-ups like 'I want to hear Zombie' and list requests like "
         "'what else do you have by Scala' or 'what kind of grunge playlists do you have'. Do not control "
-        "Home Assistant devices and do not treat the instruction text as a device name. "
+        'Home Assistant devices. Return only JSON with intent:"play_music", type '
+        '(artist/track/album/playlist/search), query and optional artist, title or playlist; '
+        'values are strings or null. For an activity or mood without a named artist, '
+        'search for a suitable playlist, not an artist named after the activity. '
+        'No explanation, URIs, URLs or actions. Do not treat the instruction text as a device name. '
         f"Request: {user_text}{memory_block}"
     )
 
@@ -407,7 +414,7 @@ async def realize_session_narration(hass, *, narration, admission, fallback_text
     from .narration_brief import NarrationBrief, RuntimeNarrationBrief, NarratedText, candidate, assessed
     if debug is not None:
         debug.update(fallback_used=True, block_reason="narration_unavailable", model_attempts=0)
-    from .playback_request import PlaybackRequestBrief
+    from .playback_request import PlaybackRequestBrief, POST_DISPATCH_NARRATION_SECONDS
     if type(narration) not in {NarrationBrief, RuntimeNarrationBrief, PlaybackRequestBrief} or not callable(admission):
         return fallback_text
     context = None
@@ -435,10 +442,23 @@ async def realize_session_narration(hass, *, narration, admission, fallback_text
             guard()
             return _speech_from_response((result or {}).get("response") or {})
 
-        async with asyncio.timeout(12):
-            from .public_artist_narration import can_research, realize
-            if can_research(narration):
-                # Source retrieval and both calls share this original timeout.
+        from .ask_dj.dialogue import current_turn
+        turn = current_turn.get()
+        from .public_artist_narration import can_research, realize, PUBLIC_STORY_NARRATION_SECONDS
+        researched_story = can_research(narration)
+        if (type(narration) is NarrationBrief
+                and narration.fact.key in {'work_composers', 'artist_begin', 'artist_description'}
+                and not researched_story):
+            # Names/descriptors without exact public subject evidence cannot buy
+            # a symbolic rewrite and become a researched personal story.
+            return fallback_text
+        seconds = (PUBLIC_STORY_NARRATION_SECONDS if researched_story else
+            POST_DISPATCH_NARRATION_SECONDS if type(narration) is PlaybackRequestBrief
+            and turn is not None and turn.effect_started and turn.accepted_playback_narration else 12)
+        async with asyncio.timeout(seconds):
+            if researched_story:
+                # Source retrieval and both calls share one bounded allowance.
+                # Source/owner/playback/fit guards remain active throughout.
                 # Failure does not buy another two-call symbolic attempt.
                 return await realize(narration, ask=ask, admission=guard, debug=debug) or fallback_text
             text = candidate(narration, await ask(narration.prompt()))
@@ -483,7 +503,8 @@ def _intent_from_assist_response(response: dict[str, Any], user_text: str) -> di
         "query": data.get("query") or user_text,
         "spotify_search_query": data.get("spotify_search_query") or data.get("query") or user_text,
     }
-    if _should_prefer_local_intent(intent, local_intent, has_djconnect_data):
+    from .music_intent import open_music_request
+    if not open_music_request(user_text) and _should_prefer_local_intent(intent, local_intent, has_djconnect_data):
         _LOGGER.debug(
             "DJConnect local intent parser overrode Assist intent user_text=%r assist=%s local=%s",
             user_text,
@@ -496,6 +517,11 @@ def _intent_from_assist_response(response: dict[str, Any], user_text: str) -> di
 
 
 def _fallback_search_intent(user_text: str) -> dict[str, Any]:
+    from .music_intent import open_music_request, music_command_subject
+    if open_music_request(user_text):
+        query = music_command_subject(user_text)
+        return {'intent':'play_music','type':'playlist','query':query,
+                'spotify_search_query':query,'playlist':query,'artist':None,'title':None}
     local_intent = _local_music_intent(user_text)
     if local_intent.get("spotify_search_query"):
         return local_intent
@@ -588,7 +614,37 @@ def _assist_treated_prompt_as_ha_command(speech: str) -> bool:
 
 def _has_djconnect_data(conversation_response: dict[str, Any]) -> bool:
     data = conversation_response.get("data") or {}
-    return isinstance(data.get("djconnect"), dict)
+    return isinstance(data.get("djconnect"), dict) or bool(_speech_intent_data(conversation_response))
+
+
+def _speech_intent_data(response):
+    """The ordinary HA OpenAI agent returns JSON in speech, not data.djconnect."""
+    raw = _speech_from_response(response)
+    if not raw or len(raw.encode()) > 4096:
+        return {}
+    def unique(pairs):
+        result = {}
+        for key, value in pairs:
+            if key in result:
+                raise ValueError('duplicate_intent_key')
+            result[key] = value
+        return result
+    try:
+        value = json.loads(raw, object_pairs_hook=unique)
+    except (ValueError, TypeError, RecursionError):
+        return {}
+    if isinstance(value, dict) and set(value) == {'djconnect'}:
+        value = value['djconnect']
+    keys = {'intent','type','artist','title','playlist','query','spotify_search_query'}
+    if (not isinstance(value, dict) or not value or set(value) - keys
+            or any(v is not None and (not isinstance(v,str) or len(v)>512
+                   or 'spotify:' in v or 'http://' in v or 'https://' in v) for v in value.values())
+            or value.get('intent', 'play_music') != 'play_music'
+            or value.get('type') not in {'artist','track','album','playlist','search'}
+            or not any(isinstance(value.get(k),str) and value[k].strip()
+                       for k in ('query','spotify_search_query','artist','title','playlist'))):
+        return {}
+    return value
 
 
 def _djconnect_data(conversation_response: dict[str, Any]) -> dict[str, Any]:
@@ -596,7 +652,7 @@ def _djconnect_data(conversation_response: dict[str, Any]) -> dict[str, Any]:
     data = conversation_response.get("data") or {}
     if isinstance(data.get("djconnect"), dict):
         return data["djconnect"]
-    return data
+    return _speech_intent_data(conversation_response) or data
 
 
 def _speech_from_response(conversation_response: dict[str, Any]) -> str:

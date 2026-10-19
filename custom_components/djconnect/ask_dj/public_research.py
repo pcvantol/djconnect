@@ -309,11 +309,25 @@ def excerpt(text, question, maximum):
     return "\n".join(v for _, v in sorted(selected))
 
 
-def paragraph_excerpt(text, question, maximum):
+def _artist_episode_score(text):
+    """Editorial ranking of original passages, never inferred factual evidence."""
+    if re.search(r'\b(?:collaborat\w*|playing together with|recorded .{0,80} with|'
+                 r'samenwerk\w*|zusammen mit|gemeinsam mit|collabor\w*|colabor\w*)\b', text, re.I):
+        return 2
+    return int(bool(re.search(r'\b(?:soundtrack|performed|invited|appeared|'
+        r'guest solos|Gastsoli|solos invités|solos invitados|gastsolo[’\x27]?s|'
+        r'uitgenodigd|voorprogramma|opgetreden|aufgetreten|eingeladen|'
+        r'bande.originale|invit[éeoa]\w*|banda.sonora|actu[oó])\b',text,re.I)))
+
+
+def paragraph_excerpt(text, question, maximum, *, prefer_artist_episode=False, story_topic=''):
     """Select whole original paragraphs, retaining original document offsets."""
     paragraphs = list(re.finditer(r'[^\n]+',text))
     words = {w.casefold() for w in re.findall(r'[\wÀ-ÿ]+',question) if len(w)>4}
+    from ..session_story_variety import passage_score
     ranked = sorted(enumerate(paragraphs),key=lambda row:(
+        -passage_score(row[1][0], story_topic),
+        -_artist_episode_score(row[1][0]) if prefer_artist_episode else 0,
         -len(words & {w.casefold() for w in re.findall(r'[\wÀ-ÿ]+',row[1][0])}),row[0]))
     selected,size = [],0
     if paragraphs and len(paragraphs[0][0]) <= maximum:
@@ -433,7 +447,36 @@ def _source(provider, title, url, text, language, *, revision_url="", entity_id=
     )
 
 
-async def wikipedia(fetch, subject, question, locale, *, expected_roles=(), expected_entity_id="", original_paragraphs=False):
+async def _qualified_wikipedia_title(fetch, qid, language):
+    """An ambiguous name is not a destination: resolve the exact public QID.
+
+    One bounded per-fetch index, never a name search or a persistent cache.
+    Every fetched article must still independently return this same QID.
+    """
+    cache = getattr(fetch, '_qualified_wikipedia_titles', {})
+    if qid not in cache:
+        cache[qid] = {}
+        fetch._qualified_wikipedia_titles = cache
+        status, body, _ = await fetch.request('https://www.wikidata.org/w/api.php?' + urlencode({
+            'action':'wbgetentities','ids':qid,'props':'sitelinks','format':'json',
+            'sitefilter':'enwiki|nlwiki|dewiki|frwiki|eswiki'}))
+        if status == 200:
+            try:
+                entity = json.loads(body).get('entities', {}).get(qid, {})
+                links = entity.get('sitelinks', {})
+                if entity.get('id') == qid and isinstance(links, dict):
+                    for locale in ('en','nl','de','fr','es'):
+                        link = links.get(locale+'wiki', {})
+                        title = link.get('title') if isinstance(link, dict) else None
+                        if (link.get('site') == locale+'wiki' and isinstance(title, str)
+                                and 0 < len(title) <= 240 and not any(ord(c)<32 for c in title)):
+                            cache[qid][locale] = title
+            except (ValueError, AttributeError, TypeError):
+                pass
+    return cache[qid].get(language)
+
+
+async def wikipedia(fetch, subject, question, locale, *, expected_roles=(), expected_entity_id="", original_paragraphs=False, artist_introduction=False, story_topic=''):
     # Exact title first, then title-qualified search. MediaWiki whole-article
     # extracts support only one page at a time: never assume search rank means
     # that the returned extract belongs to the requested person.
@@ -486,6 +529,11 @@ async def wikipedia(fetch, subject, question, locale, *, expected_roles=(), expe
     tokens = re.findall(r"[\wÀ-ÿ]+", subject.casefold())
     for language in dict.fromkeys((locale, "en")):
         pages = await pages_for(language, {**base, "titles": subject})
+        if expected_entity_id and (not pages or all(
+                p.get('pageprops', {}).get('wikibase_item') != expected_entity_id for p in pages)):
+            canonical = await _qualified_wikipedia_title(fetch, expected_entity_id, language)
+            if canonical and canonical != subject:
+                pages = await pages_for(language, {**base, 'titles':canonical})
         if not pages:
             found = await pages_for(
                 language,
@@ -556,7 +604,8 @@ async def wikipedia(fetch, subject, question, locale, *, expected_roles=(), expe
             if type(revision) is int
             else ""
         )
-        chosen_text,ranges = paragraph_excerpt(text,question,1800) if original_paragraphs else (excerpt(text,question,1800),())
+        chosen_text,ranges = (paragraph_excerpt(text,question,1800,prefer_artist_episode=artist_introduction,story_topic=story_topic)
+                              if original_paragraphs else (excerpt(text,question,1800),()))
         return _source(
             "Wikipedia",
             title,
@@ -646,7 +695,7 @@ async def web_references(fetch, subject, question, locale, *, album=None):
 
 
 async def research(subject, question, locale, guard, *, qualified_music=False, expected_roles=(),
-                   expected_entity_id="", allow_web=True, fetch=None,original_paragraphs=False):
+                   expected_entity_id="", allow_web=True, fetch=None,original_paragraphs=False,artist_introduction=False,story_topic=''):
     """One explicit turn owns source work; caller keeps all owner/Session guards."""
     if (
         not isinstance(subject, str)
@@ -666,7 +715,8 @@ async def research(subject, question, locale, guard, *, qualified_music=False, e
         try:
             source = await wikipedia(
                 fetch, subject, question, locale, expected_roles=expected_roles,
-                expected_entity_id=expected_entity_id,original_paragraphs=original_paragraphs
+                expected_entity_id=expected_entity_id,original_paragraphs=original_paragraphs,
+                artist_introduction=artist_introduction,story_topic=story_topic
             )
             if source:
                 sources.append(source)
@@ -674,7 +724,8 @@ async def research(subject, question, locale, guard, *, qualified_music=False, e
                 if source.language != "en" and source.entity_id:
                     english = await wikipedia(
                         fetch, subject, question, "en", expected_roles=expected_roles,
-                        expected_entity_id=expected_entity_id,original_paragraphs=original_paragraphs
+                        expected_entity_id=expected_entity_id,original_paragraphs=original_paragraphs,
+                        artist_introduction=artist_introduction,story_topic=story_topic
                     )
                     # Combine language editions only with the same canonical
                     # public entity ID; a shared spelling alone is insufficient.
@@ -913,7 +964,8 @@ def documented_episode_focus(research):
             continue
         spans = evidence_spans(source)
         for index, span in enumerate(spans):
-            score = 2 if joint.search(span['text']) else 1 if invitation.search(span['text']) else 0
+            score = max(2 if joint.search(span['text']) else 1 if invitation.search(span['text']) else 0,
+                        _artist_episode_score(span['text']))
             if score:
                 candidates.append((score,-order,-index,source,span))
     if not candidates:
@@ -1009,6 +1061,9 @@ def assessment_prompt(answer, context, language, question="", *, allow_prefix=Tr
         "For research schema_version2 or3 also return claim_checks, at most24objects. "
         + quote_contract +
         "text is one unchanged nonempty atomic answer segment. Cover ALL retained text in order, including every modifier/connector and punctuation; only whitespace between segments may be omitted. "
+        "A factual name or work title still needs source evidence inside an expression of DJ appreciation. "
+        "Split the present appreciation words from the unchanged source-bound name/title/role, and cite the latter as a fact with its literal evidence ID. "
+        "Do not put a named work into an evidence-free appreciation segment merely because the surrounding sentence says I like it. "
         "Use only the retained prefix if offered. A segment cannot cross a sentence boundary. Split independent claims at real clause boundaries, never split a connected relationship to hide its unsupported link. "
         "A relationship must be evidenced by that passage, not a union of independently true facts. Use full original context to resolve antecedents; the page name alone does not bind he/she/they to its subject. "
         "Original compositions establishes authorship, not new or newly written material. Audit recaps and pronoun-only sentences against the SAME work's evidence; another work's new material cannot qualify them. "
@@ -1050,10 +1105,10 @@ _EVENT_ACTIONS = (
                r"sorti(?:e|es|s)?|sorties?|parutions?|publications?|paru(?:e|es|s)?|publié(?:e|es|s)?|date de sortie|"
                r"lanzó|lanzaron|lanzad[oa]s?|lanzamientos?|publicaci(?:ón|ones)|edici(?:ón|ones)|publicó|publicad[oa]s?|salió|salieron|fecha de lanzamiento)\b", re.I),
     re.compile(r"\b(?:records?|recorded|recordings?|opnam|opnamen|opnames|opname|opgenomen|opnemen|(?:nam(?:en)?|neemt|nemen|neem)\b[^.!?]{0,40}\bop|aufnahmen?|aufgenommen|(?:nimmt|nehmen|nahm(?:en)?)\b[^.!?]{0,40}\bauf|"
-               r"enregistré(?:e|es|s)?|enregistra|enregistr(?:e|ent|ons|ez|ait|aient)|enregistrements?|grab(?:a(?:n|mos)?|áis|ó|aron)|grabad[oa]s?|grabaci(?:ón|ones))\b", re.I),
-    re.compile(r"\b(?:produced|produces|productions?|produceerde(?:n)?|geproduceerd|producties?|"
+               r"enregistré(?:e|es|s)?|enregistra|enregistr(?:e|ent|ons|ez|ait|aient)|enregistrements?|grab(?:a(?:n|mos|ndo)?|áis|ó|aron)|grabad[oa]s?|grabaci(?:ón|ones))\b", re.I),
+    re.compile(r"\b(?:produced|produces|producing|productions?|produceerde(?:n)?|geproduceerd|producties?|"
                r"produzierte(?:n)?|produziert|produktionen?|produktion|produit(?:e|es|s)?|produisit|"
-               r"produjo|produjeron|producid[oa]s?|producci(?:ón|ones))\b", re.I),
+               r"produjo|produjeron|produciendo|producid[oa]s?|producci(?:ón|ones))\b", re.I),
 )
 # Closed guards for observed role/activity swaps, not a general semantic parser.
 # The same family across languages permits faithful translation, not a new role.
@@ -1296,10 +1351,11 @@ def claim_evidence_ok(answer, data, context):
 
 def temporal_evidence_ok(answer, data, context):
     """Conservative year/event receipts within the existing grounding call."""
-    # Separate same-year facts do not prove inter-event succession. These
-    # unbound bridges have no admitted ordering contract; state supported dates
-    # separately instead. Never treat two source IDs as that missing relation.
-    if not isinstance(answer, str) or _RELATIVE_YEAR.search(answer) or _UNBOUND_SEQUENCE.search(answer):
+    # Separate facts and a positive model review do not prove event ordering.
+    # Keep chronology fail-closed until an actor/activity/direction-bound
+    # executable receipt exists; a nearby work name is insufficient.
+    if (not isinstance(answer, str) or _RELATIVE_YEAR.search(answer)
+            or _UNBOUND_SEQUENCE.search(answer)):
         return False
     claims = data.get('temporal_claims', [])
     if not isinstance(claims, list) or len(claims) > 8:

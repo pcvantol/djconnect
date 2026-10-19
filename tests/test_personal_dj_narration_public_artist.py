@@ -58,6 +58,7 @@ class PublicArtistNarrationTest(unittest.IsolatedAsyncioTestCase):
         self.source_index = 0
         self.second_only = False
         self.producer_mode = False
+        self.composer_mode = False
         self.fetch_owners = []
         self.actor_name_override = None
         self.reciprocal_id_override = None
@@ -77,7 +78,7 @@ class PublicArtistNarrationTest(unittest.IsolatedAsyncioTestCase):
         self.fetch_owners.append(fetch)
         self.urls.append(url)
         host = fixture_host(url)
-        if self.producer_mode:
+        if self.producer_mode or self.composer_mode:
             if host == 'musicbrainz.org' and fixture_location(url).path.startswith('/ws/2/'):
                 return 200,json.dumps({'id':self.selected_credit.contributor_id,
                     'name':self.actor_name_override or self.selected_credit.name,'type':self.actor_type,
@@ -120,7 +121,7 @@ class PublicArtistNarrationTest(unittest.IsolatedAsyncioTestCase):
             wiki = evidence['sources'][self.source_index]
             span = next(s for s in wiki['evidence_spans'] if 'Paper Lanterns' in s['text'])
             first, second = assessment['answer'].split('. ', 1)
-            if self.producer_mode:
+            if self.producer_mode or self.composer_mode:
                 credit = evidence['sources'][-1]
                 first_span = credit['evidence_spans'][0]
                 checks = [
@@ -132,7 +133,10 @@ class PublicArtistNarrationTest(unittest.IsolatedAsyncioTestCase):
                     {'text':second,'kind':'dj_appreciation','evidence_ids':[],'quote':''}]
             output = {'supported':not self.producer_unsupported,
                 'unsupported_claims':['invented production influence'] if self.producer_unsupported else [], 'language_ok':True,
-                **({'recording_focus_preserved':self.recording_focus_preserved} if self.producer_mode else {}),
+                **({'recording_focus_preserved':self.recording_focus_preserved,
+                    'producer_episode_preserved':True} if self.producer_mode else {}),
+                **({'work_focus_preserved':True,'composer_episode_preserved':True} if self.composer_mode else {}),
+                **({'topic_preserved':True,'novel_episode':True} if 'published_artist_stories' in evidence else {}),
                 'style_ok':not self.bad_review, 'temporal_claims':[], 'claim_checks':[
                     *checks]}
             if evidence['schema_version']==3:
@@ -229,27 +233,161 @@ class PublicArtistNarrationTest(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(descriptor['manual_allowed'])
         self.assertEqual(calls_before, (len(self.calls), len(self.urls)))
 
+    def description(self):
+        from custom_components.djconnect.session_facts import description_fact
+        identity='00000000-0000-0000-0000-000000000042'
+        catalog={**self.catalog,'artist_ids':['Z'*22]}
+        person={'id':identity,'name':catalog['artist'],'type':'Group','relations':[
+            {'type':'free streaming','url':{'resource':'https://open.spotify.com/artist/'+'Z'*22}},
+            {'type':'wikidata','url':{'resource':'https://www.wikidata.org/wiki/Q1'}}]}
+        entity={'id':'Q1','descriptions':{'nl':{'value':'Amerikaanse band'}},'claims':{
+            'P434':[{'mainsnak':{'datavalue':{'value':identity}}}]}}
+        return replace(description_fact(catalog,entity,'Q1',person=person),public_artist_qid='Q1')
+
+    async def test_artist_description_keeps_spotlight_subject_in_published_and_reopened_flow(self):
+        from types import SimpleNamespace
+        from custom_components.djconnect import session_artwork as art
+        from custom_components.djconnect.session_conversation import query_service
+        self.fact=self.description()
+        captured=dict.fromkeys(('backend_id','music_account_id','provider_entry_id','provider_account_id'),'fixture')
+        self.manager._history_source_contexts[self.session.session_id]=captured
+        moment=await self.publish()
+        self.assertIsNotNone(moment,self.debug)
+        self.assertEqual(moment.content,self.answer)
+        self.assertNotIn('Amerikaanse band',moment.content)
+        context=SimpleNamespace(profile_id='profile-a')
+        from custom_components.djconnect.image_proxy import ManagedSessionImages
+        self.hass.async_create_task=asyncio.create_task
+        registry=ManagedSessionImages()
+        self.hass.data['djconnect']['session_images']=registry
+        self.addCleanup(registry.close)
+        pixels=(__import__('pathlib').Path(__file__).resolve().parents[1]/
+                'examples/client_contracts/session_artwork_v1/assets/cover.png').read_bytes()
+        fetched=[]
+        async def external_image(hass,backend,uri,*,guard,expected_album_uri):
+            await guard()
+            fetched.append(uri)
+            self.assertEqual(expected_album_uri,'')
+            return pixels,'image/png','https://open.spotify.com/artist/'+'Z'*22,'',64,64,self.catalog['artist']
+        async def prepare_image(reference):
+            with patch.object(art,'artist_authority',return_value=lambda:True), \
+                    patch.object(art,'_fetch',external_image), \
+                    patch('custom_components.djconnect.spotify_backend.SpotifyBackend',return_value=object()):
+                prepared=await art.prepare(self.hass,self.runtime,context,
+                    session_id=self.session.session_id,target=reference)
+                image=prepared['artwork']
+                self.assertEqual(image['state'],'ready',prepared)
+                self.assertEqual(image['subject']['uri'],'spotify:artist:'+'Z'*22)
+                self.assertEqual(image['role'],'contextual_artist')
+                self.assertEqual(image['edition_basis'],'not_applicable')
+                self.assertTrue(image['requires_device_auth'])
+                body=await art.image(self.hass,context,self.session.session_id,
+                    image['url'].rsplit('/',1)[-1],runtime=self.runtime)
+                self.assertEqual(body,(pixels,'image/png'))
+                return image
+        live_image=await prepare_image({'moment_id':moment.moment_id})
+        self.assertTrue(live_image['active_flow_display_allowed'])
+        self.assertFalse(live_image['historical_display_allowed'])
+        target=await art.resolve_target(self.hass,self.runtime,context,self.session.session_id,
+            {'moment_id':moment.moment_id})
+        self.assertEqual(target[0],'spotify:artist:'+'Z'*22)
+        self.assertEqual(target[6],'contextual_artist')
+        self.assertNotIn(self.catalog['uri'],self.calls[0])
+        self.assertNotIn('spotify:artist:',self.calls[0])
+        await self.manager.async_end(owner_profile_id='profile-a',session_id=self.session.session_id)
+        await self.fixture.service.async_close()
+        await self.fixture.service.async_initialize()
+        query=query_service(self.hass,self.history)
+        page=await query.async_timeline_page('profile-a',self.session.session_id)
+        entry=next(e for e in page['entries'] if e.get('moment_id')==moment.moment_id)
+        self.assertEqual(entry['text'],self.answer)
+        self.assertTrue(entry['session_speech']['manual_allowed'])
+        target=await art.resolve_target(self.hass,self.runtime,context,self.session.session_id,
+            {'entry_id':entry['entry_id']})
+        self.assertEqual(target[0],'spotify:artist:'+'Z'*22)
+        self.assertEqual(target[1],captured)
+        self.assertTrue(target[4])
+        self.assertEqual(target[6],'contextual_artist')
+        old_image=await prepare_image({'entry_id':entry['entry_id']})
+        self.assertTrue(old_image['historical_display_allowed'])
+        self.assertFalse(old_image['current_display_allowed'])
+        self.assertFalse(old_image['active_flow_display_allowed'])
+        self.assertNotEqual(old_image['url'],live_image['url'])
+        self.assertEqual(fetched,['spotify:artist:'+'Z'*22]*2)
+        self.assertEqual(len(self.calls),2)
+
+    async def test_unbound_artist_descriptor_declines_once_without_raw_card_or_symbolic_model_calls(self):
+        self.fact=replace(self.description(),public_artist_qid='')
+        self.assertIsNone(await self.publish())
+        self.assertEqual(self.calls,[])
+        self.assertEqual(self.urls,[])
+        self.assertEqual(self.session.presence_ledger.total_published,0)
+        self.assertIn('artist_description',self.manager._intra_track_opportunities['profile-a'].used_fact_keys)
+        self.assertIsNone(await self.publish())
+        self.assertEqual(self.calls,[])
+
     async def test_wrong_entity_no_entity_and_rejected_style_never_admit_rich_prose(self):
         self.fetch_qid = 'Q999'
         moment = await self.publish()
-        self.assertNotEqual(moment.content, self.answer)
+        self.assertIsNone(moment)
         self.assertEqual(self.calls, [])
-        self.assertIsNone(moment.narration_acceptance)
 
-    async def test_rejected_style_uses_original_once_without_extra_model_attempt(self):
+    async def test_rejected_style_declines_original_once_without_extra_model_attempt(self):
         self.bad_review = True
         moment = await self.publish()
-        self.assertNotEqual(moment.content, self.answer)
+        self.assertIsNone(moment)
         self.assertEqual(len(self.calls), 2)
-        self.assertIsNone(moment.narration_acceptance)
-        self.assertEqual(self.session.presence_ledger.total_published, 1)
+        self.assertEqual(self.session.presence_ledger.total_published, 0)
 
     async def test_absent_reciprocal_identity_does_not_fetch_or_admit_research(self):
         self.fact = replace(self.fact, public_artist_qid='')
         moment = await self.publish()
-        self.assertIsNone(moment.narration_acceptance)
-        self.assertNotEqual(moment.content, self.answer)
+        self.assertIsNone(moment)
+        self.assertEqual(self.calls, [])
         self.assertEqual(self.urls, [])
+        self.assertEqual(self.session.presence_ledger.total_published, 0)
+
+    async def test_rejected_producer_story_never_publishes_raw_repeated_role_list_or_retries(self):
+        await self.prepare_producer()
+        from custom_components.djconnect.session_facts import recording_facts
+        evidence=self.fact.recording_evidence
+        performers=('Ellis Hart','Jules West','Rowan Vale')
+        self.fact=recording_facts(self.catalog,{'id':evidence.recording_id,'title':self.catalog['title'],
+            'artist-credit':[{'artist':{'name':self.catalog['artist']}}],
+            'relations':[
+                *[{'type':role,'target-type':'artist','artist':{
+                    'id':f'00000000-0000-0000-0000-{80+i:012d}','name':name}}
+                    for role in ('instrument','vocal') for i,name in enumerate(performers)],
+                *[{'type':'producer','target-type':'artist','artist':{'id':p.contributor_id,'name':p.name}}
+                    for p in evidence.producers]]})[0]
+        self.bad_review=True
+        self.assertIsNone(await self.publish())
+        self.assertEqual(self.session.broadcast.state.dj_moments,())
+        self.assertEqual(self.session.presence_ledger.total_published,0)
+        self.assertEqual(len(self.calls),2)
+        self.assertIsNone(await self.publish())
+        self.assertEqual(len(self.calls),2)
+        opportunity=self.manager._intra_track_opportunities['profile-a']
+        self.assertIn('recording_credits',opportunity.used_fact_keys)
+        self.assertFalse(opportunity.pending)
+        from custom_components.djconnect.session_conversation import query_service
+        page=await query_service(self.hass,self.history).async_timeline_page('profile-a',self.session.session_id)
+        self.assertFalse(any(e.get('kind')=='dj_moment' for e in page['entries']))
+
+    async def test_researched_story_has_bounded_time_for_sources_and_two_calls_with_live_guards(self):
+        from custom_components.djconnect.public_artist_narration import PUBLIC_STORY_NARRATION_SECONDS
+        seconds=[]
+        original_timeout=asyncio.timeout
+        def timeout(value):
+            seconds.append(value)
+            return original_timeout(value)
+        with patch.object(asyncio,'timeout',timeout):
+            moment=await self.publish()
+        self.assertIsNotNone(moment)
+        self.assertIn(PUBLIC_STORY_NARRATION_SECONDS,seconds)
+        self.assertEqual(PUBLIC_STORY_NARRATION_SECONDS,40)
+        self.assertEqual(len(self.calls),2)
+        self.assertTrue(moment.narration_acceptance.accepted.valid(time.monotonic()))
 
     async def test_settings_change_during_fetch_rejects_original_and_researched_candidate(self):
         async def change():
@@ -362,7 +500,8 @@ class PublicArtistNarrationTest(unittest.IsolatedAsyncioTestCase):
                 qualified_music=True,expected_entity_id='Q999',allow_web=False)
         self.assertEqual(sources, [])
         self.assertTrue(self.urls)
-        self.assertTrue(all(fixture_host(u) in WIKIPEDIA_HOSTS for u in self.urls))
+        self.assertTrue(all(fixture_host(u) in {*WIKIPEDIA_HOSTS,'www.wikidata.org'} for u in self.urls))
+        self.assertTrue(any(fixture_host(u)=='www.wikidata.org' and 'props=sitelinks' in u for u in self.urls))
 
     async def test_source_fixture_rejects_hostnames_hidden_in_paths_queries_or_userinfo(self):
         async def guard():
@@ -445,15 +584,14 @@ class PublicArtistNarrationTest(unittest.IsolatedAsyncioTestCase):
     async def test_markdown_bubble_is_not_admitted_or_sent_to_an_extra_model_review(self):
         self.answer = '*'+self.answer+'*'
         moment = await self.publish()
-        self.assertNotEqual(moment.content,self.answer)
+        self.assertIsNone(moment)
         self.assertEqual(len(self.calls),1)
         self.assertEqual(self.debug['block_reason'],'research_answer_format_invalid')
 
     async def test_story_without_named_artist_is_not_admitted_for_contextless_tts(self):
         self.answer = self.answer.replace('Nora Vale 1','deze artiest')
         moment = await self.publish()
-        self.assertNotEqual(moment.content,self.answer)
-        self.assertIsNone(moment.narration_acceptance)
+        self.assertIsNone(moment)
         self.assertEqual(len(self.calls),1)
 
     async def test_wikipedia_excerpt_has_complete_sentences_without_heading_year_contamination(self):
@@ -485,6 +623,126 @@ class PublicArtistNarrationTest(unittest.IsolatedAsyncioTestCase):
         self.assertIsNotNone(brief)
         self.assertIsNone(eligible_subject(brief))
         self.assertEqual(fact.key,'recording_credits')
+
+    async def prepare_composer(self):
+        from custom_components.djconnect.session_facts import work_facts
+        from custom_components.djconnect.public_artist_narration import composer_subject
+        self.composer_mode = True
+        self.fact=work_facts(self.catalog,{
+            'id':'00000000-0000-0000-0000-000000000001','title':self.catalog['title'],
+            'artist-credit':[{'artist':{'name':self.catalog['artist']}}],
+            'relations':[{'type':'performance','target-type':'work','work':{
+                'id':'00000000-0000-0000-0000-000000000010','relations':[
+                    {'type':'composer','target-type':'artist','artist':{
+                        'id':'00000000-0000-0000-0000-000000000020','name':'Ada Reed'}}]}}]})[0]
+        self.selected_credit=composer_subject(self.fact)
+        self.assertIsNotNone(self.selected_credit)
+        self.actor_type='Person'
+        self.answer=('Ada Reed is componist van het werk achter deze opname. '
+            'Voor Paper Lanterns werkte Ada Reed samen met Nora Vale 1.')
+        await self.manager.async_update_allowed_capability_intents(owner_profile_id='profile-a',
+            session_id=self.session.session_id,allowed_capability_intents=frozenset({'track_context'}))
+        self.session=await self.manager.async_get_active('profile-a')
+
+    async def test_composer_story_publishes_reopens_and_keeps_exact_work_role_and_replay_sources(self):
+        await self.prepare_composer()
+        from custom_components.djconnect.public_artist_narration import admitted
+        from custom_components.djconnect.session_conversation import query_service
+        from custom_components.djconnect.session_speech import resolve_retained
+        moment=await self.publish()
+        self.assertIsNotNone(moment,self.debug)
+        self.assertEqual(moment.content,self.answer)
+        self.assertEqual(moment.moment_type.value,'track')
+        self.assertTrue(admitted(moment))
+        self.assertEqual(moment.narration_acceptance.accepted.subject_identity,
+            ('composer',self.selected_credit.contributor_id,'Ada Reed','Person','Q1'))
+        data=json.loads(self.calls[0].split('\nData:\n')[1])['public_music_research']
+        self.assertEqual(data['work_credit_scope']['selected_contributor'],'Ada Reed')
+        self.assertNotIn('recording_credit_scope',data)
+        self.assertNotIn(self.catalog['title'],self.calls[0])
+        self.assertNotIn(self.catalog['album_name'],self.calls[0])
+        self.assertEqual((len(self.calls),len(self.urls)),(2,4))
+        await self.manager.async_end(owner_profile_id='profile-a',session_id=self.session.session_id)
+        await self.fixture.service.async_close()
+        await self.fixture.service.async_initialize()
+        page=await query_service(self.hass,self.history).async_timeline_page('profile-a',self.session.session_id)
+        entry=next(e for e in page['entries'] if e.get('moment_id')==moment.moment_id)
+        self.assertEqual(entry['text'],self.answer)
+        self.assertEqual(entry['sources'],moment.as_dict()['sources'])
+        descriptor,guard=await resolve_retained(self.hass,self.history,'profile-a',
+            {'session_id':self.session.session_id,'entry_id':entry['entry_id']})
+        self.assertTrue(descriptor['manual_allowed'])
+        self.assertEqual(guard.processor_basis,'qualified_dialogue_v1')
+        self.assertEqual((len(self.calls),len(self.urls)),(2,4))
+
+    async def test_name_only_composition_credit_does_not_publish_or_spend_on_symbolic_fallback(self):
+        await self.prepare_composer()
+        self.fact=replace(self.fact,work_evidence=None)
+        self.assertIsNone(await self.publish())
+        self.assertEqual((self.calls,self.urls),([],[]))
+        self.assertEqual(self.session.presence_ledger.total_published,0)
+        self.assertIn('work_composers',self.manager._intra_track_opportunities['profile-a'].used_fact_keys)
+
+    async def test_rejected_composer_style_never_publishes_original_credit_template(self):
+        await self.prepare_composer()
+        self.bad_review=True
+        self.assertIsNone(await self.publish())
+        self.assertEqual(len(self.calls),2)
+        self.assertEqual(self.session.presence_ledger.total_published,0)
+        self.assertEqual(self.session.broadcast.state.dj_moments,())
+
+    async def test_composer_cannot_be_promoted_to_recording_producer_by_true_review_flags(self):
+        await self.prepare_composer()
+        self.answer=self.answer.replace('componist van het werk achter','producer van')
+        self.assertIsNone(await self.publish())
+        self.assertEqual(len(self.calls),2)
+
+    async def test_work_credit_proof_cannot_be_replaced_by_another_works_wikipedia_episode(self):
+        await self.prepare_composer()
+        original=self.model
+        async def wrong_source(hass,data,**kwargs):
+            result=await original(hass,data,**kwargs)
+            if len(self.calls)%2==0:
+                evidence=json.loads(data['text'].split('\nData:\n')[1])['evidence']['public_music_research']
+                span=next(s for s in evidence['sources'][0]['evidence_spans'] if 'Paper Lanterns' in s['text'])
+                review=json.loads(result['response']['speech']['plain']['speech'])
+                review['claim_checks'][0]['evidence_ids']=[span['id']]
+                result['response']['speech']['plain']['speech']=json.dumps(review)
+            return result
+        self.model=wrong_source
+        self.assertIsNone(await self.publish())
+        self.assertEqual(self.debug['block_reason'],'research_work_credit_evidence_missing')
+
+    async def test_wrong_composer_identity_never_borrows_the_playback_performer(self):
+        await self.prepare_composer()
+        self.actor_name_override=self.catalog['artist']
+        self.assertIsNone(await self.publish())
+        self.assertEqual(len(self.urls),1)
+        self.assertEqual(self.calls,[])
+        self.assertEqual(self.debug['block_reason'],'composer_public_identity_unavailable')
+
+    async def test_fetched_composer_biography_and_true_flags_do_not_upgrade_bare_credits(self):
+        await self.prepare_composer()
+        self.answer=('Ada Reed is componist van het werk achter deze opname. '
+            'Ada Reed staat dus in de compositiecredits vermeld.')
+        self.assertIsNone(await self.publish())
+        self.assertEqual(self.debug['block_reason'],'research_composer_episode_unverified')
+        self.assertEqual(len(self.calls),2)
+        self.assertEqual(self.session.presence_ledger.total_published,0)
+
+    async def test_composer_episode_needs_independent_verdict_in_addition_to_source_ids(self):
+        await self.prepare_composer()
+        original=self.model
+        async def missing_episode(hass,data,**kwargs):
+            result=await original(hass,data,**kwargs)
+            if len(self.calls)%2==0:
+                review=json.loads(result['response']['speech']['plain']['speech'])
+                review.pop('composer_episode_preserved')
+                result['response']['speech']['plain']['speech']=json.dumps(review)
+            return result
+        self.model=missing_episode
+        self.assertIsNone(await self.publish())
+        self.assertEqual(self.debug['block_reason'],'research_composer_episode_unverified')
 
     async def prepare_producer(self, *, group=False):
         """All source/model replies below are explicit synthetic external fixtures."""
@@ -548,6 +806,43 @@ class PublicArtistNarrationTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(moment.content,self.answer,self.debug)
         self.assertEqual(moment.narration_acceptance.accepted.subject_identity[2:4],('Lantern Quartet','Group'))
 
+    async def test_fetched_biography_does_not_upgrade_a_credit_only_answer_even_if_review_claims_episode(self):
+        await self.prepare_producer()
+        self.answer=('Ada Reed staat op deze opname als producer vermeld. '
+                     'Lantern Quartet staat ook als producer op deze opname vermeld.')
+        original_model=self.model
+        async def credit_only(hass,data,**kwargs):
+            result=await original_model(hass,data,**kwargs)
+            if len(self.calls)%2==0:
+                evidence=json.loads(data['text'].split('\nData:\n')[1])['evidence']['public_music_research']
+                seed_id=evidence['sources'][-1]['evidence_spans'][0]['id']
+                review=json.loads(result['response']['speech']['plain']['speech'])
+                for check in review['claim_checks']:
+                    check['evidence_ids']=[seed_id]
+                result['response']['speech']['plain']['speech']=json.dumps(review)
+            return result
+        self.model=credit_only
+        self.assertIsNone(await self.publish())
+        self.assertEqual(self.debug['block_reason'],'research_producer_episode_unverified')
+        self.assertEqual(len(self.calls),2)
+        self.assertGreater(len(self.urls),2)  # A fetched page is not proof of use.
+        self.assertEqual(self.session.presence_ledger.total_published,0)
+
+    async def test_producer_episode_requires_its_own_independent_verdict(self):
+        await self.prepare_producer()
+        original_model=self.model
+        async def missing_verdict(hass,data,**kwargs):
+            result=await original_model(hass,data,**kwargs)
+            if len(self.calls)%2==0:
+                review=json.loads(result['response']['speech']['plain']['speech'])
+                review.pop('producer_episode_preserved')
+                result['response']['speech']['plain']['speech']=json.dumps(review)
+            return result
+        self.model=missing_verdict
+        self.assertIsNone(await self.publish())
+        self.assertEqual(self.debug['block_reason'],'research_producer_episode_unverified')
+        self.assertEqual(len(self.calls),2)
+
     async def test_other_work_producer_credit_cannot_replace_current_recording_proof(self):
         await self.prepare_producer()
         self.article_fixture = ('<p>Ada Reed is a musician and producer.</p>'
@@ -571,8 +866,7 @@ class PublicArtistNarrationTest(unittest.IsolatedAsyncioTestCase):
 
         self.model = wrong_focus_review
         moment = await self.publish()
-        self.assertIsNone(moment.narration_acceptance)
-        self.assertNotEqual(moment.content, self.answer)
+        self.assertIsNone(moment)
         self.assertEqual(self.debug['block_reason'], 'research_recording_credit_evidence_missing')
         self.assertEqual(len(self.calls), 2)
 
@@ -619,7 +913,7 @@ class PublicArtistNarrationTest(unittest.IsolatedAsyncioTestCase):
         await self.prepare_producer()
         self.answer = self.answer.replace('Ada Reed', 'Ada Reedman')
         moment = await self.publish()
-        self.assertIsNone(moment.narration_acceptance)
+        self.assertIsNone(moment)
         self.assertEqual(self.debug['block_reason'], 'research_answer_format_invalid')
         self.assertEqual(len(self.calls), 1)
 
@@ -630,8 +924,7 @@ class PublicArtistNarrationTest(unittest.IsolatedAsyncioTestCase):
         self.answer = ('Bij Lantern Quartet draagt Ada Reed de producentencredit, gedeeld met Lantern Quartet. '
             'Voor Paper Lanterns werkte Ada Reed samen met Nora Vale 1.')
         moment = await self.publish()
-        self.assertIsNone(moment.narration_acceptance)
-        self.assertNotEqual(moment.content, self.answer)
+        self.assertIsNone(moment)
         self.assertEqual(self.debug['block_reason'], 'research_recording_credit_evidence_missing')
         self.assertEqual(len(self.calls), 2)
 
@@ -639,7 +932,7 @@ class PublicArtistNarrationTest(unittest.IsolatedAsyncioTestCase):
         await self.prepare_producer()
         self.actor_name_override = 'Different person'
         moment = await self.publish()
-        self.assertIsNone(moment.narration_acceptance)
+        self.assertIsNone(moment)
         self.assertEqual(self.calls,[])
         self.assertEqual(len(self.urls),1)
         self.assertIn(self.selected_credit.contributor_id,self.urls[0])
@@ -648,7 +941,7 @@ class PublicArtistNarrationTest(unittest.IsolatedAsyncioTestCase):
         await self.prepare_producer()
         self.reciprocal_id_override = '00000000-0000-0000-0000-000000000099'
         moment = await self.publish()
-        self.assertIsNone(moment.narration_acceptance)
+        self.assertIsNone(moment)
         self.assertEqual(self.calls,[])
         self.assertEqual(len(self.urls),2)
 
@@ -705,8 +998,7 @@ class PublicArtistNarrationTest(unittest.IsolatedAsyncioTestCase):
         await self.prepare_producer()
         self.recording_focus_preserved = False
         moment = await self.publish()
-        self.assertNotEqual(moment.content,self.answer)
-        self.assertIsNone(moment.narration_acceptance)
+        self.assertIsNone(moment)
         self.assertEqual(self.debug['block_reason'],'research_recording_focus_unverified')
 
     async def test_recording_scope_is_typed_not_a_json_biography_or_activity_exemption(self):
@@ -742,8 +1034,7 @@ class PublicArtistNarrationTest(unittest.IsolatedAsyncioTestCase):
         self.producer_unsupported = True
         self.answer = 'Ada Reed en Lantern Quartet produceerden deze opname. Zij bepaalden daarmee het warme geluid.'
         moment = await self.publish()
-        self.assertNotEqual(moment.content,self.answer)
-        self.assertIsNone(moment.narration_acceptance)
+        self.assertIsNone(moment)
         self.assertEqual(len(self.calls),2)
 
     async def test_focused_producer_story_keeps_all_original_credits_in_retained_context(self):
@@ -773,8 +1064,7 @@ class PublicArtistNarrationTest(unittest.IsolatedAsyncioTestCase):
         await self.prepare_producer()
         self.answer = self.answer.replace('Ada Reed','Lantern Quartet')
         moment = await self.publish()
-        self.assertNotEqual(moment.content,self.answer)
-        self.assertIsNone(moment.narration_acceptance)
+        self.assertIsNone(moment)
         self.assertEqual(len(self.calls),1)
 
     async def test_focus_assessment_rejects_missing_credit_exclusivity_role_transfer_and_wrong_biography(self):
@@ -951,7 +1241,7 @@ class PublicArtistNarrationTest(unittest.IsolatedAsyncioTestCase):
         await self.prepare_producer()
         self.fetch_qid = 'Q999'
         moment = await self.publish()
-        self.assertIsNone(moment.narration_acceptance)
+        self.assertIsNone(moment)
         self.assertEqual(self.calls,[])
 
     async def test_producer_expiry_after_draft_prevents_review_and_publication(self):
@@ -1137,7 +1427,7 @@ class PublicArtistNarrationTest(unittest.IsolatedAsyncioTestCase):
         await self.prepare_producer()
         with patch.object(self.research,'MAX_REQUESTS',2):
             moment = await self.publish()
-        self.assertIsNone(moment.narration_acceptance)
+        self.assertIsNone(moment)
         self.assertEqual(self.calls,[])
         self.assertEqual(len(self.urls),2)
 

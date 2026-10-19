@@ -73,14 +73,17 @@ class AskDjE2EContractTest(unittest.TestCase):
         }
         self.assertEqual(sorted(self.IMPLEMENTED_INTENTS - covered), [])
 
-    def test_case_file_covers_every_help_prompt_exactly(self) -> None:
-        help_prompts = set(self.ask_dj._help_prompt_examples())
-        covered_prompts = {
-            case.get("request", {}).get("text")
-            for case in self.cases
-            if case.get("request", {}).get("text")
-        }
-        self.assertEqual(sorted(help_prompts - covered_prompts), [])
+    def test_case_file_preserves_all_sixty_historical_help_routes_and_binds_new_catalogue(self) -> None:
+        # Reducing visible Help does not retire its previous natural-language routes.
+        historical = [case for case in self.cases if case["id"].startswith("help_prompt_")]
+        self.assertEqual(len(historical), 60)
+        self.assertEqual(len({case["id"] for case in historical}), 60)
+        for case in historical:
+            self.assertNotIn("[", materialize_case(case)["request"]["text"])
+        from scripts.verification.askdj_example_catalogue_golden import cases
+        catalogue = cases()
+        self.assertEqual(len(catalogue), 70)
+        self.assertTrue(all(row["question"] and row["expected"]["answer"] for row in catalogue))
 
     def test_validator_rejects_forbidden_json_paths(self) -> None:
         errors = validate_case_result(

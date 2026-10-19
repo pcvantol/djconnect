@@ -74,7 +74,7 @@ class AlbumTracksTests(unittest.IsolatedAsyncioTestCase):
             "uri": "spotify:album:" + "B" * 22,
             "name": "Beyond Hell/Above Heaven",
             "artists": [{"id": "A" * 22, "name": "Volbeat"}],
-            "images": [],
+            "images": [{"url": "https://i.scdn.co/image/synthetic-exact-edition"}],
             "release_date": "2015",
             "release_date_precision": "year",
         }
@@ -252,13 +252,28 @@ class AlbumTracksTests(unittest.IsolatedAsyncioTestCase):
                 )
                 self.assertEqual(status, 200, answer)
                 self.assertEqual(
-                    [i["title"] for i in answer.get("items", [])],
+                    [i["title"] for i in answer.get("items", [])[1:]],
                     ["Second recording", "Third recording"],
                 )
                 self.assertIn(self.album["name"], answer["text"])
-                self.assertIn("Second recording", answer["text"])
+                self.assertNotIn("Second recording", answer["text"])
                 self.assertNotIn("Current recording", answer["text"])
-                self.assertEqual(answer.get("playback_actions", []), [])
+                actions = answer['playback_actions']
+                self.assertEqual(actions, answer['items'])
+                self.assertEqual(actions, answer['result_set']['items'])
+                self.assertEqual(actions[0]['kind'], 'album')
+                self.assertEqual(actions[0]['context_uri'], self.album['uri'])
+                self.assertEqual(actions[0]['button_label'], {
+                    'en':'Play album','nl':'Speel album','de':'Album abspielen',
+                    'fr':'Lire l’album','es':'Reproducir álbum'}[locale])
+                self.assertTrue(all(a['action_id'] and a['button_label'] for a in actions))
+                self.assertTrue(all(a['image_url'].startswith('/api/djconnect/v1/image_proxy/') for a in actions))
+                self.assertEqual({a['image_url'] for a in actions}, {actions[0]['image_url']})
+                self.assertNotIn('i.scdn.co', json.dumps(answer))
+                layout = answer['result_set']['presentation']
+                self.assertEqual(layout['primary_action_id'], actions[0]['action_id'])
+                self.assertEqual(layout['track_action_ids'], [a['action_id'] for a in actions[1:]])
+                self.assertEqual(answer['images'], [])
                 self.assertEqual(answer["album_track_observation"]["state"], "complete")
                 self.assertNotIn("assistant_message", answer)
                 self.assertNotIn("user_message", answer)
@@ -459,7 +474,96 @@ class AlbumTracksTests(unittest.IsolatedAsyncioTestCase):
         )
         self.assertEqual(status, 200, answer)
         self.assertEqual(answer["album_track_observation"]["state"], "known_empty")
-        self.assertEqual(answer["items"], [])
+        self.assertEqual([a['kind'] for a in answer['items']], ['album'])
+        self.assertEqual(answer['album_track_observation']['returned_count'], 0)
+
+    async def test_album_header_play_starts_whole_context_and_duplicate_does_not_dispatch_again(self):
+        offer, code = await self.f.request('What songs are on this album?', identifier='album-header')
+        self.assertEqual(code, 200, offer)
+        action = offer['items'][0]
+        choice = {k:action[k] for k in ('result_set_id','action_id')}
+        choice['operation'] = 'play'
+        result, code = await self.f.request('Play', identifier='album-header-play', choice_action=choice)
+        self.assertEqual(code, 200, result)
+        self.assertEqual(self.writes, [('/v1/me/player/play', {'context_uri':self.album['uri']})])
+        await self.f.request('Play', identifier='album-header-play', choice_action=choice)
+        self.assertEqual(len(self.writes), 1)
+        self.assertFalse(any('/search' in path for _, path in self.calls))
+
+    async def test_nirvana_fourteen_track_album_has_one_header_and_no_repeated_bullets(self):
+        # Reproduce the owner's displayed titles as external catalog fixtures,
+        # without claiming live Spotify identity or native rendering proof.
+        names = ('About A Girl', 'Come As You Are', "Jesus Doesn't Want Me For A Sunbeam",
+            'The Man Who Sold The World', 'Pennyroyal Tea', 'Dumb', 'Polly', 'On A Plain',
+            'Something In The Way', 'Plateau', 'Oh Me', 'Lake Of Fire', 'All Apologies',
+            'Where Did You Sleep Last Night')
+        self.album.update(name='MTV Unplugged In New York',
+            artists=[{'id':'A'*22,'name':'Nirvana'}])
+        self.current_album = deepcopy(self.album)
+        prototype = deepcopy(self.tracks[0])
+        self.tracks = [{**deepcopy(prototype), 'id':f'{i:022d}',
+            'uri':'spotify:track:'+f'{i:022d}', 'name':name+' - Live',
+            'artists':deepcopy(self.album['artists']), 'album':deepcopy(self.album),
+            'track_number':i+1} for i,name in enumerate(names)]
+        self.total = 14
+        answer, code = await self.f.request('Welke nummers staan er op dit album?',
+            identifier='reported-nirvana-album', language='nl')
+        self.assertEqual(code, 200, answer)
+        self.assertEqual(answer['items'][0]['title'], self.album['name'])
+        self.assertEqual(answer['items'][0]['artist'], 'Nirvana')
+        self.assertEqual(answer['items'][0]['button_label'], 'Speel album')
+        self.assertEqual([a['title'] for a in answer['items'][1:]], [name+' - Live' for name in names])
+        self.assertEqual(answer['items'], answer['playback_actions'])
+        self.assertEqual(len(answer['result_set']['presentation']['track_action_ids']), 14)
+        self.assertTrue(all(a['image_url'] and a['action_id'] and a['button_label'] for a in answer['items']))
+        self.assertNotIn('•', answer['text'])
+        self.assertNotIn('About A Girl', answer['text'])
+        self.assertNotIn('_album_track_choices', answer)
+        self.assertEqual(self.writes, [])
+        self.assertEqual(self.f.prompts, [])
+
+    async def test_fifty_track_actions_survive_frozen_choices_and_last_button_plays_exact_track(self):
+        prototype = deepcopy(self.tracks[0])
+        self.tracks = [{**deepcopy(prototype), 'id':f'{i:022d}',
+            'uri':'spotify:track:'+f'{i:022d}', 'name':f'Album recording {i+1}',
+            'track_number':i+1} for i in range(50)]
+        self.total = 50
+        offer, code = await self.f.request('What songs are on this album?', identifier='fifty-tracks')
+        self.assertEqual(code, 200, offer)
+        self.assertEqual(len(offer['items']), 51)
+        self.assertEqual(offer['items'], offer['result_set']['items'])
+        self.assertEqual(len({a['action_id'] for a in offer['items']}), 51)
+        self.assertEqual(offer['album_track_observation']['returned_count'], 50)
+        self.assertEqual(self.writes, [])
+        before = len(self.calls)
+        duplicate, code = await self.f.request('What songs are on this album?', identifier='fifty-tracks')
+        self.assertEqual(code, 200, duplicate)
+        self.assertEqual(duplicate['result_set'], offer['result_set'])
+        self.assertEqual(len(self.calls), before)
+        shown, code = await self.f.request('Show the results', identifier='show-fifty')
+        self.assertEqual(code, 200, shown)
+        self.assertEqual(shown['result_set']['presentation'], offer['result_set']['presentation'])
+        self.assertNotIn('Album recording 50', shown['text'])
+        last = offer['items'][-1]
+        result, code = await self.f.request('Play', identifier='last-track-play', choice_action={
+            'result_set_id':last['result_set_id'], 'action_id':last['action_id'], 'operation':'play'})
+        self.assertEqual(code, 200, result)
+        self.assertEqual(self.writes, [('/v1/me/player/play', {'uris':[self.tracks[-1]['uri']]})])
+
+    async def test_album_buttons_expire_without_play_or_catalog_retry(self):
+        offer, code = await self.f.request('What songs are on this album?', identifier='expiring-album')
+        self.assertEqual(code, 200, offer)
+        self.assertGreater(offer['result_set']['expires_in'], 590)
+        clock = self.f.history.dialogue.clock
+        started = clock()
+        self.f.history.dialogue.clock = lambda: started + 601
+        action = offer['items'][0]
+        before = len(self.calls)
+        result, code = await self.f.request('Play', identifier='expired-album-play', choice_action={
+            'result_set_id':action['result_set_id'], 'action_id':action['action_id'], 'operation':'play'})
+        self.assertEqual(code, 409, result)
+        self.assertEqual(self.writes, [])
+        self.assertEqual(len(self.calls), before)
 
     def test_explicit_media_kind_wins_over_equal_named_frozen_offer(self):
         from custom_components.djconnect.ask_dj.dialogue import offered_media_index, DialogueError
@@ -521,6 +625,8 @@ class AlbumTracksTests(unittest.IsolatedAsyncioTestCase):
         self.assertIn("Historical exact edition", answer["text"])
         self.assertNotIn(self.album["name"], answer["text"])
         self.assertEqual(len(asked), 1)
+        self.assertEqual([a['kind'] for a in answer['items']], ['album','track'])
+        self.assertTrue(all(a['action_id'] for a in answer['items']))
 
     async def test_unconfirmed_album_reply_names_request_without_borrowing_current_recording(self):
         self.current_album.update(

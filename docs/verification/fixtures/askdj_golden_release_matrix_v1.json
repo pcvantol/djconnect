@@ -487,6 +487,40 @@
           ],
           "acceptance_status": "open_real_quality",
           "proof_boundary": "Actual Core route with external provider fixtures; retained rich catalogue conversation remains open; native/installed/provider playback not inferred."
+        },
+        {
+          "id": "ASKDJ-REGRESSION-album-header-and-track-art-play",
+          "question": "Welke nummers staan op dit album? Speel daarna het album of één getoond nummer via zijn knop.",
+          "expected_answer": "Eén korte caption; bovenaan het exacte album met hoes en Speel album, daaronder de afzonderlijke nummers met dezelfde geproxiede editiehoes en eigen bevroren playactie. Geen dubbele tekstlijst. Albumknop start context_uri; nummerknop alleen zijn URI. Informatieve vraag en verlopen knoppen muteren niets.",
+          "model_policy": "zero",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_album_tracks.py",
+              "method": "test_current_album_other_tracks_in_five_languages_are_informational_and_not_promoted_to_model_or_archive"
+            },
+            {
+              "file": "tests/test_ask_dj_album_tracks.py",
+              "method": "test_album_header_play_starts_whole_context_and_duplicate_does_not_dispatch_again"
+            },
+            {
+              "file": "tests/test_ask_dj_album_tracks.py",
+              "method": "test_fifty_track_actions_survive_frozen_choices_and_last_button_plays_exact_track"
+            },
+            {
+              "file": "tests/test_ask_dj_album_tracks.py",
+              "method": "test_album_buttons_expire_without_play_or_catalog_retry"
+            },
+            {
+              "file": "tests/test_ask_dj_album_tracks.py",
+              "method": "test_nirvana_fourteen_track_album_has_one_header_and_no_repeated_bullets"
+            },
+            {
+              "file": "tests/test_askdj_contextual_release_gate.py",
+              "method": "test_album_release_gate_rejects_missing_art_buttons_header_and_single_track_album_dispatch"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual Core HTTP/choice/backend with external Spotify fixtures; native grouping, image rendering, installed and audible acceptance remain open."
         }
       ],
       "owning_tests": [
@@ -1796,7 +1830,7 @@
           "owning_tests": [
             {
               "file": "tests/test_ask_dj.py",
-              "method": "test_help_request_returns_exhaustive_prompt_options_without_media_context"
+              "method": "test_help_request_returns_compact_or_unavailable_catalogue_without_media_context"
             }
           ],
           "acceptance_status": "owner_contract",
@@ -1838,7 +1872,7 @@
         },
         {
           "file": "tests/test_ask_dj.py",
-          "method": "test_help_request_returns_exhaustive_prompt_options_without_media_context"
+          "method": "test_help_request_returns_compact_or_unavailable_catalogue_without_media_context"
         },
         {
           "file": "tests/test_ask_dj.py",
@@ -1951,7 +1985,7 @@
             },
             {
               "file": "tests/test_personal_dj_narration_public_artist.py",
-              "method": "test_rejected_style_uses_original_once_without_extra_model_attempt"
+              "method": "test_rejected_style_declines_original_once_without_extra_model_attempt"
             },
             {
               "file": "tests/test_personal_dj_narration_public_artist.py",
@@ -2217,7 +2251,7 @@
             },
             {
               "file": "tests/test_personal_dj_narration_public_artist.py",
-              "method": "test_rejected_style_uses_original_once_without_extra_model_attempt"
+              "method": "test_rejected_style_declines_original_once_without_extra_model_attempt"
             },
             {
               "file": "tests/test_personal_dj_narration_public_artist.py",
@@ -2496,6 +2530,236 @@
           ],
           "acceptance_status": "open_real_quality",
           "proof_boundary": "Fixed eight actual Dutch public-source/HA-model publications and independent editorial assessment; installed/native/audible evidence remains separate."
+        },
+        {
+          "id": "ASKDJ-REGRESSION-raw-credits-not-a-story",
+          "question": "A track has the same three performers on instrument/vocal roles plus two producers; research/story is unavailable, rejected, or cites only the raw credit source.",
+          "expected_answer": "No raw repeated credit list is published, persisted as a DJ story, counted or retried every tick. A producer story requires original recording-credit proof plus an independently reviewed external named-work episode. Accepted complete stories retain sources, original roles, Flow identity and speech replay; all owner/playback/expiry guards still apply.",
+          "model_policy": "Owning fixtures prove publication/retention/permission invariants; real producer expression and installed/client acceptance remain separate. Source research cap unchanged; two model calls in bounded40seconds.",
+          "owning_tests": [
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_rejected_producer_story_never_publishes_raw_repeated_role_list_or_retries"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_researched_story_has_bounded_time_for_sources_and_two_calls_with_live_guards"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_fetched_biography_does_not_upgrade_a_credit_only_answer_even_if_review_claims_episode"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_producer_episode_requires_its_own_independent_verdict"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Reported screenshot reproduced structurally, not a claim that a particular Nirvana recording or installed runtime has been qualified."
+        },
+        {
+          "id": "ASKDJ-FLOW-composer-researched-story",
+          "question": "Compositiecredit verschijnt als Trackverhaal: Het onderliggende werk brengt Kurt Cobain in de compositiecredits naar voren.",
+          "expected_answer": "Een aantoonbaar persoonlijke Persona/Mood-bijdrage met gebruikte Wikipedia-episode, exacte oorspronkelijke onderliggende-work/composercredit, duurzame Flow en replay. Geen kale credit of productie-/tekstschrijver-/uitvoerderpromotie. Echte model- en clientkwalificatie blijft open.",
+          "model_policy": "bounded_two_calls_registered_HA_owner",
+          "owning_tests": [
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_composer_story_publishes_reopens_and_keeps_exact_work_role_and_replay_sources"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_name_only_composition_credit_does_not_publish_or_spend_on_symbolic_fallback"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_rejected_composer_style_never_publishes_original_credit_template"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_composer_cannot_be_promoted_to_recording_producer_by_true_review_flags"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_work_credit_proof_cannot_be_replaced_by_another_works_wikipedia_episode"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_wrong_composer_identity_never_borrows_the_playback_performer"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_fetched_composer_biography_and_true_flags_do_not_upgrade_bare_credits"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_composer_episode_needs_independent_verdict_in_addition_to_source_ids"
+            },
+            {
+              "file": "tests/test_session_facts.py",
+              "method": "test_work_composer_identity_requires_exact_recording_work_and_unrestricted_actor_ids"
+            }
+          ],
+          "acceptance_status": "open_real_quality",
+          "proof_boundary": "Actual Runtime/SQLite/speech with explicit external fixtures; separate actual public-source/HA expression pilot, native, installed and editorial evidence required."
+        },
+        {
+          "id": "ASKDJ-FLOW-artist-description-spotlight",
+          "question": "Artiestenverhaal toont: Maak kennis met Nirvana: Amerikaanse band, in de woorden van Wikidata. Artiestbeeld ontbreekt.",
+          "expected_answer": "Een brononderbouwd Persona/Mood-verhaal met het exacte artiestbeeld via bestaande Session-media, ook na heropenen. Geen droge descriptor, albumhoes als artiestbeeld, naamzoekfallback of ongekwalificeerde publicatie.",
+          "model_policy": "bounded_two_calls_registered_HA_owner",
+          "owning_tests": [
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_artist_description_keeps_spotlight_subject_in_published_and_reopened_flow"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_unbound_artist_descriptor_declines_once_without_raw_card_or_symbolic_model_calls"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_absent_reciprocal_identity_does_not_fetch_or_admit_research"
+            },
+            {
+              "file": "tests/test_session_artwork.py",
+              "method": "test_description_reuses_exact_reciprocal_artist_link_without_birth_or_formation_date"
+            },
+            {
+              "file": "tests/test_session_facts.py",
+              "method": "test_positive_resolver_chain_roles_composers_and_reciprocal_artist_identity"
+            },
+            {
+              "file": "tests/test_session_artwork.py",
+              "method": "test_musicbrainz_artist_requires_explicit_provider_link"
+            }
+          ],
+          "acceptance_status": "open_real_quality",
+          "proof_boundary": "Actual resolver/Runtime/SQLite media target with explicit external fixtures. Current provider image, actual prose quality, installed delivery and native rendering remain separately open."
+        },
+        {
+          "id": "ASKDJ-FLOW-licensed-band-photo",
+          "question": "Bij de Nirvana-creditbijdrage verwacht ik een bandfoto, liefst live, ook als Spotify geen artiestfoto levert.",
+          "expected_answer": "Expliciete Session-media v2 kiest de exact onderbouwde bandcontext, met gelicentieerde Commons-foto en volledige fotograaf/licentiebron als Spotify geen foto heeft. Actieve en eerdere sessies behouden dezelfde artiestidentiteit, geen coververvanging of zoekmatch op naam. V1 blijft ongewijzigd; daadwerkelijke publieke foto/native/install-acceptatie blijven afzonderlijk open.",
+          "model_policy": "no_model_existing_private_media_owner",
+          "owning_tests": [
+            {
+              "file": "tests/test_session_artist_images.py",
+              "method": "test_exact_qid_bounded_file_selection_excludes_other_entities_unsafe_and_deprecated"
+            },
+            {
+              "file": "tests/test_session_artist_images.py",
+              "method": "test_live_source_hint_preferred_and_attribution_is_plain_not_executable_html"
+            },
+            {
+              "file": "tests/test_session_artist_images.py",
+              "method": "test_missing_ambiguous_restricted_rights_and_untrusted_image_hosts_never_admit_pixels"
+            },
+            {
+              "file": "tests/test_session_artist_images.py",
+              "method": "test_actual_source_adapter_retrieves_one_exact_qid_batch_and_validated_image"
+            },
+            {
+              "file": "tests/test_session_artist_images.py",
+              "method": "test_wrong_entity_no_rights_changed_bytes_or_withdrawal_stop_without_next_photo_retry"
+            },
+            {
+              "file": "tests/test_session_artist_images.py",
+              "method": "test_real_owner_publication_active_image_history_refresh_and_version1_separation"
+            },
+            {
+              "file": "tests/test_session_artist_images.py",
+              "method": "test_concurrent_version2_preparations_coalesce_without_touching_version1_resource"
+            },
+            {
+              "file": "tests/test_session_artist_images.py",
+              "method": "test_source_withdrawal_during_commons_metadata_never_publishes_pixels_or_new_moment"
+            },
+            {
+              "file": "tests/test_session_artist_images.py",
+              "method": "test_credit_story_v2_uses_primary_band_context_never_current_album_as_photo"
+            },
+            {
+              "file": "tests/test_session_artist_images.py",
+              "method": "test_small_p18_uses_structured_concert_with_exact_depicts_instead_of_name_search"
+            },
+            {
+              "file": "tests/test_session_artist_images.py",
+              "method": "test_search_match_cannot_replace_exact_mediainfo_identity_or_depicts_claim"
+            },
+            {
+              "file": "tests/test_session_artist_images.py",
+              "method": "test_explicit_version2_handler_uses_paired_context_and_rejects_unknown_versions"
+            },
+            {
+              "file": "tests/test_session_artist_images.py",
+              "method": "test_spotify_v2_keeps_its_own_attribution_without_commons_lookup"
+            },
+            {
+              "file": "tests/test_session_artist_images.py",
+              "method": "test_only_missing_spotify_image_can_fall_back_not_identity_or_authority_errors"
+            }
+          ],
+          "acceptance_status": "open_real_quality",
+          "proof_boundary": "Source/SQLite/media with external fixtures; explicit real public identity/rights/image and Apple v2/native rendering required."
+        },
+        {
+          "id": "ASKDJ-FLOW-same-band-topic-variety",
+          "question": "Vier nummers van dezelfde band: waarom hoor ik alleen producer- en compositiecredits?",
+          "expected_answer": "De DJ varieert onderbouwde onderwerpen uit de juiste Wikipedia-bandpagina: concrete optredens, bandleden, opname-episodes en geschiedenis. Alleen daadwerkelijk gepubliceerde Flow stuurt de afwisseling; herformulering of vertaling van hetzelfde feit is geen nieuw verhaal. Credits hebben gedeelde artiestgebonden afkoeling. Geen bewijs betekent ruimte, geen verzonnen concert of droge terugval. Alle teksten en replay blijven in de heropende Flow beschikbaar.",
+          "model_policy": "same_qualified_HA_owner_two_calls_no_retry",
+          "owning_tests": [
+            {
+              "file": "tests/test_session_story_variety.py",
+              "method": "test_topic_rotation_is_published_only_and_not_a_fixed_output_template"
+            },
+            {
+              "file": "tests/test_session_story_variety.py",
+              "method": "test_credit_cooldown_is_shared_across_credit_kinds_but_exact_artist_scoped"
+            },
+            {
+              "file": "tests/test_session_story_variety.py",
+              "method": "test_topic_rank_preserves_original_passages_in_five_languages"
+            },
+            {
+              "file": "tests/test_session_story_variety.py",
+              "method": "test_focused_original_evidence_and_semantic_novelty_are_both_required"
+            },
+            {
+              "file": "tests/test_session_story_variety.py",
+              "method": "test_four_observed_tracks_have_distinct_episodes_and_durable_replayable_flow"
+            },
+            {
+              "file": "tests/test_session_story_variety.py",
+              "method": "test_rejected_semantic_repeat_does_not_advance_flow_or_episode_memory"
+            },
+            {
+              "file": "tests/test_session_story_variety.py",
+              "method": "test_no_documented_topic_declines_without_raw_credit_or_extra_model_attempt"
+            },
+            {
+              "file": "tests/test_session_story_variety.py",
+              "method": "test_topic_and_evidence_receipts_cannot_be_forged_after_acceptance"
+            },
+            {
+              "file": "tests/test_session_story_variety.py",
+              "method": "test_planner_credit_cooldown_runs_before_ranking_and_never_widens_eligibility"
+            },
+            {
+              "file": "tests/test_session_story_variety.py",
+              "method": "test_missing_narration_owner_cannot_publish_raw_researchable_artist_seed"
+            },
+            {
+              "file": "tests/test_session_story_variety.py",
+              "method": "test_ambiguous_title_resolves_exact_qid_sitelink_without_name_guessing"
+            },
+            {
+              "file": "tests/test_session_story_variety.py",
+              "method": "test_wrong_sitelink_entity_cannot_qualify_an_ambiguous_article"
+            }
+          ],
+          "acceptance_status": "open_real_quality",
+          "proof_boundary": "Four observed tracks and original SQLite reopen use declared source/model fixtures and modelled spacing. Actual public source selection is separate from real LLM, duration, installed, native or audible quality."
         }
       ],
       "owning_tests": [
@@ -2510,6 +2774,22 @@
         {
           "file": "tests/test_ask_dj_contextual_dialogue.py",
           "method": "test_person_intro_owner_accepts_proved_identification_and_withholds_wrong_participant"
+        },
+        {
+          "file": "tests/test_personal_dj_narration_public_artist.py",
+          "method": "test_rejected_producer_story_never_publishes_raw_repeated_role_list_or_retries"
+        },
+        {
+          "file": "tests/test_personal_dj_narration_public_artist.py",
+          "method": "test_researched_story_has_bounded_time_for_sources_and_two_calls_with_live_guards"
+        },
+        {
+          "file": "tests/test_personal_dj_narration_public_artist.py",
+          "method": "test_fetched_biography_does_not_upgrade_a_credit_only_answer_even_if_review_claims_episode"
+        },
+        {
+          "file": "tests/test_personal_dj_narration_public_artist.py",
+          "method": "test_producer_episode_requires_its_own_independent_verdict"
         }
       ],
       "real_ha_profile": "full_golden",
@@ -4717,6 +4997,2189 @@
           "proof_boundary": "Core metadata/auth owner; isolated actual HA paired status separately qualified. Native selection, OS permissions, remote provider health and hearing NOT_RUN."
         }
       ]
+    },
+    {
+      "id": "ASKDJ-FLOW-catalogue-exact-questions",
+      "owning_tests": [
+        {
+          "file": "tests/test_ask_dj_catalogue_golden.py",
+          "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+        },
+        {
+          "file": "tests/test_ask_dj_catalogue_golden.py",
+          "method": "test_new_question_missing_translation_and_duplicate_id_fail_inventory"
+        },
+        {
+          "file": "tests/test_ask_dj_catalogue_golden.py",
+          "method": "test_both_speaker_continuation_and_full_album_followup_have_all_five_languages_and_dedup"
+        },
+        {
+          "file": "tests/test_ask_dj_catalogue_golden.py",
+          "method": "test_generic_confirmation_without_actual_dispatch_cannot_pass_playback"
+        },
+        {
+          "file": "tests/test_ask_dj_catalogue_golden.py",
+          "method": "test_track_identity_is_not_its_album_context_and_offset_must_match"
+        },
+        {
+          "file": "tests/test_ask_dj_catalogue_golden.py",
+          "method": "test_readonly_album_list_requires_exact_contained_items_and_observation"
+        },
+        {
+          "file": "tests/test_ask_dj_catalogue_golden.py",
+          "method": "test_album_request_cannot_pass_with_one_track_even_if_text_claims_whole_album"
+        },
+        {
+          "file": "tests/test_ask_dj_catalogue_golden.py",
+          "method": "test_current_context_fallback_and_wrong_locale_do_not_count_as_answers"
+        },
+        {
+          "file": "tests/test_ask_dj_catalogue_golden.py",
+          "method": "test_read_only_catalogue_question_and_duplicate_reject_any_provider_write"
+        },
+        {
+          "file": "tests/test_ask_dj_catalogue_golden.py",
+          "method": "test_release_runner_requires_actual_catalogue_profile_and_content_hash"
+        },
+        {
+          "file": "tests/test_ask_dj_catalogue_golden.py",
+          "method": "test_manifest_changes_when_template_or_expectation_changes"
+        },
+        {
+          "file": "tests/test_ask_dj_catalogue_golden.py",
+          "method": "test_release_inventory_rejects_a_silently_missing_or_reworded_catalogue_question"
+        },
+        {
+          "file": "tests/test_ask_dj_catalogue_golden.py",
+          "method": "test_receipt_rejects_missing_duplicate_wrong_question_and_unpaid_claims"
+        },
+        {
+          "file": "tests/test_ask_dj_catalogue_golden.py",
+          "method": "test_wrong_device_query_order_and_foreign_offered_target_fail"
+        },
+        {
+          "file": "tests/test_ask_dj_catalogue_golden.py",
+          "method": "test_duplicate_identity_text_selection_expiry_and_provider_reads_are_frozen"
+        },
+        {
+          "file": "tests/test_ask_dj_catalogue_golden.py",
+          "method": "test_actual_answer_language_requires_independent_bound_completed_judge_for_all_locales"
+        },
+        {
+          "file": "tests/test_ask_dj_catalogue_golden.py",
+          "method": "test_language_judge_rejects_duplicate_keys_wrong_types_and_unbounded_output"
+        },
+        {
+          "file": "tests/test_ask_dj_catalogue_golden.py",
+          "method": "test_accepted_mutation_requires_real_success_status"
+        },
+        {
+          "file": "tests/test_ask_dj_catalogue_golden.py",
+          "method": "test_no_output_404_exception_still_binds_original_artist_target_and_attempt_budget"
+        },
+        {
+          "file": "tests/test_ask_dj_catalogue_golden.py",
+          "method": "test_whole_album_cannot_skip_tracks_or_supply_other_play_body_overrides"
+        },
+        {
+          "file": "tests/test_ask_dj_example_catalogue.py",
+          "method": "test_native_play_requests_route_normally_but_remain_unqualified_without_actual_execution"
+        },
+        {
+          "file": "tests/test_ask_dj_example_catalogue.py",
+          "method": "test_native_subject_parser_is_not_a_catalogue_artist_alias"
+        },
+        {
+          "file": "tests/test_ask_dj_example_catalogue.py",
+          "method": "test_activity_requests_do_not_shortcut_to_an_artist_search"
+        },
+        {
+          "file": "tests/test_ask_dj_example_catalogue.py",
+          "method": "test_explicit_local_album_followups_are_grants_but_plain_yes_and_negation_are_not"
+        },
+        {
+          "file": "tests/test_ask_dj_example_catalogue.py",
+          "method": "test_native_album_and_playlist_keep_kind_and_original_subject"
+        },
+        {
+          "file": "tests/test_ask_dj_example_catalogue.py",
+          "method": "test_music_question_negation_hypothesis_and_quote_never_get_play_authority"
+        },
+        {
+          "file": "tests/test_ask_dj_example_catalogue.py",
+          "method": "test_quoted_music_names_keep_negative_words_as_literal_identity"
+        },
+        {
+          "file": "tests/test_ask_dj_example_catalogue.py",
+          "method": "test_all_catalogue_questions_use_their_existing_semantic_owner_not_chip_dispatch"
+        },
+        {
+          "file": "tests/test_ask_dj_example_catalogue.py",
+          "method": "test_read_presentation_language_is_from_current_turn_and_every_key_has_five_locales"
+        },
+        {
+          "file": "tests/test_ask_dj_example_catalogue.py",
+          "method": "test_draft_or_unknown_locale_routes_never_become_qualified_chips_or_help"
+        },
+        {
+          "file": "tests/test_ask_dj_example_catalogue.py",
+          "method": "test_eligibility_is_per_locale_and_uses_same_gate_for_help_and_chips"
+        },
+        {
+          "file": "tests/test_ask_dj_example_catalogue.py",
+          "method": "test_unknown_version_and_missing_or_unsafe_slot_fail_closed"
+        },
+        {
+          "file": "tests/test_ask_dj_example_catalogue.py",
+          "method": "test_unknown_locale_malformed_context_and_unqualified_pin_fail_closed"
+        },
+        {
+          "file": "tests/test_ask_dj_example_catalogue.py",
+          "method": "test_runtime_projection_exactly_matches_single_canonical_json_without_runtime_file_read"
+        },
+        {
+          "file": "tests/test_ask_dj_example_catalogue.py",
+          "method": "test_three_stable_diverse_suggestions_and_compact_help_share_every_eligibility_gate"
+        },
+        {
+          "file": "tests/test_ask_dj_example_catalogue.py",
+          "method": "test_negated_native_requests_do_no_model_provider_or_effect_work_even_with_positive_agent"
+        },
+        {
+          "file": "tests/test_ask_dj_example_catalogue.py",
+          "method": "test_paused_current_recording_uses_truthful_state_in_all_five_locales_without_effect"
+        },
+        {
+          "file": "tests/test_ask_dj_semantic_reads.py",
+          "method": "test_artist_story_paraphrases_reuse_public_research_and_assessment_in_all_locales"
+        },
+        {
+          "file": "tests/test_ask_dj_semantic_reads.py",
+          "method": "test_artist_story_does_not_publish_across_changed_playback"
+        },
+        {
+          "file": "tests/test_ask_dj_semantic_reads.py",
+          "method": "test_intro_passage_selection_keeps_literal_episode_offsets_and_identity"
+        },
+        {
+          "file": "tests/test_ask_dj_semantic_reads.py",
+          "method": "test_named_work_inside_appreciation_still_needs_its_factual_source_receipt"
+        },
+        {
+          "file": "tests/test_ask_dj_semantic_reads.py",
+          "method": "test_translated_production_activity_accepts_explicit_progressive_source_not_guest_credit_alone"
+        },
+        {
+          "file": "tests/test_ask_dj_semantic_reads.py",
+          "method": "test_work_order_cannot_borrow_a_work_name_to_reverse_or_invent_sequence"
+        },
+        {
+          "file": "tests/test_ask_dj_semantic_reads.py",
+          "method": "test_artist_story_requires_independent_style_and_language_acceptance"
+        },
+        {
+          "file": "tests/test_ask_dj_semantic_reads.py",
+          "method": "test_album_followups_keep_full_context_exact_title_receipt_and_duplicate"
+        },
+        {
+          "file": "tests/test_ask_dj_semantic_reads.py",
+          "method": "test_unlisted_typo_is_interpreted_then_answered_from_fresh_provider"
+        },
+        {
+          "file": "tests/test_ask_dj_semantic_reads.py",
+          "method": "test_plan_is_closed_duplicate_safe_and_never_an_effect"
+        },
+        {
+          "file": "tests/test_ask_dj_semantic_reads.py",
+          "method": "test_reported_short_artist_and_singers_questions_read_context_without_claiming_vocal_roles"
+        },
+        {
+          "file": "tests/test_ask_dj_semantic_reads.py",
+          "method": "test_selected_recording_survives_unrecognized_wording_and_does_not_use_current"
+        },
+        {
+          "file": "tests/test_ask_dj_semantic_reads.py",
+          "method": "test_invalid_effect_or_missing_selection_never_dispatches_or_retries"
+        },
+        {
+          "file": "tests/test_ask_dj_semantic_reads.py",
+          "method": "test_clear_during_interpretation_rejects_before_read"
+        },
+        {
+          "file": "tests/test_ask_dj_semantic_reads.py",
+          "method": "test_session_end_during_interpretation_cannot_rebind_to_new_context"
+        },
+        {
+          "file": "tests/test_ask_dj_semantic_reads.py",
+          "method": "test_inherited_cc0_subject_does_not_override_semantic_current_artist"
+        },
+        {
+          "file": "tests/test_ask_dj_semantic_reads.py",
+          "method": "test_no_session_to_new_session_during_forecast_interpretation_is_rejected"
+        },
+        {
+          "file": "tests/test_ask_dj_semantic_reads.py",
+          "method": "test_golden_case_vocabulary_never_becomes_runtime_recognition"
+        },
+        {
+          "file": "tests/test_ask_dj_semantic_reads.py",
+          "method": "test_question_clause_captured_as_name_does_not_block_semantic_interpretation"
+        },
+        {
+          "file": "tests/test_ask_dj_semantic_reads.py",
+          "method": "test_unqualified_name_capture_keeps_selected_recording"
+        },
+        {
+          "file": "tests/test_ask_dj_semantic_reads.py",
+          "method": "test_recording_question_on_artist_only_selection_never_claims_artist_is_a_title"
+        },
+        {
+          "file": "tests/test_pipeline.py",
+          "method": "test_unqualified_media_or_memory_cannot_start_an_independent_announcer"
+        },
+        {
+          "file": "tests/test_pipeline.py",
+          "method": "test_intent_from_assist_response_uses_djconnect_data"
+        },
+        {
+          "file": "tests/test_pipeline.py",
+          "method": "test_djconnect_assist_prompt_focuses_on_command_parsing"
+        },
+        {
+          "file": "tests/test_pipeline.py",
+          "method": "test_djconnect_assist_prompt_does_not_include_custom_response_prompt"
+        },
+        {
+          "file": "tests/test_pipeline.py",
+          "method": "test_command_assist_prompt_is_debug_logged"
+        },
+        {
+          "file": "tests/test_pipeline.py",
+          "method": "test_correct_stt_text_with_assist_returns_corrected_text"
+        },
+        {
+          "file": "tests/test_pipeline.py",
+          "method": "test_activity_json_speech_uses_the_selected_agent_and_preserves_semantic_playlist"
+        },
+        {
+          "file": "tests/test_pipeline.py",
+          "method": "test_spoken_intent_json_is_bounded_closed_and_duplicate_safe"
+        },
+        {
+          "file": "tests/test_pipeline.py",
+          "method": "test_playback_frame_can_restore_only_unambiguous_core_kind_not_catalog_names"
+        },
+        {
+          "file": "tests/test_pipeline.py",
+          "method": "test_localized_playlist_kind_is_core_owned_but_catalog_and_ambiguity_are_not"
+        },
+        {
+          "file": "tests/test_pipeline.py",
+          "method": "test_longer_narration_deadline_is_only_for_an_already_accepted_playback_effect"
+        },
+        {
+          "file": "tests/test_pipeline.py",
+          "method": "test_correct_stt_text_with_assist_ignores_prompt_leak"
+        },
+        {
+          "file": "tests/test_pipeline.py",
+          "method": "test_correct_stt_text_with_assist_uses_default_conversation_agent"
+        },
+        {
+          "file": "tests/test_pipeline.py",
+          "method": "test_voice_profile_mapping_follows_all_mood_zones"
+        },
+        {
+          "file": "tests/test_pipeline.py",
+          "method": "test_intent_parser_does_not_promote_agent_speech_to_dj_response"
+        },
+        {
+          "file": "tests/test_pipeline.py",
+          "method": "test_local_artist_request_overrides_stale_assist_artist"
+        },
+        {
+          "file": "tests/test_pipeline.py",
+          "method": "test_local_artist_request_overrides_stale_assist_track"
+        },
+        {
+          "file": "tests/test_pipeline.py",
+          "method": "test_generic_assist_music_refusal_is_not_used_as_dj_response"
+        },
+        {
+          "file": "tests/test_pipeline.py",
+          "method": "test_intent_from_assist_response_raises_clear_error"
+        },
+        {
+          "file": "tests/test_pipeline.py",
+          "method": "test_assist_prompt_device_lookup_error_falls_back_to_search_intent"
+        },
+        {
+          "file": "tests/test_pipeline.py",
+          "method": "test_assist_prompt_area_lookup_error_falls_back_to_search_intent"
+        },
+        {
+          "file": "tests/test_pipeline.py",
+          "method": "test_prompt_leak_device_lookup_error_falls_back_to_original_command"
+        },
+        {
+          "file": "tests/test_processor_runtime.py",
+          "method": "test_run_text_command_updates_text_before_processing_result"
+        },
+        {
+          "file": "tests/test_processor_runtime.py",
+          "method": "test_run_text_command_falls_back_to_local_spotify_search_when_assist_fails"
+        },
+        {
+          "file": "tests/test_processor_runtime.py",
+          "method": "test_run_text_command_corrects_stt_before_intent_parsing"
+        },
+        {
+          "file": "tests/test_processor_runtime.py",
+          "method": "test_run_text_command_preserves_accepted_resolved_track_reply"
+        },
+        {
+          "file": "tests/test_processor_runtime.py",
+          "method": "test_run_text_command_preserves_accepted_resolved_album_reply"
+        },
+        {
+          "file": "tests/test_processor_runtime.py",
+          "method": "test_album_playback_response_names_album_and_first_track"
+        },
+        {
+          "file": "tests/test_processor_runtime.py",
+          "method": "test_run_text_command_adds_current_track_to_artist_dj_response_media"
+        },
+        {
+          "file": "tests/test_processor_runtime.py",
+          "method": "test_run_text_command_keeps_accepted_reply_without_a_second_generation"
+        },
+        {
+          "file": "tests/test_processor_runtime.py",
+          "method": "test_run_text_command_does_not_use_stale_device_playback_for_dj_response"
+        },
+        {
+          "file": "tests/test_processor_runtime.py",
+          "method": "test_clear_multi_word_artist_play_request_uses_local_intent_before_assist"
+        },
+        {
+          "file": "tests/test_processor_runtime.py",
+          "method": "test_run_text_command_ignores_conflicting_resolved_media_for_dj_response"
+        },
+        {
+          "file": "tests/test_processor_runtime.py",
+          "method": "test_current_track_question_reads_status_without_playback_action"
+        },
+        {
+          "file": "tests/test_processor_runtime.py",
+          "method": "test_current_track_question_answers_when_nothing_is_playing"
+        },
+        {
+          "file": "tests/test_processor_runtime.py",
+          "method": "test_current_track_question_answers_when_spotify_is_unavailable"
+        },
+        {
+          "file": "tests/test_processor_runtime.py",
+          "method": "test_playback_control_requests_call_backend_without_music_search"
+        },
+        {
+          "file": "tests/test_processor_runtime.py",
+          "method": "test_volume_control_requests_adjust_current_spotify_volume_by_ten"
+        },
+        {
+          "file": "tests/test_processor_runtime.py",
+          "method": "test_command_paths_cannot_start_session_narration_or_unrequested_speech"
+        },
+        {
+          "file": "tests/test_processor_runtime.py",
+          "method": "test_free_model_announcement_never_becomes_an_accepted_command_reply"
+        },
+        {
+          "file": "tests/test_processor_runtime.py",
+          "method": "test_run_text_command_keeps_intent_when_playback_fails"
+        },
+        {
+          "file": "tests/test_ask_dj_catalogue_variations.py",
+          "method": "test_failed_partial_stale_or_selected_base_spends_zero_generation_calls"
+        },
+        {
+          "file": "tests/test_ask_dj_catalogue_variations.py",
+          "method": "test_frozen_inputs_reuse_all_independent_oracles_and_full_context_chains"
+        },
+        {
+          "file": "tests/test_ask_dj_catalogue_variations.py",
+          "method": "test_permission_change_or_uncertain_semantics_aborts_without_retry_or_partial_corpus"
+        },
+        {
+          "file": "tests/test_ask_dj_catalogue_variations.py",
+          "method": "test_variant_execution_uses_its_frozen_questions_and_cannot_replace_base_evidence"
+        },
+        {
+          "file": "tests/test_ask_dj_catalogue_variations.py",
+          "method": "test_changed_corpus_languages_ids_text_or_catalogue_pin_cannot_silently_enter_golden"
+        },
+        {
+          "file": "tests/test_ask_dj_catalogue_variations.py",
+          "method": "test_duplicate_json_keys_and_changed_artist_name_are_rejected"
+        },
+        {
+          "file": "tests/test_ask_dj_catalogue_variations.py",
+          "method": "test_release_requires_frozen_variations_after_the_exact_base_profile"
+        }
+      ],
+      "steps": [
+        {
+          "id": "catalogue-play.artist-en",
+          "entry_id": "play.artist",
+          "language": "en",
+          "question": "Play Volbeat",
+          "expected_answer": "Names the actual accepted Volbeat selection and confirmed/requested state; no unrelated artist.",
+          "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-play.artist-nl",
+          "entry_id": "play.artist",
+          "language": "nl",
+          "question": "Speel Volbeat",
+          "expected_answer": "Names the actual accepted Volbeat selection and confirmed/requested state; no unrelated artist.",
+          "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-play.artist-de",
+          "entry_id": "play.artist",
+          "language": "de",
+          "question": "Spiele Volbeat",
+          "expected_answer": "Names the actual accepted Volbeat selection and confirmed/requested state; no unrelated artist.",
+          "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-play.artist-fr",
+          "entry_id": "play.artist",
+          "language": "fr",
+          "question": "Joue Volbeat",
+          "expected_answer": "Names the actual accepted Volbeat selection and confirmed/requested state; no unrelated artist.",
+          "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-play.artist-es",
+          "entry_id": "play.artist",
+          "language": "es",
+          "question": "Reproduce Volbeat",
+          "expected_answer": "Names the actual accepted Volbeat selection and confirmed/requested state; no unrelated artist.",
+          "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-play.cooking-en",
+          "entry_id": "play.cooking",
+          "language": "en",
+          "question": "Play something for cooking",
+          "expected_answer": "Names the chosen Cooking collection playlist and actual dispatch state.",
+          "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-play.cooking-nl",
+          "entry_id": "play.cooking",
+          "language": "nl",
+          "question": "Speel iets voor tijdens het koken",
+          "expected_answer": "Names the chosen Cooking collection playlist and actual dispatch state.",
+          "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-play.cooking-de",
+          "entry_id": "play.cooking",
+          "language": "de",
+          "question": "Spiel etwas zum Kochen",
+          "expected_answer": "Names the chosen Cooking collection playlist and actual dispatch state.",
+          "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-play.cooking-fr",
+          "entry_id": "play.cooking",
+          "language": "fr",
+          "question": "Mets quelque chose pour cuisiner",
+          "expected_answer": "Names the chosen Cooking collection playlist and actual dispatch state.",
+          "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-play.cooking-es",
+          "entry_id": "play.cooking",
+          "language": "es",
+          "question": "Pon algo para cocinar",
+          "expected_answer": "Names the chosen Cooking collection playlist and actual dispatch state.",
+          "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-play.quiet-en",
+          "entry_id": "play.quiet",
+          "language": "en",
+          "question": "Put on a relaxing playlist",
+          "expected_answer": "Names the chosen Quiet collection playlist and actual dispatch state.",
+          "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-play.quiet-nl",
+          "entry_id": "play.quiet",
+          "language": "nl",
+          "question": "Zet een rustige playlist op",
+          "expected_answer": "Names the chosen Quiet collection playlist and actual dispatch state.",
+          "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-play.quiet-de",
+          "entry_id": "play.quiet",
+          "language": "de",
+          "question": "Starte eine ruhige Playlist",
+          "expected_answer": "Names the chosen Quiet collection playlist and actual dispatch state.",
+          "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-play.quiet-fr",
+          "entry_id": "play.quiet",
+          "language": "fr",
+          "question": "Mets une playlist calme",
+          "expected_answer": "Names the chosen Quiet collection playlist and actual dispatch state.",
+          "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-play.quiet-es",
+          "entry_id": "play.quiet",
+          "language": "es",
+          "question": "Pon una playlist tranquila",
+          "expected_answer": "Names the chosen Quiet collection playlist and actual dispatch state.",
+          "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-discover.artist_albums-en",
+          "entry_id": "discover.artist_albums",
+          "language": "en",
+          "question": "Show me albums by Volbeat",
+          "expected_answer": "Offers the exact Volbeat album Beyond Hell/Above Heaven with a frozen playable album action.",
+          "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-discover.artist_albums-nl",
+          "entry_id": "discover.artist_albums",
+          "language": "nl",
+          "question": "Geef me albums van Volbeat",
+          "expected_answer": "Offers the exact Volbeat album Beyond Hell/Above Heaven with a frozen playable album action.",
+          "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-discover.artist_albums-de",
+          "entry_id": "discover.artist_albums",
+          "language": "de",
+          "question": "Zeig mir Alben von Volbeat",
+          "expected_answer": "Offers the exact Volbeat album Beyond Hell/Above Heaven with a frozen playable album action.",
+          "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-discover.artist_albums-fr",
+          "entry_id": "discover.artist_albums",
+          "language": "fr",
+          "question": "Montre-moi les albums de Volbeat",
+          "expected_answer": "Offers the exact Volbeat album Beyond Hell/Above Heaven with a frozen playable album action.",
+          "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-discover.artist_albums-es",
+          "entry_id": "discover.artist_albums",
+          "language": "es",
+          "question": "Muéstrame álbumes de Volbeat",
+          "expected_answer": "Offers the exact Volbeat album Beyond Hell/Above Heaven with a frozen playable album action.",
+          "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-discover.artist_tracks-en",
+          "entry_id": "discover.artist_tracks",
+          "language": "en",
+          "question": "Give me 5 songs by Volbeat",
+          "expected_answer": "Lists actual provider recordings credited to Volbeat, with exact playable track actions.",
+          "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-discover.artist_tracks-nl",
+          "entry_id": "discover.artist_tracks",
+          "language": "nl",
+          "question": "Geef me 5 nummers van Volbeat",
+          "expected_answer": "Lists actual provider recordings credited to Volbeat, with exact playable track actions.",
+          "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-discover.artist_tracks-de",
+          "entry_id": "discover.artist_tracks",
+          "language": "de",
+          "question": "Gib mir 5 Songs von Volbeat",
+          "expected_answer": "Lists actual provider recordings credited to Volbeat, with exact playable track actions.",
+          "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-discover.artist_tracks-fr",
+          "entry_id": "discover.artist_tracks",
+          "language": "fr",
+          "question": "Donne-moi 5 titres de Volbeat",
+          "expected_answer": "Lists actual provider recordings credited to Volbeat, with exact playable track actions.",
+          "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-discover.artist_tracks-es",
+          "entry_id": "discover.artist_tracks",
+          "language": "es",
+          "question": "Dame 5 canciones de Volbeat",
+          "expected_answer": "Lists actual provider recordings credited to Volbeat, with exact playable track actions.",
+          "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-discover.playlists-en",
+          "entry_id": "discover.playlists",
+          "language": "en",
+          "question": "Which playlists do I have?",
+          "expected_answer": "Shows the authenticated synthetic account playlist; no automatic playback.",
+          "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-discover.playlists-nl",
+          "entry_id": "discover.playlists",
+          "language": "nl",
+          "question": "Welke playlists heb ik?",
+          "expected_answer": "Shows the authenticated synthetic account playlist; no automatic playback.",
+          "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-discover.playlists-de",
+          "entry_id": "discover.playlists",
+          "language": "de",
+          "question": "Welche Playlists habe ich?",
+          "expected_answer": "Shows the authenticated synthetic account playlist; no automatic playback.",
+          "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-discover.playlists-fr",
+          "entry_id": "discover.playlists",
+          "language": "fr",
+          "question": "Quelles playlists ai-je ?",
+          "expected_answer": "Shows the authenticated synthetic account playlist; no automatic playback.",
+          "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-discover.playlists-es",
+          "entry_id": "discover.playlists",
+          "language": "es",
+          "question": "¿Qué playlists tengo?",
+          "expected_answer": "Shows the authenticated synthetic account playlist; no automatic playback.",
+          "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-discover.recent-en",
+          "entry_id": "discover.recent",
+          "language": "en",
+          "question": "Which songs did I play in the last hour?",
+          "expected_answer": "Reports the known recent recording from provider history; no playback mutation.",
+          "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-discover.recent-nl",
+          "entry_id": "discover.recent",
+          "language": "nl",
+          "question": "Welke nummers heb ik afgelopen uur afgespeeld?",
+          "expected_answer": "Reports the known recent recording from provider history; no playback mutation.",
+          "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-discover.recent-de",
+          "entry_id": "discover.recent",
+          "language": "de",
+          "question": "Welche Songs habe ich in der letzten Stunde gehört?",
+          "expected_answer": "Reports the known recent recording from provider history; no playback mutation.",
+          "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-discover.recent-fr",
+          "entry_id": "discover.recent",
+          "language": "fr",
+          "question": "Quels titres ai-je écoutés durant la dernière heure ?",
+          "expected_answer": "Reports the known recent recording from provider history; no playback mutation.",
+          "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-discover.recent-es",
+          "entry_id": "discover.recent",
+          "language": "es",
+          "question": "¿Qué canciones escuché en la última hora?",
+          "expected_answer": "Reports the known recent recording from provider history; no playback mutation.",
+          "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-listen.current-en",
+          "entry_id": "listen.current",
+          "language": "en",
+          "question": "What is playing now?",
+          "expected_answer": "Identifies Synthetic studio recording and Volbeat from fresh current playback.",
+          "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-listen.current-nl",
+          "entry_id": "listen.current",
+          "language": "nl",
+          "question": "Wat speelt er nu?",
+          "expected_answer": "Identifies Synthetic studio recording and Volbeat from fresh current playback.",
+          "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-listen.current-de",
+          "entry_id": "listen.current",
+          "language": "de",
+          "question": "Was läuft gerade?",
+          "expected_answer": "Identifies Synthetic studio recording and Volbeat from fresh current playback.",
+          "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-listen.current-fr",
+          "entry_id": "listen.current",
+          "language": "fr",
+          "question": "Qu’est-ce qui passe maintenant ?",
+          "expected_answer": "Identifies Synthetic studio recording and Volbeat from fresh current playback.",
+          "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-listen.current-es",
+          "entry_id": "listen.current",
+          "language": "es",
+          "question": "¿Qué está sonando ahora?",
+          "expected_answer": "Identifies Synthetic studio recording and Volbeat from fresh current playback.",
+          "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-listen.release-en",
+          "entry_id": "listen.release",
+          "language": "en",
+          "question": "When was this song released?",
+          "expected_answer": "Reports 2008-05-06 as the current edition date, without inventing an original-release date.",
+          "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-listen.release-nl",
+          "entry_id": "listen.release",
+          "language": "nl",
+          "question": "Wanneer is dit nummer uitgekomen?",
+          "expected_answer": "Reports 2008-05-06 as the current edition date, without inventing an original-release date.",
+          "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-listen.release-de",
+          "entry_id": "listen.release",
+          "language": "de",
+          "question": "Wann wurde dieser Song veröffentlicht?",
+          "expected_answer": "Reports 2008-05-06 as the current edition date, without inventing an original-release date.",
+          "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-listen.release-fr",
+          "entry_id": "listen.release",
+          "language": "fr",
+          "question": "Quand ce titre est-il sorti ?",
+          "expected_answer": "Reports 2008-05-06 as the current edition date, without inventing an original-release date.",
+          "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-listen.release-es",
+          "entry_id": "listen.release",
+          "language": "es",
+          "question": "¿Cuándo salió esta canción?",
+          "expected_answer": "Reports 2008-05-06 as the current edition date, without inventing an original-release date.",
+          "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-listen.artist-en",
+          "entry_id": "listen.artist",
+          "language": "en",
+          "question": "Tell me about this artist",
+          "expected_answer": "Answers about Volbeat with current qualified public source evidence; no ungrounded biography.",
+          "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-listen.artist-nl",
+          "entry_id": "listen.artist",
+          "language": "nl",
+          "question": "Vertel iets over deze artiest",
+          "expected_answer": "Answers about Volbeat with current qualified public source evidence; no ungrounded biography.",
+          "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-listen.artist-de",
+          "entry_id": "listen.artist",
+          "language": "de",
+          "question": "Erzähl etwas über diesen Künstler",
+          "expected_answer": "Answers about Volbeat with current qualified public source evidence; no ungrounded biography.",
+          "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-listen.artist-fr",
+          "entry_id": "listen.artist",
+          "language": "fr",
+          "question": "Parle-moi de cet artiste",
+          "expected_answer": "Answers about Volbeat with current qualified public source evidence; no ungrounded biography.",
+          "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-listen.artist-es",
+          "entry_id": "listen.artist",
+          "language": "es",
+          "question": "Cuéntame sobre este artista",
+          "expected_answer": "Answers about Volbeat with current qualified public source evidence; no ungrounded biography.",
+          "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-listen.album_tracks-en",
+          "entry_id": "listen.album_tracks",
+          "language": "en",
+          "question": "Which other songs are on this album?",
+          "expected_answer": "Shows one playable exact-album header, then the other two recordings with proxied art and frozen play actions; no duplicated text list or automatic playback.",
+          "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-listen.album_tracks-nl",
+          "entry_id": "listen.album_tracks",
+          "language": "nl",
+          "question": "Welke nummers staan er nog meer op dit album?",
+          "expected_answer": "Shows one playable exact-album header, then the other two recordings with proxied art and frozen play actions; no duplicated text list or automatic playback.",
+          "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-listen.album_tracks-de",
+          "entry_id": "listen.album_tracks",
+          "language": "de",
+          "question": "Welche anderen Songs sind auf diesem Album?",
+          "expected_answer": "Shows one playable exact-album header, then the other two recordings with proxied art and frozen play actions; no duplicated text list or automatic playback.",
+          "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-listen.album_tracks-fr",
+          "entry_id": "listen.album_tracks",
+          "language": "fr",
+          "question": "Quels autres titres figurent sur cet album ?",
+          "expected_answer": "Shows one playable exact-album header, then the other two recordings with proxied art and frozen play actions; no duplicated text list or automatic playback.",
+          "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-listen.album_tracks-es",
+          "entry_id": "listen.album_tracks",
+          "language": "es",
+          "question": "¿Qué otras canciones hay en este álbum?",
+          "expected_answer": "Shows one playable exact-album header, then the other two recordings with proxied art and frozen play actions; no duplicated text list or automatic playback.",
+          "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-listen.outputs-en",
+          "entry_id": "listen.outputs",
+          "language": "en",
+          "question": "Which speakers are available?",
+          "expected_answer": "Offers the owned fixture speaker with its real output action; no transfer.",
+          "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-listen.outputs-nl",
+          "entry_id": "listen.outputs",
+          "language": "nl",
+          "question": "Welke speakers zijn er?",
+          "expected_answer": "Offers the owned fixture speaker with its real output action; no transfer.",
+          "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-listen.outputs-de",
+          "entry_id": "listen.outputs",
+          "language": "de",
+          "question": "Welche Speaker gibt es?",
+          "expected_answer": "Offers the owned fixture speaker with its real output action; no transfer.",
+          "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-listen.outputs-fr",
+          "entry_id": "listen.outputs",
+          "language": "fr",
+          "question": "Quelles enceintes sont disponibles ?",
+          "expected_answer": "Offers the owned fixture speaker with its real output action; no transfer.",
+          "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-listen.outputs-es",
+          "entry_id": "listen.outputs",
+          "language": "es",
+          "question": "¿Qué altavoces hay?",
+          "expected_answer": "Offers the owned fixture speaker with its real output action; no transfer.",
+          "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-listen.queue-en",
+          "entry_id": "listen.queue",
+          "language": "en",
+          "question": "What is in the queue?",
+          "expected_answer": "Reports the successfully read empty queue; no claim about guaranteed next playback.",
+          "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-listen.queue-nl",
+          "entry_id": "listen.queue",
+          "language": "nl",
+          "question": "Wat staat er in de wachtrij?",
+          "expected_answer": "Reports the successfully read empty queue; no claim about guaranteed next playback.",
+          "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-listen.queue-de",
+          "entry_id": "listen.queue",
+          "language": "de",
+          "question": "Was steht in der Warteschlange?",
+          "expected_answer": "Reports the successfully read empty queue; no claim about guaranteed next playback.",
+          "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-listen.queue-fr",
+          "entry_id": "listen.queue",
+          "language": "fr",
+          "question": "Qu’y a-t-il dans la file d’attente ?",
+          "expected_answer": "Reports the successfully read empty queue; no claim about guaranteed next playback.",
+          "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-listen.queue-es",
+          "entry_id": "listen.queue",
+          "language": "es",
+          "question": "¿Qué hay en la cola?",
+          "expected_answer": "Reports the successfully read empty queue; no claim about guaranteed next playback.",
+          "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-listen.forecast-en",
+          "entry_id": "listen.forecast",
+          "language": "en",
+          "question": "Show the session forecast",
+          "expected_answer": "Reads the existing current Session forecast, preserves its limited/ready state and queue uncertainty.",
+          "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-listen.forecast-nl",
+          "entry_id": "listen.forecast",
+          "language": "nl",
+          "question": "Toon de vooruitblik",
+          "expected_answer": "Reads the existing current Session forecast, preserves its limited/ready state and queue uncertainty.",
+          "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-listen.forecast-de",
+          "entry_id": "listen.forecast",
+          "language": "de",
+          "question": "Zeige den Ausblick",
+          "expected_answer": "Reads the existing current Session forecast, preserves its limited/ready state and queue uncertainty.",
+          "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-listen.forecast-fr",
+          "entry_id": "listen.forecast",
+          "language": "fr",
+          "question": "Montre l’aperçu",
+          "expected_answer": "Reads the existing current Session forecast, preserves its limited/ready state and queue uncertainty.",
+          "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-listen.forecast-es",
+          "entry_id": "listen.forecast",
+          "language": "es",
+          "question": "Muestra el avance",
+          "expected_answer": "Reads the existing current Session forecast, preserves its limited/ready state and queue uncertainty.",
+          "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-chain-speaker-en-offer",
+          "entry_id": "play.artist",
+          "language": "en",
+          "question": "Play Volbeat",
+          "expected_answer": "Preserve the exact prior selection and full album/context kind; speaker continuation starts only that selection; duplicate never repeats a music effect.",
+          "model_policy": "ordinary_route_only_duplicate_zero_new_calls",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-chain-speaker-en-accept",
+          "entry_id": "play.artist",
+          "language": "en",
+          "question": "Play here",
+          "expected_answer": "Preserve the exact prior selection and full album/context kind; speaker continuation starts only that selection; duplicate never repeats a music effect.",
+          "model_policy": "ordinary_route_only_duplicate_zero_new_calls",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-chain-speaker-en-duplicate",
+          "entry_id": "play.artist",
+          "language": "en",
+          "question": "Play here",
+          "expected_answer": "Preserve the exact prior selection and full album/context kind; speaker continuation starts only that selection; duplicate never repeats a music effect.",
+          "model_policy": "ordinary_route_only_duplicate_zero_new_calls",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-chain-album-en-offer",
+          "entry_id": "discover.artist_albums",
+          "language": "en",
+          "question": "Show me albums by Volbeat",
+          "expected_answer": "Preserve the exact prior selection and full album/context kind; speaker continuation starts only that selection; duplicate never repeats a music effect.",
+          "model_policy": "ordinary_route_only_duplicate_zero_new_calls",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-chain-album-en-accept",
+          "entry_id": "discover.artist_albums",
+          "language": "en",
+          "question": "Yes, I want to play that album.",
+          "expected_answer": "Preserve the exact prior selection and full album/context kind; speaker continuation starts only that selection; duplicate never repeats a music effect.",
+          "model_policy": "ordinary_route_only_duplicate_zero_new_calls",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-chain-album-en-duplicate",
+          "entry_id": "discover.artist_albums",
+          "language": "en",
+          "question": "Yes, I want to play that album.",
+          "expected_answer": "Preserve the exact prior selection and full album/context kind; speaker continuation starts only that selection; duplicate never repeats a music effect.",
+          "model_policy": "ordinary_route_only_duplicate_zero_new_calls",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-chain-speaker-nl-offer",
+          "entry_id": "play.artist",
+          "language": "nl",
+          "question": "Speel Volbeat",
+          "expected_answer": "Preserve the exact prior selection and full album/context kind; speaker continuation starts only that selection; duplicate never repeats a music effect.",
+          "model_policy": "ordinary_route_only_duplicate_zero_new_calls",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-chain-speaker-nl-accept",
+          "entry_id": "play.artist",
+          "language": "nl",
+          "question": "Speel hier",
+          "expected_answer": "Preserve the exact prior selection and full album/context kind; speaker continuation starts only that selection; duplicate never repeats a music effect.",
+          "model_policy": "ordinary_route_only_duplicate_zero_new_calls",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-chain-speaker-nl-duplicate",
+          "entry_id": "play.artist",
+          "language": "nl",
+          "question": "Speel hier",
+          "expected_answer": "Preserve the exact prior selection and full album/context kind; speaker continuation starts only that selection; duplicate never repeats a music effect.",
+          "model_policy": "ordinary_route_only_duplicate_zero_new_calls",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-chain-album-nl-offer",
+          "entry_id": "discover.artist_albums",
+          "language": "nl",
+          "question": "Geef me albums van Volbeat",
+          "expected_answer": "Preserve the exact prior selection and full album/context kind; speaker continuation starts only that selection; duplicate never repeats a music effect.",
+          "model_policy": "ordinary_route_only_duplicate_zero_new_calls",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-chain-album-nl-accept",
+          "entry_id": "discover.artist_albums",
+          "language": "nl",
+          "question": "Ja, die wil ik afspelen.",
+          "expected_answer": "Preserve the exact prior selection and full album/context kind; speaker continuation starts only that selection; duplicate never repeats a music effect.",
+          "model_policy": "ordinary_route_only_duplicate_zero_new_calls",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-chain-album-nl-duplicate",
+          "entry_id": "discover.artist_albums",
+          "language": "nl",
+          "question": "Ja, die wil ik afspelen.",
+          "expected_answer": "Preserve the exact prior selection and full album/context kind; speaker continuation starts only that selection; duplicate never repeats a music effect.",
+          "model_policy": "ordinary_route_only_duplicate_zero_new_calls",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-chain-speaker-de-offer",
+          "entry_id": "play.artist",
+          "language": "de",
+          "question": "Spiele Volbeat",
+          "expected_answer": "Preserve the exact prior selection and full album/context kind; speaker continuation starts only that selection; duplicate never repeats a music effect.",
+          "model_policy": "ordinary_route_only_duplicate_zero_new_calls",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-chain-speaker-de-accept",
+          "entry_id": "play.artist",
+          "language": "de",
+          "question": "Hier abspielen",
+          "expected_answer": "Preserve the exact prior selection and full album/context kind; speaker continuation starts only that selection; duplicate never repeats a music effect.",
+          "model_policy": "ordinary_route_only_duplicate_zero_new_calls",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-chain-speaker-de-duplicate",
+          "entry_id": "play.artist",
+          "language": "de",
+          "question": "Hier abspielen",
+          "expected_answer": "Preserve the exact prior selection and full album/context kind; speaker continuation starts only that selection; duplicate never repeats a music effect.",
+          "model_policy": "ordinary_route_only_duplicate_zero_new_calls",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-chain-album-de-offer",
+          "entry_id": "discover.artist_albums",
+          "language": "de",
+          "question": "Zeig mir Alben von Volbeat",
+          "expected_answer": "Preserve the exact prior selection and full album/context kind; speaker continuation starts only that selection; duplicate never repeats a music effect.",
+          "model_policy": "ordinary_route_only_duplicate_zero_new_calls",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-chain-album-de-accept",
+          "entry_id": "discover.artist_albums",
+          "language": "de",
+          "question": "Ja, dieses Album möchte ich hören.",
+          "expected_answer": "Preserve the exact prior selection and full album/context kind; speaker continuation starts only that selection; duplicate never repeats a music effect.",
+          "model_policy": "ordinary_route_only_duplicate_zero_new_calls",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-chain-album-de-duplicate",
+          "entry_id": "discover.artist_albums",
+          "language": "de",
+          "question": "Ja, dieses Album möchte ich hören.",
+          "expected_answer": "Preserve the exact prior selection and full album/context kind; speaker continuation starts only that selection; duplicate never repeats a music effect.",
+          "model_policy": "ordinary_route_only_duplicate_zero_new_calls",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-chain-speaker-fr-offer",
+          "entry_id": "play.artist",
+          "language": "fr",
+          "question": "Joue Volbeat",
+          "expected_answer": "Preserve the exact prior selection and full album/context kind; speaker continuation starts only that selection; duplicate never repeats a music effect.",
+          "model_policy": "ordinary_route_only_duplicate_zero_new_calls",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-chain-speaker-fr-accept",
+          "entry_id": "play.artist",
+          "language": "fr",
+          "question": "Lire ici",
+          "expected_answer": "Preserve the exact prior selection and full album/context kind; speaker continuation starts only that selection; duplicate never repeats a music effect.",
+          "model_policy": "ordinary_route_only_duplicate_zero_new_calls",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-chain-speaker-fr-duplicate",
+          "entry_id": "play.artist",
+          "language": "fr",
+          "question": "Lire ici",
+          "expected_answer": "Preserve the exact prior selection and full album/context kind; speaker continuation starts only that selection; duplicate never repeats a music effect.",
+          "model_policy": "ordinary_route_only_duplicate_zero_new_calls",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-chain-album-fr-offer",
+          "entry_id": "discover.artist_albums",
+          "language": "fr",
+          "question": "Montre-moi les albums de Volbeat",
+          "expected_answer": "Preserve the exact prior selection and full album/context kind; speaker continuation starts only that selection; duplicate never repeats a music effect.",
+          "model_policy": "ordinary_route_only_duplicate_zero_new_calls",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-chain-album-fr-accept",
+          "entry_id": "discover.artist_albums",
+          "language": "fr",
+          "question": "Oui, je veux écouter cet album.",
+          "expected_answer": "Preserve the exact prior selection and full album/context kind; speaker continuation starts only that selection; duplicate never repeats a music effect.",
+          "model_policy": "ordinary_route_only_duplicate_zero_new_calls",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-chain-album-fr-duplicate",
+          "entry_id": "discover.artist_albums",
+          "language": "fr",
+          "question": "Oui, je veux écouter cet album.",
+          "expected_answer": "Preserve the exact prior selection and full album/context kind; speaker continuation starts only that selection; duplicate never repeats a music effect.",
+          "model_policy": "ordinary_route_only_duplicate_zero_new_calls",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-chain-speaker-es-offer",
+          "entry_id": "play.artist",
+          "language": "es",
+          "question": "Reproduce Volbeat",
+          "expected_answer": "Preserve the exact prior selection and full album/context kind; speaker continuation starts only that selection; duplicate never repeats a music effect.",
+          "model_policy": "ordinary_route_only_duplicate_zero_new_calls",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-chain-speaker-es-accept",
+          "entry_id": "play.artist",
+          "language": "es",
+          "question": "Reproducir aquí",
+          "expected_answer": "Preserve the exact prior selection and full album/context kind; speaker continuation starts only that selection; duplicate never repeats a music effect.",
+          "model_policy": "ordinary_route_only_duplicate_zero_new_calls",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-chain-speaker-es-duplicate",
+          "entry_id": "play.artist",
+          "language": "es",
+          "question": "Reproducir aquí",
+          "expected_answer": "Preserve the exact prior selection and full album/context kind; speaker continuation starts only that selection; duplicate never repeats a music effect.",
+          "model_policy": "ordinary_route_only_duplicate_zero_new_calls",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-chain-album-es-offer",
+          "entry_id": "discover.artist_albums",
+          "language": "es",
+          "question": "Muéstrame álbumes de Volbeat",
+          "expected_answer": "Preserve the exact prior selection and full album/context kind; speaker continuation starts only that selection; duplicate never repeats a music effect.",
+          "model_policy": "ordinary_route_only_duplicate_zero_new_calls",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-chain-album-es-accept",
+          "entry_id": "discover.artist_albums",
+          "language": "es",
+          "question": "Sí, quiero escuchar ese álbum.",
+          "expected_answer": "Preserve the exact prior selection and full album/context kind; speaker continuation starts only that selection; duplicate never repeats a music effect.",
+          "model_policy": "ordinary_route_only_duplicate_zero_new_calls",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "catalogue-chain-album-es-duplicate",
+          "entry_id": "discover.artist_albums",
+          "language": "es",
+          "question": "Sí, quiero escuchar ese álbum.",
+          "expected_answer": "Preserve the exact prior selection and full album/context kind; speaker continuation starts only that selection; duplicate never repeats a music effect.",
+          "model_policy": "ordinary_route_only_duplicate_zero_new_calls",
+          "execution_profile": "catalogue_golden",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_every_catalogue_question_is_an_exact_five_language_golden_input_even_if_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source inventory/validator only. Exact ordinary paired HA requests, actual provider effects, current source hashes and bounded real model receipts must separately pass the blocking catalogue_golden profile. No product/native/installed PASS from this binding."
+        },
+        {
+          "id": "ASKDJ-CATALOGUE-all-locales-actual-acceptance",
+          "question": "Run all70exact questions and30speaker/album/dedup steps through ordinary paired Ask DJ",
+          "expected_answer": "All actual identity, whole-context playback, locale, narration, source and no-extra-effect assertions pass; missing/skipped/unsupported routes fail. No chip-ID execution alias or hidden prompt rewriting.",
+          "model_policy": "up to392bounded HA agent attempts including90 separate answer-language assessments; zero STT/TTS; no model retry/fallback",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_golden.py",
+              "method": "test_release_runner_requires_actual_catalogue_profile_and_content_hash"
+            }
+          ],
+          "acceptance_status": "open_real_quality",
+          "proof_boundary": "First actual paired HA catalogue run FAIL:100completed steps/122model attempts;24rows with product findings,10with track-list oracle defects,5with expired fixture Forecast,2with language-only judge failures. New source requires fresh qualification; independent editorial/native acceptance remains separate."
+        },
+        {
+          "id": "ASKDJ-CATALOGUE-generated-variants-actual-execution",
+          "question": "After complete current base PASS, generate and independently meaning-review paraphrases, spoken questions and typos; run all frozen variations and conversation continuations.",
+          "expected_answer": "Original independent identity/effect/permission/locale/source/narration oracles remain unchanged. Failed base, stale evidence or changed meaning spends zero generation calls. Generated text is not product PASS. Every failed variation is retained and requires a product fix and actual rerun; no selective replacement.",
+          "model_policy": "Generation only after full base PASS; max10HA calls with separate meaning review. Frozen100step variation execution max392calls; duplicate zero new effects/model calls.",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_catalogue_variations.py",
+              "method": "test_failed_partial_stale_or_selected_base_spends_zero_generation_calls"
+            },
+            {
+              "file": "tests/test_ask_dj_catalogue_variations.py",
+              "method": "test_frozen_inputs_reuse_all_independent_oracles_and_full_context_chains"
+            },
+            {
+              "file": "tests/test_ask_dj_catalogue_variations.py",
+              "method": "test_permission_change_or_uncertain_semantics_aborts_without_retry_or_partial_corpus"
+            },
+            {
+              "file": "tests/test_ask_dj_catalogue_variations.py",
+              "method": "test_variant_execution_uses_its_frozen_questions_and_cannot_replace_base_evidence"
+            },
+            {
+              "file": "tests/test_ask_dj_catalogue_variations.py",
+              "method": "test_changed_corpus_languages_ids_text_or_catalogue_pin_cannot_silently_enter_golden"
+            },
+            {
+              "file": "tests/test_ask_dj_catalogue_variations.py",
+              "method": "test_duplicate_json_keys_and_changed_artist_name_are_rejected"
+            },
+            {
+              "file": "tests/test_ask_dj_catalogue_variations.py",
+              "method": "test_release_requires_frozen_variations_after_the_exact_base_profile"
+            }
+          ],
+          "acceptance_status": "open_real_quality",
+          "proof_boundary": "Contract/negative evidence only while base FAIL. No paid variants generated and no actual variation product execution claimed. Release requires distinct catalogue_variations profile; missing frozen corpus fails closed."
+        }
+      ]
     }
   ],
   "evidence_boundaries": [
@@ -5088,6 +7551,48 @@
       "family_id": "ASKDJ-FLOW-style-lifecycle",
       "finding": "Actual trial6 allowed original compositions to become new compositions in an album recap. Conservative five-language evidence check now rejects unsupported novelty even under present-appreciation labels; actual Runtime publication/count regression and truthful positive-source case are source-local. No actual narrative GO.",
       "core_qualification": "locally_covered"
+    },
+    {
+      "id": "ASKDJ-ISSUE-catalogue-multilingual-routing",
+      "family_id": "ASKDJ-FLOW-catalogue-exact-questions",
+      "finding": "Core1210: ordinary product route and narration repairs remain under real qualification. Latest20case development probe completes76real attempts with14PASS/6FAIL, including a missing Dutch enum synonym, a contextual artist read-none proposal, style rejection and incomplete external streams. Dutch enum and interpretation fixes added. Variant generation is gated on complete current base PASS; no variants generated while base FAIL. Independent same-meaning review, frozen oracles and separate required variation release profile are added; no editorial/native/installed PASS.",
+      "core_qualification": "open"
+    },
+    {
+      "id": "ASKDJ-ISSUE-raw-recording-credits-presented-as-rich-story",
+      "family_id": "ASKDJ-FLOW-style-lifecycle",
+      "finding": "Owner screenshot still shows repeated instrument/vocal/producer credits as Trackverhaal. Root cause: research/expression shares12seconds and rejected enrichment falls back to a publishable local credit list. Source correction gives researchable stories bounded40seconds and declines unaccepted artist/album/producer story seeds once; a fetched biography must actually contribute a reviewed named-work episode. Source/real expression/native/installed proof remain distinct. No installed fix claimed.",
+      "core_qualification": "open"
+    },
+    {
+      "id": "ASKDJ-ISSUE-album-tracklist-duplicate-missing-art-play-header",
+      "family_id": "ASKDJ-FLOW-albums-versions-playlists",
+      "finding": "Owner screenshot: album tracks repeated in prose and rows, every row lacks art/play, no whole-album header. Producer remedy supplies one grouped frozen result with album-first context action, shared edition art and individually actionable tracks, up to50tracks without the generic12item truncation. Source, actual HA and Apple/native/installed acceptance remain separate.",
+      "core_qualification": "open"
+    },
+    {
+      "id": "ASKDJ-ISSUE-composer-credit-dry-unresearched",
+      "family_id": "ASKDJ-FLOW-style-lifecycle",
+      "finding": "Owner screenshot shows fixed underlying-work composer sentence as Trackverhaal. Composer IDs were discarded and the family was absent from researched expression. Remedy retains exact work/composer evidence, reuses reciprocal identity and the same HA research/expression owner, and declines bare composition fallback without retry. Story quality, installed/native and hearing remain open.",
+      "core_qualification": "open"
+    },
+    {
+      "id": "ASKDJ-ISSUE-artist-description-dry-missing-spotlight",
+      "family_id": "ASKDJ-FLOW-style-lifecycle",
+      "finding": "Reported artist descriptor is a bare Wikidata sentence with no contextual artist image. Reuse exact MusicBrainz artist streaming URL for the reciprocally bound Wikidata description when P1902 is absent, independently of birth/formation date; conflicting identity stays closed. Registered unbound artist facts cannot publish a symbolic descriptor. Real prose/image/native and installed acceptance remain open.",
+      "core_qualification": "open"
+    },
+    {
+      "id": "ASKDJ-ISSUE-band-photo-non-spotify-fallback",
+      "family_id": "ASKDJ-FLOW-style-lifecycle",
+      "finding": "Owner expects a real band/live image on contributor stories, not a recording cover when Spotify has no photo. Explicit v2 reuses exact primary-artist identity and licensed Commons within the private media owner; v1 unchanged. Real source/photo, candidate review, installed and Apple consumer gates remain open.",
+      "core_qualification": "open"
+    },
+    {
+      "id": "ASKDJ-ISSUE-same-band-credit-monotony",
+      "family_id": "ASKDJ-FLOW-style-lifecycle",
+      "finding": "Four observed tracks keep producing composition/production credits. Artist source keys previously blocked all later artist stories; no published semantic episode memory; ambiguous names could resolve an unrelated Wikipedia page. Source sequence/canonical-identity repairs local, real Persona/Mood narration/client qualification remains open.",
+      "core_qualification": "open"
     }
   ],
   "regression_suite_files": [
@@ -5101,11 +7606,27 @@
     "tests/test_ask_dj_artist_hits.py",
     "tests/test_personal_dj_narration_album_web.py",
     "tests/test_persona_reactions.py",
-    "tests/test_device_speech.py"
+    "tests/test_device_speech.py",
+    "tests/test_ask_dj_catalogue_golden.py",
+    "tests/test_ask_dj_example_catalogue.py",
+    "tests/test_pipeline.py",
+    "tests/test_processor_runtime.py",
+    "tests/test_ask_dj_catalogue_variations.py",
+    "tests/test_session_artist_images.py",
+    "tests/test_session_story_variety.py"
   ],
   "issue_policy": {
     "new_findings": "Add a named failing reproduction and semantic expected answer in the same corrective candidate; preserve it after the fix.",
     "release": "All named owner tests must execute successfully. Open Core qualifications block release; inventory membership never means product or native acceptance.",
     "truth": "Assert actual identity, effects, storage and evidence boundaries; no exact wording-only or metadata-only acceptance."
+  },
+  "catalogue_questions": {
+    "source": "custom_components/djconnect/ask_dj/examples_v1.json",
+    "profile": "catalogue_golden",
+    "questions": 70,
+    "conversation_steps": 30,
+    "manifest_sha256": "f6fcebd0349768b83a6824d6dcfeb15e3b229e0c1a168dec4c5a044e1ac43b48",
+    "pending_rows_are_tested": true,
+    "hidden_or_unqualified_example_is_not_a_skip": true
   }
 }

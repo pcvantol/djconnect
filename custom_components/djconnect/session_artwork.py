@@ -24,14 +24,19 @@ PATH = '/api/djconnect/v1/session/media/image/{session_id}/{asset_id}'
 def capability():
     return {'contract_version': 1, 'owner_only': True, 'explicit_prepare': True,
             'max_targets': 8, 'image_requires_device_auth': True,
-            'historical_resolution': 'exact_subject_original_source_only'}
+            'historical_resolution': 'exact_subject_original_source_only',
+            'supported_contract_versions':[1,2],
+            'artist_image_sources_v2':['spotify','wikimedia_commons']}
 
 
-def subject_for_fact(fact):
+def subject_for_fact(fact, *, contract_version=1):
     """Source identity, never presentation text or current playback artwork."""
     if fact is None:
         return None
-    from .session_facts import ProducerRecommendationFact
+    from .session_facts import ProducerRecommendationFact, ArtistImageIdentity
+    if contract_version==2 and getattr(fact,'key','') in {'recording_credits','work_composers'}:
+        identity=getattr(fact,'artwork_artist_identity',None)
+        return identity.spotify_uri if type(identity) is ArtistImageIdentity and identity.eligible() else None
     if isinstance(fact, ProducerRecommendationFact):
         uri = fact.recommended_media_identity
     elif fact.intent == 'artist_story':
@@ -47,10 +52,32 @@ def subject_for_fact(fact):
     return uri if isinstance(uri, str) and URI.fullmatch(uri) else None
 
 
-def unavailable(session_id, target, reason='not_prepared'):
+
+class ArtistTarget(tuple):
+    """Existing target tuple plus private, qualified performer image identity."""
+    def __new__(cls, values, identity):
+        value=super().__new__(cls,values)
+        value.artist_identity=identity
+        return value
+
+
+def target_key(owner,session_id,target,contract_version=1):
+    scope=tuple(sorted(target.items()))
+    if contract_version==2:
+        scope=(*scope,('media_contract_version','2'))
+    return owner,session_id,scope
+
+
+async def _resolve(hass,runtime,context,session_id,target,version):
+    if version==2:
+        return await resolve_target(hass,runtime,context,session_id,target,contract_version=2)
+    return await resolve_target(hass,runtime,context,session_id,target)
+
+
+def unavailable(session_id, target, reason='not_prepared', *, contract_version=1):
     state = {'loading': 'loading', 'missing_image': 'missing', 'expired': 'expired',
              'source_withdrawn': 'withdrawn'}.get(reason, 'unavailable')
-    return {'schema_version': 1, 'session_id': session_id, **target,
+    return {'schema_version': contract_version, 'session_id': session_id, **target,
             'revision': reason, 'artwork': {'state': state, 'reason': reason,
                                          'current_display_allowed': False,
                                          'active_flow_display_allowed': False,
@@ -125,31 +152,32 @@ async def _fetch(hass, backend, uri, *, guard, expected_album_uri=""):
     return body, mime, source, album_uri, width, height, name
 
 
-async def prepare(hass, runtime, context, *, session_id, target):
+async def prepare(hass, runtime, context, *, session_id, target, contract_version=1):
     """Explicit bounded owner action; all identity and scope selected server-side."""
     complete_deadline = asyncio.get_running_loop().time() + PREPARE_TIMEOUT
     try:
         async with asyncio.timeout_at(complete_deadline):
             return await _prepare(hass, runtime, context, session_id=session_id,
-                                  target=target, complete_deadline=complete_deadline)
+                                  target=target, complete_deadline=complete_deadline,contract_version=contract_version)
     except TimeoutError:
-        return unavailable(session_id, target, 'source_unavailable')
+        return unavailable(session_id, target, 'source_unavailable',contract_version=contract_version)
 
 
-async def _prepare(hass, runtime, context, *, session_id, target, complete_deadline):
+async def _prepare(hass, runtime, context, *, session_id, target, complete_deadline,contract_version=1):
     from .persistence.service import PersistenceError
 
     try:
         async with asyncio.timeout_at(complete_deadline):
-            resolved = await resolve_target(hass, runtime, context, session_id, target)
+            resolved = await _resolve(hass, runtime, context, session_id, target,contract_version)
     except (ValueError, PermissionError, PersistenceError, TimeoutError):
-        return unavailable(session_id, target, 'target_unavailable')
+        return unavailable(session_id, target, 'target_unavailable',contract_version=contract_version)
     if resolved is None:
-        return unavailable(session_id, target, 'insufficient_identity')
+        return unavailable(session_id, target, 'insufficient_identity',contract_version=contract_version)
     uri, expected_source, allowed, current, historical, expected_album, role, delivery_scope = resolved
+    identity=getattr(resolved,'artist_identity',None)
     if (not isinstance(expected_source, dict) or not all(expected_source.get(k) for k in
             ('backend_id', 'music_account_id', 'provider_entry_id', 'provider_account_id'))):
-        return unavailable(session_id, target, 'source_withdrawn')
+        return unavailable(session_id, target, 'source_withdrawn',contract_version=contract_version)
     source_authority = artist_authority(hass, runtime, owner_profile_id=context.profile_id, expected_source=expected_source)
 
     lifetime_valid = [True]
@@ -169,9 +197,10 @@ async def _prepare(hass, runtime, context, *, session_id, target, complete_deadl
                     and resolve_profile_privacy_policy(profile, {}).allow_personal_read)
 
     async def fresh_scope():
-        result = await resolve_target(hass, runtime, context, session_id, target)
+        result = await _resolve(hass, runtime, context, session_id, target,contract_version)
         if (result is None or result[0] != uri or result[1] != expected_source
-                or result[4] != historical or result[5] != expected_album):
+                or result[4] != historical or result[5] != expected_album
+                or getattr(result,'artist_identity',None)!=identity):
             return None
         return result[3]
 
@@ -180,7 +209,7 @@ async def _prepare(hass, runtime, context, *, session_id, target, complete_deadl
             raise PermissionError('source_withdrawn')
 
     registry = session_images(hass)
-    key = (context.profile_id, session_id, tuple(sorted(target.items())))
+    key = target_key(context.profile_id,session_id,target,contract_version)
     cached = registry.get(key)
     if cached and cached['subject'] == uri and await cached['allowed']():
         fresh_current = await fresh_scope()
@@ -189,24 +218,35 @@ async def _prepare(hass, runtime, context, *, session_id, target, complete_deadl
     if key in registry.inflight:
         return await asyncio.shield(registry.inflight[key])
     if not authority() or not await allowed():
-        return unavailable(session_id, target, 'source_withdrawn')
+        return unavailable(session_id, target, 'source_withdrawn',contract_version=contract_version)
     registry.collect()
     if key in registry.negative:
-        return unavailable(session_id, target, 'backoff')
+        return unavailable(session_id, target, 'backoff',contract_version=contract_version)
     if len(registry.inflight) >= 8 or len(registry.assets) + len(registry.negative) + len(registry.inflight) >= 64:
-        return unavailable(session_id, target, 'capacity')
+        return unavailable(session_id, target, 'capacity',contract_version=contract_version)
 
     async def run():
         from .spotify_backend import SpotifyBackend
         try:
             async with asyncio.timeout_at(complete_deadline), registry.semaphore:
                 if not authority() or not await allowed():
-                    return unavailable(session_id, target, 'source_withdrawn')
-                body, mime, source, album, width, height, name = await _fetch(
-                    hass, SpotifyBackend(hass, runtime), uri, guard=guard, expected_album_uri=expected_album)
+                    return unavailable(session_id, target, 'source_withdrawn',contract_version=contract_version)
+                attribution=None
+                try:
+                    body, mime, source, album, width, height, name = await _fetch(
+                        hass, SpotifyBackend(hass, runtime), uri, guard=guard, expected_album_uri=expected_album)
+                except ValueError as exc:
+                    if contract_version!=2 or str(exc)!='missing_image' or identity is None:
+                        raise
+                    from . import artist_photo
+                    async def decode(pixels):
+                        return await registry.decode(_decoded_size,pixels)
+                    body,mime,photo=await artist_photo.fetch(hass,identity.wikidata_id,guard=guard,decode=decode)
+                    attribution=photo.metadata()
+                    source,album,width,height,name=attribution['url'],'',photo.width,photo.height,identity.name
                 fresh_current = await fresh_scope()
                 if fresh_current is None or not authority():
-                    return unavailable(session_id, target, 'source_withdrawn')
+                    return unavailable(session_id, target, 'source_withdrawn',contract_version=contract_version)
                 wall, mono = time.time(), time.monotonic()
                 asset_id = secrets.token_urlsafe(24)
                 artwork = {'state': 'ready', 'subject': {'provider': 'spotify', 'uri': uri,
@@ -223,35 +263,42 @@ async def _prepare(hass, runtime, context, *, session_id, target, complete_deadl
                            'crop_allowed': False, 'requires_device_auth': True,
                            'width': width, 'height': height, 'alt_text': alt_text(name, ':artist:' in uri),
                            'url': PATH.format(session_id=session_id, asset_id=asset_id)}
+                if contract_version==2 and identity is not None:
+                    artwork['subject']['wikidata_id']=identity.wikidata_id
+                    artwork['upscale_allowed']=False
+                if attribution is not None:
+                    artwork['attribution']=attribution
+                    artwork['usage_basis']='licensed_artist_image_owner_display'
+                    artwork['image_source']={'provider':'wikimedia_commons','selection':'licensed_artist_context'}
                 revision = projection_revision(artwork)
                 artwork['media_revision'] = revision
-                projection = {'schema_version': 1, 'session_id': session_id, **target,
+                projection = {'schema_version': contract_version, 'session_id': session_id, **target,
                               'revision': revision, 'artwork': artwork}
                 asset = {'body': body, 'mime': mime, 'deadline': mono + TTL,
                          'captured_monotonic': mono, 'authority': authority,
                          'allowed': allowed, 'asset_id': asset_id, 'subject': uri, 'projection': projection,
                          'historical': historical, 'expected_source': dict(expected_source), 'delivery_scope': delivery_scope}
                 if not registry.commit(key, asset):
-                    return unavailable(session_id, target, 'capacity')
-                if not historical:
+                    return unavailable(session_id, target, 'capacity',contract_version=contract_version)
+                if not historical and contract_version==1:
                     attach_live_projection(hass, context.profile_id, session_id)
                 return projection
         except asyncio.CancelledError:
             raise
         except PermissionError:
             registry.record_state(key, 'source_withdrawn')
-            return unavailable(session_id, target, 'source_withdrawn')
+            return unavailable(session_id, target, 'source_withdrawn',contract_version=contract_version)
         except ValueError as exc:
             known = {'missing_image', 'missing_edition', 'edition_mismatch', 'subject_mismatch',
                      'unsafe_image', 'image_too_large', 'source_unavailable', 'missing_subject_label'}
             reason = str(exc) if str(exc) in known else 'source_unavailable'
             registry.negative[key] = time.monotonic()+60
             registry.record_state(key, reason)
-            return unavailable(session_id, target, reason)
+            return unavailable(session_id, target, reason,contract_version=contract_version)
         except Exception:  # Optional image failure never invalidates semantic text.
             registry.negative[key] = time.monotonic() + 60
             registry.record_state(key, 'source_unavailable')
-            return unavailable(session_id, target, 'source_unavailable')
+            return unavailable(session_id, target, 'source_unavailable',contract_version=contract_version)
         finally:
             registry.inflight.pop(key, None)
             registry.work_guards.pop(key, None)
@@ -259,14 +306,14 @@ async def _prepare(hass, runtime, context, *, session_id, target, complete_deadl
     registry.work_guards[key] = (authority, invalidate)
     task = hass.async_create_task(run())
     registry.inflight[key] = task
-    if not historical:
+    if not historical and contract_version==1:
         attach_live_projection(hass, context.profile_id, session_id)
     task.add_done_callback(lambda done: registry.inflight.pop(key, None)
                            if registry.inflight.get(key) is done else None)
     return await asyncio.shield(task)
 
 
-async def resolve_target(hass, runtime, context, session_id, target):
+async def resolve_target(hass, runtime, context, session_id, target, *, contract_version=1):
     """Current published contribution or authorized retained entry, never input URI."""
     from .session_runtime import session_runtime_manager
 
@@ -281,7 +328,7 @@ async def resolve_target(hass, runtime, context, session_id, target):
         moment = next((m for m in active.broadcast.state.dj_moments if m.moment_id == moment_id), None)
         admission = next((a for a in active.broadcast.native_delivery()['admissions'] if a['moment_id'] == moment_id), {})
         fact = getattr(moment, 'source_fact', None)
-        uri = subject_for_fact(fact)
+        uri = subject_for_fact(fact,contract_version=contract_version)
         if not uri or not (admission.get('current_display_allowed') or admission.get('active_flow_display_allowed')):
             return None
         def delivery_scope():
@@ -294,10 +341,16 @@ async def resolve_target(hass, runtime, context, session_id, target):
             return bool(a.get('current_display_allowed')), False
         async def allowed():
             return delivery_scope() is not None
-        return (uri, manager._history_source_contexts.get(session_id, {}), allowed,
+        values=(uri, manager._history_source_contexts.get(session_id, {}), allowed,
                 bool(admission.get('current_display_allowed')), False,
                 getattr(fact, 'artwork_album_uri', '') if ':track:' in uri else '',
                 'contextual_artist' if ':artist:' in uri else 'cover', delivery_scope)
+        from .session_facts import ArtistImageIdentity
+        identity=getattr(fact,'artwork_artist_identity',None)
+        if (contract_version==2 and type(identity) is ArtistImageIdentity
+                and identity.eligible() and identity.spotify_uri==uri):
+            return ArtistTarget(values,identity)
+        return values
     from .session_conversation import query_service
 
     query = query_service(hass)
@@ -306,6 +359,7 @@ async def resolve_target(hass, runtime, context, session_id, target):
     if not row:
         return None
     body = json.loads(row['body'])
+    identity=None
     if row['kind'] == 'playback_observed':
         match = re.fullmatch(r'https://open\.spotify\.com/track/([A-Za-z0-9]{22})', str(body.get('source_url', '')))
         uri = 'spotify:track:' + match[1] if match else None
@@ -318,6 +372,18 @@ async def resolve_target(hass, runtime, context, session_id, target):
         source = ref.get('source_context', {})
         album = ref.get('album_uri', '')
         role = 'contextual_artist' if ':artist:' in str(uri) else 'cover'
+        if contract_version==2:
+            from .session_facts import ArtistImageIdentity
+            artist=body.get('artist_image_reference',{})
+            if artist:
+                identity=ArtistImageIdentity(artist.get('subject_uri',''),artist.get('wikidata_id',''),
+                    artist.get('name',''),artist.get('musicbrainz_id',''))
+                if artist.get('version')!=2 or not identity.eligible():
+                    return None
+                uri,source,album,role=identity.spotify_uri,artist.get('source_context',{}),'','contextual_artist'
+            elif body.get('moment_type')=='track':
+                return None  # An old cover is not an artist identity.
+
     else:
         return None
     if not isinstance(uri, str) or not URI.fullmatch(uri) or not source:
@@ -347,7 +413,8 @@ async def resolve_target(hass, runtime, context, session_id, target):
     delivery_scope.history_retained_until = retained_until
     header = await query._repository.async_get_session_for_originating_id(session_id) if historical else None
     delivery_scope.history_session_created_at = datetime.fromisoformat(header.created_at).timestamp() if header else None
-    return uri, source, allowed, is_current, historical, album if ':track:' in uri else '', role, delivery_scope
+    values=(uri, source, allowed, is_current, historical, album if ':track:' in uri else '', role, delivery_scope)
+    return ArtistTarget(values,identity) if identity is not None else values
 
 
 async def image(hass, context, session_id, asset_id, *, runtime):
@@ -414,9 +481,9 @@ def attach_live_projection(hass, owner, session_id):
         result = []
         registry.collect()
         for key in set(registry.assets) | set(registry.states) | set(registry.inflight):
-            if key[:2] != (owner, session_id):
-                continue
-            target = dict(key[2])
+            if key[:2] != (owner, session_id) or ('media_contract_version','2') in key[2]:
+                continue  # v2 is explicit-response-only; preserve legacy consumers.
+            target = {k:v for k,v in key[2] if k in {'moment_id','entry_id'}}
             a = admissions.get(target.get('moment_id'), {})
             if 'moment_id' in target and not (a.get('current_display_allowed') or a.get('active_flow_display_allowed')):
                 continue
@@ -439,18 +506,19 @@ def delivery_projection(hass, owner, session_id, target, prepared):
     """Final no-await response fence after every target and authorization await."""
     if prepared.get('artwork', {}).get('state') != 'ready':
         return prepared
+    version=prepared.get('schema_version',1)
     registry = hass.data.get('djconnect', {}).get('session_images')
-    key = (owner, session_id, tuple(sorted(target.items())))
+    key = target_key(owner,session_id,target,version)
     asset = registry.get(key) if registry is not None else None
     if asset is None:
         reason = registry.states.get(key, (0, 'source_withdrawn'))[1] if registry else 'source_withdrawn'
-        return unavailable(session_id, target, reason)
+        return unavailable(session_id, target, reason,contract_version=version)
     if asset['projection']['artwork']['url'] != prepared['artwork'].get('url'):
-        return unavailable(session_id, target, 'source_withdrawn')
+        return unavailable(session_id, target, 'source_withdrawn',contract_version=version)
     scope = asset['delivery_scope']()
     if scope is None:
         registry.evict(key, 'source_withdrawn')
-        return unavailable(session_id, target, 'source_withdrawn')
+        return unavailable(session_id, target, 'source_withdrawn',contract_version=version)
     return project(asset, current=scope[0], historical=scope[1])
 
 
@@ -458,7 +526,7 @@ async def handle_prepare(hass, data, *, headers=None, user_id=None):
     from .api_handlers import _session_profile_context, _error_payload
 
     if (not isinstance(data, dict) or type(data.get('contract_version')) is not int
-            or data['contract_version'] != 1 or not isinstance(data.get('session_id'), str)
+            or data['contract_version'] not in {1,2} or not isinstance(data.get('session_id'), str)
             or not isinstance(data.get('targets'), list) or not 1 <= len(data['targets']) <= 8):
         return _error_payload('invalid_request'), 400
     targets = data['targets']
@@ -473,9 +541,10 @@ async def handle_prepare(hass, data, *, headers=None, user_id=None):
         return _error_payload('media_not_allowed'), 403
     async def one(target):
         try:
-            return await prepare(hass, runtime, context, session_id=data['session_id'], target=target)
+            return await prepare(hass, runtime, context, session_id=data['session_id'], target=target,
+                                 **({'contract_version':2} if data['contract_version']==2 else {}))
         except (ValueError, PermissionError):
-            return unavailable(data['session_id'], target, 'target_unavailable')
+            return unavailable(data['session_id'], target, 'target_unavailable',contract_version=data['contract_version'])
     projections = await asyncio.gather(*(one(t) for t in targets))
     _, current, error, status = await _session_profile_context(
         hass, dict(data), headers=headers, user_id=user_id, source='session_media_complete')
@@ -485,7 +554,7 @@ async def handle_prepare(hass, data, *, headers=None, user_id=None):
         return _error_payload('media_not_allowed'), 403
     projections = [delivery_projection(hass, current.profile_id, data['session_id'], target, prepared)
                    for target, prepared in zip(targets, projections, strict=True)]
-    return {'success': True, 'contract_version': 1, 'session_media': projections}, 200
+    return {'success': True, 'contract_version': data['contract_version'], 'session_media': projections}, 200
 
 
 def project_history_media(hass, owner, row, entry):

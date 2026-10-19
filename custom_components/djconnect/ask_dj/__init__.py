@@ -1,5 +1,7 @@
 """Ask DJ backend support."""
 from __future__ import annotations
+
+import json
 from copy import deepcopy
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
@@ -34,7 +36,7 @@ from ..mood import (
     mood_context_text as mood_context_text,
     mood_zone_for_value,
 )
-from ..music_intent import parse_spoken_music_request
+from ..music_intent import parse_spoken_music_request, music_command_subject, negated_music_command
 from ..pipeline import _assist_context, _speech_from_response, call_conversation_process_with_agent_retry
 from ..use_cases import (
     MusicBackendCapabilityError,
@@ -49,6 +51,7 @@ from ..track_insight import (
 )
 from ..voice_profiles import voice_profile_for_mood_or_config, voice_profile_style_text_for_payload as voice_profile_style_text_for_payload
 from .responses import image_proxy_target as image_proxy_target, register_image_proxy_url
+from .read_copy import text as _read_text
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -122,6 +125,11 @@ async def async_handle_ask_dj(
     if turn is not None:
         await turn.guard()
         turn.source_context = source
+    if action_request is None and negated_music_command(text) and not _blocked_music_preference_from_text(text):
+        message=_read_text('no_play')
+        return {'success':True,'text':message,'dj_text':message,'action':'none',
+                'intent':{'category':'informational','intent':'ask_music_info'},
+                'images':[],'links':[],'sources':[],'items':[],'playback_actions':[]}
     from .observations import current_artist_question, current_artist_read
     from .album_tracks import album_tracks_question, album_tracks_read
     if action_request is None and album_tracks_question(text):
@@ -354,8 +362,9 @@ def _help_ask_dj_response(
     """Return help before gathering playback state."""
     if classification.intent != "help":
         return None
+    from .example_catalogue import help_context
     response = _normalize_ask_dj_response(
-        hass, runtime, _help_response(_response_language(runtime, payload)), classification,
+        hass, runtime, _help_response(_response_language(runtime, payload), help_context(hass, runtime)), classification,
         music_dna_key=music_dna_key, playback_context={},
     )
     response.pop("playback", None)
@@ -896,6 +905,8 @@ def _is_current_playing_question(text: str) -> bool:
         "what track is playing",
         "current song",
         "current track",
+        "what is playing now", "was läuft gerade", "qu’est-ce qui passe maintenant",
+        "qu'est-ce qui passe maintenant", "¿qué está sonando ahora", "qué está sonando ahora",
     }
 
 
@@ -1575,16 +1586,18 @@ def _nonexecuting_speech_act(text: str) -> bool:
     Polite imperative requests (can you pause / kun je pauzeren) remain requests.
     """
     value = text.casefold().strip().lstrip("¿¡")
+    if negated_music_command(text):
+        return True
     if value.startswith(("\"", "'", "“", "‘")):
         return True
     if re.match(r"^(?:wat|welk\w*|wie|waar\w*|wanneer|hoe|what|which|who|why|when|where|how|was|welch\w*|wer|warum|wieso|wann|wo|wie|quoi|quel\w*|qui|pourquoi|quand|comment|qu[eé]|cu[aá]l\w*|qui[eé]n|por qu[eé]|cu[aá]ndo|d[oó]nde|c[oó]mo)\b", value):
         return True
     if re.match(r"^(?:if|suppose|imagine|als|stel|wenn|falls|si|disons|explain|leg uit|erkl[aä]r\w*|explique\w*|explica\w*|citeer|quote|zitier\w*|citer|cita)\b", value):
         return True
-    if re.match(r"^(?:speel|draai|play|spiel(?:e)?|joue|reproduce)\b.+\s(?:niet|nooit|not|never|nicht|pas)\s*[.!?]*$", value):
+    if re.match(r"^(?:speel|draai|zet|play|put on|start(?:e)?|spiel(?:e)?|joue\w*|mets|reprodu\w*|pon)\b.+\s(?:niet|nooit|not|never|nicht|pas|no|nunca|jamais)\s*[.!?]*$", value):
         return True
     return bool(re.match(r"^(?:(?:please|alsjeblieft|bitte|s'il te plaît|por favor)\s+)?(?:do not|don't|never|niet|geen|no|ne\s+\w+\s+pas|nicht|kein\w*)\b", value)
-                or re.search(r"\b(?:speel|draai|zet|play|start|pause|skip|joue\w*|reproduz\w*|spiel\w*)\s+(?:(?:dit|dat|deze|die|het|this|that|it|das|le|la|el|af)\s+)*(?:niet|geen|not|never|nicht|keine?|pas)\b", value))
+                or re.search(r"\b(?:speel|draai|zet|play|put on|start(?:e)?|pause|skip|joue\w*|mets|pon|reprodu\w*|spiel\w*)\s+(?:(?:dit|dat|deze|die|het|this|that|it|das|le|la|el|af)\s+)*(?:niet|geen|not|never|nicht|keine?|pas)\b", value))
 
 
 def _execution_request(text: str) -> bool:
@@ -1604,7 +1617,7 @@ def _execution_request(text: str) -> bool:
     value = re.sub(r"^(?:can|could|would) you\s+|^(?:kun|wil|zou) je\s+|^(?:kannst|könntest) du\s+|^(?:peux|pourrais)-tu\s+|^(?:puedes|podrías)\s+", "", value)
     if _nonexecuting_speech_act(value):
         return False
-    return bool(re.match(r"^(?:speel|draai|zet|start|hervat|pauzeer|stop|volgende|vorige|harder|zachter|shuffle|repeat|herhaal|skip|play|resume|pause|next|previous|put on|turn|set|save|sla|bewaar|verwijder|like|unlike|voeg|queue|enqueue|spiel\w*|mach|schalte|pausier\w*|joue\w*|mets|arrête|reprends|reprodu\w*|pon|pausa|sube|baja)\b", value)
+    return bool(re.match(r"^(?:speel|draai|zet|start(?:e)?|hervat|pauzeer|stop|volgende|vorige|harder|zachter|shuffle|repeat|herhaal|skip|play|resume|pause|next|previous|put on|turn|set|save|sla|bewaar|verwijder|like|unlike|voeg|queue|enqueue|spiel\w*|mach|schalte|pausier\w*|joue\w*|mets|arrête|reprends|reprodu\w*|pon|pausa|sube|baja)\b", value)
                 or value in {"ik ga slapen", "ga slapen", "i'm going to sleep", "i am going to sleep"})
 
 
@@ -1633,9 +1646,9 @@ _ASK_DJ_INTENT_RULES = (
     (lambda value, _: value in {"recommend a playlist", "welke afspeellijst past bij mijn bui"}, AskDjIntent("informational", "playlist_recommendation_offer", "none")),
     (lambda value, _: value in {"geef me aanbevelingen", "recommend music for me", "suggest something based on my taste"} or _is_personal_recommendation_request(value), AskDjIntent("informational", "personal_music_recommendations", "none")),
     (lambda value, _: _is_user_playlists_request(value), AskDjIntent("informational", "spotify_user_playlists", "none")),
-    (lambda value, _: _vibe_playlist_query(value), AskDjIntent("informational", "spotify_vibe_playlists", "none")),
-    (lambda value, _: _is_open_playlist_recommendation_request(value), AskDjIntent("informational", "playlist_recommendation_offer", "none")),
-    (lambda value, _: _is_playlist_search_request(value), AskDjIntent("informational", "spotify_playlist_search", "none")),
+    (lambda value, _: not _execution_request(value) and _vibe_playlist_query(value), AskDjIntent("informational", "spotify_vibe_playlists", "none")),
+    (lambda value, _: not _execution_request(value) and _is_open_playlist_recommendation_request(value), AskDjIntent("informational", "playlist_recommendation_offer", "none")),
+    (lambda value, _: not _execution_request(value) and _is_playlist_search_request(value), AskDjIntent("informational", "spotify_playlist_search", "none")),
     (lambda value, _: _is_next_track_info_request(value), AskDjIntent("informational", "next_track_info", "queue")),
     (lambda value, _: _is_concert_agenda_request(value), AskDjIntent("informational", "artist_concerts", "concert_agenda")),
     (lambda value, _: any(phrase in value for phrase in ("waarom koos", "waarom heb je", "vertel iets", "wanneer speelt", "analyseer", "welke albums", "album art", "cover")), AskDjIntent("informational", "ask_music_info")),
@@ -1654,7 +1667,7 @@ _ASK_DJ_INTENT_RULES = (
     (lambda value, _: _is_output_selection_request(value), AskDjIntent("informational", "list_outputs", "devices")),
     (lambda value, _: ("waarop" in value and "muziek" in value) or any(phrase in value for phrase in ("op welke speaker speelt de muziek", "welke speaker is actief", "waar speelt dit af", "what speaker is active")), AskDjIntent("informational", "current_output", "status")),
     (lambda value, _: _is_deferred_playback_request(value), AskDjIntent("hybrid", "play_music", "play_music", play=True)),
-    (lambda value, _: bool(re.search(r"\b(speel|draai|zet|play|put on)\b", value)), AskDjIntent("hybrid", "play_music", "play_music", play=True)),
+    (lambda value, _: bool(music_command_subject(value) or re.search(r"\b(speel|draai|zet|play|put on)\b", value)), AskDjIntent("hybrid", "play_music", "play_music", play=True)),
 )
 
 
@@ -1889,7 +1902,7 @@ async def _playback_output_selection_response(
     actions = _output_device_play_request_actions(devices, text, payload, selection=selection)
     if not actions:
         return {}
-    message = "Ik weet nog niet op welke speaker ik dit moet afspelen. Kies een speaker, dan start ik je verzoek meteen."
+    message = _read_text('speaker')
     await _store_pending_followup(
         runtime,
         payload,
@@ -2486,7 +2499,8 @@ async def _informational_intent_response(
     ask_intent: Any,
 ) -> dict[str, Any] | None:
     if ask_intent.intent == "help":
-        return _help_response(_response_language(runtime, payload))
+        from .example_catalogue import help_context
+        return _help_response(_response_language(runtime, payload), help_context(hass, runtime))
     if ask_intent.intent == "session_forecast_information":
         from .observations import forecast_read
         return await forecast_read(hass, runtime)
@@ -2662,22 +2676,8 @@ async def _informational_catalog_response(
         profile = await _spotify_artist_profile(hass, runtime, genre_artist)
         if profile:
             return _artist_genre_response(profile)
-    if _is_current_artist_info_question(text):
-        artist = _artist_from_playback_context(playback_context)
-        if artist:
-            profile = await _spotify_artist_profile(hass, runtime, artist)
-            return _artist_profile_response(profile, artist)
-        message = "Ik kan nu niet betrouwbaar zien welke artiest er speelt."
-        return {
-            "success": True,
-            "text": message,
-            "dj_text": message,
-            "action": "none",
-            "images": [],
-            "links": [],
-            "sources": [{"source": "spotify_playback_context", "title": "Spotify playback context", "kind": "source"}],
-            "playback_actions": [],
-        }
+    # Artist background belongs to the guarded semantic/public-research owner.
+    # Catalog metadata alone is not a biography (or a locale-correct answer).
     return None
 
 
@@ -2821,6 +2821,8 @@ async def _informational_assist_response(
     memory_context: dict[str, Any],
     playback_context: dict[str, Any],
     output_devices: list[dict[str, Any]],
+    *,
+    research_subject: str | None = None,
 ) -> dict[str, Any]:
     if _looks_like_gibberish(text) or _looks_like_prompt_or_sandbox_attack(text):
         message = _unrecognized_request_text()
@@ -2840,10 +2842,11 @@ async def _informational_assist_response(
     semantic_scope = None
     from . import semantic_reads
     if turn and not requests_lookup(text):
-        subject, qualified_music, ambiguous = public_research.subject_for_question(text, turn)
+        subject, qualified_music, ambiguous = ((research_subject, True, False) if research_subject
+            else public_research.subject_for_question(text, turn))
         named_subject = public_research.explicit_public_subject(text)
         implicit_subject = not named_subject or not public_research.safe_subject(named_subject)
-        if implicit_subject and semantic_reads.admissible_question(text):
+        if implicit_subject and not research_subject and semantic_reads.admissible_question(text):
             semantic_scope = semantic_reads.capture_scope(hass, turn)
         if ambiguous:
             if semantic_scope is not None:
@@ -2868,9 +2871,15 @@ async def _informational_assist_response(
             fetched_sources, research_state = await public_research.research(
                 subject, text, turn.style.get("language", "en"), turn.guard,
                 qualified_music=qualified_music,
+                original_paragraphs=bool(research_subject),
+                artist_introduction=bool(research_subject),
                 expected_roles=tuple(s.get("role") for s in turn.source_context.get("subjects", [])
                                      if s.get("name", "").casefold() == public_research.safe_subject(subject).casefold()))
             turn.public_research = public_research.research_projection(subject, fetched_sources, research_state, question=text)
+            if research_subject:
+                focus = public_research.documented_episode_focus(turn.public_research)
+                if focus:
+                    turn.public_research['editorial_focus'] = focus
             if not fetched_sources:
                 if semantic_scope is not None:
                     semantic = await semantic_reads.read_response(hass, runtime, text, payload, scope=semantic_scope)
@@ -2894,7 +2903,8 @@ async def _informational_assist_response(
         prompt = semantic_reads.augment_answer_prompt(prompt, semantic_scope)
     try:
         assist_context = _assist_context(hass, getattr(runtime, "config", {}) or {})
-        language = payload.get("language") or assist_context.get("language") or DEFAULT_TTS_LANGUAGE
+        language = (turn.style['language'] if turn else
+                    payload.get("language") or assist_context.get("language") or DEFAULT_TTS_LANGUAGE)
         data = {"text": prompt, "language": language}
         if assist_context.get("agent_id"):
             data["agent_id"] = assist_context["agent_id"]
@@ -2938,6 +2948,9 @@ async def _informational_assist_response(
         answer, operation = parse_model_reply(reply)
         if fetched_sources and not operation:
             answer = public_research.without_duplicate_source_footer(answer, fetched_sources)
+            if research_subject:
+                from ..public_artist_narration import plain_work_titles
+                answer = plain_work_titles(answer, turn.public_research)
         if turn and requests_lookup(text) and (
             operation.get("intent") not in {"lookup", "refine"} or not operation.get("query")
         ):
@@ -2988,19 +3001,51 @@ async def _informational_assist_response(
         # unchecked answer. No excerpts are copied into history or transport.
         accepted = False
         answer_state = 'assessment_unavailable'
-        if turn.agent_calls < 2:
+        if turn.agent_calls < (3 if turn.interpreted_artist_research else 2):
             grounding_context = {"public_music_research": turn.public_research,
                                  "qualified_context": turn.source_context}
-            checked = await _call_dialogue_agent(hass, {**data, "text": public_research.assessment_prompt(
-                message, grounding_context, language, text)})
+            id_review = bool(turn.interpreted_artist_research
+                and turn.public_research.get('schema_version') == 3)
+            from ..public_artist_narration import complete_review_projection, resolve_review_quotes
+            review_context = complete_review_projection(grounding_context) if id_review else grounding_context
+            review_prompt = public_research.assessment_prompt(
+                message, review_context, language, text, allow_prefix=not id_review, quote_by_id=id_review)
+            if id_review:
+                from ..narration_style import instructions as story_style
+                review_prompt = review_prompt.replace('\nData:\n',
+                    ' Also return language_ok and style_ok booleans. language_ok requires fluent '
+                    'requested-language prose; style_ok requires a useful connected personal DJ '
+                    'introduction in the requested Persona/Mood, not a metadata/biography list or '
+                    'generic praise. No compulsory joke or fixed opening. '
+                    + story_style(persona=turn.style['persona'], mood=turn.style['mood'], locale=language)
+                    + '\nData:\n', 1)
+            checked = await _call_dialogue_agent(hass, {**data, "text": review_prompt})
             await turn.guard()
             check_response = (checked or {}).get("response") or {}
             assessment = _speech_from_response(check_response)
-            accepted = not check_response.get("error") and public_research.supported(assessment, message, grounding_context)
+            quality_ok = True
+            if id_review:
+                # Reuse the existing literal-ID wire decoder; factual coverage,
+                # source identity, temporal and relationship checks are unchanged.
+                from ..narration_brief import _object
+                try:
+                    review = _object(assessment)
+                    quality_ok = review.pop('language_ok', None) is True
+                    quality_ok = review.pop('style_ok', None) is True and quality_ok
+                    if review.get('supported') is True:
+                        review = resolve_review_quotes(review, grounding_context)
+                    else:
+                        review.pop('review_schema', None)  # Rejected text is never admitted.
+                    assessment = json.dumps(review)
+                except (ValueError, TypeError, KeyError):
+                    assessment = '{}'
+            accepted = (not check_response.get("error") and quality_ok
+                and public_research.supported(assessment, message, grounding_context))
             if not check_response.get("error"):
                 answer_state = ('full_answer_supported' if accepted
+                                else 'narration_quality_unverified' if not quality_ok
                                 else public_research.assessment_failure_reason(assessment))
-            if not accepted and not check_response.get("error"):
+            if not accepted and not check_response.get("error") and not id_review:
                 prefix = public_research.qualified_prefix(assessment, message, grounding_context)
                 if prefix is not None and answer_language_format_issue(prefix, turn.style) is None:
                     message = prefix
@@ -3034,12 +3079,7 @@ async def _spotify_user_playlists_response(
     result = await _spotify_user_playlists(hass, runtime, limit=10)
     playlists = result.get("playlists") if isinstance(result, dict) else []
     actions = _playlist_search_playback_actions(hass, playlists, limit=10)
-    message = (
-        "Dit zijn je Spotify-playlists. "
-        "Ik start nog niets; tik op Play Now bij de playlist die je wilt horen."
-        if actions
-        else "Ik vond nu geen Spotify-playlists in je bibliotheek."
-    )
+    message = _read_text('playlists' if actions else 'playlists_empty')
     return {
         "success": True,
         "text": message,
@@ -3311,15 +3351,15 @@ async def _recently_played_history_response(
     label = _recently_played_window_label(window)
     if not filtered:
         return _recently_played_response(
-            f"Ik zie geen Spotify {history_type} die {label} zijn afgespeeld.",
+            _read_text('recent_empty',kind=history_type,period=label),
             history_type=history_type,
         )
     items = _recently_played_history_items(hass, filtered, history_type)
-    lines = [f"Dit heb je {label} afgespeeld:"]
+    lines = [_read_text('recent',period=label)]
     for item in items[:10]:
         lines.append(f"- {_recent_history_item_line(item)}")
     if len(items) > 10:
-        lines.append(f"- ... en nog {len(items) - 10} items.")
+        lines.append('- '+_read_text('recent_more',count=len(items)-10))
     return _recently_played_response(
         "\n".join(lines),
         history_type=history_type,
@@ -3571,11 +3611,11 @@ def _recently_played_window(text: str) -> timedelta:
 def _recently_played_window_label(window: timedelta) -> str:
     seconds = int(window.total_seconds())
     if seconds <= 90 * 60:
-        return "het afgelopen uur"
+        return _read_text('hour')
     hours = max(1, round(seconds / 3600))
     if hours >= 20:
-        return "vandaag"
-    return f"de afgelopen {hours} uur"
+        return _read_text('today')
+    return _read_text('hours',count=hours)
 
 
 def _recently_played_tracks_in_window(
@@ -3651,7 +3691,7 @@ async def _current_track_reference_response(
     artist = _playback_text(playback_context, "artist", "artist_name")
     album = _playback_text(playback_context, "album_name", "album")
     if not title and not artist:
-        text = "Er speelt nu niets."
+        text = _read_text('current_none')
         return {
             "success": True,
             "text": text,
@@ -3664,13 +3704,21 @@ async def _current_track_reference_response(
     # Canonical Ask DJ owns generated dialogue. A low-level current-track
     # reference has no separate model announcer or proactive publication path.
     text, generated = "", False
+    paused = playback_context.get('is_playing') is False or playback_context.get('state') == 'paused'
+    playing = not paused and (playback_context.get('is_playing') is True or playback_context.get('state') == 'playing')
+    if not playing:
+        text=_read_text('current_context',title=title or artist,
+            artist_part=' — '+artist if title and artist else '',
+            album_part=' · '+album if album else '')
+        if paused:
+            text=_read_text('paused')+text
     if not text:
         if title and artist and album:
-            text = f"Er speelt nu {title} van {artist}, op het album {album}."
+            text = _read_text('current_full',title=title,artist=artist,album=album)
         elif title and artist:
-            text = f"Er speelt nu {title} van {artist}."
+            text = _read_text('current_pair',title=title,artist=artist)
         else:
-            text = f"Er speelt nu {_track_label(playback_context) or title or artist}."
+            text = _read_text('current_single',title=_track_label(playback_context) or title or artist)
         generated = False
     images = _images_from_context(hass, {}, playback_context)
     uri = str(playback_context.get("uri") or playback_context.get("track_uri") or "").strip()
@@ -3685,7 +3733,7 @@ async def _current_track_reference_response(
             "action_style": "play_now",
             "label": "Play Now",
             "button_label": "Play Now",
-            "reason": "Huidige track waar je informeel naar verwijst.",
+            "reason": _read_text('current_reason'),
         }
         if images:
             action["image_url"] = images[0]["url"]
@@ -4483,7 +4531,7 @@ def _artist_albums_response(
 
 def _empty_artist_albums_response(discography: dict[str, Any]) -> dict[str, Any]:
     artist = str(discography.get("artist") or "deze artiest").strip()
-    text = f"Ik vind via Spotify geen albumlijst voor {artist}."
+    text = _read_text('albums_empty',artist=artist)
     return {"success": True, "text": text, "dj_text": text, "action": "none", "sources": [_spotify_artist_albums_source()]}
 
 
@@ -4505,14 +4553,14 @@ def _artist_album_labels(albums: list[Any]) -> list[str]:
 
 def _artist_albums_text(artist: str, labels: list[str], total: int) -> str:
     if not labels:
-        return f"Ik vind via Spotify geen bruikbare albumtitels voor {artist}."
+        return _read_text('album_titles_empty',artist=artist)
     extra_count = total - len(labels)
     suffix = "" if extra_count <= 0 else (
-        f"\n\nSpotify toont daarnaast nog {extra_count} albumvermelding(en), vaak deluxe/live/remaster varianten."
+        '\n\n'+_read_text('albums_more',count=extra_count)
     )
     return (
-        f"Volgens Spotify heeft {artist} onder andere deze albums uitgebracht:\n\n"
-        f"{chr(10).join(labels)}{suffix}\n\nTik op Play Now om een album direct te starten."
+        _read_text('albums',artist=artist)+'\n\n'
+        f"{chr(10).join(labels)}{suffix}\n\n"+_read_text('album_play_hint')
     )
 
 
@@ -4625,40 +4673,6 @@ def _artist_genre_response(profile: dict[str, Any]) -> dict[str, Any]:
         "action": "none",
         "images": images,
         "sources": [{"source": "spotify_artist_profile", "title": "Spotify artist profile", "kind": "source"}],
-    }
-
-
-def _artist_profile_response(profile: dict[str, Any], fallback_artist: str) -> dict[str, Any]:
-    artist = str(profile.get("name") or profile.get("artist") or fallback_artist or "deze artiest").strip()
-    genres = [str(genre).strip() for genre in (profile.get("genres") or []) if str(genre).strip()]
-    popularity = profile.get("popularity")
-    intro = f"{artist} is de artiest die nu speelt."
-    if genres:
-        detail = f"Spotify koppelt {artist} vooral aan {_genre_phrase(genres)}."
-    else:
-        detail = "Ik heb nu geen betrouwbare genre-tags bij deze artiest."
-    if isinstance(popularity, int):
-        detail = f"{detail} De Spotify-populariteit staat rond {popularity} van 100."
-    text = f"{intro} {detail}"
-    image_url = str(profile.get("image_url") or profile.get("artist_image_url") or "").strip()
-    images = [
-        {
-            "url": image_url,
-            "title": artist,
-            "subtitle": ", ".join(genres[:3]),
-            "kind": "artist_image",
-            "source": "spotify",
-        }
-    ] if image_url else []
-    return {
-        "success": True,
-        "text": text,
-        "dj_text": text,
-        "action": "none",
-        "images": images,
-        "links": [],
-        "sources": [{"source": "spotify_artist_profile", "title": "Spotify artist profile", "kind": "source"}],
-        "playback_actions": [],
     }
 
 
@@ -5661,6 +5675,11 @@ def _music_discovery_summary_text(text: str, memory_context: dict[str, Any]) -> 
 
 
 def _is_recently_played_history_request(normalized: str) -> bool:
+    if (re.search(r"\b(?:welche|quels|quelles|qué|which)\b", normalized)
+            and re.search(r"\b(?:songs?|tracks?|titres?|canciones|albums?|álbumes|playlists?)\b", normalized)
+            and re.search(r"\b(?:did i play|habe ich|ai-je|escuché)\b", normalized)
+            and re.search(r"\b(?:last|letzten|dernière|última)\b", normalized)):
+        return True
     if any(
         phrase in normalized
         for phrase in (
@@ -6061,6 +6080,9 @@ def _is_morning_start_request(normalized: str) -> bool:
 
 
 def _is_next_track_info_request(normalized: str) -> bool:
+    if re.search(r"\b(?:what|was|qu['’]y|qué)\b", normalized) and re.search(
+            r"\b(?:in the queue|in der warteschlange|dans la file d['’]attente|en la cola)\b", normalized):
+        return True
     if any(
         phrase in normalized
         for phrase in (
@@ -6176,6 +6198,7 @@ def _is_user_playlists_request(normalized: str) -> bool:
         "mine",
         "my playlists",
         "do i have",
+        "habe ich", "ai-je", "tengo",
     )
     question_terms = (
         "welke",
@@ -6188,6 +6211,7 @@ def _is_user_playlists_request(normalized: str) -> bool:
         "list",
         "what",
         "which",
+        "welche", "quelles", "qué",
     )
     return any(term in normalized for term in own_terms) and (
         any(term in normalized for term in question_terms)
@@ -7380,6 +7404,7 @@ def _artist_item_list_request(text: str) -> dict[str, Any]:
             if artist:
                 return {"item_type": "album", "artist": artist, "count": None}
     patterns = (
+        r"^\s*(?:zeig(?:e)?|gib|montre|donne|muestra|muéstrame|dame)(?:-moi|\s+mir)?\s+(?:(?:les|los|las|die)\s+)?(?:(\d+)\s+)?(alben|álbumes?|albums?|songs?|titres?|canciones|tracks?|playlists?)\s+(?:von|de)\s+(.+?)\s*\??\s*$",
         r"^\s*(?:geef|toon|laat\s+zien|laat|zoek|vind)\s+(?:me|mij)?\s*(?:(\d+|een|twee|drie|vier|vijf|zes|zeven|acht|negen|tien)\s+)?(albums?|tracks?|nummers?|songs?|playlists?|afspeellijsten?)\s+van\s+(.+?)\s*\??\s*$",
         r"^\s*welke\s+(albums?)\s+(?:bracht|brachten|heeft|hebben)\s+(.+?)\s+(?:uit|uitgebracht|gereleased|released)\s*\??\s*$",
         r"^\s*welke\s+(muziek|tracks?|nummers?|songs?)\s+(?:heeft|hebben)\s+(.+?)\s+(?:gemaakt|uitgebracht|gereleased|released)\s*\??\s*$",
@@ -7546,9 +7571,9 @@ def _bounded_item_count(value: Any, *, default: int) -> int:
 
 def _artist_item_type(value: Any) -> str:
     normalized = _normalize(str(value or ""))
-    if normalized.startswith("album"):
+    if normalized.startswith(("album", "álbum")) or normalized == 'alben':
         return "album"
-    if normalized in {"muziek", "music", "track", "tracks", "nummer", "nummers", "song", "songs"}:
+    if normalized in {"muziek", "music", "track", "tracks", "nummer", "nummers", "song", "songs", "titre", "titres", "canción", "canciones"}:
         return "track"
     if normalized in {"playlist", "playlists", "afspeellijst", "afspeellijsten"}:
         return "playlist"
@@ -7582,7 +7607,7 @@ async def _artist_item_list_response(
             "nummers",
             actions,
             "spotify_track_search",
-            f"Ik vond deze nummers van {artist}.",
+            _read_text('tracks',artist=artist),
         )
     if item_type == "playlist":
         result = await _spotify_playlist_search(hass, runtime, artist, limit=count)
@@ -7593,7 +7618,7 @@ async def _artist_item_list_response(
             "playlists",
             actions,
             "spotify_playlist_search",
-            f"Ik vond deze Spotify-playlists rond {artist}.",
+            _read_text('artist_playlists',artist=artist),
         )
     return _empty_artist_item_list_response(artist, "resultaten", "spotify_search")
 
@@ -7644,10 +7669,10 @@ def _artist_clickable_rows_response(
         message = (
             f"{intro}\n"
             + "\n".join(lines)
-            + "\n\nTik op Play Now om er eentje direct te starten."
+            + '\n\n'+_read_text('play_hint')
         )
     else:
-        message = f"Ik vond nu geen speelbare {label} voor {artist}."
+        message = _read_text('empty',label=label,artist=artist)
     return {
         "success": True,
         "text": message,
@@ -7727,7 +7752,7 @@ def _ordered_playback_actions(
 
 
 def _empty_artist_item_list_response(artist: str, label: str, source: str) -> dict[str, Any]:
-    message = f"Ik vond nu geen speelbare {label} voor {artist}."
+    message = _read_text('empty',label=label,artist=artist)
     return {
         "success": True,
         "text": message,
@@ -9509,194 +9534,18 @@ def _response_language(runtime: Any = None, payload: dict[str, Any] | None = Non
     return "nl"
 
 
-def _help_text(language: str = "nl") -> str:
-    sections = _help_sections(language)
-    headings = {
-        "en": "# Things you can ask Ask DJ",
-        "nl": "# Dit kun je aan Ask DJ vragen",
-        "de": "# Das kannst du Ask DJ fragen",
-        "fr": "# Ce que tu peux demander à Ask DJ",
-        "es": "# Cosas que puedes pedir a Ask DJ",
-    }
-    blocks = [headings.get(language, headings["en"])]
-    for title, examples in sections:
-        blocks.append("\n".join([f"## {title}", *[f"- {example}" for example in examples]]))
-    return "\n\n".join(blocks)
+def _help_sections(language: str = "nl", context=None) -> list[tuple[str, list[str]]]:
+    from .example_catalogue import help_sections
+    return help_sections(language, context)
 
 
-def _help_sections(language: str = "nl") -> list[tuple[str, list[str]]]:
-    localized: dict[str, list[tuple[str, list[str]]]] = {
-        "en": [
-            ("Start music", ["Play [artist]", "I want to hear [song]", "Play [song] by [artist]", "Put on a [genre] playlist", "Play something for cooking"]),
-            ("Play Now choices", ["Show me albums by [artist]", "Which albums did [artist] release?", "Give me 5 songs by [artist]", "Give me 10 versions of [song] by different artists", "Find artists similar to [artist]", "Which playlists are there for [genre]?", "Which playlists do I have?", "Make a mix based on [artist], [artist] and [artist]"]),
-            ("Speakers and playback", ["Which speakers are available?", "Switch speaker", "What is playing on?", "Pause", "Resume", "Next song", "Previous song", "What is in the queue?", "Louder", "Softer", "Shuffle on", "Repeat off"]),
-            ("DJ context", ["What is playing now?", "Why did you choose this song?", "Tell me about this artist", "Do you have a live version?", "Do you have an acoustic version?", "Give a DJ intro for this song", "Analyze this song", "What genre is this?"]),
-            ("Discover and Music DNA", ["What is new in Discover?", "Refresh my Discover recommendations", "What does my Music DNA say?", "Which Discover recommendations fit me best?", "Why does this recommendation fit my taste?"]),
-            ("Personal taste", ["What do you know about me?", "Analyze my listening profile", "What did I listen to this month?", "Give personal music recommendations", "Which artists fit my taste?", "I want more music like this"]),
-            ("Follow-ups", ["Try again", "Play it", "I want to hear [song]", "No, I mean the live version", "Only from the 90s", "Make this a playlist"]),
-            ("Good to know", ["Ask DJ only starts music directly for clear playback requests.", "For lists, albums, recommendations and speakers you get buttons such as Play Now or Activate."]),
-        ],
-        "de": [
-            ("Musik starten", ["Spiele [artist]", "Ich möchte [song] hören", "Spiele [song] von [artist]", "Starte eine [genre]-Playlist", "Spiel etwas zum Kochen"]),
-            ("Play Now-Auswahl", ["Zeig mir Alben von [artist]", "Welche Alben hat [artist] veröffentlicht?", "Gib mir 5 Songs von [artist]", "Gib mir 10 Versionen von [song] von verschiedenen Künstlern", "Finde ähnliche Künstler wie [artist]", "Welche Playlists gibt es für [genre]?", "Welche Playlists habe ich?", "Erstelle einen Mix aus [artist], [artist] und [artist]"]),
-            ("Speaker und Wiedergabe", ["Welche Speaker gibt es?", "Wechsle den Speaker", "Worauf läuft die Musik?", "Pause", "Weiter spielen", "Nächster Song", "Vorheriger Song", "Was steht in der Warteschlange?", "Lauter", "Leiser", "Shuffle an", "Repeat aus"]),
-            ("DJ-Kontext", ["Was läuft gerade?", "Warum hast du diesen Song gewählt?", "Erzähl etwas über diesen Künstler", "Hast du eine Live-Version?", "Hast du eine Akustikversion?", "Gib ein DJ-Intro für diesen Song", "Analysiere diesen Song", "Welches Genre ist das?"]),
-            ("Discover und Music DNA", ["Was ist neu in Discover?", "Aktualisiere meine Discover-Empfehlungen", "Was sagt mein Music DNA?", "Welche Discover-Empfehlungen passen am besten zu mir?", "Warum passt diese Empfehlung zu meinem Geschmack?"]),
-            ("Persönlicher Musikgeschmack", ["Was weißt du über mich?", "Analysiere mein Hörprofil", "Was habe ich diesen Monat gehört?", "Gib persönliche Musikempfehlungen", "Welche Künstler passen zu meinem Geschmack?", "Ich möchte mehr Musik wie diese"]),
-            ("Follow-ups", ["Versuche es erneut", "Spiel es ab", "Ich möchte [song] hören", "Nein, ich meine die Live-Version", "Nur aus den 90ern", "Mach daraus eine Playlist"]),
-            ("Gut zu wissen", ["Ask DJ startet Musik nur bei klaren Wiedergabeanfragen direkt.", "Bei Listen, Alben, Empfehlungen und Speakern erhältst du Buttons wie Play Now oder Aktivieren."]),
-        ],
-        "fr": [
-            ("Lancer la musique", ["Joue [artist]", "Je veux écouter [song]", "Joue [song] de [artist]", "Mets une playlist [genre]", "Mets quelque chose pour cuisiner"]),
-            ("Choix Play Now", ["Montre-moi les albums de [artist]", "Quels albums [artist] a-t-il sortis ?", "Donne-moi 5 titres de [artist]", "Donne-moi 10 versions de [song] par différents artistes", "Trouve des artistes similaires à [artist]", "Quelles playlists existent pour [genre] ?", "Quelles playlists ai-je ?", "Crée un mix avec [artist], [artist] et [artist]"]),
-            ("Enceintes et lecture", ["Quelles enceintes sont disponibles ?", "Change d’enceinte", "Sur quoi la musique est-elle lue ?", "Pause", "Reprendre", "Titre suivant", "Titre précédent", "Qu’y a-t-il dans la file d’attente ?", "Plus fort", "Moins fort", "Shuffle activé", "Repeat désactivé"]),
-            ("Contexte DJ", ["Qu’est-ce qui passe maintenant ?", "Pourquoi as-tu choisi ce titre ?", "Parle-moi de cet artiste", "As-tu une version live ?", "As-tu une version acoustique ?", "Fais une intro DJ pour ce titre", "Analyse ce titre", "Quel est ce genre ?"]),
-            ("Discover et Music DNA", ["Quoi de neuf dans Discover ?", "Actualise mes recommandations Discover", "Que dit mon Music DNA ?", "Quelles recommandations Discover me correspondent le mieux ?", "Pourquoi cette recommandation correspond-elle à mes goûts ?"]),
-            ("Goûts personnels", ["Que sais-tu de moi ?", "Analyse mon profil d’écoute", "Qu’ai-je écouté ce mois-ci ?", "Donne des recommandations musicales personnelles", "Quels artistes correspondent à mes goûts ?", "Je veux plus de musique comme ça"]),
-            ("Suites", ["Réessaie", "Joue-le", "Je veux écouter [song]", "Non, je veux dire la version live", "Seulement des années 90", "Fais-en une playlist"]),
-            ("À savoir", ["Ask DJ ne lance directement la musique que pour des demandes de lecture claires.", "Pour les listes, albums, recommandations et enceintes, tu obtiens des boutons comme Play Now ou Activer."]),
-        ],
-        "es": [
-            ("Iniciar música", ["Reproduce [artist]", "Quiero escuchar [song]", "Reproduce [song] de [artist]", "Pon una playlist de [genre]", "Pon algo para cocinar"]),
-            ("Opciones Play Now", ["Muéstrame álbumes de [artist]", "¿Qué álbumes publicó [artist]?", "Dame 5 canciones de [artist]", "Dame 10 versiones de [song] de distintos artistas", "Busca artistas similares a [artist]", "¿Qué playlists hay para [genre]?", "¿Qué playlists tengo?", "Haz una mezcla basada en [artist], [artist] y [artist]"]),
-            ("Altavoces y reproducción", ["¿Qué altavoces hay?", "Cambia de altavoz", "¿Dónde está sonando la música?", "Pausa", "Continúa", "Siguiente canción", "Canción anterior", "¿Qué hay en la cola?", "Más alto", "Más bajo", "Shuffle activado", "Repeat desactivado"]),
-            ("Contexto DJ", ["¿Qué está sonando ahora?", "¿Por qué elegiste esta canción?", "Cuéntame sobre este artista", "¿Tienes una versión en vivo?", "¿Tienes una versión acústica?", "Haz una intro DJ para esta canción", "Analiza esta canción", "¿Qué género es este?"]),
-            ("Discover y Music DNA", ["¿Qué hay de nuevo en Discover?", "Actualiza mis recomendaciones de Discover", "¿Qué dice mi Music DNA?", "¿Qué recomendaciones de Discover encajan mejor conmigo?", "¿Por qué esta recomendación encaja con mi gusto?"]),
-            ("Gusto personal", ["¿Qué sabes de mí?", "Analiza mi perfil de escucha", "¿Qué escuché este mes?", "Dame recomendaciones musicales personales", "¿Qué artistas encajan con mi gusto?", "Quiero más música como esta"]),
-            ("Seguimientos", ["Inténtalo de nuevo", "Reprodúcelo", "Quiero escuchar [song]", "No, me refiero a la versión en vivo", "Solo de los años 90", "Convierte esto en una playlist"]),
-            ("Conviene saber", ["Ask DJ solo inicia música directamente con peticiones claras de reproducción.", "Para listas, álbumes, recomendaciones y altavoces recibirás botones como Play Now o Activar."]),
-        ],
-    }
-    if language in localized:
-        return localized[language]
-    return [
-        (
-            "Muziek starten",
-            [
-                "Speel [artiest]",
-                "Ik wil [nummer] horen",
-                "Speel [artiest], [nummer]",
-                "Draai [nummer]",
-                "Zet een rustige playlist op",
-                "Speel iets voor tijdens het koken",
-            ],
-        ),
-        (
-            "Play Now keuzes",
-            [
-                "Geef me albums van [artiest]",
-                "Welke albums bracht [artiest] uit?",
-                "Welke muziek heeft [artiest] gemaakt?",
-                "Geef me 5 nummers van [artiest]",
-                "Geef me 10 uitvoeringen van [nummer] door verschillende artiesten",
-                "Geef vergelijkbare artiesten als [artiest]",
-                "Welke playlists zijn er voor hardlopen?",
-                "Wat voor [genre] playlists heb je?",
-                "Welke playlists heb ik?",
-                "Wat heb je nog meer van [artiest]?",
-                "Maak een mix op basis van [artiest], [artiest] en [artiest]",
-                "Heb je meer nummers die hierop lijken?",
-            ],
-        ),
-        (
-            "Speakers en playback",
-            [
-                "Welke speakers zijn er?",
-                "Wissel van speaker",
-                "Waarop speelt de muziek?",
-                "Pauzeer",
-                "Speel verder",
-                "Volgende nummer",
-                "Vorige nummer",
-                "Wat staat er in de wachtrij?",
-                "Wat wordt het volgende nummer?",
-                "Harder",
-                "Zachter",
-                "Shuffle aan",
-                "Repeat uit",
-                "Zet huidig nummer in favorieten",
-            ],
-        ),
-        (
-            "DJ uitleg en context",
-            [
-                "Wat speelt er nu?",
-                "Waarom koos je dit nummer?",
-                "Vertel iets over deze artiest",
-                "Welk nummer komt hierna?",
-                "Heb je een live versie?",
-                "Heb je een akoestische versie?",
-                "Heb je remixes?",
-                "Geef een DJ intro voor dit nummer",
-                "Analyseer dit nummer",
-                "Geef Track Insight voor dit nummer",
-                "Wat voor genre is dit?",
-            ],
-        ),
-        (
-            "Persoonlijke muzieksmaak",
-            [
-                "Wat weet je nu over mij?",
-                "Analyseer mijn luisterprofiel",
-                "Wat luisterde ik de afgelopen maand?",
-                "Geef persoonlijke muziekaanbevelingen",
-                "Welke artiesten passen bij mijn smaak?",
-                "Ik wil meer van deze muziek horen",
-                "Ik wil vergelijkbare tracks",
-            ],
-        ),
-        (
-            "Discover en Music DNA",
-            [
-                "Wat is er nieuw in Discover?",
-                "Ververs mijn Discover aanbevelingen",
-                "Wat zegt mijn Music DNA?",
-                "Welke Discover aanbevelingen passen het beste bij mij?",
-                "Waarom past deze aanbeveling bij mijn smaak?",
-            ],
-        ),
-        (
-            "Follow-ups",
-            [
-                "Probeer opnieuw",
-                "Speel af",
-                "Ik wil [nummer] horen",
-                "Nee, ik bedoel de live versie",
-                "Alleen uit de jaren 90",
-                "Maak hier een playlist van",
-            ],
-        ),
-        (
-            "Goed om te weten",
-            [
-                "Ask DJ start muziek alleen direct bij duidelijke speelopdrachten.",
-                "Bij lijsten, albums, aanbevelingen en speakers krijg je knoppen zoals Play Now of Activeer.",
-            ],
-        ),
-    ]
-
-
-def _help_prompt_examples(language: str = "nl") -> list[str]:
-    return [
-        example
-        for title, examples in _help_sections(language)
-        if title not in {"Goed om te weten", "Good to know", "Gut zu wissen", "À savoir", "Conviene saber"}
-        for example in examples
-    ]
-
-
-def _help_response(language: str = "nl") -> dict[str, Any]:
-    message = _help_text(language)
+def _help_response(language: str = "nl", context=None) -> dict[str, Any]:
+    from .example_catalogue import help_text
+    message = help_text(language, context)
     return {
-        "success": True,
-        "text": message,
-        "dj_text": message,
-        "action": "none",
+        "success": True, "text": message, "dj_text": message, "action": "none",
         "intent": {"category": "informational", "intent": "help"},
-        "images": [],
-        "links": [],
-        "sources": [],
-        "playback_actions": [],
+        "images": [], "links": [], "sources": [], "playback_actions": [],
     }
 
 
@@ -9744,7 +9593,7 @@ def _is_output_selection_request(normalized: str) -> bool:
         or "laat speakers zien" in normalized
         or "toon beschikbare speakers" in normalized
         or "toon outputs" in normalized
-        or any(term in normalized for term in ("which speakers", "available speakers", "show outputs", "welche lautsprecher", "verfügbare lautsprecher", "quelles enceintes", "enceintes disponibles", "qué altavoces", "altavoces disponibles"))
+        or any(term in normalized for term in ("which speakers", "available speakers", "show outputs", "welche speaker", "welche lautsprecher", "verfügbare lautsprecher", "quelles enceintes", "enceintes disponibles", "qué altavoces", "altavoces disponibles"))
     ):
         return True
     has_output = any(
@@ -10148,7 +9997,9 @@ async def _dialogue_result_list_response(hass, payload, text):
     turn.delivery_validators.append(validate_offer)
     await turn.guard()
     validate_offer()
-    message = catalogue_result_text(items, language)
+    presentation = deepcopy(shown.get('presentation'))
+    message = (presentation['caption'] if presentation and presentation.get('kind') == 'album_tracks'
+               else catalogue_result_text(items, language))
     # No playback_actions: complete() must retain the exact set, original IDs,
     # chosen item and deadline, rather than minting a fresh600s offer.
     return {"success": True, "text": message, "dj_text": message, "action": "none",
@@ -10156,7 +10007,8 @@ async def _dialogue_result_list_response(hass, payload, text):
             "text_source": "qualified_catalog_result", "_private_current_context": True,
             "result_set": {"schema_version": 1, "result_set_id": shown["result_set_id"],
                            "expires_in": max(0, shown["deadline"] - turn.history.dialogue.clock()),
-                           "items": deepcopy(items)},
+                           "items": deepcopy(items),
+                           **({'presentation': presentation} if presentation else {})},
             "intent": {"category": "informational", "intent": "shown_result_list"}}
 
 

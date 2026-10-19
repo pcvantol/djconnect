@@ -41,6 +41,7 @@ class ClientContractSnapshotsTest(unittest.TestCase):
 
         commands = websocket_api._supported_websocket_commands()
         from custom_components.djconnect.hybrid_contract import hybrid_transport_capability
+        from custom_components.djconnect.ask_dj.example_catalogue import capability as examples_capability
         generated = {
             "success": True,
             "domain": "djconnect",
@@ -54,6 +55,7 @@ class ClientContractSnapshotsTest(unittest.TestCase):
             "capabilities": websocket_api._platform_capabilities(),
             "contract_versions": websocket_api._contract_versions(),
             "hybrid_transport": hybrid_transport_capability(),
+            "ask_dj_examples": examples_capability(),
             "transports": {
                 "http": True,
                 "websocket": True,

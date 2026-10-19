@@ -27,8 +27,10 @@ class NarrationAuthorityTest(unittest.IsolatedAsyncioTestCase):
         self.module=fixtures.SessionConversationHistoryTest.runtime
         self.session=await self.manager.async_start(owner_profile_id='profile-a',locale='nl',
             selected_mood='energy',music_backend='spotify_direct',
-            allowed_capability_intents=frozenset({'artist_story'}))
-        self.catalog,self.fact=source('birth',0)
+            allowed_capability_intents=frozenset({'album_story'}))
+        # Isolate the generic transport/SQL authority fence; researched artist
+        # admission is separately exercised with exact public identity/receipts.
+        self.catalog,self.fact=source('edition',0)
         await self.manager.async_update_playback_projection(owner_profile_id='profile-a',
             session_id=self.session.session_id,state='playing',media_identity=self.catalog['uri'],
             title=self.catalog['title'],artist=self.catalog['artist'],duration_ms=300000,position_ms=0)
@@ -119,7 +121,7 @@ class NarrationAuthorityTest(unittest.IsolatedAsyncioTestCase):
             entered.set()
             await release.wait()
             return {'response':{'speech':{'plain':{'speech':json.dumps({
-                'text':'{subject} werd geboren op {date}. Een kleine voetnoot om even bij stil te staan.'})}}}}
+                'text':'Deze uitgave van {subject} staat vermeld met {date}. Een kleine voetnoot om even bij stil te staan.'})}}}}
         self.hass.services=SimpleNamespace(async_call=process)
         self.runtime.config['assist_pipeline_id']='pipeline-a'
         def selection(hass,conf):
@@ -154,7 +156,7 @@ class NarrationAuthorityTest(unittest.IsolatedAsyncioTestCase):
             entered.set()
             await release.wait()
             return {'response':{'speech':{'plain':{'speech':json.dumps({
-                'text':'{subject} werd geboren op {date}. Een kleine voetnoot om even bij stil te staan.'})}}}}
+                'text':'Deze uitgave van {subject} staat vermeld met {date}. Een kleine voetnoot om even bij stil te staan.'})}}}}
         self.hass.services=SimpleNamespace(async_call=process)
         self.runtime.config['assist_pipeline_id']='pipeline-a'
         def selection(hass,conf):

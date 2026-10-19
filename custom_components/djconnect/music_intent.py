@@ -3,6 +3,85 @@ from __future__ import annotations
 import re
 
 
+_MUSIC_COMMAND_PREFIX = re.compile(
+    r"^(?:(?:please|alsjeblieft|bitte|por favor|s'il te plaît)\s+)?"
+    r"(?:(?:can|could|would) you\s+|(?:kun|wil|zou) je\s+|"
+    r"(?:kannst|könntest) du\s+|(?:peux|pourrais)-tu\s+|(?:puedes|podrías)\s+)?"
+    r"(?P<verb>put\s+on|speel|start|zet|draai|play|spiel(?:e)?|starte|joue(?:z)?|mets|reproduce|pon)\s+"
+    r"(?P<subject>.+)$", re.I)
+
+
+def music_command_subject(text: str) -> str:
+    """Parse a native imperative, preserving its subject; no action authority.
+
+    The Ask DJ speech-act/effect guards still decide whether execution is
+    authorized. This is shared parsing, not a catalogue-specific send alias or
+    a rewritten prompt to the HA agent.
+    """
+    match = _MUSIC_COMMAND_PREFIX.fullmatch(str(text or '').strip().rstrip('.!?'))
+    return match['subject'].strip() if match else ''
+
+
+def open_music_request(text: str) -> bool:
+    """An indefinite musical/activity subject needs semantic interpretation.
+
+    This is not an effect grant. Quoted proper names and explicit media kinds
+    retain the ordinary literal identity fence.
+    """
+    subject = music_command_subject(text)
+    if not subject:
+        return False
+    if subject[0] in {'"', '“', '„', "'", '‘'}:
+        return False
+    return bool(re.match(r"^(?:iets|something|some\s+music|music|muziek|etwas|musik|quelque\s+chose|de\s+la\s+musique|algo|m[uú]sica)\b", subject, re.I))
+
+
+def negated_music_command(text: str) -> bool:
+    """Fence native negative imperatives before model/provider work.
+
+    Quoted music names are data, including words like 'not' and 'pas'. Bare
+    negative imperatives remain non-executing; a model cannot override them.
+    """
+    value=str(text or '').strip()
+    # Apostrophes inside words (l’album, n’est, Guns N’ Roses) are not quotes.
+    value=re.sub(r'''(?<!\w)(?:"[^"\n]*"|“[^”\n]*”|„[^“\n]*“|'[^'\n]*'(?!\w)|‘[^’\n]*’(?!\w))''',
+                 'MUSIC_NAME',value)
+    leading=re.fullmatch(r"(?:(?:please|bitte|por favor)\s+)?(?:do not|don't|no|ne)\s+(.+)",value,re.I)
+    if leading and music_command_subject(leading[1]):
+        return True
+    match=_MUSIC_COMMAND_PREFIX.fullmatch(value.rstrip('.!?'))
+    if not match:
+        return False
+    verb,subject=match['verb'].casefold(),match['subject'].casefold()
+    markers=(r'\b(?:nicht|nichts|kein(?:e|en|em|er|es)?)\b' if verb.startswith(('spiel','starte')) else
+             r'\b(?:pas|jamais)\b' if verb.startswith(('joue','mets')) else
+             r'\b(?:no|nunca|jamás)\b' if verb in {'reproduce','pon'} else
+             r"\b(?:niet|nooit|geen|not|never|don't)\b")
+    return bool(re.search(markers,subject))
+
+
+def _native_media_request(text: str):
+    subject = music_command_subject(text)
+    if not subject:
+        return None
+    subject = re.sub(r"^l['’](?=album\b)", '', subject, flags=re.I)
+    value = re.sub(r'^(?:the|het|de|een|mijn|my|eine[nmrs]?|das|der|die|den|une?|le|la|les|el|una?|mi)\s+', '', subject, flags=re.I)
+    match = re.fullmatch(r'(album|álbum|playlist|afspeellijst|song|track|nummer|lied|chanson|titre|canci[oó]n)\s+(.+)', value, re.I)
+    if not match:
+        match = re.fullmatch(r'(.+?)\s+(playlist|afspeellijst)', value, re.I)
+        if match:
+            title = clean_music_query(match[1])
+            return _parsed_request('playlist', title, playlist=title)
+        return None
+    noun, title = match[1].casefold(), clean_music_query(match[2])
+    kind = 'playlist' if noun in {'playlist', 'afspeellijst'} else 'album' if noun in {'album','álbum'} else 'track'
+    if kind == 'playlist':
+        return _parsed_request(kind, title, playlist=title)
+    split = re.split(r'\s+(?:van|by|von|de)\s+', title, maxsplit=1, flags=re.I)
+    title, artist = split[0], split[1] if len(split) == 2 else ''
+    return _parsed_request(kind, _query_with_artist(title, artist), title=title, artist=artist)
+
+
 _ARTIST_QUERY_PATTERNS = (
     r"^\s*(?:speel|start|zet|draai)\s+(?:eens\s+|even\s+|maar\s+|graag\s+)?(?:artiest|band|artist)\s+(.+?)\s*(?:op|af|aan)?\s*$",
     r"^\s*(?:play|start|put\s+on)\s+(?:artist|band)\s+(.+?)\s*$",
@@ -133,6 +212,8 @@ def parse_spoken_music_request(text: str) -> dict[str, str | None]:
     if track:
         title, artist = track
         return _parsed_request("track", _query_with_artist(title, artist), title=title, artist=artist)
+    if native := _native_media_request(text):
+        return native
     if (target := listening_request_target(text)):
         return parse_spoken_music_request("play " + target)
     artist = extract_artist_query(query)
@@ -203,6 +284,8 @@ def extract_artist_query(text: str) -> str:
             candidate = clean_music_query(match.group(1))
             if candidate:
                 return candidate
+    if subject := music_command_subject(query):
+        return subject
     return query
 
 
