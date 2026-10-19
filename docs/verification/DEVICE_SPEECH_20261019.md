@@ -63,3 +63,13 @@ Real isolated HA15case receipt matches current source/harness hashes and has
 zero STT processing, TTS synthesis and model calls. Ruff PASS; Bandit0Medium/
 0High,15Low. Independent technical replay confirms the P2 fixed; exact frozen
 source/requirements reviews and protected delivery are separate next gates.
+
+## Protected source incorporation
+
+[PR #1221](https://github.com/pcvantol/djconnect/pull/1221) merged
+`604b80f806425cb53165a17faf783bfd6248af17`; exact reviewed candidate
+`bd2b644dadec91742138348ba960e61b12da662c` has the identical complete tree.
+Two independent exact reviews GO;30success/5conditional skips, fresh exact
+Owner39231232721. Nonblocking TDE still running, not PASS. This governance
+Finalization has separate review/CI/Owner/merge/readback gates. No installed,
+Apple UI/OS permission, remote speech health or audible completion inferred.

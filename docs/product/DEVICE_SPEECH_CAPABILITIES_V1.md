@@ -1,8 +1,10 @@
 # Device speech availability v1 — Core #1212
 
 Selected separate producer for Apple #129, after source1219 and separate
-Finalization1220, main8cb1a467dfc0249fc7b3e79e474841e40249c091. Source WIP,
-not a qualified consumer pin or installed/native acceptance. Fresh current-root
+Finalization1220, main8cb1a467dfc0249fc7b3e79e474841e40249c091. Protected source PR #1221 merged
+604b80f806425cb53165a17faf783bfd6248af17; candidatebd2b644dadec91742138348ba960e61b12da662c
+has the identical complete tree. Separate Finalization and installed/native
+acceptance remain distinct. Fresh current-root
 hostverify exit0/MATCH with onboarding4.5.4; same sole Core writer. Own previous
 source/Finalization checkouts and refs safely cleaned under proven squash patch
 equivalence and verified recovery; unrelated erasure/host refs remain preserved.
