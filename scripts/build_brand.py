@@ -12,7 +12,9 @@ import hashlib
 import io
 import json
 from pathlib import Path
+import struct
 import tempfile
+import zlib
 
 import fontTools
 from fontTools.pens.svgPathPen import SVGPathPen
@@ -20,7 +22,7 @@ from fontTools.pens.basePen import BasePen
 from fontTools.svgLib.path import parse_path
 from fontTools.ttLib import TTFont
 from fontTools.varLib.instancer import instantiateVariableFont
-from PIL import Image, ImageDraw, ImageFont, __version__ as PILLOW_VERSION
+from PIL import Image, ImageChops, ImageDraw, ImageFont, __version__ as PILLOW_VERSION
 
 ROOT = Path(__file__).resolve().parents[1]
 FAMILY = Path("assets/djconnect/brand-v2")
@@ -42,9 +44,26 @@ def sha(data: bytes) -> str:
 
 
 def png(image: Image.Image) -> bytes:
-    out = io.BytesIO()
-    image.save(out, format="PNG", compress_level=9)
-    return out.getvalue()
+    # Pillow's zlib-ng encoder selects architecture-specific compressed streams.
+    # Own the PNG framing/filter and use classic zlib with fixed Huffman coding,
+    # rather than shipping host-dependent PNG bytes in embedded SVGs/manifests.
+    if image.mode not in {"RGB", "RGBA"}:
+        raise ValueError("unsupported_brand_image_mode")
+    preceding = Image.new(image.mode, image.size)
+    preceding.paste(image, (1, 0))
+    pixels = ImageChops.subtract_modulo(image, preceding).tobytes()
+    stride = image.width * len(image.getbands())
+    filtered = b"".join(b"\x01" + pixels[offset:offset + stride]
+                        for offset in range(0, len(pixels), stride))
+    encoder = zlib.compressobj(level=9, wbits=15, memLevel=8, strategy=zlib.Z_FIXED)
+    compressed = encoder.compress(filtered) + encoder.flush()
+
+    def chunk(kind, data):
+        return struct.pack(">I", len(data)) + kind + data + struct.pack(">I", zlib.crc32(kind + data))
+
+    header = struct.pack(">IIBBBBB", image.width, image.height, 8,
+                         6 if image.mode == "RGBA" else 2, 0, 0, 0)
+    return b"\x89PNG\r\n\x1a\n" + chunk(b"IHDR", header) + chunk(b"IDAT", compressed) + chunk(b"IEND", b"")
 
 
 class AlphaContour(BasePen):
@@ -293,6 +312,13 @@ def main():
             drift = [name for name in names if not (args.root / name).is_file()
                      or (args.root / name).read_bytes() != (output / name).read_bytes()]
             if drift:
+                # Causal readback distinguishes rendering drift from PNG framing
+                # or encoder drift without silently accepting either kind.
+                for name in drift:
+                    if name.endswith(".png") and (args.root / name).is_file():
+                        with Image.open(args.root / name) as old, Image.open(output / name) as new:
+                            print(json.dumps({"path": name, "decoded_pixels_equal":
+                                old.mode == new.mode and old.size == new.size and old.tobytes() == new.tobytes()}))
                 raise SystemExit("Brand generation drift: " + ", ".join(drift))
     else:
         manifest = build(args.root, args.root)

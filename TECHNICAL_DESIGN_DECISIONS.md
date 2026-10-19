@@ -10,6 +10,10 @@ generation, no system fonts or AI reinterpretation. See
 [`assets/djconnect/brand-v2/README.md`](assets/djconnect/brand-v2/README.md) and its
 source/output manifest. This is build tooling only; HA dependencies and release
 version do not change. CI checks reproducible bytes and HA package semantics.
+PNG containers use explicit lossless Sub filtering and classic zlib fixed-Huffman
+encoding: Pillow's zlib-ng streams differed between macOS ARM and Linux x64.
+Pixel equality alone cannot authenticate embedded SVG/asset manifests, so the
+strict byte check stays in place and the encoder is made explicit instead.
 
 The owner's subsequent correction makes the glass rim the asset boundary:
 transparent outside it. Deterministic editable SVG alpha contours preserve the

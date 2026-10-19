@@ -71,6 +71,10 @@ font and its OFL license/provenance are in `tools/branding/fonts/`.
 `manifest.json` records source/recipe/font/output SHA256, PNG dimensions and alpha,
 variant semantics and tool versions. No timestamp, working directory or mutable
 branch name is part of asset generation. CI regenerates and compares all bytes.
+PNG framing and Sub row filtering are explicit; classic zlib fixed-Huffman
+encoding avoids Pillow's architecture-dependent zlib-ng stream selection. This
+changes compressed bytes only, not decoded artwork. Strict cross-host comparison
+remains a gate; it is not replaced with a visual-tolerance comparison.
 
 The VibeCast template uses `@@BRAND_ICON@@`; its builder embeds packaged
 `brand/icon.png` for local, display and static hosts and authenticates that input
