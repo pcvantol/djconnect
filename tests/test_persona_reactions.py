@@ -83,6 +83,226 @@ class PersonaReactionTests(unittest.IsolatedAsyncioTestCase):
         book.now = lambda: value[0]
         return value
 
+    async def observe(self, result, *, authority=None, frames=None):
+        authority = authority or await self.hybrid.PairedAuthority.resolve(self.hass, self.f.identity, self.f.headers)
+        self.hass.data['djconnect']['hybrid_operation_manager'] = self.operations
+        frames = frames if frames is not None else []
+        return self.react.observe(self.hass, authority, {
+            'contract_version': 1, 'operation_id': result['persona_reaction']['reaction_id'],
+            'operation_epoch': self.operations.journal.epoch,
+            'session_id': result['persona_reaction']['session']['session_id']}, 31, frames.append)
+
+    async def test_wrong_session_cancel_rejects_live_target_and_preserves_original_audio(self):
+        stack, _, _, calls, _ = self.provider()
+        with stack:
+            await self.start()
+            delivered, _ = await self.execute(self.request(processor='ha_configured'))
+            frames = []
+            observation = await self.observe(delivered, frames=frames)
+            try:
+                request = self.request(operation=self.react.CANCEL)
+                request['payload'] = {'contract_version': 1, 'session_id': 'wrong-session',
+                    'reaction_id': delivered['persona_reaction']['reaction_id'], 'reason': 'dismissed'}
+                denied, status = await self.execute(request)
+                self.assertEqual((status, denied['error']), (404, 'persona_reaction_unavailable'))
+                self.assertNotIn('persona_reaction_cancelled', denied)
+                self.assertEqual((observation.snapshot()['state'], frames), ('valid', []))
+                _, status = await self.speech.async_handle_audio(self.hass, self.asset_request(delivered), headers=self.f.headers)
+                self.assertEqual(status, 200)
+                cancelled, status = await self.cancel(delivered['persona_reaction']['reaction_id'])
+                self.assertEqual((status, cancelled['persona_reaction_cancelled']), (200, True))
+                self.assertEqual(observation.snapshot()['state'], 'withdrawn')
+                _, status = await self.speech.async_handle_audio(self.hass, self.asset_request(delivered), headers=self.f.headers)
+                self.assertEqual(status, 404)
+                self.assertEqual(len(calls), 1)
+            finally:
+                observation.close()
+                await asyncio.gather(observation.task, return_exceptions=True)
+
+    async def test_wrong_session_cancel_rejects_pending_target_without_cancelling_preparation(self):
+        stack, _, _, calls, _ = self.provider()
+        with stack:
+            await self.start()
+            entered, release = await self.hold_settings()
+            original = self.request(processor='ha_configured')
+            pending = asyncio.create_task(self.execute(original))
+            try:
+                await asyncio.wait_for(entered.wait(), 2)
+                request = self.request(operation=self.react.CANCEL)
+                request['payload'] = {'contract_version': 1, 'session_id': 'wrong-session',
+                    'reaction_id': original['operation_id'], 'reason': 'dismissed'}
+                denied, status = await self.execute(request)
+                self.assertEqual((status, denied['error']), (404, 'persona_reaction_unavailable'))
+                targets = [state.pending for state in self.hass.data['djconnect']['persona_reaction_book'].rows.values()
+                           if state.pending and state.pending.identifier == original['operation_id']]
+                self.assertEqual(len(targets), 1)
+                self.assertFalse(targets[0].cancelled.is_set())
+                cancelled, status = await self.cancel(original['operation_id'])
+                self.assertEqual((status, cancelled['persona_reaction_cancelled']), (200, True))
+                result, status = await asyncio.wait_for(pending, 2)
+                self.assertEqual((status, result['error']), (409, 'persona_reaction_withdrawn'))
+                self.assertEqual(calls, [])
+            finally:
+                release.set()
+                if not pending.done():
+                    pending.cancel()
+                await asyncio.gather(pending, return_exceptions=True)
+
+    async def test_wrong_session_original_arriving_during_cancel_is_rechecked_before_success(self):
+        stack, _, _, calls, _ = self.provider()
+        with stack:
+            await self.start()
+            original = self.request()
+            cancellation = self.request(operation=self.react.CANCEL)
+            cancellation['payload'] = {'contract_version': 1, 'session_id': 'wrong-session',
+                'reaction_id': original['operation_id'], 'reason': 'dismissed'}
+            cancel_original = self.hybrid.cancel_original_reaction
+            held = []
+            async def original_arrives(authority, identifier):
+                result, status = await self.execute(original)
+                self.assertEqual(status, 200)
+                held.append(result)
+                await cancel_original(authority, identifier)
+            with patch.object(self.hybrid, 'cancel_original_reaction', original_arrives):
+                denied, status = await self.execute(cancellation)
+            self.assertEqual((status, denied['error']), (404, 'persona_reaction_unavailable'))
+            observation = await self.observe(held[0])
+            try:
+                self.assertEqual(observation.snapshot()['state'], 'valid')
+                _, status = await self.cancel(original['operation_id'])
+                self.assertEqual(status, 200)
+                self.assertEqual(observation.snapshot()['state'], 'withdrawn')
+                self.assertEqual(calls, [])
+            finally:
+                observation.close()
+                await asyncio.gather(observation.task, return_exceptions=True)
+
+    async def test_cancel_before_original_execute_is_durable_and_has_zero_source_or_synthesis(self):
+        stack, _, _, calls, _ = self.provider()
+        with stack:
+            await self.start()
+            for processor in ('local_on_device', 'ha_configured'):
+                request = self.request(processor=processor)
+                cancelled, status = await self.cancel(request['operation_id'])
+                self.assertEqual(status, 200, cancelled)
+                outcome, status = await self.execute(request)
+                self.assertEqual((status, outcome['error']), (409, 'persona_reaction_withdrawn'))
+                self.assertEqual(outcome['operation_receipt']['phase'], 'cancelled')
+                self.assertNotIn('persona_reaction', outcome)
+            self.assertNotIn('persona_reaction_book', self.hass.data['djconnect'])
+            self.assertEqual((calls, self.sent), ([], []))
+            self.assertTrue(any(r.get('cancelled_before_send') for r in self.store.data['records'].values()))
+
+    async def test_pre_admission_cancellation_cannot_cancel_another_devices_unknown_intent(self):
+        stack, _, _, calls, _ = self.provider()
+        with stack:
+            await self.start()
+            _, _, other = await self.second_device()
+            request = self.request()
+            await self.cancel(request['operation_id'])
+            result, status = await self.execute(request, authority=other)
+            self.assertEqual(status, 200, result)
+            self.assertTrue(result['persona_reaction']['text'])
+            self.assertEqual(calls, [])
+
+    async def test_durable_cancel_survives_journal_restart_and_new_epoch_replay(self):
+        stack, _, _, calls, _ = self.provider()
+        with stack:
+            await self.start()
+            request = self.request()
+            await self.cancel(request['operation_id'])
+            await self.operations.close()
+            self.operations = self.hybrid.HybridOperations(self.hass, self.store)
+            request['operation_epoch'] = self.operations.journal.epoch
+            with self.assertRaises(self.hybrid.OperationError) as error:
+                await self.execute(request)
+            self.assertEqual(error.exception.code, 'operation_conflict')
+            self.assertEqual(calls, [])
+            self.assertNotIn('persona_reaction_book', self.hass.data['djconnect'])
+
+    async def test_delivered_receipt_is_not_admission_and_foreground_withdrawal_is_observable(self):
+        stack, _, _, _, _ = self.provider()
+        with stack:
+            await self.start()
+            request = self.request()
+            delivered, _ = await self.execute(request)
+            frames = []
+            observation = await self.observe(delivered, frames=frames)
+            try:
+                initial = observation.snapshot()
+                self.assertEqual(initial['state'], 'valid')
+                self.assertEqual(initial['expires_at'], delivered['persona_reaction']['expires_at'])
+                self.react.withdraw_for_interaction(self.hass, 'profile-a')
+                self.assertEqual(len(frames), 1)
+                self.assertEqual(frames[0]['event'], self.react.WITHDRAW_EVENT)
+                self.assertEqual(frames[0]['_persona_observation'].snapshot()['state'], 'withdrawn')
+                self.assertNotIn('text', observation.snapshot())
+                receipt, status = await self.operations.status(
+                    await self.hybrid.PairedAuthority.resolve(self.hass, self.f.identity, self.f.headers),
+                    {k: request[k] for k in ('contract_version', 'operation_id', 'operation_epoch')})
+                self.assertEqual(status, 200)
+                self.assertEqual(receipt['operation_receipt']['phase'], 'confirmed')
+                self.assertFalse(receipt['result_available'])
+            finally:
+                observation.close()
+                await asyncio.gather(observation.task, return_exceptions=True)
+
+    async def test_provider_withdrawal_after_delivery_is_detected_without_another_byte_read(self):
+        stack, entity, _, calls, _ = self.provider()
+        with stack:
+            await self.start()
+            delivered, _ = await self.execute(self.request(processor='ha_configured'))
+            frames = []
+            observation = await self.observe(delivered, frames=frames)
+            try:
+                entity.subentry.data['tts_speed'] = 1.1
+                await asyncio.wait_for(observation.task, 2)
+                self.assertTrue(frames)
+                self.assertEqual(observation.snapshot()['state'], 'withdrawn')
+                self.assertEqual(len(calls), 1)
+            finally:
+                observation.close()
+                await asyncio.gather(observation.task, return_exceptions=True)
+
+    async def test_observer_is_private_bounded_and_disconnect_withdraws_downloaded_audio(self):
+        stack, _, _, calls, _ = self.provider()
+        with stack:
+            await self.start()
+            _, _, other = await self.second_device()
+            delivered, _ = await self.execute(self.request(processor='ha_configured'))
+            with self.assertRaises(self.hybrid.OperationError) as error:
+                await self.observe(delivered, authority=other)
+            self.assertEqual(error.exception.status, 404)
+            observation = await self.observe(delivered)
+            with self.assertRaises(self.hybrid.OperationError) as error:
+                await self.observe(delivered)
+            self.assertEqual(error.exception.code, 'persona_reaction_observer_busy')
+            observation.close()
+            await asyncio.gather(observation.task, return_exceptions=True)
+            item, status = await self.speech.async_handle_audio(self.hass, self.asset_request(delivered), headers=self.f.headers)
+            self.assertEqual((status, item), (404, None))
+            self.assertEqual(len(calls), 1)
+            self.assertIsNone(observation.lease.source.timer)
+            self.assertEqual(observation.snapshot()['state'], 'withdrawn')
+
+    async def test_observer_original_deadline_has_real_expiry_no_read_renewal(self):
+        stack, _, _, calls, _ = self.provider()
+        with stack, patch.object(self.react, 'MAX_SECONDS', .15):
+            await self.start()
+            delivered, _ = await self.execute()
+            frames = []
+            observation = await self.observe(delivered, frames=frames)
+            try:
+                deadline = observation.snapshot()['expires_at']
+                await asyncio.wait_for(observation.lease.cancelled.wait(), 1)
+                self.assertEqual(len(frames), 1)
+                self.assertEqual(observation.snapshot()['state'], 'withdrawn')
+                self.assertEqual(observation.snapshot()['expires_at'], deadline)
+                self.assertEqual(calls, [])
+            finally:
+                observation.close()
+                await asyncio.gather(observation.task, return_exceptions=True)
+
     def asset_request(self, result):
         return {**self.f.identity, 'contract_version': 1,
                 'asset_id': result['persona_reaction']['speech']['audio_reference']['asset_id']}

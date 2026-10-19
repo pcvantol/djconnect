@@ -1,5 +1,15 @@
 # DJConnect Home Assistant Integration Handoff
 
+Current bounded follow-up: Core #1209 / Apple #127 withdrawal-after-delivery and
+pre-admission cancellation. [Contract](docs/product/PERSONA_TOUCH_REACTIONS_V1.md#withdrawal-observation-and-pre-admission-cancellation--follow-up-candidate),
+[qualification](docs/verification/PERSONA_TOUCH_WITHDRAWAL_20261019.md),
+[actual isolated HA fixture](examples/client_contracts/persona_touch_reaction_v1/withdrawal-outcomes.json).
+Source candidate only; protected/installed/native/actual audio remain OPEN.
+Apple touch activation stays OFF. Brand source PR #1224 and separate Finalization
+#1227 are incorporated on mainbaac22d7; this repair is reconciled to that actual
+basis. Ask DJ WIP remains isolated; individual content deletion #1225 follows
+valid predecessor closure. No old review or SHA grant replaces new candidate checks.
+
 ## Brand V2 asset producer — separate Finalization, 19 October 2026
 
 PR [#1224](https://github.com/pcvantol/djconnect/pull/1224) protected merged as

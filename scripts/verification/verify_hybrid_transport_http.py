@@ -310,7 +310,8 @@ async def main():
                 return ProviderResponse(method, url, kwargs.get("json"))
 
         touch_processor = None
-        if os.environ.get('DJC_PERSONA_TOUCH_PROBE') or os.environ.get('DJC_DEVICE_SPEECH_PROBE'):
+        if (os.environ.get('DJC_PERSONA_TOUCH_PROBE') or os.environ.get('DJC_DEVICE_SPEECH_PROBE')
+                or os.environ.get('DJC_PERSONA_TOUCH_WITHDRAWAL_PROBE')):
             from scripts.verification.verify_session_speech_http import processor_fixture
             agent_id = None
             if os.environ.get('DJC_DEVICE_SPEECH_PROBE'):
@@ -394,6 +395,11 @@ async def main():
                         return
                     if os.environ.get('DJC_PERSONA_TOUCH_PROBE'):
                         from scripts.verification.persona_touch_reaction_lab import run
+                        await run(h, runtime, client, post, identity, Path('/lab'), headers,
+                                  manager, storage, secure, touch_processor)
+                        return
+                    if os.environ.get('DJC_PERSONA_TOUCH_WITHDRAWAL_PROBE'):
+                        from scripts.verification.persona_touch_withdrawal_lab import run
                         await run(h, runtime, client, post, identity, Path('/lab'), headers,
                                   manager, storage, secure, touch_processor)
                         return

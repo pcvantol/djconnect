@@ -4333,6 +4333,82 @@
           ],
           "acceptance_status": "open_real_quality",
           "proof_boundary": "Actual Core owner tests with synthetic HA/provider boundaries; native gesture/audio and installed qualification separate and not inferred."
+        },
+        {
+          "id": "ASKDJ-FLOW-explicit-persona-touch-step-7",
+          "question": "Annuleer vóór verwerking en herhaal na herstart",
+          "expected_answer": "Geen reactie, bronlease of synthese; duurzame annulering voor oorspronkelijk device/UUID/deadline; andere devices blijven onafhankelijk. Een bekende reactie met afwijkend sessie-ID wordt afgewezen; juiste annulering blijft werken, ook bij concurrerende toelating.",
+          "model_policy": "zero",
+          "owning_tests": [
+            {
+              "file": "tests/test_persona_reactions.py",
+              "method": "test_cancel_before_original_execute_is_durable_and_has_zero_source_or_synthesis"
+            },
+            {
+              "file": "tests/test_persona_reactions.py",
+              "method": "test_durable_cancel_survives_journal_restart_and_new_epoch_replay"
+            },
+            {
+              "file": "tests/test_persona_reactions.py",
+              "method": "test_pre_admission_cancellation_cannot_cancel_another_devices_unknown_intent"
+            },
+            {
+              "file": "tests/test_transport_operation_journal.py",
+              "method": "test_cancellation_capacity_preserves_existing_fences_and_reclaims_only_expired"
+            },
+            {
+              "file": "tests/test_transport_operation_journal.py",
+              "method": "test_uncertain_cancellation_save_closes_execution_and_retains_persisted_fence"
+            },
+            {
+              "file": "tests/test_transport_operation_journal.py",
+              "method": "test_cancellation_of_running_intent_is_terminal_but_completed_receipt_is_preserved"
+            },
+            {
+              "file": "tests/test_transport_operation_journal.py",
+              "method": "test_another_device_same_uuid_cannot_hide_own_cancellation_receipt"
+            },
+            {
+              "file": "tests/test_persona_reactions.py",
+              "method": "test_wrong_session_cancel_rejects_live_target_and_preserves_original_audio"
+            },
+            {
+              "file": "tests/test_persona_reactions.py",
+              "method": "test_wrong_session_cancel_rejects_pending_target_without_cancelling_preparation"
+            },
+            {
+              "file": "tests/test_persona_reactions.py",
+              "method": "test_wrong_session_original_arriving_during_cancel_is_rechecked_before_success"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual Core owner regressions; isolated HA HTTP/WS qualification separate; installed/native stop and hearing remain OPEN."
+        },
+        {
+          "id": "ASKDJ-FLOW-explicit-persona-touch-step-8",
+          "question": "Trek reeds geleverde tekst/audio in vanuit andere interactie of providerwijziging",
+          "expected_answer": "Eigenaargebonden gekoppelde WebSocket meldt intrekking; receipt blijft alleen uitkomst, geen actuele toestemming. Disconnect en oorspronkelijke vervaltijd trekken in zonder verlenging.",
+          "model_policy": "zero",
+          "owning_tests": [
+            {
+              "file": "tests/test_persona_reactions.py",
+              "method": "test_delivered_receipt_is_not_admission_and_foreground_withdrawal_is_observable"
+            },
+            {
+              "file": "tests/test_persona_reactions.py",
+              "method": "test_provider_withdrawal_after_delivery_is_detected_without_another_byte_read"
+            },
+            {
+              "file": "tests/test_persona_reactions.py",
+              "method": "test_observer_is_private_bounded_and_disconnect_withdraws_downloaded_audio"
+            },
+            {
+              "file": "tests/test_persona_reactions.py",
+              "method": "test_observer_original_deadline_has_real_expiry_no_read_renewal"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual Core owner regressions; isolated HA HTTP/WS qualification separate; installed/native stop and hearing remain OPEN."
         }
       ],
       "owning_tests": [
@@ -4459,6 +4535,62 @@
         {
           "file": "tests/test_persona_reactions.py",
           "method": "test_capability_is_explicit_local_only_and_keeps_silence_excluded_from_speech"
+        },
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_cancel_before_original_execute_is_durable_and_has_zero_source_or_synthesis"
+        },
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_durable_cancel_survives_journal_restart_and_new_epoch_replay"
+        },
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_pre_admission_cancellation_cannot_cancel_another_devices_unknown_intent"
+        },
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_delivered_receipt_is_not_admission_and_foreground_withdrawal_is_observable"
+        },
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_provider_withdrawal_after_delivery_is_detected_without_another_byte_read"
+        },
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_observer_is_private_bounded_and_disconnect_withdraws_downloaded_audio"
+        },
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_observer_original_deadline_has_real_expiry_no_read_renewal"
+        },
+        {
+          "file": "tests/test_transport_operation_journal.py",
+          "method": "test_cancellation_capacity_preserves_existing_fences_and_reclaims_only_expired"
+        },
+        {
+          "file": "tests/test_transport_operation_journal.py",
+          "method": "test_uncertain_cancellation_save_closes_execution_and_retains_persisted_fence"
+        },
+        {
+          "file": "tests/test_transport_operation_journal.py",
+          "method": "test_cancellation_of_running_intent_is_terminal_but_completed_receipt_is_preserved"
+        },
+        {
+          "file": "tests/test_transport_operation_journal.py",
+          "method": "test_another_device_same_uuid_cannot_hide_own_cancellation_receipt"
+        },
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_wrong_session_cancel_rejects_live_target_and_preserves_original_audio"
+        },
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_wrong_session_cancel_rejects_pending_target_without_cancelling_preparation"
+        },
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_wrong_session_original_arriving_during_cancel_is_rechecked_before_success"
         }
       ]
     },

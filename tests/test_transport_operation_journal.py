@@ -215,3 +215,75 @@ class JournalTests(unittest.IsolatedAsyncioTestCase):
             await self.journal.status(**{**status, "binding": "other"})
         with self.assertRaises(OperationError):
             await self.journal.status(**{**status, "owner": "other"})
+
+    async def test_cancellation_capacity_preserves_existing_fences_and_reclaims_only_expired(self):
+        args = {k: v for k, v in self.args.items() if k not in {'operation', 'digest'}}
+        for sequence in range(256):
+            await self.journal.cancel_reaction(**{**args, 'owner': 'owner-' + str(sequence // 64),
+                'identifier': identifier(self.clock[0], sequence + 1)})
+            if sequence == 63:
+                with self.assertRaises(OperationError) as error:
+                    await self.journal.cancel_reaction(**{**args, 'owner': 'owner-0',
+                        'identifier': identifier(self.clock[0], 1000)})
+                self.assertEqual((error.exception.code, error.exception.status), ('operation_capacity', 429))
+        before = deepcopy(self.store.data)
+        with self.assertRaises(OperationError) as error:
+            await self.journal.cancel_reaction(**{**args, 'owner': 'other',
+                'identifier': identifier(self.clock[0], 1001)})
+        self.assertEqual(error.exception.code, 'operation_capacity')
+        self.assertEqual(self.store.data, before)
+        self.clock[0] += LIFETIME_MS + 1
+        await self.journal.cancel_reaction(**{**args, 'identifier': identifier(self.clock[0], 1002)})
+        self.assertEqual(len(self.store.data['records']), 1)
+
+    async def test_uncertain_cancellation_save_closes_execution_and_retains_persisted_fence(self):
+        for after in (False, True):
+            self.store = Store()
+            journal = self.make()
+            args = {k: v for k, v in self.args.items() if k not in {'operation', 'digest'}}
+            args['epoch'] = journal.epoch
+            self.store.fail, self.store.fail_after = not after, after
+            with self.assertRaises(OperationError) as error:
+                await journal.cancel_reaction(**args)
+            self.assertEqual(error.exception.code, 'operation_unavailable')
+            self.store.fail = self.store.fail_after = False
+            with self.assertRaises(OperationError) as error:
+                await journal.reserve(**{**args, 'operation': 'session/persona/reaction', 'digest': 'original'})
+            self.assertEqual(error.exception.code, 'operation_unavailable')
+            restarted = self.make()
+            if after:
+                receipt = await restarted.status(**args)
+                self.assertEqual(receipt['phase'], 'cancelled')
+                with self.assertRaises(OperationError) as error:
+                    await restarted.reserve(**{**args, 'epoch': restarted.epoch,
+                        'operation': 'session/persona/reaction', 'digest': 'original'})
+                self.assertEqual(error.exception.code, 'operation_conflict')
+
+    async def test_cancellation_of_running_intent_is_terminal_but_completed_receipt_is_preserved(self):
+        args = {**self.args, 'operation': 'session/persona/reaction'}
+        key, _, _ = await self.journal.reserve(**args)
+        target = {k: v for k, v in args.items() if k not in {'operation', 'digest'}}
+        await self.journal.cancel_reaction(**target)
+        late = await self.journal.transition(key, 'confirmed', response_status=200)
+        self.assertEqual(late['phase'], 'cancelled')
+        self.journal.release(key)
+        args['identifier'] = identifier(self.clock[0], 2)
+        key, _, _ = await self.journal.reserve(**args)
+        original = await self.journal.transition(key, 'confirmed', response_status=200)
+        self.journal.release(key)
+        await self.journal.cancel_reaction(**{**target, 'identifier': args['identifier']})
+        final = await self.journal.status(**{**target, 'identifier': args['identifier']})
+        self.assertEqual(final, original)
+
+    async def test_another_device_same_uuid_cannot_hide_own_cancellation_receipt(self):
+        args = {k: v for k, v in self.args.items() if k not in {'operation', 'digest'}}
+        await self.journal.cancel_reaction(**args)
+        await self.journal.reserve(**{**args, 'device': 'other-device', 'binding': 'other-binding',
+            'operation': 'session/persona/reaction', 'digest': 'another-original'})
+        receipt = await self.journal.status(**args)
+        self.assertEqual(receipt['phase'], 'cancelled')
+        self.assertEqual(receipt['error'], 'persona_reaction_withdrawn')
+        _, same, created = await self.journal.reserve(**{**args,
+            'operation': 'session/persona/reaction', 'digest': 'original'})
+        self.assertFalse(created)
+        self.assertEqual(same, receipt)
