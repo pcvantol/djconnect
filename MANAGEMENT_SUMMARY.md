@@ -1,5 +1,73 @@
 # DJConnect Generation 2 Management Summary
 
+## Persona touch withdrawal — separate source Finalization, 19 October 2026
+
+### Repository Status
+
+PR [#1226](https://github.com/pcvantol/djconnect/pull/1226) protected merged as
+`2cc9149629b75fac85774dae4eef718c1cf0002a`. Exact reviewed candidate
+`47eae4e2021f9d9e469dd3f6b431fe49108156c8` has the identical complete tree
+`48ff55a83417992eb524c1e329d9d66699047175`. Fresh Owner Authorization
+[39316440063](https://github.com/pcvantol/djconnect/actions/runs/39316440063)
+PASS; required source CI, security and HACS PASS. No protection bypass.
+Source-main CodeQL39316520961 PASS; validation39316521004 was still running
+at this documentary freeze; no pending result is called PASS.
+
+### Management Summary
+
+Durable device-bound pre-admission cancellation and private paired-WebSocket
+withdrawal observation are delivered as producer source. Confirmed receipts
+never grant continued display/audio admission. Independent review reproduced
+and repaired a wrong-Session false-success P2; exact final review GO,64 owner
+contracts independently PASS. Combined host source2662tests PASS/7existing
+skips; actual pinned HA Ask DJ owner profile488PASS/0skips/0paid attempts;
+paired isolated HA follow-up9operations/5frames and182input hashes PASS.
+Synthetic audio and modeled rate spacing are explicitly not audible/native proof.
+See [bounded source Finalization](docs/verification/PERSONA_TOUCH_WITHDRAWAL_FINALIZATION_20261019.md).
+
+### Roadmap Position
+
+Generation2 / Product Development / Platform Qualification. Same selected Core
+#1209 producer correction for Apple #127. No new capability or consumer writer
+is activated; Brand source #1224 and separate Finalization #1227 remain intact.
+
+### Rolling Horizon (Next 5 Planned)
+
+Current living DAG SETTINGS nodes remain Planned/NOT_ISSUED; this is a source
+handoff, not dispatch. Source: PRODUCT_BACKLOG.md and docs/roadmap/v1/djconnect-platform-v1.json.
+1. SETTINGS::APPLE::EDITOR — Planned; shared editor, dependent on Core contracts and native adoption. Rationale: first existing consumer node.
+2. SETTINGS::PI::ADOPTION — Planned; shared producer and Pi acceptance. Rationale: next existing consumer node.
+3. SETTINGS::ESP32::ADOPTION — Planned; physical settings/voice acceptance. Rationale: next existing consumer node.
+4. SETTINGS::VIBECAST::COMPAT — Planned; renderer import and screen admission. Rationale: next existing consumer node.
+5. SETTINGS::JOINT::ACCEPTANCE — Planned; migration and consumer proofs. Rationale: cross-device closure follows all consumers.
+
+### Blocked Items
+
+Apple touch remains OFF pending installed discovery and real native display/
+audio-stop acceptance. HA-speaker touch is not qualified. All32Golden release
+gates remain OPEN (57reports/39families/167steps). Rich narration/history,
+client/audio, VibeCast screen/public-route and installed acceptance remain open.
+Historical runtime Golden39312303769 FAIL/0tests remains a separate release
+block; the current488test isolated profile does not retroactively qualify it.
+
+### Deferred Items
+
+Individual content deletion Core #1225 / Apple #143 stays design-only; no delete
+endpoint/capability is delivered. Unpublished Ask DJ catalogue work is preserved.
+
+### Repository State
+
+Target Repository State: `MERGED_RECONCILED` only upon this separate Finalization's
+protected merge and exact-main readback; until then MERGED_UNRECONCILED. This
+reconciles only the bounded touch producer source, not whole-function acceptance.
+
+### Workspace State
+
+Canonical main was clean and equal to origin/main at source2cc91496. This isolated
+Finalization requires its own protected checks/readback and local cleanup before
+WORKSPACE_READY. Preserve Ask DJ WIP, Brand author checkout and unpublished duplicate
+Brand Finalization draft; they are outside this transaction. No install/release.
+
 ## Brand V2 asset producer — separate Finalization, 19 October 2026
 
 PR [#1224](https://github.com/pcvantol/djconnect/pull/1224) protected merged as
