@@ -1,5 +1,45 @@
 # DJConnect API Contract
 
+## Current Core #1212 candidate: actual device speech availability1
+
+The additive owner-bound `device_speech` schema1 is generated synchronously at
+the end of successful completed pairing and status for Apple clients. See
+[contract](docs/product/DEVICE_SPEECH_CAPABILITIES_V1.md) and
+[actual isolated HA fixture](examples/client_contracts/device_speech_v1/README.md).
+This is a local source candidate, not yet a qualified producer pin. No new
+endpoint or change to existing pairing identity, tokens, default selection,
+STT/TTS execution or replay policy.
+
+Legacy `voice_supported`, `ask_dj_voice_supported` and
+`ask_dj_audio_response_supported` retain their endpoint-implementation meaning
+for old clients. They never prove current provider readiness. New consumers
+require this recognized snapshot version; absence, pending setup, failed
+authority or unknown version cannot be promoted to HA readiness from those
+legacy booleans.
+
+`assist` describes exact configured/preferred selection and actual agent
+validity. `ha_stt`, `ha_tts` and `ha_speaker_target` independently expose
+`state` (unconfigured/available/unavailable/unsupported/unknown), `configured`,
+`available` and bounded machine `reason`. Available qualifies current metadata
+and interface/locale only. Remote health, successful processing and hearing
+are never inferred; recent TTS observations remain separately owner-scoped
+and expire. HA target availability additionally requires synthesis and current
+output policy for actual playback. `text_only.audio=false`; `apple_local`
+capabilities/OS permissions remain client-owned. Provider eligibility grants
+no permission to synthesize over settings3/text_only or source admission.
+
+Status `locale`/`language` selects the requested five-language family; absent
+input uses HA UI language. The selected HA provider must actually support it.
+Voice/gender choices are bounded actual provider metadata, never inferred from
+names. Revisions cover configuration and provider incarnation; every read is
+recomputed after the last transport await and checked against original device,
+entry, token and loaded Profile binding. Actual responses carrying the snapshot
+are `Cache-Control: no-store`, `Referrer-Policy: no-referrer`. There is no new
+push guarantee, model/provider probe or private content/config export.
+
+Apple #129 must preserve saved HA selection on runtime loss, qualify before use,
+keep local speech/OS permissions independent, and never silently switch/upload
+local input. Source delivery does not close native or installed acceptance.
 
 Protected touch producer: [source #1217](https://github.com/pcvantol/djconnect/pull/1217),
 merge`37a574c9e4f6b366ea2335a6c087d649d09afc2d`, exact candidate`1e33c241ec7ef1a46e0a2feb20b5a5b885ae123e`;

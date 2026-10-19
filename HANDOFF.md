@@ -1,5 +1,12 @@
 # DJConnect Home Assistant Integration Handoff
 
+Core #1212 is the current isolated local source candidate, after protected
+source1219/Finalization1220. Existing completed paired/status can project actual
+HA STT/TTS/target metadata without changing legacy endpoint booleans. Native
+local speech/OS permissions and current settings3/source policy remain separate.
+Actual isolated HA15metadata cases use zero speech/model calls; exact protected
+producer pin still pending. Apple #129 must not adopt this mutable WIP. #1210
+catalogue+compact Help remains outstanding; avatar producers already delivered.
 
 Core #1211 narrow pairing validation is the current selected predecessor for
 Core #1212 / Apple #129, not a speech capability implementation. Current actual

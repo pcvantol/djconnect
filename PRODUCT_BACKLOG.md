@@ -693,7 +693,8 @@ consumer source change or deployment is authorized by this backlog record.
 
 The current human points to Apple #128/#127/#129 as waiting consumers.
 Core #1211 source is protected merged via PR #1219 at
-`d4ab36fac055bddf7bbc778a480d62ef88115bbc`, with separate Finalization pending:
+`d4ab36fac055bddf7bbc778a480d62ef88115bbc`, with separate Finalization PR #1220 merged at
+`8cb1a467dfc0249fc7b3e79e474841e40249c091` and own cleanup verified:
 actual selected/preferred
 Assist agent required, HA STT/TTS optional for pairing. [Contract](docs/product/ASSIST_AGENT_PAIRING_V1.md).
 Core #1212 actual versioned speech-route discovery is separately pending; #1211
@@ -704,3 +705,15 @@ Avatar basic and touch producer source is delivered; actual HA-dev mainf8b28d2b
 advertises touch1. Apple #127 renderer/gesture/native/audio acceptance remains
 separately owned; waiting for a new generic Core activity API is unnecessary.
 No new consumer writer, automatic dispatch or function closure follows.
+
+## Selected Core #1212 local implementation — 19 October2026
+
+Same sole writer after source1219/Finalization1220. Actual metadata projection
+on existing paired/status uses exact selected/preferred pipeline and separately
+qualifies STT, TTS and speaker target; no runtime/provider configuration or
+consumer writes. [Contract](docs/product/DEVICE_SPEECH_CAPABILITIES_V1.md).
+Source regressions and actual isolated HA15cases pass without speech/model
+calls; exact reviews/protected source and separate Finalization still required.
+Apple #129 availability UI/native/audio acceptance stays OPEN. Last HA-dev
+installed pin f8b28d2b; no install or full speech-route closure inferred.
+#1210 shared catalogue plus compact Help remains one next atomic dependency.
