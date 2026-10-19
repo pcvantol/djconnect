@@ -6,7 +6,7 @@
 
 schema_version: 1
 # The manifest major/minor must match the active DJConnect platform release.
-version: 3.3.0
+version: 3.3.1
 minimum_tool_version: 2.0.2
 host.platform: macos
 host.architecture: arm64
@@ -20,7 +20,7 @@ host.recommended_free_disk_gb: 120
 
 # The read-only readiness check requires the canonical developer-onboarding
 # checkout used by this host to match this version exactly.
-onboarding.package_version: 4.5.3
+onboarding.package_version: 4.5.4
 
 # Engineering Platform is a standalone peer product. Its Server, Project Agent,
 # services and runtime stores are intentionally outside DJConnect host readiness.

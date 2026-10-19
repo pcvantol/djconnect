@@ -309,6 +309,19 @@ async def main():
             def request(self, method, url, **kwargs):
                 return ProviderResponse(method, url, kwargs.get("json"))
 
+        touch_processor = None
+        if os.environ.get('DJC_PERSONA_TOUCH_PROBE') or os.environ.get('DJC_DEVICE_SPEECH_PROBE'):
+            from scripts.verification.verify_session_speech_http import processor_fixture
+            agent_id = None
+            if os.environ.get('DJC_DEVICE_SPEECH_PROBE'):
+                from homeassistant.components import conversation
+                from homeassistant.components.homeassistant.exposed_entities import ExposedEntities, DATA_EXPOSED_ENTITIES
+                exposed = ExposedEntities(h)
+                await exposed.async_initialize()
+                h.data[DATA_EXPOSED_ENTITIES] = exposed
+                assert await conversation.async_setup(h, {})
+                agent_id = conversation.HOME_ASSISTANT_AGENT
+            touch_processor = await processor_fixture(h, agent_id)
         server_ssl, client_ssl = tls(directory)
         runner = web.AppRunner(h.http.app)
         await runner.setup()
@@ -374,6 +387,17 @@ async def main():
                         "transport/context", {"contract_version": 1, "identity": identity}
                     )
                     assert ctx["ha_install_id"] == "ha_owned_hybrid_fixture"
+                    if os.environ.get('DJC_DEVICE_SPEECH_PROBE'):
+                        from scripts.verification.device_speech_lab import run
+                        await run(h, runtime, client, post, identity, Path('/lab'), headers,
+                                  storage, secure, touch_processor, pair)
+                        return
+                    if os.environ.get('DJC_PERSONA_TOUCH_PROBE'):
+                        from scripts.verification.persona_touch_reaction_lab import run
+                        await run(h, runtime, client, post, identity, Path('/lab'), headers,
+                                  manager, storage, secure, touch_processor)
+                        return
+
                     async with client.post(
                         secure + "/api/djconnect/v1/transport/context",
                         headers={"Origin": "https://foreign.invalid"},
@@ -1305,6 +1329,9 @@ async def main():
                 )
             )
         finally:
+            if touch_processor is not None:
+                touch_processor[0].close()
+                await touch_processor[0].wait_closed()
             if "hybrid_operation_manager" in h.data["djconnect"]:
                 await operations(h).close()
             await runner.cleanup()

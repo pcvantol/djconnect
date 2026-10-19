@@ -1716,6 +1716,52 @@
           ],
           "acceptance_status": "owner_contract",
           "proof_boundary": "Actual paired handler/SQLite/query and immutable consumer fixture; native Apple acceptance and coordinated installed version2 remain separate. Original reported HTTP404 is not closed."
+        },
+        {
+          "id": "ASKDJ-FLOW-passive-versioned-narration",
+          "question": "Toon dezelfde onderzochte DJ-bijdrage op widget en Live Activity vanuit een oude en een nieuwe client.",
+          "expected_answer": "V1 houdt zijn oorspronkelijke provenancewoorden; expliciet onderhandeld v2 bewaart de volledige toegelaten tekst, alle bronnen en attributie. Grant en imageGET blijven aan dezelfde versie gebonden.",
+          "model_policy": "no_model_owner_read_only",
+          "owning_tests": [
+            {
+              "file": "tests/test_passive_session.py",
+              "method": "test_projection_version_is_explicit_grant_bound_and_widget_needs_no_lock_consent"
+            },
+            {
+              "file": "tests/test_passive_session.py",
+              "method": "test_v1_never_emits_new_basis_while_v2_preserves_complete_sources_and_pure_reads"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Real Runtime/acceptance with external source/model fixtures; separate ordinary-paired HA HTTP profile in scripts/verification/passive_public_v2_lab.py. Native, installed, voice and quiet-background acceptance remain separate."
+        },
+        {
+          "id": "ASKDJ-FLOW-passive-silence-barrier",
+          "question": "Laat de widget opnieuw lezen nadat de DJ bewust stil is gebleven.",
+          "expected_answer": "Silence onderdrukt iedere oudere bijdrage, ook na zijn eigen deadline; verse muziekmetadata mag afzonderlijk zichtbaar blijven. Geen extra modelaanroep, bronlookup of nieuwe publicatie.",
+          "model_policy": "no_model_owner_read_only",
+          "owning_tests": [
+            {
+              "file": "tests/test_passive_session.py",
+              "method": "test_silence_never_resurrects_an_older_passive_contribution"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Real Runtime/acceptance with external source/model fixtures; separate ordinary-paired HA HTTP profile in scripts/verification/passive_public_v2_lab.py. Native, installed, voice and quiet-background acceptance remain separate."
+        },
+        {
+          "id": "ASKDJ-FLOW-passive-independent-omission",
+          "question": "Waarom toont mijn widget wel een geldige sessie maar geen nummer, bijdrage of hoes?",
+          "expected_answer": "V2 benoemt afzonderlijk ontbrekende observatie, gewijzigde identiteit, bronkwalificatie, onvoorbereid artwork en oorspronkelijke expiratie. Transportfouten blijven fouten; geen verzonnen verse lege snapshot.",
+          "model_policy": "no_model_owner_read_only",
+          "owning_tests": [
+            {
+              "file": "tests/test_passive_session.py",
+              "method": "test_v2_independent_empty_playback_artwork_and_freshness_reasons"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Real Runtime/acceptance with external source/model fixtures; separate ordinary-paired HA HTTP profile in scripts/verification/passive_public_v2_lab.py. Native, installed, voice and quiet-background acceptance remain separate."
         }
       ],
       "owning_tests": [
@@ -4148,6 +4194,529 @@
         }
       ],
       "fixture_boundary": "External model responses only for owner contracts; semantic_reads runs 45 held-out inputs through actual HA/qualified model and provider I/O fixtures."
+    },
+    {
+      "id": "ASKDJ-FLOW-explicit-persona-touch",
+      "steps": [
+        {
+          "question": "Expliciete avatarreactie in music_only",
+          "expected_answer": "Eén kort letterlijk Persona/Mood-antwoord; geen Ask DJ, Flow, model, bronlookup, muziekmutatie of proactief budget.",
+          "model_policy": "zero",
+          "id": "ASKDJ-FLOW-explicit-persona-touch-step-1",
+          "owning_tests": [
+            {
+              "file": "tests/test_persona_reactions.py",
+              "method": "test_explicit_music_only_reaction_has_no_flow_history_model_source_or_music_effect"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual Core owner tests with synthetic HA/provider boundaries; native gesture/audio and installed qualification separate and not inferred."
+        },
+        {
+          "question": "Herhaal, tik opnieuw of verbreek de socket",
+          "expected_answer": "Hetzelfde receipt; hoogstens één pending/playing, geen queue; cooldown en6/600s behouden na annuleren.",
+          "model_policy": "zero",
+          "id": "ASKDJ-FLOW-explicit-persona-touch-step-2",
+          "owning_tests": [
+            {
+              "file": "tests/test_persona_reactions.py",
+              "method": "test_duplicate_returns_only_original_receipt_and_new_request_is_busy"
+            },
+            {
+              "file": "tests/test_persona_reactions.py",
+              "method": "test_cancel_does_not_reset_cooldown_rolling_rate_or_content_sequence"
+            },
+            {
+              "file": "tests/test_persona_reactions.py",
+              "method": "test_socket_loss_keeps_one_operation_then_explicit_cancel_withdraws_it"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual Core owner tests with synthetic HA/provider boundaries; native gesture/audio and installed qualification separate and not inferred."
+        },
+        {
+          "question": "Gebruik lokale of HA-stem bij huidige output",
+          "expected_answer": "Huidige toegestane clientprocessor; text_only nul audio; HA-speaker expliciet niet gekwalificeerd, both meldt gedeeltelijke levering.",
+          "model_policy": "zero",
+          "id": "ASKDJ-FLOW-explicit-persona-touch-step-3",
+          "owning_tests": [
+            {
+              "file": "tests/test_persona_reactions.py",
+              "method": "test_configured_ha_speaks_exact_curated_text_current_voice_and_mood"
+            },
+            {
+              "file": "tests/test_persona_reactions.py",
+              "method": "test_text_only_zero_synthesis_for_both_processors_and_no_audio_grant"
+            },
+            {
+              "file": "tests/test_persona_reactions.py",
+              "method": "test_unqualified_speaker_target_never_dispatches_or_substitutes_client_audio"
+            },
+            {
+              "file": "tests/test_persona_reactions.py",
+              "method": "test_both_reports_explicit_partial_qualification_without_a_speaker_call"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual Core owner tests with synthetic HA/provider boundaries; native gesture/audio and installed qualification separate and not inferred."
+        },
+        {
+          "question": "Annuleer of verander foreground, Session, instellingen, provider of device",
+          "expected_answer": "Oude tekst/bytes ingetrokken; pending settings en durable-send races veroorzaken geen late synthese/content; oorspronkelijke deadline blijft gelden.",
+          "model_policy": "zero",
+          "id": "ASKDJ-FLOW-explicit-persona-touch-step-4",
+          "owning_tests": [
+            {
+              "file": "tests/test_persona_reactions.py",
+              "method": "test_foreground_during_settings_read_withdraws_before_any_lease_or_synthesis"
+            },
+            {
+              "file": "tests/test_persona_reactions.py",
+              "method": "test_provider_change_during_durable_send_admission_prevents_synthesis"
+            },
+            {
+              "file": "tests/test_persona_reactions.py",
+              "method": "test_explicit_cancel_and_second_device_busy_cover_pending_settings_read"
+            },
+            {
+              "file": "tests/test_persona_reactions.py",
+              "method": "test_settings_wait_consumes_original_deadline_without_renewal"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual Core owner tests with synthetic HA/provider boundaries; native gesture/audio and installed qualification separate and not inferred."
+        },
+        {
+          "question": "Wissel Persona, Mood, taal en semantisch reactietype",
+          "expected_answer": "80echte bevestigde stijlroutes en240cataloguscellen/480korte combinaties; beperkte curated fallback, geen algemene vertelkwaliteitclaim.",
+          "model_policy": "zero",
+          "id": "ASKDJ-FLOW-explicit-persona-touch-step-5",
+          "owning_tests": [
+            {
+              "file": "tests/test_persona_reactions.py",
+              "method": "test_actual_confirmed_style_routes_en"
+            },
+            {
+              "file": "tests/test_persona_reactions.py",
+              "method": "test_actual_confirmed_style_routes_nl"
+            },
+            {
+              "file": "tests/test_persona_reactions.py",
+              "method": "test_actual_confirmed_style_routes_de"
+            },
+            {
+              "file": "tests/test_persona_reactions.py",
+              "method": "test_actual_confirmed_style_routes_fr"
+            },
+            {
+              "file": "tests/test_persona_reactions.py",
+              "method": "test_actual_confirmed_style_routes_es"
+            },
+            {
+              "file": "tests/test_persona_reactions.py",
+              "method": "test_all_persona_mood_language_kind_cells_are_actual_bounded_varied_texts"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual Core owner tests with synthetic HA/provider boundaries; native gesture/audio and installed qualification separate and not inferred."
+        },
+        {
+          "question": "Tik eenmaal/dubbel/driemaal en hoor/annuleer de echte cliëntreactie",
+          "expected_answer": "Native client bewijst één toegankelijke tijdelijke overlay, werkelijke start/stop, lifecycle,5talen en geen blijvende kaart; nog OPEN.",
+          "model_policy": "zero",
+          "id": "ASKDJ-FLOW-explicit-persona-touch-step-6",
+          "owning_tests": [
+            {
+              "file": "tests/test_persona_reactions.py",
+              "method": "test_capability_is_explicit_local_only_and_keeps_silence_excluded_from_speech"
+            }
+          ],
+          "acceptance_status": "open_real_quality",
+          "proof_boundary": "Actual Core owner tests with synthetic HA/provider boundaries; native gesture/audio and installed qualification separate and not inferred."
+        }
+      ],
+      "owning_tests": [
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_explicit_music_only_reaction_has_no_flow_history_model_source_or_music_effect"
+        },
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_text_only_zero_synthesis_for_both_processors_and_no_audio_grant"
+        },
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_configured_ha_speaks_exact_curated_text_current_voice_and_mood"
+        },
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_local_processor_does_not_require_the_configured_ha_provider"
+        },
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_unqualified_speaker_target_never_dispatches_or_substitutes_client_audio"
+        },
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_both_reports_explicit_partial_qualification_without_a_speaker_call"
+        },
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_duplicate_returns_only_original_receipt_and_new_request_is_busy"
+        },
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_cancel_does_not_reset_cooldown_rolling_rate_or_content_sequence"
+        },
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_pending_duplicate_cancel_and_late_provider_completion_never_publish_old_audio"
+        },
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_foreground_during_settings_read_withdraws_before_any_lease_or_synthesis"
+        },
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_explicit_cancel_and_second_device_busy_cover_pending_settings_read"
+        },
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_settings_wait_consumes_original_deadline_without_renewal"
+        },
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_provider_change_during_durable_send_admission_prevents_synthesis"
+        },
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_socket_loss_keeps_one_operation_then_explicit_cancel_withdraws_it"
+        },
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_settings_change_invalidates_held_content_and_old_audio_bytes"
+        },
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_end_and_successor_session_cancel_preparation_and_cannot_reuse_old_context"
+        },
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_ask_dj_foreground_withdraws_reaction_without_fabricating_an_ask_dj_turn"
+        },
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_unknown_provider_is_a_text_result_with_functional_feedback_not_false_audio"
+        },
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_closed_schema_rejects_overrides_bad_context_and_unsupported_locale"
+        },
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_missing_session_or_unconfirmed_settings_never_start_a_session"
+        },
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_original_deadline_does_not_extend_on_retry_or_wall_clock_rollback"
+        },
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_other_paired_device_cannot_read_or_cancel_but_shares_the_busy_budget"
+        },
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_cancellation_during_settings_and_provider_work_cannot_leak_a_ready_result"
+        },
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_real_voice_preview_supersedes_touch_without_reusing_its_text"
+        },
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_actual_confirmed_style_routes_en"
+        },
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_actual_confirmed_style_routes_nl"
+        },
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_actual_confirmed_style_routes_de"
+        },
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_actual_confirmed_style_routes_fr"
+        },
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_actual_confirmed_style_routes_es"
+        },
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_all_persona_mood_language_kind_cells_are_actual_bounded_varied_texts"
+        },
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_capability_is_explicit_local_only_and_keeps_silence_excluded_from_speech"
+        }
+      ]
+    },
+    {
+      "id": "ASKDJ-FLOW-assist-agent-pairing",
+      "owning_tests": [
+        {
+          "file": "tests/test_config_flow_helpers.py",
+          "method": "test_pairing_requires_selected_agent_but_all_four_speech_combinations_are_optional"
+        },
+        {
+          "file": "tests/test_config_flow_helpers.py",
+          "method": "test_invalid_explicit_and_preferred_pipeline_cannot_borrow_an_unrelated_agent"
+        },
+        {
+          "file": "tests/test_config_flow_helpers.py",
+          "method": "test_missing_broken_or_nonprocessable_agent_fails_without_invocation"
+        },
+        {
+          "file": "tests/test_config_flow_helpers.py",
+          "method": "test_user_and_pair_steps_accept_agent_without_audio_and_reject_selected_missing_agent"
+        },
+        {
+          "file": "tests/test_config_flow_helpers.py",
+          "method": "test_final_setup_revalidates_explicit_pipeline_before_pairing_or_profile_commit"
+        },
+        {
+          "file": "tests/test_config_flow_helpers.py",
+          "method": "test_pair_step_blocks_when_assist_pipeline_is_missing"
+        },
+        {
+          "file": "tests/test_config_flow_helpers.py",
+          "method": "test_profile_commit_cannot_create_app_entry_after_agent_withdrawal"
+        },
+        {
+          "file": "tests/test_config_flow_helpers.py",
+          "method": "test_profile_commit_cannot_create_agent_entry_after_agent_withdrawal"
+        },
+        {
+          "file": "tests/test_config_flow_helpers.py",
+          "method": "test_direct_agent_finish_rechecks_exact_stored_pipeline"
+        }
+      ],
+      "steps": [
+        {
+          "id": "ASKDJ-FLOW-assist-agent-pairing-step-1",
+          "question": "Koppel Apple met een geldige Assist-agent zonder HA-STT/TTS",
+          "expected_answer": "Pairing toegelaten voor alle vier audio-combinaties; geen provider/modelaanroep en geen gewijzigde pairingwire of claim dat HA-spraak beschikbaar is.",
+          "model_policy": "zero",
+          "owning_tests": [
+            {
+              "file": "tests/test_config_flow_helpers.py",
+              "method": "test_pairing_requires_selected_agent_but_all_four_speech_combinations_are_optional"
+            },
+            {
+              "file": "tests/test_config_flow_helpers.py",
+              "method": "test_user_and_pair_steps_accept_agent_without_audio_and_reject_selected_missing_agent"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual setup owner with HA fixtures; separate real HA agent/form qualification and native speech acceptance."
+        },
+        {
+          "id": "ASKDJ-FLOW-assist-agent-pairing-step-2",
+          "question": "Kies een ontbrekende pipeline of agent terwijl een andere wel geldig is",
+          "expected_answer": "Bestaande functionele configuratiefout, geen unrelated/default fallback voor expliciete keuze; null agent, discovery failure en verwijdering tijdens de Profile-commit of directe finish blijven dicht, direct voor entrycreatie.",
+          "model_policy": "zero",
+          "owning_tests": [
+            {
+              "file": "tests/test_config_flow_helpers.py",
+              "method": "test_invalid_explicit_and_preferred_pipeline_cannot_borrow_an_unrelated_agent"
+            },
+            {
+              "file": "tests/test_config_flow_helpers.py",
+              "method": "test_missing_broken_or_nonprocessable_agent_fails_without_invocation"
+            },
+            {
+              "file": "tests/test_config_flow_helpers.py",
+              "method": "test_final_setup_revalidates_explicit_pipeline_before_pairing_or_profile_commit"
+            },
+            {
+              "file": "tests/test_config_flow_helpers.py",
+              "method": "test_pair_step_blocks_when_assist_pipeline_is_missing"
+            },
+            {
+              "file": "tests/test_config_flow_helpers.py",
+              "method": "test_profile_commit_cannot_create_app_entry_after_agent_withdrawal"
+            },
+            {
+              "file": "tests/test_config_flow_helpers.py",
+              "method": "test_profile_commit_cannot_create_agent_entry_after_agent_withdrawal"
+            },
+            {
+              "file": "tests/test_config_flow_helpers.py",
+              "method": "test_direct_agent_finish_rechecks_exact_stored_pipeline"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Initial setup only; Core1212 route discovery remains separate and all existing real-quality gates stay open."
+        }
+      ]
+    },
+    {
+      "id": "ASKDJ-FLOW-device-speech-availability",
+      "owning_tests": [
+        {
+          "file": "tests/test_device_speech.py",
+          "method": "test_all_four_audio_configurations_remain_independent_and_do_not_process"
+        },
+        {
+          "file": "tests/test_device_speech.py",
+          "method": "test_exact_selection_never_borrows_other_pipeline_and_default_changes_are_fresh"
+        },
+        {
+          "file": "tests/test_device_speech.py",
+          "method": "test_stt_missing_unavailable_unsupported_and_unknown_are_not_ready"
+        },
+        {
+          "file": "tests/test_device_speech.py",
+          "method": "test_tts_uses_qualified_locale_voice_and_only_explicit_gender"
+        },
+        {
+          "file": "tests/test_device_speech.py",
+          "method": "test_all_five_locales_and_provider_gender_changes_are_recomputed"
+        },
+        {
+          "file": "tests/test_device_speech.py",
+          "method": "test_conversation_validity_is_distinct_from_audio_configuration"
+        },
+        {
+          "file": "tests/test_device_speech.py",
+          "method": "test_missing_metadata_and_discovery_errors_do_not_become_available"
+        },
+        {
+          "file": "tests/test_device_speech.py",
+          "method": "test_speaker_target_is_independent_from_synthesis_and_never_claims_hearing"
+        },
+        {
+          "file": "tests/test_device_speech.py",
+          "method": "test_private_health_is_owner_bound_expires_and_rejects_provider_replacement"
+        },
+        {
+          "file": "tests/test_device_speech.py",
+          "method": "test_publication_fence_rejects_revocation_entry_unload_and_wrong_device"
+        },
+        {
+          "file": "tests/test_device_speech.py",
+          "method": "test_snapshot_never_exports_secrets_full_config_or_inferred_apple_permissions"
+        },
+        {
+          "file": "tests/test_device_speech.py",
+          "method": "test_status_collects_after_last_await_and_preserves_legacy_endpoint_booleans"
+        },
+        {
+          "file": "tests/test_device_speech.py",
+          "method": "test_status_revocation_during_first_await_cannot_publish_new_snapshot"
+        },
+        {
+          "file": "tests/test_device_speech.py",
+          "method": "test_profile_rebind_cannot_borrow_new_owner_health_during_request"
+        },
+        {
+          "file": "tests/test_device_speech.py",
+          "method": "test_unexpected_provider_exception_cannot_export_private_reason_text"
+        }
+      ],
+      "steps": [
+        {
+          "id": "ASKDJ-FLOW-device-speech-availability-step-1",
+          "question": "Koppel met alleen een Assist-agent en kies lokale device-spraak of alleen tekst",
+          "expected_answer": "HA-STT/TTS zijn onafhankelijk unconfigured; lokale OS-capabilities zijn client-owned en alleen tekst heeft geen audio. Legacybooleans betekenen endpointimplementatie, geen actuele readiness.",
+          "model_policy": "zero",
+          "owning_tests": [
+            {
+              "file": "tests/test_device_speech.py",
+              "method": "test_all_four_audio_configurations_remain_independent_and_do_not_process"
+            },
+            {
+              "file": "tests/test_device_speech.py",
+              "method": "test_conversation_validity_is_distinct_from_audio_configuration"
+            },
+            {
+              "file": "tests/test_device_speech.py",
+              "method": "test_speaker_target_is_independent_from_synthesis_and_never_claims_hearing"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Core metadata/auth owner; isolated actual HA paired status separately qualified. Native selection, OS permissions, remote provider health and hearing NOT_RUN."
+        },
+        {
+          "id": "ASKDJ-FLOW-device-speech-availability-step-2",
+          "question": "Wijzig pipeline, provider, taal of stem tijdens runtime",
+          "expected_answer": "Iedere geautoriseerde status leest exacte/default selectie opnieuw. Geen borrowed pipeline of verzonnen stem/gender. Providergezondheid blijft los van configuratie; foutobservaties zijn eigenaargebonden en verlopen.",
+          "model_policy": "zero",
+          "owning_tests": [
+            {
+              "file": "tests/test_device_speech.py",
+              "method": "test_exact_selection_never_borrows_other_pipeline_and_default_changes_are_fresh"
+            },
+            {
+              "file": "tests/test_device_speech.py",
+              "method": "test_stt_missing_unavailable_unsupported_and_unknown_are_not_ready"
+            },
+            {
+              "file": "tests/test_device_speech.py",
+              "method": "test_tts_uses_qualified_locale_voice_and_only_explicit_gender"
+            },
+            {
+              "file": "tests/test_device_speech.py",
+              "method": "test_all_five_locales_and_provider_gender_changes_are_recomputed"
+            },
+            {
+              "file": "tests/test_device_speech.py",
+              "method": "test_missing_metadata_and_discovery_errors_do_not_become_available"
+            },
+            {
+              "file": "tests/test_device_speech.py",
+              "method": "test_private_health_is_owner_bound_expires_and_rejects_provider_replacement"
+            },
+            {
+              "file": "tests/test_device_speech.py",
+              "method": "test_unexpected_provider_exception_cannot_export_private_reason_text"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Core metadata/auth owner; isolated actual HA paired status separately qualified. Native selection, OS permissions, remote provider health and hearing NOT_RUN."
+        },
+        {
+          "id": "ASKDJ-FLOW-device-speech-availability-step-3",
+          "question": "Verbreek pairing of wijzig eigenaar tijdens een wachtstap van status",
+          "expected_answer": "Nieuwe snapshot wordt uitsluitend na laatste await en actuele oorspronkelijke device/entry/token/Profilebinding gepubliceerd. Geen nieuwe eigenaargezondheid of secrets; legacy response blijft compatibel.",
+          "model_policy": "zero",
+          "owning_tests": [
+            {
+              "file": "tests/test_device_speech.py",
+              "method": "test_publication_fence_rejects_revocation_entry_unload_and_wrong_device"
+            },
+            {
+              "file": "tests/test_device_speech.py",
+              "method": "test_snapshot_never_exports_secrets_full_config_or_inferred_apple_permissions"
+            },
+            {
+              "file": "tests/test_device_speech.py",
+              "method": "test_status_collects_after_last_await_and_preserves_legacy_endpoint_booleans"
+            },
+            {
+              "file": "tests/test_device_speech.py",
+              "method": "test_status_revocation_during_first_await_cannot_publish_new_snapshot"
+            },
+            {
+              "file": "tests/test_device_speech.py",
+              "method": "test_profile_rebind_cannot_borrow_new_owner_health_during_request"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Core metadata/auth owner; isolated actual HA paired status separately qualified. Native selection, OS permissions, remote provider health and hearing NOT_RUN."
+        }
+      ]
     }
   ],
   "evidence_boundaries": [
@@ -4469,7 +5038,7 @@
     {
       "id": "ASKDJ-ISSUE-passive-surface-isolation",
       "family_id": "ASKDJ-FLOW-history-private",
-      "finding": "Actual native widget cache absent; original later typed denial not captured. Owning grant/lifecycle test uses explicit external source-authority fixture, no native/artwork delivery or installed PASS.",
+      "finding": "Actual native widget cache absent; original later typed denial not captured. Owning grant/lifecycle test uses explicit external source-authority fixture, no native/artwork delivery or installed PASS. Consumer40336/40337 additionally found legacy provenance incompatibility and valid empty playback/contribution/artwork; version negotiation, independent omission reasons and Silence barrier now have explicit owning regressions. Native adoption and quiet transport remain open.",
       "core_qualification": "open"
     },
     {
@@ -4530,7 +5099,9 @@
     "tests/test_ask_dj_current_artist_words.py",
     "tests/test_ask_dj_semantic_reads.py",
     "tests/test_ask_dj_artist_hits.py",
-    "tests/test_personal_dj_narration_album_web.py"
+    "tests/test_personal_dj_narration_album_web.py",
+    "tests/test_persona_reactions.py",
+    "tests/test_device_speech.py"
   ],
   "issue_policy": {
     "new_findings": "Add a named failing reproduction and semantic expected answer in the same corrective candidate; preserve it after the fix.",

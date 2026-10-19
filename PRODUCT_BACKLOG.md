@@ -1,5 +1,40 @@
 # DJConnect Product Backlog
 
+## Current: passive projection v2 source correction —18October2026
+
+[Source1205](https://github.com/pcvantol/djconnect/pull/1205) protected merged as
+`28153891d3fb49a9447047a94e14313dbab94b0b`, from reviewed/owner-authorized
+`de05710e103de8d09e381c38b5aa819c44aec10a`; complete trees equal. Same existing
+Core correction/SURFACE::CORE::PROJECTION owner. V1 provenance compatibility,
+explicit grant-bound v2 researched copy, Silence barrier and independent missing
+music/artwork reasons are source progress. [Readback](docs/verification/PASSIVE_PROJECTION_V2_SOURCE_READBACK_20261018.md).
+
+Apple v2 decoder/layout/attribution, physical cache receipt, distinct API quiet
+registration and relay-purpose qualification remain OPEN in the existing owning
+nodes. The quiet proposal activates no route or background capability. No new
+consumer dispatch, family, provider, source takeover or hardware work. Existing
+57reports/154steps retain12Core and19actual-quality findings. Historical source
+receipts and the unchanged SETTINGS horizon are preserved. Separate Finalization
+reconciles only this source delivery; HA-dev remains the verified e71development
+build, HA-prod unchanged, and v2 is not claimed installed or audible.
+
+## Current source readback —18October2026
+
+Combined Core source is protected merged through
+PR [#1197](https://github.com/pcvantol/djconnect/pull/1197) as
+`c98cbf3e3114afb8b8212e18224a337b12af3e27`.
+[Exact source receipt](docs/verification/CORE_CONSOLIDATION_SOURCE_READBACK_20261018.md)
+supersedes earlier unmerged/draft checkpoints only for included source.
+Personal DJ corrective acceptance remains **In progress**:57reported issues,
+36conversation families/151steps,12Core and19actual-quality gates OPEN.
+The newer Album/Welcome/Preview code is not installed by this merge. Single/bulk
+archive deletion are selected contracts with producer/fixtures/capabilities
+pending. VibeCast public/native/screen, client/audio, retained Flow/artwork,
+Track Insight and other owner-dependent gates are not closed. Existing
+SETTINGS consumer/joint nodes stay Planned/NOT_ISSUED; no next selection or
+consumer dispatch. Historical source/installed receipts below retain their
+original scope. Separate Finalization reconciles this source delivery only.
+
 Personal DJ corrective acceptance (17 October 2026): **in progress**, not released. [Narration/complete Flow restoration](docs/product/PERSONAL_DJ_NARRATION_RESTORATION_V1.md) joins qualified expressive narration, durable published Flow including Silence, Session-scoped rolling retention, and configured-provider TTS/replay. Earlier delivery records remain historical; natural text quality, actual all-type transport, installed/native/audible acceptance remain open. No new product family or Stage4 completion.
 
 Requirement-by-requirement [lane reconciliation](docs/verification/CORE_LANE_REQUIREMENT_RECONCILIATION_20261017.md) now drives the bounded correction under the existing Speech family. Public music research and Mood prosody are local implementation/qualification; all-family narrative, actual published-narration Golden and Track Insight remain open. Historical delivered leaves are preserved; no metadata-only completion or native/installed/audio claim.
@@ -635,3 +670,53 @@ No lifecycle/start/replace/control, continuation, notification or second slice
 is admitted. Source [#1162](https://github.com/pcvantol/djconnect/pull/1162) is protected merged as
 `ccbb839f4e544b3739c31202685d147207e4c289`; [exact source readback](docs/verification/SESSION_HISTORY_SUMMARY_V1_SOURCE_READBACK.md)
 qualifies the connected producer. Separate Finalization retains its own gate.
+
+
+## Owner-selected Living Persona Avatar — 18 October2026
+
+Direct human pickup reconciles [Core #1208](https://github.com/pcvantol/djconnect/issues/1208)
+and [#1209](https://github.com/pcvantol/djconnect/issues/1209), including explicit
+touch addition6251008548, as one demand with the existing Core sole writer.
+[Canonical design](docs/product/DJ_PERSONA_LIVING_AVATAR_V1.md): preserve the one
+existing Apple current bubble, reuse real Silence/Mood/Presence/Ask DJ/speech
+authority, and retain native rendering ownership. Basic producer signal tests
+are source evidence only. Explicit touch-reaction admission is source-delivered by protected PR #1217 under the
+[same bounded contract](docs/product/PERSONA_TOUCH_REACTIONS_V1.md): paired operation,
+current Settings3, curated five-language text, private client speech and explicit
+cancel/rate/expiry. It is not yet installed/native accepted;
+HA-speaker touch remains unqualified. Basic existing-signal source is delivered by protected PR #1215;
+installed/native/audio/gesture acceptance and the whole function remain OPEN. No second writer, automatic following selection,
+consumer source change or deployment is authorized by this backlog record.
+
+
+## Apple consumer dependency reconciliation — 19 October2026
+
+The current human points to Apple #128/#127/#129 as waiting consumers.
+Core #1211 source is protected merged via PR #1219 at
+`d4ab36fac055bddf7bbc778a480d62ef88115bbc`, with separate Finalization PR #1220 merged at
+`8cb1a467dfc0249fc7b3e79e474841e40249c091` and own cleanup verified:
+actual selected/preferred
+Assist agent required, HA STT/TTS optional for pairing. [Contract](docs/product/ASSIST_AGENT_PAIRING_V1.md).
+Core #1212 actual versioned speech-route source is separately delivered by
+PR #1221; its installed/native acceptance remains open, and #1211 does not
+close Apple #129. Core #1210 shared localized example catalogue,
+three contextual suggestions and reduced backend Help remain one outstanding
+atomic assignment for Apple #128. No suggestions-only/help-only closure.
+Avatar basic and touch producer source is delivered; actual HA-dev mainf8b28d2b
+advertises touch1. Apple #127 renderer/gesture/native/audio acceptance remains
+separately owned; waiting for a new generic Core activity API is unnecessary.
+No new consumer writer, automatic dispatch or function closure follows.
+
+## Selected Core #1212 protected producer source — 19 October2026
+
+Same sole writer after source1219/Finalization1220. Actual metadata projection
+on existing paired/status uses exact selected/preferred pipeline and separately
+qualifies STT, TTS and speaker target; no runtime/provider configuration or
+consumer writes. [Contract](docs/product/DEVICE_SPEECH_CAPABILITIES_V1.md).
+Protected source PR #1221 merged `604b80f806425cb53165a17faf783bfd6248af17`,
+exact reviewed candidate `bd2b644dadec91742138348ba960e61b12da662c`, trees equal.
+2642host/148pinnedHAowner tests and actual isolated HA15metadata cases pass
+without speech/model calls. Separate Finalization has its own delivery gates.
+Apple #129 availability UI/native/audio acceptance stays OPEN. Last HA-dev
+installed pin f8b28d2b; no install or full speech-route closure inferred.
+#1210 shared catalogue plus compact Help remains one next atomic dependency.

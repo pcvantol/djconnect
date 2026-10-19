@@ -1,5 +1,22 @@
 # DJConnect Platform Evolution Backlog
 
+## Current source readback —18October2026
+
+Combined Core source is protected merged through
+PR [#1197](https://github.com/pcvantol/djconnect/pull/1197) as
+`c98cbf3e3114afb8b8212e18224a337b12af3e27`.
+[Exact source receipt](docs/verification/CORE_CONSOLIDATION_SOURCE_READBACK_20261018.md)
+supersedes earlier unmerged/draft checkpoints only for included source.
+Personal DJ corrective acceptance remains **In progress**:57reported issues,
+36conversation families/151steps,12Core and19actual-quality gates OPEN.
+The newer Album/Welcome/Preview code is not installed by this merge. Single/bulk
+archive deletion are selected contracts with producer/fixtures/capabilities
+pending. VibeCast public/native/screen, client/audio, retained Flow/artwork,
+Track Insight and other owner-dependent gates are not closed. Existing
+SETTINGS consumer/joint nodes stay Planned/NOT_ISSUED; no next selection or
+consumer dispatch. Historical source/installed receipts below retain their
+original scope. Separate Finalization reconciles this source delivery only.
+
 ## Existing bounded VibeCast receiver end-authority correction — 17 October 2026
 
 The [retirement contract](docs/product/VIBECAST_RECEIVER_END_AUTHORITY_RETIREMENT_V1.md)

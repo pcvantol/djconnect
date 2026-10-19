@@ -1,5 +1,553 @@
 # DJConnect Verification Prompt Index
 
+## Current: device speech availability Core producer — separate Finalization, 19 October 2026
+
+### Repository Status
+
+Source PR [#1221](https://github.com/pcvantol/djconnect/pull/1221) protected merged
+as `604b80f806425cb53165a17faf783bfd6248af17`. Exact reviewed candidate
+`bd2b644dadec91742138348ba960e61b12da662c` has the identical complete tree.
+30source checks succeeded,5conditional skips; exact Owner Authorization
+39231232721 passed. Nonblocking TDE was still running, not PASS.
+This separate governance reconciliation targets MERGED_RECONCILED only after
+its own protected merge/exact-main readback; source1221 is otherwise
+MERGED_UNRECONCILED. No future Finalization SHA is fabricated.
+
+### Management Summary
+
+Core #1212 now supplies additive device_speech1 on existing completed Apple
+pair/status responses, after the final await/current original entry/token/
+device/Profile fence. Exact selected/preferred agent, STT, TTS and HA target
+are separate; legacy endpoint booleans and runtime speech remain unchanged.
+Configuration eligibility is not remote health or successful audio. Private
+operational failures/backoff expire separately; no provider/model probe.
+2642host tests PASS/7skips,148owning/HTTP/Golden in pinned HA PASS,15actual
+isolated HA paired TLS/status cases PASS with zero speech/model calls.
+183source/harness hashes match; two exact independent reviews GO. Ruff/Bandit
+0Medium/High,185DAG and9lifecycle/projection tests PASS.
+[Qualification](docs/verification/DEVICE_SPEECH_20261019.md) and
+[producer contract](docs/product/DEVICE_SPEECH_CAPABILITIES_V1.md).
+
+### Roadmap Position
+
+Generation2, Product Development, Platform Qualification. Same sole Core writer,
+selected #1212 after source1219/Finalization1220 prerequisite. This is producer
+source incorporation, not whole Apple #129 or actual speech acceptance. Current
+SETTINGS horizon remains authoritative; no new lane/consumer writer is selected.
+
+### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+Source: current SETTINGS nodes in the [living DAG](docs/roadmap/v1/djconnect-platform-v1.json)
+and [product backlog](PRODUCT_BACKLOG.md), with the named producer dependencies.
+
+1. **SETTINGS::APPLE::EDITOR — Planned.** Shared editor and Apple-owned adoption; Core speech1 and Avatar producer sources delivered. #1210 catalogue/compact Help remains the separate selected prerequisite for Apple #128.
+2. **SETTINGS::PI::ADOPTION — Planned.** Same confirmed shared producer and Pi-owned acceptance required.
+3. **SETTINGS::ESP32::ADOPTION — Planned.** Same producer and physical settings/voice evidence required.
+4. **SETTINGS::VIBECAST::COMPAT — Planned.** Renderer import and screen admission remain prerequisites.
+5. **SETTINGS::JOINT::ACCEPTANCE — Planned.** Migration and consumer evidence precede cross-device closure.
+
+### Blocked Items
+
+Apple #129 must adopt recognized current device_speech1, local OS capability,
+saved-route retention and text_only without silent upload/fallback. Native
+selection, true STT/TTS execution and hearing remain open. Last installed
+HA-dev pin is f8b28d2b; the new pairing/speech producer is not yet installed.
+Avatar producers are source-qualified and already on HA-dev; Apple #127 actual
+callbacks/gestures/audio acceptance remains independent. #1210 catalogue and
+compact Help remain atomic/outstanding. Golden57reports/39families/165steps
+retains32release blockers; story quality/rich history/native/audio remain open.
+No source merge or metadata PASS closes those functions or permits production.
+
+### Recommended Next Prompt
+
+After this Finalization's actual protected merge/readback and safe own cleanup,
+qualify the already authorized HA-dev development build of exact main, then
+continue the selected Core #1210 shared catalogue plus compact Help. No release,
+production bypass, consumer implementation, new selection or WIP takeover.
+
+## Current: Assist agent pairing prerequisite — separate Finalization, 19 October 2026
+
+### Repository Status
+
+Source PR [#1219](https://github.com/pcvantol/djconnect/pull/1219) is protected
+merged as `d4ab36fac055bddf7bbc778a480d62ef88115bbc`. Reviewed candidate
+`61b00c452480368c5f6e794bdecd77aa41d3c900` has an identical complete tree.
+30 source checks succeeded,5conditional skips; exact Owner Authorization
+39226371887 passed. Non-blocking TDE was still running, never claimed PASS.
+This separate governance reconciliation targets MERGED_RECONCILED only after
+its own protected merge and exact-main readback; before that source1219 is
+MERGED_UNRECONCILED. No future Finalization SHA is fabricated.
+
+### Management Summary
+
+Core #1211 setup requires the exact selected/preferred usable conversation
+agent and permits all four independent HA STT/TTS configurations. Final entry
+creation rechecks after Profile commit, including direct agent finish; stored
+explicit selection survives omitted input. Pairing identity/token/wire, runtime,
+options and capability fields are unchanged.2627host tests PASS/7skips,
+131owning tests PASS in pinned HA,24actual isolated HA agent/PipelineStore/
+user-form cases PASS with zero inference/audio calls. Ruff/Bandit0Medium/High,
+185DAG tests,7lifecycle tests and pinned projection validation PASS. Two exact
+independent reviews GO. [Qualification](docs/verification/ASSIST_AGENT_PAIRING_20261019.md).
+
+### Roadmap Position
+
+Generation2, Product Development, Platform Qualification. Same sole Core writer,
+owner-selected #1211 prerequisite for #1212/Apple #129. Existing SETTINGS horizon
+remains authoritative; this does not select another lane or dispatch consumers.
+
+### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+Source: current SETTINGS nodes in the [living DAG](docs/roadmap/v1/djconnect-platform-v1.json)
+and [product backlog](PRODUCT_BACKLOG.md), with current producer prerequisites.
+
+1. **SETTINGS::APPLE::EDITOR — Planned.** Shared editor; #1212 speech availability and #1210 catalogue/Help are separate selected producer dependencies. Avatar source is ready for Apple-owned adoption.
+2. **SETTINGS::PI::ADOPTION — Planned.** Same confirmed shared producer and Pi-owned acceptance required.
+3. **SETTINGS::ESP32::ADOPTION — Planned.** Same producer and physical settings/voice evidence required.
+4. **SETTINGS::VIBECAST::COMPAT — Planned.** Renderer import and screen admission remain prerequisites.
+5. **SETTINGS::JOINT::ACCEPTANCE — Planned.** Migration and consumer evidence precede cross-device closure.
+
+### Blocked Items
+
+Core #1212 actual versioned STT/TTS/speaker availability remains pending and
+must precede Apple #129 route presentation. #1210 shared catalogue and compact
+Help remain one atomic assignment for Apple #128. Apple #127 native listening/
+thinking/speaking callbacks, gestures and hearing acceptance remain open; basic
+and touch producer contracts are already qualified and on HA-dev at f8b28d2b.
+Golden57reports/38families/162steps retains32release blockers. Story quality,
+rich history and client/audio acceptance are not closed by this source merge.
+The new pairing repair is source-qualified, not yet installed/native accepted.
+
+### Recommended Next Prompt
+
+After this Finalization's protected merge, exact readback and safe own cleanup,
+continue the already selected Core #1212 producer. No release/prod deployment,
+consumer implementation, new selection or unrelated WIP takeover follows.
+
+## Current: explicit Persona touch Core producer — separate Finalization, 19 October 2026
+
+### Repository Status
+
+PR [#1217](https://github.com/pcvantol/djconnect/pull/1217) protected merged as
+`37a574c9e4f6b366ea2335a6c087d649d09afc2d`. Exact independently reviewed source
+`1e33c241ec7ef1a46e0a2feb20b5a5b885ae123e` has the identical complete tree.
+17 unique source checks succeeded, 3 conditional skips; exact Owner
+Authorization 39221716312 passed without bypass. The non-blocking TDE observation was still running; it is not claimed PASS.
+This governance increment reconciles source incorporation; no full avatar,
+release, installed touch, native gestures or audible completion is inferred.
+
+### Management Summary
+
+The selected explicit avatar reaction/cancel uses existing paired operations,
+confirmed Session Settings3 and bounded private client speech. Pre-await pending
+admission, original deadlines, rate/dedup, foreground/provider revisions and
+initiating-device cancellation/bytes are qualified. Short curated content covers
+four Personas, four Moods, five languages and three semantic kinds. It does not
+replace the still-open ordinary DJ storytelling improvement. No Ask DJ/Flow/
+history/Moment/music/model/proactive effect. text_only has zero audio;
+ha_speaker is text feedback only/unqualified; both reports partial delivery.
+
+Full host2621tests OK/7skips; pinned HA86owning/shared-speech tests pass.
+Seven isolated real HA paired TLS/HTTP/Store/SQLite operations and one fixture
+waveform synthesis pass, including private read becoming404after cancellation.
+The eleven-second rate clock advance is modelled. Source/harness receipt hashes
+match exactly; independent exact technical and editorial/document reviews GO.
+Bandit0Medium/0High, Ruff,185DAG,9lifecycle/projection and34contract tests pass.
+[Qualification](docs/verification/PERSONA_TOUCH_CORE_20261019.md) separates all
+source, isolated HA, installed, native, real provider and hearing evidence.
+
+### Roadmap Position
+
+Generation2, Product Development, Phase1/Platform Qualification. Same selected
+Core #1208/#1209, owner addition6251008548, no new lane selection or second
+writer. Basic avatar source/finalization was already delivered and exact main
+0f50e1ed installed/read back on HA-dev. This later touch producer was not present
+in that installation. Actual upgraded installed discovery remains separate.
+
+### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+Source: current SETTINGS nodes and prerequisites in the
+[canonical living DAG](docs/roadmap/v1/djconnect-platform-v1.json) and
+[product backlog](PRODUCT_BACKLOG.md). Planned/NOT_ISSUED, no consumer dispatch.
+
+1. **SETTINGS::APPLE::EDITOR — Planned.** Shared editor; delivered Core producer precedes native adoption.
+2. **SETTINGS::PI::ADOPTION — Planned.** Same producer prerequisite; Pi owns its acceptance.
+3. **SETTINGS::ESP32::ADOPTION — Planned.** Same producer and physical settings/voice evidence required.
+4. **SETTINGS::VIBECAST::COMPAT — Planned.** Shared renderer import and screen admission remain prerequisites.
+5. **SETTINGS::JOINT::ACCEPTANCE — Planned.** Migration and consumer evidence precede cross-device closure.
+
+### Blocked Items
+
+Native gesture arbitration, one transient overlay, accessibility, real start/
+stop/interruption/background and five-language device acceptance remain
+Apple-owned OPEN. HA-speaker reactions need safe independent cancellation.
+Golden retains57reports/37families/160steps and32release gates:12Core findings
+plus20real-quality requirements. Ordinary storytelling, complete rich history,
+LAN/WS, VibeCast, production push, Watch and performance/crash/RSS retain their
+own gates. Erasure001d0fac is real unfinished source and remains preserved.
+Neither source merge nor this reconciliation closes the whole avatar function.
+
+### Deferred Items
+
+Unselected intakes remain deferred and paused timers paused. No new consumer
+message/writer, release, deployment, hardware or active HA mutation is created
+by this record. Existing installation authorization does not waive Golden gates.
+
+### Repository State
+
+On protected merge of this separate Finalization, Repository State:
+`MERGED_RECONCILED` for bounded Core source incorporation only. Until then,
+MERGED_UNRECONCILED permits this reconciliation. Immutable historical records,
+fixtures, source identities and original DAG receipts are preserved.
+
+### Workspace State
+
+Canonical main is synchronized/clean; cleanup of only this completed source and
+its separate Finalization follows verified recovery, exact merge/equivalence and
+absent remote refs. The older host audit with git-cherry '+' and genuine erasure
+WIP remain outside this increment cleanup scope. No force deletion or global
+WORKSPACE_READY is inferred. Native/function gates remain open independently.
+
+
+## Current: Living Persona Avatar Core signals — separate Finalization, 19 October 2026
+
+### Repository Status
+
+PR [#1215](https://github.com/pcvantol/djconnect/pull/1215) protected merged as
+`d19dc33d27d799b8c1a868fc57164872e1e67ed8`. Exact independently reviewed candidate
+`2c145943030761f992c236d39572a8e4884d041b` has the identical complete Git tree. Thirty source
+checks succeeded, five conditional skips; exact Owner Authorization39215370213
+passed. Only the explicitly non-blocking TDE observation was still running at
+merge; it is not represented as a completed PASS. Canonical main is synchronized
+and clean. No HACS release, installed avatar or native/audio result is inferred.
+
+### Management Summary
+
+The canonical contract qualifies existing Session/Mood/Persona/Presence/Silence
+producer semantics for one existing current bubble, complete Pulse/headphones
+and bound inner-glyph precedence. No Core runtime field, endpoint or capability
+was added. The six-state semantic derivative is reproducible; 2589 host tests
+OK with 7 conditional skips, 9 owning tests also pass in the pinned HA image,
+185 DAG and 9 lifecycle/projection tests pass. Providers are fixtures, not actual
+model writing or audibility. Independent exact technical/documentary reviews GO.
+Apple may consume the delivered existing-signal design within its own admission;
+its actual renderer callbacks and native acceptance remain separately owned.
+
+### Roadmap Position
+
+Generation2, Product Development, Phase1/Platform Qualification. Same selected
+Core #1208/#1209 assignment and sole writer. This Finalization reconciles only
+the basic existing-signal contract. The selected touch addition is still
+NOT_IMPLEMENTED/NOT_ADVERTISED; it is not closed or a new lane selection.
+
+### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+Source: current SETTINGS nodes and prerequisites in the
+[canonical living DAG](docs/roadmap/v1/djconnect-platform-v1.json) and
+[product backlog](PRODUCT_BACKLOG.md). This horizon remains Planned/NOT_ISSUED;
+it does not dispatch consumers or replace the already selected avatar work.
+
+1. **SETTINGS::APPLE::EDITOR — Planned.** Shared editor; delivered Core producer precedes native adoption.
+2. **SETTINGS::PI::ADOPTION — Planned.** Same producer prerequisite; Pi owns its acceptance.
+3. **SETTINGS::ESP32::ADOPTION — Planned.** Same producer and physical settings/voice evidence required.
+4. **SETTINGS::VIBECAST::COMPAT — Planned.** Shared renderer import and screen admission remain prerequisites.
+5. **SETTINGS::JOINT::ACCEPTANCE — Planned.** Migration and consumer evidence precede cross-device closure.
+
+### Blocked Items
+
+Touch needs bounded semantic admission, ephemeral content/speech ownership,
+dedup/rates and actual lifecycle/output qualification before advertising a wire.
+Apple owns graphics, real capture/audio start/end/interruption, gesture overlay,
+accessibility/layout/performance and physical acceptance. Existing Golden
+57 reports/36 families/154 steps, 12 Core findings and 19 actual-quality gates
+retain their prior state; storytelling, full history/art/replay, LAN/WS, VibeCast,
+production push, Watch and performance/crash/RSS are not closed by this merge.
+Erasure001d0fac contains genuine unfinished source prerequisites and remains
+preserved separately; it is not stale or a qualified complete deletion function.
+
+### Deferred Items
+
+Unselected intakes remain deferred. Paused timers remain paused. Latest human
+instruction authorizes a safe all-ref/worktree/stash audit and subsequent fresh
+main installation; exact installed/config/runtime evidence remains pending and
+must not be inferred from these source checks. No new consumer writer or private
+task message is introduced.
+
+### Repository State
+
+On protected merge of this separate governance increment, Repository State:
+`MERGED_RECONCILED` for basic Core avatar source incorporation only. Until then,
+the source is MERGED_UNRECONCILED and permits only this reconciliation. Function
+acceptance, touch delivery and installed/native/audio remain independently OPEN.
+Historical Prompt History, source identities and frozen DAG receipts are intact.
+
+### Workspace State
+
+Canonical main is clean and synchronized. Audit found the old stash's 38 added
+documentation lines already present exactly in main; verified recovery precedes
+its cleanup. Clean own completed worktrees/patch-equivalent branches are eligible
+for normal cleanup only. Two host source commits still have git-cherry '+' and
+retain their ref rather than bypass that safety check. Original recovery and
+erasure source remain protected. Final cleanup/readback follows this merge;
+WORKSPACE_READY is not claimed for an unrelated next capability.
+
+## Current: relocated host maintenance — separate Finalization, 19 October 2026
+
+### Repository Status
+
+PR [#1213](https://github.com/pcvantol/djconnect/pull/1213) protected merged as
+`00419b0f96de9a41a20ba88438010f7473516893`. Exact reviewed candidate
+`8ae263f83520d750aa321f820a2cfe9837f67aac` and source merge have identical full
+trees. Required CI and ordinary risk/authorization checks passed; no bypass.
+Canonical main was synchronized cleanly and its actual hostverify exited 0,
+bootstrap2.0.22/onboarding4.5.4, no required drift. This separate Finalization
+reconciles only the bounded host-path repair.
+
+### Management Summary
+
+Verifier and installer now safely quote relocated script/log paths, preserve
+cron's original schedule and escape its percent syntax. New deterministic4.5.4
+bundle matches all17 source members; older bundles remain unchanged. The actual
+cron transaction replaced only its existing marked block, with backup, concurrent
+edit guard and exact readback. No cleanup, full recovery or HA update executed.
+72 owning onboarding/package tests OK,7 conditional skips; focused shell/installer
+checks, package reproducibility, manifest integrity and independent source review
+passed. No avatar/native/audio or whole-product acceptance follows.
+
+### Roadmap Position
+
+Generation2, Product Development, Phase1/Platform Qualification. This necessary
+host correction unblocks the existing sole Core writer's selected Persona Avatar
+assignment, not a new lane selection. Reconstructed eleven-file avatar WIP and
+separate erasure001d0fac remain preserved. No consumer source is taken over.
+
+### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+Source: current SETTINGS nodes and prerequisites in the
+[canonical living DAG](docs/roadmap/v1/djconnect-platform-v1.json) and
+[product backlog](PRODUCT_BACKLOG.md). This horizon remains Planned/NOT_ISSUED;
+it does not dispatch consumers or replace the already selected avatar work.
+
+1. **SETTINGS::APPLE::EDITOR — Planned.** Shared editor; delivered Core producer precedes native adoption.
+2. **SETTINGS::PI::ADOPTION — Planned.** Same producer prerequisite; Pi owns its acceptance.
+3. **SETTINGS::ESP32::ADOPTION — Planned.** Same producer and physical settings/voice evidence required.
+4. **SETTINGS::VIBECAST::COMPAT — Planned.** Shared renderer import and screen admission remain prerequisites.
+5. **SETTINGS::JOINT::ACCEPTANCE — Planned.** Migration and consumer evidence precede cross-device closure.
+
+### Blocked Items
+
+Avatar canonical contract and producer trace delivery remain open; touch has no
+advertised qualified operation, and actual Apple audio/gesture/native acceptance
+retains its owner. Existing Golden57reports/36families/154steps,12Core findings
+and19actual-quality gates retain their state. Narrative/history/art/replay,
+Track Insight, LAN/WS, VibeCast, production push, Watch and performance/crash/RSS
+requirements are not closed by this host merge. Future intake does not start
+another Core writer or replace current selected work.
+
+### Deferred Items
+
+Unselected work remains deferred. Paused automations remain paused. No release,
+production installation, hardware action or private task message is introduced.
+
+### Repository State
+
+On protected merge of this dedicated Finalization, Repository State:
+`MERGED_RECONCILED` for the host repair only. Until then, the source merge is
+MERGED_UNRECONCILED and admits only its documentary reconciliation. Earlier
+Prompt History, source receipts and frozen DAG receipts are unchanged.
+
+### Workspace State
+
+Canonical main is clean and synchronized. Existing avatar/erasure source and
+private recovery are retained. Own host source/Finalization refs receive an
+explicit retained-squash disposition if git-cherry cannot prove normal cleanup;
+no force deletion is inferred. Workspace cleanup and fresh host readback precede
+resuming the same preserved avatar assignment; no automatic successor begins.
+
+## Current: passive contribution v2 correction — separate Finalization,18October2026
+
+### Repository Status
+
+[Source PR #1205](https://github.com/pcvantol/djconnect/pull/1205) incorporated the
+exact independently reviewed candidate `de05710e103de8d09e381c38b5aa819c44aec10a`
+through protected squash. Source-main and candidate complete-tree equality,
+exact-current Owner Authorization39126672796 and live CI are recorded in the
+[bounded source readback](docs/verification/PASSIVE_PROJECTION_V2_SOURCE_READBACK_20261018.md).
+This dedicated Finalization reconciles source incorporation only.
+
+### Management Summary
+
+Legacy v1 passive consumers retain their two original provenance bases. Explicit
+v2 grants preserve qualified complete researched text and all source attribution;
+Silence blocks older cards. Playback/artwork omissions have independent typed
+reasons and original UTC/monotonic deadlines. Same Runtime/Planner/publication
+owner, no extra model/source work on reads, no relay permission inferred.
+
+Golden inventory57 reports/36families/154steps;12Core findings and19actual-quality
+gates stay OPEN. Host2576 tests passed with7 conditional skips;25 owning tests
+passed in pinned HA and6 connected ordinary-paired HTTP cases passed with matching
+203product/two-harness begin/end hashes. Exact reviewed source fixtures are not
+real-model writing, native widgets, installed v2, audible or background evidence.
+
+### Roadmap Position
+
+Generation2, Product Development, Phase1/Platform Qualification. Existing Core
+personal-DJ/passive corrective continuation; no new family, writer or assignment.
+Preserve historical v1/source-consolidation receipts. Core source progress does
+not close Apple adoption, quiet transport, Watch or joint surface acceptance.
+
+### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+Source: current SETTINGS nodes/prerequisites in the
+[canonical living DAG](docs/roadmap/v1/djconnect-platform-v1.json) and
+[product backlog](PRODUCT_BACKLOG.md). This existing horizon is unchanged;
+Planned/NOT_ISSUED entries are not dispatched by this documentary correction.
+
+1. **SETTINGS::APPLE::EDITOR — Planned.** Existing producer delivered; native adoption remains its owning gate.
+2. **SETTINGS::PI::ADOPTION — Planned.** Same producer prerequisite; preserve Pi ownership.
+3. **SETTINGS::ESP32::ADOPTION — Planned.** Same producer prerequisite plus physical voice/settings evidence.
+4. **SETTINGS::VIBECAST::COMPAT — Planned.** Qualified renderer import and screen admission remain separate.
+5. **SETTINGS::JOINT::ACCEPTANCE — Planned.** Migration and consumer acceptance precede cross-device closure.
+
+### Blocked Items
+
+SURFACE::APPLE::ADOPTION needs exact v2 decoder/layout/attribution and physical
+cache receipts. SURFACE::APPLE::QUIET-TRANSPORT needs the API-owned distinct token
+purpose, operation receipts and source relay policy before network activation;
+background_delivery remains false. The
+[reviewable proposal](docs/product/PASSIVE_QUIET_TRANSPORT_V1_DRAFT.md) names the
+precise gate and consumer work safe before it. No invented endpoint or alert
+policy relaxation. Native/relay ownership and deployment/signing remain separate.
+
+All existing narrative/Persona/Mood, all-family retention/art/replay, Track
+Insight, original native speech/history, LAN/WS, VibeCast, performance/crash/RSS,
+production push and Watch findings remain in their named lanes. Single/bulk
+archive deletion remains selected contract work, not implemented closure.
+
+### Deferred Items
+
+Unselected work remains deferred. No consumer source takeover, new provider,
+production service change, private message or future assignment is introduced.
+
+### Repository State
+
+The source merge is MERGED_UNRECONCILED until this separate Finalization is
+protected merged and exact-main read back. Resulting MERGED_RECONCILED covers
+this source correction only. Release/native/background/product gates stay OPEN.
+
+### Workspace State
+
+WORKSPACE_READY is not claimed for a new capability. Canonical main is reconciled
+separately from retained own squash refs and their recovery bundles. Source
+retention is not unpublished content. Apple WIP, native/profiling evidence and
+HA data are preserved. Specifically authorized compiler-cache cleanup first stopped
+while its guard detected an active Apple build. After that build ended, only the
+approved closed caches were removed; all2575 preserved product/log/test files
+matched their before/after hashes. WIP, native evidence and recovery stayed intact.
+
+HA-dev's verified development build is exact prior main e71daff1, including newer
+Album/Welcome/Preview source and preserved history. Passive v2 is not installed.
+This updates earlier stale dev-state prose without claiming the remaining
+storytelling/audible acceptance. HA-prod unchanged; no qualified release inferred.
+
+## Current: combined Core source consolidation — separate Finalization, 18 October 2026
+
+### Repository Status
+
+PR [#1197](https://github.com/pcvantol/djconnect/pull/1197) protected merged as
+`c98cbf3e3114afb8b8212e18224a337b12af3e27` on 18 October 2026.
+Exact candidate `a5840acdffa99a8c1180d90b714c3c0fb9d983c2` and merge have the
+same complete Git tree `4cafd105617f7bdbff6019efe7b89ed338293966`.
+All 32 source checks succeeded; five conditional jobs skipped. Exact
+[Owner Authorization](https://github.com/pcvantol/djconnect/actions/runs/39120244691)
+passed after the current human merge instruction. Main was fast-forwarded and
+verified clean against origin; no protection bypass or release-gate weakening.
+[Source evidence and remaining gates](docs/verification/CORE_CONSOLIDATION_SOURCE_READBACK_20261018.md).
+
+### Management Summary
+
+All prepared Core source from the Ask DJ correction, VibeCast display admission
+and waiting/glass branches is incorporated. Common Ask DJ context, full-album
+dispatch, truthful playback replies, research/narration, retained Flow/Silence,
+settings-aware speech, four Presence levels, welcome and history representation
+repairs are source progress. Single/bulk archive deletion are contracts only.
+The scoped source merge does not complete the personal-DJ product acceptance.
+
+Current Golden inventory is 57 reports, 36 families, 151 conversation steps;
+12 Core findings and 19 actual-quality steps remain OPEN. The current full host
+regression completed 2,567 tests with seven existing skips; 103 narration-owner tests
+passed in the pinned clean HA image with network disabled and zero paid calls.
+Earlier 28-profile/1,086-test proof remains bound to 85d73, not this candidate.
+Actual eight-cell album publication quality is NO_GO. A separate diagnostic had
+six useful proposals out of eight but no product source admission/publication.
+
+### Roadmap Position
+
+Generation 2, Product Development, Phase 1/Platform Qualification; existing
+Personal DJ corrective acceptance under Speech/Settings and the selected
+VibeCast Core assignment. This Finalization reconciles delivered source only.
+No new capability, consumer dispatch or whole-family completion is selected.
+
+### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+Source: current SETTINGS nodes and prerequisites in
+[canonical living DAG](docs/roadmap/v1/djconnect-platform-v1.json), with
+[product backlog](PRODUCT_BACKLOG.md) and
+[settings contract](docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md).
+These nodes remain Planned/NOT_ISSUED; this projection is not dispatch authority.
+It excludes the merged source-consolidation increment and preserves existing
+consumer ownership. Open work inside the current Core correction stays current,
+rather than becoming an invented next assignment.
+
+1. **SETTINGS::APPLE::EDITOR — Planned.** One Jouw DJ editor and Session controls. Dependency: delivered `SETTINGS::CORE::PRODUCER`, then native adoption. Execution Rationale: first remaining consumer in the current settings scope.
+2. **SETTINGS::PI::ADOPTION — Planned.** Allowed shared settings and legacy disposition. Dependency: the same Core producer and Pi acceptance. Execution Rationale: next named consumer; existing Pi ownership remains intact.
+3. **SETTINGS::ESP32::ADOPTION — Planned.** Assist/voice/settings compatibility. Dependency: the same producer and physical ESP evidence. Execution Rationale: retain the selected hardware consumer after Pi, with no inferred hardware PASS.
+4. **SETTINGS::VIBECAST::COMPAT — Planned.** Allowed Session fields in the shared renderer. Dependency: the same producer, qualified receiver import and screen admission. Execution Rationale: close existing consumer compatibility before joint acceptance.
+5. **SETTINGS::JOINT::ACCEPTANCE — Planned.** Cross-device six-field effects, persistence and cleanup. Dependency: `SETTINGS::CORE::MIGRATION` and consumer evidence. Execution Rationale: joint acceptance follows the owning migration and consumer gates.
+
+### Blocked Items
+
+Real source-grounded storytelling and recognizable Persona/Mood, full retained
+Flow/art/replay, Track Insight, original native speech and historic/active read
+findings remain open in the 57-report Golden register. Rich album retrieval
+admitted zero rich web references in 11 actual HTTP requests; the paid product
+pilot is blocked before credits. No repeated failed pilot is relabelled PASS.
+Single/bulk archive deletion still needs Core producer/fixtures/capabilities.
+VibeCast trust/HA destination/screen, LAN/WS, Watch/OS surfaces, production push,
+performance/crash/RSS and actual native/audible acceptance retain their owners.
+Qualified release artifact and fresh installation admission remain separate.
+
+### Deferred Items
+
+Unselected roadmap work stays deferred. No new model/provider, signing,
+consumer source, hardware/service change or following assignment is introduced.
+
+### Repository State
+
+Repository State: `MERGED_RECONCILED` is the resulting source-consolidation
+state only after this separate documentary Finalization protected merges and
+its exact-main readback succeeds. Until then the source is MERGED_UNRECONCILED.
+Product/release acceptance remains OPEN independently. Main CI and HACS are recorded only when
+actually concluded in the linked source readback; no official artifact PASS
+is inferred from a source merge.
+
+### Workspace State
+
+Workspace State: `NOT_READY` for a new capability. Canonical main is clean and
+synchronized at source readback. Original source refs/worktrees are preserved:
+`git cherry` reports `+` after squash, so the normal deletion exception does not
+admit cleanup. Remote source branches are absent and all three source inputs
+are contained in the combined candidate, with a verified recovery bundle.
+There is no unpublished source delta to merge from those refs. Apple WIP,
+profiling data, HA storage and acceptance evidence remain untouched. The latest
+narration/opening/Preview source is not claimed installed on HA-dev; the minimal
+history-v2 derivative remains the last verified dev artifact. HA-prod is unchanged.
+
+## Historical operational context
+
+Earlier dated checkpoints below are historical snapshots, superseded by the
+current section where they describe current merge, inventory or installed state.
+
 18October speech follow-up: the existing configured voice-preview design now has
 a local paired producer, five-language literals and owner fixtures. Golden adds
 its route as step140; protected delivery, installed/provider/native/listening

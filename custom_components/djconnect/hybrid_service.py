@@ -19,7 +19,8 @@ from .transport_delivery import (
 )
 
 ACTION_OPERATIONS = frozenset(
-    {"command", "ask_dj/message", "track_insight", "session/mood", "session/presence", "session/persona", "session/speech/play", "speech/preview"}
+    {"command", "ask_dj/message", "track_insight", "session/mood", "session/presence", "session/persona", "session/speech/play", "speech/preview",
+     "session/persona/reaction", "session/persona/reaction/cancel"}
 )
 HTTP_OPERATIONS = ACTION_OPERATIONS | {"session/start", "session/end"}
 READ_OPERATIONS = frozenset(
@@ -293,6 +294,9 @@ async def invoke(hass, authority, operation, payload):
     if operation == 'speech/preview':
         from .voice_preview import async_preview
         return await async_preview(hass, authority, payload)
+    if operation in {'session/persona/reaction', 'session/persona/reaction/cancel'}:
+        from .persona_reactions import async_react, async_cancel
+        return await (async_cancel if operation.endswith('/cancel') else async_react)(hass, authority, payload)
     if operation == "session/forecast":
         from .session_forecast_transport import async_handle_forecast
 

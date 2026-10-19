@@ -6,6 +6,7 @@ from pathlib import Path
 import sys
 import types
 import unittest
+from unittest.mock import patch
 
 
 def install_pipeline_stubs() -> None:
@@ -192,13 +193,16 @@ class AssistPipelineTest(unittest.TestCase):
                 }
 
         hass = types.SimpleNamespace(services=Services())
-        text = asyncio.run(
-            self.pipeline.correct_stt_text_with_assist(
-                hass,
-                "speel nervana",
-                {"tts_language": "nl-NL"},
+        # Explicitly exercise unavailable pipeline/default-agent fallback;
+        # unrelated config-flow fixtures must not choose this test's pipeline.
+        with patch.object(self.pipeline, '_get_default_assist_pipeline', return_value=None):
+            text = asyncio.run(
+                self.pipeline.correct_stt_text_with_assist(
+                    hass,
+                    "speel nervana",
+                    {"tts_language": "nl-NL"},
+                )
             )
-        )
 
         self.assertEqual(text, "speel Nirvana")
         self.assertEqual(calls[0]["language"], "nl-NL")

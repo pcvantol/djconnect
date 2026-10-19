@@ -46,6 +46,52 @@ def _research_generation_fixture(projection, answer):
 
 
 class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
+    async def test_avatar_music_only_keeps_explicit_ask_dj_without_proactive_moment_or_speech(self):
+        from custom_components.djconnect.session_runtime import DJPersona
+        session = await self.fixture.manager.async_start(owner_profile_id='profile-a',
+            selected_mood='party', dj_persona=DJPersona.FESTIVAL_DJ, locale='en')
+        session = await self.fixture.manager.async_update_presence(owner_profile_id='profile-a',
+            session_id=session.session_id, selected_presence='music_only', expected_revision=0)
+        before = session.broadcast.state.dj_moments, session.presence_ledger.total_published
+        answer, status = await self.request('What is an ostinato?', identifier='avatar-music-only',
+            context={'session_id': session.session_id}, audio_response='never')
+        self.assertEqual(status, 200, answer)
+        self.assertTrue(answer['success'])
+        self.assertEqual(answer['conversation']['style']['persona'], 'festival_dj')
+        self.assertEqual(answer['conversation']['style']['mood'], 'party')
+        self.assertFalse(answer.get('audio_url'))
+        self.assertFalse(answer['session_speech']['autoplay_eligible'])
+        self.assertEqual(session.selected_presence, 'music_only')
+        self.assertEqual(before, (session.broadcast.state.dj_moments, session.presence_ledger.total_published))
+        self.assertEqual(self.effects, [])
+
+    async def test_avatar_cancelled_explicit_ask_dj_does_not_restart_proactivity(self):
+        session = await self.fixture.manager.async_start(owner_profile_id='profile-a',
+            selected_mood='groove', locale='en')
+        session = await self.fixture.manager.async_update_presence(owner_profile_id='profile-a',
+            session_id=session.session_id, selected_presence='music_only', expected_revision=0)
+        entered, release = asyncio.Event(), asyncio.Event()
+        async def pending(*args, **kwargs):
+            entered.set()
+            await release.wait()
+            raise AssertionError('cancelled external model work must not deliver')
+        with patch.object(self.pipeline, '_call_conversation_process_transport', pending):
+            request = asyncio.create_task(self.request('What is an ostinato?',
+                identifier='avatar-cancelled', context={'session_id': session.session_id}))
+            try:
+                await asyncio.wait_for(entered.wait(), 2)
+                request.cancel()
+                with self.assertRaises(asyncio.CancelledError):
+                    await request
+            finally:
+                release.set()
+        current = self.fixture.manager.current_active('profile-a')
+        self.assertEqual(current.session_id, session.session_id)
+        self.assertEqual(current.selected_presence, 'music_only')
+        self.assertEqual(current.presence_ledger.total_published, 0)
+        self.assertEqual(current.broadcast.state.dj_moments, ())
+        self.assertEqual(self.effects, [])
+
     async def test_mood_prosody_preserves_literal_text_voice_and_provider_settings(self):
         import sys
         from types import ModuleType

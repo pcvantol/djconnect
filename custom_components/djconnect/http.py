@@ -857,6 +857,16 @@ def _ask_dj_capabilities(
     return payload
 
 
+def _device_speech_json(view, payload):
+    """A current, owner-bound availability snapshot must not enter HTTP caches."""
+    result = view.json(payload)
+    headers = getattr(result, "headers", None)
+    if "device_speech" in payload and headers is not None:
+        headers["Cache-Control"] = "no-store"
+        headers["Referrer-Policy"] = "no-referrer"
+    return result
+
+
 async def _push_status(
     hass: Any,
     runtime: Any,
@@ -2684,6 +2694,8 @@ class DJConnectPairView(HomeAssistantView):
             token,
             runtime.device_status.get(CONF_CLIENT_TYPE),
         )
+        from .device_speech import capture as capture_speech_authority
+        speech_authority = capture_speech_authority(hass, runtime, device_id)
         _LOGGER.info("DJConnect paired device %s", device_id)
         response = {
             "success": True,
@@ -2700,11 +2712,15 @@ class DJConnectPairView(HomeAssistantView):
         response.update(music_backend_metadata(hass, runtime))
         response.update(_esp32_language_payload(runtime))
         response.update(await async_ha_url_payload(hass, conf, client_type=client_type))
+        from .device_speech import append_snapshot
+        append_snapshot(response, hass, runtime, device_id=device_id, client_type=client_type,
+                        authority=speech_authority,
+                        locale=data.get("locale") or data.get("language"))
         _LOGGER.debug(
             "DJConnect pairing response status=200 payload=%s",
             _redact_debug_payload(response),
         )
-        return self.json(response)
+        return _device_speech_json(self, response)
 
 
 class DJConnectStatusView(HomeAssistantView):
@@ -2742,6 +2758,9 @@ class DJConnectStatusView(HomeAssistantView):
             _payload_client_type(data),
         ):
             return _json_error(self, "unauthorized", 401)
+        from .device_speech import capture as capture_speech_authority
+        speech_authority = capture_speech_authority(hass, runtime,
+            data.get("device_id") or request.headers.get("X-DJConnect-Device-ID"))
         status_update = _normalized_status_payload(data)
         client_type = _validate_required_client_type(status_update)
         if client_type is None:
@@ -2796,9 +2815,10 @@ class DJConnectStatusView(HomeAssistantView):
         else:
             runtime.update(last_error=None)
         response = await _status_response(
-            hass, runtime, request, status_update, client_type, music_dna_key, data
+            hass, runtime, request, status_update, client_type, music_dna_key, data,
+            speech_authority=speech_authority,
         )
-        return self.json(response)
+        return _device_speech_json(self, response)
 
 
 async def _status_response(
@@ -2809,6 +2829,8 @@ async def _status_response(
     client_type: str,
     music_dna_key: str | None,
     data: dict[str, Any],
+    *,
+    speech_authority: Any,
 ) -> dict[str, Any]:
     """Build the established status response after a validated device update."""
     conf = runtime.config
@@ -2830,6 +2852,11 @@ async def _status_response(
     backend_available = await _status_backend_availability(hass, runtime, response, client_type)
     _debug_status_response(runtime, data, client_type, response, backend_available)
     runtime.device_status["backend_available"] = backend_available
+    from .device_speech import append_snapshot
+    append_snapshot(response, hass, runtime,
+                    device_id=status_update.get("device_id") or request.headers.get("X-DJConnect-Device-ID"),
+                    client_type=client_type, authority=speech_authority,
+                    locale=data.get("locale") or data.get("language"))
     return response
 
 
@@ -3141,6 +3168,10 @@ class DJConnectPassiveSurfaceImageView(_DJConnectSessionView):
         if len(payload) != len(request.query) or payload.get('contract_version') != '1':
             return self.json({'success': False, 'error': 'invalid_request'}, status_code=400)
         payload.update(contract_version=1, session_id=session_id)
+        if 'projection_version' in payload:
+            if payload['projection_version'] not in ('1', '2'):
+                return self.json({'success': False, 'error': 'invalid_request'}, status_code=400)
+            payload['projection_version'] = int(payload['projection_version'])
         result, status = await handle(request.app['hass'], payload, headers=request.headers)
         if status != 200:
             return self.json(result, status_code=status)

@@ -1,5 +1,22 @@
 # DJConnect Technical Design Decisions
 
+
+## Explicit Persona reactions reuse paired operation and private speech owners
+
+The selected avatar addition uses `session/persona/reaction` and `/cancel` inside
+the existing paired operation journal, confirmed Settings3 and private speech
+source admission. A bounded RAM reservation precedes the first Settings await;
+foreground revision/cancel/original deadline fences pending work before a lease
+exists. Provider configuration revision is captured before awaits and checked
+again after durable send admission, before synthesis. No fake chat/Moment,
+second endpoint, durable reaction text or proactive budget mutation is introduced.
+Only the initiating device can cancel/read private reaction bytes. Local native
+speech needs no HA provider; text_only never synthesizes. HA-speaker reaction
+output remains unqualified until it can stop independently from music.
+[Contract](docs/product/PERSONA_TOUCH_REACTIONS_V1.md) and
+[causal proof](docs/verification/PERSONA_TOUCH_CORE_20261019.md) retain native,
+installed and audible boundaries. No dependency/API vendor/license change.
+
 This document records code-level design decisions, implementation patterns,
 coding conventions and third-party dependencies for the DJConnect Home Assistant
 integration.
@@ -1028,3 +1045,15 @@ VibeCast token, backend or duplicate event engine is introduced. The route has
 strict frame/command schemas, a hard lease, authority revalidation, bounded
 queues and cancellation-safe subscription cleanup. See
 `docs/product/PAIRED_OWNER_LIVE_CONTRACT_V1.md` and its qualification record.
+
+## Core #1212 — additive discovery through existing paired/status
+
+The existing transports already carry device-authorized provider selection.
+Use one synchronous versioned metadata projection after their last await,
+rechecking original entry/token/device/Profile binding. A new network endpoint,
+settings store, global readiness boolean or provider probe would duplicate an
+owner or misstate evidence. Preserve legacy booleans as endpoint support,
+separate configured/eligible metadata from scoped operational observations,
+local Apple permissions, shared output policy and actual hearing. Exact HA
+selection and real provider interfaces are reused; old runtime fallbacks remain
+unchanged and are not newly granted by discovery.

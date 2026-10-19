@@ -1,5 +1,67 @@
 # DJConnect API Contract
 
+## Current Core #1212 source: actual device speech availability1
+
+The additive owner-bound `device_speech` schema1 is generated synchronously at
+the end of successful completed pairing and status for Apple clients. See
+[contract](docs/product/DEVICE_SPEECH_CAPABILITIES_V1.md) and
+[actual isolated HA fixture](examples/client_contracts/device_speech_v1/README.md).
+Source [PR #1221](https://github.com/pcvantol/djconnect/pull/1221) merged
+`604b80f806425cb53165a17faf783bfd6248af17`; exact candidate
+`bd2b644dadec91742138348ba960e61b12da662c`, complete trees equal. Separate
+Finalization/installed/native acceptance remain distinct. No new
+endpoint or change to existing pairing identity, tokens, default selection,
+STT/TTS execution or replay policy.
+
+Legacy `voice_supported`, `ask_dj_voice_supported` and
+`ask_dj_audio_response_supported` retain their endpoint-implementation meaning
+for old clients. They never prove current provider readiness. New consumers
+require this recognized snapshot version; absence, pending setup, failed
+authority or unknown version cannot be promoted to HA readiness from those
+legacy booleans.
+
+`assist` describes exact configured/preferred selection and actual agent
+validity. `ha_stt`, `ha_tts` and `ha_speaker_target` independently expose
+`state` (unconfigured/available/unavailable/unsupported/unknown), `configured`,
+`available` and bounded machine `reason`. Available qualifies current metadata
+and interface/locale only. Remote health, successful processing and hearing
+are never inferred; recent TTS observations remain separately owner-scoped
+and expire. HA target availability additionally requires synthesis and current
+output policy for actual playback. `text_only.audio=false`; `apple_local`
+capabilities/OS permissions remain client-owned. Provider eligibility grants
+no permission to synthesize over settings3/text_only or source admission.
+
+Status `locale`/`language` selects the requested five-language family; absent
+input uses HA UI language. The selected HA provider must actually support it.
+Voice/gender choices are bounded actual provider metadata, never inferred from
+names. Revisions cover configuration and provider incarnation; every read is
+recomputed after the last transport await and checked against original device,
+entry, token and loaded Profile binding. Actual responses carrying the snapshot
+are `Cache-Control: no-store`, `Referrer-Policy: no-referrer`. There is no new
+push guarantee, model/provider probe or private content/config export.
+
+Apple #129 must preserve saved HA selection on runtime loss, qualify before use,
+keep local speech/OS permissions independent, and never silently switch/upload
+local input. Source delivery does not close native or installed acceptance.
+
+Protected touch producer: [source #1217](https://github.com/pcvantol/djconnect/pull/1217),
+merge`37a574c9e4f6b366ea2335a6c087d649d09afc2d`, exact candidate`1e33c241ec7ef1a46e0a2feb20b5a5b885ae123e`;
+full trees equal. This is a qualified source pin, not installed discovery or
+Apple gesture/audio acceptance. Actual capability readback precedes use.
+
+
+## Explicit Persona touch reaction — protected source contract1
+
+[Touch reaction1](docs/product/PERSONA_TOUCH_REACTIONS_V1.md) uses the existing
+paired operation envelope, operation `session/persona/reaction` and explicit
+`session/persona/reaction/cancel`. Versioned discovery is nested under
+`active_session_persona.touch_reaction`. Confirmed Settings3/current Session,
+device-bound30second lease,10second interval/6per600seconds, no queue/history/
+Moment/model/music mutation. Local native or configured HA client speech uses
+current policy; text_only forbids audio. HA-speaker reactions are not qualified,
+never silently substituted. Exact protected/installed producer pin and Apple
+gesture/native/actual audio acceptance remain OPEN. No new HTTP endpoint.
+
 ## Retained history consumer correction — local compatibility remains open
 
 Owner timeline entries include four qualified retention bases and the
@@ -11,9 +73,9 @@ history-not-found response. Current client adoption and backward-compatible
 producer negotiation/projection are separate outstanding gates. Do not relabel
 source text or claim old/offline clients work merely because the new client decodes.
 
-## Configured voice preview — local producer delta, not installed
+## Configured voice preview — qualified development producer and installed discovery
 
-The existing paired operation owner locally accepts `speech/preview` with only
+The existing paired operation owner accepts `speech/preview` with only
 `{"contract_version":1,"language":"nl"}` as its payload. Discovery is
 `session_speech.voice_preview`. It uses confirmed Profile/active-Session Settings3,
 fixed five-language neutral comparison text and the selected HA voice/gender and
@@ -26,9 +88,13 @@ Duplicates read the original operation receipt without repeating synthesis or
 speaker delivery. A new deliberate press may reuse a valid sample without
 renewing expiry; text_only withdraws old samples and denies new ones. The actual
 contract/fixtures and unqualified provider/native/listening boundaries are in
-[Configured voice preview](docs/product/SESSION_VOICE_PREVIEW_V1.md). The currently
-installed private HA-dev build predates this producer. No protected pin or
-consumer rollout is implied by this source delta.
+[Configured voice preview](docs/product/SESSION_VOICE_PREVIEW_V1.md) and
+[exact readback](docs/verification/VOICE_PREVIEW_PRODUCER_READBACK_20261018.md).
+Protected source PR #1197 and Finalization #1204 are delivered; exact HA-dev
+build `e71daff1e36c7e0284ffa1f42b1a1ada47b50aa1` includes this producer and
+actually advertises Preview1/Settings3. Existing consumers use this development
+pin and versioned discovery; real configured-provider, native and audible
+acceptance remain OPEN. This is not an official release or production rollout.
 
 ## Current shared settings3 / target-aware speech3 producer
 
@@ -2132,3 +2198,23 @@ preserved; advertise `session_history_bulk_delete`/version1 only after producer
 qualification. Exact wire, snapshot concurrency, receipts and failures: selected
 bulk-deletion addendum in
 [`SESSION_CONVERSATION_HISTORY_CONTRACT.md`](docs/product/SESSION_CONVERSATION_HISTORY_CONTRACT.md).
+
+## Passive contribution correction —18October2026
+
+The [selected canonical addendum](docs/product/PASSIVE_SESSION_PROJECTION_V1.md#selected-correction-explicit-projection-negotiation-18october2026)
+keeps surface transport1 and legacy projection1 unchanged in vocabulary.
+Explicit projection2 is selected on authorize/read/image and bound to its grant;
+only it adds independently purpose-qualified researched narration, complete
+source/license attribution and closed omission reasons. Native/history rights
+are insufficient; generic web, private text and external-relay copy stay denied.
+Silence never revives the older card. Widgetlockedfalse is valid; Activitytrue
+remains required. Original short deadlines/read purity are unchanged.
+
+The user also selects best-effort existing-APNs integration: category-only wake
+and pure reread for widgets, distinct activity token/topic for ongoing Activity
+update/end, no push-to-start. Smallest missing API dependency is qualified
+registration/rotation/revoke/update/end for the exact install/recipient/purpose/
+Session/generation/environment/topic/expiry tuple and explicit relay content
+permission. No client credentials or rich content in hints; no lease from push.
+Background capability remains false until connected Core/API/Apple delivery and
+source-purpose gates pass. Existing writers only; no consumer/relay code adopted.

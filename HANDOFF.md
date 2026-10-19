@@ -1,5 +1,40 @@
 # DJConnect Home Assistant Integration Handoff
 
+Core #1212 source PR #1221 is protected merged at
+`604b80f806425cb53165a17faf783bfd6248af17`; reviewed
+`bd2b644dadec91742138348ba960e61b12da662c` has the identical complete tree. Existing completed paired/status can project actual
+HA STT/TTS/target metadata without changing legacy endpoint booleans. Native
+local speech/OS permissions and current settings3/source policy remain separate.
+Actual isolated HA15metadata cases use zero speech/model calls; separate governance Finalization still requires its own protected gate.
+Actual installed snapshot/native/OS/voice acceptance remains open for Apple #129. #1210
+catalogue+compact Help remains outstanding; avatar producers already delivered.
+
+Core #1211 narrow pairing validation is the current selected predecessor for
+Core #1212 / Apple #129, not a speech capability implementation. Current actual
+HA source uses async_get_pipeline/async_get_agent; default remains preferred.
+No package/framework/dependency update is introduced. The same-session official
+PyPI audit reports development pins current; unrelated tooling/runtime upgrades
+remain excluded to preserve the pinned HA qualification. Avatar is now installed
+on HA-dev atf8b28d2b with205matching product files; actual native/audio acceptance
+and all32Golden release gates remain OPEN. Core #1210 catalogue+Help is pending.
+
+
+## 19 October: selected explicit avatar reaction source candidate
+
+Same #1208/#1209 Core writer; [contract](docs/product/PERSONA_TOUCH_REACTIONS_V1.md)
+and [current qualification](docs/verification/PERSONA_TOUCH_CORE_20261019.md).
+Basic avatar main0f50e1ed is actually installed/read back on HA-dev; this touch
+increment is still local and not installed. Production is unchanged: successful
+live configuration check does not bypass the32remaining Golden release gates.
+No complete native/avatar/audio function is closed by a merge.
+
+Official PyPI metadata was checked19October before this qualification pass:
+PyYAML6.0.3, coverage7.16.2, pytest9.1.1 match current development pins;
+ruff0.17.1 and bandit1.9.4 were observed. No dependency, framework or pinned HA
+image upgrade is bundled: this bounded admission correction must retain its
+qualified runtime; any unrelated tool upgrade requires its own reviewed change.
+No dependency/manifest/license change was needed.
+
 18October configured voice-preview follow-up remains in the existing combined
 correction: local paired producer/fixtures implemented, protected/install/native
 and real provider/listening gates OPEN. No dependency or runtime image changed;

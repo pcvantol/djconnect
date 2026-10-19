@@ -22,6 +22,7 @@ LITERAL_PROCESSING_BASES = frozenset({
     "qualified_dialogue_v1", "cc0_normalized_fields_v1", "runtime_authored_direction_v1",
     "spotify_owner_local_read_v1", "retained_owner_local_read_v1", "accepted_local_reply",
     "core_owned_voice_preview_v1",
+    "core_owned_persona_reaction_v1",
 })
 
 
@@ -596,6 +597,8 @@ async def async_handle_prepare(hass, data, *, headers=None, _speaker_operation=F
         register_delivery_admission(guard)
         if not descriptor["manual_allowed"]:
             return {"success": True, "session_speech": descriptor}, 200
+        from .persona_reactions import withdraw_for_interaction
+        withdraw_for_interaction(hass, context.profile_id)
         if shared_settings:
             descriptor = {**descriptor, 'settings_contract_version': snapshot['contract_version'],
                           'settings_revision': settings_token}
@@ -746,6 +749,8 @@ async def async_handle_audio(hass, data, *, headers=None):
     try:
         _conversation_profile_fence(hass, runtime, identity, headers, context)
         item = get_private_tts_audio(hass, data["asset_id"], context.profile_id)
+        if item.delivery_device_id is not None and item.delivery_device_id != identity['device_id']:
+            raise PermissionError('speech_device_mismatch')
         return item, 200
     except SessionConversationError as exc:
         return None, exc.status

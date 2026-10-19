@@ -41816,11 +41816,11 @@
     "document_references": [
       {
         "path": "PRODUCT_ROADMAP.md",
-        "sha256": "383f9ca33823b8bcc952ef62b5772115b3b70060163b800d138338953c1faa02"
+        "sha256": "40448b5865d8177208aa08a385cad22b047c25b49c3ca19b9027b25bc0534c75"
       },
       {
         "path": "PRODUCT_BACKLOG.md",
-        "sha256": "bf3b09f00e13900062fa306f4fd0e4d2a9616d5ee973798feddf901246e83594"
+        "sha256": "79a0d260495ff36e70e0cfbdfa1a6c36ed290e82315c874b1ab7cb7e34af5634"
       },
       {
         "path": "docs/product/DJ_PRESENCE_V1.md",
@@ -41836,7 +41836,7 @@
       },
       {
         "path": "docs/product/DJ_PRESENTATION_ARCHITECTURE.md",
-        "sha256": "df56caa5685110bca26b8e819a1cecb67ab7f9f5608c51526c83d4c35cc5cdff"
+        "sha256": "3f90e5ccfd1877f1eaec2c2ebc6d69a3ad3d3bfe20508f7128d9cd4c5e729faf"
       },
       {
         "path": "docs/technical/PLATFORM_AMBIENT_EXPERIENCE.md",
@@ -41856,7 +41856,7 @@
       },
       {
         "path": "API_CONTRACT.md",
-        "sha256": "275c911ddcecc478453349b2000db50cbd067b1f549bda78995a4cc3abbfc4b2"
+        "sha256": "c640c53cda36e7de1bd453d48ad29e396220d8c406ca5c741a3dcf7eb852b1d0"
       },
       {
         "path": "docs/product/NARRATIVE_ALBUM_CONTINUITY_V1.md",
@@ -41980,7 +41980,7 @@
       },
       {
         "path": "docs/product/EXPRESSIVE_DJ_PERSONA_CONTRACT.md",
-        "sha256": "04531c8c51c3a29014681445acce8cac34138b7a2506458d7126a7832272a10a"
+        "sha256": "c5ed33865b61700edc0133d033d4c17550691744f33c3a271c5b6129e758c842"
       },
       {
         "path": "docs/product/KNOWLEDGE_SOURCE_ARCHITECTURE.md",
@@ -42116,7 +42116,7 @@
       },
       {
         "path": "docs/product/PASSIVE_SESSION_PROJECTION_V1.md",
-        "sha256": "0f3b6657561401e9b9d3e5680ff0794ac47978c31a2f56d339e5129c13b68591"
+        "sha256": "b3ad2fcb5d42ef72a6d6c71c976627ee371fe7ee9e574fcf9af8db1f6d4e5829"
       },
       {
         "path": "docs/verification/PASSIVE_SESSION_PROJECTION_SOURCE_20261016.md",
@@ -42164,7 +42164,7 @@
       },
       {
         "path": "docs/product/SESSION_VOICE_PREVIEW_V1.md",
-        "sha256": "78398680e844f9c3235863b3e7c41bbf832d07b9dd8e6c9819d23847a314d24a"
+        "sha256": "1c34f2eebad7fd3bbffb6a96a37aa35be3271da86b511cafb76a9e99ced13fd8"
       },
       {
         "path": "docs/product/ASK_DJ_PLAYBACK_REQUEST_TRUTH_V1.md",
@@ -42172,7 +42172,7 @@
       },
       {
         "path": "docs/verification/ASK_DJ_CONTEXTUAL_GOLDEN_RELEASE_GATE_V1.md",
-        "sha256": "f78803d3e233c5014332c0a97f981400effac4b0e7eae8ce99516b50e694434a"
+        "sha256": "2f140634e04300d5bd0e04a194e5b0c54ed3a22bcedbffe83b933a2dc7184cf8"
       },
       {
         "path": "docs/product/VIBECAST_RECEIVER_END_AUTHORITY_RETIREMENT_V1.md",
@@ -42200,7 +42200,7 @@
       },
       {
         "path": "docs/verification/CORE_BRANCH_CONSOLIDATION_20261017.md",
-        "sha256": "37ab45028864cf705cd7150a5d69ba97bca70f6fb947e294513763d92eeb4690"
+        "sha256": "c5fe55f7a0494051b937f583a9e7d603365c3de49663b6657f0fdb836829de7e"
       },
       {
         "path": "docs/product/VIBECAST_DISPLAY_ADMISSION_V1.md",

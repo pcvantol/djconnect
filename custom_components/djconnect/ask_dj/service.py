@@ -105,6 +105,8 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
     try:
         await history_manager.async_load()
         await validate_owner()
+        from ..persona_reactions import withdraw_for_interaction
+        withdraw_for_interaction(hass, profile_id)
         scope_revision = await history_manager.async_scope_revision(scope)
         if await history_manager.async_session_request_cleared(scope, client_id):
             raise SessionConversationError("conversation_history_changed")
