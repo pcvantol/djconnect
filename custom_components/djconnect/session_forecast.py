@@ -48,6 +48,8 @@ class ForecastProjection:
     authority: Any = field(default=lambda: True, repr=False)
     clock: Any = field(default=time.monotonic, repr=False)
     wall_clock: Any = field(default=time.time, repr=False)
+    _semantic: dict[str, Any] = field(default_factory=dict, repr=False)
+    _persona: str = field(default='home_dj', repr=False)
 
     def accept_observation(self) -> None:
         """Only an accepted provider observation renews current-context authority."""
@@ -68,6 +70,8 @@ class ForecastProjection:
         if not force and signature == self.signature and not self.expired and not was_withdrawn and (self.observation_deadline <= self.deadline or now - self.refreshed_at < REFRESH_INTERVAL_SECONDS):
             return False
         summary, sections = realize(semantic, locale, persona)
+        self._semantic = copy.deepcopy(semantic)
+        self._persona = persona
         self.revision += 1
         self.signature = signature
         self.context_item_id = current_item_id if semantic.get("has_current") else ""
@@ -84,7 +88,7 @@ class ForecastProjection:
                       'summary': summary, 'sections': sections[:3], 'imagery': copy.deepcopy(list(imagery[:2]))}
         return True
 
-    def as_dict(self) -> dict[str, Any]:
+    def as_dict(self, *, locale: str | None = None) -> dict[str, Any]:
         """Expiry projection does not advance revisions/deadlines or do work."""
         result = copy.deepcopy(self.value or {'contract_version': VERSION,
                                              'session_id': self.session_id, 'revision': self.revision,
@@ -96,6 +100,10 @@ class ForecastProjection:
             result.update(state='withdrawn' if self.withdrawn or denied else 'expired', summary='',
                           supported_window_seconds=0, sections=[], imagery=[], current_anchor=None)
         else:
+            if locale is not None and self._semantic:
+                # Re-render the original accepted meanings only. Reads never
+                # consult the Planner, mutate the stored language or renew time.
+                result['summary'], result['sections'] = realize(self._semantic, locale, self._persona)
             # Never send a reference after its earlier asset deadline.
             result['imagery'] = [a for a in result['imagery']
                                  if _valid_wall_deadline(a.get('expires_at'), self.wall_clock())]
@@ -120,6 +128,7 @@ class ForecastProjection:
         if not self.value or self.expired or self.withdrawn or self.clock() < self.deadline:
             return False
         self.expired = True
+        self._semantic = {}
         self.revision += 1
         self.value['revision'] = self.revision
         return True
@@ -128,6 +137,7 @@ class ForecastProjection:
         if self.withdrawn:
             return False
         self.withdrawn = True
+        self._semantic = {}
         self.revision += 1
         self.value = {**self.as_dict(), 'revision': self.revision}
         return True

@@ -65,6 +65,7 @@ class ExpressiveDJPersonaTest(unittest.TestCase):
                 ),
             )
             manager._active_by_profile["owner"] = session
+            session.planner.configuration = replace(session.planner.configuration, recommendation_preference="balanced")
             receipts, snapshots, originals = [], [], []
             for number in range(count):
                 catalog, recording = self.source_pair(number)
@@ -180,7 +181,7 @@ class ExpressiveDJPersonaTest(unittest.TestCase):
         fixture.runtime, fixture.facts = self.runtime, self.facts
         return fixture.pool(long=long)[1]
 
-    def test_preview_is_pure_missing_language_and_bad_core_keep_exact_fallback(self):
+    def test_preview_is_pure_missing_language_and_bad_core_cannot_bypass_persona(self):
         engine = self.runtime.DJMomentEngine()
         fact = self.fact()
         args = dict(
@@ -194,12 +195,11 @@ class ExpressiveDJPersonaTest(unittest.TestCase):
         self.assertEqual(engine._expression_forms, ())
         for core in (None, replace(fact.display_core, roles=(("producer", ("Invented name",)),))):
             fallback = engine.preview_qualified_fact(fact=replace(fact, display_core=core), **args)
-            self.assertEqual((fallback.summary, fallback.content), fact.copy_for("nl"))
-            self.assertEqual(fallback.expression_form, "")
+            self.assertIsNone(fallback)  # Missing normalized anchors cannot bypass Persona.
         self.assertIsNone(engine.preview_qualified_fact(fact=fact, **{**args, "locale": "it"}))
         self.assertIsNone(engine.preview_qualified_fact(fact=replace(fact, source_url=""), **args))
 
-    def test_final_text_fit_uses_faithful_short_fallback_through_runtime(self):
+    def test_short_window_uses_approved_persona_alternative_or_silence_through_runtime(self):
         from tests import test_contextual_fact_planning as contextual
 
         fixture = contextual.ContextualFactPlanningTest()
@@ -225,12 +225,15 @@ class ExpressiveDJPersonaTest(unittest.TestCase):
         receipts, session = fixture.run_session(
             (fact,), duration=(short_duration + 5) * 1000, persona=args["persona"]
         )
-        self.assertEqual(receipts[0]["content"], original[1])
-        self.assertEqual(session.moment_engine._expression_forms, ())
-        self.assertEqual(
-            session.broadcast.state.dj_moments[0].presentation_intent.maximum_duration_seconds,
-            short_duration,
-        )
+        if receipts:
+            self.assertNotEqual(receipts[0]["content"], original[1])
+            self.assertTrue(session.moment_engine._expression_forms)
+        else:
+            self.assertEqual(session.moment_engine._expression_forms, ())
+        # A longer qualified opportunity still produces the authored positive.
+        accepted, _ = fixture.run_session((fact,), duration=(full_duration + 5) * 1000, persona=args["persona"])
+        self.assertTrue(accepted)
+        self.assertNotEqual(accepted[0]["content"], original[1])
         receipts, session = fixture.run_session(
             (fact,), duration=(short_duration + 4) * 1000, persona=args["persona"]
         )
@@ -332,7 +335,15 @@ class ExpressiveDJPersonaTest(unittest.TestCase):
                             copy = realize(
                                 fact, locale=locale, persona=persona.value, form=0, mood="neutral"
                             )
-                            self.assertIn(date, copy[1])
+                            expected = {
+                                "en": ("2007", "May 2007", "12 May 2007"),
+                                "nl": ("2007", "mei 2007", "12 mei 2007"),
+                                "de": ("2007", "Mai 2007", "12. Mai 2007"),
+                                "fr": ("2007", "mai 2007", "12 mai 2007"),
+                                "es": ("2007", "mayo de 2007", "12 de mayo de 2007"),
+                            }
+                            self.assertIn(expected[locale][("year", "month", "day").index(precision)], copy[1])
+                            self.assertEqual(fact.display_core.date, date)
                             self.assertIn(fact.display_core.subject, copy[1])
                             self.assertTrue(fact.display_core.validates(fact))
                         self.assertIn(

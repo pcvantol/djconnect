@@ -1,32 +1,24 @@
 # Maintained node catalogue
 
-Web-first #1174 documentary extension: SOURCE_PROTECTED_MERGED; design authored only, product implementation Planned/NOT_ISSUED and joint acceptance OPEN. Cast-first/native-TV prerequisites superseded for forward design; original receipts remain historical. URL/exception/emoji OPEN. No automatic dispatch or runtime/publication grant.
+Web-first #1174 decision delta: SOURCE_PROTECTED_MERGED; vibecast.tv/root and existing-app guest exception RESOLVED. Receiver16 PUBLIC_WEB_DELIVERY SELECTED/QUEUED after this delta delivery/Finalization and fresh own admission; executor ACK pending. API rendezvous/Core/Apple/guest integration separately Planned; full onboarding and hardware OPEN. Final reaction/rocket and technical choices OPEN. No runtime/deploy by this docs writer.
 
 Generated from djconnect-platform-v1.json, maintenance DJC-DJ-PRESENCE-ROADMAP-DESIGN-V1-20261011.
 
-The original3October snapshot/audit/source pins and projections are immutable history in [history/20261003](history/20261003/README.md). Only this bounded delta is current here; inherited premerge statuses are not current blockers. Only the selected existing Core writer is admitted by implementation receipt; no automatic dispatch, second writer or native/installed/hardware acceptance.
+The original3October snapshot/audit/source pins and projections are immutable history in [history/20261003](history/20261003/README.md). Only this bounded delta is current here; inherited premerge statuses are not current blockers. No portfolio-wide refresh, writer reservation, product dispatch or runtime acceptance is claimed.
 
-Current bounded artwork correction: [owner6117357579](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6117357579). Existing Discovery capability only; source/Finalization gates remain separate, native/installed/live acceptance remains open. Presence source1150/Finalization1151 stays closed. Prior version2 is preserved in history/20261012.
+Selected and freshly admitted speech/Persona implementation: DJC-SESSION-SPEECH-PERSONA-VOICE-20261015; source PROTECTED_MERGED. Four bounded Core leaves reuse existing Voice/Speech/Audio Renderer architecture; Apple/native audible/joint acceptance remains Planned/open. Delivered artwork v11 and historical snapshots preserved; no new provider/model/cost route or consumer writer.
 
-Selected bounded Album→Track continuity: [DJC-CORE-NARRATIVE-ALBUM-CONTINUITY-V1-20261012](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6121336412); source PROTECTED_MERGED, Stage4 PARTIAL, joint/native/installed/hardware acceptance open. Artwork1152/1153 is terminal at admitted0f37; prior version3 is preserved in history/20261012. No automatic consumer dispatch or new Core writer.
+Selected passive Session projection: DJC-CORE-PASSIVE-SESSION-PROJECTION-V1-20261015; source PROTECTED_MERGED. Existing SURFACE::CORE::PROJECTION only; native rich adoption OPEN_APPLE, background SURFACE::APPLE::QUIET-TRANSPORT separately Planned, Watch NOT_QUALIFIED and joint OPEN. Original publication/source deadlines, explicit purpose grants and pure reads; no client writes, provider or automatic dispatch. Delivered v12 and all prior receipts preserved.
 
-Selected Session Forecast: [DJC-CORE-SESSION-FORECAST-V1-20261012](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6123328620); existing Direction parent, source PROTECTED_MERGED, current-only qualified artist imagery, native/visible/upcoming/joint acceptance open. Album1154/1155 terminal before this writer admission; previous version4 preserved in history/20261012. Early contract fixtures allow independently admitted consumer source integration; no automatic dispatch.
+Selected shared Profile/Session settings consolidation: DJC-PROFILE-SESSION-SETTINGS-CONSOLIDATION-V1-20261016; six shared Persona/voice/gender/Mood/Presence/announcement_output, protected source delivered contract3 (Core producer only), last explicit accepted choice becomes default, atomic active+default acceptance. Source PROTECTED_MERGED; Core producer and migration work only; Apple/other consumers/joint separately open, no automatic dispatch or whole-family completion. Delivered v13 preserved.
 
-Selected ambient convergence: [DJC-CORE-AMBIENT-FACT-MOMENT-CONVERGENCE-V1-20261012](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6125691006); source PROTECTED_MERGED, qualified Session reuse and passive producer retirement; native/joint acceptance open. Forecast1156/1157 stays closed; version5 preserved in history/20261012. No new source/model/consumer dispatch.
+Current maintenance16 combines both preserved maintenance15 inputs in the existing Core draft1197. Original input refs and premerge repair refs are separately pinned; both histories remain immutable. Source LOCAL_COMBINED_DRAFT_PREPARATION, overall OPEN, merge NOT_QUALIFIED, native OPEN, The immutable composition receipt predates the private HA-dev candidate3a89473e; later local producer/Forecast repairs are not installed. Audible/native acceptance remains OPEN. No second writer, consumer writes or automatic dispatch. See `docs/verification/CORE_BRANCH_CONSOLIDATION_20261017.md`.
 
-Combined Session entry/history/native-surface documentary design: [DJC-SESSION-ENTRY-LIFECYCLE-HISTORY-DESIGN-V1-20261012](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6131363097); documentation PROTECTED_MERGED. Documentary delivery does not itself admit product execution; Continuation is independent and rich passive rights are not inherited. Ambient1158/1159 remains terminal; version6 is preserved in history/20261012. No new product writer or native/APNs/installed/hardware PASS.
+Current personal-DJ corrective work: LOCAL / UNPUBLISHED; historical SPEECH::CORE::REALIZATION delivery remains preserved, while CORRECTION::CORE::PERSONAL-DJ-EXPERIENCE remains In progress. All-family narrative and actual publication Golden, Track Insight, native and audible acceptance are not established by earlier metadata/type fixtures or the private development install. See `docs/verification/CORE_LANE_REQUIREMENT_RECONCILIATION_20261017.md`. No consumer dispatch or new writer.
 
-Selected connected Core history summary: DJC-CORE-SESSION-HISTORY-SUMMARY-V1-20261013; source PROTECTED_MERGED. Reuses HISTORY::CORE::SUMMARY, with Apple adoption Planned and native/installed/joint acceptance open. Predecessor version7 is preserved byte-for-byte.
+Selected Core display-admission: DJC-CORE-VIBECAST-DISPLAY-ADMISSION-V1-20261016; existing WEB::TRUST and WEB::DISPLAY only. TRUST anchor OPEN_JOINT_REVIEW, wire NOT_FROZEN, runtime B_SOFTWARE_QUALIFIED_NOT_INSTALLED; source DRAFT_PR_PUBLISHED_NOT_MERGED, native/TV/joint open. B-only software qualification does not close A or imply installed/native/public-route acceptance. Independently reviewed B may proceed in isolation while A stays unavailable. Original settings delivery and all prior receipts remain preserved; no consumer dispatch or deployment.
 
-Selected one-pipeline Ask DJ + exact Moment Track Insight: [DJC-CORE-ASKDJ-CONTEXTUAL-DIALOGUE-V1-20261013](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6145537044); source PROTECTED_MERGED. Both screens use the same service with optional qualified context. Native Apple and joint acceptance remain Planned/open; no consumer writes or automatic dispatch. History summary1162/1163 stays closed; version8 is preserved in history/20261013. Owner-requested HA-dev/prod updates follow qualified delivery and installed readback.
-
-Existing Apple Presence execution: In progress ([owning readback](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6168870771)); native Mac/installed acceptance and protected Apple delivery remain open. This observation updates no historical planning node and grants no Core/consumer admission. Installed Presence advertisement is absent in the owner readback; completed Core policy remains closed. Dialogue adoption and intra-track visibility remain distinct open joint findings.
-
-Selected bounded Hybrid transport: [DJC-CORE-HYBRID-TRANSPORT-CONVERGENCE-V1-20261013](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6149934177); source PROTECTED_MERGED. Existing connectivity parent retained; protocol, journal/recovery and paired actions share current Core owners. Apple adoption and joint/native transitions remain Planned/open; no consumer writes, installation or automatic dispatch. Current-artist1168/1169 closed before admission; version9 and its whole snapshot are preserved byte-for-byte.
-
-Selected subject-bound Session artwork: DJC-CORE-SESSION-MOMENT-ARTWORK-V1-20261014; source PROTECTED_MERGED. Three bounded Core subsets; native Apple and joint acceptance remain Planned/open. Prior delivered v10 is preserved; no transport functional prerequisite or automatic consumer dispatch.
-
-Owner-selected queued successor: DJC-SESSION-SPEECH-PERSONA-VOICE-20261015 ([selection](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6189231491), [autonomous-next](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6189912293)). Not admitted or implemented here; starts only after valid artwork closure and fresh sole-writer admission. Separate exact publication gates remain.
+A product choice: LIMITED_APP_ATTESTED_REPORTED_ROUTE selected with the stated copied-QR/wrong-scanner destination risk. Independent HA-owner attestation is not claimed; SECURITY_REVIEW/KEY-STATE open, WIRE not frozen and A runtime not implemented. This is no completion, consumer dispatch or deployment.
 
 | Node | Owner | Status | Outcome |
 |---|---|---|---|
@@ -58,7 +50,7 @@ Owner-selected queued successor: DJC-SESSION-SPEECH-PERSONA-VOICE-20261015 ([sel
 | `ENTRY::APPLE::LIFECYCLE` | DJC-APPLE | Planned | Native exact lifecycle invocation integration |
 | `HISTORY::CORE::SUMMARY` | DJC-CORE | Completed | Owner history summary aggregation contract |
 | `HISTORY::APPLE::SUMMARY` | DJC-APPLE | Planned | Native history list/header summary adoption |
-| `SURFACE::CORE::PROJECTION` | DJC-CORE | Planned | Native surface rights/state projection |
+| `SURFACE::CORE::PROJECTION` | DJC-CORE | Completed | Native surface rights/state projection |
 | `SURFACE::APPLE::NAVIGATION` | DJC-APPLE | Planned | Typed native Session navigation |
 | `SURFACE::APPLE::ADOPTION` | DJC-APPLE | Planned | Session widget/Activity/Island adoption |
 | `SURFACE::APPLE::QUIET-TRANSPORT` | DJC-APPLE | Planned | Quiet surface update transport qualification |
@@ -83,15 +75,15 @@ Owner-selected queued successor: DJC-SESSION-SPEECH-PERSONA-VOICE-20261015 ([sel
 | `MEDIA::JOINT::SESSION-ARTWORK` | DJC-CORE | Planned | Core and Apple subject/rights/expiry acceptance |
 | `WEB::DOCS` | DJC-CORE | Completed | Whole web-first documentary design |
 | `WEB::DISPOSITION` | DJC-CORE | Planned | Implement reviewed web-first legacy disposition |
-| `WEB::TRUST` | DJC-CORE | Planned | Qualify browser-bound onboarding and guest trust contract |
+| `WEB::TRUST` | DJC-CORE | In progress | Qualify browser-bound onboarding and guest trust contract |
 | `WEB::BOOTSTRAP` | DJC-API | Planned | Temporary encrypted rendezvous service |
-| `WEB::DISPLAY` | DJC-CORE | Planned | Separate HA code and readonly display grant |
+| `WEB::DISPLAY` | DJC-CORE | In progress | Separate HA code and readonly display grant |
 | `WEB::OWNER-SCANNER` | DJC-APPLE | Planned | Paired owner scanner and explicit installation confirmation |
 | `WEB::SHARED` | DJC-CORE | Planned | Explicit shared Flow NowPlaying Forecast projection |
 | `WEB::MEDIA` | DJC-CORE | Planned | Independent shared artwork and speech grants expiry attribution |
 | `WEB::GUEST` | DJC-CORE | Planned | Invitation redemption guest principal and revocation |
 | `WEB::BROWSER` | DJC-VIBECAST | Planned | One responsive web UI and accountless browser join |
-| `WEB::DISTRIBUTION` | DJC-VIBECAST | Planned | Reviewed generic static bootstrap and browser distribution |
+| `WEB::DISTRIBUTION` | DJC-VIBECAST | Planned | Receiver public bootstrap selected; serviceadapter conditionally selected; full E2E separately gated |
 | `WEB::DISCOVERY` | DJC-CORE | Planned | Admission-scoped HA local discovery announcement |
 | `WEB::APP` | DJC-APPLE | Planned | Isolated temporary guest shell discovery scanner leave home restore |
 | `WEB::REACTIONS` | DJC-CORE | Planned | Five subject-bound ephemeral reactions and bounded sparkle |
@@ -102,3 +94,19 @@ Owner-selected queued successor: DJC-SESSION-SPEECH-PERSONA-VOICE-20261015 ([sel
 | `WEB::EFFECT-POLICY` | DJC-CORE | Planned | DJ request consideration fairness and uncertain-effect policy |
 | `WEB::ENQUEUE` | DJC-CORE | Planned | Real enqueue reconciliation and observed-recording Persona announcement |
 | `WEB::JOINT` | DJC-CORE | Planned | Joint browser native media lifecycle physical five-language acceptance |
+| `SPEECH::APPLE::ADOPTION` | DJC-APPLE | Planned | Native shared speech, voice and autoplay adoption |
+| `SPEECH::CORE::CONTRACT` | DJC-CORE | Completed | Shared narration and speech/source contract |
+| `SPEECH::CORE::DELIVERY` | DJC-CORE | Completed | Owner speech/manual replay and renderer voice admission |
+| `SPEECH::CORE::PERSONA` | DJC-CORE | Completed | Live ordered Session Persona settings |
+| `SPEECH::CORE::REALIZATION` | DJC-CORE | Completed | Persona-realized proactive narration in every family |
+| `SPEECH::JOINT::ACCEPTANCE` | DJC-CORE | Planned | Visible and audible shared product qualification |
+| `SETTINGS::CORE::DOCS` | DJC-CORE | Completed | Six-parameter canonical contract and platform settings inventory |
+| `SETTINGS::CORE::PRODUCER` | DJC-CORE | Completed | Atomic roaming Profile defaults and effective Session producer |
+| `SETTINGS::CORE::MIGRATION` | DJC-CORE | In progress | Qualified legacy migration/removal and owning-lane reconciliation |
+| `SETTINGS::APPLE::EDITOR` | DJC-APPLE | Planned | One Jouw DJ editor and shared Session quick controls |
+| `SETTINGS::PI::ADOPTION` | DJC-PI | Planned | Pi allowed shared Session settings and legacy disposition |
+| `SETTINGS::ESP32::ADOPTION` | DJC-ESP32 | Planned | ESP32 Assist/voice/settings compatibility and legacy disposition |
+| `SETTINGS::VIBECAST::COMPAT` | DJC-VIBECAST | Planned | Shared renderer allowed Session fields without Profile preferences |
+| `SETTINGS::WEBSITE::COPY` | DJC-WEBSITE | Planned | Six-parameter scope/help and obsolete settings copy audit |
+| `SETTINGS::JOINT::ACCEPTANCE` | DJC-CORE | Planned | Cross-device six-field effects, persistence and cleanup acceptance |
+| `CORRECTION::CORE::PERSONAL-DJ-EXPERIENCE` | DJC-CORE | In progress | Personal DJ restoration: current corrective acceptance remains open |

@@ -5,11 +5,26 @@ on:
     workflows: [Validate Home Assistant custom integration]
     types: [completed]
 
+concurrency:
+  group: ha-release-${{ github.event.workflow_run.head_sha }}
+  cancel-in-progress: false
+
 permissions:
   contents: write
 
 jobs:
+  paid-contextual-golden:
+    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main'
+    uses: ./.github/workflows/askdj-contextual-release-gate.yml
+    permissions:
+      contents: read
+    with:
+      candidate_sha: ${{ github.event.workflow_run.head_sha }}
+    secrets:
+      DJCONNECT_GOLDEN_OPENAI_API_KEY: ${{ secrets.DJCONNECT_GOLDEN_OPENAI_API_KEY }}
+
   package:
+    needs: paid-contextual-golden
     if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main'
     runs-on: ubuntu-latest
     steps:
@@ -20,7 +35,7 @@ jobs:
       - name: Package the exact integration artifact
         run: |
           set -euo pipefail
-          tar -C custom_components -czf djconnect-home-assistant-integration.tar.gz djconnect
+          tar -C custom_components --sort=name --mtime=@0 --owner=0 --group=0 --numeric-owner -cf - djconnect | gzip -n > djconnect-home-assistant-integration.tar.gz
           sha256sum djconnect-home-assistant-integration.tar.gz | awk '{print $1}' > djconnect-home-assistant-integration.sha256
       - id: release
         name: Publish immutable release asset
@@ -33,7 +48,16 @@ jobs:
           asset="djconnect-home-assistant-integration-${CANDIDATE_SHA}.tar.gz"
           mv djconnect-home-assistant-integration.tar.gz "$asset"
           gh release view "$tag" >/dev/null 2>&1 || gh release create "$tag" --target "$CANDIDATE_SHA" --title "DJConnect Home Assistant artifact ${CANDIDATE_SHA}" --prerelease --notes "Immutable internal deployment artifact."
-          gh release upload "$tag" "$asset" --clobber
+          test "$(gh release view "$tag" --json targetCommitish --jq .targetCommitish)" = "$CANDIDATE_SHA"
+          mkdir -p immutable-readback
+          if gh release view "$tag" --json assets --jq '.assets[].name' | grep -Fx "$asset"; then
+            gh release download "$tag" --pattern "$asset" --dir immutable-readback
+            test "$(sha256sum "immutable-readback/$asset" | awk '{print $1}')" = "$(cat djconnect-home-assistant-integration.sha256)"
+          else
+            gh release upload "$tag" "$asset"
+            gh release download "$tag" --pattern "$asset" --dir immutable-readback
+            test "$(sha256sum "immutable-readback/$asset" | awk '{print $1}')" = "$(cat djconnect-home-assistant-integration.sha256)"
+          fi
           printf 'asset=%s\n' "$asset" >> "$GITHUB_OUTPUT"
           printf 'artifact_id=release-asset:%s:%s:%s\n' "$GITHUB_REPOSITORY" "$tag" "$asset" >> "$GITHUB_OUTPUT"
           printf 'artifact_url=https://github.com/%s/releases/download/%s/%s\n' "$GITHUB_REPOSITORY" "$tag" "$asset" >> "$GITHUB_OUTPUT"
@@ -69,3 +93,20 @@ jobs:
           name: home-assistant-release-artifact-evidence
           path: home-assistant-release-artifact-evidence.json
           if-no-files-found: error
+
+  reconcile:
+    needs: [paid-contextual-golden, package]
+    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main'
+    permissions:
+      actions: read
+      checks: read
+      contents: write
+      pull-requests: read
+      statuses: write
+    uses: pcvantol/djconnect/.github/workflows/post-merge-release-evidence.yml@ebbb35f038a7a3c7d46c12660968bcd50eb67580
+    with:
+      policy_source_ref: ebbb35f038a7a3c7d46c12660968bcd50eb67580
+      required_main_workflow: Validate Home Assistant custom integration
+      required_check_contexts: '["Trusted Delivery qualification / Qualify trusted delivery"]'
+      repository_role: active_source
+      coverage_artifact_name: ha-cobertura-coverage

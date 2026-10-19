@@ -62,6 +62,12 @@ pause/seek/item/source/reconnect/end controls remain. No extra cards or audio.
 
 ## Existing AI route and source/channel qualification
 
+The later `PERSONAL_DJ_NARRATION_RESTORATION_V1.md` supersedes this original
+deterministic-only slice where it explicitly qualifies model expression. Its
+researched public Artist refinement owns the closed identity, evidence,
+processing, attribution, history and speech contract. This historical table
+does not grant general rewriting of catalog payloads or arbitrary web sources.
+
 Inspection: `TrackInsightAnalyzer` uses HA Assist context and
 `call_conversation_process_with_agent_retry`, with strict JSON normalization
 and deterministic fallback. It is the existing configured provider route;
@@ -125,3 +131,35 @@ decision. No installation or subsequent slice is selected.
 ## Reactive conversation style boundary
 
 The [shared Ask DJ design](ASK_DJ_CONVERSATIONAL_EXPERIENCE_V1.md) reuses the four established Persona meanings for reactive text through one style resolver. Confirmed active/paused Session Persona/Mood wins when that context is used; standalone explicit supported Persona/default, existing Profile response style/Mood and legacy numeric inputs have separately documented precedence. Voice style/dj_style is not Persona identity. Reactive answers do not use or advance this proactive published-only style memory, source realization permission or Moment budget. All five supported languages apply; fact/role/identity/authority are unchanged.
+
+## Selected Session narration/speech implementation delta
+
+[Session speech/Persona v1](SESSION_SPEECH_PERSONA_V1.md) records owner6189231491/autonomous-next6189912293. Its connected implementation is pending. The historical delivered/deferred qualifications above are preserved; this selected delta must explicitly qualify each source/processor and owner lifecycle before enabling speech. No blanket removal of visual-only, private Broadcast grant, new planner/provider or native implementation follows from this reference.
+
+
+## Selected speech/live-Persona extension (2026-10-15)
+
+The historical source qualification above remains its original bounded visual
+proof. The selected [Session speech/Persona](SESSION_SPEECH_PERSONA_V1.md) and
+[delivery/replay](SESSION_SPEECH_DELIVERY_V1.md) extension separately qualifies
+exact local reading of approved normalized content. An old visual-only slice is
+neither a permanent product ban nor a blanket model/cloud-processing grant.
+Persona-only read-fit now uses approved alternatives or Silence; it cannot fall
+back to a raw catalog sentence. Human date prose preserves actual year/month/day
+precision. Live Persona changes are paired/CAS-confirmed and affect future
+realizations; accepted old text/style stays immutable during replay. Processor,
+voice, Mood and Presence remain separate. The selected implementation is still
+local/in progress; no historical or whole-product acceptance is rewritten.
+
+
+## Living avatar and explicit touch-reaction boundary
+
+[Living Persona Avatar v1](DJ_PERSONA_LIVING_AVATAR_V1.md) keeps behavioral
+Persona separate from local animation, Mood, Presence and actual audio output.
+Its basic visual identity consumes existing admitted signals. Selected explicit
+touch feedback is not a proactive Moment or a fabricated Ask DJ request; its
+content, bounded admission, original speech reference and output policy require
+their own qualification before activation. Curated reaction fallback and any
+optional qualified HA-agent expression must retain the five-language contract,
+confirmed Persona/Mood and factual/privacy boundaries. No current model/source
+permission or proactive-budget reset is inferred by a tap.

@@ -29,6 +29,79 @@ def read_macos_host_bootstrap_source() -> str:
     return "\n".join(path.read_text(encoding="utf-8") for path in paths)
 
 
+class HostBootstrapCleanupCronTest(unittest.TestCase):
+    def cron_line(self, root: Path) -> str:
+        result = subprocess.run(
+            ["/bin/bash", "-c", 'source "$1"; verification_artifact_cleanup_cron_line "$2"',
+             "cron-test", str(HOST_BOOTSTRAP_PACKAGE / "core.sh"), str(root)],
+            text=True, capture_output=True, check=False,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        return result.stdout.rstrip("\n")
+
+    def test_legacy_space_free_root_keeps_the_same_schedule(self) -> None:
+        self.assertEqual(
+            self.cron_line(Path("/tmp/github")),
+            "0 3 * * * /bin/bash /tmp/github/djconnect/scripts/maintenance/"
+            "cleanup_verification_artifacts.sh --execute >> /tmp/github/djconnect/"
+            "logs/verification-artifact-cleanup.log 2>&1",
+        )
+
+    def test_space_and_shell_characters_execute_only_the_named_fixture(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            parent = Path(directory)
+            root = parent / "Shared Data's $(touch UNEXPECTED) `touch OTHER` &"
+            script = root / "djconnect/scripts/maintenance/cleanup_verification_artifacts.sh"
+            script.parent.mkdir(parents=True)
+            log = root / "djconnect/logs/verification-artifact-cleanup.log"
+            log.parent.mkdir(parents=True)
+            script.write_text('#!/bin/bash\nprintf "fixture:%s\\n" "$1"\n')
+            command = self.cron_line(root).removeprefix("0 3 * * * ")
+            result = subprocess.run(["/bin/sh", "-c", command], cwd=parent,
+                                    text=True, capture_output=True, check=False)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(log.read_text(), "fixture:--execute\n")
+            self.assertFalse((parent / "UNEXPECTED").exists())
+            self.assertFalse((parent / "OTHER").exists())
+
+    def test_percent_in_path_is_escaped_for_cron_before_shell_parsing(self) -> None:
+        line = self.cron_line(Path("/tmp/Shared Data%literal"))
+        self.assertIn(r"Data\%literal", line)
+
+    def test_installer_emits_the_verified_line_and_preserves_unrelated_cron(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            parent = Path(directory)
+            root = parent / "Shared Data's &" / "GitHub"
+            capture = parent / "captured-crontab"
+            # Only the exact installer function runs. Host crontab, launchd and
+            # deletion are replaced with inert fixture services; HOME is intact.
+            program = '''set -e
+source "$4"
+REPO_ROOT="$1/djconnect"
+LOG_DIR="$REPO_ROOT/logs"
+fixture_capture="$2"
+fixture_temp="$3"
+crontab() {
+  if [[ "$1" == '-l' ]]; then
+    printf '%s\\n' '5 4 * * * /fixture/other-job'
+  else
+    /bin/cp "$1" "$fixture_capture"
+  fi
+}
+mktemp() { printf '%s\\n' "$fixture_temp"; }
+launchctl() { return 0; }
+rm() { return 0; }
+install_verification_cleanup
+'''
+            result = subprocess.run(["/bin/bash", "-s", "--", str(root), str(capture),
+                                     str(parent / "fixture-cron-temp"), str(SCRIPT)],
+                                    input=program, text=True, capture_output=True, check=False)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            lines = capture.read_text().splitlines()
+            self.assertEqual(lines[0], "5 4 * * * /fixture/other-job")
+            self.assertIn(self.cron_line(root), lines)
+
+
 def run_script(*args: str, stdin: str | None = None) -> subprocess.CompletedProcess[str]:
     env = os.environ.copy()
     env["NO_COLOR"] = "1"
@@ -164,7 +237,7 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("git -C \"$repo\" check-ignore -q", source)
         self.assertIn("--install-verification-cleanup", source)
         self.assertIn("cleanup_verification_artifacts.sh", source)
-        self.assertIn("0 3 * * * /bin/bash", source)
+        self.assertIn("0 3 * * * %s", source)
         self.assertIn("verification-artifact-cleanup.log", source)
 
     def test_macos_host_bootstrap_has_no_token_argument(self) -> None:
@@ -261,11 +334,11 @@ class DevOnboardingScriptTests(unittest.TestCase):
         desired_state = MACOS_DEVELOPMENT_HOST_DESIRED_STATE.read_text()
         self.assertIn("schema_version: 1", desired_state)
         self.assertIn("host.minimum_free_disk_gb: 5", desired_state)
-        self.assertIn("onboarding.package_version: 4.5.3", desired_state)
+        self.assertIn("onboarding.package_version: 4.5.4", desired_state)
         self.assertNotIn("engineering.", desired_state)
         self.assertIn("python@3.14", desired_state)
         self.assertNotIn("python@3.12", desired_state)
-        self.assertIn("version: 3.3.0", desired_state)
+        self.assertIn("version: 3.3.1", desired_state)
         self.assertIn("minimum_tool_version: 2.0.2", desired_state)
         self.assertIn("# runner.profiles: apple,private-network,esp32,pi,windows", desired_state)
         self.assertIn("runner.profiles: apple,private-network,esp32,pi", desired_state)
@@ -307,7 +380,7 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout)
         self.assertEqual(
             result.stdout,
-            "DJConnect macOS Development Host Bootstrap 2.0.21\n",
+            "DJConnect macOS Development Host Bootstrap 2.0.22\n",
         )
         self.assertTrue(MACOS_HOST_BOOTSTRAP_CHANGELOG.is_file())
         changelog = MACOS_HOST_BOOTSTRAP_CHANGELOG.read_text(encoding="utf-8")
@@ -668,19 +741,19 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertTrue((HOST_BOOTSTRAP_PACKAGE / "apple.sh").is_file())
         self.assertTrue(HOST_BOOTSTRAP_MANIFEST.is_file())
         manifest = HOST_BOOTSTRAP_MANIFEST.read_text(encoding="utf-8")
-        self.assertIn("package.version: 2.0.21", manifest)
+        self.assertIn("package.version: 2.0.22", manifest)
         self.assertIn("package.aggregate_sha256:", manifest)
         self.assertIn("component.entry.sha256:", manifest)
         self.assertIn("component.workflow.version: 1.3.4", manifest)
-        self.assertIn("component.operations.version: 1.3.13", manifest)
+        self.assertIn("component.operations.version: 1.3.14", manifest)
         self.assertIn("component.cli.version: 1.3.1", manifest)
         self.assertIn("component.apple.version: 1.0.0", manifest)
         source = read_macos_host_bootstrap_source()
         self.assertIn("verify_recovery_package_manifest", source)
         self.assertIn("Host-bootstrap package component", source)
         self.assertIn("aggregate SHA-256 mismatch", source)
-        self.assertIn("require_canonical_onboarding_4_5_3", source)
-        self.assertIn("requires onboarding 4.5.3", source)
+        self.assertIn("require_canonical_onboarding_4_5_4", source)
+        self.assertIn("requires onboarding 4.5.4", source)
         for legacy in ("engineering.platform_version", "engineering.watcher_launch_agent", "engineering.dashboard_launch_agent", "engineering.dashboard_relay_launch_agent", "engineering.dashboard_health", "engineering.local_api", "engineering.status_storage", "engineering.report_storage", "engineering.inbox_transport", "repair_engineering_platform", "tools.engineering", "8765", "8766"):
             self.assertNotIn(legacy, source)
 

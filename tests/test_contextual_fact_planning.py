@@ -49,7 +49,7 @@ class ContextualFactPlanningTest(unittest.TestCase):
         return album, recording, artist
 
     def run_session(self, facts, *, discover=False, mood="neutral", positions=(0,), duration=300000,
-                    persona=None, allowed=None, direction=None, durations=None, locale="nl", presence="balanced"):
+                    persona=None, allowed=None, direction=None, durations=None, locale="nl", presence="presenter"):
         async def scenario():
             now = [100.0]
             manager = self.runtime.SessionRuntimeManager(monotonic_source=lambda: now[0])
@@ -116,6 +116,17 @@ class ContextualFactPlanningTest(unittest.TestCase):
         self.assertEqual({m["source_url"] for m in manual}, {m["source_url"] for m in discover})
         self.assertTrue(all(m["reason"].startswith("contextual_fact:") for m in discover))
 
+    def test_missing_persona_anchors_cannot_publish_original_provider_copy(self):
+        album, _, _ = self.pool()
+        unstructured = replace(album, display_core=None)
+        self.assertTrue(unstructured.eligible(unstructured.media_identity, unstructured.observed_at))
+        engine = self.runtime.DJMomentEngine()
+        before = (engine._track_keys.copy(), engine._expression_forms)
+        result = engine.preview_qualified_fact(fact=unstructured, selected_mood="groove",
+            persona=self.runtime.DJPersona.RADIO_DJ, locale="nl", remaining_seconds=300)
+        self.assertIsNone(result)
+        self.assertEqual((engine._track_keys, engine._expression_forms), before)
+
     def test_long_candidate_does_not_block_short_fact_or_consume_rejected_angle(self):
         album, recording, artist = self.pool(long=True)
         receipts, session = self.run_session((recording, album, artist), positions=(0,), duration=50000)
@@ -134,8 +145,8 @@ class ContextualFactPlanningTest(unittest.TestCase):
         self.assertEqual(neutral[1]["position_ms"], 45000)
         self.assertEqual(calm[1]["position_ms"], 50000)
         self.assertEqual(club[1]["position_ms"], 50000)
-        anchors={"track":("Test producer",), "album":("Test edition","2001-03-04"),
-                 "artist":("Test artist","1960-01-02")}
+        anchors={"track":("Test producer",), "album":("Test edition","4 maart 2001"),
+                 "artist":("Test artist","2 januari 1960")}
         for moment in neutral+calm+club:
             self.assertTrue(all(anchor in moment["content"] for anchor in anchors[moment["type"]]))
 
@@ -185,5 +196,8 @@ class ContextualFactPlanningTest(unittest.TestCase):
         for locale in self.facts.LANGUAGES:
             receipts, _ = self.run_session(pool, discover=True, locale=locale)
             self.assertIn("Test artist",receipts[0]["content"])
-            self.assertIn("1960-01-02",receipts[0]["content"])
+            dates = {"en": "2 January 1960", "nl": "2 januari 1960", "de": "2. Januar 1960",
+                     "fr": "2 janvier 1960", "es": "2 de enero de 1960"}
+            self.assertIn(dates[locale], receipts[0]["content"])
+            self.assertEqual(pool[2].display_core.date, "1960-01-02")
             self.assertEqual(receipts[0]["source_url"],pool[2].source_url)

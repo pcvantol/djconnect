@@ -3,6 +3,7 @@
 from __future__ import annotations
 from dataclasses import dataclass
 import hashlib
+import json
 import re
 import time
 from typing import Any
@@ -201,6 +202,7 @@ async def resolve_target(
         {
             "archive_basis": "cc0_normalized_fields_v1",
             "text": moment.content,
+            "qualified_fact_text": fact.copy_for(active.locale)[1],
             "source_attribution": dict(moment.source_attribution),
             "dialogue_subjects": normalized_subjects(fact),
         }
@@ -222,3 +224,50 @@ async def resolve_target(
     qualified = TrackInsightTarget(tuple(track.items()), model, dict(target), expires, validate)
     qualified.guard()
     return qualified
+
+
+def current_knowledge_context(hass, profile_id, track):
+    """Exact current CC0 knowledge, independently of which Moment was published."""
+    from .session_facts import QualifiedSessionFact
+    from .ask_dj.dialogue import model_source, normalized_subjects
+    uri = track.get('_media_identity')
+    if not profile_id or not re.fullmatch(r'spotify:track:[A-Za-z0-9]{22}', str(uri or '')):
+        return None
+    manager = session_runtime_manager(hass)
+    active = manager.current_active(profile_id)
+    opportunity = manager._intra_track_opportunities.get(profile_id)
+    if active is None or opportunity is None:
+        return None
+    playback = active.broadcast.state.playback
+    identity = hashlib.sha256(uri.encode()).hexdigest()[:24]
+    if (opportunity.session_id != active.session_id or opportunity.media_identity != uri
+            or opportunity.item_id != identity or playback.item_id != identity or playback.state != 'playing'
+            or playback.title != track.get('title') or playback.artist != track.get('artist')):
+        return None
+    facts = [f for f in opportunity.qualified_facts if type(f) is QualifiedSessionFact
+        and f.key in {'recording_credits','work_composers'} and f.provider == 'MusicBrainz'
+        and f.license == 'CC0-1.0' and f.eligible(uri, time.monotonic())]
+    if not facts or any(a.key == b.key and a != b for a in facts for b in facts):
+        return None
+    fact = min(facts, key=lambda f:(f.key, f.source_url))
+    grant = history_grant_revision(hass, profile_id)
+    captured = (opportunity.generation, active.mood_revision, active.persona_revision, active.settings_revision)
+    def guard():
+        current = manager.current_active(profile_id)
+        if (current is not active or manager._intra_track_opportunities.get(profile_id) is not opportunity
+                or (opportunity.generation, active.mood_revision, active.persona_revision, active.settings_revision) != captured
+                or history_grant_revision(hass, profile_id) != grant
+                or active.broadcast.state.playback.item_id != identity
+                or active.broadcast.state.playback.state != 'playing'
+                or not any(f is fact for f in opportunity.qualified_facts)
+                or not fact.eligible(uri, time.monotonic())):
+            raise TrackInsightError('track_insight_context_changed', 'The current qualified recording context changed.', status=409)
+    guard()
+    context = model_source({'archive_basis':'cc0_normalized_fields_v1',
+        'text':fact.copy_for(active.locale)[1], 'qualified_fact_text':fact.copy_for(active.locale)[1],
+        'source_attribution':{'provider':fact.provider,'url':fact.source_url,'license':fact.license},
+        'dialogue_subjects':normalized_subjects(fact)})
+    if not context:
+        return None
+    return context, guard, hashlib.sha256(json.dumps([profile_id, grant, captured, fact.source_url,
+        fact.observed_at, fact.source_expires_at, context],sort_keys=True).encode()).hexdigest(), active

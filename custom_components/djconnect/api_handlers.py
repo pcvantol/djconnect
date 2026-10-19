@@ -174,8 +174,13 @@ async def async_handle_session_history_payload(
     from .session_history_projection import HistoryQueryError
     from .historical_projection_query import HistoricalProjectionAccessDenied
     from .persistence.service import PersistenceError
+    from .history_entry_contract import (request_version, represent, version_context,
+                                          HistoryEntryUpgradeRequired, upgrade_error)
 
+    version_token = None
     try:
+        entry_version = request_version(data.get('history_contract_version'))
+        version_token = version_context.set(entry_version)
         query = query_service(hass, _history_manager(hass, runtime))
         limit = data.get("limit", 20)
         if isinstance(limit, str) and limit.isascii() and limit.isdigit():
@@ -233,13 +238,18 @@ async def async_handle_session_history_payload(
             return _error_payload("history_unavailable"), 403
         if not current.privacy_policy.allow_personal_read or not resolve_profile_privacy_policy(current.profile, {}).allow_personal_read:
             return _error_payload("history_not_allowed"), 403
-        return result, 200
+        return represent(result, entry_version), 200
+    except HistoryEntryUpgradeRequired:
+        return upgrade_error(), 409
     except HistoricalProjectionAccessDenied:
         return _error_payload("history_unavailable"), 404
     except HistoryQueryError as exc:
         return _error_payload(str(exc)), 409 if "cursor" in str(exc) else 400
     except (PersistenceError, RuntimeError):
         return _error_payload("history_unavailable"), 503
+    finally:
+        if version_token is not None:
+            version_context.reset(version_token)
 async def async_handle_session_start_payload(
     hass: Any, data: dict[str, Any], *, headers: Any | None = None, user_id: str | None = None
 ) -> tuple[dict[str, Any], int]:
@@ -274,6 +284,9 @@ async def async_handle_session_start_payload(
     except ActiveSessionExistsError:
         active = await session_runtime_manager(hass).async_get_active(context.profile_id)
         return {"success": False, "error": "active_session_exists", "active_session": active.as_dict() if active else None}, 409
+    from .speaker_delivery import connect_automatic
+    connect_automatic(hass, runtime, session, identity_payload(data), headers or {})
+    _connect_session_narration(hass, runtime, context, session, identity_payload(data), headers or {})
     await _async_generate_initial_session_moment(
         hass=hass,
         integration_runtime=runtime,
@@ -304,8 +317,10 @@ async def async_handle_session_start_payload(
 async def _async_generate_initial_session_moment(
     *, hass: Any, integration_runtime: Any, owner_profile_id: str, session: Any
 ) -> None:
-    """Use the established Track Insight pipeline through the Runtime trigger."""
-    await session_runtime_manager(hass).async_process_track_started(
+    """Publish one welcome before using the established Track Insight trigger."""
+    manager = session_runtime_manager(hass)
+    await manager.async_open_session(owner_profile_id=owner_profile_id, session_id=session.session_id)
+    await manager.async_process_track_started(
         owner_profile_id=owner_profile_id,
         session_id=session.session_id,
         insight_provider=_session_track_insight_provider(
@@ -726,22 +741,11 @@ async def async_handle_session_broadcast_handoff_approve_payload(
         return _error_payload("active_session_not_found"), 404
     from .broadcast_handoff import broadcast_handoff_manager
 
-    # The normal paired owner approval alone remains a read-only handoff.
-    # This opt-in is saved through HA options, never inferred from a receiver.
-    runtime, _context, error, _status = await _session_profile_context(
-        hass, data, headers=headers, user_id=user_id, source="session_broadcast_end_consent"
-    )
-    end_grant = ""
-    if error is None and getattr(runtime, "config", {}).get("vibecast_session_end_allowed") is True:
-        end_grant = await manager.async_issue_receiver_end_grant(owner_profile_id=profile_id, session_id=session_id,
-            entry_id=str(getattr(getattr(runtime, "entry", None), "entry_id", "") or ""),
-            entry_generation=getattr(runtime, "_receiver_end_generation", 0))
     approved = await broadcast_handoff_manager(hass).approve(
         code,
         owner_profile_id=profile_id,
         session_id=session_id,
         broadcast_token=str(contract["broadcast_token"]),
-        end_grant=end_grant,
     )
     if not approved:
         return _error_payload("handoff_code_unavailable"), 404
@@ -1140,6 +1144,13 @@ def _unexpected_backend_error_result(
     exc: Exception,
 ) -> tuple[dict[str, Any], int]:
     """Map expected and unexpected backend exceptions to legacy responses."""
+    from .spotify_backend import SpotifyOutputError
+    if isinstance(exc, SpotifyOutputError):
+        from .playback_request import failure
+        from .ask_dj import _response_language
+        # This target failure provides no new global backend-health evidence.
+        result = failure(exc.code, _response_language(runtime, data), uncertain=exc.uncertain)
+        return _backend_error_result(runtime, data, command, normalized_command, result, 200)
     if _looks_like_backend_capability_error(exc):
         runtime.update(last_error=_safe_backend_error_message(exc))
         result = _unsupported_backend_capability_payload(hass, runtime, exc)
@@ -1268,6 +1279,74 @@ def _is_current_track_question_text(value: str) -> bool:
     }
 
 
+def _connect_session_narration(hass, runtime, context, session, identity, headers):
+    """Reuse the HA announcement owner; retain only ordinary device authority."""
+    identity = {key: identity.get(key) for key in ("device_id", "client_type")}
+    headers = {name: value for name in ("Authorization", "X-DJConnect-Device-ID")
+               if (value := headers.get(name)) is not None}
+    # Broad HA/service credentials are not a substitute for an owner device grant.
+    if not identity.get("device_id") or not headers.get("Authorization"):
+        return
+    from .ask_dj.dialogue import source_scope
+    scope = source_scope(context.profile)
+    storage = profile_storage(hass)
+    device = storage.household.devices.get(identity["device_id"])
+    binding = getattr(device, "binding_generation", None)
+
+    def authorize():
+        try:
+            if profile_storage(hass) is not storage:
+                raise PermissionError("narration_authority_changed")
+            _conversation_profile_fence(hass, runtime, identity, headers, context)
+            current = storage.resolver().resolve_bound_device(identity["device_id"])
+            current_device = storage.household.devices.get(identity["device_id"])
+            if (source_scope(current) != scope
+                    or getattr(current_device, "binding_generation", None) != binding):
+                raise PermissionError("narration_owner_changed")
+        except Exception:
+            raise PermissionError("narration_owner_changed") from None
+
+    def capture_authority():
+        # Revisions/latch fence one pending operation, not all future legitimate
+        # operations after the owner deliberately changes their Assist provider.
+        authorize()
+        from .pipeline import _assist_context
+        revision = storage.authority_revision
+        selected_pipeline = _assist_context(hass, runtime.config)
+        entry = getattr(runtime, "entry", None)
+        entry_revision = getattr(entry, "modified_at", None)
+        revoked = False
+        def current():
+            nonlocal revoked
+            try:
+                if (revoked or storage.authority_revision != revision
+                        or getattr(entry, "modified_at", None) != entry_revision
+                        or _assist_context(hass, runtime.config) != selected_pipeline):
+                    raise PermissionError("narration_authority_changed")
+                authorize()
+            except Exception:
+                revoked = True
+                raise PermissionError("narration_owner_changed") from None
+        return current
+
+    async def realize(brief, guard):
+        from .pipeline import realize_session_narration
+        authorize()
+        text = await realize_session_narration(
+            hass,  fallback_text=brief.seed, conf=runtime.config,
+            narration=brief, admission=guard)
+        authorize()
+        return text
+
+    async def archive_admission(captured):
+        from .session_conversation import async_metadata_archive_admission
+        return await async_metadata_archive_admission(hass, context.profile_id, captured, authorize)
+
+    session_runtime_manager(hass).connect_narration(
+        context.profile_id, session.session_id, realize, authorize,
+        capture_authority=capture_authority, archive_admission=archive_admission)
+
+
 def _conversation_profile_fence(hass, runtime, identity, headers, context, *, _ha_service_runtime=None):
     """A synchronous owner fence after the final Store/source/Profile await."""
     from .session_conversation import SessionConversationError
@@ -1350,7 +1429,7 @@ async def async_handle_ask_dj_message_payload(
         identity[CONF_CLIENT_TYPE] = client_type
         if not authorize_runtime_device_request(runtime, headers, identity.get("device_id"), client_type):
             return _error_payload("unauthorized"), 401
-    payload = dict(data)
+    payload = {key: value for key, value in data.items() if key != "_frozen_playback_selection"}
     payload.update({key: value for key, value in identity.items() if value is not None})
     payload = enrich_payload_with_mood_zone(payload)
     _debug_ask_dj_request("message", runtime, payload, user_id=user_id)

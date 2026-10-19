@@ -309,6 +309,19 @@ async def main():
             def request(self, method, url, **kwargs):
                 return ProviderResponse(method, url, kwargs.get("json"))
 
+        touch_processor = None
+        if os.environ.get('DJC_PERSONA_TOUCH_PROBE') or os.environ.get('DJC_DEVICE_SPEECH_PROBE'):
+            from scripts.verification.verify_session_speech_http import processor_fixture
+            agent_id = None
+            if os.environ.get('DJC_DEVICE_SPEECH_PROBE'):
+                from homeassistant.components import conversation
+                from homeassistant.components.homeassistant.exposed_entities import ExposedEntities, DATA_EXPOSED_ENTITIES
+                exposed = ExposedEntities(h)
+                await exposed.async_initialize()
+                h.data[DATA_EXPOSED_ENTITIES] = exposed
+                assert await conversation.async_setup(h, {})
+                agent_id = conversation.HOME_ASSISTANT_AGENT
+            touch_processor = await processor_fixture(h, agent_id)
         server_ssl, client_ssl = tls(directory)
         runner = web.AppRunner(h.http.app)
         await runner.setup()
@@ -374,6 +387,17 @@ async def main():
                         "transport/context", {"contract_version": 1, "identity": identity}
                     )
                     assert ctx["ha_install_id"] == "ha_owned_hybrid_fixture"
+                    if os.environ.get('DJC_DEVICE_SPEECH_PROBE'):
+                        from scripts.verification.device_speech_lab import run
+                        await run(h, runtime, client, post, identity, Path('/lab'), headers,
+                                  storage, secure, touch_processor, pair)
+                        return
+                    if os.environ.get('DJC_PERSONA_TOUCH_PROBE'):
+                        from scripts.verification.persona_touch_reaction_lab import run
+                        await run(h, runtime, client, post, identity, Path('/lab'), headers,
+                                  manager, storage, secure, touch_processor)
+                        return
+
                     async with client.post(
                         secure + "/api/djconnect/v1/transport/context",
                         headers={"Origin": "https://foreign.invalid"},
@@ -445,6 +469,9 @@ async def main():
                     assert opening_moments and all(m["type"] != "silence" for m in opening_moments)
                     original_cursor = recovery["recovery_cursor"]
                     assert not manager.current_active("profile-a").broadcast._subscribers
+                    from scripts.verification.hybrid_direct_local_probe import probe
+
+                    await probe(h, client, plain, identity, headers, ctx, session_id, new_id, receipts, provider_calls, state)
                     async with client.ws_connect(
                         secure + "/api/djconnect/v1/actions/paired"
                     ) as wrong:
@@ -1266,13 +1293,12 @@ async def main():
                 for p in sorted((ROOT / "custom_components/djconnect").rglob("*"))
                 if p.is_file() and "__pycache__" not in p.parts
             }
-            source_hashes[str(Path(__file__).relative_to(ROOT))] = hashlib.sha256(
-                Path(__file__).read_bytes()
-            ).hexdigest()
+            for script in (Path(__file__), ROOT / "scripts/verification/hybrid_direct_local_probe.py"):
+                source_hashes[str(script.relative_to(ROOT))] = hashlib.sha256(script.read_bytes()).hexdigest()
             Path("/lab/hybrid.json").write_text(
                 json.dumps(
                     {
-                        "qualification": "PASS_CORE_TLS_HA_BASELINE",
+                        "qualification": "PASS_CORE_TLS_AND_QUALIFIED_DIRECT_LOOPBACK",
                         "source_hashes": source_hashes,
                         "transport_receipts": receipts,
                         "provider_calls": provider_calls,
@@ -1296,13 +1322,16 @@ async def main():
             print(
                 json.dumps(
                     {
-                        "qualification": "PASS_CORE_TLS_HA_BASELINE",
+                        "qualification": "PASS_CORE_TLS_AND_QUALIFIED_DIRECT_LOOPBACK",
                         "cases": len(receipts),
                         "mutations": state["mutations"],
                     }
                 )
             )
         finally:
+            if touch_processor is not None:
+                touch_processor[0].close()
+                await touch_processor[0].wait_closed()
             if "hybrid_operation_manager" in h.data["djconnect"]:
                 await operations(h).close()
             await runner.cleanup()

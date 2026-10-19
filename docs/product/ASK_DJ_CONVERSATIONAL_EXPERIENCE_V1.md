@@ -53,6 +53,7 @@ Composer, performer, producer and general biography remain distinct claims.
 | Pronoun or “that album” | Use the current permitted subject; if ambiguous, ask one targeted question. |
 | Volume/skip/pause between questions | Fast existing control; preserve relevant subject and a still-valid result set. |
 | Temporary “more acoustic / less gloomy” | Refine the musical request; no implicit durable preference, Mood setting, queue replacement or Session start. |
+| Named catalogue question → “which ones?” | Actual titles and artist subtitles in the live reply; original card order/IDs/expiry, no model/search/playback on the follow-up. Missing/expired list gets a useful five-language recovery instruction. |
 | Real lookup results → “the second” | Bind to the exact shown set and item, never a newly sorted or model-invented list. |
 | Result preview, selection, navigation | No playback, microphone, model or TTS side effect merely from viewing. |
 | Explicit valid Play / clear control | Authorized existing effect, concise response based on actual outcome. |
@@ -157,3 +158,21 @@ The real paired baseline on ba84d2ac reproduces one unintended play request
 from 'wat was vorige nummer'; this is source proof, not installed root cause.
 Both independent reviewers approved the directed contract refinement; new
 source, real conversation and native/installed acceptance remain pending.
+
+
+## Artist/genre album and playlist options — 18October2026 correction
+
+The existing artist/genre options route publishes one short localized intro and
+one playable collection in `playback_actions`. Titles, subtitle/curator, proxied
+artwork, media kind and the existing exact action/result-set identity belong to
+those cards. `items` is empty for this route: it must not duplicate the playable
+collection as informational rows. The intro does not enumerate all card titles.
+The existing `result_set.items` remains selection metadata, not another visible
+collection. Other informational/recent-history routes retain their own contracts.
+
+The same accepted intro is the literal speech source through the existing
+reference/prepare/private-audio path, including Settings3's confirmed voice.
+Preparing speech never re-runs catalogue lookup or a playback request. Original
+source expiry, source/owner/settings fences, text-only and provider-error notices
+remain unchanged. This is no richer archive right or native/audible acceptance.
+[Qualification and the still-open original iPhone speech failure](../verification/ASK_DJ_PLAYABLE_OPTIONS_20261018.md).

@@ -1,0 +1,60 @@
+name: Ask DJ paid contextual release gate
+
+on:
+  push:
+    tags: ['v*', '[0-9]*', 'internal-ha-*']
+  workflow_dispatch:
+    inputs:
+      candidate_sha:
+        description: Exact reviewed commit already reachable from main
+        required: true
+        type: string
+  workflow_call:
+    inputs:
+      candidate_sha:
+        required: true
+        type: string
+    secrets:
+      DJCONNECT_GOLDEN_OPENAI_API_KEY:
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  paid-contextual-golden:
+    name: Paid contextual Golden (blocking)
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v5
+        with:
+          ref: ${{ inputs.candidate_sha || github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Validate candidate and trusted ancestry before paid access
+        env:
+          CANDIDATE_SHA: ${{ inputs.candidate_sha || github.sha }}
+        run: |
+          test "$(git rev-parse HEAD)" = "$CANDIDATE_SHA"
+          git merge-base --is-ancestor "$CANDIDATE_SHA" refs/remotes/origin/main
+      - name: Validate current route and conversation inventory
+        run: python3 tools/verification/askdj_release_inventory.py
+      - name: Verify renderer runtime before paid access
+        run: node --version
+      - name: Run real paired HA and real bounded model calls
+        env:
+          DJCONNECT_GOLDEN_OPENAI_API_KEY: ${{ secrets.DJCONNECT_GOLDEN_OPENAI_API_KEY }}
+          CANDIDATE_SHA: ${{ inputs.candidate_sha || github.sha }}
+        run: |
+          python3 tools/verification/run_askdj_release_matrix.py \
+            --candidate-sha "$CANDIDATE_SHA" \
+            --report-path "$RUNNER_TEMP/askdj-contextual-golden.json"
+      - name: Retain only bounded redacted evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: askdj-contextual-golden-${{ inputs.candidate_sha || github.sha }}
+          path: ${{ runner.temp }}/askdj-contextual-golden.json
+          if-no-files-found: error
+          retention-days: 7

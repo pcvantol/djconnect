@@ -1,0 +1,1269 @@
+{
+  "receipt": {
+    "schema_version": "djconnect-web-first-design/1",
+    "base_delta_version": "djconnect-federated-planning-delta/11",
+    "assignment_id": "DJC-VIBECAST-WEB-FIRST-GUEST-EXPERIENCE-DESIGN-V1-20261015",
+    "issue": "https://github.com/pcvantol/djconnect/issues/1174",
+    "phase": "SOURCE_PROTECTED_MERGED",
+    "product_implementation": "Planned",
+    "joint_acceptance": "OPEN",
+    "automatic_dispatch": false,
+    "runtime_writes": false,
+    "predecessor_nodes_sha256": "76906156bbab02e63909305b0fd47cf1639d87093033eb6085a161148f0cb9a6",
+    "predecessor_edges_sha256": "5d08ea2f48c4fb72967d006f35370ebada5f225244cd783851d08ff7826d4926",
+    "open_decisions": [
+      "short_url",
+      "unspecified_exception",
+      "five_emoji",
+      "crypto_service_browser",
+      "shared_media_rights",
+      "apple_renderer",
+      "budgets_share_policy"
+    ],
+    "legacy_disposition": {
+      "Cast-first": "SUPERSEDED_DESIGN",
+      "native-LG-prerequisite": "SUPERSEDED_DESIGN_ADAPTER_DEFERRED",
+      "shared-renderer": "KEEP_ADAPT",
+      "universal-receiver": "REUSE",
+      "legacy-opt-in-end": "KEEP_INSTALLED_NEW_TV_READONLY"
+    },
+    "coordination": "Existing Core writer confirmed docs-before-speech serialization; no unmerged speech bytes imported; future speech wrapper must preserve this versioned extension.",
+    "source_pr": 1175,
+    "source_main_sha": "7266bc2540e4b7699cf47c028214e4b22c4c5afe",
+    "reviewed_candidate": "a048d46383c82b086ab7986c765df4e6a8d50e00",
+    "protected_merge": true,
+    "required_checks": "PASS",
+    "owner_authorization_run": 38771192832,
+    "source_archive_sha256": "19887cceb075bac98d04fe8bf147873587b93d52849c06446f70165cce88990c",
+    "source_formal_sha256": "add8bb4a37c3edffbef9db5d6e56a5b8e211925b7ede771d64622ab43e4d1926"
+  },
+  "nodes": [
+    {
+      "id": "WEB::DOCS",
+      "title": "Whole web-first documentary design",
+      "lane": "DJC-CORE",
+      "repository": "pcvantol/djconnect",
+      "status": "Completed",
+      "assignment_status": "DESIGN_AUTHORED",
+      "scope": "Whole web-first documentary design",
+      "acceptance_boundary": "Documentary authorship only; protected source/Finalization separate",
+      "contract_binding": "docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md",
+      "source_ids": [
+        "OWNER-WEB-FIRST-1174"
+      ],
+      "parent_reference": "PROJ::ROADMAP::P2-VIBECAST",
+      "family_reference": "Existing VibeCast / Audience / Guest bounded subset",
+      "prerequisite_groups": []
+    },
+    {
+      "id": "WEB::DISPOSITION",
+      "title": "Implement reviewed web-first legacy disposition",
+      "lane": "DJC-CORE",
+      "repository": "pcvantol/djconnect",
+      "status": "Planned",
+      "assignment_status": "NOT_ISSUED",
+      "scope": "Implement reviewed web-first legacy disposition",
+      "acceptance_boundary": "Implement reviewed web-first legacy disposition; exact source/consumer, visible/audible/physical and joint acceptance OPEN",
+      "contract_binding": "docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md",
+      "source_ids": [
+        "OWNER-WEB-FIRST-1174"
+      ],
+      "parent_reference": "PROJ::ROADMAP::P2-VIBECAST",
+      "family_reference": "Existing VibeCast / Audience / Guest bounded subset",
+      "prerequisite_groups": [
+        {
+          "mode": "AND",
+          "edge_ids": [
+            "WEB-FIRST-20"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "WEB::TRUST",
+      "title": "Qualify browser-bound onboarding and guest trust contract",
+      "lane": "DJC-CORE",
+      "repository": "pcvantol/djconnect",
+      "status": "Planned",
+      "assignment_status": "NOT_ISSUED",
+      "scope": "Qualify browser-bound onboarding and guest trust contract",
+      "acceptance_boundary": "Qualify browser-bound onboarding and guest trust contract; exact source/consumer, visible/audible/physical and joint acceptance OPEN",
+      "contract_binding": "docs/product/VIBECAST_ONBOARDING_GUEST_AUTHORITY_V1.md",
+      "source_ids": [
+        "OWNER-WEB-FIRST-1174"
+      ],
+      "parent_reference": "PROJ::INNOVATION::GUEST",
+      "family_reference": "Existing VibeCast / Audience / Guest bounded subset",
+      "prerequisite_groups": [
+        {
+          "mode": "AND",
+          "edge_ids": [
+            "WEB-FIRST-21"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "WEB::BOOTSTRAP",
+      "title": "Temporary encrypted rendezvous service",
+      "lane": "DJC-API",
+      "repository": "pcvantol/djconnect-api",
+      "status": "Planned",
+      "assignment_status": "NOT_ISSUED",
+      "scope": "Temporary encrypted rendezvous service",
+      "acceptance_boundary": "Temporary encrypted rendezvous service; exact source/consumer, visible/audible/physical and joint acceptance OPEN",
+      "contract_binding": "docs/product/VIBECAST_ONBOARDING_GUEST_AUTHORITY_V1.md",
+      "source_ids": [
+        "OWNER-WEB-FIRST-1174"
+      ],
+      "parent_reference": "PROJ::ROADMAP::P2-VIBECAST",
+      "family_reference": "Existing VibeCast / Audience / Guest bounded subset",
+      "prerequisite_groups": [
+        {
+          "mode": "AND",
+          "edge_ids": [
+            "WEB-FIRST-16",
+            "WEB-FIRST-39"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "WEB::DISPLAY",
+      "title": "Separate HA code and readonly display grant",
+      "lane": "DJC-CORE",
+      "repository": "pcvantol/djconnect",
+      "status": "Planned",
+      "assignment_status": "NOT_ISSUED",
+      "scope": "Separate HA code and readonly display grant",
+      "acceptance_boundary": "Separate HA code and readonly display grant; exact source/consumer, visible/audible/physical and joint acceptance OPEN",
+      "contract_binding": "docs/product/VIBECAST_ONBOARDING_GUEST_AUTHORITY_V1.md",
+      "source_ids": [
+        "OWNER-WEB-FIRST-1174"
+      ],
+      "parent_reference": "PROJ::ROADMAP::P2-VIBECAST",
+      "family_reference": "Existing VibeCast / Audience / Guest bounded subset",
+      "prerequisite_groups": [
+        {
+          "mode": "AND",
+          "edge_ids": [
+            "WEB-FIRST-17",
+            "WEB-FIRST-40"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "WEB::OWNER-SCANNER",
+      "title": "Paired owner scanner and explicit installation confirmation",
+      "lane": "DJC-APPLE",
+      "repository": "pcvantol/djconnect-app",
+      "status": "Planned",
+      "assignment_status": "NOT_ISSUED",
+      "scope": "Paired owner scanner and explicit installation confirmation",
+      "acceptance_boundary": "Paired owner scanner and explicit installation confirmation; exact source/consumer, visible/audible/physical and joint acceptance OPEN",
+      "contract_binding": "docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md",
+      "source_ids": [
+        "OWNER-WEB-FIRST-1174"
+      ],
+      "parent_reference": "PROJ::ROADMAP::P2-VIBECAST",
+      "family_reference": "Existing VibeCast / Audience / Guest bounded subset",
+      "prerequisite_groups": [
+        {
+          "mode": "AND",
+          "edge_ids": [
+            "WEB-FIRST-3",
+            "WEB-FIRST-9",
+            "WEB-FIRST-15",
+            "WEB-FIRST-43"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "WEB::SHARED",
+      "title": "Explicit shared Flow NowPlaying Forecast projection",
+      "lane": "DJC-CORE",
+      "repository": "pcvantol/djconnect",
+      "status": "Planned",
+      "assignment_status": "NOT_ISSUED",
+      "scope": "Explicit shared Flow NowPlaying Forecast projection",
+      "acceptance_boundary": "Explicit shared Flow NowPlaying Forecast projection; exact source/consumer, visible/audible/physical and joint acceptance OPEN",
+      "contract_binding": "docs/product/VIBECAST_ONBOARDING_GUEST_AUTHORITY_V1.md",
+      "source_ids": [
+        "OWNER-WEB-FIRST-1174"
+      ],
+      "parent_reference": "PROJ::ROADMAP::P2-VIBECAST",
+      "family_reference": "Existing VibeCast / Audience / Guest bounded subset",
+      "prerequisite_groups": [
+        {
+          "mode": "AND",
+          "edge_ids": [
+            "WEB-FIRST-1",
+            "WEB-FIRST-5",
+            "WEB-FIRST-18",
+            "WEB-FIRST-44"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "WEB::MEDIA",
+      "title": "Independent shared artwork and speech grants expiry attribution",
+      "lane": "DJC-CORE",
+      "repository": "pcvantol/djconnect",
+      "status": "Planned",
+      "assignment_status": "NOT_ISSUED",
+      "scope": "Independent shared artwork and speech grants expiry attribution",
+      "acceptance_boundary": "Independent shared artwork and speech grants expiry attribution; exact source/consumer, visible/audible/physical and joint acceptance OPEN",
+      "contract_binding": "docs/product/VIBECAST_ONBOARDING_GUEST_AUTHORITY_V1.md",
+      "source_ids": [
+        "OWNER-WEB-FIRST-1174"
+      ],
+      "parent_reference": "PROJ::ROADMAP::P2-VIBECAST",
+      "family_reference": "Existing VibeCast / Audience / Guest bounded subset",
+      "prerequisite_groups": [
+        {
+          "mode": "AND",
+          "edge_ids": [
+            "WEB-FIRST-2",
+            "WEB-FIRST-37"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "WEB::GUEST",
+      "title": "Invitation redemption guest principal and revocation",
+      "lane": "DJC-CORE",
+      "repository": "pcvantol/djconnect",
+      "status": "Planned",
+      "assignment_status": "NOT_ISSUED",
+      "scope": "Invitation redemption guest principal and revocation",
+      "acceptance_boundary": "Invitation redemption guest principal and revocation; exact source/consumer, visible/audible/physical and joint acceptance OPEN",
+      "contract_binding": "docs/product/VIBECAST_ONBOARDING_GUEST_AUTHORITY_V1.md",
+      "source_ids": [
+        "OWNER-WEB-FIRST-1174"
+      ],
+      "parent_reference": "PROJ::INNOVATION::GUEST",
+      "family_reference": "Existing VibeCast / Audience / Guest bounded subset",
+      "prerequisite_groups": [
+        {
+          "mode": "AND",
+          "edge_ids": [
+            "WEB-FIRST-42"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "WEB::BROWSER",
+      "title": "One responsive web UI and accountless browser join",
+      "lane": "DJC-VIBECAST",
+      "repository": "pcvantol/djconnect-vibecast-receiver",
+      "status": "Planned",
+      "assignment_status": "NOT_ISSUED",
+      "scope": "One responsive web UI and accountless browser join",
+      "acceptance_boundary": "One responsive web UI and accountless browser join; exact source/consumer, visible/audible/physical and joint acceptance OPEN",
+      "contract_binding": "docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md",
+      "source_ids": [
+        "OWNER-WEB-FIRST-1174"
+      ],
+      "parent_reference": "PROJ::ROADMAP::P2-VIBECAST",
+      "family_reference": "Existing VibeCast / Audience / Guest bounded subset",
+      "prerequisite_groups": [
+        {
+          "mode": "AND",
+          "edge_ids": [
+            "WEB-FIRST-4",
+            "WEB-FIRST-14",
+            "WEB-FIRST-25",
+            "WEB-FIRST-35"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "WEB::DISTRIBUTION",
+      "title": "Reviewed generic static bootstrap and browser distribution",
+      "lane": "DJC-VIBECAST",
+      "repository": "pcvantol/djconnect-vibecast-receiver",
+      "status": "Planned",
+      "assignment_status": "NOT_ISSUED",
+      "scope": "Reviewed generic static bootstrap and browser distribution",
+      "acceptance_boundary": "Reviewed generic static bootstrap and browser distribution; exact source/consumer, visible/audible/physical and joint acceptance OPEN",
+      "contract_binding": "docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md",
+      "source_ids": [
+        "OWNER-WEB-FIRST-1174"
+      ],
+      "parent_reference": "PROJ::ROADMAP::P2-VIBECAST",
+      "family_reference": "Existing VibeCast / Audience / Guest bounded subset",
+      "prerequisite_groups": [
+        {
+          "mode": "AND",
+          "edge_ids": [
+            "WEB-FIRST-8",
+            "WEB-FIRST-10"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "WEB::DISCOVERY",
+      "title": "Admission-scoped HA local discovery announcement",
+      "lane": "DJC-CORE",
+      "repository": "pcvantol/djconnect",
+      "status": "Planned",
+      "assignment_status": "NOT_ISSUED",
+      "scope": "Admission-scoped HA local discovery announcement",
+      "acceptance_boundary": "Admission-scoped HA local discovery announcement; exact source/consumer, visible/audible/physical and joint acceptance OPEN",
+      "contract_binding": "docs/product/APPLE_VIBECAST_GUEST_MODE_V1.md",
+      "source_ids": [
+        "OWNER-WEB-FIRST-1174"
+      ],
+      "parent_reference": "PROJ::INNOVATION::GUEST",
+      "family_reference": "Existing VibeCast / Audience / Guest bounded subset",
+      "prerequisite_groups": [
+        {
+          "mode": "AND",
+          "edge_ids": [
+            "WEB-FIRST-27"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "WEB::APP",
+      "title": "Isolated temporary guest shell discovery scanner leave home restore",
+      "lane": "DJC-APPLE",
+      "repository": "pcvantol/djconnect-app",
+      "status": "Planned",
+      "assignment_status": "NOT_ISSUED",
+      "scope": "Isolated temporary guest shell discovery scanner leave home restore",
+      "acceptance_boundary": "Isolated temporary guest shell discovery scanner leave home restore; exact source/consumer, visible/audible/physical and joint acceptance OPEN",
+      "contract_binding": "docs/product/APPLE_VIBECAST_GUEST_MODE_V1.md",
+      "source_ids": [
+        "OWNER-WEB-FIRST-1174"
+      ],
+      "parent_reference": "PROJ::INNOVATION::GUEST",
+      "family_reference": "Existing VibeCast / Audience / Guest bounded subset",
+      "prerequisite_groups": [
+        {
+          "mode": "AND",
+          "edge_ids": [
+            "WEB-FIRST-13",
+            "WEB-FIRST-24",
+            "WEB-FIRST-34"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "WEB::REACTIONS",
+      "title": "Five subject-bound ephemeral reactions and bounded sparkle",
+      "lane": "DJC-CORE",
+      "repository": "pcvantol/djconnect",
+      "status": "Planned",
+      "assignment_status": "NOT_ISSUED",
+      "scope": "Five subject-bound ephemeral reactions and bounded sparkle",
+      "acceptance_boundary": "Five subject-bound ephemeral reactions and bounded sparkle; exact source/consumer, visible/audible/physical and joint acceptance OPEN",
+      "contract_binding": "docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md",
+      "source_ids": [
+        "OWNER-WEB-FIRST-1174"
+      ],
+      "parent_reference": "PROJ::ROADMAP::AUDIENCE",
+      "family_reference": "Existing VibeCast / Audience / Guest bounded subset",
+      "prerequisite_groups": [
+        {
+          "mode": "AND",
+          "edge_ids": [
+            "WEB-FIRST-28",
+            "WEB-FIRST-38"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "WEB::AGGREGATE",
+      "title": "Temporary audience aggregation and host lock budget policy",
+      "lane": "DJC-CORE",
+      "repository": "pcvantol/djconnect",
+      "status": "Planned",
+      "assignment_status": "NOT_ISSUED",
+      "scope": "Temporary audience aggregation and host lock budget policy",
+      "acceptance_boundary": "Temporary audience aggregation and host lock budget policy; exact source/consumer, visible/audible/physical and joint acceptance OPEN",
+      "contract_binding": "docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md",
+      "source_ids": [
+        "OWNER-WEB-FIRST-1174"
+      ],
+      "parent_reference": "PROJ::ROADMAP::AUDIENCE-OBSERVATION",
+      "family_reference": "Existing VibeCast / Audience / Guest bounded subset",
+      "prerequisite_groups": [
+        {
+          "mode": "AND",
+          "edge_ids": [
+            "WEB-FIRST-32"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "WEB::INFLUENCE",
+      "title": "Bounded DJ-led Mood direction influence and owner confirmation",
+      "lane": "DJC-CORE",
+      "repository": "pcvantol/djconnect",
+      "status": "Planned",
+      "assignment_status": "NOT_ISSUED",
+      "scope": "Bounded DJ-led Mood direction influence and owner confirmation",
+      "acceptance_boundary": "Bounded DJ-led Mood direction influence and owner confirmation; exact source/consumer, visible/audible/physical and joint acceptance OPEN",
+      "contract_binding": "docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md",
+      "source_ids": [
+        "OWNER-WEB-FIRST-1174"
+      ],
+      "parent_reference": "PROJ::ROADMAP::AUDIENCE-OBSERVATION",
+      "family_reference": "Existing VibeCast / Audience / Guest bounded subset",
+      "prerequisite_groups": [
+        {
+          "mode": "AND",
+          "edge_ids": [
+            "WEB-FIRST-6"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "WEB::CHAT",
+      "title": "Guest Ask DJ isolated thread safe dispatch and spend budgets",
+      "lane": "DJC-CORE",
+      "repository": "pcvantol/djconnect",
+      "status": "Planned",
+      "assignment_status": "NOT_ISSUED",
+      "scope": "Guest Ask DJ isolated thread safe dispatch and spend budgets",
+      "acceptance_boundary": "Guest Ask DJ isolated thread safe dispatch and spend budgets; exact source/consumer, visible/audible/physical and joint acceptance OPEN",
+      "contract_binding": "docs/product/VIBECAST_ONBOARDING_GUEST_AUTHORITY_V1.md",
+      "source_ids": [
+        "OWNER-WEB-FIRST-1174"
+      ],
+      "parent_reference": "PROJ::INNOVATION::GUEST",
+      "family_reference": "Existing VibeCast / Audience / Guest bounded subset",
+      "prerequisite_groups": [
+        {
+          "mode": "AND",
+          "edge_ids": [
+            "WEB-FIRST-26",
+            "WEB-FIRST-36"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "WEB::REQUEST",
+      "title": "Exact recording clarification and guest proposal dialogue",
+      "lane": "DJC-CORE",
+      "repository": "pcvantol/djconnect",
+      "status": "Planned",
+      "assignment_status": "NOT_ISSUED",
+      "scope": "Exact recording clarification and guest proposal dialogue",
+      "acceptance_boundary": "Exact recording clarification and guest proposal dialogue; exact source/consumer, visible/audible/physical and joint acceptance OPEN",
+      "contract_binding": "docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md",
+      "source_ids": [
+        "OWNER-WEB-FIRST-1174"
+      ],
+      "parent_reference": "PROJ::INNOVATION::GUEST",
+      "family_reference": "Existing VibeCast / Audience / Guest bounded subset",
+      "prerequisite_groups": [
+        {
+          "mode": "AND",
+          "edge_ids": [
+            "WEB-FIRST-12"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "WEB::EFFECT-POLICY",
+      "title": "DJ request consideration fairness and uncertain-effect policy",
+      "lane": "DJC-CORE",
+      "repository": "pcvantol/djconnect",
+      "status": "Planned",
+      "assignment_status": "NOT_ISSUED",
+      "scope": "DJ request consideration fairness and uncertain-effect policy",
+      "acceptance_boundary": "DJ request consideration fairness and uncertain-effect policy; exact source/consumer, visible/audible/physical and joint acceptance OPEN",
+      "contract_binding": "docs/product/VIBECAST_ONBOARDING_GUEST_AUTHORITY_V1.md",
+      "source_ids": [
+        "OWNER-WEB-FIRST-1174"
+      ],
+      "parent_reference": "PROJ::ROADMAP::P2-VIBECAST",
+      "family_reference": "Existing VibeCast / Audience / Guest bounded subset",
+      "prerequisite_groups": [
+        {
+          "mode": "AND",
+          "edge_ids": [
+            "WEB-FIRST-41"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "WEB::ENQUEUE",
+      "title": "Real enqueue reconciliation and observed-recording Persona announcement",
+      "lane": "DJC-CORE",
+      "repository": "pcvantol/djconnect",
+      "status": "Planned",
+      "assignment_status": "NOT_ISSUED",
+      "scope": "Real enqueue reconciliation and observed-recording Persona announcement",
+      "acceptance_boundary": "Real enqueue reconciliation and observed-recording Persona announcement; exact source/consumer, visible/audible/physical and joint acceptance OPEN",
+      "contract_binding": "docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md",
+      "source_ids": [
+        "OWNER-WEB-FIRST-1174"
+      ],
+      "parent_reference": "PROJ::INNOVATION::GUEST",
+      "family_reference": "Existing VibeCast / Audience / Guest bounded subset",
+      "prerequisite_groups": [
+        {
+          "mode": "AND",
+          "edge_ids": [
+            "WEB-FIRST-22",
+            "WEB-FIRST-33"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "WEB::JOINT",
+      "title": "Joint browser native media lifecycle physical five-language acceptance",
+      "lane": "DJC-CORE",
+      "repository": "pcvantol/djconnect",
+      "status": "Planned",
+      "assignment_status": "NOT_ISSUED",
+      "scope": "Joint browser native media lifecycle physical five-language acceptance",
+      "acceptance_boundary": "Joint browser native media lifecycle physical five-language acceptance; exact source/consumer, visible/audible/physical and joint acceptance OPEN",
+      "contract_binding": "docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md",
+      "source_ids": [
+        "OWNER-WEB-FIRST-1174"
+      ],
+      "parent_reference": "PROJ::ROADMAP::P2-VIBECAST",
+      "family_reference": "Existing VibeCast / Audience / Guest bounded subset",
+      "prerequisite_groups": [
+        {
+          "mode": "AND",
+          "edge_ids": [
+            "WEB-FIRST-7",
+            "WEB-FIRST-11",
+            "WEB-FIRST-19",
+            "WEB-FIRST-23",
+            "WEB-FIRST-29",
+            "WEB-FIRST-30",
+            "WEB-FIRST-31"
+          ]
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "WEB-FIRST-1",
+      "producer": "FORECAST::CORE::CONTRACT",
+      "consumer": "WEB::SHARED",
+      "kind": "contract_or_consumer_acceptance",
+      "phase": "implementation",
+      "prerequisite_stage": "contract",
+      "hard_precedence": true,
+      "logical_mode": "AND",
+      "required_subset": "Exact bounded predecessor contract; documentary or owner producer delivery is not joint acceptance",
+      "contract_or_evidence": "docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md",
+      "reason": "Issue1174 real functional prerequisite; resource/admission gates remain separate",
+      "source_ids": [
+        "OWNER-WEB-FIRST-1174"
+      ]
+    },
+    {
+      "id": "WEB-FIRST-2",
+      "producer": "MEDIA::CORE::SESSION-CONTRACT",
+      "consumer": "WEB::MEDIA",
+      "kind": "contract_or_consumer_acceptance",
+      "phase": "implementation",
+      "prerequisite_stage": "contract",
+      "hard_precedence": true,
+      "logical_mode": "AND",
+      "required_subset": "Exact bounded predecessor contract; documentary or owner producer delivery is not joint acceptance",
+      "contract_or_evidence": "docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md",
+      "reason": "Issue1174 real functional prerequisite; resource/admission gates remain separate",
+      "source_ids": [
+        "OWNER-WEB-FIRST-1174"
+      ]
+    },
+    {
+      "id": "WEB-FIRST-3",
+      "producer": "SLICE::APPLE::OWNER-HANDOFF",
+      "consumer": "WEB::OWNER-SCANNER",
+      "kind": "contract_or_consumer_acceptance",
+      "phase": "implementation",
+      "prerequisite_stage": "contract",
+      "hard_precedence": true,
+      "logical_mode": "AND",
+      "required_subset": "Exact bounded predecessor contract; documentary or owner producer delivery is not joint acceptance",
+      "contract_or_evidence": "docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md",
+      "reason": "Issue1174 real functional prerequisite; resource/admission gates remain separate",
+      "source_ids": [
+        "OWNER-WEB-FIRST-1174"
+      ]
+    },
+    {
+      "id": "WEB-FIRST-4",
+      "producer": "SLICE::CORE::AMBIENT-RENDERER",
+      "consumer": "WEB::BROWSER",
+      "kind": "contract_or_consumer_acceptance",
+      "phase": "implementation",
+      "prerequisite_stage": "contract",
+      "hard_precedence": true,
+      "logical_mode": "AND",
+      "required_subset": "Exact bounded predecessor contract; documentary or owner producer delivery is not joint acceptance",
+      "contract_or_evidence": "docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md",
+      "reason": "Issue1174 real functional prerequisite; resource/admission gates remain separate",
+      "source_ids": [
+        "OWNER-WEB-FIRST-1174"
+      ]
+    },
+    {
+      "id": "WEB-FIRST-5",
+      "producer": "SLICE::CORE::BROADCAST-CONTRACT",
+      "consumer": "WEB::SHARED",
+      "kind": "contract_or_consumer_acceptance",
+      "phase": "implementation",
+      "prerequisite_stage": "contract",
+      "hard_precedence": true,
+      "logical_mode": "AND",
+      "required_subset": "Exact bounded predecessor contract; documentary or owner producer delivery is not joint acceptance",
+      "contract_or_evidence": "docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md",
+      "reason": "Issue1174 real functional prerequisite; resource/admission gates remain separate",
+      "source_ids": [
+        "OWNER-WEB-FIRST-1174"
+      ]
+    },
+    {
+      "id": "WEB-FIRST-6",
+      "producer": "WEB::AGGREGATE",
+      "consumer": "WEB::INFLUENCE",
+      "kind": "contract_or_consumer_acceptance",
+      "phase": "implementation",
+      "prerequisite_stage": "contract",
+      "hard_precedence": true,
+      "logical_mode": "AND",
+      "required_subset": "Exact bounded predecessor contract; documentary or owner producer delivery is not joint acceptance",
+      "contract_or_evidence": "docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md",
+      "reason": "Issue1174 real functional prerequisite; resource/admission gates remain separate",
+      "source_ids": [
+        "OWNER-WEB-FIRST-1174"
+      ]
+    },
+    {
+      "id": "WEB-FIRST-7",
+      "producer": "WEB::APP",
+      "consumer": "WEB::JOINT",
+      "kind": "contract_or_consumer_acceptance",
+      "phase": "qualification",
+      "prerequisite_stage": "completion",
+      "hard_precedence": true,
+      "logical_mode": "AND",
+      "required_subset": "Exact bounded predecessor contract; documentary or owner producer delivery is not joint acceptance",
+      "contract_or_evidence": "docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md",
+      "reason": "Issue1174 real functional prerequisite; resource/admission gates remain separate",
+      "source_ids": [
+        "OWNER-WEB-FIRST-1174"
+      ]
+    },
+    {
+      "id": "WEB-FIRST-8",
+      "producer": "WEB::BOOTSTRAP",
+      "consumer": "WEB::DISTRIBUTION",
+      "kind": "contract_or_consumer_acceptance",
+      "phase": "implementation",
+      "prerequisite_stage": "contract",
+      "hard_precedence": true,
+      "logical_mode": "AND",
+      "required_subset": "Exact bounded predecessor contract; documentary or owner producer delivery is not joint acceptance",
+      "contract_or_evidence": "docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md",
+      "reason": "Issue1174 real functional prerequisite; resource/admission gates remain separate",
+      "source_ids": [
+        "OWNER-WEB-FIRST-1174"
+      ]
+    },
+    {
+      "id": "WEB-FIRST-9",
+      "producer": "WEB::BOOTSTRAP",
+      "consumer": "WEB::OWNER-SCANNER",
+      "kind": "contract_or_consumer_acceptance",
+      "phase": "implementation",
+      "prerequisite_stage": "contract",
+      "hard_precedence": true,
+      "logical_mode": "AND",
+      "required_subset": "Exact bounded predecessor contract; documentary or owner producer delivery is not joint acceptance",
+      "contract_or_evidence": "docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md",
+      "reason": "Issue1174 real functional prerequisite; resource/admission gates remain separate",
+      "source_ids": [
+        "OWNER-WEB-FIRST-1174"
+      ]
+    },
+    {
+      "id": "WEB-FIRST-10",
+      "producer": "WEB::BROWSER",
+      "consumer": "WEB::DISTRIBUTION",
+      "kind": "contract_or_consumer_acceptance",
+      "phase": "implementation",
+      "prerequisite_stage": "contract",
+      "hard_precedence": true,
+      "logical_mode": "AND",
+      "required_subset": "Exact bounded predecessor contract; documentary or owner producer delivery is not joint acceptance",
+      "contract_or_evidence": "docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md",
+      "reason": "Issue1174 real functional prerequisite; resource/admission gates remain separate",
+      "source_ids": [
+        "OWNER-WEB-FIRST-1174"
+      ]
+    },
+    {
+      "id": "WEB-FIRST-11",
+      "producer": "WEB::CHAT",
+      "consumer": "WEB::JOINT",
+      "kind": "contract_or_consumer_acceptance",
+      "phase": "qualification",
+      "prerequisite_stage": "completion",
+      "hard_precedence": true,
+      "logical_mode": "AND",
+      "required_subset": "Exact bounded predecessor contract; documentary or owner producer delivery is not joint acceptance",
+      "contract_or_evidence": "docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md",
+      "reason": "Issue1174 real functional prerequisite; resource/admission gates remain separate",
+      "source_ids": [
+        "OWNER-WEB-FIRST-1174"
+      ]
+    },
+    {
+      "id": "WEB-FIRST-12",
+      "producer": "WEB::CHAT",
+      "consumer": "WEB::REQUEST",
+      "kind": "contract_or_consumer_acceptance",
+      "phase": "implementation",
+      "prerequisite_stage": "contract",
+      "hard_precedence": true,
+      "logical_mode": "AND",
+      "required_subset": "Exact bounded predecessor contract; documentary or owner producer delivery is not joint acceptance",
+      "contract_or_evidence": "docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md",
+      "reason": "Issue1174 real functional prerequisite; resource/admission gates remain separate",
+      "source_ids": [
+        "OWNER-WEB-FIRST-1174"
+      ]
+    },
+    {
+      "id": "WEB-FIRST-13",
+      "producer": "WEB::DISCOVERY",
+      "consumer": "WEB::APP",
+      "kind": "contract_or_consumer_acceptance",
+      "phase": "implementation",
+      "prerequisite_stage": "contract",
+      "hard_precedence": true,
+      "logical_mode": "AND",
+      "required_subset": "Exact bounded predecessor contract; documentary or owner producer delivery is not joint acceptance",
+      "contract_or_evidence": "docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md",
+      "reason": "Issue1174 real functional prerequisite; resource/admission gates remain separate",
+      "source_ids": [
+        "OWNER-WEB-FIRST-1174"
+      ]
+    },
+    {
+      "id": "WEB-FIRST-14",
+      "producer": "WEB::DISPLAY",
+      "consumer": "WEB::BROWSER",
+      "kind": "contract_or_consumer_acceptance",
+      "phase": "implementation",
+      "prerequisite_stage": "contract",
+      "hard_precedence": true,
+      "logical_mode": "AND",
+      "required_subset": "Exact bounded predecessor contract; documentary or owner producer delivery is not joint acceptance",
+      "contract_or_evidence": "docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md",
+      "reason": "Issue1174 real functional prerequisite; resource/admission gates remain separate",
+      "source_ids": [
+        "OWNER-WEB-FIRST-1174"
+      ]
+    },
+    {
+      "id": "WEB-FIRST-15",
+      "producer": "WEB::DISPLAY",
+      "consumer": "WEB::OWNER-SCANNER",
+      "kind": "contract_or_consumer_acceptance",
+      "phase": "implementation",
+      "prerequisite_stage": "contract",
+      "hard_precedence": true,
+      "logical_mode": "AND",
+      "required_subset": "Exact bounded predecessor contract; documentary or owner producer delivery is not joint acceptance",
+      "contract_or_evidence": "docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md",
+      "reason": "Issue1174 real functional prerequisite; resource/admission gates remain separate",
+      "source_ids": [
+        "OWNER-WEB-FIRST-1174"
+      ]
+    },
+    {
+      "id": "WEB-FIRST-16",
+      "producer": "WEB::DISPOSITION",
+      "consumer": "WEB::BOOTSTRAP",
+      "kind": "contract_or_consumer_acceptance",
+      "phase": "implementation",
+      "prerequisite_stage": "contract",
+      "hard_precedence": true,
+      "logical_mode": "AND",
+      "required_subset": "Exact bounded predecessor contract; documentary or owner producer delivery is not joint acceptance",
+      "contract_or_evidence": "docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md",
+      "reason": "Issue1174 real functional prerequisite; resource/admission gates remain separate",
+      "source_ids": [
+        "OWNER-WEB-FIRST-1174"
+      ]
+    },
+    {
+      "id": "WEB-FIRST-17",
+      "producer": "WEB::DISPOSITION",
+      "consumer": "WEB::DISPLAY",
+      "kind": "contract_or_consumer_acceptance",
+      "phase": "implementation",
+      "prerequisite_stage": "contract",
+      "hard_precedence": true,
+      "logical_mode": "AND",
+      "required_subset": "Exact bounded predecessor contract; documentary or owner producer delivery is not joint acceptance",
+      "contract_or_evidence": "docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md",
+      "reason": "Issue1174 real functional prerequisite; resource/admission gates remain separate",
+      "source_ids": [
+        "OWNER-WEB-FIRST-1174"
+      ]
+    },
+    {
+      "id": "WEB-FIRST-18",
+      "producer": "WEB::DISPOSITION",
+      "consumer": "WEB::SHARED",
+      "kind": "contract_or_consumer_acceptance",
+      "phase": "implementation",
+      "prerequisite_stage": "contract",
+      "hard_precedence": true,
+      "logical_mode": "AND",
+      "required_subset": "Exact bounded predecessor contract; documentary or owner producer delivery is not joint acceptance",
+      "contract_or_evidence": "docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md",
+      "reason": "Issue1174 real functional prerequisite; resource/admission gates remain separate",
+      "source_ids": [
+        "OWNER-WEB-FIRST-1174"
+      ]
+    },
+    {
+      "id": "WEB-FIRST-19",
+      "producer": "WEB::DISTRIBUTION",
+      "consumer": "WEB::JOINT",
+      "kind": "contract_or_consumer_acceptance",
+      "phase": "qualification",
+      "prerequisite_stage": "completion",
+      "hard_precedence": true,
+      "logical_mode": "AND",
+      "required_subset": "Exact bounded predecessor contract; documentary or owner producer delivery is not joint acceptance",
+      "contract_or_evidence": "docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md",
+      "reason": "Issue1174 real functional prerequisite; resource/admission gates remain separate",
+      "source_ids": [
+        "OWNER-WEB-FIRST-1174"
+      ]
+    },
+    {
+      "id": "WEB-FIRST-20",
+      "producer": "WEB::DOCS",
+      "consumer": "WEB::DISPOSITION",
+      "kind": "contract_or_consumer_acceptance",
+      "phase": "implementation",
+      "prerequisite_stage": "contract",
+      "hard_precedence": true,
+      "logical_mode": "AND",
+      "required_subset": "Exact bounded predecessor contract; documentary or owner producer delivery is not joint acceptance",
+      "contract_or_evidence": "docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md",
+      "reason": "Issue1174 real functional prerequisite; resource/admission gates remain separate",
+      "source_ids": [
+        "OWNER-WEB-FIRST-1174"
+      ]
+    },
+    {
+      "id": "WEB-FIRST-21",
+      "producer": "WEB::DOCS",
+      "consumer": "WEB::TRUST",
+      "kind": "contract_or_consumer_acceptance",
+      "phase": "implementation",
+      "prerequisite_stage": "contract",
+      "hard_precedence": true,
+      "logical_mode": "AND",
+      "required_subset": "Exact bounded predecessor contract; documentary or owner producer delivery is not joint acceptance",
+      "contract_or_evidence": "docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md",
+      "reason": "Issue1174 real functional prerequisite; resource/admission gates remain separate",
+      "source_ids": [
+        "OWNER-WEB-FIRST-1174"
+      ]
+    },
+    {
+      "id": "WEB-FIRST-22",
+      "producer": "WEB::EFFECT-POLICY",
+      "consumer": "WEB::ENQUEUE",
+      "kind": "contract_or_consumer_acceptance",
+      "phase": "implementation",
+      "prerequisite_stage": "contract",
+      "hard_precedence": true,
+      "logical_mode": "AND",
+      "required_subset": "Exact bounded predecessor contract; documentary or owner producer delivery is not joint acceptance",
+      "contract_or_evidence": "docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md",
+      "reason": "Issue1174 real functional prerequisite; resource/admission gates remain separate",
+      "source_ids": [
+        "OWNER-WEB-FIRST-1174"
+      ]
+    },
+    {
+      "id": "WEB-FIRST-23",
+      "producer": "WEB::ENQUEUE",
+      "consumer": "WEB::JOINT",
+      "kind": "contract_or_consumer_acceptance",
+      "phase": "qualification",
+      "prerequisite_stage": "completion",
+      "hard_precedence": true,
+      "logical_mode": "AND",
+      "required_subset": "Exact bounded predecessor contract; documentary or owner producer delivery is not joint acceptance",
+      "contract_or_evidence": "docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md",
+      "reason": "Issue1174 real functional prerequisite; resource/admission gates remain separate",
+      "source_ids": [
+        "OWNER-WEB-FIRST-1174"
+      ]
+    },
+    {
+      "id": "WEB-FIRST-24",
+      "producer": "WEB::GUEST",
+      "consumer": "WEB::APP",
+      "kind": "contract_or_consumer_acceptance",
+      "phase": "implementation",
+      "prerequisite_stage": "contract",
+      "hard_precedence": true,
+      "logical_mode": "AND",
+      "required_subset": "Exact bounded predecessor contract; documentary or owner producer delivery is not joint acceptance",
+      "contract_or_evidence": "docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md",
+      "reason": "Issue1174 real functional prerequisite; resource/admission gates remain separate",
+      "source_ids": [
+        "OWNER-WEB-FIRST-1174"
+      ]
+    },
+    {
+      "id": "WEB-FIRST-25",
+      "producer": "WEB::GUEST",
+      "consumer": "WEB::BROWSER",
+      "kind": "contract_or_consumer_acceptance",
+      "phase": "implementation",
+      "prerequisite_stage": "contract",
+      "hard_precedence": true,
+      "logical_mode": "AND",
+      "required_subset": "Exact bounded predecessor contract; documentary or owner producer delivery is not joint acceptance",
+      "contract_or_evidence": "docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md",
+      "reason": "Issue1174 real functional prerequisite; resource/admission gates remain separate",
+      "source_ids": [
+        "OWNER-WEB-FIRST-1174"
+      ]
+    },
+    {
+      "id": "WEB-FIRST-26",
+      "producer": "WEB::GUEST",
+      "consumer": "WEB::CHAT",
+      "kind": "contract_or_consumer_acceptance",
+      "phase": "implementation",
+      "prerequisite_stage": "contract",
+      "hard_precedence": true,
+      "logical_mode": "AND",
+      "required_subset": "Exact bounded predecessor contract; documentary or owner producer delivery is not joint acceptance",
+      "contract_or_evidence": "docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md",
+      "reason": "Issue1174 real functional prerequisite; resource/admission gates remain separate",
+      "source_ids": [
+        "OWNER-WEB-FIRST-1174"
+      ]
+    },
+    {
+      "id": "WEB-FIRST-27",
+      "producer": "WEB::GUEST",
+      "consumer": "WEB::DISCOVERY",
+      "kind": "contract_or_consumer_acceptance",
+      "phase": "implementation",
+      "prerequisite_stage": "contract",
+      "hard_precedence": true,
+      "logical_mode": "AND",
+      "required_subset": "Exact bounded predecessor contract; documentary or owner producer delivery is not joint acceptance",
+      "contract_or_evidence": "docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md",
+      "reason": "Issue1174 real functional prerequisite; resource/admission gates remain separate",
+      "source_ids": [
+        "OWNER-WEB-FIRST-1174"
+      ]
+    },
+    {
+      "id": "WEB-FIRST-28",
+      "producer": "WEB::GUEST",
+      "consumer": "WEB::REACTIONS",
+      "kind": "contract_or_consumer_acceptance",
+      "phase": "implementation",
+      "prerequisite_stage": "contract",
+      "hard_precedence": true,
+      "logical_mode": "AND",
+      "required_subset": "Exact bounded predecessor contract; documentary or owner producer delivery is not joint acceptance",
+      "contract_or_evidence": "docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md",
+      "reason": "Issue1174 real functional prerequisite; resource/admission gates remain separate",
+      "source_ids": [
+        "OWNER-WEB-FIRST-1174"
+      ]
+    },
+    {
+      "id": "WEB-FIRST-29",
+      "producer": "WEB::INFLUENCE",
+      "consumer": "WEB::JOINT",
+      "kind": "contract_or_consumer_acceptance",
+      "phase": "qualification",
+      "prerequisite_stage": "completion",
+      "hard_precedence": true,
+      "logical_mode": "AND",
+      "required_subset": "Exact bounded predecessor contract; documentary or owner producer delivery is not joint acceptance",
+      "contract_or_evidence": "docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md",
+      "reason": "Issue1174 real functional prerequisite; resource/admission gates remain separate",
+      "source_ids": [
+        "OWNER-WEB-FIRST-1174"
+      ]
+    },
+    {
+      "id": "WEB-FIRST-30",
+      "producer": "WEB::MEDIA",
+      "consumer": "WEB::JOINT",
+      "kind": "contract_or_consumer_acceptance",
+      "phase": "qualification",
+      "prerequisite_stage": "completion",
+      "hard_precedence": true,
+      "logical_mode": "AND",
+      "required_subset": "Exact bounded predecessor contract; documentary or owner producer delivery is not joint acceptance",
+      "contract_or_evidence": "docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md",
+      "reason": "Issue1174 real functional prerequisite; resource/admission gates remain separate",
+      "source_ids": [
+        "OWNER-WEB-FIRST-1174"
+      ]
+    },
+    {
+      "id": "WEB-FIRST-31",
+      "producer": "WEB::OWNER-SCANNER",
+      "consumer": "WEB::JOINT",
+      "kind": "contract_or_consumer_acceptance",
+      "phase": "qualification",
+      "prerequisite_stage": "completion",
+      "hard_precedence": true,
+      "logical_mode": "AND",
+      "required_subset": "Exact bounded predecessor contract; documentary or owner producer delivery is not joint acceptance",
+      "contract_or_evidence": "docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md",
+      "reason": "Issue1174 real functional prerequisite; resource/admission gates remain separate",
+      "source_ids": [
+        "OWNER-WEB-FIRST-1174"
+      ]
+    },
+    {
+      "id": "WEB-FIRST-32",
+      "producer": "WEB::REACTIONS",
+      "consumer": "WEB::AGGREGATE",
+      "kind": "contract_or_consumer_acceptance",
+      "phase": "implementation",
+      "prerequisite_stage": "contract",
+      "hard_precedence": true,
+      "logical_mode": "AND",
+      "required_subset": "Exact bounded predecessor contract; documentary or owner producer delivery is not joint acceptance",
+      "contract_or_evidence": "docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md",
+      "reason": "Issue1174 real functional prerequisite; resource/admission gates remain separate",
+      "source_ids": [
+        "OWNER-WEB-FIRST-1174"
+      ]
+    },
+    {
+      "id": "WEB-FIRST-33",
+      "producer": "WEB::REQUEST",
+      "consumer": "WEB::ENQUEUE",
+      "kind": "contract_or_consumer_acceptance",
+      "phase": "implementation",
+      "prerequisite_stage": "contract",
+      "hard_precedence": true,
+      "logical_mode": "AND",
+      "required_subset": "Exact bounded predecessor contract; documentary or owner producer delivery is not joint acceptance",
+      "contract_or_evidence": "docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md",
+      "reason": "Issue1174 real functional prerequisite; resource/admission gates remain separate",
+      "source_ids": [
+        "OWNER-WEB-FIRST-1174"
+      ]
+    },
+    {
+      "id": "WEB-FIRST-34",
+      "producer": "WEB::SHARED",
+      "consumer": "WEB::APP",
+      "kind": "contract_or_consumer_acceptance",
+      "phase": "implementation",
+      "prerequisite_stage": "contract",
+      "hard_precedence": true,
+      "logical_mode": "AND",
+      "required_subset": "Exact bounded predecessor contract; documentary or owner producer delivery is not joint acceptance",
+      "contract_or_evidence": "docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md",
+      "reason": "Issue1174 real functional prerequisite; resource/admission gates remain separate",
+      "source_ids": [
+        "OWNER-WEB-FIRST-1174"
+      ]
+    },
+    {
+      "id": "WEB-FIRST-35",
+      "producer": "WEB::SHARED",
+      "consumer": "WEB::BROWSER",
+      "kind": "contract_or_consumer_acceptance",
+      "phase": "implementation",
+      "prerequisite_stage": "contract",
+      "hard_precedence": true,
+      "logical_mode": "AND",
+      "required_subset": "Exact bounded predecessor contract; documentary or owner producer delivery is not joint acceptance",
+      "contract_or_evidence": "docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md",
+      "reason": "Issue1174 real functional prerequisite; resource/admission gates remain separate",
+      "source_ids": [
+        "OWNER-WEB-FIRST-1174"
+      ]
+    },
+    {
+      "id": "WEB-FIRST-36",
+      "producer": "WEB::SHARED",
+      "consumer": "WEB::CHAT",
+      "kind": "contract_or_consumer_acceptance",
+      "phase": "implementation",
+      "prerequisite_stage": "contract",
+      "hard_precedence": true,
+      "logical_mode": "AND",
+      "required_subset": "Exact bounded predecessor contract; documentary or owner producer delivery is not joint acceptance",
+      "contract_or_evidence": "docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md",
+      "reason": "Issue1174 real functional prerequisite; resource/admission gates remain separate",
+      "source_ids": [
+        "OWNER-WEB-FIRST-1174"
+      ]
+    },
+    {
+      "id": "WEB-FIRST-37",
+      "producer": "WEB::SHARED",
+      "consumer": "WEB::MEDIA",
+      "kind": "contract_or_consumer_acceptance",
+      "phase": "implementation",
+      "prerequisite_stage": "contract",
+      "hard_precedence": true,
+      "logical_mode": "AND",
+      "required_subset": "Exact bounded predecessor contract; documentary or owner producer delivery is not joint acceptance",
+      "contract_or_evidence": "docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md",
+      "reason": "Issue1174 real functional prerequisite; resource/admission gates remain separate",
+      "source_ids": [
+        "OWNER-WEB-FIRST-1174"
+      ]
+    },
+    {
+      "id": "WEB-FIRST-38",
+      "producer": "WEB::SHARED",
+      "consumer": "WEB::REACTIONS",
+      "kind": "contract_or_consumer_acceptance",
+      "phase": "implementation",
+      "prerequisite_stage": "contract",
+      "hard_precedence": true,
+      "logical_mode": "AND",
+      "required_subset": "Exact bounded predecessor contract; documentary or owner producer delivery is not joint acceptance",
+      "contract_or_evidence": "docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md",
+      "reason": "Issue1174 real functional prerequisite; resource/admission gates remain separate",
+      "source_ids": [
+        "OWNER-WEB-FIRST-1174"
+      ]
+    },
+    {
+      "id": "WEB-FIRST-39",
+      "producer": "WEB::TRUST",
+      "consumer": "WEB::BOOTSTRAP",
+      "kind": "contract_or_consumer_acceptance",
+      "phase": "implementation",
+      "prerequisite_stage": "contract",
+      "hard_precedence": true,
+      "logical_mode": "AND",
+      "required_subset": "Exact bounded predecessor contract; documentary or owner producer delivery is not joint acceptance",
+      "contract_or_evidence": "docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md",
+      "reason": "Issue1174 real functional prerequisite; resource/admission gates remain separate",
+      "source_ids": [
+        "OWNER-WEB-FIRST-1174"
+      ]
+    },
+    {
+      "id": "WEB-FIRST-40",
+      "producer": "WEB::TRUST",
+      "consumer": "WEB::DISPLAY",
+      "kind": "contract_or_consumer_acceptance",
+      "phase": "implementation",
+      "prerequisite_stage": "contract",
+      "hard_precedence": true,
+      "logical_mode": "AND",
+      "required_subset": "Exact bounded predecessor contract; documentary or owner producer delivery is not joint acceptance",
+      "contract_or_evidence": "docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md",
+      "reason": "Issue1174 real functional prerequisite; resource/admission gates remain separate",
+      "source_ids": [
+        "OWNER-WEB-FIRST-1174"
+      ]
+    },
+    {
+      "id": "WEB-FIRST-41",
+      "producer": "WEB::TRUST",
+      "consumer": "WEB::EFFECT-POLICY",
+      "kind": "contract_or_consumer_acceptance",
+      "phase": "implementation",
+      "prerequisite_stage": "contract",
+      "hard_precedence": true,
+      "logical_mode": "AND",
+      "required_subset": "Exact bounded predecessor contract; documentary or owner producer delivery is not joint acceptance",
+      "contract_or_evidence": "docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md",
+      "reason": "Issue1174 real functional prerequisite; resource/admission gates remain separate",
+      "source_ids": [
+        "OWNER-WEB-FIRST-1174"
+      ]
+    },
+    {
+      "id": "WEB-FIRST-42",
+      "producer": "WEB::TRUST",
+      "consumer": "WEB::GUEST",
+      "kind": "contract_or_consumer_acceptance",
+      "phase": "implementation",
+      "prerequisite_stage": "contract",
+      "hard_precedence": true,
+      "logical_mode": "AND",
+      "required_subset": "Exact bounded predecessor contract; documentary or owner producer delivery is not joint acceptance",
+      "contract_or_evidence": "docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md",
+      "reason": "Issue1174 real functional prerequisite; resource/admission gates remain separate",
+      "source_ids": [
+        "OWNER-WEB-FIRST-1174"
+      ]
+    },
+    {
+      "id": "WEB-FIRST-43",
+      "producer": "WEB::TRUST",
+      "consumer": "WEB::OWNER-SCANNER",
+      "kind": "contract_or_consumer_acceptance",
+      "phase": "implementation",
+      "prerequisite_stage": "contract",
+      "hard_precedence": true,
+      "logical_mode": "AND",
+      "required_subset": "Exact bounded predecessor contract; documentary or owner producer delivery is not joint acceptance",
+      "contract_or_evidence": "docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md",
+      "reason": "Issue1174 real functional prerequisite; resource/admission gates remain separate",
+      "source_ids": [
+        "OWNER-WEB-FIRST-1174"
+      ]
+    },
+    {
+      "id": "WEB-FIRST-44",
+      "producer": "WEB::TRUST",
+      "consumer": "WEB::SHARED",
+      "kind": "contract_or_consumer_acceptance",
+      "phase": "implementation",
+      "prerequisite_stage": "contract",
+      "hard_precedence": true,
+      "logical_mode": "AND",
+      "required_subset": "Exact bounded predecessor contract; documentary or owner producer delivery is not joint acceptance",
+      "contract_or_evidence": "docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md",
+      "reason": "Issue1174 real functional prerequisite; resource/admission gates remain separate",
+      "source_ids": [
+        "OWNER-WEB-FIRST-1174"
+      ]
+    }
+  ]
+}

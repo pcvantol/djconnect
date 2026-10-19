@@ -99,6 +99,9 @@ class DiscoverNarrativeTests(unittest.TestCase):
             session_start_strategy=strategy or self.core.SessionStartStrategy.DISCOVER,
             elapsed_time_source=lambda: clock[0],
         ))
+        # This suite qualifies a relation in a45s future slot, hence Presenter.
+        session = asyncio.run(manager.async_update_presence(owner_profile_id=profile,
+            session_id=session.session_id, selected_presence="presenter"))
         return manager, session, clock
 
     def event(self, manager, session, clock, playback, number, **changes):
@@ -395,6 +398,9 @@ class DiscoverNarrativeTests(unittest.TestCase):
                     "summary": f"Observed context for {title}.",
                     "full_text": f"A bounded explanation for {title}.",
                     "genre": "ambient",
+                    # This explicit external narrative fixture replaces the
+                    # real unmeasured fallback, including its basis marker.
+                    "basis": "external_provider_narrative_fixture",
                 })
                 return result
             results = []

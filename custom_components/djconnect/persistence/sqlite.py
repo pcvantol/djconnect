@@ -173,13 +173,20 @@ class SQLitePersistenceProvider:
         operation: Callable[[_SQLiteTransaction], ResultT],
         *,
         authorize: Callable[[], bool] | None = None,
+        finalize_authorize: Callable[[], bool] | None = None,
     ) -> ResultT:
         """Run one short, serialized provider transaction."""
         async with self._write_lock:
             if authorize is not None and not authorize():
                 raise PermissionError("unauthorized")
             try:
-                task = asyncio.create_task(asyncio.to_thread(self._run_transaction, operation))
+                if finalize_authorize is not None:
+                    # SQL stages off-loop; HA/provider authority is inspected only
+                    # on its owning loop. The provider lock spans both phases.
+                    task = asyncio.create_task(self._async_guarded_transaction(
+                        operation, finalize_authorize))
+                else:
+                    task = asyncio.create_task(asyncio.to_thread(self._run_transaction, operation))
                 while True:
                     try:
                         return await asyncio.shield(task)
@@ -191,6 +198,38 @@ class SQLitePersistenceProvider:
                         continue
             except sqlite3.Error as exc:
                 raise PersistenceError("DJConnect persistence transaction failed") from exc
+
+    async def _async_guarded_transaction(self, operation, finalize_authorize):
+        """Reserve acceptance on-loop after staging, then settle durably.
+
+        The synchronous final fence is the admission ordering point: revocations
+        before it roll back; later revocations cannot undo an admitted commit,
+        but still fence delivery. No await separates the fence and commit task
+        creation. SQL failure never reports acceptance. Caller cancellation waits
+        for this task's definitive outcome under the same provider lock.
+        """
+        connection = self._require_connection()
+
+        def stage():
+            connection.execute("BEGIN IMMEDIATE")
+            try:
+                return operation(_SQLiteTransaction(connection))
+            except BaseException:
+                if connection.in_transaction:
+                    connection.execute("ROLLBACK")
+                raise
+
+        result = await asyncio.to_thread(stage)
+        try:
+            if not finalize_authorize():
+                raise PermissionError("unauthorized")
+            commit = asyncio.create_task(asyncio.to_thread(connection.execute, "COMMIT"))
+            await commit
+            return result
+        except BaseException:
+            if connection.in_transaction:
+                await asyncio.to_thread(connection.execute, "ROLLBACK")
+            raise
 
     def _run_transaction(self, operation: Callable[[_SQLiteTransaction], ResultT]) -> ResultT:
         connection = self._require_connection()

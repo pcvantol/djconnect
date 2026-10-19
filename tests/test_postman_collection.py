@@ -11,6 +11,8 @@ ROOT = Path(__file__).resolve().parents[1]
 COLLECTION_PATH = ROOT / "examples" / "djconnect.postman_collection.json"
 POSTMAN_SCHEMA = "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 AUTH_REQUIRED_PATHS = {
+    "/api/djconnect/v1/transport/context",
+    "/api/djconnect/v1/transport/operation",
     "/api/djconnect/v1/status",
     "/api/djconnect/v1/command",
     "/api/djconnect/v1/event",
@@ -30,6 +32,8 @@ AUTH_REQUIRED_PATHS = {
     "/api/djconnect/v1/voice",
 }
 DEVICE_ID_HEADER_REQUIRED_PATHS = {
+    "/api/djconnect/v1/transport/context",
+    "/api/djconnect/v1/transport/operation",
     "/api/djconnect/v1/status",
     "/api/djconnect/v1/command",
     "/api/djconnect/v1/event",
@@ -37,6 +41,8 @@ DEVICE_ID_HEADER_REQUIRED_PATHS = {
     "/api/djconnect/v1/voice",
 }
 IDENTITY_REQUIRED_PATHS = {
+    "/api/djconnect/v1/transport/context",
+    "/api/djconnect/v1/transport/operation",
     "/api/djconnect/v1/pair",
     "/api/djconnect/v1/status",
     "/api/djconnect/v1/command",
@@ -168,6 +174,18 @@ class PostmanCollectionTest(unittest.TestCase):
                 "application/json",
                 f"{name} must declare JSON content type",
             )
+
+    def test_touch_examples_keep_semantic_intent_and_cancel_identity_separate(self):
+        bodies = {_raw_json_body(r).get('operation'): _raw_json_body(r)
+                  for _, r in _requests(_collection()['item'])
+                  if _raw_json_body(r) and _path(_raw_url(r)) == '/api/djconnect/v1/transport/operation'}
+        reaction = bodies['session/persona/reaction']
+        cancel = bodies['session/persona/reaction/cancel']
+        self.assertEqual(set(reaction['payload']), {'contract_version', 'session', 'kind', 'language', 'processor'})
+        self.assertEqual(set(reaction['payload']['session']), {'session_id', 'generation', 'revision'})
+        self.assertEqual(set(cancel['payload']), {'contract_version', 'session_id', 'reaction_id', 'reason'})
+        self.assertEqual(cancel['operation_id'], '{{operation_id}}')
+        self.assertEqual(cancel['payload']['reaction_id'], '{{reaction_operation_id}}')
 
 
 if __name__ == "__main__":

@@ -83,10 +83,28 @@ def validate_delta(plan: dict[str, Any]) -> list[str]:
         if not condition:
             errors.append("maintenance: " + reason)
 
+    version = d.get("schema_version")
+    if version == "djconnect-federated-planning-delta/16":
+        from branch_consolidation_delta import validate
+        return validate(plan, validate_delta)
+    if version == "djconnect-federated-planning-delta/15":
+        if "experience_reconciliation_receipt" in d:
+            from experience_reconciliation_delta import validate
+            return validate(plan, validate_delta)
+        from display_admission_delta import validate
+        return validate(plan, validate_delta)
+    if version == "djconnect-federated-planning-delta/14":
+        from settings_consolidation_delta import validate
+        return validate(plan, validate_delta)
+    if version == "djconnect-federated-planning-delta/13":
+        from passive_surface_delta import validate
+        return validate(plan, validate_delta)
+    if version == "djconnect-federated-planning-delta/12":
+        from speech_persona_delta import validate
+        return validate(plan, validate_delta)
     if "web_first_receipt" in d:
         from web_first_delta import validate
         return validate(plan, validate_delta)
-    version = d.get("schema_version")
     if version == "djconnect-federated-planning-delta/11":
         from session_artwork_delta import validate
         return validate(plan, validate_delta)
@@ -1000,8 +1018,40 @@ def render_delta(p):
         r = d["session_artwork_receipt"]
         intro += f"Selected subject-bound Session artwork: {r['assignment_id']}; source {r['source_delivery']}. Three bounded Core subsets; native Apple and joint acceptance remain Planned/open. Prior delivered v10 is preserved; no transport functional prerequisite or automatic consumer dispatch.\n\n"
     successor = d.get("session_artwork_receipt", {}).get("selected_successor")
-    if successor:
+    if successor and not d.get("speech_persona_receipt"):
         intro += f"Owner-selected queued successor: {successor['assignment_id']} ([selection](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-{successor['owner_selection']}), [autonomous-next](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-{successor['autonomous_next']})). Not admitted or implemented here; starts only after valid artwork closure and fresh sole-writer admission. Separate exact publication gates remain.\n\n"
+    if d.get("speech_persona_receipt"):
+        r = d["speech_persona_receipt"]
+        intro += f"Selected and freshly admitted speech/Persona implementation: {r['assignment_id']}; source {r['source_delivery']}. Four bounded Core leaves reuse existing Voice/Speech/Audio Renderer architecture; Apple/native audible/joint acceptance remains Planned/open. Delivered artwork v11 and historical snapshots preserved; no new provider/model/cost route or consumer writer.\n\n"
+    if d.get("passive_surface_receipt"):
+        r = d["passive_surface_receipt"]
+        intro += f"Selected passive Session projection: {r['assignment_id']}; source {r['source_delivery']}. Existing SURFACE::CORE::PROJECTION only; native rich adoption OPEN_APPLE, background SURFACE::APPLE::QUIET-TRANSPORT separately Planned, Watch NOT_QUALIFIED and joint OPEN. Original publication/source deadlines, explicit purpose grants and pure reads; no client writes, provider or automatic dispatch. Delivered v12 and all prior receipts preserved.\n\n"
+    if d.get("settings_consolidation_receipt"):
+        r = d["settings_consolidation_receipt"]
+        state = ('protected source delivered contract3 (Core producer only)' if r['source_delivery'] == 'PROTECTED_MERGED'
+                 else 'implemented local contract3 (runtime checkpoint3, unpublished until protected delivery)')
+        intro += f"Selected shared Profile/Session settings consolidation: {r['assignment_id']}; six shared Persona/voice/gender/Mood/Presence/announcement_output, {state}, last explicit accepted choice becomes default, atomic active+default acceptance. Source {r['source_delivery']}; Core producer and migration work only; Apple/other consumers/joint separately open, no automatic dispatch or whole-family completion. Delivered v13 preserved.\n\n"
+    if d.get("branch_consolidation_receipt"):
+        intro += ("Current maintenance16 combines both preserved maintenance15 inputs in the existing Core draft1197. "
+                  "Original input refs and premerge repair refs are separately pinned; both histories remain immutable. "
+                  "Source LOCAL_COMBINED_DRAFT_PREPARATION, overall OPEN, merge NOT_QUALIFIED, native OPEN, "
+                  "The immutable composition receipt predates the private HA-dev candidate3a89473e; "
+                  "later local producer/Forecast repairs are not installed. Audible/native acceptance remains OPEN. "
+                  "No second writer, consumer writes or automatic dispatch. "
+                  "See `docs/verification/CORE_BRANCH_CONSOLIDATION_20261017.md`.\n\n")
+    if d.get("experience_reconciliation_receipt"):
+        intro += ("Current personal-DJ corrective work: LOCAL / UNPUBLISHED; "
+                  "historical SPEECH::CORE::REALIZATION delivery remains preserved, "
+                  "while CORRECTION::CORE::PERSONAL-DJ-EXPERIENCE remains In progress. "
+                  "All-family narrative and actual publication Golden, Track Insight, native and audible "
+                  "acceptance are not established by earlier metadata/type fixtures or the private development install. "
+                  "See `docs/verification/CORE_LANE_REQUIREMENT_RECONCILIATION_20261017.md`. "
+                  "No consumer dispatch or new writer.\n\n")
+    if d.get("display_admission_receipt"):
+        r = d["display_admission_receipt"]
+        intro += f"Selected Core display-admission: {r['assignment_id']}; existing WEB::TRUST and WEB::DISPLAY only. TRUST anchor OPEN_JOINT_REVIEW, wire NOT_FROZEN, runtime {r['runtime']}; source {r['source_delivery']}, native/TV/joint open. B-only software qualification does not close A or imply installed/native/public-route acceptance. Independently reviewed B may proceed in isolation while A stays unavailable. Original settings delivery and all prior receipts remain preserved; no consumer dispatch or deployment.\n\n"
+    if d.get("display_admission_receipt", {}).get("product_disposition"):
+        intro += "A product choice: LIMITED_APP_ATTESTED_REPORTED_ROUTE selected with the stated copied-QR/wrong-scanner destination risk. Independent HA-owner attestation is not claimed; SECURITY_REVIEW/KEY-STATE open, WIRE not frozen and A runtime not implemented. This is no completion, consumer dispatch or deployment.\n\n"
     out = {}
     out["README.md"] = (
         "# Federated roadmap — versioned maintenance\n\n"

@@ -1,5 +1,40 @@
 # DJConnect Platform Evolution Backlog
 
+## Current source readback —18October2026
+
+Combined Core source is protected merged through
+PR [#1197](https://github.com/pcvantol/djconnect/pull/1197) as
+`c98cbf3e3114afb8b8212e18224a337b12af3e27`.
+[Exact source receipt](docs/verification/CORE_CONSOLIDATION_SOURCE_READBACK_20261018.md)
+supersedes earlier unmerged/draft checkpoints only for included source.
+Personal DJ corrective acceptance remains **In progress**:57reported issues,
+36conversation families/151steps,12Core and19actual-quality gates OPEN.
+The newer Album/Welcome/Preview code is not installed by this merge. Single/bulk
+archive deletion are selected contracts with producer/fixtures/capabilities
+pending. VibeCast public/native/screen, client/audio, retained Flow/artwork,
+Track Insight and other owner-dependent gates are not closed. Existing
+SETTINGS consumer/joint nodes stay Planned/NOT_ISSUED; no next selection or
+consumer dispatch. Historical source/installed receipts below retain their
+original scope. Separate Finalization reconciles this source delivery only.
+
+## Existing bounded VibeCast receiver end-authority correction — 17 October 2026
+
+The [retirement contract](docs/product/VIBECAST_RECEIVER_END_AUTHORITY_RETIREMENT_V1.md)
+removes the remaining shared-screen Session-end setting, grants and renderer
+control. Existing owner end and entry-lifetime fences remain. This standalone
+correction is qualified independently on current main; broad personal-DJ
+quality, receiver import/native/physical and other lane gates stay open.
+
+## Integral open-work reconciliation — 17 October 2026
+
+Use the [dated evidence and owner/test/dependency inventory](docs/governance/DJC_PLATFORM_OPEN_WORK_20261017.md)
+for the current cross-lane correction. All 61 unfinished maintenance gates remain
+in the living DAG; no product-family closure or consumer dispatch is inferred.
+Core1165's producer advertisement now has fresh installed/public readback;
+artwork1164, real narration, TTS/preview, LAN/WS, passive/background, production
+push, physical Watch, native UX and soak acceptance remain explicitly scoped.
+
+
 **Owner:** Platform Evolution
 **Status:** Canonical future-evolution backlog
 
@@ -46,6 +81,18 @@ user-facing roadmap progress; the current Product Initiative is recorded in
 | Active Session mood — bounded Core producer (`DJC-CORE-ACTIVE-SESSION-MOOD-V1-20261011`) | P1 | Completed | [selected assignment6108886915](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6108886915); existing Runtime/owner authority; Apple87 existing pickup | [Source #1146](https://github.com/pcvantol/djconnect/pull/1146), exact-main package, real isolated HA and both browser paths PASS. [Own Finalization](docs/history/prompts/2026-10-11-active-session-mood-finalization.md) binds separate final delivery/cleanup. Native/installed/hardware and artwork remain separate; no next execution. |
 | Windows client retirement — Core subset (`DJC-CORE-WINDOWS-CLIENT-RETIREMENT-V1-20261011`) | P1 | Completed | [Core assignment6106139356](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6106139356); [legacy disposition and acceptance](docs/product/WINDOWS_CLIENT_RETIREMENT_V1.md) | Remove active Core client ingress, preserve shared Profile/account/history and qualify retained consumers. [Protected source PR #1144](https://github.com/pcvantol/djconnect/pull/1144), exact-main package and software qualification PASS; [own Finalization](docs/history/prompts/2026-10-11-windows-client-retirement-finalization.md) binds final delivery/cleanup. Installed acceptance not claimed; parent infrastructure remains open. |
 | Windows product removal and dedicated infrastructure retirement (`DJC-WINDOWS-RETIREMENT-V1-20261008`) | P1 | Planned | [owner decision6066406727](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6066406727); owning [Windows #76](https://github.com/pcvantol/djconnect-windows/issues/76) admission and exact resource/effect scope | Parent remains open. Core product subset is tracked above; repository, runner, CI, website and distribution retirement need their own inventory and authority. Preserve native Apple/shared distribution and historical evidence. |
+
+The existing corrective increment also retains every reported Ask DJ defect in
+the [permanent Golden issue register](docs/verification/fixtures/askdj_golden_release_matrix_v1.json).
+Exact music identity, single-use speaker continuation, output-local failures and
+truthful dispatch/readback are executable requirements. Ordinary playback/direction and pending genre transitions now have local typed expression adapters; complete-source Flow pagination/reopening and null-body search have causal tests. A narrow Recommendation now reuses two genuine published producer credits; all seven type families have actual production/storage/reopen contracts with external source/expression fixtures. Historical album/artist art resolves the original subject, manual local/speaker replay uses current Session/Profile voice, and current Insight reuses fresh qualified credits. Full real narration quality, preview/native and installed proof remain open. An open qualification
+finding blocks release; a listed case or green metadata never closes it.
+
+The reported obsolete VibeCast Session-end setting is also retired locally,
+including grant issuance and screen mutation. The old route denies without
+Session effects; paired owner end remains. [Retirement contract](docs/product/VIBECAST_RECEIVER_END_AUTHORITY_RETIREMENT_V1.md);
+receiver import and installed delivery are not claimed.
+
 
 ## Engineering Platform operational updates
 

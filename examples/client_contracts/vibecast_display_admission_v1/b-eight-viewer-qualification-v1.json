@@ -1,0 +1,88 @@
+{
+  "qualification_version": 1,
+  "scope": "actual_isolated_HA_eight_draining_display_transports_one_share",
+  "probe_code_pin": "5528aa754f865872acbc127818b5193bbd1424f7",
+  "producer_code_pin": "3cb9cf129f31d419e8b2027e4dc1ba08fafdb9d8",
+  "runtime_delta": "none; integration tree equals producer; only probe expanded",
+  "image_sha256": "1b64d38f38d922bf9d59336451fd6453e1d614f934456af4ee3d2a51061be3a4",
+  "limits": {
+    "network": "none",
+    "source_mount": "read_only",
+    "container_memory_mib": 768,
+    "cpus": 2,
+    "tmpfs_mib": 96,
+    "configured_probe_seconds": 70
+  },
+  "actual": {
+    "qualification": "REAL_ISOLATED_HA_HTTPS_DISPLAY_TRANSITIONS_SNAPSHOT_BASIC_LIVE",
+    "checks": [
+      "normal_pairing_minted_persisted_device_token",
+      "existing_session_start_and_native_owner_context",
+      "claim_resolve_explicit_approve_retry_one_time_collection",
+      "display_bearer_denied_owner_end_mood_presence_playback_and_private_Ask_DJ",
+      "dedicated_display_snapshot_explicit_closed_shared_allowlist",
+      "real_source_preauth_capacity_no_eviction_and_released_slots",
+      "real_WSS_snapshot_Broadcast_mood_update_and_superseded_generation",
+      "dedicated_read_only_grant_origin_fence_idempotent_renew_no_provider_effect",
+      "explicit_display_revoke_preserves_owner_session",
+      "real_profile_storage_privacy_ABA_irreversibly_revokes_share_without_session_end",
+      "ordinary_session_end_clears_all_share_authority",
+      "eight_real_live_viewers_ninth_denied_no_eviction_renew_Broadcast_end_release",
+      "B_discovery_support_not_route_admission_A_or_missing_HTTPS_success"
+    ],
+    "provider_calls_during_B": 0,
+    "duration": {
+      "state": "NOT_RUN"
+    },
+    "multi_viewer": {
+      "state": "MEASURED_EIGHT_VIEWERS_ONE_SHARE",
+      "elapsed_seconds": 70.191,
+      "viewers": 8,
+      "frames_per_viewer": [
+        79,
+        79,
+        78,
+        78,
+        78,
+        78,
+        78,
+        78
+      ],
+      "renewal_commits": 24,
+      "confirmed_mood_updates_all_viewers": 3,
+      "ninth_admission": "429_no_eviction",
+      "peak_connections": 8,
+      "peak_reserved_bytes": 262144,
+      "peak_projections": 1,
+      "peak_tasks_including_8_probe_readers": 34,
+      "rss_highwater_before_kib": 152200,
+      "rss_highwater_after_kib": 158332,
+      "session_end": "all_8_connections_and_reservations_released_all_grants_denied",
+      "scope": "one share, networkless actual HA transport; not global64 capacity or native/browser acceptance"
+    },
+    "source_files": 163,
+    "source_sha256": "83d26555f473d21f45c1dbb8e0dfadf56015a8b03780f949ff63b6ef64b60817",
+    "credentials": "ephemeral ordinary device pairing only; never exported",
+    "complete_live_renderer_A_public_TLS_native_installed_hardware": "NOT_QUALIFIED"
+  },
+  "elapsed_clock": "total multi-probe elapsed includes admission and end/release; not70 seconds of saturated concurrent projection",
+  "no_claims": [
+    "global64_display_capacity",
+    "eight_simultaneously_blocked_projection_slots",
+    "16_global_preauth_capacity",
+    "public_DNS_TLS_proxy",
+    "native_renderer",
+    "installed",
+    "hardware",
+    "A_interoperability"
+  ],
+  "reproduce": {
+    "env": {
+      "DJC_DISPLAY_MULTI_CLIENT": "1",
+      "DJC_DISPLAY_MULTI_SECONDS": "70",
+      "DJC_DISPLAY_LONG_RUN_SECONDS": "0"
+    },
+    "entrypoint": "python scripts/verification/verify_display_admission_http.py",
+    "configuration": "own HA ephemeral ordinary pairing; no broad HA credentials; external provider boundaries only are fixtures"
+  }
+}

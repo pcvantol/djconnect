@@ -241,12 +241,13 @@ class HistoricalProjectionRepository(PersistenceRepository):
         return await self._async_in_transaction(read)
 
     async def async_append_entries(
-        self, owner_profile_id: str, session_id: str, entries: list[dict]
+        self, owner_profile_id: str, session_id: str, entries: list[dict], *, authorize=None
     ) -> list[str]:
         """One existing transaction for accepted projections; terminal archives reject writes."""
 
         return await self._async_in_transaction(
-            lambda tx: self._append_entries_tx(tx, owner_profile_id, session_id, entries)
+            lambda tx: self._append_entries_tx(tx, owner_profile_id, session_id, entries),
+            authorize=authorize, finalize_authorize=authorize,
         )
 
     def _append_entries_tx(self, tx, owner_profile_id, session_id, entries):
@@ -310,7 +311,9 @@ class HistoricalProjectionRepository(PersistenceRepository):
                     order -= 1
                     continue
             stamp = item.get("occurred_at") or datetime.now(UTC).isoformat()
-            expires = (datetime.fromisoformat(stamp) + timedelta(days=90)).isoformat()
+            # Active entries live with their Session, not with an independent
+            # rolling clock. Terminal transition assigns the one Session cap.
+            expires = "9999-12-31T00:00:00+00:00"
             tx.execute(
                 "INSERT INTO djconnect_session_entries (entry_id,session_id,owner_profile_id,entry_order,kind,reference_id,body,occurred_at,retained_until,visibility) VALUES (?,?,?,?,?,?,?,?,?,'owner')",
                 (
@@ -335,7 +338,7 @@ class HistoricalProjectionRepository(PersistenceRepository):
         return ids
 
     async def async_accept_moment(
-        self, owner, session_id, moment_id, entry=None, *, authorize=None
+        self, owner, session_id, moment_id, entry=None, *, authorize=None, finalize_authorize=None
     ):
         """Semantic commit independently qualified from optional archival text."""
 
@@ -368,7 +371,7 @@ class HistoricalProjectionRepository(PersistenceRepository):
                 )
             return True
 
-        return await self._async_in_transaction(accept, authorize=authorize)
+        return await self._async_in_transaction(accept, authorize=authorize, finalize_authorize=finalize_authorize)
 
     async def async_accept_mood(self, owner, session_id, mood, *, authorize=None):
         def accept(tx):
@@ -388,15 +391,57 @@ class HistoricalProjectionRepository(PersistenceRepository):
 
         await self._async_in_transaction(accept, authorize=authorize)
 
-    async def _async_history_change(self, operation, **scope):
+    async def _async_history_change(self, operation, *, authorize=None, **scope):
         """Fence the single RAM image owner across the destructive transaction."""
         media = getattr(self._persistence, "session_image_owner", None)
+        speech = getattr(self._persistence, "session_speech_invalidator", None)
+        if speech is not None:
+            speech()
         token = media.begin_history_change(**scope) if media is not None else None
         try:
-            return await self._async_in_transaction(operation)
+            if authorize is None:
+                return await self._async_in_transaction(operation)
+            return await self._async_in_transaction(operation, authorize=authorize,
+                                                    finalize_authorize=authorize)
         finally:
+            if speech is not None:
+                speech()
             if media is not None:
                 media.end_history_change(token, **scope)
+
+    async def async_retention_policy(self) -> tuple[int, int]:
+        return await self._async_in_transaction(lambda tx: tx.fetchone(
+            "SELECT retention_days,revision FROM djconnect_session_retention WHERE singleton=1"))
+
+    @property
+    def retention_fence(self):
+        return (getattr(self._persistence, 'history_retention_epoch', 0),
+                getattr(self._persistence, 'history_retention_writes', 0))
+
+    async def async_set_retention_days(self, days: int, *, authorize) -> tuple[int, int]:
+        """Installation-wide private-history cap; caller supplies admin authority."""
+        if type(days) is not int or not 1 <= days <= 90:
+            raise ValueError("invalid_session_retention_days")
+        if not callable(authorize):
+            raise PermissionError("admin_authorization_required")
+        def update(tx):
+            current = tx.fetchone("SELECT retention_days,revision FROM djconnect_session_retention WHERE singleton=1")
+            if current[0] == days:
+                return current
+            tx.execute("UPDATE djconnect_session_retention SET retention_days=?,revision=revision+1 WHERE singleton=1", (days,))
+            tx.execute(
+                "UPDATE djconnect_session_entries SET retained_until=MIN(retained_until,(SELECT strftime('%Y-%m-%dT%H:%M:%f+00:00',julianday(COALESCE(NULLIF(ended_at,''),NULLIF(interrupted_at,''),created_at))+?) FROM djconnect_persistent_sessions s WHERE s.session_id=djconnect_session_entries.session_id)) WHERE session_id IN (SELECT session_id FROM djconnect_persistent_sessions WHERE lifecycle_status IN ('ENDED','INTERRUPTED'))", (days,))
+            tx.execute(
+                "UPDATE djconnect_persistent_sessions SET history_enabled=0,history_revision=history_revision+1 WHERE history_enabled=1 AND lifecycle_status IN ('ENDED','INTERRUPTED') AND julianday(COALESCE(NULLIF(ended_at,''),NULLIF(interrupted_at,''),created_at))<=julianday(?) - ?",
+                (datetime.now(UTC).isoformat(), min(days, current[0])))
+            return days, current[1] + 1
+        self._persistence.history_retention_epoch = self.retention_fence[0] + 1
+        self._persistence.history_retention_writes = self.retention_fence[1] + 1
+        try:
+            return await self._async_history_change(update, authorize=authorize)
+        finally:
+            self._persistence.history_retention_writes -= 1
+            self._persistence.history_retention_epoch += 1
 
     async def async_purge_profile_history(self, owner: str) -> None:
         """Erase the deleted owner's projections, never reassign them with devices."""
@@ -431,15 +476,21 @@ class HistoricalProjectionRepository(PersistenceRepository):
             affected = set()
             for identifier in identifiers[:250]:
                 row = tx.fetchone(
-                    "SELECT session_id FROM djconnect_session_entries WHERE owner_profile_id=? AND entry_id=?",
+                    "SELECT session_id,kind,body FROM djconnect_session_entries WHERE owner_profile_id=? AND entry_id=?",
                     (owner, identifier),
                 )
                 if row is not None:
                     affected.add(row[0])
-                    tx.execute(
-                        "DELETE FROM djconnect_session_entries WHERE owner_profile_id=? AND entry_id=?",
-                        (owner, identifier),
-                    )
+                    body = json.loads(row[2])
+                    if row[1] == 'dj_moment' and body.get('archive_basis') == 'owner_metadata_narration_v1':
+                        from ..session_history_projection import publication_receipt
+                        tx.execute("UPDATE djconnect_session_entries SET kind='dj_publication',body=? WHERE owner_profile_id=? AND entry_id=?",
+                            (json.dumps(publication_receipt(body,'source_withdrawn')),owner,identifier))
+                    else:
+                        tx.execute(
+                            "DELETE FROM djconnect_session_entries WHERE owner_profile_id=? AND entry_id=?",
+                            (owner, identifier),
+                        )
                     tx.execute(
                         "DELETE FROM djconnect_historical_moments WHERE owner_profile_id=? AND historical_moment_id=?",
                         (owner, identifier),
@@ -468,7 +519,7 @@ class HistoricalProjectionRepository(PersistenceRepository):
 
             while True:
                 rows = tx.fetchall(
-                    "SELECT entry_id,session_id,body FROM djconnect_session_entries WHERE kind='playback_observed' AND entry_id>? ORDER BY entry_id LIMIT 250",
+                    "SELECT entry_id,session_id,body FROM djconnect_session_entries WHERE kind IN ('playback_observed','dj_moment') AND entry_id>? ORDER BY entry_id LIMIT 250",
                     (after,),
                 )
                 if not rows:
@@ -480,9 +531,13 @@ class HistoricalProjectionRepository(PersistenceRepository):
                     except (TypeError, ValueError, AttributeError):
                         continue
                     if context.get("provider_entry_id") == provider_entry_id:
-                        tx.execute(
-                            "DELETE FROM djconnect_session_entries WHERE entry_id=?", (identifier,)
-                        )
+                        body = json.loads(raw)
+                        if body.get('archive_basis') == 'owner_metadata_narration_v1':
+                            from ..session_history_projection import publication_receipt
+                            tx.execute("UPDATE djconnect_session_entries SET kind='dj_publication',body=? WHERE entry_id=?",
+                                (json.dumps(publication_receipt(body,'source_withdrawn')),identifier))
+                        else:
+                            tx.execute("DELETE FROM djconnect_session_entries WHERE entry_id=?", (identifier,))
                         affected.add(session_id)
                 if len(rows) < 250:
                     break
@@ -504,7 +559,7 @@ class HistoricalProjectionRepository(PersistenceRepository):
 
         def read(tx):
             rows = tx.fetchall(
-                "SELECT entry_id,session_id,owner_profile_id,kind,body FROM djconnect_session_entries WHERE kind='playback_observed' AND entry_id>? ORDER BY entry_id LIMIT ?",
+                "SELECT entry_id,session_id,owner_profile_id,kind,body FROM djconnect_session_entries WHERE kind IN ('playback_observed','dj_moment') AND entry_id>? ORDER BY entry_id LIMIT ?",
                 (after, min(limit, 250)),
             )
             return [
@@ -613,6 +668,11 @@ class HistoricalProjectionRepository(PersistenceRepository):
         )
         if policy is not None and not policy[0]:
             return None
+        retention = tx.fetchone("SELECT retention_days FROM djconnect_session_retention WHERE singleton=1")[0]
+        terminal = session.ended_at or session.interrupted_at or session.created_at
+        deadline = (datetime.fromisoformat(terminal) + timedelta(days=retention)).isoformat()
+        tx.execute("UPDATE djconnect_session_entries SET retained_until=MIN(retained_until,?) WHERE session_id=?",
+                   (deadline, session.session_id))
         existing = tx.fetchone(
             "SELECT historical_session_id,originating_session_id,owner_profile_id,lifecycle_outcome,created_at,projection_version FROM djconnect_historical_sessions WHERE originating_session_id=?",
             (session.session_id,),
@@ -652,6 +712,7 @@ class HistoricalProjectionRepository(PersistenceRepository):
             if body.get("archive_basis") not in {
                 "cc0_normalized_fields_v1",
                 "runtime_authored_direction_v1",
+                "public_artist_narration_v1",
             }:
                 continue
             tx.execute(
@@ -667,6 +728,7 @@ class HistoricalProjectionRepository(PersistenceRepository):
                         {
                             "archive_basis": body["archive_basis"],
                             "source_attribution": body.get("source_attribution", {}),
+                            **({"sources":body["sources"]} if body.get("archive_basis") == "public_artist_narration_v1" else {}),
                         },
                         sort_keys=True,
                     ),

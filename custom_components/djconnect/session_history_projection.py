@@ -98,6 +98,11 @@ class HistoryCursorCodec:
             raise HistoryQueryError("invalid_history_cursor") from exc
 
 
+def publication_receipt(body: dict, reason: str) -> dict:
+    return {**{key:body[key] for key in ('moment_id','moment_type','persona','persona_revision','locale') if key in body},
+            'content_state':'unavailable','unavailable_reason':reason}
+
+
 def project_entry(row: dict) -> dict | None:
     """Only explicitly qualified, owner-visible, retained entry bodies escape storage."""
     now = datetime.now(UTC)
@@ -129,9 +134,19 @@ def project_entry(row: dict) -> dict | None:
         if body.get("archive_basis") not in {
             "cc0_normalized_fields_v1",
             "runtime_authored_direction_v1",
+            "owner_metadata_narration_v1",
+            "public_artist_narration_v1",
         }:
             return None
-        result.update({k: v for k, v in body.items() if k != "session_media_reference"})
+        result.update({k: v for k, v in body.items() if k not in {"session_media_reference", "source_context"}})
+    elif row["kind"] in {"dj_publication", "dj_silence"}:
+        # Only Core-owned publication identity escapes: no unavailable source
+        # body, attribution, artwork or model/speech input is reconstructed.
+        result.update({key: body[key] for key in (
+            "moment_id", "moment_type", "content_state", "unavailable_reason",
+            "persona", "persona_revision", "locale") if key in body})
+        result["text"] = None
+        result["speech_available"] = False
     elif row["kind"] in {"conversation_user", "conversation_dj"}:
         # Text is resolved by the existing Ask DJ history authority, never copied here.
         result["conversation_reference"] = body
@@ -141,13 +156,14 @@ def project_entry(row: dict) -> dict | None:
 
 
 def revision_scope(owner: str, session: dict, mode: str, query: str = "") -> dict:
-    return {
+    from .history_entry_contract import cursor_scope
+    return cursor_scope({
         "profile_id": owner,
         "session_id": session["session_id"],
         "revision": session["revision"],
         "mode": mode,
         "query": query,
-    }
+    })
 
 
 def checked_limit(value: int) -> int:
@@ -182,14 +198,15 @@ def public_session(session: dict) -> dict:
     return result
 
 
-def session_retained(session: dict) -> bool:
+def session_retained(session: dict, *, retention_days: int = 90) -> bool:
     from datetime import timedelta
 
     stamp = session["ended_at"] or session["interrupted_at"] or session["created_at"]
     try:
         return bool(
             session["history_enabled"]
-            and datetime.fromisoformat(stamp) > datetime.now(UTC) - timedelta(days=90)
+            and (session['lifecycle_status'] in {'OPENING', 'ACTIVE'}
+                 or datetime.fromisoformat(stamp) > datetime.now(UTC) - timedelta(days=retention_days))
         )
     except (ValueError, TypeError):
         return False

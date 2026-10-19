@@ -76,11 +76,15 @@
     "moment_track_insight_navigation_v1": true,
     "session_flow_text_search": true,
     "active_session_mood": true,
+    "active_session_persona": true,
     "active_session_presence": true,
     "session_forecast": true,
     "session_history_summary": true,
     "hybrid_transport": true,
-    "session_artwork": true
+    "session_artwork": true,
+    "session_speech": true,
+    "passive_session_surface": true,
+    "profile_session_settings": true
   },
   "contract_versions": {
     "profile_context": 1,
@@ -90,11 +94,16 @@
     "moment_track_insight_navigation": 1,
     "session_flow_text_search": 1,
     "active_session_mood": 1,
-    "active_session_presence": 1,
+    "active_session_persona": 1,
+    "active_session_presence": 2,
     "session_forecast": 1,
-    "session_history_summary": 1,
     "hybrid_transport": 1,
-    "session_artwork": 1
+    "session_artwork": 1,
+    "session_speech": 1,
+    "passive_session_surface": 1,
+    "session_history_summary": 1,
+    "profile_session_settings": 3,
+    "session_history_entries": 2
   },
   "transports": {
     "http": true,
@@ -104,6 +113,15 @@
     "available": true,
     "version": 1,
     "requires_authenticated_tls": true,
+    "transport_security": {
+      "policy_version": 1,
+      "deployment_qualification_required": true,
+      "external": "authenticated_tls",
+      "local_plaintext": "qualified_direct_only",
+      "peer_policy": "enabled_interface_subnet_or_loopback",
+      "internal_origin_required": true,
+      "forwarded_plaintext": "forbidden"
+    },
     "client_types": [
       "ios",
       "macos",
@@ -116,7 +134,9 @@
     "commands": [
       "djconnect/read",
       "djconnect/operation/execute",
-      "djconnect/operation/status"
+      "djconnect/operation/status",
+      "djconnect/profile/settings/update",
+      "djconnect/profile/settings/subscribe"
     ],
     "context_path": "/api/djconnect/v1/transport/context",
     "operation_path": "/api/djconnect/v1/transport/operation",

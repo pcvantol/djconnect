@@ -768,7 +768,7 @@ install_verification_cleanup() {
   local label="com.djconnect.verification-artifact-cleanup" plist="$HOME/Library/LaunchAgents/com.djconnect.verification-artifact-cleanup.plist"
   local begin_marker="# BEGIN DJCONNECT VERIFICATION ARTIFACT CLEANUP"
   local end_marker="# END DJCONNECT VERIFICATION ARTIFACT CLEANUP"
-  local cron_file
+  local cron_file cleanup_cron_command
   mkdir -p "$LOG_DIR"
   cron_file="$(mktemp)"
   (crontab -l 2>/dev/null || true) | awk -v begin="$begin_marker" -v end="$end_marker" '
@@ -778,7 +778,11 @@ install_verification_cleanup() {
   ' > "$cron_file"
   {
     printf '%s\n' "$begin_marker"
-    printf '0 3 * * * /bin/bash %s/scripts/maintenance/cleanup_verification_artifacts.sh --execute >> %s/verification-artifact-cleanup.log 2>&1\n' "$REPO_ROOT" "$LOG_DIR"
+    printf -v cleanup_cron_command '/bin/bash %q --execute >> %q 2>&1' \
+      "$REPO_ROOT/scripts/maintenance/cleanup_verification_artifacts.sh" \
+      "$LOG_DIR/verification-artifact-cleanup.log"
+    cleanup_cron_command="${cleanup_cron_command//%/\\%}"
+    printf '0 3 * * * %s\n' "$cleanup_cron_command"
     printf '%s\n' "$end_marker"
   } >> "$cron_file"
   crontab "$cron_file"

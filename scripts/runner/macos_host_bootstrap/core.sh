@@ -1,4 +1,4 @@
-# Version: 1.3.14
+# Version: 1.3.15
 # CLI help, desired-state verification and console/report primitives.
 usage() {
   cat <<'EOF'
@@ -305,6 +305,16 @@ report_repository_build_output() {
   done
 }
 
+verification_artifact_cleanup_cron_line() {
+  local github_root_path="$1" cleanup_cron_command
+  printf -v cleanup_cron_command '/bin/bash %q --execute >> %q 2>&1' \
+    "$github_root_path/djconnect/scripts/maintenance/cleanup_verification_artifacts.sh" \
+    "$github_root_path/djconnect/logs/verification-artifact-cleanup.log"
+  # Cron interprets percent signs even inside shell quotes.
+  cleanup_cron_command="${cleanup_cron_command//%/\\%}"
+  printf '0 3 * * * %s\n' "$cleanup_cron_command"
+}
+
 run_desired_state_verification() {
   local hardware_profile macos_version macos_major cpu_brand mem_bytes mem_gb cpu_count disk_probe_path disk_kb disk_gb onboarding_manifest onboarding_version formula cask profile install_dir ha_running ngrok_config ngrok_permissions ngrok_config_version ngrok_authtoken_status ngrok_authtoken_state ngrok_tunnel tailscale_installation tailscale_state
   printf '# DJConnect macOS Development Host Desired-State Delta\n\n'
@@ -347,7 +357,8 @@ run_desired_state_verification() {
   fi
   report_repository_build_output
   local verification_cleanup="$GITHUB_ROOT/djconnect/scripts/maintenance/cleanup_verification_artifacts.sh"
-  local verification_cleanup_cron="0 3 * * * /bin/bash $verification_cleanup --execute >> $GITHUB_ROOT/djconnect/logs/verification-artifact-cleanup.log 2>&1"
+  local verification_cleanup_cron
+  verification_cleanup_cron="$(verification_artifact_cleanup_cron_line "$GITHUB_ROOT")"
   if [[ -x "$verification_cleanup" ]] && "$verification_cleanup" --check; then verify_delta_row 'maintenance.verification_artifact_retention' 'no ignored output older than 14 days' clean MATCH; else verify_delta_row 'maintenance.verification_artifact_retention' 'no ignored output older than 14 days' expired DRIFT; fi
   if crontab -l 2>/dev/null | grep -Fqx "$verification_cleanup_cron"; then verify_delta_row 'maintenance.verification_artifact_cleanup' '03:00 cron installed' installed MATCH; else verify_delta_row 'maintenance.verification_artifact_cleanup' '03:00 cron installed' absent DRIFT; fi
 

@@ -12,7 +12,7 @@ from urllib.request import Request, urlopen
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from tests.ask_dj_e2e_contract import AskDjE2ETrace, load_cases, validate_case_result  # noqa: E402
+from tests.ask_dj_e2e_contract import AskDjE2ETrace, load_cases, materialize_case, validate_case_result  # noqa: E402
 
 
 def main() -> int:
@@ -29,6 +29,7 @@ def main() -> int:
     results: list[dict[str, Any]] = []
     failures: list[str] = []
     for case in cases:
+        case = materialize_case(case)
         response = _post_case(args, case)
         trace = AskDjE2ETrace()
         errors = validate_case_result(case, response, trace)

@@ -83,6 +83,93 @@ class SessionForecastTests(unittest.TestCase):
                 await manager.async_forecast_snapshot(owner_profile_id='owner',session_id=active.session_id,authorize=lambda:False)
         asyncio.run(scenario())
 
+    def test_localized_reads_preserve_original_deadlines_and_cannot_revive_expired_or_withdrawn_context(self):
+        from unittest.mock import patch
+        async def scenario():
+            manager, active = await self.start('en')
+            projection = active.broadcast.forecast
+            before = copy.deepcopy((projection.__dict__, active.planner.__dict__,
+                                    active.presence_ledger.__dict__, active.broadcast.delivery_sequence))
+            with patch.object(active.planner, 'forecast_semantics', side_effect=AssertionError('read replanned')):
+                for locale in ('nl','de','fr','es','en'):
+                    localized = await manager.async_forecast_snapshot(
+                        owner_profile_id='owner', session_id=active.session_id, locale=locale)
+                    self.assertEqual(localized['state'], 'ready')
+                    self.assertEqual(localized['revision'], projection.revision)
+                    self.assertEqual(localized['valid_until'], projection.value['valid_until'])
+            self.assertEqual(before, (projection.__dict__, active.planner.__dict__,
+                active.presence_ledger.__dict__, active.broadcast.delivery_sequence))
+            projection.clock = lambda: projection.deadline
+            expired = await manager.async_forecast_snapshot(
+                owner_profile_id='owner',session_id=active.session_id,locale='fr')
+            self.assertEqual((expired['state'],expired['summary'],expired['sections']),('expired','',[]))
+            self.assertEqual(expired['revision'],projection.revision)
+            projection.withdraw()
+            withdrawn = await manager.async_forecast_snapshot(
+                owner_profile_id='owner',session_id=active.session_id,locale='nl')
+            self.assertEqual((withdrawn['state'],withdrawn['summary'],withdrawn['sections']),('withdrawn','',[]))
+            self.assertEqual(projection._semantic,{})
+        asyncio.run(scenario())
+
+    def test_direction_moment_uses_four_authored_personas_without_forecast_media_anchors(self):
+        r = self.runtime
+        for locale in ('en', 'nl', 'de', 'fr', 'es'):
+            for direction_type in r.SessionDirectionType:
+                versions = []
+                for persona in r.DJPersona:
+                    direction = r.SessionDirection(direction=direction_type, initialized_at='fixed',
+                        updated_at='fixed', start_strategy=r.SessionStartStrategy.DISCOVER)
+                    knowledge = r.DJKnowledgeEngine().assemble_session_direction_context(
+                        direction, r.SessionStartStrategy.DISCOVER, 'groove', r.PerformanceMemory(source_flow_id='direction-only'))
+                    engine = r.DJMomentEngine()
+                    moment = engine.create_session_update(session_id='direction-only',
+                        selected_mood='groove', persona=persona, locale=locale,
+                        session_direction=direction, knowledge_context=knowledge)
+                    self.assertEqual(moment.moment_type, r.DJMomentType.SESSION)
+                    self.assertEqual(moment.source_references, ('session_direction',))
+                    self.assertEqual(dict(moment.generation_metadata)['direction'], direction_type.value)
+                    self.assertEqual(moment.presentation_intent.dj_persona, persona)
+                    self.assertNotIn('{', moment.content)
+                    from tests.speech_capture import capture
+                    capture('direction-knowledge-previews', {'locale': locale, 'persona': persona.value,
+                        'direction': direction_type.value, 'moment': moment.as_dict(),
+                        'scope': 'Actual Knowledge/Moment realization preview, not independent Runtime publication.'})
+                    self.assertNotIn('None', moment.content)
+                    versions.append(moment.content)
+                self.assertEqual(len(set(versions)), 4, (locale, direction_type))
+
+    def test_direction_persona_is_published_by_existing_runtime_and_immutable_on_live_switch(self):
+        async def scenario():
+            r = self.runtime
+            for locale in ('en', 'nl', 'de', 'fr', 'es'):
+                versions = []
+                for persona in r.DJPersona:
+                    manager = r.SessionRuntimeManager()
+                    active = await manager.async_start(owner_profile_id='owner', selected_mood='energy',
+                        locale=locale, dj_persona=persona)
+                    events = []
+                    await manager.async_subscribe(owner_profile_id='owner', session_id=active.session_id,
+                        callback=events.append)
+                    async def existing_insight():
+                        return {}
+                    moment = await manager.async_process_track_started(owner_profile_id='owner',
+                        session_id=active.session_id, insight_provider=existing_insight)
+                    self.assertEqual(moment.moment_type, r.DJMomentType.SESSION)
+                    self.assertIn(moment, active.broadcast.state.dj_moments)
+                    self.assertIn('dj_moment_published', [e['event_type'] for e in events])
+                    from tests.speech_capture import capture
+                    capture('direction-runtime-publications', {'locale': locale, 'persona': persona.value,
+                        'moment': moment.as_dict(), 'scope': 'Actual Runtime/Planner/Knowledge/Moment/Flow/Broadcast publication.'})
+                    versions.append(moment.content)
+                    before = moment.as_dict()
+                    await manager.async_update_persona(owner_profile_id='owner', session_id=active.session_id,
+                        dj_persona=r.DJPersona.FESTIVAL_DJ)
+                    self.assertEqual(moment.as_dict(), before)
+                    self.assertEqual(len(active.broadcast.state.dj_moments), 1)
+                    await manager.async_end(owner_profile_id='owner', session_id=active.session_id)
+                self.assertEqual(len(set(versions)), 4, locale)
+        asyncio.run(scenario())
+
     def test_independent_mood_presence_noop_off_and_end(self):
         async def scenario():
             manager, active = await self.start()

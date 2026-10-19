@@ -2,7 +2,9 @@
   "domain": "djconnect",
   "name": "DJConnect",
   "after_dependencies": [
-    "cloud"
+    "cloud",
+    "openai_conversation",
+    "wyoming"
   ],
   "bluetooth": [
     {
@@ -15,6 +17,7 @@
   "config_flow": true,
   "dependencies": [
     "http",
+    "network",
     "zeroconf",
     "bluetooth",
     "bluetooth_adapters",

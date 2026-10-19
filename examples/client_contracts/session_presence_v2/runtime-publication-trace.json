@@ -1,0 +1,106 @@
+{
+  "proof_boundary": "Real Runtime publication with source-shaped synthetic fixtures and monotonic observations; not installed/native/LLM or audible proof",
+  "trace": "Four180s tracks, observations every15s through150s, shared publication ledger; no reset",
+  "source_hashes": {
+    "custom_components/djconnect/presence_policy.py": "d89ba4afe96b279b8f530121b4978fe37051c744d5dc6a6bc6fa7c6179fb892c",
+    "custom_components/djconnect/session_runtime.py": "b67f22c3903e41552c8630d6e9c92f9d146a16ff6851ec17094e6cde11ae7a53",
+    "tests/test_session_presence.py": "f16978a85b166f244af40f59e1fbb237e6bf56e2fee0c758af9b300d3567a360"
+  },
+  "rows": {
+    "music_only": {
+      "policy": {
+        "min_interval_seconds": 0,
+        "per_track": 0,
+        "per_rolling600s": 0
+      },
+      "published": [],
+      "count": 0
+    },
+    "occasional": {
+      "policy": {
+        "min_interval_seconds": 180,
+        "per_track": 1,
+        "per_rolling600s": 2
+      },
+      "published": [
+        [
+          0.0,
+          "track"
+        ],
+        [
+          180.0,
+          "album"
+        ]
+      ],
+      "count": 2
+    },
+    "balanced": {
+      "policy": {
+        "min_interval_seconds": 90,
+        "per_track": 2,
+        "per_rolling600s": 4
+      },
+      "published": [
+        [
+          0.0,
+          "track"
+        ],
+        [
+          90.0,
+          "album"
+        ],
+        [
+          180.0,
+          "track"
+        ],
+        [
+          270.0,
+          "artist"
+        ]
+      ],
+      "count": 4
+    },
+    "presenter": {
+      "policy": {
+        "min_interval_seconds": 45,
+        "per_track": 4,
+        "per_rolling600s": 8
+      },
+      "published": [
+        [
+          0.0,
+          "track"
+        ],
+        [
+          45.0,
+          "album"
+        ],
+        [
+          90.0,
+          "track"
+        ],
+        [
+          135.0,
+          "artist"
+        ],
+        [
+          180.0,
+          "track"
+        ],
+        [
+          225.0,
+          "artist"
+        ],
+        [
+          270.0,
+          "track"
+        ],
+        [
+          360.0,
+          "artist"
+        ]
+      ],
+      "count": 8
+    }
+  }
+}

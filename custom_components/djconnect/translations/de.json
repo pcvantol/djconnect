@@ -195,17 +195,14 @@
           "local_url": "Client-Adresse",
           "firmware_channel": "Firmware-Kanal",
           "dj_announcement_speaker_entity_id": "Home Assistant-Lautsprecher für DJ-Ansagen",
-          "options_action": "Aktion",
-          "voice_profile": "DJ-Sprachprofil",
-          "vibecast_session_end_allowed": "Genehmigte VibeCast-Bildschirme dürfen die Session beenden"
+          "options_action": "Aktion"
         },
         "data_description": {
           "assist_pipeline_id": "Assist-Pipeline, die DJConnect-Geräte für Spracherkennung und DJ-Ansageaudio verwenden.",
           "client_type": "DJConnect-Clienttyp: App, lokales Gerät oder Assist-Agent.",
           "dj_announcement_speaker_entity_id": "Optionale media_player-Entität für gesprochene DJ-Ansagen. Spotify Direct spielt weiter; DJConnect gibt die Stimme separat über diesen Lautsprecher aus.",
           "firmware_channel": "Wähle stable für normale OTA-Updates oder beta zum Testen von Vorab-Firmware.",
-          "options_action": "Wähle die Aktion aus, die ausgeführt werden soll.",
-          "voice_profile": "Wähle den Fallback-DJConnect-Radiostil. Wenn ein Client mood sendet, wählt diese mood automatisch das Stimmprofil; die Home Assistant TTS-Stimme bestimmt weiterhin die eigentliche Audiostimme."
+          "options_action": "Wähle die Aktion aus, die ausgeführt werden soll."
         }
       },
       "spotify_reauth": {
@@ -291,14 +288,12 @@
           "profile_id": "Profil",
           "profile_name": "Profilname",
           "profile_type": "Profiltyp",
-          "profile_response_style": "Antwortstil",
           "require_profile": "Ein ausdrücklich gewähltes Profil verlangen"
         },
         "data_description": {
           "profile_id": "Profile werden innerhalb dieser Home-Assistant-Installation geteilt. Wähle ein bestehendes Profil oder erstelle ein neues.",
           "profile_name": "Gib dem neuen Profil einen eindeutigen Namen. Um das Profil eines anderen Geräts zu verwenden, wähle es aus der Profilliste.",
           "profile_type": "Profiltyp",
-          "profile_response_style": "Antwortstil",
           "require_profile": "Ein ausdrücklich gewähltes Profil verlangen"
         }
       }
@@ -313,7 +308,7 @@
       "oauth_setup_failed": "Spotify-Autorisierung konnte nicht gestartet werden. Prüfe Client ID und externe URL und versuche es erneut.",
       "oauth_not_completed": "Spotify-Autorisierung ist noch nicht abgeschlossen. Stimme in Spotify zu und kehre zu Home Assistant zurück.",
       "oauth_failed": "Spotify-Autorisierung ist fehlgeschlagen. Starte den Spotify-Schritt erneut und prüfe die Redirect URI in deiner Spotify App.",
-      "assist_pipeline_required": "Konfiguriere zuerst eine Home Assistant Assist-Pipeline mit STT und TTS. DJConnect verwendet diese Pipeline für Spracherkennung und DJ-Ansagen.",
+      "assist_pipeline_required": "Wähle eine verfügbare Home Assistant Assist-Pipeline mit einem Konversationsagenten. Spracherkennung und Sprachausgabe in Home Assistant sind optional.",
       "ble_device_required": "Wähle ein DJConnect-BLE-Gerät oder gib seine Bluetooth-Adresse ein.",
       "wifi_ssid_required": "Gib die bereitzustellende WLAN-SSID ein.",
       "ble_wifi_failed": "WLAN-Provisioning per Bluetooth ist fehlgeschlagen. Prüfe ausgewähltes Gerät, SSID und Passwort und versuche es erneut.",
@@ -326,12 +321,12 @@
       "music_assistant_unavailable": "Music Assistant ist in Home Assistant nicht installiert oder nicht konfiguriert.",
       "music_assistant_no_players": "Es wurden keine nutzbaren Music Assistant-Player gefunden.",
       "music_assistant_player_missing": "Der ausgewählte Music Assistant-Player existiert nicht mehr.",
-      "invalid_voice_profile": "Wähle ein unterstütztes DJ-Sprachprofil.",
       "profile_name_exists": "Dieser Name wird bereits verwendet. Wähle das bestehende Profil aus der Liste oder gib einen anderen Namen ein.",
       "profile_name_required": "Gib einen Profilnamen ein.",
       "profile_unavailable": "Dieses Profil wurde geändert oder ist nicht mehr verfügbar. Wähle es erneut aus der aktualisierten Liste.",
       "profile_connection_unavailable": "Die bestehende Musikverbindung ist nicht verfügbar oder nicht eindeutig. Stelle sie wieder her oder wähle ein anderes Profil.",
-      "profile_setup_failed": "Das Profil konnte nicht gespeichert werden. Versuche es erneut."
+      "profile_setup_failed": "Das Profil konnte nicht gespeichert werden. Versuche es erneut.",
+      "shared_dj_settings_required": "Dieses alte Formular hat nichts gespeichert. Ändere deine DJ-Vorlieben in einem DJConnect-Client, der gemeinsame Profileinstellungen unterstützt."
     },
     "abort": {
       "already_configured": "Dieses DJConnect-Gerät ist bereits konfiguriert.",
@@ -352,9 +347,7 @@
           "options_action": "Aktion",
           "music_backend": "Musik-Backend",
           "music_assistant_player": "Music Assistant-Player",
-          "dj_announcement_speaker_entity_id": "Home Assistant-Lautsprecher für DJ-Ansagen",
-          "voice_profile": "DJ-Sprachprofil",
-          "vibecast_session_end_allowed": "Genehmigte VibeCast-Bildschirme dürfen die Session beenden"
+          "dj_announcement_speaker_entity_id": "Home Assistant-Lautsprecher für DJ-Ansagen"
         },
         "data_description": {
           "assist_pipeline_id": "Assist-Pipeline, die DJConnect-Geräte für Spracherkennung und DJ-Ansageaudio verwenden.",
@@ -364,8 +357,7 @@
           "firmware_channel": "Wähle stable für normale OTA-Updates oder beta zum Testen von Vorab-Firmware.",
           "options_action": "Wähle die Aktion aus, die ausgeführt werden soll.",
           "music_backend": "Ausgewähltes Wiedergabe-Backend.",
-          "music_assistant_player": "Konfigurierter Ziel-Player von Music Assistant.",
-          "voice_profile": "Wähle den Fallback-DJConnect-Radiostil. Wenn ein Client mood sendet, wählt diese mood automatisch das Stimmprofil; die Home Assistant TTS-Stimme bestimmt weiterhin die eigentliche Audiostimme."
+          "music_assistant_player": "Konfigurierter Ziel-Player von Music Assistant."
         }
       },
       "conversation_agent_init": {
@@ -374,14 +366,12 @@
         "data": {
           "assist_pipeline_id": "Assist-Pipeline",
           "options_action": "Aktion",
-          "music_backend": "Musik-Backend",
-          "voice_profile": "DJ-Sprachprofil"
+          "music_backend": "Musik-Backend"
         },
         "data_description": {
           "assist_pipeline_id": "Assist-Pipeline, die DJConnect für Spracherkennung und DJ-Ansagen verwendet.",
           "options_action": "Wähle die Aktion aus, die ausgeführt werden soll.",
-          "music_backend": "Ausgewähltes Wiedergabe-Backend.",
-          "voice_profile": "Wähle den Fallback-DJConnect-Radiostil. Wenn ein Client mood sendet, wählt diese mood automatisch das Stimmprofil; die Home Assistant TTS-Stimme bestimmt weiterhin die eigentliche Audiostimme."
+          "music_backend": "Ausgewähltes Wiedergabe-Backend."
         }
       },
       "music_backend": {
@@ -476,7 +466,7 @@
       "backend_switch_failed": "DJConnect konnte das Musik-Backend nicht wechseln. Prüfe das ausgewählte Backend und versuche es erneut.",
       "profile_platform_failed": "Das verknüpfte Profil konnte nicht aktualisiert werden. Prüfe die Gerätekopplung und versuche es erneut.",
       "profile_shared_backend_change": "Dieses Profil ist mit mehreren Geräten verknüpft. Verknüpfe dieses Gerät mit einem eigenen Profil, bevor du das Musik-Backend änderst.",
-      "invalid_voice_profile": "Wähle ein unterstütztes DJ-Sprachprofil."
+      "shared_dj_settings_required": "Dieses alte Formular hat nichts gespeichert. Ändere deine DJ-Vorlieben in einem DJConnect-Client, der gemeinsame Profileinstellungen unterstützt."
     },
     "abort": {
       "client_retired": "Dieser Client wird nicht mehr unterstützt. Wähle einen unterstützten Client."
@@ -712,13 +702,6 @@
         "household": "Haushalt",
         "guest": "Gast",
         "kids": "Kinder"
-      }
-    },
-    "onboarding_response_style": {
-      "options": {
-        "concise": "Kurz",
-        "balanced": "Ausgewogen",
-        "expressive": "Ausdrucksstark"
       }
     },
     "profile_platform_action": {
@@ -1784,6 +1767,16 @@
         "all": {
           "name": "Alle persönlichen Daten",
           "description": "Löscht alle persönlichen Datenverweise, ohne das Profil zu entfernen."
+        }
+      }
+    },
+    "session_history_retention": {
+      "name": "Aufbewahrung des Sitzungsverlaufs",
+      "description": "Globale Aufbewahrungsfrist für abgeschlossene DJ-Sitzungen, nur für Administratoren. Ohne Wert wird die Einstellung gelesen. Eine Verlängerung stellt gelöschte Inhalte nicht wieder her.",
+      "fields": {
+        "retention_days": {
+          "name": "Aufbewahrung in Tagen",
+          "description": "Abgeschlossene oder unterbrochene Sitzungen werden so viele Tage nach ihrem Ende aufbewahrt. Aktive Sitzungen bleiben erhalten. Gilt für alle Profile dieser Installation."
         }
       }
     }

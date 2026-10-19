@@ -65,6 +65,22 @@
       "key": "image_token",
       "value": "replace-with-token-from-image-proxy-url",
       "type": "string"
+    },
+    {
+      "key": "operation_epoch",
+      "value": "replace-with-current-transport-context-epoch"
+    },
+    {
+      "key": "operation_id",
+      "value": "replace-with-deliberate-uuidv7"
+    },
+    {
+      "key": "session_settings_generation",
+      "value": "replace-with-current-confirmed-settings-generation"
+    },
+    {
+      "key": "reaction_operation_id",
+      "value": "replace-with-original-reaction-uuidv7"
     }
   ],
   "auth": {
@@ -1220,6 +1236,158 @@
               ]
             },
             "description": "Fetches a proxied image URL returned in Ask DJ images[]."
+          }
+        },
+        {
+          "name": "Configured voice preview - operation context",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{device_token}}"
+              },
+              {
+                "key": "X-DJConnect-Device-ID",
+                "value": "{{device_id}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identity\": {\n    \"device_id\": \"{{device_id}}\",\n    \"client_type\": \"{{client_type}}\"\n  },\n  \"contract_version\": 1\n}"
+            },
+            "url": {
+              "raw": "{{ha_base_url}}/api/djconnect/v1/transport/context",
+              "host": [
+                "{{ha_base_url}}"
+              ],
+              "path": [
+                "api",
+                "djconnect",
+                "v1",
+                "transport",
+                "context"
+              ]
+            },
+            "description": "Existing paired TLS/qualified direct-LAN transport only. Read current operation_epoch and advertised operations; requires supported Apple paired identity. No preview is started."
+          }
+        },
+        {
+          "name": "Configured voice preview - explicit operation",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{device_token}}"
+              },
+              {
+                "key": "X-DJConnect-Device-ID",
+                "value": "{{device_id}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identity\": {\n    \"device_id\": \"{{device_id}}\",\n    \"client_type\": \"{{client_type}}\"\n  },\n  \"contract_version\": 1,\n  \"operation_id\": \"{{operation_id}}\",\n  \"operation_epoch\": \"{{operation_epoch}}\",\n  \"operation\": \"speech/preview\",\n  \"payload\": {\n    \"contract_version\": 1,\n    \"language\": \"nl\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{ha_base_url}}/api/djconnect/v1/transport/operation",
+              "host": [
+                "{{ha_base_url}}"
+              ],
+              "path": [
+                "api",
+                "djconnect",
+                "v1",
+                "transport",
+                "operation"
+              ]
+            },
+            "description": "LOCAL PRODUCER ONLY; await qualified installed capability voice_preview. One deliberate UUIDv7 per press; retry the same ID only to read its original receipt, never silently create a new intent. Payload admits no text/voice/target override. Confirmed Settings3 output and exact HA provider determine literal sample delivery. text_only denies; queued is not audible proof."
+          }
+        },
+        {
+          "name": "Explicit Persona touch reaction",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{device_token}}"
+              },
+              {
+                "key": "X-DJConnect-Device-ID",
+                "value": "{{device_id}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identity\": {\n    \"device_id\": \"{{device_id}}\",\n    \"client_type\": \"{{client_type}}\"\n  },\n  \"contract_version\": 1,\n  \"operation_id\": \"{{operation_id}}\",\n  \"operation_epoch\": \"{{operation_epoch}}\",\n  \"operation\": \"session/persona/reaction\",\n  \"payload\": {\n    \"contract_version\": 1,\n    \"session\": {\n      \"session_id\": \"{{session_id}}\",\n      \"generation\": \"{{session_settings_generation}}\",\n      \"revision\": 0\n    },\n    \"kind\": \"check_in\",\n    \"language\": \"nl\",\n    \"processor\": \"local_on_device\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{ha_base_url}}/api/djconnect/v1/transport/operation",
+              "host": [
+                "{{ha_base_url}}"
+              ],
+              "path": [
+                "api",
+                "djconnect",
+                "v1",
+                "transport",
+                "operation"
+              ]
+            },
+            "description": "Candidate contract1 only: require actual active_session_persona.touch_reaction version1. Use current confirmed Settings3 Session generation/revision. Fresh UUIDv7 per deliberate semantic intent; cancellation gets a separate operation_id and original reaction_operation_id. No caller text/voice/output override. Native gestures/audio and HA-speaker reaction delivery remain unqualified. See docs/product/PERSONA_TOUCH_REACTIONS_V1.md."
+          }
+        },
+        {
+          "name": "Cancel own Persona touch reaction",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{device_token}}"
+              },
+              {
+                "key": "X-DJConnect-Device-ID",
+                "value": "{{device_id}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identity\": {\n    \"device_id\": \"{{device_id}}\",\n    \"client_type\": \"{{client_type}}\"\n  },\n  \"contract_version\": 1,\n  \"operation_id\": \"{{operation_id}}\",\n  \"operation_epoch\": \"{{operation_epoch}}\",\n  \"operation\": \"session/persona/reaction/cancel\",\n  \"payload\": {\n    \"contract_version\": 1,\n    \"session_id\": \"{{session_id}}\",\n    \"reaction_id\": \"{{reaction_operation_id}}\",\n    \"reason\": \"dismissed\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{ha_base_url}}/api/djconnect/v1/transport/operation",
+              "host": [
+                "{{ha_base_url}}"
+              ],
+              "path": [
+                "api",
+                "djconnect",
+                "v1",
+                "transport",
+                "operation"
+              ]
+            },
+            "description": "Candidate contract1 only: require actual active_session_persona.touch_reaction version1. Use current confirmed Settings3 Session generation/revision. Fresh UUIDv7 per deliberate semantic intent; cancellation gets a separate operation_id and original reaction_operation_id. No caller text/voice/output override. Native gestures/audio and HA-speaker reaction delivery remain unqualified. See docs/product/PERSONA_TOUCH_REACTIONS_V1.md."
           }
         }
       ]

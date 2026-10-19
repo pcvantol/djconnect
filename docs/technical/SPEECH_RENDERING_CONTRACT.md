@@ -1,5 +1,10 @@
 # Speech Rendering Contract
 
+## Current owner addenda — six shared settings design
+
+The [selected settings contract3 delta](../product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md) adds announcement output to Persona/voice/gender/Mood/Presence. Settings3 and target-aware speech prepare3 are design targets, not yet delivered capabilities. Text-only blocks all announcement synthesis, replay and stale bytes; speaker-only still allows explicit local owner replay. Keep speaker target/Assist pipeline/ESP administration HA-only and local autoplay/permissions device-local. Existing five-field contract2 checkpoints and delivered contract1 evidence below keep their original measured scope. No new consumer writer, integrated portability pickup or native/installed acceptance.
+
+
 ## Status
 
 Canonical renderer-neutral architecture. This contract introduces no Renderer
@@ -143,3 +148,20 @@ Composer or introduces a second presentation pipeline.
 - [Audio Renderer Host Architecture](AUDIO_RENDERER_HOST_ARCHITECTURE.md)
 - [Room Presentation Routing Architecture](ROOM_PRESENTATION_ROUTING_ARCHITECTURE.md)
 - [VibeCast Architecture](../product/VIBECAST_ARCHITECTURE.md)
+
+## Selected Session narration/speech implementation delta
+
+[Session speech/Persona v1](../product/SESSION_SPEECH_PERSONA_V1.md) records owner6189231491/autonomous-next6189912293. Its connected implementation is pending. The historical delivered/deferred qualifications above are preserved; this selected delta must explicitly qualify each source/processor and owner lifecycle before enabling speech. No blanket removal of visual-only, private Broadcast grant, new planner/provider or native implementation follows from this reference.
+
+
+## Selected private owner resource adapter
+
+The [Session speech delivery/replay extension](../product/SESSION_SPEECH_DELIVERY_V1.md)
+reuses the ordered `ordinal`/`speaker_role`/`text` schema for exact accepted
+contributions. One private paired owner adapter prepares supported on-device
+segments or the separately qualified configured HA processor. Audio bytes stay
+in the existing temporary resource owner and require paired owner/source checks;
+shared Broadcast still carries no private audio/voice/settings grants. This is
+not a second dialogue engine, free-text synthesizer or permission for a Renderer
+to rewrite content. Old native headerless URL playback cannot fetch private POST
+assets; protocol adoption and audible acceptance remain consumer-owned/open.

@@ -255,3 +255,15 @@ refines Planned guest-facing scoped endpoints above; it does not mark the
 planned ADR implemented or alter frozen server ownership. Crypto/service choice,
 shared media rights and Apple renderer realization remain explicit review gates.
 No accepted historical ADR or delivered evidence is rewritten.
+
+
+## VibeCast resolved entry/app decisions and selected receiver follow-up
+
+[Decisions delta](https://github.com/pcvantol/djconnect/issues/1174#issuecomment-6201605985)
+is recorded in the [canonical entry/distribution/Cast contract](docs/product/VIBECAST_WEB_ENTRY_DISTRIBUTION_V1.md).
+vibecast.tv/root and the existing-app guest exception are resolved. Adaptive glass,
+both discovery/QR entries and conditional receiver16 serviceadapter are documented;
+final reaction/rocket and actual security/browser/service details remain open.
+This is later documentary scope, not a retrospective rewrite of1175/1176 or
+new API/Core/Apple implementation admission. Independent public build, service
+adapter, Apple/HA onboarding and full guest acceptance retain separate gates.

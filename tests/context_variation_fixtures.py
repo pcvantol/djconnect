@@ -1,4 +1,5 @@
 """Explicitly synthetic source-shaped input, no HA stubs or network calls."""
+import time
 
 
 def source(family, index, *, date="1960-03-04", precision="day"):
@@ -49,10 +50,19 @@ def source(family, index, *, date="1960-03-04", precision="day"):
             "artist": catalog["artist"],
             "album": catalog["album_name"],
             "genres": [genre],
+            "backend": "spotify_direct",
         },
         "analysis": {
             "genre": genre,
             "summary": "Source-shaped context.",
             "full_text": f"Existing source-shaped Track Insight context {index}.",
+            "basis": "unmeasured_metadata_only_v1",
+        },
+        "_session_narrative_evidence": {
+            "source": "spotify_playback_status", "backend": "spotify_direct",
+            "is_playing": True, "media_identity": catalog["uri"],
+            "title": catalog["title"], "artist": catalog["artist"],
+            "artist_ids": [f"{index+1:022d}"], "genres": [genre],
+            "genre_source_expires_at": time.monotonic()+1800,
         },
     }

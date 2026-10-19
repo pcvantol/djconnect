@@ -1,7 +1,8 @@
 (() => {
   const params = new URLSearchParams(window.location.search);
   const staticHost = window.DJC_VIBECAST_MODE === "cast";
-  let haOrigin = "", sessionId = staticHost ? null : params.get("session_id"), broadcastToken = staticHost ? null : params.get("broadcast_token"), endGrant=null;
+  const displayHost = window.DJC_VIBECAST_MODE === "display";
+  let haOrigin = "", sessionId = staticHost || displayHost ? null : params.get("session_id"), broadcastToken = staticHost || displayHost ? null : params.get("broadcast_token");
   const endpoint = path => haOrigin + path;
   const asset = value => haOrigin && String(value || "").startsWith("/") ? haOrigin + value : value;
   const read = (value, path) => path.reduce((current,key) => current && current[key],value);
@@ -27,7 +28,6 @@
   let placementCount=0, lastPlacedKey="";
   let playbackItem = "", current = null, previous = null, lastShownAt = -Infinity, lastArtwork = "", lastSequence = 0, snapshotSequence = 0, fieldSequences = {};
   const firstSeen = new Map();
-  const endLabels={en:["End session","Could not end the session"],nl:["Sessie beëindigen","Sessie beëindigen is niet gelukt"],de:["Session beenden","Session konnte nicht beendet werden"],fr:["Terminer la session","Impossible de terminer la session"],es:["Finalizar sesión","No se pudo finalizar la sesión"]};
   const previousSourceLabels={en:"MusicBrainz · earlier recording",nl:"MusicBrainz · eerdere opname",de:"MusicBrainz · frühere Aufnahme",fr:"MusicBrainz · enregistrement précédent",es:"MusicBrainz · grabación anterior"};
   const nextLabels={en:"Up next",nl:"Hierna",de:"Als Nächstes",fr:"À suivre",es:"A continuación"};
   function updateClock() {
@@ -54,8 +54,37 @@
   function keyFor(item) {
     return String(item.moment_id || `${item.playback_item_id || ""}|${item.type || ""}|${item.created_at || ""}|${item.summary || item.content || item.title || ""}`);
   }
+  function qualifiedCitations(citations) {
+    if (!Array.isArray(citations) || citations.length < 1 || citations.length > 3) return null;
+    const valid=citations.every(s => s && typeof s.title === "string" && s.title.length <= 240 && (
+        s.provider === "Wikipedia" && s.license === "CC-BY-SA-4.0" &&
+          /^https:\/\/(?:en|nl|de|fr|es)\.wikipedia\.org\/wiki\/[^\s?#]+$/.test(s.url) &&
+          /^https:\/\/(?:en|nl|de|fr|es)\.wikipedia\.org\/w\/index\.php\?oldid=[0-9]+$/.test(s.revision_url) &&
+          new URL(s.url).origin === new URL(s.revision_url).origin ||
+        s.provider === "MusicBrainz" && s.license === "CC0-1.0" && !s.revision_url && /^https:\/\/musicbrainz\.org\/(?:artist|release-group)\/[0-9a-f-]{36}$/.test(s.url) ||
+        s.provider === "Public web" && s.usage_basis === "public_page_short_reference" &&
+          s.license === "public_page_short_reference" && !s.revision_url && !s.wikidata_id &&
+          s.author_status === "publication_byline_not_independent_identity" &&
+          typeof s.attributed_author === "string" && s.attributed_author.length > 1 &&
+          s.work_reference && typeof s.work_reference.title === "string" &&
+          typeof s.work_reference.artist === "string" &&
+          /^https:\/\/musicbrainz\.org\/release-group\/[0-9a-f-]{36}$/.test(s.work_reference.url) &&
+          publicCitationURL(s.url) ||
+        s.provider === "Wikidata" && s.license === "CC0-1.0" && !s.revision_url && /^https:\/\/www\.wikidata\.org\/wiki\/Q[1-9][0-9]*$/.test(s.url)));
+    return valid ? citations : null;
+  }
+  function publicCitationURL(value) {
+    try {
+      const url = new URL(value), host = url.hostname;
+      return url.protocol === "https:" && !url.username && !url.password &&
+        (!url.port || url.port === "443") && host.includes(".") &&
+        !/^(?:[0-9.]+|\[.*\])$/.test(host) && !/\.(?:local|localhost|internal)$/.test(host);
+    } catch { return false; }
+  }
   function cardFor(item) {
     if (!item || typeof item !== "object" || item.type === "silence") return null;
+    const citations=item.sources === undefined ? [] : qualifiedCitations(item.sources);
+    if (!citations) return null;
     const summary = String(item.summary || item.content || item.title || "").slice(0,1200);
     if (!summary) return null;
     const key = keyFor(item), now = Date.now();
@@ -67,9 +96,11 @@
     if (stamped && created > now + 10000) return null;
     const rawDuration = Number(read(item,["presentation_intent","maximum_duration_seconds"]));
     const seconds = Number.isFinite(rawDuration) && rawDuration > 0 ? Math.min(90, rawDuration) : 25;
-    const expiry = (stamped ? created : firstSeen.get(key)) + seconds*1000;
+    const explicitExpiry = Date.parse(item.display_expires_at || "");
+    const expiry = Math.min((stamped ? created : firstSeen.get(key)) + seconds*1000,
+      Number.isFinite(explicitExpiry) ? explicitExpiry : Infinity);
     return now < expiry ? {key, created:stamped ? created : firstSeen.get(key), expiry, summary,
-      detail:String(item.content || "").slice(0,1200), attribution:item.source_attribution, type:item.type || "", itemId:item.playback_item_id || "", stamped} : null;
+      detail:String(item.content || "").slice(0,1200), attribution:item.source_attribution, sources:citations, type:item.type || "", itemId:item.playback_item_id || "", stamped} : null;
   }
   function eligibleCards() {
     const p = playback(), items = Array.isArray(projection.dj_moments) ? projection.dj_moments : [];
@@ -92,6 +123,8 @@
     if (detail) detail.textContent = "";
     if (kind) kind.textContent = "";
     e("moment").textContent = "";
+    const researchSources=e("moment-research-sources");
+    if (researchSources) { researchSources.replaceChildren(); researchSources.hidden=true; }
   }
   function scheduleCardExpiry() {
     clearTimer("expiry");
@@ -142,6 +175,23 @@
     e("moment-source").hidden=!safeSource;
     e("moment-source").textContent=safeSource ? source.provider : "";
     if (safeSource) e("moment-source").href=source.url; else e("moment-source").removeAttribute("href");
+    const researchSources=e("moment-research-sources");
+    if (researchSources) {
+      researchSources.replaceChildren();
+      const citations=Array.isArray(card.sources) && card.sources.length <= 3 ? card.sources : [];
+      const valid=citations.length > 0;
+      researchSources.hidden=!valid;
+      if (valid) {
+        e("moment-source").hidden=true;
+        for (const citation of citations) {
+          const link=document.createElement("a");
+          link.textContent=`${citation.title} · ${citation.provider}${citation.language ? ` (${citation.language})` : ""}${citation.usage_basis ? ` · ${citation.attributed_author}` : ` · ${citation.license}`}`;
+          link.href=citation.revision_url || citation.url;
+          link.target="_blank"; link.rel="noopener noreferrer";
+          researchSources.appendChild(link);
+        }
+      }
+    }
     const previousSource=e("moment-source-previous");
     if (previousSource) {
       const safePrevious=safeSource && source.provider === "MusicBrainz" && /^https:\/\/musicbrainz\.org\/recording\/[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/.test(String(source.url_previous || "")) && source.url_previous !== source.url;
@@ -204,9 +254,6 @@
   }
   function render(animate=false) {
     useLanguage(); updateClock();
-    e("end-session").hidden=!endGrant || ended;
-    e("end-session").setAttribute("aria-label",(endLabels[root.lang] || endLabels.en)[0]);
-    e("state").hidden=!!endGrant && !ended;
     const p = playback(), mood = read(projection,["session","selected_mood"]);
     document.body.classList.toggle("idle",!p.title);
     e("mood").textContent = mood || text.ambient;
@@ -227,6 +274,8 @@
     if (validSpotify) e("spotify-source").href=p.source_url; else e("spotify-source").removeAttribute("href");
     const art = asset(p.artwork_url || "");
     e("artwork").hidden = !art;
+    const artworkCard = e("artwork-card");
+    if (artworkCard) artworkCard.hidden = !art;
     if (art !== lastArtwork) { e("artwork").src = art; lastArtwork = art; }
     e("artwork").alt = art ? (p.album || p.title || "") : "";
     root.style.setProperty("--art",art ? `url("${art.split('"').join('%22')}")` : "none");
@@ -254,7 +303,7 @@
     if (ordered && sequence <= snapshotSequence) return;
     if (ordered) lastSequence = Math.max(lastSequence,sequence);
     if (frame.event_type === "runtime_ended" || frame.event_type === "broadcast_stopped") {
-      snapshotAccepted=false; reportStatus("ended","runtime_end"); ended=true; broadcastToken=null; endGrant=null; apply({}); e("state").textContent=text.idle; if (socket) socket.close(); return;
+      snapshotAccepted=false; reportStatus("ended","runtime_end"); ended=true; broadcastToken=null; apply({}); e("state").textContent=text.idle; if (socket) socket.close(); return;
     }
     for (const key of ["session","playback","planner","session_flow","audience","broadcast"])
       if (p[key] && (!ordered || sequence > (fieldSequences[key] || snapshotSequence))) {
@@ -309,7 +358,7 @@
           apply(f.snapshot);
         }
         else if (f.type === "event") event(f.data);
-        else if (f.type === "error") { snapshotAccepted=false; reportStatus("error","access_rejected"); ended=true; broadcastToken=null; endGrant=null; apply({}); e("state").textContent=text.unavailable; if (socket) socket.close(); }
+        else if (f.type === "error") { snapshotAccepted=false; reportStatus("error","access_rejected"); ended=true; broadcastToken=null; apply({}); e("state").textContent=text.unavailable; if (socket) socket.close(); }
       } catch (_) { /* Ignore malformed receiver frames. */ }
     };
     active.onclose=() => {
@@ -319,29 +368,16 @@
     };
     active.onerror=() => active.close();
   }
-  e("end-session").addEventListener("click",async()=>{
-    if (!endGrant || ended) return;
-    e("end-session").disabled=true;
-    const requestedSession=sessionId, requestedGrant=endGrant;
-    try {
-      const response=await window.fetch(endpoint("/api/djconnect/v1/session/broadcast/control/end"),{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({session_id:sessionId,end_grant:endGrant}),cache:"no-store",credentials:"omit"});
-      const result=await response.json();
-      if (sessionId !== requestedSession || endGrant !== requestedGrant) return;
-      if (!response.ok || result.success !== true || result.state !== "ended") throw new Error("end_failed");
-      // Server-confirmed end also covers loss of the terminal WebSocket frame.
-      event({session_id:sessionId,event_type:"runtime_ended",payload:{}});
-    } catch (_) { if (sessionId !== requestedSession || endGrant !== requestedGrant) return; e("state").hidden=false; e("state").textContent=(endLabels[root.lang] || endLabels.en)[1]; }
-    finally { if (sessionId === requestedSession) e("end-session").disabled=false; }
-  });
   updateClock();
   e("state").textContent=text.idle;
   e("title").textContent=text.waiting;
   e("mood").textContent=text.ambient;
   if (sessionId && broadcastToken) connect(); else e("state").textContent=text.unavailable;
   window.addEventListener("djconnect-handoff",({detail}) => {
+    if (displayHost) return;
     if (!(detail && detail.session_id) || !(detail && detail.broadcast_token)) return;
     stopHost();
-    haOrigin=detail.ha_url || ""; sessionId=detail.session_id; broadcastToken=detail.broadcast_token; endGrant=detail.end_grant || null;
+    haOrigin=detail.ha_url || ""; sessionId=detail.session_id; broadcastToken=detail.broadcast_token;
     statusGeneration=detail.status_generation === undefined ? null : detail.status_generation;
     snapshotAccepted=false; ended=false; projection={}; playbackItem=""; lastShownAt=-Infinity;
     lastSequence=0; snapshotSequence=0; fieldSequences={}; clearCards(); render(false);
@@ -349,7 +385,7 @@
   });
   function stopHost() {
     reportStatus("stopped","host_stop"); snapshotAccepted=false; statusGeneration=null;
-    ended=true; broadcastToken=null; endGrant=null;
+    ended=true; broadcastToken=null;
     if (reconnectTimer) window.clearTimeout(reconnectTimer); reconnectTimer=undefined;
     const old=socket; socket=null; if (old) old.close();
     firstSeen.clear(); placementCount=0; lastPlacedKey=""; lastShownAt=-Infinity;
@@ -357,4 +393,14 @@
   }
   window.addEventListener("djconnect-host-stop",stopHost);
   window.addEventListener("beforeunload",stopHost);
+  if (displayHost) {
+    window.addEventListener("djconnect-display-clear",stopHost);
+    window.addEventListener("djconnect-display-snapshot",({detail}) => {
+      if (!detail || detail.contract_version !== 1 || !detail.session || detail.session.runtime_state !== "active") return;
+      const labels=detail.session_presentation || {};
+      sessionId=detail.session.session_id; ended=false; snapshotAccepted=true;
+      apply({...detail,session:{...detail.session,selected_mood:labels.mood,dj_persona:labels.persona,selected_presence:labels.presence}});
+      e("state").textContent=text.live;
+    });
+  }
 })()

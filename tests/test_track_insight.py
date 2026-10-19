@@ -69,6 +69,79 @@ class TrackInsightTests(unittest.TestCase):
         asyncio.run(bind())
         hass.data['djconnect']['djconnect_profile_platform']=storage
 
+    def test_qualified_insight_reuses_common_persona_forms_without_expanding_source_or_calls(self):
+        import json
+        from copy import deepcopy
+        from custom_components.djconnect.ask_dj.dialogue import persona_answer_form
+        async def scenario():
+            module = self.track_insight
+            context = {'qualified_excerpt': 'Fixture composer is credited as composer.',
+                       'attribution': {'provider': 'MusicBrainz', 'license': 'CC0-1.0'}}
+            original = deepcopy(context)
+            prompts = []
+            class ExternalProviderFixture(module.TrackInsightAnalyzer):
+                async def _ask_conversation(self, hass, runtime, prompt, request):
+                    prompts.append(prompt)
+                    if 'Review every claim' in prompt:
+                        return json.dumps({'supported': True, 'language_ok': True, 'style_ok': True})
+                    return json.dumps({'summary': context['qualified_excerpt'],
+                                       'full_text': context['qualified_excerpt'], 'listening_cues': []})
+            analyzer = ExternalProviderFixture()
+            for locale in ('en', 'nl', 'de', 'fr', 'es'):
+                for persona in ('home_dj', 'radio_dj', 'club_dj', 'festival_dj'):
+                    request = module.TrackInsightRequest(source='moment_detail', locale=locale,
+                        qualified_context=context, presentation_style=persona+':balanced')
+                    with unittest.mock.patch.object(module, '_assist_context', return_value={'agent_id': 'qualified-fixture'}):
+                        result, raw = await analyzer.analyze(FakeHass(), Runtime(),
+                            {'title': 'private catalog must not enter prompt'}, request)
+                    projection = json.loads(prompts[-2].split('\n', 1)[1])
+                    self.assertEqual(projection['qualified_context'], original)
+                    self.assertEqual(projection['answer_form'], persona_answer_form(persona))
+                    self.assertNotIn('private catalog', prompts[-1])
+                    self.assertIn(locale, prompts[-1])
+                    self.assertEqual(result['verified_context'], context['qualified_excerpt'])
+                    self.assertEqual(context, original)
+                    self.assertIsNone(raw)
+            self.assertEqual(len(prompts), 40)
+            await analyzer.analyze(FakeHass(), Runtime(), {'title': 'Catalog'},
+                module.TrackInsightRequest(source='session_moment', locale='en', qualified_context={}))
+            self.assertEqual(len(prompts), 40)  # No source grant, no extra model call.
+        asyncio.run(scenario())
+
+    def test_qualified_insight_rejects_invented_sound_and_provider_change_before_cache(self):
+        import json
+        from unittest.mock import patch
+        async def scenario():
+            module = self.track_insight
+            context = {'qualified_excerpt': 'A is credited as composer.', 'attribution': {'provider': 'MusicBrainz'}}
+            candidate = {'summary': 'A created the huge synthesizer sound.',
+                         'full_text': 'The composer personally played every synthesizer.', 'listening_cues': []}
+            replies = [json.dumps(candidate), json.dumps({'supported': False, 'language_ok': True, 'style_ok': True})]
+            class Provider(module.TrackInsightAnalyzer):
+                async def _ask_conversation(self, hass, runtime, prompt, request):
+                    request.commit_guard()
+                    return replies.pop(0)
+            request = module.TrackInsightRequest(locale='en', qualified_context=context)
+            with patch.object(module, '_assist_context', return_value={'agent_id': 'qualified-fixture'}):
+                result, raw = await Provider().analyze(FakeHass(), Runtime(), {}, request)
+            self.assertEqual(result['summary'], context['qualified_excerpt'])
+            self.assertIsNone(result['energy'])
+            self.assertIsNone(raw)
+            self.assertEqual(replies, [])
+            changed = Runtime()
+            replies[:] = [json.dumps(candidate)]
+            class ChangingProvider(Provider):
+                async def _ask_conversation(self, *args):
+                    reply = await super()._ask_conversation(*args)
+                    changed.config['agent'] = 'other'
+                    return reply
+            with patch.object(module, '_assist_context', side_effect=lambda h, c: {'agent_id': c.get('agent', 'initial')}):
+                with self.assertRaises(module.TrackInsightError) as error:
+                    await ChangingProvider().analyze(FakeHass(), changed, {}, request)
+            self.assertEqual(error.exception.code, 'track_insight_context_changed')
+            self.assertEqual(replies, [])  # No assessment against a different agent.
+        asyncio.run(scenario())
+
     def test_prompt_builder_requests_json_only(self) -> None:
         prompt = self.track_insight.TrackInsightPromptBuilder().build(
             {"title": "Innerbloom", "artist": "RUFUS DU SOL", "album": "Bloom"},

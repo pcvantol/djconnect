@@ -24,9 +24,22 @@ MIGRATIONS = (
     Migration(4, "0004_historical_session_projections", "b745d401"),
     Migration(5, "0005_session_timeline_entries", "7d5e3142"),
     Migration(6, "0006_session_summary_acceptance", "aeb3dc41"),
+    Migration(7, "0007_profile_session_dj_settings", "9e6b4a31"),
+    Migration(8, "0008_profile_announcement_output", "32c0a4e7"),
+    Migration(9, "0009_session_retention_policy", "71dbec42"),
+    Migration(10, "0010_four_level_presence", "aceb4702"),
 )
 CURRENT_SCHEMA_VERSION = MIGRATIONS[-1].version
 REQUIRED_TABLES = {
+    "djconnect_session_retention": {"singleton", "retention_days", "revision"},
+    "djconnect_profile_dj_settings": {"owner_profile_id", "settings", "revision", "updated_at", "contract_version"},
+    "djconnect_session_dj_settings": {
+        "session_id", "owner_profile_id", "generation", "settings", "revision", "defaults_revision", "updated_at",
+    },
+    "djconnect_settings_operations": {
+        "operation_key", "owner_profile_id", "binding", "digest", "expires_ms", "receipt",
+    },
+    "djconnect_settings_clock": {"singleton", "high_water_ms"},
     "djconnect_session_summaries": {
         "session_id",
         "tracks",
@@ -197,6 +210,54 @@ def apply_migration(transaction: ProviderTransaction, version: int) -> None:
         )
         transaction.execute(
             "CREATE TABLE djconnect_session_acceptances (session_id TEXT NOT NULL REFERENCES djconnect_persistent_sessions(session_id) ON DELETE CASCADE,kind TEXT NOT NULL,reference_id TEXT NOT NULL,entry_id TEXT NOT NULL DEFAULT '',PRIMARY KEY(session_id,kind,reference_id))"
+        )
+    elif version == 7:
+        transaction.execute(
+            "CREATE TABLE djconnect_profile_dj_settings (owner_profile_id TEXT PRIMARY KEY,settings TEXT NOT NULL,revision INTEGER NOT NULL CHECK(revision>0),updated_at TEXT NOT NULL)"
+        )
+        transaction.execute(
+            "CREATE TABLE djconnect_session_dj_settings (session_id TEXT PRIMARY KEY REFERENCES djconnect_persistent_sessions(session_id) ON DELETE CASCADE,owner_profile_id TEXT NOT NULL,generation TEXT NOT NULL,settings TEXT NOT NULL,revision INTEGER NOT NULL CHECK(revision>0),defaults_revision INTEGER NOT NULL CHECK(defaults_revision>=0),updated_at TEXT NOT NULL)"
+        )
+        transaction.execute(
+            "CREATE TABLE djconnect_settings_operations (operation_key TEXT PRIMARY KEY,owner_profile_id TEXT NOT NULL,binding TEXT NOT NULL,digest TEXT NOT NULL,expires_ms INTEGER NOT NULL,receipt TEXT NOT NULL)"
+        )
+        transaction.execute(
+            "CREATE INDEX idx_settings_operations_owner_expiry ON djconnect_settings_operations(owner_profile_id,expires_ms)"
+        )
+        transaction.execute(
+            "CREATE TABLE djconnect_settings_clock (singleton INTEGER PRIMARY KEY CHECK(singleton=1),high_water_ms INTEGER NOT NULL CHECK(high_water_ms>=0))"
+        )
+        transaction.execute("INSERT INTO djconnect_settings_clock VALUES (1,0)")
+    elif version == 8:
+        # Preserve original receipts and acceptance revisions. Factory output
+        # for a new parameter is not evidence of an explicit six-field choice.
+        transaction.execute(
+            "ALTER TABLE djconnect_profile_dj_settings ADD COLUMN contract_version INTEGER NOT NULL DEFAULT 2"
+        )
+        transaction.execute(
+            "UPDATE djconnect_profile_dj_settings SET settings=json_insert(settings,'$.announcement_output','client_device')"
+        )
+        transaction.execute(
+            "UPDATE djconnect_session_dj_settings SET settings=json_insert(settings,'$.announcement_output','client_device')"
+        )
+    elif version == 9:
+        transaction.execute(
+            "CREATE TABLE djconnect_session_retention (singleton INTEGER PRIMARY KEY CHECK(singleton=1),retention_days INTEGER NOT NULL CHECK(retention_days BETWEEN 1 AND 90),revision INTEGER NOT NULL CHECK(revision>0))"
+        )
+        transaction.execute("INSERT INTO djconnect_session_retention VALUES (1,90,1)")
+        # Existing records retain their source/withdrawal state; only the
+        # platform's own rolling cleanup deadline becomes Session-scoped.
+        transaction.execute(
+            "UPDATE djconnect_session_entries SET retained_until=COALESCE((SELECT strftime('%Y-%m-%dT%H:%M:%f+00:00',julianday(COALESCE(NULLIF(ended_at,''),NULLIF(interrupted_at,''),created_at))+90) FROM djconnect_persistent_sessions s WHERE s.session_id=djconnect_session_entries.session_id AND s.lifecycle_status IN ('ENDED','INTERRUPTED')), '9999-12-31T00:00:00+00:00')"
+        )
+    elif version == 10:
+        # Compatibility spelling only. Acceptance revisions/timestamps and
+        # immutable receipts/completed Session history keep their exact meaning.
+        transaction.execute(
+            "UPDATE djconnect_profile_dj_settings SET settings=json_set(settings,'$.presence','presenter') WHERE json_extract(settings,'$.presence')='talkative'"
+        )
+        transaction.execute(
+            "UPDATE djconnect_session_dj_settings SET settings=json_set(settings,'$.presence','presenter') WHERE json_extract(settings,'$.presence')='talkative' AND session_id IN (SELECT session_id FROM djconnect_persistent_sessions WHERE lifecycle_status='ACTIVE')"
         )
     timestamp = datetime.now(UTC).isoformat()
     transaction.execute(

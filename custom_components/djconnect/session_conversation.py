@@ -87,7 +87,12 @@ def historical_answer(payload: dict, result: dict) -> dict:
 async def async_qualify_history_source(hass, owner: str, row: dict) -> bool:
     """Recheck captured source binding; today's default never substitutes identity."""
     if row["kind"] != "playback_observed":
-        return True
+        try:
+            retained = json.loads(row['body'])
+        except (TypeError,ValueError):
+            return False
+        if row['kind'] != 'dj_moment' or retained.get('archive_basis') != 'owner_metadata_narration_v1':
+            return True
     from .profile_context import profile_storage
 
     household = await profile_storage(hass).async_load()
@@ -201,6 +206,25 @@ async def async_history_grant_revision(hass, owner: str) -> str:
     return history_grant_revision(hass, owner, household)
 
 
+async def async_metadata_archive_admission(hass, owner, captured, authorize):
+    """Existing source owner qualifies a new exact-text archive before SQL."""
+    authorize()
+    revision = history_grant_revision(hass, owner)
+    row = {'kind':'dj_moment','body':json.dumps({
+        'archive_basis':'owner_metadata_narration_v1','provider':'Spotify','source_context':captured})}
+    if not await async_qualify_history_source(hass, owner, row):
+        return None
+    revoked = False
+    def guard():
+        nonlocal revoked
+        if revoked or history_grant_revision(hass, owner) != revision:
+            revoked = True
+            raise PermissionError('archive_source_withdrawn')
+        authorize()
+    guard()
+    return guard
+
+
 def history_grant_revision(hass, owner: str, household=None) -> str:
     """Same qualified rights revision from committed cache, without an await."""
     from .profile_context import profile_storage
@@ -246,6 +270,7 @@ def history_grant_revision(hass, owner: str, household=None) -> str:
         issue = None
     repair_source = str((issue.data or {}).get("entry_id") or "") if issue else ""
     payload = (
+        getattr(profile_storage(hass), "authority_revision", 0),
         str(profile.state) if profile else "missing",
         str(profile.privacy_mode) if profile else "",
         sorted(accounts),

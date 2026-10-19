@@ -38,6 +38,7 @@ API_SESSION_START = f"{API_SESSION}/start"
 API_SESSION_END = f"{API_SESSION}/end"
 API_SESSION_ACTIVE = f"{API_SESSION}/active"
 API_SESSION_MOOD = f"{API_SESSION}/mood"
+API_SESSION_PERSONA = f"{API_SESSION}/persona"
 API_SESSION_PRESENCE = "/api/djconnect/v1/session/presence"
 API_SESSION_HISTORY = f"{API_SESSION}/history"
 API_SESSION_HISTORY_DETAIL = f"{API_SESSION_HISTORY}/{{session_id}}"
@@ -91,14 +92,9 @@ CONF_SPOTIFY_SOURCE = "spotify_source"
 CONF_LIKED_PROXY = "liked_proxy_playlist_uri"
 
 CONF_ASSIST_PIPELINE_ID = "assist_pipeline_id"
-CONF_STT_ENGINE = "stt_engine"
-CONF_TTS_ENGINE = "tts_engine"
 CONF_TTS_LANGUAGE = "tts_language"
-CONF_TTS_VOICE = "tts_voice"
 CONF_DJ_RESPONSE_ENABLED = "dj_response_enabled"
 CONF_DJ_RESPONSE_TTL_SECONDS = "dj_response_ttl_seconds"
-CONF_DJ_RESPONSE_PROMPT_PRESET = "dj_response_prompt_preset"
-CONF_DJ_RESPONSE_PROMPT = "dj_response_prompt"
 CONF_VOICE_PROFILE = "voice_profile"
 CONF_DJ_ANNOUNCEMENT_SPEAKER = "dj_announcement_speaker_entity_id"
 CONF_DJ_ANNOUNCEMENT_OUTPUT = "dj_announcement_output"
@@ -210,36 +206,6 @@ VOICE_PROFILES = [
     VOICE_PROFILE_LATE_NIGHT,
     VOICE_PROFILE_ENERGY,
     VOICE_PROFILE_CLEAN_HOST,
-]
-DJ_RESPONSE_PROMPT_PRESET_NEUTRAL = "neutral_business"
-DJ_RESPONSE_PROMPT_PRESET_WARM = "warm_personal"
-DJ_RESPONSE_PROMPT_PRESET_HUMOR = "humorous_witty"
-DJ_RESPONSE_PROMPT_PRESET_CUSTOM = "custom"
-DJ_RESPONSE_PROMPT_PRESETS = [
-    DJ_RESPONSE_PROMPT_PRESET_NEUTRAL,
-    DJ_RESPONSE_PROMPT_PRESET_WARM,
-    DJ_RESPONSE_PROMPT_PRESET_HUMOR,
-    DJ_RESPONSE_PROMPT_PRESET_CUSTOM,
-]
-DJ_RESPONSE_PROMPT_TEXTS = {
-    DJ_RESPONSE_PROMPT_PRESET_NEUTRAL: (
-        "Noem de artiest, het album en het nummer.\n"
-        "Houd de aankondiging kort, duidelijk en zakelijk.\n"
-        "Gebruik geen grapjes of overdreven enthousiasme."
-    ),
-    DJ_RESPONSE_PROMPT_PRESET_WARM: (
-        "Noem de artiest, het album en het nummer.\n"
-        "Geef een leuk feitje over de artiest.\n"
-        "Klink warm en persoonlijk."
-    ),
-    DJ_RESPONSE_PROMPT_PRESET_HUMOR: (
-        "Noem de artiest, het album en het nummer.\n"
-        "Maak de aankondiging luchtig, humoristisch en gevat.\n"
-        "Gebruik maximaal een korte grap en blijf vriendelijk."
-    ),
-}
-DEFAULT_DJ_RESPONSE_PROMPT = DJ_RESPONSE_PROMPT_TEXTS[
-    DJ_RESPONSE_PROMPT_PRESET_WARM
 ]
 SPOTIFY_SCOPES = [
     "user-read-playback-state",

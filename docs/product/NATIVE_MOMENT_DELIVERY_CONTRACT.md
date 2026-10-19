@@ -189,3 +189,54 @@ preparation are defined in [Session artwork delivery v1](SESSION_ARTWORK_DELIVER
 It does not widen semantic text archival rights, native current-display admission,
 shared-screen access or existing pure history-query semantics. Implementation
 and qualification are owned by the admitted Session Moment artwork slice.
+
+## Selected Session narration/speech implementation delta
+
+[Session speech/Persona v1](SESSION_SPEECH_PERSONA_V1.md) records owner6189231491/autonomous-next6189912293. Its connected implementation is pending. The historical delivered/deferred qualifications above are preserved; this selected delta must explicitly qualify each source/processor and owner lifecycle before enabling speech. No blanket removal of visual-only, private Broadcast grant, new planner/provider or native implementation follows from this reference.
+
+
+## Optional private owner speech extension
+
+[Session speech delivery v1](SESSION_SPEECH_DELIVERY_V1.md) adds a separate private
+owner presentation over the existing admission. It does not turn native display
+permission into arbitrary speech/model/archival rights. Only a qualified current
+or retained-in-Flow contribution can advertise a live `session_id`+`moment_id`
+reference; saved replay uses the existing qualified owner entry query. A source
+or retention denial yields no executable speech text or bytes. Original Persona,
+revision, exact content, attribution and deadlines are preserved.
+
+Owner snapshots/events optionally contain `session_speech:{schema_version:1,
+moments:[...]}` (latest64 published candidates). Shared/Receiver channels remove
+that field entirely; no new receiver token, private audio or Profile history is
+exported. Autoplay eligibility is true only in the original new Moment event,
+never snapshots, Presentation/Flow updates or reconnect/replay. Manual listening
+creates no new DJMoment, Summary count or budget debit. Passive WidgetKit/
+ActivityKit/locked-display/cache rights are not granted by this extension.
+
+## Current-playback narration qualification (selected speech slice)
+
+An ordinary Planner-approved Track-context fallback may hold the Runtime's
+typed `ObservedPlaybackNarration` proof. It names only the current observed
+title/artist. Native admission validates the exact original item, publication
+metadata snapshot, authored Persona copy and Spotify source link/mark. Its
+source expiry is the original observation plus30s, bounded further by the
+original display duration and Session end; subsequent polls/reconnects do not
+renew it. It is current-only, never retained-in-Flow or an archived body. Shared
+visual compatibility adds no private speech field. Exact owner-local reading
+has separate processor qualification; no cloud/model grant follows. Planner
+Silence and higher-priority Direction/qualified facts remain authoritative.
+
+
+## Passive purpose is a separate grant
+
+The [passive Session contract](PASSIVE_SESSION_PROJECTION_V1.md) reuses
+original actual-publication boundaries and source qualification, but native
+current/active-Flow admission alone grants no OS/widget/locked/cache rights.
+Only the separately enumerated complete short CC0-fact/authored-direction
+subset can be passively admitted under explicit ordinary-owner surface consent.
+Overlong or private content is omitted, never rewritten or locally summarized.
+Current music and contribution retain separate subject identities/expiry.
+Existing owner Broadcast provides invalidation-only surface hints; shared
+receivers get no private grant. Source/semantic Moment identity, counting,
+Persona, Presence and Planner remain unchanged. Native rich, background, Watch
+and joint acceptance are separate; owner no-store/history rights stay intact.

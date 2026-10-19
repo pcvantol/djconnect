@@ -37594,7 +37594,7 @@
     }
   ],
   "planning_maintenance": {
-    "schema_version": "djconnect-federated-planning-delta/11",
+    "schema_version": "djconnect-federated-planning-delta/16",
     "decision_id": "DJC-DJ-PRESENCE-ROADMAP-DESIGN-V1-20261011",
     "decision_url": "https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6110375785",
     "design_date": "2026-10-11",
@@ -38207,11 +38207,11 @@
         "title": "Native surface rights/state projection",
         "lane": "DJC-CORE",
         "repository": "pcvantol/djconnect",
-        "status": "Planned",
-        "assignment_status": "NOT_ISSUED",
-        "scope": "Purpose-specific neutral/rich grant, subject/expiry/revision, no private cache inheritance",
-        "acceptance_boundary": "Purpose-specific neutral/rich grant, subject/expiry/revision, no private cache inheritance",
-        "contract_binding": "docs/product/APPLE_SESSION_NATIVE_SURFACES_V1.md",
+        "status": "Completed",
+        "assignment_status": "CORE_DELIVERED",
+        "scope": "Explicit owner/surface grants, published short contribution, independently bound metadata/cover, original expiry and pure read/live invalidation",
+        "acceptance_boundary": "Connected real pairedHA positive and negative rights/lifecycle/expiry proof; native/background/Watch/joint separately open",
+        "contract_binding": "docs/product/PASSIVE_SESSION_PROJECTION_V1.md",
         "source_ids": [
           "OWNER-SESSION-ENTRY-ABC-20261012"
         ],
@@ -38801,11 +38801,11 @@
         "title": "Qualify browser-bound onboarding and guest trust contract",
         "lane": "DJC-CORE",
         "repository": "pcvantol/djconnect",
-        "status": "Planned",
-        "assignment_status": "NOT_ISSUED",
+        "status": "In progress",
+        "assignment_status": "IN_PROGRESS",
         "scope": "Qualify browser-bound onboarding and guest trust contract",
         "acceptance_boundary": "Qualify browser-bound onboarding and guest trust contract; exact source/consumer, visible/audible/physical and joint acceptance OPEN",
-        "contract_binding": "docs/product/VIBECAST_ONBOARDING_GUEST_AUTHORITY_V1.md",
+        "contract_binding": "docs/product/VIBECAST_DISPLAY_ADMISSION_V1.md",
         "source_ids": [
           "OWNER-WEB-FIRST-1174"
         ],
@@ -38850,11 +38850,11 @@
         "title": "Separate HA code and readonly display grant",
         "lane": "DJC-CORE",
         "repository": "pcvantol/djconnect",
-        "status": "Planned",
-        "assignment_status": "NOT_ISSUED",
+        "status": "In progress",
+        "assignment_status": "IN_PROGRESS",
         "scope": "Separate HA code and readonly display grant",
         "acceptance_boundary": "Separate HA code and readonly display grant; exact source/consumer, visible/audible/physical and joint acceptance OPEN",
-        "contract_binding": "docs/product/VIBECAST_ONBOARDING_GUEST_AUTHORITY_V1.md",
+        "contract_binding": "docs/product/VIBECAST_DISPLAY_ADMISSION_V1.md",
         "source_ids": [
           "OWNER-WEB-FIRST-1174"
         ],
@@ -39002,13 +39002,13 @@
       },
       {
         "id": "WEB::DISTRIBUTION",
-        "title": "Reviewed generic static bootstrap and browser distribution",
+        "title": "Receiver public bootstrap selected; serviceadapter conditionally selected; full E2E separately gated",
         "lane": "DJC-VIBECAST",
         "repository": "pcvantol/djconnect-vibecast-receiver",
         "status": "Planned",
-        "assignment_status": "NOT_ISSUED",
-        "scope": "Reviewed generic static bootstrap and browser distribution",
-        "acceptance_boundary": "Reviewed generic static bootstrap and browser distribution; exact source/consumer, visible/audible/physical and joint acceptance OPEN",
+        "assignment_status": "SELECTED_QUEUED",
+        "scope": "Receiver16 PUBLIC_WEB_DELIVERY and conditionally RENDEZVOUS_INTEGRATION alongside pinned Cast output; API/Core/Apple producers not selected",
+        "acceptance_boundary": "Public website/CI/Pages/domain, service adapter, Apple/HA onboarding and full shared guest acceptance are distinct; no executor ACK or product PASS",
         "contract_binding": "docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md",
         "source_ids": [
           "OWNER-WEB-FIRST-1174"
@@ -39018,12 +39018,85 @@
         "prerequisite_groups": [
           {
             "mode": "AND",
+            "consumer_subset": "PUBLIC_WEB_DELIVERY",
             "edge_ids": [
-              "WEB-FIRST-8",
+              "WEB-FIRST-DECISIONS-PIN"
+            ]
+          },
+          {
+            "mode": "AND",
+            "consumer_subset": "RENDEZVOUS_INTEGRATION",
+            "edge_ids": [
+              "WEB-FIRST-8"
+            ]
+          },
+          {
+            "mode": "AND",
+            "consumer_subset": "APPLE_HA_ONBOARDING_E2E",
+            "edge_ids": [
+              "WEB-FIRST-DECISIONS-E2E-DISPLAY",
+              "WEB-FIRST-DECISIONS-E2E-OWNER-SCANNER"
+            ]
+          },
+          {
+            "mode": "AND",
+            "consumer_subset": "FULL_SHARED_GUEST_ACCEPTANCE",
+            "edge_ids": [
               "WEB-FIRST-10"
             ]
           }
-        ]
+        ],
+        "selected_assignment": "DJC-VIBECAST-TV-BOOTSTRAP-CLOUDFLARE-V1-20261015",
+        "selected_issue": "https://github.com/pcvantol/djconnect-vibecast-receiver/issues/16",
+        "delivery_subsets": {
+          "PUBLIC_WEB_DELIVERY": {
+            "assignment_id": "DJC-VIBECAST-TV-BOOTSTRAP-CLOUDFLARE-V1-20261015",
+            "issue": "https://github.com/pcvantol/djconnect-vibecast-receiver/issues/16",
+            "selection_state": "SELECTED_QUEUED",
+            "executor_ack": "PENDING",
+            "status": "Planned",
+            "prerequisites": [
+              "DECISIONS_DELTA_PROTECTED_DELIVERY_AND_FINALIZATION",
+              "OWN_PREVIOUS_WIP_CLOSED",
+              "FRESH_RECEIVER_ADMISSION"
+            ],
+            "autonomous_pickup_after_prerequisites": true,
+            "new_general_start_permission_required": false,
+            "integration_or_hardware_pass": false
+          },
+          "RENDEZVOUS_INTEGRATION": {
+            "status": "Planned",
+            "assignment_status": "SELECTED_CONTRACT_GATED",
+            "assignment_id": "DJC-VIBECAST-TV-BOOTSTRAP-CLOUDFLARE-V1-20261015",
+            "executor_ack": "PENDING",
+            "required_nodes": [
+              "WEB::TRUST",
+              "WEB::BOOTSTRAP"
+            ],
+            "public_build_blocker": false,
+            "full_onboarding_acceptance": "OPEN"
+          },
+          "APPLE_HA_ONBOARDING_E2E": {
+            "status": "OPEN",
+            "required_nodes": [
+              "WEB::DISPLAY",
+              "WEB::OWNER-SCANNER"
+            ],
+            "required_subsets": [
+              "PUBLIC_WEB_DELIVERY",
+              "RENDEZVOUS_INTEGRATION"
+            ],
+            "public_build_blocker": false
+          },
+          "FULL_SHARED_GUEST_ACCEPTANCE": {
+            "status": "Planned",
+            "assignment_status": "NOT_ISSUED",
+            "required_nodes": [
+              "WEB::BROWSER"
+            ],
+            "public_build_blocker": false
+          }
+        }
       },
       {
         "id": "WEB::DISCOVERY",
@@ -39273,6 +39346,430 @@
               "WEB-FIRST-30",
               "WEB-FIRST-31"
             ]
+          }
+        ]
+      },
+      {
+        "id": "SPEECH::APPLE::ADOPTION",
+        "title": "Native shared speech, voice and autoplay adoption",
+        "lane": "DJC-APPLE",
+        "repository": "pcvantol/djconnect-app",
+        "status": "Planned",
+        "assignment_status": "NOT_ISSUED",
+        "scope": "Native shared speech, voice and autoplay adoption; existing owner selection6189231491 only",
+        "acceptance_boundary": "Core software, installed, native/audible and joint evidence independent; no consumer dispatch",
+        "contract_binding": "docs/product/SESSION_SPEECH_PERSONA_V1.md",
+        "source_ids": [
+          "OWNER-SESSION-SPEECH-PERSONA-VOICE-20261015"
+        ],
+        "parent_reference": "PROJ::ROADMAP::P2-REFERENCE",
+        "family_reference": "Existing Speech Presentation, Audio Renderer Host and Session Persona architecture",
+        "prerequisite_groups": [
+          {
+            "edge_ids": [
+              "SPEECH-2"
+            ],
+            "mode": "AND"
+          }
+        ]
+      },
+      {
+        "id": "SPEECH::CORE::CONTRACT",
+        "title": "Shared narration and speech/source contract",
+        "lane": "DJC-CORE",
+        "repository": "pcvantol/djconnect",
+        "status": "Completed",
+        "assignment_status": "CORE_DELIVERED",
+        "scope": "Shared narration and speech/source contract; existing owner selection6189231491 only",
+        "acceptance_boundary": "Core software, installed, native/audible and joint evidence independent; no consumer dispatch",
+        "contract_binding": "docs/product/SESSION_SPEECH_PERSONA_V1.md",
+        "source_ids": [
+          "OWNER-SESSION-SPEECH-PERSONA-VOICE-20261015"
+        ],
+        "parent_reference": "PROJ::ROADMAP::P2-REFERENCE",
+        "family_reference": "Existing Speech Presentation, Audio Renderer Host and Session Persona architecture",
+        "prerequisite_groups": []
+      },
+      {
+        "id": "SPEECH::CORE::DELIVERY",
+        "title": "Owner speech/manual replay and renderer voice admission",
+        "lane": "DJC-CORE",
+        "repository": "pcvantol/djconnect",
+        "status": "Completed",
+        "assignment_status": "CORE_DELIVERED",
+        "scope": "Owner speech/manual replay and renderer voice admission; existing owner selection6189231491 only",
+        "acceptance_boundary": "Core software, installed, native/audible and joint evidence independent; no consumer dispatch",
+        "contract_binding": "docs/product/SESSION_SPEECH_PERSONA_V1.md",
+        "source_ids": [
+          "OWNER-SESSION-SPEECH-PERSONA-VOICE-20261015"
+        ],
+        "parent_reference": "PROJ::ROADMAP::P2-REFERENCE",
+        "family_reference": "Existing Speech Presentation, Audio Renderer Host and Session Persona architecture",
+        "prerequisite_groups": [
+          {
+            "edge_ids": [
+              "SPEECH-3"
+            ],
+            "mode": "AND"
+          }
+        ]
+      },
+      {
+        "id": "SPEECH::CORE::PERSONA",
+        "title": "Live ordered Session Persona settings",
+        "lane": "DJC-CORE",
+        "repository": "pcvantol/djconnect",
+        "status": "Completed",
+        "assignment_status": "CORE_DELIVERED",
+        "scope": "Live ordered Session Persona settings; existing owner selection6189231491 only",
+        "acceptance_boundary": "Core software, installed, native/audible and joint evidence independent; no consumer dispatch",
+        "contract_binding": "docs/product/SESSION_SPEECH_PERSONA_V1.md",
+        "source_ids": [
+          "OWNER-SESSION-SPEECH-PERSONA-VOICE-20261015"
+        ],
+        "parent_reference": "PROJ::ROADMAP::VOICE",
+        "family_reference": "Existing Speech Presentation, Audio Renderer Host and Session Persona architecture",
+        "prerequisite_groups": [
+          {
+            "edge_ids": [
+              "SPEECH-4"
+            ],
+            "mode": "AND"
+          }
+        ]
+      },
+      {
+        "id": "SPEECH::CORE::REALIZATION",
+        "title": "Persona-realized proactive narration in every family",
+        "lane": "DJC-CORE",
+        "repository": "pcvantol/djconnect",
+        "status": "Completed",
+        "assignment_status": "CORE_DELIVERED",
+        "scope": "Persona-realized proactive narration in every family; existing owner selection6189231491 only",
+        "acceptance_boundary": "Core software, installed, native/audible and joint evidence independent; no consumer dispatch",
+        "contract_binding": "docs/product/SESSION_SPEECH_PERSONA_V1.md",
+        "source_ids": [
+          "OWNER-SESSION-SPEECH-PERSONA-VOICE-20261015"
+        ],
+        "parent_reference": "PROJ::ROADMAP::P2-REFERENCE",
+        "family_reference": "Existing Speech Presentation, Audio Renderer Host and Session Persona architecture",
+        "prerequisite_groups": [
+          {
+            "edge_ids": [
+              "SPEECH-5"
+            ],
+            "mode": "AND"
+          }
+        ]
+      },
+      {
+        "id": "SPEECH::JOINT::ACCEPTANCE",
+        "title": "Visible and audible shared product qualification",
+        "lane": "DJC-CORE",
+        "repository": "pcvantol/djconnect",
+        "status": "Planned",
+        "assignment_status": "NOT_ISSUED",
+        "scope": "Visible and audible shared product qualification; existing owner selection6189231491 only",
+        "acceptance_boundary": "Core software, installed, native/audible and joint evidence independent; no consumer dispatch",
+        "contract_binding": "docs/product/SESSION_SPEECH_PERSONA_V1.md",
+        "source_ids": [
+          "OWNER-SESSION-SPEECH-PERSONA-VOICE-20261015"
+        ],
+        "parent_reference": "PROJ::ROADMAP::P2-REFERENCE",
+        "family_reference": "Existing Speech Presentation, Audio Renderer Host and Session Persona architecture",
+        "prerequisite_groups": [
+          {
+            "edge_ids": [
+              "SPEECH-1"
+            ],
+            "mode": "AND"
+          },
+          {
+            "edge_ids": [
+              "SPEECH-6"
+            ],
+            "mode": "AND"
+          },
+          {
+            "edge_ids": [
+              "SPEECH-7"
+            ],
+            "mode": "AND"
+          },
+          {
+            "edge_ids": [
+              "SPEECH-8"
+            ],
+            "mode": "AND"
+          }
+        ]
+      },
+      {
+        "id": "SETTINGS::CORE::DOCS",
+        "title": "Six-parameter canonical contract and platform settings inventory",
+        "lane": "DJC-CORE",
+        "repository": "pcvantol/djconnect",
+        "status": "Completed",
+        "assignment_status": "CORE_DELIVERED",
+        "scope": "Six-parameter canonical contract and platform settings inventory; six shared parameters incl announcement_output; no new owning writer or automatic dispatch",
+        "acceptance_boundary": "Core source, native/installed/audible/hardware and whole-family cleanup distinct; owning consumer evidence required",
+        "contract_binding": "docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md",
+        "source_ids": [
+          "OWNER-PROFILE-SESSION-SETTINGS-20261016"
+        ],
+        "parent_reference": "PROJ::ROADMAP::P2-REFERENCE",
+        "family_reference": "Existing Profile, active DJ Session and generic configured HA speech",
+        "prerequisite_groups": []
+      },
+      {
+        "id": "SETTINGS::CORE::PRODUCER",
+        "title": "Atomic roaming Profile defaults and effective Session producer",
+        "lane": "DJC-CORE",
+        "repository": "pcvantol/djconnect",
+        "status": "Completed",
+        "assignment_status": "CORE_DELIVERED",
+        "scope": "Atomic roaming Profile defaults and effective Session producer; six shared parameters incl announcement_output; no new owning writer or automatic dispatch",
+        "acceptance_boundary": "Core source, native/installed/audible/hardware and whole-family cleanup distinct; owning consumer evidence required",
+        "contract_binding": "docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md",
+        "source_ids": [
+          "OWNER-PROFILE-SESSION-SETTINGS-20261016"
+        ],
+        "parent_reference": "PROJ::ROADMAP::P2-REFERENCE",
+        "family_reference": "Existing Profile, active DJ Session and generic configured HA speech",
+        "prerequisite_groups": [
+          {
+            "edge_ids": [
+              "SETTINGS-1"
+            ],
+            "mode": "AND"
+          },
+          {
+            "edge_ids": [
+              "SETTINGS-2"
+            ],
+            "mode": "AND"
+          }
+        ]
+      },
+      {
+        "id": "SETTINGS::CORE::MIGRATION",
+        "title": "Qualified legacy migration/removal and owning-lane reconciliation",
+        "lane": "DJC-CORE",
+        "repository": "pcvantol/djconnect",
+        "status": "In progress",
+        "assignment_status": "IN_PROGRESS",
+        "scope": "Qualified legacy migration/removal and owning-lane reconciliation; six shared parameters incl announcement_output; no new owning writer or automatic dispatch",
+        "acceptance_boundary": "Core source, native/installed/audible/hardware and whole-family cleanup distinct; owning consumer evidence required",
+        "contract_binding": "docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md",
+        "source_ids": [
+          "OWNER-PROFILE-SESSION-SETTINGS-20261016"
+        ],
+        "parent_reference": "PROJ::ROADMAP::P2-REFERENCE",
+        "family_reference": "Existing Profile, active DJ Session and generic configured HA speech",
+        "prerequisite_groups": [
+          {
+            "edge_ids": [
+              "SETTINGS-3"
+            ],
+            "mode": "AND"
+          },
+          {
+            "edge_ids": [
+              "SETTINGS-5"
+            ],
+            "mode": "AND"
+          },
+          {
+            "edge_ids": [
+              "SETTINGS-7"
+            ],
+            "mode": "AND"
+          },
+          {
+            "edge_ids": [
+              "SETTINGS-9"
+            ],
+            "mode": "AND"
+          },
+          {
+            "edge_ids": [
+              "SETTINGS-11"
+            ],
+            "mode": "AND"
+          },
+          {
+            "edge_ids": [
+              "SETTINGS-13"
+            ],
+            "mode": "AND"
+          }
+        ]
+      },
+      {
+        "id": "SETTINGS::APPLE::EDITOR",
+        "title": "One Jouw DJ editor and shared Session quick controls",
+        "lane": "DJC-APPLE",
+        "repository": "pcvantol/djconnect-app",
+        "status": "Planned",
+        "assignment_status": "NOT_ISSUED",
+        "scope": "One Jouw DJ editor and shared Session quick controls; six shared parameters incl announcement_output; no new owning writer or automatic dispatch",
+        "acceptance_boundary": "Core source, native/installed/audible/hardware and whole-family cleanup distinct; owning consumer evidence required",
+        "contract_binding": "docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md",
+        "source_ids": [
+          "OWNER-PROFILE-SESSION-SETTINGS-20261016"
+        ],
+        "parent_reference": "PROJ::ROADMAP::P2-REFERENCE",
+        "family_reference": "Existing Profile, active DJ Session and generic configured HA speech",
+        "prerequisite_groups": [
+          {
+            "edge_ids": [
+              "SETTINGS-4"
+            ],
+            "mode": "AND"
+          }
+        ]
+      },
+      {
+        "id": "SETTINGS::PI::ADOPTION",
+        "title": "Pi allowed shared Session settings and legacy disposition",
+        "lane": "DJC-PI",
+        "repository": "pcvantol/djconnect-pi",
+        "status": "Planned",
+        "assignment_status": "NOT_ISSUED",
+        "scope": "Pi allowed shared Session settings and legacy disposition; six shared parameters incl announcement_output; no new owning writer or automatic dispatch",
+        "acceptance_boundary": "Core source, native/installed/audible/hardware and whole-family cleanup distinct; owning consumer evidence required",
+        "contract_binding": "docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md",
+        "source_ids": [
+          "OWNER-PROFILE-SESSION-SETTINGS-20261016"
+        ],
+        "parent_reference": "PROJ::ROADMAP::P2-REFERENCE",
+        "family_reference": "Existing Profile, active DJ Session and generic configured HA speech",
+        "prerequisite_groups": [
+          {
+            "edge_ids": [
+              "SETTINGS-6"
+            ],
+            "mode": "AND"
+          }
+        ]
+      },
+      {
+        "id": "SETTINGS::ESP32::ADOPTION",
+        "title": "ESP32 Assist/voice/settings compatibility and legacy disposition",
+        "lane": "DJC-ESP32",
+        "repository": "pcvantol/djconnect-esp32",
+        "status": "Planned",
+        "assignment_status": "NOT_ISSUED",
+        "scope": "ESP32 Assist/voice/settings compatibility and legacy disposition; six shared parameters incl announcement_output; no new owning writer or automatic dispatch",
+        "acceptance_boundary": "Core source, native/installed/audible/hardware and whole-family cleanup distinct; owning consumer evidence required",
+        "contract_binding": "docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md",
+        "source_ids": [
+          "OWNER-PROFILE-SESSION-SETTINGS-20261016"
+        ],
+        "parent_reference": "PROJ::ROADMAP::P2-REFERENCE",
+        "family_reference": "Existing Profile, active DJ Session and generic configured HA speech",
+        "prerequisite_groups": [
+          {
+            "edge_ids": [
+              "SETTINGS-8"
+            ],
+            "mode": "AND"
+          }
+        ]
+      },
+      {
+        "id": "SETTINGS::VIBECAST::COMPAT",
+        "title": "Shared renderer allowed Session fields without Profile preferences",
+        "lane": "DJC-VIBECAST",
+        "repository": "pcvantol/djconnect-vibecast-receiver",
+        "status": "Planned",
+        "assignment_status": "NOT_ISSUED",
+        "scope": "Shared renderer allowed Session fields without Profile preferences; six shared parameters incl announcement_output; no new owning writer or automatic dispatch",
+        "acceptance_boundary": "Core source, native/installed/audible/hardware and whole-family cleanup distinct; owning consumer evidence required",
+        "contract_binding": "docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md",
+        "source_ids": [
+          "OWNER-PROFILE-SESSION-SETTINGS-20261016"
+        ],
+        "parent_reference": "PROJ::ROADMAP::P2-REFERENCE",
+        "family_reference": "Existing Profile, active DJ Session and generic configured HA speech",
+        "prerequisite_groups": [
+          {
+            "edge_ids": [
+              "SETTINGS-10"
+            ],
+            "mode": "AND"
+          }
+        ]
+      },
+      {
+        "id": "SETTINGS::WEBSITE::COPY",
+        "title": "Six-parameter scope/help and obsolete settings copy audit",
+        "lane": "DJC-WEBSITE",
+        "repository": "pcvantol/djconnect-website",
+        "status": "Planned",
+        "assignment_status": "NOT_ISSUED",
+        "scope": "Six-parameter scope/help and obsolete settings copy audit; six shared parameters incl announcement_output; no new owning writer or automatic dispatch",
+        "acceptance_boundary": "Core source, native/installed/audible/hardware and whole-family cleanup distinct; owning consumer evidence required",
+        "contract_binding": "docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md",
+        "source_ids": [
+          "OWNER-PROFILE-SESSION-SETTINGS-20261016"
+        ],
+        "parent_reference": "PROJ::ROADMAP::P2-REFERENCE",
+        "family_reference": "Existing Profile, active DJ Session and generic configured HA speech",
+        "prerequisite_groups": [
+          {
+            "edge_ids": [
+              "SETTINGS-12"
+            ],
+            "mode": "AND"
+          }
+        ]
+      },
+      {
+        "id": "SETTINGS::JOINT::ACCEPTANCE",
+        "title": "Cross-device six-field effects, persistence and cleanup acceptance",
+        "lane": "DJC-CORE",
+        "repository": "pcvantol/djconnect",
+        "status": "Planned",
+        "assignment_status": "NOT_ISSUED",
+        "scope": "Cross-device six-field effects, persistence and cleanup acceptance; six shared parameters incl announcement_output; no new owning writer or automatic dispatch",
+        "acceptance_boundary": "Core source, native/installed/audible/hardware and whole-family cleanup distinct; owning consumer evidence required",
+        "contract_binding": "docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md",
+        "source_ids": [
+          "OWNER-PROFILE-SESSION-SETTINGS-20261016"
+        ],
+        "parent_reference": "PROJ::ROADMAP::P2-REFERENCE",
+        "family_reference": "Existing Profile, active DJ Session and generic configured HA speech",
+        "prerequisite_groups": [
+          {
+            "edge_ids": [
+              "SETTINGS-14"
+            ],
+            "mode": "AND"
+          }
+        ]
+      },
+      {
+        "id": "CORRECTION::CORE::PERSONAL-DJ-EXPERIENCE",
+        "title": "Personal DJ restoration: current corrective acceptance remains open",
+        "lane": "DJC-CORE",
+        "repository": "pcvantol/djconnect",
+        "status": "In progress",
+        "assignment_status": "LOCAL_IMPLEMENTATION_AND_QUALIFICATION",
+        "scope": "Existing personal DJ restoration; source, native, installed and audible outcomes separate",
+        "acceptance_boundary": "Historical Speech realization is not current all-family acceptance. No consumer dispatch.",
+        "contract_binding": "docs/verification/CORE_LANE_REQUIREMENT_RECONCILIATION_20261017.md",
+        "source_ids": [
+          "OWNER-SESSION-SPEECH-PERSONA-VOICE-20261015"
+        ],
+        "parent_reference": "SPEECH::CORE::REALIZATION",
+        "family_reference": "Existing Speech and contextual Ask DJ; corrective work only",
+        "prerequisite_groups": [
+          {
+            "edge_ids": [
+              "EXPERIENCE-CORRECTION-1"
+            ],
+            "mode": "AND"
           }
         ]
       }
@@ -40291,16 +40788,17 @@
         "producer": "WEB::BOOTSTRAP",
         "consumer": "WEB::DISTRIBUTION",
         "kind": "contract_or_consumer_acceptance",
-        "phase": "implementation",
-        "prerequisite_stage": "contract",
+        "phase": "integration_acceptance",
+        "prerequisite_stage": "qualified_integration_contract",
         "hard_precedence": true,
         "logical_mode": "AND",
-        "required_subset": "Exact bounded predecessor contract; documentary or owner producer delivery is not joint acceptance",
+        "required_subset": "Qualified WEB::BOOTSTRAP for RENDEZVOUS_INTEGRATION; no prerequisite for independent PUBLIC_WEB_DELIVERY",
         "contract_or_evidence": "docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md",
         "reason": "Issue1174 real functional prerequisite; resource/admission gates remain separate",
         "source_ids": [
           "OWNER-WEB-FIRST-1174"
-        ]
+        ],
+        "consumer_subset": "RENDEZVOUS_INTEGRATION"
       },
       {
         "id": "WEB-FIRST-9",
@@ -40323,16 +40821,17 @@
         "producer": "WEB::BROWSER",
         "consumer": "WEB::DISTRIBUTION",
         "kind": "contract_or_consumer_acceptance",
-        "phase": "implementation",
-        "prerequisite_stage": "contract",
+        "phase": "integration_acceptance",
+        "prerequisite_stage": "qualified_integration_contract",
         "hard_precedence": true,
         "logical_mode": "AND",
-        "required_subset": "Exact bounded predecessor contract; documentary or owner producer delivery is not joint acceptance",
+        "required_subset": "Qualified WEB::BROWSER for FULL_SHARED_GUEST_ACCEPTANCE; no prerequisite for independent PUBLIC_WEB_DELIVERY",
         "contract_or_evidence": "docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md",
         "reason": "Issue1174 real functional prerequisite; resource/admission gates remain separate",
         "source_ids": [
           "OWNER-WEB-FIRST-1174"
-        ]
+        ],
+        "consumer_subset": "FULL_SHARED_GUEST_ACCEPTANCE"
       },
       {
         "id": "WEB-FIRST-11",
@@ -40877,16 +41376,451 @@
         "source_ids": [
           "OWNER-WEB-FIRST-1174"
         ]
+      },
+      {
+        "id": "WEB-FIRST-DECISIONS-PIN",
+        "producer": "WEB::DOCS",
+        "consumer": "WEB::DISTRIBUTION",
+        "kind": "documentary_predecessor",
+        "phase": "public_web_delivery",
+        "prerequisite_stage": "protected_delivery_and_finalization",
+        "consumer_subset": "PUBLIC_WEB_DELIVERY",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "required_subset": "DJC-VIBECAST-WEB-FIRST-DECISIONS-DELTA-V1-20261015 actual source and Finalization design/DAG pin; previous1175/1176 alone insufficient",
+        "contract_or_evidence": "docs/product/VIBECAST_WEB_ENTRY_DISTRIBUTION_V1.md",
+        "reason": "Explicit receiver16 selection waits for this new documentary delta; no API or Cast prerequisite for independent public frontend/build/CD",
+        "source_ids": [
+          "OWNER-WEB-FIRST-DECISIONS-6201605985"
+        ]
+      },
+      {
+        "id": "WEB-FIRST-DECISIONS-E2E-DISPLAY",
+        "producer": "WEB::DISPLAY",
+        "consumer": "WEB::DISTRIBUTION",
+        "kind": "joint_acceptance",
+        "phase": "onboarding_e2e",
+        "prerequisite_stage": "qualified_producer_and_consumer",
+        "consumer_subset": "APPLE_HA_ONBOARDING_E2E",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "required_subset": "Qualified DISPLAY with public frontend and rendezvous connected; not a public build or adapter source prerequisite",
+        "contract_or_evidence": "docs/product/VIBECAST_WEB_ENTRY_DISTRIBUTION_V1.md",
+        "reason": "Full two-step onboarding acceptance requires actual HA display admission and Apple scanner; do not absorb producer implementation into receiver16",
+        "source_ids": [
+          "OWNER-WEB-FIRST-DECISIONS-6201605985"
+        ]
+      },
+      {
+        "id": "WEB-FIRST-DECISIONS-E2E-OWNER-SCANNER",
+        "producer": "WEB::OWNER-SCANNER",
+        "consumer": "WEB::DISTRIBUTION",
+        "kind": "joint_acceptance",
+        "phase": "onboarding_e2e",
+        "prerequisite_stage": "qualified_producer_and_consumer",
+        "consumer_subset": "APPLE_HA_ONBOARDING_E2E",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "required_subset": "Qualified OWNER-SCANNER with public frontend and rendezvous connected; not a public build or adapter source prerequisite",
+        "contract_or_evidence": "docs/product/VIBECAST_WEB_ENTRY_DISTRIBUTION_V1.md",
+        "reason": "Full two-step onboarding acceptance requires actual HA display admission and Apple scanner; do not absorb producer implementation into receiver16",
+        "source_ids": [
+          "OWNER-WEB-FIRST-DECISIONS-6201605985"
+        ]
+      },
+      {
+        "id": "SPEECH-1",
+        "producer": "SPEECH::APPLE::ADOPTION",
+        "consumer": "SPEECH::JOINT::ACCEPTANCE",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "source_ids": [
+          "OWNER-SESSION-SPEECH-PERSONA-VOICE-20261015"
+        ],
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "completion",
+        "required_subset": "Exact accepted text, source/processor and owner lifecycle qualification",
+        "contract_or_evidence": "docs/product/SESSION_SPEECH_DELIVERY_V1.md",
+        "reason": "Bounded selected existing Speech/Persona producer and consumer dependency"
+      },
+      {
+        "id": "SPEECH-2",
+        "producer": "SPEECH::CORE::CONTRACT",
+        "consumer": "SPEECH::APPLE::ADOPTION",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "source_ids": [
+          "OWNER-SESSION-SPEECH-PERSONA-VOICE-20261015"
+        ],
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "completion",
+        "required_subset": "Exact accepted text, source/processor and owner lifecycle qualification",
+        "contract_or_evidence": "docs/product/SESSION_SPEECH_DELIVERY_V1.md",
+        "reason": "Bounded selected existing Speech/Persona producer and consumer dependency"
+      },
+      {
+        "id": "SPEECH-3",
+        "producer": "SPEECH::CORE::CONTRACT",
+        "consumer": "SPEECH::CORE::DELIVERY",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "source_ids": [
+          "OWNER-SESSION-SPEECH-PERSONA-VOICE-20261015"
+        ],
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "completion",
+        "required_subset": "Exact accepted text, source/processor and owner lifecycle qualification",
+        "contract_or_evidence": "docs/product/SESSION_SPEECH_DELIVERY_V1.md",
+        "reason": "Bounded selected existing Speech/Persona producer and consumer dependency"
+      },
+      {
+        "id": "SPEECH-4",
+        "producer": "SPEECH::CORE::CONTRACT",
+        "consumer": "SPEECH::CORE::PERSONA",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "source_ids": [
+          "OWNER-SESSION-SPEECH-PERSONA-VOICE-20261015"
+        ],
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "completion",
+        "required_subset": "Exact accepted text, source/processor and owner lifecycle qualification",
+        "contract_or_evidence": "docs/product/SESSION_SPEECH_DELIVERY_V1.md",
+        "reason": "Bounded selected existing Speech/Persona producer and consumer dependency"
+      },
+      {
+        "id": "SPEECH-5",
+        "producer": "SPEECH::CORE::CONTRACT",
+        "consumer": "SPEECH::CORE::REALIZATION",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "source_ids": [
+          "OWNER-SESSION-SPEECH-PERSONA-VOICE-20261015"
+        ],
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "completion",
+        "required_subset": "Exact accepted text, source/processor and owner lifecycle qualification",
+        "contract_or_evidence": "docs/product/SESSION_SPEECH_DELIVERY_V1.md",
+        "reason": "Bounded selected existing Speech/Persona producer and consumer dependency"
+      },
+      {
+        "id": "SPEECH-6",
+        "producer": "SPEECH::CORE::DELIVERY",
+        "consumer": "SPEECH::JOINT::ACCEPTANCE",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "source_ids": [
+          "OWNER-SESSION-SPEECH-PERSONA-VOICE-20261015"
+        ],
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "completion",
+        "required_subset": "Exact accepted text, source/processor and owner lifecycle qualification",
+        "contract_or_evidence": "docs/product/SESSION_SPEECH_DELIVERY_V1.md",
+        "reason": "Bounded selected existing Speech/Persona producer and consumer dependency"
+      },
+      {
+        "id": "SPEECH-7",
+        "producer": "SPEECH::CORE::PERSONA",
+        "consumer": "SPEECH::JOINT::ACCEPTANCE",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "source_ids": [
+          "OWNER-SESSION-SPEECH-PERSONA-VOICE-20261015"
+        ],
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "completion",
+        "required_subset": "Exact accepted text, source/processor and owner lifecycle qualification",
+        "contract_or_evidence": "docs/product/SESSION_SPEECH_DELIVERY_V1.md",
+        "reason": "Bounded selected existing Speech/Persona producer and consumer dependency"
+      },
+      {
+        "id": "SPEECH-8",
+        "producer": "SPEECH::CORE::REALIZATION",
+        "consumer": "SPEECH::JOINT::ACCEPTANCE",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "source_ids": [
+          "OWNER-SESSION-SPEECH-PERSONA-VOICE-20261015"
+        ],
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "completion",
+        "required_subset": "Exact accepted text, source/processor and owner lifecycle qualification",
+        "contract_or_evidence": "docs/product/SESSION_SPEECH_DELIVERY_V1.md",
+        "reason": "Bounded selected existing Speech/Persona producer and consumer dependency"
+      },
+      {
+        "id": "SETTINGS-1",
+        "producer": "SETTINGS::CORE::DOCS",
+        "consumer": "SETTINGS::CORE::PRODUCER",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "source_ids": [
+          "OWNER-PROFILE-SESSION-SETTINGS-20261016"
+        ],
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "completion",
+        "required_subset": "Exact allfive contract and owning acceptance; preparation may proceed without consumer dispatch",
+        "contract_or_evidence": "docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md",
+        "reason": "Existing Profile/Session consolidation; no full-family completion before migration and consumers"
+      },
+      {
+        "id": "SETTINGS-2",
+        "producer": "SPEECH::CORE::DELIVERY",
+        "consumer": "SETTINGS::CORE::PRODUCER",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "source_ids": [
+          "OWNER-PROFILE-SESSION-SETTINGS-20261016"
+        ],
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "completion",
+        "required_subset": "Exact allfive contract and owning acceptance; preparation may proceed without consumer dispatch",
+        "contract_or_evidence": "docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md",
+        "reason": "Existing Profile/Session consolidation; no full-family completion before migration and consumers"
+      },
+      {
+        "id": "SETTINGS-3",
+        "producer": "SETTINGS::CORE::PRODUCER",
+        "consumer": "SETTINGS::CORE::MIGRATION",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "source_ids": [
+          "OWNER-PROFILE-SESSION-SETTINGS-20261016"
+        ],
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "completion",
+        "required_subset": "Exact allfive contract and owning acceptance; preparation may proceed without consumer dispatch",
+        "contract_or_evidence": "docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md",
+        "reason": "Existing Profile/Session consolidation; no full-family completion before migration and consumers"
+      },
+      {
+        "id": "SETTINGS-4",
+        "producer": "SETTINGS::CORE::PRODUCER",
+        "consumer": "SETTINGS::APPLE::EDITOR",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "source_ids": [
+          "OWNER-PROFILE-SESSION-SETTINGS-20261016"
+        ],
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "completion",
+        "required_subset": "Exact allfive contract and owning acceptance; preparation may proceed without consumer dispatch",
+        "contract_or_evidence": "docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md",
+        "reason": "Existing Profile/Session consolidation; no full-family completion before migration and consumers"
+      },
+      {
+        "id": "SETTINGS-5",
+        "producer": "SETTINGS::APPLE::EDITOR",
+        "consumer": "SETTINGS::CORE::MIGRATION",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "source_ids": [
+          "OWNER-PROFILE-SESSION-SETTINGS-20261016"
+        ],
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "completion",
+        "required_subset": "Exact allfive contract and owning acceptance; preparation may proceed without consumer dispatch",
+        "contract_or_evidence": "docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md",
+        "reason": "Existing Profile/Session consolidation; no full-family completion before migration and consumers"
+      },
+      {
+        "id": "SETTINGS-6",
+        "producer": "SETTINGS::CORE::PRODUCER",
+        "consumer": "SETTINGS::PI::ADOPTION",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "source_ids": [
+          "OWNER-PROFILE-SESSION-SETTINGS-20261016"
+        ],
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "completion",
+        "required_subset": "Exact allfive contract and owning acceptance; preparation may proceed without consumer dispatch",
+        "contract_or_evidence": "docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md",
+        "reason": "Existing Profile/Session consolidation; no full-family completion before migration and consumers"
+      },
+      {
+        "id": "SETTINGS-7",
+        "producer": "SETTINGS::PI::ADOPTION",
+        "consumer": "SETTINGS::CORE::MIGRATION",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "source_ids": [
+          "OWNER-PROFILE-SESSION-SETTINGS-20261016"
+        ],
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "completion",
+        "required_subset": "Exact allfive contract and owning acceptance; preparation may proceed without consumer dispatch",
+        "contract_or_evidence": "docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md",
+        "reason": "Existing Profile/Session consolidation; no full-family completion before migration and consumers"
+      },
+      {
+        "id": "SETTINGS-8",
+        "producer": "SETTINGS::CORE::PRODUCER",
+        "consumer": "SETTINGS::ESP32::ADOPTION",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "source_ids": [
+          "OWNER-PROFILE-SESSION-SETTINGS-20261016"
+        ],
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "completion",
+        "required_subset": "Exact allfive contract and owning acceptance; preparation may proceed without consumer dispatch",
+        "contract_or_evidence": "docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md",
+        "reason": "Existing Profile/Session consolidation; no full-family completion before migration and consumers"
+      },
+      {
+        "id": "SETTINGS-9",
+        "producer": "SETTINGS::ESP32::ADOPTION",
+        "consumer": "SETTINGS::CORE::MIGRATION",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "source_ids": [
+          "OWNER-PROFILE-SESSION-SETTINGS-20261016"
+        ],
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "completion",
+        "required_subset": "Exact allfive contract and owning acceptance; preparation may proceed without consumer dispatch",
+        "contract_or_evidence": "docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md",
+        "reason": "Existing Profile/Session consolidation; no full-family completion before migration and consumers"
+      },
+      {
+        "id": "SETTINGS-10",
+        "producer": "SETTINGS::CORE::PRODUCER",
+        "consumer": "SETTINGS::VIBECAST::COMPAT",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "source_ids": [
+          "OWNER-PROFILE-SESSION-SETTINGS-20261016"
+        ],
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "completion",
+        "required_subset": "Exact allfive contract and owning acceptance; preparation may proceed without consumer dispatch",
+        "contract_or_evidence": "docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md",
+        "reason": "Existing Profile/Session consolidation; no full-family completion before migration and consumers"
+      },
+      {
+        "id": "SETTINGS-11",
+        "producer": "SETTINGS::VIBECAST::COMPAT",
+        "consumer": "SETTINGS::CORE::MIGRATION",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "source_ids": [
+          "OWNER-PROFILE-SESSION-SETTINGS-20261016"
+        ],
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "completion",
+        "required_subset": "Exact allfive contract and owning acceptance; preparation may proceed without consumer dispatch",
+        "contract_or_evidence": "docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md",
+        "reason": "Existing Profile/Session consolidation; no full-family completion before migration and consumers"
+      },
+      {
+        "id": "SETTINGS-12",
+        "producer": "SETTINGS::CORE::PRODUCER",
+        "consumer": "SETTINGS::WEBSITE::COPY",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "source_ids": [
+          "OWNER-PROFILE-SESSION-SETTINGS-20261016"
+        ],
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "completion",
+        "required_subset": "Exact allfive contract and owning acceptance; preparation may proceed without consumer dispatch",
+        "contract_or_evidence": "docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md",
+        "reason": "Existing Profile/Session consolidation; no full-family completion before migration and consumers"
+      },
+      {
+        "id": "SETTINGS-13",
+        "producer": "SETTINGS::WEBSITE::COPY",
+        "consumer": "SETTINGS::CORE::MIGRATION",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "source_ids": [
+          "OWNER-PROFILE-SESSION-SETTINGS-20261016"
+        ],
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "completion",
+        "required_subset": "Exact allfive contract and owning acceptance; preparation may proceed without consumer dispatch",
+        "contract_or_evidence": "docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md",
+        "reason": "Existing Profile/Session consolidation; no full-family completion before migration and consumers"
+      },
+      {
+        "id": "SETTINGS-14",
+        "producer": "SETTINGS::CORE::MIGRATION",
+        "consumer": "SETTINGS::JOINT::ACCEPTANCE",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "source_ids": [
+          "OWNER-PROFILE-SESSION-SETTINGS-20261016"
+        ],
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "completion",
+        "required_subset": "Exact allfive contract and owning acceptance; preparation may proceed without consumer dispatch",
+        "contract_or_evidence": "docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md",
+        "reason": "Existing Profile/Session consolidation; no full-family completion before migration and consumers"
+      },
+      {
+        "id": "EXPERIENCE-CORRECTION-1",
+        "producer": "SPEECH::CORE::REALIZATION",
+        "consumer": "CORRECTION::CORE::PERSONAL-DJ-EXPERIENCE",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "source_ids": [
+          "OWNER-SESSION-SPEECH-PERSONA-VOICE-20261015"
+        ],
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "completion",
+        "required_subset": "Current actual publication, quality, retention and speech proof; historical delivery remains preserved",
+        "contract_or_evidence": "docs/verification/CORE_LANE_REQUIREMENT_RECONCILIATION_20261017.md",
+        "reason": "Corrective acceptance under the existing family, not a duplicate family or new writer"
+      },
+      {
+        "id": "EXPERIENCE-CORRECTION-2",
+        "producer": "CORRECTION::CORE::PERSONAL-DJ-EXPERIENCE",
+        "consumer": "SPEECH::JOINT::ACCEPTANCE",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "source_ids": [
+          "OWNER-SESSION-SPEECH-PERSONA-VOICE-20261015"
+        ],
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "completion",
+        "required_subset": "Current actual publication, quality, retention and speech proof; historical delivery remains preserved",
+        "contract_or_evidence": "docs/verification/CORE_LANE_REQUIREMENT_RECONCILIATION_20261017.md",
+        "reason": "Corrective acceptance under the existing family, not a duplicate family or new writer"
       }
     ],
     "document_references": [
       {
         "path": "PRODUCT_ROADMAP.md",
-        "sha256": "141ff1ef326f517d592c51f81e3f672bb1d15d49a2fe33d197704287f8d4e0c7"
+        "sha256": "40448b5865d8177208aa08a385cad22b047c25b49c3ca19b9027b25bc0534c75"
       },
       {
         "path": "PRODUCT_BACKLOG.md",
-        "sha256": "82972042a52c2c09e39931c4328fd36246f201fe00f407ddfd6a1a7a48ce328e"
+        "sha256": "79a0d260495ff36e70e0cfbdfa1a6c36ed290e82315c874b1ab7cb7e34af5634"
       },
       {
         "path": "docs/product/DJ_PRESENCE_V1.md",
@@ -40894,7 +41828,7 @@
       },
       {
         "path": "DJ_SESSION_RUNTIME_CONTRACTS.md",
-        "sha256": "6ae7a05260bc2a997252dbb70c28917ac6b7fd25930263d7c0940df929b1ec92"
+        "sha256": "637b4b0018be25405d21cf9a2c873f1e36534bfe14d3d54fc42b5d78f3ccc0ac"
       },
       {
         "path": "docs/product/DJ_INTELLIGENCE_ARCHITECTURE.md",
@@ -40902,7 +41836,7 @@
       },
       {
         "path": "docs/product/DJ_PRESENTATION_ARCHITECTURE.md",
-        "sha256": "7dd7c816a46c9d49cf7a9ced45bfeccacd628b3e279c4e5fd5ca4656f4e57ad6"
+        "sha256": "3f90e5ccfd1877f1eaec2c2ebc6d69a3ad3d3bfe20508f7128d9cd4c5e729faf"
       },
       {
         "path": "docs/technical/PLATFORM_AMBIENT_EXPERIENCE.md",
@@ -40910,11 +41844,11 @@
       },
       {
         "path": "docs/product/DJ_PRESENCE_CORE_POLICY_V1.md",
-        "sha256": "32ed8a6a47cc6f64fb07b9ef4df1cf8fb7e92c2368cd0c35c66ad31b76b64909"
+        "sha256": "8d8a0871538d18df4a273c583836b29a4e45f3cb5f95ed663f8bde21977fde7e"
       },
       {
         "path": "docs/product/DJ_PRESENCE_OWNER_CONTRACT_V1.md",
-        "sha256": "2580acda7c9e19020c030cb1b8cecd47ef87af0f43a643b90f37d7bd89ee65a3"
+        "sha256": "be132d88b24f54659f4ab64e8381b4d2e3a45e3fdd874ce37ab6cf5e515bcc9c"
       },
       {
         "path": "docs/product/DISCOVERY_ARTWORK_CONTINUITY_V1.md",
@@ -40922,7 +41856,7 @@
       },
       {
         "path": "API_CONTRACT.md",
-        "sha256": "f284c67ae2ed82c8df29efd62408da1e0bfc75efdad4bde9640e0e5bf529a214"
+        "sha256": "c640c53cda36e7de1bd453d48ad29e396220d8c406ca5c741a3dcf7eb852b1d0"
       },
       {
         "path": "docs/product/NARRATIVE_ALBUM_CONTINUITY_V1.md",
@@ -40930,7 +41864,7 @@
       },
       {
         "path": "docs/product/DJ_INTELLIGENCE_MATURITY.md",
-        "sha256": "e546b04681d4278cadf790400c761f39f845cb95092d6cf09da6b31d04aa9c86"
+        "sha256": "d74bd11b57afda561c21bc3df0cd829c5a2ae0b3baf6e8138a89e91d1c5b8241"
       },
       {
         "path": "docs/product/SHARED_PRODUCER_CONTINUITY_CONTRACT.md",
@@ -40946,7 +41880,7 @@
       },
       {
         "path": "docs/product/NATIVE_MOMENT_DELIVERY_CONTRACT.md",
-        "sha256": "363efecf9d31c1fd818a0806305eea8bf60b0caa41fc7e08c31002835e1b0f19"
+        "sha256": "b7273907e2b2c50d163b4d056bbb8fa5c908299eb98f7af8120e037fbc6a7a64"
       },
       {
         "path": "docs/technical/BROADCAST_TRANSPORT.md",
@@ -40958,7 +41892,7 @@
       },
       {
         "path": "docs/product/SESSION_FORECAST_V1.md",
-        "sha256": "fa9ebfc5e90a893a1c1f8e0cf89660e8c506e4d79f12594b5ff092fb05b24a90"
+        "sha256": "fa959a90cd6636735d9885768641a5be3be08425622e4af050b1d4ce4ae4ed8a"
       },
       {
         "path": "docs/technical/SESSION_DIRECTION_PROJECTION_ARCHITECTURE.md",
@@ -40974,7 +41908,7 @@
       },
       {
         "path": "docs/product/VIBECAST_SHARED_RENDERER_BUILD_CONTRACT.md",
-        "sha256": "6288cbf44e88fa99b6597f0f94f319609b6a80e0ff56e0eb83aee4d977df5e8c"
+        "sha256": "cf40e653f962f0d90573e1cf362637cb2ae4730c2e835258dcbb48bdf4e77662"
       },
       {
         "path": "docs/product/AMBIENT_FACT_MOMENT_CONVERGENCE_V1.md",
@@ -40998,7 +41932,7 @@
       },
       {
         "path": "docs/product/APPLE_SESSION_NATIVE_SURFACES_V1.md",
-        "sha256": "6677b8f6ae1935fedb13f277711b08522b47a87ebf0b65b19ca958cdfb74615a"
+        "sha256": "2afc27951eb344e95df8825b2efcd08b970b7b74c3b81ac0dfae63826db93e0f"
       },
       {
         "path": "docs/verification/SESSION_ENTRY_LIFECYCLE_HISTORY_DESIGN_V1_SOURCE_READBACK.md",
@@ -41022,11 +41956,11 @@
       },
       {
         "path": "docs/product/ASK_DJ_CONVERSATIONAL_EXPERIENCE_V1.md",
-        "sha256": "fff4b43c1acf28a84ff0464e244a6536984bed00782e7abc4aa3e5016e535e91"
+        "sha256": "690b79372d12b41306b54fc21eb4434dbcc4a22b6b9894bd9aa64c8985c030c9"
       },
       {
         "path": "docs/product/ASK_DJ_CONTEXTUAL_DIALOGUE_CONTRACT_V1.md",
-        "sha256": "136c81fdc255b66f2a921e9250262f79b19efb4b6c0470260f6febcb088831fb"
+        "sha256": "b0626e86857ad0dda317896da34091132347dce54762362bbdc0bd457a1727fb"
       },
       {
         "path": "docs/product/MOMENT_TRACK_INSIGHT_DRILLDOWN_V1.md",
@@ -41046,11 +41980,11 @@
       },
       {
         "path": "docs/product/EXPRESSIVE_DJ_PERSONA_CONTRACT.md",
-        "sha256": "a5c9bde64dc087acf3a9b4ab88480e5daebaa8f5b6cc5ef07c0b4ed66c1f202e"
+        "sha256": "c5ed33865b61700edc0133d033d4c17550691744f33c3a271c5b6129e758c842"
       },
       {
         "path": "docs/product/KNOWLEDGE_SOURCE_ARCHITECTURE.md",
-        "sha256": "8846dff1f9c18bfb6aa9817b9a1d46f4bcbad0ceb79fd5b695d6bbb71cbfa55d"
+        "sha256": "35a9bf6760100ed4c0d6766a4c0ada4df2d506f3008f0dd98617844be97cf235"
       },
       {
         "path": "docs/verification/ASK_DJ_CONTEXTUAL_DIALOGUE_V1_SOURCE_READBACK.md",
@@ -41074,11 +42008,11 @@
       },
       {
         "path": "docs/product/HYBRID_HTTP_WEBSOCKET_TRANSPORT_V1.md",
-        "sha256": "b1be6a3f8d98f5f3430c1aca6549c7caa6f56013f5fad7af688fe390d0babbb3"
+        "sha256": "c1ff21765e4aeba32dbaa67c5202663cbeb2e8d0f3aace11099af492b1f17720"
       },
       {
         "path": "docs/product/TRANSPORT_OPERATION_RECOVERY_CONTRACT_V1.md",
-        "sha256": "0ba644ddfd23139de80f50cf8b658cedab370c9fcc72e4e3ea9c35282f76b562"
+        "sha256": "952f50b3ecdd7979a1e67740816abeb1450d09b62c14fd3c97f4baa44f18869d"
       },
       {
         "path": "docs/verification/HYBRID_TRANSPORT_V1_ACCEPTANCE_MATRIX.md",
@@ -41106,19 +42040,223 @@
       },
       {
         "path": "docs/product/SESSION_ARTWORK_DELIVERY_CONTRACT_V1.md",
-        "sha256": "3e3da658daa128f5eae618740ba8e86a39766a661d559f86badfb20a6f9f8c09"
+        "sha256": "a65d238cbee59b26d5c1405b14c1235cb3523a06ad3cd868133403e0034427ca"
       },
       {
         "path": "docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md",
-        "sha256": "979595c3b73e7cb1cddbfc7b54956f8e1094d0bc5862acadb9b9318a55fccecf"
+        "sha256": "d3bee293d4e2f3253fcafa96427093631e6996a360ec66efe5c14b64082c66dc"
       },
       {
         "path": "docs/product/VIBECAST_ONBOARDING_GUEST_AUTHORITY_V1.md",
-        "sha256": "6d75246588062c7b7a480d0bcfb483fce44aac7e96c301ff933e1f9fe301f967"
+        "sha256": "d9e230d57e08b64d613ce491b31745083a896e7b125f8d7b9d706adf51c9ac27"
       },
       {
         "path": "docs/product/APPLE_VIBECAST_GUEST_MODE_V1.md",
-        "sha256": "3d63330af648ad9b42c7d59662cd8bc61a07adbf3e44967e463a5f89914769f9"
+        "sha256": "3141ad70b91b124937a9268a33b24fb19b9eb1e3fbe143d5c456848ca4b1c268"
+      },
+      {
+        "path": "docs/product/VIBECAST_WEB_ENTRY_DISTRIBUTION_V1.md",
+        "sha256": "0f0cd6b9ee9ec6be7d4f7ea15c073101501beddc26ccf8c4b3101865c957e518"
+      },
+      {
+        "path": "docs/product/HYBRID_LOCAL_TRANSPORT_POLICY_V1.md",
+        "sha256": "b7d62c93f26b4883c993f89f7a929c57ba6be8c082bb6ed7c220e60c5045aac6"
+      },
+      {
+        "path": "docs/verification/HYBRID_LOCAL_TRANSPORT_SOURCE_READBACK_20261015.md",
+        "sha256": "4bb082dd358cc9594240868cb163133be0320729b2d5687a337bcba2b5feeda3"
+      },
+      {
+        "path": "docs/product/SESSION_SPEECH_PERSONA_V1.md",
+        "sha256": "a342eda7b169f9da5f4296297aae796554dbf6bc2286c28820182e6f3b1d9bf2"
+      },
+      {
+        "path": "docs/product/SESSION_SPEECH_DELIVERY_V1.md",
+        "sha256": "3684f697946eea3bc348bad90390b3407c1154cb26c7d8ab50951dff93e0a131"
+      },
+      {
+        "path": "docs/verification/SESSION_SPEECH_PERSONA_SOURCE_READBACK_20261016.md",
+        "sha256": "88d1f61b742c7b5e9258f7cd96ae35c691a3ea952ee98e345b8ffc9f1720dd38"
+      },
+      {
+        "path": "docs/history/prompts/2026-10-16-session-speech-persona-finalization.md",
+        "sha256": "08bfdd2e39d730e38d6a76b7cf8ffd8d1463781c59e52fa4aab8f3df0de16732"
+      },
+      {
+        "path": "docs/product/GENERIC_HA_TTS_V1.md",
+        "sha256": "82cd101a752fcd160141ea23a6f2fee2ae877ac9a1e2f564a8a20bc723fdaab7"
+      },
+      {
+        "path": "docs/verification/GENERIC_HA_TTS_SOURCE_20261016.md",
+        "sha256": "9b54d922da5945e771bdd16be922b7c2f0b04715368e0ece75616facec1f97e7"
+      },
+      {
+        "path": "docs/verification/GENERIC_HA_TTS_SOURCE_READBACK_20261016.md",
+        "sha256": "ab9c27e02320f17f063e75b6bf318d9b20eba72141e0f002c48506923c8f7059"
+      },
+      {
+        "path": "docs/history/prompts/2026-10-16-generic-ha-tts-finalization.md",
+        "sha256": "487548baa5d99882bbec786dc36e79157635ba7c9e5753a913624016cf44fcb4"
+      },
+      {
+        "path": "docs/product/PROVIDER_VOICE_GENDER_V1.md",
+        "sha256": "716591762477e5b626d61e2f2e66f7984bf931cd138ef894478cb4a2449be7da"
+      },
+      {
+        "path": "docs/verification/PROVIDER_VOICE_GENDER_SOURCE_20261016.md",
+        "sha256": "ab02670e4c5b33433be036ac8165c9f123df238afa759c45a52c1951ddba41db"
+      },
+      {
+        "path": "docs/verification/PROVIDER_VOICE_GENDER_SOURCE_READBACK_20261016.md",
+        "sha256": "15062c222152e2fd58810f4d9f92b74225d2beecca7ee1c1d78382fc4309c9f8"
+      },
+      {
+        "path": "docs/history/prompts/2026-10-16-provider-voice-gender-finalization.md",
+        "sha256": "ee784e85d90f928df38d43cd1bba17b2c912c60ff8c9d06d8d2f060f62ce822f"
+      },
+      {
+        "path": "docs/product/PASSIVE_SESSION_PROJECTION_V1.md",
+        "sha256": "b3ad2fcb5d42ef72a6d6c71c976627ee371fe7ee9e574fcf9af8db1f6d4e5829"
+      },
+      {
+        "path": "docs/verification/PASSIVE_SESSION_PROJECTION_SOURCE_20261016.md",
+        "sha256": "02b7c65903667a42522272823c6711d9b6ffcd1c049c21efb64c5c1dfb3b0fa2"
+      },
+      {
+        "path": "docs/verification/PASSIVE_SESSION_PROJECTION_SOURCE_READBACK_20261016.md",
+        "sha256": "7a4aefd96d3880fe5b28763744ba6cc25c9a55eca506dab8b0c5fe9543e16527"
+      },
+      {
+        "path": "docs/history/prompts/2026-10-16-passive-session-projection-finalization.md",
+        "sha256": "6c57169ad3728f4a12597d7f034fb2a9600870e45cf37666407a3c932f4c2d82"
+      },
+      {
+        "path": "docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md",
+        "sha256": "3bbe5b3c80bb7cc4c5695e80c15e0341e838dbce9971570dd7473f8b50283436"
+      },
+      {
+        "path": "docs/technical/SPEECH_RENDERING_CONTRACT.md",
+        "sha256": "cb39d32ecd4b4d11140a0d8e2e037bf6bca388dfe9c45d0b1b9a27b6a228d2e4"
+      },
+      {
+        "path": "docs/verification/PROFILE_SESSION_SETTINGS_SOURCE_READBACK_20261016.md",
+        "sha256": "344eac1436adc3b56108b4645ec51f262889a7f6d6b1d0c7aa890cc6355a9d8f"
+      },
+      {
+        "path": "docs/history/prompts/2026-10-16-profile-session-settings-finalization.md",
+        "sha256": "fd8f95f219e8293cc4133e1e7543209c66993fa3e636c52f83d189df640b013d"
+      },
+      {
+        "path": "docs/product/PERSONAL_DJ_NARRATION_RESTORATION_V1.md",
+        "sha256": "f0705f320a40438172621b9db76dce8611f3c3bb1f785b7bc92ec4ec1251b837"
+      },
+      {
+        "path": "docs/verification/CORE_LANE_REQUIREMENT_RECONCILIATION_20261017.md",
+        "sha256": "92992a2aaaef7b42c7d2dadad9c143e7b985e3de464ddade9bde95f4f3e9842e"
+      },
+      {
+        "path": "docs/product/ASK_DJ_PUBLIC_MUSIC_RESEARCH_V1.md",
+        "sha256": "0487c93b0f8e7c8cdb77c1b52c72bdbc860762f3fb563d07255a9c7efcbf6b26"
+      },
+      {
+        "path": "docs/product/DJ_MOMENT_MOOD_PROSODY_V1.md",
+        "sha256": "6144b95a829a9a92bc4225bb599885efdf69dad0b5e17184542637bb4741a0fa"
+      },
+      {
+        "path": "docs/product/SESSION_VOICE_PREVIEW_V1.md",
+        "sha256": "1c34f2eebad7fd3bbffb6a96a37aa35be3271da86b511cafb76a9e99ced13fd8"
+      },
+      {
+        "path": "docs/product/ASK_DJ_PLAYBACK_REQUEST_TRUTH_V1.md",
+        "sha256": "01005eb8ec55e996a9c18723dea9aae1c3eb8d43b2b8c9a5fea07a73be26b36f"
+      },
+      {
+        "path": "docs/verification/ASK_DJ_CONTEXTUAL_GOLDEN_RELEASE_GATE_V1.md",
+        "sha256": "2f140634e04300d5bd0e04a194e5b0c54ed3a22bcedbffe83b933a2dc7184cf8"
+      },
+      {
+        "path": "docs/product/VIBECAST_RECEIVER_END_AUTHORITY_RETIREMENT_V1.md",
+        "sha256": "c014f140421d129abcc9b890bd1bd94fc0f19ebfcad3b3da6d03d413911f8b6e"
+      },
+      {
+        "path": "docs/governance/DJC_PLATFORM_OPEN_WORK_20261017.md",
+        "sha256": "06cc36df67c9c85d866efc2c8a23d3121ed5fd2d8379ff65944786ad88ef73d8"
+      },
+      {
+        "path": "docs/history/prompts/2026-10-17-integral-open-work-audit-finalization.md",
+        "sha256": "038d885b93a9f08d3d4a1782ef3f74f4a9f7b53c041b261420dede3bd48bbaee"
+      },
+      {
+        "path": "docs/verification/VIBECAST_END_RETIREMENT_QUALIFICATION_20261017.md",
+        "sha256": "97b1ccbc4485cb91f011fd4a8a0e0d200b809b1cf56d25e06471e7d3b5f71bcd"
+      },
+      {
+        "path": "docs/verification/VIBECAST_END_RETIREMENT_SOURCE_READBACK_20261017.md",
+        "sha256": "ccc5771889755f1b96fd4ba7942bff0ec7c237b2afb6948efe943182ef8c6588"
+      },
+      {
+        "path": "docs/history/prompts/2026-10-17-vibecast-end-retirement-finalization.md",
+        "sha256": "2211ef1683fda434ab5ade8cca98d4f39fa3dd8cec38f084fdc456b6d14a4dae"
+      },
+      {
+        "path": "docs/verification/CORE_BRANCH_CONSOLIDATION_20261017.md",
+        "sha256": "c5fe55f7a0494051b937f583a9e7d603365c3de49663b6657f0fdb836829de7e"
+      },
+      {
+        "path": "docs/product/VIBECAST_DISPLAY_ADMISSION_V1.md",
+        "sha256": "9777b1cd9399c6b98e36a2c590cd214bb29c0456c492ded60d1d0d2a2fae846f"
+      },
+      {
+        "path": "docs/verification/VIBECAST_DISPLAY_DESIGN_REVIEW_20261016.md",
+        "sha256": "c28874b93440bce70a72dc436e0822d0f5b3fcfa58bcc27120ac26025cb75a9d"
+      },
+      {
+        "path": "docs/product/VIBECAST_DISPLAY_ADMISSION_B_V1.md",
+        "sha256": "f555656ada0078d35654303a5137a618abb152ec251a41df5725351fdf291549"
+      },
+      {
+        "path": "docs/product/ASK_DJ_ALBUM_TRACKS_V1.md",
+        "sha256": "3b385910666629f54413f11de61b958bef7b5945f518298d28572ff855ee5709"
+      },
+      {
+        "path": "docs/verification/ASK_DJ_SEMANTIC_READS_20261017.md",
+        "sha256": "57cf14b42e750fe6e997b3cbe432cb7880b938705f4067cc374b15f959167c46"
+      },
+      {
+        "path": "docs/verification/ASK_DJ_ARTIST_HITS_20261017.md",
+        "sha256": "f500cc5ed691125d97384c4c32af7c3ad43e0334fd72fb567a3e2119db34fcc5"
+      },
+      {
+        "path": "docs/verification/PUBLIC_ARTIST_NARRATION_20261017.md",
+        "sha256": "da929cac8b88345a3567b0d0da5b1ba2e445ea68c4a531db93133fa8438db306"
+      },
+      {
+        "path": "docs/product/DJ_PRESENCE_FOUR_LEVELS_V2.md",
+        "sha256": "c2a8f97f60683e0a87fcbdbf80ec1bba73cc65b1978d6951e801f0341453d127"
+      },
+      {
+        "path": "docs/product/SESSION_ON_DEVICE_SPEECH_SETTINGS_V1.md",
+        "sha256": "5535adf154f2acb2880513e03442771df13b176d42a130810f3b78c4b2087c45"
+      },
+      {
+        "path": "docs/verification/ACTIVE_SESSION_HISTORY_PASSIVE_READBACK_20261018.md",
+        "sha256": "385386db0d955f4aad2ccf03ccc5de92713e187a611d27f1556b89830c3cce29"
+      },
+      {
+        "path": "docs/product/SESSION_OPENING_MOMENT_V1.md",
+        "sha256": "21da333d08dee7020d7e4a277cf1671059739252f21d6b0907bd3b4f002f69c4"
+      },
+      {
+        "path": "docs/verification/SESSION_OPENING_20261018.md",
+        "sha256": "8136efdd91a4cb79841f610c06131644204ca7392c1b29350d459b04e84625a4"
+      },
+      {
+        "path": "docs/verification/ALBUM_NARRATION_20261018.md",
+        "sha256": "62ea9307ab7031261cfec2c9a4b8125015439d62aa7f4bc1953f75a02a26e767"
+      },
+      {
+        "path": "docs/verification/HISTORY_ENTRY_COMPATIBILITY_20261018.md",
+        "sha256": "ae3755dab4a7736b14c820f3fb44dfabf3f19b86b390421fb766943305a4eec6"
       }
     ],
     "implementation_receipt": {
@@ -41498,7 +42636,7 @@
       "source_readback": "docs/verification/SESSION_ARTWORK_V1_SOURCE_READBACK_20261015.md"
     },
     "web_first_receipt": {
-      "schema_version": "djconnect-web-first-design/1",
+      "schema_version": "djconnect-web-first-design/2",
       "base_delta_version": "djconnect-federated-planning-delta/11",
       "assignment_id": "DJC-VIBECAST-WEB-FIRST-GUEST-EXPERIENCE-DESIGN-V1-20261015",
       "issue": "https://github.com/pcvantol/djconnect/issues/1174",
@@ -41510,13 +42648,13 @@
       "predecessor_nodes_sha256": "76906156bbab02e63909305b0fd47cf1639d87093033eb6085a161148f0cb9a6",
       "predecessor_edges_sha256": "5d08ea2f48c4fb72967d006f35370ebada5f225244cd783851d08ff7826d4926",
       "open_decisions": [
-        "short_url",
-        "unspecified_exception",
-        "five_emoji",
+        "reaction_set_count_labels_rocket",
         "crypto_service_browser",
         "shared_media_rights",
         "apple_renderer",
-        "budgets_share_policy"
+        "budgets_share_policy",
+        "actual_account_domain_tls",
+        "cast_continuity_qualification"
       ],
       "legacy_disposition": {
         "Cast-first": "SUPERSEDED_DESIGN",
@@ -41533,7 +42671,403 @@
       "required_checks": "PASS",
       "owner_authorization_run": 38771192832,
       "source_archive_sha256": "19887cceb075bac98d04fe8bf147873587b93d52849c06446f70165cce88990c",
-      "source_formal_sha256": "add8bb4a37c3edffbef9db5d6e56a5b8e211925b7ede771d64622ab43e4d1926"
+      "source_formal_sha256": "add8bb4a37c3edffbef9db5d6e56a5b8e211925b7ede771d64622ab43e4d1926",
+      "resolved_decisions": {
+        "entry_url": "https://vibecast.tv/",
+        "domain_evidence": "OWNER_REPORTED_PURCHASE_NOT_DNS_TLS_PROOF",
+        "web_first_exception": "EXISTING_APP_GUEST_JOIN"
+      },
+      "decisions_delta": {
+        "assignment_id": "DJC-VIBECAST-WEB-FIRST-DECISIONS-DELTA-V1-20261015",
+        "authority": "https://github.com/pcvantol/djconnect/issues/1174#issuecomment-6201605985",
+        "prior_snapshot": "history/20261015/web-first-design-before-decisions.json",
+        "prior_snapshot_sha256": "a35482a0c2cbf04781fc27d90b664e51a9f795bf27df5e8daa42568acc444dcb",
+        "phase": "SOURCE_PROTECTED_MERGED",
+        "selected_receiver": {
+          "assignment_id": "DJC-VIBECAST-TV-BOOTSTRAP-CLOUDFLARE-V1-20261015",
+          "issue": "https://github.com/pcvantol/djconnect-vibecast-receiver/issues/16",
+          "selection_state": "SELECTED_QUEUED",
+          "executor_ack": "PENDING",
+          "status": "Planned",
+          "prerequisites": [
+            "DECISIONS_DELTA_PROTECTED_DELIVERY_AND_FINALIZATION",
+            "OWN_PREVIOUS_WIP_CLOSED",
+            "FRESH_RECEIVER_ADMISSION"
+          ],
+          "autonomous_pickup_after_prerequisites": true,
+          "new_general_start_permission_required": false,
+          "integration_or_hardware_pass": false
+        },
+        "runtime_writes": false,
+        "ci_config_writes": false,
+        "deployment": false,
+        "other_product_admission": false,
+        "source_pr": 1181,
+        "source_main_sha": "8a48a6ffdfb92d90719626c78a3e70093385cc70",
+        "reviewed_candidate": "43a088d02c7d23a3485a4a76b4b6ff3f12e1d337",
+        "protected_merge": true,
+        "required_checks": "PASS",
+        "owner_authorization_run": 38806293235,
+        "source_archive_sha256": "28e8e57d08cb4847291cabc712aa9d382e80ffc0ec8297e96401ed4363e37254",
+        "source_formal_sha256": "76d2177ca0706b455e066c48a0a755d8cb40a972f4aa3be224055a1f91d7d117",
+        "source_main_validation": 38806376852,
+        "source_artifact_run": 38806846502,
+        "source_formal_run": 38806846573
+      }
+    },
+    "speech_persona_receipt": {
+      "assignment_id": "DJC-SESSION-SPEECH-PERSONA-VOICE-20261015",
+      "owner_selection": 6189231491,
+      "autonomous_next": 6189912293,
+      "base_sha": "70c0a3009910db8763e65949d0a10eade7d006dc",
+      "branch": "codex/session-speech-persona-voice-v1",
+      "ack": 6191876871,
+      "contract_commit": "e2072d8025056089b3bf403366307be70dd53ae8",
+      "material_commit": "03634bf7a8bcdc904505a4a22dc23fbae4dabd1b",
+      "previous_delta": "history/20261016/pre-speech-main582-maintenance-v11.json",
+      "previous_delta_sha256": "34f9801689d4b19c360c1b5b240fc0df3fa93d29332e8bd8eb06d117d359340b",
+      "phase": "SOURCE_PROTECTED_MERGED",
+      "source_delivery": "PROTECTED_MERGED",
+      "native": "OPEN_APPLE",
+      "joint": "OPEN",
+      "installed": "NOT_RUN",
+      "hardware": "NOT_RUN",
+      "audible": "NOT_RUN",
+      "consumer_writes": false,
+      "same_writer": true,
+      "predecessor_closure": "https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6191836891",
+      "integration_main_sha": "58205056c235a73488591591dd3d83f80f7bf847",
+      "source_candidate": "50cbae2665a7f7e25d4744136f64ba0e8f16def7",
+      "source_main_sha": "3535c97c3b50e9a126d0f22fcc5ce50d81851499",
+      "source_pr": "https://github.com/pcvantol/djconnect/pull/1177",
+      "source_review": "PASS",
+      "required_checks": "PASS",
+      "protected_merge": true,
+      "owner_authorization_run": 38816161823,
+      "archive_sha256": "2b6e15d867d070d4b7a6f35942aacbfe2c20db607a20737671f56ebdb7cf7b46",
+      "formal_evidence_sha256": "660dbb3f87cb326d9db7b41790a678089f294dabbd9f50f718b39ce97a887884",
+      "coverage_sha256": "a3d910fcac2a96168086536ac8b2cb569fae31b8c559fcad8b564f9b67f05694",
+      "family_acceptance": "PARTIAL",
+      "selected_successor": {
+        "assignment_id": "DJC-CORE-PASSIVE-SESSION-PROJECTION-V1-20261015",
+        "owner_selection": 6199213014,
+        "node": "SURFACE::CORE::PROJECTION",
+        "admission": "NOT_ADMITTED",
+        "start_boundary": "AFTER_VALID_SPEECH_FINALIZATION_AND_FRESH_ADMISSION",
+        "same_writer": true,
+        "implementation_in_this_slice": false,
+        "new_publication_gates_preserved": true
+      }
+    },
+    "passive_surface_receipt": {
+      "assignment_id": "DJC-CORE-PASSIVE-SESSION-PROJECTION-V1-20261015",
+      "owner_selection": 6199213014,
+      "base_sha": "9faffe533d4a117eb8ad362e73809d126bdcc9d7",
+      "branch": "codex/passive-session-projection-v1",
+      "ack": 6214264273,
+      "material_start": 6214391660,
+      "contract_commit": "9bc26e0caab15a83acf50b79be7236f723ee0404",
+      "material_commit": "d64b8a7a9a5262cfe367f0574cab580fc1237765",
+      "previous_delta": "history/20261016/provider-gender-finalization-maintenance-v12.json",
+      "previous_delta_sha256": "cfbcd126fe88aa4d6316173723103b5ff9891dee55d064ac835c3f779921e580",
+      "phase": "SOURCE_PROTECTED_MERGED",
+      "source_delivery": "PROTECTED_MERGED",
+      "background_node": "SURFACE::APPLE::QUIET-TRANSPORT",
+      "native": "OPEN_APPLE",
+      "background": "PLANNED",
+      "watch": "NOT_QUALIFIED",
+      "joint": "OPEN",
+      "consumer_writes": false,
+      "automatic_dispatch": false,
+      "source_pr": "https://github.com/pcvantol/djconnect/pull/1191",
+      "source_main_sha": "2cb87cb7dad30546ee1641b839d14a4f5d621f54",
+      "reviewed_head": "928bf16b8812447fbd53739f22484051909ae513",
+      "source_review": "PASS",
+      "required_checks": "PASS",
+      "protected_merge": true,
+      "archive_sha256": "c96a33605fd068af4255f426fe037fde6ee0cb99cbee75ffc29913fde6382c34",
+      "formal_evidence_sha256": "6433da8862a6d7ea3955b6350e0388cfe9b8923f50c2c599c49424ac44f3720b",
+      "definitive_apple_handoff": "https://github.com/pcvantol/djconnect-app/issues/87#issuecomment-6215025910"
+    },
+    "settings_consolidation_receipt": {
+      "assignment_id": "DJC-PROFILE-SESSION-SETTINGS-CONSOLIDATION-V1-20261016",
+      "owner_selection": 6214905647,
+      "ack": 6218545503,
+      "base_sha": "148bd5aee3110c1a1ab13e7c463a164c99d79b70",
+      "branch": "codex/profile-session-settings-consolidation-v1",
+      "contract_commit": "67c6361fbc746b2890a6879726d821aa846e7b58",
+      "material_commit": "fa8ca48777c8af056f2a3764979933cb0002c3a4",
+      "previous_delta": "history/20261016/passive-finalization-maintenance-v13.json",
+      "previous_delta_sha256": "4cbe2948fa3ffa8dcc6809f258a44142f81732c91926349003de9fb4b4cae873",
+      "parameters": [
+        "persona",
+        "voice",
+        "gender",
+        "mood",
+        "presence",
+        "announcement_output"
+      ],
+      "last_explicit_choice_is_default": true,
+      "atomic_active_and_default": true,
+      "voice_scope": "profile_and_session",
+      "contract_version": 3,
+      "phase": "SOURCE_PROTECTED_MERGED",
+      "source_delivery": "PROTECTED_MERGED",
+      "native": "OPEN_APPLE",
+      "other_consumers": "OPEN_OWNING_LANES",
+      "joint": "OPEN",
+      "family_acceptance": "PARTIAL",
+      "automatic_dispatch": false,
+      "consumer_writes": false,
+      "inventory_path": "docs/product/PROFILE_SESSION_SETTINGS_INVENTORY_V1.json",
+      "inventory_sha256": "f45e578f092d1fc37001087770abd3c0ed49803466cba0fdf8cab2c96acb5b1c",
+      "runtime_checkpoint_contract_version": 3,
+      "owner_addenda": [
+        6220504359,
+        6220590330,
+        6220625247,
+        6220695648,
+        6220756856,
+        6220784635,
+        6220817753
+      ],
+      "output_implementation": "LOCAL_HA_CHAIN_QUALIFIED_NOT_INSTALLED",
+      "ha_only": [
+        "assist_pipeline",
+        "physical_ha_speaker",
+        "esp_administration"
+      ],
+      "client_local": [
+        "autoplay_default_off",
+        "os_permissions",
+        "physical_device_preferences"
+      ],
+      "portability": "PARKED_NO_PICKUP",
+      "core_source_pin": "4491d31b7d599fa4ef25280c02528eab479994ea",
+      "source_PR": 1195,
+      "source_main_sha": "4491d31b7d599fa4ef25280c02528eab479994ea",
+      "reviewed_head": "3a9aaf326365f840343147c0a8e87e885065867e",
+      "source_review": "PASS",
+      "required_checks": "PASS",
+      "protected_merge": true,
+      "archive_sha256": "f8e8061b3b3af007ee7d2ce95a8ade2dde7bc5367337d7ac8ee1aa44826a409f",
+      "formal_evidence_sha256": "b8cb9c41b6866d31850e858029457ad3ffbdf9d9dc789606adb10c70d9b61392",
+      "original_source_delivery": {
+        "core_source_pin": "e8cc70ddffb4112b09babdda4d45140b98926ae5",
+        "source_PR": 1193,
+        "source_main_sha": "e8cc70ddffb4112b09babdda4d45140b98926ae5",
+        "reviewed_head": "6882a43e3e0e73cd1b918161b27f88d3697bcb4f",
+        "archive_sha256": "57039b049de57ba7c01d61ac516d854d18e339645a5cc991ce2c727226a0bca1",
+        "formal_evidence_sha256": "b65789edc31b4c877d3f82df7c6b09742d04837921dbbeb4fd0301f465de88e9"
+      }
+    },
+    "experience_reconciliation_receipt": {
+      "schema_version": "djconnect-experience-reconciliation/1",
+      "scope": "existing personal DJ corrective work; no new writer or automatic dispatch",
+      "base_sha": "cc9b49fe9ca5312dd3bf962b3bac319aa25b3f15",
+      "branch": "codex/askdj-contextual-golden-release-v1",
+      "previous_delta": "history/20261017/settings-finalization-maintenance-v14.json",
+      "previous_delta_sha256": "e4e6993c34f7f404fac823f43f3d96c569c529028db2cac59edf0fd1c5d40d7a",
+      "source_delivery": "UNPUBLISHED",
+      "overall_acceptance": "OPEN",
+      "native": "OPEN_APPLE",
+      "installed": "NOT_RUN",
+      "audible": "NOT_RUN",
+      "consumer_writes": false,
+      "automatic_dispatch": false,
+      "audit": "docs/verification/CORE_LANE_REQUIREMENT_RECONCILIATION_20261017.md",
+      "components": [
+        {
+          "id": "legacy-announcement",
+          "status": "LOCAL_SCOPED_REVIEWED",
+          "contract": "docs/product/PERSONAL_DJ_NARRATION_RESTORATION_V1.md"
+        },
+        {
+          "id": "durable-flow-retention",
+          "status": "LOCAL_ALL7_PRODUCER_REOPEN_WITH_EXTERNAL_FIXTURES",
+          "contract": "docs/product/PERSONAL_DJ_NARRATION_RESTORATION_V1.md"
+        },
+        {
+          "id": "public-music-research",
+          "status": "LOCAL_QUALIFICATION_IN_PROGRESS",
+          "contract": "docs/product/ASK_DJ_PUBLIC_MUSIC_RESEARCH_V1.md"
+        },
+        {
+          "id": "tts-mood-prosody",
+          "status": "LOCAL_TECHNICAL_QUALIFIED_AUDIBLE_OPEN",
+          "contract": "docs/product/DJ_MOMENT_MOOD_PROSODY_V1.md"
+        },
+        {
+          "id": "all-family-narration",
+          "status": "LOCAL_TYPED_RUNTIME_ADAPTERS_EDITORIAL_OPEN",
+          "contract": "docs/product/PERSONAL_DJ_NARRATION_RESTORATION_V1.md"
+        },
+        {
+          "id": "published-narration-golden",
+          "status": "OPEN_REQUIRED_RELEASE_GATE",
+          "contract": "docs/product/PERSONAL_DJ_NARRATION_RESTORATION_V1.md"
+        },
+        {
+          "id": "track-insight",
+          "status": "LOCAL_CURRENT_QUALIFIED_CREDIT_CONNECTED_SOURCE_MEASUREMENT_OPEN",
+          "contract": "docs/product/ASK_DJ_CONTEXTUAL_DIALOGUE_CONTRACT_V1.md"
+        },
+        {
+          "id": "voice-preview",
+          "status": "OPEN_IMPLEMENTATION",
+          "contract": "docs/product/SESSION_VOICE_PREVIEW_V1.md"
+        }
+      ],
+      "current_corrective_checkpoint": {
+        "actual_runtime_expression": "all seven type families through actual production, semantic SQLite, end/reopen and manual speech; external source/expression fixtures",
+        "flow_reopen": "270 ordered entries across six pages plus separate genuine published-credit Recommendation, runtime Session/Transition reopen, original album/artist art and current Session/Profile replay voice",
+        "timeline_transactions_page10_and50": [
+          7,
+          7
+        ],
+        "retained_entry_body_bytes": 44676,
+        "golden_reported_issues": 33,
+        "golden_families": 35,
+        "golden_required_steps": 112,
+        "real_quality": "NO_GO_EXACT085c0fbe:16completed8matchingbriefs samecorpus; nominal2full1prefix5fallback; editorialrejects nominalfull for event/job leaks; no rerun/delivery",
+        "reference": "docs/verification/CORE_LANE_REQUIREMENT_RECONCILIATION_20261017.md",
+        "current_insight": "same source owner current qualified CC0 credit, independent of published Moment selection, same two-call assessment, no acoustic measurements",
+        "rollback_retry": "definitive precommit SQLite failure restores only rolled-back playback reservation; semantic accepted relation remains consumed",
+        "host_tests": 2271,
+        "existing_host_skips": 7,
+        "targeted_owner_tests": 240,
+        "scoped_technical_review": "GO_DELTA_ONLY_NO_RELEASE_QUALITY_GO",
+        "retained_speaker_replay": "LOCAL_MANUAL_DJ_MOMENT_ONLY_SAME_JOURNAL_CURRENT_SESSION_OR_PROFILE_VOICE;30speech tests/scopedGO; native/audible/installed open",
+        "assessment_capacity": "DIAGNOSTIC_ONLY:8fixed historicaltexts x700/2100;4/8 versus8/8 completed;3full each;0generation",
+        "source_hierarchy": "literal primary passage before separate background; original full corpus preserved for independent evidence assessment",
+        "source_receipt_refinements": "Exact fetched-source footer dedup before assessment; single unambiguous outerASCIIparentheses answer display; canonical source/date/quote/IDs unchanged; scopedtechnicalGO",
+        "networkless_ha_owner_tests": 229,
+        "research_style_correction": "One shared host/Mood instruction owner; contradictory secondary Persona tellingaction and required inkijk removed; exact real-answer sample pending",
+        "research_content_refinement": "LOCAL_TYPED_REVIEWED:person-episode content boundary; full prefixreferencecontext, onlyepisode realizable, independentfullcorpus actor/activity checks;164contextualtests/scopedGO; newrealqualitysamplepending",
+        "event_role_guards": "LOCAL:explicit recording/release verbs+nouns in five languages and three reference-only job families; independent scoped review and exact causal negatives; no general semantic GO",
+        "vibecast_end_authority": "LOCAL_RETIRED:form/save/all5labels,issuance/storage/handoff/renderer removed; legacy410/noeffects; ownerend and genericentryfences preserved; source/installed pending",
+        "vibecast_retirement_contract": "docs/product/VIBECAST_RECEIVER_END_AUTHORITY_RETIREMENT_V1.md",
+        "vibecast_retirement_qualification": "LOCAL:255targeted/2272host(7existing skips)/173DAG; real paired HA5noeffect410variants+ownerend; 8browsercaptures; scopedtechnical/privacy/UXGO; no consumer/installed claim"
+      },
+      "historical_corrective_checkpoints": [
+        {
+          "checkpoint_sha": "309dd90b3dbb9191c2d3b95be2f4312e8c844c76",
+          "actual_runtime_expression": "observed playback, Core direction, pending qualified genre transition; external expression fixtures",
+          "flow_reopen": "270 entries, six pages, five actual source-family texts,260Silences, withdrawal identity preserved",
+          "timeline_transactions_page10_and50": [
+            7,
+            7
+          ],
+          "retained_entry_body_bytes": 44093,
+          "golden_reported_issues": 26,
+          "golden_families": 35,
+          "golden_required_steps": 106,
+          "real_quality": "NO_GO; latest fixed8cell sample3full supported answers and5fallbacks; no release/install",
+          "reference": "docs/verification/CORE_LANE_REQUIREMENT_RECONCILIATION_20261017.md"
+        },
+        {
+          "checkpoint_sha": "5090e2095825c758fd4c4778f61ecca728555ea8",
+          "actual_runtime_expression": "all seven type families through actual production, semantic SQLite, end/reopen and manual speech; external source/expression fixtures",
+          "flow_reopen": "270 ordered entries across six pages plus separate genuine published-credit Recommendation, runtime Session/Transition reopen, original album/artist art and current Session/Profile replay voice",
+          "timeline_transactions_page10_and50": [
+            7,
+            7
+          ],
+          "retained_entry_body_bytes": 44676,
+          "golden_reported_issues": 27,
+          "golden_families": 35,
+          "golden_required_steps": 111,
+          "real_quality": "NO_GO; latest fixed8cell sample16attempts,3full supported answers,1supported prefix,4fallbacks; no release/install",
+          "reference": "docs/verification/CORE_LANE_REQUIREMENT_RECONCILIATION_20261017.md",
+          "current_insight": "same source owner current qualified CC0 credit, independent of published Moment selection, same two-call assessment, no acoustic measurements",
+          "rollback_retry": "definitive precommit SQLite failure restores only rolled-back playback reservation; semantic accepted relation remains consumed",
+          "host_tests": 2262,
+          "existing_host_skips": 7,
+          "targeted_owner_tests": 107,
+          "scoped_technical_review": "GO_DELTA_ONLY_NO_RELEASE_QUALITY_GO"
+        }
+      ],
+      "current_inventory_sha256": "f45e578f092d1fc37001087770abd3c0ed49803466cba0fdf8cab2c96acb5b1c"
+    },
+    "display_admission_receipt": {
+      "assignment_id": "DJC-CORE-VIBECAST-DISPLAY-ADMISSION-V1-20261016",
+      "owner_selection": 6222775045,
+      "ack": 6224062979,
+      "base_sha": "1329ad1ce8bd066d65a08b3988261a44e2cac730",
+      "branch": "codex/vibecast-display-admission-v1",
+      "first_contract_commit": "275679322111fbda110bce2dad1f16da2932017e",
+      "previous_delta": "history/20261016/settings-capability-finalization-maintenance-v14.json",
+      "previous_delta_sha256": "57699566d3cfdec653e9c87d4416d706c0b1d2131ee58fc5911aba92718d017e",
+      "phase": "B_CORE_SOURCE_GO_A_CONTRACT_GATED",
+      "source_delivery": "DRAFT_PR_PUBLISHED_NOT_MERGED",
+      "trust_anchor": "OPEN_JOINT_REVIEW",
+      "wire": "NOT_FROZEN",
+      "runtime": "B_SOFTWARE_QUALIFIED_NOT_INSTALLED",
+      "native": "OPEN_APPLE",
+      "TV": "NOT_RUN",
+      "joint": "OPEN",
+      "consumer_writes": false,
+      "automatic_dispatch": false,
+      "b_design_go": {
+        "reviewed_sha": "ae2adfe9e162a00d00715e26418656976b6f02a2",
+        "scope": "ISOLATED_B_ONLY_A_UNAVAILABLE",
+        "runtime_acceptance": "NOT_RUN"
+      },
+      "b_source_go": {
+        "reviewed_sha": "325aabc7205f1f18928bc2c809817956d91609f8",
+        "producer_sha": "3cb9cf129f31d419e8b2027e4dc1ba08fafdb9d8",
+        "scope": "B_CORE_ONLY_A_UNAVAILABLE",
+        "technical_privacy": "GO",
+        "product_ux_privacy": "GO",
+        "source_files": 163,
+        "source_sha256": "fd37dfb681d436214f330a37ddb02c1568ec10ed6e1e14c1b9197e7c494ab904",
+        "public_TLS": "NOT_QUALIFIED",
+        "native": "OPEN",
+        "installed": "NOT_DELIVERED"
+      },
+      "product_disposition": {
+        "selection": "LIMITED_APP_ATTESTED_REPORTED_ROUTE",
+        "receipt": "https://github.com/pcvantol/djconnect-api/pull/94#issuecomment-6226306251",
+        "copied_qr_wrong_scanner_risk": "ACCEPTED_FOR_ADDRESS_SHORTCUT",
+        "independent_ha_owner_attestation": false,
+        "security_review": "OPEN",
+        "key_state": "OPEN",
+        "wire": "NOT_FROZEN",
+        "runtime_a": "NOT_IMPLEMENTED"
+      }
+    },
+    "branch_consolidation_receipt": {
+      "schema_version": "djconnect-core-branch-consolidation/1",
+      "source_delivery": "LOCAL_COMBINED_DRAFT_PREPARATION",
+      "overall_acceptance": "OPEN",
+      "original_main": "6a3adbc8e66ab380dfea1726ca34728097d0c684",
+      "original_heads": {
+        "ask_dj": "dae30074947b1cc3b105016ae14c99e0008c3870",
+        "waiting": "4b3a805975fbd6876c037b273ecbcced2f9af5b2",
+        "display": "6e560061cbee3bed86c50fc0deee7d74b9bfee9b"
+      },
+      "preserved_inputs": [
+        {
+          "path": "history/20261017/personal-dj-before-consolidation-maintenance-v15.json",
+          "sha256": "0c4a190d700b7de36b10986f3c00a2269f4646130e14c43d7c82f16cfbca2efc"
+        },
+        {
+          "path": "history/20261017/display-before-consolidation-maintenance-v15.json",
+          "sha256": "f3a77f4dd736fd8433d6f0c3b7374d1d118d094fe0fcc76d20aae7c95cee26c8"
+        }
+      ],
+      "existing_pr": 1197,
+      "sole_writer": true,
+      "consumer_writes": false,
+      "automatic_dispatch": false,
+      "merge_readiness": "NOT_QUALIFIED",
+      "native": "OPEN",
+      "installed": "NOT_RUN",
+      "audible": "NOT_RUN",
+      "premerge_heads": {
+        "ask_dj": "e3d7b55f5c67019a306cc4a4b3a31b2028304c9c",
+        "display": "6e560061cbee3bed86c50fc0deee7d74b9bfee9b"
+      }
     }
   }
 }

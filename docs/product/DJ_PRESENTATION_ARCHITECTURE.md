@@ -224,3 +224,31 @@ of unrelated feature pages.
 - Renderers own visualization.
 - The server owns meaning.
 - Clients own presentation.
+
+## Selected Session narration/speech implementation delta
+
+[Session speech/Persona v1](SESSION_SPEECH_PERSONA_V1.md) records owner6189231491/autonomous-next6189912293. Its connected implementation is pending. The historical delivered/deferred qualifications above are preserved; this selected delta must explicitly qualify each source/processor and owner lifecycle before enabling speech. No blanket removal of visual-only, private Broadcast grant, new planner/provider or native implementation follows from this reference.
+
+
+## Private accepted-contribution speech resources
+
+The selected [Session speech delivery](SESSION_SPEECH_DELIVERY_V1.md) adapter is
+separate resource lifecycle over one accepted immutable contribution, using the
+same ordered SpeechSegment shape. Original text/Persona/provenance are not
+recomposed for replay, voice selection or new playback bytes. Shared Presentation
+and VibeCast remain renderer-neutral; owner-only references and paired audio
+resources are not exported. Reads, cache hits and reconnects cannot create a
+Moment or extend its source grant. Native local playback/autoplay/stop remains
+a consumer capability, separately qualified from Core preparation and bytes.
+
+
+## Living DJ identity inside the existing current bubble
+
+The owner-selected [Living Persona Avatar v1](DJ_PERSONA_LIVING_AVATAR_V1.md)
+interprets existing admitted Session/Mood/Persona/Presence, explicit Silence and
+client capture/audio lifecycle. Apple integrates the identity in its one existing
+current-card bubble and derives the matching static menu mark. It adds no Core
+activity state, Moment type, renderer pixels or automatic speech. Touch reactions
+are separately selected user intent and remain unavailable until their bounded
+producer/speech admission is implemented and qualified. No function closes from
+this design's documentation or source merge.

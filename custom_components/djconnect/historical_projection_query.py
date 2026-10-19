@@ -1,6 +1,7 @@
 """Transport-independent owner query contracts for historical projections."""
 
 from __future__ import annotations
+import json
 
 from contextvars import ContextVar
 
@@ -99,11 +100,24 @@ class HistoricalProjectionQueryService:
         from .session_history_projection import project_entry
 
         if self._source_validator is not None and not await self._source_validator(owner, row):
-            return None
+            try:
+                body = json.loads(row['body'])
+            except (TypeError,ValueError):
+                return None
+            if not isinstance(body,dict):
+                return None
+            if row['kind'] != 'dj_moment' or body.get('archive_basis') != 'owner_metadata_narration_v1':
+                return None
+            from .session_history_projection import publication_receipt
+            row = {**row,'kind':'dj_publication',
+                   'body':json.dumps(publication_receipt(body,'source_withdrawn'))}
         entry = project_entry(row)
         if entry is not None and self.media_projector is not None:
             entry = self.media_projector(owner, row, entry)
         if entry is None or "conversation_reference" not in entry:
+            if entry is not None and entry["kind"] == "dj_moment":
+                from .session_speech import retained_projection
+                entry["session_speech"] = retained_projection(entry)
             return entry
         ref = entry["conversation_reference"]
         if not self._conversation_history or ref.get("history_scope") != "profile:" + owner:
@@ -143,10 +157,17 @@ class HistoricalProjectionQueryService:
         entry["turn_id"] = ref["turn_id"]
         entry["role"] = "user" if row["kind"] == "conversation_user" else "assistant"
         entry["input_type"] = message.get("session_turn", {}).get("input_type", "text")
+        entry["effective_style"] = message.get("session_turn", {}).get("effective_style")
+        # Original acceptance owns this optional provenance. Legacy absence is
+        # not permission to send arbitrary archived text to a cloud processor.
+        entry["speech_processing_basis"] = message.get("speech_processing_basis")
         entry["context"] = message.get("session_turn", {}).get("context", {})
         for field in ("sources", "links", "historical_matches", "navigation_actions"):
             if isinstance(message.get(field), list):
                 entry[field] = message[field][:20]
+        if entry["kind"] == "conversation_dj":
+            from .session_speech import retained_projection
+            entry["session_speech"] = retained_projection(entry)
         return entry
 
     async def _revision_session(self, owner: str, session: dict) -> dict:
@@ -156,6 +177,12 @@ class HistoricalProjectionQueryService:
             else "0:0"
         )
         grant = await self._grant_revision(owner) if self._grant_revision else ""
+        retention = await self._repository.async_retention_policy()
+        if (session.get('retention_revision', retention[1]) != retention[1]
+                or self._repository.retention_fence[1]
+                or session.get('retention_fence', self._repository.retention_fence) != self._repository.retention_fence):
+            from .session_history_projection import HistoryQueryError
+            raise HistoryQueryError('invalid_history_cursor')
         return {
             **session,
             "revision": str(session["revision"])
@@ -164,7 +191,7 @@ class HistoricalProjectionQueryService:
             + ":"
             + suffix
             + ":"
-            + grant,
+            + grant + ":retention:" + str(retention[1]) + ":" + str(self._repository.retention_fence[0]),
         }
 
     async def _qualify_summary(self, owner, session, cache=None):
@@ -183,10 +210,13 @@ class HistoricalProjectionQueryService:
 
     async def _session(self, owner: str, session_id: str) -> dict:
         from .session_history_projection import session_retained
-
+        fence = self._repository.retention_fence
         session = await self._repository.async_session_record(session_id)
-        if not session or session["owner_profile_id"] != owner or not session_retained(session):
+        retention, retention_revision = await self._repository.async_retention_policy()
+        if not session or session["owner_profile_id"] != owner or not session_retained(session, retention_days=retention):
             raise HistoricalProjectionAccessDenied("session_unavailable")
+        session['retention_revision'] = retention_revision
+        session['retention_fence'] = fence
         await self._qualify_summary(owner, session)
         return await self._revision_session(owner, session)
 
@@ -201,6 +231,8 @@ class HistoricalProjectionQueryService:
         )
 
         checked_limit(limit)
+        fence = self._repository.retention_fence
+        retention, retention_revision = await self._repository.async_retention_policy()
         revision = await self._repository.async_owner_revision(owner, include_active=include_active)
         grant = await self._grant_revision(owner) if self._grant_revision else ""
         scope = {
@@ -210,7 +242,11 @@ class HistoricalProjectionQueryService:
             "revision": revision,
             "include_active": include_active,
             "paging_version": 2,
+            "retention_revision": retention_revision,
+            "retention_epoch": fence[0],
         }
+        from .history_entry_contract import cursor_scope
+        scope = cursor_scope(scope)
         after = self._history_cursor.decode(cursor, scope) if cursor else None
         if after is not None and not isinstance(after, list):
             raise HistoryQueryError("invalid_history_cursor")
@@ -222,7 +258,7 @@ class HistoricalProjectionQueryService:
         summary_cache = {}
         for row in rows[:250]:
             last = [row["created_at"], row["session_id"]]
-            if session_retained(row):
+            if session_retained(row, retention_days=retention):
                 await self._qualify_summary(owner, row, summary_cache)
                 page.append(public_session(row))
             if len(page) >= limit:
@@ -232,6 +268,8 @@ class HistoricalProjectionQueryService:
             await self._repository.async_owner_revision(owner, include_active=include_active)
             != revision
             or (await self._grant_revision(owner) if self._grant_revision else "") != grant
+            or await self._repository.async_retention_policy() != (retention, retention_revision)
+            or fence[1] or self._repository.retention_fence != fence
         ):
             raise HistoryQueryError("invalid_history_cursor")
         return {
@@ -241,7 +279,8 @@ class HistoricalProjectionQueryService:
             "revision": revision,
             "next_cursor": self._history_cursor.encode(scope, last) if more else None,
             "coverage": "saved_sessions_keyset",
-            "retention_days": 90,
+            "retention_days": retention,
+            "retention_revision": retention_revision,
         }
 
     async def async_latest_playback_observations(self, owner: str, session_id: str) -> dict:
@@ -374,7 +413,9 @@ class HistoricalProjectionQueryService:
         for row in rows[:250]:
             last = row["order"]
             entry = await self._project_entry(owner, row)
-            marks = text_highlights(entry.get("text", ""), query) if entry else []
+            # Silence/withdrawn publication receipts have an explicit null body.
+            # They occupy a stable place in Flow but cannot match a text query.
+            marks = text_highlights(entry.get("text") or "", query) if entry else []
             if marks:
                 matches.append({**entry, "highlights": marks})
             if len(matches) >= limit:

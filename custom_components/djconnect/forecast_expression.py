@@ -270,6 +270,91 @@ INTENT_FORMS = {'en': {'exploring': ('Around {artist}, I can look for a useful c
                       'intervención.')}}
 PERSONAS = ('home_dj', 'radio_dj', 'club_dj', 'festival_dj')
 
+# Session updates have no artist/album anchor. Keep those meanings explicit
+# rather than substituting invented media into the anchored Forecast forms.
+UNANCHORED_DIRECTION_FORMS = {
+    'en': {
+        'exploring': ('I would like to leave room for discovery, with a reliable connection when one fits.',
+                      'The direction is exploration: a sourced connection can give it a point of focus.',
+                      'Room to explore. A brief connection, if the context supports it.',
+                      'Let us make room for discovery; a clear, grounded connection can bring it into focus.'),
+        'deepening': ('I would like to linger a little, with a reliable detail when there is room.',
+                      'The intention is a closer look, through a sourced detail when it fits.',
+                      'A closer look. One grounded detail, with room for the music.',
+                      'A clear detail can bring this stretch into focus, when the music leaves room.'),
+        'maintaining_energy': ('I have a steady musical thread in mind, with context when it helps.',
+                               'The intention is to maintain a steady thread, with sourced context where useful.',
+                               'Keep the thread steady. Brief context, only when it adds something.',
+                               'A steady thread is the aim; a clear detail can give it a point of focus.'),
+    },
+    'nl': {
+        'exploring': ('Ik wil ruimte laten voor ontdekkingen, met een betrouwbaar verband wanneer dat past.',
+                      'De richting is verkennen: een verband met bronvermelding kan houvast bieden.',
+                      'Ruimte om te verkennen. Een kort verband, als de context het draagt.',
+                      'Laten we ruimte maken voor ontdekkingen; een helder, onderbouwd verband kan ze belichten.'),
+        'deepening': ('Ik wil even wat langer stilstaan, met een betrouwbaar detail als daar ruimte voor is.',
+                      'Het voornemen is een nadere blik, via een detail met bronvermelding wanneer dat past.',
+                      'Even nader kijken. Eén onderbouwd detail, met ruimte voor de muziek.',
+                      'Een helder detail kan dit deel belichten, zodra de muziek daar ruimte voor laat.'),
+        'maintaining_energy': ('Ik heb een gelijkmatige muzikale draad voor ogen, met context wanneer die helpt.',
+                               'Het voornemen is een gelijkmatige lijn, met onderbouwde context waar die iets toevoegt.',
+                               'De draad rustig vasthouden. Korte context, alleen als die iets toevoegt.',
+                               'Een gelijkmatige draad is het doel; een helder detail kan die even belichten.'),
+    },
+    'de': {
+        'exploring': ('Ich möchte Raum für Entdeckungen lassen, mit einer belegten Verbindung, wenn sie passt.',
+                      'Die Richtung ist Erkundung: Eine belegte Verbindung kann einen Anhaltspunkt bieten.',
+                      'Raum zum Erkunden. Eine kurze Verbindung, wenn der Kontext sie trägt.',
+                      'Machen wir Raum für Entdeckungen; eine klare, belegte Verbindung kann sie beleuchten.'),
+        'deepening': ('Ich möchte etwas länger verweilen, mit einem belegten Detail, wenn Raum dafür ist.',
+                      'Ein genauerer Blick ist das Vorhaben, mit einem belegten Detail, wenn es passt.',
+                      'Genauer hinsehen. Ein belegtes Detail, mit Raum für die Musik.',
+                      'Ein klares Detail kann diesen Abschnitt beleuchten, wenn die Musik Raum dafür lässt.'),
+        'maintaining_energy': ('Ich habe einen gleichmäßigen musikalischen Faden im Sinn, mit Kontext, wenn er hilft.',
+                               'Ein gleichmäßiger Faden ist das Vorhaben, mit belegtem Kontext, wo er nützt.',
+                               'Den Faden halten. Kurzer Kontext, nur wenn er etwas beiträgt.',
+                               'Ein gleichmäßiger Faden ist das Ziel; ein klares Detail kann ihn beleuchten.'),
+    },
+    'fr': {
+        'exploring': ('Je souhaite laisser place à la découverte, avec un lien étayé quand il convient.',
+                      'La direction est l’exploration : un lien sourcé peut offrir un point de repère.',
+                      'Place à l’exploration. Un lien bref, si le contexte le permet.',
+                      'Laissons place à la découverte ; un lien clair et étayé peut la mettre en lumière.'),
+        'deepening': ('Je souhaite m’attarder un peu, avec un détail fiable quand l’occasion se présente.',
+                      'L’intention est de regarder de plus près, à travers un détail sourcé quand il convient.',
+                      'Regarder de plus près. Un détail étayé, en laissant place à la musique.',
+                      'Un détail clair peut éclairer ce passage, quand la musique lui laisse de la place.'),
+        'maintaining_energy': ('J’envisage un fil musical régulier, avec du contexte quand il aide.',
+                               'L’intention est de garder un fil régulier, avec du contexte sourcé là où il est utile.',
+                               'Garder le fil. Un contexte bref, seulement s’il apporte quelque chose.',
+                               'Un fil régulier est l’objectif ; un détail clair peut le mettre en lumière.'),
+    },
+    'es': {
+        'exploring': ('Quiero dejar espacio para descubrir, con una conexión fundamentada cuando encaje.',
+                      'La dirección es explorar: una conexión con fuentes puede ofrecer un punto de referencia.',
+                      'Espacio para explorar. Una conexión breve, si el contexto la respalda.',
+                      'Dejemos espacio para descubrir; una conexión clara y fundamentada puede darle un punto de apoyo.'),
+        'deepening': ('Quiero detenerme un poco, con un detalle fiable cuando haya espacio.',
+                      'La intención es mirar más de cerca, con un detalle respaldado por fuentes cuando encaje.',
+                      'Mirar más de cerca. Un detalle fundamentado, dejando espacio a la música.',
+                      'Un detalle claro puede iluminar este tramo, cuando la música le deje espacio.'),
+        'maintaining_energy': ('Tengo en mente un hilo musical constante, con contexto cuando ayude.',
+                               'La intención es mantener un hilo constante, con contexto documentado donde aporte algo.',
+                               'Mantener el hilo. Contexto breve, solo cuando aporte algo.',
+                               'Un hilo constante es el objetivo; un detalle claro puede darle un punto de referencia.'),
+    },
+}
+
+
+def direction_narration(direction: str, locale: str, persona: str) -> str:
+    """Express the existing closed Direction intent, never invent a media anchor."""
+    language = locale if locale in INTENT_FORMS else 'en'
+    index = PERSONAS.index(persona) if persona in PERSONAS else 0
+    forms = UNANCHORED_DIRECTION_FORMS[language].get(direction)
+    if forms is None:
+        forms = INTENT_FORMS[language][direction]
+    return forms[index]
+
 
 def realize(semantic: dict, locale: str, persona: str) -> tuple[str, list[dict]]:
     """Render only the closed Planner-produced meanings; no inference/lookup."""

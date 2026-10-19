@@ -136,6 +136,7 @@ class ProfileMetadata:
     created_by: str = ""
     labels: frozenset[str] = field(default_factory=frozenset)
     source: str = "djconnect"
+    dj_settings_version: int = 1  # Retirement bookkeeping; SQL remains authority.
 
 
 @dataclass(frozen=True)

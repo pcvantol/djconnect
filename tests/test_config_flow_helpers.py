@@ -6,6 +6,7 @@ from pathlib import Path
 import sys
 import types
 import unittest
+from unittest.mock import patch, AsyncMock
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -136,10 +137,25 @@ def install_homeassistant_stubs() -> None:
         types.SimpleNamespace(
             id="default",
             name="Default",
+            conversation_engine="homeassistant",
             stt_engine="stt.mock",
             tts_engine="tts.mock",
         )
     ]
+    def get_pipeline(hass, pipeline_id=None):
+        selected = pipeline_id if pipeline_id is not None else getattr(hass, 'preferred_pipeline', 'default')
+        for pipeline in assist_pipeline.async_get_pipelines(hass):
+            if pipeline.id == selected:
+                return pipeline
+        raise ValueError('pipeline_not_found')
+    assist_pipeline.async_get_pipeline = get_pipeline
+    conversation = sys.modules.setdefault('homeassistant.components.conversation',
+                                          types.ModuleType('homeassistant.components.conversation'))
+    async def process(*args, **kwargs):
+        return None
+    conversation.async_get_agent = lambda hass, identifier: types.SimpleNamespace(
+        available=True, async_process=process) if identifier == 'homeassistant' else None
+    components.conversation = conversation
     assist_pkg.pipeline = assist_pipeline
     components.assist_pipeline = assist_pkg
     components.cloud = cloud
@@ -284,9 +300,9 @@ class ConfigFlowHelperTest(unittest.TestCase):
         schema = asyncio.run(self.config_flow._voice_schema(hass, defaults))
         marker_defaults = {marker.key: marker.default for marker in schema.schema}
 
-        self.assertNotIn(self.const.CONF_STT_ENGINE, marker_defaults)
-        self.assertNotIn(self.const.CONF_TTS_ENGINE, marker_defaults)
-        self.assertNotIn(self.const.CONF_TTS_VOICE, marker_defaults)
+        self.assertNotIn('stt_engine', marker_defaults)
+        self.assertNotIn('tts_engine', marker_defaults)
+        self.assertNotIn('tts_voice', marker_defaults)
 
     def test_voice_schema_hides_tts_settings(self) -> None:
         hass = types.SimpleNamespace(states=None)
@@ -298,9 +314,9 @@ class ConfigFlowHelperTest(unittest.TestCase):
         )
         keys = {marker.key for marker in schema.schema}
 
-        self.assertNotIn(self.const.CONF_TTS_ENGINE, keys)
+        self.assertNotIn('tts_engine', keys)
         self.assertNotIn(self.const.CONF_TTS_LANGUAGE, keys)
-        self.assertNotIn(self.const.CONF_TTS_VOICE, keys)
+        self.assertNotIn('tts_voice', keys)
 
     def test_voice_schema_hides_dj_response_prompt_controls(self) -> None:
         hass = types.SimpleNamespace(states=None)
@@ -312,55 +328,43 @@ class ConfigFlowHelperTest(unittest.TestCase):
         )
         keys = {marker.key for marker in schema.schema}
 
-        self.assertNotIn(self.const.CONF_DJ_RESPONSE_PROMPT_PRESET, keys)
-        self.assertNotIn(self.const.CONF_DJ_RESPONSE_PROMPT, keys)
-        self.assertIn(self.const.CONF_VOICE_PROFILE, keys)
+        self.assertNotIn('dj_response_prompt_preset', keys)
+        self.assertNotIn('dj_response_prompt', keys)
+        self.assertNotIn(self.const.CONF_VOICE_PROFILE, keys)
 
-    def test_voice_defaults_store_supported_voice_profile(self) -> None:
+    def test_voice_defaults_do_not_create_retired_tone_setting(self) -> None:
         defaults = self.config_flow._voice_defaults(
             {
                 self.const.CONF_VOICE_PROFILE: self.const.VOICE_PROFILE_LATE_NIGHT,
             }
         )
 
-        self.assertEqual(
-            defaults[self.const.CONF_VOICE_PROFILE],
-            self.const.VOICE_PROFILE_LATE_NIGHT,
-        )
+        self.assertNotIn(self.const.CONF_VOICE_PROFILE, defaults)
 
-    def test_voice_defaults_fall_back_for_unknown_voice_profile(self) -> None:
+    def test_unknown_legacy_tone_is_not_silently_mapped_to_new_setting(self) -> None:
         defaults = self.config_flow._voice_defaults(
             {
                 self.const.CONF_VOICE_PROFILE: "celebrity_clone",
             }
         )
 
-        self.assertEqual(
-            defaults[self.const.CONF_VOICE_PROFILE],
-            self.const.DEFAULT_VOICE_PROFILE,
-        )
+        self.assertNotIn(self.const.CONF_VOICE_PROFILE, defaults)
+
+    def test_retired_tone_submissions_require_shared_settings_instead_of_silent_save(self):
+        for key in ('voice_profile', 'voice_style', 'response_style', 'profile_response_style'):
+            with self.subTest(key=key):
+                self.assertEqual(self.config_flow._voice_errors({key: 'energy'}),
+                                 {'base': 'shared_dj_settings_required'})
 
     def test_voice_defaults_ignore_legacy_dj_response_prompt_input(self) -> None:
         defaults = self.config_flow._voice_defaults(
             {
-                self.const.CONF_DJ_RESPONSE_PROMPT: "Maak het kort en eigen.",
+                'dj_response_prompt': "Maak het kort en eigen.",
             }
         )
 
-        self.assertEqual(
-            defaults[self.const.CONF_DJ_RESPONSE_PROMPT],
-            self.const.DEFAULT_DJ_RESPONSE_PROMPT,
-        )
+        self.assertNotIn('dj_response_prompt', defaults)
 
-    def test_default_dj_response_prompt_is_multiline_guidance(self) -> None:
-        prompt = self.const.DEFAULT_DJ_RESPONSE_PROMPT
-
-        self.assertNotIn("Gebruik deze DJ response prompt", prompt)
-        self.assertNotIn("stijl-/inhoudsinstructie", prompt)
-        self.assertIn("Noem de artiest, het album en het nummer.", prompt)
-        self.assertIn("Geef een leuk feitje over de artiest.", prompt)
-        self.assertIn("Klink warm en persoonlijk.", prompt)
-        self.assertEqual(prompt.count("\n"), 2)
 
     def test_voice_schema_hides_internal_compatibility_and_ota_fields(self) -> None:
         hass = types.SimpleNamespace(states=None)
@@ -383,16 +387,16 @@ class ConfigFlowHelperTest(unittest.TestCase):
         self.assertTrue(internal_only.isdisjoint(keys))
         self.assertNotIn("firmware_repo", keys)
         self.assertNotIn("firmware_device", keys)
-        self.assertNotIn(self.const.CONF_STT_ENGINE, keys)
-        self.assertNotIn(self.const.CONF_TTS_ENGINE, keys)
+        self.assertNotIn('stt_engine', keys)
+        self.assertNotIn('tts_engine', keys)
         self.assertNotIn(self.const.CONF_TTS_LANGUAGE, keys)
-        self.assertNotIn(self.const.CONF_TTS_VOICE, keys)
+        self.assertNotIn('tts_voice', keys)
         self.assertNotIn(self.const.CONF_SPOTIFY_SOURCE, keys)
         self.assertNotIn(self.const.CONF_LIKED_PROXY, keys)
         self.assertNotIn("show_advanced_options", keys)
         self.assertIn(self.const.CONF_FIRMWARE_CHANNEL, keys)
-        self.assertNotIn(self.const.CONF_DJ_RESPONSE_PROMPT_PRESET, keys)
-        self.assertNotIn(self.const.CONF_DJ_RESPONSE_PROMPT, keys)
+        self.assertNotIn('dj_response_prompt_preset', keys)
+        self.assertNotIn('dj_response_prompt', keys)
         self.assertNotIn(self.const.CONF_DJ_RESPONSE_ENABLED, keys)
 
     def test_firmware_channel_uses_labeled_selector(self) -> None:
@@ -446,7 +450,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
         data = self.config_flow._voice_defaults(
             {
                 self.const.CONF_TTS_LANGUAGE: "",
-                self.const.CONF_DJ_RESPONSE_PROMPT: "",
+                'dj_response_prompt': "",
                 self.const.CONF_MAX_AUDIO_BYTES: "not-an-int",
                 self.const.CONF_MIN_BATTERY_FOR_OTA: "55",
                 self.const.CONF_FIRMWARE_CHANNEL: "beta",
@@ -454,15 +458,16 @@ class ConfigFlowHelperTest(unittest.TestCase):
         )
 
         self.assertNotIn(self.const.CONF_TTS_LANGUAGE, data)
-        self.assertEqual(
-            data[self.const.CONF_DJ_RESPONSE_PROMPT],
-            self.const.DEFAULT_DJ_RESPONSE_PROMPT,
-        )
+        self.assertNotIn('dj_response_prompt', data)
         self.assertEqual(data[self.const.CONF_MAX_AUDIO_BYTES], self.const.DEFAULT_MAX_AUDIO_BYTES)
         self.assertTrue(data[self.const.CONF_ALLOW_OTA_ON_BATTERY])
         self.assertEqual(data[self.const.CONF_MIN_BATTERY_FOR_OTA], 55)
         self.assertEqual(data[self.const.CONF_FIRMWARE_CHANNEL], "beta")
-        self.assertTrue(data[self.const.CONF_DJ_RESPONSE_ENABLED])
+        self.assertNotIn(self.const.CONF_DJ_RESPONSE_ENABLED, data)
+        legacy = self.config_flow._voice_defaults({self.const.CONF_DJ_RESPONSE_ENABLED:False})
+        self.assertIs(legacy[self.const.CONF_DJ_RESPONSE_ENABLED], False)
+        self.assertEqual(self.config_flow._voice_errors({'dj_response_enabled':True}),
+                         {'base':'shared_dj_settings_required'})
         self.assertEqual(
             data[self.const.CONF_DJ_RESPONSE_TTL_SECONDS],
             self.const.DEFAULT_DJ_RESPONSE_TTL_SECONDS,
@@ -471,54 +476,147 @@ class ConfigFlowHelperTest(unittest.TestCase):
     def test_voice_errors_allow_device_owned_spotify_playback(self) -> None:
         self.assertEqual(self.config_flow._voice_errors({}), {})
 
-    def test_assist_pipeline_detection_requires_stt_and_tts(self) -> None:
+    def test_pairing_requires_selected_agent_but_all_four_speech_combinations_are_optional(self):
+        from homeassistant.components.assist_pipeline import pipeline as api
+        hass = types.SimpleNamespace(preferred_pipeline='chosen')
+        for stt, tts in ((None, None), ('stt.mock', None), (None, 'tts.mock'), ('stt.mock', 'tts.mock')):
+            pipeline = types.SimpleNamespace(id='chosen', conversation_engine='homeassistant',
+                stt_engine=stt, stt_language=None, tts_engine=tts, tts_language=None, tts_voice=None)
+            with self.subTest(stt=stt, tts=tts), patch.object(api, 'async_get_pipelines', return_value=[pipeline]):
+                self.assertTrue(self.config_flow._has_valid_assist_pipeline(hass, 'chosen'))
+                self.assertTrue(self.config_flow._has_valid_assist_pipeline(hass, ''))
+
+    def test_invalid_explicit_and_preferred_pipeline_cannot_borrow_an_unrelated_agent(self):
+        from homeassistant.components.assist_pipeline import pipeline as api
+        valid = types.SimpleNamespace(id='valid', conversation_engine='homeassistant')
+        invalid = types.SimpleNamespace(id='invalid', conversation_engine=None)
+        hass = types.SimpleNamespace(preferred_pipeline='invalid')
+        with patch.object(api, 'async_get_pipelines', return_value=[invalid, valid]):
+            self.assertFalse(self.config_flow._has_valid_assist_pipeline(hass, 'absent'))
+            self.assertFalse(self.config_flow._has_valid_assist_pipeline(hass))
+            self.assertFalse(self.config_flow._has_valid_assist_pipeline(hass, 'invalid'))
+            self.assertTrue(self.config_flow._has_valid_assist_pipeline(hass, 'valid'))
+            hass.preferred_pipeline = 'valid'
+            self.assertTrue(self.config_flow._has_valid_assist_pipeline(hass))
+            hass.preferred_pipeline = 'absent'
+            self.assertFalse(self.config_flow._has_valid_assist_pipeline(hass))
+
+    def test_missing_broken_or_nonprocessable_agent_fails_without_invocation(self):
+        from homeassistant.components.assist_pipeline import pipeline as api
+        from homeassistant.components import conversation
         hass = types.SimpleNamespace()
+        pipeline = types.SimpleNamespace(id='default', conversation_engine='conversation.mock')
+        process = AsyncMock()
+        with patch.object(api, 'async_get_pipeline', return_value=pipeline):
+            for agent in (None, types.SimpleNamespace(), types.SimpleNamespace(available=None, async_process=process),
+                          types.SimpleNamespace(available=False, async_process=process)):
+                with self.subTest(agent=agent), patch.object(conversation, 'async_get_agent', return_value=agent):
+                    self.assertFalse(self.config_flow._has_valid_assist_pipeline(hass))
+            with patch.object(conversation, 'async_get_agent', return_value=types.SimpleNamespace(available=True, async_process=process)):
+                self.assertTrue(self.config_flow._has_valid_assist_pipeline(hass))
+            with patch.object(conversation, 'async_get_agent', side_effect=KeyError('not_loaded')):
+                self.assertFalse(self.config_flow._has_valid_assist_pipeline(hass))
+        process.assert_not_called()
+        with patch.object(api, 'async_get_pipeline', side_effect=KeyError('not_loaded')):
+            self.assertFalse(self.config_flow._has_valid_assist_pipeline(hass))
 
-        self.assertFalse(
-            self.config_flow._assist_pipeline_has_stt_tts(
-                types.SimpleNamespace(stt_engine="stt.mock")
-            )
-        )
-        self.assertFalse(
-            self.config_flow._assist_pipeline_has_stt_tts(
-                types.SimpleNamespace(tts_engine="tts.mock")
-            )
-        )
-        self.assertTrue(
-            self.config_flow._assist_pipeline_has_stt_tts(
-                types.SimpleNamespace(
-                    stt_engine="stt.mock",
-                    tts_engine="tts.mock",
-                )
-            )
-        )
-        self.assertTrue(self.config_flow._has_valid_assist_pipeline(hass))
-
-    def test_user_step_requires_assist_pipeline_with_stt_and_tts(self) -> None:
-        from homeassistant.components.assist_pipeline import pipeline as pipeline_module
-
-        original_get_pipelines = pipeline_module.async_get_pipelines
-        pipeline_module.async_get_pipelines = lambda hass: [
-            types.SimpleNamespace(
-                id="no-tts",
-                name="No TTS",
-                stt_engine="stt.mock",
-                tts_engine="",
-            )
-        ]
-        try:
+    def test_user_and_pair_steps_accept_agent_without_audio_and_reject_selected_missing_agent(self):
+        from homeassistant.components.assist_pipeline import pipeline as api
+        available = types.SimpleNamespace(id='default', name='Default', conversation_engine='homeassistant', stt_engine=None, tts_engine=None)
+        invalid = types.SimpleNamespace(id='invalid', conversation_engine=None)
+        for method in ('async_step_user', 'async_step_pair'):
             flow = self.config_flow.DJConnectConfigFlow()
-            flow.hass = types.SimpleNamespace(
-                config=types.SimpleNamespace(language="en-US"),
-            )
+            flow.hass = types.SimpleNamespace(config=types.SimpleNamespace(language='en'), states=None)
+            with patch.object(api, 'async_get_pipelines', return_value=[available, invalid]):
+                good = asyncio.run(getattr(flow, method)())
+                self.assertNotIn('assist_pipeline_required', good.get('errors', {}).values(), good)
+                flow._discovered_defaults[self.const.CONF_ASSIST_PIPELINE_ID] = 'invalid'
+                denied = asyncio.run(getattr(flow, method)())
+                self.assertEqual(denied['errors']['base'], 'assist_pipeline_required')
 
-            result = asyncio.run(flow.async_step_user())
-        finally:
-            pipeline_module.async_get_pipelines = original_get_pipelines
+    def test_final_setup_revalidates_explicit_pipeline_before_pairing_or_profile_commit(self):
+        from homeassistant.components.assist_pipeline import pipeline as api
+        flow = self.config_flow.DJConnectConfigFlow()
+        flow.hass = types.SimpleNamespace(states=None)
+        flow._pairing = {self.const.CONF_CLIENT_TYPE: 'ios'}
+        finish = AsyncMock()
+        with patch.object(flow, '_async_finish_profile_entry', finish), \
+                patch.object(api, 'async_get_pipeline', side_effect=ValueError('pipeline_removed')):
+            result = asyncio.run(flow.async_step_voice({self.const.CONF_ASSIST_PIPELINE_ID: 'removed'}))
+        self.assertEqual(result['errors']['base'], 'assist_pipeline_required')
+        finish.assert_not_called()
+        self.assertNotIn(self.const.CONF_ASSIST_PIPELINE_ID, flow._pairing)
 
-        self.assertEqual(result["type"], "form")
-        self.assertEqual(result["step_id"], "user")
-        self.assertEqual(result["errors"]["base"], "assist_pipeline_required")
+    def _assert_profile_commit_withdrawal_blocks_entry(self, agent_only):
+        from homeassistant.components.assist_pipeline import pipeline as api
+        from homeassistant.components import conversation
+
+        async def run_case(selection, withdrawal):
+            flow = self.config_flow.DJConnectConfigFlow()
+            flow.hass = types.SimpleNamespace(states=None)
+            flow._conversation_agent_only = agent_only
+            flow._pairing = {
+                self.const.CONF_CLIENT_TYPE: 'conversation_agent' if agent_only else 'ios',
+                self.const.CONF_ASSIST_PIPELINE_ID: selection,
+            }
+            flow._async_validate_profile_draft = AsyncMock()
+            commit_started, release_commit = asyncio.Event(), asyncio.Event()
+            agent = types.SimpleNamespace(available=True, async_process=AsyncMock())
+            pipeline = types.SimpleNamespace(id='chosen', conversation_engine='conversation.test')
+            withdrawn = False
+
+            async def held_commit():
+                commit_started.set()
+                await release_commit.wait()
+
+            def resolve(hass, pipeline_id=None):
+                self.assertEqual(pipeline_id, selection or None)
+                if withdrawn and withdrawal == 'pipeline':
+                    raise ValueError('pipeline_removed')
+                return pipeline
+
+            with patch.object(flow, '_async_commit_profile_draft', held_commit), \
+                    patch.object(api, 'async_get_pipeline', side_effect=resolve), \
+                    patch.object(conversation, 'async_get_agent', return_value=agent), \
+                    patch.object(flow, 'async_create_entry', wraps=flow.async_create_entry) as create:
+                task = asyncio.create_task(flow.async_step_voice({}))
+                await asyncio.wait_for(commit_started.wait(), 2)
+                withdrawn = True
+                agent.available = False
+                release_commit.set()
+                result = await asyncio.wait_for(task, 2)
+                self.assertEqual(result['type'], 'form')
+                self.assertEqual(result['errors']['base'], 'assist_pipeline_required')
+                create.assert_not_called()
+                agent.async_process.assert_not_called()
+
+        for selection in ('chosen', ''):
+            for withdrawal in ('pipeline', 'agent'):
+                with self.subTest(selection=selection, withdrawal=withdrawal):
+                    asyncio.run(run_case(selection, withdrawal))
+
+    def test_profile_commit_cannot_create_app_entry_after_agent_withdrawal(self):
+        self._assert_profile_commit_withdrawal_blocks_entry(False)
+
+    def test_profile_commit_cannot_create_agent_entry_after_agent_withdrawal(self):
+        self._assert_profile_commit_withdrawal_blocks_entry(True)
+
+    def test_direct_agent_finish_rechecks_exact_stored_pipeline(self):
+        from homeassistant.components.assist_pipeline import pipeline as api
+        valid = types.SimpleNamespace(id='chosen', conversation_engine='homeassistant')
+        invalid = types.SimpleNamespace(id='invalid', conversation_engine=None)
+        flow = self.config_flow.DJConnectConfigFlow()
+        flow.hass = types.SimpleNamespace(preferred_pipeline='invalid')
+        flow._pairing = {self.const.CONF_ASSIST_PIPELINE_ID: 'chosen'}
+        with patch.object(api, 'async_get_pipelines', return_value=[valid, invalid]):
+            result = asyncio.run(flow.async_step_finish_conversation_agent())
+            self.assertEqual(result['type'], 'create_entry')
+            self.assertEqual(result['data'][self.const.CONF_ASSIST_PIPELINE_ID], 'chosen')
+            for selection in ('absent', 'invalid', ''):
+                flow._pairing[self.const.CONF_ASSIST_PIPELINE_ID] = selection
+                result = asyncio.run(flow.async_step_finish_conversation_agent())
+                self.assertEqual(result['type'], 'form')
+                self.assertEqual(result['errors']['base'], 'assist_pipeline_required')
 
     def test_user_step_allows_setup_without_spotify_media_player(self) -> None:
         flow = self.config_flow.DJConnectConfigFlow()
@@ -1972,7 +2070,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
         keys = {marker.key for marker in schema}
 
         self.assertIn(self.config_flow.OPTIONS_ACTION_FIELD, keys)
-        self.assertIn(self.const.CONF_VOICE_PROFILE, keys)
+        self.assertNotIn(self.const.CONF_VOICE_PROFILE, keys)
 
     def test_voice_schema_can_show_readonly_client_api_url(self) -> None:
         hass = types.SimpleNamespace(states=None, config=types.SimpleNamespace(language="nl-NL"))
@@ -2125,6 +2223,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
 
     def test_finish_conversation_agent_step_creates_entry(self) -> None:
         flow = self.config_flow.DJConnectConfigFlow()
+        flow.hass = types.SimpleNamespace()
         flow._conversation_agent_only = True
         flow._backend = {self.const.CONF_MUSIC_BACKEND: self.const.MUSIC_BACKEND_SPOTIFY_DIRECT}
         flow._pairing = {
@@ -2235,9 +2334,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
         }
 
         result = asyncio.run(
-            flow.async_step_voice(
-                {self.const.CONF_VOICE_PROFILE: self.const.VOICE_PROFILE_LATE_NIGHT}
-            )
+            flow.async_step_voice()
         )
 
         self.assertEqual(result["type"], "create_entry")
@@ -2246,29 +2343,13 @@ class ConfigFlowHelperTest(unittest.TestCase):
             result["data"][self.const.CONF_CLIENT_TYPE],
             self.const.CLIENT_TYPE_CONVERSATION_AGENT,
         )
-        self.assertEqual(
-            result["data"][self.const.CONF_VOICE_PROFILE],
-            self.const.VOICE_PROFILE_LATE_NIGHT,
-        )
+        self.assertNotIn(self.const.CONF_VOICE_PROFILE, result['data'])
         self.assertNotIn(self.const.CONF_DEVICE_TOKEN, result["data"])
         self.assertNotIn(self.const.CONF_LOCAL_URL, result["data"])
 
-    def test_voice_step_conversation_agent_setup_shows_only_voice_profile(self) -> None:
-        flow = self.config_flow.DJConnectConfigFlow()
-        flow.hass = types.SimpleNamespace(states=None)
-        flow._conversation_agent_only = True
-
-        form = asyncio.run(flow.async_step_voice())
-        keys = {marker.key for marker in form["data_schema"].schema}
-
-        self.assertIn(self.const.CONF_VOICE_PROFILE, keys)
-        self.assertNotIn(self.const.CONF_DJ_RESPONSE_PROMPT_PRESET, keys)
-        self.assertNotIn(self.const.CONF_DJ_RESPONSE_PROMPT, keys)
-        self.assertNotIn(self.const.CONF_DJ_RESPONSE_ENABLED, keys)
-        self.assertNotIn(self.const.CONF_ASSIST_PIPELINE_ID, keys)
-        self.assertNotIn(self.const.CONF_FIRMWARE_CHANNEL, keys)
-        self.assertNotIn(self.const.CONF_LOCAL_URL, keys)
-        self.assertNotIn("last_step", form)
+    def test_conversation_agent_voice_schema_has_no_retired_tone_controls(self) -> None:
+        schema = self.config_flow._conversation_agent_voice_schema(types.SimpleNamespace(), {})
+        self.assertEqual(schema.schema, {})
 
     def test_voice_step_hides_firmware_channel_for_app_clients(self) -> None:
         flow = self.config_flow.DJConnectConfigFlow()
@@ -2428,8 +2509,8 @@ class ConfigFlowHelperTest(unittest.TestCase):
         self.assertEqual(form["step_id"], "conversation_agent_init")
         self.assertIn(self.config_flow.OPTIONS_ACTION_FIELD, keys)
         self.assertNotIn(self.const.CONF_DJ_RESPONSE_ENABLED, keys)
-        self.assertNotIn(self.const.CONF_DJ_RESPONSE_PROMPT_PRESET, keys)
-        self.assertNotIn(self.const.CONF_DJ_RESPONSE_PROMPT, keys)
+        self.assertNotIn('dj_response_prompt_preset', keys)
+        self.assertNotIn('dj_response_prompt', keys)
         self.assertNotIn(self.const.CONF_SPOTIFY_SOURCE, keys)
         self.assertNotIn(self.const.CONF_LIKED_PROXY, keys)
         self.assertNotIn(self.const.CONF_LOCAL_URL, keys)
@@ -2455,7 +2536,6 @@ class ConfigFlowHelperTest(unittest.TestCase):
         result = asyncio.run(
             flow.async_step_conversation_agent_init(
                 {
-                    self.const.CONF_VOICE_PROFILE: self.const.VOICE_PROFILE_LATE_NIGHT,
                     self.const.CONF_ASSIST_PIPELINE_ID: "pipeline-2",
                     self.config_flow.OPTIONS_ACTION_FIELD:
                         self.config_flow.OPTIONS_ACTION_SAVE,
@@ -2465,10 +2545,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
 
         self.assertEqual(form["step_id"], "conversation_agent_init")
         self.assertEqual(result["type"], "create_entry")
-        self.assertEqual(
-            result["data"][self.const.CONF_VOICE_PROFILE],
-            self.const.VOICE_PROFILE_LATE_NIGHT,
-        )
+        self.assertNotIn(self.const.CONF_VOICE_PROFILE, result['data'])
         self.assertEqual(result["data"][self.const.CONF_ASSIST_PIPELINE_ID], "pipeline-2")
         self.assertNotIn(self.const.CONF_LOCAL_URL, result["data"])
 
@@ -2493,7 +2570,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
 
         self.assertEqual(form["step_id"], "init")
         self.assertIn(self.const.CONF_ASSIST_PIPELINE_ID, keys)
-        self.assertIn(self.const.CONF_VOICE_PROFILE, keys)
+        self.assertNotIn(self.const.CONF_VOICE_PROFILE, keys)
         self.assertIn(
             self.config_flow.OPTIONS_ACTION_CHANGE_MUSIC_BACKEND,
             form["data_schema"].schema[action_marker],
@@ -2863,17 +2940,17 @@ class ConfigFlowHelperTest(unittest.TestCase):
         self.assertEqual(result["type"], "form")
         self.assertEqual(result["errors"]["base"], "oauth_setup_failed")
 
-    def test_vibecast_end_consent_options_roundtrip_and_default(self) -> None:
-        entry = types.SimpleNamespace(data={self.const.CONF_CLIENT_TYPE: self.const.CLIENT_TYPE_IOS}, options={})
+    def test_retired_vibecast_end_option_is_neither_exposed_nor_saved(self) -> None:
+        key = "vibecast_session_end_allowed"
         for allowed in [True, False]:
+            entry = types.SimpleNamespace(data={self.const.CONF_CLIENT_TYPE: self.const.CLIENT_TYPE_IOS}, options={key:allowed})
             flow = self.config_flow.DJConnectOptionsFlow(entry)
             flow.hass = types.SimpleNamespace(config=types.SimpleNamespace(language="en"))
-            result = asyncio.run(flow.async_step_init({self.config_flow.OPTIONS_ACTION_FIELD: self.config_flow.OPTIONS_ACTION_SAVE,
-                                                      "vibecast_session_end_allowed": allowed}))
+            result = asyncio.run(flow.async_step_init({self.config_flow.OPTIONS_ACTION_FIELD:self.config_flow.OPTIONS_ACTION_SAVE,key:allowed}))
             self.assertEqual(result["type"], "create_entry")
-            self.assertIs(result["data"]["vibecast_session_end_allowed"], allowed)
-            entry.options = result["data"]
-        self.assertIs(self.config_flow._voice_defaults({})["vibecast_session_end_allowed"], False)
+            self.assertNotIn(key,result["data"])
+            self.assertNotIn(key,self.config_flow._voice_defaults({key:allowed}))
+            self.assertNotIn(key,self.config_flow.VOICE_FORM_FIELDS)
 
     def test_options_flow_save_preserves_hidden_device_values(self) -> None:
         entry = types.SimpleNamespace(
@@ -2903,10 +2980,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
         )
         self.assertEqual(result["data"][self.const.CONF_FIRMWARE_CHANNEL], "beta")
         self.assertEqual(result["data"][self.const.CONF_MAX_AUDIO_BYTES], 12345)
-        self.assertEqual(
-            result["data"][self.const.CONF_DJ_RESPONSE_PROMPT],
-            self.const.DEFAULT_DJ_RESPONSE_PROMPT,
-        )
+        self.assertNotIn('dj_response_prompt', result['data'])
 
     def test_options_flow_save_drops_firmware_channel_for_app_clients(self) -> None:
         entry = types.SimpleNamespace(
@@ -3121,6 +3195,17 @@ class ConfigFlowHelperTest(unittest.TestCase):
             calls,
         )
         self.assertEqual(entry.data[self.const.CONF_LOCAL_URL], "http://192.168.1.104:60955")
+
+
+    def test_ha_speaker_configuration_never_creates_a_competing_profile_output(self):
+        source = {'dj_announcement_speaker_entity_id':'media_player.owned_speaker',
+                  'dj_announcement_output':'both'}
+        defaults = self.config_flow._voice_defaults(source)
+        self.assertEqual(defaults['dj_announcement_speaker_entity_id'], 'media_player.owned_speaker')
+        self.assertNotIn('dj_announcement_output', defaults)
+        self.assertEqual(source['dj_announcement_output'], 'both')
+        self.assertEqual(self.config_flow._voice_errors({'dj_announcement_output':'both'}),
+                         {'base':'shared_dj_settings_required'})
 
 
 if __name__ == "__main__":

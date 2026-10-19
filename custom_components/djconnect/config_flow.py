@@ -29,11 +29,9 @@ from .const import (
     CONF_DEVICE_LANGUAGE,
     CONF_DEVICE_NAME,
     CONF_DEVICE_TOKEN,
-    CONF_DJ_ANNOUNCEMENT_OUTPUT,
     CONF_DJ_ANNOUNCEMENT_SPEAKER,
     CONF_DJCONNECT_INSTALL_TOKEN,
     CONF_DJ_RESPONSE_ENABLED,
-    CONF_DJ_RESPONSE_PROMPT,
     CONF_DJ_RESPONSE_TTL_SECONDS,
     CONF_FIRMWARE_CHANNEL,
     CONF_HA_EXTERNAL_URL,
@@ -51,7 +49,6 @@ from .const import (
     CONF_SPOTIFY_REFRESH_TOKEN,
     CONF_SPOTIFY_SCOPES,
     CONF_SETUP_METHOD,
-    CONF_VOICE_PROFILE,
     CONF_WIFI_PASSWORD,
     CONF_WIFI_SSID,
     DEFAULT_ASSIST_PIPELINE_ID,
@@ -60,8 +57,6 @@ from .const import (
     DEFAULT_CLIENT_TYPE,
     DEFAULT_DEVICE_NAME,
     DEFAULT_DEVICE_LANGUAGE,
-    DEFAULT_DJ_RESPONSE_ENABLED,
-    DEFAULT_DJ_RESPONSE_PROMPT,
     DEFAULT_DJ_RESPONSE_TTL_SECONDS,
     DEFAULT_FIRMWARE_CHANNEL,
     DEFAULT_MAX_AUDIO_BYTES,
@@ -70,9 +65,6 @@ from .const import (
     DEFAULT_SETUP_METHOD,
     DEFAULT_SPOTIFY_MARKET,
     DEFAULT_SPOTIFY_SCOPES,
-    DEFAULT_VOICE_PROFILE,
-    DJ_ANNOUNCEMENT_BOTH,
-    DJ_ANNOUNCEMENT_CLIENT_DEVICE,
     FIRMWARE_CHANNELS,
     MUSIC_BACKEND_NAMES,
     MUSIC_BACKEND_LATER_MANUAL,
@@ -127,7 +119,6 @@ from .pairing_defaults import (
 )
 from .ha_urls import async_ha_local_url
 from .spotify_oauth import build_authorize_url, build_redirect_uri, create_code_verifier
-from .voice_profiles import normalize_voice_profile, voice_profile_options
 from .flow_labels import flow_label
 
 _LOGGER = logging.getLogger(__name__)
@@ -154,7 +145,6 @@ PROFILE_NEW = "new"
 CONF_PROFILE_NAME = "profile_name"
 CONF_PROFILE_TYPE = "profile_type"
 CONF_PROFILE_PRIVACY_MODE = "profile_privacy_mode"
-CONF_PROFILE_RESPONSE_STYLE = "profile_response_style"
 CONF_REQUIRE_PROFILE = "require_profile"
 BACKEND_LATER_MANUAL = MUSIC_BACKEND_LATER_MANUAL
 BLE_ACTION_FIELD = "ble_action"
@@ -206,11 +196,6 @@ PROFILE_PRIVACY_MODE_NAMES = {
     ProfilePrivacyMode.SHARED.value: "Shared",
     ProfilePrivacyMode.GUEST_SAFE.value: "Guest safe",
 }
-PROFILE_RESPONSE_STYLE_NAMES = {
-    ResponseStyle.CONCISE.value: "Concise",
-    ResponseStyle.BALANCED.value: "Balanced",
-    ResponseStyle.EXPRESSIVE.value: "Expressive",
-}
 CLIENT_TYPE_NAME_SUFFIXES = {
     CLIENT_TYPE_ESP32: "ESP32",
     "ios": "iOS",
@@ -221,12 +206,9 @@ CLIENT_TYPE_NAME_SUFFIXES = {
 }
 
 VOICE_FORM_FIELDS = {
-    "vibecast_session_end_allowed",
     CONF_ASSIST_PIPELINE_ID,
-    CONF_DJ_ANNOUNCEMENT_OUTPUT,
     CONF_DJ_ANNOUNCEMENT_SPEAKER,
     CONF_FIRMWARE_CHANNEL,
-    CONF_VOICE_PROFILE,
 }
 
 
@@ -617,10 +599,6 @@ def _profile_setup_schema(defaults: dict[str, Any] | None = None) -> dict[Any, A
             CONF_PROFILE_TYPE,
             default=defaults.get(CONF_PROFILE_TYPE, ProfileType.PERSONAL.value),
         ): selector.SelectSelector(selector.SelectSelectorConfig(options=list(PROFILE_TYPE_NAMES), mode="dropdown", translation_key="onboarding_profile_type")),
-        vol.Optional(
-            CONF_PROFILE_RESPONSE_STYLE,
-            default=defaults.get(CONF_PROFILE_RESPONSE_STYLE, ResponseStyle.BALANCED.value),
-        ): selector.SelectSelector(selector.SelectSelectorConfig(options=list(PROFILE_RESPONSE_STYLE_NAMES), mode="dropdown", translation_key="onboarding_response_style")),
         vol.Required(
             CONF_REQUIRE_PROFILE,
             default=defaults.get(CONF_REQUIRE_PROFILE, False),
@@ -783,9 +761,7 @@ async def _ensure_profile_platform_setup(
         if profile_type in {ProfileType.HOUSEHOLD, ProfileType.GUEST, ProfileType.KIDS}
         else ProfilePrivacyMode.NORMAL
     )
-    response_style = ResponseStyle(
-        str(profile_input.get(CONF_PROFILE_RESPONSE_STYLE) or ResponseStyle.BALANCED.value)
-    )
+    response_style = ResponseStyle.BALANCED
     account_id = ""
     profile = await manager.async_create_profile(
         str(profile_input.get(CONF_PROFILE_NAME) or "DJConnect Profile"),
@@ -1105,19 +1081,26 @@ async def _assist_pipeline_options(hass: Any, current: Any = "") -> dict[str, st
     return _options_with_current(options, current)
 
 
-def _assist_pipeline_has_stt_tts(pipeline: Any) -> bool:
-    """Return true when an Assist pipeline can handle both voice directions."""
-    stt_engine = str(getattr(pipeline, "stt_engine", "") or "").strip()
-    tts_engine = str(getattr(pipeline, "tts_engine", "") or "").strip()
-    return bool(stt_engine and tts_engine)
+def _has_valid_assist_pipeline(hass: Any, pipeline_id: Any = "") -> bool:
+    """Validate the selected/preferred conversation route, never require audio.
 
+    Only setup admission: no provider calls, agent invocation, migration or
+    modification of the stored empty/default pipeline representation.
+    """
+    try:
+        from homeassistant.components.assist_pipeline.pipeline import async_get_pipeline
+        from homeassistant.components.conversation import async_get_agent
 
-def _has_valid_assist_pipeline(hass: Any) -> bool:
-    """Return whether HA has at least one Assist pipeline with STT and TTS."""
-    return any(
-        _assist_pipeline_has_stt_tts(pipeline)
-        for pipeline in _get_assist_pipelines(hass)
-    )
+        pipeline = async_get_pipeline(hass, str(pipeline_id or "").strip() or None)
+        engine = str(getattr(pipeline, "conversation_engine", "") or "").strip()
+        if not engine:
+            return False
+        agent = async_get_agent(hass, engine)
+        return (agent is not None and getattr(agent, "available", True) is True
+                and callable(getattr(agent, "async_process", None)))
+    except Exception:  # noqa: BLE001
+        _LOGGER.debug("DJConnect could not resolve the selected Assist conversation route")
+        return False
 
 
 def _base_voice_schema(
@@ -1143,7 +1126,6 @@ def _base_voice_schema(
             {readonly_local_url: label}
         )
     schema.update({
-        vol.Optional("vibecast_session_end_allowed", default=defaults.get("vibecast_session_end_allowed", False)): bool,
         vol.Optional(
             CONF_DJ_ANNOUNCEMENT_SPEAKER,
             default=defaults.get(CONF_DJ_ANNOUNCEMENT_SPEAKER, ""),
@@ -1151,10 +1133,6 @@ def _base_voice_schema(
             announcement_speaker_options(hass)
             or {"": flow_label(hass, "none")}
         ),
-        vol.Optional(
-            CONF_VOICE_PROFILE,
-            default=normalize_voice_profile(defaults.get(CONF_VOICE_PROFILE)),
-        ): vol.In(voice_profile_options(_ha_language(hass))),
         vol.Optional(
             CONF_ASSIST_PIPELINE_ID,
             default=defaults.get(CONF_ASSIST_PIPELINE_ID, ""),
@@ -1195,10 +1173,6 @@ async def _conversation_agent_options_schema(
     actions = _conversation_agent_options_actions(hass, defaults)
     schema: dict[Any, Any] = {
         vol.Optional(
-            CONF_VOICE_PROFILE,
-            default=normalize_voice_profile(defaults.get(CONF_VOICE_PROFILE)),
-        ): vol.In(voice_profile_options(_ha_language(hass))),
-        vol.Optional(
             CONF_ASSIST_PIPELINE_ID,
             default=defaults.get(CONF_ASSIST_PIPELINE_ID, ""),
         ): vol.In(
@@ -1229,14 +1203,7 @@ def _music_backend_switch_schema(hass: Any, defaults: dict[str, Any]) -> vol.Sch
 
 def _conversation_agent_voice_schema(hass: Any, defaults: dict[str, Any]) -> vol.Schema:
     """Build the compact setup schema used for Assist conversation agent entries."""
-    return vol.Schema(
-        {
-            vol.Optional(
-                CONF_VOICE_PROFILE,
-                default=normalize_voice_profile(defaults.get(CONF_VOICE_PROFILE)),
-            ): vol.In(voice_profile_options(_ha_language(hass))),
-        }
-    )
+    return vol.Schema({})
 
 
 def _central_api_schema(current: dict[str, Any], hass: Any = None) -> vol.Schema:
@@ -1309,33 +1276,23 @@ def _voice_defaults(
     """Return voice/options config with safe defaults."""
     source = data or {}
     return {
-        "vibecast_session_end_allowed": source.get("vibecast_session_end_allowed") is True,
         CONF_ASSIST_PIPELINE_ID: _defaultable_value(
             source,
             CONF_ASSIST_PIPELINE_ID,
             DEFAULT_ASSIST_PIPELINE_ID,
             preserve_empty=preserve_empty,
         ),
-        CONF_DJ_RESPONSE_ENABLED: _bool(
-            source.get(CONF_DJ_RESPONSE_ENABLED),
-            DEFAULT_DJ_RESPONSE_ENABLED,
-        ),
+        # Preserve old evidence until explicit settings migration; never mint
+        # another hidden authority on new setup or after retirement.
+        **({CONF_DJ_RESPONSE_ENABLED:source[CONF_DJ_RESPONSE_ENABLED]}
+           if CONF_DJ_RESPONSE_ENABLED in source else {}),
         CONF_DJ_RESPONSE_TTL_SECONDS: _int(
             source.get(CONF_DJ_RESPONSE_TTL_SECONDS),
             DEFAULT_DJ_RESPONSE_TTL_SECONDS,
         ),
-        CONF_DJ_RESPONSE_PROMPT: DEFAULT_DJ_RESPONSE_PROMPT,
-        CONF_VOICE_PROFILE: normalize_voice_profile(
-            source.get(CONF_VOICE_PROFILE) or DEFAULT_VOICE_PROFILE
-        ),
         CONF_DJ_ANNOUNCEMENT_SPEAKER: str(
             source.get(CONF_DJ_ANNOUNCEMENT_SPEAKER) or ""
         ).strip(),
-        CONF_DJ_ANNOUNCEMENT_OUTPUT: (
-            str(source.get(CONF_DJ_ANNOUNCEMENT_OUTPUT) or DJ_ANNOUNCEMENT_BOTH).strip()
-            if str(source.get(CONF_DJ_ANNOUNCEMENT_SPEAKER) or "").strip()
-            else DJ_ANNOUNCEMENT_CLIENT_DEVICE
-        ),
         CONF_MAX_AUDIO_BYTES: _int(
             source.get(CONF_MAX_AUDIO_BYTES),
             DEFAULT_MAX_AUDIO_BYTES,
@@ -1376,9 +1333,8 @@ def _firmware_channel_default(value: Any) -> str:
 
 def _voice_errors(user_input: dict[str, Any]) -> dict[str, str]:
     """Validate required voice/options fields."""
-    profile = user_input.get(CONF_VOICE_PROFILE)
-    if profile is not None and normalize_voice_profile(profile) != profile:
-        return {CONF_VOICE_PROFILE: "invalid_voice_profile"}
+    if {'voice_profile', 'voice_style', 'response_style', 'profile_response_style', 'dj_announcement_output', 'dj_response_enabled'} & user_input.keys():
+        return {'base': 'shared_dj_settings_required'}
     return {}
 
 
@@ -1492,7 +1448,9 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     ) -> FlowResult:
         """Choose setup path."""
         errors: dict[str, str] = {}
-        if not _has_valid_assist_pipeline(getattr(self, "hass", None)):
+        if not _has_valid_assist_pipeline(getattr(self, "hass", None),
+                (user_input or {}).get(CONF_ASSIST_PIPELINE_ID,
+                    self._discovered_defaults.get(CONF_ASSIST_PIPELINE_ID, ""))):
             errors["base"] = "assist_pipeline_required"
         if errors:
             if user_input is not None:
@@ -1613,7 +1571,9 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         is_app_pairing = (
             getattr(self, "_pairing_setup_method", "") == SETUP_METHOD_PAIR_APP
         )
-        if not _has_valid_assist_pipeline(getattr(self, "hass", None)):
+        if not _has_valid_assist_pipeline(getattr(self, "hass", None),
+                (user_input or {}).get(CONF_ASSIST_PIPELINE_ID,
+                    self._discovered_defaults.get(CONF_ASSIST_PIPELINE_ID, ""))):
             return self.async_show_form(
                 step_id=step_id,
                 data_schema=vol.Schema(self._user_schema()),
@@ -2470,6 +2430,10 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         household = await _profile_storage(self.hass).async_load()
         errors: dict[str, str] = {}
         if user_input is not None:
+            if 'profile_response_style' in user_input:
+                return self.async_show_form(step_id='profile_setup',
+                    data_schema=vol.Schema(_profile_setup_schema(user_input)),
+                    errors={'base': 'shared_dj_settings_required'})
             selected = str(user_input.get(CONF_PROFILE_ID) or PROFILE_NEW)
             if selected != PROFILE_NEW:
                 return await self.async_step_profile_choice({CONF_PROFILE_ID: selected})
@@ -2484,12 +2448,6 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 try:
                     ProfileType(
                         str(user_input.get(CONF_PROFILE_TYPE) or ProfileType.PERSONAL.value)
-                    )
-                    ResponseStyle(
-                        str(
-                            user_input.get(CONF_PROFILE_RESPONSE_STYLE)
-                            or ResponseStyle.BALANCED.value
-                        )
                     )
                 except ValueError:
                     errors["base"] = "profile_setup_failed"
@@ -2622,10 +2580,16 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         data.update(self._profile_platform)
         data.update(
             _voice_defaults_for_client(
-                voice_values or {},
+                {**self._pairing, **(voice_values or {})},
                 client_type=CLIENT_TYPE_CONVERSATION_AGENT,
             )
         )
+        if not _has_valid_assist_pipeline(self.hass, data.get(CONF_ASSIST_PIPELINE_ID, "")):
+            return self.async_show_form(
+                step_id="voice",
+                data_schema=_conversation_agent_voice_schema(self.hass, data),
+                errors={"base": "assist_pipeline_required"},
+            )
         return self.async_create_entry(
             title=data.get(CONF_DEVICE_NAME, "DJConnect DJ"),
             data=data,
@@ -2657,6 +2621,14 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         data.update(self._profile_platform)
         if getattr(self, "_conversation_agent_only", False):
             return self._create_conversation_agent_entry(_voice_form_values(user_input))
+        # The Profile commit can yield while HA removes/changes this pipeline.
+        # Validate the exact persisted selection after the last await.
+        if not _has_valid_assist_pipeline(self.hass, data.get(CONF_ASSIST_PIPELINE_ID, "")):
+            return self.async_show_form(
+                step_id="voice",
+                data_schema=await _voice_schema(self.hass, data),
+                errors={"base": "assist_pipeline_required"},
+            )
         return self.async_create_entry(
             title=data.get(CONF_DEVICE_NAME, DEFAULT_DEVICE_NAME), data=data
         )
@@ -2666,9 +2638,14 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         user_input: dict[str, Any] | None = None,
     ) -> FlowResult:
         """Collect optional voice settings. Empty fields are allowed."""
+        if user_input is None and getattr(self, '_conversation_agent_only', False):
+            user_input = {}  # No empty tone-selection form after retirement.
         errors: dict[str, str] = {}
         if user_input is not None:
             errors = _voice_errors(user_input)
+            if not _has_valid_assist_pipeline(self.hass, user_input.get(
+                    CONF_ASSIST_PIPELINE_ID, self._pairing.get(CONF_ASSIST_PIPELINE_ID, ""))):
+                errors["base"] = "assist_pipeline_required"
             errors.update(_announcement_errors(self.hass, user_input))
             if not errors:
                 try:
@@ -2685,7 +2662,7 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 client_type = data.get(CONF_CLIENT_TYPE, DEFAULT_CLIENT_TYPE)
                 data.update(
                     _voice_defaults_for_client(
-                        _voice_form_values(user_input),
+                        {**self._pairing, **_voice_form_values(user_input)},
                         client_type=client_type,
                     )
                 )

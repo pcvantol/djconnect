@@ -35,6 +35,10 @@ class VibeCastMultiMomentTest(unittest.TestCase):
             owner_profile_id="profile-multimoment", selected_mood="groove",
             music_backend="spotify_direct", locale=locale,
         )
+        # Exercise multi-Moment mechanics at the explicitly selected high
+        # Presence level; default Balanced now intentionally spaces at90s.
+        session = await manager.async_update_presence(owner_profile_id=session.owner_profile_id,
+            session_id=session.session_id, selected_presence="presenter")
         first_id = "spotify:track:AAAAAAAA"
         media_id = "spotify:track:BBBBBBBB"
         await manager.async_update_playback_projection(

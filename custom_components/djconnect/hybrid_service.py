@@ -19,7 +19,8 @@ from .transport_delivery import (
 )
 
 ACTION_OPERATIONS = frozenset(
-    {"command", "ask_dj/message", "track_insight", "session/mood", "session/presence"}
+    {"command", "ask_dj/message", "track_insight", "session/mood", "session/presence", "session/persona", "session/speech/play", "speech/preview",
+     "session/persona/reaction", "session/persona/reaction/cancel"}
 )
 HTTP_OPERATIONS = ACTION_OPERATIONS | {"session/start", "session/end"}
 READ_OPERATIONS = frozenset(
@@ -28,6 +29,8 @@ READ_OPERATIONS = frozenset(
         "session/broadcast/snapshot",
         "session/broadcast/recover",
         "session/forecast",
+        'profile/settings',
+        'profile/settings/operation',
     }
 )
 # No arbitrary HA service, device firmware, administrative or retired-client action.
@@ -86,6 +89,9 @@ class PairedAuthority:
     def __init__(self, hass, identity, headers, runtime, context, binding):
         self.hass, self.identity, self.headers = hass, identity, headers
         self.runtime, self.context, self.binding = runtime, context, binding
+        self.transport_guard = None
+        self.transport_guard_now = None
+        self.owner_final_guard = None
         self.owner = hashlib.sha256(context.profile_id.encode()).hexdigest()
         self.device = hashlib.sha256(identity["device_id"].encode()).hexdigest()
 
@@ -99,6 +105,7 @@ class PairedAuthority:
         from .profile_context import async_resolve_device_bound_request_context
         from .session_conversation import async_history_grant_revision
         from .ask_dj.dialogue import source_scope
+        from .profile_context import profile_storage
 
         if (
             not isinstance(identity, dict)
@@ -120,6 +127,10 @@ class PairedAuthority:
                 hass, runtime, identity, request_source="hybrid_transport"
             )
             grant = await async_history_grant_revision(hass, context.profile_id)
+            mapped_device = profile_storage(hass).household.devices.get(identity['device_id'])
+            binding_generation = getattr(mapped_device, 'binding_generation', '')
+            if not re.fullmatch('[a-f0-9]{32}', binding_generation):
+                raise OperationError('profile_binding_unavailable', 503)
         except Exception:
             raise OperationError("profile_unavailable", 403) from None
         entry_id = runtime.entry.entry_id
@@ -134,6 +145,7 @@ class PairedAuthority:
                 "device": identity,
                 "entry": entry_id,
                 "generation": generation,
+                'profile_binding_generation': binding_generation,
                 "pairing": hashlib.sha256(
                     str(getattr(runtime, "device_token", "")).encode()
                 ).hexdigest(),
@@ -145,12 +157,43 @@ class PairedAuthority:
                 "grant": grant,
             }
         )
-        return cls(hass, dict(identity), dict(headers), runtime, context, binding)
+        authority = cls(hass, dict(identity), dict(headers), runtime, context, binding)
+
+        def owner_final_guard():
+            from .api_handlers import _conversation_profile_fence
+            from .session_conversation import history_grant_revision, SessionConversationError
+
+            try:
+                _conversation_profile_fence(hass, runtime, authority.identity, authority.headers, context)
+            except SessionConversationError as exc:
+                raise OperationError(exc.code, exc.status) from None
+            current_manager = hass.data.get(DOMAIN, {}).get("session_runtime_manager")
+            current_device = profile_storage(hass).household.devices.get(identity['device_id'])
+            if (
+                getattr(runtime, "_receiver_end_generation", 0) != generation
+                or (current_manager and current_manager.receiver_entry_generation(entry_id) != generation)
+                or history_grant_revision(hass, context.profile_id) != grant
+                or getattr(current_device, 'binding_generation', '') != binding_generation
+            ):
+                raise OperationError("operation_context_changed", 403)
+
+        authority.owner_final_guard = owner_final_guard
+        return authority
 
     async def validate(self):
         current = await self.resolve(self.hass, self.identity, self.headers)
         if current.runtime is not self.runtime or current.binding != self.binding:
             raise OperationError("operation_context_changed", 403)
+        if self.transport_guard is not None:
+            await self.transport_guard()
+        self.validate_now()
+
+    def validate_now(self):
+        if self.owner_final_guard is None:
+            raise OperationError("operation_context_changed", 403)
+        self.owner_final_guard()
+        if self.transport_guard_now is not None:
+            self.transport_guard_now()
 
     def payload(self, value):
         if not isinstance(value, dict):
@@ -239,16 +282,30 @@ async def invoke(hass, authority, operation, payload):
 
             register_delivery_admission(command_delivery)
         return result
-    if operation in {"session/mood", "session/presence"}:
+    if operation in {"session/mood", "session/presence", "session/persona"}:
         from .session_mood import async_handle_owner_setting
 
         return await async_handle_owner_setting(
             hass, payload, headers=authority.headers, setting=operation.split("/")[1]
         )
+    if operation == 'session/speech/play':
+        from .speaker_delivery import async_play
+        return await async_play(hass, authority, payload)
+    if operation == 'speech/preview':
+        from .voice_preview import async_preview
+        return await async_preview(hass, authority, payload)
+    if operation in {'session/persona/reaction', 'session/persona/reaction/cancel'}:
+        from .persona_reactions import async_react, async_cancel
+        return await (async_cancel if operation.endswith('/cancel') else async_react)(hass, authority, payload)
     if operation == "session/forecast":
         from .session_forecast_transport import async_handle_forecast
 
         return await async_handle_forecast(hass, payload, headers=authority.headers)
+    if operation in {'profile/settings', 'profile/settings/operation'}:
+        from .profile_settings import async_handle_settings
+        return await async_handle_settings(hass, payload, headers=authority.headers,
+                                           operation=operation.endswith('/operation'),
+                                           validate_ingress=authority.validate_now)
     raise OperationError("unsupported_operation", 400)
 
 
@@ -275,7 +332,8 @@ class HybridOperations:
         self._closed = True
         if self._unsubscribe_stop is not None:
             remove, self._unsubscribe_stop = self._unsubscribe_stop, None
-            remove()
+            if _event is None:
+                remove()
         self._sweep_task.cancel()
         for task in self.tasks.values():
             task.cancel()
@@ -429,7 +487,7 @@ class HybridOperations:
             # Existing setting owners reject stale CAS before any write. This
             # narrow qualified error is not a generic HTTP-code assumption.
             rejected = (
-                operation in {"session/mood", "session/presence"}
+                operation in {"session/mood", "session/presence", "session/persona"}
                 and status == 409
                 and code == operation.split("/")[1] + "_revision_conflict"
                 and self.journal._state["records"][key]["phase"] == "accepted"
@@ -464,6 +522,17 @@ class HybridOperations:
             self.journal.release(key)
 
 
+def current_operation_identity(authority):
+    """Read this already-reserved operation; never mint a second intent or lease."""
+    scope = _current_operation.get()
+    if not scope or scope[2] is not authority:
+        raise OperationError('operation_context_changed', 409)
+    manager, key, _ = scope
+    validate_transport_effect_now()
+    record = manager.journal._state['records'][key]
+    return record['operation_id'], record['expires_ms']
+
+
 async def guard_transport_effect():
     """Existing provider adapters call this through their established send guard."""
     current = _current_operation.get()
@@ -484,7 +553,10 @@ def validate_transport_effect_now():
     if current is not None:
         if not current:
             raise OperationError("operation_context_changed", 409)
-        manager, key, _authority = current
+        manager, key, authority = current
+        final_guard = getattr(authority, "validate_now", None)
+        if final_guard is not None:
+            final_guard()
         if manager.journal._failed:
             raise OperationError("operation_unavailable", 503)
         manager.journal._validate_time(manager.journal._state["records"][key]["operation_id"])

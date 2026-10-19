@@ -4,6 +4,23 @@ Status: **proposed technical contract; no runtime implementation**.
 Parent: [web-first experience](VIBECAST_WEB_FIRST_EXPERIENCE_V1.md), issue #1174.
 Terms below describe required future operations, not new live API paths.
 
+## Resolved public entry and current service boundary
+
+The public entry is https://vibecast.tv/ directly at root, per owner-reported
+Cloudflare domain purchase. This does not prove DNS, TLS, account bindings,
+Pages deployment or onboarding operation. Keep public alias separate from stable
+wire identity; no arbitrary URL query redirect. The [web entry/distribution
+contract](VIBECAST_WEB_ENTRY_DISTRIBUTION_V1.md) places generic UI/build/Pages
+ownership in receiverrepo, while proposed temporary rendezvous service and its
+Worker/security/deployment remain API-owned, pending exact service/wire contract.
+No APNs keys, push-registration data or general Session backend may be reused.
+Receiver#16 can deliver a real independently tested frontend/CI route with an
+honest unavailable-service production state; no fake QR/scan/pairing success.
+The original expiry/crypto/trust gates below remain separate integration gates.
+Glass/Soft/Solid and Minder effecten affect only presentation; QR/code stay opaque,
+still and sharp. A missing security/TLS/crypto capability cannot fall back to a
+weaker protocol. Final emoji choice does not affect this bootstrap contract.
+
 ## Trust boundaries and minimum central service
 
 Pages serves generic bootstrap code, not HA data. A small Worker with temporary
@@ -46,6 +63,16 @@ and an explicit visible destination. Central service never fetches that URL
 (no SSRF). Normalize origin/port/IDNA under a reviewed URL parser; reject
 ambiguous encodings, javascript/data schemes and mixed content. Destination
 confirmation belongs to the owner action, not to a central open redirect.
+
+The selected Core display-admission draft now proposes an explicit direct-
+navigation trust handoff: after the bootstrap authenticates and validates the
+initial selected HA entry, that HA/proxy is the trusted execution boundary.
+The route must answer direct200 without login/redirect hops; this is a measured
+configuration requirement, not a browser-JavaScript promise to intercept later
+HA/content/service-worker navigation. This corrects the earlier absolute
+enforcement implication and still requires joint design review before freeze.
+No arbitrary input/query redirects, credentials in URLs or unverified origins
+are permitted. See the [exact Core route decision](VIBECAST_DISPLAY_ADMISSION_V1.md#core-route-decision-explicit-trust-handoff-joint-review-still-open).
 
 A malicious central operator may substitute keys or state; comparison and
 cryptographic binding must be independently reviewed before claiming resistance
@@ -114,7 +141,7 @@ No strong claim token is returned to the owner app for forwarding.
 | Owner app unpaired | Explain owner scanner needs pairing; guest join remains available separately |
 | Multiple owner installations | Explicit chooser and destination/session confirmation, no last-used silent approval |
 | Missing external URL | Owner configures valid existing remote-access path later; no hostname guessing |
-| TLS/DNS/reachability failure | Visible failed destination and retry/change installation; no cert bypass or HTTP fallback |
+| TLS/DNS/reachability failure | Before handoff report known failures; after navigation browser error UI may appear before HA loads. HA owns B recovery when loaded. No false connected state, cert bypass or HTTP fallback |
 | Wrong code/attempt limit | Rate-limit bounded claim, no global enumeration; regenerate claim after expiry |
 | Central outage | Existing connected sessions unaffected; new central bootstrap waits/retries visibly; explicit direct HA entry only when known and safe |
 | HA outage/restart | Stale display expires; reconnect revalidates; expired ephemeral grants need new admission |
@@ -243,3 +270,11 @@ Security baseline: OWASP [authorization](https://cheatsheetseries.owasp.org/chea
 These are design inputs, not security certification. Crypto choice, origin-bound
 bootstrap, old-browser capability, retention/access logs, source licenses and
 exact denial/effect tests must be independently reviewed before implementation.
+
+## Selected Core display-admission review
+
+Owner6222775045 selects the existing Core writer for
+[DJC-CORE-VIBECAST-DISPLAY-ADMISSION-V1-20261016](VIBECAST_DISPLAY_ADMISSION_V1.md).
+That contract records the exact current trust-anchor gap, proposed external route,
+separate A/B states and controlled legacy-end inventory before runtime. It is
+NOT_FROZEN; it creates no live endpoint, consumer adoption or deployment.

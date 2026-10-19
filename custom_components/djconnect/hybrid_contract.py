@@ -2,6 +2,8 @@
 
 import json
 
+from .hybrid_local_policy import transport_security_policy
+
 FRAME_LIMIT = 65_536
 
 
@@ -31,12 +33,14 @@ def hybrid_transport_capability():
         "available": True,
         "version": 1,
         "requires_authenticated_tls": True,
+        "transport_security": transport_security_policy(),
         "client_types": ["ios", "macos", "watchos"],
         "audience": "paired_owner_actions",
         "path": "/api/djconnect/v1/actions/paired",
         "auth": "paired_device_first_frame",
         "ha_credentials_issued": False,
-        "commands": ["djconnect/read", "djconnect/operation/execute", "djconnect/operation/status"],
+        "commands": ["djconnect/read", "djconnect/operation/execute", "djconnect/operation/status",
+                     "djconnect/profile/settings/update", "djconnect/profile/settings/subscribe"],
         "context_path": "/api/djconnect/v1/transport/context",
         "operation_path": "/api/djconnect/v1/transport/operation",
         "status_path": "/api/djconnect/v1/transport/operation/status",

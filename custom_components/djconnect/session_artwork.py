@@ -31,9 +31,15 @@ def subject_for_fact(fact):
     """Source identity, never presentation text or current playback artwork."""
     if fact is None:
         return None
-    if fact.intent == 'artist_story':
+    from .session_facts import ProducerRecommendationFact
+    if isinstance(fact, ProducerRecommendationFact):
+        uri = fact.recommended_media_identity
+    elif fact.intent == 'artist_story':
         uri = getattr(fact, 'artwork_subject_uri', '')
-    elif fact.intent == 'album_story':
+    elif getattr(fact, 'key', '') == 'genre_context':
+        m = re.fullmatch(r'https://open\.spotify\.com/artist/([A-Za-z0-9]{22})', fact.source_url)
+        uri = 'spotify:artist:' + m[1] if m else ''
+    elif fact.intent == 'album_story' or getattr(fact, 'key', '') == 'album_continuity':
         m = re.fullmatch(r'https://open\.spotify\.com/album/([A-Za-z0-9]{22})', fact.source_url)
         uri = 'spotify:album:' + m[1] if m else ''
     else:
@@ -221,7 +227,8 @@ async def _prepare(hass, runtime, context, *, session_id, target, complete_deadl
                 artwork['media_revision'] = revision
                 projection = {'schema_version': 1, 'session_id': session_id, **target,
                               'revision': revision, 'artwork': artwork}
-                asset = {'body': body, 'mime': mime, 'deadline': mono + TTL, 'authority': authority,
+                asset = {'body': body, 'mime': mime, 'deadline': mono + TTL,
+                         'captured_monotonic': mono, 'authority': authority,
                          'allowed': allowed, 'asset_id': asset_id, 'subject': uri, 'projection': projection,
                          'historical': historical, 'expected_source': dict(expected_source), 'delivery_scope': delivery_scope}
                 if not registry.commit(key, asset):

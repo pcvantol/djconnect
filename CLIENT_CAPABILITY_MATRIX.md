@@ -1,5 +1,24 @@
 # DJConnect Client Capability Matrix
 
+## Current shared settings3 / target-aware speech3 producer
+
+Protected source main `e8cc70ddffb4112b09babdda4d45140b98926ae5`, PR [#1193](https://github.com/pcvantol/djconnect/pull/1193). [Exact source readback](docs/verification/PROFILE_SESSION_SETTINGS_SOURCE_READBACK_20261016.md). Six-field producer/capabilities are delivered in Core; earlier local-candidate/design checkpoints below are historical. Consumer adoption, complete legacy removal, Finalization and actual installed/native/audible/joint outcomes remain separately qualified.
+
+## Historical contract checkpoints
+
+## Current settings owner addenda — local contract3 producer
+
+[Canonical delta](docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md) adds `announcement_output` to the five shared DJ choices under owner6220590330/6220695648. Six-field settings contract3 and target-aware speech prepare3 are implemented and advertised in the unpublished Core candidate; final exact review/protected delivery remain required. `text_only` forbids announcement synthesis and all replay; speaker-only still permits explicit local owner replay. Physical speaker/Assist pipeline/ESP administration stay HA-only; local autoplay defaults OFF and OS permissions remain local. Existing contract2 checkpoints below are historical five-field proof. Integrated chat/DNA portability is parked, unchanged. Native/installed/joint remain OPEN; no new consumer writer or WIP expansion.
+
+Before six-field activation, an existing Session with unknown Mood has `snapshot.session.settings: null`, `selection_required: true` and `selection_basis: legacy_mood_unknown`. Keep its identity/revision, show separate defaults only as proposals, and require all six explicit choices for activation. Ask DJ1/prepare1 preserve legacy behavior; prepare3 is typed unavailable until selection. Reads do not invent Mood or history coverage.
+
+
+## Selected Profile/Session settings consolidation — contract2
+
+[Canonical all-five contract](docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md), [settings inventory](docs/product/PROFILE_SESSION_SETTINGS_INVENTORY_V1.json), owner6214905647. Allfive Persona/voice/gender/Mood/Presence are Core-owned Profile defaults plus effective Session state; last explicit accepted field patch is automatically remembered and changes an active Session atomically. No device-local voice truth, global pipeline mutation, read effect, source-right expansion or consumer writer dispatch. New typed API/WS contract2 has its own revision/receipt/generation semantics; contract1 is not silently changed. Core implementation/fixtures remain in progress and unpublished; native/installed/hardware/joint and platform-wide legacy removal are not yet qualified.
+
+## Existing delivered contracts and historical context
+
 This document defines how platform capabilities map to DJConnect client classes.
 
 No client owns product features. Clients render or expose platform capabilities according to their strengths and constraints.
@@ -21,7 +40,7 @@ No client owns product features. Clients render or expose platform capabilities 
 | Music control | Full | Basic/shared when the receiver permits it | Physical or voice controls |
 | Ask DJ | Rich text and voice where available | Guest-safe/read-only where permitted | Voice and short TTS only |
 | Music DNA | Personal UI | Never exposed without explicit policy | Never exposed without explicit policy |
-| VibeCast | Supported iOS/iPadOS sender launch and handoff only | Guest + Ambient Renderer experience by default; VibeCast itself is the television web renderer | No visual rendering |
+| VibeCast | Paired owner display setup; existing-app temporary guest join from pairing screen or paired top menu, by discovery or QR; optional Cast sender | Web-first ambient TV/desktop/tablet plus responsive guest view; same server-authorized meaning | No visual rendering |
 | Diagnostics and updates | Platform-specific | Platform-specific | Device-focused |
 
 ## Rules
@@ -45,10 +64,17 @@ separates Device Lifecycle (Guest/Registered) from Experience Mode
 (Interactive/Ambient). Chromecast need not be permanently registered; the
 Raspberry Pi Wall Panel is Registered + Interactive by default, with a future
 renderer-local Ambient state. VibeCast is Guest + Ambient by default. Its
-future V1 target is Google TV through a Google Cast Custom Web Receiver that
-renders renderer-safe Broadcast projections locally, rather than a native
-television app or a mirrored sender stream; see
-[`docs/product/VIBECAST_ARCHITECTURE.md`](docs/product/VIBECAST_ARCHITECTURE.md).
+web-first entry is https://vibecast.tv/ at root, with two-step destination/display
+admission. The only web-first exception is guest participation through the
+existing DJConnect app, retaining home pairing and isolated guest authority.
+Google Cast is an optional adapter to the same renderer; native TV applications
+and Cast hardware are not browser-bootstrap prerequisites. Glass/Soft/Solid retain
+identical authorized functions. Readonly display, guest proposal/chat/reaction
+writes and owner playback authority are distinct; generic shared-host capability
+rows above do not widen new VibeCast TV permissions. See the
+[canonical VibeCast architecture](docs/product/VIBECAST_ARCHITECTURE.md),
+[web-first experience](docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md) and
+[route/lifecycle contract](docs/product/VIBECAST_WEB_ENTRY_DISTRIBUTION_V1.md).
 
 By default, Pi should resolve to a shared profile unless explicitly linked to a personal profile.
 

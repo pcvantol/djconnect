@@ -1,5 +1,7 @@
 """Transport-independent platform capability advertisement, never an access grant."""
 
+from .domain.profile.dj_settings import SETTINGS_VERSION
+
 
 def _platform_capabilities() -> dict[str, bool]:
     """Return platform capability flags that are independent of transport."""
@@ -16,11 +18,15 @@ def _platform_capabilities() -> dict[str, bool]:
         "moment_track_insight_navigation_v1": True,
         "session_flow_text_search": True,
         "active_session_mood": True,
+        "active_session_persona": True,
         "active_session_presence": True,
         "session_forecast": True,
         "session_history_summary": True,
         "hybrid_transport": True,
         "session_artwork": True,
+        "session_speech": True,
+        "passive_session_surface": True,
+        "profile_session_settings": True,
     }
 
 
@@ -30,13 +36,18 @@ def _contract_versions() -> dict[str, int]:
         "profile_context": 1,
         "client_contract_fixtures": 1,
         "session_conversation_history": 1,
+        "session_history_entries": 2,
         "ask_dj_contextual_dialogue": 1,
         "moment_track_insight_navigation": 1,
         "session_flow_text_search": 1,
         "active_session_mood": 1,
-        "active_session_presence": 1,
+        "active_session_persona": 1,
+        "active_session_presence": 2,
         "session_forecast": 1,
         "hybrid_transport": 1,
         "session_artwork": 1,
+        "session_speech": 1,
+        "passive_session_surface": 1,
         "session_history_summary": 1,
+        "profile_session_settings": SETTINGS_VERSION,
     }

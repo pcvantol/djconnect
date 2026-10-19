@@ -280,7 +280,8 @@ class AskDjTest(unittest.TestCase):
         self.assertTrue(result["success"])
         self.assertEqual(calls, ["status"])
         self.assertEqual(result["intent"]["category"], "informational")
-        self.assertIn("Omdat dit goed aansluit", result["text"])
+        self.assertIn("niet genoeg betrouwbare broninformatie", result["text"])
+        self.assertNotIn("Omdat dit goed aansluit", result["text"])
         self.assertEqual(result["music_dna_key"], "user:user-1")
         self.assertEqual(result["images"], [])
 
@@ -376,6 +377,8 @@ class AskDjTest(unittest.TestCase):
 
         requests = [
             ("Geef me 10 uitvoeringen van Nothing else matters door verschillende artiesten", "Nothing else matters"),
+            ("Geef me 10 uitvoeringen van Hallelujah door verschillende artiesten", "Hallelujah"),
+            ("Find versions of One", "One"),
             ('Zoek versies van "Nothing else matters"', "Nothing else matters"),
             ('Toon covers van "Nothing else matters"', "Nothing else matters"),
             ('Heb je live versies van "Nothing else matters"', "Nothing else matters"),
@@ -1777,7 +1780,7 @@ class AskDjTest(unittest.TestCase):
         self.assertEqual(result["action"], "none")
         self.assertNotIn("hardstyle artiest", result["dj_text"])
 
-    def test_period_correction_merges_with_previous_album_question(self) -> None:
+    def test_period_correction_never_promotes_unqualified_old_history_to_model_evidence(self) -> None:
         runtime = make_runtime()
         runtime.ask_dj_history = FakeAskDJHistory(
             [
@@ -1816,13 +1819,11 @@ class AskDjTest(unittest.TestCase):
         finally:
             self.ask_dj.run_music_command = original_command
 
-        self.assertIn(
-            "Welke albums heeft Prince uitgebracht? alleen tussen 1980 en 1990",
-            seen["prompt"],
-        )
+        self.assertNotIn("prompt", seen)
         self.assertEqual(seen.get("commands", []), [])
         self.assertEqual(result["intent"]["intent"], "ask_music_info")
-        self.assertIn("Prince", result["dj_text"])
+        self.assertNotIn("Prince", result["dj_text"])
+        self.assertEqual(result["knowledge_basis"], "public_subject_required")
 
     def test_watch_mood_zone_reaches_informational_prompt(self) -> None:
         runtime = make_runtime()
@@ -1853,6 +1854,8 @@ class AskDjTest(unittest.TestCase):
                         "mood": 70,
                     },
                     user_id="user-1",
+                    confirmed_entry={"archive_basis":"runtime_authored_direction_v1",
+                                     "text":"An exploration direction, not a chosen next track.", "source_attribution":{}},
                 )
             )
         finally:
@@ -1860,7 +1863,7 @@ class AskDjTest(unittest.TestCase):
 
         self.assertIn('"mood": "energy"', seen["prompt"])
         self.assertIn('"mood_basis": "request_numeric"', seen["prompt"])
-        self.assertEqual(seen["commands"], ["status"])
+        self.assertEqual(seen.get("commands", []), ["status"])
         self.assertEqual(result["intent"]["category"], "informational")
 
     def test_real_playback_prompt_stays_playback_intent(self) -> None:
@@ -2397,7 +2400,7 @@ class AskDjTest(unittest.TestCase):
         self.assertTrue(favorite_action["favorite_status"])
         self.assertEqual(favorite_action["client_prompt"], "Haal huidig nummer uit favorieten")
 
-    def test_current_track_question_generates_audio_response_by_default(self) -> None:
+    def test_current_track_question_defers_audio_until_accepted_reference(self) -> None:
         runtime = make_runtime()
         runtime.last_playback = {
             "has_playback": True,
@@ -2438,11 +2441,9 @@ class AskDjTest(unittest.TestCase):
             self.ask_dj.run_music_command = original_command
             self.ask_dj.async_send_dj_response_best_effort = original_tts
 
-        self.assertEqual(result["audio_url"], "/api/djconnect/v1/tts/current-track.mp3")
-        self.assertEqual(result["audio_type"], "mp3")
-        self.assertEqual(result["assistant_message"]["audio_url"], "/api/djconnect/v1/tts/current-track.mp3")
-        self.assertEqual(result["assistant_message"]["audio_type"], "mp3")
-        self.assertEqual(tts_calls, [result["dj_text"]])
+        self.assertEqual(result["audio_delivery"], {"mode": "accepted_reference", "state": "deferred"})
+        self.assertFalse(result.get("audio_url"))
+        self.assertEqual(tts_calls, [])  # Interpretation precedes common semantic acceptance.
 
     def test_current_track_question_uses_fresh_empty_status_not_stale_playback(self) -> None:
         runtime = make_runtime()
@@ -2481,7 +2482,7 @@ class AskDjTest(unittest.TestCase):
         self.assertNotIn("playback", result)
         self.assertEqual(result["playback_actions"], [])
 
-    def test_current_track_catalog_is_not_model_input_and_keeps_local_caption_audio(self) -> None:
+    def test_current_track_catalog_is_not_model_input_and_defers_caption_audio(self) -> None:
         runtime = make_runtime()
         runtime.last_playback = {
             "has_playback": True,
@@ -2541,11 +2542,9 @@ class AskDjTest(unittest.TestCase):
         self.assertFalse(result["is_generated_text"])
         self.assertEqual(result["assistant_message"]["text_source"], "fallback")
         self.assertFalse(result["assistant_message"]["is_generated_text"])
-        self.assertEqual(result["audio_url"], "/api/djconnect/v1/tts/generated-current.wav")
-        self.assertEqual(result["audio_type"], "wav")
-        self.assertEqual(result["assistant_message"]["audio_url"], "/api/djconnect/v1/tts/generated-current.wav")
-        self.assertEqual(result["assistant_message"]["audio_type"], "wav")
-        self.assertEqual(tts_calls, [result["dj_text"]])
+        self.assertEqual(result["audio_delivery"], {"mode": "accepted_reference", "state": "deferred"})
+        self.assertFalse(result.get("audio_url"))
+        self.assertEqual(tts_calls, [])  # Interpretation precedes common semantic acceptance.
         self.assertEqual(calls, [])
 
     def test_play_album_containing_track_request_searches_track_then_plays_album(self) -> None:
@@ -2982,9 +2981,10 @@ class AskDjTest(unittest.TestCase):
             ["album", "playlist", "album", "playlist"],
         )
         self.assertTrue(all(action["label"] == "Play Now" for action in result["playback_actions"]))
-        self.assertEqual(result["items"], result["playback_actions"])
+        self.assertEqual(result["items"], [])
         self.assertEqual(result["images"], [])
         self.assertIn("albums en playlists voor hardcore", result["dj_text"])
+        self.assertNotIn("1.", result["dj_text"])
         self.assertIn("spotify_album_search", {source["source"] for source in result["sources"]})
         self.assertIn("spotify_playlist_search", {source["source"] for source in result["sources"]})
 
@@ -3059,9 +3059,10 @@ class AskDjTest(unittest.TestCase):
             ["album", "playlist", "album", "playlist"],
         )
         self.assertTrue(all(action["label"] == "Play Now" for action in result["playback_actions"]))
-        self.assertEqual(result["items"], result["playback_actions"])
+        self.assertEqual(result["items"], [])
         self.assertEqual(result["images"], [])
-        self.assertIn("albums en playlists van scala", result["dj_text"])
+        self.assertIn("albums en playlists voor scala", result["dj_text"])
+        self.assertNotIn("1.", result["dj_text"])
         self.assertNotIn("Brainpower", result["dj_text"])
 
     def test_artist_play_request_does_not_become_genre_options(self) -> None:
@@ -3590,7 +3591,7 @@ class AskDjTest(unittest.TestCase):
         self.assertTrue(result["success"])
         self.assertNotIn("audio_url", result)
 
-    def test_informational_text_chat_can_force_audio_response(self) -> None:
+    def test_informational_text_chat_requests_deferred_audio_response(self) -> None:
         runtime = make_runtime()
         tts_calls = []
 
@@ -3625,8 +3626,9 @@ class AskDjTest(unittest.TestCase):
             self.ask_dj.async_send_dj_response_best_effort = original_tts
 
         self.assertTrue(result["success"])
-        self.assertEqual(result["audio_url"], "/api/djconnect/v1/tts/forced.mp3")
-        self.assertTrue(tts_calls)
+        self.assertEqual(result["audio_delivery"], {"mode": "accepted_reference", "state": "deferred"})
+        self.assertFalse(result.get("audio_url"))
+        self.assertEqual(tts_calls, [])
 
     def test_action_request_dispatches_spotify_command(self) -> None:
         runtime = make_runtime()
@@ -3669,7 +3671,8 @@ class AskDjTest(unittest.TestCase):
         self.assertIn(("pause", None), calls)
         self.assertEqual(result["intent"]["category"], "action")
         self.assertEqual(result["action"], "pause")
-        self.assertEqual(result["audio_url"], "/api/djconnect/v1/tts/action.mp3")
+        self.assertEqual(result["audio_delivery"]["state"], "deferred")
+        self.assertEqual(tts_calls, [])
         self.assertEqual(result["images"], [])
         self.assertEqual(result["assistant_message"]["images"], [])
         self.assertEqual(result["playback_actions"][0]["kind"], "control")
@@ -3678,7 +3681,7 @@ class AskDjTest(unittest.TestCase):
         self.assertEqual(result["playback_actions"][0]["label"], "Muziek hervatten")
         self.assertEqual(result["playback_actions"][0]["button_label"], "Muziek hervatten")
         self.assertEqual(result["assistant_message"]["playback_actions"], result["playback_actions"])
-        self.assertTrue(tts_calls)
+        self.assertEqual(tts_calls, [])
 
     def test_volume_action_returns_controls_without_media_chrome(self) -> None:
         runtime = make_runtime()
@@ -4476,8 +4479,8 @@ class AskDjTest(unittest.TestCase):
             self.ask_dj.async_send_dj_response_best_effort = original_tts
 
         self.assertEqual(result["dj_text"], "Daar is Snow Patrol, met Chasing Cars. Van Eyes Open.")
-        self.assertEqual(tts_calls, ["Daar is Snow Patrol, met Chasing Cars. Van Eyes Open."])
-        self.assertEqual(result["audio_url"], "/api/djconnect/v1/tts/snow-patrol.mp3")
+        self.assertEqual(tts_calls, [])
+        self.assertEqual(result["audio_delivery"]["state"], "deferred")
         self.assertEqual(result["images"][0]["title"], "Chasing Cars")
         self.assertEqual(result["images"][0]["subtitle"], "Snow Patrol")
 
@@ -4545,9 +4548,10 @@ class AskDjTest(unittest.TestCase):
             self.ask_dj.async_send_dj_response_best_effort = original_tts
 
         self.assertEqual(result["dj_text"], rich_text)
-        self.assertEqual(tts_calls, [rich_text])
+        self.assertEqual(tts_calls, [])
+        self.assertEqual(result["audio_delivery"]["state"], "deferred")
         self.assertNotEqual(result["dj_text"], "Daar is Floor Jansen, met Euphoria. Van Euphoria.")
-        self.assertEqual(result["audio_url"], "/api/djconnect/v1/tts/floor-jansen.mp3")
+        self.assertFalse(result.get("audio_url"))
         self.assertEqual(result["images"][0]["title"], "Euphoria")
         self.assertEqual(result["images"][0]["subtitle"], "Floor Jansen")
 
@@ -4612,7 +4616,8 @@ class AskDjTest(unittest.TestCase):
             self.ask_dj.async_send_dj_response_best_effort = original_tts
 
         self.assertEqual(result["dj_text"], "Daar is Nirvana, met Come As You Are. Van Nevermind.")
-        self.assertEqual(tts_calls, ["Daar is Nirvana, met Come As You Are. Van Nevermind."])
+        self.assertEqual(tts_calls, [])
+        self.assertEqual(result["audio_delivery"]["state"], "deferred")
         self.assertNotIn("Lithium", result["dj_text"])
         self.assertEqual(result["images"][0]["title"], "Come As You Are")
         self.assertEqual(result["images"][0]["subtitle"], "Nirvana")
@@ -8292,6 +8297,18 @@ class AskDjTest(unittest.TestCase):
         self.assertEqual(result["error"], "playback_failed")
         self.assertIn("Ik heb je muziekverzoek begrepen", result["text"])
         self.assertNotIn("I understood", result["text"])
+
+    def test_explicit_failure_locale_wins_over_question_words_and_runtime_language(self):
+        runtime = make_runtime()
+        runtime.device_language = lambda: "en"
+        prefixes = {"en": "I understood", "nl": "Ik heb", "de": "Ich habe",
+                    "fr": "J’ai", "es": "He entendido"}
+        for key in ("language", "locale"):
+            for language, prefix in prefixes.items():
+                with self.subTest(key=key, language=language):
+                    text = self.ask_dj._playback_failed_text(runtime, "speel Nirvana",
+                        {key: language + "-XX"})
+                    self.assertTrue(text.startswith(prefix), text)
 
     def test_ask_dj_http_rejects_unknown_client_type(self) -> None:
         runtime = make_runtime()

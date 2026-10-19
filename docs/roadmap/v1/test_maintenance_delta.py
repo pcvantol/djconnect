@@ -11,9 +11,157 @@ from render_snapshot import render
 ROOT = Path(__file__).resolve().parent
 
 
+class ExperienceReconciliationTests(unittest.TestCase):
+    def test_current_correction_preserves_historical_delivery_and_stays_open(self):
+        plan = load(ROOT / 'djconnect-platform-v1.json')
+        self.assertEqual(validate(plan), [])
+        delta = plan['planning_maintenance']
+        prior = load(ROOT / 'history/20261017/settings-finalization-maintenance-v14.json')
+        self.assertEqual(next(n for n in delta['nodes'] if n['id'] == 'SPEECH::CORE::REALIZATION'),
+                         next(n for n in prior['nodes'] if n['id'] == 'SPEECH::CORE::REALIZATION'))
+        self.assertIn('LOCAL / UNPUBLISHED', render(plan)['lanes/DJC-CORE.md'])
+        self.assertEqual(delta['settings_consolidation_receipt'], prior['settings_consolidation_receipt'])
+        inventory = ROOT.parents[2] / delta['settings_consolidation_receipt']['inventory_path']
+        self.assertEqual(delta['experience_reconciliation_receipt']['current_inventory_sha256'],
+                         hashlib.sha256(inventory.read_bytes()).hexdigest())
+        for field, value in (('overall_acceptance', 'PASS'), ('source_delivery', 'PROTECTED_MERGED'),
+                             ('native', 'PASS'), ('installed', 'PASS'), ('audible', 'PASS'),
+                             ('automatic_dispatch', True), ('previous_delta_sha256', '0' * 64),
+                             ('current_inventory_sha256', '0' * 64)):
+            changed = copy.deepcopy(plan)
+            changed['planning_maintenance']['experience_reconciliation_receipt'][field] = value
+            self.assertTrue(validate(changed), field)
+
+
+class SharedSettingsMaintenanceTests(unittest.TestCase):
+    def setUp(self):
+        self.p = load(ROOT / 'djconnect-platform-v1.json')
+
+    def test_six_parameter_scope_preserves_frozen_predecessor(self):
+        self.assertEqual(validate(self.p), [])
+        d = self.p['planning_maintenance']
+        self.assertEqual(d['schema_version'], 'djconnect-federated-planning-delta/16')
+        self.assertEqual(d['settings_consolidation_receipt']['parameters'],
+                         ['persona', 'voice', 'gender', 'mood', 'presence', 'announcement_output'])
+        self.assertIn('six shared Persona/voice/gender/Mood/Presence/announcement_output', render(self.p)['README.md'])
+
+    def test_false_scope_authority_or_consumer_completion_rejected(self):
+        for key, value in (('parameters', ['persona']),
+                           ('parameters', ['persona', 'voice', 'gender', 'mood', 'presence']),
+                           ('contract_version', 2), ('owner_addenda', []),
+                           ('ha_only', []), ('client_local', []), ('portability', 'IMPLEMENTING'),
+                           ('voice_scope', 'device_local'),
+                           ('atomic_active_and_default', False), ('native', 'PASS'),
+                           ('family_acceptance', 'COMPLETE'), ('automatic_dispatch', True),
+                           ('consumer_writes', True), ('inventory_sha256', '0'*64)):
+            with self.subTest(key=key):
+                p = copy.deepcopy(self.p)
+                p['planning_maintenance']['settings_consolidation_receipt'][key] = value
+                self.assertTrue(validate(p))
+
+    def test_missing_unknown_duplicate_and_cyclic_edges_rejected(self):
+        for mode in ('missing', 'unknown', 'duplicate', 'cycle', 'soft'):
+            with self.subTest(mode=mode):
+                p = copy.deepcopy(self.p)
+                edges = p['planning_maintenance']['edges']
+                edge = next(e for e in edges if e['id'].startswith('SETTINGS-'))
+                if mode == 'missing':
+                    edges.remove(edge)
+                elif mode == 'unknown':
+                    edge['producer'] = 'SETTINGS::NONEXISTENT'
+                elif mode == 'duplicate':
+                    edges.append(copy.deepcopy(edge))
+                elif mode == 'soft':
+                    edge['hard_precedence'] = False
+                else:
+                    reverse = copy.deepcopy(edge)
+                    reverse.update(id='SETTINGS-CYCLE', producer=edge['consumer'], consumer=edge['producer'])
+                    edges.append(reverse)
+                errors = validate(p)
+                self.assertTrue(errors)
+                if mode == 'cycle':
+                    self.assertTrue(any('cyclic' in error for error in errors))
+
+    def test_historical_nodes_and_receipts_cannot_be_rewritten(self):
+        p = copy.deepcopy(self.p)
+        p['planning_maintenance']['passive_surface_receipt']['source_main_sha'] = '0'*40
+        self.assertTrue(validate(p))
+        p = copy.deepcopy(self.p)
+        node = next(n for n in p['planning_maintenance']['nodes'] if not n['id'].startswith('SETTINGS::'))
+        node['title'] = 'Rewritten historical delivery'
+        self.assertTrue(validate(p))
+
+    def test_source_completion_requires_exact_protected_evidence(self):
+        p = copy.deepcopy(self.p)
+        r = p['planning_maintenance']['settings_consolidation_receipt']
+        r.update(phase='SOURCE_PROTECTED_MERGED', source_delivery='PROTECTED_MERGED')
+        # Remain a meaningful negative test once the canonical plan is merged:
+        # completion without its mandatory exact artifact binding must fail.
+        r.pop('archive_sha256', None)
+        self.assertTrue(validate(p))
+
+    def test_delivered_producer_pin_cannot_point_to_old_local_checkpoint(self):
+        p = copy.deepcopy(self.p)
+        r = p['planning_maintenance']['settings_consolidation_receipt']
+        if r['phase'] != 'SOURCE_PROTECTED_MERGED':
+            return  # The local phase makes no delivered producer claim.
+        r['core_source_pin'] = '187d2cd126c5db1a2791e1d47d80d803aafc5cc1'
+        self.assertTrue(any('source evidence' in error for error in validate(p)))
+
+
+def delivered_settings_plan():
+    """Earlier settings/decision invariants retain their unchanged historical scope."""
+    import json
+    plan = load(ROOT / 'djconnect-platform-v1.json')
+    refs = plan['planning_maintenance']['document_references']
+    plan['planning_maintenance'] = json.loads((ROOT / 'history/20261017/settings-finalization-maintenance-v14.json').read_text())
+    plan['planning_maintenance']['document_references'] = refs
+    return plan
+
+
+def delivered_passive_plan():
+    import json
+    plan = load(ROOT / 'djconnect-platform-v1.json')
+    if plan['planning_maintenance']['schema_version'] in {'djconnect-federated-planning-delta/15','djconnect-federated-planning-delta/16'}:
+        refs = plan['planning_maintenance']['document_references']
+        plan['planning_maintenance'] = json.loads((ROOT / 'history/20261017/settings-finalization-maintenance-v14.json').read_text())
+        plan['planning_maintenance']['document_references'] = refs
+    if plan['planning_maintenance']['schema_version'] == 'djconnect-federated-planning-delta/14':
+        refs = plan['planning_maintenance']['document_references']
+        plan['planning_maintenance'] = json.loads((ROOT / 'history/20261016/passive-finalization-maintenance-v13.json').read_text())
+        plan['planning_maintenance']['document_references'] = refs
+    return plan
+
+
+def delivered_speech_plan():
+    """Earlier v12 invariants keep running against their exact preserved scope."""
+    import json
+    plan = delivered_passive_plan()
+    if plan['planning_maintenance']['schema_version'] == 'djconnect-federated-planning-delta/13':
+        refs = plan['planning_maintenance']['document_references']
+        plan['planning_maintenance'] = json.loads((ROOT / 'history/20261016/provider-gender-finalization-maintenance-v12.json').read_text())
+        plan['planning_maintenance']['document_references'] = refs
+    return plan
+
+
+def delivered_artwork_plan():
+    """Earlier stage invariants run on the preserved delivered v11 scope.
+
+    The new live v12 scope is validated separately below, including unchanged
+    predecessor equality. Current canonical document references still apply.
+    """
+    import json
+    plan = delivered_speech_plan()
+    if plan["planning_maintenance"]["schema_version"] == "djconnect-federated-planning-delta/12":
+        refs = plan["planning_maintenance"]["document_references"]
+        plan["planning_maintenance"] = json.loads((ROOT / "history/20261015/artwork-finalization-maintenance-v11.json").read_text())
+        plan["planning_maintenance"]["document_references"] = refs
+    return plan
+
+
 class MaintenanceTests(unittest.TestCase):
     def setUp(self):
-        self.p = load(ROOT / "djconnect-platform-v1.json")
+        self.p = delivered_artwork_plan()
 
     def test_preserved_history_and_current_references(self):
         d = self.p["planning_maintenance"]
@@ -30,7 +178,7 @@ class MaintenanceTests(unittest.TestCase):
             self.assertEqual(
                 hashlib.sha256((ROOT.parents[2] / r["path"]).read_bytes()).hexdigest(), r["sha256"]
             )
-        for name, body in render(self.p).items():
+        for name, body in render(load(ROOT / "djconnect-platform-v1.json")).items():
             self.assertEqual((ROOT / name).read_text(), body)
 
     def test_queued_successor_does_not_claim_admission_or_implementation(self):
@@ -189,6 +337,10 @@ class MaintenanceTests(unittest.TestCase):
                     if delivered
                     else ("In progress", "IN_PROGRESS"),
                 )
+            elif n["id"] == "WEB::DISTRIBUTION" and d["web_first_receipt"].get("schema_version") == "djconnect-web-first-design/2":
+                self.assertEqual((n["status"], n["assignment_status"]), ("Planned", "SELECTED_QUEUED"))
+                self.assertEqual(n["delivery_subsets"]["PUBLIC_WEB_DELIVERY"]["executor_ack"], "PENDING")
+                self.assertEqual(n["delivery_subsets"]["RENDEZVOUS_INTEGRATION"]["assignment_status"], "SELECTED_CONTRACT_GATED")
             elif n["id"] == "WEB::DOCS":
                 self.assertEqual((n["status"], n["assignment_status"]), ("Completed", "DESIGN_AUTHORED"))
                 self.assertEqual(d["web_first_receipt"]["product_implementation"], "Planned")
@@ -421,7 +573,7 @@ class AmbientMaintenanceTests(unittest.TestCase):
 
 class DialogueMaintenanceTests(unittest.TestCase):
     def setUp(self):
-        self.p = load(ROOT / "djconnect-platform-v1.json")
+        self.p = delivered_artwork_plan()
         if self.p["planning_maintenance"]["schema_version"] == "djconnect-federated-planning-delta/11":
             import json
             path = self.p["planning_maintenance"]["session_artwork_receipt"]["previous_delta"]
@@ -479,7 +631,7 @@ class DialogueMaintenanceTests(unittest.TestCase):
 
 class HybridMaintenanceTests(unittest.TestCase):
     def setUp(self):
-        self.p = load(ROOT / "djconnect-platform-v1.json")
+        self.p = delivered_artwork_plan()
         if self.p["planning_maintenance"]["schema_version"] == "djconnect-federated-planning-delta/11":
             import json
             path = self.p["planning_maintenance"]["session_artwork_receipt"]["previous_delta"]
@@ -564,7 +716,7 @@ class HybridMaintenanceTests(unittest.TestCase):
 
 class SessionArtworkMaintenanceTests(unittest.TestCase):
     def setUp(self):
-        self.p = load(ROOT / "djconnect-platform-v1.json")
+        self.p = delivered_artwork_plan()
 
     def test_live_version_preserves_delivered_predecessor_and_is_valid(self):
         self.assertEqual(self.p['planning_maintenance']['schema_version'], 'djconnect-federated-planning-delta/11')
@@ -599,6 +751,161 @@ class SessionArtworkMaintenanceTests(unittest.TestCase):
         next(n for n in p['planning_maintenance']['nodes'] if n['id']=='TRANSPORT::CORE::CONTRACT')['status']='Planned'
         self.assertTrue(validate(p))
 
+
+class PassiveSurfaceMaintenanceTests(unittest.TestCase):
+    def setUp(self):
+        self.p = delivered_passive_plan()
+
+    def test_v13_preserves_all_delivered_state_and_existing_background_node(self):
+        self.assertEqual(self.p['planning_maintenance']['schema_version'], 'djconnect-federated-planning-delta/13')
+        self.assertEqual(validate(self.p), [])
+        d = self.p['planning_maintenance']
+        self.assertEqual(len([n for n in d['nodes'] if n['id'] == 'SURFACE::CORE::PROJECTION']), 1)
+        background = next(n for n in d['nodes'] if n['id'] == 'SURFACE::APPLE::QUIET-TRANSPORT')
+        self.assertEqual((background['status'], background['assignment_status']), ('Planned', 'NOT_ISSUED'))
+        self.assertIn('Selected passive Session projection', render(self.p)['README.md'])
+
+    def test_consumer_background_and_false_source_completion_rejected(self):
+        for key, value in (('native', 'PASS'), ('background', 'PASS'), ('watch', 'PASS'),
+                           ('joint', 'PASS'), ('consumer_writes', True), ('automatic_dispatch', True),
+                           ('owner_selection', 0), ('contract_commit', '0'*40),
+                           ('source_delivery', 'UNPUBLISHED' if self.p['planning_maintenance']['passive_surface_receipt']['phase'] == 'SOURCE_PROTECTED_MERGED' else 'PROTECTED_MERGED')):
+            with self.subTest(key=key):
+                p = copy.deepcopy(self.p)
+                p['planning_maintenance']['passive_surface_receipt'][key] = value
+                self.assertTrue(validate(p))
+
+    def test_delivered_source_requires_exact_protected_evidence(self):
+        receipt = self.p['planning_maintenance']['passive_surface_receipt']
+        if receipt['phase'] != 'SOURCE_PROTECTED_MERGED':
+            return
+        for key in ('source_main_sha', 'reviewed_head', 'source_review',
+                    'required_checks', 'protected_merge', 'archive_sha256',
+                    'formal_evidence_sha256'):
+            with self.subTest(key=key):
+                p = copy.deepcopy(self.p)
+                p['planning_maintenance']['passive_surface_receipt'].pop(key)
+                self.assertTrue(validate(p))
+
+    def test_unrelated_history_edges_and_duplicate_or_completed_native_nodes_rejected(self):
+        for mode in ('speech', 'edge', 'duplicate', 'native'):
+            with self.subTest(mode=mode):
+                p = copy.deepcopy(self.p)
+                d = p['planning_maintenance']
+                if mode == 'speech':
+                    d['speech_persona_receipt']['base_sha'] = '0'*40
+                elif mode == 'edge':
+                    next(e for e in d['edges'] if e['id'] == 'ENTRY-ABC-7')['hard_precedence'] = False
+                elif mode == 'duplicate':
+                    d['nodes'].append(copy.deepcopy(next(n for n in d['nodes'] if n['id'] == 'SURFACE::CORE::PROJECTION')))
+                else:
+                    next(n for n in d['nodes'] if n['id'] == 'SURFACE::APPLE::ADOPTION')['status'] = 'Completed'
+                self.assertTrue(validate(p))
+
+
+class SpeechPersonaMaintenanceTests(unittest.TestCase):
+    def setUp(self):
+        self.p = delivered_speech_plan()
+
+    def test_live_v12_and_delivered_v11_are_valid_and_reference_only_consumer(self):
+        self.assertEqual(self.p['planning_maintenance']['schema_version'], 'djconnect-federated-planning-delta/12')
+        self.assertEqual(validate(self.p), [])
+        self.assertEqual(validate(delivered_artwork_plan()), [])
+        readme = render(self.p)['README.md']
+        self.assertIn('Selected and freshly admitted speech/Persona implementation', readme)
+        self.assertNotIn('Owner-selected queued successor:', readme)
+
+    def test_documentary_web_predecessor_and_both_families_survive_composition(self):
+        import json
+        d = self.p['planning_maintenance']
+        previous_file = ROOT / 'history/20261016/pre-speech-main582-maintenance-v11.json'
+        previous = json.loads(previous_file.read_text())
+        self.assertEqual(hashlib.sha256(previous_file.read_bytes()).hexdigest(),
+                         d['speech_persona_receipt']['previous_delta_sha256'])
+        self.assertEqual(d['speech_persona_receipt']['integration_main_sha'],
+                         '58205056c235a73488591591dd3d83f80f7bf847')
+        self.assertEqual(d['web_first_receipt'], previous['web_first_receipt'])
+        self.assertEqual([n for n in d['nodes'] if not n['id'].startswith('SPEECH::')], previous['nodes'])
+        self.assertEqual([e for e in d['edges'] if not e['id'].startswith('SPEECH-')], previous['edges'])
+        self.assertEqual(len([n for n in d['nodes'] if n['id'].startswith('WEB::')]), 21)
+        self.assertEqual(len([e for e in d['edges'] if e['id'].startswith('WEB-FIRST-')]), 47)
+        self.assertIn('Selected and freshly admitted speech/Persona implementation', render(self.p)['README.md'])
+        self.assertIn('Web-first #1174 decision delta', render(self.p)['README.md'])
+
+    def test_composition_rejects_documentary_rewrite_or_cross_family_cycle(self):
+        for mutation in ('receipt', 'node', 'edge', 'cycle', 'integration_base'):
+            with self.subTest(mutation=mutation):
+                p = copy.deepcopy(self.p)
+                d = p['planning_maintenance']
+                if mutation == 'receipt':
+                    d['web_first_receipt']['source_main_sha'] = '0' * 40
+                elif mutation == 'node':
+                    next(n for n in d['nodes'] if n['id'] == 'WEB::DOCS')['status'] = 'Planned'
+                elif mutation == 'edge':
+                    d['edges'] = [e for e in d['edges'] if e['id'] != 'WEB-FIRST-1']
+                elif mutation == 'integration_base':
+                    d['speech_persona_receipt']['integration_main_sha'] = '0' * 40
+                else:
+                    edge = copy.deepcopy(next(e for e in d['edges'] if e['id'].startswith('SPEECH-')))
+                    edge.update(id='SPEECH-web-cycle-a', producer='WEB::JOINT', consumer='SPEECH::CORE::CONTRACT')
+                    d['edges'].append(edge)
+                    edge = copy.deepcopy(edge)
+                    edge.update(id='SPEECH-web-cycle-b', producer='SPEECH::CORE::CONTRACT', consumer='WEB::JOINT')
+                    d['edges'].append(edge)
+                self.assertTrue(validate(p))
+
+    def test_missing_admission_or_unproved_acceptance_rejected(self):
+        bad_delivery = ('UNPUBLISHED' if self.p['planning_maintenance']['speech_persona_receipt']['source_delivery'] == 'PROTECTED_MERGED'
+                        else 'PROTECTED_MERGED')
+        for key, value in [('ack', 1), ('base_sha', '0'*40), ('source_delivery', bad_delivery),
+                           ('native', 'PASS'), ('installed', 'PASS'), ('audible', 'PASS'), ('joint', 'PASS'),
+                           ('consumer_writes', True), ('previous_delta_sha256', '0'*64), ('previous_delta', 'history/20261015/artwork-finalization-maintenance-v11.json')]:
+            p = copy.deepcopy(self.p)
+            p['planning_maintenance']['speech_persona_receipt'][key] = value
+            self.assertTrue(validate(p), (key,value))
+
+    def test_protected_delivery_requires_exact_provenance_and_qualified_assets(self):
+        for key in ('source_candidate', 'source_main_sha', 'source_pr', 'source_review',
+                    'required_checks', 'protected_merge', 'owner_authorization_run',
+                    'archive_sha256', 'formal_evidence_sha256', 'coverage_sha256'):
+            with self.subTest(key=key):
+                p = copy.deepcopy(self.p)
+                r = p['planning_maintenance']['speech_persona_receipt']
+                r.update(phase='SOURCE_PROTECTED_MERGED', source_delivery='PROTECTED_MERGED')
+                r.pop(key, None)
+                self.assertTrue(validate(p))
+
+    def test_successor_keeps_selection_without_admission_or_effect_authority(self):
+        r = self.p['planning_maintenance']['speech_persona_receipt']
+        if 'selected_successor' not in r:
+            self.skipTest('Selected successor reconciled only in separate Finalization')
+        for key, value in (('admission', 'ADMITTED'), ('implementation_in_this_slice', True),
+                           ('same_writer', False), ('new_publication_gates_preserved', False)):
+            with self.subTest(key=key):
+                p = copy.deepcopy(self.p)
+                p['planning_maintenance']['speech_persona_receipt']['selected_successor'][key] = value
+                self.assertTrue(validate(p))
+
+    def test_historical_delivery_receipts_and_nodes_are_immutable(self):
+        for name in ['session_artwork_receipt','hybrid_receipt','implementation_receipt']:
+            p = copy.deepcopy(self.p)
+            p['planning_maintenance'][name]['source_delivery'] = 'UNPUBLISHED'
+            self.assertTrue(validate(p), name)
+        p = copy.deepcopy(self.p)
+        next(n for n in p['planning_maintenance']['nodes'] if n['id']=='MEDIA::CORE::SESSION-LIVE')['status']='Planned'
+        self.assertTrue(validate(p))
+
+    def test_duplicate_consumer_admission_and_cycle_are_rejected(self):
+        p = copy.deepcopy(self.p)
+        p['planning_maintenance']['nodes'].append(copy.deepcopy(p['planning_maintenance']['nodes'][-1]))
+        self.assertTrue(validate(p))
+        p = copy.deepcopy(self.p)
+        next(n for n in p['planning_maintenance']['nodes'] if n['id']=='SPEECH::APPLE::ADOPTION')['status']='In progress'
+        self.assertTrue(validate(p))
+        p = copy.deepcopy(self.p)
+        edge = next(e for e in p['planning_maintenance']['edges'] if e['id'].startswith('SPEECH-'))
+        edge['producer']='SPEECH::JOINT::ACCEPTANCE'
+        self.assertTrue(validate(p))
 
 class WebFirstNegativeTests(unittest.TestCase):
     def setUp(self):
@@ -646,3 +953,118 @@ class WebFirstNegativeTests(unittest.TestCase):
                         if r["path"].endswith("VIBECAST_WEB_FIRST_EXPERIENCE_V1.md")
                     )["sha256"] = "0" * 64
                 self.assertTrue(validate(bad))
+
+
+class WebDecisionTests(unittest.TestCase):
+    def setUp(self):
+        self.p = delivered_settings_plan()
+
+    def test_resolved_choices_are_not_runtime_or_other_lane_selection(self):
+        from web_first_decisions_delta import RESOLVED, PUBLIC
+
+        d = self.p["planning_maintenance"]
+        self.assertEqual(d["web_first_receipt"]["resolved_decisions"], RESOLVED)
+        self.assertEqual(d["web_first_receipt"]["decisions_delta"]["selected_receiver"], PUBLIC)
+        for node in d["nodes"]:
+            if node["id"].startswith("WEB::") and node["id"] not in {
+                "WEB::DOCS",
+                "WEB::DISTRIBUTION",
+            }:
+                self.assertEqual(
+                    (node["status"], node["assignment_status"]), ("Planned", "NOT_ISSUED")
+                )
+
+    def test_independent_public_subset_has_own_document_pin_not_api_or_cast_gate(self):
+        d = self.p["planning_maintenance"]
+        node = next(n for n in d["nodes"] if n["id"] == "WEB::DISTRIBUTION")
+        public = next(
+            g
+            for g in node["prerequisite_groups"]
+            if g.get("consumer_subset") == "PUBLIC_WEB_DELIVERY"
+        )
+        self.assertEqual(public["edge_ids"], ["WEB-FIRST-DECISIONS-PIN"])
+        edges = {e["id"]: e for e in d["edges"]}
+        self.assertEqual(edges[public["edge_ids"][0]]["producer"], "WEB::DOCS")
+        self.assertTrue(
+            all(
+                e.get("consumer_subset")
+                in {
+                    "RENDEZVOUS_INTEGRATION",
+                    "FULL_SHARED_GUEST_ACCEPTANCE",
+                    "APPLE_HA_ONBOARDING_E2E",
+                }
+                for e in d["edges"]
+                if e["consumer"] == "WEB::DISTRIBUTION" and e["id"] != "WEB-FIRST-DECISIONS-PIN"
+            )
+        )
+
+    def test_receiver_adapter_does_not_wait_for_guest_product_or_reselect_producers(self):
+        d = self.p["planning_maintenance"]
+        subsets = next(n for n in d["nodes"] if n["id"] == "WEB::DISTRIBUTION")["delivery_subsets"]
+        self.assertEqual(
+            subsets["RENDEZVOUS_INTEGRATION"]["assignment_status"], "SELECTED_CONTRACT_GATED"
+        )
+        self.assertEqual(
+            subsets["RENDEZVOUS_INTEGRATION"]["required_nodes"], ["WEB::TRUST", "WEB::BOOTSTRAP"]
+        )
+        self.assertEqual(
+            subsets["APPLE_HA_ONBOARDING_E2E"]["required_nodes"],
+            ["WEB::DISPLAY", "WEB::OWNER-SCANNER"],
+        )
+        self.assertEqual(
+            subsets["FULL_SHARED_GUEST_ACCEPTANCE"]["required_nodes"], ["WEB::BROWSER"]
+        )
+        for node in d["nodes"]:
+            if node["id"] in {"WEB::TRUST", "WEB::BOOTSTRAP", "WEB::DISPLAY", "WEB::OWNER-SCANNER"}:
+                self.assertEqual(node["assignment_status"], "NOT_ISSUED")
+
+    def test_reject_false_choice_closure_runtime_start_or_moved_gate(self):
+        for case in (
+            "url",
+            "exception",
+            "rocket",
+            "ack",
+            "effect",
+            "other_lane",
+            "public_dependency",
+            "pin_removed",
+            "prior_receipt",
+            "history",
+            "wrong_owner",
+        ):
+            with self.subTest(case=case):
+                p = copy.deepcopy(self.p)
+                d = p["planning_maintenance"]
+                r = d["web_first_receipt"]
+                delta = r["decisions_delta"]
+                if case == "url":
+                    r["resolved_decisions"]["entry_url"] = "https://vibecast.tv/go"
+                if case == "exception":
+                    r["resolved_decisions"]["web_first_exception"] = "NATIVE_TV"
+                if case == "rocket":
+                    r["open_decisions"] = [x for x in r["open_decisions"] if "reaction" not in x]
+                if case == "ack":
+                    delta["selected_receiver"]["executor_ack"] = "STARTED"
+                if case == "effect":
+                    delta["deployment"] = True
+                if case == "other_lane":
+                    next(n for n in d["nodes"] if n["id"] == "WEB::BOOTSTRAP")[
+                        "assignment_status"
+                    ] = "SELECTED_QUEUED"
+                if case == "public_dependency":
+                    next(
+                        e
+                        for e in d["edges"]
+                        if e.get("consumer_subset") == "RENDEZVOUS_INTEGRATION"
+                    )["consumer_subset"] = "PUBLIC_WEB_DELIVERY"
+                if case == "pin_removed":
+                    d["edges"] = [e for e in d["edges"] if e["id"] != "WEB-FIRST-DECISIONS-PIN"]
+                if case == "prior_receipt":
+                    r["source_main_sha"] = "0" * 40
+                if case == "history":
+                    delta["prior_snapshot_sha256"] = "0" * 64
+                if case == "wrong_owner":
+                    next(n for n in d["nodes"] if n["id"] == "WEB::DISTRIBUTION")["lane"] = (
+                        "DJC-CORE"
+                    )
+                self.assertTrue(validate(p))

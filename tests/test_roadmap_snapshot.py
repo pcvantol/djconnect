@@ -17,7 +17,10 @@ class FederatedPlanningCITest(unittest.TestCase):
             cwd=PLANNING,
             capture_output=True,
             text=True,
-            timeout=30,
+            # The maintained graph now validates all historical deltas plus
+            # 171 schema/negative/generation cases. Shared Python3.11 runners
+            # exceed30s; retain every assertion with a bounded execution limit.
+            timeout=120,
             check=False,
         )
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)

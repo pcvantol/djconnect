@@ -1,4 +1,300 @@
+# Core #1212 protected source — no consumer dispatch
+
+[Device speech1](docs/product/DEVICE_SPEECH_CAPABILITIES_V1.md) adds actual
+selection-bound STT/TTS/HA-target metadata to existing completed paired/status
+responses, preserving legacy endpoint booleans. No extra endpoint/model call;
+Apple local/OS permissions and current settings3 stay independent. Protected source [PR #1221](https://github.com/pcvantol/djconnect/pull/1221)
+merged `604b80f806425cb53165a17faf783bfd6248af17`; exact reviewed candidate
+`bd2b644dadec91742138348ba960e61b12da662c`, full trees equal. Actual isolated
+HA15case zero-speech proof and183source hashes match. Separate Finalization
+has its own protected gate; last HA-dev installed pin remains f8b28d2b.
+Apple #129 adoption/installed/native/actual speech acceptance remain open; #1210
+catalogue+compact Help and Apple #128 remain pending.
+
+# Apple dependency readback — 19 October2026
+
+Core #1211 pairing source [PR #1219](https://github.com/pcvantol/djconnect/pull/1219)
+merged `d4ab36fac055bddf7bbc778a480d62ef88115bbc`; source candidate
+`61b00c452480368c5f6e794bdecd77aa41d3c900` has the identical complete tree.
+Separate Finalization [PR #1220](https://github.com/pcvantol/djconnect/pull/1220)
+merged `8cb1a467dfc0249fc7b3e79e474841e40249c091`, exact candidate
+`5b0600aff5caca963e3cdd120db3ad979f9570cc`, complete trees equal. Own cleanup
+verified, other erasure/host refs preserved. It is not #1212 capability availability. Agent required; HA STT/TTS optional. Existing pairing wire and
+legacy capability booleans are unchanged. Apple #129 now needs installed
+snapshot readback and native adoption of the separately source-delivered #1212.
+Core #1210 shared catalogue+compact Help is not delivered; Apple #128 remains
+contract-gated. Avatar basic/touch source contracts already qualified; exact
+HA-dev mainf8b28d2b3713ae0bfe11a44d32634d821c914cc8 was byte-verified205/205,
+actual touch1 discovery. Apple #127 owns real renderer callbacks/gestures and
+native/audio acceptance, not a new Core activity enum. Existing lane readback:
+https://github.com/pcvantol/djconnect/issues/1208#issuecomment-6263040552.
+No new consumer source work or private dispatch is initiated here.
+
+# Persona touch — protected Core source, not a consumer dispatch
+
+
+Protected touch producer: [source #1217](https://github.com/pcvantol/djconnect/pull/1217),
+merge`37a574c9e4f6b366ea2335a6c087d649d09afc2d`, exact candidate`1e33c241ec7ef1a46e0a2feb20b5a5b885ae123e`;
+full trees equal. This is a qualified source pin, not installed discovery or
+Apple gesture/audio acceptance. Actual capability readback precedes use.
+
+
+The separate [touch contract1](docs/product/PERSONA_TOUCH_REACTIONS_V1.md) fills
+owner addition6251008548 using ordinary paired operations, confirmed current
+Settings3, bounded private content/audio and explicit cancellation. Native
+gestures/one overlay/actual audio start-stop/accessibility remain Apple-owned.
+No fabricated Ask DJ/Moment/history entry, provider fallback or broadcast flag.
+Only local target speech is in scope; ha_speaker is explicitly not_qualified,
+both is visibly partial. Current installed0f50e1ed does NOT contain this candidate;
+no consumer may guess support before exact producer delivery/discovery.
+
+# Living Persona Avatar — protected basic Core producer pin
+
+PR [#1215](https://github.com/pcvantol/djconnect/pull/1215), merge
+`d19dc33d27d799b8c1a868fc57164872e1e67ed8`, incorporates exact reviewed candidate
+`2c145943030761f992c236d39572a8e4884d041b` with equal full trees. Use the canonical
+DJ_PERSONA_LIVING_AVATAR_V1.md existing-signal mapping and immutable six-case
+semantic derivative. No new backend activity API/capability is required for the
+basic avatar. Existing Apple owner can use those proven fields under its own
+admission. Real renderer callbacks/native/audio acceptance and touch producer
+delivery remain OPEN; the basic-source receipt predates implementation of the explicit touch contract above. No fabricated
+Ask DJ/Moment, consumer source takeover or whole function closure follows.
+
+# Living Persona Avatar — selected Core contract; native/touch gates OPEN
+
+See docs/product/DJ_PERSONA_LIVING_AVATAR_V1.md and Core #1208/#1209, with Apple
+#126/#127. The avatar belongs inside NativeSessionMomentsView.currentCard, not
+a second persistent card. The latest owner refinement6252444250 uses a complete ring/headphones with
+contextual inner glyphs; its static same-identity mark replaces Session menu
+opticaldisc. Album-art fallback stays separate. The contract names actual typed
+announcement provenance and per-contribution/turn precedence; no generic Track
+card or old contribution may imply an announcement or mask a new Ask DJ turn.
+
+Existing producer truth already supplies Session identity/lifecycle, confirmed
+Mood/Persona/Presence revisions, native_delivery.current_silence_moment_id and
+original ordered/recovery admission. No new backend activity states or endpoint
+are needed for the base avatar. Existing optimistic native isSpeaking/.playing
+flags precede playback dispatch; actual renderer start/end/interruption evidence
+is still required before showing speaking.
+
+The source-only semantic derivative is
+examples/client_contracts/persona_living_avatar_v1/existing-signals.json, SHA256
+`e6305f8783d9714e3150bd12e52af31614347388be356dc7ca518a70b7906cd0`. It is not an HTTP wire payload, client reducer or installed/native
+proof. Touch reactions have no advertised operation/capability yet. Do not send
+a fabricated Ask DJ question, invent a Moment or infer HA-speaker permission.
+Selected reaction design/wire/limits await implementation and qualification.
+No consumer writer or implementation-completion claim follows from this note.
+
+# Passive Session projection — definitive protected producer pin
+
+18October urgent owner-history compatibility: the canonical Session history
+contract now names all four retained bases and source-free publication/Silence
+rows. The immutable original sample is retention-bases-v1.json; the actual
+SQLite/query-envelope replacement is examples/client_contracts/session_conversation_history/retention-bases-v2.json
+(window_limit20; SHA256 da5d8674dc49adb1cc0fabcca51d4f8b730d31f1179462160d1f68aa97e19b14).
+Closed Apple40331 decoders reject actual200 pages containing owner metadata;
+local producer negotiation adds contract_versions.session_history_entries2 and
+explicit history_contract_version2 on list/detail/tail/anchor/search/open.
+Omitted1 preserves truthful compatible pages; unrepresentable rows return409
+history_contract_upgrade_required without content or fabricated source labels.
+Cursors cannot cross versions.46 owning tests and independent source review
+PASS. Apple separately reports baseline physical iPad read/reopen/lifecycle
+PASS. Joint installedv2, other native targets and original404 remain OPEN.
+No consumer writer, new pairing or install is authorized by this contract note.
+
+18October Core album follow-up: no consumer work or new wire shape. Existing
+researched Moment receipt/source list now covers exact single-artist album
+research; failed bound-album expression does not publish its date seed.
+Story quality and installed/native/audible acceptance remain open.
+See docs/verification/ALBUM_NARRATION_20261018.md.
+
+## Selected one-time Session welcome — producer work in progress
+
+[Session opening v1](docs/product/SESSION_OPENING_MOMENT_V1.md) reuses the
+existing `session` Moment and normal retained Flow. Existing generation metadata
+identifies `purpose: session_opening` and the captured start Mood/Persona/Presence;
+the same metadata accompanies retained text. Clients render the accepted text,
+not a locally synthesized welcome. Reconnect and historical reads never generate
+or autoplay it. Music-only permits this informative card but denies automatic
+speech, including HA speaker delivery. Current voice/output settings continue to
+govern deliberate replay. No new endpoint, Moment type or consumer work dispatch.
+Implementation, exact qualification and installed producer pin remain pending.
+
+## Configured voice preview — delivered development producer; functional acceptance open
+
+The human-requested Preview action is recorded in
+[configured voice preview v1](docs/product/SESSION_VOICE_PREVIEW_V1.md).
+Use the existing Speech/Settings producer and paired operation owner: fixed
+five-language neutral text, current confirmed HA voice/gender and output;
+text_only is a hard zero-synthesis/effect deny. No fake bubble, arbitrary caller
+text, silent provider/system-voice fallback or new consumer writer.
+Protected source PR #1197 and Finalization #1204 include `speech/preview`.
+Exact HA-dev development build `e71daff1e36c7e0284ffa1f42b1a1ada47b50aa1`
+contains the producer and actually advertises Preview1/confirmed Settings3.
+The [qualified pin, current wire/error fixtures and installed discovery](docs/verification/VOICE_PREVIEW_PRODUCER_READBACK_20261018.md)
+replace the former instruction to wait for an uninstalled local producer.
+Existing Apple owns guarded Preview/Stop adoption; actual configured-provider,
+native controls and physical listening remain OPEN. Source delivery does not
+close those functional requirements or the other twelve Core/nineteen Golden
+quality gates. No private task message or consumer write follows from this record.
+
+## Personal DJ restoration — configured-provider speech clarification (local WIP)
+
+Owner clarification2026-10-17: literal speech of an already accepted,
+owner-authorized contribution or answer uses the user's configured supported HA
+TTS provider, including OpenAI, Piper or Nabu Casa. Source locality alone must
+not block this synthesis. No pipeline/provider fallback, arbitrary caller text,
+new LLM narration grant or widened history/shared-screen rights. Apply equally
+to live Moment references and retained previous-Session references. Preserve
+settings3/text_only, exact immutable text, original attribution, owner/source
+withdrawal, runtime provider/voice changes and private short audio grants.
+Current Apple40218 reports actual iPhone playback/replay of CC0 current and
+previous-session entries; Spotify/OpenAI producer qualification and physical
+audibility remain separate. This is not a final producer/installed pin.
+
+## Current resume: delivered predecessor and open personal-DJ correction
+
+Final main `6a3adbc8e66ab380dfea1726ca34728097d0c684` includes source PR #1202 and separate Finalization #1203. Exact-artifact installation/readback on HA-dev and HA-prod is complete for that bounded retirement. The personal-DJ branch now integrates this main; its narration and broader quality findings remain local and NO_GO. The source-freeze sections below preserve historical boundaries and are superseded by this current predecessor readback.
+
+## Protected receiver end-authority producer correction (source-freeze record)
+
+PR [#1202](https://github.com/pcvantol/djconnect/pull/1202), source main
+`5f36abd23a95dea0aeb8bdb9d22a9bccf28a1a4b`, is delivered and
+[exact-artifact qualified](docs/verification/VIBECAST_END_RETIREMENT_SOURCE_READBACK_20261017.md).
+No end grants/settings/control remain; cached requests return410. Normal paired
+owner end remains. Receiver import belongs to the existing receiver owner;
+use this qualified producer lineage. Separate Finalization and live install
+follow; no consumer or broad VibeCast/narration acceptance is claimed.
+
+## Bounded receiver end-authority retirement — current-main delivery
+
+[Current contract](docs/product/VIBECAST_RECEIVER_END_AUTHORITY_RETIREMENT_V1.md)
+and [current qualification](docs/verification/VIBECAST_END_RETIREMENT_QUALIFICATION_20261017.md).
+The obsolete HA setting, grant issuance/storage and generated-renderer control
+are removed independently from the unpublished personal-DJ branch, on base
+`0adaef7d`. Old control requests return410 without reading Session state;
+ordinary paired owner end and unload fences remain. Exact protected delivery
+and installed readback are still pending at this source freeze. Consumer import
+must use the eventual exact producer pin, not the unqualified narration branch.
+The broader VibeCast topic and other lane gates remain OPEN.
+
+## Integral Core/Apple/API/VibeCast reconciliation — 17 October 2026
+
+Canonical bounded readback: [open-work audit](docs/governance/DJC_PLATFORM_OPEN_WORK_20261017.md).
+Same existing writers; no consumer WIP takeover or automatic new assignment.
+
+- Core dev/prod: 177 integration files equal observed main `cc9b49fe`; Mood/Presence v1
+  and settings v3 advertised. Local personal-DJ correction `e2456029` is not published
+  or installed; factual/Persona/Mood/all-family quality remains NO_GO.
+- Artwork1164: Apple image GET identity fix is reported; one Moment still lacks
+  qualified identity. Retained art/replay awaits qualified producer delivery
+  and exact native readback. Do not substitute current playback art.
+- Speech: preview implementation/fixtures and native Apple processor-override
+  entitlement review remain Core-owned. Shared Profile defaults/`text_only` retain
+  authority; native OS voice/pitch/autoplay remain device-only. Real heard target
+  and retained replay acceptance are separate.
+- LAN/WS: source policy and HTTP success do not prove qualified direct ingress
+  or real paired native WS/recovery. No TLS/origin/forwarding relaxation.
+- Passive surfaces: owner-selected automatic OS/Session behavior needs explicit
+  Core consent/capability/background assessment; current v1 still has 120s source
+  bounds and background_delivery=false. No bearer sharing, TTL extension or new
+  client poller. Apple owns automatic startup/dismissal and actual OS pixels.
+- API #94 `cd88e8d` / profile 0.4 draft: path and App Attest core progress does not close
+  complete CMS/revocation/storage/races/runtime freeze. Existing captures and
+  browser consumer ACK stay valid; no repeat generic capture request.
+- Core B #1197 remains draft/conflicted; receiver Pages/Cast is delivered separately
+  from rendezvous/Apple-HA/physical TV. End-authority retirement `e2456029` is local;
+  receiver removes old imported handler only at proper producer/import admission.
+- Apple owns Watch Flow main view/cards, production-push/native/audio and measured
+  performance/crash/memory/physical acceptance. No green claim from iPhone or
+  fixture tests. Pi/ESP/website/distribution consumer gates remain their owners'.
+
+
+## Current shared settings3 / target-aware speech3 producer
+
+Protected source main `e8cc70ddffb4112b09babdda4d45140b98926ae5`, PR [#1193](https://github.com/pcvantol/djconnect/pull/1193). [Exact source readback](docs/verification/PROFILE_SESSION_SETTINGS_SOURCE_READBACK_20261016.md). Six-field producer/capabilities are delivered in Core; earlier local-candidate/design checkpoints below are historical. Consumer adoption, complete legacy removal, Finalization and actual installed/native/audible/joint outcomes remain separately qualified.
+
+## Historical contract checkpoints
+
+## Current settings owner addenda — local contract3 implementation
+
+[Canonical delta](docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md) adds `announcement_output` to the five shared DJ choices under owner6220590330/6220695648. Six-field settings contract3 and target-aware speech prepare3 are implemented and locally advertised in the unpublished Core candidate; final exact reviews/protected delivery remain required. `text_only` forbids announcement synthesis and all replay; speaker-only still permits explicit local owner replay. Physical speaker/Assist pipeline/ESP administration stay HA-only; local autoplay defaults OFF and OS permissions remain local. Existing contract2 checkpoints below are historical five-field proof. Integrated chat/DNA portability is parked. Existing schema1 exports remain unchanged and do not back up the six shared defaults; the unpublished schema2 export prototype is removed. Native/installed/joint remain OPEN; no new consumer writer or WIP expansion.
+
+Before six-field activation, an existing Session with unknown Mood has `snapshot.session.settings: null`, `selection_required: true` and `selection_basis: legacy_mood_unknown`. Keep its identity/revision, show separate defaults only as proposals, and require all six explicit choices for activation. Ask DJ1/prepare1 preserve legacy behavior; prepare3 is typed unavailable until selection. Reads do not invent Mood or history coverage.
+
+
+## Selected Profile/Session settings consolidation — contract2
+
+[Canonical all-five contract](docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md), [settings inventory](docs/product/PROFILE_SESSION_SETTINGS_INVENTORY_V1.json), owner6214905647. Allfive Persona/voice/gender/Mood/Presence are Core-owned Profile defaults plus effective Session state; last explicit accepted field patch is automatically remembered and changes an active Session atomically. No device-local voice truth, global pipeline mutation, read effect, source-right expansion or consumer writer dispatch. New typed API/WS contract2 has its own revision/receipt/generation semantics; contract1 is not silently changed. Core implementation/fixtures remain in progress and unpublished; native/installed/hardware/joint and platform-wide legacy removal are not yet qualified.
+
+## Existing delivered contracts and historical context
+
+Source PR [#1191](https://github.com/pcvantol/djconnect/pull/1191) protected merged as `2cb87cb7dad30546ee1641b839d14a4f5d621f54`, exact independently reviewed and owner-authorized head `928bf16b8812447fbd53739f22484051909ae513` on base `9faffe533d4a117eb8ad362e73809d126bdcc9d7`. All32 checks PASS/5conditional skips; exact Owner Authorization38896651007 SUCCESS. No bypass. Complete candidate/main trees equal. Main CI38897018985 and formal38897377600 SUCCESS. Official archive171regular files, zero missing/extra/mismatch/symlink; actual raw/durable/coverage/main/PR bindings qualified. [Exact readback](docs/verification/PASSIVE_SESSION_PROJECTION_SOURCE_READBACK_20261016.md). Earlier source1189/Finalization1190 remains closed.
+
+Schema version1; source fixtures42381287 retain their measured identity, all171runtimefiles are identical to reviewed928 and merged2cb. Ordinary paired iOS/macOS owner routes only; explicit surface/OS/locked consent, original Session/generation/deadlines and ordering must be retained. HTTP no-store; no general response/cache reuse. Core invalidation hints are not autonomous background transport. Preserve standalone player fallback, neutral denied/expired fallback and original source/subject labels; no optimistic rich/native acceptance. Existing Apple writer owns implementation/adoption separately.
+
+## Earlier immutable qualification context
+
+# Provider voice/gender — definitive sourcepin
+
+Source PR [#1189](https://github.com/pcvantol/djconnect/pull/1189) protected merged as `ff507c8999069791f3697d5cef2590dda43db243`, exact independently reviewed and separately owner-authorized repair head `5b1a5010a6c8258ff54e4fe7b2290cfc3ee8d9d6` on base `f04fc578d11252f48324a22cb6f71039bdcc59d5`. All32 checks PASS/5conditional skips, including successful TDE observe; exact Owner Authorization38888413369 SUCCESS. No bypass. Complete candidate/main trees equal. Main CI38888674687 and formal38889100161 SUCCESS. Official archive170regular files,0missing/extra/mismatch/symlink; raw/durable/coverage/main/PR bindings qualified. [Exact readback](docs/verification/PROVIDER_VOICE_GENDER_SOURCE_READBACK_20261016.md). Earlier1187/1188 stays closed.
+
+Current options: voices[].gender female/male/null, gender_selection available/values/voice_ids/reason; prepare existing voice_preference plus optional voice_id must agree. Generic providers without metadata retain concrete voices, hide gender. Runtime metadata/provider changes invalidate pending/audio; handle409 with safe five-language help, preserve text/draft/scroll. Reread open/foreground/reconnect/configuration invalidation, no unsolicited push claimed. Preferences client-local installation/Profile/Session/device, explicit defaultreset, enddiscard. No sharedpipeline/Persona change or originalrequestreplay. Existing Apple writer received sourcepin; native visible/audible acceptance is theirs/open. Installed dev/prod f04 until qualified Finalization/main update.
+
+## Previous producer handoffs
+
+# Generic HA TTS — definitive source producerpin
+
+Source PR [#1187](https://github.com/pcvantol/djconnect/pull/1187) protected merged as `6ececb1b5327c5f3456dbb7d466b8763951cb61c`, exact independently reviewed and owner-authorized `082f7d7a13ecca397ecce53c2a5dac2c5e7a6dc7` on base8757ecd38a5fe31254a36aba5e0cbe5852edfa7e. 32sourcechecksPASS/5conditional skips, including actual TDE observe success. Exact Owner Authorization38879576073 SUCCESS; no bypass. Candidate/main complete trees are identical. Official mainCI38879834913 and formal38880247961 SUCCESS; 170 integration files byte-equal Git with0mismatches. [Exact source readback](docs/verification/GENERIC_HA_TTS_SOURCE_READBACK_20261016.md). Prior Speech1177/1186 and transport1184/1185 remain closed.
+
+Active Session Voice menu: voices(max64) + voice_selection + preference_context(owner_session_device) on private voice-options; optional inventory-bound voice_id on HA prepare. No shared pipeline/default write. Gender remains unavailable without qualified provider metadata. Client keys local preference by installation/Profile/session/device, resets at end; no original Ask DJ/playback retry. Preserve safe five-language prepare/audio409 recovery notices and unknown/success/failure distinction. Persona uses existing shared Session CAS/readback/Broadcast; Profile default is separate. Existing Apple writer owns actual decoding/native controls/accessibility/audible acceptance, not Core. Installed8757 unchanged until qualified finalmain after separate Finalization.
+
+## Previous producer handoffs
+
+# Qualified direct-local HTTP/WS — protected Core producer
+
+## Session speech/Persona — Core source delivered; separate Finalization
+
+Source PR [#1177](https://github.com/pcvantol/djconnect/pull/1177) protected merged as `3535c97c3b50e9a126d0f22fcc5ce50d81851499`, exact reviewed/owner-authorized `50cbae2665a7f7e25d4744136f64ba0e8f16def7` on base58205056.32checksPASS/5conditional skips; actual exact Owner Authorization38816161823 SUCCESS.169official archive files match Git with zero differences; durable/raw/coverage/main/PR bindings PASS. [Exact source readback](docs/verification/SESSION_SPEECH_PERSONA_SOURCE_READBACK_20261016.md). Earlier1184/1185,1181/1183 and1178/1179 stay closed.
+
+Four existing SPEECH::CORE contract/Persona/realization/delivery leaves Completed/CORE_DELIVERED; full Voice/Speech family remains PARTIAL. Apple/native audible/installed Speech/joint acceptance remain open. Optional gender requires actual configured HA provider metadata; device autoplay/manual replay and confirmed Session Persona remain distinct from Mood/Presence. No shared private speech grant or new provider/model/cost route.
+
+[Selected passive successor6199213014](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6199213014) reuses SURFACE::CORE::PROJECTION, NOT_ADMITTED: valid Speech Finalization, safe own workspace disposition and fresh same-writer admission are prerequisites. Reuse any existing pickup/stash; no new writer, implementation or consumer dispatch in this reconciliation. Receiver16 remains separately owned. Historical planning snapshots/WEBschema2/21nodes47edges/receipts stay exact. Finalization has its own exact publication gate; standing qualified-finalmain HA-dev/prod install instruction remains separate.
+
+## Historical scope records
+
+Source [#1184](https://github.com/pcvantol/djconnect/pull/1184), exact main `0f92b74e76ae055efdbf2b375d95c58e86328e27`, reviewed/owner-authorizeda0714b44. Read [policy](docs/product/HYBRID_LOCAL_TRANSPORT_POLICY_V1.md) and [source readback](docs/verification/HYBRID_LOCAL_TRANSPORT_SOURCE_READBACK_20261015.md). Additive policy_version1/deployment_qualification_required keeps legacy global TLS true; only authenticated qualified request context/auth_ok can report qualified_direct_http andrequires_authenticated_tlsfalse. WS route withdrawal is auth_invalid/transport_security_required, not re-pair/Profile/cachewipe. Reconcile original operation-ID/status through already-trusted TLS; never retry an uncertain execute. Administrative exact-peer qualification expires within24h; reads/reconnect never renew it. Existing dispatcher, pairing/installation/Profile/source and final owner/ingress fences remain authoritative.
+
+Actual HA-dev Docker ingress remains UNQUALIFIED, source loopback proof is not installed/native LAN acceptance. Finalization and exact terminal artifact pin remain separate. No Swift/receiver writes, consumer admission, topology/trust/service change or inferred hardware PASS. Frozen Speech1177 is preserved and must independently integrate actual finalmain before its renewed exact gates.
+
 # Current Core Session artwork — definitive protected producer handoff
+
+## VibeCast decisions delta — selected receiver follow-up
+
+[DJC-VIBECAST-WEB-FIRST-DECISIONS-DELTA-V1-20261015](https://github.com/pcvantol/djconnect/issues/1174#issuecomment-6201605985):
+[canonical entry/distribution/Cast contract](docs/product/VIBECAST_WEB_ENTRY_DISTRIBUTION_V1.md).
+vibecast.tv/root and existing-app guest exception RESOLVED. Both unpaired pairing
+screen and paired-main highlighted top menu offer discovery/QR, explicit choice,
+contextual permission, isolated temporary guest transport/storage and offline exit.
+Glass/Soft/Solid capability/performance tiers keep identical authorized features;
+QR/code opaque/still/sharp, fewer effects/accessibility/five languages. 🤩 preference;
+🚀 and final reaction set/count/labels OPEN. Browser route independent of CAF;
+Cast optional with explicit sender-departure/view-stop versus share/session-end delta.
+
+receiver#16 selects WEB::DISTRIBUTION PUBLIC_WEB_DELIVERY plus conditionally its
+RENDEZVOUS_INTEGRATION adapter after exact TRUST/API contract: own bootstrap source/
+output/CI/Pages target beside pinned Cast output, proposed gated Actions→Wrangler
+promotion, existing auto-deploy effects audited before pushes. API owns proposed
+temporary rendezvous Worker/service, never receiver/APNs-data reuse. Core owns one
+renderer and HA grants/Session; website only marketing/links. Full E2E depends on
+exact API/Core/Apple pins; no fake working QR/redirect/pairing in production.
+
+At actual source+Finalization completion send exact new design/DAG mainpin to
+receiver10/16,Core1101,Apple87,API90. Receiver's existing writer may then autonomously
+admit the selected slice after own earlier closure; no new general start permission.
+Concrete candidate/effect gates remain. No change to current Core/Speech/passive/
+hotfix/Apple/Watch work or new runtimewriter; this docs assignment performs no
+CI/service/DNS/Pages/runtime/Swift/deployment mutation. Historical receipts retained.
 
 Source [#1172](https://github.com/pcvantol/djconnect/pull/1172), exact main `5c7ecb7941c555f12bd94a2969167cfaaff0cb44`. [Readback](docs/verification/SESSION_ARTWORK_V1_SOURCE_READBACK_20261015.md):164files,0mismatches; artifact/formal/coverage PASS. [Apple87](https://github.com/pcvantol/djconnect-app/issues/87#issuecomment-6191468438) and [VibeCast10](https://github.com/pcvantol/djconnect-vibecast-receiver/issues/10#issuecomment-6191468743) definitive pins posted/read back. Canonical artwork contract and sanitized fixtures are on this exact main. Native/joint remain open; receiver compatibility only, private Session media never forwarded. No new consumer writer/admission.
 
@@ -1279,7 +1575,13 @@ Requirements:
   temporary audio URLs.
 ```
 
-## DJ Announcement Output Sync
+## Legacy contract1 DJ Announcement Output Sync — compatibility only
+
+This historical snippet documents the delivered legacy contract1, not the
+selected contract3 or a new consumer assignment. The [current owner delta](docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md)
+supersedes its per-client output authority, defaultboth and replay restrictions.
+Preserve compatibility until own admission; do not start Windows UI/adoption
+(the Windows app is retired) or expose HA target entities in new shared settings.
 
 ```text
 Sync DJ announcement output behavior with the Home Assistant integration.
@@ -3140,6 +3442,21 @@ paired image auth and expiry apply equally to each device. Final exact pin and
 qualification follow protected source delivery; Apple/joint remain OPEN.
 
 
+## Session speech / live Persona — selected Core producer in progress
+
+`DJC-SESSION-SPEECH-PERSONA-VOICE-20261015`, owning Core ACK6191876871, same writer
+on `codex/session-speech-persona-voice-v1`; source and separate Finalization gates
+remain. Canonical [Persona/source matrix](docs/product/SESSION_SPEECH_PERSONA_V1.md)
+and [speech delivery](docs/product/SESSION_SPEECH_DELIVERY_V1.md) define the single
+common Ask DJ and accepted Moment/history speech owner. Existing Apple writer
+adopts optional server-provider-gated gender preferences, explicit private
+speech protocol for text/WAV, paired POST audio, exact original styles, manual
+Listen after never, per-device autoplay only for new intended publication and
+source/Session/clear/expiry cancellation. No second writer, Swift write,
+source-right downgrade, passive surface export or native/audible PASS follows
+from Core fixtures. Early pins remain explicitly local/partial; definitive
+protected producerpin and full remaining-family qualification follow delivery.
+
 ## Documentary handoff — VibeCast web-first/guest design v1
 
 Issue [#1174](https://github.com/pcvantol/djconnect/issues/1174) and
@@ -3163,6 +3480,212 @@ WEB:: nodes refine existing VibeCast/Audience/Guest parents; all runtime subsets
 Planned/NOT_ISSUED, physical/native/joint OPEN. Exact future consumer acceptance
 includes shared Forecast/art/speech rights and expiry, browser/app home isolation,
 zero forbidden guest effects, real queue acknowledgement then observed correct
-recording and anonymous Persona announcement. URL/exception/emoji remain OPEN.
+recording and anonymous Persona announcement. Domain/root and app exception are resolved by the later decisions delta;
+final reaction/rocket and technical implementation choices remain OPEN.
 This handoff does not reopen artwork/transport/Forecast producers or authorize
 Swift/source/runtime changes, deployments, DNS, signing or automatic follow-up.
+
+## Core provider voice/gender follow-up — Apple existing writer
+
+`DJC-CORE-PROVIDER-VOICE-GENDER-V1-20261016`; contract
+`docs/product/PROVIDER_VOICE_GENDER_V1.md`, same version1 owner routes. Native
+Voice menu rereads live `voices`/`gender_selection` and their equality revision;
+show only qualified values, use `voice_ids` targets, retain unknown gender null.
+Switching provider removes unsupported choices on the next read; no unsolicited
+push or immediate native adoption is claimed. Stored invalid preference gets
+five-language inline HA-configuration help and explicit default reset, preserving
+text/draft/scroll and avoiding automatic replay. Verify per-installation/Profile/
+Session/device isolation, gender/voice conflict, provider swap during synthesis,
+reconnect and late audio409, end/discard. No Swift writes or new Apple assignment.
+
+
+## Apple Session surfaces consolidation follow-up — 2026-10-15
+
+See docs/product/APPLE_SESSION_NATIVE_SURFACES_V1.md, “Apple Session surfaces
+consolidation request”. New user request replaces the legacy independent widget
+experience with one active-Session system: artwork/current DJ Moment, plus
+track/artist/album in larger surfaces. Apple neutral lifecycle consolidation can
+proceed, but rich passive content remains blocked on the separately qualified
+Core surface projection/cache rights and ActivityKit background update boundary.
+Existing native_delivery and Session media no-store grants are not export rights.
+No producer implementation or cross-device acceptance is asserted by this note.
+
+
+Current selected implementation: [Passive Session projection v1](docs/product/PASSIVE_SESSION_PROJECTION_V1.md). Admission base9faffe533d4a117eb8ad362e73809d126bdcc9d7, same Core writer, branchcodex/passive-session-projection-v1; ACK6214264273. This reconciles only the preserved38-line relevant design delta; the original stash/recovery remains. Source, native rich, background, Watch and joint acceptance stay separate.
+
+
+## Passive Session early contract handoff — 2026-10-16
+
+Selected existing SURFACE::CORE::PROJECTION, ACK6214264273, base9faffe53,
+contract9bc26e0c before materiald64b8a7a/register6214391660. Provisional exact
+contract/schema/actual fixture handoff delivered to existing Apple87 in
+comment6214566763 and directly to the existing writer; no new Apple assignment
+or voice/gender-WIP expansion. Local2f709983 was unpublished; its earlier
+actual8case fixture independently binds d64b8a7a/171files, not arbitrary current
+source. Final reviewed producer/main/artifact pins must replace provisional pins.
+
+Independent early technical review found one monotonic-cover-expiry P2; local
+42381287 retains actual original monotonic capture, denies legacy proofless RAM
+assets and tests UTC rollback/fresh same-track observation. Expanded actual HA
+proof and owning coverage are being requalified; no final exact review or
+protected delivery claimed. Four Personas/five-language exact-copy assertions
+preserve original text/source attribution. Native widgets/Activity/Island,
+background SURFACE::APPLE::QUIET-TRANSPORT, Watch and joint remain open; grant
+rights never inherit private owner, VibeCast or ordinary APNs permissions.
+# Current Presence correction: four choices / policy2 — 18 October2026
+
+Existing Core writer, owner-requested amendment to the open shared-settings work.
+[Authoritative design](docs/product/DJ_PRESENCE_FOUR_LEVELS_V2.md) precedes code.
+Canonical values: `music_only`, `occasional`, `balanced`, `presenter`; legacy
+`talkative` maps server-side to `presenter` for defaults and active state.
+Min interval/per-track/per600s ceilings: music_only0/0/0,
+occasional180/1/2, balanced90/2/4, presenter45/4/8. Shared ledger and source/read
+fences remain authoritative; no Apple timing or local remapping.
+
+Discovery becomes `active_session_presence` capability2 with exactly four values;
+add `transport_contract_version:1` for the unchanged legacy six-field POST shape.
+Profile settings contract3 remains primary and serves the same four choices.
+Storage migration10 normalizes current defaults/ACTIVE settings without rewriting
+historical receipts. Locked live migration invalidates pending work once while
+preserving ledger, playback and Flow. Apple keeps historical decode compatibility
+and updates the strict capability check only against this explicit contract.
+Contract fixture now local: examples/client_contracts/session_presence_v2/capability.json
+and measured Runtime trace. Actual shared trace counts0/2/4/8; source-qualified
+four-level tests plus full2473-test regression PASS (seven existing skips),
+static/security PASS, scoped independent Presence review GO. Fixed45s/61s
+mechanism probes explicitly select Presenter; ordinary default remains Balanced.
+Producer source pin and installed status remain pending protected delivery,
+NOT_INSTALLED. Broader narrative quality remains OPEN/NO_GO: current actual-model
+trial could not start because Docker metadata is read-only; no paid answer or
+native/audible acceptance claimed.
+
+## Selected owner correction: settings-aware local device speech — 18 October
+
+Explicit owner consent was relayed by the existing Apple writer for the narrow
+Core Speech/Settings blocker. [Design](docs/product/SESSION_ON_DEVICE_SPEECH_SETTINGS_V1.md)
+precedes code. Reuse prepare2/3 with local_on_device, exact original references
+and closed source admission; activated settings still require target-aware3.
+No caller voice/text/rate/pitch or Profile/pipeline writes. Local preparation
+must not inspect HA voice availability or synthesize HA audio. text_only is
+zero effects; automatic local is only client_device/both plus separate device
+autoplay/original-publication eligibility. Manual local replay follows existing
+output policy, including ha_speaker. Speaker/both requests retain separate journal
+operations; no double local server/native synthesis. All original Settings,
+source/Persona revisions, withdrawal/expiry and final-delivery fences remain.
+Apple40316/811 Swift-test evidence is consumer source evidence only, not installed
+or audible contribution acceptance. Frozen Core fixtures/source pin pending
+qualification; no deployment or new TTS scope authorized by this correction.
+
+Local qualification readback: prepare2/3 discovery now includes local_on_device;
+source grant is renderer_pending/effective_voice:null, without HA provider lookup
+or audio asset. Eleven new tests and48 focused owner tests PASS; combined2484
+regressions PASS with seven existing skips; static/security PASS and scoped
+independent technical/privacy GO. Actual synthetic wire fixtures (24 output/intent/
+target cases plus live/retained/expired/withdrawn/settings-race) are frozen under
+examples/client_contracts/session_speech_local_settings_v1. The adjacent source
+manifest provides the exact local contract pin. NOT_INSTALLED, no native/audible
+acceptance, no new rollout authority; broader narrative NO_GO remains separate.
+
+
+## Core current correction readback — 18 October
+
+Same sole writer, same combined draft1197. Private HA-dev candidate3a89473e
+contains the prior current WIP, including researched narration, Presence v2 and
+shared local/HA speech preparation. It is not a protected release or native,
+audible, screen-admission or narrative-quality GO. Main/prod are unchanged.
+The immutable211-file consumer freeze identifies that earlier source; new
+current source must not reuse its exact qualification or installed identity.
+
+Current local repairs: original-recording/name evidence prevents a producer
+story about another album from substituting for the selected recording;
+Forecast sections follow the Ask DJ question language without changing Session
+state or renewing deadlines. Independent scoped technical GO; Golden47/36/137,
+nine Core findings and17 actual-quality steps remain open. Trial8 has one
+jointly accepted individual producer story from two cells/six calls, without
+matrix/all-family acceptance. Latest source has no new paid qualification.
+No consumer writes or new assignment are dispatched by this readback. Exact
+current requirements: `docs/verification/CORE_LANE_REQUIREMENT_RECONCILIATION_20261017.md`.
+
+
+The fixed producer follow-up9 subsequently ran two cells/six actual attempts:
+one assessment timed out, one text passed technical admission, and both drafts
+received independent editorial NO_GO. The accepted text's generic band-level
+credit now has its own causal Runtime/SQLite regression and conservative
+explicit-current-recording output condition. It does not change input routing
+or replace the semantic review. French song/title and other normal five-language
+variants have positive source-ID tests. No further paid retry is planned in this
+bounded correction; current-source all-family quality remains NO_GO.
+
+
+Current physical history/widget intake is documented in
+`docs/verification/ACTIVE_SESSION_HISTORY_PASSIVE_READBACK_20261018.md`.
+Current same-owner active history list/detail/tail200; original404 reference is
+not captured and staysOPEN. Passive widget/live grants are independent;120s
+snapshot expiry is not Session-grant expiry. Actual later widget denial/current
+cover and native cache remainOPEN. No policy/retention bypass or production/
+Apple action. Golden49/36/139;11Core/17qualityOPEN. Every named owner file is
+now scheduled before provider work; actual method execution still mandatory.
+Renderer runs separately with hostNode and no provider credentials; noHAclaim.
+
+18October installed compatibility follow-up: minimal history-only HA-dev
+artifact778610708c2aaf0bc97c4db88f1d125c9458c62d43d610d9081c3f1f0b8fa33b
+is installed and capability2/paired owner reads are verified. This derivative
+changes five files on the prior private3a894…base; no newer album/opening work.
+Current whole-source candidate and fixture pins remain distinct from installed
+module hashes. Joint native2 is separate; no production or merge promotion.
+See docs/verification/HISTORY_ENTRY_COMPATIBILITY_20261018.md.
+
+Selected owner-requested manual earlier-Session deletion: the canonical wire
+contract is now in docs/product/SESSION_CONVERSATION_HISTORY_CONTRACT.md#selected-manual-deletion-of-an-archived-session--18-october2026.
+Capability session_history_delete / contract1; POST session/history/delete with
+existing identity, session_id, opaque expected_revision, UUIDv7 operation_id (existing five-minute journal) and
+confirmed:true.200 echoes operation_id, resolved owner_profile_id and exact
+deleted_session_id/deleted:true only after durable owner erasure and target grant
+fencing. Active targets409; no cross-owner information or automatic mutation
+replay. Producer is not implemented/advertised/installed yet; Apple can prepare
+its capability-gated UI/DTO/confirmation without guessing a producer pin. Use
+synthetic qualification only, no actual personal erasure.
+
+### Apple alignment: selected bulk history deletion1 — design only
+
+Canonical owner decision: `session_history_bulk_delete` capability/version1;
+GET `session/history/delete_snapshot` captures all terminal owner Sessions before
+confirmation, independent of loaded/filter rows. POST `session/history/delete_all`
+accepts snapshot_id, new UUIDv7, confirmed:true and paired identity. Exact owner/
+operation/snapshot/count acknowledgement invalidates archive projections/leases
+and fences outstanding reads; reread preserves active and after-snapshot Sessions.
+No client loop, Profile clear, automatic POST replay or personal-data deletion as
+a test. Producer and fixtures pending; no advertisement or installed GO. Full
+wire/concurrency/errors in the canonical Session Conversation History contract.
+
+### Album web-source alignment — local, not installed
+
+Existing researched Moment basis may additionally carry one `Public web` source
+with `usage_basis:public_page_short_reference`, an original publication byline
+(`attributed_author` / `author_status:publication_byline_not_independent_identity`),
+empty `wikidata_id`/`revision_url`, original document hash and exact public
+`work_reference` (title/artist/MusicBrainz release-group URL). This usage basis is
+not a copyright license; show source/author, not the machine token as a license.
+No new replay/source authority or raw excerpt in Flow; unsupported consumers
+remain gated. Technical fixture/review only; actual rich-web publication, native
+rendering and installed narration remain open. See Album verification.
+
+## Passive contribution correction —18October2026
+
+The [selected canonical addendum](docs/product/PASSIVE_SESSION_PROJECTION_V1.md#selected-correction-explicit-projection-negotiation-18october2026)
+keeps surface transport1 and legacy projection1 unchanged in vocabulary.
+Explicit projection2 is selected on authorize/read/image and bound to its grant;
+only it adds independently purpose-qualified researched narration, complete
+source/license attribution and closed omission reasons. Native/history rights
+are insufficient; generic web, private text and external-relay copy stay denied.
+Silence never revives the older card. Widgetlockedfalse is valid; Activitytrue
+remains required. Original short deadlines/read purity are unchanged.
+
+The user also selects best-effort existing-APNs integration: category-only wake
+and pure reread for widgets, distinct activity token/topic for ongoing Activity
+update/end, no push-to-start. Smallest missing API dependency is qualified
+registration/rotation/revoke/update/end for the exact install/recipient/purpose/
+Session/generation/environment/topic/expiry tuple and explicit relay content
+permission. No client credentials or rich content in hints; no lease from push.
+Background capability remains false until connected Core/API/Apple delivery and
+source-purpose gates pass. Existing writers only; no consumer/relay code adopted.

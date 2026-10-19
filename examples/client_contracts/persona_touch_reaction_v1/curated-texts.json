@@ -1,0 +1,2408 @@
+{
+  "schema_version": 1,
+  "content_basis": "core_owned_curated_reaction_v1",
+  "proof_boundary": "Actual literal producer catalog; independent editorial review separate. Not model-generated stories, installed/native/gesture or audible proof.",
+  "source_sha256": "b4b2220b2c3189399ffd186293a471cec6ba5fcccb8b6ff173669af88e6f6c80",
+  "cases": [
+    {
+      "language": "en",
+      "persona": "home_dj",
+      "mood": "chill",
+      "kind": "check_in",
+      "texts": [
+        "A little nod from your DJ: let’s leave the rush outside.",
+        "A little nod from your DJ: no hurry, there is room to breathe."
+      ]
+    },
+    {
+      "language": "en",
+      "persona": "home_dj",
+      "mood": "chill",
+      "kind": "playful",
+      "texts": [
+        "No extra fuss from me; let’s leave the rush outside.",
+        "No extra fuss from me; no hurry, there is room to breathe."
+      ]
+    },
+    {
+      "language": "en",
+      "persona": "home_dj",
+      "mood": "chill",
+      "kind": "easter_egg",
+      "texts": [
+        "Secret handshake accepted; let’s leave the rush outside.",
+        "Secret handshake accepted; no hurry, there is room to breathe."
+      ]
+    },
+    {
+      "language": "en",
+      "persona": "home_dj",
+      "mood": "groove",
+      "kind": "check_in",
+      "texts": [
+        "A little nod from your DJ: let’s give the groove some room.",
+        "A little nod from your DJ: a little swing goes a long way."
+      ]
+    },
+    {
+      "language": "en",
+      "persona": "home_dj",
+      "mood": "groove",
+      "kind": "playful",
+      "texts": [
+        "No extra fuss from me; let’s give the groove some room.",
+        "No extra fuss from me; a little swing goes a long way."
+      ]
+    },
+    {
+      "language": "en",
+      "persona": "home_dj",
+      "mood": "groove",
+      "kind": "easter_egg",
+      "texts": [
+        "Secret handshake accepted; let’s give the groove some room.",
+        "Secret handshake accepted; a little swing goes a long way."
+      ]
+    },
+    {
+      "language": "en",
+      "persona": "home_dj",
+      "mood": "energy",
+      "kind": "check_in",
+      "texts": [
+        "A little nod from your DJ: let’s put a spring in this.",
+        "A little nod from your DJ: a little extra spark is welcome."
+      ]
+    },
+    {
+      "language": "en",
+      "persona": "home_dj",
+      "mood": "energy",
+      "kind": "playful",
+      "texts": [
+        "No extra fuss from me; let’s put a spring in this.",
+        "No extra fuss from me; a little extra spark is welcome."
+      ]
+    },
+    {
+      "language": "en",
+      "persona": "home_dj",
+      "mood": "energy",
+      "kind": "easter_egg",
+      "texts": [
+        "Secret handshake accepted; let’s put a spring in this.",
+        "Secret handshake accepted; a little extra spark is welcome."
+      ]
+    },
+    {
+      "language": "en",
+      "persona": "home_dj",
+      "mood": "party",
+      "kind": "check_in",
+      "texts": [
+        "A little nod from your DJ: let’s make a small celebration of it.",
+        "A little nod from your DJ: imaginary confetti is perfectly allowed."
+      ]
+    },
+    {
+      "language": "en",
+      "persona": "home_dj",
+      "mood": "party",
+      "kind": "playful",
+      "texts": [
+        "No extra fuss from me; let’s make a small celebration of it.",
+        "No extra fuss from me; imaginary confetti is perfectly allowed."
+      ]
+    },
+    {
+      "language": "en",
+      "persona": "home_dj",
+      "mood": "party",
+      "kind": "easter_egg",
+      "texts": [
+        "Secret handshake accepted; let’s make a small celebration of it.",
+        "Secret handshake accepted; imaginary confetti is perfectly allowed."
+      ]
+    },
+    {
+      "language": "en",
+      "persona": "radio_dj",
+      "mood": "chill",
+      "kind": "check_in",
+      "texts": [
+        "A quick word from the booth: let’s leave the rush outside.",
+        "A quick word from the booth: no hurry, there is room to breathe."
+      ]
+    },
+    {
+      "language": "en",
+      "persona": "radio_dj",
+      "mood": "chill",
+      "kind": "playful",
+      "texts": [
+        "A tiny radio message: let’s leave the rush outside.",
+        "A tiny radio message: no hurry, there is room to breathe."
+      ]
+    },
+    {
+      "language": "en",
+      "persona": "radio_dj",
+      "mood": "chill",
+      "kind": "easter_egg",
+      "texts": [
+        "You found the unlisted button; let’s leave the rush outside.",
+        "You found the unlisted button; no hurry, there is room to breathe."
+      ]
+    },
+    {
+      "language": "en",
+      "persona": "radio_dj",
+      "mood": "groove",
+      "kind": "check_in",
+      "texts": [
+        "A quick word from the booth: let’s give the groove some room.",
+        "A quick word from the booth: a little swing goes a long way."
+      ]
+    },
+    {
+      "language": "en",
+      "persona": "radio_dj",
+      "mood": "groove",
+      "kind": "playful",
+      "texts": [
+        "A tiny radio message: let’s give the groove some room.",
+        "A tiny radio message: a little swing goes a long way."
+      ]
+    },
+    {
+      "language": "en",
+      "persona": "radio_dj",
+      "mood": "groove",
+      "kind": "easter_egg",
+      "texts": [
+        "You found the unlisted button; let’s give the groove some room.",
+        "You found the unlisted button; a little swing goes a long way."
+      ]
+    },
+    {
+      "language": "en",
+      "persona": "radio_dj",
+      "mood": "energy",
+      "kind": "check_in",
+      "texts": [
+        "A quick word from the booth: let’s put a spring in this.",
+        "A quick word from the booth: a little extra spark is welcome."
+      ]
+    },
+    {
+      "language": "en",
+      "persona": "radio_dj",
+      "mood": "energy",
+      "kind": "playful",
+      "texts": [
+        "A tiny radio message: let’s put a spring in this.",
+        "A tiny radio message: a little extra spark is welcome."
+      ]
+    },
+    {
+      "language": "en",
+      "persona": "radio_dj",
+      "mood": "energy",
+      "kind": "easter_egg",
+      "texts": [
+        "You found the unlisted button; let’s put a spring in this.",
+        "You found the unlisted button; a little extra spark is welcome."
+      ]
+    },
+    {
+      "language": "en",
+      "persona": "radio_dj",
+      "mood": "party",
+      "kind": "check_in",
+      "texts": [
+        "A quick word from the booth: let’s make a small celebration of it.",
+        "A quick word from the booth: imaginary confetti is perfectly allowed."
+      ]
+    },
+    {
+      "language": "en",
+      "persona": "radio_dj",
+      "mood": "party",
+      "kind": "playful",
+      "texts": [
+        "A tiny radio message: let’s make a small celebration of it.",
+        "A tiny radio message: imaginary confetti is perfectly allowed."
+      ]
+    },
+    {
+      "language": "en",
+      "persona": "radio_dj",
+      "mood": "party",
+      "kind": "easter_egg",
+      "texts": [
+        "You found the unlisted button; let’s make a small celebration of it.",
+        "You found the unlisted button; imaginary confetti is perfectly allowed."
+      ]
+    },
+    {
+      "language": "en",
+      "persona": "club_dj",
+      "mood": "chill",
+      "kind": "check_in",
+      "texts": [
+        "A small nod, then space: let’s leave the rush outside.",
+        "A small nod, then space: no hurry, there is room to breathe."
+      ]
+    },
+    {
+      "language": "en",
+      "persona": "club_dj",
+      "mood": "chill",
+      "kind": "playful",
+      "texts": [
+        "One tap, very few words: let’s leave the rush outside.",
+        "One tap, very few words: no hurry, there is room to breathe."
+      ]
+    },
+    {
+      "language": "en",
+      "persona": "club_dj",
+      "mood": "chill",
+      "kind": "easter_egg",
+      "texts": [
+        "No secret drop, just this: let’s leave the rush outside.",
+        "No secret drop, just this: no hurry, there is room to breathe."
+      ]
+    },
+    {
+      "language": "en",
+      "persona": "club_dj",
+      "mood": "groove",
+      "kind": "check_in",
+      "texts": [
+        "A small nod, then space: let’s give the groove some room.",
+        "A small nod, then space: a little swing goes a long way."
+      ]
+    },
+    {
+      "language": "en",
+      "persona": "club_dj",
+      "mood": "groove",
+      "kind": "playful",
+      "texts": [
+        "One tap, very few words: let’s give the groove some room.",
+        "One tap, very few words: a little swing goes a long way."
+      ]
+    },
+    {
+      "language": "en",
+      "persona": "club_dj",
+      "mood": "groove",
+      "kind": "easter_egg",
+      "texts": [
+        "No secret drop, just this: let’s give the groove some room.",
+        "No secret drop, just this: a little swing goes a long way."
+      ]
+    },
+    {
+      "language": "en",
+      "persona": "club_dj",
+      "mood": "energy",
+      "kind": "check_in",
+      "texts": [
+        "A small nod, then space: let’s put a spring in this.",
+        "A small nod, then space: a little extra spark is welcome."
+      ]
+    },
+    {
+      "language": "en",
+      "persona": "club_dj",
+      "mood": "energy",
+      "kind": "playful",
+      "texts": [
+        "One tap, very few words: let’s put a spring in this.",
+        "One tap, very few words: a little extra spark is welcome."
+      ]
+    },
+    {
+      "language": "en",
+      "persona": "club_dj",
+      "mood": "energy",
+      "kind": "easter_egg",
+      "texts": [
+        "No secret drop, just this: let’s put a spring in this.",
+        "No secret drop, just this: a little extra spark is welcome."
+      ]
+    },
+    {
+      "language": "en",
+      "persona": "club_dj",
+      "mood": "party",
+      "kind": "check_in",
+      "texts": [
+        "A small nod, then space: let’s make a small celebration of it.",
+        "A small nod, then space: imaginary confetti is perfectly allowed."
+      ]
+    },
+    {
+      "language": "en",
+      "persona": "club_dj",
+      "mood": "party",
+      "kind": "playful",
+      "texts": [
+        "One tap, very few words: let’s make a small celebration of it.",
+        "One tap, very few words: imaginary confetti is perfectly allowed."
+      ]
+    },
+    {
+      "language": "en",
+      "persona": "club_dj",
+      "mood": "party",
+      "kind": "easter_egg",
+      "texts": [
+        "No secret drop, just this: let’s make a small celebration of it.",
+        "No secret drop, just this: imaginary confetti is perfectly allowed."
+      ]
+    },
+    {
+      "language": "en",
+      "persona": "festival_dj",
+      "mood": "chill",
+      "kind": "check_in",
+      "texts": [
+        "A little wave from the festival booth: let’s leave the rush outside.",
+        "A little wave from the festival booth: no hurry, there is room to breathe."
+      ]
+    },
+    {
+      "language": "en",
+      "persona": "festival_dj",
+      "mood": "chill",
+      "kind": "playful",
+      "texts": [
+        "That tap deserves a tiny flourish: let’s leave the rush outside.",
+        "That tap deserves a tiny flourish: no hurry, there is room to breathe."
+      ]
+    },
+    {
+      "language": "en",
+      "persona": "festival_dj",
+      "mood": "chill",
+      "kind": "easter_egg",
+      "texts": [
+        "Backstage password accepted; let’s leave the rush outside.",
+        "Backstage password accepted; no hurry, there is room to breathe."
+      ]
+    },
+    {
+      "language": "en",
+      "persona": "festival_dj",
+      "mood": "groove",
+      "kind": "check_in",
+      "texts": [
+        "A little wave from the festival booth: let’s give the groove some room.",
+        "A little wave from the festival booth: a little swing goes a long way."
+      ]
+    },
+    {
+      "language": "en",
+      "persona": "festival_dj",
+      "mood": "groove",
+      "kind": "playful",
+      "texts": [
+        "That tap deserves a tiny flourish: let’s give the groove some room.",
+        "That tap deserves a tiny flourish: a little swing goes a long way."
+      ]
+    },
+    {
+      "language": "en",
+      "persona": "festival_dj",
+      "mood": "groove",
+      "kind": "easter_egg",
+      "texts": [
+        "Backstage password accepted; let’s give the groove some room.",
+        "Backstage password accepted; a little swing goes a long way."
+      ]
+    },
+    {
+      "language": "en",
+      "persona": "festival_dj",
+      "mood": "energy",
+      "kind": "check_in",
+      "texts": [
+        "A little wave from the festival booth: let’s put a spring in this.",
+        "A little wave from the festival booth: a little extra spark is welcome."
+      ]
+    },
+    {
+      "language": "en",
+      "persona": "festival_dj",
+      "mood": "energy",
+      "kind": "playful",
+      "texts": [
+        "That tap deserves a tiny flourish: let’s put a spring in this.",
+        "That tap deserves a tiny flourish: a little extra spark is welcome."
+      ]
+    },
+    {
+      "language": "en",
+      "persona": "festival_dj",
+      "mood": "energy",
+      "kind": "easter_egg",
+      "texts": [
+        "Backstage password accepted; let’s put a spring in this.",
+        "Backstage password accepted; a little extra spark is welcome."
+      ]
+    },
+    {
+      "language": "en",
+      "persona": "festival_dj",
+      "mood": "party",
+      "kind": "check_in",
+      "texts": [
+        "A little wave from the festival booth: let’s make a small celebration of it.",
+        "A little wave from the festival booth: imaginary confetti is perfectly allowed."
+      ]
+    },
+    {
+      "language": "en",
+      "persona": "festival_dj",
+      "mood": "party",
+      "kind": "playful",
+      "texts": [
+        "That tap deserves a tiny flourish: let’s make a small celebration of it.",
+        "That tap deserves a tiny flourish: imaginary confetti is perfectly allowed."
+      ]
+    },
+    {
+      "language": "en",
+      "persona": "festival_dj",
+      "mood": "party",
+      "kind": "easter_egg",
+      "texts": [
+        "Backstage password accepted; let’s make a small celebration of it.",
+        "Backstage password accepted; imaginary confetti is perfectly allowed."
+      ]
+    },
+    {
+      "language": "nl",
+      "persona": "home_dj",
+      "mood": "chill",
+      "kind": "check_in",
+      "texts": [
+        "Even een knikje van je DJ: we laten de haast lekker buiten.",
+        "Even een knikje van je DJ: geen haast, er is ruimte om te ademen."
+      ]
+    },
+    {
+      "language": "nl",
+      "persona": "home_dj",
+      "mood": "chill",
+      "kind": "playful",
+      "texts": [
+        "Geen grote toespraak van mij; we laten de haast lekker buiten.",
+        "Geen grote toespraak van mij; geen haast, er is ruimte om te ademen."
+      ]
+    },
+    {
+      "language": "nl",
+      "persona": "home_dj",
+      "mood": "chill",
+      "kind": "easter_egg",
+      "texts": [
+        "Geheime handdruk ontvangen; we laten de haast lekker buiten.",
+        "Geheime handdruk ontvangen; geen haast, er is ruimte om te ademen."
+      ]
+    },
+    {
+      "language": "nl",
+      "persona": "home_dj",
+      "mood": "groove",
+      "kind": "check_in",
+      "texts": [
+        "Even een knikje van je DJ: we geven de groove alle ruimte.",
+        "Even een knikje van je DJ: een beetje swing doet al een hoop."
+      ]
+    },
+    {
+      "language": "nl",
+      "persona": "home_dj",
+      "mood": "groove",
+      "kind": "playful",
+      "texts": [
+        "Geen grote toespraak van mij; we geven de groove alle ruimte.",
+        "Geen grote toespraak van mij; een beetje swing doet al een hoop."
+      ]
+    },
+    {
+      "language": "nl",
+      "persona": "home_dj",
+      "mood": "groove",
+      "kind": "easter_egg",
+      "texts": [
+        "Geheime handdruk ontvangen; we geven de groove alle ruimte.",
+        "Geheime handdruk ontvangen; een beetje swing doet al een hoop."
+      ]
+    },
+    {
+      "language": "nl",
+      "persona": "home_dj",
+      "mood": "energy",
+      "kind": "check_in",
+      "texts": [
+        "Even een knikje van je DJ: we mogen best wat vaart maken.",
+        "Even een knikje van je DJ: een extra vonkje mag er wel bij."
+      ]
+    },
+    {
+      "language": "nl",
+      "persona": "home_dj",
+      "mood": "energy",
+      "kind": "playful",
+      "texts": [
+        "Geen grote toespraak van mij; we mogen best wat vaart maken.",
+        "Geen grote toespraak van mij; een extra vonkje mag er wel bij."
+      ]
+    },
+    {
+      "language": "nl",
+      "persona": "home_dj",
+      "mood": "energy",
+      "kind": "easter_egg",
+      "texts": [
+        "Geheime handdruk ontvangen; we mogen best wat vaart maken.",
+        "Geheime handdruk ontvangen; een extra vonkje mag er wel bij."
+      ]
+    },
+    {
+      "language": "nl",
+      "persona": "home_dj",
+      "mood": "party",
+      "kind": "check_in",
+      "texts": [
+        "Even een knikje van je DJ: hier mag best een klein feestje van komen.",
+        "Even een knikje van je DJ: denkbeeldige confetti is helemaal toegestaan."
+      ]
+    },
+    {
+      "language": "nl",
+      "persona": "home_dj",
+      "mood": "party",
+      "kind": "playful",
+      "texts": [
+        "Geen grote toespraak van mij; hier mag best een klein feestje van komen.",
+        "Geen grote toespraak van mij; denkbeeldige confetti is helemaal toegestaan."
+      ]
+    },
+    {
+      "language": "nl",
+      "persona": "home_dj",
+      "mood": "party",
+      "kind": "easter_egg",
+      "texts": [
+        "Geheime handdruk ontvangen; hier mag best een klein feestje van komen.",
+        "Geheime handdruk ontvangen; denkbeeldige confetti is helemaal toegestaan."
+      ]
+    },
+    {
+      "language": "nl",
+      "persona": "radio_dj",
+      "mood": "chill",
+      "kind": "check_in",
+      "texts": [
+        "Een kort bericht uit de cabine: we laten de haast lekker buiten.",
+        "Een kort bericht uit de cabine: geen haast, er is ruimte om te ademen."
+      ]
+    },
+    {
+      "language": "nl",
+      "persona": "radio_dj",
+      "mood": "chill",
+      "kind": "playful",
+      "texts": [
+        "Een piepklein radiobericht: we laten de haast lekker buiten.",
+        "Een piepklein radiobericht: geen haast, er is ruimte om te ademen."
+      ]
+    },
+    {
+      "language": "nl",
+      "persona": "radio_dj",
+      "mood": "chill",
+      "kind": "easter_egg",
+      "texts": [
+        "Je hebt de knop zonder label gevonden; we laten de haast lekker buiten.",
+        "Je hebt de knop zonder label gevonden; geen haast, er is ruimte om te ademen."
+      ]
+    },
+    {
+      "language": "nl",
+      "persona": "radio_dj",
+      "mood": "groove",
+      "kind": "check_in",
+      "texts": [
+        "Een kort bericht uit de cabine: we geven de groove alle ruimte.",
+        "Een kort bericht uit de cabine: een beetje swing doet al een hoop."
+      ]
+    },
+    {
+      "language": "nl",
+      "persona": "radio_dj",
+      "mood": "groove",
+      "kind": "playful",
+      "texts": [
+        "Een piepklein radiobericht: we geven de groove alle ruimte.",
+        "Een piepklein radiobericht: een beetje swing doet al een hoop."
+      ]
+    },
+    {
+      "language": "nl",
+      "persona": "radio_dj",
+      "mood": "groove",
+      "kind": "easter_egg",
+      "texts": [
+        "Je hebt de knop zonder label gevonden; we geven de groove alle ruimte.",
+        "Je hebt de knop zonder label gevonden; een beetje swing doet al een hoop."
+      ]
+    },
+    {
+      "language": "nl",
+      "persona": "radio_dj",
+      "mood": "energy",
+      "kind": "check_in",
+      "texts": [
+        "Een kort bericht uit de cabine: we mogen best wat vaart maken.",
+        "Een kort bericht uit de cabine: een extra vonkje mag er wel bij."
+      ]
+    },
+    {
+      "language": "nl",
+      "persona": "radio_dj",
+      "mood": "energy",
+      "kind": "playful",
+      "texts": [
+        "Een piepklein radiobericht: we mogen best wat vaart maken.",
+        "Een piepklein radiobericht: een extra vonkje mag er wel bij."
+      ]
+    },
+    {
+      "language": "nl",
+      "persona": "radio_dj",
+      "mood": "energy",
+      "kind": "easter_egg",
+      "texts": [
+        "Je hebt de knop zonder label gevonden; we mogen best wat vaart maken.",
+        "Je hebt de knop zonder label gevonden; een extra vonkje mag er wel bij."
+      ]
+    },
+    {
+      "language": "nl",
+      "persona": "radio_dj",
+      "mood": "party",
+      "kind": "check_in",
+      "texts": [
+        "Een kort bericht uit de cabine: hier mag best een klein feestje van komen.",
+        "Een kort bericht uit de cabine: denkbeeldige confetti is helemaal toegestaan."
+      ]
+    },
+    {
+      "language": "nl",
+      "persona": "radio_dj",
+      "mood": "party",
+      "kind": "playful",
+      "texts": [
+        "Een piepklein radiobericht: hier mag best een klein feestje van komen.",
+        "Een piepklein radiobericht: denkbeeldige confetti is helemaal toegestaan."
+      ]
+    },
+    {
+      "language": "nl",
+      "persona": "radio_dj",
+      "mood": "party",
+      "kind": "easter_egg",
+      "texts": [
+        "Je hebt de knop zonder label gevonden; hier mag best een klein feestje van komen.",
+        "Je hebt de knop zonder label gevonden; denkbeeldige confetti is helemaal toegestaan."
+      ]
+    },
+    {
+      "language": "nl",
+      "persona": "club_dj",
+      "mood": "chill",
+      "kind": "check_in",
+      "texts": [
+        "Kleine knik, verder ruimte: we laten de haast lekker buiten.",
+        "Kleine knik, verder ruimte: geen haast, er is ruimte om te ademen."
+      ]
+    },
+    {
+      "language": "nl",
+      "persona": "club_dj",
+      "mood": "chill",
+      "kind": "playful",
+      "texts": [
+        "Eén tik, weinig woorden: we laten de haast lekker buiten.",
+        "Eén tik, weinig woorden: geen haast, er is ruimte om te ademen."
+      ]
+    },
+    {
+      "language": "nl",
+      "persona": "club_dj",
+      "mood": "chill",
+      "kind": "easter_egg",
+      "texts": [
+        "Geen geheime drop, alleen dit: we laten de haast lekker buiten.",
+        "Geen geheime drop, alleen dit: geen haast, er is ruimte om te ademen."
+      ]
+    },
+    {
+      "language": "nl",
+      "persona": "club_dj",
+      "mood": "groove",
+      "kind": "check_in",
+      "texts": [
+        "Kleine knik, verder ruimte: we geven de groove alle ruimte.",
+        "Kleine knik, verder ruimte: een beetje swing doet al een hoop."
+      ]
+    },
+    {
+      "language": "nl",
+      "persona": "club_dj",
+      "mood": "groove",
+      "kind": "playful",
+      "texts": [
+        "Eén tik, weinig woorden: we geven de groove alle ruimte.",
+        "Eén tik, weinig woorden: een beetje swing doet al een hoop."
+      ]
+    },
+    {
+      "language": "nl",
+      "persona": "club_dj",
+      "mood": "groove",
+      "kind": "easter_egg",
+      "texts": [
+        "Geen geheime drop, alleen dit: we geven de groove alle ruimte.",
+        "Geen geheime drop, alleen dit: een beetje swing doet al een hoop."
+      ]
+    },
+    {
+      "language": "nl",
+      "persona": "club_dj",
+      "mood": "energy",
+      "kind": "check_in",
+      "texts": [
+        "Kleine knik, verder ruimte: we mogen best wat vaart maken.",
+        "Kleine knik, verder ruimte: een extra vonkje mag er wel bij."
+      ]
+    },
+    {
+      "language": "nl",
+      "persona": "club_dj",
+      "mood": "energy",
+      "kind": "playful",
+      "texts": [
+        "Eén tik, weinig woorden: we mogen best wat vaart maken.",
+        "Eén tik, weinig woorden: een extra vonkje mag er wel bij."
+      ]
+    },
+    {
+      "language": "nl",
+      "persona": "club_dj",
+      "mood": "energy",
+      "kind": "easter_egg",
+      "texts": [
+        "Geen geheime drop, alleen dit: we mogen best wat vaart maken.",
+        "Geen geheime drop, alleen dit: een extra vonkje mag er wel bij."
+      ]
+    },
+    {
+      "language": "nl",
+      "persona": "club_dj",
+      "mood": "party",
+      "kind": "check_in",
+      "texts": [
+        "Kleine knik, verder ruimte: hier mag best een klein feestje van komen.",
+        "Kleine knik, verder ruimte: denkbeeldige confetti is helemaal toegestaan."
+      ]
+    },
+    {
+      "language": "nl",
+      "persona": "club_dj",
+      "mood": "party",
+      "kind": "playful",
+      "texts": [
+        "Eén tik, weinig woorden: hier mag best een klein feestje van komen.",
+        "Eén tik, weinig woorden: denkbeeldige confetti is helemaal toegestaan."
+      ]
+    },
+    {
+      "language": "nl",
+      "persona": "club_dj",
+      "mood": "party",
+      "kind": "easter_egg",
+      "texts": [
+        "Geen geheime drop, alleen dit: hier mag best een klein feestje van komen.",
+        "Geen geheime drop, alleen dit: denkbeeldige confetti is helemaal toegestaan."
+      ]
+    },
+    {
+      "language": "nl",
+      "persona": "festival_dj",
+      "mood": "chill",
+      "kind": "check_in",
+      "texts": [
+        "Een klein zwaaitje vanuit de festivaltent: we laten de haast lekker buiten.",
+        "Een klein zwaaitje vanuit de festivaltent: geen haast, er is ruimte om te ademen."
+      ]
+    },
+    {
+      "language": "nl",
+      "persona": "festival_dj",
+      "mood": "chill",
+      "kind": "playful",
+      "texts": [
+        "Die tik verdient een kleine buiging: we laten de haast lekker buiten.",
+        "Die tik verdient een kleine buiging: geen haast, er is ruimte om te ademen."
+      ]
+    },
+    {
+      "language": "nl",
+      "persona": "festival_dj",
+      "mood": "chill",
+      "kind": "easter_egg",
+      "texts": [
+        "Backstagewachtwoord geaccepteerd; we laten de haast lekker buiten.",
+        "Backstagewachtwoord geaccepteerd; geen haast, er is ruimte om te ademen."
+      ]
+    },
+    {
+      "language": "nl",
+      "persona": "festival_dj",
+      "mood": "groove",
+      "kind": "check_in",
+      "texts": [
+        "Een klein zwaaitje vanuit de festivaltent: we geven de groove alle ruimte.",
+        "Een klein zwaaitje vanuit de festivaltent: een beetje swing doet al een hoop."
+      ]
+    },
+    {
+      "language": "nl",
+      "persona": "festival_dj",
+      "mood": "groove",
+      "kind": "playful",
+      "texts": [
+        "Die tik verdient een kleine buiging: we geven de groove alle ruimte.",
+        "Die tik verdient een kleine buiging: een beetje swing doet al een hoop."
+      ]
+    },
+    {
+      "language": "nl",
+      "persona": "festival_dj",
+      "mood": "groove",
+      "kind": "easter_egg",
+      "texts": [
+        "Backstagewachtwoord geaccepteerd; we geven de groove alle ruimte.",
+        "Backstagewachtwoord geaccepteerd; een beetje swing doet al een hoop."
+      ]
+    },
+    {
+      "language": "nl",
+      "persona": "festival_dj",
+      "mood": "energy",
+      "kind": "check_in",
+      "texts": [
+        "Een klein zwaaitje vanuit de festivaltent: we mogen best wat vaart maken.",
+        "Een klein zwaaitje vanuit de festivaltent: een extra vonkje mag er wel bij."
+      ]
+    },
+    {
+      "language": "nl",
+      "persona": "festival_dj",
+      "mood": "energy",
+      "kind": "playful",
+      "texts": [
+        "Die tik verdient een kleine buiging: we mogen best wat vaart maken.",
+        "Die tik verdient een kleine buiging: een extra vonkje mag er wel bij."
+      ]
+    },
+    {
+      "language": "nl",
+      "persona": "festival_dj",
+      "mood": "energy",
+      "kind": "easter_egg",
+      "texts": [
+        "Backstagewachtwoord geaccepteerd; we mogen best wat vaart maken.",
+        "Backstagewachtwoord geaccepteerd; een extra vonkje mag er wel bij."
+      ]
+    },
+    {
+      "language": "nl",
+      "persona": "festival_dj",
+      "mood": "party",
+      "kind": "check_in",
+      "texts": [
+        "Een klein zwaaitje vanuit de festivaltent: hier mag best een klein feestje van komen.",
+        "Een klein zwaaitje vanuit de festivaltent: denkbeeldige confetti is helemaal toegestaan."
+      ]
+    },
+    {
+      "language": "nl",
+      "persona": "festival_dj",
+      "mood": "party",
+      "kind": "playful",
+      "texts": [
+        "Die tik verdient een kleine buiging: hier mag best een klein feestje van komen.",
+        "Die tik verdient een kleine buiging: denkbeeldige confetti is helemaal toegestaan."
+      ]
+    },
+    {
+      "language": "nl",
+      "persona": "festival_dj",
+      "mood": "party",
+      "kind": "easter_egg",
+      "texts": [
+        "Backstagewachtwoord geaccepteerd; hier mag best een klein feestje van komen.",
+        "Backstagewachtwoord geaccepteerd; denkbeeldige confetti is helemaal toegestaan."
+      ]
+    },
+    {
+      "language": "de",
+      "persona": "home_dj",
+      "mood": "chill",
+      "kind": "check_in",
+      "texts": [
+        "Ein kleines Nicken von deinem DJ: lassen wir die Hektik draußen.",
+        "Ein kleines Nicken von deinem DJ: keine Eile, hier ist Platz zum Durchatmen."
+      ]
+    },
+    {
+      "language": "de",
+      "persona": "home_dj",
+      "mood": "chill",
+      "kind": "playful",
+      "texts": [
+        "Keine große Ansprache von mir; lassen wir die Hektik draußen.",
+        "Keine große Ansprache von mir; keine Eile, hier ist Platz zum Durchatmen."
+      ]
+    },
+    {
+      "language": "de",
+      "persona": "home_dj",
+      "mood": "chill",
+      "kind": "easter_egg",
+      "texts": [
+        "Geheimer Handschlag angekommen; lassen wir die Hektik draußen.",
+        "Geheimer Handschlag angekommen; keine Eile, hier ist Platz zum Durchatmen."
+      ]
+    },
+    {
+      "language": "de",
+      "persona": "home_dj",
+      "mood": "groove",
+      "kind": "check_in",
+      "texts": [
+        "Ein kleines Nicken von deinem DJ: geben wir dem Groove etwas Raum.",
+        "Ein kleines Nicken von deinem DJ: ein bisschen Swing bringt schon viel."
+      ]
+    },
+    {
+      "language": "de",
+      "persona": "home_dj",
+      "mood": "groove",
+      "kind": "playful",
+      "texts": [
+        "Keine große Ansprache von mir; geben wir dem Groove etwas Raum.",
+        "Keine große Ansprache von mir; ein bisschen Swing bringt schon viel."
+      ]
+    },
+    {
+      "language": "de",
+      "persona": "home_dj",
+      "mood": "groove",
+      "kind": "easter_egg",
+      "texts": [
+        "Geheimer Handschlag angekommen; geben wir dem Groove etwas Raum.",
+        "Geheimer Handschlag angekommen; ein bisschen Swing bringt schon viel."
+      ]
+    },
+    {
+      "language": "de",
+      "persona": "home_dj",
+      "mood": "energy",
+      "kind": "check_in",
+      "texts": [
+        "Ein kleines Nicken von deinem DJ: bringen wir etwas Schwung hinein.",
+        "Ein kleines Nicken von deinem DJ: ein zusätzlicher Funke ist willkommen."
+      ]
+    },
+    {
+      "language": "de",
+      "persona": "home_dj",
+      "mood": "energy",
+      "kind": "playful",
+      "texts": [
+        "Keine große Ansprache von mir; bringen wir etwas Schwung hinein.",
+        "Keine große Ansprache von mir; ein zusätzlicher Funke ist willkommen."
+      ]
+    },
+    {
+      "language": "de",
+      "persona": "home_dj",
+      "mood": "energy",
+      "kind": "easter_egg",
+      "texts": [
+        "Geheimer Handschlag angekommen; bringen wir etwas Schwung hinein.",
+        "Geheimer Handschlag angekommen; ein zusätzlicher Funke ist willkommen."
+      ]
+    },
+    {
+      "language": "de",
+      "persona": "home_dj",
+      "mood": "party",
+      "kind": "check_in",
+      "texts": [
+        "Ein kleines Nicken von deinem DJ: machen wir eine kleine Feier daraus.",
+        "Ein kleines Nicken von deinem DJ: imaginäres Konfetti ist ausdrücklich erlaubt."
+      ]
+    },
+    {
+      "language": "de",
+      "persona": "home_dj",
+      "mood": "party",
+      "kind": "playful",
+      "texts": [
+        "Keine große Ansprache von mir; machen wir eine kleine Feier daraus.",
+        "Keine große Ansprache von mir; imaginäres Konfetti ist ausdrücklich erlaubt."
+      ]
+    },
+    {
+      "language": "de",
+      "persona": "home_dj",
+      "mood": "party",
+      "kind": "easter_egg",
+      "texts": [
+        "Geheimer Handschlag angekommen; machen wir eine kleine Feier daraus.",
+        "Geheimer Handschlag angekommen; imaginäres Konfetti ist ausdrücklich erlaubt."
+      ]
+    },
+    {
+      "language": "de",
+      "persona": "radio_dj",
+      "mood": "chill",
+      "kind": "check_in",
+      "texts": [
+        "Eine kurze Meldung aus der Kabine: lassen wir die Hektik draußen.",
+        "Eine kurze Meldung aus der Kabine: keine Eile, hier ist Platz zum Durchatmen."
+      ]
+    },
+    {
+      "language": "de",
+      "persona": "radio_dj",
+      "mood": "chill",
+      "kind": "playful",
+      "texts": [
+        "Eine winzige Radiomeldung: lassen wir die Hektik draußen.",
+        "Eine winzige Radiomeldung: keine Eile, hier ist Platz zum Durchatmen."
+      ]
+    },
+    {
+      "language": "de",
+      "persona": "radio_dj",
+      "mood": "chill",
+      "kind": "easter_egg",
+      "texts": [
+        "Du hast den unbeschrifteten Knopf gefunden; lassen wir die Hektik draußen.",
+        "Du hast den unbeschrifteten Knopf gefunden; keine Eile, hier ist Platz zum Durchatmen."
+      ]
+    },
+    {
+      "language": "de",
+      "persona": "radio_dj",
+      "mood": "groove",
+      "kind": "check_in",
+      "texts": [
+        "Eine kurze Meldung aus der Kabine: geben wir dem Groove etwas Raum.",
+        "Eine kurze Meldung aus der Kabine: ein bisschen Swing bringt schon viel."
+      ]
+    },
+    {
+      "language": "de",
+      "persona": "radio_dj",
+      "mood": "groove",
+      "kind": "playful",
+      "texts": [
+        "Eine winzige Radiomeldung: geben wir dem Groove etwas Raum.",
+        "Eine winzige Radiomeldung: ein bisschen Swing bringt schon viel."
+      ]
+    },
+    {
+      "language": "de",
+      "persona": "radio_dj",
+      "mood": "groove",
+      "kind": "easter_egg",
+      "texts": [
+        "Du hast den unbeschrifteten Knopf gefunden; geben wir dem Groove etwas Raum.",
+        "Du hast den unbeschrifteten Knopf gefunden; ein bisschen Swing bringt schon viel."
+      ]
+    },
+    {
+      "language": "de",
+      "persona": "radio_dj",
+      "mood": "energy",
+      "kind": "check_in",
+      "texts": [
+        "Eine kurze Meldung aus der Kabine: bringen wir etwas Schwung hinein.",
+        "Eine kurze Meldung aus der Kabine: ein zusätzlicher Funke ist willkommen."
+      ]
+    },
+    {
+      "language": "de",
+      "persona": "radio_dj",
+      "mood": "energy",
+      "kind": "playful",
+      "texts": [
+        "Eine winzige Radiomeldung: bringen wir etwas Schwung hinein.",
+        "Eine winzige Radiomeldung: ein zusätzlicher Funke ist willkommen."
+      ]
+    },
+    {
+      "language": "de",
+      "persona": "radio_dj",
+      "mood": "energy",
+      "kind": "easter_egg",
+      "texts": [
+        "Du hast den unbeschrifteten Knopf gefunden; bringen wir etwas Schwung hinein.",
+        "Du hast den unbeschrifteten Knopf gefunden; ein zusätzlicher Funke ist willkommen."
+      ]
+    },
+    {
+      "language": "de",
+      "persona": "radio_dj",
+      "mood": "party",
+      "kind": "check_in",
+      "texts": [
+        "Eine kurze Meldung aus der Kabine: machen wir eine kleine Feier daraus.",
+        "Eine kurze Meldung aus der Kabine: imaginäres Konfetti ist ausdrücklich erlaubt."
+      ]
+    },
+    {
+      "language": "de",
+      "persona": "radio_dj",
+      "mood": "party",
+      "kind": "playful",
+      "texts": [
+        "Eine winzige Radiomeldung: machen wir eine kleine Feier daraus.",
+        "Eine winzige Radiomeldung: imaginäres Konfetti ist ausdrücklich erlaubt."
+      ]
+    },
+    {
+      "language": "de",
+      "persona": "radio_dj",
+      "mood": "party",
+      "kind": "easter_egg",
+      "texts": [
+        "Du hast den unbeschrifteten Knopf gefunden; machen wir eine kleine Feier daraus.",
+        "Du hast den unbeschrifteten Knopf gefunden; imaginäres Konfetti ist ausdrücklich erlaubt."
+      ]
+    },
+    {
+      "language": "de",
+      "persona": "club_dj",
+      "mood": "chill",
+      "kind": "check_in",
+      "texts": [
+        "Ein kleines Nicken, dann wieder Raum: lassen wir die Hektik draußen.",
+        "Ein kleines Nicken, dann wieder Raum: keine Eile, hier ist Platz zum Durchatmen."
+      ]
+    },
+    {
+      "language": "de",
+      "persona": "club_dj",
+      "mood": "chill",
+      "kind": "playful",
+      "texts": [
+        "Ein Tippen, wenige Worte: lassen wir die Hektik draußen.",
+        "Ein Tippen, wenige Worte: keine Eile, hier ist Platz zum Durchatmen."
+      ]
+    },
+    {
+      "language": "de",
+      "persona": "club_dj",
+      "mood": "chill",
+      "kind": "easter_egg",
+      "texts": [
+        "Kein geheimer Drop, nur das: lassen wir die Hektik draußen.",
+        "Kein geheimer Drop, nur das: keine Eile, hier ist Platz zum Durchatmen."
+      ]
+    },
+    {
+      "language": "de",
+      "persona": "club_dj",
+      "mood": "groove",
+      "kind": "check_in",
+      "texts": [
+        "Ein kleines Nicken, dann wieder Raum: geben wir dem Groove etwas Raum.",
+        "Ein kleines Nicken, dann wieder Raum: ein bisschen Swing bringt schon viel."
+      ]
+    },
+    {
+      "language": "de",
+      "persona": "club_dj",
+      "mood": "groove",
+      "kind": "playful",
+      "texts": [
+        "Ein Tippen, wenige Worte: geben wir dem Groove etwas Raum.",
+        "Ein Tippen, wenige Worte: ein bisschen Swing bringt schon viel."
+      ]
+    },
+    {
+      "language": "de",
+      "persona": "club_dj",
+      "mood": "groove",
+      "kind": "easter_egg",
+      "texts": [
+        "Kein geheimer Drop, nur das: geben wir dem Groove etwas Raum.",
+        "Kein geheimer Drop, nur das: ein bisschen Swing bringt schon viel."
+      ]
+    },
+    {
+      "language": "de",
+      "persona": "club_dj",
+      "mood": "energy",
+      "kind": "check_in",
+      "texts": [
+        "Ein kleines Nicken, dann wieder Raum: bringen wir etwas Schwung hinein.",
+        "Ein kleines Nicken, dann wieder Raum: ein zusätzlicher Funke ist willkommen."
+      ]
+    },
+    {
+      "language": "de",
+      "persona": "club_dj",
+      "mood": "energy",
+      "kind": "playful",
+      "texts": [
+        "Ein Tippen, wenige Worte: bringen wir etwas Schwung hinein.",
+        "Ein Tippen, wenige Worte: ein zusätzlicher Funke ist willkommen."
+      ]
+    },
+    {
+      "language": "de",
+      "persona": "club_dj",
+      "mood": "energy",
+      "kind": "easter_egg",
+      "texts": [
+        "Kein geheimer Drop, nur das: bringen wir etwas Schwung hinein.",
+        "Kein geheimer Drop, nur das: ein zusätzlicher Funke ist willkommen."
+      ]
+    },
+    {
+      "language": "de",
+      "persona": "club_dj",
+      "mood": "party",
+      "kind": "check_in",
+      "texts": [
+        "Ein kleines Nicken, dann wieder Raum: machen wir eine kleine Feier daraus.",
+        "Ein kleines Nicken, dann wieder Raum: imaginäres Konfetti ist ausdrücklich erlaubt."
+      ]
+    },
+    {
+      "language": "de",
+      "persona": "club_dj",
+      "mood": "party",
+      "kind": "playful",
+      "texts": [
+        "Ein Tippen, wenige Worte: machen wir eine kleine Feier daraus.",
+        "Ein Tippen, wenige Worte: imaginäres Konfetti ist ausdrücklich erlaubt."
+      ]
+    },
+    {
+      "language": "de",
+      "persona": "club_dj",
+      "mood": "party",
+      "kind": "easter_egg",
+      "texts": [
+        "Kein geheimer Drop, nur das: machen wir eine kleine Feier daraus.",
+        "Kein geheimer Drop, nur das: imaginäres Konfetti ist ausdrücklich erlaubt."
+      ]
+    },
+    {
+      "language": "de",
+      "persona": "festival_dj",
+      "mood": "chill",
+      "kind": "check_in",
+      "texts": [
+        "Ein kleiner Gruß aus dem Festivalzelt: lassen wir die Hektik draußen.",
+        "Ein kleiner Gruß aus dem Festivalzelt: keine Eile, hier ist Platz zum Durchatmen."
+      ]
+    },
+    {
+      "language": "de",
+      "persona": "festival_dj",
+      "mood": "chill",
+      "kind": "playful",
+      "texts": [
+        "Das Tippen verdient eine kleine Verbeugung: lassen wir die Hektik draußen.",
+        "Das Tippen verdient eine kleine Verbeugung: keine Eile, hier ist Platz zum Durchatmen."
+      ]
+    },
+    {
+      "language": "de",
+      "persona": "festival_dj",
+      "mood": "chill",
+      "kind": "easter_egg",
+      "texts": [
+        "Backstage-Passwort akzeptiert; lassen wir die Hektik draußen.",
+        "Backstage-Passwort akzeptiert; keine Eile, hier ist Platz zum Durchatmen."
+      ]
+    },
+    {
+      "language": "de",
+      "persona": "festival_dj",
+      "mood": "groove",
+      "kind": "check_in",
+      "texts": [
+        "Ein kleiner Gruß aus dem Festivalzelt: geben wir dem Groove etwas Raum.",
+        "Ein kleiner Gruß aus dem Festivalzelt: ein bisschen Swing bringt schon viel."
+      ]
+    },
+    {
+      "language": "de",
+      "persona": "festival_dj",
+      "mood": "groove",
+      "kind": "playful",
+      "texts": [
+        "Das Tippen verdient eine kleine Verbeugung: geben wir dem Groove etwas Raum.",
+        "Das Tippen verdient eine kleine Verbeugung: ein bisschen Swing bringt schon viel."
+      ]
+    },
+    {
+      "language": "de",
+      "persona": "festival_dj",
+      "mood": "groove",
+      "kind": "easter_egg",
+      "texts": [
+        "Backstage-Passwort akzeptiert; geben wir dem Groove etwas Raum.",
+        "Backstage-Passwort akzeptiert; ein bisschen Swing bringt schon viel."
+      ]
+    },
+    {
+      "language": "de",
+      "persona": "festival_dj",
+      "mood": "energy",
+      "kind": "check_in",
+      "texts": [
+        "Ein kleiner Gruß aus dem Festivalzelt: bringen wir etwas Schwung hinein.",
+        "Ein kleiner Gruß aus dem Festivalzelt: ein zusätzlicher Funke ist willkommen."
+      ]
+    },
+    {
+      "language": "de",
+      "persona": "festival_dj",
+      "mood": "energy",
+      "kind": "playful",
+      "texts": [
+        "Das Tippen verdient eine kleine Verbeugung: bringen wir etwas Schwung hinein.",
+        "Das Tippen verdient eine kleine Verbeugung: ein zusätzlicher Funke ist willkommen."
+      ]
+    },
+    {
+      "language": "de",
+      "persona": "festival_dj",
+      "mood": "energy",
+      "kind": "easter_egg",
+      "texts": [
+        "Backstage-Passwort akzeptiert; bringen wir etwas Schwung hinein.",
+        "Backstage-Passwort akzeptiert; ein zusätzlicher Funke ist willkommen."
+      ]
+    },
+    {
+      "language": "de",
+      "persona": "festival_dj",
+      "mood": "party",
+      "kind": "check_in",
+      "texts": [
+        "Ein kleiner Gruß aus dem Festivalzelt: machen wir eine kleine Feier daraus.",
+        "Ein kleiner Gruß aus dem Festivalzelt: imaginäres Konfetti ist ausdrücklich erlaubt."
+      ]
+    },
+    {
+      "language": "de",
+      "persona": "festival_dj",
+      "mood": "party",
+      "kind": "playful",
+      "texts": [
+        "Das Tippen verdient eine kleine Verbeugung: machen wir eine kleine Feier daraus.",
+        "Das Tippen verdient eine kleine Verbeugung: imaginäres Konfetti ist ausdrücklich erlaubt."
+      ]
+    },
+    {
+      "language": "de",
+      "persona": "festival_dj",
+      "mood": "party",
+      "kind": "easter_egg",
+      "texts": [
+        "Backstage-Passwort akzeptiert; machen wir eine kleine Feier daraus.",
+        "Backstage-Passwort akzeptiert; imaginäres Konfetti ist ausdrücklich erlaubt."
+      ]
+    },
+    {
+      "language": "fr",
+      "persona": "home_dj",
+      "mood": "chill",
+      "kind": "check_in",
+      "texts": [
+        "Un petit signe de ton DJ : laissons la précipitation dehors.",
+        "Un petit signe de ton DJ : rien ne presse, il y a de quoi respirer."
+      ]
+    },
+    {
+      "language": "fr",
+      "persona": "home_dj",
+      "mood": "chill",
+      "kind": "playful",
+      "texts": [
+        "Pas de grand discours de ma part ; laissons la précipitation dehors.",
+        "Pas de grand discours de ma part ; rien ne presse, il y a de quoi respirer."
+      ]
+    },
+    {
+      "language": "fr",
+      "persona": "home_dj",
+      "mood": "chill",
+      "kind": "easter_egg",
+      "texts": [
+        "Poignée de main secrète reçue ; laissons la précipitation dehors.",
+        "Poignée de main secrète reçue ; rien ne presse, il y a de quoi respirer."
+      ]
+    },
+    {
+      "language": "fr",
+      "persona": "home_dj",
+      "mood": "groove",
+      "kind": "check_in",
+      "texts": [
+        "Un petit signe de ton DJ : laissons un peu de place au groove.",
+        "Un petit signe de ton DJ : un peu de swing fait déjà beaucoup."
+      ]
+    },
+    {
+      "language": "fr",
+      "persona": "home_dj",
+      "mood": "groove",
+      "kind": "playful",
+      "texts": [
+        "Pas de grand discours de ma part ; laissons un peu de place au groove.",
+        "Pas de grand discours de ma part ; un peu de swing fait déjà beaucoup."
+      ]
+    },
+    {
+      "language": "fr",
+      "persona": "home_dj",
+      "mood": "groove",
+      "kind": "easter_egg",
+      "texts": [
+        "Poignée de main secrète reçue ; laissons un peu de place au groove.",
+        "Poignée de main secrète reçue ; un peu de swing fait déjà beaucoup."
+      ]
+    },
+    {
+      "language": "fr",
+      "persona": "home_dj",
+      "mood": "energy",
+      "kind": "check_in",
+      "texts": [
+        "Un petit signe de ton DJ : mettons un peu d’élan dans tout ça.",
+        "Un petit signe de ton DJ : une petite étincelle de plus est bienvenue."
+      ]
+    },
+    {
+      "language": "fr",
+      "persona": "home_dj",
+      "mood": "energy",
+      "kind": "playful",
+      "texts": [
+        "Pas de grand discours de ma part ; mettons un peu d’élan dans tout ça.",
+        "Pas de grand discours de ma part ; une petite étincelle de plus est bienvenue."
+      ]
+    },
+    {
+      "language": "fr",
+      "persona": "home_dj",
+      "mood": "energy",
+      "kind": "easter_egg",
+      "texts": [
+        "Poignée de main secrète reçue ; mettons un peu d’élan dans tout ça.",
+        "Poignée de main secrète reçue ; une petite étincelle de plus est bienvenue."
+      ]
+    },
+    {
+      "language": "fr",
+      "persona": "home_dj",
+      "mood": "party",
+      "kind": "check_in",
+      "texts": [
+        "Un petit signe de ton DJ : faisons-en une petite fête.",
+        "Un petit signe de ton DJ : les confettis imaginaires sont tout à fait permis."
+      ]
+    },
+    {
+      "language": "fr",
+      "persona": "home_dj",
+      "mood": "party",
+      "kind": "playful",
+      "texts": [
+        "Pas de grand discours de ma part ; faisons-en une petite fête.",
+        "Pas de grand discours de ma part ; les confettis imaginaires sont tout à fait permis."
+      ]
+    },
+    {
+      "language": "fr",
+      "persona": "home_dj",
+      "mood": "party",
+      "kind": "easter_egg",
+      "texts": [
+        "Poignée de main secrète reçue ; faisons-en une petite fête.",
+        "Poignée de main secrète reçue ; les confettis imaginaires sont tout à fait permis."
+      ]
+    },
+    {
+      "language": "fr",
+      "persona": "radio_dj",
+      "mood": "chill",
+      "kind": "check_in",
+      "texts": [
+        "Un bref mot depuis la cabine : laissons la précipitation dehors.",
+        "Un bref mot depuis la cabine : rien ne presse, il y a de quoi respirer."
+      ]
+    },
+    {
+      "language": "fr",
+      "persona": "radio_dj",
+      "mood": "chill",
+      "kind": "playful",
+      "texts": [
+        "Un tout petit message radio : laissons la précipitation dehors.",
+        "Un tout petit message radio : rien ne presse, il y a de quoi respirer."
+      ]
+    },
+    {
+      "language": "fr",
+      "persona": "radio_dj",
+      "mood": "chill",
+      "kind": "easter_egg",
+      "texts": [
+        "Tu as trouvé le bouton sans étiquette ; laissons la précipitation dehors.",
+        "Tu as trouvé le bouton sans étiquette ; rien ne presse, il y a de quoi respirer."
+      ]
+    },
+    {
+      "language": "fr",
+      "persona": "radio_dj",
+      "mood": "groove",
+      "kind": "check_in",
+      "texts": [
+        "Un bref mot depuis la cabine : laissons un peu de place au groove.",
+        "Un bref mot depuis la cabine : un peu de swing fait déjà beaucoup."
+      ]
+    },
+    {
+      "language": "fr",
+      "persona": "radio_dj",
+      "mood": "groove",
+      "kind": "playful",
+      "texts": [
+        "Un tout petit message radio : laissons un peu de place au groove.",
+        "Un tout petit message radio : un peu de swing fait déjà beaucoup."
+      ]
+    },
+    {
+      "language": "fr",
+      "persona": "radio_dj",
+      "mood": "groove",
+      "kind": "easter_egg",
+      "texts": [
+        "Tu as trouvé le bouton sans étiquette ; laissons un peu de place au groove.",
+        "Tu as trouvé le bouton sans étiquette ; un peu de swing fait déjà beaucoup."
+      ]
+    },
+    {
+      "language": "fr",
+      "persona": "radio_dj",
+      "mood": "energy",
+      "kind": "check_in",
+      "texts": [
+        "Un bref mot depuis la cabine : mettons un peu d’élan dans tout ça.",
+        "Un bref mot depuis la cabine : une petite étincelle de plus est bienvenue."
+      ]
+    },
+    {
+      "language": "fr",
+      "persona": "radio_dj",
+      "mood": "energy",
+      "kind": "playful",
+      "texts": [
+        "Un tout petit message radio : mettons un peu d’élan dans tout ça.",
+        "Un tout petit message radio : une petite étincelle de plus est bienvenue."
+      ]
+    },
+    {
+      "language": "fr",
+      "persona": "radio_dj",
+      "mood": "energy",
+      "kind": "easter_egg",
+      "texts": [
+        "Tu as trouvé le bouton sans étiquette ; mettons un peu d’élan dans tout ça.",
+        "Tu as trouvé le bouton sans étiquette ; une petite étincelle de plus est bienvenue."
+      ]
+    },
+    {
+      "language": "fr",
+      "persona": "radio_dj",
+      "mood": "party",
+      "kind": "check_in",
+      "texts": [
+        "Un bref mot depuis la cabine : faisons-en une petite fête.",
+        "Un bref mot depuis la cabine : les confettis imaginaires sont tout à fait permis."
+      ]
+    },
+    {
+      "language": "fr",
+      "persona": "radio_dj",
+      "mood": "party",
+      "kind": "playful",
+      "texts": [
+        "Un tout petit message radio : faisons-en une petite fête.",
+        "Un tout petit message radio : les confettis imaginaires sont tout à fait permis."
+      ]
+    },
+    {
+      "language": "fr",
+      "persona": "radio_dj",
+      "mood": "party",
+      "kind": "easter_egg",
+      "texts": [
+        "Tu as trouvé le bouton sans étiquette ; faisons-en une petite fête.",
+        "Tu as trouvé le bouton sans étiquette ; les confettis imaginaires sont tout à fait permis."
+      ]
+    },
+    {
+      "language": "fr",
+      "persona": "club_dj",
+      "mood": "chill",
+      "kind": "check_in",
+      "texts": [
+        "Un petit signe, puis de l’espace : laissons la précipitation dehors.",
+        "Un petit signe, puis de l’espace : rien ne presse, il y a de quoi respirer."
+      ]
+    },
+    {
+      "language": "fr",
+      "persona": "club_dj",
+      "mood": "chill",
+      "kind": "playful",
+      "texts": [
+        "Un appui, très peu de mots : laissons la précipitation dehors.",
+        "Un appui, très peu de mots : rien ne presse, il y a de quoi respirer."
+      ]
+    },
+    {
+      "language": "fr",
+      "persona": "club_dj",
+      "mood": "chill",
+      "kind": "easter_egg",
+      "texts": [
+        "Pas de drop secret, juste ceci : laissons la précipitation dehors.",
+        "Pas de drop secret, juste ceci : rien ne presse, il y a de quoi respirer."
+      ]
+    },
+    {
+      "language": "fr",
+      "persona": "club_dj",
+      "mood": "groove",
+      "kind": "check_in",
+      "texts": [
+        "Un petit signe, puis de l’espace : laissons un peu de place au groove.",
+        "Un petit signe, puis de l’espace : un peu de swing fait déjà beaucoup."
+      ]
+    },
+    {
+      "language": "fr",
+      "persona": "club_dj",
+      "mood": "groove",
+      "kind": "playful",
+      "texts": [
+        "Un appui, très peu de mots : laissons un peu de place au groove.",
+        "Un appui, très peu de mots : un peu de swing fait déjà beaucoup."
+      ]
+    },
+    {
+      "language": "fr",
+      "persona": "club_dj",
+      "mood": "groove",
+      "kind": "easter_egg",
+      "texts": [
+        "Pas de drop secret, juste ceci : laissons un peu de place au groove.",
+        "Pas de drop secret, juste ceci : un peu de swing fait déjà beaucoup."
+      ]
+    },
+    {
+      "language": "fr",
+      "persona": "club_dj",
+      "mood": "energy",
+      "kind": "check_in",
+      "texts": [
+        "Un petit signe, puis de l’espace : mettons un peu d’élan dans tout ça.",
+        "Un petit signe, puis de l’espace : une petite étincelle de plus est bienvenue."
+      ]
+    },
+    {
+      "language": "fr",
+      "persona": "club_dj",
+      "mood": "energy",
+      "kind": "playful",
+      "texts": [
+        "Un appui, très peu de mots : mettons un peu d’élan dans tout ça.",
+        "Un appui, très peu de mots : une petite étincelle de plus est bienvenue."
+      ]
+    },
+    {
+      "language": "fr",
+      "persona": "club_dj",
+      "mood": "energy",
+      "kind": "easter_egg",
+      "texts": [
+        "Pas de drop secret, juste ceci : mettons un peu d’élan dans tout ça.",
+        "Pas de drop secret, juste ceci : une petite étincelle de plus est bienvenue."
+      ]
+    },
+    {
+      "language": "fr",
+      "persona": "club_dj",
+      "mood": "party",
+      "kind": "check_in",
+      "texts": [
+        "Un petit signe, puis de l’espace : faisons-en une petite fête.",
+        "Un petit signe, puis de l’espace : les confettis imaginaires sont tout à fait permis."
+      ]
+    },
+    {
+      "language": "fr",
+      "persona": "club_dj",
+      "mood": "party",
+      "kind": "playful",
+      "texts": [
+        "Un appui, très peu de mots : faisons-en une petite fête.",
+        "Un appui, très peu de mots : les confettis imaginaires sont tout à fait permis."
+      ]
+    },
+    {
+      "language": "fr",
+      "persona": "club_dj",
+      "mood": "party",
+      "kind": "easter_egg",
+      "texts": [
+        "Pas de drop secret, juste ceci : faisons-en une petite fête.",
+        "Pas de drop secret, juste ceci : les confettis imaginaires sont tout à fait permis."
+      ]
+    },
+    {
+      "language": "fr",
+      "persona": "festival_dj",
+      "mood": "chill",
+      "kind": "check_in",
+      "texts": [
+        "Un petit salut depuis la scène du festival : laissons la précipitation dehors.",
+        "Un petit salut depuis la scène du festival : rien ne presse, il y a de quoi respirer."
+      ]
+    },
+    {
+      "language": "fr",
+      "persona": "festival_dj",
+      "mood": "chill",
+      "kind": "playful",
+      "texts": [
+        "Cet appui mérite une petite révérence : laissons la précipitation dehors.",
+        "Cet appui mérite une petite révérence : rien ne presse, il y a de quoi respirer."
+      ]
+    },
+    {
+      "language": "fr",
+      "persona": "festival_dj",
+      "mood": "chill",
+      "kind": "easter_egg",
+      "texts": [
+        "Mot de passe des coulisses accepté ; laissons la précipitation dehors.",
+        "Mot de passe des coulisses accepté ; rien ne presse, il y a de quoi respirer."
+      ]
+    },
+    {
+      "language": "fr",
+      "persona": "festival_dj",
+      "mood": "groove",
+      "kind": "check_in",
+      "texts": [
+        "Un petit salut depuis la scène du festival : laissons un peu de place au groove.",
+        "Un petit salut depuis la scène du festival : un peu de swing fait déjà beaucoup."
+      ]
+    },
+    {
+      "language": "fr",
+      "persona": "festival_dj",
+      "mood": "groove",
+      "kind": "playful",
+      "texts": [
+        "Cet appui mérite une petite révérence : laissons un peu de place au groove.",
+        "Cet appui mérite une petite révérence : un peu de swing fait déjà beaucoup."
+      ]
+    },
+    {
+      "language": "fr",
+      "persona": "festival_dj",
+      "mood": "groove",
+      "kind": "easter_egg",
+      "texts": [
+        "Mot de passe des coulisses accepté ; laissons un peu de place au groove.",
+        "Mot de passe des coulisses accepté ; un peu de swing fait déjà beaucoup."
+      ]
+    },
+    {
+      "language": "fr",
+      "persona": "festival_dj",
+      "mood": "energy",
+      "kind": "check_in",
+      "texts": [
+        "Un petit salut depuis la scène du festival : mettons un peu d’élan dans tout ça.",
+        "Un petit salut depuis la scène du festival : une petite étincelle de plus est bienvenue."
+      ]
+    },
+    {
+      "language": "fr",
+      "persona": "festival_dj",
+      "mood": "energy",
+      "kind": "playful",
+      "texts": [
+        "Cet appui mérite une petite révérence : mettons un peu d’élan dans tout ça.",
+        "Cet appui mérite une petite révérence : une petite étincelle de plus est bienvenue."
+      ]
+    },
+    {
+      "language": "fr",
+      "persona": "festival_dj",
+      "mood": "energy",
+      "kind": "easter_egg",
+      "texts": [
+        "Mot de passe des coulisses accepté ; mettons un peu d’élan dans tout ça.",
+        "Mot de passe des coulisses accepté ; une petite étincelle de plus est bienvenue."
+      ]
+    },
+    {
+      "language": "fr",
+      "persona": "festival_dj",
+      "mood": "party",
+      "kind": "check_in",
+      "texts": [
+        "Un petit salut depuis la scène du festival : faisons-en une petite fête.",
+        "Un petit salut depuis la scène du festival : les confettis imaginaires sont tout à fait permis."
+      ]
+    },
+    {
+      "language": "fr",
+      "persona": "festival_dj",
+      "mood": "party",
+      "kind": "playful",
+      "texts": [
+        "Cet appui mérite une petite révérence : faisons-en une petite fête.",
+        "Cet appui mérite une petite révérence : les confettis imaginaires sont tout à fait permis."
+      ]
+    },
+    {
+      "language": "fr",
+      "persona": "festival_dj",
+      "mood": "party",
+      "kind": "easter_egg",
+      "texts": [
+        "Mot de passe des coulisses accepté ; faisons-en une petite fête.",
+        "Mot de passe des coulisses accepté ; les confettis imaginaires sont tout à fait permis."
+      ]
+    },
+    {
+      "language": "es",
+      "persona": "home_dj",
+      "mood": "chill",
+      "kind": "check_in",
+      "texts": [
+        "Un pequeño saludo de tu DJ: dejemos las prisas fuera.",
+        "Un pequeño saludo de tu DJ: sin prisa, hay espacio para respirar."
+      ]
+    },
+    {
+      "language": "es",
+      "persona": "home_dj",
+      "mood": "chill",
+      "kind": "playful",
+      "texts": [
+        "Sin un gran discurso por mi parte; dejemos las prisas fuera.",
+        "Sin un gran discurso por mi parte; sin prisa, hay espacio para respirar."
+      ]
+    },
+    {
+      "language": "es",
+      "persona": "home_dj",
+      "mood": "chill",
+      "kind": "easter_egg",
+      "texts": [
+        "Saludo secreto recibido; dejemos las prisas fuera.",
+        "Saludo secreto recibido; sin prisa, hay espacio para respirar."
+      ]
+    },
+    {
+      "language": "es",
+      "persona": "home_dj",
+      "mood": "groove",
+      "kind": "check_in",
+      "texts": [
+        "Un pequeño saludo de tu DJ: dejemos espacio al groove.",
+        "Un pequeño saludo de tu DJ: un poco de swing da para mucho."
+      ]
+    },
+    {
+      "language": "es",
+      "persona": "home_dj",
+      "mood": "groove",
+      "kind": "playful",
+      "texts": [
+        "Sin un gran discurso por mi parte; dejemos espacio al groove.",
+        "Sin un gran discurso por mi parte; un poco de swing da para mucho."
+      ]
+    },
+    {
+      "language": "es",
+      "persona": "home_dj",
+      "mood": "groove",
+      "kind": "easter_egg",
+      "texts": [
+        "Saludo secreto recibido; dejemos espacio al groove.",
+        "Saludo secreto recibido; un poco de swing da para mucho."
+      ]
+    },
+    {
+      "language": "es",
+      "persona": "home_dj",
+      "mood": "energy",
+      "kind": "check_in",
+      "texts": [
+        "Un pequeño saludo de tu DJ: pongamos un poco de impulso.",
+        "Un pequeño saludo de tu DJ: una chispa más siempre es bienvenida."
+      ]
+    },
+    {
+      "language": "es",
+      "persona": "home_dj",
+      "mood": "energy",
+      "kind": "playful",
+      "texts": [
+        "Sin un gran discurso por mi parte; pongamos un poco de impulso.",
+        "Sin un gran discurso por mi parte; una chispa más siempre es bienvenida."
+      ]
+    },
+    {
+      "language": "es",
+      "persona": "home_dj",
+      "mood": "energy",
+      "kind": "easter_egg",
+      "texts": [
+        "Saludo secreto recibido; pongamos un poco de impulso.",
+        "Saludo secreto recibido; una chispa más siempre es bienvenida."
+      ]
+    },
+    {
+      "language": "es",
+      "persona": "home_dj",
+      "mood": "party",
+      "kind": "check_in",
+      "texts": [
+        "Un pequeño saludo de tu DJ: hagamos una pequeña fiesta de esto.",
+        "Un pequeño saludo de tu DJ: el confeti imaginario está totalmente permitido."
+      ]
+    },
+    {
+      "language": "es",
+      "persona": "home_dj",
+      "mood": "party",
+      "kind": "playful",
+      "texts": [
+        "Sin un gran discurso por mi parte; hagamos una pequeña fiesta de esto.",
+        "Sin un gran discurso por mi parte; el confeti imaginario está totalmente permitido."
+      ]
+    },
+    {
+      "language": "es",
+      "persona": "home_dj",
+      "mood": "party",
+      "kind": "easter_egg",
+      "texts": [
+        "Saludo secreto recibido; hagamos una pequeña fiesta de esto.",
+        "Saludo secreto recibido; el confeti imaginario está totalmente permitido."
+      ]
+    },
+    {
+      "language": "es",
+      "persona": "radio_dj",
+      "mood": "chill",
+      "kind": "check_in",
+      "texts": [
+        "Un breve mensaje desde la cabina: dejemos las prisas fuera.",
+        "Un breve mensaje desde la cabina: sin prisa, hay espacio para respirar."
+      ]
+    },
+    {
+      "language": "es",
+      "persona": "radio_dj",
+      "mood": "chill",
+      "kind": "playful",
+      "texts": [
+        "Un pequeño mensaje de radio: dejemos las prisas fuera.",
+        "Un pequeño mensaje de radio: sin prisa, hay espacio para respirar."
+      ]
+    },
+    {
+      "language": "es",
+      "persona": "radio_dj",
+      "mood": "chill",
+      "kind": "easter_egg",
+      "texts": [
+        "Has encontrado el botón sin etiqueta; dejemos las prisas fuera.",
+        "Has encontrado el botón sin etiqueta; sin prisa, hay espacio para respirar."
+      ]
+    },
+    {
+      "language": "es",
+      "persona": "radio_dj",
+      "mood": "groove",
+      "kind": "check_in",
+      "texts": [
+        "Un breve mensaje desde la cabina: dejemos espacio al groove.",
+        "Un breve mensaje desde la cabina: un poco de swing da para mucho."
+      ]
+    },
+    {
+      "language": "es",
+      "persona": "radio_dj",
+      "mood": "groove",
+      "kind": "playful",
+      "texts": [
+        "Un pequeño mensaje de radio: dejemos espacio al groove.",
+        "Un pequeño mensaje de radio: un poco de swing da para mucho."
+      ]
+    },
+    {
+      "language": "es",
+      "persona": "radio_dj",
+      "mood": "groove",
+      "kind": "easter_egg",
+      "texts": [
+        "Has encontrado el botón sin etiqueta; dejemos espacio al groove.",
+        "Has encontrado el botón sin etiqueta; un poco de swing da para mucho."
+      ]
+    },
+    {
+      "language": "es",
+      "persona": "radio_dj",
+      "mood": "energy",
+      "kind": "check_in",
+      "texts": [
+        "Un breve mensaje desde la cabina: pongamos un poco de impulso.",
+        "Un breve mensaje desde la cabina: una chispa más siempre es bienvenida."
+      ]
+    },
+    {
+      "language": "es",
+      "persona": "radio_dj",
+      "mood": "energy",
+      "kind": "playful",
+      "texts": [
+        "Un pequeño mensaje de radio: pongamos un poco de impulso.",
+        "Un pequeño mensaje de radio: una chispa más siempre es bienvenida."
+      ]
+    },
+    {
+      "language": "es",
+      "persona": "radio_dj",
+      "mood": "energy",
+      "kind": "easter_egg",
+      "texts": [
+        "Has encontrado el botón sin etiqueta; pongamos un poco de impulso.",
+        "Has encontrado el botón sin etiqueta; una chispa más siempre es bienvenida."
+      ]
+    },
+    {
+      "language": "es",
+      "persona": "radio_dj",
+      "mood": "party",
+      "kind": "check_in",
+      "texts": [
+        "Un breve mensaje desde la cabina: hagamos una pequeña fiesta de esto.",
+        "Un breve mensaje desde la cabina: el confeti imaginario está totalmente permitido."
+      ]
+    },
+    {
+      "language": "es",
+      "persona": "radio_dj",
+      "mood": "party",
+      "kind": "playful",
+      "texts": [
+        "Un pequeño mensaje de radio: hagamos una pequeña fiesta de esto.",
+        "Un pequeño mensaje de radio: el confeti imaginario está totalmente permitido."
+      ]
+    },
+    {
+      "language": "es",
+      "persona": "radio_dj",
+      "mood": "party",
+      "kind": "easter_egg",
+      "texts": [
+        "Has encontrado el botón sin etiqueta; hagamos una pequeña fiesta de esto.",
+        "Has encontrado el botón sin etiqueta; el confeti imaginario está totalmente permitido."
+      ]
+    },
+    {
+      "language": "es",
+      "persona": "club_dj",
+      "mood": "chill",
+      "kind": "check_in",
+      "texts": [
+        "Un pequeño saludo y después espacio: dejemos las prisas fuera.",
+        "Un pequeño saludo y después espacio: sin prisa, hay espacio para respirar."
+      ]
+    },
+    {
+      "language": "es",
+      "persona": "club_dj",
+      "mood": "chill",
+      "kind": "playful",
+      "texts": [
+        "Un toque, pocas palabras: dejemos las prisas fuera.",
+        "Un toque, pocas palabras: sin prisa, hay espacio para respirar."
+      ]
+    },
+    {
+      "language": "es",
+      "persona": "club_dj",
+      "mood": "chill",
+      "kind": "easter_egg",
+      "texts": [
+        "Sin un drop secreto, solo esto: dejemos las prisas fuera.",
+        "Sin un drop secreto, solo esto: sin prisa, hay espacio para respirar."
+      ]
+    },
+    {
+      "language": "es",
+      "persona": "club_dj",
+      "mood": "groove",
+      "kind": "check_in",
+      "texts": [
+        "Un pequeño saludo y después espacio: dejemos espacio al groove.",
+        "Un pequeño saludo y después espacio: un poco de swing da para mucho."
+      ]
+    },
+    {
+      "language": "es",
+      "persona": "club_dj",
+      "mood": "groove",
+      "kind": "playful",
+      "texts": [
+        "Un toque, pocas palabras: dejemos espacio al groove.",
+        "Un toque, pocas palabras: un poco de swing da para mucho."
+      ]
+    },
+    {
+      "language": "es",
+      "persona": "club_dj",
+      "mood": "groove",
+      "kind": "easter_egg",
+      "texts": [
+        "Sin un drop secreto, solo esto: dejemos espacio al groove.",
+        "Sin un drop secreto, solo esto: un poco de swing da para mucho."
+      ]
+    },
+    {
+      "language": "es",
+      "persona": "club_dj",
+      "mood": "energy",
+      "kind": "check_in",
+      "texts": [
+        "Un pequeño saludo y después espacio: pongamos un poco de impulso.",
+        "Un pequeño saludo y después espacio: una chispa más siempre es bienvenida."
+      ]
+    },
+    {
+      "language": "es",
+      "persona": "club_dj",
+      "mood": "energy",
+      "kind": "playful",
+      "texts": [
+        "Un toque, pocas palabras: pongamos un poco de impulso.",
+        "Un toque, pocas palabras: una chispa más siempre es bienvenida."
+      ]
+    },
+    {
+      "language": "es",
+      "persona": "club_dj",
+      "mood": "energy",
+      "kind": "easter_egg",
+      "texts": [
+        "Sin un drop secreto, solo esto: pongamos un poco de impulso.",
+        "Sin un drop secreto, solo esto: una chispa más siempre es bienvenida."
+      ]
+    },
+    {
+      "language": "es",
+      "persona": "club_dj",
+      "mood": "party",
+      "kind": "check_in",
+      "texts": [
+        "Un pequeño saludo y después espacio: hagamos una pequeña fiesta de esto.",
+        "Un pequeño saludo y después espacio: el confeti imaginario está totalmente permitido."
+      ]
+    },
+    {
+      "language": "es",
+      "persona": "club_dj",
+      "mood": "party",
+      "kind": "playful",
+      "texts": [
+        "Un toque, pocas palabras: hagamos una pequeña fiesta de esto.",
+        "Un toque, pocas palabras: el confeti imaginario está totalmente permitido."
+      ]
+    },
+    {
+      "language": "es",
+      "persona": "club_dj",
+      "mood": "party",
+      "kind": "easter_egg",
+      "texts": [
+        "Sin un drop secreto, solo esto: hagamos una pequeña fiesta de esto.",
+        "Sin un drop secreto, solo esto: el confeti imaginario está totalmente permitido."
+      ]
+    },
+    {
+      "language": "es",
+      "persona": "festival_dj",
+      "mood": "chill",
+      "kind": "check_in",
+      "texts": [
+        "Un pequeño saludo desde el escenario del festival: dejemos las prisas fuera.",
+        "Un pequeño saludo desde el escenario del festival: sin prisa, hay espacio para respirar."
+      ]
+    },
+    {
+      "language": "es",
+      "persona": "festival_dj",
+      "mood": "chill",
+      "kind": "playful",
+      "texts": [
+        "Ese toque merece una pequeña reverencia: dejemos las prisas fuera.",
+        "Ese toque merece una pequeña reverencia: sin prisa, hay espacio para respirar."
+      ]
+    },
+    {
+      "language": "es",
+      "persona": "festival_dj",
+      "mood": "chill",
+      "kind": "easter_egg",
+      "texts": [
+        "Contraseña de camerinos aceptada; dejemos las prisas fuera.",
+        "Contraseña de camerinos aceptada; sin prisa, hay espacio para respirar."
+      ]
+    },
+    {
+      "language": "es",
+      "persona": "festival_dj",
+      "mood": "groove",
+      "kind": "check_in",
+      "texts": [
+        "Un pequeño saludo desde el escenario del festival: dejemos espacio al groove.",
+        "Un pequeño saludo desde el escenario del festival: un poco de swing da para mucho."
+      ]
+    },
+    {
+      "language": "es",
+      "persona": "festival_dj",
+      "mood": "groove",
+      "kind": "playful",
+      "texts": [
+        "Ese toque merece una pequeña reverencia: dejemos espacio al groove.",
+        "Ese toque merece una pequeña reverencia: un poco de swing da para mucho."
+      ]
+    },
+    {
+      "language": "es",
+      "persona": "festival_dj",
+      "mood": "groove",
+      "kind": "easter_egg",
+      "texts": [
+        "Contraseña de camerinos aceptada; dejemos espacio al groove.",
+        "Contraseña de camerinos aceptada; un poco de swing da para mucho."
+      ]
+    },
+    {
+      "language": "es",
+      "persona": "festival_dj",
+      "mood": "energy",
+      "kind": "check_in",
+      "texts": [
+        "Un pequeño saludo desde el escenario del festival: pongamos un poco de impulso.",
+        "Un pequeño saludo desde el escenario del festival: una chispa más siempre es bienvenida."
+      ]
+    },
+    {
+      "language": "es",
+      "persona": "festival_dj",
+      "mood": "energy",
+      "kind": "playful",
+      "texts": [
+        "Ese toque merece una pequeña reverencia: pongamos un poco de impulso.",
+        "Ese toque merece una pequeña reverencia: una chispa más siempre es bienvenida."
+      ]
+    },
+    {
+      "language": "es",
+      "persona": "festival_dj",
+      "mood": "energy",
+      "kind": "easter_egg",
+      "texts": [
+        "Contraseña de camerinos aceptada; pongamos un poco de impulso.",
+        "Contraseña de camerinos aceptada; una chispa más siempre es bienvenida."
+      ]
+    },
+    {
+      "language": "es",
+      "persona": "festival_dj",
+      "mood": "party",
+      "kind": "check_in",
+      "texts": [
+        "Un pequeño saludo desde el escenario del festival: hagamos una pequeña fiesta de esto.",
+        "Un pequeño saludo desde el escenario del festival: el confeti imaginario está totalmente permitido."
+      ]
+    },
+    {
+      "language": "es",
+      "persona": "festival_dj",
+      "mood": "party",
+      "kind": "playful",
+      "texts": [
+        "Ese toque merece una pequeña reverencia: hagamos una pequeña fiesta de esto.",
+        "Ese toque merece una pequeña reverencia: el confeti imaginario está totalmente permitido."
+      ]
+    },
+    {
+      "language": "es",
+      "persona": "festival_dj",
+      "mood": "party",
+      "kind": "easter_egg",
+      "texts": [
+        "Contraseña de camerinos aceptada; hagamos una pequeña fiesta de esto.",
+        "Contraseña de camerinos aceptada; el confeti imaginario está totalmente permitido."
+      ]
+    }
+  ]
+}

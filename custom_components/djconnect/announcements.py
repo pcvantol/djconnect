@@ -180,24 +180,42 @@ async def async_apply_announcement_output(
     """Attach and/or deliver DJ announcement audio for app-client Ask DJ responses."""
     text = str(response.get("dj_text") or response.get("text") or "").strip()
     client_type = str(payload.get(CONF_CLIENT_TYPE) or getattr(runtime, "config", {}).get(CONF_CLIENT_TYPE) or "")
-    output = normalize_announcement_output(
-        payload.get(CONF_DJ_ANNOUNCEMENT_OUTPUT)
-        or getattr(runtime, "config", {}).get(CONF_DJ_ANNOUNCEMENT_OUTPUT),
-        runtime,
-        client_type=client_type,
-    )
+    from .announcement_policy import capture_announcement_admission, output_policy
+    admission = await capture_announcement_admission(hass, runtime)
+    if admission is not None:
+        admission.guard()
+        output = admission.settings.announcement_output
+    else:
+        output = normalize_announcement_output(
+            payload.get(CONF_DJ_ANNOUNCEMENT_OUTPUT)
+            or getattr(runtime, "config", {}).get(CONF_DJ_ANNOUNCEMENT_OUTPUT),
+            runtime, client_type=client_type)
     speaker = configured_announcement_speaker(runtime)
+    speaker_policy = output_policy(hass, runtime) if admission is not None else None
     announcement = {
         "output": output,
         "delivery": output,
         "audio_response_effective": "never" if output == DJ_ANNOUNCEMENT_TEXT_ONLY else "unavailable",
         "audio_url": None,
         "audio_type": None,
-        "target": _target_payload(hass, speaker) if output in {DJ_ANNOUNCEMENT_BOTH, DJ_ANNOUNCEMENT_HA_SPEAKER} else None,
+        "target": (({'kind': 'ha_speaker', 'available': output_policy(hass, runtime).speaker_available}
+                    if admission is not None else _target_payload(hass, speaker))
+                   if output in {DJ_ANNOUNCEMENT_BOTH, DJ_ANNOUNCEMENT_HA_SPEAKER} else None),
         "warnings": [],
     }
     if not text or not generate_audio or output == DJ_ANNOUNCEMENT_TEXT_ONLY:
+        if output == DJ_ANNOUNCEMENT_TEXT_ONLY:
+            response.pop('audio_url', None)
+            response.pop('audio_type', None)
         response["announcement"] = announcement
+        _sync_assistant_announcement(response, announcement)
+        return response
+    if (admission is not None and output == DJ_ANNOUNCEMENT_HA_SPEAKER
+            and not output_policy(hass, runtime).speaker_available):
+        announcement['warnings'].append('announcement_speaker_unavailable')
+        response.pop('audio_url', None)
+        response.pop('audio_type', None)
+        response['announcement'] = announcement
         _sync_assistant_announcement(response, announcement)
         return response
     if callable(audio_url_factory):
@@ -209,6 +227,19 @@ async def async_apply_announcement_output(
         )
     else:
         audio_url = await async_create_dj_audio_url(hass, runtime, text)
+    if admission is not None:
+        try:
+            admission.guard()
+            if (output in {DJ_ANNOUNCEMENT_BOTH, DJ_ANNOUNCEMENT_HA_SPEAKER}
+                    and output_policy(hass, runtime).revision != speaker_policy.revision):
+                raise PermissionError('announcement_settings_changed')
+        except PermissionError:
+            announcement['warnings'].append('announcement_settings_changed')
+            response.pop('audio_url', None)
+            response.pop('audio_type', None)
+            response['announcement'] = announcement
+            _sync_assistant_announcement(response, announcement)
+            return response
     if audio_url:
         announcement["audio_url"] = audio_url if output in {DJ_ANNOUNCEMENT_CLIENT_DEVICE, DJ_ANNOUNCEMENT_BOTH} else None
         announcement["audio_type"] = _audio_type_from_url(audio_url)
@@ -216,6 +247,9 @@ async def async_apply_announcement_output(
             "server_only" if output == DJ_ANNOUNCEMENT_HA_SPEAKER else "always"
         )
     if output in {DJ_ANNOUNCEMENT_BOTH, DJ_ANNOUNCEMENT_HA_SPEAKER}:
+        if admission is not None and not output_policy(hass, runtime).speaker_available:
+            announcement['warnings'].append('announcement_speaker_unavailable')
+            speaker = ''  # Retain the choice; never dispatch to an unusable target.
         if audio_url and speaker:
             try:
                 await hass.services.async_call(
@@ -279,6 +313,8 @@ def _audio_type_from_url(audio_url: str | None) -> str | None:
 def _sync_assistant_announcement(response: dict[str, Any], announcement: dict[str, Any]) -> None:
     assistant = response.get("assistant_message")
     if isinstance(assistant, dict):
+        assistant = dict(assistant)
+        response['assistant_message'] = assistant
         assistant["announcement"] = dict(announcement)
         if announcement.get("audio_url"):
             assistant["audio_url"] = announcement["audio_url"]
@@ -287,3 +323,12 @@ def _sync_assistant_announcement(response: dict[str, Any], announcement: dict[st
         else:
             assistant.pop("audio_url", None)
             assistant.pop("audio_type", None)
+    if announcement['output'] == DJ_ANNOUNCEMENT_TEXT_ONLY and isinstance(response.get('messages'), list):
+        # Project current policy without rewriting retained messages or bodies.
+        messages = []
+        for message in response['messages']:
+            if isinstance(message, dict) and message.get('role') == 'assistant':
+                message = {key: value for key, value in message.items() if key not in {'audio_url', 'audio_type'}}
+                message['announcement'] = dict(announcement)
+            messages.append(message)
+        response['messages'] = messages

@@ -1,5 +1,10 @@
 # Active Session presence owner transport v1
 
+Current selection semantics: [four-choice policy2](DJ_PRESENCE_FOUR_LEVELS_V2.md).
+Discovery capability2 explicitly advertises four values and declares the
+unchanged request transport contract1. The five-value capability1 record below
+is historical. New source pin and installed acceptance are not yet available.
+
 Assignment `DJC-CORE-DJ-PRESENCE-V1-20261011`; protected source #1150 delivered;
 installed/native acceptance remains open. Policy: [Core policy](DJ_PRESENCE_CORE_POLICY_V1.md).
 

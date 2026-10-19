@@ -1,5 +1,22 @@
 # DJConnect Technical Design Decisions
 
+
+## Explicit Persona reactions reuse paired operation and private speech owners
+
+The selected avatar addition uses `session/persona/reaction` and `/cancel` inside
+the existing paired operation journal, confirmed Settings3 and private speech
+source admission. A bounded RAM reservation precedes the first Settings await;
+foreground revision/cancel/original deadline fences pending work before a lease
+exists. Provider configuration revision is captured before awaits and checked
+again after durable send admission, before synthesis. No fake chat/Moment,
+second endpoint, durable reaction text or proactive budget mutation is introduced.
+Only the initiating device can cancel/read private reaction bytes. Local native
+speech needs no HA provider; text_only never synthesizes. HA-speaker reaction
+output remains unqualified until it can stop independently from music.
+[Contract](docs/product/PERSONA_TOUCH_REACTIONS_V1.md) and
+[causal proof](docs/verification/PERSONA_TOUCH_CORE_20261019.md) retain native,
+installed and audible boundaries. No dependency/API vendor/license change.
+
 This document records code-level design decisions, implementation patterns,
 coding conventions and third-party dependencies for the DJConnect Home Assistant
 integration.
@@ -158,61 +175,31 @@ Why:
 - Guardrails prevent prompt leaks or smart-home device lookup errors from
   becoming Spotify queries or user-facing DJ announcement text.
 
-### Generated DJ Announcement With Guarded Fallback
+### Qualified Session Narration and Literal Speech
 
-Pattern:
+The old post-command free-form DJ announcement generator is retired. Command
+executors return their accepted playback/control/current-track response directly;
+there is no legacy model wrapper, private-memory announcement prompt or second
+proactive publisher. Album and first-track metadata remain distinct, and command
+responses use the actual current result rather than stale playback.
 
-- `generate_dj_response_with_assist(...)` asks Home Assistant conversation for
-  the spoken DJ announcement after Spotify intent/playback has resolved media
-  metadata.
-- The configured `dj_response_prompt` is used only in this response-generation
-  step, never in Spotify intent parsing.
-- The helper uses the configured conversation agent when present, otherwise
-  resolves Home Assistant's preferred/default Assist pipeline and uses its
-  conversation engine.
-- DJConnect also exposes its own Home Assistant conversation agent entity so
-  Assist satellites such as Voice Preview Edition can route recognized speech
-  directly into `process_text_command(...)` and receive the generated DJ
-  response as Assist speech.
-- Dutch prompts include an instruction to pronounce English artist, album and
-  track names in English inside Dutch sentences.
-- Runtime mood is a prompt input, not a user-facing DJ style setting. Numeric
-  client mood is mapped to `chill`, `groove`, `energy` or `party` and the
-  generated DJ announcement receives the matching style guidance. Missing mood
-  keeps the hardcoded default style.
-- The DJ announcement prompt may include compact Music DNA and explicitly shared
-  smart-home context for one short personal intro line. Weather or temperature
-  references are allowed only when they come from configured read-only
-  `smart_home_context_entities`; arbitrary HA state is never added.
-- Clear direct playback requests are parsed deterministically before relying on
-  stale playback context. Multi-word artist requests such as `speel dj paul
-  elstak` must resolve from the current user text, not from a previous Spotify
-  result.
-- When an artist request starts playback and Spotify returns the concrete
-  started track in the command response, the response generator merges that
-  just-returned track metadata into the DJ announcement media context. It does
-  not read stale `runtime.last_playback` as a substitute for the current
-  command result.
-- Album playback responses keep album and track fields separate. Album requests
-  put the requested album in album metadata; when Spotify starts the first track,
-  that track becomes the track/title field used in announcement text.
-- Prompt leaks, Spotify URIs, structured dictionaries and Home Assistant
-  device-lookup errors are blocked before they can be sent to a device.
+`pipeline.realize_session_narration` reuses HA Conversation transport only for a
+qualified immutable Session brief, under source, owner, runtime and configuration
+fences. The existing Planner and Moment Engine retain publication ownership.
+Persona and Mood shape expression independently; presence controls opportunities.
+Generation and independent assessment are bounded; failure preserves the safe
+accepted local fallback. No arbitrary HA state or Music DNA is sent as narration
+context. See [the restoration contract](docs/product/PERSONAL_DJ_NARRATION_RESTORATION_V1.md).
 
-Primary source files:
+Literal TTS reads the accepted contribution, without a second rewrite. All seven
+spoken Moment types share the Session speech prepare/replay and configured HA
+provider path. Silence carries no speech. Nullable provider-default voices are
+valid; no provider or pipeline is silently substituted. Private history, source
+withdrawal, expiry, text-only and runtime settings still fence preparation/audio.
+Native controls, actual synthesis and physical audibility need separate evidence.
 
-- `custom_components/djconnect/pipeline.py`
-- `custom_components/djconnect/processor.py`
-
-Why:
-
-- Keeps the DJ announcement generative when the user configured a default AI
-  conversation agent through Home Assistant Assist but did not explicitly
-  select an Assist pipeline in DJConnect.
-- Prevents the local "Daar is ..." fallback from hiding normal AI response
-  generation.
-- Keeps the fallback deterministic and safe when HA Assist cannot produce a
-  usable spoken response.
+Primary source files: `pipeline.py`, `processor.py`, `session_runtime.py`,
+`session_speech.py` and `ask_dj/service.py` under `custom_components/djconnect`.
 
 ### Temporary Device Audio URLs
 
@@ -1058,3 +1045,15 @@ VibeCast token, backend or duplicate event engine is introduced. The route has
 strict frame/command schemas, a hard lease, authority revalidation, bounded
 queues and cancellation-safe subscription cleanup. See
 `docs/product/PAIRED_OWNER_LIVE_CONTRACT_V1.md` and its qualification record.
+
+## Core #1212 — additive discovery through existing paired/status
+
+The existing transports already carry device-authorized provider selection.
+Use one synchronous versioned metadata projection after their last await,
+rechecking original entry/token/device/Profile binding. A new network endpoint,
+settings store, global readiness boolean or provider probe would duplicate an
+owner or misstate evidence. Preserve legacy booleans as endpoint support,
+separate configured/eligible metadata from scoped operational observations,
+local Apple permissions, shared output policy and actual hearing. Exact HA
+selection and real provider interfaces are reused; old runtime fallbacks remain
+unchanged and are not newly granted by discovery.

@@ -52,5 +52,6 @@ class PersistenceProvider(Protocol):
         operation: Callable[[ProviderTransaction], ResultT],
         *,
         authorize: Callable[[], bool] | None = None,
+        finalize_authorize: Callable[[], bool] | None = None,
     ) -> ResultT:
         """Run one short platform-owned transaction."""

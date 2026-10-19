@@ -336,6 +336,8 @@ class SessionContinuityBehaviorTest(unittest.TestCase):
                 elapsed_time_source=lambda: clock[0],
             )
         )
+        session = asyncio.run(manager.async_update_presence(owner_profile_id=session.owner_profile_id,
+            session_id=session.session_id, selected_presence="presenter"))
         track_inputs = (
             {"track": {"title": "First", "artist": "Artist One", "producer": "Producer One"}, "analysis": {"summary": "First context.", "full_text": "First safe detail."}},
             {"track": {"title": "Second", "artist": "Artist Two", "related_tracks": "Related Two"}, "analysis": {"summary": "Second context.", "full_text": "Second safe detail."}},
@@ -362,7 +364,9 @@ class SessionContinuityBehaviorTest(unittest.TestCase):
             dict(transitions[0].generation_metadata)["transition_to_moment_id"],
             selected[1].moment_id,
         )
-        self.assertIn("The session moves from", transitions[0].content)
+        self.assertIn("proposed connection", transitions[0].content)
+        self.assertIn("Artist One", transitions[0].content)
+        self.assertIn("Explore beyond Artist Two", transitions[0].content)
         self.assertEqual(session.planner.last_decision.decision_type, self.runtime.PlannerDecisionType.NO_TRANSITION)
 
     def test_resetting_returns_after_interval_silence_without_getting_stuck(self) -> None:

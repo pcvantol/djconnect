@@ -18,6 +18,15 @@ COPY = {
 }
 
 
+RECORDING_UNAVAILABLE = {
+    "en": "I cannot reliably identify the recording from the authorized music context.",
+    "nl": "Ik kan de opname niet betrouwbaar vaststellen uit de beschikbare muziekcontext.",
+    "de": "Ich kann die Aufnahme im verfügbaren Musikkontext nicht zuverlässig bestimmen.",
+    "fr": "Je ne peux pas identifier cette version de façon fiable dans le contexte musical disponible.",
+    "es": "No puedo identificar con fiabilidad la grabación en el contexto musical disponible.",
+}
+
+
 def forecast_question(text):
     value = text.casefold().strip()
     return bool(re.search(r"\b(?:kwartier|komende vijftien|volgende 15|next (?:fifteen|15) minutes|quarter hour|nächsten (?:fünfzehn|15) minuten|viertelstunde|prochain (?:quart d'heure|quart d’heure)|prochaines (?:quinze|15) minutes|próximos (?:quince|15) minutos|próximo cuarto de hora)\b", value)
@@ -107,7 +116,8 @@ async def forecast_read(hass, runtime):
     active = await manager.async_get_active(owner)
     forecast = None
     if active:
-        forecast = await manager.async_forecast_snapshot(owner_profile_id=owner, session_id=active.session_id)
+        forecast = await manager.async_forecast_snapshot(owner_profile_id=owner, session_id=active.session_id,
+                                                        locale=language())
         def validate_session():
             current = manager.current_active(owner)
             if current is None or current.session_id != active.session_id:
@@ -116,7 +126,8 @@ async def forecast_read(hass, runtime):
         turn.delivery_validators.append(validate_session)
     response = await queue_read(hass, runtime)
     if active:
-        fresh = await manager.async_forecast_snapshot(owner_profile_id=owner, session_id=active.session_id)
+        fresh = await manager.async_forecast_snapshot(owner_profile_id=owner, session_id=active.session_id,
+                                                     locale=language())
         if fresh and forecast and fresh.get("revision") != forecast.get("revision"):
             raise DialogueError("session_context_changed")
         forecast = fresh
@@ -184,6 +195,15 @@ async def previous_read(hass, runtime):
 def current_artist_question(text: str) -> bool:
     """Closed identification intent at the common text/STT interpretation boundary."""
     value = " ".join(text.casefold().strip().strip("¿¡?.! ").split())
+    current_artist_patterns = (
+        r"wie is (?:de )?(?:artiest|zanger|band) (?:van|bij) (?:het )?(?:huidige?|nu spelende|dit|dat) (?:nummer|liedje|track)",
+        r"who is (?:the )?(?:artist|singer|band) (?:of|on|for) (?:the )?(?:current|currently playing|this|that) (?:song|track)",
+        r"wer ist (?:der |die )?(?:künstler|sänger|band) (?:des |vom |von dem )?(?:aktuellen|jetzigen|dieses) (?:liedes|titels|songs|lied|titel|song)",
+        r"qui est l['’](?:artiste|interprète) (?:du|de ce) (?:morceau|titre|chanson)(?: actuel| actuelle)?",
+        r"quién es (?:el|la) (?:artista|cantante) de (?:la|el) (?:canción|tema) actual",
+    )
+    if any(re.fullmatch(pattern, value) for pattern in current_artist_patterns):
+        return True
     return value in {
         "welke artiest is dit", "welke band is dit", "wie is dit", "wie hoor ik nu",
         "wie zingt dit", "who is this", "which artist is this", "who is this artist",
@@ -194,7 +214,7 @@ def current_artist_question(text: str) -> bool:
     }
 
 
-async def current_artist_read(hass, runtime, selected=None):
+async def current_artist_read(hass, runtime, selected=None, *, require_recording=False):
     """Present qualified metadata locally; never treat catalog rights as model rights."""
     import asyncio
     import hashlib
@@ -211,6 +231,8 @@ async def current_artist_read(hass, runtime, selected=None):
         "fr": "Je ne peux pas identifier l’artiste de manière fiable dans le contexte musical disponible.",
         "es": "No puedo identificar con fiabilidad al artista en el contexto musical disponible.",
     }
+    if require_recording:
+        unavailable = RECORDING_UNAVAILABLE
     identified = {
         "en": "This is {artist}, with {title}.", "nl": "Dit is {artist}, met {title}.",
         "de": "Das ist {artist} mit {title}.", "fr": "C’est {artist}, avec {title}.",
@@ -221,37 +243,31 @@ async def current_artist_read(hass, runtime, selected=None):
         "fr": "C’est {artist}.", "es": "Es {artist}.",
     }
 
-    def subject(playback):
-        if (not isinstance(playback, dict)
-            or any(playback.get(k) for k in ("cached", "stale", "withdrawn"))
-            or playback.get("state") in {"idle", "unavailable", "unknown", "off"}):
-            return None
-        expiry = playback.get("valid_until") or playback.get("expires_at")
-        if expiry:
-            try:
-                deadline = datetime.fromisoformat(expiry)
-                if deadline.tzinfo is None or deadline.astimezone(UTC) <= datetime.now(UTC):
-                    return None
-            except (TypeError, ValueError):
-                return None
-        identity = playback.get("uri") or playback.get("track_uri") or playback.get("item_id")
-        artist = playback.get("artist") or playback.get("artist_name")
-        title = playback.get("title") or playback.get("track_name") or playback.get("name")
-        if not all(isinstance(v, str) and v.strip() for v in (identity, artist, title)):
-            return None
-        if len(identity) > 2048 or len(artist) > 512 or len(title) > 512:
-            return None
-        return (identity, artist, title)
+    subject = _identified_playback
 
     async def fresh():
         if turn:
             await turn.guard()
+        observed = turn.history.dialogue.clock() if turn else 0
         try:
             result = await asyncio.wait_for(run_music_command(hass, runtime, "status"), 5)
         except (SpotifyBackendError, MusicBackendCapabilityError, OSError, TimeoutError):
             return None
         if turn:
             await turn.guard()
+        if turn:
+            deadline = observed + 60
+            playback = result.get("playback") if isinstance(result, dict) else None
+            stamp = (playback or {}).get("valid_until") or (playback or {}).get("expires_at")
+            if stamp:
+                try:
+                    expiry = datetime.fromisoformat(stamp)
+                    if expiry.tzinfo is None:
+                        return None
+                    deadline = min(deadline, turn.history.dialogue.clock() + (expiry - datetime.now(UTC)).total_seconds())
+                except (TypeError, ValueError):
+                    return None
+            turn.speech_deadline = min(turn.speech_deadline or deadline, deadline)
         return subject(result.get("playback")) if isinstance(result, dict) and result.get("success") is not False else None
 
     answer = None
@@ -262,13 +278,8 @@ async def current_artist_read(hass, runtime, selected=None):
         target = subject(selected.get("playback"))
         if target:
             answer = identified[locale].format(artist=target[1], title=target[2])
-        else:
-            roles = {"artist", "performer"}
-            if selected.get("moment_type") == "artist" and selected.get("archive_basis") == "cc0_normalized_fields_v1":
-                # Existing qualified Artist facts carry Person/Group entity types.
-                roles.update({"Person", "Group"})
-            artists = [s.get("name") for s in selected.get("dialogue_subjects", [])
-                       if s.get("role") in roles and isinstance(s.get("name"), str)]
+        elif not require_recording:
+            artists = selected_artist_names(selected)
             if len(artists) == 1:
                 answer = artist_only[locale].format(artist=artists[0][:512])
     else:
@@ -300,4 +311,183 @@ async def current_artist_read(hass, runtime, selected=None):
     return {"success": True, "text": answer or unavailable[locale], "dj_text": answer or unavailable[locale],
             "action": "none", "intent": {"category": "informational", "intent": "current_artist_information"},
             "images": [], "links": [dict(source) for source in sources if source.get("url")], "sources": sources,
-            "playback_actions": [], "_private_current_context": True}
+            "playback_actions": [], "_private_current_context": True,
+            "speech_processing_basis": "spotify_owner_local_read_v1" if answer and target else "accepted_local_reply"}
+
+
+def selected_artist_names(selected):
+    """Share the existing limited performer admission; composers are not performers."""
+    roles = {"artist", "performer"}
+    if selected.get("moment_type") == "artist" and selected.get("archive_basis") == "cc0_normalized_fields_v1":
+        roles.update({"Person", "Group"})
+    return list(dict.fromkeys(s["name"] for s in selected.get("dialogue_subjects", [])
+                             if isinstance(s, dict) and s.get("role") in roles
+                             and isinstance(s.get("name"), str) and s["name"].strip()))
+
+
+def _identified_playback(playback):
+    if (not isinstance(playback, dict)
+        or any(playback.get(k) for k in ("cached", "stale", "withdrawn"))
+        or playback.get("state") in {"idle", "unavailable", "unknown", "off"}):
+        return None
+    expiry = playback.get("valid_until") or playback.get("expires_at")
+    if expiry:
+        try:
+            deadline = datetime.fromisoformat(expiry)
+            if deadline.tzinfo is None or deadline.astimezone(UTC) <= datetime.now(UTC):
+                return None
+        except (TypeError, ValueError):
+            return None
+    identity = playback.get("uri") or playback.get("track_uri") or playback.get("item_id")
+    artist = playback.get("artist") or playback.get("artist_name")
+    title = playback.get("title") or playback.get("track_name") or playback.get("name")
+    if not all(isinstance(v, str) and v.strip() for v in (identity, artist, title)):
+        return None
+    if len(identity) > 2048 or len(artist) > 512 or len(title) > 512:
+        return None
+    return (identity, artist, title)
+
+
+def release_question(text):
+    value=text.casefold().strip().lstrip("¿")
+    subject=re.search(r"\b(?:dit|dat|die|deze|huidig|huidige|this|current|dieser|dieses|aktuell(?:e|er|es|en)?|actuel|actuelle|cette|ce|esta|este|actual)\s+(?:nummer|track|song|opname|uitgave|album|recording|release|titel|lied|aufnahme|ausgabe|morceau|chanson|enregistrement|édition|canción|tema|grabación|edición)\b",value)
+    when=re.search(r"\b(?:wanneer|when|wann|quand|cuándo)\b",value)
+    released=re.search(r"\b(?:uitgekomen|verschenen|uitgebracht|released|release|erschienen|veröffentlicht|sorti|sortie|publié|publiée|salió|publicado|publicada|lanzó|lanzado)\b",value)
+    year=re.search(r"\b(?:jaar|year|jahr|année|año)\b",value)
+    return bool(subject and (year or (when and released)))
+
+
+async def release_read(hass,runtime,selected=None):
+    """Read exact edition metadata locally; no catalog-to-model or archive grant."""
+    from . import run_music_command
+    from ..spotify_backend import SpotifyBackendError
+    from ..use_cases import MusicBackendCapabilityError
+    from datetime import date
+    import asyncio
+    import hashlib
+    turn=current_turn.get()
+    locale=language()
+    deadline=turn.history.dialogue.clock()+60 if turn else None
+    def validate_deadline():
+        if turn and turn.history.dialogue.clock()>=deadline:
+            raise DialogueError('playback_observation_expired',409)
+    if turn:
+        turn.speech_deadline=min(turn.speech_deadline or deadline,deadline)
+        turn.delivery_validators.append(validate_deadline)
+        if selected is None:
+            from ..session_runtime import session_runtime_manager
+            manager=session_runtime_manager(hass)
+            owner=turn.scope.removeprefix('profile:')
+            active=manager.current_active(owner)
+            if active:
+                session_id,item_id=active.session_id,active.broadcast.state.playback.item_id
+                def validate_current():
+                    current=manager.current_active(owner)
+                    if (current is None or current.session_id!=session_id
+                        or current.broadcast.state.playback.item_id!=item_id):
+                        raise DialogueError('session_context_changed',409)
+                turn.delivery_validators.append(validate_current)
+    copy={
+        'en':('The album edition containing {title} lists {date} as its release date.', 'I recognize {title}, but no reliable release date is available for that edition.', 'I cannot reliably identify the recording from the authorized music context.'),
+        'nl':('De albumuitgave met {title} vermeldt {date} als releasedatum.', 'Ik herken {title}, maar heb geen betrouwbare releasedatum van die uitgave.', 'Ik kan de opname niet betrouwbaar vaststellen uit de beschikbare muziekcontext.'),
+        'de':('Die Albumausgabe mit {title} nennt {date} als Veröffentlichungsdatum.', 'Ich erkenne {title}, aber für diese Ausgabe ist kein verlässliches Veröffentlichungsdatum verfügbar.', 'Ich kann die Aufnahme im verfügbaren Musikkontext nicht zuverlässig bestimmen.'),
+        'fr':('L’édition de l’album contenant {title} indique {date} comme date de sortie.', 'Je reconnais {title}, mais je ne dispose pas de date de sortie fiable pour cette édition.', 'Je ne peux pas identifier cette version de façon fiable dans le contexte musical disponible.'),
+        'es':('La edición del álbum que contiene {title} indica {date} como fecha de lanzamiento.', 'Reconozco {title}, pero no dispongo de una fecha de lanzamiento fiable para esa edición.', 'No puedo identificar con fiabilidad la grabación en el contexto musical disponible.'),
+    }
+    def release(metadata):
+        value=metadata.get('release_date')
+        precision=metadata.get('release_date_precision')
+        if not isinstance(value,str) or len(value)>10:
+            return None
+        try:
+            if precision=='day' and re.fullmatch(r"\d{4}-\d{2}-\d{2}",value):
+                date.fromisoformat(value)
+            elif precision=='month' and re.fullmatch(r"\d{4}-\d{2}",value):
+                date.fromisoformat(value+'-01')
+            elif precision=='year' and re.fullmatch(r"\d{4}",value):
+                date.fromisoformat(value+'-01-01')
+            else:
+                return None
+        except ValueError:
+            return None
+        return value
+    def bind_expiry(playback):
+        nonlocal deadline
+        if turn and isinstance(playback,dict):
+            stamp=playback.get('valid_until') or playback.get('expires_at')
+            if stamp:
+                try:
+                    expiry=datetime.fromisoformat(stamp)
+                    if expiry.tzinfo is None:
+                        raise ValueError('naive_expiry')
+                    deadline=min(deadline,turn.history.dialogue.clock()+(expiry.astimezone(UTC)-datetime.now(UTC)).total_seconds())
+                except (TypeError,ValueError):
+                    raise DialogueError('playback_observation_expired',409) from None
+                turn.speech_deadline=min(turn.speech_deadline or deadline,deadline)
+            validate_deadline()
+    async def fresh():
+        nonlocal deadline
+        if turn:
+            await turn.guard()
+            now=turn.history.dialogue.clock()
+            deadline=min(deadline,now+60)
+            turn.speech_deadline=min(turn.speech_deadline or deadline,deadline)
+        try:
+            result=await asyncio.wait_for(run_music_command(hass,runtime,'status'),5)
+        except (SpotifyBackendError,MusicBackendCapabilityError,OSError,TimeoutError):
+            return {}
+        if turn:
+            await turn.guard()
+        playback=result.get('playback') or {} if isinstance(result,dict) and result.get('success') is not False else {}
+        bind_expiry(playback)
+        return playback
+    metadata=dict((selected or {}).get('playback') or {})
+    bind_expiry(metadata)
+    # Historical playback projects a bounded item hash and a source link, not
+    # the original catalog object. Recover only the exact canonical URI whose
+    # hash equals that accepted identity; names never establish identity.
+    match=re.fullmatch(r'https://open\.spotify\.com/track/([A-Za-z0-9]{22})',str(metadata.get('source_url') or ''))
+    if not metadata.get('uri') and metadata.get('provider')=='Spotify' and match:
+        uri='spotify:track:'+match[1]
+        if metadata.get('item_id')==hashlib.sha256(uri.encode()).hexdigest()[:24]:
+            metadata['uri']=uri
+    used_current=False
+    target=_identified_playback(metadata)
+    selected_identity=target[0] if target else None
+    if selected is None:
+        used_current=True
+        metadata=await fresh()
+        target=_identified_playback(metadata)
+        if (target and turn and turn.captured_playback_item_id
+            and hashlib.sha256(target[0].encode()).hexdigest()[:24]!=turn.captured_playback_item_id):
+            raise DialogueError('playback_context_changed',409)
+    elif target and release(metadata) is None:
+        observed=await fresh()
+        if _identified_playback(observed) and _identified_playback(observed)[0]==selected_identity:
+            metadata=observed
+            used_current=True
+    value=release(metadata) if target else None
+    if target and used_current:
+        confirmed=await fresh()
+        if _identified_playback(confirmed)!=target or release(confirmed)!=value:
+            if selected is None:
+                raise DialogueError('playback_context_changed',409)
+            value=None
+    # A historical/selected recording remains selected when current playback differs.
+    known=target is not None
+    text=(copy[locale][0].format(title=target[2],date=value) if known and value
+          else copy[locale][1].format(title=target[2]) if known else copy[locale][2])
+    sources=[]
+    if known and re.fullmatch(r'spotify:track:[A-Za-z0-9]{22}',target[0]):
+        sources=[{'source':'spotify_playback_context','title':'Spotify','kind':'source',
+                  'url':'https://open.spotify.com/track/'+target[0].rsplit(':',1)[-1]}]
+    if turn:
+        await turn.guard()
+        validate_deadline()
+    return {'success':True,'text':text,'dj_text':text,'action':'none','images':[],
+            'sources':sources,'links':[dict(source) for source in sources],'playback_actions':[],
+            'intent':{'category':'informational','intent':'current_release_information'},
+            'release_observation':{'state':'known' if value else 'unknown','release_date':value,
+                                   'precision':metadata.get('release_date_precision') if value else None,
+                                   'basis':'album_edition','original_release_verified':False},
+            '_private_current_context':True,'speech_processing_basis':'accepted_local_reply'}

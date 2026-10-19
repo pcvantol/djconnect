@@ -15,10 +15,21 @@ Release Readiness-relevant capabilities. Historical Generation 1 work, closed
 governance/migration work and completed capabilities with no remaining current
 qualification item are intentionally absent.
 
+## Subsequent bounded Core correction
+
+VibeCast receiver end-authority removal is source-delivered in PR
+[#1202](https://github.com/pcvantol/djconnect/pull/1202),
+`5f36abd23a95dea0aeb8bdb9d22a9bccf28a1a4b`, with
+[exact artifact evidence](docs/verification/VIBECAST_END_RETIREMENT_SOURCE_READBACK_20261017.md).
+The obsolete setting/grants/control are retired; this is not closure of the
+broader VibeCast topic or narration correction. Consumer import and installed
+readback remain separate. The dated audit below retains its original capture.
+
 ## Current qualification records
 
 | Capability | Assessment status | Qualification summary | Remaining qualification items | Disposition | Future assessment owner | Assessment trigger |
 | --- | --- | --- | --- | --- | --- | --- |
+| Existing cross-lane product qualifications — [17 October audit](docs/governance/DJC_PLATFORM_OPEN_WORK_20261017.md) | Scoped assessment delivered in [#1200](https://github.com/pcvantol/djconnect/pull/1200), `1f04a87b798d976226146b9c36d44a724e23b8b4` | Exact installed producer/advertisement verified; 20 topics/61 existing unfinished maintenance gates reconciled; product acceptance remains open. | Named factual/Persona/Mood/Insight/retained-Flow findings, preview/override, consumer/settings/LAN/WS, native/audio/background/APNs/Watch/performance/crash/RSS/physical acceptance as individually mapped in audit. | Retain existing owning dispositions; no new backlog or dispatch | Existing Core/Apple/API/VibeCast/Pi/ESP owners | Exact owning qualification and independent acceptance evidence; local e2456029 is uninstalled/NO_GO. |
 | Client Connectivity & Resilience | `GO_CLIENT_CONNECTIVITY_PARTIALLY_QUALIFIED` | Existing ownership, HTTP fallback, Broadcast recovery and token/privacy boundaries are qualified. | External HTTPS behavior; timeout; HA restart recovery; reconnect; offline/cache; stale-token behavior. | Public Release Readiness | Platform Evolution / Public Release Readiness | Public Release Readiness Assessment. |
 | Component Release Mode | `GO_COMPONENT_RELEASE_SELECTION_EVIDENCE_CLOSURE_IMPLEMENTED` | `docs/release/COMPONENT_RELEASE_SELECTION_EVIDENCE_CLOSURE_IMPLEMENTATION.md` implements deterministic profile selection and source-SHA/artifact/manifest/evidence closure for HACS, API, website, ESP32, iOS/watchOS, macOS, Windows and the shared Pi renderer family. Pi 4-inch and Pi 10-inch remain non-selectable because they have no independent artifact identity. | Component selections remain qualification-only; Component Release Execute Qualification must prove a profile-specific execute route before a real bounded patch can be released. | Future Qualification | Platform Evolution / Platform Release | Profile-specific Component Release Execute Qualification, followed only by a real bounded patch operational proof. |
 | CMB-02 — Platform capability profiles | `GO_CMB02_PLATFORM_CAPABILITY_PROFILES_PARTIALLY_QUALIFIED` | Canonical capability-to-role-to-host profiles and intentional absences are consistent across current Concrete Hosts. | No independent CMB-02 item: its retained evidence is exactly the normalized CMB-05/CMB-06/CMB-07/CMB-12 items below. | Reconciled meta-record | Existing owning assessment | When a listed host-specific assessment is selected. |

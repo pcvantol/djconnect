@@ -8,6 +8,23 @@ Existing [native owner surfaces](APPLE_SESSION_NATIVE_SURFACES_V1.md),
 [Profile onboarding](PROFILE_REUSE_ONBOARDING_CONTRACT.md) and Apple #87 work
 remain independent. This design creates no Swift/API/discovery implementation.
 
+## Resolved app exception and two entry locations
+
+The exception to web-first is participation in the **existing DJConnect app**;
+there is no implied native-TV product. On the **unpaired pairing screen**, both
+Find VibeCast via mDNS/Bonjour and Scan guest QR are available without completing
+home HA pairing. In the **normal paired main view**, after contextual local-network
+permission, opportunistic discovery makes a **top menu item light up** when an
+invitation is available. Use a calm accessible accent and text/status cue, not
+blinking or automatic navigation/join. Selecting it opens explicit participation
+confirmation; multiple sessions require a chooser. QR remains an independent
+entry in both locations when discovery is denied or unavailable.
+
+Discovery is a hint, never admission or physical-location proof. Permission is
+requested in context, then discovery is opportunistic; no coercive launch prompt.
+Guest identity/transport/storage and home-return behavior below apply equally to
+both entries. The WebView versus native-renderer decision remains OPEN.
+
 ## Two scanner intentions
 
 | Entry | Pairing requirement | Result |
@@ -15,7 +32,8 @@ remain independent. This design creates no Swift/API/discovery implementation.
 | Connect a display (owner scanner) | Paired to chosen HA; confirm installation and destination | Step A redirects exact waiting browser; Step B independently admits display |
 | Join existing VibeCast session (guest scanner) | None; accessible before normal app onboarding | Same invitation/guest principal as browser, no owner authority |
 | Ordinary phone camera | None | Browser guest page; no assumed app opening on arbitrary HA domain |
-| Local discovery → Meedoen | Local-network consent and explicit choice; no pairing | Valid current invitation handshake, not implicit admission |
+| Pairing screen discovery or guest QR | No home pairing; contextual permission for discovery only | Explicit guest confirmation; QR works independently |
+| Paired main-view highlighted top item or guest QR | Existing home pairing unchanged; contextually permitted opportunistic discovery | Choose session, then consciously join; no automatic switch |
 
 Invitation endpoints may use arbitrary owner HA domains. Do not assume universal
 links/app association across them. The app scanner is an explicit in-app intent;
@@ -116,7 +134,9 @@ retains its existing home stale-pairing policy, independently of guest errors.
 Exercise all WF cases in the parent document plus permission denial, discovery
 chooser, home-session-preserving join, isolated cookies/auth transport, offline
 leave, late callbacks, interruption during request submission and crash/relaunch.
-Test actual native app, not just browser fixtures. Accessibility covers VoiceOver,
+Test actual native app, not just browser fixtures. Exercise both pairing-screen
+entries and both paired-main entries, calm highlighted top item, no automatic
+join/navigation, permission denial with independent QR, and multiple-session choice. Accessibility covers VoiceOver,
 Dynamic Type, keyboard/Mac, focus after return, Reduce Motion and persistent mode
 identity. Copy and labels ship in en/nl/de/fr/es under canonical localization.
 
