@@ -1,5 +1,34 @@
 # DJConnect Repository Status
 
+## Brand V2 asset producer — separate Finalization, 19 October 2026
+
+PR [#1224](https://github.com/pcvantol/djconnect/pull/1224) protected merged as
+`7e14e5970b3f68d33d243ae6bab2b281fad59bb2`. Reviewed/owner-authorized candidate
+`883cb9f3ff9de8ec7f5ae4c5f04f852e0d8bd866` has the identical complete tree
+`7f497d70bbddc2b017b2298d06ce694df45f3b7e`. Owner Authorization39311290397 PASS.
+Source-main CI39311450420 and brand reproducibility39311450392 SUCCESS;
+exact-main export all68hashes PASS. Separate runtime Golden39312303769 is
+in progress at this freeze, not an asset/installed/native PASS.
+Independent readonly source/visual review GO:55assets regenerate byte-identically,
+14targeted contracts PASS, source/font/alpha/wordmark/micro and Git-blob ZIP verified.
+
+Target Repository State: `MERGED_RECONCILED`, effective only after this separate
+Finalization's protected merge and exact-main readback. Preparation remains
+MERGED_UNRECONCILED; no future Finalization SHA or CI result is fabricated.
+This state applies only to the bounded Brand V2 producer-source increment.
+
+Core supplies the exact approved master, transparent glass-rim silhouette,
+headset-only16–40px, primary/compact light/dark wordmarks and canonical HA aliases.
+No living Persona/avatar, transport, pairing, speech or provider behavior changes.
+Consumer/native/installed acceptance and the later GitHub-social/README extension
+remain OPEN under their existing owners. No HA installation/restart or new lane.
+
+Program position: Generation2 Product Development / Platform Qualification;
+bounded branding-source dependency for already authorized Website #62. Current
+canonical roadmap/backlog horizons and all other lane states remain unchanged.
+After protected Finalization/readback, continue that existing Website assignment;
+no new product increment is activated. See [bounded completion record](docs/verification/BRAND_V2_SOURCE_FINALIZATION_20261019.md).
+
 ## Current: device speech availability Core producer — separate Finalization, 19 October 2026
 
 ### Repository Status
