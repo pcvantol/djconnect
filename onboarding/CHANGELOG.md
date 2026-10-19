@@ -1,5 +1,12 @@
 # DJConnect Developer Onboarding Changelog
 
+## 4.5.4 — 2026-10-19
+
+- Quote verification-artifact cleanup script and log paths for relocated GitHub
+  roots containing spaces, and escape cron percent syntax. Preserve the existing
+  schedule and unrelated cron entries. Refresh the deterministic distribution
+  with its host-bootstrap regressions; retain earlier versioned bundles.
+
 ## 4.5.3 — 2026-10-03
 
 - Retire current instructions for the embedded Engineering Platform Inbox,
