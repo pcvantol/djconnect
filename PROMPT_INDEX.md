@@ -1,5 +1,78 @@
 # DJConnect Verification Prompt Index
 
+## Current: relocated host maintenance — separate Finalization, 19 October 2026
+
+### Repository Status
+
+PR [#1213](https://github.com/pcvantol/djconnect/pull/1213) protected merged as
+`00419b0f96de9a41a20ba88438010f7473516893`. Exact reviewed candidate
+`8ae263f83520d750aa321f820a2cfe9837f67aac` and source merge have identical full
+trees. Required CI and ordinary risk/authorization checks passed; no bypass.
+Canonical main was synchronized cleanly and its actual hostverify exited 0,
+bootstrap2.0.22/onboarding4.5.4, no required drift. This separate Finalization
+reconciles only the bounded host-path repair.
+
+### Management Summary
+
+Verifier and installer now safely quote relocated script/log paths, preserve
+cron's original schedule and escape its percent syntax. New deterministic4.5.4
+bundle matches all17 source members; older bundles remain unchanged. The actual
+cron transaction replaced only its existing marked block, with backup, concurrent
+edit guard and exact readback. No cleanup, full recovery or HA update executed.
+72 owning onboarding/package tests OK,7 conditional skips; focused shell/installer
+checks, package reproducibility, manifest integrity and independent source review
+passed. No avatar/native/audio or whole-product acceptance follows.
+
+### Roadmap Position
+
+Generation2, Product Development, Phase1/Platform Qualification. This necessary
+host correction unblocks the existing sole Core writer's selected Persona Avatar
+assignment, not a new lane selection. Reconstructed eleven-file avatar WIP and
+separate erasure001d0fac remain preserved. No consumer source is taken over.
+
+### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+Source: current SETTINGS nodes and prerequisites in the
+[canonical living DAG](docs/roadmap/v1/djconnect-platform-v1.json) and
+[product backlog](PRODUCT_BACKLOG.md). This horizon remains Planned/NOT_ISSUED;
+it does not dispatch consumers or replace the already selected avatar work.
+
+1. **SETTINGS::APPLE::EDITOR — Planned.** Shared editor; delivered Core producer precedes native adoption.
+2. **SETTINGS::PI::ADOPTION — Planned.** Same producer prerequisite; Pi owns its acceptance.
+3. **SETTINGS::ESP32::ADOPTION — Planned.** Same producer and physical settings/voice evidence required.
+4. **SETTINGS::VIBECAST::COMPAT — Planned.** Shared renderer import and screen admission remain prerequisites.
+5. **SETTINGS::JOINT::ACCEPTANCE — Planned.** Migration and consumer evidence precede cross-device closure.
+
+### Blocked Items
+
+Avatar canonical contract and producer trace delivery remain open; touch has no
+advertised qualified operation, and actual Apple audio/gesture/native acceptance
+retains its owner. Existing Golden57reports/36families/154steps,12Core findings
+and19actual-quality gates retain their state. Narrative/history/art/replay,
+Track Insight, LAN/WS, VibeCast, production push, Watch and performance/crash/RSS
+requirements are not closed by this host merge. Future intake does not start
+another Core writer or replace current selected work.
+
+### Deferred Items
+
+Unselected work remains deferred. Paused automations remain paused. No release,
+production installation, hardware action or private task message is introduced.
+
+### Repository State
+
+On protected merge of this dedicated Finalization, Repository State:
+`MERGED_RECONCILED` for the host repair only. Until then, the source merge is
+MERGED_UNRECONCILED and admits only its documentary reconciliation. Earlier
+Prompt History, source receipts and frozen DAG receipts are unchanged.
+
+### Workspace State
+
+Canonical main is clean and synchronized. Existing avatar/erasure source and
+private recovery are retained. Own host source/Finalization refs receive an
+explicit retained-squash disposition if git-cherry cannot prove normal cleanup;
+no force deletion is inferred. Workspace cleanup and fresh host readback precede
+resuming the same preserved avatar assignment; no automatic successor begins.
+
 ## Current: passive contribution v2 correction — separate Finalization,18October2026
 
 ### Repository Status
