@@ -24,22 +24,26 @@ cron blocks remain unchanged. No cleanup was executed by this transaction.
 
 ## Qualification and limitations
 
-Three focused regressions cover the unchanged legacy schedule, actual execution
-of a fixture under a path with spaces and shell metacharacters, and cron percent
-escaping. Only the fixture script executes; no real cleanup is part of tests.
+Four focused regressions cover the unchanged legacy schedule, actual execution
+of a fixture under a path with spaces and shell metacharacters, cron percent escaping, and installer/verifier parity. Only the fixture script executes; no real cleanup is part of tests.
 Shell syntax, manifest integrity, targeted Ruff and diff validation pass.
 Independent bounded source review found no blocker in the inspected change.
-The complete onboarding-script/package suite ran 71 tests: OK, with seven
+The complete onboarding-script/package suite ran 72 tests: OK, with seven
 conditional skips. Offline development-projection validation also passes.
 
-The candidate verifier reports exit 0, onboarding 4.5.3 and no required drift
-after the bounded local cron replacement. Canonical-main readiness must still
-be read back after protected source delivery; candidate readiness is distinct.
+An earlier verifier-only candidate reported exit 0 with onboarding 4.5.3 after
+the bounded cron replacement. CI then correctly rejected its stale packaged
+test bundle. The final correction publishes a new deterministic onboarding
+4.5.4 bundle and retains every earlier distribution unchanged. Canonical pins
+advance together; the qualification policy and checks are not relaxed.
+Canonical-main readiness must be read back after protected source delivery;
+the earlier candidate receipt is not a final 4.5.4 readiness claim.
 
-The immutable developer-onboarding 4.5.3 installer is unchanged and is not
-qualified for a new install under a space-containing root by this correction.
-Do not infer a complete onboarding/repair qualification or run full recovery
-from this narrow readback. This increment does not restart paused automations,
+The 4.5.4 installer writes the same escaped cron line as the verifier. An owning
+installer regression runs the exact function with inert crontab/launchd/delete
+services and verifies preservation of an unrelated cron entry. The original
+4.5.3 distribution is unchanged. No full onboarding/recovery run is inferred
+from this narrow qualification. This increment does not restart paused automations,
 change Home Assistant, publish an avatar contract or close any product feature.
 
 ## Delivery
