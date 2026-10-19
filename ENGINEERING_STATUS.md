@@ -1,5 +1,73 @@
 # DJConnect Engineering Status
 
+## Current: Living Persona Avatar - existing Core producer signals, 19 October 2026
+
+#### Repository Status
+
+Selected existing Core assignment #1208/#1209, including touch addition6251008548
+and inner-glyph refinement6252444250. Same sole writer and restored branch
+codex/persona-living-avatar-v1, basea3f913b7314a383320db750d6f26901a4d52e12e.
+Source/PR delivery pending; no new runtime endpoint/capability or consumer change.
+
+#### Management Summary
+
+Canonical design reuses one existing current bubble and existing admitted Session,
+Mood/Persona/Presence revisions, intentional Silence, and real client lifecycle.
+The latest geometry is full Pulse/headphones with contextual inner symbol and
+matching static menu mark; separate album-art turntable stays unchanged.
+Actual original Core semantic derivative retains6states;9owning tests PASS,
+including80orthogonal matrix subcases and explicit music_only Ask DJ/cancel.
+No source test proves native avatar, real speech, gestures or touch route.
+
+#### Roadmap Position
+
+Generation2, Product Development, Phase1/Platform Qualification. Direct owner
+avatar pickup continues existing owned WIP after qualified host migration repair.
+No automatic next assignment, competing Core writer or Apple source takeover.
+
+#### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+Source: current SETTINGS nodes and prerequisites in the
+[canonical living DAG](docs/roadmap/v1/djconnect-platform-v1.json) and
+[product backlog](PRODUCT_BACKLOG.md). This horizon remains Planned/NOT_ISSUED;
+it does not dispatch consumers or replace the already selected avatar work.
+
+1. **SETTINGS::APPLE::EDITOR — Planned.** Shared editor; delivered Core producer precedes native adoption.
+2. **SETTINGS::PI::ADOPTION — Planned.** Same producer prerequisite; Pi owns its acceptance.
+3. **SETTINGS::ESP32::ADOPTION — Planned.** Same producer and physical settings/voice evidence required.
+4. **SETTINGS::VIBECAST::COMPAT — Planned.** Shared renderer import and screen admission remain prerequisites.
+5. **SETTINGS::JOINT::ACCEPTANCE — Planned.** Migration and consumer evidence precede cross-device closure.
+
+
+#### Blocked Items
+
+Touch wire/limits remain NOT_FROZEN/NOT_IMPLEMENTED, with no advertised operation.
+Apple must qualify actual capture/playback start/end/interruption, renderer,
+gesture arbitration, accessibility and native/performance acceptance. Ordinary
+optimistic speech dispatch flags are insufficient. Existing product findings,
+Golden57reports/36families/154steps,12Core/19actual-quality gates stay OPEN.
+
+#### Deferred Items
+
+Unselected work stays deferred. Future pairing/speech/Help intakes remain tracked;
+they do not replace current avatar or authorize a second writer. No release,
+HA installation, paused automation or private task message is introduced.
+
+#### Repository State
+
+Base Repository State: `MERGED_RECONCILED` after host repair source#1213 and
+separate Finalization#1214. Current avatar source is not delivered or completed;
+its own review, protected source and separate Finalization are still required.
+Merge alone never closes the avatar function or remaining product requirements.
+
+#### Workspace State
+
+Restored eleven-file original WIP matches its recovery payload; existing original
+draft/fixture hashes also match prior evidence. Same registered worktree now uses
+Shared Data Git links. Erasure001d0fac remains preserved separately. Host repair
+refs are retained with an explicit squash-audit disposition; no ambiguous work,
+recovery, native evidence, test data or source has been removed.
+
 ## Current: relocated host maintenance — separate Finalization, 19 October 2026
 
 #### Repository Status
