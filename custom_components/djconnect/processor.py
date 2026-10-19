@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+
 from typing import Any
 from homeassistant.core import HomeAssistant
 
@@ -13,7 +14,7 @@ from .pipeline import (
     process_text_with_assist,
 )
 from .music_dna import prompt_context_text
-from .music_intent import parse_spoken_music_request, listening_request_target
+from .music_intent import parse_spoken_music_request, listening_request_target, music_command_subject, open_music_request
 from .spotify import play_from_intent
 from .spotify_backend import SpotifyBackendError
 from .use_cases import run_music_command
@@ -31,7 +32,7 @@ async def process_text_command(
     conf = runtime.config
     from .ask_dj.dialogue import current_turn
     shared_request = current_turn.get() is not None
-    explicit_music = bool(listening_request_target(user_text) or str(user_text).casefold().startswith(("speel ", "draai ", "play ", "put on ")))
+    explicit_music = bool(listening_request_target(user_text) or music_command_subject(user_text))
     corrected_text = (
         await correct_stt_text_with_assist(hass, user_text, conf)
         if correct_stt and not (shared_request and explicit_music)
@@ -154,6 +155,10 @@ async def _memory_context_for_assist(
 
 def _request_bound_music_intent(text, proposed):
     """The interpreter may pick a kind, never replace the user's music subject."""
+    if open_music_request(text):
+        # No literal artist was named. Keep the bounded interpreter's musical
+        # query instead of relabeling the entire activity phrase as an artist.
+        return proposed
     parsed = parse_spoken_music_request(text)
     if not parsed.get("query"):
         return proposed
@@ -198,6 +203,11 @@ def _deterministic_playback_intent(text: str) -> dict[str, Any]:
 
 def _is_clear_artist_play_request(text: str, artist: str) -> bool:
     normalized = " ".join(str(text or "").strip().lower().split())
+    # A multiword activity/mood request is not an artist name. Leave its
+    # interpretation to Assist, with the original request-bound query intact.
+    # Quoted names (e.g. "Something for Kate") retain their explicit identity.
+    if open_music_request(text):
+        return False
     if listening_request_target(text):
         return True
     if not normalized.startswith(("speel ", "start ", "draai ", "zet ", "play ", "put on ")):

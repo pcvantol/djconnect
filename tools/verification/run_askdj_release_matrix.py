@@ -23,12 +23,13 @@ from askdj_release_inventory import validate as validate_inventory, validate_mom
 # Existing owning interpretation/authorization/transport suites. These use explicit
 # agent/provider fixtures; their PASS is not paid-model or physical acceptance.
 TEST_PATTERNS = (
+    'test_pipeline.py', 'test_processor_runtime.py',
     'test_ask_dj*.py', 'test_askdj_contextual_release_gate.py', 'test_voice_intents.py', 'test_http_voice_helpers.py',
     'test_music_dna*.py', 'test_session_conversation*.py',
     'test_dj_moment_golden_matrix.py', 'test_expressive_dj_persona.py', 'test_expressive_context_variation.py', 'test_silence_live_delivery.py', 'test_native_moment_delivery.py', 'test_session_presence.py', 'test_active_session_mood.py', 'test_session_persona.py',
-    'test_personal_dj_narration*.py',
+    'test_personal_dj_narration*.py', 'test_session_facts.py',
     'test_personal_dj_runtime_expression.py', 'test_personal_dj_flow_completion.py',
-    'test_track_insight.py', 'test_profile_settings_speech.py', 'test_session_artwork.py',
+    'test_track_insight.py', 'test_profile_settings_speech.py', 'test_session_artwork.py', 'test_session_artist_images.py', 'test_session_story_variety.py',
     'test_session_forecast.py', 'test_passive_session.py',
     'test_local_settings_speech.py', 'test_presence_four_levels.py', 'test_vibecast_renderer.py',
     'test_voice_preview.py', 'test_persona_reactions.py', 'test_transport_operation_journal.py',
@@ -76,6 +77,8 @@ PROFILES = {
     'release_context': ('release-context.json', 240),
     'album_context': ('album-context.json', 240),
     'semantic_reads': ('semantic-reads.json', 900),
+    'catalogue_golden': ('catalogue-golden.json', 1800),
+    'catalogue_variations': ('catalogue-variations-golden.json', 1800),
     'silence_signal': ('silence-signal.json', 240),
     'mood_prosody': ('literal-tts.json', 600),
     'full_golden': ('dialogue.json', 1500),
@@ -165,7 +168,11 @@ def expected_source_hashes():
     files.append(ROOT/'scripts/verification/verify_ask_dj_contextual_dialogue_http.py')
     files.append(ROOT/'scripts/verification/personal_dj_narration_probe.py')
     files.append(ROOT/'tools/verification/askdj_research_outcomes.py')
+    files.append(ROOT/'tools/verification/askdj_catalogue_variations.py')
     files.append(ROOT/'scripts/verification/askdj_semantic_read_golden.py')
+    files.append(ROOT/'scripts/verification/askdj_example_catalogue_golden.py')
+    files.append(ROOT/'scripts/verification/askdj_catalogue_provider_fixture.py')
+    files.append(ROOT/'custom_components/djconnect/ask_dj/examples_v1.json')
     files.append(ROOT/'scripts/verification/source_fixture_urls.py')
     return {str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for p in files}
 
@@ -240,7 +247,8 @@ def validate_local_report(mode, raw):
         'choice_titles':'ISOLATED_REAL_HA_PAIRED_CATALOG_TITLES',
     }
     required={
-        'album_context':{f'album-tracks-{i}' for i in range(5)}|{'album-offer','album-play','album-play-duplicate'}|{f'album-current-artist-{i}' for i in range(5)}|{'album-offer-'+locale for locale in ('en','de','fr','es')},
+        'album_context':{f'album-tracks-{i}' for i in range(5)}|{'album-offer','album-play','album-play-duplicate',
+            'album-header-play','album-recording-play'}|{f'album-current-artist-{i}' for i in range(5)}|{'album-offer-'+locale for locale in ('en','de','fr','es')},
         'release_context':{f'release-{i}-{mode}' for i in range(7) for mode in ('current','selected')}|{'release-selected-other-current'},
         'previous':{'baseline-previous-question'},
         'silence_signal':{'silence-start','silence-snapshot','silence-end'},
@@ -279,6 +287,19 @@ def validate_local_report(mode, raw):
             return False
     if not isinstance(raw.get('model_calls'),list) or raw['model_calls'] or type(raw.get('paid_model_calls')) is not int or raw['paid_model_calls']!=0:
         return False
+    if mode == 'album_context':
+        from scripts.verification.askdj_example_catalogue_golden import cases, check_response
+        by_id = {r['case']:r for r in rows}
+        for i,locale in enumerate(('nl','en','de','fr','es')):
+            case = next(c for c in cases() if c['entry_id']=='listen.album_tracks' and c['language']==locale)
+            if check_response(case, by_id[f'album-tracks-{i}']['body'], []):
+                return False
+        writes = [c for c in raw.get('provider_calls',[]) if c.get('method') in {'PUT','POST','DELETE'}]
+        expected_bodies = [{'context_uri':'spotify:album:'+'b'*22},
+            {'uris':['spotify:track:'+'2'*22]}, {'context_uri':'spotify:album:'+'c'*22}]
+        if (len(writes)!=3 or [c.get('body') for c in writes]!=expected_bodies
+                or any(c.get('method')!='PUT' or c.get('path')!='/me/player/play' for c in writes)):
+            return False
     return True
 
 
@@ -429,7 +450,7 @@ def run(candidate, output):
         for mode, (filename, limit) in PROFILES.items():
             directory=temp/mode
             directory.mkdir()
-            paid=mode in {'full_golden','contextual_golden','mood_prosody','semantic_reads'}
+            paid=mode in {'full_golden','contextual_golden','mood_prosody','semantic_reads','catalogue_golden','catalogue_variations'}
             key=os.environ.get('DJCONNECT_GOLDEN_OPENAI_API_KEY','') if paid else 'unused-networkless-probe'
             if not key or len(key)>8192:
                 result['profiles'].append({'id':mode,'status':'FAIL','findings':['credential_missing']})
@@ -437,6 +458,24 @@ def run(candidate, output):
                 return 1
             flags = ['-e','DJC_SAFETY_PROBE='+mode]
             payload = {'api_key':key,'model':'gpt-6-luna','max_tokens':700}
+            if mode in {'catalogue_golden','catalogue_variations'}:
+                from scripts.verification.askdj_example_catalogue_golden import MAX_OUTPUT_TOKENS
+                payload['max_tokens'] = MAX_OUTPUT_TOKENS
+            if mode == 'catalogue_variations':
+                corpus_path=ROOT/'docs/verification/fixtures/askdj_catalogue_variations_v1.json'
+                from tools.verification.askdj_catalogue_variations import cases as variation_cases
+                try:
+                    if not corpus_path.is_file() or corpus_path.stat().st_size > 256*1024:
+                        raise ValueError('frozen_variation_corpus_missing_or_oversized')
+                    corpus=json.loads(corpus_path.read_text())
+                    variation_cases(corpus)
+                except (ValueError, TypeError, KeyError):
+                    result['profiles'].append({'id':mode,'status':'FAIL',
+                        'findings':['qualified_frozen_variation_corpus_required_after_base_PASS']})
+                    save()
+                    return 1
+                payload['variation_corpus']=corpus
+                flags=['-e','DJC_SAFETY_PROBE=catalogue_golden']
             if mode == 'mood_prosody':
                 tts_model = os.environ.get('DJCONNECT_GOLDEN_TTS_MODEL', 'gpt-4o-mini-tts')
                 if tts_model != 'gpt-4o-mini-tts':
@@ -466,6 +505,23 @@ def run(candidate, output):
                     raw['candidate_sha']=candidate
                     row={k:raw.get(k) for k in ('cases','manifest_sha256','paid_model_calls','usage')}
                     row.update(id=mode,status='PASS' if validate_report(raw,candidate) else 'FAIL')
+                elif mode=='catalogue_golden':
+                    from scripts.verification.askdj_example_catalogue_golden import validate_report as validate_catalogue
+                    row={'id':mode,'status':'PASS' if validate_catalogue(raw, source_hashes=expected_source_hashes()) else 'FAIL',
+                         'paid_attempts':raw.get('paid_model_calls'), 'kind':'real_paired_ha_exact_catalogue_questions',
+                         'case_count':len(raw.get('cases',[])), 'manifest_sha256':raw.get('manifest_sha256'),
+                         'failed_cases':[{'id':r.get('id'),'findings':r.get('findings',[])}
+                                         for r in raw.get('cases',[]) if r.get('status')!='PASS'],
+                         'native':'NOT_RUN','installed':'NOT_RUN'}
+                elif mode=='catalogue_variations':
+                    from scripts.verification.askdj_example_catalogue_golden import validate_variation_report
+                    row={'id':mode,'status':'PASS' if validate_variation_report(raw,
+                        corpus=corpus,source_hashes=expected_source_hashes()) else 'FAIL',
+                        'paid_attempts':raw.get('paid_model_calls'),'kind':'real_paired_ha_frozen_question_variations',
+                        'case_count':len(raw.get('cases',[])),'manifest_sha256':raw.get('manifest_sha256'),
+                        'failed_cases':[{'id':r.get('id'),'findings':r.get('findings',[])}
+                            for r in raw.get('cases',[]) if r.get('status')!='PASS'],
+                        'native':'NOT_RUN','installed':'NOT_RUN'}
                 elif mode=='semantic_reads':
                     row={'id':mode,'status':'PASS' if validate_semantic_report(raw) else 'FAIL',
                          'paid_attempts':raw.get('paid_model_calls'), 'kind':'real_paired_ha_semantic_interpretation',

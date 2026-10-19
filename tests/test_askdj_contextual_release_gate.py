@@ -196,11 +196,13 @@ class ContextualReleaseGateTest(unittest.TestCase):
         proof=inventory.validate()
         self.assertEqual(proof['literal_core_routes'],48)
         self.assertEqual(proof['executable_help_cases'],60)
-        self.assertEqual(proof['conversation_families'],39)
-        self.assertEqual(proof['conversation_steps'],167)
-        self.assertEqual(proof['reported_issues'],57)
-        self.assertEqual(len(proof['open_core_findings']),12)
+        self.assertEqual(proof['conversation_families'],40)
+        self.assertEqual(proof['conversation_steps'],273)
+        self.assertEqual(proof['reported_issues'],64)
+        self.assertEqual(len(proof['open_core_findings']),19)
         self.assertEqual(proof['proactive_golden_cases'],560)
+        self.assertEqual(proof['catalogue_questions'],70)
+        self.assertEqual(proof['catalogue_conversation_steps'],30)
 
     def test_every_golden_owning_file_is_scheduled_before_provider_work(self):
         import json
@@ -303,6 +305,43 @@ class ContextualReleaseGateTest(unittest.TestCase):
         unexpected=deepcopy(raw)
         unexpected['core_transports'][0].update(status=403,expected_status=403,body={'error':'denied'})
         self.assertFalse(matrix.validate_local_report('current_artist',unexpected))
+
+    def test_album_release_gate_rejects_missing_art_buttons_header_and_single_track_album_dispatch(self):
+        from tests import test_ask_dj_catalogue_golden as fixtures
+        from scripts.verification import askdj_example_catalogue_golden as golden
+        matrix=load('djc_album_release_matrix','tools/verification/run_askdj_release_matrix.py')
+        ids=[*[f'album-current-artist-{i}' for i in range(5)],
+            *[f'album-tracks-{i}' for i in range(5)], 'album-header-play','album-recording-play',
+            'album-offer','album-play','album-play-duplicate',
+            *['album-offer-'+locale for locale in ('en','de','fr','es')]]
+        rows=[{'case':case,'path':'ask_dj/message','request':{},
+            'status':409 if case=='album-play-duplicate' else 200,
+            'expected_status':409 if case=='album-play-duplicate' else 200,
+            'cache_control':'no-store','body':{'error':'choice_expired'} if case=='album-play-duplicate'
+                else {'success':True}} for case in ids]
+        fixture=fixtures.CatalogueGoldenTest()
+        for i,locale in enumerate(('nl','en','de','fr','es')):
+            case=next(c for c in golden.cases() if c['entry_id']=='listen.album_tracks' and c['language']==locale)
+            body=fixture.response(case)
+            body.update(fixture.album_payload())
+            next(row for row in rows if row['case']==f'album-tracks-{i}')['body']=body
+        raw={'qualification':'CORE_PAIRED_ALBUM_TRACKS_AND_FROZEN_ALBUM_PLAY',
+            'source_hashes':matrix.expected_source_hashes(),'pairing':'ordinary_device_token_minted_persisted',
+            'core_transports':rows,'model_calls':[],'paid_model_calls':0,
+            'provider_calls':[{'method':'PUT','path':'/me/player/play','body':body} for body in (
+                {'context_uri':golden.ALBUM},{'uris':[golden.TRACKS[-1]]},
+                {'context_uri':'spotify:album:'+'c'*22})]}
+        self.assertTrue(matrix.validate_local_report('album_context',raw))
+        for field in ('image_url','button_label','action_id'):
+            changed=deepcopy(raw)
+            changed['core_transports'][5]['body']['items'][1].pop(field)
+            self.assertFalse(matrix.validate_local_report('album_context',changed),field)
+        wrong=deepcopy(raw)
+        wrong['provider_calls'][0]['body']={'uris':[golden.TRACKS[0]]}
+        self.assertFalse(matrix.validate_local_report('album_context',wrong))
+        missing=deepcopy(raw)
+        missing['core_transports'][5]['body']['result_set'].pop('presentation')
+        self.assertFalse(matrix.validate_local_report('album_context',missing))
 
     def test_prosody_gate_requires_all_moods_languages_and_real_paired_audio_receipt(self):
         import hashlib

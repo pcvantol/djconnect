@@ -59,6 +59,10 @@ class SessionArtworkTests(unittest.TestCase):
         self.assertEqual(self.facts.artist_facts(catalog, person)[0].artwork_subject_uri, '')
         person['relations'][0]['url']['resource'] = 'https://open.spotify.com/artist/'+'A'*22
         self.assertEqual(self.facts.artist_facts(catalog, person)[0].artwork_subject_uri, 'spotify:artist:'+'A'*22)
+        person['relations'][0]['type']='free streaming'
+        self.assertEqual(self.facts.artist_facts(catalog, person)[0].artwork_subject_uri, 'spotify:artist:'+'A'*22)
+        person['relations'][0]['ended']=True
+        self.assertEqual(self.facts.artist_facts(catalog, person)[0].artwork_subject_uri, '')
 
     def test_wikidata_unique_non_deprecated_artist_reference(self):
         catalog = {'uri': 'spotify:track:'+'T'*22, 'artist': 'A', 'artist_ids': ['A'*22]}
@@ -68,6 +72,38 @@ class SessionArtworkTests(unittest.TestCase):
         self.assertEqual(self.facts.description_fact(catalog, entity, 'Q42').artwork_subject_uri, 'spotify:artist:'+'A'*22)
         entity['claims']['P1902'][0]['rank'] = 'deprecated'
         self.assertEqual(self.facts.description_fact(catalog, entity, 'Q42').artwork_subject_uri, '')
+
+    def test_description_reuses_exact_reciprocal_artist_link_without_birth_or_formation_date(self):
+        from copy import deepcopy
+        catalog = {'uri':'spotify:track:'+'T'*22, 'artist':'Fixture band', 'artist_ids':['A'*22]}
+        identity = '12345678-1234-1234-1234-123456789abc'
+        person = {'id':identity, 'name':'Fixture band', 'type':'Group', 'relations':[
+            {'type':'free streaming', 'url':{'resource':'https://open.spotify.com/artist/'+'A'*22}},
+            {'type':'wikidata','url':{'resource':'https://www.wikidata.org/wiki/Q42'}}]}
+        entity = {'id':'Q42','descriptions':{'nl':{'value':'Amerikaanse band'}},'claims':{
+            'P434':[{'mainsnak':{'datavalue':{'value':identity}}}]}}
+        self.assertEqual(self.facts.artist_facts(catalog,person), [])
+        fact = self.facts.description_fact(catalog,entity,'Q42',person=person)
+        self.assertEqual(self.art.subject_for_fact(fact),'spotify:artist:'+'A'*22)
+        self.assertNotIn('spotify:',fact.copy_for('nl')[1])
+        for mutation in ('wrong_entity','wrong_reciprocal','wrong_name','wrong_link','two_links','conflicting_wikidata','wrong_forward_qid'):
+            e,p,c = deepcopy(entity),deepcopy(person),deepcopy(catalog)
+            if mutation=='wrong_entity':
+                e['id']='Q43'
+            elif mutation=='wrong_reciprocal':
+                e['claims']['P434'][0]['mainsnak']['datavalue']['value']='22345678-1234-1234-1234-123456789abc'
+            elif mutation=='wrong_name':
+                p['name']='Another band'
+            elif mutation=='wrong_link':
+                p['relations'][0]['url']['resource']='https://open.spotify.com/artist/'+'B'*22
+            elif mutation=='two_links':
+                c['artist_ids'].append('B'*22)
+                p['relations'].append({'type':'streaming','url':{'resource':'https://open.spotify.com/artist/'+'B'*22}})
+            elif mutation=='wrong_forward_qid':
+                p['relations'][1]['url']['resource']='https://www.wikidata.org/wiki/Q43'
+            else:
+                e['claims']['P1902']=[{'mainsnak':{'datavalue':{'value':'B'*22}}}]
+            self.assertIsNone(self.art.subject_for_fact(self.facts.description_fact(c,e,'Q42',person=p)),mutation)
 
     def asset(self, body=b'x', authority=lambda: True):
         return {'body': body, 'deadline': time.monotonic()+300, 'authority': authority}

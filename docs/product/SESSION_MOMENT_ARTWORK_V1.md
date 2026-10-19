@@ -128,3 +128,29 @@ decodes reach at most2 concurrent decoders; measured peak increment126924KiB
 is temporary decoder RAM, separate from the32MiB compressed resident budget.
 No coverage exclusion is added. Both exact independent reviews GO and source #1172
 is protected merged; [exact source readback](../verification/SESSION_ARTWORK_V1_SOURCE_READBACK_20261015.md). Separate Finalization remains pending; native/joint and installed acceptance stay separate.
+
+## 19 October: description inherits the same qualified artist subject
+
+A Wikidata artist description with no non-deprecated P1902 may reuse the exact
+Spotify streaming URL from its reciprocally bound MusicBrainz artist. Require
+original catalogue artist ID, exact public name/type and MB→QID→MB identity;
+a birth/formation date is not part of that proof. Conflicting WD references or
+multiple matching artist IDs decline the fallback. Keep the existing contextual
+artist role and active/historical managed media grants; no name search, album
+cover substitution or new image source. Source qualification is separate from
+real provider pixels, installed delivery and native acceptance. See
+[regression evidence](../verification/ARTIST_DESCRIPTION_SPOTLIGHT_20261019.md).
+
+The explicit MB Spotify link accepts artist URL types `free streaming` and
+`streaming` under the same exact URI/identity rules; an ended link grants no image
+fallback. This is schema compatibility within the existing adapter, not title
+search or another image provider. The official artist-URL free-streaming type
+explicitly includes Spotify.
+
+## Owner-requested artist photography extension — 19 October
+
+The delivered version1 Spotify contract remains unchanged. Explicit version2
+preparation adds subject-bound artist/band photography and licensed Commons
+fallback with full photographer/rights attribution, within the existing media
+owners. See [Session artist photo v2](SESSION_ARTIST_PHOTO_V2.md). Producer and
+consumer/native qualification are separate and still OPEN.

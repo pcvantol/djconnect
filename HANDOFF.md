@@ -1,3 +1,78 @@
+# Current Core1210 same-band story variety checkpoint — 19 October 2026
+
+Current same-band variation correction: LOCAL / UNPUBLISHED. Repeated credit
+subjects share a qualified-artist cooldown; fresh observed tracks can request
+new documented artist episodes using published-only novelty memory. Exact QID
+sitelinks repair ambiguous Wikipedia band names. Real isolated source-only
+Nirvana probe finds four topic passages; this is not real LLM/installed/native
+quality. Golden: 40 families / 273 steps / 64 issues; 45 remaining blockers
+(19 Core / 26 real quality). See `docs/verification/SESSION_STORY_VARIETY_20261019.md`.
+No merge, install, consumer dispatch or model call in this increment.
+
+Preserve the prior verified band-photo checkpoint and all intermediate failures.
+Photo v2 remains pending Apple adoption. Same existing writer and correction;
+imported deletion and cold-archive requests remain separate, not concurrent source
+work or authorization to delete this WIP/evidence.
+
+# Current Core1210 licensed band-photo2 checkpoint — 19 October 2026
+
+Same sole writer and WIP. Explicit media prepare2 adds exact band context on
+qualified credit Moments and licensed Commons when Spotify has no artist image.
+The existing v1/unversioned projections stay unchanged. Compact original artist
+identity survives Flow reopening; same private source/expiry/retention owners.
+Actual public pinned-HA adapter retrieved a 367×346 Nirvana stage photo with
+P.B. Rage / CC-BY-SA-2.0 attribution, not paired installed/native or high-resolution
+proof. Fourteen new source tests; full 2734 tests / seven existing skips and 160 focused
+tests pass. Changed-file Ruff, generator and inventory pass. Producer examples
+remain pending; Apple v2 adoption,
+independent candidate review and installed/native acceptance OPEN. 43 remaining
+release blockers (18 Core / 25 quality), 40 families / 272 steps / 63 issues. See
+`docs/verification/SESSION_ARTIST_PHOTO_V2_20261019.md` and the latest recovery.
+No merge, source publication, deployment, cleanup or paid model call. Preserve
+all earlier WIP, receipts and recovery. The imported per-entry-delete and central
+archive-cleanup requests remain separately queued; do not interrupt current
+qualification or take over another writer or shared recovery register.
+
+# Current Core1210 artist-description/spotlight checkpoint — 19 October 2026
+
+Same sole writer/WIP. Registered artist facts now decline unresearched descriptor
+fallback. An absent WD Spotify claim can reuse the exact MB artist streaming URL
+only with reciprocal public identity and no conflicting WD ID, even without a
+birth/formation date. Existing private Session-media/Flow image owners retained.
+Source chain covers live and reopened historical image preparation and serving
+with declared external fixtures; real provider photo, actual prose quality,
+installed and native acceptance OPEN. Four HA-dev files matched main at readback;
+this local WIP is not installed.41release blockers remain (17Core/24quality),
+40families/271steps/62issues. See
+`docs/verification/ARTIST_DESCRIPTION_SPOTLIGHT_20261019.md` and the latest
+verified recovery checkpoint. No merge/install/cleanup or additional model calls.
+
+# Current Core1210 composer-story corrective checkpoint — 19 October 2026
+
+Same sole writer and existing WIP; no new selection or consumer changes. Exact
+recording/work/composer identity now enters the existing Wikipedia researcher
+and Persona/Mood expression owner. Registered names-only/rejected credit seeds
+cannot publish or count as a story. Nine new source regressions are bound into
+Golden. Real composer qualification stopped before generation on MusicBrainz503
+(two paid setup calls, no composer response); do not claim quality or deployment.
+Current inventory40families/270steps/61issues,39release blockers (16Core/23quality).
+Full source results and restartable recovery are in the current checkpoint;
+see `docs/verification/COMPOSER_STORY_20261019.md`. Preserve prior source, red
+reports and recovery. Same pinned dependencies/runtime. No merge/install/cleanup.
+
+# Current Core1210 album-track corrective checkpoint — 19 October 2026
+
+Existing sole Core writer; no new selection or consumer writes. Grouped
+album-first/track art and music-play presentation is locally implemented and
+isolated HA-qualified. Apple grouping/native and installed acceptance remain
+open; all catalogue pins stay pending. See
+`docs/verification/ASK_DJ_ALBUM_TRACK_PRESENTATION_20261019.md` and its canonical
+contract. The older complete catalogue remains FAIL; no variants generated.
+No dependency/framework/tool upgrade is introduced: retain the qualified pinned
+HA image/toolchain while isolating this existing route regression. The required
+read-only current-root hostverify reports onboarding4.5.4 and MATCH. Prior WIP,
+red reports and recovery bundles are preserved; no cleanup or deployment here.
+
 # DJConnect Home Assistant Integration Handoff
 
 ## Persona touch withdrawal — separate source Finalization, 19 October 2026

@@ -882,6 +882,8 @@ class SpotifyBackend:
             raise SpotifyBackendError('Album track titles unavailable')
         complete = len(rows) == total and len(rows) == len(page['items']) and not page.get('next')
         return {'album_uri':album_uri,'album_name':album['name'][:300],
+                'album_artist':', '.join(a['name'][:160] for a in (album.get('artists') or [])[:8]
+                    if isinstance(a,dict) and isinstance(a.get('name'),str))[:512],
                 'album_image_url':_best_image_url(album.get('images') or []),
                 'items':rows,'total':total,'state':'complete' if complete else 'partial'}
 

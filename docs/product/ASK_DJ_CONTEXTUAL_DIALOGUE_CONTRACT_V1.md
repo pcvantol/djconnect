@@ -63,7 +63,7 @@ state. No second eventbus, durable chat store or persistent profiling. Per-owner
 thread: one model-safe window of12messages/12KiB and one local operational
 window of12messages/12KiB. Local catalog captions never enter model input.
 There are4typed subjects, at most20compact source dependencies, one result set
-of12items/16KiB, one pending confirmation/8KiB and a20-minute idle expiry. At most
+of12items/16KiB (the scoped album-track exception is defined below), one pending confirmation/8KiB and a20-minute idle expiry. At most
 4 threads per owner and 32 retained owner states; admission at capacity fails
 closed rather than stealing live in-flight state. External agent memory is not
 trusted: each call starts fresh with the explicit qualified window; returned
@@ -706,7 +706,7 @@ the actual accepted titles and artist subtitles into the current reply and live
 retain the truthful zero-result caption. Labels are display data, not new facts.
 
 A direct result-list follow-up uses the current owner's existing frozen set:
-maximum12items/16KiB, identical result/action IDs, selected action and original
+normally maximum12items/16KiB (or the scoped album-track offer below), identical result/action IDs, selected action and original
 deadline. It performs no model call, lookup, selection or playback effect and
 cannot renew the offer. It returns `items` and the existing `result_set`, with
 empty `playback_actions`; explicit selection/Play remains the established route.
@@ -772,3 +772,63 @@ Message-ID/digest and original admission/deadline remain authoritative. Reusing
 a request cannot mint a new offer or silently refresh expired choices. Clear
 and rights-generation changes discard replay bodies. This limited transport
 retry support does not close rich catalog-conversation archival retention.
+
+
+## Album-track answer: one playable album header, then individual recordings
+
+Producer source draft; full catalogue/publication and native adoption gates remain
+open. This refines `album_tracks_information` through the existing ordinary
+paired Ask DJ and frozen choice owner. It adds no automatic playback authority,
+new announcement path or client-side context reconstruction.
+
+The initial response has one short `text`/`dj_text` caption naming the album,
+without an enumerated track list. `items`, `playback_actions` and
+`result_set.items` are aliases of the same ordered rows, not three lists to
+render. The first row is the exact album, `kind:album`, with its title, catalog
+artist, proxied `image_url`, localized `button_label` (NL: `Speel album`) and
+album `uri`/`context_uri`. Following rows are the requested individual tracks,
+with title/artist, disc/track order, the same exact-edition proxied artwork,
+localized Play label and their own frozen IDs. An absent cover remains absent;
+never reuse another answer's artwork or invent an image.
+
+Additive `result_set.presentation` describes the grouping, using existing frozen
+action IDs rather than copied actions:
+
+```json
+{
+  "kind": "album_tracks",
+  "caption": "Deze nummers staan op het gekozen album:",
+  "primary_action_id": "the-album-action-id",
+  "track_action_ids": ["first-track-action-id", "second-track-action-id"]
+}
+```
+
+The UI renders the album header first, then a visible gap, then the track rows.
+Render this result once and retain separate music-play and speech-replay
+controls/accessibility labels. `presentation` grants no effect authority.
+Buttons submit the existing `choice_action` with the original `result_set_id`,
+`action_id` and `operation:play`. The album action dispatches its entire album
+`context_uri`; a track action dispatches only its exact recording URI. Reading
+or merely selecting an offer does not start, resume or queue music. The
+informational initial question remains zero-model and zero-effect.
+
+Generic offers retain12items/16KiB. Only this Core-produced album page admits
+one album plus up to50tracks/48KiB before frozen IDs. It shares the existing
+single per-thread result-set slot; bounded RAM-only read-replay budget is192KiB
+for this scoped offer, at most4retained bodies, rather than64KiB. Larger bodies
+fail closed; no silent12row truncation. The original catalog page remains at
+most50tracks with no per-track fetch or search, and partial coverage is explicit.
+`album_track_observation.returned_count` counts tracks only, excluding the header.
+`current_track_omitted` retains its original meaning. Known-empty other-track
+results can still offer the album itself. The original600second choice lease remains unchanged. The60second observation
+freshness guards album resolution and initial delivery; once admitted, the frozen
+URI does not become the next currently playing album. Repeated list reads retain
+IDs, layout and the original choice expiry. History/owner/source/clear/Session fences remain authoritative.
+No durable catalog/history permission is added by these presentation fields.
+
+The Apple source decoder currently reads only the result schema/set ID/expiry;
+it has not adopted `presentation`. Native grouping, accessible spacing, artwork
+loading and action behavior need Apple-owned qualification. The source fixture
+`examples/client_contracts/askdj_album_track_choices_v1.json` is an actual isolated
+HA HTTP response with synthetic Spotify input and expired lab IDs; it is not a
+published producer pin, installed response or native screenshot.

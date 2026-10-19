@@ -1,3 +1,12 @@
+Current same-band variation correction: LOCAL / UNPUBLISHED. Repeated credit
+subjects share a qualified-artist cooldown; fresh observed tracks can request
+new documented artist episodes using published-only novelty memory. Exact QID
+sitelinks repair ambiguous Wikipedia band names. Real isolated source-only
+Nirvana probe finds four topic passages; this is not real LLM/installed/native
+quality. Golden: 40 families / 273 steps / 64 issues; 45 remaining blockers
+(19 Core / 26 real quality). See `docs/verification/SESSION_STORY_VARIETY_20261019.md`.
+No merge, install, consumer dispatch or model call in this increment.
+
 # DJConnect Generation 2 Management Summary
 
 ## Persona touch withdrawal — separate source Finalization, 19 October 2026
@@ -97,6 +106,121 @@ bounded branding-source dependency for already authorized Website #62. Current
 canonical roadmap/backlog horizons and all other lane states remain unchanged.
 After protected Finalization/readback, continue that existing Website assignment;
 no new product increment is activated. See [bounded completion record](docs/verification/BRAND_V2_SOURCE_FINALIZATION_20261019.md).
+
+## Current WIP: atomic Ask DJ catalogue and compact Help — Core #1210
+
+Base exact mainff175834, protected source1221/Finalization1222 complete; own
+speech worktrees/refs safely removed and recovery verified. HA-dev now runs
+exact mainff175834:206files match, pairing/SQLite preserved, paired Apple
+status returns device_speech schema1, zero DJConnect startup ERROR/CRITICAL.
+Available configuration metadata is not STT processing/TTS hearing or Apple
+#129 UI acceptance. Avatar producer is already delivered; Apple #127 native
+callbacks/gestures/audio remain open. Same sole Core writer, fresh current-root
+hostverify exit0/MATCH and onboarding4.5.4 before this isolated #1210 WIP.
+
+The ordinary five-language Ask DJ classifier/parser now routes all70 exact
+catalogue questions to their existing semantic owners. Native play requests
+retain their original artist and album/playlist kind; negative requests stop
+before model/provider work, while quoted names and explicit opt-in Music DNA
+preferences retain their own semantics. Read responses use accepted locale and
+truthful paused/unconfirmed playback state. No catalogue-ID dispatch or hidden
+agent-prompt translation is introduced. Existing semantic free-wording and typo
+reads remain available.
+
+Canonical JSON and its byte/hash-checked generated Python projection avoid
+runtime file I/O. Strict locale/version/qualified-pin/context eligibility drives
+both compact3group Help and3diverse local suggestions.60 historical Help routes,
+112 single-turn and560 proactive cases remain; quiet-playlist playback now
+asserts the actual explicit play request. Capability fixture includes the draft
+producer descriptor. No candidate chip is yet published.
+
+First actual paired HA catalogue run completed100steps/122real model attempts,
+overall FAIL (41 failing rows under the original oracle). Causal classification
+separates real activity/story/album/narration defects from track-list oracle
+defects, expired fixture Forecast and language-judge uncertainty. The original
+answer/receipt report is preserved unchanged. Product fixes reuse ordinary
+Assist, public research/assessment and the accepted-playback narrator; no
+quality guard or effect authority is relaxed.
+
+The first repair's actual100-step run completed145model attempts and remains
+FAIL with19failing rows. Full album/track-list/Forecast controls now pass;
+activity routing, source-grounded story and narration findings required further
+product fixes. The command/STT transport now omits unsupported pipeline_id,
+accepts bounded JSON-in-speech intents, and retains literal named targets.
+Artist-story review reuses strict original-paragraph/source-ID proof; playback
+review uses its actual dispatch scope. No factual/quality check is bypassed.
+
+Previous album snapshot:2708tests PASS with7existing skips;65focused
+album/art/play/catalogue/release tests PASS. Earlier story/storage/avatar
+focused checks remain separately recorded. Ruff, generated
+catalogue and inventory checks pass. The latest complete actual catalogue run
+finished100steps/174real attempts and remains FAIL with8narration/story findings.
+That is an earlier source snapshot, not a current qualified producer pin. The
+Dutch selected repair passed3/3cases with12calls; subsets never replace full
+qualification. All rejected responses and actual delivered answers are retained.
+
+Owner-directed variation tooling now requires complete current base PASS before
+any generation callback. It prepares80meaning-preserving formulations across
+five languages and100extra transaction/duplicate steps with unchanged oracles.
+Generation and independent meaning review cost at most10calls; a separate
+required release profile executes the frozen corpus. No variations were generated:
+the actual failed/stale base short-circuited with zero generation calls.
+
+The reported repeated Nirvana credits exposed a separate proactive fallback.
+Researchable artist/album/producer narration now has one bounded40second window
+for source work and the same two model calls. Registered researchable stories
+must carry sealed source/style acceptance; a rejected or unavailable story
+cannot publish/count/persist the bare seed and consumes that fact once to avoid
+tick retries. Producer acceptance additionally requires a named-work Wikipedia
+receipt and an independent documented-activity verdict. No source/role/identity,
+playback-fit or retention fence is relaxed. This is source remediation; actual
+expression quality, installed Flow/native presentation and hearing remain open.
+
+The newly reported composition-credit card exposed a missing composer family.
+Exact recording/work/composer evidence now feeds the same researched storyteller;
+registered unqualified seeds cannot publish. Nine new source regressions cover
+identity, role, source proof and stored/replayable publication. The real isolated
+probe stopped on MusicBrainz503 before composer generation (two paid setup calls,
+zero composer answers). Real quality and installed/native acceptance remain OPEN.
+See [composer correction](docs/verification/COMPOSER_STORY_20261019.md).
+
+The new Wikidata-descriptor/spotlight report adds a local source correction:
+all registered artist stories need researched acceptance, and a missing WD P1902
+can reuse the same reciprocally bound MB artist's exact Spotify streaming link,
+independent of birth/formation date. Conflicting references never borrow images.
+Active and reopened Flow use the existing private Session-media owner. Actual
+image-provider, prose-quality, installed and native proof remain OPEN. Four
+HA-dev files compared here match main, not the narrative WIP; no deployment.
+See [artist spotlight correction](docs/verification/ARTIST_DESCRIPTION_SPOTLIGHT_20261019.md).
+
+The owner-requested band/live photo now has an explicit version2 media path,
+using exact primary-performer identity and licensed Commons fallback when Spotify
+has no image. Source/fixture tests cover current/reopened Flow, rights, private
+resources and version1 compatibility. A real pinned-HA public adapter obtained a
+licensed Nirvana stage photo (367×346, P.B. Rage, CC-BY-SA-2.0); no high-resolution,
+paired installed or native proof is inferred. Apple must adopt2 with photo
+credits; local fixtures/pin remain pending. No paid calls or HA deployment.
+See [band photo2 evidence](docs/verification/SESSION_ARTIST_PHOTO_V2_20261019.md).
+
+The reported album-track UX now has a single frozen offer: album header with
+localized full-album Play and exact-edition cover, then individual tracks with
+covers and separate Play. No repeated prose list. The scoped51row page preserves
+all50track buttons without widening ordinary12row offers. Actual isolated HA:
+22paired transports PASS, zero model calls, exact whole-album/one-track/other-
+album dispatches against synthetic Spotify. No native rendering or installed
+claim. Apple has not adopted the new grouping yet. Details:
+[album presentation qualification](docs/verification/ASK_DJ_ALBUM_TRACK_PRESENTATION_20261019.md).
+
+Inventory40families/272steps/63reports retains43release blockers (18Core,
+25real quality).112singleturn/60historicalHelp/560proactive cases remain. All
+locale publication gates stay pending/qualified:false. #1210/#128 remain
+PARTIAL/OPEN; HA-dev readback of the narration files matches mainff175834,
+not this WIP. That partial file comparison is not an installed full-tree pin.
+The SETTINGS horizon is unchanged. No merge, deployment or consumer/native
+qualification is claimed.
+[Variation contract](docs/verification/ASK_DJ_CATALOGUE_VARIATIONS_V1.md).
+[Actual findings and repairs](docs/verification/ASK_DJ_CATALOGUE_GOLDEN_20261019.md).
+[Restartable scope](docs/product/ASK_DJ_EXAMPLE_CATALOGUE_V1.md).
 
 ## Current: device speech availability Core producer — separate Finalization, 19 October 2026
 

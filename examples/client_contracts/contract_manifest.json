@@ -61,6 +61,22 @@
       "transport": "http_or_websocket",
       "contract": "ask_dj.response",
       "intent": "recently_played_history"
+    },
+    {
+      "id": "askdj.album_track_choices.v1",
+      "file": "askdj_album_track_choices_v1.json",
+      "transport": "http",
+      "contract": "ask_dj.album_tracks_information",
+      "state": "draft_actual_isolated_ha_synthetic_provider",
+      "qualified": false
+    },
+    {
+      "id": "session.artist_photo.v2",
+      "file": "session_artist_photo_v2.json",
+      "transport": "source_handler_fixture",
+      "contract": "session.media.prepare.v2",
+      "state": "draft_source_runtime_sqlite_media_external_fixtures",
+      "qualified": false
     }
   ]
 }
