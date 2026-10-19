@@ -191,7 +191,9 @@ DJConnect recommendations when those compact positive signals are available.
 ## Troubleshooting
 
 - If setup says an Assist pipeline is required, configure a Home Assistant Assist
-  pipeline with both STT and TTS first.
+  pipeline with an available conversation agent. An empty pipeline choice uses
+  HA’s preferred pipeline. Home Assistant STT and TTS are optional for pairing;
+  configured speech routes have their own availability and runtime requirements.
 - If Spotify login does not return to Home Assistant, check that the Spotify
   redirect URI exactly matches the URL shown by DJConnect.
 - If Spotify playback fails, reauthorize Spotify and check that the selected
