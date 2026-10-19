@@ -6,6 +6,12 @@ This changelog covers only
 compatibility and security changes to the development-host bootstrap independently of
 the DJConnect product release.
 
+## [2.0.22] - 2026-10-19
+
+- Generate the verification-artifact cron command with shell-safe paths, including
+  spaces in a relocated GitHub root. Preserve the existing schedule and escape
+  cron's percent syntax. Verification remains read-only; no cleanup is executed.
+
 ## [2.0.21] - 2026-10-03
 
 - Require immutable developer-onboarding package 4.5.3 for the current

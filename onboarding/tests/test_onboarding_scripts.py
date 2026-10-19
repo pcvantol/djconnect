@@ -29,6 +29,46 @@ def read_macos_host_bootstrap_source() -> str:
     return "\n".join(path.read_text(encoding="utf-8") for path in paths)
 
 
+class HostBootstrapCleanupCronTest(unittest.TestCase):
+    def cron_line(self, root: Path) -> str:
+        result = subprocess.run(
+            ["/bin/bash", "-c", 'source "$1"; verification_artifact_cleanup_cron_line "$2"',
+             "cron-test", str(HOST_BOOTSTRAP_PACKAGE / "core.sh"), str(root)],
+            text=True, capture_output=True, check=False,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        return result.stdout.rstrip("\n")
+
+    def test_legacy_space_free_root_keeps_the_same_schedule(self) -> None:
+        self.assertEqual(
+            self.cron_line(Path("/tmp/github")),
+            "0 3 * * * /bin/bash /tmp/github/djconnect/scripts/maintenance/"
+            "cleanup_verification_artifacts.sh --execute >> /tmp/github/djconnect/"
+            "logs/verification-artifact-cleanup.log 2>&1",
+        )
+
+    def test_space_and_shell_characters_execute_only_the_named_fixture(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            parent = Path(directory)
+            root = parent / "Shared Data's $(touch UNEXPECTED) `touch OTHER` &"
+            script = root / "djconnect/scripts/maintenance/cleanup_verification_artifacts.sh"
+            script.parent.mkdir(parents=True)
+            log = root / "djconnect/logs/verification-artifact-cleanup.log"
+            log.parent.mkdir(parents=True)
+            script.write_text('#!/bin/bash\nprintf "fixture:%s\\n" "$1"\n')
+            command = self.cron_line(root).removeprefix("0 3 * * * ")
+            result = subprocess.run(["/bin/sh", "-c", command], cwd=parent,
+                                    text=True, capture_output=True, check=False)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(log.read_text(), "fixture:--execute\n")
+            self.assertFalse((parent / "UNEXPECTED").exists())
+            self.assertFalse((parent / "OTHER").exists())
+
+    def test_percent_in_path_is_escaped_for_cron_before_shell_parsing(self) -> None:
+        line = self.cron_line(Path("/tmp/Shared Data%literal"))
+        self.assertIn(r"Data\%literal", line)
+
+
 def run_script(*args: str, stdin: str | None = None) -> subprocess.CompletedProcess[str]:
     env = os.environ.copy()
     env["NO_COLOR"] = "1"
@@ -307,7 +347,7 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout)
         self.assertEqual(
             result.stdout,
-            "DJConnect macOS Development Host Bootstrap 2.0.21\n",
+            "DJConnect macOS Development Host Bootstrap 2.0.22\n",
         )
         self.assertTrue(MACOS_HOST_BOOTSTRAP_CHANGELOG.is_file())
         changelog = MACOS_HOST_BOOTSTRAP_CHANGELOG.read_text(encoding="utf-8")
@@ -668,7 +708,7 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertTrue((HOST_BOOTSTRAP_PACKAGE / "apple.sh").is_file())
         self.assertTrue(HOST_BOOTSTRAP_MANIFEST.is_file())
         manifest = HOST_BOOTSTRAP_MANIFEST.read_text(encoding="utf-8")
-        self.assertIn("package.version: 2.0.21", manifest)
+        self.assertIn("package.version: 2.0.22", manifest)
         self.assertIn("package.aggregate_sha256:", manifest)
         self.assertIn("component.entry.sha256:", manifest)
         self.assertIn("component.workflow.version: 1.3.4", manifest)
