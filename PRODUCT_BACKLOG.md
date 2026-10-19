@@ -680,7 +680,10 @@ touch addition6251008548, as one demand with the existing Core sole writer.
 [Canonical design](docs/product/DJ_PERSONA_LIVING_AVATAR_V1.md): preserve the one
 existing Apple current bubble, reuse real Silence/Mood/Presence/Ask DJ/speech
 authority, and retain native rendering ownership. Basic producer signal tests
-are source evidence only. Touch-reaction producer/speech admission remains
-NOT_IMPLEMENTED. Basic existing-signal source is delivered by protected PR #1215;
+are source evidence only. Explicit touch-reaction admission is now a local source candidate under the
+[same bounded contract](docs/product/PERSONA_TOUCH_REACTIONS_V1.md): paired operation,
+current Settings3, curated five-language text, private client speech and explicit
+cancel/rate/expiry. It has not yet been protected-delivered or installed;
+HA-speaker touch remains unqualified. Basic existing-signal source is delivered by protected PR #1215;
 installed/native/audio/gesture acceptance and the whole function remain OPEN. No second writer, automatic following selection,
 consumer source change or deployment is authorized by this backlog record.

@@ -1,5 +1,17 @@
 # DJConnect API Contract
 
+## Explicit Persona touch reaction — local contract1 candidate
+
+[Touch reaction1](docs/product/PERSONA_TOUCH_REACTIONS_V1.md) uses the existing
+paired operation envelope, operation `session/persona/reaction` and explicit
+`session/persona/reaction/cancel`. Versioned discovery is nested under
+`active_session_persona.touch_reaction`. Confirmed Settings3/current Session,
+device-bound30second lease,10second interval/6per600seconds, no queue/history/
+Moment/model/music mutation. Local native or configured HA client speech uses
+current policy; text_only forbids audio. HA-speaker reactions are not qualified,
+never silently substituted. Exact protected/installed producer pin and Apple
+gesture/native/actual audio acceptance remain OPEN. No new HTTP endpoint.
+
 ## Retained history consumer correction — local compatibility remains open
 
 Owner timeline entries include four qualified retention bases and the

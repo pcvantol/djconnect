@@ -1,3 +1,14 @@
+# Persona touch — same selected Core local candidate, not a consumer dispatch
+
+The separate [touch contract1](docs/product/PERSONA_TOUCH_REACTIONS_V1.md) fills
+owner addition6251008548 using ordinary paired operations, confirmed current
+Settings3, bounded private content/audio and explicit cancellation. Native
+gestures/one overlay/actual audio start-stop/accessibility remain Apple-owned.
+No fabricated Ask DJ/Moment/history entry, provider fallback or broadcast flag.
+Only local target speech is in scope; ha_speaker is explicitly not_qualified,
+both is visibly partial. Current installed0f50e1ed does NOT contain this candidate;
+no consumer may guess support before exact producer delivery/discovery.
+
 # Living Persona Avatar — protected basic Core producer pin
 
 PR [#1215](https://github.com/pcvantol/djconnect/pull/1215), merge

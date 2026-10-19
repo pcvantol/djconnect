@@ -31,7 +31,7 @@ TEST_PATTERNS = (
     'test_track_insight.py', 'test_profile_settings_speech.py', 'test_session_artwork.py',
     'test_session_forecast.py', 'test_passive_session.py',
     'test_local_settings_speech.py', 'test_presence_four_levels.py', 'test_vibecast_renderer.py',
-    'test_voice_preview.py',
+    'test_voice_preview.py', 'test_persona_reactions.py',
     'test_spotify_backend.py',
     'test_session_opening.py',
 )

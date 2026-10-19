@@ -116,6 +116,7 @@ class TtsAudioItem:
     admission: Any = None
     cache_key: tuple | None = None
     speaker_grants: dict = field(default_factory=dict)
+    delivery_device_id: str | None = None
 
 
 def _store(hass: HomeAssistant) -> dict[str, TtsAudioItem]:

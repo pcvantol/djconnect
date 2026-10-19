@@ -1,6 +1,7 @@
 """Actual existing Core projections for the avatar; no native/touch proof."""
 from __future__ import annotations
 
+import hashlib
 import importlib.util
 import json
 from pathlib import Path
@@ -35,11 +36,14 @@ class PersonaAvatarProducerSignalTests(unittest.IsolatedAsyncioTestCase):
         else:
             sys.modules['custom_components.djconnect.const'] = cls.previous_const
 
-    async def test_original_signal_derivative_matches_actual_core_trace(self):
+    async def test_current_signal_derivative_matches_actual_trace_preserving_historical_receipt(self):
         produced = await scenario_helper().build(self.runtime)
-        fixture = ROOT / 'examples/client_contracts/persona_living_avatar_v1/existing-signals.json'
-        self.assertEqual(produced, json.loads(fixture.read_text()))
-        self.assertEqual(produced['touch_reactions'], 'NOT_IMPLEMENTED_NOT_ADVERTISED')
+        historical = ROOT / 'examples/client_contracts/persona_living_avatar_v1/existing-signals.json'
+        self.assertEqual(hashlib.sha256(historical.read_bytes()).hexdigest(),
+                         'e6305f8783d9714e3150bd12e52af31614347388be356dc7ca518a70b7906cd0')
+        self.assertEqual(produced['cases'], json.loads(historical.read_text())['cases'])
+        self.assertEqual(produced, json.loads(scenario_helper().FIXTURE.read_text()))
+        self.assertEqual(produced['touch_reactions'], 'EXPLICIT_PAIRED_LOCAL_PRODUCER_V1_NATIVE_OPEN')
         self.assertEqual(produced['native'], 'NOT_RUN')
 
     async def test_four_personas_four_moods_five_locales_keep_identity_axes_independent(self):
@@ -150,6 +154,8 @@ class PersonaAvatarProducerSignalTests(unittest.IsolatedAsyncioTestCase):
         install_http_stubs()
         from custom_components.djconnect.hybrid_service import ACTION_OPERATIONS
         from custom_components.djconnect.session_speech import capability
-        self.assertNotIn('session/persona/reaction', ACTION_OPERATIONS)
+        from custom_components.djconnect.persona_reactions import capability as persona_capability
+        self.assertIn(persona_capability()['operation'], ACTION_OPERATIONS)
+        self.assertEqual(persona_capability()['version'], 1)
         self.assertNotIn('persona_reaction', capability())
         self.assertIn('silence', capability()['excluded_moment_types'])

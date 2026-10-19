@@ -1,5 +1,11 @@
 # DJ Persona Living Avatar v1
 
+19October continuation: the selected explicit touch addition is implemented in
+the separate local [touch producer candidate](PERSONA_TOUCH_REACTIONS_V1.md).
+The original gap/proposal below describes the protected basic-source baseline;
+the new contract separately qualifies its exact wire, limits and local speech.
+It is not an installed/native/HA-speaker touch acceptance or whole-function close.
+
 Status: basic Core design/source delivered by [PR #1215](https://github.com/pcvantol/djconnect/pull/1215),
 merge `d19dc33d27d799b8c1a868fc57164872e1e67ed8`. Existing-signal
 qualification is separate from touch-producer implementation. Touch wire/limits
