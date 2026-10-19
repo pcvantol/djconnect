@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Prepare Brand V2 from the exact approved glass-headphones source: transparent
+  glass contours, headset-only micro icons, primary/compact light/dark wordmarks,
+  consistent HA packaging and canonical VibeCast brand input. Add deterministic
+  generation and exact-commit consumer handoff; native acceptance/rollout remains separate.
+
 - Bump the Engineering Platform release boundary to `2.0.0`: platform, runner,
   Inbox watcher and private dashboard now share the same major version.
 - Raise the fail-closed Execution Host requirement to Engineering Platform

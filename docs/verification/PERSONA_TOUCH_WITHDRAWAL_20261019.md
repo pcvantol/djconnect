@@ -108,3 +108,31 @@ wrong-Session404and the subsequent original-source valid observation.
 All182product/harness hashes match the final captured inputs. Independent
 fix-delta review and exact source-candidate CI are recorded externally on PR#1226;
 this report does not fabricate those later outcomes or installed/native proof.
+
+## Current-main reconciliation for the explicit merge request
+
+Main now includes protected Brand source#1224 and separate Finalization#1227 at
+`baac22d771bf3141404001517f62a5e34f8c8644`. The approved asset producer remains
+separate from its recorded runtime GoldenFAIL/0tests. That historical failure is
+retained; a new current-candidate run cannot rewrite its unknown original cause.
+
+The touch branch incorporates that current main through a normal merge, with
+no force push. The sole conflict was HANDOFF: both the actual Brand Finalization
+and the touch candidate contracts/gates are retained. Product Python changes
+remain identical to independently revieweda89f4454; imported Brand assets and
+Finalization evidence are preserved. Combined tests/runtime qualification and
+exact new source approval are required before merge; earlier SHA grants are not
+reused. User explicitly requested merging the open Core PRs. Installation,
+consumer activation and individual content deletion remain separate work.
+
+Combined current-main source validation:2662tests PASS/7existing skips,61.932s;
+Ruff and diff checks PASS. The formerly unstarted deterministic owner pattern
+`test_ask_dj*.py` now actually executes488tests in pinned isolated HA:PASS,
+0skips/0errors/0failures/0paid attempts. This current-candidate proof is not a
+retroactive PASS or a diagnosis of the unavailable original0test run.
+Fresh paired TLS HTTP/WS qualification on the combined tree repeats baseline7
+operations and follow-up9operations/5frames PASS, all182product/harness hashes
+match. The five cancellation/observation handlers are byte-identical to the
+independently revieweda89f4454. [Bounded reconciliation receipt](PERSONA_TOUCH_MERGE_20261019.json)
+retains counts, image and evidence digests. Full32release blockers, source
+approval/merge, installed/native/audible acceptance remain separately gated.

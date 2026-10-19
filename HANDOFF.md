@@ -5,8 +5,68 @@ pre-admission cancellation. [Contract](docs/product/PERSONA_TOUCH_REACTIONS_V1.m
 [qualification](docs/verification/PERSONA_TOUCH_WITHDRAWAL_20261019.md),
 [actual isolated HA fixture](examples/client_contracts/persona_touch_reaction_v1/withdrawal-outcomes.json).
 Source candidate only; protected/installed/native/actual audio remain OPEN.
-Apple touch activation stays OFF. Brand PR #1224 and Ask DJ WIP remain isolated;
-selected individual content deletion #1225 follows valid predecessor closure.
+Apple touch activation stays OFF. Brand source PR #1224 and separate Finalization
+#1227 are incorporated on mainbaac22d7; this repair is reconciled to that actual
+basis. Ask DJ WIP remains isolated; individual content deletion #1225 follows
+valid predecessor closure. No old review or SHA grant replaces new candidate checks.
+
+## Brand V2 asset producer — separate Finalization, 19 October 2026
+
+PR [#1224](https://github.com/pcvantol/djconnect/pull/1224) protected merged as
+`7e14e5970b3f68d33d243ae6bab2b281fad59bb2`. Reviewed/owner-authorized candidate
+`883cb9f3ff9de8ec7f5ae4c5f04f852e0d8bd866` has the identical complete tree
+`7f497d70bbddc2b017b2298d06ce694df45f3b7e`. Owner Authorization39311290397 PASS.
+Source-main CI39311450420 and brand reproducibility39311450392 SUCCESS;
+exact-main export all68hashes PASS. Separate runtime Golden39312303769 FAIL:
+first deterministic HA-container profile ran0tests; runtime release remains
+blocked, package/reconcile skipped. This is not asset/installed/native PASS.
+Independent readonly source/visual review GO:55assets regenerate byte-identically,
+14targeted contracts PASS, source/font/alpha/wordmark/micro and Git-blob ZIP verified.
+
+Target Repository State: `MERGED_RECONCILED`, effective only after this separate
+Finalization's protected merge and exact-main readback. Preparation remains
+MERGED_UNRECONCILED; no future Finalization SHA or CI result is fabricated.
+This state applies only to the bounded Brand V2 producer-source increment.
+
+Core supplies the exact approved master, transparent glass-rim silhouette,
+headset-only16–40px, primary/compact light/dark wordmarks and canonical HA aliases.
+No living Persona/avatar, transport, pairing, speech or provider behavior changes.
+Consumer/native/installed acceptance and the later GitHub-social/README extension
+remain OPEN under their existing owners. No HA installation/restart or new lane.
+
+Program position: Generation2 Product Development / Platform Qualification;
+bounded branding-source dependency for already authorized Website #62. Current
+canonical roadmap/backlog horizons and all other lane states remain unchanged.
+After protected Finalization/readback, continue that existing Website assignment;
+no new product increment is activated. See [bounded completion record](docs/verification/BRAND_V2_SOURCE_FINALIZATION_20261019.md).
+
+## Brand V2 —19October source candidate, not installed
+
+Owner-selected [Core #1223](https://github.com/pcvantol/djconnect/issues/1223),
+isolated `codex/brand-v2-20261019` from main
+`93cd18b48656c89fadae62e831a34ddd94d09e10`; main and Ask DJ WIP remain intact.
+Exact uploaded1254px master SHA verified. The owner corrected the export boundary:
+the glass rim is the contour, transparent outside;16–40px use a maximally fitted
+headset/central-symbol variant without the glass button. The final deterministic
+alpha recipe preserves original RGB and avoids two rejected automatic cutouts.
+Primary/compact light/dark families, all active HA aliases and embedded VibeCast
+copies are produced from the same source. See the
+[asset instructions](assets/djconnect/brand-v2/README.md) and
+[source qualification](docs/verification/BRAND_V2_20261019.md).
+
+Build-only official-version audit: Pillow13.0.0 and fonttools4.67.0 current on
+PyPI; Inter4.1 is the latest official release. New tool/font versions, sources and
+licenses are pinned/documented. No HA dependency/runtime/framework upgrade is
+bundled: it is unrelated to this bounded branding change and would invalidate
+existing runtime qualification. No integration release-version bump.
+
+Export pinned committed blobs with `scripts/package_brand.py`; consumers are
+Apple #138, Website #62, Pi, ESP32 and the VibeCast receiver. Handoff source and
+archive hashes accompany delivery. Existing consumer writers retain ownership;
+Windows remains retired. Protected review/CI, producer exact-main reconciliation,
+native small-size/platform admission and separately authorized deployment remain
+OPEN. A local visual sheet is not native or installed acceptance; no functional
+slice closes because these assets are merged.
 
 Core #1212 source PR #1221 is protected merged at
 `604b80f806425cb53165a17faf783bfd6248af17`; reviewed

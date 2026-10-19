@@ -1,0 +1,36 @@
+{
+  "run": 39311450392,
+  "artifact": 12215039964,
+  "acceptance": "candidate only; protected Core review and explicit consumer acceptance required",
+  "archive_sha256": "025202e82a9a9e4c7c4859bb03fdebd1287d817abe5c6b3dce1380b690b4d1f6",
+  "brand_manifest_sha256": "73cc408e10d88aa1fb8a1be2783b9c577aec398ce3dcd54c2f997ad1425984d2",
+  "bytes": 38523622,
+  "producer_commit": "7e14e5970b3f68d33d243ae6bab2b281fad59bb2",
+  "source_pr": 1224,
+  "reviewed_source_sha": "883cb9f3ff9de8ec7f5ae4c5f04f852e0d8bd866",
+  "reviewed_and_source_main_tree": "7f497d70bbddc2b017b2298d06ce694df45f3b7e",
+  "owner_authorization_run": 39311290397,
+  "independent_review": "/root/independent_review SOURCE GO,55strict regeneration/14targeted tests; no modifications",
+  "verification": "all68 exported file hashes and exact main/manifest/archive identity verified; export candidate label alone grants no acceptance",
+  "source_main_ci": {
+    "run": 39311450420,
+    "conclusion": "SUCCESS",
+    "coverage_artifact": 12216091672,
+    "codeql_workflow": 39311450403,
+    "codeql_conclusion": "SUCCESS"
+  },
+  "finalization": "requires separate protected exact-SHA review/CI/authorization/merge/main readback",
+  "consumer_native_installed_acceptance": "OPEN, no deployment implied",
+  "runtime_golden_release_evidence": {
+    "run": 39312303769,
+    "artifact": 12216131970,
+    "status": "FAIL",
+    "first_profile": "deterministic_owner_contract test_ask_dj*.py",
+    "tests_run": 0,
+    "execution_runtime": "pinned_ha_container",
+    "inventory": "PASS",
+    "ha_package_and_reconcile": "SKIPPED",
+    "qualification": "HA_RUNTIME_RELEASE_BLOCKED, cause not inferred; no gate waived",
+    "asset_producer_is_separately_qualified": true
+  }
+}
