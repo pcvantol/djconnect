@@ -1,9 +1,23 @@
+# Core #1212 current local candidate — no consumer dispatch
+
+[Device speech1](docs/product/DEVICE_SPEECH_CAPABILITIES_V1.md) adds actual
+selection-bound STT/TTS/HA-target metadata to existing completed paired/status
+responses, preserving legacy endpoint booleans. No extra endpoint/model call;
+Apple local/OS permissions and current settings3 stay independent. Source and
+actual isolated HA15case zero-speech proof exist; exact reviews/protected
+delivery and installed/native acceptance remain separate. Do not adopt a
+mutable branch as a qualified producer pin. Apple #129 remains open; #1210
+catalogue+compact Help and Apple #128 remain pending.
+
 # Apple dependency readback — 19 October2026
 
 Core #1211 pairing source [PR #1219](https://github.com/pcvantol/djconnect/pull/1219)
 merged `d4ab36fac055bddf7bbc778a480d62ef88115bbc`; source candidate
 `61b00c452480368c5f6e794bdecd77aa41d3c900` has the identical complete tree.
-This separate Finalization reconciles it; it is not #1212 capability availability. Agent required; HA STT/TTS optional. Existing pairing wire and
+Separate Finalization [PR #1220](https://github.com/pcvantol/djconnect/pull/1220)
+merged `8cb1a467dfc0249fc7b3e79e474841e40249c091`, exact candidate
+`5b0600aff5caca963e3cdd120db3ad979f9570cc`, complete trees equal. Own cleanup
+verified, other erasure/host refs preserved. It is not #1212 capability availability. Agent required; HA STT/TTS optional. Existing pairing wire and
 legacy capability booleans are unchanged; Apple #129 still waits for #1212.
 Core #1210 shared catalogue+compact Help is not delivered; Apple #128 remains
 contract-gated. Avatar basic/touch source contracts already qualified; exact

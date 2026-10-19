@@ -33,7 +33,7 @@ TEST_PATTERNS = (
     'test_local_settings_speech.py', 'test_presence_four_levels.py', 'test_vibecast_renderer.py',
     'test_voice_preview.py', 'test_persona_reactions.py',
     'test_spotify_backend.py',
-    'test_session_opening.py', 'test_config_flow_helpers.py',
+    'test_session_opening.py', 'test_config_flow_helpers.py', 'test_device_speech.py',
 )
 
 

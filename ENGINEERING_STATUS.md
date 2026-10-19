@@ -1,5 +1,22 @@
 # DJConnect Engineering Status
 
+## Current WIP: actual HA speech route discovery — Core #1212
+
+Selected separate producer after protected source1219/Finalization1220 and
+verified own cleanup; base8cb1a467dfc0249fc7b3e79e474841e40249c091. Fresh
+current-root hostverify exit0/MATCH, onboarding4.5.4. Same sole Core writer.
+New metadata snapshot uses existing pair/status, exact HA pipeline and actual
+provider metadata; no new endpoint, runtime processing or Apple implementation.
+2642host tests PASS/7skips;148owning/HTTP/Golden tests also PASS in pinned
+HA. Actual isolated paired HA TLS15cases PASS with zero STT/TTS/model calls.
+185DAG and9lifecycle/projection tests PASS; security checks pass. Independent
+exact reviews and protected delivery gates remain pending. Last installed HA-dev is still f8b28d2b.
+
+Apple #129 stays contract-gated until exact producer delivery. #1210 shared
+catalogue+compact Help remains atomic/outstanding for Apple #128. Avatar
+producer is already qualified; native gestures/rendering/hearing remain open.
+Golden39families/165steps/57reported issues retains32release blockers.
+
 ## Current: Assist agent pairing prerequisite — separate Finalization, 19 October 2026
 
 ### Repository Status

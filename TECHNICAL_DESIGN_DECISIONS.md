@@ -1045,3 +1045,15 @@ VibeCast token, backend or duplicate event engine is introduced. The route has
 strict frame/command schemas, a hard lease, authority revalidation, bounded
 queues and cancellation-safe subscription cleanup. See
 `docs/product/PAIRED_OWNER_LIVE_CONTRACT_V1.md` and its qualification record.
+
+## Core #1212 — additive discovery through existing paired/status
+
+The existing transports already carry device-authorized provider selection.
+Use one synchronous versioned metadata projection after their last await,
+rechecking original entry/token/device/Profile binding. A new network endpoint,
+settings store, global readiness boolean or provider probe would duplicate an
+owner or misstate evidence. Preserve legacy booleans as endpoint support,
+separate configured/eligible metadata from scoped operational observations,
+local Apple permissions, shared output policy and actual hearing. Exact HA
+selection and real provider interfaces are reused; old runtime fallbacks remain
+unchanged and are not newly granted by discovery.

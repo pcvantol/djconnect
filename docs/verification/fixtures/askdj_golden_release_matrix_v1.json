@@ -4560,6 +4560,163 @@
           "proof_boundary": "Initial setup only; Core1212 route discovery remains separate and all existing real-quality gates stay open."
         }
       ]
+    },
+    {
+      "id": "ASKDJ-FLOW-device-speech-availability",
+      "owning_tests": [
+        {
+          "file": "tests/test_device_speech.py",
+          "method": "test_all_four_audio_configurations_remain_independent_and_do_not_process"
+        },
+        {
+          "file": "tests/test_device_speech.py",
+          "method": "test_exact_selection_never_borrows_other_pipeline_and_default_changes_are_fresh"
+        },
+        {
+          "file": "tests/test_device_speech.py",
+          "method": "test_stt_missing_unavailable_unsupported_and_unknown_are_not_ready"
+        },
+        {
+          "file": "tests/test_device_speech.py",
+          "method": "test_tts_uses_qualified_locale_voice_and_only_explicit_gender"
+        },
+        {
+          "file": "tests/test_device_speech.py",
+          "method": "test_all_five_locales_and_provider_gender_changes_are_recomputed"
+        },
+        {
+          "file": "tests/test_device_speech.py",
+          "method": "test_conversation_validity_is_distinct_from_audio_configuration"
+        },
+        {
+          "file": "tests/test_device_speech.py",
+          "method": "test_missing_metadata_and_discovery_errors_do_not_become_available"
+        },
+        {
+          "file": "tests/test_device_speech.py",
+          "method": "test_speaker_target_is_independent_from_synthesis_and_never_claims_hearing"
+        },
+        {
+          "file": "tests/test_device_speech.py",
+          "method": "test_private_health_is_owner_bound_expires_and_rejects_provider_replacement"
+        },
+        {
+          "file": "tests/test_device_speech.py",
+          "method": "test_publication_fence_rejects_revocation_entry_unload_and_wrong_device"
+        },
+        {
+          "file": "tests/test_device_speech.py",
+          "method": "test_snapshot_never_exports_secrets_full_config_or_inferred_apple_permissions"
+        },
+        {
+          "file": "tests/test_device_speech.py",
+          "method": "test_status_collects_after_last_await_and_preserves_legacy_endpoint_booleans"
+        },
+        {
+          "file": "tests/test_device_speech.py",
+          "method": "test_status_revocation_during_first_await_cannot_publish_new_snapshot"
+        },
+        {
+          "file": "tests/test_device_speech.py",
+          "method": "test_profile_rebind_cannot_borrow_new_owner_health_during_request"
+        },
+        {
+          "file": "tests/test_device_speech.py",
+          "method": "test_unexpected_provider_exception_cannot_export_private_reason_text"
+        }
+      ],
+      "steps": [
+        {
+          "id": "ASKDJ-FLOW-device-speech-availability-step-1",
+          "question": "Koppel met alleen een Assist-agent en kies lokale device-spraak of alleen tekst",
+          "expected_answer": "HA-STT/TTS zijn onafhankelijk unconfigured; lokale OS-capabilities zijn client-owned en alleen tekst heeft geen audio. Legacybooleans betekenen endpointimplementatie, geen actuele readiness.",
+          "model_policy": "zero",
+          "owning_tests": [
+            {
+              "file": "tests/test_device_speech.py",
+              "method": "test_all_four_audio_configurations_remain_independent_and_do_not_process"
+            },
+            {
+              "file": "tests/test_device_speech.py",
+              "method": "test_conversation_validity_is_distinct_from_audio_configuration"
+            },
+            {
+              "file": "tests/test_device_speech.py",
+              "method": "test_speaker_target_is_independent_from_synthesis_and_never_claims_hearing"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Core metadata/auth owner; isolated actual HA paired status separately qualified. Native selection, OS permissions, remote provider health and hearing NOT_RUN."
+        },
+        {
+          "id": "ASKDJ-FLOW-device-speech-availability-step-2",
+          "question": "Wijzig pipeline, provider, taal of stem tijdens runtime",
+          "expected_answer": "Iedere geautoriseerde status leest exacte/default selectie opnieuw. Geen borrowed pipeline of verzonnen stem/gender. Providergezondheid blijft los van configuratie; foutobservaties zijn eigenaargebonden en verlopen.",
+          "model_policy": "zero",
+          "owning_tests": [
+            {
+              "file": "tests/test_device_speech.py",
+              "method": "test_exact_selection_never_borrows_other_pipeline_and_default_changes_are_fresh"
+            },
+            {
+              "file": "tests/test_device_speech.py",
+              "method": "test_stt_missing_unavailable_unsupported_and_unknown_are_not_ready"
+            },
+            {
+              "file": "tests/test_device_speech.py",
+              "method": "test_tts_uses_qualified_locale_voice_and_only_explicit_gender"
+            },
+            {
+              "file": "tests/test_device_speech.py",
+              "method": "test_all_five_locales_and_provider_gender_changes_are_recomputed"
+            },
+            {
+              "file": "tests/test_device_speech.py",
+              "method": "test_missing_metadata_and_discovery_errors_do_not_become_available"
+            },
+            {
+              "file": "tests/test_device_speech.py",
+              "method": "test_private_health_is_owner_bound_expires_and_rejects_provider_replacement"
+            },
+            {
+              "file": "tests/test_device_speech.py",
+              "method": "test_unexpected_provider_exception_cannot_export_private_reason_text"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Core metadata/auth owner; isolated actual HA paired status separately qualified. Native selection, OS permissions, remote provider health and hearing NOT_RUN."
+        },
+        {
+          "id": "ASKDJ-FLOW-device-speech-availability-step-3",
+          "question": "Verbreek pairing of wijzig eigenaar tijdens een wachtstap van status",
+          "expected_answer": "Nieuwe snapshot wordt uitsluitend na laatste await en actuele oorspronkelijke device/entry/token/Profilebinding gepubliceerd. Geen nieuwe eigenaargezondheid of secrets; legacy response blijft compatibel.",
+          "model_policy": "zero",
+          "owning_tests": [
+            {
+              "file": "tests/test_device_speech.py",
+              "method": "test_publication_fence_rejects_revocation_entry_unload_and_wrong_device"
+            },
+            {
+              "file": "tests/test_device_speech.py",
+              "method": "test_snapshot_never_exports_secrets_full_config_or_inferred_apple_permissions"
+            },
+            {
+              "file": "tests/test_device_speech.py",
+              "method": "test_status_collects_after_last_await_and_preserves_legacy_endpoint_booleans"
+            },
+            {
+              "file": "tests/test_device_speech.py",
+              "method": "test_status_revocation_during_first_await_cannot_publish_new_snapshot"
+            },
+            {
+              "file": "tests/test_device_speech.py",
+              "method": "test_profile_rebind_cannot_borrow_new_owner_health_during_request"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Core metadata/auth owner; isolated actual HA paired status separately qualified. Native selection, OS permissions, remote provider health and hearing NOT_RUN."
+        }
+      ]
     }
   ],
   "evidence_boundaries": [
@@ -4943,7 +5100,8 @@
     "tests/test_ask_dj_semantic_reads.py",
     "tests/test_ask_dj_artist_hits.py",
     "tests/test_personal_dj_narration_album_web.py",
-    "tests/test_persona_reactions.py"
+    "tests/test_persona_reactions.py",
+    "tests/test_device_speech.py"
   ],
   "issue_policy": {
     "new_findings": "Add a named failing reproduction and semantic expected answer in the same corrective candidate; preserve it after the fix.",
