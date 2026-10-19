@@ -1,5 +1,15 @@
 # DJConnect Product Roadmap
 
+## Persona touch withdrawal — protected producer source, 19 October 2026
+
+PR [#1226](https://github.com/pcvantol/djconnect/pull/1226) protected merged as
+`2cc9149629b75fac85774dae4eef718c1cf0002a`; complete reviewed candidate/main trees
+are identical. Durable early-cancel fences and delivered-source withdrawal are
+producer-source progress for Core #1209 / Apple #127. Separate Finalization,
+installed discovery, native display/audio-stop acceptance and all32Golden release
+gates remain distinct; touch stays OFF. Core #1225 / Apple #143 deletion is still
+design-only. No new lane selection, HA rollout or consumer writer.
+
 ## Brand V2 —19October2026, protected producer source
 
 Owner-selected [Core #1223](https://github.com/pcvantol/djconnect/issues/1223)
