@@ -1,5 +1,87 @@
 # DJConnect Engineering Status
 
+## Current: Living Persona Avatar Core signals — separate Finalization, 19 October 2026
+
+#### Repository Status
+
+PR [#1215](https://github.com/pcvantol/djconnect/pull/1215) protected merged as
+`d19dc33d27d799b8c1a868fc57164872e1e67ed8`. Exact independently reviewed candidate
+`2c145943030761f992c236d39572a8e4884d041b` has the identical complete Git tree. Thirty source
+checks succeeded, five conditional skips; exact Owner Authorization39215370213
+passed. Only the explicitly non-blocking TDE observation was still running at
+merge; it is not represented as a completed PASS. Canonical main is synchronized
+and clean. No HACS release, installed avatar or native/audio result is inferred.
+
+#### Management Summary
+
+The canonical contract qualifies existing Session/Mood/Persona/Presence/Silence
+producer semantics for one existing current bubble, complete Pulse/headphones
+and bound inner-glyph precedence. No Core runtime field, endpoint or capability
+was added. The six-state semantic derivative is reproducible; 2589 host tests
+OK with 7 conditional skips, 9 owning tests also pass in the pinned HA image,
+185 DAG and 9 lifecycle/projection tests pass. Providers are fixtures, not actual
+model writing or audibility. Independent exact technical/documentary reviews GO.
+Apple may consume the delivered existing-signal design within its own admission;
+its actual renderer callbacks and native acceptance remain separately owned.
+
+#### Roadmap Position
+
+Generation2, Product Development, Phase1/Platform Qualification. Same selected
+Core #1208/#1209 assignment and sole writer. This Finalization reconciles only
+the basic existing-signal contract. The selected touch addition is still
+NOT_IMPLEMENTED/NOT_ADVERTISED; it is not closed or a new lane selection.
+
+#### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+Source: current SETTINGS nodes and prerequisites in the
+[canonical living DAG](docs/roadmap/v1/djconnect-platform-v1.json) and
+[product backlog](PRODUCT_BACKLOG.md). This horizon remains Planned/NOT_ISSUED;
+it does not dispatch consumers or replace the already selected avatar work.
+
+1. **SETTINGS::APPLE::EDITOR — Planned.** Shared editor; delivered Core producer precedes native adoption.
+2. **SETTINGS::PI::ADOPTION — Planned.** Same producer prerequisite; Pi owns its acceptance.
+3. **SETTINGS::ESP32::ADOPTION — Planned.** Same producer and physical settings/voice evidence required.
+4. **SETTINGS::VIBECAST::COMPAT — Planned.** Shared renderer import and screen admission remain prerequisites.
+5. **SETTINGS::JOINT::ACCEPTANCE — Planned.** Migration and consumer evidence precede cross-device closure.
+
+#### Blocked Items
+
+Touch needs bounded semantic admission, ephemeral content/speech ownership,
+dedup/rates and actual lifecycle/output qualification before advertising a wire.
+Apple owns graphics, real capture/audio start/end/interruption, gesture overlay,
+accessibility/layout/performance and physical acceptance. Existing Golden
+57 reports/36 families/154 steps, 12 Core findings and 19 actual-quality gates
+retain their prior state; storytelling, full history/art/replay, LAN/WS, VibeCast,
+production push, Watch and performance/crash/RSS are not closed by this merge.
+Erasure001d0fac contains genuine unfinished source prerequisites and remains
+preserved separately; it is not stale or a qualified complete deletion function.
+
+#### Deferred Items
+
+Unselected intakes remain deferred. Paused timers remain paused. Latest human
+instruction authorizes a safe all-ref/worktree/stash audit and subsequent fresh
+main installation; exact installed/config/runtime evidence remains pending and
+must not be inferred from these source checks. No new consumer writer or private
+task message is introduced.
+
+#### Repository State
+
+On protected merge of this separate governance increment, Repository State:
+`MERGED_RECONCILED` for basic Core avatar source incorporation only. Until then,
+the source is MERGED_UNRECONCILED and permits only this reconciliation. Function
+acceptance, touch delivery and installed/native/audio remain independently OPEN.
+Historical Prompt History, source identities and frozen DAG receipts are intact.
+
+#### Workspace State
+
+Canonical main is clean and synchronized. Audit found the old stash's 38 added
+documentation lines already present exactly in main; verified recovery precedes
+its cleanup. Clean own completed worktrees/patch-equivalent branches are eligible
+for normal cleanup only. Two host source commits still have git-cherry '+' and
+retain their ref rather than bypass that safety check. Original recovery and
+erasure source remain protected. Final cleanup/readback follows this merge;
+WORKSPACE_READY is not claimed for an unrelated next capability.
+
 ## Current: Living Persona Avatar - existing Core producer signals, 19 October 2026
 
 #### Repository Status
