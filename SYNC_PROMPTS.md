@@ -1,7 +1,9 @@
 # Apple dependency readback — 19 October2026
 
-Core #1211 pairing validation is a local separate candidate, not #1212 capability
-availability. Agent required; HA STT/TTS optional. Existing pairing wire and
+Core #1211 pairing source [PR #1219](https://github.com/pcvantol/djconnect/pull/1219)
+merged `d4ab36fac055bddf7bbc778a480d62ef88115bbc`; source candidate
+`61b00c452480368c5f6e794bdecd77aa41d3c900` has the identical complete tree.
+This separate Finalization reconciles it; it is not #1212 capability availability. Agent required; HA STT/TTS optional. Existing pairing wire and
 legacy capability booleans are unchanged; Apple #129 still waits for #1212.
 Core #1210 shared catalogue+compact Help is not delivered; Apple #128 remains
 contract-gated. Avatar basic/touch source contracts already qualified; exact

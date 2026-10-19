@@ -692,7 +692,9 @@ consumer source change or deployment is authorized by this backlog record.
 ## Apple consumer dependency reconciliation — 19 October2026
 
 The current human points to Apple #128/#127/#129 as waiting consumers.
-Core #1211 is now the admitted narrow predecessor: actual selected/preferred
+Core #1211 source is protected merged via PR #1219 at
+`d4ab36fac055bddf7bbc778a480d62ef88115bbc`, with separate Finalization pending:
+actual selected/preferred
 Assist agent required, HA STT/TTS optional for pairing. [Contract](docs/product/ASSIST_AGENT_PAIRING_V1.md).
 Core #1212 actual versioned speech-route discovery is separately pending; #1211
 cannot close it or Apple #129. Core #1210 shared localized example catalogue,

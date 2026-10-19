@@ -1,26 +1,63 @@
 # DJConnect Engineering Status
 
+## Current: Assist agent pairing prerequisite — separate Finalization, 19 October 2026
 
-## Current WIP: mandatory Assist agent, optional HA speech for pairing — Core #1211
+### Repository Status
 
-Same sole Core writer, selected dependency chain for Apple #129; base
-f8b28d2b3713ae0bfe11a44d32634d821c914cc8. [Bounded contract](docs/product/ASSIST_AGENT_PAIRING_V1.md)
-and [preflight/qualification](docs/verification/ASSIST_AGENT_PAIRING_20261019.md).
-The setup validator now resolves the exact selected/preferred pipeline and its
-available conversation agent; neither HA audio engine is mandatory. Existing
-pairing wire, options, runtime and capability advertising remain untouched.
-2627host tests pass/7skips;131owning tests also pass in pinned HA. Actual
-isolated HA pipeline/agent/user-form qualification passes24cases with zero
-model/provider calls. Final Profile-commit races are revalidated immediately
-before entry creation; independent technical replay confirms the P2 fixed.
-Exact frozen reviews/protected delivery remain separate. No deployment or whole Apple speech-route closure is claimed.
+Source PR [#1219](https://github.com/pcvantol/djconnect/pull/1219) is protected
+merged as `d4ab36fac055bddf7bbc778a480d62ef88115bbc`. Reviewed candidate
+`61b00c452480368c5f6e794bdecd77aa41d3c900` has an identical complete tree.
+30 source checks succeeded,5conditional skips; exact Owner Authorization
+39226371887 passed. Non-blocking TDE was still running, never claimed PASS.
+This separate governance reconciliation targets MERGED_RECONCILED only after
+its own protected merge and exact-main readback; before that source1219 is
+MERGED_UNRECONCILED. No future Finalization SHA is fabricated.
 
-Avatar contracts are protected-delivered and actually installed on HA-dev at
-this base:205/205container files equal, touch discovery1, pairing/history preserved,
-no DJConnect ERROR/CRITICAL startup messages. Native actual renderer lifecycle,
-gestures and hearing remain Apple-owned. Core #1212 actual speech route discovery
-and #1210 shared catalogue+compact Help remain outstanding, with #1211 a distinct
-predecessor. Existing SETTINGS horizon and32Golden release gates are preserved.
+### Management Summary
+
+Core #1211 setup requires the exact selected/preferred usable conversation
+agent and permits all four independent HA STT/TTS configurations. Final entry
+creation rechecks after Profile commit, including direct agent finish; stored
+explicit selection survives omitted input. Pairing identity/token/wire, runtime,
+options and capability fields are unchanged.2627host tests PASS/7skips,
+131owning tests PASS in pinned HA,24actual isolated HA agent/PipelineStore/
+user-form cases PASS with zero inference/audio calls. Ruff/Bandit0Medium/High,
+185DAG tests,7lifecycle tests and pinned projection validation PASS. Two exact
+independent reviews GO. [Qualification](docs/verification/ASSIST_AGENT_PAIRING_20261019.md).
+
+### Roadmap Position
+
+Generation2, Product Development, Platform Qualification. Same sole Core writer,
+owner-selected #1211 prerequisite for #1212/Apple #129. Existing SETTINGS horizon
+remains authoritative; this does not select another lane or dispatch consumers.
+
+### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+Source: current SETTINGS nodes in the [living DAG](docs/roadmap/v1/djconnect-platform-v1.json)
+and [product backlog](PRODUCT_BACKLOG.md), with current producer prerequisites.
+
+1. **SETTINGS::APPLE::EDITOR — Planned.** Shared editor; #1212 speech availability and #1210 catalogue/Help are separate selected producer dependencies. Avatar source is ready for Apple-owned adoption.
+2. **SETTINGS::PI::ADOPTION — Planned.** Same confirmed shared producer and Pi-owned acceptance required.
+3. **SETTINGS::ESP32::ADOPTION — Planned.** Same producer and physical settings/voice evidence required.
+4. **SETTINGS::VIBECAST::COMPAT — Planned.** Renderer import and screen admission remain prerequisites.
+5. **SETTINGS::JOINT::ACCEPTANCE — Planned.** Migration and consumer evidence precede cross-device closure.
+
+### Blocked Items
+
+Core #1212 actual versioned STT/TTS/speaker availability remains pending and
+must precede Apple #129 route presentation. #1210 shared catalogue and compact
+Help remain one atomic assignment for Apple #128. Apple #127 native listening/
+thinking/speaking callbacks, gestures and hearing acceptance remain open; basic
+and touch producer contracts are already qualified and on HA-dev at f8b28d2b.
+Golden57reports/38families/162steps retains32release blockers. Story quality,
+rich history and client/audio acceptance are not closed by this source merge.
+The new pairing repair is source-qualified, not yet installed/native accepted.
+
+### Recommended Next Prompt
+
+After this Finalization's protected merge, exact readback and safe own cleanup,
+continue the already selected Core #1212 producer. No release/prod deployment,
+consumer implementation, new selection or unrelated WIP takeover follows.
 
 ## Current: explicit Persona touch Core producer — separate Finalization, 19 October 2026
 
