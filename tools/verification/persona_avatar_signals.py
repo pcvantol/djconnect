@@ -3,7 +3,7 @@ from pathlib import Path
 import hashlib
 
 ROOT = Path(__file__).resolve().parents[2]
-FIXTURE = ROOT / 'examples/client_contracts/persona_living_avatar_v1/existing-signals.json'
+FIXTURE = ROOT / 'examples/client_contracts/persona_living_avatar_v1/existing-signals-touch-20261019.json'
 
 
 async def build(core):
@@ -55,5 +55,5 @@ async def build(core):
     return {'qualification': 'ACTUAL_EXISTING_CORE_SEMANTIC_DERIVATIVE_SYNTHETIC_INPUTS',
         'representation': 'selected semantic fields; not an HTTP payload, client reducer or installed proof',
         'producer_source_pins': {p: hashlib.sha256((ROOT/p).read_bytes()).hexdigest() for p in sources},
-        'cases': rows, 'touch_reactions': 'NOT_IMPLEMENTED_NOT_ADVERTISED',
+        'cases': rows, 'touch_reactions': 'EXPLICIT_PAIRED_LOCAL_PRODUCER_V1_NATIVE_OPEN',
         'native': 'NOT_RUN', 'audible': 'NOT_RUN', 'installed_avatar': 'NOT_RUN'}

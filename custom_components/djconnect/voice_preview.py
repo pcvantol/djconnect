@@ -88,6 +88,8 @@ async def async_preview(hass, authority, payload):
             or type(payload['language']) is not str or payload['language'] not in TEXT):
         return {'success': False, 'error': 'invalid_request'}, 400
     identifier, operation_expiry_ms = current_operation_identity(authority)
+    from .persona_reactions import withdraw_for_interaction
+    withdraw_for_interaction(hass, authority.context.profile_id)
     # Safe typed denials need only current paired owner authority. Rich accepted
     # samples additionally register their immutable lease/provider below.
     register_delivery_admission(authority.owner_final_guard)

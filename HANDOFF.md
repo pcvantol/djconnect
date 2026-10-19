@@ -1,5 +1,22 @@
 # DJConnect Home Assistant Integration Handoff
 
+
+## 19 October: selected explicit avatar reaction source candidate
+
+Same #1208/#1209 Core writer; [contract](docs/product/PERSONA_TOUCH_REACTIONS_V1.md)
+and [current qualification](docs/verification/PERSONA_TOUCH_CORE_20261019.md).
+Basic avatar main0f50e1ed is actually installed/read back on HA-dev; this touch
+increment is still local and not installed. Production is unchanged: successful
+live configuration check does not bypass the32remaining Golden release gates.
+No complete native/avatar/audio function is closed by a merge.
+
+Official PyPI metadata was checked19October before this qualification pass:
+PyYAML6.0.3, coverage7.16.2, pytest9.1.1 match current development pins;
+ruff0.17.1 and bandit1.9.4 were observed. No dependency, framework or pinned HA
+image upgrade is bundled: this bounded admission correction must retain its
+qualified runtime; any unrelated tool upgrade requires its own reviewed change.
+No dependency/manifest/license change was needed.
+
 18October configured voice-preview follow-up remains in the existing combined
 correction: local paired producer/fixtures implemented, protected/install/native
 and real provider/listening gates OPEN. No dependency or runtime image changed;

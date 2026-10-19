@@ -1,5 +1,22 @@
 # DJConnect Technical Design Decisions
 
+
+## Explicit Persona reactions reuse paired operation and private speech owners
+
+The selected avatar addition uses `session/persona/reaction` and `/cancel` inside
+the existing paired operation journal, confirmed Settings3 and private speech
+source admission. A bounded RAM reservation precedes the first Settings await;
+foreground revision/cancel/original deadline fences pending work before a lease
+exists. Provider configuration revision is captured before awaits and checked
+again after durable send admission, before synthesis. No fake chat/Moment,
+second endpoint, durable reaction text or proactive budget mutation is introduced.
+Only the initiating device can cancel/read private reaction bytes. Local native
+speech needs no HA provider; text_only never synthesizes. HA-speaker reaction
+output remains unqualified until it can stop independently from music.
+[Contract](docs/product/PERSONA_TOUCH_REACTIONS_V1.md) and
+[causal proof](docs/verification/PERSONA_TOUCH_CORE_20261019.md) retain native,
+installed and audible boundaries. No dependency/API vendor/license change.
+
 This document records code-level design decisions, implementation patterns,
 coding conventions and third-party dependencies for the DJConnect Home Assistant
 integration.

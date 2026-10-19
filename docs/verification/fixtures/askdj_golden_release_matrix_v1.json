@@ -4194,6 +4194,273 @@
         }
       ],
       "fixture_boundary": "External model responses only for owner contracts; semantic_reads runs 45 held-out inputs through actual HA/qualified model and provider I/O fixtures."
+    },
+    {
+      "id": "ASKDJ-FLOW-explicit-persona-touch",
+      "steps": [
+        {
+          "question": "Expliciete avatarreactie in music_only",
+          "expected_answer": "Eén kort letterlijk Persona/Mood-antwoord; geen Ask DJ, Flow, model, bronlookup, muziekmutatie of proactief budget.",
+          "model_policy": "zero",
+          "id": "ASKDJ-FLOW-explicit-persona-touch-step-1",
+          "owning_tests": [
+            {
+              "file": "tests/test_persona_reactions.py",
+              "method": "test_explicit_music_only_reaction_has_no_flow_history_model_source_or_music_effect"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual Core owner tests with synthetic HA/provider boundaries; native gesture/audio and installed qualification separate and not inferred."
+        },
+        {
+          "question": "Herhaal, tik opnieuw of verbreek de socket",
+          "expected_answer": "Hetzelfde receipt; hoogstens één pending/playing, geen queue; cooldown en6/600s behouden na annuleren.",
+          "model_policy": "zero",
+          "id": "ASKDJ-FLOW-explicit-persona-touch-step-2",
+          "owning_tests": [
+            {
+              "file": "tests/test_persona_reactions.py",
+              "method": "test_duplicate_returns_only_original_receipt_and_new_request_is_busy"
+            },
+            {
+              "file": "tests/test_persona_reactions.py",
+              "method": "test_cancel_does_not_reset_cooldown_rolling_rate_or_content_sequence"
+            },
+            {
+              "file": "tests/test_persona_reactions.py",
+              "method": "test_socket_loss_keeps_one_operation_then_explicit_cancel_withdraws_it"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual Core owner tests with synthetic HA/provider boundaries; native gesture/audio and installed qualification separate and not inferred."
+        },
+        {
+          "question": "Gebruik lokale of HA-stem bij huidige output",
+          "expected_answer": "Huidige toegestane clientprocessor; text_only nul audio; HA-speaker expliciet niet gekwalificeerd, both meldt gedeeltelijke levering.",
+          "model_policy": "zero",
+          "id": "ASKDJ-FLOW-explicit-persona-touch-step-3",
+          "owning_tests": [
+            {
+              "file": "tests/test_persona_reactions.py",
+              "method": "test_configured_ha_speaks_exact_curated_text_current_voice_and_mood"
+            },
+            {
+              "file": "tests/test_persona_reactions.py",
+              "method": "test_text_only_zero_synthesis_for_both_processors_and_no_audio_grant"
+            },
+            {
+              "file": "tests/test_persona_reactions.py",
+              "method": "test_unqualified_speaker_target_never_dispatches_or_substitutes_client_audio"
+            },
+            {
+              "file": "tests/test_persona_reactions.py",
+              "method": "test_both_reports_explicit_partial_qualification_without_a_speaker_call"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual Core owner tests with synthetic HA/provider boundaries; native gesture/audio and installed qualification separate and not inferred."
+        },
+        {
+          "question": "Annuleer of verander foreground, Session, instellingen, provider of device",
+          "expected_answer": "Oude tekst/bytes ingetrokken; pending settings en durable-send races veroorzaken geen late synthese/content; oorspronkelijke deadline blijft gelden.",
+          "model_policy": "zero",
+          "id": "ASKDJ-FLOW-explicit-persona-touch-step-4",
+          "owning_tests": [
+            {
+              "file": "tests/test_persona_reactions.py",
+              "method": "test_foreground_during_settings_read_withdraws_before_any_lease_or_synthesis"
+            },
+            {
+              "file": "tests/test_persona_reactions.py",
+              "method": "test_provider_change_during_durable_send_admission_prevents_synthesis"
+            },
+            {
+              "file": "tests/test_persona_reactions.py",
+              "method": "test_explicit_cancel_and_second_device_busy_cover_pending_settings_read"
+            },
+            {
+              "file": "tests/test_persona_reactions.py",
+              "method": "test_settings_wait_consumes_original_deadline_without_renewal"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual Core owner tests with synthetic HA/provider boundaries; native gesture/audio and installed qualification separate and not inferred."
+        },
+        {
+          "question": "Wissel Persona, Mood, taal en semantisch reactietype",
+          "expected_answer": "80echte bevestigde stijlroutes en240cataloguscellen/480korte combinaties; beperkte curated fallback, geen algemene vertelkwaliteitclaim.",
+          "model_policy": "zero",
+          "id": "ASKDJ-FLOW-explicit-persona-touch-step-5",
+          "owning_tests": [
+            {
+              "file": "tests/test_persona_reactions.py",
+              "method": "test_actual_confirmed_style_routes_en"
+            },
+            {
+              "file": "tests/test_persona_reactions.py",
+              "method": "test_actual_confirmed_style_routes_nl"
+            },
+            {
+              "file": "tests/test_persona_reactions.py",
+              "method": "test_actual_confirmed_style_routes_de"
+            },
+            {
+              "file": "tests/test_persona_reactions.py",
+              "method": "test_actual_confirmed_style_routes_fr"
+            },
+            {
+              "file": "tests/test_persona_reactions.py",
+              "method": "test_actual_confirmed_style_routes_es"
+            },
+            {
+              "file": "tests/test_persona_reactions.py",
+              "method": "test_all_persona_mood_language_kind_cells_are_actual_bounded_varied_texts"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual Core owner tests with synthetic HA/provider boundaries; native gesture/audio and installed qualification separate and not inferred."
+        },
+        {
+          "question": "Tik eenmaal/dubbel/driemaal en hoor/annuleer de echte cliëntreactie",
+          "expected_answer": "Native client bewijst één toegankelijke tijdelijke overlay, werkelijke start/stop, lifecycle,5talen en geen blijvende kaart; nog OPEN.",
+          "model_policy": "zero",
+          "id": "ASKDJ-FLOW-explicit-persona-touch-step-6",
+          "owning_tests": [
+            {
+              "file": "tests/test_persona_reactions.py",
+              "method": "test_capability_is_explicit_local_only_and_keeps_silence_excluded_from_speech"
+            }
+          ],
+          "acceptance_status": "open_real_quality",
+          "proof_boundary": "Actual Core owner tests with synthetic HA/provider boundaries; native gesture/audio and installed qualification separate and not inferred."
+        }
+      ],
+      "owning_tests": [
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_explicit_music_only_reaction_has_no_flow_history_model_source_or_music_effect"
+        },
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_text_only_zero_synthesis_for_both_processors_and_no_audio_grant"
+        },
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_configured_ha_speaks_exact_curated_text_current_voice_and_mood"
+        },
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_local_processor_does_not_require_the_configured_ha_provider"
+        },
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_unqualified_speaker_target_never_dispatches_or_substitutes_client_audio"
+        },
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_both_reports_explicit_partial_qualification_without_a_speaker_call"
+        },
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_duplicate_returns_only_original_receipt_and_new_request_is_busy"
+        },
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_cancel_does_not_reset_cooldown_rolling_rate_or_content_sequence"
+        },
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_pending_duplicate_cancel_and_late_provider_completion_never_publish_old_audio"
+        },
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_foreground_during_settings_read_withdraws_before_any_lease_or_synthesis"
+        },
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_explicit_cancel_and_second_device_busy_cover_pending_settings_read"
+        },
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_settings_wait_consumes_original_deadline_without_renewal"
+        },
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_provider_change_during_durable_send_admission_prevents_synthesis"
+        },
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_socket_loss_keeps_one_operation_then_explicit_cancel_withdraws_it"
+        },
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_settings_change_invalidates_held_content_and_old_audio_bytes"
+        },
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_end_and_successor_session_cancel_preparation_and_cannot_reuse_old_context"
+        },
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_ask_dj_foreground_withdraws_reaction_without_fabricating_an_ask_dj_turn"
+        },
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_unknown_provider_is_a_text_result_with_functional_feedback_not_false_audio"
+        },
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_closed_schema_rejects_overrides_bad_context_and_unsupported_locale"
+        },
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_missing_session_or_unconfirmed_settings_never_start_a_session"
+        },
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_original_deadline_does_not_extend_on_retry_or_wall_clock_rollback"
+        },
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_other_paired_device_cannot_read_or_cancel_but_shares_the_busy_budget"
+        },
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_cancellation_during_settings_and_provider_work_cannot_leak_a_ready_result"
+        },
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_real_voice_preview_supersedes_touch_without_reusing_its_text"
+        },
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_actual_confirmed_style_routes_en"
+        },
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_actual_confirmed_style_routes_nl"
+        },
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_actual_confirmed_style_routes_de"
+        },
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_actual_confirmed_style_routes_fr"
+        },
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_actual_confirmed_style_routes_es"
+        },
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_all_persona_mood_language_kind_cells_are_actual_bounded_varied_texts"
+        },
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_capability_is_explicit_local_only_and_keeps_silence_excluded_from_speech"
+        }
+      ]
     }
   ],
   "evidence_boundaries": [
@@ -4576,7 +4843,8 @@
     "tests/test_ask_dj_current_artist_words.py",
     "tests/test_ask_dj_semantic_reads.py",
     "tests/test_ask_dj_artist_hits.py",
-    "tests/test_personal_dj_narration_album_web.py"
+    "tests/test_personal_dj_narration_album_web.py",
+    "tests/test_persona_reactions.py"
   ],
   "issue_policy": {
     "new_findings": "Add a named failing reproduction and semantic expected answer in the same corrective candidate; preserve it after the fix.",

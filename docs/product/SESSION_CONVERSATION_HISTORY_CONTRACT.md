@@ -636,3 +636,10 @@ conflicting operations; Store/SQLite/journal failure and unknown outcomes;
 concurrent pending writes/read/prepare; durable restart and every reopen path.
 No personal Session is deleted for qualification. Exact producer fixtures and pin
 are pending; client UI tests do not establish producer or installed completion.
+
+
+19October additive source derivative:
+[retention-bases-v2-touch-20261019.json](../../examples/client_contracts/session_conversation_history/retention-bases-v2-touch-20261019.json)
+retains exactly the delivered schema2 projection/speech outputs while pinning the
+updated shared speech producer. Original schema1/schema2 receipts remain unchanged;
+ephemeral touch reactions never become retained Session entries.

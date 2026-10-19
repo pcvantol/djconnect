@@ -78,6 +78,12 @@ class SessionConversationHistoryTest(unittest.IsolatedAsyncioTestCase):
             '600e6c68e26b798ddb5dd73daf8b801464d8647ca68764766e37297f13ce3916')
         produced = await build_connected(self.service)
         self.assertEqual(produced,json.loads((ROOT/FIXTURE).read_text()))
+        # Evolving speech source pins must not rewrite the delivered schema2
+        # receipt or change any historical projection/voice representation.
+        prior = json.loads((ROOT/'examples/client_contracts/session_conversation_history/retention-bases-v2.json').read_text())
+        self.assertEqual({k:v for k,v in produced.items() if k != 'source_pins'},
+                         {k:v for k,v in prior.items() if k != 'source_pins'})
+
         self.assertEqual(produced['tail_window']['schema_version'],2)
         self.assertEqual(produced['tail_window']['window_limit'],20)
         entries = produced['tail_window']['entries']

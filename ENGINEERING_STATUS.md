@@ -1,5 +1,42 @@
 # DJConnect Engineering Status
 
+
+## Current WIP: explicit Persona touch admission — 19 October2026
+
+Same selected Core #1208/#1209 and owner addition6251008548; sole writer,
+branch`codex/persona-touch-reactions-v1`, base`0f50e1edc175b8959ab3d3f1adde8c4a1b1bea1e`.
+[Contract](docs/product/PERSONA_TOUCH_REACTIONS_V1.md) and
+[qualification](docs/verification/PERSONA_TOUCH_CORE_20261019.md) record the
+bounded source candidate: paired reaction/cancel, current Settings3, RAM-only
+curated five-language content, one pending lease, rates/dedup/expiry and private
+client speech. No Flow/Moment/history/model/music effect or consumer source write.
+
+Initial independent review found two causal races; both were reproduced, fixed
+and independently rechecked: foreground during Settings read now409/no content;
+provider change during durable send admission now409/functional notice/zero TTS.
+31owning tests and73connected owning/regression tests pass. Isolated real HA
+ordinary pairing/TLS/HTTP/Store/SQLite and actual HA Wyoming entity/private audio
+fetch/cancellation pass; external waveform is a fixture. The eleven-second rate
+advance is modelled, not actual listening time. Full host suite2621tests OK/7conditional skips; Bandit has no Medium/High
+findings. Frozen delivery checks remain separate; no native, installed touch or audible PASS is claimed.
+
+Basic avatar source/finalization are delivered; main0f50e1ed is actually installed
+on HA-dev with203/203product files equal and preserved pairing/history. Two own
+completed worktrees/three equivalent refs/one proven redundant stash were removed
+after verified recovery. Genuine erasure001d0fac and the older host audit ref
+with git-cherry '+' remain preserved, outside current increment cleanup scope.
+The fresh preflight admits continuation of this selected task only.
+
+Golden is now57reports/37families/160steps, with12Core findings and20real-quality
+gates OPEN; touch native gestures/audio adds one explicit quality requirement.
+HA-speaker touch lacks independently safe cancellation and is text-only/unqualified;
+both reports partial. Native gesture/overlay/accessibility/layout/performance,
+real start/stop and hearing remain Apple-owned OPEN. Existing storytelling,
+full rich history, LAN/WS, VibeCast, push, Watch and crash/RSS gates keep their
+own requirements. No new lane selection, whole-function closure, production
+release/install, consumer dispatch or paused automation restart occurs here.
+The existing next-five SETTINGS execution horizon below remains Planned.
+
 ## Current: Living Persona Avatar Core signals — separate Finalization, 19 October 2026
 
 #### Repository Status
