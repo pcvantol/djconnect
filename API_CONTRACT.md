@@ -1,6 +1,13 @@
 # DJConnect API Contract
 
-## Explicit Persona touch reaction — local contract1 candidate
+
+Protected touch producer: [source #1217](https://github.com/pcvantol/djconnect/pull/1217),
+merge`37a574c9e4f6b366ea2335a6c087d649d09afc2d`, exact candidate`1e33c241ec7ef1a46e0a2feb20b5a5b885ae123e`;
+full trees equal. This is a qualified source pin, not installed discovery or
+Apple gesture/audio acceptance. Actual capability readback precedes use.
+
+
+## Explicit Persona touch reaction — protected source contract1
 
 [Touch reaction1](docs/product/PERSONA_TOUCH_REACTIONS_V1.md) uses the existing
 paired operation envelope, operation `session/persona/reaction` and explicit

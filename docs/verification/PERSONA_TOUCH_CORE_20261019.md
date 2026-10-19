@@ -106,3 +106,15 @@ integration scan at medium severity:0Medium/0High (15Low observations remain,
 not falsely represented as zero findings). Ruff and git diff --check pass.
 Protected CI and exact frozen independent review are later gates, not claimed by
 these local results. Runtime source bytes did not change after isolated HA proof.
+
+
+## Protected source readback
+
+Source PR1217 protected merged as`37a574c9e4f6b366ea2335a6c087d649d09afc2d` from independently
+reviewed1e33c241ec7ef1a46e0a2feb20b5a5b885ae123e; full trees identical. All
+30completed successful check executions and5conditional skips were read back;
+repeated push/PR runs reduce to17unique successful names/3unique skipped names.
+Exact Owner Authorization39221716312 PASS. The explicitly non-blocking TDE job
+was still running at merge and is not claimed PASS. No check/authorization bypass.
+Separate governance Finalization reconciles source incorporation only; native,
+installed touch, actual voice/hearing and HA-speaker gates remain OPEN.
