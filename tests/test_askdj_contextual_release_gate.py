@@ -17,6 +17,32 @@ RUNNER = load('contextual_gate', 'tools/verification/run_askdj_contextual_releas
 
 
 class ContextualReleaseGateTest(unittest.TestCase):
+    def test_actual_quality_budget_is_durable_across_runs_and_rejects_budget_increase(self):
+        import ast
+        import json
+        import os
+        from tempfile import TemporaryDirectory
+        path=ROOT/'scripts/verification/verify_ask_dj_contextual_dialogue_http.py'
+        node=next(n for n in ast.parse(path.read_text()).body if isinstance(n,ast.FunctionDef)
+                  and n.name=='reserve_quality_attempt')
+        namespace={'json':json,'os':os}
+        exec(compile(ast.Module(body=[node],type_ignores=[]),str(path),'exec'),namespace)
+        reserve=namespace['reserve_quality_attempt']
+        with TemporaryDirectory() as directory:
+            ledger=Path(directory)/'budget.json'
+            ledger.write_text(json.dumps({'limit':40,'attempts':[]}))
+            for run in range(2):
+                for case in range(20):
+                    reserve(ledger,f'run-{run}-case-{case}','fixture-model')
+            self.assertEqual(len(json.loads(ledger.read_text())['attempts']),40)
+            with self.assertRaisesRegex(RuntimeError,'exhausted'):
+                reserve(ledger,'forty-first','fixture-model')
+            ledger.write_text(json.dumps({'limit':80,'attempts':[]}))
+            with self.assertRaisesRegex(RuntimeError,'invalid'):
+                reserve(ledger,'raised-budget','fixture-model')
+            with self.assertRaisesRegex(RuntimeError,'required'):
+                reserve(None,'missing-ledger','fixture-model')
+
     def test_actual_answer_pilot_covers_five_languages_and_cannot_qualify_a_fallback(self):
         from scripts.verification.askdj_contextual_quality import cases,check_answer
         rows=cases()
@@ -210,9 +236,9 @@ class ContextualReleaseGateTest(unittest.TestCase):
         self.assertEqual(proof['literal_core_routes'],48)
         self.assertEqual(proof['executable_help_cases'],60)
         self.assertEqual(proof['conversation_families'],42)
-        self.assertEqual(proof['conversation_steps'],308)
-        self.assertEqual(proof['reported_issues'],66)
-        self.assertEqual(len(proof['open_core_findings']),21)
+        self.assertEqual(proof['conversation_steps'],310)
+        self.assertEqual(proof['reported_issues'],69)
+        self.assertEqual(len(proof['open_core_findings']),24)
         self.assertEqual(proof['proactive_golden_cases'],560)
         self.assertEqual(proof['catalogue_questions'],70)
         self.assertEqual(proof['catalogue_conversation_steps'],30)

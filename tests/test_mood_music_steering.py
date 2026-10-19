@@ -313,14 +313,17 @@ class MoodMusicSteeringTests(unittest.IsolatedAsyncioTestCase):
         async def rejected(hass,data,**kwargs):
             result=await original(hass,data,**kwargs)
             if '"frame"' in data['text'].split('\nData:\n',1)[1]:
-                return {'response':{'speech':{'plain':{'speech':json.dumps({
-                    'language_ok':True,'style_ok':False,'meaning_ok':True})}}}}
+                return {'response':{'speech':{'plain':{'speech':json.dumps(verdict)}}}}
             return result
-        with patch('custom_components.djconnect.use_cases.run_music_command',self.backend), patch.object(
-                self.f.pipeline,'_call_conversation_process_transport',rejected):
-            result,status=await self.request('bad-narration')
-        self.assertEqual((status,result.get('error')),(502,'mood_narration_unqualified'),result)
-        self.assertEqual((await self.f.history.async_history('profile:profile-a'))['messages'],[])
+        verdicts=[{'language_ok':True,'style_ok':False,'meaning_ok':True},
+            *({'language_ok':True,'style_ok':True,'meaning_ok':True,'meaning_reason':reason}
+              for reason in (None,[],False,'unknown','playback_promise'))]
+        for index,verdict in enumerate(verdicts):
+            with self.subTest(verdict=verdict), patch('custom_components.djconnect.use_cases.run_music_command',self.backend), patch.object(
+                    self.f.pipeline,'_call_conversation_process_transport',rejected):
+                result,status=await self.request('bad-narration-'+str(index))
+            self.assertEqual((status,result.get('error')),(502,'mood_narration_unqualified'),result)
+            self.assertEqual((await self.f.history.async_history('profile:profile-a'))['messages'],[])
 
     async def test_freeworded_genre_reply_searches_actual_tracks_without_playing(self):
         f=self.f

@@ -565,6 +565,9 @@ class PublicArtistNarrationTest(unittest.IsolatedAsyncioTestCase):
             'telling_focus_only_full_original_context_remains_evidence')
         self.assertIn('Do not offer or return prefix recovery fields',self.calls[1])
         self.assertNotIn('you may additionally return supported_prefix',self.calls[1])
+        assessment = json.loads(self.calls[1].split('\nData:\n')[1])
+        self.assertEqual(set(assessment['allowed_evidence_ids']),
+            {span['id'] for s in generation['sources'] for span in s['evidence_spans']})
 
     async def test_documented_interaction_wins_over_first_catalog_work_without_new_fact_authority(self):
         source = self.research.PublicSource('Wikipedia','Synthetic group','https://en.wikipedia.org/wiki/Synthetic_group',
@@ -580,6 +583,20 @@ class PublicArtistNarrationTest(unittest.IsolatedAsyncioTestCase):
         catalogue = replace(source,text='Synthetic group released Debut then Second Album.')
         self.assertIsNone(self.research.documented_episode_focus(
             self.research.research_projection('Synthetic group',[catalogue],{'state':'available'})))
+
+    async def test_requested_live_episode_precedes_unrelated_recording_collaboration(self):
+        source = self.research.PublicSource('Wikipedia','Synthetic group','https://en.wikipedia.org/wiki/Synthetic_group',
+            'The group recorded First Work with Ada Reed. The group performed Second Work live at Town Hall.',
+            'en','2026-10-17T00:00:00+00:00','2026-10-17T01:00:00+00:00','CC-BY-SA-4.0',
+            revision_url='https://en.wikipedia.org/w/index.php?oldid=1',entity_id='Q1',
+            source_anchors=('First Work','Second Work'))
+        projection = self.research.research_projection('Synthetic group',[source],{'state':'available'})
+        before = json.dumps(projection,sort_keys=True)
+        focus = self.research.documented_episode_focus(projection,angle='live_history')
+        spans = self.research.evidence_spans(projection['sources'][0])
+        self.assertEqual(focus['episode_span_ids'],[spans[1]['id']])
+        self.assertEqual(json.dumps(projection,sort_keys=True),before)
+        self.assertEqual(focus['authority'],'telling_focus_only_full_original_context_remains_evidence')
 
     async def test_markdown_bubble_is_not_admitted_or_sent_to_an_extra_model_review(self):
         self.answer = '*'+self.answer+'*'

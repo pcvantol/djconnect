@@ -101,7 +101,9 @@ real source/model warmth, multi-turn relevance and five-language quality need
 bounded actual answers and independent assessment **within this WIP**, before
 its narrative requirement can close. The prepared 15-answer pilot is a first
 sample, not a complete independent Persona-by-Mood or genre-conversation proof.
-The live-key read for that paid pilot was rejected by automatic approval review;
-explicit bounded key-use approval is pending. No paid calls have occurred.
+The earlier live-key read was rejected by automatic approval review. The owner
+has since explicitly approved the in-memory isolated use, capped at 40 public
+model attempts total. The pilot is staged with a durable pre-I/O budget ledger;
+actual results and review, rather than permission alone, determine acceptance.
 In particular,
 fixture replies and the Gemini inspiration are not fact or quality evidence.

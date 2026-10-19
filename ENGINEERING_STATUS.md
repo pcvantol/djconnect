@@ -5,7 +5,7 @@
 Owner explicitly selected one WIP for prior narrative/Golden work plus richer
 artist content, selected-contribution Tell me more/follow-up questions and Mood
 music steering (Core #1210/#1229/#1230; Apple #128/#150/#152). Branch
-`codex/core-contextual-dj-interactions-v1`, checkpoint `7494f753`, builds on
+`codex/core-contextual-dj-interactions-v1`, checkpoint `23e152b9`, builds on
 protected main `8b221d07` and preserved narrative checkpoint `76cd4642`.
 The old narrative checkout was removed only after its 85-file recovery/checkpoint;
 no second product writer or consumer takeover. User-approved cleanup removed only
@@ -22,14 +22,25 @@ Validation: 50 focused regressions PASS, including 23 Mood tests. The pinned HA
 image passes 744 owner tests without network or paid model calls; these use
 explicit model/provider fixtures. Independent technical and editorial reviews
 report no remaining blocker in the reviewed clarification/source deltas. The
-full host suite passes 2798 tests with 7 existing skips after those fixes.
-Golden inventory: 42 families / 308 steps / 66 reports, with 21 Core findings and
+full host suite passes 2801 tests with 7 existing skips after the night fixes.
+Golden inventory: 42 families / 310 steps / 69 reports, with 24 Core findings and
 28 real-quality steps still OPEN. Inventory/test membership does not close any
-function. Actual narrative quality is required within this WIP. Its 15-answer
-HA Assist pilot is prepared but has not run: automatic approval review rejected
-the live-key read and the explicit bounded key-use question is pending. No
-paid model calls occurred. Full genre-conversation and independent Persona/Mood
-assessment remain required beyond that first sample.
+function. Actual narrative quality is required within this WIP. The owner has
+now explicitly approved in-memory live-key use for at most 40 public-model
+attempts total, after the earlier automatic-review rejection. The existing
+night heartbeat runs until 20 October08:00 Amsterdam with the same writer.
+The actual-answer pilot is staged by locale; cumulative24/40 attempts are
+reserved across all runs. The current Dutch probe is NO_GO: source reviewers
+reject unsupported repertoire/sonic additions and an invented evidence ID.
+Two generated Mood clarifications actually persisted; an intermediate one
+failed meaning review. Neither result certifies Persona/Mood variation or a complete
+genre conversation. A harness correction now waits for natural enrichment
+rather than prematurely cancelling the selected seed. New permanent Golden
+bindings cover unrelated-concert routing and cross-language canonical identity.
+See docs/verification/CONTEXTUAL_DJ_NIGHT_20261020.md and the actual returned
+texts in docs/verification/CONTEXTUAL_DJ_ACTUAL_TEXTS_20261020.md. Actual quality,
+complete genre continuation and independent Persona/Mood comparisons remain
+required in this WIP; no quality closure is claimed.
 No PR freeze, protected delivery, installation, native single-tap/audio or whole
 rich-history acceptance is claimed. Individual deletion #1225/#143 stays queued
 after valid completion of this owner-selected WIP.

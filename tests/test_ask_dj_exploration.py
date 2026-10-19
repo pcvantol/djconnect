@@ -56,6 +56,24 @@ class ExplorationTests(unittest.IsolatedAsyncioTestCase):
         self.assertFalse(named_in_question('Brian Eno','tell me about Brian'))
         self.assertFalse(named_in_question('Alice','tell me about music'))
 
+    async def test_english_enrichment_reuses_resolved_local_entity_and_rejects_different_entity(self):
+        from custom_components.djconnect.ask_dj import public_research as research
+        async def guard():
+            return None
+        local = research._source('Wikipedia','Synthetic group','https://nl.wikipedia.org/wiki/Synthetic_group',
+            'Synthetic group is een band.','nl',entity_id='Q1')
+        for foreign_id in ('Q1','Q2'):
+            observed=[]
+            async def wikipedia(fetch,subject,question,locale,**kwargs):
+                observed.append((locale,kwargs.get('expected_entity_id')))
+                return local if locale=='nl' else research._source('Wikipedia','Synthetic group',
+                    'https://en.wikipedia.org/wiki/Synthetic_group','Synthetic group is a band.',
+                    'en',entity_id=foreign_id)
+            with patch.object(research,'wikipedia',wikipedia):
+                sources,_=await research.research('Synthetic Group','Tell me about this band','nl',guard,allow_web=False)
+            self.assertEqual(observed,[('nl',''),('en','Q1')])
+            self.assertEqual(len(sources),2 if foreign_id=='Q1' else 1)
+
     async def test_generic_more_researches_selected_composer_and_preserves_follow_up_without_playback(self):
         f = self.f
         _, _, reference = await f.selected_credit()
@@ -204,7 +222,9 @@ class ExplorationTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_multipart_named_story_uses_semantics_and_actual_question_name(self):
         f=self.f
-        question='Neem me mee in Nirvana: de bandleden en een bijzonder optreden, niet alleen credits.'
+        from scripts.verification.askdj_contextual_quality import QUESTIONS
+        questions=['Neem me mee in Nirvana: de bandleden en een bijzonder optreden, niet alleen credits.',
+                   QUESTIONS['nl']]
         async def agent(hass,data,**kwargs):
             p=json.loads(data['text'].split('\nData:\n',1)[1])
             if 'available' in p:
@@ -215,11 +235,22 @@ class ExplorationTests(unittest.IsolatedAsyncioTestCase):
             else:
                 reply='Nirvana is een Amerikaanse band. Wil je hun muziek verder verkennen?'
             return {'response':{'speech':{'plain':{'speech':reply}}}}
+        async def playback_tool(hass,runtime,tool,*args,**kwargs):
+            self.assertEqual(tool,'djconnect_now_playing')
+            return {'playback':{'artist':'Peter Luts','title':'Different current recording'}}
         with f.research_http(title='Nirvana',text='Nirvana is an American band.'),patch.object(
-                f.pipeline,'_call_conversation_process_transport',agent):
-            result,status=await f.request(question,identifier='multipart-band',language='nl')
-        self.assertEqual(status,200,result)
-        self.assertTrue(result.get('is_generated_text'),result)
-        self.assertIn('Nirvana',result['text'])
-        self.assertEqual(result['conversation']['metrics']['agent_calls'],3)
+                f.pipeline,'_call_conversation_process_transport',agent),patch.object(
+                f.core,'async_call_ai_tool',playback_tool),patch.object(
+                f.core,'_fetch_artist_concert_events',side_effect=AssertionError('not a current artist agenda')):
+            for index,question in enumerate(questions):
+                await f.history.async_clear('profile:profile-a')
+                result,status=await f.request(question,identifier='multipart-band-'+str(index),language='nl')
+                self.assertEqual(status,200,result)
+                self.assertTrue(result.get('is_generated_text'),result)
+                self.assertIn('Nirvana',result['text'])
+                self.assertNotIn('Peter Luts',result['text'])
+                self.assertEqual(result['intent']['intent'],'ask_music_info')
+                self.assertEqual(result['action'],'none')
+                self.assertFalse(result.get('playback'))
+                self.assertEqual(result['conversation']['metrics']['agent_calls'],3)
         self.assertEqual(f.effects,[])

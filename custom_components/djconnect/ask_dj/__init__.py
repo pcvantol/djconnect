@@ -290,6 +290,11 @@ async def async_handle_ask_dj(
             music_dna_key=music_dna_key,
         )
 
+    if turn is not None and turn.interpreted_context_research:
+        # The admitted read plan supersedes an earlier keyword classification.
+        # Do not attach a different current artist/album to the researched topic.
+        classification = AskDjIntent("informational", "ask_music_info", "none")
+        playback_context = {}
     response = _normalize_ask_dj_response(
         hass,
         runtime,
@@ -2448,7 +2453,7 @@ async def _handle_informational(
     ask_intent = classify_ask_dj(text)
     from .dialogue import current_turn
     turn = current_turn.get()
-    if ask_intent.intent == "ask_music_info" and turn is not None and turn.source_context:
+    if ask_intent.intent in {"ask_music_info", "artist_concerts"} and turn is not None and turn.source_context:
         return await _informational_assist_response(hass, runtime, text, payload, memory_context, {}, [])
     response = await _informational_intent_response(
         hass,
@@ -2893,7 +2898,7 @@ async def _informational_assist_response(
                                      if s.get("name", "").casefold() == public_research.safe_subject(subject).casefold()))
             turn.public_research = public_research.research_projection(subject, fetched_sources, research_state, question=text)
             if research_subject:
-                focus = public_research.documented_episode_focus(turn.public_research)
+                focus = public_research.documented_episode_focus(turn.public_research, angle=research_angle)
                 if focus:
                     turn.public_research['editorial_focus'] = focus
             if not fetched_sources:
@@ -4866,7 +4871,10 @@ def _artist_from_concert_question(
         )
     ):
         return _artist_from_playback_context(playback_context)
-    return _artist_from_server_history_context(memory_context) or _artist_from_recent_context(memory_context) or _artist_from_playback_context(playback_context)
+    # A concert word inside a broad story is not a request for the current
+    # performer's agenda. Only an explicit name/deictic query grants this fast
+    # route; other phrasing belongs to the guarded semantic research owner.
+    return ""
 
 
 def _explicit_artist_from_concert_question(text: str) -> str:

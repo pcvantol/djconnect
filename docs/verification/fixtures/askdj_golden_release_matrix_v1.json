@@ -7499,6 +7499,36 @@
           ],
           "acceptance_status": "open_real_quality",
           "proof_boundary": "Local fixtures do not prove warmth, relevance, factual grounding, native single tap, actual provider effect or audibility."
+        },
+        {
+          "id": "ASKDJ-FLOW-named-story-not-current-concert-agenda",
+          "language": "nl",
+          "question": "Vertel me over Nirvana: de mensen in de band en een bijzonder optreden. Neem me mee in het verhaal, niet alleen de credits.",
+          "expected_answer": "Research Nirvana and answer narratively; unrelated Peter Luts playback must not turn this into his upcoming concert agenda. No playback effect.",
+          "model_policy": "Existing closed semantic read, real named subject admission, generation and evidence review; source fixture is not actual narrative quality.",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_exploration.py",
+              "method": "test_multipart_named_story_uses_semantics_and_actual_question_name"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual failed paired HA question retained in contextual-quality-nl-v4.json; exact runtime rerun/editorial review still required."
+        },
+        {
+          "id": "ASKDJ-FLOW-cross-language-canonical-research",
+          "language": "nl",
+          "question": "Vertel over deze band en een bijzonder optreden, ook met Engelstalige bronnen.",
+          "expected_answer": "Reuse the locally resolved public entity ID for the English edition; accept only the same entity, preserve the requested response language, and never substitute another same-named band.",
+          "model_policy": "Public source identity is owned by Core; translation and story generation retain independent evidence review.",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_exploration.py",
+              "method": "test_english_enrichment_reuses_resolved_local_entity_and_rejects_different_entity"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Identity regression is source-only; actual richness and narrative answer remain open."
         }
       ]
     },
@@ -8412,6 +8442,24 @@
       "id": "ASKDJ-ISSUE-mood-steering",
       "family_id": "ASKDJ-FLOW-mood-steering",
       "finding": "Accept a Session Mood change; inspect proposal, change Mood/queue, retry or clear history during work. Core implementation and named causal regressions are in consolidated WIP. Real-source/model and Apple client acceptance remain open; no installed fix claimed.",
+      "core_qualification": "open"
+    },
+    {
+      "id": "ASKDJ-ISSUE-named-story-hijacked-by-current-concert-agenda",
+      "family_id": "ASKDJ-FLOW-contribution-exploration",
+      "finding": "Actual isolated NL-v4 paired request explicitly asked for Nirvana members and a remarkable performance while Peter Luts played. Broad concert-term detection fell back to unrelated current/history performer and returned a fixed no-agenda sentence about Peter Luts, with zero model calls. Remove the unanchored agenda fallback; preserve explicit/deictic agenda queries and send free story phrasing to the existing semantic/public-research owner. Exact ordinary route regression covers both original and actual failed questions with unrelated playback. Real repaired answer and narrative quality remain open.",
+      "core_qualification": "open"
+    },
+    {
+      "id": "ASKDJ-ISSUE-cross-language-research-loses-canonical-entity",
+      "family_id": "ASKDJ-FLOW-contribution-exploration",
+      "finding": "Actual NL narrative pilot admitted only the local Wikipedia edition despite an exact resolved public entity. English enrichment re-searched the ambiguous original name without passing that entity into canonical title resolution. Reuse the admitted source entity ID, retaining same-entity comparison and bounded HTTP budget. Rich real-source narrative quality remains open.",
+      "core_qualification": "open"
+    },
+    {
+      "id": "ASKDJ-ISSUE-biographical-event-date-has-no-temporal-receipt",
+      "family_id": "ASKDJ-FLOW-contribution-exploration",
+      "finding": "Actual NL-v8 named-band narrative includes a sourced membership year but the strict executable temporal receipt admits only source-marked work anchors. A literal biography event currently has no representable admission. Keep wrong-event/year, relative chronology and full-claim guards; qualify a separate bounded actor/group/event receipt before admitting biographies with dates. This is an open implementation and real-answer acceptance finding, not authority to trust supported:true. Existing named story reproduction and five-language temporal-owner regressions remain required.",
       "core_qualification": "open"
     }
   ],

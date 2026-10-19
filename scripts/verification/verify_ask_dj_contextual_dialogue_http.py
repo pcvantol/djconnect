@@ -95,6 +95,27 @@ def hashes():
     }
 
 
+def reserve_quality_attempt(path, case_id, model):
+    """Reserve before I/O; the explicit 40-call approval spans restarts/runs."""
+    import fcntl
+    if not path:
+        raise RuntimeError('quality_cumulative_budget_ledger_required')
+    with open(path,'r+',encoding='utf-8') as ledger:
+        fcntl.flock(ledger,fcntl.LOCK_EX)
+        data=json.load(ledger)
+        if (data.get('limit') != 40 or type(data.get('limit')) is not int
+                or not isinstance(data.get('attempts'),list)):
+            raise RuntimeError('quality_cumulative_budget_ledger_invalid')
+        if len(data['attempts'])>=40:
+            raise RuntimeError('quality_cumulative_budget_exhausted')
+        data['attempts'].append({'case_id':case_id,'model':model,'reserved_before_io':True})
+        ledger.seek(0)
+        json.dump(data,ledger,indent=2)
+        ledger.truncate()
+        ledger.flush()
+        os.fsync(ledger.fileno())
+
+
 async def main():
     lab_started = time.monotonic()
     initial_source_hashes = hashes()
@@ -113,6 +134,7 @@ async def main():
     tts_settings = access.get("tts_settings")
     del access
     model_receipts = []
+    quality_seed_in_progress = False
     public_source_corpus = {}
     public_generation_spans = {}
     public_generation_projections = []
@@ -281,7 +303,7 @@ async def main():
                 yield ResponseCompletedEvent.model_construct(type="response.completed",sequence_number=3,response=completed)
             return fixture_stream()
         assert os.environ.get("DJC_SAFETY_PROBE") not in {"previous", "output", "release_context", "album_context", "silence_signal", "vibecast_end_retired"}, "Safety probes must not call a model"
-        if os.environ.get("DJC_SAFETY_PROBE") in {"public_research", "album_golden"}:
+        if os.environ.get("DJC_SAFETY_PROBE") in {"public_research", "album_golden", "contextual_quality"}:
             capture_public_sources(kwargs.get("input", []))
         inputs = json.dumps(kwargs.get("input", []), ensure_ascii=False)
         assert not any(
@@ -306,6 +328,12 @@ async def main():
             from custom_components.djconnect.ask_dj.dialogue import current_turn
             owner_turn = current_turn.get()
             case_id = ACTIVE_CASE.get() or (owner_turn.client_id if owner_turn else None)
+            if (case_id is None and os.environ.get('DJC_SAFETY_PROBE')=='contextual_quality'
+                    and quality_seed_in_progress):
+                # Client-side ContextVars do not cross the actual HTTP server.
+                # Bind only the explicitly running post-start publication seed;
+                # all attempts still reserve the same durable global budget.
+                case_id='quality-selected-seed'
             if case_id is None and os.environ.get("DJC_SAFETY_PROBE") in {"narration_golden", "opening_golden", "album_golden"}:
                 case_id = "proactive-owner-publication"
             from scripts.verification.askdj_semantic_read_golden import cases as semantic_cases
@@ -344,6 +372,8 @@ async def main():
                         answer_sha256=judge['answer_sha256'],
                         judge_prompt_sha256=hashlib.sha256(judge['prompt'].encode()).hexdigest())
             model_receipts.append(receipt)
+            if os.environ.get('DJC_SAFETY_PROBE') == 'contextual_quality':
+                reserve_quality_attempt(os.environ.get('DJC_MODEL_BUDGET_LEDGER'),case_id,model)
         began = time.monotonic()
         try:
             stream = await original_create(**kwargs)
@@ -733,6 +763,8 @@ async def main():
                 }
             if parsed.path == "/me/player/queue":
                 return {"queue": []}
+            if parsed.path == '/me/playlists' and os.environ.get('DJC_SAFETY_PROBE')=='contextual_quality':
+                return {'items':[],'next':None}
             if parsed.path == "/me/player/devices":
                 if state.get("two_outputs"):
                     return {"devices": [{"id": name, "name": "Same fixture name",
@@ -807,7 +839,10 @@ async def main():
                                     {
                                         "target-type": "artist",
                                         "type": "composer",
-                                        "artist": {"name": "Peter Luts" if os.environ.get("DJC_SAFETY_PROBE") in {"contextual_golden", "contextual_quality"} else "Brian Eno"},
+                                        "artist": {"id":("84751a51-a4c1-44ce-afa5-df190ec602d7"
+                                            if os.environ.get("DJC_SAFETY_PROBE") in {"contextual_golden", "contextual_quality"}
+                                            else "33333333-3333-3333-3333-333333333333"),
+                                            "name": "Peter Luts" if os.environ.get("DJC_SAFETY_PROBE") in {"contextual_golden", "contextual_quality"} else "Brian Eno"},
                                     }
                                 ],
                             },
@@ -854,10 +889,31 @@ async def main():
             # OAuth is an external provider boundary, not device authentication.
             return "UNUSED_SYNTHETIC_PROVIDER_TOKEN"
 
+        from custom_components.djconnect import pipeline as narration_pipeline
+        original_narration=narration_pipeline.realize_session_narration
+        narration_diagnostics=[]
+        async def observed_narration(hass,**kwargs):
+            if os.environ.get('DJC_SAFETY_PROBE')!='contextual_quality':
+                return await original_narration(hass,**kwargs)
+            from custom_components.djconnect.public_artist_narration import can_research
+            brief=kwargs['narration']
+            diagnostic={'brief_kind':type(brief).__name__,'can_research':can_research(brief),
+                'agent_present':bool(narration_pipeline._assist_context(hass,kwargs['conf']).get('agent_id')),
+                'debug':{}}
+            narration_diagnostics.append(diagnostic)
+            try:
+                result=await original_narration(hass,**{**kwargs,'debug':diagnostic['debug']})
+                diagnostic['result_kind']=type(result).__name__
+                return result
+            finally:
+                Path(os.environ['DJC_OUTPUT']).with_suffix('.narration-diagnostic.json').write_text(
+                    json.dumps(narration_diagnostics,indent=2)+'\n')
+
         with (
             patch("custom_components.djconnect.spotify_backend.async_get_clientsession", return_value=ProviderSession()),
             patch.object(SpotifyBackend, "_access_token", provider_token),
             patch.object(SessionFactsResolver, "_get", source_fixture),
+            patch.object(narration_pipeline,'realize_session_narration',observed_narration),
         ):
             async with TestClient(TestServer(h.http.app)) as client:
                 identity = {"device_id": device, "client_type": "ios"}
@@ -1458,6 +1514,8 @@ async def main():
                     return
 
                 async def start(label, *, mood="groove", persona="radio_dj", language="en"):
+                    nonlocal quality_seed_in_progress
+                    quality_seed_in_progress=False
                     state.update(playing=True, position_ms=1000, last_tick=time.monotonic())
                     result = await call(
                         "session/start",
@@ -1493,6 +1551,8 @@ async def main():
                                 setattr(observed, field, None)
                         return await manager.async_get_active('profile-a'), None, None
                     # Honour the real balanced presence interval after any opening contribution.
+                    quality_seed_in_progress=(os.environ.get('DJC_SAFETY_PROBE')=='contextual_quality'
+                                              and label=='quality-selected')
                     # Re-observation uses the normal coordinator; no ledger reset or Core mocking.
                     ledger = active.presence_ledger
                     from custom_components.djconnect.presence_policy import POLICIES
@@ -1523,6 +1583,21 @@ async def main():
 
                     observer = playback_observation_manager(h)
                     await observer._async_poll_spotify(observer._spotify_sessions["profile-a"])
+                    if quality_seed_in_progress:
+                        # An overlapping natural poll may still own enrichment.
+                        # Observe its ordinary completion; ending here would
+                        # cancel the very model attempt being measured. Never
+                        # restart/reset the opportunity or bypass admission.
+                        deadline = time.monotonic() + 80
+                        while time.monotonic() < deadline:
+                            current = await manager.async_get_active('profile-a')
+                            if any(m.source_fact and m.source_fact.key == 'work_composers'
+                                   for m in current.broadcast.state.dj_moments):
+                                break
+                            opportunity = manager._intra_track_opportunities.get('profile-a')
+                            if opportunity is None or not opportunity.pending:
+                                break
+                            await asyncio.sleep(.25)
                     active = await manager.async_get_active("profile-a")
                     moment = next(
                         (
@@ -1533,6 +1608,7 @@ async def main():
                         None,
                     )
                     if moment is None:
+                        opportunity=manager._intra_track_opportunities.get('profile-a')
                         print(
                             jsonlib(
                                 {
@@ -1546,6 +1622,15 @@ async def main():
                                         for m in active.broadcast.state.dj_moments
                                     ],
                                     "facts": external_facts,
+                                    "narration_registered":'profile-a' in manager._narration_providers,
+                                    "narration_diagnostics":narration_diagnostics,
+                                    "fact_opportunity": None if opportunity is None else {
+                                        'pending':opportunity.pending,'blocked':opportunity.blocked,
+                                        'used_keys':sorted(opportunity.used_fact_keys),
+                                        'fact_count':opportunity.fact_count,
+                                        'facts':[{'key':f.key,'eligible':f.eligible(f.media_identity,time.monotonic()),
+                                                  'work_evidence':f.work_evidence is not None}
+                                                 for f in opportunity.qualified_facts]},
                                     "allows_proactive": active.allows_proactive(),
                                     "reason": active.presence_ledger.suppression_reason,
                                     "last_media": active.last_accepted_media_identity,
@@ -1555,13 +1640,22 @@ async def main():
                             ),
                             flush=True,
                         )
+                        if os.environ.get('DJC_SAFETY_PROBE')=='contextual_quality':
+                            await end(active,label+'-failed-seed')
                     assert moment is not None, ("missing-qualified-credit", label)
+                    if os.environ.get('DJC_SAFETY_PROBE')=='contextual_quality':
+                        Path(os.environ['DJC_OUTPUT']).with_suffix('.seed.json').write_text(json.dumps({
+                            'qualification':'REAL_PUBLISHED_STORY_SYNTHETIC_RECORDING_RELATION_REAL_PUBLIC_IDENTITY',
+                            'moment_id':moment.moment_id,'text':moment.content,
+                            'persona':str(active.dj_persona),'mood':active.selected_mood,'language':active.locale,
+                            'source_attribution':dict(moment.source_attribution)},ensure_ascii=False,indent=2)+'\n')
                     navigation = next(
                         a
                         for a in active.broadcast.native_delivery()["admissions"]
                         if a["moment_id"] == moment.moment_id
                     )["navigation_actions"][0]
                     assert navigation["target"] == "track_insight"
+                    quality_seed_in_progress=False
                     return active, moment, navigation["reference"]
 
                 async def end(active, label):
@@ -2014,7 +2108,11 @@ async def main():
                         mutations=mutations,model_receipts=model_receipts)
                     report.update(source_hashes=hashes(),source_hashes_before=initial_source_hashes,
                         source_unchanged=hashes()==initial_source_hashes,
-                        pairing='ordinary_device_token_minted_persisted',core_transports=receipts)
+                        pairing='ordinary_device_token_minted_persisted',core_transports=receipts,
+                        public_source_corpus=public_source_corpus,
+                        public_literal_spans=public_generation_spans,
+                        public_generation_projections=public_generation_projections,
+                        public_assessment_projections=public_assessment_projections)
                     Path(os.environ.get('DJC_OUTPUT','/lab/contextual-quality.json')).write_text(
                         json.dumps(report,ensure_ascii=False,indent=2)+'\n')
                     await async_shutdown_persistence(h)

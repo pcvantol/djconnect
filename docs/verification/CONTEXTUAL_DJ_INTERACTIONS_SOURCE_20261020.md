@@ -44,8 +44,9 @@ passes 744 owner tests with no network, live configuration, speakers or paid
 model calls. Candidate files were mounted read-only; the captured source hashes
 match after execution. Owning suites: Ask DJ 552, Mood 23, Profile settings 21,
 active Mood 5, story variety 12, artist images 14, personal narration 117.
-All runtime files remain byte-equal to that test execution. The only later
-test-file formatting change is explicitly bound in the
+This receipt qualifies the earlier checkpoint only. Subsequent night product
+corrections require their own validation; the earlier test-only formatting
+change remains explicitly bound in the
 [source regression receipt](fixtures/contextual_dj_source_regression_20261020.json).
 
 Earlier isolated attempts are retained in local evidence. The first exposed
@@ -64,7 +65,7 @@ source reviews, not actual-answer quality or release approval.
 
 ## Required work remains in this WIP
 
-The Golden inventory has 42 families, 308 steps and 66 reported issues. Its 21
+The Golden inventory has 42 families, 310 steps and 69 reported issues. Its 24
 open Core findings and 28 actual-quality steps remain open. No function closes
 because an inventory, test suite or merge is green.
 
@@ -76,11 +77,38 @@ sequences and independent Persona/Mood comparisons remain required **in this
 WIP**. Full retained media/action parity, actual client interaction, installed
 speech and audible acceptance remain separately unqualified.
 
-The pilot has made zero paid calls. Automatic approval review rejected reading
-the existing key from live HA configuration because the previous authorization
-did not specifically cover that credential source and external use. The
-explicit question for in-memory use and at most 40 calls is pending. No key was
-read and no alternative route was used to bypass that rejection.
+Automatic approval review initially rejected reading the existing key from
+live HA configuration because the previous authorization did not specifically
+cover that source and external use. No key was read under that rejected action.
+The owner subsequently explicitly approved the described in-memory isolated
+use and at most 40 public-model attempts total. The night run stages the pilot
+with a cumulative pre-I/O ledger. Its initial missing-composer setup failure
+spent zero calls; actual outcomes and remaining budget are recorded in
+[the night continuation](CONTEXTUAL_DJ_NIGHT_20261020.md). No alternative path
+bypassed the rejection, and approval alone does not establish quality.
 
 No protected publication, Finalization, installation, Apple activation or
 unqualified next/full-queue effect is claimed by this checkpoint.
+
+## Night continuation after the source checkpoint
+
+Actual NL pilots5–8 used24/40 reserved attempts total, including failures and
+one cancellation. The consolidated real narrative result remains NO_GO. Two
+generated Mood clarifications actually persisted; composer/story proposals
+remain rejected. See [exact returned texts](CONTEXTUAL_DJ_ACTUAL_TEXTS_20261020.md)
+and [night run ledger/status](CONTEXTUAL_DJ_NIGHT_20261020.md).
+
+Night fixes remove unrelated-current-artist agenda hijacking, preserve admitted
+semantic response identity, rank the requested live angle, and reuse the exact
+local Wikipedia entity for English enrichment. The independent fact/identity
+gates remain intact. Mood clarification instructions distinguish read-only
+genre choice from explicit play selection; their independent review now reports
+a bounded meaning reason. Compact-source literal IDs are supplied unchanged.
+The latest full host suite passes2801tests/7existing skips; the final allowed-ID
+correction passes124focused tests. Final inventory-only expansion is checked
+separately. Pinned HA744 proof remains historical, not these later source bytes.
+
+Independent review confirms an open temporal-admission gap for biographical
+events. A safe continuation needs an actor/group/event/year-bound receipt with
+causal negative tests. No general person-name substitute for work anchors and
+no acceptance of a bare positive model verdict. Keep this in the same WIP.

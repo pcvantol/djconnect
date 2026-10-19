@@ -9,6 +9,7 @@ from __future__ import annotations
 import asyncio
 import hashlib
 import json
+import os
 
 from scripts.verification.askdj_contextual_golden import ACTIVE_CASE
 
@@ -60,11 +61,23 @@ def check_answer(case, response):
 
 async def run(*,ask,call,start,end,get_history,mutations,model_receipts):
     rows=[]
+    locales=os.environ.get('DJC_QUALITY_LOCALES','en,nl,de,fr,es').split(',')
+    if not locales or len(set(locales))!=len(locales) or any(locale not in QUESTIONS for locale in locales):
+        raise ValueError('invalid_actual_quality_locales')
+    requested=[c for c in cases() if c['language'] in locales]
     # One actual selected composer publication; its live owner remains intact.
-    active,moment,_=await start("quality-selected")
-    selection={"session_id":active.session_id,"moment_id":moment.moment_id}
+    seed=ACTIVE_CASE.set('quality-selected-seed')
+    active,moment=None,None
     try:
-        for case in (c for c in cases() if c["kind"]=="selected"):
+        active,moment,_=await start("quality-selected",language=locales[0])
+    except Exception as exc:
+        rows.extend({**case,'findings':['selected_publication_unavailable:'+type(exc).__name__]}
+                    for case in requested if case['kind']=='selected')
+    finally:
+        ACTIVE_CASE.reset(seed)
+    selection=({'session_id':active.session_id,'moment_id':moment.moment_id} if moment is not None else None)
+    try:
+        for case in (c for c in requested if c["kind"]=="selected" and selection is not None):
             await call("ask_dj/history/clear",{},label=case["id"]+"-clear")
             token=ACTIVE_CASE.set(case["id"])
             before=len(model_receipts)
@@ -77,8 +90,9 @@ async def run(*,ask,call,start,end,get_history,mutations,model_receipts):
             finally:
                 ACTIVE_CASE.reset(token)
     finally:
-        await end(active,"quality-selected")
-    for case in (c for c in cases() if c["kind"]=="band"):
+        if active is not None:
+            await end(active,"quality-selected")
+    for case in (c for c in requested if c["kind"]=="band"):
         await call("ask_dj/history/clear",{},label=case["id"]+"-clear")
         active,_,_=await start("quality-band-"+case["language"],mood=case["mood"],
             persona=case["persona"],language=case["language"])
@@ -91,7 +105,7 @@ async def run(*,ask,call,start,end,get_history,mutations,model_receipts):
             if (style.get("persona"),style.get("mood"))!=(case["persona"],case["mood"]):
                 findings.append("confirmed_style_mismatch")
             rows.append({**case,"response":reply,"findings":findings,"paid_attempts":len(model_receipts)-before})
-            moodcase=next(c for c in cases() if c["kind"]=="mood" and c["language"]==case["language"])
+            moodcase=next(c for c in requested if c["kind"]=="mood" and c["language"]==case["language"])
             new_mood="party" if active.selected_mood!="party" else "chill"
             before=len(model_receipts)
             accepted=await call("session/mood",{"contract_version":1,"session_id":active.session_id,
@@ -122,7 +136,8 @@ async def run(*,ask,call,start,end,get_history,mutations,model_receipts):
             await end(active,"quality-band-"+case["language"])
     return {"schema_version":1,"suite":"contextual_dj_actual_answers_v1","manifest_sha256":manifest_digest(),
         "qualification":"REAL_HA_PAIRED_ASSIST_PUBLIC_RESEARCH_SYNTHETIC_MUSIC_OWNER",
+        "requested_case_ids":[c['id'] for c in requested],
         "cases":rows,"paid_model_calls":len(model_receipts),"usage":model_receipts,
-        "mechanical_status":"PASS" if len(rows)==15 and not mutations and all(not r["findings"] for r in rows) else "FAIL",
+        "mechanical_status":"PASS" if len(rows)==len(requested) and not mutations and all(not r["findings"] for r in rows) else "FAIL",
         "editorial_status":"REQUIRES_INDEPENDENT_ACTUAL_ANSWER_REVIEW",
         "installed_native_audible":"NOT_RUN"}
