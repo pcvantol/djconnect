@@ -1,7 +1,8 @@
 # Assist conversation agent pairing admission v1
 
 Selected existing Core #1211, the strictly separate predecessor of Core #1212
-and Apple #129. Current source candidate; no installed or native acceptance.
+and Apple #129. Protected source PR #1219 at d4ab36fac055bddf7bbc778a480d62ef88115bbc;
+separate Finalization still requires its own delivery. No installed/native acceptance.
 
 Pairing/config-flow admission requires the actual selected Assist pipeline and
 an existing available conversation agent with a supported process interface.
