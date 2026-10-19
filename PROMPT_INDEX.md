@@ -1,5 +1,90 @@
 # DJConnect Verification Prompt Index
 
+## Current: explicit Persona touch Core producer — separate Finalization, 19 October 2026
+
+### Repository Status
+
+PR [#1217](https://github.com/pcvantol/djconnect/pull/1217) protected merged as
+`37a574c9e4f6b366ea2335a6c087d649d09afc2d`. Exact independently reviewed source
+`1e33c241ec7ef1a46e0a2feb20b5a5b885ae123e` has the identical complete tree.
+17 unique source checks succeeded, 3 conditional skips; exact Owner
+Authorization 39221716312 passed without bypass. The non-blocking TDE observation was still running; it is not claimed PASS.
+This governance increment reconciles source incorporation; no full avatar,
+release, installed touch, native gestures or audible completion is inferred.
+
+### Management Summary
+
+The selected explicit avatar reaction/cancel uses existing paired operations,
+confirmed Session Settings3 and bounded private client speech. Pre-await pending
+admission, original deadlines, rate/dedup, foreground/provider revisions and
+initiating-device cancellation/bytes are qualified. Short curated content covers
+four Personas, four Moods, five languages and three semantic kinds. It does not
+replace the still-open ordinary DJ storytelling improvement. No Ask DJ/Flow/
+history/Moment/music/model/proactive effect. text_only has zero audio;
+ha_speaker is text feedback only/unqualified; both reports partial delivery.
+
+Full host2621tests OK/7skips; pinned HA86owning/shared-speech tests pass.
+Seven isolated real HA paired TLS/HTTP/Store/SQLite operations and one fixture
+waveform synthesis pass, including private read becoming404after cancellation.
+The eleven-second rate clock advance is modelled. Source/harness receipt hashes
+match exactly; independent exact technical and editorial/document reviews GO.
+Bandit0Medium/0High, Ruff,185DAG,9lifecycle/projection and34contract tests pass.
+[Qualification](docs/verification/PERSONA_TOUCH_CORE_20261019.md) separates all
+source, isolated HA, installed, native, real provider and hearing evidence.
+
+### Roadmap Position
+
+Generation2, Product Development, Phase1/Platform Qualification. Same selected
+Core #1208/#1209, owner addition6251008548, no new lane selection or second
+writer. Basic avatar source/finalization was already delivered and exact main
+0f50e1ed installed/read back on HA-dev. This later touch producer was not present
+in that installation. Actual upgraded installed discovery remains separate.
+
+### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+Source: current SETTINGS nodes and prerequisites in the
+[canonical living DAG](docs/roadmap/v1/djconnect-platform-v1.json) and
+[product backlog](PRODUCT_BACKLOG.md). Planned/NOT_ISSUED, no consumer dispatch.
+
+1. **SETTINGS::APPLE::EDITOR — Planned.** Shared editor; delivered Core producer precedes native adoption.
+2. **SETTINGS::PI::ADOPTION — Planned.** Same producer prerequisite; Pi owns its acceptance.
+3. **SETTINGS::ESP32::ADOPTION — Planned.** Same producer and physical settings/voice evidence required.
+4. **SETTINGS::VIBECAST::COMPAT — Planned.** Shared renderer import and screen admission remain prerequisites.
+5. **SETTINGS::JOINT::ACCEPTANCE — Planned.** Migration and consumer evidence precede cross-device closure.
+
+### Blocked Items
+
+Native gesture arbitration, one transient overlay, accessibility, real start/
+stop/interruption/background and five-language device acceptance remain
+Apple-owned OPEN. HA-speaker reactions need safe independent cancellation.
+Golden retains57reports/37families/160steps and32release gates:12Core findings
+plus20real-quality requirements. Ordinary storytelling, complete rich history,
+LAN/WS, VibeCast, production push, Watch and performance/crash/RSS retain their
+own gates. Erasure001d0fac is real unfinished source and remains preserved.
+Neither source merge nor this reconciliation closes the whole avatar function.
+
+### Deferred Items
+
+Unselected intakes remain deferred and paused timers paused. No new consumer
+message/writer, release, deployment, hardware or active HA mutation is created
+by this record. Existing installation authorization does not waive Golden gates.
+
+### Repository State
+
+On protected merge of this separate Finalization, Repository State:
+`MERGED_RECONCILED` for bounded Core source incorporation only. Until then,
+MERGED_UNRECONCILED permits this reconciliation. Immutable historical records,
+fixtures, source identities and original DAG receipts are preserved.
+
+### Workspace State
+
+Canonical main is synchronized/clean; cleanup of only this completed source and
+its separate Finalization follows verified recovery, exact merge/equivalence and
+absent remote refs. The older host audit with git-cherry '+' and genuine erasure
+WIP remain outside this increment cleanup scope. No force deletion or global
+WORKSPACE_READY is inferred. Native/function gates remain open independently.
+
+
 ## Current: Living Persona Avatar Core signals — separate Finalization, 19 October 2026
 
 ### Repository Status

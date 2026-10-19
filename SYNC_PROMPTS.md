@@ -1,4 +1,11 @@
-# Persona touch — same selected Core local candidate, not a consumer dispatch
+# Persona touch — protected Core source, not a consumer dispatch
+
+
+Protected touch producer: [source #1217](https://github.com/pcvantol/djconnect/pull/1217),
+merge`37a574c9e4f6b366ea2335a6c087d649d09afc2d`, exact candidate`1e33c241ec7ef1a46e0a2feb20b5a5b885ae123e`;
+full trees equal. This is a qualified source pin, not installed discovery or
+Apple gesture/audio acceptance. Actual capability readback precedes use.
+
 
 The separate [touch contract1](docs/product/PERSONA_TOUCH_REACTIONS_V1.md) fills
 owner addition6251008548 using ordinary paired operations, confirmed current
@@ -18,7 +25,7 @@ DJ_PERSONA_LIVING_AVATAR_V1.md existing-signal mapping and immutable six-case
 semantic derivative. No new backend activity API/capability is required for the
 basic avatar. Existing Apple owner can use those proven fields under its own
 admission. Real renderer callbacks/native/audio acceptance and touch producer
-delivery remain OPEN; touch is NOT_IMPLEMENTED/NOT_ADVERTISED. No fabricated
+delivery remain OPEN; the basic-source receipt predates implementation of the explicit touch contract above. No fabricated
 Ask DJ/Moment, consumer source takeover or whole function closure follows.
 
 # Living Persona Avatar — selected Core contract; native/touch gates OPEN

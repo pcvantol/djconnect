@@ -1,7 +1,8 @@
 # Explicit Persona touch reactions v1
 
-Status: local Core candidate in the already selected #1208/#1209 avatar task,
-owner addition6251008548; not an installed producer pin or native acceptance.
+Status: protected Core source delivered by [PR #1217](https://github.com/pcvantol/djconnect/pull/1217),
+in the already selected #1208/#1209 avatar task,
+owner addition6251008548; merge`37a574c9e4f6b366ea2335a6c087d649d09afc2d`; not an installed pin or native acceptance.
 The [basic avatar contract](DJ_PERSONA_LIVING_AVATAR_V1.md) remains delivered.
 This increment fills its demonstrated ephemeral reaction gap without changing
 the ordinary Ask DJ, Moment, Flow or transport owners. No consumer is dispatched.

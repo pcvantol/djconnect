@@ -1,5 +1,12 @@
 # DJ Persona Living Avatar v1
 
+
+19October touch source is now protected-delivered by [#1217](https://github.com/pcvantol/djconnect/pull/1217),
+merge`37a574c9e4f6b366ea2335a6c087d649d09afc2d`. The separate touch contract is source-qualified;
+installed discovery, native gesture/audio and HA-speaker acceptance remain OPEN.
+Earlier local/basic-signal notes below retain their original stage boundary.
+
+
 19October continuation: the selected explicit touch addition is implemented in
 the separate local [touch producer candidate](PERSONA_TOUCH_REACTIONS_V1.md).
 The original gap/proposal below describes the protected basic-source baseline;
