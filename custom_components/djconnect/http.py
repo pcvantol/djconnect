@@ -3280,6 +3280,8 @@ class DJConnectTransportCapabilitiesView(HomeAssistantView):
         from .capability_contract import _platform_capabilities, _contract_versions
         from .hybrid_contract import hybrid_transport_capability
         from .ask_dj.example_catalogue import capability as examples_capability
+        from .ask_dj.exploration import capability as exploration_capability
+        from .mood_music_steering import capability as mood_music_capability
         from .session_mood import capability as mood_capability
         from .session_persona import capability as persona_capability
         from .session_presence import capability as presence_capability
@@ -3297,6 +3299,8 @@ class DJConnectTransportCapabilitiesView(HomeAssistantView):
                 "transports": {"http": True, "websocket": True},
                 "session_broadcast": session_broadcast_transport_capabilities(),
                 "ask_dj_examples": examples_capability(),
+                "ask_dj_contextual_exploration": exploration_capability(),
+                "session_mood_music_feedback": mood_music_capability(),
                 "active_session_mood": mood_capability(),
                 "active_session_persona": persona_capability(),
                 "active_session_presence": presence_capability(),

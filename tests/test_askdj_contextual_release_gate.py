@@ -17,6 +17,19 @@ RUNNER = load('contextual_gate', 'tools/verification/run_askdj_contextual_releas
 
 
 class ContextualReleaseGateTest(unittest.TestCase):
+    def test_actual_answer_pilot_covers_five_languages_and_cannot_qualify_a_fallback(self):
+        from scripts.verification.askdj_contextual_quality import cases,check_answer
+        rows=cases()
+        self.assertEqual(len(rows),15)
+        self.assertEqual(len({r['id'] for r in rows}),15)
+        for kind in ('selected','band','mood'):
+            self.assertEqual({r['language'] for r in rows if r['kind']==kind},{'en','nl','de','fr','es'})
+        case=next(r for r in rows if r['kind']=='band')
+        fallback={'success':True,'text':'I could not verify enough information.','sources':[]}
+        self.assertIn('generated_answer_missing',check_answer(case,fallback))
+        self.assertIn('researched_answer_unqualified',check_answer(case,fallback))
+        self.assertIn('closing_question_missing',check_answer(case,fallback))
+
     def test_semantic_release_gate_requires_every_real_model_case_and_source_binding(self):
         matrix = load('semantic_release_matrix', 'tools/verification/run_askdj_release_matrix.py')
         from scripts.verification.askdj_semantic_read_golden import cases, manifest_digest, expected_plan
@@ -196,10 +209,10 @@ class ContextualReleaseGateTest(unittest.TestCase):
         proof=inventory.validate()
         self.assertEqual(proof['literal_core_routes'],48)
         self.assertEqual(proof['executable_help_cases'],60)
-        self.assertEqual(proof['conversation_families'],40)
-        self.assertEqual(proof['conversation_steps'],273)
-        self.assertEqual(proof['reported_issues'],64)
-        self.assertEqual(len(proof['open_core_findings']),19)
+        self.assertEqual(proof['conversation_families'],42)
+        self.assertEqual(proof['conversation_steps'],308)
+        self.assertEqual(proof['reported_issues'],66)
+        self.assertEqual(len(proof['open_core_findings']),21)
         self.assertEqual(proof['proactive_golden_cases'],560)
         self.assertEqual(proof['catalogue_questions'],70)
         self.assertEqual(proof['catalogue_conversation_steps'],30)

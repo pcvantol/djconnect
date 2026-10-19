@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "qualification": "SOURCE_FIXTURE_ONLY",
+  "producer_pin": "PENDING_QUALIFIED_PIN",
+  "consumer_activation": false,
+  "languages": [
+    "en",
+    "nl",
+    "de",
+    "fr",
+    "es"
+  ],
+  "exploration": {
+    "request": {
+      "text": "Vertel meer",
+      "client_message_id": "example-new-request-id",
+      "conversation_context": {
+        "selected_entry": {
+          "session_id": "example-session",
+          "entry_id": "example-contribution"
+        }
+      }
+    },
+    "submission": "existing ask_dj/message transport with paired identity; never submit copied contribution text as authority",
+    "selection": "one selected_entry or selected_moment, not both",
+    "precedence": "Nested play, speech, artwork, source, delete and avatar controls retain their own gesture",
+    "subject": "Core resolves from admitted public source context; typed attribute optional",
+    "accepted_answer": "Existing text, sources, conversation and session_speech fields; factual grounding and relevant follow-up question"
+  },
+  "mood_feedback": {
+    "settings_owner": "existing profile/settings contract3 or legacy active Session Mood CAS",
+    "accepted_write_field": "mood_music_feedback",
+    "states": [
+      "pending",
+      "available",
+      "unavailable"
+    ],
+    "result": "existing Session conversation Flow; input_type setting_feedback; system origin mood_change",
+    "actions": "Use returned result_set_id/action_id, never reconstruct URI or queue effects",
+    "supported_effects": [
+      "start_context_now"
+    ],
+    "unavailable_actions": {
+      "insert_next": "backend_next_position_not_qualified",
+      "replace_queue_mix": "backend_full_queue_replacement_not_qualified"
+    },
+    "no_effect_before_selection": true,
+    "clear_or_changed_mood_or_queue": "do not auto retry stale action",
+    "history": "Current ordinary Flow text storage; full rich retained action/art replay remains an open acceptance gate",
+    "insufficient_context": {
+      "clarification_required": true,
+      "suggested_genres": "Core-generated directions, not concrete catalog matches",
+      "reply": "Existing Ask DJ message; free-form selection is interpreted server-side",
+      "decline": "Consume pending without lookup or effect",
+      "new_topic": "Return to common Ask DJ processing; preserve any new pending confirmation",
+      "ambiguous": "Repeat the admitted question only until original expiry",
+      "stale_during_processing": "Reject original expired/replaced/Mood-changed clarification before lookup and admission"
+    }
+  },
+  "acceptance_boundaries": [
+    "Source/fixture PASS is not real model quality",
+    "No installed or native single-tap/speech proof",
+    "No permission to enable unqualified queue effects",
+    "No consumer source or writer takeover"
+  ]
+}

@@ -595,6 +595,7 @@ def _message_from_request(payload: dict[str, Any]) -> dict[str, Any]:
             "id": _server_message_id(),
             "client_message_id": _clean_text(payload.get("client_message_id")),
             "role": "user",
+            **({"message_kind":"system", "origin":"mood_change"} if payload.get("_setting_feedback") is True else {}),
             "text": _clean_text(payload.get("text") or payload.get("message")),
             "created_at": now,
             "client_id": _client_id(payload),

@@ -30,7 +30,7 @@ TEST_PATTERNS = (
     'test_personal_dj_narration*.py', 'test_session_facts.py',
     'test_personal_dj_runtime_expression.py', 'test_personal_dj_flow_completion.py',
     'test_track_insight.py', 'test_profile_settings_speech.py', 'test_session_artwork.py', 'test_session_artist_images.py', 'test_session_story_variety.py',
-    'test_session_forecast.py', 'test_passive_session.py',
+    'test_session_forecast.py', 'test_passive_session.py', 'test_mood_music_steering.py',
     'test_local_settings_speech.py', 'test_presence_four_levels.py', 'test_vibecast_renderer.py',
     'test_voice_preview.py', 'test_persona_reactions.py', 'test_transport_operation_journal.py',
     'test_spotify_backend.py',
@@ -170,6 +170,7 @@ def expected_source_hashes():
     files.append(ROOT/'tools/verification/askdj_research_outcomes.py')
     files.append(ROOT/'tools/verification/askdj_catalogue_variations.py')
     files.append(ROOT/'scripts/verification/askdj_semantic_read_golden.py')
+    files.append(ROOT/'scripts/verification/askdj_contextual_quality.py')
     files.append(ROOT/'scripts/verification/askdj_example_catalogue_golden.py')
     files.append(ROOT/'scripts/verification/askdj_catalogue_provider_fixture.py')
     files.append(ROOT/'custom_components/djconnect/ask_dj/examples_v1.json')

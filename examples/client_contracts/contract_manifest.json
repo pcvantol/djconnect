@@ -77,6 +77,13 @@
       "contract": "session.media.prepare.v2",
       "state": "draft_source_runtime_sqlite_media_external_fixtures",
       "qualified": false
+    },
+    {
+      "id": "contextual_dj_interactions_v1",
+      "file": "contextual_dj_interactions_v1.json",
+      "transport": "http_or_websocket",
+      "contract": "ask_dj.contextual_exploration_and_mood_feedback",
+      "state": "source_fixture_pending_qualified_pin"
     }
   ]
 }

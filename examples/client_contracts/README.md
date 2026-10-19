@@ -29,3 +29,7 @@ Profile context fixtures define the canonical Profile Adoption Contract for
 Apple, Windows, Raspberry Pi, ESP32, HA Voice Satellite and future clients.
 Sibling repos should consume these fixtures as golden request/response/error
 shapes instead of inventing local profile resolution rules.
+
+Contextual exploration and Mood steering: `contextual_dj_interactions_v1.json`
+is a source-only consumer shape, with no activation or installed qualification.
+See `docs/product/CONTEXTUAL_DJ_EXPLORATION_V1.md` for scope and remaining gates.

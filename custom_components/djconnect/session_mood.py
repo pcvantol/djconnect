@@ -150,6 +150,7 @@ async def async_handle_owner_setting(hass, data, *, headers=None, setting):
         except Exception:
             return False
 
+    previous_mood_session = manager.current_active(profile_id)
     try:
         update = {"mood": manager.async_update_mood, "presence": manager.async_update_presence,
                   "persona": manager.async_update_persona}[setting]
@@ -186,7 +187,14 @@ async def async_handle_owner_setting(hass, data, *, headers=None, setting):
             raise PermissionError("setting_result_withdrawn")
     from .transport_delivery import register_delivery_admission
     register_delivery_admission(delivery_guard)
+    feedback = None
+    if setting == "mood":
+        from .mood_music_steering import schedule
+        feedback = schedule(hass, runtime, manager, profile_id, previous_mood_session,
+            identity={"device_id":data["device_id"], "client_type":data["client_type"]},
+            headers=headers, authorize=owner_is_current)
     return {
+        **({"mood_music_feedback":feedback} if feedback is not None else {}),
         "success": True,
         "contract_version": VERSION,
         "session_id": active.session_id,

@@ -274,7 +274,8 @@ async def call_conversation_process_with_agent_retry(hass, data, *, debug=None, 
         raise DialogueError("conversation_context_too_large", 413)
     limit = 3 if turn is not None and (
         (turn.accepted_playback_narration and turn.effect_started)
-        or turn.interpreted_artist_research) else 2
+        or turn.interpreted_artist_research or turn.interpreted_context_research
+        or turn.interpreted_music_direction) else 2
     if turn is not None and turn.agent_calls >= limit:
         raise DialogueError("conversation_call_budget", 503)
     if turn is not None:

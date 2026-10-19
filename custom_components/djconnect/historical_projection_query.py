@@ -96,6 +96,23 @@ class HistoricalProjectionQueryService:
             if projection is not None
         )
 
+    async def async_conversation_source_visible(self, owner: str, message: dict) -> bool:
+        """Retained provider prose keeps its original source grant, not a label."""
+        source = message.get("session_turn",{}).get("provider_display_source")
+        if source is not None:
+            if (not isinstance(source,dict) or set(source) != {"provider","source_context"}
+                    or self._source_validator is None):
+                return False
+            if not await self._source_validator(owner, {"kind":"dj_moment", "body":json.dumps({
+                    "archive_basis":"owner_metadata_narration_v1", **source})}):
+                return False
+        for target in message.get("historical_entry_references",[]):
+            try:
+                await self.async_open_source_entry(owner,target['session_id'],target['entry_id'])
+            except PermissionError:
+                return False
+        return True
+
     async def _project_entry(self, owner: str, row: dict) -> dict | None:
         from .session_history_projection import project_entry
 
@@ -138,16 +155,9 @@ class HistoricalProjectionQueryService:
         # Explicit recursion state is passed through a task-local ContextVar below.
         token = _projection_ancestry.set(ancestry | {key})
         try:
-            for target in message.get("historical_entry_references", []):
-                try:
-                    await self._session(owner, target["session_id"])
-                except HistoricalProjectionAccessDenied:
-                    return None
-                source = await self._repository.async_entry_record(
-                    owner, target["session_id"], target["entry_id"]
-                )
-                if source is None or await self._project_entry(owner, source) is None:
-                    return None
+            if not await self.async_conversation_source_visible(owner,message):
+                entry.pop("conversation_reference",None)
+                return {**entry,"text":"","state":"source_withdrawn"}
         finally:
             _projection_ancestry.reset(token)
         entry.pop("conversation_reference", None)
@@ -439,6 +449,14 @@ class HistoricalProjectionQueryService:
             "normalization": "NFKC-casefold",
             "highlight_units": "utf16",
         }
+
+    async def async_open_source_entry(self, owner: str, session_id: str, entry_id: str) -> dict:
+        """Navigation receipts never grant retained text to a dependent turn/audio."""
+        opened=await self.async_open_entry(owner,session_id,entry_id)
+        if (opened['entry'].get('state')=='source_withdrawn'
+                or opened['entry'].get('kind')=='dj_publication'):
+            raise HistoricalProjectionAccessDenied('entry_source_withdrawn')
+        return opened
 
     async def async_open_entry(self, owner: str, session_id: str, entry_id: str) -> dict:
         from .session_history_projection import HistoryQueryError, public_session

@@ -231,6 +231,7 @@ async def async_handle_settings(hass, data, *, headers=None, write=False, operat
                 return error('settings_binding_changed', 409)
             def migration_requires_review():
                 return migration_state()['requires_review']
+            previous_mood_session = manager.current_active(context.profile_id)
             result = await manager.async_accept_dj_settings(
                 owner_profile_id=context.profile_id, operation_id=data['operation_id'], binding=binding,
                 patch=data['patch'], expected_defaults_revision=data['expected_defaults_revision'],
@@ -239,6 +240,12 @@ async def async_handle_settings(hass, data, *, headers=None, write=False, operat
                 migration_requires_review=migration_requires_review)
             snapshot = result['snapshot']
             if not result['replayed']:
+                if 'mood' in data['patch']:
+                    from .mood_music_steering import schedule
+                    feedback = schedule(hass, runtime, manager, context.profile_id,
+                        previous_mood_session, identity=identity, headers=headers, authorize=authority)
+                    if feedback is not None:
+                        result = {**result, 'mood_music_feedback': feedback}
                 bus = getattr(hass, 'bus', None)
                 if bus is not None:
                     try:
@@ -256,7 +263,9 @@ async def async_handle_settings(hass, data, *, headers=None, write=False, operat
         policy = VoicePolicy.from_options(voice_options(hass, runtime.config))
         projected_choices = (snapshot['session'] or {}).get('settings') or snapshot['defaults']
         register_delivery_admission(lambda: _require_authority(authority))
-        return {'success': True, **result, 'contract_version': SETTINGS_VERSION, 'binding': binding,
+        from .mood_music_steering import feedback_status
+        feedback = feedback_status(manager, context.profile_id)
+        return {'success': True, **result, **({'mood_music_feedback':feedback} if feedback is not None else {}), 'contract_version': SETTINGS_VERSION, 'binding': binding,
                 'scope': 'profile_and_active_session',
                 'migration': migration_state(activated=snapshot['activated'],
                                             accepted_contract_version=snapshot['accepted_contract_version']),

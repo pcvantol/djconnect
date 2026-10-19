@@ -85,6 +85,7 @@ def hashes():
     files.append(ROOT / 'tools/verification/askdj_research_outcomes.py')
     files.append(ROOT / 'tools/verification/askdj_catalogue_variations.py')
     files.append(ROOT / 'scripts/verification/askdj_semantic_read_golden.py')
+    files.append(ROOT / 'scripts/verification/askdj_contextual_quality.py')
     files.append(ROOT / 'scripts/verification/askdj_example_catalogue_golden.py')
     files.append(ROOT / 'scripts/verification/askdj_catalogue_provider_fixture.py')
     files.append(ROOT / 'custom_components/djconnect/ask_dj/examples_v1.json')
@@ -296,7 +297,7 @@ async def main():
         assert not kwargs.get("tools") and kwargs.get("store") is False
         if os.environ.get("DJC_SAFETY_PROBE") == "narration_golden":
             assert not any(value in inputs for value in ("Wednesday Morning", "1964", "Synthetic artist", "Synthetic recording")), "catalog or private value leaked into a narration model call"
-        golden = os.environ.get("DJC_SAFETY_PROBE") in {"contextual_golden", "full_golden", "narration_golden", "public_research", "semantic_reads", "catalogue_golden", "opening_golden", "album_golden"}
+        golden = os.environ.get("DJC_SAFETY_PROBE") in {"contextual_golden", "contextual_quality", "full_golden", "narration_golden", "public_research", "semantic_reads", "catalogue_golden", "opening_golden", "album_golden"}
         receipt = {"input_bytes": len(inputs.encode()), "model": model, "streaming": True,
                    "maximum_output_tokens":kwargs.get("max_output_tokens"),
                    "reasoning_effort":(kwargs.get('reasoning') or {}).get('effort')}
@@ -313,7 +314,7 @@ async def main():
                       16 if os.environ.get("DJC_SAFETY_PROBE") in {"opening_golden", "album_golden"} else
                       16 if os.environ.get("DJC_SAFETY_PROBE") == "public_research" and os.environ.get("DJC_PUBLIC_STYLE_MATRIX") == "1" else
                       10 if os.environ.get("DJC_SAFETY_PROBE") == "public_research" else
-                      MAX_MODEL_CALLS if os.environ.get("DJC_SAFETY_PROBE") == "contextual_golden" else
+                      MAX_MODEL_CALLS if os.environ.get("DJC_SAFETY_PROBE") in {"contextual_golden", "contextual_quality"} else
                       len(semantic_cases()) + 2 if os.environ.get("DJC_SAFETY_PROBE") == "semantic_reads" else
                       6 if os.environ.get("DJC_SAFETY_PROBE") == "narration_golden" and any(
                           os.environ.get(flag)=='1' for flag in ('DJC_RESEARCHED_PRODUCER','DJC_RESEARCHED_COMPOSER')) else
@@ -600,7 +601,7 @@ async def main():
                 "artists": [
                     {
                         "id": "a" * 22,
-                        "name": "Peter Luts" if os.environ.get("DJC_SAFETY_PROBE") == "contextual_golden" else "Synthetic performer",
+                        "name": "Peter Luts" if os.environ.get("DJC_SAFETY_PROBE") in {"contextual_golden", "contextual_quality"} else "Synthetic performer",
                         "uri": "spotify:artist:" + "a" * 22,
                     }
                 ],
@@ -806,7 +807,7 @@ async def main():
                                     {
                                         "target-type": "artist",
                                         "type": "composer",
-                                        "artist": {"name": "Peter Luts" if os.environ.get("DJC_SAFETY_PROBE") == "contextual_golden" else "Brian Eno"},
+                                        "artist": {"name": "Peter Luts" if os.environ.get("DJC_SAFETY_PROBE") in {"contextual_golden", "contextual_quality"} else "Brian Eno"},
                                     }
                                 ],
                             },
@@ -939,7 +940,7 @@ async def main():
                                 .get("metrics", {})
                                 .get("agent_calls"),
                                 "intent": body.get("intent"),
-                                "text": "[redacted]" if os.environ.get("DJC_SAFETY_PROBE") in {"contextual_golden", "full_golden", "catalogue_golden"} else body.get("text", "")[:450],
+                                "text": "[redacted]" if os.environ.get("DJC_SAFETY_PROBE") in {"contextual_golden", "contextual_quality", "full_golden", "catalogue_golden"} else body.get("text", "")[:450],
                             }
                         ),
                         flush=True,
@@ -1456,11 +1457,11 @@ async def main():
                     await api.close()
                     return
 
-                async def start(label):
+                async def start(label, *, mood="groove", persona="radio_dj", language="en"):
                     state.update(playing=True, position_ms=1000, last_tick=time.monotonic())
                     result = await call(
                         "session/start",
-                        {"mood": "groove", "dj_persona": "radio_dj", "language": "en"},
+                        {"mood": mood, "dj_persona": persona, "language": language},
                         label=label + "-start",
                         expected=201,
                     )
@@ -1468,7 +1469,8 @@ async def main():
                     assert (
                         active is not None and active.session_id == result["session"]["session_id"]
                     )
-                    explicit_only = os.environ.get('DJC_SAFETY_PROBE') in {'catalogue_golden', 'album_context'}
+                    explicit_only = (os.environ.get('DJC_SAFETY_PROBE') in {'catalogue_golden', 'album_context'}
+                        or (os.environ.get('DJC_SAFETY_PROBE') == 'contextual_quality' and label.startswith('quality-band-')))
                     producer_expression_only = (
                         os.environ.get('DJC_SAFETY_PROBE') == 'narration_golden'
                         and any(os.environ.get(flag)=='1' for flag in ('DJC_RESEARCHED_PRODUCER','DJC_RESEARCHED_COMPOSER'))
@@ -1997,6 +1999,24 @@ async def main():
                         "source_hashes":hashes(),"pairing":"ordinary_device_token_minted_persisted",
                         "core_transports":receipts,"model_calls":model_receipts,"paid_model_calls":len(model_receipts),
                         "provider_calls":provider_calls,"effects":mutations},indent=2)+"\n")
+                    await async_shutdown_persistence(h)
+                    await h.async_stop(force=True)
+                    await api.close()
+                    return
+
+                if os.environ.get("DJC_SAFETY_PROBE") == "contextual_quality":
+                    from scripts.verification.askdj_contextual_quality import run
+                    async def quality_history():
+                        reply = await client.get('/api/djconnect/v1/ask_dj/history',headers=headers,params=identity)
+                        assert reply.status == 200
+                        return await reply.json()
+                    report = await run(ask=ask,call=call,start=start,end=end,get_history=quality_history,
+                        mutations=mutations,model_receipts=model_receipts)
+                    report.update(source_hashes=hashes(),source_hashes_before=initial_source_hashes,
+                        source_unchanged=hashes()==initial_source_hashes,
+                        pairing='ordinary_device_token_minted_persisted',core_transports=receipts)
+                    Path(os.environ.get('DJC_OUTPUT','/lab/contextual-quality.json')).write_text(
+                        json.dumps(report,ensure_ascii=False,indent=2)+'\n')
                     await async_shutdown_persistence(h)
                     await h.async_stop(force=True)
                     await api.close()

@@ -1399,6 +1399,7 @@ async def async_handle_ask_dj_message_payload(
     persist_history: bool = True,
     action_request: tuple[str, Any] | None = None,
     _ha_service_runtime: Any | None = None,
+    _mood_transition: Any | None = None,
 ) -> tuple[dict[str, Any], int]:
     """Handle Ask DJ chat messages for HTTP and HA websocket transports."""
     headers = headers or {}
@@ -1429,8 +1430,12 @@ async def async_handle_ask_dj_message_payload(
         identity[CONF_CLIENT_TYPE] = client_type
         if not authorize_runtime_device_request(runtime, headers, identity.get("device_id"), client_type):
             return _error_payload("unauthorized"), 401
-    payload = {key: value for key, value in data.items() if key != "_frozen_playback_selection"}
+    payload = {key: value for key, value in data.items() if key not in {"_frozen_playback_selection", "_setting_feedback"}}
     payload.update({key: value for key, value in identity.items() if value is not None})
+    # identity_payload merges nested and top-level input; internal fields must
+    # be removed after that merge, too. Only the Python caller can set these.
+    payload.pop("_setting_feedback", None)
+    payload.pop("_frozen_playback_selection", None)
     payload = enrich_payload_with_mood_zone(payload)
     _debug_ask_dj_request("message", runtime, payload, user_id=user_id)
     from .ask_dj.service import async_exchange
@@ -1444,6 +1449,8 @@ async def async_handle_ask_dj_message_payload(
     if action_request is not None:
         payload["_command_action"] = action_request
     payload["input_type"] = "voice" if voice_input else "text"
+    if _mood_transition is not None:
+        payload["_setting_feedback"] = True
     payload.setdefault("audio_response","auto")
     bound_runtime, context, error, status = await _session_profile_context(
         hass, payload, headers=headers, user_id=user_id, source="session_conversation",
@@ -1461,6 +1468,18 @@ async def async_handle_ask_dj_message_payload(
     payload["music_dna_key"] = context.music_dna_key
 
     async def delegate(confirmed_payload, scope_key, selected_entry, playback_result):
+        if _mood_transition is not None:
+            from .mood_music_steering import response
+            if _mood_transition.profile_id != context.profile_id:
+                raise SessionConversationError("unauthorized", 403)
+            return await response(hass, bound_runtime, confirmed_payload, _mood_transition,
+                source_context={
+                    "backend_id":context.backend_id, "music_account_id":context.music_account_id,
+                    "provider_account_id":str(getattr(profile_storage(hass).household.music_accounts.get(
+                        context.music_account_id), "provider_account_id", "")),
+                    "provider_entry_id":str(bound_runtime.config.get("profile_backend_entry_id")
+                        or getattr(getattr(bound_runtime,"entry",None),"entry_id","")),
+                })
         return await http_helpers.async_handle_ask_dj(
             hass,
             bound_runtime,
@@ -2692,6 +2711,10 @@ async def async_handle_ask_dj_history_payload(
         result=await manager.async_history("profile:"+context.profile_id,since_revision=_int_or_none(payload.get("since_revision")),limit=history_limit)
         safe=[]
         for message in result["messages"]:
+            if not await query.async_conversation_source_visible(context.profile_id,message):
+                safe.append({**message,"text":"", "status":"source_withdrawn", "images":[],
+                    "sources":[], "links":[], "playback_actions":[], "audio_url":None})
+                continue
             visible=True
             for target in message.get("historical_entry_references",[]):
                 try:

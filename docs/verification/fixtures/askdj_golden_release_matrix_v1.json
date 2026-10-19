@@ -7312,6 +7312,682 @@
           "proof_boundary": "Contract/negative evidence only while base FAIL. No paid variants generated and no actual variation product execution claimed. Release requires distinct catalogue_variations profile; missing frozen corpus fails closed."
         }
       ]
+    },
+    {
+      "id": "ASKDJ-FLOW-contribution-exploration",
+      "owning_tests": [
+        {
+          "file": "tests/test_ask_dj_exploration.py",
+          "method": "test_research_plan_is_closed_and_selected_public_context_is_authority"
+        },
+        {
+          "file": "tests/test_ask_dj_exploration.py",
+          "method": "test_generic_more_researches_selected_composer_and_preserves_follow_up_without_playback"
+        },
+        {
+          "file": "tests/test_ask_dj_exploration.py",
+          "method": "test_generic_affordance_all_locales_and_dynamic_angles"
+        },
+        {
+          "file": "tests/test_ask_dj_exploration.py",
+          "method": "test_failed_subject_plan_never_searches_an_unrelated_artist"
+        },
+        {
+          "file": "tests/test_ask_dj_exploration.py",
+          "method": "test_open_exploration_all_five_locales_preserves_actual_subject_and_style"
+        },
+        {
+          "file": "tests/test_ask_dj_exploration.py",
+          "method": "test_freeworded_typo_question_uses_llm_and_qualified_context"
+        },
+        {
+          "file": "tests/test_ask_dj_exploration.py",
+          "method": "test_selected_producer_role_does_not_borrow_different_performer"
+        },
+        {
+          "file": "tests/test_ask_dj_exploration.py",
+          "method": "test_multipart_named_story_uses_semantics_and_actual_question_name"
+        },
+        {
+          "file": "tests/test_askdj_contextual_release_gate.py",
+          "method": "test_actual_answer_pilot_covers_five_languages_and_cannot_qualify_a_fallback"
+        }
+      ],
+      "steps": [
+        {
+          "id": "ASKDJ-FLOW-contribution-exploration-1",
+          "question": "Selected contribution → Tell me more; typed composer/producer/artist or generic public subject; five locales, paraphrase and typo. Case: research plan is closed and selected public context is authority.",
+          "expected_answer": "Same admitted subject and Persona/Mood, actual bounded public research, independently reviewed prose and a relevant final question; no automatic playback.",
+          "model_policy": "Declared model/provider fixtures; bounded production owner route; no actual quality claim.",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_exploration.py",
+              "method": "test_research_plan_is_closed_and_selected_public_context_is_authority"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Named local regression execution, not actual HA model, installed, native or audible acceptance."
+        },
+        {
+          "id": "ASKDJ-FLOW-contribution-exploration-2",
+          "question": "Selected contribution → Tell me more; typed composer/producer/artist or generic public subject; five locales, paraphrase and typo. Case: generic more researches selected composer and preserves follow up without playback.",
+          "expected_answer": "Same admitted subject and Persona/Mood, actual bounded public research, independently reviewed prose and a relevant final question; no automatic playback.",
+          "model_policy": "Declared model/provider fixtures; bounded production owner route; no actual quality claim.",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_exploration.py",
+              "method": "test_generic_more_researches_selected_composer_and_preserves_follow_up_without_playback"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Named local regression execution, not actual HA model, installed, native or audible acceptance."
+        },
+        {
+          "id": "ASKDJ-FLOW-contribution-exploration-3",
+          "question": "Selected contribution → Tell me more; typed composer/producer/artist or generic public subject; five locales, paraphrase and typo. Case: generic affordance all locales and dynamic angles.",
+          "expected_answer": "Same admitted subject and Persona/Mood, actual bounded public research, independently reviewed prose and a relevant final question; no automatic playback.",
+          "model_policy": "Declared model/provider fixtures; bounded production owner route; no actual quality claim.",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_exploration.py",
+              "method": "test_generic_affordance_all_locales_and_dynamic_angles"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Named local regression execution, not actual HA model, installed, native or audible acceptance."
+        },
+        {
+          "id": "ASKDJ-FLOW-contribution-exploration-4",
+          "question": "Selected contribution → Tell me more; typed composer/producer/artist or generic public subject; five locales, paraphrase and typo. Case: failed subject plan never searches an unrelated artist.",
+          "expected_answer": "Same admitted subject and Persona/Mood, actual bounded public research, independently reviewed prose and a relevant final question; no automatic playback.",
+          "model_policy": "Declared model/provider fixtures; bounded production owner route; no actual quality claim.",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_exploration.py",
+              "method": "test_failed_subject_plan_never_searches_an_unrelated_artist"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Named local regression execution, not actual HA model, installed, native or audible acceptance."
+        },
+        {
+          "id": "ASKDJ-FLOW-contribution-exploration-5",
+          "question": "Selected contribution → Tell me more; typed composer/producer/artist or generic public subject; five locales, paraphrase and typo. Case: open exploration all five locales preserves actual subject and style.",
+          "expected_answer": "Same admitted subject and Persona/Mood, actual bounded public research, independently reviewed prose and a relevant final question; no automatic playback.",
+          "model_policy": "Declared model/provider fixtures; bounded production owner route; no actual quality claim.",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_exploration.py",
+              "method": "test_open_exploration_all_five_locales_preserves_actual_subject_and_style"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Named local regression execution, not actual HA model, installed, native or audible acceptance."
+        },
+        {
+          "id": "ASKDJ-FLOW-contribution-exploration-6",
+          "question": "Selected contribution → Tell me more; typed composer/producer/artist or generic public subject; five locales, paraphrase and typo. Case: freeworded typo question uses llm and qualified context.",
+          "expected_answer": "Same admitted subject and Persona/Mood, actual bounded public research, independently reviewed prose and a relevant final question; no automatic playback.",
+          "model_policy": "Declared model/provider fixtures; bounded production owner route; no actual quality claim.",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_exploration.py",
+              "method": "test_freeworded_typo_question_uses_llm_and_qualified_context"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Named local regression execution, not actual HA model, installed, native or audible acceptance."
+        },
+        {
+          "id": "ASKDJ-FLOW-contribution-exploration-selected-producer-role-does-not-borrow-different-performer",
+          "question": "selected producer role does not borrow different performer",
+          "expected_answer": "Actual accepted owner/source/locale identities, generated clarification or grounded story; no automatic music effect; named regression must pass.",
+          "model_policy": "Explicit external fixtures, not narrative quality evidence.",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_exploration.py",
+              "method": "test_selected_producer_role_does_not_borrow_different_performer"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual model answers and independent editorial judgment are required in this WIP before narrative closure; native/installed proof stays separate."
+        },
+        {
+          "id": "ASKDJ-FLOW-contribution-exploration-multipart-named-story-uses-semantics-and-actual-question-name",
+          "question": "multipart named story uses semantics and actual question name",
+          "expected_answer": "Actual accepted owner/source/locale identities, generated clarification or grounded story; no automatic music effect; named regression must pass.",
+          "model_policy": "Explicit external fixtures, not narrative quality evidence.",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_exploration.py",
+              "method": "test_multipart_named_story_uses_semantics_and_actual_question_name"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual model answers and independent editorial judgment are required in this WIP before narrative closure; native/installed proof stays separate."
+        },
+        {
+          "id": "ASKDJ-FLOW-contribution-exploration-real-quality",
+          "question": "Selected contribution → Tell me more; typed composer/producer/artist or generic public subject; five locales, paraphrase and typo.",
+          "expected_answer": "Same admitted subject and Persona/Mood, actual bounded public research, independently reviewed prose and a relevant final question; no automatic playback. Actual configured HA model and native display/speech must be assessed separately.",
+          "model_policy": "Required actual HA Assist editorial pilot in scripts/verification/askdj_contextual_quality.py, real public sources and independently reviewed actual returned text; required in current WIP.",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_exploration.py",
+              "method": "test_research_plan_is_closed_and_selected_public_context_is_authority"
+            },
+            {
+              "file": "tests/test_ask_dj_exploration.py",
+              "method": "test_generic_more_researches_selected_composer_and_preserves_follow_up_without_playback"
+            },
+            {
+              "file": "tests/test_ask_dj_exploration.py",
+              "method": "test_generic_affordance_all_locales_and_dynamic_angles"
+            },
+            {
+              "file": "tests/test_ask_dj_exploration.py",
+              "method": "test_failed_subject_plan_never_searches_an_unrelated_artist"
+            },
+            {
+              "file": "tests/test_ask_dj_exploration.py",
+              "method": "test_open_exploration_all_five_locales_preserves_actual_subject_and_style"
+            },
+            {
+              "file": "tests/test_ask_dj_exploration.py",
+              "method": "test_freeworded_typo_question_uses_llm_and_qualified_context"
+            }
+          ],
+          "acceptance_status": "open_real_quality",
+          "proof_boundary": "Local fixtures do not prove warmth, relevance, factual grounding, native single tap, actual provider effect or audibility."
+        }
+      ]
+    },
+    {
+      "id": "ASKDJ-FLOW-mood-steering",
+      "owning_tests": [
+        {
+          "file": "tests/test_mood_music_steering.py",
+          "method": "test_feedback_uses_real_library_and_flow_without_automatic_playback_or_metadata_in_model"
+        },
+        {
+          "file": "tests/test_mood_music_steering.py",
+          "method": "test_second_request_identity_deduplicates_feedback_and_agent_calls"
+        },
+        {
+          "file": "tests/test_mood_music_steering.py",
+          "method": "test_changed_mood_rejects_old_proposal_before_effect"
+        },
+        {
+          "file": "tests/test_mood_music_steering.py",
+          "method": "test_frames_cannot_change_effects_through_extra_placeholders"
+        },
+        {
+          "file": "tests/test_mood_music_steering.py",
+          "method": "test_client_cannot_forge_server_mood_feedback_origin"
+        },
+        {
+          "file": "tests/test_mood_music_steering.py",
+          "method": "test_queue_changed_rejects_offer_without_playback"
+        },
+        {
+          "file": "tests/test_mood_music_steering.py",
+          "method": "test_history_clear_during_generation_withdraws_text_and_actions"
+        },
+        {
+          "file": "tests/test_mood_music_steering.py",
+          "method": "test_clear_during_debounce_does_not_repopulate_flow"
+        },
+        {
+          "file": "tests/test_mood_music_steering.py",
+          "method": "test_rapid_mood_changes_coalesce_to_last_accepted_revision"
+        },
+        {
+          "file": "tests/test_mood_music_steering.py",
+          "method": "test_unavailable_candidates_do_not_invent_recommendations"
+        },
+        {
+          "file": "tests/test_mood_music_steering.py",
+          "method": "test_rejected_narration_cannot_publish_an_offer"
+        },
+        {
+          "file": "tests/test_mood_music_steering.py",
+          "method": "test_daypart_uses_home_assistant_timezone_including_overnight"
+        },
+        {
+          "file": "tests/test_mood_music_steering.py",
+          "method": "test_only_confirmed_active_mood_changes_schedule_once_and_reads_do_not"
+        },
+        {
+          "file": "tests/test_mood_music_steering.py",
+          "method": "test_unrelated_library_is_not_a_mood_match_and_prompts_for_genre"
+        },
+        {
+          "file": "tests/test_mood_music_steering.py",
+          "method": "test_retained_provider_prose_keeps_source_and_speech_basis_and_withdraws"
+        },
+        {
+          "file": "tests/test_mood_music_steering.py",
+          "method": "test_freeworded_genre_reply_searches_actual_tracks_without_playing"
+        },
+        {
+          "file": "tests/test_mood_music_steering.py",
+          "method": "test_changed_mood_withdraws_pending_genre_question_before_lookup"
+        },
+        {
+          "file": "tests/test_askdj_contextual_release_gate.py",
+          "method": "test_actual_answer_pilot_covers_five_languages_and_cannot_qualify_a_fallback"
+        },
+        {
+          "file": "tests/test_mood_music_steering.py",
+          "method": "test_source_withdrawal_reaches_quoted_descendants_history_retry_and_speech"
+        },
+        {
+          "file": "tests/test_mood_music_steering.py",
+          "method": "test_ambiguous_yes_reasks_admitted_direction_without_effect_or_deadline_renewal"
+        },
+        {
+          "file": "tests/test_mood_music_steering.py",
+          "method": "test_declines_in_five_languages_consume_clarification_without_lookup_or_effect"
+        },
+        {
+          "file": "tests/test_mood_music_steering.py",
+          "method": "test_topic_change_returns_to_common_route_and_consumes_clarification"
+        },
+        {
+          "file": "tests/test_mood_music_steering.py",
+          "method": "test_topic_change_preserves_its_new_confirmation_pending"
+        },
+        {
+          "file": "tests/test_mood_music_steering.py",
+          "method": "test_pending_expiry_identity_and_mood_are_rechecked_after_interpretation"
+        }
+      ],
+      "steps": [
+        {
+          "id": "ASKDJ-FLOW-mood-steering-1",
+          "question": "Accept a Session Mood change; inspect proposal, change Mood/queue, retry or clear history during work. Case: feedback uses real library and flow without automatic playback or metadata in model.",
+          "expected_answer": "One latest-revision persisted question with actual library/opt-in Discover actions, no automatic effect; reject stale choice, wrong origin and unqualified next/full replacement.",
+          "model_policy": "Declared model/provider fixtures; bounded production owner route; no actual quality claim.",
+          "owning_tests": [
+            {
+              "file": "tests/test_mood_music_steering.py",
+              "method": "test_feedback_uses_real_library_and_flow_without_automatic_playback_or_metadata_in_model"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Named local regression execution, not actual HA model, installed, native or audible acceptance."
+        },
+        {
+          "id": "ASKDJ-FLOW-mood-steering-2",
+          "question": "Accept a Session Mood change; inspect proposal, change Mood/queue, retry or clear history during work. Case: second request identity deduplicates feedback and agent calls.",
+          "expected_answer": "One latest-revision persisted question with actual library/opt-in Discover actions, no automatic effect; reject stale choice, wrong origin and unqualified next/full replacement.",
+          "model_policy": "Declared model/provider fixtures; bounded production owner route; no actual quality claim.",
+          "owning_tests": [
+            {
+              "file": "tests/test_mood_music_steering.py",
+              "method": "test_second_request_identity_deduplicates_feedback_and_agent_calls"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Named local regression execution, not actual HA model, installed, native or audible acceptance."
+        },
+        {
+          "id": "ASKDJ-FLOW-mood-steering-3",
+          "question": "Accept a Session Mood change; inspect proposal, change Mood/queue, retry or clear history during work. Case: changed mood rejects old proposal before effect.",
+          "expected_answer": "One latest-revision persisted question with actual library/opt-in Discover actions, no automatic effect; reject stale choice, wrong origin and unqualified next/full replacement.",
+          "model_policy": "Declared model/provider fixtures; bounded production owner route; no actual quality claim.",
+          "owning_tests": [
+            {
+              "file": "tests/test_mood_music_steering.py",
+              "method": "test_changed_mood_rejects_old_proposal_before_effect"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Named local regression execution, not actual HA model, installed, native or audible acceptance."
+        },
+        {
+          "id": "ASKDJ-FLOW-mood-steering-4",
+          "question": "Accept a Session Mood change; inspect proposal, change Mood/queue, retry or clear history during work. Case: frames cannot change effects through extra placeholders.",
+          "expected_answer": "One latest-revision persisted question with actual library/opt-in Discover actions, no automatic effect; reject stale choice, wrong origin and unqualified next/full replacement.",
+          "model_policy": "Declared model/provider fixtures; bounded production owner route; no actual quality claim.",
+          "owning_tests": [
+            {
+              "file": "tests/test_mood_music_steering.py",
+              "method": "test_frames_cannot_change_effects_through_extra_placeholders"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Named local regression execution, not actual HA model, installed, native or audible acceptance."
+        },
+        {
+          "id": "ASKDJ-FLOW-mood-steering-5",
+          "question": "Accept a Session Mood change; inspect proposal, change Mood/queue, retry or clear history during work. Case: client cannot forge server mood feedback origin.",
+          "expected_answer": "One latest-revision persisted question with actual library/opt-in Discover actions, no automatic effect; reject stale choice, wrong origin and unqualified next/full replacement.",
+          "model_policy": "Declared model/provider fixtures; bounded production owner route; no actual quality claim.",
+          "owning_tests": [
+            {
+              "file": "tests/test_mood_music_steering.py",
+              "method": "test_client_cannot_forge_server_mood_feedback_origin"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Named local regression execution, not actual HA model, installed, native or audible acceptance."
+        },
+        {
+          "id": "ASKDJ-FLOW-mood-steering-6",
+          "question": "Accept a Session Mood change; inspect proposal, change Mood/queue, retry or clear history during work. Case: queue changed rejects offer without playback.",
+          "expected_answer": "One latest-revision persisted question with actual library/opt-in Discover actions, no automatic effect; reject stale choice, wrong origin and unqualified next/full replacement.",
+          "model_policy": "Declared model/provider fixtures; bounded production owner route; no actual quality claim.",
+          "owning_tests": [
+            {
+              "file": "tests/test_mood_music_steering.py",
+              "method": "test_queue_changed_rejects_offer_without_playback"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Named local regression execution, not actual HA model, installed, native or audible acceptance."
+        },
+        {
+          "id": "ASKDJ-FLOW-mood-steering-7",
+          "question": "Accept a Session Mood change; inspect proposal, change Mood/queue, retry or clear history during work. Case: history clear during generation withdraws text and actions.",
+          "expected_answer": "One latest-revision persisted question with actual library/opt-in Discover actions, no automatic effect; reject stale choice, wrong origin and unqualified next/full replacement.",
+          "model_policy": "Declared model/provider fixtures; bounded production owner route; no actual quality claim.",
+          "owning_tests": [
+            {
+              "file": "tests/test_mood_music_steering.py",
+              "method": "test_history_clear_during_generation_withdraws_text_and_actions"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Named local regression execution, not actual HA model, installed, native or audible acceptance."
+        },
+        {
+          "id": "ASKDJ-FLOW-mood-steering-8",
+          "question": "Accept a Session Mood change; inspect proposal, change Mood/queue, retry or clear history during work. Case: clear during debounce does not repopulate flow.",
+          "expected_answer": "One latest-revision persisted question with actual library/opt-in Discover actions, no automatic effect; reject stale choice, wrong origin and unqualified next/full replacement.",
+          "model_policy": "Declared model/provider fixtures; bounded production owner route; no actual quality claim.",
+          "owning_tests": [
+            {
+              "file": "tests/test_mood_music_steering.py",
+              "method": "test_clear_during_debounce_does_not_repopulate_flow"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Named local regression execution, not actual HA model, installed, native or audible acceptance."
+        },
+        {
+          "id": "ASKDJ-FLOW-mood-steering-9",
+          "question": "Accept a Session Mood change; inspect proposal, change Mood/queue, retry or clear history during work. Case: rapid mood changes coalesce to last accepted revision.",
+          "expected_answer": "One latest-revision persisted question with actual library/opt-in Discover actions, no automatic effect; reject stale choice, wrong origin and unqualified next/full replacement.",
+          "model_policy": "Declared model/provider fixtures; bounded production owner route; no actual quality claim.",
+          "owning_tests": [
+            {
+              "file": "tests/test_mood_music_steering.py",
+              "method": "test_rapid_mood_changes_coalesce_to_last_accepted_revision"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Named local regression execution, not actual HA model, installed, native or audible acceptance."
+        },
+        {
+          "id": "ASKDJ-FLOW-mood-steering-10",
+          "question": "Accept a Session Mood change; inspect proposal, change Mood/queue, retry or clear history during work. Case: unavailable candidates do not invent recommendations.",
+          "expected_answer": "One latest-revision persisted question with actual library/opt-in Discover actions, no automatic effect; reject stale choice, wrong origin and unqualified next/full replacement.",
+          "model_policy": "Declared model/provider fixtures; bounded production owner route; no actual quality claim.",
+          "owning_tests": [
+            {
+              "file": "tests/test_mood_music_steering.py",
+              "method": "test_unavailable_candidates_do_not_invent_recommendations"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Named local regression execution, not actual HA model, installed, native or audible acceptance."
+        },
+        {
+          "id": "ASKDJ-FLOW-mood-steering-11",
+          "question": "Accept a Session Mood change; inspect proposal, change Mood/queue, retry or clear history during work. Case: rejected narration cannot publish an offer.",
+          "expected_answer": "One latest-revision persisted question with actual library/opt-in Discover actions, no automatic effect; reject stale choice, wrong origin and unqualified next/full replacement.",
+          "model_policy": "Declared model/provider fixtures; bounded production owner route; no actual quality claim.",
+          "owning_tests": [
+            {
+              "file": "tests/test_mood_music_steering.py",
+              "method": "test_rejected_narration_cannot_publish_an_offer"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Named local regression execution, not actual HA model, installed, native or audible acceptance."
+        },
+        {
+          "id": "ASKDJ-FLOW-mood-steering-12",
+          "question": "Accept a Session Mood change; inspect proposal, change Mood/queue, retry or clear history during work. Case: daypart uses home assistant timezone including overnight.",
+          "expected_answer": "One latest-revision persisted question with actual library/opt-in Discover actions, no automatic effect; reject stale choice, wrong origin and unqualified next/full replacement.",
+          "model_policy": "Declared model/provider fixtures; bounded production owner route; no actual quality claim.",
+          "owning_tests": [
+            {
+              "file": "tests/test_mood_music_steering.py",
+              "method": "test_daypart_uses_home_assistant_timezone_including_overnight"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Named local regression execution, not actual HA model, installed, native or audible acceptance."
+        },
+        {
+          "id": "ASKDJ-FLOW-mood-steering-13",
+          "question": "Accept a Session Mood change; inspect proposal, change Mood/queue, retry or clear history during work. Case: only confirmed active mood changes schedule once and reads do not.",
+          "expected_answer": "One latest-revision persisted question with actual library/opt-in Discover actions, no automatic effect; reject stale choice, wrong origin and unqualified next/full replacement.",
+          "model_policy": "Declared model/provider fixtures; bounded production owner route; no actual quality claim.",
+          "owning_tests": [
+            {
+              "file": "tests/test_mood_music_steering.py",
+              "method": "test_only_confirmed_active_mood_changes_schedule_once_and_reads_do_not"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Named local regression execution, not actual HA model, installed, native or audible acceptance."
+        },
+        {
+          "id": "ASKDJ-FLOW-mood-steering-unrelated-library-is-not-a-mood-match-and-prompts-for-genre",
+          "question": "unrelated library is not a mood match and prompts for genre",
+          "expected_answer": "Actual accepted owner/source/locale identities, generated clarification or grounded story; no automatic music effect; named regression must pass.",
+          "model_policy": "Explicit external fixtures, not narrative quality evidence.",
+          "owning_tests": [
+            {
+              "file": "tests/test_mood_music_steering.py",
+              "method": "test_unrelated_library_is_not_a_mood_match_and_prompts_for_genre"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual model answers and independent editorial judgment are required in this WIP before narrative closure; native/installed proof stays separate."
+        },
+        {
+          "id": "ASKDJ-FLOW-mood-steering-retained-provider-prose-keeps-source-and-speech-basis-and-withdraws",
+          "question": "retained provider prose keeps source and speech basis and withdraws",
+          "expected_answer": "Actual accepted owner/source/locale identities, generated clarification or grounded story; no automatic music effect; named regression must pass.",
+          "model_policy": "Explicit external fixtures, not narrative quality evidence.",
+          "owning_tests": [
+            {
+              "file": "tests/test_mood_music_steering.py",
+              "method": "test_retained_provider_prose_keeps_source_and_speech_basis_and_withdraws"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual model answers and independent editorial judgment are required in this WIP before narrative closure; native/installed proof stays separate."
+        },
+        {
+          "id": "ASKDJ-FLOW-mood-steering-freeworded-genre-reply-searches-actual-tracks-without-playing",
+          "question": "freeworded genre reply searches actual tracks without playing",
+          "expected_answer": "Actual accepted owner/source/locale identities, generated clarification or grounded story; no automatic music effect; named regression must pass.",
+          "model_policy": "Explicit external fixtures, not narrative quality evidence.",
+          "owning_tests": [
+            {
+              "file": "tests/test_mood_music_steering.py",
+              "method": "test_freeworded_genre_reply_searches_actual_tracks_without_playing"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual model answers and independent editorial judgment are required in this WIP before narrative closure; native/installed proof stays separate."
+        },
+        {
+          "id": "ASKDJ-FLOW-mood-steering-changed-mood-withdraws-pending-genre-question-before-lookup",
+          "question": "changed mood withdraws pending genre question before lookup",
+          "expected_answer": "Actual accepted owner/source/locale identities, generated clarification or grounded story; no automatic music effect; named regression must pass.",
+          "model_policy": "Explicit external fixtures, not narrative quality evidence.",
+          "owning_tests": [
+            {
+              "file": "tests/test_mood_music_steering.py",
+              "method": "test_changed_mood_withdraws_pending_genre_question_before_lookup"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual model answers and independent editorial judgment are required in this WIP before narrative closure; native/installed proof stays separate."
+        },
+        {
+          "id": "ASKDJ-FLOW-mood-steering-source-withdrawal-reaches-quoted-descendants-history-retry-and-speech",
+          "question": "source withdrawal reaches quoted descendants history retry and speech",
+          "expected_answer": "Exact source and owner identity; preserve entry IDs/order while withdrawing original and dependent text, speech and retry after loss of source authority.",
+          "model_policy": "Declared external fixtures; real Store/SQLite owners.",
+          "owning_tests": [
+            {
+              "file": "tests/test_mood_music_steering.py",
+              "method": "test_source_withdrawal_reaches_quoted_descendants_history_retry_and_speech"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Causal source regression, not actual narrative/style/native/installed acceptance."
+        },
+        {
+          "id": "ASKDJ-FLOW-mood-steering-ambiguous-yes-reasks-admitted-direction-without-effect-or-deadline-renewal",
+          "question": "Respond ambiguously to the genre clarification without selecting music.",
+          "expected_answer": "Reask admitted generated direction question, no lookup or playback, no deadline renewal.",
+          "model_policy": "One closed interpretation, no extra generation allowance for ambiguity.",
+          "owning_tests": [
+            {
+              "file": "tests/test_mood_music_steering.py",
+              "method": "test_ambiguous_yes_reasks_admitted_direction_without_effect_or_deadline_renewal"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source fixture; actual warm multilingual clarification remains required in this WIP."
+        },
+        {
+          "id": "ASKDJ-FLOW-mood-steering-declines-in-five-languages-consume-clarification-without-lookup-or-effect",
+          "question": "Decline the genre proposal in each of the five supported languages.",
+          "expected_answer": "Localized acknowledgement; pending consumed, no lookup, playback or repeated choice question.",
+          "model_policy": "One closed decision; no automatic effects or new source authority.",
+          "owning_tests": [
+            {
+              "file": "tests/test_mood_music_steering.py",
+              "method": "test_declines_in_five_languages_consume_clarification_without_lookup_or_effect"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Explicit model/backend fixtures; actual multilingual conversational quality remains required in this WIP."
+        },
+        {
+          "id": "ASKDJ-FLOW-mood-steering-topic-change-returns-to-common-route-and-consumes-clarification",
+          "question": "Ask a different music question while the genre choice is pending.",
+          "expected_answer": "The existing Ask DJ route answers the new topic; the old genre clarification is consumed on successful completion.",
+          "model_policy": "One closed decision; no automatic effects or new source authority.",
+          "owning_tests": [
+            {
+              "file": "tests/test_mood_music_steering.py",
+              "method": "test_topic_change_returns_to_common_route_and_consumes_clarification"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Explicit model/backend fixtures; actual multilingual conversational quality remains required in this WIP."
+        },
+        {
+          "id": "ASKDJ-FLOW-mood-steering-topic-change-preserves-its-new-confirmation-pending",
+          "question": "Change topic and receive a new confirmation question.",
+          "expected_answer": "Consume the old genre clarification without discarding the new common-route pending question.",
+          "model_policy": "One closed interpretation; original identity, deadline and Mood guards apply across awaits and final admission.",
+          "owning_tests": [
+            {
+              "file": "tests/test_mood_music_steering.py",
+              "method": "test_topic_change_preserves_its_new_confirmation_pending"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Causal common-owner/source regression; actual narrative quality remains required in this WIP."
+        },
+        {
+          "id": "ASKDJ-FLOW-mood-steering-pending-expiry-identity-and-mood-are-rechecked-after-interpretation",
+          "question": "Expire, replace or change Mood while the model interprets a selected/ambiguous/rejected genre reply.",
+          "expected_answer": "Reject after the await and before catalogue lookup or admission; no stale text, durable entry, speech or renewed choice.",
+          "model_policy": "One closed interpretation; original identity, deadline and Mood guards apply across awaits and final admission.",
+          "owning_tests": [
+            {
+              "file": "tests/test_mood_music_steering.py",
+              "method": "test_pending_expiry_identity_and_mood_are_rechecked_after_interpretation"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Causal common-owner/source regression; actual narrative quality remains required in this WIP."
+        },
+        {
+          "id": "ASKDJ-FLOW-mood-steering-real-quality",
+          "question": "Accept a Session Mood change; inspect proposal, change Mood/queue, retry or clear history during work.",
+          "expected_answer": "One latest-revision persisted question with actual library/opt-in Discover actions, no automatic effect; reject stale choice, wrong origin and unqualified next/full replacement. Actual configured HA model and native display/speech must be assessed separately.",
+          "model_policy": "Required actual HA Assist editorial pilot in scripts/verification/askdj_contextual_quality.py, real public sources and independently reviewed actual returned text; required in current WIP.",
+          "owning_tests": [
+            {
+              "file": "tests/test_mood_music_steering.py",
+              "method": "test_feedback_uses_real_library_and_flow_without_automatic_playback_or_metadata_in_model"
+            },
+            {
+              "file": "tests/test_mood_music_steering.py",
+              "method": "test_second_request_identity_deduplicates_feedback_and_agent_calls"
+            },
+            {
+              "file": "tests/test_mood_music_steering.py",
+              "method": "test_changed_mood_rejects_old_proposal_before_effect"
+            },
+            {
+              "file": "tests/test_mood_music_steering.py",
+              "method": "test_frames_cannot_change_effects_through_extra_placeholders"
+            },
+            {
+              "file": "tests/test_mood_music_steering.py",
+              "method": "test_client_cannot_forge_server_mood_feedback_origin"
+            },
+            {
+              "file": "tests/test_mood_music_steering.py",
+              "method": "test_queue_changed_rejects_offer_without_playback"
+            },
+            {
+              "file": "tests/test_mood_music_steering.py",
+              "method": "test_history_clear_during_generation_withdraws_text_and_actions"
+            },
+            {
+              "file": "tests/test_mood_music_steering.py",
+              "method": "test_clear_during_debounce_does_not_repopulate_flow"
+            },
+            {
+              "file": "tests/test_mood_music_steering.py",
+              "method": "test_rapid_mood_changes_coalesce_to_last_accepted_revision"
+            },
+            {
+              "file": "tests/test_mood_music_steering.py",
+              "method": "test_unavailable_candidates_do_not_invent_recommendations"
+            },
+            {
+              "file": "tests/test_mood_music_steering.py",
+              "method": "test_rejected_narration_cannot_publish_an_offer"
+            },
+            {
+              "file": "tests/test_mood_music_steering.py",
+              "method": "test_daypart_uses_home_assistant_timezone_including_overnight"
+            },
+            {
+              "file": "tests/test_mood_music_steering.py",
+              "method": "test_only_confirmed_active_mood_changes_schedule_once_and_reads_do_not"
+            }
+          ],
+          "acceptance_status": "open_real_quality",
+          "proof_boundary": "Local fixtures do not prove warmth, relevance, factual grounding, native single tap, actual provider effect or audibility."
+        }
+      ]
     }
   ],
   "evidence_boundaries": [
@@ -7725,6 +8401,18 @@
       "family_id": "ASKDJ-FLOW-style-lifecycle",
       "finding": "Four observed tracks keep producing composition/production credits. Artist source keys previously blocked all later artist stories; no published semantic episode memory; ambiguous names could resolve an unrelated Wikipedia page. Source sequence/canonical-identity repairs local, real Persona/Mood narration/client qualification remains open.",
       "core_qualification": "open"
+    },
+    {
+      "id": "ASKDJ-ISSUE-contribution-exploration",
+      "family_id": "ASKDJ-FLOW-contribution-exploration",
+      "finding": "Selected contribution → Tell me more; typed composer/producer/artist or generic public subject; five locales, paraphrase and typo. Core implementation and named causal regressions are in consolidated WIP. Real-source/model and Apple client acceptance remain open; no installed fix claimed.",
+      "core_qualification": "open"
+    },
+    {
+      "id": "ASKDJ-ISSUE-mood-steering",
+      "family_id": "ASKDJ-FLOW-mood-steering",
+      "finding": "Accept a Session Mood change; inspect proposal, change Mood/queue, retry or clear history during work. Core implementation and named causal regressions are in consolidated WIP. Real-source/model and Apple client acceptance remain open; no installed fix claimed.",
+      "core_qualification": "open"
     }
   ],
   "regression_suite_files": [
@@ -7745,7 +8433,9 @@
     "tests/test_processor_runtime.py",
     "tests/test_ask_dj_catalogue_variations.py",
     "tests/test_session_artist_images.py",
-    "tests/test_session_story_variety.py"
+    "tests/test_session_story_variety.py",
+    "tests/test_ask_dj_exploration.py",
+    "tests/test_mood_music_steering.py"
   ],
   "issue_policy": {
     "new_findings": "Add a named failing reproduction and semantic expected answer in the same corrective candidate; preserve it after the fix.",

@@ -620,7 +620,7 @@ async def wikipedia(fetch, subject, question, locale, *, expected_roles=(), expe
     return None
 
 
-async def web_references(fetch, subject, question, locale, *, album=None):
+async def web_references(fetch, subject, question, locale, *, album=None, angle=""):
     """Best-effort discovery, then actual public pages; no snippet-only evidence."""
     # Never export the full conversational question or its incidental private context.
     topic = (
@@ -630,7 +630,8 @@ async def web_references(fetch, subject, question, locale, *, album=None):
         if re.search(r"member|bandlid|bandleden|membre|miembro|mitglied", question, re.I)
         else "music biography discography"
     )
-    query = subject + ' official ' + topic
+    from .exploration import ANGLES
+    query = subject + ' official ' + ANGLES.get(angle, topic)
     if album is not None:
         query = subject + ' "' + album[2] + '" recording interview behind the scenes'
     search = "https://html.duckduckgo.com/html/?" + urlencode({"q": query})
@@ -695,7 +696,7 @@ async def web_references(fetch, subject, question, locale, *, album=None):
 
 
 async def research(subject, question, locale, guard, *, qualified_music=False, expected_roles=(),
-                   expected_entity_id="", allow_web=True, fetch=None,original_paragraphs=False,artist_introduction=False,story_topic=''):
+                   expected_entity_id="", allow_web=True, fetch=None,original_paragraphs=False,artist_introduction=False,story_topic='',research_angle=''):
     """One explicit turn owns source work; caller keeps all owner/Session guards."""
     if (
         not isinstance(subject, str)
@@ -735,7 +736,7 @@ async def research(subject, question, locale, guard, *, qualified_music=False, e
             pass
         try:
             found = (
-                await web_references(fetch, subject, question, locale)
+                await web_references(fetch, subject, question, locale, **({"angle": research_angle} if research_angle else {}))
                 if allow_web and (sources or qualified_music or MUSIC.search(question))
                 else []
             )
@@ -839,6 +840,14 @@ def resolve_partial_name(subject, subjects):
         if all(token in re.findall(r"[\wÀ-ÿ]+", name.casefold()) for token in tokens)
     ]
     return (matches[0], True, False) if len(matches) == 1 else (subject, False, len(matches) > 1)
+
+
+def rich_introduction(text):
+    """Request shape, not authority for a public subject or its biography."""
+    return bool(re.match(
+        r"^(?:what do you know about|wat weet je over|was weißt du über|"
+        r"que sais-tu (?:de|sur)|qu[eé] sabes de|tell me (?:more )?about|"
+        r"vertel (?:me )?(?:meer )?over)\b", text.strip(), re.I))
 
 
 def explicit_public_subject(text):
@@ -1037,6 +1046,10 @@ def assessment_prompt(answer, context, language, question="", *, allow_prefix=Tr
         + recovery +
         "Ordinary equivalent paraphrases of an explicit technique are supported: recording using named tape loops may describe those loops as ingredients or building blocks of that recording. "
         "That equivalence adds no claimed sound, effect, intention, influence, origin, chronology, genre or causal consequence. Reject those additional claims unless explicitly evidenced; do not reject only for an everyday metaphor with the same meaning. "
+        "A final contextual follow-up may be an invitation, not a factual claim. Check all its factual "
+        "presuppositions against evidence; do not accept a question that invents a collaboration, event or promise. "
+        "Classify a purely subjective invitation without factual premises as dj_appreciation; "
+        "a question containing a factual premise still needs its actual supporting source. "
         "True only if every externally checkable factual assertion in "
         "the answer responds to the user's actual music question and follows from the fetched excerpts or exact qualified music credit context. Faithful paraphrases and ordinary translations are allowed; do not reject a faithful summary merely for different wording. Correctly distinguish composer, "
         "producer, band member and performer. Counts and exclusivity must agree: four performing musicians plus an additional credited member are not four total members. Do not infer identity from a same-name result. Conflicts and current concert "

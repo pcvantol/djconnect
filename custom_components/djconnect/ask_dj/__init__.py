@@ -141,7 +141,14 @@ async def async_handle_ask_dj(
         return await current_artist_read(hass, runtime, confirmed_entry)
     if action_request is not None:
         return await _execute_dialogue_command(hass, runtime, payload, action_request, user_id=user_id)
-    if turn is not None and turn.frame.pending and text.casefold().strip(" .!?") in {"yes", "ja", "oui", "sí", "si", "no", "nee", "nein", "non"}:
+    if (turn is not None and turn.frame.pending and turn.frame.pending.get("type")=="mood_direction"
+            and not turn.fast_control):
+        from ..mood_music_steering import direction_response
+        direction = await direction_response(hass,runtime,payload,text)
+        if direction is not None:
+            return direction
+    if (turn is not None and turn.frame.pending and turn.frame.pending.get("type")=="playback_confirmation"
+            and text.casefold().strip(" .!?") in {"yes", "ja", "oui", "sí", "si", "no", "nee", "nein", "non"}):
         response_value = "no" if text.casefold().strip(" .!?") in {"no", "nee", "nein", "non"} else "yes"
         return await _execute_dialogue_command(hass, runtime, payload,
                                              ("ask_dj_followup_response", {"response_value": response_value}), user_id=user_id)
@@ -2823,6 +2830,8 @@ async def _informational_assist_response(
     output_devices: list[dict[str, Any]],
     *,
     research_subject: str | None = None,
+    research_angle: str = "",
+    contextual_research: bool = False,
 ) -> dict[str, Any]:
     if _looks_like_gibberish(text) or _looks_like_prompt_or_sandbox_attack(text):
         message = _unrecognized_request_text()
@@ -2844,6 +2853,12 @@ async def _informational_assist_response(
     if turn and not requests_lookup(text):
         subject, qualified_music, ambiguous = ((research_subject, True, False) if research_subject
             else public_research.subject_for_question(text, turn))
+        from .exploration import more_request
+        if (not research_subject and more_request(text) and turn.selected_read_context is not None
+                and turn.source_context.get("basis") == "cc0_normalized_fields_v1"):
+            # An open exploration chooses an angle through the existing read
+            # interpreter, even if just one typed name is available.
+            subject, ambiguous = "", False
         named_subject = public_research.explicit_public_subject(text)
         implicit_subject = not named_subject or not public_research.safe_subject(named_subject)
         if implicit_subject and not research_subject and semantic_reads.admissible_question(text):
@@ -2871,8 +2886,9 @@ async def _informational_assist_response(
             fetched_sources, research_state = await public_research.research(
                 subject, text, turn.style.get("language", "en"), turn.guard,
                 qualified_music=qualified_music,
-                original_paragraphs=bool(research_subject),
-                artist_introduction=bool(research_subject),
+                original_paragraphs=bool(research_subject or public_research.rich_introduction(text)),
+                artist_introduction=bool(research_subject and not contextual_research),
+                research_angle=research_angle,
                 expected_roles=tuple(s.get("role") for s in turn.source_context.get("subjects", [])
                                      if s.get("name", "").casefold() == public_research.safe_subject(subject).casefold()))
             turn.public_research = public_research.research_projection(subject, fetched_sources, research_state, question=text)
@@ -3001,7 +3017,7 @@ async def _informational_assist_response(
         # unchecked answer. No excerpts are copied into history or transport.
         accepted = False
         answer_state = 'assessment_unavailable'
-        if turn.agent_calls < (3 if turn.interpreted_artist_research else 2):
+        if turn.agent_calls < (3 if turn.interpreted_artist_research or turn.interpreted_context_research else 2):
             grounding_context = {"public_music_research": turn.public_research,
                                  "qualified_context": turn.source_context}
             id_review = bool(turn.interpreted_artist_research
@@ -10065,6 +10081,9 @@ async def _dialogue_choice_response(hass, runtime, payload, text, *, index=None)
                 "playback_actions": [], "intent": {"intent": "selected_result_identification" if single_artist else "selected_result_clarification"}}
         return None
     shown = turn.frame.result_set
+    if shown is not None and isinstance(shown.get("music_steering"), dict):
+        from ..mood_music_steering import validate_offer
+        await validate_offer(hass, runtime, shown["music_steering"], turn)
     if shown is None and activate_reference:
         raise DialogueError("choice_expired")
     if shown is None and play_reference and value is None:

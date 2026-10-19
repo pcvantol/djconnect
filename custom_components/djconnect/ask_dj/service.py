@@ -159,7 +159,7 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
         references_selected_subject = False
         if new_subject and (target or live):
             try:
-                selected_preview = ((await query().async_open_entry(profile_id, target["session_id"], target["entry_id"]))["entry"]
+                selected_preview = ((await query().async_open_source_entry(profile_id, target["session_id"], target["entry_id"]))["entry"]
                     if target else await _live_reference(manager, profile_id, live))
             except (PermissionError, SessionConversationError):
                 # An independent explicit topic must not be held hostage by an expired chip.
@@ -176,7 +176,8 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
         detached = bool((target or live) and not references_selected_subject
                         and (new_subject or (not references_topic(text) and intent.intent != "ask_music_info"))
                         and not explicit_quote(text))
-        reset_topic = detached or bool(new_subject and not references_selected_subject) or independent_search
+        reset_topic = (detached or bool(new_subject and not references_selected_subject) or independent_search
+                       or payload.get("_setting_feedback") is True)
         if detached:
             target = live = None
             context = {k: v for k, v in context.items() if k not in {"selected_entry", "selected_moment"}}
@@ -204,7 +205,7 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
             frame.retry = None
         selected = selected_preview if references_selected_subject else None
         if selected is None:
-            selected = (await query().async_open_entry(profile_id, target["session_id"], target["entry_id"]))["entry"] if target else None
+            selected = (await query().async_open_source_entry(profile_id, target["session_id"], target["entry_id"]))["entry"] if target else None
             if live:
                 selected = await _live_reference(manager, profile_id, live)
         dependencies = [target] if target else []
@@ -214,7 +215,7 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
                 if "moment_id" in dependency:
                     await _live_reference(manager, profile_id, dependency)
                 else:
-                    await query().async_open_entry(profile_id, dependency["session_id"], dependency["entry_id"])
+                    await query().async_open_source_entry(profile_id, dependency["session_id"], dependency["entry_id"])
             except (PermissionError, SessionConversationError):
                 frame.reset("expired-context:" + client_id)
                 break
@@ -235,7 +236,7 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
                 anchor = await query()._repository.async_current_playback_entry(profile_id, session_id, captured)
                 if anchor:
                     try:
-                        await query().async_open_entry(profile_id, session_id, anchor)
+                        await query().async_open_source_entry(profile_id, session_id, anchor)
                     except PermissionError:
                         persist_history = False
                     else:
@@ -269,7 +270,7 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
                 if "moment_id" in dependency:
                     await _live_reference(manager, profile_id, dependency)
                 else:
-                    await query().async_open_entry(profile_id, dependency["session_id"], dependency["entry_id"])
+                    await query().async_open_source_entry(profile_id, dependency["session_id"], dependency["entry_id"])
             # Nothing may yield after this final committed-state/paired-owner fence.
             if history_manager.scope_revision(scope) != scope_revision:
                 raise SessionConversationError("conversation_history_changed")
@@ -312,11 +313,13 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
         token = current_turn.set(turn)
         saved = await history_manager.async_saved_exchange(scope, client_id) if persist_history else None
         if saved:
+            if not await query().async_conversation_source_visible(profile_id,saved["assistant_message"]):
+                raise SessionConversationError("conversation_source_withdrawn",409)
             old = saved["user_message"].get("session_turn", {})
             if old.get("request_digest") != digest:
                 raise SessionConversationError("client_message_conflict")
             for dep in saved["assistant_message"].get("historical_entry_references", []):
-                await query().async_open_entry(profile_id, dep["session_id"], dep["entry_id"])
+                await query().async_open_source_entry(profile_id, dep["session_id"], dep["entry_id"])
             result = {**saved["assistant_message"], "success": True,
                       "dj_text": saved["assistant_message"]["text"], "deduplicated": True}
         else:
@@ -324,6 +327,8 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
             playback = await query().async_find_playback(profile_id, artist=artist) if artist else None
             result = await delegate(payload, scope, selected, playback)
             await turn.guard()
+            if turn.explicit_research_subject:
+                context = {k:v for k,v in context.items() if k not in {"selected_entry","selected_moment"}}
             if result.pop("_private_current_context", False):
                 # Live mutable intent and unqualified catalog retention are not
                 # promoted into the permanent conversation/Session archive.
@@ -341,10 +346,12 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
                        "request_digest": digest, "profile_id": profile_id, "context": context,
                        "effective_style": {**turn.style, "persona_revision": style_revision},
                        "captured_playback_item_id": captured if track_bound else "",
-                       "input_type": "voice" if payload.get("input_type") == "voice" else "text",
+                       "input_type": "setting_feedback" if payload.get("_setting_feedback") is True else "voice" if payload.get("input_type") == "voice" else "text",
                        "explicit_playback_request": explicit_action,
                        "implicit_playback_entry": implicit,
                        "dependency_entries": [d for d in dependencies if "entry_id" in d]}
+        if turn.provider_display_source is not None:
+            turn_record["provider_display_source"] = deepcopy(turn.provider_display_source)
         ids = []
         if persist_history:
             new = saved is None
@@ -377,7 +384,7 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
                     if await history_manager.async_scope_revision(scope) != expected:
                         raise SessionConversationError("conversation_history_changed")
                     for dependency in saved["assistant_message"].get("historical_entry_references", []):
-                        await query().async_open_entry(profile_id, dependency["session_id"], dependency["entry_id"])
+                        await query().async_open_source_entry(profile_id, dependency["session_id"], dependency["entry_id"])
                     # All authority/storage/source awaits precede this synchronous acceptance fence.
                     if history_manager.scope_revision(scope) != expected or history_grant_revision(hass, profile_id) != grant:
                         raise SessionConversationError("conversation_context_changed")

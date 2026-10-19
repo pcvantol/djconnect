@@ -1804,7 +1804,7 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
             5,
         )
 
-    async def selected_credit(self, name="Brian Eno"):
+    async def selected_credit(self, name="Brian Eno", *, producer=False):
         session = await self.fixture.manager.async_start(
             owner_profile_id="profile-a",
             locale="en",
@@ -1834,6 +1834,14 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
             "https://musicbrainz.org/work/11111111-1111-1111-1111-111111111111",
             session_facts.DisplayFactCore("work_composers", roles=(("composer", (name,)),)),
         )
+        if producer:
+            roles=(("producer",(name,)),("vocal",("Different performer",)))
+            fact=session_facts._fact("recording_credits", {"uri":fact.media_identity},"track_context",
+                [name]*5,
+                [" · ".join(f"{session_facts.CREDIT_ROLES[role][i]}: {', '.join(names)}"
+                    for role,names in roles) for i in range(5)],
+                "MusicBrainz","https://musicbrainz.org/recording/11111111-1111-1111-1111-111111111111",
+                session_facts.DisplayFactCore("recording_credits",roles=roles))
         # Real Moment engine and publication/storage chain, only external source evidence is synthetic.
         await self.fixture.manager.async_update_playback_projection(
             owner_profile_id="profile-a",

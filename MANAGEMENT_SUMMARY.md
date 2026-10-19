@@ -1,13 +1,43 @@
-Current same-band variation correction: LOCAL / UNPUBLISHED. Repeated credit
-subjects share a qualified-artist cooldown; fresh observed tracks can request
-new documented artist episodes using published-only novelty memory. Exact QID
-sitelinks repair ambiguous Wikipedia band names. Real isolated source-only
-Nirvana probe finds four topic passages; this is not real LLM/installed/native
-quality. Golden: 40 families / 273 steps / 64 issues; 45 remaining blockers
-(19 Core / 26 real quality). See `docs/verification/SESSION_STORY_VARIETY_20261019.md`.
-No merge, install, consumer dispatch or model call in this increment.
-
 # DJConnect Generation 2 Management Summary
+
+## Active consolidated Core WIP — 20 October 2026
+
+Owner explicitly selected one WIP for prior narrative/Golden work plus richer
+artist content, selected-contribution Tell me more/follow-up questions and Mood
+music steering (Core #1210/#1229/#1230; Apple #128/#150/#152). Branch
+`codex/core-contextual-dj-interactions-v1`, checkpoint `7494f753`, builds on
+protected main `8b221d07` and preserved narrative checkpoint `76cd4642`.
+The old narrative checkout was removed only after its 85-file recovery/checkpoint;
+no second product writer or consumer takeover. User-approved cleanup removed only
+the two already-merged local touch refs; recovery bundle verified.
+
+Current source adds role-bound public exploration in the existing Ask DJ owner,
+a relevant grounded closing question, and coalesced post-acceptance Mood feedback
+through existing Flow/action owners. Mood offers have no automatic music effect;
+only explicit start-context-now is supported. NEXT and full queue replacement
+remain explicitly unqualified. DNA opt-in, clear, owner, Mood/queue and action
+identity guards remain mandatory. No private library labels enter the model.
+
+Validation: 50 focused regressions PASS, including 23 Mood tests. The pinned HA
+image passes 744 owner tests without network or paid model calls; these use
+explicit model/provider fixtures. Independent technical and editorial reviews
+report no remaining blocker in the reviewed clarification/source deltas. The
+full host suite passes 2798 tests with 7 existing skips after those fixes.
+Golden inventory: 42 families / 308 steps / 66 reports, with 21 Core findings and
+28 real-quality steps still OPEN. Inventory/test membership does not close any
+function. Actual narrative quality is required within this WIP. Its 15-answer
+HA Assist pilot is prepared but has not run: automatic approval review rejected
+the live-key read and the explicit bounded key-use question is pending. No
+paid model calls occurred. Full genre-conversation and independent Persona/Mood
+assessment remain required beyond that first sample.
+No PR freeze, protected delivery, installation, native single-tap/audio or whole
+rich-history acceptance is claimed. Individual deletion #1225/#143 stays queued
+after valid completion of this owner-selected WIP.
+
+Contract and evidence boundaries:
+[Contextual DJ exploration](docs/product/CONTEXTUAL_DJ_EXPLORATION_V1.md).
+The sections below are preserved historical checkpoints, not current dispatch.
+
 
 ## Persona touch withdrawal — separate source Finalization, 19 October 2026
 
