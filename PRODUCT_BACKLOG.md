@@ -670,3 +670,17 @@ No lifecycle/start/replace/control, continuation, notification or second slice
 is admitted. Source [#1162](https://github.com/pcvantol/djconnect/pull/1162) is protected merged as
 `ccbb839f4e544b3739c31202685d147207e4c289`; [exact source readback](docs/verification/SESSION_HISTORY_SUMMARY_V1_SOURCE_READBACK.md)
 qualifies the connected producer. Separate Finalization retains its own gate.
+
+
+## Owner-selected Living Persona Avatar — 18 October2026
+
+Direct human pickup reconciles [Core #1208](https://github.com/pcvantol/djconnect/issues/1208)
+and [#1209](https://github.com/pcvantol/djconnect/issues/1209), including explicit
+touch addition6251008548, as one demand with the existing Core sole writer.
+[Canonical design](docs/product/DJ_PERSONA_LIVING_AVATAR_V1.md): preserve the one
+existing Apple current bubble, reuse real Silence/Mood/Presence/Ask DJ/speech
+authority, and retain native rendering ownership. Basic producer signal tests
+are source evidence only. Touch-reaction producer/speech admission remains
+NOT_IMPLEMENTED; source delivery, installed/native/audio/gesture acceptance and
+whole function remain OPEN. No second writer, automatic following selection,
+consumer source change or deployment is authorized by this backlog record.

@@ -1,3 +1,28 @@
+# Living Persona Avatar — selected Core contract; native/touch gates OPEN
+
+See docs/product/DJ_PERSONA_LIVING_AVATAR_V1.md and Core #1208/#1209, with Apple
+#126/#127. The avatar belongs inside NativeSessionMomentsView.currentCard, not
+a second persistent card. The latest owner refinement6252444250 uses a complete ring/headphones with
+contextual inner glyphs; its static same-identity mark replaces Session menu
+opticaldisc. Album-art fallback stays separate. The contract names actual typed
+announcement provenance and per-contribution/turn precedence; no generic Track
+card or old contribution may imply an announcement or mask a new Ask DJ turn.
+
+Existing producer truth already supplies Session identity/lifecycle, confirmed
+Mood/Persona/Presence revisions, native_delivery.current_silence_moment_id and
+original ordered/recovery admission. No new backend activity states or endpoint
+are needed for the base avatar. Existing optimistic native isSpeaking/.playing
+flags precede playback dispatch; actual renderer start/end/interruption evidence
+is still required before showing speaking.
+
+The source-only semantic derivative is
+examples/client_contracts/persona_living_avatar_v1/existing-signals.json, SHA256
+`e6305f8783d9714e3150bd12e52af31614347388be356dc7ca518a70b7906cd0`. It is not an HTTP wire payload, client reducer or installed/native
+proof. Touch reactions have no advertised operation/capability yet. Do not send
+a fabricated Ask DJ question, invent a Moment or infer HA-speaker permission.
+Selected reaction design/wire/limits await implementation and qualification.
+No consumer writer or implementation-completion claim follows from this note.
+
 # Passive Session projection — definitive protected producer pin
 
 18October urgent owner-history compatibility: the canonical Session history

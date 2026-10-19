@@ -150,3 +150,16 @@ precision. Live Persona changes are paired/CAS-confirmed and affect future
 realizations; accepted old text/style stays immutable during replay. Processor,
 voice, Mood and Presence remain separate. The selected implementation is still
 local/in progress; no historical or whole-product acceptance is rewritten.
+
+
+## Living avatar and explicit touch-reaction boundary
+
+[Living Persona Avatar v1](DJ_PERSONA_LIVING_AVATAR_V1.md) keeps behavioral
+Persona separate from local animation, Mood, Presence and actual audio output.
+Its basic visual identity consumes existing admitted signals. Selected explicit
+touch feedback is not a proactive Moment or a fabricated Ask DJ request; its
+content, bounded admission, original speech reference and output policy require
+their own qualification before activation. Curated reaction fallback and any
+optional qualified HA-agent expression must retain the five-language contract,
+confirmed Persona/Mood and factual/privacy boundaries. No current model/source
+permission or proactive-budget reset is inferred by a tap.
