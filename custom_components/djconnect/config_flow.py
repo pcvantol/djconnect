@@ -1081,19 +1081,26 @@ async def _assist_pipeline_options(hass: Any, current: Any = "") -> dict[str, st
     return _options_with_current(options, current)
 
 
-def _assist_pipeline_has_stt_tts(pipeline: Any) -> bool:
-    """Return true when an Assist pipeline can handle both voice directions."""
-    stt_engine = str(getattr(pipeline, "stt_engine", "") or "").strip()
-    tts_engine = str(getattr(pipeline, "tts_engine", "") or "").strip()
-    return bool(stt_engine and tts_engine)
+def _has_valid_assist_pipeline(hass: Any, pipeline_id: Any = "") -> bool:
+    """Validate the selected/preferred conversation route, never require audio.
 
+    Only setup admission: no provider calls, agent invocation, migration or
+    modification of the stored empty/default pipeline representation.
+    """
+    try:
+        from homeassistant.components.assist_pipeline.pipeline import async_get_pipeline
+        from homeassistant.components.conversation import async_get_agent
 
-def _has_valid_assist_pipeline(hass: Any) -> bool:
-    """Return whether HA has at least one Assist pipeline with STT and TTS."""
-    return any(
-        _assist_pipeline_has_stt_tts(pipeline)
-        for pipeline in _get_assist_pipelines(hass)
-    )
+        pipeline = async_get_pipeline(hass, str(pipeline_id or "").strip() or None)
+        engine = str(getattr(pipeline, "conversation_engine", "") or "").strip()
+        if not engine:
+            return False
+        agent = async_get_agent(hass, engine)
+        return (agent is not None and getattr(agent, "available", True) is True
+                and callable(getattr(agent, "async_process", None)))
+    except Exception:  # noqa: BLE001
+        _LOGGER.debug("DJConnect could not resolve the selected Assist conversation route")
+        return False
 
 
 def _base_voice_schema(
@@ -1441,7 +1448,9 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     ) -> FlowResult:
         """Choose setup path."""
         errors: dict[str, str] = {}
-        if not _has_valid_assist_pipeline(getattr(self, "hass", None)):
+        if not _has_valid_assist_pipeline(getattr(self, "hass", None),
+                (user_input or {}).get(CONF_ASSIST_PIPELINE_ID,
+                    self._discovered_defaults.get(CONF_ASSIST_PIPELINE_ID, ""))):
             errors["base"] = "assist_pipeline_required"
         if errors:
             if user_input is not None:
@@ -1562,7 +1571,9 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         is_app_pairing = (
             getattr(self, "_pairing_setup_method", "") == SETUP_METHOD_PAIR_APP
         )
-        if not _has_valid_assist_pipeline(getattr(self, "hass", None)):
+        if not _has_valid_assist_pipeline(getattr(self, "hass", None),
+                (user_input or {}).get(CONF_ASSIST_PIPELINE_ID,
+                    self._discovered_defaults.get(CONF_ASSIST_PIPELINE_ID, ""))):
             return self.async_show_form(
                 step_id=step_id,
                 data_schema=vol.Schema(self._user_schema()),
@@ -2569,10 +2580,16 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         data.update(self._profile_platform)
         data.update(
             _voice_defaults_for_client(
-                voice_values or {},
+                {**self._pairing, **(voice_values or {})},
                 client_type=CLIENT_TYPE_CONVERSATION_AGENT,
             )
         )
+        if not _has_valid_assist_pipeline(self.hass, data.get(CONF_ASSIST_PIPELINE_ID, "")):
+            return self.async_show_form(
+                step_id="voice",
+                data_schema=_conversation_agent_voice_schema(self.hass, data),
+                errors={"base": "assist_pipeline_required"},
+            )
         return self.async_create_entry(
             title=data.get(CONF_DEVICE_NAME, "DJConnect DJ"),
             data=data,
@@ -2604,6 +2621,14 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         data.update(self._profile_platform)
         if getattr(self, "_conversation_agent_only", False):
             return self._create_conversation_agent_entry(_voice_form_values(user_input))
+        # The Profile commit can yield while HA removes/changes this pipeline.
+        # Validate the exact persisted selection after the last await.
+        if not _has_valid_assist_pipeline(self.hass, data.get(CONF_ASSIST_PIPELINE_ID, "")):
+            return self.async_show_form(
+                step_id="voice",
+                data_schema=await _voice_schema(self.hass, data),
+                errors={"base": "assist_pipeline_required"},
+            )
         return self.async_create_entry(
             title=data.get(CONF_DEVICE_NAME, DEFAULT_DEVICE_NAME), data=data
         )
@@ -2618,6 +2643,9 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         errors: dict[str, str] = {}
         if user_input is not None:
             errors = _voice_errors(user_input)
+            if not _has_valid_assist_pipeline(self.hass, user_input.get(
+                    CONF_ASSIST_PIPELINE_ID, self._pairing.get(CONF_ASSIST_PIPELINE_ID, ""))):
+                errors["base"] = "assist_pipeline_required"
             errors.update(_announcement_errors(self.hass, user_input))
             if not errors:
                 try:
@@ -2634,7 +2662,7 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 client_type = data.get(CONF_CLIENT_TYPE, DEFAULT_CLIENT_TYPE)
                 data.update(
                     _voice_defaults_for_client(
-                        _voice_form_values(user_input),
+                        {**self._pairing, **_voice_form_values(user_input)},
                         client_type=client_type,
                     )
                 )

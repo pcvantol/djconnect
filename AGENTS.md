@@ -277,7 +277,7 @@ Firmware releases:
 README/release:
 - README moet actueel blijven voor HACS installatie, Spotify OAuth, endpoints, OTA en release workflow.
 - De product/marketing website staat buiten deze HA integration repo op `https://djconnect.dev`; houd deze repo gefocust op HACS integration, docs, brand assets en release workflow.
-- De website How To Start pagina moet dezelfde basisvereisten noemen als de HACS docs: Home Assistant, HACS, Spotify Premium, HA Assist pipeline met STT/TTS, lokaal netwerk tijdens pairing, ESP 2.4 GHz WiFi en Nabu Casa/externe HTTPS URL voor Spotify OAuth.
+- De website How To Start pagina moet dezelfde basisvereisten noemen als de HACS docs: Home Assistant, HACS, Spotify Premium, HA Assist-pipeline met een beschikbare conversatieagent (HA STT/TTS optioneel voor pairing), lokaal netwerk tijdens pairing, ESP 2.4 GHz WiFi en Nabu Casa/externe HTTPS URL voor Spotify OAuth.
 - Cross-repo sync prompts staan uitsluitend in `pcvantol/djconnect/SYNC_PROMPTS.md`; voeg oude losse promptbestanden of sibling-repo kopieën niet opnieuw toe.
 - Product roadmap staat uitsluitend in `pcvantol/djconnect/PRODUCT_ROADMAP.md`; voeg sibling-repo roadmap kopieën niet opnieuw toe.
 - Release checklist moet in README en AGENTS blijven staan en bij elke release worden gevolgd.

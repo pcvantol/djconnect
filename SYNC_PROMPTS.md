@@ -1,3 +1,16 @@
+# Apple dependency readback — 19 October2026
+
+Core #1211 pairing validation is a local separate candidate, not #1212 capability
+availability. Agent required; HA STT/TTS optional. Existing pairing wire and
+legacy capability booleans are unchanged; Apple #129 still waits for #1212.
+Core #1210 shared catalogue+compact Help is not delivered; Apple #128 remains
+contract-gated. Avatar basic/touch source contracts already qualified; exact
+HA-dev mainf8b28d2b3713ae0bfe11a44d32634d821c914cc8 was byte-verified205/205,
+actual touch1 discovery. Apple #127 owns real renderer callbacks/gestures and
+native/audio acceptance, not a new Core activity enum. Existing lane readback:
+https://github.com/pcvantol/djconnect/issues/1208#issuecomment-6263040552.
+No new consumer source work or private dispatch is initiated here.
+
 # Persona touch — protected Core source, not a consumer dispatch
 
 

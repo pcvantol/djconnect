@@ -6,6 +6,7 @@ from pathlib import Path
 import sys
 import types
 import unittest
+from unittest.mock import patch, AsyncMock
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -136,10 +137,25 @@ def install_homeassistant_stubs() -> None:
         types.SimpleNamespace(
             id="default",
             name="Default",
+            conversation_engine="homeassistant",
             stt_engine="stt.mock",
             tts_engine="tts.mock",
         )
     ]
+    def get_pipeline(hass, pipeline_id=None):
+        selected = pipeline_id if pipeline_id is not None else getattr(hass, 'preferred_pipeline', 'default')
+        for pipeline in assist_pipeline.async_get_pipelines(hass):
+            if pipeline.id == selected:
+                return pipeline
+        raise ValueError('pipeline_not_found')
+    assist_pipeline.async_get_pipeline = get_pipeline
+    conversation = sys.modules.setdefault('homeassistant.components.conversation',
+                                          types.ModuleType('homeassistant.components.conversation'))
+    async def process(*args, **kwargs):
+        return None
+    conversation.async_get_agent = lambda hass, identifier: types.SimpleNamespace(
+        available=True, async_process=process) if identifier == 'homeassistant' else None
+    components.conversation = conversation
     assist_pkg.pipeline = assist_pipeline
     components.assist_pipeline = assist_pkg
     components.cloud = cloud
@@ -460,54 +476,147 @@ class ConfigFlowHelperTest(unittest.TestCase):
     def test_voice_errors_allow_device_owned_spotify_playback(self) -> None:
         self.assertEqual(self.config_flow._voice_errors({}), {})
 
-    def test_assist_pipeline_detection_requires_stt_and_tts(self) -> None:
+    def test_pairing_requires_selected_agent_but_all_four_speech_combinations_are_optional(self):
+        from homeassistant.components.assist_pipeline import pipeline as api
+        hass = types.SimpleNamespace(preferred_pipeline='chosen')
+        for stt, tts in ((None, None), ('stt.mock', None), (None, 'tts.mock'), ('stt.mock', 'tts.mock')):
+            pipeline = types.SimpleNamespace(id='chosen', conversation_engine='homeassistant',
+                stt_engine=stt, stt_language=None, tts_engine=tts, tts_language=None, tts_voice=None)
+            with self.subTest(stt=stt, tts=tts), patch.object(api, 'async_get_pipelines', return_value=[pipeline]):
+                self.assertTrue(self.config_flow._has_valid_assist_pipeline(hass, 'chosen'))
+                self.assertTrue(self.config_flow._has_valid_assist_pipeline(hass, ''))
+
+    def test_invalid_explicit_and_preferred_pipeline_cannot_borrow_an_unrelated_agent(self):
+        from homeassistant.components.assist_pipeline import pipeline as api
+        valid = types.SimpleNamespace(id='valid', conversation_engine='homeassistant')
+        invalid = types.SimpleNamespace(id='invalid', conversation_engine=None)
+        hass = types.SimpleNamespace(preferred_pipeline='invalid')
+        with patch.object(api, 'async_get_pipelines', return_value=[invalid, valid]):
+            self.assertFalse(self.config_flow._has_valid_assist_pipeline(hass, 'absent'))
+            self.assertFalse(self.config_flow._has_valid_assist_pipeline(hass))
+            self.assertFalse(self.config_flow._has_valid_assist_pipeline(hass, 'invalid'))
+            self.assertTrue(self.config_flow._has_valid_assist_pipeline(hass, 'valid'))
+            hass.preferred_pipeline = 'valid'
+            self.assertTrue(self.config_flow._has_valid_assist_pipeline(hass))
+            hass.preferred_pipeline = 'absent'
+            self.assertFalse(self.config_flow._has_valid_assist_pipeline(hass))
+
+    def test_missing_broken_or_nonprocessable_agent_fails_without_invocation(self):
+        from homeassistant.components.assist_pipeline import pipeline as api
+        from homeassistant.components import conversation
         hass = types.SimpleNamespace()
+        pipeline = types.SimpleNamespace(id='default', conversation_engine='conversation.mock')
+        process = AsyncMock()
+        with patch.object(api, 'async_get_pipeline', return_value=pipeline):
+            for agent in (None, types.SimpleNamespace(), types.SimpleNamespace(available=None, async_process=process),
+                          types.SimpleNamespace(available=False, async_process=process)):
+                with self.subTest(agent=agent), patch.object(conversation, 'async_get_agent', return_value=agent):
+                    self.assertFalse(self.config_flow._has_valid_assist_pipeline(hass))
+            with patch.object(conversation, 'async_get_agent', return_value=types.SimpleNamespace(available=True, async_process=process)):
+                self.assertTrue(self.config_flow._has_valid_assist_pipeline(hass))
+            with patch.object(conversation, 'async_get_agent', side_effect=KeyError('not_loaded')):
+                self.assertFalse(self.config_flow._has_valid_assist_pipeline(hass))
+        process.assert_not_called()
+        with patch.object(api, 'async_get_pipeline', side_effect=KeyError('not_loaded')):
+            self.assertFalse(self.config_flow._has_valid_assist_pipeline(hass))
 
-        self.assertFalse(
-            self.config_flow._assist_pipeline_has_stt_tts(
-                types.SimpleNamespace(stt_engine="stt.mock")
-            )
-        )
-        self.assertFalse(
-            self.config_flow._assist_pipeline_has_stt_tts(
-                types.SimpleNamespace(tts_engine="tts.mock")
-            )
-        )
-        self.assertTrue(
-            self.config_flow._assist_pipeline_has_stt_tts(
-                types.SimpleNamespace(
-                    stt_engine="stt.mock",
-                    tts_engine="tts.mock",
-                )
-            )
-        )
-        self.assertTrue(self.config_flow._has_valid_assist_pipeline(hass))
-
-    def test_user_step_requires_assist_pipeline_with_stt_and_tts(self) -> None:
-        from homeassistant.components.assist_pipeline import pipeline as pipeline_module
-
-        original_get_pipelines = pipeline_module.async_get_pipelines
-        pipeline_module.async_get_pipelines = lambda hass: [
-            types.SimpleNamespace(
-                id="no-tts",
-                name="No TTS",
-                stt_engine="stt.mock",
-                tts_engine="",
-            )
-        ]
-        try:
+    def test_user_and_pair_steps_accept_agent_without_audio_and_reject_selected_missing_agent(self):
+        from homeassistant.components.assist_pipeline import pipeline as api
+        available = types.SimpleNamespace(id='default', name='Default', conversation_engine='homeassistant', stt_engine=None, tts_engine=None)
+        invalid = types.SimpleNamespace(id='invalid', conversation_engine=None)
+        for method in ('async_step_user', 'async_step_pair'):
             flow = self.config_flow.DJConnectConfigFlow()
-            flow.hass = types.SimpleNamespace(
-                config=types.SimpleNamespace(language="en-US"),
-            )
+            flow.hass = types.SimpleNamespace(config=types.SimpleNamespace(language='en'), states=None)
+            with patch.object(api, 'async_get_pipelines', return_value=[available, invalid]):
+                good = asyncio.run(getattr(flow, method)())
+                self.assertNotIn('assist_pipeline_required', good.get('errors', {}).values(), good)
+                flow._discovered_defaults[self.const.CONF_ASSIST_PIPELINE_ID] = 'invalid'
+                denied = asyncio.run(getattr(flow, method)())
+                self.assertEqual(denied['errors']['base'], 'assist_pipeline_required')
 
-            result = asyncio.run(flow.async_step_user())
-        finally:
-            pipeline_module.async_get_pipelines = original_get_pipelines
+    def test_final_setup_revalidates_explicit_pipeline_before_pairing_or_profile_commit(self):
+        from homeassistant.components.assist_pipeline import pipeline as api
+        flow = self.config_flow.DJConnectConfigFlow()
+        flow.hass = types.SimpleNamespace(states=None)
+        flow._pairing = {self.const.CONF_CLIENT_TYPE: 'ios'}
+        finish = AsyncMock()
+        with patch.object(flow, '_async_finish_profile_entry', finish), \
+                patch.object(api, 'async_get_pipeline', side_effect=ValueError('pipeline_removed')):
+            result = asyncio.run(flow.async_step_voice({self.const.CONF_ASSIST_PIPELINE_ID: 'removed'}))
+        self.assertEqual(result['errors']['base'], 'assist_pipeline_required')
+        finish.assert_not_called()
+        self.assertNotIn(self.const.CONF_ASSIST_PIPELINE_ID, flow._pairing)
 
-        self.assertEqual(result["type"], "form")
-        self.assertEqual(result["step_id"], "user")
-        self.assertEqual(result["errors"]["base"], "assist_pipeline_required")
+    def _assert_profile_commit_withdrawal_blocks_entry(self, agent_only):
+        from homeassistant.components.assist_pipeline import pipeline as api
+        from homeassistant.components import conversation
+
+        async def run_case(selection, withdrawal):
+            flow = self.config_flow.DJConnectConfigFlow()
+            flow.hass = types.SimpleNamespace(states=None)
+            flow._conversation_agent_only = agent_only
+            flow._pairing = {
+                self.const.CONF_CLIENT_TYPE: 'conversation_agent' if agent_only else 'ios',
+                self.const.CONF_ASSIST_PIPELINE_ID: selection,
+            }
+            flow._async_validate_profile_draft = AsyncMock()
+            commit_started, release_commit = asyncio.Event(), asyncio.Event()
+            agent = types.SimpleNamespace(available=True, async_process=AsyncMock())
+            pipeline = types.SimpleNamespace(id='chosen', conversation_engine='conversation.test')
+            withdrawn = False
+
+            async def held_commit():
+                commit_started.set()
+                await release_commit.wait()
+
+            def resolve(hass, pipeline_id=None):
+                self.assertEqual(pipeline_id, selection or None)
+                if withdrawn and withdrawal == 'pipeline':
+                    raise ValueError('pipeline_removed')
+                return pipeline
+
+            with patch.object(flow, '_async_commit_profile_draft', held_commit), \
+                    patch.object(api, 'async_get_pipeline', side_effect=resolve), \
+                    patch.object(conversation, 'async_get_agent', return_value=agent), \
+                    patch.object(flow, 'async_create_entry', wraps=flow.async_create_entry) as create:
+                task = asyncio.create_task(flow.async_step_voice({}))
+                await asyncio.wait_for(commit_started.wait(), 2)
+                withdrawn = True
+                agent.available = False
+                release_commit.set()
+                result = await asyncio.wait_for(task, 2)
+                self.assertEqual(result['type'], 'form')
+                self.assertEqual(result['errors']['base'], 'assist_pipeline_required')
+                create.assert_not_called()
+                agent.async_process.assert_not_called()
+
+        for selection in ('chosen', ''):
+            for withdrawal in ('pipeline', 'agent'):
+                with self.subTest(selection=selection, withdrawal=withdrawal):
+                    asyncio.run(run_case(selection, withdrawal))
+
+    def test_profile_commit_cannot_create_app_entry_after_agent_withdrawal(self):
+        self._assert_profile_commit_withdrawal_blocks_entry(False)
+
+    def test_profile_commit_cannot_create_agent_entry_after_agent_withdrawal(self):
+        self._assert_profile_commit_withdrawal_blocks_entry(True)
+
+    def test_direct_agent_finish_rechecks_exact_stored_pipeline(self):
+        from homeassistant.components.assist_pipeline import pipeline as api
+        valid = types.SimpleNamespace(id='chosen', conversation_engine='homeassistant')
+        invalid = types.SimpleNamespace(id='invalid', conversation_engine=None)
+        flow = self.config_flow.DJConnectConfigFlow()
+        flow.hass = types.SimpleNamespace(preferred_pipeline='invalid')
+        flow._pairing = {self.const.CONF_ASSIST_PIPELINE_ID: 'chosen'}
+        with patch.object(api, 'async_get_pipelines', return_value=[valid, invalid]):
+            result = asyncio.run(flow.async_step_finish_conversation_agent())
+            self.assertEqual(result['type'], 'create_entry')
+            self.assertEqual(result['data'][self.const.CONF_ASSIST_PIPELINE_ID], 'chosen')
+            for selection in ('absent', 'invalid', ''):
+                flow._pairing[self.const.CONF_ASSIST_PIPELINE_ID] = selection
+                result = asyncio.run(flow.async_step_finish_conversation_agent())
+                self.assertEqual(result['type'], 'form')
+                self.assertEqual(result['errors']['base'], 'assist_pipeline_required')
 
     def test_user_step_allows_setup_without_spotify_media_player(self) -> None:
         flow = self.config_flow.DJConnectConfigFlow()
@@ -2114,6 +2223,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
 
     def test_finish_conversation_agent_step_creates_entry(self) -> None:
         flow = self.config_flow.DJConnectConfigFlow()
+        flow.hass = types.SimpleNamespace()
         flow._conversation_agent_only = True
         flow._backend = {self.const.CONF_MUSIC_BACKEND: self.const.MUSIC_BACKEND_SPOTIFY_DIRECT}
         flow._pairing = {

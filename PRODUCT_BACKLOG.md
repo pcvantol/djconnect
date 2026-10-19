@@ -687,3 +687,18 @@ cancel/rate/expiry. It is not yet installed/native accepted;
 HA-speaker touch remains unqualified. Basic existing-signal source is delivered by protected PR #1215;
 installed/native/audio/gesture acceptance and the whole function remain OPEN. No second writer, automatic following selection,
 consumer source change or deployment is authorized by this backlog record.
+
+
+## Apple consumer dependency reconciliation — 19 October2026
+
+The current human points to Apple #128/#127/#129 as waiting consumers.
+Core #1211 is now the admitted narrow predecessor: actual selected/preferred
+Assist agent required, HA STT/TTS optional for pairing. [Contract](docs/product/ASSIST_AGENT_PAIRING_V1.md).
+Core #1212 actual versioned speech-route discovery is separately pending; #1211
+cannot close it or Apple #129. Core #1210 shared localized example catalogue,
+three contextual suggestions and reduced backend Help remain one outstanding
+atomic assignment for Apple #128. No suggestions-only/help-only closure.
+Avatar basic and touch producer source is delivered; actual HA-dev mainf8b28d2b
+advertises touch1. Apple #127 renderer/gesture/native/audio acceptance remains
+separately owned; waiting for a new generic Core activity API is unnecessary.
+No new consumer writer, automatic dispatch or function closure follows.

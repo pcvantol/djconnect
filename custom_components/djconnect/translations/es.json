@@ -308,7 +308,7 @@
       "oauth_setup_failed": "No se pudo iniciar la autorización de Spotify. Revisa el Client ID y la URL externa e inténtalo de nuevo.",
       "oauth_not_completed": "La autorización de Spotify aún no ha terminado. Aprueba el acceso en Spotify y vuelve a Home Assistant.",
       "oauth_failed": "La autorización de Spotify falló. Inicia de nuevo el paso de Spotify y comprueba la URI de redirección en tu app de Spotify.",
-      "assist_pipeline_required": "Configura primero un pipeline Home Assistant Assist con STT y TTS. DJConnect usa ese pipeline para reconocimiento de voz y anuncios DJ.",
+      "assist_pipeline_required": "Elige un flujo de Home Assistant Assist disponible con un agente de conversación. El reconocimiento y la síntesis de voz en Home Assistant son opcionales.",
       "ble_device_required": "Selecciona un dispositivo DJConnect BLE o introduce su dirección Bluetooth.",
       "wifi_ssid_required": "Introduce el SSID WiFi que quieres configurar.",
       "ble_wifi_failed": "La configuración WiFi por Bluetooth falló. Comprueba el dispositivo seleccionado, el SSID y la contraseña, e inténtalo de nuevo.",

@@ -1,6 +1,16 @@
 # DJConnect Home Assistant Integration Handoff
 
 
+Core #1211 narrow pairing validation is the current selected predecessor for
+Core #1212 / Apple #129, not a speech capability implementation. Current actual
+HA source uses async_get_pipeline/async_get_agent; default remains preferred.
+No package/framework/dependency update is introduced. The same-session official
+PyPI audit reports development pins current; unrelated tooling/runtime upgrades
+remain excluded to preserve the pinned HA qualification. Avatar is now installed
+on HA-dev atf8b28d2b with205matching product files; actual native/audio acceptance
+and all32Golden release gates remain OPEN. Core #1210 catalogue+Help is pending.
+
+
 ## 19 October: selected explicit avatar reaction source candidate
 
 Same #1208/#1209 Core writer; [contract](docs/product/PERSONA_TOUCH_REACTIONS_V1.md)

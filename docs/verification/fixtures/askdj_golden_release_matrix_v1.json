@@ -4461,6 +4461,105 @@
           "method": "test_capability_is_explicit_local_only_and_keeps_silence_excluded_from_speech"
         }
       ]
+    },
+    {
+      "id": "ASKDJ-FLOW-assist-agent-pairing",
+      "owning_tests": [
+        {
+          "file": "tests/test_config_flow_helpers.py",
+          "method": "test_pairing_requires_selected_agent_but_all_four_speech_combinations_are_optional"
+        },
+        {
+          "file": "tests/test_config_flow_helpers.py",
+          "method": "test_invalid_explicit_and_preferred_pipeline_cannot_borrow_an_unrelated_agent"
+        },
+        {
+          "file": "tests/test_config_flow_helpers.py",
+          "method": "test_missing_broken_or_nonprocessable_agent_fails_without_invocation"
+        },
+        {
+          "file": "tests/test_config_flow_helpers.py",
+          "method": "test_user_and_pair_steps_accept_agent_without_audio_and_reject_selected_missing_agent"
+        },
+        {
+          "file": "tests/test_config_flow_helpers.py",
+          "method": "test_final_setup_revalidates_explicit_pipeline_before_pairing_or_profile_commit"
+        },
+        {
+          "file": "tests/test_config_flow_helpers.py",
+          "method": "test_pair_step_blocks_when_assist_pipeline_is_missing"
+        },
+        {
+          "file": "tests/test_config_flow_helpers.py",
+          "method": "test_profile_commit_cannot_create_app_entry_after_agent_withdrawal"
+        },
+        {
+          "file": "tests/test_config_flow_helpers.py",
+          "method": "test_profile_commit_cannot_create_agent_entry_after_agent_withdrawal"
+        },
+        {
+          "file": "tests/test_config_flow_helpers.py",
+          "method": "test_direct_agent_finish_rechecks_exact_stored_pipeline"
+        }
+      ],
+      "steps": [
+        {
+          "id": "ASKDJ-FLOW-assist-agent-pairing-step-1",
+          "question": "Koppel Apple met een geldige Assist-agent zonder HA-STT/TTS",
+          "expected_answer": "Pairing toegelaten voor alle vier audio-combinaties; geen provider/modelaanroep en geen gewijzigde pairingwire of claim dat HA-spraak beschikbaar is.",
+          "model_policy": "zero",
+          "owning_tests": [
+            {
+              "file": "tests/test_config_flow_helpers.py",
+              "method": "test_pairing_requires_selected_agent_but_all_four_speech_combinations_are_optional"
+            },
+            {
+              "file": "tests/test_config_flow_helpers.py",
+              "method": "test_user_and_pair_steps_accept_agent_without_audio_and_reject_selected_missing_agent"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual setup owner with HA fixtures; separate real HA agent/form qualification and native speech acceptance."
+        },
+        {
+          "id": "ASKDJ-FLOW-assist-agent-pairing-step-2",
+          "question": "Kies een ontbrekende pipeline of agent terwijl een andere wel geldig is",
+          "expected_answer": "Bestaande functionele configuratiefout, geen unrelated/default fallback voor expliciete keuze; null agent, discovery failure en verwijdering tijdens de Profile-commit of directe finish blijven dicht, direct voor entrycreatie.",
+          "model_policy": "zero",
+          "owning_tests": [
+            {
+              "file": "tests/test_config_flow_helpers.py",
+              "method": "test_invalid_explicit_and_preferred_pipeline_cannot_borrow_an_unrelated_agent"
+            },
+            {
+              "file": "tests/test_config_flow_helpers.py",
+              "method": "test_missing_broken_or_nonprocessable_agent_fails_without_invocation"
+            },
+            {
+              "file": "tests/test_config_flow_helpers.py",
+              "method": "test_final_setup_revalidates_explicit_pipeline_before_pairing_or_profile_commit"
+            },
+            {
+              "file": "tests/test_config_flow_helpers.py",
+              "method": "test_pair_step_blocks_when_assist_pipeline_is_missing"
+            },
+            {
+              "file": "tests/test_config_flow_helpers.py",
+              "method": "test_profile_commit_cannot_create_app_entry_after_agent_withdrawal"
+            },
+            {
+              "file": "tests/test_config_flow_helpers.py",
+              "method": "test_profile_commit_cannot_create_agent_entry_after_agent_withdrawal"
+            },
+            {
+              "file": "tests/test_config_flow_helpers.py",
+              "method": "test_direct_agent_finish_rechecks_exact_stored_pipeline"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Initial setup only; Core1212 route discovery remains separate and all existing real-quality gates stay open."
+        }
+      ]
     }
   ],
   "evidence_boundaries": [

@@ -1,5 +1,27 @@
 # DJConnect Engineering Status
 
+
+## Current WIP: mandatory Assist agent, optional HA speech for pairing — Core #1211
+
+Same sole Core writer, selected dependency chain for Apple #129; base
+f8b28d2b3713ae0bfe11a44d32634d821c914cc8. [Bounded contract](docs/product/ASSIST_AGENT_PAIRING_V1.md)
+and [preflight/qualification](docs/verification/ASSIST_AGENT_PAIRING_20261019.md).
+The setup validator now resolves the exact selected/preferred pipeline and its
+available conversation agent; neither HA audio engine is mandatory. Existing
+pairing wire, options, runtime and capability advertising remain untouched.
+2627host tests pass/7skips;131owning tests also pass in pinned HA. Actual
+isolated HA pipeline/agent/user-form qualification passes24cases with zero
+model/provider calls. Final Profile-commit races are revalidated immediately
+before entry creation; independent technical replay confirms the P2 fixed.
+Exact frozen reviews/protected delivery remain separate. No deployment or whole Apple speech-route closure is claimed.
+
+Avatar contracts are protected-delivered and actually installed on HA-dev at
+this base:205/205container files equal, touch discovery1, pairing/history preserved,
+no DJConnect ERROR/CRITICAL startup messages. Native actual renderer lifecycle,
+gestures and hearing remain Apple-owned. Core #1212 actual speech route discovery
+and #1210 shared catalogue+compact Help remain outstanding, with #1211 a distinct
+predecessor. Existing SETTINGS horizon and32Golden release gates are preserved.
+
 ## Current: explicit Persona touch Core producer — separate Finalization, 19 October 2026
 
 ### Repository Status
