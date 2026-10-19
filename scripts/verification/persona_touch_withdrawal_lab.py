@@ -52,6 +52,10 @@ async def run(hass, runtime, client, post, identity, output, headers, manager, s
             assert 'persona_reaction' not in denied and len(processor[1]) == count
 
         first, original = await operation('session/persona/reaction', reaction())
+        denied, _ = await operation('session/persona/reaction/cancel', {'contract_version': 1,
+            'session_id': 'wrong-session', 'reaction_id': original['operation_id'], 'reason': 'dismissed'}, 404)
+        assert denied['error'] == 'persona_reaction_unavailable'
+        assert 'persona_reaction_cancelled' not in denied
         frames = []
         async with client.ws_connect(base + '/api/djconnect/v1/actions/paired') as ws:
             assert (await ws.receive_json())['type'] == 'auth_required'

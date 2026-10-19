@@ -190,25 +190,34 @@ async def async_cancel(hass, authority, payload):
         operation_created_ms(payload['reaction_id'])
     except OperationError:
         return {'success': False, 'error': 'invalid_request'}, 400
-    try:
-        await cancel_original_reaction(authority, payload['reaction_id'])
-    except OperationError as exc:
-        return {'success': False, 'error': exc.code}, exc.status
-    authority.owner_final_guard()
-    book = hass.data.get('djconnect', {}).get('persona_reaction_book')
-    if book is not None:
-        for key, state in tuple(book.rows.items()):
-            if key[:2] != (authority.context.profile_id, payload['session_id']):
+    def targets():
+        # A known live original must match the supplied Session. An unknown
+        # original still uses its device-bound UUID fence, without guessed scope.
+        matches = []
+        book = hass.data.get('djconnect', {}).get('persona_reaction_book')
+        for key, state in tuple(book.rows.items()) if book is not None else ():
+            if key[0] != authority.context.profile_id:
                 continue
             for item in (state.pending, state.lease):
                 if item is None or item.identifier != payload['reaction_id']:
                     continue
-                if (item.device, item.binding) != (authority.device, authority.binding):
-                    return {'success': False, 'error': 'persona_reaction_unavailable'}, 404
-                if isinstance(item, _Pending):
-                    item.cancelled.set()
-                else:
-                    item.dispose()
+                if (key[1], item.device, item.binding) != (
+                        payload['session_id'], authority.device, authority.binding):
+                    raise OperationError('persona_reaction_unavailable', 404)
+                matches.append(item)
+        return matches
+    try:
+        targets()  # Reject a known mismatch before the durable target mutation.
+        await cancel_original_reaction(authority, payload['reaction_id'])
+        authority.owner_final_guard()
+        current_targets = targets()  # Original admission can race the Store await.
+    except OperationError as exc:
+        return {'success': False, 'error': exc.code}, exc.status
+    for item in current_targets:
+        if isinstance(item, _Pending):
+            item.cancelled.set()
+        else:
+            item.dispose()
     # Content-free idempotent cancellation, also after expiry. No new lease,
     # history clear, proactive budget reset or speaker stop is manufactured.
     return {'success': True, 'persona_reaction_cancelled': True}, 200

@@ -92,6 +92,91 @@ class PersonaReactionTests(unittest.IsolatedAsyncioTestCase):
             'operation_epoch': self.operations.journal.epoch,
             'session_id': result['persona_reaction']['session']['session_id']}, 31, frames.append)
 
+    async def test_wrong_session_cancel_rejects_live_target_and_preserves_original_audio(self):
+        stack, _, _, calls, _ = self.provider()
+        with stack:
+            await self.start()
+            delivered, _ = await self.execute(self.request(processor='ha_configured'))
+            frames = []
+            observation = await self.observe(delivered, frames=frames)
+            try:
+                request = self.request(operation=self.react.CANCEL)
+                request['payload'] = {'contract_version': 1, 'session_id': 'wrong-session',
+                    'reaction_id': delivered['persona_reaction']['reaction_id'], 'reason': 'dismissed'}
+                denied, status = await self.execute(request)
+                self.assertEqual((status, denied['error']), (404, 'persona_reaction_unavailable'))
+                self.assertNotIn('persona_reaction_cancelled', denied)
+                self.assertEqual((observation.snapshot()['state'], frames), ('valid', []))
+                _, status = await self.speech.async_handle_audio(self.hass, self.asset_request(delivered), headers=self.f.headers)
+                self.assertEqual(status, 200)
+                cancelled, status = await self.cancel(delivered['persona_reaction']['reaction_id'])
+                self.assertEqual((status, cancelled['persona_reaction_cancelled']), (200, True))
+                self.assertEqual(observation.snapshot()['state'], 'withdrawn')
+                _, status = await self.speech.async_handle_audio(self.hass, self.asset_request(delivered), headers=self.f.headers)
+                self.assertEqual(status, 404)
+                self.assertEqual(len(calls), 1)
+            finally:
+                observation.close()
+                await asyncio.gather(observation.task, return_exceptions=True)
+
+    async def test_wrong_session_cancel_rejects_pending_target_without_cancelling_preparation(self):
+        stack, _, _, calls, _ = self.provider()
+        with stack:
+            await self.start()
+            entered, release = await self.hold_settings()
+            original = self.request(processor='ha_configured')
+            pending = asyncio.create_task(self.execute(original))
+            try:
+                await asyncio.wait_for(entered.wait(), 2)
+                request = self.request(operation=self.react.CANCEL)
+                request['payload'] = {'contract_version': 1, 'session_id': 'wrong-session',
+                    'reaction_id': original['operation_id'], 'reason': 'dismissed'}
+                denied, status = await self.execute(request)
+                self.assertEqual((status, denied['error']), (404, 'persona_reaction_unavailable'))
+                targets = [state.pending for state in self.hass.data['djconnect']['persona_reaction_book'].rows.values()
+                           if state.pending and state.pending.identifier == original['operation_id']]
+                self.assertEqual(len(targets), 1)
+                self.assertFalse(targets[0].cancelled.is_set())
+                cancelled, status = await self.cancel(original['operation_id'])
+                self.assertEqual((status, cancelled['persona_reaction_cancelled']), (200, True))
+                result, status = await asyncio.wait_for(pending, 2)
+                self.assertEqual((status, result['error']), (409, 'persona_reaction_withdrawn'))
+                self.assertEqual(calls, [])
+            finally:
+                release.set()
+                if not pending.done():
+                    pending.cancel()
+                await asyncio.gather(pending, return_exceptions=True)
+
+    async def test_wrong_session_original_arriving_during_cancel_is_rechecked_before_success(self):
+        stack, _, _, calls, _ = self.provider()
+        with stack:
+            await self.start()
+            original = self.request()
+            cancellation = self.request(operation=self.react.CANCEL)
+            cancellation['payload'] = {'contract_version': 1, 'session_id': 'wrong-session',
+                'reaction_id': original['operation_id'], 'reason': 'dismissed'}
+            cancel_original = self.hybrid.cancel_original_reaction
+            held = []
+            async def original_arrives(authority, identifier):
+                result, status = await self.execute(original)
+                self.assertEqual(status, 200)
+                held.append(result)
+                await cancel_original(authority, identifier)
+            with patch.object(self.hybrid, 'cancel_original_reaction', original_arrives):
+                denied, status = await self.execute(cancellation)
+            self.assertEqual((status, denied['error']), (404, 'persona_reaction_unavailable'))
+            observation = await self.observe(held[0])
+            try:
+                self.assertEqual(observation.snapshot()['state'], 'valid')
+                _, status = await self.cancel(original['operation_id'])
+                self.assertEqual(status, 200)
+                self.assertEqual(observation.snapshot()['state'], 'withdrawn')
+                self.assertEqual(calls, [])
+            finally:
+                observation.close()
+                await asyncio.gather(observation.task, return_exceptions=True)
+
     async def test_cancel_before_original_execute_is_durable_and_has_zero_source_or_synthesis(self):
         stack, _, _, calls, _ = self.provider()
         with stack:

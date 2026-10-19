@@ -63,7 +63,7 @@ cancellation receipt. Status now prioritizes the same device-scoped fence as
 reservation; a regression verifies both the receipt and delayed execution.
 Initial full suite2652tests/7skips found one stale inventory expectation165after
 the two new Golden steps. The expected count is corrected to167; no scenario
-was removed or acceptance weakened. Final full source run2653tests PASS /7 existing skips,77.395s.
+was removed or acceptance weakened. Before independent review, full source run2653tests PASS /7 existing skips,77.395s.
 38reaction and13journal owner methods pass with identity-only receipts; final
 actual isolated HA rerun repeats baseline7operations and follow-up8operations/
 5WSframes. All product/harness hashes match its final captured inputs.
@@ -77,3 +77,34 @@ separate Finalization/workspace admission, installed discovery and Apple actual
 client rendering/gesture/audio stop acceptance remain OPEN. Touch activation
 stays OFF until its qualified chain passes. Core #1225 individual content deletion
 remains the selected follow-up; no second implementation starts in parallel.
+
+## Independent source review and wrong-Session repair
+
+A fresh independent read-only technical review of frozen source
+`6d696637dc9c4c5521fe73d9de746d6659397389` found one P2: same-device cancellation
+with the correct original reaction UUID but a wrong Session returned200 while
+its observed source stayed valid and no withdrawal event arrived. Both reviewer
+and coordinator independently reproduced it through the actual owner fixture.
+That candidate is NO_GO for merge; no authorization for it is reused on the fix.
+No other actionable finding was reported in the reviewed cancellation/observer
+delta; installed/native/audible proof was outside that review.
+
+Known live/pending target scope is now checked before durable cancellation and
+rechecked after the journal await. Wrong Session returns404 without cancelling
+the valid source. Unknown pre-admission originals retain device-bound UUID
+fences, rather than a fabricated future Session lookup. Three regressions cover
+delivered configured audio, blocked preparation and original admission racing
+the cancellation await. Each checks that proper cancellation still works. They
+are bound to the existing zero-model Golden cancellation step, without closing
+native quality. The actual isolated HA lab now includes the wrong-Session404
+followed by valid original observation. Final fixed-source/fixture/CI evidence
+is recorded on the PR and owning lane after requalification.
+
+Final repaired source run:2656tests PASS /7existing skips,69.877s.41reaction
+and13journal owner methods PASS; the three new cancellation-scope regressions
+are actually executed and bound to Golden. Final actual isolated HA rerun:
+baseline7operations plus repaired follow-up9operations/5frames PASS, including
+wrong-Session404and the subsequent original-source valid observation.
+All182product/harness hashes match the final captured inputs. Independent
+fix-delta review and exact source-candidate CI are recorded externally on PR#1226;
+this report does not fabricate those later outcomes or installed/native proof.

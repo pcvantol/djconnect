@@ -4337,7 +4337,7 @@
         {
           "id": "ASKDJ-FLOW-explicit-persona-touch-step-7",
           "question": "Annuleer vóór verwerking en herhaal na herstart",
-          "expected_answer": "Geen reactie, bronlease of synthese; duurzame annulering voor oorspronkelijk device/UUID/deadline; andere devices blijven onafhankelijk.",
+          "expected_answer": "Geen reactie, bronlease of synthese; duurzame annulering voor oorspronkelijk device/UUID/deadline; andere devices blijven onafhankelijk. Een bekende reactie met afwijkend sessie-ID wordt afgewezen; juiste annulering blijft werken, ook bij concurrerende toelating.",
           "model_policy": "zero",
           "owning_tests": [
             {
@@ -4367,6 +4367,18 @@
             {
               "file": "tests/test_transport_operation_journal.py",
               "method": "test_another_device_same_uuid_cannot_hide_own_cancellation_receipt"
+            },
+            {
+              "file": "tests/test_persona_reactions.py",
+              "method": "test_wrong_session_cancel_rejects_live_target_and_preserves_original_audio"
+            },
+            {
+              "file": "tests/test_persona_reactions.py",
+              "method": "test_wrong_session_cancel_rejects_pending_target_without_cancelling_preparation"
+            },
+            {
+              "file": "tests/test_persona_reactions.py",
+              "method": "test_wrong_session_original_arriving_during_cancel_is_rechecked_before_success"
             }
           ],
           "acceptance_status": "owner_contract",
@@ -4567,6 +4579,18 @@
         {
           "file": "tests/test_transport_operation_journal.py",
           "method": "test_another_device_same_uuid_cannot_hide_own_cancellation_receipt"
+        },
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_wrong_session_cancel_rejects_live_target_and_preserves_original_audio"
+        },
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_wrong_session_cancel_rejects_pending_target_without_cancelling_preparation"
+        },
+        {
+          "file": "tests/test_persona_reactions.py",
+          "method": "test_wrong_session_original_arriving_during_cancel_is_rechecked_before_success"
         }
       ]
     },

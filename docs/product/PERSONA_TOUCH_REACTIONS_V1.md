@@ -220,6 +220,13 @@ maximum30second lifetime. Future timestamps outside the existing clock allowance
 reject, expired non-executable targets need no new slot, and cancellation does
 not reset cooldown or proactive budgets.
 
+A known pending or delivered original must also match its actual Session;
+a mismatched `session_id` returns404 `persona_reaction_unavailable` before the
+durable target mutation, not a false success with an unchanged live source.
+Core rechecks known targets after the journal await because original admission
+can race that save. For an unknown pre-admission original, the device-bound UUID
+is authoritative: Core does not guess the future Session from nonexistent data.
+
 The fence binds the initiating device, resolved Profile/binding and original
 epoch. Unknown-target fences are device-scoped, so another paired device cannot
 preempt an unadmitted intent by naming its UUID. Restart or rebinding cannot

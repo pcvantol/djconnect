@@ -123,7 +123,7 @@
     "custom_components/djconnect/persistence/sqlite.py": "d162322a3e859644cb883eb5a26d5722d810e36567b57bd86d27440bf1e56d6c",
     "custom_components/djconnect/persistence/summary.py": "f97711ebd2366e33d4164dd541cf6b2526f2d7cb0e26c0c13dcbc33b0e1125db",
     "custom_components/djconnect/persona_reaction_text.py": "b4b2220b2c3189399ffd186293a471cec6ba5fcccb8b6ff173669af88e6f6c80",
-    "custom_components/djconnect/persona_reactions.py": "df0fb6251414688b20211a2c96b00991b42d7c633a3481c4f0af031a9f96052e",
+    "custom_components/djconnect/persona_reactions.py": "4a4a98a3caf9d208e69d69a716e6478baecebd3fbc1a68b7ac0dc81f7878cc22",
     "custom_components/djconnect/pipeline.py": "fd1f8af3b1a1d08152a3888dc49dffe520e62214cc1040551e347dba4006a263",
     "custom_components/djconnect/playback_observation.py": "cf30c94deca40c11fcd1e0903cd2d85b3322f01fd9a7bd158041a0abcdf13ba3",
     "custom_components/djconnect/playback_request.py": "2bcbb3d5761e4cf286a3133da25b24bc1682d1e508963520fa762a4c505a60d1",
@@ -181,7 +181,7 @@
     "custom_components/djconnect/voice_profiles.py": "5aba9ae572b92c783686d9ccac3af3b97c2689ca98c10f086ba7ae4cdb2696c9",
     "custom_components/djconnect/wav_util.py": "06841ae5e471e20b2c234c2214eebb14dc764bf3a59acd9cd4767fdef3cc7c45",
     "custom_components/djconnect/websocket_api.py": "07d790d2bf5824c66831fcf9ba6a7b744c1d416d30ebab4e8fd811ce92b975f0",
-    "scripts/verification/persona_touch_withdrawal_lab.py": "b13c7e77540daee19bb138a8d04d883f07f1298f15bf5d896831ac07d440b236",
+    "scripts/verification/persona_touch_withdrawal_lab.py": "9b536a3ace776369b58a20bcbf31e0464825d675f82c59295f1340499b9e7615",
     "scripts/verification/verify_hybrid_transport_http.py": "e2f2355a4f9f685244ed5e7edbd03e13d4db3e026326e19cc8681fc1a92e93aa"
   },
   "operations": [
@@ -192,13 +192,13 @@
           "client_type": "ios"
         },
         "contract_version": 1,
-        "operation_id": "01a15573-cbbf-7000-aa5d-472e7a39d2ce",
-        "operation_epoch": "c80800b35516c8d3f11abc4098aa7f83",
+        "operation_id": "01a155a4-40b9-7000-85e0-9a6d9e755645",
+        "operation_epoch": "ffb7e773a969bdd501094cae8c51d830",
         "operation": "session/persona/reaction/cancel",
         "payload": {
           "contract_version": 1,
-          "session_id": "session-491289ea668e494b856a8fafa13447a8",
-          "reaction_id": "01a15573-cbbf-7000-bdff-4c0e8b3be65f",
+          "session_id": "session-ad591d3ed64b48bcafa6a909bc05b3ce",
+          "reaction_id": "01a155a4-40b9-7000-b421-92312c5f8f2c",
           "reason": "dismissed"
         }
       },
@@ -208,10 +208,10 @@
         "persona_reaction_cancelled": true,
         "operation_receipt": {
           "contract_version": 1,
-          "operation_id": "01a15573-cbbf-7000-aa5d-472e7a39d2ce",
-          "operation_epoch": "c80800b35516c8d3f11abc4098aa7f83",
+          "operation_id": "01a155a4-40b9-7000-85e0-9a6d9e755645",
+          "operation_epoch": "ffb7e773a969bdd501094cae8c51d830",
           "phase": "confirmed",
-          "expires_at_ms": 1792435314591,
+          "expires_at_ms": 1792438490265,
           "result_available": true,
           "response_status": 200,
           "error": null
@@ -226,14 +226,14 @@
           "client_type": "ios"
         },
         "contract_version": 1,
-        "operation_id": "01a15573-cbbf-7000-bdff-4c0e8b3be65f",
-        "operation_epoch": "c80800b35516c8d3f11abc4098aa7f83",
+        "operation_id": "01a155a4-40b9-7000-b421-92312c5f8f2c",
+        "operation_epoch": "ffb7e773a969bdd501094cae8c51d830",
         "operation": "session/persona/reaction",
         "payload": {
           "contract_version": 1,
           "session": {
-            "session_id": "session-491289ea668e494b856a8fafa13447a8",
-            "generation": "cafc7e5d94f44111ab006996a8dd6bce",
+            "session_id": "session-ad591d3ed64b48bcafa6a909bc05b3ce",
+            "generation": "78bc60d9471b42a7b4913d6f9c07b636",
             "revision": 0
           },
           "kind": "check_in",
@@ -246,10 +246,10 @@
         "success": false,
         "operation_receipt": {
           "contract_version": 1,
-          "operation_id": "01a15573-cbbf-7000-bdff-4c0e8b3be65f",
-          "operation_epoch": "c80800b35516c8d3f11abc4098aa7f83",
+          "operation_id": "01a155a4-40b9-7000-b421-92312c5f8f2c",
+          "operation_epoch": "ffb7e773a969bdd501094cae8c51d830",
           "phase": "cancelled",
-          "expires_at_ms": 1792435314591,
+          "expires_at_ms": 1792438490265,
           "result_available": false,
           "response_status": 409,
           "error": "persona_reaction_withdrawn"
@@ -265,13 +265,13 @@
           "client_type": "ios"
         },
         "contract_version": 1,
-        "operation_id": "01a15573-cbc3-7000-83e5-194b48e237e8",
-        "operation_epoch": "c80800b35516c8d3f11abc4098aa7f83",
+        "operation_id": "01a155a4-40ba-7000-87dc-1293f431d97e",
+        "operation_epoch": "ffb7e773a969bdd501094cae8c51d830",
         "operation": "session/persona/reaction/cancel",
         "payload": {
           "contract_version": 1,
-          "session_id": "session-491289ea668e494b856a8fafa13447a8",
-          "reaction_id": "01a15573-cbc3-7000-acb9-d7f2ebb9fdba",
+          "session_id": "session-ad591d3ed64b48bcafa6a909bc05b3ce",
+          "reaction_id": "01a155a4-40ba-7000-a4ac-cecb6e776791",
           "reason": "dismissed"
         }
       },
@@ -281,10 +281,10 @@
         "persona_reaction_cancelled": true,
         "operation_receipt": {
           "contract_version": 1,
-          "operation_id": "01a15573-cbc3-7000-83e5-194b48e237e8",
-          "operation_epoch": "c80800b35516c8d3f11abc4098aa7f83",
+          "operation_id": "01a155a4-40ba-7000-87dc-1293f431d97e",
+          "operation_epoch": "ffb7e773a969bdd501094cae8c51d830",
           "phase": "confirmed",
-          "expires_at_ms": 1792435314595,
+          "expires_at_ms": 1792438490266,
           "result_available": true,
           "response_status": 200,
           "error": null
@@ -299,14 +299,14 @@
           "client_type": "ios"
         },
         "contract_version": 1,
-        "operation_id": "01a15573-cbc3-7000-acb9-d7f2ebb9fdba",
-        "operation_epoch": "c80800b35516c8d3f11abc4098aa7f83",
+        "operation_id": "01a155a4-40ba-7000-a4ac-cecb6e776791",
+        "operation_epoch": "ffb7e773a969bdd501094cae8c51d830",
         "operation": "session/persona/reaction",
         "payload": {
           "contract_version": 1,
           "session": {
-            "session_id": "session-491289ea668e494b856a8fafa13447a8",
-            "generation": "cafc7e5d94f44111ab006996a8dd6bce",
+            "session_id": "session-ad591d3ed64b48bcafa6a909bc05b3ce",
+            "generation": "78bc60d9471b42a7b4913d6f9c07b636",
             "revision": 0
           },
           "kind": "check_in",
@@ -319,10 +319,10 @@
         "success": false,
         "operation_receipt": {
           "contract_version": 1,
-          "operation_id": "01a15573-cbc3-7000-acb9-d7f2ebb9fdba",
-          "operation_epoch": "c80800b35516c8d3f11abc4098aa7f83",
+          "operation_id": "01a155a4-40ba-7000-a4ac-cecb6e776791",
+          "operation_epoch": "ffb7e773a969bdd501094cae8c51d830",
           "phase": "cancelled",
-          "expires_at_ms": 1792435314595,
+          "expires_at_ms": 1792438490266,
           "result_available": false,
           "response_status": 409,
           "error": "persona_reaction_withdrawn"
@@ -338,14 +338,14 @@
           "client_type": "ios"
         },
         "contract_version": 1,
-        "operation_id": "01a15573-cbc6-7000-af54-cebef04f2389",
-        "operation_epoch": "c80800b35516c8d3f11abc4098aa7f83",
+        "operation_id": "01a155a4-40bc-7000-a183-3cfbca8aa126",
+        "operation_epoch": "ffb7e773a969bdd501094cae8c51d830",
         "operation": "session/persona/reaction",
         "payload": {
           "contract_version": 1,
           "session": {
-            "session_id": "session-491289ea668e494b856a8fafa13447a8",
-            "generation": "cafc7e5d94f44111ab006996a8dd6bce",
+            "session_id": "session-ad591d3ed64b48bcafa6a909bc05b3ce",
+            "generation": "78bc60d9471b42a7b4913d6f9c07b636",
             "revision": 0
           },
           "kind": "check_in",
@@ -358,10 +358,10 @@
         "success": true,
         "persona_reaction": {
           "schema_version": 1,
-          "reaction_id": "01a15573-cbc6-7000-af54-cebef04f2389",
+          "reaction_id": "01a155a4-40bc-7000-a183-3cfbca8aa126",
           "session": {
-            "session_id": "session-491289ea668e494b856a8fafa13447a8",
-            "generation": "cafc7e5d94f44111ab006996a8dd6bce",
+            "session_id": "session-ad591d3ed64b48bcafa6a909bc05b3ce",
+            "generation": "78bc60d9471b42a7b4913d6f9c07b636",
             "revision": 0
           },
           "text": "A little wave from the festival booth: let’s make a small celebration of it.",
@@ -371,17 +371,17 @@
           "mood": "party",
           "persona_revision": 0,
           "mood_revision": 0,
-          "expires_at": "2026-10-19T18:37:24.599952+00:00",
+          "expires_at": "2026-10-19T19:30:20.269336+00:00",
           "content_basis": "core_owned_curated_reaction_v1",
           "history_publication": false,
           "cache_policy": "private,no-store",
           "speech": {
             "schema_version": 1,
             "reference": {
-              "reaction_id": "01a15573-cbc6-7000-af54-cebef04f2389",
-              "session_id": "session-491289ea668e494b856a8fafa13447a8"
+              "reaction_id": "01a155a4-40bc-7000-a183-3cfbca8aa126",
+              "session_id": "session-ad591d3ed64b48bcafa6a909bc05b3ce"
             },
-            "source_id": "01a15573-cbc6-7000-af54-cebef04f2389",
+            "source_id": "01a155a4-40bc-7000-a183-3cfbca8aa126",
             "source_kind": "core_owned_persona_reaction",
             "text_revision": "43876c72e0c7eccbc34f283f",
             "presentation_revision": "43876c72e0c7eccbc34f283f",
@@ -408,12 +408,12 @@
             "settings_revision": [
               1,
               [
-                "session-491289ea668e494b856a8fafa13447a8",
-                "cafc7e5d94f44111ab006996a8dd6bce",
+                "session-ad591d3ed64b48bcafa6a909bc05b3ce",
+                "78bc60d9471b42a7b4913d6f9c07b636",
                 0
               ]
             ],
-            "expires_at": "2026-10-19T18:37:24.599952+00:00",
+            "expires_at": "2026-10-19T19:30:20.269336+00:00",
             "cache_policy": "private,no-store",
             "processor": "local_on_device",
             "audio_state": "renderer_pending",
@@ -427,10 +427,10 @@
         },
         "operation_receipt": {
           "contract_version": 1,
-          "operation_id": "01a15573-cbc6-7000-af54-cebef04f2389",
-          "operation_epoch": "c80800b35516c8d3f11abc4098aa7f83",
+          "operation_id": "01a155a4-40bc-7000-a183-3cfbca8aa126",
+          "operation_epoch": "ffb7e773a969bdd501094cae8c51d830",
           "phase": "confirmed",
-          "expires_at_ms": 1792435314598,
+          "expires_at_ms": 1792438490268,
           "result_available": true,
           "response_status": 200,
           "error": null
@@ -445,8 +445,42 @@
           "client_type": "ios"
         },
         "contract_version": 1,
-        "operation_id": "01a15573-cbca-7000-a972-3e10968fc223",
-        "operation_epoch": "c80800b35516c8d3f11abc4098aa7f83",
+        "operation_id": "01a155a4-40bd-7000-afaa-1e034304ebca",
+        "operation_epoch": "ffb7e773a969bdd501094cae8c51d830",
+        "operation": "session/persona/reaction/cancel",
+        "payload": {
+          "contract_version": 1,
+          "session_id": "wrong-session",
+          "reaction_id": "01a155a4-40bc-7000-a183-3cfbca8aa126",
+          "reason": "dismissed"
+        }
+      },
+      "status": 404,
+      "result": {
+        "success": false,
+        "error": "persona_reaction_unavailable",
+        "operation_receipt": {
+          "contract_version": 1,
+          "operation_id": "01a155a4-40bd-7000-afaa-1e034304ebca",
+          "operation_epoch": "ffb7e773a969bdd501094cae8c51d830",
+          "phase": "unknown",
+          "expires_at_ms": 1792438490269,
+          "result_available": true,
+          "response_status": 404,
+          "error": "persona_reaction_unavailable"
+        },
+        "result_available": true
+      }
+    },
+    {
+      "request": {
+        "identity": {
+          "device_id": "djconnect-ios-ABCDEF123456",
+          "client_type": "ios"
+        },
+        "contract_version": 1,
+        "operation_id": "01a155a4-40bf-7000-b766-499313670c78",
+        "operation_epoch": "ffb7e773a969bdd501094cae8c51d830",
         "operation": "speech/preview",
         "payload": {
           "contract_version": 1,
@@ -458,7 +492,7 @@
         "success": true,
         "voice_preview": {
           "schema_version": 1,
-          "preview_id": "01a15573-cbca-7000-a972-3e10968fc223",
+          "preview_id": "01a155a4-40bf-7000-b766-499313670c78",
           "text": "This is a short example of your selected DJ voice.",
           "locale": "en",
           "state": "available",
@@ -466,12 +500,12 @@
           "settings_revision": [
             1,
             [
-              "session-491289ea668e494b856a8fafa13447a8",
-              "cafc7e5d94f44111ab006996a8dd6bce",
+              "session-ad591d3ed64b48bcafa6a909bc05b3ce",
+              "78bc60d9471b42a7b4913d6f9c07b636",
               0
             ]
           ],
-          "expires_at": "2026-10-19T18:38:54.605949+00:00",
+          "expires_at": "2026-10-19T19:31:50.274174+00:00",
           "cache_policy": "private,no-store",
           "audio_state": "ready",
           "effective_voice": {
@@ -490,7 +524,7 @@
             "voice_version": "1"
           },
           "audio_reference": {
-            "asset_id": "XO9KVohFP-lq64QToO27dPzG92sk9K8p",
+            "asset_id": "Uv3a5ofhitbjL-QFcl5rX2kgK6jDQ7Ab",
             "path": "/api/djconnect/v1/speech/audio",
             "method": "POST"
           }
@@ -502,10 +536,10 @@
         },
         "operation_receipt": {
           "contract_version": 1,
-          "operation_id": "01a15573-cbca-7000-a972-3e10968fc223",
-          "operation_epoch": "c80800b35516c8d3f11abc4098aa7f83",
+          "operation_id": "01a155a4-40bf-7000-b766-499313670c78",
+          "operation_epoch": "ffb7e773a969bdd501094cae8c51d830",
           "phase": "confirmed",
-          "expires_at_ms": 1792435314602,
+          "expires_at_ms": 1792438490271,
           "result_available": true,
           "response_status": 200,
           "error": null
@@ -520,14 +554,14 @@
           "client_type": "ios"
         },
         "contract_version": 1,
-        "operation_id": "01a15573-cbd4-7000-b76b-6d41bf42576b",
-        "operation_epoch": "c80800b35516c8d3f11abc4098aa7f83",
+        "operation_id": "01a155a4-40c5-7000-831d-aef85d9087a7",
+        "operation_epoch": "ffb7e773a969bdd501094cae8c51d830",
         "operation": "session/persona/reaction",
         "payload": {
           "contract_version": 1,
           "session": {
-            "session_id": "session-491289ea668e494b856a8fafa13447a8",
-            "generation": "cafc7e5d94f44111ab006996a8dd6bce",
+            "session_id": "session-ad591d3ed64b48bcafa6a909bc05b3ce",
+            "generation": "78bc60d9471b42a7b4913d6f9c07b636",
             "revision": 0
           },
           "kind": "check_in",
@@ -540,10 +574,10 @@
         "success": true,
         "persona_reaction": {
           "schema_version": 1,
-          "reaction_id": "01a15573-cbd4-7000-b76b-6d41bf42576b",
+          "reaction_id": "01a155a4-40c5-7000-831d-aef85d9087a7",
           "session": {
-            "session_id": "session-491289ea668e494b856a8fafa13447a8",
-            "generation": "cafc7e5d94f44111ab006996a8dd6bce",
+            "session_id": "session-ad591d3ed64b48bcafa6a909bc05b3ce",
+            "generation": "78bc60d9471b42a7b4913d6f9c07b636",
             "revision": 0
           },
           "text": "A little wave from the festival booth: imaginary confetti is perfectly allowed.",
@@ -553,17 +587,17 @@
           "mood": "party",
           "persona_revision": 0,
           "mood_revision": 0,
-          "expires_at": "2026-10-19T18:37:24.614236+00:00",
+          "expires_at": "2026-10-19T19:30:20.278930+00:00",
           "content_basis": "core_owned_curated_reaction_v1",
           "history_publication": false,
           "cache_policy": "private,no-store",
           "speech": {
             "schema_version": 1,
             "reference": {
-              "reaction_id": "01a15573-cbd4-7000-b76b-6d41bf42576b",
-              "session_id": "session-491289ea668e494b856a8fafa13447a8"
+              "reaction_id": "01a155a4-40c5-7000-831d-aef85d9087a7",
+              "session_id": "session-ad591d3ed64b48bcafa6a909bc05b3ce"
             },
-            "source_id": "01a15573-cbd4-7000-b76b-6d41bf42576b",
+            "source_id": "01a155a4-40c5-7000-831d-aef85d9087a7",
             "source_kind": "core_owned_persona_reaction",
             "text_revision": "5a87886d7d6329d4f769ac02",
             "presentation_revision": "5a87886d7d6329d4f769ac02",
@@ -590,12 +624,12 @@
             "settings_revision": [
               1,
               [
-                "session-491289ea668e494b856a8fafa13447a8",
-                "cafc7e5d94f44111ab006996a8dd6bce",
+                "session-ad591d3ed64b48bcafa6a909bc05b3ce",
+                "78bc60d9471b42a7b4913d6f9c07b636",
                 0
               ]
             ],
-            "expires_at": "2026-10-19T18:37:24.614236+00:00",
+            "expires_at": "2026-10-19T19:30:20.278930+00:00",
             "cache_policy": "private,no-store",
             "audio_state": "ready",
             "effective_voice": {
@@ -622,7 +656,7 @@
               "reason": "provider_prosody_not_qualified"
             },
             "audio_reference": {
-              "asset_id": "sUvd9OMTqCvOGllCbhnCHqcmKZd-UDSd",
+              "asset_id": "w0hqG4LGpIRKnSo8n1fwg9QgjjQNZvXm",
               "path": "/api/djconnect/v1/speech/audio",
               "method": "POST"
             }
@@ -635,10 +669,10 @@
         },
         "operation_receipt": {
           "contract_version": 1,
-          "operation_id": "01a15573-cbd4-7000-b76b-6d41bf42576b",
-          "operation_epoch": "c80800b35516c8d3f11abc4098aa7f83",
+          "operation_id": "01a155a4-40c5-7000-831d-aef85d9087a7",
+          "operation_epoch": "ffb7e773a969bdd501094cae8c51d830",
           "phase": "confirmed",
-          "expires_at_ms": 1792435314612,
+          "expires_at_ms": 1792438490277,
           "result_available": true,
           "response_status": 200,
           "error": null
@@ -653,14 +687,14 @@
           "client_type": "ios"
         },
         "contract_version": 1,
-        "operation_id": "01a15573-ccdb-7000-9706-638086ed3336",
-        "operation_epoch": "c80800b35516c8d3f11abc4098aa7f83",
+        "operation_id": "01a155a4-41d4-7000-9656-836a73a405b8",
+        "operation_epoch": "ffb7e773a969bdd501094cae8c51d830",
         "operation": "session/persona/reaction",
         "payload": {
           "contract_version": 1,
           "session": {
-            "session_id": "session-491289ea668e494b856a8fafa13447a8",
-            "generation": "cafc7e5d94f44111ab006996a8dd6bce",
+            "session_id": "session-ad591d3ed64b48bcafa6a909bc05b3ce",
+            "generation": "78bc60d9471b42a7b4913d6f9c07b636",
             "revision": 0
           },
           "kind": "check_in",
@@ -673,10 +707,10 @@
         "success": true,
         "persona_reaction": {
           "schema_version": 1,
-          "reaction_id": "01a15573-ccdb-7000-9706-638086ed3336",
+          "reaction_id": "01a155a4-41d4-7000-9656-836a73a405b8",
           "session": {
-            "session_id": "session-491289ea668e494b856a8fafa13447a8",
-            "generation": "cafc7e5d94f44111ab006996a8dd6bce",
+            "session_id": "session-ad591d3ed64b48bcafa6a909bc05b3ce",
+            "generation": "78bc60d9471b42a7b4913d6f9c07b636",
             "revision": 0
           },
           "text": "A little wave from the festival booth: let’s make a small celebration of it.",
@@ -686,17 +720,17 @@
           "mood": "party",
           "persona_revision": 0,
           "mood_revision": 0,
-          "expires_at": "2026-10-19T18:37:24.880569+00:00",
+          "expires_at": "2026-10-19T19:30:20.554007+00:00",
           "content_basis": "core_owned_curated_reaction_v1",
           "history_publication": false,
           "cache_policy": "private,no-store",
           "speech": {
             "schema_version": 1,
             "reference": {
-              "reaction_id": "01a15573-ccdb-7000-9706-638086ed3336",
-              "session_id": "session-491289ea668e494b856a8fafa13447a8"
+              "reaction_id": "01a155a4-41d4-7000-9656-836a73a405b8",
+              "session_id": "session-ad591d3ed64b48bcafa6a909bc05b3ce"
             },
-            "source_id": "01a15573-ccdb-7000-9706-638086ed3336",
+            "source_id": "01a155a4-41d4-7000-9656-836a73a405b8",
             "source_kind": "core_owned_persona_reaction",
             "text_revision": "43876c72e0c7eccbc34f283f",
             "presentation_revision": "43876c72e0c7eccbc34f283f",
@@ -723,12 +757,12 @@
             "settings_revision": [
               1,
               [
-                "session-491289ea668e494b856a8fafa13447a8",
-                "cafc7e5d94f44111ab006996a8dd6bce",
+                "session-ad591d3ed64b48bcafa6a909bc05b3ce",
+                "78bc60d9471b42a7b4913d6f9c07b636",
                 0
               ]
             ],
-            "expires_at": "2026-10-19T18:37:24.880569+00:00",
+            "expires_at": "2026-10-19T19:30:20.554007+00:00",
             "cache_policy": "private,no-store",
             "processor": "local_on_device",
             "audio_state": "renderer_pending",
@@ -742,10 +776,10 @@
         },
         "operation_receipt": {
           "contract_version": 1,
-          "operation_id": "01a15573-ccdb-7000-9706-638086ed3336",
-          "operation_epoch": "c80800b35516c8d3f11abc4098aa7f83",
+          "operation_id": "01a155a4-41d4-7000-9656-836a73a405b8",
+          "operation_epoch": "ffb7e773a969bdd501094cae8c51d830",
           "phase": "confirmed",
-          "expires_at_ms": 1792435314875,
+          "expires_at_ms": 1792438490548,
           "result_available": true,
           "response_status": 200,
           "error": null
@@ -757,7 +791,7 @@
   "frames": [
     {
       "id": 1,
-      "connection_id": "ad4b09e66a343c378878221979eb4060",
+      "connection_id": "a27f62b2dff702d8ef18edb3321fbf56",
       "type": "result",
       "success": true,
       "status": 200,
@@ -766,10 +800,10 @@
         "reaction_observation": {
           "contract_version": 1,
           "observation_id": 1,
-          "reaction_id": "01a15573-cbc6-7000-af54-cebef04f2389",
-          "session_id": "session-491289ea668e494b856a8fafa13447a8",
+          "reaction_id": "01a155a4-40bc-7000-a183-3cfbca8aa126",
+          "session_id": "session-ad591d3ed64b48bcafa6a909bc05b3ce",
           "state": "valid",
-          "expires_at": "2026-10-19T18:37:24.599952+00:00",
+          "expires_at": "2026-10-19T19:30:20.269336+00:00",
           "cache_policy": "private,no-store"
         }
       }
@@ -778,20 +812,20 @@
       "id": 0,
       "type": "event",
       "event": "session/persona/reaction/withdrawn",
-      "connection_id": "ad4b09e66a343c378878221979eb4060",
+      "connection_id": "a27f62b2dff702d8ef18edb3321fbf56",
       "reaction_observation": {
         "contract_version": 1,
         "observation_id": 1,
-        "reaction_id": "01a15573-cbc6-7000-af54-cebef04f2389",
-        "session_id": "session-491289ea668e494b856a8fafa13447a8",
+        "reaction_id": "01a155a4-40bc-7000-a183-3cfbca8aa126",
+        "session_id": "session-ad591d3ed64b48bcafa6a909bc05b3ce",
         "state": "withdrawn",
-        "expires_at": "2026-10-19T18:37:24.599952+00:00",
+        "expires_at": "2026-10-19T19:30:20.269336+00:00",
         "cache_policy": "private,no-store"
       }
     },
     {
       "id": 2,
-      "connection_id": "ad4b09e66a343c378878221979eb4060",
+      "connection_id": "a27f62b2dff702d8ef18edb3321fbf56",
       "type": "result",
       "success": true,
       "status": 200,
@@ -800,10 +834,10 @@
         "reaction_observation": {
           "contract_version": 1,
           "observation_id": 2,
-          "reaction_id": "01a15573-cbd4-7000-b76b-6d41bf42576b",
-          "session_id": "session-491289ea668e494b856a8fafa13447a8",
+          "reaction_id": "01a155a4-40c5-7000-831d-aef85d9087a7",
+          "session_id": "session-ad591d3ed64b48bcafa6a909bc05b3ce",
           "state": "valid",
-          "expires_at": "2026-10-19T18:37:24.614236+00:00",
+          "expires_at": "2026-10-19T19:30:20.278930+00:00",
           "cache_policy": "private,no-store"
         }
       }
@@ -812,20 +846,20 @@
       "id": 0,
       "type": "event",
       "event": "session/persona/reaction/withdrawn",
-      "connection_id": "ad4b09e66a343c378878221979eb4060",
+      "connection_id": "a27f62b2dff702d8ef18edb3321fbf56",
       "reaction_observation": {
         "contract_version": 1,
         "observation_id": 2,
-        "reaction_id": "01a15573-cbd4-7000-b76b-6d41bf42576b",
-        "session_id": "session-491289ea668e494b856a8fafa13447a8",
+        "reaction_id": "01a155a4-40c5-7000-831d-aef85d9087a7",
+        "session_id": "session-ad591d3ed64b48bcafa6a909bc05b3ce",
         "state": "withdrawn",
-        "expires_at": "2026-10-19T18:37:24.614236+00:00",
+        "expires_at": "2026-10-19T19:30:20.278930+00:00",
         "cache_policy": "private,no-store"
       }
     },
     {
       "id": 3,
-      "connection_id": "ad4b09e66a343c378878221979eb4060",
+      "connection_id": "a27f62b2dff702d8ef18edb3321fbf56",
       "type": "result",
       "success": true,
       "status": 200,
@@ -834,10 +868,10 @@
         "reaction_observation": {
           "contract_version": 1,
           "observation_id": 3,
-          "reaction_id": "01a15573-ccdb-7000-9706-638086ed3336",
-          "session_id": "session-491289ea668e494b856a8fafa13447a8",
+          "reaction_id": "01a155a4-41d4-7000-9656-836a73a405b8",
+          "session_id": "session-ad591d3ed64b48bcafa6a909bc05b3ce",
           "state": "valid",
-          "expires_at": "2026-10-19T18:37:24.880569+00:00",
+          "expires_at": "2026-10-19T19:30:20.554007+00:00",
           "cache_policy": "private,no-store"
         }
       }
@@ -858,6 +892,6 @@
   "installed": "NOT_RUN",
   "native": "NOT_RUN",
   "audible": "NOT_RUN",
-  "private_receipt_sha256": "55b77f38e5afbbcb37d60804df44513bde32b193c7f0733d7ae4b3b536291744",
+  "private_receipt_sha256": "293199f989fa789bec793115ca94c23474fa673cfb83cf70d1250a5f40e5d297",
   "qualification_boundary": "actual isolated HA paired TLS HTTP/WS, Store/SQLite and HA Wyoming entity; synthetic external waveform, no installed/native/hearing proof"
 }
