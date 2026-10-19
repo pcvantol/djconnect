@@ -697,8 +697,9 @@ Core #1211 source is protected merged via PR #1219 at
 `8cb1a467dfc0249fc7b3e79e474841e40249c091` and own cleanup verified:
 actual selected/preferred
 Assist agent required, HA STT/TTS optional for pairing. [Contract](docs/product/ASSIST_AGENT_PAIRING_V1.md).
-Core #1212 actual versioned speech-route discovery is separately pending; #1211
-cannot close it or Apple #129. Core #1210 shared localized example catalogue,
+Core #1212 actual versioned speech-route source is separately delivered by
+PR #1221; its installed/native acceptance remains open, and #1211 does not
+close Apple #129. Core #1210 shared localized example catalogue,
 three contextual suggestions and reduced backend Help remain one outstanding
 atomic assignment for Apple #128. No suggestions-only/help-only closure.
 Avatar basic and touch producer source is delivered; actual HA-dev mainf8b28d2b
@@ -706,14 +707,16 @@ advertises touch1. Apple #127 renderer/gesture/native/audio acceptance remains
 separately owned; waiting for a new generic Core activity API is unnecessary.
 No new consumer writer, automatic dispatch or function closure follows.
 
-## Selected Core #1212 local implementation — 19 October2026
+## Selected Core #1212 protected producer source — 19 October2026
 
 Same sole writer after source1219/Finalization1220. Actual metadata projection
 on existing paired/status uses exact selected/preferred pipeline and separately
 qualifies STT, TTS and speaker target; no runtime/provider configuration or
 consumer writes. [Contract](docs/product/DEVICE_SPEECH_CAPABILITIES_V1.md).
-Source regressions and actual isolated HA15cases pass without speech/model
-calls; exact reviews/protected source and separate Finalization still required.
+Protected source PR #1221 merged `604b80f806425cb53165a17faf783bfd6248af17`,
+exact reviewed candidate `bd2b644dadec91742138348ba960e61b12da662c`, trees equal.
+2642host/148pinnedHAowner tests and actual isolated HA15metadata cases pass
+without speech/model calls. Separate Finalization has its own delivery gates.
 Apple #129 availability UI/native/audio acceptance stays OPEN. Last HA-dev
 installed pin f8b28d2b; no install or full speech-route closure inferred.
 #1210 shared catalogue plus compact Help remains one next atomic dependency.

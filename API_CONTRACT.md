@@ -1,12 +1,15 @@
 # DJConnect API Contract
 
-## Current Core #1212 candidate: actual device speech availability1
+## Current Core #1212 source: actual device speech availability1
 
 The additive owner-bound `device_speech` schema1 is generated synchronously at
 the end of successful completed pairing and status for Apple clients. See
 [contract](docs/product/DEVICE_SPEECH_CAPABILITIES_V1.md) and
 [actual isolated HA fixture](examples/client_contracts/device_speech_v1/README.md).
-This is a local source candidate, not yet a qualified producer pin. No new
+Source [PR #1221](https://github.com/pcvantol/djconnect/pull/1221) merged
+`604b80f806425cb53165a17faf783bfd6248af17`; exact candidate
+`bd2b644dadec91742138348ba960e61b12da662c`, complete trees equal. Separate
+Finalization/installed/native acceptance remain distinct. No new
 endpoint or change to existing pairing identity, tokens, default selection,
 STT/TTS execution or replay policy.
 
