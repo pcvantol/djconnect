@@ -136,7 +136,8 @@
       "djconnect/operation/execute",
       "djconnect/operation/status",
       "djconnect/profile/settings/update",
-      "djconnect/profile/settings/subscribe"
+      "djconnect/profile/settings/subscribe",
+      "djconnect/persona/reaction/observe"
     ],
     "context_path": "/api/djconnect/v1/transport/context",
     "operation_path": "/api/djconnect/v1/transport/operation",

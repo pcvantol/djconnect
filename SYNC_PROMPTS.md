@@ -1,3 +1,21 @@
+# Persona touch withdrawal follow-up — candidate, Apple activation OFF
+
+Core #1209 / Apple #127: the additive [withdrawal/cancel contract](docs/product/PERSONA_TOUCH_REACTIONS_V1.md#withdrawal-observation-and-pre-admission-cancellation--follow-up-candidate)
+now defines paired WS `djconnect/persona/reaction/observe`, private
+`session/persona/reaction/withdrawn`, immutable expiry and durable original-UUIDv7
+pre-admission cancellation. [Actual isolated HA fixture](examples/client_contracts/persona_touch_reaction_v1/withdrawal-outcomes.json)
+proves both processors' early cancellation and withdrawal after delivery/byte
+download without another audio read. Observe valid before display/playback;
+stop/purge on invalidation, socket/auth loss or deadline. Confirmed operation
+receipts are not continuing admission; no HTTP-only activation or cached replay.
+Server guard cadence0.25s is not actual native/audio stop proof. Existing speaker
+reaction target remains unqualified. Candidate source qualification is recorded
+in [the follow-up report](docs/verification/PERSONA_TOUCH_WITHDRAWAL_20261019.md).
+Protected exact candidate/Finalization, installed discovery and Apple native
+acceptance remain OPEN. Do not enable touch based on this candidate or old v1.
+Same Core writer; individual content deletion is the selected follow-up Core
+#1225 / Apple #143, with no endpoint/capability advertised yet.
+
 # Core #1212 protected source — no consumer dispatch
 
 [Device speech1](docs/product/DEVICE_SPEECH_CAPABILITIES_V1.md) adds actual

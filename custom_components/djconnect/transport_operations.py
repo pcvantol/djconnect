@@ -104,6 +104,7 @@ class OperationJournal:
                         "phase",
                         "response_status",
                         "error",
+                        "cancelled_before_send",
                     }
                     or record.get("phase") not in PHASES
                     or type(record.get("expires_ms")) is not int
@@ -121,6 +122,12 @@ class OperationJournal:
                     )
                     or record["expires_ms"]
                     != operation_created_ms(record["operation_id"]) + LIFETIME_MS
+                ):
+                    raise ValueError
+                if "cancelled_before_send" in record and (
+                    record["cancelled_before_send"] is not True
+                    or record["phase"] != "cancelled"
+                    or record["operation"] != "session/persona/reaction"
                 ):
                     raise ValueError
                 status, error = record.get("response_status"), record.get("error")
@@ -153,6 +160,12 @@ class OperationJournal:
         # The UUID names one deliberate intent across contexts. A Profile/device
         # change must conflict with its original binding, not create a new key.
         return hashlib.sha256(identifier.encode()).hexdigest()
+
+    @staticmethod
+    def _cancel_key(device, identifier):
+        # Unknown-intent cancellation must not reserve another device's UUID.
+        # Epoch/Profile/binding remain in the record and cannot renew this fence.
+        return hashlib.sha256(("reaction-cancel:" + device + ":" + identifier).encode()).hexdigest()
 
     def _candidate(self):
         state = deepcopy(self._state)
@@ -196,25 +209,30 @@ class OperationJournal:
             if epoch != self.epoch:
                 raise OperationError("operation_epoch_changed")
             key = self._key(identifier)
-            old = self._state["records"].get(key)
+            cancelled_key = self._cancel_key(device, identifier)
+            cancelled_record = self._state["records"].get(cancelled_key)
+            old = cancelled_record or self._state["records"].get(key)
             if old is not None:
+                # An original-identity cancellation has no future request body.
+                # It fences only this exact operation and authenticated binding.
+                cancelled = old.get("cancelled_before_send") is True
                 if (
                     old["owner"],
                     old["device"],
                     old["binding"],
                     old["epoch"],
                     old["operation"],
-                    old["digest"],
+                    None if cancelled else old["digest"],
                 ) != (
                     owner,
                     device,
                     binding,
                     epoch,
                     operation,
-                    digest,
+                    None if cancelled else digest,
                 ):
                     raise OperationError("operation_conflict")
-                return key, self.receipt(old), False
+                return cancelled_key if cancelled_record else key, self.receipt(old), False
             state = self._candidate()
             if (
                 len(state["records"]) >= MAX_RECORDS
@@ -242,6 +260,48 @@ class OperationJournal:
                 raise OperationError("operation_unavailable", 503) from None
             self._active.add(key)
             return key, self.receipt(record), True
+
+    async def cancel_reaction(self, *, owner, device, binding, identifier, epoch):
+        """Durable, content-free target fence, even before execute reaches reserve."""
+        async with self._lock:
+            await self._load()
+            if epoch != self.epoch:
+                raise OperationError("operation_epoch_changed")
+            created = operation_created_ms(identifier)
+            if created + LIFETIME_MS <= self.now_ms():
+                return  # Already non-executable; idempotent cancellation needs no slot.
+            expires = self._validate_time(identifier)
+            key = self._key(identifier)
+            old = self._state["records"].get(key)
+            if old is not None:
+                if (old["owner"], old["device"], old["binding"], old["epoch"], old["operation"]) != (
+                    owner, device, binding, epoch, "session/persona/reaction"
+                ):
+                    raise OperationError("persona_reaction_unavailable", 404)
+                if old["phase"] in TERMINAL:
+                    return  # A completed receipt is not rewritten as source authority.
+            if old is None:
+                key = self._cancel_key(device, identifier)
+                old = self._state["records"].get(key)
+                if old is not None:
+                    if (old['owner'], old['binding'], old['epoch']) != (owner, binding, epoch):
+                        raise OperationError('operation_context_changed', 409)
+                    return
+            state = self._candidate()
+            if old is None and (len(state["records"]) >= MAX_RECORDS
+                    or sum(r["owner"] == owner for r in state["records"].values()) >= MAX_OWNER_RECORDS):
+                raise OperationError("operation_capacity", 429)
+            state["records"][key] = {**(old or {}), "owner": owner, "device": device,
+                "binding": binding, "operation_id": identifier, "epoch": epoch,
+                "operation": "session/persona/reaction", "digest": "0" * 64,
+                "expires_ms": expires, "phase": "cancelled", "cancelled_before_send": True,
+                "response_status": 409, "error": "persona_reaction_withdrawn"}
+            try:
+                await self._commit(state)
+            except asyncio.CancelledError:
+                raise
+            except Exception:
+                raise OperationError("operation_unavailable", 503) from None
 
     async def transition(self, key, phase, *, response_status=None, error=None):
         if phase not in PHASES:
@@ -279,7 +339,11 @@ class OperationJournal:
         async with self._lock:
             await self._load()
             self._validate_time(identifier)
-            record = self._state["records"].get(self._key(identifier))
+            # Prefer this device's durable fence, as reserve does. Another device
+            # may legitimately use the same unadmitted UUID without hiding it.
+            record = self._state["records"].get(self._cancel_key(device, identifier))
+            if record is None:
+                record = self._state["records"].get(self._key(identifier))
             if record is None:
                 raise OperationError("operation_unknown")
             if (record["owner"], record["device"], record["binding"], record["epoch"]) != (

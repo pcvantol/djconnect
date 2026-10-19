@@ -22,6 +22,9 @@ COOLDOWN = 10
 WINDOW = 600
 MAX_REACTIONS = 6
 MAX_SESSIONS = 64
+OBSERVE_COMMAND = 'djconnect/persona/reaction/observe'
+WITHDRAW_EVENT = 'session/persona/reaction/withdrawn'
+RECHECK_SECONDS = .25
 REASONS = frozenset({'completed', 'dismissed', 'background', 'ask_dj_foreground', 'speech_conflict'})
 
 
@@ -41,6 +44,12 @@ def capability():
             'content_basis': 'core_owned_curated_reaction_v1', 'model_calls': False,
             'actual_audio_start_required': True, 'client_cancel_on_lifecycle_required': True,
             'duplicate': 'original_operation_receipt_no_new_content_or_synthesis',
+            'withdrawal_contract': {'version': 1, 'transport': 'paired_owner_actions',
+                'command': OBSERVE_COMMAND, 'event': WITHDRAW_EVENT,
+                'required_for_display_and_playback': True, 'maximum_observers_per_reaction': 1,
+                'server_guard_recheck_seconds': RECHECK_SECONDS,
+                'on_connection_loss': 'withdraw_and_stop', 'deadline_renewal': False},
+            'cancel_before_admission': 'durable_original_uuidv7_fence_until_operation_deadline',
             'cache_policy': 'private,no-store'}
 
 
@@ -136,6 +145,7 @@ class _Lease:
         self.book, self.state, self.device, self.binding = book, state, authority.device, authority.binding
         self.identifier, self.deadline = identifier, deadline
         self.cancelled = asyncio.Event()
+        self.observer = None
         self.expires_at = time.time() + max(0, deadline - book.now())
         def validate():
             if self.cancelled.is_set() or book.now() >= deadline or state.lease is not self:
@@ -166,6 +176,8 @@ def _identifier(value):
 
 async def async_cancel(hass, authority, payload):
     from .transport_delivery import register_delivery_admission
+    from .hybrid_service import cancel_original_reaction
+    from .transport_operations import OperationError, operation_created_ms
     fields = {'contract_version', 'session_id', 'reaction_id', 'reason', 'device_id', 'client_type'}
     if (type(payload) is not dict or set(payload) != fields
             or type(payload['contract_version']) is not int or payload['contract_version'] != 1
@@ -174,6 +186,15 @@ async def async_cancel(hass, authority, payload):
         return {'success': False, 'error': 'invalid_request'}, 400
     authority.owner_final_guard()
     register_delivery_admission(authority.owner_final_guard)
+    try:
+        operation_created_ms(payload['reaction_id'])
+    except OperationError:
+        return {'success': False, 'error': 'invalid_request'}, 400
+    try:
+        await cancel_original_reaction(authority, payload['reaction_id'])
+    except OperationError as exc:
+        return {'success': False, 'error': exc.code}, exc.status
+    authority.owner_final_guard()
     book = hass.data.get('djconnect', {}).get('persona_reaction_book')
     if book is not None:
         for key, state in tuple(book.rows.items()):
@@ -191,6 +212,85 @@ async def async_cancel(hass, authority, payload):
     # Content-free idempotent cancellation, also after expiry. No new lease,
     # history clear, proactive budget reset or speaker stop is manufactured.
     return {'success': True, 'persona_reaction_cancelled': True}, 200
+
+
+class ReactionObservation:
+    """One private, original-deadline observer; no bodies or durable new authority."""
+    def __init__(self, lease, authority, request_id, enqueue):
+        from .transport_operations import OperationError
+        if lease.observer is not None:
+            raise OperationError('persona_reaction_observer_busy', 409)
+        self.lease, self.authority, self.request_id = lease, authority, request_id
+        self.closed = self.ended = False
+        self.remove = lease.source.on_withdraw(lambda: self._withdraw(enqueue))
+        lease.observer = self
+        self.task = asyncio.create_task(self._monitor())
+
+    def _withdraw(self, enqueue):
+        if not self.closed and not self.ended:
+            self.ended = True
+            enqueue({'id': 0, 'type': 'event', 'event': WITHDRAW_EVENT,
+                     '_persona_observation': self})
+
+    def snapshot(self):
+        try:
+            self.authority.validate_now()
+            self.lease()
+        except Exception:
+            self.lease.dispose()
+        return {'contract_version': 1, 'observation_id': self.request_id,
+                'reaction_id': self.lease.identifier, 'session_id': self.lease.source.session_id,
+                'state': 'withdrawn' if self.closed or self.lease.cancelled.is_set() else 'valid',
+                'expires_at': datetime.fromtimestamp(self.lease.expires_at, UTC).isoformat(),
+                'cache_policy': 'private,no-store'}
+
+    async def _monitor(self):
+        while not self.closed and not self.lease.cancelled.is_set():
+            self.snapshot()  # Current local source/provider/settings fences, no provider call.
+            if self.lease.cancelled.is_set():
+                break
+            try:
+                await asyncio.wait_for(self.lease.cancelled.wait(), RECHECK_SECONDS)
+            except TimeoutError:
+                pass
+
+    def close(self):
+        self.closed = True
+        self.remove()
+        self.task.cancel()
+        self.lease.dispose()
+        if self.lease.observer is self:
+            self.lease.observer = None
+
+
+def observe(hass, authority, payload, request_id, enqueue):
+    """Paired WS only; neither a durable receipt nor discovery is continuing admission."""
+    from .transport_operations import OperationError
+    fields = {'contract_version', 'operation_id', 'operation_epoch', 'session_id'}
+    if (type(payload) is not dict or set(payload) != fields or type(payload['contract_version']) is not int
+            or payload['contract_version'] != 1 or not _identifier(payload['operation_id'])
+            or not _identifier(payload['session_id'])):
+        raise OperationError('invalid_request', 400)
+    authority.validate_now()
+    manager = hass.data.get('djconnect', {}).get('hybrid_operation_manager')
+    if manager is None or manager._closed or manager.journal._failed:
+        raise OperationError('operation_unavailable', 503)
+    if payload['operation_epoch'] != manager.journal.epoch:
+        raise OperationError('operation_epoch_changed', 409)
+    book = hass.data.get('djconnect', {}).get('persona_reaction_book')
+    if book is not None:
+        for key, state in tuple(book.rows.items()):
+            lease = state.lease
+            if (key[:2] != (authority.context.profile_id, payload['session_id']) or lease is None
+                    or lease.identifier != payload['operation_id']
+                    or (lease.device, lease.binding) != (authority.device, authority.binding)):
+                continue
+            try:
+                lease()
+            except Exception:
+                break
+            return ReactionObservation(lease, authority, request_id, enqueue)
+    raise OperationError('persona_reaction_unavailable', 404)
 
 
 async def async_react(hass, authority, payload):

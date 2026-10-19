@@ -533,6 +533,16 @@ def current_operation_identity(authority):
     return record['operation_id'], record['expires_ms']
 
 
+async def cancel_original_reaction(authority, identifier):
+    """Reuse the current journal; never synthesize an unbound cancellation owner."""
+    scope = _current_operation.get()
+    if not scope or scope[2] is not authority:
+        raise OperationError('operation_context_changed', 409)
+    manager, _, _ = scope
+    await manager.journal.cancel_reaction(owner=authority.owner, device=authority.device,
+        binding=authority.binding, identifier=identifier, epoch=manager.journal.epoch)
+
+
 async def guard_transport_effect():
     """Existing provider adapters call this through their established send guard."""
     current = _current_operation.get()
@@ -559,6 +569,8 @@ def validate_transport_effect_now():
             final_guard()
         if manager.journal._failed:
             raise OperationError("operation_unavailable", 503)
+        if manager.journal._state["records"][key].get("cancelled_before_send"):
+            raise OperationError("persona_reaction_withdrawn", 409)
         manager.journal._validate_time(manager.journal._state["records"][key]["operation_id"])
 
 

@@ -148,3 +148,96 @@ remain Apple-owned and OPEN. HA-speaker reaction qualification remains OPEN.
 Protected source, separate Finalization and any authorized exact development
 installation/readback remain separately required. A merge cannot close the
 whole avatar function or other lane slices.
+
+## Withdrawal observation and pre-admission cancellation — follow-up candidate
+
+The accepted v1 producer above did not give a native consumer a continuing
+withdrawal signal after delivery and forgot cancellation that preceded original
+request admission. Apple #127 correctly keeps touch disabled for these gaps.
+The following is an additive **source candidate**, not installed discovery or
+permission to activate touch. Existing operation payloads and literal catalog
+remain v1. Recognize both the nested `withdrawal_contract.version:1` and
+`cancel_before_admission:durable_original_uuidv7_fence_until_operation_deadline`
+in `active_session_persona.touch_reaction` before using this follow-up.
+
+### Observe before display or playback
+
+Use the existing authenticated `paired_owner_actions` WebSocket at
+`/api/djconnect/v1/actions/paired`, authenticated as the same initiating device.
+A confirmed durable operation receipt is only an outcome; it never proves
+continuing permission to display text or play downloaded audio. Hold the original
+reaction privately until this command returns a current `state:valid`:
+
+```json
+{"type":"djconnect/persona/reaction/observe","id":1,"contract_version":1,"operation_id":"<original UUIDv7>","operation_epoch":"<original current epoch>","session_id":"<original Session>"}
+```
+
+A successful frame uses the existing request/connection correlation envelope:
+
+```json
+{"type":"result","id":1,"connection_id":"<paired connection>","success":true,"status":200,"result":{"success":true,"reaction_observation":{"contract_version":1,"observation_id":1,"reaction_id":"<original UUIDv7>","session_id":"<original Session>","state":"valid","expires_at":"<original deadline>","cache_policy":"private,no-store"}}}
+```
+
+Validate exact original connection, observation request, reaction, Session and
+unchanged expiry before displaying/starting. A queued result is requalified after
+the final authority await at actual send: it may already be `state:withdrawn`.
+Unknown/foreign/stale source is404 `persona_reaction_unavailable`; wrong epoch
+is409 `operation_epoch_changed`; an existing live observer is409
+`persona_reaction_observer_busy`. One observer per reaction and one per connection;
+there is no unauthenticated subscription or Broadcast announcement.
+
+When current source/provider/settings/Session/authority admission withdraws,
+the initiating connection receives one content-free invalidation:
+
+```json
+{"type":"event","id":0,"connection_id":"<paired connection>","event":"session/persona/reaction/withdrawn","reaction_observation":{"contract_version":1,"observation_id":1,"reaction_id":"<original UUIDv7>","session_id":"<original Session>","state":"withdrawn","expires_at":"<same original deadline>","cache_policy":"private,no-store"}}
+```
+
+Stop playback, dismiss the overlay and purge private text/audio on withdrawal,
+connection loss, auth failure, malformed/mismatched observation, local lifecycle
+cancellation or the original deadline. Never resume downloaded content from a
+confirmed receipt, cached `valid`, HTTP-only execution or a new socket. A source
+that lost its observer is withdrawn and is not reattached to continue playing.
+A new explicit user intent may be admitted only under the existing cooldown and
+busy limits. No retry/reconnect/status read renews the original deadline.
+
+A bounded server-local source guard rechecks every0.25seconds while observed.
+This is a guard cadence, **not** a network delivery SLA or proof that an actual
+speaker has stopped. Existing connection lease/queue/worker limits are unchanged;
+slow consumer/auth loss closes the connection and requires native stop. The
+observation contains no text, speech segments, provider credentials or audio.
+Actual output callbacks alone drive `speaking`; observation validity is not audio
+start. HA speaker reaction output remains explicitly unqualified.
+
+### Cancellation before the original request arrives
+
+The existing `session/persona/reaction/cancel` operation still has its own fresh
+outer UUIDv7 and carries the original `reaction_id` and Session. Before reporting
+success, Core writes a durable, content-free target fence, even if the original
+execution has not reached reservation. The original UUIDv7's five-minute operation
+deadline is immutable; the separate reaction source still has its shorter
+maximum30second lifetime. Future timestamps outside the existing clock allowance
+reject, expired non-executable targets need no new slot, and cancellation does
+not reset cooldown or proactive budgets.
+
+The fence binds the initiating device, resolved Profile/binding and original
+epoch. Unknown-target fences are device-scoped, so another paired device cannot
+preempt an unadmitted intent by naming its UUID. Restart or rebinding cannot
+reclassify the old UUID as a new intent. A delayed original returns the cancelled
+receipt with409 and no new text/provider/synthesis. A cancelled running intent
+cannot be overwritten by late success. A previously confirmed receipt remains
+confirmed, but its content grant withdraws; a receipt never substitutes admission.
+
+Tombstones share the journal's256global/64per-owner capacity and original expiry;
+unexpired evidence is not evicted. Capacity failure is429, not cancellation
+success. A failed/uncertain durable save closes the journal to execution until
+recovery, rather than acknowledging an unproven fence. The journal stores only
+identity digests/IDs/deadlines/outcomes, never reaction text or audio.
+
+[Actual isolated HA request/results and private receipt digest](../../examples/client_contracts/persona_touch_reaction_v1/withdrawal-outcomes.json)
+cover both processors' pre-admission cancellation, foreground Preview withdrawal,
+actual HA pipeline change after byte download, unchanged confirmed receipt and
+observer disconnect. [Follow-up qualification](../verification/PERSONA_TOUCH_WITHDRAWAL_20261019.md)
+keeps source/isolated runtime separate from protected delivery, installed HA,
+native stop/gesture and audible acceptance. Apple touch stays disabled until its
+producer and native acceptance gates pass.

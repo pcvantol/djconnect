@@ -222,6 +222,7 @@ class HybridActionsView(HomeAssistantView):
         failure = None
         authenticated = False
         remove_settings_listener = None
+        reaction_observer = None
         try:
             auth_deadline = asyncio.get_running_loop().time() + AUTH_TIMEOUT
             await ws.send_json(
@@ -275,6 +276,7 @@ class HybridActionsView(HomeAssistantView):
                         "djconnect/operation/status",
                         'djconnect/profile/settings/update',
                         'djconnect/profile/settings/subscribe',
+                        'djconnect/persona/reaction/observe',
                     ],
                 }
             )
@@ -308,6 +310,14 @@ class HybridActionsView(HomeAssistantView):
                             item["result"] = await item["result"].admitted_body()
                         await authority.validate()
                         authority.validate_now()
+                        observation = item.pop('_persona_observation', None)
+                        if observation is not None:
+                            # Reproject after the final await, immediately before serialization.
+                            value = observation.snapshot()
+                            if item['type'] == 'event':
+                                item['reaction_observation'] = value
+                            else:
+                                item['result'] = {'success': True, 'reaction_observation': value}
                         await ws.send_str(bounded_frame(item))
 
             writer = asyncio.create_task(send())
@@ -315,13 +325,14 @@ class HybridActionsView(HomeAssistantView):
 
             def enqueue(item):
                 nonlocal overflow
+                item.setdefault('connection_id', connection_id)
                 try:
                     queue.put_nowait(item)
                 except asyncio.QueueFull:
                     overflow = True
 
             async def run_command(command):
-                nonlocal remove_settings_listener
+                nonlocal remove_settings_listener, reaction_observer
                 rid = command["id"]
                 base = {"id": rid, "connection_id": connection_id, "type": "result"}
                 try:
@@ -339,6 +350,18 @@ class HybridActionsView(HomeAssistantView):
                         )
                     elif command["type"] == "djconnect/operation/status":
                         result, status = await manager.status(authority, data)
+                    elif command['type'] == 'djconnect/persona/reaction/observe':
+                        from .persona_reactions import observe
+                        await authority.validate()
+                        if reaction_observer is not None and reaction_observer.ended:
+                            reaction_observer.close()
+                            reaction_observer = None
+                        if reaction_observer is not None:
+                            raise OperationError('persona_reaction_observer_busy', 409)
+                        reaction_observer = observe(self.hass, authority, data, rid, enqueue)
+                        enqueue({**base, 'success': True, 'status': 200,
+                                 '_persona_observation': reaction_observer})
+                        return
                     elif command['type'] == 'djconnect/profile/settings/update':
                         if set(data) != {'payload'}:
                             raise OperationError('invalid_command', 400)
@@ -454,7 +477,11 @@ class HybridActionsView(HomeAssistantView):
         finally:
             if remove_settings_listener is not None:
                 remove_settings_listener()
+            if reaction_observer is not None:
+                reaction_observer.close()
             tasks = tuple(workers.values()) + tuple(t for t in (reader, writer) if t is not None)
+            if reaction_observer is not None:
+                tasks += (reaction_observer.task,)
             for task in tasks:
                 task.cancel()
             if tasks:
