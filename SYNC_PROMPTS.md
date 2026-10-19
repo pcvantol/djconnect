@@ -1,3 +1,15 @@
+# Living Persona Avatar — protected basic Core producer pin
+
+PR [#1215](https://github.com/pcvantol/djconnect/pull/1215), merge
+`d19dc33d27d799b8c1a868fc57164872e1e67ed8`, incorporates exact reviewed candidate
+`2c145943030761f992c236d39572a8e4884d041b` with equal full trees. Use the canonical
+DJ_PERSONA_LIVING_AVATAR_V1.md existing-signal mapping and immutable six-case
+semantic derivative. No new backend activity API/capability is required for the
+basic avatar. Existing Apple owner can use those proven fields under its own
+admission. Real renderer callbacks/native/audio acceptance and touch producer
+delivery remain OPEN; touch is NOT_IMPLEMENTED/NOT_ADVERTISED. No fabricated
+Ask DJ/Moment, consumer source takeover or whole function closure follows.
+
 # Living Persona Avatar — selected Core contract; native/touch gates OPEN
 
 See docs/product/DJ_PERSONA_LIVING_AVATAR_V1.md and Core #1208/#1209, with Apple

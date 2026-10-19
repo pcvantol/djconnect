@@ -71,3 +71,13 @@ fixture. No product runtime, advertised route or capability changed. Native
 renderer callbacks, touch admission/content delivery, installed/client/audio
 acceptance and all other named product gates remain OPEN after this source
 qualification; source incorporation is a separate protected transaction.
+
+## Protected source incorporation
+
+[PR #1215](https://github.com/pcvantol/djconnect/pull/1215) incorporated exact
+reviewed `2c145943030761f992c236d39572a8e4884d041b` as `d19dc33d27d799b8c1a868fc57164872e1e67ed8`; complete
+candidate/main trees are equal. Thirty checks succeeded, five conditional skips,
+and fresh exact Owner Authorization39215370213 passed. The explicitly nonblocking
+TDE observation was still running at merge, not claimed as a completed PASS.
+Separate Finalization reconciles only this contract/fixture source delivery.
+No Core runtime change, installed build, native or touch/audio acceptance follows.

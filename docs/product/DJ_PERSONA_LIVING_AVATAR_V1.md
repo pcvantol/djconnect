@@ -1,6 +1,7 @@
 # DJ Persona Living Avatar v1
 
-Status: selected Core design; source delivery pending. Basic existing-signal
+Status: basic Core design/source delivered by [PR #1215](https://github.com/pcvantol/djconnect/pull/1215),
+merge `d19dc33d27d799b8c1a868fc57164872e1e67ed8`. Existing-signal
 qualification is separate from touch-producer implementation. Touch wire/limits
 remain NOT_FROZEN / NOT_IMPLEMENTED until their own producer qualification.
 Owner inputs: [Core #1208](https://github.com/pcvantol/djconnect/issues/1208),

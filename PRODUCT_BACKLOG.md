@@ -681,6 +681,6 @@ touch addition6251008548, as one demand with the existing Core sole writer.
 existing Apple current bubble, reuse real Silence/Mood/Presence/Ask DJ/speech
 authority, and retain native rendering ownership. Basic producer signal tests
 are source evidence only. Touch-reaction producer/speech admission remains
-NOT_IMPLEMENTED; source delivery, installed/native/audio/gesture acceptance and
-whole function remain OPEN. No second writer, automatic following selection,
+NOT_IMPLEMENTED. Basic existing-signal source is delivered by protected PR #1215;
+installed/native/audio/gesture acceptance and the whole function remain OPEN. No second writer, automatic following selection,
 consumer source change or deployment is authorized by this backlog record.
