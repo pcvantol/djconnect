@@ -69,6 +69,21 @@ source links to DJConnect clients. These references are API usage only and do
 not imply endorsement, sponsorship, partnership or official support by
 MusicBrainz, ListenBrainz, MetaBrainz Foundation or Bandsintown.
 
+## Brand V2 generation (build only)
+
+Brand V2 uses the unmodified Inter4.1 variable font by The Inter Project Authors,
+under SIL Open Font License1.1. The font is **not** covered by DJConnect's MIT
+license; its full upstream license and source/archive SHA256 are preserved in
+`tools/branding/fonts/LICENSE.txt` and `PROVENANCE.md`. Official source:
+https://github.com/rsms/inter/releases/tag/v4.1. Outlined wordmarks are documents
+produced using the font; SVG image marks embed the owner-approved raster source.
+
+The offline asset generator uses [Pillow13.0.0](https://pypi.org/project/pillow/13.0.0/)
+(MIT-CMU/HPND) and [fonttools4.67.0](https://pypi.org/project/fonttools/4.67.0/)
+(MIT). These are pinned build-only tools in `tools/branding/requirements.txt`;
+neither is added to the HA integration's runtime requirements. Generated native
+and Website consumer exports do not relicense the font or any Spotify asset.
+
 ## DJConnect Firmware And Devices
 
 Copyright (c) 2026 Peter van Tol.

@@ -28,6 +28,13 @@ class SharedVibeCastBuildTest(unittest.TestCase):
             core = (ROOT / "custom_components/djconnect/vibecast_renderer/renderer.js").read_text()
             self.assertIn(core, local)
             self.assertIn(core, static)
+            import base64
+
+            brand = (ROOT / "custom_components/djconnect/brand/icon.png").read_bytes()
+            brand_uri = "data:image/png;base64," + base64.b64encode(brand).decode()
+            self.assertIn(brand_uri, local)
+            self.assertIn(brand_uri, static)
+            self.assertNotIn("@@BRAND_ICON@@", local)
             self.assertNotIn("gstatic.com", local)
             self.assertIn("addCustomMessageListener", static)
             self.assertNotIn("getCastMessageBus", static)
@@ -54,12 +61,23 @@ class SharedVibeCastBuildTest(unittest.TestCase):
                 ROOT / "custom_components/djconnect/vibecast_renderer",
                 root / "custom_components/djconnect/vibecast_renderer",
             )
+            shutil.copytree(
+                ROOT / "custom_components/djconnect/brand",
+                root / "custom_components/djconnect/brand",
+            )
             one = Path(temp) / "one"
             two = Path(temp) / "two"
             build["build"](root, one, source_revision="a" * 40)
             p = root / "custom_components/djconnect/vibecast_renderer/renderer.js"
             p.write_text(p.read_text() + "\n/* source-change */\n")
             build["build"](root, two, source_revision="b" * 40)
+            for name in ["local/vibecast.html", "cast/index.html"]:
+                self.assertNotEqual((one / name).read_bytes(), (two / name).read_bytes())
+            icon = root / "custom_components/djconnect/brand/icon.png"
+            old_brand_hash = build["build"](root, one, source_revision="b" * 40)["sources"]["../brand/icon.png"]
+            icon.write_bytes(icon.read_bytes() + b"changed-brand-input")
+            new = build["build"](root, two, source_revision="b" * 40)
+            self.assertNotEqual(old_brand_hash, new["sources"]["../brand/icon.png"])
             for name in ["local/vibecast.html", "cast/index.html"]:
                 self.assertNotEqual((one / name).read_bytes(), (two / name).read_bytes())
             (two / "cast/index.html").unlink()

@@ -1,5 +1,33 @@
 # DJConnect Home Assistant Integration Handoff
 
+## Brand V2 —19October source candidate, not installed
+
+Owner-selected [Core #1223](https://github.com/pcvantol/djconnect/issues/1223),
+isolated `codex/brand-v2-20261019` from main
+`93cd18b48656c89fadae62e831a34ddd94d09e10`; main and Ask DJ WIP remain intact.
+Exact uploaded1254px master SHA verified. The owner corrected the export boundary:
+the glass rim is the contour, transparent outside;16–40px use a maximally fitted
+headset/central-symbol variant without the glass button. The final deterministic
+alpha recipe preserves original RGB and avoids two rejected automatic cutouts.
+Primary/compact light/dark families, all active HA aliases and embedded VibeCast
+copies are produced from the same source. See the
+[asset instructions](assets/djconnect/brand-v2/README.md) and
+[source qualification](docs/verification/BRAND_V2_20261019.md).
+
+Build-only official-version audit: Pillow13.0.0 and fonttools4.67.0 current on
+PyPI; Inter4.1 is the latest official release. New tool/font versions, sources and
+licenses are pinned/documented. No HA dependency/runtime/framework upgrade is
+bundled: it is unrelated to this bounded branding change and would invalidate
+existing runtime qualification. No integration release-version bump.
+
+Export pinned committed blobs with `scripts/package_brand.py`; consumers are
+Apple #138, Website #62, Pi, ESP32 and the VibeCast receiver. Handoff source and
+archive hashes accompany delivery. Existing consumer writers retain ownership;
+Windows remains retired. Protected review/CI, producer exact-main reconciliation,
+native small-size/platform admission and separately authorized deployment remain
+OPEN. A local visual sheet is not native or installed acceptance; no functional
+slice closes because these assets are merged.
+
 Core #1212 source PR #1221 is protected merged at
 `604b80f806425cb53165a17faf783bfd6248af17`; reviewed
 `bd2b644dadec91742138348ba960e61b12da662c` has the identical complete tree. Existing completed paired/status can project actual

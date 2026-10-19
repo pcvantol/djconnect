@@ -1,5 +1,18 @@
 # DJConnect Product Roadmap
 
+## Brand V2 —19October2026, current source implementation
+
+Owner-selected [Core #1223](https://github.com/pcvantol/djconnect/issues/1223)
+replaces current corporate brand assets with the exact approved glass-headphones
+source, transparent outside the glass rim, and headset-only16–40px exports.
+Primary/compact wordmarks use `DJConnect` and `Your music. Your DJ.`; the living
+Persona avatar remains separate. Deterministic producer assets and
+[qualification](docs/verification/BRAND_V2_20261019.md) are source progress only.
+Protected Core acceptance and explicit native/Website/VibeCast consumer acceptance
+remain open. Apple #138 and Website #62 own their surfaces; Pi/ESP32 receive the
+same pinned source under existing writers. No release, rollout, runtime behavior,
+Windows revival or earlier personal-DJ/voice qualification is implied.
+
 ## Current: passive projection v2 source correction —18October2026
 
 [Source1205](https://github.com/pcvantol/djconnect/pull/1205) protected merged as

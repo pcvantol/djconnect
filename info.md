@@ -1,10 +1,13 @@
 # DJConnect
 
 <p align="center">
-  <img src="custom_components/djconnect/brand/logo.png" alt="DJConnect" width="160">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="custom_components/djconnect/brand/dark_logo.png">
+    <img src="custom_components/djconnect/brand/logo.png" alt="DJConnect" width="512">
+  </picture>
 </p>
 
-DJConnect. Muziekbediening met karakter.
+Your music. Your DJ.
 
 Website: [https://djconnect.dev](https://djconnect.dev)
 

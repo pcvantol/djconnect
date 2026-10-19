@@ -1,0 +1,355 @@
+{
+  "base_commit": "93cd18b48656c89fadae62e831a34ddd94d09e10",
+  "embedded": [
+    {
+      "disposition": "updated_canonical_brand_placeholder",
+      "path": "custom_components/djconnect/vibecast_renderer/template.html"
+    },
+    {
+      "disposition": "regenerated_from_packaged_brand",
+      "path": "custom_components/djconnect/vibecast.html"
+    },
+    {
+      "disposition": "regenerated_from_packaged_brand",
+      "path": "custom_components/djconnect/vibecast_display.html"
+    }
+  ],
+  "external_consumers": [
+    "pcvantol/djconnect-app#138",
+    "pcvantol/djconnect-website#62",
+    "pcvantol/djconnect-pi",
+    "pcvantol/djconnect-esp32",
+    "pcvantol/djconnect-vibecast-receiver"
+  ],
+  "generated_manifest": "assets/djconnect/brand-v2/manifest.json",
+  "issue": "pcvantol/djconnect#1223",
+  "preserved_semantics": [
+    "living Persona avatar and touch assets",
+    "semantic music/vinyl UI glyphs",
+    "Spotify white full logo",
+    "music album/artist fixtures",
+    "historical releases and qualification screenshots"
+  ],
+  "retired_consumer": "Windows client remains retired; no new supported client path or rollout",
+  "schema_version": 1,
+  "source_master_sha256": "f05fcdf4602d9c63add7799469c64060a8f13e5efa66ad6c7b762fb8273ec89f",
+  "standalone_original_assets": [
+    {
+      "after_sha256": "74c6ce9aff9e68e4d7c57e32f91149155a0df625f1cc33cdea00b6594e6e59fc",
+      "before_sha256": "6a1d39d4a0ca2685362209e1f554aba962afbf6864a5b147dbdc31161f2d7ed1",
+      "disposition": "updated_active_brand",
+      "output": {
+        "alpha": true,
+        "bytes": 1087649,
+        "height": 1024,
+        "mode": "RGBA",
+        "role": "mark-only-alias",
+        "sha256": "74c6ce9aff9e68e4d7c57e32f91149155a0df625f1cc33cdea00b6594e6e59fc",
+        "width": 1024
+      },
+      "path": "assets/djconnect/djconnect-icon-1024.png",
+      "reason": "Generated from exact approved RGB source and owner-corrected transparent contours."
+    },
+    {
+      "after_sha256": "1642b09cd49faa4d9c503d34a7be4f34e941eb3409b6017541a719a63ff74078",
+      "before_sha256": "07a1d66ce9d7cd8139e4f228302f13c8df02d56ea55c65cd5a9325dfb995e5c7",
+      "disposition": "updated_active_brand",
+      "output": {
+        "alpha": true,
+        "bytes": 101650,
+        "height": 256,
+        "mode": "RGBA",
+        "role": "mark-only-alias",
+        "sha256": "1642b09cd49faa4d9c503d34a7be4f34e941eb3409b6017541a719a63ff74078",
+        "width": 256
+      },
+      "path": "assets/djconnect/djconnect-icon-256.png",
+      "reason": "Generated from exact approved RGB source and owner-corrected transparent contours."
+    },
+    {
+      "after_sha256": "b4ddc113fde749799114c15e6341b3dcf3ba94b24f373d004fa24ef76de2fdb8",
+      "before_sha256": "d0ce54c6a24abd1e5139b435c4b9c1428944ed47721c58a93ad2427dc864048b",
+      "disposition": "updated_active_brand",
+      "output": {
+        "alpha": true,
+        "bytes": 332777,
+        "height": 512,
+        "mode": "RGBA",
+        "role": "mark-only-alias",
+        "sha256": "b4ddc113fde749799114c15e6341b3dcf3ba94b24f373d004fa24ef76de2fdb8",
+        "width": 512
+      },
+      "path": "assets/djconnect/djconnect-icon-512.png",
+      "reason": "Generated from exact approved RGB source and owner-corrected transparent contours."
+    },
+    {
+      "after_sha256": "51c555dcb0941b9e2bea5989e59e2f4402028aa192ec7cddb4ac333a5e2c3f22",
+      "before_sha256": "de522e9b39571c0031b9ab22f4d46018ab9601f1d9fb6aac6862cb6e6f4cd750",
+      "disposition": "updated_active_brand",
+      "output": {
+        "bytes": 1438233,
+        "role": "raster-backed-mark-alias",
+        "sha256": "51c555dcb0941b9e2bea5989e59e2f4402028aa192ec7cddb4ac333a5e2c3f22"
+      },
+      "path": "assets/djconnect/djconnect-icon.svg",
+      "reason": "Generated from exact approved RGB source and owner-corrected transparent contours."
+    },
+    {
+      "after_sha256": "f242cfc87ddccbb34d9e775acf6c196bfd3738931f8c3728521632ace855ed28",
+      "before_sha256": "c1c9e2339a705a9a9385268850d6da81f30893a7c79ed401fa82bf611cdbf2a8",
+      "disposition": "updated_active_brand",
+      "output": {
+        "alpha": true,
+        "bytes": 53414,
+        "height": 256,
+        "mode": "RGBA",
+        "role": "legacy-size-wordmark-alias",
+        "sha256": "f242cfc87ddccbb34d9e775acf6c196bfd3738931f8c3728521632ace855ed28",
+        "width": 512
+      },
+      "path": "assets/djconnect/djconnect-logo-512x256.png",
+      "reason": "Generated from exact approved RGB source and owner-corrected transparent contours."
+    },
+    {
+      "after_sha256": "e32818a81d183f84d849dc6c24d4c3f9f38ba62fc85c1a02e73c679d6ecff614",
+      "before_sha256": "7d0ffe20807a8e129dc0c74bcecfa085ead6cbcfc446c78e533376697cfe3ac4",
+      "disposition": "updated_active_brand",
+      "output": {
+        "bytes": 1468736,
+        "role": "wordmark-primary-alias",
+        "sha256": "e32818a81d183f84d849dc6c24d4c3f9f38ba62fc85c1a02e73c679d6ecff614",
+        "theme": "light"
+      },
+      "path": "assets/djconnect/djconnect-logo.svg",
+      "reason": "Generated from exact approved RGB source and owner-corrected transparent contours."
+    },
+    {
+      "after_sha256": "b4ddc113fde749799114c15e6341b3dcf3ba94b24f373d004fa24ef76de2fdb8",
+      "before_sha256": "d0ce54c6a24abd1e5139b435c4b9c1428944ed47721c58a93ad2427dc864048b",
+      "disposition": "updated_active_brand",
+      "output": {
+        "alpha": true,
+        "bytes": 332777,
+        "height": 512,
+        "mode": "RGBA",
+        "role": "mark-only-alias",
+        "sha256": "b4ddc113fde749799114c15e6341b3dcf3ba94b24f373d004fa24ef76de2fdb8",
+        "width": 512
+      },
+      "path": "assets/djconnect_icon.png",
+      "reason": "Generated from exact approved RGB source and owner-corrected transparent contours."
+    },
+    {
+      "after_sha256": "1642b09cd49faa4d9c503d34a7be4f34e941eb3409b6017541a719a63ff74078",
+      "before_sha256": "2e39030507fe218c70e3885dec5c29f464b88d12c66d93935fdac861fd795c2f",
+      "disposition": "updated_active_brand",
+      "output": {
+        "alpha": true,
+        "bytes": 101650,
+        "height": 256,
+        "mode": "RGBA",
+        "role": "ha-mark-only",
+        "sha256": "1642b09cd49faa4d9c503d34a7be4f34e941eb3409b6017541a719a63ff74078",
+        "theme": "both",
+        "width": 256
+      },
+      "path": "brands/custom_integrations/djconnect/icon.png",
+      "reason": "Generated from exact approved RGB source and owner-corrected transparent contours."
+    },
+    {
+      "after_sha256": "b4ddc113fde749799114c15e6341b3dcf3ba94b24f373d004fa24ef76de2fdb8",
+      "before_sha256": "058def399acd93b3d298e4a0a9869eec0ef67307d483db049a02e902f596b5f1",
+      "disposition": "updated_active_brand",
+      "output": {
+        "alpha": true,
+        "bytes": 332777,
+        "height": 512,
+        "mode": "RGBA",
+        "role": "ha-mark-only",
+        "sha256": "b4ddc113fde749799114c15e6341b3dcf3ba94b24f373d004fa24ef76de2fdb8",
+        "theme": "both",
+        "width": 512
+      },
+      "path": "brands/custom_integrations/djconnect/icon@2x.png",
+      "reason": "Generated from exact approved RGB source and owner-corrected transparent contours."
+    },
+    {
+      "after_sha256": "0d1750779389f92ce0ca94cd6ac97e7d258752db9ac7b0ddf0a52020d72b1ae6",
+      "before_sha256": "c1c9e2339a705a9a9385268850d6da81f30893a7c79ed401fa82bf611cdbf2a8",
+      "disposition": "updated_active_brand",
+      "output": {
+        "alpha": true,
+        "bytes": 146616,
+        "height": 256,
+        "mode": "RGBA",
+        "role": "ha-wordmark-primary",
+        "sha256": "0d1750779389f92ce0ca94cd6ac97e7d258752db9ac7b0ddf0a52020d72b1ae6",
+        "theme": "light",
+        "width": 1024
+      },
+      "path": "brands/custom_integrations/djconnect/logo.png",
+      "reason": "Generated from exact approved RGB source and owner-corrected transparent contours."
+    },
+    {
+      "after_sha256": "1642b09cd49faa4d9c503d34a7be4f34e941eb3409b6017541a719a63ff74078",
+      "before_sha256": "2e39030507fe218c70e3885dec5c29f464b88d12c66d93935fdac861fd795c2f",
+      "disposition": "updated_active_brand",
+      "output": {
+        "alpha": true,
+        "bytes": 101650,
+        "height": 256,
+        "mode": "RGBA",
+        "role": "ha-mark-only",
+        "sha256": "1642b09cd49faa4d9c503d34a7be4f34e941eb3409b6017541a719a63ff74078",
+        "theme": "both",
+        "width": 256
+      },
+      "path": "brands/djconnect/icon.png",
+      "reason": "Generated from exact approved RGB source and owner-corrected transparent contours."
+    },
+    {
+      "after_sha256": "b4ddc113fde749799114c15e6341b3dcf3ba94b24f373d004fa24ef76de2fdb8",
+      "before_sha256": "058def399acd93b3d298e4a0a9869eec0ef67307d483db049a02e902f596b5f1",
+      "disposition": "updated_active_brand",
+      "output": {
+        "alpha": true,
+        "bytes": 332777,
+        "height": 512,
+        "mode": "RGBA",
+        "role": "ha-mark-only",
+        "sha256": "b4ddc113fde749799114c15e6341b3dcf3ba94b24f373d004fa24ef76de2fdb8",
+        "theme": "both",
+        "width": 512
+      },
+      "path": "brands/djconnect/icon@2x.png",
+      "reason": "Generated from exact approved RGB source and owner-corrected transparent contours."
+    },
+    {
+      "after_sha256": "0d1750779389f92ce0ca94cd6ac97e7d258752db9ac7b0ddf0a52020d72b1ae6",
+      "before_sha256": "c1c9e2339a705a9a9385268850d6da81f30893a7c79ed401fa82bf611cdbf2a8",
+      "disposition": "updated_active_brand",
+      "output": {
+        "alpha": true,
+        "bytes": 146616,
+        "height": 256,
+        "mode": "RGBA",
+        "role": "ha-wordmark-primary",
+        "sha256": "0d1750779389f92ce0ca94cd6ac97e7d258752db9ac7b0ddf0a52020d72b1ae6",
+        "theme": "light",
+        "width": 1024
+      },
+      "path": "brands/djconnect/logo.png",
+      "reason": "Generated from exact approved RGB source and owner-corrected transparent contours."
+    },
+    {
+      "after_sha256": "1642b09cd49faa4d9c503d34a7be4f34e941eb3409b6017541a719a63ff74078",
+      "before_sha256": "07a1d66ce9d7cd8139e4f228302f13c8df02d56ea55c65cd5a9325dfb995e5c7",
+      "disposition": "updated_active_brand",
+      "output": {
+        "alpha": true,
+        "bytes": 101650,
+        "height": 256,
+        "mode": "RGBA",
+        "role": "ha-mark-only",
+        "sha256": "1642b09cd49faa4d9c503d34a7be4f34e941eb3409b6017541a719a63ff74078",
+        "theme": "both",
+        "width": 256
+      },
+      "path": "custom_components/djconnect/brand/icon.png",
+      "reason": "Generated from exact approved RGB source and owner-corrected transparent contours."
+    },
+    {
+      "after_sha256": "b4ddc113fde749799114c15e6341b3dcf3ba94b24f373d004fa24ef76de2fdb8",
+      "before_sha256": "d0ce54c6a24abd1e5139b435c4b9c1428944ed47721c58a93ad2427dc864048b",
+      "disposition": "updated_active_brand",
+      "output": {
+        "alpha": true,
+        "bytes": 332777,
+        "height": 512,
+        "mode": "RGBA",
+        "role": "ha-mark-only",
+        "sha256": "b4ddc113fde749799114c15e6341b3dcf3ba94b24f373d004fa24ef76de2fdb8",
+        "theme": "both",
+        "width": 512
+      },
+      "path": "custom_components/djconnect/brand/icon@2x.png",
+      "reason": "Generated from exact approved RGB source and owner-corrected transparent contours."
+    },
+    {
+      "after_sha256": "0d1750779389f92ce0ca94cd6ac97e7d258752db9ac7b0ddf0a52020d72b1ae6",
+      "before_sha256": "d0ce54c6a24abd1e5139b435c4b9c1428944ed47721c58a93ad2427dc864048b",
+      "disposition": "updated_active_brand",
+      "output": {
+        "alpha": true,
+        "bytes": 146616,
+        "height": 256,
+        "mode": "RGBA",
+        "role": "ha-wordmark-primary",
+        "sha256": "0d1750779389f92ce0ca94cd6ac97e7d258752db9ac7b0ddf0a52020d72b1ae6",
+        "theme": "light",
+        "width": 1024
+      },
+      "path": "custom_components/djconnect/brand/logo.png",
+      "reason": "Generated from exact approved RGB source and owner-corrected transparent contours."
+    },
+    {
+      "after_sha256": "1642b09cd49faa4d9c503d34a7be4f34e941eb3409b6017541a719a63ff74078",
+      "before_sha256": "2e39030507fe218c70e3885dec5c29f464b88d12c66d93935fdac861fd795c2f",
+      "disposition": "updated_active_brand",
+      "output": {
+        "alpha": true,
+        "bytes": 101650,
+        "height": 256,
+        "mode": "RGBA",
+        "role": "ha-mark-only",
+        "sha256": "1642b09cd49faa4d9c503d34a7be4f34e941eb3409b6017541a719a63ff74078",
+        "theme": "both",
+        "width": 256
+      },
+      "path": "custom_components/djconnect/icon.png",
+      "reason": "Generated from exact approved RGB source and owner-corrected transparent contours."
+    },
+    {
+      "after_sha256": "b4ddc113fde749799114c15e6341b3dcf3ba94b24f373d004fa24ef76de2fdb8",
+      "before_sha256": "058def399acd93b3d298e4a0a9869eec0ef67307d483db049a02e902f596b5f1",
+      "disposition": "updated_active_brand",
+      "output": {
+        "alpha": true,
+        "bytes": 332777,
+        "height": 512,
+        "mode": "RGBA",
+        "role": "ha-mark-only",
+        "sha256": "b4ddc113fde749799114c15e6341b3dcf3ba94b24f373d004fa24ef76de2fdb8",
+        "theme": "both",
+        "width": 512
+      },
+      "path": "custom_components/djconnect/icon@2x.png",
+      "reason": "Generated from exact approved RGB source and owner-corrected transparent contours."
+    },
+    {
+      "after_sha256": "0d1750779389f92ce0ca94cd6ac97e7d258752db9ac7b0ddf0a52020d72b1ae6",
+      "before_sha256": "ff9007c335731b2c35b66961abfed09c80ce3da91032a9e947dbde94ffe8360b",
+      "disposition": "updated_active_brand",
+      "output": {
+        "alpha": true,
+        "bytes": 146616,
+        "height": 256,
+        "mode": "RGBA",
+        "role": "ha-wordmark-primary",
+        "sha256": "0d1750779389f92ce0ca94cd6ac97e7d258752db9ac7b0ddf0a52020d72b1ae6",
+        "theme": "light",
+        "width": 1024
+      },
+      "path": "custom_components/djconnect/logo.png",
+      "reason": "Generated from exact approved RGB source and owner-corrected transparent contours."
+    },
+    {
+      "after_sha256": "86e927a32d40227de6b37b84dc7be60153bbdc0d7beec3c50d214c545065fa6b",
+      "before_sha256": "86e927a32d40227de6b37b84dc7be60153bbdc0d7beec3c50d214c545065fa6b",
+      "disposition": "retained_historical_unreferenced",
+      "output": null,
+      "path": "screenshots/djconnect_icon_1024.png",
+      "reason": "No active source reference; retain historical image, never substitute qualification evidence."
+    }
+  ]
+}
