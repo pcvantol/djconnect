@@ -23,7 +23,14 @@
   "consumer_native_installed_acceptance": "OPEN, no deployment implied",
   "runtime_golden_release_evidence": {
     "run": 39312303769,
-    "status_at_freeze": "IN_PROGRESS",
-    "not_asset_or_installed_acceptance": true
+    "artifact": 12216131970,
+    "status": "FAIL",
+    "first_profile": "deterministic_owner_contract test_ask_dj*.py",
+    "tests_run": 0,
+    "execution_runtime": "pinned_ha_container",
+    "inventory": "PASS",
+    "ha_package_and_reconcile": "SKIPPED",
+    "qualification": "HA_RUNTIME_RELEASE_BLOCKED, cause not inferred; no gate waived",
+    "asset_producer_is_separately_qualified": true
   }
 }

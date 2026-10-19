@@ -17,8 +17,12 @@ frozen candidate is retained by original source qualification and PR checks.
 Exact Owner Authorization39311290397 PASS. Source-main CI39311450420 SUCCESS
 including full tests/framework, security/dependency checks and exact coverage
 artifact12216091672. Main CodeQL39311450403 SUCCESS. Automatic runtime Golden/
-HA-release-evidence39312303769 is separately IN_PROGRESS at this freeze, not
-claimed PASS or used as installed/native acceptance. Dedicated main brand reproducibility39311450392
+HA-release-evidence39312303769 separately FAILS: first deterministic contract
+profile in the pinned HA container reports0tests executed. Inventory PASS;
+package/reconcile SKIPPED. Root cause is not inferred from an absent private
+execution log. This blocks runtime artifact/release; no generic
+POST_MERGE_RELEASE_EVIDENCE_QUALIFIED, HA-install or native PASS is claimed.
+The independent asset producer workflow and source-main CI remain PASS. Dedicated main brand reproducibility39311450392
 SUCCESS; immutable artifact12215039964.
 
 Review ZIP from883cb9:aa51cf9bd417a2009cdd3bed037f46b5424ac85869fbe3e9fbb2657b4754f977;

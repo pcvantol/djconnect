@@ -7,8 +7,9 @@ PR [#1224](https://github.com/pcvantol/djconnect/pull/1224) protected merged as
 `883cb9f3ff9de8ec7f5ae4c5f04f852e0d8bd866` has the identical complete tree
 `7f497d70bbddc2b017b2298d06ce694df45f3b7e`. Owner Authorization39311290397 PASS.
 Source-main CI39311450420 and brand reproducibility39311450392 SUCCESS;
-exact-main export all68hashes PASS. Separate runtime Golden39312303769 is
-in progress at this freeze, not an asset/installed/native PASS.
+exact-main export all68hashes PASS. Separate runtime Golden39312303769 FAIL:
+first deterministic HA-container profile ran0tests; runtime release remains
+blocked, package/reconcile skipped. This is not asset/installed/native PASS.
 Independent readonly source/visual review GO:55assets regenerate byte-identically,
 14targeted contracts PASS, source/font/alpha/wordmark/micro and Git-blob ZIP verified.
 
