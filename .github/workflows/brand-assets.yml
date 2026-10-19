@@ -1,0 +1,66 @@
+name: Brand asset reproducibility
+
+on:
+  pull_request:
+    paths:
+      - 'assets/**'
+      - 'brands/**'
+      - 'custom_components/djconnect/**'
+      - 'scripts/build_brand.py'
+      - 'scripts/build_vibecast.py'
+      - 'scripts/package_brand.py'
+      - 'tests/test_brand_assets.py'
+      - 'tests/test_brand_generator.py'
+      - 'tests/test_vibecast_shared_build.py'
+      - 'tools/branding/**'
+      - '.github/workflows/brand-assets.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'assets/**'
+      - 'brands/**'
+      - 'custom_components/djconnect/**'
+      - 'scripts/build_brand.py'
+      - 'scripts/build_vibecast.py'
+      - 'scripts/package_brand.py'
+      - 'tests/test_brand_assets.py'
+      - 'tests/test_brand_generator.py'
+      - 'tests/test_vibecast_shared_build.py'
+      - 'tools/branding/**'
+      - '.github/workflows/brand-assets.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  brand-reproducibility:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v5
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: '3.14'
+      - name: Install pinned offline generator dependencies
+        run: python -m pip install -r tools/branding/requirements.txt
+      - name: Regenerate and compare every brand asset byte
+        run: python scripts/build_brand.py --check
+      - name: Verify packaging and generated local/display pages
+        run: |
+          python -m unittest tests.test_brand_assets tests.test_brand_generator tests.test_vibecast_shared_build tests.test_vibecast_display_host
+      - name: Export exact committed producer candidate
+        env:
+          BRAND_PRODUCER_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: python scripts/package_brand.py --revision "$BRAND_PRODUCER_SHA" --output "$RUNNER_TEMP/DJConnect-BrandV2-candidate.zip"
+      - name: Upload review candidate and hash receipt
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: brand-v2-candidate-${{ github.event.pull_request.head.sha || github.sha }}
+          retention-days: 30
+          if-no-files-found: error
+          path: |
+            ${{ runner.temp }}/DJConnect-BrandV2-candidate.zip
+            ${{ runner.temp }}/DJConnect-BrandV2-candidate.zip.json
+            assets/djconnect/brand-v2/preview.png
+            assets/djconnect/brand-v2/manifest.json

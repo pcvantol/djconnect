@@ -1,10 +1,13 @@
 # DJConnect
 
 <p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/pcvantol/djconnect/main/assets/djconnect/djconnect-logo-dark.svg">
   <img src="https://raw.githubusercontent.com/pcvantol/djconnect/main/assets/djconnect/djconnect-logo.svg" alt="DJConnect" width="760">
+  </picture>
 </p>
 
-DJConnect. Muziekbediening met karakter.
+Your music. Your DJ.
 
 DJConnect is a Home Assistant custom integration for DJConnect devices and apps.
 Ask for music, let Home Assistant handle playback, and get a personal DJ-style

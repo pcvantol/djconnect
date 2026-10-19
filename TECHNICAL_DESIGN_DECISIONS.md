@@ -1,5 +1,34 @@
 # DJConnect Technical Design Decisions
 
+## Brand V2: exact raster source, deterministic derived identity
+
+Core #1223 owns the canonical approved1254px master and primary/compact/mark-only
+families. Preserve its exact original source bytes; SVG wrappers are honestly
+raster-backed, with editable outlined typography rather than claimed traced art.
+Use pinned Inter4.1 / OFL source and offline Pillow13.0.0 + fonttools4.67.0
+generation, no system fonts or AI reinterpretation. See
+[`assets/djconnect/brand-v2/README.md`](assets/djconnect/brand-v2/README.md) and its
+source/output manifest. This is build tooling only; HA dependencies and release
+version do not change. CI checks reproducible bytes and HA package semantics.
+PNG containers use explicit lossless Sub filtering and classic zlib fixed-Huffman
+encoding: Pillow's zlib-ng streams differed between macOS ARM and Linux x64.
+Pixel equality alone cannot authenticate embedded SVG/asset manifests, so the
+strict byte check stays in place and the encoder is made explicit instead.
+
+The owner's subsequent correction makes the glass rim the asset boundary:
+transparent outside it. Deterministic editable SVG alpha contours preserve the
+original source RGB; the16–40px variant retains only the headset/central symbol,
+maximally fitted, and64px+ retains the glass button. No generated reinterpretation
+is used. Original opaque master and derived alpha sources have separate hashes.
+HA logos are landscape RGBA wordmarks with light/dark variants; icons are RGBA.
+VibeCast's template now consumes packaged brand/icon.png
+through the shared builder, eliminating the independently frozen base64 logo.
+Builder identity1.1.1 includes that source hash; renderer/wire contracts are
+unchanged. Consumer export reads exact committed Git blobs with per-file hashes,
+not dirty WIP or mutable main. Apple #138 and Website #62 retain their own native,
+localized and installed acceptance. Branding does not replace the living Persona
+avatar, semantic music glyphs or provider artwork/trademarks.
+
 
 ## Explicit Persona reactions reuse paired operation and private speech owners
 
