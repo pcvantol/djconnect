@@ -73,13 +73,15 @@ class SharedVibeCastBuildTest(unittest.TestCase):
             build["build"](root, two, source_revision="b" * 40)
             for name in ["local/vibecast.html", "cast/index.html"]:
                 self.assertNotEqual((one / name).read_bytes(), (two / name).read_bytes())
-            icon = root / "custom_components/djconnect/brand/icon.png"
-            old_brand_hash = build["build"](root, one, source_revision="b" * 40)["sources"]["../brand/icon.png"]
-            icon.write_bytes(icon.read_bytes() + b"changed-brand-input")
-            new = build["build"](root, two, source_revision="b" * 40)
-            self.assertNotEqual(old_brand_hash, new["sources"]["../brand/icon.png"])
-            for name in ["local/vibecast.html", "cast/index.html"]:
-                self.assertNotEqual((one / name).read_bytes(), (two / name).read_bytes())
+            for brand_name in ["icon.png", "mark-40.png"]:
+                icon = root / "custom_components/djconnect/brand" / brand_name
+                key = "../brand/" + brand_name
+                old_brand_hash = build["build"](root, one, source_revision="b" * 40)["sources"][key]
+                icon.write_bytes(icon.read_bytes() + b"changed-brand-input")
+                new = build["build"](root, two, source_revision="b" * 40)
+                self.assertNotEqual(old_brand_hash, new["sources"][key])
+                for name in ["local/vibecast.html", "cast/index.html"]:
+                    self.assertNotEqual((one / name).read_bytes(), (two / name).read_bytes())
             (two / "cast/index.html").unlink()
             self.assertIn("missing_or_changed_asset:cast/index.html", build["verify"](two))
 

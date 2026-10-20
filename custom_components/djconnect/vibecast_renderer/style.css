@@ -151,3 +151,26 @@ progress { height:.7rem; border-radius:1rem; overflow:hidden }
 @media (prefers-reduced-transparency:reduce) {
   .artwork-card,.moment-card,.stage.bubble-below .moment-card,.idle .handoff,.idle .waiting-brand,.up-next { background:#252940; -webkit-backdrop-filter:none; backdrop-filter:none }
 }
+
+/* Shared VibeCast connect treatment: the receiver retains its actual host states. */
+.receiver-brand { display:flex; align-items:center; gap:.65rem; color:#f4f5ff; letter-spacing:-.02em; text-transform:none; font-size:1.1rem; font-weight:700 }
+.receiver-brand img { display:block; flex:none; object-fit:contain; padding:0; border:0; background:none; border-radius:0; box-shadow:none }
+.idle .atmosphere { background:radial-gradient(ellipse at 8% 22%,#34d2ff1c,transparent 46%),radial-gradient(ellipse at 16% 58%,#246bff40,transparent 58%),radial-gradient(ellipse at 92% 18%,#8b39ef45,transparent 52%),radial-gradient(ellipse at 72% 96%,#5148e533,transparent 56%),linear-gradient(135deg,#071027,#100b24); animation:none }
+.idle .waiting-brand { width:100%; max-width:38rem; flex-direction:column; align-items:center; gap:0; padding:2rem 1.5rem 1.6rem; border:1px solid #ffffff52; border-radius:2rem; background:linear-gradient(90deg,#142652,#211745 55%,#2b1452); box-shadow:0 18px 54px #02061730,inset 0 1px 0 #ffffff18; -webkit-backdrop-filter:blur(24px); backdrop-filter:blur(24px) }
+.hero-symbol { display:block; width:96px; height:80px; flex:none; filter:drop-shadow(0 0 14px #537cff35); margin-bottom:1rem }
+.waiting-product { margin:0; font-size:clamp(3.4rem,5vw,4.8rem); font-weight:700; letter-spacing:-.055em; line-height:1.06; color:#f7f8ff }
+.waiting-maker { display:flex; align-items:center; justify-content:center; gap:.7rem; margin-top:1.25rem }
+.waiting-brand .waiting-maker { text-align:center }
+.waiting-brand img { display:block; width:64px; height:64px; padding:0; border:0; border-radius:0; background:none; box-shadow:none; object-fit:contain }
+.waiting-wordmark { font-size:1.4rem; font-weight:700; letter-spacing:-.035em }
+.idle .track { font-size:clamp(1.5rem,3vw,2.3rem); max-width:28ch; margin-top:1.5rem }
+@media (max-width:600px) { header { gap:.7rem; flex-wrap:wrap } #clock { font-size:1.6rem } #state { margin-left:auto; font-size:.7rem } .receiver-brand { font-size:.9rem } .idle .stage { gap:1.25rem } .idle .waiting-brand { padding:1.4rem 1rem } .hero-symbol { width:80px; height:67px } .waiting-product { font-size:3.4rem } .waiting-brand img { width:64px; height:64px } .idle .handoff { padding:1.2rem } }
+@media (max-height:700px) and (orientation:landscape) { .idle .waiting-brand { padding:1rem } .hero-symbol { width:72px; height:60px; margin-bottom:.65rem } .waiting-product { font-size:3.3rem } .waiting-maker { margin-top:.75rem } .idle .track { margin-top:1rem; font-size:1.5rem } }
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))) { .idle .waiting-brand { background:#20283d } }
+@media (prefers-contrast:more),(prefers-reduced-transparency:reduce) { .idle .atmosphere { background:#101323 } .idle .waiting-brand,.idle .handoff,.moment-card,.artwork-card,.up-next { background:#20283d; -webkit-backdrop-filter:none; backdrop-filter:none; box-shadow:none; border:2px solid #fff } .hero-symbol { filter:none } }
+@media (forced-colors:active) { .idle .waiting-brand,.idle .handoff,.moment-card,.artwork-card,.up-next { background:Canvas; color:CanvasText; border:2px solid CanvasText; box-shadow:none } .hero-symbol g { stroke:CanvasText } .hero-symbol circle { fill:CanvasText } .waiting-product,.waiting-wordmark,.receiver-brand { color:CanvasText } }
+
+/* Center an unclaimed receiver; an actual local claim can share the row. */
+.idle .stage { display:flex; flex-direction:row; flex-wrap:wrap; justify-content:center; align-items:center; gap:2rem }
+.idle .now-playing { flex:1 1 28rem; max-width:38rem }
+.idle .handoff { flex:1 1 28rem; max-width:46rem; margin:0 }

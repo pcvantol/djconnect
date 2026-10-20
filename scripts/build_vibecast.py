@@ -11,8 +11,8 @@ import re
 from pathlib import Path
 import subprocess
 
-SOURCES = ("template.html", "style.css", "renderer.js", "local-host.js", "cast-host.js", "../brand/icon.png")
-VERSION = "1.1.1"
+SOURCES = ("template.html", "style.css", "renderer.js", "local-host.js", "cast-host.js", "../brand/icon.png", "../brand/mark-40.png")
+VERSION = "1.1.2"
 
 
 class InlineScripts(HTMLParser):
@@ -46,6 +46,8 @@ def render(root: Path, host: str) -> str:
     text = (source / "template.html").read_text()
     brand_icon = base64.b64encode((source / "../brand/icon.png").read_bytes()).decode("ascii")
     text = text.replace("@@BRAND_ICON@@", "data:image/png;base64," + brand_icon)
+    micro = base64.b64encode((source / "../brand/mark-40.png").read_bytes()).decode("ascii")
+    text = text.replace("@@BRAND_MICRO@@", "data:image/png;base64," + micro)
     text = text.replace("@@STYLE@@", (source / "style.css").read_text())
     renderer = (source / "renderer.js").read_text()
     if host == "display":
@@ -106,7 +108,7 @@ def build_display(root: Path, output: Path, *, source_revision: str) -> dict:
     (output / "index.html").write_bytes(page)
     manifest = {"schema_version": 1, "display_contract_version": 1, "source_revision": source_revision,
         "sources": {name: digest((source / name).read_bytes()) for name in (
-            "template.html", "style.css", "renderer.js", "display-host.js", "../brand/icon.png")},
+            "template.html", "style.css", "renderer.js", "display-host.js", "../brand/icon.png", "../brand/mark-40.png")},
         "files": {"index.html": digest(page)}, "private_runtime_data_in_build": False,
         "transport": "selected-ha-same-origin-display-b-v1", "legacy_cast_contract": "unchanged-1.1"}
     (output / "manifest.json").write_text(json.dumps(manifest, sort_keys=True, indent=2) + "\n")
