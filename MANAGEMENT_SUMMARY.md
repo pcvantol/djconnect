@@ -1,5 +1,53 @@
 # DJConnect Generation 2 Management Summary
 
+## Pi relay consumer correction — separate Finalization, 20 October 2026
+
+### Repository Status
+
+SourcePR1246 protected merged at20:06:17Z as
+c76bd8103c46b9fb25e954b142de92c850684665, tree equal to exact independently
+reviewed79ceff4ffd7adc28b725f471419635f4d0d72d58. Fresh Owner Authorization
+39488887225PASS;31checksSUCCESS/five conditionalSKIPPED, only nonblocking
+TDE observe pending. This distinct documentary Finalization requires its own
+exact review/checks/protected readback. Source canonical qualification is separate.
+
+### Management Summary
+
+Manifest7d0c2aee pins qualified Pi consumer a336e0de. AppEADB, published packages,
+identity/inventory/approval and every other binding remain unchanged. The isolated
+Python3.14 relay fix has exact source/Final reviews and actual three-block execution;
+four actual metadata joins and16Core documentation tests PASS. No Pi is yet
+claimed installed; the failed setup attempts stopped before device effects.
+
+### Roadmap Position
+
+Existing deployment follow-through only. HA-dev/prod and API-prod installed;
+Apple available-device work remains with its owner, iPad/Watch deferred by Peter.
+Narrative/More/Mood/rich-history/catalogue/native/speech/audible gates remainOPEN.
+No new feature selection, timer, model budget or public-service activation.
+
+### Risks and Next Actions
+
+After actual source qualification and this protected Finalization, deliver the
+exact operative Core SHA/manifest pair for fresh manually controlled Pi-owner
+workflows plus separate matching smoke and captures. No old-run retry/bypass.
+Peter asks stale worktree/branch/stash cleanup and questions recovery bundles;
+no new recovery bundle is created here. Preserve unique actual evidence and retire
+only completed own source/Final refs after objective content/recovery proof.
+
+### Repository State
+
+MERGED_UNRECONCILED until separate Finalization is protected and read back;
+then this bounded producer correction is MERGED_RECONCILED. Source evidence
+never substitutes for actual per-device readiness/deployment/acceptance.
+
+### Workspace State
+
+Source frozen; previous repositories/archives remain unchanged. After separate
+Finalization, clean only the two completed worktrees/refs using exact protected
+content proof. Active/ambiguous work and dashboard lock remain untouched.
+
+
 ## Pi relay installation preparation — consumer follow-through, 20 October 2026
 
 ### Repository Status
