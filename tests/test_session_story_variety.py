@@ -289,6 +289,31 @@ assert.equal(validate(bad),null);"""
         entry=next(e for e in page['entries'] if e.get('moment_id')==moment.moment_id)
         self.assertEqual(entry['text'],moment.content)
         self.assertIn(source,entry['sources'])
+        # The ordinary paired speech owner must admit the retained website
+        # contribution too; combining separate Wiki/speech fixture results
+        # would not establish this new provider's actual handler path.
+        from custom_components.djconnect.session_speech import async_handle_prepare
+        payload={**self.f.identity,'contract_version':1,'processor':'local_on_device',
+                 'voice_preference':'default','reference':{
+                     'session_id':self.f.session.session_id,'entry_id':entry['entry_id']}}
+        prepared,status=await async_handle_prepare(self.f.hass,payload,headers=self.f.headers)
+        self.assertEqual(status,200,prepared)
+        speech=prepared['session_speech']
+        self.assertTrue(speech['manual_allowed'])
+        self.assertEqual(speech['source_kind'],'retained_dj_contribution')
+        self.assertFalse(speech['autoplay_eligible'])
+        self.assertEqual(''.join(s['text'] for s in speech['segments']),moment.content)
+        self.assertIn(source,speech['attribution'])
+        self.assertNotIn('audio_reference',speech)
+        self.assertIsNone(self.f.manager.current_active('profile-a'))
+        after=await query_service(self.f.hass,self.f.history).async_open_source_entry(
+            'profile-a',self.f.session.session_id,entry['entry_id'])
+        self.assertEqual(after['entry']['text'],entry['text'])
+        self.assertEqual(after['entry']['sources'],entry['sources'])
+        await self.f.fixture.repo.async_remove_entry_records('profile-a',[entry['entry_id']])
+        denied,status=await async_handle_prepare(self.f.hass,payload,headers=self.f.headers)
+        self.assertEqual(status,404,denied)
+        self.assertNotIn('segments',denied)
         self.assertEqual((len(self.f.calls),len(self.f.urls)),before)
 
     async def test_website_identity_robots_redirect_scope_and_budget_fail_closed(self):

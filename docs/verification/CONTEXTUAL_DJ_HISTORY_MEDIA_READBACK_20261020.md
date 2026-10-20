@@ -120,3 +120,37 @@ Ruff/diffPASS. Golden adds an explicit owner-contract step:42families/317steps/
 coverage without inventing an issue or closing an existing function. Full2812
 source regression remains the earlier ea91fad7 evidence; no unrun2813full suite
 is claimed for this test/documentation-only delta.
+
+
+## Website-backed older contribution / ordinary speech handler — 03:37UTC
+
+Same WIP after9ef1c92c; no product change or reimplementation of existing voice
+selection. The website source's existing publication→shared projection→SQLite
+reopen regression now continues through the actual paired speech prepare owner.
+With no active Session, an explicit local_on_device manual prepare returns the
+exact retained accepted text and complete website/QID/P856 public attribution,
+without autoplay, an audio asset or creating a Session. Neither sources nor the
+model are called again; the retained text/sources stay unchanged. Removing the
+original entry makes the identical request return404 before further source or
+model work. This qualifies the new website provider's retained admission path
+in one chain, rather than composing separate Wiki/speech fixture results.
+
+External public-page and generation responses are fixtures. Local device speech
+admission is not native rendering, actual OS voice selection or an audible
+result. The separate existing current-active-Session voice→stored Profile voice
+regression remains fixture evidence; no real provider or installed acceptance
+is inferred by combining them. The actual HTTP website probe still declined at
+robots redirect; no actual website-backed story exists from that probe.
+
+One positive Golden step binds this handler chain and the separate voice test:
+42families/326steps/78reports;33Core+29real-qualityOPEN. No new bug, source fix or
+closure is claimed. Current hostcheck against canonical GitHub root passes
+MATCH/onboarding4.5.4; the first check used the obsolete default Documents root
+and its three DRIFT rows are retained as path-mismatched, not remediated.
+Model ledger remains40reserved/39completed/zero remaining, no credential/model
+I/O. Existing model text/editorialNO_GO and native/art/audio/install gates stay.
+
+Validation: exact extended testPASS0.175s; independent exact testPASS/scopedGO
+with noP1/P2. Focused story/Profile-speech/Golden70PASS2.019s, Ruff/diffPASS.
+No product bytes changed or broad repeat required; full2821PASS/7skips remains
+the earlier9ef1c92c source evidence, not an unrun new full-suite claim.

@@ -686,3 +686,30 @@ Final frozen regression:2821testsPASS/7existing skips67.462seconds, Ruff/diffPAS
 Canonical current document hash regenerated/validated PASS_INCLUDED_SNAPSHOT_ONLY;
 frozen historical receipts untouched. Existing unclosed SQLite/test task warnings
 remain visible; no memory, crash, latency, native or audible PASS is inferred.
+
+
+## 03:37UTC continuation — website-backed retained device-speech admission
+
+Clean9ef1c92c/same solewriter; protectedmain8b221d07/Brandrefsunchanged, no
+competingCore/model/test writer or indexlock. Initial read-only hostcheck used
+obsolete default Documents root and returned3DRIFT rows; actual canonicalroot
+check exits0/MATCH/onboarding4.5.4/488GiBfree/32GiBRAM. Bothlogs preserved;
+no service repair, cleanup or gate bypass. Unrelated dashboardlock preserved.
+
+Existing website publication/shared/SQLite-reopen regression now continues
+through ordinary paired speech prepare with the original retained entry. Exact
+accepted text and full website/P856 attribution remain, no autoplay/audioasset/
+newSession/refetch/model. Actual entry removal makes identical prepare404.
+Existing implementation already satisfies this local chain; no product change
+or synthetic replacement voice route. External sources/generation remain
+fixtures; local_on_device admission is not native OSvoice or audible TTS.
+
+Exact extended testPASS0.175s; independent exacttestPASS/scopedGO/noP1P2.
+70focused story/Profile-speech/GoldenPASS2.019s, Ruff/diffPASS. Priorfull2821/
+7skips remains9ef1c92c; no unnecessary repeat or invented new full PASS. Golden
+adds a positive step:42families/326steps/78reports;33Core+29realqualityOPEN.
+Details in CONTEXTUAL_DJ_HISTORY_MEDIA_READBACK_20261020.md; evidence under
+website-retained-speech/. Modelledger byte-identical40reserved/39completed/0
+remaining. Actual text/editorialNO_GO, thirdpublisher/semanticnovelty/native/
+fullhistory/art/voice/install/physical gates unchanged. No push/merge/install/
+cleanup/receiverpin/nextslice or closure from sourcegreen.

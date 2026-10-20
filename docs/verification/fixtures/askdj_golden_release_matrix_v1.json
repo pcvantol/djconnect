@@ -2921,7 +2921,7 @@
         {
           "id": "ASKDJ-FLOW-artist-official-website-1",
           "question": "Can an automatic artist story use an actual website bound to the already qualified artist, retaining the exact episode in reopened Flow?",
-          "expected_answer": "Use one unambiguous unqualified Wikidata P856 relationship from the same QID plus a real robots-admitted exact-destination page and original named musical paragraphs. Shared8request/12s/128KiB/3source guards stay; no snippet, guessed URL or credit-scope transfer. Optional source failure retains qualified Wiki, owner withdrawal propagates, full factual/Persona/Mood/novelty review still owns publication.",
+          "expected_answer": "Use one unambiguous Wikidata P856 relationship with at most strictly typed language-only P407 qualifiers from the same QID plus a real robots-admitted exact-destination page and original named musical paragraphs. Shared8request/12s/128KiB/3source guards stay; no snippet, guessed URL or credit-scope transfer. Optional source failure retains qualified Wiki, owner withdrawal propagates, full factual/Persona/Mood/novelty review still owns publication.",
           "model_policy": "Existing generation/assessment two calls. External website/WD/model replies in owning tests are explicit fixtures; actual-source, actual story and native/audio proof remain open.",
           "owning_tests": [
             {
@@ -2935,7 +2935,7 @@
         {
           "id": "ASKDJ-FLOW-artist-official-website-2",
           "question": "Can an automatic artist story use an actual website bound to the already qualified artist, retaining the exact episode in reopened Flow?",
-          "expected_answer": "Use one unambiguous unqualified Wikidata P856 relationship from the same QID plus a real robots-admitted exact-destination page and original named musical paragraphs. Shared8request/12s/128KiB/3source guards stay; no snippet, guessed URL or credit-scope transfer. Optional source failure retains qualified Wiki, owner withdrawal propagates, full factual/Persona/Mood/novelty review still owns publication.",
+          "expected_answer": "Use one unambiguous Wikidata P856 relationship with at most strictly typed language-only P407 qualifiers from the same QID plus a real robots-admitted exact-destination page and original named musical paragraphs. Shared8request/12s/128KiB/3source guards stay; no snippet, guessed URL or credit-scope transfer. Optional source failure retains qualified Wiki, owner withdrawal propagates, full factual/Persona/Mood/novelty review still owns publication.",
           "model_policy": "Existing generation/assessment two calls. External website/WD/model replies in owning tests are explicit fixtures; actual-source, actual story and native/audio proof remain open.",
           "owning_tests": [
             {
@@ -2949,7 +2949,7 @@
         {
           "id": "ASKDJ-FLOW-artist-official-website-3",
           "question": "Can an automatic artist story use an actual website bound to the already qualified artist, retaining the exact episode in reopened Flow?",
-          "expected_answer": "Use one unambiguous unqualified Wikidata P856 relationship from the same QID plus a real robots-admitted exact-destination page and original named musical paragraphs. Shared8request/12s/128KiB/3source guards stay; no snippet, guessed URL or credit-scope transfer. Optional source failure retains qualified Wiki, owner withdrawal propagates, full factual/Persona/Mood/novelty review still owns publication.",
+          "expected_answer": "Use one unambiguous Wikidata P856 relationship with at most strictly typed language-only P407 qualifiers from the same QID plus a real robots-admitted exact-destination page and original named musical paragraphs. Shared8request/12s/128KiB/3source guards stay; no snippet, guessed URL or credit-scope transfer. Optional source failure retains qualified Wiki, owner withdrawal propagates, full factual/Persona/Mood/novelty review still owns publication.",
           "model_policy": "Existing generation/assessment two calls. External website/WD/model replies in owning tests are explicit fixtures; actual-source, actual story and native/audio proof remain open.",
           "owning_tests": [
             {
@@ -2995,6 +2995,24 @@
           ],
           "acceptance_status": "owner_contract",
           "proof_boundary": "Actual QID/revision/qualifier admission only. No website content, generated story, warm Persona/Mood, native or audio acceptance."
+        },
+        {
+          "id": "ASKDJ-FLOW-artist-website-retained-local-speech",
+          "question": "Can I manually speak an older website-backed artist contribution after SQLite reopen, without refetching sources or replaying its original automatic announcement?",
+          "expected_answer": "The ordinary paired speech prepare handler admits only the retained exact accepted text and complete website/QID/P856 attribution with the original locale/Mood; no autoplay, current Session creation, audio asset or refetch. Removing that original entry makes the identical prepare return404 before further model/source work.",
+          "model_policy": "Actual Runtime/publication/SQLite/paired speech handler; external research and generation replies are fixtures. local_on_device admission is not an actual OS voice or audible speech result.",
+          "owning_tests": [
+            {
+              "file": "tests/test_session_story_variety.py",
+              "method": "test_exact_artist_website_episode_uses_shared_fetch_and_persists_in_reopened_flow"
+            },
+            {
+              "file": "tests/test_profile_settings_speech.py",
+              "method": "test_retained_moment_replay_uses_current_session_voice_then_profile_defaults"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Website-backed retained speech admission and removal fence only; fixture current-voice test remains separate, native/provider/audio/real-source acceptance OPEN."
         }
       ],
       "owning_tests": [
