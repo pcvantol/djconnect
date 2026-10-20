@@ -169,7 +169,7 @@ class ExplorationTests(unittest.IsolatedAsyncioTestCase):
         first='Brian Eno is an English composer.'
         full=first+' Would you like to explore his music?'
         for mode in ('named','selected'):
-            for scenario in ('style_rejected','language_rejected','quality_missing','partial'):
+            for scenario in ('style_rejected','language_rejected','quality_missing','wire_marker_missing','partial'):
                 with self.subTest(mode=mode,scenario=scenario):
                     await f.history.async_clear('profile:profile-a')
                     projections=[]
@@ -193,6 +193,8 @@ class ExplorationTests(unittest.IsolatedAsyncioTestCase):
                                     reply['review_schema']='source_id_review_v1'
                                     for check in reply['claim_checks']:
                                         check.pop('quote',None)
+                                    if scenario == 'wire_marker_missing':
+                                        reply.pop('review_schema')
                             if scenario=='partial':
                                 reply.update(supported=False,unsupported_claims=['He built every instrument.'],
                                     supported_prefix=first,prefix_supported=True,prefix_answers_question=True)

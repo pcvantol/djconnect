@@ -8019,6 +8019,21 @@
           ],
           "acceptance_status": "owner_contract",
           "proof_boundary": "Actual v5 published a scoped editorial-GO seed but selected answer was fallback and generated biography editorial NO_GO. New source regressions are not actual narrative/native/installed/audible acceptance."
+        },
+        {
+          "id": "ASKDJ-FLOW-source-id-review-required-marker",
+          "language": "nl",
+          "question": "Vertel meer over de gekozen bijdrage, met volledige broncontrole.",
+          "expected_answer": "A missing source_id_review_v1 marker cannot be inferred from true supported/style flags or plausible IDs. Preserve whole-answer refusal with no retry, partial publication or extra call. Required wire fields are explicit before detailed semantic instructions.",
+          "model_policy": "External reviewer fixture explicitly omits the marker on selected and named paths; no real narrative acceptance.",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_exploration.py",
+              "method": "test_named_and_selected_research_cannot_publish_an_unreviewed_style_or_partial_story"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual v6 seed review omitted the required marker and publication was refused before selected More. New prompt needs another actual exact-candidate trial."
         }
       ]
     },
@@ -9084,6 +9099,12 @@
       "id": "ASKDJ-ISSUE-selected-episode-focus-lost",
       "family_id": "ASKDJ-FLOW-contribution-exploration",
       "finding": "Actual selected More restarts a generic contributor biography because the selected public telling is absent as focus; valid Dutch produceert/produceerde activity paraphrase also fails the lexical guard. Seed improved but selected richness remains NO_GO.",
+      "core_qualification": "open"
+    },
+    {
+      "id": "ASKDJ-ISSUE-source-id-review-required-marker-omitted",
+      "family_id": "ASKDJ-FLOW-contribution-exploration",
+      "finding": "Actual v6 source-ID seed assessor omitted required review_schema despite otherwise true semantic/style flags. Strict decoding refused publication, so selected More was not exercised. Clarify the required wire fields prominently without accepting implicit schema or adding retries.",
       "core_qualification": "open"
     }
   ],

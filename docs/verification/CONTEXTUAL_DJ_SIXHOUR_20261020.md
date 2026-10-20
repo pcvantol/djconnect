@@ -393,3 +393,44 @@ focus in generation1expected failure/0errors; restoring old activity inflections
 class name before executing tests; preserved separately. No source changes or
 paid calls occur in these in-memory counterfactuals. This remains source proof,
 not acceptance of a newly generated selected answer.
+
+## Seed wire-format refusal and producer handoff — 10:37 UTC
+
+Actual `morning-nl-selected-focus-v6`, immutable84263dbd, completed only two
+seed attempts (24–25). Its generated text was:
+
+> Peter Luts is een van de componisten van het werk achter deze opname. Hij schreef en produceerde ook ‘Love Is the Message’, het anthem van de achtste editie van City Parade.
+
+The assessor returned supported/language/style/work-focus/composer-episode true
+but omitted the required `review_schema`. The strict decoder raised ValueError;
+the seed was not published and selected More was **NOT EXERCISED**. No review
+schema is inferred from plausible IDs or positive booleans. Independent actual
+editorial review also gives this unaccepted seed NO_GO: concrete occasion is
+present, but the delivery is still two formal credit statements rather than the
+human episode observed in v5. Fixing format alone is not narrative acceptance.
+
+The narrow prompt correction states the existing required source-ID wire fields
+before the detailed semantic instructions. Decoder, source/factuality/style
+guards, budgets and retry policy are unchanged. Existing strict named/selected
+tests now include the missing-marker case: ten scenarios, independent4.082s PASS;
+112focused tests PASS11.546s. An initial local regression caught my duplicate
+string concatenation operator before any paid trial; it was removed and its
+failure log retained. Scoped technical SOURCE GO/noP1/P2. Golden337steps/
+87reports/42Core+29actual-quality gates remain OPEN.
+
+All25 attempts reconcile to25 durable reservations/25completed/275remaining,
+71984reported input/8464outputtokens; exact monetary cost not estimated.
+Source hashes remain unchanged and the old40ledger remains immutable.
+
+The new concrete API109+110 handoff was handled first: independently fetched
+protected828fbaf and original root runtime27e9 hash, plus all seven actual
+exact-main workflows completed/success. Local documentation checkpoint0b6cd9c5
+has separate scoped independent documentary GO. Wireimplementation.1 remains
+released, normal Worker compiled OFF, Core B/current paired context unchanged;
+no repeated B run or public/native/installed/A→B claim. Host actual-root verify
+10:32UTC MATCH/exit0, onboarding4.5.4,489GiBfree. No other writer was interrupted.
+
+Fresh whole suite for the required-wire prompt correction: **2843tests/
+7existing skips PASS123.415s**, Ruff/diff PASS. Independent scoped SOURCE GO;
+missing marker remains a strict refusal in ten named/selected cases. No actual
+new format or narrative improvement is claimed until the next candidate trial.
