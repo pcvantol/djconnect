@@ -291,6 +291,7 @@ def query_service(hass, history_manager=None) -> HistoricalProjectionQueryServic
             history_manager,
             source_validator=lambda owner, row: async_qualify_history_source(hass, owner, row),
             grant_revision=lambda owner: async_history_grant_revision(hass, owner),
+            grant_revision_now=lambda owner: history_grant_revision(hass, owner),
             summary_validator=lambda owner, binding: async_qualify_summary_source(
                 hass, owner, binding
             ),

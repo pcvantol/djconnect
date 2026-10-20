@@ -236,3 +236,13 @@ without renewing it. Six causal modes/independent historical-method counterexamp
 qualify the local fix;254focused/full2826testsPASS,7existing full-suite skips.
 Golden331steps/81reports,36Core+29actual-qualityOPEN. Original-source readback above
 contains the boundary; actual prose and native/installed acceptance unchanged.
+
+
+05:29UTC final history fences: original committed sourcegrant is checked after
+queryawaits and after final HTTP ownerawaits. The same synchronous deliveryguard
+also reuses original paired runtime/identity/Profile authority and retained
+Session/entry deadlines. Late old-source disable, expiry, tokenrotation and
+withdrawal are causally tested:18scenarios, independent historical-method failure
+and scopedSOURCEGO.256focused/full2828testsPASS,7existing full-suite skips.
+Golden333steps/83reports,38Core+29actual-qualityOPEN; no current-build narrative,
+native, installed or audible acceptance is inferred. Details in SOURCE_EXPIRY.

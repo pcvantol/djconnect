@@ -170,7 +170,7 @@ async def async_handle_session_history_payload(
         or not resolve_profile_privacy_policy(context.profile, {}).allow_personal_read
     ):
         return _error_payload("history_not_allowed"), 403
-    from .session_conversation import query_service
+    from .session_conversation import query_service, history_grant_revision, SessionConversationError
     from .session_history_projection import HistoryQueryError
     from .historical_projection_query import HistoricalProjectionAccessDenied
     from .persistence.service import PersistenceError
@@ -182,6 +182,9 @@ async def async_handle_session_history_payload(
         entry_version = request_version(data.get('history_contract_version'))
         version_token = version_context.set(entry_version)
         query = query_service(hass, _history_manager(hass, runtime))
+        retention_fence = query._repository.retention_fence
+        retention_days, _retention_revision = await query._repository.async_retention_policy()
+        source_grant = history_grant_revision(hass, context.profile_id)
         limit = data.get("limit", 20)
         if isinstance(limit, str) and limit.isascii() and limit.isdigit():
             limit = int(limit)
@@ -238,7 +241,25 @@ async def async_handle_session_history_payload(
             return _error_payload("history_unavailable"), 403
         if not current.privacy_policy.allow_personal_read or not resolve_profile_privacy_policy(current.profile, {}).allow_personal_read:
             return _error_payload("history_not_allowed"), 403
+        def delivery_guard():
+            _conversation_profile_fence(hass, runtime, identity_payload(data), headers or {}, context)
+            # Nothing yields between the original-source/deadline fence and JSON
+            # representation. A valid paired owner alone cannot renew source rights.
+            if (history_grant_revision(hass, context.profile_id) != source_grant
+                    or retention_fence[1] or query._repository.retention_fence != retention_fence):
+                raise HistoryQueryError("invalid_history_cursor")
+            from .session_history_projection import session_retained
+            sessions = result.get("sessions", []) + ([result["session"]] if "session" in result else [])
+            if any(not session_retained({**s, "history_enabled": True}, retention_days=retention_days) for s in sessions):
+                raise HistoryQueryError("invalid_history_cursor")
+            query._validate_entry_deadlines(result.get("entries", []) + result.get("matches", [])
+                                           + ([result["entry"]] if "entry" in result else []))
+        delivery_guard()
+        from .transport_delivery import register_delivery_admission
+        register_delivery_admission(delivery_guard)
         return represent(result, entry_version), 200
+    except SessionConversationError as exc:
+        return _error_payload(exc.code), exc.status
     except HistoryEntryUpgradeRequired:
         return upgrade_error(), 409
     except HistoricalProjectionAccessDenied:

@@ -3101,6 +3101,34 @@
           ],
           "acceptance_status": "owner_contract",
           "proof_boundary": "Six collection boundaries and no-renewal only; no installed/native history or actual narrative acceptance."
+        },
+        {
+          "id": "ASKDJ-FLOW-history-last-grant-owner-withdrawal",
+          "question": "Can historical content from provider A escape after that source is disabled during the final retention or paired-owner await, while the client and current provider B remain valid?",
+          "expected_answer": "Keep the original source-grant revision and retention snapshot; compare the committed source grant after all query awaits and again after final HTTP owner context awaits. Revalidate original Session/entry expiry and policy fence before synchronous representation. Direct queries reject stale revisions; paired history timeline/search/open return existing409 invalid_history_cursor without old body, sources, entries, matches or renewed rights. Client remains paired.",
+          "model_policy": "Actual owner-scoped SQLite, real config-entry disable, production query factory and common paired history handlers; held query/owner awaits. Natural expiry at final owner boundary additionally tested with injected time. No model, provider, native or network I/O.",
+          "owning_tests": [
+            {
+              "file": "tests/test_session_conversation_history.py",
+              "method": "test_history_final_grant_and_owner_awaits_refuse_withdrawn_source_body"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Twelve concrete late source/expiry boundaries only; no native pixels, installed history or audible/story quality acceptance."
+        },
+        {
+          "id": "ASKDJ-FLOW-history-last-owner-pairing-fence",
+          "question": "Can paired history return an old body after token rotation or device authorization withdrawal during its final owner-resolver await, without any source/Profile change?",
+          "expected_answer": "Use the original paired runtime/identity/headers/Profile in the existing synchronous conversation-owner fence immediately before representation and register the same delivery admission. Timeline/search/open return401 unauthorized without old content. Original source revision and archive rows remain unchanged; a fresh authorized request can still read them.",
+          "model_policy": "Actual SQLite and paired history handlers with healthy body controls, held final owner await and dynamic token authorization fixture; no network/model/provider/client I/O.",
+          "owning_tests": [
+            {
+              "file": "tests/test_session_conversation_history.py",
+              "method": "test_history_final_owner_await_rechecks_pairing_revocation_and_token_rotation"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Six explicit paired withdrawal/rotation outcomes only; no installed client, production token rotation or narrative acceptance."
         }
       ],
       "owning_tests": [
@@ -8954,6 +8982,18 @@
       "family_id": "ASKDJ-FLOW-style-lifecycle",
       "core_qualification": "open",
       "finding": "Independent static review and six causal collection cases find natural expiry after final unchanged grant/revision awaits: Session summaries, playback lookup bodies and timeline/window/search/latest entries can escape. Real retention shortening then widening preserves earlier entry deadlines via MIN; Session validity alone is insufficient. Final synchronous original-deadline validation refuses stale collections without refreshing caps or changing representations. Local repair does not establish native/installed/end-user acceptance."
+    },
+    {
+      "id": "ASKDJ-ISSUE-history-last-grant-read-source-withdrawal",
+      "family_id": "ASKDJ-FLOW-style-lifecycle",
+      "core_qualification": "open",
+      "finding": "Independent review and nine initial causal cases find query and HTTP history can expose an already projected old-source body after source disable in the last retention/owner await: Profile remains paired and current backend valid, deadline guards pass. Production query factory now supplies committed synchronous source-grant comparison; history HTTP captures original grant/policy fence and rechecks after all final owner awaits, including natural Session/entry expiry. New regression covers12 boundaries with healthy original body controls; local correction is not consumer or native acceptance."
+    },
+    {
+      "id": "ASKDJ-ISSUE-history-last-owner-pairing-withdrawal",
+      "family_id": "ASKDJ-FLOW-style-lifecycle",
+      "core_qualification": "open",
+      "finding": "Independent re-review and six causal handler cases find paired token rotation or authorization withdrawal after the final owner resolver can return old body with200 although Profile and source-grant revisions remain unchanged. Reuse original-runtime/identity/headers/Profile synchronous conversation fence before response representation and register it with the shared delivery admission; preserve archive and qualified fresh-owner read. Local fix is not production pairing/native acceptance."
     }
   ],
   "regression_suite_files": [

@@ -35,11 +35,13 @@ class HistoricalProjectionQueryService:
         source_validator=None,
         grant_revision=None,
         summary_validator=None,
+        grant_revision_now=None,
     ) -> None:
         self._repository = repository
         self._conversation_history = history_manager
         self._source_validator = source_validator
         self._grant_revision = grant_revision
+        self._grant_revision_now = grant_revision_now
         self._summary_validator = summary_validator
         self.media_projector = None
         from .session_history_projection import HistoryCursorCodec
@@ -180,6 +182,11 @@ class HistoricalProjectionQueryService:
             entry["session_speech"] = retained_projection(entry)
         return entry
 
+    def _validate_grant_revision(self, owner, expected):
+        if self._grant_revision_now is not None and self._grant_revision_now(owner) != expected:
+            from .session_history_projection import HistoryQueryError
+            raise HistoryQueryError("invalid_history_cursor")
+
     @staticmethod
     def _validate_entry_deadlines(entries):
         from .session_history_projection import entry_retained, HistoryQueryError
@@ -201,6 +208,7 @@ class HistoricalProjectionQueryService:
                 or session.get('retention_fence', self._repository.retention_fence) != self._repository.retention_fence):
             from .session_history_projection import HistoryQueryError
             raise HistoryQueryError('invalid_history_cursor')
+        self._validate_grant_revision(owner, grant)
         # A natural deadline can pass while unchanged revision/grant reads wait.
         from .session_history_projection import session_retained
         if not session_retained(session, retention_days=retention[0]):
@@ -296,6 +304,7 @@ class HistoricalProjectionQueryService:
             or fence[1] or self._repository.retention_fence != fence
         ):
             raise HistoryQueryError("invalid_history_cursor")
+        self._validate_grant_revision(owner, grant)
         if any(not session_retained(row, retention_days=retention) for row in included_sessions):
             raise HistoryQueryError("invalid_history_cursor")
         return {
@@ -546,6 +555,7 @@ class HistoricalProjectionQueryService:
             from .session_history_projection import HistoryQueryError
 
             raise HistoryQueryError("invalid_history_cursor")
+        self._validate_grant_revision(owner, grant)
         self._validate_entry_deadlines(matches)
         return {
             "success": True,

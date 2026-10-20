@@ -125,3 +125,56 @@ Ledger remains40reserved/39completed/zero remaining with no key/model/source or
 actual provider/speaker I/O. Actual answertexts and their independent narrative
 NO_GO are unchanged; full real catalogueFAIL/zero paidvariants. No new selected
 slice, push/PR/merge/install/cleanup or function closure.
+
+
+## 05:29UTC final query and HTTP-owner awaits
+
+Independent review found another P2: after a historical provider body is
+projected, the final source-grant read precedes a retention await. Disabling the
+old provider during that await changes neither the already copied grant nor
+Session deadlines. The final HTTP Profile resolver also yields; a valid Profile
+and currently usable provider do not authorize a body from a withdrawn old source.
+Nine initial causal cases returned stale data or failed to reject the direct
+query. The stronger final test covers12cases: directquery, query-await/HTTP,
+final-owner/HTTP and natural expiry during final-owner, each timeline/search/open.
+Healthy original-body controls and assertions remain outside callbacks.
+
+The production query factory now supplies a committed synchronous source-grant
+reader. Query final fences compare it after the final awaited reads, including
+Session lists and playback lookup. The history HTTP handler captures the original
+grant, retention-policy value and write fence before lookup, then rechecks them
+and original Session/entry deadlines after every owner-context await. This adds
+one internal SQLite policy snapshot read, no source/provider/model request and
+no new response fields, lease or grant.
+
+Re-review identified a separate owner P2: paired token rotation/authorization
+withdrawal after the last resolver can leave the same Profile/source revisions.
+Six causal handler cases returned200before repair. The final delivery guard now
+reuses _conversation_profile_fence with the original runtime, identity, headers
+and context, before synchronous representation and through the existing optional
+transport delivery admission. Existing SessionConversationError statuses apply.
+These cases return401unauthorized without old body; original source revision and
+archive remain, and fresh authorized requests still work. No fake local deletion.
+
+Both exact tests18scenariosPASS0.355s. Independent exact18PASS0.279s; restoring
+only376582e4 querygrant methods and APIhandler in memory yields18failures/
+zeroerrors0.248s. The reviewer's first counterexample had an invalid in-memory
+globals setup and is excluded; the corrected counterexample reaches all barriers.
+Final scopedSOURCEGO/no remainingP1P2 within this delta, no reviewerwrites or
+external calls. Final256focusedPASS9.068s; full2828PASS/7existing skips79.190s;
+Ruff/diff/inventoryPASS. Source/tests were unchanged during final executions;
+post-full candidate hashes are retained separately from the initial pre-owner
+review snapshot. Existing warnings are not resource/performance acceptance.
+
+Golden42families/333steps/83reports;38Core+29actual-qualityOPEN. Two named findings
+are preserved; contextual fixture changes only source_pins through the existing
+connected SQLite generator, with representation/qualification fields equal and
+deliveredv1/v2 untouched. Evidence history-final-source-owner/ includes original
+failures, focused/full logs, independent review and final source hashes. Protected
+main was read back unchanged at8b221d07, no refs changed by the read.
+
+No actual key/model/source/provider/TTS/speaker calls; ledger40/39/0 remains
+unchanged. No native/installed/physical/audible or narrative quality acceptance,
+consumer handoff/pin/activation, push/merge/install/cleanup, function closure or
+next selected slice. Actual returned texts and their NO_GO remain historical;
+this source repair is not a new successful narrative run.

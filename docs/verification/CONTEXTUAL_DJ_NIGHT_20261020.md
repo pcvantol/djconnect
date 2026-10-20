@@ -953,3 +953,44 @@ reviewpacket and narrativeNO_GO, fullactualcatalogueFAIL/zero paidvariants remai
 Ledger byte-identical40/39/0; no key/model/sourceHTTP/actualTTS/speaker. No protected
 consumerpin/adoption/native/installed/audible/physicalPASS, push/merge/install/
 cleanup, featureclosure or nextslice admission.
+
+
+## 05:29UTC continuation — sourcegrant and paired-owner final fences
+
+Clean376582e4/same solewriter, no competingCorewriter; main8b221d07 plus Brandrefs
+unchanged, remoteprotected main independently read back8b221d07. Hostverify0/
+MATCH/onboarding4.5.4/491GB/32GB, unrelated dashboardlock retained. Lane496comments,
+last6284042365; no new selection, modelledger byte-identical40/39/0.
+
+Independent late-grant review finds concrete source P2. Old provider can be
+disabled after its last grantread during retentionawait; paired Profile/current
+backend remains valid and HTTP200 can expose historicalbody. Initial9causal
+failures/0errors. Finaltest has12direct/query-handler/finalowner/expiry cases,
+healthy originalbody controls, actual sourceentrydisable, injected time only for
+naturalexpiry, assertions outsidecallbacks. Productionqueryfactory now provides
+committed synchronous grantcheck after allqueryawaits. APIcaptures originalgrant,
+policy value/fence and checks source/Session/entryexpiry after allownerawaits.
+One internalSQLpolicy snapshot added, no source/model/providerrequest or wirefield.
+
+Re-review finds separate paired-owner P2. Source/Profilehash unchanged aftertoken
+rotation or authorizationwithdrawal during finalresolver;6causal failures/0errors.
+Final syncguard reuses original runtime/identity/headers/Profile ownerfence and
+registers sameguard withexisting transportdelivery. Tests expect401unauthorized,
+no oldcontent, unchangedarchive/sourcegrant and recovery200withfreshauth. No
+renewedrights or fake deletion. Bothexact18scenariosPASS0.355s; independently
+18PASS0.279s, corrected historical376methods/APIhandler onlyinmemory gives
+18failures/0errors0.248s (firstcountersetupinvalid/excluded). ScopedSOURCEGO/no
+remainingP1P2 withinthisdelta. Source/testsbevrorenduringruns, no reviewerwrites.
+
+Final256focusedPASS9.068s; full2828PASS/7existing skips79.190s, Ruff/diff/inventory
+PASS. Existingwarningsretained; no resource/performanceclaim. Contextualfixture
+onlysourcepins regenerated withsameSQLitegenerator; otherwire/qualificationdata
+equal, deliveredv1/v2untouched. Evidence history-final-source-owner/: initial
+pre-owner snapshot retained separately from finalpostfullcandidatehashes, all
+failed/final logs and review. Details SOURCE_EXPIRY.
+
+Golden42families/333steps/83reports,38Core+29actual-qualityOPEN. Exact actualtexts
+unchanged/narrativeNO_GO/fullactualcatalogueFAIL/zero paidvariants. No livekey/
+model/sourceHTTP/actualprovider/TTS/speaker I/O, no native/installed/physical/
+audiblePASS or protectedconsumerpin/adoption, no push/merge/install/cleanup,
+functionclosure or nextselectedslice. Readiness/nightclosure remains separate.
