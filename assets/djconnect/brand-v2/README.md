@@ -86,7 +86,7 @@ encoding avoids Pillow's architecture-dependent zlib-ng stream selection. This
 changes compressed bytes only, not decoded artwork. Strict cross-host comparison
 remains a gate; it is not replaced with a visual-tolerance comparison.
 
-The VibeCast template uses `@@BRAND_ICON@@` and `@@BRAND_MICRO_ICON@@`.
+The VibeCast template uses `@@BRAND_ICON@@` and `@@BRAND_MICRO@@`.
 Builder1.1.3 embeds the separately authenticated `brand/icon.png` and
 `brand/mark-40.png` inputs for local, display and static hosts. The40px alias is
 byte-identical to the canonical small family and is listed in the brand manifest.
