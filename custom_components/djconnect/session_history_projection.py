@@ -103,13 +103,20 @@ def publication_receipt(body: dict, reason: str) -> dict:
             'content_state':'unavailable','unavailable_reason':reason}
 
 
+def entry_retained(entry: dict) -> bool:
+    """The original entry deadline is live authority, not a refreshed lease."""
+    try:
+        return datetime.fromisoformat(entry["retained_until"]) > datetime.now(UTC)
+    except (KeyError, ValueError, TypeError):
+        return False
+
+
 def project_entry(row: dict) -> dict | None:
     """Only explicitly qualified, owner-visible, retained entry bodies escape storage."""
-    now = datetime.now(UTC)
     if row["visibility"] != "owner" or row["revoked_at"]:
         return None
     try:
-        if datetime.fromisoformat(row["retained_until"]) <= now:
+        if not entry_retained(row):
             return None
         body = json.loads(row["body"])
         if not isinstance(body, dict):

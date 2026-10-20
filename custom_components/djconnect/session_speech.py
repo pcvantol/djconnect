@@ -269,7 +269,7 @@ async def resolve_dialogue(hass, history, profile_id, reference, *, profile_sour
         if "moment_id" in dependency:
             await _live_reference(manager, profile_id, dependency)
         else:
-            await query_service(hass, history).async_open_entry(profile_id, dependency["session_id"], dependency["entry_id"])
+            await query_service(hass, history).async_open_source_entry(profile_id, dependency["session_id"], dependency["entry_id"])
         guard()
     def on_withdraw(callback):
         if record.get("withdrawn"):
@@ -441,7 +441,7 @@ async def resolve_retained(hass, history, profile_id, reference, *, moment_only=
     service.session_speech_invalidator = lambda: invalidate_private_speech_sources(hass)
     grant = await async_history_grant_revision(hass, profile_id)
     revision = await history.async_scope_revision("profile:" + profile_id)
-    opened = await query_service(hass, history).async_open_entry(profile_id, reference["session_id"], reference["entry_id"])
+    opened = await query_service(hass, history).async_open_source_entry(profile_id, reference["session_id"], reference["entry_id"])
     entry = opened["entry"]
     if entry["kind"] not in {"dj_moment", "conversation_dj"} or (moment_only and entry["kind"] != "dj_moment"):
         raise PermissionError("speech_reference_unqualified")
@@ -459,7 +459,8 @@ async def resolve_retained(hass, history, profile_id, reference, *, moment_only=
         if (history_grant_revision(hass, profile_id) != grant
                 or history.scope_revision("profile:" + profile_id) != revision):
             raise PermissionError("speech_reference_withdrawn")
-    guard = PrivateSpeechSource(hass, validate, expires_at=expires)
+    guard = PrivateSpeechSource(hass, validate, expires_at=expires,
+                                session_id=reference["session_id"])
     guard.epoch = epoch  # Also fence a destructive transaction during entry reads.
     guard.processor_basis = basis
     guard()

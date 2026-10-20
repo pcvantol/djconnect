@@ -17,6 +17,257 @@ RUNNER = load('contextual_gate', 'tools/verification/run_askdj_contextual_releas
 
 
 class ContextualReleaseGateTest(unittest.TestCase):
+    def test_publication_only_probe_never_submits_followup_or_qualifies_complete_case(self):
+        import asyncio
+        from types import SimpleNamespace
+        from unittest.mock import patch
+        from scripts.verification.askdj_contextual_quality import run
+        calls=[]
+        async def start(label,**kwargs):
+            calls.append('start')
+            return SimpleNamespace(session_id='fixture-session'),SimpleNamespace(
+                moment_id='fixture-moment',content='Explicit fixture publication.'),None
+        async def end(*args):
+            calls.append('end')
+        async def forbidden(*args,**kwargs):
+            self.fail('A publication-only probe must not submit Ask DJ, clear or read chat history')
+        env={'DJC_QUALITY_LOCALES':'nl','DJC_QUALITY_KINDS':'selected','DJC_QUALITY_SEED_ONLY':'1'}
+        with patch.dict('os.environ',env):
+            report=asyncio.run(run(ask=forbidden,call=forbidden,start=start,end=end,
+                get_history=forbidden,mutations=[],model_receipts=[]))
+        self.assertEqual(calls,['start','end'])
+        self.assertEqual(report['selected_seed_publication']['moment_id'],'fixture-moment')
+        self.assertEqual(report['selected_probe_scope'],'publication_only_partial')
+        self.assertEqual(report['cases'][0]['findings'],['selected_followup_not_exercised'])
+        self.assertEqual(report['mechanical_status'],'FAIL')
+        for change in ({'DJC_QUALITY_KINDS':'band'},{'DJC_QUALITY_LOCALES':'nl,en'},
+                       {'DJC_QUALITY_SEED_ONLY':'true'}):
+            with patch.dict('os.environ',{**env,**change}),self.assertRaises(ValueError):
+                asyncio.run(run(ask=forbidden,call=forbidden,start=start,end=end,
+                    get_history=forbidden,mutations=[],model_receipts=[]))
+
+    def test_actual_quality_budget_is_durable_across_runs_and_rejects_budget_increase(self):
+        import ast
+        import json
+        import os
+        from tempfile import TemporaryDirectory
+        path=ROOT/'scripts/verification/verify_ask_dj_contextual_dialogue_http.py'
+        node=next(n for n in ast.parse(path.read_text()).body if isinstance(n,ast.FunctionDef)
+                  and n.name=='reserve_quality_attempt')
+        namespace={'json':json,'os':os}
+        exec(compile(ast.Module(body=[node],type_ignores=[]),str(path),'exec'),namespace)
+        reserve=namespace['reserve_quality_attempt']
+        with TemporaryDirectory() as directory:
+            ledger=Path(directory)/'budget.json'
+            ledger.write_text(json.dumps({'limit':40,'attempts':[]}))
+            for run in range(2):
+                for case in range(20):
+                    reserve(ledger,f'run-{run}-case-{case}','fixture-model')
+            self.assertEqual(len(json.loads(ledger.read_text())['attempts']),40)
+            with self.assertRaisesRegex(RuntimeError,'exhausted'):
+                reserve(ledger,'forty-first','fixture-model')
+            ledger.write_text(json.dumps({'limit':80,'attempts':[]}))
+            with self.assertRaisesRegex(RuntimeError,'invalid'):
+                reserve(ledger,'raised-budget','fixture-model')
+            with self.assertRaisesRegex(RuntimeError,'required'):
+                reserve(None,'missing-ledger','fixture-model')
+
+    def test_sixhour_budget_is_separate_atomic_expiring_and_cannot_be_raised(self):
+        import ast
+        from concurrent.futures import ThreadPoolExecutor
+        from datetime import UTC, datetime
+        import json
+        import os
+        from tempfile import TemporaryDirectory
+        from unittest.mock import patch
+        path=ROOT/'scripts/verification/verify_ask_dj_contextual_dialogue_http.py'
+        node=next(n for n in ast.parse(path.read_text()).body if isinstance(n,ast.FunctionDef)
+                  and n.name=='reserve_quality_attempt')
+        namespace={'json':json,'os':os}
+        exec(compile(ast.Module(body=[node],type_ignores=[]),str(path),'exec'),namespace)
+        reserve=namespace['reserve_quality_attempt']
+        grant='DJC-CORE-SIXHOUR-20261020T062003Z-MAX300'
+        initial={'schema_version':1,'grant_id':grant,'limit':300,'attempts':[],
+                 'starts_at':'2026-10-20T06:20:03Z','expires_at':'2026-10-20T12:20:03Z'}
+        with TemporaryDirectory() as directory, patch.dict('os.environ',{'DJC_MODEL_BUDGET_GRANT':grant}), \
+                patch('datetime.datetime') as clock:
+            clock.fromisoformat.side_effect=datetime.fromisoformat
+            clock.now.return_value=datetime(2026,10,20,7,tzinfo=UTC)
+            ledger=Path(directory)/'new-budget.json'
+            old=Path(directory)/'old-budget.json'
+            old.write_text(json.dumps({'limit':40,'attempts':[{}]*40}))
+            original_old=old.read_bytes()
+            ledger.write_text(json.dumps(initial))
+            def attempt(index):
+                try:
+                    return reserve(ledger,f'fixture-{index}','fixture-model')
+                except RuntimeError as exc:
+                    return str(exc)
+            with ThreadPoolExecutor(max_workers=12) as pool:
+                outcomes=list(pool.map(attempt,range(309)))
+            self.assertEqual(sorted(v for v in outcomes if type(v) is int),list(range(1,301)))
+            self.assertEqual(outcomes.count('quality_cumulative_budget_exhausted'),9)
+            rows=json.loads(ledger.read_text())['attempts']
+            self.assertEqual([r['ordinal'] for r in rows],list(range(1,301)))
+            self.assertTrue(all(r['reserved_before_io'] and r['grant_id']==grant for r in rows))
+            self.assertEqual(old.read_bytes(),original_old)
+            for when in (datetime(2026,10,20,6,20,2,tzinfo=UTC),
+                         datetime(2026,10,20,12,20,3,tzinfo=UTC)):
+                ledger.write_text(json.dumps(initial))
+                before=ledger.read_bytes()
+                clock.now.return_value=when
+                with self.assertRaisesRegex(RuntimeError,'window_closed'):
+                    reserve(ledger,'outside-window','fixture-model')
+                self.assertEqual(ledger.read_bytes(),before)
+            clock.now.return_value=datetime(2026,10,20,7,tzinfo=UTC)
+            for change in ({'limit':301},{'grant_id':'another-grant'},
+                           {'expires_at':'2026-10-21T12:20:03Z'}):
+                ledger.write_text(json.dumps({**initial,**change}))
+                before=ledger.read_bytes()
+                with self.assertRaises(RuntimeError):
+                    reserve(ledger,'changed-grant','fixture-model')
+                self.assertEqual(ledger.read_bytes(),before)
+            ledger.write_text(json.dumps(initial))
+            with patch.dict('os.environ',{'DJC_MODEL_BUDGET_GRANT':'unapproved'}), \
+                    self.assertRaisesRegex(RuntimeError,'grant_invalid'):
+                reserve(ledger,'unapproved','fixture-model')
+            with self.assertRaisesRegex(RuntimeError,'grant_invalid'):
+                reserve(old,'old-grant-not-renewed','fixture-model')
+            self.assertEqual(old.read_bytes(),original_old)
+
+    def test_afternoon_five_attempt_grant_is_separate_atomic_and_fixed(self):
+        import ast
+        from concurrent.futures import ThreadPoolExecutor
+        from datetime import UTC, datetime
+        import json
+        import os
+        from tempfile import TemporaryDirectory
+        from unittest.mock import patch
+        path=ROOT/'scripts/verification/verify_ask_dj_contextual_dialogue_http.py'
+        tree=ast.parse(path.read_text())
+        node=next(n for n in tree.body if isinstance(n,ast.FunctionDef)
+                  and n.name=='reserve_quality_attempt')
+        namespace={'json':json,'os':os}
+        exec(compile(ast.Module(body=[node],type_ignores=[]),str(path),'exec'),namespace)
+        reserve=namespace['reserve_quality_attempt']
+        grant='DJC-CORE-SELECTED-LOOKUP-20261020T124800Z-MAX5'
+        initial={'schema_version':1,'grant_id':grant,'limit':5,'attempts':[],
+                 'starts_at':'2026-10-20T12:48:00Z','expires_at':'2026-10-20T18:26:14Z'}
+        with TemporaryDirectory() as directory, patch.dict('os.environ',{'DJC_MODEL_BUDGET_GRANT':grant}), \
+                patch('datetime.datetime') as clock:
+            clock.fromisoformat.side_effect=datetime.fromisoformat
+            clock.now.return_value=datetime(2026,10,20,13,tzinfo=UTC)
+            ledger=Path(directory)/'afternoon-budget.json'
+            old=Path(directory)/'morning-budget.json'
+            old.write_text(json.dumps({'limit':300,'attempts':[{}]*43}))
+            original_old=old.read_bytes()
+            ledger.write_text(json.dumps(initial))
+            def attempt(index):
+                try:
+                    return reserve(ledger,f'fixture-{index}','fixture-model')
+                except RuntimeError as exc:
+                    return str(exc)
+            with ThreadPoolExecutor(max_workers=8) as pool:
+                outcomes=list(pool.map(attempt,range(12)))
+            self.assertEqual(sorted(v for v in outcomes if type(v) is int),list(range(1,6)))
+            self.assertEqual(outcomes.count('quality_cumulative_budget_exhausted'),7)
+            self.assertEqual(old.read_bytes(),original_old)
+            for change in ({'limit':6},{'grant_id':'unapproved'},
+                           {'starts_at':'2026-10-20T12:26:14Z'},
+                           {'expires_at':'2026-10-20T18:26:15Z'}):
+                ledger.write_text(json.dumps({**initial,**change}))
+                before=ledger.read_bytes()
+                with self.assertRaises(RuntimeError):
+                    reserve(ledger,'changed-grant','fixture-model')
+                self.assertEqual(ledger.read_bytes(),before)
+            for when in (datetime(2026,10,20,12,47,59,tzinfo=UTC),
+                         datetime(2026,10,20,18,26,14,tzinfo=UTC)):
+                ledger.write_text(json.dumps(initial))
+                before=ledger.read_bytes()
+                clock.now.return_value=when
+                with self.assertRaisesRegex(RuntimeError,'window_closed'):
+                    reserve(ledger,'outside-window','fixture-model')
+                self.assertEqual(ledger.read_bytes(),before)
+        # Actual runner wiring disables both ways a dispatch could silently multiply.
+        client=next(n for n in ast.walk(tree) if isinstance(n,ast.Call)
+                    and isinstance(n.func,ast.Name) and n.func.id=='AsyncOpenAI')
+        self.assertEqual(next(k.value.value for k in client.keywords if k.arg=='max_retries'),0)
+        http=next(k.value for k in client.keywords if k.arg=='http_client')
+        self.assertFalse(next(k.value.value for k in http.keywords if k.arg=='follow_redirects'))
+
+    def test_evening_recheck_grant_is_separate_atomic_and_fixed(self):
+        import ast
+        from concurrent.futures import ThreadPoolExecutor
+        from datetime import UTC, datetime
+        import json
+        import os
+        from tempfile import TemporaryDirectory
+        from unittest.mock import patch
+        path=ROOT/'scripts/verification/verify_ask_dj_contextual_dialogue_http.py'
+        tree=ast.parse(path.read_text())
+        node=next(n for n in tree.body if isinstance(n,ast.FunctionDef)
+                  and n.name=='reserve_quality_attempt')
+        namespace={'json':json,'os':os}
+        exec(compile(ast.Module(body=[node],type_ignores=[]),str(path),'exec'),namespace)
+        reserve=namespace['reserve_quality_attempt']
+        grant='DJC-CORE-SELECTED-RECHECK-20261020T172224Z-MAX5'
+        initial={'schema_version':1,'grant_id':grant,'limit':5,'attempts':[],
+                 'starts_at':'2026-10-20T17:22:24Z','expires_at':'2026-10-20T18:26:14Z'}
+        with TemporaryDirectory() as directory, patch.dict('os.environ',{'DJC_MODEL_BUDGET_GRANT':grant}), \
+                patch('datetime.datetime') as clock:
+            clock.fromisoformat.side_effect=datetime.fromisoformat
+            clock.now.return_value=datetime(2026,10,20,17,30,tzinfo=UTC)
+            ledger=Path(directory)/'evening-budget.json'
+            old=Path(directory)/'finished-afternoon-budget.json'
+            old.write_text(json.dumps({'limit':5,'attempts':[{},{}],'status':'FINISHED'}))
+            original_old=old.read_bytes()
+            ledger.write_text(json.dumps(initial))
+            def attempt(index):
+                try:
+                    return reserve(ledger,f'fixture-{index}','fixture-model')
+                except RuntimeError as exc:
+                    return str(exc)
+            with ThreadPoolExecutor(max_workers=8) as pool:
+                outcomes=list(pool.map(attempt,range(12)))
+            self.assertEqual(sorted(v for v in outcomes if type(v) is int),list(range(1,6)))
+            self.assertEqual(outcomes.count('quality_cumulative_budget_exhausted'),7)
+            self.assertEqual(old.read_bytes(),original_old)
+            for change in ({'limit':6},{'grant_id':'unapproved'},
+                           {'starts_at':'2026-10-20T12:26:14Z'},
+                           {'expires_at':'2026-10-20T18:26:15Z'}):
+                ledger.write_text(json.dumps({**initial,**change}))
+                before=ledger.read_bytes()
+                with self.assertRaises(RuntimeError):
+                    reserve(ledger,'changed-grant','fixture-model')
+                self.assertEqual(ledger.read_bytes(),before)
+            for when in (datetime(2026,10,20,17,22,23,tzinfo=UTC),
+                         datetime(2026,10,20,18,26,14,tzinfo=UTC)):
+                ledger.write_text(json.dumps(initial))
+                before=ledger.read_bytes()
+                clock.now.return_value=when
+                with self.assertRaisesRegex(RuntimeError,'window_closed'):
+                    reserve(ledger,'outside-window','fixture-model')
+                self.assertEqual(ledger.read_bytes(),before)
+        # Actual runner wiring disables both ways a dispatch could silently multiply.
+        client=next(n for n in ast.walk(tree) if isinstance(n,ast.Call)
+                    and isinstance(n.func,ast.Name) and n.func.id=='AsyncOpenAI')
+        self.assertEqual(next(k.value.value for k in client.keywords if k.arg=='max_retries'),0)
+        http=next(k.value for k in client.keywords if k.arg=='http_client')
+        self.assertFalse(next(k.value.value for k in http.keywords if k.arg=='follow_redirects'))
+
+    def test_actual_answer_pilot_covers_five_languages_and_cannot_qualify_a_fallback(self):
+        from scripts.verification.askdj_contextual_quality import cases,check_answer
+        rows=cases()
+        self.assertEqual(len(rows),15)
+        self.assertEqual(len({r['id'] for r in rows}),15)
+        for kind in ('selected','band','mood'):
+            self.assertEqual({r['language'] for r in rows if r['kind']==kind},{'en','nl','de','fr','es'})
+        case=next(r for r in rows if r['kind']=='band')
+        fallback={'success':True,'text':'I could not verify enough information.','sources':[]}
+        self.assertIn('generated_answer_missing',check_answer(case,fallback))
+        self.assertIn('researched_answer_unqualified',check_answer(case,fallback))
+        self.assertIn('closing_question_missing',check_answer(case,fallback))
+
     def test_semantic_release_gate_requires_every_real_model_case_and_source_binding(self):
         matrix = load('semantic_release_matrix', 'tools/verification/run_askdj_release_matrix.py')
         from scripts.verification.askdj_semantic_read_golden import cases, manifest_digest, expected_plan
@@ -157,6 +408,24 @@ class ContextualReleaseGateTest(unittest.TestCase):
         self.assertIn('internal-ha-*', gate)
         self.assertIn('git merge-base --is-ancestor', gate)
 
+    def test_source_reconciliation_can_record_ci_without_publishing_rejected_artifact(self):
+        import json
+        import yaml
+        jobs = yaml.safe_load((ROOT/'.github/workflows/home-assistant-release-artifact.yml').read_text())['jobs']
+        package, source = jobs['package'], jobs['reconcile']
+        self.assertEqual(package['needs'], 'paid-contextual-golden')
+        self.assertNotIn('always()', package['if'])
+        self.assertEqual(source['needs'], ['paid-contextual-golden', 'package'])
+        self.assertIn('always()', source['if'])
+        for condition in ("github.event.workflow_run.conclusion == 'success'", "github.event.workflow_run.head_branch == 'main'"):
+            self.assertIn(condition, source['if'])
+        self.assertEqual(source['with']['repository_role'], 'active_source')
+        self.assertEqual(source['with']['required_main_workflow'], 'Validate Home Assistant custom integration')
+        self.assertEqual(source['with']['coverage_artifact_name'], 'ha-cobertura-coverage')
+        self.assertEqual(json.loads(source['with']['required_check_contexts']),
+            ['Trusted Delivery qualification / Qualify trusted delivery'])
+        self.assertIn('post-merge-release-evidence.yml@ebbb35f038a7a3c7d46c12660968bcd50eb67580', source['uses'])
+
     def test_overlapping_main_events_keep_original_candidate_for_all_jobs(self):
         # workflow_run's outer GITHUB_SHA may already be B; its event payload
         # still names CI(A). No second workflow_run hop is introduced.
@@ -196,11 +465,13 @@ class ContextualReleaseGateTest(unittest.TestCase):
         proof=inventory.validate()
         self.assertEqual(proof['literal_core_routes'],48)
         self.assertEqual(proof['executable_help_cases'],60)
-        self.assertEqual(proof['conversation_families'],39)
-        self.assertEqual(proof['conversation_steps'],167)
-        self.assertEqual(proof['reported_issues'],57)
-        self.assertEqual(len(proof['open_core_findings']),12)
+        self.assertEqual(proof['conversation_families'],42)
+        self.assertEqual(proof['conversation_steps'],337)
+        self.assertEqual(proof['reported_issues'],87)
+        self.assertEqual(len(proof['open_core_findings']),42)
         self.assertEqual(proof['proactive_golden_cases'],560)
+        self.assertEqual(proof['catalogue_questions'],70)
+        self.assertEqual(proof['catalogue_conversation_steps'],30)
 
     def test_every_golden_owning_file_is_scheduled_before_provider_work(self):
         import json
@@ -211,6 +482,64 @@ class ContextualReleaseGateTest(unittest.TestCase):
             with self.subTest(file=file),self.assertRaisesRegex(ValueError,'required_owning_file_not_scheduled'):
                 runner.validate_owner_pattern_coverage(matrix,
                     tuple(pattern for pattern in runner.TEST_PATTERNS if pattern!=file))
+
+    def _first_owner_profile(self, exit_code, owner_receipt=None):
+        import json
+        from tempfile import TemporaryDirectory
+        from unittest.mock import patch
+
+        runner = load('owner_receipt_release_matrix', 'tools/verification/run_askdj_release_matrix.py')
+        with TemporaryDirectory() as folder:
+            root = Path(folder)
+            inventory = root / 'docs/verification/fixtures/askdj_golden_release_matrix_v1.json'
+            inventory.parent.mkdir(parents=True)
+            inventory.write_text('{}')
+            output = root / 'release-report.json'
+            calls = []
+
+            def isolated_owner(args, *, payload, directory, seconds, network):
+                calls.append((payload, network))
+                self.assertEqual(payload, {})
+                self.assertEqual(network, 'none')
+                (directory / 'private.log').write_text('synthetic-private-diagnostic-must-not-leak')
+                if owner_receipt is not None:
+                    (directory / 'owner-contracts.json').write_text(json.dumps(owner_receipt))
+                return exit_code
+
+            with patch.object(runner, 'ROOT', root), \
+                    patch.object(runner, 'TEST_PATTERNS', ('test_fixture_owner.py',)), \
+                    patch.object(runner, 'validate_inventory', return_value={'status': 'PASS'}), \
+                    patch.object(runner, 'validate_owner_pattern_coverage'), \
+                    patch.object(runner.subprocess, 'check_output', side_effect=['a' * 40, '']), \
+                    patch.object(runner, 'owned_run', side_effect=isolated_owner):
+                self.assertEqual(runner.run('a' * 40, output), 1)
+            self.assertEqual(calls, [({}, 'none')], 'Failure must stop before any other profile or paid work')
+            report = json.loads(output.read_text())
+            self.assertNotIn('synthetic-private', output.read_text())
+            self.assertEqual(report['status'], 'FAIL')
+            self.assertEqual(len(report['profiles']), 1)
+            self.assertEqual(report['profiles'][0]['status'], 'FAIL')
+            return report['profiles'][0]
+
+    def test_missing_owner_receipt_keeps_test_count_unknown_and_release_closed(self):
+        for exit_code in (0, 1, 124, 125, 137, -9):
+            with self.subTest(exit_code=exit_code):
+                row = self._first_owner_profile(exit_code)
+                self.assertIsNone(row['tests_run'])
+                self.assertEqual(row['runner_exit_code'], exit_code)
+                self.assertEqual(row['findings'], ['owner_contract_receipt_missing'])
+                self.assertEqual(row['execution_runtime'], 'pinned_ha_container')
+
+    def test_observed_failed_owner_receipt_preserves_actual_zero_or_positive_count(self):
+        for count in (0, 3):
+            with self.subTest(count=count):
+                receipt = {'status': 'FAIL', 'tests_run': count, 'executed': [],
+                           'failed': [], 'errors': [], 'skipped': [], 'paid_attempts': 0,
+                           'network': 'none', 'case_outcomes': []}
+                row = self._first_owner_profile(1, receipt)
+                self.assertEqual(row['tests_run'], count)
+                self.assertNotIn('findings', row)
+                self.assertNotIn('runner_exit_code', row)
 
     def test_renderer_owner_requires_node_and_never_inherits_paid_credentials(self):
         from tempfile import TemporaryDirectory
@@ -303,6 +632,43 @@ class ContextualReleaseGateTest(unittest.TestCase):
         unexpected=deepcopy(raw)
         unexpected['core_transports'][0].update(status=403,expected_status=403,body={'error':'denied'})
         self.assertFalse(matrix.validate_local_report('current_artist',unexpected))
+
+    def test_album_release_gate_rejects_missing_art_buttons_header_and_single_track_album_dispatch(self):
+        from tests import test_ask_dj_catalogue_golden as fixtures
+        from scripts.verification import askdj_example_catalogue_golden as golden
+        matrix=load('djc_album_release_matrix','tools/verification/run_askdj_release_matrix.py')
+        ids=[*[f'album-current-artist-{i}' for i in range(5)],
+            *[f'album-tracks-{i}' for i in range(5)], 'album-header-play','album-recording-play',
+            'album-offer','album-play','album-play-duplicate',
+            *['album-offer-'+locale for locale in ('en','de','fr','es')]]
+        rows=[{'case':case,'path':'ask_dj/message','request':{},
+            'status':409 if case=='album-play-duplicate' else 200,
+            'expected_status':409 if case=='album-play-duplicate' else 200,
+            'cache_control':'no-store','body':{'error':'choice_expired'} if case=='album-play-duplicate'
+                else {'success':True}} for case in ids]
+        fixture=fixtures.CatalogueGoldenTest()
+        for i,locale in enumerate(('nl','en','de','fr','es')):
+            case=next(c for c in golden.cases() if c['entry_id']=='listen.album_tracks' and c['language']==locale)
+            body=fixture.response(case)
+            body.update(fixture.album_payload())
+            next(row for row in rows if row['case']==f'album-tracks-{i}')['body']=body
+        raw={'qualification':'CORE_PAIRED_ALBUM_TRACKS_AND_FROZEN_ALBUM_PLAY',
+            'source_hashes':matrix.expected_source_hashes(),'pairing':'ordinary_device_token_minted_persisted',
+            'core_transports':rows,'model_calls':[],'paid_model_calls':0,
+            'provider_calls':[{'method':'PUT','path':'/me/player/play','body':body} for body in (
+                {'context_uri':golden.ALBUM},{'uris':[golden.TRACKS[-1]]},
+                {'context_uri':'spotify:album:'+'c'*22})]}
+        self.assertTrue(matrix.validate_local_report('album_context',raw))
+        for field in ('image_url','button_label','action_id'):
+            changed=deepcopy(raw)
+            changed['core_transports'][5]['body']['items'][1].pop(field)
+            self.assertFalse(matrix.validate_local_report('album_context',changed),field)
+        wrong=deepcopy(raw)
+        wrong['provider_calls'][0]['body']={'uris':[golden.TRACKS[0]]}
+        self.assertFalse(matrix.validate_local_report('album_context',wrong))
+        missing=deepcopy(raw)
+        missing['core_transports'][5]['body']['result_set'].pop('presentation')
+        self.assertFalse(matrix.validate_local_report('album_context',missing))
 
     def test_prosody_gate_requires_all_moods_languages_and_real_paired_audio_receipt(self):
         import hashlib

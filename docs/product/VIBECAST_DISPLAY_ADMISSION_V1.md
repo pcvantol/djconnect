@@ -7,15 +7,31 @@ Base `1329ad1ce8bd066d65a08b3988261a44e2cac730`; existing Core writer,
 branch `codex/vibecast-display-admission-v1`. Existing roadmap node `WEB::DISPLAY`.
 Settings source1193/Finalization1194 and repair1195/Finalization1196 remain closed.
 
-Status: **A_CONTRACT_REVIEW / B_CORE_SOURCE_GO / DRAFT_NOT_MERGED**.
+Current source readback, checked20October2026: **B_PROTECTED_SOURCE /
+A_IMPLEMENTATION_CONTRACT_RELEASED / JOINT_ACCEPTANCE_OPEN**. PR1197 merged as
+`c98cbf3e3114afb8b8212e18224a337b12af3e27`; current protected main8b221d07
+includes the B handlers, shared shell and capability declaration. See the
+[exact source/readback, fresh actual HA proof and consumer sequence](../verification/VIBECAST_B_PROTECTED_SOURCE_READBACK_20261020.md).
+No installed public route or complete A→B/native/hardware acceptance is implied.
+API's implementation agreement is separately protected-delivered by PR96
+`2dade83f338ae5f931856934ab0c23b6f6c66f05` and Finalization97
+`661e5770eb5249b1b02bbdc2426ba7e575fc8881`. Its
+[limited implementation-contract precedence](https://github.com/pcvantol/djconnect-api/blob/2dade83f338ae5f931856934ab0c23b6f6c66f05/docs/rendezvous/IMPLEMENTATION_CONTRACT_RELEASE_V1.md)
+supersedes old missing-ACK/NOT_FROZEN statements to its enumerated scope.
+It does not enable the public service or waive actual native/operational gates.
+The historical API94 review and design findings below are preserved provenance,
+not a request to repeat already received implementation ACKs.
+
+Historical pre-merge status: **A_CONTRACT_REVIEW / B_CORE_SOURCE_GO / DRAFT_NOT_MERGED**.
 After exact independent B-design GO on ae2adfe9, B was implemented independently
 with A unavailable. Runtime/discovery pin3cb9cf12 and fixture/candidate pin325aabc7
 have independent technical/privacy and product/UX/privacy GO for B-Core.
 Normal candidate registration includes bounded Runtime-owned authority, paired
 HTTP transitions, dedicated snapshot/live, the shared-renderer host and generic
 support discovery. Real isolated HA/browser proofs are scoped in the
-[B contract](VIBECAST_DISPLAY_ADMISSION_B_V1.md). This candidate is not main or
-installed; no secure-A, public-route, native or hardware acceptance is inferred.
+[B contract](VIBECAST_DISPLAY_ADMISSION_B_V1.md). At that historical checkpoint
+the candidate was not main or installed; current protected source is recorded
+above. No secure-A, public-route, native or hardware acceptance is inferred.
 The
 [onboarding authority](VIBECAST_ONBOARDING_GUEST_AUTHORITY_V1.md),
 [distribution ownership](VIBECAST_WEB_ENTRY_DISTRIBUTION_V1.md) and
@@ -344,7 +360,8 @@ the existing Runtime lock, bounded reservations and original deadlines are
 implemented and tested; renewal cannot extend an already expired authority.
 The preceding inventory remains a baseline record, not a claim that candidate B
 is still absent. Maximum-load/public-route and A/native/joint qualification are
-separate and remain open; the draft has not delivered these changes to main.
+separate and remain open. This is the pre-merge candidate record; the protected
+source readback above supersedes its former not-delivered-to-main status.
 
 ## Legacy end authority: historical inventory before retirement
 

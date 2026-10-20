@@ -35,11 +35,13 @@ class HistoricalProjectionQueryService:
         source_validator=None,
         grant_revision=None,
         summary_validator=None,
+        grant_revision_now=None,
     ) -> None:
         self._repository = repository
         self._conversation_history = history_manager
         self._source_validator = source_validator
         self._grant_revision = grant_revision
+        self._grant_revision_now = grant_revision_now
         self._summary_validator = summary_validator
         self.media_projector = None
         from .session_history_projection import HistoryCursorCodec
@@ -96,6 +98,23 @@ class HistoricalProjectionQueryService:
             if projection is not None
         )
 
+    async def async_conversation_source_visible(self, owner: str, message: dict) -> bool:
+        """Retained provider prose keeps its original source grant, not a label."""
+        source = message.get("session_turn",{}).get("provider_display_source")
+        if source is not None:
+            if (not isinstance(source,dict) or set(source) != {"provider","source_context"}
+                    or self._source_validator is None):
+                return False
+            if not await self._source_validator(owner, {"kind":"dj_moment", "body":json.dumps({
+                    "archive_basis":"owner_metadata_narration_v1", **source})}):
+                return False
+        for target in message.get("historical_entry_references",[]):
+            try:
+                await self.async_open_source_entry(owner,target['session_id'],target['entry_id'])
+            except PermissionError:
+                return False
+        return True
+
     async def _project_entry(self, owner: str, row: dict) -> dict | None:
         from .session_history_projection import project_entry
 
@@ -138,16 +157,9 @@ class HistoricalProjectionQueryService:
         # Explicit recursion state is passed through a task-local ContextVar below.
         token = _projection_ancestry.set(ancestry | {key})
         try:
-            for target in message.get("historical_entry_references", []):
-                try:
-                    await self._session(owner, target["session_id"])
-                except HistoricalProjectionAccessDenied:
-                    return None
-                source = await self._repository.async_entry_record(
-                    owner, target["session_id"], target["entry_id"]
-                )
-                if source is None or await self._project_entry(owner, source) is None:
-                    return None
+            if not await self.async_conversation_source_visible(owner,message):
+                entry.pop("conversation_reference",None)
+                return {**entry,"text":"","state":"source_withdrawn"}
         finally:
             _projection_ancestry.reset(token)
         entry.pop("conversation_reference", None)
@@ -170,6 +182,19 @@ class HistoricalProjectionQueryService:
             entry["session_speech"] = retained_projection(entry)
         return entry
 
+    def _validate_grant_revision(self, owner, expected):
+        if self._grant_revision_now is not None and self._grant_revision_now(owner) != expected:
+            from .session_history_projection import HistoryQueryError
+            raise HistoryQueryError("invalid_history_cursor")
+
+    @staticmethod
+    def _validate_entry_deadlines(entries):
+        from .session_history_projection import entry_retained, HistoryQueryError
+        # Collection building may have yielded after projecting any earlier row.
+        # Keep every original cap; no refreshed lease or partial stale snapshot.
+        if any(not entry_retained(entry) for entry in entries):
+            raise HistoryQueryError("invalid_history_cursor")
+
     async def _revision_session(self, owner: str, session: dict) -> dict:
         suffix = (
             await self._conversation_history.async_scope_revision("profile:" + owner)
@@ -183,6 +208,11 @@ class HistoricalProjectionQueryService:
                 or session.get('retention_fence', self._repository.retention_fence) != self._repository.retention_fence):
             from .session_history_projection import HistoryQueryError
             raise HistoryQueryError('invalid_history_cursor')
+        self._validate_grant_revision(owner, grant)
+        # A natural deadline can pass while unchanged revision/grant reads wait.
+        from .session_history_projection import session_retained
+        if not session_retained(session, retention_days=retention[0]):
+            raise HistoricalProjectionAccessDenied("session_unavailable")
         return {
             **session,
             "revision": str(session["revision"])
@@ -254,6 +284,7 @@ class HistoricalProjectionQueryService:
             owner, limit=251, before=after, include_active=include_active
         )
         page = []
+        included_sessions = []
         last = None
         summary_cache = {}
         for row in rows[:250]:
@@ -261,6 +292,7 @@ class HistoricalProjectionQueryService:
             if session_retained(row, retention_days=retention):
                 await self._qualify_summary(owner, row, summary_cache)
                 page.append(public_session(row))
+                included_sessions.append(row)
             if len(page) >= limit:
                 break
         more = bool(last and any([r["created_at"], r["session_id"]] < last for r in rows))
@@ -271,6 +303,9 @@ class HistoricalProjectionQueryService:
             or await self._repository.async_retention_policy() != (retention, retention_revision)
             or fence[1] or self._repository.retention_fence != fence
         ):
+            raise HistoryQueryError("invalid_history_cursor")
+        self._validate_grant_revision(owner, grant)
+        if any(not session_retained(row, retention_days=retention) for row in included_sessions):
             raise HistoryQueryError("invalid_history_cursor")
         return {
             "success": True,
@@ -298,6 +333,7 @@ class HistoricalProjectionQueryService:
             observations.append(entry)
         if (await self._session(owner, session_id))["revision"] != session["revision"]:
             raise HistoryQueryError("invalid_history_cursor")
+        self._validate_entry_deadlines(observations)
         return {"entries": observations, "revision": session["revision"],
                 "coverage": "stage1_distinct_accepted_observations", "complete": False}
 
@@ -329,6 +365,7 @@ class HistoricalProjectionQueryService:
 
         if (await self._session(owner, session_id))["revision"] != session["revision"]:
             raise HistoryQueryError("invalid_history_cursor")
+        self._validate_entry_deadlines(visible)
         return {
             "success": True,
             "schema_version": 1,
@@ -375,6 +412,7 @@ class HistoricalProjectionQueryService:
         visible.sort(key=lambda entry: entry["order"])
         if (await self._session(owner, session_id))["revision"] != session["revision"]:
             raise HistoryQueryError("invalid_history_cursor")
+        self._validate_entry_deadlines(visible)
         return {
             "success": True,
             "schema_version": 1,
@@ -425,6 +463,7 @@ class HistoricalProjectionQueryService:
 
         if (await self._session(owner, session_id))["revision"] != session["revision"]:
             raise HistoryQueryError("invalid_history_cursor")
+        self._validate_entry_deadlines(matches)
         return {
             "success": True,
             "schema_version": 1,
@@ -440,6 +479,14 @@ class HistoricalProjectionQueryService:
             "highlight_units": "utf16",
         }
 
+    async def async_open_source_entry(self, owner: str, session_id: str, entry_id: str) -> dict:
+        """Navigation receipts never grant retained text to a dependent turn/audio."""
+        opened=await self.async_open_entry(owner,session_id,entry_id)
+        if (opened['entry'].get('state')=='source_withdrawn'
+                or opened['entry'].get('kind')=='dj_publication'):
+            raise HistoricalProjectionAccessDenied('entry_source_withdrawn')
+        return opened
+
     async def async_open_entry(self, owner: str, session_id: str, entry_id: str) -> dict:
         from .session_history_projection import HistoryQueryError, public_session
 
@@ -451,6 +498,9 @@ class HistoricalProjectionQueryService:
             raise HistoricalProjectionAccessDenied("entry_unavailable")
         if (await self._session(owner, session_id))["revision"] != session["revision"]:
             raise HistoryQueryError("history_cursor_stale")
+        from .session_history_projection import entry_retained
+        if not entry_retained(entry):
+            raise HistoricalProjectionAccessDenied("entry_unavailable")
         return {
             "success": True,
             "schema_version": 1,
@@ -505,6 +555,8 @@ class HistoricalProjectionQueryService:
             from .session_history_projection import HistoryQueryError
 
             raise HistoryQueryError("invalid_history_cursor")
+        self._validate_grant_revision(owner, grant)
+        self._validate_entry_deadlines(matches)
         return {
             "success": True,
             "schema_version": 1,

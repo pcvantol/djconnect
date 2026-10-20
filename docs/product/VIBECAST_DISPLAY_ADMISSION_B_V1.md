@@ -1,8 +1,17 @@
-# VibeCast HA display admission B v1 — review candidate
+# VibeCast HA display admission B v1
+
+Current source status, checked20October2026: **B_PROTECTED_SOURCE /
+A_SEPARATE / JOINT_ACCEPTANCE_OPEN**. PR1197 merged as
+`c98cbf3e3114afb8b8212e18224a337b12af3e27`; protected main8b221d07 contains
+the registered B implementation. A fresh actual isolated HA rerun passes all
+twelve owning groups with zero provider calls. See the exact
+[source/readback and consumer sequence](../verification/VIBECAST_B_PROTECTED_SOURCE_READBACK_20261020.md).
+This supersedes the historical draft/not-merged status below; it does not
+qualify an installed public route, A integration, native or physical acceptance.
 
 Part of `DJC-CORE-VIBECAST-DISPLAY-ADMISSION-V1-20261016`, existing Core
 writer, base1329ad1ce8bd066d65a08b3988261a44e2cac730 and draft1197.
-Status **B_CORE_SOURCE_GO / DRAFT_NOT_MERGED / A_UNAVAILABLE**.
+Historical pre-merge status: **B_CORE_SOURCE_GO / DRAFT_NOT_MERGED / A_UNAVAILABLE**.
 Exact B-design `ae2adfe9e162a00d00715e26418656976b6f02a2` received independent
 technical/privacy and product/UX/privacy GO after the three concrete findings
 were fixed. Independent isolated Core B implementation may proceed while A is

@@ -41960,7 +41960,7 @@
       },
       {
         "path": "docs/product/ASK_DJ_CONTEXTUAL_DIALOGUE_CONTRACT_V1.md",
-        "sha256": "b0626e86857ad0dda317896da34091132347dce54762362bbdc0bd457a1727fb"
+        "sha256": "e60e5793a3ce2378bf076342ea815b5a849d7b7805c737f6154f51ba5382e13b"
       },
       {
         "path": "docs/product/MOMENT_TRACK_INSIGHT_DRILLDOWN_V1.md",
@@ -42036,11 +42036,11 @@
       },
       {
         "path": "docs/product/SESSION_MOMENT_ARTWORK_V1.md",
-        "sha256": "580e7022b2a1684117a16f7602ecd21cd1672988001825d3e869712bde2dda4a"
+        "sha256": "82c28e3a0caa486589ffd7576c21513ea7067f4b360fd3e1ca1255bad1212b93"
       },
       {
         "path": "docs/product/SESSION_ARTWORK_DELIVERY_CONTRACT_V1.md",
-        "sha256": "a65d238cbee59b26d5c1405b14c1235cb3523a06ad3cd868133403e0034427ca"
+        "sha256": "e624337a1ecadbf236c549bacd1487d4226b7047c6c0f6cfecc47d95ccc3e928"
       },
       {
         "path": "docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md",
@@ -42148,15 +42148,15 @@
       },
       {
         "path": "docs/product/PERSONAL_DJ_NARRATION_RESTORATION_V1.md",
-        "sha256": "f0705f320a40438172621b9db76dce8611f3c3bb1f785b7bc92ec4ec1251b837"
+        "sha256": "e017948914d55589213f120748125fb56083a925d3374fb585d790544a79226e"
       },
       {
         "path": "docs/verification/CORE_LANE_REQUIREMENT_RECONCILIATION_20261017.md",
-        "sha256": "92992a2aaaef7b42c7d2dadad9c143e7b985e3de464ddade9bde95f4f3e9842e"
+        "sha256": "240bf5f06c8381376ed4f1330fedfb75943d5469d9f2c84a8272cf7bd45046d7"
       },
       {
         "path": "docs/product/ASK_DJ_PUBLIC_MUSIC_RESEARCH_V1.md",
-        "sha256": "0487c93b0f8e7c8cdb77c1b52c72bdbc860762f3fb563d07255a9c7efcbf6b26"
+        "sha256": "061f5eca3129f4e418d879c0abfa23709394ae5e7e8ca8026fa393b3a063370a"
       },
       {
         "path": "docs/product/DJ_MOMENT_MOOD_PROSODY_V1.md",
@@ -42204,7 +42204,7 @@
       },
       {
         "path": "docs/product/VIBECAST_DISPLAY_ADMISSION_V1.md",
-        "sha256": "9777b1cd9399c6b98e36a2c590cd214bb29c0456c492ded60d1d0d2a2fae846f"
+        "sha256": "f112e7fd9327560bd3e7ab51f818db2d30e36d57e0f6d51104233f8e95661f49"
       },
       {
         "path": "docs/verification/VIBECAST_DISPLAY_DESIGN_REVIEW_20261016.md",
@@ -42212,7 +42212,7 @@
       },
       {
         "path": "docs/product/VIBECAST_DISPLAY_ADMISSION_B_V1.md",
-        "sha256": "f555656ada0078d35654303a5137a618abb152ec251a41df5725351fdf291549"
+        "sha256": "d3865102c2bb56cff3bea8eaa7c6b5717e36ed56f8a988f3d53f0f76912f1304"
       },
       {
         "path": "docs/product/ASK_DJ_ALBUM_TRACKS_V1.md",

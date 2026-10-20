@@ -145,6 +145,14 @@ Session pipeline.
 
 ## Raspberry Pi Wall Panel positioning
 
+This renderer-host classification applies to the shared-display deployment,
+not to a platform-wide feature restriction. The owner's current
+[Profile-authorized native Pi application](../product/PI_PROFILE_AUTHORIZED_APP_V1.md)
+has Apple feature parity on both display sizes. Its unavailable speech/local
+audio routes are hardware/handshake constraints; the renderer classification
+does not remove private app features granted to the linked Profile. Explicit
+Profile authorization and shared-projection authorization remain distinct.
+
 The Raspberry Pi Wall Panel is a Registered + Interactive Renderer by default.
 It remains an additional native Renderer Host; the Universal Receiver does not
 replace its QML or appliance implementation. A future Platform Adapter may let

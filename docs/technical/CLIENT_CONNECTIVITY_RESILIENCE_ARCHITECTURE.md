@@ -15,7 +15,7 @@ Connectivity determines only how a client reaches Home Assistant. It never owns 
 
 Pairing remains local installation trust bootstrap. It may return canonical local endpoint, optional remote endpoint, installation identity and transport capabilities. Remote discovery is configuration, never another trust bootstrap.
 
-iOS, macOS, Windows and Linux may use configured remote HTTPS request/response; local rich clients prefer the existing WebSocket fast path with HTTP fallback. ESP32 and Raspberry Pi remain local-only. No remote WebSocket or cloud relay is authorized for them.
+iOS, macOS, Windows and Linux may use configured remote HTTPS request/response; local rich clients prefer the existing WebSocket fast path with HTTP fallback. ESP32 remains local-only. The Profile-authorized native Pi application has the same product feature target as Apple; connectivity is negotiated through actual common transport capabilities and configured authorized endpoints. Its historically local-only implementation inventory below is not a permanent Pi product ban. No new remote WebSocket, cloud relay or public-network qualification follows from this scope clarification.
 
 The single client state model is `UNPAIRED`, `PAIRING`, `DEMO`, `PAIRED`, `ONLINE_LOCAL`, `ONLINE_REMOTE`, `DEGRADED`, `OFFLINE`. Demo is unpaired onboarding, review, UI-validation or development installation state, never connection state. Offline is calm and reconnecting, never modal or Demo; it cannot create a local Runtime, Planner, DJ Intelligence or Session.
 
@@ -51,7 +51,7 @@ not a client-owned Session replica.
 | --- | --- | --- | --- |
 | Apple | HTTPS request/response, optional authenticated HA WebSocket, Apple-only push registration/continuation | No client Runtime or platform-native push ownership in DJ Intelligence; detailed local storage rotation and entitlement/background evidence remains unknown. | Partially qualified. |
 | Windows | HTTPS request/response and optional HA WebSocket with HTTP fallback; credential-store evidence and stale-pairing cleanup policy | No Apple/APNs bootstrap; no local Runtime or server credential ownership. | Qualified at documented contract level. |
-| Raspberry Pi | Local HTTP device API, status polling and optional HA WebSocket fast path with HTTP fallback | Local-only; remote URL is intentionally ignored. | Qualified at documented local contract level, not for remote public use. |
+| Raspberry Pi | Previously qualified local HTTP/status and optional HA WebSocket with HTTP fallback; full native app uses common negotiated capabilities | HA-to-device administration remains local. Client-to-HA availability follows actual configured authorized transport, not a Pi feature prohibition. | Historical local contract evidence only; new native/remote behavior requires its own qualification. |
 | ESP32 | Local HTTP status, command and voice paths; HA-to-device local API | Local-only; no remote WebSocket or cloud-relay path is authorized. | Qualified at documented local contract level, not for remote public use. |
 | Conversation Agent | Home Assistant-local Assist/Conversation invocation and existing server-side DJConnect services | Not a separately paired Renderer Host, remote client or independent Session transport. | Qualified as a local integration boundary only. |
 

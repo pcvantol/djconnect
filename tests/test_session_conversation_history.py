@@ -76,6 +76,9 @@ class SessionConversationHistoryTest(unittest.IsolatedAsyncioTestCase):
         original = ROOT/'examples/client_contracts/session_conversation_history/retention-bases-v1.json'
         self.assertEqual(hashlib.sha256(original.read_bytes()).hexdigest(),
             '600e6c68e26b798ddb5dd73daf8b801464d8647ca68764766e37297f13ce3916')
+        frozen_v2 = ROOT/'examples/client_contracts/session_conversation_history/retention-bases-v2.json'
+        self.assertEqual(hashlib.sha256(frozen_v2.read_bytes()).hexdigest(),
+            'da5d8674dc49adb1cc0fabcca51d4f8b730d31f1179462160d1f68aa97e19b14')
         produced = await build_connected(self.service)
         self.assertEqual(produced,json.loads((ROOT/FIXTURE).read_text()))
         # Evolving speech source pins must not rewrite the delivered schema2
@@ -769,6 +772,152 @@ class SessionConversationHistoryTest(unittest.IsolatedAsyncioTestCase):
         with patch.object(self.queries, "_project_entry", withdrawn):
             with self.assertRaises(HistoryQueryError):
                 await self.queries.async_open_entry("profile-a", session.session_id, row["entry_id"])
+
+    async def test_history_final_grant_and_owner_awaits_refuse_withdrawn_source_body(self):
+        import asyncio
+        from datetime import UTC, datetime
+        from unittest.mock import patch
+        from custom_components.djconnect.session_conversation import query_service, history_grant_revision
+        from custom_components.djconnect.session_history_projection import HistoryQueryError
+        for phase in ('query', 'handler_query', 'handler_owner', 'handler_owner_expiry'):
+            for operation in ('timeline', 'search', 'open'):
+                with self.subTest(phase=phase, operation=operation):
+                    hass, runtime, history, identity, headers = await self.transport_fixture()
+                    session = await self.observed_session()
+                    await self.manager.async_end(owner_profile_id='profile-a', session_id=session.session_id)
+                    entry = (await self.repo.async_entry_records('profile-a', session.session_id))[0]['entry_id']
+                    query = query_service(hass, history)
+                    payload = {**identity, 'session_id':session.session_id, 'q':'Metallica',
+                        'action':{'kind':'open_session','session_id':session.session_id,'entry_id':entry}}
+                    healthy, status = await self.handlers.async_handle_session_history_payload(
+                        hass, payload, operation=operation, headers=headers)
+                    self.assertEqual(status, 200, healthy)
+                    self.assertIn('Metallica', str(healthy))
+                    original_grant = history_grant_revision(hass, 'profile-a')
+                    source_entry = hass.config_entries.async_entries('djconnect')[0]
+                    entered, release = asyncio.Event(), asyncio.Event()
+                    grants = []
+                    clock = [datetime.now(UTC)]
+                    class Clock(datetime):
+                        @classmethod
+                        def now(cls, tz=None):
+                            return clock[0]
+                    original_source_grant = query._grant_revision
+                    async def read_grant(owner):
+                        result = await original_source_grant(owner)
+                        grants.append(True)
+                        return result
+                    original_policy = query._repository.async_retention_policy
+                    original_context = self.handlers._session_profile_context
+                    async def held_policy():
+                        result = await original_policy()
+                        if len(grants) == 2:
+                            entered.set()
+                            await release.wait()
+                        return result
+                    async def held_owner(*args, **kwargs):
+                        result = await original_context(*args, **kwargs)
+                        if kwargs.get('source') == 'session_history_complete':
+                            entered.set()
+                            await release.wait()
+                        return result
+                    def direct():
+                        if operation == 'timeline':
+                            return query.async_timeline_page('profile-a', session.session_id)
+                        if operation == 'search':
+                            return query.async_search_entries('profile-a', session.session_id, 'Metallica')
+                        return query.async_open_entry('profile-a', session.session_id, entry)
+                    with (patch.object(query._repository, 'async_retention_policy',
+                                       original_policy if phase.startswith('handler_owner') else held_policy),
+                          patch.object(self.handlers, '_session_profile_context',
+                                       held_owner if phase.startswith('handler_owner') else original_context),
+                          patch.object(query, '_grant_revision', read_grant),
+                          patch('custom_components.djconnect.session_history_projection.datetime', Clock)):
+                        task = asyncio.create_task(direct() if phase == 'query' else
+                            self.handlers.async_handle_session_history_payload(hass, payload,
+                                operation=operation, headers=headers))
+                        try:
+                            await asyncio.wait_for(entered.wait(), 2)
+                            if phase == 'handler_owner_expiry':
+                                original_entry = healthy['entry'] if operation == 'open' else healthy['entries' if operation == 'timeline' else 'matches'][0]
+                                clock[0] = datetime.fromisoformat(original_entry['retained_until'])
+                            else:
+                                source_entry.disabled_by = 'user'
+                            changed_grant = history_grant_revision(hass, 'profile-a')
+                        finally:
+                            release.set()
+                        if phase == 'query':
+                            with self.assertRaises(HistoryQueryError):
+                                await task
+                        else:
+                            result, status = await task
+                            self.assertEqual(status, 409, result)
+                            self.assertEqual(result['error'], 'invalid_history_cursor')
+                            self.assertNotIn('Metallica', str(result))
+                            self.assertNotIn('entries', result)
+                            self.assertNotIn('matches', result)
+                    if phase == 'handler_owner_expiry':
+                        self.assertEqual(original_grant, changed_grant)
+                    else:
+                        self.assertNotEqual(original_grant, changed_grant)
+                    self.assertTrue(runtime.authorize_device_request(headers,
+                        device_id=identity['device_id'], client_type=identity['client_type']))
+
+    async def test_history_final_owner_await_rechecks_pairing_revocation_and_token_rotation(self):
+        import asyncio
+        from unittest.mock import patch
+        from custom_components.djconnect.session_conversation import history_grant_revision
+        for change in ('withdraw', 'rotate'):
+            for operation in ('timeline', 'search', 'open'):
+                with self.subTest(change=change, operation=operation):
+                    hass, runtime, history, identity, headers = await self.transport_fixture()
+                    session = await self.observed_session()
+                    await self.manager.async_end(owner_profile_id='profile-a', session_id=session.session_id)
+                    entry = (await self.repo.async_entry_records('profile-a', session.session_id))[0]['entry_id']
+                    payload = {**identity, 'session_id':session.session_id, 'q':'Metallica',
+                        'action':{'kind':'open_session','session_id':session.session_id,'entry_id':entry}}
+                    def authorize(headers, device_id=None, client_type=None):
+                        return (headers.get('Authorization') == 'Bearer '+str(runtime.device_token)
+                            and device_id == identity['device_id'] and client_type == identity['client_type'])
+                    runtime.authorize_device_request = authorize
+                    healthy, status = await self.handlers.async_handle_session_history_payload(
+                        hass, payload, operation=operation, headers=headers)
+                    self.assertEqual(status, 200, healthy)
+                    self.assertIn('Metallica', str(healthy))
+                    source_grant = history_grant_revision(hass, 'profile-a')
+                    entered, release = asyncio.Event(), asyncio.Event()
+                    original_context = self.handlers._session_profile_context
+                    async def held_owner(*args, **kwargs):
+                        result = await original_context(*args, **kwargs)
+                        if kwargs.get('source') == 'session_history_complete':
+                            entered.set()
+                            await release.wait()
+                        return result
+                    with patch.object(self.handlers, '_session_profile_context', held_owner):
+                        task = asyncio.create_task(self.handlers.async_handle_session_history_payload(
+                            hass, payload, operation=operation, headers=headers))
+                        try:
+                            await asyncio.wait_for(entered.wait(), 2)
+                            if change == 'withdraw':
+                                runtime.authorize_device_request = lambda *args, **kwargs:False
+                            else:
+                                runtime.device_token = 'synthetic-rotated-token'
+                        finally:
+                            release.set()
+                        result, status = await task
+                    self.assertEqual(status, 401, result)
+                    self.assertEqual(result['error'], 'unauthorized')
+                    self.assertNotIn('Metallica', str(result))
+                    self.assertNotIn('entries', result)
+                    self.assertNotIn('matches', result)
+                    self.assertEqual(history_grant_revision(hass, 'profile-a'), source_grant)
+                    self.assertIsNotNone(await self.repo.async_entry_record('profile-a', session.session_id, entry))
+                    runtime.authorize_device_request = authorize
+                    fresh_headers = {'Authorization':'Bearer '+runtime.device_token}
+                    recovered, status = await self.handlers.async_handle_session_history_payload(
+                        hass, payload, operation=operation, headers=fresh_headers)
+                    self.assertEqual(status, 200, recovered)
+                    self.assertIn('Metallica', str(recovered))
 
     async def test_source_identity_and_persisted_repair_change_grant_revision(self):
         from unittest.mock import patch

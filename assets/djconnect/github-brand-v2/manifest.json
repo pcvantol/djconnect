@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "brand_version": 2,
+  "producer_repository": "pcvantol/djconnect",
+  "approved_brand_source_commit": "7e14e5970b3f68d33d243ae6bab2b281fad59bb2",
+  "approved_brand_manifest_sha256": "73cc408e10d88aa1fb8a1be2783b9c577aec398ce3dcd54c2f997ad1425984d2",
+  "wordmark_source": {
+    "path": "assets/djconnect/brand-v2/wordmark-primary-dark.png",
+    "sha256": "2cf02b723af311ae507aede0640fff0468d4d24c18135d1482df3188a12f743e",
+    "width": 2048,
+    "height": 512
+  },
+  "recipe_sha256": "b525bc8c37894704a6de1c921dd1b62a0d50921aad0db7fe9bf01cd93d359b4a",
+  "rendering": {
+    "engine": "Chromium",
+    "version": "155.0.8059.85",
+    "device_scale_factor": 1,
+    "color_profile": "sRGB"
+  },
+  "width": 1280,
+  "height": 640,
+  "format": "PNG",
+  "background": "opaque navy; approved transparent wordmark composited without additional border",
+  "brand_placement": {
+    "x": 128,
+    "y": 192,
+    "width": 1024,
+    "height": 256
+  },
+  "crop_policy": "Keep the entire centered wordmark and tagline; do not enlarge or crop to the glass icon.",
+  "tagline": "Your music. Your DJ.",
+  "usage": "Same exact PNG for supported DJConnect repository social previews; settings upload/readback is a separate operation.",
+  "acceptance": "LOCAL_EXPORT_REVIEW_ONLY; not proof of GitHub settings, protected delivery or consumer adoption",
+  "files": {
+    "social-preview-v2.svg": {
+      "sha256": "f5fd9637059f7dd28bdbf4c33d126c4d21356e9dc530286996c633bf8bdb624d",
+      "bytes": 756676
+    },
+    "social-preview-v2.png": {
+      "sha256": "2a79538e1c11c7aeb2e90d0818d9d28829fdb3b3cac0412f9faf7bf704177e0d",
+      "bytes": 379111
+    }
+  }
+}

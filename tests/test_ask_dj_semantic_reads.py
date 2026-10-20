@@ -7,6 +7,16 @@ from unittest.mock import patch
 from tests import test_ask_dj_contextual_dialogue as shared
 
 
+def id_review_fixture(projection):
+    """A reviewer selects the actual compact wire IDs; no copied quote in wire."""
+    from custom_components.djconnect.ask_dj.public_research import _sentences
+    spans = [span for source in projection['evidence']['public_music_research']['sources']
+             for span in source.get('evidence_spans', [])]
+    return {'supported':True,'language_ok':True,'style_ok':True,'review_schema':'source_id_review_v1','claim_checks':[
+        {'text':sentence,'kind':'fact','evidence_ids':[spans[0]['id']]}
+        for sentence in _sentences(projection['answer'])]}
+
+
 class SemanticReadTests(unittest.IsolatedAsyncioTestCase):
     @classmethod
     def setUpClass(cls):
@@ -22,6 +32,224 @@ class SemanticReadTests(unittest.IsolatedAsyncioTestCase):
 
     async def asyncTearDown(self):
         await self.f.asyncTearDown()
+
+    async def test_artist_story_paraphrases_reuse_public_research_and_assessment_in_all_locales(self):
+        f = self.f
+        questions = ('tell me a bit about this artist', 'vertel eens over deze artiest',
+            'erzähl mir etwas über diesen Künstler', 'parle-moi de cet artiste',
+            'cuéntame algo sobre este artista')
+        answers = ('Volbeat is a Danish band.', 'Volbeat is een Deense band.',
+            'Volbeat ist eine dänische Band.', 'Volbeat est un groupe danois.',
+            'Volbeat es una banda danesa.')
+        for locale, question, text in zip(('en','nl','de','fr','es'), questions, answers, strict=True):
+            await f.history.async_clear('profile:profile-a')
+            calls, commands = [], []
+            async def agent(hass, data, **kwargs):
+                projection = json.loads(data['text'].split('\nData:\n', 1)[1])
+                calls.append(projection)
+                if set(projection) == {'question', 'language', 'available'}:
+                    reply = json.dumps({'read':'artist_story','reference':'current','exclude_current':False})
+                elif 'evidence' in projection:
+                    self.assertEqual(projection['language'],locale)
+                    review = (id_review_fixture(projection)
+                        if projection['evidence']['public_music_research']['schema_version'] == 3
+                        else shared._research_assessment_fixture(projection))
+                    reply = json.dumps(review)
+                else:
+                    reply = shared._research_generation_fixture(projection, text)
+                return {'response': {'speech': {'plain': {'speech': reply}}}}
+            async def status(hass, runtime, command, *args, **kwargs):
+                commands.append(command)
+                return {'success': True, 'playback': {'uri':'spotify:track:'+'N'*22,
+                    'artist':'Volbeat', 'title':'Private current recording'}}
+            with f.research_http(title='Volbeat', text='Volbeat is a Danish band.'), patch.object(
+                    f.pipeline, '_call_conversation_process_transport', agent), patch.object(f.core, 'run_music_command', status):
+                answer, code = await f.request(question, identifier='artist-story-'+locale, language=locale)
+            self.assertEqual(code, 200, answer)
+            self.assertEqual(answer.get('knowledge_basis'), 'fetched_public_music_research_v1', answer)
+            self.assertTrue(answer.get('is_generated_text'), answer)
+            self.assertEqual(answer['conversation']['metrics']['agent_calls'], 3)
+            self.assertEqual(len(calls), 3)
+            self.assertEqual(set(commands), {'status'})
+            self.assertNotIn('Private current recording', json.dumps(calls))
+            self.assertFalse(answer.get('playback_actions'))
+
+    async def test_artist_story_does_not_publish_across_changed_playback(self):
+        f = self.f
+        changed = [False]
+        async def status(hass, runtime, command, *args, **kwargs):
+            return {'success': True, 'playback': {'uri':'spotify:track:'+('M' if changed[0] else 'N')*22,
+                'artist':'Volbeat','title':'Private current recording'}}
+        original = f.pipeline._call_conversation_process_transport
+        async def agent(hass, data, **kwargs):
+            projection = json.loads(data['text'].split('\nData:\n',1)[1])
+            if set(projection) == {'question','language','available'}:
+                return {'response': {'speech': {'plain': {'speech': json.dumps({
+                    'read':'artist_story','reference':'current','exclude_current':False})}}}}
+            if 'evidence' in projection:
+                changed[0] = True
+                review = (id_review_fixture(projection)
+                    if projection['evidence']['public_music_research']['schema_version'] == 3
+                    else shared._research_assessment_fixture(projection))
+                return {'response': {'speech': {'plain': {'speech':json.dumps(review)}}}}
+            return await original(hass, data, **kwargs)
+        with f.research_http(title='Volbeat', text='Volbeat is a Danish band.'), patch.object(
+                f.pipeline, '_call_conversation_process_transport', agent), patch.object(f.core,'run_music_command',status):
+            answer, code = await f.request('tell me about the artist playing now', identifier='artist-story-race')
+        self.assertEqual(code,409,answer)
+        self.assertEqual(answer.get('error'),'playback_context_changed')
+        self.assertEqual(f.effects, [])
+
+    def test_intro_passage_selection_keeps_literal_episode_offsets_and_identity(self):
+        from custom_components.djconnect.ask_dj.public_research import paragraph_excerpt
+        identity='Example Group is a musical group.'
+        listing='Its releases include Studio One, Studio Two, Studio Three and Studio Four.'
+        episode='The group performed on the soundtrack for the film Example Picture.'
+        source='\n'.join((identity,listing,episode))
+        budget=len(identity)+len(episode)+1
+        selected,ranges=paragraph_excerpt(source,'tell me about this artist',budget,prefer_artist_episode=True)
+        self.assertEqual(selected,identity+'\n'+episode)
+        self.assertEqual(selected,'\n'.join(source[start:end] for start,end in ranges))
+        self.assertEqual(ranges,((0,len(identity)),(source.index(episode),len(source))))
+
+    def test_named_work_inside_appreciation_still_needs_its_factual_source_receipt(self):
+        from custom_components.djconnect.ask_dj import public_research as p
+        text='Blue Arc is an album by Example Group.'
+        source=p._source('Wikipedia','Example Group','https://en.wikipedia.org/wiki/Example_Group',text,'en',
+            source_anchors=('Blue Arc',),original_text=text,paragraph_ranges=((0,len(text)),)).model_data()
+        context={'public_music_research':{'schema_version':3,'sources':[source]},'qualified_context':{}}
+        span=p.evidence_spans(source)[0]
+        answer='I’m intrigued by Blue Arc: it is an album by Example Group.'
+        proof={'supported':True,'claim_checks':[
+            {'text':'I’m intrigued by Blue Arc:','kind':'dj_appreciation','evidence_ids':[],'quote':''},
+            {'text':'it is an album by Example Group.','kind':'fact','evidence_ids':[span['id']],'quote':span['text']}]}
+        self.assertFalse(p.supported(json.dumps(proof),answer,context))
+        proof['claim_checks'][:1]=[
+            {'text':'I’m intrigued by ','kind':'dj_appreciation','evidence_ids':[],'quote':''},
+            {'text':'Blue Arc:','kind':'fact','evidence_ids':[span['id']],'quote':span['text']}]
+        self.assertTrue(p.supported(json.dumps(proof),answer,context))
+        # A lexical opinion must not hide a new musical/technique assertion.
+        wrong='I’m intrigued by experimental Blue Arc: it is an album by Example Group.'
+        proof['claim_checks'][0]['text']='I’m intrigued by experimental '
+        self.assertFalse(p.supported(json.dumps(proof),wrong,context))
+
+    def test_translated_production_activity_accepts_explicit_progressive_source_not_guest_credit_alone(self):
+        from custom_components.djconnect.ask_dj import public_research as p
+        answers=('Sur l’album Blue Arc, Ada Rivers a enregistré des solos invités et participé à la production.',
+                 'Ada Rivers produjo y grabó solos invitados para Blue Arc.')
+        quotes=('Ada Rivers had been producing and recording guest solos on Blue Arc.',
+                'Ada Rivers había estado produciendo y grabando solos invitados en Blue Arc.')
+        for answer in answers:
+            for quote in quotes:
+                source=p._source('Wikipedia','Example Group','https://en.wikipedia.org/wiki/Example_Group',quote,'en',
+                    source_anchors=('Blue Arc',),original_text=quote,paragraph_ranges=((0,len(quote)),)).model_data()
+                span=p.evidence_spans(source)[0]
+                context={'public_music_research':{'schema_version':3,'sources':[source]},'qualified_context':{}}
+                proof={'supported':True,'claim_checks':[{'text':answer,'kind':'relationship',
+                    'evidence_ids':[span['id']],'quote':span['text']}]}
+                self.assertTrue(p.supported(json.dumps(proof),answer,context),(answer,quote))
+            self.assertFalse(p._assertions_fit(answer,'Ada Rivers recorded guest solos on Blue Arc.'))
+            self.assertFalse(p._assertions_fit(answer,'Ada Rivers played guest guitar on Blue Arc.'))
+
+    def test_work_order_cannot_borrow_a_work_name_to_reverse_or_invent_sequence(self):
+        from custom_components.djconnect.ask_dj import public_research as p
+        def judge(answer,source_text,anchors=('Blue Arc',)):
+            source=p._source('Wikipedia','Example Group','https://en.wikipedia.org/wiki/Example_Group',source_text,'en',
+                source_anchors=anchors,original_text=source_text,paragraph_ranges=((0,len(source_text)),)).model_data()
+            span=p.evidence_spans(source)[0]
+            context={'public_music_research':{'schema_version':3,'sources':[source]},'qualified_context':{}}
+            review={'supported':True,'claim_checks':[{'text':answer,'kind':'relationship',
+                'evidence_ids':[span['id']],'quote':span['text']}]}
+            return p.supported(json.dumps(review),answer,context)
+        answer='Ada Rivers recorded guest solos for Blue Arc and subsequently joined Example Group.'
+        self.assertTrue(p._UNBOUND_SEQUENCE.search(answer))
+        source='Ada Rivers recorded guest solos for Blue Arc before joining Example Group.'
+        self.assertFalse(judge(answer,source))
+        for wrong in (
+                "After leaving Earlier Group, Ada Rivers recorded guest solos for Blue Arc.",
+                "Ada Rivers joined Example Group and subsequently recorded guest solos for Blue Arc."):
+            self.assertFalse(judge(wrong,source),wrong)
+        self.assertFalse(judge(answer,'Ada Rivers recorded guest solos for Blue Arc. Ada Rivers joined Example Group.'))
+        self.assertFalse(judge(answer.replace('Blue Arc','Red Arc'),source+' Ada Rivers also recorded Red Arc.',('Blue Arc','Red Arc')))
+        relative='Ada Rivers recorded Blue Arc and that same year joined Example Group.'
+        self.assertFalse(judge(relative,source))
+
+    async def test_artist_story_requires_independent_style_and_language_acceptance(self):
+        f = self.f
+        for index, quality in enumerate(({'style_ok':False,'language_ok':True},
+                                        {'style_ok':True,'language_ok':False},
+                                        {'style_ok':'true','language_ok':True}, {})):
+            await f.history.async_clear('profile:profile-a')
+            async def agent(hass, data, **kwargs):
+                projection = json.loads(data['text'].split('\nData:\n',1)[1])
+                if set(projection)=={'question','language','available'}:
+                    reply=json.dumps({'read':'artist_story','reference':'current','exclude_current':False})
+                elif 'evidence' in projection:
+                    review=id_review_fixture(projection)
+                    review.pop('style_ok')
+                    review.pop('language_ok')
+                    reply=json.dumps({**review,**quality})
+                else:
+                    reply='Volbeat is a Danish band.'
+                return {'response': {'speech': {'plain': {'speech':reply}}}}
+            async def status(hass,runtime,command,*args,**kwargs):
+                self.assertEqual(command,'status')
+                return {'success':True,'playback':{'uri':'spotify:track:'+'N'*22,
+                    'title':'Current recording','artist':'Volbeat'}}
+            with f.research_http(title='Volbeat',text='Volbeat is a Danish band.'), patch.object(
+                    f.pipeline,'_call_conversation_process_transport',agent), patch.object(f.core,'run_music_command',status):
+                answer,code=await f.request('tell me about this artist',identifier='artist-quality-'+str(index))
+            self.assertEqual(code,200,answer)
+            self.assertFalse(answer.get('is_generated_text'))
+            self.assertEqual(answer.get('knowledge_basis'),'public_research_unqualified')
+            self.assertEqual(answer['public_research_status']['answer_state'],'narration_quality_unverified')
+        self.assertEqual(f.effects,[])
+
+    async def test_album_followups_keep_full_context_exact_title_receipt_and_duplicate(self):
+        f = self.f
+        from custom_components.djconnect.domain.profile import ProfilePreferences
+        await f.handlers.profile_storage(f.hass).async_update_profile('profile-a',
+            preferences=ProfilePreferences(default_backend_id='source-spotify'))
+        f.runtime.config['music_backend'] = 'spotify_direct'
+        f.runtime.update = lambda **values: f.runtime.__dict__.update(values)
+        from custom_components.djconnect import http
+        from custom_components.djconnect.playback_request import outcome
+        album = 'spotify:album:'+'B'*22
+        track = 'spotify:track:'+'T'*22
+        languages = ('en','nl','de','fr','es')
+        questions = ('Yes, I want to play that album.', 'Ja, die wil ik afspelen.',
+            'Ja, dieses Album möchte ich hören.', 'Oui, je veux écouter cet album.',
+            'Sí, quiero escuchar ese álbum.')
+        async def offer(*args, **kwargs):
+            return {'success':True,'text':'One exact synthetic album.',
+                'playback_actions':[{'kind':'album','uri':album,'context_uri':album,
+                    'title':'Exact requested album','artist':'Volbeat'}]}
+        for locale, question in zip(languages,questions,strict=True):
+            await f.history.async_clear('profile:profile-a')
+            writes = []
+            observed = {'uri':track,'context_uri':album,'is_playing':True,
+                        'title':'Wrong first-track label','artist':'Volbeat'}
+            async def command(hass, runtime, name, value=None, **kwargs):
+                if name == 'play':
+                    writes.append(value)
+                    selection = {'kind':'album','context_uri':album,'uris':[], 'media':{'uri':album}}
+                    return {'success':True,'playback':observed,'playback_outcome':outcome(selection,observed)}
+                self.assertEqual(name, 'status')
+                return {'success':True,'playback':observed}
+            with patch.object(f.core, '_handle_informational', offer):
+                result, code = await f.request('Which albums by Volbeat?', identifier='frozen-offer-'+locale, language=locale)
+                self.assertEqual(code,200,result)
+            with patch.object(http,'run_music_command',command):
+                answer, code = await f.request(question, identifier='frozen-accept-'+locale, language=locale)
+                duplicate, status = await f.request(question, identifier='frozen-accept-'+locale, language=locale)
+            self.assertEqual(code,200,answer)
+            self.assertEqual(status,200,duplicate)
+            self.assertEqual(writes,[album], (locale, answer.get('error'),answer.get('text'),answer.get('intent'),answer.get('result_set')))
+            self.assertEqual(answer['playback_outcome']['state'],'observed')
+            self.assertEqual(answer['resolved_media']['uri'],album)
+            self.assertIn('Exact requested album',answer['text'])
+            self.assertNotIn('Wrong first-track label',answer['text'])
+            self.assertEqual(answer['text'],duplicate['text'])
 
     async def test_unlisted_typo_is_interpreted_then_answered_from_fresh_provider(self):
         f = self.f

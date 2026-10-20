@@ -2,12 +2,16 @@
 
 Run in the already available HA image with the source mounted readonly, network
 none, and an empty temporary configuration/output directory. Never use HA-dev's
-configuration, credentials or bindings. Native microphone/render proof is Apple-owned.
+configuration, credentials or bindings. The actual HA agent class is configured
+with static no-tools metadata; its response transport and STT are declared
+fixtures. No OpenAI API client, key or real provider I/O is used. Native
+microphone/render proof is Apple-owned.
 """
 
 from __future__ import annotations
 
 import asyncio
+from contextlib import AsyncExitStack
 import hashlib
 from datetime import UTC, datetime
 import json
@@ -104,6 +108,7 @@ async def main():
             "device_id": device_id,
             "client_type": "ios",
             "music_backend": "later_manual",
+            "assist_pipeline_id": "history-fixture-pipeline",
             "profile_id": "profile-a",
         },
     )
@@ -114,24 +119,57 @@ async def main():
             "spotify_refresh_token": "synthetic-source-grant-never-sent",
         },
     )
-    # Source/account registration is synthetic fixture metadata; no provider setup/OAuth.
-    hass.config_entries = SimpleNamespace(
-        async_entries=lambda domain: [client_entry, source_entry],
-        async_update_entry=lambda *args, **kwargs: None,
-    )
+    # Synthetic source metadata, real ConfigEntries identity/lifecycle for every guard.
+    from homeassistant.config_entries import ConfigEntries, ConfigEntryStore, ConfigEntryState
     presence_off = os.environ.get("DJC_PRESENCE_OFF") == "1"
-    if presence_off:
-        from homeassistant.config_entries import ConfigEntries, ConfigEntryStore, ConfigEntryState
-        # Own fixture configured slots; ordinary production pairing mints authority.
-        paired_data = {**client_entry.data, "pair_code": "123456"}
-        client_entry = entry("owner-entry", paired_data)
-        await ConfigEntryStore(hass).async_save({"entries": [client_entry.as_storage_fragment, source_entry.as_storage_fragment]})
-        hass.config_entries = ConfigEntries(hass, {})
-        await hass.config_entries.async_initialize()
-        client_entry = hass.config_entries.async_get_entry("owner-entry")
-        source_entry = hass.config_entries.async_get_entry("source-entry")
-        client_entry._async_set_state(hass, ConfigEntryState.LOADED, None)
-        source_entry._async_set_state(hass, ConfigEntryState.LOADED, None)
+    # Both modes mint/persist device authority through the ordinary pairing route.
+    client_entry = entry("owner-entry", {**client_entry.data, "pair_code":"123456"})
+    await ConfigEntryStore(hass).async_save(
+        {"entries":[client_entry.as_storage_fragment, source_entry.as_storage_fragment]})
+    hass.config_entries = ConfigEntries(hass, {})
+    await hass.config_entries.async_initialize()
+    client_entry = hass.config_entries.async_get_entry("owner-entry")
+    source_entry = hass.config_entries.async_get_entry("source-entry")
+    for configured in (client_entry, source_entry):
+        configured._async_set_state(hass, ConfigEntryState.LOADED, None)
+    # Real SDK agent class/public registration, with a declared offline response boundary.
+    # Keep qualify_agent and all owner/privacy/Store guards on the normal route.
+    from homeassistant.components import conversation
+    from homeassistant.components.openai_conversation.conversation import OpenAIConversationEntity
+    from homeassistant.components.assist_pipeline.pipeline import (
+        PipelineStore, STORAGE_KEY, STORAGE_VERSION, STORAGE_VERSION_MINOR, async_setup_pipeline_store,
+    )
+    from unittest.mock import patch
+    from custom_components.djconnect import pipeline
+    from homeassistant.components.homeassistant.exposed_entities import ExposedEntities
+    from homeassistant.components.homeassistant.const import DATA_EXPOSED_ENTITIES
+    exposure = ExposedEntities(hass)
+    await exposure.async_initialize()
+    hass.data[DATA_EXPOSED_ENTITIES] = exposure
+    await conversation.async_setup(hass, {})
+    model_entry = ConfigEntry(domain="openai_conversation", title="Offline history fixture",
+        entry_id="history-fixture-agent", data={}, options={}, discovery_keys=MappingProxyType({}),
+        source="user", unique_id="history-fixture-agent", version=2, minor_version=7,
+        subentries_data=[{"subentry_id":"history-fixture-subentry", "subentry_type":"conversation",
+            "title":"Offline history fixture", "data":{"llm_hass_api":[], "store_responses":False,
+                "web_search":False, "code_interpreter":False,
+                "prompt":"Answer only the explicitly supplied synthetic history question."}}])
+    model_entry.runtime_data = SimpleNamespace()
+    model_agent = OpenAIConversationEntity(model_entry, model_entry.subentries["history-fixture-subentry"])
+    model_agent.hass = hass
+    conversation.async_set_agent(hass, model_entry, model_agent)
+    settings={"id":"history-fixture-pipeline", "name":"Offline history fixture", "language":"nl",
+        "conversation_engine":model_entry.entry_id, "conversation_language":"nl",
+        "stt_engine":None, "stt_language":None, "tts_engine":None, "tts_language":None,
+        "tts_voice":None, "wake_word_entity":None, "wake_word_id":None}
+    await PipelineStore(hass, STORAGE_VERSION, STORAGE_KEY, minor_version=STORAGE_VERSION_MINOR).async_save(
+        {"items":[settings], "preferred_item":settings["id"]})
+    await async_setup_pipeline_store(hass)
+    fixture_agent_calls=[]
+    async def fixture_agent_transport(hass, data, **kwargs):
+        assert data.get("agent_id")==model_entry.entry_id and kwargs.get("allow_agent_fallback") is False
+        fixture_agent_calls.append({"transport":"declared_synthetic_response", "model_or_network_calls":0})
+        return {"response":{"speech":{"plain":{"speech":"Dit is een synthetisch antwoord op de geselecteerde bijdrage."}}}}
     runtime = DJConnectRuntime(client_entry, device_token=token)
     runtime.device_status.update(device_id=device_id, client_type="ios")
     history = AskDJHistoryManager(hass)
@@ -174,7 +212,9 @@ async def main():
     identity = {"device_id": device_id, "client_type": "ios"}
     headers = {"Authorization": "Bearer " + token, "X-DJConnect-Device-ID": device_id}
     receipts = []
-    async with TestClient(TestServer(hass.http.app)) as client:
+    async with AsyncExitStack() as stack:
+        stack.enter_context(patch.object(pipeline, "_call_conversation_process_transport", fixture_agent_transport))
+        client = await stack.enter_async_context(TestClient(TestServer(hass.http.app)))
 
         async def request(method, path, data=None, authorized=True):
             kwargs = {"headers": headers if authorized else {}}
@@ -198,14 +238,13 @@ async def main():
             )
             return body, response.status
 
-        if presence_off:
-            response=await client.post("/api/djconnect/v1/pair",json={**identity,"pair_code":"123456"})
-            paired=await response.json()
-            assert response.status==200 and paired["success"]
-            assert client_entry.data["device_token"]==paired["device_token"]
-            headers["Authorization"]="Bearer "+paired["device_token"]
-            receipts.append({"stage":"ordinary_pairing_before_presence_off","token_minted_and_persisted":True,
-                             "ha_user_credentials_issued":0})
+        response=await client.post("/api/djconnect/v1/pair",json={**identity,"pair_code":"123456"})
+        paired=await response.json()
+        assert response.status==200 and paired["success"]
+        assert client_entry.data["device_token"]==paired["device_token"]
+        headers["Authorization"]="Bearer "+paired["device_token"]
+        receipts.append({"stage":"ordinary_pairing_before_presence_off" if presence_off else "ordinary_pairing_before_profile_history","token_minted_and_persisted":True,
+                         "ha_user_credentials_issued":0})
         caps, status = await request("GET", "/api/djconnect/v1/capabilities")
         assert status == 200 and caps["capabilities"]["session_flow_text_search"]
         _, status = await request("GET", "/api/djconnect/v1/session/history", authorized=False)
@@ -251,7 +290,7 @@ async def main():
                                                             insight_provider=forbidden) is None
         timeline_path = "/api/djconnect/v1/session/history/" + session.session_id
         timeline, status = await request("GET", timeline_path, {"window": "tail"})
-        assert status == 200
+        assert status == 200, {"status":status,"error":timeline.get("error")}
         assert any(e["kind"] == "dj_moment" for e in timeline["entries"]), {
             "moment": moment.as_dict(),
             "timeline": timeline,
@@ -273,7 +312,7 @@ async def main():
                 },
             },
         )
-        assert status == 200 and result["conversation"]["input_type"] == "text"
+        assert status == 200 and result["conversation"]["input_type"] == "text", (status, result)
         history_path = "/api/djconnect/v1/ask_dj/history"
         scoped, status = await request("GET", history_path, {"conversation_scope": "profile"})
         assert status == 200 and scoped.get("owner_profile_id") == "profile-a", scoped
@@ -298,10 +337,11 @@ async def main():
             "conversation_scope": "profile", "owner_profile_id": "forged", "user_id": "forged",
         })
         assert status == 200 and safe["owner_profile_id"] == "profile-a" and safe["user_id"] is None
-        legacy, status = await request("GET", history_path)
-        assert status == 200 and legacy["user_id"] == "anonymous" and not legacy.get("owner_profile_id")
-        assert legacy["messages"] == []
-        from unittest.mock import patch
+        default_history, status = await request("GET", history_path)
+        assert status == 200 and default_history["history_scope"] == "profile" and default_history["user_id"] is None
+        assert default_history["owner_profile_id"] == "profile-a" and default_history["messages"] == scoped["messages"]
+        legacy, status = await request("GET", history_path, {"conversation_scope":"legacy"})
+        assert status == 401 and legacy["error"] == "ha_user_required" and "messages" not in legacy
         from custom_components.djconnect import http as producer_http
 
         async def fixture_stt(hass, wav, config):
@@ -401,6 +441,7 @@ async def main():
         assert status == 200 and all(not e["kind"].startswith("conversation_") for e in withdrawn["entries"])
     await async_shutdown_persistence(hass)
     assert source_hashes() == qualified_sources, "source changed during qualification"
+    assert len(fixture_agent_calls) == 2, "Only explicit text and STT-derived requests use the fixture"
     from homeassistant.const import __version__ as sdk_version
 
     result = {
@@ -409,9 +450,12 @@ async def main():
         "assignment_id": "DJC-CORE-DJ-PRESENCE-V1-20261011" if presence_off else "DJC-CORE-PROFILE-HISTORY-HTTP-SCOPE-FIX-V1-20261009",
         "reused_verifier": "DJC-CORE-PROFILE-HISTORY-HTTP-SCOPE-FIX-V1-20261009",
         "scenario": "ordinary_pairing_presence_off_compatibility" if presence_off else "profile_history_http_scope",
-        "qualification": "real HA SDK, DJConnectRuntime paired authorization, HA HTTP view registration, loopback HTTP, SQLite and HA Store reload; synthetic source account/metadata and voice-derived text, no microphone/native/provider/installed proof",
+        "qualification": "real HA SDK, DJConnectRuntime paired authorization, HA HTTP view registration, loopback HTTP, SQLite and HA Store reload; synthetic source account/metadata, declared response transport and voice-derived text; real HA no-tools agent metadata, no microphone/native/provider/installed proof",
         "server_time": datetime.now(UTC).isoformat(),
         "requests": receipts,
+        "declared_agent_fixture_calls": fixture_agent_calls,
+        "model_provider_calls": 0,
+        "source_unchanged": True,
     }
     output = directory / "http-producer-receipt.json"
     output.write_text(json.dumps(result, indent=2, ensure_ascii=False))

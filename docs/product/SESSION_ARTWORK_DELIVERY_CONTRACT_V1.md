@@ -162,3 +162,11 @@ Unqualified or identity-poor historical entries stay explicitly unavailable.
 Old rows lacking an original subject/account binding receive no guessed backfill.
 Source withdrawal, reassignment, Profile privacy, Session deletion/retention and
 expiry invalidate pending and prepared image grants before bytes can be read.
+
+## Owner-requested artist photography extension — 19 October
+
+The delivered version1 Spotify contract remains unchanged. Explicit version2
+preparation adds subject-bound artist/band photography and licensed Commons
+fallback with full photographer/rights attribution, within the existing media
+owners. See [Session artist photo v2](SESSION_ARTIST_PHOTO_V2.md). Producer and
+consumer/native qualification are separate and still OPEN.

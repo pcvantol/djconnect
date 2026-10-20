@@ -717,7 +717,7 @@ class AskDjTest(unittest.TestCase):
         self.assertEqual(result["result_set"]["items"], result["playback_actions"])
         self.assertTrue(all(a["action_id"] for a in result["playback_actions"]))
 
-    def test_help_request_returns_exhaustive_prompt_options_without_media_context(self) -> None:
+    def test_help_request_returns_compact_or_unavailable_catalogue_without_media_context(self) -> None:
         runtime = make_runtime()
         runtime.last_playback = {
             "artist": "Nirvana",
@@ -753,41 +753,12 @@ class AskDjTest(unittest.TestCase):
         self.assertEqual(result["intent"]["intent"], "help")
         self.assertEqual(result["images"], [])
         self.assertEqual(result["assistant_message"]["images"], [])
-        self.assertIn("# Dit kun je aan Ask DJ vragen", result["text"])
-        self.assertIn("\n\n## Muziek starten\n- Speel [artiest]", result["text"])
-        self.assertIn("- Ik wil [nummer] horen", result["text"])
-        self.assertIn("- Speel [artiest], [nummer]", result["text"])
-        self.assertIn("\n\n## Play Now keuzes\n- Geef me albums van [artiest]", result["text"])
-        self.assertIn("- Welke albums bracht [artiest] uit?", result["text"])
-        self.assertIn("- Welke muziek heeft [artiest] gemaakt?", result["text"])
-        self.assertIn("- Geef me 5 nummers van [artiest]", result["text"])
-        self.assertIn("- Geef me 10 uitvoeringen van [nummer] door verschillende artiesten", result["text"])
-        self.assertIn("- Wat voor [genre] playlists heb je?", result["text"])
-        self.assertIn("- Welke playlists heb ik?", result["text"])
-        self.assertIn("- Wat heb je nog meer van [artiest]?", result["text"])
-        self.assertIn("- Heb je meer nummers die hierop lijken?", result["text"])
-        self.assertIn("\n\n## Speakers en playback\n- Welke speakers zijn er?", result["text"])
-        self.assertIn("- Welke speakers zijn er?", result["text"])
-        self.assertIn("- Wat staat er in de wachtrij?", result["text"])
-        self.assertIn("- Zet huidig nummer in favorieten", result["text"])
-        self.assertIn("\n\n## DJ uitleg en context\n- Wat speelt er nu?", result["text"])
-        self.assertIn("- Heb je een live versie?", result["text"])
-        self.assertIn("- Heb je een akoestische versie?", result["text"])
-        self.assertIn("- Heb je remixes?", result["text"])
-        self.assertIn("- Geef Track Insight voor dit nummer", result["text"])
-        self.assertIn("\n\n## Persoonlijke muzieksmaak\n- Wat weet je nu over mij?", result["text"])
-        self.assertIn("- Analyseer mijn luisterprofiel", result["text"])
-        self.assertIn("- Ik wil meer van deze muziek horen", result["text"])
-        self.assertIn("- Ik wil vergelijkbare tracks", result["text"])
-        self.assertIn("\n\n## Discover en Music DNA\n- Wat is er nieuw in Discover?", result["text"])
-        self.assertIn("- Ververs mijn Discover aanbevelingen", result["text"])
-        self.assertIn("- Wat zegt mijn Music DNA?", result["text"])
-        self.assertIn("- Welke Discover aanbevelingen passen het beste bij mij?", result["text"])
-        self.assertIn("\n\n## Follow-ups\n- Probeer opnieuw", result["text"])
-        self.assertNotIn("vragen:Muziek", result["text"])
-        self.assertNotIn("startenSpeel", result["text"])
+        self.assertIn("Vraag het gerust in je eigen woorden.", result["text"])
+        self.assertIn("Ik kan de beschikbare muziekmogelijkheden nu niet bevestigen.", result["text"])
+        self.assertNotIn("##", result["text"])
         self.assertNotIn("Nirvana", result["text"])
         self.assertNotIn("Heart-Shaped Box", result["text"])
+        self.assertEqual(result["playback_actions"], [])
 
     def test_conversational_followup_after_failed_info_is_short_text_only(self) -> None:
         runtime = make_runtime()
@@ -1672,12 +1643,16 @@ class AskDjTest(unittest.TestCase):
         finally:
             self.ask_dj.run_music_command = original_command
 
-        self.assertEqual([call[0] for call in calls], ["status", "artist_profile"])
-        self.assertEqual(calls[1][1], {"artist": "Radiohead"})
-        self.assertIn("Radiohead", result["dj_text"])
+        # A story is no longer satisfied by catalog identity plus genre tags.
+        # This fixture has no semantic/research agent: fail honestly instead of
+        # pretending that a metadata profile answered the biography request.
+        # The shared-owner semantic suite covers actual fresh source resolution.
+        self.assertEqual([call[0] for call in calls], ["status"])
+        self.assertFalse(result.get("is_generated_text"))
         self.assertNotIn("Armin", result["dj_text"])
-        self.assertEqual(result["images"][0]["title"], "Radiohead")
-        self.assertEqual(result["sources"][0]["source"], "spotify_artist_profile")
+        self.assertEqual(result["images"], [])
+        self.assertFalse(result.get("playback_actions"))
+        self.assertFalse(any(s.get('source') == 'spotify_artist_profile' for s in result.get('sources', [])))
 
     def test_thanks_after_normal_answer_is_text_only(self) -> None:
         runtime = make_runtime()

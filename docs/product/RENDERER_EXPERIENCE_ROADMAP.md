@@ -1,5 +1,14 @@
 # Renderer Experience Roadmap
 
+## Current Pi application scope —20October2026
+
+The owner selected Apple feature parity for the explicitly Profile-authorized
+native app on both Pi sizes. The [Pi app scope](PI_PROFILE_AUTHORIZED_APP_V1.md)
+and [platform foundation](../../RASPBERRY_PI_PLATFORM_FOUNDATION.md) supersede the
+older rich-surface omissions below. Actual speech/local audio availability comes
+from hardware and the common capability handshake. This correction records that
+existing owner decision; it creates no additional queue selection or acceptance.
+
 ## Current web-first decisions delta
 
 [Decisions, distribution and optional Cast lifecycle](VIBECAST_WEB_ENTRY_DISTRIBUTION_V1.md)
@@ -28,14 +37,14 @@ Every Renderer Host consumes only authorized renderer-safe projections.
 | --- | --- | --- | --- |
 | Renderer-safe playback / Now Playing | HA Broadcast and Music Backend boundary | Implemented | Apple, Pi and Universal Receiver; local display only. |
 | Current immutable DJMoment and Presentation | HA DJMoment Engine / Presentation | Implemented | eligible Renderer Hosts; no local Moment generation. |
-| Session Flow projection | HA Session Runtime / Broadcast | Implemented | Apple rich clients, Pi 10-inch and Universal Receiver; intentionally absent on constrained voice/Pi 4-inch surfaces. |
+| Session Flow projection | HA Session Runtime / Broadcast | Implemented | Apple rich clients, both Profile-authorized Pi app sizes and Universal Receiver; Pi adoption/target-device acceptance remains separate. Constrained voice surfaces use their own projection. |
 | Track Insight | HA Insight service | Implemented | Apple and Pi; server-authoritative insight. |
-| Ask DJ and Discover | HA Conversation / Discovery | Implemented personal projections | Apple rich; Pi read-heavy where authorized; not guest/ambient defaults. |
+| Ask DJ and Discover | HA Conversation / Discovery | Implemented personal projections | Apple and both Profile-authorized Pi app sizes share the rich feature target; not guest/ambient defaults. |
 | Native Track Insight sharing | Apple Renderer Host | Implemented reference realization | explicit user action through Apple Share Sheet; no Broadcast, Runtime or API scope. |
 | Universal Receiver interactive web presentation | Web Renderer Host | Implemented | browser Session Flow and Now Playing through existing Broadcast only. |
 | VibeCast ambient experience | VibeCast Renderer Host | Planned / selected reference increment | separate Guest + Ambient experience; portrait Pi reference validation precedes landscape Custom Web Receiver feasibility. |
-| Pi 4-inch compact appliance profile | Pi Concrete Host | Planned assessment | bounded playback and Current DJMoment; intentional rich-surface absences. |
-| Pi 10-inch wall appliance profile | Pi Concrete Host | Planned assessment | adds Session Flow / Presentation projection; independent from Pi 4-inch. |
+| Pi4-inch native app | Pi Concrete Host | Owner-selected full app; qualification open | Same feature target as Apple; compact adaptive layout and hardware-aware route availability. |
+| Pi10-inch native app | Pi Concrete Host | Owner-selected full app; qualification open | Same feature target as Apple/Pi4-inch; larger adaptive layout and hardware-aware route availability. |
 | Apple Watch Moment-First Conversational Companion | Apple Renderer Host / Product Development | Planned assessment | Phase 3 Apple Premium Experience; Current DJMoment, bounded active Session Flow, compact Session projection and Ask DJ PTT are future renderer-safe experience candidates, not Watch parity or implementation authorization. |
 | Voice / notification presentation | Voice Interaction and constrained-device hosts | Implemented bounded | HA owns response intelligence; hosts provide short spoken/control projection only. |
 | Future Renderer Hosts | selected Host Role / Concrete Host | Assessment-only | capability profile and privacy evidence required before any implementation. |
@@ -58,9 +67,10 @@ Shared capabilities are renderer-safe Broadcast, immutable DJMoments, Session
 Flow where the host profile permits it, and server-owned Track Insight.
 Platform-specific capabilities are intentional: Apple native sharing is native
 only; rich Ask DJ/Discover are personal-host projections; Universal Receiver is
-interactive web; VibeCast is ambient; Pi 4-inch and Pi 10-inch have independent
-appliance profiles; ESP32/Voice hosts remain voice/control constrained. No
-feature-parity obligation follows from shared terminology.
+interactive web; VibeCast is ambient; both Pi app sizes have the owner-selected
+Apple feature target with device-specific layout/hardware qualification;
+ESP32/Voice hosts remain voice/control constrained. Shared terminology alone
+does not create authority; the explicit Pi parity decision supplies this scope.
 
 ## Dependency map
 

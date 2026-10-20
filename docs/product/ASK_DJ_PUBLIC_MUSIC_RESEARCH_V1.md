@@ -20,6 +20,18 @@ Separate same-year events cannot establish a sequence; currently unbound
 relative-year/succession phrases are refused. Exact source-marked work names and
 original quotations continue to bind explicit years. Recording does not imply an
 engineer occupation; collaboration does not prove a producer or genre relation.
+
+20October2026 source refinement: work-date receipts remain unchanged. A separate
+closed `biographical_event_v1` variant can bind an explicit band founding or
+member accession through original source hash/span/sentence, exact canonical
+group/entity, actor/event/year and unchanged full-answer semantic review. Core
+prepares value-only candidates; the model may copy them and bind one exact answer
+sentence, never manufacture date authority. Pronouns, implied groups, multiple
+events/years, uncertainty and unknown formulations remain unqualified. Strict
+proper-place and single-event checks prevent a different band's year entering
+a location clause. See the [bounded contract](CONTEXTUAL_DJ_EXPLORATION_V1.md#bounded-biographical-dates--source-admission-20-october-2026).
+Source tests or a safe refusal do not qualify real narrative quality.
+
 An explicitly present narrator appreciation is allowed, while a factual modifier
 within it still needs evidence. Standalone named-subject research uses the fresh
 admitted evidence rather than earlier creative answers as format examples;

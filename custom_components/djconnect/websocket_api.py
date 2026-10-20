@@ -249,6 +249,9 @@ def async_register(hass: Any) -> None:
 async def websocket_capabilities(hass: Any, connection: Any, msg: dict[str, Any]) -> None:
     """Return optional websocket transport capabilities for DJConnect clients."""
     from .hybrid_contract import hybrid_transport_capability
+    from .ask_dj.example_catalogue import capability as examples_capability
+    from .ask_dj.exploration import capability as exploration_capability
+    from .mood_music_steering import capability as mood_music_capability
     commands = _supported_websocket_commands()
     connection.send_result(
         msg["id"],
@@ -263,6 +266,9 @@ async def websocket_capabilities(hass: Any, connection: Any, msg: dict[str, Any]
             "capabilities": _platform_capabilities(),
             "contract_versions": _contract_versions(),
             "hybrid_transport": hybrid_transport_capability(),
+            "ask_dj_examples": examples_capability(),
+            "ask_dj_contextual_exploration": exploration_capability(),
+            "session_mood_music_feedback": mood_music_capability(),
             "dj_announcement": {
                 "outputs": ["client_device", "both", "ha_speaker", "text_only"],
                 "audio_transport": "http_audio_url",

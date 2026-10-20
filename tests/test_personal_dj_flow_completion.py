@@ -51,6 +51,15 @@ class PublishedFlowCompletionTest(unittest.IsolatedAsyncioTestCase):
         moments = []
         for number, family in enumerate(('description', 'edition', 'credits', 'genre', 'description')):
             session = await self.manager.async_get_active('profile-a')
+            # Exercise existing no-provider CC0 history compatibility here;
+            # registered artist stories may no longer publish bare seeds.
+            # Their sealed research + image/reopen chain lives in the owning
+            # PublicArtistNarrationTest, without weakening either admission.
+            if family == 'description':
+                self.manager._narration_providers.pop('profile-a', None)
+            else:
+                self.manager.connect_narration('profile-a', session.session_id, realize, lambda: None,
+                                              archive_admission=archive)
             if number == 4:
                 # Real silence publication/storage, enough to exercise the
                 # scan cursor independently of visible-page size.
@@ -62,11 +71,20 @@ class PublishedFlowCompletionTest(unittest.IsolatedAsyncioTestCase):
                     session.publish_moment(silence)
             catalog, fact = source(family if family in {'description', 'edition'} else 'birth', number)
             if family == 'credits':
+                # This bulk pagination test isolates CC0 metadata retention,
+                # not researched-story admission. An absent contributor MBID
+                # cannot enter public research; the researched producer test
+                # independently exercises sealed acceptance and SQLite replay.
                 fact = session_facts.recording_facts(catalog, {
                     'id': '00000000-0000-0000-0000-000000000003', 'title': catalog['title'],
                     'artist-credit': [{'artist': {'name': catalog['artist']}}],
                     'relations': [{'target-type': 'artist', 'type': 'producer',
-                        'artist': {'name': 'Actual credit fixture', 'id': '00000000-0000-0000-0000-000000000009'}}]})[0]
+                        'artist': {'name': 'Actual credit fixture'}}]})[0]
+                from custom_components.djconnect.narration_brief import qualify
+                from custom_components.djconnect.public_artist_narration import can_research
+                brief = qualify(fact, locale='nl', persona='radio_dj', mood='groove', seed='Storage boundary fixture')
+                self.assertIsNotNone(brief)
+                self.assertFalse(can_research(brief))
             elif family == 'genre':
                 fact = session_facts.observed_genre_facts({
                     'source': 'spotify_playback_status', 'backend': 'spotify_direct', 'is_playing': True,
@@ -294,6 +312,10 @@ class PublishedFlowCompletionTest(unittest.IsolatedAsyncioTestCase):
         for number, family in enumerate(('edition','description')):
             catalog, fact = source(family, number)
             if family == 'description':
+                # This legacy retained-subject test isolates no-provider CC0
+                # history compatibility; actual registered artist media is
+                # separately covered through sealed research publication.
+                self.manager._narration_providers.pop('profile-a', None)
                 fact=replace(fact, artwork_subject_uri='spotify:artist:'+'Z'*22)
             self.clock[0]+=300
             await self.manager.async_update_playback_projection(owner_profile_id='profile-a', session_id=session.session_id,

@@ -28,6 +28,8 @@ class NarrationBrief:
     reference: str
     bindings: tuple[tuple[str, str], ...]
     recent_frames: tuple[str, ...] = ()
+    recent_public_stories: tuple[tuple[str, str, tuple[str, ...]], ...] = ()
+    rotate_artist_topics: bool = False
 
     def render(self, frame):
         for slot, value in self.bindings:
@@ -43,6 +45,10 @@ class NarrationBrief:
             return {'basis': 'qualified_public_cc0_fields_v1',
                     'provider': self.fact.provider, 'fields': dict(self.bindings)}
         return None
+
+    def core_owned_slots(self):
+        """Only explicitly public Core labels may be locally restored to slots."""
+        return ()
 
     def narrative_focus(self):
         return {
@@ -373,6 +379,17 @@ def candidate(brief, response):
     if not isinstance(body, dict) or set(body) != {"text"}:
         return None
     text = body["text"]
+    if isinstance(text, str):
+        labels_by_slot = {}
+        for slot, label in brief.core_owned_slots():
+            labels_by_slot.setdefault(slot, set()).add(label)
+        for slot, labels in labels_by_slot.items():
+            if slot not in text:
+                matches = [match for label in labels for match in
+                           re.finditer(r'(?<!\w)'+re.escape(label)+r'(?!\w)',text,re.I)]
+                if len(matches) == 1:
+                    match = matches[0]
+                    text = text[:match.start()]+slot+text[match.end():]
     if isinstance(text, str) and brief.public_context() is not None:
         # A provider may realize the explicitly supplied CC0 literals instead
         # of slots. Canonicalize exact, unambiguous single occurrences locally;

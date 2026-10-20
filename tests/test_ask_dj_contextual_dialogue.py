@@ -46,6 +46,67 @@ def _research_generation_fixture(projection, answer):
 
 
 class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
+    async def _assert_final_commit_rejects_withdrawn_frame(self, change):
+        from custom_components.djconnect.ask_dj import service
+        archived = await self.fixture.manager.async_start(owner_profile_id='profile-a', locale='en')
+        await self.fixture.manager.async_end(owner_profile_id='profile-a', session_id=archived.session_id)
+        live = await self.fixture.manager.async_start(owner_profile_id='profile-a', locale='en')
+        entered, release = asyncio.Event(), asyncio.Event()
+        written = False
+        query = service.query_service(self.hass, self.history)
+        repository = query._repository
+        original_append = repository.async_append_entries
+        async def append(*args, **kwargs):
+            nonlocal written
+            rows = await original_append(*args, **kwargs)
+            if rows:
+                written = True
+            return rows
+        async def owner():
+            if written:
+                entered.set()
+                await release.wait()
+        async def delegate(*args):
+            return {'success': True, 'text': 'Synthetic local answer.'}
+        identifier = 'post-save-withdrawal-' + change
+        payload = {'client_message_id': identifier, 'text': 'What is an ostinato?',
+                   'conversation_context': {'session_id': live.session_id}}
+        with patch.object(service, 'query_service', return_value=query), patch.object(repository, 'async_append_entries', append):
+            task = asyncio.create_task(service.async_exchange(self.hass, self.runtime, payload,
+                profile_id='profile-a', history_manager=self.history,
+                delegate=delegate, validate_owner=owner))
+            try:
+                await asyncio.wait_for(entered.wait(), 2)
+                rows = await repository.async_entry_records('profile-a', live.session_id)
+                self.assertEqual(len([r for r in rows if r['kind'].startswith('conversation_')]), 2)
+                before = self.history.scope_revision('profile:profile-a')
+                if change == 'read_revision':
+                    self.assertEqual(await self.history.async_forget_archived_sessions('profile-a',
+                        frozenset({archived.session_id})), 0)
+                else:
+                    self.history.dialogue.owners['profile:profile-a']['default'].reset('synthetic-withdrawal')
+                self.assertEqual(self.history.scope_revision('profile:profile-a'), before)
+                release.set()
+                with self.assertRaises(service.SessionConversationError) as denied:
+                    await asyncio.wait_for(task, 2)
+                self.assertEqual(denied.exception.code, 'conversation_context_changed')
+            finally:
+                release.set()
+                if not task.done():
+                    task.cancel()
+                    await asyncio.gather(task, return_exceptions=True)
+        rows = await repository.async_entry_records('profile-a', live.session_id)
+        self.assertFalse([r for r in rows if r['kind'].startswith('conversation_')])
+        messages = (await self.history.async_history('profile:profile-a'))['messages']
+        self.assertFalse([m for m in messages if m.get('client_message_id') == identifier])
+        self.assertEqual(self.effects, [])
+
+    async def test_post_save_zero_removal_erasure_rejects_final_commit_and_rolls_back(self):
+        await self._assert_final_commit_rejects_withdrawn_frame('read_revision')
+
+    async def test_post_save_generation_withdrawal_rejects_final_commit_and_rolls_back(self):
+        await self._assert_final_commit_rejects_withdrawn_frame('generation')
+
     async def test_avatar_music_only_keeps_explicit_ask_dj_without_proactive_moment_or_speech(self):
         from custom_components.djconnect.session_runtime import DJPersona
         session = await self.fixture.manager.async_start(owner_profile_id='profile-a',
@@ -91,6 +152,56 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(current.presence_ledger.total_published, 0)
         self.assertEqual(current.broadcast.state.dj_moments, ())
         self.assertEqual(self.effects, [])
+    async def test_targeted_archive_erasure_preserves_independent_live_speech_and_new_asks(self):
+        from custom_components.djconnect import session_speech
+        from custom_components.djconnect.ask_dj.dialogue import source_scope
+        old, moment, reference = await self.selected_credit()
+        await self.fixture.manager.async_end(owner_profile_id='profile-a', session_id=old.session_id)
+        live = await self.fixture.manager.async_start(owner_profile_id='profile-a', locale='en')
+        independent, status = await self.request('What is an ostinato?', identifier='independent-live',
+            context={'session_id': live.session_id})
+        self.assertEqual(status, 200, independent)
+        dependent, status = await self.request('Who is Brian Eno?', identifier='dependent-old',
+            context={'session_id': live.session_id, 'selected_entry': reference})
+        self.assertEqual(status, 200, dependent)
+        before_revision = self.history.scope_revision('profile:profile-a')
+        removed = await self.history.async_forget_archived_sessions('profile-a', frozenset({old.session_id}))
+        self.assertGreater(removed, 0)
+        self.assertEqual(self.history.scope_revision('profile:profile-a'), before_revision)
+        from custom_components.djconnect.profile_context import profile_storage
+        profile = profile_storage(self.hass).resolver().resolve_bound_device(self.identity['device_id'])
+        descriptor, guard = await session_speech.resolve_dialogue(self.hass, self.history, 'profile-a',
+            independent['session_speech']['reference'], profile_source=source_scope(profile))
+        guard()
+        self.assertEqual(''.join(segment['text'] for segment in descriptor['segments']), independent['text'])
+        with self.assertRaises(PermissionError):
+            await session_speech.resolve_dialogue(self.hass, self.history, 'profile-a',
+                dependent['session_speech']['reference'], profile_source=source_scope(profile))
+        accepted, status = await self.request('What is a crescendo?', identifier='new-after-erasure',
+            context={'session_id': live.session_id})
+        self.assertEqual(status, 200, accepted)
+        self.assertTrue(accepted['success'])
+        self.assertIs(self.fixture.manager.current_active('profile-a'), live)
+        self.assertEqual(self.effects, [])
+
+    async def test_retained_speech_source_has_session_bound_targeted_withdrawal(self):
+        from custom_components.djconnect import session_speech
+        from custom_components.djconnect.dj_response import invalidate_private_speech_sources
+        old, moment, reference = await self.selected_credit()
+        await self.fixture.manager.async_end(owner_profile_id='profile-a', session_id=old.session_id)
+        descriptor, guard = await session_speech.resolve_retained(self.hass, self.history, 'profile-a', reference)
+        self.assertEqual(guard.session_id, old.session_id)
+        withdrawn = []
+        guard.on_withdraw(lambda: withdrawn.append('old'))
+        before = self.hass.data['djconnect']['tts_audio_authority_revision']
+        invalidate_private_speech_sources(self.hass, session_id='unrelated')
+        guard()
+        self.assertEqual(withdrawn, [])
+        invalidate_private_speech_sources(self.hass, session_id=old.session_id)
+        self.assertEqual(withdrawn, ['old'])
+        self.assertEqual(self.hass.data['djconnect']['tts_audio_authority_revision'], before)
+        with self.assertRaises(PermissionError):
+            guard()
 
     async def test_mood_prosody_preserves_literal_text_voice_and_provider_settings(self):
         import sys
@@ -1210,6 +1321,7 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
 
     async def test_review_failure_copy_truthfully_distinguishes_fetched_sources_in_five_languages(self):
         from custom_components.djconnect.ask_dj import public_research as research
+        from scripts.verification.askdj_contextual_quality import check_answer
         mode='format'
         answers={'en':'Brian Eno is a musician.','nl':'Brian Eno is een muzikant.',
                  'de':'Brian Eno ist ein Musiker.','fr':'Brian Eno est un musicien.',
@@ -1234,6 +1346,12 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
                     expected=research.unavailable_answer(language,answer_unverified=True)
                     self.assertEqual(result['text'],expected)
                     self.assertEqual(result['assistant_message']['text'],expected)
+                    self.assertTrue(expected.rstrip().endswith('?'))
+                    self.assertEqual(expected.count('?'), 1)
+                    self.assertIs(result['is_generated_text'], False)
+                    findings = check_answer({'kind':'band'}, result)
+                    self.assertIn('generated_answer_missing', findings)
+                    self.assertIn('researched_answer_unqualified', findings)
                     self.assertNotEqual(expected,research.unavailable_answer(language))
                     self.assertEqual(result['conversation']['metrics']['agent_calls'],2)
                     self.assertFalse(result.get('sources'))
@@ -1312,6 +1430,59 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
             'claim':recorded,'event_anchor':'No Pussyfooting','year':'1973',
             'source_id':released['content_hash'],'quote':released['untrusted_excerpt']}]},
             {'public_music_research':{'sources':[released]}}))
+
+    def test_year_end_deadline_never_becomes_an_exact_release_period(self):
+        from custom_components.djconnect.ask_dj import public_research as research
+        faithful = [
+            'Paper Lanterns was released by the end of 2007.',
+            'Paper Lanterns werd uiterlijk eind 2007 uitgebracht.',
+            'Paper Lanterns erschien spätestens Ende 2007.',
+            'Paper Lanterns est paru au plus tard fin 2007.',
+            'Paper Lanterns se publicó a más tardar a finales de 2007.',
+        ]
+        narrowed = [
+            'Paper Lanterns was released at the end of 2007.',
+            'Paper Lanterns werd eind 2007 uitgebracht.',
+            'Paper Lanterns erschien Ende 2007.',
+            'Paper Lanterns est paru fin 2007.',
+            'Paper Lanterns se publicó a finales de 2007.',
+        ]
+        for quote in faithful:
+            source = research._source('Wikipedia','Ada Reed','https://en.wikipedia.org/wiki/Ada_Reed',
+                quote,'en',source_anchors=['Paper Lanterns']).model_data()
+            context = {'public_music_research':{'schema_version':2,'sources':[source]}}
+            for accepted, rejected in zip(faithful, narrowed, strict=True):
+                with self.subTest(source=quote, answer=rejected):
+                    def receipt(answer):
+                        return {'supported':True, 'temporal_claims':[{
+                            'claim':answer,'event_anchor':'Paper Lanterns','year':'2007',
+                            'source_id':source['content_hash'],'quote':quote}],
+                            'claim_checks':[{'text':answer,'kind':'relationship',
+                                'evidence_ids':[source['evidence_spans'][0]['id']], 'quote':quote}]}
+                    self.assertTrue(research.supported(json.dumps(receipt(accepted)),accepted,context))
+                    self.assertFalse(research.temporal_evidence_ok(rejected,receipt(rejected),context))
+                    self.assertFalse(research.claim_evidence_ok(rejected,receipt(rejected),context))
+                    self.assertFalse(research.supported(json.dumps(receipt(rejected)),rejected,context))
+            self.assertEqual(source['untrusted_excerpt'],quote)
+
+    def test_year_end_bound_does_not_transfer_from_another_work_in_the_paragraph(self):
+        from custom_components.djconnect.ask_dj import public_research as research
+        first = 'Paper Lanterns was released in 2007.'
+        quote = first + ' Other Work was recorded by the end of 2007.'
+        source = research._source('Wikipedia','Ada Reed','https://en.wikipedia.org/wiki/Ada_Reed',
+            quote,'en',source_anchors=['Paper Lanterns','Other Work'],
+            original_text=quote, paragraph_ranges=((0,len(quote)),)).model_data()
+        context = {'public_music_research':{'schema_version':3,'sources':[source]}}
+        answer = 'Paper Lanterns werd in 2007 uitgebracht.'
+        data = {'supported':True, 'temporal_claims':[{
+            'claim':answer,'event_anchor':'Paper Lanterns','year':'2007',
+            'source_id':source['content_hash'],'quote':first}],
+            'claim_checks':[{'text':answer,'kind':'relationship',
+                'evidence_ids':[source['evidence_spans'][0]['id']], 'quote':quote}]}
+        self.assertTrue(research.supported(json.dumps(data),answer,context))
+        bound = 'Paper Lanterns was released by the end of 2007.'
+        compound = 'Paper Lanterns was released at the end of 2007 and Other Work by the end of 2007.'
+        self.assertFalse(research._year_end_bounds_fit(compound,bound))
 
     def test_temporal_title_parentheses_are_answer_display_only_and_unambiguous(self):
         from custom_components.djconnect.ask_dj import public_research as research
@@ -1459,6 +1630,15 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
             response.content_type = "application/octet-stream"
             with self.assertRaisesRegex(research.ResearchUnavailable, "content_type"):
                 await real_request(fetch, "https://artist.example.org/about")
+            response.content_type = "application/json"
+            response.headers = {'ETag':'"123"','Set-Cookie':'not-exported'}
+            plain = await real_request(fetch, "https://artist.example.org/about")
+            versioned = await real_request(fetch, "https://artist.example.org/about", with_etag=True)
+            self.assertEqual(len(plain),3)
+            self.assertEqual(versioned,(*plain,'"123"'))
+            response.status = 404
+            failed = await real_request(fetch, "https://artist.example.org/about", with_etag=True)
+            self.assertEqual(failed,(404,'','https://artist.example.org/about',None))
         self.assertTrue(all(options == {"allow_redirects": False} for _, options in calls))
 
     async def test_public_research_fetch_session_end_race_does_not_publish_or_call_agent(self):
@@ -1804,7 +1984,7 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
             5,
         )
 
-    async def selected_credit(self, name="Brian Eno"):
+    async def selected_credit(self, name="Brian Eno", *, producer=False):
         session = await self.fixture.manager.async_start(
             owner_profile_id="profile-a",
             locale="en",
@@ -1834,6 +2014,14 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
             "https://musicbrainz.org/work/11111111-1111-1111-1111-111111111111",
             session_facts.DisplayFactCore("work_composers", roles=(("composer", (name,)),)),
         )
+        if producer:
+            roles=(("producer",(name,)),("vocal",("Different performer",)))
+            fact=session_facts._fact("recording_credits", {"uri":fact.media_identity},"track_context",
+                [name]*5,
+                [" · ".join(f"{session_facts.CREDIT_ROLES[role][i]}: {', '.join(names)}"
+                    for role,names in roles) for i in range(5)],
+                "MusicBrainz","https://musicbrainz.org/recording/11111111-1111-1111-1111-111111111111",
+                session_facts.DisplayFactCore("recording_credits",roles=roles))
         # Real Moment engine and publication/storage chain, only external source evidence is synthetic.
         await self.fixture.manager.async_update_playback_projection(
             owner_profile_id="profile-a",
@@ -4580,6 +4768,99 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(result["error"], "choice_expired")
         self.assertEqual(sent, [])
 
+    async def test_selected_source_expiry_after_final_read_prevents_model_dispatch(self):
+        from datetime import UTC, datetime, timedelta
+        from custom_components.djconnect.session_conversation import query_service
+        session, moment, reference = await self.selected_credit()
+        await self.fixture.manager.async_end(owner_profile_id='profile-a', session_id=session.session_id)
+        now = datetime.now(UTC)
+        deadline = now + timedelta(hours=1)
+        clock = [now]
+        class Clock(datetime):
+            @classmethod
+            def now(cls, tz=None):
+                return clock[0]
+        await self.fixture.service.async_in_transaction(lambda tx: tx.execute(
+            'UPDATE djconnect_session_entries SET retained_until=? WHERE entry_id=?',
+            (deadline.isoformat(), reference['entry_id'])))
+        query = query_service(self.hass, self.history)
+        original = query.async_open_source_entry
+        returned = []
+        dispatch_guard = [False]
+        original_call = self.pipeline.call_conversation_process_with_agent_retry
+        async def at_model_boundary(*args, **kwargs):
+            dispatch_guard[0] = True
+            try:
+                return await original_call(*args, **kwargs)
+            finally:
+                dispatch_guard[0] = False
+        async def final_read(*args, **kwargs):
+            opened = await original(*args, **kwargs)
+            if dispatch_guard[0]:
+                returned.append(opened['entry']['entry_id'])
+                clock[0] = deadline
+            return opened
+        with (patch('custom_components.djconnect.session_history_projection.datetime', Clock),
+              patch.object(query, 'async_open_source_entry', final_read),
+              patch.object(self.core, 'call_conversation_process_with_agent_retry', at_model_boundary)):
+            result, status = await self.request('Who is that?', identifier='expired-last-read',
+                context={'selected_entry': reference})
+        self.assertTrue(returned)
+        self.assertEqual(self.prompts, [])
+        self.assertIn(status, (403, 404, 409), result)
+        self.assertFalse(result.get('session_speech'))
+        self.assertNotIn('Brian Eno', json.dumps(result))
+        self.assertIsNone(await self.history.async_saved_exchange('profile:profile-a', 'expired-last-read'))
+        self.assertEqual(self.effects, [])
+
+    async def test_selected_answer_speech_keeps_original_dependency_expiry_across_tts(self):
+        from datetime import UTC, datetime, timedelta
+        from custom_components.djconnect import session_speech
+        session, moment, reference = await self.selected_credit()
+        await self.fixture.manager.async_end(owner_profile_id='profile-a', session_id=session.session_id)
+        now = datetime.now(UTC)
+        deadline = now + timedelta(seconds=60)
+        clock = [now]
+        class Clock(datetime):
+            @classmethod
+            def now(cls, tz=None):
+                return clock[0]
+        await self.fixture.service.async_in_transaction(lambda tx: tx.execute(
+            'UPDATE djconnect_session_entries SET retained_until=? WHERE entry_id=?',
+            (deadline.isoformat(), reference['entry_id'])))
+        with patch('custom_components.djconnect.session_history_projection.datetime', Clock):
+            answer, status = await self.request('Who is that?', identifier='expiry-during-tts',
+                context={'selected_entry': reference})
+            self.assertEqual(status, 200, answer)
+            payload = {**self.identity, 'contract_version': 1, 'reference': answer['session_speech']['reference'],
+                'processor': 'ha_configured', 'voice_preference': 'default'}
+            stack, entity, pipeline, calls, processor = self.generic_tts()
+            entered, release = asyncio.Event(), asyncio.Event()
+            external = entity.async_get_tts_audio
+            async def delayed(*args):
+                entered.set()
+                await release.wait()
+                return await external(*args)
+            with stack:
+                entity.async_get_tts_audio = delayed
+                task = asyncio.create_task(session_speech.async_handle_prepare(self.hass, payload, headers=self.headers))
+                try:
+                    await asyncio.wait_for(entered.wait(), 2)
+                    clock[0] = deadline
+                finally:
+                    release.set()
+                result, code = await task
+            self.assertFalse(result.get('session_speech', {}).get('audio_reference'), result)
+            self.assertFalse(result.get('audio_url'), result)
+            self.assertEqual(self.hass.data['djconnect'].get('tts_audio', {}), {})
+            # The public UTC descriptor round-trips a monotonic deadline; allow
+            # only sub-millisecond conversion skew. The exact expiry guard above
+            # is separately exercised at the original deadline, without grace.
+            self.assertLessEqual(datetime.fromisoformat(answer['session_speech']['expires_at']),
+                                 deadline + timedelta(milliseconds=1))
+            self.assertEqual(len(calls), 1)
+            self.assertEqual(self.effects, [])
+
     async def test_late_source_read_owner_revocation_rolls_back_accepted_exchange(self):
         session, moment, reference = await self.selected_credit()
         from custom_components.djconnect.session_conversation import query_service
@@ -4710,6 +4991,13 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
                         self.assertEqual(status, 200, result)
                         self.assertEqual(result["previous_observation"]["state"], "unknown")
                         self.assertFalse(result["history_persisted"])
+                    elif i == 2:
+                        # An explicit native negative imperative now stops before
+                        # the hostile agent, rather than requiring a denied tool.
+                        self.assertEqual(status, 200, result)
+                        self.assertEqual(result['conversation']['metrics']['agent_calls'],0)
+                        self.assertEqual(result['action'],'none')
+                        self.assertFalse(result.get('playback_actions'))
                     else:
                         # Unknown wording now reaches read-only semantic interpretation;
                         # the public question reaches research. Neither call gains

@@ -609,6 +609,7 @@ class PerformanceMemory:
     recent_topics: tuple[tuple[DJMomentType, str], ...] = ()
     recent_context_fingerprints: tuple[str, ...] = ()
     topics_observed: bool = False
+    recent_qualified_topics: tuple[tuple[str, str], ...] = ()
 
     @classmethod
     def from_session_flow(
@@ -622,6 +623,8 @@ class PerformanceMemory:
             if item.item_type is SessionFlowItemType.DJ_MOMENT and item.moment_id in by_id
         )[-window:]
         metadata = tuple(dict(moment.generation_metadata) for moment in ordered)
+        from .session_story_variety import fact_topic
+        qualified_topics = tuple(t for moment in ordered if (t := fact_topic(moment.source_fact)))
         return cls(
             source_flow_id=flow.flow_id,
             recent_moment_ids=tuple(moment.moment_id for moment in ordered),
@@ -664,6 +667,7 @@ class PerformanceMemory:
                 )
             ),
             topics_observed=True,
+            recent_qualified_topics=qualified_topics,
         )
 
     def as_dict(self) -> dict[str, Any]:
@@ -1730,6 +1734,9 @@ class DJSessionPlanner:
         for fact in facts:
             if fact.key in used_keys or not fact.eligible(media_identity, now):
                 continue
+            from .session_story_variety import credit_cooldown
+            if credit_cooldown(fact, performance_memory.recent_qualified_topics):
+                continue
             if isinstance(fact, (SharedProducerFact, AlbumContinuityFact)) and not (
                 session_start_strategy is SessionStartStrategy.DISCOVER
                 and session_direction is SessionDirectionType.EXPLORING
@@ -2072,6 +2079,10 @@ class DJMomentEngine:
     @staticmethod
     def fact_key(fact: QualifiedSessionFact) -> str:
         key = f"{fact.source_url}|fact:{fact.key}"
+        # Fresh artist episodes on another observed track still need public
+        # research and published-only episode novelty, not the old date dedup.
+        if fact.key in {'artist_begin', 'artist_description'} and fact.public_artist_qid:
+            key += '|' + fact.media_identity
         return key + ("|" + "|".join(fact.relation_key)
                       if isinstance(fact, (SharedProducerFact, AlbumContinuityFact)) else "")
 
@@ -5169,7 +5180,7 @@ class SessionRuntimeManager:
         selected = active.planner.select_qualified_current_fact(
             facts=facts, media_identity=opportunity.media_identity,
             used_keys=opportunity.used_fact_keys | {fact.key for fact in opportunity.qualified_facts
-                if f"{fact.source_url}|fact:{fact.key}" in active.moment_engine._track_keys}, locale=active.locale,
+                if active.moment_engine.fact_key(fact) in active.moment_engine._track_keys}, locale=active.locale,
             allowed_intents=active.allowed_capability_intents,
             session_start_strategy=active.session_start_strategy,
             session_direction=active.session_direction.direction,
@@ -5202,6 +5213,7 @@ class SessionRuntimeManager:
         """Realize outside the manager lock; revalidate every captured owner at commit."""
         owner_profile_id, active, opportunity, generation, working_moments, moment, fact, original_moments = prepared
         provider = self._narration_providers.get(owner_profile_id)
+        requires_public_story = fact.key in {'work_composers', 'artist_begin', 'artist_description'}
         try:
             owner_guard = provider[3]() if provider is not None and provider[3] is not None else (provider[2] if provider else None)
         except Exception:
@@ -5237,10 +5249,17 @@ class SessionRuntimeManager:
                 brief = qualify(fact, locale=active.locale, persona=active.dj_persona.value,
                                 mood=active.selected_mood, seed=moment.content)
                 if brief is not None:
+                    from .public_artist_narration import can_research
+                    requires_public_story = requires_public_story or can_research(brief)
                     # Existing bounded published-only memory carries value-free
                     # model frames, never catalog values or another text archive.
                     remembered = set(active.moment_engine._expression_moment_ids[-6:])
-                    brief = replace(brief, recent_frames=recent_frames(active.moment_engine._expression_forms))
+                    from .session_story_variety import published_context
+                    published_ids = {i.moment_id for i in active.planner.output.session_flow.items if i.moment_id}
+                    stories = published_context(tuple(m for m in active.moment_engine.moments
+                        if m.moment_id in published_ids), fact.public_artist_qid)
+                    brief = replace(brief, recent_frames=recent_frames(active.moment_engine._expression_forms),
+                        recent_public_stories=stories, rotate_artist_topics=bool(fact.public_artist_qid))
                     text = await provider[1](brief, guard)
                     guard()
                     if isinstance(text, str) and text != moment.content:
@@ -5287,11 +5306,15 @@ class SessionRuntimeManager:
                     opportunity.pending = False
                 return None
             opportunity.pending = False
-            if provider is not None and fact.key == 'album_release' and fact.album_artist_id:
+            if ((provider is not None and (requires_public_story or
+                    (fact.key == 'album_release' and fact.album_artist_id)))
+                    or (fact.key in {'artist_begin','artist_description'} and fact.public_artist_qid)):
                 from .public_artist_narration import ResearchMomentAcceptance, admitted
                 if type(moment.narration_acceptance) is not ResearchMomentAcceptance or not admitted(moment):
-                    # A date alone is not an Album story. Decline this fact once
-                    # without a publication/count or paid retry on every tick.
+                    # A source descriptor or raw credit list is not the promised
+                    # personal story. Reuse the album policy for researchable
+                    # artist/producer facts: decline once, never publish/count
+                    # the technical fallback or retry it on every observer tick.
                     opportunity.used_fact_keys.add(fact.key)
                     return None
             playback = active.broadcast.state.playback
@@ -6715,6 +6738,17 @@ class SessionRuntimeManager:
                 entry['body']['session_media_reference'] = {
                     'version':1, 'subject_uri':subject,
                     'album_uri':getattr(source,'artwork_album_uri','') if ':track:' in subject else '',
+                    'source_context':dict(captured_source)}
+            artist_image=getattr(source,'artwork_artist_identity',None)
+            from .session_facts import ArtistImageIdentity
+            if (type(artist_image) is ArtistImageIdentity and artist_image.eligible()
+                    and source.key in {'artist_begin','artist_description','recording_credits','work_composers'}
+                    and all(isinstance(captured_source.get(key),str) and captured_source[key]
+                            for key in ('backend_id','music_account_id','provider_entry_id','provider_account_id'))):
+                entry['body']['artist_image_reference'] = {
+                    'version':2, 'subject_uri':artist_image.spotify_uri,
+                    'wikidata_id':artist_image.wikidata_id,'name':artist_image.name,
+                    'musicbrainz_id':artist_image.musicbrainz_id,
                     'source_context':dict(captured_source)}
 
         if entry is None:

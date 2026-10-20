@@ -170,7 +170,7 @@ async def async_handle_session_history_payload(
         or not resolve_profile_privacy_policy(context.profile, {}).allow_personal_read
     ):
         return _error_payload("history_not_allowed"), 403
-    from .session_conversation import query_service
+    from .session_conversation import query_service, history_grant_revision, SessionConversationError
     from .session_history_projection import HistoryQueryError
     from .historical_projection_query import HistoricalProjectionAccessDenied
     from .persistence.service import PersistenceError
@@ -182,6 +182,9 @@ async def async_handle_session_history_payload(
         entry_version = request_version(data.get('history_contract_version'))
         version_token = version_context.set(entry_version)
         query = query_service(hass, _history_manager(hass, runtime))
+        retention_fence = query._repository.retention_fence
+        retention_days, _retention_revision = await query._repository.async_retention_policy()
+        source_grant = history_grant_revision(hass, context.profile_id)
         limit = data.get("limit", 20)
         if isinstance(limit, str) and limit.isascii() and limit.isdigit():
             limit = int(limit)
@@ -238,7 +241,25 @@ async def async_handle_session_history_payload(
             return _error_payload("history_unavailable"), 403
         if not current.privacy_policy.allow_personal_read or not resolve_profile_privacy_policy(current.profile, {}).allow_personal_read:
             return _error_payload("history_not_allowed"), 403
+        def delivery_guard():
+            _conversation_profile_fence(hass, runtime, identity_payload(data), headers or {}, context)
+            # Nothing yields between the original-source/deadline fence and JSON
+            # representation. A valid paired owner alone cannot renew source rights.
+            if (history_grant_revision(hass, context.profile_id) != source_grant
+                    or retention_fence[1] or query._repository.retention_fence != retention_fence):
+                raise HistoryQueryError("invalid_history_cursor")
+            from .session_history_projection import session_retained
+            sessions = result.get("sessions", []) + ([result["session"]] if "session" in result else [])
+            if any(not session_retained({**s, "history_enabled": True}, retention_days=retention_days) for s in sessions):
+                raise HistoryQueryError("invalid_history_cursor")
+            query._validate_entry_deadlines(result.get("entries", []) + result.get("matches", [])
+                                           + ([result["entry"]] if "entry" in result else []))
+        delivery_guard()
+        from .transport_delivery import register_delivery_admission
+        register_delivery_admission(delivery_guard)
         return represent(result, entry_version), 200
+    except SessionConversationError as exc:
+        return _error_payload(exc.code), exc.status
     except HistoryEntryUpgradeRequired:
         return upgrade_error(), 409
     except HistoricalProjectionAccessDenied:
@@ -1399,6 +1420,7 @@ async def async_handle_ask_dj_message_payload(
     persist_history: bool = True,
     action_request: tuple[str, Any] | None = None,
     _ha_service_runtime: Any | None = None,
+    _mood_transition: Any | None = None,
 ) -> tuple[dict[str, Any], int]:
     """Handle Ask DJ chat messages for HTTP and HA websocket transports."""
     headers = headers or {}
@@ -1429,8 +1451,12 @@ async def async_handle_ask_dj_message_payload(
         identity[CONF_CLIENT_TYPE] = client_type
         if not authorize_runtime_device_request(runtime, headers, identity.get("device_id"), client_type):
             return _error_payload("unauthorized"), 401
-    payload = {key: value for key, value in data.items() if key != "_frozen_playback_selection"}
+    payload = {key: value for key, value in data.items() if key not in {"_frozen_playback_selection", "_setting_feedback"}}
     payload.update({key: value for key, value in identity.items() if value is not None})
+    # identity_payload merges nested and top-level input; internal fields must
+    # be removed after that merge, too. Only the Python caller can set these.
+    payload.pop("_setting_feedback", None)
+    payload.pop("_frozen_playback_selection", None)
     payload = enrich_payload_with_mood_zone(payload)
     _debug_ask_dj_request("message", runtime, payload, user_id=user_id)
     from .ask_dj.service import async_exchange
@@ -1444,6 +1470,8 @@ async def async_handle_ask_dj_message_payload(
     if action_request is not None:
         payload["_command_action"] = action_request
     payload["input_type"] = "voice" if voice_input else "text"
+    if _mood_transition is not None:
+        payload["_setting_feedback"] = True
     payload.setdefault("audio_response","auto")
     bound_runtime, context, error, status = await _session_profile_context(
         hass, payload, headers=headers, user_id=user_id, source="session_conversation",
@@ -1461,6 +1489,18 @@ async def async_handle_ask_dj_message_payload(
     payload["music_dna_key"] = context.music_dna_key
 
     async def delegate(confirmed_payload, scope_key, selected_entry, playback_result):
+        if _mood_transition is not None:
+            from .mood_music_steering import response
+            if _mood_transition.profile_id != context.profile_id:
+                raise SessionConversationError("unauthorized", 403)
+            return await response(hass, bound_runtime, confirmed_payload, _mood_transition,
+                source_context={
+                    "backend_id":context.backend_id, "music_account_id":context.music_account_id,
+                    "provider_account_id":str(getattr(profile_storage(hass).household.music_accounts.get(
+                        context.music_account_id), "provider_account_id", "")),
+                    "provider_entry_id":str(bound_runtime.config.get("profile_backend_entry_id")
+                        or getattr(getattr(bound_runtime,"entry",None),"entry_id","")),
+                })
         return await http_helpers.async_handle_ask_dj(
             hass,
             bound_runtime,
@@ -2692,6 +2732,10 @@ async def async_handle_ask_dj_history_payload(
         result=await manager.async_history("profile:"+context.profile_id,since_revision=_int_or_none(payload.get("since_revision")),limit=history_limit)
         safe=[]
         for message in result["messages"]:
+            if not await query.async_conversation_source_visible(context.profile_id,message):
+                safe.append({**message,"text":"", "status":"source_withdrawn", "images":[],
+                    "sources":[], "links":[], "playback_actions":[], "audio_url":None})
+                continue
             visible=True
             for target in message.get("historical_entry_references",[]):
                 try:

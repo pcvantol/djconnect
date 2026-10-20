@@ -486,8 +486,11 @@ identity, `Cache-Control:no-store` / `Referrer-Policy:no-referrer` on all outcom
 
 Only an explicit confirmed user action sends this request. The resolved paired
 Profile is authoritative; a supplied Profile hint never chooses another owner.
-`expected_revision` is the opaque Session header revision already returned by
-history list/detail; do not parse or reconstruct it. `operation_id` is a new UUIDv7
+`expected_revision` is the exact opaque `session.revision` from a fresh existing
+authorized **detail** read before confirmation, negotiating history-entry2 when
+required. The list currently returns an integer SQL sync revision; it is not the
+delete compare-and-swap token. Do not convert that integer, parse or reconstruct
+the opaque detail revision. A changed detail requires a new confirmation. `operation_id` is a new UUIDv7
 for this deliberate operation, not a chat ID. Reuse the existing bounded operation
 journal clock: five-minute lifetime and30-second future skew; no automatic
 renewal or retry. The receipt binds the resolved owner and exact paired-device/
@@ -643,3 +646,38 @@ are pending; client UI tests do not establish producer or installed completion.
 retains exactly the delivered schema2 projection/speech outputs while pinning the
 updated shared speech producer. Original schema1/schema2 receipts remain unchanged;
 ephemeral touch reactions never become retained Session entries.
+
+
+## Current Profile-default history readback — 2026-10-20
+
+The current GET Ask DJ history handler treats an omitted conversation_scope as
+profile, using the authenticated device's actual bound Profile. Explicit
+conversation_scope: profile remains valid and produces the same namespace.
+Explicit legacy scope requires an authenticated HA user; device-only legacy
+requests return ha_user_required401 without messages. Clients must not interpret
+an omitted scope as anonymous legacy history. This is a readback of the current
+producer, not a new endpoint, identity override or cross-Profile permission.
+The older corrective qualification above describes its historical source.
+
+The current isolated HA verifier uses real ConfigEntries lifecycle and ordinary
+pairing in both Profile and music-only modes, preserving the final stored-token,
+owner, privacy and source fences. An actual HA no-tools agent class/static
+configuration is registered, while response transport and STT remain explicit
+synthetic fixtures. Its26/28 receipts prove the bounded loopback/history/reload/
+clear path only; no API key, actual model, native microphone, installed client,
+artwork/action lifecycle or audible acceptance follows. See the current
+[afternoon qualification](../verification/CONTEXTUAL_DJ_AFTERNOON_20261020.md).
+### Erasure safety foundation — source qualification, not producer completion
+
+The [18October safety foundation](../verification/ARCHIVED_SESSION_ERASURE_SAFETY_20261018.md)
+adds targeted Store pruning, pending-context/retry withdrawal and durable-header
+checks for delayed projection writers. Client clear revision still advances when
+stored exchanges disappear; a separate validated internal counter preserves the
+privacy revision of independent accepted live speech. Normal/full clear remains
+a privacy withdrawal. Unknown Store acknowledgements block stale history access
+until the same Store owner reloads and reapplies the erasure.
+
+These are internal prerequisites. Single/bulk endpoints, the durable cross-owner
+operation coordinator, snapshot admission and all producer-completion gates
+remain **OPEN**. Neither deletion capability is advertised. A protected merge of
+this foundation cannot close the manual deletion function or consumer acceptance.

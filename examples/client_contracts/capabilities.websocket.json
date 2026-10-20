@@ -73,6 +73,9 @@
     "voice_endpoint_mappings": true,
     "session_conversation_history": true,
     "ask_dj_contextual_dialogue": true,
+    "ask_dj_examples": true,
+    "ask_dj_contextual_exploration": true,
+    "session_mood_music_feedback": true,
     "moment_track_insight_navigation_v1": true,
     "session_flow_text_search": true,
     "active_session_mood": true,
@@ -90,7 +93,11 @@
     "profile_context": 1,
     "client_contract_fixtures": 1,
     "session_conversation_history": 1,
+    "session_history_entries": 2,
     "ask_dj_contextual_dialogue": 1,
+    "ask_dj_examples": 1,
+    "ask_dj_contextual_exploration": 1,
+    "session_mood_music_feedback": 1,
     "moment_track_insight_navigation": 1,
     "session_flow_text_search": 1,
     "active_session_mood": 1,
@@ -102,8 +109,7 @@
     "session_speech": 1,
     "passive_session_surface": 1,
     "session_history_summary": 1,
-    "profile_session_settings": 3,
-    "session_history_entries": 2
+    "profile_session_settings": 3
   },
   "transports": {
     "http": true,
@@ -159,5 +165,64 @@
     "cross_origin_redirects": "forbidden",
     "browser_origin": "same_https_origin_only",
     "native_adoption": "separate_consumer_qualification"
+  },
+  "ask_dj_examples": {
+    "schema_version": 1,
+    "qualified": false,
+    "catalogue_id": "ask_dj_examples_v1",
+    "revision": 1,
+    "sha256": "dfaa98a1659ef5673037da26f98136314b314beea8afe8e31af4ffd5bd6ac4e7",
+    "projection": "pinned_local_mirror",
+    "network_per_render": false,
+    "model_calls_per_render": false,
+    "execution": "existing_ask_dj_message",
+    "availability": "current_qualified_context_required"
+  },
+  "ask_dj_contextual_exploration": {
+    "version": 1,
+    "operation": "ask_dj/message",
+    "context": [
+      "selected_entry",
+      "selected_moment"
+    ],
+    "generic_questions": {
+      "en": "Tell me more",
+      "nl": "Vertel meer",
+      "de": "Erzähl mir mehr",
+      "fr": "Dis-m’en plus",
+      "es": "Cuéntame más"
+    },
+    "attribute_required": false,
+    "effect": "informational",
+    "subject_authority": "qualified_selected_public_context",
+    "unqualified_context": "existing_source_unavailable_response",
+    "client_gesture_owner": "client",
+    "maximum_agent_calls": 3
+  },
+  "session_mood_music_feedback": {
+    "version": 1,
+    "trigger": "accepted_active_session_mood_change",
+    "settings_path": "/api/djconnect/v1/profile/settings",
+    "result": "existing_session_flow",
+    "generation": "asynchronous_coalesced",
+    "automatic_playback": false,
+    "choices": "existing_result_set_action_ids",
+    "supported_effects": [
+      "start_context_now"
+    ],
+    "unsupported_effects": {
+      "insert_next": "backend_next_position_not_qualified",
+      "replace_queue_mix": "backend_full_queue_replacement_not_qualified"
+    },
+    "requires_explicit_selection": true,
+    "stale_mood_or_queue": "reject",
+    "dna": "existing_opt_in_only",
+    "languages": [
+      "en",
+      "nl",
+      "de",
+      "fr",
+      "es"
+    ]
   }
 }

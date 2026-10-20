@@ -2,3 +2,5 @@
 PyYAML==6.0.3
 coverage==7.16.2
 pytest==9.1.1
+# Match the pinned HA image for actual image-byte decode regressions.
+Pillow==12.3.0

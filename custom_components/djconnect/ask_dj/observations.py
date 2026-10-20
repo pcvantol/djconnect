@@ -30,7 +30,7 @@ RECORDING_UNAVAILABLE = {
 def forecast_question(text):
     value = text.casefold().strip()
     return bool(re.search(r"\b(?:kwartier|komende vijftien|volgende 15|next (?:fifteen|15) minutes|quarter hour|nächsten (?:fünfzehn|15) minuten|viertelstunde|prochain (?:quart d'heure|quart d’heure)|prochaines (?:quinze|15) minutes|próximos (?:quince|15) minutos|próximo cuarto de hora)\b", value)
-                or re.match(r"^(?:(?:toon|open|show|zeige|montre|muestra)\s+(?:(?:de|the|den|le|el)\s+)?)?(?:vooruitblik|session forecast|ausblick|aperçu|avance)(?:[?.!]|$)", value))
+                or re.match(r"^(?:(?:toon|open|show|zeige|montre|muestra)\s+(?:(?:de|the|den|le|el)\s+|l['’])?)?(?:vooruitblik|session forecast|ausblick|aperçu|avance)(?:[?.!]|$)", value))
 
 
 def previous_question(text):
@@ -101,6 +101,7 @@ async def queue_read(hass, runtime):
     if observation["state"] in {"present", "partial"}:
         text += " " + COPY[language()]["order"]
     return {"success": True, "text": text, "dj_text": text, "action": "none", "items": items,
+            "intent": {"intent":"next_track_info", "category":"informational", "action":"queue"},
             "playback_actions": actions, "images": [], "links": [], "queue_observation": observation,
             "sources": [{"source": "spotify_queue", "title": "Spotify queue", "kind": "source"}]}
 
@@ -350,7 +351,7 @@ def _identified_playback(playback):
 
 def release_question(text):
     value=text.casefold().strip().lstrip("¿")
-    subject=re.search(r"\b(?:dit|dat|die|deze|huidig|huidige|this|current|dieser|dieses|aktuell(?:e|er|es|en)?|actuel|actuelle|cette|ce|esta|este|actual)\s+(?:nummer|track|song|opname|uitgave|album|recording|release|titel|lied|aufnahme|ausgabe|morceau|chanson|enregistrement|édition|canción|tema|grabación|edición)\b",value)
+    subject=re.search(r"\b(?:dit|dat|die|deze|huidig|huidige|this|current|dieser|dieses|aktuell(?:e|er|es|en)?|actuel|actuelle|cette|ce|esta|este|actual)\s+(?:nummer|track|song|opname|uitgave|album|recording|release|titel|lied|aufnahme|ausgabe|morceau|chanson|titre|enregistrement|édition|canción|tema|grabación|edición)\b",value)
     when=re.search(r"\b(?:wanneer|when|wann|quand|cuándo)\b",value)
     released=re.search(r"\b(?:uitgekomen|verschenen|uitgebracht|released|release|erschienen|veröffentlicht|sorti|sortie|publié|publiée|salió|publicado|publicada|lanzó|lanzado)\b",value)
     year=re.search(r"\b(?:jaar|year|jahr|année|año)\b",value)

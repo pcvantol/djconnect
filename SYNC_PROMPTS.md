@@ -1,3 +1,129 @@
+# Current Core handoff — consolidated source WIP, no consumer activation
+
+## Core consolidation and authorized installations — 20 October 2026
+
+### Repository Status
+
+Peter explicitly requested consolidation of already executed Core work to protected
+main, HA-dev and HA-prod installation, lane reconciliation and cleanup. He also
+authorized the owning Pi, API and Apple lanes to consolidate and deploy to both
+Pi devices, API production and all Apple devices, then said to do what is needed
+to install. This is a new human task; the previous timer remains PAUSED and its
+expired windows/model budgets are not renewed.
+
+### Management Summary
+
+The same contextual-DJ WIP includes current main d3cf052a and the preserved
+archived-Session erasure safety foundation001d0fac. All previous narrative,
+Golden, catalogue, artist content/photo, selected More/follow-up, Mood and history
+work is consolidated without claiming completed functional acceptance. Safe
+internal erasure prerequisites add no destructive endpoint or advertised delete
+capability. API production binding is updated to qualified3458ad60/artifact12275167706
+with actual prior Worker/D1-preserving rollback evidence; Pi operational binding83f52
+remains byte-identical. Independent reviews, current exact candidate checks,
+source merge and separate Finalization are required before delivery.
+
+### Roadmap Position
+
+Consolidation of existing executed work only. No new feature selection or WIP
+ownership transfer. The seven integrated work areas remain open where actual
+acceptance is missing. See docs/verification/CORE_CONSOLIDATION_20261020.md.
+
+### Rolling Horizon (Next 5 Planned)
+
+Existing SETTINGS horizon remains Planned/NOT_ISSUED; no automatic pickup.
+1. SETTINGS::APPLE::EDITOR — shared editor/native adoption.
+2. SETTINGS::PI::ADOPTION — shared producer/Pi acceptance.
+3. SETTINGS::ESP32::ADOPTION — physical settings/voice acceptance.
+4. SETTINGS::VIBECAST::COMPAT — renderer import/screen admission.
+5. SETTINGS::JOINT::ACCEPTANCE — migration/joint proofs.
+
+### Execution Priority Override
+
+Complete the current consolidation and explicitly authorized installations,
+coordinate exact dependency pins with existing owners, then reconcile open lane
+points and clean completed own refs/worktrees after preserving unique evidence.
+Do not start new feature work until this baseline is delivered and recorded.
+
+### Blocked Items
+
+Actual story quality remains NO_GO: the latest unpublished ordinary contribution
+narrows an upper time bound; selected More remains NOT_EXERCISED. Persona/Mood
+warmth, broad source/photo variety, real Mood queue effects, rich history media/
+actions, qualified private Apple Golden export and native/speech/audible acceptance
+remain OPEN. Source qualification and installed integrity close none of these.
+
+### Deferred Items
+
+Full single/bulk archived-Session erasure coordination and bubble deletion
+(Core1225/Apple143), plus the unissued horizon, stay queued. Public API rendezvous
+activation, new pairing grants and new paid-model budgets are not part of this task.
+
+### Repository State
+
+Existing source is being consolidated for protected review. Canonical active_source
+CI/coverage/provenance qualification remains separate from the paid Golden gate
+and integration artifact publication. This task's explicitly authorized internal
+main installations must record known quality limits, exact artifact/file hashes,
+backup/rollback and actual runtime readback; no official Golden release GO is inferred.
+
+### Workspace State
+
+One Core writer in the same integrated worktree. Complete pre-consolidation refs
+are in artifacts/core-consolidation-20261020/pre-consolidation-all-refs.bundle.
+Unique/private evidence, old model ledgers and dashboard lock remain preserved.
+Completed source/Finalization and superseded WIP refs are inventoried before
+cleanup. Current main source/Final pins, installations and final cleanup follow.
+
+## Active consolidated Core WIP — 20 October 2026
+
+Owner explicitly selected one WIP for prior narrative/Golden work plus richer
+artist content, selected-contribution Tell me more/follow-up questions and Mood
+music steering (Core #1210/#1229/#1230; Apple #128/#150/#152). Branch
+`codex/core-contextual-dj-interactions-v1`, checkpoint `23e152b9`, builds on
+protected main `8b221d07` and preserved narrative checkpoint `76cd4642`.
+The old narrative checkout was removed only after its 85-file recovery/checkpoint;
+no second product writer or consumer takeover. User-approved cleanup removed only
+the two already-merged local touch refs; recovery bundle verified.
+
+Current source adds role-bound public exploration in the existing Ask DJ owner,
+a relevant grounded closing question, and coalesced post-acceptance Mood feedback
+through existing Flow/action owners. Mood offers have no automatic music effect;
+only explicit start-context-now is supported. NEXT and full queue replacement
+remain explicitly unqualified. DNA opt-in, clear, owner, Mood/queue and action
+identity guards remain mandatory. No private library labels enter the model.
+
+Validation: 50 focused regressions PASS, including 23 Mood tests. The pinned HA
+image passes 744 owner tests without network or paid model calls; these use
+explicit model/provider fixtures. Independent technical and editorial reviews
+report no remaining blocker in the reviewed clarification/source deltas. The
+full host suite passes 2801 tests with 7 existing skips after the night fixes.
+Golden inventory: 42 families / 310 steps / 69 reports, with 24 Core findings and
+28 real-quality steps still OPEN. Inventory/test membership does not close any
+function. Actual narrative quality is required within this WIP. The owner has
+now explicitly approved in-memory live-key use for at most 40 public-model
+attempts total, after the earlier automatic-review rejection. The existing
+night heartbeat runs until 20 October08:00 Amsterdam with the same writer.
+The actual-answer pilot is staged by locale; cumulative24/40 attempts are
+reserved across all runs. The current Dutch probe is NO_GO: source reviewers
+reject unsupported repertoire/sonic additions and an invented evidence ID.
+Two generated Mood clarifications actually persisted; an intermediate one
+failed meaning review. Neither result certifies Persona/Mood variation or a complete
+genre conversation. A harness correction now waits for natural enrichment
+rather than prematurely cancelling the selected seed. New permanent Golden
+bindings cover unrelated-concert routing and cross-language canonical identity.
+See docs/verification/CONTEXTUAL_DJ_NIGHT_20261020.md and the actual returned
+texts in docs/verification/CONTEXTUAL_DJ_ACTUAL_TEXTS_20261020.md. Actual quality,
+complete genre continuation and independent Persona/Mood comparisons remain
+required in this WIP; no quality closure is claimed.
+No PR freeze, protected delivery, installation, native single-tap/audio or whole
+rich-history acceptance is claimed. Individual deletion #1225/#143 stays queued
+after valid completion of this owner-selected WIP.
+
+Contract and evidence boundaries:
+[Contextual DJ exploration](docs/product/CONTEXTUAL_DJ_EXPLORATION_V1.md).
+The sections below are preserved historical checkpoints, not current dispatch.
+
 # Persona touch withdrawal follow-up — candidate, Apple activation OFF
 
 ## Pi rc.5 operational binding — separate Finalization, 20 October 2026
@@ -348,6 +474,30 @@ acceptance remain OPEN. Do not enable touch based on this candidate or old v1.
 Same Core writer; individual content deletion is the selected follow-up Core
 #1225 / Apple #143, with no endpoint/capability advertised yet.
 
+# Session artist-photo v2 — local draft; protected producer pin pending
+
+Owner-requested non-Spotify band/live imagery reuses the existing private
+Session-media owner. [Contract2](docs/product/SESSION_ARTIST_PHOTO_V2.md),
+[source-fixture payloads](examples/client_contracts/session_artist_photo_v2.json),
+[evidence](docs/verification/SESSION_ARTIST_PHOTO_V2_20261019.md).
+Explicit `contract_version:2` at the same prepare endpoint; version1 remains
+Spotify-only. Select exact primary-performing artist for qualified credit
+Moments; preserve that identity and original source binding in retained Flow.
+Commons fallback is only for missing Spotify image, with exact public subject,
+validated image bytes and full photographer/credit/license/file-page attribution.
+Do not display a Spotify badge as the photo's license/author attribution.
+Actual intrinsic dimensions and `upscale_allowed:false` prevent stretching a
+small historical image into a high-resolution hero. Keep music Play separate.
+
+The current Apple strict version1/Spotify validator cannot render Commons.
+Apple owns explicit v2 adoption, credit/licence presentation and real native
+qualification. Samples are local synthetic-boundary producer fixtures with
+`qualified:false` and `PENDING_QUALIFIED_PIN`, not a published producerpin,
+consumer-start authority, release, installed or native acceptance. No Apple
+source/writer is taken over; no private Session media reaches shared VibeCast.
+The actual isolated HA public adapter obtained a licensed Nirvana stage photo;
+that is separate from live paired Session/client delivery and visual acceptance.
+
 # Core #1212 protected source — no consumer dispatch
 
 [Device speech1](docs/product/DEVICE_SPEECH_CAPABILITIES_V1.md) adds actual
@@ -434,6 +584,20 @@ proof. Touch reactions have no advertised operation/capability yet. Do not send
 a fabricated Ask DJ question, invent a Moment or infer HA-speaker permission.
 Selected reaction design/wire/limits await implementation and qualification.
 No consumer writer or implementation-completion claim follows from this note.
+# Archived Session erasure — safety foundation; producer remains OPEN
+
+The current safety-only derivative is
+examples/client_contracts/session_conversation_history/retention-bases-erasure-safety-20261018.json
+(SHA256 ea093600ff12e6cbd3940a87d113340c5c3fe1175568ededba75b42a2f3945b8).
+Its existing schema2 wire is unchanged; original v1/v2 fixtures remain byte-for-byte
+frozen. It records the current retained-speech source hash after Session-bound
+withdrawal. No decoder change, native work dispatch or new capability follows.
+Single/bulk history deletion still lacks the complete Core producer; use no
+destructive endpoint until versioned discovery is actually advertised. Delete
+confirmation must use fresh authorized detail `session.revision`, not the list's
+integer sync revision. See docs/verification/ARCHIVED_SESSION_ERASURE_SAFETY_20261018.md.
+A merge records source delivery only. Functional, installed, native and audible
+gates remain OPEN until their own evidence is accepted.
 
 # Passive Session projection — definitive protected producer pin
 

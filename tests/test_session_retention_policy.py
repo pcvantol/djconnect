@@ -91,6 +91,122 @@ class SessionRetentionPolicyTest(unittest.IsolatedAsyncioTestCase):
         with self.assertRaises(HistoryQueryError):
             await self.query.async_timeline_page('owner',s.session_id)
 
+    async def test_natural_expiry_during_last_source_grant_await_rejects_original_body(self):
+        import asyncio
+        from unittest.mock import patch
+        from custom_components.djconnect.historical_projection_query import HistoricalProjectionAccessDenied
+        now = datetime.now(UTC)
+        deadline = now + timedelta(seconds=1)
+        clock = [now]
+        class Clock(datetime):
+            @classmethod
+            def now(cls, tz=None):
+                return clock[0]
+        s = await self.start()
+        await self.append(s, 'original-body', now.isoformat())
+        await self.sessions.async_transition('owner', s.session_id, ENDED, historical_projections=self.repo)
+        await self.service.async_in_transaction(lambda tx: (
+            tx.execute('UPDATE djconnect_persistent_sessions SET ended_at=? WHERE session_id=?',
+                ((deadline-timedelta(days=90)).isoformat(), s.session_id)),
+            tx.execute('UPDATE djconnect_session_entries SET retained_until=? WHERE session_id=?',
+                (deadline.isoformat(), s.session_id))))
+        entry = (await self.repo.async_entry_records('owner', s.session_id))[0]['entry_id']
+        entered, release = asyncio.Event(), asyncio.Event()
+        grants = []
+        async def grant(_owner):
+            grants.append(True)
+            if len(grants) == 2:
+                entered.set()
+                await release.wait()
+            return 'unchanged-source-grant'
+        self.query._grant_revision = grant
+        with patch('custom_components.djconnect.session_history_projection.datetime', Clock):
+            task = asyncio.create_task(self.query.async_open_source_entry('owner', s.session_id, entry))
+            try:
+                await asyncio.wait_for(entered.wait(), 2)
+                clock[0] = deadline
+            finally:
+                release.set()
+            with self.assertRaises(HistoricalProjectionAccessDenied):
+                await task
+        self.assertEqual(len(grants), 2)
+        self.assertEqual(await self.repo.async_retention_policy(), (90, 1))
+
+    async def test_collection_final_await_cannot_return_expired_sessions_or_entries(self):
+        import asyncio
+        from unittest.mock import patch
+        from custom_components.djconnect.session_history_projection import HistoryQueryError
+        modes = ('sessions', 'timeline', 'window', 'search', 'latest', 'playback')
+        for mode in modes:
+            with self.subTest(mode=mode):
+                now = datetime.now(UTC)
+                deadline = now + timedelta(hours=1)
+                clock = [now]
+                class Clock(datetime):
+                    @classmethod
+                    def now(cls, tz=None):
+                        return clock[0]
+                owner = 'owner-' + mode
+                s = await self.start(owner)
+                await self.repo.async_append_entries(owner, s.session_id, [{
+                    'kind':'playback_observed', 'reference_id':'source-'+mode,
+                    'body':{'item_id':'item-'+mode, 'title':'Retained secret '+mode,
+                            'artist':'Synthetic artist', 'coverage':'observed_playing_not_full_listen'}}])
+                await self.sessions.async_transition(owner, s.session_id, ENDED, historical_projections=self.repo)
+                days = 90 if mode == 'sessions' else 1
+                await self.service.async_in_transaction(lambda tx: tx.execute(
+                    'UPDATE djconnect_persistent_sessions SET ended_at=? WHERE session_id=?',
+                    ((deadline-timedelta(days=days)).isoformat(), s.session_id)))
+                if mode == 'sessions':
+                    await self.service.async_in_transaction(lambda tx: tx.execute(
+                        'UPDATE djconnect_session_entries SET retained_until=? WHERE session_id=?',
+                        (deadline.isoformat(), s.session_id)))
+                else:
+                    # Actual policy writes preserve the shorter original entry cap
+                    # after widening the Session policy again; no invented lease.
+                    await self.repo.async_set_retention_days(1, authorize=lambda:True)
+                    await self.repo.async_set_retention_days(90, authorize=lambda:True)
+                original = (await self.repo.async_entry_records(owner, s.session_id))[0]['retained_until']
+                def operation():
+                    if mode == 'sessions':
+                        return self.query.async_session_page(owner)
+                    if mode == 'timeline':
+                        return self.query.async_timeline_page(owner, s.session_id)
+                    if mode == 'window':
+                        return self.query.async_timeline_window(owner, s.session_id, window='tail')
+                    if mode == 'search':
+                        return self.query.async_search_entries(owner, s.session_id, 'secret')
+                    if mode == 'latest':
+                        return self.query.async_latest_playback_observations(owner, s.session_id)
+                    return self.query.async_find_playback(owner, title='secret')
+                self.query._grant_revision = None
+                healthy = await operation()
+                collection = healthy['sessions' if mode == 'sessions' else 'matches' if mode in {'search','playback'} else 'entries']
+                self.assertEqual(len(collection), 1)
+                if mode != 'sessions':
+                    self.assertIn('Retained secret '+mode, str(collection))
+                entered, release = asyncio.Event(), asyncio.Event()
+                grants = []
+                target = 3 if mode == 'playback' else 2
+                async def grant(_owner):
+                    grants.append(True)
+                    if len(grants) == target:
+                        entered.set()
+                        await release.wait()
+                    return 'same-source-grant'
+                self.query._grant_revision = grant
+                with patch('custom_components.djconnect.session_history_projection.datetime', Clock):
+                    task = asyncio.create_task(operation())
+                    try:
+                        await asyncio.wait_for(entered.wait(), 2)
+                        clock[0] = datetime.fromisoformat(original) + timedelta(microseconds=1)
+                    finally:
+                        release.set()
+                    with self.assertRaises(HistoryQueryError):
+                        await task
+                self.assertEqual(len(grants), target)
+                self.assertEqual((await self.repo.async_entry_records(owner, s.session_id))[0]['retained_until'], original)
+
     async def test_retention_write_blocks_pending_and_existing_historical_image_grants(self):
         from custom_components.djconnect.image_proxy import ManagedSessionImages
         registry = ManagedSessionImages()

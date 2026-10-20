@@ -2,6 +2,36 @@
 
 Status: In progress; no release, installed, native or audible acceptance.
 
+### Artist descriptor and spotlight correction — 19 October
+
+A raw Wikidata descriptor is not a personal artist story. With registered
+narration, artist_begin and artist_description require accepted researched
+expression even when reciprocal identity is absent; no symbolic rewrite or
+technical fallback publication, presence charge or tick retry. Exact artist
+image identity follows the existing Session-media owner independently of a
+formation date; the same reciprocally bound MB link may fill absent P1902,
+without conflict/name fallback. Real prose/image/native/installed acceptance
+remains OPEN. See [evidence](../verification/ARTIST_DESCRIPTION_SPOTLIGHT_20261019.md).
+
+### Composer-story correction — 19 October
+
+The reported static “Achter de compositie” credit exposed another uncovered
+family. Preserve exact recording → one underlying work → typed composer IDs;
+reuse the existing reciprocal contributor identity and revision-bound Wikipedia
+research/expression owner. Never infer the composer from the playback performer
+or treat a composition credit as a recording producer credit. Require original
+work-credit evidence and an independently assessed documented musical episode,
+with complete answer/source/style coverage and actual Persona/Mood.
+
+This family shares the current40second research allowance and existing two-call
+ceiling. Registered narration must decline every unaccepted composer seed,
+including names-only facts, consume it once and publish/count/store no fake
+story. Accepted text, sources and replay stay with the existing Moment/Flow
+owners. No history rewrite, extra narrator, source exemption or automatic retry
+is added. The real probe stopped on MusicBrainz503 before composer generation;
+quality, editorial, installed and audible qualification remain OPEN. See
+[composer correction evidence](../verification/COMPOSER_STORY_20261019.md).
+
 ### Album-story correction — 18 October
 
 The actual HA-dev Symphonic Tales publication exposed a missing family: the
@@ -404,8 +434,11 @@ Faithful translation uses the same evidence. Do not invent sound, causality,
 artist psychology, listener taste, selection or future playback. The existing
 strict atomic evidence/chronology checks and a separate style verdict must
 accept the complete first draft. No prefix promotion or third-call repair for
-this producer. Research plus both calls share the original bounded expression
-timeout and all original opportunity/settings/owner/source fences.
+this producer. Researchable artist/album/producer stories share one bounded
+40second allowance for original source work and the same two model calls;
+other narration retains its existing12second bound (accepted playback its own
+20second bound). All opportunity/settings/owner/source/playback-fit fences
+remain active throughout.
 
 One sealed, typed acceptance binds the original Moment/fact, complete text,
 language, Persona/Mood, actual source metadata/revisions and original validity.
@@ -427,9 +460,13 @@ omission boundary. History opt-out, clear,
 Moment context exposes original normalized identity/facts, never creative prose
 as new factual evidence. Artwork remains bound to the original media subject.
 
-No source, wrong identity, malformed evidence/style review, cancellation or an
-expired window retains only the still-valid original candidate or Silence.
-That technical fallback does not satisfy personal-story acceptance. Completion
+For a registered narration provider and researchable artist/producer/album
+fact, missing sources, wrong identity or rejected/expired evidence/style
+acceptance declines the opportunity: the bare seed is not published, counted
+or persisted as a story. That fact is consumed once without another paid
+attempt every observer tick. Cancellation and authority changes retain their
+existing cancellation/fencing behavior. Generic nonresearchable/no-provider
+paths keep their original behavior and do not acquire researched-story status. Completion
 requires actual Runtime → Flow/storage/native/speech qualification and blind
 review of complete, same-evidence Persona/Mood outputs, including rejected first
 drafts. The installed Son Mieux finding remains OPEN until that proof exists.
@@ -575,6 +612,10 @@ the existing bounded `expression_form` memory only after actual publication;
 failed previews do not advance it. Reads and reconnects do not trigger enrichment.
 Creative presentation is not new factual evidence: owner follow-up model context
 uses the original qualified fact excerpt, separately from rendered text.
+The consolidated selected-exploration increment additionally permits only a
+server-admitted public telling as bounded conversational focus, separately from
+that factual context. It does not admit private/Spotify bodies or factual claims
+from the presentation; see [the selected focus boundary](CONTEXTUAL_DJ_EXPLORATION_V1.md).
 
 This is not yet complete coverage of every product ingress. Session openings,
 ordinary playback/genre-transition narration, Forecast realization, source-poor
@@ -691,3 +732,40 @@ scope could borrow a sequel or an unmarked other project. The bounded web family
 therefore requires its exact quoted work and artist in each evidence paragraph;
 no document-wide antecedent exemption. The director writing pilot does not meet
 that narrower product admission and remains a diagnostic, not product evidence.
+
+
+### 19 October: raw recording credits are not a rich Track story
+
+The repeated instrument/producer/vocalist card is explicitly tracked as an
+open regression. Producer review now needs both original recording-credit
+proof and a separate documented musical activity on a named work, with an
+actual Wikipedia evidence span/quote and an independent episode verdict.
+A fetched biography, occupation or bare collaborator list is insufficient.
+The generation owner must tell the actual contribution to that work; placing
+its title next to an encounter or invitation does not establish that activity.
+This uses the existing source-bound expression owner, not another announcement
+route. The actual screenshot lacks a recording title; no exact Nirvana
+recording or installed publication qualification is inferred from it.
+
+Bulk CC0 storage tests use an explicitly nonresearchable contributor without a
+public ID to isolate pagination/retention. A separate researched-producer
+commit/reopen/speech test exercises sealed acceptance. Current avatar
+semantics are regenerated through the runtime trace after source changes;
+the immutable historical receipt remains unchanged. These are source tests,
+not real model/editorial/native/installed/hearing acceptance.
+
+
+## Same-band topic variety correction, 19 October 2026 — local/open
+
+The owner expects different documented stories over successive recordings by
+the same artist, including member activities, performance events and recording
+history. Credit subjects must not dominate simply because a new recording ID
+made them eligible again. Reuse the existing public story/HA owner and published
+Flow: topic focus is editorial guidance, not new factual authority. Require
+focused evidence plus semantic novelty; retain past-telling memory independently
+of source expiry without granting current source/replay rights. Canonical QID
+sitelinks resolve ambiguous artist names. Missing source/novelty means space,
+never a reused dry seed or invented anecdote. Presence budgets remain unchanged.
+See [source correction and evidence](../verification/SESSION_STORY_VARIETY_20261019.md).
+Real Persona/Mood prose, installed publication and audible/client quality remain
+OPEN; this is not a completed slice or consumer contract release.

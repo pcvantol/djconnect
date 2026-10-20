@@ -34,6 +34,21 @@ class DisplayProjectionTests(unittest.TestCase):
     def snapshot(self, now=101):
         return self.projection.shared_snapshot(self.session, self.display, self.state, now=now)
 
+    def test_public_reference_citation_exports_required_attribution_without_corpus_or_owner(self):
+        self.prepared()
+        base={'provider':'Public web','title':'Artist account','url':'https://artist.example/',
+            'language':'en','license':'public_page_short_reference','revision_url':'',
+            'usage_basis':'public_page_short_reference','attributed_author':'Nora Vale',
+            'author_status':'publication_byline_not_independent_identity',
+            'work_reference':{'title':'Paper Lanterns','artist':'Nora Vale',
+                'url':'https://musicbrainz.org/release-group/'+'a'*36,'private':'forbidden'},
+            'untrusted_excerpt':'never export the source body','owner_id':'private-owner'}
+        result=self.projection.public_citation(base)
+        self.assertEqual(result['attributed_author'],'Nora Vale')
+        self.assertEqual(set(result['work_reference']),{'title','artist','url'})
+        self.assertNotIn('untrusted_excerpt',result)
+        self.assertNotIn('owner_id',result)
+
     def test_published_shared_fact_text_and_attribution_unchanged_no_private_fields(self):
         moment = self.prepared()
         before = moment.as_dict()

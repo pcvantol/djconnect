@@ -11,8 +11,7 @@
       "intent_category": "informational",
       "action": "none",
       "contains_any": [
-        "Dit kun je aan Ask DJ vragen",
-        "Muziek starten"
+        "Vraag het gerust in je eigen woorden."
       ],
       "playback_actions_count": 0,
       "confirmation_actions_count": 0,
@@ -1355,13 +1354,11 @@
     },
     "expect": {
       "success": true,
-      "intent": "spotify_playlist_search",
-      "intent_category": "informational",
-      "allowed_music_commands": [
-        "status",
-        "search_media"
-      ],
-      "forbid_spotify_mutations": true
+      "intent": "play_music",
+      "intent_category": "hybrid",
+      "forbid_spotify_mutations": true,
+      "action": "play_music",
+      "required_process_text": true
     }
   },
   {

@@ -37,8 +37,8 @@ def release_blockers(matrix):
 
 def validate_moment_matrix(root=ROOT):
     matrix=json.loads((root/'docs/verification/fixtures/dj_moment_persona_mood_golden_v1.json').read_text())
-    expected={(p,m,l) for p in ('home_dj','radio_dj','club_dj','festival_dj')
-              for m in ('chill','groove','energy','party') for l in ('en','nl','de','fr','es')}
+    expected={(p,m,locale) for p in ('home_dj','radio_dj','club_dj','festival_dj')
+              for m in ('chill','groove','energy','party') for locale in ('en','nl','de','fr','es')}
     rows=matrix.get('cells',[])
     if (matrix.get('schema_version')!=1 or len(rows)!=80
         or len({r['id'] for r in rows})!=80
@@ -46,6 +46,26 @@ def validate_moment_matrix(root=ROOT):
         or set(matrix.get('families',{}))!={'track','birth','formation','description','edition','genre'}):
         raise ValueError('incomplete_proactive_persona_mood_matrix')
     return {r['id']+'-'+family for r in rows for family in (*matrix['families'],'music-only')}
+
+
+def validate_catalogue_rows(matrix, root=ROOT):
+    families = matrix['families']
+    from scripts.verification.askdj_example_catalogue_golden import cases as catalogue_cases, chain_cases, manifest_digest
+    catalogue_rows = catalogue_cases(root) + chain_cases(root)
+    declared = matrix.get('catalogue_questions') or {}
+    if (declared.get('manifest_sha256') != manifest_digest(root)
+            or declared.get('profile') != 'catalogue_golden'
+            or declared.get('questions') != len(catalogue_cases(root))
+            or declared.get('conversation_steps') != len(chain_cases(root))):
+        raise ValueError('catalogue_golden_manifest_missing_or_stale')
+    steps = {step['id']:step for family in families for step in family['steps']}
+    for row in catalogue_rows:
+        step = steps.get(row['id'], {})
+        if (step.get('question') != row['question'] or step.get('expected_answer') != row['expected']['answer']
+                or step.get('language') != row['language'] or step.get('entry_id') != row['entry_id']
+                or step.get('execution_profile') != 'catalogue_golden'):
+            raise ValueError('catalogue_question_not_bound_to_actual_golden:'+row['id'])
+    return len(catalogue_cases(root)), len(chain_cases(root))
 
 
 def validate(root=ROOT):
@@ -116,7 +136,8 @@ def validate(root=ROOT):
         named = {row['method'] for row in bindings if row['file'] == file}
         if not methods or methods - named:
             raise ValueError('unbound_reported_issue_regression:'+','.join(sorted(methods - named)))
-    return {'proactive_golden_cases':len(proactive_cases),'status':'PASS','literal_core_routes':len(names),'single_turn_cases':len(base),'executable_help_cases':len(help_rows),
+    catalogue_count, catalogue_steps = validate_catalogue_rows(matrix, root)
+    return {'catalogue_questions':catalogue_count, 'catalogue_conversation_steps':catalogue_steps, 'proactive_golden_cases':len(proactive_cases),'status':'PASS','literal_core_routes':len(names),'single_turn_cases':len(base),'executable_help_cases':len(help_rows),
             'conversation_families':len(families),'conversation_steps':sum(len(f['steps']) for f in families),
             'reported_issues':len(matrix['reported_issues']),
             'open_core_findings':[i for i in blockers if i.startswith('ASKDJ-ISSUE-')],

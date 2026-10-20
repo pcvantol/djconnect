@@ -109,3 +109,13 @@ Spotify retains its trademark and asset rights; the DJConnect MIT license does
 not relicense this asset. Its use attributes Spotify metadata/artwork under the
 [Spotify design guidelines](https://developer.spotify.com/documentation/design).
 DJConnect remains independent of Spotify AB; no endorsement is implied.
+
+## Optional Wikimedia Commons artist imagery
+
+The opt-in Session-media v2 adapter uses Wikimedia's MediaWiki APIs for public
+artist image references and file metadata. Individual images retain their
+recorded creator, credit and license; metadata availability or CC0 metadata does
+not make a photograph MIT-licensed. Source/creator/license links must accompany
+qualified display. Product source licensing remains MIT; the integration package
+does not bundle these photographs. See
+[artist photo contract2](docs/product/SESSION_ARTIST_PHOTO_V2.md).
