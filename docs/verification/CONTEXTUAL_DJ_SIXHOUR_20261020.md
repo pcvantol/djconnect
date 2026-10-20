@@ -489,3 +489,33 @@ PASS16.150s**, Ruff/diff PASS. Actual new words still require fresh review.
 All29 attempts reconcile:29reserved/29completed/271remaining,
 86682reported input/9156outputtokens. Source, real-model, native, installed and
 audible evidence remain distinct. No push, merge, installation or closure.
+
+## Actual episode progress, original-name refusal — 11:00 UTC
+
+Actual v9 on immutablea77137a8 completed30–31 with unchanged source. Its exact
+new proposal was:
+
+> Bij de International Dance Music Awards op WMC ontmoette Peter Luts Barbara Tucker; samen brachten ze de single “One” uit. Luts is ook componist van het werk achter deze opname.
+
+Independent actual editorial scoped GO: the meeting and joint release are
+explicitly together in the original English paragraph; the current synthetic
+work credit is separate. Radio/Groove cadence is plausible; unexplained WMC is
+a small accessibility weakness, and no Persona/Mood contrast is established.
+Actual assessor supplied schema/semantic/styletrue. The unchanged publication
+condition still correctly refused `research_work_credit_evidence_missing`:
+only the surname appeared in the atomic credit clause, whereas its original
+full resolved name is required there. No publication and selected **NOT EXERCISED**.
+No hypothetical rewritten text is presented as an accepted actual answer.
+
+A two-line prompt clarification now says that the full resolved name must occur
+inside that credit clause even if already named in the episode. The guard is
+unchanged; no inference from earlier prose, automatic rewrite or extra call.
+Independent scoped SOURCE GO, **94 regressions PASS9.922s**, Ruff/diff PASS.
+All31 attempts reconcile:31reserved/31completed/269remaining,
+93822reported input/9821outputtokens; old40ledger remains immutable.
+
+The newer receiver producer handoff was processed first: protected9cfe13a9,
+original delivery JSON, two exact-main workflows and qualification-only delta
+independently read. Local documentation36cdf870 has scoped documentary GO;
+producer executions are not relabelled as Core runs or full-chain acceptance.
+Core1.1.2/social-candidate adoption remains open. No new writer or selection.

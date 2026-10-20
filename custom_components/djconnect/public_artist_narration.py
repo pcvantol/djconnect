@@ -578,6 +578,8 @@ async def realize(brief, *, ask, admission, debug=None):
            "Recording anchor: include one compact clause naming selected_contributor by the complete "
            "resolved name and " + ("their original composer credit on the work behind this recording. " if composer else
            "their credited producer role on this recording. ") +
+           "The complete resolved name must appear inside the credit clause itself, even when already "
+           "named in the episode; a surname or pronoun in that clause does not qualify. "
            "Its position is free. Refer explicitly to this/current recording, song or track in the "
            "requested language; a band-level credit or bare here is insufficient. "
            "Keep that credit separate from every external work and role; other credits need not be recited. "
