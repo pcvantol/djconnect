@@ -29,3 +29,12 @@ Ignored reproducible local evidence: artifacts/pi-two-host-contract-20261020/{so
 ## Protected delivery boundary
 
 At source freeze, exact-candidate independent review, fresh Owner Authorization, required PR checks, protected source merge and separate Finalization remain pending. Consumer handoff includes exact source/finalization/contract/schema/inventory pins only after protected readback. Operational approval follows real protected Pi source/publication/assets and matching consumer qualification. Source merge alone does not close either physical client deployment or the retained narrative/Golden lane.
+
+
+## Protected source readback and separate documentary Finalization
+
+[PR#1238](https://github.com/pcvantol/djconnect/pull/1238) protected merged as `9b40f422911f08c2076b11e49eb21e98ae5eaa1a`, with full tree equal to exact reviewed `0578bbac4a170bcf811512c3f29f874ded217068`. Fresh [Owner Authorization39452507672](https://github.com/pcvantol/djconnect/actions/runs/39452507672) artifact matches this repository/PR/branch/candidate/result PASS;32 candidate checks SUCCESS and5 conditional skips, no bypass. Current main was fetched/fast-forwarded and read back clean before Finalization. Main-side workflow conclusions remain separately observed.
+
+This independent documentary Finalization preserves all previous bodies and changes no contract/schema/inventory bytes, production code, roadmap selection, Pi source or deployment. Its protected readback precedes the final producer handoff. Identity inventory digest remains `530220ee38f6ccbcc824a78331b9dd89f236a5fa6ede12ebf7899dac83ff50c0`. Source merge alone creates neither operational approval nor consumer adoption.
+
+Fresh host qualification is MATCH after exactly the human-approved two earlier files and the manifest's106 additional historical Core files became byte/hash-equal durable references. All complete source evidence remains accessible at its original paths and in verified preservation archives. Those grants authorize no other cleanup or retention-policy change. Contextual WIPad430 remains clean and preserved; real narrative/native/speech/client acceptance remains open.

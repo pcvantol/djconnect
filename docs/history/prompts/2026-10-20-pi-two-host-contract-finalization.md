@@ -1,0 +1,5 @@
+# Pi two-instance producer contract: separate Finalization
+
+Source PR1238 protected9b40f422911f08c2076b11e49eb21e98ae5eaa1a equals reviewed0578bbac4a170bcf811512c3f29f874ded217068. Independent source GO;32successful checks,5conditional skips; fresh exact Owner Authorization39452507672. Source is a bounded existing Pi producer prerequisite, not a new target family, selected consumer, operational manifest, artifact publication or deployment.
+
+This separate documentary increment reconciles six equal current status/horizon blocks and the verification record while preserving earlier bodies. Contracts, JSON schemas and identity-only inventory stay byte-identical. Fresh candidate-specific review/Owner Authorization/protected checks and exact merge readback remain necessary. Own bounded cleanup/handoff follows recovery verification. Contextual-DJ WIP and older Brand branches/evidence/dashboard lock are retained. No model key, paid attempt, credentials, HA service/hardware or speaker action. Current autonomous window ends2026-10-20T18:26:14Z.
