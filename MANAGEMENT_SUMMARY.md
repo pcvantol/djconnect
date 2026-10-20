@@ -1,5 +1,80 @@
 # DJConnect Generation 2 Management Summary
 
+## Core consolidation and authorized installations — 20 October 2026
+
+### Repository Status
+
+Peter explicitly requested consolidation of already executed Core work to protected
+main, HA-dev and HA-prod installation, lane reconciliation and cleanup. He also
+authorized the owning Pi, API and Apple lanes to consolidate and deploy to both
+Pi devices, API production and all Apple devices, then said to do what is needed
+to install. This is a new human task; the previous timer remains PAUSED and its
+expired windows/model budgets are not renewed.
+
+### Management Summary
+
+The same contextual-DJ WIP includes current main d3cf052a and the preserved
+archived-Session erasure safety foundation001d0fac. All previous narrative,
+Golden, catalogue, artist content/photo, selected More/follow-up, Mood and history
+work is consolidated without claiming completed functional acceptance. Safe
+internal erasure prerequisites add no destructive endpoint or advertised delete
+capability. API production binding is updated to qualified3458ad60/artifact12275167706
+with actual prior Worker/D1-preserving rollback evidence; Pi operational binding83f52
+remains byte-identical. Independent reviews, current exact candidate checks,
+source merge and separate Finalization are required before delivery.
+
+### Roadmap Position
+
+Consolidation of existing executed work only. No new feature selection or WIP
+ownership transfer. The seven integrated work areas remain open where actual
+acceptance is missing. See docs/verification/CORE_CONSOLIDATION_20261020.md.
+
+### Rolling Horizon (Next 5 Planned)
+
+Existing SETTINGS horizon remains Planned/NOT_ISSUED; no automatic pickup.
+1. SETTINGS::APPLE::EDITOR — shared editor/native adoption.
+2. SETTINGS::PI::ADOPTION — shared producer/Pi acceptance.
+3. SETTINGS::ESP32::ADOPTION — physical settings/voice acceptance.
+4. SETTINGS::VIBECAST::COMPAT — renderer import/screen admission.
+5. SETTINGS::JOINT::ACCEPTANCE — migration/joint proofs.
+
+### Execution Priority Override
+
+Complete the current consolidation and explicitly authorized installations,
+coordinate exact dependency pins with existing owners, then reconcile open lane
+points and clean completed own refs/worktrees after preserving unique evidence.
+Do not start new feature work until this baseline is delivered and recorded.
+
+### Blocked Items
+
+Actual story quality remains NO_GO: the latest unpublished ordinary contribution
+narrows an upper time bound; selected More remains NOT_EXERCISED. Persona/Mood
+warmth, broad source/photo variety, real Mood queue effects, rich history media/
+actions, qualified private Apple Golden export and native/speech/audible acceptance
+remain OPEN. Source qualification and installed integrity close none of these.
+
+### Deferred Items
+
+Full single/bulk archived-Session erasure coordination and bubble deletion
+(Core1225/Apple143), plus the unissued horizon, stay queued. Public API rendezvous
+activation, new pairing grants and new paid-model budgets are not part of this task.
+
+### Repository State
+
+Existing source is being consolidated for protected review. Canonical active_source
+CI/coverage/provenance qualification remains separate from the paid Golden gate
+and integration artifact publication. This task's explicitly authorized internal
+main installations must record known quality limits, exact artifact/file hashes,
+backup/rollback and actual runtime readback; no official Golden release GO is inferred.
+
+### Workspace State
+
+One Core writer in the same integrated worktree. Complete pre-consolidation refs
+are in artifacts/core-consolidation-20261020/pre-consolidation-all-refs.bundle.
+Unique/private evidence, old model ledgers and dashboard lock remain preserved.
+Completed source/Finalization and superseded WIP refs are inventoried before
+cleanup. Current main source/Final pins, installations and final cleanup follow.
+
 ## Pi rc.5 operational binding — separate Finalization, 20 October 2026
 
 ### Repository Status

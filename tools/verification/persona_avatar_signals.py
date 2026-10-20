@@ -3,7 +3,7 @@ from pathlib import Path
 import hashlib
 
 ROOT = Path(__file__).resolve().parents[2]
-FIXTURE = ROOT / 'examples/client_contracts/persona_living_avatar_v1/existing-signals-contextual-20261020.json'
+FIXTURE = ROOT / 'examples/client_contracts/persona_living_avatar_v1/existing-signals-consolidated-20261020.json'
 
 
 async def build(core):

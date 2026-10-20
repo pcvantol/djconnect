@@ -408,6 +408,24 @@ class ContextualReleaseGateTest(unittest.TestCase):
         self.assertIn('internal-ha-*', gate)
         self.assertIn('git merge-base --is-ancestor', gate)
 
+    def test_source_reconciliation_can_record_ci_without_publishing_rejected_artifact(self):
+        import json
+        import yaml
+        jobs = yaml.safe_load((ROOT/'.github/workflows/home-assistant-release-artifact.yml').read_text())['jobs']
+        package, source = jobs['package'], jobs['reconcile']
+        self.assertEqual(package['needs'], 'paid-contextual-golden')
+        self.assertNotIn('always()', package['if'])
+        self.assertEqual(source['needs'], ['paid-contextual-golden', 'package'])
+        self.assertIn('always()', source['if'])
+        for condition in ("github.event.workflow_run.conclusion == 'success'", "github.event.workflow_run.head_branch == 'main'"):
+            self.assertIn(condition, source['if'])
+        self.assertEqual(source['with']['repository_role'], 'active_source')
+        self.assertEqual(source['with']['required_main_workflow'], 'Validate Home Assistant custom integration')
+        self.assertEqual(source['with']['coverage_artifact_name'], 'ha-cobertura-coverage')
+        self.assertEqual(json.loads(source['with']['required_check_contexts']),
+            ['Trusted Delivery qualification / Qualify trusted delivery'])
+        self.assertIn('post-merge-release-evidence.yml@ebbb35f038a7a3c7d46c12660968bcd50eb67580', source['uses'])
+
     def test_overlapping_main_events_keep_original_candidate_for_all_jobs(self):
         # workflow_run's outer GITHUB_SHA may already be B; its event payload
         # still names CI(A). No second workflow_run hop is introduced.

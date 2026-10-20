@@ -416,6 +416,9 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
                         if current is None or current.session_id != session_id or (
                             track_bound and not explicit_action and current.broadcast.state.playback.item_id != captured):
                             raise SessionConversationError("session_context_changed")
+                    if (frame.generation != generation
+                            or frame.read_context_revision != read_context_revision):
+                        raise SessionConversationError("conversation_context_changed")
                     validate_persona()
                     if validate_immediate is not None:
                         validate_immediate()

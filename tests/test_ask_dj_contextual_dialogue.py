@@ -46,6 +46,67 @@ def _research_generation_fixture(projection, answer):
 
 
 class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
+    async def _assert_final_commit_rejects_withdrawn_frame(self, change):
+        from custom_components.djconnect.ask_dj import service
+        archived = await self.fixture.manager.async_start(owner_profile_id='profile-a', locale='en')
+        await self.fixture.manager.async_end(owner_profile_id='profile-a', session_id=archived.session_id)
+        live = await self.fixture.manager.async_start(owner_profile_id='profile-a', locale='en')
+        entered, release = asyncio.Event(), asyncio.Event()
+        written = False
+        query = service.query_service(self.hass, self.history)
+        repository = query._repository
+        original_append = repository.async_append_entries
+        async def append(*args, **kwargs):
+            nonlocal written
+            rows = await original_append(*args, **kwargs)
+            if rows:
+                written = True
+            return rows
+        async def owner():
+            if written:
+                entered.set()
+                await release.wait()
+        async def delegate(*args):
+            return {'success': True, 'text': 'Synthetic local answer.'}
+        identifier = 'post-save-withdrawal-' + change
+        payload = {'client_message_id': identifier, 'text': 'What is an ostinato?',
+                   'conversation_context': {'session_id': live.session_id}}
+        with patch.object(service, 'query_service', return_value=query), patch.object(repository, 'async_append_entries', append):
+            task = asyncio.create_task(service.async_exchange(self.hass, self.runtime, payload,
+                profile_id='profile-a', history_manager=self.history,
+                delegate=delegate, validate_owner=owner))
+            try:
+                await asyncio.wait_for(entered.wait(), 2)
+                rows = await repository.async_entry_records('profile-a', live.session_id)
+                self.assertEqual(len([r for r in rows if r['kind'].startswith('conversation_')]), 2)
+                before = self.history.scope_revision('profile:profile-a')
+                if change == 'read_revision':
+                    self.assertEqual(await self.history.async_forget_archived_sessions('profile-a',
+                        frozenset({archived.session_id})), 0)
+                else:
+                    self.history.dialogue.owners['profile:profile-a']['default'].reset('synthetic-withdrawal')
+                self.assertEqual(self.history.scope_revision('profile:profile-a'), before)
+                release.set()
+                with self.assertRaises(service.SessionConversationError) as denied:
+                    await asyncio.wait_for(task, 2)
+                self.assertEqual(denied.exception.code, 'conversation_context_changed')
+            finally:
+                release.set()
+                if not task.done():
+                    task.cancel()
+                    await asyncio.gather(task, return_exceptions=True)
+        rows = await repository.async_entry_records('profile-a', live.session_id)
+        self.assertFalse([r for r in rows if r['kind'].startswith('conversation_')])
+        messages = (await self.history.async_history('profile:profile-a'))['messages']
+        self.assertFalse([m for m in messages if m.get('client_message_id') == identifier])
+        self.assertEqual(self.effects, [])
+
+    async def test_post_save_zero_removal_erasure_rejects_final_commit_and_rolls_back(self):
+        await self._assert_final_commit_rejects_withdrawn_frame('read_revision')
+
+    async def test_post_save_generation_withdrawal_rejects_final_commit_and_rolls_back(self):
+        await self._assert_final_commit_rejects_withdrawn_frame('generation')
+
     async def test_avatar_music_only_keeps_explicit_ask_dj_without_proactive_moment_or_speech(self):
         from custom_components.djconnect.session_runtime import DJPersona
         session = await self.fixture.manager.async_start(owner_profile_id='profile-a',
