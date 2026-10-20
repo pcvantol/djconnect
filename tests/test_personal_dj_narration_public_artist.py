@@ -891,6 +891,72 @@ class PublicArtistNarrationTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(len(self.urls),1)
         self.assertEqual(self.calls,[])
         self.assertEqual(self.debug['block_reason'],'composer_public_identity_unavailable')
+        self.assertEqual(self.debug['contributor_identity_stage'],'musicbrainz')
+        self.assertEqual(self.debug['contributor_identity_failure'],'musicbrainz_actor_name_mismatch')
+        self.assertEqual(self.debug['contributor_identity_http_status'],{'musicbrainz':200})
+
+    async def test_contributor_identity_diagnostics_preserve_fail_closed_checks_and_fetch_budget(self):
+        await self.prepare_composer()
+        from custom_components.djconnect.public_artist_narration import composer_identity
+        cases=(
+            ('mb-http','musicbrainz_http_unavailable',1),
+            ('mb-json','musicbrainz_response_invalid',1),
+            ('mb-null','musicbrainz_response_invalid',1),
+            ('mb-id','musicbrainz_actor_id_mismatch',1),
+            ('mb-name','musicbrainz_actor_name_mismatch',1),
+            ('mb-type','musicbrainz_actor_type_unqualified',1),
+            ('mb-relations','musicbrainz_wikidata_relation_not_unique',1),
+            ('wd-http','wikidata_http_unavailable',2),
+            ('wd-json','wikidata_response_invalid',2),
+            ('wd-null','wikidata_response_invalid',2),
+            ('wd-id','wikidata_entity_mismatch',2),
+            ('wd-reciprocal','wikidata_reciprocal_mbid_mismatch',2),
+            ('valid',None,2),
+        )
+        async def guard():
+            pass  # Explicit source-only fixture; grants no published acceptance.
+        for case,reason,count in cases:
+            with self.subTest(case=case):
+                before=len(self.urls)
+                async def response(owner,url,**kwargs):
+                    status,body,final=await self.fetch(owner,url,**kwargs)
+                    mb=fixture_host(url)=='musicbrainz.org'
+                    if case==('mb-http' if mb else 'wd-http'):
+                        return 503,'',final
+                    if case==('mb-json' if mb else 'wd-json'):
+                        return 200,'PRIVATE_RAW_BODY_MUST_NOT_ENTER_DIAGNOSTICS',final
+                    if case==('mb-null' if mb else 'wd-null'):
+                        return 200,'null',final
+                    data=json.loads(body)
+                    if mb:
+                        if case=='mb-id':
+                            data['id']='00000000-0000-0000-0000-000000000099'
+                        if case=='mb-name':
+                            data['name']='Different synthetic private name'
+                        if case=='mb-type':
+                            data['type']='Other'
+                        if case=='mb-relations':
+                            data['relations']=[]
+                    elif case=='wd-id':
+                        data['entities']['Q1']['id']='Q2'
+                    elif case=='wd-reciprocal':
+                        data['entities']['Q1']['claims']['P434']=[]
+                    return status,json.dumps(data),final
+                debug={}
+                with patch.object(self.research.PublicFetch,'request',response):
+                    async with self.research.PublicFetch(guard) as fetch:
+                        result=await composer_identity(fetch,self.selected_credit,debug=debug)
+                        self.assertEqual(fetch.requests,count)
+                self.assertEqual(len(self.urls)-before,count)
+                self.assertEqual(debug.get('contributor_identity_failure'),reason)
+                self.assertEqual(result is not None,case=='valid')
+                if result is not None:
+                    self.assertEqual(result,('composer',self.selected_credit.contributor_id,'Ada Reed','Person','Q1'))
+                    self.assertEqual(debug['contributor_identity_stage'],'qualified')
+                encoded=json.dumps(debug)
+                for private in ('PRIVATE_RAW_BODY','Different synthetic private name',self.selected_credit.contributor_id,'https://'):
+                    self.assertNotIn(private,encoded)
+        self.assertEqual(self.calls,[])
 
     async def test_fetched_composer_biography_and_true_flags_do_not_upgrade_bare_credits(self):
         await self.prepare_composer()

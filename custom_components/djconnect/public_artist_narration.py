@@ -85,45 +85,76 @@ def composer_subject(fact):
     return evidence.composers[0]  # Select before I/O, no next-contributor retry.
 
 
-async def producer_identity(fetch, credit):
-    return await contributor_identity(fetch,credit,kind='producer')
+async def producer_identity(fetch, credit, *, debug=None):
+    return await contributor_identity(fetch,credit,kind='producer',debug=debug)
 
 
-async def composer_identity(fetch, credit):
-    return await contributor_identity(fetch,credit,kind='composer')
+async def composer_identity(fetch, credit, *, debug=None):
+    return await contributor_identity(fetch,credit,kind='composer',debug=debug)
 
 
-async def contributor_identity(fetch, credit, *, kind):
-    """Exact public MBID → one QID → reciprocal MBID, in the same fetch budget."""
-    if kind not in {'producer','composer'}:
+async def contributor_identity(fetch, credit, *, kind, debug=None):
+    """Exact public MBID → one QID → reciprocal MBID, in the same fetch budget.
+
+    Optional fixed-category diagnostics retain no response/name/URL or exception
+    text and never supply identity evidence or alter the rejection boundary.
+    """
+    stage = 'musicbrainz'
+    no_response = object()
+    if debug is not None:
+        debug.pop('contributor_identity_failure', None)
+        debug['contributor_identity_stage'] = stage
+        debug['contributor_identity_http_status'] = {}
+    def unavailable(reason):
+        if debug is not None:
+            debug['contributor_identity_failure'] = reason
         return None
+    if kind not in {'producer','composer'}:
+        return unavailable('unsupported_credit_kind')
     async def get(url):
         status, body, _ = await fetch.request(url)
-        return json.loads(body) if status == 200 else {}
+        if debug is not None and type(status) is int:
+            debug['contributor_identity_http_status'][stage] = status
+        if status != 200:
+            return no_response
+        return json.loads(body)
     try:
         actor = await get('https://musicbrainz.org/ws/2/artist/'+credit.contributor_id
                           +'?fmt=json&inc=url-rels')
-        if (actor.get('id') != credit.contributor_id
-                or match_name(actor.get('name')) != match_name(credit.name)
-                or actor.get('type') not in {'Person','Group'}):
-            return None
+        if actor is no_response:
+            return unavailable('musicbrainz_http_unavailable')
+        if actor.get('id') != credit.contributor_id:
+            return unavailable('musicbrainz_actor_id_mismatch')
+        if match_name(actor.get('name')) != match_name(credit.name):
+            return unavailable('musicbrainz_actor_name_mismatch')
+        if actor.get('type') not in {'Person','Group'}:
+            return unavailable('musicbrainz_actor_type_unqualified')
         qids = {m[1] for r in actor.get('relations',[]) if isinstance(r,dict)
                 and r.get('type') == 'wikidata'
                 and (m := re.fullmatch(r'https?://www.wikidata.org/wiki/(Q[1-9][0-9]*)',
                                       str(r.get('url',{}).get('resource') or '')))}
         if len(qids) != 1:
-            return None
+            return unavailable('musicbrainz_wikidata_relation_not_unique')
         qid = next(iter(qids))
+        stage = 'wikidata'
+        if debug is not None:
+            debug['contributor_identity_stage'] = stage
         data = await get('https://www.wikidata.org/w/api.php?'+urlencode({
             'action':'wbgetentities','ids':qid,'props':'claims','format':'json'}))
+        if data is no_response:
+            return unavailable('wikidata_http_unavailable')
         entity = data.get('entities',{}).get(qid,{})
         ids = {c.get('mainsnak',{}).get('datavalue',{}).get('value')
                for c in entity.get('claims',{}).get('P434',[]) if c.get('rank') != 'deprecated'}
-        if entity.get('id') != qid or ids != {credit.contributor_id} or not MBID.fullmatch(credit.contributor_id):
-            return None
+        if entity.get('id') != qid:
+            return unavailable('wikidata_entity_mismatch')
+        if ids != {credit.contributor_id} or not MBID.fullmatch(credit.contributor_id):
+            return unavailable('wikidata_reciprocal_mbid_mismatch')
+        if debug is not None:
+            debug['contributor_identity_stage'] = 'qualified'
         return (kind,credit.contributor_id,credit.name,actor['type'],qid)
     except (ValueError, TypeError, AttributeError, KeyError):
-        return None
+        return unavailable(stage+'_response_invalid')
 
 
 def _identity_matches(fact, identity):
@@ -447,7 +478,7 @@ async def realize(brief, *, ask, admission, debug=None):
             sources = await public_references(fetch, identity, guard)
     elif credit:
         async with research.PublicFetch(guard) as fetch:
-            identity = await (composer_identity(fetch,credit) if composer else producer_identity(fetch,credit))
+            identity = await (composer_identity(fetch,credit,debug=debug) if composer else producer_identity(fetch,credit,debug=debug))
             if identity is None:
                 if debug is not None:
                     debug['block_reason'] = 'composer_public_identity_unavailable' if composer else 'producer_public_identity_unavailable'

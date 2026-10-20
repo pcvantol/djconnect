@@ -2624,6 +2624,10 @@
             },
             {
               "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_contributor_identity_diagnostics_preserve_fail_closed_checks_and_fetch_budget"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
               "method": "test_fetched_composer_biography_and_true_flags_do_not_upgrade_bare_credits"
             },
             {
