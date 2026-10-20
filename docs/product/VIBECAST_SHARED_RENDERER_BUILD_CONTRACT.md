@@ -1,5 +1,28 @@
 # Shared VibeCast renderer and versioned host builds
 
+## Renderer1.1.3 compatibility repair and official small icon — 20 October 2026
+
+Receiver import of protected1.1.2 exposed an unconditional
+`Element.replaceChildren()` dependency while displaying/clearing research sources.
+The1.1.3 increment uses `firstChild` and `removeChild` instead, preserving source
+validation, Moment identity, expiry and host-stop cleanup. A runtime regression
+fails on the previous renderer in Chromium and WebKit when that method is absent;
+the generated repaired HTML passes both engines with and without it. This is
+missing-API qualification, not execution on historical Chromium68 or native/TV
+hardware. Receiver import/adoption and installed acceptance remain independent.
+
+Brand2.0.1 also adopts the owner's exact official small icon from protected
+[ESP32 PR#69](https://github.com/pcvantol/djconnect-esp32/pull/69). Canonical16–40px
+exports and the authenticated Core40px alias preserve the supplied RGBA source;
+large glass marks, wordmarks and pre-existing HA icon aliases are unchanged.
+The previous1.1.2 archive, manifest and verifier remain immutable historical pins.
+Use a complete new1.1.3 package with its own exact revision, manifest, inputs and
+original matching verifier; do not substitute HTML or reuse a1.1.2 digest.
+
+[Qualification and delivery record](../verification/BRAND_V2_OFFICIAL_SMALL_RENDERER_113_20261020.md)
+records local source checks separately from protected delivery, consumer adoption,
+public deployment and native/installed/hardware acceptance.
+
 ## Owner-requested receiver UX and Brand V2 candidate — 20 October 2026
 
 The shared producer now builds version1.1.2 with the receiver's original
@@ -13,8 +36,10 @@ The canonical40px headset-only Brand V2 mark is a hashed build input alongside
 Both generated integration pages are regenerated from the same source. The
 separate display route retains its own manifest and admission contract.
 
-This is a local Core producer candidate within the existing WIP, not a protected
-consumer pin or receiver deployment. A complete handoff includes both local/Cast
+This increment is delivered separately from the preserved contextual-DJ WIP.
+The [delivery record](../verification/VIBECAST_RENDERER_112_PROTECTED_DELIVERY_20261020.md)
+distinguishes candidate review, protected source, consumer import and deployment.
+A local candidate is not a protected consumer pin or receiver deployment. A complete handoff includes both local/Cast
 outputs and their manifest, original version-matched `scripts/build_vibecast.py`,
 all renderer/host sources and authenticated brand inputs. Pin archive, inventory,
 manifest, exact source revision and original verifier independently. An assets-only

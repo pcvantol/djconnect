@@ -40,6 +40,21 @@ class BrandAssetsTest(unittest.TestCase):
         font = self.manifest["font"]
         self.assertEqual(hashlib.sha256((ROOT / font["path"]).read_bytes()).hexdigest(), font["sha256"])
 
+    def test_official_small_source_provenance_and_core_alias_are_bound(self):
+        source = self.manifest["micro_source"]
+        self.assertEqual(source["sha256"], "f69eb72b882f08c0dacbd3efa7e83165a56a01763aaa18e48557c03b65e11322")
+        self.assertEqual((source["width"], source["height"], source["mode"]), (1254, 1254, "RGBA"))
+        self.assertFalse(source["master_pixels_modified"])
+        for path_key, hash_key in (("path", "sha256"), ("provenance_path", "provenance_sha256"),
+                                  ("upstream_metadata_path", "upstream_metadata_sha256"),
+                                  ("upstream_prompt_path", "upstream_prompt_sha256")):
+            self.assertEqual(hashlib.sha256((ROOT / source[path_key]).read_bytes()).hexdigest(),source[hash_key])
+        provenance=json.loads((ROOT / source["provenance_path"]).read_text())
+        self.assertEqual(provenance["source_revision"], "c49d49186951ed3a4eaf3cc50778e48e04cbbef9")
+        self.assertEqual(provenance["designation"], "official_small_icon")
+        self.assertEqual((ROOT / "custom_components/djconnect/brand/mark-40.png").read_bytes(),
+                         (FAMILY / "mark-40.png").read_bytes())
+
     def test_svg_is_self_contained_exact_raster_with_outlined_wordmark(self):
         ns = {"s": "http://www.w3.org/2000/svg"}
         for name in self.manifest["files"]:

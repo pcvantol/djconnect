@@ -57,17 +57,23 @@ class VibeCastRendererTest(unittest.TestCase):
             const source=fs.readFileSync({json.dumps(str(PAGE))},'utf8').match(/<script>([\\s\\S]*?)<\\/script>/)[1];
             const run=(citations,locale='nl')=>{{
               const make=()=>({{textContent:'',hidden:false,children:[],setAttribute:()=>{{}},removeAttribute:()=>{{}},addEventListener:()=>{{}},
-                replaceChildren(){{this.children=[]}},appendChild(child){{this.children.push(child)}}}});
+                get firstChild(){{return this.children[0] || null}},
+                removeChild(child){{const i=this.children.indexOf(child);assert(i>=0);this.children.splice(i,1);return child}},
+                appendChild(child){{this.children.push(child)}}}});
               const elements=new Map();
               for(const id of ['spotify-source','moment-source','moment-research-sources','clock','end-session','up-next','next-art','next-label','next-title','next-artist','state','artwork-card','artwork','mood','title','artist','moment','progress','album','time']) elements.set(id,make());
-              const sockets=[];class WS{{constructor(){{sockets.push(this)}}close(){{}}}}
+              const listeners=new Map(),sockets=[];class WS{{constructor(){{sockets.push(this)}}close(){{}}}}
               const context={{URL,URLSearchParams,JSON,Math,Number,Array,Object,String,encodeURIComponent,navigator:{{language:'nl'}},
                 document:{{createElement:make,body:{{classList:{{toggle:()=>{{}}}}}},documentElement:{{style:{{setProperty:()=>{{}}}}}},
                   querySelector:()=>null,getElementById:id=>elements.get(id)}},
-                window:{{location:{{protocol:'https:',host:'receiver.test',search:'?session_id=s&broadcast_token=t'}},setTimeout:()=>1,addEventListener:()=>{{}}}},WebSocket:WS}};
+                window:{{location:{{protocol:'https:',host:'receiver.test',search:'?session_id=s&broadcast_token=t'}},setTimeout:()=>1,addEventListener:(name,fn)=>listeners.set(name,fn)}},WebSocket:WS}};
               vm.runInNewContext(source,context);
               sockets[0].onmessage({{data:JSON.stringify({{type:'snapshot',snapshot:{{session:{{locale}},playback:{{item_id:'item'}},
                 dj_moments:[{{moment_id:'story',summary:'One supported story.',content:'Detail from the second edition.',playback_item_id:'item',sources:citations}}]}}}})}});
+              elements.deliver=(sources)=>sockets[0].onmessage({{data:JSON.stringify({{type:'snapshot',
+                snapshot:{{session:{{locale}},playback:{{item_id:'second-item'}},dj_moments:[{{moment_id:'second-story',
+                summary:'One supported story.',content:'Detail from the second edition.',playback_item_id:'second-item',sources}}]}}}})}});
+              elements.stop=()=>listeners.get('djconnect-host-stop')();
               return elements;
             }};
             const citations={json.dumps(citations)};
@@ -118,6 +124,14 @@ class VibeCastRendererTest(unittest.TestCase):
                 {{...artist,url:'javascript:alert(1)'}},{{...artist,url:'https://receiver.local/'}}]){{
               assert.equal(run([badArtist]).get('moment').textContent,'');
             }}
+            const lifecycle=run(citations);
+            lifecycle.deliver([album]);
+            assert.equal(lifecycle.get('moment-research-sources').children.length,1);
+            assert.equal(lifecycle.get('moment-research-sources').children[0].href,album.url);
+            lifecycle.stop();
+            assert.equal(lifecycle.get('moment-research-sources').children.length,0);
+            assert.equal(lifecycle.get('moment-research-sources').hidden,true);
+            assert.equal(lifecycle.get('moment').textContent,'');
             for(const invalidWeb of [{{...web,url:'https://127.0.0.1/private'}},
                 {{...web,url:'https://receiver.local/private'}},{{...web,url:'javascript:alert(1)'}},
                 {{...web,url:'https://user:pass@director.example.test/'}},

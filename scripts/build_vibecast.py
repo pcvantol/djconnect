@@ -12,7 +12,7 @@ from pathlib import Path
 import subprocess
 
 SOURCES = ("template.html", "style.css", "renderer.js", "local-host.js", "cast-host.js", "../brand/icon.png", "../brand/mark-40.png")
-VERSION = "1.1.2"
+VERSION = "1.1.3"
 
 
 class InlineScripts(HTMLParser):

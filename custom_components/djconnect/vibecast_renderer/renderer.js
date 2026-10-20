@@ -122,6 +122,9 @@
     cards.sort((a,b) => a.created - b.created);
     return cards;
   }
+  function clearChildren(node) {
+    while (node.firstChild) node.removeChild(node.firstChild);
+  }
   function clearCards() {
     clearTimer("expiry"); clearTimer("scroll"); current = null; previous = null;
     const card = e("moment-card"), history = e("moment-history"), detail = e("moment-detail"), kind = e("moment-type");
@@ -133,7 +136,7 @@
     if (kind) kind.textContent = "";
     e("moment").textContent = "";
     const researchSources=e("moment-research-sources");
-    if (researchSources) { researchSources.replaceChildren(); researchSources.hidden=true; }
+    if (researchSources) { clearChildren(researchSources); researchSources.hidden=true; }
   }
   function scheduleCardExpiry() {
     clearTimer("expiry");
@@ -186,7 +189,7 @@
     if (safeSource) e("moment-source").href=source.url; else e("moment-source").removeAttribute("href");
     const researchSources=e("moment-research-sources");
     if (researchSources) {
-      researchSources.replaceChildren();
+      clearChildren(researchSources);
       const citations=Array.isArray(card.sources) && card.sources.length <= 3 ? card.sources : [];
       const valid=citations.length > 0;
       researchSources.hidden=!valid;
