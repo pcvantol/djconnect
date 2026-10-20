@@ -183,6 +183,7 @@ async def main():
                     'required_inkijk':'inkijk' in value.split('\nData:\n',1)[0],
                     'trusted_instructions_sha256':hashlib.sha256(value.split('\nData:\n',1)[0].encode()).hexdigest(),
                     'editorial_focus':research.get('editorial_focus'),
+                    'selected_public_focus':projection.get('selected_contribution'),
                     'source_spans':{source['content_hash']:[span['id'] for span in source['evidence_spans']]
                         for source in research.get('sources',[])}})
             elif research and 'evidence' in projection:
@@ -190,6 +191,7 @@ async def main():
                 turn = current_turn.get()
                 public_assessment_projections.append({'case_id':turn.client_id if turn else ACTIVE_CASE.get(),
                     'editorial_focus':research.get('editorial_focus'),
+                    'selected_public_focus':projection.get('evidence',{}).get('selected_contribution'),
                     'assessed_answer':projection.get('answer'),
                     'source_ids':[source['content_hash'] for source in research.get('sources',[])]})
             for source in research.get("sources", []):

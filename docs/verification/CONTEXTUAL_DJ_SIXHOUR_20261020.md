@@ -519,3 +519,42 @@ original delivery JSON, two exact-main workflows and qualification-only delta
 independently read. Local documentation36cdf870 has scoped documentary GO;
 producer executions are not relabelled as Core runs or full-chain acceptance.
 Core1.1.2/social-candidate adoption remains open. No new writer or selection.
+
+## Actual published seed and selected refusal — 11:09 UTC
+
+Actual v10 used immutable17ed091e; attempts32–36 all completed, source hashes
+unchanged. The original selected seed was genuinely published:
+
+> Peter Luts schreef en produceerde “Love Is the Message”, het anthem van de achtste editie van City Parade. En voor deze opname staat Peter Luts vermeld als componist van het onderliggende muziekwerk.
+
+Its assessor returned language/style/support true and the strict original
+full-name credit condition passed. Independent actual editorial **NO_GO**:
+two formal credits remain dry; this is publication evidence, not telling quality.
+The recording/work owner and original credit are synthetic, public lookup and
+HA Assist/provider execution are real. The selected More request then actually
+executed and generated this unpublished candidate:
+
+> Peter Luts schreef en produceerde ook “Love Is the Message”, dat het anthem was van de achtste editie van City Parade. En er is nog een andere kant aan zijn werk: hij maakte muziek voor zichzelf, produceerde voor artiesten als Ian Van Dahl en Astroline, en maakte remixen van nummers van andere artiesten. Is er een van die samenwerkingen waar je meer over wilt horen?
+
+Independent editorial **NO_GO**: repetition followed by an occupation list;
+no deepening. The fresh Dutch source says “mixen”, which does not automatically
+prove “remixen”. Actual assessor rejected that claim and style. The product
+correctly delivered only:
+
+> Ik heb informatie gevonden, maar ik kon dit antwoord nog niet goed genoeg controleren. Probeer je vraag opnieuw.
+
+No selected acceptance. No source/role/schema/style guard is weakened. The next
+bounded change removes a conflicting unconditional “start inside the activity”
+recipe for selected continuations. It asks for a new fact about the exact tapped
+episode, or a specific honest limit when the fresh passages add none; an optional
+other documented episode must be explicitly a different subject. A generic job
+menu is not depth. The harness now records the actual already-qualified public
+focus supplied at both generation and assessment boundaries, so its presence
+can be audited without treating it as fact evidence or exporting private bodies.
+Scoped independent technical SOURCE GO/noP1/P2; **94 focused regressions
+PASS12.036s**, Ruff/diff PASS. Latest whole suite remains2843/7PASS123.415s on608.
+
+Cumulative reconciliation: **36reserved/36completed/264remaining**, no budget
+reset; all ordinals1..36 accounted for. The secret-free receipt records exact
+reported token totals. Old40ledger remains separate immutable. Native, installed,
+audible and actual Spotify/playback ownership remain NOT_RUN; no feature closure.
