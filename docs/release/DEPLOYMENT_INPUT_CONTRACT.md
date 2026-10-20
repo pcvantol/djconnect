@@ -64,3 +64,14 @@ The manifest binds `candidate_sha`, `platform_version`, `manifest_id`,
 `artifact_id`, `artifact_sha256`, `target`, `release_profile`, `action` and
 `execution_mode`. The only mutation values are `action=deployment` and
 `execution_mode=execute`.
+
+
+## Bounded Pi multi-instance extension
+
+The canonical target remains `rbpi-djconnect`. The existing rc.5 two-instance
+producer dependency is specified by [Pi two-host contract v1](PI_TWO_HOST_DEPLOYMENT_CONTRACT_V1.md),
+its closed request/manifest schemas and immutable identity-only inventory.
+Its required instance/profile/inventory qualifiers supplement every existing
+required input. They do not authorize dispatch or widen historical manifests.
+Only a matching qualified consumer and a new exact approved operational binding
+may use this extension; old single-host consumers fail closed.
