@@ -329,3 +329,67 @@ The new prioritized API/Apple/receiver integration received the exact protected
 B route sequence and fresh actual isolated HA proof in
 [the B readback](VIBECAST_B_PROTECTED_SOURCE_READBACK_20261020.md); no installed
 public route/native/A→B claim follows.
+
+## Published episode and selected-focus correction — 10:24 UTC
+
+Actual run `morning-nl-episode-detail-v5` used immutable source10e48bb2.
+Five provider attempts, ordinals19–23, completed; source hashes did not change.
+The ordinary publication path accepted this exact short contribution:
+
+> Peter Luts schreef mee aan het werk achter deze opname. In Miami ontmoette hij Barbara Tucker bij de International Dance Music Awards; samen brachten ze de single “One” uit.
+
+Independent actual-text review gives **scoped editorial GO for this short seed**:
+a concrete meeting, occasion and joint single supported in the same English
+paragraph, with the current synthetic recording/work credit separately scoped.
+This is not Persona/Mood contrast, longer-story, native or audible acceptance.
+The selected More request was actually exercised after normal presence spacing.
+Its exact generated proposal was:
+
+> Peter Luts is volgens MusicBrainz een van de componisten van het werk achter deze opname. Hij is ook bekend van Lasgo en produceerde muziek voor Ian Van Dahl, die later AnnaGrace werd. Daarnaast maakte hij eigen muziek en remixes. Welke kant van Luts’ werk spreekt je het meest aan: zijn composities, zijn producties of zijn dj-werk? [MusicBrainz](https://musicbrainz.org/work/22222222-2222-2222-2222-222222222222) · [Wikipedia](https://nl.wikipedia.org/wiki/Peter_Luts)
+
+The product returned only its ordinary verification fallback. Original-credit
+source-ID projection now reached the assessor correctly. A local read-only
+replay of literal source spans found the lexical refusal at `produceerde` versus
+source `produceert`; all complete typed-source/semantic checks remain required.
+The separate independent actual editorial decision is **selected NO_GO** even
+for that unaccepted proposal: a general job/formation list and choice menu do
+not deepen the chosen episode; model `style_ok:true` overstated quality.
+
+The bounded repair adds ordinary Dutch production-activity inflections to the
+existing family, without granting another role, event or work. Only an opened
+server-admitted public narration may supply its exact bounded telling as
+conversational focus. Private/Spotify/CC0-only bodies cannot. Focus is separate
+from original credits, fetched source spans and quote/evidence IDs. Generation
+and style review should deepen the chosen episode, respect a separately asked
+aspect, and accept an honest limitation when fresh evidence is insufficient.
+No new lookup/call/deadline or guessed story is added. A genuine publication→
+selected Ask DJ fixture refuses invented depth and cancels assessment dispatch
+after withdrawal. Technical scoped SOURCE GO and editorial scoped design GO;
+new actual candidate text remains required.
+
+All23 attempts reconcile to23 durable reservations,23completed,277remaining;
+reported cumulative usage64731input/8131outputtokens. Old40ledger is unchanged.
+Golden adds the distinct selected-focus finding;42families/336steps/86reports,
+41Core+29actual-quality gates remain OPEN.
+
+Validation diagnostics are preserved: the first focused run included one
+nonexistent test-module name and an invalid uppercase disposition; the next
+correctly refused stale inventory counts. Initial full2843/7 found a partial
+turn fixture missing optional selected fields and stale canonical-document
+hashes, including two earlier B-readback docs. The next snapshot-focused run
+still started before the final hash reconciliation. All four current document
+hashes/SOURCES were then reconciled, with no DAG nodes, selection, historical
+receipts or consumer admission changed. Fresh verification follows separately.
+The first10:15host check used the obsolete default Documents/GitHub path and
+failed; the same read-only check with actual `--github-root` returned MATCH,
+exit0/onboarding4.5.4. No machine repair or extra cleanup was performed.
+
+Fresh complete suite after reconciliation: **2843tests/7existing skips,
+PASS100.157s**; Ruff/diff PASS. Independent final technical scoped SOURCE GO,
+noP1/P2; review exceptions now match generation's separately requested aspect
+and honest source limitation. Causal comparison: current2PASS; disabling only
+focus in generation1expected failure/0errors; restoring old activity inflections
+1expected failure/0errors. The first comparison launcher used the wrong test
+class name before executing tests; preserved separately. No source changes or
+paid calls occur in these in-memory counterfactuals. This remains source proof,
+not acceptance of a newly generated selected answer.

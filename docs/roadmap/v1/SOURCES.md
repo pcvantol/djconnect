@@ -62,7 +62,7 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 | [docs/verification/SESSION_HISTORY_SUMMARY_V1_SOURCE_READBACK.md](../../../docs/verification/SESSION_HISTORY_SUMMARY_V1_SOURCE_READBACK.md) | `5a65bd4853a878c2d6e8a50603fd6b5fb4d1e41225853d94097d010e38faadf4` |
 | [docs/history/prompts/2026-10-13-session-history-summary-finalization.md](../../../docs/history/prompts/2026-10-13-session-history-summary-finalization.md) | `b3d248b51a46e9e4b74439f2331b888ec5e70a80d348ec598601ca8447bada0c` |
 | [docs/product/ASK_DJ_CONVERSATIONAL_EXPERIENCE_V1.md](../../../docs/product/ASK_DJ_CONVERSATIONAL_EXPERIENCE_V1.md) | `690b79372d12b41306b54fc21eb4434dbcc4a22b6b9894bd9aa64c8985c030c9` |
-| [docs/product/ASK_DJ_CONTEXTUAL_DIALOGUE_CONTRACT_V1.md](../../../docs/product/ASK_DJ_CONTEXTUAL_DIALOGUE_CONTRACT_V1.md) | `36cb06cf4cb79c6f116277290fff7d5dda990e4b897ee0ee5963f002a585edde` |
+| [docs/product/ASK_DJ_CONTEXTUAL_DIALOGUE_CONTRACT_V1.md](../../../docs/product/ASK_DJ_CONTEXTUAL_DIALOGUE_CONTRACT_V1.md) | `e60e5793a3ce2378bf076342ea815b5a849d7b7805c737f6154f51ba5382e13b` |
 | [docs/product/MOMENT_TRACK_INSIGHT_DRILLDOWN_V1.md](../../../docs/product/MOMENT_TRACK_INSIGHT_DRILLDOWN_V1.md) | `6057cd78740abff3a9a6a8c0d6f34f4218a89e10f11ad18a516933e38476cb77` |
 | [DJCONNECT_STORAGE_ARCHITECTURE.md](../../../DJCONNECT_STORAGE_ARCHITECTURE.md) | `40fd31bd4ff256821ec30e2d0430fe7af5ef615fa6e125969cfebbc66d035da5` |
 | [docs/technical/HTTP_API.md](../../../docs/technical/HTTP_API.md) | `3cfa19c673c42065c5a3a0ff78e9657271c66563ef9097f555962106acfa3489` |
@@ -109,7 +109,7 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 | [docs/technical/SPEECH_RENDERING_CONTRACT.md](../../../docs/technical/SPEECH_RENDERING_CONTRACT.md) | `cb39d32ecd4b4d11140a0d8e2e037bf6bca388dfe9c45d0b1b9a27b6a228d2e4` |
 | [docs/verification/PROFILE_SESSION_SETTINGS_SOURCE_READBACK_20261016.md](../../../docs/verification/PROFILE_SESSION_SETTINGS_SOURCE_READBACK_20261016.md) | `344eac1436adc3b56108b4645ec51f262889a7f6d6b1d0c7aa890cc6355a9d8f` |
 | [docs/history/prompts/2026-10-16-profile-session-settings-finalization.md](../../../docs/history/prompts/2026-10-16-profile-session-settings-finalization.md) | `fd8f95f219e8293cc4133e1e7543209c66993fa3e636c52f83d189df640b013d` |
-| [docs/product/PERSONAL_DJ_NARRATION_RESTORATION_V1.md](../../../docs/product/PERSONAL_DJ_NARRATION_RESTORATION_V1.md) | `c406f948f172d2d9920073d1be911f9d506b4a5f865ecd9cb7fae839bd193929` |
+| [docs/product/PERSONAL_DJ_NARRATION_RESTORATION_V1.md](../../../docs/product/PERSONAL_DJ_NARRATION_RESTORATION_V1.md) | `e017948914d55589213f120748125fb56083a925d3374fb585d790544a79226e` |
 | [docs/verification/CORE_LANE_REQUIREMENT_RECONCILIATION_20261017.md](../../../docs/verification/CORE_LANE_REQUIREMENT_RECONCILIATION_20261017.md) | `240bf5f06c8381376ed4f1330fedfb75943d5469d9f2c84a8272cf7bd45046d7` |
 | [docs/product/ASK_DJ_PUBLIC_MUSIC_RESEARCH_V1.md](../../../docs/product/ASK_DJ_PUBLIC_MUSIC_RESEARCH_V1.md) | `061f5eca3129f4e418d879c0abfa23709394ae5e7e8ca8026fa393b3a063370a` |
 | [docs/product/DJ_MOMENT_MOOD_PROSODY_V1.md](../../../docs/product/DJ_MOMENT_MOOD_PROSODY_V1.md) | `6144b95a829a9a92bc4225bb599885efdf69dad0b5e17184542637bb4741a0fa` |
@@ -123,9 +123,9 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 | [docs/verification/VIBECAST_END_RETIREMENT_SOURCE_READBACK_20261017.md](../../../docs/verification/VIBECAST_END_RETIREMENT_SOURCE_READBACK_20261017.md) | `ccc5771889755f1b96fd4ba7942bff0ec7c237b2afb6948efe943182ef8c6588` |
 | [docs/history/prompts/2026-10-17-vibecast-end-retirement-finalization.md](../../../docs/history/prompts/2026-10-17-vibecast-end-retirement-finalization.md) | `2211ef1683fda434ab5ade8cca98d4f39fa3dd8cec38f084fdc456b6d14a4dae` |
 | [docs/verification/CORE_BRANCH_CONSOLIDATION_20261017.md](../../../docs/verification/CORE_BRANCH_CONSOLIDATION_20261017.md) | `c5fe55f7a0494051b937f583a9e7d603365c3de49663b6657f0fdb836829de7e` |
-| [docs/product/VIBECAST_DISPLAY_ADMISSION_V1.md](../../../docs/product/VIBECAST_DISPLAY_ADMISSION_V1.md) | `9777b1cd9399c6b98e36a2c590cd214bb29c0456c492ded60d1d0d2a2fae846f` |
+| [docs/product/VIBECAST_DISPLAY_ADMISSION_V1.md](../../../docs/product/VIBECAST_DISPLAY_ADMISSION_V1.md) | `f112e7fd9327560bd3e7ab51f818db2d30e36d57e0f6d51104233f8e95661f49` |
 | [docs/verification/VIBECAST_DISPLAY_DESIGN_REVIEW_20261016.md](../../../docs/verification/VIBECAST_DISPLAY_DESIGN_REVIEW_20261016.md) | `c28874b93440bce70a72dc436e0822d0f5b3fcfa58bcc27120ac26025cb75a9d` |
-| [docs/product/VIBECAST_DISPLAY_ADMISSION_B_V1.md](../../../docs/product/VIBECAST_DISPLAY_ADMISSION_B_V1.md) | `f555656ada0078d35654303a5137a618abb152ec251a41df5725351fdf291549` |
+| [docs/product/VIBECAST_DISPLAY_ADMISSION_B_V1.md](../../../docs/product/VIBECAST_DISPLAY_ADMISSION_B_V1.md) | `d3865102c2bb56cff3bea8eaa7c6b5717e36ed56f8a988f3d53f0f76912f1304` |
 | [docs/product/ASK_DJ_ALBUM_TRACKS_V1.md](../../../docs/product/ASK_DJ_ALBUM_TRACKS_V1.md) | `3b385910666629f54413f11de61b958bef7b5945f518298d28572ff855ee5709` |
 | [docs/verification/ASK_DJ_SEMANTIC_READS_20261017.md](../../../docs/verification/ASK_DJ_SEMANTIC_READS_20261017.md) | `57cf14b42e750fe6e997b3cbe432cb7880b938705f4067cc374b15f959167c46` |
 | [docs/verification/ASK_DJ_ARTIST_HITS_20261017.md](../../../docs/verification/ASK_DJ_ARTIST_HITS_20261017.md) | `f500cc5ed691125d97384c4c32af7c3ad43e0334fd72fb567a3e2119db34fcc5` |

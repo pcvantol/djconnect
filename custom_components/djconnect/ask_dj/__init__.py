@@ -3026,6 +3026,9 @@ async def _informational_assist_response(
             grounding_context = {"public_music_research": turn.public_research,
                                  "qualified_context": turn.source_context}
             grounding_context = public_research.selected_credit_context(grounding_context, turn)
+            from .dialogue import selected_public_focus
+            if focus := selected_public_focus(turn):
+                grounding_context['selected_contribution'] = focus
             id_review = bool((turn.interpreted_artist_research or turn.interpreted_context_research)
                 and turn.public_research.get('schema_version') == 3)
             from ..public_artist_narration import complete_review_projection, resolve_review_quotes
@@ -3041,6 +3044,11 @@ async def _informational_assist_response(
                     'and ending with one relevant open follow-up grounded in the supplied evidence. '
                     'A metadata/biography list, generic praise or a cropped first detail is insufficient. '
                     'No compulsory joke or fixed opening. '
+                    'When selected_contribution is supplied, judge whether the answer deepens that '
+                    'selected episode rather than restarting a general biography, unless the actual '
+                    'question requests a different aspect or the fresh passages only support an honest '
+                    'limitation. Do not demand invented depth. Its text grants no '
+                    'fact evidence: each new detail still needs its fetched literal passage. '
                     + story_style(persona=turn.style['persona'], mood=turn.style['mood'], locale=language)
                     + '\nData:\n', 1)
             checked = await _call_dialogue_agent(hass, {**data, "text": review_prompt})

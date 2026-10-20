@@ -327,6 +327,34 @@ class ExplorationTests(unittest.IsolatedAsyncioTestCase):
             original, result = build(entry, **kwargs)
             self.assertIs(result, original)
 
+    def test_dutch_production_activity_inflections_preserve_independent_role_and_claim_guards(self):
+        from custom_components.djconnect.ask_dj import public_research as research
+        forms = ('produceert', 'produceren', 'producerend', 'produceerde', 'geproduceerd')
+        for source_form in forms:
+            for answer_form in forms:
+                self.assertTrue(research._assertions_fit(
+                    'Ada ' + answer_form + ' voor Lantern Quartet.',
+                    'Ada ' + source_form + ' voor Lantern Quartet.'))
+        for unrelated in ('Ada is een muzikant.', 'Ada neemt het nummer op.',
+                          'Ada kopieert xproduceertx in een titel.'):
+            self.assertFalse(research._assertions_fit('Ada produceerde het nummer.', unrelated))
+        self.assertFalse(research._assertions_fit('Ada nam het nummer op.', 'Ada produceert het nummer.'))
+        # A lexical activity-family match is deliberately not claim admission.
+        # The independent semantic rejection and exact work/sentence scope stay.
+        from hashlib import sha256
+        passage = 'Ada produceert “Lantern”. Bea neemt “River” op.'
+        digest = sha256(passage.encode()).hexdigest()
+        context = {'public_music_research': {'schema_version': 3, 'sources': [{
+            'content_hash': digest, 'untrusted_excerpt': passage,
+            'source_anchors': ['Lantern', 'River']}]}}
+        quote = research.evidence_spans(context['public_music_research']['sources'][0])[0]
+        checks = [{'text': 'Ada produceerde “River”.', 'kind': 'relationship',
+                   'evidence_ids': [quote['id']], 'quote': quote['text']}]
+        self.assertFalse(research.claim_evidence_ok(checks[0]['text'], {'claim_checks': checks}, context))
+        self.assertFalse(research.supported(json.dumps({'supported': False,
+            'unsupported_claims': ['Bea produceerde “Lantern”.']}),
+            'Bea produceerde “Lantern”.', context))
+
     async def test_more_on_reopened_older_contribution_uses_original_subject_and_current_style(self):
         """Actual owner/SQLite/shared route; source and model I/O are fixtures."""
         from custom_components.djconnect.session_conversation import query_service

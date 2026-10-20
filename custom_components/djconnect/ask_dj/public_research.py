@@ -1169,7 +1169,7 @@ _EVENT_ACTIONS = (
                r"lanzó|lanzaron|lanzad[oa]s?|lanzamientos?|publicaci(?:ón|ones)|edici(?:ón|ones)|publicó|publicad[oa]s?|salió|salieron|fecha de lanzamiento)\b", re.I),
     re.compile(r"\b(?:records?|recorded|recordings?|opnam|opnamen|opnames|opname|opgenomen|opnemen|(?:nam(?:en)?|neemt|nemen|neem)\b[^.!?]{0,40}\bop|aufnahmen?|aufgenommen|(?:nimmt|nehmen|nahm(?:en)?)\b[^.!?]{0,40}\bauf|"
                r"enregistré(?:e|es|s)?|enregistra|enregistr(?:e|ent|ons|ez|ait|aient)|enregistrements?|grab(?:a(?:n|mos|ndo)?|áis|ó|aron)|grabad[oa]s?|grabaci(?:ón|ones))\b", re.I),
-    re.compile(r"\b(?:produced|produces|producing|productions?|produceerde(?:n)?|geproduceerd|producties?|"
+    re.compile(r"\b(?:produced|produces|producing|productions?|produceerde(?:n)?|produceert|produceren|producerend|geproduceerd|producties?|"
                r"produzierte(?:n)?|produziert|produktionen?|produktion|produit(?:e|es|s)?|produisit|"
                r"produjo|produjeron|produciendo|producid[oa]s?|producci(?:ón|ones))\b", re.I),
 )

@@ -1168,6 +1168,91 @@ class PublicArtistNarrationTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(entry['text'],self.answer)
         self.assertIn('Lantern Quartet',json.dumps(entry,ensure_ascii=False))
 
+    async def test_selected_public_telling_is_focus_only_and_private_bodies_cannot_supply_it(self):
+        from types import SimpleNamespace
+        from copy import deepcopy
+        from custom_components.djconnect.ask_dj.service import _live_reference
+        from custom_components.djconnect.ask_dj.dialogue import model_source, selected_public_focus
+        from custom_components.djconnect.public_artist_narration import complete_review_projection
+        await self.prepare_producer()
+        moment = await self.publish()
+        self.assertIsNotNone(moment, self.debug)
+        entry = await _live_reference(self.manager, 'profile-a',
+            {'session_id':self.session.session_id, 'moment_id':moment.moment_id})
+        turn = SimpleNamespace(selected_read_context=entry, source_context=model_source(entry),
+                               interpreted_context_research=True)
+        focus = selected_public_focus(turn)
+        self.assertEqual(focus['text'], moment.content)
+        self.assertNotIn(moment.content, json.dumps(turn.source_context))
+        context = {'selected_contribution': focus, 'qualified_context': turn.source_context,
+            'public_music_research': {'schema_version':3, 'sources':[]}}
+        review = complete_review_projection(context)
+        self.assertEqual(review['selected_contribution'], focus)
+        self.assertEqual(review['public_music_research']['sources'], [])
+        self.assertFalse(self.research.claim_evidence_ok(moment.content, {'claim_checks':[
+            {'text':moment.content, 'kind':'fact', 'evidence_ids':['selected_contribution'],
+             'quote':moment.content}]}, context))
+        for basis in ('cc0_normalized_fields_v1', 'owner_metadata_narration_v1',
+                      'private_ephemeral', 'runtime_authored_direction_v1', ''):
+            private = {**deepcopy(entry), 'archive_basis':basis, 'text':'Private or catalogue body.'}
+            probe = SimpleNamespace(selected_read_context=private, source_context=model_source(private),
+                                    interpreted_context_research=True)
+            self.assertEqual(selected_public_focus(probe), {}, basis)
+        for change in ({'selected_read_context':None}, {'source_context':{}},
+                       {'interpreted_context_research':False},
+                       {'selected_read_context':{**entry, 'text':'x'*2001}}):
+            self.assertEqual(selected_public_focus(SimpleNamespace(**{**vars(turn), **change})), {})
+        # A named independent topic clears the original selection, as the
+        # research owner does; it cannot inherit this episode as model data.
+        turn.selected_read_context = None
+        turn.source_context = {}
+        self.assertEqual(selected_public_focus(turn), {})
+        # Actual shared owner route from that genuinely published Moment.
+        # External replies deliberately invent an episode: focus cannot prove it.
+        calls = []
+        invention = 'Deze samenwerking vond plaats op een maanbasis.'
+        withdraw = False
+        async def agent(hass, data, **kwargs):
+            projection = json.loads(data['text'].split('\nData:\n', 1)[1])
+            calls.append(projection)
+            if 'available' in projection:
+                reply = {'read':'research', 'reference':'selected', 'exclude_current':False,
+                         'subject':self.selected_credit.name, 'angle':'production'}
+            elif 'evidence' in projection:
+                self.assertEqual(projection['evidence']['selected_contribution'], focus)
+                self.assertNotIn('selected_contribution', projection['allowed_evidence_ids'])
+                reply = {'supported':False, 'unsupported_claims':[invention],
+                         'language_ok':True, 'style_ok':True}
+            else:
+                self.assertEqual(projection['selected_contribution'], focus)
+                self.assertNotIn(moment.content, json.dumps(projection['context']))
+                if withdraw:
+                    await self.manager.async_end(owner_profile_id='profile-a', session_id=self.session.session_id)
+                reply = invention
+            return {'response':{'speech':{'plain':{'speech':json.dumps(reply) if isinstance(reply,dict) else reply}}}}
+        payload = {**self.identity, 'client_message_id':'selected-public-focus-refusal',
+            'text':'Vertel meer', 'language':'nl', 'audio_response':'never',
+            'conversation_context':{'selected_moment':{
+                'session_id':self.session.session_id, 'moment_id':moment.moment_id}}}
+        async def network(fetch, url, **kwargs):
+            return await self.fetch(fetch, url, **kwargs)
+        with patch.object(self.research.PublicFetch, 'request', network), \
+                patch.object(self.pipeline, '_assist_context', return_value={'agent_id':'fixture-agent'}), \
+                patch.object(self.pipeline, '_call_conversation_process_transport', agent):
+            result, status = await self.fixture.handlers.async_handle_ask_dj_message_payload(
+                self.hass, payload, headers=self.headers)
+            self.assertEqual(status, 200, result)
+            self.assertEqual(len(calls), 3)
+            self.assertFalse(result['is_generated_text'])
+            self.assertNotIn(invention, result['text'])
+            self.assertFalse(result.get('playback_actions'))
+            withdraw = True
+            calls.clear()
+            result, status = await self.fixture.handlers.async_handle_ask_dj_message_payload(
+                self.hass, {**payload, 'client_message_id':'selected-public-focus-withdrawal'}, headers=self.headers)
+            self.assertEqual(status, 409, result)
+            self.assertEqual(len(calls), 2)  # No assessment dispatch after withdrawal.
+
     async def test_missing_selected_producer_is_rejected_before_review(self):
         await self.prepare_producer()
         self.answer = self.answer.replace('Ada Reed','Lantern Quartet')

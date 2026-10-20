@@ -612,6 +612,10 @@ the existing bounded `expression_form` memory only after actual publication;
 failed previews do not advance it. Reads and reconnects do not trigger enrichment.
 Creative presentation is not new factual evidence: owner follow-up model context
 uses the original qualified fact excerpt, separately from rendered text.
+The consolidated selected-exploration increment additionally permits only a
+server-admitted public telling as bounded conversational focus, separately from
+that factual context. It does not admit private/Spotify bodies or factual claims
+from the presentation; see [the selected focus boundary](CONTEXTUAL_DJ_EXPLORATION_V1.md).
 
 This is not yet complete coverage of every product ingress. Session openings,
 ordinary playback/genre-transition narration, Forecast realization, source-poor

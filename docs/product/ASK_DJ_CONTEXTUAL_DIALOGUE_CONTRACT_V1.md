@@ -163,6 +163,7 @@ Configured agent's own system/tool context is a separate reported boundary.
 | Spotify catalog/playback/results, artwork, raw provider bodies | Existing eligible local cards/tools and retention | Excluded, including copied catalog reply text; anonymous result IDs/counts are Core operational data, not a content export. |
 | Saved listening history / unqualified historical body | Existing local owner queries only | No model scan or archive text export; local bounded query answers remain. |
 | Recent agent prose | Existing private retained turn if permitted | Only marked model-safe prose, same thread and still-valid transitive dependencies. |
+| Selected server-admitted public narration | Existing original entry/source/owner deadline | At most2000characters of exact `public_artist_narration_v1` telling as conversational focus only; no cropping, source/evidence ID or factual authority. Excludes private and owner-metadata bodies, even beside a CC0 credit. Named independent topics remove it. |
 | Music DNA / user preferences | Existing opt-in owner | No blanket model export; functional topic/choice memory needs no DNA opt-in. |
 | Tokens, account IDs, prompts, raw audio, HA states, private image grants | Internal approved owner only | Never in this projection; source/tool text is data, never a system/tool grant. |
 

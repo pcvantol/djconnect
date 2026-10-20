@@ -7780,6 +7780,14 @@
         {
           "file": "tests/test_ask_dj_exploration.py",
           "method": "test_selected_credit_id_cannot_be_authorized_by_plain_json_or_generated_body"
+        },
+        {
+          "file": "tests/test_ask_dj_exploration.py",
+          "method": "test_dutch_production_activity_inflections_preserve_independent_role_and_claim_guards"
+        },
+        {
+          "file": "tests/test_personal_dj_narration_public_artist.py",
+          "method": "test_selected_public_telling_is_focus_only_and_private_bodies_cannot_supply_it"
         }
       ],
       "steps": [
@@ -7992,6 +8000,25 @@
           ],
           "acceptance_status": "owner_contract",
           "proof_boundary": "Current1PASS versus disabled-projection1expectedfailure/0errors is causal source evidence only. Actual warm selected answer and native/installed/audible acceptance remain open."
+        },
+        {
+          "id": "ASKDJ-FLOW-selected-public-telling-focus",
+          "language": "nl",
+          "question": "Vertel meer over de concrete episode in deze geselecteerde publieke bijdrage.",
+          "expected_answer": "Use the exact model-suitable public telling as conversational focus only; deepen its episode with independently fetched evidence. Do not restart a metadata biography, promote focus into evidence, export private/Spotify bodies or survive source withdrawal. Equivalent Dutch production activity inflections retain semantic and work-scope review.",
+          "model_policy": "Actual shared publication/open/Ask DJ route with declared source/model replies. Public focus grants no claim/source ID, private-body model processing or extra call/lifetime.",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_exploration.py",
+              "method": "test_dutch_production_activity_inflections_preserve_independent_role_and_claim_guards"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_selected_public_telling_is_focus_only_and_private_bodies_cannot_supply_it"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual v5 published a scoped editorial-GO seed but selected answer was fallback and generated biography editorial NO_GO. New source regressions are not actual narrative/native/installed/audible acceptance."
         }
       ]
     },
@@ -9052,6 +9079,12 @@
       "family_id": "ASKDJ-FLOW-contribution-exploration",
       "core_qualification": "open",
       "finding": "Actual morning-nl-complete-v3 selected answer refers to its original MusicBrainz composer credit, but compact source-ID review has only Wikipedia IDs and cannot independently cite the original credit. A locally typed opened-entry projection now supplies that exact original CC0 span without accepting generated body or JSON as authority, changing public sources, refreshing expiry or weakening review. Causal shared-owner test verifies full answer versus fallback when only that projection is disabled. Actual narrative rerun and client acceptance remain OPEN."
+    },
+    {
+      "id": "ASKDJ-ISSUE-selected-episode-focus-lost",
+      "family_id": "ASKDJ-FLOW-contribution-exploration",
+      "finding": "Actual selected More restarts a generic contributor biography because the selected public telling is absent as focus; valid Dutch produceert/produceerde activity paraphrase also fails the lexical guard. Seed improved but selected richness remains NO_GO.",
+      "core_qualification": "open"
     }
   ],
   "regression_suite_files": [

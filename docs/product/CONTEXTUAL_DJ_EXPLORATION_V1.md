@@ -29,6 +29,19 @@ to controls, failures, result captions or Silence. All five locales apply.
 Rich artist stories and licensed artist imagery reuse the earlier consolidated
 research/variety/artwork work; source tests are not actual narrative acceptance.
 
+For a selected contribution with server-admitted `public_artist_narration_v1`
+basis, the exact opened public telling may additionally be projected as bounded
+`selected_contribution` conversational focus (at most2000characters, no cropping).
+This narrow model-processing scope excludes private conversation, Spotify owner
+metadata and arbitrary retained bodies, including bodies beside a CC0 credit.
+The existing original-entry/owner/source/deadline guards still run before and
+after model awaits. Independent named-topic reset removes the selection.
+The telling is untrusted topic context, not another factual source: no evidence
+ID, literal quote, new source right or extended deadline follows from it.
+Generation and style review should deepen its concrete episode using fresh
+admitted source passages, or honestly state that depth is unavailable. Original
+CC0 credit context and independently fetched evidence remain separate owners.
+
 ## Mood music steering
 
 Only an accepted user Mood transition can initiate the follow-up. Same-value,
