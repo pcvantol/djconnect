@@ -197,3 +197,71 @@ The general private standalone answer lifetime remains a separate Core gap.
 Apple's qualified native Golden fixture/export and transport-attempt admission
 remain the next concrete producer dependency; old laboratory receipts and this
 300attempt grant do not authorize an Apple/native run.
+
+## Apple observer source and actual GitHub branding —09:30UTC
+
+Apple prerequisite source `4a307e6dd4e7e5a1e214000d9bea53900a54c811`
+adds a private provider-attempt journal/HTTPX observer and its operating guide.
+It has no production import, endpoint, credential reader or live installation
+hook. Actual SDK retries are reserved before transport dispatch. Unknown
+admission keys are rejected; the original monotonic deadline survives same-process
+reopening, and another process cannot resume I/O. Independent source review
+first found these two P2 defects; both were fixed before scoped source GO.
+
+Thirteen journal/real-SDK checks passed in the isolated Linux HA image with
+network disabled, MockTransport fixtures and a synthetic key. No paid/provider
+calls occurred. Full source suite on exact4a307e6d: **2839tests,7existing skips,
+PASS72.313s**. Source archive SHA256
+`92ec14c2dbdf43f7227337f3cbcc58f158fe333237675aa7ddfb9a9f2343ee9b`.
+Apple received the exact source, limitations and review evidence. Its export is
+forcibly `OBSERVED_NOT_QUALIFIED`, with bound-client-only provider coverage.
+Actual complete provider coverage, same-run native fixtures, ordinary paired
+binary execution, installed/native/effect/semantic acceptance remain OPEN.
+This is neither a qualified fixture export nor a transfer of the Core grant.
+
+Receiver independently verified the exact three-member distribution archive
+`cb18889f24d984a01a13a97d4c67210630eb376fcb8b8a48db1a21d1cb2a77bf`
+with its unmodified importer, using only a disposable root. Import/check and
+byte comparison passed. Its separate citation-delta review passed the owning
+test plus1positive/24negative cases against the extracted package. The complete
+renderer delta against protected8b221d07 includes the earlier Artist website
+eligibility/attribution change; only the UX increment leaves JavaScript unchanged.
+No actual receiver pin, source, public output or consumer admission changed.
+
+Canonical social-preview export source:
+`519b6f1dc09fba0ce9ac60da5a7232aafd518dc4`,
+`assets/djconnect/github-brand-v2/`. The1280×640 PNG is379111bytes,
+SHA256 `2a79538e1c11c7aeb2e90d0818d9d28829fdb3b3cac0412f9faf7bf704177e0d`.
+It embeds the unchanged protected Brand V2 wordmark, with no additional glass
+button border. Two exports were byte-identical; independent producer and receiver
+visual/provenance reviews returned scoped local-export GO.
+
+The owner-authorized GitHub settings rollout is now **actually complete for all
+eleven audited repositories**: Core, Apple, API, Pi, ESP32, website, receiver,
+app-releases, pi-releases, firmware and experimental Pico. GraphQL reports
+`usesCustomOpenGraphImage:true` for each, and every publicly served PNG was
+downloaded and verified byte-equal to the export, including dimensions and size.
+No branch protection, permissions, credentials or other settings were changed.
+Retired Windows is excluded. This proves social-preview settings, not installed
+client branding or full GitHub-homepage completion. Nine README wordmarks remain
+separately open; exact pinned approved light/dark markup and current README blob
+IDs were sent to existing repo owners without taking over their source writers.
+Pi was also asked to reconcile its remaining old README feature restrictions.
+Core/receiver already had README wordmarks. Live readback, public-image receipt
+and visible settings screenshot are preserved under the ignored
+`artifacts/core-contextual-sixhour-20261020/github-brand-v2-live/`.
+
+Host retention drift was independently confirmed after old evidence crossed
+14days. On explicit human approval, exactly17Core files (13120802bytes) were
+preserved with original hashes/metadata in canonical
+`artifacts/recovery/core-retention-preserved-20261020/`; their original paths now
+resolve through relative symlinks to the unchanged files. Archive SHA256
+`d9fbf75b821fb2ec5da0b2b012118df7a6ae387b8a949e7b48c4ef36fee2abf1`.
+No evidence bytes were deleted. The receiver's pre-existing recovery link and
+target were excluded and unchanged. Actual host verification09:23UTC exited0,
+MATCH, onboarding4.5.4; log `/private/tmp/djc-core-0930-hostverify.log`.
+
+The cumulative paid ledger remains16reserved/16completed/284remaining. Own
+narrative results and all distinct actual-quality/native/installed/audible gates
+above remain unchanged. No push, merge, installation or feature closure follows
+from these source/export/settings results.
