@@ -95,3 +95,29 @@ ordinary binary and simulator execution. API owns exact A profile/wire/router/
 module/edge admission. Receiver owns real validated navigation and qualified
 bundle adoption. No secrets belong in chat; no old fixture substitutes for these
 joint inputs. Existing owners received this exact sequence and proof boundary.
+
+## Subsequent protected A root handoff — 20 October, 10:32 UTC
+
+API's existing owner separately finalized PR109 and its squash-safe provenance
+correction PR110 on protected main
+`828fbaf300ca369dcc753b676295e84094d5e8c6`.
+[Exact producer receipt](https://github.com/pcvantol/djconnect-api/issues/90#issuecomment-6288860618).
+Core independently fetched that main commit and the original
+`qualification/rendezvous/root-integration-runtime.mjs`; SHA256
+`27e9f5ae2a7b7350f3ae51352cf4efb023ec17f79bc8f42968cc3bdfbfe34854`
+matches the handoff. This is the exact source pin for the existing Apple/receiver
+owners' selected local HTTP/simulator integration, not a Core consumer takeover.
+Independent GitHub readback also shows all seven workflows on that exact main
+completed successfully, including Local native experiment qualification and
+Post-Merge Release Evidence. Their actual runtime claims remain producer-owned.
+The earlier main failure remains historical; the producer's repaired exact-main
+qualification is separate from that failed execution. No unchanged B rerun is
+needed merely because A's documentary supplier pin changed.
+
+The normal Worker remains compiled OFF; the local derived root's explicitly
+translated HTTP/Origin fixture is not public-edge/TLS proof. The released
+implementation.1/wire1 agreement above is unchanged. Actual simulator
+`AppAttest.isSupported == false` is a finite unsupported result, never a grant
+for fake native proof. Core's authenticated current paired-installation/context
+and B remain authoritative. Public activation, genuine supported native proof,
+selected installed HA destination and complete A→B/TV acceptance remain OPEN.
