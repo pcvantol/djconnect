@@ -459,7 +459,8 @@ async def resolve_retained(hass, history, profile_id, reference, *, moment_only=
         if (history_grant_revision(hass, profile_id) != grant
                 or history.scope_revision("profile:" + profile_id) != revision):
             raise PermissionError("speech_reference_withdrawn")
-    guard = PrivateSpeechSource(hass, validate, expires_at=expires)
+    guard = PrivateSpeechSource(hass, validate, expires_at=expires,
+                                session_id=reference["session_id"])
     guard.epoch = epoch  # Also fence a destructive transaction during entry reads.
     guard.processor_basis = basis
     guard()

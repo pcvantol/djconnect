@@ -97,6 +97,7 @@ class HistoricalProjectionQueryServiceTest(unittest.TestCase):
             asyncio.run(self.queries.async_get_moment("profile-b", moment))
 
     def test_non_owner_visibility_is_not_yet_exposed(self) -> None:
+        asyncio.run(self.sessions.async_create("profile-a", session_id="session-a"))
         moment = asyncio.run(self.repository.async_project_moment(
             session_id="session-a", moment_id="shared-moment", owner_profile_id="profile-a",
             moment_type="track", rendered_text="Safe", presentation_metadata="{}", ordering=0,

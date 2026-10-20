@@ -30,6 +30,7 @@ def _committed_mutation(method):
     async def commit(self, *args, **kwargs):
         await self.async_load()
         async with self._write_lock:
+            self._require_settled_erasure()
             staged = copy(self)
             staged._data = deepcopy(self._data)
             staged._committed_store_write = False
@@ -81,6 +82,7 @@ class AskDJHistoryManager:
         self.hass = hass
         self._store = store if store is not None else self._create_store(hass)
         self._loaded = False
+        self._erasure_uncertain = False
         self._data: dict[str, Any] = {"version": STORE_VERSION, "global_clear_revision": 0, "users": {}}
 
     def register_session_request(self, scope: str, client_id: str) -> None:
@@ -107,12 +109,104 @@ class AskDJHistoryManager:
 
     async def async_load(self) -> dict[str, Any]:
         """Load persistent Ask DJ history from Home Assistant Store."""
+        self._require_settled_erasure()
         if self._loaded:
             return self._data
-        loaded = await self._store.async_load() if self._store is not None else None
-        self._data = _normalize_store_data(loaded)
-        self._loaded = True
-        return self._data
+        # The first read can suspend in Store. It shares the commit boundary:
+        # an older load must never overwrite a completed targeted erasure.
+        async with self._write_lock:
+            self._require_settled_erasure()
+            if not self._loaded:
+                loaded = await self._store.async_load() if self._store is not None else None
+                self._data = _normalize_store_data(loaded)
+                self._loaded = True
+            return self._data
+
+    def _require_settled_erasure(self) -> None:
+        if self._erasure_uncertain:
+            raise RuntimeError("history_delete_outcome_unknown")
+
+    async def async_forget_archived_sessions(
+        self, profile_id: str, session_ids: frozenset[str], *, message_ids: frozenset[str] = frozenset()
+    ) -> int:
+        """Prune a committed SQL erasure from Store without resetting live speech.
+
+        The erasure coordinator owns authorization and the durable SQL progress.
+        Reapplying the same set is safe after a crash between Store and receipt.
+        An uncertain save blocks history reads/writes until this owner reloads
+        the actual Store and reapplies erasure; stale RAM can never overwrite it.
+        """
+        if (not isinstance(profile_id, str) or not profile_id
+                or type(session_ids) is not frozenset or not session_ids
+                or any(not isinstance(value, str) or not value for value in session_ids)):
+            raise ValueError("invalid_history_delete_request")
+        async with self._write_lock:
+            if self._erasure_uncertain or not self._loaded:
+                loaded = await self._store.async_load() if self._store is not None else None
+                data = _normalize_store_data(loaded)
+            else:
+                data = deepcopy(self._data)
+            scope = "profile:" + profile_id
+            state = data.get("users", {}).get(scope)
+            pending_ids = self._pending_session_requests.get(scope, {})
+            if state is None and pending_ids:
+                state = {"history_revision": 0, "clear_revision": 0,
+                         "targeted_clear_revision": 0, "messages": []}
+                data.setdefault("users", {})[scope] = state
+            removed = 0
+            changed = False
+            if state is not None:
+                _targeted_clear_revision(state)
+                messages = state.get("messages", [])
+                exchanges = {
+                    message.get("exchange_id") or message.get("id")
+                    for message in messages
+                    if (message.get("id") in message_ids
+                        or message.get("session_turn", {}).get("context", {}).get("session_id") in session_ids
+                        or any(ref.get("session_id") in session_ids
+                               for ref in message.get("historical_entry_references", [])))
+                }
+                discarded = [m for m in messages
+                             if (m.get("exchange_id") or m.get("id")) in exchanges]
+                removed = len(discarded)
+                if removed:
+                    state["messages"] = [m for m in messages
+                                         if (m.get("exchange_id") or m.get("id")) not in exchanges]
+                    hashes = list(state.get("cleared_request_hashes", []))
+                    hashes.extend(_request_hash(scope, m["client_message_id"])
+                                  for m in discarded if m.get("client_message_id"))
+                    state["cleared_request_hashes"] = list(dict.fromkeys(hashes))[-1000:]
+                    state["history_revision"] += 1
+                    state["clear_revision"] += 1
+                    state["targeted_clear_revision"] = _targeted_clear_revision(state) + 1
+                    state["updated_at"] = _now()
+                    changed = True
+                hashes = list(state.get("cleared_request_hashes", []))
+                pending_hashes = [_request_hash(scope, identifier) for identifier in pending_ids]
+                updated_hashes = list(dict.fromkeys([*hashes, *pending_hashes]))[-1000:]
+                if updated_hashes != hashes:
+                    state["cleared_request_hashes"] = updated_hashes
+                    changed = True
+            # Invalidate pending read context even if no archived exchange had
+            # text in Store. Preserve accepted independent speech and dedup.
+            self.dialogue.forget_archived_sessions(scope, session_ids)
+            self._erasure_uncertain = True
+
+            async def save():
+                if changed and self._store is not None:
+                    await self._store.async_save(_compact_store_data(data))
+                self._data = data
+                self._loaded = True
+                self._erasure_uncertain = False
+                return removed
+
+            task = asyncio.create_task(save())
+            try:
+                return await asyncio.shield(task)
+            except asyncio.CancelledError:
+                # Cancellation never releases the lock over an unsettled save.
+                await _settle_store_writer(task)
+                raise
 
     async def async_save(self) -> None:
         """Persist compact Ask DJ history."""
@@ -408,7 +502,19 @@ class AskDJHistoryManager:
         """Read the committed cache for a final fence without yielding authority."""
         user_key = _user_key(scope_key)
         state=self._data.get("users",{}).get(user_key,{})
-        return str(state.get("history_trimmed_count",0))+":"+str(self._effective_clear_revision(state, user_key))
+        revision = self._effective_clear_revision(state, user_key)
+        if user_key.startswith("profile:"):
+            revision -= _targeted_clear_revision(state)
+        return str(state.get("history_trimmed_count",0))+":"+str(revision)
+
+    def scope_revision_for_receipt(self, scope_key: str, receipt: dict) -> str:
+        """Compare an append receipt in the server privacy revision domain."""
+        user_key = _user_key(scope_key)
+        state = self._data.get("users", {}).get(user_key, {})
+        revision = receipt.get("clear_revision", 0)
+        if user_key.startswith("profile:"):
+            revision -= _targeted_clear_revision(state)
+        return str(receipt.get("history_trimmed_count", 0)) + ":" + str(revision)
 
     @_committed_mutation
     async def async_append_assistant_message(
@@ -505,6 +611,7 @@ class AskDJHistoryManager:
             users[user_id] = {
                 "history_revision": 0,
                 "clear_revision": 0,
+                "targeted_clear_revision": 0,
                 "messages": [],
                 "history_trimmed_before": None,
                 "history_trimmed_count": 0,
@@ -512,6 +619,7 @@ class AskDJHistoryManager:
         state = users[user_id]
         state.setdefault("history_revision", 0)
         state.setdefault("clear_revision", 0)
+        state.setdefault("targeted_clear_revision", 0)
         state.setdefault("messages", [])
         state.setdefault("history_trimmed_before", None)
         state.setdefault("history_trimmed_count", 0)
@@ -691,6 +799,15 @@ def _compact_items(value: Any) -> list[dict[str, Any]]:
     return items
 
 
+def _targeted_clear_revision(state: dict[str, Any]) -> int:
+    """Legacy absence is zero; corrupt privacy arithmetic must fail closed."""
+    value = state.get("targeted_clear_revision", 0)
+    clear = state.get("clear_revision", 0)
+    if type(value) is not int or type(clear) is not int or not 0 <= value <= clear:
+        raise ValueError("invalid_history_clear_revision")
+    return value
+
+
 def _compact_store_data(data: dict[str, Any]) -> dict[str, Any]:
     users: dict[str, Any] = {}
     for user_id, state in (data.get("users") or {}).items():
@@ -704,6 +821,7 @@ def _compact_store_data(data: dict[str, Any]) -> dict[str, Any]:
         users[_user_key(user_id)] = {
             "history_revision": int(state.get("history_revision") or 0),
             "clear_revision": int(state.get("clear_revision") or 0),
+            "targeted_clear_revision": _targeted_clear_revision(state),
             "messages": messages,
             "updated_at": _clean_text(state.get("updated_at")),
             "dialogue_effect_receipts": {k: v for k, v in list(state.get("dialogue_effect_receipts", {}).items())[:1000]
@@ -737,6 +855,7 @@ def _normalize_store_data(data: Any) -> dict[str, Any]:
         normalized["users"][_user_key(user_id)] = {
             "history_revision": int(state.get("history_revision") or 0),
             "clear_revision": int(state.get("clear_revision") or 0),
+            "targeted_clear_revision": _targeted_clear_revision(state),
             "messages": [
                 _compact_message(message)
                 for message in state.get("messages", [])[-MAX_MESSAGES_PER_USER:]

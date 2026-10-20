@@ -1134,6 +1134,79 @@ private recovery are retained. Own host source/Finalization refs receive an
 explicit retained-squash disposition if git-cherry cannot prove normal cleanup;
 no force deletion is inferred. Workspace cleanup and fresh host readback precede
 resuming the same preserved avatar assignment; no automatic successor begins.
+## Current: archived Session erasure safety foundation — functional acceptance OPEN
+
+#### Repository Status
+
+Same sole Core writer, existing selected single/bulk archive-erasure continuation.
+This candidate repairs erasure prerequisites; protected source/Finalization
+readback remains a separate delivery record. No function is closed by a merge.
+
+#### Management Summary
+
+Delayed terminal/legacy projections require the existing durable owner header.
+Targeted conversation erasure removes whole exchanges and historical dependencies,
+preserves independent accepted speech, and fences pending context/retry IDs.
+Unknown Store acknowledgement blocks stale reads/writes until owner reload.
+[Scope and actual qualification](docs/verification/ARCHIVED_SESSION_ERASURE_SAFETY_20261018.md):
+2595 host tests completed with7 conditional skips;17 safety cases and2 connected
+Ask DJ/speech owner cases pass in pinned HA;4 real HA Store cases pass. Synthetic
+records/transport fixtures do not prove configured-provider, native or listening
+acceptance. No deletion endpoint/capability is added.
+
+#### Roadmap Position
+
+Existing Personal DJ/Profile/Session correction. No new assignment, portfolio
+selection, consumer takeover or function/family closure. Golden inventory57
+reports/36families/154steps,12Core findings and19actual-quality gates stay OPEN.
+
+#### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+The existing SETTINGS horizon below remains unchanged and NOT_ISSUED. Remaining
+work within this selected Core correction includes durable single/bulk erasure,
+full retained Flow/art/replay and source-grounded Persona/Mood storytelling.
+A source merge is not authority to mark any of those functions complete.
+
+1. **SETTINGS::APPLE::EDITOR — Planned.** Existing producer delivered; native adoption remains its owning gate.
+2. **SETTINGS::PI::ADOPTION — Planned.** Same producer prerequisite; preserve Pi ownership.
+3. **SETTINGS::ESP32::ADOPTION — Planned.** Same producer prerequisite plus physical voice/settings evidence.
+4. **SETTINGS::VIBECAST::COMPAT — Planned.** Qualified renderer import and screen admission remain separate.
+5. **SETTINGS::JOINT::ACCEPTANCE — Planned.** Migration and consumer acceptance precede cross-device closure.
+
+#### Blocked Items
+
+Single/bulk erasure needs its durable SQL/Store progress coordinator, exact paired
+authority and revision admission, complete snapshot transaction and ordinary
+paired HTTP qualification. Quiet/background transport retains the API-owned
+purpose/token/source-policy gate. Installed v2, original native404, actual
+configured speech/listening, VibeCast screen/trust, LAN/WS, Watch/OS surfaces,
+production push and performance/crash/RSS retain their named evidence gates.
+
+#### Deferred Items
+
+Unselected work remains deferred. No consumer source, provider, production
+service, hardware, private message or new writer is introduced.
+
+#### Repository State
+
+Source qualification only; source incorporation and separate Finalization must
+be verified for their exact candidates. Even MERGED_RECONCILED records only
+delivered source, never functional/native/installed/audible acceptance.
+
+#### Workspace State
+
+Same isolated admitted Core checkout. Earlier5own stale worktrees/6refs were
+removed only after complete-tree/protected-merge proofs and two verified recovery
+bundles; discarded caches and byte-identical test-data duplicates were separately
+qualified. Active Apple/Core WIP, HA data and acceptance/recovery evidence remain
+preserved. No new-capability WORKSPACE_READY or cleanup of another writer is claimed.
+
+#### Next Action
+
+Complete the already-selected producer coordinator, snapshot and paired
+qualification, then its protected delivery and installed/native acceptance.
+Until that evidence exists, manual erasure and the wider personal-DJ functions
+remain OPEN in the lane regardless of source merges.
 
 ## Current: passive contribution v2 correction — separate Finalization,18October2026
 

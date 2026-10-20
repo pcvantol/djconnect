@@ -509,6 +509,20 @@ proof. Touch reactions have no advertised operation/capability yet. Do not send
 a fabricated Ask DJ question, invent a Moment or infer HA-speaker permission.
 Selected reaction design/wire/limits await implementation and qualification.
 No consumer writer or implementation-completion claim follows from this note.
+# Archived Session erasure — safety foundation; producer remains OPEN
+
+The current safety-only derivative is
+examples/client_contracts/session_conversation_history/retention-bases-erasure-safety-20261018.json
+(SHA256 ea093600ff12e6cbd3940a87d113340c5c3fe1175568ededba75b42a2f3945b8).
+Its existing schema2 wire is unchanged; original v1/v2 fixtures remain byte-for-byte
+frozen. It records the current retained-speech source hash after Session-bound
+withdrawal. No decoder change, native work dispatch or new capability follows.
+Single/bulk history deletion still lacks the complete Core producer; use no
+destructive endpoint until versioned discovery is actually advertised. Delete
+confirmation must use fresh authorized detail `session.revision`, not the list's
+integer sync revision. See docs/verification/ARCHIVED_SESSION_ERASURE_SAFETY_20261018.md.
+A merge records source delivery only. Functional, installed, native and audible
+gates remain OPEN until their own evidence is accepted.
 
 # Passive Session projection — definitive protected producer pin
 
