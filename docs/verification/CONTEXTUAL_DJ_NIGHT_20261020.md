@@ -6,7 +6,7 @@ Apple coordination as needed. The existing heartbeat
 **20 October 2026, 08:00 Europe/Amsterdam**. It retains the same writer and WIP;
 another active execution on the same resources permits status readback only.
 
-Current local source baseline: `f693ff6c56299ac49ea4e12e8ffb6f4e9d168f81`,
+Current local source baseline: `61a2c582cad4b74891bff1715e312e149eafeebc`,
 branch `codex/core-contextual-dj-interactions-v1`; subsequent prompt/pilot/report
 changes are captured by the commit containing this document. Main remains
 `8b221d07`. Latest actual pilot `nl-v12`: **40/40 reserved, zero remaining**.
@@ -445,3 +445,35 @@ step; the existing refusal fixture proves mechanics only. No fixture is warm
 prose proof. Budget40/40 remains closed and byte-identical to recovery. No new
 key read, model/source fetch, installation, speaker action, push, merge, cleanup
 or next slice occurred. Timer remains active until08:00Europe/Amsterdam.
+
+
+## 01:31 UTC continuation — preserve actual local artist source
+
+Same clean61a2c582pickup/sole writer, main8b221d07 and Brandworktrees unchanged;
+no competing Core/model execution. Hostverify0/MATCH/onboarding4.5.4. Modelledger
+still40/40; no key read, model run, installation or speaker action. Apple PR159
+remains open on9501d674; qualified Core exporter/native gates remain absent.
+
+New bounded source-only diagnosis found a real pre-model defect: exact Dutch
+Nirvana Q11649/empty shortdesc/first-sentence grungeband fails Group classification,
+so only English remains. Narrow five-language grunge-descriptor correction keeps
+identity/type/rights/URL/request/paragraph guards. After correction the actual
+same source probe retains NL+EN with five HTTPrequests in1.229seconds. Three
+immutable probes together used15publicrequests/0modelcalls. Two Wikipedia
+language editions are not independent publishers or a narrative acceptance.
+
+Owning regression passes five language fixtures and wrong-QID/Person/nonmusic/
+word-boundary negatives. Independent technical review restores oldregex only
+in memory: four failures/zeroerrors; corrected testPASS/noP1P2. Editorial source
+analysis confirms concrete concert/member/recording material but notes members
+and recording can choose the same McCartney paragraph: still no four-storyGO,
+no original-lineup transfer or loss of source caveats.
+
+275focusedtestsPASS; final21GoldengatesPASS. Firstfull2811run failed inventory
+while regression binding was incomplete; logretained, no waiver. Completed/
+frozen binding then full2811PASS/7existing skips in65.399seconds. Ruff/diffPASS.
+Golden42families/315steps/73reports;28Core+29actualqualityOPEN. New source-only
+contract/issue permanent, no feature closure. All probes/attribution/manifest
+preserved under artist-source-variety/. Details in
+CONTEXTUAL_DJ_LOCAL_SOURCE_RETENTION_20261020.md. Existing actual answers remain
+unchanged and narrativequalityNO_GO. No push/merge/cleanup/nextslice.

@@ -2844,6 +2844,21 @@
           ],
           "acceptance_status": "open_real_quality",
           "proof_boundary": "Actual nl-v12 published text received style_ok=true but independent editorial review rejected its businesslike telling and unnatural work-title phrasing. The owning fixture proves only that an adverse style verdict prevents publication; a stricter assessment prompt has not been rerun with the exhausted real-model budget."
+        },
+        {
+          "id": "ASKDJ-FLOW-local-grunge-band-source-retained",
+          "language": "nl",
+          "question": "Vertel over deze grungeband met behoud van de juiste Nederlandse en Engelse bronnen.",
+          "expected_answer": "The local exact-QID grunge-group article remains admitted when its first sentence uses a compound such as grungeband. Reuse existing five-language musical-group classification, identity/role gates, original paragraphs and bounded public fetch. English fallback does not hide loss of the local source; this establishes source availability, not narrative or native acceptance.",
+          "model_policy": "No model for public source acquisition and identity/role admission; existing researched-answer generation and review remain separately required.",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_exploration.py",
+              "method": "test_grunge_group_lead_preserves_local_source_and_exact_entity_role_guards"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual bounded Q11649 before/after probe: NL article was discarded solely at Group classification; now both same-QID Wikipedia language editions survive in five actual requests, unchanged budgets/rights. Fixture regression covers five locales and wrong-QID/Person/nonmusic/word-boundary negatives. Real narrative/Persona-Mood/native/audio still OPEN."
         }
       ],
       "owning_tests": [
@@ -2890,6 +2905,10 @@
         {
           "file": "tests/test_personal_dj_narration_public_artist.py",
           "method": "test_rejected_composer_style_never_publishes_original_credit_template"
+        },
+        {
+          "file": "tests/test_ask_dj_exploration.py",
+          "method": "test_grunge_group_lead_preserves_local_source_and_exact_entity_role_guards"
         }
       ],
       "real_ha_profile": "full_golden",
@@ -8599,6 +8618,12 @@
       "family_id": "ASKDJ-FLOW-style-lifecycle",
       "core_qualification": "open",
       "finding": "Actual nl-v12 ordinary Runtime publication passed factual and model style review yet independent editorial review found two detached metadata statements and unnatural work-title phrasing. Make assessment distinguish natural spoken language, concrete focus, Persona telling voice and Mood cadence without extra calls or forced filler. All source/role/effect guards remain; fixture rejection mechanics and stricter prompt are not real quality acceptance. Budget40/40 exhausted; real/editorial/native/audible gates stay open."
+    },
+    {
+      "id": "ASKDJ-ISSUE-local-grunge-band-source-filtered",
+      "family_id": "ASKDJ-FLOW-style-lifecycle",
+      "core_qualification": "open",
+      "finding": "Actual source-only probe discarded the correct NL Nirvana Q11649 page because empty shortdesc plus first-sentence grungeband failed musical Group classification. Same English page survived. Add grunge to existing five-language group forms, without accepting a mismatching QID, Person, nonmusic lead or embedded non-word. Actual before/after retains NL+EN; source repair alone does not close rich-content/narrative/client acceptance."
     }
   ],
   "regression_suite_files": [

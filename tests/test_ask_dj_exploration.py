@@ -74,6 +74,50 @@ class ExplorationTests(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(observed,[('nl',''),('en','Q1')])
             self.assertEqual(len(sources),2 if foreign_id=='Q1' else 1)
 
+    async def test_grunge_group_lead_preserves_local_source_and_exact_entity_role_guards(self):
+        """Actual NL source was lost at Group admission, before any model call."""
+        from custom_components.djconnect.ask_dj import public_research as research
+        from urllib.parse import parse_qs, urlsplit
+        from unittest.mock import AsyncMock
+        leads={
+            'en':'Aster Road is an American grunge band.',
+            'nl':'Aster Road is een Amerikaanse grungeband.',
+            'de':'Aster Road ist eine amerikanische Grungeband.',
+            'fr':'Aster Road est un groupe de grunge américain.',
+            'es':'Aster Road es un grupo de grunge estadounidense.',
+        }
+        async def guard():
+            return None
+        class Fetch:
+            async def request(self,url,**kwargs):
+                params=parse_qs(urlsplit(url).query)
+                self.requests.append((urlsplit(url).hostname,params))
+                page={'title':'Aster Road','pageprops':{'wikibase_item':self.qid},
+                      'extract':'<p>'+self.lead+'</p>', 'revisions':[{'revid':1234}]}
+                return 200,json.dumps({'query':{'pages':[page]}}),url
+        fetch=Fetch()
+        for locale,lead in leads.items():
+            with self.subTest(locale=locale):
+                fetch.requests,fetch.qid,fetch.lead=[],'Q1',lead
+                source=await research.wikipedia(fetch,'Aster Road','Introduce this artist',locale,
+                    expected_roles=('Group',),expected_entity_id='Q1',original_paragraphs=True)
+                self.assertIsNotNone(source)
+                self.assertEqual(source.language,locale)
+                self.assertEqual(source.entity_id,'Q1')
+                self.assertEqual(source.text,lead)
+                self.assertEqual(len(fetch.requests),1)
+                self.assertEqual(source.model_data()['literal_passages'][0]['text'],lead)
+        for qid,roles,lead in (
+                ('Q2',('Group',),leads['nl']),
+                ('Q1',('Person',),leads['nl']),
+                ('Q1',('Group',),'Aster Road is a mountain.'),
+                ('Q1',('Group',),'Aster Road is een grungebandiet.')):
+            with self.subTest(qid=qid,roles=roles,lead=lead):
+                fetch.requests,fetch.qid,fetch.lead=[],qid,lead
+                with patch.object(research,'_qualified_wikipedia_title',AsyncMock(return_value='')):
+                    self.assertIsNone(await research.wikipedia(fetch,'Aster Road','Introduce this artist','nl',
+                        expected_roles=roles,expected_entity_id='Q1',original_paragraphs=True))
+
     async def test_generic_more_researches_selected_composer_and_preserves_follow_up_without_playback(self):
         f = self.f
         _, _, reference = await f.selected_credit()

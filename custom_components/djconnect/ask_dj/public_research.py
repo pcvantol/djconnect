@@ -39,11 +39,11 @@ NON_MUSIC_IDENTITY = re.compile(
     re.I,
 )
 MUSICAL_GROUP = re.compile(
-    r"\b(?:band|(?:music(?:al)?|pop|rock|jazz|folk|metal|punk|soul|indie|electronic|hip[- ]hop) group|"
-    r"(?:muziek|pop|rock|jazz|folk|metal|punk)(?:groep|band)|"
-    r"(?:pop|rock|jazz|folk|metal|punk)(?:band|gruppe)|"
-    r"groupe (?:musical|(?:de )?(?:pop|rock|jazz|folk|metal))|"
-    r"grupo (?:musical|(?:de )?(?:pop|rock|jazz|folk|metal)))\b", re.I,
+    r"\b(?:band|(?:music(?:al)?|pop|rock|jazz|folk|metal|punk|grunge|soul|indie|electronic|hip[- ]hop) group|"
+    r"(?:muziek|pop|rock|jazz|folk|metal|punk|grunge)(?:groep|band)|"
+    r"(?:pop|rock|jazz|folk|metal|punk|grunge)(?:band|gruppe)|"
+    r"groupe (?:musical|(?:de )?(?:pop|rock|jazz|folk|metal|grunge))|"
+    r"grupo (?:musical|(?:de )?(?:pop|rock|jazz|folk|metal|grunge)))\b", re.I,
 )
 
 UNSAFE_QUERY = re.compile(
