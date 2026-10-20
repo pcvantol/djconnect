@@ -72,6 +72,69 @@ class ContextualReleaseGateTest(unittest.TestCase):
             with self.assertRaisesRegex(RuntimeError,'required'):
                 reserve(None,'missing-ledger','fixture-model')
 
+    def test_sixhour_budget_is_separate_atomic_expiring_and_cannot_be_raised(self):
+        import ast
+        from concurrent.futures import ThreadPoolExecutor
+        from datetime import UTC, datetime
+        import json
+        import os
+        from tempfile import TemporaryDirectory
+        from unittest.mock import patch
+        path=ROOT/'scripts/verification/verify_ask_dj_contextual_dialogue_http.py'
+        node=next(n for n in ast.parse(path.read_text()).body if isinstance(n,ast.FunctionDef)
+                  and n.name=='reserve_quality_attempt')
+        namespace={'json':json,'os':os}
+        exec(compile(ast.Module(body=[node],type_ignores=[]),str(path),'exec'),namespace)
+        reserve=namespace['reserve_quality_attempt']
+        grant='DJC-CORE-SIXHOUR-20261020T062003Z-MAX300'
+        initial={'schema_version':1,'grant_id':grant,'limit':300,'attempts':[],
+                 'starts_at':'2026-10-20T06:20:03Z','expires_at':'2026-10-20T12:20:03Z'}
+        with TemporaryDirectory() as directory, patch.dict('os.environ',{'DJC_MODEL_BUDGET_GRANT':grant}), \
+                patch('datetime.datetime') as clock:
+            clock.fromisoformat.side_effect=datetime.fromisoformat
+            clock.now.return_value=datetime(2026,10,20,7,tzinfo=UTC)
+            ledger=Path(directory)/'new-budget.json'
+            old=Path(directory)/'old-budget.json'
+            old.write_text(json.dumps({'limit':40,'attempts':[{}]*40}))
+            original_old=old.read_bytes()
+            ledger.write_text(json.dumps(initial))
+            def attempt(index):
+                try:
+                    return reserve(ledger,f'fixture-{index}','fixture-model')
+                except RuntimeError as exc:
+                    return str(exc)
+            with ThreadPoolExecutor(max_workers=12) as pool:
+                outcomes=list(pool.map(attempt,range(309)))
+            self.assertEqual(sorted(v for v in outcomes if type(v) is int),list(range(1,301)))
+            self.assertEqual(outcomes.count('quality_cumulative_budget_exhausted'),9)
+            rows=json.loads(ledger.read_text())['attempts']
+            self.assertEqual([r['ordinal'] for r in rows],list(range(1,301)))
+            self.assertTrue(all(r['reserved_before_io'] and r['grant_id']==grant for r in rows))
+            self.assertEqual(old.read_bytes(),original_old)
+            for when in (datetime(2026,10,20,6,20,2,tzinfo=UTC),
+                         datetime(2026,10,20,12,20,3,tzinfo=UTC)):
+                ledger.write_text(json.dumps(initial))
+                before=ledger.read_bytes()
+                clock.now.return_value=when
+                with self.assertRaisesRegex(RuntimeError,'window_closed'):
+                    reserve(ledger,'outside-window','fixture-model')
+                self.assertEqual(ledger.read_bytes(),before)
+            clock.now.return_value=datetime(2026,10,20,7,tzinfo=UTC)
+            for change in ({'limit':301},{'grant_id':'another-grant'},
+                           {'expires_at':'2026-10-21T12:20:03Z'}):
+                ledger.write_text(json.dumps({**initial,**change}))
+                before=ledger.read_bytes()
+                with self.assertRaises(RuntimeError):
+                    reserve(ledger,'changed-grant','fixture-model')
+                self.assertEqual(ledger.read_bytes(),before)
+            ledger.write_text(json.dumps(initial))
+            with patch.dict('os.environ',{'DJC_MODEL_BUDGET_GRANT':'unapproved'}), \
+                    self.assertRaisesRegex(RuntimeError,'grant_invalid'):
+                reserve(ledger,'unapproved','fixture-model')
+            with self.assertRaisesRegex(RuntimeError,'grant_invalid'):
+                reserve(old,'old-grant-not-renewed','fixture-model')
+            self.assertEqual(old.read_bytes(),original_old)
+
     def test_actual_answer_pilot_covers_five_languages_and_cannot_qualify_a_fallback(self):
         from scripts.verification.askdj_contextual_quality import cases,check_answer
         rows=cases()
@@ -265,9 +328,9 @@ class ContextualReleaseGateTest(unittest.TestCase):
         self.assertEqual(proof['literal_core_routes'],48)
         self.assertEqual(proof['executable_help_cases'],60)
         self.assertEqual(proof['conversation_families'],42)
-        self.assertEqual(proof['conversation_steps'],333)
-        self.assertEqual(proof['reported_issues'],83)
-        self.assertEqual(len(proof['open_core_findings']),38)
+        self.assertEqual(proof['conversation_steps'],334)
+        self.assertEqual(proof['reported_issues'],84)
+        self.assertEqual(len(proof['open_core_findings']),39)
         self.assertEqual(proof['proactive_golden_cases'],560)
         self.assertEqual(proof['catalogue_questions'],70)
         self.assertEqual(proof['catalogue_conversation_steps'],30)

@@ -7768,6 +7768,10 @@
         {
           "file": "tests/test_ask_dj_biographical_dates.py",
           "method": "test_literal_candidates_are_value_only_and_leave_sources_unchanged"
+        },
+        {
+          "file": "tests/test_ask_dj_exploration.py",
+          "method": "test_named_and_selected_research_cannot_publish_an_unreviewed_style_or_partial_story"
         }
       ],
       "steps": [
@@ -7946,6 +7950,21 @@
           ],
           "acceptance_status": "owner_contract",
           "proof_boundary": "Identity regression is source-only; actual richness and narrative answer remain open."
+        },
+        {
+          "id": "ASKDJ-FLOW-context-research-complete-narration-review",
+          "language": "nl",
+          "question": "Vertel me meer over deze bijdrage, of over de genoemde band en een bijzonder optreden.",
+          "expected_answer": "Selected and freely named schema3 research must pass complete source/language/style review; a rejected, missing-quality or prefix-only review cannot publish a cropped story to response, history or speech. Qualified original-credit attribution remains separate.",
+          "model_policy": "Model and public source fixtures exercise the actual shared owner; independently reviewed real answers remain required.",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_exploration.py",
+              "method": "test_named_and_selected_research_cannot_publish_an_unreviewed_style_or_partial_story"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual morning v2 delivered only a short prefix without all requested aspects/follow-up; local refusal regression is not narrative/native/installed/audible acceptance."
         }
       ]
     },
@@ -8994,6 +9013,12 @@
       "family_id": "ASKDJ-FLOW-style-lifecycle",
       "core_qualification": "open",
       "finding": "Independent re-review and six causal handler cases find paired token rotation or authorization withdrawal after the final owner resolver can return old body with200 although Profile and source-grant revisions remain unchanged. Reuse original-runtime/identity/headers/Profile synchronous conversation fence before response representation and register it with the shared delivery admission; preserve archive and qualified fresh-owner read. Local fix is not production pairing/native acceptance."
+    },
+    {
+      "id": "ASKDJ-ISSUE-context-research-bypasses-complete-narration-review",
+      "family_id": "ASKDJ-FLOW-contribution-exploration",
+      "core_qualification": "open",
+      "finding": "Actual morning-nl-band-v2 can publish a cropped supported_prefix_v1 without requested members or closing question because interpreted_context_research schema3 used legacy review without language/style fields. Eight named/selected causal scenarios reproduce unreviewed quality and partial publication. Reuse complete source-ID and language/style assessment without prefix recovery; actual full narrative quality remains OPEN."
     }
   ],
   "regression_suite_files": [

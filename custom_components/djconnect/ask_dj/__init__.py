@@ -3025,7 +3025,7 @@ async def _informational_assist_response(
         if turn.agent_calls < (3 if turn.interpreted_artist_research or turn.interpreted_context_research else 2):
             grounding_context = {"public_music_research": turn.public_research,
                                  "qualified_context": turn.source_context}
-            id_review = bool(turn.interpreted_artist_research
+            id_review = bool((turn.interpreted_artist_research or turn.interpreted_context_research)
                 and turn.public_research.get('schema_version') == 3)
             from ..public_artist_narration import complete_review_projection, resolve_review_quotes
             review_context = complete_review_projection(grounding_context) if id_review else grounding_context
@@ -3036,8 +3036,10 @@ async def _informational_assist_response(
                 review_prompt = review_prompt.replace('\nData:\n',
                     ' Also return language_ok and style_ok booleans. language_ok requires fluent '
                     'requested-language prose; style_ok requires a useful connected personal DJ '
-                    'introduction in the requested Persona/Mood, not a metadata/biography list or '
-                    'generic praise. No compulsory joke or fixed opening. '
+                    'answer in the requested Persona/Mood, addressing each requested musical aspect '
+                    'and ending with one relevant open follow-up grounded in the supplied evidence. '
+                    'A metadata/biography list, generic praise or a cropped first detail is insufficient. '
+                    'No compulsory joke or fixed opening. '
                     + story_style(persona=turn.style['persona'], mood=turn.style['mood'], locale=language)
                     + '\nData:\n', 1)
             checked = await _call_dialogue_agent(hass, {**data, "text": review_prompt})

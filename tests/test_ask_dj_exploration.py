@@ -6,12 +6,25 @@ from unittest.mock import patch
 from tests import test_ask_dj_contextual_dialogue as shared
 
 
-def reviewed_fixture(projection):
+def reviewed_fixture(projection, *, id_wire=True):
     """The declared fixture's closing invitation makes no factual assertion."""
-    review=shared._research_assessment_fixture(projection)
+    from custom_components.djconnect.ask_dj.public_research import evidence_spans, _sentences
+    if id_wire and projection['evidence']['public_music_research']['schema_version']==3:
+        spans=[span for source in projection['evidence']['public_music_research']['sources']
+               for span in source.get('evidence_spans',evidence_spans(source))]
+        review={'supported':True,'language_ok':True,'style_ok':True,
+                'review_schema':'source_id_review_v1','claim_checks':[
+                    {'text':sentence,'kind':'fact','evidence_ids':[spans[0]['id']]}
+                    for sentence in _sentences(projection['answer'])]}
+    else:
+        review=shared._research_assessment_fixture(projection)
     for check in review['claim_checks']:
         if check['text'].endswith('?'):
             check.update(kind='dj_appreciation',evidence_ids=[],quote='')
+    if id_wire and projection['evidence']['public_music_research']['schema_version']==3:
+        review.update(language_ok=True,style_ok=True,review_schema='source_id_review_v1')
+        for check in review['claim_checks']:
+            check.pop('quote',None)
     return review
 
 
@@ -148,6 +161,64 @@ class ExplorationTests(unittest.IsolatedAsyncioTestCase):
         self.assertFalse(result.get('playback_actions'))
         self.assertEqual(f.effects,[])
         self.assertTrue(result.get('sources'))
+
+    async def test_named_and_selected_research_cannot_publish_an_unreviewed_style_or_partial_story(self):
+        """Real shared owner/history; model and public source are explicit fixtures."""
+        f=self.f
+        _,_,reference=await f.selected_credit()
+        first='Brian Eno is an English composer.'
+        full=first+' Would you like to explore his music?'
+        for mode in ('named','selected'):
+            for scenario in ('style_rejected','language_rejected','quality_missing','partial'):
+                with self.subTest(mode=mode,scenario=scenario):
+                    await f.history.async_clear('profile:profile-a')
+                    projections=[]
+                    async def agent(hass,data,**kwargs):
+                        projection=json.loads(data['text'].split('\nData:\n',1)[1])
+                        projections.append(projection)
+                        if 'available' in projection:
+                            reply={'read':'research','reference':mode,'exclude_current':False,
+                                   'subject':'Brian Eno','angle':'composition'}
+                        elif 'evidence' in projection:
+                            # Speak the requested review wire; this is not a
+                            # test-side upgrade of the old production reviewer.
+                            strict='Also return language_ok and style_ok booleans' in data['text']
+                            reply=reviewed_fixture({**projection,'answer':first if scenario=='partial' else full},id_wire=strict)
+                            if strict:
+                                reply.update(language_ok=scenario!='language_rejected',
+                                             style_ok=scenario!='style_rejected')
+                                if scenario=='quality_missing':
+                                    reply.pop('style_ok',None)
+                                if projection['evidence']['public_music_research']['schema_version']==3:
+                                    reply['review_schema']='source_id_review_v1'
+                                    for check in reply['claim_checks']:
+                                        check.pop('quote',None)
+                            if scenario=='partial':
+                                reply.update(supported=False,unsupported_claims=['He built every instrument.'],
+                                    supported_prefix=first,prefix_supported=True,prefix_answers_question=True)
+                        else:
+                            reply=first+' He built every instrument.' if scenario=='partial' else full
+                        return {'response':{'speech':{'plain':{'speech':json.dumps(reply) if isinstance(reply,dict) else reply}}}}
+                    context={'selected_entry':reference} if mode=='selected' else None
+                    question='Tell me more' if mode=='selected' else 'Tell me about Brian Eno: his music and recordings.'
+                    with f.research_http(title='Brian Eno',text=first),patch.object(
+                            f.pipeline,'_call_conversation_process_transport',agent):
+                        answer,status=await f.request(question,identifier=f'story-review-{mode}-{scenario}',
+                            context=context,language='en')
+                    self.assertEqual(status,200,answer)
+                    self.assertEqual(len(projections),3,projections)
+                    self.assertFalse(answer.get('is_generated_text'),answer)
+                    self.assertNotEqual(answer.get('text'),first)
+                    self.assertTrue(all(s.get('claim_scope')=='qualified_credit_only'
+                                        for s in answer.get('sources',[])))
+                    self.assertNotIn('research_answer_qualification',answer)
+                    self.assertFalse(answer.get('playback_actions'))
+                    stored=await f.history.async_history('profile:profile-a')
+                    assistant=[m for m in stored['messages'] if m.get('role')=='assistant']
+                    self.assertEqual(len(assistant),1,stored)
+                    self.assertEqual(assistant[0]['text'],answer['text'])
+                    self.assertNotIn(first,assistant[0]['text'])
+                    self.assertEqual(f.effects,[])
 
     async def test_more_on_reopened_older_contribution_uses_original_subject_and_current_style(self):
         """Actual owner/SQLite/shared route; source and model I/O are fixtures."""

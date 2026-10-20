@@ -96,24 +96,42 @@ def hashes():
 
 
 def reserve_quality_attempt(path, case_id, model):
-    """Reserve before I/O; the explicit 40-call approval spans restarts/runs."""
+    """Reserve before I/O; each explicit grant spans all its restarts/runs."""
     import fcntl
+    from datetime import UTC, datetime
     if not path:
         raise RuntimeError('quality_cumulative_budget_ledger_required')
     with open(path,'r+',encoding='utf-8') as ledger:
         fcntl.flock(ledger,fcntl.LOCK_EX)
         data=json.load(ledger)
-        if (data.get('limit') != 40 or type(data.get('limit')) is not int
+        grant=os.environ.get('DJC_MODEL_BUDGET_GRANT')
+        limit=40
+        if grant is not None:
+            if (grant != 'DJC-CORE-SIXHOUR-20261020T062003Z-MAX300'
+                    or data.get('schema_version') != 1 or data.get('grant_id') != grant
+                    or data.get('starts_at') != '2026-10-20T06:20:03Z'
+                    or data.get('expires_at') != '2026-10-20T12:20:03Z'):
+                raise RuntimeError('quality_explicit_budget_grant_invalid')
+            if not (datetime.fromisoformat(data['starts_at']) <= datetime.now(UTC)
+                    < datetime.fromisoformat(data['expires_at'])):
+                raise RuntimeError('quality_explicit_budget_window_closed')
+            limit=300
+        if (data.get('limit') != limit or type(data.get('limit')) is not int
                 or not isinstance(data.get('attempts'),list)):
             raise RuntimeError('quality_cumulative_budget_ledger_invalid')
-        if len(data['attempts'])>=40:
+        if len(data['attempts'])>=limit:
             raise RuntimeError('quality_cumulative_budget_exhausted')
-        data['attempts'].append({'case_id':case_id,'model':model,'reserved_before_io':True})
+        attempt={'case_id':case_id,'model':model,'reserved_before_io':True}
+        if grant is not None:
+            attempt.update(grant_id=grant,ordinal=len(data['attempts'])+1,
+                           reserved_at=datetime.now(UTC).isoformat())
+        data['attempts'].append(attempt)
         ledger.seek(0)
         json.dump(data,ledger,indent=2)
         ledger.truncate()
         ledger.flush()
         os.fsync(ledger.fileno())
+        return len(data['attempts'])
 
 
 async def main():
@@ -372,7 +390,10 @@ async def main():
                         answer_sha256=judge['answer_sha256'],
                         judge_prompt_sha256=hashlib.sha256(judge['prompt'].encode()).hexdigest())
             if os.environ.get('DJC_SAFETY_PROBE') == 'contextual_quality':
-                reserve_quality_attempt(os.environ.get('DJC_MODEL_BUDGET_LEDGER'),case_id,model)
+                if api.max_retries != 0:
+                    raise RuntimeError('quality_transport_retries_not_disabled')
+                receipt['global_attempt_ordinal']=reserve_quality_attempt(
+                    os.environ.get('DJC_MODEL_BUDGET_LEDGER'),case_id,model)
             # A refused reservation never reached the provider boundary. Once
             # reserved, retain even failed/cancelled attempts in this run too.
             model_receipts.append(receipt)
