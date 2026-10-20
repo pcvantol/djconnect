@@ -865,6 +865,8 @@ def model_prompt(text: str, payload: dict, source: dict | None = None) -> str:
             "Your present interest or appreciation may colour the telling, without asserting artist psychology or listener feelings. "
             "Use a concrete work, collaboration or activity from the evidence to answer a general introduction. "
             "Leave dates out unless needed to answer this question; when needed bind each absolute year to its exact source-marked work and event. "
+            "Band founding/member dates instead require an exact supplied biographical_date_events proof: name its group and actor explicitly, "
+            "in a separate simple sentence about that one event. Omit other biography dates; an excerpt year alone is insufficient. "
             "Keep uncertainty and conflicts explicit, especially for concerts. If evidence is missing, say so briefly. "
             "Write only natural connected prose, not JSON, bullets, metadata or markdown emphasis. "
             "No unasked playback suggestion or fixed greeting. End with one relevant, open follow-up question about the supported subject; never imply an unsupported fact in its premise. "
@@ -895,8 +897,11 @@ def model_prompt(text: str, payload: dict, source: dict | None = None) -> str:
                 'Do not fill a sparse passage with remembered facts, sonic contrast, artist feelings, '
                 'causality or chronology. If only one performance detail is documented, share that detail '
                 'honestly rather than expanding it into an imagined scene. '
-                'Omit calendar years unless the actual question asks for dates. Preserve proper names '
-                'and genuine work titles; translate ordinary descriptions naturally. '
+                'Omit calendar years unless the actual question asks for dates. '
+                'A group biography date additionally requires one of the supplied biographical_date_events proofs: '
+                'state only that event, with its explicit group, actor and year in one simple sentence. '
+                'If no matching proof exists, omit that date rather than assuming a biography year is admissible. '
+                'Preserve proper names and genuine work titles; translate ordinary descriptions naturally. '
                 'Keep source names in the source links, without narrating your research process. '
                 'End with one relevant open follow-up question whose premise follows from the evidence. '
                 'Only natural prose, no bullets, JSON, markdown, fixed greeting or concluding lesson. '

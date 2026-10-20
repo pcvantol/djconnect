@@ -537,7 +537,10 @@ async def realize(brief, *, ask, admission, debug=None):
         +
         "Name resolved_public_subject naturally so the story is also understandable when heard without its card. "
         "Translate faithfully into the requested language. Keep names and work titles exact. "
+        "Keep work titles shorter than four characters inside paired title quotes, so they are not ordinary words. "
         "Do not include calendar years in this unsolicited short contribution. "
+        "Keep an event's edition or other limiting qualification: an anthem for one edition is not an anthem for the event in general. "
+        "If leaving out a date would broaden the claim, use another documented detail instead. "
         "Do not use relative chronology such as earlier, afterwards, later or then; state the supported facts without those order claims. "
         "No invented sound, career, causality, artist psychology, listener taste, shared memories, "
         "DJ selection or future playback. Never invent a contrast, consequence or significance "

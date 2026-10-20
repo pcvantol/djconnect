@@ -371,9 +371,11 @@ async def main():
                     receipt.update(purpose=judge.get('purpose','answer_language_judge'),
                         answer_sha256=judge['answer_sha256'],
                         judge_prompt_sha256=hashlib.sha256(judge['prompt'].encode()).hexdigest())
-            model_receipts.append(receipt)
             if os.environ.get('DJC_SAFETY_PROBE') == 'contextual_quality':
                 reserve_quality_attempt(os.environ.get('DJC_MODEL_BUDGET_LEDGER'),case_id,model)
+            # A refused reservation never reached the provider boundary. Once
+            # reserved, retain even failed/cancelled attempts in this run too.
+            model_receipts.append(receipt)
         began = time.monotonic()
         try:
             stream = await original_create(**kwargs)

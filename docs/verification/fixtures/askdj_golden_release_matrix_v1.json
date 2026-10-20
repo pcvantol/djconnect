@@ -2760,6 +2760,21 @@
           ],
           "acceptance_status": "open_real_quality",
           "proof_boundary": "Four observed tracks and original SQLite reopen use declared source/model fixtures and modelled spacing. Actual public source selection is separate from real LLM, duration, installed, native or audible quality."
+        },
+        {
+          "id": "ASKDJ-FLOW-short-quoted-work-episode",
+          "language": "nl",
+          "question": "Vertel het gedocumenteerde verhaal bij deze compositorbijdrage met een korte singletitel.",
+          "expected_answer": "A source-noun-marked quoted title such as One can identify an actual work episode. The same ordinary token as a pronoun/adverb/number is not a work reference; short titles require paired title quotes in claim and source.",
+          "model_policy": "Existing independent evidence/role review remains required; title formatting grants no fact or date authority.",
+          "owning_tests": [
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_short_quoted_single_keeps_work_episode_without_generic_quote_authority"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual NL-v9 composer proposal was rejected because its quoted single One lacked a source anchor. Source regression covers the correction; real published story remains open."
         }
       ],
       "owning_tests": [
@@ -2790,6 +2805,10 @@
         {
           "file": "tests/test_personal_dj_narration_public_artist.py",
           "method": "test_producer_episode_requires_its_own_independent_verdict"
+        },
+        {
+          "file": "tests/test_personal_dj_narration_public_artist.py",
+          "method": "test_short_quoted_single_keeps_work_episode_without_generic_quote_authority"
         }
       ],
       "real_ha_profile": "full_golden",
@@ -7351,6 +7370,26 @@
         {
           "file": "tests/test_askdj_contextual_release_gate.py",
           "method": "test_actual_answer_pilot_covers_five_languages_and_cannot_qualify_a_fallback"
+        },
+        {
+          "file": "tests/test_ask_dj_biographical_dates.py",
+          "method": "test_exact_accession_and_founding_dates_translate_across_five_languages"
+        },
+        {
+          "file": "tests/test_ask_dj_biographical_dates.py",
+          "method": "test_wrong_person_group_year_event_and_source_never_gain_admission"
+        },
+        {
+          "file": "tests/test_ask_dj_biographical_dates.py",
+          "method": "test_nearby_event_negation_uncertainty_and_pronouns_stay_closed"
+        },
+        {
+          "file": "tests/test_ask_dj_biographical_dates.py",
+          "method": "test_split_extra_date_and_prefix_cannot_bypass_original_guards"
+        },
+        {
+          "file": "tests/test_ask_dj_biographical_dates.py",
+          "method": "test_literal_candidates_are_value_only_and_leave_sources_unchanged"
         }
       ],
       "steps": [
@@ -8459,7 +8498,13 @@
     {
       "id": "ASKDJ-ISSUE-biographical-event-date-has-no-temporal-receipt",
       "family_id": "ASKDJ-FLOW-contribution-exploration",
-      "finding": "Actual NL-v8 named-band narrative includes a sourced membership year but the strict executable temporal receipt admits only source-marked work anchors. A literal biography event currently has no representable admission. Keep wrong-event/year, relative chronology and full-claim guards; qualify a separate bounded actor/group/event receipt before admitting biographies with dates. This is an open implementation and real-answer acceptance finding, not authority to trust supported:true. Existing named story reproduction and five-language temporal-owner regressions remain required.",
+      "finding": "Actual NL-v8 named-band narrative includes a sourced membership year but the strict executable temporal receipt admits only source-marked work anchors. A literal biography event currently has no representable admission. Keep wrong-event/year, relative chronology and full-claim guards; qualify a separate bounded actor/group/event receipt before admitting biographies with dates. This is an open implementation and real-answer acceptance finding, not authority to trust supported:true. Existing named story reproduction and five-language temporal-owner regressions remain required. Local additive biographical_event_v1 source now covers closed explicit founding/accession receipts, with five-language directed and negative owner tests. Real actual-answer and broader formulations remain OPEN; no release acceptance inferred.",
+      "core_qualification": "open"
+    },
+    {
+      "id": "ASKDJ-ISSUE-short-quoted-work-title-not-admitted",
+      "family_id": "ASKDJ-FLOW-style-lifecycle",
+      "finding": "Actual NL-v9 source says the single One, but short unitalicized quoted titles are omitted from work anchors, suppressing a reviewed composer episode. Admit only literal work-noun/pair-quoted titles; short names also require exact paired title quotes in claim and source, never an ordinary One/I/up token. Causal ordinary-word P2 counterexample retained. Actual publication and story quality remain open.",
       "core_qualification": "open"
     }
   ],
@@ -8483,7 +8528,8 @@
     "tests/test_session_artist_images.py",
     "tests/test_session_story_variety.py",
     "tests/test_ask_dj_exploration.py",
-    "tests/test_mood_music_steering.py"
+    "tests/test_mood_music_steering.py",
+    "tests/test_ask_dj_biographical_dates.py"
   ],
   "issue_policy": {
     "new_findings": "Add a named failing reproduction and semantic expected answer in the same corrective candidate; preserve it after the fix.",

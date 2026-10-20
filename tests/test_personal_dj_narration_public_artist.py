@@ -598,6 +598,40 @@ class PublicArtistNarrationTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(json.dumps(projection,sort_keys=True),before)
         self.assertEqual(focus['authority'],'telling_focus_only_full_original_context_remains_evidence')
 
+    def test_short_quoted_single_keeps_work_episode_without_generic_quote_authority(self):
+        from custom_components.djconnect.public_artist_narration import _has_public_work_episode
+        for title in ('One','Up','DNA','I'):
+            for prefix,expected in (('released the single',True),('said',False)):
+                quote=f'Ada Reed {prefix} "{title}".'
+                anchors=self.research.source_work_anchors(quote)
+                source=self.research._source('Wikipedia','Ada Reed','https://en.wikipedia.org/wiki/Ada_Reed',
+                    quote,'en',source_anchors=anchors)
+                span=self.research.evidence_spans(source.model_data())[0]
+                review={'supported':True,'claim_checks':[{'text':f'Ada Reed released “{title}”.',
+                    'kind':'relationship','evidence_ids':[span['id']],'quote':span['text']}]}
+                self.assertEqual(_has_public_work_episode(review,(source,)),expected,(title,prefix))
+                self.assertEqual(source.text,quote)
+                review['claim_checks'][0]['kind']='dj_appreciation'
+                self.assertFalse(_has_public_work_episode(review,(source,)))
+        for quote in ('She described it as "One".','single "Unclosed title',
+                      'single “Mismatched title"','song " padded "','song ""'):
+            self.assertEqual(self.research.source_work_anchors(quote),(),quote)
+        self.assertEqual(self.research.source_work_anchors('the single «One».'),('One',))
+        self.assertEqual(self.research.source_work_anchors(
+            'Ada Reed wrote and produced "Amber Nights".'),('Amber Nights',))
+        self.assertEqual(self.research.source_work_anchors('Ada Reed wrote "Amber Nights".'),())
+        self.assertEqual(self.research.source_work_anchors('Ada Reed wrote and produced "I".'),())
+        for title,ordinary in (('One','One musician invited Ada Reed to a studio.'),
+                ('I','I invited Ada Reed to a studio.'),('Up','Ada Reed stood up.')):
+            text=f'Ada Reed released the single "{title}". '+ordinary
+            source=self.research._source('Wikipedia','Ada Reed','https://en.wikipedia.org/wiki/Ada_Reed',
+                text,'en',source_anchors=self.research.source_work_anchors(text))
+            span=self.research.evidence_spans(source.model_data())[-1]
+            review={'supported':True,'claim_checks':[{'text':ordinary,'kind':'relationship',
+                'evidence_ids':[span['id']],'quote':span['text']}]}
+            self.assertFalse(_has_public_work_episode(review,(source,)))
+            self.assertFalse(self.research._answer_mentions_anchor(title+' More',title,[title]))
+
     async def test_markdown_bubble_is_not_admitted_or_sent_to_an_extra_model_review(self):
         self.answer = '*'+self.answer+'*'
         moment = await self.publish()

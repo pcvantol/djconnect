@@ -6,11 +6,14 @@ Apple coordination as needed. The existing heartbeat
 **20 October 2026, 08:00 Europe/Amsterdam**. It retains the same writer and WIP;
 another active execution on the same resources permits status readback only.
 
-Current source checkpoint: `23e152b9c3c6db416061d2f3c728bc3f731e059c`, branch
-`codex/core-contextual-dj-interactions-v1`. Main remains `8b221d07`. No next
-slice, public producer pin, merge or installation is inferred from this timer.
-Individual deletion Core #1225 / Apple #143 remains queued after valid current
-WIP completion, Finalization and workspace admission.
+Current local source baseline: `f528d4445c10e97d81ee301d4c6ba2d83e719c8e`, branch
+`codex/core-contextual-dj-interactions-v1`; the subsequent biography/title delta
+is captured by the commit containing this document. Main remains `8b221d07`.
+Latest actual pilot: `nl-v10`, **36/40 reserved**, four remain. No paid process
+is running. Narrative acceptance is **NO_GO**. No next slice, public producer
+pin, merge or installation is inferred from this timer. Individual deletion
+Core #1225 / Apple #143 remains queued after valid current WIP completion,
+Finalization and workspace admission.
 
 ## Actual-answer pilot approval and execution
 
@@ -146,10 +149,130 @@ original `/private/tmp/` ledger remains authoritative and MUST continue at24.
 No secret-key pattern was found before preservation. Source snapshots/manifests
 remain in `/private/tmp/`; no cleanup is authorized by this continuation.
 
-Current Golden inventory:42families/310steps/69reports;24Core findings and28real
+Historical f528d444 Golden inventory:42families/310steps/69reports;24Core findings and28real
 quality steps OPEN. The new biographical-date finding is explicitly recorded.
-Next within the same WIP: implement/review a bounded biographical-event receipt
+At that checkpoint the next same-WIP action was to implement/review a bounded biographical-event receipt
 (founder/member events first), preserving all wrong-year/event/relative/prefix
 guards; then rerun only justified real cases within the remaining16attempts.
 Full five-language/Persona×Mood, genre continuation, rich history, actual client
 and speech/audible acceptance remain open. Apple gets released pins only.
+
+
+## Biography and literal-title continuation (after `f528d444`)
+
+Actual `nl-v9` adds7attempts (31/40), `nl-v10` adds5 (36/40).
+The selected composer publication still fails; the selected "Vertel meer"
+request therefore has not reached an actual published seed. The Dutch band
+answer still returns the explicit verification fallback. The actual Mood
+clarification publishes in v9. Exact returned texts and rejected proposals are
+appended to the actual-text review; proposals are never labeled as replies.
+
+Two causal product gaps now have bounded source repairs:
+
+- Founding/accession dates may use `biographical_event_v1`, tied to a resolved
+  group identity/QID and exact original source sentence, directed event, actor,
+  year and claim. This rejects unrelated founding, person/group confusion,
+  multiple events/years, inferred chronology and pronouns. It does not establish
+  every true biography date: the actual Nirvana 1990 passage remains outside
+  this closed receipt because its group is implicit and its paragraph contains
+  more than one date. That is an admission limitation, not proof that1990 is false.
+- Literal musical-work nouns plus paired title quotes retain short works such
+  as "One". Very short titles must also be explicitly quoted in the claim and
+  original span; ordinary words cannot satisfy the episode gate. A literal
+  paired "wrote and produced" activity may bind a quoted title of four or more
+  characters. Neither marker is semantic, actor, role or current-work authority.
+
+Independent technical review found two P2 counterexamples during development:
+free place text absorbed a second band's founding, and the ordinary word "One"
+was mistaken for a work reference. Both were corrected and retested. Final
+bounded reviews give scoped GO for biography identity, short-title quoting and
+paired-activity anchors; none grants narrative/release qualification.
+
+A no-key replay of the immutable actual v10 proposal/review and literal source
+spans now passes `_has_public_work_episode`. Every reconstructed excerpt's
+SHA256 equals the captured content hash. This proves the identified gate repair
+only: full owner publication and every downstream gate were not replayed.
+Receipt: `nl-v10-work-episode-gate-replay.json` in the original evidence folder.
+No new model attempt or public-source fetch was used for that replay.
+
+The cumulative usage receipt records84,978reported input tokens and9,890output
+tokens across36reserved attempts,35completed. Failed/cancelled usage can be
+missing; no monetary bill is inferred. Run-subset selection does not reset the
+ledger. A refused reservation now also stays out of the run's attempted-call
+list; reserved failed/cancelled calls remain counted. Four attempts remain;
+do not start the full selected+band probe, which may require more than four.
+
+The new immutable recovery copy is
+`artifacts/core-contextual-night-20261020/evidence-36-attempts/` (36files) with a
+separate SHA256 manifest. The older24-attempt copy remains untouched and is
+historical only. The live `/private/tmp/` ledger at36 is the sole budget authority.
+Current Golden inventory is42families/311steps/70reports, with25Core and28real
+quality steps OPEN. No finding was closed on fixture success.
+
+## Apple/Pi consumer readback and remaining handoff
+
+Authorized Apple coordination identified whole-album choices (Core #1210),
+artist-photo/rich history (Core #1164), selected contribution (Core #1229 /
+Apple #150), and Mood suggestions (Core #1230 / Apple #152). The current WIP
+contracts remain `qualified:false` / PENDING_QUALIFIED_PRODUCER_PIN; no Apple
+activation, installed proof or shared renderer qualification follows.
+
+Apple's proposed opt-in native harness uses ordinary app `sendAskDJText`,
+reopens real Profile history and binds receipts to run/app binary, Session,
+Profile and Core installation. Its default remains execute:false /
+PENDING_CORE_HANDOFF. Core main `8b221d07` carries39families/167steps/57reports,
+not this unpublished WIP's expanded set. Existing protected contextual fixtures
+are transport/contract examples, not external-provider completion evidence.
+Core invocation metrics do not prove paid provider completion or actual audio.
+A qualified private adapter/export with correlation, per-attempt provider/model/
+terminal/token evidence, semantic/effect receipts, exact installation binding,
+bounded attempts and disposable Session preconditions is still missing.
+Apple's proposed40-question reserve does not receive or enlarge this night's
+40-model-attempt grant. Main's informational review budget is2; current WIP
+selected-research can use3. SDK retries require their own attempt accounting.
+
+Pi reports its own pending app/capability handoff. Main supports the
+raspberry_pi client type and contextual-dialogue version1, but that does not
+prove admission of either paired Pi installation. No Pi-source, service or
+hardware mutation, new writer or broader peer messaging was performed here.
+
+
+## Final scoped validation and editorial readback for this checkpoint
+
+Final full host regression: **2807tests PASS,7existing skips** in67.504seconds;
+log `/private/tmp/djc-bio-anchor-final-full-tests.log`. Focused277PASS and scoped
+Ruff PASS. Roadmap current-reference SHA and generated SOURCES were reconciled;
+historical receipt hashes remain unchanged. Earlier stale-hash/generated-view
+failures are retained and were not waived. The final short prompt clarification
+for preserving event-edition scope is covered by a subsequent focused rerun.
+
+Independent editorial review remains **NO_GO** for stories: the v10 composer
+proposal is concrete, but its two detached fact statements and generic bridge
+still lack recognizable Radio/Groove warmth. Its City Parade anthem wording
+also needs the original eighth-edition boundary (source2005); the model's boolean
+support was too permissive. Generation now explicitly retains event qualifiers
+and chooses another documented detail if omitting a year broadens its scope.
+This is a correction awaiting real acceptance, not a substitute scripted story.
+The actual v9 Dutch Mood clarification has a bounded editorial GO for that
+single text. Nirvana1990 is literal in the source; "unexpected choice" is not.
+
+Fresh read-only actual-host verification passes MATCH/onboarding4.5.4:
+`/private/tmp/djc-core-night-20261020-biography-final-hostverify-actual.log`.
+The sandbox-only readback could not inspect Docker/network state and was
+retained separately; no machine repair or service change was performed.
+Main is clean at8b221d07, disk481GiBfree, no competing WIP/model process or index
+lock observed. Container inventory contains only the existing live lab services;
+no paid pilot remains running.
+
+Apple reports its own PR159 at89a12753040ce756eb8a007ea728e7eab5035816 /
+Apple158 with a native Golden harness and proposed private export-join schema.
+That is peer-reported source evidence, not a Core-verified installed or paid
+native result. No import from this unpublished WIP or use of our40-attempt
+allowance; the producer export/admission handoff remains open. HACS #1231 is a
+new queued owner selection; it does not preempt this running WIP or authorize
+a second Core writer.
+
+Final post-instruction focused rerun:277PASS in13.919seconds, log
+`/private/tmp/djc-biography-final-checkpoint-focused.log`; all changed-code Ruff
+and `git diff --check` PASS. Full2807 run precedes only the event-edition prompt
+clarification and reporting updates. Remaining4model attempts are unspent.

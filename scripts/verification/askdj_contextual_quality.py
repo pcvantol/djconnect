@@ -64,12 +64,17 @@ async def run(*,ask,call,start,end,get_history,mutations,model_receipts):
     locales=os.environ.get('DJC_QUALITY_LOCALES','en,nl,de,fr,es').split(',')
     if not locales or len(set(locales))!=len(locales) or any(locale not in QUESTIONS for locale in locales):
         raise ValueError('invalid_actual_quality_locales')
-    requested=[c for c in cases() if c['language'] in locales]
+    kinds=os.environ.get('DJC_QUALITY_KINDS','selected,band,mood').split(',')
+    if (not kinds or len(set(kinds)) != len(kinds) or any(kind not in {'selected','band','mood'} for kind in kinds)
+            or ('mood' in kinds and 'band' not in kinds)):
+        raise ValueError('invalid_actual_quality_kinds')
+    requested=[c for c in cases() if c['language'] in locales and c['kind'] in kinds]
     # One actual selected composer publication; its live owner remains intact.
     seed=ACTIVE_CASE.set('quality-selected-seed')
     active,moment=None,None
     try:
-        active,moment,_=await start("quality-selected",language=locales[0])
+        if 'selected' in kinds:
+            active,moment,_=await start("quality-selected",language=locales[0])
     except Exception as exc:
         rows.extend({**case,'findings':['selected_publication_unavailable:'+type(exc).__name__]}
                     for case in requested if case['kind']=='selected')
@@ -105,7 +110,9 @@ async def run(*,ask,call,start,end,get_history,mutations,model_receipts):
             if (style.get("persona"),style.get("mood"))!=(case["persona"],case["mood"]):
                 findings.append("confirmed_style_mismatch")
             rows.append({**case,"response":reply,"findings":findings,"paid_attempts":len(model_receipts)-before})
-            moodcase=next(c for c in requested if c["kind"]=="mood" and c["language"]==case["language"])
+            moodcase=next((c for c in requested if c["kind"]=="mood" and c["language"]==case["language"]),None)
+            if moodcase is None:
+                continue
             new_mood="party" if active.selected_mood!="party" else "chill"
             before=len(model_receipts)
             accepted=await call("session/mood",{"contract_version":1,"session_id":active.session_id,

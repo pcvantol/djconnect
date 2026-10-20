@@ -232,3 +232,137 @@ Wil je meer horen over die unplugged-uitvoering, of over hoe de bandleden elkaar
 {"language_ok":true,"style_ok":true,"meaning_ok":true,"meaning_reason":"ok"}
 ```
 
+
+
+## Rerun `nl-v9` — still NO_GO
+
+Report SHA256: `422c45ae185505ff9a79b033fcc5b6c2119f84ab7460692487d59912a322baba`. 7 additional attempts; cumulative31/40.
+
+### Actually returned or persisted
+
+**quality-selected-nl** — findings: selected_publication_unavailable:AssertionError.
+
+No published answer captured under response.text; inspect the full report for event fields.
+
+**quality-band-nl** — findings: generated_answer_missing, closing_question_missing, researched_answer_unqualified, answer_too_sparse_for_requested_story, actual_sources_missing.
+
+```text
+Ik heb informatie gevonden, maar ik kon dit antwoord nog niet goed genoeg controleren. Probeer je vraag opnieuw.
+```
+
+**quality-mood-nl** — findings: none in mechanical subset.
+
+```text
+Een feeststemming dus—mooi, daar kan ik alle kanten mee op. Ik heb nog een klein zetje nodig om muziek te zoeken: welke van house; elektronisch; soul spreekt je aan?
+```
+
+### Model proposals and reviews — these are not accepted replies
+
+**quality-selected-seed**
+
+```text
+Bij de prijs voor “What a Feeling” ontmoette Peter Luts Barbara Tucker; samen brachten ze de single “One” uit. Voor deze opname staat Peter Luts vermeld als componist van het onderliggende werk.
+```
+
+**quality-selected-seed**
+
+```text
+{"supported":true,"unsupported_claims":[],"language_ok":true,"style_ok":true,"work_focus_preserved":true,"composer_episode_preserved":true,"review_schema":"source_id_review_v1","claim_checks":[{"text":"Bij de prijs voor “What a Feeling” ontmoette Peter Luts Barbara Tucker;","kind":"relationship","evidence_ids":["6b789d6ff2c8093e:p3"]},{"text":" samen brachten ze de single “One” uit.","kind":"relationship","evidence_ids":["6b789d6ff2c8093e:p3"]},{"text":" Voor deze opname staat Peter Luts vermeld als componist van het onderliggende werk.","kind":"fact","evidence_ids":["da65c5b9e11af2ae:0"]}]}
+```
+
+**quality-band-nl**
+
+```text
+{"read":"research","reference":"named","exclude_current":false,"subject":"Nirvana","angle":"live_history"}
+```
+
+**quality-band-nl**
+
+```text
+Nirvana begon bij Kurt Cobain, zang en gitaar, en Krist Novoselic, bas; na verschillende drummers kwam Dave Grohl in 1990 bij de band. Bij hun optreden voor *MTV Unplugged* kozen ze voor David Bowies “The Man Who Sold the World”. Dat nummer kreeg zo een plek in een registratie die ook als album verscheen: *Unplugged in New York*.
+
+Wat vind je bijzonder aan die keuze voor Bowie?
+```
+
+**quality-band-nl**
+
+```text
+{"supported":false,"unsupported_claims":["Nirvana begon bij Kurt Cobain, zang en gitaar, en Krist Novoselic, bas; na verschillende drummers kwam Dave Grohl in 1990 bij de band.","kozen ze voor David Bowies “The Man Who Sold the World”","Dat nummer kreeg zo een plek in een registratie die ook als album verscheen: *Unplugged in New York*."]}
+```
+
+**mood-feedback-c069666e51a30d236b32682388aa3021572a9e7b6b4a587ed43029566e49038b**
+
+```text
+{"frame":"Een feeststemming dus—mooi, daar kan ik alle kanten mee op. Ik heb nog een klein zetje nodig om muziek te zoeken: welke van {choices} spreekt je aan?","genres":["house","electronic","soul"]}
+```
+
+**mood-feedback-c069666e51a30d236b32682388aa3021572a9e7b6b4a587ed43029566e49038b**
+
+```text
+{"language_ok":true,"style_ok":true,"meaning_ok":true,"meaning_reason":"ok"}
+```
+
+The composer review approved source support, but Core refused its literal-work episode gate. The subsequent unpaid gate replay passes after the bounded title repair; it is not a newly published story. The band review also includes false positives for literal biography material, while the unsourced “unexpected choice” bridge remains a genuine problem. Neither justifies lowering full claim/effect guards.
+
+
+## Rerun `nl-v10` — still NO_GO
+
+Report SHA256: `eb728c7033ae0180bd0f09329424232e742d246426a42e7294fe7cd88415840b`. 5 additional attempts; cumulative36/40.
+
+### Actually returned or persisted
+
+**quality-selected-nl** — findings: selected_publication_unavailable:AssertionError.
+
+No published answer captured under response.text; inspect the full report for event fields.
+
+**quality-band-nl** — findings: generated_answer_missing, closing_question_missing, researched_answer_unqualified, answer_too_sparse_for_requested_story, actual_sources_missing.
+
+```text
+Ik heb informatie gevonden, maar ik kon dit antwoord nog niet goed genoeg controleren. Probeer je vraag opnieuw.
+```
+
+### Model proposals and reviews — these are not accepted replies
+
+**quality-selected-seed**
+
+```text
+Peter Luts schreef en produceerde ‘Love Is the Message’, het anthem van de City Parade. Een ander spoor in zijn muziekverhaal: op deze opname staat Peter Luts vermeld als componist van het onderliggende werk.
+```
+
+**quality-selected-seed**
+
+```text
+{"supported":true,"unsupported_claims":[],"language_ok":true,"style_ok":true,"work_focus_preserved":true,"composer_episode_preserved":true,"review_schema":"source_id_review_v1","claim_checks":[{"text":"Peter Luts schreef en produceerde ‘Love Is the Message’, het anthem van de City Parade.","kind":"fact","evidence_ids":["6b789d6ff2c8093e:p2"]},{"text":"Een ander spoor in zijn muziekverhaal:","kind":"dj_appreciation","evidence_ids":[]},{"text":"op deze opname staat Peter Luts vermeld als componist van het onderliggende werk.","kind":"fact","evidence_ids":["da65c5b9e11af2ae:0"]}]}
+```
+
+**quality-band-nl**
+
+```text
+{"read":"research","reference":"named","exclude_current":false,"subject":"Nirvana","angle":"live_history"}
+```
+
+**quality-band-nl**
+
+```text
+Nirvana begon met zanger en gitarist Kurt Cobain en bassist Krist Novoselic; na verschillende drummers kwam Dave Grohl in 1990 bij de band. Een bijzonder moment is hun *MTV Unplugged*-optreden, waarop ze ook David Bowies “The Man Who Sold the World” speelden — een onverwachte keuze voor een band die vaak met grunge wordt verbonden. Die uitvoering is te horen op *Unplugged in New York*. Wat spreekt je aan dat optreden het meest aan: de setting of juist de songkeuze?
+```
+
+**quality-band-nl**
+
+```text
+{"supported":false,"unsupported_claims":["kwam Dave Grohl in 1990 bij de band.","een onverwachte keuze voor een band die vaak met grunge wordt verbonden."]}
+```
+
+The composer review approved source support, but Core refused its literal-work episode gate. The subsequent unpaid gate replay passes after the bounded title repair; it is not a newly published story. The band review also includes false positives for literal biography material, while the unsourced “unexpected choice” bridge remains a genuine problem. Neither justifies lowering full claim/effect guards.
+
+
+## Independent editorial disposition after v10
+
+The composer proposal remains two businesslike fact statements. Its generic
+"Een ander spoor" bridge does not establish warmth or a recognizable
+Radio/Groove voice. The anthem's original eighth-edition/2005 scope must be
+preserved; the generated unqualified event wording was too broad even though
+the model reviewer approved it. The proposal was never published. Prompt
+clarification and an unpaid work-anchor replay do not change that outcome.
+The actual v9 Mood clarification receives editorial GO for this single text;
+Persona×Mood variation and a completed genre continuation remain unqualified.

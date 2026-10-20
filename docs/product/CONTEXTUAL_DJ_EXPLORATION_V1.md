@@ -107,3 +107,29 @@ model attempts total. The pilot is staged with a durable pre-I/O budget ledger;
 actual results and review, rather than permission alone, determine acceptance.
 In particular,
 fixture replies and the Gemini inspiration are not fact or quality evidence.
+
+## Bounded biographical dates — source admission, 20 October 2026
+
+The existing temporal receipt for named musical works remains unchanged. An
+additional internal `biographical_event_v1` receipt can admit an explicitly
+stated group founding or member accession. This is a factual evidence guard,
+not a whitelist of Ask DJ user questions and not a client-facing contract.
+
+Core prepares value-only candidate receipts from original admitted Wikipedia
+spans. Each binds the resolved group, its exact public entity, one actor/event/
+year, the source hash, literal span ID and complete original source sentence.
+The model may copy that proof and supply the exact answer sentence. Core checks
+the directed event in both original and answer, plus source identity and
+complete answer coverage. Independent semantic review remains mandatory; a
+positive boolean alone grants no admission. Translation across five locales
+can preserve the same directed event, without changing actor/group/date.
+
+Only closed unambiguous source and answer forms qualify. Pronouns, implied
+groups, negation, uncertainty, multiple events/years, unknown formulations and
+relative chronology remain unqualified. A proper-place grammar and a single
+founding-event condition prevent another group's date entering a location
+slot. Founding is distinct from joining, departure, release and recording.
+Existing work-date, chronology, source-rights, prefix and full-claim checks
+remain required. Limited source admission is not complete biographical-language
+or narrative-quality support. Real returned answers and independent review
+remain open until the exact candidate is exercised.
