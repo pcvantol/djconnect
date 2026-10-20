@@ -994,3 +994,12 @@ unchanged/narrativeNO_GO/fullactualcatalogueFAIL/zero paidvariants. No livekey/
 model/sourceHTTP/actualprovider/TTS/speaker I/O, no native/installed/physical/
 audiblePASS or protectedconsumerpin/adoption, no push/merge/install/cleanup,
 functionclosure or nextselectedslice. Readiness/nightclosure remains separate.
+
+
+## Laatste nachtelijke overdracht vóór 08:00 Europe/Amsterdam
+
+Zie [de geconsolideerde nachtoverdracht](CONTEXTUAL_DJ_NIGHT_HANDOFF_20261020.md)
+voor exacte productcheckpoints/tests, drie werkelijk teruggegeven teksten,
+40/39/0-budget en alle resterende gates. Deze documentatiestap verandert geen
+productcode en vervangt geen echte vertel-, native-, spraak- of mergeacceptatie.
+Dezelfde WIP blijft OPEN; geen nieuwe slice of Finalization gestart.
