@@ -1,5 +1,14 @@
 # DJConnect Product Roadmap
 
+## HACS onboarding — bounded source Finalization, 20 October 2026
+
+Core #1231 source PR [#1232](https://github.com/pcvantol/djconnect/pull/1232)
+protected merged as `e78eb38409b6ee409eeb6b4739e617c041dc9776`. Compact HACS onboarding, five-language
+setup and preserved technical references are source progress only. Actual
+installed HACS/HA frontend and public release remain unqualified. Separate
+Finalization reconciles only this source; no feature/graph/node is closed.
+Narration remains parked and OPEN.
+
 ## Persona touch withdrawal — protected producer source, 19 October 2026
 
 PR [#1226](https://github.com/pcvantol/djconnect/pull/1226) protected merged as

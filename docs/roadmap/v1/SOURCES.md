@@ -26,7 +26,7 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 
 | Local design source | SHA256 |
 |---|---|
-| [PRODUCT_ROADMAP.md](../../../PRODUCT_ROADMAP.md) | `2e4ae6be692ea602edbb29399d3ca1a0eb5a5612a65b2489296fc18701c7c94c` |
+| [PRODUCT_ROADMAP.md](../../../PRODUCT_ROADMAP.md) | `a3ae84e8c787edd995e095005bf324adb2fdfd9f290fcbbc9498f89371575532` |
 | [PRODUCT_BACKLOG.md](../../../PRODUCT_BACKLOG.md) | `79a0d260495ff36e70e0cfbdfa1a6c36ed290e82315c874b1ab7cb7e34af5634` |
 | [docs/product/DJ_PRESENCE_V1.md](../../../docs/product/DJ_PRESENCE_V1.md) | `c97be3bcebbd4ca70d640cdf4fc0a9a4808451e986bc977e3173e19842a928c4` |
 | [DJ_SESSION_RUNTIME_CONTRACTS.md](../../../DJ_SESSION_RUNTIME_CONTRACTS.md) | `637b4b0018be25405d21cf9a2c873f1e36534bfe14d3d54fc42b5d78f3ccc0ac` |
