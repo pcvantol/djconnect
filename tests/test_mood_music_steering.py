@@ -350,6 +350,104 @@ class MoodMusicSteeringTests(unittest.IsolatedAsyncioTestCase):
         self.assertNotIn('Private real catalog choice',json.dumps(self.models))
         self.assertEqual(f.effects,[])
 
+    async def test_genre_clarification_then_explicit_play_dispatches_only_exact_offered_track_once(self):
+        """Actual paired choice/grant/Spotify serialization; provider I/O is fake."""
+        from custom_components.djconnect import http
+        from custom_components.djconnect.spotify_backend import SpotifyBackend
+        from custom_components.djconnect.domain.backend import BackendProvider
+        from custom_components.djconnect.domain.music_account import MusicAccountKind
+        from custom_components.djconnect.domain.profile import ProfilePreferences
+        f=self.f
+        storage=f.handlers.profile_storage(f.hass)
+        await storage.async_upsert_music_backend('spotify_direct',BackendProvider.SPOTIFY_DIRECT,
+            display_name='Synthetic playback provider')
+        await storage.async_upsert_music_account('playback-account','spotify_direct',
+            kind=MusicAccountKind.PERSONAL,display_name='Synthetic playback account',
+            linked_profile_ids=frozenset({'profile-a'}))
+        await storage.async_update_profile('profile-a',preferences=ProfilePreferences(
+            default_backend_id='spotify_direct',default_music_account_id='playback-account'))
+        source=f.hass.config_entries.async_entries('djconnect')[0]
+        source.data.update(music_account_id='playback-account')
+        # The older retained-source fixture deliberately uses a noncanonical
+        # backend ID. This positive playback case needs the actual provider ID.
+        await f.fixture.manager.async_end(owner_profile_id='profile-a',session_id=self.session.session_id)
+        self.session=await f.fixture.manager.async_start(owner_profile_id='profile-a',
+            locale='en',selected_mood='groove',music_backend='spotify_direct',
+            history_source_context={'backend_id':'spotify_direct','music_account_id':'playback-account',
+                                    'provider_entry_id':'source-entry'})
+        f.runtime.config['spotify_refresh_token']='synthetic-never-sent-fixture-grant'
+        def update(**values):
+            for key,value in values.items():
+                setattr(f.runtime,key,value)
+        f.runtime.update=update
+        uri='spotify:track:'+'S'*22
+        async def empty_library(hass,runtime,command,value=None,**kwargs):
+            self.assertIn(command,{'queue','playlists'})
+            return {'queue':[],'playlists':[]}
+        async def search(hass,runtime,query,**kwargs):
+            self.assertEqual(query,'genre:soul')
+            return {'success':True,'tracks':[{'uri':uri,'name':'Private exact catalog choice',
+                'artist':'Catalog performer'}]}
+        backend=object.__new__(SpotifyBackend)
+        backend.hass,backend.runtime=f.hass,f.runtime
+        async def token(**kwargs):
+            return 'SYNTHETIC_FIXTURE_TOKEN'
+        backend._access_token=token
+        sent=[]
+        class Response:
+            status=204
+            async def __aenter__(self):
+                return self
+            async def __aexit__(self,*args):
+                return False
+        class Transport:
+            def request(self,method,url,**kwargs):
+                sent.append((method,url,kwargs.get('json')))
+                return Response()
+        backend.session=Transport()
+        async def playback(hass,runtime,command,value=None,**kwargs):
+            if command=='status':
+                return {'playback':{'uri':uri,'is_playing':True}}
+            self.assertEqual((command,value),('play',uri))
+            async def dispatch():
+                await backend.play(value)
+            return await f.external_effect_probe(command,value,dispatch)
+        with patch('custom_components.djconnect.use_cases.run_music_command',empty_library),patch.object(
+                f.pipeline,'_call_conversation_process_transport',self.agent),patch.object(
+                f.core,'_spotify_track_search',search),patch.object(http,'run_music_command',playback):
+            question,status=await self.request('complete-genre-question')
+            self.assertEqual(status,200,question)
+            self.assertTrue(question['clarification_required'])
+            offered,status=await f.request('doe maar sowl',identifier='complete-genre-reply',
+                context={'session_id':self.session.session_id})
+            self.assertEqual(status,200,offered)
+            self.assertEqual(sent,[])
+            selected=offered['playback_actions'][0]
+            self.assertEqual(selected['uri'],uri)
+            choice={key:selected[key] for key in ('result_set_id','action_id')}
+            choice['operation']='play'
+            arguments={'identifier':'complete-explicit-play',
+                'context':{'session_id':self.session.session_id},'choice_action':choice}
+            accepted,status=await f.request('Play that',**arguments)
+            self.assertEqual(status,200,accepted)
+            self.assertTrue(accepted['success'],accepted)
+            self.assertEqual(accepted['selected_action_id'],selected['action_id'])
+            self.assertIn('text',accepted,accepted)
+            self.assertIn('Private exact catalog choice',accepted['text'])
+            duplicate,status=await f.request('Play that',**arguments)
+            self.assertEqual(status,200,duplicate)
+            self.assertTrue(duplicate['deduplicated'])
+            self.assertEqual(duplicate['text'],accepted['text'])
+            saved=await f.history.async_saved_exchange('profile:profile-a','complete-explicit-play')
+            self.assertIsNotNone(saved)
+            history=await f.history.async_history('profile:profile-a')
+            self.assertEqual(history['messages'][-1]['text'],accepted['text'])
+        self.assertEqual(len(sent),1)
+        self.assertEqual(sent[0][0],'PUT')
+        self.assertIn('/me/player/play',sent[0][1])
+        self.assertEqual(sent[0][2],{'uris':[uri]})
+        self.assertNotIn('Private exact catalog choice',json.dumps(self.models))
+
     async def test_changed_mood_withdraws_pending_genre_question_before_lookup(self):
         f=self.f
         async def empty(*args,**kwargs):return {'queue':[],'playlists':[]}

@@ -532,3 +532,31 @@ plusgates22PASS/scopedGO/noP1P2; Ruff/diffPASS. Golden42families/317steps/74issu
 29Core+29realqualityOPEN. Prior full2812 source proof remains ea91fad7, no new
 full2813claim. No key/modelcall, sourcepublication, merge/install, speakeraction,
 cleanup/nextslice. NarrativequalityNO_GO and actualtextsunchanged.
+
+
+## 02:16UTC continuation — complete Mood clarification/Play regression
+
+Pickup4f07d1fa/same solewriter, no competing Core/model writer orindexlock;
+main8b221d07 and Brandrefsunchanged. Hostverify0/MATCH/onboarding4.5.4,
+488GiBfree. Modelledger byte-identical40/40, zero new model/key/transport work.
+
+New positive owning regression executes ordinary paired Moodfeedback, typo
+`sowl` interpretation, actual catalogue offer ownership, explicit choice/grant,
+real SpotifyBackend.play request serialization and stored history. Clarification
+and lookup have zero effects; only explicitPlay sends exactly one PUT whose uris
+contains solely the offered track. Identical client-message retry reuses the
+same persisted named-track response without a second dispatch. External model,
+search, token, provider status and transport are fixtures; no live Spotify or
+speaker. Fallback playback text is not natural Persona/Mood narration proof.
+
+Initial test used the retained-source fixture's noncanonical source-spotify
+backend as active playback backend and correctly received stale_backend_action.
+Canonical provider registration/account/newSession fixed the test setup. Further
+missing fixture fields/update were corrected, with all failed logs preserved;
+no production defect or product change is claimed. Scope-local independent
+review reran exact method: PASS/noP1P2/scopedGO; no writes/network/model.
+45focused Mood/GoldengatesPASS2.257s, Ruff/diffPASS. No unnecessary full-suite
+rerun or new full-count claim: last product full2812PASS/7skips remains ea91fad7.
+Golden42families/318steps/74reports,29Core+29actualqualityOPEN. Evidence receipt
+and setup/final logs retained under mood-complete-choice/. SameWIP remains open,
+narrativequalityNO_GO; no push/merge/install/cleanup/nextslice or activation.

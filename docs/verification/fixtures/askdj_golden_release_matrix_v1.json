@@ -7807,6 +7807,10 @@
         {
           "file": "tests/test_mood_music_steering.py",
           "method": "test_pending_expiry_identity_and_mood_are_rechecked_after_interpretation"
+        },
+        {
+          "file": "tests/test_mood_music_steering.py",
+          "method": "test_genre_clarification_then_explicit_play_dispatches_only_exact_offered_track_once"
         }
       ],
       "steps": [
@@ -8193,6 +8197,20 @@
           ],
           "acceptance_status": "open_real_quality",
           "proof_boundary": "Local fixtures do not prove warmth, relevance, factual grounding, native single tap, actual provider effect or audibility."
+        },
+        {
+          "id": "ASKDJ-FLOW-mood-steering-complete-genre-choice-play-once",
+          "question": "Change Mood, clarify with a misspelled genre, then explicitly play the offered track and resend the identical client message.",
+          "expected_answer": "Clarification and catalogue lookup cause no playback; an explicit validated selection dispatches the exact offered track once, names it in the persisted response, and duplicate delivery reuses the response without a second dispatch.",
+          "model_policy": "External model/search/Spotify transport replies are fixtures; provider metadata does not enter the model. Actual paired handler, effect grant, Spotify request serialization and history owners execute.",
+          "owning_tests": [
+            {
+              "file": "tests/test_mood_music_steering.py",
+              "method": "test_genre_clarification_then_explicit_play_dispatches_only_exact_offered_track_once"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Positive source regression only. Does not qualify natural Persona/Mood narration, actual provider acceptance, native client, speech or hardware playback."
         }
       ]
     }
